@@ -1,5 +1,7 @@
 # Portfolio Project
 
+Read TASKS.md at the start of every session to check current build progress and open items before doing anything else.
+
 ## What we are building
 
 A custom-coded portfolio site for a product designer, replacing a Framer template that has inconsistent design language and poor storytelling across pages. The site ships four case studies told as clear narratives, in one consistent light editorial design language, with a lightweight CMS dashboard for content updates.
