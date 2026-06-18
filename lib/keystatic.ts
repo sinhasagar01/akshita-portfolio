@@ -3,6 +3,8 @@ import config from "@/keystatic.config";
 
 const reader = createReader(process.cwd(), config);
 
+type DocumentNode = { children: unknown[]; [key: string]: unknown };
+
 export type SiteSettingsEntry = {
   heroCopy: string;
   positioningLine: string;
@@ -126,4 +128,110 @@ export async function getHomePageData(): Promise<HomePageData> {
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
   return { settings, skills, projects, experience };
+}
+
+export type HeroBlockData = { discriminant: "heroBlock"; value: { thesis: string } };
+export type SummaryGridData = { discriminant: "summaryGrid"; value: { product: string; problem: string; details: string; solution: string; result: string } };
+export type ImpactNumbersData = { discriminant: "impactNumbers"; value: { stat1Number: string; stat1Label: string; stat2Number: string; stat2Label: string; stat3Number: string; stat3Label: string } };
+export type ContextBlockData = { discriminant: "context"; value: { body: DocumentNode[] } };
+export type ProblemBlockData = { discriminant: "problem"; value: { statement: string; image: string | null } };
+export type GoalsBlockData = { discriminant: "goals"; value: { northStar: string; goals: string[] } };
+export type ProcessStepsData = { discriminant: "processSteps"; value: { steps: { phase: string; description: string }[] } };
+export type KeyInsightsData = { discriminant: "keyInsights"; value: { insights: { number: string; insight: string }[] } };
+export type SolutionRevealData = { discriminant: "solutionReveal"; value: { headline: string; image: string | null } };
+export type GuidedDesignStepData = { discriminant: "guidedDesignStep"; value: { title: string; caption: string; image: string | null } };
+export type ImageGalleryData = { discriminant: "imageGallery"; value: { image1: string | null; image2: string | null; image3: string | null; caption: string } };
+export type ComparisonData = { discriminant: "comparison"; value: { beforeImage: string | null; afterImage: string | null; caption: string } };
+export type QuoteBlockData = { discriminant: "quote"; value: { text: string; attribution: string } };
+export type ReflectionBlockData = { discriminant: "reflection"; value: { body: DocumentNode[] } };
+export type ClosingLineData = { discriminant: "closingLine"; value: { line: string } };
+
+export type CaseStudyBlock =
+  | HeroBlockData | SummaryGridData | ImpactNumbersData | ContextBlockData
+  | ProblemBlockData | GoalsBlockData | ProcessStepsData | KeyInsightsData
+  | SolutionRevealData | GuidedDesignStepData | ImageGalleryData | ComparisonData
+  | QuoteBlockData | ReflectionBlockData | ClosingLineData;
+
+export type CaseStudyData = {
+  slug: string;
+  title: string;
+  summary: string;
+  heroImage: string | null;
+  facts: { role: string; type: string; platform: string; timeline: string };
+  blocks: CaseStudyBlock[];
+};
+
+async function resolveBlock(raw: { discriminant: string; value: Record<string, unknown> }): Promise<CaseStudyBlock | null> {
+  const { discriminant, value } = raw;
+  switch (discriminant) {
+    case "heroBlock":
+      return { discriminant, value: { thesis: (value.thesis as string) ?? "" } };
+    case "summaryGrid":
+      return { discriminant, value: { product: (value.product as string) ?? "", problem: (value.problem as string) ?? "", details: (value.details as string) ?? "", solution: (value.solution as string) ?? "", result: (value.result as string) ?? "" } };
+    case "impactNumbers":
+      return { discriminant, value: { stat1Number: (value.stat1Number as string) ?? "", stat1Label: (value.stat1Label as string) ?? "", stat2Number: (value.stat2Number as string) ?? "", stat2Label: (value.stat2Label as string) ?? "", stat3Number: (value.stat3Number as string) ?? "", stat3Label: (value.stat3Label as string) ?? "" } };
+    case "context": {
+      const nodes = await (value.body as () => Promise<unknown[]>)();
+      return { discriminant, value: { body: nodes as DocumentNode[] } };
+    }
+    case "problem":
+      return { discriminant, value: { statement: (value.statement as string) ?? "", image: value.image as string | null } };
+    case "goals": {
+      const goalsRaw = value.goals as readonly unknown[];
+      return { discriminant, value: { northStar: (value.northStar as string) ?? "", goals: goalsRaw.map((g) => String(g)) } };
+    }
+    case "processSteps": {
+      const stepsRaw = value.steps as readonly Record<string, unknown>[];
+      return { discriminant, value: { steps: stepsRaw.map((s) => ({ phase: (s.phase as string) ?? "", description: (s.description as string) ?? "" })) } };
+    }
+    case "keyInsights": {
+      const insightsRaw = value.insights as readonly Record<string, unknown>[];
+      return { discriminant, value: { insights: insightsRaw.map((i) => ({ number: (i.number as string) ?? "", insight: (i.insight as string) ?? "" })) } };
+    }
+    case "solutionReveal":
+      return { discriminant, value: { headline: (value.headline as string) ?? "", image: value.image as string | null } };
+    case "guidedDesignStep":
+      return { discriminant, value: { title: (value.title as string) ?? "", caption: (value.caption as string) ?? "", image: value.image as string | null } };
+    case "imageGallery":
+      return { discriminant, value: { image1: value.image1 as string | null, image2: value.image2 as string | null, image3: value.image3 as string | null, caption: (value.caption as string) ?? "" } };
+    case "comparison":
+      return { discriminant, value: { beforeImage: value.beforeImage as string | null, afterImage: value.afterImage as string | null, caption: (value.caption as string) ?? "" } };
+    case "quote":
+      return { discriminant, value: { text: (value.text as string) ?? "", attribution: (value.attribution as string) ?? "" } };
+    case "reflection": {
+      const nodes = await (value.body as () => Promise<unknown[]>)();
+      return { discriminant, value: { body: nodes as DocumentNode[] } };
+    }
+    case "closingLine":
+      return { discriminant, value: { line: (value.line as string) ?? "" } };
+    default:
+      return null;
+  }
+}
+
+export async function getCaseStudyData(slug: string): Promise<CaseStudyData | null> {
+  const entry = await reader.collections.projects.read(slug);
+  if (!entry) return null;
+
+  const rawBlocks = (entry.body ?? []) as readonly { discriminant: string; value: Record<string, unknown> }[];
+  const resolved = await Promise.all(rawBlocks.map(resolveBlock));
+  const blocks = resolved.filter((b): b is CaseStudyBlock => b !== null);
+
+  return {
+    slug,
+    title: resolveSlugField(entry.title, slug),
+    summary: (entry.summary ?? "") as string,
+    heroImage: entry.heroImage as string | null,
+    facts: {
+      role: ((entry.facts as Record<string, string> | null)?.role) ?? "",
+      type: ((entry.facts as Record<string, string> | null)?.type) ?? "",
+      platform: ((entry.facts as Record<string, string> | null)?.platform) ?? "",
+      timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
+    },
+    blocks,
+  };
+}
+
+export async function getProjectSlugs(): Promise<string[]> {
+  return reader.collections.projects.list();
 }

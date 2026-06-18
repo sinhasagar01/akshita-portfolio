@@ -59,25 +59,33 @@ siteSettings gained five new fields: aboutCopy (multiline text for the About sec
 
 ---
 
-## Phase 3 Case study template — not started
+## Phase 3 Case study template — done
 
-- [ ] Case study page route wired to Keystatic reader
-- [ ] All eleven spine block types built as components
-- [ ] heroBlock
-- [ ] summaryGrid
-- [ ] impactNumbers
-- [ ] context
-- [ ] problem
-- [ ] goals
-- [ ] processSteps
-- [ ] keyInsights
-- [ ] solutionReveal
-- [ ] guidedDesignStep
-- [ ] imageGallery
-- [ ] comparison
-- [ ] quote
-- [ ] reflection
-- [ ] closingLine
+- [x] Case study page route wired to Keystatic reader
+- [x] All fifteen block types built as components
+- [x] heroBlock
+- [x] summaryGrid
+- [x] impactNumbers
+- [x] context
+- [x] problem
+- [x] goals
+- [x] processSteps
+- [x] keyInsights
+- [x] solutionReveal
+- [x] guidedDesignStep
+- [x] imageGallery
+- [x] comparison
+- [x] quote
+- [x] reflection
+- [x] closingLine
+
+### What was built in Phase 3
+
+The dynamic route lives at app/projects/[slug]/page.tsx and uses generateStaticParams to pre-render all project slugs. Each project slug calls getCaseStudyData(slug) from lib/keystatic.ts which reads the Keystatic blocks array and resolves async document fields (context and reflection) before returning a fully typed CaseStudyData object.
+
+Fifteen block components live in components/blocks/. Each accepts a typed value prop narrowed by the CaseStudyBlock discriminated union. CaseStudyBlockRenderer.tsx dispatches to the right component via a switch on block.discriminant. Document blocks (context, reflection) render through CaseStudyDocumentRenderer.tsx which wraps Keystatic's DocumentRenderer with design-token Tailwind classes.
+
+ProjectCard.tsx now links to /projects/[slug] to match the new route.
 
 ---
 

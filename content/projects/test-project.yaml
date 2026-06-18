@@ -1,0 +1,92 @@
+title: Test Project
+summary: A test case study exploring all fifteen block types end to end
+orderIndex: 0
+heroImage: null
+facts:
+  role: Product Designer
+  type: Case Study
+  platform: Mobile and Watch
+  timeline: Jan 2024 to Jun 2024
+body:
+  - discriminant: heroBlock
+    value:
+      thesis: A great design can change how people feel about a product.
+  - discriminant: summaryGrid
+    value:
+      product: boAt Crest
+      problem: Low app rating and poor user experience across core flows
+      details: Redesigned the entire app for a 2.3 million user base
+      solution: A new navigation, a design system, and guided onboarding
+      result: App rating rose from 2.3 to 4.0
+  - discriminant: impactNumbers
+    value:
+      stat1Number: "4.0"
+      stat1Label: App Store rating after redesign
+      stat2Number: "100"
+      stat2Label: Users in research study
+      stat3Number: "73%"
+      stat3Label: Task completion rate improvement
+  - discriminant: context
+    value:
+      body: null
+  - discriminant: problem
+    value:
+      statement: Users could not find their way around the app without help from someone else.
+      image: null
+  - discriminant: goals
+    value:
+      northStar: Make the app feel like a trusted companion, not a manual to decode.
+      goals:
+        - Reduce the number of taps to reach core features
+        - Improve onboarding so new users feel confident in five minutes
+        - Establish a visual language consistent with the boAt brand
+  - discriminant: processSteps
+    value:
+      steps:
+        - phase: Discover
+          description: User interviews and a 100-person survey to map pain points
+        - phase: Define
+          description: Personas, empathy maps, and a journey map to frame the problem
+        - phase: Develop
+          description: Wireframes, prototyping, and usability testing in three rounds
+        - phase: Deliver
+          description: Final designs and a handoff component library for engineering
+  - discriminant: keyInsights
+    value:
+      insights:
+        - number: "01"
+          insight: Most users had never changed their watch face despite wanting to.
+        - number: "02"
+          insight: The settings menu buried frequently used controls five taps deep.
+        - number: "03"
+          insight: Users trusted the app more when it showed their real data on launch.
+  - discriminant: solutionReveal
+    value:
+      headline: A redesigned app that earns trust from the very first screen.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: Watchface Studio
+      caption: A browsable library of watch faces, filterable by mood and activity. Users can preview any face on their device before applying it.
+      image: null
+  - discriminant: imageGallery
+    value:
+      image1: null
+      image2: null
+      image3: null
+      caption: Key screens from the redesigned experience
+  - discriminant: comparison
+    value:
+      beforeImage: null
+      afterImage: null
+      caption: The navigation hierarchy before and after the redesign
+  - discriminant: quote
+    value:
+      text: I did not realise how much easier this could be until I tried the new version.
+      attribution: Research participant, boAt user study
+  - discriminant: reflection
+    value:
+      body: null
+  - discriminant: closingLine
+    value:
+      line: Good design does not shout. It gets out of the way and lets the work speak.

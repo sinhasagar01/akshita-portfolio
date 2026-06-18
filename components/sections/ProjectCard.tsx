@@ -29,7 +29,7 @@ export default function ProjectCard({ project }: Props) {
         )}
         <h3 className="font-body font-semibold text-xl text-[--color-text-primary] leading-[--leading-snug]">
           <Link
-            href={`/work/${slug}`}
+            href={`/projects/${slug}`}
             className="hover:text-[--color-accent] transition-colors"
           >
             {title}
