@@ -95,9 +95,9 @@ ProjectCard.tsx now links to /projects/[slug] to match the new route.
 - [x] Fosfor AI case study poured and cleaned
 - [x] Fosfor Data Profiling case study poured and cleaned
 - [x] OTIS ONE View case study poured and cleaned
-- [ ] Experience entries entered
-- [ ] Skills entered
-- [ ] Site settings filled in
+- [x] Experience entries entered
+- [x] Skills entered
+- [x] Site settings filled in
 
 ---
 

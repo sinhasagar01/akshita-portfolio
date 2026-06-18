@@ -1,0 +1,27 @@
+categories:
+  - category: Design
+    items:
+      - Product Design
+      - UX Design
+      - UI Design
+      - Interaction Design
+      - Design Systems
+  - category: Research
+    items:
+      - UX Research
+      - Journey Mapping
+      - Usability Testing
+      - Split Testing
+  - category: Craft
+    items:
+      - Wireframing
+      - Rapid Prototyping
+      - Information Architecture
+  - category: Tools
+    items:
+      - Figma
+      - Sketch
+      - Adobe XD
+      - Framer
+      - Miro
+      - Azure DevOps
