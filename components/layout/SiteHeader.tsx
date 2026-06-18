@@ -15,7 +15,7 @@ export default function SiteHeader() {
           <ul className="flex gap-8 list-none m-0 p-0">
             <li>
               <Link
-                href="/work"
+                href="/#work"
                 className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
               >
                 Work
@@ -23,7 +23,7 @@ export default function SiteHeader() {
             </li>
             <li>
               <Link
-                href="/about"
+                href="/#about"
                 className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
               >
                 About
@@ -31,7 +31,7 @@ export default function SiteHeader() {
             </li>
             <li>
               <Link
-                href="/contact"
+                href="/#contact"
                 className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
               >
                 Contact

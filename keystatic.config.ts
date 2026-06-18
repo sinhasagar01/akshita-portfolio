@@ -16,7 +16,6 @@ export default config({
       label: "Projects",
       slugField: "title",
       path: "content/projects/*",
-      format: { contentField: "body" },
       schema: {
         title: fields.slug({ name: { label: "Title" } }),
         summary: fields.text({
@@ -287,9 +286,30 @@ export default config({
           multiline: true,
         }),
         photo: fields.image({
-          label: "Hero photo",
+          label: "Hero and About photo",
           directory: "public/images",
           publicPath: "/images/",
+        }),
+        aboutCopy: fields.text({
+          label: "About bio",
+          description: "A short paragraph shown in the About section on the home page",
+          multiline: true,
+        }),
+        discoverText: fields.text({
+          label: "Process step 1 — Discover",
+          description: "One line describing what Discover means in practice",
+        }),
+        defineText: fields.text({
+          label: "Process step 2 — Define",
+          description: "One line describing what Define means in practice",
+        }),
+        developText: fields.text({
+          label: "Process step 3 — Develop",
+          description: "One line describing what Develop means in practice",
+        }),
+        deliverText: fields.text({
+          label: "Process step 4 — Deliver",
+          description: "One line describing what Deliver means in practice",
         }),
         resumeUrl: fields.url({
           label: "Resume URL",

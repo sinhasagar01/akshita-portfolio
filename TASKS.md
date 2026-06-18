@@ -35,13 +35,27 @@
 
 ---
 
-## Phase 2 Home page — not started
+## Phase 2 Home page — done
 
-- [ ] Hero section with display serif and hero photo
-- [ ] Project grid or list
-- [ ] Experience timeline
-- [ ] Skills section
-- [ ] Resume link and contact
+- [x] Hero section with display serif and hero photo
+- [x] Project grid with ProjectCard component
+- [x] About section with bio copy and photo, anchored to /#about
+- [x] Process section with four Discover Define Develop Deliver steps
+- [x] Experience timeline with date-range rows
+- [x] Skills section with category groups
+- [x] Contact section with email, resume, and social links
+- [x] All sections return null gracefully when CMS data is absent
+- [x] Nav anchor links updated to /#work, /#about, /#contact
+- [x] scroll-mt-20 on all anchor sections to clear sticky header
+- [x] TypeScript clean, production build static (no dynamic rendering)
+
+### Phase 2 page order
+
+Hero, Work, About, Process, Experience, Skills, Contact
+
+### What was added to the CMS schema in Phase 2
+
+siteSettings gained five new fields: aboutCopy (multiline text for the About section bio), discoverText, defineText, developText, and deliverText (one-liners for each Process step). Content for all five fields lands in Phase 4.
 
 ---
 
