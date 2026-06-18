@@ -93,7 +93,7 @@ ProjectCard.tsx now links to /projects/[slug] to match the new route.
 
 - [x] boAt Crest case study poured and cleaned
 - [x] Fosfor AI case study poured and cleaned
-- [ ] Fosfor Data Profiling case study poured and cleaned
+- [x] Fosfor Data Profiling case study poured and cleaned
 - [ ] OTIS ONE View case study poured and cleaned
 - [ ] Experience entries entered
 - [ ] Skills entered

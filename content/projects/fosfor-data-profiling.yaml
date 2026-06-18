@@ -1,0 +1,105 @@
+title: Fosfor Data Profiling
+summary: Designing the data profiling experience inside the Fosfor Decision Cloud, so teams could judge the quality and shape of their data before trusting it.
+orderIndex: 3
+heroImage: null
+facts:
+  role: UI and UX design
+  type: Enterprise data tool, feature design
+  platform: Web
+  timeline: 4 months
+body:
+  - discriminant: heroBlock
+    value:
+      thesis: Helping data teams see the quality and shape of their data before they ever build on it.
+  - discriminant: summaryGrid
+    value:
+      product: Data profiling inside the Fosfor Decision Cloud, the suite that turns data into decisions.
+      problem: Teams could not easily judge the quality or structure of a dataset before analysing it, so flawed data slipped through.
+      details: UI and UX design across research, structure, and visual design over four months in Figma.
+      solution: A clean profiling interface that computes statistical metrics on any data model and surfaces issues at a glance.
+      result: A faster, more trustworthy first step in the data to decision workflow.
+  - discriminant: impactNumbers
+    value:
+      stat1Number: 4 months
+      stat1Label: From research to final design
+      stat2Number: "2"
+      stat2Label: Profiling depths, basic and advanced, on any data model
+      stat3Number: "[real number]"
+      stat3Label: Reduction in time spent on manual data quality checks
+  - discriminant: context
+    value:
+      body: null
+  - discriminant: problem
+    value:
+      statement: Before this, understanding a dataset's quality meant slow manual inspection, which was time consuming and easy to get wrong. Teams carried flawed data into analysis without knowing it, and wrong data quietly became wrong conclusions.
+      image: null
+  - discriminant: goals
+    value:
+      northStar: A profiling step so clear that no one builds on bad data without knowing it.
+      goals:
+        - Compute statistical metrics on any data model, basic and advanced
+        - Surface data quality issues at a glance
+        - Cut the time spent on manual data checks
+        - Fit profiling into the existing decision workflow rather than bolting it on
+  - discriminant: processSteps
+    value:
+      steps:
+        - phase: Research and analysis
+          description: Studied the problem space, profiling patterns, and how competing tools handled the same job.
+        - phase: Information architecture
+          description: Structured the profiling views around how analysts actually move through data.
+        - phase: Wireframing and prototyping
+          description: Explored layouts and validated the flow before visual design.
+        - phase: Usability testing
+          description: Put prototypes in front of users and refined from their feedback.
+        - phase: Visual design and style guide
+          description: Aligned the final design to the Fosfor design system for consistency.
+  - discriminant: keyInsights
+    value:
+      insights:
+        - number: "01"
+          insight: Data lived in silos across databases, spreadsheets, and APIs, so the first job was a single unified view.
+        - number: "02"
+          insight: Quality issues, missing values, and inconsistencies were the real source of bad decisions, not the analysis itself.
+        - number: "03"
+          insight: Raw data without actionable insight just slowed people down, so every metric had to point to a next step.
+  - discriminant: solutionReveal
+    value:
+      headline: A clean, clutter free profiling interface that turns any data model into a clear read on its own quality.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: Profiling overview
+      caption: A single view that computes and presents statistical metrics across a whole data model, replacing manual inspection.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: Basic and advanced profiling
+      caption: Two depths of profiling, so users can take a quick read or go deep without leaving the flow.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: Issue surfacing
+      caption: Quality issues, anomalies, and missing values flagged where the eye lands first.
+      image: null
+  - discriminant: imageGallery
+    value:
+      image1: null
+      image2: null
+      image3: null
+      caption: A selection of profiling and data quality views.
+  - discriminant: comparison
+    value:
+      beforeImage: null
+      afterImage: null
+      caption: Manual inspection beside the profiling view, the same checks made fast and legible.
+  - discriminant: quote
+    value:
+      text: Good decisions start with data you can trust, so the profiling step had to earn that trust before anything else.
+      attribution: My design principle for this work
+  - discriminant: reflection
+    value:
+      body: null
+  - discriminant: closingLine
+    value:
+      line: The first step in the data to decision journey, finally worth trusting.
