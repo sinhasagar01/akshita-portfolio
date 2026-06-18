@@ -1,0 +1,106 @@
+title: Fosfor AI
+summary: Designing an AI companion inside the Fosfor Decision Cloud that guides three kinds of users from data to decision.
+orderIndex: 2
+heroImage: null
+facts:
+  role: UI and UX design
+  type: AI product design within an enterprise suite
+  platform: Web
+  timeline: 12 weeks
+body:
+  - discriminant: heroBlock
+    value:
+      thesis: Designing an AI companion that guides people from raw data to a confident decision.
+  - discriminant: summaryGrid
+    value:
+      product: Fosfor AI, an AI companion built into the Fosfor Decision Cloud.
+      problem: Users across very different roles struggled to navigate complex data workflows and pull out insight they could act on.
+      details: UI and UX design across research, architecture, and prototyping over twelve weeks.
+      solution: An AI guided companion that supports three personas while keeping data secure and trusted.
+      result: A single intelligent layer across the whole data to decision journey.
+  - discriminant: impactNumbers
+    value:
+      stat1Number: "3"
+      stat1Label: Personas served, Data Designer, Insight Designer, and Decision Designer
+      stat2Number: 12 weeks
+      stat2Label: From strategy to a tested prototype
+      stat3Number: "4"
+      stat3Label: Layers in the companion architecture, context, interaction, response, and memory
+  - discriminant: context
+    value:
+      body: null
+  - discriminant: problem
+    value:
+      statement: Across all three roles, people hit the same wall, complex data workflows and no easy way to extract insight they could act on. Each persona struggled at a different point, and none of them had intelligent assistance that fit how they actually worked.
+      image: null
+  - discriminant: goals
+    value:
+      northStar: One companion that makes every step from data to decision feel guided rather than fought.
+      goals:
+        - Boost real productivity across the data to decision journey
+        - Fit the experience to three distinct personas
+        - Build trust and security into every interaction
+        - Keep the assistance contextual, not generic
+  - discriminant: processSteps
+    value:
+      steps:
+        - phase: Research and insights
+          description: Mapped the needs of all three personas through interviews and analysis.
+        - phase: Ideation and wireframing
+          description: Explored how an AI companion could sit inside existing workflows without disrupting them.
+        - phase: Prototyping and testing
+          description: Built interactive prototypes and refined them, including split testing of key interactions.
+  - discriminant: keyInsights
+    value:
+      insights:
+        - number: "01"
+          insight: Data Designers needed help managing and transforming large datasets before anything else.
+        - number: "02"
+          insight: Insight Designers needed sharper tools to analyse data and derive insight from it.
+        - number: "03"
+          insight: Decision Designers needed an intuitive way to navigate recommendations and act with confidence.
+  - discriminant: solutionReveal
+    value:
+      headline: Fosfor AI, a single companion that adapts its help to whoever is in the data to decision seat.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: Contextual intelligence
+      caption: Suggestions and prompts grounded in the user's current task, not generic AI noise.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: A unified experience
+      caption: One consistent companion across the three personas, so help feels the same wherever you are in the journey.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: Security and trust
+      caption: Clear controls and transparent operations, so people trust the companion with their data.
+      image: null
+  - discriminant: guidedDesignStep
+    value:
+      title: The companion architecture
+      caption: A four layer model, context, interaction, response, and memory, that lets the assistant hold a thread across a session.
+      image: null
+  - discriminant: imageGallery
+    value:
+      image1: null
+      image2: null
+      image3: null
+      caption: A selection of companion and workflow screens.
+  - discriminant: comparison
+    value:
+      beforeImage: null
+      afterImage: null
+      caption: The workflow before and after the companion, the same task made guided.
+  - discriminant: quote
+    value:
+      text: Good AI assistance does not show off, it quietly removes the next obstacle in front of the person.
+      attribution: My design principle for Fosfor AI
+  - discriminant: reflection
+    value:
+      body: null
+  - discriminant: closingLine
+    value:
+      line: From raw data to a confident decision, with a companion the whole way.

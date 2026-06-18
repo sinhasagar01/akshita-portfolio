@@ -92,7 +92,7 @@ ProjectCard.tsx now links to /projects/[slug] to match the new route.
 ## Phase 4 Content — not started
 
 - [x] boAt Crest case study poured and cleaned
-- [ ] Fosfor AI case study poured and cleaned
+- [x] Fosfor AI case study poured and cleaned
 - [ ] Fosfor Data Profiling case study poured and cleaned
 - [ ] OTIS ONE View case study poured and cleaned
 - [ ] Experience entries entered
