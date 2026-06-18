@@ -1,0 +1,45 @@
+import Link from "next/link";
+import Container from "./Container";
+
+export default function SiteHeader() {
+  return (
+    <header className="sticky top-0 z-30 bg-[--color-background]">
+      <Container>
+        <nav className="flex items-center justify-between py-6">
+          <Link
+            href="/"
+            className="font-display italic text-xl text-[--color-text-primary]"
+          >
+            Akshita
+          </Link>
+          <ul className="flex gap-8 list-none m-0 p-0">
+            <li>
+              <Link
+                href="/work"
+                className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+              >
+                Work
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/about"
+                className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+              >
+                About
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/contact"
+                className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+              >
+                Contact
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </Container>
+    </header>
+  );
+}

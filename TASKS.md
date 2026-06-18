@@ -23,15 +23,15 @@
 
 ---
 
-## Phase 1 Design system and motion baseline — not started
+## Phase 1 Design system and motion baseline — done
 
-- [ ] Layout primitives (container, grid, section wrapper)
-- [ ] Site header shell with navigation
-- [ ] Site footer shell
-- [ ] Lenis smooth scroll initialised in a Client Component
-- [ ] Motion spring baseline for reveals
-- [ ] GSAP ScrollTrigger wired up for heavier choreography
-- [ ] Reduced motion respected throughout
+- [x] Layout primitives (container, grid, section wrapper)
+- [x] Site header shell with navigation
+- [x] Site footer shell
+- [x] Lenis smooth scroll initialised in a Client Component
+- [x] Motion spring baseline for reveals
+- [x] GSAP ScrollTrigger wired up for heavier choreography
+- [x] Reduced motion respected throughout
 
 ---
 

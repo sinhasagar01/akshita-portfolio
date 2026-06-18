@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Fraunces, DM_Sans } from "next/font/google";
 import "./globals.css";
+import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import GSAPProvider from "@/components/providers/GSAPProvider";
+import SiteHeader from "@/components/layout/SiteHeader";
+import SiteFooter from "@/components/layout/SiteFooter";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -44,7 +48,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
-      <body>{children}</body>
+      <body>
+        <SmoothScrollProvider>
+          <GSAPProvider>
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </GSAPProvider>
+        </SmoothScrollProvider>
+      </body>
     </html>
   );
 }
