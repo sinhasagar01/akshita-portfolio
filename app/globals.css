@@ -361,9 +361,109 @@ a {
   border-color: oklch(56.0% 0.14 42 / 0.45);
 }
 
+.pc-shot {
+  filter: saturate(.45) brightness(1.04);
+  transition: filter .55s ease, transform .55s ease;
+}
+
+.group:hover .pc-shot {
+  filter: none;
+  transform: scale(1.04);
+}
+
+.pc-tint {
+  background: #E7C7AE;
+  mix-blend-mode: multiply;
+  opacity: .34;
+  transition: opacity .55s ease;
+}
+
+.group:hover .pc-tint {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .group:hover .pc-fold,
   .group:hover .pc-shot {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   About section photo — warm at rest, colour on hover
+============================================================ */
+
+.ab-photo {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ab-img {
+  position: absolute;
+  inset: 0;
+  filter: sepia(.62) saturate(1.05) brightness(1.03) contrast(.95);
+  transition: filter .6s ease, transform .6s ease;
+}
+
+.ab-photo:hover .ab-img {
+  filter: none;
+  transform: scale(1.04);
+}
+
+.ab-tint {
+  position: absolute;
+  inset: 0;
+  background: oklch(46% 0.13 42);
+  mix-blend-mode: soft-light;
+  opacity: .5;
+  transition: opacity .6s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ab-photo:hover .ab-tint {
+  opacity: 0;
+}
+
+.ab-cap {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 3;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: oklch(95% 0.01 80);
+  background: oklch(14% 0.018 60 / 0.42);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 7px 13px;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.ab-hint {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 3;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(95% 0.01 80);
+  background: oklch(14% 0.018 60 / 0.38);
+  padding: 5px 11px;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-img,
+  .ab-tint {
+    transition: none;
+  }
+  .ab-photo:hover .ab-img {
     transform: none;
   }
 }

@@ -48,24 +48,24 @@ export default function ProjectCard({ project }: Props) {
         <div
           aria-hidden="true"
           className="pc-glow absolute -inset-5 rounded-[22px] opacity-0 pointer-events-none group-hover:opacity-100"
-          style={{ transition: `opacity 420ms ${E}` }}
+          style={{ transition: "opacity .5s" }}
         />
 
         {/* Folder surface — lifts the whole card on hover */}
         <div
           className="pc-fold relative border border-[--color-border] rounded-[12px] bg-[--color-surface] p-2 group-hover:-translate-y-[6px]"
-          style={{ transition: `transform 560ms ${E}`, willChange: "transform" }}
+          style={{ transition: "transform .45s cubic-bezier(.22,1,.36,1) background: #ede3d5;", background: "#ede3d5" }}
         >
 
           {/* Case study tab */}
           <div
             className="pc-tab absolute -top-[19px] left-[18px] border border-b-0 border-[--color-border] rounded-t-[8px] bg-[--color-surface] px-[14px] pt-[5px] pb-2 text-[10px] tracking-[0.13em] uppercase text-[--color-text-muted] group-hover:text-[--color-accent]"
-            style={{ transition: `color 300ms ${E}` }}
+            style={{ transition: "color .3s, border-color .3s" }}
           >
             Case study
           </div>
 
-          {/* Image frame — overflow-hidden clips the inner zoom and spotlight */}
+          {/* Image frame — filter + zoom on the frame itself, spotlight inside */}
           <div
             className="pc-shot relative aspect-[16/10] rounded-[7px] overflow-hidden"
             onMouseMove={reducedMotion ? undefined : handleMouseMove}
@@ -73,24 +73,12 @@ export default function ProjectCard({ project }: Props) {
             onMouseLeave={reducedMotion ? undefined : handleMouseLeave}
           >
 
-            {/* Scale layer — transform only, fully GPU composited */}
-            <div
-              className="absolute inset-0 group-hover:scale-[1.07]"
-              style={{ transition: `transform 720ms ${E}`, willChange: "transform" }}
-            >
-              {svg ?? null}
-            </div>
+            {svg ?? null}
 
-            {/* Muting veil — opacity only, fully GPU composited.
-                Warm near-white wash at rest, clears on hover.
-                Replaces filter:saturate() which cannot be GPU composited. */}
+            {/* Warm multiply tint — mutes image at rest, fades out on hover */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 pointer-events-none opacity-[.50] group-hover:opacity-0"
-              style={{
-                background: "oklch(90% 0.014 74)",
-                transition: `opacity 580ms ${E}`,
-              }}
+              className="pc-tint absolute inset-0 pointer-events-none"
             />
 
             {/* Warm cursor spotlight — follows pointer, fades in/out on enter/leave.
@@ -136,8 +124,8 @@ export default function ProjectCard({ project }: Props) {
             <span>{title}</span>
             <span
               aria-hidden="true"
-              className="pc-arr text-[--color-accent] group-hover:translate-x-[5px]"
-              style={{ transition: `transform 400ms ${E}` }}
+              className="pc-arr text-[--color-accent] group-hover:translate-x-[6px]"
+              style={{ transition: "transform .35s" }}
             >
               &#8594;
             </span>

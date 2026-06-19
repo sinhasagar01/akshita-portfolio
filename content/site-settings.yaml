@@ -2,7 +2,7 @@ heroCopy: Akshita Singh
 positioningLine: >-
   Product designer with over seven years turning complex SaaS, enterprise, and
   consumer products into intuitive experiences.
-photo: /images/photo.jpeg
+photo: /images/photo.jpg
 aboutCopy: >-
   I am a product designer with over seven years of experience designing SaaS,
   e-commerce, and enterprise products. My work centres on user-centered design,
@@ -14,6 +14,7 @@ aboutCopy: >-
   have shaped products spanning fitness wearables, AI data platforms, and
   point-of-sale systems used by more than twenty thousand merchants, and I was
   recognised with a Design Innovation Award along the way.
+aboutFocusChips: []
 resumeUrl: https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view
 email: akshitasingh094@gmail.com
 linkedinUrl: https://www.linkedin.com/in/akshita25/

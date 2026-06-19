@@ -10,6 +10,8 @@ export type SiteSettingsEntry = {
   positioningLine: string;
   photo: string | null;
   aboutCopy: string;
+  aboutNote: string;
+  aboutFocusChips: string[];
   discoverText: string;
   defineText: string;
   developText: string;
@@ -74,6 +76,8 @@ export async function getHomePageData(): Promise<HomePageData> {
         positioningLine: settingsRaw.positioningLine ?? "",
         photo: settingsRaw.photo as string | null,
         aboutCopy: settingsRaw.aboutCopy ?? "",
+        aboutNote: (settingsRaw as Record<string, unknown>).aboutNote as string ?? "",
+        aboutFocusChips: ((settingsRaw as Record<string, unknown>).aboutFocusChips as readonly unknown[] ?? []).map(String),
         discoverText: settingsRaw.discoverText ?? "",
         defineText: settingsRaw.defineText ?? "",
         developText: settingsRaw.developText ?? "",

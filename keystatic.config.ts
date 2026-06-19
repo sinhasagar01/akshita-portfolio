@@ -295,6 +295,14 @@ export default config({
           description: "A short paragraph shown in the About section on the home page",
           multiline: true,
         }),
+        aboutNote: fields.text({
+          label: "About note line",
+          description: "Italic terracotta sentence shown below the bio paragraph",
+        }),
+        aboutFocusChips: fields.array(
+          fields.text({ label: "Focus area" }),
+          { label: "Focus chips", itemLabel: (props) => props.value }
+        ),
         discoverText: fields.text({
           label: "Process step 1 — Discover",
           description: "One line describing what Discover means in practice",
