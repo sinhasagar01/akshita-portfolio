@@ -11,7 +11,7 @@ export default function ExperienceSection({ experience }: Props) {
   if (experience.length === 0) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel className="mb-12">Experience</SectionLabel>

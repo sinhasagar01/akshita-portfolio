@@ -5,6 +5,7 @@
      Color palette — warm editorial cream
   ============================================================ */
 
+  --color-canvas:    oklch(92.0% 0.022 78);   /* darker warm beige — page canvas behind cards */
   --color-cream-50:  oklch(98.5% 0.012 80);
   --color-cream-100: oklch(96.8% 0.018 78);
   --color-cream-200: oklch(93.5% 0.025 76);
@@ -20,7 +21,7 @@
   --color-accent-500: oklch(56.0% 0.14 42);
   --color-accent-600: oklch(46.0% 0.13 42);
 
-  --color-background:    var(--color-cream-50);
+  --color-background:    var(--color-canvas);
   --color-surface:       var(--color-cream-100);
   --color-border:        var(--color-cream-300);
   --color-text-primary:  var(--color-ink-950);
@@ -34,6 +35,7 @@
 
   --font-display: var(--font-display-loaded, "Fraunces Variable", Georgia, serif);
   --font-body:    var(--font-body-loaded, "DM Sans Variable", system-ui, sans-serif);
+  --font-script:  var(--font-script-loaded, "Kaushan Script", cursive);
   --font-mono:    ui-monospace, "JetBrains Mono", monospace;
 
   --text-xs:   clamp(0.694rem,  0.67rem  + 0.12vw, 0.75rem);
@@ -99,7 +101,7 @@
   --spacing-48:  12rem;
   --spacing-64:  16rem;
 
-  --spacing-section: clamp(5rem, 8vw, 10rem);
+  --spacing-section: clamp(3.5rem, 7vw, 6rem);
   --spacing-content: clamp(2rem, 4vw, 4rem);
 
   /* ============================================================
@@ -229,6 +231,18 @@ a {
 }
 
 /* ============================================================
+   Raised panel — section card floating on the canvas
+============================================================ */
+
+.section-card {
+  background-color: var(--color-cream-50);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 7%, transparent);
+  margin-inline: clamp(0.75rem, 2vw, 2rem);
+  margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
+}
+
+/* ============================================================
    Nav link — underline wipes in from left on hover
 ============================================================ */
 
@@ -258,5 +272,41 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .nav-link::after {
     transition: none;
+  }
+}
+
+/* ============================================================
+   Scroll cue dot pulse
+============================================================ */
+
+@keyframes scroll-dot-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 oklch(56% 0.14 42 / 0.35); }
+  50%       { opacity: 0.5; box-shadow: 0 0 0 7px oklch(56% 0.14 42 / 0); }
+}
+
+.scroll-dot {
+  animation: scroll-dot-pulse 2.4s ease-in-out infinite;
+}
+
+/* ============================================================
+   Project folder cards
+============================================================ */
+
+.pc-glow {
+  background: radial-gradient(
+    58% 60% at 50% 44%,
+    oklch(56.0% 0.14 42 / 0.20),
+    oklch(56.0% 0.14 42 / 0) 70%
+  );
+}
+
+.group:hover .pc-tab {
+  border-color: oklch(56.0% 0.14 42 / 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .pc-fold,
+  .group:hover .pc-shot {
+    transform: none;
   }
 }

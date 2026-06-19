@@ -13,7 +13,7 @@ export default function SolutionRevealBlock({ data }: Props) {
 
   return (
     <div>
-      <SectionWrapper className="border-t border-[--color-border]">
+      <SectionWrapper className="">
         <Container>
           <Reveal>
             <SectionLabel>Solution</SectionLabel>

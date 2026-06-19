@@ -10,7 +10,7 @@ export default function GoalsBlock({ data }: Props) {
   if (!data.northStar && !data.goals.length) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Goals</SectionLabel>

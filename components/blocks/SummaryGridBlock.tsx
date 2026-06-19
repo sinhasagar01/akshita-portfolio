@@ -20,7 +20,7 @@ export default function SummaryGridBlock({ data }: Props) {
   if (!hasContent) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Overview</SectionLabel>

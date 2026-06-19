@@ -26,7 +26,10 @@ export default async function CaseStudyPage({ params }: Props) {
 
   return (
     <main>
-      <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
+      <div
+        className="section-card relative aspect-[21/9] overflow-hidden bg-[--color-surface]"
+        style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
+      >
         {data.heroImage ? (
           <Image
             src={data.heroImage}

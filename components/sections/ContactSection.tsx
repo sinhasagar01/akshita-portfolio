@@ -12,7 +12,7 @@ export default function ContactSection({ settings }: Props) {
   return (
     <SectionWrapper
       id="contact"
-      className="scroll-mt-20 border-t border-[--color-border]"
+      className="scroll-mt-20"
     >
       <Container>
         <Grid cols={12}>

@@ -24,7 +24,7 @@ export default function ImageGalleryBlock({ data }: Props) {
   }
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           {filledCount === 0 && (

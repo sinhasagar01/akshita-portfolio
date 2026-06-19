@@ -12,7 +12,7 @@ export default function ProjectsSection({ projects }: Props) {
   if (projects.length === 0) return null;
 
   return (
-    <SectionWrapper id="work" className="scroll-mt-20 border-t border-[--color-border]">
+    <SectionWrapper id="work" className="scroll-mt-20">
       <Container>
         <Reveal>
           <SectionLabel className="mb-12">Work</SectionLabel>

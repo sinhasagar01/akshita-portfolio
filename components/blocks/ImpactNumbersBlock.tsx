@@ -16,7 +16,7 @@ export default function ImpactNumbersBlock({ data }: Props) {
   if (stats.every((s) => !s.number)) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border] bg-[--color-surface]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Impact</SectionLabel>

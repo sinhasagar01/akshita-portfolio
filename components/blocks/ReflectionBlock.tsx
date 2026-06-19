@@ -12,7 +12,7 @@ export default function ReflectionBlock({ data }: Props) {
   if (!data.body.length) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Grid cols={12}>
           <Reveal className="col-span-4 md:col-span-3">

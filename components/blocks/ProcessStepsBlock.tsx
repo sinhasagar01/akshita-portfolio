@@ -11,7 +11,7 @@ export default function ProcessStepsBlock({ data }: Props) {
   if (!data.steps.length) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Process</SectionLabel>

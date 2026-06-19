@@ -12,7 +12,7 @@ type Props = { data: ComparisonData["value"] };
 export default function ComparisonBlock({ data }: Props) {
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Before and after</SectionLabel>

@@ -13,7 +13,7 @@ export default function GuidedDesignStepBlock({ data }: Props) {
   if (!data.title) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Grid cols={12} className="items-center">
           <Reveal className="col-span-4 md:col-span-5">

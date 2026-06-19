@@ -12,7 +12,7 @@ export default function ProblemBlock({ data }: Props) {
   if (!data.statement) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Problem</SectionLabel>

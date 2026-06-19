@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans } from "next/font/google";
+import { Fraunces, DM_Sans, Kaushan_Script } from "next/font/google";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -15,6 +15,14 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   axes: ["opsz"],
   variable: "--font-body-loaded",
+  display: "swap",
+  preload: true,
+});
+
+const kaushanScript = Kaushan_Script({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-script-loaded",
   display: "swap",
   preload: true,
 });
@@ -44,7 +52,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable}`}>
       <body>{children}</body>
     </html>
   );

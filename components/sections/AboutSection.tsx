@@ -20,7 +20,7 @@ export default function AboutSection({ settings }: Props) {
   return (
     <SectionWrapper
       id="about"
-      className="scroll-mt-20 border-t border-[--color-border]"
+      className="scroll-mt-20"
     >
       <Container>
         <Reveal>

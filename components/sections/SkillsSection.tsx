@@ -10,7 +10,7 @@ export default function SkillsSection({ skills }: Props) {
   if (!skills || skills.categories.length === 0) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel className="mb-12">Skills</SectionLabel>

@@ -9,7 +9,7 @@ export default function QuoteBlock({ data }: Props) {
   if (!data.text) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border] bg-[--color-surface]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <blockquote className="max-w-[50ch]">

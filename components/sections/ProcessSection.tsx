@@ -71,7 +71,7 @@ function ProcessSectionScrollable() {
     <section
       ref={sectionRef}
       id="process"
-      className="relative min-h-[180vh] border-t border-[--color-border] scroll-mt-20"
+      className="section-card relative min-h-[180vh] scroll-mt-20"
     >
       <div className="sticky top-20 h-[calc(100dvh-5rem)] flex flex-col justify-center py-8">
         <Container>
@@ -86,7 +86,7 @@ function ProcessSectionScrollable() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-center">
             <StageCopy stage={stage} />
-            <ArtifactFrame stageIndex={active} showBloom={isLastStep} />
+            <ArtifactFrame stageIndex={active} />
           </div>
 
           <StepStepper active={active} onSelect={setActive} />
@@ -102,7 +102,7 @@ function ProcessSectionStatic() {
   return (
     <SectionWrapper
       id="process"
-      className="scroll-mt-20 border-t border-[--color-border]"
+      className="scroll-mt-20"
     >
       <Container>
         <Reveal>
@@ -121,7 +121,7 @@ function ProcessSectionStatic() {
               className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-center py-10"
             >
               <StageCopyStatic stage={stage} />
-              <ArtifactFrame stageIndex={i} showBloom={i === STAGES.length - 1} />
+              <ArtifactFrame stageIndex={i} />
             </div>
           ))}
         </div>
@@ -255,32 +255,25 @@ function StageCopyStatic({ stage }: { stage: Stage }) {
 
 /* ── Artifact frame ──────────────────────────────────────────── */
 
-function ArtifactFrame({
-  stageIndex,
-  showBloom,
-}: {
-  stageIndex: number;
-  showBloom?: boolean;
-}) {
+function ArtifactFrame({ stageIndex }: { stageIndex: number }) {
   return (
     <div className="relative w-full h-[260px]">
-      {/* Warm bloom — kept as-is, CSS transition */}
       <div
         className="absolute pointer-events-none"
         style={{
           inset: "-10px",
           background:
             "radial-gradient(52% 52% at 60% 55%, color-mix(in oklch, var(--color-accent-500) 10%, transparent), transparent 70%)",
-          opacity: showBloom ? 1 : 0,
+          opacity: stageIndex === 3 ? 1 : 0.65,
           transition: "opacity 0.6s ease",
         }}
         aria-hidden
       />
 
-      <ArtifactScribble visible={stageIndex === 0} />
-      <ArtifactWireframe visible={stageIndex === 1} />
-      <ArtifactScreen visible={stageIndex === 2} />
-      <ArtifactValidated visible={stageIndex === 3} />
+      <ArtifactDiscover visible={stageIndex === 0} />
+      <ArtifactDefine visible={stageIndex === 1} />
+      <ArtifactDesign visible={stageIndex === 2} />
+      <ArtifactValidate visible={stageIndex === 3} />
     </div>
   );
 }
@@ -300,30 +293,27 @@ function layerStyle(visible: boolean): React.CSSProperties {
   };
 }
 
-function ArtifactScribble({ visible }: { visible: boolean }) {
+function ArtifactDiscover({ visible }: { visible: boolean }) {
   return (
     <div style={layerStyle(visible)}>
-      <svg width="100%" height="100%" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" aria-hidden>
-        <path
-          d="M40 70 q12 -20 26 -4 q14 16 28 0 q12 -14 24 2"
-          fill="none"
-          stroke="var(--color-ink-200)"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <line
-          x1="56" y1="40" x2="84" y2="34"
-          stroke="var(--color-ink-200)"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <circle cx="128" cy="46" r="3" fill="var(--color-ink-200)" />
-        <circle cx="150" cy="92" r="3" fill="var(--color-ink-200)" />
+      <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <g stroke="var(--color-ink-200)" strokeWidth="1.6" fill="var(--color-surface)">
+          <rect x="36" y="64" width="74" height="56" rx="6" transform="rotate(-6 73 92)" />
+          <rect x="96" y="42" width="74" height="56" rx="6" transform="rotate(5 133 70)" />
+        </g>
+        <g stroke="var(--color-ink-200)" strokeWidth="1.5" strokeLinecap="round">
+          <line x1="48" y1="84" x2="92" y2="80" transform="rotate(-6 73 92)" />
+          <line x1="48" y1="96" x2="78" y2="94" transform="rotate(-6 73 92)" />
+          <line x1="108" y1="60" x2="152" y2="58" transform="rotate(5 133 70)" />
+          <line x1="108" y1="72" x2="138" y2="71" transform="rotate(5 133 70)" />
+        </g>
+        <circle cx="188" cy="122" r="30" fill="none" stroke="var(--color-accent-500)" strokeWidth="2.5" />
+        <line x1="210" y1="144" x2="236" y2="170" stroke="var(--color-accent-500)" strokeWidth="3" strokeLinecap="round" />
+        <circle cx="210" cy="56" r="3" fill="var(--color-ink-200)" />
         <text
-          x="92" y="116"
-          fontFamily="var(--font-display)"
-          fontStyle="italic"
-          fontSize="34"
+          x="224" y="80"
+          style={{ fontFamily: "var(--font-display)", fontStyle: "italic" }}
+          fontSize="26"
           fill="var(--color-ink-200)"
         >
           ?
@@ -333,73 +323,59 @@ function ArtifactScribble({ visible }: { visible: boolean }) {
   );
 }
 
-function ArtifactWireframe({ visible }: { visible: boolean }) {
+function ArtifactDefine({ visible }: { visible: boolean }) {
   return (
     <div style={layerStyle(visible)}>
-      <svg width="100%" height="100%" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" aria-hidden>
-        <rect
-          x="40" y="26" width="120" height="20" rx="4"
-          fill="none" stroke="var(--color-ink-200)" strokeWidth="1.6" strokeDasharray="5 4"
-        />
-        <rect
-          x="40" y="56" width="56" height="68" rx="4"
-          fill="none" stroke="var(--color-ink-200)" strokeWidth="1.6" strokeDasharray="5 4"
-        />
-        <rect
-          x="104" y="56" width="56" height="30" rx="4"
-          fill="none" stroke="var(--color-ink-200)" strokeWidth="1.6" strokeDasharray="5 4"
-        />
-        <rect
-          x="104" y="94" width="56" height="30" rx="4"
-          fill="none" stroke="var(--color-ink-200)" strokeWidth="1.6" strokeDasharray="5 4"
-        />
+      <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <rect x="40" y="48" width="96" height="116" rx="9" fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity="0.55" strokeWidth="1.4" />
+        <circle cx="64" cy="74" r="11" fill="none" stroke="var(--color-accent-500)" strokeWidth="1.8" />
+        <rect x="84" y="68" width="40" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.22" />
+        <rect x="84" y="80" width="28" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.13" />
+        <rect x="56" y="104" width="64" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <rect x="56" y="116" width="64" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <rect x="56" y="128" width="44" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <line x1="168" y1="106" x2="244" y2="106" stroke="var(--color-ink-200)" strokeWidth="1.6" />
+        <circle cx="168" cy="106" r="6.5" fill="var(--color-surface)" stroke="var(--color-ink-200)" strokeWidth="1.6" />
+        <circle cx="206" cy="106" r="6.5" fill="var(--color-accent-500)" />
+        <circle cx="244" cy="106" r="6.5" fill="var(--color-surface)" stroke="var(--color-ink-200)" strokeWidth="1.6" />
       </svg>
     </div>
   );
 }
 
-function ArtifactScreen({ visible }: { visible: boolean }) {
+function ArtifactDesign({ visible }: { visible: boolean }) {
   return (
     <div style={layerStyle(visible)}>
-      <svg width="100%" height="100%" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" aria-hidden>
-        <rect
-          x="38" y="22" width="124" height="106" rx="9"
-          fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity=".7" strokeWidth="1.2"
-        />
-        <circle cx="50" cy="34" r="2.4" fill="var(--color-ink-200)" />
-        <circle cx="58" cy="34" r="2.4" fill="var(--color-ink-200)" />
-        <rect x="48" y="50" width="70" height="8" rx="3" fill="var(--color-text-primary)" fillOpacity="0.22" />
-        <rect x="48" y="66" width="104" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
-        <rect x="48" y="80" width="88" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
-        <rect x="48" y="100" width="42" height="14" rx="4" fill="var(--color-accent-500)" fillOpacity="0.85" />
+      <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <rect x="62" y="34" width="156" height="138" rx="11" fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity="0.65" strokeWidth="1.5" />
+        <circle cx="78" cy="50" r="3" fill="var(--color-ink-200)" />
+        <circle cx="89" cy="50" r="3" fill="var(--color-ink-200)" />
+        <line x1="62" y1="62" x2="218" y2="62" stroke="var(--color-text-primary)" strokeOpacity="0.1" strokeWidth="1" />
+        <rect x="78" y="78" width="84" height="10" rx="4" fill="var(--color-text-primary)" fillOpacity="0.22" />
+        <rect x="78" y="98" width="124" height="7" rx="3.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <rect x="78" y="112" width="108" height="7" rx="3.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <rect x="78" y="136" width="54" height="18" rx="5" fill="var(--color-accent-500)" />
       </svg>
     </div>
   );
 }
 
-function ArtifactValidated({ visible }: { visible: boolean }) {
+function ArtifactValidate({ visible }: { visible: boolean }) {
   return (
     <div style={layerStyle(visible)}>
-      <svg width="100%" height="100%" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" aria-hidden>
-        <rect
-          x="38" y="22" width="124" height="106" rx="9"
-          fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity=".75" strokeWidth="1.2"
-        />
-        <circle cx="50" cy="34" r="2.4" fill="var(--color-ink-200)" />
-        <circle cx="58" cy="34" r="2.4" fill="var(--color-ink-200)" />
-        <rect x="48" y="50" width="70" height="8" rx="3" fill="var(--color-text-primary)" fillOpacity="0.22" />
-        <rect x="48" y="66" width="104" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
-        <rect x="48" y="80" width="88" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
-        <rect x="48" y="100" width="42" height="14" rx="4" fill="var(--color-accent-500)" fillOpacity="0.9" />
-        <circle cx="158" cy="28" r="14" fill="var(--color-accent-500)" />
-        <path
-          d="M152 28 l4 4 8 -9"
-          fill="none"
-          stroke="var(--color-surface)"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <rect x="50" y="40" width="150" height="130" rx="11" fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity="0.7" strokeWidth="1.5" />
+        <circle cx="66" cy="56" r="3" fill="var(--color-ink-200)" />
+        <circle cx="77" cy="56" r="3" fill="var(--color-ink-200)" />
+        <rect x="66" y="74" width="80" height="9" rx="4" fill="var(--color-text-primary)" fillOpacity="0.22" />
+        <rect x="66" y="92" width="118" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <rect x="66" y="104" width="100" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
+        <rect x="66" y="126" width="48" height="16" rx="5" fill="var(--color-accent-500)" fillOpacity="0.85" />
+        <circle cx="196" cy="48" r="17" fill="var(--color-accent-500)" />
+        <path d="M188 48 l5 5 10 -11" fill="none" stroke="var(--color-surface)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="214" y="150" width="10" height="14" rx="2" fill="var(--color-ink-200)" />
+        <rect x="230" y="140" width="10" height="24" rx="2" fill="var(--color-ink-200)" />
+        <rect x="246" y="126" width="10" height="38" rx="2" fill="var(--color-accent-500)" />
       </svg>
     </div>
   );

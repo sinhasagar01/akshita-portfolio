@@ -9,7 +9,7 @@ type Props = {
 
 export default function SectionWrapper({ as: Tag = "section", id, className, children }: Props) {
   return (
-    <Tag id={id} className={`py-section${className ? ` ${className}` : ""}`}>
+    <Tag id={id} className={`py-section section-card${className ? ` ${className}` : ""}`}>
       {children}
     </Tag>
   );

@@ -12,7 +12,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <HeroSection settings={settings} />
+      <HeroSection />
       <ProjectsSection projects={projects} />
       <AboutSection settings={settings} />
       <ProcessSection settings={settings} />

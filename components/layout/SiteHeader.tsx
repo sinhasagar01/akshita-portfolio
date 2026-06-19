@@ -3,7 +3,7 @@ import Container from "./Container";
 
 export default function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 bg-[--color-background] border-b border-[--color-border]">
+    <header className="sticky top-0 z-30 bg-[--color-background]">
       <Container>
         <nav className="flex items-center justify-between py-5">
           <Link

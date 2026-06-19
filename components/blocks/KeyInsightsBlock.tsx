@@ -10,7 +10,7 @@ export default function KeyInsightsBlock({ data }: Props) {
   if (!data.insights.length) return null;
 
   return (
-    <SectionWrapper className="border-t border-[--color-border]">
+    <SectionWrapper className="">
       <Container>
         <Reveal>
           <SectionLabel>Key insights</SectionLabel>
