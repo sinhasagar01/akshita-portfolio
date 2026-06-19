@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, Fragment } from "react";
 import {
   motion,
   AnimatePresence,
@@ -37,8 +37,25 @@ const FACETS = [
 
 const PILL_SPRING: Transition = { type: "spring", stiffness: 380, damping: 30 };
 const PILL_INSTANT: Transition = { duration: 0.15 };
-const TEXT_FADE: Transition = { duration: 0.17 };
-const TEXT_INSTANT: Transition = { duration: 0 };
+
+const LINE_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const lineContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.042 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
+const wordVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: LINE_EASE } },
+};
+
+const lineContainerVariantsReduced = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.25 } },
+  exit: { opacity: 0, transition: { duration: 0 } },
+};
 
 export default function HeroSection() {
   const [active, setActive] = useState(0);
@@ -68,13 +85,12 @@ export default function HeroSection() {
   };
 
   const pillTransition = isReducedMotion ? PILL_INSTANT : PILL_SPRING;
-  const textTransition = isReducedMotion ? TEXT_INSTANT : TEXT_FADE;
 
   return (
     <section
       ref={sectionRef}
       id="hero"
-      className="section-card relative overflow-hidden min-h-[78svh] flex flex-col items-center justify-center py-16"
+      className="section-card relative overflow-hidden min-h-[78svh] flex flex-col items-center justify-center py-section"
       style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
       onMouseMove={isReducedMotion ? undefined : handleMouseMove}
       onMouseLeave={isReducedMotion ? undefined : handleMouseLeave}
@@ -188,7 +204,8 @@ export default function HeroSection() {
             >
               {/* Backdrop word — bleeds horizontally, anchored vertically to this container */}
               <AnimatePresence mode="wait">
-                <motion.span
+                {/* Outer: position + centering transform, owns the exit fade */}
+                <motion.div
                   key={`word-${active}`}
                   aria-hidden="true"
                   style={{
@@ -197,36 +214,68 @@ export default function HeroSection() {
                     left: "-50vw",
                     right: "-50vw",
                     transform: "translateY(-50%)",
-                    fontFamily: "var(--font-script)",
-                    fontSize: "clamp(4rem, 11vw, 7rem)",
-                    lineHeight: 1,
-                    color: "var(--color-accent-500)",
-                    whiteSpace: "nowrap",
-                    textAlign: "center",
                     pointerEvents: "none",
                     zIndex: 1,
                   }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.42 }}
-                  exit={{ opacity: 0 }}
-                  transition={textTransition}
+                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
                 >
-                  {FACETS[active].word}
-                </motion.span>
+                  {/* Inner: y-rise + scale + opacity — no conflict with outer centering */}
+                  <motion.span
+                    style={{
+                      display: "block",
+                      fontFamily: "var(--font-script)",
+                      fontSize: "clamp(4rem, 11vw, 7rem)",
+                      lineHeight: 1,
+                      color: "var(--color-accent-500)",
+                      whiteSpace: "nowrap",
+                      textAlign: "center",
+                    }}
+                    initial={
+                      isReducedMotion
+                        ? { opacity: 0 }
+                        : { opacity: 0, y: 24, scale: 0.97 }
+                    }
+                    animate={
+                      isReducedMotion
+                        ? { opacity: 0.42 }
+                        : { opacity: 0.42, y: 0, scale: 1 }
+                    }
+                    transition={
+                      isReducedMotion
+                        ? { duration: 0.25 }
+                        : { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+                    }
+                  >
+                    {FACETS[active].word}
+                  </motion.span>
+                </motion.div>
               </AnimatePresence>
 
               {/* Serif line — sits above the backdrop word */}
               <AnimatePresence mode="wait">
                 <motion.p
                   key={active}
-                  className="font-display italic text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-tight] max-w-[34ch]"
+                  className="font-display italic text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-tight] max-w-[34ch]!"
                   style={{ position: "relative", zIndex: 2, fontSize: "clamp(1.5rem, 2.6vw, 2.05rem)" }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={textTransition}
+                  variants={isReducedMotion ? lineContainerVariantsReduced : lineContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                 >
-                  {FACETS[active].line}
+                  {isReducedMotion
+                    ? FACETS[active].line
+                    : FACETS[active].line.split(" ").map((word, i, arr) => (
+                        <Fragment key={`${active}-w-${i}`}>
+                          <motion.span
+                            variants={wordVariants}
+                            style={{ display: "inline-block" }}
+                          >
+                            {word}
+                          </motion.span>
+                          {i < arr.length - 1 ? " " : null}
+                        </Fragment>
+                      ))
+                  }
                 </motion.p>
               </AnimatePresence>
             </div>

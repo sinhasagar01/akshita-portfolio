@@ -1,12 +1,11 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import Reveal from "@/components/motion/Reveal";
 import SectionLabel from "@/components/ui/SectionLabel";
-import { ScrollTrigger } from "@/lib/gsap";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
 
 type Props = { settings: SiteSettingsEntry | null };
@@ -39,71 +38,11 @@ const STAGES = [
 ] as const;
 
 export default function ProcessSection(_props: Props) {
-  const prefersReduced = useReducedMotion();
-  return prefersReduced ? <ProcessSectionStatic /> : <ProcessSectionScrollable />;
-}
-
-/* ── Scrollable mode ─────────────────────────────────────────── */
-
-function ProcessSectionScrollable() {
   const [active, setActive] = useState(0);
-  const sectionRef = useRef<HTMLElement>(null);
   const stage = STAGES[active];
-  const isLastStep = active === STAGES.length - 1;
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const st = ScrollTrigger.create({
-      trigger: section,
-      start: "top top",
-      end: "bottom bottom",
-      onUpdate: (self) => {
-        setActive(Math.min(STAGES.length - 1, Math.floor(self.progress * STAGES.length)));
-      },
-    });
-
-    return () => st.kill();
-  }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      id="process"
-      className="section-card relative min-h-[180vh] scroll-mt-20"
-    >
-      <div className="sticky top-20 h-[calc(100dvh-5rem)] flex flex-col justify-center py-8">
-        <Container>
-          <Reveal>
-            <SectionLabel className="mb-[9px]">Process</SectionLabel>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h2 className="font-display italic text-section-heading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mb-6">
-              watch the idea become the design
-            </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-center">
-            <StageCopy stage={stage} />
-            <ArtifactFrame stageIndex={active} />
-          </div>
-
-          <StepStepper active={active} onSelect={setActive} />
-        </Container>
-      </div>
-    </section>
-  );
-}
-
-/* ── Static mode (prefers-reduced-motion) ────────────────────── */
-
-function ProcessSectionStatic() {
-  return (
-    <SectionWrapper
-      id="process"
-      className="scroll-mt-20"
-    >
+    <SectionWrapper id="process" className="scroll-mt-20">
       <Container>
         <Reveal>
           <SectionLabel className="mb-[9px]">Process</SectionLabel>
@@ -114,25 +53,18 @@ function ProcessSectionStatic() {
           </h2>
         </Reveal>
 
-        <div className="flex flex-col divide-y divide-[--color-border]">
-          {STAGES.map((stage, i) => (
-            <div
-              key={stage.index}
-              className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-center py-10"
-            >
-              <StageCopyStatic stage={stage} />
-              <ArtifactFrame stageIndex={i} />
-            </div>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-center">
+          <StageCopy stage={stage} />
+          <ArtifactFrame stageIndex={active} />
         </div>
 
-        <StepStepper active={STAGES.length - 1} onSelect={() => {}} />
+        <StepStepper active={active} onSelect={setActive} />
       </Container>
     </SectionWrapper>
   );
 }
 
-/* ── Stage copy variants ─────────────────────────────────────── */
+/* ── Stage copy ──────────────────────────────────────────────── */
 
 type Stage = (typeof STAGES)[number];
 
@@ -161,10 +93,8 @@ const stageLine = {
   exit: { opacity: 0, y: 0 },
 };
 
-/* Animated version — used in scrollable mode */
 function StageCopy({ stage }: { stage: Stage }) {
   return (
-    /* min-h reserves space for the tallest stage so the grid never reflows */
     <div className="relative min-h-[220px] overflow-hidden">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
@@ -213,42 +143,6 @@ function StageCopy({ stage }: { stage: Stage }) {
           </motion.div>
         </motion.div>
       </AnimatePresence>
-    </div>
-  );
-}
-
-/* Static version — no animation wrappers, used in reduced-motion mode */
-function StageCopyStatic({ stage }: { stage: Stage }) {
-  return (
-    <div className="flex flex-col">
-      <span
-        className="text-meta font-[--font-weight-medium] uppercase tracking-ui"
-        style={{ color: "var(--color-accent-500)" }}
-      >
-        {stage.index}
-      </span>
-      <h3 className="font-display italic text-subheading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mt-1 mb-2.5">
-        {stage.name}
-      </h3>
-      <p
-        className="text-[--text-sm] text-[--color-text-secondary] leading-[--leading-normal]"
-        style={{ minHeight: "64px" }}
-      >
-        {stage.description}
-      </p>
-      <div className="flex flex-wrap gap-[6px] mt-[14px]">
-        {stage.tags.map((tag) => (
-          <span
-            key={tag}
-            className="text-tag px-[11px] py-1 rounded-full text-[--color-text-muted] leading-none"
-            style={{
-              border: "1px solid color-mix(in oklch, var(--color-text-primary) 14%, transparent)",
-            }}
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
@@ -408,7 +302,6 @@ function StepStepper({ active, onSelect }: StepStepperProps) {
             <Fragment key={stage.index}>
               {i > 0 && (
                 prefersReduced ? (
-                  /* Reduced motion: instant color, no growth */
                   <div
                     className="flex-1 min-w-[18px] h-0.5"
                     style={{
@@ -418,7 +311,6 @@ function StepStepper({ active, onSelect }: StepStepperProps) {
                     }}
                   />
                 ) : (
-                  /* Animated: fill grows from left */
                   <div
                     className="flex-1 min-w-[18px] h-0.5 relative overflow-hidden"
                     style={{
@@ -459,7 +351,6 @@ function StepStepper({ active, onSelect }: StepStepperProps) {
                 }}
               >
                 {prefersReduced ? (
-                  /* Reduced motion: badge appears instantly */
                   isCompleted && (
                     <span
                       className="flex-none flex items-center justify-center rounded-full"
@@ -470,7 +361,6 @@ function StepStepper({ active, onSelect }: StepStepperProps) {
                     </span>
                   )
                 ) : (
-                  /* Animated: spring scale from zero with slight overshoot */
                   <AnimatePresence>
                     {isCompleted && (
                       <motion.span

@@ -251,7 +251,7 @@ a {
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 7%, transparent);
   margin-inline: clamp(0.75rem, 2vw, 2rem);
   margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
-  padding-inline: 2.5rem;
+  padding-inline: 3.25rem;
 }
 
 /* ============================================================
@@ -285,6 +285,51 @@ a {
   .nav-link::after {
     transition: none;
   }
+}
+
+/* ============================================================
+   Site header — transparent at top, floats into a pill on scroll
+============================================================ */
+
+/* top eases from 0 to 15px when the pill floats in */
+.site-header {
+  transition: top 0.4s ease;
+}
+
+.site-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 28px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: blur(0px) saturate(1);
+  -webkit-backdrop-filter: blur(0px) saturate(1);
+  transition:
+    background-color 0.4s ease,
+    backdrop-filter 0.4s ease,
+    -webkit-backdrop-filter 0.4s ease,
+    border-radius 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease,
+    padding 0.4s ease;
+}
+
+.site-header-bar.scrolled {
+  border-radius: 999px;
+  background-color: oklch(96.8% 0.018 78 / 0.70);
+  backdrop-filter: blur(13px) saturate(1.5);
+  -webkit-backdrop-filter: blur(13px) saturate(1.5);
+  border-color: oklch(88.0% 0.032 74);
+  padding: 11px 22px;
+  box-shadow: 0 8px 26px oklch(56% 0.14 42 / 0.10);
+}
+
+.site-header-bar .nav-link::after {
+  background-color: var(--color-accent-500);
 }
 
 /* ============================================================

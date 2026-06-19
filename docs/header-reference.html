@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Header reference</title>
+<!--
+  ============================================================
+  HEADER REFERENCE  -  floating glass pill on scroll
+                        + active-section marker + hover underline
+  ============================================================
+  This standalone file uses an inner scroll box so you can test it.
+  In the real site the header is sticky on the PAGE scroll, not a box.
+
+  TRANSLATE these literal colors to globals.css tokens:
+
+    #F4EEE3  page canvas behind the header
+             -> the warm canvas tone (--color-canvas)
+    rgba(247,242,233,.70)  frosted bar fill when scrolled
+             -> the cream surface at ~70% alpha
+                (color-mix(in srgb, var(--color-surface) 70%, transparent))
+    rgba(120,90,60,.16)  hairline / pill border
+             -> existing warm border token
+    #B5613C and rgba(181,97,60, x)  ALL terracotta
+             -> existing --color-accent-500. Used for the active-section
+                marker tint + border, the active link text, and the hover
+                underline. ONE warm accent, no blue.
+    #211C16 ink, #3a3228 link text, #7E7466 muted -> existing ink/muted tokens
+
+  FONTS:
+    Logo "Akshita"  -> Fraunces italic (existing display font)
+    Nav links       -> DM Sans (existing body font)
+    (the signature in the demo body is just filler, ignore it)
+
+  ALIGNMENT (critical):
+    The header must live in the SAME container column as the sections (the
+    container-x / max-width column). So at the top, the "Akshita" logo's left
+    edge lines up with the section panels' left edge, and the nav's right edge
+    lines up with the panels' right edge. When it floats into the pill, the
+    pill spans that SAME column, its left and right edges aligned to the section
+    panels, NOT the full viewport. Do not give the pill its own viewport-based
+    max-width or auto-centering, let the container column bound it.
+
+  BEHAVIOUR:
+    1. At the top: header is TRANSPARENT (within the column), no border, no blur.
+    2. On scroll past ~18px: header floats into the PILL within the column,
+       border-radius 999px, frosted (blur + saturate), warm border, soft shadow,
+       slightly tighter padding, and pushed DOWN from the top with top: 15px on
+       the sticky bar (not margin) so it does not touch the top edge. Same
+       frosted material as the hero tab pill.
+    3. Active-section marker: a terracotta-tinted frosted pill that SLIDES
+       under the active nav link (Work / About / Contact). Hidden while the
+       hero is in view (no section active yet). It is tinted warm, NOT neutral
+       frost, so it reads against the frosted bar.
+    4. Hover underline: a terracotta line draws in under any non-active link.
+    5. Clicking a nav link smooth-scrolls to that section.
+
+  REAL-SITE IMPLEMENTATION NOTES (do this, not the demo's scroll math):
+    - Detect the active section with an IntersectionObserver on the
+      Work / About / Contact sections (rootMargin tuned so a section becomes
+      active as it crosses just under the header). Set aria-current on it.
+    - Toggle the scrolled/floating state from a passive scroll listener
+      (or a sentinel IntersectionObserver at the very top).
+    - Move the active marker with Framer Motion layoutId (font-safe), like the
+      hero tab pill, OR measure the active link and recalc after fonts load and
+      on resize. Do NOT measure once before webfonts settle.
+    - Reduced motion: the bar swaps to the floating state without the slow
+      transition, the marker jumps to the active link without the glide, the
+      underline may appear instantly. No motion-sickness triggers.
+  ============================================================
+-->
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui;background:#d9cfc0;padding:30px 18px}
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400&family=Kaushan+Script&display=swap');
+  .cp{font-family:'DM Sans',system-ui,sans-serif;color:#211C16;max-width:1000px;margin:0 auto}
+  .cp-scroll{position:relative;height:460px;overflow-y:auto;border-radius:16px;background:#F4EEE3;border:1px solid rgba(120,90,60,.1)}
+  .cp-bar{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;margin:0 auto;max-width:100%;background:transparent;border:1px solid transparent;border-radius:0;transition:background .4s,backdrop-filter .4s,padding .4s,margin .4s,max-width .4s,border-radius .4s,border-color .4s,box-shadow .4s,top .4s}
+  .cp-bar.scrolled{top:15px;margin:0 auto;max-width:calc(100% - 26px);border-radius:999px;background:rgba(247,242,233,.7);-webkit-backdrop-filter:blur(13px) saturate(1.5);backdrop-filter:blur(13px) saturate(1.5);border-color:rgba(120,90,60,.16);padding:11px 22px;box-shadow:0 8px 26px rgba(120,90,60,.1)}
+  .cp-logo{font-family:'Fraunces',serif;font-style:italic;font-size:22px}
+  .cp-nav{position:relative;display:inline-flex;gap:4px}
+  .cp-pill{position:absolute;top:50%;left:0;height:34px;transform:translateY(-50%);border-radius:999px;background:rgba(181,97,60,.12);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(181,97,60,.34);box-shadow:inset 0 1px 0 rgba(255,255,255,.4);opacity:0;z-index:1;transition:transform .42s cubic-bezier(.34,1.4,.5,1),width .42s cubic-bezier(.34,1.4,.5,1),opacity .3s}
+  .cp-link{position:relative;z-index:2;font-size:14px;color:#3a3228;background:none;border:none;cursor:pointer;padding:7px 14px;border-radius:999px;transition:color .25s;font-family:'DM Sans'}
+  .cp-link::after{content:"";position:absolute;left:14px;right:14px;bottom:3px;height:1.5px;background:#B5613C;transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+  .cp-link:hover::after{transform:scaleX(1)}
+  .cp-link.act{color:#B5613C}
+  .cp-link.act::after{transform:scaleX(0)}
+  .cp-sec{padding:0 28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .cp-hero{height:300px;gap:10px}
+  .cp-sig{font-family:'Kaushan Script',cursive;color:#B5613C;font-size:34px}
+  .cp-eb{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7E7466}
+  .cp-serif{font-family:'Fraunces',serif;font-style:italic;font-size:23px;max-width:420px}
+  .cp-panel{height:330px;margin:0 22px 18px;border-radius:16px;background:#FBF7EF;border:1px solid rgba(120,90,60,.08);display:flex;align-items:center;justify-content:center}
+  .cp-ptitle{font-family:'Fraunces',serif;font-style:italic;font-size:30px;color:#cbb9a4}
+</style>
+</head>
+<body>
+<div class="cp">
+  <div class="cp-scroll" id="cpScroll">
+    <div class="cp-bar" id="cpBar">
+      <div class="cp-logo">Akshita</div>
+      <nav class="cp-nav" id="cpNav"><span class="cp-pill" id="cpPill"></span></nav>
+    </div>
+    <div class="cp-sec cp-hero">
+      <div class="cp-sig">Akshita Singh</div>
+      <div class="cp-eb">Product designer</div>
+      <div class="cp-serif">A product designer who turns rough ideas into products people use.</div>
+    </div>
+    <div class="cp-panel" id="cwork"><span class="cp-ptitle">Work</span></div>
+    <div class="cp-panel" id="cabout"><span class="cp-ptitle">About</span></div>
+    <div class="cp-panel" id="ccontact"><span class="cp-ptitle">Contact</span></div>
+  </div>
+</div>
+<script>
+(function(){
+  var scroll=document.getElementById('cpScroll'),bar=document.getElementById('cpBar'),nav=document.getElementById('cpNav'),pill=document.getElementById('cpPill');
+  var ids=['cwork','cabout','ccontact'],labels=['Work','About','Contact'],links=[];
+  labels.forEach(function(t,i){var b=document.createElement('button');b.className='cp-link';b.textContent=t;b.onclick=function(){var el=document.getElementById(ids[i]);scroll.scrollTo({top:el.offsetTop-46,behavior:'smooth'});};nav.appendChild(b);links.push(b);});
+  function setActive(idx){links.forEach(function(b,j){b.classList.toggle('act',j===idx);});if(idx<0){pill.style.opacity=0;return;}var b=links[idx];pill.style.opacity=1;pill.style.width=b.offsetWidth+'px';pill.style.transform='translateY(-50%) translateX('+b.offsetLeft+'px)';}
+  function onScroll(){
+    if(scroll.scrollTop>18)bar.classList.add('scrolled');else bar.classList.remove('scrolled');
+    var probe=scroll.scrollTop+70,act=-1;
+    ids.forEach(function(id,i){var el=document.getElementById(id);if(el.offsetTop-12<=probe)act=i;});
+    setActive(act);
+  }
+  scroll.addEventListener('scroll',onScroll);onScroll();
+  function recalc(){onScroll();}
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(recalc);
+  window.addEventListener('resize',recalc);
+})();
+</script>
+</body>
+</html>

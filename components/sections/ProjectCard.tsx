@@ -1,46 +1,127 @@
+"use client";
+
 import Link from "next/link";
+import { useRef, useState, useEffect } from "react";
 import type { ProjectListItem } from "@/lib/keystatic";
 import { PROJECT_SVGS } from "./ProjectCardSvgs";
 
 type Props = { project: ProjectListItem };
+
+// Expo-out — the same curve on every transition for a cohesive feel
+const E = "cubic-bezier(.16,1,.3,1)";
 
 export default function ProjectCard({ project }: Props) {
   const { slug, title, summary, facts } = project;
   const eyebrow = [facts.type, facts.platform].filter(Boolean).join(" · ");
   const svg = PROJECT_SVGS[slug];
 
+  // Default true (reduced) so SSR never renders the spotlight, avoiding hydration mismatch
+  const [reducedMotion, setReducedMotion] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const spotRef = useRef<HTMLDivElement>(null);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!spotRef.current) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    spotRef.current.style.left = `${e.clientX - r.left}px`;
+    spotRef.current.style.top = `${e.clientY - r.top}px`;
+  }
+  function handleMouseEnter() {
+    if (spotRef.current) spotRef.current.style.opacity = "1";
+  }
+  function handleMouseLeave() {
+    if (spotRef.current) spotRef.current.style.opacity = "0";
+  }
+
   return (
     <article className="group cursor-pointer">
-      {/* Folder wrapper — glow + fold sit here */}
       <div className="relative">
-        {/* Warm radial glow, fades up on hover */}
+
+        {/* Warm radial glow behind the card */}
         <div
           aria-hidden="true"
-          className="pc-glow absolute -inset-5 rounded-[22px] opacity-0 transition-opacity duration-500 pointer-events-none group-hover:opacity-100"
+          className="pc-glow absolute -inset-5 rounded-[22px] opacity-0 pointer-events-none group-hover:opacity-100"
+          style={{ transition: `opacity 420ms ${E}` }}
         />
 
-        {/* Folder surface */}
-        <div className="pc-fold relative border border-[--color-border] rounded-[12px] bg-[--color-surface] p-2 transition-transform duration-[450ms] [transition-timing-function:cubic-bezier(.22,1,.36,1)] group-hover:-translate-y-[6px]">
+        {/* Folder surface — lifts the whole card on hover */}
+        <div
+          className="pc-fold relative border border-[--color-border] rounded-[12px] bg-[--color-surface] p-2 group-hover:-translate-y-[6px]"
+          style={{ transition: `transform 560ms ${E}`, willChange: "transform" }}
+        >
 
-          {/* Case study tab — sits above the fold top edge */}
-          <div className="pc-tab absolute -top-[19px] left-[18px] border border-b-0 border-[--color-border] rounded-t-[8px] bg-[--color-surface] px-[14px] pt-[5px] pb-2 text-[10px] tracking-[0.13em] uppercase text-[--color-text-muted] transition-colors duration-300 group-hover:text-[--color-accent]">
+          {/* Case study tab */}
+          <div
+            className="pc-tab absolute -top-[19px] left-[18px] border border-b-0 border-[--color-border] rounded-t-[8px] bg-[--color-surface] px-[14px] pt-[5px] pb-2 text-[10px] tracking-[0.13em] uppercase text-[--color-text-muted] group-hover:text-[--color-accent]"
+            style={{ transition: `color 300ms ${E}` }}
+          >
             Case study
           </div>
 
-          {/* Image frame — fixed aspect ratio, muted filter at rest */}
-          <div className="pc-shot relative aspect-[16/10] rounded-[7px] overflow-hidden [filter:saturate(.45)_brightness(1.04)] transition-[filter,transform] duration-[550ms] ease-out group-hover:[filter:none] group-hover:scale-[1.04]">
-            {svg ?? null}
-            {/* Warm tint — multiply blend fades out on hover */}
+          {/* Image frame — overflow-hidden clips the inner zoom and spotlight */}
+          <div
+            className="pc-shot relative aspect-[16/10] rounded-[7px] overflow-hidden"
+            onMouseMove={reducedMotion ? undefined : handleMouseMove}
+            onMouseEnter={reducedMotion ? undefined : handleMouseEnter}
+            onMouseLeave={reducedMotion ? undefined : handleMouseLeave}
+          >
+
+            {/* Scale layer — transform only, fully GPU composited */}
+            <div
+              className="absolute inset-0 group-hover:scale-[1.07]"
+              style={{ transition: `transform 720ms ${E}`, willChange: "transform" }}
+            >
+              {svg ?? null}
+            </div>
+
+            {/* Muting veil — opacity only, fully GPU composited.
+                Warm near-white wash at rest, clears on hover.
+                Replaces filter:saturate() which cannot be GPU composited. */}
             <div
               aria-hidden="true"
-              className="pc-tint absolute inset-0 opacity-[.34] transition-opacity duration-[550ms] group-hover:opacity-0 pointer-events-none"
-              style={{ background: "#E7C7AE", mixBlendMode: "multiply" }}
+              className="absolute inset-0 pointer-events-none opacity-[.50] group-hover:opacity-0"
+              style={{
+                background: "oklch(90% 0.014 74)",
+                transition: `opacity 580ms ${E}`,
+              }}
             />
+
+            {/* Warm cursor spotlight — follows pointer, fades in/out on enter/leave.
+                Not rendered under prefers-reduced-motion. */}
+            {!reducedMotion && (
+              <div
+                ref={spotRef}
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  width: 230,
+                  height: 230,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(circle, rgba(255,238,214,.55) 0%, rgba(255,238,214,0) 60%)",
+                  left: 0,
+                  top: 0,
+                  transform: "translate(-50%, -50%)",
+                  opacity: 0,
+                  transition: `opacity 350ms ${E}`,
+                  pointerEvents: "none",
+                  zIndex: 4,
+                }}
+              />
+            )}
+
           </div>
         </div>
       </div>
 
-      {/* Meta — eyebrow, title with arrow, description */}
+      {/* Meta */}
       <div className="mt-[18px]">
         {eyebrow && (
           <p className="text-[11px] tracking-[0.12em] uppercase text-[--color-text-muted] max-w-none">
@@ -55,7 +136,8 @@ export default function ProjectCard({ project }: Props) {
             <span>{title}</span>
             <span
               aria-hidden="true"
-              className="pc-arr text-[--color-accent] transition-transform duration-[350ms] group-hover:translate-x-[6px]"
+              className="pc-arr text-[--color-accent] group-hover:translate-x-[5px]"
+              style={{ transition: `transform 400ms ${E}` }}
             >
               &#8594;
             </span>

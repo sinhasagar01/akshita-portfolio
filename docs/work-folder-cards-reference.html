@@ -8,7 +8,10 @@
   REFERENCE ONLY. Final approved visual target for the Work project cards.
   Rebuild ProjectCard to match this exactly, folder frame, a Case study tab,
   a warm glow behind, a muted warm filter on the image that clears on hover,
-  and the hover, card lift, image zoom, tab and arrow to terracotta, arrow slide.
+  and the hover, card lift, image zoom, tab and arrow to terracotta, arrow slide,
+  PLUS a warm CURSOR SPOTLIGHT that follows the pointer across the image while
+  hovering (a radial warm light, echoes the hero cursor glow). On mouseleave it
+  fades out. Disabled under reduced motion.
 
   All FOUR cards have a graphic with the brand wordmark baked in. Use the four
   inline app-screen SVGs here as the images, in this order:
@@ -43,13 +46,15 @@ body{margin:0;background:#FAF6EE;padding:48px}
 .card:hover .shot{filter:none;transform:scale(1.04)}
 .tint{position:absolute;inset:0;background:#E7C7AE;mix-blend-mode:multiply;opacity:.34;transition:opacity .55s;pointer-events:none}
 .card:hover .tint{opacity:0}
+.spot{position:absolute;width:230px;height:230px;border-radius:50%;transform:translate(-50%,-50%);left:50%;top:50%;pointer-events:none;z-index:4;opacity:0;background:radial-gradient(circle,rgba(255,238,214,.55) 0%,rgba(255,238,214,0) 60%);transition:opacity .35s}
+.card:hover .spot{opacity:1}
 .meta{margin-top:18px}
 .ey{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8A8073}
 .ttl{font-size:21px;font-weight:600;margin:7px 0 8px;color:#211C16;display:flex;align-items:center;gap:9px}
 .arr{color:#B5613C;transition:transform .35s}
 .card:hover .arr{transform:translateX(6px)}
 .desc{font-size:13.5px;line-height:1.5;color:#5F584E;max-width:340px}
-@media (prefers-reduced-motion:reduce){.fold,.shot,.tint,.arr,.glow{transition:none}.card:hover .fold,.card:hover .shot{transform:none}}
+@media (prefers-reduced-motion:reduce){.fold,.shot,.tint,.arr,.glow{transition:none}.card:hover .fold,.card:hover .shot{transform:none}.spot{display:none}}
 </style>
 </head>
 <body>
@@ -67,7 +72,7 @@ body{margin:0;background:#FAF6EE;padding:48px}
         <path d="M244 72 a44 44 0 0 1 38 66" fill="none" stroke="#f08a2e" stroke-width="9" stroke-linecap="round"/>
         <path d="M200 116 a44 44 0 0 0 22 38" fill="none" stroke="#2f7de1" stroke-width="9" stroke-linecap="round"/>
         <text x="224" y="122" fill="#fff" font-size="17" font-weight="700" font-family="DM Sans">68%</text>
-      </svg><div class="tint"></div></div></div></div>
+      </svg><div class="tint"></div><div class="spot"></div></div></div></div>
       <div class="meta"><div class="ey">Mobile app redesign &middot; Android and iOS</div><div class="ttl">boAt Crest <span class="arr">&#8594;</span></div><div class="desc">Rebuilding boAt's fitness companion app into a calm, guided experience, lifting the rating from 2.3 to 4.</div></div>
   </div>
 
@@ -82,7 +87,7 @@ body{margin:0;background:#FAF6EE;padding:48px}
         <rect x="34" y="120" width="14" height="34" rx="3" fill="#5b6ef0"/><rect x="54" y="104" width="14" height="50" rx="3" fill="#8a98f5"/><rect x="74" y="90" width="14" height="64" rx="3" fill="#5b6ef0"/><rect x="94" y="116" width="14" height="38" rx="3" fill="#b8c1f8"/>
         <rect x="186" y="48" width="114" height="56" rx="10" fill="#5b6ef0"/><text x="200" y="72" fill="#fff" font-size="11" font-family="DM Sans">AI insight</text><rect x="200" y="80" width="78" height="6" rx="3" fill="rgba(255,255,255,.5)"/>
         <rect x="186" y="114" width="114" height="56" rx="10" fill="#fff" stroke="#e4e8f2"/><rect x="200" y="132" width="86" height="7" rx="3" fill="#d6dbe8"/><rect x="200" y="146" width="62" height="7" rx="3" fill="#e4e8f2"/>
-      </svg><div class="tint"></div></div></div></div>
+      </svg><div class="tint"></div><div class="spot"></div></div></div></div>
       <div class="meta"><div class="ey">AI product design within an enterprise suite &middot; Web</div><div class="ttl">Fosfor AI <span class="arr">&#8594;</span></div><div class="desc">An AI companion inside the Fosfor Decision Cloud that guides three kinds of users from data to decision.</div></div>
   </div>
 
@@ -100,7 +105,7 @@ body{margin:0;background:#FAF6EE;padding:48px}
         <g fill="#5b6ef0"><rect x="104" y="116" width="8" height="44" rx="2"/><rect x="116" y="98" width="8" height="62" rx="2"/><rect x="128" y="126" width="8" height="34" rx="2"/><rect x="140" y="108" width="8" height="52" rx="2"/></g>
         <g fill="#c3cadb"><rect x="176" y="128" width="8" height="32" rx="2"/><rect x="188" y="110" width="8" height="50" rx="2"/><rect x="200" y="122" width="8" height="38" rx="2"/><rect x="212" y="100" width="8" height="60" rx="2"/></g>
         <circle cx="268" cy="124" r="22" fill="none" stroke="#e4e8f2" stroke-width="7"/><path d="M268 102 a22 22 0 1 1 -15 38" fill="none" stroke="#5b6ef0" stroke-width="7" stroke-linecap="round"/><text x="259" y="128" fill="#5b6ef0" font-size="11" font-weight="700" font-family="DM Sans">92</text>
-      </svg><div class="tint"></div></div></div></div>
+      </svg><div class="tint"></div><div class="spot"></div></div></div></div>
       <div class="meta"><div class="ey">Enterprise data tool, feature design &middot; Web</div><div class="ttl">Fosfor Data Profiling <span class="arr">&#8594;</span></div><div class="desc">A data profiling experience in the Fosfor Decision Cloud, so teams can judge the quality and shape of their data before trusting it.</div></div>
   </div>
 
@@ -123,9 +128,18 @@ body{margin:0;background:#FAF6EE;padding:48px}
         <rect x="164" y="132" width="46" height="6" rx="3" fill="#cdd6df"/><text x="288" y="139" fill="#1f6fd6" font-size="12" font-weight="700" font-family="DM Sans" text-anchor="end">142</text>
         <line x1="164" y1="150" x2="288" y2="150" stroke="#eef1f6" stroke-width="1"/>
         <rect x="164" y="160" width="58" height="6" rx="3" fill="#cdd6df"/><rect x="254" y="158" width="34" height="11" rx="5.5" fill="#e3f5ea"/><text x="271" y="167" fill="#2aa45a" font-size="8" font-weight="600" font-family="DM Sans" text-anchor="middle">OK</text>
-      </svg><div class="tint"></div></div></div></div>
+      </svg><div class="tint"></div><div class="spot"></div></div></div></div>
       <div class="meta"><div class="ey">Enterprise mobile app, industry project &middot; Mobile</div><div class="ttl">Otis ONE View <span class="arr">&#8594;</span></div><div class="desc">The connected interface field mechanics use to monitor and maintain Otis elevators worldwide, made fast in the field.</div></div>
   </div>
 </div>
+<script>
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  document.querySelectorAll('.shot').forEach(function(shot){
+    var spot=shot.querySelector('.spot');if(!spot)return;
+    shot.addEventListener('mousemove',function(e){var r=shot.getBoundingClientRect();spot.style.left=(e.clientX-r.left)+'px';spot.style.top=(e.clientY-r.top)+'px';});
+  });
+})();
+</script>
 </body>
 </html>
