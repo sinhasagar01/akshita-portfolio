@@ -3,12 +3,12 @@ import Container from "./Container";
 
 export default function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 bg-[--color-background]">
+    <header className="sticky top-0 z-30 bg-[--color-background] border-b border-[--color-border]">
       <Container>
-        <nav className="flex items-center justify-between py-6">
+        <nav className="flex items-center justify-between py-5">
           <Link
             href="/"
-            className="font-display italic text-xl text-[--color-text-primary]"
+            className="font-display italic text-xl text-[--color-text-primary] hover:text-[--color-accent] transition-colors duration-[--duration-base]"
           >
             Akshita
           </Link>
@@ -16,7 +16,7 @@ export default function SiteHeader() {
             <li>
               <Link
                 href="/#work"
-                className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+                className="nav-link text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors duration-[--duration-base]"
               >
                 Work
               </Link>
@@ -24,7 +24,7 @@ export default function SiteHeader() {
             <li>
               <Link
                 href="/#about"
-                className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+                className="nav-link text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors duration-[--duration-base]"
               >
                 About
               </Link>
@@ -32,7 +32,7 @@ export default function SiteHeader() {
             <li>
               <Link
                 href="/#contact"
-                className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+                className="nav-link text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors duration-[--duration-base]"
               >
                 Contact
               </Link>

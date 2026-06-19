@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getCaseStudyData, getProjectSlugs } from "@/lib/keystatic";
 import CaseStudyBlockRenderer from "@/components/blocks/CaseStudyBlockRenderer";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,8 +26,8 @@ export default async function CaseStudyPage({ params }: Props) {
 
   return (
     <main>
-      {data.heroImage && (
-        <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
+      <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
+        {data.heroImage ? (
           <Image
             src={data.heroImage}
             alt={data.title}
@@ -35,8 +36,10 @@ export default async function CaseStudyPage({ params }: Props) {
             sizes="100vw"
             className="object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <ImagePlaceholder label="2100 × 900" />
+        )}
+      </div>
       {data.blocks.map((block, i) => (
         <CaseStudyBlockRenderer key={i} block={block} />
       ))}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import SectionLabel from "@/components/ui/SectionLabel";
@@ -19,9 +20,9 @@ export default function ProblemBlock({ data }: Props) {
             {data.statement}
           </p>
         </Reveal>
-        {data.image && (
-          <Reveal delay={0.08} className="mt-12">
-            <div className="relative aspect-[16/9] rounded-[--radius-md] overflow-hidden bg-[--color-surface]">
+        <Reveal delay={0.08} className="mt-12">
+          <div className="relative aspect-[16/9] rounded-[--radius-md] overflow-hidden bg-[--color-surface]">
+            {data.image ? (
               <Image
                 src={data.image}
                 alt="Problem context"
@@ -29,9 +30,11 @@ export default function ProblemBlock({ data }: Props) {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 85vw"
               />
-            </div>
-          </Reveal>
-        )}
+            ) : (
+              <ImagePlaceholder label="1920 × 1080" />
+            )}
+          </div>
+        </Reveal>
       </Container>
     </SectionWrapper>
   );

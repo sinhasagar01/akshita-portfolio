@@ -25,9 +25,9 @@ export default function Reveal({
   return (
     <motion.div
       ref={ref}
-      initial={prefersReduced ? false : { opacity: 0, y: 24 }}
+      initial={prefersReduced ? false : { opacity: 0, y: 14 }}
       animate={
-        prefersReduced ? false : isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }
+        prefersReduced ? false : isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }
       }
       transition={{
         duration: 0.5,

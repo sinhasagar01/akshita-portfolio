@@ -18,29 +18,43 @@ export default function ContactSection({ settings }: Props) {
         <Grid cols={12}>
           <div className="col-span-4 md:col-span-8 flex flex-col gap-10">
             <Reveal>
-              <h2 className="font-display italic text-4xl text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] max-w-[20ch]">
+              <h2 className="font-display italic text-[--text-4xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] max-w-[20ch]">
                 Get in touch
               </h2>
             </Reveal>
+
             <Reveal delay={0.1}>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-8">
                 {settings.email && (
                   <a
                     href={`mailto:${settings.email}`}
-                    className="font-display italic text-2xl text-[--color-text-primary] underline underline-offset-4 decoration-1 hover:text-[--color-accent] transition-colors w-fit"
+                    className="group inline-flex items-center gap-2 font-display italic text-[--text-2xl] text-[--color-text-primary] hover:text-[--color-accent] transition-colors duration-[--duration-base] w-fit"
                   >
                     {settings.email}
+                    <span
+                      aria-hidden="true"
+                      className="inline-block transition-transform duration-[--duration-base] ease-[--ease-out-expo] group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
                   </a>
                 )}
-                <div className="flex flex-wrap items-center gap-6">
+
+                <div className="flex flex-wrap items-center gap-4">
                   {settings.resumeUrl && (
                     <a
                       href={settings.resumeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-6 py-3 bg-[--color-accent] text-[--color-cream-50] rounded-[--radius-md] text-sm font-medium tracking-[--tracking-wide] hover:bg-[--color-accent-600] transition-colors"
+                      className="group inline-flex items-center gap-2 px-5 py-2.5 bg-[--color-ink-950] text-[--color-cream-50] rounded-[--radius-md] text-sm font-medium tracking-[--tracking-wide] hover:bg-[--color-ink-800] transition-colors duration-[--duration-base]"
                     >
-                      View resume
+                      Resume
+                      <span
+                        aria-hidden="true"
+                        className="inline-block transition-transform duration-[--duration-base] ease-[--ease-out-expo] group-hover:translate-x-0.5"
+                      >
+                        ↗
+                      </span>
                     </a>
                   )}
                   {settings.linkedinUrl && (
@@ -48,7 +62,7 @@ export default function ContactSection({ settings }: Props) {
                       href={settings.linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+                      className="nav-link text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors duration-[--duration-base]"
                     >
                       LinkedIn
                     </a>
@@ -58,7 +72,7 @@ export default function ContactSection({ settings }: Props) {
                       href={settings.dribbbleUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+                      className="nav-link text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors duration-[--duration-base]"
                     >
                       Dribbble
                     </a>
@@ -68,7 +82,7 @@ export default function ContactSection({ settings }: Props) {
                       href={settings.behanceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
+                      className="nav-link text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors duration-[--duration-base]"
                     >
                       Behance
                     </a>

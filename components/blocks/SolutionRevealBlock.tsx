@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import SectionLabel from "@/components/ui/SectionLabel";
@@ -22,9 +23,9 @@ export default function SolutionRevealBlock({ data }: Props) {
           </Reveal>
         </Container>
       </SectionWrapper>
-      {data.image && (
-        <Reveal>
-          <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
+      <Reveal>
+        <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
+          {data.image ? (
             <Image
               src={data.image}
               alt="Solution visual"
@@ -32,9 +33,11 @@ export default function SolutionRevealBlock({ data }: Props) {
               className="object-cover"
               sizes="100vw"
             />
-          </div>
-        </Reveal>
-      )}
+          ) : (
+            <ImagePlaceholder label="2100 × 900" />
+          )}
+        </div>
+      </Reveal>
     </div>
   );
 }

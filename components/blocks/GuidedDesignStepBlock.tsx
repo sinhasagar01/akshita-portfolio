@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import Container from "@/components/layout/Container";
 import Grid from "@/components/layout/Grid";
 import SectionWrapper from "@/components/layout/SectionWrapper";
@@ -15,7 +16,7 @@ export default function GuidedDesignStepBlock({ data }: Props) {
     <SectionWrapper className="border-t border-[--color-border]">
       <Container>
         <Grid cols={12} className="items-center">
-          <Reveal className={`col-span-4 ${data.image ? "md:col-span-5" : "md:col-span-8"}`}>
+          <Reveal className="col-span-4 md:col-span-5">
             <SectionLabel>Design</SectionLabel>
             <h3 className="font-body font-semibold text-[--text-2xl] text-[--color-text-primary] leading-[--leading-snug] mt-2">
               {data.title}
@@ -26,9 +27,9 @@ export default function GuidedDesignStepBlock({ data }: Props) {
               </p>
             )}
           </Reveal>
-          {data.image && (
-            <Reveal delay={0.05} className="col-span-4 md:col-span-7">
-              <div className="relative aspect-[4/3] rounded-[--radius-md] overflow-hidden bg-[--color-surface]">
+          <Reveal delay={0.05} className="col-span-4 md:col-span-7">
+            <div className="relative aspect-[4/3] rounded-[--radius-md] overflow-hidden bg-[--color-surface]">
+              {data.image ? (
                 <Image
                   src={data.image}
                   alt={data.title}
@@ -36,9 +37,11 @@ export default function GuidedDesignStepBlock({ data }: Props) {
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 58vw"
                 />
-              </div>
-            </Reveal>
-          )}
+              ) : (
+                <ImagePlaceholder label="1200 × 900" />
+              )}
+            </div>
+          </Reveal>
         </Grid>
       </Container>
     </SectionWrapper>

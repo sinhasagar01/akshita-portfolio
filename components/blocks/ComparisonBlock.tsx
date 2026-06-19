@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import Container from "@/components/layout/Container";
 import Grid from "@/components/layout/Grid";
 import SectionWrapper from "@/components/layout/SectionWrapper";
@@ -9,7 +10,6 @@ import type { ComparisonData } from "@/lib/keystatic";
 type Props = { data: ComparisonData["value"] };
 
 export default function ComparisonBlock({ data }: Props) {
-  if (!data.beforeImage && !data.afterImage) return null;
 
   return (
     <SectionWrapper className="border-t border-[--color-border]">
@@ -23,11 +23,11 @@ export default function ComparisonBlock({ data }: Props) {
             { src: data.afterImage, label: "After" },
           ].map(({ src, label }) => (
             <Reveal key={label} className="col-span-4 md:col-span-6">
-              <p className="text-xs tracking-[--tracking-widest] uppercase text-[--color-text-muted] mb-3">
+              <p className="text-eyebrow tracking-eyebrow uppercase text-[--color-text-muted] mb-3">
                 {label}
               </p>
               <div className="relative aspect-[4/3] rounded-[--radius-md] overflow-hidden bg-[--color-surface]">
-                {src && (
+                {src ? (
                   <Image
                     src={src}
                     alt={label}
@@ -35,6 +35,8 @@ export default function ComparisonBlock({ data }: Props) {
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
+                ) : (
+                  <ImagePlaceholder label="1200 × 900" />
                 )}
               </div>
             </Reveal>

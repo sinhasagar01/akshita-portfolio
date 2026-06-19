@@ -26,7 +26,7 @@ export default function CaseStudyDocumentRenderer({ document }: Props) {
             heading: ({ level, children }) => {
               if (level === 2) {
                 return (
-                  <h2 className="font-display italic text-[--text-3xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] mt-8 mb-4">
+                  <h2 className="font-display italic text-section-heading text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] mt-8 mb-4">
                     {children}
                   </h2>
                 );
