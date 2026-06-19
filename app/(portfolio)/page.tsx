@@ -11,7 +11,7 @@ export default async function HomePage() {
   const { settings, skills, projects, experience } = await getHomePageData();
 
   return (
-    <main>
+    <main className="container-x">
       <HeroSection />
       <ProjectsSection projects={projects} />
       <AboutSection settings={settings} />

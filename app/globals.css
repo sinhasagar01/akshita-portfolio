@@ -102,7 +102,6 @@
   --spacing-64:  16rem;
 
   --spacing-section: clamp(3.5rem, 7vw, 6rem);
-  --spacing-content: clamp(1.25rem, 3vw, 2rem);
 
   /* ============================================================
      Border radius
@@ -220,6 +219,18 @@ a {
   color: inherit;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
+}
+
+/* ============================================================
+   Content column — single source of truth for max-width and gutters.
+   Used by Container.tsx. Defined here so the JIT scanner never misses it.
+============================================================ */
+
+.container-x {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
 }
 
 /* ============================================================

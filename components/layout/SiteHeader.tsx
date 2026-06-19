@@ -1,10 +1,9 @@
 import Link from "next/link";
-import Container from "./Container";
 
 export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 bg-[--color-background]">
-      <Container>
+      <div className="container-x">
         <nav className="flex items-center justify-between py-5">
           <Link
             href="/"
@@ -39,7 +38,7 @@ export default function SiteHeader() {
             </li>
           </ul>
         </nav>
-      </Container>
+      </div>
     </header>
   );
 }

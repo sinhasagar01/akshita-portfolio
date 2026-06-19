@@ -8,7 +8,7 @@ type Props = {
 
 export default function Container({ as: Tag = "div", className, children }: Props) {
   return (
-    <Tag className={`max-w-[72rem] mx-auto px-[--spacing-content]${className ? ` ${className}` : ""}`}>
+    <Tag className={className ?? ""}>
       {children}
     </Tag>
   );

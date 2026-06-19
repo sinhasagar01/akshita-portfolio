@@ -25,7 +25,7 @@ export default async function CaseStudyPage({ params }: Props) {
   if (!data) notFound();
 
   return (
-    <main>
+    <main className="container-x">
       <div
         className="section-card relative aspect-[21/9] overflow-hidden bg-[--color-surface]"
         style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
