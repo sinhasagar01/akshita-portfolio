@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills reference</title>
+<!--
+  ============================================================
+  SKILLS REFERENCE  -  soft warm pills, grouped by category
+  ============================================================
+  Replaces the hard outlined boxes with friendly rounded pills that match the
+  pill language already used in the hero, header, and about chips.
+
+  TRANSLATE chrome colors to tokens (skills data stays from the CMS):
+    #FBF6EE panel       -> --color-cream-50 (section-card bg)
+    #94806f eyebrow     -> --color-text-muted
+    #B5613C category labels + hover text/border -> --color-accent-500
+    #3a3228 pill text    -> --color-text-secondary (or ink)
+    #F2EADD pill fill    -> --color-cream-200 (warm surface step)
+    rgba(120,90,60,.16) pill border -> --color-border
+    pill hover bg (#fff) -> --color-cream-50 or white, a lighter step than rest
+
+  STRUCTURE:
+    - "Skills" eyebrow.
+    - For each category (Design, Research, Craft, Tools): a small terracotta
+      UPPERCASE label, then a wrapping row of pills.
+    - Categories and their skills come from the existing CMS skills data,
+      do not hardcode the lists, map over them.
+
+  PILL:
+    - At rest: warm cream fill, 1px faint warm border, fully rounded, ink text,
+      padding about 9px 16px, font DM Sans 14px.
+    - On hover: lifts up ~2px, border and text go terracotta, fill lightens.
+      Transition about .25s on background, border, color, transform.
+
+  Fonts: DM Sans throughout (eyebrow, labels, pills). No Fraunces here.
+  Reduced motion: NO lift on hover (drop the translateY), a color change is fine
+  but no transform.
+  ============================================================
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+body{margin:0;background:#e7ddcd;padding:40px;font-family:system-ui}
+.sb{max-width:1000px;margin:0 auto;background:#FBF6EE;border:1px solid rgba(120,90,60,.12);border-radius:18px;padding:46px 44px;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+.sb-ey{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#94806f;margin-bottom:30px}
+.sb-group{margin-bottom:26px}
+.sb-group:last-child{margin-bottom:0}
+.sb-glabel{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B5613C;margin-bottom:12px}
+.sb-pills{display:flex;flex-wrap:wrap;gap:9px}
+.sb-pill{font-size:14px;color:#3a3228;background:#F2EADD;border:1px solid rgba(120,90,60,.16);border-radius:999px;padding:9px 16px;cursor:default;transition:background .25s,border-color .25s,color .25s,transform .25s}
+.sb-pill:hover{background:#fff;border-color:rgba(181,97,60,.45);color:#B5613C;transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.sb-pill{transition:background .25s,border-color .25s,color .25s}.sb-pill:hover{transform:none}}
+</style>
+</head>
+<body>
+<div class="sb">
+  <div class="sb-ey">Skills</div>
+  <div class="sb-group"><div class="sb-glabel">Design</div><div class="sb-pills"><span class="sb-pill">Product Design</span><span class="sb-pill">UX Design</span><span class="sb-pill">UI Design</span><span class="sb-pill">Interaction Design</span><span class="sb-pill">Design Systems</span></div></div>
+  <div class="sb-group"><div class="sb-glabel">Research</div><div class="sb-pills"><span class="sb-pill">UX Research</span><span class="sb-pill">Journey Mapping</span><span class="sb-pill">Usability Testing</span><span class="sb-pill">Split Testing</span></div></div>
+  <div class="sb-group"><div class="sb-glabel">Craft</div><div class="sb-pills"><span class="sb-pill">Wireframing</span><span class="sb-pill">Rapid Prototyping</span><span class="sb-pill">Information Architecture</span></div></div>
+  <div class="sb-group"><div class="sb-glabel">Tools</div><div class="sb-pills"><span class="sb-pill">Figma</span><span class="sb-pill">Sketch</span><span class="sb-pill">Adobe XD</span><span class="sb-pill">Framer</span><span class="sb-pill">Miro</span><span class="sb-pill">Azure DevOps</span></div></div>
+</div>
+</body>
+</html>
