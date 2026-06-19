@@ -4,7 +4,7 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 bg-[--color-background]">
       <div className="container-x">
-        <nav className="flex items-center justify-between py-5">
+        <nav className="flex items-center justify-between py-5" style={{ paddingInline: "2.5rem" }}>
           <Link
             href="/"
             className="font-display italic text-xl text-[--color-text-primary] hover:text-[--color-accent] transition-colors duration-[--duration-base]"

@@ -251,6 +251,7 @@ a {
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 7%, transparent);
   margin-inline: clamp(0.75rem, 2vw, 2rem);
   margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
+  padding-inline: 2.5rem;
 }
 
 /* ============================================================
