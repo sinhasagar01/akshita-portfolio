@@ -23,21 +23,23 @@ export default function SolutionRevealBlock({ data }: Props) {
           </Reveal>
         </Container>
       </SectionWrapper>
-      <Reveal>
-        <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
-          {data.image ? (
-            <Image
-              src={data.image}
-              alt="Solution visual"
-              fill
-              className="object-cover"
-              sizes="100vw"
-            />
-          ) : (
-            <ImagePlaceholder label="2100 × 900" />
-          )}
-        </div>
-      </Reveal>
+      <Container>
+        <Reveal>
+          <div className="relative aspect-[21/9] w-full overflow-hidden bg-[--color-surface]">
+            {data.image ? (
+              <Image
+                src={data.image}
+                alt="Solution visual"
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            ) : (
+              <ImagePlaceholder label="2100 × 900" />
+            )}
+          </div>
+        </Reveal>
+      </Container>
     </div>
   );
 }

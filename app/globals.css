@@ -102,7 +102,7 @@
   --spacing-64:  16rem;
 
   --spacing-section: clamp(3.5rem, 7vw, 6rem);
-  --spacing-content: clamp(2rem, 4vw, 4rem);
+  --spacing-content: clamp(1.25rem, 3vw, 2rem);
 
   /* ============================================================
      Border radius
