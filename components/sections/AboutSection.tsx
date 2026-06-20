@@ -1,4 +1,5 @@
 import Image from "next/image";
+import SectionHeading from "@/components/ui/SectionHeading";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import RevealSection from "@/components/motion/RevealSection";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
@@ -67,17 +68,19 @@ export default function AboutSection({ settings }: Props) {
 
         {/* Bio column */}
         <div
-          className="flex flex-col justify-center gap-5 reveal-card"
+          className="flex flex-col justify-start reveal-card"
           style={{ padding: "48px 44px" }}
         >
 
-          <p
-            className="text-[--color-text-muted] uppercase"
-            style={{ fontSize: "var(--text-eyebrow)", letterSpacing: "var(--tracking-eyebrow)" }}
-          >
-            About
-          </p>
+          <SectionHeading
+            index="03"
+            title="About"
+            subtext="Seven years turning rough ideas into products people actually use."
+            variant="watermark"
+            tone="grey"
+          />
 
+          <div className="mt-8 sm:mt-[52px] flex flex-col gap-5">
           {lead && (
             <p
               className="font-display italic text-[--color-text-primary]"
@@ -124,6 +127,7 @@ export default function AboutSection({ settings }: Props) {
               ))}
             </div>
           )}
+          </div>
 
         </div>
       </div>

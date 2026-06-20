@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLenis } from "lenis/react";
-import SectionLabel from "@/components/ui/SectionLabel";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
 
@@ -166,12 +166,17 @@ function LeftColumn({
 }) {
   return (
     <div>
-      <SectionLabel className="mb-[9px]">Process</SectionLabel>
-      <h2 className="font-display italic text-section-heading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mb-6">
-        watch the idea become the design
-      </h2>
-      <StageCopy stage={STAGES[active]} />
-      <VerticalStepper active={active} onSelect={onSelect} />
+      <SectionHeading
+        index="01"
+        title="Process"
+        subtext="Watch a rough idea grow into the shipped design."
+        variant="default"
+        tone="grey"
+      />
+      <div className="mt-8 sm:mt-[52px]">
+        <StageCopy stage={STAGES[active]} />
+        <VerticalStepper active={active} onSelect={onSelect} />
+      </div>
     </div>
   );
 }

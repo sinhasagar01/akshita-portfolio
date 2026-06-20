@@ -1,0 +1,223 @@
+<!doctype html>
+<!--
+  SECTION HEADING REFERENCE  (glow system, per-section variants + section rhythm)
+  ------------------------------------------------------------------
+  Italic Fraunces title that glows faintly (the "insight" word feel),
+  small terracotta index above, lighter subtext below. Each section is
+  assigned a FIXED variant. Tone alternates grey / warm down the page.
+  The heading is its own zone near the top of each section with a gap
+  before the content.
+
+  ALL TITLES ARE LEFT-ANCHORED. The big decorative word in bleed and
+  watermark starts from the LEFT edge (same left edge as the index and
+  subtext), it does NOT float right or center. Centered variant is the
+  only exception (Get in touch).
+
+  ASSIGNMENT (tone alternates grey, warm, grey, warm, grey, warm)
+    01 Process      default   grey
+    02 Work         default   warm   (same left lockup and size as the other sections)
+    03 About        default   grey   (same left lockup and size as the other sections)
+    04 Experience   default   warm
+    05 Skills       default   grey
+    06 Get in touch centered  warm
+
+  SECTION RHYTHM
+    Heading is its own block at the top of the section. A consistent gap
+    (~52px desktop, ~32px mobile) separates it from the content below.
+
+  COLOR MAP  (literal -> globals.css token)
+    #E3D7C4 sand -> page bg   #FBF6EE cream -> --color-cream-50
+    #211C16 ink  -> --color-text-primary   #B5613C accent -> --color-accent-500
+    rgba(181,97,60,.17/.22) warm title fill + glow   rgba(86,80,72,.18)/(88,82,74,.20) grey
+    #A89D8D lighter subtext -> --color-text-subtle
+
+  COMPONENT
+    Props: index, title, subtext, className, variant ("default"|"bleed"|"watermark"|"centered"),
+    tone ("warm"|"grey"), reveal (default true).
+    Title is Fraunces ITALIC. No underline. The glow always sits inside the word
+    wrapper (.tw) so it tracks the word wherever it is anchored.
+    bleed + watermark are self-contained (heading region is relative + overflow:hidden).
+
+  REVEAL (once on scroll-in, useInView once amount .55, plus useReducedMotion)
+    word surfaces from opacity 0 + blur(11px) + translateY(10px) -> settled
+    (opacity .9s ease, filter/transform 1s cubic-bezier(.22,1,.36,1)); glow fades 0->1 over 1.1s;
+    index + subtext fade up (translateY 8px, .7s, delays .05s and .15s).
+    Reduced motion or reveal=false: settled, glow static, no transitions.
+
+  DOUBLE-REVEAL NOTE
+    Work, About, Skills, Contact already have the warm-settle panel reveal. If a heading
+    stutters against the wipe, pass reveal={false} there. Process + Experience keep reveal on.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Section heading reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#B5613C; --ink:#211C16; --cream:#FBF6EE; --sand:#E3D7C4; --sub:#A89D8D; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--sand);font-family:'DM Sans',system-ui,sans-serif;color:var(--ink)}
+  .col{max-width:980px;margin:0 auto;padding:56px 26px 120px}
+  .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9C8E7C;font-weight:600;margin:0 4px 8px}
+  .panel{position:relative;overflow:hidden;background:var(--cream);border-radius:16px;padding:40px 42px;margin-bottom:26px}
+
+  /* ---- heading lockup ---- */
+  .idx{font-size:14px;font-weight:500;letter-spacing:.14em;color:var(--accent);display:block;position:relative;z-index:3;
+       opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+  .tw{position:relative;display:inline-block;margin:6px 0 2px}
+  .glow{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:130%;height:215%;border-radius:50%;
+        filter:blur(34px);z-index:0;opacity:0;transition:opacity 1.1s ease}
+  .word{position:relative;z-index:1;margin:0;font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+        font-size:60px;line-height:1;letter-spacing:-.01em;
+        opacity:0;filter:blur(11px);transform:translateY(10px);
+        transition:opacity .9s ease,filter 1s cubic-bezier(.22,1,.36,1),transform 1s cubic-bezier(.22,1,.36,1)}
+  .sub{font-size:14px;line-height:1.6;color:var(--sub);max-width:430px;margin:14px 0 0;position:relative;z-index:3;
+       opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+
+  /* tone */
+  .warm .word{color:rgba(181,97,60,.17);text-shadow:0 0 30px rgba(181,97,60,.22)}
+  .warm .glow{background:radial-gradient(closest-side,rgba(181,97,60,.22),transparent 72%)}
+  .grey .word{color:rgba(86,80,72,.18);text-shadow:0 0 30px rgba(86,80,72,.20)}
+  .grey .glow{background:radial-gradient(closest-side,rgba(88,82,74,.20),transparent 72%)}
+
+  /* centered (the only non-left variant) */
+  .head.center{text-align:center}
+  .head.center .tw{margin-left:auto;margin-right:auto}
+  .head.center .sub{margin-left:auto;margin-right:auto}
+
+  /* bleed + watermark: LEFT-anchored big word behind the heading */
+  .head.bleed,.head.wm{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+  .head.bleed{min-height:128px}
+  .head.wm{min-height:172px}
+  .head.bleed .back,.head.wm .back{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;z-index:0}
+  .head.bleed .back .word{font-size:100px}
+  .head.wm .back .word{font-size:108px}
+  .head.bleed .fg,.head.wm .fg{position:relative;z-index:3}
+
+  /* settled */
+  .head.in .idx{opacity:1;transform:none;transition-delay:.05s}
+  .head.in .word{opacity:1;filter:blur(0);transform:none}
+  .head.in .glow{opacity:1}
+  .head.in .sub{opacity:1;transform:none;transition-delay:.15s}
+
+  /* section rhythm */
+  .body{margin-top:52px}
+  .body > *:first-child{margin-top:0}
+
+  /* demo content hints */
+  .hint{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .hint span{font-size:13px;color:#8a7f6e;background:#EFE6D6;border-radius:999px;padding:7px 13px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mini{height:84px;border-radius:11px}.mini.dark{background:#23201c}.mini.lav{background:#E7E4F2}
+  .abt{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
+  .photo{height:124px;border-radius:11px;background:#C9BBA0}
+  .lines{display:flex;flex-direction:column;gap:8px}.line{height:9px;border-radius:5px;background:#EBE2D2}
+  .exp{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(60,45,30,.08);padding-bottom:11px;margin-top:12px}
+  .exp:first-child{margin-top:0}
+  .exp .l{height:10px;width:170px;border-radius:5px;background:#E4DAC8}.exp .r{height:8px;width:74px;border-radius:5px;background:#ECE3D3}
+  .prow{display:flex;align-items:center;gap:9px;margin-top:11px}
+  .prow:first-child{margin-top:0}
+  .plbl{font-size:10px;letter-spacing:.14em;color:var(--accent);width:70px;font-weight:600}
+  .formline{height:38px;border-radius:8px;background:#F1E8D9;max-width:400px;margin:0 auto 12px}
+  .btn{width:144px;height:40px;border-radius:999px;background:var(--accent);margin:0 auto}
+
+  @media (max-width:640px){
+    .word{font-size:42px}
+    .head.bleed .back .word,.head.wm .back .word{font-size:78px}
+    .panel{padding:32px 26px}
+    .body{margin-top:32px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .idx,.word,.sub{opacity:1;transform:none;filter:none;transition:none}
+    .glow{opacity:1;transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="col">
+
+    <div class="tag">01 Process &middot; default, grey</div>
+    <div class="panel">
+      <div class="head default grey">
+        <span class="idx">01</span>
+        <span class="tw"><span class="glow"></span><h2 class="word">Process</h2></span>
+        <p class="sub">Watch a rough idea grow into the shipped design.</p>
+      </div>
+      <div class="body"><div class="hint"><span>Discover</span><span>Define</span><span>Design</span><span>Validate</span></div></div>
+    </div>
+
+    <div class="tag">02 Work &middot; default, warm</div>
+    <div class="panel">
+      <div class="head default warm">
+        <span class="idx">02</span>
+        <span class="tw"><span class="glow"></span><h2 class="word">Work</h2></span>
+        <p class="sub">A few projects from the last couple of years, from first sketch to shipped screen.</p>
+      </div>
+      <div class="body"><div class="cards"><div class="mini dark"></div><div class="mini lav"></div></div></div>
+    </div>
+
+    <div class="tag">03 About &middot; default, grey</div>
+    <div class="panel">
+      <div class="head default grey">
+        <span class="idx">03</span>
+        <span class="tw"><span class="glow"></span><h2 class="word">About</h2></span>
+        <p class="sub">Seven years turning rough ideas into products people actually use.</p>
+      </div>
+      <div class="body"><div class="abt"><div class="photo"></div><div class="lines"><div class="line" style="width:94%"></div><div class="line" style="width:86%"></div><div class="line" style="width:90%"></div><div class="line" style="width:58%"></div></div></div></div>
+    </div>
+
+    <div class="tag">04 Experience &middot; default, warm</div>
+    <div class="panel">
+      <div class="head default warm">
+        <span class="idx">04</span>
+        <span class="tw"><span class="glow"></span><h2 class="word">Experience</h2></span>
+        <p class="sub">Where I have shaped products, the most recent first.</p>
+      </div>
+      <div class="body">
+        <div class="exp"><div class="l"></div><div class="r"></div></div>
+        <div class="exp"><div class="l" style="width:150px"></div><div class="r"></div></div>
+        <div class="exp" style="border:none"><div class="l" style="width:200px"></div><div class="r"></div></div>
+      </div>
+    </div>
+
+    <div class="tag">05 Skills &middot; default, grey</div>
+    <div class="panel">
+      <div class="head default grey">
+        <span class="idx">05</span>
+        <span class="tw"><span class="glow"></span><h2 class="word">Skills</h2></span>
+        <p class="sub">Design, research, and the craft to carry an idea to a shipped screen.</p>
+      </div>
+      <div class="body">
+        <div class="prow"><span class="plbl">DESIGN</span><span class="hint" style="margin:0;gap:8px"><span>Product Design</span><span>UX Design</span><span>UI Design</span></span></div>
+        <div class="prow"><span class="plbl">TOOLS</span><span class="hint" style="margin:0;gap:8px"><span>Figma</span><span>Sketch</span><span>Framer</span></span></div>
+      </div>
+    </div>
+
+    <div class="tag">06 Get in touch &middot; centered, warm</div>
+    <div class="panel">
+      <div class="head center warm">
+        <span class="idx">06</span>
+        <span class="tw"><span class="glow"></span><h2 class="word">Get in touch</h2></span>
+        <p class="sub">Have a project, a role, or just a hello. I would love to hear it.</p>
+      </div>
+      <div class="body"><div class="formline"></div><div class="btn"></div></div>
+    </div>
+
+  </div>
+
+<script>
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var heads = document.querySelectorAll('.head');
+  if(reduce){ heads.forEach(function(h){ h.classList.add('in'); }); }
+  else{
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold:.55 });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+</script>
+</body>
+</html>

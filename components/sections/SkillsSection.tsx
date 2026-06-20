@@ -1,6 +1,6 @@
 import Container from "@/components/layout/Container";
 import RevealSection from "@/components/motion/RevealSection";
-import SectionLabel from "@/components/ui/SectionLabel";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { SkillsEntry } from "@/lib/keystatic";
 
 type Props = { skills: SkillsEntry | null };
@@ -11,7 +11,14 @@ export default function SkillsSection({ skills }: Props) {
   return (
     <RevealSection className="">
       <Container>
-        <SectionLabel className="mb-12">Skills</SectionLabel>
+        <SectionHeading
+          index="05"
+          title="Skills"
+          subtext="Design, research, and the craft to carry an idea to a shipped screen."
+          variant="default"
+          tone="grey"
+        />
+        <div className="mt-8 sm:mt-[52px]">
         <div className="flex flex-col gap-10">
           {skills.categories.map((cat) => (
             <div key={cat.category} className="flex flex-col gap-3 md:flex-row md:items-baseline md:gap-8 reveal-card">
@@ -29,6 +36,7 @@ export default function SkillsSection({ skills }: Props) {
               </ul>
             </div>
           ))}
+        </div>
         </div>
       </Container>
     </RevealSection>

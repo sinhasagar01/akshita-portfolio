@@ -28,6 +28,7 @@
   --color-text-primary:  var(--color-ink-950);
   --color-text-secondary: var(--color-ink-600);
   --color-text-muted:    var(--color-ink-400);
+  --color-text-subtle:   #A89D8D;   /* lighter subtext — section heading subtexts */
   --color-accent:        var(--color-accent-500);
 
   /* ============================================================

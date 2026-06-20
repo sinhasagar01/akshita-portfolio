@@ -1,7 +1,7 @@
 import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import Reveal from "@/components/motion/Reveal";
-import SectionLabel from "@/components/ui/SectionLabel";
+import SectionHeading from "@/components/ui/SectionHeading";
 import ExperienceEntry from "./ExperienceEntry";
 import type { ExperienceListItem } from "@/lib/keystatic";
 
@@ -13,9 +13,14 @@ export default function ExperienceSection({ experience }: Props) {
   return (
     <SectionWrapper className="">
       <Container>
-        <Reveal>
-          <SectionLabel className="mb-12">Experience</SectionLabel>
-        </Reveal>
+        <SectionHeading
+          index="04"
+          title="Experience"
+          subtext="Where I have shaped products, the most recent first."
+          variant="default"
+          tone="warm"
+        />
+        <div className="mt-8 sm:mt-[52px]">
         <ul className="flex flex-col divide-y divide-[--color-border] list-none p-0 m-0">
           {experience.map((entry, i) => (
             <li key={entry.slug}>
@@ -25,6 +30,7 @@ export default function ExperienceSection({ experience }: Props) {
             </li>
           ))}
         </ul>
+        </div>
       </Container>
     </SectionWrapper>
   );

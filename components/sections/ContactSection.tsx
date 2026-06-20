@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import Container from '@/components/layout/Container'
+import SectionHeading from '@/components/ui/SectionHeading'
 import type { SiteSettingsEntry } from '@/lib/keystatic'
 
 // ---------------------------------------------------------------------------
@@ -383,12 +384,16 @@ export default function ContactSection({ settings }: Props) {
     <section id="contact" className="scroll-mt-20 py-24 md:py-32">
       <Container>
 
-        {/* Section heading — identical treatment to other section h2s */}
-        <h2 className="font-display italic text-[2.25rem] text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mb-8">
-          Get in touch
-        </h2>
+        <SectionHeading
+          index="06"
+          title="Get in touch"
+          subtext="Have a project, a role, or just a hello. I would love to hear it."
+          variant="centered"
+          tone="warm"
+        />
 
         {/* Form area — centered, max 680px */}
+        <div className="mt-8 sm:mt-[52px]">
         <div className="max-w-[680px] mx-auto">
 
           {/* Screen-reader status announcer */}
@@ -509,6 +514,7 @@ export default function ContactSection({ settings }: Props) {
               </a>
             </p>
           </div>
+        </div>
         </div>
       </Container>
     </section>
