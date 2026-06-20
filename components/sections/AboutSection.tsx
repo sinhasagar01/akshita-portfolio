@@ -1,10 +1,29 @@
 import Image from "next/image";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
-import SectionWrapper from "@/components/layout/SectionWrapper";
-import Reveal from "@/components/motion/Reveal";
+import RevealSection from "@/components/motion/RevealSection";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
 
 type Props = { settings: SiteSettingsEntry | null };
+
+const BOLD_SPANS = ["LTIMindtree", "20,000 merchants"] as const;
+
+function renderWithBold(text: string) {
+  const nodes: React.ReactNode[] = [];
+  let remaining = text;
+  for (const term of BOLD_SPANS) {
+    const idx = remaining.indexOf(term);
+    if (idx === -1) continue;
+    if (idx > 0) nodes.push(remaining.slice(0, idx));
+    nodes.push(
+      <strong key={term} style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
+        {term}
+      </strong>
+    );
+    remaining = remaining.slice(idx + term.length);
+  }
+  nodes.push(remaining);
+  return nodes;
+}
 
 export default function AboutSection({ settings }: Props) {
   if (!settings || !settings.aboutCopy) return null;
@@ -20,21 +39,21 @@ export default function AboutSection({ settings }: Props) {
   const chips = settings.aboutFocusChips ?? [];
 
   return (
-    <SectionWrapper
+    <RevealSection
       id="about"
       className="scroll-mt-20 overflow-hidden py-0! px-0!"
     >
       <div className="grid grid-cols-1 md:grid-cols-[.92fr_1.08fr] items-stretch">
 
-        {/* Photo column — full-bleed left, warm grade at rest */}
-        <div className="ab-photo min-h-[480px] lg:min-h-[560px]">
+        {/* Photo column */}
+        <div className="ab-photo min-h-[520px] reveal-card">
           <div className="ab-img">
             {settings.photo ? (
               <Image
                 src={settings.photo}
                 alt="Portrait of Akshita"
                 fill
-                className="object-cover object-top"
+                className="object-cover object-center"
                 sizes="(max-width: 768px) 100vw, 46vw"
               />
             ) : (
@@ -47,67 +66,67 @@ export default function AboutSection({ settings }: Props) {
         </div>
 
         {/* Bio column */}
-        <div className="px-10 py-12 lg:px-14 lg:py-16 flex flex-col justify-center gap-5">
+        <div
+          className="flex flex-col justify-center gap-5 reveal-card"
+          style={{ padding: "48px 44px" }}
+        >
 
-          <Reveal>
-            <p
-              className="text-[--color-text-muted] uppercase"
-              style={{ fontSize: "var(--text-eyebrow)", letterSpacing: "var(--tracking-eyebrow)" }}
-            >
-              About
-            </p>
-          </Reveal>
+          <p
+            className="text-[--color-text-muted] uppercase"
+            style={{ fontSize: "var(--text-eyebrow)", letterSpacing: "var(--tracking-eyebrow)" }}
+          >
+            About
+          </p>
 
           {lead && (
-            <Reveal delay={0.05}>
-              <p
-                className="font-display italic text-[--color-text-primary]"
-                style={{ fontSize: "var(--text-2xl)", lineHeight: "var(--leading-snug)", letterSpacing: "var(--tracking-snug)" }}
-              >
-                {lead}
-              </p>
-            </Reveal>
+            <p
+              className="font-display italic text-[--color-text-primary]"
+              style={{ fontSize: "27px", lineHeight: "1.3", letterSpacing: "var(--tracking-snug)" }}
+            >
+              {lead}
+            </p>
           )}
 
           {body && (
-            <Reveal delay={0.1}>
-              <p
-                className="text-[--color-text-secondary] max-w-[50ch]"
-                style={{ fontSize: "var(--text-base)", lineHeight: "var(--leading-relaxed)" }}
-              >
-                {body}
-              </p>
-            </Reveal>
+            <p
+              className="max-w-[50ch]"
+              style={{ fontSize: "15px", lineHeight: "1.62", color: "#4a4239" }}
+            >
+              {renderWithBold(body)}
+            </p>
           )}
 
           {note && (
-            <Reveal delay={0.15}>
-              <p
-                className="font-display italic text-[--color-accent-500] max-w-[44ch]"
-                style={{ fontSize: "var(--text-lg)", lineHeight: "var(--leading-snug)" }}
-              >
-                {note}
-              </p>
-            </Reveal>
+            <p
+              className="font-display italic text-[--color-accent-500] max-w-[44ch]"
+              style={{ fontSize: "16px", lineHeight: "1.45" }}
+            >
+              {note}
+            </p>
           )}
 
           {chips.length > 0 && (
-            <Reveal delay={0.2}>
-              <div className="flex flex-wrap gap-2">
-                {chips.map((chip) => (
-                  <span
-                    key={chip}
-                    className="text-[11px] text-[--color-text-secondary] bg-[--color-cream-200] border border-[--color-border] rounded-full px-3 py-1.5"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            </Reveal>
+            <div className="flex flex-wrap mt-[6px]" style={{ gap: "8px" }}>
+              {chips.map((chip) => (
+                <span
+                  key={chip}
+                  style={{
+                    fontSize: "12px",
+                    color: "#5F584E",
+                    backgroundColor: "#F1E9DC",
+                    border: "1px solid rgba(120,90,60,.16)",
+                    borderRadius: "9999px",
+                    padding: "7px 13px",
+                  }}
+                >
+                  {chip}
+                </span>
+              ))}
+            </div>
           )}
 
         </div>
       </div>
-    </SectionWrapper>
+    </RevealSection>
   );
 }

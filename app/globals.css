@@ -417,7 +417,7 @@ a {
 .ab-tint {
   position: absolute;
   inset: 0;
-  background: oklch(46% 0.13 42);
+  background: #9c5a3a;
   mix-blend-mode: soft-light;
   opacity: .5;
   transition: opacity .6s ease;
@@ -521,5 +521,36 @@ a {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+}
+
+/* ============================================================
+   Skills section pills
+============================================================ */
+
+.skill-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 16px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  background: var(--color-cream-200);
+  border: 1px solid rgba(120, 90, 60, 0.16);
+  border-radius: 999px;
+  cursor: default;
+  user-select: none;
+  transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s;
+}
+
+.skill-pill:hover {
+  background: var(--color-cream-50);
+  border-color: oklch(56.0% 0.14 42 / 0.45);
+  color: var(--color-accent-500);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-pill:hover {
+    transform: none;
   }
 }

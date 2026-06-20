@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact form reference — guided</title>
+<!--
+  ============================================================
+  CONTACT  -  guided one-question-at-a-time form, glow behind
+  ============================================================
+  The contact section asks ONE question at a time in big Fraunces, glides to the
+  next, and a soft glow behind the form grows as you progress, pulsing on send.
+  It posts to a free form backend on the final step.
+
+  STEPS (copy, edit freely):
+    01 About you    "First, what should I call you?"      text,  required
+    02 Reaching you "And where can I reach you?"          email, required + valid
+    03 The reason   "What would you like to talk about?"  textarea, optional
+  Add a 4th (budget/timeline) only if wanted.
+
+  LAYOUT (tokens in brackets):
+    - Panel cream [--color-cream-50], rounded, overflow hidden, min-height ~320.
+    - Ambient glow behind, NOT per field. Soft warm radial, blur ~46px, centered.
+        radial-gradient(closest-side, rgba(181,97,60,.24),
+                        rgba(224,156,96,.10) 52%, transparent 75%)
+      Opacity grows with progress: step1 .5, step2 .7, step3 .9, success 1 + a
+      one-shot scale pulse 1 -> 1.18 -> 1 (~1.1s).
+    - Progress line across the very top, fill [--color-accent-500] width =
+      (stepIndex+1)/total, transition .5s.
+    - Step eyebrow (small uppercase accent), big Fraunces italic question (~30px),
+      big underline input (DM Sans ~20px, bottom border only).
+    - Button: filled terracotta pill, hover lift + arrow slide. Last step label
+      "Send message", earlier steps "Continue".
+    - Footer row: a "back" link (hidden on step 1) left, count "01 / 03" right.
+    - Under it, a quiet escape: "or just email akshitasingh094@gmail.com".
+
+  INTERACTION:
+    - Enter advances on text/email steps. Continue / Send button advances.
+    - Transition between steps: outgoing .stepinner translateY(-22px) + fade out
+      (.3s), then incoming from translateY(22px) + fade in (.42s),
+      cubic-bezier(.22,1,.36,1). Focus moves to the new input.
+    - Validation is GENTLE: required name + valid email block advance with a small
+      terracotta hint under the field, never a harsh red. Message optional.
+    - Send: button shows a spinner + "Sending", then POST to the backend, then
+      the success screen (check circle, "Thanks, talk soon." + a line of subtext).
+      On failure show a soft "that did not send, email me instead" with the link.
+
+  REACT / NEXT WIRING:
+    - Client component. State: stepIndex, answers{name,email,message}, status
+      (idle | sending | done | error). Motion AnimatePresence handles the slide,
+      or do it manually as in this file.
+    - Collect answers across steps, POST once on the final step to a FREE backend
+      (Formspree, Web3Forms, or a Resend route handler). Keep the endpoint in an
+      env var.
+    - ACCESSIBILITY: each input gets a real label (the question), associate via
+      aria-label or a visually-hidden <label>. Move focus to the input on step
+      change. Progress bar gets role="progressbar" with aria values. Every step
+      reachable by keyboard. The email-fallback link is always present.
+
+  REDUCED MOTION:
+    - Replace the slide with a plain fade (no translateY), drop the glow pulse and
+      keep the glow static. All steps still reachable, focus still moves.
+  ============================================================
+  Self-demo below. Type and press Enter, or use Continue.
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap');
+body{margin:0;background:#E7DDCD;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+.wrap{max-width:680px;margin:0 auto;padding:40px 22px}
+.panel{position:relative;background:#FBF6EE;border-radius:16px;padding:42px 42px 26px;overflow:hidden;min-height:330px}
+.glow{position:absolute;left:50%;top:52%;width:62%;height:74%;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(181,97,60,.24),rgba(224,156,96,.10) 52%,transparent 75%);filter:blur(46px);pointer-events:none;z-index:0;opacity:.5;transition:opacity .6s ease}
+.prog{position:absolute;left:0;top:0;height:3px;width:100%;background:rgba(120,90,60,.10);z-index:2}
+.pf{height:100%;width:33%;background:#B5613C;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.stage{position:relative;z-index:1;min-height:212px;display:flex;align-items:center}
+.stepinner{width:100%}
+.no{font:500 12px 'DM Sans';letter-spacing:.22em;color:#B5613C;margin-bottom:14px;display:block;text-transform:uppercase}
+.q{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:30px;line-height:1.2;color:#211C16;margin:0 0 24px}
+.bi{width:100%;background:transparent;border:none;border-bottom:1.5px solid rgba(120,90,60,.26);font:20px 'DM Sans';color:#211C16;padding:8px 0;outline:none}
+.bi::placeholder{color:#c2b4a2}
+textarea.bi{resize:none;min-height:46px}
+.err{font-size:12px;color:#B5613C;margin-top:8px;min-height:14px}
+.go{margin-top:18px;display:inline-flex;align-items:center;gap:9px;font:500 14px 'DM Sans';cursor:pointer;background:#B5613C;color:#fff;border:1.5px solid #B5613C;border-radius:999px;padding:13px 24px;transition:transform .3s,box-shadow .3s}
+.go:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(181,97,60,.25)}
+.arr{display:inline-block;transition:transform .3s}.go:hover .arr{transform:translateX(4px)}
+.hint{font-size:11px;color:#c2b4a2;margin-top:12px}
+.nav{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.back{background:transparent;border:none;color:#94806f;font-size:13px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s}
+.back.show{opacity:1;pointer-events:auto}
+.count{font:12px 'DM Sans';letter-spacing:.12em;color:#94806f}
+.email{position:relative;z-index:1;font-size:12px;color:#9C9182;margin-top:14px;text-align:center}
+.email a{color:#B5613C;text-decoration:none}
+.chk{width:46px;height:46px;border-radius:50%;background:#B5613C;color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <div class="glow" id="glow"></div>
+    <div class="prog"><div class="pf" id="pf"></div></div>
+    <div class="stage" id="stage"></div>
+    <div class="nav"><button class="back" id="back">&larr; back</button><span class="count" id="count">01 / 03</span></div>
+    <p class="email">or just email <a href="mailto:akshitasingh094@gmail.com">akshitasingh094@gmail.com</a></p>
+  </div>
+</div>
+<script>
+(function(){
+ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var STEPS=[
+  {no:'About you',q:'First, what should I call you?',type:'text',ph:'type your name',req:true},
+  {no:'Reaching you',q:'And where can I reach you?',type:'email',ph:'your email',req:true,email:true},
+  {no:'The reason',q:'What would you like to talk about?',type:'textarea',ph:'a project, a role, or just hello'}
+ ];
+ var CHECK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+ var idx=0,last=STEPS.length-1,answers={};
+ var stage=document.getElementById('stage'),pf=document.getElementById('pf'),count=document.getElementById('count'),back=document.getElementById('back'),glow=document.getElementById('glow');
+ function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+ function stepHTML(i){
+  if(i==='done')return '<div class="stepinner"><div class="chk">'+CHECK+'</div><h3 class="q">Thanks, talk soon.</h3><p style="font:14px/1.6 DM Sans;color:#4a4239;margin:0;max-width:34ch">I will get back to you within a day. Meanwhile, my work is just above.</p></div>';
+  var s=STEPS[i],L=i===last,val=answers[s.no]||'';
+  var f=s.type==='textarea'?'<textarea class="bi" rows="2" placeholder="'+s.ph+'">'+val+'</textarea>':'<input class="bi" type="'+s.type+'" placeholder="'+s.ph+'" value="'+val+'">';
+  return '<div class="stepinner"><span class="no">'+s.no+'</span><h3 class="q">'+s.q+'</h3>'+f+'<div class="err"></div><button class="go">'+(L?'Send message':'Continue')+' <span class="arr">&rarr;</span></button>'+(s.type!=='textarea'?'<p class="hint">press Enter</p>':'')+'</div>';
+ }
+ function enter(si){if(reduce){si.style.opacity='0';requestAnimationFrame(function(){si.style.transition='opacity .35s ease';si.style.opacity='1';});return;}si.style.transform='translateY(22px)';si.style.opacity='0';requestAnimationFrame(function(){requestAnimationFrame(function(){si.style.transition='transform .42s cubic-bezier(.22,1,.36,1), opacity .42s';si.style.transform='translateY(0)';si.style.opacity='1';});});}
+ function render(i){
+  stage.innerHTML=stepHTML(i);var si=stage.querySelector('.stepinner');enter(si);
+  if(i==='done'){pf.style.width='100%';count.textContent='sent';back.classList.remove('show');glow.style.opacity='1';if(!reduce&&glow.animate)glow.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:'translate(-50%,-50%) scale(1.18)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:1100,easing:'cubic-bezier(.22,1,.36,1)'});return;}
+  pf.style.width=((i+1)/STEPS.length*100)+'%';count.textContent='0'+(i+1)+' / 0'+STEPS.length;back.classList.toggle('show',i>0);glow.style.opacity=(0.5+i*0.2);
+  var inp=stage.querySelector('.bi'),btn=stage.querySelector('.go');
+  setTimeout(function(){inp&&inp.focus();},120);
+  if(inp&&inp.tagName!=='TEXTAREA')inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();advance();}});
+  btn.addEventListener('click',advance);
+ }
+ function leave(cb){var cur=stage.querySelector('.stepinner');if(cur){cur.style.transition=reduce?'opacity .25s':'transform .3s ease, opacity .3s';if(!reduce)cur.style.transform='translateY(-22px)';cur.style.opacity='0';}setTimeout(cb,reduce?260:300);}
+ function advance(){
+  var s=STEPS[idx],inp=stage.querySelector('.bi'),err=stage.querySelector('.err'),v=inp?inp.value.trim():'';
+  if(s.req&&!v){err.textContent='please add this so I can reply';return;}
+  if(s.email&&v&&!validEmail(v)){err.textContent='that email looks a little off';return;}
+  answers[s.no]=v;
+  if(idx===last){submit();return;}
+  leave(function(){idx++;render(idx);});
+ }
+ function submit(){
+  var btn=stage.querySelector('.go');btn.innerHTML='<span class="spin"></span> Sending';btn.style.pointerEvents='none';pf.style.width='100%';
+  setTimeout(function(){leave(function(){render('done');});},1300);
+ }
+ back.addEventListener('click',function(){if(idx>0)leave(function(){idx--;render(idx);});});
+ render(0);
+})();
+</script>
+</body>
+</html>

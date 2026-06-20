@@ -49,12 +49,24 @@ const FAN_SCALE = [1, 0.96, 0.93, 0.9];
 const FAN_OPACITY = [1, 0.9, 0.82, 0.74];
 const FAN_Z = [40, 30, 20, 10];
 
+// Per-stage glow drift offsets [x, y] in px
+const GLOW_OFFSETS = [
+  [0, -4],
+  [22, 2],
+  [-20, 6],
+  [14, 14],
+] as const;
+
 export default function ProcessSection(_props: Props) {
   const [active, setActive] = useState(0);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const prefersReduced = useReducedMotion();
   const lenis = useLenis();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  // Keep a ref so the ScrollTrigger effect can reach the current lenis instance
+  // without declaring lenis as a dependency and recreating the trigger on changes.
+  const lenisRef = useRef(lenis);
+  useEffect(() => { lenisRef.current = lenis; }, [lenis]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -69,19 +81,38 @@ export default function ProcessSection(_props: Props) {
   useEffect(() => {
     if (noPin || !wrapperRef.current) return;
 
+    let snapTimer: ReturnType<typeof setTimeout> | null = null;
+
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
+        id: "process-scrub",
         trigger: wrapperRef.current,
         start: "top top",
         end: "bottom bottom",
+        snap: { snapTo: [0, 1 / 3, 2 / 3, 1], duration: { min: 0.3, max: 0.5 }, ease: "power1.inOut" },
         onUpdate: (self) => {
-          setActive(Math.min(3, Math.floor(self.progress * 4)));
+          const stage = Math.min(3, Math.round(self.progress * 3));
+          setActive(stage);
+
+          // After the user pauses, snap to that stage's third-point via Lenis.
+          if (snapTimer) clearTimeout(snapTimer);
+          snapTimer = setTimeout(() => {
+            snapTimer = null;
+            const st = ScrollTrigger.getById("process-scrub");
+            const l = lenisRef.current;
+            if (!st || !l) return;
+            const snapTarget = st.start + (stage / 3) * (st.end - st.start);
+            l.scrollTo(snapTarget, { duration: 0.4 });
+          }, 100);
         },
       });
       ScrollTrigger.refresh();
     });
 
-    return () => ctx.revert();
+    return () => {
+      if (snapTimer) clearTimeout(snapTimer);
+      ctx.revert();
+    };
   }, [noPin]);
 
   const scrollToStage = useCallback(
@@ -92,7 +123,7 @@ export default function ProcessSection(_props: Props) {
       }
       const wrapper = wrapperRef.current;
       const wrapperTop = wrapper.getBoundingClientRect().top + window.scrollY;
-      const target = wrapperTop + (i / 4) * wrapper.offsetHeight;
+      const target = wrapperTop + (i / 3) * wrapper.offsetHeight;
       lenis.scrollTo(target, { duration: 0.8 });
     },
     [noPin, lenis],
@@ -110,7 +141,7 @@ export default function ProcessSection(_props: Props) {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] items-center">
         <LeftColumn active={active} onSelect={scrollToStage} />
-        <FanDeck active={active} />
+        <FanDeck active={active} skipAnim={noPin} />
       </div>
     </section>
   );
@@ -118,7 +149,7 @@ export default function ProcessSection(_props: Props) {
   if (noPin) return inner;
 
   return (
-    <div ref={wrapperRef} style={{ height: "250vh" }}>
+    <div ref={wrapperRef} style={{ height: "240vh" }}>
       {inner}
     </div>
   );
@@ -339,9 +370,64 @@ function VerticalStepper({
 
 /* ── Fan deck ────────────────────────────────────────────────── */
 
-function FanDeck({ active }: { active: number }) {
+function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
+  const [ox, oy] = GLOW_OFFSETS[active];
+
   return (
     <div style={{ position: "relative", height: "400px" }}>
+      {/* Warm glow — z-index 0, below cards (10–40), pointer-events none */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          width: 0,
+          height: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          transform: skipAnim ? "translate(0px,0px)" : `translate(${ox}px,${oy}px)`,
+          transition: skipAnim ? "none" : "transform 0.8s cubic-bezier(0.22,1,0.36,1)",
+        }}
+      >
+        {/* Breathe wrapper — key change remounts and restarts the scale sequence */}
+        <motion.div
+          key={skipAnim ? "g" : active}
+          animate={skipAnim ? { scale: 1 } : { scale: [1, 1.07, 1] }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], times: [0, 0.45, 1] }}
+          style={{ position: "absolute", left: 0, top: 0 }}
+        >
+          {/* Halo ~300px */}
+          <div
+            style={{
+              position: "absolute",
+              width: "300px",
+              height: "300px",
+              left: "-150px",
+              top: "-150px",
+              filter: "blur(34px)",
+              background:
+                "radial-gradient(closest-side, rgba(181,97,60,0.36), rgba(181,97,60,0.12) 48%, transparent 72%)",
+              pointerEvents: "none",
+            }}
+          />
+          {/* Core ~200px */}
+          <div
+            style={{
+              position: "absolute",
+              width: "200px",
+              height: "200px",
+              left: "-100px",
+              top: "-100px",
+              filter: "blur(34px)",
+              background:
+                "radial-gradient(closest-side, rgba(224,156,96,0.34), transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+        </motion.div>
+      </div>
+
+      {/* Cards */}
       {STAGES.map((_, i) => {
         const d = (i - active + 4) % 4;
         const [tx, ty, rot] = FAN_POS[d];
@@ -369,7 +455,7 @@ function FanDeck({ active }: { active: number }) {
               transition: "transform 0.55s cubic-bezier(0.22,1,0.36,1), opacity 0.45s",
             }}
           >
-            <CardGraphic index={i} />
+            <CardGraphic index={i} active={active} skipAnim={skipAnim} />
           </div>
         );
       })}
@@ -379,98 +465,255 @@ function FanDeck({ active }: { active: number }) {
 
 /* ── Card graphics ───────────────────────────────────────────── */
 
-function CardGraphic({ index }: { index: number }) {
+function CardGraphic({
+  index,
+  active,
+  skipAnim,
+}: {
+  index: number;
+  active: number;
+  skipAnim: boolean;
+}) {
+  const isActive = index === active;
   switch (index) {
     case 0:
-      return <GraphicDiscover />;
+      return <ArtifactDiscover isActive={isActive} skipAnim={skipAnim} />;
     case 1:
-      return <GraphicDefine />;
+      return <ArtifactDefine isActive={isActive} skipAnim={skipAnim} />;
     case 2:
-      return <GraphicDesign />;
+      return <ArtifactDesign isActive={isActive} skipAnim={skipAnim} />;
     case 3:
-      return <GraphicValidate />;
+      return <ArtifactValidate isActive={isActive} skipAnim={skipAnim} />;
     default:
       return null;
   }
 }
 
-function GraphicDiscover() {
+/* ── Draw helper ─────────────────────────────────────────────── */
+
+function runDraw(svg: SVGSVGElement | null, skipAnim: boolean, isActive: boolean) {
+  if (!svg) return;
+  const dr = Array.from(svg.querySelectorAll<SVGElement>(".dr"));
+  const fd = Array.from(svg.querySelectorAll<SVGElement>(".fd"));
+
+  // Immediate final state: reduced motion, mobile no-pin, or non-active card
+  if (skipAnim || !isActive) {
+    dr.forEach((el) => {
+      el.style.transition = "none";
+      el.style.strokeDashoffset = "0";
+    });
+    fd.forEach((el) => {
+      el.style.transition = "none";
+      el.style.opacity = "1";
+    });
+    return;
+  }
+
+  // Active stage: reset then sketch in
+  dr.forEach((el, k) => {
+    el.style.transition = "none";
+    el.style.strokeDashoffset = "1";
+    el.getBoundingClientRect(); // force reflow before starting transition
+    el.style.transition = "stroke-dashoffset 0.6s ease";
+    el.style.transitionDelay = `${k * 0.13}s`;
+    el.style.strokeDashoffset = "0";
+  });
+
+  const base = dr.length * 0.13 + 0.25;
+  fd.forEach((el, k) => {
+    el.style.transition = "none";
+    el.style.opacity = "0";
+    el.getBoundingClientRect();
+    el.style.transition = "opacity 0.45s ease";
+    el.style.transitionDelay = `${base + k * 0.08}s`;
+    el.style.opacity = "1";
+  });
+}
+
+/* ── Artifact: Discover — lightbulb with filament scribble ──── */
+
+function ArtifactDiscover({ isActive, skipAnim }: { isActive: boolean; skipAnim: boolean }) {
+  const ref = useRef<SVGSVGElement>(null);
+  useEffect(() => { runDraw(ref.current, skipAnim, isActive); }, [isActive, skipAnim]);
+
   return (
-    <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
-      <g stroke="var(--color-ink-200)" strokeWidth="1.6" fill="var(--color-surface)">
-        <rect x="36" y="64" width="74" height="56" rx="6" transform="rotate(-6 73 92)" />
-        <rect x="96" y="42" width="74" height="56" rx="6" transform="rotate(5 133 70)" />
-      </g>
-      <g stroke="var(--color-ink-200)" strokeWidth="1.5" strokeLinecap="round">
-        <line x1="48" y1="84" x2="92" y2="80" transform="rotate(-6 73 92)" />
-        <line x1="48" y1="96" x2="78" y2="94" transform="rotate(-6 73 92)" />
-        <line x1="108" y1="60" x2="152" y2="58" transform="rotate(5 133 70)" />
-        <line x1="108" y1="72" x2="138" y2="71" transform="rotate(5 133 70)" />
-      </g>
-      <circle cx="188" cy="122" r="30" fill="none" stroke="var(--color-accent-500)" strokeWidth="2.5" />
-      <line x1="210" y1="144" x2="236" y2="170" stroke="var(--color-accent-500)" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="210" cy="56" r="3" fill="var(--color-ink-200)" />
+    <svg
+      ref={ref}
+      viewBox="0 0 200 240"
+      fill="none"
+      stroke="var(--color-accent-500)"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width="88%"
+      height="82%"
+      aria-hidden
+    >
+      {/* Bulb outline */}
+      <circle className="dr" pathLength={1} cx={100} cy={84} r={31} />
+      {/* Bulb base collar */}
+      <path className="dr" pathLength={1} d="M87 110 L87 126 Q87 137 100 137 Q113 137 113 126 L113 110" />
+      {/* Collar horizontal lines */}
+      <path className="dr" pathLength={1} d="M88 117 H112" />
+      <path className="dr" pathLength={1} d="M90 123 H110" />
+      {/* Filament scribble */}
+      <path className="dr" pathLength={1} d="M89 88 q6 -14 11 0 q6 14 11 0" />
+      {/* Spark rays — fade in after strokes */}
+      <path className="fd" d="M100 34 V23" strokeWidth={2.6} />
+      <path className="fd" d="M66 48 L58 40" strokeWidth={2.6} />
+      <path className="fd" d="M134 48 L142 40" strokeWidth={2.6} />
+      {/* "idea" handwritten label */}
       <text
-        x="224"
-        y="80"
-        style={{ fontFamily: "var(--font-display)", fontStyle: "italic" }}
-        fontSize="26"
-        fill="var(--color-ink-200)"
+        className="fd"
+        x={100}
+        y={190}
+        textAnchor="middle"
+        style={{ fontFamily: "var(--font-script)" }}
+        fontSize={34}
+        fill="var(--color-accent-500)"
+        stroke="none"
+        transform="rotate(-4 100 190)"
       >
-        ?
+        idea
       </text>
+      {/* Underline curve below "idea" */}
+      <path className="fd" d="M78 200 q22 8 44 0" strokeWidth={2.4} />
     </svg>
   );
 }
 
-function GraphicDefine() {
+/* ── Artifact: Define — boxes and dashed connectors ─────────── */
+
+function ArtifactDefine({ isActive, skipAnim }: { isActive: boolean; skipAnim: boolean }) {
+  const ref = useRef<SVGSVGElement>(null);
+  useEffect(() => { runDraw(ref.current, skipAnim, isActive); }, [isActive, skipAnim]);
+
   return (
-    <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
-      <rect x="40" y="48" width="96" height="116" rx="9" fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity="0.55" strokeWidth="1.4" />
-      <circle cx="64" cy="74" r="11" fill="none" stroke="var(--color-accent-500)" strokeWidth="1.8" />
-      <rect x="84" y="68" width="40" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.22" />
-      <rect x="84" y="80" width="28" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.13" />
-      <rect x="56" y="104" width="64" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <rect x="56" y="116" width="64" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <rect x="56" y="128" width="44" height="5" rx="2.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <line x1="168" y1="106" x2="244" y2="106" stroke="var(--color-ink-200)" strokeWidth="1.6" />
-      <circle cx="168" cy="106" r="6.5" fill="var(--color-surface)" stroke="var(--color-ink-200)" strokeWidth="1.6" />
-      <circle cx="206" cy="106" r="6.5" fill="var(--color-accent-500)" />
-      <circle cx="244" cy="106" r="6.5" fill="var(--color-surface)" stroke="var(--color-ink-200)" strokeWidth="1.6" />
+    <svg
+      ref={ref}
+      viewBox="0 0 200 240"
+      fill="none"
+      width="88%"
+      height="82%"
+      aria-hidden
+    >
+      <g stroke="var(--color-accent-500)" strokeWidth={3}>
+        <rect className="dr" pathLength={1} x={40} y={62} width={50} height={38} rx={7} />
+        <rect className="dr" pathLength={1} x={112} y={62} width={50} height={38} rx={7} />
+        <rect className="dr" pathLength={1} x={76} y={150} width={50} height={38} rx={7} />
+      </g>
+      {/* Dashed connectors — fade in after boxes draw */}
+      <g
+        className="fd"
+        stroke="var(--color-accent-500)"
+        strokeWidth={2.4}
+        strokeDasharray="2 7"
+        fill="none"
+      >
+        <path d="M65 100 V128 H101 V150" />
+        <path d="M137 100 V128 H101" />
+      </g>
+      {/* Convergence arrow */}
+      <path
+        className="fd"
+        d="M95 144 l6 6 l6 -6"
+        stroke="var(--color-accent-500)"
+        strokeWidth={2.4}
+        fill="none"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
-function GraphicDesign() {
+/* ── Artifact: Design — wireframe screen ────────────────────── */
+
+function ArtifactDesign({ isActive, skipAnim }: { isActive: boolean; skipAnim: boolean }) {
+  const ref = useRef<SVGSVGElement>(null);
+  useEffect(() => { runDraw(ref.current, skipAnim, isActive); }, [isActive, skipAnim]);
+
   return (
-    <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
-      <rect x="62" y="34" width="156" height="138" rx="11" fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity="0.65" strokeWidth="1.5" />
-      <circle cx="78" cy="50" r="3" fill="var(--color-ink-200)" />
-      <circle cx="89" cy="50" r="3" fill="var(--color-ink-200)" />
-      <line x1="62" y1="62" x2="218" y2="62" stroke="var(--color-text-primary)" strokeOpacity="0.1" strokeWidth="1" />
-      <rect x="78" y="78" width="84" height="10" rx="4" fill="var(--color-text-primary)" fillOpacity="0.22" />
-      <rect x="78" y="98" width="124" height="7" rx="3.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <rect x="78" y="112" width="108" height="7" rx="3.5" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <rect x="78" y="136" width="54" height="18" rx="5" fill="var(--color-accent-500)" />
+    <svg
+      ref={ref}
+      viewBox="0 0 200 240"
+      fill="none"
+      width="88%"
+      height="82%"
+      aria-hidden
+    >
+      <g stroke="var(--color-accent-500)" strokeWidth={3}>
+        <rect className="dr" pathLength={1} x={58} y={44} width={84} height={158} rx={11} />
+        <path className="dr" pathLength={1} d="M58 76 H142" />
+      </g>
+      {/* Warm-fill content blocks — fade in after outline draws */}
+      <g className="fd" fill="#e7d5c2">
+        <rect x={72} y={90} width={56} height={18} rx={4} />
+        <rect x={72} y={118} width={42} height={11} rx={3} />
+        <rect x={72} y={136} width={50} height={11} rx={3} />
+      </g>
+      {/* CTA button block */}
+      <rect className="fd" x={72} y={162} width={34} height={15} rx={4} fill="#cda98c" />
     </svg>
   );
 }
 
-function GraphicValidate() {
+/* ── Artifact: Validate — finished screen with check ────────── */
+
+function ArtifactValidate({ isActive, skipAnim }: { isActive: boolean; skipAnim: boolean }) {
+  const ref = useRef<SVGSVGElement>(null);
+  useEffect(() => { runDraw(ref.current, skipAnim, isActive); }, [isActive, skipAnim]);
+
   return (
-    <svg width="100%" height="100%" viewBox="0 0 280 210" preserveAspectRatio="xMidYMid meet" aria-hidden>
-      <rect x="50" y="40" width="150" height="130" rx="11" fill="var(--color-surface)" stroke="var(--color-text-primary)" strokeOpacity="0.7" strokeWidth="1.5" />
-      <circle cx="66" cy="56" r="3" fill="var(--color-ink-200)" />
-      <circle cx="77" cy="56" r="3" fill="var(--color-ink-200)" />
-      <rect x="66" y="74" width="80" height="9" rx="4" fill="var(--color-text-primary)" fillOpacity="0.22" />
-      <rect x="66" y="92" width="118" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <rect x="66" y="104" width="100" height="6" rx="3" fill="var(--color-text-primary)" fillOpacity="0.12" />
-      <rect x="66" y="126" width="48" height="16" rx="5" fill="var(--color-accent-500)" fillOpacity="0.85" />
-      <circle cx="196" cy="48" r="17" fill="var(--color-accent-500)" />
-      <path d="M188 48 l5 5 10 -11" fill="none" stroke="var(--color-surface)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <rect x="214" y="150" width="10" height="14" rx="2" fill="var(--color-ink-200)" />
-      <rect x="230" y="140" width="10" height="24" rx="2" fill="var(--color-ink-200)" />
-      <rect x="246" y="126" width="10" height="38" rx="2" fill="var(--color-accent-500)" />
+    <svg
+      ref={ref}
+      viewBox="0 0 200 240"
+      fill="none"
+      width="88%"
+      height="82%"
+      aria-hidden
+    >
+      {/* Phone outline — draws first */}
+      <rect
+        className="dr"
+        pathLength={1}
+        x={58}
+        y={40}
+        width={84}
+        height={158}
+        rx={11}
+        fill="none"
+        stroke="var(--color-accent-500)"
+        strokeWidth={3}
+      />
+      {/* Filled header bar */}
+      <path
+        className="fd"
+        d="M58 51 a11 11 0 0 1 11 -11 h62 a11 11 0 0 1 11 11 v17 H58 Z"
+        fill="var(--color-accent-500)"
+      />
+      {/* Header avatar dot */}
+      <circle className="fd" cx={76} cy={59} r={4} fill="white" />
+      {/* Content row */}
+      <rect className="fd" x={72} y={86} width={56} height={12} rx={3} fill="#efdfcb" />
+      {/* Bar chart */}
+      <g className="fd">
+        <rect x={72} y={112} width={14} height={32} rx={2} fill="#cdb89a" />
+        <rect x={91} y={124} width={14} height={20} rx={2} fill="#e7d5c2" />
+        <rect x={110} y={104} width={14} height={40} rx={2} fill="var(--color-accent-500)" />
+      </g>
+      {/* Check circle */}
+      <circle className="fd" cx={124} cy={172} r={12} fill="var(--color-accent-500)" />
+      {/* Checkmark stroke — draws last (second .dr, after fills appear) */}
+      <path
+        className="dr"
+        pathLength={1}
+        d="M118 172 l4 5 l8 -9"
+        stroke="white"
+        strokeWidth={3}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

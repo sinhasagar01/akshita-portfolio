@@ -1,7 +1,6 @@
 import Container from "@/components/layout/Container";
 import Grid from "@/components/layout/Grid";
-import SectionWrapper from "@/components/layout/SectionWrapper";
-import Reveal from "@/components/motion/Reveal";
+import RevealSection from "@/components/motion/RevealSection";
 import SectionLabel from "@/components/ui/SectionLabel";
 import ProjectCard from "./ProjectCard";
 import type { ProjectListItem } from "@/lib/keystatic";
@@ -12,21 +11,17 @@ export default function ProjectsSection({ projects }: Props) {
   if (projects.length === 0) return null;
 
   return (
-    <SectionWrapper id="work" className="scroll-mt-20">
+    <RevealSection id="work" className="scroll-mt-20">
       <Container>
-        <Reveal>
-          <SectionLabel className="mb-12">Work</SectionLabel>
-        </Reveal>
+        <SectionLabel className="mb-12">Work</SectionLabel>
         <Grid cols={12} as="ul" className="list-none p-0 m-0">
-          {projects.map((project, i) => (
-            <li key={project.slug} className="col-span-4 md:col-span-6">
-              <Reveal delay={Math.min(i * 0.08, 0.24)}>
-                <ProjectCard project={project} />
-              </Reveal>
+          {projects.map((project) => (
+            <li key={project.slug} className="col-span-4 md:col-span-6 reveal-card">
+              <ProjectCard project={project} />
             </li>
           ))}
         </Grid>
       </Container>
-    </SectionWrapper>
+    </RevealSection>
   );
 }

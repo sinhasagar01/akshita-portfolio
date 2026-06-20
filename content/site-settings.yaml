@@ -3,18 +3,16 @@ positioningLine: >-
   Product designer with over seven years turning complex SaaS, enterprise, and
   consumer products into intuitive experiences.
 photo: /images/photo.jpg
-aboutCopy: >-
-  I am a product designer with over seven years of experience designing SaaS,
-  e-commerce, and enterprise products. My work centres on user-centered design,
-  prototyping, and real business impact.
+aboutCopy: |
+  I turn rough ideas into products people actually use.
 
-
-  Right now I am at LTIMindtree, designing a mechanic-first mobile app for OTIS
-  that simplifies how field mechanics maintain elevators. Across my career I
-  have shaped products spanning fitness wearables, AI data platforms, and
-  point-of-sale systems used by more than twenty thousand merchants, and I was
-  recognised with a Design Innovation Award along the way.
-aboutFocusChips: []
+  Seven years across SaaS, e-commerce, and enterprise. Right now I am at LTIMindtree, designing a mechanic-first app for Otis, after shaping fitness wearables, AI data platforms, and point-of-sale systems used by more than 20,000 merchants, with a Design Innovation Award along the way.
+aboutNote: The same curiosity that gets me painting under a tree is the one I bring to a blank product canvas.
+aboutFocusChips:
+  - User-centered design
+  - Prototyping
+  - Design systems
+  - 0 to 1 products
 resumeUrl: https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view
 email: akshitasingh094@gmail.com
 linkedinUrl: https://www.linkedin.com/in/akshita25/

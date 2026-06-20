@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll reveal reference — warm settle</title>
+<!--
+  ============================================================
+  SECTION SCROLL REVEAL  -  "warm settle"
+  ============================================================
+  As a section scrolls into view (once), its panel wipes open bottom-up while
+  its background eases from warm sand to cream, then the cards lift in.
+
+  THE MOTION:
+    panel: clip-path inset(0 0 100% 0) -> inset(0 0 0% 0)         (wipe up)
+           background-color  SAND  ->  CREAM                       (settle)
+           transition: clip-path .9s cubic-bezier(.22,1,.36,1),
+                       background-color .9s ease
+    cards: translateY(40px) scale(.96) opacity 0  ->  none/1
+           transition .8s cubic-bezier(.22,1,.36,1), staggered ~0.1s,
+           starting ~0.3s in (after the wipe is underway)
+    The eyebrow, heading and body are revealed by the wipe itself, they do
+    not animate separately. Only the cards get the extra lift.
+
+  COLORS / TOKENS:
+    SAND  = #E3CFB6  -> map to a warm cream step. Use --color-cream-200 if it
+            is close, otherwise add a token e.g. --color-reveal-sand.
+    CREAM = the panel's normal cream, --color-cream-50.
+
+  REACT WIRING:
+    - A small client wrapper marks the panel and toggles a class once it is in
+      view. Use Motion's useInView(ref,{once:true, margin:"-20% 0px"}) OR an
+      IntersectionObserver (threshold ~0.3). On in-view, add "is-revealed".
+    - globals.css carries the classes below. The wrapper only flips the class.
+    - Mark each card with the card class so the stagger applies.
+
+  WHERE TO APPLY:
+    - Apply to the standard sections: Work, About, Skills, Contact.
+    - DO NOT apply the clip wipe to the Hero (it has its own entrance) or to the
+      pinned Process section. A clip on Process would fight the sticky pin and
+      would clip the warm glow. If Process needs an entrance, give it a plain
+      opacity fade only, no clip.
+
+  REDUCED MOTION:
+    - Everything in place. No clip, no bg shift, no lift. The wrapper should add
+      is-revealed immediately AND the @media block disables the transitions.
+  ============================================================
+  This file self-demos on scroll. Scroll slowly.
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400&family=Kaushan+Script&display=swap');
+*{box-sizing:border-box}
+body{margin:0;background:#E7DDCD;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+.hero{min-height:64vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
+.hero h1{font-family:'Kaushan Script',cursive;color:#B5613C;font-size:40px;margin:0}
+.hero p{color:#7E7466;font-size:14px;max-width:420px;margin:0;line-height:1.7}
+.section{min-height:94vh;display:flex;flex-direction:column;justify-content:center;padding:46px 0}
+
+.reveal-panel{background:#FBF6EE;border-radius:18px;padding:46px 46px 52px;box-shadow:0 14px 40px rgba(120,90,60,.08);clip-path:inset(0 0 100% 0);background-color:#E3CFB6;transition:clip-path .9s cubic-bezier(.22,1,.36,1),background-color .9s ease}
+.reveal-panel.is-revealed{clip-path:inset(0 0 0% 0);background-color:#FBF6EE}
+.reveal-card{opacity:0;transform:translateY(40px) scale(.96);transition:opacity .8s ease,transform .8s cubic-bezier(.22,1,.36,1)}
+.is-revealed .reveal-card{opacity:1;transform:none}
+.is-revealed .reveal-card:nth-child(1){transition-delay:.30s}
+.is-revealed .reveal-card:nth-child(2){transition-delay:.40s}
+.is-revealed .reveal-card:nth-child(3){transition-delay:.50s}
+
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#B5613C;margin:0 0 14px;display:inline-block}
+.head{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:40px;line-height:1.16;margin:0 0 18px}
+.body{font-size:15px;line-height:1.75;color:#5b5347;max-width:480px;margin:0 0 28px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{aspect-ratio:16/11;border:1.5px solid #B5613C;border-radius:14px;background:#F1E7D8}
+.footer{min-height:55vh;display:flex;align-items:center;justify-content:center;color:#9C9182;font-size:13px}
+@media (prefers-reduced-motion: reduce){
+  .reveal-panel{clip-path:none;background-color:#FBF6EE;transition:none}
+  .reveal-card{opacity:1;transform:none;transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero"><h1>warm settle</h1><p>Scroll down slowly. Each panel wipes open from sand to cream, then the cards lift in.</p></div>
+
+  <section class="section"><div class="reveal-panel"><span class="eyebrow">Work</span><h2 class="head">selected work, things I shipped</h2><p class="body">A few projects from the last couple of years, carried from the first messy sketch to the shipped screen.</p><div class="cards"><div class="card reveal-card"></div><div class="card reveal-card"></div><div class="card reveal-card"></div></div></div></section>
+
+  <section class="section"><div class="reveal-panel"><span class="eyebrow">About</span><h2 class="head">designer, painter, problem solver</h2><p class="body">I sit with the ambiguity, then narrow it down, discover, define, design, validate.</p><div class="cards"><div class="card reveal-card"></div><div class="card reveal-card"></div><div class="card reveal-card"></div></div></div></section>
+
+  <section class="section"><div class="reveal-panel"><span class="eyebrow">Skills</span><h2 class="head">what I bring to a team</h2><p class="body">Design, research, and the craft to carry an idea all the way to a shipped screen.</p><div class="cards"><div class="card reveal-card"></div><div class="card reveal-card"></div><div class="card reveal-card"></div></div></div></section>
+
+  <div class="footer">scroll up to watch them settle again (reload to reset)</div>
+</div>
+<script>
+(function(){
+ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var panels=[].slice.call(document.querySelectorAll('.reveal-panel'));
+ if(reduce){panels.forEach(function(p){p.classList.add('is-revealed');});return;}
+ var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('is-revealed');io.unobserve(en.target);}});},{threshold:0.3});
+ panels.forEach(function(p){io.observe(p);});
+})();
+</script>
+</body>
+</html>

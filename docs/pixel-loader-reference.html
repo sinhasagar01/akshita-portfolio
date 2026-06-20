@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel dissolve loader reference (drip)</title>
+<!--
+  ============================================================
+  PAGE LOADER  -  warm colour-drip pixel dissolve, fresh each load
+  ============================================================
+  Full-screen grid of solid warm tiles dissolves to reveal the page. Each load
+  randomly picks one warm shade AND one pattern (scatter or wave). The tiles are
+  not one flat colour, they carry a tonal DRIP of that shade.
+
+  THE DRIP (per tile colour):
+    - Pick ONE base shade per load from the warm pool.
+    - top = mix(base, white, 0.16)      (lighter, used at the top rows)
+    - bot = mix(base, black, 0.16)      (deeper, used at the bottom rows)
+    - each tile colour = mix(top, bot, row / (rows-1))   vertical gradient
+    - then a faint per-tile jitter, multiply rgb by (1 + (random-0.5)*0.09),
+      so it looks hand-mixed, not printed.
+    - SOLID fill. No blur, no glass, no highlight.
+
+  PALETTE (pick one base at random per load):
+    #B5613C terracotta  #C56B3F clay   #A85433 rust    #BD8A3C ochre
+    #B5705A rose-brown  #AE5A45 brick   #C98A3E amber  #A9763C tan
+
+  GRID: ~22 cols x ~14 rows.
+
+  DISSOLVE:
+    tile transition: opacity .38s ease, then opacity 1 -> 0
+    per-tile delay (col = index % cols):
+      scatter -> Math.random() * 900 ms
+      wave    -> (col / cols) * 850 + Math.random() * 220 ms
+    Finishes ~1.3s, then remove the overlay.
+
+  WIRING (unchanged from the working build):
+    - Client overlay, fixed inset 0, high z. Solid fallback shade on first paint
+      for anti-flash, then build the tile grid.
+    - IMPORTANT: once tiles are built, set the overlay background to transparent
+      so the dissolving tiles reveal the PAGE, not a same-colour fill.
+    - Randomise shade + pattern in useEffect (client) to avoid hydration drift.
+    - After ~1.4s hide / unmount. Reduced motion: skip the dissolve entirely.
+  ============================================================
+  Self-demo: hit replay to feel the drip, shade and pattern change.
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400&family=Kaushan+Script&display=swap');
+body{margin:0;background:#E7DDCD;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+.wrap{max-width:760px;margin:0 auto;padding:30px 22px}
+.screen{position:relative;aspect-ratio:16/10;border-radius:14px;overflow:hidden;border:1px solid rgba(120,90,60,.18)}
+.page{position:absolute;inset:0;background:#FBF6EE;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:24px}
+.sig{font-family:'Kaushan Script',cursive;color:#B5613C;font-size:32px}
+.role{font-size:10px;letter-spacing:.2em;color:#7E7466}
+.lead{font-family:'Fraunces',serif;font-style:italic;font-size:19px;max-width:420px;line-height:1.28;margin-top:6px}
+.grid{position:absolute;inset:0;display:grid}
+.grid div{width:100%;height:100%}
+.bar{display:flex;gap:10px;align-items:center;margin-top:16px}
+.rep{font-size:13px;color:#B5613C;background:transparent;border:1px solid #B5613C;border-radius:999px;padding:9px 16px;cursor:pointer}
+.cap{color:#7E7466;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="screen">
+    <div class="page"><div class="sig">Akshita Singh</div><div class="role">PRODUCT DESIGNER</div><div class="lead">A designer who creates meaningful experiences through visual and motion design.</div></div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <div class="bar"><button class="rep" id="rep">↻ replay</button><span class="cap" id="cap"></span></div>
+</div>
+<script>
+(function(){
+ var PAL=[['#B5613C','terracotta'],['#C56B3F','clay'],['#A85433','rust'],['#BD8A3C','ochre'],['#B5705A','rose-brown'],['#AE5A45','brick'],['#C98A3E','amber'],['#A9763C','tan']];
+ var COLS=22,ROWS=14,grid=document.getElementById('grid'),cap=document.getElementById('cap'),tiles=[];
+ grid.style.gridTemplateColumns='repeat('+COLS+',1fr)';
+ grid.style.gridTemplateRows='repeat('+ROWS+',1fr)';
+ for(var i=0;i<COLS*ROWS;i++){var d=document.createElement('div');grid.appendChild(d);tiles.push(d);}
+ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function toRgb(h){var n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+ function hx(n){n=Math.max(0,Math.min(255,Math.round(n)));return n.toString(16).padStart(2,'0');}
+ function toHex(a){return'#'+hx(a[0])+hx(a[1])+hx(a[2]);}
+ function mix(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+ function play(){
+  var sh=PAL[Math.floor(Math.random()*PAL.length)],pat=Math.random()<0.5?'scatter':'wave';
+  cap.textContent='this load: '+pat+' · '+sh[1]+' drip';
+  if(reduce){tiles.forEach(function(t){t.style.transition='none';t.style.opacity='0';});cap.textContent='reduced motion: no dissolve';return;}
+  var base=toRgb(sh[0]),top=mix(base,[255,255,255],0.16),bot=mix(base,[0,0,0],0.16);
+  tiles.forEach(function(t,i){var row=Math.floor(i/COLS),ti=row/(ROWS-1),c=mix(top,bot,ti),f=1+(Math.random()-0.5)*0.09;t.style.transition='none';t.style.background=toHex([c[0]*f,c[1]*f,c[2]*f]);t.style.opacity='1';});
+  grid.getBoundingClientRect();
+  tiles.forEach(function(t,i){var col=i%COLS,delay=pat==='scatter'?Math.random()*900:(col/COLS)*850+Math.random()*220;t.style.transition='opacity .38s ease';t.style.transitionDelay=delay+'ms';t.style.opacity='0';});
+ }
+ document.getElementById('rep').addEventListener('click',play);
+ setTimeout(play,300);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Process reference</title>
+<!--
+  ============================================================
+  PROCESS REFERENCE  -  fan card deck + vertical stepper
+                        + scroll-pinned scrub through stages
+  ============================================================
+  This standalone file shows the LAYOUT and the FAN animation (click the
+  stepper to switch). The scroll-scrub cannot be shown standalone, see notes.
+
+  PLACEMENT: move the Process section to be the SECOND section, right after the
+  hero and before Work.
+
+  LAYOUT (fills a full-height pinned panel, no empty middle):
+    - Two columns. LEFT half = the words: PROCESS eyebrow, the heading, the
+      active stage (number, Fraunces-italic name, one-liner, tag pills), and a
+      VERTICAL stepper. RIGHT half = the card deck.
+    - The vertical stepper: badges on a rail, a terracotta line that fills to the
+      active stage, active stage label in terracotta. Replaces the old full-width
+      horizontal rail so it fits the narrower column.
+
+  FAN DECK:
+    - 4 stage cards rest FANNED OUT (spread with rotation) so all four are
+      visible. The active stage's card lifts to the FRONT and straightens, the
+      other three fan back with slight rotation, scale-down, and lower opacity.
+    - Switching stage smoothly re-fans, bringing the new card to front
+      (transform transition ~.55s, cubic-bezier(.22,1,.36,1)).
+    - Each card holds that stage's process GRAPHIC. The SVGs here are rough
+      stand-ins, drop in the real stage artifacts from the current Process.
+
+  SCROLL BEHAVIOUR (the real build, GSAP ScrollTrigger):
+    - PIN the section when it hits the top. Give it a scroll runway (roughly one
+      viewport of scroll per stage, ~300-400vh total, tune to taste).
+    - Map scroll progress 0..1 to the 4 stages. As progress crosses each
+      quarter, advance the active stage: re-fan the deck, update the left copy,
+      fill the stepper. Do NOT throw cards off-screen, just re-fan.
+    - After the last stage, RELEASE the pin and continue to the next section.
+    - Clicking a stepper stage scrolls to that stage's point in the runway.
+    - Call ScrollTrigger.refresh() after layout settles / fonts load.
+
+  REDUCED MOTION / no-pin fallback:
+    - Do NOT pin or scrub. Render as a normal-height section with the clickable
+      vertical stepper driving the fan (or instant card swap). Nobody gets
+      trapped in a pinned section they cannot scroll past.
+
+  TOKENS:
+    #FBF6EE panel -> --color-cream-50 ; #94806f muted -> --color-text-muted
+    #B5613C everything terracotta (card borders, graphics, active stepper,
+      rail fill, index) -> --color-accent-500
+    #F2EADD tag/chip fill -> --color-cream-200 ; #4a4239 body -> secondary
+    Fonts: Fraunces italic (heading, stage name), DM Sans (everything else).
+  ============================================================
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap');
+body{margin:0;background:#e7ddcd;padding:40px;font-family:system-ui}
+.pr{max-width:1040px;margin:0 auto;background:#FBF6EE;border:1px solid rgba(120,90,60,.12);border-radius:18px;padding:40px 40px;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+.pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+.pr-ey{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#94806f;margin-bottom:12px}
+.pr-head{font-family:'Fraunces',serif;font-style:italic;font-size:26px;line-height:1.2;margin:0 0 22px}
+.pr-idx{font-size:13px;color:#B5613C;margin-bottom:4px}
+.pr-name{font-family:'Fraunces',serif;font-style:italic;font-size:28px;margin:0 0 8px;transition:opacity .25s}
+.pr-desc{font-size:14.5px;line-height:1.55;color:#4a4239;max-width:34ch;min-height:46px;transition:opacity .25s}
+.pr-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;transition:opacity .25s}
+.pr-tag{font-size:11.5px;color:#5F584E;background:#F2EADD;border:1px solid rgba(120,90,60,.16);border-radius:999px;padding:5px 11px}
+.pr-step{margin-top:28px;position:relative;padding-left:6px}
+.pr-row{display:flex;align-items:center;gap:12px;height:44px;cursor:pointer;position:relative}
+.pr-badge{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;border:1.5px solid rgba(120,90,60,.32);color:#94806f;background:#FBF6EE;z-index:2;transition:.3s}
+.pr-row.done .pr-badge,.pr-row.on .pr-badge{background:#B5613C;border-color:#B5613C;color:#fff}
+.pr-rowname{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#94806f;transition:color .3s}
+.pr-row.on .pr-rowname{color:#B5613C;font-weight:500}
+.pr-rail{position:absolute;left:17px;top:22px;width:2px;height:132px;background:rgba(120,90,60,.18);z-index:1}
+.pr-railfill{position:absolute;left:17px;top:22px;width:2px;background:#B5613C;z-index:1;transition:height .4s}
+.pr-deck{position:relative;height:400px}
+.pr-card{position:absolute;left:50%;top:50%;width:248px;height:320px;margin:-160px 0 0 -124px;border-radius:18px;border:1.5px solid #B5613C;background:rgba(251,246,238,.96);box-shadow:0 10px 30px rgba(120,90,60,.1);display:flex;align-items:center;justify-content:center;transition:transform .55s cubic-bezier(.22,1,.36,1),opacity .45s}
+.pr-card svg{width:64%;height:64%}
+</style>
+</head>
+<body>
+<div class="pr">
+  <div class="pr-grid">
+    <div>
+      <div class="pr-ey">Process</div>
+      <p class="pr-head">watch the idea become the design</p>
+      <div class="pr-idx" id="prIdx">01</div>
+      <p class="pr-name" id="prName">Discover</p>
+      <div class="pr-desc" id="prDesc"></div>
+      <div class="pr-tags" id="prTags"></div>
+      <div class="pr-step" id="prStep"><div class="pr-rail"></div><div class="pr-railfill" id="prFill"></div></div>
+    </div>
+    <div class="pr-deck" id="prDeck"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var S=[
+    {i:'01',n:'Discover',d:'I sit with the ambiguity, talk to people, and map what is really going on.',t:['interviews','research','audits']},
+    {i:'02',n:'Define',d:'I narrow it to the real problem, the people, and the scope.',t:['personas','journeys','scope']},
+    {i:'03',n:'Design',d:'I shape it, from rough wireframes to a working prototype.',t:['wireframes','prototypes','systems']},
+    {i:'04',n:'Validate',d:'I put it in front of people, refine, and measure the impact.',t:['usability tests','iteration','handoff']}
+  ];
+  var G=[
+    '<svg viewBox="0 0 200 220" fill="none" stroke="#B5613C" stroke-width="3"><circle cx="86" cy="84" r="38"/><line x1="114" y1="112" x2="150" y2="150"/><line x1="50" y1="170" x2="150" y2="170"/><line x1="50" y1="190" x2="120" y2="190"/></svg>',
+    '<svg viewBox="0 0 200 220" fill="none" stroke="#B5613C" stroke-width="3"><circle cx="100" cy="70" r="26"/><path d="M58 150 Q100 110 142 150"/><path d="M50 185 H150 M138 175 l14 10 l-14 10"/></svg>',
+    '<svg viewBox="0 0 200 220" fill="none" stroke="#B5613C" stroke-width="3"><rect x="46" y="40" width="108" height="140" rx="10"/><line x1="46" y1="70" x2="154" y2="70"/><rect x="62" y="86" width="76" height="22" rx="4"/><rect x="62" y="120" width="50" height="14" rx="4"/></svg>',
+    '<svg viewBox="0 0 200 220" fill="none" stroke="#B5613C" stroke-width="3"><rect x="46" y="40" width="108" height="120" rx="10"/><circle cx="100" cy="100" r="26"/><path d="M88 100 l9 10 l18 -20"/><line x1="64" y1="186" x2="64" y2="170"/><line x1="100" y1="186" x2="100" y2="158"/><line x1="136" y1="186" x2="136" y2="146"/></svg>'
+  ];
+  var active=0;
+  var deck=document.getElementById('prDeck'),step=document.getElementById('prStep'),fill=document.getElementById('prFill');
+  var nameEl=document.getElementById('prName'),descEl=document.getElementById('prDesc'),idxEl=document.getElementById('prIdx'),tagsEl=document.getElementById('prTags');
+  var cards=[];
+  var fanPos=[[0,0,0],[34,10,9],[-32,18,-10],[50,28,15]],sc=[1,.96,.93,.9],op=[1,.9,.82,.74],zz=[40,30,20,10];
+  S.forEach(function(s,i){var c=document.createElement('div');c.className='pr-card';c.innerHTML=G[i];deck.appendChild(c);cards.push(c);});
+  function place(c,i){var d=(i-active+4)%4;var p=fanPos[d];c.style.zIndex=zz[d];c.style.opacity=op[d];c.style.transform='translate('+p[0]+'px,'+p[1]+'px) rotate('+p[2]+'deg) scale('+sc[d]+')';}
+  function rows(){step.querySelectorAll('.pr-row').forEach(function(r){r.remove();});S.forEach(function(s,i){var r=document.createElement('div');r.className='pr-row'+(i===active?' on':'')+(i<active?' done':'');r.innerHTML='<div class="pr-badge">'+(i<=active?'&#10003;':(i+1))+'</div><div class="pr-rowname">'+s.n+'</div>';r.onclick=function(){go(i);};step.appendChild(r);});fill.style.height=(active*44)+'px';}
+  function copy(){nameEl.style.opacity=0;descEl.style.opacity=0;tagsEl.style.opacity=0;setTimeout(function(){idxEl.textContent=S[active].i;nameEl.textContent=S[active].n;descEl.textContent=S[active].d;tagsEl.innerHTML=S[active].t.map(function(t){return '<span class="pr-tag">'+t+'</span>';}).join('');nameEl.style.opacity=1;descEl.style.opacity=1;tagsEl.style.opacity=1;},150);}
+  function go(i){if(i===active)return;active=i;cards.forEach(place);rows();copy();}
+  cards.forEach(place);rows();copy();
+})();
+</script>
+</body>
+</html>

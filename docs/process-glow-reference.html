@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Process deck glow reference</title>
+<!--
+  ============================================================
+  PROCESS DECK WARM GLOW  -  ambient light behind the fan deck
+  ============================================================
+  A soft warm glow sits BEHIND the fan deck, below the cards, lifting them off
+  the cream. It reads as light, not a shape. Two blurred radial layers.
+
+  PLACEMENT:
+    - Lives inside the SAME relative wrapper that positions the fanned cards.
+    - z-index BELOW the cards (cards are z 10-40, glow is z 0).
+    - pointer-events: none, so it never affects layout or interaction.
+
+  TWO LAYERS (both filter: blur(34px)):
+    Layer A  halo, ~300px square
+      radial-gradient(closest-side,
+        rgba(181,97,60,.36), rgba(181,97,60,.12) 48%, transparent 72%)
+    Layer B  core, ~200px square, sits on top of A
+      radial-gradient(closest-side, rgba(224,156,96,.34), transparent 70%)
+    181,97,60  = the terracotta accent (--color-accent-500)
+    224,156,96 = a warm amber highlight
+    Strength is tuned to MEDIUM (~85). If it ever feels hot, drop both alphas
+    by ~15 percent.
+
+  MOTION  (chosen: drift slightly toward the active card):
+    - The glow eases to a small per-stage resting offset, so each stage it
+      settles a touch differently. Offsets are tiny, this is a sway not a move.
+        stage 0 -> translate( 0px, -4px)
+        stage 1 -> translate( 22px,  2px)
+        stage 2 -> translate(-20px,  6px)
+        stage 3 -> translate( 14px, 14px)
+      Ease the offset over ~0.8s cubic-bezier(.22,1,.36,1).
+    - On each stage change the glow also BREATHES once, scale 1 -> 1.07 -> 1
+      over ~0.8s. Compose drift + breathe by putting the drift translate on an
+      OUTER element and the breathe scale on an INNER element, so they do not
+      fight. (Re-trigger the breathe by restarting the animation, e.g. a key
+      that changes with active, or toggling the animation name.)
+
+  REDUCED MOTION / mobile no-pin:
+    - Keep the glow VISIBLE but static. No drift, no breathe. Centered, offset 0.
+  ============================================================
+  This file self-demos: click the dots, watch the light settle and breathe.
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400&family=Caveat:wght@600&display=swap');
+body{margin:0;background:#e7ddcd;padding:40px;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+.pg{max-width:560px;margin:0 auto;background:#F3EADB;border:1px solid rgba(120,90,60,.12);border-radius:18px;padding:30px 24px 24px;text-align:center;overflow:hidden}
+.pg-h{font-family:'Fraunces',serif;font-style:italic;font-size:18px;margin:0 0 18px}
+.stage{position:relative;height:330px;display:flex;align-items:center;justify-content:center}
+.glowpos{position:absolute;left:50%;top:50%;width:0;height:0;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);filter:blur(34px);pointer-events:none}
+.glow.breathe{animation:breathe .8s cubic-bezier(.22,1,.36,1)}
+.glowA{width:300px;height:300px;background:radial-gradient(closest-side,rgba(181,97,60,.36),rgba(181,97,60,.12) 48%,transparent 72%)}
+.glowB{width:200px;height:200px;background:radial-gradient(closest-side,rgba(224,156,96,.34),transparent 70%)}
+@keyframes breathe{0%{transform:translate(-50%,-50%) scale(1)}45%{transform:translate(-50%,-50%) scale(1.07)}100%{transform:translate(-50%,-50%) scale(1)}}
+.card{position:absolute;width:188px;height:240px;border:1.5px solid #B5613C;background:#FBF6EE;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(120,90,60,.14);transition:transform .55s cubic-bezier(.22,1,.36,1),opacity .55s ease}
+.card svg{width:80%;height:78%}
+.tag{position:absolute;top:8px;right:12px;font-family:'Caveat';font-size:16px;color:#c0a085}
+.nav{display:inline-flex;gap:8px;margin-top:18px}
+.d{width:11px;height:11px;border-radius:50%;border:1.5px solid #B5613C;background:transparent;cursor:pointer;padding:0;transition:.2s}
+.d.on{background:#B5613C}
+</style>
+</head>
+<body>
+<div class="pg">
+  <p class="pg-h">warm glow behind the deck</p>
+  <div class="stage">
+    <div class="glowpos" id="gpos"><div class="glow glowA" id="gA"></div><div class="glow glowB" id="gB"></div></div>
+    <div id="deck"></div>
+  </div>
+  <div class="nav" id="nav"></div>
+</div>
+<script>
+var ART=[
+ '<svg viewBox="0 0 200 240" fill="none" stroke="#B5613C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="100" cy="84" r="31"/><path d="M87 110 L87 126 Q87 137 100 137 Q113 137 113 126 L113 110"/><path d="M88 117 H112"/><path d="M90 123 H110"/><path d="M89 88 q6 -14 11 0 q6 14 11 0"/><path d="M100 34 V23" stroke-width="2.6"/><path d="M66 48 L58 40" stroke-width="2.6"/><path d="M134 48 L142 40" stroke-width="2.6"/><text x="100" y="190" text-anchor="middle" font-family="Caveat,cursive" font-size="34" fill="#B5613C" stroke="none" transform="rotate(-4 100 190)">idea</text><path d="M78 200 q22 8 44 0" stroke-width="2.4"/></svg>',
+ '<svg viewBox="0 0 200 240" fill="none"><g stroke="#B5613C" stroke-width="3"><rect x="40" y="62" width="50" height="38" rx="7"/><rect x="112" y="62" width="50" height="38" rx="7"/><rect x="76" y="150" width="50" height="38" rx="7"/></g><g stroke="#B5613C" stroke-width="2.4" stroke-dasharray="2 7" fill="none"><path d="M65 100 V128 H101 V150"/><path d="M137 100 V128 H101"/></g></svg>',
+ '<svg viewBox="0 0 200 240" fill="none"><g stroke="#B5613C" stroke-width="3"><rect x="58" y="44" width="84" height="158" rx="11"/><path d="M58 76 H142"/></g><g fill="#e7d5c2"><rect x="72" y="90" width="56" height="18" rx="4"/><rect x="72" y="118" width="42" height="11" rx="3"/><rect x="72" y="136" width="50" height="11" rx="3"/></g><rect x="72" y="162" width="34" height="15" rx="4" fill="#cda98c"/></svg>',
+ '<svg viewBox="0 0 200 240" fill="none"><rect x="58" y="40" width="84" height="158" rx="11" fill="#fff" stroke="#B5613C" stroke-width="3"/><path d="M58 51 a11 11 0 0 1 11 -11 h62 a11 11 0 0 1 11 11 v17 H58 Z" fill="#B5613C"/><circle cx="76" cy="59" r="4" fill="#fff"/><rect x="72" y="86" width="56" height="12" rx="3" fill="#efdfcb"/><rect x="72" y="112" width="14" height="32" rx="2" fill="#cdb89a"/><rect x="91" y="124" width="14" height="20" rx="2" fill="#e7d5c2"/><rect x="110" y="104" width="14" height="40" rx="2" fill="#B5613C"/><circle cx="124" cy="172" r="12" fill="#B5613C"/><path d="M118 172 l4 5 l8 -9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+];
+var TAGS=['idea','structure','wireframe','shipped'];
+var FP=[[0,0,0],[40,12,9],[-38,20,-10],[54,30,15]],SC=[1,.96,.93,.9],OP=[1,.9,.82,.74],ZI=[40,30,20,10];
+var OFF=[[0,-4],[22,2],[-20,6],[14,14]];
+var active=0;
+var deck=document.getElementById('deck'),nav=document.getElementById('nav'),gpos=document.getElementById('gpos'),gA=document.getElementById('gA'),gB=document.getElementById('gB');
+var cards=ART.map(function(svg,i){var c=document.createElement('div');c.className='card';c.innerHTML='<span class="tag"'+(i===3?' style="color:#B5613C"':'')+'>'+TAGS[i]+'</span>'+svg;deck.appendChild(c);return c;});
+function layout(){
+ cards.forEach(function(c,i){var d=(i-active+4)%4;var f=FP[d];c.style.transform='translate('+f[0]+'px,'+f[1]+'px) rotate('+f[2]+'deg) scale('+SC[d]+')';c.style.opacity=OP[d];c.style.zIndex=ZI[d];});
+ var o=OFF[active];gpos.style.transform='translate('+o[0]+'px,'+o[1]+'px)';
+ [gA,gB].forEach(function(g){g.classList.remove('breathe');void g.offsetWidth;g.classList.add('breathe');});
+}
+ART.forEach(function(_,i){var b=document.createElement('button');b.className='d'+(i===0?' on':'');b.onclick=function(){active=i;[].forEach.call(nav.children,function(x,j){x.className='d'+(j===i?' on':'');});layout();};nav.appendChild(b);});
+layout();
+</script>
+</body>
+</html>
