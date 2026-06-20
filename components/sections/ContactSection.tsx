@@ -383,13 +383,13 @@ export default function ContactSection({ settings }: Props) {
     <section id="contact" className="scroll-mt-20 py-24 md:py-32">
       <Container>
 
-        {/* Section heading — Fraunces italic, matches other section h2s */}
-        <h2 className="font-display italic text-section-heading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mb-8">
+        {/* Section heading — identical treatment to other section h2s */}
+        <h2 className="font-display italic text-[2.25rem] text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mb-8">
           Get in touch
         </h2>
 
         {/* Form area — centered, max 680px */}
-        <div className="max-w-[680px]">
+        <div className="max-w-[680px] mx-auto">
 
           {/* Screen-reader status announcer */}
           <p className="sr-only" aria-live="polite" aria-atomic="true">{liveStatus}</p>
