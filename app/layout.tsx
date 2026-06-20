@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, DM_Sans, Kaushan_Script } from "next/font/google";
 import "./globals.css";
+import PageLoader from "@/components/motion/PageLoader";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -53,7 +54,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable}`}>
-      <body>{children}</body>
+      <body>
+        <PageLoader />
+        {children}
+      </body>
     </html>
   );
 }

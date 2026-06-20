@@ -10,6 +10,7 @@
   --color-cream-100: oklch(96.8% 0.018 78);
   --color-cream-200: oklch(93.5% 0.025 76);
   --color-cream-300: oklch(88.0% 0.032 74);
+  --color-reveal-sand: oklch(85.0% 0.040 67);   /* #E3CFB6 approx — panel start color */
 
   --color-ink-950: oklch(14.0% 0.018 60);
   --color-ink-800: oklch(26.0% 0.018 60);
@@ -161,6 +162,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scrollbar-gutter: stable;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -178,6 +180,7 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .page-loader { display: none !important; }
 }
 
 body {
@@ -465,5 +468,58 @@ a {
   }
   .ab-photo:hover .ab-img {
     transform: none;
+  }
+}
+
+/* ============================================================
+   Process card draw-on — initial hidden state; JS overrides per element
+============================================================ */
+
+.dr { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.fd { opacity: 0; }
+
+/* ============================================================
+   Warm settle reveal — panels and cards
+============================================================ */
+
+.reveal-panel {
+  clip-path: inset(0 0 100% 0);
+  background-color: var(--color-reveal-sand);
+  transition: clip-path .9s cubic-bezier(.22,1,.36,1), background-color .9s ease;
+}
+
+.reveal-panel.is-revealed {
+  clip-path: inset(0 0 0% 0);
+  background-color: var(--color-cream-50);
+}
+
+.reveal-card {
+  opacity: 0;
+  transform: translateY(40px) scale(.96);
+  transition: opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1);
+}
+
+.is-revealed .reveal-card {
+  opacity: 1;
+  transform: none;
+  transition-delay: .30s;
+}
+
+.is-revealed .reveal-card:nth-child(2) { transition-delay: .40s; }
+.is-revealed .reveal-card:nth-child(3) { transition-delay: .50s; }
+.is-revealed .reveal-card:nth-child(4) { transition-delay: .60s; }
+.is-revealed .reveal-card:nth-child(5) { transition-delay: .70s; }
+.is-revealed .reveal-card:nth-child(6) { transition-delay: .80s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-panel {
+    clip-path: none;
+    background-color: var(--color-cream-50);
+    transition: none;
+  }
+  .reveal-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
