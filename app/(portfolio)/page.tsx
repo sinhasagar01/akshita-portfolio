@@ -13,9 +13,9 @@ export default async function HomePage() {
   return (
     <main className="container-x">
       <HeroSection />
+      <ProcessSection settings={settings} />
       <ProjectsSection projects={projects} />
       <AboutSection settings={settings} />
-      <ProcessSection settings={settings} />
       <ExperienceSection experience={experience} />
       <SkillsSection skills={skills} />
       <ContactSection settings={settings} />
