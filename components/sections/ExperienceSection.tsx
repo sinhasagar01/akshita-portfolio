@@ -35,7 +35,7 @@ export default function ExperienceSection({ experience }: Props) {
   const previous = experience.filter((e) => e !== feature);
 
   return (
-    <SectionWrapper>
+    <SectionWrapper id="experience" className="scroll-mt-20">
       <Container>
         <SectionHeading
           index="04"

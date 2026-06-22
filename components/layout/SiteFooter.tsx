@@ -1,104 +1,117 @@
 import FooterClock from "./FooterClock";
-import FooterExplore from "./FooterExplore";
 import FooterBackToTop from "./FooterBackToTop";
-
-const ELSEWHERE = [
-  {
-    label: "LinkedIn",
-    href: "https://linkedin.com/in/akshita25/",
-    external: true,
-  },
-  {
-    label: "Behance",
-    href: "https://behance.net/akshitasingh",
-    external: true,
-  },
-  {
-    label: "Email",
-    href: "mailto:akshitasingh094@gmail.com",
-    external: false,
-  },
-  {
-    label: "Resume",
-    href: "https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view",
-    external: true,
-  },
-] as const;
+import { ELSEWHERE } from "@/lib/social-links";
 
 export default function SiteFooter() {
   return (
     <footer className="py-10">
       <div className="container-x">
         <div
-          className="rounded-2xl px-[46px] pt-[44px] pb-9"
+          className="relative overflow-hidden rounded-2xl px-[50px] pb-[26px]"
           style={{ backgroundColor: "var(--color-cream-50)" }}
         >
-          {/* Top row */}
-          <div className="flex justify-between gap-10 flex-wrap">
+          {/* Ciao backdrop */}
+          <div
+            aria-hidden="true"
+            className="absolute top-[34px] left-[44px] pointer-events-none select-none"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontSize: "116px",
+              lineHeight: 1,
+              letterSpacing: "-2px",
+              color: "var(--color-cream-300)",
+              whiteSpace: "nowrap",
+              zIndex: 0,
+            }}
+          >
+            Ciao
+          </div>
 
-            {/* Identity block */}
+          {/* Content grid */}
+          <div
+            className="relative grid gap-[50px] items-start"
+            style={{ gridTemplateColumns: "1fr auto", paddingTop: "52px", zIndex: 2 }}
+          >
+            {/* Left — identity */}
             <div>
-              <p className="max-w-none font-script text-[34px] leading-none text-[--color-text-primary]">
+              <p className="font-script text-[42px] leading-none text-[--color-text-primary]">
                 Akshita Singh
               </p>
-              <p className="max-w-none mt-3 text-[12px] tracking-[.18em] uppercase text-[--color-text-muted]">
+              <p className="mt-[13px] text-[12px] tracking-[.22em] uppercase text-[--color-text-subtle]">
                 Product Designer
               </p>
-              <p className="max-w-none mt-[18px] flex items-center gap-2 text-[13px] text-[--color-text-secondary]">
-                Designed and built in Bengaluru{" "}
-                <span className="text-[--color-accent-500]" aria-hidden="true">
-                  ✦
-                </span>
-              </p>
-              <p className="max-w-none mt-1.5 text-[13px] text-[--color-text-muted]">
-                Coded by{" "}
+              <p className="mt-6 text-[16px] text-[--color-ink-800]">
+                Designed by Me{" "}
+                <span style={{ color: "var(--color-text-subtle)", margin: "0 8px" }}>·</span>
+                Built by{" "}
                 <a
                   href="https://www.linkedin.com/in/sagarsinha1/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[--color-accent-500] underline underline-offset-2 decoration-[--color-accent-500]/40 hover:decoration-[--color-accent-500] transition-colors duration-[--duration-base]"
+                  className="footer-sagar relative text-[--color-accent-500] no-underline whitespace-nowrap"
                 >
                   Sagar
+                  <span className="footer-sagar-arrow text-[.8em] ml-[1px]" aria-hidden="true">↗</span>
                 </a>
               </p>
               <FooterClock />
             </div>
 
-            {/* Link columns */}
-            <div className="flex gap-[54px] flex-wrap">
-              <FooterExplore />
-
-              <div>
-                <h4 className="text-[11px] tracking-[.16em] uppercase text-[--color-accent-500] font-semibold mb-3">
-                  Elsewhere
-                </h4>
-                {ELSEWHERE.map(({ label, href, external }) => (
+            {/* Right — social */}
+            <div className="text-right">
+              <p className="text-[11px] tracking-[.18em] uppercase text-[--color-text-subtle] mb-4">
+                Social
+              </p>
+              <div
+                className="footer-social inline-grid items-center text-left"
+                style={{ gridTemplateColumns: "auto auto", gap: "13px 12px" }}
+              >
+                {ELSEWHERE.map(({ label, href, external, glyph }) => (
                   <a
                     key={label}
                     href={href}
-                    {...(external
-                      ? { target: "_blank", rel: "noopener noreferrer" }
-                      : {})}
-                    className="block text-[14px] text-[--color-ink-800] hover:text-[--color-accent-500] no-underline transition-colors duration-[--duration-base] mb-[9px]"
+                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    style={{ display: "contents", textDecoration: "none" }}
                   >
-                    {label}
+                    <span
+                      className="footer-chip flex items-center justify-center w-[34px] h-[34px] rounded-[9px] text-[12px] font-semibold text-[--color-text-secondary]"
+                      style={{ border: "1px solid rgba(120,90,60,0.3)", transition: "border-color 0.2s, color 0.2s" }}
+                    >
+                      {glyph}
+                    </span>
+                    <span
+                      className="footer-label text-[15px] text-[--color-text-primary]"
+                      style={{ transition: "color 0.2s" }}
+                    >
+                      {label}
+                    </span>
                   </a>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Hairline */}
+          {/* Hairline + bottom row */}
           <div
-            aria-hidden="true"
-            className="my-[34px]"
-            style={{ height: "1px", backgroundColor: "rgba(60,45,30,0.1)" }}
-          />
-
-          {/* Bottom row */}
-          <div className="flex justify-between items-center gap-5 flex-wrap">
-            <span className="text-xs italic font-display text-[--color-text-muted]">
-              © 2026 Akshita Singh · Built with Next.js and Tailwind, set in Fraunces and DM Sans
+            className="relative flex justify-between items-center text-[13px] text-[--color-text-subtle] mt-9 pt-[22px]"
+            style={{ borderTop: "1px solid rgba(60,45,30,0.1)", zIndex: 2 }}
+          >
+            <span className="flex items-center gap-[7px]">
+              Built in Bengaluru with love
+              <svg
+                className="footer-heart shrink-0"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                style={{ transformOrigin: "center", display: "inline-block" }}
+              >
+                <path
+                  d="M12 21S4 14.5 4 9a5 5 0 0 1 8-3 5 5 0 0 1 8 3c0 5.5-8 12-8 12z"
+                  fill="var(--color-accent-500)"
+                />
+              </svg>
             </span>
             <FooterBackToTop />
           </div>

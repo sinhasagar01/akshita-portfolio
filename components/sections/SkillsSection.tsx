@@ -10,7 +10,7 @@ export default function SkillsSection({ skills }: Props) {
   if (!skills || skills.categories.length === 0) return null;
 
   return (
-    <RevealSection className="overflow-hidden">
+    <RevealSection id="skills" className="overflow-hidden scroll-mt-20">
       <Container>
         <SectionHeading
           index="05"
