@@ -76,7 +76,7 @@ export default function AboutSection({ settings }: Props) {
             index="03"
             title="About"
             subtext="Seven years turning rough ideas into products people actually use."
-            variant="watermark"
+            variant="default"
             tone="grey"
           />
 

@@ -17,7 +17,7 @@ export default function ProjectsSection({ projects }: Props) {
           index="02"
           title="Work"
           subtext="A few projects from the last couple of years, from first sketch to shipped screen."
-          variant="bleed"
+          variant="default"
           tone="warm"
         />
         <div className="mt-8 sm:mt-[52px]">

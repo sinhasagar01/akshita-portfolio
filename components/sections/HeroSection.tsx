@@ -11,6 +11,7 @@ import {
 import Container from "@/components/layout/Container";
 import Reveal from "@/components/motion/Reveal";
 import SectionLabel from "@/components/ui/SectionLabel";
+import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 const FACETS = [
   {
@@ -60,6 +61,7 @@ const lineContainerVariantsReduced = {
 export default function HeroSection() {
   const [active, setActive] = useState(0);
   const isReducedMotion = useReducedMotion();
+  const smoothScroll    = useSmoothScroll();
 
   const sectionRef = useRef<HTMLElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
@@ -226,9 +228,10 @@ export default function HeroSection() {
                       fontFamily: "var(--font-script)",
                       fontSize: "clamp(4rem, 11vw, 7rem)",
                       lineHeight: 1,
-                      color: "var(--color-accent-500)",
+                      color: "rgba(181,97,60,0.14)",
                       whiteSpace: "nowrap",
                       textAlign: "center",
+                      filter: "blur(0.4px)",
                     }}
                     initial={
                       isReducedMotion
@@ -237,8 +240,8 @@ export default function HeroSection() {
                     }
                     animate={
                       isReducedMotion
-                        ? { opacity: 0.42 }
-                        : { opacity: 0.42, y: 0, scale: 1 }
+                        ? { opacity: 1 }
+                        : { opacity: 1, y: 0, scale: 1 }
                     }
                     transition={
                       isReducedMotion
@@ -255,7 +258,7 @@ export default function HeroSection() {
               <AnimatePresence mode="wait">
                 <motion.p
                   key={active}
-                  className="font-display italic text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-tight] max-w-[34ch]!"
+                  className="font-display not-italic text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-tight] max-w-[34ch]!"
                   style={{ position: "relative", zIndex: 2, fontSize: "clamp(1.5rem, 2.6vw, 2.05rem)" }}
                   variants={isReducedMotion ? lineContainerVariantsReduced : lineContainerVariants}
                   initial="hidden"
@@ -284,14 +287,21 @@ export default function HeroSection() {
           {/* Scroll cue */}
           <Reveal delay={0.2} className="mt-12">
             <a
-              href="#work"
+              href="#process"
+              onClick={(e) => {
+                const el = document.getElementById("process");
+                if (el && smoothScroll) {
+                  e.preventDefault();
+                  smoothScroll.scrollToTarget(el);
+                }
+              }}
               className="flex items-center gap-2 text-[11px] text-[--color-text-muted] tracking-[0.08em] uppercase font-medium transition-colors duration-[--duration-base] hover:text-[--color-text-secondary]"
             >
               <span
                 aria-hidden="true"
                 className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-[--color-accent-500] shrink-0"
               />
-              scroll to see work
+              scroll to process
             </a>
           </Reveal>
 

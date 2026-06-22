@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, DM_Sans, Kaushan_Script } from "next/font/google";
 import "./globals.css";
-import PageLoader from "@/components/motion/PageLoader";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -29,22 +28,31 @@ const kaushanScript = Kaushan_Script({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3457"),
   title: {
-    template: "%s — Akshita",
-    default: "Akshita — Product Designer",
+    template: "%s · Akshita Singh",
+    default: "Akshita Singh, Product Designer",
   },
   description:
     "Product designer focused on enterprise and consumer experiences. Portfolio of case studies in UX, interaction design, and design systems.",
-  metadataBase: new URL("https://placeholder.vercel.app"),
   openGraph: {
+    title: "Akshita Singh, Product Designer",
+    description:
+      "Product designer focused on enterprise and consumer experiences. Portfolio of case studies in UX, interaction design, and design systems.",
     type: "website",
+    siteName: "Akshita Singh",
     locale: "en_US",
-    siteName: "Akshita Portfolio",
   },
-  robots: {
-    index: true,
-    follow: true,
+  twitter: {
+    card: "summary_large_image",
+    title: "Akshita Singh, Product Designer",
+    description:
+      "Product designer focused on enterprise and consumer experiences. Portfolio of case studies in UX, interaction design, and design systems.",
   },
+  icons: {
+    icon: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -54,8 +62,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable}`}>
+      <head>
+        {/* Runs at parse time, before any hydration or browser scroll restoration */}
+        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';window.scrollTo(0,0);" }} />
+      </head>
       <body>
-        <PageLoader />
         {children}
       </body>
     </html>

@@ -67,6 +67,7 @@ type StepContentProps = {
   onAdvance: () => void
   inputRef: React.RefObject<HTMLInputElement | null>
   textareaRef: React.RefObject<HTMLTextAreaElement | null>
+  hasInteracted: React.MutableRefObject<boolean>
 }
 
 function StepContent({
@@ -79,11 +80,13 @@ function StepContent({
   onAdvance,
   inputRef,
   textareaRef,
+  hasInteracted,
 }: StepContentProps) {
   useEffect(() => {
+    if (!hasInteracted.current) return
     const t = setTimeout(() => {
-      if (step.type === 'textarea') textareaRef.current?.focus()
-      else inputRef.current?.focus()
+      if (step.type === 'textarea') textareaRef.current?.focus({ preventScroll: true })
+      else inputRef.current?.focus({ preventScroll: true })
     }, 50)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -197,7 +200,7 @@ function StepContent({
 
 function SuccessScreen() {
   const ref = useRef<HTMLHeadingElement>(null)
-  useEffect(() => { ref.current?.focus() }, [])
+  useEffect(() => { ref.current?.focus({ preventScroll: true }) }, [])
 
   return (
     <div className="w-full">
@@ -237,7 +240,7 @@ function SuccessScreen() {
 
 function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void }) {
   const ref = useRef<HTMLParagraphElement>(null)
-  useEffect(() => { ref.current?.focus() }, [])
+  useEffect(() => { ref.current?.focus({ preventScroll: true }) }, [])
 
   return (
     <div className="w-full">
@@ -282,6 +285,7 @@ export default function ContactSection({ settings }: Props) {
   const glowRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const hasInteracted = useRef(false)
 
   const TOTAL = STEPS.length
   const step = STEPS[stepIndex]
@@ -340,12 +344,14 @@ export default function ContactSection({ settings }: Props) {
       return
     }
 
+    hasInteracted.current = true
     setStepIndex(i => i + 1)
     setFieldError('')
   }, [status, validate, isLast, answers])
 
   const goBack = useCallback(() => {
     if (stepIndex > 0 && status === 'idle') {
+      hasInteracted.current = true
       setStepIndex(i => i - 1)
       setFieldError('')
     }
@@ -466,6 +472,7 @@ export default function ContactSection({ settings }: Props) {
                       onAdvance={advance}
                       inputRef={inputRef}
                       textareaRef={textareaRef}
+                      hasInteracted={hasInteracted}
                     />
                   </motion.div>
                 )}

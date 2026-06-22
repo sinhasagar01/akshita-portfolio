@@ -41,8 +41,7 @@ export default function SectionHeading({
     ? "radial-gradient(closest-side,rgba(181,97,60,.22),transparent 72%)"
     : "radial-gradient(closest-side,rgba(88,82,74,.20),transparent 72%)";
 
-  const isWatermark = variant === "watermark";
-  const isCentered  = variant === "centered";
+  const isCentered = variant === "centered";
 
   const idxStyle: CSSProperties = {
     fontFamily: "var(--font-body)",
@@ -65,8 +64,8 @@ export default function SectionHeading({
     left: "50%",
     top: "52%",
     transform: "translate(-50%,-50%)",
-    width: isWatermark ? "78%" : "130%",
-    height: isWatermark ? "120%" : "215%",
+    width: "130%",
+    height: "215%",
     borderRadius: "50%",
     filter: "blur(34px)",
     zIndex: 0,
@@ -110,26 +109,13 @@ export default function SectionHeading({
       : `opacity .7s ease .15s, transform .7s ${EASE} .15s`,
   };
 
-  if (variant === "bleed") {
-    return (
-      <div
-        ref={ref}
-        className={className}
-        style={{ position: "relative", overflow: "hidden", minHeight: "118px", textAlign: "left" }}
-      >
-        {/* Word + glow anchored to right edge, clips on overflow */}
-        <div style={{ position: "absolute", right: "-26px", top: "-6px", zIndex: 0 }}>
-          <span aria-hidden style={glowStyle} />
-          <h2 className="text-[78px] sm:text-[100px]" style={wordStyle}>{title}</h2>
-        </div>
-        {/* Index + subtext in front */}
-        <span style={idxStyle}>{index}</span>
-        <p style={subStyle}>{subtext}</p>
-      </div>
-    );
-  }
+  // Bleed and watermark: large word LEFT-anchored in a back layer behind index + subtext
+  if (variant === "bleed" || variant === "watermark") {
+    const minHeight = variant === "bleed" ? "128px" : "172px";
+    const wordClass = variant === "bleed"
+      ? "text-[78px] sm:text-[100px]"
+      : "text-[78px] sm:text-[108px]";
 
-  if (variant === "watermark") {
     return (
       <div
         ref={ref}
@@ -137,28 +123,30 @@ export default function SectionHeading({
         style={{
           position: "relative",
           overflow: "hidden",
-          minHeight: "172px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          minHeight,
           textAlign: "left",
         }}
       >
-        {/* Back: word centered behind everything */}
+        {/* Back layer: word left-anchored */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-start",
             zIndex: 0,
           }}
         >
-          <span aria-hidden style={glowStyle} />
-          <h2 className="text-[78px] sm:text-[108px]" style={wordStyle}>{title}</h2>
+          <span style={{ position: "relative", display: "inline-block" }}>
+            <span aria-hidden style={glowStyle} />
+            <h2 className={wordClass} style={wordStyle}>{title}</h2>
+          </span>
         </div>
-        {/* Foreground: index + subtext */}
+        {/* Front layer: index + subtext */}
         <div style={{ position: "relative", zIndex: 3 }}>
           <span style={idxStyle}>{index}</span>
           <p style={subStyle}>{subtext}</p>
@@ -167,7 +155,7 @@ export default function SectionHeading({
     );
   }
 
-  if (variant === "centered") {
+  if (isCentered) {
     return (
       <div ref={ref} className={className} style={{ textAlign: "center" }}>
         <span style={idxStyle}>{index}</span>

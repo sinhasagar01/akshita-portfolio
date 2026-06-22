@@ -41,7 +41,7 @@ export default function ProjectCard({ project }: Props) {
   }
 
   return (
-    <article className="group cursor-pointer">
+    <article className="group cursor-pointer" data-cursor="card">
       <div className="relative">
 
         {/* Warm radial glow behind the card */}

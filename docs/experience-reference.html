@@ -1,0 +1,126 @@
+<!doctype html>
+<!--
+  EXPERIENCE SECTION  (option C, featured now + compact history)
+  ------------------------------------------------------------------
+  The current role is lifted into a warm glow block at the top with a
+  "Currently" eyebrow. The earlier roles follow as a compact "Previously"
+  list, two columns, hairline dividers.
+
+  COLOR MAP  (literal -> token)
+    #FBF6EE panel cream             -> --color-cream-50
+    #F3EADB feature block bg        -> warm cream one step up (--color-cream-200, TUNE)
+    #B5613C accent                  -> --color-accent-500
+    rgba(181,97,60,.22) feature glow radial
+    #211C16 ink                     -> --color-text-primary
+    #8a7f6e muted (dates, company)  -> muted ink (TUNE to your muted token)
+    #A89D8D heading subtext         -> --color-text-subtle
+    #9C8E7C "Previously" label      -> muted
+
+  DATA SHAPE (each role)
+    { dateRange, company, location, role, acquiredBy?, current? }
+    The FEATURE is the entry with current === true (or simply the first entry,
+    since the list is most-recent-first). Everything else renders in the
+    "Previously" list, in order.
+
+  ACQUISITION NOTE
+    "acquired by boAt" / "acquired by Amazon" render as a terracotta Fraunces
+    italic span inside the company line. Show it only when acquiredBy is set.
+
+  THE FEATURE BLOCK
+    - bg #F3EADB, radius 14, padding ~28x30, overflow hidden.
+    - a soft warm glow (radial rgba(181,97,60,.22), blur 40) sits top-right, static.
+    - eyebrow "Currently" with a small terracotta dot, accent, uppercase, tracked.
+    - company uppercase tracked muted.
+    - role in Fraunces italic ~28px.
+    - date small muted.
+
+  PREVIOUSLY LIST
+    - label "Previously", uppercase tracked muted.
+    - rows: grid 170px 1fr, date left (Fraunces or DM Sans, muted), then company
+      (uppercase tracked muted, with acquisition note) + role (semibold ~15.5px).
+    - hairline divider rgba(60,45,30,.09) between rows, none after the last.
+    - OPTIONAL subtle hover: a faint warm wash (#F3EADB) and radius on the row,
+      transition .3s. Light, not the full A treatment. Skip if you want it calm.
+
+  MOTION / REDUCED MOTION
+    The section already gets the panel scroll-reveal wipe, so nothing extra is
+    needed inside. The glow is static. If you add any entrance stagger to the
+    rows, gate it behind useReducedMotion and render static when reduced.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Experience reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#B5613C; --ink:#211C16; --cream:#FBF6EE; --cream2:#F3EADB; --sand:#E3D7C4; --sub:#A89D8D; --muted:#8a7f6e; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--sand);font-family:'DM Sans',system-ui,sans-serif;color:var(--ink)}
+  .col{max-width:980px;margin:0 auto;padding:46px 26px}
+  .panel{position:relative;overflow:hidden;background:var(--cream);border-radius:16px;padding:42px 44px}
+
+  /* heading (grey glow, matches built default heading) */
+  .h-idx{font-size:14px;font-weight:500;letter-spacing:.14em;color:var(--accent)}
+  .h-tw{position:relative;display:inline-block;margin:6px 0 2px}
+  .h-glow{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:130%;height:215%;border-radius:50%;filter:blur(34px);background:radial-gradient(closest-side,rgba(88,82,74,.20),transparent 72%)}
+  .h-word{position:relative;font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:54px;line-height:1;letter-spacing:-.01em;color:rgba(86,80,72,.18);text-shadow:0 0 30px rgba(86,80,72,.20);margin:0}
+  .h-sub{font-size:14px;line-height:1.6;color:var(--sub);max-width:430px;margin:14px 0 0}
+
+  .content{margin-top:46px}
+
+  /* feature */
+  .feat{position:relative;border-radius:14px;background:var(--cream2);padding:28px 30px;overflow:hidden;margin-bottom:30px}
+  .featglow{position:absolute;right:-40px;top:-30px;width:280px;height:200px;border-radius:50%;background:radial-gradient(closest-side,rgba(181,97,60,.22),transparent 70%);filter:blur(40px)}
+  .feyebrow{position:relative;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:7px}
+  .feyebrow i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+  .fco{position:relative;font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+  .frole{position:relative;font-family:'Fraunces';font-style:italic;font-weight:400;font-size:28px;line-height:1.15;margin:6px 0 0;color:#23201c}
+  .fdate{position:relative;font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* previously */
+  .prevlbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9C8E7C;font-weight:600;margin:0 0 8px}
+  .cmp{display:grid;grid-template-columns:170px 1fr;gap:24px;padding:15px 12px;border-bottom:1px solid rgba(60,45,30,.09);border-radius:10px;transition:background .3s}
+  .cmp:last-child{border-bottom:none}
+  .cmp:hover{background:var(--cream2)}
+  .cmpDate{font-size:13.5px;color:#6b5f4f}
+  .cmpCo{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .cmpRole{font-size:15.5px;font-weight:600;margin-top:3px}
+  .acq{color:var(--accent);font-style:italic;font-family:'Fraunces';text-transform:none;letter-spacing:0;font-size:13px}
+
+  @media (max-width:640px){
+    .panel{padding:32px 26px}
+    .h-word{font-size:42px}
+    .frole{font-size:23px}
+    .cmp{grid-template-columns:1fr;gap:4px}
+  }
+</style>
+</head>
+<body>
+  <div class="col">
+    <div class="panel">
+      <div>
+        <span class="h-idx">04</span>
+        <span class="h-tw"><span class="h-glow"></span><h2 class="h-word">Experience</h2></span>
+        <p class="h-sub">Where I have shaped products, the most recent first.</p>
+      </div>
+
+      <div class="content">
+        <div class="feat">
+          <div class="featglow"></div>
+          <div class="feyebrow"><i></i>Currently</div>
+          <div class="fco">LTIMindtree, Pune</div>
+          <div class="frole">Specialist, Interactive UX and UI (Otis)</div>
+          <div class="fdate">Jul 2025 – Present</div>
+        </div>
+
+        <p class="prevlbl">Previously</p>
+        <div class="cmp"><div class="cmpDate">Jan 2024 – Jun 2025</div><div><div class="cmpCo">LTIMindtree, Pune</div><div class="cmpRole">Specialist, Interactive UX and UI (Fosfor)</div></div></div>
+        <div class="cmp"><div class="cmpDate">May 2021 – Jan 2024</div><div><div class="cmpCo">Kaha Technologies <span class="acq">acquired by boAt</span> · Bengaluru</div><div class="cmpRole">UX and UI Designer</div></div></div>
+        <div class="cmp"><div class="cmpDate">Dec 2019 – May 2021</div><div><div class="cmpCo">Stackonet Services, Bengaluru</div><div class="cmpRole">UX and UI Designer</div></div></div>
+        <div class="cmp"><div class="cmpDate">Jun 2018 – Dec 2019</div><div><div class="cmpCo">Perpule <span class="acq">acquired by Amazon</span> · Bengaluru</div><div class="cmpRole">UX and UI Designer</div></div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

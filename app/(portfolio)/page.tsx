@@ -6,7 +6,6 @@ import ProcessSection from "@/components/sections/ProcessSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import ContactSection from "@/components/sections/ContactSection";
-
 export default async function HomePage() {
   const { settings, skills, projects, experience } = await getHomePageData();
 

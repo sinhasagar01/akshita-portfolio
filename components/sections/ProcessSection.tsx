@@ -6,6 +6,7 @@ import { useLenis } from "lenis/react";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
+import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 type Props = { settings: SiteSettingsEntry | null };
 
@@ -68,6 +69,20 @@ export default function ProcessSection(_props: Props) {
   const lenisRef = useRef(lenis);
   useEffect(() => { lenisRef.current = lenis; }, [lenis]);
 
+  const { isProgrammaticRef } = useSmoothScroll() ?? {};
+  const userScrolled = useRef(false);
+  useEffect(() => {
+    const mark = () => { userScrolled.current = true; };
+    window.addEventListener("wheel", mark, { passive: true });
+    window.addEventListener("touchmove", mark, { passive: true });
+    window.addEventListener("keydown", mark);
+    return () => {
+      window.removeEventListener("wheel", mark);
+      window.removeEventListener("touchmove", mark);
+      window.removeEventListener("keydown", mark);
+    };
+  }, []);
+
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     setIsSmallScreen(mq.matches);
@@ -89,15 +104,24 @@ export default function ProcessSection(_props: Props) {
         trigger: wrapperRef.current,
         start: "top top",
         end: "bottom bottom",
-        snap: { snapTo: [0, 1 / 3, 2 / 3, 1], duration: { min: 0.3, max: 0.5 }, ease: "power1.inOut" },
         onUpdate: (self) => {
+          // During programmatic scrolls: suppress stepper update AND snap together.
+          if (isProgrammaticRef?.current) {
+            if (snapTimer) clearTimeout(snapTimer);
+            snapTimer = null;
+            return;
+          }
+
           const stage = Math.min(3, Math.round(self.progress * 3));
           setActive(stage);
+
+          if (!userScrolled.current || !self.isActive) return;
 
           // After the user pauses, snap to that stage's third-point via Lenis.
           if (snapTimer) clearTimeout(snapTimer);
           snapTimer = setTimeout(() => {
             snapTimer = null;
+            if (isProgrammaticRef?.current) return; // race guard
             const st = ScrollTrigger.getById("process-scrub");
             const l = lenisRef.current;
             if (!st || !l) return;

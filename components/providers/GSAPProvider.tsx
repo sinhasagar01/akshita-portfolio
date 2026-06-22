@@ -15,6 +15,7 @@ export default function GSAPProvider({ children }: { children: ReactNode }) {
     const update = () => ScrollTrigger.update();
     lenis.on("scroll", update);
     ScrollTrigger.refresh();
+    lenis.scrollTo(0, { immediate: true, force: true });
 
     return () => {
       lenis.off("scroll", update);

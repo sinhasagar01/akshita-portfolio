@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import { motion, LayoutGroup, useReducedMotion } from "motion/react";
+import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 const NAV = [
+  { id: "process", label: "Process" },
   { id: "work",    label: "Work" },
   { id: "about",   label: "About" },
   { id: "contact", label: "Contact" },
@@ -13,14 +16,32 @@ const NAV = [
 
 type SectionId = (typeof NAV)[number]["id"];
 
-function useHeaderState() {
-  const [scrolled, setScrolled]   = useState(false);
-  const [active, setActive]       = useState<SectionId | null>(null);
-  const [heroInView, setHeroInView] = useState(true);
+// scroll-mt-20 (80px) on every section, header is 72px tall:
+// offset = scrollMargin − HEADER_H = 80 − 72 = 8
+const HEADER_H = 72;
+const SCROLL_TO_OFFSET = 8;
 
+function getActiveSection(): SectionId | null {
+  let current: SectionId | null = null;
+  for (const { id } of NAV) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    // +2 tolerance for subpixel rounding at lerp animation end
+    if (el.getBoundingClientRect().top <= HEADER_H + 2) current = id;
+  }
+  return current;
+}
+
+export default function SiteHeader() {
+  const reduced                        = useReducedMotion();
+  const [scrolled, setScrolled]        = useState(false);
+  const [active, setActive]            = useState<SectionId | null>(null);
+  const [heroInView, setHeroInView]    = useState(true);
+  const smoothScroll                   = useSmoothScroll();
+  const pathname                       = usePathname();
+
+  // Hero visibility observer
   useEffect(() => {
-    const HEADER_H = 72;
-
     const hero = document.getElementById("hero");
     const heroObs = hero
       ? new IntersectionObserver(([e]) => setHeroInView(e.isIntersecting), {
@@ -28,48 +49,44 @@ function useHeaderState() {
         })
       : null;
     heroObs?.observe(hero!);
-
-    function onScroll() {
-      const y = window.scrollY;
-      setScrolled(y > 18);
-
-      let current: SectionId | null = null;
-      for (const { id } of NAV) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const docTop = el.getBoundingClientRect().top + y;
-        if (y + HEADER_H >= docTop) current = id;
-      }
-      setActive(current);
-    }
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      heroObs?.disconnect();
-    };
+    return () => heroObs?.disconnect();
   }, []);
 
-  return { scrolled, active, heroInView };
-}
+  // Native scroll fallback (reduced motion / no Lenis)
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 18);
+      if (smoothScroll?.isProgrammaticRef.current) return;
+      setActive(getActiveSection());
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [smoothScroll]);
 
-export default function SiteHeader() {
-  const reduced                          = useReducedMotion();
-  const lenis                            = useLenis();
-  const { scrolled, active, heroInView } = useHeaderState();
+  // Lenis scroll — fires every animation frame for accurate smooth-scroll tracking
+  const lenisScrollCallback = useCallback(() => {
+    setScrolled(window.scrollY > 18);
+    if (smoothScroll?.isProgrammaticRef.current) return;
+    setActive(getActiveSection());
+  }, [smoothScroll]);
+
+  const lenis = useLenis(lenisScrollCallback, [smoothScroll]);
 
   const showMarker  = !heroInView && active !== null;
   const markerTrans = reduced
     ? { duration: 0 }
     : { type: "spring" as const, stiffness: 380, damping: 30 };
 
-  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
     e.preventDefault();
+    setActive(id); // instant highlight before scroll arrives
     const el = document.getElementById(id);
     if (!el) return;
-    if (lenis) {
-      lenis.scrollTo(el, { offset: -72 });
+    if (smoothScroll) {
+      smoothScroll.scrollToTarget(el, { offset: SCROLL_TO_OFFSET });
+    } else if (lenis) {
+      lenis.scrollTo(el, { offset: SCROLL_TO_OFFSET });
     } else {
       el.scrollIntoView({ behavior: "smooth" });
     }
@@ -85,9 +102,32 @@ export default function SiteHeader() {
 
           <Link
             href="/"
-            className="font-display italic text-xl text-[--color-text-primary] hover:text-[--color-accent] transition-colors duration-[--duration-base]"
+            aria-label="Akshita Singh, home"
+            className="logo-link"
+            onClick={(e) => {
+              if (pathname !== "/") return;
+              e.preventDefault();
+              if (smoothScroll) {
+                smoothScroll.scrollToTarget(0);
+              } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
           >
-            Akshita
+            <span className="logo-sigwrap">
+              <svg className="logo-grid" width="148" height="48" aria-hidden="true" focusable="false">
+                <line x1="0" y1="10" x2="148" y2="10" />
+                <line x1="0" y1="38" x2="148" y2="38" />
+                <line x1="14" y1="0" x2="14" y2="48" />
+                <line x1="70" y1="0" x2="70" y2="48" />
+                <line x1="130" y1="0" x2="130" y2="48" />
+                <circle cx="14" cy="10" r="2.4" />
+                <circle cx="130" cy="38" r="2.4" />
+              </svg>
+              <span className="logo-sig">Akshita</span>
+            </span>
+            <span className="logo-vbar" aria-hidden="true" />
+            <span className="logo-singh">SINGH</span>
           </Link>
 
           <LayoutGroup id="site-header">

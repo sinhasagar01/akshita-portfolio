@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useLenis } from 'lenis/react'
+import { ScrollTrigger } from '@/lib/gsap'
 
 const WARM_SHADES = [
   '#B5613C', '#C56B3F', '#A85433', '#BD8A3C',
@@ -27,14 +29,47 @@ function mix(a: RGB, b: RGB, t: number): RGB {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
 }
 
+function resetToTop(lenis: ReturnType<typeof useLenis>) {
+  ScrollTrigger.clearScrollMemory()
+  if (lenis) lenis.scrollTo(0, { immediate: true, force: true })
+  ScrollTrigger.refresh()
+  if (lenis) lenis.scrollTo(0, { immediate: true, force: true })
+  ScrollTrigger.update()
+}
+
 export default function PageLoader() {
   const [gone, setGone] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const lenis = useLenis()
+  const lenisRef = useRef(lenis)
+  useEffect(() => { lenisRef.current = lenis }, [lenis])
 
   useEffect(() => {
+    // Freeze the page at scroll=0 for the entire loader duration.
+    // lenis.stop() halts Lenis-driven scrolling; the capture scroll listener
+    // resets any stray native scroll (e.g. focus-induced) to 0 immediately.
+    lenisRef.current?.stop()
+    const holdTop = () => window.scrollTo(0, 0)
+    window.addEventListener('scroll', holdTop, { capture: true })
+
+    function finish() {
+      window.removeEventListener('scroll', holdTop, { capture: true })
+      window.scrollTo(0, 0)
+      const l = lenisRef.current
+      if (l) {
+        l.start()
+        l.scrollTo(0, { immediate: true, force: true })
+      }
+    }
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish()
       setGone(true)
-      return
+      requestAnimationFrame(() => resetToTop(lenisRef.current))
+      return () => {
+        window.removeEventListener('scroll', holdTop, { capture: true })
+        lenisRef.current?.start()
+      }
     }
 
     const el = overlayRef.current
@@ -80,11 +115,16 @@ export default function PageLoader() {
     })
 
     const timer = setTimeout(() => {
-      window.scrollTo(0, 0)
+      finish()
+      resetToTop(lenisRef.current)
       setGone(true)
     }, 1400)
 
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('scroll', holdTop, { capture: true })
+      lenisRef.current?.start()
+    }
   }, [])
 
   if (gone) return null

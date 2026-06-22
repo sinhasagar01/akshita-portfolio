@@ -1,0 +1,106 @@
+<!doctype html>
+<!--
+  FOOTER  (editorial, with live Bengaluru clock + colophon)
+  ------------------------------------------------------------------
+  Replaces the single-line footer. Three zones:
+    top    left  signature, role, "Designed and built in Bengaluru" + sparkle, live local time
+           right two link columns (Explore in-page nav, Elsewhere socials)
+    rule   hairline
+    bottom left  colophon (year, stack, typefaces)   right  back to top
+
+  COLOR MAP  (literal -> token)
+    #FBF6EE footer bg          -> --color-cream-50
+    #211C16 ink                -> --color-text-primary
+    #B5613C accent / sparkle   -> --color-accent-500
+    #8a7f6e / #6b5f4f / #9a8f7f muted tones -> your muted ink tokens (TUNE)
+    rgba(60,45,30,.1) rule
+
+  BUILD NOTES
+    - The footer can stay a server component, but the LIVE CLOCK and BACK TO TOP
+      need a tiny client child ("use client").
+    - Clock: new Date().toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',
+      hour12:true, timeZone:'Asia/Kolkata'}). Update on an interval (20s is plenty).
+      Render a static placeholder on the server, fill on mount to avoid hydration mismatch.
+    - Back to top: call the existing Lenis instance, lenis.scrollTo(0,{duration:...}),
+      so it matches the site's smooth scroll. Fall back to window.scrollTo({top:0,
+      behavior:'smooth'}) if Lenis is not reachable.
+    - Explore links are in-page anchors (#work #about #experience #contact) and should
+      go through the same Lenis anchor handling the header uses.
+    - Real links:
+        LinkedIn  https://linkedin.com/in/akshita25/
+        Behance   https://behance.net/akshitasingh
+        Email     mailto:akshitasingh094@gmail.com
+        Resume    https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view
+      Open external links in a new tab with rel="noopener noreferrer".
+    - Sign-off copy chosen: "Designed and built in Bengaluru". (Alts: "Made by hand in
+      Bengaluru", "Coded from scratch in Bengaluru".)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Footer reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,400&family=Kaushan+Script&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#B5613C; --ink:#211C16; --cream:#FBF6EE; --sand:#E3D7C4; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--sand);font-family:'DM Sans',system-ui,sans-serif;color:var(--ink)}
+  .col{max-width:1040px;margin:0 auto;padding:40px 26px}
+  .ft{background:var(--cream);border-radius:16px;padding:44px 46px}
+  .top{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
+  .sig{font-family:'Kaushan Script',cursive;font-size:34px;line-height:1;color:#1c1813;margin:0}
+  .role{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8a7f6e;margin:12px 0 0}
+  .made{display:flex;align-items:center;gap:8px;font-size:13px;color:#6b5f4f;margin:18px 0 0}
+  .made .st{color:var(--accent)}
+  .clock{font-size:13px;color:#9a8f7f;margin:7px 0 0}
+  .cols{display:flex;gap:54px;flex-wrap:wrap}
+  .cl h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 12px}
+  .cl a{display:block;font-size:14px;color:#3a342b;text-decoration:none;margin:0 0 9px;transition:color .2s}
+  .cl a:hover{color:var(--accent)}
+  .rule{height:1px;background:rgba(60,45,30,.1);margin:34px 0 18px}
+  .bot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:12px;color:#9a8f7f}
+  .bot .colo{font-style:italic;font-family:'Fraunces'}
+  .top2{display:flex;align-items:center;gap:6px;color:#6b5f4f;cursor:pointer}
+  .top2:hover{color:var(--accent)}
+  @media (max-width:640px){ .ft{padding:34px 26px} .top{gap:30px} }
+</style>
+</head>
+<body>
+  <div class="col">
+    <footer class="ft">
+      <div class="top">
+        <div>
+          <p class="sig">Akshita Singh</p>
+          <p class="role">Product Designer</p>
+          <p class="made">Designed and built in Bengaluru <span class="st">&#10022;</span></p>
+          <p class="clock" id="clk">Local time 9:41 PM</p>
+        </div>
+        <div class="cols">
+          <div class="cl">
+            <h4>Explore</h4>
+            <a href="#work">Work</a><a href="#about">About</a><a href="#experience">Experience</a><a href="#contact">Contact</a>
+          </div>
+          <div class="cl">
+            <h4>Elsewhere</h4>
+            <a href="https://linkedin.com/in/akshita25/">LinkedIn</a>
+            <a href="https://behance.net/akshitasingh">Behance</a>
+            <a href="mailto:akshitasingh094@gmail.com">Email</a>
+            <a href="https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view">Resume</a>
+          </div>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="bot">
+        <span class="colo">&copy; 2026 Akshita Singh &nbsp;&middot;&nbsp; Built with Next.js and Tailwind, set in Fraunces and DM Sans</span>
+        <span class="top2">Back to top &uarr;</span>
+      </div>
+    </footer>
+  </div>
+<script>
+  function tick(){
+    try{ document.getElementById('clk').textContent='Local time '+new Date().toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}); }catch(e){}
+  }
+  tick(); setInterval(tick,20000);
+</script>
+</body>
+</html>

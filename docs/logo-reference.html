@@ -1,0 +1,105 @@
+<!doctype html>
+<!--
+  HEADER LOGO  (concept 4, signature + grid, draw-on hover)  +  IDENTITY ASSETS (folded ribbon mark)
+  ------------------------------------------------------------------
+  HEADER (live, not an image):
+    "Akshita" in Kaushan signature, ink at rest, then a vertical hairline, then "SINGH"
+    in tracked DM Sans caps, terracotta. Faint terracotta construction grid sits behind
+    the signature, hidden at rest.
+
+  HOVER (on the whole logo link):
+    1. the grid lines DRAW ON (stroke-dashoffset animates to 0) and fade in, ~0.6s.
+    2. then, with a short delay, the "Akshita" signature RECOLORS ink -> terracotta, ~0.45s.
+    On mouse leave it reverses (signature back to ink, grid undraws and fades).
+    Reduced motion: no draw, no recolor sequence. Show the grid static and faint, recolor
+    instantly or not at all.
+
+  COLOR MAP  (literal -> token)
+    #1c1813 signature ink      -> --color-text-primary
+    #B5613C grid + SINGH + hover signature -> --color-accent-500
+
+  REACT BUILD (header logo)
+    - Kaushan font for "Akshita", DM Sans 600 tracked for "SINGH" (both already via next/font).
+    - The grid is an inline SVG behind the signature, position absolute, pointer-events none.
+      Each line uses stroke-dasharray (a value >= its length) with stroke-dashoffset animating
+      to 0 on hover. CSS :hover on the link drives it, with transition-delay staggering the
+      signature recolor after the grid draw. No JS needed beyond the link click.
+    - The logo links home. Route its onClick through the smooth-scroll helper
+      (scrollToTarget(0)) with the native href as fallback. aria-label "Akshita Singh, home".
+      The grid is decorative (aria-hidden).
+    - Reduced motion: wrap the draw/recolor in @media (prefers-reduced-motion: no-preference),
+      and give a static fallback otherwise.
+
+  IDENTITY ASSETS (folded ribbon mark) — files shipped alongside:
+    favicon.svg              ink rounded tile + ribbon A, self-contained vector (gradient inline)
+    monogram-mark.svg        transparent ribbon A (the bare mark, gradient inline)
+    favicon-16.png, favicon-32.png
+    apple-touch-icon-180.png (full square, iOS masks it)
+    icon-512.png             PWA / high-res
+    avatar-1000.png          square social avatar on ink (safe for circle crop)
+    og-image.png             1200x630 link preview (ribbon mark + name + role)
+    Note: icons sit on an INK tile for contrast (the ribbon is terracotta and washes out on
+    cream at 16px). The OG card stays on cream to match the site.
+
+  WIRING — see the build prompt for exact Next.js placement.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Logo reference, signature + grid</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600&family=Kaushan+Script&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#B5613C; --ink:#1c1813; --cream:#FBF6EE; --sand:#E3D7C4; }
+  body{margin:0;background:var(--sand);font-family:system-ui,sans-serif}
+  .col{max-width:780px;margin:0 auto;padding:48px 26px;display:flex;flex-direction:column;gap:22px}
+  .cap{color:#7c715f;font-size:13px}
+  .bar{background:var(--cream);border-radius:999px;padding:14px 30px;display:flex;justify-content:space-between;align-items:center}
+  .nav{display:flex;gap:8px}.nav span{font-size:14px;color:#3a342b;padding:6px 14px}.nav .on{background:#EFE3D1;border-radius:999px}
+
+  .logo{position:relative;display:inline-flex;align-items:center;gap:13px;text-decoration:none;cursor:pointer;padding:4px 2px}
+  .sigwrap{position:relative;display:inline-flex;align-items:center}
+  .grid{position:absolute;left:-8px;top:-7px;pointer-events:none}
+  .grid line, .grid circle{stroke:var(--accent);stroke-width:0.8;opacity:0;transition:opacity .25s ease}
+  .grid line{stroke-dasharray:150;stroke-dashoffset:150;transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1),opacity .25s ease}
+  .grid circle{fill:var(--accent);stroke:none}
+  .sig{font-family:'Kaushan Script',cursive;font-size:30px;color:var(--ink);position:relative;transition:color .45s ease .35s}
+  .vbar{width:1px;height:24px;background:rgba(120,90,60,.45)}
+  .singh{font-family:'DM Sans';font-weight:600;font-size:13px;letter-spacing:.28em;color:var(--accent)}
+
+  .logo:hover .grid line{stroke-dashoffset:0;opacity:.6}
+  .logo:hover .grid circle{opacity:.7}
+  .logo:hover .sig{color:var(--accent)}
+
+  @media (prefers-reduced-motion: reduce){
+    .grid line{transition:opacity .2s;stroke-dashoffset:0}
+    .sig{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="col">
+    <span class="cap">Header logo, live text. Hover the logo, the grid draws on, then the signature recolors.</span>
+    <div class="bar">
+      <a class="logo" href="#">
+        <span class="sigwrap">
+          <svg class="grid" width="148" height="48" aria-hidden="true">
+            <line x1="0" y1="10" x2="148" y2="10"/>
+            <line x1="0" y1="38" x2="148" y2="38"/>
+            <line x1="14" y1="0" x2="14" y2="48"/>
+            <line x1="70" y1="0" x2="70" y2="48"/>
+            <line x1="130" y1="0" x2="130" y2="48"/>
+            <circle cx="14" cy="10" r="2.4"/>
+            <circle cx="130" cy="38" r="2.4"/>
+          </svg>
+          <span class="sig">Akshita</span>
+        </span>
+        <span class="vbar"></span>
+        <span class="singh">SINGH</span>
+      </a>
+      <div class="nav"><span>Process</span><span>Work</span><span class="on">About</span><span>Contact</span></div>
+    </div>
+    <span class="cap">Favicon, avatar and OG ship as the folded-ribbon files listed in this file's header comment.</span>
+  </div>
+</body>
+</html>

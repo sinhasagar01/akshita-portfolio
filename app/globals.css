@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+html.has-custom-cursor,
+html.has-custom-cursor * { cursor: none; }
+html.has-custom-cursor input,
+html.has-custom-cursor textarea,
+html.has-custom-cursor select,
+html.has-custom-cursor [contenteditable] { cursor: auto; }
+
 @theme {
   /* ============================================================
      Color palette — warm editorial cream
@@ -334,6 +341,100 @@ a {
 
 .site-header-bar .nav-link::after {
   background-color: var(--color-accent-500);
+}
+
+/* ============================================================
+   Header logo — signature + construction grid
+============================================================ */
+
+.logo-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  padding: 4px 2px;
+}
+
+.logo-sigwrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo-grid {
+  position: absolute;
+  left: -8px;
+  top: -7px;
+  pointer-events: none;
+}
+
+.logo-grid line {
+  stroke: var(--color-accent-500);
+  stroke-width: 0.8;
+  stroke-dasharray: 150;
+  stroke-dashoffset: 150;
+  opacity: 0;
+}
+
+.logo-grid circle {
+  fill: var(--color-accent-500);
+  stroke: none;
+  opacity: 0;
+}
+
+.logo-sig {
+  font-family: var(--font-script);
+  font-size: 29px;
+  color: var(--color-text-primary);
+  position: relative;
+}
+
+.logo-vbar {
+  width: 1px;
+  height: 24px;
+  background: oklch(56.0% 0.14 42 / 0.45);
+  flex-shrink: 0;
+}
+
+.logo-singh {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  color: var(--color-accent-500);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo-grid line {
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+  }
+  .logo-grid circle {
+    transition: opacity 0.25s ease;
+  }
+  .logo-sig {
+    transition: color 0.45s ease 0.35s;
+  }
+  .logo-link:hover .logo-grid line {
+    stroke-dashoffset: 0;
+    opacity: 0.6;
+  }
+  .logo-link:hover .logo-grid circle {
+    opacity: 0.7;
+  }
+  .logo-link:hover .logo-sig {
+    color: var(--color-accent-500);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-grid line {
+    stroke-dashoffset: 0;
+    opacity: 0.15;
+  }
+  .logo-grid circle {
+    opacity: 0.2;
+  }
 }
 
 /* ============================================================

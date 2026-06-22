@@ -1,0 +1,159 @@
+<!doctype html>
+<!--
+  SKILLS BACKGROUND-WORD GLOW REVEAL  (option A, soft glow swap)
+  ------------------------------------------------------------------
+  Hovering a skill pill swaps a big faint italic word behind the pills and
+  blooms a warm glow. On A, the word crossfades (fade out, swap, fade in) while
+  the glow rises. When the cursor leaves the pills area, the glow settles back
+  down and the last word stays.
+
+  PLACEMENT (important)
+  - The Skills heading is the grey glow word at the top. To avoid two glows
+    colliding, this hover word is WARM and sits BEHIND THE PILLS, centered in the
+    body area BELOW the heading, never behind the heading.
+  - Pills and labels sit above the word (z-index 2). The word + glow are z 0,
+    pointer-events none.
+
+  COLOR MAP  (literal -> token)
+    #FBF6EE panel cream            -> --color-cream-50
+    #B5613C accent                 -> --color-accent-500
+    rgba(181,97,60,.11) word fill  -> accent very low alpha (TUNE on real cream)
+    rgba(181,97,60,.14) word glow text-shadow
+    rgba(181,97,60,.17) radial glow
+
+  WORD MAP  (data-word per pill, evocative, edit freely)
+    Product Design vision   UX Design experience   UI Design craft
+    Interaction Design flow   Design Systems scale
+    UX Research insight   Journey Mapping journeys   Usability Testing proof   Split Testing signal
+    Wireframing clarity   Rapid Prototyping speed   Information Architecture structure
+    Figma canvas   Sketch lines   Adobe XD layers   Framer motion   Miro maps   Azure DevOps ship
+    rest default word: "design"
+
+  BEHAVIOR (option A)
+    on pill mouseenter:
+      glow opacity .28 -> .78
+      word: opacity 0 + scale .9 (no transition), after ~180ms swap text,
+            then transition opacity .45s + transform .55s cubic-bezier(.22,1,.36,1) to opacity full, scale 1
+    on pills-area mouseleave: glow opacity back to .28, keep the last word
+    word size ~150px desktop, ~92px under 640px
+
+  REACT WIRING (make the Skills body a client component)
+    - State: activeWord (string, default "design"), hovering (bool).
+    - Render the word with motion/react AnimatePresence mode="wait", keyed on activeWord:
+        initial { opacity:0, scale:.9 }  animate { opacity:1, scale:1 }  exit { opacity:0, scale:.9 }
+        (this gives the fade-out, swap, fade-in of option A without manual timers)
+    - Render the glow as a motion.div, animate opacity = hovering ? .78 : .28, transition .55s ease.
+    - Each pill: onMouseEnter => setActiveWord(map[label]); setHovering(true).
+    - The pills wrapper: onMouseLeave => setHovering(false).
+    - useReducedMotion(): when true, no animation. Render the word static at rest opacity,
+      glow static, and skip the hover swap (or swap instantly with no transition).
+    - Touch / no-hover devices: leave the word at the default rest state; hover is not available.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Skills background word reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#B5613C; --ink:#211C16; --cream:#FBF6EE; --sand:#E3D7C4; --sub:#A89D8D; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--sand);font-family:'DM Sans',system-ui,sans-serif;color:var(--ink)}
+  .col{max-width:980px;margin:0 auto;padding:46px 26px}
+  .panel{position:relative;overflow:hidden;background:var(--cream);border-radius:16px;padding:40px 42px}
+
+  /* heading (grey glow, matches the built default heading) */
+  .h-idx{font-size:14px;font-weight:500;letter-spacing:.14em;color:var(--accent)}
+  .h-tw{position:relative;display:inline-block;margin:6px 0 2px}
+  .h-glow{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:130%;height:215%;border-radius:50%;filter:blur(34px);background:radial-gradient(closest-side,rgba(88,82,74,.20),transparent 72%)}
+  .h-word{position:relative;font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:60px;line-height:1;letter-spacing:-.01em;color:rgba(86,80,72,.18);text-shadow:0 0 30px rgba(86,80,72,.20);margin:0}
+  .h-sub{font-size:14px;line-height:1.6;color:var(--sub);max-width:430px;margin:14px 0 0}
+
+  /* body with the warm hover word behind the pills */
+  .body{position:relative;margin-top:52px;min-height:260px}
+  .wordwrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none}
+  .wglow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:560px;height:280px;border-radius:50%;background:radial-gradient(closest-side,rgba(181,97,60,.17),transparent 70%);filter:blur(42px);opacity:.28;transition:opacity .55s ease}
+  .word{font-family:'Fraunces',serif;font-style:italic;font-size:150px;line-height:1;color:rgba(181,97,60,.11);white-space:nowrap;text-shadow:0 0 34px rgba(181,97,60,.14);position:relative}
+
+  .rows{position:relative;z-index:2}
+  .row{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+  .row:last-child{margin-bottom:0}
+  .plbl{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:600;width:88px;flex-shrink:0;padding-top:9px}
+  .pills{display:flex;flex-wrap:wrap;gap:10px}
+  .pill{font-size:14px;color:#3a3228;background:var(--cream);border:1px solid color-mix(in oklch, var(--ink) 12%, transparent);border-radius:999px;padding:9px 16px;cursor:pointer;transition:background .25s,border-color .25s,color .25s,transform .25s}
+  .pill:hover{background:#fff;border-color:rgba(181,97,60,.5);color:var(--accent);transform:translateY(-2px)}
+
+  @media (max-width:640px){ .word{font-size:92px} .h-word{font-size:42px} .panel{padding:32px 26px} }
+</style>
+</head>
+<body>
+  <div class="col">
+    <div class="panel" id="panel">
+      <div>
+        <span class="h-idx">05</span>
+        <span class="h-tw"><span class="h-glow"></span><h2 class="h-word">Skills</h2></span>
+        <p class="h-sub">Design, research, and the craft to carry an idea to a shipped screen.</p>
+      </div>
+
+      <div class="body" id="body">
+        <div class="wordwrap"><div class="wglow" id="wglow"></div><div class="word" id="word">design</div></div>
+        <div class="rows" id="rows">
+          <div class="row"><span class="plbl">DESIGN</span><div class="pills">
+            <span class="pill" data-word="vision">Product Design</span>
+            <span class="pill" data-word="experience">UX Design</span>
+            <span class="pill" data-word="craft">UI Design</span>
+            <span class="pill" data-word="flow">Interaction Design</span>
+            <span class="pill" data-word="scale">Design Systems</span>
+          </div></div>
+          <div class="row"><span class="plbl">RESEARCH</span><div class="pills">
+            <span class="pill" data-word="insight">UX Research</span>
+            <span class="pill" data-word="journeys">Journey Mapping</span>
+            <span class="pill" data-word="proof">Usability Testing</span>
+            <span class="pill" data-word="signal">Split Testing</span>
+          </div></div>
+          <div class="row"><span class="plbl">CRAFT</span><div class="pills">
+            <span class="pill" data-word="clarity">Wireframing</span>
+            <span class="pill" data-word="speed">Rapid Prototyping</span>
+            <span class="pill" data-word="structure">Information Architecture</span>
+          </div></div>
+          <div class="row"><span class="plbl">TOOLS</span><div class="pills">
+            <span class="pill" data-word="canvas">Figma</span>
+            <span class="pill" data-word="lines">Sketch</span>
+            <span class="pill" data-word="layers">Adobe XD</span>
+            <span class="pill" data-word="motion">Framer</span>
+            <span class="pill" data-word="maps">Miro</span>
+            <span class="pill" data-word="ship">Azure DevOps</span>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Option A, soft glow swap. (Standalone demo; the build uses AnimatePresence per the comment.)
+  var word = document.getElementById('word');
+  var wglow = document.getElementById('wglow');
+  var rows = document.getElementById('rows');
+  var body = document.getElementById('body');
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  function reveal(w){
+    wglow.style.opacity = '.78';
+    if (reduce){ word.textContent = w; return; }
+    word.style.transition = 'none';
+    word.style.opacity = '0';
+    word.style.transform = 'scale(.9)';
+    setTimeout(function(){
+      word.textContent = w;
+      word.style.transition = 'opacity .45s ease, transform .55s cubic-bezier(.22,1,.36,1)';
+      word.style.opacity = '1';
+      word.style.transform = 'scale(1)';
+    }, 180);
+  }
+  [].forEach.call(rows.querySelectorAll('.pill'), function(p){
+    p.addEventListener('mouseenter', function(){ reveal(p.dataset.word); });
+  });
+  body.addEventListener('mouseleave', function(){ wglow.style.opacity = '.28'; });
+</script>
+</body>
+</html>
