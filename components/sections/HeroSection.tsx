@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, Fragment } from "react";
+import { useRef, useState, useEffect, Fragment } from "react";
 import {
   motion,
   AnimatePresence,
@@ -58,14 +58,73 @@ const lineContainerVariantsReduced = {
   exit: { opacity: 0, transition: { duration: 0 } },
 };
 
+const MOBILE_BP = 1024;
+const SWIPE_PX = 44;
+const INTENT_RATIO = 1.4;
+
 export default function HeroSection() {
   const [active, setActive] = useState(0);
   const isReducedMotion = useReducedMotion();
   const smoothScroll    = useSmoothScroll();
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const coreRef = useRef<HTMLDivElement>(null);
+  const sectionRef  = useRef<HTMLElement>(null);
+  const glowRef     = useRef<HTMLDivElement>(null);
+  const coreRef     = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const swipeIntent = useRef<"horizontal" | "vertical" | null>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const onTouchMove = (e: TouchEvent) => {
+      if (swipeIntent.current === "horizontal") e.preventDefault();
+    };
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onTouchMove);
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType === "mouse") return;
+    if (typeof window !== "undefined" && window.innerWidth >= MOBILE_BP) return;
+    touchStartX.current = e.clientX;
+    touchStartY.current = e.clientY;
+    swipeIntent.current = null;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType === "mouse") return;
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    if (swipeIntent.current !== null) return;
+    const dx = Math.abs(e.clientX - touchStartX.current);
+    const dy = Math.abs(e.clientY - touchStartY.current);
+    if (dx + dy > 8) {
+      swipeIntent.current = dx > dy * INTENT_RATIO ? "horizontal" : "vertical";
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType === "mouse") return;
+    const startX = touchStartX.current;
+    const intent = swipeIntent.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    swipeIntent.current = null;
+    if (startX === null || intent !== "horizontal") return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) < SWIPE_PX) return;
+    setActive(prev =>
+      dx < 0
+        ? Math.min(prev + 1, FACETS.length - 1)
+        : Math.max(prev - 1, 0)
+    );
+  };
+
+  const handlePointerCancel = () => {
+    touchStartX.current = null;
+    touchStartY.current = null;
+    swipeIntent.current = null;
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (!sectionRef.current || !glowRef.current || !coreRef.current) return;
@@ -96,6 +155,10 @@ export default function HeroSection() {
       style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
       onMouseMove={isReducedMotion ? undefined : handleMouseMove}
       onMouseLeave={isReducedMotion ? undefined : handleMouseLeave}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
     >
       {/* Warm glow — follows cursor */}
       <div
@@ -156,11 +219,47 @@ export default function HeroSection() {
 
           {/* Facet tabs */}
           <Reveal delay={0.08} className="mt-9">
+            {/* Mobile: dot-grows-to-bar indicators (below 1024px) */}
+            <div
+              role="tablist"
+              aria-label="Designer facets"
+              className="flex lg:hidden justify-center items-center gap-3 py-2"
+            >
+              {FACETS.map((f, i) => (
+                <button
+                  key={f.tab}
+                  role="tab"
+                  aria-selected={i === active}
+                  aria-label={f.tab}
+                  onClick={() => setActive(i)}
+                  className="rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-accent-500]"
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: "block",
+                      height: "8px",
+                      width: i === active ? "24px" : "8px",
+                      borderRadius: "9999px",
+                      backgroundColor:
+                        i === active
+                          ? "var(--color-accent-500)"
+                          : "oklch(14% 0.018 60 / 0.25)",
+                      transition: isReducedMotion
+                        ? "background-color 0.3s ease"
+                        : "width 0.35s ease, background-color 0.3s ease",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+
+            {/* Desktop: labeled tabs with animated pill (1024px and above) */}
             <LayoutGroup>
               <div
                 role="tablist"
                 aria-label="Designer facets"
-                className="relative inline-flex gap-1.5 p-1"
+                className="hidden lg:inline-flex relative gap-1.5 p-1"
               >
                 {FACETS.map((f, i) => (
                   <button
