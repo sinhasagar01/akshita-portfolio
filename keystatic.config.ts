@@ -1,17 +1,9 @@
 import { config, collection, singleton, fields } from "@keystatic/core";
 
-const isProd = process.env.NODE_ENV === "production";
-
 export default config({
-  storage: isProd
-    ? {
-        kind: "github",
-        repo: {
-          owner: "sinhasagar01",
-          name: "akshita-portfolio",
-        },
-      }
-    : { kind: "local" },
+  storage: {
+    kind: "local",
+  },
 
   ui: {
     brand: {
