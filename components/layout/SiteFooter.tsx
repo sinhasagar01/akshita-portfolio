@@ -7,13 +7,13 @@ export default function SiteFooter() {
     <footer className="py-10">
       <div className="container-x">
         <div
-          className="relative overflow-hidden rounded-2xl px-[50px] pb-[26px]"
+          className="footer-panel relative overflow-hidden rounded-2xl px-[50px] pb-[26px]"
           style={{ backgroundColor: "var(--color-cream-50)" }}
         >
           {/* Ciao backdrop */}
           <div
             aria-hidden="true"
-            className="absolute top-[34px] left-[44px] pointer-events-none select-none"
+            className="footer-ciao absolute top-[34px] left-[44px] pointer-events-none select-none"
             style={{
               fontFamily: "var(--font-display)",
               fontStyle: "italic",
@@ -41,7 +41,7 @@ export default function SiteFooter() {
               <p className="mt-[13px] text-[12px] tracking-[.22em] uppercase text-[--color-text-subtle]">
                 Product Designer
               </p>
-              <p className="mt-6 text-[16px] text-[--color-ink-800]">
+              <p className="hidden lg:block mt-6 text-[16px] text-[--color-ink-800]">
                 Designed by Me{" "}
                 <span style={{ color: "var(--color-text-subtle)", margin: "0 8px" }}>·</span>
                 Built by{" "}
@@ -55,7 +55,9 @@ export default function SiteFooter() {
                   <span className="footer-sagar-arrow text-[.8em] ml-[1px]" aria-hidden="true">↗</span>
                 </a>
               </p>
-              <FooterClock />
+              <div className="hidden lg:block">
+                <FooterClock />
+              </div>
             </div>
 
             {/* Right — social */}
@@ -94,7 +96,7 @@ export default function SiteFooter() {
 
           {/* Hairline + bottom row */}
           <div
-            className="relative flex justify-between items-center text-[13px] text-[--color-text-subtle] mt-9 pt-[22px]"
+            className="relative flex flex-wrap justify-between items-center gap-y-[10px] text-[13px] text-[--color-text-subtle] mt-9 pt-[22px]"
             style={{ borderTop: "1px solid rgba(60,45,30,0.1)", zIndex: 2 }}
           >
             <span className="flex items-center gap-[7px]">

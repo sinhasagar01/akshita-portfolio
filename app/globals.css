@@ -936,3 +936,13 @@ a {
   }
   .footer-heart { animation: footer-beat 1.9s ease-in-out infinite; }
 }
+
+/* Small-phone robustness — below 430px (iPhone 15 and narrower) */
+@media (max-width: 429px) {
+  .footer-panel {
+    padding-inline: 20px;
+  }
+  .footer-ciao {
+    font-size: 88px !important;
+  }
+}
