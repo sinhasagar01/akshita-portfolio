@@ -48,9 +48,14 @@ Every case study follows this fixed eleven-section arc.
 - Phase 4: content pour and cleanup for all four case studies
 - Phase 5: performance, accessibility, motion tuning, launch
 
+## Production domain and hosting
+
+The production domain is akshitas.com. The canonical host is www.akshitas.com. The apex akshitas.com redirects to the www host with a 308 configured in Vercel, and the www host is the primary.
+
+Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.local` must be set to `https://www.akshitas.com`. These two values must always point to the same host. Swapping one without the other causes the canonical URL and share image URLs to resolve against a host that Vercel then redirects away from. On Vercel, the production environment variable `NEXT_PUBLIC_SITE_URL` must also be set to `https://www.akshitas.com`.
+
 ## Open items
 
-- The actual domain name
 - Real outcome numbers for Fosfor AI and Fosfor Data Profiling
 - Confirmation on the light editorial direction before tokens are set
 

@@ -90,17 +90,17 @@ Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data
 - [x] Identity assets produced from the folded-ribbon mark. favicon.svg, app icons, apple touch icon, avatar, and the OG card. Icons on an ink tile for contrast, OG on cream using the signature lockup with the Ciao-free brand wordmark.
 - [x] Programmatic-scroll fix. A shared scrollToTarget helper and isProgrammaticRef in the smooth-scroll provider, with the Process snap and the nav scrollspy gated on the flag, so nav clicks and back-to-top no longer get stuck in Process. Plan reviewed and approved with the safety-timer, no-regression, scrollspy-gate, and stepper-reconcile feedback folded in.
 
-### Handed to Claude Code, pending verify and commit
-
-- [ ] Skills hover background word (soft glow swap, warm word behind the pills).
-- [ ] Hero headline readability (upright Fraunces, fainter backdrop word).
-- [ ] Hero facet refinement (eyebrow, sparkle divider, outline active pill, scroll cue).
-- [ ] Custom cursor (terracotta dot with trailing ring, hover and input gating, reduced-motion fallback).
-- [ ] Footer rebuild (Ciao backdrop, Kaushan name, Designed by Me and Built by Sagar credit, aligned chip-and-label social grid, stacked live chip clock, Built in Bengaluru with love pulsing heart, back to top).
-- [ ] Header Resume CTA (text link with divider) and mobile circle-reveal burger menu with focus trap, scroll lock via Lenis, and reduced-motion fade. Plan approved with the shared-links, breakpoint, and stagger-count feedback.
-- [ ] Header fixes (burger hidden on desktop, burger morphs to a tappable X, Experience and Skills removed from nav, centered mobile menu links).
-- [ ] Hero facet tabs become a dot-grows-to-bar indicator below the mobile breakpoint, labelled tabs on desktop.
-- [ ] Footer credit line and local-time block hidden below the mobile breakpoint.
+- [x] Skills hover background word (soft glow swap, warm word behind the pills).
+- [x] Hero headline readability (upright Fraunces, fainter backdrop word).
+- [x] Hero facet refinement (eyebrow, sparkle divider, outline active pill, scroll cue).
+- [x] Custom cursor (terracotta dot with trailing ring, hover and input gating, reduced-motion fallback).
+- [x] Footer rebuild (Ciao backdrop, Kaushan name, Designed by Me and Built by Sagar credit, aligned chip-and-label social grid, stacked live chip clock, Built in Bengaluru with love pulsing heart, back to top).
+- [x] Header Resume CTA (text link with divider) and mobile circle-reveal burger menu with focus trap, scroll lock via Lenis, and reduced-motion fade.
+- [x] Header fixes (burger hidden on desktop, burger morphs to a tappable X, Experience and Skills removed from nav, centered mobile menu links).
+- [x] Hero facet tabs become a dot-grows-to-bar indicator below the mobile breakpoint, labelled tabs on desktop.
+- [x] Footer credit line and local-time block hidden below the mobile breakpoint.
+- [x] Work section mobile contained cards.
+- [x] Hero mobile touch-swipe facet switcher with no auto-advance.
 
 ### Notes for this phase
 
@@ -121,14 +121,15 @@ Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data
 - [ ] Keyboard-reachable navigation final pass
 - [ ] Reduced motion final audit
 - [ ] Contact form endpoint set (NEXT_PUBLIC_CONTACT_FORM_ENDPOINT still a placeholder)
-- [ ] Domain configured in Vercel
+- [x] metadataBase and NEXT_PUBLIC_SITE_URL wired to https://www.akshitas.com
+- [x] Domain configured in Vercel, canonical host settled as www.akshitas.com with apex 308 redirect
 - [ ] Production Keystatic mode switched to github
 
 ---
 
 ## Open items, the real blockers
 
-- Domain name. Still the top blocker. Needed for metadataBase in app/layout.tsx, the Vercel config, and the Keystatic github switch.
+- Domain is configured in Vercel. The canonical host is www.akshitas.com, with the apex redirecting to the www host. The remaining launch steps are the Keystatic github switch and the contact form endpoint.
 - Real outcome numbers for Fosfor AI and Fosfor Data Profiling.
 - Contact form endpoint (Formspree or Web3Forms) and the env var.
 - Real portrait and real screen exports uploaded through Keystatic.
