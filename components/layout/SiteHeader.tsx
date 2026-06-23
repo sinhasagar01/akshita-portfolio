@@ -9,12 +9,10 @@ import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 import { ELSEWHERE, RESUME_LINK } from "@/lib/social-links";
 
 const NAV = [
-  { id: "process",    label: "Process"    },
-  { id: "work",       label: "Work"       },
-  { id: "about",      label: "About"      },
-  { id: "experience", label: "Experience" },
-  { id: "skills",     label: "Skills"     },
-  { id: "contact",    label: "Contact"    },
+  { id: "process", label: "Process" },
+  { id: "work",    label: "Work"    },
+  { id: "about",   label: "About"   },
+  { id: "contact", label: "Contact" },
 ] as const;
 
 type SectionId = (typeof NAV)[number]["id"];
@@ -93,6 +91,26 @@ export default function SiteHeader() {
     burgerRef.current?.focus();
   }
 
+  // Mobile nav tap: unlock first, scroll on next frame, no focus return to burger
+  function handleMobileNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
+    e.preventDefault();
+    setActive(id);
+    const el = document.getElementById(id);
+    setMenuOpen(false);
+    lenis?.start();
+    document.body.style.overflow = "";
+    if (!el) return;
+    requestAnimationFrame(() => {
+      if (smoothScroll) {
+        smoothScroll.scrollToTarget(el, { offset: SCROLL_TO_OFFSET });
+      } else if (lenis) {
+        lenis.scrollTo(el, { offset: SCROLL_TO_OFFSET });
+      } else {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  }
+
   function toggleMenu() {
     if (menuOpen) closeMenu();
     else openMenu();
@@ -144,7 +162,7 @@ export default function SiteHeader() {
 
   return (
     <header
-      className="site-header sticky z-30"
+      className="site-header sticky z-42"
       style={{ top: scrolled ? "15px" : "0" }}
     >
       <div className="container-x">
@@ -261,13 +279,13 @@ export default function SiteHeader() {
         aria-label="Site navigation"
         className={`header-mobile-menu${menuOpen ? " open" : ""}`}
       >
-        <nav aria-label="Mobile site navigation" className="flex flex-col">
+        <nav aria-label="Mobile site navigation" className="flex flex-col mt-auto">
           {NAV.map(({ id, label }) => (
             <a
               key={id}
               href={`#${id}`}
               className="header-mob-nav-item"
-              onClick={(e) => { handleNavClick(e, id); closeMenu(); }}
+              onClick={(e) => handleMobileNavClick(e, id)}
             >
               {label}
             </a>
