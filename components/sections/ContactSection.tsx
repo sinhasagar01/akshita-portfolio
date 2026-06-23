@@ -278,6 +278,7 @@ type Props = { settings: SiteSettingsEntry | null }
 export default function ContactSection({ settings }: Props) {
   const [stepIndex, setStepIndex] = useState(0)
   const [answers, setAnswers] = useState<Answers>({ name: '', email: '', message: '' })
+  const [botcheck, setBotcheck] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [fieldError, setFieldError] = useState('')
 
@@ -334,7 +335,11 @@ export default function ContactSection({ settings }: Props) {
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify(answers),
+          body: JSON.stringify({
+            access_key: process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? '',
+            ...answers,
+            botcheck,
+          }),
         })
         if (!res.ok) throw new Error('send failed')
         setStatus('done')
@@ -415,6 +420,17 @@ export default function ContactSection({ settings }: Props) {
               padding: '42px 42px 26px',
             }}
           >
+            {/* Honeypot — off-screen, not type=hidden so bots fill it; real users never see or reach it */}
+            <input
+              type="text"
+              name="botcheck"
+              value={botcheck}
+              onChange={e => setBotcheck(e.target.value)}
+              aria-hidden="true"
+              tabIndex={-1}
+              style={{ position: 'absolute', left: '-9999px', top: 0, opacity: 0, pointerEvents: 'none' }}
+            />
+
             {/* Ambient glow — z-0, inside panel so it clips */}
             <div
               ref={glowRef}
