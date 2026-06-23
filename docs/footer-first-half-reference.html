@@ -1,0 +1,132 @@
+<!doctype html>
+<!--
+  FOOTER FIRST HALF — final (quiet layout, Ciao backdrop)
+  ------------------------------------------------------------------
+  Reuse the link values already in the footer code. Do not hardcode new URLs.
+
+  STRUCTURE
+    backdrop  faint Fraunces italic "Ciao", tucked behind the name (overlapping), smaller
+    left      Kaushan "Akshita Singh", role eyebrow, credit line, stacked live clock
+    right     "Social" as an aligned chip + label grid (far right)
+    bottom    "Built in Bengaluru with love" + pulsing heart (left), "Back to top" (right)
+
+  NAME + BACKDROP
+    - "Akshita Singh" in Kaushan (var for the script font the hero/header already use).
+    - "Ciao" backdrop in Fraunces italic. Font stack should be 'Fraunces','Fraunces Fallback'.
+      Position it behind the name with overlap so the top does not read empty. Smaller than
+      a full hero word (~116px desktop), color a faint warm sand (#EADFCC, TUNE on real cream).
+
+  CREDIT LINE  (primary, ~16px, #2a251f)
+    Designed by Me  ·  Built by Sagar
+    - "·" is a muted middot.
+    - "Sagar" is the link, color --color-accent-500, with a small snug up-right arrow right
+      after the name (font-size .8em). On hover an underline draws left to right (.36s) and
+      the arrow nudges translate(1px,-1px). Reuse the existing Sagar/LinkedIn href.
+    - Wrap draw + nudge in @media (prefers-reduced-motion: no-preference); static otherwise.
+
+  LOCAL TIME  (stacked)
+    label "Local time" (tiny tracked caps, muted) over a row:
+      a pill chip = pulsing terracotta dot + the live time, then "IST · Bengaluru" muted.
+    - Live time: toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true,
+      timeZone:'Asia/Kolkata'}), lowercased. Client child; static placeholder server-side to
+      avoid hydration mismatch; update on an interval.
+    - Dot pulses; gate the pulse behind no-preference reduced motion.
+
+  SOCIAL  (far right, ALIGNED chip + label grid — this is the fix for the ragged edge)
+    - Heading "Social" (tiny tracked caps, muted).
+    - A 2-column grid: column 1 = the square chips, column 2 = the labels. Every chip lands in
+      one straight column, every label in the next. Do NOT right-push whole rows.
+      Implementation: an inline-grid, grid-template-columns: auto auto, gap ~13px 12px,
+      align-items center, placed at the right (float right or justify the footer column to end).
+      Each row is an <a> spanning both cells (display: contents) so chip + label are one link.
+    - Chip: ~34px square, border 1px rgba(120,90,60,.3), radius 9px, the glyph centered,
+      weight 600, color muted. Glyphs: "in", "Bē", "@", "CV".
+    - Rows in order LinkedIn, Behance, Email, Resume, each reusing the existing href.
+      Email is a mailto, Resume the existing Drive link, external ones target _blank rel noopener.
+    - Hover: chip border + glyph and the label go to --color-accent-500.
+
+  BOTTOM ROW
+    left   "Built in Bengaluru with love" + a terracotta heart that pulses (heartbeat).
+           Gate the pulse behind no-preference reduced motion.
+    right  "Back to top" with an up arrow; route the click through the smooth-scroll helper
+           (scrollToTarget(0)) with a window.scrollTo fallback.
+
+  COLOR MAP
+    #FBF6EE cream -> --color-cream-50      #1c1813 name ink -> --color-text-primary
+    #B5613C accent (Sagar, dot, heart, hover) -> --color-accent-500
+    #EADFCC Ciao backdrop -> faint warm sand (TUNE)
+    #9a8f7f / #8a7f6e / #6b5f4f muted tones -> muted ink tokens
+-->
+<html lang="en"><head><meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@1,9..144,400&family=Kaushan+Script&display=swap" rel="stylesheet">
+<style>
+  :root{--accent:#B5613C}
+  body{margin:0;background:#E3D7C4;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 26px}
+  .foot{position:relative;overflow:hidden;background:#FBF6EE;border-radius:16px;padding:46px 50px 26px}
+  .bd{position:absolute;top:34px;left:44px;font-family:'Fraunces';font-style:italic;font-size:116px;line-height:1;letter-spacing:-2px;color:#EADFCC;white-space:nowrap;pointer-events:none;z-index:0}
+  .fgrid{position:relative;z-index:2;display:grid;grid-template-columns:1fr auto;gap:50px;padding-top:52px;align-items:start}
+  .name{font-family:'Kaushan Script',cursive;font-size:42px;line-height:1;color:#1c1813;margin:0}
+  .role{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#8a7f6e;margin:13px 0 0}
+  .cred{font-size:16px;color:#2a251f;margin:24px 0 0}
+  .mdot{color:#b9ad9b;margin:0 8px}
+  .sg{position:relative;text-decoration:none;color:var(--accent);white-space:nowrap}
+  .sg::after{content:'';position:absolute;left:0;bottom:-2px;height:1px;width:0;background:var(--accent);transition:width .36s cubic-bezier(.22,1,.36,1)}
+  .sg:hover::after{width:100%}
+  .ar{font-size:.8em;margin-left:1px;display:inline-block;transition:transform .25s}
+  .sg:hover .ar{transform:translate(1px,-1px)}
+  .tstack{margin-top:24px}
+  .tl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9a8f7f;font-weight:600}
+  .trow{display:flex;align-items:center;gap:10px;margin-top:7px}
+  .tchip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(120,90,60,.25);border-radius:999px;padding:6px 13px;font-size:14px;color:#3a342b}
+  .livedot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2.2s ease-in-out infinite}
+  .tmeta{font-size:13px;color:#9a8f7f}
+  .socwrap{text-align:right}
+  .navt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9a8f7f;margin:0 0 16px}
+  .socgrid{display:inline-grid;grid-template-columns:auto auto;gap:13px 12px;align-items:center;text-align:left}
+  .socgrid a{display:contents;text-decoration:none;color:#211C16}
+  .chip{width:34px;height:34px;border:1px solid rgba(120,90,60,.3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#6b5f4f;transition:border-color .2s,color .2s}
+  .lbl{font-size:15px;color:#211C16;transition:color .2s}
+  .socgrid a:hover .chip{border-color:var(--accent);color:var(--accent)}
+  .socgrid a:hover .lbl{color:var(--accent)}
+  .fdiv{position:relative;z-index:2;border-top:1px solid rgba(60,45,30,.1);margin-top:36px;padding-top:22px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#9a8f7f}
+  .bl{display:flex;align-items:center;gap:7px}
+  .heart{display:inline-block;transform-origin:center;animation:beat 1.9s ease-in-out infinite}
+  .b2t{display:flex;align-items:center;gap:6px;color:#6b5f4f;cursor:pointer}
+  .b2t:hover{color:var(--accent)}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
+  @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.26)}28%{transform:scale(1)}42%{transform:scale(1.16)}56%{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){.livedot,.heart{animation:none}.sg::after{transition:none}}
+</style></head>
+<body><div class="wrap"><div class="foot">
+  <div class="bd">Ciao</div>
+  <div class="fgrid">
+    <div>
+      <p class="name">Akshita Singh</p>
+      <p class="role">Product Designer</p>
+      <p class="cred">Designed by Me <span class="mdot">&middot;</span> Built by <a class="sg" href="#">Sagar<span class="ar">&#8599;</span></a></p>
+      <div class="tstack">
+        <div class="tl">Local time</div>
+        <div class="trow"><span class="tchip"><span class="livedot"></span><span class="clk">9:32 pm</span></span><span class="tmeta">IST &middot; Bengaluru</span></div>
+      </div>
+    </div>
+    <div class="socwrap">
+      <p class="navt">Social</p>
+      <div class="socgrid">
+        <a href="#"><span class="chip">in</span><span class="lbl">LinkedIn</span></a>
+        <a href="#"><span class="chip">B&#275;</span><span class="lbl">Behance</span></a>
+        <a href="#"><span class="chip">@</span><span class="lbl">Email</span></a>
+        <a href="#"><span class="chip">CV</span><span class="lbl">Resume</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="fdiv">
+    <span class="bl">Built in Bengaluru with love <svg class="heart" width="14" height="14" viewBox="0 0 24 24"><path d="M12 21S4 14.5 4 9a5 5 0 0 1 8-3 5 5 0 0 1 8 3c0 5.5-8 12-8 12z" fill="#B5613C"/></svg></span>
+    <span class="b2t">Back to top &uarr;</span>
+  </div>
+</div></div>
+<script>
+  function up(){try{document.querySelector('.clk').textContent=new Date().toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}).toLowerCase();}catch(e){}}
+  up();setInterval(up,15000);
+</script>
+</body></html>

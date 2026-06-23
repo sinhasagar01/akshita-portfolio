@@ -1,0 +1,85 @@
+<!doctype html>
+<!--
+  WORK SECTION — mobile contained cards (option A). MOBILE ONLY.
+  ------------------------------------------------------------------
+  Desktop stays exactly as it is (the existing folder-card grid). Everything here
+  applies only BELOW the shared mobile breakpoint, the same one the header, hero,
+  and footer use. Do not change desktop.
+
+  PROBLEM being fixed
+    On mobile the studies stack with no boundary, so one study's description runs
+    straight into the next study's folder tab and they read as one long column.
+
+  FIX
+    Below the breakpoint, wrap each case-study entry in a contained card and put
+    real space between cards, so each project reads as its own object. Keep the
+    existing folder "CASE STUDY" tab, the device image, the meta line, the title
+    with arrow, and the description, all inside the card.
+
+  CARD (mobile only)
+    - background: --color-cream-50
+    - 1px hairline border in a warm low-alpha tone, plus a soft shadow, so the card
+      lifts off the page without a heavy box. (reference: border rgba(120,90,60,.16),
+      shadow 0 6px 16px rgba(60,45,30,.10))
+    - border-radius ~14px, padding ~14px
+    - margin-bottom ~22px between cards (the separation)
+    - Optional extra lift: tint the section background one step warmer
+      (--color-cream-200) on mobile only so the cream cards stand out more. Use only
+      if the border+shadow alone reads too flat on the real page.
+    - The folder tab keeps its rounded-top look sitting on the image.
+    - Preserve the existing link behavior, whatever is currently the tap target
+      (whole card or the title) stays the tap target, do not change the destinations.
+
+  DO NOT
+    - Do not touch the desktop layout, the grid, or the folder-card styling above
+      the breakpoint.
+    - Do not add a second source of truth for the project list, reuse the existing one.
+    - Do not change copy, images, or links.
+
+  TOKEN MAP
+    #FBF6EE -> --color-cream-50    #F3EADB -> --color-cream-200
+    #211C16 -> --color-text-primary   #8a7f6e/#a89d8d -> muted ink tokens
+    #B5613C -> --color-accent-500
+-->
+<html lang="en"><head><meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#E3D7C4;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+  .screen{max-width:300px;margin:30px auto;background:#FBF6EE;border-radius:26px;padding:24px 18px;border:1px solid rgba(0,0,0,.06)}
+  .eye{font-family:'Fraunces';font-style:italic;font-size:32px;color:rgba(181,97,60,.22);margin:0}
+  .sub{font-size:12px;color:#a89d8d;line-height:1.5;margin:5px 0 20px}
+  .card{background:#FBF6EE;border:1px solid rgba(120,90,60,.16);box-shadow:0 6px 16px rgba(60,45,30,.10);border-radius:14px;padding:14px;margin-bottom:22px}
+  .tab{display:inline-block;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8a7f6e;background:#F3EADB;border-radius:6px 6px 0 0;padding:4px 9px;border:1px solid rgba(120,90,60,.16);border-bottom:none;margin-left:4px}
+  .dev{height:118px;border-radius:10px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .dev.boat{background:#16130f}.dev.fos{background:#ece7df}
+  .ring{width:58px;height:58px;border-radius:50%;border:7px solid #3a342b;border-top-color:#c98b5e;border-right-color:#7d8aa8;transform:rotate(40deg)}
+  .pct{position:absolute;font-size:13px;font-weight:600;color:#fff}
+  .nm{position:absolute;top:10px;left:11px;font-size:12px;font-weight:600}
+  .nm.l{color:#fff}.nm.d{color:#3a342b}
+  .bars{display:flex;gap:5px;align-items:flex-end;height:46px}.bars i{width:10px;background:#6a6fa0;border-radius:2px}
+  .meta{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8a7f6e;margin:12px 0 4px}
+  .title{font-size:19px;font-weight:600;margin:0 0 6px}
+  .desc{font-size:12px;line-height:1.5;color:#5c5346;margin:0}
+</style></head>
+<body>
+  <div class="screen">
+    <p class="eye">Work</p>
+    <p class="sub">A few projects from the last couple of years, from first sketch to shipped screen.</p>
+
+    <div class="card">
+      <span class="tab">Case study</span>
+      <div class="dev boat"><span class="nm l">boAt</span><div class="ring"></div><span class="pct">68%</span></div>
+      <p class="meta">Mobile app redesign &middot; Android and iOS</p>
+      <p class="title">boAt Crest &rarr;</p>
+      <p class="desc">A cluttered tracker rebuilt into a calm, guided experience, lifting the store rating from 2.3 to 4.</p>
+    </div>
+
+    <div class="card">
+      <span class="tab">Case study</span>
+      <div class="dev fos"><span class="nm d">Fosfor AI</span><div class="bars"><i style="height:20px"></i><i style="height:32px"></i><i style="height:46px"></i><i style="height:26px"></i></div></div>
+      <p class="meta">AI product design &middot; Web</p>
+      <p class="title">Fosfor AI &rarr;</p>
+      <p class="desc">An AI companion inside an enterprise suite, across three personas.</p>
+    </div>
+  </div>
+</body></html>

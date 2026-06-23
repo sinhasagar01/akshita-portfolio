@@ -21,9 +21,9 @@ export default function ProjectsSection({ projects }: Props) {
           tone="warm"
         />
         <div className="mt-8 sm:mt-[52px]">
-          <Grid cols={12} as="ul" className="list-none p-0 m-0">
+          <Grid cols={12} as="ul" className="list-none p-0 m-0 work-list">
             {projects.map((project) => (
-              <li key={project.slug} className="col-span-4 md:col-span-6 reveal-card">
+              <li key={project.slug} className="col-span-4 md:col-span-6 reveal-card work-item">
                 <ProjectCard project={project} />
               </li>
             ))}

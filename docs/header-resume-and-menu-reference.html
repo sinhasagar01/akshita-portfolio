@@ -1,0 +1,125 @@
+<!doctype html>
+<!--
+  HEADER — Resume CTA (desktop, text + divider) + MOBILE MENU (circle reveal)
+  ------------------------------------------------------------------
+  One component, two parts. Reuse the existing Resume link already in the project
+  (the Drive URL) and the existing nav routing. Do not hardcode new URLs.
+
+  ========================= DESKTOP =========================
+  RESUME CTA (option 3, lightest touch)
+    - After the nav items, a thin vertical divider, then "Resume" with a small
+      up-right arrow. Color --color-accent-500. It is NOT a nav tab.
+    - Hover: an underline draws under the word "Resume" (width 0 -> 100%, ~.32s);
+      the arrow can stay or nudge. Gate the draw behind no-preference reduced motion.
+    - It is a real link to the existing resume URL, target _blank rel noopener noreferrer.
+    - aria-label "Resume (opens in a new tab)".
+
+  ========================= MOBILE (below the md breakpoint) =========================
+  Below the breakpoint, HIDE the inline nav + Resume CTA and SHOW a burger button.
+  The desktop nav and CTA are unchanged above the breakpoint.
+
+  BURGER -> X
+    - 3 lines. Open state: top and bottom rotate to a cross (45 / -45), middle fades.
+      Transition ~.35s cubic-bezier(.7,0,.2,1). Sits above the menu (z high).
+
+  MENU — CIRCLE REVEAL
+    - Full-screen cream panel. Closed: clip-path circle(0 at <burger>) so it is hidden.
+      Open: clip-path circle(150% at <burger>) so it unfurls from the burger corner.
+      Origin matches the burger position, e.g. circle(... at calc(100% - 32px) 28px).
+      Transition clip-path ~.6s cubic-bezier(.7,0,.2,1).
+    - Contents: the nav items in Fraunces (large), each staggering up
+      (opacity 0 + translateY 12px -> settled, delays ~.10s..40s), then the Resume CTA
+      as an outlined terracotta pill, then a small social chip row (reuse footer links).
+    - Nav links and the Resume CTA route through the existing handlers
+      (smoothScroll.scrollToTarget for in-page anchors) and CLOSE the menu on click.
+
+  REQUIRED BEHAVIOR (bake all in)
+    - Open/close state on the button; toggle on click; aria-expanded + aria-controls on
+      the button; the menu has an id and role.
+    - Lock background scroll while open. Since the site uses Lenis, call lenis.stop() on
+      open and lenis.start() on close (via the smooth-scroll context), and also set
+      body overflow hidden as a fallback, so the page behind cannot move.
+    - Close on: tapping any link, pressing Escape, and toggling the burger.
+    - Focus: move focus into the menu on open (first link), trap focus while open, and
+      return focus to the burger on close.
+    - REDUCED MOTION: when prefers-reduced-motion: reduce, skip the clip-path animation
+      and the item stagger; just fade the panel in/out (opacity) with items static.
+
+  COLOR / TOKEN MAP
+    #FBF6EE cream -> --color-cream-50     #1c1813 ink -> --color-text-primary
+    #B5613C accent (Resume, CTA, hover) -> --color-accent-500
+    muted tones -> existing muted ink tokens
+-->
+<html lang="en"><head><meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500&family=Kaushan+Script&display=swap" rel="stylesheet">
+<style>
+  :root{--accent:#B5613C}
+  body{margin:0;background:#E3D7C4;font-family:'DM Sans',system-ui,sans-serif;color:#211C16}
+  .wrap{max-width:920px;margin:0 auto;padding:40px 26px;display:flex;flex-direction:column;gap:26px;align-items:center}
+  .cap{font-size:12px;color:#7c715f;align-self:flex-start}
+
+  /* desktop bar */
+  .bar{width:100%;background:#FBF6EE;border-radius:999px;padding:13px 22px 13px 30px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box}
+  .logo{font-family:'Kaushan Script',cursive;font-size:24px;color:#1c1813}
+  .right{display:flex;align-items:center;gap:8px}
+  .nav{display:flex;gap:6px}
+  .nav span{font-size:13.5px;color:#3a342b;padding:7px 12px}
+  .nav .on{background:#EFE3D1;border-radius:999px}
+  .vdiv{width:1px;height:22px;background:rgba(120,90,60,.28);margin:0 6px}
+  .resume{font-size:13.5px;color:var(--accent);display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:7px 6px;text-decoration:none}
+  .resume .u{position:relative}
+  .resume .u::after{content:'';position:absolute;left:0;bottom:-3px;height:1px;width:0;background:var(--accent);transition:width .32s}
+  .resume:hover .u::after{width:100%}
+
+  /* mobile phone */
+  .phone{position:relative;width:250px;height:470px;background:#FBF6EE;border-radius:30px;overflow:hidden;border:1px solid rgba(0,0,0,.07);box-shadow:0 12px 32px rgba(60,45,30,.14)}
+  .phead{position:absolute;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:40}
+  .plogo{font-family:'Kaushan Script',cursive;font-size:22px;color:#1c1813}
+  .burger{width:24px;height:24px;position:relative;cursor:pointer;z-index:50}
+  .burger span{position:absolute;left:2px;right:2px;height:2px;background:#211C16;border-radius:2px;transition:transform .35s cubic-bezier(.7,0,.2,1),opacity .2s ease,top .35s ease}
+  .burger span:nth-child(1){top:8px}.burger span:nth-child(2){top:12px}.burger span:nth-child(3){top:16px}
+  .open .burger span:nth-child(1){top:12px;transform:rotate(45deg)}
+  .open .burger span:nth-child(2){opacity:0}
+  .open .burger span:nth-child(3){top:12px;transform:rotate(-45deg)}
+  .menu{position:absolute;inset:0;background:#FBF6EE;z-index:30;padding:80px 30px 28px;display:flex;flex-direction:column;clip-path:circle(0px at calc(100% - 33px) 29px);transition:clip-path .6s cubic-bezier(.7,0,.2,1)}
+  .open .menu{clip-path:circle(150% at calc(100% - 33px) 29px)}
+  .mitem{font-family:'Fraunces';font-size:25px;color:#1c1813;margin:0 0 15px;opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .55s cubic-bezier(.22,1,.36,1)}
+  .cta{margin-top:auto;border:1px solid rgba(181,97,60,.55);color:var(--accent);border-radius:999px;padding:12px 0;text-align:center;font-size:14px;font-weight:500;opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .55s cubic-bezier(.22,1,.36,1)}
+  .socrow{display:flex;gap:8px;justify-content:center;margin-top:16px;opacity:0;transition:opacity .5s ease .1s}
+  .socrow span{width:32px;height:32px;border:1px solid rgba(120,90,60,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#6b5f4f}
+  .open .mitem,.open .cta{opacity:1;transform:none}
+  .open .socrow{opacity:1}
+  .open .mitem:nth-child(1){transition-delay:.10s}.open .mitem:nth-child(2){transition-delay:.16s}.open .mitem:nth-child(3){transition-delay:.22s}.open .mitem:nth-child(4){transition-delay:.28s}.open .mitem:nth-child(5){transition-delay:.34s}.open .mitem:nth-child(6){transition-delay:.40s}
+  .open .cta{transition-delay:.46s}
+  @media (prefers-reduced-motion:reduce){
+    .menu{clip-path:none;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+    .open .menu{opacity:1;visibility:visible}
+    .mitem,.cta{transition:none;transform:none}
+    .resume .u::after{transition:none}
+  }
+</style></head>
+<body><div class="wrap">
+  <span class="cap">Desktop, Resume set apart by a divider</span>
+  <div class="bar">
+    <span class="logo">Akshita</span>
+    <div class="right">
+      <div class="nav"><span>Process</span><span>Work</span><span class="on">About</span><span>Experience</span><span>Skills</span><span>Contact</span></div>
+      <span class="vdiv"></span>
+      <a class="resume" href="#" target="_blank" rel="noopener noreferrer"><span class="u">Resume</span> &#8599;</a>
+    </div>
+  </div>
+
+  <span class="cap">Mobile, tap the burger for the circle reveal</span>
+  <div class="phone" id="ph">
+    <div class="phead"><span class="plogo">Akshita</span><div class="burger" id="bg"><span></span><span></span><span></span></div></div>
+    <div class="menu" id="mn">
+      <p class="mitem">Process</p><p class="mitem">Work</p><p class="mitem">About</p><p class="mitem">Experience</p><p class="mitem">Skills</p><p class="mitem">Contact</p>
+      <div class="cta">Resume &#8599;</div>
+      <div class="socrow"><span>in</span><span>B&#275;</span><span>@</span><span>CV</span></div>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById('bg').addEventListener('click',function(){document.getElementById('ph').classList.toggle('open');});
+</script>
+</body></html>

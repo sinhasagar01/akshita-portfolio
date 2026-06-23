@@ -319,6 +319,9 @@ a {
   box-shadow: none;
   backdrop-filter: blur(0px) saturate(1);
   -webkit-backdrop-filter: blur(0px) saturate(1);
+  /* position + z-index keeps the bar (and burger) above the fixed mobile menu overlay (z-40) */
+  position: relative;
+  z-index: 50;
   transition:
     background-color 0.4s ease,
     backdrop-filter 0.4s ease,
@@ -550,6 +553,7 @@ a {
   background: var(--color-cream-50);
   display: flex;
   flex-direction: column;
+  align-items: center;
   padding: 80px 32px 36px;
   clip-path: circle(0px at calc(100% - 33px) 29px);
   pointer-events: none;
@@ -572,6 +576,7 @@ a {
   font-size: 28px;
   color: var(--color-text-primary);
   text-decoration: none;
+  text-align: center;
   margin-bottom: 14px;
   opacity: 0;
   transform: translateY(12px);
@@ -586,13 +591,12 @@ a {
   .header-mobile-menu.open .header-mob-nav-item:nth-child(2) { transition-delay: 0.16s; }
   .header-mobile-menu.open .header-mob-nav-item:nth-child(3) { transition-delay: 0.22s; }
   .header-mobile-menu.open .header-mob-nav-item:nth-child(4) { transition-delay: 0.28s; }
-  .header-mobile-menu.open .header-mob-nav-item:nth-child(5) { transition-delay: 0.34s; }
-  .header-mobile-menu.open .header-mob-nav-item:nth-child(6) { transition-delay: 0.40s; }
 }
 
 /* Mobile Resume pill — enters after last nav item */
 .header-mob-resume-pill {
   margin-top: auto;
+  width: 100%;
   border: 1px solid oklch(56.0% 0.14 42 / 0.55);
   color: var(--color-accent-500);
   border-radius: 999px;
@@ -608,7 +612,7 @@ a {
 
 @media (prefers-reduced-motion: no-preference) {
   .header-mob-resume-pill {
-    transition: opacity 0.45s ease 0.46s, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.46s;
+    transition: opacity 0.45s ease 0.34s, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.34s;
   }
   .header-mobile-menu.open .header-mob-resume-pill { opacity: 1; transform: none; }
 }
@@ -624,7 +628,7 @@ a {
 
 @media (prefers-reduced-motion: no-preference) {
   .header-mob-socials {
-    transition: opacity 0.5s ease 0.54s;
+    transition: opacity 0.5s ease 0.42s;
   }
   .header-mobile-menu.open .header-mob-socials { opacity: 1; }
 }
@@ -944,5 +948,32 @@ a {
   }
   .footer-ciao {
     font-size: 88px !important;
+  }
+}
+
+/* ============================================================
+   Work section — mobile contained cards (below the 1024px header breakpoint)
+============================================================ */
+
+@media (max-width: 1023px) {
+  /* Kill the grid gap so margin-bottom on each card controls vertical rhythm. */
+  .work-list {
+    gap: 0;
+    column-gap: 16px;
+  }
+
+  /* Each project becomes a lifted cream card. The folder tab is absolute -top-19px
+     relative to pc-fold, so 28px top padding keeps it visible within the card. */
+  .work-item {
+    background: var(--color-cream-50);
+    border: 1px solid rgba(120, 90, 60, 0.16);
+    box-shadow: 0 6px 16px oklch(14% 0.018 60 / 0.10);
+    border-radius: 14px;
+    padding: 28px 14px 16px;
+    margin-bottom: 22px;
+  }
+
+  .work-item:last-child {
+    margin-bottom: 0;
   }
 }
