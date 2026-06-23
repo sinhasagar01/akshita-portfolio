@@ -28,7 +28,7 @@ const kaushanScript = Kaushan_Script({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3457"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://akshitas.com"),
   title: {
     template: "%s · Akshita Singh",
     default: "Akshita Singh, Product Designer",
