@@ -36,7 +36,7 @@ The primary audience is recruiters and hiring managers. The single most importan
 - boAt Crest redesign, the hero. The most complete story, with interviews, a 100 user survey, personas, an empathy map, competitive analysis, a journey map, a design system, named features like Watchface Studio and guided onboarding, and a real outcome, the app rating rising from 2.3 to 4.
 - Fosfor AI, the on trend piece. An AI companion across three personas, with problem framing, objectives, a twelve week timeline, a design process, and a detailed information architecture. Still needs a real outcome or a properly framed close.
 - Fosfor Data Profiling, the enterprise piece. Clear problem, challenge, process, a competitive landscape, and metrics. Needs the borrowed template copy stripped and the metrics reframed as either real results or an honest measurement framework.
-- OTIS ONE View, the current role. A strong enterprise story, with a four stage design process, stakeholder mapping, global reach across APAC, EMEA, NAA and China, a feature breakdown, product gaps, solutions, and a learnings note. Under a confidentiality constraint, so the visible screens are limited and the narrative carries more of the weight.
+- Elevate ONE View, the current role. A strong enterprise story, with a four stage design process, stakeholder mapping, global reach across APAC, EMEA, NAA and China, a feature breakdown, product gaps, solutions, and a learnings note. Under a confidentiality constraint, so the visible screens are limited and the narrative carries more of the weight.
 
 ### Supporting content
 
@@ -53,7 +53,7 @@ The primary audience is recruiters and hiring managers. The single most importan
 ### Content cleanup required
 
 - Remove all template residue, including wrong page titles, the template author's booking link, and the recurring premium template label
-- Unify the design language, since the current pages swing from light landing to dark boAt to purple OTIS, each its own world
+- Unify the design language, since the current pages swing from light landing to dark boAt to purple Elevate, each its own world
 - Compress the boAt page, which currently repeats whole blocks and shows everything at once, into the guided story spine
 - Fix the voice so it stays first person where the work was hers, and names the team only where collaboration is the actual point
 - Fix copy bugs, including the boAt persona named Sagar whose description then calls him Rahul, and the duplicated e commerce descriptions
@@ -145,7 +145,7 @@ Nothing beyond what the portfolio needs. No comments, no extra users, no roles, 
 
 ### Settled since version 1
 
-- Case study count, four, boAt as hero, plus Fosfor AI, Fosfor Data Profiling, and OTIS
-- The fourth study, OTIS, now that its real content is in hand
+- Case study count, four, boAt as hero, plus Fosfor AI, Fosfor Data Profiling, and Elevate
+- The fourth study, Elevate, now that its real content is in hand
 - Design direction, light editorial as the working default
 - Hero photo, kept

@@ -11,7 +11,7 @@ A custom-coded portfolio site for a product designer, replacing a Framer templat
 - boAt Crest redesign, the hero. App rating rose from 2.3 to 4. The most complete story.
 - Fosfor AI, the on-trend piece. An AI companion across three personas. Needs a real outcome at the close.
 - Fosfor Data Profiling, the enterprise piece. Needs template copy stripped and metrics reframed.
-- OTIS ONE View, the current role. Confidentiality-constrained, so narrative carries the weight.
+- Elevate ONE View, the current role. Confidentiality-constrained, so narrative carries the weight.
 
 ## Case study narrative spine
 

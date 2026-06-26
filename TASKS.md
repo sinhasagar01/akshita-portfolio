@@ -70,7 +70,7 @@ Page order. Hero, Work, About, Process, Experience, Skills, Contact. (Note, the 
 - [x] boAt Crest case study poured and cleaned
 - [x] Fosfor AI case study poured and cleaned
 - [x] Fosfor Data Profiling case study poured and cleaned
-- [x] OTIS ONE View case study poured and cleaned
+- [x] Elevate ONE View case study poured and cleaned
 - [x] Experience entries entered
 - [x] Skills entered
 - [x] Site settings filled in

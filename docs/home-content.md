@@ -28,13 +28,13 @@ Product designer with over seven years turning complex SaaS, enterprise, and con
 
 I am a product designer with over seven years of experience designing SaaS, e-commerce, and enterprise products. My work centres on user-centered design, prototyping, and real business impact.
 
-Right now I am at LTIMindtree, designing a mechanic-first mobile app for OTIS that simplifies how field mechanics maintain elevators. Across my career I have shaped products spanning fitness wearables, AI data platforms, and point-of-sale systems used by more than twenty thousand merchants, and I was recognised with a Design Innovation Award along the way.
+Right now I am at LTIMindtree, designing a mechanic-first mobile app for Elevate that simplifies how field mechanics maintain elevators. Across my career I have shaped products spanning fitness wearables, AI data platforms, and point-of-sale systems used by more than twenty thousand merchants, and I was recognised with a Design Innovation Award along the way.
 
 ---
 
 ## Experience (five roles, newest first)
 
-1. **Company** - LTIMindtree, Pune. **Title** - Specialist, Interactive UX and UI (OTIS). **Dates** - Jul 2025 - Present
+1. **Company** - LTIMindtree, Pune. **Title** - Specialist, Interactive UX and UI (Elevate). **Dates** - Jul 2025 - Present
 2. **Company** - LTIMindtree, Pune. **Title** - Specialist, Interactive UX and UI (Fosfor). **Dates** - Jan 2024 - Jun 2025
 3. **Company** - KAHA Technologies, acquired by boAt, Bengaluru. **Title** - UX and UI Designer. **Dates** - May 2021 - Jan 2024
 4. **Company** - Stackonet Services, Bengaluru. **Title** - UX and UI Designer. **Dates** - Dec 2019 - May 2021

@@ -77,10 +77,10 @@ const fosforDataProfiling = (
   </svg>
 );
 
-const otisOneView = (
+const ElevateOneView = (
   <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }}>
     <rect width="320" height="200" fill="#f3f5f8"/>
-    <text x="20" y="30" fill="#16181d" fontSize="19" fontWeight="700" fontFamily="DM Sans" letterSpacing="0.3">Otis</text>
+    <text x="20" y="30" fill="#16181d" fontSize="19" fontWeight="700" fontFamily="DM Sans" letterSpacing="0.3">Elevate</text>
     <rect x="246" y="15" width="56" height="18" rx="9" fill="#e7ecf3"/>
     <circle cx="259" cy="24" r="4" fill="#34b56a"/>
     <text x="269" y="28" fill="#4a5260" fontSize="9" fontWeight="600" fontFamily="DM Sans">Live</text>
@@ -109,5 +109,5 @@ export const PROJECT_SVGS: Record<string, React.ReactElement> = {
   "boat-crest": boatCrest,
   "fosfor-ai": fosforAi,
   "fosfor-data-profiling": fosforDataProfiling,
-  "otis-one-view": otisOneView,
+  "Elevate-one-view": ElevateOneView,
 };

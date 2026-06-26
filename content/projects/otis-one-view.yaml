@@ -1,5 +1,5 @@
-title: Otis ONE View
-summary: Designing the mobile interface field mechanics use to commission and maintain Otis elevators worldwide, turning a heavy workflow into something fast in the field.
+title: Elevate ONE View
+summary: Designing the mobile interface field mechanics use to commission and maintain Elevate elevators worldwide, turning a heavy workflow into something fast in the field.
 orderIndex: 4
 heroImage: null
 facts:
@@ -10,10 +10,10 @@ facts:
 body:
   - discriminant: heroBlock
     value:
-      thesis: Simplifying the app field mechanics rely on to bring Otis elevators online, anywhere in the world.
+      thesis: Simplifying the app field mechanics rely on to bring Elevate elevators online, anywhere in the world.
   - discriminant: summaryGrid
     value:
-      product: Otis ONE View, the primary mobile interface for Otis field mechanics, and the field side of an IoT platform.
+      product: Elevate ONE View, the primary mobile interface for Elevate field mechanics, and the field side of an IoT platform.
       problem: A heavy, inconsistent app made commissioning and maintaining elevators slow and error prone in the field.
       details: UX and UI designer on a cross functional team of 35, owning the design system and the 2.0 redesign over six months.
       solution: A single, simplified workflow for the full lifecycle of an elevator's connectivity, from commissioning to troubleshooting.
@@ -40,7 +40,7 @@ body:
         - Replace multiple tangled workflows with a single simplified one
         - Make components behave consistently across the whole app
         - Give navigation a clear, predictable structure
-        - Align the visuals with Otis's industrial tone
+        - Align the visuals with Elevate's industrial tone
   - discriminant: processSteps
     value:
       steps:
@@ -63,7 +63,7 @@ body:
           insight: Navigation felt heavy and disconnected, so a clear, consistent structure mattered more than any single feature.
   - discriminant: solutionReveal
     value:
-      headline: Otis ONE View, rebuilt as one simplified workflow a mechanic can trust in the field.
+      headline: Elevate ONE View, rebuilt as one simplified workflow a mechanic can trust in the field.
       image: null
   - discriminant: guidedDesignStep
     value:
@@ -78,7 +78,7 @@ body:
   - discriminant: guidedDesignStep
     value:
       title: An industrial visual tone
-      caption: Visuals aligned to Otis's industrial identity rather than a generic app look.
+      caption: Visuals aligned to Elevate's industrial identity rather than a generic app look.
       image: null
   - discriminant: imageGallery
     value:

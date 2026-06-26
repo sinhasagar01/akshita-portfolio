@@ -1,4 +1,4 @@
-# Otis ONE View — case study content
+# Elevate ONE View — case study content
 
 Cleaned and mapped to your fifteen blocks in first person. This one has real numbers from your own case study, so the impact stats are genuine. It is an industry project, so the screens stay limited for confidentiality and the story carries more weight.
 
@@ -6,11 +6,12 @@ Cleaned and mapped to your fifteen blocks in first person. This one has real num
 
 ## Top level fields
 
-**Title** - Otis ONE View
+**Title** - Elevate ONE View
 
-**Summary** - Designing the mobile interface field mechanics use to commission and maintain Otis elevators worldwide, turning a heavy workflow into something fast in the field.
+**Summary** - Designing the mobile interface field mechanics use to commission and maintain Elevate elevators worldwide, turning a heavy workflow into something fast in the field.
 
 **Facts**
+
 - Role - UX and UI designer, owning the design system and the 2.0 version
 - Type - Enterprise mobile app, industry project
 - Platform - Mobile
@@ -24,13 +25,13 @@ Cleaned and mapped to your fifteen blocks in first person. This one has real num
 
 ## 1. heroBlock
 
-**Thesis** - Simplifying the app field mechanics rely on to bring Otis elevators online, anywhere in the world.
+**Thesis** - Simplifying the app field mechanics rely on to bring Elevate elevators online, anywhere in the world.
 
 ---
 
 ## 2. summaryGrid
 
-**Product** - Otis ONE View, the primary mobile interface for Otis field mechanics, and the field side of an IoT platform.
+**Product** - Elevate ONE View, the primary mobile interface for Elevate field mechanics, and the field side of an IoT platform.
 
 **Problem** - A heavy, inconsistent app made commissioning and maintaining elevators slow and error prone in the field.
 
@@ -52,7 +53,7 @@ Cleaned and mapped to your fifteen blocks in first person. This one has real num
 
 ## 4. context
 
-Otis is one of the world's leading elevator and escalator companies, and this was an industry project delivered with LTIMindtree. Otis ONE View is the app field mechanics carry, the critical enabler for the IoT platform out in the field.
+Elevate is one of the world's leading elevator and escalator companies, and this was an industry project delivered with LTIMindtree. Elevate ONE View is the app field mechanics carry, the critical enabler for the IoT platform out in the field.
 
 Its job is to digitise and manage the full lifecycle of an elevator's connectivity, commissioning, troubleshooting, maintenance, and access to real time health data. Because it is an industry project, the designs stay limited here for confidentiality, so this study leans on the story more than the screens.
 
@@ -71,10 +72,11 @@ Its job is to digitise and manage the full lifecycle of an elevator's connectivi
 **North star** - One simplified app a field mechanic can move through quickly, anywhere in the world.
 
 **Goals**
+
 - Replace multiple tangled workflows with a single simplified one
 - Make components behave consistently across the whole app
 - Give navigation a clear, predictable structure
-- Align the visuals with Otis's industrial tone
+- Align the visuals with Elevate's industrial tone
 
 ---
 
@@ -97,7 +99,7 @@ Its job is to digitise and manage the full lifecycle of an elevator's connectivi
 
 ## 9. solutionReveal
 
-**Headline** - Otis ONE View, rebuilt as one simplified workflow a mechanic can trust in the field.
+**Headline** - Elevate ONE View, rebuilt as one simplified workflow a mechanic can trust in the field.
 
 **Image** - kept limited for confidentiality
 
@@ -107,15 +109,15 @@ Its job is to digitise and manage the full lifecycle of an elevator's connectivi
 
 **Reliable components**
 A consistent component set across every flow, so the app behaves the same everywhere.
-*Image - kept limited for confidentiality*
+_Image - kept limited for confidentiality_
 
 **A simplified on site workflow**
 The commissioning and maintenance flow streamlined for speed in the field.
-*Image - kept limited for confidentiality*
+_Image - kept limited for confidentiality_
 
 **An industrial visual tone**
-Visuals aligned to Otis's industrial identity rather than a generic app look.
-*Image - kept limited for confidentiality*
+Visuals aligned to Elevate's industrial identity rather than a generic app look.
+_Image - kept limited for confidentiality_
 
 ---
 
@@ -123,7 +125,7 @@ Visuals aligned to Otis's industrial identity rather than a generic app look.
 
 **Caption** - Selected screens, kept limited for confidentiality.
 
-*Images - kept limited*
+_Images - kept limited_
 
 ---
 
@@ -131,7 +133,7 @@ Visuals aligned to Otis's industrial identity rather than a generic app look.
 
 **Caption** - The heavy old flow beside the simplified redesign.
 
-*Before and after, kept limited for confidentiality*
+_Before and after, kept limited for confidentiality_
 
 ---
 

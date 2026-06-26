@@ -32,7 +32,7 @@ const FACETS = [
   {
     tab: "What I'm up to",
     word: "what i'm up to",
-    line: "Designing a connected app for Otis, and looking for my next team.",
+    line: "Designing a connected app for Elevate, and looking for my next team.",
   },
 ];
 
