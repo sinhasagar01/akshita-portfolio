@@ -13,6 +13,17 @@ import activityDetail from "@/public/work/boat-crest/02-activity-detail.png";
 import beforeVitals from "@/public/work/boat-crest/before-vitals.png";
 import vitalsHub from "@/public/work/boat-crest/03-vitals-hub.png";
 
+// cs-07 Work auto-scroll story — genuine bezel + per-screen body/footer (scroll-assets).
+import scrOnboarding from "@/public/work/boat-crest/scroll-assets/feature-01-onboarding.png";
+import scrHomeBody from "@/public/work/boat-crest/scroll-assets/feature-02-home-body.png";
+import scrHomeFooter from "@/public/work/boat-crest/scroll-assets/feature-02-home-footer.png";
+import scrHeartBody from "@/public/work/boat-crest/scroll-assets/feature-03-heart-body.png";
+import scrHeartFooter from "@/public/work/boat-crest/scroll-assets/feature-03-heart-footer.png";
+import scrWatchBody from "@/public/work/boat-crest/scroll-assets/feature-04-watchface-body.png";
+import scrWatchFooter from "@/public/work/boat-crest/scroll-assets/feature-04-watchface-footer.png";
+import scrCrewBody from "@/public/work/boat-crest/scroll-assets/feature-05-crew-body.png";
+import scrCrewFooter from "@/public/work/boat-crest/scroll-assets/feature-05-crew-footer.png";
+
 /* Copy is transcribed verbatim from the source panels in docs/case-study-page/html.
    It uses em dashes, arrows and middots; reconciling that with the project writing
    rules is a deliberate later editorial pass (see the plan's flag 4). */
@@ -260,17 +271,18 @@ export const boatCrest: CaseStudy = {
       ],
     },
 
-    // 7 — The work
+    // 7 — The work (auto-playing pinned story; manages its own in-view start, so no
+    // RevealSection — variant "static". The per-feature ghost numeral is the watermark.)
     {
       id: "work",
+      variant: "static",
       index: "06",
       eyebrow: "The work",
       title: "Where the redesign lives.",
       lead: "Five places the new system does real work for the person wearing the watch — each a small fix that compounds into a calmer whole.",
-      glow: { text: "made", top: "18px", right: "36px", size: "clamp(5rem, 11vw, 9rem)" },
       blocks: [
         {
-          kind: "featureRows",
+          kind: "featureStory",
           features: [
             {
               index: "01",
@@ -278,6 +290,7 @@ export const boatCrest: CaseStudy = {
               title: "A setup that holds your hand.",
               body: "Pairing used to drop people into a cluttered home. Now a short, guided flow connects the watch and sets the basics — so the first thing you feel is momentum, not confusion.",
               image: { src: onboardingPair, alt: "Guided onboarding screen for pairing the watch", width: 214 },
+              screen: { full: scrOnboarding },
             },
             {
               index: "02",
@@ -285,6 +298,7 @@ export const boatCrest: CaseStudy = {
               title: "Four tabs. One glance.",
               body: "The home screen answers the only question that matters in the morning — how am I doing? — with steps, vitals, sleep and a recommended session, in that order. Everything else moved one tap away.",
               image: { src: home, alt: "Redesigned home screen with a four-tab navigation", width: 214 },
+              screen: { body: scrHomeBody, footer: scrHomeFooter },
             },
             {
               index: "03",
@@ -292,6 +306,7 @@ export const boatCrest: CaseStudy = {
               title: "Vitals you can watch move.",
               body: "Heart rate, SpO₂ and sleep each get a focused detail screen with live, animated readings and honest ranges — data that reassures instead of alarms.",
               image: { src: heartRate, alt: "Heart rate detail screen with a live animated reading", width: 214 },
+              screen: { body: scrHeartBody, footer: scrHeartFooter },
             },
             {
               index: "04",
@@ -299,6 +314,7 @@ export const boatCrest: CaseStudy = {
               title: "Make the watch yours.",
               body: "A simple studio to swap faces, accents and complications. Personalisation was buried in the old app; here it becomes a first-class place to play.",
               image: { src: watchfaceStudio, alt: "Watch face studio for swapping faces, accents and complications", width: 214 },
+              screen: { body: scrWatchBody, footer: scrWatchFooter },
             },
             {
               index: "05",
@@ -306,6 +322,7 @@ export const boatCrest: CaseStudy = {
               title: "Better with a crew.",
               body: "Step challenges, a shared leaderboard and a little friendly pressure. Research was clear that social accountability keeps people moving, so it earned a pillar of its own.",
               image: { src: fitCrew, alt: "Fit Crew social challenges and leaderboard screen", width: 214 },
+              screen: { body: scrCrewBody, footer: scrCrewFooter },
             },
           ],
         },

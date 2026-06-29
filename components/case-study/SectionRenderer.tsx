@@ -47,7 +47,9 @@ export default function SectionRenderer({ section }: { section: Section }) {
     </>
   );
 
-  if (section.variant === "hero") {
+  // "hero" (above the fold) and "static" (e.g. the Work story, which manages its own
+  // in-view start) render as a plain card — no RevealSection clip reveal.
+  if (section.variant === "hero" || section.variant === "static") {
     return (
       <section
         id={section.id}

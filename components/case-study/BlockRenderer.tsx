@@ -8,6 +8,7 @@ import Stepper from "./blocks/Stepper";
 import StatCards from "./blocks/StatCards";
 import PrincipleCards from "./blocks/PrincipleCards";
 import FeatureRows from "./blocks/FeatureRows";
+import WorkStory from "./blocks/WorkStory";
 import BeforeAfter from "./blocks/BeforeAfter";
 import SwatchTokens from "./blocks/SwatchTokens";
 import AnnotatedImage from "./blocks/AnnotatedImage";
@@ -35,6 +36,8 @@ export default function BlockRenderer({ block }: { block: Block }) {
       return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} />;
     case "featureRows":
       return <FeatureRows features={block.features} />;
+    case "featureStory":
+      return <WorkStory features={block.features} />;
     case "beforeAfter":
       return <BeforeAfter pairs={block.pairs} />;
     case "swatchTokens":

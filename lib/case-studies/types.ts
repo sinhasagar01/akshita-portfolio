@@ -54,12 +54,21 @@ export type Stat = {
 
 export type Principle = { index: string; title: string; body: Rich };
 
+/** cs-07 auto-scroll story assets (optional). A scrollable screen is split into a
+ *  tall `body` (scrolls behind the bezel) + a pinned `footer`; onboarding is a single
+ *  `full` screen. Dims (in 1030-space) are read from the static imports' width/height.
+ *  Absent → the feature has no auto-scroll story (e.g. used by `featureRows`). */
+export type StoryScreen =
+  | { full: StaticImageData }
+  | { body: StaticImageData; footer: StaticImageData };
+
 export type Feature = {
   index: string;
   category: string;
   title: string;
   body: Rich;
   image: ImgSpec;
+  screen?: StoryScreen;
 };
 
 export type Change = { emphasis: string; rest: string };
@@ -120,6 +129,7 @@ export type Block =
   | { kind: "statCards"; heading?: string; stats: Stat[] }
   | { kind: "principleCards"; heading?: string; subhead?: string; cards: Principle[] }
   | { kind: "featureRows"; features: Feature[] }
+  | { kind: "featureStory"; features: Feature[] }
   | { kind: "beforeAfter"; pairs: BeforeAfterPair[] }
   | { kind: "swatchTokens"; groups: TokenGroup[] }
   | { kind: "annotatedImage"; image: ImgSpec; scrawl?: Scrawl; callouts?: Callout[] }
@@ -131,7 +141,7 @@ export type BlockKind = Block["kind"];
 /** A section is one card. The hero variant skips the standard header. */
 export type Section = {
   id?: string;
-  variant?: "hero" | "default";
+  variant?: "hero" | "default" | "static";
   index?: string;
   eyebrow?: string;
   /** Title may contain "\n" for an explicit line break. */
