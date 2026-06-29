@@ -15,7 +15,7 @@ export default function GoalsBlock({ data }: Props) {
         <Reveal>
           <SectionLabel>Goals</SectionLabel>
           {data.northStar && (
-            <p className="font-display italic text-[--text-2xl] text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mt-4 max-w-[52ch]">
+            <p className="font-display italic text-2xl text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mt-4 max-w-[52ch]">
               {data.northStar}
             </p>
           )}
@@ -25,7 +25,7 @@ export default function GoalsBlock({ data }: Props) {
             {data.goals.map((goal, i) => (
               <Reveal key={i} delay={Math.min(i * 0.06, 0.24)}>
                 <li className="flex gap-6 items-start border-t border-[--color-border] pt-4">
-                  <span className="font-display italic text-[--text-xl] text-[--color-text-muted] w-8 shrink-0 leading-none mt-0.5">
+                  <span className="font-display italic text-xl text-[--color-text-muted] w-8 shrink-0 leading-none mt-0.5">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <p className="text-base text-[--color-text-secondary] leading-[--leading-relaxed]">

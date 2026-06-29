@@ -13,7 +13,7 @@ export default function QuoteBlock({ data }: Props) {
       <Container>
         <Reveal>
           <blockquote className="max-w-[50ch]">
-            <p className="font-display italic text-[--text-2xl] text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug]">
+            <p className="font-display italic text-2xl text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug]">
               {data.text}
             </p>
             {data.attribution && (

@@ -16,7 +16,7 @@ export default function ProblemBlock({ data }: Props) {
       <Container>
         <Reveal>
           <SectionLabel>Problem</SectionLabel>
-          <p className="font-display italic text-[--text-3xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] mt-4 max-w-[36ch]">
+          <p className="font-display italic text-3xl text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] mt-4 max-w-[36ch]">
             {data.statement}
           </p>
         </Reveal>

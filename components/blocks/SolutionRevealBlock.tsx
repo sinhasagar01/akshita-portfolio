@@ -17,7 +17,7 @@ export default function SolutionRevealBlock({ data }: Props) {
         <Container>
           <Reveal>
             <SectionLabel>Solution</SectionLabel>
-            <h2 className="font-display italic text-[--text-4xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] mt-4 max-w-[28ch]">
+            <h2 className="font-display italic text-4xl text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] mt-4 max-w-[28ch]">
               {data.headline}
             </h2>
           </Reveal>

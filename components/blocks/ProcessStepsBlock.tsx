@@ -19,7 +19,7 @@ export default function ProcessStepsBlock({ data }: Props) {
         <Grid cols={12} className="mt-8">
           {data.steps.map((step, i) => (
             <Reveal key={i} delay={Math.min(i * 0.07, 0.28)} className="col-span-4 md:col-span-3">
-              <p className="font-display italic text-[--text-xl] text-[--color-text-primary] leading-[--leading-snug]">
+              <p className="font-display italic text-xl text-[--color-text-primary] leading-[--leading-snug]">
                 {step.phase}
               </p>
               {step.description && (

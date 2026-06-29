@@ -259,7 +259,7 @@ function StageCopy({ stage }: { stage: Stage }) {
           </motion.h3>
           <motion.p
             variants={stageLine}
-            className="text-[--text-sm] text-[--color-text-secondary] leading-[--leading-normal]"
+            className="text-sm text-[--color-text-secondary] leading-[--leading-normal]"
             style={{ minHeight: "46px" }}
           >
             {stage.description}

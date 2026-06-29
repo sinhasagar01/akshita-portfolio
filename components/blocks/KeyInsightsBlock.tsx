@@ -20,7 +20,7 @@ export default function KeyInsightsBlock({ data }: Props) {
             <Reveal key={i} delay={Math.min(i * 0.06, 0.24)}>
               <li className="py-8 grid grid-cols-4 md:grid-cols-12 gap-8 md:gap-12">
                 <div className="col-span-1 md:col-span-2">
-                  <p className="font-display italic text-[--text-3xl] text-[--color-text-muted] leading-none">
+                  <p className="font-display italic text-3xl text-[--color-text-muted] leading-none">
                     {item.number}
                   </p>
                 </div>
