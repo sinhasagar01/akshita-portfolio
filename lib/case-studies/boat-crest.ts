@@ -8,11 +8,6 @@ import beforeHome from "@/public/work/boat-crest/before-home.png";
 import onboardingPair from "@/public/work/boat-crest/17-onboarding-pair.png";
 import watchfaceStudio from "@/public/work/boat-crest/12-watchface-studio.png";
 import fitCrew from "@/public/work/boat-crest/13-fit-crew.png";
-import beforeActivity from "@/public/work/boat-crest/before-activity.png";
-import activityDetail from "@/public/work/boat-crest/02-activity-detail.png";
-import beforeVitals from "@/public/work/boat-crest/before-vitals.png";
-import vitalsHub from "@/public/work/boat-crest/03-vitals-hub.png";
-
 // cs-07 Work auto-scroll story — genuine bezel + per-screen body/footer (scroll-assets).
 import scrOnboarding from "@/public/work/boat-crest/scroll-assets/feature-01-onboarding.png";
 import scrHomeBody from "@/public/work/boat-crest/scroll-assets/feature-02-home-body.png";
@@ -23,6 +18,17 @@ import scrWatchBody from "@/public/work/boat-crest/scroll-assets/feature-04-watc
 import scrWatchFooter from "@/public/work/boat-crest/scroll-assets/feature-04-watchface-footer.png";
 import scrCrewBody from "@/public/work/boat-crest/scroll-assets/feature-05-crew-body.png";
 import scrCrewFooter from "@/public/work/boat-crest/scroll-assets/feature-05-crew-footer.png";
+
+// cs-07 Before → After story — static before + per-screen after body/footer (scroll-assets).
+import baHomeBefore from "@/public/work/boat-crest/scroll-assets/ba-home-before.png";
+import baHomeBody from "@/public/work/boat-crest/scroll-assets/ba-home-after-body.png";
+import baHomeFooter from "@/public/work/boat-crest/scroll-assets/ba-home-after-footer.png";
+import baActivityBefore from "@/public/work/boat-crest/scroll-assets/ba-activity-before.png";
+import baActivityBody from "@/public/work/boat-crest/scroll-assets/ba-activity-after-body.png";
+import baActivityFooter from "@/public/work/boat-crest/scroll-assets/ba-activity-after-footer.png";
+import baVitalsBefore from "@/public/work/boat-crest/scroll-assets/ba-vitals-before.png";
+import baVitalsBody from "@/public/work/boat-crest/scroll-assets/ba-vitals-after-body.png";
+import baVitalsFooter from "@/public/work/boat-crest/scroll-assets/ba-vitals-after-footer.png";
 
 /* Copy is transcribed verbatim from the source panels in docs/case-study-page/html.
    It uses em dashes, arrows and middots; reconciling that with the project writing
@@ -139,8 +145,7 @@ export const boatCrest: CaseStudy = {
       id: "goals",
       index: "03",
       eyebrow: "Goals",
-      northStar:
-        "An app boAt users actually want to open — calm, personal, and worth coming back to.",
+      title: "An app boAt users actually want to open — calm, personal, and worth coming back to.",
       glow: { text: "calm", top: "24px", right: "34px", size: "clamp(5rem, 11vw, 9rem)" },
       blocks: [
         {
@@ -154,7 +159,7 @@ export const boatCrest: CaseStudy = {
             {
               index: "02",
               title: "Personalise",
-              body: "Guided onboarding and workouts instead of one-size-fits-all, with social challenges that keep people coming back.",
+              body: "Onboarding and workouts instead of one-size-fits-all, with social challenges that keep people coming back.",
             },
             {
               index: "03",
@@ -329,23 +334,24 @@ export const boatCrest: CaseStudy = {
       ],
     },
 
-    // 8 — Before → After
+    // 8 — Before → After (scroll-pinned comparison story; renders its own card + header)
     {
       id: "before-after",
-      index: "07",
-      eyebrow: "Before → After",
-      title: "Same data. New clarity.",
-      lead: "The information didn't change — the hierarchy did. Screen by screen, each one earns its colour and gives your day room to breathe.",
-      glow: { text: "clarity", bottom: "-15px", right: "38px", size: "clamp(5rem, 11vw, 9rem)" },
+      variant: "bare",
       blocks: [
         {
-          kind: "beforeAfter",
+          kind: "beforeAfterStory",
+          index: "07",
+          eyebrow: "Before → After",
+          title: "Same data. New clarity.",
+          lead: "The information didn't change — the hierarchy did. Screen by screen, each one earns its colour and gives your day room to breathe.",
+          rating: { from: "2.3", to: "4.2" },
           pairs: [
             {
               title: "Home",
               tag: "Midnight Ember",
-              before: { src: beforeHome, alt: "The old boAt Crest home screen, a flat wall of cards", height: 280 },
-              after: { src: home, alt: "Redesigned home screen with one clear hierarchy", height: 280 },
+              before: baHomeBefore,
+              after: { body: baHomeBody, footer: baHomeFooter },
               changes: [
                 { emphasis: "One clear hierarchy", rest: "— weight and colour rank your day, not a flat wall of cards" },
                 { emphasis: "No upsell nags", rest: "— the coin prompts and profile pushes are gone" },
@@ -355,8 +361,8 @@ export const boatCrest: CaseStudy = {
             {
               title: "Activity",
               tag: "Midnight Ember",
-              before: { src: beforeActivity, alt: "The old activity screen with a single gauge", height: 280 },
-              after: { src: activityDetail, alt: "Redesigned activity screen showing rings, steps and weekly trends", height: 280 },
+              before: baActivityBefore,
+              after: { body: baActivityBody, footer: baActivityFooter },
               changes: [
                 { emphasis: "Rings & steps at a glance", rest: "— the day reads in a second, not a single gauge" },
                 { emphasis: "Trends, not a snapshot", rest: "— a week of bars instead of one number" },
@@ -366,8 +372,8 @@ export const boatCrest: CaseStudy = {
             {
               title: "Vitals",
               tag: "Midnight Ember",
-              before: { src: beforeVitals, alt: "The old vitals screen", height: 280 },
-              after: { src: vitalsHub, alt: "Redesigned vitals hub bringing heart, SpO₂ and sleep together", height: 280 },
+              before: baVitalsBefore,
+              after: { body: baVitalsBody, footer: baVitalsFooter },
               changes: [
                 { emphasis: "One calm hub", rest: "— heart, SpO₂ and sleep, finally together" },
                 { emphasis: "Honest ranges", rest: "— context that reassures instead of alarms" },
@@ -401,7 +407,7 @@ export const boatCrest: CaseStudy = {
           cards: [
             {
               index: "01",
-              title: "Onboarding activation",
+              title: "Onboarding",
               body: "Measure how far the guided setup lifts day-one activation against the old drop-into-home flow.",
             },
             {

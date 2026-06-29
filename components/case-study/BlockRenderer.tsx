@@ -10,6 +10,7 @@ import PrincipleCards from "./blocks/PrincipleCards";
 import FeatureRows from "./blocks/FeatureRows";
 import WorkStory from "./blocks/WorkStory";
 import BeforeAfter from "./blocks/BeforeAfter";
+import BeforeAfterStory from "./blocks/BeforeAfterStory";
 import SwatchTokens from "./blocks/SwatchTokens";
 import AnnotatedImage from "./blocks/AnnotatedImage";
 import RichText from "./blocks/RichText";
@@ -40,6 +41,17 @@ export default function BlockRenderer({ block }: { block: Block }) {
       return <WorkStory features={block.features} />;
     case "beforeAfter":
       return <BeforeAfter pairs={block.pairs} />;
+    case "beforeAfterStory":
+      return (
+        <BeforeAfterStory
+          index={block.index}
+          eyebrow={block.eyebrow}
+          title={block.title}
+          lead={block.lead}
+          rating={block.rating}
+          pairs={block.pairs}
+        />
+      );
     case "swatchTokens":
       return <SwatchTokens groups={block.groups} />;
     case "annotatedImage":

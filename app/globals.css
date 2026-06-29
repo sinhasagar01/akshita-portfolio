@@ -266,6 +266,16 @@ a {
   padding-inline: 3.25rem;
 }
 
+/* Mobile — tighter inline padding below the 1024px breakpoint (desktop unchanged). */
+@media (max-width: 1023px) {
+  .container-x {
+    padding-inline: 1rem;
+  }
+  .section-card {
+    padding-inline: 2rem;
+  }
+}
+
 /* ============================================================
    Nav link — underline wipes in from left on hover
 ============================================================ */
@@ -1005,6 +1015,11 @@ a {
 }
 
 .case-study .font-display {
+  /* The unlayered `h3,h4,h5,h6 { font-family: var(--font-body) }` reset outranks the
+     Tailwind `.font-display` utility (which lives in @layer utilities), so heading-level
+     titles silently fell back to DM Sans. Re-assert the display face here (also unlayered)
+     so every `.font-display` card title renders Fraunces. Scoped to the case study. */
+  font-family: var(--font-display);
   font-weight: var(--font-weight-medium);
 }
 
