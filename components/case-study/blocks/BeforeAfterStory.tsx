@@ -9,10 +9,6 @@ import CaseSectionHeader from "../CaseSectionHeader";
 import {
   BEZEL_W,
   BEZEL_H,
-  INSET,
-  WIN_TOP,
-  SCREEN_BOTTOM,
-  RADIUS,
   SCREEN_BG,
   clamp,
   eIO,
@@ -114,45 +110,13 @@ function AfterPhone({
   );
 }
 
-/** The before-screen: one static full screen shown inside the same bezel. */
+/** The before-screen: the full static device mockup. It already includes its own
+ *  bezel (1030×2165, same as the frame), so it gets no phone-frame overlay — that
+ *  belongs only to the after-screen scroller, which is bare screen content. */
 function BeforePhone({ before, w }: { before: StaticImageData; w: number }) {
-  const h = phoneH(w);
-  const sc = w / BEZEL_W;
-  const screen = {
-    left: INSET * sc,
-    top: WIN_TOP * sc,
-    width: (BEZEL_W - 2 * INSET) * sc,
-    height: (SCREEN_BOTTOM - WIN_TOP) * sc,
-    radius: RADIUS * sc,
-  };
   return (
-    <div className="relative shrink-0" style={{ width: w, height: h, filter: GROUNDING }}>
-      <div
-        style={{
-          position: "absolute",
-          left: screen.left,
-          top: screen.top,
-          width: screen.width,
-          height: screen.height,
-          overflow: "hidden",
-          background: SCREEN_BG,
-          borderRadius: `0 0 ${screen.radius}px ${screen.radius}px`,
-        }}
-      >
-        <Image
-          src={before}
-          alt=""
-          sizes={`${Math.round(screen.width)}px`}
-          className="absolute inset-0 h-full w-full object-cover object-top"
-        />
-      </div>
-      <Image
-        src={bezel}
-        alt=""
-        sizes={`${w}px`}
-        className="absolute inset-0 h-auto w-full"
-        style={{ zIndex: 3, pointerEvents: "none" }}
-      />
+    <div className="relative shrink-0" style={{ width: w, height: phoneH(w), filter: GROUNDING }}>
+      <Image src={before} alt="" sizes={`${w}px`} className="block h-auto w-full" />
     </div>
   );
 }
