@@ -12,7 +12,7 @@ export default function ClosingLineBlock({ data }: Props) {
     <SectionWrapper className="">
       <Container>
         <Reveal>
-          <p className="font-display italic text-[--text-4xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] max-w-[28ch]">
+          <p className="font-display italic text-4xl text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] max-w-[28ch]">
             {data.line}
           </p>
         </Reveal>

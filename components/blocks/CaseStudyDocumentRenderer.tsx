@@ -32,7 +32,7 @@ export default function CaseStudyDocumentRenderer({ document }: Props) {
                 );
               }
               return (
-                <h3 className="font-body font-semibold text-[--text-xl] text-[--color-text-primary] leading-[--leading-snug] mt-6 mb-2">
+                <h3 className="font-body font-semibold text-xl text-[--color-text-primary] leading-[--leading-snug] mt-6 mb-2">
                   {children}
                 </h3>
               );

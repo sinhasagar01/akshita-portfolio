@@ -2,6 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getCaseStudyData, getProjectSlugs } from "@/lib/keystatic";
+import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import CaseStudyBlockRenderer from "@/components/blocks/CaseStudyBlockRenderer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
@@ -9,7 +10,9 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs();
-  return slugs.map((slug) => ({ slug }));
+  // Slugs with a literal bespoke route (e.g. boat-crest) are served by that route,
+  // not this dynamic one — exclude them to avoid a build-time path collision.
+  return slugs.filter((slug) => !BESPOKE_SLUGS.has(slug)).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

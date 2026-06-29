@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans, Kaushan_Script } from "next/font/google";
+import { Fraunces, DM_Sans, Kaushan_Script, Caveat } from "next/font/google";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -23,6 +23,14 @@ const kaushanScript = Kaushan_Script({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-script-loaded",
+  display: "swap",
+  preload: true,
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-doodle-loaded",
   display: "swap",
   preload: true,
 });
@@ -61,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable} ${caveat.variable}`}>
       <head>
         {/* Runs at parse time, before any hydration or browser scroll restoration */}
         <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';window.scrollTo(0,0);" }} />

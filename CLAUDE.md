@@ -33,6 +33,7 @@ Every case study follows this fixed eleven-section arc.
 
 - Framework: Next.js with the App Router and TypeScript
 - Styling: Tailwind CSS
+  - Tailwind v4 — never use class-[--var] bracket-bare syntax; it generates no CSS. Use bare theme utilities (text-accent-500, rounded-lg) generated from @theme, or [var(--x)] with the full var() if an arbitrary value is truly needed.
 - Animation: Motion for component motion, Lenis for smooth scrolling, GSAP for heavier scroll choreography
 - CMS and dashboard: Keystatic (open source, git-based)
 - Images: stored in the repo via Keystatic, optimized and served by Next.js image optimization

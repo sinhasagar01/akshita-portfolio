@@ -45,6 +45,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --font-display: var(--font-display-loaded, "Fraunces Variable", Georgia, serif);
   --font-body:    var(--font-body-loaded, "DM Sans Variable", system-ui, sans-serif);
   --font-script:  var(--font-script-loaded, "Kaushan Script", cursive);
+  --font-doodle:  var(--font-doodle-loaded, "Caveat", cursive);
   --font-mono:    ui-monospace, "JetBrains Mono", monospace;
 
   --text-xs:   clamp(0.694rem,  0.67rem  + 0.12vw, 0.75rem);
@@ -976,4 +977,50 @@ a {
   .work-item:last-child {
     margin-bottom: 0;
   }
+}
+
+/* ============================================================
+   Case study — device rotations/translations are a desktop layout
+   device. Flatten them at the mobile breakpoint so screenshots stack
+   upright. This is static positioning, not animation, so it is gated
+   on width, not prefers-reduced-motion.
+============================================================ */
+
+@media (max-width: 1023px) {
+  .cs-flatten {
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   Case study — Fraunces display presence (spec A3). The global
+   h1/h2 rule pins opsz to 144 (the highest-contrast master, which
+   reads thin). Unpin it so optical sizing tracks the rendered size
+   (sturdier), and give all display text the panel's medium weight.
+============================================================ */
+
+.case-study :is(h1, h2) {
+  font-variation-settings: normal;
+  font-optical-sizing: auto;
+}
+
+.case-study .font-display {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Spec A1 — warm sand behind the case study only. A fixed full-bleed layer sits
+   above the global canvas, so cards gain the panel's contrast without changing the
+   global --color-canvas (the homepage is untouched). Only rendered on this route. */
+.case-study-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: oklch(88.5% 0.030 80);
+  pointer-events: none;
+}
+
+/* Spec A2 — case-study cards use the slightly stronger 8% hairline; scoped so the
+   homepage's section cards keep the global 7%. */
+.case-study .section-card {
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 8%, transparent);
 }

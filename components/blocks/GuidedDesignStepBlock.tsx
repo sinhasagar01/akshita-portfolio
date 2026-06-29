@@ -18,7 +18,7 @@ export default function GuidedDesignStepBlock({ data }: Props) {
         <Grid cols={12} className="items-center">
           <Reveal className="col-span-4 md:col-span-5">
             <SectionLabel>Design</SectionLabel>
-            <h3 className="font-body font-semibold text-[--text-2xl] text-[--color-text-primary] leading-[--leading-snug] mt-2">
+            <h3 className="font-body font-semibold text-2xl text-[--color-text-primary] leading-[--leading-snug] mt-2">
               {data.title}
             </h3>
             {data.caption && (

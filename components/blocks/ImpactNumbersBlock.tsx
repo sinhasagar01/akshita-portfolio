@@ -24,7 +24,7 @@ export default function ImpactNumbersBlock({ data }: Props) {
         <Grid cols={12} className="mt-8">
           {stats.map((stat, i) => (
             <Reveal key={i} delay={i * 0.08} className="col-span-4 md:col-span-4">
-              <p className="font-display italic text-[--text-5xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight]">
+              <p className="font-display italic text-5xl text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight]">
                 {stat.number}
               </p>
               {stat.label && (

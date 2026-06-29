@@ -1,0 +1,32 @@
+{
+  "space_1030": {
+    "INSET": 30,
+    "status_bar_bottom": 130,
+    "screen_bottom": 2138,
+    "screen_radius": 100,
+    "win_top_overlap": 110
+  },
+  "per_screen": {
+    "feature-02-home": {
+      "bodyH": 2388,
+      "footerH": 224,
+      "barTop": 2599
+    },
+    "feature-03-heart": {
+      "bodyH": 2541,
+      "footerH": 257,
+      "barTop": 2651
+    },
+    "feature-04-watchface": {
+      "bodyH": 2574,
+      "footerH": 297,
+      "barTop": 2684
+    },
+    "feature-05-crew": {
+      "bodyH": 2671,
+      "footerH": 220,
+      "barTop": 2781
+    }
+  },
+  "notes": "All in 1030px-wide space. body=mockup[win_top:barTop], footer=mockup[barTop:H-27], both cropped x[INSET,W-INSET] -> 970 wide. footerTop=screen_bottom-footerH. win covers [win_top,footerTop]; content scrolls translateY 0..-(bodyH-(footerTop-win_top)). barTop sits in the dark gap ABOVE each button."
+}

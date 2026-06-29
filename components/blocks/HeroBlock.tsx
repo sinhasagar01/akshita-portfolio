@@ -12,7 +12,7 @@ export default function HeroBlock({ data }: Props) {
     <SectionWrapper>
       <Container>
         <Reveal>
-          <h1 className="font-display italic text-[--text-4xl] md:text-[--text-5xl] text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] max-w-[24ch]">
+          <h1 className="font-display italic text-4xl md:text-5xl text-[--color-text-primary] leading-[--leading-tight] tracking-[--tracking-tight] max-w-[24ch]">
             {data.thesis}
           </h1>
         </Reveal>

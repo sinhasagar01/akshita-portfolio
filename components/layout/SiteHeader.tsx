@@ -41,6 +41,10 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen]        = useState(false);
   const smoothScroll                   = useSmoothScroll();
   const pathname                       = usePathname();
+  // The nav targets homepage sections. On the homepage we scroll in-page; on every
+  // other route (case studies reuse ids like `work`/`hero`) the nav links navigate
+  // home first, so nothing here should treat the current page's sections as targets.
+  const isHome                         = pathname === "/";
   const burgerRef                      = useRef<HTMLButtonElement>(null);
   const menuRef                        = useRef<HTMLDivElement>(null);
 
@@ -60,22 +64,45 @@ export default function SiteHeader() {
   useEffect(() => {
     function onScroll() {
       setScrolled(window.scrollY > 18);
+      if (!isHome) { setActive(null); return; }
       if (smoothScroll?.isProgrammaticRef.current) return;
       setActive(getActiveSection());
     }
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [smoothScroll]);
+  }, [smoothScroll, isHome]);
 
   // Lenis scroll — fires every animation frame for accurate smooth-scroll tracking
   const lenisScrollCallback = useCallback(() => {
     setScrolled(window.scrollY > 18);
+    if (!isHome) { setActive(null); return; }
     if (smoothScroll?.isProgrammaticRef.current) return;
     setActive(getActiveSection());
-  }, [smoothScroll]);
+  }, [smoothScroll, isHome]);
 
-  const lenis = useLenis(lenisScrollCallback, [smoothScroll]);
+  const lenis = useLenis(lenisScrollCallback, [smoothScroll, isHome]);
+
+  // Cross-page section links: arriving at the homepage with a hash (e.g. /#work from a
+  // case study) should scroll to that section via Lenis — native hash scroll is
+  // unreliable under smooth scroll. Runs on mount and whenever we land back on home.
+  useEffect(() => {
+    if (!isHome) return;
+    const hash = window.location.hash;
+    if (hash.length < 2) return;
+    const el = document.getElementById(hash.slice(1));
+    if (!el) return;
+    const raf = requestAnimationFrame(() => {
+      if (smoothScroll) {
+        smoothScroll.scrollToTarget(el, { offset: SCROLL_TO_OFFSET });
+      } else if (lenis) {
+        lenis.scrollTo(el, { offset: SCROLL_TO_OFFSET });
+      } else {
+        el.scrollIntoView();
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isHome, smoothScroll, lenis]);
 
   // Menu open/close helpers — lenis ref is stable after first mount
   function openMenu() {
@@ -93,6 +120,14 @@ export default function SiteHeader() {
 
   // Mobile nav tap: unlock first, scroll on next frame, no focus return to burger
   function handleMobileNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
+    // Off the homepage: just close the menu and let the link navigate to /#id; the
+    // homepage's hash effect scrolls to the section on arrival.
+    if (!isHome) {
+      setMenuOpen(false);
+      lenis?.start();
+      document.body.style.overflow = "";
+      return;
+    }
     e.preventDefault();
     setActive(id);
     const el = document.getElementById(id);
@@ -147,6 +182,7 @@ export default function SiteHeader() {
     : { type: "spring" as const, stiffness: 380, damping: 30 };
 
   function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
+    if (!isHome) return; // let the link navigate to /#id; home scrolls on arrival
     e.preventDefault();
     setActive(id); // instant highlight before scroll arrives
     const el = document.getElementById(id);
@@ -205,9 +241,10 @@ export default function SiteHeader() {
                 {NAV.map(({ id, label }) => {
                   const isActive = active === id;
                   return (
-                    <a
+                    <Link
                       key={id}
-                      href={`#${id}`}
+                      href={isHome ? `#${id}` : `/#${id}`}
+                      scroll={false}
                       onClick={(e) => handleNavClick(e, id)}
                       aria-current={isActive ? "true" : undefined}
                       className={[
@@ -233,7 +270,7 @@ export default function SiteHeader() {
                         />
                       )}
                       <span className="relative z-10">{label}</span>
-                    </a>
+                    </Link>
                   );
                 })}
               </nav>
@@ -281,14 +318,15 @@ export default function SiteHeader() {
       >
         <nav aria-label="Mobile site navigation" className="flex flex-col mt-auto">
           {NAV.map(({ id, label }) => (
-            <a
+            <Link
               key={id}
-              href={`#${id}`}
+              href={isHome ? `#${id}` : `/#${id}`}
+              scroll={false}
               className="header-mob-nav-item"
               onClick={(e) => handleMobileNavClick(e, id)}
             >
               {label}
-            </a>
+            </Link>
           ))}
         </nav>
 
