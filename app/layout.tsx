@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 import { Fraunces, DM_Sans, Kaushan_Script, Caveat } from "next/font/google";
+import {
+  SITE_URL,
+  SITE_NAME,
+  AUTHOR_NAME,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+} from "@/lib/site";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -36,26 +43,27 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.akshitas.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    template: "%s · Akshita Singh",
+    template: `%s · ${SITE_NAME}`,
     default: "Akshita Singh, Product Designer",
   },
-  description:
-    "Product designer focused on enterprise and consumer experiences. Portfolio of case studies in UX, interaction design, and design systems.",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: AUTHOR_NAME, url: SITE_URL }],
+  creator: AUTHOR_NAME,
+  keywords: SITE_KEYWORDS,
   openGraph: {
     title: "Akshita Singh, Product Designer",
-    description:
-      "Product designer focused on enterprise and consumer experiences. Portfolio of case studies in UX, interaction design, and design systems.",
+    description: SITE_DESCRIPTION,
     type: "website",
-    siteName: "Akshita Singh",
+    siteName: SITE_NAME,
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "Akshita Singh, Product Designer",
-    description:
-      "Product designer focused on enterprise and consumer experiences. Portfolio of case studies in UX, interaction design, and design systems.",
+    description: SITE_DESCRIPTION,
   },
   icons: {
     icon: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
