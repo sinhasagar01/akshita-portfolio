@@ -1,13 +1,9 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import HeroEditPanel from "@/components/studio/HeroEditPanel";
 import { singletonHref } from "@/lib/keystatic-links";
-import {
-  IconUser,
-  IconSparkles,
-  IconWorkflow,
-  IconArrowUpRight,
-} from "@/components/studio/icons";
+import { IconUser, IconWorkflow, IconArrowUpRight } from "@/components/studio/icons";
 
 const settingsLink = singletonHref("siteSettings");
 
@@ -30,10 +26,6 @@ export default async function StudioSettings() {
 
   const chips = settings.aboutFocusChips?.length ?? 0;
 
-  const identitySignals: CardSignal[] = settings.photo
-    ? []
-    : [{ label: "No photo", tone: "warn" }];
-
   const linkSignals: CardSignal[] = [];
   if (!settings.resumeUrl) linkSignals.push({ label: "No resume URL", tone: "warn" });
   if (!settings.linkedinUrl) linkSignals.push({ label: "LinkedIn not set", tone: "muted" });
@@ -44,20 +36,17 @@ export default async function StudioSettings() {
     <>
       <AreaHeader
         title="Site settings"
-        sub="One singleton. Every card opens the same editor."
+        sub="Hero is editable here. The rest open in Keystatic."
       />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
-        <ContentCard
-          index="01"
-          title="Identity"
-          icon={<IconSparkles />}
-          status="live"
-          meta="Hero copy, positioning, photo"
-          signals={identitySignals}
-          href={settingsLink}
-          ariaLabel="Edit identity fields in Keystatic site settings"
-        />
+      {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
+      <HeroEditPanel
+        heroCopy={settings.heroCopy}
+        positioningLine={settings.positioningLine}
+        photo={settings.photo}
+      />
+
+      <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
         <ContentCard
           index="02"
           title="About"
