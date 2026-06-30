@@ -65,7 +65,7 @@ export async function getFileTextAtRef(path: string, ref: string): Promise<strin
  */
 export async function commitSiteSettings(
   patch: Partial<SiteSettingsInput>,
-  opts?: { branch?: string }
+  opts?: { branch?: string; message?: string }
 ): Promise<CommitResult> {
   let base: { branch: string; oid: string };
   let raw: string;
@@ -96,7 +96,7 @@ export async function commitSiteSettings(
       branch,
       path: SETTINGS_PATH,
       contents,
-      message: "chore(studio): GH-2 content commit probe",
+      message: opts?.message ?? "chore(studio): update site settings",
       expectedHeadOid: base.oid,
     });
     return { ok: true, sha: commit.oid, branch, baseOid: base.oid, bytes: contents };

@@ -8,7 +8,7 @@ import { IconUser, IconWorkflow, IconArrowUpRight } from "@/components/studio/ic
 const settingsLink = singletonHref("siteSettings");
 
 export default async function StudioSettings() {
-  const { settings } = await getStudioData();
+  const { settings, settingsDraftState } = await getStudioData();
 
   if (!settings) {
     return (
@@ -44,6 +44,7 @@ export default async function StudioSettings() {
         heroCopy={settings.heroCopy}
         positioningLine={settings.positioningLine}
         photo={settings.photo}
+        differs={settingsDraftState.differs}
       />
 
       <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
