@@ -160,6 +160,13 @@ Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable co
 3. /studio search is a non-functional placeholder. A client-side label filter is the near-term fast-follow. Search over field values needs a content index and is deferred.
 4. /studio B, the inline editing write path. The Site Settings write seam is built and has no UI yet. The server action lives in lib/studio/save-site-settings.ts with the pure transform in lib/studio/site-settings-format.ts. It read-modify-writes content/site-settings.yaml with js-yaml, strips empty optional keys, validates url fields, reorders to schema order, then revalidatePath. It is BLOCKED before prod on a server-side auth gate. The action is ungated to match /keystatic's dev posture, and an unauthenticated write is a content-tampering vector, so B must not leave local dev until the action checks an authenticated session.
 
+## /studio prod-readiness blockers (before hosted editing ships)
+
+- Gate /studio itself. It is ungated today, and in github mode it makes authenticated GitHub reads.
+- Add caching to the per-request draft read. getStudioData hits the GitHub API per /studio request in github mode.
+- Durable cross-instance login throttle. The in-memory one does not survive serverless cold starts.
+- Env-split Keystatic storage switch for prod. Local in dev, github in prod.
+
 ## Portfolio (user-facing), still open, pre-dates the /studio work
 
 - Full mobile and responsive QA pass across ALL boAt case-study sections at 1024px. 07 was almost certainly not the only gap, so verify on a real device, not just preview_resize.
