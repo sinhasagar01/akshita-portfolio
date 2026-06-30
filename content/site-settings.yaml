@@ -3,11 +3,15 @@ positioningLine: >-
   Product designer with over seven years turning complex SaaS, enterprise, and
   consumer products into intuitive experiences.
 photo: /images/photo.jpg
-aboutCopy: |
+aboutCopy: >
   I turn rough ideas into products people actually use.
 
-  Seven years across SaaS, e-commerce, and enterprise. Right now I am at LTIMindtree, designing a mechanic-first app for Elevate, after shaping fitness wearables, AI data platforms, and point-of-sale systems used by more than 20,000 merchants, with a Design Innovation Award along the way.
-aboutNote: The same curiosity that gets me painting under a tree is the one I bring to a blank product canvas.
+
+  Seven years across SaaS, e-commerce, and enterprise. Right now I am at
+  LTIMindtree, designing a mechanic-first app for Elevate, after shaping fitness
+  wearables, AI data platforms, and point-of-sale systems used by more than
+  20,000 merchants, with a Design Innovation Award along the way.
+aboutNote: GH-4 publish probe
 aboutFocusChips:
   - User-centered design
   - Prototyping
