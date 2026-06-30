@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Akshita Singh, design system</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Kaushan+Script&family=Caveat&display=swap" rel="stylesheet">
+<style>
+  /* Real tokens lifted from app/globals.css @theme. This page dogfoods them. */
+  :root{
+    --color-canvas: oklch(92.0% 0.022 78);
+    --color-cream-50: oklch(98.5% 0.012 80);
+    --color-cream-100: oklch(96.8% 0.018 78);
+    --color-cream-200: oklch(93.5% 0.025 76);
+    --color-cream-300: oklch(88.0% 0.032 74);
+    --color-reveal-sand: oklch(85.0% 0.040 67);
+    --color-ink-950: oklch(14.0% 0.018 60);
+    --color-ink-800: oklch(26.0% 0.018 60);
+    --color-ink-600: oklch(44.0% 0.016 60);
+    --color-ink-400: oklch(62.0% 0.014 60);
+    --color-ink-200: oklch(80.0% 0.010 60);
+    --color-accent-400: oklch(65.0% 0.12 42);
+    --color-accent-500: oklch(56.0% 0.14 42);
+    --color-accent-600: oklch(46.0% 0.13 42);
+    --color-text-subtle: #A89D8D;
+
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "DM Sans", system-ui, sans-serif;
+    --font-script: "Kaushan Script", cursive;
+    --font-mono: ui-monospace, "JetBrains Mono", monospace;
+
+    --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 1rem; --radius-xl: 1.5rem; --radius-full: 9999px;
+    --shadow-sm: 0 1px 2px oklch(14% 0.018 60 / 0.06);
+    --shadow-md: 0 4px 12px oklch(14% 0.018 60 / 0.08), 0 1px 3px oklch(14% 0.018 60 / 0.04);
+    --shadow-lg: 0 12px 32px oklch(14% 0.018 60 / 0.10), 0 4px 8px oklch(14% 0.018 60 / 0.05);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-canvas);color:var(--color-ink-950);font-family:var(--font-body);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:48px 28px 80px}
+  .top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:30px}
+  .sig{font-family:var(--font-script);font-size:42px;line-height:1;color:var(--color-ink-950);margin:0}
+  .role{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-ink-600);margin-top:10px}
+  .topmeta{font-family:var(--font-mono);font-size:12px;color:var(--color-ink-400);text-align:right;line-height:1.7}
+  .panel{background:var(--color-cream-50);border:1px solid var(--color-cream-300);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:16px}
+  .kick{font-family:var(--font-display);font-style:italic;font-size:24px;color:var(--color-ink-950);margin:0 0 4px}
+  .kicksub{font-size:13px;color:var(--color-ink-400);margin:0 0 20px}
+
+  .swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px}
+  .sw{border:1px solid var(--color-cream-300);border-radius:var(--radius-md);overflow:hidden;background:#fff}
+  .chip{height:60px}
+  .swm{padding:10px 12px}
+  .swm .h{font-size:13px;font-weight:600;margin:0;color:var(--color-ink-950)}
+  .swm .tk{font-family:var(--font-mono);font-size:11px;color:var(--color-ink-600);margin:3px 0 0;word-break:break-all}
+  .swm .ok{font-family:var(--font-mono);font-size:10.5px;color:var(--color-ink-400);margin:2px 0 0}
+  .swm .rl{font-size:11.5px;color:var(--color-text-subtle);margin:5px 0 0}
+  .grouplbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-ink-400);font-weight:600;margin:18px 0 10px}
+  .grouplbl:first-child{margin-top:0}
+
+  .types{display:flex;flex-direction:column}
+  .trow{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--color-cream-200)}
+  .trow:last-child{border-bottom:none}
+  .tmeta{text-align:right;white-space:nowrap}
+  .tmeta .r{font-size:12px;color:var(--color-ink-600);margin:0}
+  .tmeta .v{font-family:var(--font-mono);font-size:11px;color:var(--color-ink-400);margin:2px 0 0}
+
+  .scale{display:flex;flex-direction:column;gap:2px}
+  .srow{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:baseline;padding:7px 0}
+  .sname{font-family:var(--font-mono);font-size:11px;color:var(--color-ink-600)}
+  .sval{font-family:var(--font-mono);font-size:10.5px;color:var(--color-ink-400);text-align:right}
+  .sdemo{font-family:var(--font-display);color:var(--color-ink-950);line-height:1.05;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+  .mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .minicell{border:1px solid var(--color-cream-300);border-radius:var(--radius-md);padding:13px;background:#fff}
+  .minicell .n{font-family:var(--font-mono);font-size:11px;color:var(--color-ink-600);margin:0 0 9px;word-break:break-all}
+
+  .spacerow{display:flex;align-items:center;gap:12px;padding:5px 0}
+  .spacebar{height:14px;background:var(--color-accent-500);border-radius:2px}
+  .spacelbl{font-family:var(--font-mono);font-size:11px;color:var(--color-ink-600);min-width:118px}
+
+  .radrow{display:flex;gap:14px;flex-wrap:wrap}
+  .radbox{width:64px;height:64px;background:var(--color-cream-200);border:1px solid var(--color-cream-300)}
+  .radcap{font-family:var(--font-mono);font-size:10.5px;color:var(--color-ink-400);text-align:center;margin-top:6px}
+
+  .shadrow{display:flex;gap:20px;flex-wrap:wrap}
+  .shadbox{width:120px;height:64px;background:#fff;border-radius:var(--radius-md)}
+  .shadcap{font-family:var(--font-mono);font-size:11px;color:var(--color-ink-600);text-align:center;margin-top:10px}
+
+  .sigcells{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .sigcell{background:#fff;border:1px solid var(--color-cream-300);border-radius:var(--radius-md);padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;min-height:104px}
+  .sigcap{font-size:11.5px;color:var(--color-text-subtle);text-align:center;line-height:1.4}
+  .glowword{font-family:var(--font-display);font-style:italic;font-size:36px;color:oklch(56% 0.14 42 / 0.18)}
+  .clkchip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--color-cream-300);border-radius:var(--radius-full);padding:6px 13px;font-size:13px;color:var(--color-ink-800)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--color-accent-500);animation:p 2.2s ease-in-out infinite}
+  .heart{animation:b 1.9s ease-in-out infinite;transform-origin:center}
+
+  .comp{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:10px}
+  .cc{background:#fff;border:1px solid var(--color-cream-300);border-radius:var(--radius-md);padding:13px 15px}
+  .cc .n{font-size:13.5px;font-weight:600;margin:0;color:var(--color-ink-950)}
+  .cc .d{font-size:12px;color:var(--color-ink-600);line-height:1.45;margin:4px 0 0}
+
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+  .ru{font-size:13px;color:var(--color-ink-800);line-height:1.5;padding-left:16px;position:relative}
+  .ru::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;background:var(--color-accent-500)}
+  .ru b{color:var(--color-accent-600);font-weight:600}
+
+  .ztable{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12px}
+  .ztable td{padding:6px 0;border-bottom:1px solid var(--color-cream-200);color:var(--color-ink-600)}
+  .ztable td:last-child{text-align:right;color:var(--color-ink-400)}
+
+  @keyframes p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
+  @keyframes b{0%,100%{transform:scale(1)}14%{transform:scale(1.22)}28%{transform:scale(1)}42%{transform:scale(1.13)}56%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){.dot,.heart{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div>
+      <p class="sig">Akshita Singh</p>
+      <p class="role">Product Designer, design system</p>
+    </div>
+    <div class="topmeta">www.akshitas.com<br>Next.js 15, Tailwind v4<br>tokens in app/globals.css</div>
+  </div>
+
+  <!-- COLOR -->
+  <div class="panel">
+    <p class="kick">Color</p>
+    <p class="kicksub">Values are oklch, lifted from the theme block. Reference tokens, not raw values.</p>
+
+    <p class="grouplbl">Cream and canvas</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:var(--color-canvas)"></div><div class="swm"><p class="h">Canvas</p><p class="tk">--color-canvas</p><p class="ok">oklch(92.0% 0.022 78)</p><p class="rl">Page canvas behind cards</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-cream-50)"></div><div class="swm"><p class="h">Cream 50</p><p class="tk">--color-cream-50</p><p class="ok">oklch(98.5% 0.012 80)</p><p class="rl">Lightest surface</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-cream-100)"></div><div class="swm"><p class="h">Cream 100</p><p class="tk">--color-cream-100</p><p class="ok">oklch(96.8% 0.018 78)</p><p class="rl">Default surface</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-cream-200)"></div><div class="swm"><p class="h">Cream 200</p><p class="tk">--color-cream-200</p><p class="ok">oklch(93.5% 0.025 76)</p><p class="rl">Raised cards</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-cream-300)"></div><div class="swm"><p class="h">Cream 300</p><p class="tk">--color-cream-300</p><p class="ok">oklch(88.0% 0.032 74)</p><p class="rl">Default border</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-reveal-sand)"></div><div class="swm"><p class="h">Reveal sand</p><p class="tk">--color-reveal-sand</p><p class="ok">oklch(85.0% 0.040 67)</p><p class="rl">Panel reveal start</p></div></div>
+    </div>
+
+    <p class="grouplbl">Ink</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:var(--color-ink-950)"></div><div class="swm"><p class="h">Ink 950</p><p class="tk">--color-ink-950</p><p class="ok">oklch(14.0% 0.018 60)</p><p class="rl">Primary text</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-ink-800)"></div><div class="swm"><p class="h">Ink 800</p><p class="tk">--color-ink-800</p><p class="ok">oklch(26.0% 0.018 60)</p><p class="rl">Strong text</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-ink-600)"></div><div class="swm"><p class="h">Ink 600</p><p class="tk">--color-ink-600</p><p class="ok">oklch(44.0% 0.016 60)</p><p class="rl">Secondary text</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-ink-400)"></div><div class="swm"><p class="h">Ink 400</p><p class="tk">--color-ink-400</p><p class="ok">oklch(62.0% 0.014 60)</p><p class="rl">Muted text</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-ink-200)"></div><div class="swm"><p class="h">Ink 200</p><p class="tk">--color-ink-200</p><p class="ok">oklch(80.0% 0.010 60)</p><p class="rl">Faint lines</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-text-subtle)"></div><div class="swm"><p class="h">Text subtle</p><p class="tk">--color-text-subtle</p><p class="ok">#A89D8D</p><p class="rl">Section subtexts</p></div></div>
+    </div>
+
+    <p class="grouplbl">Accent, terracotta</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:var(--color-accent-400)"></div><div class="swm"><p class="h">Accent 400</p><p class="tk">--color-accent-400</p><p class="ok">oklch(65.0% 0.12 42)</p><p class="rl">Light accent</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-accent-500)"></div><div class="swm"><p class="h">Accent 500</p><p class="tk">--color-accent-500</p><p class="ok">oklch(56.0% 0.14 42)</p><p class="rl">Links and signals</p></div></div>
+      <div class="sw"><div class="chip" style="background:var(--color-accent-600)"></div><div class="swm"><p class="h">Accent 600</p><p class="tk">--color-accent-600</p><p class="ok">oklch(46.0% 0.13 42)</p><p class="rl">Hover and press</p></div></div>
+    </div>
+
+    <p class="grouplbl">Semantic aliases</p>
+    <div class="mini">
+      <div class="minicell"><p class="n">--color-background</p><span style="font-size:12px;color:var(--color-ink-600)">Canvas</span></div>
+      <div class="minicell"><p class="n">--color-surface</p><span style="font-size:12px;color:var(--color-ink-600)">Cream 100</span></div>
+      <div class="minicell"><p class="n">--color-border</p><span style="font-size:12px;color:var(--color-ink-600)">Cream 300</span></div>
+      <div class="minicell"><p class="n">--color-text-primary</p><span style="font-size:12px;color:var(--color-ink-600)">Ink 950</span></div>
+      <div class="minicell"><p class="n">--color-text-secondary</p><span style="font-size:12px;color:var(--color-ink-600)">Ink 600</span></div>
+      <div class="minicell"><p class="n">--color-text-muted</p><span style="font-size:12px;color:var(--color-ink-600)">Ink 400</span></div>
+      <div class="minicell"><p class="n">--color-accent</p><span style="font-size:12px;color:var(--color-ink-600)">Accent 500</span></div>
+    </div>
+  </div>
+
+  <!-- TYPE -->
+  <div class="panel">
+    <p class="kick">Typography</p>
+    <p class="kicksub">Fraunces for display, DM Sans for body, Kaushan for the signature, mono for code and tokens.</p>
+    <div class="types">
+      <div class="trow"><div style="font-family:var(--font-script);font-size:34px;line-height:1;color:var(--color-ink-950)">Akshita Singh</div><div class="tmeta"><p class="r">Signature, name and logo</p><p class="v">--font-script</p></div></div>
+      <div class="trow"><div style="font-family:var(--font-display);font-style:italic;font-weight:500;font-size:28px;line-height:1.1;color:var(--color-ink-950)">Crafting thoughtful work</div><div class="tmeta"><p class="r">Display italic, accents and glow words</p><p class="v">--font-display</p></div></div>
+      <div class="trow"><div style="font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.1;color:var(--color-ink-950)">Products people use</div><div class="tmeta"><p class="r">Display upright, long headlines</p><p class="v">--font-display</p></div></div>
+      <div class="trow"><div style="font-family:var(--font-body);font-size:16px;line-height:1.55;color:var(--color-ink-800);max-width:360px">Body and interface text, set in DM Sans for calm, legible reading across the site.</div><div class="tmeta"><p class="r">Body and UI</p><p class="v">--font-body</p></div></div>
+      <div class="trow"><div style="font-family:var(--font-mono);font-size:14px;color:var(--color-ink-600)">--color-accent-500</div><div class="tmeta"><p class="r">Mono, code and tokens</p><p class="v">--font-mono</p></div></div>
+      <div class="trow"><div style="font-family:var(--font-body);font-size:24px;font-family:'Caveat',cursive;color:var(--color-accent-500)">a small note</div><div class="tmeta"><p class="r">Doodle accent, used rarely</p><p class="v">Caveat</p></div></div>
+    </div>
+  </div>
+
+  <!-- TYPE SCALE -->
+  <div class="panel">
+    <p class="kick">Type scale</p>
+    <p class="kicksub">Fluid steps with clamp, plus the semantic role tokens used across sections.</p>
+    <div class="scale">
+      <div class="srow"><span class="sname">6xl</span><span class="sdemo" style="font-size:54px">Fraunces</span><span class="sval">clamp(3.5rem, .., 6.5rem)</span></div>
+      <div class="srow"><span class="sname">5xl</span><span class="sdemo" style="font-size:44px">Fraunces</span><span class="sval">clamp(2.75rem, .., 4.5rem)</span></div>
+      <div class="srow"><span class="sname">4xl</span><span class="sdemo" style="font-size:36px">Fraunces</span><span class="sval">clamp(2.25rem, .., 3.25rem)</span></div>
+      <div class="srow"><span class="sname">3xl</span><span class="sdemo" style="font-size:30px">Fraunces</span><span class="sval">clamp(1.875rem, .., 2.5rem)</span></div>
+      <div class="srow"><span class="sname">2xl</span><span class="sdemo" style="font-size:24px">Fraunces</span><span class="sval">clamp(1.5rem, .., 1.875rem)</span></div>
+      <div class="srow"><span class="sname">xl</span><span class="sdemo" style="font-size:20px">Fraunces</span><span class="sval">clamp(1.25rem, .., 1.5rem)</span></div>
+      <div class="srow"><span class="sname">base</span><span class="sdemo" style="font-size:17px;font-family:var(--font-body)">DM Sans body</span><span class="sval">clamp(1rem, .., 1.0625rem)</span></div>
+      <div class="srow"><span class="sname">sm</span><span class="sdemo" style="font-size:14px;font-family:var(--font-body)">DM Sans small</span><span class="sval">clamp(.833rem, .., .875rem)</span></div>
+      <div class="srow"><span class="sname">xs</span><span class="sdemo" style="font-size:12px;font-family:var(--font-body)">DM Sans extra small</span><span class="sval">clamp(.694rem, .., .75rem)</span></div>
+    </div>
+    <p class="grouplbl">Semantic role tokens</p>
+    <div class="mini">
+      <div class="minicell"><p class="n">--text-section-heading</p><span style="font-size:12px;color:var(--color-ink-600)">36px, Fraunces italic, every h2</span></div>
+      <div class="minicell"><p class="n">--text-subheading</p><span style="font-size:12px;color:var(--color-ink-600)">30px, Fraunces italic, item names</span></div>
+      <div class="minicell"><p class="n">--text-eyebrow</p><span style="font-size:12px;color:var(--color-ink-600)">12px caps, 0.14em tracking</span></div>
+      <div class="minicell"><p class="n">--text-ui-label</p><span style="font-size:12px;color:var(--color-ink-600)">12px caps 500, 0.08em</span></div>
+      <div class="minicell"><p class="n">--text-meta</p><span style="font-size:12px;color:var(--color-ink-600)">12px 500, 0.08em</span></div>
+      <div class="minicell"><p class="n">--text-tag</p><span style="font-size:12px;color:var(--color-ink-600)">11px, DM Sans 400</span></div>
+    </div>
+  </div>
+
+  <!-- SPACING, RADIUS, SHADOW -->
+  <div class="panel">
+    <p class="kick">Spacing, radius, shadow</p>
+    <p class="kicksub">Four-point spacing base, a small radius set, and three warm-toned shadows.</p>
+    <p class="grouplbl">Spacing</p>
+    <div>
+      <div class="spacerow"><span class="spacelbl">--spacing-1 (4px)</span><span class="spacebar" style="width:4px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-2 (8px)</span><span class="spacebar" style="width:8px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-4 (16px)</span><span class="spacebar" style="width:16px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-6 (24px)</span><span class="spacebar" style="width:24px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-8 (32px)</span><span class="spacebar" style="width:32px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-12 (48px)</span><span class="spacebar" style="width:48px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-16 (64px)</span><span class="spacebar" style="width:64px"></span></div>
+      <div class="spacerow"><span class="spacelbl">--spacing-section</span><span class="spacebar" style="width:88px"></span></div>
+    </div>
+    <p class="grouplbl">Radius</p>
+    <div class="radrow">
+      <div><div class="radbox" style="border-radius:var(--radius-sm)"></div><p class="radcap">sm .25rem</p></div>
+      <div><div class="radbox" style="border-radius:var(--radius-md)"></div><p class="radcap">md .5rem</p></div>
+      <div><div class="radbox" style="border-radius:var(--radius-lg)"></div><p class="radcap">lg 1rem</p></div>
+      <div><div class="radbox" style="border-radius:var(--radius-xl)"></div><p class="radcap">xl 1.5rem</p></div>
+      <div><div class="radbox" style="border-radius:var(--radius-full)"></div><p class="radcap">full</p></div>
+    </div>
+    <p class="grouplbl">Shadow</p>
+    <div class="shadrow">
+      <div><div class="shadbox" style="box-shadow:var(--shadow-sm)"></div><p class="shadcap">sm</p></div>
+      <div><div class="shadbox" style="box-shadow:var(--shadow-md)"></div><p class="shadcap">md</p></div>
+      <div><div class="shadbox" style="box-shadow:var(--shadow-lg)"></div><p class="shadcap">lg</p></div>
+    </div>
+  </div>
+
+  <!-- MOTION, Z -->
+  <div class="panel">
+    <p class="kick">Motion and layers</p>
+    <p class="kicksub">Easings and durations for the three animation lanes, plus the z-index scale.</p>
+    <div class="mini">
+      <div class="minicell"><p class="n">--ease-spring</p><span style="font-size:12px;color:var(--color-ink-600)">cubic-bezier(.34, 1.56, .64, 1)</span></div>
+      <div class="minicell"><p class="n">--ease-out-expo</p><span style="font-size:12px;color:var(--color-ink-600)">cubic-bezier(.16, 1, .3, 1)</span></div>
+      <div class="minicell"><p class="n">--ease-in-expo</p><span style="font-size:12px;color:var(--color-ink-600)">cubic-bezier(.7, 0, .84, 0)</span></div>
+      <div class="minicell"><p class="n">durations</p><span style="font-size:12px;color:var(--color-ink-600)">fast 150, base 300, slow 500, slower 800, crawl 1200</span></div>
+    </div>
+    <p class="grouplbl">Z-index</p>
+    <table class="ztable">
+      <tr><td>--z-below</td><td>-1</td></tr>
+      <tr><td>--z-base</td><td>0</td></tr>
+      <tr><td>--z-raised</td><td>10</td></tr>
+      <tr><td>--z-dropdown</td><td>20</td></tr>
+      <tr><td>--z-sticky</td><td>30</td></tr>
+      <tr><td>--z-overlay</td><td>40</td></tr>
+      <tr><td>--z-modal</td><td>50</td></tr>
+      <tr><td>--z-toast</td><td>60</td></tr>
+    </table>
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="panel">
+    <p class="kick">Signature elements</p>
+    <p class="kicksub">The pieces that make the site recognisably this brand.</p>
+    <div class="sigcells">
+      <div class="sigcell">
+        <svg width="42" height="40" viewBox="0 0 46 44"><path d="M23 4 L40 40 L31 40 L23 21 L15 40 L6 40 Z" fill="oklch(56% 0.14 42)"/><path d="M23 4 L23 21 L15 40 L19 40 Z" fill="oklch(40% 0.12 42)" opacity=".55"/><path d="M17 30 L29 30 L31.5 36 L14.5 36 Z" fill="oklch(56% 0.14 42)"/></svg>
+        <span class="sigcap">Folded ribbon mark, favicon and avatar and OG</span>
+      </div>
+      <div class="sigcell">
+        <span class="glowword">work</span>
+        <span class="sigcap">Glow backdrop word, faint italic behind sections</span>
+      </div>
+      <div class="sigcell">
+        <span class="clkchip"><span class="dot"></span><span class="clk">9:32 pm</span></span>
+        <span class="sigcap">Live clock chip with pulsing dot, footer</span>
+      </div>
+      <div class="sigcell">
+        <svg class="heart" width="22" height="22" viewBox="0 0 24 24"><path d="M12 21S4 14.5 4 9a5 5 0 0 1 8-3 5 5 0 0 1 8 3c0 5.5-8 12-8 12z" fill="oklch(56% 0.14 42)"/></svg>
+        <span class="sigcap">Pulsing heart, Built in Bengaluru with love</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <div class="panel">
+    <p class="kick">Components</p>
+    <p class="kicksub">The built sections and shared UI, with what each one carries.</p>
+    <div class="comp">
+      <div class="cc"><p class="n">Header</p><p class="d">Floating cream pill, signature logo, Resume text CTA, mobile circle-reveal menu.</p></div>
+      <div class="cc"><p class="n">Footer</p><p class="d">Ciao backdrop, live clock, aligned social grid, heart, back to top.</p></div>
+      <div class="cc"><p class="n">Hero</p><p class="d">Facet switcher, desktop tabs and mobile dot-grows-to-bar with swipe.</p></div>
+      <div class="cc"><p class="n">Work</p><p class="d">Folder cards on desktop, contained cards on mobile.</p></div>
+      <div class="cc"><p class="n">Section heading</p><p class="d">Glow system, terracotta index, warm and grey tones, reveal once.</p></div>
+      <div class="cc"><p class="n">Process</p><p class="d">Pinned GSAP runway, fan-deck cards, stepper.</p></div>
+      <div class="cc"><p class="n">Experience</p><p class="d">Featured-now block over a compact history list.</p></div>
+      <div class="cc"><p class="n">Skills</p><p class="d">Hover swaps a faint warm word behind the pills.</p></div>
+      <div class="cc"><p class="n">Contact</p><p class="d">Web3Forms post with an off-screen honeypot, tested working.</p></div>
+      <div class="cc"><p class="n">Custom cursor</p><p class="d">Terracotta dot with a trailing ring, pointer-fine only.</p></div>
+      <div class="cc"><p class="n">Page loader</p><p class="d">Pixel loader with a scroll-lock guard.</p></div>
+      <div class="cc"><p class="n">Logo</p><p class="d">Kaushan signature with a draw-on construction grid.</p></div>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div class="panel" style="margin-bottom:0">
+    <p class="kick">Rules</p>
+    <p class="kicksub">The conventions every change holds to.</p>
+    <div class="rules">
+      <div class="ru"><b>Tokens not hex.</b> Every value maps to a token in the theme block, nothing references a raw value.</div>
+      <div class="ru"><b>Three animation lanes.</b> Motion for component motion, Lenis for smooth scroll, GSAP for pinned and scrubbed sections.</div>
+      <div class="ru"><b>Route scrolls.</b> Never call lenis.scrollTo directly, every programmatic scroll goes through the scrollToTarget helper.</div>
+      <div class="ru"><b>Reduced motion.</b> A fallback everywhere, and the animation end state still applies under reduced motion.</div>
+      <div class="ru"><b>One breakpoint.</b> Header and hero and footer swap to mobile together at the shared breakpoint.</div>
+      <div class="ru"><b>Canonical host.</b> www.akshitas.com, the apex redirects to it, and metadataBase matches.</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  (function(){function u(){try{document.querySelectorAll('.clk').forEach(function(e){e.textContent=new Date().toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}).toLowerCase();});}catch(e){}}u();setInterval(u,15000);})();
+</script>
+</body>
+</html>
