@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image, { type StaticImageData } from "next/image";
 import { useReducedMotion } from "motion/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
@@ -28,7 +28,7 @@ import bezel from "@/public/work/boat-crest/scroll-assets/phone-frame-bezel.png"
    no pin, the three pairs render as stacked static comparisons (after at top). */
 
 const PHONE_W = 204; // pinned (desktop) device width — matches the prototype
-const STATIC_PHONE_W = 180; // stacked fallback device width
+const FLUID_MAX = 260; // static-fallback device max width (fluid below this, never overflows)
 const GROUNDING = "drop-shadow(0 20px 30px rgba(45,28,15,0.20))"; // soft phone grounding
 const RAIL_SPINE = "color-mix(in oklch, var(--color-ink-950) 14%, transparent)";
 const BAR_TRACK = "color-mix(in oklch, var(--color-ink-950) 14%, transparent)";
@@ -38,61 +38,83 @@ const edgeFor = (h: number) => Math.round((h * 24) / 462); // 24px edge tuned at
 
 type RefCb = (el: HTMLDivElement | null) => void;
 
-/** The after-screen: three-layer auto-scroller (window body + pinned footer + bezel). */
+/** The after-screen: three-layer auto-scroller (window body + pinned footer + bezel).
+ *  `fluid` scales the whole phone to its container (width 100% up to `maxW`) via cqw units
+ *  so the static fallback never overflows; otherwise it's a fixed `w` px box (desktop). */
 function AfterPhone({
   after,
   geo,
   w,
   contentRef,
+  fluid,
+  maxW,
 }: {
   after: BeforeAfterStoryPair["after"];
   geo: Geo;
   w: number;
   contentRef?: RefCb;
+  fluid?: boolean;
+  maxW?: number;
 }) {
-  const h = phoneH(w);
-  const edgeH = edgeFor(h);
+  const edgeH = edgeFor(phoneH(w));
+  // px geometry (computed at reference width `w`) → uniform cqw when fluid, else literal px.
+  // The box preserves the bezel aspect, so vertical maps by the same factor as horizontal.
+  const u = (v: number) => (fluid ? `${(v / w) * 100}cqw` : `${v}px`);
+  const edgeStyle = (dir: "t" | "b"): CSSProperties => {
+    const base = EDGE(dir, edgeH);
+    return fluid ? { ...base, height: u(edgeH), ...(dir === "t" ? { top: u(4) } : {}) } : base;
+  };
+  const boxStyle: CSSProperties = fluid
+    ? {
+        width: "100%",
+        maxWidth: maxW,
+        aspectRatio: `${BEZEL_W} / ${BEZEL_H}`,
+        containerType: "inline-size",
+        filter: GROUNDING,
+      }
+    : { width: w, height: phoneH(w), filter: GROUNDING };
+  const imgW = Math.round(fluid ? (maxW ?? w) : geo.scrollable ? geo.win.width : w);
   return (
-    <div className="relative shrink-0" style={{ width: w, height: h, filter: GROUNDING }}>
+    <div className="relative shrink-0" style={boxStyle}>
       {geo.scrollable && (
         <>
           {/* .win — scrolling body + iOS scroll-edge blur */}
           <div
             style={{
               position: "absolute",
-              left: geo.win.left,
-              top: geo.win.top,
-              width: geo.win.width,
-              height: geo.win.height,
+              left: u(geo.win.left),
+              top: u(geo.win.top),
+              width: u(geo.win.width),
+              height: u(geo.win.height),
               overflow: "hidden",
               background: SCREEN_BG,
               zIndex: 1,
             }}
           >
             <div ref={contentRef} style={{ position: "absolute", top: 0, left: 0, width: "100%" }}>
-              <Image src={after.body} alt="" sizes={`${Math.round(geo.win.width)}px`} className="block h-auto w-full" />
+              <Image src={after.body} alt="" sizes={`${imgW}px`} className="block h-auto w-full" />
             </div>
-            <div style={EDGE("t", edgeH)} />
-            <div style={EDGE("b", edgeH)} />
+            <div style={edgeStyle("t")} />
+            <div style={edgeStyle("b")} />
           </div>
           {/* .footer — pinned bottom bar */}
           <div
             style={{
               position: "absolute",
-              left: geo.footer.left,
-              top: geo.footer.top,
-              width: geo.footer.width,
-              height: geo.footer.height,
+              left: u(geo.footer.left),
+              top: u(geo.footer.top),
+              width: u(geo.footer.width),
+              height: u(geo.footer.height),
               overflow: "hidden",
               background: SCREEN_BG,
               zIndex: 2,
-              borderRadius: `0 0 ${geo.radius}px ${geo.radius}px`,
+              borderRadius: `0 0 ${u(geo.radius)} ${u(geo.radius)}`,
             }}
           >
             <Image
               src={after.footer}
               alt=""
-              sizes={`${Math.round(geo.footer.width)}px`}
+              sizes={`${imgW}px`}
               className="absolute bottom-0 left-0 block h-auto w-full"
             />
           </div>
@@ -102,7 +124,7 @@ function AfterPhone({
       <Image
         src={bezel}
         alt=""
-        sizes={`${w}px`}
+        sizes={fluid ? `${maxW}px` : `${w}px`}
         className="absolute inset-0 h-auto w-full"
         style={{ zIndex: 3, pointerEvents: "none" }}
       />
@@ -112,11 +134,15 @@ function AfterPhone({
 
 /** The before-screen: the full static device mockup. It already includes its own
  *  bezel (1030×2165, same as the frame), so it gets no phone-frame overlay — that
- *  belongs only to the after-screen scroller, which is bare screen content. */
-function BeforePhone({ before, w }: { before: StaticImageData; w: number }) {
+ *  belongs only to the after-screen scroller, which is bare screen content.
+ *  `fluid` scales it to the container (width 100% up to `maxW`); else fixed `w` px. */
+function BeforePhone({ before, w, fluid, maxW }: { before: StaticImageData; w: number; fluid?: boolean; maxW?: number }) {
+  const boxStyle: CSSProperties = fluid
+    ? { width: "100%", maxWidth: maxW, aspectRatio: `${BEZEL_W} / ${BEZEL_H}`, filter: GROUNDING }
+    : { width: w, height: phoneH(w), filter: GROUNDING };
   return (
-    <div className="relative shrink-0" style={{ width: w, height: phoneH(w), filter: GROUNDING }}>
-      <Image src={before} alt="" sizes={`${w}px`} className="block h-auto w-full" />
+    <div className="relative shrink-0" style={boxStyle}>
+      <Image src={before} alt="" sizes={fluid ? `${maxW}px` : `${w}px`} className="block h-auto w-full" />
     </div>
   );
 }
@@ -168,9 +194,9 @@ function ChangeNotes({
 
 function RatingStat({ from, to }: { from: string; to: string }) {
   return (
-    <div className="shrink-0 text-right">
+    <div className="shrink-0 text-left lg:text-right">
       <div className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle">App Store rating</div>
-      <div className="mt-1.5 flex items-baseline justify-end gap-2">
+      <div className="mt-1.5 flex items-baseline justify-start gap-2 lg:justify-end">
         <span className="font-display text-lg text-text-subtle">{from}★</span>
         <span aria-hidden="true" className="text-base text-accent-500">
           →
@@ -192,7 +218,10 @@ type Props = {
 
 export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, pairs }: Props) {
   const prefersReduced = useReducedMotion();
-  const [isSmall, setIsSmall] = useState(false);
+  // Seed mobile-first so SSR + the first client render take the static branch (never the
+  // pinned/overflowing desktop one). The matchMedia effect flips it to pinned only once it
+  // confirms desktop; server and first client render agree (no hydration mismatch).
+  const [isSmall, setIsSmall] = useState(true);
   const noPin = prefersReduced === true || isSmall;
   const n = pairs.length;
 
@@ -280,45 +309,57 @@ export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, 
   }, [noPin, pairs, n]);
 
   const header = (
-    <div className="flex items-start justify-between gap-6">
+    // Stacks on mobile so the title and lead get the full column width; the rating sits
+    // beside the heading only from lg up (the pinned branch only ever renders at lg).
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
       <CaseSectionHeader index={index} eyebrow={eyebrow} title={title} lead={lead} />
       {rating && <RatingStat from={rating.from} to={rating.to} />}
     </div>
   );
 
-  // ── Reduced motion / mobile: stacked static comparisons, after at top, notes all lit.
+  // ── Reduced motion / mobile (noPin): no track, no sticky, no ScrollTrigger, no paint.
+  // Each pair is a vertical, fluid, fully-static card — name, Before, After (screen at top
+  // of scroll), then all change notes lit. The per-pair step label replaces the rail.
   if (noPin) {
     return (
       <section className="section-card py-section">
         {header}
-        <div className="mt-10 flex flex-col gap-14">
+        <div className="mt-10 flex flex-col">
           {pairs.map((pair, i) => {
-            const geo = unitGeo(STATIC_PHONE_W, pair.after);
+            const geo = unitGeo(FLUID_MAX, pair.after);
             return (
-              <div key={i} className="flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-10">
-                <div
-                  className="flex shrink-0 flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-5"
-                  aria-hidden="true"
-                >
-                  <figure className="flex flex-col items-center gap-2.5">
-                    <PhoneLabel after>After</PhoneLabel>
-                    <AfterPhone after={pair.after} geo={geo} w={STATIC_PHONE_W} />
-                  </figure>
-                  <figure className="flex flex-col items-center gap-2.5">
-                    <PhoneLabel>Before</PhoneLabel>
-                    <BeforePhone before={pair.before} w={STATIC_PHONE_W} />
-                  </figure>
-                </div>
-                <div className="flex-1">
-                  <div className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle">
-                    {String(i + 1).padStart(2, "0")} · {pair.title}
+              // A hairline divides consecutive pairs (01 / 02 / 03) — not before the first.
+              <div
+                key={i}
+                className={`mx-auto flex w-full max-w-[440px] flex-col gap-6${
+                  i > 0 ? " mt-12 border-t pt-12" : ""
+                }`}
+                style={i > 0 ? { borderColor: RAIL_SPINE } : undefined}
+              >
+                {/* screen name + step (stands in for the rail on mobile) */}
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display italic text-2xl leading-none text-accent-500">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h3 className="font-display text-2xl font-normal leading-tight text-ink-950">{pair.title}</h3>
+                    <p className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-0.5">
+                      {pair.tag}
+                    </p>
                   </div>
-                  <h3 className="mt-1.5 font-display text-2xl font-normal leading-tight text-ink-950">{pair.title}</h3>
-                  <p className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-1">
-                    {pair.tag}
-                  </p>
-                  <ChangeNotes changes={pair.changes} litAll />
                 </div>
+
+                <figure className="flex w-full flex-col items-center gap-2.5" aria-hidden="true">
+                  <PhoneLabel>Before</PhoneLabel>
+                  <BeforePhone before={pair.before} w={FLUID_MAX} fluid maxW={FLUID_MAX} />
+                </figure>
+
+                <figure className="flex w-full flex-col items-center gap-2.5" aria-hidden="true">
+                  <PhoneLabel after>After</PhoneLabel>
+                  <AfterPhone after={pair.after} geo={geo} w={FLUID_MAX} fluid maxW={FLUID_MAX} />
+                </figure>
+
+                <ChangeNotes changes={pair.changes} litAll />
               </div>
             );
           })}
