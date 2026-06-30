@@ -194,9 +194,9 @@ function ChangeNotes({
 
 function RatingStat({ from, to }: { from: string; to: string }) {
   return (
-    <div className="shrink-0 text-right">
+    <div className="shrink-0 text-left lg:text-right">
       <div className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle">App Store rating</div>
-      <div className="mt-1.5 flex items-baseline justify-end gap-2">
+      <div className="mt-1.5 flex items-baseline justify-start gap-2 lg:justify-end">
         <span className="font-display text-lg text-text-subtle">{from}★</span>
         <span aria-hidden="true" className="text-base text-accent-500">
           →
@@ -309,7 +309,9 @@ export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, 
   }, [noPin, pairs, n]);
 
   const header = (
-    <div className="flex items-start justify-between gap-6">
+    // Stacks on mobile so the title and lead get the full column width; the rating sits
+    // beside the heading only from lg up (the pinned branch only ever renders at lg).
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
       <CaseSectionHeader index={index} eyebrow={eyebrow} title={title} lead={lead} />
       {rating && <RatingStat from={rating.from} to={rating.to} />}
     </div>
@@ -322,11 +324,18 @@ export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, 
     return (
       <section className="section-card py-section">
         {header}
-        <div className="mt-10 flex flex-col gap-16">
+        <div className="mt-10 flex flex-col">
           {pairs.map((pair, i) => {
             const geo = unitGeo(FLUID_MAX, pair.after);
             return (
-              <div key={i} className="mx-auto flex w-full max-w-[440px] flex-col gap-6">
+              // A hairline divides consecutive pairs (01 / 02 / 03) — not before the first.
+              <div
+                key={i}
+                className={`mx-auto flex w-full max-w-[440px] flex-col gap-6${
+                  i > 0 ? " mt-12 border-t pt-12" : ""
+                }`}
+                style={i > 0 ? { borderColor: RAIL_SPINE } : undefined}
+              >
                 {/* screen name + step (stands in for the rail on mobile) */}
                 <div className="flex items-baseline gap-3">
                   <span className="font-display italic text-2xl leading-none text-accent-500">
