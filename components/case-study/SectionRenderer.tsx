@@ -47,6 +47,19 @@ export default function SectionRenderer({ section }: { section: Section }) {
     </>
   );
 
+  // "bare" — no card and no `overflow-hidden` (which would break a sticky pin). The
+  // block owns its own card, track, sticky panel, and header (e.g. BeforeAfterStory's
+  // scroll-pinned story). Just an anchor wrapper for the header-nav offset.
+  if (section.variant === "bare") {
+    return (
+      <div id={section.id} className="scroll-mt-20">
+        {section.blocks.map((block, i) => (
+          <BlockRenderer key={i} block={block} />
+        ))}
+      </div>
+    );
+  }
+
   // "hero" (above the fold) and "static" (e.g. the Work story, which manages its own
   // in-view start) render as a plain card — no RevealSection clip reveal.
   if (section.variant === "hero" || section.variant === "static") {

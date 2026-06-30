@@ -105,8 +105,8 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
       {/* Text column */}
       <div>
         <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
-          <span aria-hidden="true" className="h-px w-[34px] bg-accent-500" />
-          <span className="text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
+          <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
+          <span className="text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
             Case study · Product design
           </span>
         </motion.div>

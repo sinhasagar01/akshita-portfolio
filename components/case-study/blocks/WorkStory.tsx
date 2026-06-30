@@ -6,6 +6,7 @@ import { useReducedMotion } from "motion/react";
 import type { Feature } from "@/lib/case-studies/types";
 import { renderRich } from "../rich";
 import { GLOW } from "../styles";
+import { BEZEL_W, BEZEL_H, SCREEN_BG, clamp, lerp, eIO, unitGeo, EDGE } from "./deviceScroller";
 import bezel from "@/public/work/boat-crest/scroll-assets/phone-frame-bezel.png";
 
 /* Auto-playing pinned story (cs-07) — 1:1 port of docs/case-study-page/
@@ -22,57 +23,10 @@ const CYCLE = ENT + DWELL;
 
 const eE = (t: number) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)); // easeOutExpo (phone)
 const eC = (t: number) => 1 - Math.pow(1 - t, 3); // easeOutCubic (copy)
-const eIO = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // ease-in-out (scroll)
-const clamp = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x));
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-// Device-space geometry (1030px-wide bezel), from scroll-assets/geometry.json.
-const BEZEL_W = 1030;
-const BEZEL_H = 2165;
-const INSET = 30;
-const WIN_TOP = 110; // tucks ~20px under the status bar so no page-bg seam shows
-const SCREEN_BOTTOM = 2138;
-const RADIUS = 100;
-const SCREEN_BG = "#0c0c0f"; // phone letterbox — device-internal, not a site token
 const HAIRLINE = "color-mix(in oklch, var(--color-ink-950) 12%, transparent)";
 const ARROW_BORDER = "color-mix(in oklch, var(--color-ink-950) 16%, transparent)";
 const PHONE_W = { desktop: 220, mobile: 188 };
-
-type Rect = { left: number; top: number; width: number; height: number };
-type Geo =
-  | { scrollable: false; scrollPct: 0 }
-  | { scrollable: true; scrollPct: number; win: Rect; footer: Rect; radius: number };
-
-function unitGeo(phoneW: number, screen: Feature["screen"]): Geo {
-  if (!screen || !("body" in screen)) return { scrollable: false, scrollPct: 0 };
-  const sc = phoneW / BEZEL_W;
-  const bodyH = screen.body.height;
-  const footerH = screen.footer.height;
-  const footerTopSpace = SCREEN_BOTTOM - footerH;
-  const winHeightSpace = footerTopSpace - WIN_TOP;
-  const w = (BEZEL_W - 2 * INSET) * sc;
-  return {
-    scrollable: true,
-    scrollPct: bodyH > 0 ? (bodyH - winHeightSpace) / bodyH : 0,
-    win: { left: INSET * sc, top: WIN_TOP * sc, width: w, height: winHeightSpace * sc },
-    footer: { left: INSET * sc, top: footerTopSpace * sc, width: w, height: footerH * sc },
-    radius: RADIUS * sc,
-  };
-}
-
-const EDGE = (dir: "t" | "b", h: number): React.CSSProperties => ({
-  position: "absolute",
-  left: 0,
-  right: 0,
-  [dir === "t" ? "top" : "bottom"]: dir === "t" ? 4 : 0,
-  height: h,
-  zIndex: 2,
-  pointerEvents: "none",
-  backdropFilter: "blur(5px)",
-  WebkitBackdropFilter: "blur(5px)",
-  maskImage: dir === "t" ? "linear-gradient(#000 28%, transparent)" : "linear-gradient(transparent, #000 72%)",
-  WebkitMaskImage: dir === "t" ? "linear-gradient(#000 28%, transparent)" : "linear-gradient(transparent, #000 72%)",
-});
 
 export default function WorkStory({ features }: { features: Feature[] }) {
   const reduce = useReducedMotion();

@@ -81,6 +81,17 @@ export type BeforeAfterPair = {
   changes: Change[];
 };
 
+/** cs-07 scroll-pinned variant of a comparison. `before` is a single static screen
+ *  shown in the bezel; `after` is the three-layer auto-scroller (body + footer), the
+ *  same body/footer shape as `StoryScreen`. */
+export type BeforeAfterStoryPair = {
+  title: string;
+  tag: string;
+  before: StaticImageData;
+  after: { body: StaticImageData; footer: StaticImageData };
+  changes: Change[];
+};
+
 /** A swatch/type token chip. `color` shows a swatch; `type` is a font name. */
 export type SwatchToken =
   | { type: "color"; name: string; value: string; hex?: string }
@@ -131,6 +142,15 @@ export type Block =
   | { kind: "featureRows"; features: Feature[] }
   | { kind: "featureStory"; features: Feature[] }
   | { kind: "beforeAfter"; pairs: BeforeAfterPair[] }
+  | {
+      kind: "beforeAfterStory";
+      index?: string;
+      eyebrow?: string;
+      title?: string;
+      lead?: Rich;
+      rating?: { from: string; to: string };
+      pairs: BeforeAfterStoryPair[];
+    }
   | { kind: "swatchTokens"; groups: TokenGroup[] }
   | { kind: "annotatedImage"; image: ImgSpec; scrawl?: Scrawl; callouts?: Callout[] }
   | { kind: "richText"; paragraphs: Rich[] }
@@ -141,7 +161,7 @@ export type BlockKind = Block["kind"];
 /** A section is one card. The hero variant skips the standard header. */
 export type Section = {
   id?: string;
-  variant?: "hero" | "default" | "static";
+  variant?: "hero" | "default" | "static" | "bare";
   index?: string;
   eyebrow?: string;
   /** Title may contain "\n" for an explicit line break. */
