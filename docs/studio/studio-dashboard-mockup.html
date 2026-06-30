@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>/studio — section-card dashboard (reference mockup)</title>
+<!--
+  REFERENCE MOCKUP for the /studio read-only content dashboard.
+  Visual target only — pixel values here are illustrative; build with the site's
+  real tokens (model on components/case-study, bare utilities, NO text-[--token]).
+  Two screens below: (1) Homepage = "map" view (cards group Site Settings + collections),
+  (2) Projects = per-item cards with real completeness signals + distinct deep-links.
+  Palette: cream #FBF6EE, ink #23201c, terracotta accent #B5613C, Fraunces display.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EFE9DF;font-family:'DM Sans',system-ui,sans-serif;color:#23201c;padding:28px}
+  .screen{max-width:880px;margin:0 auto 28px;background:#FBF6EE;border:0.5px solid rgba(120,90,60,.18);border-radius:16px;overflow:hidden;display:flex;min-height:440px}
+  aside{width:170px;flex:none;background:#F4EEE3;border-right:0.5px solid rgba(120,90,60,.16);padding:18px 12px;display:flex;flex-direction:column;gap:3px}
+  .brand{display:flex;align-items:center;gap:9px;padding:0 6px 16px}
+  .mark{width:24px;height:24px;border-radius:7px;background:#B5613C;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif}
+  .wordmark{font-family:'Fraunces',serif;font-size:16px}
+  .navlabel{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#b3a690;padding:4px 8px}
+  nav a{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;font-size:13px;color:#6b5f4f;text-decoration:none}
+  nav a.active{background:#fff;font-weight:500;color:#23201c}
+  nav a .count{margin-left:auto;font-size:11px;color:#b3a690}
+  main{flex:1;padding:16px 20px 22px;min-width:0}
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .search{flex:1;display:flex;align-items:center;gap:9px;background:#fff;border:0.5px solid rgba(120,90,60,.18);border-radius:10px;padding:8px 12px;color:#a89a85;font-size:13px}
+  .kbd{margin-left:auto;font-size:11px;border:0.5px solid rgba(120,90,60,.2);border-radius:5px;padding:1px 6px;color:#bcae9b}
+  .viewlive{font-size:12px;color:#B5613C;display:flex;align-items:center;gap:5px;border:0.5px solid rgba(181,97,60,.35);border-radius:9px;padding:8px 12px;text-decoration:none;white-space:nowrap}
+  h2{font-family:'Fraunces',serif;font-size:22px;margin:0;font-weight:400}
+  .sub{font-size:12px;color:#8a7d6a;margin:3px 0 15px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:13px}
+  .card{background:#fff;border:0.5px solid rgba(120,90,60,.16);border-radius:13px;overflow:hidden}
+  .card.warn{border-color:rgba(181,97,60,.45)}
+  .card.incode{background:#FAF6F0;border-color:rgba(120,90,60,.14)}
+  .thumb{height:64px;background:#F4EADA;display:flex;align-items:center;justify-content:center;color:#B5613C;font-family:'Fraunces',serif;font-size:22px;position:relative}
+  .thumb.incode{background:#EFE9DF;color:#a89a85}
+  .idx{position:absolute;top:7px;left:11px;font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:#c4b49c}
+  .pill{position:absolute;top:7px;right:8px;font-size:9.5px;text-transform:uppercase;padding:3px 7px;border-radius:20px}
+  .pill.live{background:#E4EFE0;color:#3d6b3d}
+  .pill.code{background:#E7E1D6;color:#8a7d6a}
+  .cbody{padding:9px 13px 11px}
+  .ctitle{font-family:'Fraunces',serif;font-size:15px}
+  .meta{font-size:10.5px;color:#a89a85;margin:3px 0 0}
+  .note{font-size:10px;color:#c0a98f;margin:2px 0 0}
+  .chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;margin-top:6px;border:0.5px solid rgba(181,97,60,.35);color:#B5613C}
+  .screen-title{max-width:880px;margin:0 auto 8px;font-size:12px;color:#8a7d6a;font-family:'Fraunces',serif;font-style:italic}
+</style>
+</head>
+<body>
+
+<p class="screen-title">Screen 1 — Homepage (map view: cards group Site Settings fields + collections)</p>
+<div class="screen">
+  <aside>
+    <div class="brand"><div class="mark">*</div><span class="wordmark">Studio</span></div>
+    <span class="navlabel">Content</span>
+    <nav>
+      <a class="active">Homepage</a>
+      <a>Projects<span class="count">4</span></a>
+      <a>Experience<span class="count">5</span></a>
+      <a>Skills</a>
+    </nav>
+    <div style="margin-top:auto;border-top:0.5px solid rgba(120,90,60,.16);padding-top:10px"><nav><a>Site settings</a></nav></div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div class="search">Search content<span class="kbd">/</span></div>
+      <a class="viewlive">View live ↗</a>
+    </div>
+    <h2>Homepage</h2>
+    <p class="sub">What feeds the homepage · edit in Keystatic</p>
+    <div class="grid">
+      <div class="card"><div class="thumb"><span class="idx">01</span><span class="pill live">Live</span>✶</div><div class="cbody"><div class="ctitle">Hero</div><p class="meta">Site settings · copy, photo</p><p class="note">facet labels in code</p></div></div>
+      <div class="card"><div class="thumb"><span class="idx">02</span><span class="pill live">Live</span>▦</div><div class="cbody"><div class="ctitle">Work</div><p class="meta">4 projects →</p></div></div>
+      <div class="card"><div class="thumb"><span class="idx">03</span><span class="pill live">Live</span>◔</div><div class="cbody"><div class="ctitle">About</div><p class="meta">Site settings · copy, chips</p></div></div>
+      <div class="card"><div class="thumb"><span class="idx">04</span><span class="pill live">Live</span>⤳</div><div class="cbody"><div class="ctitle">Process</div><p class="meta">Site settings · 4 copy fields</p><p class="note">stage visuals in code</p></div></div>
+      <div class="card incode"><div class="thumb incode"><span class="idx">05</span><span class="pill code">In code</span>&lt;/&gt;</div><div class="cbody"><div class="ctitle" style="color:#6b5f4f">Contact</div><p class="meta" style="color:#b3a690">Form steps managed in source</p></div></div>
+      <div class="card"><div class="thumb"><span class="idx">06</span><span class="pill live">Live</span>≣</div><div class="cbody"><div class="ctitle">Skills</div><p class="meta">4 categories</p></div></div>
+    </div>
+  </main>
+</div>
+
+<p class="screen-title">Screen 2 — Projects (per-item cards: distinct deep-links + completeness signals)</p>
+<div class="screen">
+  <aside>
+    <div class="brand"><div class="mark">*</div><span class="wordmark">Studio</span></div>
+    <span class="navlabel">Content</span>
+    <nav>
+      <a>Homepage</a>
+      <a class="active">Projects<span class="count">4</span></a>
+      <a>Experience<span class="count">5</span></a>
+      <a>Skills</a>
+    </nav>
+    <div style="margin-top:auto;border-top:0.5px solid rgba(120,90,60,.16);padding-top:10px"><nav><a>Site settings</a></nav></div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div class="search">Search content<span class="kbd">/</span></div>
+      <a class="viewlive">View live ↗</a>
+    </div>
+    <h2>Projects</h2>
+    <p class="sub">4 case studies · sorted by order · each opens its own editor</p>
+    <div class="grid">
+      <div class="card"><div class="thumb"><span class="idx">01</span><span class="pill live">Live</span>▦</div><div class="cbody"><div class="ctitle">boAt Crest</div><p class="meta">order 1 · hero set · 4 facts</p></div></div>
+      <div class="card"><div class="thumb"><span class="idx">02</span><span class="pill live">Live</span>▦</div><div class="cbody"><div class="ctitle">Fosfor AI</div><p class="meta">order 2 · hero set · 4 facts</p></div></div>
+      <div class="card"><div class="thumb"><span class="idx">03</span><span class="pill live">Live</span>▦</div><div class="cbody"><div class="ctitle">Fosfor Data</div><p class="meta">order 3 · hero set · 4 facts</p></div></div>
+      <div class="card warn"><div class="thumb"><span class="idx">04</span><span class="pill live">Live</span>▦</div><div class="cbody"><div class="ctitle">Elevate One View</div><p class="meta">order 4 · 4 facts</p><span class="chip">No hero image</span></div></div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

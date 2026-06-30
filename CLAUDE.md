@@ -60,6 +60,20 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 - Real outcome numbers for Fosfor AI and Fosfor Data Profiling
 - Confirmation on the light editorial direction before tokens are set
 
+## Conventions (must hold across sessions)
+
+- **Tailwind v4 component styling.** The bracket-bare rule is in Stack above, do not restate it. Beyond it, model new components on `components/case-study`, which uses clean bare utilities. Do not copy `components/blocks` or `components/sections`, which still use the broken bracket-bare form. Hairlines use `border-ink-950/8`. Card surfaces use `bg-cream-50`, `bg-cream-100`, or `bg-cream-200`. The page canvas behind cards uses `bg-canvas`. Both `bg-canvas` and `border-border` are real tokens, the case-study convention just prefers the explicit ink and cream utilities for hairlines and card surfaces.
+
+- **Mobile breakpoint is 1024px, Tailwind `lg`.** The whole site goes mobile at once at `lg`. globals.css switches at max-width 1023 and min-width 1024. Never default to `md` for a two-column to stacked transition.
+
+- **/studio is read-only.** It reads content and deep-links out to `/keystatic` for all editing. Do not add a write path to /studio without an explicit decision to start B, the inline editing phase. Until then editing always happens in Keystatic.
+
+- **`lib/studio/data.ts` is the single content-access seam for /studio.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData`. The UI never touches Keystatic or the filesystem directly. The future write path is added here as `saveSection()`, which is the only change needed to begin B.
+
+- **Keystatic deep-links are stable at item granularity only.** The forms are `/keystatic/collection/<name>/item/<slug>` and `/keystatic/singleton/<name>`. There is no stable URL below item level, so multiple dashboard cards sharing one singleton editor is correct, not a bug.
+
+- **Admin surfaces sit outside the `(portfolio)` route group.** `app/studio` and `app/keystatic` live outside it, so they carry no site chrome, and each sets page-level noindex plus a robots disallow. Any new internal or admin surface follows the same placement.
+
 ## Writing rules
 
 These rules apply to all site copy and all documentation written in this project.

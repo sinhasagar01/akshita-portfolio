@@ -29,6 +29,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500: oklch(56.0% 0.14 42);
   --color-accent-600: oklch(46.0% 0.13 42);
 
+  /* Status — muted warm sage for the studio "Live" pill (only green in the set) */
+  --color-success-50:  oklch(94.5% 0.030 145);
+  --color-success-700: oklch(46.0% 0.075 145);
+
   --color-background:    var(--color-canvas);
   --color-surface:       var(--color-cream-100);
   --color-border:        var(--color-cream-300);
