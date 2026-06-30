@@ -1,8 +1,24 @@
 import { cache } from "react";
-import { getHomePageData } from "@/lib/keystatic";
+import { getHomePageData, type HomePageData } from "@/lib/keystatic";
+import {
+  getSiteSettingsDraftState,
+  type SettingsDraftState,
+} from "./draft-site-settings";
 
-// Dedupe the studio data read at the studio boundary. The studio layout reads
-// it for the sidebar counts and each area page reads it for its cards, so within
-// a single request they all share one underlying read of the same payload.
-// lib/keystatic.ts stays untouched — the wrapper lives only here.
-export const getStudioData = cache(getHomePageData);
+export type StudioData = HomePageData & {
+  settingsDraftState: SettingsDraftState;
+};
+
+// Studio read. Draft-preferring for the settings surface (in github mode, the
+// draft branch's settings win over live), still deduped per request via cache().
+// The homepage's getHomePageData is untouched and never reads a draft branch, so
+// the public site only ever shows published content (the read-split holds).
+export const getStudioData = cache(async (): Promise<StudioData> => {
+  const home = await getHomePageData();
+  const settingsDraftState = await getSiteSettingsDraftState(home.settings);
+  return {
+    ...home,
+    settings: settingsDraftState.draft ?? home.settings,
+    settingsDraftState,
+  };
+});

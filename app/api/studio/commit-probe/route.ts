@@ -36,17 +36,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
   }
 
-  // 4. Patch from the request body.
+  // 4. Patch (and optional throwaway branch) from the request body.
   let patch: Partial<SiteSettingsInput>;
+  let branch: string | undefined;
   try {
     const body = await req.json();
     patch = (body?.patch ?? {}) as Partial<SiteSettingsInput>;
+    branch = typeof body?.branch === "string" ? body.branch : undefined;
   } catch {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
+  // Safety: only ever commit to studio/* branches, never main.
+  if (branch && !branch.startsWith("studio/")) {
+    return NextResponse.json({ ok: false, error: "invalid_branch" }, { status: 400 });
+  }
 
   // 5. Reuse the proven transform + GitHub delivery.
-  const result = await commitSiteSettings(patch);
+  const result = await commitSiteSettings(patch, branch ? { branch } : undefined);
   if (!result.ok) {
     const status = result.error.code === "invalid_url" ? 422 : 500;
     return NextResponse.json(result, { status });
