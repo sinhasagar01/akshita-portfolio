@@ -43,7 +43,7 @@ function authHeaders(): Record<string, string> {
 /** Read the raw file TEXT at a ref (commit oid or branch) via the contents API.
  *  Raw bytes — not Keystatic's parsed entry — so the fs and github paths load
  *  identical input and produce identical output. */
-async function getFileTextAtRef(path: string, ref: string): Promise<string> {
+export async function getFileTextAtRef(path: string, ref: string): Promise<string> {
   const res = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${path}?ref=${encodeURIComponent(ref)}`,
     { headers: authHeaders(), cache: "no-store" }

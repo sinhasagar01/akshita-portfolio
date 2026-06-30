@@ -61,6 +61,27 @@ export async function deleteBranchRef(branch: string): Promise<void> {
   }
 }
 
+/**
+ * Merge `head` into `base` via the REST merges API (GH-4). Conflict-safe by
+ * construction: 201 merges cleanly (returns the merge commit oid), 204 means
+ * nothing to merge, 409 is a conflict. It never force-pushes or rewrites base.
+ */
+export async function mergeBranch(opts: {
+  base: string;
+  head: string;
+  message: string;
+}): Promise<{ status: "merged"; oid: string } | { status: "noop" } | { status: "conflict" }> {
+  const res = await fetch(`${API}/repos/${REPO}/merges`, {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ base: opts.base, head: opts.head, commit_message: opts.message }),
+  });
+  if (res.status === 201) return { status: "merged", oid: (await res.json()).sha as string };
+  if (res.status === 204) return { status: "noop" };
+  if (res.status === 409) return { status: "conflict" };
+  throw new Error(`merge failed: ${res.status} ${await res.text()}`);
+}
+
 const CREATE_COMMIT = `
 mutation ($input: CreateCommitOnBranchInput!) {
   createCommitOnBranch(input: $input) { commit { oid url } }
