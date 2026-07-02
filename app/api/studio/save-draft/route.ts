@@ -15,7 +15,7 @@ import {
   invalidateDraftStateCache,
 } from "@/lib/studio/draft-site-settings";
 import { getHomePageData } from "@/lib/keystatic";
-import type { SiteSettingsInput } from "@/lib/studio/site-settings-format";
+import { sanitizeSiteSettingsPatch } from "@/lib/studio/site-settings-format";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -27,6 +27,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
+  // Parse and sanitize BEFORE the env-split, so a malformed body is rejected in
+  // every mode (the fs no-op cannot mask it) and only a typed, known-field,
+  // string-valued patch can ever reach the transform (review finding 5).
+  let rawPatch: unknown;
+  try {
+    const body = await req.json();
+    rawPatch = body?.patch ?? {};
+  } catch {
+    return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
+  }
+  const sanitized = sanitizeSiteSettingsPatch(rawPatch);
+  if (!sanitized.ok) {
+    return NextResponse.json(sanitized, { status: 400 });
+  }
+  const patch = sanitized.patch;
+
   if (process.env.STUDIO_WRITE_MODE !== "github") {
     return NextResponse.json({
       ok: true,
@@ -37,14 +53,6 @@ export async function POST(req: Request) {
   }
   if (!process.env.STUDIO_GITHUB_TOKEN) {
     return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
-  }
-
-  let patch: Partial<SiteSettingsInput>;
-  try {
-    const body = await req.json();
-    patch = (body?.patch ?? {}) as Partial<SiteSettingsInput>;
-  } catch {
-    return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
   const result = await commitSiteSettings(patch, {

@@ -26,7 +26,7 @@ export type SiteSettingsInput = {
   behanceUrl: string;
 };
 
-export type SaveErrorCode = "invalid_url" | "read_failed" | "write_failed";
+export type SaveErrorCode = "invalid_url" | "invalid_patch" | "read_failed" | "write_failed";
 
 export type SaveError = {
   code: SaveErrorCode;
@@ -69,6 +69,45 @@ export const URL_FIELDS = [
   "dribbbleUrl",
   "behanceUrl",
 ] as const;
+
+/** The writable patch keys — the schema order minus the excluded photo. */
+const WRITABLE_FIELDS = SITE_SETTINGS_FIELD_ORDER.filter((k) => k !== "photo");
+
+/**
+ * Validate an untrusted request-body patch down to a typed Partial
+ * <SiteSettingsInput>. Unknown keys and wrong-typed values are REJECTED, not
+ * silently dropped, so a typo'd field name fails loudly instead of vanishing
+ * and a non-string value can never reach the YAML (review finding 5).
+ * aboutFocusChips must be an array of strings, every other field a string.
+ */
+export function sanitizeSiteSettingsPatch(
+  raw: unknown
+): { ok: true; patch: Partial<SiteSettingsInput> } | { ok: false; error: SaveError } {
+  const invalid = (message: string, field?: string) =>
+    ({ ok: false, error: { code: "invalid_patch", field, message } }) as const;
+
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return invalid("patch must be an object");
+  }
+  const patch: Partial<SiteSettingsInput> = {};
+  for (const [key, value] of Object.entries(raw)) {
+    if (!(WRITABLE_FIELDS as readonly string[]).includes(key)) {
+      return invalid(`unknown field ${key}`, key);
+    }
+    if (key === "aboutFocusChips") {
+      if (!Array.isArray(value) || value.some((v) => typeof v !== "string")) {
+        return invalid("aboutFocusChips must be an array of strings", key);
+      }
+      patch.aboutFocusChips = value as string[];
+      continue;
+    }
+    if (typeof value !== "string") {
+      return invalid(`${key} must be a string`, key);
+    }
+    (patch as Record<string, unknown>)[key] = value;
+  }
+  return { ok: true, patch };
+}
 
 /**
  * Delete every string key whose value is empty or whitespace only. Every

@@ -100,7 +100,10 @@ export async function getSiteSettingsDraftState(
   }
   try {
     const draft = await readDraftSettingsCached();
-    return { live, draft, differs: canonical(live) !== canonical(draft) };
+    // No draft (branch absent or unreadable) means nothing to publish. Without
+    // the null guard canonical(null) is "" and never equals canonical(live), so
+    // every no-draft state would read as differs (review finding 1).
+    return { live, draft, differs: draft !== null && canonical(live) !== canonical(draft) };
   } catch {
     // Fail safe — a GitHub outage must not break /studio. Not cached (the cached
     // read throws on error), so recovery is immediate on the next request.

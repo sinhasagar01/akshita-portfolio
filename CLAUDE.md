@@ -66,9 +66,9 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 - **Mobile breakpoint is 1024px, Tailwind `lg`.** The whole site goes mobile at once at `lg`. globals.css switches at max-width 1023 and min-width 1024. Never default to `md` for a two-column to stacked transition.
 
-- **/studio is read-only.** It reads content and deep-links out to `/keystatic` for all editing. Do not add a write path to /studio without an explicit decision to start B, the inline editing phase. Until then editing always happens in Keystatic.
+- **/studio edits the Hero group inline, everything else deep-links to Keystatic.** The Hero panel saves to a draft branch through the owner-gated `/api/studio/save-draft` route and Publish merges the draft into main through `/api/studio/publish`, both in github mode only. Every other field group still deep-links to `/keystatic`, which is dev-only by decision (the middleware 404s it in production, /studio is the prod editor). Do not add a new write surface without an explicit decision, and before wiring a second settings form read the multi-form draft accumulation blocker in TASKS.md.
 
-- **`lib/studio/data.ts` is the single content-access seam for /studio.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData`. The UI never touches Keystatic or the filesystem directly. The future write path is added here as `saveSection()`, which is the only change needed to begin B.
+- **`lib/studio/data.ts` is the single READ seam for /studio, `lib/studio/commit-site-settings.ts` is the write seam.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData` plus the draft-branch state, draft-preferring for settings. The UI never touches Keystatic or the filesystem directly. Writes go through `commitSiteSettings()` behind the owner gate, with the pure transform in `lib/studio/site-settings-format.ts`.
 
 - **Keystatic deep-links are stable at item granularity only.** The forms are `/keystatic/collection/<name>/item/<slug>` and `/keystatic/singleton/<name>`. There is no stable URL below item level, so multiple dashboard cards sharing one singleton editor is correct, not a bug.
 

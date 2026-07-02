@@ -172,6 +172,12 @@ Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable co
 
 commitSiteSettings rebuilds the draft branch from main on every save, so a per-form partial patch silently drops the other forms' draft edits. Hero-only is safe today because the Hero panel (components/studio/HeroEditPanel.tsx) sends the full patch on each save. Before wiring a second Site Settings form (About, Process, or Links), do one of two things. Change the save base in lib/studio/commit-site-settings.ts to the draft branch when it exists so saves accumulate, or have every form send all settings on each save. Otherwise the second form's first save wipes the first form's unpublished draft. The save endpoint is app/api/studio/save-draft.
 
+The draft-base fix must also cover three deferred findings from the PR 4 review, they live in the same seam.
+
+- Review finding 2. commitSiteSettings deletes the existing draft branch before recreating it and deletes it again on a commit failure, so a transient GitHub error mid-save destroys the previously saved draft. Basing the read-modify-write on the draft head fixes this naturally.
+- Review finding 6. The save-draft route recomputes differs by re-reading through the tag-invalidated cache in the same request, which Next may serve stale in prod. Compute the response differs from result.bytes, which the route already holds.
+- Review finding 8. entryToRecord in lib/studio/draft-site-settings.ts is a third hand-synced copy of the settings field list. A field added to the schema but missed there makes differs silently false for drafts changing only that field. Derive the record from SITE_SETTINGS_FIELD_ORDER or compare the raw YAML texts directly.
+
 ## Portfolio (user-facing), still open, pre-dates the /studio work
 
 - Full mobile and responsive QA pass across ALL boAt case-study sections at 1024px. 07 was almost certainly not the only gap, so verify on a real device, not just preview_resize.

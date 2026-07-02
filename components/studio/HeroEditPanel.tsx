@@ -218,6 +218,10 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
         </div>
         <button
           type="button"
+          // preventDefault on mousedown keeps focus on the edited field, so the
+          // blur auto-save never fires for edits the click is about to discard
+          // (review finding 3). Keyboard Tab still blur-saves by design.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
           className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >

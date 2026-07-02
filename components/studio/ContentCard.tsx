@@ -48,7 +48,16 @@ export default function ContentCard({
   children,
 }: Props) {
   const isCode = status === "code";
-  const hasWarn = signals.some((s) => s.tone !== "muted");
+
+  // GH-11 (review finding 4, label only) — /keystatic is dev-only in production
+  // (the middleware 404s it), so every deep-link card says so there instead of
+  // silently landing on a 404. Server component, so this renders per-build.
+  const allSignals =
+    href?.startsWith("/keystatic") && process.env.NODE_ENV === "production"
+      ? [...signals, { label: "Editing works in dev only", tone: "muted" as const }]
+      : signals;
+
+  const hasWarn = allSignals.some((s) => s.tone !== "muted");
 
   const base = [
     "block overflow-hidden rounded-lg border bg-cream-50 transition-colors",
@@ -89,9 +98,9 @@ export default function ContentCard({
         {meta && <p className="mt-1 text-[11px] text-ink-400">{meta}</p>}
         {note && <p className="mt-0.5 text-[10px] text-text-subtle">{note}</p>}
 
-        {signals.length > 0 && (
+        {allSignals.length > 0 && (
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {signals.map((s) => (
+            {allSignals.map((s) => (
               <span
                 key={s.label}
                 className={[

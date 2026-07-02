@@ -9,6 +9,7 @@
 import { load } from "js-yaml";
 import {
   transformSiteSettings,
+  type SaveErrorCode,
   type SiteSettingsRecord,
 } from "./site-settings-format";
 import {
@@ -26,7 +27,9 @@ export type PublishResult =
   | {
       ok: false;
       error: {
-        code: "invalid_url" | "merge_conflict" | "merge_failed" | "read_failed" | "write_failed";
+        // The transform's SaveErrorCode plus the merge-specific codes, so a
+        // validation error can flow through publish unchanged.
+        code: SaveErrorCode | "merge_conflict" | "merge_failed";
         field?: string;
         message: string;
       };
