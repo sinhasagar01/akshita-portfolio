@@ -77,6 +77,12 @@ Page order. Hero, Work, About, Process, Experience, Skills, Contact. (Note, the 
 
 Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data Profiling, and the real portrait plus real screen exports uploaded through Keystatic.
 
+### Content gaps (surfaced by /studio)
+
+- All 5 experience entries have empty descriptions. Write or decide to drop the field.
+- 3 of 4 projects have no hero image (fosfor-ai, fosfor-data-profiling, elevate-one-view).
+- Fosfor AI and Fosfor Data Profiling bodies are still poured-but-thin (real outcome numbers pending).
+
 ---
 
 ## Phase 5 Identity, navigation, footer, and interaction polish (this session)
@@ -134,3 +140,47 @@ Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data
 - Contact form endpoint (Formspree or Web3Forms) and the env var.
 - Real portrait and real screen exports uploaded through Keystatic.
 - Tune the faint heading and backdrop alphas against the real cream token.
+
+---
+
+## /studio read-only content dashboard (shipped)
+
+Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable content and deep-links out to the exact Keystatic editor, and never writes. Sidebar and section-card layout. The mockup is docs/studio/studio-dashboard-mockup.html.
+
+- Areas. /studio (Homepage map), /studio/projects, /studio/experience, /studio/skills, /studio/settings. All read through lib/studio/data.ts, a cache()-wrapped getHomePageData that is the single content-access seam.
+- Deep-links via lib/keystatic-links.ts. Homepage Hero, About, and Process all resolve to the one siteSettings singleton, because Keystatic has no sub-item URLs. That is by design.
+- Completeness signals (no hero image, no summary, no description) are derived from the list-item payload using falsy checks, so they catch both empty string and null.
+- noindex, plus /studio/ in the robots disallow. Auth inherits /keystatic, which is none in dev.
+- Excludes the otis-one-view orphan, so Projects shows 4.
+
+## Open forks (named so they are not silently assumed)
+
+1. Case-study body editing from /studio is split, and the split is the opposite of what a quick look suggests. Only boat-crest is bespoke. BESPOKE_SLUGS holds just "boat-crest". Its body is hand-authored in lib/case-studies/boat-crest.ts and renders through the literal route app/(portfolio)/projects/boat-crest/page.tsx, so the Keystatic projects item that the /studio card deep-links to is NOT what renders the live boat-crest page. Editing that item does nothing to the live boat-crest page. The other three (fosfor-ai, fosfor-data-profiling, elevate-one-view) are empty placeholder stubs in lib/case-studies and still render their poured bodies through the Keystatic [slug] route, so for them the /studio deep-link already reaches the live body. The open decision applies to boat-crest and any future bespoke study. Option A keeps the body in Keystatic so /studio deep-links work for free, which means not giving it the bespoke treatment. Option B builds custom inline editing for the bespoke TS bodies, see fork 4. Not yet scoped.
+2. The three In code homepage sections (Hero facets, Process stage visuals, Contact form steps) are code-managed and shown as non-editable cards. They are the first candidates if and when we migrate hand-authored content into Keystatic.
+3. /studio search is a non-functional placeholder. A client-side label filter is the near-term fast-follow. Search over field values needs a content index and is deferred.
+4. /studio B, the inline editing write path, SHIPPED for the Hero group. Saves go through the owner-gated save-draft route to the draft branch and Publish merges the draft into main through the publish route, both in github mode, with the pure transform in lib/studio/site-settings-format.ts. The P1 fs write seam (lib/studio/save-site-settings.ts) was removed as superseded, dev editing happens in Keystatic. Remaining forks are image upload and the other field groups, see the multi-form draft accumulation blocker below.
+
+## /studio prod-readiness blockers (before hosted editing ships)
+
+- Gate /studio itself. It is ungated today, and in github mode it makes authenticated GitHub reads.
+- Add caching to the per-request draft read. getStudioData hits the GitHub API per /studio request in github mode.
+- Durable cross-instance login throttle. The in-memory one does not survive serverless cold starts.
+- Set UPSTASH_REDIS_REST_URL + TOKEN in Vercel prod env, else the GH-7 login throttle falls back to per-instance in-memory in prod.
+- /keystatic is dev-only by decision, guarded to 404 in production by the middleware. No OAuth app, no prod storage split. Retire fully after image upload lands in /studio.
+
+## /studio inline-edit, multi-form draft accumulation (before a 2nd settings form)
+
+commitSiteSettings rebuilds the draft branch from main on every save, so a per-form partial patch silently drops the other forms' draft edits. Hero-only is safe today because the Hero panel (components/studio/HeroEditPanel.tsx) sends the full patch on each save. Before wiring a second Site Settings form (About, Process, or Links), do one of two things. Change the save base in lib/studio/commit-site-settings.ts to the draft branch when it exists so saves accumulate, or have every form send all settings on each save. Otherwise the second form's first save wipes the first form's unpublished draft. The save endpoint is app/api/studio/save-draft.
+
+The draft-base fix must also cover three deferred findings from the PR 4 review, they live in the same seam.
+
+- Review finding 2. commitSiteSettings deletes the existing draft branch before recreating it and deletes it again on a commit failure, so a transient GitHub error mid-save destroys the previously saved draft. Basing the read-modify-write on the draft head fixes this naturally.
+- Review finding 6. The save-draft route recomputes differs by re-reading through the tag-invalidated cache in the same request, which Next may serve stale in prod. Compute the response differs from result.bytes, which the route already holds.
+- Review finding 8. entryToRecord in lib/studio/draft-site-settings.ts is a third hand-synced copy of the settings field list. A field added to the schema but missed there makes differs silently false for drafts changing only that field. Derive the record from SITE_SETTINGS_FIELD_ORDER or compare the raw YAML texts directly.
+
+## Portfolio (user-facing), still open, pre-dates the /studio work
+
+- Full mobile and responsive QA pass across ALL boAt case-study sections at 1024px. 07 was almost certainly not the only gap, so verify on a real device, not just preview_resize.
+- Beats 7 to 9 of the case-study page.
+- Remaining app screens. Sleep Detail and Blood Oxygen (inspirations TBD), and Daybreak light-mode variants via token swap.
+- Behance publish (full panel sequence).

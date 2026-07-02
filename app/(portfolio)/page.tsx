@@ -34,7 +34,7 @@ export default async function HomePage() {
     <main className="container-x">
       <JsonLd data={personSchema(settings)} />
       <JsonLd data={webSiteSchema()} />
-      <HeroSection />
+      <HeroSection heroCopy={settings?.heroCopy} />
       <ProcessSection settings={settings} />
       <ProjectsSection projects={projects} />
       <AboutSection settings={settings} />

@@ -62,10 +62,14 @@ const MOBILE_BP = 1024;
 const SWIPE_PX = 44;
 const INTENT_RATIO = 1.4;
 
-export default function HeroSection() {
+export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
   const [active, setActive] = useState(0);
   const isReducedMotion = useReducedMotion();
   const smoothScroll    = useSmoothScroll();
+
+  // Signature reads the live siteSettings heroCopy, with a defensive fallback
+  // so the Hero never renders blank (the field is optional).
+  const signature = heroCopy?.trim() ? heroCopy : "Akshita Singh";
 
   const sectionRef  = useRef<HTMLElement>(null);
   const glowRef     = useRef<HTMLDivElement>(null);
@@ -211,7 +215,7 @@ export default function HeroSection() {
                 className="font-script text-[--color-accent-500] leading-[1]"
                 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
               >
-                Akshita Singh
+                {signature}
               </p>
               <SectionLabel>Product designer</SectionLabel>
             </div>

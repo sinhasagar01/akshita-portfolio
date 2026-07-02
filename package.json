@@ -13,6 +13,7 @@
     "@keystatic/core": "latest",
     "@keystatic/next": "latest",
     "gsap": "latest",
+    "js-yaml": "^4.3.0",
     "lenis": "latest",
     "motion": "latest",
     "next": "^15",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

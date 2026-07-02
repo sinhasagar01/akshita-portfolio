@@ -60,6 +60,20 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 - Real outcome numbers for Fosfor AI and Fosfor Data Profiling
 - Confirmation on the light editorial direction before tokens are set
 
+## Conventions (must hold across sessions)
+
+- **Tailwind v4 component styling.** The bracket-bare rule is in Stack above, do not restate it. Beyond it, model new components on `components/case-study`, which uses clean bare utilities. Do not copy `components/blocks` or `components/sections`, which still use the broken bracket-bare form. Hairlines use `border-ink-950/8`. Card surfaces use `bg-cream-50`, `bg-cream-100`, or `bg-cream-200`. The page canvas behind cards uses `bg-canvas`. Both `bg-canvas` and `border-border` are real tokens, the case-study convention just prefers the explicit ink and cream utilities for hairlines and card surfaces.
+
+- **Mobile breakpoint is 1024px, Tailwind `lg`.** The whole site goes mobile at once at `lg`. globals.css switches at max-width 1023 and min-width 1024. Never default to `md` for a two-column to stacked transition.
+
+- **/studio edits the Hero group inline, everything else deep-links to Keystatic.** The Hero panel saves to a draft branch through the owner-gated `/api/studio/save-draft` route and Publish merges the draft into main through `/api/studio/publish`, both in github mode only. Every other field group still deep-links to `/keystatic`, which is dev-only by decision (the middleware 404s it in production, /studio is the prod editor). Do not add a new write surface without an explicit decision, and before wiring a second settings form read the multi-form draft accumulation blocker in TASKS.md.
+
+- **`lib/studio/data.ts` is the single READ seam for /studio, `lib/studio/commit-site-settings.ts` is the write seam.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData` plus the draft-branch state, draft-preferring for settings. The UI never touches Keystatic or the filesystem directly. Writes go through `commitSiteSettings()` behind the owner gate, with the pure transform in `lib/studio/site-settings-format.ts`.
+
+- **Keystatic deep-links are stable at item granularity only.** The forms are `/keystatic/collection/<name>/item/<slug>` and `/keystatic/singleton/<name>`. There is no stable URL below item level, so multiple dashboard cards sharing one singleton editor is correct, not a bug.
+
+- **Admin surfaces sit outside the `(portfolio)` route group.** `app/studio` and `app/keystatic` live outside it, so they carry no site chrome, and each sets page-level noindex plus a robots disallow. Any new internal or admin surface follows the same placement.
+
 ## Writing rules
 
 These rules apply to all site copy and all documentation written in this project.
