@@ -4,9 +4,9 @@
 // and the route is throttled per IP. On success it sets the signed, httpOnly
 // studio_session cookie. The session secret and password are server-side only.
 //
-// PRE-PROD TODO (mandatory): the in-memory throttle below does NOT span
-// serverless instances or survive cold starts. Replace it with a durable
-// rate-limiter (e.g. Upstash / KV) before this ships to production.
+// Throttling is per IP and durable in prod (see lib/studio/login-throttle.ts):
+// backed by Upstash Redis so it survives cold starts and spans instances, with
+// an in-memory fallback in dev and during a store outage.
 import { NextResponse } from "next/server";
 import {
   verifyOwnerPassword,
@@ -14,26 +14,16 @@ import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE,
 } from "@/lib/studio/owner-session";
-
-const attempts = new Map<string, { count: number; first: number }>();
-const WINDOW_MS = 60_000;
-const MAX_ATTEMPTS = 5;
-
-function throttled(ip: string, now: number): boolean {
-  const rec = attempts.get(ip);
-  if (!rec || now - rec.first > WINDOW_MS) {
-    attempts.set(ip, { count: 1, first: now });
-    return false;
-  }
-  rec.count += 1;
-  return rec.count > MAX_ATTEMPTS;
-}
+import { checkAndRecordAttempt } from "@/lib/studio/login-throttle";
 
 export async function POST(req: Request) {
   const now = Date.now();
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (throttled(ip, now)) {
-    return NextResponse.json({ ok: false, error: "too_many_attempts" }, { status: 429 });
+  const gate = await checkAndRecordAttempt(ip);
+  if (!gate.allowed) {
+    const res = NextResponse.json({ ok: false, error: "too_many_attempts" }, { status: 429 });
+    if (gate.retryAfterSeconds) res.headers.set("Retry-After", String(gate.retryAfterSeconds));
+    return res;
   }
 
   let password = "";
