@@ -12,6 +12,7 @@ import { mapSiteSettings, type SiteSettingsEntry } from "@/lib/keystatic";
 import {
   stripEmptyOptional,
   reorderBySchema,
+  SITE_SETTINGS_FIELD_ORDER,
   type SiteSettingsRecord,
 } from "./site-settings-format";
 import { branchExists, REPO } from "./github-commit";
@@ -28,26 +29,17 @@ function githubMode(): boolean {
   return process.env.STUDIO_WRITE_MODE === "github";
 }
 
-// SiteSettingsEntry -> raw record; null coalesced to "" so stripEmptyOptional
-// removes it (matching the omit-empty rule). Arrays pass through.
+// SiteSettingsEntry -> raw record, DERIVED from SITE_SETTINGS_FIELD_ORDER
+// (review finding 8) so a field added to the schema and the order constant can
+// never be silently missing here, which would make differs read false for
+// drafts changing only that field. null coalesces to "" so stripEmptyOptional
+// removes it (matching the omit-empty rule); arrays pass through untouched.
 function entryToRecord(entry: SiteSettingsEntry): SiteSettingsRecord {
-  return {
-    heroCopy: entry.heroCopy,
-    positioningLine: entry.positioningLine,
-    photo: entry.photo ?? "",
-    aboutCopy: entry.aboutCopy,
-    aboutNote: entry.aboutNote,
-    aboutFocusChips: entry.aboutFocusChips,
-    discoverText: entry.discoverText,
-    defineText: entry.defineText,
-    developText: entry.developText,
-    deliverText: entry.deliverText,
-    resumeUrl: entry.resumeUrl ?? "",
-    email: entry.email,
-    linkedinUrl: entry.linkedinUrl ?? "",
-    dribbbleUrl: entry.dribbbleUrl ?? "",
-    behanceUrl: entry.behanceUrl ?? "",
-  };
+  const record: SiteSettingsRecord = {};
+  for (const key of SITE_SETTINGS_FIELD_ORDER) {
+    record[key] = entry[key as keyof SiteSettingsEntry] ?? "";
+  }
+  return record;
 }
 
 // Canonical YAML for a formatting-insensitive compare. Uses the proven
