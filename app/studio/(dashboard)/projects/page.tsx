@@ -1,6 +1,7 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { collectionItemHref, collectionListHref } from "@/lib/keystatic-links";
 import { IconGrid } from "@/components/studio/icons";
 
@@ -17,7 +18,9 @@ export default async function StudioProjects() {
       />
 
       {projects.length === 0 ? (
-        <EmptyState />
+        <StudioEmptyState href={collectionListHref("projects")}>
+          No projects yet. Open the Projects collection in Keystatic to add one.
+        </StudioEmptyState>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
           {projects.map((p, i) => {
@@ -59,13 +62,3 @@ export default async function StudioProjects() {
   );
 }
 
-function EmptyState() {
-  return (
-    <a
-      href={collectionListHref("projects")}
-      className="block max-w-sm rounded-lg border border-ink-950/8 bg-cream-50 p-5 text-[13px] text-ink-600 hover:border-accent-500/40"
-    >
-      No projects yet. Open the Projects collection in Keystatic to add one.
-    </a>
-  );
-}
