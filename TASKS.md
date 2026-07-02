@@ -166,7 +166,7 @@ Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable co
 - Add caching to the per-request draft read. getStudioData hits the GitHub API per /studio request in github mode.
 - Durable cross-instance login throttle. The in-memory one does not survive serverless cold starts.
 - Set UPSTASH_REDIS_REST_URL + TOKEN in Vercel prod env, else the GH-7 login throttle falls back to per-instance in-memory in prod.
-- Env-split Keystatic storage switch for prod. Local in dev, github in prod.
+- /keystatic is dev-only by decision, guarded to 404 in production by the middleware. No OAuth app, no prod storage split. Retire fully after image upload lands in /studio.
 
 ## /studio inline-edit, multi-form draft accumulation (before a 2nd settings form)
 
