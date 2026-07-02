@@ -167,6 +167,10 @@ Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable co
 - Durable cross-instance login throttle. The in-memory one does not survive serverless cold starts.
 - Env-split Keystatic storage switch for prod. Local in dev, github in prod.
 
+## /studio inline-edit, multi-form draft accumulation (before a 2nd settings form)
+
+commitSiteSettings rebuilds the draft branch from main on every save, so a per-form partial patch silently drops the other forms' draft edits. Hero-only is safe today because the Hero panel (components/studio/HeroEditPanel.tsx) sends the full patch on each save. Before wiring a second Site Settings form (About, Process, or Links), do one of two things. Change the save base in lib/studio/commit-site-settings.ts to the draft branch when it exists so saves accumulate, or have every form send all settings on each save. Otherwise the second form's first save wipes the first form's unpublished draft. The save endpoint is app/api/studio/save-draft.
+
 ## Portfolio (user-facing), still open, pre-dates the /studio work
 
 - Full mobile and responsive QA pass across ALL boAt case-study sections at 1024px. 07 was almost certainly not the only gap, so verify on a real device, not just preview_resize.
