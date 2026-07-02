@@ -10,6 +10,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { publishSiteSettings } from "@/lib/studio/publish-site-settings";
+import { invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 
 export async function POST() {
   // Owner gate — reject before any GitHub call.
@@ -31,6 +32,11 @@ export async function POST() {
           ? 422
           : 500;
     return NextResponse.json(result, { status });
+  }
+  // The merge deleted the draft branch (GH-4 promote-then-clear), so drop the
+  // cached draft read (GH-8) — the next settings render must find no draft.
+  if (result.merged) {
+    invalidateDraftStateCache();
   }
   return NextResponse.json(result);
 }

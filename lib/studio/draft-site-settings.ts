@@ -5,6 +5,7 @@
 // live. Env-split: dev / fs mode never hits the GitHub API. The homepage read
 // (getHomePageData) is untouched — only /studio (getStudioData) is draft-aware.
 import { dump } from "js-yaml";
+import { unstable_cache, revalidateTag } from "next/cache";
 import { createGitHubReader } from "@keystatic/core/reader/github";
 import config from "@/keystatic.config";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
@@ -79,8 +80,36 @@ function canonical(entry: SiteSettingsEntry | null): string {
   return dump(reorderBySchema(stripEmptyOptional(entryToRecord(entry))));
 }
 
+const DRAFT_STATE_TAG = "studio-draft-state";
+const DRAFT_STATE_TTL_SECONDS = 45;
+
+// GH-8 — the GitHub read of the draft branch, cached cross-request (github mode
+// only, ~45s TTL) so rapid /studio loads share one API call and prod stays
+// rate-limit-safe. Invalidated by invalidateDraftStateCache() on the two writes
+// that change draft state. It THROWS on a GitHub error so a transient outage is
+// NOT cached — the caller degrades to null and retries next request. differs is
+// computed fresh against live OUTSIDE the cache, so live stays accurate.
+const readDraftSettingsCached = unstable_cache(
+  async (): Promise<SiteSettingsEntry | null> => {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[studio] draft-state cache miss — reading draft branch from GitHub");
+    }
+    const token = process.env.STUDIO_GITHUB_TOKEN as string;
+    if (!(await branchExists(DRAFT_BRANCH))) return null;
+    const reader = createGitHubReader(config, {
+      repo: REPO as `${string}/${string}`,
+      ref: DRAFT_BRANCH,
+      token,
+    });
+    const raw = await reader.singletons.siteSettings.read();
+    return raw ? mapDraftSettings(raw as Record<string, unknown>) : null;
+  },
+  ["studio-draft-settings-read"],
+  { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }
+);
+
 /**
- * Read the draft branch's Site Settings and compare it to live. Returns
+ * Read the draft branch's Site Settings (cached) and compare it to live. Returns
  * { live, draft, differs }. github mode only; otherwise (and on any GitHub
  * error) fails safe to no-draft so /studio never breaks.
  */
@@ -92,20 +121,19 @@ export async function getSiteSettingsDraftState(
     return { live, draft: null, differs: false };
   }
   try {
-    if (!(await branchExists(DRAFT_BRANCH))) {
-      return { live, draft: null, differs: false };
-    }
-    const reader = createGitHubReader(config, {
-      repo: REPO as `${string}/${string}`,
-      ref: DRAFT_BRANCH,
-      token,
-    });
-    const raw = await reader.singletons.siteSettings.read();
-    const draft = raw ? mapDraftSettings(raw as Record<string, unknown>) : null;
-    const differs = canonical(live) !== canonical(draft);
-    return { live, draft, differs };
+    const draft = await readDraftSettingsCached();
+    return { live, draft, differs: canonical(live) !== canonical(draft) };
   } catch {
-    // Fail safe — a GitHub outage must not break /studio.
+    // Fail safe — a GitHub outage must not break /studio. Not cached (the cached
+    // read throws on error), so recovery is immediate on the next request.
     return { live, draft: null, differs: false };
   }
+}
+
+/**
+ * Invalidate the cached draft read. Called by the save-draft and publish routes
+ * so the settings page never shows a stale differs badge after a write.
+ */
+export function invalidateDraftStateCache(): void {
+  revalidateTag(DRAFT_STATE_TAG);
 }

@@ -9,7 +9,11 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { commitSiteSettings } from "@/lib/studio/commit-site-settings";
-import { DRAFT_BRANCH, getSiteSettingsDraftState } from "@/lib/studio/draft-site-settings";
+import {
+  DRAFT_BRANCH,
+  getSiteSettingsDraftState,
+  invalidateDraftStateCache,
+} from "@/lib/studio/draft-site-settings";
 import { getHomePageData } from "@/lib/keystatic";
 import type { SiteSettingsInput } from "@/lib/studio/site-settings-format";
 
@@ -51,6 +55,10 @@ export async function POST(req: Request) {
     const status = result.error.code === "invalid_url" ? 422 : 500;
     return NextResponse.json(result, { status });
   }
+
+  // The draft branch just changed, so drop the cached draft read (GH-8) before
+  // recomputing, so both this response and the next settings-page render are fresh.
+  invalidateDraftStateCache();
 
   // Recompute the live-vs-draft differs for the badge. Reads live only; never writes main.
   const live = (await getHomePageData()).settings;
