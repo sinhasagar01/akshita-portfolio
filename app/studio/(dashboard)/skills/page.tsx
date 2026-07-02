@@ -1,6 +1,7 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { singletonHref } from "@/lib/keystatic-links";
 import { IconLayers } from "@/components/studio/icons";
 
@@ -20,14 +21,11 @@ export default async function StudioSkills() {
       />
 
       {!skills || categories.length === 0 ? (
-        <a
-          href={skillsLink}
-          className="block max-w-sm rounded-lg border border-ink-950/8 bg-cream-50 p-5 text-[13px] text-ink-600 hover:border-accent-500/40"
-        >
+        <StudioEmptyState href={skillsLink}>
           {skills
             ? "No categories yet. Open Skills in Keystatic to add one."
             : "Skills not yet created. Open Skills in Keystatic to set it up."}
-        </a>
+        </StudioEmptyState>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
           {categories.map((cat, i) => {

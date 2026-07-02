@@ -1,6 +1,7 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { collectionItemHref, collectionListHref } from "@/lib/keystatic-links";
 import { IconBriefcase } from "@/components/studio/icons";
 
@@ -17,7 +18,9 @@ export default async function StudioExperience() {
       />
 
       {experience.length === 0 ? (
-        <EmptyState />
+        <StudioEmptyState href={collectionListHref("experience")}>
+          No experience entries yet. Open the Experience collection in Keystatic to add one.
+        </StudioEmptyState>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
           {experience.map((e, i) => {
@@ -48,14 +51,3 @@ export default async function StudioExperience() {
   );
 }
 
-function EmptyState() {
-  return (
-    <a
-      href={collectionListHref("experience")}
-      className="block max-w-sm rounded-lg border border-ink-950/8 bg-cream-50 p-5 text-[13px] text-ink-600 hover:border-accent-500/40"
-    >
-      No experience entries yet. Open the Experience collection in Keystatic to add
-      one.
-    </a>
-  );
-}

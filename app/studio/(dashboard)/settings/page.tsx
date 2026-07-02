@@ -2,6 +2,7 @@ import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
 import HeroEditPanel from "@/components/studio/HeroEditPanel";
+import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { singletonHref } from "@/lib/keystatic-links";
 import { IconUser, IconWorkflow, IconArrowUpRight } from "@/components/studio/icons";
 
@@ -14,12 +15,9 @@ export default async function StudioSettings() {
     return (
       <>
         <AreaHeader title="Site settings" sub="The global singleton behind the homepage." />
-        <a
-          href={settingsLink}
-          className="block max-w-sm rounded-lg border border-ink-950/8 bg-cream-50 p-5 text-[13px] text-ink-600 hover:border-accent-500/40"
-        >
+        <StudioEmptyState href={settingsLink}>
           Site settings not yet created. Open it in Keystatic to set it up.
-        </a>
+        </StudioEmptyState>
       </>
     );
   }
