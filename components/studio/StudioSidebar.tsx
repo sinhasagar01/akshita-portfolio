@@ -9,6 +9,7 @@ import {
   IconLayers,
   IconSliders,
   IconSparkles,
+  IconLogout,
 } from "./icons";
 
 type Props = {
@@ -75,6 +76,15 @@ export default function StudioSidebar({ projectCount, experienceCount }: Props) 
         {areas.map((area) => renderLink(area))}
         <div className="lg:mt-auto lg:border-t lg:border-ink-950/8 lg:pt-2.5">
           {renderLink(settings, true)}
+          <form action="/api/studio/logout" method="post">
+            <button
+              type="submit"
+              className="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-2.5 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-50/70 hover:text-ink-950"
+            >
+              <IconLogout className="size-4 text-ink-400" />
+              <span>Sign out</span>
+            </button>
+          </form>
         </div>
       </nav>
     </aside>
