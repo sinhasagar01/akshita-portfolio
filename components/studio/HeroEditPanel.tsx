@@ -1,13 +1,18 @@
 "use client";
 
-// GH-5a/5b — Hero edit panel (Surface B).
+// GH-5a/5b/5c — Hero edit panel (Surface B).
 //
 // GH-5a: collapsed card -> expand-to-panel, local-state fields.
 // GH-5b: on-blur (and the Save button) auto-save the FULL form patch to the
 // draft branch via the gated /api/studio/save-draft endpoint (the client never
 // holds the token). Shows saving / saved / error states, a local "Unsaved
 // changes" hint, and the server "Unpublished changes" (differs) badge.
-// Publish stays stubbed (GH-5c). Writes the draft branch only, never main.
+// GH-5c: the Publish button calls the gated /api/studio/publish endpoint, which
+// merges the draft into main via the proven publishSiteSettings (GH-4). It shows
+// a Publishing then a rebuilding state (the live site updates only after the
+// Vercel rebuild), maps typed publish errors, and clears the badge on success.
+// The client never holds the token; only publish writes main, and only on a
+// deliberate owner click when there is a differing draft.
 import { useRef, useState } from "react";
 import { IconSparkles } from "./icons";
 
@@ -19,6 +24,7 @@ type Props = {
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
+type PublishStatus = "idle" | "publishing" | "published" | "error";
 
 export default function HeroEditPanel({ heroCopy, positioningLine, photo, differs }: Props) {
   const [expanded, setExpanded] = useState(false);
@@ -32,6 +38,9 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
   // saveStatus to "saving", so the state check alone lets a duplicate POST
   // through. The ref blocks the second call in the same tick (no commit spam).
   const savingRef = useRef(false);
+  const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
+  const [publishMsg, setPublishMsg] = useState("");
+  const publishingRef = useRef(false); // same double-submit guard as savingRef
 
   const dirty =
     values.heroCopy !== savedBaseline.heroCopy ||
@@ -40,6 +49,10 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
   function edit(field: "heroCopy" | "positioningLine", v: string) {
     setValues((prev) => ({ ...prev, [field]: v }));
     if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
+    if (publishStatus !== "publishing") {
+      setPublishStatus("idle"); // a new edit dismisses a stale "Published" or error message
+      setPublishMsg("");
+    }
   }
 
   // On-blur (and Save button) auto-save: posts the FULL form patch so the draft,
@@ -71,6 +84,63 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
       setSaveStatus("error"); // the local edit is NOT lost — values remain
     } finally {
       savingRef.current = false;
+    }
+  }
+
+  // Publish only when there IS something to publish (a draft that differs) AND
+  // the local edits are already saved to that draft. Gating on differs alone
+  // would let a click publish a stale draft that omits unsaved keystrokes, and
+  // would race the click-triggered blur-save.
+  const canPublish =
+    unpublished && !dirty && saveStatus !== "saving" && publishStatus !== "publishing";
+
+  async function publish() {
+    if (!canPublish || publishingRef.current) return;
+    publishingRef.current = true;
+    setPublishStatus("publishing");
+    setPublishMsg("");
+    try {
+      const res = await fetch("/api/studio/publish", { method: "POST" });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok && json.merged) {
+        // GH-4 merged the draft into main and deleted it, so differs is now
+        // false: clear the badge and re-disable Publish (self-healing).
+        setUnpublished(false);
+        setPublishStatus("published");
+        setPublishMsg("Published. Your site is rebuilding and goes live in about 2 minutes.");
+        return;
+      }
+      if (res.ok && json.ok && !json.merged) {
+        if (json.reason === "not_applicable") {
+          setPublishStatus("idle");
+          setPublishMsg("Publish needs github mode (dev).");
+        } else {
+          // no_draft or no_changes — nothing to publish, self-heal the badge.
+          setUnpublished(false);
+          setPublishStatus("idle");
+          setPublishMsg("Nothing to publish.");
+        }
+        return;
+      }
+      // Typed error. The draft branch is preserved (GH-4) and local values are
+      // untouched, so the user loses nothing.
+      const code = json?.error?.code;
+      if (code === "invalid_url") {
+        const field = json.error?.field || "a link";
+        setPublishMsg(
+          `Cannot publish. The ${field} link is not a valid URL. Fix it in Keystatic, then publish.`
+        );
+      } else if (code === "merge_conflict") {
+        setPublishMsg("Could not publish. The site changed since your draft. Refresh and try again.");
+      } else {
+        setPublishMsg("Could not publish. Something went wrong. Try again.");
+      }
+      setPublishStatus("error");
+    } catch {
+      setPublishStatus("error"); // draft + local values intact
+      setPublishMsg("Could not publish. Something went wrong. Try again.");
+    } finally {
+      publishingRef.current = false;
     }
   }
 
@@ -189,28 +259,41 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
-          {saveStatus === "saving" && <span className="text-ink-500">Saving draft…</span>}
-          {saveStatus === "saved" && <span className="text-accent-600">Draft saved</span>}
-          {saveStatus === "error" && <span className="text-accent-600">Save failed — try again</span>}
-          {saveStatus === "fs" && <span className="text-text-subtle">Draft save needs github mode (dev)</span>}
-          {saveStatus === "idle" && (
-            <span className="text-text-subtle">Auto-saves to draft on blur · Publish wired in GH-5c</span>
+          {/* Publish state takes precedence over the save status when active. */}
+          {publishStatus === "publishing" ? (
+            <span className="text-ink-500">Publishing…</span>
+          ) : publishStatus === "published" ? (
+            <span className="text-accent-600">{publishMsg}</span>
+          ) : publishStatus === "error" ? (
+            <span className="text-accent-600">{publishMsg}</span>
+          ) : publishMsg ? (
+            <span className="text-text-subtle">{publishMsg}</span>
+          ) : saveStatus === "saving" ? (
+            <span className="text-ink-500">Saving draft…</span>
+          ) : saveStatus === "saved" ? (
+            <span className="text-accent-600">Draft saved</span>
+          ) : saveStatus === "error" ? (
+            <span className="text-accent-600">Save failed. Try again.</span>
+          ) : saveStatus === "fs" ? (
+            <span className="text-text-subtle">Draft save needs github mode (dev)</span>
+          ) : (
+            <span className="text-text-subtle">Auto-saves to draft on blur. Publish when ready.</span>
           )}
         </span>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            disabled
-            aria-disabled
-            title="Not yet wired (GH-5c)"
-            className="cursor-not-allowed rounded-md border border-accent-500/30 px-4 py-2 text-[13px] text-accent-500 opacity-40"
+            onClick={publish}
+            disabled={!canPublish}
+            aria-disabled={!canPublish}
+            className="rounded-md border border-accent-500/30 px-4 py-2 text-[13px] text-accent-500 transition-colors enabled:hover:bg-accent-500/10 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Publish
+            {publishStatus === "publishing" ? "Publishing…" : "Publish"}
           </button>
           <button
             type="button"
             onClick={saveDraft}
-            disabled={!dirty || saveStatus === "saving"}
+            disabled={!dirty || saveStatus === "saving" || publishStatus === "publishing"}
             className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
             {saveStatus === "saving" ? "Saving…" : "Save draft"}

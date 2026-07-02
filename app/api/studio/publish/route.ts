@@ -1,9 +1,11 @@
-// POST /api/studio/publish-probe — GH-4 gated publish (merge draft -> main).
+// POST /api/studio/publish — GH-5c gated publish (merge draft -> main).
 //
-// INTERNET-EXPOSED WRITE ENDPOINT and the FIRST that can change main. The owner
-// gate runs FIRST, before any GitHub call. Publishing validates the draft and
-// merges it into main via the conflict-safe merges API. GH-5 replaces this probe
-// route with the real UI (using deployPending for a "Publishing…" state).
+// INTERNET-EXPOSED WRITE ENDPOINT and the only one that can change main. The
+// owner gate runs FIRST, before any GitHub call. Publishing validates the draft
+// and merges it into main via the conflict-safe merges API, then the live site
+// updates after the Vercel rebuild (publishSiteSettings returns deployPending so
+// the UI can show a "rebuilding" state). env-split is handled inside
+// publishSiteSettings (fs mode returns not_applicable, a safe no-op).
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
