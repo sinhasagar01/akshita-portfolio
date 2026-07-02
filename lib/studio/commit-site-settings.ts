@@ -13,6 +13,7 @@ import {
   type SaveError,
 } from "./site-settings-format";
 import {
+  authHeaders,
   getDefaultBranchHeadOid,
   branchExists,
   createBranchRef,
@@ -27,18 +28,6 @@ const DEFAULT_PROBE_BRANCH = "studio/gh2-content-probe";
 export type CommitResult =
   | { ok: true; sha: string; branch: string; baseOid: string; bytes: string }
   | { ok: false; error: SaveError };
-
-// Local auth headers, kept here (not imported from github-commit) so that proven
-// module stays byte-for-byte unchanged. Same server-side PAT, never client-side.
-function authHeaders(): Record<string, string> {
-  const token = process.env.STUDIO_GITHUB_TOKEN;
-  if (!token) throw new Error("STUDIO_GITHUB_TOKEN is not set");
-  return {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
-}
 
 /** Read the raw file TEXT at a ref (commit oid or branch) via the contents API.
  *  Raw bytes — not Keystatic's parsed entry — so the fs and github paths load

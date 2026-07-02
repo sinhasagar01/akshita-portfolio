@@ -9,7 +9,7 @@ const REPO = "sinhasagar01/akshita-portfolio";
 const API = "https://api.github.com";
 const GRAPHQL = `${API}/graphql`;
 
-function authHeaders(): Record<string, string> {
+export function authHeaders(): Record<string, string> {
   const token = process.env.STUDIO_GITHUB_TOKEN;
   if (!token) throw new Error("STUDIO_GITHUB_TOKEN is not set");
   return {

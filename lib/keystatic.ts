@@ -61,6 +61,29 @@ function resolveSlugField(value: unknown, fallback: string): string {
   return fallback;
 }
 
+/** Map a raw siteSettings reader entry to SiteSettingsEntry. The ONE shared
+ *  mapper — used by the live read below and by the /studio draft-branch read
+ *  (lib/studio/draft-site-settings.ts), so the two paths cannot drift. */
+export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry {
+  return {
+    heroCopy: (raw.heroCopy as string) ?? "",
+    positioningLine: (raw.positioningLine as string) ?? "",
+    photo: (raw.photo as string | null) ?? null,
+    aboutCopy: (raw.aboutCopy as string) ?? "",
+    aboutNote: (raw.aboutNote as string) ?? "",
+    aboutFocusChips: ((raw.aboutFocusChips as readonly unknown[]) ?? []).map(String),
+    discoverText: (raw.discoverText as string) ?? "",
+    defineText: (raw.defineText as string) ?? "",
+    developText: (raw.developText as string) ?? "",
+    deliverText: (raw.deliverText as string) ?? "",
+    resumeUrl: (raw.resumeUrl as string | null) ?? null,
+    email: (raw.email as string) ?? "",
+    linkedinUrl: (raw.linkedinUrl as string | null) ?? null,
+    dribbbleUrl: (raw.dribbbleUrl as string | null) ?? null,
+    behanceUrl: (raw.behanceUrl as string | null) ?? null,
+  };
+}
+
 export async function getHomePageData(): Promise<HomePageData> {
   const [settingsRaw, skillsRaw, projectsRaw, experienceRaw] =
     await Promise.all([
@@ -71,23 +94,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     ]);
 
   const settings: SiteSettingsEntry | null = settingsRaw
-    ? {
-        heroCopy: settingsRaw.heroCopy ?? "",
-        positioningLine: settingsRaw.positioningLine ?? "",
-        photo: settingsRaw.photo as string | null,
-        aboutCopy: settingsRaw.aboutCopy ?? "",
-        aboutNote: (settingsRaw as Record<string, unknown>).aboutNote as string ?? "",
-        aboutFocusChips: ((settingsRaw as Record<string, unknown>).aboutFocusChips as readonly unknown[] ?? []).map(String),
-        discoverText: settingsRaw.discoverText ?? "",
-        defineText: settingsRaw.defineText ?? "",
-        developText: settingsRaw.developText ?? "",
-        deliverText: settingsRaw.deliverText ?? "",
-        resumeUrl: settingsRaw.resumeUrl ?? null,
-        email: settingsRaw.email ?? "",
-        linkedinUrl: settingsRaw.linkedinUrl ?? null,
-        dribbbleUrl: settingsRaw.dribbbleUrl ?? null,
-        behanceUrl: settingsRaw.behanceUrl ?? null,
-      }
+    ? mapSiteSettings(settingsRaw as Record<string, unknown>)
     : null;
 
   const skills: SkillsEntry | null = skillsRaw

@@ -8,7 +8,7 @@ import { dump } from "js-yaml";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { createGitHubReader } from "@keystatic/core/reader/github";
 import config from "@/keystatic.config";
-import type { SiteSettingsEntry } from "@/lib/keystatic";
+import { mapSiteSettings, type SiteSettingsEntry } from "@/lib/keystatic";
 import {
   stripEmptyOptional,
   reorderBySchema,
@@ -26,28 +26,6 @@ export type SettingsDraftState = {
 
 function githubMode(): boolean {
   return process.env.STUDIO_WRITE_MODE === "github";
-}
-
-// Mirrors getHomePageData's settings mapping (lib/keystatic.ts lines 75-89).
-// Duplicated to keep lib/keystatic.ts untouched; DRY later via a shared mapper.
-function mapDraftSettings(s: Record<string, unknown>): SiteSettingsEntry {
-  return {
-    heroCopy: (s.heroCopy as string) ?? "",
-    positioningLine: (s.positioningLine as string) ?? "",
-    photo: (s.photo as string | null) ?? null,
-    aboutCopy: (s.aboutCopy as string) ?? "",
-    aboutNote: (s.aboutNote as string) ?? "",
-    aboutFocusChips: ((s.aboutFocusChips as readonly unknown[]) ?? []).map(String),
-    discoverText: (s.discoverText as string) ?? "",
-    defineText: (s.defineText as string) ?? "",
-    developText: (s.developText as string) ?? "",
-    deliverText: (s.deliverText as string) ?? "",
-    resumeUrl: (s.resumeUrl as string | null) ?? null,
-    email: (s.email as string) ?? "",
-    linkedinUrl: (s.linkedinUrl as string | null) ?? null,
-    dribbbleUrl: (s.dribbbleUrl as string | null) ?? null,
-    behanceUrl: (s.behanceUrl as string | null) ?? null,
-  };
 }
 
 // SiteSettingsEntry -> raw record; null coalesced to "" so stripEmptyOptional
@@ -102,7 +80,7 @@ const readDraftSettingsCached = unstable_cache(
       token,
     });
     const raw = await reader.singletons.siteSettings.read();
-    return raw ? mapDraftSettings(raw as Record<string, unknown>) : null;
+    return raw ? mapSiteSettings(raw as Record<string, unknown>) : null;
   },
   ["studio-draft-settings-read"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }
