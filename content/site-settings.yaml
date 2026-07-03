@@ -1,14 +1,14 @@
-heroCopy: Akshita Singh
-tab1Label: Who I am
+heroCopy: Akshita Singh 1
+tab1Label: Who I am 2
 tab1Line: A product designer who turns rough ideas into products people use.
-tab2Label: What I do
+tab2Label: What I do 3
 tab2Line: I carry work from the first messy sketch to the shipped screen.
-tab3Label: How I work
+tab3Label: How I work 4
 tab3Line: Sit with the ambiguity, then narrow it, discover, define, design, validate.
-tab4Label: What I'm up to
-tab4Line: Designing a connected app for Elevate, and looking for my next team.
-heroRoleLabel: Product designer
-heroScrollCue: scroll to process
+tab4Label: What I'm up to 5
+tab4Line: Designing a connected app for Elevate, and looking for my next team. 6
+heroRoleLabel: Product designer 7
+heroScrollCue: scroll to process 8
 photo: /images/photo.jpg
 aboutCopy: >
   I turn rough ideas into products people actually use.
