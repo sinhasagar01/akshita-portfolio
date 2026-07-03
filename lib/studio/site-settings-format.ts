@@ -11,7 +11,16 @@
  */
 export type SiteSettingsInput = {
   heroCopy: string;
-  positioningLine: string;
+  tab1Label: string;
+  tab1Line: string;
+  tab2Label: string;
+  tab2Line: string;
+  tab3Label: string;
+  tab3Line: string;
+  tab4Label: string;
+  tab4Line: string;
+  heroRoleLabel: string;
+  heroScrollCue: string;
   aboutCopy: string;
   aboutNote: string;
   aboutFocusChips: string[];
@@ -46,7 +55,16 @@ export type SiteSettingsRecord = Record<string, unknown>;
  */
 export const SITE_SETTINGS_FIELD_ORDER = [
   "heroCopy",
-  "positioningLine",
+  "tab1Label",
+  "tab1Line",
+  "tab2Label",
+  "tab2Line",
+  "tab3Label",
+  "tab3Line",
+  "tab4Label",
+  "tab4Line",
+  "heroRoleLabel",
+  "heroScrollCue",
   "photo",
   "aboutCopy",
   "aboutNote",

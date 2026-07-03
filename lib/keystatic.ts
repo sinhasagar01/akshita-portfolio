@@ -7,7 +7,16 @@ type DocumentNode = { children: unknown[]; [key: string]: unknown };
 
 export type SiteSettingsEntry = {
   heroCopy: string;
-  positioningLine: string;
+  tab1Label: string;
+  tab1Line: string;
+  tab2Label: string;
+  tab2Line: string;
+  tab3Label: string;
+  tab3Line: string;
+  tab4Label: string;
+  tab4Line: string;
+  heroRoleLabel: string;
+  heroScrollCue: string;
   photo: string | null;
   aboutCopy: string;
   aboutNote: string;
@@ -67,7 +76,16 @@ function resolveSlugField(value: unknown, fallback: string): string {
 export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry {
   return {
     heroCopy: (raw.heroCopy as string) ?? "",
-    positioningLine: (raw.positioningLine as string) ?? "",
+    tab1Label: (raw.tab1Label as string) ?? "",
+    tab1Line: (raw.tab1Line as string) ?? "",
+    tab2Label: (raw.tab2Label as string) ?? "",
+    tab2Line: (raw.tab2Line as string) ?? "",
+    tab3Label: (raw.tab3Label as string) ?? "",
+    tab3Line: (raw.tab3Line as string) ?? "",
+    tab4Label: (raw.tab4Label as string) ?? "",
+    tab4Line: (raw.tab4Line as string) ?? "",
+    heroRoleLabel: (raw.heroRoleLabel as string) ?? "",
+    heroScrollCue: (raw.heroScrollCue as string) ?? "",
     photo: (raw.photo as string | null) ?? null,
     aboutCopy: (raw.aboutCopy as string) ?? "",
     aboutNote: (raw.aboutNote as string) ?? "",

@@ -13,6 +13,10 @@ import Reveal from "@/components/motion/Reveal";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
+// Tab NAMES and LINES are CMS-driven (siteSettings tabNLabel and tabNLine),
+// with these values as the defensive fallbacks so the Hero never renders
+// blank. The script backdrop word derives from the tab name (lowercased), so
+// it follows renames automatically.
 const FACETS = [
   {
     tab: "Who I am",
@@ -35,6 +39,10 @@ const FACETS = [
     line: "Designing a connected app for Elevate, and looking for my next team.",
   },
 ];
+
+// The ONE source for the fallback tab names — the studio Hero editor imports
+// this so its pill fallbacks can never drift from what the live hero renders.
+export const HERO_TAB_FALLBACK_NAMES = FACETS.map((f) => f.tab);
 
 const PILL_SPRING: Transition = { type: "spring", stiffness: 380, damping: 30 };
 const PILL_INSTANT: Transition = { duration: 0.15 };
@@ -62,14 +70,44 @@ const MOBILE_BP = 1024;
 const SWIPE_PX = 44;
 const INTENT_RATIO = 1.4;
 
-export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
+type TabStrings = { label?: string; line?: string };
+
+export default function HeroSection({
+  heroCopy,
+  tabs,
+  roleLabel,
+  scrollCue,
+}: {
+  heroCopy?: string;
+  /** CMS strings per tab, index-aligned with FACETS (tab1..tab4). */
+  tabs?: TabStrings[];
+  roleLabel?: string;
+  scrollCue?: string;
+}) {
   const [active, setActive] = useState(0);
   const isReducedMotion = useReducedMotion();
   const smoothScroll    = useSmoothScroll();
 
-  // Signature reads the live siteSettings heroCopy, with a defensive fallback
-  // so the Hero never renders blank (the field is optional).
+  // The simple-string slots read live siteSettings values with defensive
+  // fallbacks to the previous hardcoded text, so the Hero never renders blank
+  // (all fields are optional).
   const signature = heroCopy?.trim() ? heroCopy : "Akshita Singh";
+  const role      = roleLabel?.trim() ? roleLabel : "Product designer";
+  const cue       = scrollCue?.trim() ? scrollCue : "scroll to process";
+
+  // CMS name and line per tab, falling back to the hardcoded FACETS values
+  // when blank. The backdrop word derives from the effective tab name. Lines
+  // are trimmed because the CMS fields are multiline and a stray trailing
+  // newline must not become a word-split token.
+  const facets = FACETS.map((f, i) => {
+    const cms = tabs?.[i];
+    const label = cms?.label?.trim() ? cms.label.trim() : f.tab;
+    return {
+      tab: label,
+      word: cms?.label?.trim() ? label.toLowerCase() : f.word,
+      line: cms?.line?.trim() ? cms.line.trim() : f.line,
+    };
+  });
 
   const sectionRef  = useRef<HTMLElement>(null);
   const glowRef     = useRef<HTMLDivElement>(null);
@@ -217,7 +255,7 @@ export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
               >
                 {signature}
               </p>
-              <SectionLabel>Product designer</SectionLabel>
+              <SectionLabel>{role}</SectionLabel>
             </div>
           </Reveal>
 
@@ -229,9 +267,9 @@ export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
               aria-label="Designer facets"
               className="flex lg:hidden justify-center items-center gap-3 py-2"
             >
-              {FACETS.map((f, i) => (
+              {facets.map((f, i) => (
                 <button
-                  key={f.tab}
+                  key={i}
                   role="tab"
                   aria-selected={i === active}
                   aria-label={f.tab}
@@ -265,9 +303,9 @@ export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
                 aria-label="Designer facets"
                 className="hidden lg:inline-flex relative gap-1.5 p-1"
               >
-                {FACETS.map((f, i) => (
+                {facets.map((f, i) => (
                   <button
-                    key={f.tab}
+                    key={i}
                     role="tab"
                     aria-selected={i === active}
                     onClick={() => setActive(i)}
@@ -352,7 +390,7 @@ export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
                         : { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
                     }
                   >
-                    {FACETS[active].word}
+                    {facets[active].word}
                   </motion.span>
                 </motion.div>
               </AnimatePresence>
@@ -369,8 +407,8 @@ export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
                   exit="exit"
                 >
                   {isReducedMotion
-                    ? FACETS[active].line
-                    : FACETS[active].line.split(" ").map((word, i, arr) => (
+                    ? facets[active].line
+                    : facets[active].line.split(/\s+/).map((word, i, arr) => (
                         <Fragment key={`${active}-w-${i}`}>
                           <motion.span
                             variants={wordVariants}
@@ -404,7 +442,7 @@ export default function HeroSection({ heroCopy }: { heroCopy?: string }) {
                 aria-hidden="true"
                 className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-[--color-accent-500] shrink-0"
               />
-              scroll to process
+              {cue}
             </a>
           </Reveal>
 

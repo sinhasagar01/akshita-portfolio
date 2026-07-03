@@ -14,24 +14,103 @@
 // The client never holds the token; only publish writes main, and only on a
 // deliberate owner click when there is a differing draft.
 import { useRef, useState } from "react";
+import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
 import { IconSparkles } from "./icons";
 
 type Props = {
   heroCopy: string;
-  positioningLine: string;
+  tab1Label: string;
+  tab1Line: string;
+  tab2Label: string;
+  tab2Line: string;
+  tab3Label: string;
+  tab3Line: string;
+  tab4Label: string;
+  tab4Line: string;
+  heroRoleLabel: string;
+  heroScrollCue: string;
   photo: string | null;
   differs?: boolean;
 };
 
+// The Hero form's editable fields. State keys match the settings field names so
+// the save patch needs no key mapping.
+type HeroFields = {
+  heroCopy: string;
+  tab1Label: string;
+  tab1Line: string;
+  tab2Label: string;
+  tab2Line: string;
+  tab3Label: string;
+  tab3Line: string;
+  tab4Label: string;
+  tab4Line: string;
+  heroRoleLabel: string;
+  heroScrollCue: string;
+};
+
+const HERO_FIELD_KEYS = [
+  "heroCopy",
+  "tab1Label",
+  "tab1Line",
+  "tab2Label",
+  "tab2Line",
+  "tab3Label",
+  "tab3Line",
+  "tab4Label",
+  "tab4Line",
+  "heroRoleLabel",
+  "heroScrollCue",
+] as const;
+
+// The tab editor mimics the real Hero tablist: one pill per tab (its text is
+// the LIVE edited name), the active tab's name and serif line editable below.
+// The pill fallback for a blank name comes from HERO_TAB_FALLBACK_NAMES, the
+// same source the live hero falls back to, so the mimic cannot drift.
+const TABS: { labelKey: keyof HeroFields; lineKey: keyof HeroFields; fallback: string }[] = [
+  { labelKey: "tab1Label", lineKey: "tab1Line", fallback: HERO_TAB_FALLBACK_NAMES[0] },
+  { labelKey: "tab2Label", lineKey: "tab2Line", fallback: HERO_TAB_FALLBACK_NAMES[1] },
+  { labelKey: "tab3Label", lineKey: "tab3Line", fallback: HERO_TAB_FALLBACK_NAMES[2] },
+  { labelKey: "tab4Label", lineKey: "tab4Line", fallback: HERO_TAB_FALLBACK_NAMES[3] },
+];
+
 type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
 type PublishStatus = "idle" | "publishing" | "published" | "error";
 
-export default function HeroEditPanel({ heroCopy, positioningLine, photo, differs }: Props) {
+export default function HeroEditPanel({
+  heroCopy,
+  tab1Label,
+  tab1Line,
+  tab2Label,
+  tab2Line,
+  tab3Label,
+  tab3Line,
+  tab4Label,
+  tab4Line,
+  heroRoleLabel,
+  heroScrollCue,
+  photo,
+  differs,
+}: Props) {
+  const initial: HeroFields = {
+    heroCopy,
+    tab1Label,
+    tab1Line,
+    tab2Label,
+    tab2Line,
+    tab3Label,
+    tab3Line,
+    tab4Label,
+    tab4Line,
+    heroRoleLabel,
+    heroScrollCue,
+  };
   const [expanded, setExpanded] = useState(false);
-  const [values, setValues] = useState({ heroCopy, positioningLine });
+  const [activeTab, setActiveTab] = useState(0);
+  const [values, setValues] = useState<HeroFields>(initial);
   // The last persisted (loaded or draft-saved) values. Local edits are measured
   // against this, so after a successful draft save the "Unsaved changes" hint clears.
-  const [savedBaseline, setSavedBaseline] = useState({ heroCopy, positioningLine });
+  const [savedBaseline, setSavedBaseline] = useState<HeroFields>(initial);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [unpublished, setUnpublished] = useState(Boolean(differs));
   // Synchronous in-flight guard: blur can fire twice before React re-renders
@@ -42,11 +121,9 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
   const [publishMsg, setPublishMsg] = useState("");
   const publishingRef = useRef(false); // same double-submit guard as savingRef
 
-  const dirty =
-    values.heroCopy !== savedBaseline.heroCopy ||
-    values.positioningLine !== savedBaseline.positioningLine;
+  const dirty = HERO_FIELD_KEYS.some((k) => values[k] !== savedBaseline[k]);
 
-  function edit(field: "heroCopy" | "positioningLine", v: string) {
+  function edit(field: keyof HeroFields, v: string) {
     setValues((prev) => ({ ...prev, [field]: v }));
     if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
     if (publishStatus !== "publishing") {
@@ -186,7 +263,7 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
           </div>
           <p className="mt-1.5 truncate text-[12px] text-ink-600">{savedBaseline.heroCopy || "No hero copy"}</p>
           <p className="mt-0.5 truncate text-[11px] text-ink-400">
-            {savedBaseline.positioningLine || "No positioning line"}
+            {TABS.map((t) => savedBaseline[t.lineKey]).find(Boolean) || "No tab lines yet"}
           </p>
         </div>
       </button>
@@ -241,14 +318,84 @@ export default function HeroEditPanel({ heroCopy, positioningLine, photo, differ
           />
         </label>
 
+        <div className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Tabs</span>
+          {/* Mimics the real Hero tablist — pick a tab, edit its name and serif
+              line below. Pill text is the LIVE edited name. */}
+          <div role="tablist" aria-label="Hero tabs" className="flex flex-wrap gap-1.5">
+            {TABS.map((t, i) => (
+              <button
+                key={t.labelKey}
+                id={`hero-tab-edit-${i}`}
+                type="button"
+                role="tab"
+                aria-selected={i === activeTab}
+                aria-controls="hero-tab-edit-panel"
+                onClick={() => setActiveTab(i)}
+                className={[
+                  "rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide transition-colors",
+                  i === activeTab
+                    ? "border border-accent-500/35 bg-accent-500/10 text-accent-600"
+                    : "border border-transparent text-ink-400 hover:text-ink-600",
+                ].join(" ")}
+              >
+                {values[t.labelKey].trim() || t.fallback}
+              </button>
+            ))}
+          </div>
+          <div
+            id="hero-tab-edit-panel"
+            role="tabpanel"
+            aria-labelledby={`hero-tab-edit-${activeTab}`}
+            className="flex flex-col gap-1.5"
+          >
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">
+                Tab {activeTab + 1} name
+              </span>
+              <input
+                type="text"
+                value={values[TABS[activeTab].labelKey]}
+                onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
+                onBlur={saveDraft}
+                placeholder={TABS[activeTab].fallback}
+                className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">
+                Tab {activeTab + 1} line
+              </span>
+              <textarea
+                rows={3}
+                value={values[TABS[activeTab].lineKey]}
+                onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
+                onBlur={saveDraft}
+                className="w-full resize-y rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              />
+            </label>
+          </div>
+        </div>
+
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Positioning line</span>
-          <textarea
-            rows={3}
-            value={values.positioningLine}
-            onChange={(e) => edit("positioningLine", e.target.value)}
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Role label</span>
+          <input
+            type="text"
+            value={values.heroRoleLabel}
+            onChange={(e) => edit("heroRoleLabel", e.target.value)}
             onBlur={saveDraft}
-            className="w-full resize-y rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Scroll cue</span>
+          <input
+            type="text"
+            value={values.heroScrollCue}
+            onChange={(e) => edit("heroScrollCue", e.target.value)}
+            onBlur={saveDraft}
+            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
 

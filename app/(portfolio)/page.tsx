@@ -34,7 +34,17 @@ export default async function HomePage() {
     <main className="container-x">
       <JsonLd data={personSchema(settings)} />
       <JsonLd data={webSiteSchema()} />
-      <HeroSection heroCopy={settings?.heroCopy} />
+      <HeroSection
+        heroCopy={settings?.heroCopy}
+        tabs={[
+          { label: settings?.tab1Label, line: settings?.tab1Line },
+          { label: settings?.tab2Label, line: settings?.tab2Line },
+          { label: settings?.tab3Label, line: settings?.tab3Line },
+          { label: settings?.tab4Label, line: settings?.tab4Line },
+        ]}
+        roleLabel={settings?.heroRoleLabel}
+        scrollCue={settings?.heroScrollCue}
+      />
       <ProcessSection settings={settings} />
       <ProjectsSection projects={projects} />
       <AboutSection settings={settings} />

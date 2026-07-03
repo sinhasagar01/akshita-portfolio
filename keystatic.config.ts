@@ -280,10 +280,49 @@ export default config({
           label: "Hero copy",
           description: "The large italic headline on the home page",
         }),
-        positioningLine: fields.text({
-          label: "Positioning line",
-          description: "The supporting sentence below the hero",
+        tab1Label: fields.text({
+          label: "Hero tab 1 name",
+          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
+        }),
+        tab1Line: fields.text({
+          label: "Hero tab 1 line",
+          description: "The serif line shown when tab 1 is active",
           multiline: true,
+        }),
+        tab2Label: fields.text({
+          label: "Hero tab 2 name",
+          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
+        }),
+        tab2Line: fields.text({
+          label: "Hero tab 2 line",
+          description: "The serif line shown when tab 2 is active",
+          multiline: true,
+        }),
+        tab3Label: fields.text({
+          label: "Hero tab 3 name",
+          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
+        }),
+        tab3Line: fields.text({
+          label: "Hero tab 3 line",
+          description: "The serif line shown when tab 3 is active",
+          multiline: true,
+        }),
+        tab4Label: fields.text({
+          label: "Hero tab 4 name",
+          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
+        }),
+        tab4Line: fields.text({
+          label: "Hero tab 4 line",
+          description: "The serif line shown when tab 4 is active",
+          multiline: true,
+        }),
+        heroRoleLabel: fields.text({
+          label: "Hero role label",
+          description: "The small uppercase label under the signature",
+        }),
+        heroScrollCue: fields.text({
+          label: "Hero scroll cue",
+          description: "The scroll prompt text at the bottom of the hero",
         }),
         photo: fields.image({
           label: "Hero and About photo",
