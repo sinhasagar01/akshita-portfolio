@@ -14,6 +14,7 @@
 // The client never holds the token; only publish writes main, and only on a
 // deliberate owner click when there is a differing draft.
 import { useRef, useState } from "react";
+import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
 import { IconSparkles } from "./icons";
 
 type Props = {
@@ -64,12 +65,13 @@ const HERO_FIELD_KEYS = [
 
 // The tab editor mimics the real Hero tablist: one pill per tab (its text is
 // the LIVE edited name), the active tab's name and serif line editable below.
-// The fallback shows in the pill when the name field is blank.
+// The pill fallback for a blank name comes from HERO_TAB_FALLBACK_NAMES, the
+// same source the live hero falls back to, so the mimic cannot drift.
 const TABS: { labelKey: keyof HeroFields; lineKey: keyof HeroFields; fallback: string }[] = [
-  { labelKey: "tab1Label", lineKey: "tab1Line", fallback: "Who I am" },
-  { labelKey: "tab2Label", lineKey: "tab2Line", fallback: "What I do" },
-  { labelKey: "tab3Label", lineKey: "tab3Line", fallback: "How I work" },
-  { labelKey: "tab4Label", lineKey: "tab4Line", fallback: "What I'm up to" },
+  { labelKey: "tab1Label", lineKey: "tab1Line", fallback: HERO_TAB_FALLBACK_NAMES[0] },
+  { labelKey: "tab2Label", lineKey: "tab2Line", fallback: HERO_TAB_FALLBACK_NAMES[1] },
+  { labelKey: "tab3Label", lineKey: "tab3Line", fallback: HERO_TAB_FALLBACK_NAMES[2] },
+  { labelKey: "tab4Label", lineKey: "tab4Line", fallback: HERO_TAB_FALLBACK_NAMES[3] },
 ];
 
 type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
@@ -261,7 +263,7 @@ export default function HeroEditPanel({
           </div>
           <p className="mt-1.5 truncate text-[12px] text-ink-600">{savedBaseline.heroCopy || "No hero copy"}</p>
           <p className="mt-0.5 truncate text-[11px] text-ink-400">
-            {savedBaseline.tab1Line || "No tab lines yet"}
+            {TABS.map((t) => savedBaseline[t.lineKey]).find(Boolean) || "No tab lines yet"}
           </p>
         </div>
       </button>
@@ -324,9 +326,11 @@ export default function HeroEditPanel({
             {TABS.map((t, i) => (
               <button
                 key={t.labelKey}
+                id={`hero-tab-edit-${i}`}
                 type="button"
                 role="tab"
                 aria-selected={i === activeTab}
+                aria-controls="hero-tab-edit-panel"
                 onClick={() => setActiveTab(i)}
                 className={[
                   "rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide transition-colors",
@@ -339,27 +343,38 @@ export default function HeroEditPanel({
               </button>
             ))}
           </div>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Tab name</span>
-            <input
-              type="text"
-              value={values[TABS[activeTab].labelKey]}
-              onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
-              onBlur={saveDraft}
-              placeholder={TABS[activeTab].fallback}
-              className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Tab line</span>
-            <textarea
-              rows={3}
-              value={values[TABS[activeTab].lineKey]}
-              onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
-              onBlur={saveDraft}
-              className="w-full resize-y rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
-            />
-          </label>
+          <div
+            id="hero-tab-edit-panel"
+            role="tabpanel"
+            aria-labelledby={`hero-tab-edit-${activeTab}`}
+            className="flex flex-col gap-1.5"
+          >
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">
+                Tab {activeTab + 1} name
+              </span>
+              <input
+                type="text"
+                value={values[TABS[activeTab].labelKey]}
+                onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
+                onBlur={saveDraft}
+                placeholder={TABS[activeTab].fallback}
+                className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">
+                Tab {activeTab + 1} line
+              </span>
+              <textarea
+                rows={3}
+                value={values[TABS[activeTab].lineKey]}
+                onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
+                onBlur={saveDraft}
+                className="w-full resize-y rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              />
+            </label>
+          </div>
         </div>
 
         <label className="flex flex-col gap-1.5">

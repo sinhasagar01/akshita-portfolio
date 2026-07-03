@@ -40,6 +40,10 @@ const FACETS = [
   },
 ];
 
+// The ONE source for the fallback tab names — the studio Hero editor imports
+// this so its pill fallbacks can never drift from what the live hero renders.
+export const HERO_TAB_FALLBACK_NAMES = FACETS.map((f) => f.tab);
+
 const PILL_SPRING: Transition = { type: "spring", stiffness: 380, damping: 30 };
 const PILL_INSTANT: Transition = { duration: 0.15 };
 
@@ -92,14 +96,16 @@ export default function HeroSection({
   const cue       = scrollCue?.trim() ? scrollCue : "scroll to process";
 
   // CMS name and line per tab, falling back to the hardcoded FACETS values
-  // when blank. The backdrop word derives from the effective tab name.
+  // when blank. The backdrop word derives from the effective tab name. Lines
+  // are trimmed because the CMS fields are multiline and a stray trailing
+  // newline must not become a word-split token.
   const facets = FACETS.map((f, i) => {
     const cms = tabs?.[i];
-    const label = cms?.label?.trim() ? cms.label : f.tab;
+    const label = cms?.label?.trim() ? cms.label.trim() : f.tab;
     return {
       tab: label,
       word: cms?.label?.trim() ? label.toLowerCase() : f.word,
-      line: cms?.line?.trim() ? cms.line : f.line,
+      line: cms?.line?.trim() ? cms.line.trim() : f.line,
     };
   });
 
@@ -402,7 +408,7 @@ export default function HeroSection({
                 >
                   {isReducedMotion
                     ? facets[active].line
-                    : facets[active].line.split(" ").map((word, i, arr) => (
+                    : facets[active].line.split(/\s+/).map((word, i, arr) => (
                         <Fragment key={`${active}-w-${i}`}>
                           <motion.span
                             variants={wordVariants}
