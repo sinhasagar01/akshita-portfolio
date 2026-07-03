@@ -7,14 +7,15 @@
 // Writes the draft branch only, never main.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { load } from "js-yaml";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { commitSiteSettings } from "@/lib/studio/commit-site-settings";
 import {
   DRAFT_BRANCH,
-  getSiteSettingsDraftState,
   invalidateDraftStateCache,
+  settingsDiffer,
 } from "@/lib/studio/draft-site-settings";
-import { getHomePageData } from "@/lib/keystatic";
+import { getHomePageData, mapSiteSettings } from "@/lib/keystatic";
 import { sanitizeSiteSettingsPatch } from "@/lib/studio/site-settings-format";
 
 export async function POST(req: Request) {
@@ -64,18 +65,20 @@ export async function POST(req: Request) {
     return NextResponse.json(result, { status });
   }
 
-  // The draft branch just changed, so drop the cached draft read (GH-8) before
-  // recomputing, so both this response and the next settings-page render are fresh.
+  // The draft branch just changed, so drop the cached draft read (GH-8) for the
+  // next settings-page render.
   invalidateDraftStateCache();
 
-  // Recompute the live-vs-draft differs for the badge. Reads live only; never writes main.
+  // The response differs comes from the BYTES this save just committed (review
+  // finding 6), never from the cache, which Next may serve stale within the
+  // same request. Reads live only; never writes main.
   const live = (await getHomePageData()).settings;
-  const draftState = await getSiteSettingsDraftState(live);
+  const draftEntry = mapSiteSettings((load(result.bytes) ?? {}) as Record<string, unknown>);
   return NextResponse.json({
     ok: true,
     mode: "github",
     saved: true,
     sha: result.sha,
-    differs: draftState.differs,
+    differs: settingsDiffer(live, draftEntry),
   });
 }

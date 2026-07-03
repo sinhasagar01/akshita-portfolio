@@ -168,15 +168,13 @@ Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable co
 - Set UPSTASH_REDIS_REST_URL + TOKEN in Vercel prod env, else the GH-7 login throttle falls back to per-instance in-memory in prod.
 - /keystatic is dev-only by decision, guarded to 404 in production by the middleware. No OAuth app, no prod storage split. Retire fully after image upload lands in /studio.
 
-## /studio inline-edit, multi-form draft accumulation (before a 2nd settings form)
+## /studio inline-edit, multi-form draft accumulation (SETTLED by DB-1)
 
-commitSiteSettings rebuilds the draft branch from main on every save, so a per-form partial patch silently drops the other forms' draft edits. Hero-only is safe today because the Hero panel (components/studio/HeroEditPanel.tsx) sends the full patch on each save. Before wiring a second Site Settings form (About, Process, or Links), do one of two things. Change the save base in lib/studio/commit-site-settings.ts to the draft branch when it exists so saves accumulate, or have every form send all settings on each save. Otherwise the second form's first save wipes the first form's unpublished draft. The save endpoint is app/api/studio/save-draft.
+Fixed. commitSiteSettings now commits on top of the existing draft branch (base = draft head with expectedHeadOid), creating from main only when no draft exists, so partial patches accumulate and a second settings form can never wipe the first form's draft edits. Proven by saving two disjoint partial patches and verifying both survive with the commit parent chain intact. New settings forms may send per-form partial patches.
 
-The draft-base fix must also cover three deferred findings from the PR 4 review, they live in the same seam.
+The three deferred PR 4 review findings in this seam are also settled. Finding 2, a failed commit no longer destroys the prior draft because nothing is deleted when a draft exists (proven with a forced stale expectedHeadOid failure). Finding 6, the save-draft route computes its response differs from the bytes it just committed via settingsDiffer, never through the same-request cache. Finding 8 was settled earlier in H1, entryToRecord derives from SITE_SETTINGS_FIELD_ORDER.
 
-- Review finding 2. commitSiteSettings deletes the existing draft branch before recreating it and deletes it again on a commit failure, so a transient GitHub error mid-save destroys the previously saved draft. Basing the read-modify-write on the draft head fixes this naturally.
-- Review finding 6. The save-draft route recomputes differs by re-reading through the tag-invalidated cache in the same request, which Next may serve stale in prod. Compute the response differs from result.bytes, which the route already holds.
-- Review finding 8. entryToRecord in lib/studio/draft-site-settings.ts is a third hand-synced copy of the settings field list. A field added to the schema but missed there makes differs silently false for drafts changing only that field. Derive the record from SITE_SETTINGS_FIELD_ORDER or compare the raw YAML texts directly.
+Remaining known trade, a draft based on an old main surfaces staleness only at publish, where the merges API three-way merges cleanly or returns the typed merge_conflict. No save-time staleness signal by decision.
 
 ## Portfolio (user-facing), still open, pre-dates the /studio work
 

@@ -110,3 +110,16 @@ export async function getSiteSettingsDraftState(
 export function invalidateDraftStateCache(): void {
   revalidateTag(DRAFT_STATE_TAG);
 }
+
+/**
+ * Formatting-insensitive compare of two settings entries, the same canonical
+ * compare the draft state uses. Exported so the save route can compute its
+ * response differs from the bytes it just committed instead of re-reading
+ * through the tag-invalidated cache in the same request (review finding 6).
+ */
+export function settingsDiffer(
+  a: SiteSettingsEntry | null,
+  b: SiteSettingsEntry | null
+): boolean {
+  return canonical(a) !== canonical(b);
+}

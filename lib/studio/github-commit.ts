@@ -41,6 +41,18 @@ export async function branchExists(branch: string): Promise<boolean> {
   return res.ok;
 }
 
+/** The head commit oid of a branch, or null when the branch does not exist.
+ *  One GET where an exists-check plus head-read would take two (DB-1). */
+export async function getBranchHeadOid(branch: string): Promise<string | null> {
+  const res = await fetch(`${API}/repos/${REPO}/git/ref/heads/${branch}`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`ref fetch failed: ${res.status} ${await res.text()}`);
+  return (await res.json()).object.sha as string;
+}
+
 export async function createBranchRef(branch: string, oid: string): Promise<void> {
   const res = await fetch(`${API}/repos/${REPO}/git/refs`, {
     method: "POST",
