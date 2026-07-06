@@ -10,6 +10,7 @@
 // No in-studio preview yet (CE-1): the panel seeds from live and reflects the
 // edit in-session; a reload shows live until Publish.
 import { useDraftForm } from "./useDraftForm";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { IconBriefcase } from "./icons";
 
 type Props = {
@@ -37,6 +38,8 @@ export default function ExperienceEditPanel({
   description,
 }: Props) {
   const initial: ExperienceFields = { title, startDate, endDate, description };
+  // Report differs + pending up to the page Publish bar (now in the dashboard layout).
+  const { setUnpublished } = usePublishSignal();
 
   const {
     expanded,
@@ -57,7 +60,10 @@ export default function ExperienceEditPanel({
       v.endDate !== b.endDate ||
       v.description !== b.description,
     saveExtras: { collection: "experience", slug },
+    onSaved: () => setUnpublished(true),
   });
+
+  useReportPending(dirty || saveStatus === "saving");
 
   const range = [savedBaseline.startDate, savedBaseline.endDate].filter(Boolean).join(" – ");
 
