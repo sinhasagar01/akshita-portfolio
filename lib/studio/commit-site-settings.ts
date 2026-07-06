@@ -15,7 +15,7 @@ import {
 import {
   authHeaders,
   getDefaultBranchHeadOid,
-  branchExists,
+  getBranchHeadOid,
   createBranchRef,
   deleteBranchRef,
   commitFileToBranch,
@@ -23,7 +23,6 @@ import {
 } from "./github-commit";
 
 const SETTINGS_PATH = "content/site-settings.yaml";
-const DEFAULT_PROBE_BRANCH = "studio/gh2-content-probe";
 
 export type CommitResult =
   | { ok: true; sha: string; branch: string; baseOid: string; bytes: string }
@@ -45,22 +44,35 @@ export async function getFileTextAtRef(path: string, ref: string): Promise<strin
 }
 
 /**
- * Read-modify-write content/site-settings.yaml from the repo default-branch head
- * and commit the transformed result to a throwaway branch. Same load / transform
- * / dump as the fs path, so the bytes are identical. On a validation error it
- * returns BEFORE creating any branch (base untouched). On a commit failure it
- * deletes the branch it created (no dangling ref). On success the branch PERSISTS
- * so the caller/proof can verify it and then delete it.
+ * Read-modify-write content/site-settings.yaml and commit the transformed
+ * result to the given branch. DB-1 base rule: when the branch already EXISTS,
+ * the read and the commit both use the branch head, so partial patches
+ * ACCUMULATE and nothing is ever deleted on this path — a failed commit leaves
+ * the prior draft exactly as it was (review finding 2). Only when the branch
+ * does not exist is it created from the default-branch head, and only that
+ * freshly created branch is cleaned up on a commit failure. expectedHeadOid
+ * makes a racing save fail typed (write_failed) instead of clobbering.
+ * A stale draft base (main moved since the first save) is deferred to publish,
+ * where the merges API three-way merges or returns a typed merge_conflict.
  */
 export async function commitSiteSettings(
   patch: Partial<SiteSettingsInput>,
-  opts?: { branch?: string; message?: string }
+  opts: { branch: string; message?: string }
 ): Promise<CommitResult> {
-  let base: { branch: string; oid: string };
+  const branch = opts.branch;
+
+  let baseOid: string;
+  let createFromMain = false;
   let raw: string;
   try {
-    base = await getDefaultBranchHeadOid();
-    raw = await getFileTextAtRef(SETTINGS_PATH, base.oid);
+    const draftHead = await getBranchHeadOid(branch);
+    if (draftHead) {
+      baseOid = draftHead;
+    } else {
+      baseOid = (await getDefaultBranchHeadOid()).oid;
+      createFromMain = true;
+    }
+    raw = await getFileTextAtRef(SETTINGS_PATH, baseOid);
   } catch (e) {
     return {
       ok: false,
@@ -70,27 +82,40 @@ export async function commitSiteSettings(
 
   const loaded = (load(raw) ?? {}) as SiteSettingsRecord;
   const result = transformSiteSettings(loaded, patch);
-  if (!result.ok) return result; // validation error — no branch created, base untouched
+  if (!result.ok) return result; // validation error — nothing created, base untouched
 
   const contents = dump(result.value);
-  const branch = opts?.branch ?? DEFAULT_PROBE_BRANCH;
 
-  if (await branchExists(branch)) {
-    await deleteBranchRef(branch); // clear a dangling ref from a prior run
+  try {
+    if (createFromMain) {
+      await createBranchRef(branch, baseOid);
+    }
+  } catch (e) {
+    return {
+      ok: false,
+      error: { code: "write_failed", message: e instanceof Error ? e.message : String(e) },
+    };
   }
-  await createBranchRef(branch, base.oid);
 
   try {
     const commit = await commitFileToBranch({
       branch,
       path: SETTINGS_PATH,
       contents,
-      message: opts?.message ?? "chore(studio): update site settings",
-      expectedHeadOid: base.oid,
+      message: opts.message ?? "chore(studio): update site settings",
+      expectedHeadOid: baseOid,
     });
-    return { ok: true, sha: commit.oid, branch, baseOid: base.oid, bytes: contents };
+    return { ok: true, sha: commit.oid, branch, baseOid, bytes: contents };
   } catch (e) {
-    await deleteBranchRef(branch); // no dangling ref on failure
+    if (createFromMain) {
+      // Clean up ONLY the branch this call just created. An existing draft is
+      // never deleted, so prior saves survive any failure here.
+      try {
+        await deleteBranchRef(branch);
+      } catch {
+        /* non-fatal — a dangling fresh branch self-heals on the next save */
+      }
+    }
     return {
       ok: false,
       error: { code: "write_failed", message: e instanceof Error ? e.message : String(e) },
@@ -98,4 +123,4 @@ export async function commitSiteSettings(
   }
 }
 
-export { DEFAULT_PROBE_BRANCH, SETTINGS_PATH };
+export { SETTINGS_PATH };
