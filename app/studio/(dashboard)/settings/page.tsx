@@ -2,9 +2,10 @@ import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
 import HeroEditPanel from "@/components/studio/HeroEditPanel";
+import AboutEditPanel from "@/components/studio/AboutEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { singletonHref } from "@/lib/keystatic-links";
-import { IconUser, IconWorkflow, IconArrowUpRight } from "@/components/studio/icons";
+import { IconWorkflow, IconArrowUpRight } from "@/components/studio/icons";
 
 const settingsLink = singletonHref("siteSettings");
 
@@ -21,8 +22,6 @@ export default async function StudioSettings() {
       </>
     );
   }
-
-  const chips = settings.aboutFocusChips?.length ?? 0;
 
   const linkSignals: CardSignal[] = [];
   if (!settings.resumeUrl) linkSignals.push({ label: "No resume URL", tone: "warn" });
@@ -54,16 +53,10 @@ export default async function StudioSettings() {
         differs={settingsDraftState.differs}
       />
 
+      {/* About-A: the second inline-editable group (Surface B), Save-draft only. */}
+      <AboutEditPanel aboutCopy={settings.aboutCopy} aboutNote={settings.aboutNote} />
+
       <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
-        <ContentCard
-          index="02"
-          title="About"
-          icon={<IconUser />}
-          status="live"
-          meta={`Copy, note, ${chips} focus ${chips === 1 ? "chip" : "chips"}`}
-          href={settingsLink}
-          ariaLabel="Edit About fields in Keystatic site settings"
-        />
         <ContentCard
           index="03"
           title="Process copy"

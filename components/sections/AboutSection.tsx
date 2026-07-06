@@ -27,15 +27,20 @@ function renderWithBold(text: string) {
 }
 
 export default function AboutSection({ settings }: Props) {
-  if (!settings || !settings.aboutCopy) return null;
+  // Only a missing settings singleton hides the section. A blank aboutCopy no
+  // longer nukes the whole block (About-A) — the copy paragraphs simply omit
+  // while the photo, heading, note, and chips still render.
+  if (!settings) return null;
 
-  const paragraphs = settings.aboutCopy
+  const paragraphs = (settings.aboutCopy ?? "")
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean);
 
+  // The first paragraph is the display lead; every later paragraph is a body
+  // paragraph (About-A — previously only paragraph 2 rendered, 3+ was dropped).
   const lead = paragraphs[0];
-  const body = paragraphs[1];
+  const bodyParagraphs = paragraphs.slice(1);
   const note = settings.aboutNote || null;
   const chips = settings.aboutFocusChips ?? [];
 
@@ -90,14 +95,15 @@ export default function AboutSection({ settings }: Props) {
             </p>
           )}
 
-          {body && (
+          {bodyParagraphs.map((para, i) => (
             <p
+              key={i}
               className="max-w-[50ch]"
               style={{ fontSize: "15px", lineHeight: "1.62", color: "#4a4239" }}
             >
-              {renderWithBold(body)}
+              {renderWithBold(para)}
             </p>
-          )}
+          ))}
 
           {note && (
             <p
