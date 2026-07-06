@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import { motion, LayoutGroup, useReducedMotion } from "motion/react";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
-import { ELSEWHERE, RESUME_LINK } from "@/lib/social-links";
+import { RESUME_LABEL, type ElsewhereLink } from "@/lib/social-links";
 
 const NAV = [
   { id: "process", label: "Process" },
@@ -33,7 +33,11 @@ function getActiveSection(): SectionId | null {
   return current;
 }
 
-export default function SiteHeader() {
+export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
+  // Links come from the singleton (PL-2a). Resume drives the desktop CTA and the
+  // mobile pill; a blank resumeUrl omits it from `links`, so both render only
+  // when it exists rather than pointing at an empty href.
+  const resume                         = links.find((l) => l.label === RESUME_LABEL) ?? null;
   const reduced                        = useReducedMotion();
   const [scrolled, setScrolled]        = useState(false);
   const [active, setActive]            = useState<SectionId | null>(null);
@@ -276,18 +280,22 @@ export default function SiteHeader() {
               </nav>
             </LayoutGroup>
 
-            <span className="header-vdiv" aria-hidden="true" />
+            {resume && (
+              <>
+                <span className="header-vdiv" aria-hidden="true" />
 
-            <a
-              className="header-resume-cta"
-              href={RESUME_LINK.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Resume (opens in a new tab)"
-            >
-              <span className="header-resume-u">Resume</span>
-              <span aria-hidden="true">↗</span>
-            </a>
+                <a
+                  className="header-resume-cta"
+                  href={resume.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Resume (opens in a new tab)"
+                >
+                  <span className="header-resume-u">Resume</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </>
+            )}
           </div>
 
           {/* Burger button — visibility via CSS, not Tailwind */}
@@ -330,18 +338,20 @@ export default function SiteHeader() {
           ))}
         </nav>
 
-        <a
-          href={RESUME_LINK.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="header-mob-resume-pill"
-          onClick={closeMenu}
-        >
-          Resume ↗
-        </a>
+        {resume && (
+          <a
+            href={resume.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="header-mob-resume-pill"
+            onClick={closeMenu}
+          >
+            Resume ↗
+          </a>
+        )}
 
         <div className="header-mob-socials">
-          {ELSEWHERE.map(({ label, href, external, glyph }) => (
+          {links.map(({ label, href, external, glyph }) => (
             <a
               key={label}
               href={href}

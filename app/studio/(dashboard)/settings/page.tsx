@@ -1,11 +1,12 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
-import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import ContentCard from "@/components/studio/ContentCard";
 import HeroEditPanel from "@/components/studio/HeroEditPanel";
 import AboutEditPanel from "@/components/studio/AboutEditPanel";
+import LinksEditPanel from "@/components/studio/LinksEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { singletonHref } from "@/lib/keystatic-links";
-import { IconWorkflow, IconArrowUpRight } from "@/components/studio/icons";
+import { IconWorkflow } from "@/components/studio/icons";
 
 const settingsLink = singletonHref("siteSettings");
 
@@ -22,12 +23,6 @@ export default async function StudioSettings() {
       </>
     );
   }
-
-  const linkSignals: CardSignal[] = [];
-  if (!settings.resumeUrl) linkSignals.push({ label: "No resume URL", tone: "warn" });
-  if (!settings.linkedinUrl) linkSignals.push({ label: "LinkedIn not set", tone: "muted" });
-  if (!settings.dribbbleUrl) linkSignals.push({ label: "Dribbble not set", tone: "muted" });
-  if (!settings.behanceUrl) linkSignals.push({ label: "Behance not set", tone: "muted" });
 
   return (
     <>
@@ -62,6 +57,17 @@ export default async function StudioSettings() {
         aboutPhotoCaption={settings.aboutPhotoCaption}
       />
 
+      {/* PL-2a: the Links group is now an inline-editable panel (Surface B),
+          Save-draft only. It sources the same fields the public header/footer
+          and JSON-LD read, so there is one source of truth. */}
+      <LinksEditPanel
+        resumeUrl={settings.resumeUrl ?? ""}
+        email={settings.email}
+        linkedinUrl={settings.linkedinUrl ?? ""}
+        dribbbleUrl={settings.dribbbleUrl ?? ""}
+        behanceUrl={settings.behanceUrl ?? ""}
+      />
+
       <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
         <ContentCard
           index="03"
@@ -71,16 +77,6 @@ export default async function StudioSettings() {
           meta="4 stage copy fields"
           href={settingsLink}
           ariaLabel="Edit Process copy in Keystatic site settings"
-        />
-        <ContentCard
-          index="04"
-          title="Links"
-          icon={<IconArrowUpRight />}
-          status="live"
-          meta="Email, resume, socials"
-          signals={linkSignals}
-          href={settingsLink}
-          ariaLabel="Edit links in Keystatic site settings"
         />
       </div>
     </>

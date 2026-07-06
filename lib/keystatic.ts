@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
 
@@ -106,18 +107,25 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
   };
 }
 
+/** Read just the siteSettings singleton (mapped). Split out so the site chrome
+ *  (SiteHeader/SiteFooter, PL-2a) can source its links without reading the
+ *  projects/experience/skills collections it never uses. cache() dedupes the
+ *  layout + page reads within a request. */
+export const getSiteSettings = cache(
+  async (): Promise<SiteSettingsEntry | null> => {
+    const raw = await reader.singletons.siteSettings.read();
+    return raw ? mapSiteSettings(raw as Record<string, unknown>) : null;
+  }
+);
+
 export async function getHomePageData(): Promise<HomePageData> {
-  const [settingsRaw, skillsRaw, projectsRaw, experienceRaw] =
+  const [settings, skillsRaw, projectsRaw, experienceRaw] =
     await Promise.all([
-      reader.singletons.siteSettings.read(),
+      getSiteSettings(),
       reader.singletons.skills.read(),
       reader.collections.projects.all(),
       reader.collections.experience.all(),
     ]);
-
-  const settings: SiteSettingsEntry | null = settingsRaw
-    ? mapSiteSettings(settingsRaw as Record<string, unknown>)
-    : null;
 
   const skills: SkillsEntry | null = skillsRaw
     ? {
