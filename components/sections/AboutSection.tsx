@@ -116,9 +116,9 @@ export default function AboutSection({ settings }: Props) {
 
           {chips.length > 0 && (
             <div className="flex flex-wrap mt-[6px]" style={{ gap: "8px" }}>
-              {chips.map((chip) => (
+              {chips.map((chip, i) => (
                 <span
-                  key={chip}
+                  key={i}
                   style={{
                     fontSize: "12px",
                     color: "#5F584E",

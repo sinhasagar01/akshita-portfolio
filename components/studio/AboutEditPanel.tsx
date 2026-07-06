@@ -10,20 +10,26 @@
 // on top of the existing draft, so this never clobbers the Hero form's edits.
 // (A shared useDraftForm hook is deferred to the third form — rule of three.)
 import { useRef, useState } from "react";
-import { IconUser } from "./icons";
+import { IconUser, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type Props = {
   aboutCopy: string;
   aboutNote: string;
+  aboutFocusChips: string[];
 };
 
-type AboutFields = { aboutCopy: string; aboutNote: string };
-const ABOUT_FIELD_KEYS = ["aboutCopy", "aboutNote"] as const;
+type AboutFields = { aboutCopy: string; aboutNote: string; aboutFocusChips: string[] };
 
 type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
 
-export default function AboutEditPanel({ aboutCopy, aboutNote }: Props) {
-  const initial: AboutFields = { aboutCopy, aboutNote };
+// Chips are trimmed and de-blanked at the save boundary, so a blank row is never
+// committed. dirty and the patch both use the trimmed form.
+const trimChips = (chips: string[]) => chips.map((c) => c.trim()).filter(Boolean);
+const sameChips = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((v, i) => v === b[i]);
+
+export default function AboutEditPanel({ aboutCopy, aboutNote, aboutFocusChips }: Props) {
+  const initial: AboutFields = { aboutCopy, aboutNote, aboutFocusChips };
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<AboutFields>(initial);
   const [savedBaseline, setSavedBaseline] = useState<AboutFields>(initial);
@@ -31,12 +37,40 @@ export default function AboutEditPanel({ aboutCopy, aboutNote }: Props) {
   // Synchronous in-flight guard: blur can fire twice before saveStatus updates,
   // letting a duplicate POST through. The ref blocks the second call same-tick.
   const savingRef = useRef(false);
+  // After "Add chip", focus the new input without a layout effect.
+  const pendingFocus = useRef<number | null>(null);
 
-  const dirty = ABOUT_FIELD_KEYS.some((k) => values[k] !== savedBaseline[k]);
+  // Dirty is array-aware. It compares the TRIMMED chips, so a mid-typing empty
+  // row is not dirty (nothing to save yet) while a reorder or a single-chip edit
+  // flips it immediately.
+  const dirty =
+    values.aboutCopy !== savedBaseline.aboutCopy ||
+    values.aboutNote !== savedBaseline.aboutNote ||
+    !sameChips(trimChips(values.aboutFocusChips), savedBaseline.aboutFocusChips);
 
-  function edit(field: keyof AboutFields, v: string) {
+  function edit(field: "aboutCopy" | "aboutNote", v: string) {
     setValues((prev) => ({ ...prev, [field]: v }));
     if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
+  }
+
+  function updateChips(next: string[]) {
+    setValues((prev) => ({ ...prev, aboutFocusChips: next }));
+    if (saveStatus !== "saving") setSaveStatus("idle");
+  }
+  const editChip = (i: number, v: string) =>
+    updateChips(values.aboutFocusChips.map((c, idx) => (idx === i ? v : c)));
+  const removeChip = (i: number) =>
+    updateChips(values.aboutFocusChips.filter((_, idx) => idx !== i));
+  function addChip() {
+    pendingFocus.current = values.aboutFocusChips.length;
+    updateChips([...values.aboutFocusChips, ""]);
+  }
+  function moveChip(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= values.aboutFocusChips.length) return;
+    const next = [...values.aboutFocusChips];
+    [next[i], next[j]] = [next[j], next[i]];
+    updateChips(next);
   }
 
   // On-blur (and Save button) auto-save. Posts ONLY the About fields; DB-1
@@ -45,11 +79,19 @@ export default function AboutEditPanel({ aboutCopy, aboutNote }: Props) {
     if (!dirty || savingRef.current) return;
     savingRef.current = true;
     setSaveStatus("saving");
+    // The committed state trims and de-blanks the chips, so no "" ever lands in
+    // the file. On success it also becomes the baseline and replaces the form
+    // values, dropping any empty row.
+    const committed: AboutFields = {
+      aboutCopy: values.aboutCopy,
+      aboutNote: values.aboutNote,
+      aboutFocusChips: trimChips(values.aboutFocusChips),
+    };
     try {
       const res = await fetch("/api/studio/save-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patch: { ...values } }),
+        body: JSON.stringify({ patch: { ...committed } }),
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.mode === "fs") {
@@ -57,7 +99,8 @@ export default function AboutEditPanel({ aboutCopy, aboutNote }: Props) {
         return;
       }
       if (res.ok && json.ok && json.saved) {
-        setSavedBaseline({ ...values });
+        setValues(committed);
+        setSavedBaseline(committed);
         setSaveStatus("saved");
         window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 2500);
         return;
@@ -166,6 +209,78 @@ export default function AboutEditPanel({ aboutCopy, aboutNote }: Props) {
             className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Focus chips</span>
+          <div className="flex flex-col gap-1.5">
+            {values.aboutFocusChips.map((chip, i) => {
+              const name = chip.trim() || "chip";
+              // Reorder/remove buttons preventDefault on mousedown so clicking
+              // them does not blur the focused chip input and fire a save mid-op.
+              const iconBtn =
+                "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+              return (
+                <div key={i} className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={chip}
+                    ref={(el) => {
+                      if (el && pendingFocus.current === i) {
+                        el.focus();
+                        pendingFocus.current = null;
+                      }
+                    }}
+                    onChange={(e) => editChip(i, e.target.value)}
+                    onBlur={saveDraft}
+                    placeholder="Focus area"
+                    className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => moveChip(i, -1)}
+                    disabled={i === 0}
+                    aria-label={`Move ${name} up`}
+                    className={iconBtn}
+                  >
+                    <IconChevronUp />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => moveChip(i, 1)}
+                    disabled={i === values.aboutFocusChips.length - 1}
+                    aria-label={`Move ${name} down`}
+                    className={iconBtn}
+                  >
+                    <IconChevronDown />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => removeChip(i)}
+                    aria-label={`Remove ${name}`}
+                    className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                  >
+                    <IconX />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={addChip}
+            className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+          >
+            <IconPlus /> Add chip
+          </button>
+          {values.aboutFocusChips.length === 0 && (
+            <span className="text-[10px] text-text-subtle">
+              No focus chips. The About section renders without them.
+            </span>
+          )}
+        </div>
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
