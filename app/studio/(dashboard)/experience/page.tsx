@@ -1,11 +1,8 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
-import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import ExperienceEditPanel from "@/components/studio/ExperienceEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
-import { collectionItemHref, collectionListHref } from "@/lib/keystatic-links";
-import { IconBriefcase } from "@/components/studio/icons";
-
-const pad = (n: number) => String(n).padStart(2, "0");
+import { collectionListHref } from "@/lib/keystatic-links";
 
 export default async function StudioExperience() {
   const { experience } = await getStudioData();
@@ -14,7 +11,7 @@ export default async function StudioExperience() {
     <>
       <AreaHeader
         title="Experience"
-        sub="Roles, sorted by order. Each opens its own editor."
+        sub="Roles, sorted by order. Edit the title, dates, and description inline."
       />
 
       {experience.length === 0 ? (
@@ -22,32 +19,20 @@ export default async function StudioExperience() {
           No experience entries yet. Open the Experience collection in Keystatic to add one.
         </StudioEmptyState>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
-          {experience.map((e, i) => {
-            const signals: CardSignal[] = e.description.trim()
-              ? []
-              : [{ label: "No description", tone: "warn" }];
-
-            const range = [e.startDate, e.endDate].filter(Boolean).join(" – ");
-            const meta = [e.title, range].filter(Boolean).join(", ");
-
-            return (
-              <ContentCard
-                key={e.slug}
-                index={pad(i + 1)}
-                title={e.company}
-                icon={<IconBriefcase />}
-                status="live"
-                meta={meta || undefined}
-                signals={signals}
-                href={collectionItemHref("experience", e.slug)}
-                ariaLabel={`Edit ${e.company} in Keystatic`}
-              />
-            );
-          })}
+        <div className="flex flex-col gap-3.5">
+          {experience.map((e) => (
+            <ExperienceEditPanel
+              key={e.slug}
+              slug={e.slug}
+              company={e.company}
+              title={e.title}
+              startDate={e.startDate}
+              endDate={e.endDate}
+              description={e.description}
+            />
+          ))}
         </div>
       )}
     </>
   );
 }
-

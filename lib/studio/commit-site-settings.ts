@@ -44,22 +44,32 @@ export async function getFileTextAtRef(path: string, ref: string): Promise<strin
 }
 
 /**
- * Read-modify-write content/site-settings.yaml and commit the transformed
- * result to the given branch. DB-1 base rule: when the branch already EXISTS,
- * the read and the commit both use the branch head, so partial patches
- * ACCUMULATE and nothing is ever deleted on this path — a failed commit leaves
- * the prior draft exactly as it was (review finding 2). Only when the branch
- * does not exist is it created from the default-branch head, and only that
- * freshly created branch is cleaned up on a commit failure. expectedHeadOid
- * makes a racing save fail typed (write_failed) instead of clobbering.
- * A stale draft base (main moved since the first save) is deferred to publish,
- * where the merges API three-way merges or returns a typed merge_conflict.
+ * Read-modify-write ONE file and commit the transformed result to the given
+ * branch. The shared draft-commit machinery behind both the settings singleton
+ * and the collection editors (CE-1) — the DB-1 base logic lives here ONCE so it
+ * cannot drift.
+ *
+ * DB-1 base rule: when the branch already EXISTS, the read and the commit both
+ * use the branch head, so partial patches ACCUMULATE (across files too) and
+ * nothing is ever deleted on this path — a failed commit leaves the prior draft
+ * exactly as it was (review finding 2). Only when the branch does not exist is
+ * it created from the default-branch head, and only that freshly created branch
+ * is cleaned up on a commit failure. expectedHeadOid makes a racing save fail
+ * typed (write_failed) instead of clobbering. A stale draft base (main moved
+ * since the first save) is deferred to publish, where the merges API three-way
+ * merges or returns a typed merge_conflict.
+ *
+ * `transform` receives the raw file text at the base and returns the bytes to
+ * commit (each caller owns its own load/transform/dump, including dump options),
+ * or a typed error that aborts before any branch is created.
  */
-export async function commitSiteSettings(
-  patch: Partial<SiteSettingsInput>,
-  opts: { branch: string; message?: string }
-): Promise<CommitResult> {
-  const branch = opts.branch;
+export async function commitFileToDraft(opts: {
+  path: string;
+  branch: string;
+  message: string;
+  transform: (rawText: string) => { ok: true; bytes: string } | { ok: false; error: SaveError };
+}): Promise<CommitResult> {
+  const { path, branch } = opts;
 
   let baseOid: string;
   let createFromMain = false;
@@ -72,7 +82,7 @@ export async function commitSiteSettings(
       baseOid = (await getDefaultBranchHeadOid()).oid;
       createFromMain = true;
     }
-    raw = await getFileTextAtRef(SETTINGS_PATH, baseOid);
+    raw = await getFileTextAtRef(path, baseOid);
   } catch (e) {
     return {
       ok: false,
@@ -80,11 +90,10 @@ export async function commitSiteSettings(
     };
   }
 
-  const loaded = (load(raw) ?? {}) as SiteSettingsRecord;
-  const result = transformSiteSettings(loaded, patch);
-  if (!result.ok) return result; // validation error — nothing created, base untouched
+  const result = opts.transform(raw);
+  if (!result.ok) return result; // transform/validation error — nothing created, base untouched
 
-  const contents = dump(result.value);
+  const contents = result.bytes;
 
   try {
     if (createFromMain) {
@@ -100,9 +109,9 @@ export async function commitSiteSettings(
   try {
     const commit = await commitFileToBranch({
       branch,
-      path: SETTINGS_PATH,
+      path,
       contents,
-      message: opts.message ?? "chore(studio): update site settings",
+      message: opts.message,
       expectedHeadOid: baseOid,
     });
     return { ok: true, sha: commit.oid, branch, baseOid, bytes: contents };
@@ -121,6 +130,29 @@ export async function commitSiteSettings(
       error: { code: "write_failed", message: e instanceof Error ? e.message : String(e) },
     };
   }
+}
+
+/**
+ * Read-modify-write content/site-settings.yaml and commit to the draft branch.
+ * A thin wrapper over commitFileToDraft (CE-1 refactor): behavior-identical to
+ * the previous inline version — same transform (transformSiteSettings), same
+ * default dump, same message default, same DB-1 accumulation and cleanup.
+ */
+export async function commitSiteSettings(
+  patch: Partial<SiteSettingsInput>,
+  opts: { branch: string; message?: string }
+): Promise<CommitResult> {
+  return commitFileToDraft({
+    path: SETTINGS_PATH,
+    branch: opts.branch,
+    message: opts.message ?? "chore(studio): update site settings",
+    transform: (raw) => {
+      const loaded = (load(raw) ?? {}) as SiteSettingsRecord;
+      const result = transformSiteSettings(loaded, patch);
+      if (!result.ok) return result;
+      return { ok: true, bytes: dump(result.value) };
+    },
+  });
 }
 
 export { SETTINGS_PATH };
