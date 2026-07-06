@@ -15,9 +15,12 @@ import {
   SITE_SETTINGS_FIELD_ORDER,
   type SiteSettingsRecord,
 } from "./site-settings-format";
-import { branchExists, REPO } from "./github-commit";
+import { branchExists, compareBranches, REPO } from "./github-commit";
 
 export const DRAFT_BRANCH = "studio/draft-site-settings";
+// The repo's default branch (CLAUDE.md). Used as the compare base for the
+// branch-level differs check — a constant keeps it to a single compare call.
+const MAIN_BRANCH = "main";
 
 export type SettingsDraftState = {
   live: SiteSettingsEntry | null;
@@ -100,6 +103,40 @@ export async function getSiteSettingsDraftState(
     // Fail safe — a GitHub outage must not break /studio. Not cached (the cached
     // read throws on error), so recovery is immediate on the next request.
     return { live, draft: null, differs: false };
+  }
+}
+
+// CE-3a — branch-level "unpublished changes": is the draft branch ahead of main
+// in ANY file (settings OR a collection entry)? Cached under the SAME
+// DRAFT_STATE_TAG as the settings draft read, so the existing
+// invalidateDraftStateCache() — already fired after every save-draft (settings
+// AND collection) and on publish — invalidates it with no new wiring.
+const readDraftBranchDiffersCached = unstable_cache(
+  async (): Promise<boolean> => {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[studio] draft-branch-differs cache miss — comparing branches on GitHub");
+    }
+    const cmp = await compareBranches(MAIN_BRANCH, DRAFT_BRANCH);
+    return cmp !== null && cmp.aheadBy > 0;
+  },
+  ["studio-draft-branch-differs"],
+  { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }
+);
+
+/**
+ * Branch-level differs: true when the draft branch has unpublished commits vs
+ * main (any file), so a collection-only edit lights the Publish bar (CE-3a).
+ * github mode only; a GitHub error degrades to false (bar dark, never blocks) —
+ * the same fail-safe posture as getSiteSettingsDraftState. The cached fn throws
+ * on error so a transient outage is not cached.
+ */
+export async function getDraftBranchDiffers(): Promise<boolean> {
+  const token = process.env.STUDIO_GITHUB_TOKEN;
+  if (!githubMode() || !token) return false;
+  try {
+    return await readDraftBranchDiffersCached();
+  } catch {
+    return false;
   }
 }
 
