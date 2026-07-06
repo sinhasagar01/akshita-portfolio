@@ -1,8 +1,8 @@
 import FooterClock from "./FooterClock";
 import FooterBackToTop from "./FooterBackToTop";
-import { ELSEWHERE } from "@/lib/social-links";
+import type { ElsewhereLink } from "@/lib/social-links";
 
-export default function SiteFooter() {
+export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
   return (
     <footer className="py-10">
       <div className="container-x">
@@ -69,7 +69,7 @@ export default function SiteFooter() {
                 className="footer-social inline-grid items-center text-left"
                 style={{ gridTemplateColumns: "auto auto", gap: "13px 12px" }}
               >
-                {ELSEWHERE.map(({ label, href, external, glyph }) => (
+                {links.map(({ label, href, external, glyph }) => (
                   <a
                     key={label}
                     href={href}
