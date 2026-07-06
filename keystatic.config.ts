@@ -342,6 +342,14 @@ export default config({
           fields.text({ label: "Focus area" }),
           { label: "Focus chips", itemLabel: (props) => props.value }
         ),
+        aboutSubtext: fields.text({
+          label: "About subtext",
+          description: "The line under the About heading",
+        }),
+        aboutPhotoCaption: fields.text({
+          label: "About photo caption",
+          description: "The caption over the About photo",
+        }),
         discoverText: fields.text({
           label: "Process step 1 — Discover",
           description: "One line describing what Discover means in practice",

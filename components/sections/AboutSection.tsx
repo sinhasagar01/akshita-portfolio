@@ -6,6 +6,11 @@ import type { SiteSettingsEntry } from "@/lib/keystatic";
 
 type Props = { settings: SiteSettingsEntry | null };
 
+// COUPLING (review, About-C decision a): the bio's bold emphasis is keyed to
+// these literal phrases. Editing aboutCopy to remove or reword them silently
+// drops the emphasis (renderWithBold finds no match and renders plain text, it
+// never errors). If the bio changes, update this list. The clean future fix is
+// inline **bold** markers in the bio, deferred to keep About-C to two fields.
 const BOLD_SPANS = ["LTIMindtree", "20,000 merchants"] as const;
 
 function renderWithBold(text: string) {
@@ -44,6 +49,15 @@ export default function AboutSection({ settings }: Props) {
   const note = settings.aboutNote || null;
   const chips = settings.aboutFocusChips ?? [];
 
+  // CMS with fallbacks to the previous literals (About-C), same blank-to-fallback
+  // pattern as the Hero role label and scroll cue.
+  const subtext = settings.aboutSubtext?.trim()
+    ? settings.aboutSubtext
+    : "Seven years turning rough ideas into products people actually use.";
+  const photoCaption = settings.aboutPhotoCaption?.trim()
+    ? settings.aboutPhotoCaption
+    : "off the clock, painting under a tree";
+
   return (
     <RevealSection
       id="about"
@@ -68,7 +82,7 @@ export default function AboutSection({ settings }: Props) {
           </div>
           {settings.photo && <div className="ab-tint" aria-hidden="true" />}
           <div className="ab-hint" aria-hidden="true">hover &#8594;</div>
-          <div className="ab-cap">off the clock, painting under a tree</div>
+          <div className="ab-cap">{photoCaption}</div>
         </div>
 
         {/* Bio column */}
@@ -80,7 +94,7 @@ export default function AboutSection({ settings }: Props) {
           <SectionHeading
             index="03"
             title="About"
-            subtext="Seven years turning rough ideas into products people actually use."
+            subtext={subtext}
             variant="default"
             tone="grey"
           />

@@ -24,6 +24,8 @@ export type SiteSettingsInput = {
   aboutCopy: string;
   aboutNote: string;
   aboutFocusChips: string[];
+  aboutSubtext: string;
+  aboutPhotoCaption: string;
   discoverText: string;
   defineText: string;
   developText: string;
@@ -69,6 +71,8 @@ export const SITE_SETTINGS_FIELD_ORDER = [
   "aboutCopy",
   "aboutNote",
   "aboutFocusChips",
+  "aboutSubtext",
+  "aboutPhotoCaption",
   "discoverText",
   "defineText",
   "developText",
