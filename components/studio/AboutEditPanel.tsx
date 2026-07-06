@@ -111,7 +111,7 @@ export default function AboutEditPanel({
         type="button"
         onClick={() => setExpanded(true)}
         aria-expanded={false}
-        className="group mt-3.5 block w-full overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 text-left transition-colors hover:border-accent-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+        className="group block w-full overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 text-left transition-colors hover:border-accent-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
       >
         <div className="relative flex h-16 items-center justify-center bg-cream-200 text-accent-500">
           <span className="absolute left-3 top-2 font-display text-sm italic text-ink-400" aria-hidden>
@@ -142,7 +142,7 @@ export default function AboutEditPanel({
   return (
     <section
       aria-label="Edit About"
-      className="mt-3.5 overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
       <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">

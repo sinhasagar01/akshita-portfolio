@@ -19,7 +19,7 @@ export default async function StudioExperience() {
           No experience entries yet. Open the Experience collection in Keystatic to add one.
         </StudioEmptyState>
       ) : (
-        <div className="flex flex-col gap-3.5">
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2 lg:items-start">
           {experience.map((e) => (
             <ExperienceEditPanel
               key={e.slug}
