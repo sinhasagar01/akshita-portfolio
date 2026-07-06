@@ -15,6 +15,7 @@
 // deliberate owner click when there is a differing draft.
 import { useRef, useState } from "react";
 import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
+import { useDraftForm } from "./useDraftForm";
 import { IconSparkles } from "./icons";
 
 type Props = {
@@ -74,7 +75,6 @@ const TABS: { labelKey: keyof HeroFields; lineKey: keyof HeroFields; fallback: s
   { labelKey: "tab4Label", lineKey: "tab4Line", fallback: HERO_TAB_FALLBACK_NAMES[3] },
 ];
 
-type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
 type PublishStatus = "idle" | "publishing" | "published" | "error";
 
 export default function HeroEditPanel({
@@ -105,62 +105,37 @@ export default function HeroEditPanel({
     heroRoleLabel,
     heroScrollCue,
   };
-  const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [values, setValues] = useState<HeroFields>(initial);
-  // The last persisted (loaded or draft-saved) values. Local edits are measured
-  // against this, so after a successful draft save the "Unsaved changes" hint clears.
-  const [savedBaseline, setSavedBaseline] = useState<HeroFields>(initial);
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [unpublished, setUnpublished] = useState(Boolean(differs));
-  // Synchronous in-flight guard: blur can fire twice before React re-renders
-  // saveStatus to "saving", so the state check alone lets a duplicate POST
-  // through. The ref blocks the second call in the same tick (no commit spam).
-  const savingRef = useRef(false);
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
   const [publishMsg, setPublishMsg] = useState("");
-  const publishingRef = useRef(false); // same double-submit guard as savingRef
+  const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
 
-  const dirty = HERO_FIELD_KEYS.some((k) => values[k] !== savedBaseline[k]);
+  // Shared save/dirty/expand machine. Hero posts the FULL form patch (identity
+  // buildCommitted), does NOT sync values on save (so mid-round-trip typing is
+  // never clobbered), and updates its Unpublished badge from the save response.
+  const {
+    expanded,
+    setExpanded,
+    values,
+    setField,
+    savedBaseline,
+    dirty,
+    saveStatus,
+    saveDraft,
+    cancel,
+  } = useDraftForm<HeroFields>({
+    initial,
+    buildCommitted: (v) => ({ ...v }),
+    isDirty: (v, b) => HERO_FIELD_KEYS.some((k) => v[k] !== b[k]),
+    onSaved: (json) => setUnpublished(Boolean(json.differs)),
+  });
 
   function edit(field: keyof HeroFields, v: string) {
-    setValues((prev) => ({ ...prev, [field]: v }));
-    if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
+    setField(field, v);
     if (publishStatus !== "publishing") {
       setPublishStatus("idle"); // a new edit dismisses a stale "Published" or error message
       setPublishMsg("");
-    }
-  }
-
-  // On-blur (and Save button) auto-save: posts the FULL form patch so the draft,
-  // which is recreated from main on each commit, reproduces the complete state.
-  async function saveDraft() {
-    if (!dirty || savingRef.current) return;
-    savingRef.current = true;
-    setSaveStatus("saving");
-    try {
-      const res = await fetch("/api/studio/save-draft", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patch: { ...values } }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && json.ok && json.mode === "fs") {
-        setSaveStatus("fs");
-        return;
-      }
-      if (res.ok && json.ok && json.saved) {
-        setSavedBaseline({ ...values });
-        setUnpublished(Boolean(json.differs));
-        setSaveStatus("saved");
-        window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 2500);
-        return;
-      }
-      setSaveStatus("error");
-    } catch {
-      setSaveStatus("error"); // the local edit is NOT lost — values remain
-    } finally {
-      savingRef.current = false;
     }
   }
 
@@ -219,12 +194,6 @@ export default function HeroEditPanel({
     } finally {
       publishingRef.current = false;
     }
-  }
-
-  function cancel() {
-    setValues({ ...savedBaseline }); // discard unsaved local edits, keep what was saved
-    setSaveStatus("idle");
-    setExpanded(false);
   }
 
   // ---- Collapsed card ----
