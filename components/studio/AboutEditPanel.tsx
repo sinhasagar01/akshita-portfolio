@@ -9,7 +9,8 @@
 // The save posts a PARTIAL patch of only { aboutCopy, aboutNote } — DB-1 commits
 // on top of the existing draft, so this never clobbers the Hero form's edits.
 // (A shared useDraftForm hook is deferred to the third form — rule of three.)
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useDraftForm } from "./useDraftForm";
 import { IconUser, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type Props = {
@@ -27,8 +28,6 @@ type AboutFields = {
   aboutSubtext: string;
   aboutPhotoCaption: string;
 };
-
-type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
 
 // Chips are trimmed and de-blanked at the save boundary, so a blank row is never
 // committed. dirty and the patch both use the trimmed form.
@@ -50,35 +49,39 @@ export default function AboutEditPanel({
     aboutSubtext,
     aboutPhotoCaption,
   };
-  const [expanded, setExpanded] = useState(false);
-  const [values, setValues] = useState<AboutFields>(initial);
-  const [savedBaseline, setSavedBaseline] = useState<AboutFields>(initial);
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  // Synchronous in-flight guard: blur can fire twice before saveStatus updates,
-  // letting a duplicate POST through. The ref blocks the second call same-tick.
-  const savingRef = useRef(false);
   // After "Add chip", focus the new input without a layout effect.
   const pendingFocus = useRef<number | null>(null);
 
-  // Dirty is array-aware. It compares the TRIMMED chips, so a mid-typing empty
-  // row is not dirty (nothing to save yet) while a reorder or a single-chip edit
-  // flips it immediately.
-  const dirty =
-    values.aboutCopy !== savedBaseline.aboutCopy ||
-    values.aboutNote !== savedBaseline.aboutNote ||
-    values.aboutSubtext !== savedBaseline.aboutSubtext ||
-    values.aboutPhotoCaption !== savedBaseline.aboutPhotoCaption ||
-    !sameChips(trimChips(values.aboutFocusChips), savedBaseline.aboutFocusChips);
+  // Shared save/dirty/expand machine. About posts a PARTIAL patch of only its
+  // fields; DB-1 accumulates them onto the draft without touching Hero's edits.
+  // buildCommitted trims and de-blanks the chips, and syncValuesOnSave replaces
+  // the form values with it on success so an empty chip row drops. dirty is
+  // array-aware: it compares the TRIMMED chips, so a mid-typing empty row is not
+  // dirty while a reorder or a single-chip edit flips it immediately.
+  const {
+    expanded,
+    setExpanded,
+    values,
+    setField,
+    savedBaseline,
+    dirty,
+    saveStatus,
+    saveDraft,
+    cancel,
+  } = useDraftForm<AboutFields>({
+    initial,
+    buildCommitted: (v) => ({ ...v, aboutFocusChips: trimChips(v.aboutFocusChips) }),
+    isDirty: (v, b) =>
+      v.aboutCopy !== b.aboutCopy ||
+      v.aboutNote !== b.aboutNote ||
+      v.aboutSubtext !== b.aboutSubtext ||
+      v.aboutPhotoCaption !== b.aboutPhotoCaption ||
+      !sameChips(trimChips(v.aboutFocusChips), b.aboutFocusChips),
+    syncValuesOnSave: true,
+  });
 
-  function edit(field: "aboutCopy" | "aboutNote" | "aboutSubtext" | "aboutPhotoCaption", v: string) {
-    setValues((prev) => ({ ...prev, [field]: v }));
-    if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
-  }
-
-  function updateChips(next: string[]) {
-    setValues((prev) => ({ ...prev, aboutFocusChips: next }));
-    if (saveStatus !== "saving") setSaveStatus("idle");
-  }
+  const edit = setField;
+  const updateChips = (next: string[]) => setField("aboutFocusChips", next);
   const editChip = (i: number, v: string) =>
     updateChips(values.aboutFocusChips.map((c, idx) => (idx === i ? v : c)));
   const removeChip = (i: number) =>
@@ -93,54 +96,6 @@ export default function AboutEditPanel({
     const next = [...values.aboutFocusChips];
     [next[i], next[j]] = [next[j], next[i]];
     updateChips(next);
-  }
-
-  // On-blur (and Save button) auto-save. Posts ONLY the About fields; DB-1
-  // accumulates them onto the existing draft without touching Hero's edits.
-  async function saveDraft() {
-    if (!dirty || savingRef.current) return;
-    savingRef.current = true;
-    setSaveStatus("saving");
-    // The committed state trims and de-blanks the chips, so no "" ever lands in
-    // the file. On success it also becomes the baseline and replaces the form
-    // values, dropping any empty row.
-    const committed: AboutFields = {
-      aboutCopy: values.aboutCopy,
-      aboutNote: values.aboutNote,
-      aboutFocusChips: trimChips(values.aboutFocusChips),
-      aboutSubtext: values.aboutSubtext,
-      aboutPhotoCaption: values.aboutPhotoCaption,
-    };
-    try {
-      const res = await fetch("/api/studio/save-draft", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patch: { ...committed } }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && json.ok && json.mode === "fs") {
-        setSaveStatus("fs");
-        return;
-      }
-      if (res.ok && json.ok && json.saved) {
-        setValues(committed);
-        setSavedBaseline(committed);
-        setSaveStatus("saved");
-        window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 2500);
-        return;
-      }
-      setSaveStatus("error");
-    } catch {
-      setSaveStatus("error"); // the local edit is NOT lost — values remain
-    } finally {
-      savingRef.current = false;
-    }
-  }
-
-  function cancel() {
-    setValues({ ...savedBaseline }); // discard unsaved local edits, keep what was saved
-    setSaveStatus("idle");
-    setExpanded(false);
   }
 
   // ---- Collapsed card ----
