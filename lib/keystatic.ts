@@ -1,6 +1,9 @@
 import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
+import type { ProcessStage } from "@/lib/studio/site-settings-format";
+
+export type { ProcessStage };
 
 const reader = createReader(process.cwd(), config);
 
@@ -24,10 +27,7 @@ export type SiteSettingsEntry = {
   aboutFocusChips: string[];
   aboutSubtext: string;
   aboutPhotoCaption: string;
-  discoverText: string;
-  defineText: string;
-  developText: string;
-  deliverText: string;
+  processStages: ProcessStage[];
   resumeUrl: string | null;
   email: string;
   linkedinUrl: string | null;
@@ -73,6 +73,21 @@ function resolveSlugField(value: unknown, fallback: string): string {
   return fallback;
 }
 
+/** Map a raw processStages value to ProcessStage[] in a fixed {name,
+ *  description, tags} key order, so the canonical dump used by the differ is
+ *  stable. Non-arrays and missing sub-fields coalesce to empty. */
+function mapProcessStages(raw: unknown): ProcessStage[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => {
+    const obj = (item ?? {}) as Record<string, unknown>;
+    return {
+      name: (obj.name as string) ?? "",
+      description: (obj.description as string) ?? "",
+      tags: Array.isArray(obj.tags) ? obj.tags.map(String) : [],
+    };
+  });
+}
+
 /** Map a raw siteSettings reader entry to SiteSettingsEntry. The ONE shared
  *  mapper — used by the live read below and by the /studio draft-branch read
  *  (lib/studio/draft-site-settings.ts), so the two paths cannot drift. */
@@ -95,10 +110,7 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
     aboutFocusChips: ((raw.aboutFocusChips as readonly unknown[]) ?? []).map(String),
     aboutSubtext: (raw.aboutSubtext as string) ?? "",
     aboutPhotoCaption: (raw.aboutPhotoCaption as string) ?? "",
-    discoverText: (raw.discoverText as string) ?? "",
-    defineText: (raw.defineText as string) ?? "",
-    developText: (raw.developText as string) ?? "",
-    deliverText: (raw.deliverText as string) ?? "",
+    processStages: mapProcessStages(raw.processStages),
     resumeUrl: (raw.resumeUrl as string | null) ?? null,
     email: (raw.email as string) ?? "",
     linkedinUrl: (raw.linkedinUrl as string | null) ?? null,

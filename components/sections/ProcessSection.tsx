@@ -10,7 +10,10 @@ import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 type Props = { settings: SiteSettingsEntry | null };
 
-const STAGES = [
+// The four Process stages are settings-driven (PL-2b). These are the FALLBACKS —
+// per-field defaults used when a stage's name/description/tags is blank. The
+// index labels and the bespoke per-position SVG artifacts stay code-owned.
+const STAGE_FALLBACKS = [
   {
     index: "01",
     name: "Discover",
@@ -37,7 +40,24 @@ const STAGES = [
   },
 ] as const;
 
-type Stage = (typeof STAGES)[number];
+type ResolvedStage = { index: string; name: string; description: string; tags: string[] };
+
+// Merge the edited stages over the fallbacks, per field. A fixed four stages;
+// a blank name/description/tags falls back to the hardcoded default (same
+// blank-to-fallback pattern as Hero and About), so the section stays
+// pixel-identical until edited.
+function resolveStages(settings: SiteSettingsEntry | null): ResolvedStage[] {
+  const edited = settings?.processStages ?? [];
+  return STAGE_FALLBACKS.map((fb, i) => {
+    const s = edited[i];
+    return {
+      index: fb.index,
+      name: s?.name?.trim() ? s.name : fb.name,
+      description: s?.description?.trim() ? s.description : fb.description,
+      tags: s?.tags && s.tags.length > 0 ? s.tags : [...fb.tags],
+    };
+  });
+}
 
 // [translateX, translateY, rotate] for fan slot d=0 (active/front) through d=3
 const FAN_POS = [
@@ -58,7 +78,8 @@ const GLOW_OFFSETS = [
   [14, 14],
 ] as const;
 
-export default function ProcessSection(_props: Props) {
+export default function ProcessSection({ settings }: Props) {
+  const stages = resolveStages(settings);
   const [active, setActive] = useState(0);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const prefersReduced = useReducedMotion();
@@ -164,7 +185,7 @@ export default function ProcessSection(_props: Props) {
       ].join(" ")}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] items-center">
-        <LeftColumn active={active} onSelect={scrollToStage} />
+        <LeftColumn stages={stages} active={active} onSelect={scrollToStage} />
         <FanDeck active={active} skipAnim={noPin} />
       </div>
     </section>
@@ -182,9 +203,11 @@ export default function ProcessSection(_props: Props) {
 /* ── Left column ─────────────────────────────────────────────── */
 
 function LeftColumn({
+  stages,
   active,
   onSelect,
 }: {
+  stages: ResolvedStage[];
   active: number;
   onSelect: (i: number) => void;
 }) {
@@ -198,8 +221,8 @@ function LeftColumn({
         tone="grey"
       />
       <div className="mt-8 sm:mt-[52px]">
-        <StageCopy stage={STAGES[active]} />
-        <VerticalStepper active={active} onSelect={onSelect} />
+        <StageCopy stage={stages[active]} />
+        <VerticalStepper stages={stages} active={active} onSelect={onSelect} />
       </div>
     </div>
   );
@@ -232,7 +255,7 @@ const stageLine = {
   exit: { opacity: 0, y: 0 },
 };
 
-function StageCopy({ stage }: { stage: Stage }) {
+function StageCopy({ stage }: { stage: ResolvedStage }) {
   return (
     <div className="relative min-h-[180px] overflow-hidden">
       <AnimatePresence mode="wait" initial={false}>
@@ -290,14 +313,16 @@ function StageCopy({ stage }: { stage: Stage }) {
 /* ── Vertical stepper ────────────────────────────────────────── */
 
 function VerticalStepper({
+  stages,
   active,
   onSelect,
 }: {
+  stages: ResolvedStage[];
   active: number;
   onSelect: (i: number) => void;
 }) {
   const ROW_H = 44;
-  const railHeight = (STAGES.length - 1) * ROW_H;
+  const railHeight = (stages.length - 1) * ROW_H;
   const fillHeight = active * ROW_H;
 
   return (
@@ -332,7 +357,7 @@ function VerticalStepper({
           zIndex: 2,
         }}
       />
-      {STAGES.map((stage, i) => {
+      {stages.map((stage, i) => {
         const isActive = i === active;
         const isDone = i < active;
 
@@ -456,8 +481,8 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
         </motion.div>
       </div>
 
-      {/* Cards */}
-      {STAGES.map((_, i) => {
+      {/* Cards — positional, one bespoke artifact per slot (content-independent) */}
+      {STAGE_FALLBACKS.map((_, i) => {
         const d = (i - active + 4) % 4;
         const [tx, ty, rot] = FAN_POS[d];
         return (

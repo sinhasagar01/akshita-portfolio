@@ -350,22 +350,21 @@ export default config({
           label: "About photo caption",
           description: "The caption over the About photo",
         }),
-        discoverText: fields.text({
-          label: "Process step 1 — Discover",
-          description: "One line describing what Discover means in practice",
-        }),
-        defineText: fields.text({
-          label: "Process step 2 — Define",
-          description: "One line describing what Define means in practice",
-        }),
-        developText: fields.text({
-          label: "Process step 3 — Develop",
-          description: "One line describing what Develop means in practice",
-        }),
-        deliverText: fields.text({
-          label: "Process step 4 — Deliver",
-          description: "One line describing what Deliver means in practice",
-        }),
+        processStages: fields.array(
+          fields.object({
+            name: fields.text({ label: "Stage name" }),
+            description: fields.text({ label: "Description" }),
+            tags: fields.array(fields.text({ label: "Tag" }), {
+              label: "Tags",
+              itemLabel: (props) => props.value,
+            }),
+          }),
+          {
+            label: "Process stages",
+            description: "The four Process stages shown on the home page",
+            itemLabel: (props) => props.fields.name.value,
+          }
+        ),
         resumeUrl: fields.url({
           label: "Resume URL",
           description: "Direct link to the PDF resume",
