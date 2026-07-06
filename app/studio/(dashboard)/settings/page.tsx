@@ -37,8 +37,13 @@ export default async function StudioSettings() {
           provider seeds the singleton differs and tracks any panel's pending
           edits so Publish gates exactly like the old Hero control. */}
       <PublishProvider initialDiffers={settingsDraftState.differs}>
-        {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
-        <HeroEditPanel
+        {/* Two-column grid at lg (the site's mobile breakpoint); stacks below.
+            items-start so a collapsed card never stretches to an expanded
+            neighbour's height. Panels no longer carry their own mt — the grid
+            gap owns the spacing. */}
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2 lg:items-start">
+          {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
+          <HeroEditPanel
           heroCopy={settings.heroCopy}
           tab1Label={settings.tab1Label}
           tab1Line={settings.tab1Line}
@@ -75,6 +80,7 @@ export default async function StudioSettings() {
         {/* PL-2b: the Process group is an inline-editable panel (Surface B),
             four stages each with name, description, and a tags array. */}
         <ProcessEditPanel processStages={settings.processStages} />
+        </div>
 
         {/* Clear the fixed floating Publish bar so the last panel is not hidden. */}
         <div className="h-20" aria-hidden />
