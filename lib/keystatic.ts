@@ -130,6 +130,38 @@ export const getSiteSettings = cache(
   }
 );
 
+/** Map one project reader entry to a ProjectListItem. Extracted so the studio
+ *  draft-branch read (CE-3b) maps entries identically to the live read — one
+ *  source of truth. Behavior-identical to the previous inline map. */
+export function mapProjectListItem(slug: string, entry: Record<string, unknown>): ProjectListItem {
+  return {
+    slug,
+    title: resolveSlugField(entry.title, slug),
+    summary: (entry.summary ?? "") as string,
+    orderIndex: (entry.orderIndex ?? 99) as number,
+    heroImage: entry.heroImage as string | null,
+    facts: {
+      role: ((entry.facts as Record<string, string> | null)?.role) ?? "",
+      type: ((entry.facts as Record<string, string> | null)?.type) ?? "",
+      platform: ((entry.facts as Record<string, string> | null)?.platform) ?? "",
+      timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
+    },
+  };
+}
+
+/** Map one experience reader entry to an ExperienceListItem (see mapProjectListItem). */
+export function mapExperienceListItem(slug: string, entry: Record<string, unknown>): ExperienceListItem {
+  return {
+    slug,
+    company: resolveSlugField(entry.company, slug),
+    title: (entry.title ?? "") as string,
+    startDate: (entry.startDate ?? "") as string,
+    endDate: (entry.endDate ?? "") as string,
+    description: (entry.description ?? "") as string,
+    orderIndex: (entry.orderIndex ?? 0) as number,
+  };
+}
+
 export async function getHomePageData(): Promise<HomePageData> {
   const [settings, skillsRaw, projectsRaw, experienceRaw] =
     await Promise.all([
@@ -151,33 +183,13 @@ export async function getHomePageData(): Promise<HomePageData> {
     : null;
 
   const projects: ProjectListItem[] = (projectsRaw as Awaited<typeof projectsRaw>)
-    .map(({ slug, entry }) => ({
-      slug,
-      title: resolveSlugField(entry.title, slug),
-      summary: (entry.summary ?? "") as string,
-      orderIndex: (entry.orderIndex ?? 99) as number,
-      heroImage: entry.heroImage as string | null,
-      facts: {
-        role: ((entry.facts as Record<string, string> | null)?.role) ?? "",
-        type: ((entry.facts as Record<string, string> | null)?.type) ?? "",
-        platform: ((entry.facts as Record<string, string> | null)?.platform) ?? "",
-        timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
-      },
-    }))
+    .map(({ slug, entry }) => mapProjectListItem(slug, entry as Record<string, unknown>))
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
   const experience: ExperienceListItem[] = (
     experienceRaw as Awaited<typeof experienceRaw>
   )
-    .map(({ slug, entry }) => ({
-      slug,
-      company: resolveSlugField(entry.company, slug),
-      title: (entry.title ?? "") as string,
-      startDate: (entry.startDate ?? "") as string,
-      endDate: (entry.endDate ?? "") as string,
-      description: (entry.description ?? "") as string,
-      orderIndex: (entry.orderIndex ?? 0) as number,
-    }))
+    .map(({ slug, entry }) => mapExperienceListItem(slug, entry as Record<string, unknown>))
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
   return { settings, skills, projects, experience };

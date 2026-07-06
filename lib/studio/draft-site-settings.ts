@@ -8,7 +8,14 @@ import { dump } from "js-yaml";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { createGitHubReader } from "@keystatic/core/reader/github";
 import config from "@/keystatic.config";
-import { mapSiteSettings, type SiteSettingsEntry } from "@/lib/keystatic";
+import {
+  mapSiteSettings,
+  mapProjectListItem,
+  mapExperienceListItem,
+  type SiteSettingsEntry,
+  type ProjectListItem,
+  type ExperienceListItem,
+} from "@/lib/keystatic";
 import {
   stripEmptyOptional,
   reorderBySchema,
@@ -106,38 +113,89 @@ export async function getSiteSettingsDraftState(
   }
 }
 
-// CE-3a — branch-level "unpublished changes": is the draft branch ahead of main
-// in ANY file (settings OR a collection entry)? Cached under the SAME
+// CE-3a/CE-3b — one cached read of the draft branch's state vs main: the
+// branch-level differs (CE-3a: is it ahead of main in ANY file?) AND the
+// draft-preferred collection entries (CE-3b). Scoped by the compare's `files`:
+// only entries that actually changed on the draft branch are read, so a
+// settings-only edit does zero collection reads. Cached under the SAME
 // DRAFT_STATE_TAG as the settings draft read, so the existing
-// invalidateDraftStateCache() — already fired after every save-draft (settings
-// AND collection) and on publish — invalidates it with no new wiring.
-const readDraftBranchDiffersCached = unstable_cache(
-  async (): Promise<boolean> => {
+// invalidateDraftStateCache() — fired after every save-draft (settings AND
+// collection) and on publish — invalidates it with no new wiring.
+export type DraftBranchState = {
+  differs: boolean;
+  projects: Record<string, ProjectListItem>;
+  experience: Record<string, ExperienceListItem>;
+};
+
+const EMPTY_DRAFT_STATE: DraftBranchState = { differs: false, projects: {}, experience: {} };
+
+// content/<collection>/<slug>.yaml — the top-level entry file (not the body subdir).
+const COLLECTION_FILE_RE = /^content\/(projects|experience)\/([a-z0-9-]+)\.yaml$/;
+
+const readDraftBranchStateCached = unstable_cache(
+  async (): Promise<DraftBranchState> => {
     if (process.env.NODE_ENV !== "production") {
-      console.log("[studio] draft-branch-differs cache miss — comparing branches on GitHub");
+      console.log("[studio] draft-branch-state cache miss — comparing branches + reading changed entries");
     }
     const cmp = await compareBranches(MAIN_BRANCH, DRAFT_BRANCH);
-    return cmp !== null && cmp.aheadBy > 0;
+    if (cmp === null) return EMPTY_DRAFT_STATE; // no draft branch
+    const differs = cmp.aheadBy > 0;
+
+    const projectSlugs: string[] = [];
+    const experienceSlugs: string[] = [];
+    for (const file of cmp.files) {
+      const m = file.match(COLLECTION_FILE_RE);
+      if (!m) continue;
+      (m[1] === "projects" ? projectSlugs : experienceSlugs).push(m[2]);
+    }
+    if (projectSlugs.length === 0 && experienceSlugs.length === 0) {
+      return { differs, projects: {}, experience: {} };
+    }
+
+    const token = process.env.STUDIO_GITHUB_TOKEN as string;
+    const reader = createGitHubReader(config, {
+      repo: REPO as `${string}/${string}`,
+      ref: DRAFT_BRANCH,
+      token,
+    });
+    const projects: Record<string, ProjectListItem> = {};
+    const experience: Record<string, ExperienceListItem> = {};
+    await Promise.all([
+      ...projectSlugs.map(async (slug) => {
+        const entry = await reader.collections.projects.read(slug);
+        if (entry) projects[slug] = mapProjectListItem(slug, entry as Record<string, unknown>);
+      }),
+      ...experienceSlugs.map(async (slug) => {
+        const entry = await reader.collections.experience.read(slug);
+        if (entry) experience[slug] = mapExperienceListItem(slug, entry as Record<string, unknown>);
+      }),
+    ]);
+    return { differs, projects, experience };
   },
-  ["studio-draft-branch-differs"],
+  ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }
 );
 
 /**
- * Branch-level differs: true when the draft branch has unpublished commits vs
- * main (any file), so a collection-only edit lights the Publish bar (CE-3a).
- * github mode only; a GitHub error degrades to false (bar dark, never blocks) —
+ * The draft branch's state vs main: branch-level differs + the draft versions of
+ * any changed collection entries. github mode only; a GitHub error degrades to
+ * the empty state (no differs, no overlay → panels/bar show live, never break) —
  * the same fail-safe posture as getSiteSettingsDraftState. The cached fn throws
  * on error so a transient outage is not cached.
  */
-export async function getDraftBranchDiffers(): Promise<boolean> {
+export async function getDraftBranchState(): Promise<DraftBranchState> {
   const token = process.env.STUDIO_GITHUB_TOKEN;
-  if (!githubMode() || !token) return false;
+  if (!githubMode() || !token) return EMPTY_DRAFT_STATE;
   try {
-    return await readDraftBranchDiffersCached();
+    return await readDraftBranchStateCached();
   } catch {
-    return false;
+    return EMPTY_DRAFT_STATE;
   }
+}
+
+/** CE-3a compat: branch-level differs, now derived from the unified state read. */
+export async function getDraftBranchDiffers(): Promise<boolean> {
+  return (await getDraftBranchState()).differs;
 }
 
 /**
