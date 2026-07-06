@@ -11,6 +11,7 @@
 // (A shared useDraftForm hook is deferred to the third form — rule of three.)
 import { useRef } from "react";
 import { useDraftForm } from "./useDraftForm";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { IconUser, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type Props = {
@@ -51,6 +52,8 @@ export default function AboutEditPanel({
   };
   // After "Add chip", focus the new input without a layout effect.
   const pendingFocus = useRef<number | null>(null);
+  // UX-1: report this panel's differs + pending state up to the page Publish bar.
+  const { setUnpublished } = usePublishSignal();
 
   // Shared save/dirty/expand machine. About posts a PARTIAL patch of only its
   // fields; DB-1 accumulates them onto the draft without touching Hero's edits.
@@ -78,7 +81,10 @@ export default function AboutEditPanel({
       v.aboutPhotoCaption !== b.aboutPhotoCaption ||
       !sameChips(trimChips(v.aboutFocusChips), b.aboutFocusChips),
     syncValuesOnSave: true,
+    onSaved: (json) => setUnpublished(Boolean(json.differs)),
   });
+
+  useReportPending(dirty || saveStatus === "saving");
 
   const edit = setField;
   const updateChips = (next: string[]) => setField("aboutFocusChips", next);

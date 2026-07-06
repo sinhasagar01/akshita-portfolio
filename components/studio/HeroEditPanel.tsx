@@ -13,9 +13,10 @@
 // Vercel rebuild), maps typed publish errors, and clears the badge on success.
 // The client never holds the token; only publish writes main, and only on a
 // deliberate owner click when there is a differing draft.
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
 import { useDraftForm } from "./useDraftForm";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { IconSparkles } from "./icons";
 
 type Props = {
@@ -31,7 +32,6 @@ type Props = {
   heroRoleLabel: string;
   heroScrollCue: string;
   photo: string | null;
-  differs?: boolean;
 };
 
 // The Hero form's editable fields. State keys match the settings field names so
@@ -75,8 +75,6 @@ const TABS: { labelKey: keyof HeroFields; lineKey: keyof HeroFields; fallback: s
   { labelKey: "tab4Label", lineKey: "tab4Line", fallback: HERO_TAB_FALLBACK_NAMES[3] },
 ];
 
-type PublishStatus = "idle" | "publishing" | "published" | "error";
-
 export default function HeroEditPanel({
   heroCopy,
   tab1Label,
@@ -90,7 +88,6 @@ export default function HeroEditPanel({
   heroRoleLabel,
   heroScrollCue,
   photo,
-  differs,
 }: Props) {
   const initial: HeroFields = {
     heroCopy,
@@ -106,14 +103,14 @@ export default function HeroEditPanel({
     heroScrollCue,
   };
   const [activeTab, setActiveTab] = useState(0);
-  const [unpublished, setUnpublished] = useState(Boolean(differs));
-  const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
-  const [publishMsg, setPublishMsg] = useState("");
-  const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
+  // UX-1: the Unpublished (differs) signal and the Publish control now live at
+  // page level (PublishBar). This panel just reports its save-response differs
+  // and its pending state up to the shared signal — it no longer publishes.
+  const { setUnpublished } = usePublishSignal();
 
   // Shared save/dirty/expand machine. Hero posts the FULL form patch (identity
   // buildCommitted), does NOT sync values on save (so mid-round-trip typing is
-  // never clobbered), and updates its Unpublished badge from the save response.
+  // never clobbered), and reports the save response's differs to the page bar.
   const {
     expanded,
     setExpanded,
@@ -131,70 +128,9 @@ export default function HeroEditPanel({
     onSaved: (json) => setUnpublished(Boolean(json.differs)),
   });
 
-  function edit(field: keyof HeroFields, v: string) {
-    setField(field, v);
-    if (publishStatus !== "publishing") {
-      setPublishStatus("idle"); // a new edit dismisses a stale "Published" or error message
-      setPublishMsg("");
-    }
-  }
+  useReportPending(dirty || saveStatus === "saving");
 
-  // Publish only when there IS something to publish (a draft that differs) AND
-  // the local edits are already saved to that draft. Gating on differs alone
-  // would let a click publish a stale draft that omits unsaved keystrokes, and
-  // would race the click-triggered blur-save.
-  const canPublish =
-    unpublished && !dirty && saveStatus !== "saving" && publishStatus !== "publishing";
-
-  async function publish() {
-    if (!canPublish || publishingRef.current) return;
-    publishingRef.current = true;
-    setPublishStatus("publishing");
-    setPublishMsg("");
-    try {
-      const res = await fetch("/api/studio/publish", { method: "POST" });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && json.ok && json.merged) {
-        // GH-4 merged the draft into main and deleted it, so differs is now
-        // false: clear the badge and re-disable Publish (self-healing).
-        setUnpublished(false);
-        setPublishStatus("published");
-        setPublishMsg("Published. Your site is rebuilding and goes live in about 2 minutes.");
-        return;
-      }
-      if (res.ok && json.ok && !json.merged) {
-        if (json.reason === "not_applicable") {
-          setPublishStatus("idle");
-          setPublishMsg("Publish needs github mode (dev).");
-        } else {
-          // no_draft or no_changes — nothing to publish, self-heal the badge.
-          setUnpublished(false);
-          setPublishStatus("idle");
-          setPublishMsg("Nothing to publish.");
-        }
-        return;
-      }
-      // Typed error. The draft branch is preserved (GH-4) and local values are
-      // untouched, so the user loses nothing.
-      const code = json?.error?.code;
-      if (code === "invalid_url") {
-        const field = json.error?.field || "a link";
-        setPublishMsg(
-          `Cannot publish. The ${field} link is not a valid URL. Fix it in Keystatic, then publish.`
-        );
-      } else if (code === "merge_conflict") {
-        setPublishMsg("Could not publish. The site changed since your draft. Refresh and try again.");
-      } else {
-        setPublishMsg("Could not publish. Something went wrong. Try again.");
-      }
-      setPublishStatus("error");
-    } catch {
-      setPublishStatus("error"); // draft + local values intact
-      setPublishMsg("Could not publish. Something went wrong. Try again.");
-    } finally {
-      publishingRef.current = false;
-    }
-  }
+  const edit = setField;
 
   // ---- Collapsed card ----
   if (!expanded) {
@@ -209,15 +145,8 @@ export default function HeroEditPanel({
           <span className="absolute left-3 top-2 font-display text-sm italic text-ink-400" aria-hidden>
             01
           </span>
-          <span className="absolute right-2 top-2 flex items-center gap-1.5">
-            {unpublished && (
-              <span className="rounded-full bg-accent-500/10 px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide text-accent-600">
-                Unpublished
-              </span>
-            )}
-            <span className="rounded-full bg-accent-500/10 px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide text-accent-600">
-              Editable
-            </span>
+          <span className="absolute right-2 top-2 rounded-full bg-accent-500/10 px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide text-accent-600">
+            Editable
           </span>
           <span className="[&>svg]:size-5" aria-hidden>
             <IconSparkles />
@@ -254,11 +183,6 @@ export default function HeroEditPanel({
           {dirty && (
             <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-500">
               Unsaved changes
-            </span>
-          )}
-          {unpublished && (
-            <span className="rounded-full border border-accent-500/35 px-2 py-0.5 text-[10px] text-accent-500">
-              Unpublished changes
             </span>
           )}
         </div>
@@ -379,16 +303,7 @@ export default function HeroEditPanel({
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
-          {/* Publish state takes precedence over the save status when active. */}
-          {publishStatus === "publishing" ? (
-            <span className="text-ink-500">Publishing…</span>
-          ) : publishStatus === "published" ? (
-            <span className="text-accent-600">{publishMsg}</span>
-          ) : publishStatus === "error" ? (
-            <span className="text-accent-600">{publishMsg}</span>
-          ) : publishMsg ? (
-            <span className="text-text-subtle">{publishMsg}</span>
-          ) : saveStatus === "saving" ? (
+          {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>
           ) : saveStatus === "saved" ? (
             <span className="text-accent-600">Draft saved</span>
@@ -397,28 +312,17 @@ export default function HeroEditPanel({
           ) : saveStatus === "fs" ? (
             <span className="text-text-subtle">Draft save needs github mode (dev)</span>
           ) : (
-            <span className="text-text-subtle">Auto-saves to draft on blur. Publish when ready.</span>
+            <span className="text-text-subtle">Auto-saves to draft on blur. Publish from the bar below.</span>
           )}
         </span>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={publish}
-            disabled={!canPublish}
-            aria-disabled={!canPublish}
-            className="rounded-md border border-accent-500/30 px-4 py-2 text-[13px] text-accent-500 transition-colors enabled:hover:bg-accent-500/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {publishStatus === "publishing" ? "Publishing…" : "Publish"}
-          </button>
-          <button
-            type="button"
-            onClick={saveDraft}
-            disabled={!dirty || saveStatus === "saving" || publishStatus === "publishing"}
-            className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {saveStatus === "saving" ? "Saving…" : "Save draft"}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={saveDraft}
+          disabled={!dirty || saveStatus === "saving"}
+          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {saveStatus === "saving" ? "Saving…" : "Save draft"}
+        </button>
       </footer>
     </section>
   );
