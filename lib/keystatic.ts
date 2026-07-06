@@ -21,6 +21,8 @@ export type SiteSettingsEntry = {
   aboutCopy: string;
   aboutNote: string;
   aboutFocusChips: string[];
+  aboutSubtext: string;
+  aboutPhotoCaption: string;
   discoverText: string;
   defineText: string;
   developText: string;
@@ -90,6 +92,8 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
     aboutCopy: (raw.aboutCopy as string) ?? "",
     aboutNote: (raw.aboutNote as string) ?? "",
     aboutFocusChips: ((raw.aboutFocusChips as readonly unknown[]) ?? []).map(String),
+    aboutSubtext: (raw.aboutSubtext as string) ?? "",
+    aboutPhotoCaption: (raw.aboutPhotoCaption as string) ?? "",
     discoverText: (raw.discoverText as string) ?? "",
     defineText: (raw.defineText as string) ?? "",
     developText: (raw.developText as string) ?? "",

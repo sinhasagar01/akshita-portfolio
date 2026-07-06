@@ -58,6 +58,8 @@ export default async function StudioSettings() {
         aboutCopy={settings.aboutCopy}
         aboutNote={settings.aboutNote}
         aboutFocusChips={settings.aboutFocusChips}
+        aboutSubtext={settings.aboutSubtext}
+        aboutPhotoCaption={settings.aboutPhotoCaption}
       />
 
       <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">

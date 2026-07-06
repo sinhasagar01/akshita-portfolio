@@ -16,9 +16,17 @@ type Props = {
   aboutCopy: string;
   aboutNote: string;
   aboutFocusChips: string[];
+  aboutSubtext: string;
+  aboutPhotoCaption: string;
 };
 
-type AboutFields = { aboutCopy: string; aboutNote: string; aboutFocusChips: string[] };
+type AboutFields = {
+  aboutCopy: string;
+  aboutNote: string;
+  aboutFocusChips: string[];
+  aboutSubtext: string;
+  aboutPhotoCaption: string;
+};
 
 type SaveStatus = "idle" | "saving" | "saved" | "fs" | "error";
 
@@ -28,8 +36,20 @@ const trimChips = (chips: string[]) => chips.map((c) => c.trim()).filter(Boolean
 const sameChips = (a: string[], b: string[]) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
 
-export default function AboutEditPanel({ aboutCopy, aboutNote, aboutFocusChips }: Props) {
-  const initial: AboutFields = { aboutCopy, aboutNote, aboutFocusChips };
+export default function AboutEditPanel({
+  aboutCopy,
+  aboutNote,
+  aboutFocusChips,
+  aboutSubtext,
+  aboutPhotoCaption,
+}: Props) {
+  const initial: AboutFields = {
+    aboutCopy,
+    aboutNote,
+    aboutFocusChips,
+    aboutSubtext,
+    aboutPhotoCaption,
+  };
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<AboutFields>(initial);
   const [savedBaseline, setSavedBaseline] = useState<AboutFields>(initial);
@@ -46,9 +66,11 @@ export default function AboutEditPanel({ aboutCopy, aboutNote, aboutFocusChips }
   const dirty =
     values.aboutCopy !== savedBaseline.aboutCopy ||
     values.aboutNote !== savedBaseline.aboutNote ||
+    values.aboutSubtext !== savedBaseline.aboutSubtext ||
+    values.aboutPhotoCaption !== savedBaseline.aboutPhotoCaption ||
     !sameChips(trimChips(values.aboutFocusChips), savedBaseline.aboutFocusChips);
 
-  function edit(field: "aboutCopy" | "aboutNote", v: string) {
+  function edit(field: "aboutCopy" | "aboutNote" | "aboutSubtext" | "aboutPhotoCaption", v: string) {
     setValues((prev) => ({ ...prev, [field]: v }));
     if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
   }
@@ -86,6 +108,8 @@ export default function AboutEditPanel({ aboutCopy, aboutNote, aboutFocusChips }
       aboutCopy: values.aboutCopy,
       aboutNote: values.aboutNote,
       aboutFocusChips: trimChips(values.aboutFocusChips),
+      aboutSubtext: values.aboutSubtext,
+      aboutPhotoCaption: values.aboutPhotoCaption,
     };
     try {
       const res = await fetch("/api/studio/save-draft", {
@@ -281,6 +305,28 @@ export default function AboutEditPanel({ aboutCopy, aboutNote, aboutFocusChips }
             </span>
           )}
         </div>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">About subtext</span>
+          <input
+            type="text"
+            value={values.aboutSubtext}
+            onChange={(e) => edit("aboutSubtext", e.target.value)}
+            onBlur={saveDraft}
+            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo caption</span>
+          <input
+            type="text"
+            value={values.aboutPhotoCaption}
+            onChange={(e) => edit("aboutPhotoCaption", e.target.value)}
+            onBlur={saveDraft}
+            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          />
+        </label>
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
