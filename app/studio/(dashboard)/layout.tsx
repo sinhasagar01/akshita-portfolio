@@ -4,6 +4,8 @@ import { getStudioData } from "@/lib/studio/data";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import StudioSidebar from "@/components/studio/StudioSidebar";
 import StudioTopbar from "@/components/studio/StudioTopbar";
+import { PublishProvider } from "@/components/studio/PublishProvider";
+import PublishBar from "@/components/studio/PublishBar";
 
 // GH-6 — owner gate for the whole /studio dashboard. Runs in the Node RSC
 // runtime (verifyOwnerSession uses node:crypto, which Edge middleware cannot
@@ -28,7 +30,7 @@ export default async function DashboardLayout({
     redirect("/studio/login");
   }
 
-  const { projects, experience } = await getStudioData();
+  const { projects, experience, draftDiffers } = await getStudioData();
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-6 lg:px-6 lg:py-8">
@@ -39,7 +41,15 @@ export default async function DashboardLayout({
         />
         <main className="min-w-0 flex-1 p-4 lg:p-6">
           <StudioTopbar />
-          {children}
+          {/* The Publish bar lives at the layout level (persists across /studio
+              navigation), seeded once from the branch-level differs, so a
+              collection edit's "unpublished" signal shows on the page you're
+              editing — not just Settings. Panels report differs + pending to it. */}
+          <PublishProvider initialDiffers={draftDiffers}>
+            {children}
+            <div className="h-20" aria-hidden />
+            <PublishBar />
+          </PublishProvider>
         </main>
       </div>
     </div>

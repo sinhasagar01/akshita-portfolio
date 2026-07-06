@@ -58,7 +58,7 @@ export default function ProjectsEditPanel({ slug, title, summary, facts }: Props
       v.facts.platform !== b.facts.platform ||
       v.facts.timeline !== b.facts.timeline,
     saveExtras: { collection: "projects", slug },
-    onSaved: (json) => setUnpublished(Boolean(json.differs)),
+    onSaved: () => setUnpublished(true),
   });
 
   useReportPending(dirty || saveStatus === "saving");

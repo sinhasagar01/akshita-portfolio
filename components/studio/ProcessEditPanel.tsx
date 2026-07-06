@@ -60,7 +60,7 @@ export default function ProcessEditPanel({ processStages }: Props) {
     }),
     isDirty: (v, b) => !sameStages(v.processStages, b.processStages),
     syncValuesOnSave: true,
-    onSaved: (json) => setUnpublished(Boolean(json.differs)),
+    onSaved: () => setUnpublished(true),
   });
 
   useReportPending(dirty || saveStatus === "saving");

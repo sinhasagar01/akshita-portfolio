@@ -125,7 +125,7 @@ export default function HeroEditPanel({
     initial,
     buildCommitted: (v) => ({ ...v }),
     isDirty: (v, b) => HERO_FIELD_KEYS.some((k) => v[k] !== b[k]),
-    onSaved: (json) => setUnpublished(Boolean(json.differs)),
+    onSaved: () => setUnpublished(true),
   });
 
   useReportPending(dirty || saveStatus === "saving");

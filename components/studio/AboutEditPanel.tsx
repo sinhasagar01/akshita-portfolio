@@ -81,7 +81,7 @@ export default function AboutEditPanel({
       v.aboutPhotoCaption !== b.aboutPhotoCaption ||
       !sameChips(trimChips(v.aboutFocusChips), b.aboutFocusChips),
     syncValuesOnSave: true,
-    onSaved: (json) => setUnpublished(Boolean(json.differs)),
+    onSaved: () => setUnpublished(true),
   });
 
   useReportPending(dirty || saveStatus === "saving");

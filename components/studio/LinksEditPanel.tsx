@@ -83,7 +83,7 @@ export default function LinksEditPanel(props: Props) {
       v.linkedinUrl !== b.linkedinUrl ||
       v.dribbbleUrl !== b.dribbbleUrl ||
       v.behanceUrl !== b.behanceUrl,
-    onSaved: (json) => setUnpublished(Boolean(json.differs)),
+    onSaved: () => setUnpublished(true),
   });
 
   useReportPending(dirty || saveStatus === "saving");
