@@ -1,12 +1,11 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
-import ContentCard from "@/components/studio/ContentCard";
 import HeroEditPanel from "@/components/studio/HeroEditPanel";
 import AboutEditPanel from "@/components/studio/AboutEditPanel";
 import LinksEditPanel from "@/components/studio/LinksEditPanel";
+import ProcessEditPanel from "@/components/studio/ProcessEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { singletonHref } from "@/lib/keystatic-links";
-import { IconWorkflow } from "@/components/studio/icons";
 
 const settingsLink = singletonHref("siteSettings");
 
@@ -28,7 +27,7 @@ export default async function StudioSettings() {
     <>
       <AreaHeader
         title="Site settings"
-        sub="Hero is editable here. The rest open in Keystatic."
+        sub="Every homepage group is editable here, then published from the Hero panel."
       />
 
       {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
@@ -68,17 +67,9 @@ export default async function StudioSettings() {
         behanceUrl={settings.behanceUrl ?? ""}
       />
 
-      <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
-        <ContentCard
-          index="03"
-          title="Process copy"
-          icon={<IconWorkflow />}
-          status="live"
-          meta="4 stage copy fields"
-          href={settingsLink}
-          ariaLabel="Edit Process copy in Keystatic site settings"
-        />
-      </div>
+      {/* PL-2b: the Process group is now an inline-editable panel (Surface B),
+          four stages each with name, description, and a tags array. */}
+      <ProcessEditPanel processStages={settings.processStages} />
     </>
   );
 }

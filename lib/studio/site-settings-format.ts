@@ -9,6 +9,14 @@
  * Writable Site Settings fields. `photo` is deliberately excluded so the write
  * path can never touch or clear the image field.
  */
+/** One Process stage. The Process section renders a fixed four of these; the
+ *  panel edits name, description, and the tags array per stage. */
+export type ProcessStage = {
+  name: string;
+  description: string;
+  tags: string[];
+};
+
 export type SiteSettingsInput = {
   heroCopy: string;
   tab1Label: string;
@@ -26,10 +34,7 @@ export type SiteSettingsInput = {
   aboutFocusChips: string[];
   aboutSubtext: string;
   aboutPhotoCaption: string;
-  discoverText: string;
-  defineText: string;
-  developText: string;
-  deliverText: string;
+  processStages: ProcessStage[];
   resumeUrl: string;
   email: string;
   linkedinUrl: string;
@@ -73,10 +78,7 @@ export const SITE_SETTINGS_FIELD_ORDER = [
   "aboutFocusChips",
   "aboutSubtext",
   "aboutPhotoCaption",
-  "discoverText",
-  "defineText",
-  "developText",
-  "deliverText",
+  "processStages",
   "resumeUrl",
   "email",
   "linkedinUrl",
@@ -95,12 +97,63 @@ export const URL_FIELDS = [
 /** The writable patch keys — the schema order minus the excluded photo. */
 const WRITABLE_FIELDS = SITE_SETTINGS_FIELD_ORDER.filter((k) => k !== "photo");
 
+/** The allowed sub-keys of a process stage object. Extra keys are rejected so a
+ *  typo fails loudly, the same contract as the top-level field list. */
+const STAGE_KEYS = ["name", "description", "tags"] as const;
+
+/**
+ * Validate an untrusted processStages value to a normalized ProcessStage[].
+ * The nested analogue of the aboutFocusChips array check: the value must be an
+ * array of plain objects with only {name, description, tags}, name/description
+ * strings, and tags an array of strings. Missing sub-keys default (the panel
+ * always sends all three); wrong types and unknown sub-keys are rejected.
+ */
+function sanitizeProcessStages(
+  value: unknown
+): { ok: true; value: ProcessStage[] } | { ok: false; message: string } {
+  if (!Array.isArray(value)) {
+    return { ok: false, message: "processStages must be an array" };
+  }
+  const stages: ProcessStage[] = [];
+  for (const item of value) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      return { ok: false, message: "each process stage must be an object" };
+    }
+    const obj = item as Record<string, unknown>;
+    for (const k of Object.keys(obj)) {
+      if (!(STAGE_KEYS as readonly string[]).includes(k)) {
+        return { ok: false, message: `unknown process stage field ${k}` };
+      }
+    }
+    const { name, description, tags } = obj;
+    if (name !== undefined && typeof name !== "string") {
+      return { ok: false, message: "process stage name must be a string" };
+    }
+    if (description !== undefined && typeof description !== "string") {
+      return { ok: false, message: "process stage description must be a string" };
+    }
+    if (
+      tags !== undefined &&
+      (!Array.isArray(tags) || tags.some((t) => typeof t !== "string"))
+    ) {
+      return { ok: false, message: "process stage tags must be an array of strings" };
+    }
+    stages.push({
+      name: (name as string) ?? "",
+      description: (description as string) ?? "",
+      tags: (tags as string[]) ?? [],
+    });
+  }
+  return { ok: true, value: stages };
+}
+
 /**
  * Validate an untrusted request-body patch down to a typed Partial
  * <SiteSettingsInput>. Unknown keys and wrong-typed values are REJECTED, not
  * silently dropped, so a typo'd field name fails loudly instead of vanishing
  * and a non-string value can never reach the YAML (review finding 5).
- * aboutFocusChips must be an array of strings, every other field a string.
+ * aboutFocusChips must be an array of strings, processStages an array of stage
+ * objects, every other field a string.
  */
 export function sanitizeSiteSettingsPatch(
   raw: unknown
@@ -121,6 +174,12 @@ export function sanitizeSiteSettingsPatch(
         return invalid("aboutFocusChips must be an array of strings", key);
       }
       patch.aboutFocusChips = value as string[];
+      continue;
+    }
+    if (key === "processStages") {
+      const result = sanitizeProcessStages(value);
+      if (!result.ok) return invalid(result.message, key);
+      patch.processStages = result.value;
       continue;
     }
     if (typeof value !== "string") {
