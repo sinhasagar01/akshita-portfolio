@@ -47,7 +47,8 @@ export type SaveErrorCode =
   | "invalid_patch"
   | "read_failed"
   | "write_failed"
-  | "not_found";
+  | "not_found"
+  | "unsupported_format";
 
 export type SaveError = {
   code: SaveErrorCode;

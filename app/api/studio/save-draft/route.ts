@@ -19,6 +19,7 @@ import {
 import { getHomePageData, mapSiteSettings } from "@/lib/keystatic";
 import { sanitizeSiteSettingsPatch } from "@/lib/studio/site-settings-format";
 import { sanitizeExperiencePatch } from "@/lib/studio/experience-format";
+import { sanitizeProjectsPatch } from "@/lib/studio/projects-format";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -45,7 +46,8 @@ export async function POST(req: Request) {
   // lands on the SAME draft branch, so a collection edit accumulates with
   // settings edits (DB-1) and both publish together from the Hero panel.
   if (body?.collection !== undefined) {
-    if (body.collection !== "experience") {
+    const collection = body.collection;
+    if (collection !== "experience" && collection !== "projects") {
       return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
     }
     const slug = body.slug;
@@ -53,7 +55,10 @@ export async function POST(req: Request) {
     if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
       return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
     }
-    const sanitizedEntry = sanitizeExperiencePatch(body.patch);
+    const sanitizedEntry =
+      collection === "projects"
+        ? sanitizeProjectsPatch(body.patch)
+        : sanitizeExperiencePatch(body.patch);
     if (!sanitizedEntry.ok) {
       return NextResponse.json(sanitizedEntry, { status: 400 });
     }
@@ -68,12 +73,17 @@ export async function POST(req: Request) {
     if (!process.env.STUDIO_GITHUB_TOKEN) {
       return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
     }
-    const entryResult = await commitCollectionEntry("experience", slug, sanitizedEntry.patch, {
+    const entryResult = await commitCollectionEntry(collection, slug, sanitizedEntry.patch, {
       branch: DRAFT_BRANCH,
-      message: `chore(studio): update experience/${slug} draft`,
+      message: `chore(studio): update ${collection}/${slug} draft`,
     });
     if (!entryResult.ok) {
-      const status = entryResult.error.code === "not_found" ? 404 : 500;
+      const status =
+        entryResult.error.code === "not_found"
+          ? 404
+          : entryResult.error.code === "unsupported_format"
+            ? 422
+            : 500;
       return NextResponse.json(entryResult, { status });
     }
     // The shared draft branch changed. A collection-only edit does not yet light
