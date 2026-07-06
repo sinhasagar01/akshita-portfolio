@@ -12,7 +12,7 @@ import { singletonHref } from "@/lib/keystatic-links";
 const settingsLink = singletonHref("siteSettings");
 
 export default async function StudioSettings() {
-  const { settings, settingsDraftState } = await getStudioData();
+  const { settings, draftDiffers } = await getStudioData();
 
   if (!settings) {
     return (
@@ -36,7 +36,7 @@ export default async function StudioSettings() {
           every panel's accumulated edits in one singleton-wide merge. The
           provider seeds the singleton differs and tracks any panel's pending
           edits so Publish gates exactly like the old Hero control. */}
-      <PublishProvider initialDiffers={settingsDraftState.differs}>
+      <PublishProvider initialDiffers={draftDiffers}>
         {/* Two-column grid at lg (the site's mobile breakpoint); stacks below.
             items-start so a collapsed card never stretches to an expanded
             neighbour's height. Panels no longer carry their own mt — the grid

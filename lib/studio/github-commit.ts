@@ -94,6 +94,26 @@ export async function mergeBranch(opts: {
   throw new Error(`merge failed: ${res.status} ${await res.text()}`);
 }
 
+/**
+ * Compare two branches via the REST compare API. Returns how many commits `head`
+ * is ahead of `base` (plus the status), or null when either ref is missing (404).
+ * Backs the branch-level "unpublished changes" signal (CE-3a): aheadBy > 0 means
+ * the draft branch has commits main does not.
+ */
+export async function compareBranches(
+  base: string,
+  head: string
+): Promise<{ aheadBy: number; status: string } | null> {
+  const res = await fetch(
+    `${API}/repos/${REPO}/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`,
+    { headers: authHeaders(), cache: "no-store" }
+  );
+  if (res.status === 404) return null; // a missing draft branch = nothing to publish
+  if (!res.ok) throw new Error(`compare failed: ${res.status} ${await res.text()}`);
+  const json = await res.json();
+  return { aheadBy: json.ahead_by as number, status: json.status as string };
+}
+
 const CREATE_COMMIT = `
 mutation ($input: CreateCommitOnBranchInput!) {
   createCommitOnBranch(input: $input) { commit { oid url } }
