@@ -11,6 +11,7 @@
 // tags array. Tags are trimmed and de-blanked at the save boundary.
 import { useRef } from "react";
 import { useDraftForm } from "./useDraftForm";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { IconWorkflow, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
@@ -35,6 +36,8 @@ export default function ProcessEditPanel({ processStages }: Props) {
   const initial: ProcessFields = { processStages };
   // After "Add tag", focus the new input. Keyed by stage + tag index.
   const pendingFocus = useRef<{ s: number; t: number } | null>(null);
+  // UX-1: report this panel's differs + pending state up to the page Publish bar.
+  const { setUnpublished } = usePublishSignal();
 
   const {
     expanded,
@@ -57,7 +60,10 @@ export default function ProcessEditPanel({ processStages }: Props) {
     }),
     isDirty: (v, b) => !sameStages(v.processStages, b.processStages),
     syncValuesOnSave: true,
+    onSaved: (json) => setUnpublished(Boolean(json.differs)),
   });
+
+  useReportPending(dirty || saveStatus === "saving");
 
   const stages = values.processStages;
   const updateStages = (next: ProcessStage[]) => setField("processStages", next);

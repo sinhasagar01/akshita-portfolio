@@ -13,6 +13,7 @@
 // URL. We show a per-field error and GATE the save (never post) while any URL
 // field is invalid; the server 422 invalid_url stays as the github-mode backstop.
 import { useDraftForm } from "./useDraftForm";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { IconArrowUpRight } from "./icons";
 import { URL_FIELDS } from "@/lib/studio/site-settings-format";
 
@@ -60,6 +61,8 @@ const FIELD_ORDER: (keyof LinksFields)[] = [
 
 export default function LinksEditPanel(props: Props) {
   const initial: LinksFields = { ...props };
+  // UX-1: report this panel's differs + pending state up to the page Publish bar.
+  const { setUnpublished } = usePublishSignal();
 
   const {
     expanded,
@@ -80,7 +83,10 @@ export default function LinksEditPanel(props: Props) {
       v.linkedinUrl !== b.linkedinUrl ||
       v.dribbbleUrl !== b.dribbbleUrl ||
       v.behanceUrl !== b.behanceUrl,
+    onSaved: (json) => setUnpublished(Boolean(json.differs)),
   });
+
+  useReportPending(dirty || saveStatus === "saving");
 
   const invalidFields = URL_FIELD_KEYS.filter((k) => !isValidUrl(values[k]));
   const hasUrlError = invalidFields.length > 0;
