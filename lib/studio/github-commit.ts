@@ -103,7 +103,7 @@ export async function mergeBranch(opts: {
 export async function compareBranches(
   base: string,
   head: string
-): Promise<{ aheadBy: number; status: string } | null> {
+): Promise<{ aheadBy: number; status: string; files: string[] } | null> {
   const res = await fetch(
     `${API}/repos/${REPO}/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`,
     { headers: authHeaders(), cache: "no-store" }
@@ -111,7 +111,10 @@ export async function compareBranches(
   if (res.status === 404) return null; // a missing draft branch = nothing to publish
   if (!res.ok) throw new Error(`compare failed: ${res.status} ${await res.text()}`);
   const json = await res.json();
-  return { aheadBy: json.ahead_by as number, status: json.status as string };
+  const files = Array.isArray(json.files)
+    ? (json.files as { filename: string }[]).map((f) => f.filename)
+    : [];
+  return { aheadBy: json.ahead_by as number, status: json.status as string, files };
 }
 
 const CREATE_COMMIT = `
