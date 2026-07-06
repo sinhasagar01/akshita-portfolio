@@ -10,6 +10,7 @@ import { cookies } from "next/headers";
 import { load } from "js-yaml";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { commitSiteSettings } from "@/lib/studio/commit-site-settings";
+import { commitCollectionEntry } from "@/lib/studio/commit-collection-entry";
 import {
   DRAFT_BRANCH,
   invalidateDraftStateCache,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/studio/draft-site-settings";
 import { getHomePageData, mapSiteSettings } from "@/lib/keystatic";
 import { sanitizeSiteSettingsPatch } from "@/lib/studio/site-settings-format";
+import { sanitizeExperiencePatch } from "@/lib/studio/experience-format";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -31,14 +33,57 @@ export async function POST(req: Request) {
   // Parse and sanitize BEFORE the env-split, so a malformed body is rejected in
   // every mode (the fs no-op cannot mask it) and only a typed, known-field,
   // string-valued patch can ever reach the transform (review finding 5).
-  let rawPatch: unknown;
+  let body: { collection?: unknown; slug?: unknown; patch?: unknown };
   try {
-    const body = await req.json();
-    rawPatch = body?.patch ?? {};
+    body = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
-  const sanitized = sanitizeSiteSettingsPatch(rawPatch);
+
+  // CE-1 — collection entry save. Carries { collection, slug, patch }. The owner
+  // gate above and the env-split below mirror the settings path; the commit
+  // lands on the SAME draft branch, so a collection edit accumulates with
+  // settings edits (DB-1) and both publish together from the Hero panel.
+  if (body?.collection !== undefined) {
+    if (body.collection !== "experience") {
+      return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
+    }
+    const slug = body.slug;
+    // Path-traversal guard; edit-only existence is enforced in commitCollectionEntry.
+    if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
+    }
+    const sanitizedEntry = sanitizeExperiencePatch(body.patch);
+    if (!sanitizedEntry.ok) {
+      return NextResponse.json(sanitizedEntry, { status: 400 });
+    }
+    if (process.env.STUDIO_WRITE_MODE !== "github") {
+      return NextResponse.json({
+        ok: true,
+        mode: "fs",
+        saved: false,
+        note: "draft save needs github mode",
+      });
+    }
+    if (!process.env.STUDIO_GITHUB_TOKEN) {
+      return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
+    }
+    const entryResult = await commitCollectionEntry("experience", slug, sanitizedEntry.patch, {
+      branch: DRAFT_BRANCH,
+      message: `chore(studio): update experience/${slug} draft`,
+    });
+    if (!entryResult.ok) {
+      const status = entryResult.error.code === "not_found" ? 404 : 500;
+      return NextResponse.json(entryResult, { status });
+    }
+    // The shared draft branch changed. A collection-only edit does not yet light
+    // the Hero differs badge (settings-only until CE-3's branch-level differs);
+    // this drops the cached draft read regardless.
+    invalidateDraftStateCache();
+    return NextResponse.json({ ok: true, mode: "github", saved: true, sha: entryResult.sha });
+  }
+
+  const sanitized = sanitizeSiteSettingsPatch(body?.patch ?? {});
   if (!sanitized.ok) {
     return NextResponse.json(sanitized, { status: 400 });
   }

@@ -42,7 +42,12 @@ export type SiteSettingsInput = {
   behanceUrl: string;
 };
 
-export type SaveErrorCode = "invalid_url" | "invalid_patch" | "read_failed" | "write_failed";
+export type SaveErrorCode =
+  | "invalid_url"
+  | "invalid_patch"
+  | "read_failed"
+  | "write_failed"
+  | "not_found";
 
 export type SaveError = {
   code: SaveErrorCode;

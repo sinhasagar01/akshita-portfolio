@@ -30,6 +30,13 @@ type UseDraftFormOptions<T extends object> = {
   /** Called on a successful (github-mode) save with the response JSON. Hero uses
    *  it to update its Unpublished (differs) badge; About omits it. */
   onSaved?: (json: SaveResponse) => void;
+  /**
+   * Extra fields merged into the POST body alongside `patch`. Default (omitted)
+   * posts `{ patch }` — the singleton panels are unchanged. Collection panels
+   * (CE-1) pass `{ collection, slug }` so the route can route the save to the
+   * right entry file.
+   */
+  saveExtras?: Record<string, unknown>;
 };
 
 export function useDraftForm<T extends object>({
@@ -38,6 +45,7 @@ export function useDraftForm<T extends object>({
   isDirty,
   syncValuesOnSave = false,
   onSaved,
+  saveExtras,
 }: UseDraftFormOptions<T>) {
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<T>(initial);
@@ -68,7 +76,7 @@ export function useDraftForm<T extends object>({
       const res = await fetch("/api/studio/save-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patch: { ...committed } }),
+        body: JSON.stringify({ ...saveExtras, patch: { ...committed } }),
       });
       const json = (await res.json().catch(() => ({}))) as SaveResponse;
       if (res.ok && json.ok && json.mode === "fs") {
