@@ -132,4 +132,65 @@ Pass criteria — ALL PASS:
   one "Previously" group; no console errors. Matches prior behavior for the real
   data while the logic is now correct.
 
-Commit: (recorded below after `git commit`).
+Commit: `2bc91a8` on `ralph/phase1`. `layout.tsx` WIP left unstaged.
+
+**Task 3 status: PASSED (iteration 1).**
+
+---
+
+# FINAL SUMMARY — Phase-1 Ralph pilot
+
+All three tasks PASSED on iteration 1. STOPPED per the goal file. No merge, no
+push, no github mode. Branch `ralph/phase1` only; Sagar reviews and merges.
+
+| Task | Status | Iterations | Commit |
+|------|--------|-----------|--------|
+| T1 — lock role+timeline in projects form, preserve on save | PASSED | 1/3 | `c62a702` |
+| T2 — lock description in experience form, preserve on save | PASSED | 1/3 | `6ddd16e` |
+| T3 — Currently-badge match + drop forced experience[0] fallback | PASSED | 1/3 | `2bc91a8` |
+
+### Exact files touched
+- T1: `components/studio/ProjectsEditPanel.tsx`, `lib/studio/projects-format.ts`,
+  `lib/studio/projects-serialize.ts` (facts REPLACE -> MERGE to preserve locked
+  role/timeline), `ralph/tests/task1.mjs`.
+- T2: `components/studio/ExperienceEditPanel.tsx`, `lib/studio/experience-format.ts`,
+  `ralph/tests/task2.mjs`. (No serializer change — transformExperiencePatch already
+  preserves untouched fields.)
+- T3: `components/sections/experience-current.ts` (new pure helper),
+  `components/sections/ExperienceSection.tsx`, `ralph/tests/task3.mjs`.
+- Pilot bookkeeping: `ralph/phase1-progress.md`, `ralph/phase1-goal.md`.
+
+### Proof output (final combined run)
+- `ralph/tests/task1.mjs` -> `T1 result: ALL PASS`
+- `ralph/tests/task2.mjs` -> `T2 result: ALL PASS`
+- `ralph/tests/task3.mjs` -> `T3 result: ALL PASS`
+- `npm run typecheck` -> clean.
+- `npm run build` -> clean (definitive run with the dev server stopped).
+- Browser (fs mode): projects form = Summary/Type/Platform only; experience form =
+  Role title/Start date/End date only; homepage GET / = 200 with one "Currently"
+  (real current role) + a "Previously" group; no console errors on any page.
+
+### Flagged for human review (not blockers)
+1. `ProjectsEditPanel` `Props.facts` is still `ProjectFacts` (4 keys, from the read
+   path) while the form edits only `{type, platform}`; role/timeline arrive as
+   props and are simply not shown. Intentional and preserved on save. Same for
+   `ExperienceEditPanel` `Props.description` (kept so the page stays untouched,
+   received but not destructured/edited). If you prefer, the page props could be
+   trimmed in a follow-up (out of this pilot's named scope, so not done here).
+2. T3 added a new file `components/sections/experience-current.ts`. Extraction was
+   required to write a real behavioral test (the JSX section can't be node-imported)
+   and keeps a single source of truth. If you'd rather inline the logic, the test
+   would then have to duplicate it — flagged for your call.
+3. `.next` build/dev contention: a mid-pilot build hit a transient
+   "/projects/[slug]" collect error while the dev server was running. A clean
+   rebuild with dev stopped passed. Builds here are run with the dev server down.
+4. Pre-existing uncommitted WIP in `app/studio/(dashboard)/layout.tsx`
+   (max-width 1100 -> 1300) is NOT mine and was left unstaged/untouched, so it is
+   preserved in your working tree.
+
+### Not done (correctly, per hard rules)
+No merge, no push, no github-mode run, no writes to main, nothing outside the three
+tasks' scope beyond the one testability helper (flagged above). Iteration caps never
+hit (each task passed first try).
+
+STOP.
