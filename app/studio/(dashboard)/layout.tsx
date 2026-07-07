@@ -6,6 +6,7 @@ import StudioSidebar from "@/components/studio/StudioSidebar";
 import StudioTopbar from "@/components/studio/StudioTopbar";
 import { PublishProvider } from "@/components/studio/PublishProvider";
 import PublishBar from "@/components/studio/PublishBar";
+import { buildStudioSearchIndex } from "@/lib/studio/search-index";
 
 // GH-6 — owner gate for the whole /studio dashboard. Runs in the Node RSC
 // runtime (verifyOwnerSession uses node:crypto, which Edge middleware cannot
@@ -31,6 +32,8 @@ export default async function DashboardLayout({
   }
 
   const { projects, experience, draftDiffers } = await getStudioData();
+  // Client-side search index, built once from the data already loaded here.
+  const searchItems = buildStudioSearchIndex({ projects, experience });
 
   return (
     <div className="mx-auto max-w-[1300px] px-4 py-6 lg:px-6 lg:py-8">
@@ -40,7 +43,7 @@ export default async function DashboardLayout({
           experienceCount={experience.length}
         />
         <main className="min-w-0 flex-1 p-4 lg:p-6">
-          <StudioTopbar />
+          <StudioTopbar searchItems={searchItems} />
           {/* The Publish bar lives at the layout level (persists across /studio
               navigation), seeded once from the branch-level differs, so a
               collection edit's "unpublished" signal shows on the page you're

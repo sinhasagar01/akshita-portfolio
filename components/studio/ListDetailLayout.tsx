@@ -20,6 +20,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useSearchParams } from "next/navigation";
 
 export type ListDetailSection = {
   id: string;
@@ -69,9 +70,16 @@ export function ListDetailLayout({
   sections: ListDetailSection[];
   children: React.ReactNode;
 }) {
+  // Deep-link support: studio search navigates to /studio/<page>?item=<id> and
+  // this pre-selects that entry. `item` is validated against sections so a stale
+  // param falls back to the default (first on desktop / list on mobile).
+  const searchParams = useSearchParams();
+  const itemParam = searchParams.get("item");
+  const targetId = itemParam && sections.some((s) => s.id === itemParam) ? itemParam : null;
+
   // null on mobile = show the list; on desktop the first item is pre-selected
-  // (activeId falls back to sections[0]).
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // (activeId falls back to sections[0]). Seeded from ?item= for no-flash deep-links.
+  const [selectedId, setSelectedId] = useState<string | null>(targetId);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(() => new Set());
   const paneRef = useRef<HTMLDivElement>(null);
 
@@ -94,6 +102,13 @@ export function ListDetailLayout({
     setSelectedId(id);
     if (isMobile()) requestAnimationFrame(() => paneRef.current?.focus());
   }, []);
+
+  // Re-select when ?item= changes while this layout stays mounted (searching for
+  // another entry on the same page). The initial value is already seeded above,
+  // so this only fires on an actual param change. Reuses the existing select().
+  useEffect(() => {
+    if (targetId) select(targetId);
+  }, [targetId, select]);
 
   const back = useCallback(() => {
     const prev = activeId;
