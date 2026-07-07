@@ -11,9 +11,11 @@
 // edit in-session; a reload shows live until Publish.
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useListItem } from "./ListDetailLayout";
 import { IconBriefcase } from "./icons";
 
 type Props = {
+  itemId: string;
   slug: string;
   company: string;
   title: string;
@@ -30,6 +32,7 @@ type ExperienceFields = {
 };
 
 export default function ExperienceEditPanel({
+  itemId,
   slug,
   company,
   title,
@@ -42,11 +45,8 @@ export default function ExperienceEditPanel({
   const { setUnpublished } = usePublishSignal();
 
   const {
-    expanded,
-    setExpanded,
     values,
     setField,
-    savedBaseline,
     dirty,
     saveStatus,
     saveDraft,
@@ -64,44 +64,12 @@ export default function ExperienceEditPanel({
   });
 
   useReportPending(dirty || saveStatus === "saving");
-
-  const range = [savedBaseline.startDate, savedBaseline.endDate].filter(Boolean).join(" – ");
-
-  // ---- Collapsed card ----
-  if (!expanded) {
-    return (
-      <button
-        type="button"
-        onClick={() => setExpanded(true)}
-        aria-expanded={false}
-        className="group block w-full overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 text-left transition-colors hover:border-accent-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
-      >
-        <div className="relative flex h-16 items-center justify-center bg-cream-200 text-accent-500">
-          <span className="absolute right-2 top-2 rounded-full bg-accent-500/10 px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide text-accent-600">
-            Editable
-          </span>
-          <span className="[&>svg]:size-5" aria-hidden>
-            <IconBriefcase />
-          </span>
-        </div>
-        <div className="px-4 pb-4 pt-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="truncate font-display text-[15px] leading-snug text-ink-950">{company}</span>
-            <span className="shrink-0 text-[11px] text-accent-500 opacity-0 transition-opacity group-hover:opacity-100">
-              Edit →
-            </span>
-          </div>
-          <p className="mt-1.5 truncate text-[12px] text-ink-600">{savedBaseline.title || "No role title"}</p>
-          <p className="mt-0.5 truncate text-[11px] text-ink-400">{range || "No dates"}</p>
-        </div>
-      </button>
-    );
-  }
+  const { isSelected } = useListItem(itemId, dirty);
+  if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
   const inputCls =
     "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
-  // ---- Expanded edit panel ----
   return (
     <section
       aria-label={`Edit ${company}`}
