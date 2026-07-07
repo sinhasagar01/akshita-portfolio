@@ -33,7 +33,7 @@ export default async function DashboardLayout({
   const { projects, experience, draftDiffers } = await getStudioData();
 
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-6 lg:px-6 lg:py-8">
+    <div className="mx-auto max-w-[1300px] px-4 py-6 lg:px-6 lg:py-8">
       <div className="flex flex-col overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 lg:min-h-[640px] lg:flex-row">
         <StudioSidebar
           projectCount={projects.length}
