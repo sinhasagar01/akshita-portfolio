@@ -2,6 +2,7 @@ import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ProjectsEditPanel from "@/components/studio/ProjectsEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
+import { ListDetailLayout } from "@/components/studio/ListDetailLayout";
 import { collectionListHref } from "@/lib/keystatic-links";
 
 export default async function StudioProjects() {
@@ -19,17 +20,18 @@ export default async function StudioProjects() {
           No projects yet. Open the Projects collection in Keystatic to add one.
         </StudioEmptyState>
       ) : (
-        <div className="flex flex-col gap-3.5">
+        <ListDetailLayout sections={projects.map((p) => ({ id: p.slug, name: p.title }))}>
           {projects.map((p) => (
             <ProjectsEditPanel
               key={p.slug}
+              itemId={p.slug}
               slug={p.slug}
               title={p.title}
               summary={p.summary}
               facts={p.facts}
             />
           ))}
-        </div>
+        </ListDetailLayout>
       )}
     </>
   );

@@ -12,10 +12,11 @@
 import { useRef } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useListItem } from "./ListDetailLayout";
 import { IconWorkflow, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
-type Props = { processStages: ProcessStage[] };
+type Props = { itemId: string; processStages: ProcessStage[] };
 type ProcessFields = { processStages: ProcessStage[] };
 
 const trimTags = (tags: string[]) => tags.map((t) => t.trim()).filter(Boolean);
@@ -32,7 +33,7 @@ const sameStages = (a: ProcessStage[], b: ProcessStage[]) =>
       sameTags(trimTags(s.tags), b[i].tags)
   );
 
-export default function ProcessEditPanel({ processStages }: Props) {
+export default function ProcessEditPanel({ itemId, processStages }: Props) {
   const initial: ProcessFields = { processStages };
   // After "Add tag", focus the new input. Keyed by stage + tag index.
   const pendingFocus = useRef<{ s: number; t: number } | null>(null);
@@ -40,11 +41,8 @@ export default function ProcessEditPanel({ processStages }: Props) {
   const { setUnpublished } = usePublishSignal();
 
   const {
-    expanded,
-    setExpanded,
     values,
     setField,
-    savedBaseline,
     dirty,
     saveStatus,
     saveDraft,
@@ -64,6 +62,8 @@ export default function ProcessEditPanel({ processStages }: Props) {
   });
 
   useReportPending(dirty || saveStatus === "saving");
+  const { isSelected } = useListItem(itemId, dirty);
+  if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
   const stages = values.processStages;
   const updateStages = (next: ProcessStage[]) => setField("processStages", next);
@@ -83,41 +83,6 @@ export default function ProcessEditPanel({ processStages }: Props) {
     const next = [...stages[i].tags];
     [next[j], next[k]] = [next[k], next[j]];
     editStage(i, { tags: next });
-  }
-
-  // ---- Collapsed card ----
-  if (!expanded) {
-    const names = savedBaseline.processStages.map((s) => s.name.trim() || "—").join("  ·  ");
-    return (
-      <button
-        type="button"
-        onClick={() => setExpanded(true)}
-        aria-expanded={false}
-        className="group block w-full overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 text-left transition-colors hover:border-accent-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
-      >
-        <div className="relative flex h-16 items-center justify-center bg-cream-200 text-accent-500">
-          <span className="absolute left-3 top-2 font-display text-sm italic text-ink-400" aria-hidden>
-            03
-          </span>
-          <span className="absolute right-2 top-2 rounded-full bg-accent-500/10 px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide text-accent-600">
-            Editable
-          </span>
-          <span className="[&>svg]:size-5" aria-hidden>
-            <IconWorkflow />
-          </span>
-        </div>
-        <div className="px-4 pb-4 pt-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-display text-[15px] leading-snug text-ink-950">Process</span>
-            <span className="text-[11px] text-accent-500 opacity-0 transition-opacity group-hover:opacity-100">
-              Edit →
-            </span>
-          </div>
-          <p className="mt-1.5 truncate text-[12px] text-ink-600">{names || "No stages"}</p>
-          <p className="mt-0.5 truncate text-[11px] text-ink-400">Four stages — name, description, tags</p>
-        </div>
-      </button>
-    );
   }
 
   const iconBtn =

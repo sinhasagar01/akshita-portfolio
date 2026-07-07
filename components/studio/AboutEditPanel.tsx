@@ -12,9 +12,11 @@
 import { useRef } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useListItem } from "./ListDetailLayout";
 import { IconUser, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type Props = {
+  itemId: string;
   aboutCopy: string;
   aboutNote: string;
   aboutFocusChips: string[];
@@ -37,6 +39,7 @@ const sameChips = (a: string[], b: string[]) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
 
 export default function AboutEditPanel({
+  itemId,
   aboutCopy,
   aboutNote,
   aboutFocusChips,
@@ -62,11 +65,8 @@ export default function AboutEditPanel({
   // array-aware: it compares the TRIMMED chips, so a mid-typing empty row is not
   // dirty while a reorder or a single-chip edit flips it immediately.
   const {
-    expanded,
-    setExpanded,
     values,
     setField,
-    savedBaseline,
     dirty,
     saveStatus,
     saveDraft,
@@ -85,6 +85,8 @@ export default function AboutEditPanel({
   });
 
   useReportPending(dirty || saveStatus === "saving");
+  const { isSelected } = useListItem(itemId, dirty);
+  if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
   const edit = setField;
   const updateChips = (next: string[]) => setField("aboutFocusChips", next);
@@ -104,41 +106,6 @@ export default function AboutEditPanel({
     updateChips(next);
   }
 
-  // ---- Collapsed card ----
-  if (!expanded) {
-    return (
-      <button
-        type="button"
-        onClick={() => setExpanded(true)}
-        aria-expanded={false}
-        className="group block w-full overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 text-left transition-colors hover:border-accent-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
-      >
-        <div className="relative flex h-16 items-center justify-center bg-cream-200 text-accent-500">
-          <span className="absolute left-3 top-2 font-display text-sm italic text-ink-400" aria-hidden>
-            02
-          </span>
-          <span className="absolute right-2 top-2 rounded-full bg-accent-500/10 px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide text-accent-600">
-            Editable
-          </span>
-          <span className="[&>svg]:size-5" aria-hidden>
-            <IconUser />
-          </span>
-        </div>
-        <div className="px-4 pb-4 pt-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-display text-[15px] leading-snug text-ink-950">About</span>
-            <span className="text-[11px] text-accent-500 opacity-0 transition-opacity group-hover:opacity-100">
-              Edit →
-            </span>
-          </div>
-          <p className="mt-1.5 truncate text-[12px] text-ink-600">{savedBaseline.aboutCopy || "No about copy"}</p>
-          <p className="mt-0.5 truncate text-[11px] text-ink-400">{savedBaseline.aboutNote || "No note line"}</p>
-        </div>
-      </button>
-    );
-  }
-
-  // ---- Expanded edit panel ----
   return (
     <section
       aria-label="Edit About"
