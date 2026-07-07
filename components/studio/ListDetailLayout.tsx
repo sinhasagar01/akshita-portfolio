@@ -21,7 +21,13 @@ import {
   useState,
 } from "react";
 
-export type ListDetailSection = { id: string; name: string };
+export type ListDetailSection = {
+  id: string;
+  name: string;
+  // Optional status label rendered as a pill next to the name (e.g. "Currently").
+  // The caller owns the label + the decision; the shell just renders it.
+  badge?: string;
+};
 
 type ListDetailCtx = {
   activeId: string | null;
@@ -127,6 +133,11 @@ export function ListDetailLayout({
             {sections.map((s) => {
               const isActive = s.id === activeId;
               const isDirty = dirtyIds.has(s.id);
+              // Compose the accessible name from the visible states so the badge
+              // (and the dirty dot) are announced even when both are present.
+              const label = [s.name, s.badge, isDirty && "unsaved changes"]
+                .filter(Boolean)
+                .join(", ");
               return (
                 <li key={s.id}>
                   <button
@@ -135,7 +146,7 @@ export function ListDetailLayout({
                     id={`ld-tab-${s.id}`}
                     aria-selected={isActive}
                     aria-controls="ld-panel"
-                    aria-label={isDirty ? `${s.name}, unsaved changes` : undefined}
+                    aria-label={s.badge || isDirty ? label : undefined}
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => select(s.id)}
                     className={[
@@ -145,7 +156,14 @@ export function ListDetailLayout({
                         : "border-ink-950/8 bg-cream-50 text-ink-700 hover:border-accent-500/30 hover:bg-cream-100",
                     ].join(" ")}
                   >
-                    <span className="truncate">{s.name}</span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate">{s.name}</span>
+                      {s.badge && (
+                        <span className="shrink-0 rounded-full bg-accent-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent-600">
+                          {s.badge}
+                        </span>
+                      )}
+                    </span>
                     {isDirty && (
                       <span className="size-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden="true" />
                     )}
