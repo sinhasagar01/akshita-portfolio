@@ -1,7 +1,7 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
-import { singletonHref, collectionListHref } from "@/lib/keystatic-links";
+import { singletonHref } from "@/lib/keystatic-links";
 import {
   IconSparkles,
   IconGrid,
@@ -11,7 +11,10 @@ import {
   IconLayers,
 } from "@/components/studio/icons";
 
-const settingsLink = singletonHref("siteSettings");
+// Hero/About/Process are edited inline in the studio settings panel; Work in the
+// projects panel. Skills has no studio panel yet, so it still deep-links Keystatic.
+const settingsPanel = "/studio/settings";
+const projectsPanel = "/studio/projects";
 
 export default async function StudioHomepage() {
   const { settings, skills, projects } = await getStudioData();
@@ -27,7 +30,7 @@ export default async function StudioHomepage() {
 
   return (
     <>
-      <AreaHeader title="Homepage" sub="What feeds the homepage. Edit in Keystatic." />
+      <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
         <ContentCard
@@ -38,8 +41,8 @@ export default async function StudioHomepage() {
           meta="Site settings, copy and photo"
           note="facet labels in code"
           signals={settingsMissing}
-          href={settingsLink}
-          ariaLabel="Edit Hero copy in Keystatic site settings"
+          href={settingsPanel}
+          ariaLabel="Edit Hero in the studio settings panel"
         />
         <ContentCard
           index="02"
@@ -47,8 +50,8 @@ export default async function StudioHomepage() {
           icon={<IconGrid />}
           status="live"
           meta={`${projectCount} projects`}
-          href={collectionListHref("projects")}
-          ariaLabel="Open the Projects collection in Keystatic"
+          href={projectsPanel}
+          ariaLabel="Open the Projects panel in the studio"
         />
         <ContentCard
           index="03"
@@ -57,8 +60,8 @@ export default async function StudioHomepage() {
           status="live"
           meta="Site settings, copy and chips"
           signals={settingsMissing}
-          href={settingsLink}
-          ariaLabel="Edit About copy in Keystatic site settings"
+          href={settingsPanel}
+          ariaLabel="Edit About in the studio settings panel"
         />
         <ContentCard
           index="04"
@@ -68,8 +71,8 @@ export default async function StudioHomepage() {
           meta="Site settings, 4 copy fields"
           note="stage visuals in code"
           signals={settingsMissing}
-          href={settingsLink}
-          ariaLabel="Edit Process copy in Keystatic site settings"
+          href={settingsPanel}
+          ariaLabel="Edit Process in the studio settings panel"
         />
         <ContentCard
           index="05"
