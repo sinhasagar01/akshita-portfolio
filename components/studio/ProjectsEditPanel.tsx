@@ -21,21 +21,25 @@ type Props = {
   facts: ProjectFacts;
 };
 
-// Nested to match the posted patch shape { summary, facts } exactly.
+// Only type + platform are editable here (Phase-1 T1). role + timeline stay in
+// the file as valid data but are not part of the form, so the posted facts patch
+// is { type, platform } and the serializer merges it (role/timeline preserved).
+type EditableFacts = { type: string; platform: string };
 type ProjectsFields = {
   summary: string;
-  facts: ProjectFacts;
+  facts: EditableFacts;
 };
 
-const FACTS: { key: keyof ProjectFacts; label: string; placeholder: string }[] = [
-  { key: "role", label: "Role", placeholder: "Sole product designer" },
+const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] = [
   { key: "type", label: "Type", placeholder: "Mobile app redesign" },
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
-  { key: "timeline", label: "Timeline", placeholder: "10 weeks" },
 ];
 
 export default function ProjectsEditPanel({ itemId, slug, title, summary, facts }: Props) {
-  const initial: ProjectsFields = { summary, facts };
+  const initial: ProjectsFields = {
+    summary,
+    facts: { type: facts.type, platform: facts.platform },
+  };
   // Report differs + pending up to the page Publish bar (in the dashboard layout).
   const { setUnpublished } = usePublishSignal();
 
@@ -51,10 +55,8 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, facts 
     buildCommitted: (v) => ({ summary: v.summary, facts: { ...v.facts } }),
     isDirty: (v, b) =>
       v.summary !== b.summary ||
-      v.facts.role !== b.facts.role ||
       v.facts.type !== b.facts.type ||
-      v.facts.platform !== b.facts.platform ||
-      v.facts.timeline !== b.facts.timeline,
+      v.facts.platform !== b.facts.platform,
     saveExtras: { collection: "projects", slug },
     onSaved: () => setUnpublished(true),
   });
@@ -63,7 +65,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, facts 
   const { isSelected } = useListItem(itemId, dirty);
   if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
-  const setFact = (key: keyof ProjectFacts, val: string) =>
+  const setFact = (key: keyof EditableFacts, val: string) =>
     setField("facts", { ...values.facts, [key]: val });
 
   const inputCls =
