@@ -88,4 +88,48 @@ Pass criteria — ALL PASS:
 - Browser (fs mode): /studio/experience form shows only Role title, Start date,
   End date (no Description textarea); no console errors.
 
+Commit: `6ddd16e` on `ralph/phase1`. `layout.tsx` WIP left unstaged.
+
+**Task 2 status: PASSED (iteration 1).**
+
+---
+
+## Task 3 — Currently-badge logic (two-part)
+
+### Iteration 1 — PASSED
+
+Files touched (staged by explicit path):
+- `components/sections/experience-current.ts` — NEW pure module.
+  `isCurrentRole(endDate)` = endDate empty/whitespace OR "Present"
+  (case-insensitive). `selectCurrentExperience(list)` returns
+  `{ feature, previous }`: feature = the first current entry OR `null` (NO forced
+  experience[0] fallback); previous = the rest, or ALL entries when feature null.
+- `components/sections/ExperienceSection.tsx` — uses `selectCurrentExperience`
+  instead of the inline `find(... === "present") ?? experience[0]`; the feature
+  block (which carries the "Currently" badge) now renders only `{feature && (…)}`,
+  so when nothing is current there is no badge and every entry is under Previously.
+
+Why the new module: the section is JSX and cannot be imported by a plain node
+test, so the behavioral rule was extracted into a dependency-free helper that BOTH
+the component and the test import (single source of truth — no duplicated logic).
+This is additive and within the task's subject; no proven/forbidden module touched.
+
+Test: `ralph/tests/task3.mjs`.
+
+Pass criteria — ALL PASS:
+- Test: `T3 result: ALL PASS`:
+  (i) endDate="Present" -> that entry is the feature (Currently);
+  (ii) endDate="" (and whitespace) -> current;
+  (iii) ALL entries real end dates -> feature is null, NO badge, all under
+       Previously (anti-regression: asserts feature !== experience[0]);
+  plus case-insensitive matching and first-current-wins.
+- `npm run typecheck`: clean.
+- `npm run build`: clean (definitive run with dev server stopped; a first run
+  hit a transient "/projects/[slug]" collect error caused by the dev server
+  contending on .next during build — a clean rebuild passed).
+- Browser (fs mode), case (iv): homepage GET / -> 200; #experience shows exactly
+  one "Currently" (the real current role, LTIMindtree Elevate = "Present") and
+  one "Previously" group; no console errors. Matches prior behavior for the real
+  data while the logic is now correct.
+
 Commit: (recorded below after `git commit`).
