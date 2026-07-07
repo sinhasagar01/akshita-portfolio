@@ -6,6 +6,7 @@ import LinksEditPanel from "@/components/studio/LinksEditPanel";
 import ProcessEditPanel from "@/components/studio/ProcessEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { ListDetailLayout } from "@/components/studio/ListDetailLayout";
+import { STUDIO_SETTINGS_SECTIONS } from "@/lib/studio/settings-sections";
 import { singletonHref } from "@/lib/keystatic-links";
 
 const settingsLink = singletonHref("siteSettings");
@@ -36,14 +37,7 @@ export default async function StudioSettings() {
           list+detail shell puts a fixed section list on the left and one edit
           pane on the right — every panel stays MOUNTED (returns null when
           unselected) so unsaved drafts survive switching sections. */}
-      <ListDetailLayout
-        sections={[
-          { id: "hero", name: "Hero" },
-          { id: "about", name: "About" },
-          { id: "links", name: "Links" },
-          { id: "process", name: "Process" },
-        ]}
-      >
+      <ListDetailLayout sections={STUDIO_SETTINGS_SECTIONS}>
         {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
         <HeroEditPanel
           itemId="hero"
