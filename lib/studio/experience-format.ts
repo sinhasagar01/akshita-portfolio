@@ -11,6 +11,7 @@ export type ExperienceInput = {
   startDate: string;
   endDate: string;
   description: string;
+  location: string;
 };
 
 export type ExperienceRecord = Record<string, unknown>;
@@ -24,16 +25,19 @@ export const EXPERIENCE_FIELD_ORDER = [
   "startDate",
   "endDate",
   "description",
+  "location",
   "orderIndex",
 ] as const;
 
 /** The editable fields — the non-slug text fields. company is the slug (editing
  *  it renames the file) and orderIndex is reorder (both deferred). description is
- *  preserved in the file but NOT editable here (Phase-1 T2), so it is excluded. */
+ *  preserved in the file but NOT editable here (Phase-1 T2), so it is excluded.
+ *  location is editable (it overrides the city parsed from the company name). */
 export const EXPERIENCE_EDITABLE_FIELDS = [
   "title",
   "startDate",
   "endDate",
+  "location",
 ] as const;
 
 /**

@@ -55,6 +55,7 @@ export type ExperienceListItem = {
   startDate: string;
   endDate: string;
   description: string;
+  location: string;
   orderIndex: number;
 };
 
@@ -158,6 +159,7 @@ export function mapExperienceListItem(slug: string, entry: Record<string, unknow
     startDate: (entry.startDate ?? "") as string,
     endDate: (entry.endDate ?? "") as string,
     description: (entry.description ?? "") as string,
+    location: (entry.location ?? "") as string,
     orderIndex: (entry.orderIndex ?? 0) as number,
   };
 }

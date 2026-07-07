@@ -262,6 +262,10 @@ export default config({
           label: "Short description",
           multiline: true,
         }),
+        location: fields.text({
+          label: "Location",
+          description: "City, e.g. Bengaluru. Overrides the city parsed from the company name.",
+        }),
         orderIndex: fields.number({
           label: "Order (most recent first)",
           defaultValue: 0,

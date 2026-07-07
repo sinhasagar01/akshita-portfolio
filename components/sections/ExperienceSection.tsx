@@ -14,8 +14,19 @@ function parseCompany(raw: string): { display: string; acquiredBy: string | null
   return { display: raw, acquiredBy: null, city: "" };
 }
 
-function CompanyLine({ raw, className }: { raw: string; className?: string }) {
-  const { display, acquiredBy, city } = parseCompany(raw);
+function CompanyLine({
+  raw,
+  location,
+  className,
+}: {
+  raw: string;
+  location?: string;
+  className?: string;
+}) {
+  const { display, acquiredBy, city: parsedCity } = parseCompany(raw);
+  // Prefer the explicit location field when set; fall back to the city parsed
+  // from the company name so entries without a location render unchanged.
+  const city = location?.trim() || parsedCity;
   return (
     <div className={className}>
       {display}
@@ -79,6 +90,7 @@ export default function ExperienceSection({ experience }: Props) {
             {/* Company */}
             <CompanyLine
               raw={feature.company}
+              location={feature.location}
               className="relative mt-[14px] text-[12px] tracking-[.13em] uppercase text-[--color-text-muted]"
             />
             {/* Role */}
@@ -110,6 +122,7 @@ export default function ExperienceSection({ experience }: Props) {
                     <div>
                       <CompanyLine
                         raw={entry.company}
+                        location={entry.location}
                         className="text-[11px] tracking-[.12em] uppercase text-[--color-text-muted]"
                       />
                       <div className="text-[15.5px] font-semibold mt-[3px] text-[--color-text-primary]">

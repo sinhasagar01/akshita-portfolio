@@ -39,6 +39,7 @@ export default async function StudioExperience() {
               title={e.title}
               startDate={e.startDate}
               endDate={e.endDate}
+              location={e.location}
               description={e.description}
             />
           ))}

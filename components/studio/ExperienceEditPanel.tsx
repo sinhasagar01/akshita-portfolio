@@ -21,6 +21,7 @@ type Props = {
   title: string;
   startDate: string;
   endDate: string;
+  location: string;
   // Still passed by the page and preserved in the file, but NOT editable here
   // (Phase-1 T2) — so it is not destructured, seeded, or sent in the patch.
   description: string;
@@ -30,6 +31,7 @@ type ExperienceFields = {
   title: string;
   startDate: string;
   endDate: string;
+  location: string;
 };
 
 export default function ExperienceEditPanel({
@@ -39,8 +41,9 @@ export default function ExperienceEditPanel({
   title,
   startDate,
   endDate,
+  location,
 }: Props) {
-  const initial: ExperienceFields = { title, startDate, endDate };
+  const initial: ExperienceFields = { title, startDate, endDate, location };
   // Report differs + pending up to the page Publish bar (now in the dashboard layout).
   const { setUnpublished } = usePublishSignal();
 
@@ -57,7 +60,8 @@ export default function ExperienceEditPanel({
     isDirty: (v, b) =>
       v.title !== b.title ||
       v.startDate !== b.startDate ||
-      v.endDate !== b.endDate,
+      v.endDate !== b.endDate ||
+      v.location !== b.location,
     saveExtras: { collection: "experience", slug },
     onSaved: () => setUnpublished(true),
   });
@@ -136,6 +140,21 @@ export default function ExperienceEditPanel({
             />
           </label>
         </div>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Location</span>
+          <input
+            type="text"
+            value={values.location}
+            onChange={(e) => setField("location", e.target.value)}
+            onBlur={saveDraft}
+            placeholder="Bengaluru"
+            className={inputCls}
+          />
+          <span className="text-[10px] text-text-subtle">
+            City shown next to the company. Overrides the city parsed from the company name.
+          </span>
+        </label>
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
