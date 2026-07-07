@@ -120,6 +120,19 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
   };
 }
 
+/** Map the raw skills singleton to a SkillsEntry — categories, each with a name
+ *  and a string[] of items. Missing sub-fields coalesce to empty, matching the
+ *  other mappers. The null-singleton guard stays at the call site (as with
+ *  mapSiteSettings). Exported so the skills draft read (SK-4) shares one source. */
+export function mapSkills(raw: Record<string, unknown>): SkillsEntry {
+  return {
+    categories: ((raw.categories as readonly unknown[]) ?? []).map((cat) => ({
+      category: (cat as { category?: string }).category ?? "",
+      items: ((cat as { items?: readonly unknown[] }).items ?? []).map((i) => String(i)),
+    })),
+  };
+}
+
 /** Read just the siteSettings singleton (mapped). Split out so the site chrome
  *  (SiteHeader/SiteFooter, PL-2a) can source its links without reading the
  *  projects/experience/skills collections it never uses. cache() dedupes the
@@ -174,14 +187,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     ]);
 
   const skills: SkillsEntry | null = skillsRaw
-    ? {
-        categories: (skillsRaw.categories ?? []).map((cat) => ({
-          category: (cat as { category?: string }).category ?? "",
-          items: ((cat as { items?: readonly unknown[] }).items ?? []).map(
-            (i) => String(i)
-          ),
-        })),
-      }
+    ? mapSkills(skillsRaw as Record<string, unknown>)
     : null;
 
   const projects: ProjectListItem[] = (projectsRaw as Awaited<typeof projectsRaw>)
