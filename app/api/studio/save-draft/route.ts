@@ -20,6 +20,8 @@ import { getHomePageData, mapSiteSettings } from "@/lib/keystatic";
 import { sanitizeSiteSettingsPatch } from "@/lib/studio/site-settings-format";
 import { sanitizeExperiencePatch } from "@/lib/studio/experience-format";
 import { sanitizeProjectsPatch } from "@/lib/studio/projects-format";
+import { sanitizeSkillsPatch } from "@/lib/studio/skills-format";
+import { commitSkillsDraft } from "@/lib/studio/commit-skills";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -34,7 +36,7 @@ export async function POST(req: Request) {
   // Parse and sanitize BEFORE the env-split, so a malformed body is rejected in
   // every mode (the fs no-op cannot mask it) and only a typed, known-field,
   // string-valued patch can ever reach the transform (review finding 5).
-  let body: { collection?: unknown; slug?: unknown; patch?: unknown };
+  let body: { collection?: unknown; singleton?: unknown; slug?: unknown; patch?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -91,6 +93,40 @@ export async function POST(req: Request) {
     // this drops the cached draft read regardless.
     invalidateDraftStateCache();
     return NextResponse.json({ ok: true, mode: "github", saved: true, sha: entryResult.sha });
+  }
+
+  // SK-2 — skills singleton save. Carries { singleton: "skills", patch: { categories } }.
+  // Own file (content/skills.yaml), own sanitizer + commit; lands on the SAME
+  // draft branch, so it accumulates with settings + collection edits (DB-1) and
+  // publishes together. Owner gate above + env-split below mirror the other paths.
+  if (body?.singleton !== undefined) {
+    if (body.singleton !== "skills") {
+      return NextResponse.json({ ok: false, error: "unsupported_singleton" }, { status: 400 });
+    }
+    const sanitizedSkills = sanitizeSkillsPatch(body.patch);
+    if (!sanitizedSkills.ok) {
+      return NextResponse.json(sanitizedSkills, { status: 400 });
+    }
+    if (process.env.STUDIO_WRITE_MODE !== "github") {
+      return NextResponse.json({
+        ok: true,
+        mode: "fs",
+        saved: false,
+        note: "draft save needs github mode",
+      });
+    }
+    if (!process.env.STUDIO_GITHUB_TOKEN) {
+      return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
+    }
+    const skillsResult = await commitSkillsDraft(sanitizedSkills.categories, {
+      branch: DRAFT_BRANCH,
+      message: "chore(studio): update skills draft",
+    });
+    if (!skillsResult.ok) {
+      return NextResponse.json(skillsResult, { status: 500 });
+    }
+    invalidateDraftStateCache();
+    return NextResponse.json({ ok: true, mode: "github", saved: true, sha: skillsResult.sha });
   }
 
   const sanitized = sanitizeSiteSettingsPatch(body?.patch ?? {});
