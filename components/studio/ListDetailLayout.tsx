@@ -21,6 +21,7 @@ import {
   useState,
 } from "react";
 import { useSearchParams } from "next/navigation";
+import { IconX, IconPlus } from "./icons";
 
 export type ListDetailSection = {
   id: string;
@@ -66,9 +67,19 @@ const MOBILE_MQ = "(max-width: 1023px)"; // the site's 1024 (lg) breakpoint
 export function ListDetailLayout({
   sections,
   children,
+  onAddItem,
+  addItemLabel,
+  onRemoveItem,
 }: {
   sections: ListDetailSection[];
   children: React.ReactNode;
+  // Optional dynamic-list capability (SK-3a). All absent = static list (today's
+  // behavior, byte-identical). onAddItem renders an "Add" control and, if it
+  // returns an id, selects the new item. onRemoveItem renders a per-item remove
+  // control; the layout re-selects a live neighbor BEFORE the consumer deletes.
+  onAddItem?: () => string | undefined;
+  addItemLabel?: string;
+  onRemoveItem?: (id: string) => void;
 }) {
   // Deep-link support: studio search navigates to /studio/<page>?item=<id> and
   // this pre-selects that entry. `item` is validated against sections so a stale
@@ -116,6 +127,29 @@ export function ListDetailLayout({
     requestAnimationFrame(() => document.getElementById(`ld-tab-${prev}`)?.focus());
   }, [activeId]);
 
+  // SK-3a — dynamic list. Add: let the consumer append an item; if it returns the
+  // new id, select it (reusing select()).
+  function handleAdd() {
+    const newId = onAddItem?.();
+    if (newId) select(newId);
+  }
+
+  // Remove: if the SELECTED item is going, pick a live neighbor (next, else prev,
+  // else none) and set it BEFORE the consumer deletes — both updates batch into
+  // one render, so there is no frame where the selection points at a removed
+  // item (no flash/stale). Removing a non-selected item leaves selection intact.
+  function handleRemove(id: string) {
+    if (id === activeId) {
+      const idx = sections.findIndex((s) => s.id === id);
+      const neighbor = sections[idx + 1] ?? sections[idx - 1] ?? null;
+      setSelectedId(neighbor ? neighbor.id : null);
+      if (neighbor) {
+        requestAnimationFrame(() => document.getElementById(`ld-tab-${neighbor.id}`)?.focus());
+      }
+    }
+    onRemoveItem?.(id);
+  }
+
   function handleKey(e: React.KeyboardEvent) {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
@@ -154,7 +188,7 @@ export function ListDetailLayout({
                 .filter(Boolean)
                 .join(", ");
               return (
-                <li key={s.id}>
+                <li key={s.id} className={onRemoveItem ? "group relative" : undefined}>
                   <button
                     type="button"
                     role="tab"
@@ -183,10 +217,39 @@ export function ListDetailLayout({
                       <span className="size-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden="true" />
                     )}
                   </button>
+                  {onRemoveItem && (
+                    <button
+                      type="button"
+                      // Roving like the tabs: only the active item's remove is in
+                      // the Tab order; reach any other via arrow-select then Tab.
+                      // opacity-0 keeps it focusable (not display:none), revealed on
+                      // hover or when the item holds focus.
+                      tabIndex={isActive ? 0 : -1}
+                      aria-label={`Remove ${s.name}`}
+                      onClick={() => handleRemove(s.id)}
+                      className="absolute right-1.5 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded text-ink-400 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 group-hover:opacity-100 group-focus-within:opacity-100 [&>svg]:size-3.5"
+                    >
+                      <IconX />
+                    </button>
+                  )}
                 </li>
               );
             })}
           </ul>
+          {onAddItem && (
+            // Placed after the tab list; it is an action, not a tab, so it is
+            // Tab-reachable but NOT part of the arrow-key cycle (which walks
+            // sections only). See the a11y note in the PR: it lives inside the
+            // role="tablist" nav to keep the static markup byte-identical.
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="mt-1.5 flex w-full items-center gap-1.5 rounded-lg border border-dashed border-ink-950/15 px-3 py-2 text-[13px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-100 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
+            >
+              <IconPlus />
+              {addItemLabel ?? "Add"}
+            </button>
+          )}
         </nav>
 
         {/* Right detail pane */}
