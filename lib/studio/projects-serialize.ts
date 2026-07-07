@@ -56,6 +56,13 @@ export function serializeProjectEntry(
   }
   const obj = (load(head) ?? {}) as Record<string, unknown>;
   if (patch.summary !== undefined) obj.summary = patch.summary;
-  if (patch.facts !== undefined) obj.facts = patch.facts;
+  if (patch.facts !== undefined) {
+    // MERGE, not replace: the patch carries only the editable facts (type +
+    // platform). Spreading over the existing block keeps the file's other facts
+    // (role, timeline) and their key order byte-for-byte, so a locked field is
+    // never dropped and an unchanged block still round-trips (Phase-1 T1).
+    const existing = (obj.facts ?? {}) as Record<string, unknown>;
+    obj.facts = { ...existing, ...patch.facts };
+  }
   return { ok: true, bytes: dump(obj, opts) + body };
 }

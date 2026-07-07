@@ -2,6 +2,7 @@ import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
 import type { ExperienceListItem } from "@/lib/keystatic";
+import { selectCurrentExperience } from "./experience-current";
 
 type Props = { experience: ExperienceListItem[] };
 
@@ -31,8 +32,10 @@ function CompanyLine({ raw, className }: { raw: string; className?: string }) {
 export default function ExperienceSection({ experience }: Props) {
   if (experience.length === 0) return null;
 
-  const feature = experience.find((e) => e.endDate.trim().toLowerCase() === "present") ?? experience[0];
-  const previous = experience.filter((e) => e !== feature);
+  // Current = endDate empty/whitespace OR "Present" (case-insensitive). No forced
+  // experience[0] fallback: when nothing is current, feature is null, no badge
+  // shows, and every entry renders under Previously (Phase-1 T3).
+  const { feature, previous } = selectCurrentExperience(experience);
 
   return (
     <SectionWrapper id="experience" className="scroll-mt-20">
@@ -46,7 +49,8 @@ export default function ExperienceSection({ experience }: Props) {
         />
         <div className="mt-8 sm:mt-[52px]">
 
-          {/* Feature block */}
+          {/* Feature block — only when an entry is current (no forced fallback) */}
+          {feature && (
           <div
             className="relative overflow-hidden mb-[30px]"
             style={{ background: "#F3EADB", borderRadius: "14px", padding: "28px 30px" }}
@@ -86,6 +90,7 @@ export default function ExperienceSection({ experience }: Props) {
               {feature.startDate} – {feature.endDate}
             </div>
           </div>
+          )}
 
           {/* Previously list */}
           {previous.length > 0 && (

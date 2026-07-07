@@ -27,13 +27,13 @@ export const EXPERIENCE_FIELD_ORDER = [
   "orderIndex",
 ] as const;
 
-/** The editable fields — the four non-slug text fields. company is the slug
- *  (editing it renames the file) and orderIndex is reorder (both deferred). */
+/** The editable fields — the non-slug text fields. company is the slug (editing
+ *  it renames the file) and orderIndex is reorder (both deferred). description is
+ *  preserved in the file but NOT editable here (Phase-1 T2), so it is excluded. */
 export const EXPERIENCE_EDITABLE_FIELDS = [
   "title",
   "startDate",
   "endDate",
-  "description",
 ] as const;
 
 /**
@@ -60,6 +60,11 @@ export function sanitizeExperiencePatch(
       // Number field. Reorder is a separate arc; orderIndex is preserved
       // untouched, not edited through this path (a number branch lands there).
       return invalid("orderIndex is managed by ordering, not editable here", key);
+    }
+    if (key === "description") {
+      // Known-but-locked (Phase-1 T2): still valid data, preserved untouched in
+      // the file, but no longer editable here — rejected distinctly, not as a typo.
+      return invalid("description is not editable here", key);
     }
     if (!(EXPERIENCE_EDITABLE_FIELDS as readonly string[]).includes(key)) {
       return invalid(`unknown field ${key}`, key);

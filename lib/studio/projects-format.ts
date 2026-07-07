@@ -16,41 +16,49 @@ export type ProjectFacts = {
 
 export type ProjectsInput = {
   summary: string;
-  facts: ProjectFacts;
+  // Only the EDITABLE facts subset (type + platform) is ever written through this
+  // path; role + timeline are preserved from the file by the serializer's merge.
+  facts: Partial<ProjectFacts>;
 };
 
-/** The facts sub-keys, in canonical schema order (so an unchanged facts block
- *  dumps identically to the original). */
+/** The full facts sub-keys, in canonical schema order. role + timeline remain
+ *  valid data but are NOT editable through /studio (Phase-1 T1). */
 export const PROJECT_FACTS_KEYS = ["role", "type", "platform", "timeline"] as const;
 
-/** Validate a facts object: keys ⊆ the four known ones, all strings, unknown
- *  sub-keys / wrong types rejected. Normalized to canonical key order. */
+/** The facts sub-keys that stay EDITABLE through the /studio panel. */
+export const EDITABLE_FACTS_KEYS = ["type", "platform"] as const;
+
+/** Validate a facts patch: only type + platform are accepted. role + timeline
+ *  are known-but-locked (rejected with a distinct reason so a caller knows they
+ *  are intentionally not editable, not a typo); any other key is unknown. All
+ *  accepted values must be strings. Returns only the provided editable keys, so
+ *  the serializer merges them over the file and leaves role + timeline intact. */
 function sanitizeFacts(
   value: unknown
-): { ok: true; value: ProjectFacts } | { ok: false; message: string } {
+): { ok: true; value: Partial<ProjectFacts> } | { ok: false; message: string } {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return { ok: false, message: "facts must be an object" };
   }
   const obj = value as Record<string, unknown>;
   for (const k of Object.keys(obj)) {
-    if (!(PROJECT_FACTS_KEYS as readonly string[]).includes(k)) {
-      return { ok: false, message: `unknown facts field ${k}` };
+    if (!(EDITABLE_FACTS_KEYS as readonly string[]).includes(k)) {
+      const locked = (PROJECT_FACTS_KEYS as readonly string[]).includes(k);
+      return {
+        ok: false,
+        message: locked ? `facts.${k} is not editable here` : `unknown facts field ${k}`,
+      };
     }
   }
-  for (const k of PROJECT_FACTS_KEYS) {
+  for (const k of EDITABLE_FACTS_KEYS) {
     if (obj[k] !== undefined && typeof obj[k] !== "string") {
       return { ok: false, message: `facts.${k} must be a string` };
     }
   }
-  return {
-    ok: true,
-    value: {
-      role: (obj.role as string) ?? "",
-      type: (obj.type as string) ?? "",
-      platform: (obj.platform as string) ?? "",
-      timeline: (obj.timeline as string) ?? "",
-    },
-  };
+  const out: Partial<ProjectFacts> = {};
+  for (const k of EDITABLE_FACTS_KEYS) {
+    if (typeof obj[k] === "string") out[k] = obj[k] as string;
+  }
+  return { ok: true, value: out };
 }
 
 /**
