@@ -1,0 +1,109 @@
+"use client";
+
+// SK-3b — a reusable inline array editor for a string[] (add / remove / reorder /
+// edit-in-place). Extracted VERBATIM from the AboutEditPanel focus-chips pattern
+// so it can be shared. AboutEditPanel / ProcessEditPanel still carry their own
+// inline copies for now (out of SK-3b scope); they can migrate to this later.
+//
+// Controlled: the parent owns the array and passes onChange; onBlur (optional)
+// lets the parent auto-save on field blur, exactly like the About panel.
+import { useRef } from "react";
+import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
+
+type Props = {
+  chips: string[];
+  onChange: (next: string[]) => void;
+  /** Fired on a chip input blur — the parent's save-on-blur (skills saveDraft). */
+  onBlur?: () => void;
+  /** The "Add" button label, e.g. "Add skill". */
+  addLabel?: string;
+  placeholder?: string;
+};
+
+export default function ChipListEditor({ chips, onChange, onBlur, addLabel = "Add item", placeholder }: Props) {
+  // After "Add", focus the new input without a layout effect (About-B pattern).
+  const pendingFocus = useRef<number | null>(null);
+
+  const editChip = (i: number, v: string) => onChange(chips.map((c, idx) => (idx === i ? v : c)));
+  const removeChip = (i: number) => onChange(chips.filter((_, idx) => idx !== i));
+  function addChip() {
+    pendingFocus.current = chips.length;
+    onChange([...chips, ""]);
+  }
+  function moveChip(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= chips.length) return;
+    const next = [...chips];
+    [next[i], next[j]] = [next[j], next[i]];
+    onChange(next);
+  }
+
+  const iconBtn =
+    "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5">
+        {chips.map((chip, i) => {
+          const name = chip.trim() || "item";
+          return (
+            <div key={i} className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={chip}
+                ref={(el) => {
+                  if (el && pendingFocus.current === i) {
+                    el.focus();
+                    pendingFocus.current = null;
+                  }
+                }}
+                onChange={(e) => editChip(i, e.target.value)}
+                onBlur={onBlur}
+                placeholder={placeholder}
+                className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              />
+              {/* preventDefault on mousedown keeps focus on the input so the click
+                  does not blur-save mid-op (the About-panel fix). */}
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => moveChip(i, -1)}
+                disabled={i === 0}
+                aria-label={`Move ${name} up`}
+                className={iconBtn}
+              >
+                <IconChevronUp />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => moveChip(i, 1)}
+                disabled={i === chips.length - 1}
+                aria-label={`Move ${name} down`}
+                className={iconBtn}
+              >
+                <IconChevronDown />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => removeChip(i)}
+                aria-label={`Remove ${name}`}
+                className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+              >
+                <IconX />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <button
+        type="button"
+        onClick={addChip}
+        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+      >
+        <IconPlus /> {addLabel}
+      </button>
+    </div>
+  );
+}

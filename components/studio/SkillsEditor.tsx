@@ -1,0 +1,181 @@
+"use client";
+
+// SK-3b — the Skills category editor. The skills singleton is edited as a WHOLE
+// (one categories array, saved as one patch via the SK-2 path). This holds the
+// whole array in ONE useDraftForm and renders it through ListDetailLayout's
+// dynamic-list capability (SK-3a): one list item per category, a pane per
+// category (name + items), Add/Remove category via onAddItem/onRemoveItem.
+//
+// Client-only stable ids live OUTSIDE the form values (a parallel array, aligned
+// by index) so useDraftForm's T is exactly the id-less POST shape — no stripping,
+// no casts. The ids give the list stable keys so renaming a category never
+// remounts its panel. Only add/remove touch both arrays (kept in one batch).
+//
+// Not wired into /studio/skills yet (SK-4). Exercised via a harness for SK-3b.
+import { useRef, useState } from "react";
+import { ListDetailLayout, useListItem } from "./ListDetailLayout";
+import ChipListEditor from "./ChipListEditor";
+import { useDraftForm } from "./useDraftForm";
+
+export type SkillsCategoryInput = { category: string; items: string[] };
+type SkillsFields = { categories: SkillsCategoryInput[] };
+
+const trimItems = (items: string[]) => items.map((i) => i.trim()).filter(Boolean);
+const sameItems = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);
+// Array-aware, comparing TRIMMED items (the Process sameStages pattern) so a
+// mid-typing empty item row is not dirty while a rename / reorder / real edit is.
+const sameCategories = (a: SkillsCategoryInput[], b: SkillsCategoryInput[]) =>
+  a.length === b.length &&
+  a.every((c, i) => c.category === b[i].category && sameItems(trimItems(c.items), b[i].items));
+
+export default function SkillsEditor({ categories }: { categories: SkillsCategoryInput[] }) {
+  const initial: SkillsFields = { categories };
+  const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<SkillsFields>({
+    initial,
+    // Identity + trim: the whole categories array IS the patch, posted as
+    // { singleton:"skills", patch:{ categories } } (the SK-2 path).
+    buildCommitted: (v) => ({ categories: v.categories.map((c) => ({ category: c.category, items: trimItems(c.items) })) }),
+    isDirty: (v, b) => !sameCategories(v.categories, b.categories),
+    // MUST stay false (approved): syncing values to the trimmed committed would
+    // churn mid-typing rows; a blank item row you added stays visible until you
+    // edit it (cosmetic only — it is trimmed out of the SAVED data).
+    saveExtras: { singleton: "skills" },
+  });
+
+  // Client-only stable ids, aligned by index with values.categories. Deterministic
+  // initial ids (c0, c1, …) so SSR and the client first render agree; a ref counter
+  // mints ids for added categories. Only add/remove change this array.
+  const nextId = useRef(categories.length);
+  const [ids, setIds] = useState<string[]>(() => categories.map((_, i) => `c${i}`));
+
+  const cats = values.categories;
+  const updateCat = (id: string, patch: Partial<SkillsCategoryInput>) => {
+    const idx = ids.indexOf(id);
+    if (idx === -1) return;
+    setField("categories", cats.map((c, i) => (i === idx ? { ...c, ...patch } : c)));
+  };
+
+  // SK-3a dynamic-list props — add/remove touch BOTH arrays in one batch so they
+  // stay index-aligned.
+  const onAddItem = () => {
+    const id = `c${nextId.current++}`;
+    setField("categories", [...cats, { category: "", items: [] }]);
+    setIds((prev) => [...prev, id]);
+    return id; // ListDetailLayout selects the new category
+  };
+  const onRemoveItem = (id: string) => {
+    const idx = ids.indexOf(id);
+    if (idx === -1) return;
+    setField("categories", cats.filter((_, i) => i !== idx));
+    setIds((prev) => prev.filter((x) => x !== id));
+  };
+
+  const statusText =
+    saveStatus === "saving"
+      ? "Saving draft…"
+      : saveStatus === "saved"
+        ? "Draft saved"
+        : saveStatus === "error"
+          ? "Save failed. Try again."
+          : saveStatus === "fs"
+            ? "Draft save needs github mode (dev)"
+            : dirty
+              ? "Unsaved changes"
+              : "All changes saved";
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ListDetailLayout
+        sections={cats.map((c, i) => ({ id: ids[i], name: c.category.trim() || "Untitled category" }))}
+        onAddItem={onAddItem}
+        addItemLabel="Add category"
+        onRemoveItem={onRemoveItem}
+      >
+        {cats.map((c, i) => (
+          <CategoryPanel
+            key={ids[i]}
+            id={ids[i]}
+            category={c.category}
+            items={c.items}
+            isOnlyCategory={cats.length === 1}
+            onName={(name) => updateCat(ids[i], { category: name })}
+            onItems={(items) => updateCat(ids[i], { items })}
+            onBlurSave={saveDraft}
+          />
+        ))}
+      </ListDetailLayout>
+
+      <footer className="flex items-center justify-between gap-3 rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-3">
+        <span className="text-[11px] text-text-subtle" aria-live="polite">
+          {statusText}
+        </span>
+        <button
+          type="button"
+          onClick={saveDraft}
+          disabled={!dirty || saveStatus === "saving"}
+          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {saveStatus === "saving" ? "Saving…" : "Save draft"}
+        </button>
+      </footer>
+    </div>
+  );
+}
+
+function CategoryPanel({
+  id,
+  category,
+  items,
+  isOnlyCategory,
+  onName,
+  onItems,
+  onBlurSave,
+}: {
+  id: string;
+  category: string;
+  items: string[];
+  isOnlyCategory: boolean;
+  onName: (name: string) => void;
+  onItems: (items: string[]) => void;
+  onBlurSave: () => void;
+}) {
+  const { isSelected } = useListItem(id, false);
+  if (!isSelected) return null; // stays MOUNTED; state is lifted, so nothing is lost
+
+  return (
+    <section
+      aria-label={`Edit ${category.trim() || "category"}`}
+      className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
+    >
+      <div className="flex flex-col gap-5 px-4 py-5">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Category name</span>
+          <input
+            type="text"
+            value={category}
+            onChange={(e) => onName(e.target.value)}
+            onBlur={onBlurSave}
+            placeholder="e.g. Design"
+            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          />
+        </label>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Skills in this category</span>
+          <ChipListEditor chips={items} onChange={onItems} onBlur={onBlurSave} addLabel="Add skill" placeholder="Skill" />
+          {items.length === 0 && (
+            <span className="text-[10px] text-accent-600">
+              This category has no skills — it will show an empty section on your site.
+            </span>
+          )}
+        </div>
+
+        {isOnlyCategory && (
+          <p className="rounded-md border border-accent-500/25 bg-accent-500/5 px-3 py-2 text-[11px] text-accent-600">
+            This is your only category. Removing it leaves no skills — the Skills section won&rsquo;t render on your site.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
