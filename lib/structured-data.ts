@@ -30,11 +30,11 @@ function authorNode(): JsonLdNode {
 
 /** The portfolio owner. Socials/photo/email are pulled from site settings when present. */
 export function personSchema(settings: SiteSettingsEntry | null): JsonLdNode {
-  const sameAs = [
-    settings?.linkedinUrl,
-    settings?.dribbbleUrl,
-    settings?.behanceUrl,
-  ].filter((u): u is string => Boolean(u));
+  // Item 10 — sameAs is every external (http/https) link in the settings `links`
+  // array; email is emitted separately below from its own field.
+  const sameAs = (settings?.links ?? [])
+    .map((l) => (l.url ?? "").trim())
+    .filter((url) => /^https?:\/\//i.test(url));
 
   return {
     "@context": CONTEXT,

@@ -1,35 +1,31 @@
 "use client";
 
-// PL-2a — Links edit panel (Surface B). The fourth inline-editable settings
-// group, mirroring the About panel's proven save-draft pattern (thin over
-// useDraftForm, no Publish — Publish is singleton-wide and lives on Hero). The
-// save posts a PARTIAL patch of only the five link fields, so DB-1 accumulates
-// it onto the draft without touching the Hero or About edits.
+// Links edit panel (Surface B). Item 10 migrated the fixed resume/linkedin/
+// dribbble/behance fields to a `links` ARRAY of { label, url } plus a separate
+// `email` field. This is the MINIMAL migration-PR editor: it edits `email` and
+// the EXISTING link rows (label + url) in place, with per-row URL validation and a
+// whole-array save through the settings path. Add / remove / reorder come in the
+// follow-up editor PR (which needs stable client ids for reorder); until then the
+// rows are fixed, so an index key is safe.
 //
-// URL validation is done here, client-side, mirroring validateUrlFields in
-// site-settings-format.ts. The server's sanitizeSiteSettingsPatch only
-// type-checks; URL format is validated at commit (transformSiteSettings), which
-// runs in github mode only — so in fs/dev the server would never surface a bad
-// URL. We show a per-field error and GATE the save (never post) while any URL
-// field is invalid; the server 422 invalid_url stays as the github-mode backstop.
+// URL validation is client-side (mirroring validateUrlFields): a blank url is
+// valid (its link is just omitted from the render); a non-empty value must parse.
+// The save is GATED while any url is invalid; the server 422 invalid_url stays the
+// github-mode backstop.
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconArrowUpRight } from "./icons";
-import { URL_FIELDS } from "@/lib/studio/site-settings-format";
+import type { LinkItem } from "@/lib/studio/site-settings-format";
 
 type Props = {
-  resumeUrl: string;
+  itemId: string;
   email: string;
-  linkedinUrl: string;
-  dribbbleUrl: string;
-  behanceUrl: string;
+  links: LinkItem[];
 };
 
-type LinksFields = Props;
+type LinksFields = { email: string; links: LinkItem[] };
 
-// Mirrors validateUrlFields: a blank field is valid (it gets stripped and the
-// link is omitted); a non-empty value must parse with the URL constructor.
 function isValidUrl(value: string): boolean {
   if (value.trim() === "") return true;
   try {
@@ -40,29 +36,12 @@ function isValidUrl(value: string): boolean {
   }
 }
 
-const URL_FIELD_KEYS = URL_FIELDS as readonly (keyof LinksFields)[];
+function sameLinks(a: LinkItem[], b: LinkItem[]): boolean {
+  return a.length === b.length && a.every((l, i) => l.label === b[i].label && l.url === b[i].url);
+}
 
-const FIELD_LABELS: Record<keyof LinksFields, string> = {
-  resumeUrl: "Resume URL",
-  email: "Contact email",
-  linkedinUrl: "LinkedIn URL",
-  dribbbleUrl: "Dribbble URL",
-  behanceUrl: "Behance URL",
-};
-
-// email is not URL-validated (it is fields.text, not fields.url); it renders
-// between the socials to match the schema order.
-const FIELD_ORDER: (keyof LinksFields)[] = [
-  "resumeUrl",
-  "email",
-  "linkedinUrl",
-  "dribbbleUrl",
-  "behanceUrl",
-];
-
-export default function LinksEditPanel({ itemId, ...fields }: Props & { itemId: string }) {
-  const initial: LinksFields = { ...fields };
-  // UX-1: report this panel's differs + pending state up to the page Publish bar.
+export default function LinksEditPanel({ itemId, email, links }: Props) {
+  const initial: LinksFields = { email, links };
   const { setUnpublished } = usePublishSignal();
 
   const {
@@ -74,29 +53,31 @@ export default function LinksEditPanel({ itemId, ...fields }: Props & { itemId: 
     cancel,
   } = useDraftForm<LinksFields>({
     initial,
-    buildCommitted: (v) => ({ ...v }),
-    isDirty: (v, b) =>
-      v.resumeUrl !== b.resumeUrl ||
-      v.email !== b.email ||
-      v.linkedinUrl !== b.linkedinUrl ||
-      v.dribbbleUrl !== b.dribbbleUrl ||
-      v.behanceUrl !== b.behanceUrl,
+    buildCommitted: (v) => ({
+      email: v.email,
+      links: v.links.map((l) => ({ label: l.label.trim(), url: l.url.trim() })),
+    }),
+    isDirty: (v, b) => v.email !== b.email || !sameLinks(v.links, b.links),
     onSaved: () => setUnpublished(true),
   });
 
   useReportPending(dirty || saveStatus === "saving");
   const { isSelected } = useListItem(itemId, dirty);
-  if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
+  if (!isSelected) return null; // stays MOUNTED (draft persists)
 
-  const invalidFields = URL_FIELD_KEYS.filter((k) => !isValidUrl(values[k]));
-  const hasUrlError = invalidFields.length > 0;
+  const hasUrlError = values.links.some((l) => !isValidUrl(l.url));
 
-  // Gate the on-blur auto-save: never post while a URL field is invalid, so an
-  // invalid URL is not committed. The inline error (derived from values) still
-  // shows. A corrected value blurs and saves normally.
+  const updateLink = (i: number, patch: Partial<LinkItem>) =>
+    setField("links", values.links.map((l, idx) => (idx === i ? { ...l, ...patch } : l)));
+
+  // Gate the on-blur auto-save: never post while a url is invalid.
   const handleBlur = () => {
     if (!hasUrlError) saveDraft();
   };
+
+  const inputCls =
+    "w-full rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
+  const okBorder = "border-ink-950/8 focus:border-accent-500 focus:ring-accent-500/30";
 
   return (
     <section
@@ -117,8 +98,6 @@ export default function LinksEditPanel({ itemId, ...fields }: Props & { itemId: 
         </div>
         <button
           type="button"
-          // preventDefault on mousedown keeps focus on the edited field, so the
-          // blur auto-save never fires for edits the click is about to discard.
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
           className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
@@ -128,26 +107,45 @@ export default function LinksEditPanel({ itemId, ...fields }: Props & { itemId: 
       </header>
 
       <div className="flex flex-col gap-5 px-4 py-5">
-        {FIELD_ORDER.map((key) => {
-          const invalid = URL_FIELD_KEYS.includes(key) && !isValidUrl(values[key]);
-          const errorId = `links-${key}-error`;
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Contact email</span>
+          <input
+            type="text"
+            inputMode="email"
+            value={values.email}
+            onChange={(e) => setField("email", e.target.value)}
+            onBlur={handleBlur}
+            className={`${inputCls} ${okBorder}`}
+          />
+        </label>
+
+        {values.links.map((link, i) => {
+          const invalid = !isValidUrl(link.url);
+          const errorId = `links-${i}-error`;
           return (
-            <label key={key} className="flex flex-col gap-1.5">
+            <div key={i} className="flex flex-col gap-1.5">
               <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
-                {FIELD_LABELS[key]}
+                {link.label.trim() || `Link ${i + 1}`}
               </span>
               <input
                 type="text"
-                inputMode={key === "email" ? "email" : "url"}
-                value={values[key]}
-                onChange={(e) => setField(key, e.target.value)}
+                value={link.label}
+                onChange={(e) => updateLink(i, { label: e.target.value })}
                 onBlur={handleBlur}
+                placeholder="Label"
+                className={`${inputCls} ${okBorder}`}
+              />
+              <input
+                type="text"
+                inputMode="url"
+                value={link.url}
+                onChange={(e) => updateLink(i, { url: e.target.value })}
+                onBlur={handleBlur}
+                placeholder="https://…"
                 aria-invalid={invalid || undefined}
                 aria-describedby={invalid ? errorId : undefined}
-                className={`w-full rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1 ${
-                  invalid
-                    ? "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30"
-                    : "border-ink-950/8 focus:border-accent-500 focus:ring-accent-500/30"
+                className={`${inputCls} ${
+                  invalid ? "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30" : okBorder
                 }`}
               />
               {invalid && (
@@ -155,7 +153,7 @@ export default function LinksEditPanel({ itemId, ...fields }: Props & { itemId: 
                   Enter a full URL including https://
                 </span>
               )}
-            </label>
+            </div>
           );
         })}
       </div>

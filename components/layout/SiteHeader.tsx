@@ -34,9 +34,10 @@ function getActiveSection(): SectionId | null {
 }
 
 export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
-  // Links come from the singleton (PL-2a). Resume drives the desktop CTA and the
-  // mobile pill; a blank resumeUrl omits it from `links`, so both render only
-  // when it exists rather than pointing at an empty href.
+  // Links come from the settings `links` array (item 10). A link labelled
+  // "Resume" drives the desktop CTA and the mobile pill; if the owner renames or
+  // removes it (or leaves its url blank) it drops from `links`, so both render
+  // only when it exists rather than pointing at an empty href.
   const resume                         = links.find((l) => l.label === RESUME_LABEL) ?? null;
   const reduced                        = useReducedMotion();
   const [scrolled, setScrolled]        = useState(false);
@@ -351,9 +352,9 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         )}
 
         <div className="header-mob-socials">
-          {links.map(({ label, href, external, glyph }) => (
+          {links.map(({ label, href, external, glyph }, i) => (
             <a
-              key={label}
+              key={i}
               href={href}
               {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="header-mob-soc-chip"
