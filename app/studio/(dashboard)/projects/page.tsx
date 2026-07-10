@@ -1,38 +1,21 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
-import ProjectsEditPanel from "@/components/studio/ProjectsEditPanel";
-import StudioEmptyState from "@/components/studio/StudioEmptyState";
-import { ListDetailLayout } from "@/components/studio/ListDetailLayout";
-import { collectionListHref } from "@/lib/keystatic-links";
+import ProjectsListEditor from "@/components/studio/ProjectsListEditor";
 
 export default async function StudioProjects() {
+  // getStudioData().projects is F-2's draft-overlaid list — it already reflects
+  // draft creates and deletes. ProjectsListEditor (client) owns the add/remove
+  // handlers, the two dialogs, and the create/delete route calls. It always
+  // renders the list shell (even when empty) so "Add project" stays reachable.
   const { projects } = await getStudioData();
 
   return (
     <>
       <AreaHeader
         title="Projects"
-        sub="Case studies, sorted by order. Edit the summary and facts inline."
+        sub="Case studies, sorted by order. Add or remove projects; edit the summary and facts inline."
       />
-
-      {projects.length === 0 ? (
-        <StudioEmptyState href={collectionListHref("projects")}>
-          No projects yet. Open the Projects collection in Keystatic to add one.
-        </StudioEmptyState>
-      ) : (
-        <ListDetailLayout sections={projects.map((p) => ({ id: p.slug, name: p.title }))}>
-          {projects.map((p) => (
-            <ProjectsEditPanel
-              key={p.slug}
-              itemId={p.slug}
-              slug={p.slug}
-              title={p.title}
-              summary={p.summary}
-              facts={p.facts}
-            />
-          ))}
-        </ListDetailLayout>
-      )}
+      <ProjectsListEditor entries={projects} />
     </>
   );
 }

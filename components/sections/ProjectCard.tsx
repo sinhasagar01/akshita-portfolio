@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
 import type { ProjectListItem } from "@/lib/keystatic";
-import { PROJECT_SVGS } from "./ProjectCardSvgs";
+import { PROJECT_SVGS, FallbackProjectSvg } from "./ProjectCardSvgs";
 
 type Props = { project: ProjectListItem };
 
@@ -13,7 +13,9 @@ const E = "cubic-bezier(.16,1,.3,1)";
 export default function ProjectCard({ project }: Props) {
   const { slug, title, summary, facts } = project;
   const eyebrow = [facts.type, facts.platform].filter(Boolean).join(" · ");
-  const svg = PROJECT_SVGS[slug];
+  // Bespoke slugs get their hand-built mock; any other slug (e.g. a freshly-created
+  // project) gets the generic editorial fallback — never an empty frame.
+  const svg = PROJECT_SVGS[slug] ?? FallbackProjectSvg;
 
   // Default true (reduced) so SSR never renders the spotlight, avoiding hydration mismatch
   const [reducedMotion, setReducedMotion] = useState(true);
