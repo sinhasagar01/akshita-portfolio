@@ -31,9 +31,9 @@ export default async function DashboardLayout({
     redirect("/studio/login");
   }
 
-  const { projects, experience, draftDiffers } = await getStudioData();
+  const { projects, experience, skills, draftDiffers } = await getStudioData();
   // Client-side search index, built once from the data already loaded here.
-  const searchItems = buildStudioSearchIndex({ projects, experience });
+  const searchItems = buildStudioSearchIndex({ projects, experience, skills });
 
   return (
     <div className="mx-auto max-w-[1300px] px-4 py-6 lg:px-6 lg:py-8">

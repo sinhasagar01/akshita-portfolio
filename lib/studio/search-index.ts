@@ -3,11 +3,11 @@
 // destination; settings/experience/projects carry a ?item=<id> that
 // ListDetailLayout reads to pre-select the entry.
 //
-// Scope: settings sections + experience + projects. Skills is excluded (no
-// /studio panel yet — a Skills hit would 404 via Keystatic in prod), and the
-// code-managed Homepage cards are excluded too (Hero/About/Process/Work already
-// deep-link to settings/projects; Contact has no navigation destination).
-import type { ProjectListItem, ExperienceListItem } from "@/lib/keystatic";
+// Scope: settings sections + experience + projects + skills categories (SK-5 —
+// skills got a real /studio panel in SK-4). The code-managed Homepage cards are
+// excluded (Hero/About/Process/Work already deep-link to settings/projects;
+// Contact has no navigation destination).
+import type { ProjectListItem, ExperienceListItem, SkillsEntry } from "@/lib/keystatic";
 import { STUDIO_SETTINGS_SECTIONS } from "./settings-sections";
 
 export type SearchItem = {
@@ -20,9 +20,11 @@ export type SearchItem = {
 export function buildStudioSearchIndex({
   projects,
   experience,
+  skills,
 }: {
   projects: ProjectListItem[];
   experience: ExperienceListItem[];
+  skills: SkillsEntry | null;
 }): SearchItem[] {
   const items: SearchItem[] = [];
 
@@ -50,6 +52,18 @@ export function buildStudioSearchIndex({
       sublabel: "Projects",
       keywords: `${p.title} ${p.summary}`.toLowerCase(),
       href: `/studio/projects?item=${encodeURIComponent(p.slug)}`,
+    });
+  }
+
+  // Skills: one result per category, matchable by the category name OR any skill
+  // in it. Categories have no server-stable id (SkillsEditor's ids are runtime
+  // client-only), so these link to the panel without a ?item= pre-select.
+  for (const c of skills?.categories ?? []) {
+    items.push({
+      label: c.category.trim() || "Untitled category",
+      sublabel: "Skills",
+      keywords: `${c.category} ${c.items.join(" ")}`.toLowerCase(),
+      href: "/studio/skills",
     });
   }
 
