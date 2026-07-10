@@ -25,3 +25,7 @@ categories:
       - Framer
       - Miro
       - Azure DevOps
+  - category: Artificial intelligence (AI)
+    items:
+      - Claude Design
+      - Claude Code
