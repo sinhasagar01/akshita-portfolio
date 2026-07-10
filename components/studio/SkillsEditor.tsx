@@ -29,6 +29,16 @@ const sameCategories = (a: SkillsCategoryInput[], b: SkillsCategoryInput[]) =>
   a.length === b.length &&
   a.every((c, i) => c.category === b[i].category && sameItems(trimItems(c.items), b[i].items));
 
+// Trim each category's items and DROP fully-blank categories (no name AND no
+// items). Used by BOTH buildCommitted and isDirty (About's trimChips discipline),
+// so a category the owner added but never filled is neither committed to the draft
+// nor counted as dirty — otherwise the next blur would commit an empty
+// { category: "", items: [] } row.
+const nonBlankCategories = (cats: SkillsCategoryInput[]) =>
+  cats
+    .map((c) => ({ category: c.category, items: trimItems(c.items) }))
+    .filter((c) => c.category.trim() !== "" || c.items.length > 0);
+
 export default function SkillsEditor({ categories }: { categories: SkillsCategoryInput[] }) {
   // Report differs + pending up to the page Publish bar, exactly like every other
   // studio editor (Hero/About/Links/Process/Experience/Projects).
@@ -37,13 +47,16 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
   const initial: SkillsFields = { categories };
   const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<SkillsFields>({
     initial,
-    // Identity + trim: the whole categories array IS the patch, posted as
-    // { singleton:"skills", patch:{ categories } } (the SK-2 path).
-    buildCommitted: (v) => ({ categories: v.categories.map((c) => ({ category: c.category, items: trimItems(c.items) })) }),
-    isDirty: (v, b) => !sameCategories(v.categories, b.categories),
-    // MUST stay false (approved): syncing values to the trimmed committed would
-    // churn mid-typing rows; a blank item row you added stays visible until you
-    // edit it (cosmetic only — it is trimmed out of the SAVED data).
+    // The whole categories array IS the patch, posted as
+    // { singleton:"skills", patch:{ categories } } (the SK-2 path). nonBlankCategories
+    // trims items and drops fully-blank categories, so an added-but-unfilled category
+    // is never committed to the draft.
+    buildCommitted: (v) => ({ categories: nonBlankCategories(v.categories) }),
+    isDirty: (v, b) => !sameCategories(nonBlankCategories(v.categories), b.categories),
+    // syncValuesOnSave stays false (it would desync the parallel `ids` array). A
+    // blank category row you added stays visible in the UI until you fill or remove
+    // it, but nonBlankCategories keeps it out of BOTH the committed patch and the
+    // dirty check, so adding a row never commits an empty category on the next blur.
     saveExtras: { singleton: "skills" },
     onSaved: () => setUnpublished(true),
   });
