@@ -55,10 +55,12 @@ processStages:
       - handoff
 email: akshitasingh094@gmail.com
 links:
-  - label: LinkedIn
-    url: https://www.linkedin.com/in/akshita25/
   - label: Behance
     url: https://www.behance.net/akshitasingh
+  - label: Github
+    url: https://github.com/sinhasagar01
+  - label: LinkedIn
+    url: https://www.linkedin.com/in/akshita25/
   - label: Dribbble
     url: https://dribbble.com/akshitasingh
   - label: Resume
