@@ -29,6 +29,8 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
     // Edit-only means same slugs and orderIndex, so the list + order are preserved.
     projects: home.projects.map((p) => draft.projects[p.slug] ?? p),
     experience: home.experience.map((e) => draft.experience[e.slug] ?? e),
+    // SK-4 — draft-prefer the skills singleton (null unless skills.yaml changed).
+    skills: draft.skills ?? home.skills,
     settingsDraftState,
     draftDiffers: draft.differs,
   };
