@@ -111,3 +111,39 @@ export const PROJECT_SVGS: Record<string, React.ReactElement> = {
   "fosfor-data-profiling": fosforDataProfiling,
   "elevate-one-view": elevateOneView,
 };
+
+// Item 11 — generic fallback for a project whose slug is not in PROJECT_SVGS
+// (e.g. a freshly-created project). Same 320x200/slice envelope as the bespoke
+// mocks, but token-driven (cream/ink/accent) so it reads as an intentional
+// editorial placeholder — an abstract "artboard + terracotta accent" — matching
+// the light page chrome rather than any one app's brand. Not a broken/empty state.
+export const FallbackProjectSvg = (
+  <svg
+    viewBox="0 0 320 200"
+    preserveAspectRatio="xMidYMid slice"
+    style={{ width: "100%", height: "100%", display: "block" }}
+  >
+    <rect width="320" height="200" fill="var(--color-cream-100)" />
+    {/* soft terracotta glow, top-right */}
+    <circle cx="258" cy="50" r="84" fill="var(--color-accent-500)" opacity="0.1" />
+    {/* abstract artboard / screen */}
+    <rect
+      x="40"
+      y="54"
+      width="150"
+      height="104"
+      rx="12"
+      fill="var(--color-cream-50)"
+      stroke="var(--color-ink-950)"
+      strokeOpacity="0.08"
+    />
+    <rect x="58" y="74" width="78" height="9" rx="4.5" fill="var(--color-ink-950)" opacity="0.16" />
+    <rect x="58" y="94" width="114" height="7" rx="3.5" fill="var(--color-ink-950)" opacity="0.09" />
+    <rect x="58" y="110" width="100" height="7" rx="3.5" fill="var(--color-ink-950)" opacity="0.09" />
+    <circle cx="66" cy="138" r="7" fill="var(--color-accent-500)" opacity="0.85" />
+    <rect x="80" y="133" width="46" height="9" rx="4.5" fill="var(--color-ink-950)" opacity="0.12" />
+    {/* accent block, bottom-right */}
+    <rect x="212" y="86" width="44" height="12" rx="6" fill="var(--color-ink-950)" opacity="0.1" />
+    <rect x="212" y="112" width="72" height="52" rx="12" fill="var(--color-accent-500)" opacity="0.16" />
+  </svg>
+);

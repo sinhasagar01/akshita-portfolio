@@ -1,18 +1,19 @@
-// POST /api/studio/create-entry — owner-gated collection CREATE (item 13).
+// POST /api/studio/create-entry — owner-gated collection CREATE (item 13 + 11).
 //
 // INTERNET-EXPOSED WRITE. The owner gate runs FIRST, before any GitHub call, the
 // same boundary as save-draft/publish/discard. github mode only (fs = no-op).
 // Creates a new collection entry file on the DRAFT branch via the F-3 guarded
 // create path (commitCollectionEntry intent:"create"), which DERIVES the slug
 // from the input's slug field — the route never accepts a client-supplied slug.
-// Experience only for now (item 11 extends to projects); writes the draft branch
-// only, never main.
+// experience (item 13) + projects (item 11, a body:[] stub); writes the draft
+// branch only, never main.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { commitCollectionEntry } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { sanitizeExperienceCreate } from "@/lib/studio/experience-format";
+import { sanitizeProjectCreate } from "@/lib/studio/projects-format";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -31,15 +32,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  // Experience only (item 11 flips projects on — it needs the fallback card SVG).
-  if (body?.collection !== "experience") {
+  const collection = body?.collection;
+  if (collection !== "experience" && collection !== "projects") {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
 
   // Sanitize BEFORE the env-split, so a malformed body is rejected in EVERY mode
   // (the fs no-op cannot mask it). The lib re-sanitizes defensively; this is the
   // mode-independent gate. slug derivation lives in the lib (no route slugify).
-  const sanitized = sanitizeExperienceCreate(body.input);
+  const sanitized =
+    collection === "projects"
+      ? sanitizeProjectCreate(body.input)
+      : sanitizeExperienceCreate(body.input);
   if (!sanitized.ok) {
     return NextResponse.json(sanitized, { status: 400 });
   }
@@ -56,7 +60,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
   }
 
-  const result = await commitCollectionEntry("experience", body.input, {
+  const result = await commitCollectionEntry(collection, body.input, {
     branch: DRAFT_BRANCH,
     intent: "create",
   });
