@@ -16,6 +16,7 @@ import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import { useDraftForm } from "./useDraftForm";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
@@ -29,6 +30,10 @@ const sameCategories = (a: SkillsCategoryInput[], b: SkillsCategoryInput[]) =>
   a.every((c, i) => c.category === b[i].category && sameItems(trimItems(c.items), b[i].items));
 
 export default function SkillsEditor({ categories }: { categories: SkillsCategoryInput[] }) {
+  // Report differs + pending up to the page Publish bar, exactly like every other
+  // studio editor (Hero/About/Links/Process/Experience/Projects).
+  const { setUnpublished } = usePublishSignal();
+
   const initial: SkillsFields = { categories };
   const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<SkillsFields>({
     initial,
@@ -40,7 +45,10 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
     // churn mid-typing rows; a blank item row you added stays visible until you
     // edit it (cosmetic only — it is trimmed out of the SAVED data).
     saveExtras: { singleton: "skills" },
+    onSaved: () => setUnpublished(true),
   });
+
+  useReportPending(dirty || saveStatus === "saving");
 
   // Client-only stable ids, aligned by index with values.categories. Deterministic
   // initial ids (c0, c1, …) so SSR and the client first render agree; a ref counter

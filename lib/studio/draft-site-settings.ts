@@ -12,9 +12,11 @@ import {
   mapSiteSettings,
   mapProjectListItem,
   mapExperienceListItem,
+  mapSkills,
   type SiteSettingsEntry,
   type ProjectListItem,
   type ExperienceListItem,
+  type SkillsEntry,
 } from "@/lib/keystatic";
 import {
   stripEmptyOptional,
@@ -125,12 +127,17 @@ export type DraftBranchState = {
   differs: boolean;
   projects: Record<string, ProjectListItem>;
   experience: Record<string, ExperienceListItem>;
+  // SK-4 — the draft version of the skills singleton, or null when skills.yaml
+  // did not change on the draft branch (scoped like the collection overlay).
+  skills: SkillsEntry | null;
 };
 
-const EMPTY_DRAFT_STATE: DraftBranchState = { differs: false, projects: {}, experience: {} };
+const EMPTY_DRAFT_STATE: DraftBranchState = { differs: false, projects: {}, experience: {}, skills: null };
 
 // content/<collection>/<slug>.yaml — the top-level entry file (not the body subdir).
 const COLLECTION_FILE_RE = /^content\/(projects|experience)\/([a-z0-9-]+)\.yaml$/;
+// The skills singleton is one flat file (not content/<coll>/<slug>.yaml).
+const SKILLS_FILE = "content/skills.yaml";
 
 const readDraftBranchStateCached = unstable_cache(
   async (): Promise<DraftBranchState> => {
@@ -148,8 +155,11 @@ const readDraftBranchStateCached = unstable_cache(
       if (!m) continue;
       (m[1] === "projects" ? projectSlugs : experienceSlugs).push(m[2]);
     }
-    if (projectSlugs.length === 0 && experienceSlugs.length === 0) {
-      return { differs, projects: {}, experience: {} };
+    const skillsChanged = cmp.files.includes(SKILLS_FILE);
+    // Read nothing when only settings (or nothing) changed — a skills-only edit
+    // must still fall through, so the guard includes !skillsChanged.
+    if (projectSlugs.length === 0 && experienceSlugs.length === 0 && !skillsChanged) {
+      return { differs, projects: {}, experience: {}, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -160,6 +170,7 @@ const readDraftBranchStateCached = unstable_cache(
     });
     const projects: Record<string, ProjectListItem> = {};
     const experience: Record<string, ExperienceListItem> = {};
+    let skills: SkillsEntry | null = null;
     await Promise.all([
       ...projectSlugs.map(async (slug) => {
         const entry = await reader.collections.projects.read(slug);
@@ -169,8 +180,16 @@ const readDraftBranchStateCached = unstable_cache(
         const entry = await reader.collections.experience.read(slug);
         if (entry) experience[slug] = mapExperienceListItem(slug, entry as Record<string, unknown>);
       }),
+      ...(skillsChanged
+        ? [
+            (async () => {
+              const raw = await reader.singletons.skills.read();
+              skills = raw ? mapSkills(raw as Record<string, unknown>) : null;
+            })(),
+          ]
+        : []),
     ]);
-    return { differs, projects, experience };
+    return { differs, projects, experience, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }
