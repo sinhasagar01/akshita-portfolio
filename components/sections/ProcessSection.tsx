@@ -13,6 +13,17 @@ type Props = { settings: SiteSettingsEntry | null };
 // The four Process stages are settings-driven (PL-2b). These are the FALLBACKS —
 // per-field defaults used when a stage's name/description/tags is blank. The
 // index labels and the bespoke per-position SVG artifacts stay code-owned.
+//
+// INTENTIONALLY 4-LOCKED (item 14 deferred by decision). This section is a
+// bespoke four-stage showpiece, not a generic list: STAGE_FALLBACKS drives
+// exactly four cards; each card has a hand-drawn per-index artifact (see
+// CardGraphic's switch(index) — Discover/Define/Design/Validate); the fan geometry
+// is hand-tuned four-element arrays indexed mod 4 (FAN_POS/FAN_SCALE/FAN_OPACITY/
+// FAN_Z/GLOW_OFFSETS); and the scroll scrub hardcodes n=4 (Math.min(3,…), (i/3),
+// the 240vh pin). A saved 5th+ stage is intentionally ignored; fewer than four
+// fall back to these defaults (resolveStages below). Supporting add/remove-stage
+// means making artifacts + geometry + scrub count-agnostic — a Process redesign,
+// deliberately out of scope here.
 const STAGE_FALLBACKS = [
   {
     index: "01",
@@ -46,6 +57,11 @@ type ResolvedStage = { index: string; name: string; description: string; tags: s
 // a blank name/description/tags falls back to the hardcoded default (same
 // blank-to-fallback pattern as Hero and About), so the section stays
 // pixel-identical until edited.
+//
+// 4-LOCK: this maps over STAGE_FALLBACKS (length 4), reading edited[i] — so the
+// output is ALWAYS exactly four stages. A saved 5th+ stage is dropped here;
+// fewer than four render the code default. This is deliberate (see the note on
+// STAGE_FALLBACKS) — the editor can hold any length, but the render honors four.
 function resolveStages(settings: SiteSettingsEntry | null): ResolvedStage[] {
   const edited = settings?.processStages ?? [];
   return STAGE_FALLBACKS.map((fb, i) => {

@@ -9,11 +9,11 @@
 // The save posts a PARTIAL patch of only { aboutCopy, aboutNote } — DB-1 commits
 // on top of the existing draft, so this never clobbers the Hero form's edits.
 // (A shared useDraftForm hook is deferred to the third form — rule of three.)
-import { useRef } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
-import { IconUser, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
+import ChipListEditor from "./ChipListEditor";
+import { IconUser } from "./icons";
 
 type Props = {
   itemId: string;
@@ -53,8 +53,6 @@ export default function AboutEditPanel({
     aboutSubtext,
     aboutPhotoCaption,
   };
-  // After "Add chip", focus the new input without a layout effect.
-  const pendingFocus = useRef<number | null>(null);
   // UX-1: report this panel's differs + pending state up to the page Publish bar.
   const { setUnpublished } = usePublishSignal();
 
@@ -90,21 +88,6 @@ export default function AboutEditPanel({
 
   const edit = setField;
   const updateChips = (next: string[]) => setField("aboutFocusChips", next);
-  const editChip = (i: number, v: string) =>
-    updateChips(values.aboutFocusChips.map((c, idx) => (idx === i ? v : c)));
-  const removeChip = (i: number) =>
-    updateChips(values.aboutFocusChips.filter((_, idx) => idx !== i));
-  function addChip() {
-    pendingFocus.current = values.aboutFocusChips.length;
-    updateChips([...values.aboutFocusChips, ""]);
-  }
-  function moveChip(i: number, dir: -1 | 1) {
-    const j = i + dir;
-    if (j < 0 || j >= values.aboutFocusChips.length) return;
-    const next = [...values.aboutFocusChips];
-    [next[i], next[j]] = [next[j], next[i]];
-    updateChips(next);
-  }
 
   return (
     <section
@@ -164,69 +147,13 @@ export default function AboutEditPanel({
 
         <div className="flex flex-col gap-1.5">
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Focus chips</span>
-          <div className="flex flex-col gap-1.5">
-            {values.aboutFocusChips.map((chip, i) => {
-              const name = chip.trim() || "chip";
-              // Reorder/remove buttons preventDefault on mousedown so clicking
-              // them does not blur the focused chip input and fire a save mid-op.
-              const iconBtn =
-                "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
-              return (
-                <div key={i} className="flex items-center gap-1.5">
-                  <input
-                    type="text"
-                    value={chip}
-                    ref={(el) => {
-                      if (el && pendingFocus.current === i) {
-                        el.focus();
-                        pendingFocus.current = null;
-                      }
-                    }}
-                    onChange={(e) => editChip(i, e.target.value)}
-                    onBlur={saveDraft}
-                    placeholder="Focus area"
-                    className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
-                  />
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => moveChip(i, -1)}
-                    disabled={i === 0}
-                    aria-label={`Move ${name} up`}
-                    className={iconBtn}
-                  >
-                    <IconChevronUp />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => moveChip(i, 1)}
-                    disabled={i === values.aboutFocusChips.length - 1}
-                    aria-label={`Move ${name} down`}
-                    className={iconBtn}
-                  >
-                    <IconChevronDown />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => removeChip(i)}
-                    aria-label={`Remove ${name}`}
-                    className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
-                  >
-                    <IconX />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          <button
-            type="button"
-            onClick={addChip}
-            className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
-          >
-            <IconPlus /> Add chip
-          </button>
+          <ChipListEditor
+            chips={values.aboutFocusChips}
+            onChange={updateChips}
+            onBlur={saveDraft}
+            addLabel="Add chip"
+            placeholder="Focus area"
+          />
           {values.aboutFocusChips.length === 0 && (
             <span className="text-[10px] text-text-subtle">
               No focus chips. The About section renders without them.
