@@ -26,4 +26,5 @@ categories:
       - Miro
       - Azure DevOps
   - category: Artificial intelligence (AI)
-    items: []
+    items:
+      - Claude Design
