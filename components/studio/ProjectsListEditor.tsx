@@ -218,6 +218,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
             slug={p.slug}
             title={p.title}
             summary={p.summary}
+            heroImage={p.heroImage}
             facts={p.facts}
           />
         ))}

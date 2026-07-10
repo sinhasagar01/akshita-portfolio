@@ -56,6 +56,10 @@ export function serializeProjectEntry(
   }
   const obj = (load(head) ?? {}) as Record<string, unknown>;
   if (patch.summary !== undefined) obj.summary = patch.summary;
+  // heroImage is a HEAD field (P4-1). The upload route derives the path; clear
+  // sets it to null. Keystatic writes an absent image as `heroImage: null`, so
+  // null (not delete/omit) keeps the file byte-compatible with Keystatic.
+  if (patch.heroImage !== undefined) obj.heroImage = patch.heroImage;
   if (patch.facts !== undefined) {
     // MERGE, not replace: the patch carries only the editable facts (type +
     // platform). Spreading over the existing block keeps the file's other facts

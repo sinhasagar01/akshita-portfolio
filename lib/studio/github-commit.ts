@@ -172,11 +172,24 @@ mutation ($input: CreateCommitOnBranchInput!) {
   createCommitOnBranch(input: $input) { commit { oid url } }
 }`;
 
+/**
+ * Encode file contents to the base64 the createCommitOnBranch `additions` field
+ * requires. A string is UTF-8 encoded (unchanged from the original text-only
+ * behaviour, so every existing text caller produces a byte-identical mutation).
+ * A Uint8Array/Buffer is base64'd DIRECTLY — no UTF-8 round-trip, which would
+ * corrupt binary bytes (P4-1: image blobs). This is the whole binary extension.
+ */
+function encodeContents(contents: string | Uint8Array): string {
+  return typeof contents === "string"
+    ? Buffer.from(contents, "utf8").toString("base64")
+    : Buffer.from(contents).toString("base64");
+}
+
 /** Commit a single file to an existing branch via createCommitOnBranch. */
 export async function commitFileToBranch(opts: {
   branch: string;
   path: string;
-  contents: string;
+  contents: string | Uint8Array;
   message: string;
   expectedHeadOid: string;
 }): Promise<{ oid: string; url: string }> {
@@ -185,9 +198,7 @@ export async function commitFileToBranch(opts: {
     message: { headline: opts.message },
     expectedHeadOid: opts.expectedHeadOid,
     fileChanges: {
-      additions: [
-        { path: opts.path, contents: Buffer.from(opts.contents, "utf8").toString("base64") },
-      ],
+      additions: [{ path: opts.path, contents: encodeContents(opts.contents) }],
     },
   };
   const res = await fetch(GRAPHQL, {
@@ -213,7 +224,7 @@ export async function commitFileToBranch(opts: {
  */
 export async function commitFilesToBranch(opts: {
   branch: string;
-  additions?: { path: string; contents: string }[];
+  additions?: { path: string; contents: string | Uint8Array }[];
   deletions?: { path: string }[];
   message: string;
   expectedHeadOid: string;
@@ -225,7 +236,7 @@ export async function commitFilesToBranch(opts: {
   if (opts.additions?.length) {
     fileChanges.additions = opts.additions.map((a) => ({
       path: a.path,
-      contents: Buffer.from(a.contents, "utf8").toString("base64"),
+      contents: encodeContents(a.contents),
     }));
   }
   if (opts.deletions?.length) {
