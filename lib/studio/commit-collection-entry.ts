@@ -153,7 +153,7 @@ async function createEntry(
     };
   }
 
-  return commitFileToDraft({
+  const result = await commitFileToDraft({
     path: COLLECTION_PATH[collection](slug),
     branch: opts.branch,
     message: opts.message ?? `chore(studio): create ${collection}/${slug} draft`,
@@ -167,6 +167,9 @@ async function createEntry(
       return buildBytes(orderIndex);
     },
   });
+  // Surface the server-DERIVED slug so the create route reports the identity
+  // without re-deriving it (the lib owns slugify; the route just echoes it).
+  return result.ok ? { ...result, slug } : result;
 }
 
 /**

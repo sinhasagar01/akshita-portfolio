@@ -26,7 +26,10 @@ import {
 const SETTINGS_PATH = "content/site-settings.yaml";
 
 export type CommitResult =
-  | { ok: true; sha: string; branch: string; baseOid: string; bytes: string }
+  // `slug` is set ONLY by the collection CREATE path (commit-collection-entry),
+  // which derives the identity from the input's slug field — the lib owns the
+  // derivation, so callers (the create route) report it without re-slugifying.
+  | { ok: true; sha: string; branch: string; baseOid: string; bytes: string; slug?: string }
   | { ok: false; error: SaveError };
 
 // Result of a multi-file draft commit. DISTINCT from CommitResult: no `bytes` —
