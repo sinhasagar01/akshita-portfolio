@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { ListDetailLayout } from "./ListDetailLayout";
 import ExperienceEditPanel from "./ExperienceEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useReportCount } from "./StudioCountsProvider";
 import { isCurrentRole } from "@/components/sections/experience-current";
 import type { ExperienceListItem } from "@/lib/keystatic";
 
@@ -58,6 +59,8 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
 
   // Keep Publish/Discard from racing an in-flight create/delete (like every panel).
   useReportPending(addBusy || deleteBusy);
+  // Keep the sidebar Experience badge in sync with the optimistic list length.
+  useReportCount("experience", items.length);
 
   useEffect(() => {
     if (addOpen) addInputRef.current?.focus();

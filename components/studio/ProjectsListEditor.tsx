@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { ListDetailLayout } from "./ListDetailLayout";
 import ProjectsEditPanel from "./ProjectsEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useReportCount } from "./StudioCountsProvider";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectListItem } from "@/lib/keystatic";
 
@@ -55,6 +56,8 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
   const [banner, setBanner] = useState("");
 
   useReportPending(addBusy || deleteBusy);
+  // Keep the sidebar Projects badge in sync with the optimistic list length.
+  useReportCount("projects", items.length);
 
   useEffect(() => {
     if (addOpen) addInputRef.current?.focus();
