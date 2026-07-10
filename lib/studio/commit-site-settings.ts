@@ -19,6 +19,7 @@ import {
   createBranchRef,
   deleteBranchRef,
   commitFileToBranch,
+  commitFilesToBranch,
   REPO,
 } from "./github-commit";
 
@@ -26,6 +27,12 @@ const SETTINGS_PATH = "content/site-settings.yaml";
 
 export type CommitResult =
   | { ok: true; sha: string; branch: string; baseOid: string; bytes: string }
+  | { ok: false; error: SaveError };
+
+// Result of a multi-file draft commit. DISTINCT from CommitResult: no `bytes` —
+// N files have no single committed content, and nothing needs it (F-1).
+export type FilesCommitResult =
+  | { ok: true; sha: string; branch: string; baseOid: string }
   | { ok: false; error: SaveError };
 
 /** Read the raw file TEXT at a ref (commit oid or branch) via the contents API.
@@ -63,37 +70,57 @@ export async function getFileTextAtRef(path: string, ref: string): Promise<strin
  * commit (each caller owns its own load/transform/dump, including dump options),
  * or a typed error that aborts before any branch is created.
  */
-export async function commitFileToDraft(opts: {
-  path: string;
-  branch: string;
-  message: string;
-  transform: (rawText: string) => { ok: true; bytes: string } | { ok: false; error: SaveError };
-}): Promise<CommitResult> {
-  const { path, branch } = opts;
+type DraftBase =
+  | { ok: true; baseOid: string; createFromMain: boolean }
+  | { ok: false; error: SaveError };
 
-  let baseOid: string;
-  let createFromMain = false;
-  let raw: string;
+/**
+ * Resolve the base commit for a draft write: the draft branch head when it
+ * exists (so partial patches ACCUMULATE across files — DB-1), else the
+ * default-branch head, flagged as a fresh branch to create.
+ *
+ * CONCURRENCY — do NOT collapse base resolution into a multi-file wrapper's
+ * callee. commitFileToDraft reads its file at THIS baseOid and then commits with
+ * expectedHeadOid = THIS baseOid, so read-base and commit-base are the SAME
+ * commit. That identity is what makes a racing same-file save fail loudly
+ * (write_failed) instead of silently overwriting a newer head. If a single-file
+ * write delegated to a multi-file function that resolved the base again, the base
+ * would be read TWICE — a concurrent commit landing between the two reads would
+ * let a stale-base write succeed against a moved head (silent last-write-wins),
+ * weakening the DB-1 guard. So this lives here ONCE and each write path
+ * (commitFileToDraft, commitFilesToDraft) calls it exactly once per commit.
+ */
+async function resolveDraftBase(branch: string): Promise<DraftBase> {
   try {
     const draftHead = await getBranchHeadOid(branch);
-    if (draftHead) {
-      baseOid = draftHead;
-    } else {
-      baseOid = (await getDefaultBranchHeadOid()).oid;
-      createFromMain = true;
-    }
-    raw = await getFileTextAtRef(path, baseOid);
+    if (draftHead) return { ok: true, baseOid: draftHead, createFromMain: false };
+    const mainOid = (await getDefaultBranchHeadOid()).oid;
+    return { ok: true, baseOid: mainOid, createFromMain: true };
   } catch (e) {
     return {
       ok: false,
       error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
     };
   }
+}
 
-  const result = opts.transform(raw);
-  if (!result.ok) return result; // transform/validation error — nothing created, base untouched
-
-  const contents = result.bytes;
+/**
+ * Create the draft branch if this call is bootstrapping it, then land the file
+ * changes as ONE commit with expectedHeadOid = baseOid. Cleanup deletes ONLY a
+ * branch this call just created (an existing draft is never destroyed on failure
+ * — DB-1 finding 2). A single addition with no deletions goes through the
+ * UNTOUCHED commitFileToBranch, so the existing writers run proven code verbatim;
+ * anything multi-file or carrying deletions uses commitFilesToBranch.
+ */
+async function finalizeDraftCommit(opts: {
+  branch: string;
+  baseOid: string;
+  createFromMain: boolean;
+  additions?: { path: string; contents: string }[];
+  deletions?: { path: string }[];
+  message: string;
+}): Promise<{ ok: true; sha: string } | { ok: false; error: SaveError }> {
+  const { branch, baseOid, createFromMain, additions = [], deletions = [], message } = opts;
 
   try {
     if (createFromMain) {
@@ -107,14 +134,17 @@ export async function commitFileToDraft(opts: {
   }
 
   try {
-    const commit = await commitFileToBranch({
-      branch,
-      path,
-      contents,
-      message: opts.message,
-      expectedHeadOid: baseOid,
-    });
-    return { ok: true, sha: commit.oid, branch, baseOid, bytes: contents };
+    const singleFile = additions.length === 1 && deletions.length === 0;
+    const commit = singleFile
+      ? await commitFileToBranch({
+          branch,
+          path: additions[0].path,
+          contents: additions[0].contents,
+          message,
+          expectedHeadOid: baseOid,
+        })
+      : await commitFilesToBranch({ branch, additions, deletions, message, expectedHeadOid: baseOid });
+    return { ok: true, sha: commit.oid };
   } catch (e) {
     if (createFromMain) {
       // Clean up ONLY the branch this call just created. An existing draft is
@@ -130,6 +160,71 @@ export async function commitFileToDraft(opts: {
       error: { code: "write_failed", message: e instanceof Error ? e.message : String(e) },
     };
   }
+}
+
+export async function commitFileToDraft(opts: {
+  path: string;
+  branch: string;
+  message: string;
+  transform: (rawText: string) => { ok: true; bytes: string } | { ok: false; error: SaveError };
+}): Promise<CommitResult> {
+  const base = await resolveDraftBase(opts.branch);
+  if (!base.ok) return base;
+
+  let raw: string;
+  try {
+    raw = await getFileTextAtRef(opts.path, base.baseOid);
+  } catch (e) {
+    return {
+      ok: false,
+      error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
+    };
+  }
+
+  const result = opts.transform(raw);
+  if (!result.ok) return result; // transform/validation error — nothing created, base untouched
+
+  const contents = result.bytes;
+  const fin = await finalizeDraftCommit({
+    branch: opts.branch,
+    baseOid: base.baseOid,
+    createFromMain: base.createFromMain,
+    additions: [{ path: opts.path, contents }],
+    message: opts.message,
+  });
+  if (!fin.ok) return fin;
+  return { ok: true, sha: fin.sha, branch: opts.branch, baseOid: base.baseOid, bytes: contents };
+}
+
+/**
+ * Commit N file changes (additions and/or deletions) to the draft branch in ONE
+ * atomic commit, sharing the DB-1 base logic with commitFileToDraft via
+ * resolveDraftBase + finalizeDraftCommit. Unlike commitFileToDraft this does NOT
+ * read-modify-write a single file — each caller builds its own additions and
+ * deletions up front (a project stub's files to add, or a directory's files to
+ * delete). Returns no `bytes` (N files have no single content).
+ *
+ * Nothing calls this yet (F-1 is plumbing); F-3 create + delete build on it.
+ */
+export async function commitFilesToDraft(opts: {
+  additions?: { path: string; contents: string }[];
+  deletions?: { path: string }[];
+  branch: string;
+  message: string;
+}): Promise<FilesCommitResult> {
+  const base = await resolveDraftBase(opts.branch);
+  if (!base.ok) return base;
+
+  const fin = await finalizeDraftCommit({
+    branch: opts.branch,
+    baseOid: base.baseOid,
+    createFromMain: base.createFromMain,
+    additions: opts.additions,
+    deletions: opts.deletions,
+    message: opts.message,
+  });
+  if (!fin.ok) return fin;
+  return { ok: true, sha: fin.sha, branch: opts.branch, baseOid: base.baseOid };
 }
 
 /**

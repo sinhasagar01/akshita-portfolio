@@ -153,4 +153,51 @@ export async function commitFileToBranch(opts: {
   return { oid: commit.oid as string, url: commit.url as string };
 }
 
+/**
+ * Commit N file changes (additions and/or deletions) to an existing branch in
+ * ONE atomic commit via the same createCommitOnBranch mutation. Deletions are
+ * PATH-ONLY — no blob sha, unlike the REST Contents API DELETE — and share the
+ * expectedHeadOid concurrency guard. fileChanges is built conditionally, so a
+ * single-addition/no-deletion call produces the exact same mutation input as
+ * commitFileToBranch (which stays the single-file path for the existing writers).
+ */
+export async function commitFilesToBranch(opts: {
+  branch: string;
+  additions?: { path: string; contents: string }[];
+  deletions?: { path: string }[];
+  message: string;
+  expectedHeadOid: string;
+}): Promise<{ oid: string; url: string }> {
+  const fileChanges: {
+    additions?: { path: string; contents: string }[];
+    deletions?: { path: string }[];
+  } = {};
+  if (opts.additions?.length) {
+    fileChanges.additions = opts.additions.map((a) => ({
+      path: a.path,
+      contents: Buffer.from(a.contents, "utf8").toString("base64"),
+    }));
+  }
+  if (opts.deletions?.length) {
+    fileChanges.deletions = opts.deletions.map((d) => ({ path: d.path }));
+  }
+  const input = {
+    branch: { repositoryNameWithOwner: REPO, branchName: opts.branch },
+    message: { headline: opts.message },
+    expectedHeadOid: opts.expectedHeadOid,
+    fileChanges,
+  };
+  const res = await fetch(GRAPHQL, {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ query: CREATE_COMMIT, variables: { input } }),
+  });
+  if (!res.ok) throw new Error(`graphql http ${res.status}: ${await res.text()}`);
+  const json = await res.json();
+  if (json.errors) throw new Error(`graphql errors: ${JSON.stringify(json.errors)}`);
+  const commit = json.data?.createCommitOnBranch?.commit;
+  if (!commit?.oid) throw new Error("no commit oid returned");
+  return { oid: commit.oid as string, url: commit.url as string };
+}
+
 export { REPO };
