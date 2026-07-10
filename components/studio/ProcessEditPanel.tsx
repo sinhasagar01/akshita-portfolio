@@ -9,11 +9,11 @@
 // A fixed four stages (the Process section owns four bespoke artifacts, so there
 // is no add/remove-stage control). Each stage has a name, a description, and a
 // tags array. Tags are trimmed and de-blanked at the save boundary.
-import { useRef } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
-import { IconWorkflow, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
+import ChipListEditor from "./ChipListEditor";
+import { IconWorkflow } from "./icons";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
 type Props = { itemId: string; processStages: ProcessStage[] };
@@ -35,8 +35,6 @@ const sameStages = (a: ProcessStage[], b: ProcessStage[]) =>
 
 export default function ProcessEditPanel({ itemId, processStages }: Props) {
   const initial: ProcessFields = { processStages };
-  // After "Add tag", focus the new input. Keyed by stage + tag index.
-  const pendingFocus = useRef<{ s: number; t: number } | null>(null);
   // UX-1: report this panel's differs + pending state up to the page Publish bar.
   const { setUnpublished } = usePublishSignal();
 
@@ -69,24 +67,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
   const updateStages = (next: ProcessStage[]) => setField("processStages", next);
   const editStage = (i: number, patch: Partial<ProcessStage>) =>
     updateStages(stages.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
-  const editTag = (i: number, j: number, val: string) =>
-    editStage(i, { tags: stages[i].tags.map((t, k) => (k === j ? val : t)) });
-  const removeTag = (i: number, j: number) =>
-    editStage(i, { tags: stages[i].tags.filter((_, k) => k !== j) });
-  function addTag(i: number) {
-    pendingFocus.current = { s: i, t: stages[i].tags.length };
-    editStage(i, { tags: [...stages[i].tags, ""] });
-  }
-  function moveTag(i: number, j: number, dir: -1 | 1) {
-    const k = j + dir;
-    if (k < 0 || k >= stages[i].tags.length) return;
-    const next = [...stages[i].tags];
-    [next[j], next[k]] = [next[k], next[j]];
-    editStage(i, { tags: next });
-  }
 
-  const iconBtn =
-    "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
   const inputCls =
     "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
@@ -151,66 +132,13 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
 
             <div className="flex flex-col gap-1.5">
               <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Tags</span>
-              <div className="flex flex-col gap-1.5">
-                {stage.tags.map((tag, j) => {
-                  const name = tag.trim() || "tag";
-                  return (
-                    <div key={j} className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={tag}
-                        ref={(el) => {
-                          const pf = pendingFocus.current;
-                          if (el && pf && pf.s === i && pf.t === j) {
-                            el.focus();
-                            pendingFocus.current = null;
-                          }
-                        }}
-                        onChange={(e) => editTag(i, j, e.target.value)}
-                        onBlur={saveDraft}
-                        placeholder="Tag"
-                        className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
-                      />
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => moveTag(i, j, -1)}
-                        disabled={j === 0}
-                        aria-label={`Move ${name} up in stage ${i + 1}`}
-                        className={iconBtn}
-                      >
-                        <IconChevronUp />
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => moveTag(i, j, 1)}
-                        disabled={j === stage.tags.length - 1}
-                        aria-label={`Move ${name} down in stage ${i + 1}`}
-                        className={iconBtn}
-                      >
-                        <IconChevronDown />
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => removeTag(i, j)}
-                        aria-label={`Remove ${name} from stage ${i + 1}`}
-                        className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
-                      >
-                        <IconX />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <button
-                type="button"
-                onClick={() => addTag(i)}
-                className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
-              >
-                <IconPlus /> Add tag
-              </button>
+              <ChipListEditor
+                chips={stage.tags}
+                onChange={(next) => editStage(i, { tags: next })}
+                onBlur={saveDraft}
+                addLabel="Add tag"
+                placeholder="Tag"
+              />
             </div>
           </div>
         ))}
