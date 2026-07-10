@@ -18,9 +18,26 @@ type Props = {
   /** The "Add" button label, e.g. "Add skill". */
   addLabel?: string;
   placeholder?: string;
+  /** Noun for a BLANK row in the reorder/remove aria-labels (e.g. "tag", "chip").
+   *  Defaults to "item" so existing callers are unchanged. */
+  itemNoun?: string;
+  /** Optional context noun phrase (e.g. "stage 2") appended to the control
+   *  aria-labels: "Move X up in <ctx>" and "Remove X from <ctx>". Omitted → no
+   *  suffix. Lets a nested caller (Process tags) restore its exact wording. */
+  ariaContext?: string;
 };
 
-export default function ChipListEditor({ chips, onChange, onBlur, addLabel = "Add item", placeholder }: Props) {
+export default function ChipListEditor({
+  chips,
+  onChange,
+  onBlur,
+  addLabel = "Add item",
+  placeholder,
+  itemNoun = "item",
+  ariaContext,
+}: Props) {
+  const inSuffix = ariaContext ? ` in ${ariaContext}` : "";
+  const fromSuffix = ariaContext ? ` from ${ariaContext}` : "";
   // After "Add", focus the new input without a layout effect (About-B pattern).
   const pendingFocus = useRef<number | null>(null);
 
@@ -45,7 +62,7 @@ export default function ChipListEditor({ chips, onChange, onBlur, addLabel = "Ad
     <div className="flex flex-col gap-1.5">
       <div className="flex flex-col gap-1.5">
         {chips.map((chip, i) => {
-          const name = chip.trim() || "item";
+          const name = chip.trim() || itemNoun;
           return (
             <div key={i} className="flex items-center gap-1.5">
               <input
@@ -69,7 +86,7 @@ export default function ChipListEditor({ chips, onChange, onBlur, addLabel = "Ad
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => moveChip(i, -1)}
                 disabled={i === 0}
-                aria-label={`Move ${name} up`}
+                aria-label={`Move ${name} up${inSuffix}`}
                 className={iconBtn}
               >
                 <IconChevronUp />
@@ -79,7 +96,7 @@ export default function ChipListEditor({ chips, onChange, onBlur, addLabel = "Ad
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => moveChip(i, 1)}
                 disabled={i === chips.length - 1}
-                aria-label={`Move ${name} down`}
+                aria-label={`Move ${name} down${inSuffix}`}
                 className={iconBtn}
               >
                 <IconChevronDown />
@@ -88,7 +105,7 @@ export default function ChipListEditor({ chips, onChange, onBlur, addLabel = "Ad
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => removeChip(i)}
-                aria-label={`Remove ${name}`}
+                aria-label={`Remove ${name}${fromSuffix}`}
                 className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
               >
                 <IconX />
