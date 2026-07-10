@@ -48,7 +48,11 @@ export type SaveErrorCode =
   | "read_failed"
   | "write_failed"
   | "not_found"
-  | "unsupported_format";
+  | "unsupported_format"
+  // F-3 — collection create/delete guards.
+  | "invalid_slug" // title has no slug-safe characters
+  | "slug_taken" // create against an already-existing entry
+  | "bespoke_locked"; // delete of a bespoke slug (literal route + hardcoded module)
 
 export type SaveError = {
   code: SaveErrorCode;
