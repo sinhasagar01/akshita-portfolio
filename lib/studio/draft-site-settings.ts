@@ -125,14 +125,26 @@ export async function getSiteSettingsDraftState(
 // collection) and on publish — invalidates it with no new wiring.
 export type DraftBranchState = {
   differs: boolean;
+  // Added + modified draft entries, read from the draft branch and keyed by slug.
   projects: Record<string, ProjectListItem>;
   experience: Record<string, ExperienceListItem>;
+  // F-2 — slugs the draft DELETED (status "removed"). No read needed; the status
+  // is the whole signal. getStudioData subtracts these from the live list.
+  removedProjects: string[];
+  removedExperience: string[];
   // SK-4 — the draft version of the skills singleton, or null when skills.yaml
   // did not change on the draft branch (scoped like the collection overlay).
   skills: SkillsEntry | null;
 };
 
-const EMPTY_DRAFT_STATE: DraftBranchState = { differs: false, projects: {}, experience: {}, skills: null };
+const EMPTY_DRAFT_STATE: DraftBranchState = {
+  differs: false,
+  projects: {},
+  experience: {},
+  removedProjects: [],
+  removedExperience: [],
+  skills: null,
+};
 
 // content/<collection>/<slug>.yaml — the top-level entry file (not the body subdir).
 const COLLECTION_FILE_RE = /^content\/(projects|experience)\/([a-z0-9-]+)\.yaml$/;
@@ -148,18 +160,35 @@ const readDraftBranchStateCached = unstable_cache(
     if (cmp === null) return EMPTY_DRAFT_STATE; // no draft branch
     const differs = cmp.aheadBy > 0;
 
+    // F-2 — classify each changed collection file by its per-file status. A
+    // "removed" file is a DELETE: record the slug (no read — the file is gone on
+    // the draft, and the status is the whole signal). Everything else (added or
+    // modified) is READ from the draft branch below and overlaid.
     const projectSlugs: string[] = [];
     const experienceSlugs: string[] = [];
+    const removedProjects: string[] = [];
+    const removedExperience: string[] = [];
     for (const file of cmp.files) {
-      const m = file.match(COLLECTION_FILE_RE);
+      const m = file.filename.match(COLLECTION_FILE_RE);
       if (!m) continue;
-      (m[1] === "projects" ? projectSlugs : experienceSlugs).push(m[2]);
+      const isProjects = m[1] === "projects";
+      if (file.status === "removed") {
+        (isProjects ? removedProjects : removedExperience).push(m[2]);
+      } else {
+        (isProjects ? projectSlugs : experienceSlugs).push(m[2]);
+      }
     }
-    const skillsChanged = cmp.files.includes(SKILLS_FILE);
-    // Read nothing when only settings (or nothing) changed — a skills-only edit
-    // must still fall through, so the guard includes !skillsChanged.
+    // Skills is a SINGLETON, so unlike collection entries it gets no removed-slug
+    // tracking: `some` matches added/modified/removed alike. A removed skills.yaml
+    // is not a studio operation (SK-4 edits it, never deletes) — and if it somehow
+    // happened, the read below returns null and getStudioData's `draft.skills ??
+    // home.skills` falls back to live, which is the correct graceful outcome.
+    const skillsChanged = cmp.files.some((f) => f.filename === SKILLS_FILE);
+    // Read nothing when there is nothing to READ (only removals, settings-only, or
+    // nothing) — a skills-only edit must still fall through, so the guard includes
+    // !skillsChanged. Removed slugs need no read, so they are returned here too.
     if (projectSlugs.length === 0 && experienceSlugs.length === 0 && !skillsChanged) {
-      return { differs, projects: {}, experience: {}, skills: null };
+      return { differs, projects: {}, experience: {}, removedProjects, removedExperience, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -189,7 +218,7 @@ const readDraftBranchStateCached = unstable_cache(
           ]
         : []),
     ]);
-    return { differs, projects, experience, skills };
+    return { differs, projects, experience, removedProjects, removedExperience, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }

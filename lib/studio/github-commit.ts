@@ -94,16 +94,33 @@ export async function mergeBranch(opts: {
   throw new Error(`merge failed: ${res.status} ${await res.text()}`);
 }
 
+// GitHub's per-file change status in a compare response. F-2 keeps this alongside
+// the filename so the draft overlay can tell a CREATE (added) and a DELETE
+// (removed) apart from an edit (modified) — studio writes only ever produce
+// added/removed/modified, the rest are here for completeness.
+export type CompareFileStatus =
+  | "added"
+  | "removed"
+  | "modified"
+  | "renamed"
+  | "copied"
+  | "changed"
+  | "unchanged";
+
 /**
  * Compare two branches via the REST compare API. Returns how many commits `head`
- * is ahead of `base` (plus the status), or null when either ref is missing (404).
- * Backs the branch-level "unpublished changes" signal (CE-3a): aheadBy > 0 means
- * the draft branch has commits main does not.
+ * is ahead of `base`, the overall status, and the changed files WITH their
+ * per-file status, or null when either ref is missing (404). Backs the
+ * branch-level "unpublished changes" signal (CE-3a: aheadBy > 0) and, via the
+ * per-file status, the draft add/delete overlay (F-2).
  */
 export async function compareBranches(
   base: string,
   head: string
-): Promise<{ aheadBy: number; status: string; files: string[] } | null> {
+): Promise<
+  | { aheadBy: number; status: string; files: { filename: string; status: CompareFileStatus }[] }
+  | null
+> {
   const res = await fetch(
     `${API}/repos/${REPO}/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`,
     { headers: authHeaders(), cache: "no-store" }
@@ -112,7 +129,10 @@ export async function compareBranches(
   if (!res.ok) throw new Error(`compare failed: ${res.status} ${await res.text()}`);
   const json = await res.json();
   const files = Array.isArray(json.files)
-    ? (json.files as { filename: string }[]).map((f) => f.filename)
+    ? (json.files as { filename: string; status: CompareFileStatus }[]).map((f) => ({
+        filename: f.filename,
+        status: f.status,
+      }))
     : [];
   return { aheadBy: json.ahead_by as number, status: json.status as string, files };
 }
