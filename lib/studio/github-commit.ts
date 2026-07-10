@@ -137,6 +137,36 @@ export async function compareBranches(
   return { aheadBy: json.ahead_by as number, status: json.status as string, files };
 }
 
+/**
+ * List every path in a commit's tree, recursively (F-3). Resolves the commit oid
+ * to its root tree, then reads the tree with ?recursive=1. THROWS if GitHub
+ * truncated the response (>100k entries / 7MB) — a partial tree must never drive a
+ * delete, or files would be silently orphaned. This repo's content tree is tiny,
+ * so truncation never happens in practice; the guard is a correctness backstop.
+ * Backs projects delete-enumeration and the create orderIndex scan.
+ */
+export async function getTreeRecursive(
+  commitOid: string
+): Promise<{ path: string; type: "blob" | "tree" }[]> {
+  const commitRes = await fetch(`${API}/repos/${REPO}/git/commits/${commitOid}`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (!commitRes.ok) throw new Error(`commit fetch failed: ${commitRes.status} ${await commitRes.text()}`);
+  const treeSha = (await commitRes.json()).tree.sha as string;
+  const treeRes = await fetch(`${API}/repos/${REPO}/git/trees/${treeSha}?recursive=1`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (!treeRes.ok) throw new Error(`tree fetch failed: ${treeRes.status} ${await treeRes.text()}`);
+  const json = await treeRes.json();
+  if (json.truncated) throw new Error("git tree truncated — refusing to enumerate a partial tree");
+  return (json.tree as { path: string; type: "blob" | "tree" }[]).map((t) => ({
+    path: t.path,
+    type: t.type,
+  }));
+}
+
 const CREATE_COMMIT = `
 mutation ($input: CreateCommitOnBranchInput!) {
   createCommitOnBranch(input: $input) { commit { oid url } }

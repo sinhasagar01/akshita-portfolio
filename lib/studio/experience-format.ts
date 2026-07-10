@@ -81,6 +81,71 @@ export function sanitizeExperiencePatch(
   return { ok: true, patch };
 }
 
+// F-3 — the fields a CREATE accepts. company is the slug seed (the create path
+// derives the filename from it); orderIndex is assigned by the server, so it is
+// NOT accepted here (the edit sanitizer above also rejects it, for editing).
+export type ExperienceCreateInput = {
+  company: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  location: string;
+};
+
+const EXPERIENCE_CREATE_FIELDS = [
+  "company",
+  "title",
+  "startDate",
+  "endDate",
+  "description",
+  "location",
+] as const;
+
+/**
+ * F-3 — validate an untrusted experience CREATE input. The edit sanitizer rejects
+ * company + orderIndex, so create needs its own gate: company is REQUIRED (it
+ * seeds the slug), the other text fields are optional and default to "", every
+ * present value must be a string, orderIndex is rejected (server-assigned), and
+ * unknown keys are rejected. Returns a fully-populated ExperienceCreateInput.
+ */
+export function sanitizeExperienceCreate(
+  raw: unknown
+): { ok: true; value: ExperienceCreateInput } | { ok: false; error: SaveError } {
+  const invalid = (message: string, field?: string) =>
+    ({ ok: false, error: { code: "invalid_patch", field, message } }) as const;
+
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return invalid("create input must be an object");
+  }
+  const obj = raw as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (key === "orderIndex") {
+      return invalid("orderIndex is assigned by the server on create", key);
+    }
+    if (!(EXPERIENCE_CREATE_FIELDS as readonly string[]).includes(key)) {
+      return invalid(`unknown field ${key}`, key);
+    }
+    if (typeof obj[key] !== "string") {
+      return invalid(`${key} must be a string`, key);
+    }
+  }
+  if (typeof obj.company !== "string" || obj.company.trim() === "") {
+    return invalid("company is required to create an experience entry", "company");
+  }
+  return {
+    ok: true,
+    value: {
+      company: obj.company as string,
+      title: (obj.title as string | undefined) ?? "",
+      startDate: (obj.startDate as string | undefined) ?? "",
+      endDate: (obj.endDate as string | undefined) ?? "",
+      description: (obj.description as string | undefined) ?? "",
+      location: (obj.location as string | undefined) ?? "",
+    },
+  };
+}
+
 /**
  * Rebuild the object in canonical schema order, including only present keys.
  * Any unexpected extra key is appended defensively.

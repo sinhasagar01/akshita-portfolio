@@ -105,3 +105,60 @@ export function sanitizeProjectsPatch(
   }
   return { ok: true, patch };
 }
+
+// F-3 — what a project CREATE accepts. title is the slug seed (the create path
+// derives the filename from it) and the human name in the yaml. orderIndex, body,
+// and heroImage are NOT accepted: orderIndex is server-assigned, body is the
+// Keystatic-owned rich content (the stub writes body: []), heroImage is uploaded
+// in Keystatic. facts is limited to the same editable subset as an edit.
+export type ProjectCreateInput = {
+  title: string;
+  summary: string;
+  facts: Partial<ProjectFacts>;
+};
+
+/**
+ * F-3 — validate an untrusted project CREATE input. title is REQUIRED (it seeds
+ * the slug and is the entry name), summary is optional and defaults to "", facts
+ * reuses the editable-subset gate, and orderIndex/body/heroImage are rejected as
+ * server- or Keystatic-owned. Returns a fully-populated ProjectCreateInput.
+ */
+export function sanitizeProjectCreate(
+  raw: unknown
+): { ok: true; value: ProjectCreateInput } | { ok: false; error: SaveError } {
+  const invalid = (message: string, field?: string) =>
+    ({ ok: false, error: { code: "invalid_patch", field, message } }) as const;
+
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return invalid("create input must be an object");
+  }
+  const obj = raw as Record<string, unknown>;
+  let facts: Partial<ProjectFacts> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === "orderIndex") return invalid("orderIndex is assigned by the server on create", key);
+    if (key === "body") return invalid("body is created empty and edited in Keystatic", key);
+    if (key === "heroImage") return invalid("heroImage is uploaded in Keystatic", key);
+    if (key === "facts") {
+      const result = sanitizeFacts(value);
+      if (!result.ok) return invalid(result.message, key);
+      facts = result.value;
+      continue;
+    }
+    if (key === "title" || key === "summary") {
+      if (typeof value !== "string") return invalid(`${key} must be a string`, key);
+      continue;
+    }
+    return invalid(`unknown field ${key}`, key);
+  }
+  if (typeof obj.title !== "string" || obj.title.trim() === "") {
+    return invalid("title is required to create a project", "title");
+  }
+  return {
+    ok: true,
+    value: {
+      title: obj.title as string,
+      summary: (obj.summary as string | undefined) ?? "",
+      facts,
+    },
+  };
+}

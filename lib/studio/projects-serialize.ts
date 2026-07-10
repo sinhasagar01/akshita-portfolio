@@ -10,7 +10,7 @@
 //
 // Only js-yaml + type-only imports, so it is unit-exercisable directly.
 import { load, dump, type DumpOptions } from "js-yaml";
-import type { ProjectsInput } from "./projects-format";
+import type { ProjectsInput, ProjectCreateInput } from "./projects-format";
 import type { SaveError } from "./site-settings-format";
 
 export type SerializeResult = { ok: true; bytes: string } | { ok: false; error: SaveError };
@@ -65,4 +65,26 @@ export function serializeProjectEntry(
     obj.facts = { ...existing, ...patch.facts };
   }
   return { ok: true, bytes: dump(obj, opts) + body };
+}
+
+/**
+ * F-3 — serialize a NEW project STUB: head fields plus an empty `body: []`, no
+ * mdoc files (locked decision — /studio creates the head, Keystatic authors the
+ * rich body). facts is a full four-key block ("" for the ones not provided), in
+ * canonical order. heroImage is omitted (the reader coalesces a missing image to
+ * null; it is uploaded later in Keystatic). Default js-yaml dump — there is no
+ * existing file to match, so this is what a fresh Keystatic entry would look like.
+ */
+export function serializeNewProject(
+  input: ProjectCreateInput,
+  orderIndex: number
+): SerializeResult {
+  const entry = {
+    title: input.title,
+    summary: input.summary,
+    orderIndex,
+    facts: { role: "", type: "", platform: "", timeline: "", ...input.facts },
+    body: [] as unknown[],
+  };
+  return { ok: true, bytes: dump(entry) };
 }
