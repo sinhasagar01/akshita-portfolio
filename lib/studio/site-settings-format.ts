@@ -17,6 +17,13 @@ export type ProcessStage = {
   tags: string[];
 };
 
+/** One owner-managed link (item 10). `label` is the display text; `url` is a full
+ *  URL. The array replaces the old fixed resume/linkedin/dribbble/behance fields. */
+export type LinkItem = {
+  label: string;
+  url: string;
+};
+
 export type SiteSettingsInput = {
   heroCopy: string;
   tab1Label: string;
@@ -35,11 +42,8 @@ export type SiteSettingsInput = {
   aboutSubtext: string;
   aboutPhotoCaption: string;
   processStages: ProcessStage[];
-  resumeUrl: string;
   email: string;
-  linkedinUrl: string;
-  dribbbleUrl: string;
-  behanceUrl: string;
+  links: LinkItem[];
 };
 
 export type SaveErrorCode =
@@ -89,19 +93,8 @@ export const SITE_SETTINGS_FIELD_ORDER = [
   "aboutSubtext",
   "aboutPhotoCaption",
   "processStages",
-  "resumeUrl",
   "email",
-  "linkedinUrl",
-  "dribbbleUrl",
-  "behanceUrl",
-] as const;
-
-/** The fields.url() fields in the schema — validated as URLs when present. */
-export const URL_FIELDS = [
-  "resumeUrl",
-  "linkedinUrl",
-  "dribbbleUrl",
-  "behanceUrl",
+  "links",
 ] as const;
 
 /** The writable patch keys — the schema order minus the excluded photo. */
@@ -110,6 +103,9 @@ const WRITABLE_FIELDS = SITE_SETTINGS_FIELD_ORDER.filter((k) => k !== "photo");
 /** The allowed sub-keys of a process stage object. Extra keys are rejected so a
  *  typo fails loudly, the same contract as the top-level field list. */
 const STAGE_KEYS = ["name", "description", "tags"] as const;
+
+/** The allowed sub-keys of a link object (item 10). */
+const LINK_KEYS = ["label", "url"] as const;
 
 /**
  * Validate an untrusted processStages value to a normalized ProcessStage[].
@@ -158,12 +154,48 @@ function sanitizeProcessStages(
 }
 
 /**
+ * Validate an untrusted links value to a normalized LinkItem[] (item 10). The
+ * value must be an array of plain objects with only {label, url}, both strings.
+ * Missing sub-keys default to "" (the panel always sends both); wrong types and
+ * unknown sub-keys are rejected — the same contract as sanitizeProcessStages.
+ * URL FORMAT is validated separately (validateUrlFields), at commit.
+ */
+function sanitizeLinks(
+  value: unknown
+): { ok: true; value: LinkItem[] } | { ok: false; message: string } {
+  if (!Array.isArray(value)) {
+    return { ok: false, message: "links must be an array" };
+  }
+  const links: LinkItem[] = [];
+  for (const item of value) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      return { ok: false, message: "each link must be an object" };
+    }
+    const obj = item as Record<string, unknown>;
+    for (const k of Object.keys(obj)) {
+      if (!(LINK_KEYS as readonly string[]).includes(k)) {
+        return { ok: false, message: `unknown link field ${k}` };
+      }
+    }
+    const { label, url } = obj;
+    if (label !== undefined && typeof label !== "string") {
+      return { ok: false, message: "link label must be a string" };
+    }
+    if (url !== undefined && typeof url !== "string") {
+      return { ok: false, message: "link url must be a string" };
+    }
+    links.push({ label: (label as string) ?? "", url: (url as string) ?? "" });
+  }
+  return { ok: true, value: links };
+}
+
+/**
  * Validate an untrusted request-body patch down to a typed Partial
  * <SiteSettingsInput>. Unknown keys and wrong-typed values are REJECTED, not
  * silently dropped, so a typo'd field name fails loudly instead of vanishing
  * and a non-string value can never reach the YAML (review finding 5).
  * aboutFocusChips must be an array of strings, processStages an array of stage
- * objects, every other field a string.
+ * objects, links an array of {label,url} objects, every other field a string.
  */
 export function sanitizeSiteSettingsPatch(
   raw: unknown
@@ -190,6 +222,12 @@ export function sanitizeSiteSettingsPatch(
       const result = sanitizeProcessStages(value);
       if (!result.ok) return invalid(result.message, key);
       patch.processStages = result.value;
+      continue;
+    }
+    if (key === "links") {
+      const result = sanitizeLinks(value);
+      if (!result.ok) return invalid(result.message, key);
+      patch.links = result.value;
       continue;
     }
     if (typeof value !== "string") {
@@ -219,22 +257,25 @@ export function stripEmptyOptional(obj: SiteSettingsRecord): SiteSettingsRecord 
 }
 
 /**
- * Validate the url fields. Each one, if present and non-empty, must parse with
- * the URL constructor. Returns the first failure, or ok.
+ * Validate the URL of every link (item 10). Each link's `url`, if present and
+ * non-empty, must parse with the URL constructor. Returns the first failure, or
+ * ok. (email is fields.text, not a url, so it is not validated here.)
  */
 export function validateUrlFields(obj: SiteSettingsRecord): SaveResult {
-  for (const field of URL_FIELDS) {
-    const value = obj[field];
-    if (typeof value === "string" && value.trim() !== "") {
+  const links = obj.links;
+  if (!Array.isArray(links)) return { ok: true };
+  for (const item of links) {
+    const url = (item as Record<string, unknown>)?.url;
+    if (typeof url === "string" && url.trim() !== "") {
       try {
-        new URL(value);
+        new URL(url);
       } catch {
         return {
           ok: false,
           error: {
             code: "invalid_url",
-            field,
-            message: `${field} is not a valid URL`,
+            field: "links",
+            message: `"${url}" is not a valid URL`,
           },
         };
       }

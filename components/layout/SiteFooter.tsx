@@ -69,9 +69,9 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
                 className="footer-social inline-grid items-center text-left"
                 style={{ gridTemplateColumns: "auto auto", gap: "13px 12px" }}
               >
-                {links.map(({ label, href, external, glyph }) => (
+                {links.map(({ label, href, external, glyph }, i) => (
                   <a
-                    key={label}
+                    key={i}
                     href={href}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     style={{ display: "contents", textDecoration: "none" }}

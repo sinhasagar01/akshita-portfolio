@@ -369,14 +369,21 @@ export default config({
             itemLabel: (props) => props.fields.name.value,
           }
         ),
-        resumeUrl: fields.url({
-          label: "Resume URL",
-          description: "Direct link to the PDF resume",
-        }),
         email: fields.text({ label: "Contact email" }),
-        linkedinUrl: fields.url({ label: "LinkedIn URL" }),
-        dribbbleUrl: fields.url({ label: "Dribbble URL" }),
-        behanceUrl: fields.url({ label: "Behance URL" }),
+        // Item 10 — arbitrary owner-managed links (label + url), replacing the old
+        // fixed resumeUrl/linkedinUrl/dribbbleUrl/behanceUrl fields. Array order is
+        // the render order in the header + footer. Mirrors the processStages array.
+        links: fields.array(
+          fields.object({
+            label: fields.text({ label: "Label" }),
+            url: fields.url({ label: "URL" }),
+          }),
+          {
+            label: "Links",
+            description: "Social and web links shown in the header and footer",
+            itemLabel: (props) => props.fields.label.value,
+          }
+        ),
       },
     }),
 

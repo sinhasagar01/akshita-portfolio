@@ -53,8 +53,13 @@ processStages:
       - usability tests
       - iteration
       - handoff
-resumeUrl: https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view
 email: akshitasingh094@gmail.com
-linkedinUrl: https://www.linkedin.com/in/akshita25/
-dribbbleUrl: https://dribbble.com/akshitasingh
-behanceUrl: https://www.behance.net/akshitasingh
+links:
+  - label: LinkedIn
+    url: https://www.linkedin.com/in/akshita25/
+  - label: Behance
+    url: https://www.behance.net/akshitasingh
+  - label: Dribbble
+    url: https://dribbble.com/akshitasingh
+  - label: Resume
+    url: https://drive.google.com/file/d/1R96hpdb73wixPa-Y9g2H67VGIILFhEhk/view

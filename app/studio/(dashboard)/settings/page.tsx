@@ -67,14 +67,7 @@ export default async function StudioSettings() {
 
         {/* PL-2a: the Links group is an inline-editable panel (Surface B). It
             sources the same fields the public header/footer and JSON-LD read. */}
-        <LinksEditPanel
-          itemId="links"
-          resumeUrl={settings.resumeUrl ?? ""}
-          email={settings.email}
-          linkedinUrl={settings.linkedinUrl ?? ""}
-          dribbbleUrl={settings.dribbbleUrl ?? ""}
-          behanceUrl={settings.behanceUrl ?? ""}
-        />
+        <LinksEditPanel itemId="links" email={settings.email} links={settings.links} />
 
         {/* PL-2b: the Process group is an inline-editable panel (Surface B),
             four stages each with name, description, and a tags array. */}

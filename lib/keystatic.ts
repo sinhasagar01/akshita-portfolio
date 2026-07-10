@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
-import type { ProcessStage } from "@/lib/studio/site-settings-format";
+import type { ProcessStage, LinkItem } from "@/lib/studio/site-settings-format";
 
-export type { ProcessStage };
+export type { ProcessStage, LinkItem };
 
 const reader = createReader(process.cwd(), config);
 
@@ -28,11 +28,8 @@ export type SiteSettingsEntry = {
   aboutSubtext: string;
   aboutPhotoCaption: string;
   processStages: ProcessStage[];
-  resumeUrl: string | null;
   email: string;
-  linkedinUrl: string | null;
-  dribbbleUrl: string | null;
-  behanceUrl: string | null;
+  links: LinkItem[];
 };
 
 export type SkillsEntry = {
@@ -89,6 +86,17 @@ function mapProcessStages(raw: unknown): ProcessStage[] {
   });
 }
 
+/** Map a raw links value to LinkItem[] in a fixed {label, url} key order, so the
+ *  canonical dump used by the differ is stable (item 10). Non-arrays and missing
+ *  sub-fields coalesce to empty. */
+function mapLinks(raw: unknown): LinkItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => {
+    const obj = (item ?? {}) as Record<string, unknown>;
+    return { label: (obj.label as string) ?? "", url: (obj.url as string) ?? "" };
+  });
+}
+
 /** Map a raw siteSettings reader entry to SiteSettingsEntry. The ONE shared
  *  mapper — used by the live read below and by the /studio draft-branch read
  *  (lib/studio/draft-site-settings.ts), so the two paths cannot drift. */
@@ -112,11 +120,8 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
     aboutSubtext: (raw.aboutSubtext as string) ?? "",
     aboutPhotoCaption: (raw.aboutPhotoCaption as string) ?? "",
     processStages: mapProcessStages(raw.processStages),
-    resumeUrl: (raw.resumeUrl as string | null) ?? null,
     email: (raw.email as string) ?? "",
-    linkedinUrl: (raw.linkedinUrl as string | null) ?? null,
-    dribbbleUrl: (raw.dribbbleUrl as string | null) ?? null,
-    behanceUrl: (raw.behanceUrl as string | null) ?? null,
+    links: mapLinks(raw.links),
   };
 }
 
