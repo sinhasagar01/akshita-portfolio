@@ -27,6 +27,11 @@ import {
 } from "./experience-format";
 import { serializeProjectEntry, serializeNewProject } from "./projects-serialize";
 import { sanitizeProjectCreate, type ProjectsInput } from "./projects-format";
+import {
+  heroImageYamlValue,
+  heroImageBlobPath,
+  heroImageBlobPathFromValue,
+} from "./hero-image-path";
 import { slugify } from "./slug";
 import { getBranchHeadOid, getDefaultBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
@@ -202,6 +207,72 @@ export function commitCollectionEntry(
   return intent === "create"
     ? createEntry(collection, a, opts)
     : editEntry(collection, a as string, b as CollectionPatch, opts);
+}
+
+/**
+ * P4-1 — set or clear a project's heroImage on the draft branch in ONE atomic
+ * commit: the normalized webp blob (or none, on clear) PLUS the yaml head edit
+ * that points heroImage at it, PLUS a deletion of the previous blob when it had a
+ * different path (a Keystatic-authored non-webp). The path convention comes from
+ * hero-image-path (verified byte-compat with Keystatic). `image` is the already-
+ * normalized webp bytes (the route runs sharp); null clears.
+ *
+ * INTERNET-EXPOSED WRITE: the caller (the upload route) MUST pass the owner gate.
+ * The path is derived server-side here — a client never supplies an image path.
+ *
+ * DOUBLE BASE-RESOLUTION: the current entry is read at the base the commit will
+ * use (draft head if a draft exists, else main — so the change accumulates onto
+ * the draft, DB-1), then commitFilesToDraft re-resolves internally. Same
+ * best-effort window as createEntry; expectedHeadOid still guards the write.
+ */
+export async function commitProjectHeroImage(
+  slug: string,
+  opts: { image: Uint8Array | null; branch: string; message?: string }
+): Promise<FilesCommitResult> {
+  const yamlPath = COLLECTION_PATH.projects(slug);
+
+  let raw: string;
+  try {
+    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+    raw = await getFileTextAtRef(yamlPath, baseOid);
+  } catch (e) {
+    return {
+      ok: false,
+      error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
+    };
+  }
+  if (raw.trim() === "") {
+    return {
+      ok: false,
+      error: { code: "not_found", field: slug, message: `projects entry "${slug}" not found` },
+    };
+  }
+
+  // The previous blob (from the current yaml) — deleted when the new path differs.
+  const oldValue = (load(raw) as { heroImage?: unknown } | null)?.heroImage;
+  const oldBlobPath = heroImageBlobPathFromValue(oldValue);
+
+  // heroImage HEAD edit through the proven head-splice (body kept verbatim). webp
+  // ext on upload; null on clear (Keystatic writes an absent image as null).
+  const newValue = opts.image ? heroImageYamlValue(slug) : null;
+  const ser = serializeProjectEntry(raw, { heroImage: newValue });
+  if (!ser.ok) return { ok: false, error: ser.error };
+
+  const newBlobPath = opts.image ? heroImageBlobPath(slug) : null;
+  const additions: { path: string; contents: string | Uint8Array }[] = [
+    { path: yamlPath, contents: ser.bytes },
+  ];
+  if (opts.image && newBlobPath) additions.push({ path: newBlobPath, contents: opts.image });
+
+  const deletions: { path: string }[] = [];
+  if (oldBlobPath && oldBlobPath !== newBlobPath) deletions.push({ path: oldBlobPath });
+
+  return commitFilesToDraft({
+    additions,
+    deletions,
+    branch: opts.branch,
+    message: opts.message ?? `chore(studio): ${opts.image ? "set" : "clear"} projects/${slug} hero image`,
+  });
 }
 
 /**

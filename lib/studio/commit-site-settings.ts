@@ -119,7 +119,9 @@ async function finalizeDraftCommit(opts: {
   branch: string;
   baseOid: string;
   createFromMain: boolean;
-  additions?: { path: string; contents: string }[];
+  // contents accepts binary (Uint8Array) as well as text — the F-1 binary
+  // extension (P4-1 image blobs). Existing text callers pass strings unchanged.
+  additions?: { path: string; contents: string | Uint8Array }[];
   deletions?: { path: string }[];
   message: string;
 }): Promise<{ ok: true; sha: string } | { ok: false; error: SaveError }> {
@@ -210,7 +212,7 @@ export async function commitFileToDraft(opts: {
  * Nothing calls this yet (F-1 is plumbing); F-3 create + delete build on it.
  */
 export async function commitFilesToDraft(opts: {
-  additions?: { path: string; contents: string }[];
+  additions?: { path: string; contents: string | Uint8Array }[];
   deletions?: { path: string }[];
   branch: string;
   message: string;

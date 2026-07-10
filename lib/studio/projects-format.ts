@@ -19,6 +19,10 @@ export type ProjectsInput = {
   // Only the EDITABLE facts subset (type + platform) is ever written through this
   // path; role + timeline are preserved from the file by the serializer's merge.
   facts: Partial<ProjectFacts>;
+  // heroImage is a HEAD path string, written ONLY by the P4-1 image-upload route
+  // (server-derived path, never from a client text patch — sanitizeProjectsPatch
+  // still rejects it). null clears the image. Optional so the text path omits it.
+  heroImage?: string | null;
 };
 
 /** The full facts sub-keys, in canonical schema order. role + timeline remain
@@ -82,7 +86,10 @@ export function sanitizeProjectsPatch(
       return invalid("title is the entry slug and cannot be edited here", key);
     }
     if (key === "heroImage") {
-      return invalid("heroImage is an image, edited in Keystatic", key);
+      // Rejected on the TEXT path by design: heroImage is written only by the
+      // owner-gated image-upload route, which derives the path server-side. A
+      // client text patch can never inject an arbitrary image path.
+      return invalid("heroImage is uploaded through the image route, not this patch", key);
     }
     if (key === "body") {
       return invalid("body is the case study content, edited in Keystatic", key);
@@ -137,7 +144,7 @@ export function sanitizeProjectCreate(
   for (const [key, value] of Object.entries(obj)) {
     if (key === "orderIndex") return invalid("orderIndex is assigned by the server on create", key);
     if (key === "body") return invalid("body is created empty and edited in Keystatic", key);
-    if (key === "heroImage") return invalid("heroImage is uploaded in Keystatic", key);
+    if (key === "heroImage") return invalid("heroImage is uploaded after create, not on create", key);
     if (key === "facts") {
       const result = sanitizeFacts(value);
       if (!result.ok) return invalid(result.message, key);
