@@ -5,6 +5,7 @@ import {
   getDraftBranchState,
   type SettingsDraftState,
 } from "./draft-site-settings";
+import { overlayCollection } from "./draft-overlay";
 
 export type StudioData = HomePageData & {
   settingsDraftState: SettingsDraftState;
@@ -25,10 +26,12 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
   return {
     ...home,
     settings: settingsDraftState.draft ?? home.settings,
-    // Overlay the draft versions of changed entries; unchanged entries stay live.
-    // Edit-only means same slugs and orderIndex, so the list + order are preserved.
-    projects: home.projects.map((p) => draft.projects[p.slug] ?? p),
-    experience: home.experience.map((e) => draft.experience[e.slug] ?? e),
+    // F-2 — overlay the draft branch onto the live list: union in draft-created
+    // entries, subtract draft-deleted slugs, re-sort by orderIndex. A modify-only
+    // draft (or no draft / a GitHub error → EMPTY_DRAFT_STATE) yields the live
+    // list, same order, so this is behavior-preserving for the edit-only case.
+    projects: overlayCollection(home.projects, draft.projects, draft.removedProjects),
+    experience: overlayCollection(home.experience, draft.experience, draft.removedExperience),
     // SK-4 — draft-prefer the skills singleton (null unless skills.yaml changed).
     skills: draft.skills ?? home.skills,
     settingsDraftState,
