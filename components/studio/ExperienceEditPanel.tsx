@@ -101,9 +101,22 @@ export default function ExperienceEditPanel({
       </header>
 
       <div className="flex flex-col gap-5 px-4 py-5">
-        <p className="text-[11px] text-text-subtle">
-          Company is the entry name and is edited in Keystatic.
-        </p>
+        {/* Company is the slugField (the entry identity). Shown read-only so an
+            edit here never silently fails — it is set on Add and not editable. */}
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Company</span>
+          <input
+            type="text"
+            value={company}
+            readOnly
+            aria-readonly="true"
+            tabIndex={-1}
+            className="w-full cursor-not-allowed rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+          />
+          <span className="text-[10px] text-text-subtle">
+            The entry&rsquo;s identity, set when you add it. Not editable here.
+          </span>
+        </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Role title</span>
