@@ -5,6 +5,7 @@ import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-sess
 import StudioSidebar from "@/components/studio/StudioSidebar";
 import StudioTopbar from "@/components/studio/StudioTopbar";
 import { PublishProvider } from "@/components/studio/PublishProvider";
+import { StudioCountsProvider } from "@/components/studio/StudioCountsProvider";
 import PublishBar from "@/components/studio/PublishBar";
 import { buildStudioSearchIndex } from "@/lib/studio/search-index";
 
@@ -37,24 +38,29 @@ export default async function DashboardLayout({
 
   return (
     <div className="mx-auto max-w-[1300px] px-4 py-6 lg:px-6 lg:py-8">
-      <div className="flex flex-col overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 lg:min-h-[640px] lg:flex-row">
-        <StudioSidebar
-          projectCount={projects.length}
-          experienceCount={experience.length}
-        />
-        <main className="min-w-0 flex-1 p-4 lg:p-6">
-          <StudioTopbar searchItems={searchItems} />
-          {/* The Publish bar lives at the layout level (persists across /studio
-              navigation), seeded once from the branch-level differs, so a
-              collection edit's "unpublished" signal shows on the page you're
-              editing — not just Settings. Panels report differs + pending to it. */}
-          <PublishProvider initialDiffers={draftDiffers}>
-            {children}
-            <div className="h-20" aria-hidden />
-            <PublishBar />
-          </PublishProvider>
-        </main>
-      </div>
+      {/* Counts provider wraps BOTH the sidebar and the page so a list editor's
+          optimistic add/remove updates the sidebar badge live (it lives in this
+          layout, which does not re-run on client navigation). Seeded once from
+          the server counts. */}
+      <StudioCountsProvider
+        initial={{ projects: projects.length, experience: experience.length }}
+      >
+        <div className="flex flex-col overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 lg:min-h-[640px] lg:flex-row">
+          <StudioSidebar />
+          <main className="min-w-0 flex-1 p-4 lg:p-6">
+            <StudioTopbar searchItems={searchItems} />
+            {/* The Publish bar lives at the layout level (persists across /studio
+                navigation), seeded once from the branch-level differs, so a
+                collection edit's "unpublished" signal shows on the page you're
+                editing — not just Settings. Panels report differs + pending to it. */}
+            <PublishProvider initialDiffers={draftDiffers}>
+              {children}
+              <div className="h-20" aria-hidden />
+              <PublishBar />
+            </PublishProvider>
+          </main>
+        </div>
+      </StudioCountsProvider>
     </div>
   );
 }

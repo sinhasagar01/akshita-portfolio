@@ -11,11 +11,7 @@ import {
   IconSparkles,
   IconLogout,
 } from "./icons";
-
-type Props = {
-  projectCount: number;
-  experienceCount: number;
-};
+import { useStudioCounts } from "./StudioCountsProvider";
 
 type Area = {
   href: string;
@@ -24,13 +20,16 @@ type Area = {
   count?: number;
 };
 
-export default function StudioSidebar({ projectCount, experienceCount }: Props) {
+export default function StudioSidebar() {
   const pathname = usePathname();
+  // Live counts from the shared store (seeded from server data in the layout,
+  // kept in sync by each list editor's optimistic add/remove).
+  const { counts } = useStudioCounts();
 
   const areas: Area[] = [
     { href: "/studio", label: "Homepage", Icon: IconHome },
-    { href: "/studio/projects", label: "Projects", Icon: IconGrid, count: projectCount },
-    { href: "/studio/experience", label: "Experience", Icon: IconBriefcase, count: experienceCount },
+    { href: "/studio/projects", label: "Projects", Icon: IconGrid, count: counts.projects },
+    { href: "/studio/experience", label: "Experience", Icon: IconBriefcase, count: counts.experience },
     { href: "/studio/skills", label: "Skills", Icon: IconLayers },
   ];
 
