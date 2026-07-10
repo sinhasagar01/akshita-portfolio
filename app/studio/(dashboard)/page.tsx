@@ -1,7 +1,6 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
-import { singletonHref } from "@/lib/keystatic-links";
 import {
   IconSparkles,
   IconGrid,
@@ -12,9 +11,10 @@ import {
 } from "@/components/studio/icons";
 
 // Hero/About/Process are edited inline in the studio settings panel; Work in the
-// projects panel. Skills has no studio panel yet, so it still deep-links Keystatic.
+// projects panel; Skills in the skills panel (SK-4). All are real /studio editors.
 const settingsPanel = "/studio/settings";
 const projectsPanel = "/studio/projects";
+const skillsPanel = "/studio/skills";
 
 export default async function StudioHomepage() {
   const { settings, skills, projects } = await getStudioData();
@@ -88,8 +88,8 @@ export default async function StudioHomepage() {
           status="live"
           meta={`${categoryCount} categories`}
           signals={skillsMissing}
-          href={singletonHref("skills")}
-          ariaLabel="Edit Skills in Keystatic"
+          href={skillsPanel}
+          ariaLabel="Edit Skills in the studio panel"
         />
       </div>
 
