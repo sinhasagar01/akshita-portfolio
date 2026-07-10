@@ -43,6 +43,17 @@ function sameLinks(a: LinkItem[], b: LinkItem[]): boolean {
   return a.length === b.length && a.every((l, i) => l.label === b[i].label && l.url === b[i].url);
 }
 
+// Trim each row and DROP fully-blank rows, so a row the owner added but never
+// filled is neither committed to the draft nor counted as dirty. Both
+// buildCommitted and isDirty use this (mirroring About's trimChips), so a trailing
+// blank row is invisible to the save boundary — adding a row does not, by itself,
+// make the form dirty or commit an empty {label:'',url:''} on the next blur.
+function nonBlank(links: LinkItem[]): LinkItem[] {
+  return links
+    .map((l) => ({ label: l.label.trim(), url: l.url.trim() }))
+    .filter((l) => l.label !== "" || l.url !== "");
+}
+
 const inputCls =
   "min-w-0 flex-1 rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
 const okBorder = "border-ink-950/8 focus:border-accent-500 focus:ring-accent-500/30";
@@ -70,14 +81,12 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
     cancel,
   } = useDraftForm<LinksFields>({
     initial,
-    // Trim each row; a fully-blank row is kept (the owner removes it with the ×),
-    // matching SkillsEditor's blank-category behavior. buildSiteLinks omits any
-    // link with a blank url from the render.
-    buildCommitted: (v) => ({
-      email: v.email,
-      links: v.links.map((l) => ({ label: l.label.trim(), url: l.url.trim() })),
-    }),
-    isDirty: (v, b) => v.email !== b.email || !sameLinks(v.links, b.links),
+    // Trim each row and drop fully-blank rows at the save boundary, so an added-
+    // but-unfilled row is never committed to the draft (a blank row a blur would
+    // otherwise commit) — the owner still sees it in the UI until they fill or
+    // remove it. buildSiteLinks also omits any blank-url link from the render.
+    buildCommitted: (v) => ({ email: v.email, links: nonBlank(v.links) }),
+    isDirty: (v, b) => v.email !== b.email || !sameLinks(nonBlank(v.links), b.links),
     onSaved: () => setUnpublished(true),
   });
 
