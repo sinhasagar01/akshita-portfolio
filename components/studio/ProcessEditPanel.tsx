@@ -138,6 +138,8 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
                 onBlur={saveDraft}
                 addLabel="Add tag"
                 placeholder="Tag"
+                itemNoun="tag"
+                ariaContext={`stage ${i + 1}`}
               />
             </div>
           </div>

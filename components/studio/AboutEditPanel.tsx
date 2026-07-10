@@ -153,6 +153,7 @@ export default function AboutEditPanel({
             onBlur={saveDraft}
             addLabel="Add chip"
             placeholder="Focus area"
+            itemNoun="chip"
           />
           {values.aboutFocusChips.length === 0 && (
             <span className="text-[10px] text-text-subtle">
