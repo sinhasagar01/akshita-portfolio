@@ -54,6 +54,8 @@ export const boatCrest: CaseStudy = {
           thesis: "Making the app worthy of the watch.",
           position:
             "A ground-up redesign of boAt's smartwatch companion app — from cluttered and one-size-fits-all into a calm, personal system people actually want to open.",
+          eyebrow: "Case study · Product design",
+          watermark: "crest",
           ratingChip: { stat: "★ 4.2", rest: "App Store rating · up from 2.3" },
           meta: [
             { label: "My role", value: "Sole product designer" },

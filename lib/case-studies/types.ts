@@ -125,8 +125,17 @@ export type HeroCover = {
   position: string;
   ratingChip?: { stat: string; rest: string };
   meta: { label: string; value: string }[];
-  devices: DeviceSpec[];
+  /** Exactly two — [back, front]. The hero's entrance is a hand-tuned two-phone
+   *  parallax (distinct back/front choreography, see HeroCover.tsx), not a
+   *  generic N-device layout — hence a tuple, not an open-ended array. */
+  devices: [DeviceSpec, DeviceSpec];
   glow?: GlowWord;
+  /** Optional eyebrow label above the title (e.g. "Case study · Product
+   *  design"). Omitted → no eyebrow row renders. */
+  eyebrow?: string;
+  /** Optional faint Fraunces watermark word behind the device cluster (e.g.
+   *  "crest"). Omitted → no watermark renders. */
+  watermark?: string;
 };
 
 /** Discriminated union — each entry names a block type plus its data. */
