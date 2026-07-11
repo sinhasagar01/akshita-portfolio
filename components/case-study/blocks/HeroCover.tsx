@@ -83,33 +83,38 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
 
   return (
     <div className="relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14">
-      {/* "crest" watermark — relocated here (from section.glow) so its fade-in is part
-          of the hero entrance. calc() reproduces the section-level top:-12px / right:34px
+      {/* Watermark — relocated here (from section.glow) so its fade-in is part of
+          the hero entrance. calc() reproduces the section-level top:-12px / right:34px
           by compensating the section's py-section top padding and 3.25rem inline padding.
-          Sits behind the content; clipped at the card edge by the section's overflow. */}
-      <motion.span
-        aria-hidden="true"
-        {...mp}
-        variants={glowV}
-        className="pointer-events-none absolute -z-10 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
-        style={{
-          color: "color-mix(in oklch, var(--color-accent-500) 10%, transparent)",
-          top: "calc(-1 * clamp(3.5rem, 7vw, 6rem) - 12px)",
-          right: "calc(34px - 3.25rem)",
-          fontSize: "clamp(7rem, 15vw, 13.75rem)",
-        }}
-      >
-        crest
-      </motion.span>
+          Sits behind the content; clipped at the card edge by the section's overflow.
+          Omitted entirely when data.watermark is unset — no default text. */}
+      {data.watermark && (
+        <motion.span
+          aria-hidden="true"
+          {...mp}
+          variants={glowV}
+          className="pointer-events-none absolute -z-10 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
+          style={{
+            color: "color-mix(in oklch, var(--color-accent-500) 10%, transparent)",
+            top: "calc(-1 * clamp(3.5rem, 7vw, 6rem) - 12px)",
+            right: "calc(34px - 3.25rem)",
+            fontSize: "clamp(7rem, 15vw, 13.75rem)",
+          }}
+        >
+          {data.watermark}
+        </motion.span>
+      )}
 
       {/* Text column */}
       <div>
-        <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
-          <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
-          <span className="text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
-            Case study · Product design
-          </span>
-        </motion.div>
+        {data.eyebrow && (
+          <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
+            <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
+            <span className="text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
+              {data.eyebrow}
+            </span>
+          </motion.div>
+        )}
 
         <h1 className="font-display font-normal text-6xl text-ink-950 leading-[1] tracking-tight mt-5">
           <span className="block overflow-hidden">
