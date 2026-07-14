@@ -19,6 +19,35 @@
 // fails the save loudly rather than corrupting the yaml.
 import { useRef } from "react";
 
+/* ------------------------------------------------------- pure array primitives
+ *
+ * P4 4(b)-iii — extracted so a structural edit can be applied to the sections array
+ * AND to the parallel stable-id array with the SAME function at the SAME index.
+ * That identity is the lockstep guarantee: the ids cannot drift from the values
+ * they name, because there is no second implementation to drift from. `setBlockValue`
+ * locates a block through those ids, so a drift would silently edit the wrong block.
+ */
+
+/** Swap the item at `i` with its neighbour. A move off either end is a no-op. */
+export const moveIn = <T,>(arr: readonly T[], i: number, dir: -1 | 1): T[] => {
+  const j = i + dir;
+  if (j < 0 || j >= arr.length) return [...arr];
+  const next = [...arr];
+  [next[i], next[j]] = [next[j], next[i]];
+  return next;
+};
+
+export const removeAt = <T,>(arr: readonly T[], i: number): T[] => arr.filter((_, idx) => idx !== i);
+
+export const insertAt = <T,>(arr: readonly T[], i: number, v: T): T[] => [
+  ...arr.slice(0, i),
+  v,
+  ...arr.slice(i),
+];
+
+export const setAt = <T,>(arr: readonly T[], i: number, v: T): T[] =>
+  arr.map((x, idx) => (idx === i ? v : x));
+
 // `items` is readonly because the Keystatic-derived raw types are readonly all the
 // way down — which is a feature: it makes an in-place mutation of content a
 // compile error, so the only way to change a value is to build a new one.
@@ -34,18 +63,15 @@ export function useItemList<T>(
 
   return {
     pendingFocus,
-    set: (i: number, v: T) => onChange(items.map((x, idx) => (idx === i ? v : x))),
-    remove: (i: number) => onChange(items.filter((_, idx) => idx !== i)),
+    set: (i: number, v: T) => onChange(setAt(items, i, v)),
+    remove: (i: number) => onChange(removeAt(items, i)),
     add: () => {
       pendingFocus.current = items.length;
       onChange([...items, empty()]);
     },
     move: (i: number, dir: -1 | 1) => {
-      const j = i + dir;
-      if (j < 0 || j >= items.length) return;
-      const next = [...items];
-      [next[i], next[j]] = [next[j], next[i]];
-      onChange(next);
+      if (i + dir < 0 || i + dir >= items.length) return;
+      onChange(moveIn(items, i, dir));
     },
     /** Ref callback for a row's first input — claims a pending focus on mount. */
     focusRef: (i: number) => (el: HTMLElement | null) => {

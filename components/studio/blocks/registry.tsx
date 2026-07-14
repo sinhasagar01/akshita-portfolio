@@ -21,6 +21,7 @@
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
 import { TextField, TextArea, CheckField, NumberField, ReadOnlyImage, ItemRows } from "./fields";
+import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD, emptyDevice, emptyImg, emptyGlow } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
   value: RawValue<K>;
@@ -33,9 +34,28 @@ type Entry<K extends SectionBlockKind> = {
   /** The row heading in the editor's block list. Falls back to the kind's label
    *  when the block has no text worth showing. */
   label: (value: RawValue<K>) => string;
-  /** Absent = tier 3, no form yet (PR B). The panel renders a preserved-untouched
-   *  note instead, and the sanitizer round-trips the value opaquely. */
-  Form?: ComponentType<BlockFormProps<K>>;
+  Form: ComponentType<BlockFormProps<K>>;
+  /**
+   * P4 4(b)-iii — the initial value for a newly added block. Deferred from PR A
+   * deliberately, because until block-add existed it would have been fourteen
+   * hand-written values with no consumer and no proof, drifting from the schema.
+   *
+   * Typed `RawValue<K>`, so a missing or wrong-typed key is a COMPILE error rather
+   * than a save-time rejection. Every key the schema declares must be present with
+   * its empty spelling — "" for text, null for a number or an image, false for a
+   * checkbox — because the sanitizer requires them all.
+   */
+  empty: () => RawValue<K>;
+  /**
+   * Set when adding this kind would produce content the FAIL-LOUD ssg adapter
+   * refuses, so the picker can offer it as unavailable rather than let the owner
+   * wedge their publish. Only the two kinds carrying a REQUIRED image qualify: a
+   * new block's src is null and nothing can set it until 4(b)-iv.
+   *
+   * This cannot be a sanitizer rule — a null src is structurally valid, and
+   * publishability is the adapter's question, not the schema's.
+   */
+  addBlockedUntilUpload?: true;
 };
 
 /** Kind -> human name, for the block list and the not-editable-yet note. */
@@ -404,18 +424,6 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
   );
 }
 
-const emptyDevice = (): RawDevice => ({
-  src: null,
-  alt: "",
-  width: null,
-  rotate: null,
-  translateX: null,
-  translateY: null,
-  z: null,
-  label: "",
-  dotColor: "",
-});
-
 const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, onChange, onBlur }) => (
   <>
     <ItemRows
@@ -574,16 +582,6 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
     <GlowFields value={value.glow} set={(glow) => onChange({ ...value, glow })} onBlur={onBlur} />
   </>
 );
-
-const emptyImg = () => ({
-  src: null,
-  alt: "",
-  width: null,
-  rotate: null,
-  translateX: null,
-  translateY: null,
-  z: null,
-});
 
 /** The first DOUBLY nested array: pairs[] each holding their own changes[]. */
 const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur }) => (
@@ -749,31 +747,41 @@ const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value
 
 export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
   // tier 1
-  closingLine: { label: (v) => firstLine(v.text, "Closing line"), Form: ClosingLineForm },
-  pullQuote: { label: (v) => firstLine(v.text, "Pull quote"), Form: PullQuoteForm },
-  richText: {
+  closingLine: { empty: BLOCK_EMPTIES.closingLine, label: (v) => firstLine(v.text, "Closing line"), Form: ClosingLineForm },
+  pullQuote: { empty: BLOCK_EMPTIES.pullQuote, label: (v) => firstLine(v.text, "Pull quote"), Form: PullQuoteForm },
+  richText: { empty: BLOCK_EMPTIES.richText,
     label: (v) => firstLine(v.paragraphs[0] ?? "", "Rich text"),
     Form: RichTextForm,
-  },
-  glanceGrid: { label: (v) => `Glance grid — ${v.items.length} items`, Form: GlanceGridForm },
-  issueList: { label: (v) => `Issue list — ${v.items.length} items`, Form: IssueListForm },
-  stepper: { label: (v) => `Stepper — ${v.steps.length} steps`, Form: StepperForm },
+      },
+  glanceGrid: { empty: BLOCK_EMPTIES.glanceGrid, label: (v) => `Glance grid — ${v.items.length} items`, Form: GlanceGridForm },
+  issueList: { empty: BLOCK_EMPTIES.issueList, label: (v) => `Issue list — ${v.items.length} items`, Form: IssueListForm },
+  stepper: { empty: BLOCK_EMPTIES.stepper, label: (v) => `Stepper — ${v.steps.length} steps`, Form: StepperForm },
   // tier 2
-  statCards: {
+  statCards: { empty: BLOCK_EMPTIES.statCards,
     label: (v) => firstLine(v.heading, `Stat cards — ${v.stats.length} stats`),
     Form: StatCardsForm,
-  },
-  principleCards: {
+      },
+  principleCards: { empty: BLOCK_EMPTIES.principleCards,
     label: (v) => firstLine(v.heading, `Principle cards — ${v.cards.length} cards`),
     Form: PrincipleCardsForm,
-  },
+      },
   // tier 3
   // still no Form (later in PR B) — preserved untouched by the panel, round-tripped
   // opaquely by the sanitizer.
-  heroCover: { label: (v) => firstLine(v.title, "Hero cover"), Form: HeroCoverForm },
-  deviceShelf: { label: (v) => `Device shelf — ${v.devices.length} devices`, Form: DeviceShelfForm },
-  featureRows: { label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
-  beforeAfter: { label: (v) => `Before / after — ${v.pairs.length} pairs`, Form: BeforeAfterForm },
-  swatchTokens: { label: (v) => `Swatch tokens — ${v.groups.length} groups`, Form: SwatchTokensForm },
-  annotatedImage: { label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"), Form: AnnotatedImageForm },
+  heroCover: { empty: BLOCK_EMPTIES.heroCover, addBlockedUntilUpload: true,
+    label: (v) => firstLine(v.title, "Hero cover"),
+    Form: HeroCoverForm,
+    // devices is the schema's ONLY length constraint ({min:2,max:2}), so an empty
+    // heroCover is born with two devices — `devices: []` would be rejected by
+    // arrayOfLen the moment it was saved.
+  },
+  deviceShelf: { empty: BLOCK_EMPTIES.deviceShelf, label: (v) => `Device shelf — ${v.devices.length} devices`, Form: DeviceShelfForm },
+  featureRows: { empty: BLOCK_EMPTIES.featureRows, label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
+  beforeAfter: { empty: BLOCK_EMPTIES.beforeAfter, label: (v) => `Before / after — ${v.pairs.length} pairs`, Form: BeforeAfterForm },
+  swatchTokens: { empty: BLOCK_EMPTIES.swatchTokens, label: (v) => `Swatch tokens — ${v.groups.length} groups`, Form: SwatchTokensForm },
+  annotatedImage: { empty: BLOCK_EMPTIES.annotatedImage, addBlockedUntilUpload: true,
+    label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"),
+    Form: AnnotatedImageForm,
+  },
 };
+

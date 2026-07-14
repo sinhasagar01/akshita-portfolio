@@ -178,6 +178,44 @@ export function ReadOnlyImage({ label, src }: { label: string; src: string | nul
   );
 }
 
+/** A closed set of options — the section shell's `variant` and `layout`. The
+ *  options come from the caller, which reads them from the same const the
+ *  sanitizer validates against, so the two cannot disagree. */
+export function SelectField<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+  onBlur,
+  hint,
+}: {
+  label: string;
+  value: T;
+  options: readonly T[];
+  onChange: (v: T) => void;
+  onBlur?: () => void;
+  hint?: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className={labelCls}>{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as T)}
+        onBlur={onBlur}
+        className={inputCls}
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+      {hint && <span className="text-[10px] text-text-subtle">{hint}</span>}
+    </label>
+  );
+}
+
 export function CheckField({
   label,
   value,

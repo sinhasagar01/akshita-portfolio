@@ -24,8 +24,13 @@
 import type { SaveError } from "./site-settings-format";
 import type { SectionBlockKind } from "../case-studies/sections-raw";
 
-const VARIANTS = ["hero", "default", "static", "bare"] as const;
-const LAYOUTS = ["stack", "split"] as const;
+/** The section shell's closed sets. EXPORTED so the shell form's selects read the
+ *  same source this validates against — the form cannot offer an option the
+ *  sanitizer would reject. */
+export const VARIANTS = ["hero", "default", "static", "bare"] as const;
+export const LAYOUTS = ["stack", "split"] as const;
+export type SectionVariant = (typeof VARIANTS)[number];
+export type SectionLayout = (typeof LAYOUTS)[number];
 
 /** The section shell's own fields (everything except `blocks`). All strings. */
 const SECTION_TEXT_KEYS = ["id", "index", "eyebrow", "title", "lead", "northStar"] as const;
