@@ -77,7 +77,9 @@ Superseded. The fifteen generic block types and CaseStudyBlockRenderer above wer
 - [x] Skills entered
 - [x] Site settings filled in
 
-Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data Profiling, and the real portrait plus real screen exports uploaded through Keystatic.
+Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data Profiling, and the real portrait plus real screen exports.
+
+Where those uploads go changed. The screen exports for the three migrated projects go through /studio now, NOT Keystatic, which is locked out of those files because it rewrites them destructively (see the case study editor section below). The portrait is the site-settings photo and is still a Keystatic field.
 
 ### Content gaps (surfaced by /studio)
 
@@ -177,24 +179,54 @@ What holds after the deletion, and why.
 - A project with no sections adapts to an empty array and renders CaseStudyView's Coming soon placeholder, so a fresh studio-created stub is graceful rather than a crash.
 - The adapter is fail-loud by design. A wrong device count or a missing image src throws at the adapter boundary, which is right for build-time SSG.
 
-### Carried forward, editable once the step 4 editor lands
+## The case study editor (COMPLETE, and this closes /studio phase 4)
 
-The SYSTEM is complete. Everything below is content, not a blocker, and step 4 is exactly what makes it editable from production.
+Step 4, the editor itself. Every element of a case study is now editable from /studio, images included. With step 1 (heroImage upload, 040dbfb, #48) and the renderer convergence above, the /studio phase 4 is done.
 
-- Placeholder images, all three migrated projects. Each carries neutral placeholder screens (public/images/projects/<slug>/screen-a,b,c.webp) and a null heroImage. Replace them through the dashboard image upload (040dbfb, #48).
+The arc, each sub-gate proven before the next started.
+
+- 4(a), 562980e (#56). The case-study draft-preview read-split plus the preview-placeholder guard, one of the two flags step 3 named. adaptSections gained a mode, ssg stays the pinned fail-loud default and preview yields placeholders so a half-authored draft still renders.
+- 4(b)-i, aae6325 (#57). The pullQuote vertical slice, the sections write seam, and the Keystatic lockout. The head-splice preserves the tail by design, so it can never write the sections that live in it. The sections-splice is its mirror.
+- 4(b)-ii, 2311244 (#58) and 4976be0 (#59). All 14 block kinds, through a registry keyed by discriminant. PR A did the derived raw types and tiers 1 and 2, PR B did the tier 3 kinds.
+- 4(b)-iii, e2c9d40 (#60). Section and block add, remove, and reorder, the 14 empties, and the section shell form.
+- 4(b)-iv, 9f31470 (#61). Block image upload, content-addressed.
+
+What holds, and why.
+
+- The forms edit the RAW Keystatic shape, never lib/case-studies/types.ts. types.ts is what the adapter EMITS, raw is what it CONSUMES, and they differ in five documented ways. A form typed against the renderer's types would invent a translate tuple the file has never held. The raw types are DERIVED from keystatic.config through Keystatic's own Entry helper, so the schema is the single source and a rename is a compile error.
+- The 14 kinds are exhaustive BY CONSTRUCTION. The registry and the sanitizer's validator table are both mapped types over the schema-derived union, so a 15th kind stops them compiling. No assertNever is needed for a table. Note that types.ts's BlockKind is SIXTEEN, because it also carries boat-crest's two scroll-story kinds, which the sections schema cannot express.
+- Forms preserve exactly what they read, and the sanitizer enforces it rather than trusting it. Every field the schema declares is required, so a form that strips an empty string or drops a null fails the save loudly instead of quietly rewriting blocks the owner never touched.
+- Block images are CONTENT-ADDRESSED, named by a hash of the normalized webp bytes. Every obvious alternative was unsafe. An array index renames on reorder, which is exactly what Keystatic does and exactly why it is locked out. The stable client ids are useRef counters reseeded on every mount, so the same id names a different block after a reload. And section.id is user-editable. A hash depends on the image and nothing else, so a reorder cannot rename a blob.
+- The upload route is BLOB-ONLY. It commits the image and returns its path, and the panel sets src through the ordinary save, so sections keeps exactly ONE writer.
+- Publish now validates sections, extending the GH-4 seam that already validated site settings. This is what makes block add safe. Upload alone did not, because a new block is still born with a null src, so the gate moved from the picker, which could only guess, to publish, which can look. An unpublishable draft is refused with the adapter's own message and main is untouched.
+- Keystatic is LOCKED OUT of the three migrated projects. It rewrites them destructively on save, relocating every block image and deleting the originals, because it derives nested image filenames from the field's path within the entry. The lock is the update-route guard, since the slug is in the write body rather than the URL. The set is derived from each file's own sections key, not listed, so a future migrated project locks itself.
+
+### Follow-ups the editor surfaced, none blocking
+
+- Orphan block images. Replacing or clearing an image repoints `src` and leaves the old blob, by decision. Deleting on replace would need refcounting, because content-addressing means two blocks can legitimately share one blob, so a naive delete could break an unrelated block. A stale blob is inert, it costs repo size and not correctness. `blockImageBlobPathFromValue` in lib/studio/block-image-path.ts is already built and tested for the GC sweep that would reclaim them.
+- Removing a section discards its blocks with no confirmation. The control sits beside the reorder buttons, so a misclick is easy, and the undo (Cancel locally, or Discard for the draft) is not obvious. It is recoverable and not data loss, which is why it was not treated as a defect. Item 13 set the precedent worth matching, a confirm dialog that says the true thing, that a draft delete is undoable until Publish.
+- Two retracted claims, recorded so they are not re-relied on. The 3(d) note that a Keystatic save of an untouched project is byte-idempotent is VOID, because those saves never wrote. 3(d)'s real byte-safety rests on the splice proofs, which stand and are re-run by the suites. And the 4(b) recon finding that Keystatic preserves stored image paths on save is FALSIFIED, it relocates them, which is what forced the lockout.
+
+### Carried forward, now editable through the step 4 editor
+
+The SYSTEM is complete. Everything below is content, not a blocker, and the step 4 editor is what makes it editable from production.
+
+- Placeholder images, all three migrated projects. Each carries neutral placeholder screens (public/images/projects/<slug>/screen-a,b,c.webp) and a null heroImage. Replace the hero through the P4-1 upload (040dbfb, #48) and the block images through the 4(b)-iv upload (9f31470, #61). A replacement lands at a content-addressed path under blocks/, so the old screen-a,b,c.webp files stay behind as orphans until a GC sweep.
 - The Fosfor Data Profiling `[real number]` stat. Poured verbatim from the old body, still standing in for a real figure.
 - The Fosfor AI outcome. The study still closes without a real outcome number, the same gap Content gaps above records.
 - Enrichment toward boat-crest depth. The pour was a faithful starting point, not a ceiling. statCards, principleCards, annotatedImage, and swatchTokens are all available block kinds the three studies do not use yet.
-- Two adapter flags for step 4. A preview-placeholder guard in front of the fail-loud adapter for half-authored studio drafts, and a per-image `aspect?` field if a real replacement image disagrees with the phone-bezel default.
+- One adapter flag is still open. The preview-placeholder guard landed in 4(a) (562980e, #56). The per-image `aspect?` field did NOT, and is still wanted if a real replacement image disagrees with the phone-bezel default. Nothing needs it yet, because every image in the three studies is still a placeholder at the bezel aspect.
 
 ## Open forks (named so they are not silently assumed)
 
-1. Case-study body editing. MOSTLY SETTLED by the renderer convergence above, and the part that remains is narrower than this fork used to describe. The rendering split is gone, all four studies now share one component set. What survives is a DATA split, not a renderer one. The three content projects render from their Keystatic `sections`, so they are dashboard-editable and the /studio deep-link reaches what renders. boat-crest still renders from the hand-authored TS object in lib/case-studies/boat-crest.ts through its literal route, so editing its Keystatic item still does nothing to the live page, which is the locked decision (boat-crest stays bespoke and is not dashboard-edited). Two things stay genuinely open. The Keystatic projects item for boat-crest is a misleading surface that edits nothing, worth removing or labelling when /keystatic retires. And boat-crest's two scroll-story blocks (featureStory, beforeAfterStory) are deliberately excluded from the sections schema in keystatic.config.ts, so they are the one thing a content project cannot express. They stay boat-crest's island because they need statically-imported assets with build-time dimensions, which a content-path image cannot supply.
+1. Case-study body editing. SETTLED for the three content projects. The renderer convergence removed the rendering split, so all four studies share one component set, and the step 4 editor made the data editable, images included. What survives is a DATA split, not a renderer one. The three content projects render from their Keystatic `sections`, which /studio now edits end to end.
+
+   boat-crest stays bespoke and is not dashboard-edited, the locked decision. It renders from the hand-authored TS object in lib/case-studies/boat-crest.ts through its literal route, so editing its Keystatic item does nothing to the live page. Two residual items belong to that decision rather than to body editing. Its Keystatic projects item is a misleading surface that edits nothing, worth removing or labelling when /keystatic retires. And its two scroll-story blocks (featureStory, beforeAfterStory) are deliberately excluded from the sections schema, so they are the one thing a content project cannot express. They stay boat-crest's island because they need statically-imported assets with build-time dimensions, which a content-path image cannot supply.
 2. The three In code homepage sections (Hero facets, Process stage visuals, Contact form steps) are code-managed and shown as non-editable cards. They are the first candidates if and when we migrate hand-authored content into Keystatic.
 3. /studio search is a non-functional placeholder. A client-side label filter is the near-term fast-follow. Search over field values needs a content index and is deferred.
 4. /studio B, the inline editing write path, SHIPPED. Saves go through the owner-gated save-draft route to the draft branch and Publish merges the draft into main through the publish route, both in github mode, with the pure transform in lib/studio/site-settings-format.ts. The P1 fs write seam (lib/studio/save-site-settings.ts) was removed as superseded, dev editing happens in Keystatic. All field groups now edit inline. Hero, About, Process, Links, and Skills each have their own panel, and Experience and Projects add and delete entries through the create and delete foundation (F-1 write primitives, F-2 studio draft overlay, F-3 guarded create and delete, items 13 and 11). Links (item 10) migrated its fixed url fields to an editable array in the same singleton-array pattern as Skills.
 
-   Two polish follow-ups are done. The object-array editors (Links, Skills) no longer commit a fully-blank row to the draft, because buildCommitted and isDirty both drop empty items now, matching the About and Process string-array editors (PR 43 for Links, PR 44 for Skills). And the sidebar Projects and Experience counts live-update on add and remove through a StudioCountsProvider seeded from the server counts, instead of going stale until a hard reload (PR 45). The remaining fork is image upload.
+   Two polish follow-ups are done. The object-array editors (Links, Skills) no longer commit a fully-blank row to the draft, because buildCommitted and isDirty both drop empty items now, matching the About and Process string-array editors (PR 43 for Links, PR 44 for Skills). And the sidebar Projects and Experience counts live-update on add and remove through a StudioCountsProvider seeded from the server counts, instead of going stale until a hard reload (PR 45). Image upload is done too, for the project heroImage (040dbfb, #48) and for case-study block images (9f31470, #61), so no fork remains here.
 
 ## /studio prod-readiness blockers (before hosted editing ships)
 
@@ -202,7 +234,7 @@ The SYSTEM is complete. Everything below is content, not a blocker, and step 4 i
 - Add caching to the per-request draft read. getStudioData hits the GitHub API per /studio request in github mode.
 - Durable cross-instance login throttle. The in-memory one does not survive serverless cold starts.
 - Set UPSTASH_REDIS_REST_URL + TOKEN in Vercel prod env, else the GH-7 login throttle falls back to per-instance in-memory in prod.
-- /keystatic is dev-only by decision, guarded to 404 in production by the middleware. No OAuth app, no prod storage split. Retire fully after image upload lands in /studio.
+- /keystatic is dev-only by decision, guarded to 404 in production by the middleware. No OAuth app, no prod storage split. The retire trigger has FIRED, because image upload landed (040dbfb, #48 and 9f31470, #61) and /studio now edits every case-study element. Two things still hold it open. The three migrated projects are already locked out of it (aae6325, #57) because it rewrites them destructively, and boat-crest's Keystatic item is the misleading surface fork 1 names. Retiring it also lets the dead `body` field go.
 
 ## /studio inline-edit, multi-form draft accumulation (SETTLED by DB-1)
 
