@@ -1,0 +1,291 @@
+// P4 3(c) test — the content -> CaseStudy adapter.
+// Run: node --experimental-strip-types ralph/tests/p4-3c-adapter.mjs
+//
+// Plain JS (kept out of the app tsc program). Imports the REAL pure module
+// (lib/case-studies/adapter.ts — its ./types import is type-only, erased at
+// runtime). Two halves:
+//   1. parseRich hard — the silent-corruption risk. A sloppy bold parser
+//      corrupts content invisibly, so every edge gets an exact-shape assert.
+//      The "plain" case MUST return a STRING (Rich's string branch is a
+//      different renderRich path from a 1-run list).
+//   2. adaptSections round-trip — hand-authored raw sections shaped exactly
+//      like the Keystatic reader emits (per the 3(b) throwaway's real dump),
+//      covering all 14 block kinds and every mapping quirk: selects read
+//      concrete, translateX/Y recombined, devices tupled, **bold** parsed,
+//      always-present empties (glow/ratingChip/"" texts) -> undefined/omitted.
+//      Plus the fail-loud cases: wrong device count, missing image src,
+//      unknown discriminant, unknown variant.
+import { parseRich, adaptSections } from "../../lib/case-studies/adapter.ts";
+import { deepStrictEqual } from "node:assert";
+
+let failures = 0;
+function check(name, fn) {
+  try {
+    fn();
+    console.log(`  [PASS] ${name}`);
+  } catch (e) {
+    failures++;
+    console.log(`  [FAIL] ${name} — ${e.message}`);
+  }
+}
+function throws(name, fn, msgPart) {
+  try {
+    fn();
+    failures++;
+    console.log(`  [FAIL] ${name} — expected a throw, got none`);
+  } catch (e) {
+    if (msgPart && !String(e.message).includes(msgPart)) {
+      failures++;
+      console.log(`  [FAIL] ${name} — threw, but message "${e.message}" lacks "${msgPart}"`);
+    } else {
+      console.log(`  [PASS] ${name}`);
+    }
+  }
+}
+
+console.log("parseRich — edge suite");
+
+check("plain text returns a STRING (not a 1-run list)", () => {
+  const out = parseRich("no bold here");
+  if (typeof out !== "string") throw new Error(`got ${JSON.stringify(out)}`);
+  deepStrictEqual(out, "no bold here");
+});
+check("empty string returns the empty STRING", () => {
+  const out = parseRich("");
+  if (typeof out !== "string") throw new Error(`got ${JSON.stringify(out)}`);
+});
+check("single bold mid-string", () =>
+  deepStrictEqual(parseRich("a **b** c"), ["a ", { b: "b" }, " c"]));
+check("multiple bolds", () =>
+  deepStrictEqual(parseRich("**a** and **b** end"), [{ b: "a" }, " and ", { b: "b" }, " end"]));
+check("bold at start", () =>
+  deepStrictEqual(parseRich("**start** rest"), [{ b: "start" }, " rest"]));
+check("bold at end", () =>
+  deepStrictEqual(parseRich("rest **end**"), ["rest ", { b: "end" }]));
+check("bold-only string", () =>
+  deepStrictEqual(parseRich("**only**"), [{ b: "only" }]));
+check("adjacent bolds, no empty run between", () =>
+  deepStrictEqual(parseRich("**a****b**"), [{ b: "a" }, { b: "b" }]));
+check("empty **** stays literal (STRING)", () => {
+  const out = parseRich("a **** b");
+  if (typeof out !== "string") throw new Error(`got ${JSON.stringify(out)}`);
+  deepStrictEqual(out, "a **** b");
+});
+check("unclosed ** stays literal (STRING)", () => {
+  const out = parseRich("a **b");
+  if (typeof out !== "string") throw new Error(`got ${JSON.stringify(out)}`);
+  deepStrictEqual(out, "a **b");
+});
+check("bold then unclosed ** — bold parsed, tail literal", () =>
+  deepStrictEqual(parseRich("**a** and **b"), [{ b: "a" }, " and **b"]));
+check("multiline bold content spans the marker", () =>
+  deepStrictEqual(parseRich("x **a b** y"), ["x ", { b: "a b" }, " y"]));
+
+console.log("\nadaptSections — full round-trip (all 14 kinds, every quirk)");
+
+// Raw content exactly as the reader emits the 3(b) schema: selects concrete,
+// untouched texts "", untouched objects present-but-empty, numbers null.
+const IMG = { src: "/images/projects/x/a.png", alt: "shot", width: 248, rotate: null, translateX: null, translateY: null, z: null };
+const EMPTY_GLOW = { text: "", top: "", right: "", bottom: "", left: "", size: "" };
+
+const raw = [
+  {
+    variant: "hero",
+    id: "hero",
+    index: "",
+    eyebrow: "Case study · Product design",
+    title: "Scratch Schema Test",
+    lead: "Built on **boAt Crest** learnings.",
+    northStar: "",
+    layout: "stack",
+    glow: EMPTY_GLOW,
+    blocks: [
+      {
+        discriminant: "heroCover",
+        value: {
+          title: "Scratch", thesis: "Thesis.", position: "Position.",
+          eyebrow: "", watermark: "crest",
+          ratingChip: { stat: "★ 4.2", rest: "up from 2.3" },
+          meta: [{ label: "My role", value: "Sole engineer" }],
+          devices: [
+            { ...IMG, rotate: -6, translateX: -86, translateY: 16, z: 1, label: "", dotColor: "" },
+            { ...IMG, width: 288, z: 3, label: "Midnight", dotColor: "#f00" },
+          ],
+          glow: { ...EMPTY_GLOW, text: "calm", size: "clamp(6rem, 12vw, 11rem)" },
+        },
+      },
+      { discriminant: "pullQuote", value: { text: "A quote." } },
+      { discriminant: "glanceGrid", value: { items: [{ label: "Product", value: "App" }] } },
+      { discriminant: "issueList", value: { items: [{ title: "Clutter", note: "Everywhere" }] } },
+      { discriminant: "stepper", value: { steps: [{ label: "01", text: "Discover" }] } },
+    ],
+  },
+  {
+    variant: "default",
+    id: "", index: "01", eyebrow: "", title: "", lead: "", northStar: "The **north** star.",
+    layout: "split",
+    glow: { ...EMPTY_GLOW, text: "noise", bottom: "-20px" },
+    blocks: [
+      {
+        discriminant: "statCards",
+        value: {
+          heading: "At a glance",
+          stats: [
+            { value: "4.2", suffix: "", body: "Rating **up** overall", tag: "store", highlighted: true },
+            { value: "90%", suffix: "+", body: "plain body", tag: "users", highlighted: false },
+          ],
+        },
+      },
+      {
+        discriminant: "principleCards",
+        value: { heading: "", subhead: "", cards: [{ index: "01", title: "Declutter", body: "Less **noise**" }] },
+      },
+      {
+        discriminant: "featureRows",
+        value: { features: [{ index: "01", category: "Nav", title: "Tabs", body: "Three tabs", image: { ...IMG } }] },
+      },
+      {
+        discriminant: "beforeAfter",
+        value: {
+          pairs: [{
+            title: "Home", tag: "IA",
+            before: { ...IMG }, after: { ...IMG, width: 288 },
+            changes: [{ emphasis: "Calmer", rest: "hierarchy" }],
+          }],
+        },
+      },
+      {
+        discriminant: "swatchTokens",
+        value: {
+          groups: [{
+            tokens: [
+              { discriminant: "color", value: { name: "Ember", value: "#e25822", hex: "#e25822" } },
+              { discriminant: "font", value: { name: "Fraunces", note: "Display" } },
+            ],
+          }],
+        },
+      },
+      {
+        discriminant: "annotatedImage",
+        value: {
+          image: { ...IMG, rotate: -4 },
+          scrawl: { text: "where do\nI look?", top: "0", right: "0", bottom: "", left: "" },
+          callouts: [],
+        },
+      },
+      { discriminant: "richText", value: { paragraphs: ["One **bold** para", "plain para"] } },
+      { discriminant: "closingLine", value: { text: "Worth it." } },
+      { discriminant: "deviceShelf", value: { devices: [{ ...IMG }], glow: EMPTY_GLOW, minHeight: 560 } },
+    ],
+  },
+];
+
+const expected = [
+  {
+    variant: "hero",
+    layout: "stack",
+    blocks: [
+      {
+        kind: "heroCover",
+        title: "Scratch", thesis: "Thesis.", position: "Position.",
+        meta: [{ label: "My role", value: "Sole engineer" }],
+        devices: [
+          { src: "/images/projects/x/a.png", alt: "shot", width: 248, rotate: -6, translate: [-86, 16], z: 1 },
+          { src: "/images/projects/x/a.png", alt: "shot", width: 288, z: 3, label: "Midnight", dotColor: "#f00" },
+        ],
+        watermark: "crest",
+        ratingChip: { stat: "★ 4.2", rest: "up from 2.3" },
+        glow: { text: "calm", size: "clamp(6rem, 12vw, 11rem)" },
+      },
+      { kind: "pullQuote", text: "A quote." },
+      { kind: "glanceGrid", items: [{ label: "Product", value: "App" }] },
+      { kind: "issueList", items: [{ title: "Clutter", note: "Everywhere" }] },
+      { kind: "stepper", steps: [{ label: "01", text: "Discover" }] },
+    ],
+    id: "hero",
+    eyebrow: "Case study · Product design",
+    title: "Scratch Schema Test",
+    lead: ["Built on ", { b: "boAt Crest" }, " learnings."],
+  },
+  {
+    variant: "default",
+    layout: "split",
+    blocks: [
+      {
+        kind: "statCards",
+        stats: [
+          { value: "4.2", body: ["Rating ", { b: "up" }, " overall"], tag: "store", highlighted: true },
+          { value: "90%", body: "plain body", tag: "users", suffix: "+" },
+        ],
+        heading: "At a glance",
+      },
+      { kind: "principleCards", cards: [{ index: "01", title: "Declutter", body: ["Less ", { b: "noise" }] }] },
+      {
+        kind: "featureRows",
+        features: [{ index: "01", category: "Nav", title: "Tabs", body: "Three tabs", image: { src: "/images/projects/x/a.png", alt: "shot", width: 248 } }],
+      },
+      {
+        kind: "beforeAfter",
+        pairs: [{
+          title: "Home", tag: "IA",
+          before: { src: "/images/projects/x/a.png", alt: "shot", width: 248 },
+          after: { src: "/images/projects/x/a.png", alt: "shot", width: 288 },
+          changes: [{ emphasis: "Calmer", rest: "hierarchy" }],
+        }],
+      },
+      {
+        kind: "swatchTokens",
+        groups: [{
+          tokens: [
+            { type: "color", name: "Ember", value: "#e25822", hex: "#e25822" },
+            { type: "font", name: "Fraunces", note: "Display" },
+          ],
+        }],
+      },
+      {
+        kind: "annotatedImage",
+        image: { src: "/images/projects/x/a.png", alt: "shot", width: 248, rotate: -4 },
+        scrawl: { text: "where do\nI look?", top: "0", right: "0" },
+      },
+      { kind: "richText", paragraphs: [["One ", { b: "bold" }, " para"], "plain para"] },
+      { kind: "closingLine", text: "Worth it." },
+      {
+        kind: "deviceShelf",
+        devices: [{ src: "/images/projects/x/a.png", alt: "shot", width: 248 }],
+        minHeight: 560,
+      },
+    ],
+    index: "01",
+    northStar: ["The ", { b: "north" }, " star."],
+    glow: { text: "noise", bottom: "-20px" },
+  },
+];
+
+check("full round-trip: exact Section[] deep-equal", () =>
+  deepStrictEqual(adaptSections(raw), expected));
+
+check("empty/absent sections -> []", () => {
+  deepStrictEqual(adaptSections(undefined), []);
+  deepStrictEqual(adaptSections(null), []);
+  deepStrictEqual(adaptSections([]), []);
+});
+
+console.log("\nadaptSections — fail-loud cases");
+
+const heroWith = (devices) => [{
+  variant: "hero", layout: "stack", glow: EMPTY_GLOW,
+  blocks: [{ discriminant: "heroCover", value: { title: "t", thesis: "t", position: "p", meta: [], devices, ratingChip: { stat: "", rest: "" }, glow: EMPTY_GLOW } }],
+}];
+
+throws("1 device -> descriptive throw", () => adaptSections(heroWith([{ ...IMG }])), "must be exactly 2");
+throws("3 devices -> descriptive throw", () => adaptSections(heroWith([{ ...IMG }, { ...IMG }, { ...IMG }])), "must be exactly 2");
+throws("missing image src -> descriptive throw", () => adaptSections(heroWith([{ ...IMG, src: "" }, { ...IMG }])), "image src is missing");
+throws("unknown discriminant -> throw", () =>
+  adaptSections([{ variant: "default", layout: "stack", glow: EMPTY_GLOW, blocks: [{ discriminant: "featureStory", value: {} }] }]),
+  'unknown block kind "featureStory"');
+throws("unknown variant -> throw", () =>
+  adaptSections([{ variant: "wild", layout: "stack", glow: EMPTY_GLOW, blocks: [] }]),
+  'unknown variant "wild"');
+
+console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
+process.exit(failures === 0 ? 0 : 1);
