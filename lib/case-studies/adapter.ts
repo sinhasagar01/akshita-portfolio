@@ -55,6 +55,7 @@ import type {
   Callout,
   HeroCover,
 } from "./types";
+import type { SectionBlockKind, AssertComplete } from "./sections-raw";
 
 /* -------------------------------------------------------------------- mode */
 
@@ -199,6 +200,10 @@ function adaptScrawl(v: unknown): Scrawl | undefined {
 
 /* ------------------------------------------------------------- the blocks */
 
+// The list is now POLICED BY THE SCHEMA rather than hand-synced to the copy that
+// used to live in lib/studio/sections-format.ts (each carried a comment asking
+// the next reader to keep them in step). `satisfies` catches a typo or a rename;
+// AssertComplete catches a kind missing entirely.
 const BLOCK_KINDS = [
   "heroCover",
   "deviceShelf",
@@ -214,7 +219,8 @@ const BLOCK_KINDS = [
   "annotatedImage",
   "richText",
   "closingLine",
-] as const;
+] as const satisfies readonly SectionBlockKind[];
+type _blockKindsComplete = AssertComplete<typeof BLOCK_KINDS>;
 
 type RawBlockKind = (typeof BLOCK_KINDS)[number];
 
