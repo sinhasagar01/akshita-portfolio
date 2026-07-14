@@ -8,34 +8,21 @@
 // Reusing the adapter here would silently accept a malformed patch and coalesce
 // it into the committed file. Same shape, opposite posture — on purpose.
 //
-// 4(b)-i SCOPE: the section shell + `pullQuote` are validated FULLY. Other kinds
-// are checked for a KNOWN discriminant and then their `value` passes through
-// opaquely — the editor renders no form for them yet, so it round-trips them
-// verbatim. The per-kind validator table is 4(b)-ii; until then an unknown kind
-// is still rejected, so the schema and the patch can never silently disagree.
+// 4(b)-ii SCOPE: the section shell and the tier 1-2 kinds are validated FULLY by
+// the per-kind VALIDATORS table below. The tier 3 kinds (structurally deep or
+// image-bearing) still pass their `value` through opaquely, because the editor
+// renders no form for them yet, so they round-trip verbatim. An unknown kind is
+// always rejected, so the schema and the patch can never silently disagree.
 //
-// Dependency-free beyond a type-only import, so it is unit-exercisable directly.
+// The 14 in-scope kinds are no longer a list here. Membership IS the VALIDATORS
+// table's own keys, and the table is `{ [K in SectionBlockKind]: … }` — exhaustive
+// against the Keystatic-derived union, so a kind cannot be missed. This replaces a
+// hand-synced copy of the adapter's list that carried a comment asking the next
+// reader to keep the two in step.
+//
+// Dependency-free beyond type-only imports, so it is unit-exercisable directly.
 import type { SaveError } from "./site-settings-format";
-
-/** The 14 in-scope kinds — must match the keystatic.config sections schema and
- *  the adapter's BLOCK_KINDS. The two scroll-story kinds are excluded by design
- *  (boat-crest's island), so content can never carry them. */
-const BLOCK_KINDS = [
-  "heroCover",
-  "deviceShelf",
-  "pullQuote",
-  "glanceGrid",
-  "issueList",
-  "stepper",
-  "statCards",
-  "principleCards",
-  "featureRows",
-  "beforeAfter",
-  "swatchTokens",
-  "annotatedImage",
-  "richText",
-  "closingLine",
-] as const;
+import type { SectionBlockKind } from "../case-studies/sections-raw";
 
 const VARIANTS = ["hero", "default", "static", "bare"] as const;
 const LAYOUTS = ["stack", "split"] as const;
@@ -65,8 +52,102 @@ const invalid = (message: string, field?: string): Fail =>
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** Validate one block. pullQuote is validated fully; other KNOWN kinds pass their
- *  value through opaquely (4b-i). An unknown kind is always rejected. */
+/* ------------------------------------------------- per-kind field validators */
+
+type Ok<T> = { ok: true; value: T };
+type Check<T> = (raw: unknown, at: string) => Ok<T> | Fail;
+
+const str: Check<string> = (raw, at) =>
+  typeof raw === "string" ? { ok: true, value: raw } : invalid(`${at} must be a string`, at);
+
+const bool: Check<boolean> = (raw, at) =>
+  typeof raw === "boolean" ? { ok: true, value: raw } : invalid(`${at} must be a boolean`, at);
+
+const arrayOf =
+  <T,>(item: Check<T>): Check<T[]> =>
+  (raw, at) => {
+    if (!Array.isArray(raw)) return invalid(`${at} must be an array`, at);
+    const out: T[] = [];
+    for (const [i, v] of raw.entries()) {
+      const res = item(v, `${at}[${i}]`);
+      if (!res.ok) return res;
+      out.push(res.value);
+    }
+    return { ok: true, value: out };
+  };
+
+/**
+ * An object with an exact field set. Every declared field is REQUIRED and every
+ * undeclared one is rejected.
+ *
+ * Required-not-optional is deliberate and is the 4(b)-i lesson at the field layer:
+ * Keystatic always writes every field, including `""` for untouched text and
+ * `false` for an untouched checkbox, so a well-formed patch always carries them
+ * all. Treating them as optional would let a form that "helpfully" strips empties
+ * past the sanitizer and silently drop keys from the file — which is exactly the
+ * byte-churn the surgical bar exists to catch. A missing key means the client
+ * dropped it, and that is a bug, not a default to fill in.
+ *
+ * Rebuilds in DECLARED order so the dump is stable no matter what key order the
+ * client sent.
+ */
+const obj =
+  <S extends Record<string, Check<unknown>>>(shape: S): Check<Record<string, unknown>> =>
+  (raw, at) => {
+    if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
+    for (const k of Object.keys(raw)) {
+      if (!Object.prototype.hasOwnProperty.call(shape, k)) {
+        return invalid(`${at}: unknown field ${k}`, at);
+      }
+    }
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(shape)) {
+      const res = shape[k](raw[k], `${at}.${k}`);
+      if (!res.ok) return res;
+      out[k] = res.value;
+    }
+    return { ok: true, value: out };
+  };
+
+/** A tier 3 kind the editor cannot edit yet: round-trip its value verbatim rather
+ *  than validate a shape no form can produce. Replaced per kind in 4(b)-ii tier 3. */
+const opaque: Check<Record<string, unknown>> = (raw, at) =>
+  isPlainObject(raw) ? { ok: true, value: raw } : invalid(`${at} must be an object`, at);
+
+/**
+ * The per-kind table. Exhaustive by construction against the Keystatic-derived
+ * union, so a 15th kind is a compile error here — no assertNever needed, because a
+ * mapped type over the union IS the exhaustiveness check. Its keys are also the
+ * runtime membership list, so there is no separate list to drift.
+ */
+const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = {
+  // tier 1 — flat strings
+  closingLine: obj({ text: str }),
+  pullQuote: obj({ text: str }),
+  richText: obj({ paragraphs: arrayOf(str) }),
+  glanceGrid: obj({ items: arrayOf(obj({ label: str, value: str })) }),
+  issueList: obj({ items: arrayOf(obj({ title: str, note: str })) }),
+  stepper: obj({ steps: arrayOf(obj({ label: str, text: str })) }),
+  // tier 2 — + the union's only boolean
+  statCards: obj({
+    heading: str,
+    stats: arrayOf(obj({ value: str, suffix: str, body: str, tag: str, highlighted: bool })),
+  }),
+  principleCards: obj({
+    heading: str,
+    subhead: str,
+    cards: arrayOf(obj({ index: str, title: str, body: str })),
+  }),
+  // tier 3 — opaque until their forms land (PR B)
+  heroCover: opaque,
+  deviceShelf: opaque,
+  featureRows: opaque,
+  beforeAfter: opaque,
+  swatchTokens: opaque,
+  annotatedImage: opaque,
+};
+
+/** Validate one block against its kind's validator. An unknown kind is rejected. */
 function sanitizeBlock(raw: unknown, at: string): { ok: true; value: SanitizedBlock } | Fail {
   if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
 
@@ -74,7 +155,10 @@ function sanitizeBlock(raw: unknown, at: string): { ok: true; value: SanitizedBl
   if (typeof discriminant !== "string") {
     return invalid(`${at}.discriminant must be a string`, at);
   }
-  if (!(BLOCK_KINDS as readonly string[]).includes(discriminant)) {
+  // hasOwnProperty, never `in`: the discriminant is untrusted, and `"constructor"
+  // in VALIDATORS` is true on any plain object. `in` would let a prototype key
+  // through as a known kind.
+  if (!Object.prototype.hasOwnProperty.call(VALIDATORS, discriminant)) {
     return invalid(`${at}: unknown block kind "${discriminant}"`, at);
   }
   if (!isPlainObject(raw.value)) {
@@ -86,20 +170,9 @@ function sanitizeBlock(raw: unknown, at: string): { ok: true; value: SanitizedBl
     }
   }
 
-  if (discriminant === "pullQuote") {
-    const v = raw.value;
-    for (const k of Object.keys(v)) {
-      if (k !== "text") return invalid(`${at}.value: unknown field ${k}`, at);
-    }
-    if (typeof v.text !== "string") {
-      return invalid(`${at}.value.text must be a string`, at);
-    }
-    return { ok: true, value: { discriminant, value: { text: v.text } } };
-  }
-
-  // 4(b)-i — a known kind the editor does not edit yet. Its value round-trips
-  // verbatim; 4(b)-ii replaces this with a per-kind validator.
-  return { ok: true, value: { discriminant, value: raw.value } };
+  const res = VALIDATORS[discriminant as SectionBlockKind](raw.value, `${at}.value`);
+  if (!res.ok) return res;
+  return { ok: true, value: { discriminant, value: res.value } };
 }
 
 /**
