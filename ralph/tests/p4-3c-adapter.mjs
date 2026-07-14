@@ -15,6 +15,11 @@
 //      always-present empties (glow/ratingChip/"" texts) -> undefined/omitted.
 //      Plus the fail-loud cases: wrong device count, missing image src,
 //      unknown discriminant, unknown variant.
+//   3. P4 4(a) — the ssg/preview modes. The DEFAULT-PIN section is the
+//      load-bearing one: adaptSections(raw) with NO mode argument must stay
+//      fail-loud, so a future default flip to "preview" cannot silently disarm
+//      the public path's protection. Preview mode is asserted separately to
+//      yield placeholders with per-block granularity.
 import { parseRich, adaptSections } from "../../lib/case-studies/adapter.ts";
 import { deepStrictEqual } from "node:assert";
 
@@ -286,6 +291,76 @@ throws("unknown discriminant -> throw", () =>
 throws("unknown variant -> throw", () =>
   adaptSections([{ variant: "wild", layout: "stack", glow: EMPTY_GLOW, blocks: [] }]),
   'unknown variant "wild"');
+
+console.log("\nP4 4(a) — the SSG DEFAULT PIN (a future default flip must fail here)");
+
+// Every fail-loud case above runs with NO mode argument. These re-assert it
+// EXPLICITLY and symmetrically: the no-arg call and the explicit ssg call must
+// behave IDENTICALLY, so `mode` defaulting to "ssg" is a pinned contract, not an
+// accident. If someone flips the default to "preview", these throw-assertions
+// fail loudly instead of the public path quietly losing its protection.
+const badDevices = heroWith([{ ...IMG }]);
+const badImage = heroWith([{ ...IMG, src: "" }, { ...IMG }]);
+
+throws("NO mode arg + 1 device -> STILL throws (default is ssg)", () => adaptSections(badDevices), "must be exactly 2");
+throws("NO mode arg + missing src -> STILL throws (default is ssg)", () => adaptSections(badImage), "image src is missing");
+throws("explicit ssg + 1 device -> throws", () => adaptSections(badDevices, { mode: "ssg" }), "must be exactly 2");
+throws("explicit ssg + missing src -> throws", () => adaptSections(badImage, { mode: "ssg" }), "image src is missing");
+check("no-arg output === explicit-ssg output on VALID content (same code path)", () =>
+  deepStrictEqual(adaptSections(raw), adaptSections(raw, { mode: "ssg" })));
+check("no-arg output === today's expected shape (the 3c contract, unchanged)", () =>
+  deepStrictEqual(adaptSections(raw), expected));
+check("an empty opts object still defaults to ssg", () => {
+  try {
+    adaptSections(badImage, {});
+    throw new Error("expected a throw");
+  } catch (e) {
+    if (!/image src is missing/.test(e.message)) throw new Error(`wrong error: ${e.message}`);
+  }
+});
+
+console.log("\nP4 4(a) — preview mode (placeholders, per-block granularity)");
+
+const PLACEHOLDER = "/images/projects/placeholder-missing.webp";
+
+check("preview + missing src -> placeholder ImgSpec, no throw", () => {
+  const out = adaptSections(badImage, { mode: "preview" });
+  const hero = out[0].blocks[0];
+  deepStrictEqual(hero.devices[0].src, PLACEHOLDER);
+  deepStrictEqual(hero.devices[0].alt, "Image not set yet");
+});
+check("preview + 1 device -> padded to the [back, front] tuple", () => {
+  const out = adaptSections(badDevices, { mode: "preview" });
+  const hero = out[0].blocks[0];
+  deepStrictEqual(hero.devices.length, 2);
+  deepStrictEqual(hero.devices[1].src, PLACEHOLDER);
+});
+check("preview + 3 devices -> truncated to exactly 2", () => {
+  const out = adaptSections(heroWith([{ ...IMG }, { ...IMG }, { ...IMG }]), { mode: "preview" });
+  deepStrictEqual(out[0].blocks[0].devices.length, 2);
+});
+check("preview leaves VALID content byte-identical to ssg (no placeholder creep)", () =>
+  deepStrictEqual(adaptSections(raw, { mode: "preview" }), adaptSections(raw, { mode: "ssg" })));
+check("preview granularity — one bad block does NOT blank its siblings", () => {
+  // A section whose FIRST block has a missing image and whose later blocks are
+  // fine: preview must render the placeholder AND keep every sibling intact.
+  const mixed = [{
+    variant: "default", layout: "stack", glow: EMPTY_GLOW,
+    blocks: [
+      { discriminant: "annotatedImage", value: { image: { ...IMG, src: "" }, scrawl: { text: "", top: "", right: "", bottom: "", left: "" }, callouts: [] } },
+      { discriminant: "pullQuote", value: { text: "I must survive." } },
+      { discriminant: "closingLine", value: { text: "So must I." } },
+    ],
+  }];
+  const out = adaptSections(mixed, { mode: "preview" });
+  deepStrictEqual(out[0].blocks.length, 3);
+  deepStrictEqual(out[0].blocks[0].image.src, PLACEHOLDER);
+  deepStrictEqual(out[0].blocks[1], { kind: "pullQuote", text: "I must survive." });
+  deepStrictEqual(out[0].blocks[2], { kind: "closingLine", text: "So must I." });
+});
+throws("preview does NOT swallow a schema mismatch (unknown kind still throws)", () =>
+  adaptSections([{ variant: "default", layout: "stack", glow: EMPTY_GLOW, blocks: [{ discriminant: "featureStory", value: {} }] }], { mode: "preview" }),
+  'unknown block kind "featureStory"');
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

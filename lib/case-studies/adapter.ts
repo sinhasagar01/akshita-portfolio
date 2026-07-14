@@ -7,13 +7,24 @@
 // `node --experimental-strip-types` (ralph/tests/p4-3c-adapter.mjs), the same
 // convention as lib/studio/slug.ts and draft-overlay.ts.
 //
-// FAIL-LOUD posture (deliberate, carried as a 3(d) flag): disk content can
-// bypass Keystatic's UI validation (hand-edited yaml, a scripted migration), and
-// the renderer indexes heroCover.devices[0]/[1] unconditionally — so a wrong
-// device count or a missing required image THROWS a descriptive error here at
-// the adapter boundary (a build/SSG failure) instead of crashing inside
-// next/image or silently dropping content. 3(d) may add a preview-placeholder
-// guard in front of this for half-authored studio drafts.
+// TWO MODES (P4 4(a)), because the same content serves two callers with opposite
+// needs:
+//
+//  - "ssg" (THE DEFAULT, and the whole public path): FAIL-LOUD. Disk content can
+//    bypass Keystatic's UI validation (hand-edited yaml, a scripted migration),
+//    and the renderer indexes heroCover.devices[0]/[1] unconditionally — so a
+//    wrong device count or a missing required image THROWS a descriptive error
+//    here at the adapter boundary. A broken public build SHOULD fail rather than
+//    ship a crash inside next/image or silently drop content.
+//  - "preview" (the studio preview surface only): each fail-loud site yields a
+//    typed PLACEHOLDER instead of throwing, so an owner mid-edit sees their
+//    work-in-progress with one clearly-marked gap rather than a blank page. The
+//    guard sits at the two failure sites (not a try/catch around a whole
+//    section) precisely so a missing image in block 5 cannot blank blocks 6-9.
+//
+// The default is "ssg" ON PURPOSE and is pinned by the unit suite: adaptSections
+// (raw) with NO mode argument must stay fail-loud, so a future default flip can
+// never silently disarm the public path's protection.
 //
 // The four 3(b) schema quirks this absorbs, plus one:
 //  1. selects are always concrete (variant/layout never undefined) — read as-is.
@@ -44,6 +55,17 @@ import type {
   Callout,
   HeroCover,
 } from "./types";
+
+/* -------------------------------------------------------------------- mode */
+
+/** "ssg" throws on unrenderable content (the public default); "preview" yields
+ *  placeholders so a half-authored studio draft still renders. */
+export type AdaptMode = "ssg" | "preview";
+
+/** The stand-in for an image the owner has not set yet. Only ever reachable in
+ *  preview mode — the ssg path throws before it can be produced. */
+const MISSING_IMAGE_SRC = "/images/projects/placeholder-missing.webp";
+const MISSING_IMAGE_ALT = "Image not set yet";
 
 /* ---------------------------------------------------------------- parseRich */
 
@@ -115,15 +137,19 @@ function richOpt(v: unknown): Rich | undefined {
 
 /* --------------------------------------------------------- shape adapters */
 
-function adaptImgSpec(v: unknown, at: string): ImgSpec {
+function adaptImgSpec(v: unknown, at: string, mode: AdaptMode): ImgSpec {
   const o = rec(v);
-  const src = str(o.src);
-  if (src === "") {
+  const rawSrc = str(o.src);
+  // GUARD SITE 1 — an unset image. ssg throws (a broken public build should
+  // fail); preview substitutes the placeholder so the rest of the block renders.
+  if (rawSrc === "" && mode === "ssg") {
     throw new Error(`${at}: image src is missing — upload an image or remove the block`);
   }
+  const src = rawSrc === "" ? MISSING_IMAGE_SRC : rawSrc;
+  const alt = rawSrc === "" ? MISSING_IMAGE_ALT : str(o.alt);
   const translateX = num(o.translateX);
   const translateY = num(o.translateY);
-  const spec: ImgSpec = { src, alt: str(o.alt) };
+  const spec: ImgSpec = { src, alt };
   const width = num(o.width);
   if (width !== undefined) spec.width = width;
   const rotate = num(o.rotate);
@@ -136,9 +162,9 @@ function adaptImgSpec(v: unknown, at: string): ImgSpec {
   return spec;
 }
 
-function adaptDeviceSpec(v: unknown, at: string): DeviceSpec {
+function adaptDeviceSpec(v: unknown, at: string, mode: AdaptMode): DeviceSpec {
   const o = rec(v);
-  const spec: DeviceSpec = adaptImgSpec(v, at);
+  const spec: DeviceSpec = adaptImgSpec(v, at, mode);
   const label = opt(o.label);
   if (label !== undefined) spec.label = label;
   const dotColor = opt(o.dotColor);
@@ -196,9 +222,11 @@ function assertNever(x: never): never {
   throw new Error(`unhandled block kind: ${String(x)}`);
 }
 
-function adaptBlock(raw: unknown, at: string): Block {
+function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
   const o = rec(raw);
   const discriminant = str(o.discriminant);
+  // An unknown discriminant throws in BOTH modes: it means the content and the
+  // schema disagree, which no placeholder can honestly represent.
   if (!(BLOCK_KINDS as readonly string[]).includes(discriminant)) {
     throw new Error(`${at}: unknown block kind "${discriminant}"`);
   }
@@ -208,12 +236,21 @@ function adaptBlock(raw: unknown, at: string): Block {
   switch (kind) {
     case "heroCover": {
       const devices = arr(v.devices).map((d, i) =>
-        adaptDeviceSpec(d, `${at}.devices[${i}]`)
+        adaptDeviceSpec(d, `${at}.devices[${i}]`, mode)
       );
+      // GUARD SITE 2 — the device tuple. ssg throws; preview pads with the
+      // placeholder (or truncates) so the hero still renders while the owner is
+      // mid-edit. HeroCover indexes [0]/[1] unconditionally, so preview MUST
+      // hand it exactly two.
       if (devices.length !== 2) {
-        throw new Error(
-          `${at}: heroCover.devices must be exactly 2 (back, front) — got ${devices.length}`
-        );
+        if (mode === "ssg") {
+          throw new Error(
+            `${at}: heroCover.devices must be exactly 2 (back, front) — got ${devices.length}`
+          );
+        }
+        const placeholder: DeviceSpec = { src: MISSING_IMAGE_SRC, alt: MISSING_IMAGE_ALT };
+        while (devices.length < 2) devices.push({ ...placeholder });
+        devices.length = 2;
       }
       const chip = rec(v.ratingChip);
       const stat = opt(chip.stat);
@@ -243,7 +280,7 @@ function adaptBlock(raw: unknown, at: string): Block {
     case "deviceShelf": {
       const block: Block = {
         kind,
-        devices: arr(v.devices).map((d, i) => adaptDeviceSpec(d, `${at}.devices[${i}]`)),
+        devices: arr(v.devices).map((d, i) => adaptDeviceSpec(d, `${at}.devices[${i}]`, mode)),
       };
       const glow = adaptGlow(v.glow);
       if (glow !== undefined) block.glow = glow;
@@ -317,7 +354,7 @@ function adaptBlock(raw: unknown, at: string): Block {
             category: str(o2.category),
             title: str(o2.title),
             body: rich(o2.body),
-            image: adaptImgSpec(o2.image, `${at}.features[${i}].image`),
+            image: adaptImgSpec(o2.image, `${at}.features[${i}].image`, mode),
           };
         }),
       };
@@ -329,8 +366,8 @@ function adaptBlock(raw: unknown, at: string): Block {
           return {
             title: str(o2.title),
             tag: str(o2.tag),
-            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`),
-            after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`),
+            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, mode),
+            after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`, mode),
             changes: arr(o2.changes).map((c): Change => {
               const o3 = rec(c);
               return { emphasis: str(o3.emphasis), rest: str(o3.rest) };
@@ -363,7 +400,7 @@ function adaptBlock(raw: unknown, at: string): Block {
         }),
       };
     case "annotatedImage": {
-      const block: Block = { kind, image: adaptImgSpec(v.image, `${at}.image`) };
+      const block: Block = { kind, image: adaptImgSpec(v.image, `${at}.image`, mode) };
       const scrawl = adaptScrawl(v.scrawl);
       if (scrawl !== undefined) block.scrawl = scrawl;
       const callouts = arr(v.callouts).map((c): Callout => {
@@ -394,10 +431,15 @@ const LAYOUTS = new Set(["stack", "split"]);
 
 /**
  * Map a project entry's raw `sections` value (as emitted by the Keystatic
- * reader) into the renderer's Section[]. Throws descriptive errors on content
- * the renderer cannot represent (see the fail-loud note in the header).
+ * reader) into the renderer's Section[].
+ *
+ * `mode` DEFAULTS TO "ssg" (fail-loud) so every public caller is protected
+ * without opting in, and so adding this option changed no existing behaviour.
+ * Only the studio preview passes "preview". Do not flip this default — the unit
+ * suite pins it precisely to stop a flip from silently disarming SSG.
  */
-export function adaptSections(raw: unknown): Section[] {
+export function adaptSections(raw: unknown, opts?: { mode?: AdaptMode }): Section[] {
+  const mode: AdaptMode = opts?.mode ?? "ssg";
   return arr(raw).map((s, i) => {
     const at = `sections[${i}]`;
     const o = rec(s);
@@ -414,7 +456,7 @@ export function adaptSections(raw: unknown): Section[] {
     const section: Section = {
       variant: variant as Section["variant"],
       layout: layout as Section["layout"],
-      blocks: arr(o.blocks).map((b, j) => adaptBlock(b, `${at}.blocks[${j}]`)),
+      blocks: arr(o.blocks).map((b, j) => adaptBlock(b, `${at}.blocks[${j}]`, mode)),
     };
     const id = opt(o.id);
     if (id !== undefined) section.id = id;

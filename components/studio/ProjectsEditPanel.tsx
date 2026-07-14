@@ -10,6 +10,7 @@
 // (its own local state, NOT part of the useDraftForm text patch), committing the
 // normalized webp blob + the yaml path to the same draft branch.
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
@@ -92,14 +93,24 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             </span>
           )}
         </div>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={cancel}
-          className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-        >
-          Cancel
-        </button>
+        <div className="flex items-center gap-1">
+          {/* P4 4(a) — the draft-preferring preview. Shows this study's draft
+              sections before publish; the public page still renders live. */}
+          <Link
+            href={`/studio/projects/${slug}/preview`}
+            className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          >
+            Preview
+          </Link>
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={cancel}
+            className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          >
+            Cancel
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-col gap-5 px-4 py-5">
