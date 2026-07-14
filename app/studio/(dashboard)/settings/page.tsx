@@ -7,9 +7,6 @@ import ProcessEditPanel from "@/components/studio/ProcessEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { ListDetailLayout } from "@/components/studio/ListDetailLayout";
 import { STUDIO_SETTINGS_SECTIONS } from "@/lib/studio/settings-sections";
-import { singletonHref } from "@/lib/keystatic-links";
-
-const settingsLink = singletonHref("siteSettings");
 
 export default async function StudioSettings() {
   const { settings } = await getStudioData();
@@ -18,9 +15,7 @@ export default async function StudioSettings() {
     return (
       <>
         <AreaHeader title="Site settings" sub="The global singleton behind the homepage." />
-        <StudioEmptyState href={settingsLink}>
-          Site settings not yet created. Open it in Keystatic to set it up.
-        </StudioEmptyState>
+        <StudioEmptyState>Site settings have not been created yet.</StudioEmptyState>
       </>
     );
   }

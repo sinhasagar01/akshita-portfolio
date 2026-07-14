@@ -117,7 +117,7 @@ export function sanitizeProjectsPatch(
 // derives the filename from it) and the human name in the yaml. orderIndex, body,
 // and heroImage are NOT accepted: orderIndex is server-assigned, body is the
 // Keystatic-owned rich content (the stub writes body: []), heroImage is uploaded
-// in Keystatic. facts is limited to the same editable subset as an edit.
+// through /studio. facts is limited to the same editable subset as an edit.
 export type ProjectCreateInput = {
   title: string;
   summary: string;

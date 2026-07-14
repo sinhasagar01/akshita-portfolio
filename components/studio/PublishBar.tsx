@@ -91,7 +91,7 @@ export default function PublishBar() {
       if (code === "invalid_url") {
         const field = json.error?.field || "a link";
         setPublishMsg(
-          `Cannot publish. The ${field} link is not a valid URL. Fix it in Keystatic, then publish.`
+          `Cannot publish. The ${field} link is not a valid URL. Fix it in Settings, then publish.`
         );
       } else if (code === "merge_conflict") {
         setPublishMsg("Could not publish. The site changed since your draft. Refresh and try again.");

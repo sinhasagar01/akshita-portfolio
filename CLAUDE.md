@@ -35,8 +35,9 @@ Every case study follows this fixed eleven-section arc.
 - Styling: Tailwind CSS
   - Tailwind v4 — never use class-[--var] bracket-bare syntax; it generates no CSS. Use bare theme utilities (text-accent-500, rounded-lg) generated from @theme, or [var(--x)] with the full var() if an arbitrary value is truly needed.
 - Animation: Motion for component motion, Lenis for smooth scrolling, GSAP for heavier scroll choreography
-- CMS and dashboard: Keystatic (open source, git-based)
-- Images: stored in the repo via Keystatic, optimized and served by Next.js image optimization
+- CMS: Keystatic supplies the content SCHEMA only (keystatic.config.ts drives the reader and the derived block-kind types). Its editing UI was retired; /studio is the sole editor. Do not re-add the Keystatic UI or @keystatic/next.
+- Dashboard and editor: /studio, a custom editor that commits to a draft branch and publishes to main
+- Images: stored in the repo, uploaded through /studio, optimized and served by Next.js image optimization
 - Hosting: Vercel Hobby tier
 - Type: free variable fonts
 
@@ -66,13 +67,13 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 - **Mobile breakpoint is 1024px, Tailwind `lg`.** The whole site goes mobile at once at `lg`. globals.css switches at max-width 1023 and min-width 1024. Never default to `md` for a two-column to stacked transition.
 
-- **/studio edits the Hero group inline, everything else deep-links to Keystatic.** The Hero panel saves to a draft branch through the owner-gated `/api/studio/save-draft` route and Publish merges the draft into main through `/api/studio/publish`, both in github mode only. Every other field group still deep-links to `/keystatic`, which is dev-only by decision (the middleware 404s it in production, /studio is the prod editor). Do not add a new write surface without an explicit decision, and before wiring a second settings form read the multi-form draft accumulation blocker in TASKS.md.
+- **/studio is the sole editor. It edits every content group inline and Keystatic's editing UI is retired.** Panels save to a draft branch through the owner-gated `/api/studio/save-draft` route (and the dedicated upload routes for images), and Publish merges the draft into main through `/api/studio/publish`, both in github mode only. Hero, About, Process, Links, and Skills each have a panel; Experience and Projects add and delete entries; case-study sections and their block images edit under `/studio/projects/<slug>/body`; the site photo, hero images, and block images upload through /studio. Do not add a new write surface without an explicit decision, and do not re-add the Keystatic UI.
 
-- **`lib/studio/data.ts` is the single READ seam for /studio, `lib/studio/commit-site-settings.ts` is the write seam.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData` plus the draft-branch state, draft-preferring for settings. The UI never touches Keystatic or the filesystem directly. Writes go through `commitSiteSettings()` behind the owner gate, with the pure transform in `lib/studio/site-settings-format.ts`.
+- **`lib/studio/data.ts` is the single READ seam for /studio, `lib/studio/commit-site-settings.ts` is the write seam.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData` plus the draft-branch state, draft-preferring for settings. Writes go through the owner-gated commit layer, with the pure transforms in `lib/studio/*-format.ts`.
 
-- **Keystatic deep-links are stable at item granularity only.** The forms are `/keystatic/collection/<name>/item/<slug>` and `/keystatic/singleton/<name>`. There is no stable URL below item level, so multiple dashboard cards sharing one singleton editor is correct, not a bug.
+- **Keystatic is schema-only.** `keystatic.config.ts` drives the reader (`createReader`, `createGitHubReader`) that parses all content, and `lib/case-studies/sections-raw.ts` derives the 14 block-kind union from it, so the config and `@keystatic/core` are load-bearing and stay. There is no Keystatic editor route any more.
 
-- **Admin surfaces sit outside the `(portfolio)` route group.** `app/studio` and `app/keystatic` live outside it, so they carry no site chrome, and each sets page-level noindex plus a robots disallow. Any new internal or admin surface follows the same placement.
+- **Admin surfaces sit outside the `(portfolio)` route group.** `app/studio` lives outside it, so it carries no site chrome, sets page-level noindex plus a robots disallow, and is owner-gated in middleware. Any new internal or admin surface follows the same placement.
 
 ## Writing rules
 

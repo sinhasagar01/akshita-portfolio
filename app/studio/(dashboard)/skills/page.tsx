@@ -2,9 +2,6 @@ import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import SkillsEditor from "@/components/studio/SkillsEditor";
-import { singletonHref } from "@/lib/keystatic-links";
-
-const skillsLink = singletonHref("skills");
 
 export default async function StudioSkills() {
   // skills is draft-preferred (SK-4): once a skills draft exists it shows here,
@@ -19,9 +16,7 @@ export default async function StudioSkills() {
       />
 
       {!skills ? (
-        <StudioEmptyState href={skillsLink}>
-          Skills not yet created. Open Skills in Keystatic to set it up.
-        </StudioEmptyState>
+        <StudioEmptyState>Skills have not been created yet.</StudioEmptyState>
       ) : (
         <SkillsEditor categories={skills.categories} />
       )}
