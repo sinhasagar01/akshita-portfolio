@@ -3,6 +3,7 @@ import GSAPProvider from "@/components/providers/GSAPProvider";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import PageLoader from "@/components/motion/PageLoader";
+import SkipLink from "@/components/layout/SkipLink";
 import CustomCursor from "@/components/ui/CustomCursor";
 import { getSiteSettings } from "@/lib/keystatic";
 import { buildSiteLinks } from "@/lib/social-links";
@@ -20,6 +21,7 @@ export default async function PortfolioLayout({
   return (
     <SmoothScrollProvider>
       <GSAPProvider>
+        <SkipLink />
         <PageLoader />
         <CustomCursor />
         <SiteHeader links={links} />

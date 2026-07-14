@@ -10,7 +10,7 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
     <>
       {/* Route-scoped warm sand background (spec A1) — see .case-study-bg in globals.css. */}
       <div aria-hidden className="case-study-bg" />
-      <main className="container-x">
+      <main id="main-content" tabIndex={-1} className="container-x outline-none">
         {study.sections.length === 0 ? (
           <section className="case-study section-card py-section relative overflow-hidden text-center">
             <p className="text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
