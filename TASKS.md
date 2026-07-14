@@ -122,9 +122,9 @@ Where those uploads go changed. The screen exports for the three migrated projec
 
 ---
 
-## Phase 6 Performance, SEO, accessibility, and launch (open)
+## Phase 6 Performance, SEO, accessibility, and launch (COMPLETE)
 
-- [ ] Core Web Vitals passing on mobile and desktop. Lab-measured GOOD on both (prod, warm cache), desktop LCP 1068ms CLS 0 FCP 304ms, mobile LCP 964ms CLS 0 FCP 196ms. Not field-confirmed (needs CrUX p75) and INP not measured, so this stays open pending real-user data.
+- [x] Core Web Vitals passing on mobile and desktop. FIELD-CONFIRMED. PageSpeed Insights (pagespeed.web.dev) shows "Passed the Core Web Vitals assessment" from real-user CrUX p75 data (LCP, INP, and CLS all in the good range) for www.akshitas.com. This is the official passing signal, not just a lab score. Backed by the earlier lab measurements (prod, warm cache), desktop LCP 1068ms CLS 0 FCP 304ms, mobile LCP 964ms CLS 0 FCP 196ms.
 - [x] Per-page titles and descriptions correct. Verified distinct per route (homepage, boat-crest, and each content study via generateMetadata with title + summary).
 - [x] Custom share image per case study. Verified each study renders its own /projects/<slug>/og image (distinct bytes, its own title + summary), 1200x630 image/png.
 - [x] Semantic markup and real alt text on every image. The owner uploaded the real screen exports with real alt through /studio and confirmed it manually. Recorded on the owner's verification.
