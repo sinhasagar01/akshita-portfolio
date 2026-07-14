@@ -235,7 +235,7 @@ Audited against the code, not from memory. Three of the four bullets this list c
 Settled, with the check that proves it.
 
 - Gate /studio itself. DONE by GH-6. middleware.ts and the (dashboard) layout both call verifyOwnerSession before anything renders, and an unauthenticated /studio returns a 307 to the login page.
-- Cache the per-request draft read. DONE by GH-8. readDraftSettingsCached wraps the GitHub read in unstable_cache with a 45 second TTL and a revalidate tag, and the two write routes invalidate it.
+- Cache the per-request draft read. DONE by GH-8. readDraftSettingsCached wraps the GitHub read in unstable_cache with a 45 second TTL and a revalidate tag, and all seven write routes invalidate it (save-draft, publish, discard, create-entry, delete-entry, and the two upload routes).
 - Durable cross-instance login throttle. DONE by GH-7. lib/studio/login-throttle.ts backs the same policy with Upstash over its REST API and falls back to the in-memory counter, logged, when the store is absent or erroring.
 
 Still open, and both are ops rather than code.
