@@ -79,7 +79,7 @@ Superseded. The fifteen generic block types and CaseStudyBlockRenderer above wer
 
 Still pending inside content. Real outcome numbers for Fosfor AI and Fosfor Data Profiling, and the real portrait plus real screen exports.
 
-Where those uploads go changed. The screen exports for the three migrated projects go through /studio now, NOT Keystatic, which is locked out of those files because it rewrites them destructively (see the case study editor section below). The portrait is the site-settings photo and is still a Keystatic field.
+Where those uploads go changed. The screen exports for the three migrated projects go through /studio now, NOT Keystatic, which is locked out of those files because it rewrites them destructively (see the case study editor section below). The portrait is the site-settings photo, now uploadable through /studio (#64), the last field to move before Keystatic was retired (#65).
 
 ### Content gaps (surfaced by /studio)
 
@@ -133,23 +133,38 @@ Where those uploads go changed. The screen exports for the three migrated projec
 - [ ] Contact form endpoint set (NEXT_PUBLIC_CONTACT_FORM_ENDPOINT still a placeholder)
 - [x] metadataBase and NEXT_PUBLIC_SITE_URL wired to https://www.akshitas.com
 - [x] Domain configured in Vercel, canonical host settled as www.akshitas.com with apex 308 redirect
-- [ ] Production Keystatic mode switched to github
+- [ ] Studio prod env vars set in Vercel (STUDIO_WRITE_MODE=github plus the three secrets, see the prod-readiness section). The old Keystatic github switch is obsolete now that Keystatic is retired.
 
 ---
 
 ## Open items, the real blockers
 
-- Domain is configured in Vercel. The canonical host is www.akshitas.com, with the apex redirecting to the www host. The remaining launch steps are the Keystatic github switch and the contact form endpoint.
+- Domain is configured in Vercel. The canonical host is www.akshitas.com, with the apex redirecting to the www host. The remaining launch steps are the /studio prod env vars (see the prod-readiness section) and the contact form endpoint.
 - Real outcome numbers for Fosfor AI and Fosfor Data Profiling.
 - Contact form endpoint (Formspree or Web3Forms) and the env var.
-- Real portrait and real screen exports uploaded through Keystatic.
+- Real portrait and real screen exports, uploaded through /studio (Keystatic retired).
 - Tune the faint heading and backdrop alphas against the real cream token.
 
 ---
 
-## /studio read-only content dashboard (shipped)
+## The /studio arc (COMPLETE)
 
-Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable content and deep-links out to the exact Keystatic editor, and never writes. Sidebar and section-card layout. The mockup is docs/studio/studio-dashboard-mockup.html.
+The custom editor is done. /studio is the sole content editor and the second CMS is gone. Every element of the three content case studies, and every site and homepage field, edits from one owner-gated dashboard that commits to a draft branch and publishes to main by merge. boat-crest is the exception and stays bespoke by decision, rendered from its hand-authored TS object, not dashboard-edited.
+
+The milestones, in order, each proven before the next began.
+
+- The read-only dashboard. A dashboard that surfaced reader-readable content and deep-linked to Keystatic for edits. Superseded by the write path below.
+- The write path (GH-1 through GH-12). The owner-gated commit layer, the login gate, the draft branch, publish-as-merge, the durable login throttle, and the production file-tracing fix.
+- Renderer convergence (the COMPLETE section below). One component set renders all four case studies, boat-crest from its hand-authored TS object and the three content studies from their sections through the adapter.
+- The case study editor (phase 4, the section below). Draft preview, the sections write seam, all 14 block-kind forms, section and block add and remove and reorder, and content-addressed block image upload.
+- The site photo upload (#64). The last Keystatic-only field, given a /studio writer, which was the one gap gating the retirement.
+- The Keystatic retirement (#65). The editing UI and API deleted, the moot guards removed, Keystatic kept as the content SCHEMA only (the reader parses all content through keystatic.config.ts and sections-raw.ts derives the 14 block-kind union from it, so the config and @keystatic/core stay, and the body field stays because createReader throws without it).
+
+What remains is content and polish, not architecture. The two carried-forward follow-ups (orphan block-image GC and a confirm on section remove) and the pending content (the real portrait and screen exports, now uploadable through /studio, plus the outcome numbers) are the open work. The sections below are the detailed record, and a few describe superseded early states.
+
+## /studio read-only content dashboard (shipped, later superseded by the write path)
+
+Custom editorial dashboard at /studio. Read-only in this first version. It surfaced Reader-readable content and deep-linked out to the Keystatic editor, and never wrote. Sidebar and section-card layout. The mockup is docs/studio/studio-dashboard-mockup.html.
 
 - Areas. /studio (Homepage map), /studio/projects, /studio/experience, /studio/skills, /studio/settings. All read through lib/studio/data.ts, a cache()-wrapped getHomePageData that is the single content-access seam.
 - Deep-links via lib/keystatic-links.ts. Homepage Hero, About, and Process all resolve to the one siteSettings singleton, because Keystatic has no sub-item URLs. That is by design.
@@ -222,9 +237,9 @@ The SYSTEM is complete. Everything below is content, not a blocker, and the step
 1. Case-study body editing. SETTLED for the three content projects. The renderer convergence removed the rendering split, so all four studies share one component set, and the step 4 editor made the data editable, images included. What survives is a DATA split, not a renderer one. The three content projects render from their Keystatic `sections`, which /studio now edits end to end.
 
    boat-crest stays bespoke and is not dashboard-edited, the locked decision. It renders from the hand-authored TS object in lib/case-studies/boat-crest.ts through its literal route, so editing its Keystatic item does nothing to the live page. Two residual items belong to that decision rather than to body editing. Its Keystatic projects item is a misleading surface that edits nothing, worth removing or labelling when /keystatic retires. And its two scroll-story blocks (featureStory, beforeAfterStory) are deliberately excluded from the sections schema, so they are the one thing a content project cannot express. They stay boat-crest's island because they need statically-imported assets with build-time dimensions, which a content-path image cannot supply.
-2. The three In code homepage sections (Hero facets, Process stage visuals, Contact form steps) are code-managed and shown as non-editable cards. They are the first candidates if and when we migrate hand-authored content into Keystatic.
+2. The three In code homepage sections (Hero facets, Process stage visuals, Contact form steps) are code-managed and shown as non-editable cards. They are the first candidates if and when we make hand-authored content editable, which would mean a /studio panel now that Keystatic is retired.
 3. /studio search is a non-functional placeholder. A client-side label filter is the near-term fast-follow. Search over field values needs a content index and is deferred.
-4. /studio B, the inline editing write path, SHIPPED. Saves go through the owner-gated save-draft route to the draft branch and Publish merges the draft into main through the publish route, both in github mode, with the pure transform in lib/studio/site-settings-format.ts. The P1 fs write seam (lib/studio/save-site-settings.ts) was removed as superseded, dev editing happens in Keystatic. All field groups now edit inline. Hero, About, Process, Links, and Skills each have their own panel, and Experience and Projects add and delete entries through the create and delete foundation (F-1 write primitives, F-2 studio draft overlay, F-3 guarded create and delete, items 13 and 11). Links (item 10) migrated its fixed url fields to an editable array in the same singleton-array pattern as Skills.
+4. /studio B, the inline editing write path, SHIPPED. Saves go through the owner-gated save-draft route to the draft branch and Publish merges the draft into main through the publish route, both in github mode, with the pure transform in lib/studio/site-settings-format.ts. The P1 fs write seam (lib/studio/save-site-settings.ts) was removed as superseded. All field groups now edit inline. Hero, About, Process, Links, and Skills each have their own panel, and Experience and Projects add and delete entries through the create and delete foundation (F-1 write primitives, F-2 studio draft overlay, F-3 guarded create and delete, items 13 and 11). Links (item 10) migrated its fixed url fields to an editable array in the same singleton-array pattern as Skills.
 
    Two polish follow-ups are done. The object-array editors (Links, Skills) no longer commit a fully-blank row to the draft, because buildCommitted and isDirty both drop empty items now, matching the About and Process string-array editors (PR 43 for Links, PR 44 for Skills). And the sidebar Projects and Experience counts live-update on add and remove through a StudioCountsProvider seeded from the server counts, instead of going stale until a hard reload (PR 45). Image upload is done too, for the project heroImage (040dbfb, #48) and for case-study block images (9f31470, #61), so no fork remains here.
 
