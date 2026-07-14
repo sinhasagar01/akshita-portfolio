@@ -20,7 +20,7 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, ItemRows } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, ReadOnlyImage, ItemRows } from "./fields";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
   value: RawValue<K>;
@@ -302,6 +302,212 @@ const PrincipleCardsForm: ComponentType<BlockFormProps<"principleCards">> = ({
   </>
 );
 
+/* ------------------------------------------------------------ tier 3 forms */
+
+type RawImg = RawValue<"annotatedImage">["image"];
+type RawDevice = RawValue<"deviceShelf">["devices"][number];
+
+/**
+ * The image geometry shared by every image-bearing kind: a READ-ONLY src, an
+ * editable alt, and the five nullable numbers.
+ *
+ * `src` has no input and no writer — the only thing that renders it is
+ * ReadOnlyImage, which cannot emit one. `alt` is editable on purpose: it is text,
+ * it is real accessibility work, and it is independent of the binary.
+ */
+function ImgSpecFields<T extends RawImg>({
+  value,
+  set,
+  onBlur,
+  focusRef,
+  imageLabel = "Image",
+}: {
+  value: T;
+  set: (next: T) => void;
+  onBlur?: () => void;
+  focusRef?: (el: HTMLElement | null) => void;
+  imageLabel?: string;
+}) {
+  return (
+    <>
+      <ReadOnlyImage label={imageLabel} src={value.src} />
+      <TextField
+        label="Alt text"
+        value={value.alt}
+        onChange={(alt) => set({ ...value, alt })}
+        onBlur={onBlur}
+        inputRef={focusRef}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} />
+        <NumberField label="Rotate, deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} />
+        <NumberField label="Translate X, px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} />
+        <NumberField label="Translate Y, px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} />
+        <NumberField label="Stacking order" value={value.z} onChange={(z) => set({ ...value, z })} onBlur={onBlur} />
+      </div>
+    </>
+  );
+}
+
+function DeviceFields({
+  value,
+  set,
+  onBlur,
+  focusRef,
+}: {
+  value: RawDevice;
+  set: (next: RawDevice) => void;
+  onBlur?: () => void;
+  focusRef?: (el: HTMLElement | null) => void;
+}) {
+  return (
+    <>
+      <ImgSpecFields value={value} set={set} onBlur={onBlur} focusRef={focusRef} imageLabel="Screen" />
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Theme label" value={value.label} onChange={(label) => set({ ...value, label })} onBlur={onBlur} />
+        <TextField label="Dot colour, hex" value={value.dotColor} onChange={(dotColor) => set({ ...value, dotColor })} onBlur={onBlur} />
+      </div>
+    </>
+  );
+}
+
+/** The glow word — the same shape as the section shell's own glow, one level down. */
+function GlowFields<T extends { text: string; top: string; right: string; bottom: string; left: string; size: string }>({
+  value,
+  set,
+  onBlur,
+}: {
+  value: T;
+  set: (next: T) => void;
+  onBlur?: () => void;
+}) {
+  return (
+    <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+      <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+        Glow word (optional)
+      </span>
+      <div className="flex flex-col gap-2">
+        <TextField label="Text" value={value.text} onChange={(text) => set({ ...value, text })} onBlur={onBlur} />
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Top (CSS)" value={value.top} onChange={(top) => set({ ...value, top })} onBlur={onBlur} />
+          <TextField label="Right (CSS)" value={value.right} onChange={(right) => set({ ...value, right })} onBlur={onBlur} />
+          <TextField label="Bottom (CSS)" value={value.bottom} onChange={(bottom) => set({ ...value, bottom })} onBlur={onBlur} />
+          <TextField label="Left (CSS)" value={value.left} onChange={(left) => set({ ...value, left })} onBlur={onBlur} />
+        </div>
+        <TextField label="Size (CSS)" value={value.size} onChange={(size) => set({ ...value, size })} onBlur={onBlur} />
+      </div>
+    </div>
+  );
+}
+
+const emptyDevice = (): RawDevice => ({
+  src: null,
+  alt: "",
+  width: null,
+  rotate: null,
+  translateX: null,
+  translateY: null,
+  z: null,
+  label: "",
+  dotColor: "",
+});
+
+const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, onChange, onBlur }) => (
+  <>
+    <ItemRows
+      items={value.devices}
+      onChange={(devices) => onChange({ ...value, devices })}
+      empty={emptyDevice}
+      addLabel="Add device"
+      itemNoun="Device"
+      rowLabel={(d, i) => d.label.trim() || `Device ${i + 1}`}
+    >
+      {({ item, set, focusRef }) => (
+        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} />
+      )}
+    </ItemRows>
+    <NumberField
+      label="Minimum height, px"
+      value={value.minHeight}
+      onChange={(minHeight) => onChange({ ...value, minHeight })}
+      onBlur={onBlur}
+    />
+    <GlowFields value={value.glow} set={(glow) => onChange({ ...value, glow })} onBlur={onBlur} />
+  </>
+);
+
+const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, onChange, onBlur }) => (
+  <ItemRows
+    items={value.features}
+    onChange={(features) => onChange({ ...value, features })}
+    empty={() => ({
+      index: "",
+      category: "",
+      title: "",
+      body: "",
+      image: { src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null },
+    })}
+    addLabel="Add feature"
+    itemNoun="Feature"
+    rowLabel={(f, i) => f.title.trim() || `Feature ${i + 1}`}
+  >
+    {({ item, set, focusRef }) => (
+      <>
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Index" value={item.index} onChange={(index) => set({ ...item, index })} onBlur={onBlur} inputRef={focusRef} />
+          <TextField label="Category" value={item.category} onChange={(category) => set({ ...item, category })} onBlur={onBlur} />
+        </div>
+        <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} />
+        <TextArea label="Body — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
+        <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} />
+      </>
+    )}
+  </ItemRows>
+);
+
+const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur }) => (
+  <>
+    <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} />
+    <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+      <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+        Scrawl (optional)
+      </span>
+      <div className="flex flex-col gap-2">
+        <TextArea label="Text" value={value.scrawl.text} onChange={(text) => onChange({ ...value, scrawl: { ...value.scrawl, text } })} onBlur={onBlur} rows={2} />
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Top (CSS)" value={value.scrawl.top} onChange={(top) => onChange({ ...value, scrawl: { ...value.scrawl, top } })} onBlur={onBlur} />
+          <TextField label="Right (CSS)" value={value.scrawl.right} onChange={(right) => onChange({ ...value, scrawl: { ...value.scrawl, right } })} onBlur={onBlur} />
+          <TextField label="Bottom (CSS)" value={value.scrawl.bottom} onChange={(bottom) => onChange({ ...value, scrawl: { ...value.scrawl, bottom } })} onBlur={onBlur} />
+          <TextField label="Left (CSS)" value={value.scrawl.left} onChange={(left) => onChange({ ...value, scrawl: { ...value.scrawl, left } })} onBlur={onBlur} />
+        </div>
+      </div>
+    </div>
+    <ItemRows
+      items={value.callouts}
+      onChange={(callouts) => onChange({ ...value, callouts })}
+      empty={() => ({ title: "", note: "", top: "", right: "", bottom: "", left: "" })}
+      addLabel="Add callout"
+      itemNoun="Callout"
+      rowLabel={(c, i) => c.title.trim() || `Callout ${i + 1}`}
+    >
+      {({ item, set, focusRef }) => (
+        <>
+          <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
+          <TextField label="Note" value={item.note} onChange={(note) => set({ ...item, note })} onBlur={onBlur} />
+          {/* CSS-value text, not numbers — plain strings, so the empties rule
+              covers them and the null rule does not apply. */}
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Top (CSS)" value={item.top} onChange={(top) => set({ ...item, top })} onBlur={onBlur} />
+            <TextField label="Right (CSS)" value={item.right} onChange={(right) => set({ ...item, right })} onBlur={onBlur} />
+            <TextField label="Bottom (CSS)" value={item.bottom} onChange={(bottom) => set({ ...item, bottom })} onBlur={onBlur} />
+            <TextField label="Left (CSS)" value={item.left} onChange={(left) => set({ ...item, left })} onBlur={onBlur} />
+          </div>
+        </>
+      )}
+    </ItemRows>
+  </>
+);
+
 /* ---------------------------------------------------------------- the table */
 
 export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
@@ -324,12 +530,13 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
     label: (v) => firstLine(v.heading, `Principle cards — ${v.cards.length} cards`),
     Form: PrincipleCardsForm,
   },
-  // tier 3 — no Form yet (PR B). Preserved untouched by the panel and round-tripped
-  // opaquely by the sanitizer, exactly as every non-pullQuote kind was in 4(b)-i.
+  // tier 3
+  // still no Form (later in PR B) — preserved untouched by the panel, round-tripped
+  // opaquely by the sanitizer.
   heroCover: { label: (v) => firstLine(v.title, "Hero cover") },
-  deviceShelf: { label: () => "Device shelf" },
-  featureRows: { label: (v) => `Feature rows — ${v.features.length} features` },
+  deviceShelf: { label: (v) => `Device shelf — ${v.devices.length} devices`, Form: DeviceShelfForm },
+  featureRows: { label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
   beforeAfter: { label: (v) => `Before / after — ${v.pairs.length} pairs` },
   swatchTokens: { label: (v) => `Swatch tokens — ${v.groups.length} groups` },
-  annotatedImage: { label: () => "Annotated image" },
+  annotatedImage: { label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"), Form: AnnotatedImageForm },
 };

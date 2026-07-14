@@ -107,6 +107,13 @@ const EDITS = {
   stepper: (v) => (v.steps[0].text = "EDITED step text"),
   statCards: (v) => (v.stats[0].body = "EDITED stat body with **bold**."),
   principleCards: (v) => (v.cards[0].title = "EDITED card title"),
+  // tier 3 — each edits a TEXT field on a block that also carries nulls and image
+  // srcs, so hazards 1 and 2 ride on the same assertion.
+  deviceShelf: (v) => (v.devices[0].alt = "EDITED alt text"),
+  featureRows: (v) => (v.features[0].title = "EDITED feature title"),
+  annotatedImage: (v) => (v.callouts[0].note = "EDITED callout note"),
+  heroCover: (v) => (v.title = "EDITED hero title"),
+  beforeAfter: (v) => (v.pairs[0].title = "EDITED pair title"),
 };
 
 console.log("the surgical bar — one field of one block, on the real files");
@@ -195,6 +202,124 @@ for (const slug of SLUGS) {
     });
   }
 }
+
+/* ----------------------------------- hazard 1: nulls round-trip AS NULL */
+
+console.log("\nhazard 1 — nulls stay null (not '' and not 0)");
+
+/** Walk every leaf and collect `path -> null` for each null in the doc. */
+function nullPaths(v, at = "", out = []) {
+  if (v === null) out.push(at);
+  else if (Array.isArray(v)) v.forEach((x, i) => nullPaths(x, `${at}[${i}]`, out));
+  else if (v && typeof v === "object") for (const k of Object.keys(v)) nullPaths(v[k], `${at}.${k}`, out);
+  return out;
+}
+
+for (const slug of SLUGS) {
+  const raw = fileOf(slug);
+  const sections = readSections(raw);
+  const before = nullPaths(sections);
+
+  check(`${slug}: the file carries nulls at all (else this proves nothing)`, () => {
+    if (before.length === 0) throw new Error("no nulls in this file");
+  });
+
+  // Edit a TEXT field on a null-bearing block; every null must survive untouched.
+  const at = find(sections, "deviceShelf");
+  if (at) {
+    check(`${slug}: editing a sibling text field leaves all ${before.length} nulls NULL`, () => {
+      const [i, j] = at;
+      const after = roundTrip(raw, (secs) => (secs[i].blocks[j].value.devices[0].alt = "NULL PROBE"));
+      const paths = nullPaths(load(after).sections);
+      if (JSON.stringify(paths) !== JSON.stringify(before)) {
+        const gone = before.filter((p) => !paths.includes(p));
+        throw new Error(`null set changed; ${gone.length} coerced away, e.g. ${gone[0]}`);
+      }
+      // and they are literally `null` in the bytes, not '' or 0
+      if (!/rotate: null/.test(after)) throw new Error("`rotate: null` no longer in the bytes");
+    });
+  }
+}
+
+check("the sanitizer REJECTS '' where a number|null belongs (a coercing form)", () => {
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.devices[0].rotate = "";
+  const res = sanitizeSectionsPatch(sections);
+  if (res.ok) throw new Error("ACCEPTED '' for a number|null");
+  if (!res.error.message.includes("must be a number or null")) throw new Error(res.error.message);
+});
+
+check("the sanitizer REJECTS 0-for-null coercion being undetectable (0 is a real value)", () => {
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.devices[0].rotate = 0;
+  const res = sanitizeSectionsPatch(sections);
+  // 0 is legitimately a number, so the sanitizer accepts it — the surgical bar is
+  // what catches an unintended 0, which is why hazard 1 needs the byte-diff above.
+  if (!res.ok) throw new Error("rejected a legitimate 0");
+});
+
+check("the sanitizer REJECTS NaN dressed as a number", () => {
+  // NaN cannot cross the wire as NaN (JSON.stringify(NaN) is null), so this guards
+  // the in-process path and documents that .nan could never reach the yaml.
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.minHeight = NaN;
+  const res = sanitizeSectionsPatch(sections);
+  if (res.ok) throw new Error("ACCEPTED NaN");
+  if (!res.error.message.includes("finite")) throw new Error(res.error.message);
+});
+
+/* -------------------------------- hazard 2: image srcs round-trip untouched */
+
+console.log("\nhazard 2 — image srcs are never disturbed by a text edit");
+
+const srcPaths = (v, at = "", out = []) => {
+  if (Array.isArray(v)) v.forEach((x, i) => srcPaths(x, `${at}[${i}]`, out));
+  else if (v && typeof v === "object")
+    for (const k of Object.keys(v)) {
+      if (k === "src") out.push(`${at}.src=${v[k]}`);
+      else srcPaths(v[k], `${at}.${k}`, out);
+    }
+  return out;
+};
+
+const IMAGE_BEARING = [
+  ["deviceShelf", (v) => (v.devices[0].alt = "SRC PROBE")],
+  ["featureRows", (v) => (v.features[0].title = "SRC PROBE")],
+  ["annotatedImage", (v) => (v.callouts[0].note = "SRC PROBE")],
+  ["heroCover", (v) => (v.title = "SRC PROBE")],
+  ["beforeAfter", (v) => (v.pairs[0].title = "SRC PROBE")],
+];
+
+for (const slug of SLUGS) {
+  const raw = fileOf(slug);
+  const sections = readSections(raw);
+  const before = srcPaths(sections);
+  for (const [kind, mutate] of IMAGE_BEARING) {
+    const at = find(sections, kind);
+    if (!at) continue;
+    check(`${slug} / ${kind}: a text edit leaves all ${before.length} image srcs byte-identical`, () => {
+      const [i, j] = at;
+      const after = roundTrip(raw, (secs) => mutate(secs[i].blocks[j].value));
+      const now = srcPaths(load(after).sections);
+      if (JSON.stringify(now) !== JSON.stringify(before)) throw new Error("an image src changed");
+    });
+  }
+}
+
+check("the sanitizer REJECTS '' for an image src (null is how unset is spelled)", () => {
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.devices[0].src = "";
+  const res = sanitizeSectionsPatch(sections);
+  if (res.ok) throw new Error("ACCEPTED '' for an image src");
+});
 
 /* ------------------------------------------------- the per-kind sanitizer */
 

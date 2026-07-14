@@ -63,6 +63,39 @@ const str: Check<string> = (raw, at) =>
 const bool: Check<boolean> = (raw, at) =>
   typeof raw === "boolean" ? { ok: true, value: raw } : invalid(`${at} must be a boolean`, at);
 
+/**
+ * `number | null` — the tier-3 null gate, and the counterpart to the empties rule.
+ *
+ * NULL IS A VALUE HERE, not an absence: the file carries `rotate: -6` on one device
+ * and `rotate: null` on its sibling (106 nulls across the three case studies). So
+ * this accepts a finite number or an explicit null, and REJECTS "" — which is what
+ * catches a form that renders null as an empty string and saves the string back,
+ * silently changing content the owner never touched. NaN and Infinity are rejected
+ * too: js-yaml would dump them as `.nan`/`.inf`, which the schema cannot hold.
+ */
+const numOrNull: Check<number | null> = (raw, at) => {
+  if (raw === null) return { ok: true, value: null };
+  if (typeof raw !== "number") return invalid(`${at} must be a number or null`, at);
+  if (!Number.isFinite(raw)) return invalid(`${at} must be a finite number`, at);
+  return { ok: true, value: raw };
+};
+
+/**
+ * An image `src`: a path, or null for "no image set".
+ *
+ * "" IS REJECTED, and that is the point. The schema types this `string | null`,
+ * which means null is how Keystatic represents an unset image — and no `src: ''`
+ * exists in any real file (all 16 are real paths). So an empty string can only
+ * come from a form that coerced a null, which is precisely the hazard this gate
+ * exists to catch. Same posture as numOrNull.
+ */
+const imageSrc: Check<string | null> = (raw, at) => {
+  if (raw === null) return { ok: true, value: null };
+  if (typeof raw !== "string") return invalid(`${at} must be a string or null`, at);
+  if (raw === "") return invalid(`${at} must be a path or null, never ""`, at);
+  return { ok: true, value: raw };
+};
+
 const arrayOf =
   <T,>(item: Check<T>): Check<T[]> =>
   (raw, at) => {
@@ -115,6 +148,45 @@ const opaque: Check<Record<string, unknown>> = (raw, at) =>
   isPlainObject(raw) ? { ok: true, value: raw } : invalid(`${at} must be an object`, at);
 
 /**
+ * An array whose length the schema FIXES. heroCover.devices is
+ * `validation: { length: { min: 2, max: 2 } }`, and the adapter re-validates it
+ * defensively when narrowing to its [DeviceSpec, DeviceSpec] tuple — so a save
+ * carrying three devices would pass Keystatic's reader on write and then throw at
+ * SSG, breaking the public build. Enforced here, where it fails loudly on the way
+ * in instead.
+ */
+const arrayOfLen = <T,>(n: number, item: Check<T>): Check<T[]> => {
+  const inner = arrayOf(item);
+  return (raw, at) => {
+    const res = inner(raw, at);
+    if (!res.ok) return res;
+    if (res.value.length !== n) return invalid(`${at} must have exactly ${n} items`, at);
+    return res;
+  };
+};
+
+/* --------------------------------------------- shared tier-3 field shapes
+ * Declared in SCHEMA ORDER, which is load-bearing: `obj` rebuilds in declared
+ * order, so a shape declared out of order would re-key every block it touches and
+ * churn the file. Disk is the reference (src, alt, width, rotate, translateX,
+ * translateY, z, then label, dotColor).                                          */
+
+const IMG_SPEC = {
+  src: imageSrc,
+  alt: str,
+  width: numOrNull,
+  rotate: numOrNull,
+  translateX: numOrNull,
+  translateY: numOrNull,
+  z: numOrNull,
+} as const;
+
+const imgSpec = obj(IMG_SPEC);
+const deviceSpec = obj({ ...IMG_SPEC, label: str, dotColor: str });
+/** The same shape as the section shell's own glow, one level down. */
+const glowWord = obj({ text: str, top: str, right: str, bottom: str, left: str, size: str });
+
+/**
  * The per-kind table. Exhaustive by construction against the Keystatic-derived
  * union, so a 15th kind is a compile error here — no assertNever needed, because a
  * mapped type over the union IS the exhaustiveness check. Its keys are also the
@@ -138,13 +210,22 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
     subhead: str,
     cards: arrayOf(obj({ index: str, title: str, body: str })),
   }),
-  // tier 3 — opaque until their forms land (PR B)
+  // tier 3
+  deviceShelf: obj({ devices: arrayOf(deviceSpec), glow: glowWord, minHeight: numOrNull }),
+  featureRows: obj({
+    features: arrayOf(obj({ index: str, category: str, title: str, body: str, image: imgSpec })),
+  }),
+  annotatedImage: obj({
+    image: imgSpec,
+    scrawl: obj({ text: str, top: str, right: str, bottom: str, left: str }),
+    // The offsets are CSS-value TEXT ("10%"), not numbers — so they are plain
+    // strings covered by the empties rule, not the null rule.
+    callouts: arrayOf(obj({ title: str, note: str, top: str, right: str, bottom: str, left: str })),
+  }),
+  // still opaque until their forms land later in PR B
   heroCover: opaque,
-  deviceShelf: opaque,
-  featureRows: opaque,
   beforeAfter: opaque,
   swatchTokens: opaque,
-  annotatedImage: opaque,
 };
 
 /** Validate one block against its kind's validator. An unknown kind is rejected. */

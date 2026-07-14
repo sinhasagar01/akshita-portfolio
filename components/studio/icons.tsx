@@ -72,6 +72,16 @@ export function IconCode(props: IconProps) {
   );
 }
 
+export function IconImage(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-4.5-4.5L7 21" />
+    </Icon>
+  );
+}
+
 export function IconLayers(props: IconProps) {
   return (
     <Icon {...props}>
