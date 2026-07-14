@@ -13,6 +13,7 @@
 // So the name is a hash of the NORMALIZED bytes: it depends on the image and nothing
 // else. These assert the properties that buys.
 import { createHash } from "node:crypto";
+import { COMPARE_FILE_CAP } from "../../lib/studio/github-commit.ts";
 import {
   blockImageHash,
   blockImageYamlValue,
@@ -106,6 +107,31 @@ for (const [label, v] of [
     if (blockImageBlobPathFromValue(v) !== null) throw new Error(`mapped to ${blockImageBlobPathFromValue(v)}`);
   });
 }
+
+console.log("\nthe publish gate's truncation backstop (review finding)");
+
+// GitHub caps a compare's files[] at COMPARE_FILE_CAP and flags it nowhere, so
+// hitting the cap exactly is the only signal. Before 4(b)-iv a truncated list cost
+// a stale badge in F-2's overlay; now it drives the publish gate, where it would
+// leave a changed project UNVALIDATED — the exact wedge the gate exists to prevent.
+// The cap is unreachable with this repo's content, so the derivation is asserted
+// directly rather than by provoking GitHub. F-1's getTreeRecursive carries the same
+// backstop for the same reason.
+const truncatedOf = (n) => n >= COMPARE_FILE_CAP;
+
+check("the cap is GitHub's documented compare limit", () => {
+  if (COMPARE_FILE_CAP !== 300) throw new Error(`cap is ${COMPARE_FILE_CAP}, expected 300`);
+});
+
+check("a normal draft is NOT flagged truncated", () => {
+  // a real studio draft touches a handful of files
+  if (truncatedOf(1) || truncatedOf(12) || truncatedOf(299)) throw new Error("false positive");
+});
+
+check("a list AT the cap IS flagged truncated (publish then refuses)", () => {
+  if (!truncatedOf(300)) throw new Error("the cap is not detected — a project could go unvalidated");
+  if (!truncatedOf(301)) throw new Error("above the cap not detected");
+});
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

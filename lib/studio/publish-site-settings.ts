@@ -105,6 +105,19 @@ export async function publishSiteSettings(): Promise<PublishResult> {
         error: { code: "read_failed", message: "could not compare the draft against main" },
       };
     }
+    // A truncated file list would leave a changed project UNVALIDATED, which is
+    // precisely the wedge this gate exists to catch — so it refuses rather than
+    // validating a subset and calling it a pass. F-1's getTreeRecursive takes the
+    // same stance for the same reason.
+    if (cmp.truncated) {
+      return {
+        ok: false,
+        error: {
+          code: "read_failed",
+          message: "too many changed files to validate the draft; publish in smaller batches",
+        },
+      };
+    }
     for (const file of cmp.files) {
       const m = /^content\/projects\/([a-z0-9-]+)\.yaml$/.exec(file.filename);
       if (!m || file.status === "removed") continue;

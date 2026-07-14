@@ -114,11 +114,30 @@ export type CompareFileStatus =
  * branch-level "unpublished changes" signal (CE-3a: aheadBy > 0) and, via the
  * per-file status, the draft add/delete overlay (F-2).
  */
+/** GitHub returns at most this many files from a compare, and says so nowhere in
+ *  the payload — hitting it exactly is the only signal available. */
+export const COMPARE_FILE_CAP = 300;
+
 export async function compareBranches(
   base: string,
   head: string
 ): Promise<
-  | { aheadBy: number; status: string; files: { filename: string; status: CompareFileStatus }[] }
+  | {
+      aheadBy: number;
+      status: string;
+      files: { filename: string; status: CompareFileStatus }[];
+      /**
+       * GitHub caps a compare's `files` at COMPARE_FILE_CAP, with no flag saying so.
+       * Surfaced rather than thrown, because the two callers need OPPOSITE postures:
+       * F-2's draft overlay fails SAFE (a truncated list costs a stale badge, so it
+       * degrades), while the publish gate must fail CLOSED (a truncated list means a
+       * project goes unvalidated, which is the wedge it exists to prevent). Same
+       * reasoning as F-1's getTreeRecursive, which throws because a partial tree
+       * must never drive a delete — a partial list must never drive a correctness
+       * decision either.
+       */
+      truncated: boolean;
+    }
   | null
 > {
   const res = await fetch(
@@ -134,7 +153,12 @@ export async function compareBranches(
         status: f.status,
       }))
     : [];
-  return { aheadBy: json.ahead_by as number, status: json.status as string, files };
+  return {
+    aheadBy: json.ahead_by as number,
+    status: json.status as string,
+    files,
+    truncated: files.length >= COMPARE_FILE_CAP,
+  };
 }
 
 /**
