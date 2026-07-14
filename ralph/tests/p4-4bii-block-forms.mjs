@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import { load } from "js-yaml";
 import { serializeProjectSections, readSections } from "../../lib/studio/sections-serialize.ts";
 import { sanitizeSectionsPatch } from "../../lib/studio/sections-format.ts";
+import { adaptSections } from "../../lib/case-studies/adapter.ts";
 
 let failures = 0;
 function check(name, fn) {
@@ -107,6 +108,13 @@ const EDITS = {
   stepper: (v) => (v.steps[0].text = "EDITED step text"),
   statCards: (v) => (v.stats[0].body = "EDITED stat body with **bold**."),
   principleCards: (v) => (v.cards[0].title = "EDITED card title"),
+  // tier 3 — each edits a TEXT field on a block that also carries nulls and image
+  // srcs, so hazards 1 and 2 ride on the same assertion.
+  deviceShelf: (v) => (v.devices[0].alt = "EDITED alt text"),
+  featureRows: (v) => (v.features[0].title = "EDITED feature title"),
+  annotatedImage: (v) => (v.callouts[0].note = "EDITED callout note"),
+  heroCover: (v) => (v.title = "EDITED hero title"),
+  beforeAfter: (v) => (v.pairs[0].title = "EDITED pair title"),
 };
 
 console.log("the surgical bar — one field of one block, on the real files");
@@ -195,6 +203,290 @@ for (const slug of SLUGS) {
     });
   }
 }
+
+/* ----------------------------------- hazard 1: nulls round-trip AS NULL */
+
+console.log("\nhazard 1 — nulls stay null (not '' and not 0)");
+
+/** Walk every leaf and collect `path -> null` for each null in the doc. */
+function nullPaths(v, at = "", out = []) {
+  if (v === null) out.push(at);
+  else if (Array.isArray(v)) v.forEach((x, i) => nullPaths(x, `${at}[${i}]`, out));
+  else if (v && typeof v === "object") for (const k of Object.keys(v)) nullPaths(v[k], `${at}.${k}`, out);
+  return out;
+}
+
+for (const slug of SLUGS) {
+  const raw = fileOf(slug);
+  const sections = readSections(raw);
+  const before = nullPaths(sections);
+
+  check(`${slug}: the file carries nulls at all (else this proves nothing)`, () => {
+    if (before.length === 0) throw new Error("no nulls in this file");
+  });
+
+  // Edit a TEXT field on a null-bearing block; every null must survive untouched.
+  const at = find(sections, "deviceShelf");
+  if (at) {
+    check(`${slug}: editing a sibling text field leaves all ${before.length} nulls NULL`, () => {
+      const [i, j] = at;
+      const after = roundTrip(raw, (secs) => (secs[i].blocks[j].value.devices[0].alt = "NULL PROBE"));
+      const paths = nullPaths(load(after).sections);
+      if (JSON.stringify(paths) !== JSON.stringify(before)) {
+        const gone = before.filter((p) => !paths.includes(p));
+        throw new Error(`null set changed; ${gone.length} coerced away, e.g. ${gone[0]}`);
+      }
+      // and they are literally `null` in the bytes, not '' or 0
+      if (!/rotate: null/.test(after)) throw new Error("`rotate: null` no longer in the bytes");
+    });
+  }
+}
+
+check("the sanitizer REJECTS '' where a number|null belongs (a coercing form)", () => {
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.devices[0].rotate = "";
+  const res = sanitizeSectionsPatch(sections);
+  if (res.ok) throw new Error("ACCEPTED '' for a number|null");
+  if (!res.error.message.includes("must be a number or null")) throw new Error(res.error.message);
+});
+
+check("the sanitizer REJECTS 0-for-null coercion being undetectable (0 is a real value)", () => {
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.devices[0].rotate = 0;
+  const res = sanitizeSectionsPatch(sections);
+  // 0 is legitimately a number, so the sanitizer accepts it — the surgical bar is
+  // what catches an unintended 0, which is why hazard 1 needs the byte-diff above.
+  if (!res.ok) throw new Error("rejected a legitimate 0");
+});
+
+check("the sanitizer REJECTS NaN dressed as a number", () => {
+  // NaN cannot cross the wire as NaN (JSON.stringify(NaN) is null), so this guards
+  // the in-process path and documents that .nan could never reach the yaml.
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.minHeight = NaN;
+  const res = sanitizeSectionsPatch(sections);
+  if (res.ok) throw new Error("ACCEPTED NaN");
+  if (!res.error.message.includes("finite")) throw new Error(res.error.message);
+});
+
+/* -------------------------------- hazard 2: image srcs round-trip untouched */
+
+console.log("\nhazard 2 — image srcs are never disturbed by a text edit");
+
+const srcPaths = (v, at = "", out = []) => {
+  if (Array.isArray(v)) v.forEach((x, i) => srcPaths(x, `${at}[${i}]`, out));
+  else if (v && typeof v === "object")
+    for (const k of Object.keys(v)) {
+      if (k === "src") out.push(`${at}.src=${v[k]}`);
+      else srcPaths(v[k], `${at}.${k}`, out);
+    }
+  return out;
+};
+
+const IMAGE_BEARING = [
+  ["deviceShelf", (v) => (v.devices[0].alt = "SRC PROBE")],
+  ["featureRows", (v) => (v.features[0].title = "SRC PROBE")],
+  ["annotatedImage", (v) => (v.callouts[0].note = "SRC PROBE")],
+  ["heroCover", (v) => (v.title = "SRC PROBE")],
+  ["beforeAfter", (v) => (v.pairs[0].title = "SRC PROBE")],
+];
+
+for (const slug of SLUGS) {
+  const raw = fileOf(slug);
+  const sections = readSections(raw);
+  const before = srcPaths(sections);
+  for (const [kind, mutate] of IMAGE_BEARING) {
+    const at = find(sections, kind);
+    if (!at) continue;
+    check(`${slug} / ${kind}: a text edit leaves all ${before.length} image srcs byte-identical`, () => {
+      const [i, j] = at;
+      const after = roundTrip(raw, (secs) => mutate(secs[i].blocks[j].value));
+      const now = srcPaths(load(after).sections);
+      if (JSON.stringify(now) !== JSON.stringify(before)) throw new Error("an image src changed");
+    });
+  }
+}
+
+check("the sanitizer REJECTS '' for an image src (null is how unset is spelled)", () => {
+  const raw = fileOf("fosfor-ai");
+  const sections = transported(readSections(raw));
+  const at = find(sections, "deviceShelf");
+  sections[at[0]].blocks[at[1]].value.devices[0].src = "";
+  const res = sanitizeSectionsPatch(sections);
+  if (res.ok) throw new Error("ACCEPTED '' for an image src");
+});
+
+/* ------ every add affordance must produce PUBLISHABLE content (review finding) */
+
+// A row the owner can add must survive the FAIL-LOUD ssg adapter, not just the
+// permissive preview one. Otherwise they add it, preview it happily (preview
+// substitutes a placeholder for a missing image), publish, and the build fails —
+// and one such row blocks the WHOLE publish, including unrelated edits.
+//
+// This is why add is disabled on every image-bearing array until 4(b)-iv: a new
+// row's src is null and nothing can set it yet. The rule is asserted here rather
+// than trusted, so re-enabling add without upload fails loudly.
+console.log("\nevery ADD affordance yields publishable content (ssg, not just preview)");
+
+const emptyImg = () => ({ src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null });
+
+const ADDS = [
+  // [label, kind, empty-row pusher, addIsExposedInTheUI]
+  ["heroCover.meta", "heroCover", (v) => v.meta.push({ label: "", value: "" }), true],
+  ["statCards.stats", "statCards", (v) => v.stats.push({ value: "", suffix: "", body: "", tag: "", highlighted: false }), true],
+  ["principleCards.cards", "principleCards", (v) => v.cards.push({ index: "", title: "", body: "" }), true],
+  ["glanceGrid.items", "glanceGrid", (v) => v.items.push({ label: "", value: "" }), true],
+  ["stepper.steps", "stepper", (v) => v.steps.push({ label: "", text: "" }), true],
+  ["richText.paragraphs", "richText", (v) => v.paragraphs.push(""), true],
+  ["beforeAfter.pairs[0].changes", "beforeAfter", (v) => v.pairs[0].changes.push({ emphasis: "", rest: "" }), true],
+  // image-bearing — add is DISABLED in the UI precisely because these throw
+  ["deviceShelf.devices", "deviceShelf", (v) => v.devices.push({ ...emptyImg(), label: "", dotColor: "" }), false],
+  ["featureRows.features", "featureRows", (v) => v.features.push({ index: "", category: "", title: "", body: "", image: emptyImg() }), false],
+  ["beforeAfter.pairs", "beforeAfter", (v) => v.pairs.push({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] }), false],
+];
+
+for (const [label, kind, push, exposed] of ADDS) {
+  const raw = fileOf("fosfor-ai");
+  const at = find(readSections(raw), kind);
+  if (!at) continue;
+  const [i, j] = at;
+  const build = () => {
+    const secs = transported(readSections(raw));
+    push(secs[i].blocks[j].value);
+    const san = sanitizeSectionsPatch(secs);
+    if (!san.ok) throw new Error(`sanitizer: ${san.error.message}`);
+    return san.sections;
+  };
+  if (exposed) {
+    check(`${label}: an added row is PUBLISHABLE (ssg accepts it)`, () => {
+      adaptSections(build(), { mode: "ssg" }); // throws if not
+    });
+  } else {
+    check(`${label}: add is DISABLED because an added row would NOT be publishable`, () => {
+      let threw = false;
+      try { adaptSections(build(), { mode: "ssg" }); } catch { threw = true; }
+      if (!threw) {
+        throw new Error("ssg now ACCEPTS this row — add can be re-enabled (4b-iv likely landed)");
+      }
+    });
+  }
+}
+
+/* ------------------- hazard 3: swatchTokens, the nested union */
+
+// NO REAL FILE CARRIES A swatchTokens (nor an issueList, nor an annotatedImage),
+// so this builds a SYNTHETIC base — and builds it with the real serializer, from a
+// real file, so it is a genuine on-disk-shaped project rather than a hand-written
+// fixture. Stated plainly because a synthetic base proves less than a real one.
+console.log("\nhazard 3 — swatchTokens: groups[] -> tokens[] -> a {discriminant,value} union");
+console.log("  (no real file carries one — the base below is SYNTHETIC, built by the real serializer)");
+
+const SWATCH_BLOCK = {
+  discriminant: "swatchTokens",
+  value: {
+    groups: [
+      {
+        tokens: [
+          { discriminant: "color", value: { name: "Ink", value: "oklch(.2 0 0)", hex: "#1a1a1a" } },
+          { discriminant: "font", value: { name: "Fraunces", note: "Display" } },
+        ],
+      },
+      {
+        tokens: [{ discriminant: "color", value: { name: "Cream", value: "oklch(.97 .01 80)", hex: "" } }],
+      },
+    ],
+  },
+};
+
+const swatchBase = (() => {
+  const raw = fileOf("fosfor-ai");
+  const secs = transported(readSections(raw));
+  secs[0].blocks.push(JSON.parse(JSON.stringify(SWATCH_BLOCK)));
+  const san = sanitizeSectionsPatch(secs);
+  if (!san.ok) throw new Error(`fixture rejected: ${san.error.message}`);
+  const out = serializeProjectSections(raw, san.sections);
+  if (!out.ok) throw new Error("fixture serialize refused");
+  return out.bytes;
+})();
+
+check("the synthetic base is a valid file the sanitizer accepts round-trip", () => {
+  const res = sanitizeSectionsPatch(transported(readSections(swatchBase)));
+  if (!res.ok) throw new Error(res.error.message);
+  if (!/discriminant: swatchTokens/.test(swatchBase)) throw new Error("no swatchTokens in the base");
+});
+
+check("swatchTokens: editing ONE token's value changes only that token", () => {
+  const at = find(readSections(swatchBase), "swatchTokens");
+  const [i, j] = at;
+  const after = roundTrip(swatchBase, (secs) => {
+    secs[i].blocks[j].value.groups[0].tokens[0].value.name = "EDITED token name";
+  });
+  const { before: b0, after: a0 } = assertOnlyChange(swatchBase, after, null, null);
+  assertOnlyField(b0, a0, "groups");
+  const bg = b0.groups, ag = a0.groups;
+  if (bg.length !== ag.length) throw new Error("group count changed");
+  const changed = [];
+  bg.forEach((g, gi) =>
+    g.tokens.forEach((t, ti) => {
+      if (JSON.stringify(t) !== JSON.stringify(ag[gi].tokens[ti])) changed.push(`${gi}/${ti}`);
+    })
+  );
+  if (changed.length !== 1) throw new Error(`${changed.length} tokens changed, expected 1`);
+  if (changed[0] !== "0/0") throw new Error(`the wrong token changed: ${changed[0]}`);
+  if (ag[0].tokens[0].discriminant !== "color") throw new Error("the discriminant changed");
+  // the SIBLING font token and the second group must be verbatim
+  if (JSON.stringify(ag[0].tokens[1]) !== JSON.stringify(bg[0].tokens[1])) throw new Error("the sibling font token changed");
+  if (JSON.stringify(ag[1]) !== JSON.stringify(bg[1])) throw new Error("group 2 changed");
+});
+
+check("swatchTokens: every token's discriminant survives an edit verbatim", () => {
+  const at = find(readSections(swatchBase), "swatchTokens");
+  const [i, j] = at;
+  const before = readSections(swatchBase)[i].blocks[j].value.groups.flatMap((g) => g.tokens.map((t) => t.discriminant));
+  const after = roundTrip(swatchBase, (secs) => {
+    secs[i].blocks[j].value.groups[0].tokens[0].value.hex = "#000000";
+  });
+  const now = load(after).sections[i].blocks[j].value.groups.flatMap((g) => g.tokens.map((t) => t.discriminant));
+  if (JSON.stringify(before) !== JSON.stringify(now)) throw new Error(`discriminants moved: ${before} -> ${now}`);
+});
+
+check("swatchTokens: a nested token ADD keeps every other token verbatim + empties intact", () => {
+  const at = find(readSections(swatchBase), "swatchTokens");
+  const [i, j] = at;
+  const after = roundTrip(swatchBase, (secs) => {
+    secs[i].blocks[j].value.groups[0].tokens.push({ discriminant: "color", value: { name: "", value: "", hex: "" } });
+  });
+  const { before: b0, after: a0 } = assertOnlyChange(swatchBase, after, null, null);
+  const bg = b0.groups, ag = a0.groups;
+  if (ag[0].tokens.length !== bg[0].tokens.length + 1) throw new Error("tokens did not grow by 1");
+  if (JSON.stringify(ag[0].tokens.slice(0, -1)) !== JSON.stringify(bg[0].tokens)) throw new Error("an existing token changed");
+  if (JSON.stringify(ag[1]) !== JSON.stringify(bg[1])) throw new Error("group 2 changed");
+  const added = ag[0].tokens[ag[0].tokens.length - 1];
+  if (JSON.stringify(Object.keys(added.value).sort()) !== JSON.stringify(["hex", "name", "value"]))
+    throw new Error(`new token's empties dropped: ${Object.keys(added.value)}`);
+});
+
+const swatchReject = (name, mutate, needle) =>
+  check(name, () => {
+    const secs = transported(readSections(swatchBase));
+    const [i, j] = find(secs, "swatchTokens");
+    mutate(secs[i].blocks[j].value);
+    const res = sanitizeSectionsPatch(secs);
+    if (res.ok) throw new Error("ACCEPTED");
+    if (needle && !res.error.message.includes(needle)) throw new Error(`wrong error: ${res.error.message}`);
+  });
+
+swatchReject("an unknown TOKEN kind is rejected", (v) => (v.groups[0].tokens[0].discriminant = "gradient"), "unknown token kind");
+swatchReject("a prototype key is not a token kind (hasOwnProperty, not `in`)", (v) => (v.groups[0].tokens[0].discriminant = "constructor"), "unknown token kind");
+swatchReject("a font value under a color discriminant is rejected (shape follows kind)", (v) => (v.groups[0].tokens[0].value = { name: "x", note: "y" }), "unknown field");
+swatchReject("a token missing hex is rejected (an empty-stripping form)", (v) => (v.groups[0].tokens[0].value = { name: "x", value: "y" }), "must be a string");
+swatchReject("an unknown field on the group is rejected", (v) => (v.groups[0].evil = 1), "unknown field");
 
 /* ------------------------------------------------- the per-kind sanitizer */
 
