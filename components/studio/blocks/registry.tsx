@@ -508,6 +508,107 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
   </>
 );
 
+const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onChange, onBlur }) => (
+  <>
+    <TextField label="Title" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} />
+    <TextArea label="Thesis sentence" value={value.thesis} onChange={(thesis) => onChange({ ...value, thesis })} onBlur={onBlur} rows={2} />
+    <TextArea label="Position statement" value={value.position} onChange={(position) => onChange({ ...value, position })} onBlur={onBlur} rows={2} />
+    <div className="grid grid-cols-2 gap-2">
+      <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => onChange({ ...value, eyebrow })} onBlur={onBlur} />
+      <TextField label="Watermark word" value={value.watermark} onChange={(watermark) => onChange({ ...value, watermark })} onBlur={onBlur} />
+    </div>
+    <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+      <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+        Rating chip (optional)
+      </span>
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Stat" value={value.ratingChip.stat} onChange={(stat) => onChange({ ...value, ratingChip: { ...value.ratingChip, stat } })} onBlur={onBlur} />
+        <TextField label="Rest" value={value.ratingChip.rest} onChange={(rest) => onChange({ ...value, ratingChip: { ...value.ratingChip, rest } })} onBlur={onBlur} />
+      </div>
+    </div>
+    <ItemRows
+      items={value.meta}
+      onChange={(meta) => onChange({ ...value, meta })}
+      empty={() => ({ label: "", value: "" })}
+      addLabel="Add meta fact"
+      itemNoun="Fact"
+      rowLabel={(m, i) => m.label.trim() || `Fact ${i + 1}`}
+    >
+      {({ item, set, focusRef }) => (
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Label" value={item.label} onChange={(label) => set({ ...item, label })} onBlur={onBlur} inputRef={focusRef} />
+          <TextField label="Value" value={item.value} onChange={(v) => set({ ...item, value: v })} onBlur={onBlur} />
+        </div>
+      )}
+    </ItemRows>
+    {/* fixedLength: the schema validates exactly two, and the adapter re-validates
+        when narrowing to its tuple — a third device would throw at SSG. Reorder
+        stays, because it swaps back and front, which is meaningful. */}
+    <ItemRows
+      items={value.devices}
+      onChange={(devices) => onChange({ ...value, devices })}
+      empty={emptyDevice}
+      addLabel="Add device"
+      itemNoun="Device"
+      fixedLength
+      rowLabel={(_, i) => (i === 0 ? "Device 1 (back)" : "Device 2 (front)")}
+    >
+      {({ item, set, focusRef }) => (
+        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} />
+      )}
+    </ItemRows>
+    <GlowFields value={value.glow} set={(glow) => onChange({ ...value, glow })} onBlur={onBlur} />
+  </>
+);
+
+const emptyImg = () => ({
+  src: null,
+  alt: "",
+  width: null,
+  rotate: null,
+  translateX: null,
+  translateY: null,
+  z: null,
+});
+
+/** The first DOUBLY nested array: pairs[] each holding their own changes[]. */
+const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur }) => (
+  <ItemRows
+    items={value.pairs}
+    onChange={(pairs) => onChange({ ...value, pairs })}
+    empty={() => ({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] })}
+    addLabel="Add pair"
+    itemNoun="Pair"
+    rowLabel={(p, i) => p.title.trim() || `Pair ${i + 1}`}
+  >
+    {({ item, set, focusRef }) => (
+      <>
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
+          <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
+        </div>
+        <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} imageLabel="Before image" />
+        <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} imageLabel="After image" />
+        <ItemRows
+          items={item.changes}
+          onChange={(changes) => set({ ...item, changes })}
+          empty={() => ({ emphasis: "", rest: "" })}
+          addLabel="Add change"
+          itemNoun="Change"
+          rowLabel={(c, i) => c.emphasis.trim() || `Change ${i + 1}`}
+        >
+          {({ item: ch, set: setCh, focusRef: chFocus }) => (
+            <div className="grid grid-cols-2 gap-2">
+              <TextField label="Emphasis" value={ch.emphasis} onChange={(emphasis) => setCh({ ...ch, emphasis })} onBlur={onBlur} inputRef={chFocus} />
+              <TextField label="Rest" value={ch.rest} onChange={(rest) => setCh({ ...ch, rest })} onBlur={onBlur} />
+            </div>
+          )}
+        </ItemRows>
+      </>
+    )}
+  </ItemRows>
+);
+
 /* ---------------------------------------------------------------- the table */
 
 export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
@@ -533,10 +634,10 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
   // tier 3
   // still no Form (later in PR B) — preserved untouched by the panel, round-tripped
   // opaquely by the sanitizer.
-  heroCover: { label: (v) => firstLine(v.title, "Hero cover") },
+  heroCover: { label: (v) => firstLine(v.title, "Hero cover"), Form: HeroCoverForm },
   deviceShelf: { label: (v) => `Device shelf — ${v.devices.length} devices`, Form: DeviceShelfForm },
   featureRows: { label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
-  beforeAfter: { label: (v) => `Before / after — ${v.pairs.length} pairs` },
+  beforeAfter: { label: (v) => `Before / after — ${v.pairs.length} pairs`, Form: BeforeAfterForm },
   swatchTokens: { label: (v) => `Swatch tokens — ${v.groups.length} groups` },
   annotatedImage: { label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"), Form: AnnotatedImageForm },
 };

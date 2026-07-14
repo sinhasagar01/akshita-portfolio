@@ -222,9 +222,30 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
     // strings covered by the empties rule, not the null rule.
     callouts: arrayOf(obj({ title: str, note: str, top: str, right: str, bottom: str, left: str })),
   }),
-  // still opaque until their forms land later in PR B
-  heroCover: opaque,
-  beforeAfter: opaque,
+  heroCover: obj({
+    title: str,
+    thesis: str,
+    position: str,
+    eyebrow: str,
+    watermark: str,
+    ratingChip: obj({ stat: str, rest: str }),
+    meta: arrayOf(obj({ label: str, value: str })),
+    // EXACTLY two — see arrayOfLen. The UI hides add/remove for this one array.
+    devices: arrayOfLen(2, deviceSpec),
+    glow: glowWord,
+  }),
+  beforeAfter: obj({
+    pairs: arrayOf(
+      obj({
+        title: str,
+        tag: str,
+        before: imgSpec,
+        after: imgSpec,
+        changes: arrayOf(obj({ emphasis: str, rest: str })),
+      })
+    ),
+  }),
+  // still opaque until its form lands (the last commit of PR B)
   swatchTokens: opaque,
 };
 
