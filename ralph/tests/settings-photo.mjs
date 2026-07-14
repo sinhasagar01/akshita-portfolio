@@ -21,6 +21,12 @@ const check = (name, ok, detail = "") => {
 };
 
 const raw = readFileSync("content/site-settings.yaml", "utf8");
+// Read the CURRENT photo value rather than hardcoding it — the owner can change the
+// photo through /studio (they have), so a hardcoded value makes the no-op check
+// stale. The "changed" value below is derived from it, so the test stays correct
+// whatever the current photo is.
+const currentPhoto = load(raw).photo;
+const probePhoto = currentPhoto === "/images/photo.probe.webp" ? "/images/photo.other.webp" : "/images/photo.probe.webp";
 
 /* ------------------------------------------- byte-compat on the real file */
 
@@ -28,9 +34,9 @@ console.log("a photo-only write touches ONLY the photo line");
 
 // no-op: writing the current value back reproduces the file (it is dump-stable).
 check("no-op write == file (the file is js-yaml canonical)",
-  serializeSettingsPhoto(raw, "/images/photo.jpg") === raw);
+  serializeSettingsPhoto(raw, currentPhoto) === raw);
 
-const after = serializeSettingsPhoto(raw, "/images/photo.webp");
+const after = serializeSettingsPhoto(raw, probePhoto);
 const diffLines = [];
 const a = raw.split("\n"), b = after.split("\n");
 for (let i = 0; i < Math.max(a.length, b.length); i++) {
@@ -55,7 +61,7 @@ for (const k of ["heroCopy", "aboutCopy", "aboutNote", "aboutFocusChips", "proce
 // values still parse; folded scalar content preserved
 const rp = load(after);
 check("re-dump parses", rp !== null && typeof rp === "object");
-check("photo actually changed", rp.photo === "/images/photo.webp");
+check("photo actually changed", rp.photo === probePhoto);
 check("aboutCopy folded-scalar VALUE preserved", load(raw).aboutCopy === rp.aboutCopy);
 
 /* ------------------------------------------- clear round-trips as null */

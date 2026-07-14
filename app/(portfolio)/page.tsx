@@ -31,7 +31,7 @@ export default async function HomePage() {
   const { settings, skills, projects, experience } = await getHomePageData();
 
   return (
-    <main className="container-x">
+    <main id="main-content" tabIndex={-1} className="container-x outline-none">
       <JsonLd data={personSchema(settings)} />
       <JsonLd data={webSiteSchema()} />
       <HeroSection
