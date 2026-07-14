@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import { load } from "js-yaml";
 import { serializeProjectSections, readSections } from "../../lib/studio/sections-serialize.ts";
 import { sanitizeSectionsPatch } from "../../lib/studio/sections-format.ts";
+import { adaptSections } from "../../lib/case-studies/adapter.ts";
 
 let failures = 0;
 function check(name, fn) {
@@ -320,6 +321,62 @@ check("the sanitizer REJECTS '' for an image src (null is how unset is spelled)"
   const res = sanitizeSectionsPatch(sections);
   if (res.ok) throw new Error("ACCEPTED '' for an image src");
 });
+
+/* ------ every add affordance must produce PUBLISHABLE content (review finding) */
+
+// A row the owner can add must survive the FAIL-LOUD ssg adapter, not just the
+// permissive preview one. Otherwise they add it, preview it happily (preview
+// substitutes a placeholder for a missing image), publish, and the build fails —
+// and one such row blocks the WHOLE publish, including unrelated edits.
+//
+// This is why add is disabled on every image-bearing array until 4(b)-iv: a new
+// row's src is null and nothing can set it yet. The rule is asserted here rather
+// than trusted, so re-enabling add without upload fails loudly.
+console.log("\nevery ADD affordance yields publishable content (ssg, not just preview)");
+
+const emptyImg = () => ({ src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null });
+
+const ADDS = [
+  // [label, kind, empty-row pusher, addIsExposedInTheUI]
+  ["heroCover.meta", "heroCover", (v) => v.meta.push({ label: "", value: "" }), true],
+  ["statCards.stats", "statCards", (v) => v.stats.push({ value: "", suffix: "", body: "", tag: "", highlighted: false }), true],
+  ["principleCards.cards", "principleCards", (v) => v.cards.push({ index: "", title: "", body: "" }), true],
+  ["glanceGrid.items", "glanceGrid", (v) => v.items.push({ label: "", value: "" }), true],
+  ["stepper.steps", "stepper", (v) => v.steps.push({ label: "", text: "" }), true],
+  ["richText.paragraphs", "richText", (v) => v.paragraphs.push(""), true],
+  ["beforeAfter.pairs[0].changes", "beforeAfter", (v) => v.pairs[0].changes.push({ emphasis: "", rest: "" }), true],
+  // image-bearing — add is DISABLED in the UI precisely because these throw
+  ["deviceShelf.devices", "deviceShelf", (v) => v.devices.push({ ...emptyImg(), label: "", dotColor: "" }), false],
+  ["featureRows.features", "featureRows", (v) => v.features.push({ index: "", category: "", title: "", body: "", image: emptyImg() }), false],
+  ["beforeAfter.pairs", "beforeAfter", (v) => v.pairs.push({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] }), false],
+];
+
+for (const [label, kind, push, exposed] of ADDS) {
+  const raw = fileOf("fosfor-ai");
+  const at = find(readSections(raw), kind);
+  if (!at) continue;
+  const [i, j] = at;
+  const build = () => {
+    const secs = transported(readSections(raw));
+    push(secs[i].blocks[j].value);
+    const san = sanitizeSectionsPatch(secs);
+    if (!san.ok) throw new Error(`sanitizer: ${san.error.message}`);
+    return san.sections;
+  };
+  if (exposed) {
+    check(`${label}: an added row is PUBLISHABLE (ssg accepts it)`, () => {
+      adaptSections(build(), { mode: "ssg" }); // throws if not
+    });
+  } else {
+    check(`${label}: add is DISABLED because an added row would NOT be publishable`, () => {
+      let threw = false;
+      try { adaptSections(build(), { mode: "ssg" }); } catch { threw = true; }
+      if (!threw) {
+        throw new Error("ssg now ACCEPTS this row — add can be re-enabled (4b-iv likely landed)");
+      }
+    });
+  }
+}
 
 /* ------------------- hazard 3: swatchTokens, the nested union */
 

@@ -58,6 +58,10 @@ export const BLOCK_LABELS: { [K in SectionBlockKind]: string } = {
 
 const firstLine = (s: string, fallback: string) => s.split("\n")[0].trim() || fallback;
 
+/** Why an image-bearing array cannot gain a row until 4(b)-iv. */
+const ADD_NEEDS_IMAGE =
+  "Adding one needs image upload, which is coming. A new row would have no image, and a case study with a missing image cannot be published.";
+
 /* ------------------------------------------------------------ tier 1 forms */
 
 const ClosingLineForm: ComponentType<BlockFormProps<"closingLine">> = ({ value, onChange, onBlur }) => (
@@ -420,6 +424,12 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
       empty={emptyDevice}
       addLabel="Add device"
       itemNoun="Device"
+      // A new device's src is null and nothing can set it until 4(b)-iv, so the
+      // fail-loud SSG adapter would refuse it — the owner could add it, preview it
+      // (preview substitutes a placeholder), publish, and get a failed build that
+      // blocks every unrelated edit too. Remove stays: it is the escape hatch.
+      noAdd
+      addNote={ADD_NEEDS_IMAGE}
       rowLabel={(d, i) => d.label.trim() || `Device ${i + 1}`}
     >
       {({ item, set, focusRef }) => (
@@ -449,6 +459,8 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
     })}
     addLabel="Add feature"
     itemNoun="Feature"
+    noAdd
+    addNote={ADD_NEEDS_IMAGE}
     rowLabel={(f, i) => f.title.trim() || `Feature ${i + 1}`}
   >
     {({ item, set, focusRef }) => (
@@ -550,7 +562,9 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
       empty={emptyDevice}
       addLabel="Add device"
       itemNoun="Device"
-      fixedLength
+      noAdd
+      noRemove
+      addNote="This block takes exactly two devices."
       rowLabel={(_, i) => (i === 0 ? "Device 1 (back)" : "Device 2 (front)")}
     >
       {({ item, set, focusRef }) => (
@@ -579,6 +593,8 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
     empty={() => ({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] })}
     addLabel="Add pair"
     itemNoun="Pair"
+    noAdd
+    addNote={ADD_NEEDS_IMAGE}
     rowLabel={(p, i) => p.title.trim() || `Pair ${i + 1}`}
   >
     {({ item, set, focusRef }) => (

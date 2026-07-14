@@ -220,7 +220,9 @@ export function ItemRows<T>({
   addLabel,
   itemNoun,
   rowLabel,
-  fixedLength = false,
+  noAdd = false,
+  noRemove = false,
+  addNote,
   children,
 }: {
   items: readonly T[];
@@ -232,14 +234,24 @@ export function ItemRows<T>({
   itemNoun: string;
   rowLabel?: (item: T, i: number) => string;
   /**
-   * The array's length is fixed by the schema — hide add and remove, keep reorder.
-   * heroCover.devices is `validation: { length: { min: 2, max: 2 } }`, so a third
-   * device fails Keystatic's own validation AND the adapter's tuple narrowing,
-   * which it re-validates defensively — a 3-device save would throw at SSG and
-   * break the public build. Reorder stays because it preserves the length and is
-   * meaningful there (the devices render back then front).
+   * Hide "add". Two different reasons need it, and both end the same way — an
+   * added row would produce content the FAIL-LOUD SSG adapter refuses, so the
+   * owner could add it, preview it happily (preview mode substitutes a
+   * placeholder), publish, and get a failed build. Worse, one such row blocks the
+   * WHOLE publish, including unrelated edits, until it is found and removed.
+   *   - heroCover.devices: the schema validates exactly two, and the adapter
+   *     re-validates when narrowing to its tuple, so a third throws at SSG.
+   *   - any array whose row REQUIRES an image (deviceShelf.devices,
+   *     featureRows.features, beforeAfter.pairs): a new row's src is null, and
+   *     nothing can set it until 4(b)-iv, so it can never be published.
+   * `addNote` explains which, so the missing button is not a mystery.
    */
-  fixedLength?: boolean;
+  noAdd?: boolean;
+  /** Hide "remove". Only heroCover.devices needs this (exactly two). Removing is
+   *  otherwise always safe, and is the escape hatch for a bad row. */
+  noRemove?: boolean;
+  /** Shown in place of the add button when noAdd. */
+  addNote?: string;
   children: (args: {
     item: T;
     set: (next: T) => void;
@@ -281,7 +293,7 @@ export function ItemRows<T>({
                 >
                   <IconChevronDown />
                 </button>
-                {!fixedLength && (
+                {!noRemove && (
                   <button
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
@@ -300,7 +312,11 @@ export function ItemRows<T>({
           </div>
         );
       })}
-      {!fixedLength && (
+      {noAdd ? (
+        addNote ? (
+          <p className="text-[10px] text-text-subtle">{addNote}</p>
+        ) : null
+      ) : (
         <button
           type="button"
           onClick={list.add}
