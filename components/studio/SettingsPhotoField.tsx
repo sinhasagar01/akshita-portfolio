@@ -1,0 +1,123 @@
+"use client";
+
+// The site-settings portrait upload control (the last Keystatic-only field to gain
+// a /studio writer). Mirrors BlockImageField's look and accessibility, but NOT its
+// commit model, which is why it is a separate component rather than a shared one:
+//
+//   - BlockImageField is BLOB-ONLY. It hands the new path to its parent, whose
+//     sections form goes dirty and commits the yaml on the next save.
+//   - This route commits the blob AND the yaml in one commit (like heroImage), so
+//     when it returns there is nothing left to save — the draft branch already
+//     changed. So on success it just reflects the new path and lights the
+//     Unpublished badge via onUploaded.
+//
+// A shared component would need a behavioral mode flag for that fork; at two
+// occurrences that is not yet worth the abstraction.
+import { useRef, useState } from "react";
+import { IconImage, IconX } from "./icons";
+
+export default function SettingsPhotoField({
+  photo: initialPhoto,
+  onUploaded,
+}: {
+  photo: string | null;
+  /** Fired after a successful commit so the panel can light the Unpublished badge.
+   *  Receives the new path, or null on clear. */
+  onUploaded: (photo: string | null) => void;
+}) {
+  const [photo, setPhoto] = useState(initialPhoto);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function send(body: FormData) {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/studio/upload-settings-photo", { method: "POST", body });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok && json.mode === "fs") {
+        setError("Image upload needs github mode (dev)");
+        return;
+      }
+      if (res.ok && json.ok && "photo" in json) {
+        setPhoto(json.photo);
+        onUploaded(json.photo);
+        return;
+      }
+      setError(
+        {
+          unsupported_type: "That file type is not supported. Use a PNG, JPEG or WebP.",
+          file_too_large: "That image is too large. The limit is 12 MB.",
+          image_processing_failed: "That image could not be processed.",
+        }[json.error as string] ?? "Upload failed. Try again."
+      );
+    } catch {
+      setError("Upload failed. Try again.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  function upload(file: File) {
+    const body = new FormData();
+    body.append("file", file);
+    void send(body);
+  }
+
+  function clear() {
+    const body = new FormData();
+    body.append("clear", "true");
+    void send(body);
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo</span>
+      <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
+        <span className="grid size-6 shrink-0 place-items-center rounded text-ink-400 [&>svg]:size-3.5">
+          <IconImage />
+        </span>
+        {photo ? (
+          <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{photo}</code>
+        ) : (
+          <span className="flex-1 text-[11px] text-text-subtle">No photo set</span>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="hidden"
+          aria-label="Choose a portrait photo"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload(f);
+          }}
+        />
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="shrink-0 rounded-md border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+        >
+          {busy ? "Uploading…" : photo ? "Replace" : "Upload"}
+        </button>
+        {photo && (
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={clear}
+            disabled={busy}
+            aria-label="Clear photo"
+            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
+          >
+            <IconX />
+          </button>
+        )}
+      </div>
+      {error && <span className="text-[10px] text-accent-600">{error}</span>}
+    </div>
+  );
+}
