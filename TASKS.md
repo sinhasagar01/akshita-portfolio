@@ -124,12 +124,12 @@ Where those uploads go changed. The screen exports for the three migrated projec
 
 ## Phase 6 Performance, SEO, accessibility, and launch (open)
 
-- [ ] Core Web Vitals passing on mobile and desktop
+- [ ] Core Web Vitals passing on mobile and desktop. Lab-measured GOOD on both (prod, warm cache), desktop LCP 1068ms CLS 0 FCP 304ms, mobile LCP 964ms CLS 0 FCP 196ms. Not field-confirmed (needs CrUX p75) and INP not measured, so this stays open pending real-user data.
 - [x] Per-page titles and descriptions correct. Verified distinct per route (homepage, boat-crest, and each content study via generateMetadata with title + summary).
 - [x] Custom share image per case study. Verified each study renders its own /projects/<slug>/og image (distinct bytes, its own title + summary), 1200x630 image/png.
 - [ ] Semantic markup and real alt text on every image. NOT done, blocked on content, the 3 migrated studies still carry placeholder alt ("Placeholder companion screen, replace via the dashboard"), which clears when real screens are uploaded with real alt through /studio.
-- [ ] Keyboard-reachable navigation final pass
-- [ ] Reduced motion final audit. 16 components already guard on prefers-reduced-motion (Hero, Process, cursor, header, cards), so coverage is broad, but a systematic per-animation sign-off has not been done, so this stays open.
+- [ ] Keyboard-reachable navigation final pass. Audited, strong but for one gap. Focus is visible (terracotta :focus-visible ring, outline not suppressed), tab order sane, no hidden-focusable leak, and the mobile menu focus trap is textbook (traps, wraps, Escape closes and restores focus to the burger, scroll locks). The one gap is NO skip-to-content link (WCAG 2.4.1), so a keyboard user tabs through the whole nav on every page. Stays open on that.
+- [x] Reduced motion final audit. Every animation source respects it, verified. A global CSS killswitch (globals.css, prefers-reduced-motion:reduce neutralizes all animation/transition/scroll-behavior) plus useReducedMotion on every JS source, Motion (13 files), Lenis smooth scroll (SmoothScrollProvider returns children unwrapped), and GSAP ScrollTrigger (GSAPProvider skips the sync).
 - [ ] Contact form endpoint set. NOT done, NEXT_PUBLIC_CONTACT_FORM_ENDPOINT is unset, so the form throws "no endpoint configured" on submit. Ops task, set the Web3Forms endpoint + key in Vercel.
 - [x] metadataBase and NEXT_PUBLIC_SITE_URL wired to https://www.akshitas.com
 - [x] Domain configured in Vercel, canonical host settled as www.akshitas.com with apex 308 redirect
