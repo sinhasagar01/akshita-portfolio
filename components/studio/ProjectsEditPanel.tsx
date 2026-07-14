@@ -94,6 +94,13 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           )}
         </div>
         <div className="flex items-center gap-1">
+          {/* P4 4(b)-i — the case-study body editor (pull quotes so far). */}
+          <Link
+            href={`/studio/projects/${slug}/body`}
+            className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          >
+            Edit body
+          </Link>
           {/* P4 4(a) — the draft-preferring preview. Shows this study's draft
               sections before publish; the public page still renders live. */}
           <Link

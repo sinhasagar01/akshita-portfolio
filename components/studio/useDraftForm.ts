@@ -37,6 +37,15 @@ type UseDraftFormOptions<T extends object> = {
    * right entry file.
    */
   saveExtras?: Record<string, unknown>;
+  /**
+   * P4 4(b)-i — override the POST body shape. DEFAULT (omitted) posts
+   * `{ ...saveExtras, patch: { ...committed } }`, byte-identical to before, so
+   * every existing panel is untouched. The sections panel overrides it because
+   * `sections` is its own top-level key, not a `patch` field — that is what keeps
+   * the route's one-writer dispatch unambiguous (the text patch sanitizer still
+   * rejects `sections`).
+   */
+  buildBody?: (committed: T, saveExtras: Record<string, unknown> | undefined) => unknown;
 };
 
 export function useDraftForm<T extends object>({
@@ -46,6 +55,7 @@ export function useDraftForm<T extends object>({
   syncValuesOnSave = false,
   onSaved,
   saveExtras,
+  buildBody,
 }: UseDraftFormOptions<T>) {
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<T>(initial);
@@ -76,7 +86,9 @@ export function useDraftForm<T extends object>({
       const res = await fetch("/api/studio/save-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...saveExtras, patch: { ...committed } }),
+        body: JSON.stringify(
+          buildBody ? buildBody(committed, saveExtras) : { ...saveExtras, patch: { ...committed } }
+        ),
       });
       const json = (await res.json().catch(() => ({}))) as SaveResponse;
       if (res.ok && json.ok && json.mode === "fs") {

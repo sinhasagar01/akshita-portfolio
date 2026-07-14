@@ -10,7 +10,8 @@ import { cookies } from "next/headers";
 import { load } from "js-yaml";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { commitSiteSettings } from "@/lib/studio/commit-site-settings";
-import { commitCollectionEntry } from "@/lib/studio/commit-collection-entry";
+import { commitCollectionEntry, commitProjectSections } from "@/lib/studio/commit-collection-entry";
+import { sanitizeSectionsPatch } from "@/lib/studio/sections-format";
 import {
   DRAFT_BRANCH,
   invalidateDraftStateCache,
@@ -36,11 +37,64 @@ export async function POST(req: Request) {
   // Parse and sanitize BEFORE the env-split, so a malformed body is rejected in
   // every mode (the fs no-op cannot mask it) and only a typed, known-field,
   // string-valued patch can ever reach the transform (review finding 5).
-  let body: { collection?: unknown; singleton?: unknown; slug?: unknown; patch?: unknown };
+  let body: {
+    collection?: unknown;
+    singleton?: unknown;
+    slug?: unknown;
+    patch?: unknown;
+    sections?: unknown;
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
+  }
+
+  // P4 4(b)-i — the case-study sections save. Carries { collection:"projects",
+  // slug, sections } and is its own shape, NOT a `patch` key: sanitizeProjectsPatch
+  // still rejects `sections` on the text path, so sections has exactly ONE writer
+  // (the same one-writer discipline heroImage has). Same owner gate + env-split
+  // above, same DRAFT_BRANCH, so it accumulates with every other edit (DB-1).
+  if (body?.sections !== undefined) {
+    if (body.collection !== "projects") {
+      return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
+    }
+    const slug = body.slug;
+    if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
+    }
+    // STRICT sanitize BEFORE the env-split, so a malformed patch is rejected in
+    // every mode and the fs no-op cannot mask it.
+    const sanitized = sanitizeSectionsPatch(body.sections);
+    if (!sanitized.ok) {
+      return NextResponse.json(sanitized, { status: 400 });
+    }
+    if (process.env.STUDIO_WRITE_MODE !== "github") {
+      return NextResponse.json({
+        ok: true,
+        mode: "fs",
+        saved: false,
+        note: "draft save needs github mode",
+      });
+    }
+    if (!process.env.STUDIO_GITHUB_TOKEN) {
+      return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
+    }
+    const result = await commitProjectSections(slug, sanitized.sections, {
+      branch: DRAFT_BRANCH,
+      message: `chore(studio): update projects/${slug} sections draft`,
+    });
+    if (!result.ok) {
+      const status =
+        result.error.code === "not_found"
+          ? 404
+          : result.error.code === "unsupported_format"
+            ? 422
+            : 500;
+      return NextResponse.json(result, { status });
+    }
+    invalidateDraftStateCache();
+    return NextResponse.json({ ok: true, mode: "github", saved: true, sha: result.sha });
   }
 
   // CE-1 — collection entry save. Carries { collection, slug, patch }. The owner

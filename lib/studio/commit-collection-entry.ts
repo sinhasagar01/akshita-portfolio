@@ -26,6 +26,7 @@ import {
   type ExperienceCreateInput,
 } from "./experience-format";
 import { serializeProjectEntry, serializeNewProject } from "./projects-serialize";
+import { serializeProjectSections } from "./sections-serialize";
 import { sanitizeProjectCreate, type ProjectsInput } from "./projects-format";
 import {
   heroImageYamlValue,
@@ -207,6 +208,38 @@ export function commitCollectionEntry(
   return intent === "create"
     ? createEntry(collection, a, opts)
     : editEntry(collection, a as string, b as CollectionPatch, opts);
+}
+
+/**
+ * P4 4(b)-i — commit a project's `sections` to the draft branch. Uses the SAME
+ * read-modify-write path as every text edit (commitFileToDraft: one base
+ * resolution, the expectedHeadOid guard, DB-1 accumulation onto the shared
+ * draft) — only the serializer differs. serializeProjectSections preserves the
+ * head and `body: []` byte-for-byte and re-dumps only the sections tail, so an
+ * edit to one block cannot disturb anything else in the file.
+ *
+ * INTERNET-EXPOSED WRITE: the caller (save-draft) MUST pass the owner gate and
+ * sanitize first — this takes an already-validated sections array.
+ */
+export function commitProjectSections(
+  slug: string,
+  sections: unknown[],
+  opts: { branch: string; message?: string }
+): Promise<CommitResult> {
+  return commitFileToDraft({
+    path: COLLECTION_PATH.projects(slug),
+    branch: opts.branch,
+    message: opts.message ?? `chore(studio): update projects/${slug} sections draft`,
+    transform: (raw) => {
+      if (raw.trim() === "") {
+        return {
+          ok: false,
+          error: { code: "not_found", field: slug, message: `projects entry "${slug}" not found` },
+        };
+      }
+      return serializeProjectSections(raw, sections);
+    },
+  });
 }
 
 /**
