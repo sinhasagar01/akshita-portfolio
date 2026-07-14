@@ -8,6 +8,7 @@
 import { load, dump } from "js-yaml";
 import {
   transformSiteSettings,
+  serializeSettingsPhoto,
   type SiteSettingsInput,
   type SiteSettingsRecord,
   type SaveError,
@@ -22,6 +23,11 @@ import {
   commitFilesToBranch,
   REPO,
 } from "./github-commit";
+import {
+  settingsPhotoYamlValue,
+  settingsPhotoBlobPath,
+  settingsPhotoBlobPathFromValue,
+} from "./settings-photo-path";
 
 const SETTINGS_PATH = "content/site-settings.yaml";
 
@@ -252,6 +258,52 @@ export async function commitSiteSettings(
       if (!result.ok) return result;
       return { ok: true, bytes: dump(result.value) };
     },
+  });
+}
+
+/**
+ * Commit a settings-photo upload (or clear) to the draft branch — the blob and the
+ * yaml edit in ONE commit, mirroring commitProjectHeroImage. On replace the prior
+ * blob is deleted when its path differs, which also cleans up the hand-authored
+ * /images/photo.jpg the first webp upload supersedes.
+ */
+export async function commitSettingsPhoto(opts: {
+  image: Uint8Array | null;
+  branch: string;
+  message?: string;
+}): Promise<FilesCommitResult> {
+  let raw: string;
+  try {
+    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+    raw = await getFileTextAtRef(SETTINGS_PATH, baseOid);
+  } catch (e) {
+    return {
+      ok: false,
+      error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
+    };
+  }
+
+  // The previous blob (from the current yaml) — deleted when the new path differs.
+  const oldValue = (load(raw) as { photo?: unknown } | null)?.photo;
+  const oldBlobPath = settingsPhotoBlobPathFromValue(oldValue);
+
+  const newValue = opts.image ? settingsPhotoYamlValue() : null;
+  const bytes = serializeSettingsPhoto(raw, newValue);
+
+  const newBlobPath = opts.image ? settingsPhotoBlobPath() : null;
+  const additions: { path: string; contents: string | Uint8Array }[] = [
+    { path: SETTINGS_PATH, contents: bytes },
+  ];
+  if (opts.image && newBlobPath) additions.push({ path: newBlobPath, contents: opts.image });
+
+  const deletions: { path: string }[] = [];
+  if (oldBlobPath && oldBlobPath !== newBlobPath) deletions.push({ path: oldBlobPath });
+
+  return commitFilesToDraft({
+    additions,
+    deletions,
+    branch: opts.branch,
+    message: opts.message ?? `chore(studio): ${opts.image ? "set" : "clear"} site photo`,
   });
 }
 

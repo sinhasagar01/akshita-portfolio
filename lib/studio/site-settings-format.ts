@@ -1,14 +1,12 @@
 // Pure transform helpers for the Site Settings write seam.
 //
-// This module is intentionally dependency-free: no "use server", no next/cache,
-// no @-alias imports, no js-yaml. That keeps it importable from plain Node
-// (e.g. a proof script run with `node --experimental-strip-types`), so the same
-// logic the server action uses can be exercised directly rather than copied.
+// NODE-RUNNABLE by design: no "use server", no next/cache, and every RELATIVE
+// import is type-only, so the ralph proofs can exercise this logic directly under
+// `node --experimental-strip-types` rather than copying it. js-yaml is imported
+// (serializeSettingsPhoto needs load/dump), which is fine — it is an npm package
+// node resolves; only extensionless relative VALUE imports would break that.
+import { load, dump } from "js-yaml";
 
-/**
- * Writable Site Settings fields. `photo` is deliberately excluded so the write
- * path can never touch or clear the image field.
- */
 /** One Process stage. The Process section renders a fixed four of these; the
  *  panel edits name, description, and the tags array per stage. */
 export type ProcessStage = {
@@ -327,4 +325,34 @@ export function transformSiteSettings(
   if (!urlCheck.ok) return urlCheck;
 
   return { ok: true, value: reorderBySchema(next) };
+}
+
+/**
+ * Write ONLY the `photo` field, preserving every other field verbatim — the sole
+ * writer for photo. transformSiteSettings skips photo on the patch path and
+ * sanitizeSiteSettingsPatch rejects it, so the text editor can never touch the
+ * portrait (heroImage's posture on projects). This reuses the SAME strip + reorder
+ * pipeline as transformSiteSettings but sets photo, kept apart from that function so
+ * the text path's photo-skip stays unconditional.
+ *
+ * BYTE-SAFE BY THE FILE'S OWN CANONICAL FORM. site-settings.yaml is all head (no
+ * body/sections tail to splice around), and commitSiteSettings already re-dumps the
+ * whole file on every settings save, so it is js-yaml-dump stable — changing one key
+ * and re-dumping touches only that key's line. Proved on the real file against
+ * heroCopy's scalar, aboutCopy/aboutNote's folded scalars, the aboutFocusChips and
+ * links arrays, and processStages' nested objects (ralph/tests/settings-photo.mjs).
+ * Default dump options, matching commitSiteSettings.
+ *
+ * `photo` is a path to set, or null to clear (stripEmptyOptional leaves null alone,
+ * so a cleared photo round-trips as `photo: null`, matching an unset Keystatic image).
+ *
+ * Lives here, not in a *-serialize sibling, because it must value-reuse strip +
+ * reorder AND stay runnable under node --experimental-strip-types for its byte-compat
+ * proof; a cross-module value import of those helpers would not resolve there.
+ */
+export function serializeSettingsPhoto(raw: string, photo: string | null): string {
+  const loaded = (load(raw) ?? {}) as SiteSettingsRecord;
+  const next: SiteSettingsRecord = { ...loaded, photo };
+  stripEmptyOptional(next);
+  return dump(reorderBySchema(next));
 }

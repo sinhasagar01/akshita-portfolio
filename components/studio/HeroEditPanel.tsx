@@ -17,6 +17,7 @@ import { useState } from "react";
 import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import SettingsPhotoField from "./SettingsPhotoField";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
 
@@ -257,13 +258,7 @@ export default function HeroEditPanel({
           />
         </label>
 
-        <div className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo</span>
-          <div className="flex items-center gap-3 rounded-md border border-dashed border-ink-950/12 bg-cream-100 px-3 py-2">
-            <span className="text-[12px] text-ink-600">{photo || "No photo"}</span>
-            <span className="ml-auto text-[10px] text-text-subtle">read-only, managed in Keystatic</span>
-          </div>
-        </div>
+        <SettingsPhotoField photo={photo} onUploaded={() => setUnpublished(true)} />
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
