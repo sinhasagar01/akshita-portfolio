@@ -101,3 +101,486 @@ body:
   - discriminant: closingLine
     value:
       line: A simpler app, and a faster job, for mechanics in the field.
+sections:
+  - variant: hero
+    id: hero
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: &ref_0
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: heroCover
+        value:
+          title: Elevate ONE View
+          thesis: >-
+            Simplifying the app field mechanics rely on to bring Elevate
+            elevators online, anywhere in the world.
+          position: >-
+            Designing the mobile interface field mechanics use to commission and
+            maintain Elevate elevators worldwide, turning a heavy workflow into
+            something fast in the field.
+          eyebrow: Case study · Product design
+          watermark: elevate
+          ratingChip:
+            stat: ''
+            rest: ''
+          meta:
+            - label: My role
+              value: UX and UI designer, owning the design system and the 2.0 version
+            - label: Scope
+              value: Enterprise mobile app, industry project
+            - label: Platform
+              value: Mobile
+            - label: Timeline
+              value: 6 months
+          devices:
+            - src: /images/projects/elevate-one-view/screen-a.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: -6
+              translateX: -86
+              translateY: 16
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/elevate-one-view/screen-b.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 288
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 3
+              label: ''
+              dotColor: ''
+          glow:
+            text: field
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: clamp(6rem, 12vw, 11rem)
+  - variant: default
+    id: setup
+    index: '01'
+    eyebrow: The setup
+    title: |-
+      The app a mechanic carries
+      into the field.
+    lead: >-
+      Elevate is one of the world's leading elevator and escalator companies,
+      and this was an industry project delivered with LTIMindtree. **Elevate ONE
+      View** is the app field mechanics carry, the critical enabler for the IoT
+      platform out in the field.
+    northStar: ''
+    layout: stack
+    glow:
+      text: onsite
+      top: ''
+      right: ''
+      bottom: '-30px'
+      left: 30px
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: richText
+        value:
+          paragraphs:
+            - >-
+              Its job is to digitise and manage the full lifecycle of an
+              elevator's connectivity, commissioning, troubleshooting,
+              maintenance, and access to real time health data. Because it is an
+              industry project, the designs stay limited here for
+              confidentiality, so this study leans on the story more than the
+              screens.
+      - discriminant: glanceGrid
+        value:
+          items:
+            - label: Product
+              value: >-
+                Elevate ONE View, the primary mobile interface for Elevate field
+                mechanics, and the field side of an IoT platform.
+            - label: Problem
+              value: >-
+                A heavy, inconsistent app made commissioning and maintaining
+                elevators slow and error prone in the field.
+            - label: Details
+              value: >-
+                UX and UI designer on a cross functional team of 35, owning the
+                design system and the 2.0 redesign over six months.
+            - label: Solution
+              value: >-
+                A single, simplified workflow for the full lifecycle of an
+                elevator's connectivity, from commissioning to troubleshooting.
+            - label: Result
+              value: >-
+                A decluttered first version that streamlined the core flow and
+                helped win the business.
+  - variant: default
+    id: impact
+    index: '02'
+    eyebrow: Impact
+    title: At a glance.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: statCards
+        value:
+          heading: ''
+          stats:
+            - value: 10%
+              suffix: ''
+              body: Reduction in the core flow after decluttering
+              tag: core flow
+              highlighted: false
+            - value: 1,899
+              suffix: ''
+              body: Field uploads across regions
+              tag: uploads
+              highlighted: true
+            - value: '4'
+              suffix: ''
+              body: >-
+                Global regions served, **APAC**, **EMEA**, **NAA**, and
+                **China**
+              tag: regions
+              highlighted: false
+  - variant: default
+    id: problem
+    index: '03'
+    eyebrow: The problem
+    title: |-
+      Friction in exactly the moments
+      a mechanic needed speed.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: friction
+      top: ''
+      right: ''
+      bottom: '-20px'
+      left: 36px
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            The app meant to make a mechanic's job easier was getting in the
+            way. Layouts broke across screens, components behaved
+            inconsistently, navigation felt heavy and disconnected, and the
+            visual tone was uneven.
+  - variant: default
+    id: goals
+    index: '04'
+    eyebrow: Goals
+    title: ''
+    lead: ''
+    northStar: >-
+      One simplified app a field mechanic can move through quickly, anywhere in
+      the world.
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: stepper
+        value:
+          steps:
+            - label: '01'
+              text: Replace multiple tangled workflows with a single simplified one
+            - label: '02'
+              text: Make components behave consistently across the whole app
+            - label: '03'
+              text: Give navigation a clear, predictable structure
+            - label: '04'
+              text: Align the visuals with Elevate's industrial tone
+  - variant: default
+    id: process
+    index: '05'
+    eyebrow: The process
+    title: Built inside a team of 35.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: stepper
+        value:
+          steps:
+            - label: Product planning and requirement gathering
+              text: >-
+                Planning sessions with product managers, business teams, and
+                scrum masters to align on requirements, priorities, and goals.
+            - label: Cross functional requirement discussion
+              text: >-
+                Worked with development, design, and product teams to understand
+                scope, then shared technical detail with developers for
+                feasibility.
+            - label: Design implementation and approval
+              text: >-
+                Created flows, presented them to the product team for approval,
+                and handed off to development.
+            - label: Development and testing
+              text: >-
+                Supported the build, with an iterative loop between
+                stakeholders, developers, and design to hold quality.
+  - variant: default
+    id: insights
+    index: '06'
+    eyebrow: Key insights
+    title: Why the app fought its users.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: principleCards
+        value:
+          heading: ''
+          subhead: ''
+          cards:
+            - index: '01'
+              title: The basics come first
+              body: >-
+                The app did not adapt to different screens, so layouts broke and
+                the basics had to come first.
+            - index: '02'
+              title: Consistency is familiarity
+              body: >-
+                Components behaved inconsistently across the app, which made
+                every screen feel unfamiliar.
+            - index: '03'
+              title: Navigation over features
+              body: >-
+                Navigation felt heavy and disconnected, so a clear, consistent
+                structure mattered more than any single feature.
+  - variant: default
+    id: solution
+    index: '07'
+    eyebrow: The solution
+    title: ''
+    lead: >-
+      **Elevate ONE View**, rebuilt as one simplified workflow a mechanic can
+      trust in the field.
+    northStar: ''
+    layout: stack
+    glow:
+      text: elevate
+      top: 24px
+      right: 34px
+      bottom: ''
+      left: ''
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: deviceShelf
+        value:
+          devices:
+            - src: /images/projects/elevate-one-view/screen-a.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: -4
+              translateX: null
+              translateY: null
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/elevate-one-view/screen-b.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 288
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 2
+              label: ''
+              dotColor: ''
+          glow: *ref_0
+          minHeight: null
+  - variant: default
+    id: tour
+    index: '08'
+    eyebrow: The design tour
+    title: What the redesign fixed.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: featureRows
+        value:
+          features:
+            - index: '01'
+              category: Field app
+              title: Reliable components
+              body: >-
+                A consistent component set across every flow, so the app behaves
+                the same everywhere.
+              image:
+                src: /images/projects/elevate-one-view/screen-a.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '02'
+              category: Field app
+              title: A simplified on site workflow
+              body: >-
+                The commissioning and maintenance flow streamlined for speed in
+                the field.
+              image:
+                src: /images/projects/elevate-one-view/screen-b.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '03'
+              category: Field app
+              title: An industrial visual tone
+              body: >-
+                Visuals aligned to Elevate's industrial identity rather than a
+                generic app look.
+              image:
+                src: /images/projects/elevate-one-view/screen-c.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+  - variant: default
+    id: screens
+    index: ''
+    eyebrow: Screens
+    title: ''
+    lead: Selected screens, kept limited for confidentiality.
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: deviceShelf
+        value:
+          devices:
+            - src: /images/projects/elevate-one-view/screen-a.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: -5
+              translateX: -60
+              translateY: 12
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/elevate-one-view/screen-b.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 268
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 3
+              label: ''
+              dotColor: ''
+            - src: /images/projects/elevate-one-view/screen-c.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: 5
+              translateX: 60
+              translateY: 18
+              z: 2
+              label: ''
+              dotColor: ''
+          glow: *ref_0
+          minHeight: null
+  - variant: default
+    id: before-after
+    index: ''
+    eyebrow: Before and after
+    title: ''
+    lead: The heavy old flow beside the simplified redesign.
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: beforeAfter
+        value:
+          pairs:
+            - title: The core flow
+              tag: Commissioning
+              before:
+                src: /images/projects/elevate-one-view/screen-a.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              after:
+                src: /images/projects/elevate-one-view/screen-b.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              changes:
+                - emphasis: The heavy flow
+                  rest: made simple and fast
+  - variant: default
+    id: principle
+    index: ''
+    eyebrow: My design principle for the redesign
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            For a mechanic on site, every extra tap is time lost, so the whole
+            job was to take taps away.
+  - variant: default
+    id: reflection
+    index: ''
+    eyebrow: Reflection
+    title: What this project taught me.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: richText
+        value:
+          paragraphs:
+            - >-
+              This project taught me to advocate for the right design inside a
+              complex corporate culture, and to translate stakeholder demands
+              into practical solutions. Often that meant choosing the least
+              worst path under real technical and capacity constraints, while
+              still landing a simplified, high value outcome for the mechanic.
+            - >-
+              As a founding member of the centre of excellence team, I learned
+              as much about influence as about screens.
+  - variant: default
+    id: closing
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: closingLine
+        value:
+          text: A simpler app, and a faster job, for mechanics in the field.
