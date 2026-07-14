@@ -16,7 +16,8 @@ import AnnotatedImage from "./blocks/AnnotatedImage";
 import RichText from "./blocks/RichText";
 import ClosingLine from "./blocks/ClosingLine";
 
-/** Dispatch one block to its layout component. Mirrors CaseStudyBlockRenderer. */
+/** Dispatch one block to its layout component — the one block dispatch every
+ *  case study renders through (P4 3(d) deleted the legacy generic renderer). */
 export default function BlockRenderer({ block }: { block: Block }) {
   switch (block.kind) {
     case "heroCover":

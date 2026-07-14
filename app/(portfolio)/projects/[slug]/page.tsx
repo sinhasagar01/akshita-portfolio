@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getCaseStudyData, getProjectSlugs } from "@/lib/keystatic";
@@ -6,8 +5,6 @@ import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { absoluteUrl, projectPath, projectLastModified, ogImageUrl } from "@/lib/site";
 import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
-import CaseStudyBlockRenderer from "@/components/blocks/CaseStudyBlockRenderer";
-import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import type { CaseStudy } from "@/lib/case-studies/types";
@@ -51,7 +48,20 @@ export default async function CaseStudyPage({ params }: Props) {
   const path = projectPath(slug);
   const lastModified = projectLastModified(slug);
 
-  const jsonLd = (
+  // P4 3(d) step 5 — every content project renders through the ONE bespoke
+  // renderer (the 3(c) adapter into CaseStudyView), the same component set the
+  // boat-crest literal route uses. A project with no authored sections yet
+  // (e.g. a fresh studio-created stub) adapts to an empty array, and
+  // CaseStudyView renders its "Coming soon" placeholder — graceful, not a crash.
+  const study: CaseStudy = {
+    slug,
+    title: data.title,
+    thesis: data.summary,
+    description: data.summary,
+    sections: adaptSections(data.rawSections),
+  };
+
+  return (
     <>
       <JsonLd
         data={caseStudySchema({
@@ -69,55 +79,7 @@ export default async function CaseStudyPage({ params }: Props) {
           { name: data.title, url: absoluteUrl(path) },
         ])}
       />
+      <CaseStudyView study={study} />
     </>
-  );
-
-  // P4 3(d) — the per-project fallback switch. A project WITH authored
-  // `sections` renders through the 3(c) adapter into the bespoke renderer
-  // (CaseStudyView owns its whole <main>); one without falls through to the
-  // legacy body render below, untouched. This is what makes the migration
-  // incremental: the adapter's fail-loud can never fire on an un-migrated
-  // project. The switch and the legacy path are deleted once all three
-  // projects carry sections (step 5).
-  if (Array.isArray(data.rawSections) && data.rawSections.length > 0) {
-    const study: CaseStudy = {
-      slug,
-      title: data.title,
-      thesis: data.summary,
-      description: data.summary,
-      sections: adaptSections(data.rawSections),
-    };
-    return (
-      <>
-        {jsonLd}
-        <CaseStudyView study={study} />
-      </>
-    );
-  }
-
-  return (
-    <main className="container-x">
-      {jsonLd}
-      <div
-        className="section-card relative aspect-[21/9] overflow-hidden bg-[--color-surface]"
-        style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
-      >
-        {data.heroImage ? (
-          <Image
-            src={data.heroImage}
-            alt={data.title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        ) : (
-          <ImagePlaceholder label="2100 × 900" />
-        )}
-      </div>
-      {data.blocks.map((block, i) => (
-        <CaseStudyBlockRenderer key={i} block={block} />
-      ))}
-    </main>
   );
 }

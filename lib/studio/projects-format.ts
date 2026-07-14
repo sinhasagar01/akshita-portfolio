@@ -92,7 +92,7 @@ export function sanitizeProjectsPatch(
       return invalid("heroImage is uploaded through the image route, not this patch", key);
     }
     if (key === "body") {
-      return invalid("body is the case study content, edited in Keystatic", key);
+      return invalid("body is legacy and unused, the case study renders from sections", key);
     }
     if (key === "orderIndex") {
       return invalid("orderIndex is managed by ordering, not editable here", key);
@@ -143,7 +143,7 @@ export function sanitizeProjectCreate(
   let facts: Partial<ProjectFacts> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (key === "orderIndex") return invalid("orderIndex is assigned by the server on create", key);
-    if (key === "body") return invalid("body is created empty and edited in Keystatic", key);
+    if (key === "body") return invalid("body is a legacy field, created empty and unused", key);
     if (key === "heroImage") return invalid("heroImage is uploaded after create, not on create", key);
     if (key === "facts") {
       const result = sanitizeFacts(value);
