@@ -149,21 +149,75 @@ export function NumberField({
 }
 
 /**
- * An image field, READ-ONLY — the inert seam to 4(b)-iv.
+ * A block image field — P4 4(b)-iv. The single choke point every one of the six
+ * image field paths flows through, which is why wiring upload here lights up all
+ * five image-bearing kinds at once.
  *
- * There is deliberately no input bound to `src` and no onChange: this component
- * CANNOT emit a src, so no edit path can disturb one. Upload lands in 4(b)-iv,
- * where the image and its geometry want one visual affordance rather than a path
- * string and five number boxes.
+ * The client NEVER names the file. It posts the bytes; the server normalizes to
+ * webp, hashes THOSE bytes, derives the path, and returns it. So the path depends on
+ * the image and nothing else — not the array position (which is how Keystatic names
+ * nested images, and why it is locked out of these files), not the session, not any
+ * editable field.
  *
- * `alt` is NOT here — it stays an editable TextField beside this. It is text, it
- * is real accessibility work, and it is independent of the binary.
+ * Clearing writes `null`, never "" — the PR-B null discipline. `src` is
+ * `string | null`, null is how "no image" is spelled, and the sanitizer rejects "".
+ *
+ * `alt` is NOT here — it stays an editable TextField beside this. It is text, it is
+ * real accessibility work, and it is independent of the binary.
  */
-export function ReadOnlyImage({ label, src }: { label: string; src: string | null }) {
+export function BlockImageField({
+  label,
+  src,
+  slug,
+  onChange,
+}: {
+  label: string;
+  src: string | null;
+  slug: string;
+  /** Receives the server-derived path, or null on clear. */
+  onChange: (src: string | null) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function upload(file: File) {
+    setBusy(true);
+    setError(null);
+    try {
+      const body = new FormData();
+      body.append("slug", slug);
+      body.append("file", file);
+      const res = await fetch("/api/studio/upload-block-image", { method: "POST", body });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok && json.mode === "fs") {
+        setError("Image upload needs github mode (dev)");
+        return;
+      }
+      if (res.ok && json.ok && typeof json.src === "string") {
+        onChange(json.src);
+        return;
+      }
+      setError(
+        {
+          unsupported_type: "That file type is not supported. Use a PNG, JPEG or WebP.",
+          file_too_large: "That image is too large. The limit is 12 MB.",
+          image_processing_failed: "That image could not be processed.",
+        }[json.error as string] ?? "Upload failed. Try again."
+      );
+    } catch {
+      setError("Upload failed. Try again.");
+    } finally {
+      setBusy(false);
+      // Let the same file be chosen again after a failure.
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
   return (
     <div className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
-      <div className="flex items-center gap-2 rounded-md border border-dashed border-ink-950/15 bg-cream-100 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
         <span className="grid size-6 shrink-0 place-items-center rounded text-ink-400 [&>svg]:size-3.5">
           <IconImage />
         </span>
@@ -172,8 +226,38 @@ export function ReadOnlyImage({ label, src }: { label: string; src: string | nul
         ) : (
           <span className="flex-1 text-[11px] text-text-subtle">No image set</span>
         )}
-        <span className="shrink-0 text-[10px] text-text-subtle">Replacing images is coming</span>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void upload(f);
+          }}
+        />
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="shrink-0 rounded-md border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+        >
+          {busy ? "Uploading…" : src ? "Replace" : "Upload"}
+        </button>
+        {src && (
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onChange(null)}
+            aria-label={`Clear ${label}`}
+            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+          >
+            <IconX />
+          </button>
+        )}
       </div>
+      {error && <span className="text-[10px] text-accent-600">{error}</span>}
     </div>
   );
 }

@@ -28,7 +28,9 @@ export async function POST() {
     const status =
       result.error.code === "merge_conflict"
         ? 409
-        : result.error.code === "invalid_url"
+        : // invalid_sections joins invalid_url: an unpublishable draft is refused
+          // here rather than failing the Vercel build (P4 4b-iv).
+          result.error.code === "invalid_url" || result.error.code === "invalid_sections"
           ? 422
           : 500;
     return NextResponse.json(result, { status });

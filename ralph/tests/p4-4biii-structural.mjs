@@ -59,8 +59,8 @@ const EMPTIES = Object.fromEntries(
 );
 const glow = () => ({ text: "", top: "", right: "", bottom: "", left: "", size: "" });
 
-/** The two kinds the picker withholds — imported, so the gate the suite asserts IS
- *  the gate the picker applies. */
+/** EMPTY as of 4(b)-iv — imported, so the suite reads the picker's real gate rather
+ *  than a copy. Asserted empty below: every kind is addable now. */
 const GATED = ADD_GATED_UNTIL_UPLOAD;
 
 for (const [kind, value] of Object.entries(EMPTIES)) {
@@ -79,7 +79,7 @@ for (const [kind, value] of Object.entries(EMPTIES)) {
   });
 }
 
-console.log("\nthe 14 empties — publishable, or gated for a proven reason");
+console.log("\nthe 14 empties — every kind addable; the image-bearing ones gated at PUBLISH (4b-iv)");
 for (const [kind, value] of Object.entries(EMPTIES)) {
   const build = () => {
     const secs = fresh();
@@ -88,14 +88,25 @@ for (const [kind, value] of Object.entries(EMPTIES)) {
     if (!san.ok) throw new Error(san.error.message);
     return san.sections;
   };
-  if (GATED.has(kind)) {
-    check(`${kind}: withheld from the picker BECAUSE its empty is unpublishable`, () => {
-      let threw = false;
-      try { adaptSections(build(), { mode: "ssg" }); } catch { threw = true; }
-      if (!threw) throw new Error("ssg now ACCEPTS it — it can be un-gated (4b-iv likely landed)");
+  // P4 4(b)-iv INVERTED THIS. It used to assert that heroCover and annotatedImage
+  // were WITHHELD from the picker because their empties are unpublishable — the
+  // gate. Upload now exists and every kind is addable, but that alone did not make
+  // it safe (a new block is still born src:null): what makes it safe is that the
+  // gate MOVED to publish, which re-renders every changed project through the ssg
+  // adapter and refuses an unpublishable draft. So the assertion is now that the two
+  // are OFFERED, and that their un-imaged empties are caught at publish rather than
+  // by the build.
+  const needsImage = JSON.stringify(EMPTIES[kind]).includes('"src":null');
+  if (GATED.has(kind)) throw new Error(`${kind} is still gated — 4b-iv un-gates every kind`);
+  if (needsImage) {
+    check(`${kind}: offered by the picker; its un-imaged empty is REFUSED at publish`, () => {
+      let threw = null;
+      try { adaptSections(build(), { mode: "ssg" }); } catch (e) { threw = e.message; }
+      if (!threw) throw new Error("ssg accepts a block with no image — the publish gate is moot");
+      if (!threw.includes("image src is missing")) throw new Error(threw);
     });
   } else {
-    check(`${kind}: offered by the picker AND ssg-publishable`, () => {
+    check(`${kind}: offered by the picker AND immediately ssg-publishable`, () => {
       adaptSections(build(), { mode: "ssg" });
     });
   }

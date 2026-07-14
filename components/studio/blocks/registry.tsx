@@ -20,7 +20,7 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, ReadOnlyImage, ItemRows } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows } from "./fields";
 import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD, emptyDevice, emptyImg, emptyGlow } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
@@ -28,6 +28,10 @@ export type BlockFormProps<K extends SectionBlockKind> = {
   onChange: (next: RawValue<K>) => void;
   /** The panel's save-on-blur. */
   onBlur?: () => void;
+  /** P4 4(b)-iv — the project slug, threaded to the image fields so an upload lands
+   *  under this project's directory. The client still never names the FILE: it posts
+   *  the slug and the bytes, and the server hashes and derives the path. */
+  slug: string;
 };
 
 type Entry<K extends SectionBlockKind> = {
@@ -77,10 +81,6 @@ export const BLOCK_LABELS: { [K in SectionBlockKind]: string } = {
 };
 
 const firstLine = (s: string, fallback: string) => s.split("\n")[0].trim() || fallback;
-
-/** Why an image-bearing array cannot gain a row until 4(b)-iv. */
-const ADD_NEEDS_IMAGE =
-  "Adding one needs image upload, which is coming. A new row would have no image, and a case study with a missing image cannot be published.";
 
 /* ------------------------------------------------------------ tier 1 forms */
 
@@ -344,17 +344,26 @@ function ImgSpecFields<T extends RawImg>({
   set,
   onBlur,
   focusRef,
+  slug,
   imageLabel = "Image",
 }: {
   value: T;
   set: (next: T) => void;
   onBlur?: () => void;
   focusRef?: (el: HTMLElement | null) => void;
+  slug: string;
   imageLabel?: string;
 }) {
   return (
     <>
-      <ReadOnlyImage label={imageLabel} src={value.src} />
+      <BlockImageField
+        label={imageLabel}
+        src={value.src}
+        slug={slug}
+        // The upload/clear commits the blob and hands back the path; the src edit
+        // then rides the ordinary save, so `sections` keeps its single writer.
+        onChange={(src) => set({ ...value, src })}
+      />
       <TextField
         label="Alt text"
         value={value.alt}
@@ -378,15 +387,17 @@ function DeviceFields({
   set,
   onBlur,
   focusRef,
+  slug,
 }: {
   value: RawDevice;
   set: (next: RawDevice) => void;
   onBlur?: () => void;
   focusRef?: (el: HTMLElement | null) => void;
+  slug: string;
 }) {
   return (
     <>
-      <ImgSpecFields value={value} set={set} onBlur={onBlur} focusRef={focusRef} imageLabel="Screen" />
+      <ImgSpecFields value={value} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} imageLabel="Screen" />
       <div className="grid grid-cols-2 gap-2">
         <TextField label="Theme label" value={value.label} onChange={(label) => set({ ...value, label })} onBlur={onBlur} />
         <TextField label="Dot colour, hex" value={value.dotColor} onChange={(dotColor) => set({ ...value, dotColor })} onBlur={onBlur} />
@@ -424,7 +435,7 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
   );
 }
 
-const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, onChange, onBlur }) => (
+const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, onChange, onBlur, slug }) => (
   <>
     <ItemRows
       items={value.devices}
@@ -432,16 +443,10 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
       empty={emptyDevice}
       addLabel="Add device"
       itemNoun="Device"
-      // A new device's src is null and nothing can set it until 4(b)-iv, so the
-      // fail-loud SSG adapter would refuse it — the owner could add it, preview it
-      // (preview substitutes a placeholder), publish, and get a failed build that
-      // blocks every unrelated edit too. Remove stays: it is the escape hatch.
-      noAdd
-      addNote={ADD_NEEDS_IMAGE}
       rowLabel={(d, i) => d.label.trim() || `Device ${i + 1}`}
     >
       {({ item, set, focusRef }) => (
-        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} />
+        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} />
       )}
     </ItemRows>
     <NumberField
@@ -454,7 +459,7 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
   </>
 );
 
-const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, onChange, onBlur }) => (
+const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, onChange, onBlur, slug }) => (
   <ItemRows
     items={value.features}
     onChange={(features) => onChange({ ...value, features })}
@@ -467,8 +472,6 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
     })}
     addLabel="Add feature"
     itemNoun="Feature"
-    noAdd
-    addNote={ADD_NEEDS_IMAGE}
     rowLabel={(f, i) => f.title.trim() || `Feature ${i + 1}`}
   >
     {({ item, set, focusRef }) => (
@@ -479,15 +482,15 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
         </div>
         <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} />
         <TextArea label="Body — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
-        <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} />
+        <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} />
       </>
     )}
   </ItemRows>
 );
 
-const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur }) => (
+const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug }) => (
   <>
-    <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} />
+    <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} />
     <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
       <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
         Scrawl (optional)
@@ -528,7 +531,7 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
   </>
 );
 
-const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onChange, onBlur }) => (
+const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onChange, onBlur, slug }) => (
   <>
     <TextField label="Title" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} />
     <TextArea label="Thesis sentence" value={value.thesis} onChange={(thesis) => onChange({ ...value, thesis })} onBlur={onBlur} rows={2} />
@@ -576,7 +579,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
       rowLabel={(_, i) => (i === 0 ? "Device 1 (back)" : "Device 2 (front)")}
     >
       {({ item, set, focusRef }) => (
-        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} />
+        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} />
       )}
     </ItemRows>
     <GlowFields value={value.glow} set={(glow) => onChange({ ...value, glow })} onBlur={onBlur} />
@@ -584,15 +587,13 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
 );
 
 /** The first DOUBLY nested array: pairs[] each holding their own changes[]. */
-const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur }) => (
+const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur, slug }) => (
   <ItemRows
     items={value.pairs}
     onChange={(pairs) => onChange({ ...value, pairs })}
     empty={() => ({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] })}
     addLabel="Add pair"
     itemNoun="Pair"
-    noAdd
-    addNote={ADD_NEEDS_IMAGE}
     rowLabel={(p, i) => p.title.trim() || `Pair ${i + 1}`}
   >
     {({ item, set, focusRef }) => (
@@ -601,8 +602,8 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
           <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
           <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
         </div>
-        <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} imageLabel="Before image" />
-        <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} imageLabel="After image" />
+        <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} slug={slug} imageLabel="Before image" />
+        <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} slug={slug} imageLabel="After image" />
         <ItemRows
           items={item.changes}
           onChange={(changes) => set({ ...item, changes })}
@@ -768,7 +769,7 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
   // tier 3
   // still no Form (later in PR B) — preserved untouched by the panel, round-tripped
   // opaquely by the sanitizer.
-  heroCover: { empty: BLOCK_EMPTIES.heroCover, addBlockedUntilUpload: true,
+  heroCover: { empty: BLOCK_EMPTIES.heroCover,
     label: (v) => firstLine(v.title, "Hero cover"),
     Form: HeroCoverForm,
     // devices is the schema's ONLY length constraint ({min:2,max:2}), so an empty
@@ -779,7 +780,7 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
   featureRows: { empty: BLOCK_EMPTIES.featureRows, label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
   beforeAfter: { empty: BLOCK_EMPTIES.beforeAfter, label: (v) => `Before / after — ${v.pairs.length} pairs`, Form: BeforeAfterForm },
   swatchTokens: { empty: BLOCK_EMPTIES.swatchTokens, label: (v) => `Swatch tokens — ${v.groups.length} groups`, Form: SwatchTokensForm },
-  annotatedImage: { empty: BLOCK_EMPTIES.annotatedImage, addBlockedUntilUpload: true,
+  annotatedImage: { empty: BLOCK_EMPTIES.annotatedImage,
     label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"),
     Form: AnnotatedImageForm,
   },
