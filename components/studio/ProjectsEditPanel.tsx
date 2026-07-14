@@ -4,7 +4,7 @@
 // one panel per existing project, editing summary + the two editable facts via
 // useDraftForm. The save posts { collection, slug, patch } via saveExtras; the
 // route commits to the SAME draft branch as the singleton (DB-1 accumulation).
-// title is the slug (read-only); the case-study body is edited in Keystatic.
+// title is the slug (read-only); the case-study body is edited on the body page.
 //
 // P4-1 — heroImage is now editable HERE via a separate multipart upload route
 // (its own local state, NOT part of the useDraftForm text patch), committing the
@@ -134,7 +134,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             className="w-full cursor-not-allowed rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
-            The project&rsquo;s identity, set when you add it. The case-study body is edited in Keystatic.
+            The project&rsquo;s identity, set when you add it. The case study body is edited on its own body page.
           </span>
         </label>
 

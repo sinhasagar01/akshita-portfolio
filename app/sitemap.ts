@@ -6,7 +6,7 @@ import { absoluteUrl, projectPath, projectLastModified } from "@/lib/site";
  * Dynamic sitemap built from the same content source the pages use (`getProjectSlugs`),
  * so it can never drift from the real routes. Includes the homepage and every project
  * detail page; the bespoke `boat-crest` slug is part of that list and resolves to its
- * literal route. Non-public routes (`/keystatic`, `/api`) are intentionally excluded.
+ * literal route. Non-public routes (`/studio`, `/api`) are intentionally excluded.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const slugs = await getProjectSlugs();

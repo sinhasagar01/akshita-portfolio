@@ -272,7 +272,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
               </label>
               <p className="text-[11px] text-text-subtle">
                 A new project starts as a stub — the title is its identity and can&rsquo;t be changed
-                here later; the hero image and case-study body are added in Keystatic. New projects are
+                here later; the hero image and case study body are added after you create it. New projects are
                 added to the end of the list (the oldest position); reordering isn&rsquo;t available here yet.
               </p>
               {addError && (

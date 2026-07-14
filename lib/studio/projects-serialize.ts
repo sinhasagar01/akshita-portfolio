@@ -50,7 +50,7 @@ export function serializeProjectEntry(
       ok: false,
       error: {
         code: "unsupported_format",
-        message: "this project file cannot be safely edited here; edit it in Keystatic",
+        message: "this project file has not been migrated to the sections format",
       },
     };
   }
@@ -76,7 +76,7 @@ export function serializeProjectEntry(
  * mdoc files (locked decision — /studio creates the head, Keystatic authors the
  * rich body). facts is a full four-key block ("" for the ones not provided), in
  * canonical order. heroImage is omitted (the reader coalesces a missing image to
- * null; it is uploaded later in Keystatic). Default js-yaml dump — there is no
+ * null; it is uploaded through /studio). Default js-yaml dump — there is no
  * existing file to match, so this is what a fresh Keystatic entry would look like.
  */
 export function serializeNewProject(

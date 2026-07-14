@@ -13,9 +13,10 @@ type Props = {
   /** Small sub-note under the meta, e.g. "facet labels in code". */
   note?: string;
   signals?: CardSignal[];
-  /** Keystatic deep-link. When omitted the card is non-interactive (e.g. Contact). */
+  /** Link target (a /studio route). When omitted the card is non-interactive
+   *  (e.g. Contact). */
   href?: string;
-  /** Accessible name for the link, e.g. "Edit boAt Crest in Keystatic". */
+  /** Accessible name for the link, e.g. "Edit Hero in Settings". */
   ariaLabel?: string;
   /** Optional extra body content, e.g. read-only skill pills. */
   children?: ReactNode;
@@ -48,14 +49,7 @@ export default function ContentCard({
   children,
 }: Props) {
   const isCode = status === "code";
-
-  // GH-11 (review finding 4, label only) — /keystatic is dev-only in production
-  // (the middleware 404s it), so every deep-link card says so there instead of
-  // silently landing on a 404. Server component, so this renders per-build.
-  const allSignals =
-    href?.startsWith("/keystatic") && process.env.NODE_ENV === "production"
-      ? [...signals, { label: "Editing works in dev only", tone: "muted" as const }]
-      : signals;
+  const allSignals = signals;
 
   const hasWarn = allSignals.some((s) => s.tone !== "muted");
 
