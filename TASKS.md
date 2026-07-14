@@ -228,13 +228,23 @@ The SYSTEM is complete. Everything below is content, not a blocker, and the step
 
    Two polish follow-ups are done. The object-array editors (Links, Skills) no longer commit a fully-blank row to the draft, because buildCommitted and isDirty both drop empty items now, matching the About and Process string-array editors (PR 43 for Links, PR 44 for Skills). And the sidebar Projects and Experience counts live-update on add and remove through a StudioCountsProvider seeded from the server counts, instead of going stale until a hard reload (PR 45). Image upload is done too, for the project heroImage (040dbfb, #48) and for case-study block images (9f31470, #61), so no fork remains here.
 
-## /studio prod-readiness blockers (before hosted editing ships)
+## /studio prod-readiness blockers (audited, three were stale)
 
-- Gate /studio itself. It is ungated today, and in github mode it makes authenticated GitHub reads.
-- Add caching to the per-request draft read. getStudioData hits the GitHub API per /studio request in github mode.
-- Durable cross-instance login throttle. The in-memory one does not survive serverless cold starts.
-- Set UPSTASH_REDIS_REST_URL + TOKEN in Vercel prod env, else the GH-7 login throttle falls back to per-instance in-memory in prod.
-- /keystatic is dev-only by decision, guarded to 404 in production by the middleware. No OAuth app, no prod storage split. The retire trigger has FIRED, because image upload landed (040dbfb, #48 and 9f31470, #61) and /studio now edits every case-study element. Two things still hold it open. The three migrated projects are already locked out of it (aae6325, #57) because it rewrites them destructively, and boat-crest's Keystatic item is the misleading surface fork 1 names. Retiring it also lets the dead `body` field go.
+Audited against the code, not from memory. Three of the four bullets this list carried had shipped and were still written as open. What is left is ops, not code.
+
+Settled, with the check that proves it.
+
+- Gate /studio itself. DONE by GH-6. middleware.ts and the (dashboard) layout both call verifyOwnerSession before anything renders, and an unauthenticated /studio returns a 307 to the login page.
+- Cache the per-request draft read. DONE by GH-8. readDraftSettingsCached wraps the GitHub read in unstable_cache with a 45 second TTL and a revalidate tag, and all seven write routes invalidate it (save-draft, publish, discard, create-entry, delete-entry, and the two upload routes).
+- Durable cross-instance login throttle. DONE by GH-7. lib/studio/login-throttle.ts backs the same policy with Upstash over its REST API and falls back to the in-memory counter, logged, when the store is absent or erroring.
+
+Still open, and both are ops rather than code.
+
+- Set the four REQUIRED server env vars in Vercel prod. This list never named them, which was the real gap. STUDIO_WRITE_MODE must be `github`, because every write path tests that literal and nothing falls back to NODE_ENV, so leaving it unset makes every save return the fs no-op and tell the owner it needs github mode (dev), in production. STUDIO_GITHUB_TOKEN, or writes 500. STUDIO_OWNER_PASSWORD and STUDIO_SESSION_SECRET, or nobody can log in. The last three FAIL CLOSED, verified, so a missing secret locks the owner out rather than letting anyone in. STUDIO_WRITE_MODE is the odd one, it fails confusing rather than closed.
+- Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in Vercel prod, else the GH-7 throttle degrades to per-instance in-memory. Optional by design, unlike the four above.
+- Retire /keystatic. It is dev-only by decision, guarded to 404 in production by the middleware, with no OAuth app and no prod storage split, so it is not a launch blocker. The retire trigger has FIRED, because image upload landed (040dbfb, #48 and 9f31470, #61) and /studio now edits every element of the three content studies. Two things still hold it open. The three migrated projects are already locked out of it (aae6325, #57) because it rewrites them destructively, and boat-crest's Keystatic item is the misleading surface fork 1 names. Retiring it also lets the dead `body` field go.
+
+Phase 4 added no new blocker, checked rather than assumed. Every /studio route and every /api/studio route carries content/ in its build trace, including the new body and preview pages, so GH-12's glob covers the nested routes. Both upload routes carry sharp. The Keystatic lockout reads content/ from the filesystem, but the middleware's production 404 returns before that read, so it never runs in prod.
 
 ## /studio inline-edit, multi-form draft accumulation (SETTLED by DB-1)
 
