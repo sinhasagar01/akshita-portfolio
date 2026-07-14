@@ -17,7 +17,7 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: &ref_0
+    glow:
       text: ''
       top: ''
       right: ''
@@ -136,7 +136,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: statCards
         value:
@@ -192,7 +198,13 @@ sections:
       A profiling step so clear that no one builds on bad data without knowing
       it.
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: stepper
         value:
@@ -217,7 +229,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: stepper
         value:
@@ -248,7 +266,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: principleCards
         value:
@@ -309,7 +333,13 @@ sections:
               z: 2
               label: ''
               dotColor: ''
-          glow: *ref_0
+          glow:
+            text: ''
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: ''
           minHeight: null
   - variant: default
     id: tour
@@ -319,7 +349,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: featureRows
         value:
@@ -374,7 +410,13 @@ sections:
     lead: A selection of profiling and data quality views.
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: deviceShelf
         value:
@@ -406,7 +448,13 @@ sections:
               z: 2
               label: ''
               dotColor: ''
-          glow: *ref_0
+          glow:
+            text: ''
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: ''
           minHeight: null
   - variant: default
     id: before-after
@@ -418,7 +466,13 @@ sections:
       legible.
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: beforeAfter
         value:
@@ -452,7 +506,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: pullQuote
         value:
@@ -467,7 +527,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: richText
         value:
@@ -488,7 +554,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: closingLine
         value:
