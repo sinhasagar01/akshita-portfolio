@@ -17,7 +17,6 @@ import { useState } from "react";
 import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
-import SettingsPhotoField from "./SettingsPhotoField";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
 
@@ -34,7 +33,6 @@ type Props = {
   tab4Line: string;
   heroRoleLabel: string;
   heroScrollCue: string;
-  photo: string | null;
 };
 
 // The Hero form's editable fields. State keys match the settings field names so
@@ -91,7 +89,6 @@ export default function HeroEditPanel({
   tab4Line,
   heroRoleLabel,
   heroScrollCue,
-  photo,
 }: Props) {
   const initial: HeroFields = {
     heroCopy,
@@ -257,8 +254,6 @@ export default function HeroEditPanel({
             className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
-
-        <SettingsPhotoField photo={photo} onUploaded={() => setUnpublished(true)} />
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">

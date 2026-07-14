@@ -13,6 +13,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
+import SettingsPhotoField from "./SettingsPhotoField";
 import { IconUser } from "./icons";
 
 type Props = {
@@ -22,6 +23,11 @@ type Props = {
   aboutFocusChips: string[];
   aboutSubtext: string;
   aboutPhotoCaption: string;
+  // The site photo renders on the About section, so its upload control lives in
+  // this panel. It is NOT an AboutFields value: photo has its own writer (the
+  // upload route), never the text patch, so it rides as a plain prop like it did in
+  // the Hero panel before it moved here.
+  photo: string | null;
 };
 
 type AboutFields = {
@@ -45,6 +51,7 @@ export default function AboutEditPanel({
   aboutFocusChips,
   aboutSubtext,
   aboutPhotoCaption,
+  photo,
 }: Props) {
   const initial: AboutFields = {
     aboutCopy,
@@ -172,6 +179,8 @@ export default function AboutEditPanel({
             className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
+
+        <SettingsPhotoField photo={photo} onUploaded={() => setUnpublished(true)} />
 
         <label className="flex flex-col gap-1.5">
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo caption</span>

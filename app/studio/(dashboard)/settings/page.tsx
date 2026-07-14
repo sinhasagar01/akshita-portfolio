@@ -47,10 +47,10 @@ export default async function StudioSettings() {
           tab4Line={settings.tab4Line}
           heroRoleLabel={settings.heroRoleLabel}
           heroScrollCue={settings.heroScrollCue}
-          photo={settings.photo}
         />
 
-        {/* About-A: the second inline-editable group (Surface B), Save-draft only. */}
+        {/* About-A: the second inline-editable group (Surface B), Save-draft only.
+            Carries the site photo, since it renders on the About section. */}
         <AboutEditPanel
           itemId="about"
           aboutCopy={settings.aboutCopy}
@@ -58,6 +58,7 @@ export default async function StudioSettings() {
           aboutFocusChips={settings.aboutFocusChips}
           aboutSubtext={settings.aboutSubtext}
           aboutPhotoCaption={settings.aboutPhotoCaption}
+          photo={settings.photo}
         />
 
         {/* PL-2a: the Links group is an inline-editable panel (Surface B). It
