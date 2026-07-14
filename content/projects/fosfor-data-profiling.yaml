@@ -103,3 +103,490 @@ body:
   - discriminant: closingLine
     value:
       line: The first step in the data to decision journey, finally worth trusting.
+sections:
+  - variant: hero
+    id: hero
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: &ref_0
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: heroCover
+        value:
+          title: Fosfor Data Profiling
+          thesis: >-
+            Helping data teams see the quality and shape of their data before
+            they ever build on it.
+          position: >-
+            Designing the data profiling experience inside the Fosfor Decision
+            Cloud, so teams could judge the quality and shape of their data
+            before trusting it.
+          eyebrow: Case study · Product design
+          watermark: profiling
+          ratingChip:
+            stat: ''
+            rest: ''
+          meta:
+            - label: My role
+              value: UI and UX design
+            - label: Scope
+              value: Enterprise data tool, feature design
+            - label: Platform
+              value: Web
+            - label: Timeline
+              value: 4 months
+          devices:
+            - src: /images/projects/fosfor-data-profiling/screen-a.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: -6
+              translateX: -86
+              translateY: 16
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-data-profiling/screen-b.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 288
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 3
+              label: ''
+              dotColor: ''
+          glow:
+            text: trust
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: clamp(6rem, 12vw, 11rem)
+  - variant: default
+    id: setup
+    index: '01'
+    eyebrow: The setup
+    title: |-
+      The step that decides
+      whether data can be trusted.
+    lead: >-
+      Fosfor is LTIMindtree's data and decision platform, a suite that helps
+      organisations move from raw data to confident decisions. **Data
+      profiling** is the step that comes first, the work of checking whether a
+      dataset is even worth trusting.
+    northStar: ''
+    layout: stack
+    glow:
+      text: quality
+      top: ''
+      right: ''
+      bottom: '-30px'
+      left: 30px
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: richText
+        value:
+          paragraphs:
+            - >-
+              It computes statistical metrics across a data model to expose
+              structure, quality, and anomalies before anyone builds analysis on
+              top of it. My job was to make that step fast, legible, and built
+              into the flow rather than a chore done by hand.
+      - discriminant: glanceGrid
+        value:
+          items:
+            - label: Product
+              value: >-
+                Data profiling inside the Fosfor Decision Cloud, the suite that
+                turns data into decisions.
+            - label: Problem
+              value: >-
+                Teams could not easily judge the quality or structure of a
+                dataset before analysing it, so flawed data slipped through.
+            - label: Details
+              value: >-
+                UI and UX design across research, structure, and visual design
+                over four months in Figma.
+            - label: Solution
+              value: >-
+                A clean profiling interface that computes statistical metrics on
+                any data model and surfaces issues at a glance.
+            - label: Result
+              value: >-
+                A faster, more trustworthy first step in the data to decision
+                workflow.
+  - variant: default
+    id: impact
+    index: '02'
+    eyebrow: Impact
+    title: At a glance.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: statCards
+        value:
+          heading: ''
+          stats:
+            - value: '4'
+              suffix: mo
+              body: From research to final design
+              tag: timeline
+              highlighted: false
+            - value: '2'
+              suffix: ''
+              body: Profiling depths, **basic** and **advanced**, on any data model
+              tag: depths
+              highlighted: true
+            - value: '[real number]'
+              suffix: ''
+              body: Reduction in time spent on manual data quality checks
+              tag: quality checks
+              highlighted: false
+  - variant: default
+    id: problem
+    index: '03'
+    eyebrow: The problem
+    title: |-
+      Wrong data quietly becomes
+      wrong conclusions.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: flawed
+      top: ''
+      right: ''
+      bottom: '-20px'
+      left: 36px
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            Before this, understanding a dataset's quality meant slow manual
+            inspection, which was time consuming and easy to get wrong. Teams
+            carried flawed data into analysis without knowing it, and wrong data
+            quietly became wrong conclusions.
+  - variant: default
+    id: goals
+    index: '04'
+    eyebrow: Goals
+    title: ''
+    lead: ''
+    northStar: >-
+      A profiling step so clear that no one builds on bad data without knowing
+      it.
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: stepper
+        value:
+          steps:
+            - label: '01'
+              text: >-
+                Compute statistical metrics on any data model, basic and
+                advanced
+            - label: '02'
+              text: Surface data quality issues at a glance
+            - label: '03'
+              text: Cut the time spent on manual data checks
+            - label: '04'
+              text: >-
+                Fit profiling into the existing decision workflow rather than
+                bolting it on
+  - variant: default
+    id: process
+    index: '05'
+    eyebrow: The process
+    title: Five phases, one clear read.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: stepper
+        value:
+          steps:
+            - label: Research and analysis
+              text: >-
+                Studied the problem space, profiling patterns, and how competing
+                tools handled the same job.
+            - label: Information architecture
+              text: >-
+                Structured the profiling views around how analysts actually move
+                through data.
+            - label: Wireframing and prototyping
+              text: Explored layouts and validated the flow before visual design.
+            - label: Usability testing
+              text: >-
+                Put prototypes in front of users and refined from their
+                feedback.
+            - label: Visual design and style guide
+              text: >-
+                Aligned the final design to the Fosfor design system for
+                consistency.
+  - variant: default
+    id: insights
+    index: '06'
+    eyebrow: Key insights
+    title: What the research made plain.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: principleCards
+        value:
+          heading: ''
+          subhead: ''
+          cards:
+            - index: '01'
+              title: One unified view first
+              body: >-
+                Data lived in silos across databases, spreadsheets, and APIs, so
+                the first job was a single unified view.
+            - index: '02'
+              title: Quality, not analysis
+              body: >-
+                Quality issues, missing values, and inconsistencies were the
+                real source of bad decisions, not the analysis itself.
+            - index: '03'
+              title: Metrics with a next step
+              body: >-
+                Raw data without actionable insight just slowed people down, so
+                every metric had to point to a next step.
+  - variant: default
+    id: solution
+    index: '07'
+    eyebrow: The solution
+    title: ''
+    lead: >-
+      A clean, clutter free profiling interface that turns any data model into a
+      clear read on its own **quality**.
+    northStar: ''
+    layout: stack
+    glow:
+      text: profiling
+      top: 24px
+      right: 34px
+      bottom: ''
+      left: ''
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: deviceShelf
+        value:
+          devices:
+            - src: /images/projects/fosfor-data-profiling/screen-a.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: -4
+              translateX: null
+              translateY: null
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-data-profiling/screen-b.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 288
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 2
+              label: ''
+              dotColor: ''
+          glow: *ref_0
+          minHeight: null
+  - variant: default
+    id: tour
+    index: '08'
+    eyebrow: The design tour
+    title: What makes profiling work.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: featureRows
+        value:
+          features:
+            - index: '01'
+              category: Profiling
+              title: Profiling overview
+              body: >-
+                A single view that computes and presents statistical metrics
+                across a whole data model, replacing manual inspection.
+              image:
+                src: /images/projects/fosfor-data-profiling/screen-a.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '02'
+              category: Profiling
+              title: Basic and advanced profiling
+              body: >-
+                Two depths of profiling, so users can take a quick read or go
+                deep without leaving the flow.
+              image:
+                src: /images/projects/fosfor-data-profiling/screen-b.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '03'
+              category: Profiling
+              title: Issue surfacing
+              body: >-
+                Quality issues, anomalies, and missing values flagged where the
+                eye lands first.
+              image:
+                src: /images/projects/fosfor-data-profiling/screen-c.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+  - variant: default
+    id: screens
+    index: ''
+    eyebrow: Screens
+    title: ''
+    lead: A selection of profiling and data quality views.
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: deviceShelf
+        value:
+          devices:
+            - src: /images/projects/fosfor-data-profiling/screen-a.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: -5
+              translateX: -60
+              translateY: 12
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-data-profiling/screen-b.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 268
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 3
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-data-profiling/screen-c.webp
+              alt: Placeholder screen, replace via the dashboard
+              width: 248
+              rotate: 5
+              translateX: 60
+              translateY: 18
+              z: 2
+              label: ''
+              dotColor: ''
+          glow: *ref_0
+          minHeight: null
+  - variant: default
+    id: before-after
+    index: ''
+    eyebrow: Before and after
+    title: ''
+    lead: >-
+      Manual inspection beside the profiling view, the same checks made fast and
+      legible.
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: beforeAfter
+        value:
+          pairs:
+            - title: Data quality checks
+              tag: Manual to instant
+              before:
+                src: /images/projects/fosfor-data-profiling/screen-a.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              after:
+                src: /images/projects/fosfor-data-profiling/screen-b.webp
+                alt: Placeholder screen, replace via the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              changes:
+                - emphasis: The same checks
+                  rest: made fast and legible
+  - variant: default
+    id: principle
+    index: ''
+    eyebrow: My design principle for this work
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            Good decisions start with data you can trust, so the profiling step
+            had to earn that trust before anything else.
+  - variant: default
+    id: reflection
+    index: ''
+    eyebrow: Reflection
+    title: What this project taught me.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: richText
+        value:
+          paragraphs:
+            - >-
+              This project sharpened how I think about enterprise tools, where
+              the win is rarely a flashier screen and almost always less
+              friction in a critical step.
+            - >-
+              If I were extending it, I would track whether faster profiling
+              actually changed how often teams caught bad data before it reached
+              analysis, since that is the outcome that matters.
+  - variant: default
+    id: closing
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: closingLine
+        value:
+          text: >-
+            The first step in the data to decision journey, finally worth
+            trusting.
