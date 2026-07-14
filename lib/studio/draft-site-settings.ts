@@ -29,7 +29,8 @@ import { branchExists, compareBranches, REPO } from "./github-commit";
 export const DRAFT_BRANCH = "studio/draft-site-settings";
 // The repo's default branch (CLAUDE.md). Used as the compare base for the
 // branch-level differs check — a constant keeps it to a single compare call.
-const MAIN_BRANCH = "main";
+// Exported (P4 4(a)) so the case-study draft read compares against the same base.
+export const MAIN_BRANCH = "main";
 
 export type SettingsDraftState = {
   live: SiteSettingsEntry | null;
@@ -62,8 +63,11 @@ function canonical(entry: SiteSettingsEntry | null): string {
   return dump(reorderBySchema(stripEmptyOptional(entryToRecord(entry))));
 }
 
-const DRAFT_STATE_TAG = "studio-draft-state";
-const DRAFT_STATE_TTL_SECONDS = 45;
+// Exported (P4 4(a)) so the scoped case-study draft read shares this EXACT tag
+// and TTL. Sharing the tag is what lets the existing invalidateDraftStateCache()
+// drop that cache too, with no second invalidation seam to keep in sync.
+export const DRAFT_STATE_TAG = "studio-draft-state";
+export const DRAFT_STATE_TTL_SECONDS = 45;
 
 // GH-8 — the GitHub read of the draft branch, cached cross-request (github mode
 // only, ~45s TTL) so rapid /studio loads share one API call and prod stays

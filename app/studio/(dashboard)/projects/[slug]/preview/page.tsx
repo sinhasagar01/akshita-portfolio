@@ -1,0 +1,87 @@
+// P4 4(a) — the case-study preview. Inside (dashboard), so it inherits the
+// owner gate; this is the ONLY surface that renders draft `sections`.
+//
+// Draft-preferring: getCaseStudyDraftState reads this slug's sections from the
+// draft branch when it changed there, else live. The public case-study page is
+// untouched and stays main-only — the read-split invariant.
+//
+// Adapts in PREVIEW mode, so a half-authored draft renders with a placeholder
+// for the offending block instead of throwing. The public SSG path keeps the
+// fail-loud default.
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { getCaseStudyData } from "@/lib/keystatic";
+import { getCaseStudyDraftState } from "@/lib/studio/case-study-draft";
+import { adaptSections } from "@/lib/case-studies/adapter";
+import type { CaseStudy } from "@/lib/case-studies/types";
+import CaseStudyView from "@/components/case-study/CaseStudyView";
+import { projectPath } from "@/lib/site";
+import { IconArrowUpRight } from "@/components/studio/icons";
+
+export const metadata = { robots: { index: false, follow: false } };
+
+type Props = { params: Promise<{ slug: string }> };
+
+export default async function CaseStudyPreviewPage({ params }: Props) {
+  const { slug } = await params;
+  const live = await getCaseStudyData(slug);
+  if (!live) notFound();
+
+  const draft = await getCaseStudyDraftState(slug);
+  const rawSections = draft.source === "draft" ? draft.rawSections : live.rawSections;
+
+  const study: CaseStudy = {
+    slug,
+    title: live.title,
+    thesis: live.summary,
+    description: live.summary,
+    sections: adaptSections(rawSections, { mode: "preview" }),
+  };
+
+  const isDraft = draft.source === "draft";
+
+  return (
+    <div className="flex flex-col gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="font-display text-base text-ink-950">{live.title}</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] ${
+              isDraft
+                ? "border border-accent-500/40 bg-accent-500/10 text-accent-600"
+                : "border border-ink-950/15 text-ink-500"
+            }`}
+          >
+            {isDraft ? "Showing your draft" : "Showing live"}
+          </span>
+          <span className="text-[11px] text-text-subtle">
+            {isDraft
+              ? "Unpublished. The public page still shows live until you publish."
+              : "No unpublished changes to this case study."}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/studio/projects"
+            className="rounded-md px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          >
+            Back to projects
+          </Link>
+          <a
+            href={projectPath(slug)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md border border-ink-950/8 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
+          >
+            View live <IconArrowUpRight />
+          </a>
+        </div>
+      </header>
+
+      {/* The real renderer, so the preview is the thing itself, not a mock. */}
+      <div className="overflow-hidden rounded-lg border border-ink-950/8">
+        <CaseStudyView study={study} />
+      </div>
+    </div>
+  );
+}
