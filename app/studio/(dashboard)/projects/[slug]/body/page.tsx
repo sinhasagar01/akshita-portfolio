@@ -14,6 +14,7 @@ import Link from "next/link";
 import { getCaseStudyData } from "@/lib/keystatic";
 import { getCaseStudyDraftState } from "@/lib/studio/case-study-draft";
 import SectionsEditPanel from "@/components/studio/SectionsEditPanel";
+import type { RawSection } from "@/lib/case-studies/sections-raw";
 import AreaHeader from "@/components/studio/AreaHeader";
 
 export const metadata = { robots: { index: false, follow: false } };
@@ -33,7 +34,7 @@ export default async function CaseStudyBodyPage({ params }: Props) {
     <>
       <AreaHeader
         title={live.title}
-        sub="Edit the case study's pull quotes. Other block types are coming; they are preserved untouched."
+        sub="Edit the case study's content block by block. A few deep block types are coming; they are preserved untouched."
       />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Link
@@ -54,8 +55,7 @@ export default async function CaseStudyBodyPage({ params }: Props) {
           </span>
         )}
       </div>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <SectionsEditPanel slug={slug} sections={sections as any} />
+      <SectionsEditPanel slug={slug} sections={sections as RawSection[]} />
     </>
   );
 }

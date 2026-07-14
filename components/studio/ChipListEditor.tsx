@@ -7,7 +7,9 @@
 //
 // Controlled: the parent owns the array and passes onChange; onBlur (optional)
 // lets the parent auto-save on field blur, exactly like the About panel.
-import { useRef } from "react";
+// P4 4(b)-ii — the row mechanics now come from useItemList, shared with the block
+// forms. This file's markup is unchanged; only the four local operations moved.
+import { useItemList } from "./useItemList";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type Props = {
@@ -38,22 +40,7 @@ export default function ChipListEditor({
 }: Props) {
   const inSuffix = ariaContext ? ` in ${ariaContext}` : "";
   const fromSuffix = ariaContext ? ` from ${ariaContext}` : "";
-  // After "Add", focus the new input without a layout effect (About-B pattern).
-  const pendingFocus = useRef<number | null>(null);
-
-  const editChip = (i: number, v: string) => onChange(chips.map((c, idx) => (idx === i ? v : c)));
-  const removeChip = (i: number) => onChange(chips.filter((_, idx) => idx !== i));
-  function addChip() {
-    pendingFocus.current = chips.length;
-    onChange([...chips, ""]);
-  }
-  function moveChip(i: number, dir: -1 | 1) {
-    const j = i + dir;
-    if (j < 0 || j >= chips.length) return;
-    const next = [...chips];
-    [next[i], next[j]] = [next[j], next[i]];
-    onChange(next);
-  }
+  const list = useItemList(chips, onChange, () => "");
 
   const iconBtn =
     "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
@@ -68,13 +55,8 @@ export default function ChipListEditor({
               <input
                 type="text"
                 value={chip}
-                ref={(el) => {
-                  if (el && pendingFocus.current === i) {
-                    el.focus();
-                    pendingFocus.current = null;
-                  }
-                }}
-                onChange={(e) => editChip(i, e.target.value)}
+                ref={list.focusRef(i)}
+                onChange={(e) => list.set(i, e.target.value)}
                 onBlur={onBlur}
                 placeholder={placeholder}
                 className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
@@ -84,7 +66,7 @@ export default function ChipListEditor({
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => moveChip(i, -1)}
+                onClick={() => list.move(i, -1)}
                 disabled={i === 0}
                 aria-label={`Move ${name} up${inSuffix}`}
                 className={iconBtn}
@@ -94,7 +76,7 @@ export default function ChipListEditor({
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => moveChip(i, 1)}
+                onClick={() => list.move(i, 1)}
                 disabled={i === chips.length - 1}
                 aria-label={`Move ${name} down${inSuffix}`}
                 className={iconBtn}
@@ -104,7 +86,7 @@ export default function ChipListEditor({
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => removeChip(i)}
+                onClick={() => list.remove(i)}
                 aria-label={`Remove ${name}${fromSuffix}`}
                 className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
               >
@@ -116,7 +98,7 @@ export default function ChipListEditor({
       </div>
       <button
         type="button"
-        onClick={addChip}
+        onClick={list.add}
         className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
       >
         <IconPlus /> {addLabel}
