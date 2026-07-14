@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
+import { isSectionsOwnedProject } from "@/lib/studio/keystatic-lock";
 
 // Two jobs, both of which must run BEFORE any rendering.
 //
@@ -31,6 +32,17 @@ export function middleware(req: NextRequest) {
   if (pathname === "/keystatic" || pathname.startsWith("/keystatic/") || pathname.startsWith("/api/keystatic")) {
     if (process.env.NODE_ENV === "production") {
       return new NextResponse("Not Found", { status: 404 });
+    }
+    // P4 4(b)-i — don't let the owner OPEN a /studio-owned case study here. The
+    // real lock is the update-route guard (the slug is in the write body, not the
+    // URL, so it cannot live here); this is the legibility half. Without it you
+    // would open the editor, type, hit Save, and lose the work to a 403.
+    const item = /^\/keystatic\/collection\/projects\/item\/([a-z0-9-]+)/.exec(pathname);
+    if (item && isSectionsOwnedProject(item[1])) {
+      return new NextResponse(
+        `This case study is edited in /studio, not here. Open /studio/projects/${item[1]}/body`,
+        { status: 404, headers: { "content-type": "text/plain" } }
+      );
     }
     return NextResponse.next();
   }

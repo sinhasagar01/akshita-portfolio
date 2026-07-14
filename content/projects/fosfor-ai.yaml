@@ -17,7 +17,7 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: &ref_0
+    glow:
       text: ''
       top: ''
       right: ''
@@ -130,7 +130,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: statCards
         value:
@@ -188,7 +194,13 @@ sections:
       One companion that makes every step from data to decision feel guided
       rather than fought.
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: stepper
         value:
@@ -209,7 +221,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: stepper
         value:
@@ -234,7 +252,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: principleCards
         value:
@@ -293,7 +317,13 @@ sections:
               z: 2
               label: ''
               dotColor: ''
-          glow: *ref_0
+          glow:
+            text: ''
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: ''
           minHeight: null
   - variant: default
     id: tour
@@ -303,7 +333,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: featureRows
         value:
@@ -380,7 +416,13 @@ sections:
     lead: A selection of companion and workflow screens.
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: deviceShelf
         value:
@@ -412,7 +454,13 @@ sections:
               z: 2
               label: ''
               dotColor: ''
-          glow: *ref_0
+          glow:
+            text: ''
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: ''
           minHeight: null
   - variant: default
     id: before-after
@@ -422,7 +470,13 @@ sections:
     lead: The workflow before and after the companion, the same task made guided.
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: beforeAfter
         value:
@@ -460,7 +514,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: pullQuote
         value:
@@ -475,7 +535,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: richText
         value:
@@ -495,7 +561,13 @@ sections:
     lead: ''
     northStar: ''
     layout: stack
-    glow: *ref_0
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
     blocks:
       - discriminant: closingLine
         value:
