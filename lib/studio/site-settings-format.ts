@@ -48,6 +48,9 @@ export type SiteSettingsInput = {
 
 export type SaveErrorCode =
   | "invalid_url"
+  // P4 4(b)-iv — a draft whose case-study sections the SSG renderer would refuse
+  // (an image the owner added but never uploaded). Caught at publish, never merged.
+  | "invalid_sections"
   | "invalid_patch"
   | "read_failed"
   | "write_failed"

@@ -246,6 +246,7 @@ export default function SectionsEditPanel({
                       value={block.value as any}
                       onChange={(next) => setBlockValue(id, next)}
                       onBlur={saveDraft}
+                      slug={slug}
                     />
                   </div>
                 </div>

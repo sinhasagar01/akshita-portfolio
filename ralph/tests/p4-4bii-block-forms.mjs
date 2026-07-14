@@ -322,60 +322,69 @@ check("the sanitizer REJECTS '' for an image src (null is how unset is spelled)"
   if (res.ok) throw new Error("ACCEPTED '' for an image src");
 });
 
-/* ------ every add affordance must produce PUBLISHABLE content (review finding) */
+/* ------ an add that needs an image is caught at PUBLISH (P4 4b-iv) */
 
-// A row the owner can add must survive the FAIL-LOUD ssg adapter, not just the
-// permissive preview one. Otherwise they add it, preview it happily (preview
-// substitutes a placeholder for a missing image), publish, and the build fails —
-// and one such row blocks the WHOLE publish, including unrelated edits.
+// SUPERSEDED, DELIBERATELY. This block used to assert "every add affordance yields
+// ssg-publishable content", enforced by HIDING add on the three image-bearing arrays
+// — because an added row's src is null, preview substitutes a placeholder, and the
+// owner would only discover the problem as a failed Vercel build that blocked every
+// unrelated edit too.
 //
-// This is why add is disabled on every image-bearing array until 4(b)-iv: a new
-// row's src is null and nothing can set it yet. The rule is asserted here rather
-// than trusted, so re-enabling add without upload fails loudly.
-console.log("\nevery ADD affordance yields publishable content (ssg, not just preview)");
+// 4(b)-iv un-gates them, and upload alone did NOT make that safe: a new row is still
+// born src:null. What makes it safe is that the gate MOVED to where it can actually
+// check — publish now re-renders every changed project through the ssg adapter and
+// refuses an unpublishable draft (lib/studio/validate-draft-sections.ts). The
+// guarantee is unchanged; the mechanism is honest instead of preventative.
+//
+// So the assertion inverts: an image-bearing row CAN now be added, and the publish
+// validator MUST catch it.
+console.log("\nan add that needs an image is refused at PUBLISH, not at the build");
 
 const emptyImg = () => ({ src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null });
 
-const ADDS = [
-  // [label, kind, empty-row pusher, addIsExposedInTheUI]
-  ["heroCover.meta", "heroCover", (v) => v.meta.push({ label: "", value: "" }), true],
-  ["statCards.stats", "statCards", (v) => v.stats.push({ value: "", suffix: "", body: "", tag: "", highlighted: false }), true],
-  ["principleCards.cards", "principleCards", (v) => v.cards.push({ index: "", title: "", body: "" }), true],
-  ["glanceGrid.items", "glanceGrid", (v) => v.items.push({ label: "", value: "" }), true],
-  ["stepper.steps", "stepper", (v) => v.steps.push({ label: "", text: "" }), true],
-  ["richText.paragraphs", "richText", (v) => v.paragraphs.push(""), true],
-  ["beforeAfter.pairs[0].changes", "beforeAfter", (v) => v.pairs[0].changes.push({ emphasis: "", rest: "" }), true],
-  // image-bearing — add is DISABLED in the UI precisely because these throw
-  ["deviceShelf.devices", "deviceShelf", (v) => v.devices.push({ ...emptyImg(), label: "", dotColor: "" }), false],
-  ["featureRows.features", "featureRows", (v) => v.features.push({ index: "", category: "", title: "", body: "", image: emptyImg() }), false],
-  ["beforeAfter.pairs", "beforeAfter", (v) => v.pairs.push({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] }), false],
+const NEEDS_IMAGE = [
+  ["deviceShelf.devices", "deviceShelf", (v) => v.devices.push({ ...emptyImg(), label: "", dotColor: "" })],
+  ["featureRows.features", "featureRows", (v) => v.features.push({ index: "", category: "", title: "", body: "", image: emptyImg() })],
+  ["beforeAfter.pairs", "beforeAfter", (v) => v.pairs.push({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] })],
 ];
 
-for (const [label, kind, push, exposed] of ADDS) {
+for (const [label, kind, push] of NEEDS_IMAGE) {
   const raw = fileOf("fosfor-ai");
   const at = find(readSections(raw), kind);
   if (!at) continue;
   const [i, j] = at;
-  const build = () => {
+  check(`${label}: an added row without an image is REFUSED at publish`, () => {
     const secs = transported(readSections(raw));
     push(secs[i].blocks[j].value);
     const san = sanitizeSectionsPatch(secs);
     if (!san.ok) throw new Error(`sanitizer: ${san.error.message}`);
-    return san.sections;
-  };
-  if (exposed) {
-    check(`${label}: an added row is PUBLISHABLE (ssg accepts it)`, () => {
-      adaptSections(build(), { mode: "ssg" }); // throws if not
-    });
-  } else {
-    check(`${label}: add is DISABLED because an added row would NOT be publishable`, () => {
-      let threw = false;
-      try { adaptSections(build(), { mode: "ssg" }); } catch { threw = true; }
-      if (!threw) {
-        throw new Error("ssg now ACCEPTS this row — add can be re-enabled (4b-iv likely landed)");
+    // validateProjectSections is a typed wrapper whose ONLY logic is this adapter
+    // call (it cannot be imported here: it imports adaptSections as a value, which
+    // node needs a .ts extension for and tsc forbids). The wrapper itself is proven
+    // end-to-end through the real publish route.
+    let threw = null;
+    try { adaptSections(san.sections, { mode: "ssg" }); } catch (e) { threw = e.message; }
+    if (!threw) throw new Error("publish would ACCEPT a draft the build cannot render");
+    if (!threw.includes("image src is missing")) throw new Error(threw);
+  });
+  check(`${label}: the same row WITH an image publishes fine`, () => {
+    const secs = transported(readSections(raw));
+    push(secs[i].blocks[j].value);
+    // set every null src, as an upload would
+    const fill = (o) => {
+      if (Array.isArray(o)) return o.forEach(fill);
+      if (o && typeof o === "object") {
+        for (const k of Object.keys(o)) {
+          if (k === "src" && o[k] === null) o[k] = "/images/projects/fosfor-ai/blocks/abc123abc123.webp";
+          else fill(o[k]);
+        }
       }
-    });
-  }
+    };
+    fill(secs[i].blocks[j].value);
+    const san = sanitizeSectionsPatch(secs);
+    if (!san.ok) throw new Error(`sanitizer: ${san.error.message}`);
+    adaptSections(san.sections, { mode: "ssg" }); // throws if still unpublishable
+  });
 }
 
 /* ------------------- hazard 3: swatchTokens, the nested union */

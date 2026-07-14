@@ -66,18 +66,22 @@ export const BLOCK_EMPTIES: { [K in SectionBlockKind]: () => RawValue<K> } = {
 };
 
 /**
- * The kinds the add-picker withholds until 4(b)-iv.
+ * EMPTY as of P4 4(b)-iv — every kind is addable.
  *
- * Both carry a REQUIRED image, so their empty's src is null and nothing can set it
- * yet — the fail-loud ssg adapter refuses the block, which means adding one would
- * wedge the WHOLE publish (including unrelated edits) while preview looked fine,
- * because preview substitutes a placeholder. Exactly the failure PR B's review
- * caught with "Add device", one level up.
+ * heroCover and annotatedImage were withheld while their REQUIRED image could not be
+ * set: their empty's src is null, the fail-loud ssg adapter refuses that, and adding
+ * one would have wedged the WHOLE publish (including unrelated edits) while preview
+ * looked fine, because preview substitutes a placeholder.
  *
- * This cannot be a sanitizer rule: a null src is structurally valid, and
- * publishability is the adapter's question, not the schema's. The suite asserts both
- * halves — that the gated two really are unpublishable and the other twelve really
- * are publishable — so it flips to failing when 4(b)-iv lands, which is the signal
- * to un-gate them.
+ * Upload now exists, but that alone did NOT make un-gating safe — a new block is
+ * still born `src: null`, so publishing between adding and uploading would wedge the
+ * build just the same. What makes it safe is that the gate MOVED to where it can
+ * actually check: publish now re-renders every changed project through the ssg
+ * adapter and refuses an unpublishable draft with the adapter's own message
+ * (lib/studio/validate-draft-sections.ts). The picker could only guess; publish can
+ * look.
+ *
+ * Kept as an empty set rather than deleted, so the mechanism stays available if a
+ * future kind ever needs gating again.
  */
-export const ADD_GATED_UNTIL_UPLOAD = new Set<SectionBlockKind>(["heroCover", "annotatedImage"]);
+export const ADD_GATED_UNTIL_UPLOAD = new Set<SectionBlockKind>();
