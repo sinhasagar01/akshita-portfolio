@@ -104,3 +104,497 @@ body:
   - discriminant: closingLine
     value:
       line: From raw data to a confident decision, with a companion the whole way.
+sections:
+  - variant: hero
+    id: hero
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: &ref_0
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: heroCover
+        value:
+          title: Fosfor AI
+          thesis: >-
+            Designing an AI companion that guides people from raw data to a
+            confident decision.
+          position: >-
+            Designing an AI companion inside the Fosfor Decision Cloud that
+            guides three kinds of users from data to decision.
+          eyebrow: Case study · Product design
+          watermark: fosfor
+          ratingChip:
+            stat: ''
+            rest: ''
+          meta:
+            - label: My role
+              value: UI and UX design
+            - label: Scope
+              value: AI product design within an enterprise suite
+            - label: Platform
+              value: Web
+            - label: Timeline
+              value: 12 weeks
+          devices:
+            - src: /images/projects/fosfor-ai/screen-a.webp
+              alt: Placeholder companion screen, replace via the dashboard
+              width: 248
+              rotate: -6
+              translateX: -86
+              translateY: 16
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-ai/screen-b.webp
+              alt: Placeholder companion screen, replace via the dashboard
+              width: 288
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 3
+              label: ''
+              dotColor: ''
+          glow:
+            text: guided
+            top: ''
+            right: ''
+            bottom: ''
+            left: ''
+            size: clamp(6rem, 12vw, 11rem)
+  - variant: default
+    id: setup
+    index: '01'
+    eyebrow: The setup
+    title: |-
+      One companion,
+      three very different people.
+    lead: >-
+      Fosfor is LTIMindtree's data and decision platform. **Fosfor AI** is the
+      intelligent companion built into it, meant to help people interact with
+      data and reach decisions without fighting the tools.
+    northStar: ''
+    layout: stack
+    glow:
+      text: companion
+      top: ''
+      right: ''
+      bottom: '-30px'
+      left: 30px
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            One companion had to serve three very different people, the one
+            preparing data, the one finding insight in it, and the one making
+            the call, each with their own idea of what help looks like.
+      - discriminant: glanceGrid
+        value:
+          items:
+            - label: Product
+              value: Fosfor AI, an AI companion built into the Fosfor Decision Cloud.
+            - label: Problem
+              value: >-
+                Users across very different roles struggled to navigate complex
+                data workflows and pull out insight they could act on.
+            - label: Details
+              value: >-
+                UI and UX design across research, architecture, and prototyping
+                over twelve weeks.
+            - label: Solution
+              value: >-
+                An AI guided companion that supports three personas while
+                keeping data secure and trusted.
+            - label: Result
+              value: >-
+                A single intelligent layer across the whole data to decision
+                journey.
+  - variant: default
+    id: impact
+    index: '02'
+    eyebrow: Impact
+    title: At a glance.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: statCards
+        value:
+          heading: ''
+          stats:
+            - value: '3'
+              suffix: ''
+              body: >-
+                Personas served, **Data Designer**, **Insight Designer**, and
+                **Decision Designer**
+              tag: personas
+              highlighted: true
+            - value: '12'
+              suffix: wks
+              body: From strategy to a tested prototype
+              tag: timeline
+              highlighted: false
+            - value: '4'
+              suffix: ''
+              body: >-
+                Layers in the companion architecture, context, interaction,
+                response, and memory
+              tag: architecture
+              highlighted: false
+  - variant: default
+    id: problem
+    index: '03'
+    eyebrow: The problem
+    title: The same wall, hit three different ways.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: friction
+      top: ''
+      right: ''
+      bottom: '-20px'
+      left: 36px
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            Across all three roles, people hit the same wall, complex data
+            workflows and no easy way to extract insight they could act on. Each
+            persona struggled at a different point, and none of them had
+            intelligent assistance that fit how they actually worked.
+  - variant: default
+    id: goals
+    index: '04'
+    eyebrow: Goals
+    title: ''
+    lead: ''
+    northStar: >-
+      One companion that makes every step from data to decision feel guided
+      rather than fought.
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: stepper
+        value:
+          steps:
+            - label: '01'
+              text: Boost real productivity across the data to decision journey
+            - label: '02'
+              text: Fit the experience to three distinct personas
+            - label: '03'
+              text: Build trust and security into every interaction
+            - label: '04'
+              text: Keep the assistance contextual, not generic
+  - variant: default
+    id: process
+    index: '05'
+    eyebrow: The process
+    title: Three phases, three personas.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: stepper
+        value:
+          steps:
+            - label: Research and insights
+              text: >-
+                Mapped the needs of all three personas through interviews and
+                analysis.
+            - label: Ideation and wireframing
+              text: >-
+                Explored how an AI companion could sit inside existing workflows
+                without disrupting them.
+            - label: Prototyping and testing
+              text: >-
+                Built interactive prototypes and refined them, including split
+                testing of key interactions.
+  - variant: default
+    id: insights
+    index: '06'
+    eyebrow: Key insights
+    title: Three personas, three needs.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: principleCards
+        value:
+          heading: ''
+          subhead: ''
+          cards:
+            - index: '01'
+              title: Data Designers
+              body: >-
+                Needed help managing and transforming large datasets before
+                anything else.
+            - index: '02'
+              title: Insight Designers
+              body: Needed sharper tools to analyse data and derive insight from it.
+            - index: '03'
+              title: Decision Designers
+              body: >-
+                Needed an intuitive way to navigate recommendations and act with
+                confidence.
+  - variant: default
+    id: solution
+    index: '07'
+    eyebrow: The solution
+    title: ''
+    lead: >-
+      **Fosfor AI**, a single companion that adapts its help to whoever is in
+      the data to decision seat.
+    northStar: ''
+    layout: stack
+    glow:
+      text: fosfor
+      top: 24px
+      right: 34px
+      bottom: ''
+      left: ''
+      size: clamp(5rem, 11vw, 9rem)
+    blocks:
+      - discriminant: deviceShelf
+        value:
+          devices:
+            - src: /images/projects/fosfor-ai/screen-a.webp
+              alt: Placeholder companion screen, replace via the dashboard
+              width: 248
+              rotate: -4
+              translateX: null
+              translateY: null
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-ai/screen-b.webp
+              alt: Placeholder companion screen, replace via the dashboard
+              width: 288
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 2
+              label: ''
+              dotColor: ''
+          glow: *ref_0
+          minHeight: null
+  - variant: default
+    id: tour
+    index: '08'
+    eyebrow: The design tour
+    title: What makes the companion work.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: featureRows
+        value:
+          features:
+            - index: '01'
+              category: Companion
+              title: Contextual intelligence
+              body: >-
+                Suggestions and prompts grounded in the user's current task, not
+                generic AI noise.
+              image:
+                src: /images/projects/fosfor-ai/screen-a.webp
+                alt: >-
+                  Placeholder screen for contextual intelligence, replace via
+                  the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '02'
+              category: Companion
+              title: A unified experience
+              body: >-
+                One consistent companion across the three personas, so help
+                feels the same wherever you are in the journey.
+              image:
+                src: /images/projects/fosfor-ai/screen-b.webp
+                alt: >-
+                  Placeholder screen for the unified experience, replace via the
+                  dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '03'
+              category: Companion
+              title: Security and trust
+              body: >-
+                Clear controls and transparent operations, so people trust the
+                companion with their data.
+              image:
+                src: /images/projects/fosfor-ai/screen-c.webp
+                alt: >-
+                  Placeholder screen for security and trust, replace via the
+                  dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+            - index: '04'
+              category: Companion
+              title: The companion architecture
+              body: >-
+                A four layer model, context, interaction, response, and memory,
+                that lets the assistant hold a thread across a session.
+              image:
+                src: /images/projects/fosfor-ai/screen-a.webp
+                alt: >-
+                  Placeholder screen for the companion architecture, replace via
+                  the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+  - variant: default
+    id: screens
+    index: ''
+    eyebrow: Screens
+    title: ''
+    lead: A selection of companion and workflow screens.
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: deviceShelf
+        value:
+          devices:
+            - src: /images/projects/fosfor-ai/screen-a.webp
+              alt: Placeholder workflow screen, replace via the dashboard
+              width: 248
+              rotate: -5
+              translateX: -60
+              translateY: 12
+              z: 1
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-ai/screen-b.webp
+              alt: Placeholder workflow screen, replace via the dashboard
+              width: 268
+              rotate: null
+              translateX: null
+              translateY: null
+              z: 3
+              label: ''
+              dotColor: ''
+            - src: /images/projects/fosfor-ai/screen-c.webp
+              alt: Placeholder workflow screen, replace via the dashboard
+              width: 248
+              rotate: 5
+              translateX: 60
+              translateY: 18
+              z: 2
+              label: ''
+              dotColor: ''
+          glow: *ref_0
+          minHeight: null
+  - variant: default
+    id: before-after
+    index: ''
+    eyebrow: Before and after
+    title: ''
+    lead: The workflow before and after the companion, the same task made guided.
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: beforeAfter
+        value:
+          pairs:
+            - title: The workflow
+              tag: Data to decision
+              before:
+                src: /images/projects/fosfor-ai/screen-a.webp
+                alt: >-
+                  Placeholder for the workflow before the companion, replace via
+                  the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              after:
+                src: /images/projects/fosfor-ai/screen-b.webp
+                alt: >-
+                  Placeholder for the workflow with the companion, replace via
+                  the dashboard
+                width: 248
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              changes:
+                - emphasis: The same task
+                  rest: made guided instead of fought
+  - variant: default
+    id: principle
+    index: ''
+    eyebrow: My design principle for Fosfor AI
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: pullQuote
+        value:
+          text: >-
+            Good AI assistance does not show off, it quietly removes the next
+            obstacle in front of the person.
+  - variant: default
+    id: reflection
+    index: ''
+    eyebrow: Reflection
+    title: What this project taught me.
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: richText
+        value:
+          paragraphs:
+            - >-
+              Designing for three personas at once taught me to find the shared
+              spine of an experience before tailoring the edges.
+            - >-
+              If I were taking it further, I would measure whether the companion
+              actually shortened the path from data to decision in real use,
+              which is the result the project still needs.
+  - variant: default
+    id: closing
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow: *ref_0
+    blocks:
+      - discriminant: closingLine
+        value:
+          text: >-
+            From raw data to a confident decision, with a companion the whole
+            way.
