@@ -188,6 +188,69 @@ check("an added empty section is ssg-publishable", () => {
   adaptSections(san.sections, { mode: "ssg" });
 });
 
+/* ------------------------------- 2b. the SECTION SHELL form's surgical bar */
+
+// The shell form is new in 4(b)-iii and edits fields that render on the live page
+// (title/lead/eyebrow/index/northStar) plus `id`, which is a DOM anchor. Its edits
+// need the same bar as a block's: change one field, disturb nothing else.
+console.log("\nthe section shell — editing one field is surgical");
+
+const SHELL_EDITS = [
+  ["title", (sec) => (sec.title = "EDITED section title")],
+  ["lead", (sec) => (sec.lead = "EDITED lead with **bold**.")],
+  ["eyebrow", (sec) => (sec.eyebrow = "EDITED eyebrow")],
+  ["index", (sec) => (sec.index = "99")],
+  ["northStar", (sec) => (sec.northStar = "EDITED north star")],
+  ["id", (sec) => (sec.id = "edited-anchor")],
+  ["variant", (sec) => (sec.variant = "bare")],
+  ["layout", (sec) => (sec.layout = "split")],
+  ["glow.text", (sec) => (sec.glow = { ...sec.glow, text: "EDITED glow" })],
+];
+
+for (const [field, mutate] of SHELL_EDITS) {
+  check(`shell: editing ${field} changes only that field`, () => {
+    const after = roundTrip((secs) => mutate(secs[2]));
+    const b = load(raw).sections;
+    const a = load(after).sections;
+    // every OTHER section byte-identical
+    if (JSON.stringify(b.filter((_, i) => i !== 2)) !== JSON.stringify(a.filter((_, i) => i !== 2)))
+      throw new Error("another section changed");
+    // the edited section's BLOCKS untouched
+    if (JSON.stringify(b[2].blocks) !== JSON.stringify(a[2].blocks)) throw new Error("its blocks changed");
+    // and it differs in exactly the one field
+    const key = field.split(".")[0];
+    const x = { ...b[2] }, y = { ...a[2] };
+    delete x[key]; delete y[key];
+    if (JSON.stringify(x) !== JSON.stringify(y)) throw new Error(`fields other than ${key} changed`);
+    if (JSON.stringify(b[2][key]) === JSON.stringify(a[2][key])) throw new Error("nothing actually changed — proves nothing");
+  });
+}
+
+check("shell: a variant outside the schema's options is rejected", () => {
+  const secs = fresh();
+  secs[2].variant = "wild";
+  const res = sanitizeSectionsPatch(secs);
+  if (res.ok) throw new Error("ACCEPTED an invalid variant");
+});
+
+check("shell: the form's options ARE the sanitizer's options (one source)", async () => {
+  // VARIANTS/LAYOUTS are exported from the sanitizer and imported by the form, so a
+  // form option the sanitizer would reject cannot exist. Assert every option passes.
+  const { VARIANTS, LAYOUTS } = await import("../../lib/studio/sections-format.ts");
+  for (const v of VARIANTS) {
+    const secs = fresh();
+    secs[2].variant = v;
+    const r = sanitizeSectionsPatch(secs);
+    if (!r.ok) throw new Error(`the form offers variant "${v}" but the sanitizer rejects it`);
+  }
+  for (const l of LAYOUTS) {
+    const secs = fresh();
+    secs[2].layout = l;
+    const r = sanitizeSectionsPatch(secs);
+    if (!r.ok) throw new Error(`the form offers layout "${l}" but the sanitizer rejects it`);
+  }
+});
+
 /* ------------------------------------------------ 3. the id-lockstep hazard */
 
 console.log("\nthe id-lockstep — the parallel ids must move with the values");
