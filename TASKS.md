@@ -181,7 +181,7 @@ What holds after the deletion, and why.
 
 ## The case study editor (COMPLETE, and this closes /studio phase 4)
 
-Step 4, the editor itself. Every element of a case study is now editable from /studio, images included. With step 1 (heroImage upload, 040dbfb, #48) and the renderer convergence above, the /studio phase 4 is done.
+Step 4, the editor itself. Every element of the THREE CONTENT case studies is now editable from /studio, images included. boat-crest is not, and never will be, because it stays bespoke by decision (fork 1 below). With step 1 (heroImage upload, 040dbfb, #48) and the renderer convergence above, the /studio phase 4 is done.
 
 The arc, each sub-gate proven before the next started.
 
