@@ -237,6 +237,11 @@ export type CaseStudyData = {
   heroImage: string | null;
   facts: { role: string; type: string; platform: string; timeline: string };
   blocks: CaseStudyBlock[];
+  /** P4 3(d) — the RAW `sections` value (the 3(b) schema), passed through
+   *  unmapped. The [slug] page's fallback switch renders via the 3(c) adapter +
+   *  CaseStudyView when this is a non-empty array, else via the legacy `blocks`
+   *  path above. Removed with the old path once all three projects migrate. */
+  rawSections: unknown;
 };
 
 async function resolveBlock(raw: { discriminant: string; value: Record<string, unknown> }): Promise<CaseStudyBlock | null> {
@@ -307,6 +312,7 @@ export async function getCaseStudyData(slug: string): Promise<CaseStudyData | nu
       timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
     },
     blocks,
+    rawSections: (entry as Record<string, unknown>).sections,
   };
 }
 

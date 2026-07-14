@@ -8,6 +8,9 @@ import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
 import CaseStudyBlockRenderer from "@/components/blocks/CaseStudyBlockRenderer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
+import CaseStudyView from "@/components/case-study/CaseStudyView";
+import { adaptSections } from "@/lib/case-studies/adapter";
+import type { CaseStudy } from "@/lib/case-studies/types";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -48,8 +51,8 @@ export default async function CaseStudyPage({ params }: Props) {
   const path = projectPath(slug);
   const lastModified = projectLastModified(slug);
 
-  return (
-    <main className="container-x">
+  const jsonLd = (
+    <>
       <JsonLd
         data={caseStudySchema({
           title: data.title,
@@ -66,6 +69,35 @@ export default async function CaseStudyPage({ params }: Props) {
           { name: data.title, url: absoluteUrl(path) },
         ])}
       />
+    </>
+  );
+
+  // P4 3(d) — the per-project fallback switch. A project WITH authored
+  // `sections` renders through the 3(c) adapter into the bespoke renderer
+  // (CaseStudyView owns its whole <main>); one without falls through to the
+  // legacy body render below, untouched. This is what makes the migration
+  // incremental: the adapter's fail-loud can never fire on an un-migrated
+  // project. The switch and the legacy path are deleted once all three
+  // projects carry sections (step 5).
+  if (Array.isArray(data.rawSections) && data.rawSections.length > 0) {
+    const study: CaseStudy = {
+      slug,
+      title: data.title,
+      thesis: data.summary,
+      description: data.summary,
+      sections: adaptSections(data.rawSections),
+    };
+    return (
+      <>
+        {jsonLd}
+        <CaseStudyView study={study} />
+      </>
+    );
+  }
+
+  return (
+    <main className="container-x">
+      {jsonLd}
       <div
         className="section-card relative aspect-[21/9] overflow-hidden bg-[--color-surface]"
         style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
