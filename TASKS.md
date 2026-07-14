@@ -125,15 +125,15 @@ Where those uploads go changed. The screen exports for the three migrated projec
 ## Phase 6 Performance, SEO, accessibility, and launch (open)
 
 - [ ] Core Web Vitals passing on mobile and desktop
-- [ ] Per-page titles and descriptions correct (site-level metadata and OG done, per-page still open)
-- [ ] Custom share image per case study (site-level OG card done, per-study images still open)
-- [ ] Semantic markup and real alt text on every image
+- [x] Per-page titles and descriptions correct. Verified distinct per route (homepage, boat-crest, and each content study via generateMetadata with title + summary).
+- [x] Custom share image per case study. Verified each study renders its own /projects/<slug>/og image (distinct bytes, its own title + summary), 1200x630 image/png.
+- [ ] Semantic markup and real alt text on every image. NOT done, blocked on content, the 3 migrated studies still carry placeholder alt ("Placeholder companion screen, replace via the dashboard"), which clears when real screens are uploaded with real alt through /studio.
 - [ ] Keyboard-reachable navigation final pass
-- [ ] Reduced motion final audit
-- [ ] Contact form endpoint set (NEXT_PUBLIC_CONTACT_FORM_ENDPOINT still a placeholder)
+- [ ] Reduced motion final audit. 16 components already guard on prefers-reduced-motion (Hero, Process, cursor, header, cards), so coverage is broad, but a systematic per-animation sign-off has not been done, so this stays open.
+- [ ] Contact form endpoint set. NOT done, NEXT_PUBLIC_CONTACT_FORM_ENDPOINT is unset, so the form throws "no endpoint configured" on submit. Ops task, set the Web3Forms endpoint + key in Vercel.
 - [x] metadataBase and NEXT_PUBLIC_SITE_URL wired to https://www.akshitas.com
 - [x] Domain configured in Vercel, canonical host settled as www.akshitas.com with apex 308 redirect
-- [ ] Studio prod env vars set in Vercel (STUDIO_WRITE_MODE=github plus the three secrets, see the prod-readiness section). The old Keystatic github switch is obsolete now that Keystatic is retired.
+- [ ] Studio prod env vars set in Vercel (STUDIO_WRITE_MODE=github plus the three secrets, see the prod-readiness section). The old Keystatic github switch is obsolete now that Keystatic is retired. Partial confirmation from the prod verification pass, login rejects a wrong password and the throttle fires, so OWNER_PASSWORD and SESSION_SECRET are set, but WRITE_MODE=github and GITHUB_TOKEN need an authenticated write to confirm (owner-only).
 
 ---
 
