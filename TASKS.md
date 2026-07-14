@@ -63,6 +63,8 @@ Page order. Hero, Work, About, Process, Experience, Skills, Contact. (Note, the 
 - [x] CaseStudyBlockRenderer dispatches via a switch on block discriminant
 - [x] ProjectCard links to the project route
 
+Superseded. The fifteen generic block types and CaseStudyBlockRenderer above were DELETED by the renderer convergence (see that section below). The route and generateStaticParams survive, but [slug] now renders through the adapter into CaseStudyView, the same components boat-crest uses. This record stands as history, not as the current shape.
+
 ---
 
 ## Phase 4 Content (done)
@@ -153,9 +155,41 @@ Custom editorial dashboard at /studio. Read-only. It surfaces Reader-readable co
 - noindex, plus /studio/ in the robots disallow. Auth inherits /keystatic, which is none in dev.
 - Excludes the otis-one-view orphan, so Projects shows 4.
 
+## Case study renderer convergence (COMPLETE)
+
+Numbering note, because two things are called Phase 4. This is the /studio phase 4 (image upload, then converge the renderer, then the editor). It is NOT the build-sequence Phase 4 Content above, which was the one-time content pour. The two are unrelated.
+
+ONE renderer now serves every case study. The three content projects render from their Keystatic `sections` field through the adapter into CaseStudyView, and boat-crest renders from its hand-authored TS object through the same components. The generic renderer that structurally could never match boat-crest is gone.
+
+The arc, each sub-gate proven before the next started.
+
+- 3(a), ffdfcba (#49). HeroCover's three boat-crest hardcodes became explicit fields, eyebrow, watermark, and a two-device tuple. Proven by a byte-identical boat-crest re-render.
+- 3(b), 5177735 (#50). The Section to Block-array schema in keystatic.config.ts, 14 in-scope block kinds, added additively alongside `body`. Proven byte-compat through a realistic authored round-trip carrying a folded scalar, with no Keystatic unsaved diff.
+- 3(c), 3f48138 (#51). The pure content-to-CaseStudy adapter (lib/case-studies/adapter.ts) plus DeviceImage's fill and aspect mode for content-path images. Proven by a 19-case unit suite (ralph/tests/p4-3c-adapter.mjs) and a byte-identical boat-crest.
+- 3(d), e251c7e (#52). The per-project fallback switch plus fosfor-ai migrated, the pattern proof.
+- 3(d), 2ca723e (#53). fosfor-data-profiling and elevate-one-view migrated.
+- 3(d), 30fdb70 (#54). The legacy renderer deleted, components/blocks and the switch gone, the three bodies collapsed to `body: []`.
+
+What holds after the deletion, and why.
+
+- The head-splice write seam is UNCHANGED. The three bodies collapsed to `body: []` rather than being removed, so splitAtBody keeps its `\nbody:` anchor and `sections` stays a verbatim-preserved tail, never re-serialized. `body: []` is the shape Keystatic itself writes for an empty blocks field, so saves stay byte-idempotent. Removing the key would have forced a re-anchor AND save churn. Proven both in memory before writing and on disk after.
+- The projects schema KEEPS the `body` field, dead but harmless, because removing it would orphan boat-crest.yaml's 19 poured blocks against the schema. Known cost, Keystatic still shows the unused field. Retire it when /keystatic retires.
+- A project with no sections adapts to an empty array and renders CaseStudyView's Coming soon placeholder, so a fresh studio-created stub is graceful rather than a crash.
+- The adapter is fail-loud by design. A wrong device count or a missing image src throws at the adapter boundary, which is right for build-time SSG.
+
+### Carried forward, editable once the step 4 editor lands
+
+The SYSTEM is complete. Everything below is content, not a blocker, and step 4 is exactly what makes it editable from production.
+
+- Placeholder images, all three migrated projects. Each carries neutral placeholder screens (public/images/projects/<slug>/screen-a,b,c.webp) and a null heroImage. Replace them through the dashboard image upload (040dbfb, #48).
+- The Fosfor Data Profiling `[real number]` stat. Poured verbatim from the old body, still standing in for a real figure.
+- The Fosfor AI outcome. The study still closes without a real outcome number, the same gap Content gaps above records.
+- Enrichment toward boat-crest depth. The pour was a faithful starting point, not a ceiling. statCards, principleCards, annotatedImage, and swatchTokens are all available block kinds the three studies do not use yet.
+- Two adapter flags for step 4. A preview-placeholder guard in front of the fail-loud adapter for half-authored studio drafts, and a per-image `aspect?` field if a real replacement image disagrees with the phone-bezel default.
+
 ## Open forks (named so they are not silently assumed)
 
-1. Case-study body editing from /studio is split, and the split is the opposite of what a quick look suggests. Only boat-crest is bespoke. BESPOKE_SLUGS holds just "boat-crest". Its body is hand-authored in lib/case-studies/boat-crest.ts and renders through the literal route app/(portfolio)/projects/boat-crest/page.tsx, so the Keystatic projects item that the /studio card deep-links to is NOT what renders the live boat-crest page. Editing that item does nothing to the live boat-crest page. The other three (fosfor-ai, fosfor-data-profiling, elevate-one-view) are empty placeholder stubs in lib/case-studies and still render their poured bodies through the Keystatic [slug] route, so for them the /studio deep-link already reaches the live body. The open decision applies to boat-crest and any future bespoke study. Option A keeps the body in Keystatic so /studio deep-links work for free, which means not giving it the bespoke treatment. Option B builds custom inline editing for the bespoke TS bodies, see fork 4. Not yet scoped.
+1. Case-study body editing. MOSTLY SETTLED by the renderer convergence above, and the part that remains is narrower than this fork used to describe. The rendering split is gone, all four studies now share one component set. What survives is a DATA split, not a renderer one. The three content projects render from their Keystatic `sections`, so they are dashboard-editable and the /studio deep-link reaches what renders. boat-crest still renders from the hand-authored TS object in lib/case-studies/boat-crest.ts through its literal route, so editing its Keystatic item still does nothing to the live page, which is the locked decision (boat-crest stays bespoke and is not dashboard-edited). Two things stay genuinely open. The Keystatic projects item for boat-crest is a misleading surface that edits nothing, worth removing or labelling when /keystatic retires. And boat-crest's two scroll-story blocks (featureStory, beforeAfterStory) are deliberately excluded from the sections schema in keystatic.config.ts, so they are the one thing a content project cannot express. They stay boat-crest's island because they need statically-imported assets with build-time dimensions, which a content-path image cannot supply.
 2. The three In code homepage sections (Hero facets, Process stage visuals, Contact form steps) are code-managed and shown as non-editable cards. They are the first candidates if and when we migrate hand-authored content into Keystatic.
 3. /studio search is a non-functional placeholder. A client-side label filter is the near-term fast-follow. Search over field values needs a content index and is deferred.
 4. /studio B, the inline editing write path, SHIPPED. Saves go through the owner-gated save-draft route to the draft branch and Publish merges the draft into main through the publish route, both in github mode, with the pure transform in lib/studio/site-settings-format.ts. The P1 fs write seam (lib/studio/save-site-settings.ts) was removed as superseded, dev editing happens in Keystatic. All field groups now edit inline. Hero, About, Process, Links, and Skills each have their own panel, and Experience and Projects add and delete entries through the create and delete foundation (F-1 write primitives, F-2 studio draft overlay, F-3 guarded create and delete, items 13 and 11). Links (item 10) migrated its fixed url fields to an editable array in the same singleton-array pattern as Skills.
