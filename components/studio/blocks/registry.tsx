@@ -609,6 +609,126 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
   </ItemRows>
 );
 
+/* ------------------------------------------- swatchTokens — the nested union
+ *
+ * The deepest shape in the schema: groups[] -> tokens[] -> a `{ discriminant, value }`
+ * union. That is LITERALLY the same shape as a block, one level down, so it gets a
+ * MINI-REGISTRY mirroring BLOCK_REGISTRY rather than a switch: exhaustive by
+ * construction over the derived inner union, so a third token kind is a compile
+ * error here exactly as a 15th block kind is below.
+ *
+ * The type select is READ-ONLY. Switching color <-> font would replace the value's
+ * SHAPE, not edit a field — that is "change block kind" one level down, and a
+ * decided non-feature. Rendering it read-only says so rather than silently
+ * offering a control that would discard the token's contents.                    */
+
+type RawToken = RawValue<"swatchTokens">["groups"][number]["tokens"][number];
+type TokenKind = RawToken["discriminant"];
+type TokenValue<K extends TokenKind> = Extract<RawToken, { discriminant: K }>["value"];
+
+type TokenEntry<K extends TokenKind> = {
+  label: string;
+  Form: ComponentType<{
+    value: TokenValue<K>;
+    onChange: (next: TokenValue<K>) => void;
+    onBlur?: () => void;
+    focusRef?: (el: HTMLElement | null) => void;
+  }>;
+};
+
+const TOKEN_REGISTRY: { [K in TokenKind]: TokenEntry<K> } = {
+  color: {
+    label: "Colour",
+    Form: ({ value, onChange, onBlur, focusRef }) => (
+      <>
+        <TextField label="Name" value={value.name} onChange={(name) => onChange({ ...value, name })} onBlur={onBlur} inputRef={focusRef} />
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Value" value={value.value} onChange={(v) => onChange({ ...value, value: v })} onBlur={onBlur} />
+          <TextField label="Hex (optional)" value={value.hex} onChange={(hex) => onChange({ ...value, hex })} onBlur={onBlur} />
+        </div>
+      </>
+    ),
+  },
+  font: {
+    label: "Font",
+    Form: ({ value, onChange, onBlur, focusRef }) => (
+      <>
+        <TextField label="Name" value={value.name} onChange={(name) => onChange({ ...value, name })} onBlur={onBlur} inputRef={focusRef} />
+        <TextField label="Note" value={value.note} onChange={(note) => onChange({ ...value, note })} onBlur={onBlur} />
+      </>
+    ),
+  },
+};
+
+function TokenFields({
+  token,
+  set,
+  onBlur,
+  focusRef,
+}: {
+  token: RawToken;
+  set: (next: RawToken) => void;
+  onBlur?: () => void;
+  focusRef?: (el: HTMLElement | null) => void;
+}) {
+  const entry = TOKEN_REGISTRY[token.discriminant];
+  // Same correlation the block lookup has: the table is keyed by discriminant and
+  // each Form is typed to its own kind's value, which the lookup cannot express to
+  // the compiler. Asserted once, here.
+  const Form = entry.Form as ComponentType<{
+    value: RawToken["value"];
+    onChange: (next: RawToken["value"]) => void;
+    onBlur?: () => void;
+    focusRef?: (el: HTMLElement | null) => void;
+  }>;
+  return (
+    <>
+      {/* READ-ONLY: switching the type would replace the value's shape. */}
+      <div className="flex items-center gap-2">
+        <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Type</span>
+        <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-600">
+          {entry.label}
+        </span>
+        <span className="text-[10px] text-text-subtle">Fixed — a token's type can't be changed here</span>
+      </div>
+      <Form
+        value={token.value}
+        onChange={(value) => set({ ...token, value } as RawToken)}
+        onBlur={onBlur}
+        focusRef={focusRef}
+      />
+    </>
+  );
+}
+
+const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value, onChange, onBlur }) => (
+  <ItemRows
+    items={value.groups}
+    onChange={(groups) => onChange({ ...value, groups })}
+    empty={() => ({ tokens: [] })}
+    addLabel="Add group"
+    itemNoun="Group"
+    rowLabel={(_, i) => `Group ${i + 1}`}
+  >
+    {({ item, set }) => (
+      <ItemRows
+        items={item.tokens}
+        onChange={(tokens) => set({ ...item, tokens })}
+        // A new token defaults to a colour, matching the schema's own
+        // defaultValue. Its value carries every key the shape declares.
+        empty={() => ({ discriminant: "color", value: { name: "", value: "", hex: "" } }) as RawToken}
+        addLabel="Add token"
+        itemNoun="Token"
+        rowLabel={(t, i) => t.value.name.trim() || `Token ${i + 1}`}
+      >
+        {({ item: token, set: setToken, focusRef }) => (
+          <TokenFields token={token} set={setToken} onBlur={onBlur} focusRef={focusRef} />
+        )}
+      </ItemRows>
+    )}
+  </ItemRows>
+);
+
 /* ---------------------------------------------------------------- the table */
 
 export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
@@ -638,6 +758,6 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
   deviceShelf: { label: (v) => `Device shelf — ${v.devices.length} devices`, Form: DeviceShelfForm },
   featureRows: { label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
   beforeAfter: { label: (v) => `Before / after — ${v.pairs.length} pairs`, Form: BeforeAfterForm },
-  swatchTokens: { label: (v) => `Swatch tokens — ${v.groups.length} groups` },
+  swatchTokens: { label: (v) => `Swatch tokens — ${v.groups.length} groups`, Form: SwatchTokensForm },
   annotatedImage: { label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"), Form: AnnotatedImageForm },
 };

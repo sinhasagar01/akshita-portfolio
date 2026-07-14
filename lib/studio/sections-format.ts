@@ -187,6 +187,34 @@ const deviceSpec = obj({ ...IMG_SPEC, label: str, dotColor: str });
 const glowWord = obj({ text: str, top: str, right: str, bottom: str, left: str, size: str });
 
 /**
+ * A `{ discriminant, value }` union nested INSIDE the block — swatchTokens' tokens
+ * are the only place the schema does this, and they are structurally the same shape
+ * as a block itself. So this is the block dispatch one level down, with the same
+ * two properties that matter: exhaustive against the derived inner union (a mapped
+ * type, so a third token kind is a compile error), and hasOwnProperty rather than
+ * `in`, because the discriminant is untrusted and `"constructor" in table` is true
+ * on any plain object.
+ */
+const unionOf = <K extends string>(
+  table: { [P in K]: Check<Record<string, unknown>> }
+): Check<{ discriminant: K; value: Record<string, unknown> }> => {
+  return (raw, at) => {
+    if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
+    for (const k of Object.keys(raw)) {
+      if (k !== "discriminant" && k !== "value") return invalid(`${at}: unknown field ${k}`, at);
+    }
+    const d = raw.discriminant;
+    if (typeof d !== "string") return invalid(`${at}.discriminant must be a string`, at);
+    if (!Object.prototype.hasOwnProperty.call(table, d)) {
+      return invalid(`${at}: unknown token kind "${d}"`, at);
+    }
+    const res = table[d as K](raw.value, `${at}.value`);
+    if (!res.ok) return res;
+    return { ok: true, value: { discriminant: d as K, value: res.value } };
+  };
+};
+
+/**
  * The per-kind table. Exhaustive by construction against the Keystatic-derived
  * union, so a 15th kind is a compile error here — no assertNever needed, because a
  * mapped type over the union IS the exhaustiveness check. Its keys are also the
@@ -245,8 +273,18 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
       })
     ),
   }),
-  // still opaque until its form lands (the last commit of PR B)
-  swatchTokens: opaque,
+  swatchTokens: obj({
+    groups: arrayOf(
+      obj({
+        tokens: arrayOf(
+          unionOf({
+            color: obj({ name: str, value: str, hex: str }),
+            font: obj({ name: str, note: str }),
+          })
+        ),
+      })
+    ),
+  }),
 };
 
 /** Validate one block against its kind's validator. An unknown kind is rejected. */

@@ -321,6 +321,116 @@ check("the sanitizer REJECTS '' for an image src (null is how unset is spelled)"
   if (res.ok) throw new Error("ACCEPTED '' for an image src");
 });
 
+/* ------------------- hazard 3: swatchTokens, the nested union */
+
+// NO REAL FILE CARRIES A swatchTokens (nor an issueList, nor an annotatedImage),
+// so this builds a SYNTHETIC base — and builds it with the real serializer, from a
+// real file, so it is a genuine on-disk-shaped project rather than a hand-written
+// fixture. Stated plainly because a synthetic base proves less than a real one.
+console.log("\nhazard 3 — swatchTokens: groups[] -> tokens[] -> a {discriminant,value} union");
+console.log("  (no real file carries one — the base below is SYNTHETIC, built by the real serializer)");
+
+const SWATCH_BLOCK = {
+  discriminant: "swatchTokens",
+  value: {
+    groups: [
+      {
+        tokens: [
+          { discriminant: "color", value: { name: "Ink", value: "oklch(.2 0 0)", hex: "#1a1a1a" } },
+          { discriminant: "font", value: { name: "Fraunces", note: "Display" } },
+        ],
+      },
+      {
+        tokens: [{ discriminant: "color", value: { name: "Cream", value: "oklch(.97 .01 80)", hex: "" } }],
+      },
+    ],
+  },
+};
+
+const swatchBase = (() => {
+  const raw = fileOf("fosfor-ai");
+  const secs = transported(readSections(raw));
+  secs[0].blocks.push(JSON.parse(JSON.stringify(SWATCH_BLOCK)));
+  const san = sanitizeSectionsPatch(secs);
+  if (!san.ok) throw new Error(`fixture rejected: ${san.error.message}`);
+  const out = serializeProjectSections(raw, san.sections);
+  if (!out.ok) throw new Error("fixture serialize refused");
+  return out.bytes;
+})();
+
+check("the synthetic base is a valid file the sanitizer accepts round-trip", () => {
+  const res = sanitizeSectionsPatch(transported(readSections(swatchBase)));
+  if (!res.ok) throw new Error(res.error.message);
+  if (!/discriminant: swatchTokens/.test(swatchBase)) throw new Error("no swatchTokens in the base");
+});
+
+check("swatchTokens: editing ONE token's value changes only that token", () => {
+  const at = find(readSections(swatchBase), "swatchTokens");
+  const [i, j] = at;
+  const after = roundTrip(swatchBase, (secs) => {
+    secs[i].blocks[j].value.groups[0].tokens[0].value.name = "EDITED token name";
+  });
+  const { before: b0, after: a0 } = assertOnlyChange(swatchBase, after, null, null);
+  assertOnlyField(b0, a0, "groups");
+  const bg = b0.groups, ag = a0.groups;
+  if (bg.length !== ag.length) throw new Error("group count changed");
+  const changed = [];
+  bg.forEach((g, gi) =>
+    g.tokens.forEach((t, ti) => {
+      if (JSON.stringify(t) !== JSON.stringify(ag[gi].tokens[ti])) changed.push(`${gi}/${ti}`);
+    })
+  );
+  if (changed.length !== 1) throw new Error(`${changed.length} tokens changed, expected 1`);
+  if (changed[0] !== "0/0") throw new Error(`the wrong token changed: ${changed[0]}`);
+  if (ag[0].tokens[0].discriminant !== "color") throw new Error("the discriminant changed");
+  // the SIBLING font token and the second group must be verbatim
+  if (JSON.stringify(ag[0].tokens[1]) !== JSON.stringify(bg[0].tokens[1])) throw new Error("the sibling font token changed");
+  if (JSON.stringify(ag[1]) !== JSON.stringify(bg[1])) throw new Error("group 2 changed");
+});
+
+check("swatchTokens: every token's discriminant survives an edit verbatim", () => {
+  const at = find(readSections(swatchBase), "swatchTokens");
+  const [i, j] = at;
+  const before = readSections(swatchBase)[i].blocks[j].value.groups.flatMap((g) => g.tokens.map((t) => t.discriminant));
+  const after = roundTrip(swatchBase, (secs) => {
+    secs[i].blocks[j].value.groups[0].tokens[0].value.hex = "#000000";
+  });
+  const now = load(after).sections[i].blocks[j].value.groups.flatMap((g) => g.tokens.map((t) => t.discriminant));
+  if (JSON.stringify(before) !== JSON.stringify(now)) throw new Error(`discriminants moved: ${before} -> ${now}`);
+});
+
+check("swatchTokens: a nested token ADD keeps every other token verbatim + empties intact", () => {
+  const at = find(readSections(swatchBase), "swatchTokens");
+  const [i, j] = at;
+  const after = roundTrip(swatchBase, (secs) => {
+    secs[i].blocks[j].value.groups[0].tokens.push({ discriminant: "color", value: { name: "", value: "", hex: "" } });
+  });
+  const { before: b0, after: a0 } = assertOnlyChange(swatchBase, after, null, null);
+  const bg = b0.groups, ag = a0.groups;
+  if (ag[0].tokens.length !== bg[0].tokens.length + 1) throw new Error("tokens did not grow by 1");
+  if (JSON.stringify(ag[0].tokens.slice(0, -1)) !== JSON.stringify(bg[0].tokens)) throw new Error("an existing token changed");
+  if (JSON.stringify(ag[1]) !== JSON.stringify(bg[1])) throw new Error("group 2 changed");
+  const added = ag[0].tokens[ag[0].tokens.length - 1];
+  if (JSON.stringify(Object.keys(added.value).sort()) !== JSON.stringify(["hex", "name", "value"]))
+    throw new Error(`new token's empties dropped: ${Object.keys(added.value)}`);
+});
+
+const swatchReject = (name, mutate, needle) =>
+  check(name, () => {
+    const secs = transported(readSections(swatchBase));
+    const [i, j] = find(secs, "swatchTokens");
+    mutate(secs[i].blocks[j].value);
+    const res = sanitizeSectionsPatch(secs);
+    if (res.ok) throw new Error("ACCEPTED");
+    if (needle && !res.error.message.includes(needle)) throw new Error(`wrong error: ${res.error.message}`);
+  });
+
+swatchReject("an unknown TOKEN kind is rejected", (v) => (v.groups[0].tokens[0].discriminant = "gradient"), "unknown token kind");
+swatchReject("a prototype key is not a token kind (hasOwnProperty, not `in`)", (v) => (v.groups[0].tokens[0].discriminant = "constructor"), "unknown token kind");
+swatchReject("a font value under a color discriminant is rejected (shape follows kind)", (v) => (v.groups[0].tokens[0].value = { name: "x", note: "y" }), "unknown field");
+swatchReject("a token missing hex is rejected (an empty-stripping form)", (v) => (v.groups[0].tokens[0].value = { name: "x", value: "y" }), "must be a string");
+swatchReject("an unknown field on the group is rejected", (v) => (v.groups[0].evil = 1), "unknown field");
+
 /* ------------------------------------------------- the per-kind sanitizer */
 
 console.log("\nthe per-kind sanitizer — strict, one layer deeper than 4(b)-i");
