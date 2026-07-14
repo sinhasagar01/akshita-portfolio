@@ -32,15 +32,22 @@ import { join } from "node:path";
 /**
  * True when this project is owned by the /studio sections editor rather than by
  * Keystatic. Derived from the file, so a newly migrated project locks itself.
- * A missing/unreadable file is not locked — there is nothing to protect.
+ *
+ * FAILS CLOSED. A file that does not exist is genuinely nothing to protect — that
+ * is a Keystatic CREATE, which must stay allowed. But any other read error means
+ * we could not determine whether this project is /studio-owned, and defaulting to
+ * "not locked" would disengage the guard exactly when it cannot verify itself.
+ * The cost of a false lock is a refused save; the cost of a false unlock is a
+ * mangled case study and deleted images. So unknown means locked.
  */
 export function isSectionsOwnedProject(slug: string): boolean {
   if (!/^[a-z0-9-]+$/.test(slug)) return false;
   try {
     const raw = readFileSync(join(process.cwd(), "content", "projects", `${slug}.yaml`), "utf8");
     return raw.includes("\nsections:");
-  } catch {
-    return false;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException)?.code === "ENOENT") return false;
+    return true;
   }
 }
 
