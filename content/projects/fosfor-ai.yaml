@@ -13,8 +13,10 @@ sections:
     id: Fosfor AI
     index: ''
     eyebrow: ''
-    title: ''
-    lead: ''
+    title: Designing an AI Copilot for Enterprise Data Teams
+    lead: >-
+      Helping analysts navigate complex datasets through conversational AI
+      inside LTIMindtree's Fosfor Decision Cloud.
     northStar: ''
     layout: stack
     glow:
