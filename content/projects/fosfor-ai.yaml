@@ -49,7 +49,7 @@ sections:
             - label: Timeline
               value: 12 weeks
           devices:
-            - src: /images/projects/fosfor-ai/screen-a.webp
+            - src: /images/projects/fosfor-ai/blocks/2661133ae869.webp
               alt: Placeholder companion screen, replace via the dashboard
               width: 248
               rotate: -6
