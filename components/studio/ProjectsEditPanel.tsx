@@ -10,12 +10,14 @@
 // (its own local state, NOT part of the useDraftForm text patch), committing the
 // normalized webp blob + the yaml path to the same draft branch.
 import { useRef, useState } from "react";
-import Link from "next/link";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
+import SectionsEditPanel from "./SectionsEditPanel";
 import { IconGrid } from "./icons";
+import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
+import type { RawSection } from "@/lib/case-studies/sections-raw";
 
 type Props = {
   itemId: string;
@@ -66,12 +68,57 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     onSaved: () => setUnpublished(true),
   });
 
+  // CS-1 — Details | Sections tabs. Sections are lazy-fetched on first open so the
+  // list payload never carries them (the reason the /body route existed). boat-crest
+  // is bespoke: its Sections tab is a read-only notice, never fetched.
+  const bespoke = BESPOKE_SLUGS.has(slug);
+  const [tab, setTab] = useState<"details" | "sections">("details");
+  const [sectionsData, setSectionsData] = useState<RawSection[] | null>(null);
+  const [sectionsStatus, setSectionsStatus] = useState<
+    "idle" | "loading" | "loaded" | "error"
+  >("idle");
+
   useReportPending(dirty || saveStatus === "saving");
   const { isSelected } = useListItem(itemId, dirty);
   if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
   const setFact = (key: keyof EditableFacts, val: string) =>
     setField("facts", { ...values.facts, [key]: val });
+
+  async function loadSections() {
+    setSectionsStatus("loading");
+    try {
+      const res = await fetch(
+        `/api/studio/case-study-sections?slug=${encodeURIComponent(slug)}`
+      );
+      const json = await res.json();
+      if (res.ok && json.ok) {
+        setSectionsData((json.sections ?? []) as RawSection[]);
+        setSectionsStatus("loaded");
+      } else {
+        setSectionsStatus("error");
+      }
+    } catch {
+      setSectionsStatus("error");
+    }
+  }
+
+  function selectTab(next: "details" | "sections") {
+    setTab(next);
+    // Fetch on first open (or after an error); never for bespoke, never re-fetch.
+    if (next === "sections" && !bespoke && (sectionsStatus === "idle" || sectionsStatus === "error")) {
+      void loadSections();
+    }
+  }
+
+  // Roving-tabindex arrow nav between the two tabs.
+  function onTabKey(e: React.KeyboardEvent, current: "details" | "sections") {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    const other = current === "details" ? "sections" : "details";
+    selectTab(other);
+    requestAnimationFrame(() => document.getElementById(`cs-tab-${other}-${slug}`)?.focus());
+  }
 
   const inputCls =
     "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
@@ -81,7 +128,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       aria-label={`Edit ${title}`}
       className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconGrid />
@@ -94,21 +141,16 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           )}
         </div>
         <div className="flex items-center gap-1">
-          {/* P4 4(b)-i — the case-study body editor (pull quotes so far). */}
-          <Link
-            href={`/studio/projects/${slug}/body`}
-            className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-          >
-            Edit body
-          </Link>
-          {/* P4 4(a) — the draft-preferring preview. Shows this study's draft
-              sections before publish; the public page still renders live. */}
-          <Link
+          {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard),
+              so the owner keeps the editor open beside it. */}
+          <a
             href={`/studio/projects/${slug}/preview`}
+            target="_blank"
+            rel="noopener"
             className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
           >
             Preview
-          </Link>
+          </a>
           <button
             type="button"
             onMouseDown={(e) => e.preventDefault()}
@@ -120,9 +162,50 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         </div>
       </header>
 
-      <div className="flex flex-col gap-5 px-4 py-5">
-        {/* Title is the slugField (the entry identity). Shown read-only so an edit
-            here never silently fails — it is set on Add and not editable. */}
+      {/* CS-1 — Details | Sections tablist (roving tabindex). */}
+      <div
+        role="tablist"
+        aria-label="Case study editor"
+        className="flex gap-1 border-b border-ink-950/8 bg-cream-100 px-4"
+      >
+        {(["details", "sections"] as const).map((t) => {
+          const selected = tab === t;
+          return (
+            <button
+              key={t}
+              type="button"
+              role="tab"
+              id={`cs-tab-${t}-${slug}`}
+              aria-selected={selected}
+              aria-controls={`cs-panel-${t}-${slug}`}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => selectTab(t)}
+              onKeyDown={(e) => onTabKey(e, t)}
+              className={[
+                "-mb-px border-b-2 px-3 py-2.5 text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                selected
+                  ? "border-accent-500 font-medium text-ink-950"
+                  : "border-transparent text-ink-500 hover:text-ink-950",
+              ].join(" ")}
+            >
+              {t === "details" ? "Details" : "Sections"}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Details tabpanel — the existing facts form, UNCHANGED (same fields, same
+          posted patch). Kept mounted (hidden, not unmounted) so switching tabs never
+          drops its draft. */}
+      <div
+        id={`cs-panel-details-${slug}`}
+        role="tabpanel"
+        aria-labelledby={`cs-tab-details-${slug}`}
+        hidden={tab !== "details"}
+      >
+        <div className="flex flex-col gap-5 px-4 py-5">
+          {/* Title is the slugField (the entry identity). Shown read-only so an edit
+              here never silently fails — it is set on Add and not editable. */}
         <label className="flex flex-col gap-1.5">
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Title</span>
           <input
@@ -134,7 +217,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             className="w-full cursor-not-allowed rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
-            The project&rsquo;s identity, set when you add it. The case study body is edited on its own body page.
+            The project&rsquo;s identity, set when you add it. The case study body is edited in the Sections tab.
           </span>
         </label>
 
@@ -192,6 +275,46 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>
       </footer>
+      </div>
+
+      {/* Sections tabpanel — lazy-loaded on first open. Once loaded it stays
+          MOUNTED and only toggles hidden, so an in-progress sections draft survives
+          switching to Details and back. boat-crest is bespoke → read-only notice,
+          never fetched. */}
+      <div
+        id={`cs-panel-sections-${slug}`}
+        role="tabpanel"
+        aria-labelledby={`cs-tab-sections-${slug}`}
+        hidden={tab !== "sections"}
+        className="px-4 py-5"
+      >
+        {bespoke ? (
+          <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
+            <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
+            <p className="mx-auto mt-2 max-w-[46ch] text-[13px] leading-relaxed text-ink-600">
+              {title} is a bespoke, hand-coded showpiece. Its sections are edited in code,
+              not here. The details above stay editable.
+            </p>
+          </div>
+        ) : sectionsStatus === "loaded" && sectionsData ? (
+          <SectionsEditPanel slug={slug} sections={sectionsData} />
+        ) : sectionsStatus === "error" ? (
+          <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
+            <p className="text-[13px] text-accent-600">Could not load the sections.</p>
+            <button
+              type="button"
+              onClick={() => void loadSections()}
+              className="mt-2 rounded-md border border-ink-950/8 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
+          <div className="grid place-items-center rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-[13px] text-text-subtle">
+            Loading sections…
+          </div>
+        )}
+      </div>
     </section>
   );
 }
