@@ -13,7 +13,7 @@ sections:
     id: Fosfor AI
     index: ''
     eyebrow: ''
-    title: Designing an AI Copilot for Enterprise Data Teams
+    title: ''
     lead: >-
       Helping analysts navigate complex datasets through conversational AI
       inside LTIMindtree's Fosfor Decision Cloud.
@@ -31,11 +31,15 @@ sections:
         value:
           title: Fosfor AI
           thesis: >-
-            Designing an AI companion that guides people from raw data to a
-            confident decision.
+            Designing an AI companion that transforms complex enterprise data
+            into confident business decisions.
           position: >-
-            Designing an AI companion inside the Fosfor Decision Cloud that
-            guides three kinds of users from data to decision.
+            Fosfor AI is an embedded AI companion designed for LTIMindtree's
+            enterprise Decision Cloud. Instead of functioning as a standalone
+            chatbot, it integrates directly into user workflows to help Data
+            Designers, Insight Designers, and Decision Designers analyze
+            information faster, reduce complexity, and make informed decisions
+            with confidence.
           eyebrow: Case study · Product design
           watermark: fosfor
           ratingChip:
@@ -43,13 +47,21 @@ sections:
             rest: ''
           meta:
             - label: My role
-              value: UI and UX design
+              value: Senior Product Designer
             - label: Scope
-              value: AI product design within an enterprise suite
+              value: AI Product Strategy
+            - label: Scope
+              value: UX Research
+            - label: Scope
+              value: Interaction Design
+            - label: Scope
+              value: Design System
+            - label: Scope
+              value: Developer Handoff
             - label: Platform
               value: Web
             - label: Timeline
-              value: 12 weeks
+              value: 3 Months
           devices:
             - src: /images/projects/fosfor-ai/blocks/2661133ae869.webp
               alt: Placeholder companion screen, replace via the dashboard
