@@ -122,7 +122,7 @@ sections:
       - discriminant: glanceGrid
         value:
           items:
-            - label: Product
+            - label: Opportunity
               value: Fosfor AI, an AI companion built into the Fosfor Decision Cloud.
             - label: Problem
               value: >-
