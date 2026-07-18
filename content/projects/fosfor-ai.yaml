@@ -128,8 +128,8 @@ sections:
                 without forcing users to change how they work.
             - label: Challenge
               value: >-
-                Each persona worked differently, making a one-size-fits-all AI
-                experience ineffective.
+                Each persona solved different problems, making a single,
+                one-size-fits-all AI experience ineffective.
             - label: My Contribution
               value: >-
                 Led product strategy, user research, interaction design,
