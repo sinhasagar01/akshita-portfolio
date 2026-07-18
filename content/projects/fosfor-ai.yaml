@@ -56,7 +56,7 @@ sections:
               value: Interaction Design
             - label: Scope
               value: Design System
-            - label: ''
+            - label: Scope
               value: ''
             - label: Platform
               value: Web
