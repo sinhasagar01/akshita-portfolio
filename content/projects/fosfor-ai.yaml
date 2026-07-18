@@ -54,6 +54,8 @@ sections:
               value: UX Research
             - label: Scope
               value: Interaction Design
+            - label: ''
+              value: ''
             - label: Platform
               value: Web
             - label: Timeline
