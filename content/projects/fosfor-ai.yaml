@@ -55,7 +55,7 @@ sections:
             - label: Primary Users
               value: Data Designers, Insight Designers, Decision Designers
             - label: Platform
-              value: Web
+              value: Enterprise Web Application
             - label: Timeline
               value: 3 Months
           devices:
