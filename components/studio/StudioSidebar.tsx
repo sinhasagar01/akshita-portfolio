@@ -28,7 +28,7 @@ export default function StudioSidebar() {
 
   const areas: Area[] = [
     { href: "/studio", label: "Homepage", Icon: IconHome },
-    { href: "/studio/projects", label: "Projects", Icon: IconGrid, count: counts.projects },
+    { href: "/studio/projects", label: "Case studies", Icon: IconGrid, count: counts.projects },
     { href: "/studio/experience", label: "Experience", Icon: IconBriefcase, count: counts.experience },
     { href: "/studio/skills", label: "Skills", Icon: IconLayers },
   ];

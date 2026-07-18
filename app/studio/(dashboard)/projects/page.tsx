@@ -12,8 +12,8 @@ export default async function StudioProjects() {
   return (
     <>
       <AreaHeader
-        title="Projects"
-        sub="Case studies, sorted by order. Add or remove projects; edit the summary and facts inline."
+        title="Case studies"
+        sub="Sorted by order. Add or remove case studies; edit the details and sections inline."
       />
       <ProjectsListEditor entries={projects} />
     </>
