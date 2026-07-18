@@ -49,14 +49,16 @@ sections:
             - label: My role
               value: Senior Product Designer
             - label: Scope
-              value: AI Product Strategy
-            - label: Scope
+              value: >-
+                AI Product Strategy, UX Research, Interaction Design, Design
+                System, Developer Handoff
+            - label: ''
               value: UX Research
-            - label: Scope
+            - label: ''
               value: Interaction Design
-            - label: Scope
+            - label: ''
               value: Design System
-            - label: Scope
+            - label: ''
               value: Developer Handoff
             - label: Platform
               value: Web
