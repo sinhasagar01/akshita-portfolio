@@ -52,14 +52,14 @@ sections:
               value: >-
                 AI Product Strategy, UX Research, Interaction Design, Design
                 System, Developer Handoff
-            - label: Platform
-              value: Web
-            - label: Timeline
-              value: 3 Months
             - label: Industry
               value: Enterprise SaaS
             - label: Users
               value: Data Designers, Insight Designers, Decision Designers
+            - label: Platform
+              value: Web
+            - label: Timeline
+              value: 3 Months
           devices:
             - src: /images/projects/fosfor-ai/blocks/2661133ae869.webp
               alt: Placeholder companion screen, replace via the dashboard
