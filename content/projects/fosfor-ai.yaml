@@ -113,9 +113,12 @@ sections:
       - discriminant: pullQuote
         value:
           text: >-
-            One companion had to serve three very different people, the one
-            preparing data, the one finding insight in it, and the one making
-            the call, each with their own idea of what help looks like.
+            The challenge wasn't designing one AI assistant.
+
+
+            It was designing one assistant that could think differently for
+            three completely different people—without making any of them feel
+            like the product wasn't built for them.
       - discriminant: glanceGrid
         value:
           items:
