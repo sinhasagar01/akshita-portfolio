@@ -52,6 +52,10 @@ sections:
               value: >-
                 AI Product Strategy, UX Research, Interaction Design, Design
                 System, Developer Handoff
+            - label: Industry
+              value: Enterprise SaaS
+            - label: Users
+              value: Data Designers, Insight Designers, Decision Designers
             - label: Platform
               value: Web
             - label: Timeline
