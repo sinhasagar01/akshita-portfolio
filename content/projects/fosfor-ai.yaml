@@ -128,8 +128,8 @@ sections:
                 stage of the enterprise data-to-decision journey.
             - label: Challenge
               value: >-
-                Users across very different roles struggled to navigate complex
-                data workflows and pull out insight they could act on.
+                Each persona worked differently, making a one-size-fits-all AI
+                experience ineffective.
             - label: Details
               value: >-
                 UI and UX design across research, architecture, and prototyping
