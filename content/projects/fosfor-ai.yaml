@@ -57,11 +57,11 @@ sections:
             - label: Scope
               value: Design System
             - label: Scope
-              value: ''
+              value: Developer Handoff
             - label: Platform
               value: Web
             - label: Timeline
-              value: 12 weeks
+              value: 3 Months
           devices:
             - src: /images/projects/fosfor-ai/blocks/2661133ae869.webp
               alt: Placeholder companion screen, replace via the dashboard
