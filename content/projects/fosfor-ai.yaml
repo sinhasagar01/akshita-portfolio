@@ -92,14 +92,14 @@ sections:
       One companion,
       three very different people.
     lead: >-
-      Enterprise AI isn't challenging because of the technology—it's challenging
+      Enterprise AI isn't difficult because of the technology—it's difficult
       because every user expects something different.
 
 
       Inside Fosfor Decision Cloud, one AI companion had to support three
-      distinct personas, each with different goals, workflows, and definitions
-      of success. Designing a single experience that felt intelligent to all of
-      them became the core challenge of this project.
+      distinct personas with different goals, workflows, and definitions of
+      success. Designing one experience that felt intelligent to all of them
+      became the core challenge of this project.
     northStar: ''
     layout: stack
     glow:
@@ -124,25 +124,28 @@ sections:
           items:
             - label: Opportunity
               value: >-
-                Design a single AI companion that could seamlessly support every
-                stage of the enterprise data-to-decision journey.
+                Create one AI companion that could adapt to different workflows
+                without forcing users to change how they work.
             - label: Challenge
               value: >-
-                Each persona worked differently, making a one-size-fits-all AI
-                experience ineffective.
+                Each persona solved different problems, making a single,
+                one-size-fits-all AI experience ineffective.
             - label: My Contribution
               value: >-
-                Led product strategy, user research, interaction design,
-                prototyping, and collaboration with engineering.
+                Defined the AI experience strategy, led user research, designed
+                the interaction model, and collaborated closely with engineering
+                to bring the product to life.
             - label: Design Approach
               value: >-
-                Instead of building another chatbot, I embedded contextual AI
-                directly into existing workflows.
+                Embedded contextual AI directly into existing workflows, making
+                assistance available exactly when users needed it.
             - label: Outcome
               value: >-
-                Created a scalable AI interaction model that could support
-                multiple personas while maintaining consistency across the
-                Decision Cloud ecosystem.
+                Established a reusable AI interaction framework that delivered a
+                consistent experience across three personas while scaling with
+                the Decision Cloud ecosystem.
+            - label: khjkjh
+              value: .kjkljkljbl ljkljlk lkjkljlj klhkljl kjkljkl klj kljklj
   - variant: default
     id: impact
     index: '02'
