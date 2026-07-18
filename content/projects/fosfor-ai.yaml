@@ -123,7 +123,9 @@ sections:
         value:
           items:
             - label: Opportunity
-              value: Fosfor AI, an AI companion built into the Fosfor Decision Cloud.
+              value: >-
+                Design a single AI companion that could seamlessly support every
+                stage of the enterprise data-to-decision journey.
             - label: Problem
               value: >-
                 Users across very different roles struggled to navigate complex
