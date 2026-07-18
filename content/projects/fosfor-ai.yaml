@@ -49,7 +49,9 @@ sections:
             - label: My role
               value: Senior Product Designer
             - label: Scope
-              value: AI Product Strategy, UX Research, Interaction Design
+              value: >-
+                AI Product Strategy, UX Research, Interaction Design, Design
+                System
             - label: Scope
               value: UX Research
             - label: Scope
