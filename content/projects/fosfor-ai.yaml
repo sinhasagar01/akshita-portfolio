@@ -58,7 +58,7 @@ sections:
               value: Interaction Design
             - label: Scope
               value: Design System
-            - label: Scope
+            - label: ''
               value: Developer Handoff
             - label: Platform
               value: Web
