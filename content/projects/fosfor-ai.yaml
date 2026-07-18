@@ -56,7 +56,7 @@ sections:
               value: UX Research
             - label: Scope
               value: Interaction Design
-            - label: Scope
+            - label: ''
               value: Design System
             - label: ''
               value: Developer Handoff
