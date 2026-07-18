@@ -122,24 +122,27 @@ sections:
       - discriminant: glanceGrid
         value:
           items:
-            - label: Product
-              value: Fosfor AI, an AI companion built into the Fosfor Decision Cloud.
-            - label: Problem
+            - label: Opportunity
               value: >-
-                Users across very different roles struggled to navigate complex
-                data workflows and pull out insight they could act on.
-            - label: Details
+                Design a single AI companion that could seamlessly support every
+                stage of the enterprise data-to-decision journey.
+            - label: Challenge
               value: >-
-                UI and UX design across research, architecture, and prototyping
-                over twelve weeks.
-            - label: Solution
+                Each persona worked differently, making a one-size-fits-all AI
+                experience ineffective.
+            - label: My Contribution
               value: >-
-                An AI guided companion that supports three personas while
-                keeping data secure and trusted.
-            - label: Result
+                Led product strategy, user research, interaction design,
+                prototyping, and collaboration with engineering.
+            - label: Design Approach
               value: >-
-                A single intelligent layer across the whole data to decision
-                journey.
+                Instead of building another chatbot, I embedded contextual AI
+                directly into existing workflows.
+            - label: Outcome
+              value: >-
+                Created a scalable AI interaction model that could support
+                multiple personas while maintaining consistency across the
+                Decision Cloud ecosystem.
   - variant: default
     id: impact
     index: '02'
