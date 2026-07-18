@@ -136,8 +136,8 @@ sections:
                 prototyping, and collaboration with engineering.
             - label: Design Approach
               value: >-
-                An AI guided companion that supports three personas while
-                keeping data secure and trusted.
+                Instead of building another chatbot, I embedded contextual AI
+                directly into existing workflows.
             - label: Result
               value: >-
                 A single intelligent layer across the whole data to decision
