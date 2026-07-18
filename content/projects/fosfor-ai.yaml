@@ -54,7 +54,7 @@ sections:
                 System, Developer Handoff
             - label: Industry
               value: Enterprise SaaS
-            - label: Users
+            - label: Primary Users
               value: Data Designers, Insight Designers, Decision Designers
             - label: Platform
               value: Web
