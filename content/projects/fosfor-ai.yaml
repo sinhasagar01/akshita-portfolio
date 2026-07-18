@@ -140,8 +140,9 @@ sections:
                 directly into existing workflows.
             - label: Outcome
               value: >-
-                A single intelligent layer across the whole data to decision
-                journey.
+                Created a scalable AI interaction model that could support
+                multiple personas while maintaining consistency across the
+                Decision Cloud ecosystem.
   - variant: default
     id: impact
     index: '02'
