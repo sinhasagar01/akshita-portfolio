@@ -34,8 +34,12 @@ sections:
             Designing an AI companion that transforms complex enterprise data
             into confident business decisions.
           position: >-
-            Designing an AI companion inside the Fosfor Decision Cloud that
-            guides three kinds of users from data to decision.
+            Fosfor AI is an embedded AI companion designed for LTIMindtree's
+            enterprise Decision Cloud. Instead of functioning as a standalone
+            chatbot, it integrates directly into user workflows to help Data
+            Designers, Insight Designers, and Decision Designers analyze
+            information faster, reduce complexity, and make informed decisions
+            with confidence.
           eyebrow: Case study · Product design
           watermark: fosfor
           ratingChip:
