@@ -49,13 +49,13 @@ sections:
             - label: My role
               value: Senior Product Designer
             - label: Scope
-              value: 'AI Product Strategy, '
+              value: AI Product Strategy
+            - label: Scope
+              value: ''
             - label: Platform
               value: Web
             - label: Timeline
               value: 12 weeks
-            - label: Scope
-              value: ''
           devices:
             - src: /images/projects/fosfor-ai/blocks/2661133ae869.webp
               alt: Placeholder companion screen, replace via the dashboard
