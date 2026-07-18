@@ -52,14 +52,6 @@ sections:
               value: >-
                 AI Product Strategy, UX Research, Interaction Design, Design
                 System, Developer Handoff
-            - label: ''
-              value: UX Research
-            - label: ''
-              value: Interaction Design
-            - label: ''
-              value: Design System
-            - label: ''
-              value: Developer Handoff
             - label: Platform
               value: Web
             - label: Timeline
