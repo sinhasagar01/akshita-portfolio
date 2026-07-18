@@ -68,7 +68,7 @@ sections:
               z: 1
               label: ''
               dotColor: ''
-            - src: /images/projects/fosfor-ai/screen-b.webp
+            - src: /images/projects/fosfor-ai/blocks/bf3c4c9d9aea.webp
               alt: Placeholder companion screen, replace via the dashboard
               width: 288
               rotate: null
@@ -92,9 +92,14 @@ sections:
       One companion,
       three very different people.
     lead: >-
-      Fosfor is LTIMindtree's data and decision platform. **Fosfor AI** is the
-      intelligent companion built into it, meant to help people interact with
-      data and reach decisions without fighting the tools.
+      Enterprise AI isn't challenging because of the technology—it's challenging
+      because every user expects something different.
+
+
+      Inside Fosfor Decision Cloud, one AI companion had to support three
+      distinct personas, each with different goals, workflows, and definitions
+      of success. Designing a single experience that felt intelligent to all of
+      them became the core challenge of this project.
     northStar: ''
     layout: stack
     glow:
@@ -108,9 +113,12 @@ sections:
       - discriminant: pullQuote
         value:
           text: >-
-            One companion had to serve three very different people, the one
-            preparing data, the one finding insight in it, and the one making
-            the call, each with their own idea of what help looks like.
+            The challenge wasn't designing one AI assistant.
+
+
+            It was designing one assistant that could think differently for
+            three completely different people—without making any of them feel
+            like the product wasn't built for them.
       - discriminant: glanceGrid
         value:
           items:
