@@ -49,7 +49,9 @@ sections:
             - label: My role
               value: Senior Product Designer
             - label: Scope
-              value: AI product design within an enterprise suite
+              value: >-
+                Scope  AI Product Strategy UX Research Interaction Design Design
+                System Developer Handoff
             - label: Platform
               value: Web
             - label: Timeline
