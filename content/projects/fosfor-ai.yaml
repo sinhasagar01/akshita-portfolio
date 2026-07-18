@@ -141,9 +141,9 @@ sections:
                 assistance available exactly when users needed it.
             - label: Outcome
               value: >-
-                Created a scalable AI interaction model that could support
-                multiple personas while maintaining consistency across the
-                Decision Cloud ecosystem.
+                Established a reusable AI interaction framework that delivered a
+                consistent experience across three personas while scaling with
+                the Decision Cloud ecosystem.
   - variant: default
     id: impact
     index: '02'
