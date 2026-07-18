@@ -124,8 +124,8 @@ sections:
           items:
             - label: Opportunity
               value: >-
-                Design a single AI companion that could seamlessly support every
-                stage of the enterprise data-to-decision journey.
+                Create one AI companion that could adapt to different workflows
+                without forcing users to change how they work.
             - label: Challenge
               value: >-
                 Each persona worked differently, making a one-size-fits-all AI
