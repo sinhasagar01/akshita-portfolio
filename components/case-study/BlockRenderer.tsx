@@ -26,7 +26,7 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "heroCover":
       return <HeroCover data={block} />;
     case "deviceShelf":
-      return <DeviceShelf devices={block.devices} glow={block.glow} minHeight={block.minHeight} />;
+      return <DeviceShelf devices={block.devices} glow={block.glow} minHeight={block.minHeight} web={web} />;
     case "pullQuote":
       return <PullQuote text={block.text} />;
     case "glanceGrid":
