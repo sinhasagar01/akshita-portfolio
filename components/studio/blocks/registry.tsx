@@ -20,7 +20,7 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup } from "./fields";
 import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD, emptyDevice, emptyImg, emptyGlow } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
@@ -374,15 +374,19 @@ function ImgSpecFields<T extends RawImg>({
           inputRef={focusRef}
         />
       </TabGroup>
-      {/* Style — the image geometry (size, rotation, offsets, stacking). */}
+      {/* Style — the image geometry (size, rotation, offsets, stacking). All five
+          are optional (num → optional in the adapter), so when unset they collapse
+          behind one reveal instead of showing a grid of blank "auto" boxes. */}
       <TabGroup group="style">
-        <div className="grid grid-cols-2 gap-2">
-          <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} />
-          <NumberField label="Rotate, deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} />
-          <NumberField label="Translate X, px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} />
-          <NumberField label="Translate Y, px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} />
-          <NumberField label="Stacking order" value={value.z} onChange={(z) => set({ ...value, z })} onBlur={onBlur} />
-        </div>
+        <DisclosureGroup revealLabel="Sizing & position">
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} optional />
+            <NumberField label="Rotate, deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} optional />
+            <NumberField label="Translate X, px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} optional />
+            <NumberField label="Translate Y, px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} optional />
+            <NumberField label="Stacking order" value={value.z} onChange={(z) => set({ ...value, z })} onBlur={onBlur} optional />
+          </div>
+        </DisclosureGroup>
       </TabGroup>
     </>
   );
@@ -432,16 +436,17 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
         <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
           Glow word (optional)
         </span>
-        <div className="flex flex-col gap-2">
-          <TextField label="Text" value={value.text} onChange={(text) => set({ ...value, text })} onBlur={onBlur} />
+        {/* The whole glow word is optional, so its inputs collapse behind one reveal. */}
+        <DisclosureGroup revealLabel="Glow settings">
+          <TextField label="Text" value={value.text} onChange={(text) => set({ ...value, text })} onBlur={onBlur} optional />
           <div className="grid grid-cols-2 gap-2">
-            <TextField label="Top (CSS)" value={value.top} onChange={(top) => set({ ...value, top })} onBlur={onBlur} />
-            <TextField label="Right (CSS)" value={value.right} onChange={(right) => set({ ...value, right })} onBlur={onBlur} />
-            <TextField label="Bottom (CSS)" value={value.bottom} onChange={(bottom) => set({ ...value, bottom })} onBlur={onBlur} />
-            <TextField label="Left (CSS)" value={value.left} onChange={(left) => set({ ...value, left })} onBlur={onBlur} />
+            <TextField label="Top (CSS)" value={value.top} onChange={(top) => set({ ...value, top })} onBlur={onBlur} optional />
+            <TextField label="Right (CSS)" value={value.right} onChange={(right) => set({ ...value, right })} onBlur={onBlur} optional />
+            <TextField label="Bottom (CSS)" value={value.bottom} onChange={(bottom) => set({ ...value, bottom })} onBlur={onBlur} optional />
+            <TextField label="Left (CSS)" value={value.left} onChange={(left) => set({ ...value, left })} onBlur={onBlur} optional />
           </div>
-          <TextField label="Size (CSS)" value={value.size} onChange={(size) => set({ ...value, size })} onBlur={onBlur} />
-        </div>
+          <TextField label="Size (CSS)" value={value.size} onChange={(size) => set({ ...value, size })} onBlur={onBlur} optional />
+        </DisclosureGroup>
       </div>
     </TabGroup>
   );
@@ -516,12 +521,14 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
           <TextArea label="Text" value={value.scrawl.text} onChange={(text) => onChange({ ...value, scrawl: { ...value.scrawl, text } })} onBlur={onBlur} rows={2} />
         </TabGroup>
         <TabGroup group="style">
-          <div className="grid grid-cols-2 gap-2">
-            <TextField label="Top (CSS)" value={value.scrawl.top} onChange={(top) => onChange({ ...value, scrawl: { ...value.scrawl, top } })} onBlur={onBlur} />
-            <TextField label="Right (CSS)" value={value.scrawl.right} onChange={(right) => onChange({ ...value, scrawl: { ...value.scrawl, right } })} onBlur={onBlur} />
-            <TextField label="Bottom (CSS)" value={value.scrawl.bottom} onChange={(bottom) => onChange({ ...value, scrawl: { ...value.scrawl, bottom } })} onBlur={onBlur} />
-            <TextField label="Left (CSS)" value={value.scrawl.left} onChange={(left) => onChange({ ...value, scrawl: { ...value.scrawl, left } })} onBlur={onBlur} />
-          </div>
+          <DisclosureGroup revealLabel="Scrawl position">
+            <div className="grid grid-cols-2 gap-2">
+              <TextField label="Top (CSS)" value={value.scrawl.top} onChange={(top) => onChange({ ...value, scrawl: { ...value.scrawl, top } })} onBlur={onBlur} optional />
+              <TextField label="Right (CSS)" value={value.scrawl.right} onChange={(right) => onChange({ ...value, scrawl: { ...value.scrawl, right } })} onBlur={onBlur} optional />
+              <TextField label="Bottom (CSS)" value={value.scrawl.bottom} onChange={(bottom) => onChange({ ...value, scrawl: { ...value.scrawl, bottom } })} onBlur={onBlur} optional />
+              <TextField label="Left (CSS)" value={value.scrawl.left} onChange={(left) => onChange({ ...value, scrawl: { ...value.scrawl, left } })} onBlur={onBlur} optional />
+            </div>
+          </DisclosureGroup>
         </TabGroup>
       </div>
     </div>
@@ -542,12 +549,14 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
           {/* CSS-value text, not numbers — plain strings, so the empties rule
               covers them and the null rule does not apply. */}
           <TabGroup group="style">
-            <div className="grid grid-cols-2 gap-2">
-              <TextField label="Top (CSS)" value={item.top} onChange={(top) => set({ ...item, top })} onBlur={onBlur} />
-              <TextField label="Right (CSS)" value={item.right} onChange={(right) => set({ ...item, right })} onBlur={onBlur} />
-              <TextField label="Bottom (CSS)" value={item.bottom} onChange={(bottom) => set({ ...item, bottom })} onBlur={onBlur} />
-              <TextField label="Left (CSS)" value={item.left} onChange={(left) => set({ ...item, left })} onBlur={onBlur} />
-            </div>
+            <DisclosureGroup revealLabel="Callout position">
+              <div className="grid grid-cols-2 gap-2">
+                <TextField label="Top (CSS)" value={item.top} onChange={(top) => set({ ...item, top })} onBlur={onBlur} optional />
+                <TextField label="Right (CSS)" value={item.right} onChange={(right) => set({ ...item, right })} onBlur={onBlur} optional />
+                <TextField label="Bottom (CSS)" value={item.bottom} onChange={(bottom) => set({ ...item, bottom })} onBlur={onBlur} optional />
+                <TextField label="Left (CSS)" value={item.left} onChange={(left) => set({ ...item, left })} onBlur={onBlur} optional />
+              </div>
+            </DisclosureGroup>
           </TabGroup>
         </>
       )}
@@ -562,10 +571,12 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
     <TextField label="Title" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} />
     <TextArea label="Thesis sentence" value={value.thesis} onChange={(thesis) => onChange({ ...value, thesis })} onBlur={onBlur} rows={2} />
     <TextArea label="Position statement" value={value.position} onChange={(position) => onChange({ ...value, position })} onBlur={onBlur} rows={2} />
-    <div className="grid grid-cols-2 gap-2">
-      <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => onChange({ ...value, eyebrow })} onBlur={onBlur} />
-      <TextField label="Watermark word" value={value.watermark} onChange={(watermark) => onChange({ ...value, watermark })} onBlur={onBlur} />
-    </div>
+    <DisclosureGroup revealLabel="Eyebrow & watermark">
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => onChange({ ...value, eyebrow })} onBlur={onBlur} optional />
+        <TextField label="Watermark word" value={value.watermark} onChange={(watermark) => onChange({ ...value, watermark })} onBlur={onBlur} optional />
+      </div>
+    </DisclosureGroup>
     <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
       <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
         Rating chip (optional)
