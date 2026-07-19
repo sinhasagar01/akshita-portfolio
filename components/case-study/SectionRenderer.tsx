@@ -3,6 +3,7 @@ import type { Section } from "@/lib/case-studies/types";
 import CaseSectionHeader from "./CaseSectionHeader";
 import GlowWord from "./GlowWord";
 import BlockRenderer from "./BlockRenderer";
+import PullQuote from "./blocks/PullQuote";
 import { isWideFrame } from "./DeviceImage";
 import { renderRich } from "./rich";
 
@@ -105,6 +106,50 @@ export default function SectionRenderer({
         className="section-card py-section relative overflow-hidden scroll-mt-20"
       >
         {inner}
+      </section>
+    );
+  }
+
+  // CS-7b — a STANDALONE pullQuote (the only block in its section) under template=web
+  // becomes a Bold-gallery dark quote band: the section identity on-dark, the quote in
+  // on-dark-quote serif, and a giant faint numeral from the section index. A paired
+  // pullQuote (with siblings) stays inline (BlockRenderer's web serif variant). Mobile
+  // and non-standalone are untouched — the standard cream card below.
+  const soleBlock = section.blocks.length === 1 ? section.blocks[0] : undefined;
+  if (web && soleBlock?.kind === "pullQuote") {
+    return (
+      <section
+        id={section.id}
+        className="section-card py-section relative overflow-hidden scroll-mt-20"
+        style={{ backgroundColor: "var(--color-band-dark)" }}
+      >
+        {section.index && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-6 right-6 z-0 select-none font-display leading-[0.8]"
+            style={{
+              color: "color-mix(in oklch, var(--color-accent-500) 13%, transparent)",
+              fontSize: "clamp(6rem, 14vw, 10rem)",
+            }}
+          >
+            {section.index}
+          </span>
+        )}
+        <div className="relative z-[1]">
+          {section.eyebrow && (
+            <p className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-on-dark-muted">
+              {section.eyebrow}
+            </p>
+          )}
+          {section.title && (
+            <h2 className="font-display font-normal text-[clamp(1.75rem,3vw,2.25rem)] text-on-dark leading-[1.12] tracking-tight mt-3 whitespace-pre-line">
+              {section.title}
+            </h2>
+          )}
+          <div className={section.eyebrow || section.title ? "mt-6" : ""}>
+            <PullQuote text={soleBlock.text} web dark />
+          </div>
+        </div>
       </section>
     );
   }
