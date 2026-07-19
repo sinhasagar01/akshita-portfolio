@@ -58,7 +58,11 @@ export default async function CaseStudyPage({ params }: Props) {
     title: data.title,
     thesis: data.summary,
     description: data.summary,
-    sections: adaptSections(data.rawSections),
+    // CS-6b — thread the case-study template so a frame-less image resolves to
+    // the template's default frame (web -> browser, else phone), the SAME wiring
+    // the studio preview uses. Template-absent content (every migrated project,
+    // boat-crest) resolves to phone and renders byte-identically.
+    sections: adaptSections(data.rawSections, { template: data.template }),
   };
 
   return (
