@@ -1,5 +1,5 @@
 import type { Feature } from "@/lib/case-studies/types";
-import DeviceImage from "../DeviceImage";
+import DeviceImage, { isWideFrame } from "../DeviceImage";
 import { renderRich } from "../rich";
 import { LINE, GLOW } from "../styles";
 
@@ -9,12 +9,21 @@ export default function FeatureRows({ features }: { features: Feature[] }) {
     <div className="flex flex-col gap-[22px]">
       {features.map((f, i) => {
         const reversed = i % 2 === 1;
+        // CS-6c — a wide (browser / MacBook) feature image would be crushed into the
+        // 268px phone column, so a wide row stays stacked at every breakpoint: the
+        // frame spans the full card width above the text. A phone row keeps the
+        // alternating side-by-side layout byte-identically.
+        const wide = isWideFrame(f.image.frame);
         return (
           <div
             key={f.index}
-            className={`reveal-card relative overflow-hidden rounded-xl border bg-cream-50 flex flex-col items-center gap-9 p-8 lg:flex-row lg:gap-[52px] lg:px-14 ${
-              reversed ? "lg:flex-row-reverse" : ""
-            }`}
+            className={
+              wide
+                ? "reveal-card relative overflow-hidden rounded-xl border bg-cream-50 flex flex-col items-center gap-9 p-8 lg:px-14"
+                : `reveal-card relative overflow-hidden rounded-xl border bg-cream-50 flex flex-col items-center gap-9 p-8 lg:flex-row lg:gap-[52px] lg:px-14 ${
+                    reversed ? "lg:flex-row-reverse" : ""
+                  }`
+            }
             style={{ borderColor: LINE }}
           >
             <span
@@ -25,7 +34,13 @@ export default function FeatureRows({ features }: { features: Feature[] }) {
               {f.index}
             </span>
 
-            <div className="relative z-[1] flex shrink-0 justify-center lg:w-[268px]">
+            <div
+              className={
+                wide
+                  ? "relative z-[1] flex w-full justify-center"
+                  : "relative z-[1] flex shrink-0 justify-center lg:w-[268px]"
+              }
+            >
               <DeviceImage image={f.image} />
             </div>
 

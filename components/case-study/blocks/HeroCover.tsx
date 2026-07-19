@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useAnimationControls } from "motion/react";
 import type { HeroCover as HeroCoverData } from "@/lib/case-studies/types";
-import DeviceImage from "../DeviceImage";
+import DeviceImage, { isWideFrame } from "../DeviceImage";
 import GlowWord from "../GlowWord";
 
 /* "Rise / calm" — one-time mount entrance (docs/case-study-page/hero-motion-spec.md).
@@ -79,10 +79,31 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
     show: { opacity: 1, y: 0, scale: 1, transition: tr({ delay: 0.77, duration: 0.65, ease: BACK }) },
   };
 
+  // CS-6c — wide (browser / MacBook) hero frames are landscape dashboards, so the
+  // phone parallax (overlap + x-offset + rotate) would break them. When the hero
+  // devices are wide, the hero drops the 2-col grid for a full-width stack (text
+  // above, the two frames side-by-side below) and the devices rise straight up
+  // with no horizontal offset or rotation. Phone heroes keep the exact composition.
+  const wide = isWideFrame(data.devices[0]?.frame) || isWideFrame(data.devices[1]?.frame);
+  const backVWide = {
+    hidden: { y: m ? 24 : 44, scale: m ? 0.97 : 0.95 },
+    show: { y: 0, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.3, ease: EXPO }) },
+  };
+  const frontVWide = {
+    hidden: { y: m ? 20 : 36, scale: m ? 0.97 : 0.96 },
+    show: { y: 0, scale: 1, transition: tr({ delay: 0.14, duration: m ? 1.0 : 1.2, ease: EXPO }) },
+  };
+
   const mp = { initial: "hidden" as const, animate: controls };
 
   return (
-    <div className="relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14">
+    <div
+      className={
+        wide
+          ? "relative flex flex-col gap-12"
+          : "relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14"
+      }
+    >
       {/* Watermark — relocated here (from section.glow) so its fade-in is part of
           the hero entrance. calc() reproduces the section-level top:-12px / right:34px
           by compensating the section's py-section top padding and 3.25rem inline padding.
@@ -169,13 +190,21 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
       <motion.div
         {...mp}
         variants={stackV}
-        className="relative flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
+        className={
+          wide
+            ? "relative flex w-full items-start justify-center gap-6"
+            : "relative flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
+        }
       >
         {data.glow && <GlowWord word={data.glow} />}
-        <motion.div {...mp} variants={backV} className="lg:absolute">
+        <motion.div
+          {...mp}
+          variants={wide ? backVWide : backV}
+          className={wide ? "min-w-0 flex-1" : "lg:absolute"}
+        >
           <DeviceImage image={data.devices[0]} />
         </motion.div>
-        <motion.div {...mp} variants={frontV}>
+        <motion.div {...mp} variants={wide ? frontVWide : frontV} className={wide ? "min-w-0 flex-1" : undefined}>
           <DeviceImage image={data.devices[1]} />
         </motion.div>
       </motion.div>
