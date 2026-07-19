@@ -71,7 +71,7 @@ sections:
               dotColor: ''
             - src: /images/projects/fosfor-ai/blocks/bf3c4c9d9aea.webp
               alt: Placeholder companion screen, replace via the dashboard
-              width: 288
+              width: 800
               rotate: null
               translateX: null
               translateY: null
