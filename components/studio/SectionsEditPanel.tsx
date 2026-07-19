@@ -32,6 +32,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
 import { BLOCK_REGISTRY, BLOCK_LABELS, type BlockFormProps } from "./blocks/registry";
 import { SectionShellForm, emptySection } from "./blocks/SectionShell";
+import { FieldTabProvider, type FieldTab } from "./blocks/fields";
 import { IconGrid, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type SectionsFields = { sections: readonly RawSection[] };
@@ -43,6 +44,18 @@ const sectionLabel = (s: RawSection, i: number) =>
 
 const iconBtn =
   "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+
+// CS-3 — the block kinds that carry any STYLE field (image geometry or a glow
+// word). Under the Style tab, blocks NOT in this set have nothing to show, so their
+// card is hidden there (the form stays mounted); every other kind is copy-only and
+// lives entirely under Content. Kept next to the map in registry.tsx by review.
+const KIND_HAS_STYLE = new Set<SectionBlockKind>([
+  "heroCover",
+  "deviceShelf",
+  "featureRows",
+  "beforeAfter",
+  "annotatedImage",
+]);
 
 // CS-2 — coarse kind families for the board's schematic skeleton (shape by
 // family, exact kind spelled out by its label). Not a live render.
@@ -141,6 +154,11 @@ export default function SectionsEditPanel({
   // section focused and the id-lockstep is untouched. Every editor stays mounted
   // regardless (rendered hidden), so switching views never drops a dirty edit.
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+
+  // CS-3 — Content | Style split. One tab state for the focused section's fields,
+  // provided to the shell + block forms via FieldTabProvider; each field's TabGroup
+  // shows only under its tab. Default Content.
+  const [contentStyleTab, setContentStyleTab] = useState<FieldTab>("content");
 
   // Cancel discards local edits; return to the board so selection can't point at
   // a section the revert removed.
@@ -367,7 +385,43 @@ export default function SectionsEditPanel({
       {/* The editors — ALWAYS MOUNTED. The container is hidden on the board and each
           section is hidden unless it is the focused one, so no editor ever unmounts
           and the id-lockstep + every dirty edit survive a view/section switch. */}
-      <div className="flex flex-col gap-6 px-4 py-5" hidden={selectedSectionId === null}>
+      <div className="flex flex-col gap-4 px-4 py-5" hidden={selectedSectionId === null}>
+        {/* CS-3 — Content | Style tablist (roving tabindex). Toggles which fields
+            show; both stay mounted so switching loses no input, caret, or draft. */}
+        <div role="tablist" aria-label="Section fields" className="flex gap-1 border-b border-ink-950/8">
+          {(["content", "style"] as const).map((t) => {
+            const selected = contentStyleTab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                id={`cs-fieldtab-${t}`}
+                aria-selected={selected}
+                aria-controls="cs-fieldtab-panel"
+                tabIndex={selected ? 0 : -1}
+                onClick={() => setContentStyleTab(t)}
+                onKeyDown={(e) => {
+                  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                  e.preventDefault();
+                  const other = t === "content" ? "style" : "content";
+                  setContentStyleTab(other);
+                  requestAnimationFrame(() => document.getElementById(`cs-fieldtab-${other}`)?.focus());
+                }}
+                className={[
+                  "-mb-px border-b-2 px-3 py-1.5 text-[12px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                  selected
+                    ? "border-accent-500 font-medium text-ink-950"
+                    : "border-transparent text-ink-500 hover:text-ink-950",
+                ].join(" ")}
+              >
+                {t === "content" ? "Content" : "Style"}
+              </button>
+            );
+          })}
+        </div>
+        <FieldTabProvider tab={contentStyleTab}>
+        <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col gap-6 outline-none">
         {values.sections.map((section, i) => (
           <div
             key={ids.sectionIds[i]}
@@ -407,7 +461,13 @@ export default function SectionsEditPanel({
               // compiler, so it is asserted once, here.
               const Form = entry.Form as React.ComponentType<BlockFormProps<typeof kind>>;
               return (
-                <div key={id} className="rounded-lg border border-ink-950/8 bg-cream-50 p-3">
+                <div
+                  key={id}
+                  // CS-3 — under the Style tab, a copy-only block has nothing to show,
+                  // so its card is hidden here (the form stays MOUNTED). Content shows all.
+                  hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
+                  className="rounded-lg border border-ink-950/8 bg-cream-50 p-3"
+                >
                   <div className="mb-2 flex items-baseline justify-between gap-2">
                     <span className="text-[12px] font-medium text-ink-950">
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -476,6 +536,8 @@ export default function SectionsEditPanel({
             )}
           </div>
         ))}
+        </div>
+        </FieldTabProvider>
 
         <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
       </div>

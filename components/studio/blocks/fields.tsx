@@ -8,9 +8,137 @@
 // the hard requirement at the form layer: Keystatic writes every key including the
 // empty ones, so a form that tidies them up rewrites blocks the owner never
 // touched, which is exactly what the surgical bar fails on.
-import { useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useItemList } from "../useItemList";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconImage } from "../icons";
+
+// CS-3 — the Content | Style split. A section's fields are grouped into two tabs;
+// this context carries which tab is active, and TabGroup wraps a run of fields so
+// they show only under their tab. Presentational only — the wrapper is a hidden
+// toggle, so both tabs' fields stay MOUNTED (no lost input, no field renames, no
+// change to what any field posts).
+export type FieldTab = "content" | "style";
+const FieldTabContext = createContext<FieldTab>("content");
+
+export function FieldTabProvider({ tab, children }: { tab: FieldTab; children: ReactNode }) {
+  return <FieldTabContext.Provider value={tab}>{children}</FieldTabContext.Provider>;
+}
+
+/** Show `children` only when the active field-tab matches `group`. Hidden (not
+ *  unmounted) otherwise, so a field keeps its value and caret across a tab switch. */
+export function TabGroup({
+  group,
+  className = "flex flex-col gap-2",
+  children,
+}: {
+  group: FieldTab;
+  className?: string;
+  children: ReactNode;
+}) {
+  const tab = useContext(FieldTabContext);
+  return (
+    <div hidden={tab !== group} className={className}>
+      {children}
+    </div>
+  );
+}
+
+// CS-3 progressive disclosure — empty OPTIONAL inputs collapse behind a per-group
+// reveal so a section is not a wall of blank boxes. This HIDES the input only: the
+// value stays in form state and is still posted (the 4b-ii empties-preserved rule
+// and the sanitizer, which requires every key, are untouched → save shape stays
+// byte-identical). Required or already-filled fields always render.
+//
+// "blank" reuses the studio's trim-based non-blank notion (LinksEditPanel.nonBlank).
+// "optional" is declared per field by the form, from the renderer's opt()/num()
+// types — a required field never passes `optional`, so it never collapses.
+const isBlankText = (v: string) => v.trim() === "";
+
+type DisclosureCtx = {
+  revealed: boolean;
+  reveal: () => void;
+  report: (id: string, collapsed: boolean) => void;
+};
+const DisclosureContext = createContext<DisclosureCtx | null>(null);
+
+/**
+ * Wraps a run of fields: required/filled ones render inline; when any OPTIONAL field
+ * in it is blank (and it is not yet revealed), a reveal control shows the rest. The
+ * reveal is STICKY for the session — once shown, a field never disappears mid-edit.
+ */
+export function DisclosureGroup({
+  revealLabel = "More options",
+  className = "flex flex-col gap-2",
+  children,
+}: {
+  revealLabel?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const [revealed, setRevealed] = useState(false);
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set());
+  const report = useCallback((id: string, isCollapsed: boolean) => {
+    setCollapsed((prev) => {
+      if (isCollapsed === prev.has(id)) return prev;
+      const next = new Set(prev);
+      if (isCollapsed) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+  const ctx = useMemo<DisclosureCtx>(
+    () => ({ revealed, reveal: () => setRevealed(true), report }),
+    [revealed, report]
+  );
+  return (
+    <DisclosureContext.Provider value={ctx}>
+      <div className={className}>
+        {children}
+        {!revealed && collapsed.size > 0 && (
+          <button
+            type="button"
+            onClick={() => setRevealed(true)}
+            className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+          >
+            <IconPlus /> {revealLabel}
+          </button>
+        )}
+      </div>
+    </DisclosureContext.Provider>
+  );
+}
+
+/**
+ * For an OPTIONAL field: whether it should render. It collapses when it is optional,
+ * blank, its group is not revealed, AND it has not been shown yet this session (the
+ * shownRef latch is the "never re-collapse once it had a value" rule). It reports its
+ * collapsed state up to the nearest DisclosureGroup so the reveal control appears.
+ * Outside a DisclosureGroup, or when not optional, it always renders.
+ */
+function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean {
+  const ctx = useContext(DisclosureContext);
+  const id = useId();
+  const shownRef = useRef(false);
+  const visible = !optional || !ctx ? true : ctx.revealed || !blank || shownRef.current;
+  if (visible) shownRef.current = true;
+  const collapsed = Boolean(optional) && ctx !== null && !visible;
+  useEffect(() => {
+    if (!ctx) return;
+    ctx.report(id, collapsed);
+    return () => ctx.report(id, false);
+  }, [ctx, id, collapsed]);
+  return visible;
+}
 
 const inputCls =
   "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
@@ -23,15 +151,19 @@ export function TextField({
   onChange,
   onBlur,
   inputRef,
+  optional,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   onBlur?: () => void;
   inputRef?: (el: HTMLElement | null) => void;
+  /** Optional field — collapses behind its DisclosureGroup's reveal while blank. */
+  optional?: boolean;
 }) {
+  const visible = useFieldVisible(optional, isBlankText(value));
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex flex-col gap-1" hidden={!visible}>
       <span className={labelCls}>{label}</span>
       <input
         type="text"
@@ -55,6 +187,7 @@ export function TextArea({
   onBlur,
   rows = 3,
   inputRef,
+  optional,
 }: {
   label: string;
   value: string;
@@ -62,9 +195,12 @@ export function TextArea({
   onBlur?: () => void;
   rows?: number;
   inputRef?: (el: HTMLElement | null) => void;
+  /** Optional field — collapses behind its DisclosureGroup's reveal while blank. */
+  optional?: boolean;
 }) {
+  const visible = useFieldVisible(optional, isBlankText(value));
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex flex-col gap-1" hidden={!visible}>
       <span className={labelCls}>{label}</span>
       <textarea
         rows={rows}
@@ -101,12 +237,17 @@ export function NumberField({
   value,
   onChange,
   onBlur,
+  optional,
 }: {
   label: string;
   value: number | null;
   onChange: (v: number | null) => void;
   onBlur?: () => void;
+  /** Optional field — collapses behind its DisclosureGroup's reveal while blank
+   *  (null). A real 0 is NOT blank, matching the null-vs-zero discipline below. */
+  optional?: boolean;
 }) {
+  const visible = useFieldVisible(optional, value === null);
   const toText = (v: number | null) => (v === null ? "" : String(v));
   const [text, setText] = useState(() => toText(value));
   const seen = useRef(value);
@@ -121,7 +262,7 @@ export function NumberField({
   }
 
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex flex-col gap-1" hidden={!visible}>
       <span className={labelCls}>{label}</span>
       <input
         type="text"
