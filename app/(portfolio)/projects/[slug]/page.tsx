@@ -63,6 +63,8 @@ export default async function CaseStudyPage({ params }: Props) {
     // the studio preview uses. Template-absent content (every migrated project,
     // boat-crest) resolves to phone and renders byte-identically.
     sections: adaptSections(data.rawSections, { template: data.template }),
+    // CS-7b — the template also drives the section/block Bold-gallery web treatments.
+    template: data.template,
   };
 
   return (

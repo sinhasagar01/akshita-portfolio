@@ -11,7 +11,16 @@ import { renderRich } from "./rich";
  * every other section rides RevealSection's clip-path reveal. The optional header
  * and glow ride the panel; repeating block items stagger via `.reveal-card`.
  */
-export default function SectionRenderer({ section }: { section: Section }) {
+export default function SectionRenderer({
+  section,
+  web = false,
+}: {
+  section: Section;
+  /** CS-7b — template=web opts this section's blocks into the Bold-gallery
+   *  treatments, and drives section-level treatments (e.g. a standalone pullQuote
+   *  dark band). false → the existing mobile composition, byte-identical. */
+  web?: boolean;
+}) {
   const hasHeader = Boolean(
     section.index || section.eyebrow || section.title || section.lead,
   );
@@ -41,7 +50,7 @@ export default function SectionRenderer({ section }: { section: Section }) {
           } ${hasHeader || section.northStar ? "mt-10" : ""}`}
         >
           {section.blocks.map((block, i) => (
-            <BlockRenderer key={i} block={block} />
+            <BlockRenderer key={i} block={block} web={web} />
           ))}
         </div>
       </div>
@@ -55,7 +64,7 @@ export default function SectionRenderer({ section }: { section: Section }) {
     return (
       <div id={section.id} className="scroll-mt-20">
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} />
+          <BlockRenderer key={i} block={block} web={web} />
         ))}
       </div>
     );
@@ -81,7 +90,7 @@ export default function SectionRenderer({ section }: { section: Section }) {
         style={{ backgroundColor: "var(--color-band-dark)" }}
       >
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} />
+          <BlockRenderer key={i} block={block} web={web} />
         ))}
       </section>
     );

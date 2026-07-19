@@ -17,8 +17,12 @@ import RichText from "./blocks/RichText";
 import ClosingLine from "./blocks/ClosingLine";
 
 /** Dispatch one block to its layout component — the one block dispatch every
- *  case study renders through (P4 3(d) deleted the legacy generic renderer). */
-export default function BlockRenderer({ block }: { block: Block }) {
+ *  case study renders through (P4 3(d) deleted the legacy generic renderer).
+ *  CS-7b — `web` (template=web) is threaded in here so each block can opt into its
+ *  Bold-gallery treatment; the per-block treatments wire it into their cases as they
+ *  land. Absent/false → the existing mobile render, byte-identical. */
+export default function BlockRenderer({ block, web = false }: { block: Block; web?: boolean }) {
+  void web; // CS-7b-0: threaded and ready; consumed by each block treatment as it lands.
   switch (block.kind) {
     case "heroCover":
       return <HeroCover data={block} />;

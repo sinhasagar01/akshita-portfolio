@@ -39,6 +39,9 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
     // template's default frame (web -> browser, else phone) in the preview. The
     // public render path stays unwired until CS-6b (live layout).
     sections: adaptSections(rawSections, { mode: "preview", template: live.template }),
+    // CS-7b — the template also drives the Bold-gallery web treatments, so preview
+    // and live move together.
+    template: live.template,
   };
 
   const isDraft = draft.source === "draft";
