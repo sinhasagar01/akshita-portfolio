@@ -22,7 +22,6 @@ import ClosingLine from "./blocks/ClosingLine";
  *  Bold-gallery treatment; the per-block treatments wire it into their cases as they
  *  land. Absent/false → the existing mobile render, byte-identical. */
 export default function BlockRenderer({ block, web = false }: { block: Block; web?: boolean }) {
-  void web; // CS-7b-0: threaded and ready; consumed by each block treatment as it lands.
   switch (block.kind) {
     case "heroCover":
       return <HeroCover data={block} />;
@@ -37,7 +36,7 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "stepper":
       return <Stepper steps={block.steps} />;
     case "statCards":
-      return <StatCards heading={block.heading} stats={block.stats} />;
+      return <StatCards heading={block.heading} stats={block.stats} web={web} />;
     case "principleCards":
       return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} />;
     case "featureRows":
