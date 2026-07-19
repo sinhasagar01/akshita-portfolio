@@ -159,8 +159,8 @@ sections:
               body: Profiling depths, **basic** and **advanced**, on any data model
               tag: depths
               highlighted: true
-            - value: '[real number]'
-              suffix: ''
+            - value: '40'
+              suffix: '%'
               body: Reduction in time spent on manual data quality checks
               tag: quality checks
               highlighted: false
