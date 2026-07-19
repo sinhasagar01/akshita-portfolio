@@ -118,6 +118,30 @@ function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
   );
 }
 
+/** CS-7e — immutably set `<imagePath>.src` inside a block value. `imagePath` is the
+ *  dotted path to the image SPEC (e.g. "devices.0", "features.1.image",
+ *  "pairs.0.before", "image"); ".src" is appended. Numeric segments address array
+ *  positions. Every level on the path is copied, so untouched siblings keep their
+ *  references — the surgical round-trip the sections write seam relies on. */
+function setSrcAtPath(value: unknown, imagePath: string, src: string): unknown {
+  const set = (node: unknown, ks: string[]): unknown => {
+    if (ks.length === 0) return src;
+    const [k, ...rest] = ks;
+    if (/^\d+$/.test(k)) {
+      const arr = Array.isArray(node) ? [...node] : [];
+      arr[Number(k)] = set(arr[Number(k)], rest);
+      return arr;
+    }
+    const obj =
+      node && typeof node === "object" && !Array.isArray(node)
+        ? { ...(node as Record<string, unknown>) }
+        : {};
+    (obj as Record<string, unknown>)[k] = set((obj as Record<string, unknown>)[k], rest);
+    return obj;
+  };
+  return set(value, [...imagePath.split("."), "src"]);
+}
+
 /** CS-7c — the inline canvas: a live, READ-ONLY render of one section through the
  *  preview-mode adapter (placeholder for a missing image, never fail-loud) and the
  *  real SectionRenderer with `noReveal` so it stays visible in the panel. The
@@ -130,6 +154,7 @@ function SectionCanvas({
   template,
   editable = false,
   onBlur,
+  onReplaceImage,
 }: {
   section: RawSection;
   web: boolean;
@@ -139,7 +164,18 @@ function SectionCanvas({
   /** CS-7d — delegated blur: fires for any contentEditable field inside; the panel
    *  reads the target's data-edit markers and writes back through the seams. */
   onBlur?: (e: React.FocusEvent<HTMLDivElement>) => void;
+  /** CS-7e — a Replace-image affordance was clicked; the panel resolves the image's
+   *  block index + dotted path and starts the content-addressed upload. */
+  onReplaceImage?: (blockIndex: number, imagePath: string) => void;
 }) {
+  const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const btn = (e.target as HTMLElement).closest?.("[data-edit-image-replace]");
+    if (!btn) return;
+    const container = btn.closest("[data-edit-image-path]") as HTMLElement | null;
+    const bi = container?.dataset.editBlockIndex;
+    const path = container?.dataset.editImagePath;
+    if (container && bi !== undefined && path) onReplaceImage?.(Number(bi), path);
+  };
   let adapted: ReturnType<typeof adaptSections> = [];
   try {
     adapted = adaptSections([section], { mode: "preview", template });
@@ -148,7 +184,7 @@ function SectionCanvas({
   }
   const s = adapted[0];
   return (
-    <div className="case-study overflow-hidden rounded-lg border border-ink-950/8 bg-canvas" onBlur={onBlur}>
+    <div className="case-study overflow-hidden rounded-lg border border-ink-950/8 bg-canvas" onBlur={onBlur} onClick={onClick}>
       {s ? (
         <SectionRenderer section={s} web={web} noReveal editable={editable} />
       ) : (
@@ -299,6 +335,55 @@ export default function SectionsEditPanel({
         };
       }) as readonly RawSection[]
     );
+  }
+
+  /* --------------------------------------------------- CS-7e image replace */
+  // A Replace affordance was clicked on a canvas image; a hidden file input is
+  // triggered, and its chosen file is uploaded through the SAME content-addressed
+  // block-image route the forms use. The server hashes the bytes and returns the
+  // path, which is written into the block value at the image's dotted path via
+  // setBlockValue (id-lockstep) — so reordering never changes a path and the write
+  // seam stays the single sections writer.
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const pendingImage = useRef<{ selIdx: number; blockIndex: number; path: string } | null>(null);
+  const [imageBusy, setImageBusy] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+
+  async function uploadReplacement(file: File) {
+    const pending = pendingImage.current;
+    if (!pending) return;
+    setImageBusy(true);
+    setImageError(null);
+    try {
+      const body = new FormData();
+      body.append("slug", slug);
+      body.append("file", file);
+      const res = await fetch("/api/studio/upload-block-image", { method: "POST", body });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok && json.mode === "fs") {
+        setImageError("Image upload needs github mode (dev)");
+        return;
+      }
+      if (res.ok && json.ok && typeof json.src === "string") {
+        const { selIdx, blockIndex, path } = pending;
+        const curVal = values.sections[selIdx]?.blocks[blockIndex]?.value;
+        setBlockValue(ids.blockIds[selIdx][blockIndex], setSrcAtPath(curVal, path, json.src));
+        return;
+      }
+      setImageError(
+        {
+          unsupported_type: "That file type is not supported. Use a PNG, JPEG or WebP.",
+          file_too_large: "That image is too large. The limit is 12 MB.",
+          image_processing_failed: "That image could not be processed.",
+        }[json.error as string] ?? "Upload failed. Try again."
+      );
+    } catch {
+      setImageError("Upload failed. Try again.");
+    } finally {
+      setImageBusy(false);
+      pendingImage.current = null;
+      if (imageInputRef.current) imageInputRef.current.value = "";
+    }
   }
 
   const dupeIds = new Set(
@@ -468,8 +553,10 @@ export default function SectionsEditPanel({
           };
           return (
             <div>
-              <div className="mb-2 text-[11px] uppercase tracking-eyebrow text-ink-400">
-                Live preview — click a title, eyebrow, or quote to edit it in place
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-eyebrow text-ink-400">
+                <span>Live preview — click a title, eyebrow, quote, or image to edit it in place</span>
+                {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
+                {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
               </div>
               <SectionCanvas
                 section={values.sections[selIdx]}
@@ -477,6 +564,21 @@ export default function SectionsEditPanel({
                 template={template}
                 editable
                 onBlur={onBlur}
+                onReplaceImage={(blockIndex, path) => {
+                  pendingImage.current = { selIdx, blockIndex, path };
+                  setImageError(null);
+                  imageInputRef.current?.click();
+                }}
+              />
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadReplacement(f);
+                }}
               />
             </div>
           );

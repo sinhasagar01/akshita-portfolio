@@ -3,14 +3,21 @@ import type { ImgSpec, Scrawl, Callout } from "@/lib/case-studies/types";
 import DeviceImage from "../DeviceImage";
 import Annotation from "../Annotation";
 
-type Props = { image: ImgSpec; scrawl?: Scrawl; callouts?: Callout[] };
+type Props = {
+  image: ImgSpec;
+  scrawl?: Scrawl;
+  callouts?: Callout[];
+  /** CS-7e — studio inline canvas: make the image replaceable. */
+  editable?: boolean;
+  blockIndex?: number;
+};
 
 /**
  * A device screenshot with optional handwritten scrawl (Caveat) and dot-line
  * callouts. On desktop these are absolutely positioned; at the mobile breakpoint
  * the scrawl reads as a caption above the image and callouts stack as rows.
  */
-export default function AnnotatedImage({ image, scrawl, callouts }: Props) {
+export default function AnnotatedImage({ image, scrawl, callouts, editable = false, blockIndex }: Props) {
   return (
     <div className="relative flex flex-col items-center gap-5 lg:min-h-[560px] lg:justify-center">
       {scrawl && (
@@ -27,7 +34,7 @@ export default function AnnotatedImage({ image, scrawl, callouts }: Props) {
         </span>
       )}
 
-      <DeviceImage image={image} />
+      <DeviceImage image={image} editable={editable} blockIndex={blockIndex} editPath="image" />
 
       {callouts?.map((c, i) => (
         <Annotation key={i} callout={c} />

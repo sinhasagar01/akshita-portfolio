@@ -37,6 +37,40 @@ export function isWideFrame(frame?: string): boolean {
 export default function DeviceImage({
   image,
   className,
+  editable = false,
+  blockIndex,
+  editPath,
+}: {
+  image: ImgSpec;
+  className?: string;
+  /** CS-7e — studio inline canvas: overlay a Replace affordance on this image and
+   *  tag it with its block index + the dotted path to its image spec within the
+   *  block value (e.g. "devices.0", "features.1.image"). Off by default → public
+   *  render byte-identical. */
+  editable?: boolean;
+  blockIndex?: number;
+  editPath?: string;
+}) {
+  const inner = <DeviceImageInner image={image} className={className} />;
+  if (!editable) return inner;
+  return (
+    <span className="relative block" data-edit-block-index={blockIndex} data-edit-image-path={editPath}>
+      {inner}
+      <button
+        type="button"
+        data-edit-image-replace
+        aria-label="Replace image"
+        className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[11px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
+      >
+        Replace image
+      </button>
+    </span>
+  );
+}
+
+function DeviceImageInner({
+  image,
+  className,
 }: {
   image: ImgSpec;
   className?: string;

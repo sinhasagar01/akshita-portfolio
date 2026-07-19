@@ -8,19 +8,29 @@ type Props = {
   glow?: GlowWordType;
   minHeight?: number;
   web?: boolean;
+  /** CS-7e — studio inline canvas: make each device image replaceable. */
+  editable?: boolean;
+  blockIndex?: number;
 };
 
 /** `.sysduo` — gradient pedestal holding devices side by side, with theme labels.
  *  Under template=web (CS-7b), the Bold-gallery "fullshot": the dashboards stack
  *  full-width with NO pedestal (no gradient, border, or glow), each with an optional
  *  caption. Mobile keeps the pedestal (row, or CS-6b stacked wide), byte-identically. */
-export default function DeviceShelf({ devices, glow, minHeight = 480, web = false }: Props) {
+export default function DeviceShelf({
+  devices,
+  glow,
+  minHeight = 480,
+  web = false,
+  editable = false,
+  blockIndex,
+}: Props) {
   if (web) {
     return (
       <div className="flex flex-col items-center gap-12">
         {devices.map((d, i) => (
           <figure key={i} className="reveal-card flex w-full flex-col items-center gap-3">
-            <DeviceImage image={d} />
+            <DeviceImage image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
             {d.label && (
               <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle">
                 {d.label}
@@ -55,7 +65,7 @@ export default function DeviceShelf({ devices, glow, minHeight = 480, web = fals
               : "relative z-[2] flex flex-col items-center"
           }
         >
-          <DeviceImage image={d} />
+          <DeviceImage image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
           {d.label && (
             <span
               className="mt-4 -translate-y-3.5 rounded-full border bg-cream-50 px-3.5 py-1.5 text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle"
