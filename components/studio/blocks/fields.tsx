@@ -413,6 +413,7 @@ export function SelectField<T extends string>({
   onChange,
   onBlur,
   hint,
+  optionLabel,
 }: {
   label: string;
   value: T;
@@ -420,6 +421,10 @@ export function SelectField<T extends string>({
   onChange: (v: T) => void;
   onBlur?: () => void;
   hint?: string;
+  /** Human label per option value. Defaults to the value itself, so existing
+   *  callers (variant/layout) are byte-identical; the CS-6a frame picker uses it to
+   *  show "Default (from template)" for the "" option. */
+  optionLabel?: (v: T) => string;
 }) {
   return (
     <label className="flex flex-col gap-1">
@@ -432,7 +437,7 @@ export function SelectField<T extends string>({
       >
         {options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {optionLabel ? optionLabel(o) : o}
           </option>
         ))}
       </select>

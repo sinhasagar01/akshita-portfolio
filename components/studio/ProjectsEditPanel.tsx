@@ -26,6 +26,8 @@ type Props = {
   summary: string;
   heroImage: string | null;
   facts: ProjectFacts;
+  // CS-6a — the case-study template ("" | "mobile" | "web"), for the header toggle.
+  template: string;
 };
 
 // Only type + platform are editable here (Phase-1 T1). role + timeline stay in
@@ -42,7 +44,7 @@ const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] 
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
 ];
 
-export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts }: Props) {
+export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template }: Props) {
   const initial: ProjectsFields = {
     summary,
     facts: { type: facts.type, platform: facts.platform },
@@ -162,12 +164,11 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         </div>
       </header>
 
-      {/* CS-1 — Details | Sections tablist (roving tabindex). */}
-      <div
-        role="tablist"
-        aria-label="Case study editor"
-        className="flex gap-1 border-b border-ink-950/8 bg-cream-100 px-4"
-      >
+      {/* CS-1 Details | Sections tablist, plus the CS-6a template toggle on the
+          right — sharing one bordered header row. The toggle sits OUTSIDE the
+          role="tablist" so it adds no spurious tab. */}
+      <div className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4">
+        <div role="tablist" aria-label="Case study editor" className="flex gap-1">
         {(["details", "sections"] as const).map((t) => {
           const selected = tab === t;
           return (
@@ -192,6 +193,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             </button>
           );
         })}
+        </div>
+        {/* CS-6a — case-study template toggle. Sections-owned only (bespoke boat-crest
+            renders no template). Writes `template` via the HEAD/Details save path. */}
+        {!bespoke && (
+          <TemplateToggle slug={slug} initial={template} onSaved={() => setUnpublished(true)} />
+        )}
       </div>
 
       {/* Details tabpanel — the existing facts form, UNCHANGED (same fields, same
@@ -477,4 +484,92 @@ function uploadError(status: number, code?: string): string {
   if (status === 404) return "This project no longer exists.";
   if (status === 401) return "Session expired. Sign in again.";
   return "Upload failed. Try again.";
+}
+
+// CS-6a — the case-study template toggle. Posts a HEAD patch
+// { collection:"projects", slug, patch:{ template } } to the SAME save-draft route
+// the Details form uses (NOT the sections payload — that keeps the two save seams
+// apart). Web -> "web" (browser default), Mobile -> "mobile" (phone default) via
+// CS-4's mapping. Optimistic with revert on error; its own pending report so
+// Publish/Discard can't race an in-flight toggle.
+function TemplateToggle({
+  slug,
+  initial,
+  onSaved,
+}: {
+  slug: string;
+  initial: string;
+  onSaved: () => void;
+}) {
+  const [template, setTemplate] = useState(initial);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const busyRef = useRef(false);
+  useReportPending(busy);
+
+  // "web" -> Web; anything else ("" / "mobile" / absent) -> Mobile (all phone-default).
+  const selected: "mobile" | "web" = template === "web" ? "web" : "mobile";
+
+  async function choose(next: "mobile" | "web") {
+    if (busyRef.current || next === selected) return;
+    busyRef.current = true;
+    setBusy(true);
+    setNote(null);
+    const prev = template;
+    setTemplate(next); // optimistic
+    try {
+      const res = await fetch("/api/studio/save-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collection: "projects", slug, patch: { template: next } }),
+      });
+      const json = await res.json();
+      if (res.ok && json.saved) {
+        onSaved();
+      } else if (res.ok && json.mode === "fs") {
+        setNote("needs github mode (dev)");
+        setTemplate(prev); // fs no-op — nothing was saved
+      } else {
+        setTemplate(prev);
+        setNote("Save failed");
+      }
+    } catch {
+      setTemplate(prev);
+      setNote("Save failed");
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Template</span>
+      <div
+        role="group"
+        aria-label="Case study template"
+        className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5"
+      >
+        {(["mobile", "web"] as const).map((opt) => {
+          const on = selected === opt;
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => choose(opt)}
+              disabled={busy}
+              aria-pressed={on}
+              className={[
+                "rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
+                on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
+              ].join(" ")}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {note && <span className="text-[10px] text-text-subtle">{note}</span>}
+    </div>
+  );
 }
