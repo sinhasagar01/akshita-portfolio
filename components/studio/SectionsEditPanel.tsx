@@ -584,9 +584,13 @@ export default function SectionsEditPanel({
           );
         })()}
 
-        {/* CS-3 — Content | Style tablist (roving tabindex). Toggles which fields
-            show; both stay mounted so switching loses no input, caret, or draft. */}
-        <div role="tablist" aria-label="Section fields" className="flex gap-1 border-b border-ink-950/8">
+        {/* CS-7f — the CS-3 Content|Style split, reframed as Canvas | Inspector. The
+            live canvas above is the content surface (inline text + image editing);
+            "Canvas" holds the fallback forms for content that isn't inline-editable
+            yet, and "Inspector" holds the style fields (variant, layout, glow, frame,
+            geometry). Same roving-tabindex tablist; both panels stay mounted so
+            switching loses no input, caret, or draft. */}
+        <div role="tablist" aria-label="Section content and style" className="flex gap-1 border-b border-ink-950/8">
           {(["content", "style"] as const).map((t) => {
             const selected = contentStyleTab === t;
             return (
@@ -613,13 +617,18 @@ export default function SectionsEditPanel({
                     : "border-transparent text-ink-500 hover:text-ink-950",
                 ].join(" ")}
               >
-                {t === "content" ? "Content" : "Style"}
+                {t === "content" ? "Canvas" : "Inspector"}
               </button>
             );
           })}
         </div>
         <FieldTabProvider tab={contentStyleTab}>
         <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col gap-6 outline-none">
+        <p className="text-[11px] text-text-subtle">
+          {contentStyleTab === "content"
+            ? "Most text and images edit directly on the preview above. These fields cover the rest."
+            : "Layout, glow, frames, and image geometry for this section."}
+        </p>
         {values.sections.map((section, i) => (
           <div
             key={ids.sectionIds[i]}
