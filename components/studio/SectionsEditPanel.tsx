@@ -115,13 +115,17 @@ export default function SectionsEditPanel({
 
   const nextId = useRef(0);
   const mint = () => `x${nextId.current++}`;
-  const [ids, setIds] = useState<Ids>(() => ({
-    sectionIds: initialSections.map(mint),
-    blockIds: initialSections.map((s) => s.blocks.map(mint)),
-  }));
+  // The mount-seed for the parallel stable ids. Reused by handleCancel so a
+  // Cancel restores ids from the SAME sections snapshot the values revert to,
+  // keeping sectionIds/blockIds length-matched to sections.
+  const seedIds = (sections: readonly RawSection[]): Ids => ({
+    sectionIds: sections.map(mint),
+    blockIds: sections.map((s) => s.blocks.map(mint)),
+  });
+  const [ids, setIds] = useState<Ids>(() => seedIds(initialSections));
   const [picker, setPicker] = useState<string | null>(null);
 
-  const { values, setField, dirty, saveStatus, saveDraft, cancel } = useDraftForm<SectionsFields>({
+  const { values, setField, dirty, saveStatus, saveDraft, cancel, savedBaseline } = useDraftForm<SectionsFields>({
     initial: { sections: initialSections },
     buildCommitted: (v) => ({ sections: v.sections }),
     isDirty: (v, b) => JSON.stringify(v.sections) !== JSON.stringify(b.sections),
@@ -141,7 +145,12 @@ export default function SectionsEditPanel({
   // Cancel discards local edits; return to the board so selection can't point at
   // a section the revert removed.
   const handleCancel = () => {
-    cancel();
+    cancel(); // reverts values.sections to the saved baseline
+    // Re-seed the parallel ids from that SAME baseline via the mount-seed logic,
+    // so sectionIds/blockIds match the restored sections. Without this, a
+    // structural edit (add/remove/reorder) followed by Cancel leaves the arrays
+    // different lengths and id-addressing throws.
+    setIds(seedIds(savedBaseline.sections));
     setSelectedSectionId(null);
   };
 
