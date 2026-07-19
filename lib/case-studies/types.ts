@@ -196,6 +196,11 @@ export type CaseStudy = {
   thesis: string;
   description: string;
   sections: Section[];
+  /** CS-7b — the case-study template ("web" | "mobile" | ""), so the renderer can
+   *  switch on the Bold-gallery web treatments. Absent/"" and "mobile" render the
+   *  existing (mobile) composition; only "web" opts in. Threaded from the page down
+   *  through CaseStudyView; blocks receive a derived `web` boolean. */
+  template?: string;
 };
 
 /**

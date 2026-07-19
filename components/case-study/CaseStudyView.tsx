@@ -6,6 +6,10 @@ import SectionRenderer from "./SectionRenderer";
  * array (a scaffolded study) renders a clearly-marked "Coming soon" placeholder.
  */
 export default function CaseStudyView({ study }: { study: CaseStudy }) {
+  // CS-7b — the one place the template resolves to a boolean. Threaded down to every
+  // section/block so the Bold-gallery web treatments key off it. "web" opts in;
+  // everything else (mobile / absent) keeps the existing composition.
+  const web = study.template === "web";
   return (
     <>
       {/* Route-scoped warm sand background (spec A1) — see .case-study-bg in globals.css. */}
@@ -26,7 +30,7 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
         ) : (
           <article className="case-study">
             {study.sections.map((section, i) => (
-              <SectionRenderer key={section.id ?? i} section={section} />
+              <SectionRenderer key={section.id ?? i} section={section} web={web} />
             ))}
           </article>
         )}
