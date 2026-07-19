@@ -26,6 +26,7 @@
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
 import { useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
+import { adaptSections } from "@/lib/case-studies/adapter";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
@@ -42,6 +43,66 @@ const sectionLabel = (s: RawSection, i: number) =>
 
 const iconBtn =
   "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+
+// CS-2 — coarse kind families for the board's schematic skeleton (shape by
+// family, exact kind spelled out by its label). Not a live render.
+const IMAGE_KINDS = new Set<SectionBlockKind>([
+  "heroCover",
+  "deviceShelf",
+  "featureRows",
+  "beforeAfter",
+  "annotatedImage",
+]);
+const GRID_KINDS = new Set<SectionBlockKind>([
+  "glanceGrid",
+  "issueList",
+  "stepper",
+  "statCards",
+  "principleCards",
+  "swatchTokens",
+]);
+
+/**
+ * CS-2 — the board's per-section "needs an image" flag, derived from the SAME
+ * check the publish gate uses (validate-draft-sections → adaptSections in ssg
+ * mode, which throws "image src is missing" for an unset required image). Run on
+ * the single section so the verdict is per-card. A non-image failure is the
+ * publish gate's to report, not this flag's, so only the image message flips it.
+ */
+function sectionNeedsImage(section: RawSection): boolean {
+  try {
+    adaptSections([section], { mode: "ssg" });
+    return false;
+  } catch (e) {
+    return e instanceof Error && /image src is missing/.test(e.message);
+  }
+}
+
+/** CS-2 — a per-kind schematic skeleton (NOT a live render): a coarse glyph by
+ *  kind family plus the kind's label, so the board reads as an overview. */
+function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
+  return (
+    <span className="flex items-center gap-2 rounded border border-ink-950/6 bg-cream-100 px-2 py-1">
+      <span aria-hidden className="shrink-0">
+        {IMAGE_KINDS.has(kind) ? (
+          <span className="block size-3.5 rounded-sm border border-ink-950/20 bg-ink-950/5" />
+        ) : GRID_KINDS.has(kind) ? (
+          <span className="grid grid-cols-2 gap-0.5">
+            {[0, 1, 2, 3].map((n) => (
+              <span key={n} className="block size-1.5 rounded-[1px] bg-ink-950/20" />
+            ))}
+          </span>
+        ) : (
+          <span className="flex w-3.5 flex-col gap-0.5">
+            <span className="block h-0.5 w-full rounded bg-ink-950/20" />
+            <span className="block h-0.5 w-2/3 rounded bg-ink-950/20" />
+          </span>
+        )}
+      </span>
+      <span className="truncate text-[11px] text-ink-600">{BLOCK_LABELS[kind]}</span>
+    </span>
+  );
+}
 
 export default function SectionsEditPanel({
   slug,
@@ -71,6 +132,19 @@ export default function SectionsEditPanel({
 
   useReportPending(dirty || saveStatus === "saving");
 
+  // CS-2 — the ONLY new state: which section is focused (null = the board).
+  // Keyed by the STABLE section id (not an index), so a reorder keeps the same
+  // section focused and the id-lockstep is untouched. Every editor stays mounted
+  // regardless (rendered hidden), so switching views never drops a dirty edit.
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+
+  // Cancel discards local edits; return to the board so selection can't point at
+  // a section the revert removed.
+  const handleCancel = () => {
+    cancel();
+    setSelectedSectionId(null);
+  };
+
   /**
    * The ONE place a structural edit happens. Both states are set in the same event,
    * so React batches them and they can never be observed apart.
@@ -89,21 +163,27 @@ export default function SectionsEditPanel({
       ids: { sectionIds: moveIn(d.sectionIds, i, dir), blockIds: moveIn(d.blockIds, i, dir) },
     }));
 
-  const removeSection = (i: number) =>
+  const removeSection = (i: number) => {
+    // If the focused section is going, drop back to the board (its id will be gone).
+    if (ids.sectionIds[i] === selectedSectionId) setSelectedSectionId(null);
     structural((s, d) => ({
       sections: removeAt(s, i),
       ids: { sectionIds: removeAt(d.sectionIds, i), blockIds: removeAt(d.blockIds, i) },
     }));
+  };
 
   function addSection() {
     // `id` is a DOM anchor, so it must be unique — mint one that is not taken.
     const used = new Set(values.sections.map((s) => s.id));
     let n = values.sections.length + 1;
     while (used.has(`section-${n}`)) n++;
+    // Mint the stable id outside structural() so we can focus the new section.
+    const newId = mint();
     structural((s, d) => ({
       sections: [...s, emptySection(`section-${n}`)],
-      ids: { sectionIds: [...d.sectionIds, mint()], blockIds: [...d.blockIds, []] },
+      ids: { sectionIds: [...d.sectionIds, newId], blockIds: [...d.blockIds, []] },
     }));
+    setSelectedSectionId(newId); // jump straight into the new section
   }
 
   const setSection = (i: number, next: RawSection) =>
@@ -176,16 +256,115 @@ export default function SectionsEditPanel({
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
-          onClick={cancel}
+          onClick={handleCancel}
           className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
       </header>
 
-      <div className="flex flex-col gap-6 px-4 py-5">
+      {/* CS-2 — BOARD view (selectedSectionId === null): one card per section, a
+          per-kind schematic (not a live render), block count, and the publish
+          gate's needs-image flag. Presentational and edit-state-free, so it is
+          conditionally rendered while every editor below stays MOUNTED. */}
+      {selectedSectionId === null && (
+        <div className="flex flex-col gap-4 px-4 py-5">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {values.sections.map((section, i) => {
+              const name = sectionLabel(section, i);
+              const count = section.blocks.length;
+              const needsImage = sectionNeedsImage(section);
+              return (
+                <button
+                  key={ids.sectionIds[i]}
+                  type="button"
+                  onClick={() => setSelectedSectionId(ids.sectionIds[i])}
+                  aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
+                  className="flex flex-col gap-2 rounded-lg border border-ink-950/8 bg-cream-50 p-3 text-left transition-colors hover:border-accent-500/40 hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+                >
+                  <span className="flex items-start justify-between gap-2">
+                    <span className="flex min-w-0 flex-col">
+                      {section.eyebrow && (
+                        <span className="truncate text-[10px] uppercase tracking-eyebrow text-ink-400">
+                          {section.eyebrow}
+                        </span>
+                      )}
+                      <span className="truncate font-display text-[14px] text-ink-950">{name}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full border border-ink-950/10 px-2 py-0.5 text-[10px] text-ink-500">
+                      {count} {count === 1 ? "block" : "blocks"}
+                    </span>
+                  </span>
+                  <span className="flex flex-col gap-1">
+                    {count === 0 ? (
+                      <span className="text-[11px] text-text-subtle">No blocks yet</span>
+                    ) : (
+                      section.blocks.map((block, j) => (
+                        <BlockSkeleton
+                          key={ids.blockIds[i][j]}
+                          kind={block.discriminant as SectionBlockKind}
+                        />
+                      ))
+                    )}
+                  </span>
+                  {needsImage && (
+                    <span className="inline-flex w-fit items-center rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600">
+                      Needs an image
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={addSection}
+            className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+          >
+            <IconPlus /> Add a section
+          </button>
+        </div>
+      )}
+
+      {/* CS-2 — FOCUSED nav (a section is selected): back to board + a native
+          dropdown to jump sections. Edit-state-free, so conditionally rendered. */}
+      {selectedSectionId !== null && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-2.5">
+          <button
+            type="button"
+            onClick={() => setSelectedSectionId(null)}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] text-accent-600 transition-colors hover:bg-cream-200"
+          >
+            ← Board
+          </button>
+          <label className="ml-auto flex items-center gap-2">
+            <span className="text-[11px] text-ink-500">Section</span>
+            <select
+              value={selectedSectionId}
+              onChange={(e) => setSelectedSectionId(e.target.value)}
+              aria-label="Jump to section"
+              className="rounded-md border border-ink-950/8 bg-cream-50 px-2 py-1 text-[12px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            >
+              {values.sections.map((section, i) => (
+                <option key={ids.sectionIds[i]} value={ids.sectionIds[i]}>
+                  {sectionLabel(section, i)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
+      {/* The editors — ALWAYS MOUNTED. The container is hidden on the board and each
+          section is hidden unless it is the focused one, so no editor ever unmounts
+          and the id-lockstep + every dirty edit survive a view/section switch. */}
+      <div className="flex flex-col gap-6 px-4 py-5" hidden={selectedSectionId === null}>
         {values.sections.map((section, i) => (
-          <div key={ids.sectionIds[i]} className="flex flex-col gap-3 rounded-lg border border-ink-950/8 p-3">
+          <div
+            key={ids.sectionIds[i]}
+            hidden={selectedSectionId !== ids.sectionIds[i]}
+            className="flex flex-col gap-3 rounded-lg border border-ink-950/8 p-3"
+          >
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
                 {sectionLabel(section, i)}
@@ -288,14 +467,6 @@ export default function SectionsEditPanel({
             )}
           </div>
         ))}
-
-        <button
-          type="button"
-          onClick={addSection}
-          className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
-        >
-          <IconPlus /> Add a section
-        </button>
 
         <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
       </div>
