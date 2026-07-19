@@ -25,6 +25,10 @@ const img = () => ({
   translateX: null,
   translateY: null,
   z: null,
+  // CS-4 — frame is OPTIONAL and omit-when-empty. A new image is born frameless
+  // (""); the sanitizer drops the empty so nothing is written, and the adapter
+  // defaults it to phone. Present here only because the derived type requires it.
+  frame: "",
 });
 
 export const emptyDevice = () => ({ ...img(), label: "", dotColor: "" });

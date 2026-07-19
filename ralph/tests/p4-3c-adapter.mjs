@@ -266,6 +266,22 @@ const expected = [
   },
 ];
 
+// CS-4 — the adapter now emits a resolved `frame` on EVERY ImgSpec (default
+// "phone" when neither a block frame nor a template is set). Stamp it onto the
+// expected image specs (anything with both a string `src` and `alt`) so this pins
+// the new contract without hand-editing every object. No component reads it yet.
+function stampDefaultFrame(node) {
+  if (Array.isArray(node)) {
+    node.forEach(stampDefaultFrame);
+    return;
+  }
+  if (node && typeof node === "object") {
+    if (typeof node.src === "string" && typeof node.alt === "string") node.frame = "phone";
+    for (const v of Object.values(node)) stampDefaultFrame(v);
+  }
+}
+stampDefaultFrame(expected);
+
 check("full round-trip: exact Section[] deep-equal", () =>
   deepStrictEqual(adaptSections(raw), expected));
 

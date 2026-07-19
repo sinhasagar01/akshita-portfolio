@@ -56,6 +56,10 @@ export function serializeProjectEntry(
   }
   const obj = (load(head) ?? {}) as Record<string, unknown>;
   if (patch.summary !== undefined) obj.summary = patch.summary;
+  // CS-4 — template is a HEAD field. Written only when a valid non-empty value is
+  // patched (the sanitizer drops ""), so an existing project with no template is
+  // never given one here.
+  if (patch.template !== undefined) obj.template = patch.template;
   // heroImage is a HEAD field (P4-1). The upload route derives the path; clear
   // sets it to null. Keystatic writes an absent image as `heroImage: null`, so
   // null (not delete/omit) keeps the file byte-compatible with Keystatic.

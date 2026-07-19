@@ -24,6 +24,11 @@ export type ImgSpec = {
   translate?: [number, number];
   /** Stacking order within a shelf. */
   z?: number;
+  /** CS-4 — the device frame this image renders in. The adapter always resolves
+   *  it (block frame > template default > "phone"); no component reads it until
+   *  CS-5, so emitting it changes no rendered markup. Optional because hand-authored
+   *  ImgSpecs (boat-crest) omit it and default to phone. */
+  frame?: "phone" | "browser" | "macbook";
 };
 
 /** A device screenshot on a shelf, with an optional theme label. */

@@ -20,6 +20,12 @@ function imgSpecFields() {
     translateX: fields.number({ label: "Translate X (px, desktop only, optional)" }),
     translateY: fields.number({ label: "Translate Y (px, desktop only, optional)" }),
     z: fields.number({ label: "Stacking order (optional)" }),
+    // CS-4 — the device frame the image renders in. OPTIONAL and omit-when-empty:
+    // existing content has no `frame` key, and the adapter defaults absent -> phone,
+    // so nothing renders differently until CS-5 consumes it. Stored as text (not a
+    // select-with-default, which the reader would inject into every image); the enum
+    // is enforced strictly by the sanitizer.
+    frame: fields.text({ label: "Frame (phone | browser | macbook, optional)" }),
   };
 }
 
@@ -85,6 +91,12 @@ export default config({
           },
           { label: "Meta facts shown in the case study hero" }
         ),
+        // CS-4 — the case-study template that DERIVES the default image frame
+        // (web -> browser, mobile -> phone). OPTIONAL and omit-when-empty: absent
+        // template -> phone default, so existing content is unaffected. Stored as
+        // text (not a select-with-default the reader would inject); the enum is
+        // enforced strictly by the sanitizer.
+        template: fields.text({ label: "Template (mobile | web, optional)" }),
         body: fields.blocks(
           {
             heroBlock: {

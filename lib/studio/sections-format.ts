@@ -186,8 +186,56 @@ const IMG_SPEC = {
   z: numOrNull,
 } as const;
 
-const imgSpec = obj(IMG_SPEC);
-const deviceSpec = obj({ ...IMG_SPEC, label: str, dotColor: str });
+/** CS-4 — the image frame enum. Duplicated from the adapter's FRAMES exactly as
+ *  VARIANTS/LAYOUTS are, so this strict gate stays independent of the permissive
+ *  adapter. The template->frame MAPPING is NOT here (that is the adapter's single
+ *  source); this only validates the value. */
+export const FRAMES = ["phone", "browser", "macbook"] as const;
+
+/**
+ * An image-bearing object. The seven geometry keys are REQUIRED (the empties-
+ * preserved rule), but `frame` is the one OMIT-WHEN-EMPTY exception: an absent or
+ * "" frame is dropped from the output — so an existing image, which the reader
+ * injects `frame:""` into, never gains a `frame:` line on save — and a non-empty
+ * frame must be a valid enum. `extra` (label/dotColor) follows, matching the schema
+ * key order (imgSpecFields ends with frame, then deviceSpecFields adds label/dotColor).
+ */
+const imageObj =
+  (extra: Record<string, Check<unknown>> = {}): Check<Record<string, unknown>> =>
+  (raw, at) => {
+    if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
+    const base = IMG_SPEC as Record<string, Check<unknown>>;
+    for (const k of Object.keys(raw)) {
+      if (
+        !Object.prototype.hasOwnProperty.call(base, k) &&
+        !Object.prototype.hasOwnProperty.call(extra, k) &&
+        k !== "frame"
+      ) {
+        return invalid(`${at}: unknown field ${k}`, at);
+      }
+    }
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(base)) {
+      const res = base[k](raw[k], `${at}.${k}`);
+      if (!res.ok) return res;
+      out[k] = res.value;
+    }
+    if (raw.frame !== undefined && raw.frame !== "") {
+      if (typeof raw.frame !== "string" || !(FRAMES as readonly string[]).includes(raw.frame)) {
+        return invalid(`${at}.frame must be one of ${FRAMES.join(", ")}`, at);
+      }
+      out.frame = raw.frame;
+    }
+    for (const k of Object.keys(extra)) {
+      const res = extra[k](raw[k], `${at}.${k}`);
+      if (!res.ok) return res;
+      out[k] = res.value;
+    }
+    return { ok: true, value: out };
+  };
+
+const imgSpec = imageObj();
+const deviceSpec = imageObj({ label: str, dotColor: str });
 /** The same shape as the section shell's own glow, one level down. */
 const glowWord = obj({ text: str, top: str, right: str, bottom: str, left: str, size: str });
 

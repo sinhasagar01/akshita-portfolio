@@ -487,7 +487,7 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
       category: "",
       title: "",
       body: "",
-      image: { src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null },
+      image: { src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null, frame: "" },
     })}
     addLabel="Add feature"
     itemNoun="Feature"
