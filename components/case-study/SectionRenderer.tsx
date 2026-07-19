@@ -3,6 +3,7 @@ import type { Section } from "@/lib/case-studies/types";
 import CaseSectionHeader from "./CaseSectionHeader";
 import GlowWord from "./GlowWord";
 import BlockRenderer from "./BlockRenderer";
+import { isWideFrame } from "./DeviceImage";
 import { renderRich } from "./rich";
 
 /**
@@ -57,6 +58,32 @@ export default function SectionRenderer({ section }: { section: Section }) {
           <BlockRenderer key={i} block={block} />
         ))}
       </div>
+    );
+  }
+
+  // CS-7a — the Bold-gallery web hero (template=web resolves the heroCover devices to
+  // a wide browser/MacBook frame) renders on a DARK section card and owns its whole
+  // identity, so the section-level header is suppressed here. Only the bg is overridden
+  // (inline, since .section-card's cream bg is unlayered and wins over a utility); the
+  // card geometry — margin, padding, radius, overflow clip — is reused as-is. Every
+  // other hero/section is untouched and renders byte-identically.
+  const heroBlock = section.blocks[0];
+  const isWebHero =
+    section.variant === "hero" &&
+    heroBlock?.kind === "heroCover" &&
+    (isWideFrame(heroBlock.devices[0]?.frame) || isWideFrame(heroBlock.devices[1]?.frame));
+
+  if (isWebHero) {
+    return (
+      <section
+        id={section.id}
+        className="section-card py-section relative overflow-hidden scroll-mt-20"
+        style={{ backgroundColor: "var(--color-band-dark)" }}
+      >
+        {section.blocks.map((block, i) => (
+          <BlockRenderer key={i} block={block} />
+        ))}
+      </section>
     );
   }
 

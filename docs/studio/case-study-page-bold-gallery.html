@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Case study page — Bold gallery (selected)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fraunces is a visual STAND-IN for the project's real serif token. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#E7DFD0;--ink:#2B2521;--mut:#8C8171;--lbl:#A99C88;--line:rgba(110,86,58,.16);
+    --acc:#B4562F;--brown:#8A4A2F;--card:#F7F2E9;--soft:#EADFCF;
+    --serif:'Fraunces',Georgia,serif;--sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --db1:#dfe8f5;--db2:#eef1f8;--dbink:rgba(60,80,130,.55);--dbpanel:rgba(255,255,255,.72);--dbnav:rgba(90,110,160,.14);
+    --dark:#2B2521;--on-dark:#F3EEE4;--on-dark-mut:rgba(243,238,228,.55);--on-dark-quote:#E7B79E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--tan);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65;}
+  .sf{font-family:var(--serif);}
+  .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--lbl);}
+  a{color:inherit;text-decoration:none;}
+  .page{max-width:1080px;margin:0 auto;padding:22px 20px 60px;background:#EBE3D4;border-radius:16px;}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:0 4px 20px;}
+  .nav .brand{font-family:var(--serif);font-size:17px;}
+  .nav .links{color:var(--mut);font-size:12px;}
+  .nav .links .r{color:var(--acc);}
+  .browser,.macbook{background:#fff;border:0.5px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(110,86,58,.13);}
+  .bbar{height:22px;background:var(--soft);display:flex;align-items:center;gap:5px;padding:0 11px;}
+  .bbar i{width:8px;height:8px;border-radius:50%;background:var(--mut);display:inline-block;}
+  .bbar .url{flex:1;height:10px;background:#fff;border-radius:5px;margin-left:10px;}
+  .macbook{border-radius:12px 12px 3px 3px;}
+  .macbase{height:8px;background:var(--card);border:0.5px solid var(--line);border-radius:0 0 12px 12px;margin:0 auto;}
+  .screen{background:linear-gradient(160deg,var(--db1),var(--db2));display:flex;}
+  .screen .side{background:var(--dbnav);}
+  .screen .body{flex:1;padding:14px;}
+  .bar{background:var(--dbink);border-radius:4px;}
+  .tile{background:var(--dbpanel);border-radius:6px;}
+  .eyebrow{color:var(--acc);}
+  h2.sec{font-family:var(--serif);font-weight:400;margin:0 0 6px;font-size:40px;letter-spacing:-.01em;}
+  .quote{font-family:var(--serif);font-style:italic;color:var(--brown);}
+  .footer{border-top:0.5px solid var(--line);margin-top:26px;padding-top:16px;display:flex;justify-content:space-between;color:var(--mut);font-size:12px;}
+  .block{padding:34px 30px;margin-bottom:6px;position:relative;}
+  .dark{background:var(--dark);color:var(--on-dark);border-radius:16px;padding:36px 32px;margin-bottom:10px;position:relative;overflow:hidden;}
+  .dark .lbl{color:var(--on-dark-mut);}
+  .dark .quote{color:var(--on-dark-quote);}
+  .facts{display:flex;gap:26px;flex-wrap:wrap;margin-top:14px;}
+  .statnum{font-family:var(--serif);font-size:64px;line-height:.9;color:var(--acc);}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:end;}
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .pcard{border-top:2px solid var(--acc);padding:14px 4px;}
+  .fullshot{margin:8px 0;}
+  .bignum{font-family:var(--serif);font-size:120px;line-height:.8;color:rgba(180,86,47,.12);}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="nav"><span class="brand">Akshita <span style="color:var(--mut);font-size:11px;">SINGH</span></span><span class="links">Process&nbsp;&nbsp;Work&nbsp;&nbsp;About&nbsp;&nbsp;Contact&nbsp;&nbsp;<span class="r">Resume ↗</span></span></div>
+
+  <div class="dark">
+    <div class="lbl" style="margin-bottom:14px;">LTIMindtree · Enterprise SaaS · AI platform</div>
+    <div class="sf" style="font-size:60px;line-height:.95;margin-bottom:14px;">Fosfor AI</div>
+    <div class="quote" style="font-size:22px;max-width:640px;margin-bottom:20px;">An AI companion that turns complex enterprise data into confident decisions.</div>
+    <div class="browser" style="box-shadow:0 20px 50px rgba(0,0,0,.4);"><div class="bbar"><i></i><i></i><i></i><span class="url"></span></div><div class="screen" style="height:240px;"><div class="side" style="width:56px;"></div><div class="body"><div class="bar" style="width:48%;height:13px;margin-bottom:14px;"></div><div style="display:flex;gap:12px;margin-bottom:14px;"><div class="tile" style="flex:1;height:60px;"></div><div class="tile" style="flex:1;height:60px;"></div><div class="tile" style="flex:1;height:60px;"></div></div><div class="tile" style="height:78px;"></div></div></div></div>
+    <div class="facts">
+      <div><div class="lbl">Role</div><div style="font-weight:500;">Senior Product Designer</div></div>
+      <div><div class="lbl">Industry</div><div style="font-weight:500;">Enterprise SaaS</div></div>
+      <div><div class="lbl">Platform</div><div style="font-weight:500;">Enterprise web app</div></div>
+      <div><div class="lbl">Timeline</div><div style="font-weight:500;">3 months</div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="stat-row">
+      <div><div class="statnum">3</div><div style="font-weight:500;margin-top:8px;">Personas served</div></div>
+      <div><div class="statnum">40%</div><div style="font-weight:500;margin-top:8px;">Faster to decision</div></div>
+      <div><div class="statnum">4</div><div style="font-weight:500;margin-top:8px;">Architecture layers</div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="lbl eyebrow" style="margin-bottom:6px;">The setup</div>
+    <h2 class="sec" style="margin-bottom:12px;">One companion,<br>three very different people.</h2>
+    <div class="quote" style="font-size:22px;max-width:760px;">The challenge wasn't designing one AI assistant — it was designing one that could think differently for three different people.</div>
+  </div>
+
+  <div class="block fullshot">
+    <div class="lbl eyebrow" style="margin-bottom:12px;">The solution</div>
+    <div class="macbook"><div class="screen" style="height:300px;border-radius:12px 12px 0 0;"><div class="side" style="width:64px;padding-top:16px;"><div class="bar" style="width:28px;height:7px;margin:0 auto 12px;opacity:.5;"></div><div class="bar" style="width:28px;height:7px;margin:0 auto 12px;opacity:.3;"></div><div class="bar" style="width:28px;height:7px;margin:0 auto;opacity:.3;"></div></div><div class="body"><div class="bar" style="width:40%;height:15px;margin-bottom:18px;"></div><div style="display:flex;gap:14px;margin-bottom:18px;"><div class="tile" style="flex:1;height:80px;"></div><div class="tile" style="flex:1;height:80px;"></div><div class="tile" style="flex:1;height:80px;"></div></div><div class="tile" style="height:100px;"></div></div></div></div>
+    <div class="macbase" style="max-width:100%;"></div>
+  </div>
+
+  <div class="block">
+    <div class="lbl eyebrow" style="margin-bottom:6px;">Key insights</div>
+    <h2 class="sec" style="font-size:30px;margin-bottom:14px;">Three personas, three needs.</h2>
+    <div class="cards3">
+      <div class="pcard"><div class="sf" style="font-size:32px;color:var(--acc);">01</div><div style="font-weight:500;margin-top:6px;">Data Designers</div><p style="color:var(--mut);font-size:13px;">Speed and trust in the source.</p></div>
+      <div class="pcard"><div class="sf" style="font-size:32px;color:var(--acc);">02</div><div style="font-weight:500;margin-top:6px;">Insight Designers</div><p style="color:var(--mut);font-size:13px;">Context, not just charts.</p></div>
+      <div class="pcard"><div class="sf" style="font-size:32px;color:var(--acc);">03</div><div style="font-weight:500;margin-top:6px;">Decision Designers</div><p style="color:var(--mut);font-size:13px;">Confidence to act.</p></div>
+    </div>
+  </div>
+
+  <div class="block fullshot">
+    <div class="lbl eyebrow" style="margin-bottom:12px;">Screens</div>
+    <div class="browser"><div class="bbar"><i></i><i></i><i></i><span class="url"></span></div><div class="screen" style="height:260px;"><div class="side" style="width:60px;"></div><div class="body"><div class="bar" style="width:44%;height:13px;margin-bottom:16px;"></div><div style="display:flex;gap:12px;margin-bottom:16px;"><div class="tile" style="flex:2;height:120px;"></div><div class="tile" style="flex:1;height:120px;"></div></div></div></div></div>
+  </div>
+
+  <div class="dark">
+    <div class="bignum sf" style="position:absolute;right:20px;bottom:-20px;">01</div>
+    <div class="lbl" style="margin-bottom:8px;">My design principle</div>
+    <div class="quote" style="font-size:30px;line-height:1.35;max-width:720px;">Good AI assistance doesn't show off — it quietly removes the next obstacle in front of the person.</div>
+  </div>
+
+  <div class="block">
+    <div class="lbl eyebrow" style="margin-bottom:6px;">Reflection</div>
+    <h2 class="sec" style="font-size:30px;">What this project taught me.</h2>
+    <p style="color:var(--mut);max-width:800px;margin-top:8px;">Find the shared spine of an experience before tailoring the edges — and treat a confident decision, not more data, as the real outcome.</p>
+  </div>
+
+  <div class="block" style="text-align:center;padding:40px 20px;">
+    <div class="quote" style="font-size:26px;">From raw data to a confident decision, with a companion the whole way.</div>
+  </div>
+
+  <div class="footer"><span class="sf">Akshita Singh</span><span>Back to Work ↗</span></div>
+</div>
+</body>
+</html>

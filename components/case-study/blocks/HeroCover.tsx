@@ -89,23 +89,24 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
   const mp = { initial: "hidden" as const, animate: controls };
 
   if (wide) {
-    // The single primary dashboard (device[1], the front one in the phone hero).
+    // The single primary dashboard (device[1], the front phone in the mobile hero).
+    // GUARDRAIL — device[0], the section-level lead, and data.position stay in the
+    // sections data untouched; the Bold-gallery web hero is intentionally lean
+    // (eyebrow, serif title, tagline, one dashboard, facts, watermark) so they are
+    // simply UNRENDERED here. Switching a study back to template=mobile shows both
+    // phones and the full copy again, byte-identically. The dark card + padding come
+    // from SectionRenderer's web-hero branch; this block just lays out the content.
     const dashboard = data.devices[1] ?? data.devices[0];
     return (
-      <div
-        // Full-bleed dark band: cancel the .section-card padding (inline 2rem mobile
-        // / 3.25rem desktop, block --spacing-section) so the hero fills the hero card
-        // to its rounded, overflow-clipped edges. Kept in sync with .section-card.
-        className="relative -mx-[2rem] overflow-hidden bg-band-dark px-8 py-14 lg:-mx-[3.25rem] lg:px-14 lg:py-20 [margin-block:calc(-1*var(--spacing-section))]"
-      >
+      <div className="relative">
         {data.watermark && (
           <motion.span
             aria-hidden="true"
             {...mp}
             variants={glowV}
-            className="pointer-events-none absolute right-[-1.5rem] top-[-1rem] z-0 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
+            className="pointer-events-none absolute right-[-1rem] top-[-1.5rem] z-0 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
             style={{
-              color: "color-mix(in oklch, var(--color-on-dark) 7%, transparent)",
+              color: "color-mix(in oklch, var(--color-on-dark) 6%, transparent)",
               fontSize: "clamp(7rem, 15vw, 13.75rem)",
             }}
           >
@@ -113,70 +114,49 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
           </motion.span>
         )}
 
-        <div className="relative z-[1] grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
-          {/* Identity side */}
-          <div>
-            {data.eyebrow && (
-              <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
-                <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-400" />
-                <span className="text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-on-dark-muted">
-                  {data.eyebrow}
-                </span>
-              </motion.div>
-            )}
-
-            <h1 className="font-display font-normal text-6xl text-on-dark leading-[1] tracking-tight mt-5">
-              <span className="block overflow-hidden">
-                <motion.span {...mp} variants={titleV} className="block">
-                  {data.title}
-                </motion.span>
-              </span>
-            </h1>
-
-            <motion.h2
+        <div className="relative z-[1]">
+          {data.eyebrow && (
+            <motion.div
               {...mp}
-              variants={fadeUp(0.385)}
-              className="font-display italic text-[34px] text-accent-400 leading-[1.15] mt-3"
+              variants={fadeUp(0.09)}
+              className="text-[11px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted"
             >
-              {data.thesis}
-            </motion.h2>
+              {data.eyebrow}
+            </motion.div>
+          )}
 
-            <motion.p {...mp} variants={fadeUp(0.56)} className="text-lg text-on-dark-muted leading-normal mt-6 max-w-[42ch]">
-              {data.position}
-            </motion.p>
+          <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-on-dark leading-[0.98] tracking-tight mt-4">
+            <span className="block overflow-hidden">
+              <motion.span {...mp} variants={titleV} className="block">
+                {data.title}
+              </motion.span>
+            </span>
+          </h1>
 
-            {data.ratingChip && (
-              <motion.p
-                {...mp}
-                variants={chipV}
-                className="inline-flex items-center gap-2.5 rounded-full border border-on-dark-line px-4 py-2 text-[0.9rem] font-semibold text-on-dark mt-6"
-                style={{ backgroundColor: "color-mix(in oklch, var(--color-on-dark) 8%, transparent)" }}
-              >
-                <span className="font-bold text-accent-400">{data.ratingChip.stat}</span>
-                {data.ratingChip.rest}
-              </motion.p>
-            )}
+          <motion.h2
+            {...mp}
+            variants={fadeUp(0.385)}
+            className="font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] mt-4 max-w-[640px]"
+          >
+            {data.thesis}
+          </motion.h2>
 
-            <motion.dl
-              {...mp}
-              variants={fadeUp(0.7)}
-              className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px]"
-            >
-              {data.meta.map((item) => (
-                <div key={item.label}>
-                  <dt className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-on-dark-muted">
-                    {item.label}
-                  </dt>
-                  <dd className="text-[1rem] font-semibold text-on-dark mt-1.5">{item.value}</dd>
-                </div>
-              ))}
-            </motion.dl>
-          </div>
-
-          {/* Dashboard side — one wide browser / MacBook frame */}
-          <motion.div {...mp} variants={stackV} className="flex w-full justify-center lg:justify-end">
+          {/* One wide dashboard, full-width below the tagline */}
+          <motion.div {...mp} variants={stackV} className="mt-9 flex w-full justify-center lg:mt-10">
             <DeviceImage image={dashboard} />
           </motion.div>
+
+          {/* Facts — a horizontal row below the dashboard */}
+          <motion.dl {...mp} variants={fadeUp(0.7)} className="mt-8 flex flex-wrap gap-x-10 gap-y-5">
+            {data.meta.map((item) => (
+              <div key={item.label}>
+                <dt className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted">
+                  {item.label}
+                </dt>
+                <dd className="text-[1rem] font-semibold text-on-dark mt-1.5">{item.value}</dd>
+              </div>
+            ))}
+          </motion.dl>
         </div>
       </div>
     );

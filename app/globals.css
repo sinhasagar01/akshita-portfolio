@@ -32,12 +32,13 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   /* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
      band (the template=web Bold-gallery hero) needs its own surface + on-dark text
      tokens; ink-* text can't sit on a dark bg. WCAG AA on band-dark (verified):
-     on-dark 16.9:1, on-dark-muted 9.3:1, accent-400 5.7:1 — accent-500 is only
-     3.9:1, so accent-ON-DARK uses accent-400. on-dark-line is a low-alpha hairline
-     for edit/replace affordances (used more in CS-7d/e). */
+     on-dark 16.9:1, on-dark-muted 9.3:1, on-dark-quote 10.9:1, accent-400 5.7:1 —
+     accent-500 is only 3.9:1, so accent-ON-DARK uses accent-400. on-dark-line is a
+     low-alpha hairline for edit/replace affordances (used more in CS-7d/e). */
   --color-band-dark:    oklch(16.5% 0.022 60);  /* warm near-black hero band surface */
   --color-on-dark:      oklch(95.5% 0.013 82);  /* primary text/marks on the band */
-  --color-on-dark-muted: oklch(77.0% 0.014 74); /* labels, tagline — AA-safe dimmed light */
+  --color-on-dark-muted: oklch(77.0% 0.014 74); /* labels, facts — AA-safe dimmed light */
+  --color-on-dark-quote: oklch(81.5% 0.063 49); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
   --color-on-dark-line: color-mix(in oklch, var(--color-on-dark) 16%, transparent);
 
   /* Status — muted warm sage for the studio "Live" pill (only green in the set) */
