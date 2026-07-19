@@ -34,7 +34,7 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "issueList":
       return <IssueList items={block.items} />;
     case "stepper":
-      return <Stepper steps={block.steps} />;
+      return <Stepper steps={block.steps} web={web} />;
     case "statCards":
       return <StatCards heading={block.heading} stats={block.stats} web={web} />;
     case "principleCards":
@@ -61,9 +61,9 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "annotatedImage":
       return <AnnotatedImage image={block.image} scrawl={block.scrawl} callouts={block.callouts} />;
     case "richText":
-      return <RichText paragraphs={block.paragraphs} />;
+      return <RichText paragraphs={block.paragraphs} web={web} />;
     case "closingLine":
-      return <ClosingLine text={block.text} />;
+      return <ClosingLine text={block.text} web={web} />;
     default: {
       const _exhaustive: never = block;
       return _exhaustive;
