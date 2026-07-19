@@ -113,6 +113,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
           orderIndex,
           heroImage: null,
           facts: { role: "", type: "", platform: "", timeline: "" },
+          template: "", // a new project starts template-less (phone default)
         };
         setItems((prev) => [...prev, created]);
         setUnpublished(true);
@@ -220,6 +221,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
             summary={p.summary}
             heroImage={p.heroImage}
             facts={p.facts}
+            template={p.template}
           />
         ))}
       </ListDetailLayout>

@@ -41,6 +41,9 @@ export type ProjectListItem = {
   orderIndex: number;
   heroImage: string | null;
   facts: { role: string; type: string; platform: string; timeline: string };
+  // CS-6a — the case-study template (CS-4 head field), for the Details template
+  // toggle. "" when unset (the reader coalesces absent -> ""); "mobile" | "web".
+  template: string;
 };
 
 export type ExperienceListItem = {
@@ -163,6 +166,7 @@ export function mapProjectListItem(slug: string, entry: Record<string, unknown>)
       platform: ((entry.facts as Record<string, string> | null)?.platform) ?? "",
       timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
     },
+    template: (entry.template ?? "") as string,
   };
 }
 
@@ -218,6 +222,10 @@ export type CaseStudyData = {
    *  `blocks` path). An absent/empty value adapts to [] and renders the
    *  "Coming soon" placeholder (a fresh studio-created stub). */
   rawSections: unknown;
+  /** CS-6a — the case-study template (CS-4 head field), for the adapter's frame
+   *  default. "" when unset. Consumed by the studio preview; the public render
+   *  path stays unwired here until CS-6b. */
+  template: string;
 };
 
 export async function getCaseStudyData(slug: string): Promise<CaseStudyData | null> {
@@ -236,6 +244,7 @@ export async function getCaseStudyData(slug: string): Promise<CaseStudyData | nu
       timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
     },
     rawSections: (entry as Record<string, unknown>).sections,
+    template: ((entry as Record<string, unknown>).template ?? "") as string,
   };
 }
 

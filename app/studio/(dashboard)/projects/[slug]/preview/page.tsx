@@ -35,7 +35,10 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
     title: live.title,
     thesis: live.summary,
     description: live.summary,
-    sections: adaptSections(rawSections, { mode: "preview" }),
+    // CS-6a — pass the case-study template so a frame-less image resolves to the
+    // template's default frame (web -> browser, else phone) in the preview. The
+    // public render path stays unwired until CS-6b (live layout).
+    sections: adaptSections(rawSections, { mode: "preview", template: live.template }),
   };
 
   const isDraft = draft.source === "draft";

@@ -20,7 +20,19 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField } from "./fields";
+
+// CS-6a — the per-image frame picker options. "" is a real choice ("Default"),
+// omit-when-empty in the sanitizer so it falls back to the template default then
+// phone (CS-4 precedence). The concrete values write that frame explicitly.
+const FRAME_OPTIONS = ["", "phone", "browser", "macbook"] as const;
+type FrameOption = (typeof FRAME_OPTIONS)[number];
+const FRAME_LABELS: Record<FrameOption, string> = {
+  "": "Default (from template)",
+  phone: "Phone",
+  browser: "Browser",
+  macbook: "MacBook",
+};
 import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD, emptyDevice, emptyImg, emptyGlow } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
@@ -374,10 +386,23 @@ function ImgSpecFields<T extends RawImg>({
           inputRef={focusRef}
         />
       </TabGroup>
-      {/* Style — the image geometry (size, rotation, offsets, stacking). All five
-          are optional (num → optional in the adapter), so when unset they collapse
-          behind one reveal instead of showing a grid of blank "auto" boxes. */}
+      {/* Style — the frame picker (always visible: "Default" is a meaningful choice,
+          not an empty knob to hide) plus the image geometry. The geometry is optional
+          and collapses behind one reveal; the frame does not. */}
       <TabGroup group="style">
+        <SelectField
+          label="Frame"
+          value={
+            (FRAME_OPTIONS as readonly string[]).includes(value.frame)
+              ? (value.frame as FrameOption)
+              : ""
+          }
+          options={FRAME_OPTIONS}
+          optionLabel={(v) => FRAME_LABELS[v]}
+          onChange={(frame) => set({ ...value, frame })}
+          onBlur={onBlur}
+          hint="How this image renders. Default follows the case study's template."
+        />
         <DisclosureGroup revealLabel="Sizing & position">
           <div className="grid grid-cols-2 gap-2">
             <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} optional />
