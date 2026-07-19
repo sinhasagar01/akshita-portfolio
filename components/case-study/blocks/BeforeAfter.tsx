@@ -1,22 +1,44 @@
 import type { BeforeAfterPair } from "@/lib/case-studies/types";
-import DeviceImage from "../DeviceImage";
+import DeviceImage, { isWideFrame } from "../DeviceImage";
 import { LINE } from "../styles";
 
 /** `.bacard` — before→after device pairs with a change list; alternates side. */
 export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
   return (
     <div className="flex flex-col gap-[18px]">
-      {pairs.map((p, i) => (
+      {pairs.map((p, i) => {
+        // CS-6c — two wide (browser / MacBook) frames plus a change list can't share
+        // one row, so a wide pair stacks: the before/after sit side-by-side at
+        // half-width above the change list. A phone pair keeps the beside-text row
+        // byte-identically.
+        const wide = isWideFrame(p.after.frame) || isWideFrame(p.before.frame);
+        return (
         <div
           key={p.title}
-          className={`reveal-card flex flex-col items-center gap-9 rounded-xl border bg-cream-50 p-8 lg:flex-row lg:items-center lg:gap-12 ${
-            i % 2 === 1 ? "lg:flex-row-reverse" : ""
-          }`}
+          className={
+            wide
+              ? "reveal-card flex flex-col items-center gap-9 rounded-xl border bg-cream-50 p-8"
+              : `reveal-card flex flex-col items-center gap-9 rounded-xl border bg-cream-50 p-8 lg:flex-row lg:items-center lg:gap-12 ${
+                  i % 2 === 1 ? "lg:flex-row-reverse" : ""
+                }`
+          }
           style={{ borderColor: LINE }}
         >
           {/* Before → After pair */}
-          <div className="flex shrink-0 items-center justify-center gap-4">
-            <figure className="flex flex-col items-center gap-2">
+          <div
+            className={
+              wide
+                ? "flex w-full items-start justify-center gap-6"
+                : "flex shrink-0 items-center justify-center gap-4"
+            }
+          >
+            <figure
+              className={
+                wide
+                  ? "flex min-w-0 flex-1 flex-col items-center gap-2"
+                  : "flex flex-col items-center gap-2"
+              }
+            >
               <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle">
                 Before
               </figcaption>
@@ -25,7 +47,13 @@ export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
             <span aria-hidden="true" className="text-accent-500 text-2xl font-display">
               →
             </span>
-            <figure className="flex flex-col items-center gap-2">
+            <figure
+              className={
+                wide
+                  ? "flex min-w-0 flex-1 flex-col items-center gap-2"
+                  : "flex flex-col items-center gap-2"
+              }
+            >
               <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500">
                 After
               </figcaption>
@@ -34,7 +62,7 @@ export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
           </div>
 
           {/* Change list */}
-          <div className="flex-1">
+          <div className={wide ? "w-full" : "flex-1"}>
             <h3 className="font-display font-normal text-2xl text-ink-950 leading-[1.1]">
               {p.title}
             </h3>
@@ -53,7 +81,8 @@ export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
             </ul>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -10,6 +10,15 @@ import { BEZEL_W, BEZEL_H } from "./blocks/deviceScroller";
 const WIDE_ASPECT = "16 / 10";
 const WIDE_MAX_W = 760;
 
+/** CS-6c — the single wide-frame test. A wide frame (browser / MacBook) renders
+ *  a landscape dashboard, so its consumers give it a full-width slot instead of
+ *  the phone row/column. Phone / absent is never wide. Shared by DeviceImage's own
+ *  render branch and by the block renderers (deviceShelf, featureRows, beforeAfter,
+ *  heroCover) so the "is this wide" rule lives in one place. */
+export function isWideFrame(frame?: string): boolean {
+  return frame === "browser" || frame === "macbook";
+}
+
 /**
  * A phone screenshot. Desktop rotation/translate is a layout device, flattened at
  * the mobile breakpoint via `.cs-flatten` (see globals.css) — not gated on reduced
@@ -35,8 +44,8 @@ export default function DeviceImage({
   // CS-5 — a wide frame (browser / MacBook) is a whole different chrome and aspect.
   // Phone and absent fall through to the existing markup UNTOUCHED (the byte-identical
   // gate), so every existing image and all of boat-crest render exactly as before.
-  if (image.frame === "browser" || image.frame === "macbook") {
-    return <WideFrame image={image} className={className} variant={image.frame} />;
+  if (isWideFrame(image.frame)) {
+    return <WideFrame image={image} className={className} variant={image.frame as "browser" | "macbook"} />;
   }
 
   const { src, alt, width, height, rotate, translate, z } = image;
