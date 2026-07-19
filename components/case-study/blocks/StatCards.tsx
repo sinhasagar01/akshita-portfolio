@@ -1,10 +1,13 @@
 import type { Stat } from "@/lib/case-studies/types";
 import StatCard from "../StatCard";
+import { renderRich } from "../rich";
 
-type Props = { heading?: string; stats: Stat[] };
+type Props = { heading?: string; stats: Stat[]; web?: boolean };
 
-/** Grid of `.statc` cards with an optional small heading. */
-export default function StatCards({ heading, stats }: Props) {
+/** Grid of `.statc` cards with an optional small heading. Under template=web
+ *  (CS-7b), the Bold-gallery treatment: oversized serif numerals in a row with a
+ *  bold label, no card chrome. Mobile renders the existing cards, byte-identically. */
+export default function StatCards({ heading, stats, web = false }: Props) {
   return (
     <div>
       {heading && (
@@ -12,13 +15,29 @@ export default function StatCards({ heading, stats }: Props) {
           {heading}
         </p>
       )}
-      <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
-        {stats.map((s, i) => (
-          <div key={i} className="reveal-card">
-            <StatCard stat={s} />
-          </div>
-        ))}
-      </div>
+      {web ? (
+        <div className="grid grid-cols-1 items-start gap-x-10 gap-y-9 sm:grid-cols-3">
+          {stats.map((s, i) => (
+            <div key={i} className="reveal-card">
+              <p className="font-display text-[clamp(3rem,6vw,4rem)] text-accent-500 leading-[0.9]">
+                {s.value}
+                {s.suffix && <span className="text-[0.42em] align-baseline">{s.suffix}</span>}
+              </p>
+              <div className="text-[1rem] font-medium text-ink-950 leading-[1.4] mt-3 max-w-[28ch]">
+                {renderRich(s.body)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
+          {stats.map((s, i) => (
+            <div key={i} className="reveal-card">
+              <StatCard stat={s} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
