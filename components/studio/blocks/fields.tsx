@@ -8,9 +8,40 @@
 // the hard requirement at the form layer: Keystatic writes every key including the
 // empty ones, so a form that tidies them up rewrites blocks the owner never
 // touched, which is exactly what the surgical bar fails on.
-import { useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useRef, useState, type ReactNode } from "react";
 import { useItemList } from "../useItemList";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconImage } from "../icons";
+
+// CS-3 — the Content | Style split. A section's fields are grouped into two tabs;
+// this context carries which tab is active, and TabGroup wraps a run of fields so
+// they show only under their tab. Presentational only — the wrapper is a hidden
+// toggle, so both tabs' fields stay MOUNTED (no lost input, no field renames, no
+// change to what any field posts).
+export type FieldTab = "content" | "style";
+const FieldTabContext = createContext<FieldTab>("content");
+
+export function FieldTabProvider({ tab, children }: { tab: FieldTab; children: ReactNode }) {
+  return <FieldTabContext.Provider value={tab}>{children}</FieldTabContext.Provider>;
+}
+
+/** Show `children` only when the active field-tab matches `group`. Hidden (not
+ *  unmounted) otherwise, so a field keeps its value and caret across a tab switch. */
+export function TabGroup({
+  group,
+  className = "flex flex-col gap-2",
+  children,
+}: {
+  group: FieldTab;
+  className?: string;
+  children: ReactNode;
+}) {
+  const tab = useContext(FieldTabContext);
+  return (
+    <div hidden={tab !== group} className={className}>
+      {children}
+    </div>
+  );
+}
 
 const inputCls =
   "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";

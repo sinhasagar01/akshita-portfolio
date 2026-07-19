@@ -16,7 +16,7 @@
 // the form cannot offer an option the sanitizer would reject.
 import type { RawSection } from "@/lib/case-studies/sections-raw";
 import { VARIANTS, LAYOUTS } from "@/lib/studio/sections-format";
-import { TextField, TextArea, SelectField } from "./fields";
+import { TextField, TextArea, SelectField, TabGroup } from "./fields";
 
 export function SectionShellForm({
   value,
@@ -36,64 +36,71 @@ export function SectionShellForm({
   return (
     <div className="flex flex-col gap-2 rounded-md border border-ink-950/8 bg-cream-100 p-3">
       <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Section settings</span>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-1">
-          <TextField
-            label="Anchor id"
-            value={value.id}
-            onChange={(v) => set("id", v)}
-            onBlur={onBlur}
-          />
-          {duplicateId && (
-            <span className="text-[10px] text-accent-600">
-              Another section already uses this id. Anchors need it to be unique.
-            </span>
-          )}
+      {/* Content — the copy that renders in the section header, plus the anchor id
+          and display index that identify it. */}
+      <TabGroup group="content">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-1">
+            <TextField
+              label="Anchor id"
+              value={value.id}
+              onChange={(v) => set("id", v)}
+              onBlur={onBlur}
+            />
+            {duplicateId && (
+              <span className="text-[10px] text-accent-600">
+                Another section already uses this id. Anchors need it to be unique.
+              </span>
+            )}
+          </div>
+          <TextField label="Index, e.g. 03" value={value.index} onChange={(v) => set("index", v)} onBlur={onBlur} />
         </div>
-        <TextField label="Index, e.g. 03" value={value.index} onChange={(v) => set("index", v)} onBlur={onBlur} />
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <SelectField
-          label="Variant"
-          value={value.variant}
-          options={VARIANTS}
-          onChange={(v) => set("variant", v)}
+        <TextField label="Eyebrow" value={value.eyebrow} onChange={(v) => set("eyebrow", v)} onBlur={onBlur} />
+        <TextField label="Title" value={value.title} onChange={(v) => set("title", v)} onBlur={onBlur} />
+        <TextArea
+          label="Lead — **bold** for emphasis"
+          value={value.lead}
+          onChange={(v) => set("lead", v)}
           onBlur={onBlur}
-          hint="hero skips the standard header"
+          rows={2}
         />
-        <SelectField
-          label="Layout"
-          value={value.layout}
-          options={LAYOUTS}
-          onChange={(v) => set("layout", v)}
-          onBlur={onBlur}
-        />
-      </div>
-      <TextField label="Eyebrow" value={value.eyebrow} onChange={(v) => set("eyebrow", v)} onBlur={onBlur} />
-      <TextField label="Title" value={value.title} onChange={(v) => set("title", v)} onBlur={onBlur} />
-      <TextArea
-        label="Lead — **bold** for emphasis"
-        value={value.lead}
-        onChange={(v) => set("lead", v)}
-        onBlur={onBlur}
-        rows={2}
-      />
-      <TextField label="North star" value={value.northStar} onChange={(v) => set("northStar", v)} onBlur={onBlur} />
-      <div className="grid grid-cols-2 gap-2">
-        <TextField label="Glow text" value={value.glow.text} onChange={(v) => onChange({ ...value, glow: { ...value.glow, text: v } })} onBlur={onBlur} />
-        <TextField label="Glow size (CSS)" value={value.glow.size} onChange={(v) => onChange({ ...value, glow: { ...value.glow, size: v } })} onBlur={onBlur} />
-      </div>
-      <div className="grid grid-cols-4 gap-2">
-        {(["top", "right", "bottom", "left"] as const).map((k) => (
-          <TextField
-            key={k}
-            label={`Glow ${k}`}
-            value={value.glow[k]}
-            onChange={(v) => onChange({ ...value, glow: { ...value.glow, [k]: v } })}
+        <TextField label="North star" value={value.northStar} onChange={(v) => set("northStar", v)} onBlur={onBlur} />
+      </TabGroup>
+      {/* Style — how the section presents: variant, layout, and the glow word. */}
+      <TabGroup group="style">
+        <div className="grid grid-cols-2 gap-2">
+          <SelectField
+            label="Variant"
+            value={value.variant}
+            options={VARIANTS}
+            onChange={(v) => set("variant", v)}
+            onBlur={onBlur}
+            hint="hero skips the standard header"
+          />
+          <SelectField
+            label="Layout"
+            value={value.layout}
+            options={LAYOUTS}
+            onChange={(v) => set("layout", v)}
             onBlur={onBlur}
           />
-        ))}
-      </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <TextField label="Glow text" value={value.glow.text} onChange={(v) => onChange({ ...value, glow: { ...value.glow, text: v } })} onBlur={onBlur} />
+          <TextField label="Glow size (CSS)" value={value.glow.size} onChange={(v) => onChange({ ...value, glow: { ...value.glow, size: v } })} onBlur={onBlur} />
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {(["top", "right", "bottom", "left"] as const).map((k) => (
+            <TextField
+              key={k}
+              label={`Glow ${k}`}
+              value={value.glow[k]}
+              onChange={(v) => onChange({ ...value, glow: { ...value.glow, [k]: v } })}
+              onBlur={onBlur}
+            />
+          ))}
+        </div>
+      </TabGroup>
     </div>
   );
 }

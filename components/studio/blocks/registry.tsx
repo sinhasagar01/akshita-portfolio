@@ -20,7 +20,7 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup } from "./fields";
 import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD, emptyDevice, emptyImg, emptyGlow } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
@@ -356,28 +356,34 @@ function ImgSpecFields<T extends RawImg>({
 }) {
   return (
     <>
-      <BlockImageField
-        label={imageLabel}
-        src={value.src}
-        slug={slug}
-        // The upload/clear commits the blob and hands back the path; the src edit
-        // then rides the ordinary save, so `sections` keeps its single writer.
-        onChange={(src) => set({ ...value, src })}
-      />
-      <TextField
-        label="Alt text"
-        value={value.alt}
-        onChange={(alt) => set({ ...value, alt })}
-        onBlur={onBlur}
-        inputRef={focusRef}
-      />
-      <div className="grid grid-cols-2 gap-2">
-        <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} />
-        <NumberField label="Rotate, deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} />
-        <NumberField label="Translate X, px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} />
-        <NumberField label="Translate Y, px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} />
-        <NumberField label="Stacking order" value={value.z} onChange={(z) => set({ ...value, z })} onBlur={onBlur} />
-      </div>
+      {/* Content — the image asset and its alt text (real accessibility copy). */}
+      <TabGroup group="content">
+        <BlockImageField
+          label={imageLabel}
+          src={value.src}
+          slug={slug}
+          // The upload/clear commits the blob and hands back the path; the src edit
+          // then rides the ordinary save, so `sections` keeps its single writer.
+          onChange={(src) => set({ ...value, src })}
+        />
+        <TextField
+          label="Alt text"
+          value={value.alt}
+          onChange={(alt) => set({ ...value, alt })}
+          onBlur={onBlur}
+          inputRef={focusRef}
+        />
+      </TabGroup>
+      {/* Style — the image geometry (size, rotation, offsets, stacking). */}
+      <TabGroup group="style">
+        <div className="grid grid-cols-2 gap-2">
+          <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} />
+          <NumberField label="Rotate, deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} />
+          <NumberField label="Translate X, px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} />
+          <NumberField label="Translate Y, px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} />
+          <NumberField label="Stacking order" value={value.z} onChange={(z) => set({ ...value, z })} onBlur={onBlur} />
+        </div>
+      </TabGroup>
     </>
   );
 }
@@ -398,10 +404,13 @@ function DeviceFields({
   return (
     <>
       <ImgSpecFields value={value} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} imageLabel="Screen" />
-      <div className="grid grid-cols-2 gap-2">
+      {/* Theme label is copy (Content); the dot colour is appearance (Style). */}
+      <TabGroup group="content">
         <TextField label="Theme label" value={value.label} onChange={(label) => set({ ...value, label })} onBlur={onBlur} />
+      </TabGroup>
+      <TabGroup group="style">
         <TextField label="Dot colour, hex" value={value.dotColor} onChange={(dotColor) => set({ ...value, dotColor })} onBlur={onBlur} />
-      </div>
+      </TabGroup>
     </>
   );
 }
@@ -417,21 +426,24 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
   onBlur?: () => void;
 }) {
   return (
-    <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
-      <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
-        Glow word (optional)
-      </span>
-      <div className="flex flex-col gap-2">
-        <TextField label="Text" value={value.text} onChange={(text) => set({ ...value, text })} onBlur={onBlur} />
-        <div className="grid grid-cols-2 gap-2">
-          <TextField label="Top (CSS)" value={value.top} onChange={(top) => set({ ...value, top })} onBlur={onBlur} />
-          <TextField label="Right (CSS)" value={value.right} onChange={(right) => set({ ...value, right })} onBlur={onBlur} />
-          <TextField label="Bottom (CSS)" value={value.bottom} onChange={(bottom) => set({ ...value, bottom })} onBlur={onBlur} />
-          <TextField label="Left (CSS)" value={value.left} onChange={(left) => set({ ...value, left })} onBlur={onBlur} />
+    // The glow word is pure appearance — the whole group lives under Style.
+    <TabGroup group="style" className="">
+      <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+        <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+          Glow word (optional)
+        </span>
+        <div className="flex flex-col gap-2">
+          <TextField label="Text" value={value.text} onChange={(text) => set({ ...value, text })} onBlur={onBlur} />
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Top (CSS)" value={value.top} onChange={(top) => set({ ...value, top })} onBlur={onBlur} />
+            <TextField label="Right (CSS)" value={value.right} onChange={(right) => set({ ...value, right })} onBlur={onBlur} />
+            <TextField label="Bottom (CSS)" value={value.bottom} onChange={(bottom) => set({ ...value, bottom })} onBlur={onBlur} />
+            <TextField label="Left (CSS)" value={value.left} onChange={(left) => set({ ...value, left })} onBlur={onBlur} />
+          </div>
+          <TextField label="Size (CSS)" value={value.size} onChange={(size) => set({ ...value, size })} onBlur={onBlur} />
         </div>
-        <TextField label="Size (CSS)" value={value.size} onChange={(size) => set({ ...value, size })} onBlur={onBlur} />
       </div>
-    </div>
+    </TabGroup>
   );
 }
 
@@ -449,12 +461,14 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
         <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} />
       )}
     </ItemRows>
-    <NumberField
-      label="Minimum height, px"
-      value={value.minHeight}
-      onChange={(minHeight) => onChange({ ...value, minHeight })}
-      onBlur={onBlur}
-    />
+    <TabGroup group="style">
+      <NumberField
+        label="Minimum height, px"
+        value={value.minHeight}
+        onChange={(minHeight) => onChange({ ...value, minHeight })}
+        onBlur={onBlur}
+      />
+    </TabGroup>
     <GlowFields value={value.glow} set={(glow) => onChange({ ...value, glow })} onBlur={onBlur} />
   </>
 );
@@ -476,12 +490,14 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
   >
     {({ item, set, focusRef }) => (
       <>
-        <div className="grid grid-cols-2 gap-2">
-          <TextField label="Index" value={item.index} onChange={(index) => set({ ...item, index })} onBlur={onBlur} inputRef={focusRef} />
-          <TextField label="Category" value={item.category} onChange={(category) => set({ ...item, category })} onBlur={onBlur} />
-        </div>
-        <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} />
-        <TextArea label="Body — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
+        <TabGroup group="content">
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Index" value={item.index} onChange={(index) => set({ ...item, index })} onBlur={onBlur} inputRef={focusRef} />
+            <TextField label="Category" value={item.category} onChange={(category) => set({ ...item, category })} onBlur={onBlur} />
+          </div>
+          <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} />
+          <TextArea label="Body — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
+        </TabGroup>
         <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} />
       </>
     )}
@@ -496,13 +512,17 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
         Scrawl (optional)
       </span>
       <div className="flex flex-col gap-2">
-        <TextArea label="Text" value={value.scrawl.text} onChange={(text) => onChange({ ...value, scrawl: { ...value.scrawl, text } })} onBlur={onBlur} rows={2} />
-        <div className="grid grid-cols-2 gap-2">
-          <TextField label="Top (CSS)" value={value.scrawl.top} onChange={(top) => onChange({ ...value, scrawl: { ...value.scrawl, top } })} onBlur={onBlur} />
-          <TextField label="Right (CSS)" value={value.scrawl.right} onChange={(right) => onChange({ ...value, scrawl: { ...value.scrawl, right } })} onBlur={onBlur} />
-          <TextField label="Bottom (CSS)" value={value.scrawl.bottom} onChange={(bottom) => onChange({ ...value, scrawl: { ...value.scrawl, bottom } })} onBlur={onBlur} />
-          <TextField label="Left (CSS)" value={value.scrawl.left} onChange={(left) => onChange({ ...value, scrawl: { ...value.scrawl, left } })} onBlur={onBlur} />
-        </div>
+        <TabGroup group="content">
+          <TextArea label="Text" value={value.scrawl.text} onChange={(text) => onChange({ ...value, scrawl: { ...value.scrawl, text } })} onBlur={onBlur} rows={2} />
+        </TabGroup>
+        <TabGroup group="style">
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Top (CSS)" value={value.scrawl.top} onChange={(top) => onChange({ ...value, scrawl: { ...value.scrawl, top } })} onBlur={onBlur} />
+            <TextField label="Right (CSS)" value={value.scrawl.right} onChange={(right) => onChange({ ...value, scrawl: { ...value.scrawl, right } })} onBlur={onBlur} />
+            <TextField label="Bottom (CSS)" value={value.scrawl.bottom} onChange={(bottom) => onChange({ ...value, scrawl: { ...value.scrawl, bottom } })} onBlur={onBlur} />
+            <TextField label="Left (CSS)" value={value.scrawl.left} onChange={(left) => onChange({ ...value, scrawl: { ...value.scrawl, left } })} onBlur={onBlur} />
+          </div>
+        </TabGroup>
       </div>
     </div>
     <ItemRows
@@ -515,16 +535,20 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
     >
       {({ item, set, focusRef }) => (
         <>
-          <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
-          <TextField label="Note" value={item.note} onChange={(note) => set({ ...item, note })} onBlur={onBlur} />
+          <TabGroup group="content">
+            <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
+            <TextField label="Note" value={item.note} onChange={(note) => set({ ...item, note })} onBlur={onBlur} />
+          </TabGroup>
           {/* CSS-value text, not numbers — plain strings, so the empties rule
               covers them and the null rule does not apply. */}
-          <div className="grid grid-cols-2 gap-2">
-            <TextField label="Top (CSS)" value={item.top} onChange={(top) => set({ ...item, top })} onBlur={onBlur} />
-            <TextField label="Right (CSS)" value={item.right} onChange={(right) => set({ ...item, right })} onBlur={onBlur} />
-            <TextField label="Bottom (CSS)" value={item.bottom} onChange={(bottom) => set({ ...item, bottom })} onBlur={onBlur} />
-            <TextField label="Left (CSS)" value={item.left} onChange={(left) => set({ ...item, left })} onBlur={onBlur} />
-          </div>
+          <TabGroup group="style">
+            <div className="grid grid-cols-2 gap-2">
+              <TextField label="Top (CSS)" value={item.top} onChange={(top) => set({ ...item, top })} onBlur={onBlur} />
+              <TextField label="Right (CSS)" value={item.right} onChange={(right) => set({ ...item, right })} onBlur={onBlur} />
+              <TextField label="Bottom (CSS)" value={item.bottom} onChange={(bottom) => set({ ...item, bottom })} onBlur={onBlur} />
+              <TextField label="Left (CSS)" value={item.left} onChange={(left) => set({ ...item, left })} onBlur={onBlur} />
+            </div>
+          </TabGroup>
         </>
       )}
     </ItemRows>
@@ -533,6 +557,8 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
 
 const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onChange, onBlur, slug }) => (
   <>
+    {/* Content — all the hero copy, the rating chip, and the meta facts. */}
+    <TabGroup group="content">
     <TextField label="Title" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} />
     <TextArea label="Thesis sentence" value={value.thesis} onChange={(thesis) => onChange({ ...value, thesis })} onBlur={onBlur} rows={2} />
     <TextArea label="Position statement" value={value.position} onChange={(position) => onChange({ ...value, position })} onBlur={onBlur} rows={2} />
@@ -564,7 +590,10 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
         </div>
       )}
     </ItemRows>
-    {/* fixedLength: the schema validates exactly two, and the adapter re-validates
+    </TabGroup>
+    {/* Devices are mixed (alt/label are Content; geometry/dot colour are Style) —
+        DeviceFields splits them, so the two-device shelf shows under both tabs.
+        fixedLength: the schema validates exactly two, and the adapter re-validates
         when narrowing to its tuple — a third device would throw at SSG. Reorder
         stays, because it swaps back and front, which is meaningful. */}
     <ItemRows
@@ -598,27 +627,31 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
   >
     {({ item, set, focusRef }) => (
       <>
-        <div className="grid grid-cols-2 gap-2">
-          <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
-          <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
-        </div>
+        <TabGroup group="content">
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
+            <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
+          </div>
+        </TabGroup>
         <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} slug={slug} imageLabel="Before image" />
         <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} slug={slug} imageLabel="After image" />
-        <ItemRows
-          items={item.changes}
-          onChange={(changes) => set({ ...item, changes })}
-          empty={() => ({ emphasis: "", rest: "" })}
-          addLabel="Add change"
-          itemNoun="Change"
-          rowLabel={(c, i) => c.emphasis.trim() || `Change ${i + 1}`}
-        >
-          {({ item: ch, set: setCh, focusRef: chFocus }) => (
-            <div className="grid grid-cols-2 gap-2">
-              <TextField label="Emphasis" value={ch.emphasis} onChange={(emphasis) => setCh({ ...ch, emphasis })} onBlur={onBlur} inputRef={chFocus} />
-              <TextField label="Rest" value={ch.rest} onChange={(rest) => setCh({ ...ch, rest })} onBlur={onBlur} />
-            </div>
-          )}
-        </ItemRows>
+        <TabGroup group="content">
+          <ItemRows
+            items={item.changes}
+            onChange={(changes) => set({ ...item, changes })}
+            empty={() => ({ emphasis: "", rest: "" })}
+            addLabel="Add change"
+            itemNoun="Change"
+            rowLabel={(c, i) => c.emphasis.trim() || `Change ${i + 1}`}
+          >
+            {({ item: ch, set: setCh, focusRef: chFocus }) => (
+              <div className="grid grid-cols-2 gap-2">
+                <TextField label="Emphasis" value={ch.emphasis} onChange={(emphasis) => setCh({ ...ch, emphasis })} onBlur={onBlur} inputRef={chFocus} />
+                <TextField label="Rest" value={ch.rest} onChange={(rest) => setCh({ ...ch, rest })} onBlur={onBlur} />
+              </div>
+            )}
+          </ItemRows>
+        </TabGroup>
       </>
     )}
   </ItemRows>
