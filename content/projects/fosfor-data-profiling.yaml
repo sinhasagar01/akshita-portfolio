@@ -322,6 +322,7 @@ sections:
               translateX: null
               translateY: null
               z: 1
+              frame: browser
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/screen-b.webp
@@ -331,6 +332,7 @@ sections:
               translateX: null
               translateY: null
               z: 2
+              frame: browser
               label: ''
               dotColor: ''
           glow:
@@ -428,6 +430,7 @@ sections:
               translateX: -60
               translateY: 12
               z: 1
+              frame: browser
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/screen-b.webp
@@ -437,6 +440,7 @@ sections:
               translateX: null
               translateY: null
               z: 3
+              frame: browser
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/screen-c.webp
@@ -446,6 +450,7 @@ sections:
               translateX: 60
               translateY: 18
               z: 2
+              frame: browser
               label: ''
               dotColor: ''
           glow:
