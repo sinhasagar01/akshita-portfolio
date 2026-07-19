@@ -1,15 +1,45 @@
+import { EDIT_AFFORD } from "../editable";
+
 /** A warm italic closing statement. Under template=web (CS-7b), the Bold-gallery
- *  closing: the same serif line, centered. Mobile is left-aligned, byte-identically. */
-export default function ClosingLine({ text, web = false }: { text: string; web?: boolean }) {
+ *  closing: the same serif line, centered. Mobile is left-aligned, byte-identically.
+ *  CS-7d — `editable` tags the plain-string text as in-place editable in the studio
+ *  canvas; off by default, so the public render is byte-identical. */
+export default function ClosingLine({
+  text,
+  web = false,
+  editable = false,
+  blockIndex,
+}: {
+  text: string;
+  web?: boolean;
+  editable?: boolean;
+  blockIndex?: number;
+}) {
+  const edit = editable
+    ? {
+        contentEditable: true,
+        suppressContentEditableWarning: true,
+        tabIndex: 0,
+        "data-edit-block-index": blockIndex,
+        "data-edit-field": "text",
+      }
+    : {};
+  const aff = editable ? EDIT_AFFORD : "";
   if (web) {
     return (
-      <p className="font-display italic font-normal text-[34px] text-accent-600 leading-[1.3] max-w-[34ch] mx-auto text-center">
+      <p
+        {...edit}
+        className={`font-display italic font-normal text-[34px] text-accent-600 leading-[1.3] max-w-[34ch] mx-auto text-center${aff}`}
+      >
         {text}
       </p>
     );
   }
   return (
-    <p className="font-display italic font-normal text-[34px] text-accent-600 leading-[1.3] max-w-[34ch]">
+    <p
+      {...edit}
+      className={`font-display italic font-normal text-[34px] text-accent-600 leading-[1.3] max-w-[34ch]${aff}`}
+    >
       {text}
     </p>
   );

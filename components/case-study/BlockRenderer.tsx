@@ -21,14 +21,27 @@ import ClosingLine from "./blocks/ClosingLine";
  *  CS-7b — `web` (template=web) is threaded in here so each block can opt into its
  *  Bold-gallery treatment; the per-block treatments wire it into their cases as they
  *  land. Absent/false → the existing mobile render, byte-identical. */
-export default function BlockRenderer({ block, web = false }: { block: Block; web?: boolean }) {
+export default function BlockRenderer({
+  block,
+  web = false,
+  editable = false,
+  blockIndex,
+}: {
+  block: Block;
+  web?: boolean;
+  /** CS-7d — studio inline canvas: opt the block's plain-string text into in-place
+   *  editing. `blockIndex` is the block's position in its section, which the studio
+   *  maps to the stable block id for setBlockValue. Off by default → public unchanged. */
+  editable?: boolean;
+  blockIndex?: number;
+}) {
   switch (block.kind) {
     case "heroCover":
       return <HeroCover data={block} />;
     case "deviceShelf":
       return <DeviceShelf devices={block.devices} glow={block.glow} minHeight={block.minHeight} web={web} />;
     case "pullQuote":
-      return <PullQuote text={block.text} web={web} />;
+      return <PullQuote text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
     case "glanceGrid":
       return <GlanceGrid items={block.items} web={web} />;
     case "issueList":
@@ -63,7 +76,7 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "richText":
       return <RichText paragraphs={block.paragraphs} web={web} />;
     case "closingLine":
-      return <ClosingLine text={block.text} web={web} />;
+      return <ClosingLine text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
     default: {
       const _exhaustive: never = block;
       return _exhaustive;

@@ -128,10 +128,17 @@ function SectionCanvas({
   section,
   web,
   template,
+  editable = false,
+  onBlur,
 }: {
   section: RawSection;
   web: boolean;
   template: string;
+  /** CS-7d — activate in-place text editing on the rendered plain-string fields. */
+  editable?: boolean;
+  /** CS-7d — delegated blur: fires for any contentEditable field inside; the panel
+   *  reads the target's data-edit markers and writes back through the seams. */
+  onBlur?: (e: React.FocusEvent<HTMLDivElement>) => void;
 }) {
   let adapted: ReturnType<typeof adaptSections> = [];
   try {
@@ -141,9 +148,9 @@ function SectionCanvas({
   }
   const s = adapted[0];
   return (
-    <div className="case-study overflow-hidden rounded-lg border border-ink-950/8 bg-canvas">
+    <div className="case-study overflow-hidden rounded-lg border border-ink-950/8 bg-canvas" onBlur={onBlur}>
       {s ? (
-        <SectionRenderer section={s} web={web} noReveal />
+        <SectionRenderer section={s} web={web} noReveal editable={editable} />
       ) : (
         <p className="px-4 py-6 text-center text-[12px] text-ink-500">
           This section can’t be previewed yet — finish its required fields.
@@ -433,10 +440,44 @@ export default function SectionsEditPanel({
         {(() => {
           const selIdx = selectedSectionId === null ? -1 : ids.sectionIds.indexOf(selectedSectionId);
           if (selIdx < 0) return null;
+          // CS-7d — the blur writeback. A contentEditable plain-string field lost focus;
+          // route its new text to the SAME seams the forms use (setSection for the
+          // section header, setBlockValue by stable id for a block), skipping a no-op
+          // so a focus-then-blur never marks the draft dirty.
+          const onBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+            const t = e.target as HTMLElement;
+            const ds = t?.dataset;
+            if (!ds) return;
+            const raw = t.innerText ?? "";
+            const sf = ds.edit; // "eyebrow" | "title"
+            if (sf === "eyebrow" || sf === "title") {
+              const value =
+                sf === "title" ? raw.replace(/\n{2,}/g, "\n").trim() : raw.replace(/\s*\n\s*/g, " ").trim();
+              const cur = values.sections[selIdx] as unknown as Record<string, unknown>;
+              if ((cur[sf] ?? "") === value) return;
+              setSection(selIdx, { ...values.sections[selIdx], [sf]: value } as RawSection);
+              return;
+            }
+            if (ds.editBlockIndex !== undefined && ds.editField === "text") {
+              const value = raw.replace(/\s*\n\s*/g, " ").trim();
+              const blockIndex = Number(ds.editBlockIndex);
+              const curVal = (values.sections[selIdx].blocks[blockIndex]?.value ?? {}) as Record<string, unknown>;
+              if ((curVal.text ?? "") === value) return;
+              setBlockValue(ids.blockIds[selIdx][blockIndex], { ...curVal, text: value });
+            }
+          };
           return (
             <div>
-              <div className="mb-2 text-[11px] uppercase tracking-eyebrow text-ink-400">Live preview</div>
-              <SectionCanvas section={values.sections[selIdx]} web={web} template={template} />
+              <div className="mb-2 text-[11px] uppercase tracking-eyebrow text-ink-400">
+                Live preview — click a title, eyebrow, or quote to edit it in place
+              </div>
+              <SectionCanvas
+                section={values.sections[selIdx]}
+                web={web}
+                template={template}
+                editable
+                onBlur={onBlur}
+              />
             </div>
           );
         })()}

@@ -16,6 +16,7 @@ export default function SectionRenderer({
   section,
   web = false,
   noReveal = false,
+  editable = false,
 }: {
   section: Section;
   /** CS-7b — template=web opts this section's blocks into the Bold-gallery
@@ -27,6 +28,10 @@ export default function SectionRenderer({
    *  stay hidden. `noReveal` renders the standard section as a plain always-visible
    *  card instead. Defaults off, so the public site is byte-identical. */
   noReveal?: boolean;
+  /** CS-7d — studio inline canvas: tag plain-string text (section eyebrow/title,
+   *  pullQuote/closingLine text) as in-place editable. Off by default → public
+   *  render byte-identical. */
+  editable?: boolean;
 }) {
   const hasHeader = Boolean(
     section.index || section.eyebrow || section.title || section.lead,
@@ -42,6 +47,7 @@ export default function SectionRenderer({
             eyebrow={section.eyebrow}
             title={section.title}
             lead={section.lead}
+            editable={editable}
           />
         )}
         {section.northStar && (
@@ -57,7 +63,7 @@ export default function SectionRenderer({
           } ${hasHeader || section.northStar ? "mt-10" : ""}`}
         >
           {section.blocks.map((block, i) => (
-            <BlockRenderer key={i} block={block} web={web} />
+            <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} />
           ))}
         </div>
       </div>
@@ -71,7 +77,7 @@ export default function SectionRenderer({
     return (
       <div id={section.id} className="scroll-mt-20">
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} web={web} />
+          <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} />
         ))}
       </div>
     );
@@ -97,7 +103,7 @@ export default function SectionRenderer({
         style={{ backgroundColor: "var(--color-band-dark)" }}
       >
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} web={web} />
+          <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} />
         ))}
       </section>
     );
@@ -153,7 +159,7 @@ export default function SectionRenderer({
             </h2>
           )}
           <div className={section.eyebrow || section.title ? "mt-6" : ""}>
-            <PullQuote text={soleBlock.text} web dark />
+            <PullQuote text={soleBlock.text} web dark editable={editable} blockIndex={0} />
           </div>
         </div>
       </section>
