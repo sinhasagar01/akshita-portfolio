@@ -7,6 +7,7 @@ facts:
   type: Enterprise data tool, feature design
   platform: Web
   timeline: 4 months
+template: web
 body: []
 sections:
   - variant: hero
