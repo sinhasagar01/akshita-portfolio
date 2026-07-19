@@ -27,6 +27,7 @@
 import { useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
+import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
@@ -117,14 +118,54 @@ function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
   );
 }
 
+/** CS-7c — the inline canvas: a live, READ-ONLY render of one section through the
+ *  preview-mode adapter (placeholder for a missing image, never fail-loud) and the
+ *  real SectionRenderer with `noReveal` so it stays visible in the panel. The
+ *  `.case-study` scope pulls in the real cream-card + dark-band styling, and `web`
+ *  gives the Bold-gallery treatment when the project is template=web. It only reads
+ *  the current draft values — no state, no writes. */
+function SectionCanvas({
+  section,
+  web,
+  template,
+}: {
+  section: RawSection;
+  web: boolean;
+  template: string;
+}) {
+  let adapted: ReturnType<typeof adaptSections> = [];
+  try {
+    adapted = adaptSections([section], { mode: "preview", template });
+  } catch {
+    adapted = [];
+  }
+  const s = adapted[0];
+  return (
+    <div className="case-study overflow-hidden rounded-lg border border-ink-950/8 bg-canvas">
+      {s ? (
+        <SectionRenderer section={s} web={web} noReveal />
+      ) : (
+        <p className="px-4 py-6 text-center text-[12px] text-ink-500">
+          This section can’t be previewed yet — finish its required fields.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function SectionsEditPanel({
   slug,
   sections: initialSections,
+  template = "",
 }: {
   slug: string;
   sections: readonly RawSection[];
+  /** CS-7c — the case-study template, so the inline canvas renders the same
+   *  Bold-gallery web treatment (or the mobile composition) the live page shows. */
+  template?: string;
 }) {
   const { setUnpublished } = usePublishSignal();
+  const web = template === "web";
 
   const nextId = useRef(0);
   const mint = () => `x${nextId.current++}`;
@@ -386,6 +427,20 @@ export default function SectionsEditPanel({
           section is hidden unless it is the focused one, so no editor ever unmounts
           and the id-lockstep + every dirty edit survive a view/section switch. */}
       <div className="flex flex-col gap-4 px-4 py-5" hidden={selectedSectionId === null}>
+        {/* CS-7c — the inline canvas: a live, read-only render of the selected
+            section above the forms. The forms stay the edit surface (CS-7d moves
+            editing onto the canvas). */}
+        {(() => {
+          const selIdx = selectedSectionId === null ? -1 : ids.sectionIds.indexOf(selectedSectionId);
+          if (selIdx < 0) return null;
+          return (
+            <div>
+              <div className="mb-2 text-[11px] uppercase tracking-eyebrow text-ink-400">Live preview</div>
+              <SectionCanvas section={values.sections[selIdx]} web={web} template={template} />
+            </div>
+          );
+        })()}
+
         {/* CS-3 — Content | Style tablist (roving tabindex). Toggles which fields
             show; both stay mounted so switching loses no input, caret, or draft. */}
         <div role="tablist" aria-label="Section fields" className="flex gap-1 border-b border-ink-950/8">
