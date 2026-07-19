@@ -30,7 +30,7 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "pullQuote":
       return <PullQuote text={block.text} />;
     case "glanceGrid":
-      return <GlanceGrid items={block.items} />;
+      return <GlanceGrid items={block.items} web={web} />;
     case "issueList":
       return <IssueList items={block.items} />;
     case "stepper":
@@ -38,7 +38,7 @@ export default function BlockRenderer({ block, web = false }: { block: Block; we
     case "statCards":
       return <StatCards heading={block.heading} stats={block.stats} web={web} />;
     case "principleCards":
-      return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} />;
+      return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} web={web} />;
     case "featureRows":
       return <FeatureRows features={block.features} />;
     case "featureStory":
