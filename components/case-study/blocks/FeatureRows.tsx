@@ -4,7 +4,16 @@ import { renderRich } from "../rich";
 import { LINE, GLOW } from "../styles";
 
 /** `.feat` — alternating image/text rows, each with a giant faint number. */
-export default function FeatureRows({ features }: { features: Feature[] }) {
+export default function FeatureRows({
+  features,
+  editable = false,
+  blockIndex,
+}: {
+  features: Feature[];
+  /** CS-7e — studio inline canvas: make each feature image replaceable. */
+  editable?: boolean;
+  blockIndex?: number;
+}) {
   return (
     <div className="flex flex-col gap-[22px]">
       {features.map((f, i) => {
@@ -41,7 +50,12 @@ export default function FeatureRows({ features }: { features: Feature[] }) {
                   : "relative z-[1] flex shrink-0 justify-center lg:w-[268px]"
               }
             >
-              <DeviceImage image={f.image} />
+              <DeviceImage
+                image={f.image}
+                editable={editable}
+                blockIndex={blockIndex}
+                editPath={`features.${i}.image`}
+              />
             </div>
 
             <div className="relative z-[1] flex-1 max-w-[540px]">

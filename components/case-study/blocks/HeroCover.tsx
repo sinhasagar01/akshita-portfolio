@@ -15,7 +15,16 @@ const EXPO = [0.16, 1, 0.3, 1] as const; // easeOutExpo — phones
 const CUBIC = [0.33, 1, 0.68, 1] as const; // easeOutCubic — text/stack
 const BACK = [0.34, 1.56, 0.64, 1] as const; // easeOutBack — chip pop
 
-export default function HeroCover({ data }: { data: HeroCoverData }) {
+export default function HeroCover({
+  data,
+  editable = false,
+  blockIndex,
+}: {
+  data: HeroCoverData;
+  /** CS-7e — studio inline canvas: make the hero device images replaceable. */
+  editable?: boolean;
+  blockIndex?: number;
+}) {
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
   const [isMobile, setIsMobile] = useState(false);
@@ -96,7 +105,8 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
     // simply UNRENDERED here. Switching a study back to template=mobile shows both
     // phones and the full copy again, byte-identically. The dark card + padding come
     // from SectionRenderer's web-hero branch; this block just lays out the content.
-    const dashboard = data.devices[1] ?? data.devices[0];
+    const dashIdx = data.devices[1] ? 1 : 0;
+    const dashboard = data.devices[dashIdx];
     return (
       <div className="relative">
         {data.watermark && (
@@ -143,7 +153,7 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
 
           {/* One wide dashboard, full-width below the tagline */}
           <motion.div {...mp} variants={stackV} className="mt-9 flex w-full justify-center lg:mt-10">
-            <DeviceImage image={dashboard} />
+            <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} />
           </motion.div>
 
           {/* Facts — a horizontal row below the dashboard */}
@@ -254,10 +264,10 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
       >
         {data.glow && <GlowWord word={data.glow} />}
         <motion.div {...mp} variants={backV} className="lg:absolute">
-          <DeviceImage image={data.devices[0]} />
+          <DeviceImage image={data.devices[0]} editable={editable} blockIndex={blockIndex} editPath="devices.0" />
         </motion.div>
         <motion.div {...mp} variants={frontV}>
-          <DeviceImage image={data.devices[1]} />
+          <DeviceImage image={data.devices[1]} editable={editable} blockIndex={blockIndex} editPath="devices.1" />
         </motion.div>
       </motion.div>
     </div>

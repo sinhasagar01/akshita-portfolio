@@ -3,7 +3,16 @@ import DeviceImage, { isWideFrame } from "../DeviceImage";
 import { LINE } from "../styles";
 
 /** `.bacard` — before→after device pairs with a change list; alternates side. */
-export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
+export default function BeforeAfter({
+  pairs,
+  editable = false,
+  blockIndex,
+}: {
+  pairs: BeforeAfterPair[];
+  /** CS-7e — studio inline canvas: make each before/after image replaceable. */
+  editable?: boolean;
+  blockIndex?: number;
+}) {
   return (
     <div className="flex flex-col gap-[18px]">
       {pairs.map((p, i) => {
@@ -42,7 +51,13 @@ export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
               <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle">
                 Before
               </figcaption>
-              <DeviceImage image={p.before} className="grayscale-[0.2]" />
+              <DeviceImage
+                image={p.before}
+                className="grayscale-[0.2]"
+                editable={editable}
+                blockIndex={blockIndex}
+                editPath={`pairs.${i}.before`}
+              />
             </figure>
             <span aria-hidden="true" className="text-accent-500 text-2xl font-display">
               →
@@ -57,7 +72,12 @@ export default function BeforeAfter({ pairs }: { pairs: BeforeAfterPair[] }) {
               <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500">
                 After
               </figcaption>
-              <DeviceImage image={p.after} />
+              <DeviceImage
+                image={p.after}
+                editable={editable}
+                blockIndex={blockIndex}
+                editPath={`pairs.${i}.after`}
+              />
             </figure>
           </div>
 

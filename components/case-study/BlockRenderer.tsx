@@ -37,9 +37,18 @@ export default function BlockRenderer({
 }) {
   switch (block.kind) {
     case "heroCover":
-      return <HeroCover data={block} />;
+      return <HeroCover data={block} editable={editable} blockIndex={blockIndex} />;
     case "deviceShelf":
-      return <DeviceShelf devices={block.devices} glow={block.glow} minHeight={block.minHeight} web={web} />;
+      return (
+        <DeviceShelf
+          devices={block.devices}
+          glow={block.glow}
+          minHeight={block.minHeight}
+          web={web}
+          editable={editable}
+          blockIndex={blockIndex}
+        />
+      );
     case "pullQuote":
       return <PullQuote text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
     case "glanceGrid":
@@ -53,11 +62,11 @@ export default function BlockRenderer({
     case "principleCards":
       return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} web={web} />;
     case "featureRows":
-      return <FeatureRows features={block.features} />;
+      return <FeatureRows features={block.features} editable={editable} blockIndex={blockIndex} />;
     case "featureStory":
       return <WorkStory features={block.features} />;
     case "beforeAfter":
-      return <BeforeAfter pairs={block.pairs} />;
+      return <BeforeAfter pairs={block.pairs} editable={editable} blockIndex={blockIndex} />;
     case "beforeAfterStory":
       return (
         <BeforeAfterStory
@@ -72,7 +81,15 @@ export default function BlockRenderer({
     case "swatchTokens":
       return <SwatchTokens groups={block.groups} />;
     case "annotatedImage":
-      return <AnnotatedImage image={block.image} scrawl={block.scrawl} callouts={block.callouts} />;
+      return (
+        <AnnotatedImage
+          image={block.image}
+          scrawl={block.scrawl}
+          callouts={block.callouts}
+          editable={editable}
+          blockIndex={blockIndex}
+        />
+      );
     case "richText":
       return <RichText paragraphs={block.paragraphs} web={web} />;
     case "closingLine":
