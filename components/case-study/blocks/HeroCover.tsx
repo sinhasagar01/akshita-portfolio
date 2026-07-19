@@ -79,31 +79,111 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
     show: { opacity: 1, y: 0, scale: 1, transition: tr({ delay: 0.77, duration: 0.65, ease: BACK }) },
   };
 
-  // CS-6c — wide (browser / MacBook) hero frames are landscape dashboards, so the
-  // phone parallax (overlap + x-offset + rotate) would break them. When the hero
-  // devices are wide, the hero drops the 2-col grid for a full-width stack (text
-  // above, the two frames side-by-side below) and the devices rise straight up
-  // with no horizontal offset or rotation. Phone heroes keep the exact composition.
+  // CS-7a — under template=web the hero devices resolve to a wide (browser/MacBook)
+  // frame, and the hero renders the Bold-gallery web composition (a dark band, serif
+  // title + tagline + facts on one side, one wide dashboard on the other) instead of
+  // the two rotated phones. `wide` is that web signal; a phone hero falls through to
+  // the exact two-phone composition below, byte-identically.
   const wide = isWideFrame(data.devices[0]?.frame) || isWideFrame(data.devices[1]?.frame);
-  const backVWide = {
-    hidden: { y: m ? 24 : 44, scale: m ? 0.97 : 0.95 },
-    show: { y: 0, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.3, ease: EXPO }) },
-  };
-  const frontVWide = {
-    hidden: { y: m ? 20 : 36, scale: m ? 0.97 : 0.96 },
-    show: { y: 0, scale: 1, transition: tr({ delay: 0.14, duration: m ? 1.0 : 1.2, ease: EXPO }) },
-  };
 
   const mp = { initial: "hidden" as const, animate: controls };
 
+  if (wide) {
+    // The single primary dashboard (device[1], the front one in the phone hero).
+    const dashboard = data.devices[1] ?? data.devices[0];
+    return (
+      <div
+        // Full-bleed dark band: cancel the .section-card padding (inline 2rem mobile
+        // / 3.25rem desktop, block --spacing-section) so the hero fills the hero card
+        // to its rounded, overflow-clipped edges. Kept in sync with .section-card.
+        className="relative -mx-[2rem] overflow-hidden bg-band-dark px-8 py-14 lg:-mx-[3.25rem] lg:px-14 lg:py-20 [margin-block:calc(-1*var(--spacing-section))]"
+      >
+        {data.watermark && (
+          <motion.span
+            aria-hidden="true"
+            {...mp}
+            variants={glowV}
+            className="pointer-events-none absolute right-[-1.5rem] top-[-1rem] z-0 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
+            style={{
+              color: "color-mix(in oklch, var(--color-on-dark) 7%, transparent)",
+              fontSize: "clamp(7rem, 15vw, 13.75rem)",
+            }}
+          >
+            {data.watermark}
+          </motion.span>
+        )}
+
+        <div className="relative z-[1] grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+          {/* Identity side */}
+          <div>
+            {data.eyebrow && (
+              <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
+                <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-400" />
+                <span className="text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-on-dark-muted">
+                  {data.eyebrow}
+                </span>
+              </motion.div>
+            )}
+
+            <h1 className="font-display font-normal text-6xl text-on-dark leading-[1] tracking-tight mt-5">
+              <span className="block overflow-hidden">
+                <motion.span {...mp} variants={titleV} className="block">
+                  {data.title}
+                </motion.span>
+              </span>
+            </h1>
+
+            <motion.h2
+              {...mp}
+              variants={fadeUp(0.385)}
+              className="font-display italic text-[34px] text-accent-400 leading-[1.15] mt-3"
+            >
+              {data.thesis}
+            </motion.h2>
+
+            <motion.p {...mp} variants={fadeUp(0.56)} className="text-lg text-on-dark-muted leading-normal mt-6 max-w-[42ch]">
+              {data.position}
+            </motion.p>
+
+            {data.ratingChip && (
+              <motion.p
+                {...mp}
+                variants={chipV}
+                className="inline-flex items-center gap-2.5 rounded-full border border-on-dark-line px-4 py-2 text-[0.9rem] font-semibold text-on-dark mt-6"
+                style={{ backgroundColor: "color-mix(in oklch, var(--color-on-dark) 8%, transparent)" }}
+              >
+                <span className="font-bold text-accent-400">{data.ratingChip.stat}</span>
+                {data.ratingChip.rest}
+              </motion.p>
+            )}
+
+            <motion.dl
+              {...mp}
+              variants={fadeUp(0.7)}
+              className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px]"
+            >
+              {data.meta.map((item) => (
+                <div key={item.label}>
+                  <dt className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-on-dark-muted">
+                    {item.label}
+                  </dt>
+                  <dd className="text-[1rem] font-semibold text-on-dark mt-1.5">{item.value}</dd>
+                </div>
+              ))}
+            </motion.dl>
+          </div>
+
+          {/* Dashboard side — one wide browser / MacBook frame */}
+          <motion.div {...mp} variants={stackV} className="flex w-full justify-center lg:justify-end">
+            <DeviceImage image={dashboard} />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={
-        wide
-          ? "relative flex flex-col gap-12"
-          : "relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14"
-      }
-    >
+    <div className="relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14">
       {/* Watermark — relocated here (from section.glow) so its fade-in is part of
           the hero entrance. calc() reproduces the section-level top:-12px / right:34px
           by compensating the section's py-section top padding and 3.25rem inline padding.
@@ -190,21 +270,13 @@ export default function HeroCover({ data }: { data: HeroCoverData }) {
       <motion.div
         {...mp}
         variants={stackV}
-        className={
-          wide
-            ? "relative flex w-full items-start justify-center gap-6"
-            : "relative flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
-        }
+        className="relative flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
       >
         {data.glow && <GlowWord word={data.glow} />}
-        <motion.div
-          {...mp}
-          variants={wide ? backVWide : backV}
-          className={wide ? "min-w-0 flex-1" : "lg:absolute"}
-        >
+        <motion.div {...mp} variants={backV} className="lg:absolute">
           <DeviceImage image={data.devices[0]} />
         </motion.div>
-        <motion.div {...mp} variants={wide ? frontVWide : frontV} className={wide ? "min-w-0 flex-1" : undefined}>
+        <motion.div {...mp} variants={frontV}>
           <DeviceImage image={data.devices[1]} />
         </motion.div>
       </motion.div>
