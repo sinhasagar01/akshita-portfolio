@@ -62,7 +62,7 @@ sections:
           devices:
             - src: /images/projects/fosfor-ai/blocks/2661133ae869.webp
               alt: Placeholder companion screen, replace via the dashboard
-              width: 248
+              width: 800
               rotate: -6
               translateX: -86
               translateY: 16
