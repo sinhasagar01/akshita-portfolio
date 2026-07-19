@@ -15,12 +15,18 @@ import { renderRich } from "./rich";
 export default function SectionRenderer({
   section,
   web = false,
+  noReveal = false,
 }: {
   section: Section;
   /** CS-7b — template=web opts this section's blocks into the Bold-gallery
    *  treatments, and drives section-level treatments (e.g. a standalone pullQuote
    *  dark band). false → the existing mobile composition, byte-identical. */
   web?: boolean;
+  /** CS-7c — the studio inline canvas renders a single section in a static panel
+   *  where RevealSection's in-view clip would never trigger, so the section would
+   *  stay hidden. `noReveal` renders the standard section as a plain always-visible
+   *  card instead. Defaults off, so the public site is byte-identical. */
+  noReveal?: boolean;
 }) {
   const hasHeader = Boolean(
     section.index || section.eyebrow || section.title || section.lead,
@@ -150,6 +156,16 @@ export default function SectionRenderer({
             <PullQuote text={soleBlock.text} web dark />
           </div>
         </div>
+      </section>
+    );
+  }
+
+  // CS-7c — the inline canvas renders in a static panel, so skip RevealSection's
+  // in-view clip (which would leave the section hidden) and render a plain card.
+  if (noReveal) {
+    return (
+      <section id={section.id} className="section-card py-section relative overflow-hidden scroll-mt-20">
+        {inner}
       </section>
     );
   }
