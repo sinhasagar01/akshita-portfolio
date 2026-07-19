@@ -1,10 +1,10 @@
 import type { Principle } from "@/lib/case-studies/types";
 import PrincipleCard from "../PrincipleCard";
 
-type Props = { heading?: string; subhead?: string; cards: Principle[] };
+type Props = { heading?: string; subhead?: string; cards: Principle[]; web?: boolean };
 
 /** Grid of `.pcard` cards with an optional display heading and subhead. */
-export default function PrincipleCards({ heading, subhead, cards }: Props) {
+export default function PrincipleCards({ heading, subhead, cards, web = false }: Props) {
   return (
     <div>
       {heading && (
@@ -20,7 +20,7 @@ export default function PrincipleCards({ heading, subhead, cards }: Props) {
       <div className={`grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3 ${heading || subhead ? "mt-7" : ""}`}>
         {cards.map((c, i) => (
           <div key={i} className="reveal-card">
-            <PrincipleCard principle={c} />
+            <PrincipleCard principle={c} web={web} />
           </div>
         ))}
       </div>
