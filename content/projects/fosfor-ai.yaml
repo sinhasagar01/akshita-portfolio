@@ -7,7 +7,7 @@ facts:
   type: AI product design within an enterprise suite
   platform: Web
   timeline: 12 weeks
-template: web
+template: mobile
 body: []
 sections:
   - variant: hero
