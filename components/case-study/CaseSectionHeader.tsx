@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import type { Rich } from "@/lib/case-studies/types";
 import { renderRich } from "./rich";
+import { EDIT_AFFORD } from "./editable";
 
 type Props = {
   index?: string;
@@ -8,10 +9,17 @@ type Props = {
   /** May contain "\n" for an explicit line break. */
   title?: string;
   lead?: Rich;
+  /** CS-7d — studio inline canvas only. Tags the plain-string header fields as
+   *  in-place editable (inert data-edit markers + contentEditable); the studio wires
+   *  the blur writeback. Off by default, so the public render is byte-identical. */
+  editable?: boolean;
 };
 
 /** `.sechead` index + eyebrow, then the `.stitle` title and optional `.lead`. */
-export default function CaseSectionHeader({ index, eyebrow, title, lead }: Props) {
+export default function CaseSectionHeader({ index, eyebrow, title, lead, editable = false }: Props) {
+  const edit = editable
+    ? { contentEditable: true, suppressContentEditableWarning: true, tabIndex: 0 }
+    : {};
   return (
     <header>
       {(index || eyebrow) && (
@@ -22,7 +30,11 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead }: Props
             </span>
           )}
           {eyebrow && (
-            <span className="text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
+            <span
+              {...edit}
+              data-edit={editable ? "eyebrow" : undefined}
+              className={`text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${editable ? EDIT_AFFORD : ""}`}
+            >
               {eyebrow}
             </span>
           )}
@@ -30,7 +42,11 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead }: Props
       )}
 
       {title && (
-        <h2 className="font-display text-4xl font-normal text-ink-950 leading-[1.05] tracking-snug mt-6 max-w-[44rem]">
+        <h2
+          {...edit}
+          data-edit={editable ? "title" : undefined}
+          className={`font-display text-4xl font-normal text-ink-950 leading-[1.05] tracking-snug mt-6 max-w-[44rem]${editable ? EDIT_AFFORD : ""}`}
+        >
           {title.split("\n").map((line, i, arr) => (
             <Fragment key={i}>
               {line}
