@@ -68,6 +68,41 @@ export type AdaptMode = "ssg" | "preview";
 const MISSING_IMAGE_SRC = "/images/projects/placeholder-missing.webp";
 const MISSING_IMAGE_ALT = "Image not set yet";
 
+/* ------------------------------------------------------------------- frame
+ * CS-4 — the device frame an image renders in. The adapter resolves it now; no
+ * component reads it yet (CS-5). Absent frame + absent template => "phone", so
+ * every existing image and boat-crest render exactly as before.                */
+
+/** The device frames an image can render in. */
+export const FRAMES = ["phone", "browser", "macbook"] as const;
+export type Frame = (typeof FRAMES)[number];
+
+/** The case-study templates that derive a default frame. */
+export const TEMPLATES = ["mobile", "web"] as const;
+export type Template = (typeof TEMPLATES)[number];
+
+/**
+ * THE SINGLE derivation: a case study's `template` -> its default image frame.
+ * `web` -> browser, `mobile` -> phone; anything else (absent, "", unknown) ->
+ * phone, so a project with no template resolves exactly as today. This is the one
+ * source of the mapping — the sanitizer only validates the enum, it never re-maps.
+ */
+export function templateDefaultFrame(template: unknown): Frame {
+  return template === "web" ? "browser" : "phone";
+}
+
+/**
+ * Resolve ONE image's frame by precedence: an explicit, valid block `frame` wins;
+ * otherwise the template-derived default (already "phone" when there is no
+ * template). Permissive like the rest of the adapter — an unknown or "" frame is
+ * treated as unset, never thrown.
+ */
+function resolveFrame(rawFrame: unknown, defaultFrame: Frame): Frame {
+  return typeof rawFrame === "string" && (FRAMES as readonly string[]).includes(rawFrame)
+    ? (rawFrame as Frame)
+    : defaultFrame;
+}
+
 /* ---------------------------------------------------------------- parseRich */
 
 /**
@@ -138,7 +173,7 @@ function richOpt(v: unknown): Rich | undefined {
 
 /* --------------------------------------------------------- shape adapters */
 
-function adaptImgSpec(v: unknown, at: string, mode: AdaptMode): ImgSpec {
+function adaptImgSpec(v: unknown, at: string, mode: AdaptMode, defaultFrame: Frame): ImgSpec {
   const o = rec(v);
   const rawSrc = str(o.src);
   // GUARD SITE 1 — an unset image. ssg throws (a broken public build should
@@ -160,12 +195,15 @@ function adaptImgSpec(v: unknown, at: string, mode: AdaptMode): ImgSpec {
   }
   const z = num(o.z);
   if (z !== undefined) spec.z = z;
+  // CS-4 — emit the resolved frame (block frame > template default > phone). No
+  // component reads it yet, so this changes no rendered markup.
+  spec.frame = resolveFrame(o.frame, defaultFrame);
   return spec;
 }
 
-function adaptDeviceSpec(v: unknown, at: string, mode: AdaptMode): DeviceSpec {
+function adaptDeviceSpec(v: unknown, at: string, mode: AdaptMode, defaultFrame: Frame): DeviceSpec {
   const o = rec(v);
-  const spec: DeviceSpec = adaptImgSpec(v, at, mode);
+  const spec: DeviceSpec = adaptImgSpec(v, at, mode, defaultFrame);
   const label = opt(o.label);
   if (label !== undefined) spec.label = label;
   const dotColor = opt(o.dotColor);
@@ -228,7 +266,7 @@ function assertNever(x: never): never {
   throw new Error(`unhandled block kind: ${String(x)}`);
 }
 
-function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
+function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Frame): Block {
   const o = rec(raw);
   const discriminant = str(o.discriminant);
   // An unknown discriminant throws in BOTH modes: it means the content and the
@@ -242,7 +280,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
   switch (kind) {
     case "heroCover": {
       const devices = arr(v.devices).map((d, i) =>
-        adaptDeviceSpec(d, `${at}.devices[${i}]`, mode)
+        adaptDeviceSpec(d, `${at}.devices[${i}]`, mode, defaultFrame)
       );
       // GUARD SITE 2 — the device tuple. ssg throws; preview pads with the
       // placeholder (or truncates) so the hero still renders while the owner is
@@ -286,7 +324,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
     case "deviceShelf": {
       const block: Block = {
         kind,
-        devices: arr(v.devices).map((d, i) => adaptDeviceSpec(d, `${at}.devices[${i}]`, mode)),
+        devices: arr(v.devices).map((d, i) => adaptDeviceSpec(d, `${at}.devices[${i}]`, mode, defaultFrame)),
       };
       const glow = adaptGlow(v.glow);
       if (glow !== undefined) block.glow = glow;
@@ -360,7 +398,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
             category: str(o2.category),
             title: str(o2.title),
             body: rich(o2.body),
-            image: adaptImgSpec(o2.image, `${at}.features[${i}].image`, mode),
+            image: adaptImgSpec(o2.image, `${at}.features[${i}].image`, mode, defaultFrame),
           };
         }),
       };
@@ -372,8 +410,8 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
           return {
             title: str(o2.title),
             tag: str(o2.tag),
-            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, mode),
-            after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`, mode),
+            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, mode, defaultFrame),
+            after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`, mode, defaultFrame),
             changes: arr(o2.changes).map((c): Change => {
               const o3 = rec(c);
               return { emphasis: str(o3.emphasis), rest: str(o3.rest) };
@@ -406,7 +444,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode): Block {
         }),
       };
     case "annotatedImage": {
-      const block: Block = { kind, image: adaptImgSpec(v.image, `${at}.image`, mode) };
+      const block: Block = { kind, image: adaptImgSpec(v.image, `${at}.image`, mode, defaultFrame) };
       const scrawl = adaptScrawl(v.scrawl);
       if (scrawl !== undefined) block.scrawl = scrawl;
       const callouts = arr(v.callouts).map((c): Callout => {
@@ -444,8 +482,14 @@ const LAYOUTS = new Set(["stack", "split"]);
  * Only the studio preview passes "preview". Do not flip this default — the unit
  * suite pins it precisely to stop a flip from silently disarming SSG.
  */
-export function adaptSections(raw: unknown, opts?: { mode?: AdaptMode }): Section[] {
+export function adaptSections(
+  raw: unknown,
+  opts?: { mode?: AdaptMode; template?: unknown }
+): Section[] {
   const mode: AdaptMode = opts?.mode ?? "ssg";
+  // CS-4 — the case-study template's default frame, resolved ONCE per case study
+  // and applied to every image unless a block overrides it. Absent -> "phone".
+  const defaultFrame = templateDefaultFrame(opts?.template);
   return arr(raw).map((s, i) => {
     const at = `sections[${i}]`;
     const o = rec(s);
@@ -462,7 +506,7 @@ export function adaptSections(raw: unknown, opts?: { mode?: AdaptMode }): Sectio
     const section: Section = {
       variant: variant as Section["variant"],
       layout: layout as Section["layout"],
-      blocks: arr(o.blocks).map((b, j) => adaptBlock(b, `${at}.blocks[${j}]`, mode)),
+      blocks: arr(o.blocks).map((b, j) => adaptBlock(b, `${at}.blocks[${j}]`, mode, defaultFrame)),
     };
     const id = opt(o.id);
     if (id !== undefined) section.id = id;

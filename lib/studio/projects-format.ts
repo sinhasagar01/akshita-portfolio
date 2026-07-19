@@ -23,7 +23,15 @@ export type ProjectsInput = {
   // (server-derived path, never from a client text patch — sanitizeProjectsPatch
   // still rejects it). null clears the image. Optional so the text path omits it.
   heroImage?: string | null;
+  // CS-4 — the case-study template that derives the default image frame. Optional
+  // and omit-when-empty: the sanitizer drops "" so it is never written for a project
+  // that has no template. No /studio surface sets it yet (CS-5 wires the UI).
+  template?: "mobile" | "web";
 };
+
+/** CS-4 — the case-study template enum. The template->frame MAPPING is the
+ *  adapter's single source; this const only validates the value on the write path. */
+export const TEMPLATES = ["mobile", "web"] as const;
 
 /** The full facts sub-keys, in canonical schema order. role + timeline remain
  *  valid data but are NOT editable through /studio (Phase-1 T1). */
@@ -106,6 +114,16 @@ export function sanitizeProjectsPatch(
     if (key === "summary") {
       if (typeof value !== "string") return invalid("summary must be a string", key);
       patch.summary = value;
+      continue;
+    }
+    if (key === "template") {
+      // Strict enum, omit-when-empty: "" is dropped (never written), a non-empty
+      // value must be a valid template, anything else is rejected.
+      if (typeof value !== "string") return invalid("template must be a string", key);
+      if (value !== "" && !(TEMPLATES as readonly string[]).includes(value)) {
+        return invalid(`template must be one of ${TEMPLATES.join(", ")}`, key);
+      }
+      if (value !== "") patch.template = value as ProjectsInput["template"];
       continue;
     }
     return invalid(`unknown field ${key}`, key);
