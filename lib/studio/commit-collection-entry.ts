@@ -38,7 +38,7 @@ import {
   heroImageBlobPathFromValue,
 } from "./hero-image-path";
 import { slugify, freeSlug } from "./slug";
-import { getBranchHeadOid, getDefaultBranchHeadOid, getTreeRecursive } from "./github-commit";
+import { getBranchHeadOid, getBaseBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
 import { BESPOKE_SLUGS } from "../case-studies/types";
 
@@ -96,7 +96,7 @@ async function scanCollection(
   collection: CollectionName,
   branch: string
 ): Promise<{ maxOrderIndex: number; slugs: Set<string> }> {
-  const baseOid = (await getBranchHeadOid(branch)) ?? (await getDefaultBranchHeadOid()).oid;
+  const baseOid = (await getBranchHeadOid(branch)) ?? (await getBaseBranchHeadOid()).oid;
   const tree = await getTreeRecursive(baseOid);
   const re = COLLECTION_ENTRY_RE[collection];
   const entryPaths = tree.filter((t) => t.type === "blob" && re.test(t.path)).map((t) => t.path);
@@ -294,7 +294,7 @@ export async function commitProjectHeroImage(
 
   let raw: string;
   try {
-    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
     raw = await getFileTextAtRef(yamlPath, baseOid);
   } catch (e) {
     return {
@@ -369,7 +369,7 @@ export async function commitCollectionOrder(
   orderedSlugs: readonly string[],
   opts: { branch: string; message?: string }
 ): Promise<FilesCommitResult> {
-  const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+  const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
 
   const additions: { path: string; contents: string }[] = [];
   for (const [index, slug] of orderedSlugs.entries()) {
@@ -430,7 +430,7 @@ export async function deleteCollectionEntry(
     // Existence check so a delete of nothing is not reported as a false success.
     let raw: string;
     try {
-      const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+      const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
       raw = await getFileTextAtRef(COLLECTION_PATH.experience(slug), baseOid);
     } catch (e) {
       return { ok: false, error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) } };
@@ -460,7 +460,7 @@ export async function deleteCollectionEntry(
   // single-owner (savingRef serializes saves); documented as a known window.
   let paths: string[];
   try {
-    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
     const tree = await getTreeRecursive(baseOid);
     const yamlPath = COLLECTION_PATH.projects(slug);
     const dirPrefix = `content/projects/${slug}/`;

@@ -27,10 +27,10 @@ import {
 import { branchExists, compareBranches, REPO } from "./github-commit";
 
 export const DRAFT_BRANCH = "studio/draft-site-settings";
-// The repo's default branch (CLAUDE.md). Used as the compare base for the
-// branch-level differs check — a constant keeps it to a single compare call.
-// Exported (P4 4(a)) so the case-study draft read compares against the same base.
-export const MAIN_BRANCH = "main";
+// Re-exported under its historical name so the draft reads and the write path
+// share ONE definition of the published branch (see BASE_BRANCH).
+export { BASE_BRANCH as MAIN_BRANCH } from "./github-commit";
+import { BASE_BRANCH } from "./github-commit";
 
 export type SettingsDraftState = {
   live: SiteSettingsEntry | null;
@@ -170,7 +170,7 @@ const readDraftBranchStateCached = unstable_cache(
     if (process.env.NODE_ENV !== "production") {
       console.log("[studio] draft-branch-state cache miss — comparing branches + reading changed entries");
     }
-    const cmp = await compareBranches(MAIN_BRANCH, DRAFT_BRANCH);
+    const cmp = await compareBranches(BASE_BRANCH, DRAFT_BRANCH);
     if (cmp === null) return EMPTY_DRAFT_STATE; // no draft branch
 
     // CONTENT, not commit count. This used to be `aheadBy > 0`, which asks "did
