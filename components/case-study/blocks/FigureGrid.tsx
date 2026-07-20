@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { FigureItem } from "@/lib/case-studies/types";
 import { renderRich } from "../rich";
 import { LINE } from "../styles";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /** `figureGrid` — plain, frameless illustrations and diagrams (NOT product-in-a-device
  *  screenshots, so it never touches the device/frame system). A single item renders as
@@ -21,10 +22,15 @@ export default function FigureGrid({
   blockIndex?: number;
 }) {
   const single = items.length === 1;
+  const aff = editable ? EDIT_AFFORD : "";
+  const edit = (path: string, label: string) => inlineEditProps(editable, blockIndex, path, label);
   return (
     <div>
       {heading && (
-        <h3 className="font-display italic font-normal text-3xl text-ink-950 leading-[1.15]">
+        <h3
+          {...edit("heading", "Edit figure grid heading")}
+          className={`font-display italic font-normal text-3xl text-ink-950 leading-[1.15]${aff}`}
+        >
           {heading}
         </h3>
       )}
@@ -48,7 +54,10 @@ export default function FigureGrid({
             {(it.title || it.body) && (
               <figcaption className={single ? "mt-5 text-center" : "mt-4"}>
                 {it.title && (
-                  <div className="font-display font-normal text-xl text-ink-950 leading-[1.15]">
+                  <div
+                    {...edit(`items.${i}.title`, "Edit figure title")}
+                    className={`font-display font-normal text-xl text-ink-950 leading-[1.15]${aff}`}
+                  >
                     {it.title}
                   </div>
                 )}
