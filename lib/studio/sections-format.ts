@@ -147,10 +147,6 @@ const obj =
     return { ok: true, value: out };
   };
 
-/** A tier 3 kind the editor cannot edit yet: round-trip its value verbatim rather
- *  than validate a shape no form can produce. Replaced per kind in 4(b)-ii tier 3. */
-const opaque: Check<Record<string, unknown>> = (raw, at) =>
-  isPlainObject(raw) ? { ok: true, value: raw } : invalid(`${at} must be an object`, at);
 
 /**
  * An array whose length the schema FIXES. heroCover.devices is
