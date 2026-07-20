@@ -1,48 +1,33 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
+import type { ReactNode } from "react";
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
   delay?: number;
+  /** Accepted for call-site compatibility. Reveal is used only for above-the-fold hero
+   *  content, so it animates on mount rather than on scroll — these are ignored. */
   once?: boolean;
   amount?: number | "some" | "all";
   className?: string;
 };
 
-export default function Reveal({
-  children,
-  delay = 0,
-  once = true,
-  amount = 0.15,
-  className,
-}: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once, amount });
+/**
+ * A mount entrance for above-the-fold hero content. Ships VISIBLE in SSR (opacity:1,
+ * only a translateY offset) so the content — including the home page's largest-
+ * contentful text — paints at FCP instead of waiting on hydration, and no-JS visitors
+ * see it. The old version shipped opacity:0 and revealed after hydration, which gated
+ * LCP by ~1.8s. Only the slide is animated; opacity is never 0. Reduced motion rests.
+ */
+export default function Reveal({ children, delay = 0, className }: Props) {
   const prefersReduced = useReducedMotion();
-
   return (
     <motion.div
-      ref={ref}
-      // Reduced motion resolves to an explicit VISIBLE resting state, not `false`.
-      // useReducedMotion is null on SSR/first render, so the wrapper ships with the
-      // hidden `initial` (opacity:0). With the old `animate={false}` the reduced-motion
-      // client stopped managing the element and it stayed stuck at that hidden SSR
-      // state — a blank hero. Driving to {opacity:1,y:0} with a 0s transition snaps it
-      // visible instead. The non-reduced branch is unchanged.
-      initial={prefersReduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-      animate={
-        prefersReduced
-          ? { opacity: 1, y: 0 }
-          : isInView
-            ? { opacity: 1, y: 0 }
-            : { opacity: 0, y: 14 }
-      }
+      initial={prefersReduced ? { y: 0 } : { y: 14 }}
+      animate={{ y: 0 }}
       transition={
-        prefersReduced
-          ? { duration: 0 }
-          : { duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }
+        prefersReduced ? { duration: 0 } : { duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }
       }
       className={className}
     >
