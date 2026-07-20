@@ -57,7 +57,11 @@ export type SaveErrorCode =
   // F-3 — collection create/delete guards.
   | "invalid_slug" // title has no slug-safe characters
   | "slug_taken" // create against an already-existing entry
-  | "bespoke_locked"; // delete of a bespoke slug (literal route + hardcoded module)
+  | "bespoke_locked" // delete of a bespoke slug (literal route + hardcoded module)
+  // A reorder whose requested order already matches the stored one. Not a
+  // failure — the route reports it as a successful no-op — but it is typed so
+  // the lib never has to invent a commit that did not happen.
+  | "no_changes";
 
 export type SaveError = {
   code: SaveErrorCode;

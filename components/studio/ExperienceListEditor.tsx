@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { ListDetailLayout } from "./ListDetailLayout";
 import ExperienceEditPanel from "./ExperienceEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useListReorder } from "./useListReorder";
 import { useReportCount } from "./StudioCountsProvider";
 import { useFocusTrap } from "./useFocusTrap";
 import { isCurrentRole } from "@/components/sections/experience-current";
@@ -61,7 +62,14 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   const [banner, setBanner] = useState("");
 
   // Keep Publish/Discard from racing an in-flight create/delete (like every panel).
-  useReportPending(addBusy || deleteBusy);
+  const { moveItem, reorderBusy, reorderError } = useListReorder({
+    collection: "experience",
+    items,
+    setItems,
+  });
+
+  // Publish/Discard must not race an in-flight reorder either.
+  useReportPending(addBusy || deleteBusy || reorderBusy);
   // Keep the sidebar Experience badge in sync with the optimistic list length.
   useReportCount("experience", items.length);
 
@@ -216,11 +224,18 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
         </div>
       )}
 
+      {reorderError && (
+        <p className="mb-2 text-[12px] text-accent-600" role="status" aria-live="polite">
+          {reorderError}
+        </p>
+      )}
+
       <ListDetailLayout
         sections={sections}
         onAddItem={openAdd}
         addItemLabel="Add experience"
         onRemoveItem={askDelete}
+        onMoveItem={moveItem}
       >
         {items.map((e) => (
           <ExperienceEditPanel

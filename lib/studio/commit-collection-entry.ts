@@ -25,7 +25,11 @@ import {
   type ExperienceRecord,
   type ExperienceCreateInput,
 } from "./experience-format";
-import { serializeProjectEntry, serializeNewProject } from "./projects-serialize";
+import {
+  serializeProjectEntry,
+  serializeNewProject,
+  serializeProjectOrder,
+} from "./projects-serialize";
 import { serializeProjectSections } from "./sections-serialize";
 import { sanitizeProjectCreate, type ProjectsInput } from "./projects-format";
 import {
@@ -59,6 +63,15 @@ type Serialized = { ok: true; bytes: string } | { ok: false; error: SaveError };
 function serializeExperience(raw: string, patch: Partial<ExperienceInput>): Serialized {
   const loaded = (load(raw) ?? {}) as ExperienceRecord;
   const result = transformExperiencePatch(loaded, patch);
+  return { ok: true, bytes: dump(result.value, { quotingType: '"' }) };
+}
+
+// --- experience REORDER: only orderIndex changes; the canonical key order and the
+// quotingType '"' dump are the edit path's, so an unchanged field round-trips
+// byte-for-byte. ---
+function serializeExperienceOrder(raw: string, orderIndex: number): Serialized {
+  const loaded = (load(raw) ?? {}) as ExperienceRecord;
+  const result = transformExperiencePatch({ ...loaded, orderIndex }, {});
   return { ok: true, bytes: dump(result.value, { quotingType: '"' }) };
 }
 
@@ -305,6 +318,82 @@ export async function commitProjectHeroImage(
     deletions,
     branch: opts.branch,
     message: opts.message ?? `chore(studio): ${opts.image ? "set" : "clear"} projects/${slug} hero image`,
+  });
+}
+
+// --- REORDER: set orderIndex from a position in the given slug order. Separate
+// serializers from the edit path, because the edit sanitizers refuse orderIndex
+// outright (a client must not be able to smuggle a position into a content save).
+function serializeOrder(collection: CollectionName, raw: string, orderIndex: number): Serialized {
+  return collection === "projects"
+    ? serializeProjectOrder(raw, orderIndex)
+    : serializeExperienceOrder(raw, orderIndex);
+}
+
+/**
+ * Reorder a whole collection by writing each entry's `orderIndex` to its position
+ * in `orderedSlugs`, in ONE atomic commit.
+ *
+ * ATOMIC BY CONSTRUCTION, and that is the point. A reorder moves at least two
+ * entries, so doing it as N single-entry edits could half-apply and leave two
+ * entries claiming the same position. One multi-file commit either lands whole or
+ * not at all.
+ *
+ * The caller sends the FULL desired order, not a swap: the server assigns
+ * positions from the array, so the stored indices are always a clean 0..N-1 no
+ * matter what they were before (published entries have gaps). Entries whose index
+ * is already correct are left out of the commit, so a no-op reorder writes
+ * nothing.
+ *
+ * `orderedSlugs` must name exactly the collection's entries. A slug with no file
+ * at the base is not_found — the alternative, silently skipping it, would commit
+ * a reorder that does not match what the owner saw.
+ */
+export async function commitCollectionOrder(
+  collection: CollectionName,
+  orderedSlugs: readonly string[],
+  opts: { branch: string; message?: string }
+): Promise<FilesCommitResult> {
+  const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+
+  const additions: { path: string; contents: string }[] = [];
+  for (const [index, slug] of orderedSlugs.entries()) {
+    const path = COLLECTION_PATH[collection](slug);
+    let raw: string;
+    try {
+      raw = await getFileTextAtRef(path, baseOid);
+    } catch (e) {
+      return {
+        ok: false,
+        error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
+      };
+    }
+    if (raw.trim() === "") {
+      return {
+        ok: false,
+        error: {
+          code: "not_found",
+          field: slug,
+          message: `${collection} entry "${slug}" not found`,
+        },
+      };
+    }
+    // Already at this position — leave it out so a no-op reorder commits nothing.
+    if ((load(raw) as { orderIndex?: unknown } | null)?.orderIndex === index) continue;
+
+    const serialized = serializeOrder(collection, raw, index);
+    if (!serialized.ok) return serialized;
+    additions.push({ path, contents: serialized.bytes });
+  }
+
+  if (additions.length === 0) {
+    return { ok: false, error: { code: "no_changes", message: "the order is unchanged" } };
+  }
+
+  return commitFilesToDraft({
+    additions,
+    branch: opts.branch,
+    message: opts.message ?? `chore(studio): reorder ${collection} draft`,
   });
 }
 

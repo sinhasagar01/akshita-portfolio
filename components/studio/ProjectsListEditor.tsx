@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { ListDetailLayout } from "./ListDetailLayout";
 import ProjectsEditPanel from "./ProjectsEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useListReorder } from "./useListReorder";
 import { useReportCount } from "./StudioCountsProvider";
 import { useFocusTrap } from "./useFocusTrap";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
@@ -58,7 +59,14 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
   // Transient banner: fs-mode dev note AND the bespoke "can't remove" message.
   const [banner, setBanner] = useState("");
 
-  useReportPending(addBusy || deleteBusy);
+  const { moveItem, reorderBusy, reorderError } = useListReorder({
+    collection: "projects",
+    items,
+    setItems,
+  });
+
+  // Publish/Discard must not race an in-flight reorder either.
+  useReportPending(addBusy || deleteBusy || reorderBusy);
   // Keep the sidebar Projects badge in sync with the optimistic list length.
   useReportCount("projects", items.length);
 
@@ -213,11 +221,18 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
         </div>
       )}
 
+      {reorderError && (
+        <p className="mb-2 text-[12px] text-accent-600" role="status" aria-live="polite">
+          {reorderError}
+        </p>
+      )}
+
       <ListDetailLayout
         sections={sections}
         onAddItem={openAdd}
         addItemLabel="Add project"
         onRemoveItem={askDelete}
+        onMoveItem={moveItem}
       >
         {items.map((p) => (
           <ProjectsEditPanel

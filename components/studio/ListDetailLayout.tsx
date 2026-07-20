@@ -21,7 +21,7 @@ import {
   useState,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { IconX, IconPlus } from "./icons";
+import { IconX, IconPlus, IconChevronUp, IconChevronDown } from "./icons";
 
 export type ListDetailSection = {
   id: string;
@@ -64,12 +64,16 @@ export function useListItem(id: string, dirty: boolean): { isSelected: boolean }
 
 const MOBILE_MQ = "(max-width: 1023px)"; // the site's 1024 (lg) breakpoint
 
+const rowControlCls =
+  "grid size-5 place-items-center rounded text-ink-400 transition-colors hover:bg-cream-200 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 disabled:pointer-events-none disabled:opacity-30 [&>svg]:size-3.5";
+
 export function ListDetailLayout({
   sections,
   children,
   onAddItem,
   addItemLabel,
   onRemoveItem,
+  onMoveItem,
 }: {
   sections: ListDetailSection[];
   children: React.ReactNode;
@@ -80,7 +84,13 @@ export function ListDetailLayout({
   onAddItem?: () => string | undefined;
   addItemLabel?: string;
   onRemoveItem?: (id: string) => void;
+  // Reorder capability. Renders per-item up/down controls; the consumer applies
+  // the move and persists the new order. Absent = no reorder controls, exactly
+  // as before. The list order is the consumer's `sections` order, so the layout
+  // re-renders from it rather than holding an order of its own.
+  onMoveItem?: (id: string, direction: "up" | "down") => void;
 }) {
+  const hasRowControls = Boolean(onRemoveItem || onMoveItem);
   // Deep-link support: studio search navigates to /studio/<page>?item=<id> and
   // this pre-selects that entry. `item` is validated against sections so a stale
   // param falls back to the default (first on desktop / list on mobile).
@@ -179,7 +189,7 @@ export function ListDetailLayout({
           className={`${selectedId === null ? "block" : "hidden"} lg:block`}
         >
           <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-            {sections.map((s) => {
+            {sections.map((s, i) => {
               const isActive = s.id === activeId;
               const isDirty = dirtyIds.has(s.id);
               // Compose the accessible name from the visible states so the badge
@@ -188,7 +198,7 @@ export function ListDetailLayout({
                 .filter(Boolean)
                 .join(", ");
               return (
-                <li key={s.id} className={onRemoveItem ? "group relative" : undefined}>
+                <li key={s.id} className={hasRowControls ? "group relative" : undefined}>
                   <button
                     type="button"
                     role="tab"
@@ -199,7 +209,8 @@ export function ListDetailLayout({
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => select(s.id)}
                     className={[
-                      "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      "flex w-full items-center justify-between gap-2 rounded-lg border py-2.5 pl-3 text-left text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
                         ? "border-accent-500/40 bg-accent-500/10 font-medium text-ink-950"
                         : "border-ink-950/8 bg-cream-50 text-ink-700 hover:border-accent-500/30 hover:bg-cream-100",
@@ -217,20 +228,49 @@ export function ListDetailLayout({
                       <span className="size-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden="true" />
                     )}
                   </button>
-                  {onRemoveItem && (
-                    <button
-                      type="button"
-                      // Roving like the tabs: only the active item's remove is in
-                      // the Tab order; reach any other via arrow-select then Tab.
-                      // opacity-0 keeps it focusable (not display:none), revealed on
-                      // hover or when the item holds focus.
-                      tabIndex={isActive ? 0 : -1}
-                      aria-label={`Remove ${s.name}`}
-                      onClick={() => handleRemove(s.id)}
-                      className="absolute right-1.5 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded text-ink-400 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 group-hover:opacity-100 group-focus-within:opacity-100 [&>svg]:size-3.5"
-                    >
-                      <IconX />
-                    </button>
+                  {hasRowControls && (
+                    // One cluster for every per-row control. Roving like the tabs:
+                    // only the active item's controls are in the Tab order; reach
+                    // another via arrow-select then Tab. opacity-0 (not
+                    // display:none) keeps them focusable, revealed on hover or
+                    // when the row holds focus.
+                    <span className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100">
+                      {onMoveItem && (
+                        <>
+                          <button
+                            type="button"
+                            tabIndex={isActive ? 0 : -1}
+                            aria-label={`Move ${s.name} up`}
+                            disabled={i === 0}
+                            onClick={() => onMoveItem(s.id, "up")}
+                            className={rowControlCls}
+                          >
+                            <IconChevronUp />
+                          </button>
+                          <button
+                            type="button"
+                            tabIndex={isActive ? 0 : -1}
+                            aria-label={`Move ${s.name} down`}
+                            disabled={i === sections.length - 1}
+                            onClick={() => onMoveItem(s.id, "down")}
+                            className={rowControlCls}
+                          >
+                            <IconChevronDown />
+                          </button>
+                        </>
+                      )}
+                      {onRemoveItem && (
+                        <button
+                          type="button"
+                          tabIndex={isActive ? 0 : -1}
+                          aria-label={`Remove ${s.name}`}
+                          onClick={() => handleRemove(s.id)}
+                          className={rowControlCls}
+                        >
+                          <IconX />
+                        </button>
+                      )}
+                    </span>
                   )}
                 </li>
               );
