@@ -48,8 +48,18 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
   const safetyTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    // Only take over scroll restoration when Lenis is actually driving the page.
+    // Under reduced motion the provider renders bare children (no Lenis), so leaving
+    // this "manual" would drop reduced-motion users at the top on every reload / back
+    // with nothing to restore their position. Native "auto" restoration is restored on
+    // cleanup and kept for the reduced-motion branch.
+    if (prefersReduced) return;
+    const prev = history.scrollRestoration;
     history.scrollRestoration = "manual";
-  }, []);
+    return () => {
+      history.scrollRestoration = prev;
+    };
+  }, [prefersReduced]);
 
   const scrollToTarget = useCallback(
     (target: ScrollTarget, options?: ScrollOpts) => {

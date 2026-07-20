@@ -52,6 +52,11 @@ export default function PageLoader() {
     const holdTop = () => window.scrollTo(0, 0)
     window.addEventListener('scroll', holdTop, { capture: true })
 
+    // A deep link (e.g. /#work) is held at the top for the loader's duration; once it
+    // lifts, restore the hash target instead of resetting to top. Captured at mount so
+    // a later hash change can't redirect the restore.
+    const hash = window.location.hash
+
     function finish() {
       window.removeEventListener('scroll', holdTop, { capture: true })
       window.scrollTo(0, 0)
@@ -62,10 +67,22 @@ export default function PageLoader() {
       }
     }
 
+    // Called after the loader lifts: scroll to the hash target if present, else top.
+    function restore() {
+      const l = lenisRef.current
+      const target = hash ? document.querySelector(hash) : null
+      if (target) {
+        if (l) l.scrollTo(target as HTMLElement, { immediate: true, force: true })
+        else (target as HTMLElement).scrollIntoView()
+        return
+      }
+      resetToTop(l)
+    }
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       finish()
       setGone(true)
-      requestAnimationFrame(() => resetToTop(lenisRef.current))
+      requestAnimationFrame(() => restore())
       return () => {
         window.removeEventListener('scroll', holdTop, { capture: true })
         lenisRef.current?.start()
@@ -116,7 +133,7 @@ export default function PageLoader() {
 
     const timer = setTimeout(() => {
       finish()
-      resetToTop(lenisRef.current)
+      restore()
       setGone(true)
     }, 1400)
 

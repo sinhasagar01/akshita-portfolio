@@ -25,15 +25,25 @@ export default function Reveal({
   return (
     <motion.div
       ref={ref}
-      initial={prefersReduced ? false : { opacity: 0, y: 14 }}
+      // Reduced motion resolves to an explicit VISIBLE resting state, not `false`.
+      // useReducedMotion is null on SSR/first render, so the wrapper ships with the
+      // hidden `initial` (opacity:0). With the old `animate={false}` the reduced-motion
+      // client stopped managing the element and it stayed stuck at that hidden SSR
+      // state — a blank hero. Driving to {opacity:1,y:0} with a 0s transition snaps it
+      // visible instead. The non-reduced branch is unchanged.
+      initial={prefersReduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
       animate={
-        prefersReduced ? false : isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }
+        prefersReduced
+          ? { opacity: 1, y: 0 }
+          : isInView
+            ? { opacity: 1, y: 0 }
+            : { opacity: 0, y: 14 }
       }
-      transition={{
-        duration: 0.5,
-        delay,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+      transition={
+        prefersReduced
+          ? { duration: 0 }
+          : { duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }
+      }
       className={className}
     >
       {children}
