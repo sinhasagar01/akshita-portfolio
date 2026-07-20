@@ -24,7 +24,7 @@
 // substring in onRemoveItem) and is a URL-driven page shell keyed to `?item=`, so
 // two nested instances would fight over one param. The composition that works here
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
@@ -317,6 +317,15 @@ export default function SectionsEditPanel({
       sections: moveIn(s, i, dir),
       ids: { sectionIds: moveIn(d.sectionIds, i, dir), blockIds: moveIn(d.blockIds, i, dir) },
     }));
+
+  // Which section's remove is awaiting confirmation, by stable section id (never
+  // the index — a reorder would move the confirm onto a different section).
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const confirmCancelRef = useRef<HTMLButtonElement>(null);
+  // Focus lands on Cancel, so the destructive button is never the default target.
+  useEffect(() => {
+    if (confirmRemove) confirmCancelRef.current?.focus();
+  }, [confirmRemove]);
 
   const removeSection = (i: number) => {
     // If the focused section is going, drop back to the board (its id will be gone).
@@ -683,6 +692,45 @@ export default function SectionsEditPanel({
             hidden={selectedSectionId !== ids.sectionIds[i]}
             className="flex flex-col gap-3 rounded-lg border border-ink-950/8 p-3"
           >
+            {confirmRemove === ids.sectionIds[i] ? (
+              // Removing a section discards every block in it, and the control sits
+              // right beside the reorder arrows — a misclick used to be silent and
+              // unrecoverable. Confirms in place, mirroring the PublishBar pattern.
+              <div
+                role="alertdialog"
+                aria-label={`Remove section ${sectionLabel(section, i)}`}
+                aria-describedby={`rm-msg-${ids.sectionIds[i]}`}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setConfirmRemove(null);
+                }}
+                className="flex items-center justify-between gap-2 rounded-md border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
+              >
+                <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[11px] text-ink-700">
+                  Remove this section and its blocks? You can still undo it with Discard until you
+                  publish.
+                </span>
+                <button
+                  ref={confirmCancelRef}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setConfirmRemove(null)}
+                  className="shrink-0 rounded-md px-2.5 py-1 text-[11px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setConfirmRemove(null);
+                    removeSection(i);
+                  }}
+                  className="shrink-0 rounded-md border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[11px] text-accent-600 transition-colors hover:bg-accent-500/20"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
                 {sectionLabel(section, i)}
@@ -694,11 +742,12 @@ export default function SectionsEditPanel({
                 <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
                   <IconChevronDown />
                 </button>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeSection(i)} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                   <IconX />
                 </button>
               </div>
             </div>
+            )}
 
             <SectionShellForm
               value={section}

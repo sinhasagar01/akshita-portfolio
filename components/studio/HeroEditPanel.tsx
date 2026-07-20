@@ -178,7 +178,31 @@ export default function HeroEditPanel({
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Tabs</span>
           {/* Mimics the real Hero tablist — pick a tab, edit its name and serif
               line below. Pill text is the LIVE edited name. */}
-          <div role="tablist" aria-label="Hero tabs" className="flex flex-wrap gap-1.5">
+          <div
+            role="tablist"
+            aria-label="Hero tabs"
+            className="flex flex-wrap gap-1.5"
+            onKeyDown={(e) => {
+              // Roving tabindex: the tablist is ONE tab stop and arrows move
+              // between tabs, the pattern every other studio tablist already
+              // follows. Wraps at both ends; Home/End jump to the edges.
+              const n = TABS.length;
+              const to =
+                e.key === "ArrowRight"
+                  ? (activeTab + 1) % n
+                  : e.key === "ArrowLeft"
+                    ? (activeTab - 1 + n) % n
+                    : e.key === "Home"
+                      ? 0
+                      : e.key === "End"
+                        ? n - 1
+                        : -1;
+              if (to === -1) return;
+              e.preventDefault();
+              setActiveTab(to);
+              requestAnimationFrame(() => document.getElementById(`hero-tab-edit-${to}`)?.focus());
+            }}
+          >
             {TABS.map((t, i) => (
               <button
                 key={t.labelKey}
@@ -187,6 +211,7 @@ export default function HeroEditPanel({
                 role="tab"
                 aria-selected={i === activeTab}
                 aria-controls="hero-tab-edit-panel"
+                tabIndex={i === activeTab ? 0 : -1}
                 onClick={() => setActiveTab(i)}
                 className={[
                   "rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide transition-colors",

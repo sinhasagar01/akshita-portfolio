@@ -116,7 +116,13 @@ export default function SettingsPhotoField({
           </button>
         )}
       </div>
-      {error && <span className="text-[10px] text-accent-600">{error}</span>}
+      {/* Announced: an upload failure is the one thing here a screen-reader user
+          cannot otherwise notice, since the visible change is a small line of text. */}
+      {error && (
+        <span role="alert" className="text-[10px] text-accent-600">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

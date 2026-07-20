@@ -17,9 +17,20 @@ type Props = {
 
 /** `.sechead` index + eyebrow, then the `.stitle` title and optional `.lead`. */
 export default function CaseSectionHeader({ index, eyebrow, title, lead, editable = false }: Props) {
-  const edit = editable
-    ? { contentEditable: true, suppressContentEditableWarning: true, tabIndex: 0 }
-    : {};
+  // role=textbox + a name, so the canvas's editable regions are announced as
+  // editable fields rather than as anonymous text. The data-edit marker below
+  // names the field, which is the SECTION-level writeback seam (setSection), not
+  // the block one — so it stays as it is; only the naming is added.
+  const editProps = (label: string) =>
+    editable
+      ? {
+          contentEditable: true,
+          suppressContentEditableWarning: true,
+          tabIndex: 0,
+          role: "textbox",
+          "aria-label": label,
+        }
+      : {};
   return (
     <header>
       {(index || eyebrow) && (
@@ -31,7 +42,7 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
           )}
           {eyebrow && (
             <span
-              {...edit}
+              {...editProps("Edit section eyebrow")}
               data-edit={editable ? "eyebrow" : undefined}
               className={`text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${editable ? EDIT_AFFORD : ""}`}
             >
@@ -43,7 +54,7 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
 
       {title && (
         <h2
-          {...edit}
+          {...editProps("Edit section title")}
           data-edit={editable ? "title" : undefined}
           className={`font-display text-4xl font-normal text-ink-950 leading-[1.05] tracking-snug mt-6 max-w-[44rem]${editable ? EDIT_AFFORD : ""}`}
         >
