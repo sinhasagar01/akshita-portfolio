@@ -34,7 +34,7 @@ export default async function CaseStudyBodyPage({ params }: Props) {
     <>
       <AreaHeader
         title={live.title}
-        sub="Edit the case study's content block by block. A few deep block types are coming; they are preserved untouched."
+        sub="Edit the case study's content block by block. Most text and images edit directly on the live preview; the rest have fields below."
       />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Link

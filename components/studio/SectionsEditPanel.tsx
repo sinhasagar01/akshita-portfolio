@@ -390,12 +390,7 @@ export default function SectionsEditPanel({
   const dupeIds = new Set(
     values.sections.map((s) => s.id).filter((id, i, a) => id !== "" && a.indexOf(id) !== i)
   );
-  const addableKinds = (Object.keys(BLOCK_REGISTRY) as SectionBlockKind[]).filter(
-    (k) => !BLOCK_REGISTRY[k].addBlockedUntilUpload
-  );
-  const blockedKinds = (Object.keys(BLOCK_REGISTRY) as SectionBlockKind[]).filter(
-    (k) => BLOCK_REGISTRY[k].addBlockedUntilUpload
-  );
+  const addableKinds = Object.keys(BLOCK_REGISTRY) as SectionBlockKind[];
 
   return (
     <section
@@ -724,11 +719,6 @@ export default function SectionsEditPanel({
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-text-subtle">
-                  {blockedKinds.map((k) => BLOCK_LABELS[k]).join(" and ")} need image upload, which is
-                  coming. Each requires an image, and a case study with a missing image cannot be
-                  published.
-                </p>
                 <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-md px-2 py-1 text-[11px] text-ink-600 hover:text-ink-950">
                   Cancel
                 </button>

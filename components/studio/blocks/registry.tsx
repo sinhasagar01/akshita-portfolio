@@ -33,7 +33,7 @@ const FRAME_LABELS: Record<FrameOption, string> = {
   browser: "Browser",
   macbook: "MacBook",
 };
-import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD, emptyDevice, emptyImg, emptyGlow } from "./empties";
+import { BLOCK_EMPTIES, emptyDevice, emptyImg, emptyGlow } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
   value: RawValue<K>;
@@ -62,16 +62,6 @@ type Entry<K extends SectionBlockKind> = {
    * checkbox — because the sanitizer requires them all.
    */
   empty: () => RawValue<K>;
-  /**
-   * Set when adding this kind would produce content the FAIL-LOUD ssg adapter
-   * refuses, so the picker can offer it as unavailable rather than let the owner
-   * wedge their publish. Only the two kinds carrying a REQUIRED image qualify: a
-   * new block's src is null and nothing can set it until 4(b)-iv.
-   *
-   * This cannot be a sanitizer rule — a null src is structurally valid, and
-   * publishability is the adapter's question, not the schema's.
-   */
-  addBlockedUntilUpload?: true;
 };
 
 /** Kind -> human name, for the block list and the not-editable-yet note. */
@@ -870,8 +860,6 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
     Form: FigureGridForm,
       },
   // tier 3
-  // still no Form (later in PR B) — preserved untouched by the panel, round-tripped
-  // opaquely by the sanitizer.
   heroCover: { empty: BLOCK_EMPTIES.heroCover,
     label: (v) => firstLine(v.title, "Hero cover"),
     Form: HeroCoverForm,

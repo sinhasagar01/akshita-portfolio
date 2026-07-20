@@ -11,7 +11,7 @@
 // no casts. The ids give the list stable keys so renaming a category never
 // remounts its panel. Only add/remove touch both arrays (kept in one batch).
 //
-// Not wired into /studio/skills yet (SK-4). Exercised via a harness for SK-3b.
+// Rendered by /studio/skills (app/studio/(dashboard)/skills/page.tsx).
 import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";

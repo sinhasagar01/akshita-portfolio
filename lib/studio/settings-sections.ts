@@ -7,6 +7,6 @@ export type StudioSettingsSection = { id: string; name: string; keywords?: strin
 export const STUDIO_SETTINGS_SECTIONS: StudioSettingsSection[] = [
   { id: "hero", name: "Hero", keywords: "hero copy signature tabs role label scroll cue" },
   { id: "about", name: "About", keywords: "about bio chips note subtext photo caption" },
-  { id: "links", name: "Links", keywords: "links resume email linkedin dribbble behance social" },
-  { id: "process", name: "Process", keywords: "process stages discover define develop deliver tags" },
+  { id: "links", name: "Links", keywords: "links resume email social urls" },
+  { id: "process", name: "Process", keywords: "process stages discover define design validate tags" },
 ];

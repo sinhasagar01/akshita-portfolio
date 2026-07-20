@@ -70,23 +70,3 @@ export const BLOCK_EMPTIES: { [K in SectionBlockKind]: () => RawValue<K> } = {
   closingLine: () => ({ text: "" }),
 };
 
-/**
- * EMPTY as of P4 4(b)-iv — every kind is addable.
- *
- * heroCover and annotatedImage were withheld while their REQUIRED image could not be
- * set: their empty's src is null, the fail-loud ssg adapter refuses that, and adding
- * one would have wedged the WHOLE publish (including unrelated edits) while preview
- * looked fine, because preview substitutes a placeholder.
- *
- * Upload now exists, but that alone did NOT make un-gating safe — a new block is
- * still born `src: null`, so publishing between adding and uploading would wedge the
- * build just the same. What makes it safe is that the gate MOVED to where it can
- * actually check: publish now re-renders every changed project through the ssg
- * adapter and refuses an unpublishable draft with the adapter's own message
- * (lib/studio/validate-draft-sections.ts). The picker could only guess; publish can
- * look.
- *
- * Kept as an empty set rather than deleted, so the mechanism stays available if a
- * future kind ever needs gating again.
- */
-export const ADD_GATED_UNTIL_UPLOAD = new Set<SectionBlockKind>();
