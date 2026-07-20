@@ -129,6 +129,15 @@ export async function getSiteSettingsDraftState(
 // collection) and on publish — invalidates it with no new wiring.
 export type DraftBranchState = {
   differs: boolean;
+  /**
+   * The draft read FAILED and this state is a fail-safe stand-in, not the truth.
+   *
+   * Studio degrades to live content on a GitHub error, which keeps it usable, but
+   * silently — the owner saw their published content with the bar dark and no
+   * indication that their unpublished draft simply could not be loaded. Surfaced
+   * so the UI can say so. Never true on the success path.
+   */
+  readError: boolean;
   // Added + modified draft entries, read from the draft branch and keyed by slug.
   projects: Record<string, ProjectListItem>;
   experience: Record<string, ExperienceListItem>;
@@ -143,6 +152,7 @@ export type DraftBranchState = {
 
 const EMPTY_DRAFT_STATE: DraftBranchState = {
   differs: false,
+  readError: false,
   projects: {},
   experience: {},
   removedProjects: [],
@@ -162,7 +172,18 @@ const readDraftBranchStateCached = unstable_cache(
     }
     const cmp = await compareBranches(MAIN_BRANCH, DRAFT_BRANCH);
     if (cmp === null) return EMPTY_DRAFT_STATE; // no draft branch
-    const differs = cmp.aheadBy > 0;
+
+    // CONTENT, not commit count. This used to be `aheadBy > 0`, which asks "did
+    // the owner save?" rather than "would publishing change anything?" — so
+    // editing a field and then putting it back across two saves left the bar lit
+    // and offered a publish with no net change.
+    //
+    // `files` is the NET diff from the merge base to the draft head, so a field
+    // that was changed and reverted has no entry in it at all. An empty list
+    // therefore means the draft and main hold the same content, however many
+    // commits it took to get there. Truncation cannot fool this: a capped list is
+    // non-empty by definition, so it can only ever say "there are changes".
+    const differs = cmp.files.length > 0;
 
     // F-2 — classify each changed collection file by its per-file status. A
     // "removed" file is a DELETE: record the slug (no read — the file is gone on
@@ -192,7 +213,7 @@ const readDraftBranchStateCached = unstable_cache(
     // nothing) — a skills-only edit must still fall through, so the guard includes
     // !skillsChanged. Removed slugs need no read, so they are returned here too.
     if (projectSlugs.length === 0 && experienceSlugs.length === 0 && !skillsChanged) {
-      return { differs, projects: {}, experience: {}, removedProjects, removedExperience, skills: null };
+      return { differs, readError: false, projects: {}, experience: {}, removedProjects, removedExperience, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -222,7 +243,7 @@ const readDraftBranchStateCached = unstable_cache(
           ]
         : []),
     ]);
-    return { differs, projects, experience, removedProjects, removedExperience, skills };
+    return { differs, readError: false, projects, experience, removedProjects, removedExperience, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }
@@ -241,7 +262,8 @@ export async function getDraftBranchState(): Promise<DraftBranchState> {
   try {
     return await readDraftBranchStateCached();
   } catch {
-    return EMPTY_DRAFT_STATE;
+    // Still degrades to live so /studio never breaks — but says so now.
+    return { ...EMPTY_DRAFT_STATE, readError: true };
   }
 }
 

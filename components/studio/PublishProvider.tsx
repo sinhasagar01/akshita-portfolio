@@ -16,6 +16,8 @@ import {
 
 type PublishSignal = {
   unpublished: boolean;
+  /** The draft read failed; the bar shows a warning instead of a status. */
+  draftReadError: boolean;
   setUnpublished: (value: boolean) => void;
   anyPending: boolean;
   reportPending: (id: string, pending: boolean) => void;
@@ -24,6 +26,7 @@ type PublishSignal = {
 // No-op fallback so a panel rendered outside the provider never crashes.
 const NOOP: PublishSignal = {
   unpublished: false,
+  draftReadError: false,
   setUnpublished: () => {},
   anyPending: false,
   reportPending: () => {},
@@ -33,9 +36,11 @@ const PublishContext = createContext<PublishSignal | null>(null);
 
 export function PublishProvider({
   initialDiffers,
+  draftReadError = false,
   children,
 }: {
   initialDiffers: boolean;
+  draftReadError?: boolean;
   children: React.ReactNode;
 }) {
   const [unpublished, setUnpublished] = useState(initialDiffers);
@@ -52,8 +57,8 @@ export function PublishProvider({
   }, []);
 
   const value = useMemo<PublishSignal>(
-    () => ({ unpublished, setUnpublished, anyPending: pendingIds.size > 0, reportPending }),
-    [unpublished, pendingIds, reportPending]
+    () => ({ unpublished, setUnpublished, draftReadError, anyPending: pendingIds.size > 0, reportPending }),
+    [unpublished, draftReadError, pendingIds, reportPending]
   );
 
   return <PublishContext.Provider value={value}>{children}</PublishContext.Provider>;

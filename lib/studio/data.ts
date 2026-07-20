@@ -12,6 +12,9 @@ export type StudioData = HomePageData & {
   // CE-3a — branch-level "unpublished changes": true when the draft branch is
   // ahead of main in ANY file, so a collection-only edit lights the Publish bar.
   draftDiffers: boolean;
+  /** The draft read failed, so the studio is showing LIVE as a fail-safe. The bar
+   *  says so, rather than reading as "nothing to publish". */
+  draftReadError: boolean;
 };
 
 // Studio read. Draft-preferring for the settings singleton (CE-3) AND the
@@ -36,5 +39,6 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
     skills: draft.skills ?? home.skills,
     settingsDraftState,
     draftDiffers: draft.differs,
+    draftReadError: draft.readError,
   };
 });
