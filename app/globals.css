@@ -878,6 +878,23 @@ a {
 .is-revealed .reveal-card:nth-child(5) { transition-delay: .70s; }
 .is-revealed .reveal-card:nth-child(6) { transition-delay: .80s; }
 
+/* The studio inline canvas renders ONE section in a static panel. RevealSection —
+   the only thing that ever adds `.is-revealed` — never runs there, so every
+   `.reveal-card` sat at its opacity:0 start state: the section card drew, but its
+   contents were invisible. That is the "empty sections" bug, and it hit the nine
+   block kinds that stagger their items (stats, steps, principles, features,
+   figures, devices, glance, issues, before/after).
+
+   Forces the END state, matching the reduced-motion block above rather than
+   inventing new values, and drops the transition so switching sections does not
+   replay a fade. Scoped to the canvas, which is the only place that opts in — the
+   public site never carries this class and keeps its scroll reveal. */
+.canvas-static .reveal-card {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal-panel {
     clip-path: none;

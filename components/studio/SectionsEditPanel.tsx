@@ -222,7 +222,16 @@ function SectionCanvas({
   }
   const s = adapted[0];
   return (
-    <div className="case-study overflow-hidden rounded-lg border border-ink-950/8 bg-canvas" onBlur={onBlur} onClick={onClick}>
+    // `canvas-static` is the visibility scope: the canvas is a static panel, so the
+    // in-view reveal that normally un-hides `.reveal-card` items never fires here.
+    // It sits on the WRAPPER rather than inside SectionRenderer so it covers every
+    // one of that component's branches (hero, web hero, quote band, standard) at
+    // once, and so no public component has to change to fix a studio-only bug.
+    <div
+      className="case-study canvas-static overflow-hidden rounded-lg border border-ink-950/8 bg-canvas"
+      onBlur={onBlur}
+      onClick={onClick}
+    >
       {s ? (
         <SectionRenderer section={s} web={web} noReveal editable={editable} />
       ) : (
