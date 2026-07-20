@@ -143,6 +143,36 @@ function setSrcAtPath(value: unknown, imagePath: string, src: string): unknown {
   return set(value, [...imagePath.split("."), "src"]);
 }
 
+/** Read a dotted path (e.g. "stats.0.value") out of a block value, for a no-op check. */
+function getAtPath(value: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>(
+    (node, k) => (node && typeof node === "object" ? (node as Record<string, unknown>)[k] : undefined),
+    value
+  );
+}
+
+/** CS-7d (extended) — immutable deep-set of a STRING at a dotted path within a block
+ *  value, the plain-text counterpart to setSrcAtPath. Powers inline editing of nested
+ *  fields (stat values, feature titles, glance labels, step labels, principle titles). */
+function setAtPath(value: unknown, path: string, next: string): unknown {
+  const set = (node: unknown, ks: string[]): unknown => {
+    if (ks.length === 0) return next;
+    const [k, ...rest] = ks;
+    if (/^\d+$/.test(k)) {
+      const arr = Array.isArray(node) ? [...node] : [];
+      arr[Number(k)] = set(arr[Number(k)], rest);
+      return arr;
+    }
+    const obj =
+      node && typeof node === "object" && !Array.isArray(node)
+        ? { ...(node as Record<string, unknown>) }
+        : {};
+    (obj as Record<string, unknown>)[k] = set((obj as Record<string, unknown>)[k], rest);
+    return obj;
+  };
+  return set(value, path.split("."));
+}
+
 /** CS-7c — the inline canvas: a live, READ-ONLY render of one section through the
  *  preview-mode adapter (placeholder for a missing image, never fail-loud) and the
  *  real SectionRenderer with `noReveal` so it stays visible in the panel. The
@@ -539,18 +569,26 @@ export default function SectionsEditPanel({
               setSection(selIdx, { ...values.sections[selIdx], [sf]: value } as RawSection);
               return;
             }
-            if (ds.editBlockIndex !== undefined && ds.editField === "text") {
+            if (ds.editBlockIndex !== undefined && ds.editValuePath) {
+              // A plain-string block field lost focus. Deep-set it at its dotted path
+              // (e.g. "text", "stats.0.value", "features.1.title") through the same
+              // setBlockValue seam the forms use; skip a no-op so a focus-then-blur
+              // never dirties the draft.
               const value = raw.replace(/\s*\n\s*/g, " ").trim();
               const blockIndex = Number(ds.editBlockIndex);
+              const path = ds.editValuePath;
               const curVal = (values.sections[selIdx].blocks[blockIndex]?.value ?? {}) as Record<string, unknown>;
-              if ((curVal.text ?? "") === value) return;
-              setBlockValue(ids.blockIds[selIdx][blockIndex], { ...curVal, text: value });
+              if ((getAtPath(curVal, path) ?? "") === value) return;
+              setBlockValue(
+                ids.blockIds[selIdx][blockIndex],
+                setAtPath(curVal, path, value) as Record<string, unknown>
+              );
             }
           };
           return (
             <div>
               <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-eyebrow text-ink-400">
-                <span>Live preview — click a title, eyebrow, quote, or image to edit it in place</span>
+                <span>Live preview — click most text (headings, stats, steps, labels, quotes) or an image to edit it in place. Rich text with **bold** edits in the fields below.</span>
                 {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
                 {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
               </div>

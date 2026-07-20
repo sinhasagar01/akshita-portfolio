@@ -53,15 +53,15 @@ export default function BlockRenderer({
     case "pullQuote":
       return <PullQuote text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
     case "glanceGrid":
-      return <GlanceGrid items={block.items} web={web} />;
+      return <GlanceGrid items={block.items} web={web} editable={editable} blockIndex={blockIndex} />;
     case "issueList":
       return <IssueList items={block.items} />;
     case "stepper":
-      return <Stepper steps={block.steps} web={web} />;
+      return <Stepper steps={block.steps} web={web} editable={editable} blockIndex={blockIndex} />;
     case "statCards":
-      return <StatCards heading={block.heading} stats={block.stats} web={web} />;
+      return <StatCards heading={block.heading} stats={block.stats} web={web} editable={editable} blockIndex={blockIndex} />;
     case "principleCards":
-      return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} web={web} />;
+      return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} web={web} editable={editable} blockIndex={blockIndex} />;
     case "figureGrid":
       return (
         <FigureGrid
