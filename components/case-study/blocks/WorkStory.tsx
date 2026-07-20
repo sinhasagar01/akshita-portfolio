@@ -240,7 +240,7 @@ export default function WorkStory({ features }: { features: Feature[] }) {
                 ref={(el) => {
                   unitRefs.current[k] = el;
                 }}
-                className="absolute inset-0 will-change-[transform,opacity,filter]"
+                className="absolute inset-0"
                 style={{ opacity: 0 }}
               >
                 {feat.screen && "body" in feat.screen && g.scrollable ? (

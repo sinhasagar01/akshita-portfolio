@@ -23,6 +23,7 @@ import { ListDetailLayout } from "./ListDetailLayout";
 import ProjectsEditPanel from "./ProjectsEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
+import { useFocusTrap } from "./useFocusTrap";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectListItem } from "@/lib/keystatic";
 
@@ -44,6 +45,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
   const [addError, setAddError] = useState("");
   const addingRef = useRef(false);
   const addInputRef = useRef<HTMLInputElement>(null);
+  const addDialogRef = useRef<HTMLDivElement>(null);
 
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
   const [deleteError, setDeleteError] = useState("");
   const deletingRef = useRef(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const deleteDialogRef = useRef<HTMLDivElement>(null);
 
   // Transient banner: fs-mode dev note AND the bespoke "can't remove" message.
   const [banner, setBanner] = useState("");
@@ -65,6 +68,10 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
   useEffect(() => {
     if (deleteTarget) cancelRef.current?.focus();
   }, [deleteTarget]);
+  // Trap Tab + return focus to the trigger while a dialog is open (initial focus and
+  // Escape are handled above / on the dialog itself).
+  useFocusTrap(addDialogRef, addOpen);
+  useFocusTrap(deleteDialogRef, deleteTarget !== null);
 
   const sections = items.map((p) => ({ id: p.slug, name: p.title }));
 
@@ -232,6 +239,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
           onClick={() => !addBusy && setAddOpen(false)}
         >
           <div
+            ref={addDialogRef}
             role="dialog"
             aria-modal="true"
             aria-label="Add project"
@@ -310,6 +318,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
           onClick={() => !deleteBusy && cancelDelete()}
         >
           <div
+            ref={deleteDialogRef}
             role="alertdialog"
             aria-modal="true"
             aria-label="Remove project"

@@ -8,9 +8,12 @@ export default function CustomCursor() {
 
   useEffect(() => {
     const fine = window.matchMedia("(pointer:fine)").matches;
-    if (!fine) return;
-
     const reduce = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+    // Fine pointer only, and never under reduced motion: the custom cursor is itself
+    // motion (the ring resizes/eases on hover) and it hides the OS pointer. Reduced-motion
+    // visitors keep their native cursor rather than an animated stand-in.
+    if (!fine || reduce) return;
+
     const html = document.documentElement;
     html.classList.add("has-custom-cursor");
 
@@ -32,10 +35,6 @@ export default function CustomCursor() {
       my = e.clientY;
       dot.style.left = mx + "px";
       dot.style.top = my + "px";
-      if (reduce) {
-        ring.style.left = mx + "px";
-        ring.style.top = my + "px";
-      }
       if (!shown) {
         shown = true;
         dot.style.opacity = "1";
@@ -88,16 +87,14 @@ export default function CustomCursor() {
     document.addEventListener("mouseover", onOver);
     document.addEventListener("mouseout", onOut);
 
-    if (!reduce) {
-      function loop() {
-        rx += (mx - rx) * 0.16;
-        ry += (my - ry) * 0.16;
-        ring.style.left = rx + "px";
-        ring.style.top = ry + "px";
-        rafId = requestAnimationFrame(loop);
-      }
+    function loop() {
+      rx += (mx - rx) * 0.16;
+      ry += (my - ry) * 0.16;
+      ring.style.left = rx + "px";
+      ring.style.top = ry + "px";
       rafId = requestAnimationFrame(loop);
     }
+    rafId = requestAnimationFrame(loop);
 
     return () => {
       html.classList.remove("has-custom-cursor");
