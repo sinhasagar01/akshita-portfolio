@@ -895,6 +895,31 @@ a {
 /* The studio canvas stands in for the case-study ROUTE, so it carries the same warm
    sand backdrop the live page paints behind its cards. Without it the cards sat on
    the global canvas beige and read a shade off from the real page. */
+/* The inline-canvas edit affordance (studio only — the case-study components emit it
+   only when `editable`). A dashed ring shows WHAT is editable before you hover, which
+   is the whole point: several fields sit in places nobody would think to click.
+   OUTLINE, not border, so adding it cannot shift the canvas layout by a pixel.
+   currentColor keeps it legible on both the cream cards and the dark hero band. */
+.cs-editable {
+  cursor: text;
+  border-radius: 4px;
+  outline: 1px dashed color-mix(in oklch, currentColor 32%, transparent);
+  outline-offset: 3px;
+  transition: outline-color .15s ease, background-color .15s ease;
+}
+.cs-editable:hover {
+  outline-color: color-mix(in oklch, var(--color-accent-500) 55%, transparent);
+}
+/* The selected state. Driven by an explicit class rather than :focus, because the
+   Selected rail takes focus the moment you click into it — a focus-based highlight
+   would vanish exactly while you were editing the field it points at. Focus keeps the
+   same treatment so keyboard users still see where they are. */
+.cs-editable.is-selected,
+.cs-editable:focus {
+  outline: 1px solid var(--color-accent-500);
+  background-color: color-mix(in oklch, var(--color-accent-500) 8%, transparent);
+}
+
 .canvas-surface {
   background-color: var(--color-case-study-sand);
 }
