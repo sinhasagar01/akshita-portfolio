@@ -153,7 +153,7 @@ export default function HeroCover({
 
           {/* One wide dashboard, full-width below the tagline */}
           <motion.div {...mp} variants={stackV} className="mt-9 flex w-full justify-center lg:mt-10">
-            <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} />
+            <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
           </motion.div>
 
           {/* Facts — a horizontal row below the dashboard */}
@@ -264,10 +264,10 @@ export default function HeroCover({
       >
         {data.glow && <GlowWord word={data.glow} />}
         <motion.div {...mp} variants={backV} className="lg:absolute">
-          <DeviceImage image={data.devices[0]} editable={editable} blockIndex={blockIndex} editPath="devices.0" />
+          <DeviceImage image={data.devices[0]} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
         </motion.div>
         <motion.div {...mp} variants={frontV}>
-          <DeviceImage image={data.devices[1]} editable={editable} blockIndex={blockIndex} editPath="devices.1" />
+          <DeviceImage image={data.devices[1]} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
         </motion.div>
       </motion.div>
     </div>
