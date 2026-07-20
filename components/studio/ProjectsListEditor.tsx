@@ -258,6 +258,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
             role="dialog"
             aria-modal="true"
             aria-label="Add project"
+            aria-describedby="add-proj-desc"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
               if (e.key === "Escape" && !addBusy) setAddOpen(false);
@@ -295,7 +296,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
                   className={inputCls.replace("text-[14px]", "resize-y text-[14px] leading-relaxed")}
                 />
               </label>
-              <p className="text-[11px] text-text-subtle">
+              <p id="add-proj-desc" className="text-[11px] text-text-subtle">
                 A new project starts as a stub. The title is its identity and can&rsquo;t be
                 changed here later, and the hero image and case study body are added after you
                 create it. New projects are added to the end of the list. Use the up and down

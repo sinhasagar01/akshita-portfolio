@@ -29,6 +29,7 @@ export default function PublishBar() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const discardingRef = useRef(false); // same double-submit guard as publishingRef
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const discardRef = useRef<HTMLButtonElement>(null);
 
   // A fresh edit (unpublished flips true) dismisses a stale terminal message —
   // the page-level equivalent of Hero's old edit()-time reset. Covers both the
@@ -197,7 +198,29 @@ export default function PublishBar() {
               "aria-label": "Discard confirmation",
               "aria-describedby": "discard-confirm-msg",
               onKeyDown: (e: React.KeyboardEvent) => {
-                if (e.key === "Escape") closeConfirm();
+                if (e.key === "Escape") {
+                  closeConfirm();
+                  return;
+                }
+                // role="alertdialog" promises modal semantics, so Tab must not
+                // wander out into the page behind it. The dialog is exactly two
+                // buttons (Cancel and Discard), so the trap is a wrap between
+                // them rather than a general focus-scope walk.
+                if (e.key !== "Tab") return;
+                const stops = [cancelRef.current, discardRef.current].filter(
+                  (el): el is HTMLButtonElement => el !== null && !el.disabled
+                );
+                if (stops.length === 0) return;
+                const first = stops[0];
+                const last = stops[stops.length - 1];
+                const active = document.activeElement;
+                if (e.shiftKey && active === first) {
+                  e.preventDefault();
+                  last.focus();
+                } else if (!e.shiftKey && active === last) {
+                  e.preventDefault();
+                  first.focus();
+                }
               },
             }
           : {})}
@@ -216,6 +239,7 @@ export default function PublishBar() {
               Cancel
             </button>
             <button
+              ref={discardRef}
               type="button"
               onClick={discard}
               disabled={discardStatus === "discarding"}

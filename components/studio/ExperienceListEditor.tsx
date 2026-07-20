@@ -262,6 +262,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
             role="dialog"
             aria-modal="true"
             aria-label="Add experience"
+            aria-describedby="add-exp-desc"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
               if (e.key === "Escape" && !addBusy) setAddOpen(false);
@@ -288,7 +289,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
                 placeholder="e.g. Acme, Bengaluru"
                 className={inputCls}
               />
-              <p className="mt-1 text-[11px] text-text-subtle">
+              <p id="add-exp-desc" className="mt-1 text-[11px] text-text-subtle">
                 Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New
                 entries are added to the end of the list. Use the up and down controls to move
                 them. Two entries can share a company name.
