@@ -149,20 +149,20 @@ sections:
         value:
           heading: ''
           stats:
-            - value: '4'
-              suffix: mo
-              body: From research to final design
-              tag: timeline
+            - value: '35'
+              suffix: '%'
+              body: Increase in new user adoption after the onboarding redesign
+              tag: adoption
+              highlighted: true
+            - value: '25'
+              suffix: '%'
+              body: Increase in user retention from personalization and customization
+              tag: retention
               highlighted: false
             - value: '2'
               suffix: ''
               body: Profiling depths, **basic** and **advanced**, on any data model
               tag: depths
-              highlighted: true
-            - value: '40'
-              suffix: '%'
-              body: Reduction in time spent on manual data quality checks
-              tag: quality checks
               highlighted: false
   - variant: default
     id: problem
