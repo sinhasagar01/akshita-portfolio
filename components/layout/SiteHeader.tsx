@@ -255,7 +255,7 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
                       className={[
                         "relative px-3.5 py-1.5 text-sm rounded-full select-none transition-colors duration-[--duration-base]",
                         isActive
-                          ? "text-[--color-accent-500] font-medium"
+                          ? "text-[--color-accent-600] font-medium"
                           : "text-[--color-text-secondary] nav-link",
                       ].join(" ")}
                     >
@@ -321,8 +321,13 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         ref={menuRef}
         id="mobile-menu"
         role="dialog"
-        aria-modal="true"
+        aria-modal={menuOpen || undefined}
         aria-label="Site navigation"
+        // When closed the menu is only clip-path-hidden, so without `inert` its links
+        // and the `aria-modal` dialog stay in the tab order + a11y tree (on desktop, where
+        // the burger is display:none, AND on mobile-when-closed). `inert` removes it for
+        // everyone while closed; the open state clears it so the focus trap works.
+        inert={!menuOpen}
         className={`header-mobile-menu${menuOpen ? " open" : ""}`}
       >
         <nav aria-label="Mobile site navigation" className="flex flex-col mt-auto">

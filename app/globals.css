@@ -50,8 +50,12 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-border:        var(--color-cream-300);
   --color-text-primary:  var(--color-ink-950);
   --color-text-secondary: var(--color-ink-600);
-  --color-text-muted:    var(--color-ink-400);
-  --color-text-subtle:   #A89D8D;   /* lighter subtext — section heading subtexts */
+  /* Muted + subtle are the lightest text tiers. Tuned to the lightest warm ink that
+     still clears WCAG AA 4.5:1 on the HARDEST light surface (canvas, oklch 92%): this
+     value measures 4.55:1 on canvas and 5.52:1 on cream-50, so small labels pass AA on
+     every surface. ink-400 (3.50:1) and the old #A89D8D subtle (2.55:1) both failed. */
+  --color-text-muted:    oklch(51% 0.016 66);
+  --color-text-subtle:   oklch(51% 0.016 66);
   --color-accent:        var(--color-accent-500);
 
   /* ============================================================

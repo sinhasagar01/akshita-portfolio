@@ -345,7 +345,7 @@ function VerticalStepper({
     <div
       className="relative"
       style={{ paddingLeft: "6px", marginTop: "28px" }}
-      role="tablist"
+      role="group"
       aria-label="Process stages"
     >
       {/* background rail */}
@@ -380,8 +380,8 @@ function VerticalStepper({
         return (
           <button
             key={stage.index}
-            role="tab"
-            aria-selected={isActive}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onSelect(i)}
             className="flex items-center gap-3 w-full cursor-pointer bg-transparent border-0 p-0 text-left"
             style={{ height: `${ROW_H}px`, position: "relative", zIndex: 3 }}
@@ -423,7 +423,7 @@ function VerticalStepper({
                 fontSize: "13px",
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: isActive ? "var(--color-accent-500)" : "var(--color-text-muted)",
+                color: isActive ? "var(--color-accent-600)" : "var(--color-text-muted)",
                 fontWeight: isActive ? 500 : 400,
                 transition: "color 0.3s",
                 fontFamily: "var(--font-body)",

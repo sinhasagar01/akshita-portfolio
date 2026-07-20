@@ -50,7 +50,7 @@ function isValidEmail(v: string) {
 
 // Shared input class — no border classes here, border applied via inline style (1.5px)
 const INPUT_BASE =
-  'w-full bg-transparent text-[20px] font-body text-[--color-text-primary] placeholder:text-[#c2b4a2] px-0 py-2 outline-none'
+  'w-full bg-transparent text-[20px] font-body text-[--color-text-primary] placeholder:text-[#6d645d] px-0 py-2 outline-none'
 
 // ---------------------------------------------------------------------------
 // StepContent — separate component so its useEffect fires on mount only,
@@ -184,9 +184,9 @@ function StepContent({
         )}
       </button>
 
-      {/* "press Enter" hint — 11px #c2b4a2 */}
+      {/* "press Enter" hint — 11px #6d645d */}
       {step.type !== 'textarea' && (
-        <p className="text-[11px] mt-3" style={{ color: '#c2b4a2' }}>
+        <p className="text-[11px] mt-3" style={{ color: '#6d645d' }}>
           press Enter
         </p>
       )}
@@ -504,7 +504,7 @@ export default function ContactSection({ settings }: Props) {
                 aria-hidden={showBack ? undefined : true}
                 className="font-body text-[13px] transition-opacity duration-300"
                 style={{
-                  color: '#94806f',
+                  color: '#6d645d',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
@@ -516,7 +516,7 @@ export default function ContactSection({ settings }: Props) {
               </button>
               <span
                 className="font-body text-[12px] tracking-[0.12em]"
-                style={{ color: '#94806f' }}
+                style={{ color: '#6d645d' }}
               >
                 {countLabel}
               </span>
