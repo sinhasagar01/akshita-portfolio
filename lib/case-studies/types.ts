@@ -29,6 +29,11 @@ export type ImgSpec = {
    *  CS-5, so emitting it changes no rendered markup. Optional because hand-authored
    *  ImgSpecs (boat-crest) omit it and default to phone. */
   frame?: "phone" | "browser" | "macbook";
+  /** Skip next/image optimization. Set by the adapter ONLY when it rewrote the
+   *  src to the owner-gated draft-image proxy, which the optimizer cannot fetch
+   *  (it refetches server-side without the owner cookie). Never set on the
+   *  public path. */
+  unoptimized?: boolean;
 };
 
 /** A device screenshot on a shelf, with an optional theme label. */

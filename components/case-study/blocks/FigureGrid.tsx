@@ -89,7 +89,7 @@ function Frame({
       className="relative block w-full overflow-hidden rounded-xl border bg-cream-100"
       style={{ borderColor: LINE, aspectRatio: aspect }}
     >
-      <Image src={item.image.src} alt={item.image.alt} fill sizes={sizes} className="object-contain" />
+      <Image src={item.image.src} alt={item.image.alt} fill sizes={sizes} className="object-contain" unoptimized={item.image.unoptimized} />
     </span>
   );
   if (!editable) return inner;

@@ -38,6 +38,26 @@ export function draftImageUrl(path: string): string {
   return `${DRAFT_IMAGE_ROUTE}?path=${encodeURIComponent(path)}`;
 }
 
+/**
+ * The src rewrite the studio preview hands to adaptSections.
+ *
+ * ONLY the listed paths are rewritten — the ones that actually changed on the
+ * draft branch. Everything else is already a real static asset on main, so it
+ * keeps its plain path and stays on the fast optimized route. Routing every
+ * image through the proxy would work but would trade image optimization and a
+ * static fetch for a GitHub round trip on each one, for no gain.
+ *
+ * Returns the src unchanged when there is nothing to rewrite, so the caller can
+ * pass it unconditionally.
+ */
+export function makeDraftSrcRewriter(
+  draftImages: readonly string[]
+): ((src: string) => string) | undefined {
+  if (draftImages.length === 0) return undefined;
+  const set = new Set(draftImages);
+  return (src) => (set.has(src) ? draftImageUrl(src) : src);
+}
+
 /** Content type for the extensions isSafeImagePath admits. */
 export function imageContentType(path: string): string {
   const ext = path.slice(path.lastIndexOf(".") + 1).toLowerCase();

@@ -89,7 +89,7 @@ function DeviceImageInner({
     return <WideFrame image={image} className={className} variant={image.frame as "browser" | "macbook"} priority={priority} />;
   }
 
-  const { src, alt, width, height, rotate, translate, z } = image;
+  const { src, alt, width, height, rotate, translate, z, unoptimized } = image;
   const hasTransform = rotate != null || translate != null;
   const transform = hasTransform
     ? `rotate(${rotate ?? 0}deg) translate(${translate?.[0] ?? 0}px, ${translate?.[1] ?? 0}px)`
@@ -110,6 +110,7 @@ function DeviceImageInner({
           sizes="(max-width: 1023px) 60vw, 288px"
           className="object-contain"
           priority={priority}
+          unoptimized={unoptimized}
         />
       </span>
     );
@@ -127,6 +128,7 @@ function DeviceImageInner({
       className={`cs-flatten max-w-full drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)] ${className ?? ""}`}
       style={{ ...sizing, transform, zIndex: z }}
       priority={priority}
+      unoptimized={unoptimized}
     />
   );
 }
@@ -149,7 +151,7 @@ function WideFrame({
   variant: "browser" | "macbook";
   priority?: boolean;
 }) {
-  const { src, alt, z } = image;
+  const { src, alt, z, unoptimized } = image;
 
   const screen = (
     <span className="relative block bg-cream-100" style={{ aspectRatio: WIDE_ASPECT }}>
@@ -162,6 +164,7 @@ function WideFrame({
         placeholder={typeof src === "string" ? undefined : "blur"}
         className="object-contain"
         priority={priority}
+        unoptimized={unoptimized}
       />
     </span>
   );

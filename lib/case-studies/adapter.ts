@@ -64,6 +64,16 @@ import type { SectionBlockKind, AssertComplete } from "./sections-raw";
  *  placeholders so a half-authored studio draft still renders. */
 export type AdaptMode = "ssg" | "preview";
 
+/** Everything resolved once per case study and carried down to every block, so a
+ *  new per-study option costs one field here instead of a parameter on each
+ *  adapter. Internal — callers pass the options object to adaptSections. */
+type AdaptCtx = {
+  mode: AdaptMode;
+  defaultFrame: Frame;
+  /** Optional per-image src rewrite (studio preview only, see adaptSections). */
+  rewriteSrc?: (src: string) => string;
+};
+
 /** The stand-in for an image the owner has not set yet. Only ever reachable in
  *  preview mode — the ssg path throws before it can be produced. */
 const MISSING_IMAGE_SRC = "/images/projects/placeholder-missing.webp";
@@ -174,19 +184,28 @@ function richOpt(v: unknown): Rich | undefined {
 
 /* --------------------------------------------------------- shape adapters */
 
-function adaptImgSpec(v: unknown, at: string, mode: AdaptMode, defaultFrame: Frame): ImgSpec {
+function adaptImgSpec(v: unknown, at: string, ctx: AdaptCtx): ImgSpec {
   const o = rec(v);
   const rawSrc = str(o.src);
   // GUARD SITE 1 — an unset image. ssg throws (a broken public build should
   // fail); preview substitutes the placeholder so the rest of the block renders.
-  if (rawSrc === "" && mode === "ssg") {
+  if (rawSrc === "" && ctx.mode === "ssg") {
     throw new Error(`${at}: image src is missing — upload an image or remove the block`);
   }
-  const src = rawSrc === "" ? MISSING_IMAGE_SRC : rawSrc;
+  const resolved = rawSrc === "" ? MISSING_IMAGE_SRC : rawSrc;
+  // The rewrite is the studio preview's draft-image hook. It is only ever
+  // supplied by the preview callers, so the public path takes the identity
+  // branch and the emitted spec is unchanged.
+  const src = ctx.rewriteSrc ? ctx.rewriteSrc(resolved) : resolved;
   const alt = rawSrc === "" ? MISSING_IMAGE_ALT : str(o.alt);
   const translateX = num(o.translateX);
   const translateY = num(o.translateY);
   const spec: ImgSpec = { src, alt };
+  // A rewritten src points at the owner-gated draft-image proxy, which the Next
+  // image optimizer would refetch WITHOUT the owner cookie and get a 401 for. So
+  // a rewritten image opts out of optimization; an untouched one never sets the
+  // flag, so the public spec is byte-identical.
+  if (src !== resolved) spec.unoptimized = true;
   const width = num(o.width);
   if (width !== undefined) spec.width = width;
   const rotate = num(o.rotate);
@@ -198,13 +217,13 @@ function adaptImgSpec(v: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
   if (z !== undefined) spec.z = z;
   // CS-4 — emit the resolved frame (block frame > template default > phone). No
   // component reads it yet, so this changes no rendered markup.
-  spec.frame = resolveFrame(o.frame, defaultFrame);
+  spec.frame = resolveFrame(o.frame, ctx.defaultFrame);
   return spec;
 }
 
-function adaptDeviceSpec(v: unknown, at: string, mode: AdaptMode, defaultFrame: Frame): DeviceSpec {
+function adaptDeviceSpec(v: unknown, at: string, ctx: AdaptCtx): DeviceSpec {
   const o = rec(v);
-  const spec: DeviceSpec = adaptImgSpec(v, at, mode, defaultFrame);
+  const spec: DeviceSpec = adaptImgSpec(v, at, ctx);
   const label = opt(o.label);
   if (label !== undefined) spec.label = label;
   const dotColor = opt(o.dotColor);
@@ -268,7 +287,7 @@ function assertNever(x: never): never {
   throw new Error(`unhandled block kind: ${String(x)}`);
 }
 
-function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Frame): Block {
+function adaptBlock(raw: unknown, at: string, ctx: AdaptCtx): Block {
   const o = rec(raw);
   const discriminant = str(o.discriminant);
   // An unknown discriminant throws in BOTH modes: it means the content and the
@@ -282,14 +301,14 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
   switch (kind) {
     case "heroCover": {
       const devices = arr(v.devices).map((d, i) =>
-        adaptDeviceSpec(d, `${at}.devices[${i}]`, mode, defaultFrame)
+        adaptDeviceSpec(d, `${at}.devices[${i}]`, ctx)
       );
       // GUARD SITE 2 — the device tuple. ssg throws; preview pads with the
       // placeholder (or truncates) so the hero still renders while the owner is
       // mid-edit. HeroCover indexes [0]/[1] unconditionally, so preview MUST
       // hand it exactly two.
       if (devices.length !== 2) {
-        if (mode === "ssg") {
+        if (ctx.mode === "ssg") {
           throw new Error(
             `${at}: heroCover.devices must be exactly 2 (back, front) — got ${devices.length}`
           );
@@ -326,7 +345,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
     case "deviceShelf": {
       const block: Block = {
         kind,
-        devices: arr(v.devices).map((d, i) => adaptDeviceSpec(d, `${at}.devices[${i}]`, mode, defaultFrame)),
+        devices: arr(v.devices).map((d, i) => adaptDeviceSpec(d, `${at}.devices[${i}]`, ctx)),
       };
       const glow = adaptGlow(v.glow);
       if (glow !== undefined) block.glow = glow;
@@ -396,7 +415,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
         items: arr(v.items).map((it, i): FigureItem => {
           const o2 = rec(it);
           const item: FigureItem = {
-            image: adaptImgSpec(o2.image, `${at}.items[${i}].image`, mode, defaultFrame),
+            image: adaptImgSpec(o2.image, `${at}.items[${i}].image`, ctx),
           };
           const title = opt(o2.title);
           if (title !== undefined) item.title = title;
@@ -418,7 +437,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
             category: str(o2.category),
             title: str(o2.title),
             body: rich(o2.body),
-            image: adaptImgSpec(o2.image, `${at}.features[${i}].image`, mode, defaultFrame),
+            image: adaptImgSpec(o2.image, `${at}.features[${i}].image`, ctx),
           };
         }),
       };
@@ -430,8 +449,8 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
           return {
             title: str(o2.title),
             tag: str(o2.tag),
-            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, mode, defaultFrame),
-            after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`, mode, defaultFrame),
+            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, ctx),
+            after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`, ctx),
             changes: arr(o2.changes).map((c): Change => {
               const o3 = rec(c);
               return { emphasis: str(o3.emphasis), rest: str(o3.rest) };
@@ -464,7 +483,7 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
         }),
       };
     case "annotatedImage": {
-      const block: Block = { kind, image: adaptImgSpec(v.image, `${at}.image`, mode, defaultFrame) };
+      const block: Block = { kind, image: adaptImgSpec(v.image, `${at}.image`, ctx) };
       const scrawl = adaptScrawl(v.scrawl);
       if (scrawl !== undefined) block.scrawl = scrawl;
       const callouts = arr(v.callouts).map((c): Callout => {
@@ -504,12 +523,26 @@ const LAYOUTS = new Set(["stack", "split"]);
  */
 export function adaptSections(
   raw: unknown,
-  opts?: { mode?: AdaptMode; template?: unknown }
+  opts?: {
+    mode?: AdaptMode;
+    template?: unknown;
+    /**
+     * Rewrite each image `src` as it is adapted. The studio preview passes one
+     * that routes DRAFT-ONLY images through the owner-gated proxy, because a
+     * just-uploaded image lives on the draft branch and its public path 404s
+     * until publish. A rewritten image is marked `unoptimized`.
+     *
+     * Public callers pass nothing and get the identity behaviour, so the SSG
+     * output is unchanged.
+     */
+    rewriteSrc?: (src: string) => string;
+  }
 ): Section[] {
   const mode: AdaptMode = opts?.mode ?? "ssg";
   // CS-4 — the case-study template's default frame, resolved ONCE per case study
   // and applied to every image unless a block overrides it. Absent -> "phone".
   const defaultFrame = templateDefaultFrame(opts?.template);
+  const ctx: AdaptCtx = { mode, defaultFrame, rewriteSrc: opts?.rewriteSrc };
   return arr(raw).map((s, i) => {
     const at = `sections[${i}]`;
     const o = rec(s);
@@ -526,7 +559,7 @@ export function adaptSections(
     const section: Section = {
       variant: variant as Section["variant"],
       layout: layout as Section["layout"],
-      blocks: arr(o.blocks).map((b, j) => adaptBlock(b, `${at}.blocks[${j}]`, mode, defaultFrame)),
+      blocks: arr(o.blocks).map((b, j) => adaptBlock(b, `${at}.blocks[${j}]`, ctx)),
     };
     const id = opt(o.id);
     if (id !== undefined) section.id = id;
