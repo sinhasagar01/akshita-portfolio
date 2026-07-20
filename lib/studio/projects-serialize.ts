@@ -76,6 +76,33 @@ export function serializeProjectEntry(
 }
 
 /**
+ * Set ONLY `orderIndex`, preserving the body verbatim and every other head field
+ * byte-for-byte — the reorder counterpart to serializeProjectEntry.
+ *
+ * It is a separate function rather than an extra key on the edit patch on
+ * purpose: the edit sanitizer explicitly REFUSES orderIndex ("managed by
+ * ordering, not editable here"), because a client must never be able to smuggle
+ * a position into a content save. Reorder is its own capability with its own
+ * server-computed value, exactly as create is.
+ */
+export function serializeProjectOrder(raw: string, orderIndex: number): SerializeResult {
+  const { head, body } = splitAtBody(raw);
+  const opts = detectHeadOptions(head);
+  if (!opts) {
+    return {
+      ok: false,
+      error: {
+        code: "unsupported_format",
+        message: "this project file has not been migrated to the sections format",
+      },
+    };
+  }
+  const obj = (load(head) ?? {}) as Record<string, unknown>;
+  obj.orderIndex = orderIndex;
+  return { ok: true, bytes: dump(obj, opts) + body };
+}
+
+/**
  * F-3 — serialize a NEW project STUB: head fields plus an empty `body: []`, no
  * mdoc files (locked decision — /studio creates the head, Keystatic authors the
  * rich body). facts is a full four-key block ("" for the ones not provided), in
