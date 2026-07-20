@@ -51,8 +51,8 @@ sections:
             - label: Timeline
               value: 4 months
           devices:
-            - src: /images/projects/fosfor-data-profiling/screen-a.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/dataset-list.webp
+              alt: Fosfor dataset list showing which datasets have data profiling enabled
               width: 248
               rotate: -6
               translateX: -86
@@ -61,7 +61,7 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-              alt: Fosfor data profiling table listing each column with its data type, null proportion, distinct count, and min and max values
+              alt: Fosfor data profiling table with per column type, null proportion, distinct count, and min and max values
               width: 288
               rotate: null
               translateX: null
@@ -316,8 +316,8 @@ sections:
       - discriminant: deviceShelf
         value:
           devices:
-            - src: /images/projects/fosfor-data-profiling/screen-a.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/dataset-list.webp
+              alt: Registering a dataset and turning on data profiling in Fosfor
               width: 248
               rotate: -4
               translateX: null
@@ -326,8 +326,8 @@ sections:
               frame: browser
               label: ''
               dotColor: ''
-            - src: /images/projects/fosfor-data-profiling/screen-b.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/profiling-overview.webp
+              alt: The data profiling result, a clear per column read on quality and distribution
               width: 288
               rotate: null
               translateX: null
@@ -371,7 +371,7 @@ sections:
                 across a whole data model, replacing manual inspection.
               image:
                 src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-                alt: Fosfor data profiling table listing each column with its data type, null proportion, distinct count, and min and max values
+                alt: The profiling overview computing statistical metrics across a whole data model
                 width: 248
                 rotate: null
                 translateX: null
@@ -384,8 +384,8 @@ sections:
                 Two depths of profiling, so users can take a quick read or go
                 deep without leaving the flow.
               image:
-                src: /images/projects/fosfor-data-profiling/screen-b.webp
-                alt: Placeholder screen, replace via the dashboard
+                src: /images/projects/fosfor-data-profiling/dataset-sample.webp
+                alt: A dataset overview with sample rows, the starting point for basic and advanced profiling
                 width: 248
                 rotate: null
                 translateX: null
@@ -398,8 +398,8 @@ sections:
                 Quality issues, anomalies, and missing values flagged where the
                 eye lands first.
               image:
-                src: /images/projects/fosfor-data-profiling/screen-c.webp
-                alt: Placeholder screen, replace via the dashboard
+                src: /images/projects/fosfor-data-profiling/profiling-overview.webp
+                alt: Coloured proportions in the profiling table surfacing likely data quality issues
                 width: 248
                 rotate: null
                 translateX: null
@@ -424,8 +424,8 @@ sections:
       - discriminant: deviceShelf
         value:
           devices:
-            - src: /images/projects/fosfor-data-profiling/screen-a.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/dataset-list.webp
+              alt: The dataset list with data profiling status per table
               width: 248
               rotate: -5
               translateX: -60
@@ -434,8 +434,8 @@ sections:
               frame: browser
               label: ''
               dotColor: ''
-            - src: /images/projects/fosfor-data-profiling/screen-b.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/project-overview.webp
+              alt: A project overview showing connected data and insight modules
               width: 268
               rotate: null
               translateX: null
@@ -444,8 +444,8 @@ sections:
               frame: browser
               label: ''
               dotColor: ''
-            - src: /images/projects/fosfor-data-profiling/screen-c.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/dataset-sample.webp
+              alt: A dataset overview with its schema, record count, and sample data
               width: 248
               rotate: 5
               translateX: 60
@@ -486,16 +486,16 @@ sections:
             - title: Data quality checks
               tag: Manual to instant
               before:
-                src: /images/projects/fosfor-data-profiling/screen-a.webp
-                alt: Placeholder screen, replace via the dashboard
+                src: /images/projects/fosfor-data-profiling/dataset-sample.webp
+                alt: The workflow before profiling, raw sample rows with no read on quality
                 width: 248
                 rotate: null
                 translateX: null
                 translateY: null
                 z: null
               after:
-                src: /images/projects/fosfor-data-profiling/screen-b.webp
-                alt: Placeholder screen, replace via the dashboard
+                src: /images/projects/fosfor-data-profiling/profiling-overview.webp
+                alt: The workflow after profiling, every column scored for quality and distribution
                 width: 248
                 rotate: null
                 translateX: null
