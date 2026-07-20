@@ -15,7 +15,7 @@ import {
 } from "./site-settings-format";
 import {
   authHeaders,
-  getDefaultBranchHeadOid,
+  getBaseBranchHeadOid,
   getBranchHeadOid,
   createBranchRef,
   deleteBranchRef,
@@ -103,7 +103,7 @@ async function resolveDraftBase(branch: string): Promise<DraftBase> {
   try {
     const draftHead = await getBranchHeadOid(branch);
     if (draftHead) return { ok: true, baseOid: draftHead, createFromMain: false };
-    const mainOid = (await getDefaultBranchHeadOid()).oid;
+    const mainOid = (await getBaseBranchHeadOid()).oid;
     return { ok: true, baseOid: mainOid, createFromMain: true };
   } catch (e) {
     return {
@@ -274,7 +274,7 @@ export async function commitSettingsPhoto(opts: {
 }): Promise<FilesCommitResult> {
   let raw: string;
   try {
-    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getDefaultBranchHeadOid()).oid;
+    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
     raw = await getFileTextAtRef(SETTINGS_PATH, baseOid);
   } catch (e) {
     return {

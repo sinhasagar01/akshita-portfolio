@@ -5,11 +5,67 @@
 // (process.env.STUDIO_GITHUB_TOKEN); it is never sent to the client. Uses raw
 // fetch to the GitHub API: REST git refs + the GraphQL createCommitOnBranch
 // mutation (the same mutation Keystatic uses), so GH-2 can commit real content.
-const REPO = "sinhasagar01/akshita-portfolio";
+// The repo studio reads and writes. CONFIGURABLE, because it used to be a hard
+// constant — which meant running dev in github mode (the only mode where any
+// write actually happens) pointed straight at the production repo's draft branch.
+// There was no way to exercise save, create, delete, upload, or publish without
+// touching the real thing, so in practice they went unexercised.
+//
+// Point it at a fork or a scratch repo to work safely. Unset, it is the
+// production repo exactly as before.
+const PRODUCTION_REPO = "sinhasagar01/akshita-portfolio";
+const REPO = (() => {
+  const configured = process.env.STUDIO_GITHUB_REPO?.trim();
+  if (!configured) return PRODUCTION_REPO;
+  // Each segment must START with an alphanumeric and contain no "..", so the
+  // value can never be a relative path. It is interpolated straight into the API
+  // URL, and a permissive character class alone would let "../other" walk out of
+  // /repos/ — config is trusted, but a guard with a hole in it is not a guard.
+  const validSegment = /^[A-Za-z0-9][\w.-]*$/;
+  const segments = configured.split("/");
+  if (
+    segments.length !== 2 ||
+    configured.includes("..") ||
+    !segments.every((seg) => validSegment.test(seg))
+  ) {
+    throw new Error(`STUDIO_GITHUB_REPO must be "owner/name", got "${configured}"`);
+  }
+  return configured;
+})();
+
+/**
+ * The branch studio treats as published — the compare base for drafts and the
+ * merge target for publish.
+ *
+ * ONE definition, deliberately. Reads used to compare against a literal "main"
+ * while writes resolved the repo's default branch through a separate API call,
+ * so the two could disagree about what "published" meant. Now they cannot.
+ */
+export const BASE_BRANCH = process.env.STUDIO_BASE_BRANCH?.trim() || "main";
+
+/** True when studio is pointed at the real production repo. Used to warn in dev. */
+export const IS_PRODUCTION_REPO = REPO === PRODUCTION_REPO;
 const API = "https://api.github.com";
 const GRAPHQL = `${API}/graphql`;
 
+// Warned once, lazily, on the first call that actually needs credentials — so it
+// fires exactly when a dev session is about to touch a real repo, and never
+// during a build or an fs-mode run that makes no API call at all.
+let warnedProductionRepo = false;
+
 export function authHeaders(): Record<string, string> {
+  if (
+    !warnedProductionRepo &&
+    IS_PRODUCTION_REPO &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    warnedProductionRepo = true;
+    console.warn(
+      `[studio] github mode is pointed at the PRODUCTION repo (${REPO}). ` +
+        "Writes land on its draft branch. Set STUDIO_GITHUB_REPO to a fork or " +
+        "scratch repo to work safely."
+    );
+  }
   const token = process.env.STUDIO_GITHUB_TOKEN;
   if (!token) throw new Error("STUDIO_GITHUB_TOKEN is not set");
   return {
@@ -42,18 +98,22 @@ export async function getFileBytesAtRef(path: string, ref: string): Promise<Uint
   return new Uint8Array(await res.arrayBuffer());
 }
 
-/** The repo default branch and its current head commit oid. */
-export async function getDefaultBranchHeadOid(): Promise<{ branch: string; oid: string }> {
-  const repoRes = await fetch(`${API}/repos/${REPO}`, { headers: authHeaders(), cache: "no-store" });
-  if (!repoRes.ok) throw new Error(`repo fetch failed: ${repoRes.status} ${await repoRes.text()}`);
-  const branch = (await repoRes.json()).default_branch as string;
-  const refRes = await fetch(`${API}/repos/${REPO}/git/ref/heads/${branch}`, {
+/**
+ * BASE_BRANCH and its current head commit oid.
+ *
+ * It used to ask the API for the repo's default_branch first, which cost an extra
+ * request per write AND was a second, independent answer to "what is published"
+ * — the reads never asked, they assumed "main". Both now come from BASE_BRANCH,
+ * so a repo whose published branch is not "main" is one env var, not a mismatch.
+ */
+export async function getBaseBranchHeadOid(): Promise<{ branch: string; oid: string }> {
+  const refRes = await fetch(`${API}/repos/${REPO}/git/ref/heads/${BASE_BRANCH}`, {
     headers: authHeaders(),
     cache: "no-store",
   });
   if (!refRes.ok) throw new Error(`ref fetch failed: ${refRes.status} ${await refRes.text()}`);
   const oid = (await refRes.json()).object.sha as string;
-  return { branch, oid };
+  return { branch: BASE_BRANCH, oid };
 }
 
 export async function branchExists(branch: string): Promise<boolean> {

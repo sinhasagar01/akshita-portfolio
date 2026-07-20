@@ -15,7 +15,7 @@ import {
 import {
   branchExists,
   deleteBranchRef,
-  getDefaultBranchHeadOid,
+  getBaseBranchHeadOid,
   mergeBranch,
   compareBranches,
 } from "./github-commit";
@@ -61,7 +61,7 @@ export async function publishSiteSettings(): Promise<PublishResult> {
     if (!(await branchExists(DRAFT_BRANCH))) {
       return { ok: true, merged: false, reason: "no_draft" };
     }
-    base = await getDefaultBranchHeadOid();
+    base = await getBaseBranchHeadOid();
   } catch (e) {
     return { ok: false, error: { code: "read_failed", message: messageOf(e) } };
   }
