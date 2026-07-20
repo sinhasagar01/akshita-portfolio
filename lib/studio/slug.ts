@@ -33,3 +33,42 @@ export function slugify(
   }
   return { ok: true, slug };
 }
+
+/**
+ * The maximum `-N` suffix tried before giving up. Far above any real collection,
+ * and bounded so a pathological input cannot spin.
+ */
+const MAX_SLUG_ATTEMPTS = 50;
+
+/**
+ * The first free slug for `base`, suffixing `-2`, `-3`, … past the taken ones.
+ *
+ * WHY THIS EXISTS. The slug is derived from the entry's human name (company for
+ * experience, title for projects), so two genuinely different entries can derive
+ * the same slug — two roles at one company is an ordinary CV, and it used to be
+ * rejected outright as `slug_taken`. Suffixing keeps the identity unique (it is
+ * the filename) while letting both entries keep the same display name, which is
+ * what the owner actually typed.
+ *
+ * Starts at `-2` rather than `-1`, so the pair reads "acme, acme-2" — the first
+ * one is not retroactively renamed, and the numbering matches how a person would
+ * count them.
+ */
+export function freeSlug(
+  base: string,
+  taken: ReadonlySet<string>
+): { ok: true; slug: string } | { ok: false; error: SaveError } {
+  if (!taken.has(base)) return { ok: true, slug: base };
+  for (let n = 2; n <= MAX_SLUG_ATTEMPTS; n++) {
+    const candidate = `${base}-${n}`;
+    if (!taken.has(candidate)) return { ok: true, slug: candidate };
+  }
+  return {
+    ok: false,
+    error: {
+      code: "slug_taken",
+      field: base,
+      message: `too many entries named like "${base}"`,
+    },
+  };
+}

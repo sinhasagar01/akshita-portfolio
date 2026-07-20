@@ -143,7 +143,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
         setSummary("");
         setBanner("Add needs github mode (dev).");
       } else if (res.status === 409) {
-        setAddError("A project with that title already exists.");
+        setAddError("Too many entries with that name. Give this one a different name.");
       } else if (res.status === 400) {
         setAddError("Use a title with letters or numbers.");
       } else {
@@ -296,9 +296,10 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
                 />
               </label>
               <p className="text-[11px] text-text-subtle">
-                A new project starts as a stub — the title is its identity and can&rsquo;t be changed
-                here later; the hero image and case study body are added after you create it. New projects are
-                added to the end of the list (the oldest position); reordering isn&rsquo;t available here yet.
+                A new project starts as a stub. The title is its identity and can&rsquo;t be
+                changed here later, and the hero image and case study body are added after you
+                create it. New projects are added to the end of the list. Use the up and down
+                controls to move them.
               </p>
               {addError && (
                 <p className="text-[12px] text-accent-600" aria-live="polite">

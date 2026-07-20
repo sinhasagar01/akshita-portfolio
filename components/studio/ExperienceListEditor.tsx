@@ -146,7 +146,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
         setCompany("");
         setBanner("Add needs github mode (dev).");
       } else if (res.status === 409) {
-        setAddError("An entry for that company already exists.");
+        setAddError("Too many entries with that name. Give this one a different name.");
       } else if (res.status === 400) {
         setAddError("Use a company name with letters or numbers.");
       } else {
@@ -289,9 +289,9 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
                 className={inputCls}
               />
               <p className="mt-1 text-[11px] text-text-subtle">
-                Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New entries
-                are added to the end of the list (the oldest position); reordering isn&rsquo;t available
-                here yet.
+                Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New
+                entries are added to the end of the list. Use the up and down controls to move
+                them. Two entries can share a company name.
               </p>
               {addError && (
                 <p className="text-[12px] text-accent-600" aria-live="polite">

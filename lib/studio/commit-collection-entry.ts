@@ -37,7 +37,7 @@ import {
   heroImageBlobPath,
   heroImageBlobPathFromValue,
 } from "./hero-image-path";
-import { slugify } from "./slug";
+import { slugify, freeSlug } from "./slug";
 import { getBranchHeadOid, getDefaultBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
 import { BESPOKE_SLUGS } from "../case-studies/types";
@@ -85,23 +85,30 @@ function serializeExperienceCreate(input: ExperienceCreateInput, orderIndex: num
 }
 
 /**
- * The highest orderIndex across a collection's existing entries at the base ref,
- * or -1 when the collection is empty (so a first create lands at 0). Reads the
- * base the commit will use (draft head if present, else main). Small collections,
- * so the per-entry reads are cheap.
+ * One scan of a collection at the base ref, giving BOTH facts a create needs: the
+ * highest orderIndex (−1 when empty, so a first create lands at 0) and the set of
+ * slugs already in use (for the auto-suffix). One tree read + the same per-entry
+ * reads that the orderIndex max already cost, so uniqueness is free.
+ *
+ * Reads the base the commit will use (draft head if present, else main).
  */
-async function maxOrderIndex(collection: CollectionName, branch: string): Promise<number> {
+async function scanCollection(
+  collection: CollectionName,
+  branch: string
+): Promise<{ maxOrderIndex: number; slugs: Set<string> }> {
   const baseOid = (await getBranchHeadOid(branch)) ?? (await getDefaultBranchHeadOid()).oid;
   const tree = await getTreeRecursive(baseOid);
   const re = COLLECTION_ENTRY_RE[collection];
   const entryPaths = tree.filter((t) => t.type === "blob" && re.test(t.path)).map((t) => t.path);
+  const slugs = new Set<string>();
   let max = -1;
   for (const path of entryPaths) {
+    slugs.add(path.slice(path.lastIndexOf("/") + 1, -".yaml".length));
     const raw = await getFileTextAtRef(path, baseOid);
     const oi = (load(raw) as { orderIndex?: unknown } | null)?.orderIndex;
     if (typeof oi === "number" && oi > max) max = oi;
   }
-  return max;
+  return { maxOrderIndex: max, slugs };
 }
 
 // --- EDIT (today's behavior): the file MUST exist at the base, else not_found. ---
@@ -154,23 +161,31 @@ async function createEntry(
 
   const derived = slugify(slugSeed);
   if (!derived.ok) return { ok: false, error: derived.error };
-  const slug = derived.slug;
 
   // orderIndex = max(existing)+1, EXPLICIT (never the asymmetric missing-value
   // default: projects sort 99 = last, experience 0 = top of the résumé).
   // DOUBLE BASE-RESOLUTION: this scan resolves the base, then commitFileToDraft
   // re-resolves internally; a concurrent commit in that window could make the
-  // assigned orderIndex stale. Best-effort append ordering, not a correctness
-  // invariant — expectedHeadOid still guards the write. Negligible for single-owner.
-  let orderIndex: number;
+  // assigned orderIndex stale, or a slug taken. Best-effort — expectedHeadOid
+  // still guards the write and the transform below still refuses an existing
+  // file, so the worst case is a typed slug_taken, never a clobber. Negligible
+  // for single-owner.
+  let scan: { maxOrderIndex: number; slugs: Set<string> };
   try {
-    orderIndex = (await maxOrderIndex(collection, opts.branch)) + 1;
+    scan = await scanCollection(collection, opts.branch);
   } catch (e) {
     return {
       ok: false,
       error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
     };
   }
+  const orderIndex = scan.maxOrderIndex + 1;
+
+  // AUTO-SUFFIX. Two entries can legitimately derive one slug (two roles at the
+  // same company), so a collision picks the next free "-N" instead of refusing.
+  const free = freeSlug(derived.slug, scan.slugs);
+  if (!free.ok) return { ok: false, error: free.error };
+  const slug = free.slug;
 
   const result = await commitFileToDraft({
     path: COLLECTION_PATH[collection](slug),
