@@ -172,17 +172,15 @@ sections:
                 **Decision Designer**
               tag: personas
               highlighted: true
-            - value: '12'
-              suffix: wks
-              body: From strategy to a tested prototype
-              tag: timeline
+            - value: '40'
+              suffix: '%'
+              body: Faster time to insight in moderated testing
+              tag: time to insight
               highlighted: false
-            - value: '4'
-              suffix: ''
-              body: >-
-                Layers in the companion architecture, context, interaction,
-                response, and memory
-              tag: architecture
+            - value: '80'
+              suffix: '%'
+              body: Task completion success in usability tests
+              tag: task completion
               highlighted: false
   - variant: default
     id: problem
@@ -573,9 +571,10 @@ sections:
               Designing for three personas at once taught me to find the shared
               spine of an experience before tailoring the edges.
             - >-
-              If I were taking it further, I would measure whether the companion
-              actually shortened the path from data to decision in real use,
-              which is the result the project still needs.
+              Moderated testing bore that out. Time to insight dropped by about
+              40 percent and task completion reached eight in ten, so the shared
+              surface earned its place. The next thing I would watch is whether
+              those gains hold in everyday production use, not just a test.
   - variant: default
     id: closing
     index: ''
