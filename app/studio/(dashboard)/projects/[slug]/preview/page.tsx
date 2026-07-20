@@ -30,6 +30,8 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
 
   const draft = await getCaseStudyDraftState(slug);
   const rawSections = draft.source === "draft" ? draft.rawSections : live.rawSections;
+  // Same branch as the sections above (see the body editor for why).
+  const template = draft.source === "draft" ? (draft.template ?? "") : live.template;
 
   const study: CaseStudy = {
     slug,
@@ -41,7 +43,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
     // public render path stays unwired until CS-6b (live layout).
     sections: adaptSections(rawSections, {
       mode: "preview",
-      template: live.template,
+      template,
       // An image uploaded since the last publish lives only on the draft branch,
       // so its public path 404s here. Route those — and only those — through the
       // owner-gated proxy, so the preview shows the image the owner just added.
@@ -49,7 +51,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
     }),
     // CS-7b — the template also drives the Bold-gallery web treatments, so preview
     // and live move together.
-    template: live.template,
+    template,
   };
 
   const isDraft = draft.source === "draft";

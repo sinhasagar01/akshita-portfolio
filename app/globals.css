@@ -18,6 +18,9 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-cream-200: oklch(93.5% 0.025 76);
   --color-cream-300: oklch(88.0% 0.032 74);
   --color-reveal-sand: oklch(85.0% 0.040 67);   /* #E3CFB6 approx — panel start color */
+  --color-case-study-sand: oklch(88.5% 0.030 80); /* warm sand behind a case study — the
+     backdrop cards sit on. A token because the studio canvas has to match it exactly;
+     two literals would drift and the preview would quietly stop looking like the page. */
 
   --color-ink-950: oklch(14.0% 0.018 60);
   --color-ink-800: oklch(26.0% 0.018 60);
@@ -889,6 +892,13 @@ a {
    inventing new values, and drops the transition so switching sections does not
    replay a fade. Scoped to the canvas, which is the only place that opts in — the
    public site never carries this class and keeps its scroll reveal. */
+/* The studio canvas stands in for the case-study ROUTE, so it carries the same warm
+   sand backdrop the live page paints behind its cards. Without it the cards sat on
+   the global canvas beige and read a shade off from the real page. */
+.canvas-surface {
+  background-color: var(--color-case-study-sand);
+}
+
 .canvas-static .reveal-card {
   opacity: 1;
   transform: none;
@@ -1067,7 +1077,7 @@ a {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-color: oklch(88.5% 0.030 80);
+  background-color: var(--color-case-study-sand);
   pointer-events: none;
 }
 

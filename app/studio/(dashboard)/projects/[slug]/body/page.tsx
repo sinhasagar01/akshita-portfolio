@@ -28,6 +28,9 @@ export default async function CaseStudyBodyPage({ params }: Props) {
 
   const draft = await getCaseStudyDraftState(slug);
   const rawSections = draft.source === "draft" ? draft.rawSections : live.rawSections;
+  // Same branch as the sections above. Reading one from draft and the other from
+  // live let a saved Mobile/Web change compose the old way until publish.
+  const template = draft.source === "draft" ? (draft.template ?? "") : live.template;
   const sections = Array.isArray(rawSections) ? rawSections : [];
 
   return (
@@ -58,7 +61,7 @@ export default async function CaseStudyBodyPage({ params }: Props) {
       <SectionsEditPanel
         slug={slug}
         sections={sections as RawSection[]}
-        template={live.template}
+        template={template}
         draftImages={draft.draftImages}
       />
     </>

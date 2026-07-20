@@ -183,6 +183,52 @@ function setAtPath(value: unknown, path: string, next: string): unknown {
  *  `.case-study` scope pulls in the real cream-card + dark-band styling, and `web`
  *  gives the Bold-gallery treatment when the project is template=web. It only reads
  *  the current draft values — no state, no writes. */
+/** The live content width: `container-x`'s max-width (80rem). Rendering the canvas
+ *  at exactly this and scaling down is what makes the preview proportional to the
+ *  real page instead of a squeezed version of it. */
+const CANVAS_WIDTH = 1280;
+
+/**
+ * Render at CANVAS_WIDTH, then scale to whatever the pane actually is.
+ *
+ * Only ever scales DOWN (capped at 1), so a wide pane shows the section at true
+ * size rather than blown up. The pane's height is driven from the scaled content,
+ * otherwise the transform would leave the original unscaled height as dead space
+ * underneath.
+ *
+ * Mount-only, with NO content dependency: the ResizeObserver on the surface already
+ * fires for anything that changes its height — switching section, editing a field,
+ * an image loading. Depending on the section object instead would rebuild the
+ * observer on every keystroke, since the form replaces it immutably on each edit.
+ */
+function useFitToWidth() {
+  const paneRef = useRef<HTMLDivElement>(null);
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [height, setHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const pane = paneRef.current;
+    const surface = surfaceRef.current;
+    if (!pane || !surface) return;
+    const measure = () => {
+      const next = Math.min(1, pane.clientWidth / CANVAS_WIDTH);
+      setScale(next);
+      setHeight(surface.offsetHeight * next);
+    };
+    measure();
+    // Observes the pane (window/layout changes) and the surface (content growing as
+    // images load or a field is edited). Writing the pane's HEIGHT cannot change
+    // either observed width, so this settles rather than looping.
+    const ro = new ResizeObserver(measure);
+    ro.observe(pane);
+    ro.observe(surface);
+    return () => ro.disconnect();
+  }, []);
+
+  return { paneRef, surfaceRef, scale, height };
+}
+
 function SectionCanvas({
   section,
   web,
@@ -221,24 +267,42 @@ function SectionCanvas({
     adapted = [];
   }
   const s = adapted[0];
+  const { paneRef, surfaceRef, scale, height } = useFitToWidth();
   return (
     // `canvas-static` is the visibility scope: the canvas is a static panel, so the
     // in-view reveal that normally un-hides `.reveal-card` items never fires here.
     // It sits on the WRAPPER rather than inside SectionRenderer so it covers every
     // one of that component's branches (hero, web hero, quote band, standard) at
     // once, and so no public component has to change to fix a studio-only bug.
+    //
+    // `canvas-surface` paints the case-study route's own backdrop, so the card sits
+    // on the same colour it does live rather than on the global canvas beige.
     <div
-      className="case-study canvas-static overflow-hidden rounded-lg border border-ink-950/8 bg-canvas"
+      ref={paneRef}
+      className="case-study canvas-static canvas-surface overflow-hidden rounded-lg border border-ink-950/8"
+      style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
     >
-      {s ? (
-        <SectionRenderer section={s} web={web} noReveal editable={editable} />
-      ) : (
-        <p className="px-4 py-6 text-center text-[12px] text-ink-500">
-          This section can’t be previewed yet — finish its required fields.
-        </p>
-      )}
+      {/* The section renders at the LIVE content width and is then scaled to fit the
+          pane, rather than being rendered into whatever width the pane happens to be.
+          The site's breakpoints key off the WINDOW, so a narrow pane still gets the
+          desktop rules — it was just squeezing a ~1064px layout into ~700px, which is
+          why multi-column blocks looked nothing like the page. `container-x` supplies
+          the same max-width and padding the live <main> does. */}
+      <div
+        ref={surfaceRef}
+        className="container-x"
+        style={{ width: CANVAS_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}
+      >
+        {s ? (
+          <SectionRenderer section={s} web={web} noReveal editable={editable} />
+        ) : (
+          <p className="px-4 py-6 text-center text-[12px] text-ink-500">
+            This section can’t be previewed yet — finish its required fields.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
