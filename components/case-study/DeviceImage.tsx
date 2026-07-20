@@ -40,6 +40,7 @@ export default function DeviceImage({
   editable = false,
   blockIndex,
   editPath,
+  priority = false,
 }: {
   image: ImgSpec;
   className?: string;
@@ -50,8 +51,12 @@ export default function DeviceImage({
   editable?: boolean;
   blockIndex?: number;
   editPath?: string;
+  /** Phase 5 — mark the case-study hero device as the LCP image so next/image
+   *  preloads it instead of lazy-loading. Off by default (below-the-fold images stay
+   *  lazy). */
+  priority?: boolean;
 }) {
-  const inner = <DeviceImageInner image={image} className={className} />;
+  const inner = <DeviceImageInner image={image} className={className} priority={priority} />;
   if (!editable) return inner;
   return (
     <span className="relative block" data-edit-block-index={blockIndex} data-edit-image-path={editPath}>
@@ -71,15 +76,17 @@ export default function DeviceImage({
 function DeviceImageInner({
   image,
   className,
+  priority = false,
 }: {
   image: ImgSpec;
   className?: string;
+  priority?: boolean;
 }) {
   // CS-5 — a wide frame (browser / MacBook) is a whole different chrome and aspect.
   // Phone and absent fall through to the existing markup UNTOUCHED (the byte-identical
   // gate), so every existing image and all of boat-crest render exactly as before.
   if (isWideFrame(image.frame)) {
-    return <WideFrame image={image} className={className} variant={image.frame as "browser" | "macbook"} />;
+    return <WideFrame image={image} className={className} variant={image.frame as "browser" | "macbook"} priority={priority} />;
   }
 
   const { src, alt, width, height, rotate, translate, z } = image;
@@ -102,6 +109,7 @@ function DeviceImageInner({
           fill
           sizes="(max-width: 1023px) 60vw, 288px"
           className="object-contain"
+          priority={priority}
         />
       </span>
     );
@@ -118,6 +126,7 @@ function DeviceImageInner({
       sizes="(max-width: 1023px) 60vw, 288px"
       className={`cs-flatten max-w-full drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)] ${className ?? ""}`}
       style={{ ...sizing, transform, zIndex: z }}
+      priority={priority}
     />
   );
 }
@@ -133,10 +142,12 @@ function WideFrame({
   image,
   className,
   variant,
+  priority = false,
 }: {
   image: ImgSpec;
   className?: string;
   variant: "browser" | "macbook";
+  priority?: boolean;
 }) {
   const { src, alt, z } = image;
 
@@ -150,6 +161,7 @@ function WideFrame({
         // StaticImageData carries a blur placeholder; a content-path string has none.
         placeholder={typeof src === "string" ? undefined : "blur"}
         className="object-contain"
+        priority={priority}
       />
     </span>
   );

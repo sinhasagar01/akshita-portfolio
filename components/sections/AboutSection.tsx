@@ -74,7 +74,7 @@ export default function AboutSection({ settings }: Props) {
                 alt="Portrait of Akshita"
                 fill
                 className="object-cover object-center"
-                sizes="(max-width: 768px) 100vw, 46vw"
+                sizes="(max-width: 1023px) 100vw, 46vw"
               />
             ) : (
               <ImagePlaceholder label="900 × 1200" />

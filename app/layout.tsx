@@ -39,7 +39,10 @@ const caveat = Caveat({
   weight: ["400", "700"],
   variable: "--font-doodle-loaded",
   display: "swap",
-  preload: true,
+  // Not preloaded: Caveat is the annotation/doodle face, used below the fold and never
+  // the LCP element, so preloading it only makes it contend with the three above-the-fold
+  // faces (Fraunces, DM Sans, Kaushan) for bandwidth during the critical window.
+  preload: false,
 });
 
 export const metadata: Metadata = {

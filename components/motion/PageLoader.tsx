@@ -79,7 +79,16 @@ export default function PageLoader() {
       resetToTop(l)
     }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // First-visit-only: the brand loader plays once per session. Subsequent hard loads
+    // / reloads within the session skip it, so real content is the LCP paint instead of
+    // waiting behind the 1400ms overlay. Reduced motion always skips. sessionStorage can
+    // throw in locked-down privacy modes, so a failure degrades to "show the loader".
+    let alreadySeen = false
+    try {
+      alreadySeen = sessionStorage.getItem('akshita:loaderSeen') === '1'
+    } catch {}
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || alreadySeen) {
       finish()
       setGone(true)
       requestAnimationFrame(() => restore())
@@ -88,6 +97,10 @@ export default function PageLoader() {
         lenisRef.current?.start()
       }
     }
+
+    try {
+      sessionStorage.setItem('akshita:loaderSeen', '1')
+    } catch {}
 
     const el = overlayRef.current
     if (!el) return

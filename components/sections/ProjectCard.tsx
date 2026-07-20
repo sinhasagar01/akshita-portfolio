@@ -56,7 +56,7 @@ export default function ProjectCard({ project }: Props) {
         {/* Folder surface — lifts the whole card on hover */}
         <div
           className="pc-fold relative border border-[--color-border] rounded-[12px] bg-[--color-surface] p-2 group-hover:-translate-y-[6px]"
-          style={{ transition: "transform .45s cubic-bezier(.22,1,.36,1) background: #ede3d5;", background: "#ede3d5" }}
+          style={{ transition: "transform .45s cubic-bezier(.22,1,.36,1)", background: "#ede3d5" }}
         >
 
           {/* Case study tab */}
