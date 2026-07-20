@@ -471,6 +471,19 @@ export default function SectionsEditPanel({
   const [selectedField, setSelectedField] = useState<SelectedField | null>(null);
   const [selectedDraft, setSelectedDraft] = useState("");
 
+  // Clear the selection whenever the focused section changes.
+  //
+  // The rail addresses a field by (blockIndex, path) WITHIN the focused section, so a
+  // selection that outlives a section switch points at the same address in a
+  // different section. Leaving it bound meant the rail showed the previous section's
+  // text while the canvas showed the new one, and blurring it would have written that
+  // stale text straight into the new section's field — a silent overwrite of content
+  // the owner never touched.
+  useEffect(() => {
+    setSelectedField(null);
+    setSelectedDraft("");
+  }, [selectedSectionId]);
+
   // Cancel discards local edits; return to the board so selection can't point at
   // a section the revert removed.
   const handleCancel = () => {
