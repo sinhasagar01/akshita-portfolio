@@ -129,6 +129,24 @@ sections:
               value: >-
                 A faster, more trustworthy first step in the data to decision
                 workflow.
+      - discriminant: figureGrid
+        value:
+          heading: ''
+          items:
+            - image:
+                src: /images/projects/fosfor-data-profiling/profiling-techniques.webp
+                alt: A tree of data profiling techniques, single field methods like summary statistics and distributions, and multiple field methods like dependencies and relationships
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: ''
+              body: >-
+                Profiling splits into single field methods (summary statistics,
+                data types, values, and distributions) and multiple field
+                methods that surface dependencies and relationships across
+                columns.
   - variant: default
     id: impact
     index: '02'

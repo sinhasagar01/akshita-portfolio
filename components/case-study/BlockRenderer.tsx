@@ -7,6 +7,7 @@ import IssueList from "./blocks/IssueList";
 import Stepper from "./blocks/Stepper";
 import StatCards from "./blocks/StatCards";
 import PrincipleCards from "./blocks/PrincipleCards";
+import FigureGrid from "./blocks/FigureGrid";
 import FeatureRows from "./blocks/FeatureRows";
 import WorkStory from "./blocks/WorkStory";
 import BeforeAfter from "./blocks/BeforeAfter";
@@ -61,6 +62,15 @@ export default function BlockRenderer({
       return <StatCards heading={block.heading} stats={block.stats} web={web} />;
     case "principleCards":
       return <PrincipleCards heading={block.heading} subhead={block.subhead} cards={block.cards} web={web} />;
+    case "figureGrid":
+      return (
+        <FigureGrid
+          heading={block.heading}
+          items={block.items}
+          editable={editable}
+          blockIndex={blockIndex}
+        />
+      );
     case "featureRows":
       return <FeatureRows features={block.features} editable={editable} blockIndex={blockIndex} />;
     case "featureStory":
