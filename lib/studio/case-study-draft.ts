@@ -44,9 +44,22 @@ export type CaseStudyDraftState = {
    *  from the compare response this function already fetches. Empty when the
    *  sections came from live, because live sections can only reference main. */
   draftImages: string[];
+  /** The draft's `template`, or null when the sections came from live.
+   *
+   *  Sections were already draft-preferring while `template` was still read from
+   *  LIVE, so flipping Mobile/Web in Details and saving left the canvas and the
+   *  preview composing the OLD way until publish — the two halves of one render
+   *  decision disagreeing about which branch they were on. It comes off the same
+   *  entry `sections` does, so surfacing it costs nothing. */
+  template: string | null;
 };
 
-const LIVE: CaseStudyDraftState = { source: "live", rawSections: null, draftImages: [] };
+const LIVE: CaseStudyDraftState = {
+  source: "live",
+  rawSections: null,
+  draftImages: [],
+  template: null,
+};
 
 /** public/images/x.webp -> /images/x.webp, for image files only. */
 const IMAGE_FILE_RE = /^public(\/images\/.+\.(?:webp|png|jpe?g|svg))$/i;
@@ -86,10 +99,12 @@ const readCaseStudyDraftCached = unstable_cache(
       .map((f) => IMAGE_FILE_RE.exec(f.filename)?.[1])
       .filter((p): p is string => p !== undefined);
 
+    const record = entry as Record<string, unknown>;
     return {
       source: "draft",
-      rawSections: (entry as Record<string, unknown>).sections,
+      rawSections: record.sections,
       draftImages,
+      template: typeof record.template === "string" ? record.template : "",
     };
   },
   ["studio-case-study-draft"],
