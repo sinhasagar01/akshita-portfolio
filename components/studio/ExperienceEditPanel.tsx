@@ -31,6 +31,7 @@ type ExperienceFields = {
   title: string;
   startDate: string;
   endDate: string;
+  description: string;
   location: string;
 };
 
@@ -41,9 +42,10 @@ export default function ExperienceEditPanel({
   title,
   startDate,
   endDate,
+  description,
   location,
 }: Props) {
-  const initial: ExperienceFields = { title, startDate, endDate, location };
+  const initial: ExperienceFields = { title, startDate, endDate, description, location };
   // Report differs + pending up to the page Publish bar (now in the dashboard layout).
   const { setUnpublished } = usePublishSignal();
 
@@ -61,6 +63,7 @@ export default function ExperienceEditPanel({
       v.title !== b.title ||
       v.startDate !== b.startDate ||
       v.endDate !== b.endDate ||
+      v.description !== b.description ||
       v.location !== b.location,
     saveExtras: { collection: "experience", slug },
     onSaved: () => setUnpublished(true),
@@ -153,6 +156,23 @@ export default function ExperienceEditPanel({
             />
           </label>
         </div>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+            What you did
+          </span>
+          <textarea
+            rows={4}
+            value={values.description}
+            onChange={(e) => setField("description", e.target.value)}
+            onBlur={saveDraft}
+            placeholder={"Led the redesign of the mechanic app.\nShipped a design system used by three teams."}
+            className={`${inputCls} resize-y`}
+          />
+          <span className="text-[10px] text-text-subtle">
+            One line per point. Each line renders as its own paragraph under the role.
+          </span>
+        </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Location</span>
