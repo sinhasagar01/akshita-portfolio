@@ -3,32 +3,33 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import RevealSection from "@/components/motion/RevealSection";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
+import { parseRich } from "@/lib/case-studies/adapter";
 
 type Props = { settings: SiteSettingsEntry | null };
 
-// COUPLING (review, About-C decision a): the bio's bold emphasis is keyed to
-// these literal phrases. Editing aboutCopy to remove or reword them silently
-// drops the emphasis (renderWithBold finds no match and renders plain text, it
-// never errors). If the bio changes, update this list. The clean future fix is
-// inline **bold** markers in the bio, deferred to keep About-C to two fields.
-const BOLD_SPANS = ["LTIMindtree", "20,000 merchants"] as const;
-
+// The bio's bold emphasis is authored INLINE, as **bold** markers in aboutCopy.
+//
+// It used to be keyed to a hardcoded list of literal phrases, so rewording the
+// bio silently dropped the emphasis — the one thing an owner editing their own
+// bio in /studio is most likely to do. Marking it inline puts the emphasis in
+// the content, where the person writing the sentence controls it.
+//
+// The parser is the case studies' parseRich, deliberately: **bold** already
+// means this in every case-study text field, so the site has ONE definition of
+// the marker rather than a second dialect for About. Only the rendering is
+// local, because About's <strong> carries its own weight and colour.
 function renderWithBold(text: string) {
-  const nodes: React.ReactNode[] = [];
-  let remaining = text;
-  for (const term of BOLD_SPANS) {
-    const idx = remaining.indexOf(term);
-    if (idx === -1) continue;
-    if (idx > 0) nodes.push(remaining.slice(0, idx));
-    nodes.push(
-      <strong key={term} style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
-        {term}
+  const parsed = parseRich(text);
+  if (typeof parsed === "string") return parsed;
+  return parsed.map((run, i) =>
+    typeof run === "string" ? (
+      run
+    ) : (
+      <strong key={i} style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
+        {run.b}
       </strong>
-    );
-    remaining = remaining.slice(idx + term.length);
-  }
-  nodes.push(remaining);
-  return nodes;
+    )
+  );
 }
 
 export default function AboutSection({ settings }: Props) {
