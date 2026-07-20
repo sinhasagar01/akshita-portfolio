@@ -20,7 +20,8 @@ import {
   type ReactNode,
 } from "react";
 import { useItemList } from "../useItemList";
-import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconImage } from "../icons";
+import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "../icons";
+import ImageThumb from "../ImageThumb";
 
 // CS-3 — the Content | Style split. A section's fields are grouped into two tabs;
 // this context carries which tab is active, and TabGroup wraps a run of fields so
@@ -359,9 +360,7 @@ export function BlockImageField({
     <div className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
       <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
-        <span className="grid size-6 shrink-0 place-items-center rounded text-ink-400 [&>svg]:size-3.5">
-          <IconImage />
-        </span>
+        <ImageThumb src={src} />
         {src ? (
           <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{src}</code>
         ) : (
