@@ -39,9 +39,17 @@ export type CaseStudyDraftState = {
   /** The RAW sections value (unmapped, exactly like CaseStudyData.rawSections),
    *  or null when source is "live" — the caller then uses the live read. */
   rawSections: unknown;
+  /** PUBLIC paths (/images/**) of images that changed on the draft branch, so the
+   *  preview can route just those through the draft-image proxy. Free — it comes
+   *  from the compare response this function already fetches. Empty when the
+   *  sections came from live, because live sections can only reference main. */
+  draftImages: string[];
 };
 
-const LIVE: CaseStudyDraftState = { source: "live", rawSections: null };
+const LIVE: CaseStudyDraftState = { source: "live", rawSections: null, draftImages: [] };
+
+/** public/images/x.webp -> /images/x.webp, for image files only. */
+const IMAGE_FILE_RE = /^public(\/images\/.+\.(?:webp|png|jpe?g|svg))$/i;
 
 const projectFile = (slug: string) => `content/projects/${slug}.yaml`;
 
@@ -70,7 +78,19 @@ const readCaseStudyDraftCached = unstable_cache(
     });
     const entry = await reader.collections.projects.read(slug);
     if (!entry) return LIVE;
-    return { source: "draft", rawSections: (entry as Record<string, unknown>).sections };
+
+    // Same compare response, no extra request. A removed image is skipped: it is
+    // gone from the draft, so the live path is the only one that can still serve.
+    const draftImages = cmp.files
+      .filter((f) => f.status !== "removed")
+      .map((f) => IMAGE_FILE_RE.exec(f.filename)?.[1])
+      .filter((p): p is string => p !== undefined);
+
+    return {
+      source: "draft",
+      rawSections: (entry as Record<string, unknown>).sections,
+      draftImages,
+    };
   },
   ["studio-case-study-draft"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }

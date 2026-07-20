@@ -55,7 +55,12 @@ export default async function CaseStudyBodyPage({ params }: Props) {
           </span>
         )}
       </div>
-      <SectionsEditPanel slug={slug} sections={sections as RawSection[]} template={live.template} />
+      <SectionsEditPanel
+        slug={slug}
+        sections={sections as RawSection[]}
+        template={live.template}
+        draftImages={draft.draftImages}
+      />
     </>
   );
 }

@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCaseStudyData } from "@/lib/keystatic";
 import { getCaseStudyDraftState } from "@/lib/studio/case-study-draft";
+import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import type { CaseStudy } from "@/lib/case-studies/types";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
@@ -38,7 +39,14 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
     // CS-6a — pass the case-study template so a frame-less image resolves to the
     // template's default frame (web -> browser, else phone) in the preview. The
     // public render path stays unwired until CS-6b (live layout).
-    sections: adaptSections(rawSections, { mode: "preview", template: live.template }),
+    sections: adaptSections(rawSections, {
+      mode: "preview",
+      template: live.template,
+      // An image uploaded since the last publish lives only on the draft branch,
+      // so its public path 404s here. Route those — and only those — through the
+      // owner-gated proxy, so the preview shows the image the owner just added.
+      rewriteSrc: makeDraftSrcRewriter(draft.draftImages),
+    }),
     // CS-7b — the template also drives the Bold-gallery web treatments, so preview
     // and live move together.
     template: live.template,

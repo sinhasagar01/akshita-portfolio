@@ -24,15 +24,19 @@
 // substring in onRemoveItem) and is a URL-driven page shell keyed to `?item=`, so
 // two nested instances would fight over one param. The composition that works here
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
+import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
 import { BLOCK_REGISTRY, BLOCK_LABELS, type BlockFormProps } from "./blocks/registry";
 import { SectionShellForm, emptySection } from "./blocks/SectionShell";
+
+/** Stable empty default — a fresh [] each render would rebuild the rewriter. */
+const NO_DRAFT_IMAGES: readonly string[] = [];
 import { FieldTabProvider, type FieldTab } from "./blocks/fields";
 import { IconGrid, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
@@ -183,12 +187,15 @@ function SectionCanvas({
   section,
   web,
   template,
+  rewriteSrc,
   editable = false,
   onBlur,
   onReplaceImage,
 }: {
   section: RawSection;
   web: boolean;
+  /** Routes draft-only image srcs through the owner-gated proxy — see the panel. */
+  rewriteSrc?: (src: string) => string;
   template: string;
   /** CS-7d — activate in-place text editing on the rendered plain-string fields. */
   editable?: boolean;
@@ -209,7 +216,7 @@ function SectionCanvas({
   };
   let adapted: ReturnType<typeof adaptSections> = [];
   try {
-    adapted = adaptSections([section], { mode: "preview", template });
+    adapted = adaptSections([section], { mode: "preview", template, rewriteSrc });
   } catch {
     adapted = [];
   }
@@ -231,15 +238,21 @@ export default function SectionsEditPanel({
   slug,
   sections: initialSections,
   template = "",
+  draftImages = NO_DRAFT_IMAGES,
 }: {
   slug: string;
   sections: readonly RawSection[];
   /** CS-7c — the case-study template, so the inline canvas renders the same
    *  Bold-gallery web treatment (or the mobile composition) the live page shows. */
   template?: string;
+  /** PUBLIC paths of images that changed on the draft branch. An image uploaded
+   *  since the last publish exists only there, so its plain path 404s in the
+   *  canvas; these are routed through the owner-gated draft-image proxy instead. */
+  draftImages?: readonly string[];
 }) {
   const { setUnpublished } = usePublishSignal();
   const web = template === "web";
+  const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
 
   const nextId = useRef(0);
   const mint = () => `x${nextId.current++}`;
@@ -596,6 +609,7 @@ export default function SectionsEditPanel({
                 section={values.sections[selIdx]}
                 web={web}
                 template={template}
+                rewriteSrc={rewriteSrc}
                 editable
                 onBlur={onBlur}
                 onReplaceImage={(blockIndex, path) => {
