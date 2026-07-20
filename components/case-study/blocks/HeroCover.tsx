@@ -5,6 +5,7 @@ import { motion, useReducedMotion, useAnimationControls } from "motion/react";
 import type { HeroCover as HeroCoverData } from "@/lib/case-studies/types";
 import DeviceImage, { isWideFrame } from "../DeviceImage";
 import GlowWord from "../GlowWord";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /* "Rise / calm" — one-time mount entrance (docs/case-study-page/hero-motion-spec.md).
    Phones rise from a soft blur with a front-leads parallax; copy resolves in sync.
@@ -96,6 +97,12 @@ export default function HeroCover({
   const wide = isWideFrame(data.devices[0]?.frame) || isWideFrame(data.devices[1]?.frame);
 
   const mp = { initial: "hidden" as const, animate: controls };
+  // Every plain string in the hero is tagged for in-place editing. The watermark is
+  // deliberately NOT: it is aria-hidden, pointer-events-none and select-none by
+  // design, so making it clickable would mean undoing all three on the public render
+  // for one decorative word. It stays in the form.
+  const aff = editable ? EDIT_AFFORD : "";
+  const edit = (path: string, label: string) => inlineEditProps(editable, blockIndex, path, label);
 
   if (wide) {
     // The single primary dashboard (device[1], the front phone in the mobile hero).
@@ -129,7 +136,8 @@ export default function HeroCover({
             <motion.div
               {...mp}
               variants={fadeUp(0.09)}
-              className="text-[11px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted"
+              {...edit("eyebrow", "Edit hero eyebrow")}
+              className={`text-[11px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
             >
               {data.eyebrow}
             </motion.div>
@@ -137,7 +145,12 @@ export default function HeroCover({
 
           <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-on-dark leading-[0.98] tracking-tight mt-4">
             <span className="block overflow-hidden">
-              <motion.span {...mp} variants={titleV} className="block">
+              <motion.span
+                {...mp}
+                variants={titleV}
+                {...edit("title", "Edit hero title")}
+                className={`block${aff}`}
+              >
                 {data.title}
               </motion.span>
             </span>
@@ -146,7 +159,8 @@ export default function HeroCover({
           <motion.h2
             {...mp}
             variants={fadeUp(0.385)}
-            className="font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] mt-4 max-w-[640px]"
+            {...edit("thesis", "Edit hero thesis")}
+            className={`font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] mt-4 max-w-[640px]${aff}`}
           >
             {data.thesis}
           </motion.h2>
@@ -158,12 +172,20 @@ export default function HeroCover({
 
           {/* Facts — a horizontal row below the dashboard */}
           <motion.dl {...mp} variants={fadeUp(0.7)} className="mt-8 flex flex-wrap gap-x-10 gap-y-5">
-            {data.meta.map((item) => (
-              <div key={item.label}>
-                <dt className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted">
+            {data.meta.map((item, i) => (
+              <div key={i}>
+                <dt
+                  {...edit(`meta.${i}.label`, "Edit fact label")}
+                  className={`text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
+                >
                   {item.label}
                 </dt>
-                <dd className="text-[1rem] font-semibold text-on-dark mt-1.5">{item.value}</dd>
+                <dd
+                  {...edit(`meta.${i}.value`, "Edit fact value")}
+                  className={`text-[1rem] font-semibold text-on-dark mt-1.5${aff}`}
+                >
+                  {item.value}
+                </dd>
               </div>
             ))}
           </motion.dl>
@@ -201,7 +223,10 @@ export default function HeroCover({
         {data.eyebrow && (
           <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
             <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
-            <span className="text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
+            <span
+              {...edit("eyebrow", "Edit hero eyebrow")}
+              className={`text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${aff}`}
+            >
               {data.eyebrow}
             </span>
           </motion.div>
@@ -209,7 +234,12 @@ export default function HeroCover({
 
         <h1 className="font-display font-normal text-6xl text-ink-950 leading-[1] tracking-tight mt-5">
           <span className="block overflow-hidden">
-            <motion.span {...mp} variants={titleV} className="block">
+            <motion.span
+              {...mp}
+              variants={titleV}
+              {...edit("title", "Edit hero title")}
+              className={`block${aff}`}
+            >
               {data.title}
             </motion.span>
           </span>
@@ -218,12 +248,18 @@ export default function HeroCover({
         <motion.h2
           {...mp}
           variants={fadeUp(0.385)}
-          className="font-display italic text-[34px] text-accent-600 leading-[1.15] mt-3"
+          {...edit("thesis", "Edit hero thesis")}
+          className={`font-display italic text-[34px] text-accent-600 leading-[1.15] mt-3${aff}`}
         >
           {data.thesis}
         </motion.h2>
 
-        <motion.p {...mp} variants={fadeUp(0.56)} className="text-lg text-ink-600 leading-normal mt-6 max-w-[42ch]">
+        <motion.p
+          {...mp}
+          variants={fadeUp(0.56)}
+          {...edit("position", "Edit hero position statement")}
+          className={`text-lg text-ink-600 leading-normal mt-6 max-w-[42ch]${aff}`}
+        >
           {data.position}
         </motion.p>
 
@@ -234,8 +270,21 @@ export default function HeroCover({
             className="inline-flex items-center gap-2.5 rounded-full border bg-cream-200 px-4 py-2 text-[0.9rem] font-semibold text-ink-950 mt-6"
             style={{ borderColor: "color-mix(in oklch, var(--color-ink-950) 12%, transparent)" }}
           >
-            <span className="font-bold text-accent-500">{data.ratingChip.stat}</span>
-            {data.ratingChip.rest}
+            <span
+              {...edit("ratingChip.stat", "Edit rating stat")}
+              className={`font-bold text-accent-500${aff}`}
+            >
+              {data.ratingChip.stat}
+            </span>
+            {/* Wrapped ONLY when editable: on the public site this stays a bare text
+                node, so the rendered markup is unchanged. */}
+            {editable ? (
+              <span {...edit("ratingChip.rest", "Edit rating chip text")} className={aff}>
+                {data.ratingChip.rest}
+              </span>
+            ) : (
+              data.ratingChip.rest
+            )}
           </motion.p>
         )}
 
@@ -244,12 +293,20 @@ export default function HeroCover({
           variants={fadeUp(0.7)}
           className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px]"
         >
-          {data.meta.map((item) => (
-            <div key={item.label}>
-              <dt className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle">
+          {data.meta.map((item, i) => (
+            <div key={i}>
+              <dt
+                {...edit(`meta.${i}.label`, "Edit fact label")}
+                className={`text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle${aff}`}
+              >
                 {item.label}
               </dt>
-              <dd className="text-[1rem] font-semibold text-ink-950 mt-1.5">{item.value}</dd>
+              <dd
+                {...edit(`meta.${i}.value`, "Edit fact value")}
+                className={`text-[1rem] font-semibold text-ink-950 mt-1.5${aff}`}
+              >
+                {item.value}
+              </dd>
             </div>
           ))}
         </motion.dl>
