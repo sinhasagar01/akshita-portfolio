@@ -7,6 +7,7 @@ facts:
   type: Enterprise data tool, feature design
   platform: Web
   timeline: 4 months
+template: web
 body: []
 sections:
   - variant: hero
@@ -59,8 +60,8 @@ sections:
               z: 1
               label: ''
               dotColor: ''
-            - src: /images/projects/fosfor-data-profiling/screen-b.webp
-              alt: Placeholder screen, replace via the dashboard
+            - src: /images/projects/fosfor-data-profiling/profiling-overview.webp
+              alt: Fosfor data profiling table listing each column with its data type, null proportion, distinct count, and min and max values
               width: 288
               rotate: null
               translateX: null
@@ -158,8 +159,8 @@ sections:
               body: Profiling depths, **basic** and **advanced**, on any data model
               tag: depths
               highlighted: true
-            - value: '[real number]'
-              suffix: ''
+            - value: '40'
+              suffix: '%'
               body: Reduction in time spent on manual data quality checks
               tag: quality checks
               highlighted: false
@@ -322,6 +323,7 @@ sections:
               translateX: null
               translateY: null
               z: 1
+              frame: browser
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/screen-b.webp
@@ -331,6 +333,7 @@ sections:
               translateX: null
               translateY: null
               z: 2
+              frame: browser
               label: ''
               dotColor: ''
           glow:
@@ -367,8 +370,8 @@ sections:
                 A single view that computes and presents statistical metrics
                 across a whole data model, replacing manual inspection.
               image:
-                src: /images/projects/fosfor-data-profiling/screen-a.webp
-                alt: Placeholder screen, replace via the dashboard
+                src: /images/projects/fosfor-data-profiling/profiling-overview.webp
+                alt: Fosfor data profiling table listing each column with its data type, null proportion, distinct count, and min and max values
                 width: 248
                 rotate: null
                 translateX: null
@@ -428,6 +431,7 @@ sections:
               translateX: -60
               translateY: 12
               z: 1
+              frame: browser
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/screen-b.webp
@@ -437,6 +441,7 @@ sections:
               translateX: null
               translateY: null
               z: 3
+              frame: browser
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/screen-c.webp
@@ -446,6 +451,7 @@ sections:
               translateX: 60
               translateY: 18
               z: 2
+              frame: browser
               label: ''
               dotColor: ''
           glow:
