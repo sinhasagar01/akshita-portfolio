@@ -133,13 +133,18 @@ export default function PageLoader() {
 
     el.getBoundingClientRect()
 
+    // Timings tuned so the staggered tile fade completes within the ~700ms hold (the
+    // stagger max + the transition must not exceed the timeout below, or the overlay
+    // unmounts mid-fade). Shortened from ~1400ms to lift first-visit LCP (Lighthouse and
+    // every first-time visitor see this path; repeat visits already skip it) while
+    // keeping the brand entrance.
     tileEls.forEach((t, i) => {
       const col = i % COLS
       const delay =
         pattern === 'scatter'
-          ? Math.random() * 900
-          : (col / COLS) * 850 + Math.random() * 220
-      t.style.transition = 'opacity .38s ease'
+          ? Math.random() * 380
+          : (col / COLS) * 300 + Math.random() * 90
+      t.style.transition = 'opacity .3s ease'
       t.style.transitionDelay = delay + 'ms'
       t.style.opacity = '0'
     })
@@ -148,7 +153,7 @@ export default function PageLoader() {
       finish()
       restore()
       setGone(true)
-    }, 1400)
+    }, 700)
 
     return () => {
       clearTimeout(timer)
