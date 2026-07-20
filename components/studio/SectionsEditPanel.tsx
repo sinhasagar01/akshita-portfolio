@@ -229,6 +229,63 @@ function useFitToWidth() {
   return { paneRef, surfaceRef, scale, height };
 }
 
+/**
+ * What the Selected rail is currently editing. Either a SECTION-shell string
+ * (eyebrow/title) or a plain-string field inside a block, addressed by the same
+ * (blockIndex, dotted path) pair the canvas markers already carry — so the rail
+ * writes through exactly the same seams the inline edit does, with no second
+ * source of truth for a field's value.
+ */
+type SelectedField =
+  | { kind: "section"; field: "eyebrow" | "title"; label: string }
+  | { kind: "block"; blockIndex: number; path: string; label: string };
+
+/**
+ * The design's right-hand rail: the one field you clicked, editable as a normal
+ * control. It exists because inline contentEditable is great for a quick word change
+ * and poor for anything longer — no wrapping control, no undo affordance, and on a
+ * scaled canvas the text is small. Clicking the canvas selects; typing here writes.
+ */
+function SelectedRail({
+  selected,
+  value,
+  onChange,
+  onCommit,
+}: {
+  selected: SelectedField | null;
+  value: string;
+  onChange: (v: string) => void;
+  onCommit: () => void;
+}) {
+  return (
+    <aside className="sticky top-4 rounded-xl border border-ink-950/8 bg-cream-50 p-3.5">
+      <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+        {selected ? `Selected · ${selected.label}` : "Selected"}
+      </p>
+      {selected ? (
+        <textarea
+          key={
+            selected.kind === "section"
+              ? `s:${selected.field}`
+              : `b:${selected.blockIndex}:${selected.path}`
+          }
+          rows={3}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onCommit}
+          aria-label={selected.label}
+          className="mt-2 w-full resize-y rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+        />
+      ) : null}
+      <p className="mt-2 text-[11px] text-text-subtle">
+        {selected
+          ? "Edits here and on the canvas are the same field."
+          : "Click any dashed element on the canvas to edit it here. The title and facts come from Details."}
+      </p>
+    </aside>
+  );
+}
+
 function SectionCanvas({
   section,
   web,
@@ -237,6 +294,8 @@ function SectionCanvas({
   editable = false,
   onBlur,
   onReplaceImage,
+  onSelectField,
+  selectedField,
 }: {
   section: RawSection;
   web: boolean;
@@ -251,14 +310,36 @@ function SectionCanvas({
   /** CS-7e — a Replace-image affordance was clicked; the panel resolves the image's
    *  block index + dotted path and starts the content-addressed upload. */
   onReplaceImage?: (blockIndex: number, imagePath: string) => void;
+  /** A tagged field was clicked — drives the Selected rail. */
+  onSelectField?: (f: SelectedField) => void;
+  /** The field the rail is bound to, so the canvas can mark it as selected. */
+  selectedField?: SelectedField | null;
 }) {
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const btn = (e.target as HTMLElement).closest?.("[data-edit-image-replace]");
-    if (!btn) return;
-    const container = btn.closest("[data-edit-image-path]") as HTMLElement | null;
-    const bi = container?.dataset.editBlockIndex;
-    const path = container?.dataset.editImagePath;
-    if (container && bi !== undefined && path) onReplaceImage?.(Number(bi), path);
+    const target = e.target as HTMLElement;
+    const btn = target.closest?.("[data-edit-image-replace]");
+    if (btn) {
+      const container = btn.closest("[data-edit-image-path]") as HTMLElement | null;
+      const bi = container?.dataset.editBlockIndex;
+      const path = container?.dataset.editImagePath;
+      if (container && bi !== undefined && path) onReplaceImage?.(Number(bi), path);
+      return;
+    }
+    // Clicking a tagged field selects it. Reads the SAME markers the blur writeback
+    // uses, so the rail can never disagree with the canvas about which field is which.
+    const el = target.closest?.("[data-edit-value-path], [data-edit]") as HTMLElement | null;
+    if (!el) return;
+    const label = el.getAttribute("aria-label") ?? "Field";
+    const sf = el.dataset.edit;
+    if (sf === "eyebrow" || sf === "title") {
+      onSelectField?.({ kind: "section", field: sf, label });
+      return;
+    }
+    const bi = el.dataset.editBlockIndex;
+    const path = el.dataset.editValuePath;
+    if (bi !== undefined && path) {
+      onSelectField?.({ kind: "block", blockIndex: Number(bi), path, label });
+    }
   };
   let adapted: ReturnType<typeof adaptSections> = [];
   try {
@@ -268,6 +349,22 @@ function SectionCanvas({
   }
   const s = adapted[0];
   const { paneRef, surfaceRef, scale, height } = useFitToWidth();
+
+  // Mark the selected field in the canvas. Applied imperatively rather than through
+  // props because the marked node is rendered deep inside the case-study components,
+  // which know nothing about studio selection — and re-applied after every render, so
+  // an edit that re-renders the canvas cannot drop the highlight.
+  useEffect(() => {
+    const root = surfaceRef.current;
+    if (!root) return;
+    root.querySelectorAll(".is-selected").forEach((n) => n.classList.remove("is-selected"));
+    if (!selectedField) return;
+    const sel =
+      selectedField.kind === "section"
+        ? `[data-edit="${selectedField.field}"]`
+        : `[data-edit-block-index="${selectedField.blockIndex}"][data-edit-value-path="${selectedField.path}"]`;
+    root.querySelector(sel)?.classList.add("is-selected");
+  });
   return (
     // `canvas-static` is the visibility scope: the canvas is a static panel, so the
     // in-view reveal that normally un-hides `.reveal-card` items never fires here.
@@ -360,6 +457,19 @@ export default function SectionsEditPanel({
   // provided to the shell + block forms via FieldTabProvider; each field's TabGroup
   // shows only under its tab. Default Content.
   const [contentStyleTab, setContentStyleTab] = useState<FieldTab>("content");
+
+  // The approved design's top-level split. "Canvas" is the render plus the Selected
+  // rail; "Inspector" is the full field stack, which keeps every field that cannot be
+  // edited inline (Rich **bold** copy, style, geometry) reachable. The Content|Style
+  // tabs live INSIDE Inspector, unchanged — this adds a view switch above them rather
+  // than replacing them.
+  const [view, setView] = useState<"canvas" | "inspector">("canvas");
+
+  // The field the Selected rail is bound to, plus its in-flight text. The draft text
+  // is local so typing does not re-render the whole canvas on every keystroke; it
+  // commits on blur through the same seams the inline edit uses.
+  const [selectedField, setSelectedField] = useState<SelectedField | null>(null);
+  const [selectedDraft, setSelectedDraft] = useState("");
 
   // Cancel discards local edits; return to the board so selection can't point at
   // a section the revert removed.
@@ -640,6 +750,43 @@ export default function SectionsEditPanel({
           section is hidden unless it is the focused one, so no editor ever unmounts
           and the id-lockstep + every dirty edit survive a view/section switch. */}
       <div className="flex flex-col gap-4 px-4 py-5" hidden={selectedSectionId === null}>
+        {/* The design's top-level split. Both regions stay MOUNTED (hidden, never
+            unmounted) so switching view keeps every dirty edit, caret and id-lockstep
+            intact — the same discipline the board/section switch uses. */}
+        <div role="tablist" aria-label="Editor view" className="flex gap-1 border-b border-ink-950/8">
+          {(["canvas", "inspector"] as const).map((v) => {
+            const on = view === v;
+            return (
+              <button
+                key={v}
+                type="button"
+                role="tab"
+                id={`cs-view-${v}`}
+                aria-selected={on}
+                aria-controls={`cs-view-panel-${v}`}
+                tabIndex={on ? 0 : -1}
+                onClick={() => setView(v)}
+                onKeyDown={(e) => {
+                  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                  e.preventDefault();
+                  const other = v === "canvas" ? "inspector" : "canvas";
+                  setView(other);
+                  requestAnimationFrame(() => document.getElementById(`cs-view-${other}`)?.focus());
+                }}
+                className={[
+                  "-mb-px border-b-2 px-3 py-1.5 text-[12px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                  on
+                    ? "border-accent-500 font-medium text-ink-950"
+                    : "border-transparent text-ink-500 hover:text-ink-950",
+                ].join(" ")}
+              >
+                {v === "canvas" ? "Canvas" : "Inspector"}
+              </button>
+            );
+          })}
+        </div>
+
+        <div id="cs-view-panel-canvas" role="tabpanel" aria-labelledby="cs-view-canvas" hidden={view !== "canvas"}>
         {/* CS-7c — the inline canvas: a live, read-only render of the selected
             section above the forms. The forms stay the edit surface (CS-7d moves
             editing onto the canvas). */}
@@ -680,13 +827,45 @@ export default function SectionsEditPanel({
               );
             }
           };
+          // The rail edits the SAME field the canvas does, so it reads and writes
+          // through the same accessors rather than keeping its own copy.
+          const readField = (f: SelectedField): string => {
+            if (f.kind === "section") {
+              const cur = values.sections[selIdx] as unknown as Record<string, unknown>;
+              return String(cur[f.field] ?? "");
+            }
+            const curVal = (values.sections[selIdx].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
+            return String(getAtPath(curVal, f.path) ?? "");
+          };
+          const selectField = (f: SelectedField) => {
+            setSelectedField(f);
+            setSelectedDraft(readField(f));
+          };
+          const commitSelected = () => {
+            const f = selectedField;
+            if (!f) return;
+            const value = selectedDraft;
+            if (readField(f) === value) return; // no-op, never dirty the draft
+            if (f.kind === "section") {
+              setSection(selIdx, { ...values.sections[selIdx], [f.field]: value } as RawSection);
+              return;
+            }
+            const curVal = (values.sections[selIdx].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
+            setBlockValue(
+              ids.blockIds[selIdx][f.blockIndex],
+              setAtPath(curVal, f.path, value) as Record<string, unknown>
+            );
+          };
           return (
             <div>
               <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-eyebrow text-ink-400">
-                <span>Live preview — click most text (headings, stats, steps, labels, quotes) or an image to edit it in place. Rich text with **bold** edits in the fields below.</span>
+                <span>Live preview — click any dashed element to edit it, here or in the panel beside it. Rich text with **bold** edits under Inspector.</span>
                 {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
                 {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
               </div>
+              {/* The approved layout: canvas beside a sticky rail for the selected
+                  field. Collapses to one column below the studio's lg breakpoint. */}
+              <div className="grid items-start gap-[18px] lg:grid-cols-[1fr_240px]">
               <SectionCanvas
                 section={values.sections[selIdx]}
                 web={web}
@@ -694,12 +873,21 @@ export default function SectionsEditPanel({
                 rewriteSrc={rewriteSrc}
                 editable
                 onBlur={onBlur}
+                onSelectField={selectField}
+                selectedField={selectedField}
                 onReplaceImage={(blockIndex, path) => {
                   pendingImage.current = { selIdx, blockIndex, path };
                   setImageError(null);
                   imageInputRef.current?.click();
                 }}
               />
+              <SelectedRail
+                selected={selectedField}
+                value={selectedDraft}
+                onChange={setSelectedDraft}
+                onCommit={commitSelected}
+              />
+              </div>
               <input
                 ref={imageInputRef}
                 type="file"
@@ -713,13 +901,15 @@ export default function SectionsEditPanel({
             </div>
           );
         })()}
+        </div>
 
-        {/* CS-7f — the CS-3 Content|Style split, reframed as Canvas | Inspector. The
-            live canvas above is the content surface (inline text + image editing);
-            "Canvas" holds the fallback forms for content that isn't inline-editable
-            yet, and "Inspector" holds the style fields (variant, layout, glow, frame,
-            geometry). Same roving-tabindex tablist; both panels stay mounted so
-            switching loses no input, caret, or draft. */}
+        <div id="cs-view-panel-inspector" role="tabpanel" aria-labelledby="cs-view-inspector" hidden={view !== "inspector"} className="flex flex-col gap-4">
+        {/* CS-3's Content|Style field split, now nested UNDER the Inspector view (the
+            top-level Canvas|Inspector switch sits above). Restored to its honest
+            labels: it splits FIELDS, not views, and calling its content half "Canvas"
+            while a real canvas sat above it was the confusing part. Same
+            roving-tabindex tablist; both panels stay mounted so switching loses no
+            input, caret, or draft. */}
         <div role="tablist" aria-label="Section content and style" className="flex gap-1 border-b border-ink-950/8">
           {(["content", "style"] as const).map((t) => {
             const selected = contentStyleTab === t;
@@ -747,7 +937,7 @@ export default function SectionsEditPanel({
                     : "border-transparent text-ink-500 hover:text-ink-950",
                 ].join(" ")}
               >
-                {t === "content" ? "Canvas" : "Inspector"}
+                {t === "content" ? "Content" : "Style"}
               </button>
             );
           })}
@@ -756,7 +946,7 @@ export default function SectionsEditPanel({
         <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col gap-6 outline-none">
         <p className="text-[11px] text-text-subtle">
           {contentStyleTab === "content"
-            ? "Most text and images edit directly on the preview above. These fields cover the rest."
+            ? "Copy for this section, including the Rich **bold** fields the canvas cannot edit."
             : "Layout, glow, frames, and image geometry for this section."}
         </p>
         {values.sections.map((section, i) => (
@@ -910,6 +1100,7 @@ export default function SectionsEditPanel({
         ))}
         </div>
         </FieldTabProvider>
+        </div>
 
         <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
       </div>
