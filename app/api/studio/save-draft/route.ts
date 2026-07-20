@@ -177,7 +177,18 @@ export async function POST(req: Request) {
       message: "chore(studio): update skills draft",
     });
     if (!skillsResult.ok) {
-      return NextResponse.json(skillsResult, { status: 500 });
+      // Typed like every other path here. It used to collapse EVERY failure to
+      // 500, so a client could not tell a malformed entry apart from GitHub being
+      // down, and a retry-vs-fix decision had nothing to go on.
+      const status =
+        skillsResult.error.code === "not_found"
+          ? 404
+          : skillsResult.error.code === "unsupported_format"
+            ? 422
+            : skillsResult.error.code === "invalid_patch"
+              ? 400
+              : 500;
+      return NextResponse.json(skillsResult, { status });
     }
     invalidateDraftStateCache();
     return NextResponse.json({ ok: true, mode: "github", saved: true, sha: skillsResult.sha });

@@ -19,7 +19,7 @@ type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
-  const { unpublished, setUnpublished, anyPending } = usePublishSignal();
+  const { unpublished, setUnpublished, draftReadError, anyPending } = usePublishSignal();
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
   const [publishMsg, setPublishMsg] = useState("");
   const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
@@ -183,9 +183,17 @@ export default function PublishBar() {
         ? "Publishing…"
         : publishMsg
           ? publishMsg
-          : unpublished
-            ? "Unpublished changes"
-            : "All changes published";
+          : draftReadError
+            ? // The draft could not be read, so studio fell back to live. Saying
+              // "All changes published" here would be a confident lie about state
+              // we do not actually have.
+              "Couldn't load your draft. Showing published content. Reload to try again."
+            : unpublished
+              ? "Unpublished changes"
+              : "All changes published";
+    if (draftReadError && !publishMsg && publishStatus !== "publishing") {
+      statusTone = "text-accent-600";
+    }
   }
 
   return (

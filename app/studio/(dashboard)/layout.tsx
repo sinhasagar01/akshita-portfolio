@@ -32,7 +32,7 @@ export default async function DashboardLayout({
     redirect("/studio/login");
   }
 
-  const { projects, experience, skills, draftDiffers } = await getStudioData();
+  const { projects, experience, skills, draftDiffers, draftReadError } = await getStudioData();
   // Client-side search index, built once from the data already loaded here.
   const searchItems = buildStudioSearchIndex({ projects, experience, skills });
 
@@ -53,7 +53,7 @@ export default async function DashboardLayout({
                 navigation), seeded once from the branch-level differs, so a
                 collection edit's "unpublished" signal shows on the page you're
                 editing — not just Settings. Panels report differs + pending to it. */}
-            <PublishProvider initialDiffers={draftDiffers}>
+            <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError}>
               {children}
               <div className="h-20" aria-hidden />
               <PublishBar />
