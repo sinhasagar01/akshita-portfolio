@@ -19,6 +19,29 @@ export function authHeaders(): Record<string, string> {
   };
 }
 
+/**
+ * Raw BYTES of a file at a ref, or null when it does not exist there.
+ *
+ * The binary sibling of getFileTextAtRef (which base64-decodes the JSON contents
+ * response). This uses the RAW media type instead, because the JSON form omits
+ * `content` entirely for blobs over 1 MB — fine for yaml, wrong for images, which
+ * is the only thing that reads bytes. Returns null rather than empty on 404, so
+ * "missing here" is distinguishable from "empty file" and the caller can fall
+ * back to another ref.
+ */
+export async function getFileBytesAtRef(path: string, ref: string): Promise<Uint8Array | null> {
+  const res = await fetch(
+    `${API}/repos/${REPO}/contents/${path}?ref=${encodeURIComponent(ref)}`,
+    {
+      headers: { ...authHeaders(), Accept: "application/vnd.github.raw" },
+      cache: "no-store",
+    }
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`contents fetch failed: ${res.status} ${await res.text()}`);
+  return new Uint8Array(await res.arrayBuffer());
+}
+
 /** The repo default branch and its current head commit oid. */
 export async function getDefaultBranchHeadOid(): Promise<{ branch: string; oid: string }> {
   const repoRes = await fetch(`${API}/repos/${REPO}`, { headers: authHeaders(), cache: "no-store" });

@@ -37,7 +37,7 @@ export default async function DashboardLayout({
   const searchItems = buildStudioSearchIndex({ projects, experience, skills });
 
   return (
-    <div className="mx-auto max-w-[1300px] px-4 py-6 lg:px-6 lg:py-8">
+    <div className="mx-auto max-w-[1900px] px-4 py-6 lg:px-6 lg:py-8">
       {/* Counts provider wraps BOTH the sidebar and the page so a list editor's
           optimistic add/remove updates the sidebar badge live (it lives in this
           layout, which does not re-run on client navigation). Seeded once from
