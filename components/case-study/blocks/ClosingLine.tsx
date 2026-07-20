@@ -1,4 +1,4 @@
-import { EDIT_AFFORD } from "../editable";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /** A warm italic closing statement. Under template=web (CS-7b), the Bold-gallery
  *  closing: the same serif line, centered. Mobile is left-aligned, byte-identically.
@@ -15,15 +15,7 @@ export default function ClosingLine({
   editable?: boolean;
   blockIndex?: number;
 }) {
-  const edit = editable
-    ? {
-        contentEditable: true,
-        suppressContentEditableWarning: true,
-        tabIndex: 0,
-        "data-edit-block-index": blockIndex,
-        "data-edit-field": "text",
-      }
-    : {};
+  const edit = inlineEditProps(editable, blockIndex, "text", "Edit closing line");
   const aff = editable ? EDIT_AFFORD : "";
   if (web) {
     return (

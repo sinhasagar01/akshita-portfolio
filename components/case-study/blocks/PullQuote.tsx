@@ -1,4 +1,4 @@
-import { EDIT_AFFORD } from "../editable";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /** `.pull` — left-bar italic pull quote. Under template=web (CS-7b) the Bold-gallery
  *  serif quote: `dark` renders it on the dark band (on-dark-quote), otherwise the
@@ -18,15 +18,7 @@ export default function PullQuote({
   editable?: boolean;
   blockIndex?: number;
 }) {
-  const edit = editable
-    ? {
-        contentEditable: true,
-        suppressContentEditableWarning: true,
-        tabIndex: 0,
-        "data-edit-block-index": blockIndex,
-        "data-edit-field": "text",
-      }
-    : {};
+  const edit = inlineEditProps(editable, blockIndex, "text", "Edit pull quote");
   const aff = editable ? EDIT_AFFORD : "";
   if (web && dark) {
     return (

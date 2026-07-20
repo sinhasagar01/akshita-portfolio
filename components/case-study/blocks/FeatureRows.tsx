@@ -2,6 +2,7 @@ import type { Feature } from "@/lib/case-studies/types";
 import DeviceImage, { isWideFrame } from "../DeviceImage";
 import { renderRich } from "../rich";
 import { LINE, GLOW } from "../styles";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /** `.feat` — alternating image/text rows, each with a giant faint number. */
 export default function FeatureRows({
@@ -59,10 +60,20 @@ export default function FeatureRows({
             </div>
 
             <div className="relative z-[1] flex-1 max-w-[540px]">
-              <div className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-500">
+              <div
+                {...inlineEditProps(editable, blockIndex, `features.${i}.category`, "Edit category")}
+                className={`text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-500${
+                  editable ? EDIT_AFFORD : ""
+                }`}
+              >
                 {f.category}
               </div>
-              <h3 className="font-display font-normal text-2xl text-ink-950 leading-[1.07] mt-3">
+              <h3
+                {...inlineEditProps(editable, blockIndex, `features.${i}.title`, "Edit title")}
+                className={`font-display font-normal text-2xl text-ink-950 leading-[1.07] mt-3${
+                  editable ? EDIT_AFFORD : ""
+                }`}
+              >
                 {f.title}
               </h3>
               <p className="text-[1rem] text-ink-600 leading-[1.62] mt-3.5">
