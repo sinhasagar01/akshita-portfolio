@@ -182,6 +182,50 @@ sections:
               body: Profiling depths, **basic** and **advanced**, on any data model
               tag: depths
               highlighted: false
+      - discriminant: figureGrid
+        value:
+          heading: How success was measured.
+          items:
+            - image:
+                src: /images/projects/fosfor-data-profiling/metric-time-saved.webp
+                alt: A long before bar over a short after bar with a downward arrow, standing for time saved
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Time on quality checks
+              body: How much manual inspection time the feature removed.
+            - image:
+                src: /images/projects/fosfor-data-profiling/metric-detection-rate.webp
+                alt: A data grid with detected issues flagged under a magnifier, standing for issue detection
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Issue detection
+              body: How reliably teams surfaced and resolved data quality problems.
+            - image:
+                src: /images/projects/fosfor-data-profiling/metric-quality-lift.webp
+                alt: Rising bars with an upward trend line, standing for improving data quality
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Data quality lift
+              body: Measurable gains in completeness, consistency, and accuracy.
+            - image:
+                src: /images/projects/fosfor-data-profiling/metric-usage.webp
+                alt: A dense calendar heatmap, standing for frequent recurring use
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Frequency of use
+              body: How often the feature became part of the daily workflow.
   - variant: default
     id: problem
     index: '03'
@@ -207,6 +251,58 @@ sections:
             inspection, which was time consuming and easy to get wrong. Teams
             carried flawed data into analysis without knowing it, and wrong data
             quietly became wrong conclusions.
+      - discriminant: figureGrid
+        value:
+          heading: What made it hard.
+          items:
+            - image:
+                src: /images/projects/fosfor-data-profiling/challenge-silos.webp
+                alt: Three separated database cylinders in walled off lanes, standing for data scattered across sources
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Data silos
+              body: >-
+                Data scattered across databases, spreadsheets, and APIs, with no
+                unified view.
+            - image:
+                src: /images/projects/fosfor-data-profiling/challenge-quality.webp
+                alt: A grid of data cells with missing and flagged entries, standing for inaccurate or incomplete data
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Data quality issues
+              body: >-
+                Inaccurate, incomplete, or inconsistent data leading to wrong
+                conclusions.
+            - image:
+                src: /images/projects/fosfor-data-profiling/challenge-time.webp
+                alt: An hourglass beside a stack of documents, standing for slow manual analysis
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: Time consuming analysis
+              body: >-
+                Manual cleaning, transformation, and analysis, slow and error
+                prone.
+            - image:
+                src: /images/projects/fosfor-data-profiling/challenge-insights.webp
+                alt: A data pyramid whose insight tier is unreached, standing for raw data with no clear next step
+                width: null
+                rotate: null
+                translateX: null
+                translateY: null
+                z: null
+              title: No actionable insights
+              body: >-
+                Raw data alone has limited value until it points to a clear next
+                step.
   - variant: default
     id: goals
     index: '04'
