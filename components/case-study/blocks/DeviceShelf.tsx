@@ -2,6 +2,7 @@ import type { DeviceSpec, GlowWord as GlowWordType } from "@/lib/case-studies/ty
 import DeviceImage from "../DeviceImage";
 import GlowWord from "../GlowWord";
 import { SHELF_GRADIENT, LINE } from "../styles";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 type Props = {
   devices: DeviceSpec[];
@@ -25,6 +26,9 @@ export default function DeviceShelf({
   editable = false,
   blockIndex,
 }: Props) {
+  const aff = editable ? EDIT_AFFORD : "";
+  const editLabel = (i: number) =>
+    inlineEditProps(editable, blockIndex, `devices.${i}.label`, "Edit device label");
   if (web) {
     return (
       <div className="flex flex-col items-center gap-12">
@@ -32,7 +36,10 @@ export default function DeviceShelf({
           <figure key={i} className="reveal-card flex w-full flex-col items-center gap-3">
             <DeviceImage image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
             {d.label && (
-              <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle">
+              <figcaption
+                {...editLabel(i)}
+                className={`text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle${aff}`}
+              >
                 {d.label}
               </figcaption>
             )}
@@ -68,7 +75,8 @@ export default function DeviceShelf({
           <DeviceImage image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
           {d.label && (
             <span
-              className="mt-4 -translate-y-3.5 rounded-full border bg-cream-50 px-3.5 py-1.5 text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle"
+              {...editLabel(i)}
+              className={`mt-4 -translate-y-3.5 rounded-full border bg-cream-50 px-3.5 py-1.5 text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle${aff}`}
               style={{ borderColor: LINE }}
             >
               {d.label}

@@ -1,6 +1,7 @@
 import type { BeforeAfterPair } from "@/lib/case-studies/types";
 import DeviceImage, { isWideFrame } from "../DeviceImage";
 import { LINE } from "../styles";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /** `.bacard` — before→after device pairs with a change list; alternates side. */
 export default function BeforeAfter({
@@ -13,6 +14,8 @@ export default function BeforeAfter({
   editable?: boolean;
   blockIndex?: number;
 }) {
+  const aff = editable ? EDIT_AFFORD : "";
+  const edit = (path: string, label: string) => inlineEditProps(editable, blockIndex, path, label);
   return (
     <div className="flex flex-col gap-[18px]">
       {pairs.map((p, i) => {
@@ -23,7 +26,7 @@ export default function BeforeAfter({
         const wide = isWideFrame(p.after.frame) || isWideFrame(p.before.frame);
         return (
         <div
-          key={p.title}
+          key={i}
           className={
             wide
               ? "reveal-card flex flex-col items-center gap-9 rounded-xl border bg-cream-50 p-8"
@@ -83,10 +86,16 @@ export default function BeforeAfter({
 
           {/* Change list */}
           <div className={wide ? "w-full" : "flex-1"}>
-            <h3 className="font-display font-normal text-2xl text-ink-950 leading-[1.1]">
+            <h3
+              {...edit(`pairs.${i}.title`, "Edit pair title")}
+              className={`font-display font-normal text-2xl text-ink-950 leading-[1.1]${aff}`}
+            >
               {p.title}
             </h3>
-            <p className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle mt-1.5">
+            <p
+              {...edit(`pairs.${i}.tag`, "Edit pair tag")}
+              className={`text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle mt-1.5${aff}`}
+            >
               {p.tag}
             </p>
             <ul className="m-0 mt-4 flex list-none flex-col gap-3 p-0">
@@ -94,7 +103,24 @@ export default function BeforeAfter({
                 <li key={ci} className="flex items-baseline gap-2.5">
                   <span aria-hidden="true" className="mt-1.5 size-[6px] shrink-0 rounded-full bg-accent-500" />
                   <span className="text-[0.95rem] text-ink-600 leading-[1.5]">
-                    <b className="font-bold text-ink-950">{c.emphasis}</b> {c.rest}
+                    <b
+                      {...edit(`pairs.${i}.changes.${ci}.emphasis`, "Edit change emphasis")}
+                      className={`font-bold text-ink-950${aff}`}
+                    >
+                      {c.emphasis}
+                    </b>{" "}
+                    {/* Wrapped ONLY when editable, so the public markup keeps `rest`
+                        as the bare text node it is today. */}
+                    {editable ? (
+                      <span
+                        {...edit(`pairs.${i}.changes.${ci}.rest`, "Edit change text")}
+                        className={aff}
+                      >
+                        {c.rest}
+                      </span>
+                    ) : (
+                      c.rest
+                    )}
                   </span>
                 </li>
               ))}
