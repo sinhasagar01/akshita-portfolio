@@ -246,21 +246,31 @@ export default function HeroSection({
       <Container>
         <div className="relative flex flex-col items-center text-center" style={{ zIndex: 2 }}>
 
-          {/* Signature + role label */}
-          <Reveal>
-            <div className="flex flex-col items-center gap-2">
-              {/* The page's single h1 (accessibility): the signature is the home page's
-                  top-level heading. Rendered at 40–56px, so accent-500 on canvas clears
-                  the 3:1 large-text bar. Visual is unchanged. */}
-              <h1
-                className="font-script text-[--color-accent-500] leading-[1] m-0 font-normal"
-                style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
-              >
-                {signature}
-              </h1>
-              <SectionLabel>{role}</SectionLabel>
-            </div>
-          </Reveal>
+          {/* Signature + role label.
+              LCP: the signature is the home page's largest-contentful paint, so it must
+              NOT be wrapped in <Reveal> — that ships opacity:0 in SSR and only reveals
+              after hydration, delaying LCP by ~1.8s on throttled mobile. This keeps
+              opacity:1 in the SSR HTML (paints at FCP) and only SLIDES in, so the entrance
+              is preserved but the paint isn't gated on JS. */}
+          <motion.div
+            className="flex flex-col items-center gap-2"
+            initial={isReducedMotion ? { y: 0 } : { y: 14 }}
+            animate={{ y: 0 }}
+            transition={
+              isReducedMotion ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+            }
+          >
+            {/* The page's single h1 (accessibility): the signature is the home page's
+                top-level heading. Rendered at 40–56px, so accent-500 on canvas clears
+                the 3:1 large-text bar. */}
+            <h1
+              className="font-script text-[--color-accent-500] leading-[1] m-0 font-normal"
+              style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
+            >
+              {signature}
+            </h1>
+            <SectionLabel>{role}</SectionLabel>
+          </motion.div>
 
           {/* Facet tabs */}
           <Reveal delay={0.08} className="mt-9">
