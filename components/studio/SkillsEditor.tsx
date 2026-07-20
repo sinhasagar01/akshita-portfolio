@@ -15,6 +15,7 @@
 import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
+import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 
@@ -90,6 +91,19 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
     setField("categories", cats.filter((_, i) => i !== idx));
     setIds((prev) => prev.filter((x) => x !== id));
   };
+  // Reorder. Unlike projects/experience — where order lives in a per-file
+  // orderIndex and needs its own commit — a category's position IS its index in
+  // this array, so a move is an ordinary field edit: it goes dirty and commits
+  // through the same save as a rename or an item edit. Both arrays move together
+  // to keep the id-lockstep.
+  const onMoveItem = (id: string, direction: "up" | "down") => {
+    const idx = ids.indexOf(id);
+    if (idx === -1) return;
+    const dir = direction === "up" ? -1 : 1;
+    if (idx + dir < 0 || idx + dir >= cats.length) return;
+    setField("categories", moveIn(cats, idx, dir));
+    setIds((prev) => moveIn(prev, idx, dir));
+  };
 
   const statusText =
     saveStatus === "saving"
@@ -111,6 +125,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         onAddItem={onAddItem}
         addItemLabel="Add category"
         onRemoveItem={onRemoveItem}
+        onMoveItem={onMoveItem}
       >
         {cats.map((c, i) => (
           <CategoryPanel
