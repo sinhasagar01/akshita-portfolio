@@ -84,6 +84,12 @@ export default function RootLayout({
       <head>
         {/* Runs at parse time, before any hydration or browser scroll restoration */}
         <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';window.scrollTo(0,0);" }} />
+        {/* No-JS fallback: the scroll-reveal sections ship clipped/opacity:0 and are
+            un-hidden by JS on scroll. Without JS that never fires, so force them visible
+            when scripting is off. Zero effect on the JS path (the reveal still runs). */}
+        <noscript>
+          <style>{".reveal-panel{clip-path:none!important}.reveal-card{opacity:1!important}"}</style>
+        </noscript>
       </head>
       <body>
         {children}
