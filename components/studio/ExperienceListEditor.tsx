@@ -24,6 +24,7 @@ import { ListDetailLayout } from "./ListDetailLayout";
 import ExperienceEditPanel from "./ExperienceEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
+import { useFocusTrap } from "./useFocusTrap";
 import { isCurrentRole } from "@/components/sections/experience-current";
 import type { ExperienceListItem } from "@/lib/keystatic";
 
@@ -46,6 +47,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   const [addError, setAddError] = useState("");
   const addingRef = useRef(false);
   const addInputRef = useRef<HTMLInputElement>(null);
+  const addDialogRef = useRef<HTMLDivElement>(null);
 
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -53,6 +55,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   const [deleteError, setDeleteError] = useState("");
   const deletingRef = useRef(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const deleteDialogRef = useRef<HTMLDivElement>(null);
 
   // Transient banner for the fs-mode dev note (no row is added in fs mode).
   const [banner, setBanner] = useState("");
@@ -68,6 +71,10 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   useEffect(() => {
     if (deleteTarget) cancelRef.current?.focus();
   }, [deleteTarget]);
+  // Trap Tab + return focus to the trigger while a dialog is open (initial focus and
+  // Escape are handled above / on the dialog itself).
+  useFocusTrap(addDialogRef, addOpen);
+  useFocusTrap(deleteDialogRef, deleteTarget !== null);
 
   const sections = items.map((e) => ({
     id: e.slug,
@@ -236,6 +243,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           onClick={() => !addBusy && setAddOpen(false)}
         >
           <div
+            ref={addDialogRef}
             role="dialog"
             aria-modal="true"
             aria-label="Add experience"
@@ -303,6 +311,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           onClick={() => !deleteBusy && cancelDelete()}
         >
           <div
+            ref={deleteDialogRef}
             role="alertdialog"
             aria-modal="true"
             aria-label="Remove experience"
