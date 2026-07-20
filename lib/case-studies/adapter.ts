@@ -46,6 +46,7 @@ import type {
   GlowWord,
   Stat,
   Principle,
+  FigureItem,
   Feature,
   BeforeAfterPair,
   Change,
@@ -251,6 +252,7 @@ const BLOCK_KINDS = [
   "stepper",
   "statCards",
   "principleCards",
+  "figureGrid",
   "featureRows",
   "beforeAfter",
   "swatchTokens",
@@ -386,6 +388,24 @@ function adaptBlock(raw: unknown, at: string, mode: AdaptMode, defaultFrame: Fra
       if (heading !== undefined) block.heading = heading;
       const subhead = opt(v.subhead);
       if (subhead !== undefined) block.subhead = subhead;
+      return block;
+    }
+    case "figureGrid": {
+      const block: Block = {
+        kind,
+        items: arr(v.items).map((it, i): FigureItem => {
+          const o2 = rec(it);
+          const item: FigureItem = {
+            image: adaptImgSpec(o2.image, `${at}.items[${i}].image`, mode, defaultFrame),
+          };
+          const title = opt(o2.title);
+          if (title !== undefined) item.title = title;
+          if (opt(o2.body) !== undefined) item.body = rich(o2.body);
+          return item;
+        }),
+      };
+      const heading = opt(v.heading);
+      if (heading !== undefined) block.heading = heading;
       return block;
     }
     case "featureRows":

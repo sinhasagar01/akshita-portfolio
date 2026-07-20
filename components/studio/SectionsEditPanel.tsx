@@ -66,6 +66,7 @@ const IMAGE_KINDS = new Set<SectionBlockKind>([
   "featureRows",
   "beforeAfter",
   "annotatedImage",
+  "figureGrid",
 ]);
 const GRID_KINDS = new Set<SectionBlockKind>([
   "glanceGrid",

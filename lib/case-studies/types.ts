@@ -59,6 +59,11 @@ export type Stat = {
 
 export type Principle = { index: string; title: string; body: Rich };
 
+/** One cell of a `figureGrid`: a plain (frameless) illustration or diagram with an
+ *  optional caption title and body. Used for concept diagrams and card grids that
+ *  are not product-in-a-device screenshots. */
+export type FigureItem = { image: ImgSpec; title?: string; body?: Rich };
+
 /** cs-07 auto-scroll story assets (optional). A scrollable screen is split into a
  *  tall `body` (scrolls behind the bezel) + a pinned `footer`; onboarding is a single
  *  `full` screen. Dims (in 1030-space) are read from the static imports' width/height.
@@ -153,6 +158,7 @@ export type Block =
   | { kind: "stepper"; steps: { label: string; text: string }[] }
   | { kind: "statCards"; heading?: string; stats: Stat[] }
   | { kind: "principleCards"; heading?: string; subhead?: string; cards: Principle[] }
+  | { kind: "figureGrid"; heading?: string; items: FigureItem[] }
   | { kind: "featureRows"; features: Feature[] }
   | { kind: "featureStory"; features: Feature[] }
   | { kind: "beforeAfter"; pairs: BeforeAfterPair[] }

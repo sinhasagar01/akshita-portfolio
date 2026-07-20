@@ -57,6 +57,7 @@ export const BLOCK_EMPTIES: { [K in SectionBlockKind]: () => RawValue<K> } = {
   stepper: () => ({ steps: [] }),
   statCards: () => ({ heading: "", stats: [] }),
   principleCards: () => ({ heading: "", subhead: "", cards: [] }),
+  figureGrid: () => ({ heading: "", items: [] }),
   featureRows: () => ({ features: [] }),
   beforeAfter: () => ({ pairs: [] }),
   swatchTokens: () => ({ groups: [] }),

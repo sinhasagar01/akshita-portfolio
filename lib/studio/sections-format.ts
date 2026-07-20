@@ -296,6 +296,10 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
   featureRows: obj({
     features: arrayOf(obj({ index: str, category: str, title: str, body: str, image: imgSpec })),
   }),
+  figureGrid: obj({
+    heading: str,
+    items: arrayOf(obj({ image: imgSpec, title: str, body: str })),
+  }),
   annotatedImage: obj({
     image: imgSpec,
     scrawl: obj({ text: str, top: str, right: str, bottom: str, left: str }),

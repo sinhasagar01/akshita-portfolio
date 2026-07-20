@@ -84,6 +84,7 @@ export const BLOCK_LABELS: { [K in SectionBlockKind]: string } = {
   stepper: "Stepper",
   statCards: "Stat cards",
   principleCards: "Principle cards",
+  figureGrid: "Figure grid",
   featureRows: "Feature rows",
   beforeAfter: "Before / after",
   swatchTokens: "Swatch tokens",
@@ -534,6 +535,35 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
   </ItemRows>
 );
 
+const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, onChange, onBlur, slug }) => (
+  <>
+    <TextField
+      label="Heading (optional)"
+      value={value.heading}
+      onChange={(heading) => onChange({ ...value, heading })}
+      onBlur={onBlur}
+    />
+    <ItemRows
+      items={value.items}
+      onChange={(items) => onChange({ ...value, items })}
+      empty={() => ({ image: emptyImg(), title: "", body: "" })}
+      addLabel="Add figure"
+      itemNoun="Figure"
+      rowLabel={(it, i) => it.title.trim() || `Figure ${i + 1}`}
+    >
+      {({ item, set, focusRef }) => (
+        <>
+          <TabGroup group="content">
+            <TextField label="Title (optional)" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
+            <TextArea label="Body (optional) — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
+          </TabGroup>
+          <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} />
+        </>
+      )}
+    </ItemRows>
+  </>
+);
+
 const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug }) => (
   <>
     <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} />
@@ -834,6 +864,10 @@ export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
   principleCards: { empty: BLOCK_EMPTIES.principleCards,
     label: (v) => firstLine(v.heading, `Principle cards — ${v.cards.length} cards`),
     Form: PrincipleCardsForm,
+      },
+  figureGrid: { empty: BLOCK_EMPTIES.figureGrid,
+    label: (v) => firstLine(v.heading, `Figure grid — ${v.items.length} ${v.items.length === 1 ? "figure" : "figures"}`),
+    Form: FigureGridForm,
       },
   // tier 3
   // still no Form (later in PR B) — preserved untouched by the panel, round-tripped

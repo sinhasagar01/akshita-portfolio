@@ -1,0 +1,109 @@
+import Image from "next/image";
+import type { FigureItem } from "@/lib/case-studies/types";
+import { renderRich } from "../rich";
+import { LINE } from "../styles";
+
+/** `figureGrid` — plain, frameless illustrations and diagrams (NOT product-in-a-device
+ *  screenshots, so it never touches the device/frame system). A single item renders as
+ *  one centred captioned figure; two to four render as a responsive card grid. Each
+ *  image sits `object-contain` on a cream card so mixed aspects (wide diagrams, square
+ *  metric shots) all read tidily. */
+export default function FigureGrid({
+  heading,
+  items,
+  editable = false,
+  blockIndex,
+}: {
+  heading?: string;
+  items: FigureItem[];
+  /** CS-7e — studio inline canvas: make each figure image replaceable. */
+  editable?: boolean;
+  blockIndex?: number;
+}) {
+  const single = items.length === 1;
+  return (
+    <div>
+      {heading && (
+        <h3 className="font-display italic font-normal text-3xl text-ink-950 leading-[1.15]">
+          {heading}
+        </h3>
+      )}
+      <div
+        className={
+          single
+            ? `mx-auto max-w-[760px] ${heading ? "mt-7" : ""}`
+            : `grid grid-cols-1 gap-6 sm:grid-cols-2 ${heading ? "mt-7" : ""}`
+        }
+      >
+        {items.map((it, i) => (
+          <figure key={i} className={single ? "reveal-card" : "reveal-card flex flex-col"}>
+            <Frame
+              item={it}
+              aspect={single ? "16 / 10" : "4 / 3"}
+              sizes={single ? "(max-width: 1023px) 90vw, 760px" : "(max-width: 1023px) 90vw, 380px"}
+              editable={editable}
+              blockIndex={blockIndex}
+              editPath={`items.${i}.image`}
+            />
+            {(it.title || it.body) && (
+              <figcaption className={single ? "mt-5 text-center" : "mt-4"}>
+                {it.title && (
+                  <div className="font-display font-normal text-xl text-ink-950 leading-[1.15]">
+                    {it.title}
+                  </div>
+                )}
+                {it.body && (
+                  <div className={`text-[0.95rem] text-ink-600 leading-[1.55] ${it.title ? "mt-2" : ""}`}>
+                    {renderRich(it.body)}
+                  </div>
+                )}
+              </figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** The framed image cell. Content-path images have no intrinsic dimensions, so the
+ *  image fills a fixed-aspect card (`object-contain`, cream backdrop) — CLS-safe and
+ *  uniform across mixed source aspects. Adds the studio Replace affordance when editable. */
+function Frame({
+  item,
+  aspect,
+  sizes,
+  editable,
+  blockIndex,
+  editPath,
+}: {
+  item: FigureItem;
+  aspect: string;
+  sizes: string;
+  editable: boolean;
+  blockIndex?: number;
+  editPath: string;
+}) {
+  const inner = (
+    <span
+      className="relative block w-full overflow-hidden rounded-xl border bg-cream-100"
+      style={{ borderColor: LINE, aspectRatio: aspect }}
+    >
+      <Image src={item.image.src} alt={item.image.alt} fill sizes={sizes} className="object-contain" />
+    </span>
+  );
+  if (!editable) return inner;
+  return (
+    <span className="relative block" data-edit-block-index={blockIndex} data-edit-image-path={editPath}>
+      {inner}
+      <button
+        type="button"
+        data-edit-image-replace
+        aria-label="Replace image"
+        className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[11px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
+      >
+        Replace image
+      </button>
+    </span>
+  );
+}

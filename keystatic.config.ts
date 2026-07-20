@@ -455,6 +455,21 @@ export default config({
                   }),
                   itemLabel: () => "Principle cards",
                 },
+                figureGrid: {
+                  label: "Figure grid",
+                  schema: fields.object({
+                    heading: fields.text({ label: "Heading (optional)" }),
+                    items: fields.array(
+                      fields.object({
+                        image: fields.object(imgSpecFields(), { label: "Image" }),
+                        title: fields.text({ label: "Title (optional)" }),
+                        body: fields.text({ label: "Body (optional) — supports **bold**", multiline: true }),
+                      }),
+                      { label: "Figures", itemLabel: (props) => props.fields.title.value || "Figure" }
+                    ),
+                  }),
+                  itemLabel: () => "Figure grid",
+                },
                 featureRows: {
                   label: "Feature rows",
                   schema: fields.object({
