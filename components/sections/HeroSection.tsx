@@ -249,12 +249,15 @@ export default function HeroSection({
           {/* Signature + role label */}
           <Reveal>
             <div className="flex flex-col items-center gap-2">
-              <p
-                className="font-script text-[--color-accent-500] leading-[1]"
+              {/* The page's single h1 (accessibility): the signature is the home page's
+                  top-level heading. Rendered at 40–56px, so accent-500 on canvas clears
+                  the 3:1 large-text bar. Visual is unchanged. */}
+              <h1
+                className="font-script text-[--color-accent-500] leading-[1] m-0 font-normal"
                 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
               >
                 {signature}
-              </p>
+              </h1>
               <SectionLabel>{role}</SectionLabel>
             </div>
           </Reveal>
@@ -263,15 +266,15 @@ export default function HeroSection({
           <Reveal delay={0.08} className="mt-9">
             {/* Mobile: dot-grows-to-bar indicators (below 1024px) */}
             <div
-              role="tablist"
+              role="group"
               aria-label="Designer facets"
               className="flex lg:hidden justify-center items-center gap-3 py-2"
             >
               {facets.map((f, i) => (
                 <button
                   key={i}
-                  role="tab"
-                  aria-selected={i === active}
+                  type="button"
+                  aria-pressed={i === active}
                   aria-label={f.tab}
                   onClick={() => setActive(i)}
                   className="rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-accent-500]"
@@ -299,22 +302,22 @@ export default function HeroSection({
             {/* Desktop: labeled tabs with animated pill (1024px and above) */}
             <LayoutGroup>
               <div
-                role="tablist"
+                role="group"
                 aria-label="Designer facets"
                 className="hidden lg:inline-flex relative gap-1.5 p-1"
               >
                 {facets.map((f, i) => (
                   <button
                     key={i}
-                    role="tab"
-                    aria-selected={i === active}
+                    type="button"
+                    aria-pressed={i === active}
                     onClick={() => setActive(i)}
                     className="relative px-4 py-2.5 text-[12px] uppercase tracking-[0.10em] font-medium rounded-full transition-colors duration-[--duration-base] select-none cursor-pointer"
                     style={{
                       color:
                         i === active
-                          ? "var(--color-accent-500)"
-                          : "var(--color-ink-400)",
+                          ? "var(--color-accent-600)"
+                          : "var(--color-text-muted)",
                     }}
                   >
                     {i === active && (
