@@ -32,6 +32,14 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500: oklch(56.0% 0.14 42);
   --color-accent-600: oklch(46.0% 0.13 42);
 
+  /* The one REJECTION colour, added for the studio's link popover. The palette had no
+     red: errors elsewhere borrow accent-600, which is fine for "uploading failed" but
+     cannot say "this input is invalid" when the accent is also the affordance colour on
+     the same control. Sits at the terracotta's hue distance so it reads as a warning
+     rather than a second brand colour, and is deliberately the only one — a palette of
+     error shades is how a warm editorial system starts looking like a form builder. */
+  --color-danger-600: oklch(45.0% 0.16 25);
+
   /* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
      band (the template=web Bold-gallery hero) needs its own surface + on-dark text
      tokens; ink-* text can't sit on a dark bg. WCAG AA on band-dark (verified):

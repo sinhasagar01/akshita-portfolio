@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Case-study canvas — link toolbar + popover (reference)</title>
+<!-- Reference for the inline link affordance that REPLACES window.prompt().
+     Three states: (1) toolbar with Link active, (2) popover valid URL,
+     (3) popover unsafe-scheme rejected. Colours are the project's real tokens
+     (stand-in hex here) — use the real --ed/accent + cream tokens in code. -->
+<style>
+  :root{
+    --ed:#B4562F;         /* accent / edit affordance */
+    --ink:#211C18; --mut:#7C7267; --pg:#F3EEE4; --pp:#FBF8F1;
+    --ln:rgba(60,50,38,.16); --err:#A32D2D;
+    --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--pg);color:var(--ink);font-family:var(--sans);padding:28px;}
+  .lbl{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--mut);margin:22px 0 8px;}
+  .cap{font-size:11px;color:var(--mut);margin:6px 0 0;}
+
+  /* toolbar */
+  .tb{display:inline-flex;align-items:center;gap:2px;background:var(--pp);border:0.5px solid var(--ln);border-radius:10px;padding:4px;box-shadow:0 6px 20px -8px rgba(60,50,38,.4);}
+  .tb button{border:none;background:transparent;width:30px;height:30px;border-radius:7px;font-size:15px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .tb button.on{background:var(--ed);color:#fff;}
+  .tb .div{width:1px;height:18px;background:var(--ln);margin:0 3px;}
+
+  /* popover */
+  .pop{background:var(--pp);border:0.5px solid var(--ln);border-radius:10px;padding:10px;box-shadow:0 10px 30px -10px rgba(60,50,38,.45);width:280px;}
+  .pop input{width:100%;height:34px;border:0.5px solid var(--ln);border-radius:7px;padding:0 10px;font-size:13px;background:#fff;color:var(--ink);}
+  .pop input:focus{outline:none;border-color:var(--ed);box-shadow:0 0 0 2px rgba(180,86,47,.15);}
+  .pop input.bad{border-color:var(--err);box-shadow:0 0 0 2px rgba(163,45,45,.12);}
+  .row{display:flex;gap:8px;margin-top:9px;justify-content:flex-end;align-items:center;}
+  .row .msg{margin-right:auto;font-size:11px;color:var(--err);}
+  .btn{height:30px;padding:0 13px;border-radius:7px;font-size:12px;cursor:pointer;border:0.5px solid var(--ln);background:#fff;color:var(--ink);}
+  .btn.pri{background:var(--ed);color:#fff;border-color:var(--ed);}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;}
+</style>
+</head>
+<body>
+
+  <div class="lbl">1 · Toolbar — Link button active</div>
+  <div class="tb">
+    <button class="on" title="Bold"><b>B</b></button>
+    <button title="Italic"><i style="font-family:Georgia,serif;">I</i></button>
+    <span class="div"></span>
+    <button class="on" title="Link">&#128279;</button>
+  </div>
+  <div class="cap">Clicking Link opens the popover on the toolbar — never window.prompt().</div>
+
+  <div class="lbl">2 · Link popover — valid URL</div>
+  <div class="pop">
+    <input type="text" value="https://fosfor.com/decision-cloud" aria-label="Link URL"/>
+    <div class="row">
+      <button class="btn">Remove</button>
+      <button class="btn">Cancel</button>
+      <button class="btn pri">Apply</button>
+    </div>
+  </div>
+  <div class="cap">Remove shows only when editing an existing link (pre-filled href). Empty input + Apply = no link. Esc/Cancel closes unchanged.</div>
+
+  <div class="lbl">3 · Link popover — unsafe scheme rejected</div>
+  <div class="pop">
+    <input type="text" class="bad" value="javascript:alert(1)" aria-label="Link URL"/>
+    <div class="row">
+      <span class="msg">Only http, https, mailto, or relative links</span>
+      <button class="btn">Cancel</button>
+      <button class="btn pri" disabled>Apply</button>
+    </div>
+  </div>
+  <div class="cap">javascript:/data: → red field, inline message, Apply disabled. Same allowlist as #145, enforced in the popover too.</div>
+
+</body>
+</html>
