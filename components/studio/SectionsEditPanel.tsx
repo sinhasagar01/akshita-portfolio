@@ -29,6 +29,7 @@ import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-r
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { richToMarkers } from "@/lib/studio/rich-markers";
+import { isSafeHref } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -218,7 +219,7 @@ function paragraphCaret(
   const wrap = (frag: DocumentFragment) => {
     const d = document.createElement("div");
     d.appendChild(frag);
-    return richToMarkers(d);
+    return richToMarkers(d, isSafeHref);
   };
   return {
     blockIndex: Number(ds.editBlockIndex),
@@ -437,16 +438,17 @@ function SelectedRail({
 }
 
 /**
- * Bold control for the focused Rich field.
+ * Inline formatting for the focused Rich field.
  *
- * ONE button, deliberately. The model is a plain string that `parseRich` reads for
- * `**bold**` and nothing else — there is no italic, link, underline, size, colour or
- * list in `RichRun`. Showing those greyed out would advertise capabilities that need
- * a schema rebuild, so they are absent rather than disabled.
+ * THREE buttons, and only three. The model is a plain string that `parseRich` reads for
+ * `**bold**`, `*italic*` and `[text](url)` — there is no underline, size, colour or list
+ * in `RichRun`, and those are deliberately absent rather than shown disabled. A greyed
+ * button advertises a capability that does not exist; docs/studio/richtext-roadmap.md
+ * carries that reasoning instead.
  *
- * execCommand is deprecated but is still the only cross-browser way to toggle bold
- * inside contentEditable without shipping an editor library. It produces <b> or
- * <strong> depending on engine; richToMarkers maps both.
+ * execCommand is deprecated but is still the only cross-browser way to toggle a mark
+ * inside contentEditable without shipping an editor library. It produces <b>/<strong>
+ * and <i>/<em> depending on engine, and richToMarkers maps all four.
  */
 function BoldToolbar({
   at,
@@ -467,7 +469,8 @@ function BoldToolbar({
       <button
         type="button"
         // mousedown, not click: the default would blur the field and end the
-        // selection before the command could apply to it.
+        // selection before the command could apply to it. Every button here does the
+        // same, for the same reason.
         onMouseDown={(e) => {
           e.preventDefault();
           document.execCommand("bold");
@@ -479,7 +482,50 @@ function BoldToolbar({
       >
         B
       </button>
-      <span className="text-[10px] text-text-subtle">saves as **bold**</span>
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          document.execCommand("italic");
+          onCommand?.();
+        }}
+        aria-label="Italic"
+        title="Italic"
+        className="grid size-6 place-items-center rounded font-display text-[13px] italic text-ink-950 transition-colors hover:bg-cream-200"
+      >
+        I
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          // The selection is the link TEXT, so there has to be one — linking a collapsed
+          // caret would produce an anchor with no words in it.
+          const sel = window.getSelection();
+          if (!sel || sel.isCollapsed || sel.toString().trim() === "") {
+            window.alert("Select the words you want to link first.");
+            return;
+          }
+          const raw = window.prompt("Link to (https://, mailto: or /path)", "https://");
+          if (raw === null) return; // cancelled
+          const href = raw.trim();
+          if (href === "") return;
+          if (!isSafeHref(href)) {
+            // Refused rather than silently dropped, so a typo is visible. The parser and
+            // the renderer would refuse it too; failing here just says so earlier.
+            window.alert(`That link was not added: only https://, http://, mailto: and site-relative paths are allowed.`);
+            return;
+          }
+          document.execCommand("createLink", false, href);
+          onCommand?.();
+        }}
+        aria-label="Link"
+        title="Link"
+        className="grid size-6 place-items-center rounded text-[13px] text-ink-950 underline transition-colors hover:bg-cream-200"
+      >
+        &#128279;
+      </button>
+      <span className="text-[10px] text-text-subtle">**bold** *italic* [link](url)</span>
     </div>
   );
 }
@@ -1125,7 +1171,7 @@ export default function SectionsEditPanel({
             // back to markers instead; a field with no bold yields its plain string
             // unchanged, so tagging plain prose introduces no drift.
             const isRich = ds.editRich !== undefined;
-            const raw = isRich ? richToMarkers(t) : (t.innerText ?? "");
+            const raw = isRich ? richToMarkers(t, isSafeHref) : (t.innerText ?? "");
             // A bold ran in this field, so its DOM is no longer React's — rebuild the
             // section from state on the way out. Done BEFORE the no-op guards below,
             // because bold-then-unbold leaves the VALUE unchanged while still leaving

@@ -117,29 +117,89 @@ function resolveFrame(rawFrame: unknown, defaultFrame: Frame): Frame {
 /* ---------------------------------------------------------------- parseRich */
 
 /**
- * Parse inline `**bold**` markers into the renderer's Rich shape.
+ * Which hrefs a link marker may carry. THE one definition — the parser below, the
+ * renderer (`components/case-study/rich.tsx`) and the studio serializer all ask this,
+ * because a second copy that drifts is how a blocked scheme gets through one path. It
+ * lives here, in the parser's own pure module, rather than in a shared file: adapter.ts
+ * is loaded directly by the unit suites in plain node, which cannot resolve an
+ * extensionless relative import, and keeping it leaf is what makes those suites work.
  *
- * A string with NO bold returns the PLAIN STRING (Rich's string branch — a
- * distinct renderWithBold path from a 1-run list, so this is load-bearing, not
- * cosmetic). Any bold yields a run list with no empty text runs. Degenerate
- * syntax is preserved literally, never dropped or half-parsed: `****` (empty
- * bold) and an unclosed `**` stay as literal text.
+ * ALLOWLIST, not a blocklist. `javascript:` and `data:` are the obvious attacks but not
+ * the only ones, and this content arrives from a draft branch, so anything not named is
+ * refused. Callers keep the original text when refused — nothing is silently dropped.
+ */
+export function isSafeHref(href: string): boolean {
+  const h = href.trim();
+  if (h === "") return false;
+  // Relative, root-relative and same-page links carry no scheme and are always fine.
+  if (/^[/#?]/.test(h)) return true;
+  // Strip the whitespace and control characters used to smuggle `java\tscript:` past a
+  // naive prefix check before looking for a scheme.
+  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(h.replace(/[\s\u0000-\u0020]/g, ""));
+  if (!scheme) return true; // bare "example.com/page" — no scheme to abuse
+  return ["http", "https", "mailto"].includes(scheme[1].toLowerCase());
+}
+
+/** One tokenising pass: split every plain run by `re`, replacing matches with `make`. */
+function splitRuns(runs: RichRun[], re: RegExp, make: (m: RegExpExecArray) => RichRun | null): RichRun[] {
+  const out: RichRun[] = [];
+  for (const run of runs) {
+    if (typeof run !== "string") {
+      out.push(run); // already marked — a later pass never re-reads an earlier mark
+      continue;
+    }
+    let last = 0;
+    let m: RegExpExecArray | null;
+    re.lastIndex = 0;
+    while ((m = re.exec(run)) !== null) {
+      const made = make(m);
+      if (made === null) continue; // refused (e.g. unsafe href) — leave it literal
+      if (m.index > last) out.push(run.slice(last, m.index));
+      out.push(made);
+      last = m.index + m[0].length;
+    }
+    if (last < run.length) out.push(run.slice(last));
+  }
+  return out;
+}
+
+/**
+ * Parse inline markers into the renderer's Rich shape.
+ *
+ * Supports `**bold**`, `*italic*` and `[text](url)`. A string with NO marker returns the
+ * PLAIN STRING (Rich's string branch — a distinct render path from a 1-run list, so this
+ * is load-bearing, not cosmetic).
+ *
+ * HOW `*` AND `**` ARE KEPT APART. The passes are LAYERED, and each only ever splits the
+ * plain text the previous one left behind. Bold runs first and consumes its own
+ * asterisks, so by the time italic looks, no `*` belonging to a `**` is still in play —
+ * which is the whole ambiguity. A single combined regex would have to encode that
+ * precedence in lookarounds; ordering the passes states it instead.
+ *
+ * Bold content additionally may not begin or end with `*`, so `***x***` cannot match as
+ * a half-eaten bold. It is not syntax (one mark per run), and lands as literal asterisks
+ * around a bold `x` rather than being silently reinterpreted.
+ *
+ * Degenerate syntax is preserved literally, never dropped or half-parsed: `****`, an
+ * unclosed `**` or `*`, a lone `*` mid-word, a `[` with no `](`, and a link whose scheme
+ * is refused all stay as text.
  */
 export function parseRich(s: string): Rich {
-  const runs: RichRun[] = [];
-  // Non-greedy, content must be >= 1 char — so `****` can never match.
-  const re = /\*\*(.+?)\*\*/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let found = false;
-  while ((m = re.exec(s)) !== null) {
-    found = true;
-    if (m.index > last) runs.push(s.slice(last, m.index));
-    runs.push({ b: m[1] });
-    last = m.index + m[0].length;
-  }
-  if (!found) return s;
-  if (last < s.length) runs.push(s.slice(last));
+  let runs: RichRun[] = [s];
+  // 1. bold, first, so its asterisks are gone before italic looks. Content is non-greedy
+  //    and may not start or end with `*` (that is the `***` guard).
+  runs = splitRuns(runs, /\*\*(?!\*)((?:[^*]|\*(?!\*))+?)(?<!\*)\*\*/g, (m) => ({ b: m[1] }));
+  // 2. italic, on what is left. `(?!\*)`/`(?<!\*)` keep it off any surviving `**`.
+  runs = splitRuns(runs, /\*(?!\*)([^*]+?)\*(?!\*)/g, (m) => ({ i: m[1] }));
+  // 3. links. The url may not contain whitespace or a closing paren.
+  runs = splitRuns(runs, /\[([^\]]+)\]\(([^)\s]+)\)/g, (m) =>
+    isSafeHref(m[2]) ? { a: m[1], href: m[2].trim() } : null
+  );
+  // No mark anywhere -> the PLAIN STRING branch, exactly as before this gained italic and
+  // links. Tested against `runs` rather than a length check because "" splits to an EMPTY
+  // list, and returning [] for an empty string would hand the renderer a run list where
+  // it has always had a string.
+  if (!runs.some((r) => typeof r !== "string")) return s;
   return runs;
 }
 

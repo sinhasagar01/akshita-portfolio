@@ -1,13 +1,13 @@
 # Rich text in /studio — what exists, what is deferred, what is out
 
-The canvas edits prose with **bold** and nothing else. That is a deliberate line, not an
-oversight, but the reasoning was previously scattered across PR bodies where it was easy
-to lose. This is the durable version.
+The canvas edits prose with **bold**, *italic* and links, and nothing else. That is a
+deliberate line, not an oversight, but the reasoning was previously scattered across PR
+bodies where it was easy to lose. This is the durable version.
 
-**This doc exists instead of greyed-out toolbar buttons.** A disabled Italic button
-advertises a feature to the owner that does not exist and cannot be made to work by
-clicking harder. The toolbar shows one button, Bold, because one mark is what the model
-holds. Capability lives here, in writing, where it can be reasoned about.
+**This doc exists instead of greyed-out toolbar buttons.** A disabled button advertises a
+feature to the owner that does not exist and cannot be made to work by clicking harder.
+The toolbar shows exactly the marks the model holds — three — and nothing more.
+Capability lives here, in writing, where it can be reasoned about.
 
 ---
 
@@ -16,6 +16,22 @@ holds. Capability lives here, in writing, where it can be reasoned about.
 **Bold, everywhere prose is rendered.** Stored as `**bold**` inside a plain string,
 parsed by `parseRich`, rendered as `<b>` by `renderRich`, and serialized back from the
 contentEditable DOM by `richToMarkers`. The canvas shows real bold, never the asterisks.
+
+**Italic and links.** `*italic*` renders `<em>`; `[text](url)` renders `<a>`. Storage
+needed no schema change — `Rich` was already a plain string, so the yaml held these the
+day before they parsed.
+
+Two rules are worth knowing. `*` and `**` are kept apart by ORDERING the parse: bold runs
+first and consumes its own asterisks, so by the time italic looks there is no `*`
+belonging to a `**` left in play. And a run carries ONE mark — `***both***` is not syntax
+and is preserved literally rather than half-parsed, which keeps the `{ b: string }` run
+shape that boat-crest.ts, About and every existing value already use.
+
+Link hrefs are an ALLOWLIST: `http`, `https`, `mailto`, and site-relative paths. Anything
+else is refused in three places — the toolbar says so when you type it, the parser leaves
+the marker as literal text, and the renderer degrades it to plain words. `http(s)` links
+get `target="_blank"` with `rel="noopener noreferrer"`; a mailto or an in-page anchor does
+not, because opening those in a new tab would be wrong.
 
 **richText paragraphs, inline.** Each paragraph is its own array item and its own
 editable field (`paragraphs.<i>`). Enter splits the array at the caret into a new item;
@@ -26,23 +42,6 @@ owner off the canvas and into the Inspector.
 ---
 
 ## Deferred, in the order they are worth doing
-
-### Italic and link — cheap, and cheaper than it looks
-
-The storage already fits. `Rich` is a plain string, so the yaml can hold `*italic*` or
-`[text](url)` today without touching Keystatic or the schema. Earlier notes said "no
-model", which read as a storage constraint; it is not one. What is missing is only
-parser, renderer and serializer support.
-
-Four files: `parseRich` (read the marker), `RichRun` (a run type per mark),
-`renderRich` (emit `<em>` / `<a>`), `richToMarkers` (write it back). Plus a toolbar
-button each.
-
-The real cost is not the code, it is the proof. These change PUBLIC output, so the
-canvas-vs-live parity check and the byte-identical rendered-DOM diff both have to be
-re-run and re-argued, and links add questions bold never had: does an external link get
-`rel="noopener"`, does it open in a new tab, what happens to a link whose text is edited
-away. Bounded, but not a one-line change.
 
 ### Bulleted and numbered lists — real design work
 

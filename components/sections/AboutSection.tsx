@@ -21,15 +21,22 @@ type Props = { settings: SiteSettingsEntry | null };
 function renderWithBold(text: string) {
   const parsed = parseRich(text);
   if (typeof parsed === "string") return parsed;
-  return parsed.map((run, i) =>
-    typeof run === "string" ? (
-      run
-    ) : (
-      <strong key={i} style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
-        {run.b}
-      </strong>
-    )
-  );
+  return parsed.map((run, i) => {
+    if (typeof run === "string") return run;
+    if ("b" in run) {
+      return (
+        <strong key={i} style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
+          {run.b}
+        </strong>
+      );
+    }
+    // parseRich gained italic and link marks. About only ever authored bold, and the bio
+    // is a short paragraph rather than an editorial surface, so the other marks render as
+    // their text instead of growing a second link treatment here. Falling through to
+    // nothing would silently DROP the words, which is the failure that matters.
+    if ("i" in run) return <em key={i}>{run.i}</em>;
+    return <span key={i}>{run.a}</span>;
+  });
 }
 
 export default function AboutSection({ settings }: Props) {
