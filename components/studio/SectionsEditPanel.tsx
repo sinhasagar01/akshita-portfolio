@@ -33,6 +33,7 @@ import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
+import { splitParagraph, mergeParagraph } from "@/lib/studio/paragraph-edits";
 import { BLOCK_REGISTRY, BLOCK_LABELS, type BlockFormProps } from "./blocks/registry";
 import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 
@@ -189,6 +190,72 @@ function getAtPath(value: unknown, path: string): unknown {
     (node, k) => (node && typeof node === "object" ? (node as Record<string, unknown>)[k] : undefined),
     value
   );
+}
+
+/** A caret sitting in a richText paragraph: which block, which array item, and the
+ *  marker text on each side of it. Null for anything that is not one. */
+function paragraphCaret(
+  el: HTMLElement | null
+): { blockIndex: number; index: number; before: string; after: string; atStart: boolean } | null {
+  const ds = el?.dataset;
+  if (!ds?.editValuePath || ds.editBlockIndex === undefined) return null;
+  const m = /^paragraphs\.(\d+)$/.exec(ds.editValuePath);
+  if (!m) return null;
+  const sel = typeof window === "undefined" ? null : window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+  const range = sel.getRangeAt(0);
+  if (!el!.contains(range.startContainer)) return null;
+
+  // Serialize each side through the SAME serializer the blur writeback uses, by cloning
+  // the two halves into detached elements. Nothing here re-implements marker rules.
+  const head = range.cloneRange();
+  head.selectNodeContents(el!);
+  head.setEnd(range.startContainer, range.startOffset);
+  const tail = range.cloneRange();
+  tail.selectNodeContents(el!);
+  tail.setStart(range.endContainer, range.endOffset);
+
+  const wrap = (frag: DocumentFragment) => {
+    const d = document.createElement("div");
+    d.appendChild(frag);
+    return richToMarkers(d);
+  };
+  return {
+    blockIndex: Number(ds.editBlockIndex),
+    index: Number(m[1]),
+    before: wrap(head.cloneContents()),
+    after: wrap(tail.cloneContents()),
+    atStart: range.collapsed && head.toString().length === 0,
+  };
+}
+
+/** Put the caret at a PLAIN-TEXT offset inside a rendered field, walking its text nodes.
+ *  Used after a structural edit, so a split or merge reads as one keystroke. */
+function placeCaret(el: HTMLElement, offset: number) {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  let seen = 0;
+  let node: Node | null = walker.nextNode();
+  while (node) {
+    const len = node.textContent?.length ?? 0;
+    if (seen + len >= offset) {
+      const range = document.createRange();
+      range.setStart(node, Math.max(0, offset - seen));
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+      return;
+    }
+    seen += len;
+    node = walker.nextNode();
+  }
+  // Past the end (or an empty paragraph): collapse to the end of the element.
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(range);
 }
 
 /** CS-7d (extended) — immutable deep-set of a STRING at a dotted path within a block
@@ -428,6 +495,8 @@ function SectionCanvas({
   onSelectField,
   selectedField,
   onRichFocus,
+  onParagraphSplit,
+  onParagraphMerge,
   renderEpoch = 0,
 }: {
   section: RawSection;
@@ -449,6 +518,10 @@ function SectionCanvas({
   selectedField?: SelectedField | null;
   /** A rich field gained (or lost) focus — drives the bold control's position. */
   onRichFocus?: (at: { top: number; left: number } | null) => void;
+  /** Enter inside a richText paragraph — grow the array at the caret. */
+  onParagraphSplit?: (blockIndex: number, index: number, before: string, after: string) => void;
+  /** Backspace at the start of a richText paragraph — fold it into the one above. */
+  onParagraphMerge?: (blockIndex: number, index: number) => void;
   /**
    * Bumped by the panel after a bold command's value is committed. Used as the
    * SectionRenderer key, so the rendered section is rebuilt from state instead of
@@ -535,6 +608,31 @@ function SectionCanvas({
       onBlurCapture={(e) => {
         const next = e.relatedTarget as HTMLElement | null;
         if (!next?.closest?.("[data-edit-rich]")) onRichFocus?.(null);
+      }}
+      // richText paragraphs are ARRAY ITEMS, so the two keys that change how many
+      // paragraphs there are have to be intercepted. Left to the browser, Enter inserts
+      // a <br> or splits a <div> INSIDE one item — which looks right on the canvas and
+      // is wrong on disk, one <p> with a line break instead of two paragraphs.
+      //
+      // Only these two, and only in a richText paragraph. Every other key, and every
+      // other field, is untouched: Shift+Enter, a non-collapsed selection, and Backspace
+      // anywhere but the very start all fall through to normal editing.
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== "Backspace") return;
+        if (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) return;
+        const at = paragraphCaret(e.target as HTMLElement);
+        if (!at) return;
+        if (e.key === "Enter") {
+          e.preventDefault();
+          onParagraphSplit?.(at.blockIndex, at.index, at.before, at.after);
+          return;
+        }
+        // Backspace only merges from the very start of a paragraph that has one above
+        // it. Anywhere else it is an ordinary character delete.
+        if (at.atStart && at.index > 0) {
+          e.preventDefault();
+          onParagraphMerge?.(at.blockIndex, at.index);
+        }
       }}
     >
       {/* The section renders at the LIVE content width and is then scaled to fit the
@@ -655,6 +753,8 @@ export default function SectionsEditPanel({
   const refocusAfterRebuild = useRef<string | null>(null);
   /** ...and the rail binding that came with it, which the rebuild also interrupts. */
   const reselectAfterRebuild = useRef<SelectedField | null>(null);
+  /** ...and where the caret goes, for a structural edit that has to read as one key. */
+  const caretAfterRebuild = useRef<number | null>(null);
 
   // Runs AFTER the rebuild is on screen, which is the whole point: the node to focus
   // does not exist until then. An earlier version used requestAnimationFrame from the
@@ -666,10 +766,16 @@ export default function SectionsEditPanel({
   useEffect(() => {
     const sel = refocusAfterRebuild.current;
     const field = reselectAfterRebuild.current;
+    const caret = caretAfterRebuild.current;
     refocusAfterRebuild.current = null;
     reselectAfterRebuild.current = null;
+    caretAfterRebuild.current = null;
     if (!sel) return;
-    document.querySelector<HTMLElement>(sel)?.focus();
+    const el = document.querySelector<HTMLElement>(sel);
+    el?.focus();
+    // A split or merge has to land the caret where the keystroke implied, or it reads
+    // as a jump rather than as Enter/Backspace.
+    if (el && caret !== null) placeCaret(el, caret);
     if (field) setSelectedField(field);
   }, [renderEpoch]);
 
@@ -1081,6 +1187,55 @@ export default function SectionsEditPanel({
           // Selecting only records WHICH field. The value is read on render, so the
           // rail cannot show something form state no longer holds.
           const selectField = (f: SelectedField) => setSelectedField(f);
+
+          /**
+           * Enter and Backspace in a richText paragraph, the two keys that change how
+           * MANY paragraphs a block has.
+           *
+           * Both write the whole `paragraphs` array through `setBlockValue` keyed by the
+           * block's stable id — the same seam every other edit uses. Nothing addresses a
+           * block by position here, so the id-lockstep is untouched and a structural
+           * edit cannot land on the wrong block.
+           *
+           * Both then bump renderEpoch, for the same reason a bold does: the array
+           * changed length, so React's tree and the contentEditable DOM no longer agree
+           * about how many <p>s exist. The rebuild settles it and the caret is restored
+           * on the other side.
+           */
+          const paragraphsOf = (blockIndex: number) => {
+            const v = (values.sections[selIdx].blocks[blockIndex]?.value ?? {}) as Record<string, unknown>;
+            return { value: v, list: (Array.isArray(v.paragraphs) ? v.paragraphs : []).map(String) };
+          };
+          const commitParagraphs = (
+            blockIndex: number,
+            list: string[],
+            focusIndex: number,
+            caret: number
+          ) => {
+            const { value } = paragraphsOf(blockIndex);
+            setBlockValue(ids.blockIds[selIdx][blockIndex], { ...value, paragraphs: list });
+            refocusAfterRebuild.current =
+              `[data-edit-block-index="${blockIndex}"][data-edit-value-path="paragraphs.${focusIndex}"]`;
+            reselectAfterRebuild.current = {
+              kind: "block",
+              blockIndex,
+              path: `paragraphs.${focusIndex}`,
+              label: "Edit paragraph",
+            };
+            caretAfterRebuild.current = caret;
+            setRenderEpoch((n) => n + 1);
+          };
+          const onParagraphSplit = (blockIndex: number, index: number, before: string, after: string) => {
+            const { list } = paragraphsOf(blockIndex);
+            // Caret 0: the start of the newly created paragraph, which is where the text
+            // after the caret now lives.
+            commitParagraphs(blockIndex, splitParagraph(list, index, before, after), index + 1, 0);
+          };
+          const onParagraphMerge = (blockIndex: number, index: number) => {
+            const { list } = paragraphsOf(blockIndex);
+            const { paragraphs: next, caret } = mergeParagraph(list, index);
+            commitParagraphs(blockIndex, next, index - 1, caret);
+          };
           // Write-through on change, the same seams the canvas blur and the Inspector
           // fields use. There is no commit step, so there is nothing to go stale
           // between selecting a field and leaving it.
@@ -1118,6 +1273,8 @@ export default function SectionsEditPanel({
                 onSelectField={selectField}
                 selectedField={selectedField}
                 onRichFocus={setBoldAt}
+                onParagraphSplit={onParagraphSplit}
+                onParagraphMerge={onParagraphMerge}
                 renderEpoch={renderEpoch}
                 onReplaceImage={(blockIndex, path) => {
                   pendingImage.current = { selIdx, blockIndex, path };
