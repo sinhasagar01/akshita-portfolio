@@ -479,6 +479,23 @@ function SectionCanvas({
         // is what fixed positioning needs — so the CSS-scaled canvas is handled.
         onRichFocus?.({ top: Math.max(8, r.top - 34), left: r.left });
       }}
+      // Hide the toolbar when focus leaves a rich field for anything that is not
+      // another rich field.
+      //
+      // onFocusCapture alone could not do this: it only fires when focus ENTERS
+      // something in the pane, so clicking empty chrome — which sends focus to <body>
+      // and fires no focus event here at all — left the toolbar floating over
+      // unrelated content with nothing being edited.
+      //
+      // focusout carries relatedTarget (the element about to receive focus) and fires
+      // BEFORE the matching focusin, so rich-to-rich is safe: this sees a rich
+      // relatedTarget and leaves the toolbar up, then onFocusCapture moves it to the
+      // new field. Clicking the Bold button is also safe — it preventDefaults its
+      // mousedown, so focus never leaves the field and no focusout fires.
+      onBlurCapture={(e) => {
+        const next = e.relatedTarget as HTMLElement | null;
+        if (!next?.closest?.("[data-edit-rich]")) onRichFocus?.(null);
+      }}
     >
       {/* The section renders at the LIVE content width and is then scaled to fit the
           pane, rather than being rendered into whatever width the pane happens to be.
