@@ -43,5 +43,15 @@ export async function GET(req: Request) {
   const rawSections = draft.source === "draft" ? draft.rawSections : live.rawSections;
   const sections = Array.isArray(rawSections) ? rawSections : [];
 
-  return NextResponse.json({ ok: true, slug, source: draft.source, sections });
+  // The canvas needs the same two things the /body route reads server-side, or it
+  // composes the wrong way: `template` decides mobile vs web, and `draftImages` is
+  // what lets a draft-only upload preview. Both come from the read above.
+  return NextResponse.json({
+    ok: true,
+    slug,
+    source: draft.source,
+    sections,
+    template: draft.source === "draft" ? (draft.template ?? "") : live.template,
+    draftImages: draft.draftImages,
+  });
 }
