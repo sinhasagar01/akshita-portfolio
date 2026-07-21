@@ -93,26 +93,28 @@ function Frame({
   blockIndex?: number;
   editPath: string;
 }) {
-  const inner = (
+  // ADDITIVE ONLY, same rule as DeviceImage: the markers and the button go on the
+  // element that is ALREADY position:relative rather than into a new wrapper, so the
+  // editable render adds an out-of-flow button and changes no box in the layout.
+  return (
     <span
+      {...(editable
+        ? { "data-edit-block-index": blockIndex, "data-edit-image-path": editPath }
+        : {})}
       className="relative block w-full overflow-hidden rounded-xl border bg-cream-100"
       style={{ borderColor: LINE, aspectRatio: aspect }}
     >
       <Image src={item.image.src} alt={item.image.alt} fill sizes={sizes} className="object-contain" unoptimized={item.image.unoptimized} />
-    </span>
-  );
-  if (!editable) return inner;
-  return (
-    <span className="relative block" data-edit-block-index={blockIndex} data-edit-image-path={editPath}>
-      {inner}
-      <button
-        type="button"
-        data-edit-image-replace
-        aria-label="Replace image"
-        className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[11px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
-      >
-        Replace image
-      </button>
+      {editable && (
+        <button
+          type="button"
+          data-edit-image-replace
+          aria-label="Replace image"
+          className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[11px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
+        >
+          Replace image
+        </button>
+      )}
     </span>
   );
 }
