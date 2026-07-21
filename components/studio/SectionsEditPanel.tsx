@@ -293,12 +293,11 @@ function SelectedRail({
   selected,
   value,
   onChange,
-  onCommit,
 }: {
   selected: SelectedField | null;
+  /** Read straight from form state on every render — see the panel's `readField`. */
   value: string;
   onChange: (v: string) => void;
-  onCommit: () => void;
 }) {
   const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
   return (
@@ -317,7 +316,6 @@ function SelectedRail({
           rows={2}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onBlur={onCommit}
           aria-label={selected.label}
           // Height is driven by useAutoGrow; once it hits the ceiling the box scrolls
           // instead of pushing past the canvas. resize-none because dragging a handle
@@ -514,23 +512,26 @@ export default function SectionsEditPanel({
   // than replacing them.
   const [view, setView] = useState<"canvas" | "inspector">("canvas");
 
-  // The field the Selected rail is bound to, plus its in-flight text. The draft text
-  // is local so typing does not re-render the whole canvas on every keystroke; it
-  // commits on blur through the same seams the inline edit uses.
+  // WHICH field the Selected rail is bound to. Deliberately NOT its text.
+  //
+  // The rail used to also hold `selectedDraft`, a copy of the value seeded once when
+  // the field was selected, committed on blur. That copy could not see a canvas edit
+  // to the same field, so the sequence canvas-edit -> blur -> rail-edit -> blur wrote
+  // the pre-canvas text back and silently destroyed the canvas edit. A rail that
+  // shows one value while form state holds another is the bug; there is now no second
+  // copy to go stale. The rail reads form state on every render and writes through on
+  // change, exactly like the Inspector's own fields.
   const [selectedField, setSelectedField] = useState<SelectedField | null>(null);
-  const [selectedDraft, setSelectedDraft] = useState("");
 
   // Clear the selection whenever the focused section changes.
   //
   // The rail addresses a field by (blockIndex, path) WITHIN the focused section, so a
   // selection that outlives a section switch points at the same address in a
-  // different section. Leaving it bound meant the rail showed the previous section's
-  // text while the canvas showed the new one, and blurring it would have written that
-  // stale text straight into the new section's field — a silent overwrite of content
-  // the owner never touched.
+  // different section. Leaving it bound would point the rail at whatever happens to
+  // live at that address in the new section, so the next keystroke would edit content
+  // the owner never opened.
   useEffect(() => {
     setSelectedField(null);
-    setSelectedDraft("");
   }, [selectedSectionId]);
 
   // Cancel discards local edits; return to the board so selection can't point at
@@ -899,14 +900,15 @@ export default function SectionsEditPanel({
             const curVal = (values.sections[selIdx].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
             return String(getAtPath(curVal, f.path) ?? "");
           };
-          const selectField = (f: SelectedField) => {
-            setSelectedField(f);
-            setSelectedDraft(readField(f));
-          };
-          const commitSelected = () => {
+          // Selecting only records WHICH field. The value is read on render, so the
+          // rail cannot show something form state no longer holds.
+          const selectField = (f: SelectedField) => setSelectedField(f);
+          // Write-through on change, the same seams the canvas blur and the Inspector
+          // fields use. There is no commit step, so there is nothing to go stale
+          // between selecting a field and leaving it.
+          const writeSelected = (value: string) => {
             const f = selectedField;
             if (!f) return;
-            const value = selectedDraft;
             if (readField(f) === value) return; // no-op, never dirty the draft
             if (f.kind === "section") {
               setSection(selIdx, { ...values.sections[selIdx], [f.field]: value } as RawSection);
@@ -945,9 +947,8 @@ export default function SectionsEditPanel({
               />
               <SelectedRail
                 selected={selectedField}
-                value={selectedDraft}
-                onChange={setSelectedDraft}
-                onCommit={commitSelected}
+                value={selectedField ? readField(selectedField) : ""}
+                onChange={writeSelected}
               />
               </div>
               <input
