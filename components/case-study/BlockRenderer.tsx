@@ -101,7 +101,7 @@ export default function BlockRenderer({
         />
       );
     case "richText":
-      return <RichText paragraphs={block.paragraphs} web={web} />;
+      return <RichText paragraphs={block.paragraphs} web={web} editable={editable} blockIndex={blockIndex} />;
     case "closingLine":
       return <ClosingLine text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
     default: {
