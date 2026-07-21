@@ -52,7 +52,9 @@ sections:
               value: 6 months
           devices:
             - src: /images/projects/elevate-one-view/screen-a.webp
-              alt: Stylised field service app screen showing a unit list with status indicators
+              alt: >-
+                Stylised field service app screen showing a unit list with
+                status indicators
               width: 248
               rotate: -6
               translateX: -86
@@ -61,7 +63,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/elevate-one-view/screen-b.webp
-              alt: Stylised field service app screen showing a commissioning detail with a progress ring
+              alt: >-
+                Stylised field service app screen showing a commissioning detail
+                with a progress ring
               width: 288
               rotate: null
               translateX: null
@@ -316,7 +320,9 @@ sections:
         value:
           devices:
             - src: /images/projects/elevate-one-view/screen-a.webp
-              alt: Stylised field service app screen showing a unit list with status indicators
+              alt: >-
+                Stylised field service app screen showing a unit list with
+                status indicators
               width: 248
               rotate: -4
               translateX: null
@@ -325,7 +331,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/elevate-one-view/screen-b.webp
-              alt: Stylised field service app screen showing a commissioning detail with a progress ring
+              alt: >-
+                Stylised field service app screen showing a commissioning detail
+                with a progress ring
               width: 288
               rotate: null
               translateX: null
@@ -368,7 +376,9 @@ sections:
                 the same everywhere.
               image:
                 src: /images/projects/elevate-one-view/screen-a.webp
-                alt: Stylised field service app screen showing a unit list with status indicators
+                alt: >-
+                  Stylised field service app screen showing a unit list with
+                  status indicators
                 width: 248
                 rotate: null
                 translateX: null
@@ -382,7 +392,9 @@ sections:
                 the field.
               image:
                 src: /images/projects/elevate-one-view/screen-b.webp
-                alt: Stylised field service app screen showing a commissioning detail with a progress ring
+                alt: >-
+                  Stylised field service app screen showing a commissioning
+                  detail with a progress ring
                 width: 248
                 rotate: null
                 translateX: null
@@ -396,7 +408,9 @@ sections:
                 generic app look.
               image:
                 src: /images/projects/elevate-one-view/screen-c.webp
-                alt: Stylised field service app screen showing a health status view with a trend chart
+                alt: >-
+                  Stylised field service app screen showing a health status view
+                  with a trend chart
                 width: 248
                 rotate: null
                 translateX: null
@@ -422,7 +436,9 @@ sections:
         value:
           devices:
             - src: /images/projects/elevate-one-view/screen-a.webp
-              alt: Stylised field service app screen showing a unit list with status indicators
+              alt: >-
+                Stylised field service app screen showing a unit list with
+                status indicators
               width: 248
               rotate: -5
               translateX: -60
@@ -431,7 +447,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/elevate-one-view/screen-b.webp
-              alt: Stylised field service app screen showing a commissioning detail with a progress ring
+              alt: >-
+                Stylised field service app screen showing a commissioning detail
+                with a progress ring
               width: 268
               rotate: null
               translateX: null
@@ -440,7 +458,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/elevate-one-view/screen-c.webp
-              alt: Stylised field service app screen showing a health status view with a trend chart
+              alt: >-
+                Stylised field service app screen showing a health status view
+                with a trend chart
               width: 248
               rotate: 5
               translateX: 60
@@ -479,7 +499,9 @@ sections:
               tag: Commissioning
               before:
                 src: /images/projects/elevate-one-view/screen-a.webp
-                alt: Stylised field service app screen showing a unit list with status indicators
+                alt: >-
+                  Stylised field service app screen showing a unit list with
+                  status indicators
                 width: 248
                 rotate: null
                 translateX: null
@@ -487,7 +509,9 @@ sections:
                 z: null
               after:
                 src: /images/projects/elevate-one-view/screen-b.webp
-                alt: Stylised field service app screen showing a commissioning detail with a progress ring
+                alt: >-
+                  Stylised field service app screen showing a commissioning
+                  detail with a progress ring
                 width: 248
                 rotate: null
                 translateX: null

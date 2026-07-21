@@ -61,7 +61,9 @@ sections:
               value: 3 Months
           devices:
             - src: /images/projects/fosfor-ai/solution-companion.webp
-              alt: Fosfor AI companion confirming a solution was created, with a link to view it
+              alt: >-
+                Fosfor AI companion confirming a solution was created, with a
+                link to view it
               width: 800
               rotate: -6
               translateX: -86
@@ -70,7 +72,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-ai/home-companion.webp
-              alt: Fosfor home dashboard with the Fosfor AI companion drawer open, showing starter prompts across modules
+              alt: >-
+                Fosfor home dashboard with the Fosfor AI companion drawer open,
+                showing starter prompts across modules
               width: 800
               rotate: null
               translateX: null
@@ -321,7 +325,9 @@ sections:
         value:
           devices:
             - src: /images/projects/fosfor-ai/sales-view.webp
-              alt: Fosfor AI companion offering a semantic model picker as the user types a slash command
+              alt: >-
+                Fosfor AI companion offering a semantic model picker as the user
+                types a slash command
               width: 248
               rotate: -4
               translateX: null
@@ -330,7 +336,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-ai/auto-ecom-view.webp
-              alt: A solution the companion just created, opened with its semantic model tabs and a success notice
+              alt: >-
+                A solution the companion just created, opened with its semantic
+                model tabs and a success notice
               width: 288
               rotate: null
               translateX: null
@@ -373,7 +381,9 @@ sections:
                 generic AI noise.
               image:
                 src: /images/projects/fosfor-ai/workflow-after.webp
-                alt: The Fosfor AI companion drawer at its entry state, ready for a question or a slash command
+                alt: >-
+                  The Fosfor AI companion drawer at its entry state, ready for a
+                  question or a slash command
                 width: 248
                 rotate: null
                 translateX: null
@@ -387,7 +397,9 @@ sections:
                 feels the same wherever you are in the journey.
               image:
                 src: /images/projects/fosfor-ai/solution-companion.webp
-                alt: The same companion inside the Solution module, keeping one consistent experience across the journey
+                alt: >-
+                  The same companion inside the Solution module, keeping one
+                  consistent experience across the journey
                 width: 248
                 rotate: null
                 translateX: null
@@ -401,7 +413,9 @@ sections:
                 companion with their data.
               image:
                 src: /images/projects/fosfor-ai/feedback-loop.webp
-                alt: A feedback panel for rating an AI generated solution, part of the companion's review and trust controls
+                alt: >-
+                  A feedback panel for rating an AI generated solution, part of
+                  the companion's review and trust controls
                 width: 248
                 rotate: null
                 translateX: null
@@ -415,7 +429,9 @@ sections:
                 that lets the assistant hold a thread across a session.
               image:
                 src: /images/projects/fosfor-ai/workflow-before.webp
-                alt: The companion working on a requested solution, with the response in progress
+                alt: >-
+                  The companion working on a requested solution, with the
+                  response in progress
                 width: 248
                 rotate: null
                 translateX: null
@@ -498,7 +514,9 @@ sections:
               tag: Data to decision
               before:
                 src: /images/projects/fosfor-ai/workflow-before.webp
-                alt: The workflow before the companion, a request left waiting on a response
+                alt: >-
+                  The workflow before the companion, a request left waiting on a
+                  response
                 width: 248
                 rotate: null
                 translateX: null
@@ -506,7 +524,9 @@ sections:
                 z: null
               after:
                 src: /images/projects/fosfor-ai/auto-ecom-view.webp
-                alt: The workflow with the companion, the solution created and ready to review
+                alt: >-
+                  The workflow with the companion, the solution created and
+                  ready to review
                 width: 248
                 rotate: null
                 translateX: null
