@@ -9,14 +9,23 @@ import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-sess
 // The GH-9 /keystatic dev-only guard was removed when /keystatic itself was
 // retired (/studio is the sole editor now). With the route files deleted, Next
 // 404s /keystatic by default in every environment, so no middleware branch is
-// needed for it.
+// needed for it. /dev DOES need one — see below.
 export const config = {
   runtime: "nodejs",
-  matcher: ["/studio", "/studio/:path*"],
+  matcher: ["/studio", "/studio/:path*", "/dev", "/dev/:path*"],
 };
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // /dev holds local-only harnesses (the canvas-vs-live parity page). The page
+  // itself also notFound()s in production; this makes the whole prefix unreachable
+  // there rather than relying on every future page under it remembering to.
+  if (pathname === "/dev" || pathname.startsWith("/dev/")) {
+    return process.env.NODE_ENV === "production"
+      ? new NextResponse(null, { status: 404 })
+      : NextResponse.next();
+  }
 
   // The login page must stay reachable while logged out.
   if (pathname === "/studio/login") {
