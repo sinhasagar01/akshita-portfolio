@@ -1,10 +1,16 @@
-// Phase-1 T2 test — experience form: description locked, preserved on save.
+// Phase-1 T2 test — experience form: description round-trips, preserved on save.
 // Run: node --experimental-strip-types ralph/tests/task2.mjs
+//
+// T2 originally pinned description as LOCKED. #117 unlocked it deliberately, because
+// the site renders it as the role's bullet lines and /studio had no input for it, so
+// the copy could not be written at all. What still matters — and is what this suite
+// now pins — is that description SURVIVES: it is byte-identical when some other field
+// is edited, and it round-trips exactly when it is the field being edited.
 //
 // Plain JS (kept out of the app tsc program). Imports the REAL experience
 // sanitizer + transform and replicates the exact serializeExperience pipeline
 // (load -> transformExperiencePatch -> dump with quotingType '"'). Asserts:
-//  (1) the sanitizer REJECTS description (locked) and still rejects company /
+//  (1) the sanitizer ACCEPTS description (string only) and still rejects company /
 //      orderIndex / unknown, and accepts title/startDate/endDate,
 //  (2) editing title/dates leaves description BYTE-IDENTICAL and orderIndex intact,
 //  (3) a no-op reproduces the file byte-for-byte,
@@ -30,18 +36,30 @@ function serialize(raw, patch) {
   return dump(result.value, { quotingType: '"' });
 }
 
-console.log("T2.1 sanitizer rejects description (and company/orderIndex/unknown)");
+console.log("T2.1 sanitizer accepts description; still rejects company/orderIndex/unknown");
 {
-  const r1 = sanitizeExperiencePatch({ description: "sneaky" });
+  // #117 UNLOCKED description on purpose. Phase-1 T2 refused the key outright, but
+  // ExperienceEntry renders it as the role's bullet lines and the panel drew no input
+  // for it, so those lines could not be written from /studio at all — every entry's
+  // description was "" as a direct result. It is now an ordinary editable string.
+  // company and orderIndex stay refused for their own reasons: company is the entry
+  // slug (editing it renames the file) and reorder owns orderIndex.
+  const r1 = sanitizeExperiencePatch({ description: "Led the redesign." });
   check(
-    "description rejected",
-    r1.ok === false && r1.error.field === "description" && /not editable/i.test(r1.error.message),
-    r1.ok ? "was accepted" : r1.error.message
+    "description accepted (unlocked by #117)",
+    r1.ok === true && r1.patch.description === "Led the redesign.",
+    r1.ok ? `patch: ${JSON.stringify(r1.patch)}` : r1.error.message
   );
 
   const r2 = sanitizeExperiencePatch({ title: "T", description: "x" });
-  check("mixed patch with description rejected", r2.ok === false && /description/i.test(r2.error.message),
-    r2.ok ? "was accepted" : r2.error.message);
+  check("mixed patch with description accepted",
+    r2.ok === true && r2.patch.title === "T" && r2.patch.description === "x",
+    r2.ok ? `patch: ${JSON.stringify(r2.patch)}` : r2.error.message);
+
+  // The type guard still has to hold for the newly editable field.
+  const r2b = sanitizeExperiencePatch({ description: 42 });
+  check("non-string description rejected", r2b.ok === false && /must be a string/i.test(r2b.error.message),
+    r2b.ok ? "was accepted" : r2b.error.message);
 
   const r3 = sanitizeExperiencePatch({ company: "x" });
   check("company still rejected", r3.ok === false && /slug/i.test(r3.error.message));
@@ -84,6 +102,24 @@ console.log("T2.2 editing title/dates preserves description + orderIndex byte-id
   check("title updated", /title: Principal Designer/.test(out) && !/Senior Designer/.test(out));
   check("endDate updated", /endDate: Dec 2024/.test(out) && !/endDate: Present/.test(out));
   check("company untouched", out.includes("company: Acme Corp, Bengaluru"));
+}
+
+console.log("T2.2b editing description writes through, and nothing else moves");
+{
+  // The capability #117 added. Nothing pinned it, which is how the locked-era
+  // expectation above survived unnoticed for so long.
+  const next = "Rebuilt the design system and shipped it across four squads.";
+  const out = serialize(raw, { description: next });
+  check("description updated", out.includes(`description: ${next}`) && !out.includes(descLine));
+  check("orderIndex still byte-identical", out.includes(orderLine));
+  check("company untouched", out.includes("company: Acme Corp, Bengaluru"));
+  check("title untouched", out.includes("title: Senior Designer"));
+  // A newline-bearing description is the real shape: the site splits it into bullet
+  // lines, so it must survive the dump/parse round trip intact.
+  const multi = "Led the redesign.\nGrew the team from 2 to 6.";
+  const back = load(serialize(raw, { description: multi }));
+  check("multi-line description round-trips exactly", back.description === multi,
+    JSON.stringify(back.description));
 }
 
 console.log("T2.3 no-op reproduces the record byte-for-byte");
