@@ -58,8 +58,22 @@ export default function DeviceImage({
 }) {
   const inner = <DeviceImageInner image={image} className={className} priority={priority} />;
   if (!editable) return inner;
+  // The Replace affordance needs a positioned wrapper, but a plain `block` span
+  // BROKE the width chain for wide frames: the frame inside is `w-full` capped at
+  // WIDE_MAX_W, so with a width-less wrapper between it and its flex parent, 100%
+  // resolved against nothing and the dashboard collapsed to about 90px — the canvas
+  // showed a thumbnail where the live page shows a full-width screenshot.
+  //
+  // So for a wide frame the wrapper takes over BOTH jobs its parent was doing: carry
+  // the full width, and centre the capped frame inside it. A phone frame has an
+  // intrinsic width and shrink-wraps correctly, so it keeps the plain block.
+  const wideFrame = isWideFrame(image.frame);
   return (
-    <span className="relative block" data-edit-block-index={blockIndex} data-edit-image-path={editPath}>
+    <span
+      className={wideFrame ? "relative flex w-full justify-center" : "relative block"}
+      data-edit-block-index={blockIndex}
+      data-edit-image-path={editPath}
+    >
       {inner}
       <button
         type="button"
