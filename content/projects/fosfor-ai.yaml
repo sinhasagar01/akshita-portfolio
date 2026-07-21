@@ -101,10 +101,11 @@ sections:
       because every user expects something different.
 
 
-      Inside Fosfor Decision Cloud, one AI companion had to support three
-      distinct personas with different goals, workflows, and definitions of
-      success. Designing one experience that felt intelligent to all of them
-      became the core challenge of this project.
+      Inside Fosfor **Decision** *Cloud*, one AI
+      [companion](https://www.google.com/) had to support three distinct
+      personas with different goals, workflows, and definitions of success.
+      Designing one experience that felt intelligent to all of them became the
+      core challenge of this project.
     northStar: ''
     layout: stack
     glow:
@@ -118,12 +119,10 @@ sections:
       - discriminant: pullQuote
         value:
           text: >-
-            The challenge wasn't designing one AI assistant.
-
-
-            It was designing one assistant that could think differently for
-            three completely different people—without making any of them feel
-            like the product wasn't built for them.
+            The challenge wasn't designing one AI assistant. It was designing
+            one assistant that could think differently for three completely
+            different people—without making any of them feel like the product
+            wasn't built for them.
       - discriminant: glanceGrid
         value:
           items:
