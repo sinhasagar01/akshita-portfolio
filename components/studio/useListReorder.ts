@@ -1,6 +1,6 @@
 "use client";
 
-// Reorder for a slug-keyed collection list, shared by ProjectsListEditor and
+// Reorder for a slug-keyed collection list, shared by CaseStudyIndex and
 // ExperienceListEditor — the two are identical here (same route, same optimistic
 // shape, same revert), unlike their add/delete flows, which genuinely differ.
 //

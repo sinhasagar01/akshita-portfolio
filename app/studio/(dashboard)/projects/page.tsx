@@ -1,21 +1,21 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
-import ProjectsListEditor from "@/components/studio/ProjectsListEditor";
+import CaseStudyIndex from "@/components/studio/CaseStudyIndex";
 
 export default async function StudioProjects() {
   // getStudioData().projects is F-2's draft-overlaid list — it already reflects
-  // draft creates and deletes. ProjectsListEditor (client) owns the add/remove
-  // handlers, the two dialogs, and the create/delete route calls. It always
-  // renders the list shell (even when empty) so "Add project" stays reachable.
+  // draft creates and deletes. CaseStudyIndex (client) owns order, add and remove;
+  // editing one study happens at /studio/projects/<slug>, where it gets the full
+  // width instead of sharing it with a rail of every other study.
   const { projects } = await getStudioData();
 
   return (
     <>
       <AreaHeader
         title="Case studies"
-        sub="Sorted by order. Add or remove case studies; edit the details and sections inline."
+        sub="Pick one to edit its details and sections."
       />
-      <ProjectsListEditor entries={projects} />
+      <CaseStudyIndex entries={projects} />
     </>
   );
 }
