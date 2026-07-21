@@ -9,7 +9,7 @@
 // P4-1 — heroImage is now editable HERE via a separate multipart upload route
 // (its own local state, NOT part of the useDraftForm text patch), committing the
 // normalized webp blob + the yaml path to the same draft branch.
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
@@ -70,15 +70,18 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     onSaved: () => setUnpublished(true),
   });
 
-  // CS-1 — Details | Sections tabs. Sections are lazy-fetched on first open so the
-  // list payload never carries them (the reason the /body route existed). boat-crest
-  // is bespoke: its Sections tab is a read-only notice, never fetched.
+  // Sections are fetched separately from the list payload, which never carries them
+  // (a project's sections are ~15KB, and the index shows four projects). boat-crest
+  // is bespoke: a read-only notice, never fetched.
   const bespoke = BESPOKE_SLUGS.has(slug);
-  const [tab, setTab] = useState<"details" | "sections">("details");
+  // Sections are the reason you opened this page, so they are always visible and the
+  // DETAILS collapse instead — the reverse of the old Details|Sections tabs, where the
+  // thing you came for was one click away behind the thing you rarely change.
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [sectionsData, setSectionsData] = useState<RawSection[] | null>(null);
   // The canvas composes from `template`, so it lives HERE rather than inside the
   // toggle: flipping Mobile/Web has to recompose the preview immediately, and the
-  // Sections tab has to render with the right one from the start. Seeded from the
+  // editor has to render with the right one from the start. Seeded from the
   // server prop, then owned by the toggle.
   const [templateValue, setTemplateValue] = useState(template);
   const [draftImages, setDraftImages] = useState<string[]>([]);
@@ -113,22 +116,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     }
   }
 
-  function selectTab(next: "details" | "sections") {
-    setTab(next);
-    // Fetch on first open (or after an error); never for bespoke, never re-fetch.
-    if (next === "sections" && !bespoke && (sectionsStatus === "idle" || sectionsStatus === "error")) {
-      void loadSections();
-    }
-  }
-
-  // Roving-tabindex arrow nav between the two tabs.
-  function onTabKey(e: React.KeyboardEvent, current: "details" | "sections") {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault();
-    const other = current === "details" ? "sections" : "details";
-    selectTab(other);
-    requestAnimationFrame(() => document.getElementById(`cs-tab-${other}-${slug}`)?.focus());
-  }
+  // Sections load on mount now that they are the default view. Still never for
+  // bespoke, and still never re-fetched once loaded.
+  useEffect(() => {
+    if (!bespoke && sectionsStatus === "idle") void loadSections();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per mounted study
+  }, []);
 
   const inputCls =
     "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
@@ -172,57 +165,53 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         </div>
       </header>
 
-      {/* CS-1 Details | Sections tablist, plus the CS-6a template toggle on the
-          right — sharing one bordered header row. The toggle sits OUTSIDE the
-          role="tablist" so it adds no spurious tab. */}
-      <div className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4">
-        <div role="tablist" aria-label="Case study editor" className="flex gap-1">
-        {(["details", "sections"] as const).map((t) => {
-          const selected = tab === t;
-          return (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              id={`cs-tab-${t}-${slug}`}
-              aria-selected={selected}
-              aria-controls={`cs-panel-${t}-${slug}`}
-              tabIndex={selected ? 0 : -1}
-              onClick={() => selectTab(t)}
-              onKeyDown={(e) => onTabKey(e, t)}
-              className={[
-                "-mb-px border-b-2 px-3 py-2.5 text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
-                selected
-                  ? "border-accent-500 font-medium text-ink-950"
-                  : "border-transparent text-ink-500 hover:text-ink-950",
-              ].join(" ")}
-            >
-              {t === "details" ? "Details" : "Sections"}
-            </button>
-          );
-        })}
+      {/* The details STRIP. Summary, type and platform are the three you glance at,
+          so they read straight off the bar; title and hero image live inside the
+          expanded form because they are set once. Replaces the Details|Sections
+          tablist — a case study is one thing, not two tabs. */}
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/8 bg-cream-100 px-4 py-2.5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-2">
+          <span className="flex min-w-0 max-w-[46ch] flex-col">
+            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Summary</span>
+            <span className="truncate text-[12.5px] text-ink-600">
+              {values.summary || "No summary yet"}
+            </span>
+          </span>
+          <span className="flex flex-col">
+            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Type</span>
+            <span className="text-[12.5px] text-ink-950">{values.facts.type || "—"}</span>
+          </span>
+          <span className="flex flex-col">
+            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Platform</span>
+            <span className="text-[12.5px] text-ink-950">{values.facts.platform || "—"}</span>
+          </span>
         </div>
-        {/* CS-6a — case-study template toggle. Sections-owned only (bespoke boat-crest
-            renders no template). Writes `template` via the HEAD/Details save path. */}
-        {!bespoke && (
-          <TemplateToggle
-            slug={slug}
-            initial={template}
-            onChange={setTemplateValue}
-            onSaved={() => setUnpublished(true)}
-          />
-        )}
+        <div className="flex items-center gap-3">
+          {/* CS-6a — case-study template toggle. Sections-owned only (bespoke
+              boat-crest renders no template). Writes `template` via the Details save. */}
+          {!bespoke && (
+            <TemplateToggle
+              slug={slug}
+              initial={template}
+              onChange={setTemplateValue}
+              onSaved={() => setUnpublished(true)}
+            />
+          )}
+          <button
+            type="button"
+            onClick={() => setDetailsOpen((o) => !o)}
+            aria-expanded={detailsOpen}
+            aria-controls={`cs-details-${slug}`}
+            className="rounded-md border border-ink-950/8 bg-cream-50 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          >
+            Edit details {detailsOpen ? "▴" : "▾"}
+          </button>
+        </div>
       </div>
 
-      {/* Details tabpanel — the existing facts form, UNCHANGED (same fields, same
-          posted patch). Kept mounted (hidden, not unmounted) so switching tabs never
-          drops its draft. */}
-      <div
-        id={`cs-panel-details-${slug}`}
-        role="tabpanel"
-        aria-labelledby={`cs-tab-details-${slug}`}
-        hidden={tab !== "details"}
-      >
+      {/* The facts form, UNCHANGED — same fields, same posted patch. Kept mounted
+          (hidden, not unmounted) so collapsing the strip never drops its draft. */}
+      <div id={`cs-details-${slug}`} hidden={!detailsOpen}>
         <div className="flex flex-col gap-5 px-4 py-5">
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
               here never silently fails — it is set on Add and not editable. */}
@@ -237,7 +226,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             className="w-full cursor-not-allowed rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
-            The project&rsquo;s identity, set when you add it. The case study body is edited in the Sections tab.
+            The project&rsquo;s identity, set when you add it. The case study body is edited below.
           </span>
         </label>
 
@@ -297,17 +286,9 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       </footer>
       </div>
 
-      {/* Sections tabpanel — lazy-loaded on first open. Once loaded it stays
-          MOUNTED and only toggles hidden, so an in-progress sections draft survives
-          switching to Details and back. boat-crest is bespoke → read-only notice,
-          never fetched. */}
-      <div
-        id={`cs-panel-sections-${slug}`}
-        role="tabpanel"
-        aria-labelledby={`cs-tab-sections-${slug}`}
-        hidden={tab !== "sections"}
-        className="px-4 py-5"
-      >
+      {/* Sections — the default and only view now, loaded on mount. boat-crest is
+          bespoke → read-only notice, never fetched. */}
+      <div className="px-4 py-5">
         {bespoke ? (
           <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
             <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
