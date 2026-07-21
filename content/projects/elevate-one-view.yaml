@@ -7,6 +7,7 @@ facts:
   type: Enterprise mobile app, industry project
   platform: Mobile
   timeline: 6 months
+template: mobile
 body: []
 sections:
   - variant: hero
