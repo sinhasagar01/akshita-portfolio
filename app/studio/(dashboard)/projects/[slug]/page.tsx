@@ -5,9 +5,10 @@
 // render a page faithfully. The list moves to /studio/projects (an index) and the
 // editing happens here, where nothing competes for width.
 //
-// It also replaces the orphaned [slug]/body route, which nothing linked to. That
-// route being unreachable is exactly how it drifted from the surface people used —
-// it kept getting the fixes while the real editor did not. One editor, one URL.
+// It replaces [slug]/body, now deleted. That route was reachable only by typing the
+// URL, and being unreachable is exactly how it drifted from the surface people
+// actually used — it kept receiving the fixes while the real editor did not. One
+// editor, one URL, so there is no second copy to fix the wrong one of.
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getStudioData } from "@/lib/studio/data";
