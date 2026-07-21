@@ -6,8 +6,17 @@ import type { StaticImageData } from "next/image";
    A Section is a card; a Block is one body layout inside it.
 ============================================================ */
 
-/** Inline rich text — a plain string, or a run list where { b } is bold. */
-export type RichRun = string | { b: string };
+/**
+ * Inline rich text — a plain string, or a run list.
+ *
+ * ONE mark per run, deliberately: `{ b }` bold, `{ i }` italic, `{ a, href }` link.
+ * A run cannot be bold AND italic. Supporting both would mean carrying the marks as
+ * flags beside the text (`{ text, b?, i? }`), which rewrites every consumer — the
+ * hand-authored runs in boat-crest.ts, About's own renderer, the serializer — to buy a
+ * combination editorial prose almost never needs. `***both***` is therefore not
+ * syntax, and is preserved literally rather than half-parsed.
+ */
+export type RichRun = string | { b: string } | { i: string } | { a: string; href: string };
 export type Rich = string | RichRun[];
 
 /** An image. boAt screens are static imports (true aspect + blur placeholder). */

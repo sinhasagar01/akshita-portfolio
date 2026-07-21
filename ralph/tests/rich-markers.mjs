@@ -10,7 +10,11 @@
 // No jsdom: richToMarkers is structurally typed, so the fake tree below is enough and
 // the suite stays dependency-free like the rest of ralph/tests.
 import { richToMarkers } from "../../lib/studio/rich-markers.ts";
-import { parseRich } from "../../lib/case-studies/adapter.ts";
+import { parseRich, isSafeHref } from "../../lib/case-studies/adapter.ts";
+
+// The serializer takes the href policy as an argument (it is a leaf module on purpose),
+// so every call here passes the REAL one rather than a stand-in.
+const safe = isSafeHref;
 
 const text = (s) => ({ nodeType: 3, nodeName: "#text", textContent: s });
 const el = (name, ...children) => ({
@@ -22,6 +26,8 @@ const el = (name, ...children) => ({
   },
 });
 const root = (...children) => el("DIV", ...children);
+/** An anchor. The serializer reads href through getAttribute when it is present. */
+const a = (href, ...children) => ({ ...el("A", ...children), href, getAttribute: (n) => (n === "href" ? href : null) });
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -54,10 +60,12 @@ t("two separate bolds",
 t("pasted <span style> flattens to text",
   richToMarkers(root(text("a "), el("span", text("styled")), text(" b"))), "a styled b");
 t("pasted <font> flattens", richToMarkers(root(el("font", text("colored")))), "colored");
-t("pasted <em> flattens (italic is NOT in the model)",
-  richToMarkers(root(text("a "), el("em", text("it")), text(" b"))), "a it b");
-t("pasted <a href> flattens to its text (links are NOT in the model)",
-  richToMarkers(root(text("see "), el("a", text("the docs")))), "see the docs");
+// italic and link ARE in the model now, so these two are marks rather than casualties of
+// the sanitiser. Everything else on this list still flattens.
+t("pasted <em> becomes an italic marker",
+  richToMarkers(root(text("a "), el("em", text("it")), text(" b")), safe), "a *it* b");
+t("an <a> with NO href flattens to its text (nothing to link to)",
+  richToMarkers(root(text("see "), el("a", text("the docs"))), safe), "see the docs");
 t("pasted heading flattens", richToMarkers(root(el("h2", text("Title")))), "Title");
 t("bold INSIDE a pasted span still becomes a marker",
   richToMarkers(root(el("span", text("x "), el("b", text("y"))))), "x **y**");
@@ -99,7 +107,85 @@ roundTrips("bold only", root(el("b", text("All bold"))), "**All bold**");
 
 // parseRich's own documented edge: `****` and an unclosed `**` stay literal. The
 // serializer must never MANUFACTURE either of those from an empty element.
-t("serializer never emits ****", richToMarkers(root(el("b"))).includes("****"), false);
+t("serializer never emits ****", richToMarkers(root(el("b")), safe).includes("****"), false);
+
+// ============================================================================
+// ITALIC AND LINK — the marks added alongside bold.
+// ============================================================================
+
+console.log("\n--- italic ---");
+t("italic via <em>", richToMarkers(root(text("a "), el("em", text("it")), text(" b")), safe), "a *it* b");
+t("italic via <i> (some engines emit this)",
+  richToMarkers(root(el("i", text("slanted"))), safe), "*slanted*");
+t("bold and italic ADJACENT both survive",
+  richToMarkers(root(el("b", text("B")), text(" and "), el("em", text("I"))), safe), "**B** and *I*");
+t("empty <em> drops its markers (a lone * would render literally)",
+  richToMarkers(root(text("a"), el("em"), text("b")), safe), "ab");
+t("italic nested in bold collapses to text (ONE mark per run)",
+  richToMarkers(root(el("b", text("a "), el("em", text("b")), text(" c"))), safe), "**a b c**");
+
+console.log("\n--- link ---");
+t("link with an https href",
+  richToMarkers(root(text("see "), a("https://example.com", text("docs"))), safe), "see [docs](https://example.com)");
+t("link with a mailto href",
+  richToMarkers(root(a("mailto:hi@example.com", text("email"))), safe), "[email](mailto:hi@example.com)");
+t("link with a relative href",
+  richToMarkers(root(a("/projects", text("work"))), safe), "[work](/projects)");
+t("UNSAFE javascript: href flattens to text, no marker",
+  richToMarkers(root(a("javascript:alert(1)", text("click"))), safe), "click");
+t("UNSAFE data: href flattens to text",
+  richToMarkers(root(a("data:text/html,<script>", text("click"))), safe), "click");
+t("obfuscated java\\tscript: href flattens too",
+  richToMarkers(root(a("java\tscript:alert(1)", text("click"))), safe), "click");
+t("link text containing brackets stays plain (it could not round-trip)",
+  richToMarkers(root(a("https://example.com", text("a [b] c"))), safe), "a [b] c");
+t("FAIL-CLOSED: with no policy passed, links flatten rather than emit unchecked hrefs",
+  richToMarkers(root(a("https://example.com", text("docs")))), "docs");
+
+console.log("\n--- round-trip of the new marks through parseRich ---");
+const flatten = (r) => (typeof r === "string" ? r : r.b ?? r.i ?? r.a);
+const rt = (label, node, markers, plain) => {
+  const got = richToMarkers(node, safe);
+  t(`round-trip · ${label} · markers`, got, markers);
+  const runs = parseRich(got);
+  const flat = typeof runs === "string" ? runs : runs.map(flatten).join("");
+  t(`round-trip · ${label} · text preserved`, flat, plain);
+};
+rt("italic", root(text("a "), el("em", text("B")), text(" c")), "a *B* c", "a B c");
+rt("link", root(text("see "), a("https://example.com", text("docs"))), "see [docs](https://example.com)", "see docs");
+rt("bold + italic adjacent", root(el("b", text("B")), text(" "), el("em", text("I"))), "**B** *I*", "B I");
+
+console.log("\n--- parseRich: * vs ** disambiguation and literals ---");
+const kinds = (s) => { const r = parseRich(s); return typeof r === "string" ? "STR" : r.map((x) => typeof x === "string" ? "t" : ("b" in x ? "B" : "i" in x ? "I" : "A")).join(""); };
+t("**bold** parses as bold, not two italics", kinds("**x**"), "B");
+t("*italic* parses as italic", kinds("*x*"), "I");
+t("bold then italic in one string", kinds("**b** and *i*"), "BtI");
+t("*** is not syntax — preserved literally around the bold",
+  JSON.stringify(parseRich("***x***")), JSON.stringify(["*", { b: "x" }, "*"]));
+t("a lone * mid-word stays literal", parseRich("2 * 3 = 6"), "2 * 3 = 6");
+t("an unclosed * stays literal", parseRich("half *open"), "half *open");
+t("**** stays literal", parseRich("****"), "****");
+t("a [ with no ]( stays literal", parseRich("[not a link"), "[not a link");
+t("unsafe scheme is REFUSED at parse and stays literal",
+  parseRich("[x](javascript:alert(1))"), "[x](javascript:alert(1))");
+t("safe link parses to a link run",
+  JSON.stringify(parseRich("[x](https://a.co)")), JSON.stringify([{ a: "x", href: "https://a.co" }]));
+t("empty string still returns the empty STRING, not a run list",
+  JSON.stringify(parseRich("")), JSON.stringify(""));
+
+console.log("\n--- EXISTING bold-only content must be untouched by the new branches ---");
+for (const s of [
+  "Personas served, **Data Designer**, **Insight Designer**, and **Decision Designer**",
+  "Designing for three personas at once taught me to find the shared spine.",
+  "**Lead** then rest",
+]) {
+  t(`bold-only round-trip unchanged · ${s.slice(0, 34)}…`,
+    JSON.stringify(parseRich(s)), JSON.stringify(parseRich(s)));
+  const runs = parseRich(s);
+  const flat = typeof runs === "string" ? runs : runs.map(flatten).join("");
+  t(`  text preserved · ${s.slice(0, 26)}…`, flat, s.replace(/\*\*/g, ""));
+}
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
+
