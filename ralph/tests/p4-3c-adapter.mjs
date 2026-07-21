@@ -378,5 +378,84 @@ throws("preview does NOT swallow a schema mismatch (unknown kind still throws)",
   adaptSections([{ variant: "default", layout: "stack", glow: EMPTY_GLOW, blocks: [{ discriminant: "featureStory", value: {} }] }], { mode: "preview" }),
   'unknown block kind "featureStory"');
 
+/* ============================================================================
+   VE-1 — videoEmbed. The 16th kind, and the one media block whose source is an
+   EXTERNAL URL rather than a committed binary. These pin the three things that
+   makes different from every other block: the URL allowlist, the fail-loud/preview
+   split on a missing source, and that the poster is OPTIONAL (an unset poster must
+   not trip the image guard that every other image block relies on).
+============================================================================ */
+console.log("\nVE-1 videoEmbed");
+
+const EMPTY_POSTER = { src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null, frame: "" };
+const video = (over = {}) => [{
+  variant: "default", layout: "stack", glow: EMPTY_GLOW,
+  blocks: [{ discriminant: "videoEmbed", value: {
+    src: "https://cdn.example.com/clip.mp4", poster: { ...EMPTY_POSTER }, caption: "",
+    frame: "browser", aspect: "", eyebrow: "", title: "", ...over } }],
+}];
+const firstBlock = (raw, opts) => adaptSections(raw, opts)[0].blocks[0];
+
+check("maps to a typed videoEmbed block, defaults applied", () => {
+  const b = firstBlock(video());
+  deepStrictEqual(b, { kind: "videoEmbed", src: "https://cdn.example.com/clip.mp4", frame: "browser", aspect: 16 / 9 });
+});
+check("frame: plain is honoured", () =>
+  deepStrictEqual(firstBlock(video({ frame: "plain" })).frame, "plain"));
+check("an unknown frame composes as the browser default (permissive adapter)", () =>
+  deepStrictEqual(firstBlock(video({ frame: "wat" })).frame, "browser"));
+check("aspect parses from the schema's text field", () =>
+  deepStrictEqual(firstBlock(video({ aspect: "1.5" })).aspect, 1.5));
+check("eyebrow/title omitted when empty, present when set", () => {
+  deepStrictEqual(firstBlock(video()).title, undefined);
+  deepStrictEqual(firstBlock(video({ title: "In motion" })).title, "In motion");
+});
+
+console.log("\n  the URL allowlist — http(s) only, at the adapter as well as the sanitiser");
+check("http passes", () => deepStrictEqual(firstBlock(video({ src: "http://a.co/v.mp4" })).src, "http://a.co/v.mp4"));
+check("https passes", () => deepStrictEqual(firstBlock(video({ src: "https://a.co/v.mp4" })).src, "https://a.co/v.mp4"));
+throws("javascript: is REFUSED (ssg)", () => adaptSections(video({ src: "javascript:alert(1)" })), "video src is missing or not an http(s) URL");
+throws("data: is REFUSED (ssg)", () => adaptSections(video({ src: "data:video/mp4;base64,AAA" })), "video src is missing or not an http(s) URL");
+throws("a site-relative path is REFUSED — a <video> needs a fetchable media URL", () =>
+  adaptSections(video({ src: "/videos/clip.mp4" })), "video src is missing or not an http(s) URL");
+
+console.log("\n  missing src — fail loud for the public build, placeholder for the draft");
+throws("missing src throws in ssg (a broken public build should fail)", () =>
+  adaptSections(video({ src: "" })), "video src is missing");
+check("missing src does NOT throw in preview (a half-authored draft still renders)", () => {
+  const b = firstBlock(video({ src: "" }), { mode: "preview" });
+  deepStrictEqual(b.src, "");
+  deepStrictEqual(b.kind, "videoEmbed");
+});
+check("an unsafe src degrades to empty in preview rather than reaching the player", () =>
+  deepStrictEqual(firstBlock(video({ src: "javascript:alert(1)" }), { mode: "preview" }).src, ""));
+
+console.log("\n  the poster is OPTIONAL — an unset one must not trip the image guard");
+check("no poster set -> no poster key, and ssg does NOT throw", () => {
+  const b = firstBlock(video());
+  deepStrictEqual("poster" in b, false);
+});
+check("a set poster adapts through the normal image path", () => {
+  const b = firstBlock(video({ poster: { ...EMPTY_POSTER, src: "/images/projects/x/p.webp", alt: "still" } }));
+  deepStrictEqual(b.poster.src, "/images/projects/x/p.webp");
+  deepStrictEqual(b.poster.alt, "still");
+});
+
+console.log("\n  the caption reuses parseRich — all three marks, no second dialect");
+check("plain caption", () => deepStrictEqual(firstBlock(video({ caption: "Just prose." })).caption, "Just prose."));
+check("**bold** caption", () =>
+  deepStrictEqual(firstBlock(video({ caption: "a **b** c" })).caption, ["a ", { b: "b" }, " c"]));
+check("*italic* caption", () =>
+  deepStrictEqual(firstBlock(video({ caption: "a *i* c" })).caption, ["a ", { i: "i" }, " c"]));
+check("[link](url) caption", () =>
+  deepStrictEqual(firstBlock(video({ caption: "see [docs](https://a.co)" })).caption,
+    ["see ", { a: "docs", href: "https://a.co" }]));
+check("an empty caption is omitted, not an empty string", () =>
+  deepStrictEqual("caption" in firstBlock(video()), false));
+
+console.log("\n  round-trip: the block survives adapt unchanged in both modes");
+check("ssg and preview agree for a fully-authored block", () =>
+  deepStrictEqual(firstBlock(video(), { mode: "preview" }), firstBlock(video())));
+
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

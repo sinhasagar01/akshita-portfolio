@@ -64,8 +64,20 @@ type Entry<K extends SectionBlockKind> = {
   empty: () => RawValue<K>;
 };
 
+/**
+ * The kinds that HAVE an editor.
+ *
+ * `videoEmbed` exists in the schema (VE-1) but its form is VE-3, so it is excluded
+ * here rather than given a placeholder. That is the whole point of stating it in the
+ * type: the exclusion is deliberate and visible, the two tables below stay exhaustive
+ * over everything else, a SEVENTEENTH kind is still a compile error, and because the
+ * add-block picker maps over BLOCK_REGISTRY's keys the block simply is not offered
+ * yet. VE-3 deletes the Exclude and the tables demand the entry.
+ */
+export type EditableBlockKind = Exclude<SectionBlockKind, "videoEmbed">;
+
 /** Kind -> human name, for the block list and the not-editable-yet note. */
-export const BLOCK_LABELS: { [K in SectionBlockKind]: string } = {
+export const BLOCK_LABELS: { [K in EditableBlockKind]: string } = {
   heroCover: "Hero cover",
   deviceShelf: "Device shelf",
   pullQuote: "Pull quote",
@@ -835,7 +847,7 @@ const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value
 
 /* ---------------------------------------------------------------- the table */
 
-export const BLOCK_REGISTRY: { [K in SectionBlockKind]: Entry<K> } = {
+export const BLOCK_REGISTRY: { [K in EditableBlockKind]: Entry<K> } = {
   // tier 1
   closingLine: { empty: BLOCK_EMPTIES.closingLine, label: (v) => firstLine(v.text, "Closing line"), Form: ClosingLineForm },
   pullQuote: { empty: BLOCK_EMPTIES.pullQuote, label: (v) => firstLine(v.text, "Pull quote"), Form: PullQuoteForm },

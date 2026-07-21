@@ -163,8 +163,28 @@ export type HeroCover = {
 };
 
 /** Discriminated union — each entry names a block type plus its data. */
+/**
+ * VE-1 — an externally hosted video with an optional poster still.
+ *
+ * `src` is a URL, not a repo path, and that is the one deliberate break from every
+ * other media block: the poster is committed and content-addressed like any image,
+ * the video is not committed at all. `frame` picks the browser chrome or a plain
+ * card, mirroring DeviceImage rather than splitting this into two kinds.
+ */
+export type VideoEmbed = {
+  kind: "videoEmbed";
+  src: string;
+  poster?: ImgSpec;
+  caption?: Rich;
+  frame: "plain" | "browser";
+  aspect: number;
+  eyebrow?: string;
+  title?: string;
+};
+
 export type Block =
   | HeroCover
+  | VideoEmbed
   | { kind: "deviceShelf"; devices: DeviceSpec[]; glow?: GlowWord; minHeight?: number }
   | { kind: "pullQuote"; text: string }
   | { kind: "glanceGrid"; items: { label: string; value: string }[] }

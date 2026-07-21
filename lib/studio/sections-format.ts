@@ -230,6 +230,47 @@ const imageObj =
     return { ok: true, value: out };
   };
 
+/**
+ * VE-1 — the video source. REQUIRED and http(s) only.
+ *
+ * Stricter than the link mark's allowlist on purpose: a link may be mailto or
+ * site-relative because it is navigation, but a <video src> has to be a fetchable
+ * media URL, so only http and https make sense. Everything else — javascript:,
+ * data:, a bare path, an empty field — is refused with the reason, and refusing at
+ * the WRITE boundary is what keeps the value out of the yaml in the first place.
+ *
+ * The renderer and the adapter check again. This is the gate; those are the belt.
+ */
+const videoSrc: Check<string> = (raw, at) => {
+  if (typeof raw !== "string") return invalid(`${at} must be a string`, at);
+  const v = raw.trim();
+  // EMPTY IS ACCEPTED HERE, and that is deliberate. A block is born from the picker
+  // with no source, exactly as an image block is born with `src: null`, so refusing
+  // empty at SAVE would make the kind impossible to add at all. Emptiness is caught
+  // at PUBLISH, where validate-draft-sections re-renders through the ssg adapter and
+  // throws — the same split every image block already uses: permissive about
+  // half-authored drafts, strict about what may go live.
+  //
+  // What is refused here is a NON-EMPTY value that is not an http(s) URL, because
+  // that is a mistake no later gate should have to tolerate.
+  if (v === "") return { ok: true, value: v };
+  // Strip the whitespace and control padding used to smuggle `java\tscript:` past a
+  // naive prefix test before reading the scheme.
+  if (!/^https?:\/\//i.test(v.replace(/[\s\u0000-\u0020]/g, ""))) {
+    return invalid(`${at} must be an http:// or https:// URL`, at);
+  }
+  return { ok: true, value: v };
+};
+
+/** VE-1 — the two frames the block can render in. */
+const videoFrame: Check<string> = (raw, at) => {
+  if (typeof raw !== "string") return invalid(`${at} must be a string`, at);
+  if (raw !== "plain" && raw !== "browser") {
+    return invalid(`${at} must be "plain" or "browser"`, at);
+  }
+  return { ok: true, value: raw };
+};
+
 const imgSpec = imageObj();
 const deviceSpec = imageObj({ label: str, dotColor: str });
 /** The same shape as the section shell's own glow, one level down. */
@@ -325,6 +366,19 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
         changes: arrayOf(obj({ emphasis: str, rest: str })),
       })
     ),
+  }),
+  // VE-1. `obj` refuses any key not listed, so an unknown field is a 400 rather than
+  // something that reaches disk. aspect is a TEXT field in the schema (Keystatic has
+  // no optional number that round-trips as blank), so it is validated as a string and
+  // parsed by the adapter.
+  videoEmbed: obj({
+    src: videoSrc,
+    poster: imgSpec,
+    caption: str,
+    frame: videoFrame,
+    aspect: str,
+    eyebrow: str,
+    title: str,
   }),
   swatchTokens: obj({
     groups: arrayOf(

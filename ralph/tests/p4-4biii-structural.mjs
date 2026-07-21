@@ -117,13 +117,16 @@ for (const [kind, value] of Object.entries(EMPTIES)) {
   // adapter and refuses an unpublishable draft. So the assertion is now that the two
   // are OFFERED, and that their un-imaged empties are caught at publish rather than
   // by the build.
-  const needsImage = JSON.stringify(EMPTIES[kind]).includes('"src":null');
+  // A kind is unpublishable-when-empty for one of two reasons now: an image with no
+  // upload (src:null), or a videoEmbed with no URL (src:""). Both are refused by the
+  // ssg adapter at publish; only the message differs.
+  const needsImage = JSON.stringify(EMPTIES[kind]).includes('"src":null') || kind === "videoEmbed";
   if (needsImage) {
     check(`${kind}: offered by the picker; its un-imaged empty is REFUSED at publish`, () => {
       let threw = null;
       try { adaptSections(build(), { mode: "ssg" }); } catch (e) { threw = e.message; }
       if (!threw) throw new Error("ssg accepts a block with no image — the publish gate is moot");
-      if (!threw.includes("image src is missing")) throw new Error(threw);
+      if (!/image src is missing|video src is missing/.test(threw)) throw new Error(threw);
     });
   } else {
     check(`${kind}: offered by the picker AND immediately ssg-publishable`, () => {

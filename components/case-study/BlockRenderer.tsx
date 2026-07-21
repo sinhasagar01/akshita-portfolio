@@ -104,6 +104,12 @@ export default function BlockRenderer({
       return <RichText paragraphs={block.paragraphs} web={web} editable={editable} blockIndex={blockIndex} />;
     case "closingLine":
       return <ClosingLine text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
+    // VE-1 declares the kind; VE-2 builds the browser-framed player. Rendering
+    // NOTHING is deliberate rather than lazy: the exhaustiveness check above means a
+    // new kind cannot be added without a decision here, and "not yet" is the honest
+    // one until the component exists. No content holds a videoEmbed, so no page moves.
+    case "videoEmbed":
+      return null;
     default: {
       const _exhaustive: never = block;
       return _exhaustive;

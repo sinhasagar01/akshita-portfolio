@@ -236,6 +236,12 @@ function rich(v: unknown): Rich {
   return parseRich(str(v));
 }
 
+/** VE-1 — aspect ratio from the schema's text field; blank or junk -> 16/9. */
+function aspectOf(v: unknown): number {
+  const n = typeof v === "number" ? v : Number.parseFloat(str(v));
+  return Number.isFinite(n) && n > 0 ? n : 16 / 9;
+}
+
 /** Optional Rich — "" becomes undefined, else bold-parsed. */
 function richOpt(v: unknown): Rich | undefined {
   const s = str(v);
@@ -338,8 +344,15 @@ const BLOCK_KINDS = [
   "annotatedImage",
   "richText",
   "closingLine",
+  "videoEmbed",
 ] as const satisfies readonly SectionBlockKind[];
-type _blockKindsComplete = AssertComplete<typeof BLOCK_KINDS>;
+// ENFORCED, not merely declared. `type _ = AssertComplete<…>` is inert — a type
+// alias holding the "missing kinds" tuple is a perfectly legal type, so it never
+// failed a build. Assigning it to `true` is what turns an incomplete list into a
+// compile error, which is what the invariant claimed all along. Found while adding
+// the 16th kind (VE-1), when the mutation probe showed the adapter staying green.
+const _blockKindsComplete: AssertComplete<typeof BLOCK_KINDS> = true;
+void _blockKindsComplete;
 
 type RawBlockKind = (typeof BLOCK_KINDS)[number];
 
@@ -562,6 +575,44 @@ function adaptBlock(raw: unknown, at: string, ctx: AdaptCtx): Block {
       return { kind, paragraphs: arr(v.paragraphs).map((p) => rich(p)) };
     case "closingLine":
       return { kind, text: str(v.text) };
+    case "videoEmbed": {
+      const rawSrc = str(v.src).trim();
+      // GUARD SITE 3 — the same posture as an unset image, for the same reason: a
+      // public build with a videoEmbed that has no source should FAIL rather than
+      // ship an empty player, while the studio preview shows the rest of the block
+      // so a half-authored draft still renders. An unsafe scheme is treated as no
+      // source at all — the sanitiser refuses it on the way in, and this is the
+      // second gate for content that reached disk another way.
+      const usable = rawSrc !== "" && isSafeHref(rawSrc) && /^https?:/i.test(rawSrc);
+      if (!usable && ctx.mode === "ssg") {
+        throw new Error(
+          `${at}: video src is missing or not an http(s) URL — set a video URL or remove the block`
+        );
+      }
+      const block: Block = {
+        kind,
+        src: usable ? rawSrc : "",
+        // "browser" unless explicitly plain, so an absent or unknown value composes
+        // as the chosen default rather than throwing — permissive like the rest of
+        // the adapter; the sanitiser is where a bad enum is refused.
+        frame: v.frame === "plain" ? "plain" : "browser",
+        // The schema stores aspect as TEXT: Keystatic has no optional number that
+        // round-trips as a blank field, and a 0 would be indistinguishable from unset.
+        // A blank or unparseable value composes as the 16/9 default.
+        aspect: aspectOf(v.aspect),
+      };
+      // The poster is OPTIONAL, so an unset one must not trip adaptImgSpec's
+      // fail-loud guard — only a poster the owner actually set is adapted.
+      const posterSrc = str(rec(v.poster).src).trim();
+      if (posterSrc !== "") block.poster = adaptImgSpec(v.poster, `${at}.poster`, ctx);
+      const caption = richOpt(v.caption);
+      if (caption !== undefined) block.caption = caption;
+      const eyebrow = str(v.eyebrow);
+      if (eyebrow !== "") block.eyebrow = eyebrow;
+      const title = str(v.title);
+      if (title !== "") block.title = title;
+      return block;
+    }
     default:
       return assertNever(kind);
   }
