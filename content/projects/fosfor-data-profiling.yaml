@@ -52,7 +52,9 @@ sections:
               value: 4 months
           devices:
             - src: /images/projects/fosfor-data-profiling/dataset-list.webp
-              alt: Fosfor dataset list showing which datasets have data profiling enabled
+              alt: >-
+                Fosfor dataset list showing which datasets have data profiling
+                enabled
               width: 248
               rotate: -6
               translateX: -86
@@ -61,7 +63,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-              alt: Fosfor data profiling table with per column type, null proportion, distinct count, and min and max values
+              alt: >-
+                Fosfor data profiling table with per column type, null
+                proportion, distinct count, and min and max values
               width: 288
               rotate: null
               translateX: null
@@ -134,8 +138,12 @@ sections:
           heading: ''
           items:
             - image:
-                src: /images/projects/fosfor-data-profiling/profiling-techniques.webp
-                alt: A tree of data profiling techniques, single field methods like summary statistics and distributions, and multiple field methods like dependencies and relationships
+                src: >-
+                  /images/projects/fosfor-data-profiling/profiling-techniques.webp
+                alt: >-
+                  A tree of data profiling techniques, single field methods like
+                  summary statistics and distributions, and multiple field
+                  methods like dependencies and relationships
                 width: null
                 rotate: null
                 translateX: null
@@ -174,7 +182,9 @@ sections:
               highlighted: true
             - value: '25'
               suffix: '%'
-              body: Increase in user retention from personalization and customization
+              body: >-
+                Increase in user retention from personalization and
+                customization
               tag: retention
               highlighted: false
             - value: '2'
@@ -188,7 +198,9 @@ sections:
           items:
             - image:
                 src: /images/projects/fosfor-data-profiling/metric-time-saved.webp
-                alt: A long before bar over a short after bar with a downward arrow, standing for time saved
+                alt: >-
+                  A long before bar over a short after bar with a downward
+                  arrow, standing for time saved
                 width: null
                 rotate: null
                 translateX: null
@@ -197,8 +209,11 @@ sections:
               title: Time on quality checks
               body: How much manual inspection time the feature removed.
             - image:
-                src: /images/projects/fosfor-data-profiling/metric-detection-rate.webp
-                alt: A data grid with detected issues flagged under a magnifier, standing for issue detection
+                src: >-
+                  /images/projects/fosfor-data-profiling/metric-detection-rate.webp
+                alt: >-
+                  A data grid with detected issues flagged under a magnifier,
+                  standing for issue detection
                 width: null
                 rotate: null
                 translateX: null
@@ -207,8 +222,11 @@ sections:
               title: Issue detection
               body: How reliably teams surfaced and resolved data quality problems.
             - image:
-                src: /images/projects/fosfor-data-profiling/metric-quality-lift.webp
-                alt: Rising bars with an upward trend line, standing for improving data quality
+                src: >-
+                  /images/projects/fosfor-data-profiling/metric-quality-lift.webp
+                alt: >-
+                  Rising bars with an upward trend line, standing for improving
+                  data quality
                 width: null
                 rotate: null
                 translateX: null
@@ -257,7 +275,9 @@ sections:
           items:
             - image:
                 src: /images/projects/fosfor-data-profiling/challenge-silos.webp
-                alt: Three separated database cylinders in walled off lanes, standing for data scattered across sources
+                alt: >-
+                  Three separated database cylinders in walled off lanes,
+                  standing for data scattered across sources
                 width: null
                 rotate: null
                 translateX: null
@@ -269,7 +289,9 @@ sections:
                 unified view.
             - image:
                 src: /images/projects/fosfor-data-profiling/challenge-quality.webp
-                alt: A grid of data cells with missing and flagged entries, standing for inaccurate or incomplete data
+                alt: >-
+                  A grid of data cells with missing and flagged entries,
+                  standing for inaccurate or incomplete data
                 width: null
                 rotate: null
                 translateX: null
@@ -281,7 +303,9 @@ sections:
                 conclusions.
             - image:
                 src: /images/projects/fosfor-data-profiling/challenge-time.webp
-                alt: An hourglass beside a stack of documents, standing for slow manual analysis
+                alt: >-
+                  An hourglass beside a stack of documents, standing for slow
+                  manual analysis
                 width: null
                 rotate: null
                 translateX: null
@@ -293,7 +317,9 @@ sections:
                 prone.
             - image:
                 src: /images/projects/fosfor-data-profiling/challenge-insights.webp
-                alt: A data pyramid whose insight tier is unreached, standing for raw data with no clear next step
+                alt: >-
+                  A data pyramid whose insight tier is unreached, standing for
+                  raw data with no clear next step
                 width: null
                 rotate: null
                 translateX: null
@@ -441,7 +467,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-              alt: The data profiling result, a clear per column read on quality and distribution
+              alt: >-
+                The data profiling result, a clear per column read on quality
+                and distribution
               width: 288
               rotate: null
               translateX: null
@@ -485,7 +513,9 @@ sections:
                 across a whole data model, replacing manual inspection.
               image:
                 src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-                alt: The profiling overview computing statistical metrics across a whole data model
+                alt: >-
+                  The profiling overview computing statistical metrics across a
+                  whole data model
                 width: 248
                 rotate: null
                 translateX: null
@@ -499,7 +529,9 @@ sections:
                 deep without leaving the flow.
               image:
                 src: /images/projects/fosfor-data-profiling/dataset-sample.webp
-                alt: A dataset overview with sample rows, the starting point for basic and advanced profiling
+                alt: >-
+                  A dataset overview with sample rows, the starting point for
+                  basic and advanced profiling
                 width: 248
                 rotate: null
                 translateX: null
@@ -513,7 +545,9 @@ sections:
                 eye lands first.
               image:
                 src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-                alt: Coloured proportions in the profiling table surfacing likely data quality issues
+                alt: >-
+                  Coloured proportions in the profiling table surfacing likely
+                  data quality issues
                 width: 248
                 rotate: null
                 translateX: null
@@ -559,7 +593,9 @@ sections:
               label: ''
               dotColor: ''
             - src: /images/projects/fosfor-data-profiling/dataset-sample.webp
-              alt: A dataset overview with its schema, record count, and sample data
+              alt: >-
+                A dataset overview with its schema, record count, and sample
+                data
               width: 248
               rotate: 5
               translateX: 60
@@ -601,7 +637,9 @@ sections:
               tag: Manual to instant
               before:
                 src: /images/projects/fosfor-data-profiling/dataset-sample.webp
-                alt: The workflow before profiling, raw sample rows with no read on quality
+                alt: >-
+                  The workflow before profiling, raw sample rows with no read on
+                  quality
                 width: 248
                 rotate: null
                 translateX: null
@@ -609,7 +647,9 @@ sections:
                 z: null
               after:
                 src: /images/projects/fosfor-data-profiling/profiling-overview.webp
-                alt: The workflow after profiling, every column scored for quality and distribution
+                alt: >-
+                  The workflow after profiling, every column scored for quality
+                  and distribution
                 width: 248
                 rotate: null
                 translateX: null
