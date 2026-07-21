@@ -28,6 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
+import { richToMarkers } from "@/lib/studio/rich-markers";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -147,6 +148,41 @@ function setSrcAtPath(value: unknown, imagePath: string, src: string): unknown {
   return set(value, [...imagePath.split("."), "src"]);
 }
 
+/**
+ * The rail's descriptor for a tagged canvas element, built from the markers already on
+ * it. One implementation, shared by the click that selects a field and the rebuild that
+ * has to re-select it, so those two can never disagree about which field is which.
+ */
+function selectedFieldFrom(el: HTMLElement | null): SelectedField | null {
+  if (!el) return null;
+  const label = el.getAttribute("aria-label") ?? "Field";
+  const sf = el.dataset.edit;
+  if (sf === "eyebrow" || sf === "title" || sf === "lead" || sf === "northStar") {
+    return { kind: "section", field: sf, label };
+  }
+  const bi = el.dataset.editBlockIndex;
+  const path = el.dataset.editValuePath;
+  if (bi !== undefined && path) return { kind: "block", blockIndex: Number(bi), path, label };
+  return null;
+}
+
+/**
+ * A CSS selector that finds a tagged canvas field again after its DOM is rebuilt.
+ *
+ * Only the markers already on the element are used, so this addresses the same field
+ * the writeback does. Returns null for anything untagged (the rail, chrome, <body>),
+ * which is the signal that there is nothing to restore focus to.
+ */
+function fieldSelector(el: HTMLElement | null): string | null {
+  const ds = el?.dataset;
+  if (!ds) return null;
+  if (ds.edit) return `[data-edit="${ds.edit}"]`;
+  if (ds.editBlockIndex !== undefined && ds.editValuePath) {
+    return `[data-edit-block-index="${ds.editBlockIndex}"][data-edit-value-path="${ds.editValuePath}"]`;
+  }
+  return null;
+}
+
 /** Read a dotted path (e.g. "stats.0.value") out of a block value, for a no-op check. */
 function getAtPath(value: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>(
@@ -237,7 +273,7 @@ function useFitToWidth() {
  * source of truth for a field's value.
  */
 type SelectedField =
-  | { kind: "section"; field: "eyebrow" | "title"; label: string }
+  | { kind: "section"; field: "eyebrow" | "title" | "lead" | "northStar"; label: string }
   | { kind: "block"; blockIndex: number; path: string; label: string };
 
 /**
@@ -333,6 +369,54 @@ function SelectedRail({
   );
 }
 
+/**
+ * Bold control for the focused Rich field.
+ *
+ * ONE button, deliberately. The model is a plain string that `parseRich` reads for
+ * `**bold**` and nothing else — there is no italic, link, underline, size, colour or
+ * list in `RichRun`. Showing those greyed out would advertise capabilities that need
+ * a schema rebuild, so they are absent rather than disabled.
+ *
+ * execCommand is deprecated but is still the only cross-browser way to toggle bold
+ * inside contentEditable without shipping an editor library. It produces <b> or
+ * <strong> depending on engine; richToMarkers maps both.
+ */
+function BoldToolbar({
+  at,
+  onCommand,
+}: {
+  at: { top: number; left: number } | null;
+  /** Fired after a command ran, so the panel knows the DOM has diverged from React. */
+  onCommand?: () => void;
+}) {
+  if (!at) return null;
+  return (
+    <div
+      role="toolbar"
+      aria-label="Text formatting"
+      style={{ position: "fixed", top: at.top, left: at.left, zIndex: 60 }}
+      className="flex items-center gap-2 rounded-md border border-ink-950/10 bg-cream-50 px-2 py-1 shadow-[0_4px_14px_rgba(60,45,30,0.18)]"
+    >
+      <button
+        type="button"
+        // mousedown, not click: the default would blur the field and end the
+        // selection before the command could apply to it.
+        onMouseDown={(e) => {
+          e.preventDefault();
+          document.execCommand("bold");
+          onCommand?.();
+        }}
+        aria-label="Bold"
+        title="Bold"
+        className="grid size-6 place-items-center rounded font-display text-[13px] font-bold text-ink-950 transition-colors hover:bg-cream-200"
+      >
+        B
+      </button>
+      <span className="text-[10px] text-text-subtle">saves as **bold**</span>
+    </div>
+  );
+}
+
 function SectionCanvas({
   section,
   web,
@@ -343,6 +427,8 @@ function SectionCanvas({
   onReplaceImage,
   onSelectField,
   selectedField,
+  onRichFocus,
+  renderEpoch = 0,
 }: {
   section: RawSection;
   web: boolean;
@@ -361,6 +447,15 @@ function SectionCanvas({
   onSelectField?: (f: SelectedField) => void;
   /** The field the rail is bound to, so the canvas can mark it as selected. */
   selectedField?: SelectedField | null;
+  /** A rich field gained (or lost) focus — drives the bold control's position. */
+  onRichFocus?: (at: { top: number; left: number } | null) => void;
+  /**
+   * Bumped by the panel after a bold command's value is committed. Used as the
+   * SectionRenderer key, so the rendered section is rebuilt from state instead of
+   * being reconciled against a DOM `execCommand` edited behind React's back. See the
+   * panel's `boldDirty` for why that reconciliation cannot be trusted.
+   */
+  renderEpoch?: number;
 }) {
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -374,19 +469,8 @@ function SectionCanvas({
     }
     // Clicking a tagged field selects it. Reads the SAME markers the blur writeback
     // uses, so the rail can never disagree with the canvas about which field is which.
-    const el = target.closest?.("[data-edit-value-path], [data-edit]") as HTMLElement | null;
-    if (!el) return;
-    const label = el.getAttribute("aria-label") ?? "Field";
-    const sf = el.dataset.edit;
-    if (sf === "eyebrow" || sf === "title") {
-      onSelectField?.({ kind: "section", field: sf, label });
-      return;
-    }
-    const bi = el.dataset.editBlockIndex;
-    const path = el.dataset.editValuePath;
-    if (bi !== undefined && path) {
-      onSelectField?.({ kind: "block", blockIndex: Number(bi), path, label });
-    }
+    const f = selectedFieldFrom(target.closest?.("[data-edit-value-path], [data-edit]") as HTMLElement | null);
+    if (f) onSelectField?.(f);
   };
   let adapted: ReturnType<typeof adaptSections> = [];
   try {
@@ -427,6 +511,31 @@ function SectionCanvas({
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
+      onFocusCapture={(e) => {
+        const el = (e.target as HTMLElement).closest?.("[data-edit-rich]") as HTMLElement | null;
+        if (!el) return onRichFocus?.(null);
+        const r = el.getBoundingClientRect();
+        // Above the field, nudged in. getBoundingClientRect is post-transform, which
+        // is what fixed positioning needs — so the CSS-scaled canvas is handled.
+        onRichFocus?.({ top: Math.max(8, r.top - 34), left: r.left });
+      }}
+      // Hide the toolbar when focus leaves a rich field for anything that is not
+      // another rich field.
+      //
+      // onFocusCapture alone could not do this: it only fires when focus ENTERS
+      // something in the pane, so clicking empty chrome — which sends focus to <body>
+      // and fires no focus event here at all — left the toolbar floating over
+      // unrelated content with nothing being edited.
+      //
+      // focusout carries relatedTarget (the element about to receive focus) and fires
+      // BEFORE the matching focusin, so rich-to-rich is safe: this sees a rich
+      // relatedTarget and leaves the toolbar up, then onFocusCapture moves it to the
+      // new field. Clicking the Bold button is also safe — it preventDefaults its
+      // mousedown, so focus never leaves the field and no focusout fires.
+      onBlurCapture={(e) => {
+        const next = e.relatedTarget as HTMLElement | null;
+        if (!next?.closest?.("[data-edit-rich]")) onRichFocus?.(null);
+      }}
     >
       {/* The section renders at the LIVE content width and is then scaled to fit the
           pane, rather than being rendered into whatever width the pane happens to be.
@@ -440,7 +549,7 @@ function SectionCanvas({
         style={{ width: CANVAS_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}
       >
         {s ? (
-          <SectionRenderer section={s} web={web} noReveal editable={editable} />
+          <SectionRenderer key={renderEpoch} section={s} web={web} noReveal editable={editable} />
         ) : (
           <p className="px-4 py-6 text-center text-[12px] text-ink-500">
             This section can’t be previewed yet — finish its required fields.
@@ -522,6 +631,47 @@ export default function SectionsEditPanel({
   // copy to go stale. The rail reads form state on every render and writes through on
   // change, exactly like the Inspector's own fields.
   const [selectedField, setSelectedField] = useState<SelectedField | null>(null);
+  // Where to float the bold control — set when a RICH field takes focus, cleared when
+  // it leaves. Only rich fields get it; a plain field has nothing to format.
+  const [boldAt, setBoldAt] = useState<{ top: number; left: number } | null>(null);
+
+  // execCommand edits the contentEditable DOM directly, so after a bold the real DOM
+  // and React's element tree disagree about that field's children. `renderRich` emits
+  // those children as index-keyed <b> and text nodes, so the next render reconciles
+  // against nodes React did not create and can leave execCommand's raw <b> behind —
+  // the duplicated word. Plain typing does not do this, because it only changes text
+  // node CONTENT, which React updates in place.
+  //
+  // So a bold marks the tree untrusted, and the writeback that commits its value bumps
+  // renderEpoch. That keys SectionRenderer, discarding the edited subtree and building
+  // a fresh one from state — React owns the DOM again, with no orphan to reconcile.
+  //
+  // Deliberately at the WRITEBACK, not at the command: remounting mid-edit would drop
+  // focus and the selection, breaking select -> bold -> unbold. At the writeback the
+  // field is already losing focus, so the remount costs nothing.
+  const boldDirty = useRef(false);
+  const [renderEpoch, setRenderEpoch] = useState(0);
+  /** Field to re-focus once the rebuilt tree is committed, if focus was moving to one. */
+  const refocusAfterRebuild = useRef<string | null>(null);
+  /** ...and the rail binding that came with it, which the rebuild also interrupts. */
+  const reselectAfterRebuild = useRef<SelectedField | null>(null);
+
+  // Runs AFTER the rebuild is on screen, which is the whole point: the node to focus
+  // does not exist until then. An earlier version used requestAnimationFrame from the
+  // blur handler and focused the OLD node, which the rebuild then threw away.
+  //
+  // The rail is restored too. Selection is normally driven by the click on the field,
+  // but that click's target is destroyed mid-gesture by the rebuild, so without this
+  // the caret sits in the new field while the rail still names the old one.
+  useEffect(() => {
+    const sel = refocusAfterRebuild.current;
+    const field = reselectAfterRebuild.current;
+    refocusAfterRebuild.current = null;
+    reselectAfterRebuild.current = null;
+    if (!sel) return;
+    document.querySelector<HTMLElement>(sel)?.focus();
+    if (field) setSelectedField(field);
+  }, [renderEpoch]);
 
   // Clear the selection whenever the focused section changes.
   //
@@ -864,11 +1014,37 @@ export default function SectionsEditPanel({
             const t = e.target as HTMLElement;
             const ds = t?.dataset;
             if (!ds) return;
-            const raw = t.innerText ?? "";
-            const sf = ds.edit; // "eyebrow" | "title"
-            if (sf === "eyebrow" || sf === "title") {
-              const value =
-                sf === "title" ? raw.replace(/\n{2,}/g, "\n").trim() : raw.replace(/\s*\n\s*/g, " ").trim();
+            // A RICH field renders its `**bold**` as real bold, so innerText would
+            // return the words with every marker silently stripped. Serialize the DOM
+            // back to markers instead; a field with no bold yields its plain string
+            // unchanged, so tagging plain prose introduces no drift.
+            const isRich = ds.editRich !== undefined;
+            const raw = isRich ? richToMarkers(t) : (t.innerText ?? "");
+            // A bold ran in this field, so its DOM is no longer React's — rebuild the
+            // section from state on the way out. Done BEFORE the no-op guards below,
+            // because bold-then-unbold leaves the VALUE unchanged while still leaving
+            // execCommand's node behind, and that path must clean up too.
+            //
+            // The rebuild replaces every node in the section, including the field the
+            // owner is moving TO, which would silently drop the focus they just gave
+            // it. So when focus is heading somewhere addressable, it is restored once
+            // the new tree is on screen.
+            if (isRich && boldDirty.current) {
+              boldDirty.current = false;
+              const next = e.relatedTarget as HTMLElement | null;
+              refocusAfterRebuild.current = fieldSelector(next);
+              reselectAfterRebuild.current = selectedFieldFrom(next);
+              setRenderEpoch((n) => n + 1);
+            }
+            const sf = ds.edit; // "eyebrow" | "title" | "lead" | "northStar"
+            if (sf === "eyebrow" || sf === "title" || sf === "lead" || sf === "northStar") {
+              // Rich prose keeps its internal newlines; only the single-line shell
+              // fields collapse them.
+              const value = isRich
+                ? raw.replace(/\n{3,}/g, "\n\n").trim()
+                : sf === "title"
+                  ? raw.replace(/\n{2,}/g, "\n").trim()
+                  : raw.replace(/\s*\n\s*/g, " ").trim();
               const cur = values.sections[selIdx] as unknown as Record<string, unknown>;
               if ((cur[sf] ?? "") === value) return;
               setSection(selIdx, { ...values.sections[selIdx], [sf]: value } as RawSection);
@@ -879,7 +1055,9 @@ export default function SectionsEditPanel({
               // (e.g. "text", "stats.0.value", "features.1.title") through the same
               // setBlockValue seam the forms use; skip a no-op so a focus-then-blur
               // never dirties the draft.
-              const value = raw.replace(/\s*\n\s*/g, " ").trim();
+              const value = isRich
+                ? raw.replace(/\n{3,}/g, "\n\n").trim()
+                : raw.replace(/\s*\n\s*/g, " ").trim();
               const blockIndex = Number(ds.editBlockIndex);
               const path = ds.editValuePath;
               const curVal = (values.sections[selIdx].blocks[blockIndex]?.value ?? {}) as Record<string, unknown>;
@@ -939,10 +1117,18 @@ export default function SectionsEditPanel({
                 onBlur={onBlur}
                 onSelectField={selectField}
                 selectedField={selectedField}
+                onRichFocus={setBoldAt}
+                renderEpoch={renderEpoch}
                 onReplaceImage={(blockIndex, path) => {
                   pendingImage.current = { selIdx, blockIndex, path };
                   setImageError(null);
                   imageInputRef.current?.click();
+                }}
+              />
+              <BoldToolbar
+                at={boldAt}
+                onCommand={() => {
+                  boldDirty.current = true;
                 }}
               />
               <SelectedRail

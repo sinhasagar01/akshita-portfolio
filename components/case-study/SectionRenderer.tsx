@@ -6,6 +6,7 @@ import BlockRenderer from "./BlockRenderer";
 import PullQuote from "./blocks/PullQuote";
 import { isWideFrame } from "./DeviceImage";
 import { renderRich } from "./rich";
+import { EDIT_AFFORD } from "./editable";
 
 /**
  * One section = one card. The hero variant renders statically (above the fold);
@@ -51,7 +52,20 @@ export default function SectionRenderer({
           />
         )}
         {section.northStar && (
-          <p className="font-display italic font-normal text-3xl text-ink-950 leading-[1.3] max-w-[850px] mt-6">
+          <p
+            {...(editable
+              ? {
+                  contentEditable: true,
+                  suppressContentEditableWarning: true,
+                  tabIndex: 0,
+                  role: "textbox",
+                  "aria-label": "Edit north star",
+                  "data-edit": "northStar",
+                  "data-edit-rich": "",
+                }
+              : {})}
+            className={`font-display italic font-normal text-3xl text-ink-950 leading-[1.3] max-w-[850px] mt-6${editable ? EDIT_AFFORD : ""}`}
+          >
             {renderRich(section.northStar)}
           </p>
         )}

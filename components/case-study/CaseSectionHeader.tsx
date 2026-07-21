@@ -21,7 +21,8 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
   // editable fields rather than as anonymous text. The data-edit marker below
   // names the field, which is the SECTION-level writeback seam (setSection), not
   // the block one — so it stays as it is; only the naming is added.
-  const editProps = (label: string) =>
+  const aff = editable ? EDIT_AFFORD : "";
+  const editProps = (label: string, rich = false) =>
     editable
       ? {
           contentEditable: true,
@@ -29,6 +30,8 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
           tabIndex: 0,
           role: "textbox",
           "aria-label": label,
+          // Rich fields serialize back through richToMarkers, not innerText.
+          ...(rich ? { "data-edit-rich": "" } : {}),
         }
       : {};
   return (
@@ -68,7 +71,11 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
       )}
 
       {lead && (
-        <p className="text-lg text-ink-600 leading-relaxed mt-5 max-w-[68ch]">
+        <p
+          {...editProps("Edit section lead", true)}
+          data-edit={editable ? "lead" : undefined}
+          className={`text-lg text-ink-600 leading-relaxed mt-5 max-w-[68ch]${aff}`}
+        >
           {renderRich(lead)}
         </p>
       )}
