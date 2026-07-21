@@ -2,8 +2,9 @@
 // Run: node --experimental-strip-types ralph/tests/p4-4biii-structural.mjs
 //
 // Three things are proven here:
-//  1. The 14 empties are BORN VALID — each passes the sanitizer (every key, the
-//     length guards) and each is either ssg-publishable or explicitly gated.
+//  1. The empties are BORN VALID — each passes the sanitizer (every key, the length
+//     guards), every kind the schema defines has one, and each is either
+//     ssg-publishable or refused at publish because its image is not set yet.
 //  2. The structural surgical bar — an add/remove/reorder changes ONLY that, and a
 //     REORDER re-emits the moved blocks byte-for-byte (it moves already-read values;
 //     it must not re-serialize them differently).
@@ -16,7 +17,8 @@ import { serializeProjectSections, readSections } from "../../lib/studio/section
 import { sanitizeSectionsPatch } from "../../lib/studio/sections-format.ts";
 import { adaptSections } from "../../lib/case-studies/adapter.ts";
 import { moveIn, removeAt, insertAt, setAt } from "../../components/studio/useItemList.ts";
-import { BLOCK_EMPTIES, ADD_GATED_UNTIL_UPLOAD } from "../../components/studio/blocks/empties.ts";
+import { BLOCK_EMPTIES } from "../../components/studio/blocks/empties.ts";
+import keystaticConfig from "../../keystatic.config.ts";
 
 let failures = 0;
 function check(name, fn) {
@@ -59,9 +61,21 @@ const EMPTIES = Object.fromEntries(
 );
 const glow = () => ({ text: "", top: "", right: "", bottom: "", left: "", size: "" });
 
-/** EMPTY as of 4(b)-iv — imported, so the suite reads the picker's real gate rather
- *  than a copy. Asserted empty below: every kind is addable now. */
-const GATED = ADD_GATED_UNTIL_UPLOAD;
+/**
+ * Every kind the SCHEMA defines must have an empty, because the picker offers exactly
+ * `Object.keys(BLOCK_REGISTRY)` with no filter, and the registry's `empty` for each
+ * kind is `BLOCK_EMPTIES[kind]`. A kind in the schema with no empty is a kind the
+ * owner cannot add.
+ *
+ * This replaces an import of `ADD_GATED_UNTIL_UPLOAD`, a gate that #111 deleted as
+ * dead code. It was already an EMPTY Set by then, so the assertion it fed
+ * (`GATED.has(kind)`) could never fire — it proved nothing. Reading the kind list off
+ * the Keystatic schema checks the thing the gate was meant to express (every kind is
+ * addable) against the actual source of truth instead.
+ */
+const SCHEMA_KINDS = Object.keys(
+  keystaticConfig.collections.projects.schema.sections.element.fields.blocks.element.values
+);
 
 for (const [kind, value] of Object.entries(EMPTIES)) {
   check(`${kind}: an added empty passes the sanitizer and is SURGICAL`, () => {
@@ -79,7 +93,14 @@ for (const [kind, value] of Object.entries(EMPTIES)) {
   });
 }
 
-console.log("\nthe 14 empties — every kind addable; the image-bearing ones gated at PUBLISH (4b-iv)");
+console.log("\nthe empties — every kind addable; the image-bearing ones gated at PUBLISH (4b-iv)");
+
+check(`every schema block kind has an empty, so the picker can offer all ${SCHEMA_KINDS.length}`, () => {
+  const missing = SCHEMA_KINDS.filter((k) => !(k in EMPTIES));
+  if (missing.length) throw new Error(`no empty for ${missing.join(", ")} — not addable`);
+  const extra = Object.keys(EMPTIES).filter((k) => !SCHEMA_KINDS.includes(k));
+  if (extra.length) throw new Error(`empty for ${extra.join(", ")}, which the schema does not define`);
+});
 for (const [kind, value] of Object.entries(EMPTIES)) {
   const build = () => {
     const secs = fresh();
@@ -97,7 +118,6 @@ for (const [kind, value] of Object.entries(EMPTIES)) {
   // are OFFERED, and that their un-imaged empties are caught at publish rather than
   // by the build.
   const needsImage = JSON.stringify(EMPTIES[kind]).includes('"src":null');
-  if (GATED.has(kind)) throw new Error(`${kind} is still gated — 4b-iv un-gates every kind`);
   if (needsImage) {
     check(`${kind}: offered by the picker; its un-imaged empty is REFUSED at publish`, () => {
       let threw = null;
