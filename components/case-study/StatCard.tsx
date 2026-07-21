@@ -34,7 +34,10 @@ export default function StatCard({
         )}
         {stat.suffix && <span className="text-[0.42em] align-baseline">{stat.suffix}</span>}
       </p>
-      <p className="text-[0.95rem] text-ink-950 leading-[1.52] mt-3.5">
+      <p
+        {...inlineEditProps(editable, blockIndex, `stats.${itemIndex}.body`, "Edit stat body", true)}
+        className={`text-[0.95rem] text-ink-950 leading-[1.52] mt-3.5${aff}`}
+      >
         {renderRich(stat.body)}
       </p>
       <span

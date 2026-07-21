@@ -18,15 +18,19 @@ export type EditableBlockField = "text";
  * a dotted path into the block's value (e.g. "text", "stats.0.value", "features.1.title").
  * The studio canvas reads `data-edit-value-path` on blur and deep-sets the block value.
  * Returns {} when not editable, so the public render is byte-identical. Rich `**bold**`
- * fields are NOT tagged (contenteditable would strip the markers) — they edit in the form.
+ * fields ARE tagged, with `rich` set — see below.
  * Also carries `role="textbox"` + an accessible name so keyboard/SR users get a real,
  * labelled control.
+ *
+ * `rich` marks a field whose value carries `**bold**`. Those render as real bold, so
+ * they edit WYSIWYG and are written back through richToMarkers rather than innerText.
  */
 export function inlineEditProps(
   editable: boolean,
   blockIndex: number | undefined,
   path: string,
   label?: string,
+  rich = false,
 ) {
   if (!editable) return {} as Record<string, never>;
   return {
@@ -37,5 +41,10 @@ export function inlineEditProps(
     "aria-label": label ?? `Edit ${path.split(".").pop() ?? "field"}`,
     "data-edit-block-index": blockIndex,
     "data-edit-value-path": path,
+    // RICH fields render their `**bold**` as real bold, so the field is already
+    // WYSIWYG — the markers are never visible. The panel reads this flag on blur and
+    // serializes the DOM back to markers instead of taking innerText, which would
+    // silently strip every bold in the paragraph.
+    ...(rich ? { "data-edit-rich": "" } : {}),
   } as const;
 }

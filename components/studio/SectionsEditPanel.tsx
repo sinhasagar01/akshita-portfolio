@@ -28,6 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
+import { richToMarkers } from "@/lib/studio/rich-markers";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -237,7 +238,7 @@ function useFitToWidth() {
  * source of truth for a field's value.
  */
 type SelectedField =
-  | { kind: "section"; field: "eyebrow" | "title"; label: string }
+  | { kind: "section"; field: "eyebrow" | "title" | "lead" | "northStar"; label: string }
   | { kind: "block"; blockIndex: number; path: string; label: string };
 
 /**
@@ -333,6 +334,46 @@ function SelectedRail({
   );
 }
 
+/**
+ * Bold control for the focused Rich field.
+ *
+ * ONE button, deliberately. The model is a plain string that `parseRich` reads for
+ * `**bold**` and nothing else — there is no italic, link, underline, size, colour or
+ * list in `RichRun`. Showing those greyed out would advertise capabilities that need
+ * a schema rebuild, so they are absent rather than disabled.
+ *
+ * execCommand is deprecated but is still the only cross-browser way to toggle bold
+ * inside contentEditable without shipping an editor library. It produces <b> or
+ * <strong> depending on engine; richToMarkers maps both.
+ */
+function BoldToolbar({ at }: { at: { top: number; left: number } | null }) {
+  if (!at) return null;
+  return (
+    <div
+      role="toolbar"
+      aria-label="Text formatting"
+      style={{ position: "fixed", top: at.top, left: at.left, zIndex: 60 }}
+      className="flex items-center gap-2 rounded-md border border-ink-950/10 bg-cream-50 px-2 py-1 shadow-[0_4px_14px_rgba(60,45,30,0.18)]"
+    >
+      <button
+        type="button"
+        // mousedown, not click: the default would blur the field and end the
+        // selection before the command could apply to it.
+        onMouseDown={(e) => {
+          e.preventDefault();
+          document.execCommand("bold");
+        }}
+        aria-label="Bold"
+        title="Bold"
+        className="grid size-6 place-items-center rounded font-display text-[13px] font-bold text-ink-950 transition-colors hover:bg-cream-200"
+      >
+        B
+      </button>
+      <span className="text-[10px] text-text-subtle">saves as **bold**</span>
+    </div>
+  );
+}
+
 function SectionCanvas({
   section,
   web,
@@ -343,6 +384,7 @@ function SectionCanvas({
   onReplaceImage,
   onSelectField,
   selectedField,
+  onRichFocus,
 }: {
   section: RawSection;
   web: boolean;
@@ -361,6 +403,8 @@ function SectionCanvas({
   onSelectField?: (f: SelectedField) => void;
   /** The field the rail is bound to, so the canvas can mark it as selected. */
   selectedField?: SelectedField | null;
+  /** A rich field gained (or lost) focus — drives the bold control's position. */
+  onRichFocus?: (at: { top: number; left: number } | null) => void;
 }) {
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -378,7 +422,7 @@ function SectionCanvas({
     if (!el) return;
     const label = el.getAttribute("aria-label") ?? "Field";
     const sf = el.dataset.edit;
-    if (sf === "eyebrow" || sf === "title") {
+    if (sf === "eyebrow" || sf === "title" || sf === "lead" || sf === "northStar") {
       onSelectField?.({ kind: "section", field: sf, label });
       return;
     }
@@ -427,6 +471,14 @@ function SectionCanvas({
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
+      onFocusCapture={(e) => {
+        const el = (e.target as HTMLElement).closest?.("[data-edit-rich]") as HTMLElement | null;
+        if (!el) return onRichFocus?.(null);
+        const r = el.getBoundingClientRect();
+        // Above the field, nudged in. getBoundingClientRect is post-transform, which
+        // is what fixed positioning needs — so the CSS-scaled canvas is handled.
+        onRichFocus?.({ top: Math.max(8, r.top - 34), left: r.left });
+      }}
     >
       {/* The section renders at the LIVE content width and is then scaled to fit the
           pane, rather than being rendered into whatever width the pane happens to be.
@@ -522,6 +574,9 @@ export default function SectionsEditPanel({
   // copy to go stale. The rail reads form state on every render and writes through on
   // change, exactly like the Inspector's own fields.
   const [selectedField, setSelectedField] = useState<SelectedField | null>(null);
+  // Where to float the bold control — set when a RICH field takes focus, cleared when
+  // it leaves. Only rich fields get it; a plain field has nothing to format.
+  const [boldAt, setBoldAt] = useState<{ top: number; left: number } | null>(null);
 
   // Clear the selection whenever the focused section changes.
   //
@@ -864,11 +919,21 @@ export default function SectionsEditPanel({
             const t = e.target as HTMLElement;
             const ds = t?.dataset;
             if (!ds) return;
-            const raw = t.innerText ?? "";
-            const sf = ds.edit; // "eyebrow" | "title"
-            if (sf === "eyebrow" || sf === "title") {
-              const value =
-                sf === "title" ? raw.replace(/\n{2,}/g, "\n").trim() : raw.replace(/\s*\n\s*/g, " ").trim();
+            // A RICH field renders its `**bold**` as real bold, so innerText would
+            // return the words with every marker silently stripped. Serialize the DOM
+            // back to markers instead; a field with no bold yields its plain string
+            // unchanged, so tagging plain prose introduces no drift.
+            const isRich = ds.editRich !== undefined;
+            const raw = isRich ? richToMarkers(t) : (t.innerText ?? "");
+            const sf = ds.edit; // "eyebrow" | "title" | "lead" | "northStar"
+            if (sf === "eyebrow" || sf === "title" || sf === "lead" || sf === "northStar") {
+              // Rich prose keeps its internal newlines; only the single-line shell
+              // fields collapse them.
+              const value = isRich
+                ? raw.replace(/\n{3,}/g, "\n\n").trim()
+                : sf === "title"
+                  ? raw.replace(/\n{2,}/g, "\n").trim()
+                  : raw.replace(/\s*\n\s*/g, " ").trim();
               const cur = values.sections[selIdx] as unknown as Record<string, unknown>;
               if ((cur[sf] ?? "") === value) return;
               setSection(selIdx, { ...values.sections[selIdx], [sf]: value } as RawSection);
@@ -879,7 +944,9 @@ export default function SectionsEditPanel({
               // (e.g. "text", "stats.0.value", "features.1.title") through the same
               // setBlockValue seam the forms use; skip a no-op so a focus-then-blur
               // never dirties the draft.
-              const value = raw.replace(/\s*\n\s*/g, " ").trim();
+              const value = isRich
+                ? raw.replace(/\n{3,}/g, "\n\n").trim()
+                : raw.replace(/\s*\n\s*/g, " ").trim();
               const blockIndex = Number(ds.editBlockIndex);
               const path = ds.editValuePath;
               const curVal = (values.sections[selIdx].blocks[blockIndex]?.value ?? {}) as Record<string, unknown>;
@@ -939,12 +1006,14 @@ export default function SectionsEditPanel({
                 onBlur={onBlur}
                 onSelectField={selectField}
                 selectedField={selectedField}
+                onRichFocus={setBoldAt}
                 onReplaceImage={(blockIndex, path) => {
                   pendingImage.current = { selIdx, blockIndex, path };
                   setImageError(null);
                   imageInputRef.current?.click();
                 }}
               />
+              <BoldToolbar at={boldAt} />
               <SelectedRail
                 selected={selectedField}
                 value={selectedField ? readField(selectedField) : ""}

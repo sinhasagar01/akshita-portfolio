@@ -76,7 +76,10 @@ export default function FeatureRows({
               >
                 {f.title}
               </h3>
-              <p className="text-[1rem] text-ink-600 leading-[1.62] mt-3.5">
+              <p
+                {...inlineEditProps(editable, blockIndex, `features.${i}.body`, "Edit feature body", true)}
+                className={`text-[1rem] text-ink-600 leading-[1.62] mt-3.5${editable ? EDIT_AFFORD : ""}`}
+              >
                 {renderRich(f.body)}
               </p>
             </div>

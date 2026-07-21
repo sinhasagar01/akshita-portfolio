@@ -23,7 +23,8 @@ export default function FigureGrid({
 }) {
   const single = items.length === 1;
   const aff = editable ? EDIT_AFFORD : "";
-  const edit = (path: string, label: string) => inlineEditProps(editable, blockIndex, path, label);
+  const edit = (path: string, label: string, rich = false) =>
+    inlineEditProps(editable, blockIndex, path, label, rich);
   return (
     <div>
       {heading && (
@@ -62,7 +63,10 @@ export default function FigureGrid({
                   </div>
                 )}
                 {it.body && (
-                  <div className={`text-[0.95rem] text-ink-600 leading-[1.55] ${it.title ? "mt-2" : ""}`}>
+                  <div
+                    {...edit(`items.${i}.body`, "Edit figure body", true)}
+                    className={`text-[0.95rem] text-ink-600 leading-[1.55] ${it.title ? "mt-2" : ""}${aff}`}
+                  >
                     {renderRich(it.body)}
                   </div>
                 )}

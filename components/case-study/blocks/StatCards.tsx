@@ -32,7 +32,10 @@ export default function StatCards({ heading, stats, web = false, editable = fals
                 )}
                 {s.suffix && <span className="text-[0.42em] align-baseline">{s.suffix}</span>}
               </p>
-              <div className="text-[1rem] font-medium text-ink-950 leading-[1.4] mt-3 max-w-[28ch]">
+              <div
+                {...inlineEditProps(editable, blockIndex, `stats.${i}.body`, "Edit stat body", true)}
+                className={`text-[1rem] font-medium text-ink-950 leading-[1.4] mt-3 max-w-[28ch]${editable ? EDIT_AFFORD : ""}`}
+              >
                 {renderRich(s.body)}
               </div>
             </div>
