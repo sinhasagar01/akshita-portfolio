@@ -108,11 +108,20 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith(".yaml"))) {
   // sections: only migrated projects have them; frame must not be inserted
   const sections = readSections(raw);
   if (sections.length > 0) {
-    check(`${file}: sections round-trip (no frame inserted)`, () => {
+    check(`${file}: sections round-trip (frame keys unchanged)`, () => {
       const r = serializeProjectSections(raw, sections);
       if (!r.ok) throw new Error(r.error.message);
       eq(md5(r.bytes), md5(raw), "sections md5");
-      if (/\bframe:/.test(r.bytes)) throw new Error("frame key inserted");
+      // Counted, not merely absent. Absence was a fair proxy for "not inserted"
+      // while no project AUTHORED a frame, but #95 gave fosfor-data-profiling real
+      // `frame: browser` keys for its Bold-gallery composition, and the proxy then
+      // failed on content the serializer had faithfully preserved. Comparing counts
+      // states the actual rule — the seam adds none and drops none — and mirrors
+      // what the `template:` check above already does.
+      const frames = (s) => (s.match(/\bframe:/g) ?? []).length;
+      if (frames(r.bytes) !== frames(raw)) {
+        throw new Error(`frame key count changed ${frames(raw)} -> ${frames(r.bytes)}`);
+      }
     });
   }
 }
