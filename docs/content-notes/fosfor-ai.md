@@ -3,7 +3,9 @@
 > Deduplicated and cleaned from the reference URL + screenshot, extended with the redesign additions (structured IA, phased timeline, new Results section).
 >
 > **Image paths** are placeholders — reconcile against the actual filenames in `images.zip`, keep the alt text.
-> **Results** are illustrative, framed as the designer's own project outcomes, not verified third-party stats.
+> **Results** were illustrative when this note was drafted. **Superseded on 2026-07-21**: the
+> owner seeded the real figures, and `content/projects/fosfor-ai.yaml` is now the source of
+> truth for them. Read the numbers there, not from the table below.
 
 ---
 
@@ -189,7 +191,9 @@ Ideated on the landing page layout and structure using paper wireframes, then lo
 
 ## Results & impact
 
-> Illustrative outcomes, framed as the designer's own — not verified third-party stats.
+> **Superseded on 2026-07-21.** These were illustrative while the case study was being
+> drafted. The owner has since seeded the real figures, so the live numbers live in
+> `content/projects/fosfor-ai.yaml` and the table below is kept only as drafting history.
 
 | Metric | Meaning |
 |---|---|
