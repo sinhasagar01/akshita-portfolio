@@ -556,5 +556,48 @@ rejects("an unknown kind is still rejected", [{ discriminant: "featureStory", va
 rejects("a prototype key is not a known kind", [{ discriminant: "constructor", value: {} }], "unknown block kind");
 rejects("a prototype key (__proto__) is not a known kind", [{ discriminant: "__proto__", value: {} }], "unknown block kind");
 
+/* ============================================================================
+   VE-1 — the videoEmbed accept/reject matrix.
+
+   The block whose source is an external URL, so the sanitiser is the boundary that
+   decides what may be written to disk. Two rules interact and both are pinned here:
+   a NON-EMPTY src must be http(s), and an EMPTY src is allowed because a block is
+   born from the picker without one — exactly as an image block is born with
+   src:null. Emptiness is refused at PUBLISH by the ssg adapter, not at save, or the
+   kind could never be added at all.
+============================================================================ */
+console.log("\nVE-1 videoEmbed — the write boundary");
+
+const VIDEO_OK = {
+  src: "https://cdn.example.com/clip.mp4",
+  poster: { src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null, frame: "" },
+  caption: "", frame: "browser", aspect: "", eyebrow: "", title: "",
+};
+const videoBlock = (over = {}) => [{ discriminant: "videoEmbed", value: { ...VIDEO_OK, ...over } }];
+const accepts = (name, blocks) =>
+  check(name, () => {
+    const res = sanitizeSectionsPatch(shell(blocks));
+    if (!res.ok) throw new Error(`REJECTED: ${res.error.field} — ${res.error.message}`);
+  });
+
+accepts("a fully-authored videoEmbed is accepted", videoBlock());
+accepts("http is accepted", videoBlock({ src: "http://a.co/v.mp4" }));
+accepts("frame: plain is accepted", videoBlock({ frame: "plain" }));
+accepts("a caption carrying all three marks is accepted",
+  videoBlock({ caption: "a **b** *i* [l](https://a.co)" }));
+accepts("a BLANK src is accepted — a born-empty block is a draft state, refused at publish",
+  videoBlock({ src: "" }));
+
+rejects("javascript: src", videoBlock({ src: "javascript:alert(1)" }), "must be an http:// or https:// URL");
+rejects("data: src", videoBlock({ src: "data:video/mp4;base64,AAA" }), "must be an http:// or https:// URL");
+rejects("obfuscated java\\tscript: src", videoBlock({ src: "java\tscript:alert(1)" }), "must be an http:// or https:// URL");
+rejects("a site-relative src (a <video> needs a fetchable media URL)",
+  videoBlock({ src: "/videos/clip.mp4" }), "must be an http:// or https:// URL");
+rejects("a non-string src", videoBlock({ src: 42 }), "must be a string");
+rejects("an unknown frame", videoBlock({ frame: "fullscreen" }), 'must be "plain" or "browser"');
+rejects("an unknown field", videoBlock({ evil: 1 }), "unknown field");
+rejects("a missing field (the sanitiser requires every declared key)",
+  [{ discriminant: "videoEmbed", value: { src: "https://a.co/v.mp4" } }], "");
+
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

@@ -35,7 +35,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
 import { splitParagraph, mergeParagraph } from "@/lib/studio/paragraph-edits";
-import { BLOCK_REGISTRY, BLOCK_LABELS, type BlockFormProps } from "./blocks/registry";
+import { BLOCK_REGISTRY, BLOCK_LABELS, type BlockFormProps, type EditableBlockKind } from "./blocks/registry";
 import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
@@ -46,6 +46,16 @@ import { IconGrid, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./ico
 type SectionsFields = { sections: readonly RawSection[] };
 /** The parallel stable ids, mirroring the sections structure exactly. */
 type Ids = { sectionIds: string[]; blockIds: string[][] };
+
+/**
+ * A block kind's human name, tolerating a kind that has no editor YET.
+ *
+ * `videoEmbed` is in the schema from VE-1 but gets its form in VE-3, so a section
+ * that already holds one still has to list, reorder and remove it. Falling back to
+ * the kind itself keeps those controls labelled instead of rendering `undefined`.
+ */
+const blockLabel = (kind: SectionBlockKind): string =>
+  (BLOCK_LABELS as Partial<Record<SectionBlockKind, string>>)[kind] ?? kind;
 
 const sectionLabel = (s: RawSection, i: number) =>
   s.title?.split("\n")[0] || s.eyebrow || s.id || `Section ${i + 1}`;
@@ -121,7 +131,7 @@ function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
           </span>
         )}
       </span>
-      <span className="truncate text-[11px] text-ink-600">{BLOCK_LABELS[kind]}</span>
+      <span className="truncate text-[11px] text-ink-600">{blockLabel(kind)}</span>
     </span>
   );
 }
@@ -1092,7 +1102,10 @@ export default function SectionsEditPanel({
       ids: { ...d, blockIds: setAt(d.blockIds, si, removeAt(d.blockIds[si], bi)) },
     }));
 
-  function addBlock(si: number, kind: SectionBlockKind) {
+  // Narrowed to the kinds that HAVE an editor: the picker maps over BLOCK_REGISTRY's
+  // keys, so it can only ever offer one of these, and a kind without a form (VE-1's
+  // videoEmbed) is unreachable here by construction rather than by a runtime guard.
+  function addBlock(si: number, kind: EditableBlockKind) {
     const block = { discriminant: kind, value: BLOCK_REGISTRY[kind].empty() } as RawSection["blocks"][number];
     structural((s, d) => ({
       sections: setAt(s, si, { ...s[si], blocks: insertAt(s[si].blocks, s[si].blocks.length, block) }),
@@ -1167,7 +1180,9 @@ export default function SectionsEditPanel({
   const dupeIds = new Set(
     values.sections.map((s) => s.id).filter((id, i, a) => id !== "" && a.indexOf(id) !== i)
   );
-  const addableKinds = Object.keys(BLOCK_REGISTRY) as SectionBlockKind[];
+  // The registry's keys ARE the offerable set, so a kind whose form is not built yet
+  // (VE-1's videoEmbed) is absent from the picker without a filter to maintain.
+  const addableKinds = Object.keys(BLOCK_REGISTRY) as EditableBlockKind[];
 
   return (
     <section
@@ -1650,7 +1665,20 @@ export default function SectionsEditPanel({
 
             {section.blocks.map((block, j) => {
               const kind = block.discriminant as SectionBlockKind;
-              const entry = BLOCK_REGISTRY[kind];
+              // A kind can exist in the schema before it has a form (VE-1 declares
+              // videoEmbed; VE-3 builds its editor). Such a block still has to be
+              // listed, reordered and removable, so the row renders with a note where
+              // the form would be rather than crashing on a missing registry entry.
+              const entry = (BLOCK_REGISTRY as Record<string, (typeof BLOCK_REGISTRY)[EditableBlockKind] | undefined>)[kind];
+              if (!entry) {
+                return (
+                  <div key={ids.blockIds[i][j]} className="rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
+                    <p className="text-[11px] text-ink-600">
+                      {blockLabel(kind)} — no editor yet. It renders on the page once built.
+                    </p>
+                  </div>
+                );
+              }
               const id = ids.blockIds[i][j];
               // The registry is keyed by discriminant and each Form is typed to its
               // own kind's value; the lookup cannot express that correlation to the
@@ -1670,15 +1698,15 @@ export default function SectionsEditPanel({
                       {(entry.label as (v: any) => string)(block.value)}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-text-subtle">{BLOCK_LABELS[kind]}</span>
+                      <span className="text-[10px] text-text-subtle">{blockLabel(kind)}</span>
                       <div className="flex gap-1">
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, -1)} disabled={j === 0} aria-label={`Move ${BLOCK_LABELS[kind]} up`} className={iconBtn}>
+                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, -1)} disabled={j === 0} aria-label={`Move ${blockLabel(kind)} up`} className={iconBtn}>
                           <IconChevronUp />
                         </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${BLOCK_LABELS[kind]} down`} className={iconBtn}>
+                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
                           <IconChevronDown />
                         </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${BLOCK_LABELS[kind]}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                           <IconX />
                         </button>
                       </div>
@@ -1708,7 +1736,7 @@ export default function SectionsEditPanel({
                       onClick={() => addBlock(i, k)}
                       className="rounded-md border border-ink-950/8 bg-cream-50 px-2.5 py-1.5 text-[12px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
                     >
-                      {BLOCK_LABELS[k]}
+                      {blockLabel(k)}
                     </button>
                   ))}
                 </div>

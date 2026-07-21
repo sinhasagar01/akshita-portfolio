@@ -588,6 +588,41 @@ export default config({
                   }),
                   itemLabel: (props: any) => `Closing line — ${props.fields.text.value}`,
                 },
+                // VE-1 — the 16th kind. The video is an EXTERNALLY HOSTED URL, never a
+                // committed binary: P4-1's commit-into-the-repo rule is right for webp
+                // stills (small, sharp-normalised, under the GraphQL commit ceiling) and
+                // wrong for video on every one of those counts — multi-MB files, no
+                // normalise step, permanent history bloat. So `src` is a text field and
+                // there is no video-upload pipeline to build. The POSTER is the only
+                // binary here, it is an image, and it reuses the content-addressed block
+                // image spec unchanged.
+                videoEmbed: {
+                  label: "Video embed",
+                  schema: fields.object({
+                    src: fields.text({ label: "Video URL (https://…) — externally hosted" }),
+                    poster: fields.object(imgSpecFields(), { label: "Poster still (optional)" }),
+                    caption: fields.text({
+                      label: "Caption (optional) — supports **bold**, *italic*, [links](url)",
+                      multiline: true,
+                    }),
+                    // ONE block, two variations. `frame` mirrors the DeviceImage frame
+                    // system, so the editor flips a field instead of the content having
+                    // to choose between two near-identical kinds.
+                    frame: fields.select({
+                      label: "Frame",
+                      options: [
+                        { label: "Browser", value: "browser" },
+                        { label: "Plain", value: "plain" },
+                      ],
+                      defaultValue: "browser",
+                    }),
+                    aspect: fields.text({ label: "Aspect ratio, e.g. 1.7778 (optional)" }),
+                    eyebrow: fields.text({ label: "Eyebrow (optional)" }),
+                    title: fields.text({ label: "Title (optional)" }),
+                  }),
+                  itemLabel: (props: any) =>
+                    `Video — ${props.fields.title.value || props.fields.src.value || "no source"}`,
+                },
               },
               { label: "Blocks" }
             ),

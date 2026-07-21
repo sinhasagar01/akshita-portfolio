@@ -68,5 +68,18 @@ export const BLOCK_EMPTIES: { [K in SectionBlockKind]: () => RawValue<K> } = {
   }),
   richText: () => ({ paragraphs: [] }),
   closingLine: () => ({ text: "" }),
+  // Born with NO src, which is unpublishable on purpose — the same shape as an
+  // image block born without an upload. The picker cannot know whether a URL is
+  // coming, so the publish gate refuses it rather than the editor pretending it is
+  // complete. VE-3 gives it a form; until then it is unreachable from the picker.
+  videoEmbed: () => ({
+    src: "",
+    poster: { ...img() },
+    caption: "",
+    frame: "browser",
+    aspect: "",
+    eyebrow: "",
+    title: "",
+  }),
 };
 
