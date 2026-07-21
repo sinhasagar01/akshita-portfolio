@@ -56,20 +56,39 @@ export default function DeviceImage({
    *  lazy). */
   priority?: boolean;
 }) {
-  const inner = <DeviceImageInner image={image} className={className} priority={priority} />;
-  if (!editable) return inner;
+  // ADDITIVE ONLY. The Replace affordance used to live in a wrapper span around the
+  // image, which inserted a new box into the layout chain: a frame sized as a
+  // percentage then resolved against the wrapper instead of its real parent, and
+  // collapsed. Instead the markers and the button are handed to the element that is
+  // ALREADY position:relative, so the editable render adds an absolutely-positioned
+  // button and nothing else. Out of flow means it cannot affect layout by
+  // construction, rather than by picking the right width.
+  const editProps = editable
+    ? { "data-edit-block-index": blockIndex, "data-edit-image-path": editPath }
+    : undefined;
+  const overlay = editable ? <ReplaceImageButton /> : null;
   return (
-    <span className="relative block" data-edit-block-index={blockIndex} data-edit-image-path={editPath}>
-      {inner}
-      <button
-        type="button"
-        data-edit-image-replace
-        aria-label="Replace image"
-        className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[11px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
-      >
-        Replace image
-      </button>
-    </span>
+    <DeviceImageInner
+      image={image}
+      className={className}
+      priority={priority}
+      editProps={editProps}
+      overlay={overlay}
+    />
+  );
+}
+
+/** The Replace affordance. Absolutely positioned, so it never participates in layout. */
+function ReplaceImageButton() {
+  return (
+    <button
+      type="button"
+      data-edit-image-replace
+      aria-label="Replace image"
+      className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[11px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
+    >
+      Replace image
+    </button>
   );
 }
 
@@ -77,16 +96,31 @@ function DeviceImageInner({
   image,
   className,
   priority = false,
+  editProps,
+  overlay,
 }: {
   image: ImgSpec;
   className?: string;
   priority?: boolean;
+  /** Studio-only edit markers, spread onto the already-positioned outer element. */
+  editProps?: Record<string, unknown>;
+  /** Studio-only absolutely-positioned affordance, rendered inside that element. */
+  overlay?: React.ReactNode;
 }) {
   // CS-5 — a wide frame (browser / MacBook) is a whole different chrome and aspect.
   // Phone and absent fall through to the existing markup UNTOUCHED (the byte-identical
   // gate), so every existing image and all of boat-crest render exactly as before.
   if (isWideFrame(image.frame)) {
-    return <WideFrame image={image} className={className} variant={image.frame as "browser" | "macbook"} priority={priority} />;
+    return (
+      <WideFrame
+        image={image}
+        className={className}
+        variant={image.frame as "browser" | "macbook"}
+        priority={priority}
+        editProps={editProps}
+        overlay={overlay}
+      />
+    );
   }
 
   const { src, alt, width, height, rotate, translate, z, unoptimized } = image;
@@ -100,6 +134,7 @@ function DeviceImageInner({
     const sizing = height != null ? { height } : { width: width ?? 248 };
     return (
       <span
+        {...editProps}
         className={`cs-flatten relative block max-w-full drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)] ${className ?? ""}`}
         style={{ ...sizing, aspectRatio: `${BEZEL_W} / ${BEZEL_H}`, transform, zIndex: z }}
       >
@@ -112,6 +147,7 @@ function DeviceImageInner({
           priority={priority}
           unoptimized={unoptimized}
         />
+        {overlay}
       </span>
     );
   }
@@ -119,7 +155,7 @@ function DeviceImageInner({
   // Size by height when given (before/after pairs), otherwise by width.
   const sizing = height != null ? { height, width: "auto" } : { width: width ?? 248, height: "auto" };
 
-  return (
+  const staticImage = (
     <Image
       src={src}
       alt={alt}
@@ -130,6 +166,16 @@ function DeviceImageInner({
       priority={priority}
       unoptimized={unoptimized}
     />
+  );
+  // Only this path needs a wrapper: a bare <Image> is not a positioned ancestor. It is
+  // reachable only for STATIC imports (boat-crest, whose sections are empty, so it is
+  // never editable) and it is fixed-width, so shrink-wrapping cannot collapse anything.
+  if (!overlay && !editProps) return staticImage;
+  return (
+    <span {...editProps} className="relative inline-block">
+      {staticImage}
+      {overlay}
+    </span>
   );
 }
 
@@ -145,11 +191,15 @@ function WideFrame({
   className,
   variant,
   priority = false,
+  editProps,
+  overlay,
 }: {
   image: ImgSpec;
   className?: string;
   variant: "browser" | "macbook";
   priority?: boolean;
+  editProps?: Record<string, unknown>;
+  overlay?: React.ReactNode;
 }) {
   const { src, alt, z, unoptimized } = image;
 
@@ -171,6 +221,7 @@ function WideFrame({
 
   return (
     <span
+      {...editProps}
       className={`cs-flatten relative block w-full drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)] ${className ?? ""}`}
       style={{ maxWidth: WIDE_MAX_W, zIndex: z }}
     >
@@ -199,6 +250,7 @@ function WideFrame({
           </span>
         </span>
       )}
+      {overlay}
     </span>
   );
 }
