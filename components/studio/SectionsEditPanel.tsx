@@ -246,6 +246,49 @@ type SelectedField =
  * and poor for anything longer — no wrapping control, no undo affordance, and on a
  * scaled canvas the text is small. Clicking the canvas selects; typing here writes.
  */
+/**
+ * Grow the rail's textarea to fit its content, bounded by the canvas beside it.
+ *
+ * A fixed 3-row box is wrong at both ends: a two-word stat value wastes most of it,
+ * and a position statement is edited through a keyhole. So the height follows the
+ * text — but it must not run past the section it belongs to, or the rail outgrows
+ * the thing it is editing and the page scrolls for no reason.
+ *
+ * The ceiling is measured from the canvas pane (the rail's grid sibling) rather than
+ * hardcoded, so it tracks whatever that section actually renders to.
+ */
+function useAutoGrow(value: string) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  // Anchored to the RAIL, not the textarea: the textarea only exists once a field is
+  // selected, so measuring from it meant the effect ran on mount with nothing there,
+  // bailed, and never re-ran — leaving the box uncapped.
+  const railRef = useRef<HTMLElement>(null);
+  const [maxHeight, setMaxHeight] = useState<number>();
+
+  // Track the canvas pane's height. It changes with the section, the viewport, and
+  // images loading, so it is observed rather than read once.
+  useEffect(() => {
+    const canvas = railRef.current?.parentElement?.firstElementChild;
+    if (!canvas) return;
+    const measure = () => setMaxHeight(canvas.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, []);
+
+  // Reset to auto before reading scrollHeight, or the box can only ever grow.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const cap = maxHeight ?? Number.POSITIVE_INFINITY;
+    el.style.height = `${Math.min(el.scrollHeight, cap)}px`;
+  }, [value, maxHeight]);
+
+  return { ref, railRef, maxHeight };
+}
+
 function SelectedRail({
   selected,
   value,
@@ -257,8 +300,9 @@ function SelectedRail({
   onChange: (v: string) => void;
   onCommit: () => void;
 }) {
+  const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
   return (
-    <aside className="sticky top-4 rounded-xl border border-ink-950/8 bg-cream-50 p-3.5">
+    <aside ref={railRef} className="sticky top-4 rounded-xl border border-ink-950/8 bg-cream-50 p-3.5">
       <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
@@ -269,12 +313,17 @@ function SelectedRail({
               ? `s:${selected.field}`
               : `b:${selected.blockIndex}:${selected.path}`
           }
-          rows={3}
+          ref={taRef}
+          rows={2}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onCommit}
           aria-label={selected.label}
-          className="mt-2 w-full resize-y rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          // Height is driven by useAutoGrow; once it hits the ceiling the box scrolls
+          // instead of pushing past the canvas. resize-none because dragging a handle
+          // would fight the auto-sizing on the next keystroke.
+          style={{ maxHeight }}
+          className="mt-2 w-full resize-none overflow-y-auto rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
         />
       ) : null}
       <p className="mt-2 text-[11px] text-text-subtle">
