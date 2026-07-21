@@ -76,6 +76,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   const bespoke = BESPOKE_SLUGS.has(slug);
   const [tab, setTab] = useState<"details" | "sections">("details");
   const [sectionsData, setSectionsData] = useState<RawSection[] | null>(null);
+  // The canvas composes from `template`, so it lives HERE rather than inside the
+  // toggle: flipping Mobile/Web has to recompose the preview immediately, and the
+  // Sections tab has to render with the right one from the start. Seeded from the
+  // server prop, then owned by the toggle.
+  const [templateValue, setTemplateValue] = useState(template);
+  const [draftImages, setDraftImages] = useState<string[]>([]);
   const [sectionsStatus, setSectionsStatus] = useState<
     "idle" | "loading" | "loaded" | "error"
   >("idle");
@@ -96,6 +102,8 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       const json = await res.json();
       if (res.ok && json.ok) {
         setSectionsData((json.sections ?? []) as RawSection[]);
+        if (typeof json.template === "string") setTemplateValue(json.template);
+        if (Array.isArray(json.draftImages)) setDraftImages(json.draftImages as string[]);
         setSectionsStatus("loaded");
       } else {
         setSectionsStatus("error");
@@ -197,7 +205,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         {/* CS-6a — case-study template toggle. Sections-owned only (bespoke boat-crest
             renders no template). Writes `template` via the HEAD/Details save path. */}
         {!bespoke && (
-          <TemplateToggle slug={slug} initial={template} onSaved={() => setUnpublished(true)} />
+          <TemplateToggle
+            slug={slug}
+            initial={template}
+            onChange={setTemplateValue}
+            onSaved={() => setUnpublished(true)}
+          />
         )}
       </div>
 
@@ -304,7 +317,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             </p>
           </div>
         ) : sectionsStatus === "loaded" && sectionsData ? (
-          <SectionsEditPanel slug={slug} sections={sectionsData} />
+          <SectionsEditPanel
+            slug={slug}
+            sections={sectionsData}
+            template={templateValue}
+            draftImages={draftImages}
+          />
         ) : sectionsStatus === "error" ? (
           <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
             <p className="text-[13px] text-accent-600">Could not load the sections.</p>
@@ -496,10 +514,13 @@ function TemplateToggle({
   slug,
   initial,
   onSaved,
+  onChange,
 }: {
   slug: string;
   initial: string;
   onSaved: () => void;
+  /** Report the current value up, so the canvas recomposes as soon as it flips. */
+  onChange?: (t: string) => void;
 }) {
   const [template, setTemplate] = useState(initial);
   const [busy, setBusy] = useState(false);
@@ -517,6 +538,7 @@ function TemplateToggle({
     setNote(null);
     const prev = template;
     setTemplate(next); // optimistic
+    onChange?.(next);
     try {
       const res = await fetch("/api/studio/save-draft", {
         method: "POST",
@@ -529,6 +551,7 @@ function TemplateToggle({
       } else if (res.ok && json.mode === "fs") {
         setNote("needs github mode (dev)");
         setTemplate(prev); // fs no-op — nothing was saved
+        onChange?.(prev);
       } else {
         setTemplate(prev);
         setNote("Save failed");
