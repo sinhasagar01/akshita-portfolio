@@ -15,6 +15,7 @@ import BeforeAfterStory from "./blocks/BeforeAfterStory";
 import SwatchTokens from "./blocks/SwatchTokens";
 import AnnotatedImage from "./blocks/AnnotatedImage";
 import RichText from "./blocks/RichText";
+import VideoEmbed from "./blocks/VideoEmbed";
 import ClosingLine from "./blocks/ClosingLine";
 
 /** Dispatch one block to its layout component — the one block dispatch every
@@ -104,12 +105,18 @@ export default function BlockRenderer({
       return <RichText paragraphs={block.paragraphs} web={web} editable={editable} blockIndex={blockIndex} />;
     case "closingLine":
       return <ClosingLine text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
-    // VE-1 declares the kind; VE-2 builds the browser-framed player. Rendering
-    // NOTHING is deliberate rather than lazy: the exhaustiveness check above means a
-    // new kind cannot be added without a decision here, and "not yet" is the honest
-    // one until the component exists. No content holds a videoEmbed, so no page moves.
     case "videoEmbed":
-      return null;
+      return (
+        <VideoEmbed
+          src={block.src}
+          poster={block.poster}
+          caption={block.caption}
+          frame={block.frame}
+          aspect={block.aspect}
+          eyebrow={block.eyebrow}
+          title={block.title}
+        />
+      );
     default: {
       const _exhaustive: never = block;
       return _exhaustive;
