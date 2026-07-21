@@ -141,10 +141,17 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
   return visible;
 }
 
-const inputCls =
+// Exported so a bespoke field (VE-3's video URL input, which owns an inline error the
+// shared TextField has no slot for) can match every other input to the pixel instead of
+// re-deriving the class string and drifting.
+export const inputCls =
   "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
-const labelCls = "text-eyebrow uppercase tracking-eyebrow text-ink-400";
+/** The same box, in the rejection state — a danger border and ring. */
+export const inputErrorCls =
+  "w-full rounded-md border border-danger-600 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+
+export const labelCls = "text-eyebrow uppercase tracking-eyebrow text-ink-400";
 
 export function TextField({
   label,

@@ -29,7 +29,7 @@ import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-r
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { richToMarkers } from "@/lib/studio/rich-markers";
-import { isSafeHref } from "@/lib/case-studies/adapter";
+import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -73,6 +73,8 @@ const KIND_HAS_STYLE = new Set<SectionBlockKind>([
   "featureRows",
   "beforeAfter",
   "annotatedImage",
+  // VE-3 — the frame select, aspect and the optional poster live on the Style tab.
+  "videoEmbed",
 ]);
 
 // CS-2 — coarse kind families for the board's schematic skeleton (shape by
@@ -1180,9 +1182,22 @@ export default function SectionsEditPanel({
   const dupeIds = new Set(
     values.sections.map((s) => s.id).filter((id, i, a) => id !== "" && a.indexOf(id) !== i)
   );
-  // The registry's keys ARE the offerable set, so a kind whose form is not built yet
-  // (VE-1's videoEmbed) is absent from the picker without a filter to maintain.
+  // The registry's keys ARE the offerable set, so the picker follows it with no filter
+  // to maintain. Every kind has a form now (VE-3), so all of them are offered.
   const addableKinds = Object.keys(BLOCK_REGISTRY) as EditableBlockKind[];
+
+  // VE-3 — a videoEmbed whose src is NON-EMPTY but not an http(s) URL blocks Save, the
+  // same verdict the form shows inline. An EMPTY src does not: a born-empty block is a
+  // valid draft state, refused only at publish. This is the one block field where a bad
+  // value is worth stopping before the server round-trip, because the server would
+  // reject the whole patch and the owner would not know which block.
+  const hasBadVideoSrc = values.sections.some((s) =>
+    s.blocks.some((b) => {
+      if (b.discriminant !== "videoEmbed") return false;
+      const src = String((b.value as { src?: unknown }).src ?? "");
+      return src.trim() !== "" && !isHttpUrl(src);
+    })
+  );
 
   return (
     <section
@@ -1772,6 +1787,8 @@ export default function SectionsEditPanel({
             <span className="text-accent-600">Save failed. Try again.</span>
           ) : saveStatus === "fs" ? (
             <span className="text-text-subtle">Draft save needs github mode (dev)</span>
+          ) : hasBadVideoSrc ? (
+            <span className="text-danger-600">A video URL must be http:// or https://.</span>
           ) : (
             <span className="text-text-subtle">Auto-saves to draft on blur. Preview to see it.</span>
           )}
@@ -1779,7 +1796,7 @@ export default function SectionsEditPanel({
         <button
           type="button"
           onClick={saveDraft}
-          disabled={!dirty || saveStatus === "saving"}
+          disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
           className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
