@@ -126,6 +126,7 @@ export default function ProjectsListEditor({ entries }: { entries: ProjectListIt
           title: name,
           summary: summary.trim(),
           orderIndex,
+          sectionCount: 0, // a new project is a stub until sections are authored
           heroImage: null,
           facts: { role: "", type: "", platform: "", timeline: "" },
           template: "", // a new project starts template-less (phone default)

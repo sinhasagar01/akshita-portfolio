@@ -54,12 +54,16 @@ const ListDetailContext = createContext<ListDetailCtx | null>(null);
  * useDraftForm draft persists across selection. Mirrors useReportPending.
  */
 export function useListItem(id: string, dirty: boolean): { isSelected: boolean } {
-  const { reportDirty, activeId } = useContext(ListDetailContext) ?? NOOP;
+  const ctx = useContext(ListDetailContext);
+  const { reportDirty, activeId } = ctx ?? NOOP;
   useEffect(() => {
     reportDirty(id, dirty);
     return () => reportDirty(id, false);
   }, [id, dirty, reportDirty]);
-  return { isSelected: activeId === id };
+  // OUTSIDE a list shell the panel IS the page — there is no selection to lose to,
+  // so it is always showing. Without this a panel rendered on its own route
+  // mounted and then returned null, drawing nothing at all.
+  return { isSelected: ctx === null ? true : activeId === id };
 }
 
 const MOBILE_MQ = "(max-width: 1023px)"; // the site's 1024 (lg) breakpoint

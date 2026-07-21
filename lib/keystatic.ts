@@ -44,6 +44,8 @@ export type ProjectListItem = {
   // CS-6a — the case-study template (CS-4 head field), for the Details template
   // toggle. "" when unset (the reader coalesces absent -> ""); "mobile" | "web".
   template: string;
+  /** How many sections the study has. Derived at map time from the same entry. */
+  sectionCount: number;
 };
 
 export type ExperienceListItem = {
@@ -167,6 +169,10 @@ export function mapProjectListItem(slug: string, entry: Record<string, unknown>)
       timeline: ((entry.facts as Record<string, string> | null)?.timeline) ?? "",
     },
     template: (entry.template ?? "") as string,
+    // Free: the reader already handed us the whole entry, so the count costs no
+    // extra read. The case-study index shows it so you can tell a written-up study
+    // from a stub without opening it.
+    sectionCount: Array.isArray(entry.sections) ? entry.sections.length : 0,
   };
 }
 
