@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Final design — video (Variation B, browser frame)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fraunces stands in for the project's real serif token. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#F3EEE4;--paper:#FBF8F1;--ink:#211C18;--mut:#7C7267;--line:rgba(60,50,38,.15);
+    --acc:#B4562F;--serif:'Fraunces',Georgia,serif;--sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --blue:#2f6bff;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  .sf{font-family:var(--serif);}
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:500;}
+  .wrap{max-width:1080px;margin:0 auto;padding:52px 32px;}
+  h2{font-size:38px;font-weight:400;letter-spacing:-.01em;margin:0 0 6px;}
+  .sub{max-width:640px;color:var(--mut);margin:0 0 26px;}
+  .stage{border-radius:12px;overflow:hidden;box-shadow:0 40px 90px -34px rgba(60,50,38,.5);}
+  .chrome{height:34px;background:#2b2b30;display:flex;align-items:center;gap:7px;padding:0 14px;}
+  .chrome i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .chrome .r{background:#ff5f57;}.chrome .y{background:#febc2e;}.chrome .g{background:#28c840;}
+  .chrome .u{flex:1;max-width:300px;margin:0 auto;height:15px;background:#3a3a40;border-radius:8px;}
+  /* the video sits here at aspect-ratio 16/9; the schematic below is a stand-in for the real prototype */
+  .proto{aspect-ratio:16/9;background:#f7f8fa;display:flex;position:relative;overflow:hidden;}
+  .proto .rail{width:5%;background:#fff;border-right:0.5px solid #e9ebef;}
+  .proto .main{flex:1;padding:4% 4% 0;}
+  .proto .crumb{height:7px;width:34%;background:#e4e7ee;border-radius:4px;margin-bottom:10px;}
+  .proto .h{height:12px;width:26%;background:#c9cedb;border-radius:4px;margin-bottom:16px;}
+  .proto .tabs{display:flex;gap:14px;}
+  .proto .tabs span{height:7px;width:52px;background:#dfe3ec;border-radius:4px;}
+  .proto .tabs span.on{background:var(--blue);}
+  .proto .panel{position:absolute;right:0;top:0;bottom:0;width:44%;background:#fff;border-left:0.5px solid #e9ebef;padding:4%;}
+  .proto .panel .pt{height:10px;width:40%;background:#c9cedb;border-radius:4px;margin-bottom:14px;}
+  .proto .panel .row{height:26px;background:#f0f2f6;border-radius:6px;margin-bottom:9px;}
+  .proto .panel .btn{height:26px;width:70px;background:var(--blue);border-radius:6px;position:absolute;right:4%;bottom:4%;}
+  .stepdot{width:14px;height:14px;border-radius:50%;background:var(--blue);display:inline-block;vertical-align:middle;margin-right:6px;}
+  .play{width:60px;height:60px;border-radius:50%;background:rgba(33,28,24,.55);display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+  .play::after{content:"";border-left:18px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:4px;}
+  .foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+  .cap{font-size:14px;color:var(--mut);}
+  .loops{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);background:var(--paper);border:0.5px solid var(--line);border-radius:999px;padding:4px 11px;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:10px;">Final design</div>
+    <h2 class="sf">The profiler, in motion.</h2>
+    <p class="sub">The configure-and-schedule flow, running end to end.</p>
+
+    <div class="stage">
+      <div class="chrome"><i class="r"></i><i class="y"></i><i class="g"></i><span class="u"></span></div>
+      <div class="proto">
+        <div class="rail"></div>
+        <div class="main"><div class="crumb"></div><div class="h"></div><div class="tabs"><span></span><span class="on"></span></div></div>
+        <div class="panel"><div class="pt"></div><div style="margin-bottom:16px;"><span class="stepdot"></span><span style="display:inline-block;height:8px;width:60px;background:#c9cedb;border-radius:4px;vertical-align:middle;"></span></div><div class="row"></div><div class="row"></div><div class="row" style="width:60%;"></div><div class="btn"></div></div>
+        <div class="play"></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span class="cap">Prototype walkthrough · data profiling configuration</span>
+      <span class="loops">● Loops · muted</span>
+    </div>
+  </div>
+</body>
+</html>
