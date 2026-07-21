@@ -20,7 +20,8 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField, inputCls, inputErrorCls, labelCls } from "./fields";
+import { isHttpUrl } from "@/lib/case-studies/adapter";
 
 // CS-6a — the per-image frame picker options. "" is a real choice ("Default"),
 // omit-when-empty in the sanitizer so it falls back to the template default then
@@ -65,16 +66,19 @@ type Entry<K extends SectionBlockKind> = {
 };
 
 /**
- * The kinds that HAVE an editor.
+ * The kinds that HAVE an editor — now ALL of them.
  *
- * `videoEmbed` exists in the schema (VE-1) but its form is VE-3, so it is excluded
- * here rather than given a placeholder. That is the whole point of stating it in the
- * type: the exclusion is deliberate and visible, the two tables below stay exhaustive
- * over everything else, a SEVENTEENTH kind is still a compile error, and because the
- * add-block picker maps over BLOCK_REGISTRY's keys the block simply is not offered
- * yet. VE-3 deletes the Exclude and the tables demand the entry.
+ * VE-1 and VE-2 kept `videoEmbed` out of this set with an `Exclude`, because the block
+ * existed in the schema and rendered but had no form yet, and the tables below are
+ * exhaustive by construction, so a form-less kind would have refused to compile. VE-3
+ * builds the form, so the Exclude is gone and this is simply `SectionBlockKind` again —
+ * every kind is editable, the tables demand a `videoEmbed` entry, and because the
+ * add-block picker maps over BLOCK_REGISTRY's keys the block is now offered.
+ *
+ * The alias is kept (rather than replaced everywhere with SectionBlockKind) only so the
+ * panel's existing references still read as "the editable kinds"; they are the same set.
  */
-export type EditableBlockKind = Exclude<SectionBlockKind, "videoEmbed">;
+export type EditableBlockKind = SectionBlockKind;
 
 /** Kind -> human name, for the block list and the not-editable-yet note. */
 export const BLOCK_LABELS: { [K in EditableBlockKind]: string } = {
@@ -93,6 +97,7 @@ export const BLOCK_LABELS: { [K in EditableBlockKind]: string } = {
   annotatedImage: "Annotated image",
   richText: "Rich text",
   closingLine: "Closing line",
+  videoEmbed: "Video embed",
 };
 
 const firstLine = (s: string, fallback: string) => s.split("\n")[0].trim() || fallback;
@@ -845,12 +850,88 @@ const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value
   </ItemRows>
 );
 
+// VE-3 — the videoEmbed form.
+//
+// The video is a URL, not an upload (VE-1's locked decision), so `src` is a text field
+// with the SAME http(s) rule the sanitiser and renderer enforce, surfaced here as an
+// inline error the moment a non-empty value is not a usable URL. EMPTY is allowed and
+// silent: a block is born without a source and the publish gate — not this form — is
+// what refuses to ship one. Everything else reuses machinery that already exists: the
+// poster rides ImgSpecFields' content-addressed upload, the caption is a marker textarea
+// (the same **bold** *italic* [link](url) the inline canvas edit reads), and the frame
+// is a plain select defaulting to the browser chrome.
+const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({ value, onChange, onBlur, slug }) => {
+  const srcInvalid = value.src.trim() !== "" && !isHttpUrl(value.src);
+  return (
+    <>
+      <TabGroup group="content">
+        <label className="flex flex-col gap-1">
+          <span className={labelCls}>Video URL — externally hosted (https://…)</span>
+          <input
+            type="text"
+            value={value.src}
+            onChange={(e) => onChange({ ...value, src: e.target.value })}
+            onBlur={onBlur}
+            aria-invalid={srcInvalid}
+            placeholder="https://…"
+            className={srcInvalid ? inputErrorCls : inputCls}
+          />
+          {srcInvalid ? (
+            <span role="alert" className="text-[10px] text-danger-600">
+              Must be an http:// or https:// URL. The video is hosted elsewhere, not uploaded.
+            </span>
+          ) : (
+            <span className="text-[10px] text-text-subtle">
+              Leave blank while drafting. Publish refuses a video with no source.
+            </span>
+          )}
+        </label>
+        <TextArea
+          label="Caption (optional) — **bold**, *italic*, [links](url)"
+          value={value.caption}
+          onChange={(caption) => onChange({ ...value, caption })}
+          onBlur={onBlur}
+          rows={2}
+        />
+        <TextField label="Eyebrow (optional)" value={value.eyebrow} onChange={(eyebrow) => onChange({ ...value, eyebrow })} onBlur={onBlur} optional />
+        <TextField label="Title (optional)" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} optional />
+      </TabGroup>
+      <TabGroup group="style">
+        <SelectField
+          label="Frame"
+          value={value.frame === "plain" ? "plain" : "browser"}
+          options={VIDEO_FRAME_OPTIONS}
+          optionLabel={(v) => VIDEO_FRAME_LABELS[v]}
+          onChange={(frame) => onChange({ ...value, frame })}
+          onBlur={onBlur}
+          hint="Browser puts the video in window chrome; plain is a bare card."
+        />
+        <TextField label="Aspect ratio, e.g. 1.7778 (optional)" value={value.aspect} onChange={(aspect) => onChange({ ...value, aspect })} onBlur={onBlur} optional />
+        <DisclosureGroup revealLabel="Poster still (optional)">
+          <ImgSpecFields value={value.poster} set={(poster) => onChange({ ...value, poster })} onBlur={onBlur} slug={slug} imageLabel="Poster still" />
+        </DisclosureGroup>
+      </TabGroup>
+    </>
+  );
+};
+
+const VIDEO_FRAME_OPTIONS = ["browser", "plain"] as const;
+const VIDEO_FRAME_LABELS: Record<(typeof VIDEO_FRAME_OPTIONS)[number], string> = {
+  browser: "Browser",
+  plain: "Plain",
+};
+
 /* ---------------------------------------------------------------- the table */
 
 export const BLOCK_REGISTRY: { [K in EditableBlockKind]: Entry<K> } = {
   // tier 1
   closingLine: { empty: BLOCK_EMPTIES.closingLine, label: (v) => firstLine(v.text, "Closing line"), Form: ClosingLineForm },
   pullQuote: { empty: BLOCK_EMPTIES.pullQuote, label: (v) => firstLine(v.text, "Pull quote"), Form: PullQuoteForm },
+  videoEmbed: {
+    empty: BLOCK_EMPTIES.videoEmbed,
+    label: (v) => firstLine(v.title, v.src.trim() || "Video embed"),
+    Form: VideoEmbedForm,
+  },
   richText: { empty: BLOCK_EMPTIES.richText,
     label: (v) => firstLine(v.paragraphs[0] ?? "", "Rich text"),
     Form: RichTextForm,

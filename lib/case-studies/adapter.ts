@@ -140,6 +140,22 @@ export function isSafeHref(href: string): boolean {
   return ["http", "https", "mailto"].includes(scheme[1].toLowerCase());
 }
 
+/**
+ * A non-empty http(s) URL — the videoEmbed source rule.
+ *
+ * Stricter than isSafeHref, which also allows mailto and relative because a LINK is
+ * navigation. A `<video src>` must be a fetchable media URL, so only http and https
+ * qualify. The whitespace/control strip is the same anti-obfuscation step isSafeHref
+ * uses, so `java\tscript:` cannot masquerade as a scheme.
+ *
+ * ONE definition, shared by the studio form's inline error and the panel's save gate.
+ * The sanitiser and this module's own adapter case predate it and keep their equivalent
+ * inline checks, which their suites cover; those stay untouched.
+ */
+export function isHttpUrl(src: string): boolean {
+  return /^https?:\/\//i.test(src.trim().replace(/[\s\u0000- ]/g, ""));
+}
+
 /** One tokenising pass: split every plain run by `re`, replacing matches with `make`. */
 function splitRuns(runs: RichRun[], re: RegExp, make: (m: RegExpExecArray) => RichRun | null): RichRun[] {
   const out: RichRun[] = [];
