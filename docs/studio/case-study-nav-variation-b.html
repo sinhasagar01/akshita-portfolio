@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Variation B — Compact list index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{--tan:#E7DFD0;--page:#F6F1E9;--card:#F1EADD;--card2:#FCF9F3;--ink:#2B2521;--mut:#8C8171;
+    --lbl:#A99C88;--line:rgba(110,86,58,.16);--acc:#B4562F;--band:#211C18;
+    --serif:'Fraunces',Georgia,serif;--sans:ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--tan);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.55;padding:22px}
+  .sf{font-family:var(--serif)}
+  .lbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--lbl)}
+  .step{max-width:1180px;margin:0 auto 34px}
+  .steptag{display:inline-block;background:var(--acc);color:#fff;font-size:11px;font-weight:600;
+    padding:3px 11px;border-radius:999px;margin-bottom:8px}
+  .stepnote{color:var(--mut);font-size:12px;margin:0 0 10px}
+  .app{background:var(--page);border:0.5px solid var(--line);border-radius:18px;overflow:hidden;
+    display:grid;grid-template-columns:190px 1fr}
+  .side{border-right:0.5px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;min-height:430px}
+  .brand{display:flex;align-items:center;gap:8px;padding:2px 6px 14px;font-weight:500;font-size:15px}
+  .logo{width:24px;height:24px;border-radius:7px;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center}
+  .nav{padding:8px 10px;border-radius:9px;color:var(--mut);display:flex;justify-content:space-between}
+  .nav.on{background:var(--card2);box-shadow:0 1px 2px rgba(110,86,58,.12);color:var(--ink);font-weight:500}
+  .main{padding:16px 20px}
+  .topbar{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+  .search{flex:1;background:var(--card2);border:0.5px solid var(--line);border-radius:11px;padding:9px 13px;color:var(--mut)}
+  .btn{border:0.5px solid var(--line);background:var(--card2);border-radius:10px;padding:8px 13px;color:var(--ink);display:inline-block}
+  .btn.acc{background:var(--acc);color:#fff;border-color:transparent}
+  .h1{font-family:var(--serif);font-size:26px;margin:0 0 3px}
+  .sub{color:var(--mut);margin:0 0 16px}
+  /* list rows */
+  .rows{background:var(--card2);border:0.5px solid var(--line);border-radius:13px;overflow:hidden}
+  .row{display:grid;grid-template-columns:26px 60px 1fr 92px 108px 118px 74px;gap:12px;align-items:center;
+    padding:11px 13px;border-bottom:0.5px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .row.on{background:rgba(180,86,47,.06)}
+  .drag{color:var(--lbl);cursor:grab}
+  .mini{height:38px;border-radius:6px;background:linear-gradient(150deg,#dfe8f5,#eef1f8)}
+  .mini.dark{background:linear-gradient(150deg,#2c2521,#3b322c)}
+  .pill{border:0.5px solid var(--line);border-radius:999px;padding:1px 8px;font-size:10px;color:var(--mut);display:inline-block}
+  .pill.acc{border-color:rgba(180,86,47,.4);color:var(--acc);background:rgba(180,86,47,.07)}
+  .rowact{display:flex;gap:5px;justify-content:flex-end;opacity:.55}
+  .ic{width:23px;height:23px;border-radius:6px;border:0.5px solid var(--line);background:var(--card2);
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mut)}
+  /* editor */
+  .crumb{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:10px}
+  .switch{border:0.5px solid var(--line);background:var(--card2);border-radius:10px;padding:8px 13px;
+    display:flex;align-items:center;gap:9px;font-family:var(--serif);font-size:17px}
+  .segs{display:flex;background:var(--card);border:0.5px solid var(--line);border-radius:9px;padding:2px}
+  .seg{padding:5px 13px;border-radius:6px;color:var(--mut)}
+  .seg.on{background:var(--card2);color:var(--ink);font-weight:500}
+  .board{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .sec{background:var(--card2);border:0.5px solid var(--line);border-radius:11px;padding:11px 12px}
+  .sec:first-child{grid-column:1/-1}
+  .blk{background:var(--card);border-radius:7px;padding:5px 9px;color:var(--mut);font-size:11px;margin-top:6px}
+  .csTitle{font-family:var(--serif);font-size:15px;margin:2px 0 0}
+  .cv{display:grid;grid-template-columns:1fr 210px;gap:15px;align-items:start}
+  .band{background:var(--band);border-radius:11px;padding:20px 22px;color:#fff}
+  .ed{border:1px dashed rgba(255,255,255,.3);border-radius:5px;padding:2px 7px;display:inline-block}
+  .rail{background:var(--card2);border:0.5px solid var(--line);border-radius:11px;padding:12px}
+  .shot{height:120px;border-radius:8px;background:linear-gradient(150deg,#dfe8f5,#eef1f8);margin-top:14px;
+    display:flex;align-items:center;justify-content:center;color:rgba(60,80,130,.45);font-size:11px}
+  .arrow{text-align:center;color:var(--acc);font-size:20px;margin:-16px 0 12px}
+  .drawer{position:relative;background:var(--card);border:0.5px solid var(--line);border-radius:11px;
+    padding:12px 14px;margin-bottom:13px}
+</style>
+</head>
+<body>
+
+<div class="step">
+  <span class="steptag">Variation B · Step 1</span>
+  <p class="stepnote">Click <b>Case studies</b>. A compact <b>list</b> instead of a gallery — order is explicit and draggable, and everything about a case study is readable in one line. <b>Add case study</b> is a primary button, top-right.</p>
+  <div class="app">
+    <aside class="side">
+      <div class="brand"><span class="logo">✦</span> Studio</div>
+      <div class="lbl" style="padding:0 6px 6px">Content</div>
+      <div class="nav"><span>⌂ Homepage</span></div>
+      <div class="nav on"><span>▦ Case studies</span><span>4</span></div>
+      <div class="nav"><span>▤ Experience</span><span>5</span></div>
+      <div class="nav"><span>≣ Skills</span></div>
+      <div style="margin-top:auto;padding-top:12px;border-top:0.5px solid var(--line)">
+        <div class="nav"><span>⚙ Site settings</span></div>
+        <div class="nav"><span>⇥ Sign out</span></div>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="topbar"><div class="search">⌕ &nbsp;Search content</div><span class="btn">View live ↗</span></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div><h1 class="h1">Case studies</h1><p class="sub">Drag to set the order they appear on your homepage.</p></div>
+        <span class="btn acc" style="margin-bottom:16px">+ Add case study</span>
+      </div>
+      <div class="rows">
+        <div class="row" style="border-bottom:0.5px solid var(--line);color:var(--lbl);font-size:10px;letter-spacing:.09em;text-transform:uppercase">
+          <span></span><span></span><span>Case study</span><span>Template</span><span>Sections</span><span>Status</span><span></span>
+        </div>
+        <div class="row">
+          <span class="drag">⠿</span><div class="mini dark"></div>
+          <div><b>boAt Crest</b><div style="color:var(--mut);font-size:11.5px">App rating 2.3 → 4</div></div>
+          <span class="pill">Mobile</span><span style="color:var(--mut)">11 sections</span>
+          <span class="pill">Bespoke</span>
+          <div class="rowact"><span class="ic">×</span></div>
+        </div>
+        <div class="row on">
+          <span class="drag">⠿</span><div class="mini dark"></div>
+          <div><b>Fosfor AI</b><div style="color:var(--mut);font-size:11.5px">An AI companion across three personas</div></div>
+          <span class="pill">Web</span><span style="color:var(--mut)">14 sections</span>
+          <span class="pill acc">2 unpublished</span>
+          <div class="rowact"><span class="ic">×</span></div>
+        </div>
+        <div class="row">
+          <span class="drag">⠿</span><div class="mini"></div>
+          <div><b>Fosfor Data Profiling</b><div style="color:var(--mut);font-size:11.5px">The enterprise piece</div></div>
+          <span class="pill">Web</span><span style="color:var(--mut)">14 sections</span>
+          <span style="color:var(--mut)">Published</span>
+          <div class="rowact"><span class="ic">×</span></div>
+        </div>
+        <div class="row">
+          <span class="drag">⠿</span><div class="mini"></div>
+          <div><b>Elevate ONE View</b><div style="color:var(--mut);font-size:11.5px">The current role</div></div>
+          <span class="pill">Mobile</span><span style="color:var(--mut)">14 sections</span>
+          <span style="color:var(--mut)">Published</span>
+          <div class="rowact"><span class="ic">×</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="arrow">↓ &nbsp;click a row</div>
+
+<div class="step">
+  <span class="steptag">Variation B · Step 2</span>
+  <p class="stepnote"><code>/studio/projects/fosfor-ai</code> — full width. The title is a <b>switcher</b>: jump straight to another case study without going back. Details is a <b>drawer</b> behind one button, so Sections owns the screen.</p>
+  <div class="app">
+    <aside class="side">
+      <div class="brand"><span class="logo">✦</span> Studio</div>
+      <div class="lbl" style="padding:0 6px 6px">Content</div>
+      <div class="nav"><span>⌂ Homepage</span></div>
+      <div class="nav on"><span>▦ Case studies</span><span>4</span></div>
+      <div class="nav"><span>▤ Experience</span><span>5</span></div>
+      <div class="nav"><span>≣ Skills</span></div>
+    </aside>
+    <main class="main">
+      <div class="topbar"><div class="search">⌕ &nbsp;Search content</div><span class="btn">View live ↗</span></div>
+      <div class="crumb">
+        <div style="display:flex;align-items:center;gap:11px">
+          <span class="btn">←</span>
+          <span class="switch">Fosfor AI <span style="color:var(--mut);font-size:12px">▾</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <span class="btn">Details ▾</span>
+          <span class="lbl">Template</span>
+          <div class="segs"><span class="seg">Mobile</span><span class="seg on">Web</span></div>
+          <span class="btn">Preview ↗</span>
+        </div>
+      </div>
+      <div class="drawer">
+        <span class="lbl">Details drawer — closed by default, opens over the board</span>
+        <div style="color:var(--mut);margin-top:3px">Title · Hero image · Summary · Type · Platform</div>
+      </div>
+      <div class="board">
+        <div class="sec"><span class="lbl">Hero</span><p class="csTitle">Fosfor AI</p><div class="blk">▦ Hero cover</div></div>
+        <div class="sec"><span class="lbl">The setup</span><p class="csTitle">One companion,</p><div class="blk">≡ Pull quote</div><div class="blk">▦ Glance grid</div></div>
+        <div class="sec"><span class="lbl">Impact</span><p class="csTitle">At a glance.</p><div class="blk">▦ Stat cards</div></div>
+        <div class="sec"><span class="lbl">The problem</span><p class="csTitle">The same wall…</p><div class="blk">≡ Pull quote</div></div>
+        <div class="sec"><span class="lbl">Goals</span><p class="csTitle">Goals</p><div class="blk">▦ Stepper</div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="arrow">↓ &nbsp;click a section</div>
+
+<div class="step">
+  <span class="steptag">Variation B · Step 3</span>
+  <p class="stepnote">Identical canvas to A — this is the finalised design. The only difference between the variations is how you got here.</p>
+  <div class="app">
+    <aside class="side">
+      <div class="brand"><span class="logo">✦</span> Studio</div>
+      <div class="lbl" style="padding:0 6px 6px">Content</div>
+      <div class="nav"><span>⌂ Homepage</span></div>
+      <div class="nav on"><span>▦ Case studies</span><span>4</span></div>
+      <div class="nav"><span>▤ Experience</span><span>5</span></div>
+      <div class="nav"><span>≣ Skills</span></div>
+    </aside>
+    <main class="main">
+      <div class="crumb">
+        <div style="display:flex;align-items:center;gap:11px">
+          <span class="btn">← Board</span>
+          <span class="switch" style="font-size:15px">Fosfor AI <span style="color:var(--mut);font-size:12px">▾</span></span>
+          <span style="color:var(--mut)">· Hero</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div class="segs"><span class="seg on">Canvas</span><span class="seg">Inspector</span></div>
+          <span class="btn">Preview ↗</span>
+        </div>
+      </div>
+      <div class="cv">
+        <div class="band">
+          <div style="margin-bottom:9px"><span class="ed" style="font-size:10px;letter-spacing:.09em">LTIMINDTREE · ENTERPRISE SAAS</span></div>
+          <div class="sf" style="font-size:30px;line-height:1.05;margin-bottom:7px"><span class="ed">Fosfor AI</span></div>
+          <div class="sf" style="font-style:italic;font-size:14px;opacity:.85"><span class="ed">Designing an AI companion that turns complex data into confident decisions.</span></div>
+          <div class="shot">dashboard screenshot · full width</div>
+        </div>
+        <div class="rail">
+          <div class="lbl" style="margin-bottom:7px">Selected · Hero title</div>
+          <div style="background:var(--card);border:0.5px solid var(--line);border-radius:8px;padding:8px;min-height:56px">Fosfor AI</div>
+          <p style="color:var(--mut);font-size:11px;margin:8px 0 0">Click any dashed element on the canvas to edit it here.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
