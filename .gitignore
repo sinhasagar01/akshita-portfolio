@@ -34,3 +34,11 @@ yarn-error.log*
 # OpenAI Codex tooling (cross-tool agent config, kept local)
 AGENTS.md
 .codex/
+
+# Content-writing notes that were sitting under public/images/**/content/.
+# They are prose, not assets, and anything under public/ is publicly served —
+# so they are kept in docs/content-notes/ and this stops them coming back.
+# Scoped to the directory ON PURPOSE: an extension pattern here would silently
+# swallow real image assets a future case study needs, and the site would 404
+# on them with nothing in git status to show why.
+public/images/**/content/
