@@ -129,9 +129,12 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
         </button>
       </div>
 
-      {(banner || reorderError) && (
+      {/* One slot, two sources. Reorder errors win because they belong to the action
+          you just took; a banner is cleared when a new action starts, so a stale
+          message can never sit on top of a fresh one. */}
+      {(reorderError || banner) && (
         <p className="text-[12px] text-accent-600" role="status" aria-live="polite">
-          {banner || reorderError}
+          {reorderError || banner}
         </p>
       )}
 
@@ -151,7 +154,10 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
               <div className="flex shrink-0 flex-col">
                 <button
                   type="button"
-                  onClick={() => moveItem(p.slug, "up")}
+                  onClick={() => {
+                    setBanner(""); // a stale banner would mask this action's own error
+                    moveItem(p.slug, "up");
+                  }}
                   disabled={i === 0 || reorderBusy}
                   aria-label={`Move ${p.title} up`}
                   className="grid size-5 place-items-center rounded text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
@@ -160,7 +166,10 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                 </button>
                 <button
                   type="button"
-                  onClick={() => moveItem(p.slug, "down")}
+                  onClick={() => {
+                    setBanner("");
+                    moveItem(p.slug, "down");
+                  }}
                   disabled={i === items.length - 1 || reorderBusy}
                   aria-label={`Move ${p.title} down`}
                   className="grid size-5 place-items-center rounded text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
