@@ -602,3 +602,19 @@ sections:
           text: >-
             From raw data to a confident decision, with a companion the whole
             way.
+  - variant: default
+    id: section-15
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks: []
