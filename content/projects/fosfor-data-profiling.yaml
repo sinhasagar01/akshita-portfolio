@@ -678,7 +678,7 @@ sections:
         value:
           src: https://64q1biovwtoecue4.public.blob.vercel-storage.com/out.mp4
           poster:
-            src: null
+            src: /images/projects/fosfor-data-profiling/final-video-poster.webp
             alt: ''
             width: null
             rotate: null
@@ -687,7 +687,7 @@ sections:
             z: null
           caption: The **configure and schedule** flow, running end to end.
           frame: browser
-          aspect: ''
+          aspect: '1.4056'
           eyebrow: Final design
           title: The profiler, in motion.
   - variant: default
