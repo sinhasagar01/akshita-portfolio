@@ -82,8 +82,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable} ${caveat.variable}`}>
       <head>
-        {/* Runs at parse time, before any hydration or browser scroll restoration */}
-        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';window.scrollTo(0,0);" }} />
+        {/* Runs at parse time, before any hydration or browser scroll restoration.
+            Manual stops the browser flashing the old position before ScrollManager takes
+            over; the top reset is skipped when there is a #hash so a deep link still lands
+            on its target instead of being yanked to the top. */}
+        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';if(!location.hash){window.scrollTo(0,0);}" }} />
         {/* No-JS fallback: the scroll-reveal sections ship clipped/opacity:0 and are
             un-hidden by JS on scroll. Without JS that never fires, so force them visible
             when scripting is off. Zero effect on the JS path (the reveal still runs). */}
