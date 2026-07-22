@@ -490,6 +490,38 @@ sections:
             size: ''
           minHeight: null
   - variant: default
+    id: final-video
+    index: ''
+    eyebrow: ''
+    title: Final Video
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: videoEmbed
+        value:
+          src: https://64q1biovwtoecue4.public.blob.vercel-storage.com/out.mp4
+          poster:
+            src: null
+            alt: ''
+            width: null
+            rotate: null
+            translateX: null
+            translateY: null
+            z: null
+          caption: ''
+          frame: browser
+          aspect: ''
+          eyebrow: Final design
+          title: Prototype
+  - variant: default
     id: before-after
     index: ''
     eyebrow: Before and after
@@ -602,35 +634,3 @@ sections:
           text: >-
             From raw data to a confident decision, with a companion the whole
             way.
-  - variant: default
-    id: final-video
-    index: ''
-    eyebrow: ''
-    title: Final Video
-    lead: ''
-    northStar: ''
-    layout: stack
-    glow:
-      text: ''
-      top: ''
-      right: ''
-      bottom: ''
-      left: ''
-      size: ''
-    blocks:
-      - discriminant: videoEmbed
-        value:
-          src: https://64q1biovwtoecue4.public.blob.vercel-storage.com/out.mp4
-          poster:
-            src: null
-            alt: ''
-            width: null
-            rotate: null
-            translateX: null
-            translateY: null
-            z: null
-          caption: ''
-          frame: browser
-          aspect: ''
-          eyebrow: Final design
-          title: Prototype
