@@ -159,7 +159,7 @@ sections:
               suffix: ''
               body: Reduction in the core flow after decluttering
               tag: core flow
-              highlighted: false
+              highlighted: true
             - value: 1,899
               suffix: ''
               body: Field uploads across regions
