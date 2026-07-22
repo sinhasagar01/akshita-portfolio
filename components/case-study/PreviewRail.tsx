@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
+import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 
 /**
  * The preview rail — a fixed right-side section nav. CHROME, NOT CONTENT: every item is
@@ -78,8 +79,9 @@ const smooth = (f: number) => f * f * (3 - 2 * f);
 
 const eyebrowOf = (it: RailItem) =>
   [it.index, it.eyebrow].filter(Boolean).join(" · ") || it.eyebrow || it.index || "";
-const titleOf = (it: RailItem, i: number) =>
-  (it.title || it.eyebrow || `Section ${i + 1}`).replace(/\n/g, " ");
+// Same fallback chain as the studio, so a section with no authored eyebrow/title reads
+// as "Hero" / "Final video" / "Closing", never the raw slug or a bare "Section N".
+const titleOf = (it: RailItem, i: number) => sectionDisplayLabel(it, i);
 const noteOf = (it: RailItem) => LABEL[it.kind] ?? "Section";
 
 export default function PreviewRail({ items }: { items: RailItem[] }) {

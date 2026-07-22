@@ -27,6 +27,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
+import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
@@ -57,8 +58,12 @@ type Ids = { sectionIds: string[]; blockIds: string[][] };
 const blockLabel = (kind: SectionBlockKind): string =>
   (BLOCK_LABELS as Partial<Record<SectionBlockKind, string>>)[kind] ?? kind;
 
+// The label chain lives in one shared place (title -> eyebrow -> humanized id ->
+// "Section N") so the board, the focused editor, and the public rail agree and none of
+// them ever prints a raw slug. Previously this fell straight to `s.id`, which surfaced
+// `hero` / `final-video` / `closing` verbatim.
 const sectionLabel = (s: RawSection, i: number) =>
-  s.title?.split("\n")[0] || s.eyebrow || s.id || `Section ${i + 1}`;
+  sectionDisplayLabel({ title: s.title, eyebrow: s.eyebrow, id: s.id }, i);
 
 const iconBtn =
   "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
@@ -1238,27 +1243,59 @@ export default function SectionsEditPanel({
               const count = section.blocks.length;
               const needsImage = sectionNeedsImage(section);
               return (
-                <button
+                <div
                   key={ids.sectionIds[i]}
-                  type="button"
-                  onClick={() => setSelectedSectionId(ids.sectionIds[i])}
-                  aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
-                  className="flex flex-col gap-2 rounded-lg border border-ink-950/8 bg-cream-50 p-3 text-left transition-colors hover:border-accent-500/40 hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+                  className="relative flex flex-col gap-2 rounded-lg border border-ink-950/8 bg-cream-50 p-3 transition-colors hover:border-accent-500/40 hover:bg-cream-100"
                 >
-                  <span className="flex items-start justify-between gap-2">
-                    <span className="flex min-w-0 flex-col">
+                  {/* The whole card selects; the reorder arrows are SIBLINGS of this
+                      button, never nested, so the markup stays valid. The overlay sits
+                      under the content, which is pointer-transparent, so a click anywhere
+                      but the arrows opens the section. */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSectionId(ids.sectionIds[i])}
+                    aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
+                    className="absolute inset-0 z-0 rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+                  />
+                  <div className="pointer-events-none relative z-[1] flex items-start justify-between gap-2">
+                    <div className="flex min-w-0 flex-col">
                       {section.eyebrow && (
                         <span className="truncate text-[10px] uppercase tracking-eyebrow text-ink-400">
                           {section.eyebrow}
                         </span>
                       )}
                       <span className="truncate font-display text-[14px] text-ink-950">{name}</span>
-                    </span>
-                    <span className="shrink-0 rounded-full border border-ink-950/10 px-2 py-0.5 text-[10px] text-ink-500">
-                      {count} {count === 1 ? "block" : "blocks"}
-                    </span>
-                  </span>
-                  <span className="flex flex-col gap-1">
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <span className="rounded-full border border-ink-950/10 px-2 py-0.5 text-[10px] text-ink-500">
+                        {count} {count === 1 ? "block" : "blocks"}
+                      </span>
+                      {/* Reorder — the SAME moveSection/structural() choke point the
+                          focused editor uses, so {sectionIds, blockIds} and sections move
+                          in lockstep and ids can never drift. */}
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => moveSection(i, -1)}
+                        disabled={i === 0}
+                        aria-label={`Move section ${name} up`}
+                        className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
+                      >
+                        <IconChevronUp />
+                      </button>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => moveSection(i, 1)}
+                        disabled={i === values.sections.length - 1}
+                        aria-label={`Move section ${name} down`}
+                        className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
+                      >
+                        <IconChevronDown />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="pointer-events-none relative z-[1] flex flex-col gap-1">
                     {count === 0 ? (
                       <span className="text-[11px] text-text-subtle">No blocks yet</span>
                     ) : (
@@ -1269,13 +1306,13 @@ export default function SectionsEditPanel({
                         />
                       ))
                     )}
-                  </span>
+                  </div>
                   {needsImage && (
-                    <span className="inline-flex w-fit items-center rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600">
+                    <span className="pointer-events-none relative z-[1] inline-flex w-fit items-center rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600">
                       Needs an image
                     </span>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
