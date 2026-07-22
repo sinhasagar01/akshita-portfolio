@@ -603,7 +603,7 @@ sections:
             From raw data to a confident decision, with a companion the whole
             way.
   - variant: default
-    id: section-15
+    id: final-video
     index: ''
     eyebrow: ''
     title: Final Video
