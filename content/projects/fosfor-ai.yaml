@@ -602,3 +602,35 @@ sections:
           text: >-
             From raw data to a confident decision, with a companion the whole
             way.
+  - variant: default
+    id: section-15
+    index: ''
+    eyebrow: ''
+    title: Final Video
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: videoEmbed
+        value:
+          src: https://www.youtube.com/watch?v=zIXcYbUsfZs
+          poster:
+            src: null
+            alt: ''
+            width: null
+            rotate: null
+            translateX: null
+            translateY: null
+            z: null
+          caption: ''
+          frame: browser
+          aspect: ''
+          eyebrow: ''
+          title: ''
