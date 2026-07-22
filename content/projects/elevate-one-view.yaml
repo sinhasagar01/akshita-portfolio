@@ -162,7 +162,7 @@ sections:
               highlighted: false
             - value: 1,899
               suffix: ''
-              body: Field uploads across regions
+              body: Field uploads across regions - Field uploads across regions
               tag: uploads
               highlighted: true
             - value: '4'
