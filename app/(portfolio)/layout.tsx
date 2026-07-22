@@ -1,4 +1,5 @@
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import ScrollManager from "@/components/providers/ScrollManager";
 import GSAPProvider from "@/components/providers/GSAPProvider";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
@@ -20,6 +21,7 @@ export default async function PortfolioLayout({
 
   return (
     <SmoothScrollProvider>
+      <ScrollManager />
       <GSAPProvider>
         <SkipLink />
         <PageLoader />
