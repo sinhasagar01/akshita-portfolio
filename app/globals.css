@@ -1127,3 +1127,219 @@ a {
 .case-study .section-card {
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 8%, transparent);
 }
+
+/* ============================================================
+   Preview rail — fixed right-side section nav (public case-study route only)
+   Chrome derived from the sections; see components/case-study/PreviewRail.tsx.
+============================================================ */
+
+/* Hidden by default: it would overlap the 80rem container until the viewport is wide
+   enough to leave a right gutter. xl (1280px) is that point — below it the rail is off
+   and the page reads full-width. The right offset rides the gutter: it sits in the margin
+   outside the container when there is room, clamped so it never drifts too far in or out. */
+.pr-rail {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .pr-rail {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    right: clamp(0.75rem, calc((100vw - 80rem) / 2 - 2.25rem), 2rem);
+    transform: translateY(-50%);
+    z-index: 40;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 0.5rem 0;
+    max-height: 84vh;
+  }
+}
+
+/* The button is a tall TRANSPARENT hit row (~20px); only the dash inside is visible. */
+.pr-tick {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 44px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-dash {
+  display: block;
+  height: 2px;
+  width: 10px;
+  border-radius: 2px;
+  background: color-mix(in oklch, var(--color-ink-950) 30%, transparent);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), height 0.2s ease,
+    background 0.25s ease, opacity 0.25s ease;
+}
+
+/* RESTING pyramid — reading position, no hover needed. */
+.pr-tick.current .pr-dash {
+  background: var(--color-accent-500);
+  height: 3px;
+}
+.pr-tick.near1 .pr-dash {
+  background: color-mix(in oklch, var(--color-accent-500) 55%, transparent);
+}
+.pr-tick.near2 .pr-dash {
+  background: color-mix(in oklch, var(--color-accent-500) 32%, transparent);
+}
+
+/* HOVER — the aimed tick wins; `current` keeps a colour floor so you never lose your place. */
+.pr-rail.aiming .pr-tick .pr-dash {
+  opacity: 0.38;
+}
+.pr-rail.aiming .pr-tick.current .pr-dash {
+  opacity: 0.7;
+}
+.pr-tick.aim .pr-dash {
+  background: var(--color-accent-500);
+  height: 3px;
+  opacity: 1 !important;
+}
+.pr-tick:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Hairline tying the aimed tick to the floating card. */
+.pr-conn {
+  position: fixed;
+  z-index: 44;
+  height: 1px;
+  background: var(--color-accent-500);
+  opacity: 0;
+  transition: opacity 0.16s ease;
+  pointer-events: none;
+}
+.pr-conn.is-shown {
+  opacity: 0.5;
+}
+
+/* Floating destination preview. */
+.pr-prev {
+  position: fixed;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.pr-prev.is-shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+.pr-card {
+  width: 250px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-cream-50);
+  border: 1px solid color-mix(in oklch, var(--color-ink-950) 8%, transparent);
+  box-shadow: 0 18px 44px -18px color-mix(in oklch, var(--color-ink-950) 45%, transparent);
+}
+.pr-k {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  margin-bottom: 4px;
+}
+.pr-t {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--color-ink-950);
+}
+.pr-n {
+  font-size: 11px;
+  color: var(--color-ink-600);
+  margin-top: 6px;
+}
+.pr-here {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-500);
+  border: 1px solid color-mix(in oklch, var(--color-accent-500) 40%, transparent);
+  border-radius: 999px;
+  padding: 2px 7px;
+  margin-top: 8px;
+}
+
+/* Schematic thumbnail — DERIVED from the section's first block kind, not a captured render. */
+.pr-thumb {
+  height: 88px;
+  border-radius: 7px;
+  overflow: hidden;
+  display: flex;
+  margin-bottom: 9px;
+  border: 1px solid color-mix(in oklch, var(--color-ink-950) 8%, transparent);
+}
+.pr-thumb--ui {
+  background: linear-gradient(160deg, var(--color-cream-100), var(--color-cream-200));
+}
+.pr-thumb-side {
+  width: 16%;
+  background: color-mix(in oklch, var(--color-ink-950) 7%, transparent);
+}
+.pr-thumb-body {
+  flex: 1;
+  padding: 9px;
+}
+.pr-thumb-bar {
+  width: 52%;
+  height: 6px;
+  margin-bottom: 7px;
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--color-ink-950) 34%, transparent);
+}
+.pr-thumb-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+.pr-thumb-tile {
+  flex: 1;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--color-cream-50);
+}
+.pr-thumb-tile--wide {
+  height: 22px;
+}
+.pr-thumb--txt,
+.pr-thumb--dark {
+  flex-direction: column;
+  padding: 11px;
+}
+.pr-thumb--txt {
+  background: var(--color-cream-50);
+}
+.pr-thumb--dark {
+  background: var(--color-band-dark);
+}
+.pr-thumb-line {
+  height: 6px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  background: color-mix(in oklch, var(--color-ink-950) 16%, transparent);
+}
+.pr-thumb--dark .pr-thumb-line {
+  background: color-mix(in oklch, var(--color-on-dark) 22%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-dash,
+  .pr-prev,
+  .pr-conn {
+    transition: none;
+  }
+}
