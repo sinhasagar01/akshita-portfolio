@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
+import PreviewRail from "@/components/case-study/PreviewRail";
 import { boatCrest } from "@/lib/case-studies/boat-crest";
+import { railItems } from "@/lib/case-studies/rail-items";
 import { absoluteUrl, projectPath, projectLastModified, ogImageUrl } from "@/lib/site";
 import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
@@ -51,6 +53,7 @@ export default function BoatCrestPage() {
         ])}
       />
       <CaseStudyView study={boatCrest} />
+      <PreviewRail items={railItems(boatCrest.sections)} />
     </>
   );
 }

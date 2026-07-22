@@ -6,7 +6,9 @@ import { absoluteUrl, projectPath, projectLastModified, ogImageUrl } from "@/lib
 import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
+import PreviewRail from "@/components/case-study/PreviewRail";
 import { adaptSections } from "@/lib/case-studies/adapter";
+import { railItems } from "@/lib/case-studies/rail-items";
 import type { CaseStudy } from "@/lib/case-studies/types";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -86,6 +88,10 @@ export default async function CaseStudyPage({ params }: Props) {
         ])}
       />
       <CaseStudyView study={study} />
+      {/* Public route only — the rail is chrome derived from the sections. The studio
+          preview reuses CaseStudyView WITHOUT this, so it never collides with the
+          studio's own right-hand Selected rail. */}
+      <PreviewRail items={railItems(study.sections)} />
     </>
   );
 }
