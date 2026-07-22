@@ -51,7 +51,7 @@ sections:
             - label: Timeline
               value: 6 months
           devices:
-            - src: /images/projects/elevate-one-view/screen-a.webp
+            - src: /images/projects/elevate-one-view/blocks/da9fedbad8dc.webp
               alt: >-
                 Stylised field service app screen showing a unit list with
                 status indicators
