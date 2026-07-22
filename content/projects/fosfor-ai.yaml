@@ -617,4 +617,20 @@ sections:
       bottom: ''
       left: ''
       size: ''
-    blocks: []
+    blocks:
+      - discriminant: videoEmbed
+        value:
+          src: https://www.youtube.com/watch?v=zIXcYbUsfZs
+          poster:
+            src: null
+            alt: ''
+            width: null
+            rotate: null
+            translateX: null
+            translateY: null
+            z: null
+          caption: ''
+          frame: browser
+          aspect: ''
+          eyebrow: ''
+          title: ''
