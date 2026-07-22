@@ -659,6 +659,38 @@ sections:
                 - emphasis: The same checks
                   rest: made fast and legible
   - variant: default
+    id: final-video
+    index: ''
+    eyebrow: ''
+    title: ''
+    lead: ''
+    northStar: ''
+    layout: stack
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: videoEmbed
+        value:
+          src: https://64q1biovwtoecue4.public.blob.vercel-storage.com/out.mp4
+          poster:
+            src: /images/projects/fosfor-data-profiling/final-video-poster.webp
+            alt: ''
+            width: null
+            rotate: null
+            translateX: null
+            translateY: null
+            z: null
+          caption: The **configure and schedule** flow, running end to end.
+          frame: browser
+          aspect: '1.4056'
+          eyebrow: Final design
+          title: The profiler, in motion.
+  - variant: default
     id: principle
     index: ''
     eyebrow: My design principle for this work
