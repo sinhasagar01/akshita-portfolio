@@ -207,7 +207,11 @@ sections:
             - The problem wasn't missing features. It was interrupting the work.
       - discriminant: pullQuote
         value:
-          text: The best field app is the one mechanics barely have to think about.
+          text: ''
+      - discriminant: statCards
+        value:
+          heading: ''
+          stats: []
   - variant: default
     id: goals
     index: '04'
