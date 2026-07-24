@@ -477,7 +477,7 @@ sections:
             size: ''
           minHeight: null
   - variant: default
-    id: before-after
+    id: ''
     index: ''
     eyebrow: ''
     title: ''
