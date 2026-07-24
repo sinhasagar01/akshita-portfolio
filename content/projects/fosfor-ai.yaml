@@ -508,7 +508,7 @@ sections:
       - discriminant: videoEmbed
         value:
           src: >-
-            https://64q1biovwtoecue4.public.blob.vercel-storage.com/fosfor-profiling.mp4
+            https://64q1biovwtoecue4.public.blob.vercel-storage.com/video-wide-2x1.mp4
           poster:
             src: null
             alt: ''
