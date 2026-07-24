@@ -192,7 +192,22 @@ sections:
     blocks:
       - discriminant: pullQuote
         value:
-          text: "When technicians arrived on-site, they weren't thinking about the\_app.\_They were thinking about diagnosing equipment, keeping customers informed, and completing work efficiently. Instead of\_supporting those moments, the product often introduced unnecessary\_friction through inconsistent interactions, fragmented navigation,\_and\_ unclear information hierarchy."
+          text: |-
+            When technicians arrived on-site, they weren't
+            thinking about the app.
+
+            They were thinking about diagnosing equipment,
+            keeping customers informed, and completing work
+            efficiently.
+
+            Instead of supporting those moments, the product
+            often introduced unnecessary friction through
+            inconsistent interactions, fragmented navigation,
+            and unclear information hierarchy.
+
+            The problem wasn't missing features.
+
+            It was interrupting the work.
       - discriminant: richText
         value:
           paragraphs:
