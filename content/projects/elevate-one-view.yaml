@@ -407,7 +407,7 @@ sections:
                 Visuals aligned to Elevate's industrial identity rather than a
                 generic app look.
               image:
-                src: /images/projects/elevate-one-view/blocks/30339a672e74.webp
+                src: /images/projects/elevate-one-view/blocks/6e2229182653.webp
                 alt: >-
                   Stylised field service app screen showing a health status view
                   with a trend chart
@@ -498,7 +498,7 @@ sections:
             - title: The core flow
               tag: Commissioning
               before:
-                src: /images/projects/elevate-one-view/screen-a.webp
+                src: /images/projects/elevate-one-view/blocks/8954b70f2f33.webp
                 alt: >-
                   Stylised field service app screen showing a unit list with
                   status indicators
@@ -508,7 +508,7 @@ sections:
                 translateY: null
                 z: null
               after:
-                src: /images/projects/elevate-one-view/screen-b.webp
+                src: /images/projects/elevate-one-view/blocks/a0f9884c7a8c.webp
                 alt: >-
                   Stylised field service app screen showing a commissioning
                   detail with a progress ring
