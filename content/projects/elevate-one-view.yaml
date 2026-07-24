@@ -477,9 +477,9 @@ sections:
             size: ''
           minHeight: null
   - variant: default
-    id: before-after
+    id: ''
     index: ''
-    eyebrow: Before and after
+    eyebrow: ''
     title: ''
     lead: The heavy old flow beside the simplified redesign.
     northStar: ''
