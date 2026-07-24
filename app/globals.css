@@ -331,6 +331,10 @@ a {
   background-color: var(--color-cream-50);
   padding-block: var(--hero-nav-runway) clamp(4rem, 8vh, 6rem);
   padding-inline: clamp(1.5rem, 4vw, 3.5rem);
+  /* Restore the card-system rhythm below the hero: the gap between sections is a card's
+     margin-bottom, which the hero lost when it left the article. Match it so the first
+     section sits at the same rhythm as every card→card gap. */
+  margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
 }
 /* the web case-study hero is a dark ground */
 .hero-ground.is-dark {
