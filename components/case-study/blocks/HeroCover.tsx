@@ -115,8 +115,11 @@ export default function HeroCover({
     const dashIdx = data.devices[1] ? 1 : 0;
     const dashboard = data.devices[dashIdx];
     return (
-      <div className="relative flex flex-col items-center text-center">
-        <div className="relative z-[1] flex flex-col items-center">
+      // Two-column grid (reference .csGrid): centred copy column left, framed image right,
+      // both vertically centred. NOT a single stacked column.
+      <div className="relative grid items-center gap-10 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.1fr)] lg:gap-[52px]">
+        {/* Copy column — centred */}
+        <div className="relative z-[1] flex flex-col items-center text-center">
           {data.eyebrow && (
             <motion.div
               {...mp}
@@ -150,7 +153,7 @@ export default function HeroCover({
                 {...mp}
                 variants={glowV}
                 className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
-                style={{ color: "var(--hero-word-dark)", fontSize: "clamp(6rem, 13vw, 11rem)" }}
+                style={{ color: "var(--hero-word-dark)", fontSize: "clamp(5.5rem, 11vw, 9rem)" }}
               >
                 {data.watermark}
               </motion.span>
@@ -159,30 +162,25 @@ export default function HeroCover({
               {...mp}
               variants={fadeUp(0.385)}
               {...edit("thesis", "Edit hero thesis")}
-              className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] max-w-[640px]${aff}`}
+              className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] max-w-[36ch]${aff}`}
             >
               {data.thesis}
             </motion.h2>
           </div>
 
-          {/* One wide dashboard, full-width below the tagline */}
-          <motion.div {...mp} variants={stackV} className="mt-9 flex w-full justify-center lg:mt-10">
-            <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
-          </motion.div>
-
-          {/* Facts — a centred horizontal row below the dashboard */}
-          <motion.dl {...mp} variants={fadeUp(0.7)} className="mt-8 flex flex-wrap justify-center gap-x-10 gap-y-5">
+          {/* Facts — a 2-column hairline grid INSIDE the copy column, not a full-width row */}
+          <motion.dl {...mp} variants={fadeUp(0.7)} className="hero-facts mt-8 max-w-[440px]">
             {data.meta.map((item, i) => (
               <div key={i}>
                 <dt
                   {...edit(`meta.${i}.label`, "Edit fact label")}
-                  className={`text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
+                  className={`text-[10px] tracking-[0.15em] uppercase font-semibold text-on-dark-muted${aff}`}
                 >
                   {item.label}
                 </dt>
                 <dd
                   {...edit(`meta.${i}.value`, "Edit fact value")}
-                  className={`text-[1rem] font-semibold text-on-dark mt-1.5${aff}`}
+                  className={`text-[0.9rem] font-semibold text-on-dark mt-1${aff}`}
                 >
                   {item.value}
                 </dd>
@@ -190,6 +188,11 @@ export default function HeroCover({
             ))}
           </motion.dl>
         </div>
+
+        {/* Visual column — the framed browser dashboard, vertically centred */}
+        <motion.div {...mp} variants={stackV} className="flex w-full justify-center">
+          <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
+        </motion.div>
       </div>
     );
   }
@@ -281,22 +284,23 @@ export default function HeroCover({
           </motion.p>
         )}
 
+        {/* Facts — a 2-column hairline grid inside the copy column (reference) */}
         <motion.dl
           {...mp}
           variants={fadeUp(0.7)}
-          className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px] mx-auto text-center"
+          className="hero-facts mt-9 max-w-[440px] mx-auto"
         >
           {data.meta.map((item, i) => (
             <div key={i}>
               <dt
                 {...edit(`meta.${i}.label`, "Edit fact label")}
-                className={`text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle${aff}`}
+                className={`text-[10px] tracking-[0.15em] uppercase font-semibold text-text-subtle${aff}`}
               >
                 {item.label}
               </dt>
               <dd
                 {...edit(`meta.${i}.value`, "Edit fact value")}
-                className={`text-[1rem] font-semibold text-ink-950 mt-1.5${aff}`}
+                className={`text-[0.9rem] font-semibold text-ink-950 mt-1${aff}`}
               >
                 {item.value}
               </dd>

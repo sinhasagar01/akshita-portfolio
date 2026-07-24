@@ -341,6 +341,25 @@ a {
   background-color: var(--color-band-dark);
   color: var(--color-on-dark);
   --glow-color: var(--glow-on-dark);
+  --hero-facts-line: oklch(100% 0 0 / 0.14);
+}
+
+/* Case-study hero facts — a 2-column hairline grid INSIDE the copy column (per the
+   reference), never a full-width row: top border on the block, a bottom border per cell,
+   and a left border on the right column to draw the vertical divider. */
+.hero-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  border-top: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+}
+.hero-facts > div {
+  padding: 14px 18px;
+  text-align: center;
+  border-bottom: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+}
+.hero-facts > div:nth-child(even) {
+  border-left: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
 }
 
 /* The ONE cursor glow — see components/motion/CursorGlow.tsx. A fixed-size layer moved
