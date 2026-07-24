@@ -516,7 +516,6 @@ sections:
             translateX: null
             translateY: null
             z: null
-            frame: macbook
           caption: ''
           frame: browser
           aspect: ''
