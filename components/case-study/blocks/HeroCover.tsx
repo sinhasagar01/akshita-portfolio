@@ -8,10 +8,10 @@ import GlowWord from "../GlowWord";
 import HeroAura from "../HeroAura";
 import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
-/* "Rise / calm" — one-time mount entrance (docs/case-study-page/hero-motion-spec.md).
-   Phones rise from a soft blur with a front-leads parallax; copy resolves in sync.
-   Every "from" value is an offset on a wrapper that composes over each element's
-   existing resting transform — the static composition is unchanged. Hero only. */
+/* Hero mount entrance, once on mount. The two phones do a stacked-card opening, a
+   squared-up deck that fans open to the resting tilt, while the copy resolves up in
+   sync. Every "from" value is an offset on a wrapper that composes over each element's
+   existing resting transform, so the static composition is unchanged. Hero only. */
 
 const EXPO = [0.16, 1, 0.3, 1] as const; // easeOutExpo — phones
 const CUBIC = [0.33, 1, 0.68, 1] as const; // easeOutCubic — text/stack
