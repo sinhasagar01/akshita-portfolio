@@ -305,9 +305,13 @@ a {
    Tokens (glow per surface + backdrop word) declared here so later commits inherit them.
 ============================================================ */
 :root {
+  /* the nav pill floats this far below the viewport top on every page — the hero still
+     runs under it (hero top edge stays 0), this is only the pill's own gap */
+  --nav-top: 18px;
   /* the nav's runway, reserved inside the hero's top padding using the nav's own metrics
-     (sticky header height + its top offset + breathing room) */
-  --hero-nav-runway: calc(72px + 15px + 44px);
+     (pill height + its float offset + breathing room). Keyed off --nav-top so the
+     nav-to-first-baseline gap tracks the float automatically. */
+  --hero-nav-runway: calc(72px + var(--nav-top) + 44px);
 
   /* GLOW — one token per surface it can sit on */
   --glow-on-paper: oklch(63% 0.13 47 / 0.20);

@@ -305,7 +305,11 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
       // (like the reference) takes it out of flow so the hero starts at y=0. Position only
       // — the glass, morph and scroll-hide from #155 are unchanged.
       className="site-header fixed inset-x-0 z-42"
-      style={{ top: scrolled ? "15px" : "0" }}
+      // The pill FLOATS on every page: a constant top offset (--nav-top) so its top edge
+      // never sits flush against the viewport edge (which read as clipped). The hero still
+      // runs under the nav — the hero's top edge stays 0; only the pill is inset. The hero's
+      // internal runway (--hero-nav-runway) is keyed off the same token so the gap tracks.
+      style={{ top: "var(--nav-top)" }}
       data-nav-hidden={navHidden || undefined}
     >
       <div className="container-x">
