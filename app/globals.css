@@ -407,6 +407,13 @@ a {
   -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
 }
+/* The two-phone pair is taller than the framed dashboard, so it holds its opaque region
+   later (62%) — this is the mask lever that keeps >=50% of each phone visible before the
+   fade at a 14" laptop viewport. Mobile-only; the web dashboard keeps the 55% stop. */
+.hero-visual--phones {
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+}
 
 /* The ONE cursor glow — see components/motion/CursorGlow.tsx. A fixed-size layer moved
    only by translate3d; colour from the host's --glow-color. A `.glow-host` (or the hero

@@ -68,13 +68,16 @@ export default function HeroCover({
       }),
     },
   };
+  // The two-phone pair's RESTING tilt now lives in the variants (front +4°, back -6°) so the
+  // overlap is composed by the layout, not the old wide-column translate. Each rises from a
+  // soft blur with a gentle y offset; the tilt is held constant so nothing swings on mount.
   const frontV = {
-    hidden: { y: m ? 32 : 56, rotate: m ? 0 : -2, scale: m ? 0.96 : 0.94 },
-    show: { y: 0, rotate: 0, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.435, ease: EXPO }) },
+    hidden: { y: m ? 24 : 44, rotate: 4, scale: 0.95 },
+    show: { y: 0, rotate: 4, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.435, ease: EXPO }) },
   };
   const backV = {
-    hidden: { x: m ? 0 : 130, y: m ? 32 : 64, rotate: m ? 0 : 6, scale: m ? 0.96 : 0.93 },
-    show: { x: 0, y: 0, rotate: 0, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.1 : 1.57, ease: EXPO }) },
+    hidden: { y: m ? 30 : 52, rotate: -6, scale: 0.94 },
+    show: { y: 0, rotate: -6, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.1 : 1.57, ease: EXPO }) },
   };
   const glowV = {
     hidden: { opacity: 0 },
@@ -197,6 +200,12 @@ export default function HeroCover({
     );
   }
 
+  // Two-phone hero pair — flatten the specs (drop the old wide-column rotate/translate that
+  // pushed a phone out of the narrow centred column) and size them down to the column; the
+  // overlap and tilt are composed by the wrappers below, not by the image transforms.
+  const backPhone = { ...data.devices[0], rotate: undefined, translate: undefined, width: 158 };
+  const frontPhone = { ...data.devices[1], rotate: undefined, translate: undefined, width: 176 };
+
   return (
     // SINGLE centred column, exactly 100svh (the faded-peek hero): eyebrow → title →
     // script watermark behind the tagline → tagline → blurb → rating chip → FACTS → the
@@ -310,20 +319,22 @@ export default function HeroCover({
         ))}
       </motion.dl>
 
-      {/* Device cluster — stack fades up out of blur; phones rise with parallax. Sits below
-          the facts and is masked so it dissolves into the ground before the fold (the seam).
-          The entrance wrappers compose over each DeviceImage's resting transform. */}
+      {/* Two-phone composition — an intentional overlapping pair sized to the centred column.
+          The back phone tilts counter-clockwise and sits left; the front phone tilts clockwise
+          and sits right, overlapping in the middle via a negative margin (layout, not the old
+          absolute offsets). Masked so the pair dissolves into the ground at the seam; both
+          phones stay fully contained from 390 to 1920. */}
       <motion.div
         {...mp}
         variants={stackV}
-        className="hero-visual relative mt-[30px] flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
+        className="hero-visual hero-visual--phones relative mx-auto mt-[22px] flex items-end justify-center"
       >
         {data.glow && <GlowWord word={data.glow} />}
-        <motion.div {...mp} variants={backV} className="lg:absolute">
-          <DeviceImage image={data.devices[0]} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
+        <motion.div {...mp} variants={backV} className="relative z-[1] origin-bottom">
+          <DeviceImage image={backPhone} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
         </motion.div>
-        <motion.div {...mp} variants={frontV}>
-          <DeviceImage image={data.devices[1]} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
+        <motion.div {...mp} variants={frontV} className="relative z-[2] -ml-[54px] origin-bottom">
+          <DeviceImage image={frontPhone} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
         </motion.div>
       </motion.div>
     </div>
