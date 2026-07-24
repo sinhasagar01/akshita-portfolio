@@ -353,7 +353,7 @@ sections:
     id: tour
     index: '08'
     eyebrow: The design tour
-    title: What the redesign fixed.
+    title: What the design fixed.
     lead: ''
     northStar: ''
     layout: stack
