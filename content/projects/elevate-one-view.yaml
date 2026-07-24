@@ -193,6 +193,10 @@ sections:
       - discriminant: pullQuote
         value:
           text: "When technicians arrived on-site, they weren't thinking about the\_app.\_They were thinking about diagnosing equipment, keeping customers informed, and completing work efficiently. Instead of\_supporting those moments, the product often introduced unnecessary\_friction through inconsistent interactions, fragmented navigation,\_and\_ unclear information hierarchy."
+      - discriminant: richText
+        value:
+          paragraphs:
+            - ''
   - variant: default
     id: goals
     index: '04'
