@@ -35,6 +35,16 @@
     re-buckets the filter.
   - Filter counts derive from the rendered list. Never authored.
   - DOM order is orderIndex throughout. Filtering re-packs; it never re-sorts.
+  - HEADER: the implementation keeps the site's shared SectionHeading (02 / Work). The
+    segmented control's per-bucket counts ARE the count, so there is NO separate
+    "N case studies" live line — one section's header must not diverge from every other
+    (PR 4, Q1). This demo's "Selected work" heading is only a stand-in.
+  - UNCATEGORISED: an "" study matches "all" only — it shows under All and is absent from
+    Web and Mobile (never miscategorised, never vanished), and Web + Mobile need not sum
+    to All (PR 1 A4, PR 4). No "Uncategorised" chip and no default bucket.
+  - A tap can strand a lit card, so the filter click never updates the thumb or
+    aria-pressed for a click that will not take effect; a click during the sequence is
+    queued and the LAST intent replays once it settles (PR 4, A1).
 
   IMPLEMENTATION NOTES THAT ARE EASY TO GET WRONG
   - The cascade delay lives on .shot and .rail, NEVER on .card. .card's transform
@@ -387,14 +397,19 @@ grid.addEventListener("pointerleave", settle);
 settle();
 
 /* THE FILTER — leave → repack (FLIP) → enter */
-let busy = false;
+let busy = false, pending = null;
+const byFilter   = f => btns.find(b => b.dataset.filter === f);
+const setPressed = f => btns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.filter === f)));
 
 function applyFilter(f){
-  if (busy) return;
+  // A1 — never update the thumb or aria-pressed for a click that will not take effect.
+  if (busy) { pending = f; return; }               // queue; the LAST intent replays on settle
   const stay = cards.filter(c => !c.hidden &&  (f === "all" || c.dataset.cat === f));
   const go   = cards.filter(c => !c.hidden && !(f === "all" || c.dataset.cat === f));
   const come = cards.filter(c =>  c.hidden &&  (f === "all" || c.dataset.cat === f));
-  if (!go.length && !come.length) return;
+  if (!go.length && !come.length) { setPressed(f); moveThumb(byFilter(f)); return; }
+
+  setPressed(f); moveThumb(byFilter(f));            // visual state updates only now, inside, after the busy check
   busy = true;
 
   const shown = stay.length + come.length;
@@ -442,6 +457,7 @@ function applyFilter(f){
       come.forEach(c => { c.style.transitionDelay = ""; });
       settle();
       busy = false;
+      if (pending !== null) { const p = pending; pending = null; applyFilter(p); }  // A1 — replay the last intent
     }, 700);
   }, go.length ? 200 + (go.length - 1) * 45 : 0);
 }
@@ -454,11 +470,9 @@ function moveThumb(btn){
   thumb.style.transform = `translateX(${btn.offsetLeft - 3}px)`;
 }
 btns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    btns.forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
-    moveThumb(btn);
-    applyFilter(btn.dataset.filter);
-  });
+  // A1 — the visual state (thumb + aria-pressed) lives INSIDE applyFilter, after the busy
+  // check, so a click during the sequence never desyncs the control from the grid.
+  btn.addEventListener("click", () => applyFilter(btn.dataset.filter));
 });
 moveThumb(btns[0]);
 addEventListener("resize", () => moveThumb(btns.find(b => b.getAttribute("aria-pressed") === "true")));
