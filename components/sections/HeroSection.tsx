@@ -10,6 +10,7 @@ import {
 } from "motion/react";
 import Container from "@/components/layout/Container";
 import Reveal from "@/components/motion/Reveal";
+import CursorGlow from "@/components/motion/CursorGlow";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
@@ -110,8 +111,6 @@ export default function HeroSection({
   });
 
   const sectionRef  = useRef<HTMLElement>(null);
-  const glowRef     = useRef<HTMLDivElement>(null);
-  const coreRef     = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const swipeIntent = useRef<"horizontal" | "vertical" | null>(null);
@@ -168,25 +167,6 @@ export default function HeroSection({
     swipeIntent.current = null;
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !glowRef.current || !coreRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const x = `${e.clientX - rect.left}px`;
-    const y = `${e.clientY - rect.top}px`;
-    glowRef.current.style.left = x;
-    glowRef.current.style.top = y;
-    coreRef.current.style.left = x;
-    coreRef.current.style.top = y;
-  };
-
-  const handleMouseLeave = () => {
-    if (!glowRef.current || !coreRef.current) return;
-    glowRef.current.style.left = "50%";
-    glowRef.current.style.top = "46%";
-    coreRef.current.style.left = "50%";
-    coreRef.current.style.top = "46%";
-  };
-
   const pillTransition = isReducedMotion ? PILL_INSTANT : PILL_SPRING;
 
   return (
@@ -194,54 +174,15 @@ export default function HeroSection({
       ref={sectionRef}
       id="hero"
       className="hero-ground items-center"
-      onMouseMove={isReducedMotion ? undefined : handleMouseMove}
-      onMouseLeave={isReducedMotion ? undefined : handleMouseLeave}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
     >
-      {/* Warm glow — follows cursor */}
-      <div
-        ref={glowRef}
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "46%",
-          width: "560px",
-          height: "560px",
-          borderRadius: "50%",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          background:
-            "radial-gradient(circle, rgba(255,247,234,.9) 0%, rgba(244,222,201,.48) 28%, rgba(234,225,212,0) 62%)",
-          transition: "left .14s ease-out, top .14s ease-out",
-          zIndex: 1,
-        }}
-      />
+      {/* The ONE cursor glow — translate3d + rAF, off on touch/reduced-motion (--glow-on-paper). */}
+      <CursorGlow />
 
-      {/* Terracotta core — follows cursor slightly slower */}
-      <div
-        ref={coreRef}
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "46%",
-          width: "240px",
-          height: "240px",
-          borderRadius: "50%",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          background:
-            "radial-gradient(circle, oklch(56% 0.14 42 / 0.14) 0%, oklch(56% 0.14 42 / 0) 65%)",
-          transition: "left .2s ease-out, top .2s ease-out",
-          zIndex: 1,
-        }}
-      />
-
-      {/* Content — above glow layers */}
+      {/* Content — above the glow layer */}
       <Container>
         <div className="relative flex flex-col items-center text-center" style={{ zIndex: 2 }}>
 
@@ -264,7 +205,7 @@ export default function HeroSection({
                 the 3:1 large-text bar. */}
             <h1
               className="font-script text-[--color-accent-500] leading-[1] m-0 font-normal"
-              style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
+              style={{ fontSize: "clamp(3rem, 6.5vw, 5rem)" }}
             >
               {signature}
             </h1>
@@ -355,7 +296,7 @@ export default function HeroSection({
           {/* Serif line with handwritten backdrop word */}
           <Reveal delay={0.14} className="mt-7">
             <div
-              className="relative min-h-[5rem] flex items-center justify-center w-full"
+              className="relative min-h-[7rem] flex items-center justify-center w-full"
             >
               {/* Backdrop word — bleeds horizontally, anchored vertically to this container */}
               <AnimatePresence mode="wait">
@@ -379,7 +320,7 @@ export default function HeroSection({
                     style={{
                       display: "block",
                       fontFamily: "var(--font-script)",
-                      fontSize: "clamp(4rem, 11vw, 7rem)",
+                      fontSize: "clamp(5rem, 12vw, 9rem)",
                       lineHeight: 1,
                       color: "rgba(181,97,60,0.14)",
                       whiteSpace: "nowrap",
@@ -412,7 +353,7 @@ export default function HeroSection({
                 <motion.p
                   key={active}
                   className="font-display not-italic text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-tight] max-w-[34ch]!"
-                  style={{ position: "relative", zIndex: 2, fontSize: "clamp(1.5rem, 2.6vw, 2.05rem)" }}
+                  style={{ position: "relative", zIndex: 2, fontSize: "clamp(1.75rem, 3.4vw, 2.75rem)" }}
                   variants={isReducedMotion ? lineContainerVariantsReduced : lineContainerVariants}
                   initial="hidden"
                   animate="visible"
