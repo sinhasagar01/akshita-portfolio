@@ -207,7 +207,7 @@ sections:
             - The problem wasn't missing features. It was interrupting the work.
       - discriminant: principleCards
         value:
-          heading: ''
+          heading: Mechanic Issue
           subhead: >-
             When technicians arrived on-site, they weren't thinking about the
             app. They were thinking about diagnosing equipment, keeping
