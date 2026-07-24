@@ -345,47 +345,204 @@ a {
 ============================================================ */
 
 /* top eases from 0 to 15px when the pill floats in */
+/* ============================================================
+   Liquid-glass nav — ONE material token set, both breakpoints.
+   --glass-blur is a SINGLE dial: lowered on mobile via the query below,
+   so the exact radius is one edit for real-device tuning.
+============================================================ */
+:root {
+  --ease-back:         cubic-bezier(0.62, -0.28, 0.28, 1.3);
+  --glass-fill:        oklch(98.5% 0.012 80 / 0.58);
+  --glass-fill-strong: oklch(98.5% 0.012 80 / 0.78);
+  --glass-stroke:      oklch(100% 0 0 / 0.72);
+  --glass-blur:        blur(22px) saturate(1.8);
+  --glass-shadow:
+    inset 0 1px 0 0 oklch(100% 0 0 / 0.85),
+    inset 0 -1px 0 0 oklch(100% 0 0 / 0.28),
+    inset 0 0 0 0.5px oklch(14% 0.018 60 / 0.06),
+    0 2px 6px -2px oklch(14% 0.018 60 / 0.14),
+    0 14px 38px -14px oklch(14% 0.018 60 / 0.34);
+  --glass-shadow-hi:
+    inset 0 1px 0 0 oklch(100% 0 0 / 0.95),
+    inset 0 -1px 0 0 oklch(100% 0 0 / 0.34),
+    inset 0 0 0 0.5px oklch(14% 0.018 60 / 0.07),
+    0 3px 8px -2px oklch(14% 0.018 60 / 0.16),
+    0 20px 46px -14px oklch(14% 0.018 60 / 0.4);
+}
+@media (max-width: 1023px) {
+  /* Cheaper blur on the throttled-hardware breakpoint — one dial. */
+  :root { --glass-blur: blur(13px) saturate(1.5); }
+}
+
 .site-header {
   transition: top 0.4s ease;
 }
 
-.site-header-bar {
+/* The capsule wrapper only centres the pill on desktop; the pill hugs its content.
+   It carries `will-change: transform` for the hide/show, which makes it a STACKING
+   CONTEXT; without a positive z-index the fixed z-40 mobile-menu overlay would paint
+   over the whole row and bury the morph (the close affordance). z-index 50 lifts the
+   persistent pill above the overlay — the same z the old bar used. */
+.nav-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 20px 28px;
-  background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: 0;
-  box-shadow: none;
-  backdrop-filter: blur(0px) saturate(1);
-  -webkit-backdrop-filter: blur(0px) saturate(1);
-  /* position + z-index keeps the bar (and burger) above the fixed mobile menu overlay (z-40) */
+  justify-content: flex-start;
   position: relative;
   z-index: 50;
-  transition:
-    background-color 0.4s ease,
-    backdrop-filter 0.4s ease,
-    -webkit-backdrop-filter 0.4s ease,
-    border-radius 0.4s ease,
-    border-color 0.4s ease,
-    box-shadow 0.4s ease,
-    padding 0.4s ease;
+}
+@media (min-width: 1024px) {
+  .nav-row { justify-content: center; }
 }
 
-.site-header-bar.scrolled {
+/* THE MATERIAL. overflow stays visible so the logo grid (which overhangs) is never
+   clipped; the sheens are pseudos clipped by their own border-radius, not the box. */
+.nav-glass {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  /* Mobile is a full-width row: wordmark left, morph right. On desktop the pill is
+     width:auto (shrink-to-fit), so there is no free space and this is a no-op there. */
+  justify-content: space-between;
+  width: 100%;
   border-radius: 999px;
-  background-color: oklch(96.8% 0.018 78 / 0.70);
-  backdrop-filter: blur(13px) saturate(1.5);
-  -webkit-backdrop-filter: blur(13px) saturate(1.5);
-  border-color: oklch(88.0% 0.032 74);
-  padding: 11px 22px;
-  box-shadow: 0 8px 26px oklch(56% 0.14 42 / 0.10);
+  padding: 8px 14px 8px 18px;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 0.5px solid var(--glass-stroke);
+  box-shadow: var(--glass-shadow);
+  transition: background 0.38s ease, border-color 0.38s ease, box-shadow 0.38s ease,
+    -webkit-backdrop-filter 0.38s ease, backdrop-filter 0.38s ease, padding 0.38s ease;
+}
+@media (min-width: 1024px) {
+  .nav-glass { width: auto; gap: 26px; padding: 8px 10px 8px 22px; }
+}
+/* static diagonal specular — always on, so the material reads as lit on touch */
+.nav-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(115deg, oklch(100% 0 0 / 0.5) 0%,
+    oklch(100% 0 0 / 0.14) 26%, oklch(100% 0 0 / 0) 52%);
+  opacity: 1;
+  transition: opacity 0.38s ease;
+}
+/* pointer-tracked radial specular — hover only, and idled while scrolling */
+.nav-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(160px circle at var(--mx, 50%) var(--my, 0%),
+    oklch(100% 0 0 / 0.55), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.34s ease;
+}
+@media (hover: hover) {
+  .nav-glass:not(.is-ghost):not(.is-scrolling):hover::after { opacity: 1; }
+  .nav-glass:not(.is-ghost):hover { box-shadow: var(--glass-shadow-hi); }
+}
+/* GHOST — nullifies the MATERIAL only; contents stay fully visible. Never fade opacity. */
+.nav-glass.is-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.nav-glass.is-ghost::before,
+.nav-glass.is-ghost::after { opacity: 0; }
+/* Desktop is a unified capsule at ALL scroll positions — ghost strips material on mobile
+   only (the top-of-page state), so on desktop the material is restored. */
+@media (min-width: 1024px) {
+  .nav-glass.is-ghost {
+    background: var(--glass-fill);
+    border-color: var(--glass-stroke);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  .nav-glass.is-ghost::before { opacity: 1; }
 }
 
-.site-header-bar .nav-link::after {
-  background-color: var(--color-accent-500);
+/* desktop-only capsule furniture */
+.nav-sepdot {
+  display: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: oklch(14% 0.018 60 / 0.22);
+  flex: none;
+}
+.nav-desktop {
+  display: none;
+  align-items: center;
+  gap: 24px;
+}
+@media (min-width: 1024px) {
+  .nav-sepdot { display: block; }
+  .nav-desktop { display: flex; }
+}
+
+/* links + ONE sliding indicator behind the hovered link (magic-move) */
+.nav-links {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-links a {
+  position: relative;
+  z-index: 2;
+  font-size: 14px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+  transition: color 0.28s ease;
+}
+.nav-links a[aria-current="true"] { color: var(--color-accent-600); font-weight: 500; }
+.nav-ind {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 0;
+  height: 34px;
+  width: 0;
+  border-radius: 999px;
+  transform: translate(0, -50%) scaleX(0.6);
+  opacity: 0;
+  background: oklch(100% 0 0 / 0.78);
+  box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.9), 0 2px 8px -3px oklch(14% 0.018 60 / 0.28);
+  transition: transform 0.46s var(--ease-spring), width 0.46s var(--ease-spring), opacity 0.26s ease;
+}
+.nav-links.is-hot .nav-ind { opacity: 1; }
+
+/* Resume — filled accent chip with an inner rim highlight, lifts on hover */
+.nav-cta {
+  font-size: 13.5px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-accent-500);
+  color: oklch(100% 0 0);
+  border: 0.5px solid oklch(100% 0 0 / 0.35);
+  box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.35), 0 6px 18px -8px oklch(56% 0.14 42 / 0.7);
+  transition: transform 0.32s var(--ease-spring), box-shadow 0.32s var(--ease-out-expo), filter 0.3s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nav-cta:hover {
+    transform: translateY(-1px);
+    filter: saturate(1.08);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.45), 0 12px 26px -10px oklch(56% 0.14 42 / 0.8);
+  }
 }
 
 /* ============================================================
@@ -539,52 +696,148 @@ a {
   .header-desktop-right { display: flex; }
 }
 
-/* Burger */
-.header-burger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* MORPH — three dots ⇄ ✕. GUARDRAIL: the glyph is ALWAYS --ink and the surface never
+   inverts on open. The shape changes; the colour does not. One continuous transform. */
+.nav-morph {
   position: relative;
-  width: 28px;
-  height: 28px;
-  background: none;
-  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0.5px solid var(--glass-stroke);
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
   padding: 0;
   cursor: pointer;
-  z-index: 50;
-  flex-shrink: 0;
+  flex: none;
+  display: none;
 }
-
-@media (min-width: 1024px) {
-  .header-burger { display: none; }
+@media (max-width: 1023px) {
+  .nav-morph { display: block; }
 }
-
-.header-burger-bar {
+.nav-morph:focus-visible { outline: 2px solid var(--color-accent-500); outline-offset: 3px; }
+.nav-morph i {
   position: absolute;
-  left: 2px;
-  right: 2px;
-  height: 2px;
-  background: var(--color-text-primary);
-  border-radius: 2px;
+  left: 50%;
+  top: 50%;
+  width: 4.5px;
+  height: 4.5px;
+  border-radius: 50%;
+  background: var(--color-ink-950);
+  display: block;
+}
+.nav-morph i:nth-child(1) { transform: translate(-50%, -50%) translateX(-7.5px); }
+.nav-morph i:nth-child(2) { transform: translate(-50%, -50%); }
+.nav-morph i:nth-child(3) { transform: translate(-50%, -50%) translateX(7.5px); }
+/* open: the outer two stretch into bars and cross; the middle scales out. Colour untouched. */
+.nav-morph.is-open i:nth-child(1) {
+  width: 19px; height: 1.8px; border-radius: 2px;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.nav-morph.is-open i:nth-child(2) { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+.nav-morph.is-open i:nth-child(3) {
+  width: 19px; height: 1.8px; border-radius: 2px;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.nav-morph.is-open { border-color: oklch(14% 0.018 60 / 0.28); }
+/* nested inside a LIT pill: drop its own shadow (one surface, not two). Glyph colour stays. */
+.nav-glass:not(.is-ghost) .nav-morph { box-shadow: none; background: oklch(100% 0 0 / 0.5); }
+@media (prefers-reduced-motion: no-preference) {
+  .nav-morph {
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
+      transform 0.44s var(--ease-back), opacity 0.28s ease;
+  }
+  .nav-morph i {
+    transition: width 0.46s var(--ease-back), height 0.3s var(--ease-out-expo),
+      border-radius 0.3s var(--ease-out-expo), opacity 0.22s ease, transform 0.46s var(--ease-back);
+  }
+  /* middle dot leads on close, trails on open */
+  .nav-morph i:nth-child(2) { transition-delay: 0.06s; }
+  .nav-morph.is-open i:nth-child(1),
+  .nav-morph.is-open i:nth-child(3) { transition-delay: 0.05s; }
+  .nav-morph.is-open i:nth-child(2) { transition-delay: 0s; }
 }
 
-.header-burger-bar:nth-child(1) { top: 8px; }
-.header-burger-bar:nth-child(2) { top: 14px; }
-.header-burger-bar:nth-child(3) { top: 20px; }
-
-/* X end-state: applies regardless of motion preference */
-.header-burger.open .header-burger-bar:nth-child(1) { top: 14px; transform: rotate(45deg); }
-.header-burger.open .header-burger-bar:nth-child(2) { opacity: 0; }
-.header-burger.open .header-burger-bar:nth-child(3) { top: 14px; transform: rotate(-45deg); }
-
-/* Transition timing: only when motion is preferred */
+/* THREE STATES — the row lifts on scroll-down, returns on scroll-up. Sticky wrapper keeps
+   the flow height, so the article layout is byte-identical; only the pill translates. */
+.nav-row { will-change: transform; }
 @media (prefers-reduced-motion: no-preference) {
-  .header-burger-bar {
-    transition:
-      transform 0.35s cubic-bezier(0.7, 0, 0.2, 1),
-      opacity   0.20s ease,
-      top       0.35s cubic-bezier(0.7, 0, 0.2, 1);
-  }
+  .nav-row { transition: transform 0.46s var(--ease-out-expo); }
+}
+.site-header[data-nav-hidden="true"] .nav-row { transform: translateY(-160%); }
+/* On a POP restore / route change the nav must appear WITHOUT animating. */
+.site-header[data-nav-instant="true"] .nav-row { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  /* no translate under reduced motion — the row simply stays put */
+  .site-header[data-nav-hidden="true"] .nav-row { transform: none; }
+}
+
+/* The floating morph button — desktop top-right, mobile its corner. Appears when hidden. */
+.nav-fab {
+  position: fixed;
+  z-index: 44;
+  opacity: 0;
+  transform: scale(0.75) rotate(-30deg);
+  pointer-events: none;
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nav-fab { transition: opacity 0.28s ease, transform 0.44s var(--ease-back); }
+}
+.nav-fab.is-shown { opacity: 1; transform: none; pointer-events: auto; }
+.nav-fab-desktop { top: 18px; right: 26px; width: 46px; height: 46px; }
+.nav-fab-mobile { top: 14px; right: 16px; width: 40px; height: 40px; }
+@media (min-width: 1024px) { .nav-fab-desktop { display: block; } .nav-morph.nav-fab-desktop { display: block; } }
+@media (max-width: 1023px) { .nav-fab-mobile { display: block; } }
+/* the FAB is a standalone morph (not inside a lit pill) — keep its glass shadow */
+.nav-fab.nav-morph { box-shadow: var(--glass-shadow); background: var(--glass-fill-strong); }
+
+/* Desktop glass sheet — the scrolled-state menu, links staggered in. */
+.nav-sheet {
+  position: fixed;
+  top: 78px;
+  right: 26px;
+  z-index: 44;
+  min-width: 210px;
+  padding: 9px;
+  border-radius: 18px;
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 0.5px solid var(--glass-stroke);
+  box-shadow: var(--glass-shadow-hi);
+  transform-origin: top right;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.94);
+  pointer-events: none;
+  display: none;
+  transition: opacity 0.22s ease, transform 0.38s var(--ease-out-expo);
+}
+@media (min-width: 1024px) { .nav-sheet { display: block; } }
+.nav-sheet.is-open { opacity: 1; transform: none; pointer-events: auto; }
+.nav-sheet a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 11px;
+  font-size: 15px;
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.34s ease, transform 0.42s var(--ease-out-expo), background 0.18s ease;
+}
+.nav-sheet.is-open a { opacity: 1; transform: none; }
+.nav-sheet.is-open a:nth-child(1) { transition-delay: 0.06s; }
+.nav-sheet.is-open a:nth-child(2) { transition-delay: 0.11s; }
+.nav-sheet.is-open a:nth-child(3) { transition-delay: 0.16s; }
+.nav-sheet.is-open a:nth-child(4) { transition-delay: 0.21s; }
+.nav-sheet.is-open a:nth-child(6) { transition-delay: 0.28s; }
+.nav-sheet a:hover { background: oklch(100% 0 0 / 0.6); }
+.nav-sheet .nav-sheet-sep { height: 0.5px; background: oklch(14% 0.018 60 / 0.14); margin: 7px 5px; }
+.nav-sheet .nav-sheet-resume { color: var(--color-accent-600); }
+@media (prefers-reduced-motion: reduce) {
+  .nav-sheet, .nav-sheet a, .nav-fab { transition: none; }
 }
 
 /* Mobile menu — clip-path circle reveal */
