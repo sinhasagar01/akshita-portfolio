@@ -435,7 +435,7 @@ sections:
       - discriminant: deviceShelf
         value:
           devices:
-            - src: /images/projects/elevate-one-view/screen-a.webp
+            - src: /images/projects/elevate-one-view/blocks/af040bffb4d1.webp
               alt: >-
                 Stylised field service app screen showing a unit list with
                 status indicators
@@ -446,7 +446,7 @@ sections:
               z: 1
               label: ''
               dotColor: ''
-            - src: /images/projects/elevate-one-view/screen-b.webp
+            - src: /images/projects/elevate-one-view/blocks/82595f0a73b0.webp
               alt: >-
                 Stylised field service app screen showing a commissioning detail
                 with a progress ring
@@ -457,7 +457,7 @@ sections:
               z: 3
               label: ''
               dotColor: ''
-            - src: /images/projects/elevate-one-view/screen-c.webp
+            - src: /images/projects/elevate-one-view/blocks/b1cc6d4c2571.webp
               alt: >-
                 Stylised field service app screen showing a health status view
                 with a trend chart
