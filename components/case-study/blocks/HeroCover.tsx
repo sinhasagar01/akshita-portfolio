@@ -196,32 +196,10 @@ export default function HeroCover({
 
   return (
     <div className="relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14">
-      {/* Watermark — relocated here (from section.glow) so its fade-in is part of
-          the hero entrance. calc() reproduces the section-level top:-12px / right:34px
-          by compensating the section's py-section top padding and 3.25rem inline padding.
-          Sits behind the content; clipped at the card edge by the section's overflow.
-          Omitted entirely when data.watermark is unset — no default text. */}
-      {data.watermark && (
-        <motion.span
-          aria-hidden="true"
-          {...mp}
-          variants={glowV}
-          className="pointer-events-none absolute -z-10 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
-          style={{
-            color: "color-mix(in oklch, var(--color-accent-500) 10%, transparent)",
-            top: "calc(-1 * clamp(3.5rem, 7vw, 6rem) - 12px)",
-            right: "calc(34px - 3.25rem)",
-            fontSize: "clamp(7rem, 15vw, 13.75rem)",
-          }}
-        >
-          {data.watermark}
-        </motion.span>
-      )}
-
-      {/* Text column */}
-      <div>
+      {/* Text column — centred on the ground */}
+      <div className="flex flex-col items-center text-center">
         {data.eyebrow && (
-          <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
+          <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center justify-center gap-3">
             <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
             <span
               {...edit("eyebrow", "Edit hero eyebrow")}
@@ -245,14 +223,29 @@ export default function HeroCover({
           </span>
         </h1>
 
-        <motion.h2
-          {...mp}
-          variants={fadeUp(0.385)}
-          {...edit("thesis", "Edit hero thesis")}
-          className={`font-display italic text-[34px] text-accent-600 leading-[1.15] mt-3${aff}`}
-        >
-          {data.thesis}
-        </motion.h2>
+        {/* Tagline with the script watermark centred behind it (re-treated from the old
+            corner font-display italic watermark — an intentional published-page change). */}
+        <div className="relative mt-4 flex w-full items-center justify-center">
+          {data.watermark && (
+            <motion.span
+              aria-hidden="true"
+              {...mp}
+              variants={glowV}
+              className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
+              style={{ color: "var(--hero-word-light)", fontSize: "clamp(6rem, 13vw, 11rem)" }}
+            >
+              {data.watermark}
+            </motion.span>
+          )}
+          <motion.h2
+            {...mp}
+            variants={fadeUp(0.385)}
+            {...edit("thesis", "Edit hero thesis")}
+            className={`relative z-[1] font-display italic text-[34px] text-accent-600 leading-[1.15]${aff}`}
+          >
+            {data.thesis}
+          </motion.h2>
+        </div>
 
         <motion.p
           {...mp}
@@ -291,7 +284,7 @@ export default function HeroCover({
         <motion.dl
           {...mp}
           variants={fadeUp(0.7)}
-          className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px]"
+          className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px] mx-auto text-center"
         >
           {data.meta.map((item, i) => (
             <div key={i}>
