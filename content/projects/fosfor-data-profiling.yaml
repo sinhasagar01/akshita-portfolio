@@ -688,7 +688,7 @@ sections:
             z: null
           caption: The **configure and schedule** flow, running end to end.
           frame: browser
-          aspect: '1.4056'
+          aspect: '2.0000'
           eyebrow: Final design
           title: The profiler, in motion.
   - variant: default
