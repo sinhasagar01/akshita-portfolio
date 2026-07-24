@@ -1,4 +1,5 @@
 import RevealSection from "@/components/motion/RevealSection";
+import CursorGlow from "@/components/motion/CursorGlow";
 import type { Section } from "@/lib/case-studies/types";
 import CaseSectionHeader from "./CaseSectionHeader";
 import GlowWord from "./GlowWord";
@@ -18,8 +19,13 @@ export default function SectionRenderer({
   web = false,
   noReveal = false,
   editable = false,
+  asGround = false,
 }: {
   section: Section;
+  /** Hero-as-ground: the public page renders the hero as the page's full-bleed floor
+   *  (a sibling of <main>), not a card. Only the hero variant honours it; the studio
+   *  canvas never passes it, so the editor panel keeps the card treatment unchanged. */
+  asGround?: boolean;
   /** CS-7b — template=web opts this section's blocks into the Bold-gallery
    *  treatments, and drives section-level treatments (e.g. a standalone pullQuote
    *  dark band). false → the existing mobile composition, byte-identical. */
@@ -110,12 +116,19 @@ export default function SectionRenderer({
     (isWideFrame(heroBlock.devices[0]?.frame) || isWideFrame(heroBlock.devices[1]?.frame));
 
   if (isWebHero) {
+    // As ground (public page): the dark full-bleed floor. As a card (studio canvas):
+    // the original dark band, byte-identical.
     return (
       <section
         id={section.id}
-        className="section-card py-section relative overflow-hidden scroll-mt-20"
-        style={{ backgroundColor: "var(--color-band-dark)" }}
+        className={
+          asGround
+            ? "hero-ground hero-ground--peek is-dark scroll-mt-20"
+            : "section-card py-section relative overflow-hidden scroll-mt-20"
+        }
+        style={asGround ? undefined : { backgroundColor: "var(--color-band-dark)" }}
       >
+        {asGround && <CursorGlow />}
         {section.blocks.map((block, i) => (
           <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} />
         ))}
@@ -124,13 +137,21 @@ export default function SectionRenderer({
   }
 
   // "hero" (above the fold) and "static" (e.g. the Work story, which manages its own
-  // in-view start) render as a plain card — no RevealSection clip reveal.
+  // in-view start) render as a plain card — no RevealSection clip reveal. The hero, on
+  // the public page, is the full-bleed ground instead (asGround); the studio canvas keeps
+  // the card.
   if (section.variant === "hero" || section.variant === "static") {
+    const ground = asGround && section.variant === "hero";
     return (
       <section
         id={section.id}
-        className="section-card py-section relative overflow-hidden scroll-mt-20"
+        className={
+          ground
+            ? "hero-ground hero-ground--peek scroll-mt-20"
+            : "section-card py-section relative overflow-hidden scroll-mt-20"
+        }
       >
+        {ground && <CursorGlow />}
         {inner}
       </section>
     );

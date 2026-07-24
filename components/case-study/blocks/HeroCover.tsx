@@ -68,13 +68,16 @@ export default function HeroCover({
       }),
     },
   };
+  // The two-phone pair's RESTING tilt now lives in the variants (front +4°, back -6°) so the
+  // overlap is composed by the layout, not the old wide-column translate. Each rises from a
+  // soft blur with a gentle y offset; the tilt is held constant so nothing swings on mount.
   const frontV = {
-    hidden: { y: m ? 32 : 56, rotate: m ? 0 : -2, scale: m ? 0.96 : 0.94 },
-    show: { y: 0, rotate: 0, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.435, ease: EXPO }) },
+    hidden: { y: m ? 24 : 44, rotate: 4, scale: 0.95 },
+    show: { y: 0, rotate: 4, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.435, ease: EXPO }) },
   };
   const backV = {
-    hidden: { x: m ? 0 : 130, y: m ? 32 : 64, rotate: m ? 0 : 6, scale: m ? 0.96 : 0.93 },
-    show: { x: 0, y: 0, rotate: 0, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.1 : 1.57, ease: EXPO }) },
+    hidden: { y: m ? 30 : 52, rotate: -6, scale: 0.94 },
+    show: { y: 0, rotate: -6, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.1 : 1.57, ease: EXPO }) },
   };
   const glowV = {
     hidden: { opacity: 0 },
@@ -115,124 +118,22 @@ export default function HeroCover({
     const dashIdx = data.devices[1] ? 1 : 0;
     const dashboard = data.devices[dashIdx];
     return (
-      <div className="relative">
-        {data.watermark && (
-          <motion.span
-            aria-hidden="true"
-            {...mp}
-            variants={glowV}
-            className="pointer-events-none absolute right-[-1rem] top-[-1.5rem] z-0 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
-            style={{
-              color: "color-mix(in oklch, var(--color-on-dark) 6%, transparent)",
-              fontSize: "clamp(7rem, 15vw, 13.75rem)",
-            }}
-          >
-            {data.watermark}
-          </motion.span>
-        )}
-
-        <div className="relative z-[1]">
-          {data.eyebrow && (
-            <motion.div
-              {...mp}
-              variants={fadeUp(0.09)}
-              {...edit("eyebrow", "Edit hero eyebrow")}
-              className={`text-[11px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
-            >
-              {data.eyebrow}
-            </motion.div>
-          )}
-
-          <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-on-dark leading-[0.98] tracking-tight mt-4">
-            <span className="block overflow-hidden">
-              <motion.span
-                {...mp}
-                variants={titleV}
-                {...edit("title", "Edit hero title")}
-                className={`block${aff}`}
-              >
-                {data.title}
-              </motion.span>
-            </span>
-          </h1>
-
-          <motion.h2
-            {...mp}
-            variants={fadeUp(0.385)}
-            {...edit("thesis", "Edit hero thesis")}
-            className={`font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] mt-4 max-w-[640px]${aff}`}
-          >
-            {data.thesis}
-          </motion.h2>
-
-          {/* One wide dashboard, full-width below the tagline */}
-          <motion.div {...mp} variants={stackV} className="mt-9 flex w-full justify-center lg:mt-10">
-            <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
-          </motion.div>
-
-          {/* Facts — a horizontal row below the dashboard */}
-          <motion.dl {...mp} variants={fadeUp(0.7)} className="mt-8 flex flex-wrap gap-x-10 gap-y-5">
-            {data.meta.map((item, i) => (
-              <div key={i}>
-                <dt
-                  {...edit(`meta.${i}.label`, "Edit fact label")}
-                  className={`text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
-                >
-                  {item.label}
-                </dt>
-                <dd
-                  {...edit(`meta.${i}.value`, "Edit fact value")}
-                  className={`text-[1rem] font-semibold text-on-dark mt-1.5${aff}`}
-                >
-                  {item.value}
-                </dd>
-              </div>
-            ))}
-          </motion.dl>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative grid items-center gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14">
-      {/* Watermark — relocated here (from section.glow) so its fade-in is part of
-          the hero entrance. calc() reproduces the section-level top:-12px / right:34px
-          by compensating the section's py-section top padding and 3.25rem inline padding.
-          Sits behind the content; clipped at the card edge by the section's overflow.
-          Omitted entirely when data.watermark is unset — no default text. */}
-      {data.watermark && (
-        <motion.span
-          aria-hidden="true"
-          {...mp}
-          variants={glowV}
-          className="pointer-events-none absolute -z-10 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
-          style={{
-            color: "color-mix(in oklch, var(--color-accent-500) 10%, transparent)",
-            top: "calc(-1 * clamp(3.5rem, 7vw, 6rem) - 12px)",
-            right: "calc(34px - 3.25rem)",
-            fontSize: "clamp(7rem, 15vw, 13.75rem)",
-          }}
-        >
-          {data.watermark}
-        </motion.span>
-      )}
-
-      {/* Text column */}
-      <div>
+      // SINGLE centred column, exactly 100svh (the faded-peek hero): eyebrow → title →
+      // script watermark behind the tagline → tagline → FACTS → the framed dashboard, which
+      // is masked so it dissolves into the ground at the seam.
+      <div className="relative flex flex-col items-center text-center">
         {data.eyebrow && (
-          <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center gap-3">
-            <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
-            <span
-              {...edit("eyebrow", "Edit hero eyebrow")}
-              className={`text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${aff}`}
-            >
-              {data.eyebrow}
-            </span>
+          <motion.div
+            {...mp}
+            variants={fadeUp(0.09)}
+            {...edit("eyebrow", "Edit hero eyebrow")}
+            className={`text-[11px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
+          >
+            {data.eyebrow}
           </motion.div>
         )}
 
-        <h1 className="font-display font-normal text-6xl text-ink-950 leading-[1] tracking-tight mt-5">
+        <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-on-dark leading-[0.98] tracking-tight mt-4">
           <span className="block overflow-hidden">
             <motion.span
               {...mp}
@@ -245,86 +146,195 @@ export default function HeroCover({
           </span>
         </h1>
 
-        <motion.h2
-          {...mp}
-          variants={fadeUp(0.385)}
-          {...edit("thesis", "Edit hero thesis")}
-          className={`font-display italic text-[34px] text-accent-600 leading-[1.15] mt-3${aff}`}
-        >
-          {data.thesis}
-        </motion.h2>
-
-        <motion.p
-          {...mp}
-          variants={fadeUp(0.56)}
-          {...edit("position", "Edit hero position statement")}
-          className={`text-lg text-ink-600 leading-normal mt-6 max-w-[42ch]${aff}`}
-        >
-          {data.position}
-        </motion.p>
-
-        {data.ratingChip && (
-          <motion.p
-            {...mp}
-            variants={chipV}
-            className="inline-flex items-center gap-2.5 rounded-full border bg-cream-200 px-4 py-2 text-[0.9rem] font-semibold text-ink-950 mt-6"
-            style={{ borderColor: "color-mix(in oklch, var(--color-ink-950) 12%, transparent)" }}
-          >
-            <span
-              {...edit("ratingChip.stat", "Edit rating stat")}
-              className={`font-bold text-accent-500${aff}`}
+        {/* Tagline with the script watermark centred behind it (re-treated from the old
+            corner font-display italic watermark — an intentional published-page change). */}
+        <div className="relative mt-6 flex w-full items-center justify-center">
+          {data.watermark && (
+            <motion.span
+              aria-hidden="true"
+              {...mp}
+              variants={glowV}
+              className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
+              style={{ color: "var(--hero-word-dark)", fontSize: "clamp(5.5rem, 11vw, 9rem)" }}
             >
-              {data.ratingChip.stat}
-            </span>
-            {/* Wrapped ONLY when editable: on the public site this stays a bare text
-                node, so the rendered markup is unchanged. */}
-            {editable ? (
-              <span {...edit("ratingChip.rest", "Edit rating chip text")} className={aff}>
-                {data.ratingChip.rest}
-              </span>
-            ) : (
-              data.ratingChip.rest
-            )}
-          </motion.p>
-        )}
+              {data.watermark}
+            </motion.span>
+          )}
+          <motion.h2
+            {...mp}
+            variants={fadeUp(0.385)}
+            {...edit("thesis", "Edit hero thesis")}
+            className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] max-w-[36ch]${aff}`}
+          >
+            {data.thesis}
+          </motion.h2>
+        </div>
 
-        <motion.dl
-          {...mp}
-          variants={fadeUp(0.7)}
-          className="grid grid-cols-2 gap-x-10 gap-y-5 mt-9 max-w-[470px]"
-        >
+        {/* Facts — a hairline grid ABOVE the visual, contained to 920px and centred. Web
+            is 3 columns × 2 rows (six facts), collapsing to 2 columns below 900px. */}
+        <motion.dl {...mp} variants={fadeUp(0.7)} className="hero-facts hero-facts--six mx-auto mt-[26px]">
           {data.meta.map((item, i) => (
             <div key={i}>
               <dt
                 {...edit(`meta.${i}.label`, "Edit fact label")}
-                className={`text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle${aff}`}
+                className={`text-[9.5px] tracking-[0.15em] uppercase text-on-dark-quote mb-[3px]${aff}`}
               >
                 {item.label}
               </dt>
               <dd
                 {...edit(`meta.${i}.value`, "Edit fact value")}
-                className={`text-[1rem] font-semibold text-ink-950 mt-1.5${aff}`}
+                className={`text-[13px] font-medium text-on-dark leading-[1.35]${aff}`}
               >
                 {item.value}
               </dd>
             </div>
           ))}
         </motion.dl>
+
+        {/* Visual — the framed browser dashboard, masked so it dissolves into the ground
+            before the fold; the first card rides up over the faded tail (the seam). */}
+        <motion.div {...mp} variants={stackV} className="hero-visual mt-[30px] flex w-full justify-center">
+          <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Two-phone hero pair — flatten the specs (drop the old wide-column rotate/translate that
+  // pushed a phone out of the narrow centred column) and size them down to the column; the
+  // overlap and tilt are composed by the wrappers below, not by the image transforms.
+  const backPhone = { ...data.devices[0], rotate: undefined, translate: undefined, width: 158 };
+  const frontPhone = { ...data.devices[1], rotate: undefined, translate: undefined, width: 176 };
+
+  return (
+    // SINGLE centred column, exactly 100svh (the faded-peek hero): eyebrow → title →
+    // script watermark behind the tagline → tagline → blurb → rating chip → FACTS → the
+    // two phones, masked so they dissolve into the ground at the seam.
+    <div className="relative flex flex-col items-center text-center">
+      {data.eyebrow && (
+        <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center justify-center gap-3">
+          <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
+          <span
+            {...edit("eyebrow", "Edit hero eyebrow")}
+            className={`text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${aff}`}
+          >
+            {data.eyebrow}
+          </span>
+        </motion.div>
+      )}
+
+      <h1 className="font-display font-normal text-6xl text-ink-950 leading-[1] tracking-tight mt-3">
+        <span className="block overflow-hidden">
+          <motion.span
+            {...mp}
+            variants={titleV}
+            {...edit("title", "Edit hero title")}
+            className={`block${aff}`}
+          >
+            {data.title}
+          </motion.span>
+        </span>
+      </h1>
+
+      {/* Tagline with the script watermark centred behind it (re-treated from the old
+          corner font-display italic watermark — an intentional published-page change). */}
+      <div className="relative mt-3 flex w-full items-center justify-center">
+        {data.watermark && (
+          <motion.span
+            aria-hidden="true"
+            {...mp}
+            variants={glowV}
+            className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
+            style={{ color: "var(--hero-word-light)", fontSize: "clamp(6rem, 13vw, 11rem)" }}
+          >
+            {data.watermark}
+          </motion.span>
+        )}
+        <motion.h2
+          {...mp}
+          variants={fadeUp(0.385)}
+          {...edit("thesis", "Edit hero thesis")}
+          className={`relative z-[1] font-display italic text-[34px] text-accent-600 leading-[1.15]${aff}`}
+        >
+          {data.thesis}
+        </motion.h2>
       </div>
 
-      {/* Device cluster — stack fades up out of blur; phones rise with parallax. The
-          entrance wrappers compose over each DeviceImage's resting transform. */}
+      <motion.p
+        {...mp}
+        variants={fadeUp(0.56)}
+        {...edit("position", "Edit hero position statement")}
+        className={`text-lg text-ink-600 leading-normal mt-4 max-w-[42ch]${aff}`}
+      >
+        {data.position}
+      </motion.p>
+
+      {data.ratingChip && (
+        <motion.p
+          {...mp}
+          variants={chipV}
+          className="inline-flex items-center gap-2.5 rounded-full border bg-cream-200 px-4 py-2 text-[0.9rem] font-semibold text-ink-950 mt-4"
+          style={{ borderColor: "color-mix(in oklch, var(--color-ink-950) 12%, transparent)" }}
+        >
+          <span
+            {...edit("ratingChip.stat", "Edit rating stat")}
+            className={`font-bold text-accent-500${aff}`}
+          >
+            {data.ratingChip.stat}
+          </span>
+          {/* Wrapped ONLY when editable: on the public site this stays a bare text
+              node, so the rendered markup is unchanged. */}
+          {editable ? (
+            <span {...edit("ratingChip.rest", "Edit rating chip text")} className={aff}>
+              {data.ratingChip.rest}
+            </span>
+          ) : (
+            data.ratingChip.rest
+          )}
+        </motion.p>
+      )}
+
+      {/* Facts — a hairline grid ABOVE the phones, contained to 920px and centred. Mobile
+          is 4 columns × 1 row (four facts), collapsing to 2 columns below 900px. */}
+      <motion.dl
+        {...mp}
+        variants={fadeUp(0.7)}
+        className="hero-facts hero-facts--four mx-auto mt-[16px]"
+      >
+        {data.meta.map((item, i) => (
+          <div key={i}>
+            <dt
+              {...edit(`meta.${i}.label`, "Edit fact label")}
+              className={`text-[9.5px] tracking-[0.15em] uppercase text-text-subtle mb-[3px]${aff}`}
+            >
+              {item.label}
+            </dt>
+            <dd
+              {...edit(`meta.${i}.value`, "Edit fact value")}
+              className={`text-[13px] font-medium text-ink-950 leading-[1.35]${aff}`}
+            >
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </motion.dl>
+
+      {/* Two-phone composition — an intentional overlapping pair sized to the centred column.
+          The back phone tilts counter-clockwise and sits left; the front phone tilts clockwise
+          and sits right, overlapping in the middle via a negative margin (layout, not the old
+          absolute offsets). Masked so the pair dissolves into the ground at the seam; both
+          phones stay fully contained from 390 to 1920. */}
       <motion.div
         {...mp}
         variants={stackV}
-        className="relative flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
+        className="hero-phones relative mx-auto mt-[14px] flex items-end justify-center"
       >
         {data.glow && <GlowWord word={data.glow} />}
-        <motion.div {...mp} variants={backV} className="lg:absolute">
-          <DeviceImage image={data.devices[0]} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
+        <motion.div {...mp} variants={backV} className="relative z-[1] origin-bottom">
+          <DeviceImage image={backPhone} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
         </motion.div>
-        <motion.div {...mp} variants={frontV}>
-          <DeviceImage image={data.devices[1]} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
+        <motion.div {...mp} variants={frontV} className="relative z-[2] -ml-[54px] origin-bottom">
+          <DeviceImage image={frontPhone} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
         </motion.div>
       </motion.div>
     </div>

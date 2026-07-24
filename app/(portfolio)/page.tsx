@@ -31,9 +31,11 @@ export default async function HomePage() {
   const { settings, skills, projects, experience } = await getHomePageData();
 
   return (
-    <main id="main-content" tabIndex={-1} className="container-x outline-none">
+    <>
       <JsonLd data={personSchema(settings)} />
       <JsonLd data={webSiteSchema()} />
+      {/* Hero as ground — a full-bleed page header, a sibling of <main> (not inside the
+          padded container), so the nav is no longer crushed against a card corner. */}
       <HeroSection
         heroCopy={settings?.heroCopy}
         tabs={[
@@ -45,12 +47,14 @@ export default async function HomePage() {
         roleLabel={settings?.heroRoleLabel}
         scrollCue={settings?.heroScrollCue}
       />
+      <main id="main-content" tabIndex={-1} className="container-x outline-none">
       <ProcessSection settings={settings} />
       <ProjectsSection projects={projects} />
       <AboutSection settings={settings} />
       <ExperienceSection experience={experience} />
       <SkillsSection skills={skills} />
       <ContactSection settings={settings} />
-    </main>
+      </main>
+    </>
   );
 }

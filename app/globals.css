@@ -293,9 +293,181 @@ a {
   border-radius: var(--radius-xl);
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 7%, transparent);
   margin-inline: clamp(0.75rem, 2vw, 2rem);
-  margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
+  margin-bottom: var(--section-gap);
   padding-inline: 3.25rem;
 }
+
+/* ============================================================
+   HERO AS GROUND — the ONE shared container rule (COMMIT 1).
+   The hero is a sibling of <main>, not a section inside it, so it is naturally
+   full-bleed — no 100vw trick, no overflow-x:clip on the Lenis/ScrollManager
+   container. Each variant only adds its composition on top of this.
+   Tokens (glow per surface + backdrop word) declared here so later commits inherit them.
+============================================================ */
+:root {
+  /* the nav pill floats this far below the viewport top on every page — the hero still
+     runs under it (hero top edge stays 0), this is only the pill's own gap */
+  --nav-top: 18px;
+  /* the nav's runway, reserved inside the hero's top padding using the nav's own metrics
+     (pill height + its float offset + breathing room). Keyed off --nav-top so the
+     nav-to-first-baseline gap tracks the float automatically. */
+  --hero-nav-runway: calc(72px + var(--nav-top) + 44px);
+
+  /* The ONE vertical rhythm between stacked surfaces — the hero->first-card gap and every
+     card->card gap. A single source so the two can never drift. Was a duplicated
+     clamp(1rem,1.5vw,1.5rem) (~19px at 1280); now a flat 28px site-wide. */
+  --section-gap: 28px;
+
+  /* GLOW — one token per surface it can sit on */
+  --glow-on-paper: oklch(63% 0.13 47 / 0.20);
+  --glow-on-tan:   oklch(56% 0.14 42 / 0.14);
+  --glow-on-dark:  oklch(82% 0.055 47 / 0.14);
+  --glow-size: 820px;
+
+  /* BACKDROP WORD — the script word behind the tagline, per surface */
+  --hero-word-light: oklch(82% 0.055 47 / 0.55);
+  --hero-word-dark:  oklch(82% 0.055 47 / 0.11);
+}
+
+.hero-ground {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--color-cream-50);
+  padding-block: var(--hero-nav-runway) clamp(4rem, 8vh, 6rem);
+  padding-inline: clamp(1.5rem, 4vw, 3.5rem);
+  /* Restore the card-system rhythm below the hero: the gap between sections is a card's
+     margin-bottom, which the hero lost when it left the article. Same --section-gap token
+     as the cards, so the hero→first-card gap equals every card→card gap. */
+  margin-bottom: var(--section-gap);
+}
+/* the web case-study hero is a dark ground */
+.hero-ground.is-dark {
+  background-color: var(--color-band-dark);
+  color: var(--color-on-dark);
+  --glow-color: var(--glow-on-dark);
+  --hero-facts-line: oklch(100% 0 0 / 0.14);
+}
+
+/* THE FADED-PEEK CASE-STUDY HERO (F). Exactly 100svh with content flowing from the top,
+   so the visual reaches the fold and dissolves there. Only the case-study heroes carry
+   this modifier; the homepage hero keeps min-height + vertically-centred content. Declared
+   after .hero-ground so its overrides win (equal specificity). */
+.hero-ground--peek {
+  height: 100svh;
+  justify-content: flex-start;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+/* The seam: the body pulls up over the faded visual by one section gap when a peek hero
+   precedes it, so the first card's rounded top rides over the dissolving image. Scoped to
+   a preceding peek hero, so the no-hero empty state (which keeps the nav runway) is unaffected. */
+.hero-ground--peek ~ main .case-study > .section-card:first-child {
+  margin-top: calc(var(--section-gap) * -1);
+  position: relative;
+  z-index: 1;
+}
+
+/* Case-study hero facts (F) — a hairline grid ABOVE the visual, contained to 920px and
+   centred (never viewport-width). Web = 3 columns × 2 rows (six), mobile = 4 columns × 1
+   row (four); both collapse to 2 columns below 900px (the reference breakpoint for this
+   grid). Top border on the block, a bottom border per cell, a left border between cells in
+   a row, cleared at each row start. */
+.hero-facts {
+  display: grid;
+  width: 100%;
+  max-width: 920px;
+  border-top: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+}
+.hero-facts--six  { grid-template-columns: repeat(3, 1fr); }
+.hero-facts--four { grid-template-columns: repeat(4, 1fr); }
+.hero-facts > div {
+  padding: 13px 16px;
+  text-align: center;
+  border-bottom: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+}
+.hero-facts > div + div {
+  border-left: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+}
+.hero-facts--six  > div:nth-child(3n + 1) { border-left: none; }
+.hero-facts--four > div:nth-child(4n + 1) { border-left: none; }
+@media (max-width: 900px) {
+  .hero-facts--six,
+  .hero-facts--four { grid-template-columns: repeat(2, 1fr); }
+  .hero-facts > div + div { border-left: none; }
+}
+
+/* The peek visual — masked so the framed dashboard / two phones dissolve into the ground
+   before the hero's bottom edge, then the first card rides up over the faded tail. */
+.hero-visual {
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+/* THE MOBILE DISSOLVE (H). A visual-element mask can't work for the two-phone pair: the
+   phones are taller than the space left below the facts, so the hero's overflow:hidden cuts
+   them at the fold while the mask (measured against the visual's own height) is still opaque
+   — a hard edge. Instead, anchor the dissolve to the HERO's bottom with a ground-coloured
+   overlay, so the fade always COMPLETES at the hero's bottom edge regardless of the visual's
+   height or the viewport. Mobile peek hero only; the web dark hero keeps its .hero-visual
+   55% mask untouched. The overlay sits above the hero content (z 2 > the content wrapper's
+   z 1) and below the first card, which is a later sibling and rides over the faded tail. */
+.hero-ground--peek:not(.is-dark)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  z-index: 2;
+  pointer-events: none;
+  /* transparent lead keeps the top >50% of the phones crisp; the dissolve is concentrated
+     in the band's lower ~57%, reaching solid ground ~11px before the hero's bottom edge */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 32%,
+    var(--color-cream-50) 89%
+  );
+}
+
+/* The ONE cursor glow — see components/motion/CursorGlow.tsx. A fixed-size layer moved
+   only by translate3d; colour from the host's --glow-color. A `.glow-host` (or the hero
+   ground) reveals it on hover and clips it. Off on touch. */
+.cursor-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--glow-size, 820px);
+  height: var(--glow-size, 820px);
+  margin: calc(var(--glow-size, 820px) / -2) 0 0 calc(var(--glow-size, 820px) / -2);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle closest-side, var(--glow-color, var(--glow-on-paper)), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  will-change: transform;
+}
+.glow-host {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+/* content sits above the glow layer */
+.hero-ground > :not(.cursor-glow),
+.glow-host > :not(.cursor-glow) { position: relative; z-index: 1; }
+.hero-ground:hover .cursor-glow,
+.glow-host:hover .cursor-glow { opacity: 1; }
+@media (hover: none) { .cursor-glow { display: none; } }
+@media (prefers-reduced-motion: reduce) { .cursor-glow { display: none; } }
+/* the homepage hero glows in the terracotta-on-paper tone */
+.hero-ground { --glow-color: var(--glow-on-paper); }
+/* the work section glows in the warmer tan tone */
+.glow-tan { --glow-color: var(--glow-on-tan); }
 
 /* Mobile — tighter inline padding below the 1024px breakpoint (desktop unchanged). */
 @media (max-width: 1023px) {
@@ -368,6 +540,13 @@ a {
     inset 0 0 0 0.5px oklch(14% 0.018 60 / 0.07),
     0 3px 8px -2px oklch(14% 0.018 60 / 0.16),
     0 20px 46px -14px oklch(14% 0.018 60 / 0.4);
+
+  /* ON-DARK material — the same glass, retoned for a dark case-study hero (see
+     .site-header[data-nav-tone="dark"]). Dark translucent fill + light stroke, per the
+     reference (rgba(46,40,34,.5) / rgba(255,255,255,.15)). */
+  --glass-fill-dark:        oklch(26% 0.008 60 / 0.5);
+  --glass-fill-dark-strong: oklch(26% 0.008 60 / 0.72);
+  --glass-stroke-dark:      oklch(100% 0 0 / 0.15);
 }
 @media (max-width: 1023px) {
   /* Cheaper blur on the throttled-hardware breakpoint — one dial. */
@@ -469,6 +648,39 @@ a {
   }
   .nav-glass.is-ghost::before { opacity: 1; }
 }
+
+/* ============================================================
+   ON-DARK NAV TONE — over a dark case-study hero the pill uses a dark translucent
+   glass with light text and a peach accent, then returns to the light glass once
+   scrolled past the hero onto the cards. Driven by the nav's EXISTING scroll reader
+   (readScroll in SiteHeader), which reads the page's own tone marker
+   (.hero-ground.is-dark) position — no second listener, no colour sniffing. The
+   0.38s glass transitions already on .nav-glass animate the swap.
+============================================================ */
+.site-header[data-nav-tone="dark"] {
+  --glass-fill: var(--glass-fill-dark);
+  --glass-fill-strong: var(--glass-fill-dark-strong);
+  --glass-stroke: var(--glass-stroke-dark);
+}
+.site-header[data-nav-tone="dark"] .nav-glass { color: var(--color-on-dark); }
+.site-header[data-nav-tone="dark"] .nav-glass::before {
+  background: linear-gradient(115deg, oklch(100% 0 0 / 0.15) 0%,
+    oklch(100% 0 0 / 0.04) 28%, oklch(100% 0 0 / 0) 54%);
+}
+.site-header[data-nav-tone="dark"] .nav-links a { color: var(--color-on-dark-muted); }
+.site-header[data-nav-tone="dark"] .nav-links a:hover { color: var(--color-on-dark); }
+.site-header[data-nav-tone="dark"] .nav-links a[aria-current="true"] { color: var(--color-on-dark-quote); }
+/* the sliding hover indicator drops to a faint white so light link text stays legible on it */
+.site-header[data-nav-tone="dark"] .nav-ind {
+  background: oklch(100% 0 0 / 0.12);
+  box-shadow: none;
+}
+.site-header[data-nav-tone="dark"] .nav-sepdot { background: oklch(100% 0 0 / 0.32); }
+.site-header[data-nav-tone="dark"] .logo-sig { color: var(--color-on-dark); }
+.site-header[data-nav-tone="dark"] .logo-singh { color: var(--color-on-dark-quote); }
+.site-header[data-nav-tone="dark"] .logo-vbar { background: oklch(100% 0 0 / 0.3); }
+.site-header[data-nav-tone="dark"] .nav-morph i { background: var(--color-on-dark); }
+/* Resume CTA keeps its filled accent chip — it reads on both grounds (per the reference). */
 
 /* desktop-only capsule furniture */
 .nav-sepdot {

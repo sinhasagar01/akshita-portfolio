@@ -22,6 +22,10 @@ type SectionId = (typeof NAV)[number]["id"];
 const HEADER_H = 72;
 const SCROLL_TO_OFFSET = 8;
 const THRESH = 8; // jitter guard so a trackpad wobble never flaps the bar
+// The pill floats at --nav-top (18px) and is ~70px tall, so its bottom sits ~88px down.
+// The nav tone is dark while a dark hero's bottom edge is still below that line; once the
+// hero has scrolled up past it, the nav is over the cards and returns to light.
+const NAV_TONE_SWITCH = 88;
 
 function getActiveSection(): SectionId | null {
   let current: SectionId | null = null;
@@ -42,6 +46,7 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   const [menuOpen, setMenuOpen]     = useState(false); // mobile clip-path menu (the blob)
   const [navHidden, setNavHidden]   = useState(false); // scroll-down hides the row
   const [sheetOpen, setSheetOpen]   = useState(false); // desktop scrolled glass sheet
+  const [onDark, setOnDark]         = useState(false); // pill over a dark case-study hero
   const smoothScroll                = useSmoothScroll();
   const pathname                    = usePathname();
   const isHome                      = pathname === "/";
@@ -53,6 +58,9 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   const indRef      = useRef<HTMLSpanElement>(null);
   const headerRef   = useRef<HTMLElement>(null);
   const fabDeskRef  = useRef<HTMLButtonElement>(null);
+  // The current route's dark hero, if any — the page's own tone marker. Cached on route
+  // change so readScroll can read its position without a querySelector every frame.
+  const darkHeroRef = useRef<HTMLElement | null>(null);
   const lastYRef    = useRef(0);
   const rafRef      = useRef(0);
   const specRafRef  = useRef(0);
@@ -77,6 +85,11 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     setScrolled(y > 18);
     if (!isHome) setActive(null);
     else if (!smoothScroll?.isProgrammaticRef.current) setActive(getActiveSection());
+
+    // Nav tone: dark while the pill overlaps the page's dark hero (its own .is-dark
+    // marker, cached on route change), light once scrolled past it onto the cards.
+    const darkHero = darkHeroRef.current;
+    setOnDark(!!darkHero && darkHero.getBoundingClientRect().bottom > NAV_TONE_SWITCH);
 
     if (!smoothScroll?.isProgrammaticRef.current) {
       const topZone = window.matchMedia("(min-width: 1024px)").matches ? 80 : 40;
@@ -126,7 +139,14 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     setSheetOpen(false);
     setMenuOpen(false);
     lastYRef.current = window.scrollY;
-    const id = requestAnimationFrame(() => header?.removeAttribute("data-nav-instant"));
+    const id = requestAnimationFrame(() => {
+      header?.removeAttribute("data-nav-instant");
+      // Re-cache the new route's dark hero (its own .is-dark tone marker) and set the
+      // tone for the current scroll position, so a dark hero paints the nav dark on arrival.
+      darkHeroRef.current = document.querySelector<HTMLElement>(".hero-ground.is-dark");
+      const darkHero = darkHeroRef.current;
+      setOnDark(!!darkHero && darkHero.getBoundingClientRect().bottom > NAV_TONE_SWITCH);
+    });
     return () => cancelAnimationFrame(id);
   }, [pathname]);
 
@@ -299,9 +319,19 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   return (
     <header
       ref={headerRef}
-      className="site-header sticky z-42"
-      style={{ top: scrolled ? "15px" : "0" }}
+      // Hero-as-ground: the nav must FLOAT OVER the hero, not reserve a band above it.
+      // Sticky kept the header in flow, so it pushed the hero's top edge down by its own
+      // height (69px) and the page's tan background showed through above the hero. Fixed
+      // (like the reference) takes it out of flow so the hero starts at y=0. Position only
+      // — the glass, morph and scroll-hide from #155 are unchanged.
+      className="site-header fixed inset-x-0 z-42"
+      // The pill FLOATS on every page: a constant top offset (--nav-top) so its top edge
+      // never sits flush against the viewport edge (which read as clipped). The hero still
+      // runs under the nav — the hero's top edge stays 0; only the pill is inset. The hero's
+      // internal runway (--hero-nav-runway) is keyed off the same token so the gap tracks.
+      style={{ top: "var(--nav-top)" }}
       data-nav-hidden={navHidden || undefined}
+      data-nav-tone={onDark ? "dark" : undefined}
     >
       <div className="container-x">
         <div className="nav-row">

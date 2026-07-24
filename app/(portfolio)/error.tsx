@@ -12,7 +12,7 @@ export default function PortfolioError({
   reset: () => void;
 }) {
   return (
-    <main className="flex min-h-[62vh] flex-col items-center justify-center px-6 text-center font-body">
+    <main className="flex min-h-[62vh] flex-col items-center justify-center px-6 pt-[var(--hero-nav-runway)] text-center font-body">
       <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-600">
         Something went wrong
       </p>

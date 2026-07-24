@@ -2,6 +2,7 @@ import Container from "@/components/layout/Container";
 import Grid from "@/components/layout/Grid";
 import RevealSection from "@/components/motion/RevealSection";
 import SectionHeading from "@/components/ui/SectionHeading";
+import CursorGlow from "@/components/motion/CursorGlow";
 import ProjectCard from "./ProjectCard";
 import type { ProjectListItem } from "@/lib/keystatic";
 
@@ -11,7 +12,9 @@ export default function ProjectsSection({ projects }: Props) {
   if (projects.length === 0) return null;
 
   return (
-    <RevealSection id="work" className="scroll-mt-20">
+    <RevealSection id="work" className="scroll-mt-20 glow-host glow-tan">
+      {/* The same ONE cursor glow, in the tan tone (--glow-on-tan). */}
+      <CursorGlow />
       <Container>
         <SectionHeading
           index="02"
