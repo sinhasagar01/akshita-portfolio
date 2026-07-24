@@ -293,7 +293,7 @@ a {
   border-radius: var(--radius-xl);
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink-950) 7%, transparent);
   margin-inline: clamp(0.75rem, 2vw, 2rem);
-  margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
+  margin-bottom: var(--section-gap);
   padding-inline: 3.25rem;
 }
 
@@ -312,6 +312,11 @@ a {
      (pill height + its float offset + breathing room). Keyed off --nav-top so the
      nav-to-first-baseline gap tracks the float automatically. */
   --hero-nav-runway: calc(72px + var(--nav-top) + 44px);
+
+  /* The ONE vertical rhythm between stacked surfaces — the hero->first-card gap and every
+     card->card gap. A single source so the two can never drift. Was a duplicated
+     clamp(1rem,1.5vw,1.5rem) (~19px at 1280); now a flat 28px site-wide. */
+  --section-gap: 28px;
 
   /* GLOW — one token per surface it can sit on */
   --glow-on-paper: oklch(63% 0.13 47 / 0.20);
@@ -336,9 +341,9 @@ a {
   padding-block: var(--hero-nav-runway) clamp(4rem, 8vh, 6rem);
   padding-inline: clamp(1.5rem, 4vw, 3.5rem);
   /* Restore the card-system rhythm below the hero: the gap between sections is a card's
-     margin-bottom, which the hero lost when it left the article. Match it so the first
-     section sits at the same rhythm as every card→card gap. */
-  margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
+     margin-bottom, which the hero lost when it left the article. Same --section-gap token
+     as the cards, so the hero→first-card gap equals every card→card gap. */
+  margin-bottom: var(--section-gap);
 }
 /* the web case-study hero is a dark ground */
 .hero-ground.is-dark {
