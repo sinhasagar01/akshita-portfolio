@@ -205,9 +205,14 @@ sections:
               navigation, and unclear information hierarchy. The problem wasn't
               missing features. It was interrupting the work.
             - The problem wasn't missing features. It was interrupting the work.
-      - discriminant: pullQuote
+      - discriminant: principleCards
         value:
-          text: The best field app is the one mechanics barely have to think about.
+          heading: Mechanic Issue
+          subhead: >-
+            When technicians arrived on-site, they weren't thinking about the
+            app. They were thinking about diagnosing equipment, keeping
+            customers informed, and completing work efficiently.
+          cards: []
   - variant: default
     id: goals
     index: '04'
