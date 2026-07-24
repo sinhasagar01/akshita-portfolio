@@ -353,7 +353,7 @@ sections:
     id: tour
     index: '08'
     eyebrow: The design tour
-    title: What the redesign fixed.
+    title: What the design fixed.
     lead: ''
     northStar: ''
     layout: stack
@@ -375,7 +375,7 @@ sections:
                 A consistent component set across every flow, so the app behaves
                 the same everywhere.
               image:
-                src: /images/projects/elevate-one-view/screen-a.webp
+                src: /images/projects/elevate-one-view/blocks/814004ccf51b.webp
                 alt: >-
                   Stylised field service app screen showing a unit list with
                   status indicators
@@ -391,7 +391,7 @@ sections:
                 The commissioning and maintenance flow streamlined for speed in
                 the field.
               image:
-                src: /images/projects/elevate-one-view/screen-b.webp
+                src: /images/projects/elevate-one-view/blocks/7fc56f8033dd.webp
                 alt: >-
                   Stylised field service app screen showing a commissioning
                   detail with a progress ring
@@ -407,7 +407,7 @@ sections:
                 Visuals aligned to Elevate's industrial identity rather than a
                 generic app look.
               image:
-                src: /images/projects/elevate-one-view/screen-c.webp
+                src: /images/projects/elevate-one-view/blocks/30339a672e74.webp
                 alt: >-
                   Stylised field service app screen showing a health status view
                   with a trend chart
