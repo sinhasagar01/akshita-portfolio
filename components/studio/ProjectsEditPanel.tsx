@@ -28,6 +28,9 @@ type Props = {
   facts: ProjectFacts;
   // CS-6a — the case-study template ("" | "mobile" | "web"), for the header toggle.
   template: string;
+  // Editorial taxonomy ("" | "mobile" | "web") for the work-section filter (PR 1),
+  // for the header CategoryToggle. Drives no rendering — see keystatic.config.ts.
+  category: string;
 };
 
 // Only type + platform are editable here (Phase-1 T1). role + timeline stay in
@@ -44,7 +47,7 @@ const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] 
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
 ];
 
-export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template }: Props) {
+export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category }: Props) {
   const initial: ProjectsFields = {
     summary,
     facts: { type: facts.type, platform: facts.platform },
@@ -197,6 +200,16 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
               onSaved={() => setUnpublished(true)}
             />
           )}
+          {/* Editorial taxonomy for the work-section filter (PR 1). Same !bespoke
+              gate as the template toggle — boat-crest's category is set in content
+              (the reseed), so its otherwise read-only panel grows no live control. */}
+          {!bespoke && (
+            <CategoryToggle
+              slug={slug}
+              initial={category}
+              onSaved={() => setUnpublished(true)}
+            />
+          )}
           <button
             type="button"
             onClick={() => setDetailsOpen((o) => !o)}
@@ -293,8 +306,8 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
             <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
             <p className="mx-auto mt-2 max-w-[46ch] text-[13px] leading-relaxed text-ink-600">
-              {title} is a bespoke, hand-coded showpiece. Its sections are edited in code,
-              not here. The details above stay editable.
+              {title} is a bespoke, hand-coded showpiece. Its sections and its work-filter
+              category are set in code, not here. The details above stay editable.
             </p>
           </div>
         ) : sectionsStatus === "loaded" && sectionsData ? (
@@ -552,6 +565,93 @@ function TemplateToggle({
       <div
         role="group"
         aria-label="Case study template"
+        className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5"
+      >
+        {(["mobile", "web"] as const).map((opt) => {
+          const on = selected === opt;
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => choose(opt)}
+              disabled={busy}
+              aria-pressed={on}
+              className={[
+                "rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
+                on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
+              ].join(" ")}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {note && <span className="text-[10px] text-text-subtle">{note}</span>}
+    </div>
+  );
+}
+
+// The work-section filter category (PR 1). A near-exact mirror of TemplateToggle,
+// with one difference: category is EDITORIAL taxonomy that drives no rendering, so
+// there is no canvas recompose and thus no `onChange` — it only writes the draft.
+// Optimistic with revert on error; its own pending report so Publish/Discard can't
+// race an in-flight toggle.
+function CategoryToggle({
+  slug,
+  initial,
+  onSaved,
+}: {
+  slug: string;
+  initial: string;
+  onSaved: () => void;
+}) {
+  const [category, setCategory] = useState(initial);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const busyRef = useRef(false);
+  useReportPending(busy);
+
+  // "web" -> Web; anything else ("" / "mobile" / absent) -> Mobile.
+  const selected: "mobile" | "web" = category === "web" ? "web" : "mobile";
+
+  async function choose(next: "mobile" | "web") {
+    if (busyRef.current || next === selected) return;
+    busyRef.current = true;
+    setBusy(true);
+    setNote(null);
+    const prev = category;
+    setCategory(next); // optimistic
+    try {
+      const res = await fetch("/api/studio/save-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collection: "projects", slug, patch: { category: next } }),
+      });
+      const json = await res.json();
+      if (res.ok && json.saved) {
+        onSaved();
+      } else if (res.ok && json.mode === "fs") {
+        setNote("needs github mode (dev)");
+        setCategory(prev); // fs no-op — nothing was saved
+      } else {
+        setCategory(prev);
+        setNote("Save failed");
+      }
+    } catch {
+      setCategory(prev);
+      setNote("Save failed");
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Category</span>
+      <div
+        role="group"
+        aria-label="Work filter category"
         className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5"
       >
         {(["mobile", "web"] as const).map((opt) => {

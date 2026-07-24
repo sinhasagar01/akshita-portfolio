@@ -9,6 +9,7 @@ facts:
   type: Mobile app redesign
   platform: Android and iOS
   timeline: 10 weeks
+category: mobile
 body:
   - discriminant: heroBlock
     value:

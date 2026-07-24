@@ -97,6 +97,13 @@ export default config({
         // text (not a select-with-default the reader would inject); the enum is
         // enforced strictly by the sanitizer.
         template: fields.text({ label: "Template (mobile | web, optional)" }),
+        // Editorial taxonomy — which filter bucket a study belongs to (PR 1 of the
+        // work-section rebuild; nothing reads it yet). DELIBERATELY separate from
+        // `template`: template is a RENDER decision (web->browser hero), category is
+        // taxonomy, so a future hero redesign can't silently re-bucket the filter.
+        // Stored as text like `template` (empty default, so createReader never throws
+        // on an entry lacking it); the enum is enforced strictly by the sanitizer.
+        category: fields.text({ label: "Category (mobile | web)" }),
         body: fields.blocks(
           {
             heroBlock: {

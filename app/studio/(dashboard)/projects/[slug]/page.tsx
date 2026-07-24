@@ -63,6 +63,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
         heroImage={project.heroImage}
         facts={project.facts}
         template={project.template}
+        category={project.category}
       />
     </>
   );
