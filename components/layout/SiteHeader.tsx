@@ -299,7 +299,12 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   return (
     <header
       ref={headerRef}
-      className="site-header sticky z-42"
+      // Hero-as-ground: the nav must FLOAT OVER the hero, not reserve a band above it.
+      // Sticky kept the header in flow, so it pushed the hero's top edge down by its own
+      // height (69px) and the page's tan background showed through above the hero. Fixed
+      // (like the reference) takes it out of flow so the hero starts at y=0. Position only
+      // — the glass, morph and scroll-hide from #155 are unchanged.
+      className="site-header fixed inset-x-0 z-42"
       style={{ top: scrolled ? "15px" : "0" }}
       data-nav-hidden={navHidden || undefined}
     >
