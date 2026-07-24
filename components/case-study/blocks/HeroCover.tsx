@@ -115,23 +115,8 @@ export default function HeroCover({
     const dashIdx = data.devices[1] ? 1 : 0;
     const dashboard = data.devices[dashIdx];
     return (
-      <div className="relative">
-        {data.watermark && (
-          <motion.span
-            aria-hidden="true"
-            {...mp}
-            variants={glowV}
-            className="pointer-events-none absolute right-[-1rem] top-[-1.5rem] z-0 hidden select-none font-display italic leading-[0.8] tracking-[-0.02em] lg:block"
-            style={{
-              color: "color-mix(in oklch, var(--color-on-dark) 6%, transparent)",
-              fontSize: "clamp(7rem, 15vw, 13.75rem)",
-            }}
-          >
-            {data.watermark}
-          </motion.span>
-        )}
-
-        <div className="relative z-[1]">
+      <div className="relative flex flex-col items-center text-center">
+        <div className="relative z-[1] flex flex-col items-center">
           {data.eyebrow && (
             <motion.div
               {...mp}
@@ -156,22 +141,37 @@ export default function HeroCover({
             </span>
           </h1>
 
-          <motion.h2
-            {...mp}
-            variants={fadeUp(0.385)}
-            {...edit("thesis", "Edit hero thesis")}
-            className={`font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] mt-4 max-w-[640px]${aff}`}
-          >
-            {data.thesis}
-          </motion.h2>
+          {/* Tagline with the script watermark centred behind it (re-treated from the old
+              corner font-display italic watermark — an intentional published-page change). */}
+          <div className="relative mt-6 flex w-full items-center justify-center">
+            {data.watermark && (
+              <motion.span
+                aria-hidden="true"
+                {...mp}
+                variants={glowV}
+                className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
+                style={{ color: "var(--hero-word-dark)", fontSize: "clamp(6rem, 13vw, 11rem)" }}
+              >
+                {data.watermark}
+              </motion.span>
+            )}
+            <motion.h2
+              {...mp}
+              variants={fadeUp(0.385)}
+              {...edit("thesis", "Edit hero thesis")}
+              className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark-quote leading-[1.35] max-w-[640px]${aff}`}
+            >
+              {data.thesis}
+            </motion.h2>
+          </div>
 
           {/* One wide dashboard, full-width below the tagline */}
           <motion.div {...mp} variants={stackV} className="mt-9 flex w-full justify-center lg:mt-10">
             <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
           </motion.div>
 
-          {/* Facts — a horizontal row below the dashboard */}
-          <motion.dl {...mp} variants={fadeUp(0.7)} className="mt-8 flex flex-wrap gap-x-10 gap-y-5">
+          {/* Facts — a centred horizontal row below the dashboard */}
+          <motion.dl {...mp} variants={fadeUp(0.7)} className="mt-8 flex flex-wrap justify-center gap-x-10 gap-y-5">
             {data.meta.map((item, i) => (
               <div key={i}>
                 <dt

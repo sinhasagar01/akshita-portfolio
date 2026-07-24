@@ -1,4 +1,5 @@
 import RevealSection from "@/components/motion/RevealSection";
+import CursorGlow from "@/components/motion/CursorGlow";
 import type { Section } from "@/lib/case-studies/types";
 import CaseSectionHeader from "./CaseSectionHeader";
 import GlowWord from "./GlowWord";
@@ -127,6 +128,7 @@ export default function SectionRenderer({
         }
         style={asGround ? undefined : { backgroundColor: "var(--color-band-dark)" }}
       >
+        {asGround && <CursorGlow />}
         {section.blocks.map((block, i) => (
           <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} />
         ))}
@@ -149,6 +151,7 @@ export default function SectionRenderer({
             : "section-card py-section relative overflow-hidden scroll-mt-20"
         }
       >
+        {ground && <CursorGlow />}
         {inner}
       </section>
     );

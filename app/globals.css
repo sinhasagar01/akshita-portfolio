@@ -336,6 +336,7 @@ a {
 .hero-ground.is-dark {
   background-color: var(--color-band-dark);
   color: var(--color-on-dark);
+  --glow-color: var(--glow-on-dark);
 }
 
 /* The ONE cursor glow — see components/motion/CursorGlow.tsx. A fixed-size layer moved
