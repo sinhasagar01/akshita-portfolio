@@ -1,5 +1,4 @@
 import Container from "@/components/layout/Container";
-import Grid from "@/components/layout/Grid";
 import RevealSection from "@/components/motion/RevealSection";
 import SectionHeading from "@/components/ui/SectionHeading";
 import CursorGlow from "@/components/motion/CursorGlow";
@@ -24,13 +23,16 @@ export default function ProjectsSection({ projects }: Props) {
           tone="warm"
         />
         <div className="mt-8 sm:mt-[52px]">
-          <Grid cols={12} as="ul" className="list-none p-0 m-0 work-list">
+          {/* Overlay grid — two columns above lg, one below (the site's single mobile
+              breakpoint), NOT the reference's 760px. Cards keep the reveal-card
+              scroll-in. See app/globals.css .work-grid / .work-card. */}
+          <ul className="work-grid list-none p-0 m-0">
             {projects.map((project) => (
-              <li key={project.slug} className="col-span-4 md:col-span-6 reveal-card work-item">
+              <li key={project.slug} className="reveal-card">
                 <ProjectCard project={project} />
               </li>
             ))}
-          </Grid>
+          </ul>
         </div>
       </Container>
     </RevealSection>
