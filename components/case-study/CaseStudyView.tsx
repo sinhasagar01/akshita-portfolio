@@ -23,7 +23,14 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
       {heroSection && (
         <SectionRenderer section={heroSection} web={web} asGround />
       )}
-      <main id="main-content" tabIndex={-1} className="container-x outline-none">
+      {/* When no hero renders (a scaffolded study with zero sections), this <main> is the
+          page's first element under the now-fixed nav, so reserve the nav's runway on it —
+          the hero-ground routes do this in their own top padding. */}
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className={`container-x outline-none${heroSection ? "" : " pt-[var(--hero-nav-runway)]"}`}
+      >
         {study.sections.length === 0 ? (
           <section className="case-study section-card py-section relative overflow-hidden text-center">
             <p className="text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
