@@ -518,7 +518,7 @@ sections:
             z: null
           caption: ''
           frame: browser
-          aspect: ''
+          aspect: '1.4056'
           eyebrow: Final design
           title: Prototype
   - variant: default
