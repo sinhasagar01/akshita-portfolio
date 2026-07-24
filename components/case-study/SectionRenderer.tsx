@@ -20,6 +20,7 @@ export default function SectionRenderer({
   noReveal = false,
   editable = false,
   asGround = false,
+  heroGlow,
 }: {
   section: Section;
   /** Hero-as-ground: the public page renders the hero as the page's full-bleed floor
@@ -39,6 +40,10 @@ export default function SectionRenderer({
    *  pullQuote/closingLine text) as in-place editable. Off by default → public
    *  render byte-identical. */
   editable?: boolean;
+  /** The behind-the-phones hero glow theme, set per study by CaseStudyView on the
+   *  public hero only (asGround). Drives the aura inside HeroCover and suppresses the
+   *  generic CursorGlow here, so a themed hero owns its own light. */
+  heroGlow?: "pulse" | "signal";
 }) {
   const hasHeader = Boolean(
     section.index || section.eyebrow || section.title || section.lead,
@@ -83,7 +88,7 @@ export default function SectionRenderer({
           } ${hasHeader || section.northStar ? "mt-10" : ""}`}
         >
           {section.blocks.map((block, i) => (
-            <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} />
+            <BlockRenderer key={i} block={block} web={web} editable={editable} blockIndex={i} heroGlow={heroGlow} />
           ))}
         </div>
       </div>
@@ -151,7 +156,9 @@ export default function SectionRenderer({
             : "section-card py-section relative overflow-hidden scroll-mt-20"
         }
       >
-        {ground && <CursorGlow />}
+        {/* A themed hero carries its own behind-the-phones aura (HeroAura), so the
+            generic cursor-follow glow steps aside; un-themed heroes keep it. */}
+        {ground && !heroGlow && <CursorGlow />}
         {inner}
       </section>
     );

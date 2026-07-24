@@ -28,6 +28,7 @@ export default function BlockRenderer({
   web = false,
   editable = false,
   blockIndex,
+  heroGlow,
 }: {
   block: Block;
   web?: boolean;
@@ -36,10 +37,12 @@ export default function BlockRenderer({
    *  maps to the stable block id for setBlockValue. Off by default → public unchanged. */
   editable?: boolean;
   blockIndex?: number;
+  /** The per-study behind-the-phones hero glow theme, only consumed by heroCover. */
+  heroGlow?: "pulse" | "signal";
 }) {
   switch (block.kind) {
     case "heroCover":
-      return <HeroCover data={block} editable={editable} blockIndex={blockIndex} />;
+      return <HeroCover data={block} editable={editable} blockIndex={blockIndex} heroGlow={heroGlow} />;
     case "deviceShelf":
       return (
         <DeviceShelf

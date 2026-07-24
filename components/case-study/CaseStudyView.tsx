@@ -1,6 +1,13 @@
 import type { CaseStudy } from "@/lib/case-studies/types";
 import SectionRenderer from "./SectionRenderer";
 
+/** Per-study behind-the-phones hero glow (see HeroAura). Only the two mobile studies
+ *  are themed; every other slug is absent and keeps the generic hero glow. */
+const HERO_GLOW: Record<string, "pulse" | "signal"> = {
+  "boat-crest": "pulse",
+  "elevate-one-view": "signal",
+};
+
 /**
  * The one shared renderer. Maps a study's sections to cards. An empty `sections`
  * array (a scaffolded study) renders a clearly-marked "Coming soon" placeholder.
@@ -16,12 +23,17 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
   // (railItems filters the hero), so its positional resolution stays aligned.
   const heroSection = study.sections.find((s) => s.variant === "hero") ?? null;
   const bodySections = study.sections.filter((s) => s.variant !== "hero");
+  // The two mobile studies carry a themed behind-the-phones hero glow, keyed off the
+  // slug (the one signal that reaches this public renderer for both routes). Absent →
+  // the hero keeps the generic cursor-follow glow. Public hero only; the studio canvas
+  // renders sections without this, so it stays un-themed like CursorGlow.
+  const heroGlow = HERO_GLOW[study.slug];
   return (
     <>
       {/* Route-scoped warm sand background (spec A1) — see .case-study-bg in globals.css. */}
       <div aria-hidden className="case-study-bg" />
       {heroSection && (
-        <SectionRenderer section={heroSection} web={web} asGround />
+        <SectionRenderer section={heroSection} web={web} asGround heroGlow={heroGlow} />
       )}
       {/* When no hero renders (a scaffolded study with zero sections), this <main> is the
           page's first element under the now-fixed nav, so reserve the nav's runway on it —
