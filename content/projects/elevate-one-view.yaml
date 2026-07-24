@@ -201,12 +201,12 @@ sections:
       - discriminant: richText
         value:
           paragraphs:
-            - The problem wasn't missing features. It was interrupting the work.
             - >-
               Instead of supporting those moments, the product often introduced
               unnecessary friction through inconsistent interactions, fragmented
               navigation, and unclear information hierarchy. The problem wasn't
               missing features. It was interrupting the work.
+            - The problem wasn't missing features. It was interrupting the work.
   - variant: default
     id: goals
     index: '04'
