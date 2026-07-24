@@ -477,6 +477,13 @@ a {
     inset 0 0 0 0.5px oklch(14% 0.018 60 / 0.07),
     0 3px 8px -2px oklch(14% 0.018 60 / 0.16),
     0 20px 46px -14px oklch(14% 0.018 60 / 0.4);
+
+  /* ON-DARK material — the same glass, retoned for a dark case-study hero (see
+     .site-header[data-nav-tone="dark"]). Dark translucent fill + light stroke, per the
+     reference (rgba(46,40,34,.5) / rgba(255,255,255,.15)). */
+  --glass-fill-dark:        oklch(26% 0.008 60 / 0.5);
+  --glass-fill-dark-strong: oklch(26% 0.008 60 / 0.72);
+  --glass-stroke-dark:      oklch(100% 0 0 / 0.15);
 }
 @media (max-width: 1023px) {
   /* Cheaper blur on the throttled-hardware breakpoint — one dial. */
@@ -578,6 +585,39 @@ a {
   }
   .nav-glass.is-ghost::before { opacity: 1; }
 }
+
+/* ============================================================
+   ON-DARK NAV TONE — over a dark case-study hero the pill uses a dark translucent
+   glass with light text and a peach accent, then returns to the light glass once
+   scrolled past the hero onto the cards. Driven by the nav's EXISTING scroll reader
+   (readScroll in SiteHeader), which reads the page's own tone marker
+   (.hero-ground.is-dark) position — no second listener, no colour sniffing. The
+   0.38s glass transitions already on .nav-glass animate the swap.
+============================================================ */
+.site-header[data-nav-tone="dark"] {
+  --glass-fill: var(--glass-fill-dark);
+  --glass-fill-strong: var(--glass-fill-dark-strong);
+  --glass-stroke: var(--glass-stroke-dark);
+}
+.site-header[data-nav-tone="dark"] .nav-glass { color: var(--color-on-dark); }
+.site-header[data-nav-tone="dark"] .nav-glass::before {
+  background: linear-gradient(115deg, oklch(100% 0 0 / 0.15) 0%,
+    oklch(100% 0 0 / 0.04) 28%, oklch(100% 0 0 / 0) 54%);
+}
+.site-header[data-nav-tone="dark"] .nav-links a { color: var(--color-on-dark-muted); }
+.site-header[data-nav-tone="dark"] .nav-links a:hover { color: var(--color-on-dark); }
+.site-header[data-nav-tone="dark"] .nav-links a[aria-current="true"] { color: var(--color-on-dark-quote); }
+/* the sliding hover indicator drops to a faint white so light link text stays legible on it */
+.site-header[data-nav-tone="dark"] .nav-ind {
+  background: oklch(100% 0 0 / 0.12);
+  box-shadow: none;
+}
+.site-header[data-nav-tone="dark"] .nav-sepdot { background: oklch(100% 0 0 / 0.32); }
+.site-header[data-nav-tone="dark"] .logo-sig { color: var(--color-on-dark); }
+.site-header[data-nav-tone="dark"] .logo-singh { color: var(--color-on-dark-quote); }
+.site-header[data-nav-tone="dark"] .logo-vbar { background: oklch(100% 0 0 / 0.3); }
+.site-header[data-nav-tone="dark"] .nav-morph i { background: var(--color-on-dark); }
+/* Resume CTA keeps its filled accent chip — it reads on both grounds (per the reference). */
 
 /* desktop-only capsule furniture */
 .nav-sepdot {
