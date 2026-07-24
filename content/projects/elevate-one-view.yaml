@@ -190,21 +190,6 @@ sections:
       left: 36px
       size: clamp(5rem, 11vw, 9rem)
     blocks:
-      - discriminant: pullQuote
-        value:
-          text: >-
-            When technicians arrived on-site, they weren't thinking about the
-            app. They were thinking about diagnosing equipment, keeping
-            customers informed, and completing work efficiently.
-      - discriminant: richText
-        value:
-          paragraphs:
-            - >-
-              Instead of supporting those moments, the product often introduced
-              unnecessary friction through inconsistent interactions, fragmented
-              navigation, and unclear information hierarchy. The problem wasn't
-              missing features. It was interrupting the work.
-            - The problem wasn't missing features. It was interrupting the work.
       - discriminant: principleCards
         value:
           heading: Mechanic Issue
@@ -213,6 +198,20 @@ sections:
             app. They were thinking about diagnosing equipment, keeping
             customers informed, and completing work efficiently.
           cards: []
+      - discriminant: richText
+        value:
+          paragraphs:
+            - >-
+              Instead of supporting those moments, the product often introduced
+              unnecessary friction through inconsistent interactions,
+              fragmented 
+
+              navigation, and unclear information hierarchy. The problem wasn't
+              missing features. It was interrupting the work.
+            - The problem wasn't missing features. It was interrupting the work.
+      - discriminant: pullQuote
+        value:
+          text: The best field app is the one mechanics barely have to think about.
   - variant: default
     id: goals
     index: '04'
