@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Design reference — homepage work section (overlay grid)</title>
+
+<!--
+================================================================================
+  DESIGN REFERENCE — HOMEPAGE WORK / CASE-STUDY SECTION
+  akshitas.com · overlay grid with platform filter
+  Supersedes the 2x2 tabbed-card grid.
+
+  THIS FILE IS THE CONTRACT. The implementation matches these values; if the
+  implementation needs to differ, change this file in the same PR and say why.
+
+  LOCKED DECISIONS
+  - Overlay grid (Behance/Dribbble browse pattern), NOT the quiet grid or the
+    hover-preview stage. Both were explored and rejected: the quiet grid gave up
+    image size, the stage showed one screenshot at a time and read thin once
+    filtered to two items.
+  - NO CARD MAGNIFICATION. Explored (macOS-dock style, 2D falloff) and removed
+    outright at the owner's call — not zeroed, deleted. Nothing in the resting or
+    hover state applies a transform to .card.
+  - The dock mechanic SURVIVES, expressed in light instead of size: same
+    e^(-1.2d²) distance falloff, same cascade, driving glow + recede only.
+  - Tuning locked: cascade 60ms per unit of grid distance, platform glow 100%,
+    recede others 28%.
+  - Resting state stays scannable. Name and category sit UNDER the frame, never
+    behind the hover — the overlay adds the story, it does not hide the basics.
+    This is what makes the pattern survive touch.
+  - Category is EDITORIAL TAXONOMY, sourced from a `category` field on the project
+    entry. It is NOT derived from `template`. `template` is a rendering decision
+    (which hero to draw); coupling them means a future hero redesign silently
+    re-buckets the filter.
+  - Filter counts derive from the rendered list. Never authored.
+  - DOM order is orderIndex throughout. Filtering re-packs; it never re-sorts.
+
+  IMPLEMENTATION NOTES THAT ARE EASY TO GET WRONG
+  - The cascade delay lives on .shot and .rail, NEVER on .card. .card's transform
+    transition exists only for the FLIP repack and the leave/enter states and
+    carries no delay — otherwise a filter click landing mid-hover stalls the
+    repack by up to 85ms and desyncs the wave.
+  - The platform glow is a box-shadow extending ~54px outside the card. ANY
+    ancestor with overflow-hidden / overflow-clip / contain will shear it.
+  - Cards are one block-level <a>. There are no nested interactive elements, so a
+    real anchor is correct — do not use an ::after overlay.
+  - .shot is ALWAYS 16:9 or 16:10 with object-fit:cover + object-position:top
+    center, so one uploaded heroImage serves both the card and the case-study
+    hero. Do not touch WIDE_ASPECT (16:10) or WEB_HERO_ASPECT (16/9).
+
+  STAND-INS IN THIS FILE
+  - The four .fake blocks are CSS stand-ins for the real heroImage.webp. In the
+    implementation .shot contains <Image src={heroImage}> with the existing
+    hand-built mock as fallback when heroImage is absent.
+  - The 880px dashed rule is the MacBook viewport floor. The section must land
+    above it at every filter state. It is a guide, not part of the design.
+
+  NEW DESIGN-SYSTEM TOKENS INTRODUCED HERE — exactly two:
+    --glow-web    72 80 144    indigo, the Fosfor product colour
+    --glow-mobile 160 80 60    rust, the existing site accent
+  Both are space-separated RGB triplets so they can carry an alpha via
+  rgb(var(--tint) / <alpha>). Eyeball both in dark mode before merging, same as
+  --color-danger-600 in #145.
+================================================================================
+-->
+
+<style>
+:root{
+  --paper:        #FAF6F0;
+  --paper-raised: #FFFDFA;
+  --ink:          #171412;
+  --ink-2:        #4A423B;
+  --ink-mute:     #7A7169;
+  --rule:         #DCD3C5;
+  --rule-strong:  #BFB3A0;
+  --accent:       #A0503C;
+
+  /* NEW — platform glow tints. Two tokens, both low-chroma. */
+  --glow-web:     72 80 144;
+  --glow-mobile:  160 80 60;
+
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+
+  --ease: cubic-bezier(.22,.68,.24,1);
+  --ease-settle: cubic-bezier(.16,.9,.28,1);
+
+  /* LOCKED tuning */
+  --stagger: 60;    /* ms of delay per unit of grid distance */
+  --glow: 1;        /* platform glow strength 0–1 */
+  --dim: .28;       /* how far the un-pointed cards recede */
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+
+/* --- viewport guide: reference only, not part of the design --- */
+.viewport{ position:relative; height:880px; border-bottom:2px dashed var(--rule-strong); overflow:hidden; }
+.viewport::after{
+  content:"880px — MacBook viewport floor (guide only)";
+  position:absolute; right:12px; bottom:6px;
+  font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--rule-strong);
+}
+
+/* ============================================================
+   SECTION
+   ============================================================ */
+.work{ max-width:1040px; margin:0 auto; padding:52px 24px 0; }
+.work-head{
+  display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+  padding-bottom:18px; border-bottom:1px solid var(--rule);
+}
+.work-head h3{ margin:0; font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.05; letter-spacing:-.01em; }
+.work-head .count{
+  font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-mute);
+  padding-bottom:6px; white-space:nowrap;
+}
+
+/* ---------- segmented filter with a sliding thumb ---------- */
+.filter{
+  position:relative; display:flex; align-items:center; gap:2px; margin:20px 0 26px;
+  padding:3px; border:1px solid var(--rule); border-radius:99px;
+  width:max-content; background:var(--paper-raised);
+}
+.filter .thumb{
+  position:absolute; top:3px; left:3px; height:calc(100% - 6px);
+  background:var(--ink); border-radius:99px; z-index:0;
+  transition: transform 420ms var(--ease-settle), width 420ms var(--ease-settle);
+}
+.filter button{
+  position:relative; z-index:1; appearance:none; border:0; cursor:pointer; background:transparent;
+  color:var(--ink-2); font:500 12.5px/1 var(--sans); letter-spacing:.09em; text-transform:uppercase;
+  padding:10px 20px; border-radius:99px; transition:color 260ms var(--ease);
+}
+.filter button:hover{ color:var(--ink); }
+.filter button[aria-pressed="true"]{ color:var(--paper); }
+.filter button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+.filter .n{ opacity:.5; margin-left:8px; font-variant-numeric:tabular-nums; }
+
+/* ============================================================
+   GRID + CARD
+   ============================================================ */
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:34px 32px; }
+
+.card{
+  --dly:0ms; --op:1; --gl:0;
+  display:block; text-decoration:none; color:inherit; position:relative;
+  /* transform transition is for the FLIP repack + leave/enter ONLY. No delay. */
+  transition: transform 520ms var(--ease-settle), opacity 300ms var(--ease);
+}
+.card:focus-visible{ outline:2px solid var(--accent); outline-offset:10px; border-radius:14px; }
+
+/* the heroImage slot */
+.shot{
+  position:relative; aspect-ratio:16/10; border-radius:12px; overflow:hidden;
+  background:#EFE9E0; border:1px solid var(--rule);
+  opacity: var(--op);
+  box-shadow:
+    0 26px 54px -34px rgb(var(--tint) / calc(var(--gl) * var(--glow) * .95)),
+    0 0 0 1px  rgb(var(--tint) / calc(var(--gl) * var(--glow) * .30));
+  transition: box-shadow 520ms var(--ease-settle), opacity 380ms var(--ease), border-color 380ms var(--ease);
+  transition-delay: var(--dly);
+}
+.card[data-cat="web"]    { --tint: var(--glow-web); }
+.card[data-cat="mobile"] { --tint: var(--glow-mobile); }
+.card:hover .shot{ border-color:transparent; }
+
+.shot > .fake, .shot > img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:top center; transform-origin:50% 18%;
+  transition: transform 700ms var(--ease-settle);
+}
+/* the only remaining scale — INSIDE the frame, clipped by .shot, zero layout effect */
+.card:hover .shot > .fake,
+.card:hover .shot > img{ transform:scale(1.045); }
+
+/* the veil — story slides up over the image */
+.veil{
+  position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; justify-content:flex-end;
+  padding:24px; color:#F6F1E9;
+  background:linear-gradient(180deg, rgba(20,17,15,0) 34%, rgba(20,17,15,.88) 100%);
+  opacity:0; transition:opacity 420ms var(--ease);
+}
+.card:hover .veil, .card:focus-visible .veil{ opacity:1; }
+.veil .vt{
+  font-family:var(--serif); font-weight:400; font-size:27px; line-height:1.15; margin:0 0 7px;
+  transform:translateY(12px); transition:transform 520ms var(--ease-settle) 40ms;
+}
+.veil .vs{
+  margin:0; font-size:13.5px; line-height:1.55; opacity:.85; max-width:42ch;
+  transform:translateY(18px); transition:transform 520ms var(--ease-settle) 90ms;
+}
+.card:hover .vt, .card:hover .vs,
+.card:focus-visible .vt, .card:focus-visible .vs{ transform:translateY(0); }
+
+/* the rail beneath — never hidden behind a hover */
+.rail{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  margin-top:14px; opacity:var(--op);
+  transition:opacity 380ms var(--ease); transition-delay:var(--dly);
+}
+.rail .name{ font-family:var(--serif); font-size:21px; font-weight:400; }
+.rail .cat{
+  font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-mute);
+  display:inline-flex; align-items:center; gap:7px;
+}
+.rail .cat::before{
+  content:""; width:6px; height:6px; border-radius:99px;
+  background: rgb(var(--tint)); opacity:.45;
+  transition: opacity 380ms var(--ease), transform 380ms var(--ease-settle);
+}
+.card:hover .rail .cat::before{ opacity:1; transform:scale(1.5); }
+
+/* ---------- filter phases ---------- */
+.card.leaving{
+  opacity:0; transform:translate3d(0,10px,0) scale(.955);
+  transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.card.entering{ opacity:0; transform:translate3d(0,16px,0) scale(.97); }
+.card[hidden]{ display:none; }
+
+/* ---------- responsive ---------- */
+/* Breakpoint corrected 760px -> 1023px in PR 2: the site has ONE mobile breakpoint at
+   lg (1024px) per CLAUDE.md and must go mobile all at once, so the grid collapses there
+   rather than at the reference's original 760px. */
+@media (max-width: 1023px){
+  .grid{ grid-template-columns:1fr; gap:28px; }
+  .work-head h3{ font-size:30px; }
+  /* touch has no hover: the veil never shows, the rail carries the meaning */
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition-duration:1ms !important; transition-delay:0ms !important; }
+  .card:hover .shot > .fake, .card:hover .shot > img{ transform:none; }
+}
+
+/* ---------- STAND-IN screenshots — replaced by <Image src={heroImage}> ---------- */
+.fake{ display:block; }
+.fake .bar{ height:15%; display:flex; align-items:center; gap:7px; padding:0 4%; background:#fff; border-bottom:1px solid #E6E0D6; }
+.fake .dot{ width:9px; height:9px; border-radius:99px; background:#4B5090; flex:none; }
+.fake .brand{ font:600 clamp(9px,1.5vw,15px)/1 var(--sans); }
+.fake .body{ height:85%; padding:4%; display:flex; gap:4%; }
+.fake .panel{ flex:1; background:#fff; border:1px solid #EAE4DA; border-radius:6px; padding-top:2%; }
+.fake .band{ height:6px; border-radius:99px; background:#DDD8CF; margin:7% 8% 0; }
+.fake .chip{ background:#4B5090; border-radius:6px; flex:.75; }
+.fake.f1{ background:#141414; display:flex; flex-direction:column; justify-content:center; padding:6%; gap:7px; }
+.fake.f1 .t{ font:700 clamp(12px,2.2vw,24px)/1 var(--sans); color:#fff; }
+.fake.f1 .p{ background:#232323; border-radius:8px; height:20%; }
+.fake.f2,.fake.f3,.fake.f4{ background:#EFECE6; }
+</style>
+</head>
+<body>
+
+<div class="viewport">
+  <section class="work">
+    <div class="work-head">
+      <h3>Selected work</h3>
+      <span class="count" data-count>Four case studies</span>
+    </div>
+
+    <div class="filter" role="group" aria-label="Filter work by platform">
+      <span class="thumb" data-thumb></span>
+      <button type="button" data-filter="all" aria-pressed="true">All <span class="n">4</span></button>
+      <button type="button" data-filter="web" aria-pressed="false">Web <span class="n">2</span></button>
+      <button type="button" data-filter="mobile" aria-pressed="false">Mobile <span class="n">2</span></button>
+    </div>
+
+    <div class="grid" data-grid>
+
+      <a class="card" data-cat="mobile" data-order="1" href="/work/boat-crest">
+        <div class="shot">
+          <div class="fake f1"><div class="t">boAt</div><div class="p"></div><div class="p"></div></div>
+          <div class="veil">
+            <p class="vt">boAt Crest →</p>
+            <p class="vs">A cluttered fitness tracker rebuilt into a calm, guided companion — store rating 2.3 → 4.0.</p>
+          </div>
+        </div>
+        <div class="rail"><span class="name">boAt Crest</span><span class="cat">Mobile · iOS + Android</span></div>
+      </a>
+
+      <a class="card" data-cat="web" data-order="2" href="/work/fosfor-ai">
+        <div class="shot">
+          <div class="fake f2"><div class="bar"><span class="dot"></span><span class="brand">Fosfor AI</span></div><div class="body"><div class="panel"><div class="band"></div><div class="band"></div></div><div class="chip"></div></div></div>
+          <div class="veil">
+            <p class="vt">Fosfor AI →</p>
+            <p class="vs">An AI companion that takes analysts, engineers and executives from data to decision.</p>
+          </div>
+        </div>
+        <div class="rail"><span class="name">Fosfor AI</span><span class="cat">Web · AI product</span></div>
+      </a>
+
+      <a class="card" data-cat="web" data-order="3" href="/work/fosfor-data-profiling">
+        <div class="shot">
+          <div class="fake f3"><div class="bar"><span class="dot"></span><span class="brand">Fosfor</span></div><div class="body"><div class="panel"><div class="band"></div><div class="band"></div><div class="band"></div></div></div></div>
+          <div class="veil">
+            <p class="vt">Fosfor Data Profiling →</p>
+            <p class="vs">Judging the quality and shape of your data before you trust it.</p>
+          </div>
+        </div>
+        <div class="rail"><span class="name">Fosfor Data Profiling</span><span class="cat">Web · Data tool</span></div>
+      </a>
+
+      <a class="card" data-cat="mobile" data-order="4" href="/work/elevate-one-view">
+        <div class="shot">
+          <div class="fake f4"><div class="bar"><span class="brand">Elevate</span></div><div class="body"><div class="chip"></div><div class="panel"><div class="band"></div><div class="band"></div></div></div></div>
+          <div class="veil">
+            <p class="vt">Elevate ONE View →</p>
+            <p class="vs">A heavy commissioning workflow, made fast enough for the field.</p>
+          </div>
+        </div>
+        <div class="rail"><span class="name">Elevate ONE View</span><span class="cat">Mobile · Field app</span></div>
+      </a>
+
+    </div>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   Reference implementation of the two behaviours.
+   The React port keeps the same maths and the same phase order.
+   ============================================================ */
+const grid    = document.querySelector("[data-grid]");
+const cards   = [...grid.querySelectorAll(".card")];
+const countEl = document.querySelector("[data-count]");
+const reduce  = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const WORDS   = {0:"No",1:"One",2:"Two",3:"Three",4:"Four"};
+
+const T = () => {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    stagger: parseFloat(cs.getPropertyValue("--stagger")),
+    dim:     parseFloat(cs.getPropertyValue("--dim"))
+  };
+};
+
+/* grid coordinates of the currently VISIBLE cards — recomputed per hover,
+   because filtering changes who sits next to whom */
+function coords(){
+  const cols = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+  const live = cards.filter(c => !c.hidden);
+  const map  = new Map();
+  live.forEach((c,i) => map.set(c, { r: Math.floor(i/cols), c: i % cols }));
+  return map;
+}
+
+/* THE CASCADE — dock falloff expressed in light, not size */
+function focusOn(hovered){
+  if (reduce) return;
+  const { stagger, dim } = T();
+  const pos = coords();
+  const h = pos.get(hovered);
+  if (!h) return;
+
+  pos.forEach((p, card) => {
+    const d = Math.hypot(p.r - h.r, p.c - h.c);
+    const falloff = Math.exp(-1.2 * d * d);   // 1 · 0.30 · 0.09
+    card.style.setProperty("--dly", Math.round(d * stagger) + "ms");
+    card.style.setProperty("--gl",  falloff.toFixed(3));
+    card.style.setProperty("--op",  (1 - dim * (1 - falloff)).toFixed(3));
+  });
+}
+
+function settle(){
+  cards.forEach((card, i) => {
+    card.style.setProperty("--dly", reduce ? "0ms" : Math.round(i * 22) + "ms");
+    card.style.setProperty("--gl", "0");
+    card.style.setProperty("--op", "1");
+  });
+}
+
+cards.forEach(card => {
+  card.addEventListener("pointerenter", () => focusOn(card));
+  card.addEventListener("focus", () => focusOn(card));
+  card.addEventListener("blur", settle);
+});
+grid.addEventListener("pointerleave", settle);
+settle();
+
+/* THE FILTER — leave → repack (FLIP) → enter */
+let busy = false;
+
+function applyFilter(f){
+  if (busy) return;
+  const stay = cards.filter(c => !c.hidden &&  (f === "all" || c.dataset.cat === f));
+  const go   = cards.filter(c => !c.hidden && !(f === "all" || c.dataset.cat === f));
+  const come = cards.filter(c =>  c.hidden &&  (f === "all" || c.dataset.cat === f));
+  if (!go.length && !come.length) return;
+  busy = true;
+
+  const shown = stay.length + come.length;
+  countEl.textContent = `${WORDS[shown] ?? shown} case stud${shown === 1 ? "y" : "ies"}`;
+
+  const h0 = grid.offsetHeight;
+  const first = new Map(stay.map(c => [c, c.getBoundingClientRect()]));
+
+  /* PHASE 1 — leave */
+  go.forEach((c, i) => { c.style.transitionDelay = (i * 45) + "ms"; c.classList.add("leaving"); });
+
+  setTimeout(() => {
+    go.forEach(c => { c.hidden = true; c.classList.remove("leaving"); c.style.transitionDelay = ""; });
+    come.forEach(c => { c.hidden = false; c.classList.add("entering"); });
+
+    /* PHASE 2 — repack survivors with FLIP */
+    stay.forEach(c => {
+      const a = first.get(c), b = c.getBoundingClientRect();
+      const dx = a.left - b.left, dy = a.top - b.top;
+      if (!dx && !dy) return;
+      c.style.transition = "none";
+      c.style.transform  = `translate3d(${dx}px, ${dy}px, 0)`;
+      c.getBoundingClientRect();          // force reflow — the "invert"
+      c.style.transition = "";
+      c.style.transform  = "";
+    });
+
+    /* animate container height so nothing below snaps */
+    const h1 = grid.offsetHeight;
+    grid.style.height = h0 + "px";
+    grid.getBoundingClientRect();
+    grid.style.transition = "height 520ms cubic-bezier(.16,.9,.28,1)";
+    grid.style.height = h1 + "px";
+
+    /* PHASE 3 — enter, in sort order */
+    requestAnimationFrame(() => {
+      come.forEach((c, i) => {
+        c.style.transitionDelay = (160 + i * 70) + "ms";
+        c.classList.remove("entering");
+      });
+    });
+
+    setTimeout(() => {
+      grid.style.transition = ""; grid.style.height = "";
+      come.forEach(c => { c.style.transitionDelay = ""; });
+      settle();
+      busy = false;
+    }, 700);
+  }, go.length ? 200 + (go.length - 1) * 45 : 0);
+}
+
+/* segmented control + sliding thumb */
+const btns  = [...document.querySelectorAll(".filter button")];
+const thumb = document.querySelector("[data-thumb]");
+function moveThumb(btn){
+  thumb.style.width = btn.offsetWidth + "px";
+  thumb.style.transform = `translateX(${btn.offsetLeft - 3}px)`;
+}
+btns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    btns.forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+    moveThumb(btn);
+    applyFilter(btn.dataset.filter);
+  });
+});
+moveThumb(btns[0]);
+addEventListener("resize", () => moveThumb(btns.find(b => b.getAttribute("aria-pressed") === "true")));
+</script>
+</body>
+</html>

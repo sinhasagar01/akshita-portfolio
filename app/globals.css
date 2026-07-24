@@ -1250,45 +1250,167 @@ a {
 }
 
 /* ============================================================
-   Project folder cards
+   Work cards — overlay grid (PR 2). Reference: docs/studio/work-section-overlay-grid.html.
+   The card is ONE block-level anchor: .wc-shot (heroImage or the hand-built SVG mock)
+   with a hover .wc-veil story, and a .wc-rail beneath that always carries name +
+   category so the pattern survives touch. Two columns above lg, one below (the site's
+   single mobile breakpoint). The platform glow + dock cascade are PR 3; the filter is
+   PR 4. Reference literals mapped to the site tokens — no raw hex.
 ============================================================ */
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+@media (min-width: 1024px) {
+  .work-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 34px 32px;
+  }
+}
 
-.pc-glow {
-  background: radial-gradient(
-    58% 60% at 50% 44%,
-    oklch(56.0% 0.14 42 / 0.20),
-    oklch(56.0% 0.14 42 / 0) 70%
+.work-card {
+  position: relative;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.work-card:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 10px;
+  border-radius: 14px;
+}
+
+.wc-shot {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-cream-200);
+  transition: border-color 0.38s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.work-card:hover .wc-shot {
+  border-color: transparent;
+}
+
+/* The heroImage (next/image fill emits an absolute <img>) or the SVG mock. Both cover
+   the 16:10 frame; the SVG's own preserveAspectRatio="slice" gives it cover behaviour. */
+.wc-shot > img,
+.wc-shot > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transform-origin: 50% 18%;
+  transition: transform 0.7s cubic-bezier(0.16, 0.9, 0.28, 1);
+}
+/* the only scale — inside the frame, clipped by .wc-shot, zero layout effect */
+.work-card:hover .wc-shot > img,
+.work-card:hover .wc-shot > svg {
+  transform: scale(1.045);
+}
+
+/* the veil — story slides up over the image on hover/focus */
+.wc-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  color: var(--color-cream-50);
+  background: linear-gradient(
+    180deg,
+    transparent 34%,
+    color-mix(in oklch, var(--color-ink-950) 88%, transparent) 100%
   );
-}
-
-.group:hover .pc-tab {
-  border-color: oklch(56.0% 0.14 42 / 0.45);
-}
-
-.pc-shot {
-  filter: saturate(.45) brightness(1.04);
-  transition: filter .55s ease, transform .55s ease;
-}
-
-.group:hover .pc-shot {
-  filter: none;
-  transform: scale(1.04);
-}
-
-.pc-tint {
-  background: #E7C7AE;
-  mix-blend-mode: multiply;
-  opacity: .34;
-  transition: opacity .55s ease;
-}
-
-.group:hover .pc-tint {
   opacity: 0;
+  transition: opacity 0.42s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.work-card:hover .wc-veil,
+.work-card:focus-visible .wc-veil {
+  opacity: 1;
+}
+.wc-veil .vt {
+  margin: 0 0 7px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.15;
+  transform: translateY(12px);
+  transition: transform 0.52s cubic-bezier(0.16, 0.9, 0.28, 1) 40ms;
+}
+.wc-veil .vs {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 13.5px;
+  line-height: 1.55;
+  opacity: 0.85;
+  transform: translateY(18px);
+  transition: transform 0.52s cubic-bezier(0.16, 0.9, 0.28, 1) 90ms;
+}
+.work-card:hover .vt,
+.work-card:hover .vs,
+.work-card:focus-visible .vt,
+.work-card:focus-visible .vs {
+  transform: translateY(0);
+}
+
+/* the rail beneath — never hidden behind a hover, so touch keeps the basics */
+.wc-rail {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+.wc-rail .name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 21px;
+  color: var(--color-text-primary);
+}
+.wc-rail .cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+/* neutral dot in PR 2 — PR 3 tints it per platform and animates it on hover */
+.wc-rail .cat::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--color-ink-400);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .group:hover .pc-fold,
-  .group:hover .pc-shot {
+  /* No image zoom, and the veil copy is not left translated (no trapped half-state).
+     The veil still opacity-toggles on hover/focus instantly, so the story stays
+     reachable — see A4. */
+  .wc-shot > img,
+  .wc-shot > svg,
+  .work-card:hover .wc-shot > img,
+  .work-card:hover .wc-shot > svg {
+    transform: none;
+  }
+  .wc-veil,
+  .wc-veil .vt,
+  .wc-veil .vs {
+    transition-duration: 1ms;
+  }
+  .wc-veil .vt,
+  .wc-veil .vs {
     transform: none;
   }
 }
@@ -1570,33 +1692,6 @@ a {
   }
   .footer-ciao {
     font-size: 88px !important;
-  }
-}
-
-/* ============================================================
-   Work section — mobile contained cards (below the 1024px header breakpoint)
-============================================================ */
-
-@media (max-width: 1023px) {
-  /* Kill the grid gap so margin-bottom on each card controls vertical rhythm. */
-  .work-list {
-    gap: 0;
-    column-gap: 16px;
-  }
-
-  /* Each project becomes a lifted cream card. The folder tab is absolute -top-19px
-     relative to pc-fold, so 28px top padding keeps it visible within the card. */
-  .work-item {
-    background: var(--color-cream-50);
-    border: 1px solid rgba(120, 90, 60, 0.16);
-    box-shadow: 0 6px 16px oklch(14% 0.018 60 / 0.10);
-    border-radius: 14px;
-    padding: 28px 14px 16px;
-    margin-bottom: 22px;
-  }
-
-  .work-item:last-child {
-    margin-bottom: 0;
   }
 }
 
