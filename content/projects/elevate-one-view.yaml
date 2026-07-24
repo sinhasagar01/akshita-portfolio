@@ -190,12 +190,6 @@ sections:
       left: 36px
       size: clamp(5rem, 11vw, 9rem)
     blocks:
-      - discriminant: pullQuote
-        value:
-          text: >-
-            When technicians arrived on-site, they weren't thinking about the
-            app. They were thinking about diagnosing equipment, keeping
-            customers informed, and completing work efficiently.
       - discriminant: principleCards
         value:
           heading: Mechanic Issue
