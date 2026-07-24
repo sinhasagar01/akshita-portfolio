@@ -192,11 +192,7 @@ sections:
     blocks:
       - discriminant: pullQuote
         value:
-          text: >-
-            The app meant to make a mechanic's job easier was getting in the
-            way. Layouts broke across screens, components behaved
-            inconsistently, navigation felt heavy and disconnected, and the
-            visual tone was uneven.
+          text: "When technicians arrived on-site, they weren't thinking about the\_ \_ \_app.\_ They were thinking about diagnosing equipment, keeping\_ \_customers informed, and completing work efficiently. Instead of\_ \_supporting those moments, the product often introduced unnecessary\_ \_friction through inconsistent interactions, fragmented navigation,\_ \_and\_ unclear information hierarchy."
   - variant: default
     id: goals
     index: '04'
