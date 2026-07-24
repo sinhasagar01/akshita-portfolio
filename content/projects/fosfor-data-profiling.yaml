@@ -676,7 +676,8 @@ sections:
     blocks:
       - discriminant: videoEmbed
         value:
-          src: https://64q1biovwtoecue4.public.blob.vercel-storage.com/out.mp4
+          src: >-
+            https://64q1biovwtoecue4.public.blob.vercel-storage.com/fosfor-profiling.mp4
           poster:
             src: /images/projects/fosfor-data-profiling/final-video-poster.webp
             alt: ''
