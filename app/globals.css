@@ -40,6 +40,14 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      error shades is how a warm editorial system starts looking like a form builder. */
   --color-danger-600: oklch(45.0% 0.16 25);
 
+  /* The one PLATFORM-GLOW colour, for the work-section overlay grid (PR 3). Web cards
+     glow indigo (the Fosfor product colour) behind the card frame; MOBILE cards reuse
+     the terracotta --color-accent-500, so this is the single addition, not a pair. Kept
+     the only one of its kind on the same principle as --color-danger-600 above — a
+     palette of per-platform tints is how an editorial system slides into a brand kit.
+     Stored as a base oklch; alpha comes from color-mix scaled by the cascade's --gl. */
+  --color-glow-web: oklch(48.0% 0.115 266);
+
   /* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
      band (the template=web Bold-gallery hero) needs its own surface + on-dark text
      tokens; ink-* text can't sit on a dark bg. WCAG AA on band-dark (verified):
@@ -1269,11 +1277,36 @@ a {
   }
 }
 
+/* --gl (glow strength) and --op (recede) are REGISTERED as numbers so they can be
+   transitioned: the box-shadow/opacity that read them then animate smoothly, frame by
+   frame. Transitioning the box-shadow itself does NOT work — a color-mix whose alpha
+   comes from an unregistered var cannot interpolate and renders transparent. */
+@property --gl { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --op { syntax: "<number>"; inherits: true; initial-value: 1; }
+
 .work-card {
+  --gl: 0; /* platform-glow strength 0..1 — :hover/:focus-visible (fallback) or the cascade JS */
+  --op: 1; /* recede for un-pointed cards, driven by the cascade JS */
   position: relative;
   display: block;
   color: inherit;
   text-decoration: none;
+  /* Transition ONLY --gl/--op (never the card's transform — the PR 4 FLIP repack needs a
+     delay-free transform), and carry the cascade's stagger here via --dly. */
+  transition-property: --gl, --op;
+  transition-duration: 0.52s, 0.38s;
+  transition-timing-function: cubic-bezier(0.16, 0.9, 0.28, 1), cubic-bezier(0.22, 0.68, 0.24, 1);
+  transition-delay: var(--dly, 0ms), var(--dly, 0ms);
+}
+/* mobile reuses the terracotta accent — no second token (see --color-glow-web) */
+.work-card[data-cat="web"] { --tint: var(--color-glow-web); }
+.work-card[data-cat="mobile"] { --tint: var(--color-accent-500); }
+/* Baseline glow: the pointed card lights up on its own, so no-JS / reduced-motion / touch
+   still get the platform tint. The cascade JS sets --gl inline on every card when it runs,
+   overriding this. focus-visible lights it for keyboard users too. */
+.work-card:focus-visible { --gl: 1; }
+@media (hover: hover) {
+  .work-card:hover { --gl: 1; }
 }
 .work-card:focus-visible {
   outline: 2px solid var(--color-accent-500);
@@ -1288,6 +1321,18 @@ a {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-cream-200);
+  opacity: var(--op, 1);
+  /* The contained platform glow — a soft tinted halo (0 offset, ~18px reach). It is kept
+     off the section's clip boundaries by the grid gaps, by the rail beneath each shot
+     (which absorbs the downward bleed inside the card), and by the section's own inline
+     padding at the edges — so .glow-host{overflow:hidden} and .reveal-panel{clip-path}
+     never shear it, with no card padding and no layout growth. Alpha is the tint scaled by
+     the cascade's --gl, invisible at rest (--gl:0) and blooming on the pointed card. */
+  box-shadow:
+    0 0 24px -6px color-mix(in oklch, var(--tint, transparent) calc(var(--gl, 0) * 70%), transparent),
+    0 0 0 1px color-mix(in oklch, var(--tint, transparent) calc(var(--gl, 0) * 25%), transparent);
+  /* Only border-color transitions here; the glow (box-shadow) and recede (opacity) follow
+     the registered --gl/--op, which transition on .work-card with the --dly stagger. */
   transition: border-color 0.38s cubic-bezier(0.22, 0.68, 0.24, 1);
 }
 .work-card:hover .wc-shot {
@@ -1360,13 +1405,17 @@ a {
   transform: translateY(0);
 }
 
-/* the rail beneath — never hidden behind a hover, so touch keeps the basics */
+/* the rail beneath — never hidden behind a hover, so touch keeps the basics.
+   Recedes with the shot (var(--op)) so a card and its rail dim together in the cascade;
+   --op stays on the shot/rail, NEVER the .reveal-card <li>, so it can't fight the
+   scroll-reveal opacity (see RevealSection). */
 .wc-rail {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
   margin-top: 14px;
+  opacity: var(--op, 1); /* recede follows the registered --op (transitions on .work-card) */
 }
 .wc-rail .name {
   font-family: var(--font-display);
@@ -1384,14 +1433,24 @@ a {
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
-/* neutral dot in PR 2 — PR 3 tints it per platform and animates it on hover */
+/* the platform dot — tinted per platform (falls back to a neutral ink dot with no tint),
+   dim at rest and full + scaled up on the pointed card */
 .wc-rail .cat::before {
   content: "";
   flex: none;
   width: 6px;
   height: 6px;
   border-radius: 99px;
-  background: var(--color-ink-400);
+  background: var(--tint, var(--color-ink-400));
+  opacity: 0.5;
+  transition:
+    opacity 0.38s cubic-bezier(0.22, 0.68, 0.24, 1),
+    transform 0.38s cubic-bezier(0.16, 0.9, 0.28, 1);
+}
+.work-card:hover .wc-rail .cat::before,
+.work-card:focus-visible .wc-rail .cat::before {
+  opacity: 1;
+  transform: scale(1.4);
 }
 
 @media (prefers-reduced-motion: reduce) {

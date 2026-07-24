@@ -3,6 +3,7 @@ import RevealSection from "@/components/motion/RevealSection";
 import SectionHeading from "@/components/ui/SectionHeading";
 import CursorGlow from "@/components/motion/CursorGlow";
 import ProjectCard from "./ProjectCard";
+import WorkGridGlow from "./WorkGridGlow";
 import type { ProjectListItem } from "@/lib/keystatic";
 
 type Props = { projects: ProjectListItem[] };
@@ -33,6 +34,9 @@ export default function ProjectsSection({ projects }: Props) {
               </li>
             ))}
           </ul>
+          {/* Client-only enhancer: the dock cascade (glow + recede). No-ops on touch and
+              under reduced motion, where the CSS :hover glow stands in. */}
+          <WorkGridGlow />
         </div>
       </Container>
     </RevealSection>
