@@ -378,10 +378,16 @@ a {
   transition: top 0.4s ease;
 }
 
-/* The capsule wrapper only centres the pill on desktop; the pill hugs its content. */
+/* The capsule wrapper only centres the pill on desktop; the pill hugs its content.
+   It carries `will-change: transform` for the hide/show, which makes it a STACKING
+   CONTEXT; without a positive z-index the fixed z-40 mobile-menu overlay would paint
+   over the whole row and bury the morph (the close affordance). z-index 50 lifts the
+   persistent pill above the overlay — the same z the old bar used. */
 .nav-row {
   display: flex;
   justify-content: flex-start;
+  position: relative;
+  z-index: 50;
 }
 @media (min-width: 1024px) {
   .nav-row { justify-content: center; }
@@ -394,6 +400,9 @@ a {
   isolation: isolate;
   display: flex;
   align-items: center;
+  /* Mobile is a full-width row: wordmark left, morph right. On desktop the pill is
+     width:auto (shrink-to-fit), so there is no free space and this is a no-op there. */
+  justify-content: space-between;
   width: 100%;
   border-radius: 999px;
   padding: 8px 14px 8px 18px;

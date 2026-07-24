@@ -153,6 +153,9 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   // Mobile menu open/close (the clip-path blob — unchanged behaviour)
   function openMenu() {
     setMenuOpen(true);
+    // If the row was hidden (scrolled down), bring it back so the pill can be the menu's
+    // header and its morph stays reachable — matching the reference's open behaviour.
+    setNavHidden(false);
     lenis?.stop();
     document.body.style.overflow = "hidden";
   }
@@ -304,7 +307,7 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         <div className="nav-row">
           <div
             ref={barRef}
-            className={`nav-glass${!scrolled ? " is-ghost" : ""}`}
+            className={`nav-glass${!scrolled && !menuOpen ? " is-ghost" : ""}`}
             onPointerMove={onBarPointerMove}
           >
             {Logo}
