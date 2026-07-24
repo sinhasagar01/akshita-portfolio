@@ -207,6 +207,9 @@ sections:
               navigation, and unclear information hierarchy. The problem wasn't
               missing features. It was interrupting the work.
             - The problem wasn't missing features. It was interrupting the work.
+      - discriminant: pullQuote
+        value:
+          text: The best field app is the one mechanics barely have to think about.
   - variant: default
     id: goals
     index: '04'
