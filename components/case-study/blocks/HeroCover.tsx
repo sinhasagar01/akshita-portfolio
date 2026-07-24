@@ -223,7 +223,7 @@ export default function HeroCover({
         </motion.div>
       )}
 
-      <h1 className="font-display font-normal text-6xl text-ink-950 leading-[1] tracking-tight mt-5">
+      <h1 className="font-display font-normal text-6xl text-ink-950 leading-[1] tracking-tight mt-3">
         <span className="block overflow-hidden">
           <motion.span
             {...mp}
@@ -238,7 +238,7 @@ export default function HeroCover({
 
       {/* Tagline with the script watermark centred behind it (re-treated from the old
           corner font-display italic watermark — an intentional published-page change). */}
-      <div className="relative mt-4 flex w-full items-center justify-center">
+      <div className="relative mt-3 flex w-full items-center justify-center">
         {data.watermark && (
           <motion.span
             aria-hidden="true"
@@ -264,7 +264,7 @@ export default function HeroCover({
         {...mp}
         variants={fadeUp(0.56)}
         {...edit("position", "Edit hero position statement")}
-        className={`text-lg text-ink-600 leading-normal mt-6 max-w-[42ch]${aff}`}
+        className={`text-lg text-ink-600 leading-normal mt-4 max-w-[42ch]${aff}`}
       >
         {data.position}
       </motion.p>
@@ -273,7 +273,7 @@ export default function HeroCover({
         <motion.p
           {...mp}
           variants={chipV}
-          className="inline-flex items-center gap-2.5 rounded-full border bg-cream-200 px-4 py-2 text-[0.9rem] font-semibold text-ink-950 mt-6"
+          className="inline-flex items-center gap-2.5 rounded-full border bg-cream-200 px-4 py-2 text-[0.9rem] font-semibold text-ink-950 mt-4"
           style={{ borderColor: "color-mix(in oklch, var(--color-ink-950) 12%, transparent)" }}
         >
           <span
@@ -299,7 +299,7 @@ export default function HeroCover({
       <motion.dl
         {...mp}
         variants={fadeUp(0.7)}
-        className="hero-facts hero-facts--four mx-auto mt-[26px]"
+        className="hero-facts hero-facts--four mx-auto mt-[16px]"
       >
         {data.meta.map((item, i) => (
           <div key={i}>
@@ -327,7 +327,7 @@ export default function HeroCover({
       <motion.div
         {...mp}
         variants={stackV}
-        className="hero-visual hero-visual--phones relative mx-auto mt-[22px] flex items-end justify-center"
+        className="hero-phones relative mx-auto mt-[14px] flex items-end justify-center"
       >
         {data.glow && <GlowWord word={data.glow} />}
         <motion.div {...mp} variants={backV} className="relative z-[1] origin-bottom">

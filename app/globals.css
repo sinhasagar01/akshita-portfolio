@@ -407,12 +407,31 @@ a {
   -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
 }
-/* The two-phone pair is taller than the framed dashboard, so it holds its opaque region
-   later (62%) — this is the mask lever that keeps >=50% of each phone visible before the
-   fade at a 14" laptop viewport. Mobile-only; the web dashboard keeps the 55% stop. */
-.hero-visual--phones {
-  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+/* THE MOBILE DISSOLVE (H). A visual-element mask can't work for the two-phone pair: the
+   phones are taller than the space left below the facts, so the hero's overflow:hidden cuts
+   them at the fold while the mask (measured against the visual's own height) is still opaque
+   — a hard edge. Instead, anchor the dissolve to the HERO's bottom with a ground-coloured
+   overlay, so the fade always COMPLETES at the hero's bottom edge regardless of the visual's
+   height or the viewport. Mobile peek hero only; the web dark hero keeps its .hero-visual
+   55% mask untouched. The overlay sits above the hero content (z 2 > the content wrapper's
+   z 1) and below the first card, which is a later sibling and rides over the faded tail. */
+.hero-ground--peek:not(.is-dark)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  z-index: 2;
+  pointer-events: none;
+  /* transparent lead keeps the top >50% of the phones crisp; the dissolve is concentrated
+     in the band's lower ~57%, reaching solid ground ~11px before the hero's bottom edge */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 32%,
+    var(--color-cream-50) 89%
+  );
 }
 
 /* The ONE cursor glow — see components/motion/CursorGlow.tsx. A fixed-size layer moved
