@@ -1291,12 +1291,15 @@ a {
   display: block;
   color: inherit;
   text-decoration: none;
-  /* Transition ONLY --gl/--op (never the card's transform — the PR 4 FLIP repack needs a
-     delay-free transform), and carry the cascade's stagger here via --dly. */
-  transition-property: --gl, --op;
-  transition-duration: 0.52s, 0.38s;
-  transition-timing-function: cubic-bezier(0.16, 0.9, 0.28, 1), cubic-bezier(0.22, 0.68, 0.24, 1);
-  transition-delay: var(--dly, 0ms), var(--dly, 0ms);
+  /* --gl/--op carry the cascade stagger via --dly; transform (the PR 4 FLIP repack) and
+     opacity (the leave/enter fade) get NO delay, so the filter is delay-free while the dock
+     wave keeps its stagger. The filter JS overrides these inline during a transition. */
+  transition-property: --gl, --op, transform, opacity;
+  transition-duration: 0.52s, 0.38s, 0.52s, 0.3s;
+  transition-timing-function:
+    cubic-bezier(0.16, 0.9, 0.28, 1), cubic-bezier(0.22, 0.68, 0.24, 1),
+    cubic-bezier(0.16, 0.9, 0.28, 1), cubic-bezier(0.22, 0.68, 0.24, 1);
+  transition-delay: var(--dly, 0ms), var(--dly, 0ms), 0ms, 0ms;
 }
 /* mobile reuses the terracotta accent — no second token (see --color-glow-web) */
 .work-card[data-cat="web"] { --tint: var(--color-glow-web); }
@@ -1472,6 +1475,86 @@ a {
   .wc-veil .vs {
     transform: none;
   }
+}
+
+/* ============================================================
+   Work filter (PR 4) — the segmented platform control + the FLIP repack phases.
+   Tokens mapped to the site palette. The leave/enter fade rides the .work-card <a>; the
+   hide + re-pack ride the .reveal-card <li>, so the filter never touches the reveal opacity.
+============================================================ */
+.work-filter {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  margin-top: 20px;
+  padding: 3px;
+  border: 1px solid color-mix(in oklch, var(--color-ink-950) 8%, transparent);
+  border-radius: 99px;
+  background: var(--color-cream-50);
+}
+.wf-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  height: calc(100% - 6px);
+  border-radius: 99px;
+  background: var(--color-ink-950);
+  z-index: 0;
+  transition:
+    transform 420ms cubic-bezier(0.16, 0.9, 0.28, 1),
+    width 420ms cubic-bezier(0.16, 0.9, 0.28, 1);
+}
+.work-filter button {
+  position: relative;
+  z-index: 1;
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  padding: 10px 20px;
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  transition: color 260ms cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.work-filter button:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+.work-filter button[aria-pressed="true"] {
+  color: var(--color-cream-50);
+}
+.work-filter button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.work-filter button:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 3px;
+}
+.wf-n {
+  margin-left: 8px;
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+}
+
+/* FLIP phase states on the .work-card <a>. Leave fades out fast; entering starts offset +
+   transparent and the JS removes the class so it settles in on the card's own transition. */
+.work-card.leaving {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(0.955);
+  transition:
+    opacity 200ms cubic-bezier(0.22, 0.68, 0.24, 1),
+    transform 200ms cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.work-card.entering {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0) scale(0.97);
 }
 
 /* ============================================================
