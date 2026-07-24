@@ -115,9 +115,9 @@ export default function HeroCover({
     const dashIdx = data.devices[1] ? 1 : 0;
     const dashboard = data.devices[dashIdx];
     return (
-      // SINGLE centred column (supersedes the earlier 2-col grid — the owner prefers the
-      // stacked composition): eyebrow → title → script watermark behind the tagline →
-      // tagline → the framed dashboard → the facts row beneath it.
+      // SINGLE centred column, exactly 100svh (the faded-peek hero): eyebrow → title →
+      // script watermark behind the tagline → tagline → FACTS → the framed dashboard, which
+      // is masked so it dissolves into the ground at the seam.
       <div className="relative flex flex-col items-center text-center">
         {data.eyebrow && (
           <motion.div
@@ -167,39 +167,40 @@ export default function HeroCover({
           </motion.h2>
         </div>
 
-        {/* Visual — the framed browser dashboard, centred beneath the copy */}
-        <motion.div {...mp} variants={stackV} className="mt-10 flex w-full justify-center">
-          <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
-        </motion.div>
-
-        {/* Facts — a hairline grid BENEATH the visual, contained to the hero content
-            max-width (520px) and centred, never edge-to-edge to the viewport. */}
-        <motion.dl {...mp} variants={fadeUp(0.7)} className="hero-facts mt-10 mx-auto max-w-[520px]">
+        {/* Facts — a hairline grid ABOVE the visual, contained to 920px and centred. Web
+            is 3 columns × 2 rows (six facts), collapsing to 2 columns below 900px. */}
+        <motion.dl {...mp} variants={fadeUp(0.7)} className="hero-facts hero-facts--six mx-auto mt-[26px]">
           {data.meta.map((item, i) => (
             <div key={i}>
               <dt
                 {...edit(`meta.${i}.label`, "Edit fact label")}
-                className={`text-[10px] tracking-[0.15em] uppercase font-semibold text-on-dark-muted${aff}`}
+                className={`text-[9.5px] tracking-[0.15em] uppercase text-on-dark-quote mb-[3px]${aff}`}
               >
                 {item.label}
               </dt>
               <dd
                 {...edit(`meta.${i}.value`, "Edit fact value")}
-                className={`text-[0.9rem] font-semibold text-on-dark mt-1${aff}`}
+                className={`text-[13px] font-medium text-on-dark leading-[1.35]${aff}`}
               >
                 {item.value}
               </dd>
             </div>
           ))}
         </motion.dl>
+
+        {/* Visual — the framed browser dashboard, masked so it dissolves into the ground
+            before the fold; the first card rides up over the faded tail (the seam). */}
+        <motion.div {...mp} variants={stackV} className="hero-visual mt-[30px] flex w-full justify-center">
+          <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
+        </motion.div>
       </div>
     );
   }
 
   return (
-    // SINGLE centred column (supersedes the earlier 2-col grid — the owner prefers the
-    // stacked composition): eyebrow → title → script watermark behind the tagline →
-    // tagline → blurb → rating chip → the two phones → the facts row beneath them.
+    // SINGLE centred column, exactly 100svh (the faded-peek hero): eyebrow → title →
+    // script watermark behind the tagline → tagline → blurb → rating chip → FACTS → the
+    // two phones, masked so they dissolve into the ground at the seam.
     <div className="relative flex flex-col items-center text-center">
       {data.eyebrow && (
         <motion.div {...mp} variants={fadeUp(0.09)} className="flex items-center justify-center gap-3">
@@ -284,13 +285,38 @@ export default function HeroCover({
         </motion.p>
       )}
 
-      {/* Device cluster — stack fades up out of blur; phones rise with parallax. The
-          entrance wrappers compose over each DeviceImage's resting transform. Sits below
-          the copy, centred, with the facts beneath it. */}
+      {/* Facts — a hairline grid ABOVE the phones, contained to 920px and centred. Mobile
+          is 4 columns × 1 row (four facts), collapsing to 2 columns below 900px. */}
+      <motion.dl
+        {...mp}
+        variants={fadeUp(0.7)}
+        className="hero-facts hero-facts--four mx-auto mt-[26px]"
+      >
+        {data.meta.map((item, i) => (
+          <div key={i}>
+            <dt
+              {...edit(`meta.${i}.label`, "Edit fact label")}
+              className={`text-[9.5px] tracking-[0.15em] uppercase text-text-subtle mb-[3px]${aff}`}
+            >
+              {item.label}
+            </dt>
+            <dd
+              {...edit(`meta.${i}.value`, "Edit fact value")}
+              className={`text-[13px] font-medium text-ink-950 leading-[1.35]${aff}`}
+            >
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </motion.dl>
+
+      {/* Device cluster — stack fades up out of blur; phones rise with parallax. Sits below
+          the facts and is masked so it dissolves into the ground before the fold (the seam).
+          The entrance wrappers compose over each DeviceImage's resting transform. */}
       <motion.div
         {...mp}
         variants={stackV}
-        className="relative mt-10 flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
+        className="hero-visual relative mt-[30px] flex items-center justify-center gap-4 lg:min-h-[560px] lg:gap-0"
       >
         {data.glow && <GlowWord word={data.glow} />}
         <motion.div {...mp} variants={backV} className="lg:absolute">
@@ -300,31 +326,6 @@ export default function HeroCover({
           <DeviceImage image={data.devices[1]} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
         </motion.div>
       </motion.div>
-
-      {/* Facts — a hairline grid BENEATH the phones, contained to the hero content
-          max-width (520px) and centred, never edge-to-edge to the viewport. */}
-      <motion.dl
-        {...mp}
-        variants={fadeUp(0.7)}
-        className="hero-facts mt-10 mx-auto max-w-[520px]"
-      >
-        {data.meta.map((item, i) => (
-          <div key={i}>
-            <dt
-              {...edit(`meta.${i}.label`, "Edit fact label")}
-              className={`text-[10px] tracking-[0.15em] uppercase font-semibold text-text-subtle${aff}`}
-            >
-              {item.label}
-            </dt>
-            <dd
-              {...edit(`meta.${i}.value`, "Edit fact value")}
-              className={`text-[0.9rem] font-semibold text-ink-950 mt-1${aff}`}
-            >
-              {item.value}
-            </dd>
-          </div>
-        ))}
-      </motion.dl>
     </div>
   );
 }

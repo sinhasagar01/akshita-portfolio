@@ -123,7 +123,7 @@ export default function SectionRenderer({
         id={section.id}
         className={
           asGround
-            ? "hero-ground is-dark scroll-mt-20"
+            ? "hero-ground hero-ground--peek is-dark scroll-mt-20"
             : "section-card py-section relative overflow-hidden scroll-mt-20"
         }
         style={asGround ? undefined : { backgroundColor: "var(--color-band-dark)" }}
@@ -147,7 +147,7 @@ export default function SectionRenderer({
         id={section.id}
         className={
           ground
-            ? "hero-ground scroll-mt-20"
+            ? "hero-ground hero-ground--peek scroll-mt-20"
             : "section-card py-section relative overflow-hidden scroll-mt-20"
         }
       >

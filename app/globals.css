@@ -353,22 +353,59 @@ a {
   --hero-facts-line: oklch(100% 0 0 / 0.14);
 }
 
-/* Case-study hero facts — a 2-column hairline grid INSIDE the copy column (per the
-   reference), never a full-width row: top border on the block, a bottom border per cell,
-   and a left border on the right column to draw the vertical divider. */
+/* THE FADED-PEEK CASE-STUDY HERO (F). Exactly 100svh with content flowing from the top,
+   so the visual reaches the fold and dissolves there. Only the case-study heroes carry
+   this modifier; the homepage hero keeps min-height + vertically-centred content. Declared
+   after .hero-ground so its overrides win (equal specificity). */
+.hero-ground--peek {
+  height: 100svh;
+  justify-content: flex-start;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+/* The seam: the body pulls up over the faded visual by one section gap when a peek hero
+   precedes it, so the first card's rounded top rides over the dissolving image. Scoped to
+   a preceding peek hero, so the no-hero empty state (which keeps the nav runway) is unaffected. */
+.hero-ground--peek ~ main .case-study > .section-card:first-child {
+  margin-top: calc(var(--section-gap) * -1);
+  position: relative;
+  z-index: 1;
+}
+
+/* Case-study hero facts (F) — a hairline grid ABOVE the visual, contained to 920px and
+   centred (never viewport-width). Web = 3 columns × 2 rows (six), mobile = 4 columns × 1
+   row (four); both collapse to 2 columns below 900px (the reference breakpoint for this
+   grid). Top border on the block, a bottom border per cell, a left border between cells in
+   a row, cleared at each row start. */
 .hero-facts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   width: 100%;
+  max-width: 920px;
   border-top: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
 }
+.hero-facts--six  { grid-template-columns: repeat(3, 1fr); }
+.hero-facts--four { grid-template-columns: repeat(4, 1fr); }
 .hero-facts > div {
-  padding: 14px 18px;
+  padding: 13px 16px;
   text-align: center;
   border-bottom: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
 }
-.hero-facts > div:nth-child(even) {
+.hero-facts > div + div {
   border-left: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+}
+.hero-facts--six  > div:nth-child(3n + 1) { border-left: none; }
+.hero-facts--four > div:nth-child(4n + 1) { border-left: none; }
+@media (max-width: 900px) {
+  .hero-facts--six,
+  .hero-facts--four { grid-template-columns: repeat(2, 1fr); }
+  .hero-facts > div + div { border-left: none; }
+}
+
+/* The peek visual — masked so the framed dashboard / two phones dissolve into the ground
+   before the hero's bottom edge, then the first card rides up over the faded tail. */
+.hero-visual {
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
 }
 
 /* The ONE cursor glow — see components/motion/CursorGlow.tsx. A fixed-size layer moved
