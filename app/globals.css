@@ -297,6 +297,47 @@ a {
   padding-inline: 3.25rem;
 }
 
+/* ============================================================
+   HERO AS GROUND — the ONE shared container rule (COMMIT 1).
+   The hero is a sibling of <main>, not a section inside it, so it is naturally
+   full-bleed — no 100vw trick, no overflow-x:clip on the Lenis/ScrollManager
+   container. Each variant only adds its composition on top of this.
+   Tokens (glow per surface + backdrop word) declared here so later commits inherit them.
+============================================================ */
+:root {
+  /* the nav's runway, reserved inside the hero's top padding using the nav's own metrics
+     (sticky header height + its top offset + breathing room) */
+  --hero-nav-runway: calc(72px + 15px + 44px);
+
+  /* GLOW — one token per surface it can sit on */
+  --glow-on-paper: oklch(63% 0.13 47 / 0.20);
+  --glow-on-tan:   oklch(56% 0.14 42 / 0.14);
+  --glow-on-dark:  oklch(82% 0.055 47 / 0.14);
+  --glow-size: 820px;
+
+  /* BACKDROP WORD — the script word behind the tagline, per surface */
+  --hero-word-light: oklch(82% 0.055 47 / 0.55);
+  --hero-word-dark:  oklch(82% 0.055 47 / 0.11);
+}
+
+.hero-ground {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--color-cream-50);
+  padding-block: var(--hero-nav-runway) clamp(4rem, 8vh, 6rem);
+  padding-inline: clamp(1.5rem, 4vw, 3.5rem);
+}
+/* the web case-study hero is a dark ground */
+.hero-ground.is-dark {
+  background-color: var(--color-band-dark);
+  color: var(--color-on-dark);
+}
+
 /* Mobile — tighter inline padding below the 1024px breakpoint (desktop unchanged). */
 @media (max-width: 1023px) {
   .container-x {

@@ -10,10 +10,19 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
   // section/block so the Bold-gallery web treatments key off it. "web" opts in;
   // everything else (mobile / absent) keeps the existing composition.
   const web = study.template === "web";
+  // Hero as ground: the hero is the page's full-bleed floor, a SIBLING of <main>, so it
+  // escapes the container's max-width + padding without a 100vw trick. The body sections
+  // keep the card + gutter inside <main>. The rail is derived from the same body split
+  // (railItems filters the hero), so its positional resolution stays aligned.
+  const heroSection = study.sections.find((s) => s.variant === "hero") ?? null;
+  const bodySections = study.sections.filter((s) => s.variant !== "hero");
   return (
     <>
       {/* Route-scoped warm sand background (spec A1) — see .case-study-bg in globals.css. */}
       <div aria-hidden className="case-study-bg" />
+      {heroSection && (
+        <SectionRenderer section={heroSection} web={web} asGround />
+      )}
       <main id="main-content" tabIndex={-1} className="container-x outline-none">
         {study.sections.length === 0 ? (
           <section className="case-study section-card py-section relative overflow-hidden text-center">
@@ -29,7 +38,7 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
           </section>
         ) : (
           <article className="case-study">
-            {study.sections.map((section, i) => (
+            {bodySections.map((section, i) => (
               <SectionRenderer key={section.id ?? i} section={section} web={web} />
             ))}
           </article>

@@ -193,8 +193,7 @@ export default function HeroSection({
     <section
       ref={sectionRef}
       id="hero"
-      className="section-card relative overflow-hidden min-h-[78svh] flex flex-col items-center justify-center py-section"
-      style={{ marginTop: "clamp(1rem, 1.5vw, 1.5rem)" }}
+      className="hero-ground items-center"
       onMouseMove={isReducedMotion ? undefined : handleMouseMove}
       onMouseLeave={isReducedMotion ? undefined : handleMouseLeave}
       onPointerDown={handlePointerDown}
