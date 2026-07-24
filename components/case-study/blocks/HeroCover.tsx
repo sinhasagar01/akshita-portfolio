@@ -5,12 +5,13 @@ import { motion, useReducedMotion, useAnimationControls } from "motion/react";
 import type { HeroCover as HeroCoverData } from "@/lib/case-studies/types";
 import DeviceImage, { isWideFrame } from "../DeviceImage";
 import GlowWord from "../GlowWord";
+import HeroAura from "../HeroAura";
 import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
-/* "Rise / calm" — one-time mount entrance (docs/case-study-page/hero-motion-spec.md).
-   Phones rise from a soft blur with a front-leads parallax; copy resolves in sync.
-   Every "from" value is an offset on a wrapper that composes over each element's
-   existing resting transform — the static composition is unchanged. Hero only. */
+/* Hero mount entrance, once on mount. The two phones do a stacked-card opening, a
+   squared-up deck that fans open to the resting tilt, while the copy resolves up in
+   sync. Every "from" value is an offset on a wrapper that composes over each element's
+   existing resting transform, so the static composition is unchanged. Hero only. */
 
 const EXPO = [0.16, 1, 0.3, 1] as const; // easeOutExpo — phones
 const CUBIC = [0.33, 1, 0.68, 1] as const; // easeOutCubic — text/stack
@@ -20,11 +21,15 @@ export default function HeroCover({
   data,
   editable = false,
   blockIndex,
+  heroGlow,
 }: {
   data: HeroCoverData;
   /** CS-7e — studio inline canvas: make the hero device images replaceable. */
   editable?: boolean;
   blockIndex?: number;
+  /** The behind-the-phones glow theme, set per study by CaseStudyView (public hero
+   *  only). Absent → no aura (the studio canvas and un-themed studies). */
+  heroGlow?: "pulse" | "signal";
 }) {
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
@@ -68,16 +73,32 @@ export default function HeroCover({
       }),
     },
   };
-  // The two-phone pair's RESTING tilt now lives in the variants (front +4°, back -6°) so the
-  // overlap is composed by the layout, not the old wide-column translate. Each rises from a
-  // soft blur with a gentle y offset; the tilt is held constant so nothing swings on mount.
+  // STACKED-CARD OPENING. The pair begins squared-up and overlapping at centre (rotate 0,
+  // slid toward each other), then fans open to its RESTING tilt (front +4°, back -6°). `show`
+  // is the unchanged resting composition — the overlap is still composed by the layout — so
+  // only the entrance differs. The fan (x + rotate) rides BACK for a light overshoot while
+  // scale/y settle on EXPO; the back leads by a beat so it slips out from under the front.
   const frontV = {
-    hidden: { y: m ? 24 : 44, rotate: 4, scale: 0.95 },
-    show: { y: 0, rotate: 4, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.0 : 1.435, ease: EXPO }) },
+    hidden: { x: m ? -28 : -44, y: m ? 8 : 10, rotate: 0, scale: 0.97 },
+    show: {
+      x: 0, y: 0, rotate: 4, scale: 1,
+      transition: tr({
+        default: { delay: 0.12, duration: m ? 0.72 : 0.85, ease: EXPO },
+        x: { delay: 0.12, duration: m ? 0.72 : 0.85, ease: BACK },
+        rotate: { delay: 0.12, duration: m ? 0.72 : 0.85, ease: BACK },
+      }),
+    },
   };
   const backV = {
-    hidden: { y: m ? 30 : 52, rotate: -6, scale: 0.94 },
-    show: { y: 0, rotate: -6, scale: 1, transition: tr({ delay: 0.09, duration: m ? 1.1 : 1.57, ease: EXPO }) },
+    hidden: { x: m ? 28 : 44, y: m ? 6 : 8, rotate: 0, scale: 0.95 },
+    show: {
+      x: 0, y: 0, rotate: -6, scale: 1,
+      transition: tr({
+        default: { delay: 0.05, duration: m ? 0.78 : 0.9, ease: EXPO },
+        x: { delay: 0.05, duration: m ? 0.78 : 0.9, ease: BACK },
+        rotate: { delay: 0.05, duration: m ? 0.78 : 0.9, ease: BACK },
+      }),
+    },
   };
   const glowV = {
     hidden: { opacity: 0 },
@@ -327,8 +348,9 @@ export default function HeroCover({
       <motion.div
         {...mp}
         variants={stackV}
-        className="hero-phones relative mx-auto mt-[14px] flex items-end justify-center"
+        className={`hero-phones${heroGlow ? ` hero-phones--${heroGlow}` : ""} relative mx-auto mt-[14px] flex items-end justify-center`}
       >
+        {heroGlow && <HeroAura theme={heroGlow} />}
         {data.glow && <GlowWord word={data.glow} />}
         <motion.div {...mp} variants={backV} className="relative z-[1] origin-bottom">
           <DeviceImage image={backPhone} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
