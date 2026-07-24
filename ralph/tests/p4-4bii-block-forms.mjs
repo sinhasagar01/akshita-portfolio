@@ -40,12 +40,29 @@ function roundTrip(raw, mutate) {
   return out.bytes;
 }
 
-/** Find the first block of `kind`, or null. */
+/** Find a REPRESENTATIVE block of `kind` — the richest instance (most nested rows),
+ * or null if none exist. The field-edit / add / remove / reorder bars below exercise a
+ * block's first row and need 2+ rows to swap; a same-kind but EMPTY block (a perfectly
+ * valid draft — e.g. an unfilled principleCards the owner added via the studio) must not
+ * shadow a populated one and starve those assertions. Ties keep the first, so a single
+ * populated block is picked exactly as before. */
 function find(sections, kind) {
+  let best = null;
+  let bestRows = -1;
   for (const [i, s] of sections.entries()) {
-    for (const [j, b] of s.blocks.entries()) if (b.discriminant === kind) return [i, j];
+    for (const [j, b] of s.blocks.entries()) {
+      if (b.discriminant !== kind) continue;
+      const rows = Object.values(b.value ?? {}).reduce(
+        (n, v) => n + (Array.isArray(v) ? v.length : 0),
+        0,
+      );
+      if (rows > bestRows) {
+        bestRows = rows;
+        best = [i, j];
+      }
+    }
   }
-  return null;
+  return best;
 }
 
 /** Assert exactly the intended change: compare the parsed docs field by field. */
