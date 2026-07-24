@@ -8,6 +8,7 @@ facts:
   platform: Mobile
   timeline: 6 months
 template: mobile
+category: mobile
 body: []
 sections:
   - variant: hero

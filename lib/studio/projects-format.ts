@@ -27,11 +27,20 @@ export type ProjectsInput = {
   // and omit-when-empty: the sanitizer drops "" so it is never written for a project
   // that has no template. No /studio surface sets it yet (CS-5 wires the UI).
   template?: "mobile" | "web";
+  // Editorial taxonomy for the work-section filter (PR 1). Same optional +
+  // omit-when-empty contract as `template`, enum enforced below. A separate axis
+  // from `template` on purpose — see keystatic.config.ts.
+  category?: "mobile" | "web";
 };
 
 /** CS-4 — the case-study template enum. The template->frame MAPPING is the
  *  adapter's single source; this const only validates the value on the write path. */
 export const TEMPLATES = ["mobile", "web"] as const;
+
+/** Editorial taxonomy enum for the work-section filter (PR 1). Same values as
+ *  TEMPLATES but a deliberately separate axis — see keystatic.config.ts. Only
+ *  validates the write path; nothing reads it yet. */
+export const CATEGORIES = ["mobile", "web"] as const;
 
 /** The full facts sub-keys, in canonical schema order. role + timeline remain
  *  valid data but are NOT editable through /studio (Phase-1 T1). */
@@ -126,6 +135,15 @@ export function sanitizeProjectsPatch(
       if (value !== "") patch.template = value as ProjectsInput["template"];
       continue;
     }
+    if (key === "category") {
+      // Strict enum, omit-when-empty — the exact contract as `template` above.
+      if (typeof value !== "string") return invalid("category must be a string", key);
+      if (value !== "" && !(CATEGORIES as readonly string[]).includes(value)) {
+        return invalid(`category must be one of ${CATEGORIES.join(", ")}`, key);
+      }
+      if (value !== "") patch.category = value as ProjectsInput["category"];
+      continue;
+    }
     return invalid(`unknown field ${key}`, key);
   }
   return { ok: true, patch };
@@ -140,6 +158,9 @@ export type ProjectCreateInput = {
   title: string;
   summary: string;
   facts: Partial<ProjectFacts>;
+  // Optional editorial taxonomy (PR 1). Omit-when-empty like the patch path, so a
+  // create that does not send it produces a project with no `category` key.
+  category?: "mobile" | "web";
 };
 
 /**
@@ -159,6 +180,7 @@ export function sanitizeProjectCreate(
   }
   const obj = raw as Record<string, unknown>;
   let facts: Partial<ProjectFacts> = {};
+  let category: ProjectCreateInput["category"];
   for (const [key, value] of Object.entries(obj)) {
     if (key === "orderIndex") return invalid("orderIndex is assigned by the server on create", key);
     if (key === "body") return invalid("body is a legacy field, created empty and unused", key);
@@ -167,6 +189,15 @@ export function sanitizeProjectCreate(
       const result = sanitizeFacts(value);
       if (!result.ok) return invalid(result.message, key);
       facts = result.value;
+      continue;
+    }
+    if (key === "category") {
+      // Strict enum, omit-when-empty — the same contract as the edit path.
+      if (typeof value !== "string") return invalid("category must be a string", key);
+      if (value !== "" && !(CATEGORIES as readonly string[]).includes(value)) {
+        return invalid(`category must be one of ${CATEGORIES.join(", ")}`, key);
+      }
+      if (value !== "") category = value as ProjectCreateInput["category"];
       continue;
     }
     if (key === "title" || key === "summary") {
@@ -184,6 +215,7 @@ export function sanitizeProjectCreate(
       title: obj.title as string,
       summary: (obj.summary as string | undefined) ?? "",
       facts,
+      ...(category !== undefined ? { category } : {}),
     },
   };
 }

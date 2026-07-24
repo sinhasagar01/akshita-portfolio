@@ -60,6 +60,10 @@ export function serializeProjectEntry(
   // patched (the sanitizer drops ""), so an existing project with no template is
   // never given one here.
   if (patch.template !== undefined) obj.template = patch.template;
+  // Editorial taxonomy (PR 1) — a HEAD field, written only when a valid non-empty
+  // value is patched (the sanitizer drops ""), exactly like `template`. Without this
+  // line a category patch would validate and then be silently dropped on write.
+  if (patch.category !== undefined) obj.category = patch.category;
   // heroImage is a HEAD field (P4-1). The upload route derives the path; clear
   // sets it to null. Keystatic writes an absent image as `heroImage: null`, so
   // null (not delete/omit) keeps the file byte-compatible with Keystatic.
@@ -114,11 +118,14 @@ export function serializeNewProject(
   input: ProjectCreateInput,
   orderIndex: number
 ): SerializeResult {
-  const entry = {
+  const entry: Record<string, unknown> = {
     title: input.title,
     summary: input.summary,
     orderIndex,
     facts: { role: "", type: "", platform: "", timeline: "", ...input.facts },
+    // Editorial taxonomy (PR 1), written only when the create provided one, kept in
+    // schema order (after facts, before body). Omitted otherwise, matching heroImage.
+    ...(input.category !== undefined ? { category: input.category } : {}),
     body: [] as unknown[],
   };
   return { ok: true, bytes: dump(entry) };

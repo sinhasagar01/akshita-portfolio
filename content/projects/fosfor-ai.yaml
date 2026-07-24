@@ -8,6 +8,7 @@ facts:
   platform: Web
   timeline: 12 weeks
 template: web
+category: web
 body: []
 sections:
   - variant: hero
