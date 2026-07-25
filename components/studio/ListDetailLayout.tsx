@@ -212,12 +212,18 @@ export function ListDetailLayout({
                     aria-label={s.badge || isDirty ? label : undefined}
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => select(s.id)}
+                    // Borderless resting row (Task 3): the item lifts to cream-100
+                    // on hover and marks selection with the accent-tint + accent
+                    // border. `border` (width) stays in the base and inactive uses
+                    // `border-transparent` ON PURPOSE — the reserved 1px keeps the
+                    // box metrics constant so the selected accent border never
+                    // reflows the row. Do not "simplify" it to drop `border`.
                     className={[
                       "flex w-full items-center justify-between gap-2 rounded-lg border py-2.5 pl-3 text-left text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
                         ? "border-accent-500/40 bg-accent-500/10 font-medium text-ink-950"
-                        : "border-ink-950/8 bg-cream-50 text-ink-700 hover:border-accent-500/30 hover:bg-cream-100",
+                        : "border-transparent text-ink-700 hover:bg-cream-100",
                     ].join(" ")}
                   >
                     <span className="flex min-w-0 items-center gap-2">
