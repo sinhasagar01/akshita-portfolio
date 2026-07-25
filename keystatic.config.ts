@@ -673,6 +673,119 @@ export default config({
         }),
       },
     }),
+
+    // Blog — PR 1 of the blog arc: SCHEMA AND READ PATH ONLY. The collection ships
+    // EMPTY (zero entries), nothing writes to it (no sanitizer, serializer, or route
+    // arm), and nothing renders it (no /blog route). It exists so the read seam in
+    // lib/keystatic.ts + lib/blog/select.ts has a collection to read, exactly as #159
+    // added the projects `category` field before anything consumed it.
+    //
+    // EVERY TEXT FIELD IS `fields.text` WITH NO defaultValue, so the reader coalesces
+    // an absent value to "" and createReader can never throw on an entry authored
+    // before a field existed — the #159 posture. Real validation (the status enum, the
+    // ISO date shape, the topic set) lives in the sanitizer when the write path lands.
+    //
+    // `status` GOVERNS PUBLIC VISIBILITY and FAILS CLOSED: getBlogPosts filters
+    // `=== "published"`, so "" / "draft" / any unknown value never renders. This is
+    // DELIBERATELY the opposite of `category` (#159), whose "" meant "visible under
+    // All". category DESCRIBES a post; status governs whether it exists publicly, so a
+    // typo'd or legacy "" must hide, not leak an unfinished post.
+    blog: collection({
+      label: "Blog",
+      slugField: "title",
+      path: "content/blog/*",
+      schema: {
+        title: fields.slug({ name: { label: "Title" } }),
+        dek: fields.text({
+          label: "Dek",
+          description: "One line shown under the title on the post and the card",
+          multiline: false,
+        }),
+        // AUTHORED ISO DATE (YYYY-MM-DD), stored as text. Blog is the first collection
+        // that needs a SORTABLE date (featured = newest): experience models dates as
+        // free display text ("Aug 2022", "Present") and projects sort by orderIndex, so
+        // neither is a precedent. ISO text sorts lexically newest-first and keeps the
+        // "cannot throw / no injected default" property; the editor PR can swap in a
+        // date picker without churning the stored shape.
+        date: fields.text({
+          label: "Publish date",
+          description: "Format as YYYY-MM-DD, e.g. 2026-07-24. Posts sort newest first.",
+        }),
+        // Authored taxonomy, like projects `category`: nothing reads it yet (the topic
+        // filter is a later homepage decision). Stored as text, not a select-with-
+        // default the reader would inject into every entry; the set is enforced in the
+        // sanitizer when the write path lands.
+        topic: fields.text({ label: "Topic" }),
+        status: fields.text({ label: "Status (draft | published)" }),
+        // Entry hero. Reuses the projects heroImage CONVENTION (fields.image with an
+        // explicit directory + publicPath) but its OWN directory, so blog heroes never
+        // collide with project heroes. NOTE: the write-path derivation hero-image-path.ts
+        // is still hardcoded to `projects` — a later PR's problem, tracked with the other
+        // write-path hardcodings, not fixed here (nothing writes yet).
+        heroImage: fields.image({
+          label: "Hero image",
+          directory: "public/images/blog",
+          publicPath: "/images/blog/",
+        }),
+        // A post is a FLAT array of blocks (no section shell — a post has no named
+        // chapters). Only the THREE kinds that already exist are declared: richText,
+        // pullQuote, videoEmbed. Their schemas are copied VERBATIM from the projects
+        // `sections[].blocks` union (and reuse the same imgSpecFields() helper for the
+        // video poster) so the shapes stay byte-identical — the future shared block
+        // layer depends on that. A single-image `imageBlock` is NET-NEW (a kind to build
+        // or figureGrid to repurpose) and is the editor PR's call, not declared here.
+        //
+        // NOTE: imgSpecFields() configures the poster's directory to public/images/
+        // projects — the third write-path hardcoding to `projects` (block images, entry
+        // heroes, video posters). Inert at zero entries; consolidated in the write PR.
+        blocks: fields.blocks(
+          {
+            richText: {
+              label: "Rich text",
+              schema: fields.object({
+                paragraphs: fields.array(
+                  fields.text({ label: "Paragraph — supports **bold**", multiline: true }),
+                  { label: "Paragraphs", itemLabel: (props) => props.value }
+                ),
+              }),
+              itemLabel: () => "Rich text",
+            },
+            pullQuote: {
+              label: "Pull quote",
+              schema: fields.object({
+                text: fields.text({ label: "Text", multiline: true }),
+              }),
+              itemLabel: (props: any) => `Pull quote — ${props.fields.text.value}`,
+            },
+            videoEmbed: {
+              label: "Video embed",
+              schema: fields.object({
+                src: fields.text({ label: "Video URL (https://…) — externally hosted" }),
+                poster: fields.object(imgSpecFields(), { label: "Poster still (optional)" }),
+                caption: fields.text({
+                  label: "Caption (optional) — supports **bold**, *italic*, [links](url)",
+                  multiline: true,
+                }),
+                frame: fields.select({
+                  label: "Frame",
+                  options: [
+                    { label: "Browser", value: "browser" },
+                    { label: "Plain", value: "plain" },
+                  ],
+                  defaultValue: "browser",
+                }),
+                aspect: fields.text({ label: "Aspect ratio, e.g. 1.7778 (optional)" }),
+                eyebrow: fields.text({ label: "Eyebrow (optional)" }),
+                title: fields.text({ label: "Title (optional)" }),
+              }),
+              itemLabel: (props: any) =>
+                `Video — ${props.fields.title.value || props.fields.src.value || "no source"}`,
+            },
+          },
+          { label: "Blocks" }
+        ),
+      },
+    }),
   },
 
   singletons: {
