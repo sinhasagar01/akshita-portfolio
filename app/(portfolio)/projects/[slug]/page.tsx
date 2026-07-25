@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getCaseStudyData, getProjectSlugs } from "@/lib/keystatic";
+import { getCaseStudyData, getProjectSlugs, getAdjacentProject } from "@/lib/keystatic";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { absoluteUrl, projectPath, projectLastModified, ogImageUrl } from "@/lib/site";
 import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
 import PreviewRail from "@/components/case-study/PreviewRail";
+import NextCaseRail from "@/components/case-study/NextCaseRail";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { railItems } from "@/lib/case-studies/rail-items";
 import type { CaseStudy } from "@/lib/case-studies/types";
@@ -49,6 +50,9 @@ export default async function CaseStudyPage({ params }: Props) {
 
   const path = projectPath(slug);
   const lastModified = projectLastModified(slug);
+  // NCR-1 — the next case study for the bottom rail, via the public read (single
+  // getHomePageData call on this route). Null when unresolvable → no rail.
+  const next = await getAdjacentProject(slug);
 
   // P4 3(d) step 5 — every content project renders through the ONE bespoke
   // renderer (the 3(c) adapter into CaseStudyView), the same component set the
@@ -92,6 +96,14 @@ export default async function CaseStudyPage({ params }: Props) {
           preview reuses CaseStudyView WITHOUT this, so it never collides with the
           studio's own right-hand Selected rail. */}
       <PreviewRail items={railItems(study.sections)} />
+      {/* NCR-1 — public route only, same exclusion as PreviewRail. */}
+      {next && (
+        <NextCaseRail
+          allWorkHref="/#work"
+          nextHref={projectPath(next.slug)}
+          nextTitle={next.title}
+        />
+      )}
     </>
   );
 }
