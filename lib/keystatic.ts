@@ -2,6 +2,7 @@ import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
 import type { ProcessStage, LinkItem } from "@/lib/studio/site-settings-format";
+import { adjacentByOrderIndex } from "@/lib/case-studies/adjacent-project";
 
 export type { ProcessStage, LinkItem };
 
@@ -261,4 +262,20 @@ export async function getCaseStudyData(slug: string): Promise<CaseStudyData | nu
 
 export async function getProjectSlugs(): Promise<string[]> {
   return reader.collections.projects.list();
+}
+
+/**
+ * The next case study after `slug`, for the next-case rail (NCR-1). Ordered by
+ * `orderIndex` ascending with wrap-around, via the pure `adjacentByOrderIndex`.
+ *
+ * Reads through the PUBLIC path (`getHomePageData`, already sorted by orderIndex),
+ * never `getStudioData` — the rail is live-content chrome, so a draft reorder must
+ * not change the published page. Null when the slug is unknown or there are fewer
+ * than two projects, so the caller renders no rail.
+ */
+export async function getAdjacentProject(
+  slug: string,
+): Promise<ProjectListItem | null> {
+  const { projects } = await getHomePageData();
+  return adjacentByOrderIndex(projects, slug);
 }
