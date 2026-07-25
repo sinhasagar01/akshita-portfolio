@@ -9,13 +9,14 @@
 // This screen owns the LIST operations — order, add, remove — so the editor can be
 // purely about one study. Reuses the proven add/delete routes and the reorder hook
 // rather than reimplementing any of it.
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ProjectListItem } from "@/lib/keystatic";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
+import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 const inputCls =
@@ -36,6 +37,11 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [banner, setBanner] = useState("");
+
+  // Initial-focus targets — StudioModal focuses these on open (the add input, the
+  // delete Cancel), replacing the old autoFocus attributes.
+  const addTitleRef = useRef<HTMLInputElement>(null);
+  const delCancelRef = useRef<HTMLButtonElement>(null);
 
   const { moveItem, reorderBusy, reorderError } = useListReorder({
     collection: "projects",
@@ -229,93 +235,75 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
       </ul>
 
       {addOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/20 px-4" onClick={() => !addBusy && setAddOpen(false)}>
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Add case study"
-            aria-describedby="add-cs-desc"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === "Escape" && !addBusy) setAddOpen(false);
-            }}
-            className="w-full max-w-[420px] rounded-xl border border-ink-950/8 bg-cream-50 p-4"
-          >
-            <p className="font-display text-lg text-ink-950">Add case study</p>
-            <label className="mt-3 flex flex-col gap-1.5">
-              <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Title</span>
-              <input
-                autoFocus
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={inputCls}
-              />
-            </label>
-            <p id="add-cs-desc" className="mt-1 text-[11px] text-text-subtle">
-              The title is the case study&rsquo;s identity and can&rsquo;t be changed here later. It
-              starts as a stub, added to the end of the list. Use the arrows to move it.
+        <StudioModal
+          role="dialog"
+          title="Add case study"
+          describedById="add-cs-desc"
+          onClose={() => setAddOpen(false)}
+          busy={addBusy}
+          initialFocusRef={addTitleRef}
+        >
+          <label className="mt-3 flex flex-col gap-1.5">
+            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Title</span>
+            <input
+              ref={addTitleRef}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={inputCls}
+            />
+          </label>
+          <p id="add-cs-desc" className="mt-1 text-[11px] text-text-subtle">
+            The title is the case study&rsquo;s identity and can&rsquo;t be changed here later. It
+            starts as a stub, added to the end of the list. Use the arrows to move it.
+          </p>
+          {addError && (
+            <p className="mt-2 text-[12px] text-accent-600" aria-live="polite">
+              {addError}
             </p>
-            {addError && (
-              <p className="mt-2 text-[12px] text-accent-600" aria-live="polite">
-                {addError}
-              </p>
-            )}
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setAddOpen(false)}
-                className="rounded-md px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void createStudy()}
-                disabled={addBusy || !title.trim()}
-                className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:opacity-40"
-              >
-                {addBusy ? "Adding…" : "Add"}
-              </button>
-            </div>
+          )}
+          <div className="mt-4 flex justify-end gap-2">
+            <button type="button" onClick={() => setAddOpen(false)} className={modalGhostBtn}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => void createStudy()}
+              disabled={addBusy || !title.trim()}
+              className={modalAccentBtn}
+            >
+              {addBusy ? "Adding…" : "Add"}
+            </button>
           </div>
-        </div>
+        </StudioModal>
       )}
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/20 px-4">
-          <div
-            role="alertdialog"
-            aria-label={`Remove ${targetTitle}`}
-            aria-describedby="del-cs-msg"
-            onKeyDown={(e) => {
-              if (e.key === "Escape" && !deleteBusy) setDeleteTarget(null);
-            }}
-            className="w-full max-w-[420px] rounded-xl border border-ink-950/8 bg-cream-50 p-4"
-          >
-            <p id="del-cs-msg" className="text-[13px] text-ink-700">
-              Remove <b>{targetTitle}</b> from your draft? You can still undo it with Discard
-              until you publish.
-            </p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                autoFocus
-                onClick={() => setDeleteTarget(null)}
-                className="rounded-md px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void confirmDelete()}
-                disabled={deleteBusy}
-                className="rounded-md bg-ink-950 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:opacity-40"
-              >
-                {deleteBusy ? "Removing…" : "Remove"}
-              </button>
-            </div>
+        <StudioModal
+          role="alertdialog"
+          title="Remove case study"
+          describedById="del-cs-msg"
+          onClose={() => setDeleteTarget(null)}
+          busy={deleteBusy}
+          initialFocusRef={delCancelRef}
+        >
+          <p id="del-cs-msg" className="text-[13px] text-ink-700">
+            Remove <b>{targetTitle}</b> from your draft? You can still undo it with Discard
+            until you publish.
+          </p>
+          <div className="mt-4 flex justify-end gap-2">
+            <button ref={delCancelRef} type="button" onClick={() => setDeleteTarget(null)} className={modalGhostBtn}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => void confirmDelete()}
+              disabled={deleteBusy}
+              className={modalInkBtn}
+            >
+              {deleteBusy ? "Removing…" : "Remove"}
+            </button>
           </div>
-        </div>
+        </StudioModal>
       )}
     </div>
   );

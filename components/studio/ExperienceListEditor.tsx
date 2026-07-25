@@ -18,14 +18,14 @@
 //    stays mounted (slug keys). The row's data mirrors exactly what the route
 //    committed. router.refresh() is a best-effort reconcile of the server overlay;
 //    a full reload re-seeds `items` from the server (which holds the same draft).
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ListDetailLayout } from "./ListDetailLayout";
 import ExperienceEditPanel from "./ExperienceEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
 import { useReportCount } from "./StudioCountsProvider";
-import { useFocusTrap } from "./useFocusTrap";
+import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { isCurrentRole } from "@/components/sections/experience-current";
 import type { ExperienceListItem } from "@/lib/keystatic";
 
@@ -48,7 +48,6 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   const [addError, setAddError] = useState("");
   const addingRef = useRef(false);
   const addInputRef = useRef<HTMLInputElement>(null);
-  const addDialogRef = useRef<HTMLDivElement>(null);
 
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -56,7 +55,6 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   const [deleteError, setDeleteError] = useState("");
   const deletingRef = useRef(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const deleteDialogRef = useRef<HTMLDivElement>(null);
 
   // Transient banner for the fs-mode dev note (no row is added in fs mode).
   const [banner, setBanner] = useState("");
@@ -73,16 +71,9 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   // Keep the sidebar Experience badge in sync with the optimistic list length.
   useReportCount("experience", items.length);
 
-  useEffect(() => {
-    if (addOpen) addInputRef.current?.focus();
-  }, [addOpen]);
-  useEffect(() => {
-    if (deleteTarget) cancelRef.current?.focus();
-  }, [deleteTarget]);
-  // Trap Tab + return focus to the trigger while a dialog is open (initial focus and
-  // Escape are handled above / on the dialog itself).
-  useFocusTrap(addDialogRef, addOpen);
-  useFocusTrap(deleteDialogRef, deleteTarget !== null);
+  // Initial focus (addInputRef / cancelRef), the Tab trap, and focus restoration are
+  // all owned by StudioModal now; addInputRef and cancelRef are passed as its
+  // initialFocusRef below.
 
   const sections = items.map((e) => ({
     id: e.slug,
@@ -253,122 +244,82 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
       </ListDetailLayout>
 
       {addOpen && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-ink-950/20 p-4"
-          onClick={() => !addBusy && setAddOpen(false)}
+        <StudioModal
+          role="dialog"
+          title="Add experience"
+          describedById="add-exp-desc"
+          onClose={() => setAddOpen(false)}
+          busy={addBusy}
+          initialFocusRef={addInputRef}
         >
-          <div
-            ref={addDialogRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Add experience"
-            aria-describedby="add-exp-desc"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === "Escape" && !addBusy) setAddOpen(false);
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitCreate();
             }}
-            className="w-full max-w-[420px] rounded-xl border border-ink-950/10 bg-cream-50 p-5 shadow-[0_8px_30px_rgba(60,45,30,0.16)]"
+            className="mt-3 flex flex-col gap-1.5"
           >
-            <h2 className="font-display text-base text-ink-950">Add experience</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitCreate();
-              }}
-              className="mt-3 flex flex-col gap-1.5"
-            >
-              <label className="text-eyebrow uppercase tracking-eyebrow text-ink-400" htmlFor="add-exp-company">
-                Company
-              </label>
-              <input
-                id="add-exp-company"
-                ref={addInputRef}
-                type="text"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                placeholder="e.g. Acme, Bengaluru"
-                className={inputCls}
-              />
-              <p id="add-exp-desc" className="mt-1 text-[11px] text-text-subtle">
-                Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New
-                entries are added to the end of the list. Use the up and down controls to move
-                them. Two entries can share a company name.
+            <label className="text-eyebrow uppercase tracking-eyebrow text-ink-400" htmlFor="add-exp-company">
+              Company
+            </label>
+            <input
+              id="add-exp-company"
+              ref={addInputRef}
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="e.g. Acme, Bengaluru"
+              className={inputCls}
+            />
+            <p id="add-exp-desc" className="mt-1 text-[11px] text-text-subtle">
+              Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New
+              entries are added to the end of the list. Use the up and down controls to move
+              them. Two entries can share a company name.
+            </p>
+            {addError && (
+              <p className="text-[12px] text-accent-600" aria-live="polite">
+                {addError}
               </p>
-              {addError && (
-                <p className="text-[12px] text-accent-600" aria-live="polite">
-                  {addError}
-                </p>
-              )}
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAddOpen(false)}
-                  disabled={addBusy}
-                  className="rounded-md px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:opacity-40"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!company.trim() || addBusy}
-                  className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {addBusy ? "Adding…" : "Add experience"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            )}
+            <div className="mt-3 flex items-center justify-end gap-2">
+              <button type="button" onClick={() => setAddOpen(false)} disabled={addBusy} className={modalGhostBtn}>
+                Cancel
+              </button>
+              <button type="submit" disabled={!company.trim() || addBusy} className={modalAccentBtn}>
+                {addBusy ? "Adding…" : "Add experience"}
+              </button>
+            </div>
+          </form>
+        </StudioModal>
       )}
 
       {deleteTarget && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-ink-950/20 p-4"
-          onClick={() => !deleteBusy && cancelDelete()}
+        <StudioModal
+          role="alertdialog"
+          title="Remove experience"
+          describedById="delete-exp-msg"
+          onClose={cancelDelete}
+          busy={deleteBusy}
+          initialFocusRef={cancelRef}
         >
-          <div
-            ref={deleteDialogRef}
-            role="alertdialog"
-            aria-modal="true"
-            aria-label="Remove experience"
-            aria-describedby="delete-exp-msg"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === "Escape" && !deleteBusy) cancelDelete();
-            }}
-            className="w-full max-w-[420px] rounded-xl border border-ink-950/10 bg-cream-50 p-5 shadow-[0_8px_30px_rgba(60,45,30,0.16)]"
-          >
-            <h2 className="font-display text-base text-ink-950">Remove experience</h2>
-            <p id="delete-exp-msg" className="mt-2 text-[13px] text-ink-700">
-              Remove <span className="font-medium text-ink-950">{deleteCompany}</span> from your draft?
-              You can still undo it with Discard until you Publish.
+          <p id="delete-exp-msg" className="mt-2 text-[13px] text-ink-700">
+            Remove <span className="font-medium text-ink-950">{deleteCompany}</span> from your draft?
+            You can still undo it with Discard until you Publish.
+          </p>
+          {deleteError && (
+            <p className="mt-2 text-[12px] text-accent-600" aria-live="polite">
+              {deleteError}
             </p>
-            {deleteError && (
-              <p className="mt-2 text-[12px] text-accent-600" aria-live="polite">
-                {deleteError}
-              </p>
-            )}
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <button
-                ref={cancelRef}
-                type="button"
-                onClick={cancelDelete}
-                disabled={deleteBusy}
-                className="rounded-md px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:opacity-40"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmDelete}
-                disabled={deleteBusy}
-                className="rounded-md bg-ink-950 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {deleteBusy ? "Removing…" : "Remove"}
-              </button>
-            </div>
+          )}
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <button ref={cancelRef} type="button" onClick={cancelDelete} disabled={deleteBusy} className={modalGhostBtn}>
+              Cancel
+            </button>
+            <button type="button" onClick={confirmDelete} disabled={deleteBusy} className={modalInkBtn}>
+              {deleteBusy ? "Removing…" : "Remove"}
+            </button>
           </div>
-        </div>
+        </StudioModal>
       )}
     </>
   );
