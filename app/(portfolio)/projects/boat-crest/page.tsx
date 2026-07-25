@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
 import PreviewRail from "@/components/case-study/PreviewRail";
+import NextCaseRail from "@/components/case-study/NextCaseRail";
 import { boatCrest } from "@/lib/case-studies/boat-crest";
 import { railItems } from "@/lib/case-studies/rail-items";
+import { getAdjacentProject } from "@/lib/keystatic";
 import { absoluteUrl, projectPath, projectLastModified, ogImageUrl } from "@/lib/site";
 import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
@@ -31,8 +33,10 @@ export const metadata: Metadata = {
   twitter: { images: [ogImage] },
 };
 
-export default function BoatCrestPage() {
+export default async function BoatCrestPage() {
   const lastModified = projectLastModified(boatCrest.slug);
+  // NCR-1 — the next case study after boat-crest, via the public read.
+  const next = await getAdjacentProject(boatCrest.slug);
 
   return (
     <>
@@ -54,6 +58,14 @@ export default function BoatCrestPage() {
       />
       <CaseStudyView study={boatCrest} />
       <PreviewRail items={railItems(boatCrest.sections)} />
+      {/* NCR-1 — public route only, same exclusion as PreviewRail. */}
+      {next && (
+        <NextCaseRail
+          allWorkHref="/#work"
+          nextHref={projectPath(next.slug)}
+          nextTitle={next.title}
+        />
+      )}
     </>
   );
 }
