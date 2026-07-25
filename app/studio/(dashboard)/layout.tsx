@@ -37,30 +37,32 @@ export default async function DashboardLayout({
   const searchItems = buildStudioSearchIndex({ projects, experience, skills });
 
   return (
-    <div className="mx-auto max-w-[1900px] px-4 py-6 lg:px-6 lg:py-8">
-      {/* Counts provider wraps BOTH the sidebar and the page so a list editor's
-          optimistic add/remove updates the sidebar badge live (it lives in this
-          layout, which does not re-run on client navigation). Seeded once from
-          the server counts. */}
-      <StudioCountsProvider
-        initial={{ projects: projects.length, experience: experience.length }}
-      >
-        <div className="flex flex-col overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50 lg:min-h-[640px] lg:flex-row">
-          <StudioSidebar />
-          <main className="min-w-0 flex-1 p-4 lg:p-6">
-            <StudioTopbar searchItems={searchItems} />
-            {/* The Publish bar lives at the layout level (persists across /studio
-                navigation), seeded once from the branch-level differs, so a
-                collection edit's "unpublished" signal shows on the page you're
-                editing — not just Settings. Panels report differs + pending to it. */}
-            <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError}>
-              {children}
-              <div className="h-20" aria-hidden />
-              <PublishBar />
-            </PublishProvider>
-          </main>
-        </div>
-      </StudioCountsProvider>
-    </div>
+    // Counts provider wraps BOTH the sidebar and the page so a list editor's
+    // optimistic add/remove updates the sidebar badge live (it lives in this
+    // layout, which does not re-run on client navigation). Seeded once from the
+    // server counts.
+    <StudioCountsProvider
+      initial={{ projects: projects.length, experience: experience.length }}
+    >
+      {/* Full-bleed shell (Task 1). The outer rounded card is gone: the sidebar
+          sits on cream-100, the working surface on cream-50, one hairline (the
+          sidebar's border-r) between them. Page-level scroll is retained; the
+          sidebar and topbar stick to the viewport (nothing here clips them). */}
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        <StudioSidebar />
+        <main className="flex min-w-0 flex-1 flex-col bg-cream-50">
+          <StudioTopbar searchItems={searchItems} />
+          {/* The Publish bar lives at the layout level (persists across /studio
+              navigation), seeded once from the branch-level differs, so a
+              collection edit's "unpublished" signal shows on the page you're
+              editing — not just Settings. Panels report differs + pending to it. */}
+          <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError}>
+            <div className="p-4 lg:p-6">{children}</div>
+            <div className="h-20" aria-hidden />
+            <PublishBar />
+          </PublishProvider>
+        </main>
+      </div>
+    </StudioCountsProvider>
   );
 }
