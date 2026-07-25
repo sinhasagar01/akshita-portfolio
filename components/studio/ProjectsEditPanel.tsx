@@ -14,6 +14,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import SectionsEditPanel from "./SectionsEditPanel";
+import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
@@ -502,8 +503,9 @@ function uploadError(status: number, code?: string): string {
 // { collection:"projects", slug, patch:{ template } } to the SAME save-draft route
 // the Details form uses (NOT the sections payload — that keeps the two save seams
 // apart). Web -> "web" (browser default), Mobile -> "mobile" (phone default) via
-// CS-4's mapping. Optimistic with revert on error; its own pending report so
-// Publish/Discard can't race an in-flight toggle.
+// CS-4's mapping. The optimistic-save-with-revert, the pending report, and the
+// markup now live in the shared SegmentedToggle; this passes the template-only
+// bits, including the onChange that recomposes the canvas as the value flips.
 function TemplateToggle({
   slug,
   initial,
@@ -516,86 +518,22 @@ function TemplateToggle({
   /** Report the current value up, so the canvas recomposes as soon as it flips. */
   onChange?: (t: string) => void;
 }) {
-  const [template, setTemplate] = useState(initial);
-  const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
-  const busyRef = useRef(false);
-  useReportPending(busy);
-
-  // "web" -> Web; anything else ("" / "mobile" / absent) -> Mobile (all phone-default).
-  const selected: "mobile" | "web" = template === "web" ? "web" : "mobile";
-
-  async function choose(next: "mobile" | "web") {
-    if (busyRef.current || next === selected) return;
-    busyRef.current = true;
-    setBusy(true);
-    setNote(null);
-    const prev = template;
-    setTemplate(next); // optimistic
-    onChange?.(next);
-    try {
-      const res = await fetch("/api/studio/save-draft", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ collection: "projects", slug, patch: { template: next } }),
-      });
-      const json = await res.json();
-      if (res.ok && json.saved) {
-        onSaved();
-      } else if (res.ok && json.mode === "fs") {
-        setNote("needs github mode (dev)");
-        setTemplate(prev); // fs no-op — nothing was saved
-        onChange?.(prev);
-      } else {
-        setTemplate(prev);
-        setNote("Save failed");
-      }
-    } catch {
-      setTemplate(prev);
-      setNote("Save failed");
-    } finally {
-      busyRef.current = false;
-      setBusy(false);
-    }
-  }
-
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Template</span>
-      <div
-        role="group"
-        aria-label="Case study template"
-        className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5"
-      >
-        {(["mobile", "web"] as const).map((opt) => {
-          const on = selected === opt;
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => choose(opt)}
-              disabled={busy}
-              aria-pressed={on}
-              className={[
-                "rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
-                on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
-              ].join(" ")}
-            >
-              {opt}
-            </button>
-          );
-        })}
-      </div>
-      {note && <span className="text-[10px] text-text-subtle">{note}</span>}
-    </div>
+    <SegmentedToggle
+      slug={slug}
+      initial={initial}
+      patchKey="template"
+      label="Template"
+      ariaLabel="Case study template"
+      onSaved={onSaved}
+      onChange={onChange}
+    />
   );
 }
 
-// The work-section filter category (PR 1). A near-exact mirror of TemplateToggle,
-// with one difference: category is EDITORIAL taxonomy that drives no rendering, so
-// there is no canvas recompose and thus no `onChange` — it only writes the draft.
-// Optimistic with revert on error; its own pending report so Publish/Discard can't
-// race an in-flight toggle.
+// The work-section filter category (PR 1). Same control as the template toggle,
+// minus the onChange: category is EDITORIAL taxonomy that drives no rendering, so
+// there is no canvas recompose. Writes the `category` field to the same draft.
 function CategoryToggle({
   slug,
   initial,
@@ -605,75 +543,14 @@ function CategoryToggle({
   initial: string;
   onSaved: () => void;
 }) {
-  const [category, setCategory] = useState(initial);
-  const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
-  const busyRef = useRef(false);
-  useReportPending(busy);
-
-  // "web" -> Web; anything else ("" / "mobile" / absent) -> Mobile.
-  const selected: "mobile" | "web" = category === "web" ? "web" : "mobile";
-
-  async function choose(next: "mobile" | "web") {
-    if (busyRef.current || next === selected) return;
-    busyRef.current = true;
-    setBusy(true);
-    setNote(null);
-    const prev = category;
-    setCategory(next); // optimistic
-    try {
-      const res = await fetch("/api/studio/save-draft", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ collection: "projects", slug, patch: { category: next } }),
-      });
-      const json = await res.json();
-      if (res.ok && json.saved) {
-        onSaved();
-      } else if (res.ok && json.mode === "fs") {
-        setNote("needs github mode (dev)");
-        setCategory(prev); // fs no-op — nothing was saved
-      } else {
-        setCategory(prev);
-        setNote("Save failed");
-      }
-    } catch {
-      setCategory(prev);
-      setNote("Save failed");
-    } finally {
-      busyRef.current = false;
-      setBusy(false);
-    }
-  }
-
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Category</span>
-      <div
-        role="group"
-        aria-label="Work filter category"
-        className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5"
-      >
-        {(["mobile", "web"] as const).map((opt) => {
-          const on = selected === opt;
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => choose(opt)}
-              disabled={busy}
-              aria-pressed={on}
-              className={[
-                "rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
-                on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
-              ].join(" ")}
-            >
-              {opt}
-            </button>
-          );
-        })}
-      </div>
-      {note && <span className="text-[10px] text-text-subtle">{note}</span>}
-    </div>
+    <SegmentedToggle
+      slug={slug}
+      initial={initial}
+      patchKey="category"
+      label="Category"
+      ariaLabel="Work filter category"
+      onSaved={onSaved}
+    />
   );
 }
