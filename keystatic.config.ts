@@ -750,6 +750,19 @@ export default config({
               }),
               itemLabel: () => "Rich text",
             },
+            // BLOG PR 2 — the declared schema delta. A post's only structural break is a
+            // subheading; the article design renders it as an <h2>. Plain text on purpose
+            // (matching pullQuote's single-field object shape): headings carry no inline
+            // marks in the design, and a `level` select would be speculative (the design
+            // uses only h2) and would reintroduce the reader-injects-a-default concern the
+            // rest of this config avoids. Adding a level later is additive and safe.
+            heading: {
+              label: "Heading",
+              schema: fields.object({
+                text: fields.text({ label: "Heading" }),
+              }),
+              itemLabel: (props: any) => `Heading — ${props.fields.text.value}`,
+            },
             pullQuote: {
               label: "Pull quote",
               schema: fields.object({

@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blog article — final (akshitas.com/blog/[slug])</title>
+
+<!--
+================================================================================
+  DESIGN REFERENCE — BLOG ARTICLE PAGE  ·  FINAL
+  akshitas.com/blog/[slug] · centred column + floating liquid-glass vessel
+
+  THIS FILE IS THE CONTRACT. If the implementation must differ, change this
+  file in the same PR and say why.
+
+  CORRECTIONS — blog PR 2 (the PR that built this page)
+  - HEADING BLOCK ADDED. This mock uses <h2> subheads. PR 1 shipped only three
+    block kinds (richText, pullQuote, videoEmbed) and none produced an <h2>, so
+    the styling was unauthorable. PR 2 adds a fourth kind, `heading` (plain text,
+    fixed <h2>), as a declared schema delta. The subheads are now real content.
+  - INLINE FIGURES REMOVED. This mock originally embedded two <figure> images in
+    the prose. There is no single-image block; `imageBlock` is net-new and needs
+    the block-image upload path, which is hardcoded to projects and is the WRITE
+    PR's fix. So a post CANNOT embed inline images in PR 2. The inline figures are
+    struck from the mock; the entry-level hero image remains a schema field.
+  - THE VESSEL LOSES ITS SHARE SECTION. Share (LinkedIn + copy-link) is dropped
+    from the vessel and the capsule. Copy-link needs client state, so all
+    interactive affordances move to PR 4 together. The approved vessel composition
+    is shorter now — Published, Reading time, Topic, Loved by — and the capsule
+    carries date, reading time and the love only.
+  - LOVE IS DISABLED AND COUNTLESS in PR 2. No fabricated count. PR 4 wires the
+    count and the toggle over the existing login-throttle Upstash REST pattern.
+  - REDUCED MOTION. The vessel is not rendered at all under prefers-reduced-motion
+    (the SMIL <animate> cannot be stopped by the CSS animation reset), and the
+    article header carries the date, reading time and topic so the page still
+    reads. `--read` is driven by a GSAP ScrollTrigger (Lenis-synced), not a raw
+    scroll listener.
+
+  LOCKED DECISIONS
+  - Layout: CENTRED COLUMN (68ch). The anchored-rail variant was explored and
+    rejected — a rail is furniture sized for a long essay and overwhelms a
+    400-word note. Figures may break wider than the measure; nothing else does.
+  - Metadata lives in a FLOATING LIQUID-GLASS VESSEL, fixed right, which fills
+    as you read. Below 1200px it becomes a docked CAPSULE.
+  - 1200px is a FIT breakpoint (does a 216px panel clear the 68ch measure), NOT
+    the site's lg layout breakpoint. Different question, different number.
+  - FILL = PEARL SMOKE. Four palettes were built and compared (Amber Smoke,
+    Basalt, Pearl Smoke, Ink & Rust). Pearl won on a practical ground: it is
+    light enough that ink text stays legible at 100% fill, so no flood copy is
+    needed. The dark palettes each required an exact cream duplicate of the
+    panel content clipped to the waterline — a lovely effect with a permanent
+    maintenance cost, since every edit would have to touch both copies.
+  - NO ACCENT LINE ON THE CAPSULE. Two versions were tried and both rejected:
+    a hairline pinned along the base (it cut across the pill's 99px curve and
+    read as a border) and a travelling meniscus on the bead's leading edge (it
+    read as a hard rule sitting on the liquid). The bead alone carries the
+    reading. It is subtle by design — accepted with eyes open.
+  - The VESSEL keeps its waterline. That is not the same object: it is the
+    liquid's surface, it moves with the level, and without it the fill has no
+    readable meniscus at all.
+  - The glass/gel recipe is Simey's (CodePen bNEaqmb): four background layers
+    composited with background-blend-mode (white bounce-light, colour gradient
+    in OVERLAY, cross-axis light, edge sheen) plus TWO LIGHT inner shadows —
+    never one light and one dark. Lighting a body from top-left AND
+    bottom-right is physically wrong and is exactly what makes it read as a
+    rounded gel body instead of a printed rectangle.
+  - The colour gradient is sized to the WHOLE vessel/track (100cqw on the
+    capsule, calc(100% / max(--read,.06)) on the vessel) so it never squashes
+    as the level changes. The fill is a window onto a fixed gradient.
+  - The panel is visible only WHILE READING: it appears once past the title and
+    hides once the end-of-article love block is in view, so the same control is
+    never offered twice at the same moment.
+  - ICONS: circled in the vessel (room to breathe, gives the share row
+    structure), bare glyphs in the capsule (a ring inside a pill is one round
+    shape too many, and the pill has no horizontal room to spare).
+  - Love only. No like, no dislike, no comments, no share counts.
+
+  IMPLEMENTATION NOTES THAT ARE EASY TO GET WRONG
+  - The love count is the only runtime state on the whole site. It cannot go
+    through the git-commit content pipeline (one love = one commit = one
+    rebuild). Upstash Redis keyed by slug; per-visitor pressed state local;
+    POST rate-limited by hashed IP.
+  - Every love control on a page refers to the SAME post and must stay in
+    lockstep — vessel, capsule and end-of-article block update together.
+  - `topic` is a NEW field on the post schema. Nothing else reads it yet; it is
+    what a future tag filter would read.
+  - Animated feTurbulence is the most expensive thing on the page. It runs on a
+    216x13px element at a slow 24s cycle. Check it on battery and on mobile; if
+    it costs frames, drop the filter and keep the two drifting waves.
+  - backdrop-filter + overflow:hidden + a child SVG filter is exactly the stack
+    Safari renders differently. Verify in Safari specifically.
+================================================================================
+-->
+
+<style>
+:root{
+  --paper:        #FAF6F0;
+  --paper-raised: #FFFDFA;
+  --ink:          #171412;
+  --ink-2:        #3E3730;
+  --ink-mute:     #7A7169;
+  --rule:         #DCD3C5;
+  --rule-strong:  #BFB3A0;
+  --accent:       #A0503C;
+
+  /* PEARL SMOKE — locked */
+  --smoke-1: oklch(0.84 0.014 58 / .74);
+  --smoke-2: oklch(0.90 0.018 52 / .74);
+  --smoke-3: oklch(0.97 0.010 70 / .74);
+  --smoke-4: oklch(0.87 0.015 48 / .74);
+  --bounce:  oklch(1 0.008 80);
+
+  /* site fonts, loaded via next/font/google in the root layout */
+  --sans:  "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;  /* --font-body    */
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;                   /* --font-display */
+  --ease: cubic-bezier(.22,.68,.24,1);
+  --ease-settle: cubic-bezier(.16,.9,.28,1);
+  --pop: cubic-bezier(.34,1.56,.64,1);
+
+  --measure: 68ch;
+  --glass-w: 216px;
+  --read: 0;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+
+.doc-bar{
+  position:sticky; top:0; z-index:90; display:flex; gap:12px; align-items:center;
+  padding:11px 18px; background:#171412; color:#F2ECE3; font-size:12.5px;
+}
+.doc-bar strong{ font-weight:600; margin-right:auto; }
+.doc-bar span{ opacity:.6; }
+
+/* ============================================================ ARTICLE */
+.wrap{ max-width:var(--measure); margin:0 auto; padding:0 24px; }
+.top{ padding:34px 0 0; }
+.back{ display:inline-flex; align-items:center; gap:9px; text-decoration:none;
+  font:500 11.5px/1 var(--sans); letter-spacing:.13em; text-transform:uppercase; color:var(--ink-mute);
+  transition:color 200ms var(--ease), gap 300ms var(--ease-settle); }
+.back:hover{ color:var(--accent); gap:13px; }
+.head{ padding:44px 0 0; }
+.head .meta{ display:flex; gap:16px; font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-mute); }
+h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06; letter-spacing:-.018em; margin:18px 0 0; }
+.dek{ margin:18px 0 0; font-size:20px; line-height:1.55; color:var(--ink-2); font-family:var(--serif); }
+.hero{ margin:38px 0 44px; }
+.hero .mock{ width:100%; aspect-ratio:16/9; border-radius:12px; border:1px solid var(--rule); display:block; }
+.hero figcaption{ margin-top:11px; font-size:12.5px; color:var(--ink-mute); }
+.prose{ font-size:18px; line-height:1.75; color:var(--ink-2); }
+.prose p{ margin:0 0 1.35em; }
+.prose h2{ font-family:var(--serif); font-weight:400; font-size:29px; line-height:1.2; color:var(--ink); margin:2em 0 .6em; letter-spacing:-.01em; }
+.prose strong{ color:var(--ink); font-weight:600; }
+.prose blockquote{ margin:2em 0; padding:0 0 0 26px; border-left:2px solid var(--accent);
+  font-family:var(--serif); font-size:25px; line-height:1.4; color:var(--ink); font-style:italic; }
+.prose figure{ margin:2.3em 0; }
+.prose figure .mock{ width:100%; border-radius:10px; border:1px solid var(--rule); display:block; aspect-ratio:16/9; }
+.prose figcaption{ margin-top:11px; font-size:13px; line-height:1.55; color:var(--ink-mute); }
+.prose figure.wide{ margin-left:calc(-1 * clamp(0px,7vw,120px)); margin-right:calc(-1 * clamp(0px,7vw,120px)); }
+
+/* ---------- love ---------- */
+.love{ position:relative; display:inline-flex; align-items:center; gap:9px;
+  appearance:none; border:0; background:transparent; cursor:pointer; padding:4px 2px;
+  font:500 14px/1 var(--sans); color:var(--ink-mute); font-variant-numeric:tabular-nums;
+  transition:color 220ms var(--ease); }
+.love:hover{ color:var(--accent); }
+.love:focus-visible{ outline:2px solid var(--accent); outline-offset:5px; border-radius:8px; }
+.love svg{ width:18px; height:18px; overflow:visible; transition:transform 300ms var(--pop); }
+.love .heart{ fill:none; stroke:currentColor; stroke-width:1.7; transition:fill 260ms var(--ease); }
+.love:hover svg{ transform:scale(1.12); }
+.love[aria-pressed="true"]{ color:var(--accent); }
+.love[aria-pressed="true"] .heart{ fill:currentColor; }
+.love[aria-pressed="true"] svg{ animation:thump 460ms var(--pop); }
+@keyframes thump{ 0%{transform:scale(1)} 35%{transform:scale(1.4)} 60%{transform:scale(.93)} 100%{transform:scale(1)} }
+.love .spark{ position:absolute; left:9px; top:50%; width:4px; height:4px; border-radius:99px; background:currentColor; opacity:0; pointer-events:none; }
+.love.burst .spark{ animation:spark 640ms var(--ease-settle) forwards; }
+.love.burst .spark:nth-child(2){ animation-delay:20ms; --dx:-15px; --dy:-18px }
+.love.burst .spark:nth-child(3){ animation-delay:45ms; --dx:16px;  --dy:-15px }
+.love.burst .spark:nth-child(4){ animation-delay:10ms; --dx:-3px;  --dy:-24px }
+.love.burst .spark:nth-child(5){ animation-delay:58ms; --dx:19px;  --dy:3px }
+@keyframes spark{ 0%{opacity:1; transform:translate(0,0) scale(1)} 100%{opacity:0; transform:translate(var(--dx),var(--dy)) scale(.2)} }
+
+/* ---------- social: circled in the vessel, bare in the capsule ---------- */
+.social{ display:flex; gap:9px; }
+.social a{ display:grid; place-items:center; color:var(--ink-mute); text-decoration:none;
+  transition:color 200ms var(--ease), border-color 200ms var(--ease), background 200ms var(--ease), transform 300ms var(--ease-settle); }
+.social a:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:99px; }
+.social svg{ width:15px; height:15px; }
+.social.circled a{ width:33px; height:33px; border-radius:99px;
+  border:1px solid rgba(23,20,18,.15); background:rgba(255,255,255,.45); }
+.social.circled a:hover{ border-color:var(--accent); color:var(--accent); background:rgba(255,255,255,.8); transform:translateY(-1px); }
+.social.bare a{ width:26px; height:26px; }
+.social.bare svg{ width:17px; height:17px; }
+.social.bare a:hover{ color:var(--accent); transform:translateY(-2px); }
+
+.love-block{ margin:60px 0 0; padding:38px 0; text-align:center; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+.love-block p{ margin:0 0 20px; font-family:var(--serif); font-size:23px; line-height:1.35; color:var(--ink); }
+.love-block .love{ font-size:15px; gap:12px; padding:14px 28px; border:1px solid var(--rule-strong); border-radius:99px; color:var(--ink-2);
+  transition:border-color 240ms var(--ease), background 240ms var(--ease), color 240ms var(--ease); }
+.love-block .love svg{ width:22px; height:22px; }
+.love-block .love:hover{ border-color:var(--accent); color:var(--accent); background:var(--paper-raised); }
+.love-block .love[aria-pressed="true"]{ border-color:var(--accent); background:rgba(160,80,60,.07); }
+.love-block .hint{ margin:16px 0 0; font-size:12px; color:var(--ink-mute); }
+
+.pager{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule); margin-top:52px; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+.pager a{ background:var(--paper); padding:26px 24px; text-decoration:none; color:inherit; transition:background 220ms var(--ease); }
+.pager a:hover{ background:var(--paper-raised); }
+.pager .lbl{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-mute); }
+.pager .t{ font-family:var(--serif); font-size:20px; line-height:1.25; margin-top:9px; display:block; }
+.pager a:last-child{ text-align:right; }
+
+/* ============================================================ VESSEL */
+.vessel{
+  position:fixed; right:40px; top:132px; z-index:40;
+  width:var(--glass-w); border-radius:24px; overflow:hidden;
+  background:linear-gradient(to bottom, rgba(233,226,214,.78), rgba(250,246,240,.62) 66%);
+  backdrop-filter:blur(22px) saturate(170%);
+  -webkit-backdrop-filter:blur(22px) saturate(170%);
+  border:1px solid rgba(255,255,255,.58);
+  box-shadow:
+    inset 0 0 0 1px rgba(23,20,18,.055),
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 26px 56px -26px rgba(23,20,18,.30);
+  opacity:0; transform:translateX(14px); pointer-events:none;
+  transition:opacity 420ms var(--ease), transform 520ms var(--ease-settle);
+}
+.vessel.on{ opacity:1; transform:translateX(0); pointer-events:auto; }
+
+.liquid{
+  position:absolute; left:0; right:0; bottom:0; z-index:1; pointer-events:none;
+  height:calc(var(--read) * 100%);
+  transition:height 140ms linear;
+  background:
+    radial-gradient(78% 46px at 50% 116%,
+      var(--bounce) 0%, oklch(from var(--bounce) l c h / .84) 22%,
+      oklch(from var(--bounce) l c h / .62) 34%, oklch(from var(--bounce) l c h / .42) 48%,
+      oklch(from var(--bounce) l c h / .24) 63%, oklch(from var(--bounce) l c h / .10) 80%,
+      oklch(from var(--bounce) l c h / 0) 100%),
+    linear-gradient(to top, var(--smoke-1) 4%, var(--smoke-2) 34%, var(--smoke-3) 62%, var(--smoke-4)),
+    linear-gradient(to right, oklch(0.96 0.012 40 / .5), oklch(0.55 0.02 40 / .22) 38%, oklch(0.99 0.012 40 / .5)),
+    linear-gradient(158deg, oklch(0.94 0.025 40 / .45) 22%, oklch(0.99 0.012 40 / .5));
+  background-blend-mode: normal, overlay, normal, normal;
+  background-size: cover, 100% calc(100% / max(var(--read), .06)), cover, cover;
+  background-position: bottom, bottom, center, center;
+  box-shadow:
+    inset  10px  10px 18px -6px oklch(0.94 0.015 50 / .45),
+    inset -10px -10px 18px -6px oklch(0.99 0.010 60 / .5);
+}
+.liquid .smoke{
+  position:absolute; inset:0; overflow:hidden;
+  background:
+    radial-gradient(52px 40px at 28% 72%, oklch(0.99 0.012 60 / .3), transparent 70%),
+    radial-gradient(64px 46px at 72% 38%, oklch(0.78 0.03 45 / .10), transparent 72%),
+    radial-gradient(40px 34px at 46% 14%, oklch(1 0.008 80 / .26), transparent 70%);
+  filter:blur(3px); animation:churn 26s ease-in-out infinite alternate;
+}
+@keyframes churn{ from{ transform:translate3d(-5px,6px,0) scale(1) } to{ transform:translate3d(7px,-8px,0) scale(1.12) } }
+.liquid .wave{ position:absolute; left:0; bottom:100%; width:200%; height:13px; filter:url(#wobble); }
+.liquid .wave svg{ display:block; width:100%; height:100%; }
+.liquid .wave.a{ animation:drift 10s linear infinite; }
+.liquid .wave.b{ animation:drift 16s linear infinite reverse; opacity:.6; height:16px; }
+@keyframes drift{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+/* the meniscus — the liquid's own surface. Not the same object as the
+   capsule line that was removed: this one moves with the level. */
+.liquid .waterline{
+  position:absolute; left:0; right:0; bottom:calc(100% - 1px); height:2px;
+  background:linear-gradient(90deg,
+    oklch(from var(--accent) l c h / .22), var(--accent) 18%, var(--accent) 82%, oklch(from var(--accent) l c h / .22));
+}
+.liquid .glint{
+  position:absolute; left:0; right:0; bottom:100%; height:1px;
+  background:linear-gradient(90deg, transparent, oklch(1 0.008 80 / .95) 30%, oklch(1 0.008 80 / .6) 70%, transparent);
+}
+.liquid .bub{ position:absolute; border-radius:99px;
+  background:radial-gradient(circle at 34% 30%, oklch(1 0.006 80 / .95), oklch(1 0.006 80 / .2) 62%, transparent);
+  animation:rise linear infinite; }
+.liquid .bub:nth-of-type(1){ width:5px; height:5px; left:24%; animation-duration:8s; }
+.liquid .bub:nth-of-type(2){ width:3.5px; height:3.5px; left:60%; animation-duration:10.5s; animation-delay:2.2s; }
+.liquid .bub:nth-of-type(3){ width:4.5px; height:4.5px; left:80%; animation-duration:12.5s; animation-delay:5s; }
+@keyframes rise{ 0%{bottom:-4%;opacity:0} 12%{opacity:.65} 85%{opacity:.4} 100%{bottom:104%;opacity:0;transform:translateX(5px)} }
+
+.vessel-body{ position:relative; z-index:4; padding:22px; color:var(--ink); }
+.vessel-body .lbl{ font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-mute); display:block; }
+.vessel-body .val{ margin:6px 0 18px; font-size:14.5px; line-height:1.35; }
+.vessel-body .sep{ height:1px; background:rgba(23,20,18,.13); margin:18px 0; }
+.vessel-body .love{ margin-top:8px; }
+.vessel-body .social{ margin-top:9px; }
+.vessel-body .pct{ font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-mute); margin:18px 0 0; font-variant-numeric:tabular-nums; }
+
+/* ============================================================
+   CAPSULE — no accent line. The bead alone carries the reading.
+   ============================================================ */
+.capsule{
+  position:relative; height:56px; border-radius:99px; padding:4px;
+  container-type:inline-size; overflow:hidden;
+  background:linear-gradient(to bottom, rgba(222,213,199,.88), rgba(250,246,240,.72) 66%);
+  backdrop-filter:blur(18px) saturate(170%);
+  -webkit-backdrop-filter:blur(18px) saturate(170%);
+  box-shadow:
+    inset 0 0 0 1px rgba(23,20,18,.09),
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 14px 30px -14px rgba(23,20,18,.34);
+}
+.capsule .bead{
+  position:absolute; left:4px; top:4px; bottom:4px; z-index:1;
+  width:calc(var(--read) * (100% - 8px)); border-radius:99px;
+  transition:width 140ms linear;
+  background:
+    radial-gradient(70% 30px at 50% 122%,
+      var(--bounce) 0%, oklch(from var(--bounce) l c h / .86) 21%,
+      oklch(from var(--bounce) l c h / .64) 34%, oklch(from var(--bounce) l c h / .44) 48%,
+      oklch(from var(--bounce) l c h / .26) 63%, oklch(from var(--bounce) l c h / .10) 80%,
+      oklch(from var(--bounce) l c h / 0) 100%),
+    linear-gradient(to right, var(--smoke-1) 5%, var(--smoke-2), var(--smoke-3) 52%, var(--smoke-4)),
+    linear-gradient(to bottom, oklch(0.96 0.012 40), oklch(0.92 0.02 40 / .8) 33%, oklch(0.99 0.012 40 / .8)),
+    linear-gradient(165deg, oklch(0.94 0.025 40 / .8) 25%, oklch(0.99 0.012 40 / .8));
+  background-blend-mode: normal, overlay, normal, normal;
+  background-size: cover, 100cqw 100%, cover, cover;
+  /* the two light inner shadows give the leading edge its only definition
+     now that the accent line is gone — do not weaken them */
+  box-shadow:
+    inset  0.2em  0.2em 0.3em -0.1em oklch(0.93 0.015 50 / .9),
+    inset -0.2em -0.2em 0.3em -0.1em oklch(0.99 0.010 60 / .9),
+    oklch(1 0.01 60 / .9) 1em 0.5em 1em -0.66em,
+    oklch(0.4 0.04 40 / .05) 0 5px 5px 0,
+    oklch(0.4 0.04 40 / .07) 0 3px 3px 0;
+}
+.capsule .cap-body{
+  position:relative; z-index:5; height:100%;
+  display:flex; align-items:center; gap:20px; padding:0 22px;
+}
+.capsule .meta-row{
+  display:flex; gap:18px; margin:0; font-size:11.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-mute);
+}
+.capsule .cap-right{ display:flex; align-items:center; gap:16px; margin-left:auto; }
+
+.docked{
+  position:fixed; left:16px; right:16px; bottom:16px; z-index:40;
+  opacity:0; transform:translateY(14px); pointer-events:none;
+  transition:opacity 380ms var(--ease), transform 460ms var(--ease-settle);
+}
+.docked.on{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+/* study strip — judge the capsule without resizing */
+.study{ max-width:var(--measure); margin:0 auto; padding:0 24px 100px; }
+.study h3{ font:600 12px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--ink-mute); margin:0 0 8px; }
+.study .note{ font-size:13px; line-height:1.6; color:var(--ink-mute); margin:0 0 26px; max-width:60ch; }
+.study .row{ margin-bottom:20px; }
+.study .row > .cap{ display:block; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); margin-bottom:8px; }
+
+@media (max-width:1200px){
+  .vessel{ display:none; }
+  h1{ font-size:36px; }
+  .prose figure.wide{ margin-left:0; margin-right:0; }
+}
+@media (min-width:1201px){ .docked{ display:none; } }
+@media (max-width:520px){
+  .capsule .meta-row span:nth-child(2){ display:none; }
+  .capsule .cap-body{ padding:0 16px; gap:12px; }
+}
+@media (prefers-reduced-motion: reduce){
+  *{ transition-duration:1ms !important; }
+  .liquid .wave, .liquid .bub, .liquid .smoke{ animation:none !important; }
+  .liquid .wave{ filter:none; }
+}
+
+.mock{ display:block; }
+.m1{ background:linear-gradient(135deg,#1F1E1C,#4A423B); }
+.m3{ background:linear-gradient(150deg,#DDE0EC,#B9BED6); }
+.m4{ background:linear-gradient(130deg,#EFD9CF,#D6A98F); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wobble" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.014 0.05" numOctaves="2" seed="5" result="n">
+      <animate attributeName="baseFrequency" dur="24s" repeatCount="indefinite"
+               values="0.014 0.05; 0.021 0.06; 0.014 0.05" />
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+  <symbol id="i-linkedin" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.65h.05c.53-.95 1.83-1.95 3.76-1.95C21.6 8.7 22 11 22 14.1V21h-4v-6.1c0-1.46-.03-3.34-2.05-3.34-2.05 0-2.37 1.59-2.37 3.23V21h-3.9V9Z"/>
+  </symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 17 17 7M9 7h8v8"/>
+  </symbol>
+</svg>
+
+<div class="doc-bar">
+  <strong>Blog article — final</strong>
+  <span>Pearl Smoke · no accent line on the capsule · capsule study at the foot</span>
+</div>
+
+<article>
+  <div class="wrap">
+    <div class="top"><a class="back" href="/blog">← Blog</a></div>
+    <header class="head">
+      <div class="meta"><span>24 July 2026</span><span>6 min read</span></div>
+      <h1>What a data table teaches you about trust</h1>
+      <p class="dek">Nobody trusts a number they can't trace.</p>
+    </header>
+
+    <figure class="hero"><span class="mock m3"></span>
+      <figcaption>The Fosfor profiling table, mid-redesign — sixteen columns, four of which anyone actually read.</figcaption></figure>
+
+    <div class="prose">
+      <p>The first enterprise dashboard I shipped had forty-one metrics on it. I was proud of the density. Six weeks later I watched an analyst export the whole thing to Excel, delete thirty-eight columns, and rebuild the three she needed by hand — every Monday morning, for as long as anyone could remember.</p>
+      <p>She wasn't working around a missing feature. She was working around a <strong>missing explanation</strong>. Every number on that screen was correct and not one of them said where it came from.</p>
+
+      <h2>Provenance is an interface problem</h2>
+      <p>We tend to treat data lineage as a backend concern — something the pipeline knows and the interface summarises. But the moment a number carries a consequence, the question stops being <em>what is it</em> and becomes <em>who computed it, from what, and when</em>.</p>
+      <blockquote>The most important column in an enterprise table is usually the one nobody asked for.</blockquote>
+      <p>In the profiling tool we ended up adding a quiet timestamp and a source chip to every computed cell. It tested badly in the first round — people said it looked cluttered. It tested extremely well in the second, once we'd sat with them long enough to see what they did with it.</p>
+
+      <!-- CORRECTION (blog PR 2): an inline <figure> sat here. Removed — inline images
+           need `imageBlock`, which is net-new and deferred to the write PR. -->
+
+      <p>The lesson I keep relearning: clutter is what we call information we don't need <em>yet</em>. The job isn't to remove it. It's to rank it.</p>
+
+      <h2>What I'd do differently</h2>
+      <p>Start with the export. If the first thing a user does with your table is take the data somewhere else, that destination is the real interface and the table is a slow download button. Design the destination, then work backwards.</p>
+
+      <!-- CORRECTION (blog PR 2): a second inline <figure> sat here. Removed for the
+           same reason — no single-image block exists until the write PR. -->
+
+      <p>Forty-one metrics became nine, and each of the nine carries a line of provenance nobody reads until the one week they need it desperately. That week is the whole point.</p>
+
+      <h2>The part I got wrong twice</h2>
+      <p>Both times, I assumed the objection to density was aesthetic. It never was. People don't dislike a busy screen; they dislike a screen where they can't tell what matters. Rank the information and the density stops registering as noise.</p>
+      <p>Which is a long way of saying: the table was never the problem. The table was the evidence.</p>
+    </div>
+
+    <div class="love-block">
+      <p>If this was useful, let me know.</p>
+      <button class="love" aria-pressed="false" aria-label="Love this post">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+        <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+        <span class="n">48</span>
+      </button>
+      <p class="hint">48 people loved this</p>
+    </div>
+
+    <nav class="pager">
+      <a href="#"><span class="lbl">← Previous</span><span class="t">Three weeks of AI copilot patterns</span></a>
+      <a href="#"><span class="lbl">Next →</span><span class="t">Notes on designing empty states</span></a>
+    </nav>
+    <div style="height:70px"></div>
+  </div>
+
+  <div class="study">
+    <h3>The capsule — docked state</h3>
+    <p class="note">No accent line. The bead's leading edge is defined only by its two light inner shadows and the warm light it throws forward onto the empty track. Quiet by design — the low end is the state most readers will see, so it's shown first.</p>
+
+    <div class="row" style="--read:.14"><span class="cap">14%</span>
+      <div class="capsule"><div class="bead"></div>
+        <div class="cap-body">
+          <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
+          <div class="cap-right">
+            <button class="love" aria-pressed="false" aria-label="Love this post"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></button>
+            <div class="social bare"><a href="#" aria-label="Share on LinkedIn"><svg><use href="#i-linkedin"/></svg></a><a href="#" aria-label="Copy link"><svg><use href="#i-link"/></svg></a></div>
+          </div>
+        </div>
+      </div></div>
+
+    <div class="row" style="--read:.5"><span class="cap">50%</span>
+      <div class="capsule"><div class="bead"></div>
+        <div class="cap-body">
+          <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
+          <div class="cap-right">
+            <button class="love" aria-pressed="false" aria-label="Love this post"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></button>
+            <div class="social bare"><a href="#" aria-label="Share on LinkedIn"><svg><use href="#i-linkedin"/></svg></a><a href="#" aria-label="Copy link"><svg><use href="#i-link"/></svg></a></div>
+          </div>
+        </div>
+      </div></div>
+
+    <div class="row" style="--read:.95"><span class="cap">95%</span>
+      <div class="capsule"><div class="bead"></div>
+        <div class="cap-body">
+          <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
+          <div class="cap-right">
+            <button class="love" aria-pressed="false" aria-label="Love this post"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></button>
+            <div class="social bare"><a href="#" aria-label="Share on LinkedIn"><svg><use href="#i-linkedin"/></svg></a><a href="#" aria-label="Copy link"><svg><use href="#i-link"/></svg></a></div>
+          </div>
+        </div>
+      </div></div>
+  </div>
+</article>
+
+<aside class="vessel" data-vessel aria-label="Article details">
+  <div class="liquid" aria-hidden="true">
+    <div class="smoke"></div>
+    <div class="wave b"><svg viewBox="0 0 400 16" preserveAspectRatio="none"><path fill="oklch(0.88 0.016 52 / .55)" d="M0,9 C25,3 75,3 100,9 C125,15 175,15 200,9 C225,3 275,3 300,9 C325,15 375,15 400,9 L400,16 L0,16 Z"/></svg></div>
+    <div class="wave a"><svg viewBox="0 0 400 13" preserveAspectRatio="none"><path fill="oklch(0.93 0.012 62 / .85)" d="M0,7 C25,2 75,2 100,7 C125,12 175,12 200,7 C225,2 275,2 300,7 C325,12 375,12 400,7 L400,13 L0,13 Z"/></svg></div>
+    <div class="glint"></div>
+    <div class="waterline"></div>
+    <span class="bub"></span><span class="bub"></span><span class="bub"></span>
+  </div>
+
+  <div class="vessel-body">
+    <span class="lbl">Published</span><p class="val">24 July 2026</p>
+    <span class="lbl">Reading time</span><p class="val">6 minutes</p>
+    <span class="lbl">Topic</span><p class="val">Enterprise UX</p>
+    <div class="sep"></div>
+    <span class="lbl">Loved by</span>
+    <button class="love" aria-pressed="false" aria-label="Love this post">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+      <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+      <span class="n">48</span>
+    </button>
+    <!-- CORRECTION (blog PR 2): a "Share" section (LinkedIn + copy-link) sat here.
+         Removed — share moves to PR 4 with the other interactive affordances. -->
+    <p class="pct" data-pct>0% read</p>
+  </div>
+</aside>
+
+<div class="docked" data-docked>
+  <div class="capsule">
+    <div class="bead"></div>
+    <div class="cap-body">
+      <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
+      <div class="cap-right">
+        <button class="love" aria-pressed="false" aria-label="Love this post">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+          <span class="n">48</span>
+        </button>
+        <!-- CORRECTION (blog PR 2): the capsule "Share" glyphs sat here. Removed with
+             the vessel's Share section — share is PR 4. -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 48;
+const loves = [...document.querySelectorAll("button.love")];
+const counts = [...document.querySelectorAll(".n")];
+
+/* every love control refers to the SAME post — vessel, capsule and block in lockstep */
+loves.forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.preventDefault();
+    const next = btn.getAttribute("aria-pressed") !== "true";
+    loves.forEach(b => {
+      b.setAttribute("aria-pressed", String(next));
+      if (next){ b.classList.remove("burst"); void b.offsetWidth; b.classList.add("burst"); }
+    });
+    counts.forEach(n => n.textContent = BASE + (next ? 1 : 0));
+    const hint = document.querySelector(".hint");
+    if (hint) hint.textContent = (BASE + (next ? 1 : 0)) + " people loved this";
+  });
+});
+
+const vessel = document.querySelector("[data-vessel]");
+const docked = document.querySelector("[data-docked]");
+const pct    = document.querySelector("[data-pct]");
+const block  = document.querySelector(".love-block");
+const head   = document.querySelector(".head");
+
+function onScroll(){
+  const doc = document.documentElement;
+  const done = Math.min(1, Math.max(0, scrollY / (doc.scrollHeight - innerHeight)));
+  doc.style.setProperty("--read", done.toFixed(4));
+  pct.textContent = Math.round(done * 100) + "% read";
+
+  const show = head.getBoundingClientRect().bottom < 40
+            && block.getBoundingClientRect().top > innerHeight - 80;
+  vessel.classList.toggle("on", show);
+  docked.classList.toggle("on", show);
+}
+addEventListener("scroll", onScroll, { passive:true });
+addEventListener("resize", onScroll);
+onScroll();
+</script>
+</body>
+</html>

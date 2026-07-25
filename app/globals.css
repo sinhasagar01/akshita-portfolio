@@ -2215,3 +2215,339 @@ a {
     pointer-events: auto;
   }
 }
+
+/* ============================================================================
+   BLOG (arc PR 2) — the ONLY authored CSS this arc adds to globals.css. Every
+   selector is `blog-` prefixed and matches only elements the blog routes render
+   (proven in the PR). The vessel's liquid-glass, the capsule, the prose column
+   and the plate are what Tailwind cannot express; the masthead, cards and grid
+   are bare utilities in the components. Local design vars are scoped to the blog
+   containers — NO new global @theme token, and the Pearl Smoke palette lives on
+   .blog-vessel / .blog-capsule so it never leaks into the global namespace (A3).
+   ========================================================================== */
+
+.blog-article,
+.blog-index {
+  --blog-measure: 68ch;
+  --blog-ease: cubic-bezier(0.22, 0.68, 0.24, 1);
+  --blog-ease-settle: cubic-bezier(0.16, 0.9, 0.28, 1);
+  --blog-rule: color-mix(in oklch, var(--color-ink-950) 8%, transparent);
+}
+
+/* ---------------------------------------------------------------- prose column */
+.blog-prose {
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--color-ink-800);
+}
+.blog-prose > p {
+  margin: 0 0 1.35em;
+}
+.blog-prose h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 29px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-950);
+  margin: 2em 0 0.6em;
+}
+/* Inline marks (bold / italic / links) are rendered and styled by renderRich itself
+   (components/case-study/rich.tsx), so the prose column does NOT restyle <b>/<em>/<a> —
+   that would double-apply and could conflict. The column owns only its block elements. */
+.blog-prose blockquote {
+  margin: 2em 0;
+  padding: 0 0 0 26px;
+  border-left: 2px solid var(--color-accent-500);
+  font-family: var(--font-display);
+  font-size: 25px;
+  line-height: 1.4;
+  font-style: italic;
+  color: var(--color-ink-950);
+}
+
+/* ---------------------------------------------------------------- the plate
+   The typographic fallback for a post with no image — a title set in the display
+   serif on a raised surface, never a hole. Used on BOTH the featured slot and the
+   stream cards (the contract mocked only the stream; the newest post will not
+   always carry an image, so the featured needs it too). */
+.blog-plate {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  background:
+    linear-gradient(150deg, var(--color-cream-100), var(--color-cream-200));
+}
+.blog-plate span {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(17px, 2.4vw, 24px);
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-800);
+  max-width: 22ch;
+}
+
+/* ============================================================ VESSEL + CAPSULE
+   Pearl Smoke palette (A3) — local to the two liquid components, never global. */
+.blog-vessel,
+.blog-capsule {
+  --smoke-1: oklch(0.84 0.014 58 / 0.74);
+  --smoke-2: oklch(0.9 0.018 52 / 0.74);
+  --smoke-3: oklch(0.97 0.01 70 / 0.74);
+  --smoke-4: oklch(0.87 0.015 48 / 0.74);
+  --bounce: oklch(1 0.008 80);
+}
+
+.blog-vessel {
+  position: fixed;
+  right: 40px;
+  top: 132px;
+  z-index: 40;
+  width: 216px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, rgba(233, 226, 214, 0.78), rgba(250, 246, 240, 0.62) 66%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  box-shadow:
+    inset 0 0 0 1px rgba(23, 20, 18, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 26px 56px -26px rgba(23, 20, 18, 0.3);
+  opacity: 0;
+  transform: translateX(14px);
+  pointer-events: none;
+  transition: opacity 420ms var(--blog-ease), transform 520ms var(--blog-ease-settle);
+}
+.blog-vessel.is-on {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.blog-liquid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  height: calc(var(--read, 0) * 100%);
+  transition: height 140ms linear;
+  background:
+    radial-gradient(78% 46px at 50% 116%,
+      var(--bounce) 0%, oklch(from var(--bounce) l c h / 0.84) 22%,
+      oklch(from var(--bounce) l c h / 0.62) 34%, oklch(from var(--bounce) l c h / 0.42) 48%,
+      oklch(from var(--bounce) l c h / 0.24) 63%, oklch(from var(--bounce) l c h / 0.1) 80%,
+      oklch(from var(--bounce) l c h / 0) 100%),
+    linear-gradient(to top, var(--smoke-1) 4%, var(--smoke-2) 34%, var(--smoke-3) 62%, var(--smoke-4)),
+    linear-gradient(to right, oklch(0.96 0.012 40 / 0.5), oklch(0.55 0.02 40 / 0.22) 38%, oklch(0.99 0.012 40 / 0.5)),
+    linear-gradient(158deg, oklch(0.94 0.025 40 / 0.45) 22%, oklch(0.99 0.012 40 / 0.5));
+  background-blend-mode: normal, overlay, normal, normal;
+  background-size: cover, 100% calc(100% / max(var(--read, 0.06), 0.06)), cover, cover;
+  background-position: bottom, bottom, center, center;
+  box-shadow:
+    inset 10px 10px 18px -6px oklch(0.94 0.015 50 / 0.45),
+    inset -10px -10px 18px -6px oklch(0.99 0.01 60 / 0.5);
+}
+.blog-smoke {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(52px 40px at 28% 72%, oklch(0.99 0.012 60 / 0.3), transparent 70%),
+    radial-gradient(64px 46px at 72% 38%, oklch(0.78 0.03 45 / 0.1), transparent 72%),
+    radial-gradient(40px 34px at 46% 14%, oklch(1 0.008 80 / 0.26), transparent 70%);
+  filter: blur(3px);
+  animation: blog-churn 26s ease-in-out infinite alternate;
+}
+@keyframes blog-churn {
+  from { transform: translate3d(-5px, 6px, 0) scale(1); }
+  to { transform: translate3d(7px, -8px, 0) scale(1.12); }
+}
+.blog-wave {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 200%;
+  height: 13px;
+  filter: url(#blog-wobble);
+}
+.blog-wave svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.blog-wave.is-a { animation: blog-drift 10s linear infinite; }
+.blog-wave.is-b { animation: blog-drift 16s linear infinite reverse; opacity: 0.6; height: 16px; }
+@keyframes blog-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.blog-waterline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 1px);
+  height: 2px;
+  background: linear-gradient(90deg,
+    oklch(from var(--color-accent-500) l c h / 0.22), var(--color-accent-500) 18%,
+    var(--color-accent-500) 82%, oklch(from var(--color-accent-500) l c h / 0.22));
+}
+.blog-glint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(1 0.008 80 / 0.95) 30%, oklch(1 0.008 80 / 0.6) 70%, transparent);
+}
+.blog-bub {
+  position: absolute;
+  border-radius: 99px;
+  background: radial-gradient(circle at 34% 30%, oklch(1 0.006 80 / 0.95), oklch(1 0.006 80 / 0.2) 62%, transparent);
+  animation: blog-rise linear infinite;
+}
+.blog-bub:nth-of-type(1) { width: 5px; height: 5px; left: 24%; animation-duration: 8s; }
+.blog-bub:nth-of-type(2) { width: 3.5px; height: 3.5px; left: 60%; animation-duration: 10.5s; animation-delay: 2.2s; }
+.blog-bub:nth-of-type(3) { width: 4.5px; height: 4.5px; left: 80%; animation-duration: 12.5s; animation-delay: 5s; }
+@keyframes blog-rise {
+  0% { bottom: -4%; opacity: 0; }
+  12% { opacity: 0.65; }
+  85% { opacity: 0.4; }
+  100% { bottom: 104%; opacity: 0; transform: translateX(5px); }
+}
+
+.blog-vessel-body {
+  position: relative;
+  z-index: 4;
+  padding: 22px;
+  color: var(--color-ink-950);
+}
+.blog-vessel-body .blog-lbl {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ink-600);
+}
+.blog-vessel-body .blog-val {
+  margin: 6px 0 18px;
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+.blog-vessel-body .blog-sep {
+  height: 1px;
+  background: color-mix(in oklch, var(--color-ink-950) 13%, transparent);
+  margin: 18px 0;
+}
+.blog-vessel-body .blog-pct {
+  margin: 18px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ink-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-capsule {
+  position: relative;
+  height: 56px;
+  border-radius: 99px;
+  padding: 4px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, rgba(222, 213, 199, 0.88), rgba(250, 246, 240, 0.72) 66%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+  box-shadow:
+    inset 0 0 0 1px rgba(23, 20, 18, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 14px 30px -14px rgba(23, 20, 18, 0.34);
+}
+.blog-bead {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  bottom: 4px;
+  z-index: 1;
+  width: calc(var(--read, 0) * (100% - 8px));
+  border-radius: 99px;
+  transition: width 140ms linear;
+  background:
+    radial-gradient(70% 30px at 50% 122%,
+      var(--bounce) 0%, oklch(from var(--bounce) l c h / 0.86) 21%,
+      oklch(from var(--bounce) l c h / 0.64) 34%, oklch(from var(--bounce) l c h / 0.44) 48%,
+      oklch(from var(--bounce) l c h / 0.26) 63%, oklch(from var(--bounce) l c h / 0.1) 80%,
+      oklch(from var(--bounce) l c h / 0) 100%),
+    linear-gradient(to right, var(--smoke-1) 5%, var(--smoke-2), var(--smoke-3) 52%, var(--smoke-4)),
+    linear-gradient(to bottom, oklch(0.96 0.012 40), oklch(0.92 0.02 40 / 0.8) 33%, oklch(0.99 0.012 40 / 0.8)),
+    linear-gradient(165deg, oklch(0.94 0.025 40 / 0.8) 25%, oklch(0.99 0.012 40 / 0.8));
+  background-blend-mode: normal, overlay, normal, normal;
+  background-size: cover, 100% 100%, cover, cover;
+  box-shadow:
+    inset 0.2em 0.2em 0.3em -0.1em oklch(0.93 0.015 50 / 0.9),
+    inset -0.2em -0.2em 0.3em -0.1em oklch(0.99 0.01 60 / 0.9);
+}
+.blog-cap-body {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 22px;
+}
+.blog-meta-row {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-600);
+}
+.blog-cap-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+.blog-docked {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+  transition: opacity 380ms var(--blog-ease), transform 460ms var(--blog-ease-settle);
+}
+.blog-docked.is-on {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* FIT breakpoint — does a 216px vessel clear the 68ch measure. NOT the site's lg
+   (1024) layout breakpoint; a different question, a different number (contract). */
+@media (max-width: 1200px) {
+  .blog-vessel { display: none; }
+}
+@media (min-width: 1201px) {
+  .blog-docked { display: none; }
+}
+
+/* Reduced motion — belt to the client's braces. The client does not render the
+   SMIL <animate>/filter under reduced motion (the CSS `animation` reset cannot
+   stop SMIL); this also stills the CSS-driven liquid so nothing drifts. */
+@media (prefers-reduced-motion: reduce) {
+  .blog-smoke,
+  .blog-wave,
+  .blog-bub { animation: none !important; }
+  .blog-wave { filter: none; }
+}
