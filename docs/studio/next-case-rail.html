@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Next-case sticky rail — design reference</title>
+<style>
+  /* ============================================================
+     DESIGN REFERENCE ONLY — docs/studio/next-case-rail.html
+     Tokens below are LOCAL APPROXIMATIONS of the live editorial
+     palette. When building, replace every value with the repo's
+     CSS vars. Do not copy this file's tokens into globals.css.
+
+     What this file pins down:
+       - rail geometry, type scale, hairlines, hover behaviour
+       - the SHOW trigger (sentinel past the first body section)
+       - the HIDE trigger (site footer enters view)
+       - reduced-motion = instantly visible, never hidden
+       - mobile collapse (<820px): title + arrow only
+     Scroll this page to feel all four.
+     ============================================================ */
+  :root{
+    --paper:#f6f3ee;
+    --paper-2:#efeae2;
+    --ink:#191713;
+    --ink-2:#4a453d;
+    --ink-3:#7d7566;
+    --hair:#d8d1c5;
+    --accent:#8a4b2a;
+    --rail-h:64px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+  .eyebrow{
+    font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;
+    font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);
+  }
+
+  /* ---------- faux case-study page, so the rail has something to sit over ---------- */
+  .hero{padding:110px 0 76px;border-bottom:1px solid var(--hair)}
+  .hero .eyebrow{display:block;margin-bottom:22px}
+  .hero h1{font-size:clamp(42px,6vw,74px);line-height:1.02;letter-spacing:-.022em;margin:0 0 20px;font-weight:500}
+  .hero .tag{font-style:italic;font-size:21px;color:var(--ink-2);margin:0;max-width:38ch}
+  .frame{margin:52px 0 0;aspect-ratio:16/9;background:var(--paper-2);border:1px solid var(--hair);position:relative;overflow:hidden}
+  .frame::before{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(180deg,rgba(25,23,19,.06) 0 30px,transparent 30px),
+      linear-gradient(90deg,rgba(25,23,19,.05) 0 30%,transparent 30%),
+      repeating-linear-gradient(180deg,transparent 0 52px,rgba(25,23,19,.045) 52px 53px);
+  }
+  section.body{padding:76px 0;border-bottom:1px solid var(--hair)}
+  section.body h2{font-size:30px;letter-spacing:-.015em;margin:0 0 18px;font-weight:500}
+  section.body p{font-size:17px;line-height:1.75;color:var(--ink-2);max-width:66ch;margin:0 0 18px}
+  .pinned{
+    min-height:150vh;display:flex;align-items:center;justify-content:center;
+    background:var(--paper-2);border-bottom:1px solid var(--hair);
+  }
+  .pinned .inner{position:sticky;top:40vh;text-align:center;color:var(--ink-3)}
+  .pinned h2{font-size:34px;color:var(--ink);margin:0 0 10px}
+
+  /* ---------- site footer (the HIDE trigger) ---------- */
+  footer.site{
+    background:var(--ink);color:var(--paper);padding:78px 0 60px;margin-top:0;
+  }
+  footer.site .wrap{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap}
+  footer.site h3{font-size:30px;margin:0 0 10px;font-weight:500;letter-spacing:-.01em}
+  footer.site p{color:#b9b0a3;margin:0;font-size:15px}
+  footer.site nav{
+    display:flex;gap:26px;font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:13px;
+  }
+  footer.site a{color:#d9d1c4;text-decoration:none}
+  footer.site a:hover{color:#fff}
+
+  /* ================= THE RAIL ================= */
+  .next-rail{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    height:var(--rail-h);
+    padding:0 40px calc(env(safe-area-inset-bottom,0px));
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    background:color-mix(in srgb, var(--paper) 86%, transparent);
+    -webkit-backdrop-filter:saturate(1.1) blur(12px);
+    backdrop-filter:saturate(1.1) blur(12px);
+    border-top:1px solid var(--hair);
+    transform:translateY(100%);
+    opacity:0;
+    pointer-events:none;
+    transition:transform .42s cubic-bezier(.22,.72,.28,1), opacity .28s linear;
+  }
+  .next-rail[data-shown="true"]{
+    transform:translateY(0);
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .next-rail .all-work{
+    font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;
+    font-size:12.5px;letter-spacing:.02em;color:var(--ink-3);text-decoration:none;
+    white-space:nowrap;transition:color .2s;
+  }
+  .next-rail .all-work:hover{color:var(--accent)}
+
+  .next-rail .next-link{
+    display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;
+    min-width:0;
+  }
+  .next-rail .labels{text-align:right;min-width:0}
+  .next-rail .labels .eyebrow{display:block;margin-bottom:3px}
+  .next-rail .title{
+    font-size:19px;line-height:1.15;letter-spacing:-.012em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    transition:color .2s;
+  }
+  .next-rail .next-link:hover .title{color:var(--accent)}
+  .next-rail .thumb{
+    width:66px;height:40px;flex:0 0 auto;
+    background:var(--paper-2);border:1px solid var(--hair);position:relative;overflow:hidden;
+  }
+  .next-rail .thumb::before{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(180deg,rgba(25,23,19,.08) 0 8px,transparent 8px),
+      linear-gradient(90deg,rgba(25,23,19,.06) 0 32%,transparent 32%);
+  }
+  .next-rail .arrow{
+    color:var(--accent);font-size:15px;line-height:1;
+    transition:transform .3s cubic-bezier(.22,.72,.28,1);
+  }
+  .next-rail .next-link:hover .arrow{transform:translateX(6px)}
+  .next-rail a:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:2px}
+
+  @media (max-width:820px){
+    .next-rail{padding-left:20px;padding-right:20px;--rail-h:56px}
+    .next-rail .all-work{display:none}
+    .next-rail .thumb{display:none}
+    .next-rail .next-link{width:100%;justify-content:space-between}
+    .next-rail .labels{text-align:left}
+    .next-rail .title{font-size:17px}
+  }
+
+  /* Reduced motion: INSTANTLY VISIBLE, never hidden. "Don't animate" must
+     never mean "stay invisible" — the hidden state is dropped entirely. */
+  @media (prefers-reduced-motion:reduce){
+    .next-rail{transition:none;transform:none;opacity:1;pointer-events:auto}
+    html{scroll-behavior:auto}
+  }
+
+  /* ---------- mock-only annotation chips ---------- */
+  .chip{
+    font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:11px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+    border:1px dashed var(--accent);border-radius:2px;padding:5px 9px;display:inline-block;
+    opacity:.75;
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <header class="hero">
+      <span class="eyebrow">Case study — Fosfor AI</span>
+      <h1>Turning a model catalogue into a decision surface</h1>
+      <p class="tag">A workspace where data scientists stop hunting for models and start choosing between them.</p>
+      <div class="frame"></div>
+    </header>
+  </div>
+
+  <div class="wrap">
+    <section class="body">
+      <h2>The problem</h2>
+      <p>Faux body copy so the rail has a real page to sit against. Scroll down: the rail is hidden
+      here, because the sentinel below the first section has not been passed yet.</p>
+      <p>Everything above this point is the reader's first impression. Introducing a persistent
+      control before they have read anything competes with the hero for attention and reads as chrome.</p>
+      <p style="margin-top:26px"><span class="chip">Rail hidden above this line</span></p>
+    </section>
+  </div>
+
+  <!-- SHOW TRIGGER: zero-height sentinel after the first body section -->
+  <div id="rail-sentinel" aria-hidden="true" style="height:0"></div>
+
+  <div class="wrap">
+    <section class="body">
+      <h2>Approach</h2>
+      <p><span class="chip">Rail shown from here</span></p>
+      <p>The sentinel just above has left the viewport, so the rail slides up. From this point on it
+      stays available for the whole read — no scroll listener, one IntersectionObserver.</p>
+      <p>Keep scrolling into the pinned section below to check the rail over a scroll-story block,
+      then all the way to the footer to see it retract.</p>
+    </section>
+  </div>
+
+  <div class="pinned">
+    <div class="inner">
+      <h2>Pinned scroll section</h2>
+      <p>The rail overlaps this by design — eyeball it here.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="body" style="border-bottom:0">
+      <h2>Outcome</h2>
+      <p>Last body section. The footer is next; watch the rail retract as it enters view, so the
+      footer's own links are never covered.</p>
+    </section>
+  </div>
+</main>
+
+<!-- HIDE TRIGGER: the site footer -->
+<footer class="site" id="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Let's work together</h3>
+      <p>akshita@example.com</p>
+    </div>
+    <nav>
+      <a href="#">Work</a><a href="#">About</a><a href="#">LinkedIn</a><a href="#">Email</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- ================= THE RAIL MARKUP ================= -->
+<div class="next-rail" data-shown="false" id="next-rail" aria-label="Case study navigation">
+  <a class="all-work" href="#">← All work</a>
+  <a class="next-link" href="#">
+    <span class="labels">
+      <span class="eyebrow">Next case study</span>
+      <span class="title">Fosfor Data Profiling</span>
+    </span>
+    <span class="thumb" aria-hidden="true"></span>
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+</div>
+
+<script>
+/* Reference behaviour — two observers, zero scroll listeners.
+   In the real build this becomes a small client component. */
+(function () {
+  var rail = document.getElementById('next-rail');
+  var sentinel = document.getElementById('rail-sentinel');
+  var footer = document.getElementById('site-footer');
+  if (!rail || !sentinel || !footer) return;
+
+  var pastSentinel = false;
+  var footerVisible = false;
+
+  function sync() {
+    rail.dataset.shown = (pastSentinel && !footerVisible) ? 'true' : 'false';
+  }
+
+  // Show once the sentinel has scrolled ABOVE the viewport.
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      pastSentinel = !e.isIntersecting && e.boundingClientRect.top < 0;
+      sync();
+    });
+  }, { threshold: 0 }).observe(sentinel);
+
+  // Hide while the footer is in view, so it never covers the footer's links.
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { footerVisible = e.isIntersecting; sync(); });
+  }, { threshold: 0 }).observe(footer);
+})();
+</script>
+
+</body>
+</html>
