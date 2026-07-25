@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — full-bleed dashboard (final)</title>
+
+<!--
+================================================================================
+  DESIGN REFERENCE — /studio SHELL  ·  FINAL
+  akshitas.com/studio
+
+  THIS FILE IS THE CONTRACT for the studio chrome. The blog editor's language
+  (sidebar, typography, states, buttons, theme) is the source of truth; this
+  file applies it to the whole studio and adds the blog collection.
+
+  ############################################################################
+  ##  VISUAL SPEC ONLY — DO NOT PORT THIS CSS.                              ##
+  ##                                                                        ##
+  ##  The Task 0 investigation established that /studio authors ZERO global  ##
+  ##  class names. It is 100% Tailwind utilities + @theme tokens; app/studio ##
+  ##  and components/studio import no stylesheet of their own. There is no   ##
+  ##  prefix convention because none was ever needed.                        ##
+  ##                                                                        ##
+  ##  Consequently the class names in this file (.side, .item, .seg,         ##
+  ##  .canvas, .list, .badge, .dot, .field) ARE MOCKUP SCAFFOLDING. None of  ##
+  ##  them exists in globals.css and none should be added. Read this file    ##
+  ##  for LAYOUT, SPACING, TYPE SCALE, STATES and COLOUR ROLE; implement it  ##
+  ##  as utility classes on studio JSX.                                     ##
+  ##                                                                        ##
+  ##  Two are actively dangerous: .canvas sits adjacent to the existing      ##
+  ##  .canvas-surface / .canvas-static, and .shot/.veil/.rail would collide  ##
+  ##  conceptually with the work section's .wc-* family. If authored CSS     ##
+  ##  ever does enter the studio, establish a prefix (studio-/st-) FIRST.    ##
+  ############################################################################
+
+  This file was originally written against a SCREENSHOT of the studio, not
+  against the source, and was wrong in four ways. All four are now corrected:
+  the authored-CSS assumption (above), the fonts (DM Sans + Fraunces, not Inter
+  + Instrument Serif), the parallel hex palette (now mapped to @theme tokens,
+  with draft resolved to neutral ink-400 rather than a new amber token), and the
+  ListDetailLayout claim (see below). The general rule this produced: DESIGN
+  REFERENCE FILES ARE VISUAL SPEC, NOT PORTABLE CODE — investigate before
+  building against one, and correct it in the PR that finds it wrong.
+
+  WHAT CHANGED FROM THE CURRENT STUDIO
+  - THE OUTER CARD IS GONE. The studio previously sat in a rounded panel
+    floating on a taupe field, which made a dashboard read as a widget. The app
+    is now full-bleed: sidebar on paper-raised, working surface on paper, one
+    hairline between them. This is the single biggest change and it is pure
+    chrome — no content, no data, no behaviour.
+  - THE HOMEPAGE OVERVIEW IS ROWS, NOT CARDS. Six equal filled boxes in a row
+    gave six things the same weight and wasted the width. Hairline rows scan
+    faster, scale past six, and match the language of every list in the studio.
+    The serif numbers and the LIVE / IN CODE badges are kept — they were the
+    good parts.
+  - SIDEBAR ACTIVE STATE is the ink pill from the blog editor, not a soft tint.
+  - ONE BUTTON SYSTEM: ink primary, ghost secondary, accent for publish.
+  - Blog is added to the nav with a live count.
+
+  LOCKED DECISIONS CARRIED IN
+  - ListDetailLayout is the layout for the EXISTING collection pages (Case
+    studies, Experience, Skills). It is a 220px tablist + one pane. It is NOT
+    the 3-pane list/canvas/inspector drawn here for the blog — an earlier draft
+    of this file claimed it was, and that was wrong.
+    THE BLOG EDITOR'S REAL PARENT IS SectionsEditPanel, the case-study canvas
+    editor. That strengthens the reuse argument rather than weakening it: the
+    canvas editing, block registry, rich-text marks and structural() choke point
+    all already live there. A write-first second shell was explored and rejected.
+  - Panels stay MOUNTED (return null when unselected) so switching never
+    discards an unsaved draft.
+  - PublishBar is page-level, floating, on every /studio page. Only
+    PublishBar.publish() clears the unpublished signal.
+  - The list column collapses via a WIDTH transition, never a conditional
+    render — unmounting would reset the search field.
+  - A post is a FLAT ARRAY OF BLOCKS named `blocks` (not `body`, which carries
+    Keystatic document-field semantics).
+  - Loves are runtime state and are never editable in the studio.
+
+  STILL OPEN
+  - Per-post Draft/Published vs the site's branch-wide publish. The status
+    control is drawn because the editor needs it; the mechanism is undecided.
+    Strong lean: a `status` field the public read filters on — no commit-layer
+    change, no second branch, an unfinished post simply does not render.
+================================================================================
+-->
+
+<style>
+:root{
+  /* ------------------------------------------------------------------
+     TOKEN MAP — these locals exist only so this file renders standalone.
+     THE RIGHT-HAND COLUMN IS THE CONTRACT. Implement with the @theme token
+     (or the Tailwind utility named after it) — never with these literals,
+     and never by adding a new token.
+     ------------------------------------------------------------------ */
+  --paper:        oklch(98.5% 0.012 80);  /* --color-cream-50   · working surface */
+  --paper-raised: oklch(99.2% 0.008 80);  /* cream-50 lifted    · sidebar/inspector cards */
+  --paper-sunk:   oklch(96.8% 0.018 78);  /* --color-cream-100  · sidebar surface, hovers */
+  --ink:          oklch(14%   0.018 60);  /* --color-ink-950                       */
+  --ink-2:        oklch(30%   0.016 60);  /* --color-ink-800                       */
+  --ink-mute:     oklch(44%   0.016 60);  /* --color-ink-600                       */
+  --rule:         oklch(14% 0.018 60 / .08); /* border-ink-950/8 — NOT --color-border */
+  --rule-strong:  oklch(62%   0.012 60);  /* --color-ink-400                       */
+  --accent:       oklch(56%   0.14  42);  /* --color-accent-500                    */
+  --accent-dim:   oklch(56% 0.14 42 / .45);
+  --ok:           oklch(46%   0.075 145); /* --color-success-700 · LIVE text       */
+  --ok-bg:        oklch(94.5% 0.030 145); /* --color-success-50  · LIVE background */
+  --code:         oklch(44%   0.016 60);  /* --color-ink-600     · IN CODE text    */
+  --code-bg:      oklch(88%   0.032 74);  /* --color-cream-300   · IN CODE background */
+
+  /* DRAFT HAS NO SITE TOKEN AND MUST NOT GET ONE. The earlier draft of this
+     file used an amber #B08636 that exists nowhere in @theme. A draft is not a
+     warning — it is simply not-yet-live — so it resolves to NEUTRAL ink-400.
+     Neutral-vs-green is also a cleaner pair than amber-vs-green. */
+  --draft:        oklch(62%   0.012 60);  /* --color-ink-400                       */
+
+  /* site fonts, loaded via next/font/google in the root layout */
+  --sans:  "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;   /* --font-body    */
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;                    /* --font-display */
+  --ease:cubic-bezier(.22,.68,.24,1);
+  --ease-settle:cubic-bezier(.16,.9,.28,1);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{ background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:14px; -webkit-font-smoothing:antialiased; }
+
+/* ============================================================
+   SHELL — full bleed. No outer card, no floating panel.
+   ============================================================ */
+.app{ display:flex; min-height:100vh; }
+
+.side{
+  width:236px; flex:none; background:var(--paper-raised);
+  border-right:1px solid var(--rule); padding:20px 14px;
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+}
+.logo{ display:flex; align-items:center; gap:11px; padding:0 8px 20px; }
+.logo .mark{ width:30px; height:30px; border-radius:9px; background:var(--accent); display:grid; place-items:center; color:#fff; flex:none; }
+.logo .mark svg{ width:16px; height:16px; }
+.logo b{ font-family:var(--serif); font-weight:400; font-size:20px; letter-spacing:-.01em; }
+
+.grp{ font:600 10px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--rule-strong); padding:8px 10px 8px; margin:0; }
+.side nav{ display:flex; flex-direction:column; gap:1px; }
+.side nav a{
+  display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:8px;
+  text-decoration:none; color:var(--ink-2); font-size:13.5px;
+  transition:background 160ms var(--ease), color 160ms var(--ease);
+}
+.side nav a svg{ width:16px; height:16px; flex:none; opacity:.7; }
+.side nav a:hover{ background:var(--paper-sunk); color:var(--ink); }
+.side nav a.on{ background:var(--ink); color:var(--paper); }
+.side nav a.on svg{ opacity:1; }
+.side nav a .c{ margin-left:auto; font-size:11.5px; opacity:.5; font-variant-numeric:tabular-nums; }
+.side .foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--rule); display:flex; flex-direction:column; gap:1px; }
+
+/* main */
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.topbar{
+  position:sticky; top:0; z-index:70; display:flex; align-items:center; gap:14px;
+  padding:14px 26px; background:rgba(250,246,240,.88); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--rule);
+}
+.search{ position:relative; flex:1; max-width:none; }
+.search input{
+  width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper-raised);
+  border-radius:9px; padding:10px 42px 10px 36px; font:400 13.5px/1.2 var(--sans); color:var(--ink);
+}
+.search input::placeholder{ color:var(--ink-mute); }
+.search input:focus{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+.search .mag{ position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-mute); }
+.search kbd{
+  position:absolute; right:9px; top:50%; transform:translateY(-50%);
+  font:400 11px/1 var(--sans); color:var(--ink-mute); border:1px solid var(--rule);
+  border-radius:5px; padding:4px 7px; background:var(--paper);
+}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; appearance:none; cursor:pointer;
+  font:500 12.5px/1 var(--sans); padding:10px 15px; border-radius:8px; text-decoration:none;
+  transition:background 170ms var(--ease), color 170ms var(--ease), border-color 170ms var(--ease);
+}
+.btn.ghost{ border:1px solid var(--rule); background:var(--paper-raised); color:var(--ink-2); }
+.btn.ghost:hover{ border-color:var(--accent); color:var(--accent); }
+.btn.solid{ border:0; background:var(--ink); color:var(--paper); }
+.btn.solid:hover{ background:var(--accent); }
+.btn svg{ width:14px; height:14px; }
+
+.view{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.pad{ padding:34px 26px 120px; }
+
+.page-head{ margin-bottom:26px; }
+.page-head h1{ font-family:var(--serif); font-weight:400; font-size:40px; line-height:1.05; letter-spacing:-.015em; margin:0; }
+.page-head p{ margin:9px 0 0; font-size:14px; color:var(--ink-mute); }
+
+/* ============================================================
+   HOMEPAGE OVERVIEW — hairline rows, not boxy cards
+   ============================================================ */
+.rows{ border-top:1px solid var(--rule); max-width:960px; }
+.srow{
+  display:grid; grid-template-columns:46px 30px 1fr auto 20px; gap:18px; align-items:center;
+  padding:17px 14px; margin:0; border-bottom:1px solid var(--rule);
+  text-decoration:none; color:inherit; border-radius:8px;
+  transition:background 170ms var(--ease), padding-left 340ms var(--ease-settle);
+}
+.srow:hover{ background:var(--paper-raised); padding-left:24px; }
+.srow .n{ font-family:var(--serif); font-style:italic; font-size:17px; color:var(--rule-strong); font-variant-numeric:tabular-nums; }
+.srow .ic{ display:grid; place-items:center; color:var(--accent); }
+.srow .ic svg{ width:19px; height:19px; }
+.srow .t{ font-family:var(--serif); font-size:20px; line-height:1.2; margin:0; }
+.srow .d{ margin:4px 0 0; font-size:13px; color:var(--ink-mute); line-height:1.45; }
+.srow .chev{ color:var(--rule-strong); opacity:0; transform:translateX(-5px);
+  transition:opacity 170ms var(--ease), transform 300ms var(--ease-settle); }
+.srow:hover .chev{ opacity:1; transform:translateX(0); }
+.srow.locked{ cursor:default; }
+.srow.locked:hover{ background:transparent; padding-left:14px; }
+.srow.locked .chev{ display:none; }
+
+.badge{ font:500 10px/1 var(--sans); letter-spacing:.11em; text-transform:uppercase; border-radius:99px; padding:5px 9px; white-space:nowrap; }
+.badge.live{ background:var(--ok-bg); color:var(--ok); }
+.badge.code{ background:var(--code-bg); color:var(--code); }
+
+.foot-note{ margin:22px 0 0; font-size:12.5px; line-height:1.6; color:var(--ink-mute); max-width:56ch; }
+
+/* ============================================================
+   COLLECTION VIEW — list + canvas + inspector
+   ============================================================ */
+.split{ flex:1; display:flex; min-height:0; }
+.list{
+  width:288px; flex:none; border-right:1px solid var(--rule); display:flex; flex-direction:column;
+  background:var(--paper); overflow:hidden;
+  transition:width 300ms var(--ease-settle), border-color 300ms var(--ease);
+}
+.split.collapsed .list{ width:0; border-right-color:transparent; }
+.list .lt{ padding:16px; border-bottom:1px solid var(--rule); display:flex; flex-direction:column; gap:11px; min-width:288px; }
+.list .lh{ display:flex; align-items:center; gap:8px; }
+.list .lh h4{ margin:0; font:600 10px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--rule-strong); }
+.iconbtn{ appearance:none; border:1px solid var(--rule); background:var(--paper-raised); cursor:pointer;
+  width:26px; height:26px; border-radius:7px; color:var(--ink-mute); display:grid; place-items:center; font-size:12px;
+  transition:border-color 170ms var(--ease), color 170ms var(--ease); }
+.iconbtn:hover{ border-color:var(--accent); color:var(--accent); }
+.list .lh .iconbtn{ margin-left:auto; }
+.newbtn{ width:100%; justify-content:center; }
+.minisearch{ position:relative; }
+.minisearch input{ width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper-raised);
+  border-radius:8px; padding:8px 10px 8px 30px; font:400 13px/1.2 var(--sans); color:var(--ink); }
+.minisearch input:focus{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+.minisearch svg{ position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--ink-mute); }
+.list .scroll{ flex:1; overflow-y:auto; padding:8px; min-width:288px; }
+.list .month{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); padding:13px 8px 7px; margin:0; }
+.item{ display:block; width:100%; text-align:left; appearance:none; border:0; cursor:pointer;
+  background:transparent; padding:11px 10px; border-radius:8px; margin-bottom:1px; transition:background 150ms var(--ease); }
+.item:hover{ background:var(--paper-raised); }
+.item.on{ background:var(--paper-sunk); box-shadow:inset 2px 0 0 var(--accent); }
+.item .t{ font-size:13.5px; line-height:1.35; color:var(--ink); display:block; margin-bottom:5px; }
+.item .m{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-mute); }
+.dot{ width:6px; height:6px; border-radius:99px; flex:none; }
+.dot.pub{ background:var(--ok); } .dot.dr{ background:var(--draft); }
+
+.reopen{ position:absolute; left:0; top:14px; z-index:60; width:26px; height:28px;
+  appearance:none; border:1px solid var(--rule); border-left:0; background:var(--paper-raised); cursor:pointer;
+  border-radius:0 8px 8px 0; color:var(--ink-mute); display:none; place-items:center; font-size:12px; }
+.split.collapsed .reopen{ display:grid; }
+.reopen:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* canvas */
+.canvas{ flex:1; overflow-y:auto; position:relative; background:var(--paper); }
+.canvas-inner{ max-width:620px; margin:0 auto; padding:40px 32px 150px; transition:max-width 300ms var(--ease-settle); }
+.split.collapsed .canvas-inner{ max-width:690px; }
+.cv-label{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 12px; }
+.cv-title{ font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.08; letter-spacing:-.015em; margin:0; outline:none; border-radius:4px; }
+.cv-dek{ font-family:var(--serif); font-size:18px; line-height:1.5; color:var(--ink-2); margin:14px 0 0; outline:none; border-radius:4px; }
+[contenteditable]:focus{ box-shadow:0 0 0 2px var(--accent); }
+[contenteditable]:hover:not(:focus){ box-shadow:0 0 0 1px var(--rule-strong); }
+.cv-hero{ margin:26px 0; aspect-ratio:16/9; border-radius:10px; border:1px dashed var(--rule-strong);
+  display:grid; place-items:center; color:var(--ink-mute); font-size:12.5px; background:var(--paper-raised); cursor:pointer;
+  transition:border-color 180ms var(--ease), background 180ms var(--ease); }
+.cv-hero:hover{ border-color:var(--accent); background:var(--paper-sunk); }
+.cv-hero.filled{ border:1px solid var(--rule); background:linear-gradient(150deg,#DDE0EC,#B9BED6); }
+
+.block{ position:relative; margin:0 0 18px; }
+.block .body{ font-size:16px; line-height:1.72; color:var(--ink-2); outline:none; border-radius:4px; padding:2px 0; }
+.block.quote .body{ font-family:var(--serif); font-size:21px; line-height:1.4; color:var(--ink);
+  border-left:2px solid var(--accent); padding-left:18px; font-style:italic; }
+.block .handle{ position:absolute; left:-34px; top:2px; width:24px; height:24px; display:grid; place-items:center;
+  border-radius:6px; color:var(--rule-strong); opacity:0; cursor:grab;
+  transition:opacity 160ms var(--ease), background 160ms var(--ease), color 160ms var(--ease); }
+.block:hover .handle{ opacity:1; }
+.block .handle:hover{ background:var(--paper-sunk); color:var(--ink-2); }
+.block .kindtag{ position:absolute; right:-6px; top:3px; font:500 9.5px/1 var(--sans); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--rule-strong); opacity:0; transition:opacity 160ms var(--ease); }
+.block:hover .kindtag{ opacity:1; }
+
+.insert{ position:relative; height:22px; margin:-6px 0 6px; }
+.insert .line{ position:absolute; left:0; right:0; top:50%; height:1px; background:var(--rule); opacity:0; transition:opacity 160ms var(--ease); }
+.insert button{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:22px; height:22px; border-radius:99px; appearance:none; cursor:pointer;
+  border:1px solid var(--rule); background:var(--paper-raised); color:var(--ink-mute);
+  display:grid; place-items:center; opacity:0; font-size:14px; line-height:1;
+  transition:opacity 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease), transform 220ms var(--ease-settle); }
+.insert:hover .line, .insert:hover button{ opacity:1; }
+.insert button:hover{ border-color:var(--accent); color:var(--accent); transform:translate(-50%,-50%) rotate(90deg); }
+.picker{ position:absolute; z-index:60; left:50%; top:26px; transform:translateX(-50%);
+  width:240px; background:var(--paper-raised); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 18px 40px -18px rgba(23,20,18,.4); padding:6px; display:none; }
+.picker.open{ display:block; }
+.picker .h{ font:600 10px/1 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); padding:8px 9px 6px; margin:0; }
+.picker button{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; appearance:none; border:0;
+  background:transparent; cursor:pointer; padding:9px; border-radius:7px; font:400 13px/1 var(--sans); color:var(--ink-2); }
+.picker button:hover{ background:var(--paper-sunk); color:var(--ink); }
+.picker button .k{ font-size:10.5px; color:var(--rule-strong); margin-left:auto; }
+
+.rtb{ position:absolute; z-index:70; display:none; gap:2px; padding:3px;
+  background:var(--ink); border-radius:8px; box-shadow:0 12px 26px -12px rgba(0,0,0,.5); }
+.rtb.open{ display:flex; }
+.rtb button{ appearance:none; border:0; background:transparent; color:#F2ECE3; cursor:pointer;
+  width:30px; height:28px; border-radius:6px; font-size:13px; }
+.rtb button:hover{ background:rgba(255,255,255,.14); }
+
+/* inspector */
+.insp{ width:262px; flex:none; border-left:1px solid var(--rule); background:var(--paper-raised); padding:18px; overflow-y:auto; }
+.insp h4{ font:600 10px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 14px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:11.5px; letter-spacing:.05em; color:var(--ink-mute); margin-bottom:6px; }
+.field input, .field select{ width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper);
+  border-radius:8px; padding:9px 11px; font:400 13px/1.2 var(--sans); color:var(--ink); }
+.field input:focus, .field select:focus{ outline:2px solid var(--accent); outline-offset:-1px; }
+.field input[readonly]{ color:var(--ink-mute); background:var(--paper-sunk); }
+.seg{ display:flex; gap:2px; padding:3px; background:var(--paper-sunk); border-radius:99px; }
+.seg button{ flex:1; appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
+  font:500 11.5px/1 var(--sans); padding:9px; border-radius:99px; transition:background 170ms var(--ease), color 170ms var(--ease); }
+.seg button[aria-pressed="true"]{ background:var(--paper-raised); color:var(--ink); box-shadow:0 1px 3px rgba(23,20,18,.12); }
+.insp .note{ font-size:11.5px; line-height:1.55; color:var(--ink-mute); border-top:1px solid var(--rule); padding-top:13px; margin:6px 0 0; }
+
+/* placeholder view */
+.holder{ padding:70px 26px; max-width:520px; }
+.holder h2{ font-family:var(--serif); font-weight:400; font-size:28px; margin:0 0 10px; }
+.holder p{ font-size:14px; line-height:1.6; color:var(--ink-mute); margin:0; }
+
+/* ============================================================
+   PUBLISH BAR
+   ============================================================ */
+.pubbar{
+  position:fixed; left:calc(50% + 118px); bottom:24px; transform:translateX(-50%); z-index:120;
+  display:flex; align-items:center; gap:14px; padding:9px 9px 9px 18px;
+  background:var(--paper-raised); border:1px solid var(--rule); border-radius:99px;
+  box-shadow:0 18px 40px -20px rgba(23,20,18,.45);
+}
+.pubbar .s{ font-size:12.5px; color:var(--ink-mute); display:flex; align-items:center; gap:9px; }
+.pubbar .go{ appearance:none; border:0; cursor:pointer; background:var(--accent); color:#fff;
+  font:500 12px/1 var(--sans); letter-spacing:.08em; text-transform:uppercase; padding:11px 19px; border-radius:99px;
+  transition:background 170ms var(--ease); }
+.pubbar .go:hover{ background:#8C4433; }
+.pubbar .go[disabled]{ background:var(--accent-dim); cursor:not-allowed; }
+.pubbar .ghost{ appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
+  font:400 12.5px/1 var(--sans); padding:11px 8px; }
+.pubbar .ghost:hover{ color:var(--accent); }
+
+/* dialog */
+.scrim{ position:fixed; inset:0; z-index:200; background:rgba(23,20,18,.32); display:none; place-items:center; }
+.scrim.open{ display:grid; }
+.dlg{ width:440px; background:var(--paper-raised); border-radius:14px; padding:26px; box-shadow:0 30px 60px -24px rgba(0,0,0,.5); }
+.dlg h3{ font-family:var(--serif); font-weight:400; font-size:25px; margin:0 0 7px; }
+.dlg p{ margin:0 0 18px; font-size:13px; line-height:1.55; color:var(--ink-mute); }
+.dlg .slug{ font-size:11.5px; color:var(--ink-mute); margin-top:8px; font-family:ui-monospace,monospace; }
+.dlg .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
+
+[hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="side">
+    <div class="logo">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.6L20 9.2l-4.3 3.6 1.4 5.9L12 15.6 6.9 18.7l1.4-5.9L4 9.2l5.8-1.6z"/></svg></span>
+      <b>Studio</b>
+    </div>
+
+    <p class="grp">Content</p>
+    <nav>
+      <a href="#" class="on" data-nav="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10l8-6 8 6v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>
+        Homepage
+      </a>
+      <a href="#" data-nav="work">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+        Case studies <span class="c">4</span>
+      </a>
+      <a href="#" data-nav="blog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        Blog <span class="c">12</span>
+      </a>
+      <a href="#" data-nav="exp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>
+        Experience <span class="c">5</span>
+      </a>
+      <a href="#" data-nav="skills">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5"/></svg>
+        Skills <span class="c">6</span>
+      </a>
+    </nav>
+
+    <div class="foot">
+      <nav>
+        <a href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg>
+          Site settings
+        </a>
+        <a href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2"/><path d="M11 12h9m0 0-3-3m3 3-3 3"/></svg>
+          Sign out
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg class="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search content" />
+        <kbd>/</kbd>
+      </div>
+      <a class="btn ghost" href="#">View live
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </div>
+
+    <!-- ---------- HOMEPAGE OVERVIEW ---------- -->
+    <div class="view" data-view="home">
+      <div class="pad">
+        <div class="page-head">
+          <h1>Homepage</h1>
+          <p>What feeds the homepage.</p>
+        </div>
+
+        <div class="rows">
+          <a class="srow" href="#">
+            <span class="n">01</span>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l1.9 4.8L18.7 9.7l-3.7 3.1 1.2 5-4.2-2.6-4.2 2.6 1.2-5L5.3 9.7l4.8-1.9z"/></svg></span>
+            <span><span class="t">Hero</span><span class="d">Site settings, copy and photo · facet labels in code</span></span>
+            <span class="badge live">Live</span>
+            <span class="chev">→</span>
+          </a>
+
+          <a class="srow" href="#" data-nav="work">
+            <span class="n">02</span>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span>
+            <span><span class="t">Work</span><span class="d">4 case studies · card images and categories</span></span>
+            <span class="badge live">Live</span>
+            <span class="chev">→</span>
+          </a>
+
+          <a class="srow" href="#">
+            <span class="n">03</span>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg></span>
+            <span><span class="t">About</span><span class="d">Site settings, copy and chips</span></span>
+            <span class="badge live">Live</span>
+            <span class="chev">→</span>
+          </a>
+
+          <a class="srow" href="#">
+            <span class="n">04</span>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 4v6a4 4 0 0 0 4 4h8"/><circle cx="6" cy="19" r="2"/><path d="M18 11l3 3-3 3"/></svg></span>
+            <span><span class="t">Process</span><span class="d">Site settings, 4 copy fields · stage visuals in code</span></span>
+            <span class="badge live">Live</span>
+            <span class="chev">→</span>
+          </a>
+
+          <a class="srow" href="#" data-nav="blog">
+            <span class="n">05</span>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span>
+            <span><span class="t">Blog</span><span class="d">12 posts · 1 draft, 11 published</span></span>
+            <span class="badge live">Live</span>
+            <span class="chev">→</span>
+          </a>
+
+          <a class="srow" href="#" data-nav="skills">
+            <span class="n">06</span>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/></svg></span>
+            <span><span class="t">Skills</span><span class="d">6 categories</span></span>
+            <span class="badge live">Live</span>
+            <span class="chev">→</span>
+          </a>
+
+          <div class="srow locked">
+            <span class="n">07</span>
+            <span class="ic" style="color:var(--code)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m9 8-4 4 4 4M15 8l4 4-4 4"/></svg></span>
+            <span><span class="t">Contact</span><span class="d">Form steps managed in source</span></span>
+            <span class="badge code">In code</span>
+            <span class="chev">→</span>
+          </div>
+        </div>
+
+        <p class="foot-note">Hero facets, Process stage visuals and Contact steps are code-managed and edited in source, not here.</p>
+      </div>
+    </div>
+
+    <!-- ---------- BLOG ---------- -->
+    <div class="view" data-view="blog" hidden>
+      <div class="split" id="split">
+        <button class="reopen" data-collapse title="Show posts">⟩</button>
+
+        <div class="list">
+          <div class="lt">
+            <div class="lh">
+              <h4>Posts</h4>
+              <button class="iconbtn" data-collapse title="Collapse list">⟨</button>
+            </div>
+            <button class="btn solid newbtn" data-new>＋ New post</button>
+            <div class="minisearch">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input type="search" placeholder="Search posts" />
+            </div>
+          </div>
+          <div class="scroll">
+            <p class="month">July 2026</p>
+            <button class="item on"><span class="t">What a data table teaches you about trust</span><span class="m"><span class="dot dr"></span>Draft · 24 Jul</span></button>
+            <button class="item"><span class="t">Three weeks of AI copilot patterns</span><span class="m"><span class="dot pub"></span>Published · 22 Jul</span></button>
+            <button class="item"><span class="t">Notes on designing empty states</span><span class="m"><span class="dot pub"></span>Published · 19 Jul</span></button>
+            <button class="item"><span class="t">The handoff is the design</span><span class="m"><span class="dot pub"></span>Published · 17 Jul</span></button>
+            <button class="item"><span class="t">A small win: the twelve-pixel fix</span><span class="m"><span class="dot pub"></span>Published · 14 Jul</span></button>
+            <p class="month">June 2026</p>
+            <button class="item"><span class="t">On naming things in a design system</span><span class="m"><span class="dot pub"></span>Published · 30 Jun</span></button>
+            <button class="item"><span class="t">Why I stopped prototyping in high fidelity</span><span class="m"><span class="dot pub"></span>Published · 27 Jun</span></button>
+          </div>
+        </div>
+
+        <div class="canvas">
+          <div class="canvas-inner">
+            <p class="cv-label">Editing on the canvas</p>
+            <h1 class="cv-title" contenteditable spellcheck="false">What a data table teaches you about trust</h1>
+            <p class="cv-dek" contenteditable spellcheck="false">Nobody trusts a number they can't trace.</p>
+            <div class="cv-hero filled"></div>
+
+            <div class="insert"><span class="line"></span><button data-ins>＋</button>
+              <div class="picker"><p class="h">Add block</p>
+                <button>Paragraph <span class="k">richText</span></button>
+                <button>Image <span class="k">imageBlock</span></button>
+                <button>Pull quote <span class="k">pullQuote</span></button>
+                <button>Video <span class="k">videoEmbed</span></button>
+              </div>
+            </div>
+
+            <div class="block"><span class="handle">⠿</span><span class="kindtag">richText</span>
+              <div class="body" contenteditable spellcheck="false">The first enterprise dashboard I shipped had forty-one metrics on it. I was proud of the density. Six weeks later I watched an analyst export the whole thing to Excel, delete thirty-eight columns, and rebuild the three she needed by hand — every Monday morning, for as long as anyone could remember.</div>
+            </div>
+
+            <div class="insert"><span class="line"></span><button data-ins>＋</button>
+              <div class="picker"><p class="h">Add block</p>
+                <button>Paragraph <span class="k">richText</span></button>
+                <button>Image <span class="k">imageBlock</span></button>
+                <button>Pull quote <span class="k">pullQuote</span></button>
+                <button>Video <span class="k">videoEmbed</span></button>
+              </div>
+            </div>
+
+            <div class="block quote"><span class="handle">⠿</span><span class="kindtag">pullQuote</span>
+              <div class="body" contenteditable spellcheck="false">The most important column in an enterprise table is usually the one nobody asked for.</div>
+            </div>
+
+            <div class="insert"><span class="line"></span><button data-ins>＋</button>
+              <div class="picker"><p class="h">Add block</p>
+                <button>Paragraph <span class="k">richText</span></button>
+                <button>Image <span class="k">imageBlock</span></button>
+                <button>Pull quote <span class="k">pullQuote</span></button>
+                <button>Video <span class="k">videoEmbed</span></button>
+              </div>
+            </div>
+
+            <div class="block"><span class="handle">⠿</span><span class="kindtag">richText</span>
+              <div class="body" contenteditable spellcheck="false">She wasn't working around a missing feature. She was working around a missing explanation. Every number on that screen was correct and not one of them said where it came from.</div>
+            </div>
+
+            <div class="insert"><span class="line"></span><button data-ins>＋</button>
+              <div class="picker"><p class="h">Add block</p>
+                <button>Paragraph <span class="k">richText</span></button>
+                <button>Image <span class="k">imageBlock</span></button>
+                <button>Pull quote <span class="k">pullQuote</span></button>
+                <button>Video <span class="k">videoEmbed</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="rtb" data-rtb><button title="Bold"><b>B</b></button><button title="Italic"><i>I</i></button><button title="Link">🔗</button></div>
+        </div>
+
+        <aside class="insp">
+          <h4>Post</h4>
+          <div class="field"><label>Status</label>
+            <div class="seg"><button aria-pressed="true">Draft</button><button aria-pressed="false">Published</button></div>
+          </div>
+          <div class="field"><label>Publish date</label><input type="date" value="2026-07-24" /></div>
+          <div class="field"><label>Topic</label>
+            <select><option>Enterprise UX</option><option>AI patterns</option><option>Craft</option><option>Process</option></select>
+          </div>
+          <div class="field"><label>Slug</label><input value="what-a-data-table-teaches-you-about-trust" readonly /></div>
+          <div class="field"><label>Card image</label><div class="cv-hero filled" style="aspect-ratio:16/9;margin:0"></div></div>
+          <p class="note">Reading time is computed from the blocks. Loves are runtime state and are never edited here.</p>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ---------- generic collection placeholder ---------- -->
+    <div class="view" data-view="other" hidden>
+      <div class="holder">
+        <h2>Same shell</h2>
+        <p>Case studies, Experience and Skills use this identical list + detail split, restyled by the same tokens. Nothing about their behaviour changes — only the chrome.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pubbar">
+  <span class="s"><span class="dot dr"></span>Unpublished changes</span>
+  <button class="ghost">Discard</button>
+  <button class="go">Publish</button>
+</div>
+
+<div class="scrim" data-scrim>
+  <div class="dlg">
+    <h3>New post</h3>
+    <p>Give it a title. The slug is derived server-side and locked once created — everything else can change later.</p>
+    <div class="field"><label>Title</label><input value="Notes on designing empty states" /></div>
+    <p class="slug">/blog/notes-on-designing-empty-states</p>
+    <div class="row">
+      <button class="btn ghost" data-close>Cancel</button>
+      <button class="btn solid" data-close>Create &amp; start writing</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* nav */
+const views = [...document.querySelectorAll("[data-view]")];
+const links = [...document.querySelectorAll(".side nav a[data-nav]")];
+function go(name){
+  const target = (name === "home" || name === "blog") ? name : "other";
+  views.forEach(v => v.hidden = v.dataset.view !== target);
+  links.forEach(a => a.classList.toggle("on", a.dataset.nav === name));
+}
+document.querySelectorAll("[data-nav]").forEach(el =>
+  el.addEventListener("click", e => { e.preventDefault(); go(el.dataset.nav); }));
+
+/* list selection */
+const items = [...document.querySelectorAll(".item")];
+items.forEach(i => i.addEventListener("click", () => {
+  items.forEach(x => x.classList.remove("on")); i.classList.add("on");
+  document.querySelector(".cv-title").textContent = i.querySelector(".t").textContent;
+}));
+
+/* collapse — width transition, never an unmount */
+const split = document.getElementById("split");
+document.querySelectorAll("[data-collapse]").forEach(b =>
+  b.addEventListener("click", () => split.classList.toggle("collapsed")));
+
+/* block picker */
+document.querySelectorAll("[data-ins]").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const pick = btn.parentElement.querySelector(".picker");
+    document.querySelectorAll(".picker").forEach(p => { if (p !== pick) p.classList.remove("open"); });
+    pick.classList.toggle("open");
+  });
+});
+document.addEventListener("click", () => document.querySelectorAll(".picker").forEach(p => p.classList.remove("open")));
+
+/* rich-text toolbar — only live marks */
+const rtb = document.querySelector("[data-rtb]");
+document.addEventListener("selectionchange", () => {
+  const sel = document.getSelection();
+  if (!sel || sel.isCollapsed) return rtb.classList.remove("open");
+  const node = sel.anchorNode && sel.anchorNode.parentElement;
+  if (!node || !node.closest(".block .body")) return rtb.classList.remove("open");
+  const r = sel.getRangeAt(0).getBoundingClientRect();
+  const host = rtb.parentElement.getBoundingClientRect();
+  rtb.style.left = (r.left - host.left + r.width/2 - 50) + "px";
+  rtb.style.top  = (r.top - host.top + rtb.parentElement.scrollTop - 42) + "px";
+  rtb.classList.add("open");
+});
+
+/* dialog */
+const scrim = document.querySelector("[data-scrim]");
+document.querySelector("[data-new]").addEventListener("click", () => scrim.classList.add("open"));
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => scrim.classList.remove("open")));
+
+/* / focuses search */
+addEventListener("keydown", e => {
+  if (e.key === "/" && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && !document.activeElement.isContentEditable){
+    e.preventDefault(); document.querySelector(".search input").focus();
+  }
+});
+</script>
+</body>
+</html>

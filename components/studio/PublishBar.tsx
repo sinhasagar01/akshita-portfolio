@@ -197,7 +197,11 @@ export default function PublishBar() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4">
+    // Task 1 full-bleed offset: lg:left-[236px] shifts the fixed bar past the
+    // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
+    // this 236px is coupled to StudioSidebar's lg:w-[236px] by hand. If the
+    // sidebar width changes, change this too, or the bar drifts off-centre.
+    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[236px]">
       <div
         className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-4 rounded-xl border border-ink-950/10 bg-cream-50/95 px-4 py-2.5 shadow-[0_8px_30px_rgba(60,45,30,0.16)] backdrop-blur"
         {...(confirmOpen

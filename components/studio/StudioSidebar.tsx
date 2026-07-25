@@ -45,11 +45,11 @@ export default function StudioSidebar() {
         className={[
           "flex items-center gap-2.5 whitespace-nowrap rounded-md px-2.5 py-2 text-[13px] transition-colors",
           active
-            ? "bg-cream-50 font-medium text-ink-950 shadow-sm"
+            ? "bg-ink-950 font-medium text-cream-50"
             : "text-ink-600 hover:bg-cream-50/70 hover:text-ink-950",
         ].join(" ")}
       >
-        <area.Icon className={`size-4 ${active ? "text-accent-500" : "text-ink-400"}`} />
+        <area.Icon className={`size-4 ${active ? "text-cream-50" : "text-ink-400"}`} />
         <span>{area.label}</span>
         {area.count != null && (
           <span className="ml-auto text-[11px] text-ink-400">{area.count}</span>
@@ -59,7 +59,7 @@ export default function StudioSidebar() {
   }
 
   return (
-    <aside className="flex flex-col border-b border-ink-950/8 bg-cream-100 p-3 lg:w-[200px] lg:flex-none lg:border-b-0 lg:border-r lg:p-4">
+    <aside className="flex flex-col border-b border-ink-950/8 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:p-4">
       <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-4">
         <span className="grid size-6 place-items-center rounded-md bg-accent-500 text-cream-50">
           <IconSparkles className="size-3.5" />
