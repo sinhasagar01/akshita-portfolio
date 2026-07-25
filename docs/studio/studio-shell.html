@@ -59,12 +59,21 @@
   - Blog is added to the nav with a live count.
 
   LOCKED DECISIONS CARRIED IN
-  - ListDetailLayout is the layout for the EXISTING collection pages (Case
-    studies, Experience, Skills). It is a 220px tablist + one pane. It is NOT
-    the 3-pane list/canvas/inspector drawn here for the blog — an earlier draft
-    of this file claimed it was, and that was wrong.
+  - ListDetailLayout is the layout for SETTINGS, EXPERIENCE and SKILLS. It is a
+    220px tablist + one pane. Case studies is NOT a consumer. The projects index
+    is CaseStudyIndex and the project editor is ProjectsEditPanel, neither of
+    which renders this layout. Settings is the odd one out, a static list of four
+    panels (Hero, About, Links, Process) with no add, remove or reorder controls,
+    while Experience and Skills are dynamic. Its 220px tablist is not the blog
+    shell's 288px collapsible list. It is also NOT the 3-pane list, canvas and
+    inspector drawn here for the blog, an earlier draft of this file claimed it
+    was, and that was wrong.
+    NOTE. This file has now been wrong about ListDetailLayout twice. First it
+    claimed the blog 3-pane WAS ListDetailLayout. Then, having fixed that, it
+    still named Case studies as a consumer and omitted Settings. Both are
+    corrected above.
     THE BLOG EDITOR'S REAL PARENT IS SectionsEditPanel, the case-study canvas
-    editor. That strengthens the reuse argument rather than weakening it: the
+    editor. That strengthens the reuse argument rather than weakening it, the
     canvas editing, block registry, rich-text marks and structural() choke point
     all already live there. A write-first second shell was explored and rejected.
   - Panels stay MOUNTED (return null when unselected) so switching never
