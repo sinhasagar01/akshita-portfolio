@@ -3,8 +3,14 @@ import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
 import type { ProcessStage, LinkItem } from "@/lib/studio/site-settings-format";
 import { adjacentByOrderIndex } from "@/lib/case-studies/adjacent-project";
+import {
+  mapBlogListItem,
+  selectPublishedPostsNewestFirst,
+  type BlogListItem,
+} from "@/lib/blog/select";
 
 export type { ProcessStage, LinkItem };
+export type { BlogListItem };
 
 const reader = createReader(process.cwd(), config);
 
@@ -278,4 +284,68 @@ export async function getAdjacentProject(
 ): Promise<ProjectListItem | null> {
   const { projects } = await getHomePageData();
   return adjacentByOrderIndex(projects, slug);
+}
+
+// ---------------------------------------------------------------- blog (PR 1)
+//
+// Read path only. Nothing renders these yet (no /blog route), so they exist to be
+// read by the future homepage + article pages and by the studio. The collection is
+// empty at this PR, so getBlogPosts()/getBlogSlugs() return [] and getBlogPost()
+// returns null for any slug — proven by G3 (the empty-glob read) and G4 (the pure
+// filter over a stub).
+
+export type BlogPostData = {
+  slug: string;
+  title: string;
+  dek: string;
+  date: string;
+  topic: string;
+  status: string;
+  heroImage: string | null;
+  /** The RAW `blocks` value, passed through unmapped — the future adaptBlocks maps it,
+   *  exactly as CaseStudyData.rawSections carries the raw sections for adaptSections. */
+  blocks: unknown;
+};
+
+/**
+ * The PUBLIC blog list: published posts only, newest first. The status filter lives in
+ * the pure lib/blog/select.ts seam (selectPublishedPostsNewestFirst), so the one line
+ * that decides public visibility is unit-tested rather than inlined here. This is the
+ * status-gated read A3 found existed nowhere in the codebase before this PR.
+ */
+export async function getBlogPosts(): Promise<BlogListItem[]> {
+  const raw = await reader.collections.blog.all();
+  const items = (raw as Awaited<typeof raw>).map(({ slug, entry }) =>
+    mapBlogListItem(slug, entry as Record<string, unknown>)
+  );
+  return selectPublishedPostsNewestFirst(items);
+}
+
+/**
+ * Read ONE post by slug, UNFILTERED by status — the raw entry, or null. Deliberately
+ * not status-gated: the studio preview and the (future) article page both need to read
+ * a draft, and the article route applies the public gate itself. Leaving that gate to
+ * the caller keeps the draft reachable in the editor; the article PR must apply it so a
+ * draft URL does not leak (tracked in that PR's scope, not here).
+ */
+export async function getBlogPost(slug: string): Promise<BlogPostData | null> {
+  const entry = await reader.collections.blog.read(slug);
+  if (!entry) return null;
+  const e = entry as Record<string, unknown>;
+  return {
+    slug,
+    title: resolveSlugField(e.title, slug),
+    dek: (e.dek ?? "") as string,
+    date: (e.date ?? "") as string,
+    topic: (e.topic ?? "") as string,
+    status: (e.status ?? "") as string,
+    heroImage: (e.heroImage ?? null) as string | null,
+    blocks: e.blocks,
+  };
+}
+
+/** Every blog slug — for the future generateStaticParams. Returns [] while the
+ *  collection is empty. */
+export async function getBlogSlugs(): Promise<string[]> {
+  return reader.collections.blog.list();
 }

@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — blog editor (final)</title>
+
+<!--
+================================================================================
+  DESIGN REFERENCE — /studio BLOG EDITOR  ·  FINAL
+  akshitas.com/studio/blog
+
+  THIS FILE IS THE CONTRACT. If the implementation must differ, change this
+  file in the same PR and say why.
+
+  LOCKED DECISIONS
+  - LAYOUT = the existing ListDetailLayout with a THIRD COLUMN (list · canvas ·
+    inspector). A write-first composer shell was explored and rejected: it is
+    faster for a daily loop, but it is a SECOND SHELL, and the moment it exists
+    "ListDetailLayout is the /studio layout" stops being true and there are two
+    answers to the same question forever. Its one real win — the full-width
+    writing surface — is folded in here as a COLLAPSE CONTROL on the list.
+  - Panels stay MOUNTED (return null when unselected), per the existing rule, so
+    switching posts never discards an unsaved draft.
+  - A POST IS A FLAT ARRAY OF BLOCKS, not the case-study `sections` shape. The
+    section wrapper exists because case studies have named chapters; a post does
+    not. Requiring an author to create a Section before typing a paragraph is
+    the friction that kills a daily habit. A new post opens with ONE empty
+    richText block and the cursor already in it.
+  - NAME THE ARRAY `blocks`, NOT `body`. `body` carries Keystatic document-field
+    semantics and the projects collection already had to keep a vestigial
+    `body: []` for exactly that reason. VERIFY what createReader demands of a
+    fresh collection before finalising the schema.
+  - The BLOCK PICKER surfaces FOUR kinds — paragraph, image, pull quote, video.
+    The registry still holds the rest; the picker is a curated view. A stepper
+    or glanceGrid in a blog post is a case-study tool that wandered in. This is
+    a deliberate departure from the case-study picker, which is un-gated to all
+    fourteen because publish-time validation protects the build there.
+    KIND STATUS (corrected against source, blog PR 1): THREE of the four already
+    exist and are reused verbatim — `richText`, `pullQuote`, `videoEmbed`. The
+    fourth, `imageBlock`, DOES NOT EXIST in the schema (there is no standalone
+    single-image block; the image-bearing kinds are figureGrid, annotatedImage,
+    heroCover, deviceShelf, featureRows, beforeAfter). So `imageBlock` is NET-NEW:
+    the editor PR either builds it as a new kind or repurposes `figureGrid` for a
+    one-image figure. It is deliberately NOT added in the schema PR (a new kind is
+    a feature; adding one later is additive and safe).
+  - NEW POST = CAPTURE-THEN-CREATE, identical to Experience and Projects: title
+    only, slug DERIVED SERVER-SIDE and locked, entry created immediately, then
+    straight into the canvas. NEVER a blank-row append.
+  - Editing is INLINE ON THE CANVAS, reusing the case-study editor's BLOCK LAYER:
+    the block registry, richToMarkers, the bold/italic/link toolbar showing only
+    live marks, Enter-splits-paragraphs, content-addressed image upload, and
+    publish-time validation. Add/remove/reorder is NOT a `structural()` function
+    (no such function exists) — it is inline, section-keyed, two-level state
+    (sectionIds / blockIds[][]) inside SectionsEditPanel.
+    WHAT "REUSE WHOLESALE" ACTUALLY MEANS (corrected, blog PR 1): the BLOCK LAYER
+    above is reusable as-is; the EDITOR HOST is NOT. SectionsEditPanel is bound to
+    the section shape (SectionsFields = { sections: RawSection[] }, the parallel
+    blockIds[][], per-section adaptSections/board/canvas), so a flat blocks array
+    cannot just point it at a different file. The path is a THIN blocks-only host
+    that reuses the block layer but keys its state on a flat blockIds[] — a smaller
+    new host, not the existing editor re-aimed.
+  - LOVES ARE NEVER EDITABLE HERE. Runtime state does not belong in a content
+    editor, and the inspector says so in plain words.
+  - Reading time is COMPUTED from the blocks, never authored.
+
+  OPEN QUESTION — NOT ANSWERED BY THIS FILE
+  - PER-POST DRAFT/PUBLISHED STATUS vs the site's BRANCH-WIDE PUBLISH. Today
+    there is ONE draft branch and Publish merges all of it. With daily posting
+    you will routinely have a half-written post sitting alongside an unrelated
+    Hero edit, and a branch-wide publish would ship both. The status control is
+    drawn here because the editor needs it; the mechanism behind it is a real
+    architectural decision that has to be made before this is built. Options
+    worth weighing: a `status` field on the post that the public read filters
+    on (simplest, no branch changes), or per-entry publish (a much larger
+    change to the commit layer). The field approach is almost certainly right.
+
+  IMPLEMENTATION NOTES THAT ARE EASY TO GET WRONG
+  - The collapse control must not unmount the list — collapse is a width
+    transition, not a conditional render, or the search state resets each time.
+  - Slug is read-only after creation. Renaming = create-at-new-slug, move
+    assets, delete-old — the deferred entry-rename arc, not a field.
+  - The inspector's card image is the post's list/homepage thumbnail. The blog
+    homepage (V2, featured + stream) expects an image per post; posts without
+    one fall back to a typographic plate.
+================================================================================
+-->
+
+<style>
+:root{
+  /* TOKEN MAP — locals exist only so this file renders standalone.
+     The right-hand column is the contract. Never port these literals. */
+  --paper:        oklch(98.5% 0.012 80);  /* --color-cream-50   */
+  --paper-raised: oklch(99.2% 0.008 80);  /* cream-50 lifted    */
+  --paper-sunk:   oklch(96.8% 0.018 78);  /* --color-cream-100  */
+  --ink:          oklch(14%   0.018 60);  /* --color-ink-950    */
+  --ink-2:        oklch(30%   0.016 60);  /* --color-ink-800    */
+  --ink-mute:     oklch(44%   0.016 60);  /* --color-ink-600    */
+  --rule:         oklch(14% 0.018 60 / .08); /* border-ink-950/8 — NOT --color-border */
+  --rule-strong:  oklch(62%   0.012 60);  /* --color-ink-400    */
+  --accent:       oklch(56%   0.14  42);  /* --color-accent-500 */
+  --ok:           oklch(46%   0.075 145); /* --color-success-700 · published dot */
+  /* DRAFT IS NEUTRAL, NOT AMBER. A draft is not a warning — it is simply
+     not-yet-live. No new token; ink-400 already exists. */
+  --draft:        oklch(62%   0.012 60);  /* --color-ink-400    */
+
+  /* site fonts, loaded via next/font/google in the root layout */
+  --sans:  "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;  /* --font-body    */
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;                   /* --font-display */
+  --ease:cubic-bezier(.22,.68,.24,1);
+  --ease-settle:cubic-bezier(.16,.9,.28,1);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{ background:var(--paper-sunk); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; font-size:14px; }
+
+.doc-bar{ position:sticky; top:0; z-index:200; display:flex; gap:12px; align-items:center;
+  padding:11px 18px; background:#171412; color:#F2ECE3; font-size:12.5px; }
+.doc-bar strong{ font-weight:600; margin-right:auto; }
+.doc-bar span{ opacity:.6; }
+
+.screen{
+  max-width:1360px; margin:26px auto; height:780px; overflow:hidden; position:relative;
+  display:flex; background:var(--paper); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:0 20px 50px -30px rgba(23,20,18,.4);
+}
+
+/* ============================== SIDEBAR ============================== */
+.side{ width:196px; flex:none; background:var(--paper-raised); border-right:1px solid var(--rule); padding:18px 12px; }
+.side .brand{ font-family:var(--serif); font-size:19px; padding:0 10px 16px; border-bottom:1px solid var(--rule); margin:0 0 12px; }
+.side nav{ display:flex; flex-direction:column; gap:1px; }
+.side a{ display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:7px; text-decoration:none;
+  color:var(--ink-2); font-size:13px; transition:background 160ms var(--ease); }
+.side a:hover{ background:var(--paper-sunk); }
+.side a.on{ background:var(--ink); color:var(--paper); }
+.side a .c{ margin-left:auto; font-size:11px; opacity:.55; font-variant-numeric:tabular-nums; }
+.side .grp{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); padding:14px 10px 6px; margin:0; }
+
+/* ============================== LIST (collapsible) ============================== */
+.list{
+  width:276px; flex:none; border-right:1px solid var(--rule); display:flex; flex-direction:column;
+  background:var(--paper); overflow:hidden;
+  transition:width 300ms var(--ease-settle), border-color 300ms var(--ease);
+}
+.screen.collapsed .list{ width:0; border-right-color:transparent; }
+.list .top{ padding:14px; border-bottom:1px solid var(--rule); display:flex; flex-direction:column; gap:10px; min-width:276px; }
+.list .hdr{ display:flex; align-items:center; gap:8px; }
+.list .hdr h4{ margin:0; font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); }
+.collapse{ margin-left:auto; appearance:none; border:1px solid var(--rule); background:var(--paper-raised); cursor:pointer;
+  width:24px; height:24px; border-radius:6px; color:var(--ink-mute); display:grid; place-items:center; font-size:12px; }
+.collapse:hover{ border-color:var(--accent); color:var(--accent); }
+.newbtn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  appearance:none; border:0; cursor:pointer; background:var(--ink); color:var(--paper);
+  font:500 12px/1 var(--sans); letter-spacing:.08em; text-transform:uppercase;
+  padding:11px 14px; border-radius:8px; transition:background 180ms var(--ease); }
+.newbtn:hover{ background:var(--accent); }
+.search{ position:relative; }
+.search input{ width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper-raised);
+  border-radius:8px; padding:8px 10px 8px 30px; font:400 13px/1.2 var(--sans); color:var(--ink); }
+.search input:focus{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+.search svg{ position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--ink-mute); }
+.list .scroll{ flex:1; overflow-y:auto; padding:8px; min-width:276px; }
+.list .month{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); padding:12px 8px 6px; margin:0; }
+.post{ display:block; width:100%; text-align:left; appearance:none; border:0; cursor:pointer;
+  background:transparent; padding:10px; border-radius:8px; margin-bottom:1px; transition:background 150ms var(--ease); }
+.post:hover{ background:var(--paper-sunk); }
+.post.on{ background:var(--paper-sunk); box-shadow:inset 2px 0 0 var(--accent); }
+.post .t{ font-size:13.5px; line-height:1.35; color:var(--ink); display:block; margin-bottom:5px; }
+.post .m{ display:flex; align-items:center; gap:8px; font-size:11px; color:var(--ink-mute); }
+.dot{ width:6px; height:6px; border-radius:99px; flex:none; }
+.dot.pub{ background:var(--ok); } .dot.dr{ background:var(--draft); }
+
+/* the re-open rail, shown only when collapsed */
+.reopen{
+  position:absolute; left:196px; top:14px; z-index:70; width:28px; height:28px;
+  appearance:none; border:1px solid var(--rule); background:var(--paper-raised); cursor:pointer;
+  border-radius:0 8px 8px 0; border-left:0; color:var(--ink-mute); display:none; place-items:center; font-size:12px;
+}
+.screen.collapsed .reopen{ display:grid; }
+.reopen:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* ============================== CANVAS ============================== */
+.canvas{ flex:1; overflow-y:auto; position:relative; background:var(--paper); }
+.canvas-inner{ max-width:620px; margin:0 auto; padding:44px 32px 150px; transition:max-width 300ms var(--ease-settle); }
+.screen.collapsed .canvas-inner{ max-width:680px; }
+.cv-label{ font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 10px; }
+.cv-title{ font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.08; letter-spacing:-.015em; margin:0; outline:none; border-radius:4px; }
+.cv-dek{ font-family:var(--serif); font-size:18px; line-height:1.5; color:var(--ink-2); margin:14px 0 0; outline:none; border-radius:4px; }
+[contenteditable]:focus{ box-shadow:0 0 0 2px var(--accent); }
+[contenteditable]:hover:not(:focus){ box-shadow:0 0 0 1px var(--rule-strong); }
+.cv-hero{ margin:26px 0; aspect-ratio:16/9; border-radius:10px; border:1px dashed var(--rule-strong);
+  display:grid; place-items:center; color:var(--ink-mute); font-size:12.5px; background:var(--paper-raised); cursor:pointer;
+  transition:border-color 180ms var(--ease), background 180ms var(--ease); }
+.cv-hero:hover{ border-color:var(--accent); background:var(--paper-sunk); }
+.cv-hero.filled{ border:1px solid var(--rule); background:linear-gradient(150deg,#DDE0EC,#B9BED6); }
+
+.block{ position:relative; margin:0 0 18px; }
+.block .body{ font-size:16px; line-height:1.72; color:var(--ink-2); outline:none; border-radius:4px; padding:2px 0; }
+.block.quote .body{ font-family:var(--serif); font-size:21px; line-height:1.4; color:var(--ink);
+  border-left:2px solid var(--accent); padding-left:18px; font-style:italic; }
+.block .handle{ position:absolute; left:-34px; top:2px; width:24px; height:24px; display:grid; place-items:center;
+  border-radius:6px; color:var(--rule-strong); opacity:0; cursor:grab;
+  transition:opacity 160ms var(--ease), background 160ms var(--ease), color 160ms var(--ease); }
+.block:hover .handle{ opacity:1; }
+.block .handle:hover{ background:var(--paper-sunk); color:var(--ink-2); }
+.block .kindtag{ position:absolute; right:-6px; top:3px; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--rule-strong); opacity:0; transition:opacity 160ms var(--ease); }
+.block:hover .kindtag{ opacity:1; }
+
+.insert{ position:relative; height:22px; margin:-6px 0 6px; }
+.insert .line{ position:absolute; left:0; right:0; top:50%; height:1px; background:var(--rule); opacity:0; transition:opacity 160ms var(--ease); }
+.insert button{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:22px; height:22px; border-radius:99px; appearance:none; cursor:pointer;
+  border:1px solid var(--rule); background:var(--paper-raised); color:var(--ink-mute);
+  display:grid; place-items:center; opacity:0; font-size:14px; line-height:1;
+  transition:opacity 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease), transform 220ms var(--ease-settle); }
+.insert:hover .line, .insert:hover button{ opacity:1; }
+.insert button:hover{ border-color:var(--accent); color:var(--accent); transform:translate(-50%,-50%) rotate(90deg); }
+
+.picker{ position:absolute; z-index:60; left:50%; top:26px; transform:translateX(-50%);
+  width:236px; background:var(--paper-raised); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 18px 40px -18px rgba(23,20,18,.4); padding:6px; display:none; }
+.picker.open{ display:block; }
+.picker .h{ font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--rule-strong); padding:7px 9px 5px; margin:0; }
+.picker button{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; appearance:none; border:0;
+  background:transparent; cursor:pointer; padding:8px 9px; border-radius:7px; font:400 13px/1 var(--sans); color:var(--ink-2); }
+.picker button:hover{ background:var(--paper-sunk); color:var(--ink); }
+.picker button .k{ font-size:10.5px; color:var(--rule-strong); margin-left:auto; }
+
+.rtb{ position:absolute; z-index:70; display:none; gap:2px; padding:3px;
+  background:var(--ink); border-radius:8px; box-shadow:0 12px 26px -12px rgba(0,0,0,.5); }
+.rtb.open{ display:flex; }
+.rtb button{ appearance:none; border:0; background:transparent; color:#F2ECE3; cursor:pointer;
+  width:30px; height:28px; border-radius:6px; font-size:13px; }
+.rtb button:hover{ background:rgba(255,255,255,.14); }
+
+/* ============================== INSPECTOR ============================== */
+.insp{ width:248px; flex:none; border-left:1px solid var(--rule); background:var(--paper-raised); padding:16px; overflow-y:auto; }
+.insp h4{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 12px; }
+.field{ margin-bottom:15px; }
+.field label{ display:block; font-size:11px; letter-spacing:.06em; color:var(--ink-mute); margin-bottom:5px; }
+.field input, .field select{ width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper);
+  border-radius:7px; padding:8px 10px; font:400 13px/1.2 var(--sans); color:var(--ink); }
+.field input:focus, .field select:focus{ outline:2px solid var(--accent); outline-offset:-1px; }
+.field input[readonly]{ color:var(--ink-mute); background:var(--paper-sunk); }
+.status{ display:flex; gap:2px; padding:3px; background:var(--paper-sunk); border-radius:99px; }
+.status button{ flex:1; appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
+  font:500 11px/1 var(--sans); letter-spacing:.06em; padding:8px; border-radius:99px; }
+.status button[aria-pressed="true"]{ background:var(--paper-raised); color:var(--ink); box-shadow:0 1px 3px rgba(23,20,18,.12); }
+.insp .note{ font-size:11px; line-height:1.5; color:var(--ink-mute); border-top:1px solid var(--rule); padding-top:12px; margin:4px 0 0; }
+
+/* ============================== PUBLISH BAR ============================== */
+.pubbar{ position:absolute; left:50%; bottom:20px; transform:translateX(-50%); z-index:80;
+  display:flex; align-items:center; gap:14px; padding:9px 9px 9px 18px;
+  background:var(--paper-raised); border:1px solid var(--rule); border-radius:99px;
+  box-shadow:0 16px 36px -18px rgba(23,20,18,.45); }
+.pubbar .s{ font-size:12px; color:var(--ink-mute); display:flex; align-items:center; gap:8px; }
+.pubbar .go{ appearance:none; border:0; cursor:pointer; background:var(--accent); color:#fff;
+  font:500 12px/1 var(--sans); letter-spacing:.08em; text-transform:uppercase; padding:10px 18px; border-radius:99px; }
+.pubbar .go:hover{ background:#8C4433; }
+.pubbar .ghost{ appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
+  font:400 12px/1 var(--sans); padding:10px 8px; }
+.pubbar .ghost:hover{ color:var(--accent); }
+
+/* ============================== DIALOG ============================== */
+.scrim{ position:absolute; inset:0; z-index:150; background:rgba(23,20,18,.32); display:none; place-items:center; }
+.scrim.open{ display:grid; }
+.dlg{ width:430px; background:var(--paper-raised); border-radius:14px; padding:24px; box-shadow:0 30px 60px -24px rgba(0,0,0,.5); }
+.dlg h3{ font-family:var(--serif); font-weight:400; font-size:24px; margin:0 0 6px; }
+.dlg p{ margin:0 0 18px; font-size:13px; line-height:1.55; color:var(--ink-mute); }
+.dlg .slug{ font-size:11.5px; color:var(--ink-mute); margin-top:7px; font-family:ui-monospace,monospace; }
+.dlg .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.dlg .row button{ appearance:none; border:0; cursor:pointer; font:500 12.5px/1 var(--sans); padding:11px 18px; border-radius:8px; }
+.dlg .cancel{ background:transparent; color:var(--ink-mute); }
+.dlg .create{ background:var(--ink); color:var(--paper); }
+.dlg .create:hover{ background:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <strong>/studio — blog editor · final</strong>
+  <span>Click posts · ＋ between blocks · select text for the toolbar · ⟨ collapses the list</span>
+</div>
+
+<div class="screen" id="s">
+  <aside class="side">
+    <p class="brand">studio</p>
+    <nav>
+      <a href="#">Hero</a><a href="#">About</a><a href="#">Process</a><a href="#">Links</a>
+      <p class="grp">Collections</p>
+      <a href="#">Work <span class="c">4</span></a>
+      <a href="#">Experience <span class="c">5</span></a>
+      <a href="#">Skills <span class="c">6</span></a>
+      <a href="#" class="on">Blog <span class="c">12</span></a>
+    </nav>
+  </aside>
+
+  <button class="reopen" data-collapse title="Show posts">⟩</button>
+
+  <div class="list">
+    <div class="top">
+      <div class="hdr">
+        <h4>Posts</h4>
+        <button class="collapse" data-collapse title="Collapse list">⟨</button>
+      </div>
+      <button class="newbtn" data-new>＋ New post</button>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search posts" />
+      </div>
+    </div>
+    <div class="scroll">
+      <p class="month">July 2026</p>
+      <button class="post on"><span class="t">What a data table teaches you about trust</span><span class="m"><span class="dot dr"></span>Draft · 24 Jul</span></button>
+      <button class="post"><span class="t">Three weeks of AI copilot patterns</span><span class="m"><span class="dot pub"></span>Published · 22 Jul</span></button>
+      <button class="post"><span class="t">Notes on designing empty states</span><span class="m"><span class="dot pub"></span>Published · 19 Jul</span></button>
+      <button class="post"><span class="t">The handoff is the design</span><span class="m"><span class="dot pub"></span>Published · 17 Jul</span></button>
+      <button class="post"><span class="t">A small win: the twelve-pixel fix</span><span class="m"><span class="dot pub"></span>Published · 14 Jul</span></button>
+      <p class="month">June 2026</p>
+      <button class="post"><span class="t">On naming things in a design system</span><span class="m"><span class="dot pub"></span>Published · 30 Jun</span></button>
+      <button class="post"><span class="t">Why I stopped prototyping in high fidelity</span><span class="m"><span class="dot pub"></span>Published · 27 Jun</span></button>
+    </div>
+  </div>
+
+  <div class="canvas">
+    <div class="canvas-inner">
+      <p class="cv-label">Editing on the canvas</p>
+      <h1 class="cv-title" contenteditable spellcheck="false">What a data table teaches you about trust</h1>
+      <p class="cv-dek" contenteditable spellcheck="false">Nobody trusts a number they can't trace.</p>
+
+      <div class="cv-hero filled"></div>
+
+      <div class="insert"><span class="line"></span><button data-ins>＋</button>
+        <div class="picker"><p class="h">Add block</p>
+          <button>Paragraph <span class="k">richText</span></button>
+          <button>Image <span class="k">imageBlock</span></button>
+          <button>Pull quote <span class="k">pullQuote</span></button>
+          <button>Video <span class="k">videoEmbed</span></button>
+        </div>
+      </div>
+
+      <div class="block">
+        <span class="handle">⠿</span><span class="kindtag">richText</span>
+        <div class="body" contenteditable spellcheck="false">The first enterprise dashboard I shipped had forty-one metrics on it. I was proud of the density. Six weeks later I watched an analyst export the whole thing to Excel, delete thirty-eight columns, and rebuild the three she needed by hand — every Monday morning, for as long as anyone could remember.</div>
+      </div>
+
+      <div class="insert"><span class="line"></span><button data-ins>＋</button>
+        <div class="picker"><p class="h">Add block</p>
+          <button>Paragraph <span class="k">richText</span></button>
+          <button>Image <span class="k">imageBlock</span></button>
+          <button>Pull quote <span class="k">pullQuote</span></button>
+          <button>Video <span class="k">videoEmbed</span></button>
+        </div>
+      </div>
+
+      <div class="block quote">
+        <span class="handle">⠿</span><span class="kindtag">pullQuote</span>
+        <div class="body" contenteditable spellcheck="false">The most important column in an enterprise table is usually the one nobody asked for.</div>
+      </div>
+
+      <div class="insert"><span class="line"></span><button data-ins>＋</button>
+        <div class="picker"><p class="h">Add block</p>
+          <button>Paragraph <span class="k">richText</span></button>
+          <button>Image <span class="k">imageBlock</span></button>
+          <button>Pull quote <span class="k">pullQuote</span></button>
+          <button>Video <span class="k">videoEmbed</span></button>
+        </div>
+      </div>
+
+      <div class="block">
+        <span class="handle">⠿</span><span class="kindtag">richText</span>
+        <div class="body" contenteditable spellcheck="false">She wasn't working around a missing feature. She was working around a missing explanation. Every number on that screen was correct and not one of them said where it came from.</div>
+      </div>
+
+      <div class="insert"><span class="line"></span><button data-ins>＋</button>
+        <div class="picker"><p class="h">Add block</p>
+          <button>Paragraph <span class="k">richText</span></button>
+          <button>Image <span class="k">imageBlock</span></button>
+          <button>Pull quote <span class="k">pullQuote</span></button>
+          <button>Video <span class="k">videoEmbed</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="rtb" data-rtb><button title="Bold"><b>B</b></button><button title="Italic"><i>I</i></button><button title="Link">🔗</button></div>
+  </div>
+
+  <aside class="insp">
+    <h4>Post</h4>
+    <div class="field"><label>Status</label>
+      <div class="status"><button aria-pressed="true">Draft</button><button aria-pressed="false">Published</button></div>
+    </div>
+    <div class="field"><label>Publish date</label><input type="date" value="2026-07-24" /></div>
+    <div class="field"><label>Topic</label>
+      <select><option>Enterprise UX</option><option>AI patterns</option><option>Craft</option><option>Process</option></select>
+    </div>
+    <div class="field"><label>Slug</label><input value="what-a-data-table-teaches-you-about-trust" readonly /></div>
+    <div class="field"><label>Card image</label><div class="cv-hero filled" style="aspect-ratio:16/9;margin:0"></div></div>
+    <p class="note">Reading time is computed from the blocks. Loves are runtime state and are never edited here.</p>
+  </aside>
+
+  <div class="pubbar">
+    <span class="s"><span class="dot dr"></span>Unpublished changes</span>
+    <button class="ghost">Discard</button>
+    <button class="go">Publish</button>
+  </div>
+
+  <div class="scrim" data-scrim>
+    <div class="dlg">
+      <h3>New post</h3>
+      <p>Give it a title. The slug is derived server-side and locked once created — everything else can change later.</p>
+      <div class="field"><label>Title</label><input value="Notes on designing empty states" data-title /></div>
+      <p class="slug">/blog/notes-on-designing-empty-states</p>
+      <div class="row">
+        <button class="cancel" data-close>Cancel</button>
+        <button class="create" data-close>Create &amp; start writing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const screen = document.getElementById("s");
+
+/* list selection */
+const posts = [...screen.querySelectorAll(".post")];
+posts.forEach(p => p.addEventListener("click", () => {
+  posts.forEach(x => x.classList.remove("on"));
+  p.classList.add("on");
+  screen.querySelector(".cv-title").textContent = p.querySelector(".t").textContent;
+}));
+
+/* collapse — a WIDTH transition, never an unmount, so search state survives */
+screen.querySelectorAll("[data-collapse]").forEach(b =>
+  b.addEventListener("click", () => screen.classList.toggle("collapsed")));
+
+/* block picker */
+screen.querySelectorAll("[data-ins]").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const pick = btn.parentElement.querySelector(".picker");
+    screen.querySelectorAll(".picker").forEach(p => { if (p !== pick) p.classList.remove("open"); });
+    pick.classList.toggle("open");
+  });
+});
+document.addEventListener("click", () => screen.querySelectorAll(".picker").forEach(p => p.classList.remove("open")));
+
+/* rich-text toolbar — only live marks, never greyed placeholders */
+const rtb = screen.querySelector("[data-rtb]");
+document.addEventListener("selectionchange", () => {
+  const sel = document.getSelection();
+  if (!sel || sel.isCollapsed) return rtb.classList.remove("open");
+  const node = sel.anchorNode && sel.anchorNode.parentElement;
+  if (!node || !node.closest(".block .body")) return rtb.classList.remove("open");
+  const r = sel.getRangeAt(0).getBoundingClientRect();
+  const host = rtb.parentElement.getBoundingClientRect();
+  rtb.style.left = (r.left - host.left + r.width/2 - 50) + "px";
+  rtb.style.top  = (r.top - host.top + rtb.parentElement.scrollTop - 42) + "px";
+  rtb.classList.add("open");
+});
+
+/* capture-then-create */
+const scrim = screen.querySelector("[data-scrim]");
+screen.querySelector("[data-new]").addEventListener("click", () => scrim.classList.add("open"));
+screen.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => scrim.classList.remove("open")));
+</script>
+</body>
+</html>
