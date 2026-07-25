@@ -166,18 +166,25 @@ export default function PublishBar() {
 
   // Status line — discard messages take precedence when active, else the publish
   // state machine drives it exactly as before.
-  const isTerminalMsg = publishStatus === "published" || publishStatus === "error";
+  //
+  // Tone split (Task 4): a FAILURE is danger-600, a SUCCESS is accent-600. Published
+  // and error used to share accent-600 — the one place a failure read the same as a
+  // success, told apart only by the message text. Only the emitted class changes; the
+  // conditions and every other attribute are untouched.
   let statusText: string;
   let statusTone: string;
   if (discardMsg) {
     statusText = discardMsg;
-    statusTone = discardStatus === "error" ? "text-accent-600" : "text-text-subtle";
+    statusTone = discardStatus === "error" ? "text-danger-600" : "text-text-subtle";
   } else {
-    statusTone = isTerminalMsg
-      ? "text-accent-600"
-      : publishStatus === "publishing"
-        ? "text-ink-500"
-        : "text-text-subtle";
+    statusTone =
+      publishStatus === "error"
+        ? "text-danger-600"
+        : publishStatus === "published"
+          ? "text-accent-600"
+          : publishStatus === "publishing"
+            ? "text-ink-500"
+            : "text-text-subtle";
     statusText =
       publishStatus === "publishing"
         ? "Publishing…"
@@ -203,7 +210,7 @@ export default function PublishBar() {
     // sidebar width changes, change this too, or the bar drifts off-centre.
     <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[236px]">
       <div
-        className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-4 rounded-xl border border-ink-950/10 bg-cream-50/95 px-4 py-2.5 shadow-[0_8px_30px_rgba(60,45,30,0.16)] backdrop-blur"
+        className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/8 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)] backdrop-blur"
         {...(confirmOpen
           ? {
               role: "alertdialog" as const,
@@ -239,14 +246,14 @@ export default function PublishBar() {
       >
         {confirmOpen ? (
           <>
-            <span id="discard-confirm-msg" className="min-w-0 flex-1 text-[12px] text-ink-700">
+            <span id="discard-confirm-msg" className="min-w-0 flex-1 text-[12.5px] text-ink-700">
               Discard all unpublished changes? This can&rsquo;t be undone.
             </span>
             <button
               ref={cancelRef}
               type="button"
               onClick={closeConfirm}
-              className="shrink-0 rounded-md px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+              className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-ink-600 transition-colors hover:text-accent-500"
             >
               Cancel
             </button>
@@ -255,7 +262,7 @@ export default function PublishBar() {
               type="button"
               onClick={discard}
               disabled={discardStatus === "discarding"}
-              className="shrink-0 rounded-md bg-ink-950 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+              className="shrink-0 rounded-full bg-ink-950 px-[19px] py-[11px] text-[12px] font-medium text-cream-50 transition-colors hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {discardStatus === "discarding" ? "Discarding…" : "Discard"}
             </button>
@@ -263,7 +270,7 @@ export default function PublishBar() {
         ) : (
           <>
             <span
-              className={`min-w-0 flex-1 truncate text-[12px] ${statusTone}`}
+              className={`min-w-0 flex-1 truncate text-[12.5px] ${statusTone}`}
               aria-live="polite"
             >
               {statusText}
@@ -274,7 +281,7 @@ export default function PublishBar() {
                 onClick={openConfirm}
                 disabled={!canDiscard}
                 aria-disabled={!canDiscard}
-                className="shrink-0 rounded-md border border-ink-950/15 px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:cursor-not-allowed disabled:opacity-40"
+                className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-ink-600 transition-colors hover:text-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Discard
               </button>
@@ -284,7 +291,7 @@ export default function PublishBar() {
               onClick={publish}
               disabled={!canPublish}
               aria-disabled={!canPublish}
-              className="shrink-0 rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+              className="shrink-0 rounded-full bg-accent-500 px-[19px] py-[11px] text-[12px] font-medium uppercase tracking-[0.08em] text-cream-50 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:bg-accent-500/45"
             >
               {publishStatus === "publishing" ? "Publishing…" : "Publish"}
             </button>
