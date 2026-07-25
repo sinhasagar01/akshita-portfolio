@@ -32,7 +32,7 @@ export default async function StudioHomepage() {
     <>
       <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
+      <div className="max-w-[60rem] border-t border-ink-950/8">
         <ContentCard
           index="01"
           title="Hero"
