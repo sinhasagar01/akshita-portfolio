@@ -70,7 +70,7 @@ export function StudioModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-ink-950/20 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-ink-950/30 p-4"
       onClick={() => {
         if (role === "dialog" && !busy) onClose();
       }}
@@ -85,9 +85,9 @@ export function StudioModal({
         onKeyDown={(e) => {
           if (e.key === "Escape" && !busy) onClose();
         }}
-        className="w-full max-w-[420px] rounded-xl border border-ink-950/8 bg-cream-50 p-5 shadow-[0_8px_30px_rgba(60,45,30,0.16)]"
+        className="w-full max-w-[440px] rounded-[14px] border border-ink-950/8 bg-cream-50 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
       >
-        <h2 id={titleId} className="font-display text-base text-ink-950">
+        <h2 id={titleId} className="font-display text-2xl text-ink-950">
           {title}
         </h2>
         {children}

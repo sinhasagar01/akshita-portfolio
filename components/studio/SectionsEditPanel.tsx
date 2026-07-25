@@ -657,7 +657,7 @@ function BoldToolbar({
 
       {linkOpen && (
         <div
-          className="mt-1.5 w-[280px] rounded-[10px] border border-[0.5px] border-ink-950/16 bg-cream-50 p-2.5 shadow-[0_10px_30px_-10px_rgba(60,50,38,0.45)]"
+          className="mt-1.5 w-[280px] rounded-[10px] border border-ink-950/8 bg-cream-50 p-2.5 shadow-[0_18px_40px_-18px_rgba(60,45,30,0.4)]"
           role="dialog"
           aria-label="Link URL"
         >
