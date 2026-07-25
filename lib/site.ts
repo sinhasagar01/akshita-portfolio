@@ -38,6 +38,11 @@ export function projectPath(slug: string): string {
   return `/projects/${slug}`;
 }
 
+/** Route path for a blog post. The blog index is `/blog`. */
+export function blogPath(slug: string): string {
+  return `/blog/${slug}`;
+}
+
 /**
  * Absolute URL of a case study's generated OG card (the `og` route handler). Single source
  * for og:image, twitter:image, and the JSON-LD image so they always match.

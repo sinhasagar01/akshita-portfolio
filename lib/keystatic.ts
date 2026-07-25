@@ -6,11 +6,17 @@ import { adjacentByOrderIndex } from "@/lib/case-studies/adjacent-project";
 import {
   mapBlogListItem,
   selectPublishedPostsNewestFirst,
+  readingTimeMinutes,
   type BlogListItem,
 } from "@/lib/blog/select";
 
 export type { ProcessStage, LinkItem };
 export type { BlogListItem };
+
+/** A list item with its computed reading time — what the index cards render. Reading
+ *  time is attached HERE (not on mapBlogListItem) so the pure mapper and its suite stay
+ *  untouched; the word count needs the blocks, which the reader entry carries. */
+export type BlogCard = BlogListItem & { readingTime: number };
 
 const reader = createReader(process.cwd(), config);
 
@@ -302,22 +308,30 @@ export type BlogPostData = {
   topic: string;
   status: string;
   heroImage: string | null;
-  /** The RAW `blocks` value, passed through unmapped — the future adaptBlocks maps it,
-   *  exactly as CaseStudyData.rawSections carries the raw sections for adaptSections. */
+  /** Reading time in whole minutes, computed from the blocks (never authored). */
+  readingTime: number;
+  /** The RAW `blocks` value, passed through unmapped — the blog renderer reads it
+   *  directly (parseRich/renderRich on the strings), and readingTimeMinutes counts it. */
   blocks: unknown;
 };
 
 /**
- * The PUBLIC blog list: published posts only, newest first. The status filter lives in
- * the pure lib/blog/select.ts seam (selectPublishedPostsNewestFirst), so the one line
- * that decides public visibility is unit-tested rather than inlined here. This is the
- * status-gated read A3 found existed nowhere in the codebase before this PR.
+ * The PUBLIC blog list: published posts only, newest first, each with its computed
+ * reading time. The status filter lives in the pure lib/blog/select.ts seam
+ * (selectPublishedPostsNewestFirst), so the one line that decides public visibility is
+ * unit-tested rather than inlined here. This is the status-gated read A3 found existed
+ * nowhere in the codebase before the blog arc.
+ *
+ * readingTime is attached in the map (not in mapBlogListItem) because the word count
+ * needs the entry's blocks, which the list item does not carry — keeping the pure mapper
+ * and its suite untouched. The selector is generic, so the richer BlogCard rides through.
  */
-export async function getBlogPosts(): Promise<BlogListItem[]> {
+export async function getBlogPosts(): Promise<BlogCard[]> {
   const raw = await reader.collections.blog.all();
-  const items = (raw as Awaited<typeof raw>).map(({ slug, entry }) =>
-    mapBlogListItem(slug, entry as Record<string, unknown>)
-  );
+  const items: BlogCard[] = (raw as Awaited<typeof raw>).map(({ slug, entry }) => {
+    const e = entry as Record<string, unknown>;
+    return { ...mapBlogListItem(slug, e), readingTime: readingTimeMinutes(e.blocks) };
+  });
   return selectPublishedPostsNewestFirst(items);
 }
 
@@ -340,6 +354,7 @@ export async function getBlogPost(slug: string): Promise<BlogPostData | null> {
     topic: (e.topic ?? "") as string,
     status: (e.status ?? "") as string,
     heroImage: (e.heroImage ?? null) as string | null,
+    readingTime: readingTimeMinutes(e.blocks),
     blocks: e.blocks,
   };
 }

@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blog homepage — featured + stream (akshitas.com/blog)</title>
+
+<!--
+================================================================================
+  DESIGN REFERENCE — BLOG HOMEPAGE
+  akshitas.com/blog · featured post + two-column card stream
+
+  THIS FILE IS THE CONTRACT. If the implementation must differ, change this file
+  in the same PR and say why.
+
+  CORRECTIONS — blog PR 2 (the PR that built this page)
+  - FEATURED-SLOT PLATE. This mock draws the typographic plate only on stream
+    cards. The newest post is the featured post and will not always carry an
+    image, so the plate is now designed on the FEATURED slot too (the one
+    hand-authored post ships with no hero and exercises exactly this).
+  - LOVE IS DISABLED AND COUNTLESS in PR 2. The mock's hearts carry counts
+    (data-n) and toggle. In PR 2 the heart is a non-interactive affordance with
+    no number — a static "0" would be a fabricated fact. PR 4 wires the count and
+    the toggle over the existing login-throttle Upstash REST pattern.
+
+  VISUAL SPEC ONLY. The class names here are for this mockup. The public site
+  prefixes authored CSS per feature (work-*, wc-*, logo-*, reveal-*); if this
+  section authors any global CSS it must follow that convention (blog-*/bp-*).
+
+  LOCKED DECISIONS
+  - FEATURED + STREAM. One large featured post, then a two-column stream. The
+    editorial-index alternative (dated hairline rows, image optional) was
+    RECOMMENDED and REJECTED by the owner in favour of this.
+  - OPERATIONAL CONSEQUENCE, ACCEPTED WITH EYES OPEN: this layout wants an image
+    per post. With a daily cadence that means a daily asset. Posts without one
+    fall back to a TYPOGRAPHIC PLATE (the title set in the display serif on
+    paper-raised) rather than a hole — see the two plate cards below. If the
+    plate starts appearing three days a week, that is the design telling you
+    something about the cadence, not a bug to fix.
+  - The featured post is simply the NEWEST post. It is not a curated "featured"
+    flag — that would be a field nobody remembers to set.
+  - LOVE IS INTERACTIVE ON THE INDEX, not read-only. Clicking a heart does NOT
+    navigate; the handler stops propagation inside the card link. Loving
+    something you have not read is slightly hollow, but "go read it first" is
+    friction nobody thanks you for.
+  - LOVE ONLY. No like, no dislike, no comments, no share counts.
+  - Reading time is COMPUTED from the blocks, never authored.
+  - NO TOPIC FILTER YET. At four posts it is decoration; at eighty it is
+    necessary. The masthead leaves room for it. `topic` exists on the schema and
+    is what that filter would read.
+
+  IMPLEMENTATION NOTES
+  - The love count is the only runtime state on the site. It cannot go through
+    the git-commit content pipeline (one love = one commit = one rebuild).
+    Upstash Redis keyed by slug; per-visitor pressed state local; POST
+    rate-limited by hashed IP.
+  - Cards are ONE BLOCK-LEVEL <a>, same decision as the work cards. The love
+    button inside needs position:relative + z-index to sit above it, and it
+    calls stopPropagation.
+  - The stream must survive N=200. Pagination or "older posts", never an
+    infinite card wall.
+  - The site goes mobile at lg (1024). This section follows that convention.
+================================================================================
+-->
+
+<style>
+:root{
+  --paper:        #FAF6F0;   /* --color-cream-50  oklch(98.5% 0.012 80) */
+  --paper-raised: #FFFDFA;
+  --ink:          #171412;   /* --color-ink-950   oklch(14% 0.018 60)   */
+  --ink-2:        #3E3730;
+  --ink-mute:     #7A7169;   /* --color-ink-600   oklch(44% 0.016 60)   */
+  --rule:         #DCD3C5;   /* border-ink-950/8                        */
+  --rule-strong:  #BFB3A0;
+  --accent:       #A0503C;   /* --color-accent-500 oklch(56% 0.14 42)   */
+
+  /* site fonts: DM Sans (--font-body) + Fraunces (--font-display) */
+  --sans:  "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+
+  --ease:cubic-bezier(.22,.68,.24,1);
+  --ease-settle:cubic-bezier(.16,.9,.28,1);
+  --pop:cubic-bezier(.34,1.56,.64,1);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+
+.doc-bar{ position:sticky; top:0; z-index:80; display:flex; gap:12px; align-items:center;
+  padding:11px 18px; background:#171412; color:#F2ECE3; font-size:12.5px; }
+.doc-bar strong{ font-weight:600; margin-right:auto; }
+.doc-bar span{ opacity:.6; }
+
+.wrap{ max-width:1040px; margin:0 auto; padding:0 24px; }
+
+/* ---------------- masthead ---------------- */
+.masthead{ padding:64px 0 30px; border-bottom:1px solid var(--rule); }
+.masthead .eyebrow{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-mute); margin:0; }
+.masthead h1{ font-family:var(--serif); font-weight:400; font-size:52px; line-height:1.02;
+  letter-spacing:-.015em; margin:14px 0 0; max-width:16ch; }
+.masthead .dek{ margin:14px 0 0; font-size:16px; line-height:1.6; color:var(--ink-2); max-width:54ch; }
+.masthead .cadence{ margin:18px 0 0; display:inline-flex; align-items:center; gap:8px;
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-mute); }
+.masthead .cadence::before{ content:""; width:6px; height:6px; border-radius:99px; background:var(--accent);
+  animation:pulse 2.6s var(--ease) infinite; }
+@keyframes pulse{ 0%,100%{opacity:.35} 50%{opacity:1} }
+
+/* ---------------- the love control ---------------- */
+.love{
+  position:relative; z-index:2; display:inline-flex; align-items:center; gap:8px;
+  appearance:none; border:0; background:transparent; cursor:pointer; padding:4px 2px;
+  font:500 12.5px/1 var(--sans); color:var(--ink-mute); font-variant-numeric:tabular-nums;
+  transition:color 220ms var(--ease);
+}
+.love:hover{ color:var(--accent); }
+.love:focus-visible{ outline:2px solid var(--accent); outline-offset:4px; border-radius:6px; }
+.love svg{ width:16px; height:16px; overflow:visible; transition:transform 300ms var(--pop); }
+.love .heart{ fill:none; stroke:currentColor; stroke-width:1.7; transition:fill 260ms var(--ease); }
+.love:hover svg{ transform:scale(1.12); }
+.love[aria-pressed="true"]{ color:var(--accent); }
+.love[aria-pressed="true"] .heart{ fill:currentColor; }
+.love[aria-pressed="true"] svg{ animation:thump 460ms var(--pop); }
+@keyframes thump{ 0%{transform:scale(1)} 35%{transform:scale(1.38)} 60%{transform:scale(.94)} 100%{transform:scale(1)} }
+.love .spark{ position:absolute; left:8px; top:50%; width:4px; height:4px; border-radius:99px;
+  background:currentColor; opacity:0; pointer-events:none; }
+.love.burst .spark{ animation:spark 620ms var(--ease-settle) forwards; }
+.love.burst .spark:nth-child(2){ animation-delay:20ms; --dx:-14px; --dy:-16px }
+.love.burst .spark:nth-child(3){ animation-delay:40ms; --dx:14px;  --dy:-14px }
+.love.burst .spark:nth-child(4){ animation-delay:10ms; --dx:-4px;  --dy:-22px }
+.love.burst .spark:nth-child(5){ animation-delay:55ms; --dx:18px;  --dy:2px }
+@keyframes spark{ 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2)} }
+
+/* ---------------- featured ---------------- */
+.feature{
+  display:grid; grid-template-columns:1.15fr 1fr; gap:44px; align-items:center;
+  padding:38px 0; border-bottom:1px solid var(--rule);
+}
+.feature .shot{ aspect-ratio:16/10; border-radius:12px; overflow:hidden; border:1px solid var(--rule);
+  transition:box-shadow 420ms var(--ease-settle), border-color 220ms var(--ease); }
+.feature .tagline{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0; }
+.feature h2{ font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.1;
+  letter-spacing:-.012em; margin:13px 0 0; }
+.feature h2 a{ color:inherit; text-decoration:none; }
+.feature h2 a:focus-visible{ outline:2px solid var(--accent); outline-offset:4px; border-radius:4px; }
+.feature p{ margin:13px 0 0; font-size:15.5px; line-height:1.62; color:var(--ink-2); }
+.feature .foot{ margin-top:20px; display:flex; align-items:center; gap:18px; font-size:12px; color:var(--ink-mute); }
+
+/* ---------------- stream ---------------- */
+.stream{ display:grid; grid-template-columns:1fr 1fr; gap:38px 34px; padding-top:36px; }
+.post{ position:relative; display:block; text-decoration:none; color:inherit; }
+.post:focus-visible{ outline:2px solid var(--accent); outline-offset:8px; border-radius:12px; }
+.post .shot{
+  aspect-ratio:16/9; border-radius:10px; overflow:hidden; border:1px solid var(--rule);
+  transition:box-shadow 420ms var(--ease-settle), border-color 220ms var(--ease);
+}
+.post:hover .shot{ border-color:var(--rule-strong); box-shadow:0 16px 34px -26px rgba(23,20,18,.5); }
+.post .shot > *{ transition:transform 620ms var(--ease-settle); }
+.post:hover .shot > *{ transform:scale(1.04); }
+
+/* the fallback for a post with no image — a plate, never a hole */
+.plate{ height:100%; display:flex; align-items:center; justify-content:center; padding:22px;
+  background:var(--paper-raised); text-align:center; }
+.plate span{ font-family:var(--serif); font-size:20px; line-height:1.3; color:var(--rule-strong); }
+
+.post .meta{ display:flex; align-items:center; gap:14px; margin:14px 0 6px;
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-mute); }
+.post h3{
+  font-family:var(--serif); font-weight:400; font-size:22px; line-height:1.25; margin:0;
+  display:inline; background-image:linear-gradient(var(--ink),var(--ink));
+  background-size:0% 1px; background-repeat:no-repeat; background-position:0 100%;
+  transition:background-size 420ms var(--ease-settle);
+}
+.post:hover h3{ background-size:100% 1px; }
+.post .dek{ margin:9px 0 0; font-size:14px; line-height:1.55; color:var(--ink-2);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.post .foot{ margin-top:11px; }
+
+.more{
+  display:inline-flex; align-items:center; gap:10px; margin:46px 0 90px;
+  font:500 12px/1 var(--sans); letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink); text-decoration:none; padding:14px 24px;
+  border:1px solid var(--rule-strong); border-radius:99px;
+  transition:background 220ms var(--ease), color 220ms var(--ease), border-color 220ms var(--ease);
+}
+.more:hover{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+@media (max-width:1024px){
+  .feature{ grid-template-columns:1fr; gap:26px; }
+  .stream{ grid-template-columns:1fr; }
+  .masthead h1{ font-size:38px; }
+}
+@media (prefers-reduced-motion: reduce){ *{ transition-duration:1ms !important; animation:none !important; } }
+
+.mock{ width:100%; height:100%; display:block; }
+.m1{ background:linear-gradient(135deg,#2B2A28,#4A423B); }
+.m3{ background:linear-gradient(150deg,#DDE0EC,#B9BED6); }
+.m4{ background:linear-gradient(130deg,#EFD9CF,#D6A98F); }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <strong>Blog homepage — featured + stream</strong>
+  <span>Two cards deliberately show the no-image plate fallback</span>
+</div>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Blog</p>
+    <h1>Notes on designing enterprise products</h1>
+    <p class="dek">Short entries on the craft — data tables, empty states, AI patterns, and the unglamorous decisions that make software usable.</p>
+    <p class="cadence">Posting most days</p>
+  </header>
+
+  <article class="feature">
+    <div class="shot"><span class="mock m3"></span></div>
+    <div>
+      <p class="tagline">Latest · 24 July 2026</p>
+      <h2><a href="/blog/what-a-data-table-teaches-you-about-trust">What a data table teaches you about trust</a></h2>
+      <p>Nobody trusts a number they can't trace. Three years of enterprise dashboards taught me that the most important column is usually the one nobody asked for.</p>
+      <div class="foot">
+        <span>6 min read</span>
+        <button class="love" aria-pressed="false" data-n="48" aria-label="Love this post">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+          <span class="n">48</span>
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <div class="stream">
+
+    <a class="post" href="/blog/three-weeks-of-ai-copilot-patterns">
+      <div class="shot"><span class="mock m1"></span></div>
+      <div class="meta"><span>22 Jul 2026</span><span>4 min</span></div>
+      <h3>Three weeks of AI copilot patterns</h3>
+      <p class="dek">What I kept, what I threw away, and the one interaction everyone copies that shouldn't be copied.</p>
+      <div class="foot">
+        <button class="love" aria-pressed="false" data-n="31" aria-label="Love this post">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+          <span class="n">31</span>
+        </button>
+      </div>
+    </a>
+
+    <!-- no image → typographic plate, never a hole -->
+    <a class="post" href="/blog/notes-on-designing-empty-states">
+      <div class="shot"><div class="plate"><span>Notes on designing empty states</span></div></div>
+      <div class="meta"><span>19 Jul 2026</span><span>3 min</span></div>
+      <h3>Notes on designing empty states</h3>
+      <p class="dek">The screen a user sees most often on day one is the screen we design last.</p>
+      <div class="foot">
+        <button class="love" aria-pressed="false" data-n="64" aria-label="Love this post">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+          <span class="n">64</span>
+        </button>
+      </div>
+    </a>
+
+    <a class="post" href="/blog/the-handoff-is-the-design">
+      <div class="shot"><span class="mock m4"></span></div>
+      <div class="meta"><span>17 Jul 2026</span><span>5 min</span></div>
+      <h3>The handoff is the design</h3>
+      <p class="dek">If an engineer has to guess, the decision was never made — it was postponed.</p>
+      <div class="foot">
+        <button class="love" aria-pressed="false" data-n="27" aria-label="Love this post">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+          <span class="n">27</span>
+        </button>
+      </div>
+    </a>
+
+    <a class="post" href="/blog/a-small-win-the-twelve-pixel-fix">
+      <div class="shot"><div class="plate"><span>A small win: the twelve-pixel fix</span></div></div>
+      <div class="meta"><span>14 Jul 2026</span><span>2 min</span></div>
+      <h3>A small win: the twelve-pixel fix</h3>
+      <p class="dek">Twelve pixels of padding cut support tickets by a third. I still don't fully understand why.</p>
+      <div class="foot">
+        <button class="love" aria-pressed="false" data-n="92" aria-label="Love this post">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
+          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
+          <span class="n">92</span>
+        </button>
+      </div>
+    </a>
+
+  </div>
+
+  <a class="more" href="/blog/page/2">Older posts →</a>
+</div>
+
+<script>
+/* love — optimistic. In the build: count from Upstash keyed by slug, pressed
+   state per-visitor, POST rate-limited by hashed IP. The card is a link, so the
+   handler must stop propagation or loving navigates. */
+document.querySelectorAll(".love").forEach(btn => {
+  const n = btn.querySelector(".n");
+  const base = parseInt(btn.dataset.n, 10);
+  btn.addEventListener("click", e => {
+    e.preventDefault(); e.stopPropagation();
+    const loved = btn.getAttribute("aria-pressed") === "true";
+    btn.setAttribute("aria-pressed", String(!loved));
+    n.textContent = base + (loved ? 0 : 1);
+    if (!loved){ btn.classList.remove("burst"); void btn.offsetWidth; btn.classList.add("burst"); }
+  });
+});
+</script>
+</body>
+</html>

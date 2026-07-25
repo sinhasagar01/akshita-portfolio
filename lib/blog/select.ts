@@ -72,9 +72,62 @@ export function isPublishedPost(item: BlogListItem): boolean {
  * for a stable, deterministic order (the byte-stable-output discipline the read path
  * shares with everything else here). Pure — the reader read happens in getBlogPosts.
  */
-export function selectPublishedPostsNewestFirst(items: readonly BlogListItem[]): BlogListItem[] {
+// GENERIC over the item type so a caller passing a richer shape (getBlogPosts attaches
+// `readingTime`) keeps that shape through the filter+sort. The runtime is unchanged from
+// the plain BlogListItem version, so the blog-status-filter suite stays byte-identical.
+export function selectPublishedPostsNewestFirst<T extends BlogListItem>(
+  items: readonly T[]
+): T[] {
   return items
     .filter(isPublishedPost)
     .slice()
     .sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));
+}
+
+const WORDS_PER_MINUTE = 200;
+
+/** Count whitespace-separated tokens in a string. Markers (**bold**, *italic*,
+ *  [text](url)) ride along as part of their token — an approximation that is stable and
+ *  good enough for a reading estimate; the WPM figure is itself approximate. */
+function countWords(text: unknown): number {
+  if (typeof text !== "string") return 0;
+  const trimmed = text.trim();
+  return trimmed === "" ? 0 : trimmed.split(/\s+/).length;
+}
+
+/**
+ * Reading time in whole minutes, COMPUTED from a post's blocks (never authored) — the
+ * contract's rule. Counts the words a reader actually reads: heading text, richText
+ * paragraphs, pullQuote text, and a videoEmbed caption. Floors at 1 minute, so even a
+ * one-line post reads as "1 min", never "0 min".
+ *
+ * Takes `unknown` (the reader hands blocks through untyped, and the ralph suite feeds
+ * stubs) and is defensive about shape, so a malformed block contributes 0 rather than
+ * throwing. Pure — no reader, unit-exercisable directly.
+ */
+export function readingTimeMinutes(blocks: unknown): number {
+  if (!Array.isArray(blocks)) return 1;
+  let words = 0;
+  for (const block of blocks) {
+    if (block === null || typeof block !== "object") continue;
+    const { discriminant, value } = block as { discriminant?: unknown; value?: unknown };
+    if (value === null || typeof value !== "object") continue;
+    const v = value as Record<string, unknown>;
+    switch (discriminant) {
+      case "heading":
+      case "pullQuote":
+        words += countWords(v.text);
+        break;
+      case "richText":
+        if (Array.isArray(v.paragraphs)) {
+          for (const p of v.paragraphs) words += countWords(p);
+        }
+        break;
+      case "videoEmbed":
+        words += countWords(v.caption);
+        break;
+      // unknown kind — contributes nothing rather than throwing.
+    }
+  }
+  return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
