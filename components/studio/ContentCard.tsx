@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { IconChevronRight } from "./icons";
 
 export type CardSignal = { label: string; tone?: "warn" | "muted" };
 
@@ -6,28 +7,27 @@ type Props = {
   /** Display index, e.g. "01". Decorative. */
   index: string;
   title: string;
-  /** Inline SVG icon element. Rendered decorative inside the thumbnail. */
+  /** Inline SVG icon element. Rendered decorative. */
   icon: ReactNode;
   status: "live" | "code";
   meta?: string;
   /** Small sub-note under the meta, e.g. "facet labels in code". */
   note?: string;
   signals?: CardSignal[];
-  /** Link target (a /studio route). When omitted the card is non-interactive
-   *  (e.g. Contact). */
+  /** Link target (a /studio route). When omitted the row is a visually LOCKED,
+   *  non-interactive row (Contact): a plain div, never a link/button, no hover,
+   *  shift or chevron. */
   href?: string;
   /** Accessible name for the link, e.g. "Edit Hero in Settings". */
   ariaLabel?: string;
-  /** Optional extra body content, e.g. read-only skill pills. */
-  children?: ReactNode;
 };
 
-function StatusPill({ status }: { status: "live" | "code" }) {
+function StatusBadge({ status }: { status: "live" | "code" }) {
   const live = status === "live";
   return (
     <span
       className={[
-        "absolute top-2 right-2 rounded-full px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide",
+        "shrink-0 rounded-full px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide",
         live ? "bg-success-50 text-success-700" : "bg-cream-300 text-ink-600",
       ].join(" ")}
     >
@@ -36,6 +36,10 @@ function StatusPill({ status }: { status: "live" | "code" }) {
   );
 }
 
+// Overview row (Task 2). Was a filled card; now a hairline row shared by the six
+// homepage-overview entries. Kept the filename ContentCard.tsx to avoid a rename
+// inside a repaint diff — OverviewRow would be more accurate; rename deferred to
+// whichever later task opens this file.
 export default function ContentCard({
   index,
   title,
@@ -46,55 +50,41 @@ export default function ContentCard({
   signals = [],
   href,
   ariaLabel,
-  children,
 }: Props) {
   const isCode = status === "code";
-  const allSignals = signals;
-
-  const hasWarn = allSignals.some((s) => s.tone !== "muted");
-
-  const base = [
-    "block overflow-hidden rounded-lg border bg-cream-50 transition-colors",
-    isCode ? "bg-cream-100" : "",
-    hasWarn ? "border-accent-500/40" : "border-ink-950/8",
-    href ? "hover:border-accent-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500" : "",
-  ].join(" ");
 
   const inner = (
     <>
-      <div
-        className={[
-          "relative flex h-16 items-center justify-center",
-          isCode ? "bg-cream-200 text-ink-400" : "bg-cream-200 text-accent-500",
-        ].join(" ")}
+      <span
+        className="w-6 shrink-0 font-display text-[17px] italic tabular-nums text-ink-400"
+        aria-hidden
       >
-        <span
-          className="absolute left-3 top-2 font-display text-sm italic text-ink-400"
-          aria-hidden
-        >
-          {index}
-        </span>
-        <StatusPill status={status} />
-        <span className="[&>svg]:size-5" aria-hidden>
-          {icon}
-        </span>
-      </div>
+        {index}
+      </span>
+      <span
+        className={[
+          "grid size-5 shrink-0 place-items-center [&>svg]:size-[19px]",
+          isCode ? "text-ink-400" : "text-accent-500",
+        ].join(" ")}
+        aria-hidden
+      >
+        {icon}
+      </span>
 
-      <div className="px-3.5 pb-3 pt-2.5">
-        <div
+      <span className="min-w-0 flex-1">
+        <span
           className={[
-            "font-display text-[15px] leading-snug",
+            "block font-display text-[20px] leading-tight",
             isCode ? "text-ink-600" : "text-ink-950",
           ].join(" ")}
         >
           {title}
-        </div>
-        {meta && <p className="mt-1 text-[11px] text-ink-400">{meta}</p>}
-        {note && <p className="mt-0.5 text-[10px] text-text-subtle">{note}</p>}
-
-        {allSignals.length > 0 && (
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {allSignals.map((s) => (
+        </span>
+        {meta && <span className="mt-1 block text-[13px] text-ink-600">{meta}</span>}
+        {note && <span className="mt-0.5 block text-[11px] text-text-subtle">{note}</span>}
+        {signals.length > 0 && (
+          <span className="mt-1.5 flex flex-wrap gap-1.5">
+            {signals.map((s) => (
               <span
                 key={s.label}
                 className={[
@@ -107,21 +97,43 @@ export default function ContentCard({
                 {s.label}
               </span>
             ))}
-          </div>
+          </span>
         )}
+      </span>
 
-        {children && <div className="mt-2.5">{children}</div>}
-      </div>
+      <StatusBadge status={status} />
+
+      {href && (
+        <span
+          className="shrink-0 -translate-x-1 text-ink-400 opacity-0 transition duration-200 ease-out group-hover:translate-x-0 group-hover:opacity-100 [&>svg]:size-4"
+          aria-hidden
+        >
+          <IconChevronRight />
+        </span>
+      )}
     </>
   );
 
+  // Navigable rows: ONE block-level <a> (no nested interactive element), with the
+  // hover lift + right-shift + chevron reveal.
   if (href) {
     return (
-      <a href={href} aria-label={ariaLabel} className={`group ${base}`}>
+      <a
+        href={href}
+        aria-label={ariaLabel}
+        className="group flex items-center gap-4 rounded-lg border-b border-ink-950/8 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-cream-100 hover:pl-6"
+      >
         {inner}
       </a>
     );
   }
 
-  return <div className={base}>{inner}</div>;
+  // LOCKED row (Contact): a plain div — not a link/button, not focusable, no hover,
+  // no shift, no chevron. A row that looks clickable and isn't is worse than one
+  // that admits it.
+  return (
+    <div className="flex items-center gap-4 border-b border-ink-950/8 py-4 pl-3.5 pr-3.5">
+      {inner}
+    </div>
+  );
 }
