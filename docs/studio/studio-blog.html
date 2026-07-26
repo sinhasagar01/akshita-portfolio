@@ -38,16 +38,40 @@
    3. The logo is a LINK to /studio.
    4. Nav items have a HOVER state distinct from the selected state: raised
       surface, ink text, a 4px nudge right. The selected item does not nudge.
+      CORRECTION — THE 4px NUDGE IS MOCK-ONLY. The real StudioSidebar does not
+      move a nav item on hover, and it was not built. Contract error 7.
    5. SELECTED = THE INK PILL — ink background, cream text, icon at full
       opacity. The same treatment #165 shipped in the real sidebar.
 
   ---- THE ARITHMETIC THAT MAKES THE COLLAPSE CONTROL LOAD-BEARING ----------
-  sidebar 236 + list 288 + canvas 620 + inspector 262 = 1406px MINIMUM.
-  At a 1440 viewport that is 34px of slack. At 1280 — a common laptop — it
-  overflows by 126px. So the collapse control is NOT a refinement. #167 was
-  right that it is a BUILD, not a repaint, and matching this mock means
-  building it. Below 1406px the list collapses by default and the reopen rail
-  is the way back. This is a FIT breakpoint, measured, not the site's lg.
+  CORRECTED. What this file said, and why it was wrong, kept above the fix so
+  the same mistake is not made a second time:
+
+    WRONG: sidebar 236 + list 288 + canvas 620 + inspector 262 = 1406px.
+
+  The canvas term was estimated from the 18px PROSE font. `68ch` resolves
+  against the WRAPPER's font-size, which is 16px DM Sans, so the measure is
+  745.9px and not 620. The whole threshold was wrong by 190px because nobody
+  measured the resolved value. VERIFY A UNIT BEFORE COMPUTING WITH IT.
+
+    RIGHT: sidebar 236 + list 264 + canvas 794 + inspector 244 = 1538px MINIMUM.
+
+  The canvas term is 745.9 plus 48px of horizontal padding (`px-6`), which the
+  public article carries and the studio canvas now carries too. The pane widths
+  are the SHIPPED ones — 264 and 244, not the 288 and 262 drawn here — because
+  the built layout is what the arithmetic has to describe.
+
+  At the 1536-wide laptop this is authored on, 1538 is 2px over, so the list
+  starts collapsed there and the reopen rail is the way back. That makes the
+  collapse control load-bearing rather than a refinement, which was this
+  section's real point and survives the correction. This is a FIT breakpoint,
+  measured, not the site's lg.
+
+  THE NUMBER LIVES IN lib/studio/three-pane.ts AND NOWHERE ELSE. Tailwind
+  cannot interpolate a constant into a class name, so the obvious build writes
+  1538 twice and couples the copies by hand — the 236px hazard again. The shell
+  reads the width through matchMedia instead, and ralph/tests/three-pane.mjs
+  asserts that no second literal exists.
 
   ---- FOUR DIFFERENCES FROM #174 THAT ARE *NOT* LAYOUT ---------------------
   Each is blocked by code rather than styling, and each is its own decision:
@@ -60,6 +84,11 @@
       the read path, so a closed list would be invented rather than enforced.
    c. THE VIDEO POSTER FIELD IS HIDDEN. `BlogProse` never reads it, so the
       field would be authorable and invisible. Same decision as `imageBlock`.
+      NOTE — this was contract error 6 when written, because #174 planned the
+      hiding and never shipped it, so the file described a state the code was
+      not in. It is TRUE as of a586e98, which parameterised VideoEmbedForm with
+      `showPoster`. Recorded rather than quietly deleted: a claim that becomes
+      true by the code catching up is not the same as a claim that was right.
    d. `imageBlock` DOES NOT EXIST, so there is no inline figure in a post body
       and the picker offers FOUR kinds, not five. The fourth is `heading`,
       added in #171.
@@ -74,11 +103,29 @@
   - Add/remove/reorder is inline state in the host. There is no `structural()`
     function — that name never existed; it was a description that hardened into
     a name through repeated regeneration.
-  - The BLOCK LAYER is reusable wholesale (registry, richToMarkers, the
-    bold/italic/link toolbar, image upload). THE HOST IS NOT —
-    `SectionsEditPanel` is section-shaped from state to render.
+  - The BLOCK LAYER is reusable wholesale (registry, richToMarkers, image
+    upload). THE HOST IS NOT — `SectionsEditPanel` is section-shaped from state
+    to render.
+    CORRECTION — THE RICH-TEXT TOOLBAR WAS LISTED HERE AND BLOG HAS NONE. The
+    only bold/italic/link toolbar in the studio lives in SectionsEditPanel, the
+    host this same sentence says is NOT reusable. Contract error 8, and the
+    third occurrence of the reuse-wholesale overreach. Blog's rich text is
+    authored as **bold** *italic* [link](url) markers in a textarea.
   - The collapse control is a WIDTH transition, never a conditional render.
     Unmounting the list would reset its search field.
+  - CLICKING THE PROSE TO SELECT A BLOCK IS MOCK-ONLY AND WAS NOT BUILT.
+    Contract error 9. Selection is a BLOCK STRIP in the inspector, carrying the
+    kind label, the position, and the reorder and remove controls on one row.
+    Both ways of making the canvas clickable spend the property this layout
+    exists to protect. Wrapping each block in a clickable element changes the
+    canvas DOM relative to the public article, which is the editable-only
+    wrapper failure mode CLAUDE.md names. Mapping a click to a block index by
+    counting rendered children derives the mapping from BlogProse's output
+    shape — where a `richText` block emits ONE PARAGRAPH PER ENTRY rather than
+    one element — so a change to that shape breaks selection SILENTLY.
+  - THE PER-GAP BLOCK INSERTER, THE DRAG HANDLES AND THE HOVER KIND-TAG OVERLAY
+    ARE ALSO MOCK-ONLY. Add appends at the end, chevrons reorder, and the kind
+    label in the inspector is persistent rather than a hover overlay.
 
   ---- WHEN OTHER PAGES ADOPT THIS LAYOUT ----------------------------------
   Build it BLOG-SPECIFIC first and keep the seams visible. Extract a shared
@@ -113,8 +160,9 @@
   --ease-settle:cubic-bezier(.16,.9,.28,1);
 
   --w-side: 236px;
-  --w-list: 288px;
-  --w-insp: 262px;
+  /* CORRECTED to the widths that actually shipped. Were 288 and 262. */
+  --w-list: 264px;
+  --w-insp: 244px;
   --docbar: 40px;   /* mockup chrome only — not part of the design */
 }
 *,*::before,*::after{ box-sizing:border-box; }
@@ -270,8 +318,22 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); font-s
 
 /* ---------------- CANVAS ---------------- */
 .canvas{ flex:1; overflow-y:auto; position:relative; background:var(--paper); }
-.canvas-inner{ max-width:620px; margin:0 auto; padding:40px 32px 150px; transition:max-width 300ms var(--ease-settle); }
-.split.collapsed .canvas-inner{ max-width:700px; }
+/* THE MEASURE IS FIXED AND NEVER MOVES. Three corrections in one rule:
+   - max-width was 620px, an estimate from the 18px prose font. `68ch` resolves
+     against the wrapper's 16px font, so it is 745.9px. Rounded to 746.
+   - `.split.collapsed .canvas-inner{ max-width:700px }` WAS DELETED, and so was
+     the copy of it inside the fit media query below. A measure that widens when
+     you hide a pane breaks the one property that justifies 68ch at all: the
+     canvas renders through the PUBLIC component at the PUBLIC measure, so what
+     the author sees is what the article ships. A measure that moves is a
+     measure that lies.
+   - the `transition:max-width` went with them. It existed only to animate a
+     change that must not happen.
+   The 32px side padding here is the mock's own; the build uses `px-6` (24px a
+   side, 48px total) to match app/(portfolio)/blog/[slug]/page.tsx EXACTLY.
+   Gate A1 proves the two content boxes equal as a NUMBER, because identical
+   class strings on differently-sized ancestors are not identical measures. */
+.canvas-inner{ max-width:746px; margin:0 auto; padding:40px 24px 150px; }
 .cv-label{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 12px; }
 /* TITLE IS READ-ONLY — the seam rejects a title patch. See note (a). */
 .cv-title{ font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.08; letter-spacing:-.015em; margin:0; }
@@ -395,16 +457,26 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); font-s
 .dlg .slug{ font-size:11.5px; color:var(--ink-mute); margin-top:8px; font-family:ui-monospace,monospace; }
 .dlg .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
 
-/* ---------------- FIT THRESHOLD — 1406px, measured ---------------- */
-@media (max-width:1406px){
+/* ---------------- FIT THRESHOLD — 1538px, CORRECTED from 1406 ----------------
+   The `.split .canvas-inner{ max-width:700px }` that used to sit in here was the
+   THIRD widening site, after the base rule and `.split.collapsed`. Deleting only
+   the two obvious ones would have left the measure still moving below the
+   threshold, which is the whole failure. All three are gone.
+   In the BUILD this media query does not exist. The width is read once through
+   matchMedia from lib/studio/three-pane.ts, because `inert` on the collapsed
+   pane is an attribute CSS cannot set and a 0-width pane whose contents stay
+   tabbable is a focus trap. One source for the number, no hand-coupled copy. */
+@media (max-width:1538px){
   .split .list{ width:0; border-right-color:transparent; }
   .split .reopen{ display:grid; }
-  .split .canvas-inner{ max-width:700px; }
   .split.expanded .list{ width:var(--w-list); border-right-color:var(--rule); }
   .split.expanded .reopen{ display:none; }
 }
 @media (max-width:1100px){
-  .insp{ display:none; }   /* below this the inspector folds into a canvas tab — a build decision */
+  /* Below this the inspector folds and the canvas pane's view toggle takes over.
+     In the build the inspector node is MOVED, not hidden — a hidden second copy
+     would be two field trees posting through one onChange with colliding ids. */
+  .insp{ display:none; }
 }
 </style>
 </head>
@@ -412,7 +484,7 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); font-s
 
 <div class="doc-bar">
   <strong>/studio/blog — contract</strong>
-  <span>Full window width · real studio sidebar · ink-pill selected · collapse at 1406px</span>
+  <span>Full window width · real studio sidebar · ink-pill selected · collapse at 1538px</span>
 </div>
 
 <div class="app">
@@ -615,11 +687,11 @@ items.forEach(i => i.addEventListener("click", () => {
 }));
 
 /* collapse — a WIDTH transition, never an unmount, so search state survives.
-   Below the 1406px fit threshold the list is collapsed by default, so the
+   Below the 1538px fit threshold the list is collapsed by default, so the
    toggle flips `expanded` instead. */
 document.querySelectorAll("[data-collapse]").forEach(b =>
   b.addEventListener("click", () => {
-    const narrow = window.matchMedia("(max-width:1406px)").matches;
+    const narrow = window.matchMedia("(max-width:1538px)").matches;
     split.classList.toggle(narrow ? "expanded" : "collapsed");
   }));
 

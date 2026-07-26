@@ -208,6 +208,21 @@ export default function PublishBar() {
     // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
     // this 236px is coupled to StudioSidebar's lg:w-[236px] by hand. If the
     // sidebar width changes, change this too, or the bar drifts off-centre.
+    //
+    // THE THREE-PANE EDITOR MAKES THE BAR OFF-CENTRE AND THAT IS ACCEPTED. On
+    // /studio/blog/<slug> the work area is list + canvas + inspector, so the
+    // canvas is not centred within it: the bar sits 13px off the canvas centre
+    // with the list open and 131px off with it collapsed. Centring over the
+    // CANVAS instead would mean this rule knowing the list and inspector widths
+    // too — a third and fourth hand-coupled literal, on a component shared by
+    // ten pages, to recover at most 131px on one of them. That is the wrong
+    // trade, and the alternative that avoids the literals (measuring the canvas
+    // at runtime) puts a layout read in a fixed-position bar that renders on
+    // every page. Left deliberately. Logged as deferred, not forgotten.
+    //
+    // The three-pane widths themselves are NOT hand-coupled — they live once in
+    // lib/studio/three-pane.ts and ralph asserts no second literal exists. That
+    // is the pattern this 236px should follow whenever it is next touched.
     <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[236px]">
       <div
         className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/8 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)] backdrop-blur"

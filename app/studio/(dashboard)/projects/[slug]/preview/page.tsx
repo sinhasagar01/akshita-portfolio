@@ -18,6 +18,7 @@ import type { CaseStudy } from "@/lib/case-studies/types";
 import CaseStudyView from "@/components/case-study/CaseStudyView";
 import { projectPath } from "@/lib/site";
 import { IconArrowUpRight } from "@/components/studio/icons";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -57,7 +58,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
   const isDraft = draft.source === "draft";
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`${STUDIO_PAGE} flex flex-col gap-4`}>
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="font-display text-base text-ink-950">{live.title}</span>

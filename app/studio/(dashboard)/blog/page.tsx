@@ -4,6 +4,7 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import BlogIndex from "@/components/studio/BlogIndex";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -13,12 +14,12 @@ export default async function StudioBlogPage() {
   const { blog } = await getStudioData();
 
   return (
-    <>
+    <div className={STUDIO_PAGE}>
       <AreaHeader
         title="Blog"
         sub="Short posts. A new post starts as a draft and stays off /blog until you publish it."
       />
       <BlogIndex posts={blog} />
-    </>
+    </div>
   );
 }

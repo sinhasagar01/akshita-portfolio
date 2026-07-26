@@ -7,21 +7,22 @@ import ProcessEditPanel from "@/components/studio/ProcessEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { ListDetailLayout } from "@/components/studio/ListDetailLayout";
 import { STUDIO_SETTINGS_SECTIONS } from "@/lib/studio/settings-sections";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export default async function StudioSettings() {
   const { settings } = await getStudioData();
 
   if (!settings) {
     return (
-      <>
+      <div className={STUDIO_PAGE}>
         <AreaHeader title="Site settings" sub="The global singleton behind the homepage." />
         <StudioEmptyState>Site settings have not been created yet.</StudioEmptyState>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className={STUDIO_PAGE}>
       <AreaHeader
         title="Site settings"
         sub="Every homepage group is editable here, then published from the Publish bar."
@@ -69,6 +70,6 @@ export default async function StudioSettings() {
             four stages each with name, description, and a tags array. */}
         <ProcessEditPanel itemId="process" processStages={settings.processStages} />
       </ListDetailLayout>
-    </>
+    </div>
   );
 }

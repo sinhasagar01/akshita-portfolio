@@ -30,7 +30,7 @@
 // the sweep is the list.
 import type { ComponentType } from "react";
 import type { BlogBlockKind, BlogRawValue } from "@/lib/blog/blocks-raw";
-import { BLOCK_REGISTRY } from "./registry";
+import { BLOCK_REGISTRY, VideoEmbedForm } from "./registry";
 import { BLOG_BLOCK_EMPTIES, emptyHeading } from "./blog-empties";
 import { TextField } from "./fields";
 
@@ -81,7 +81,12 @@ export const BLOG_BLOCK_REGISTRY: { [K in BlogBlockKind]: BlogEntry<K> } = {
     empty: emptyHeading,
   },
   pullQuote: BLOCK_REGISTRY.pullQuote,
-  videoEmbed: BLOCK_REGISTRY.videoEmbed,
+  // Same entry as projects EXCEPT the poster field, which BlogProse never reads. Spreading
+  // the shared entry keeps label/empty identical; only Form is wrapped.
+  videoEmbed: {
+    ...BLOCK_REGISTRY.videoEmbed,
+    Form: (props: BlogBlockFormProps<"videoEmbed">) => <VideoEmbedForm {...props} showPoster={false} />,
+  },
 };
 
 // Re-exported so the host has one import for the whole registry surface.

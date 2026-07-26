@@ -353,8 +353,16 @@ export function HeroImageField({
   collection,
   initial,
   onChanged,
+  label = "Hero image",
 }: {
   slug: string;
+  /** The field's own label. It has always rendered one; blog wants "Card image" because
+   *  one `heroImage` serves both the article hero and the card thumbnail. Blog used to add
+   *  a SECOND label outside the component instead, which is why the editor showed
+   *  CARD IMAGE immediately followed by HERO IMAGE. The duplication was a missing prop,
+   *  not a stray label, so neither string was deleted. Defaulted to the projects wording
+   *  so projects' rendered output is byte-identical. */
+  label?: string;
   /** BS-3c — which collection's hero tree the upload lands in. REQUIRED, mirroring the
    *  change BlockImageField took in #172: a default is exactly how blog would inherit the
    *  projects tree. #173 generalised commitEntryHeroImage, so the route accepts both. */
@@ -434,8 +442,12 @@ export function HeroImageField({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Hero image</span>
-      <div className="flex items-center gap-4">
+      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
+      {/* `flex-wrap` is for the blog editor's 244px inspector pane. The 160px thumbnail plus
+          a 16px gap leaves 44px for the controls there, so they overflowed the pane. On
+          projects, where this has always rendered in a wide card, there is room and nothing
+          wraps — the rendered output is unchanged at that width. */}
+      <div className="flex flex-wrap items-center gap-4">
         <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-md border border-ink-950/8 bg-cream-100">
           {hasImage ? (
             // Plain img (not next/image): the source is either a session object URL
