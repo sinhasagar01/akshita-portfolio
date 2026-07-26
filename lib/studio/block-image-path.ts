@@ -35,13 +35,14 @@
 //
 // Dependency-free apart from node:crypto, so it is unit-exercisable directly and
 // stays the single source for the writer.
+//
+// PR 3a — the projects/blog PREFIX is now a REQUIRED `base` parameter (the collection's
+// CollectionImageBase). The old BLOCK_IMAGE_PUBLIC_PREFIX/_DIRECTORY constants moved to
+// collection-image-base.ts, where projects and blog each name their own tree; this file
+// takes the base rather than importing one, so it stays a pure leaf ralph can run.
 import { createHash } from "node:crypto";
+import type { CollectionImageBase } from "./collection-image-base";
 
-/** The publicPath prefix (no trailing slash) — shared with heroImage, since both
- *  live under a project's image directory. */
-export const BLOCK_IMAGE_PUBLIC_PREFIX = "/images/projects";
-/** The repo directory the blobs live under. `public` + the publicPath. */
-export const BLOCK_IMAGE_DIRECTORY = "public/images/projects";
 /** The subdirectory that separates block images from `heroImage.webp`. */
 export const BLOCK_IMAGE_SEGMENT = "blocks";
 /**
@@ -51,30 +52,33 @@ export const BLOCK_IMAGE_SEGMENT = "blocks";
  */
 export const BLOCK_IMAGE_HASH_LENGTH = 12;
 
-/** The content hash of the NORMALIZED bytes — the blob's whole identity. */
+/** The content hash of the NORMALIZED bytes — the blob's whole identity. Unchanged: the
+ *  hash is a pure function of the bytes and takes no base, so it cannot vary by collection. */
 export function blockImageHash(normalized: Uint8Array): string {
   return createHash("sha256").update(normalized).digest("hex").slice(0, BLOCK_IMAGE_HASH_LENGTH);
 }
 
-/** The yaml `src` string for a slug + content hash. */
-export function blockImageYamlValue(slug: string, hash: string): string {
-  return `${BLOCK_IMAGE_PUBLIC_PREFIX}/${slug}/${BLOCK_IMAGE_SEGMENT}/${hash}.webp`;
+/** The yaml `src` string for a collection base + slug + content hash. */
+export function blockImageYamlValue(base: CollectionImageBase, slug: string, hash: string): string {
+  return `${base.publicPrefix}/${slug}/${BLOCK_IMAGE_SEGMENT}/${hash}.webp`;
 }
 
-/** The repo blob path for a slug + content hash. `public` + the yaml value. */
-export function blockImageBlobPath(slug: string, hash: string): string {
-  return `${BLOCK_IMAGE_DIRECTORY}/${slug}/${BLOCK_IMAGE_SEGMENT}/${hash}.webp`;
+/** The repo blob path for a collection base + slug + content hash. `public` + the yaml value. */
+export function blockImageBlobPath(base: CollectionImageBase, slug: string, hash: string): string {
+  return `${base.directory}/${slug}/${BLOCK_IMAGE_SEGMENT}/${hash}.webp`;
 }
 
 /**
- * Map a stored `src` back to its repo blob path, or null when it is not a managed
- * block image (an unmigrated path, an external URL, or null). Mirrors
- * heroImageBlobPathFromValue: a value this does not recognise is never deleted.
+ * Map a stored `src` back to its repo blob path UNDER THE GIVEN base, or null when it is
+ * not a managed block image for that collection (an unmigrated path, an external URL, a
+ * different collection's path, or null). Mirrors heroImageBlobPathFromValue: a value this
+ * does not recognise is never deleted. The base is required, so a caller GC-ing a
+ * collection matches only that collection's blobs.
  */
-export function blockImageBlobPathFromValue(value: string | null): string | null {
+export function blockImageBlobPathFromValue(base: CollectionImageBase, value: string | null): string | null {
   if (!value) return null;
   const m = new RegExp(
-    `^${BLOCK_IMAGE_PUBLIC_PREFIX}/([a-z0-9-]+)/${BLOCK_IMAGE_SEGMENT}/([0-9a-f]{${BLOCK_IMAGE_HASH_LENGTH}})\\.webp$`
+    `^${base.publicPrefix}/([a-z0-9-]+)/${BLOCK_IMAGE_SEGMENT}/([0-9a-f]{${BLOCK_IMAGE_HASH_LENGTH}})\\.webp$`
   ).exec(value);
-  return m ? blockImageBlobPath(m[1], m[2]) : null;
+  return m ? blockImageBlobPath(base, m[1], m[2]) : null;
 }

@@ -318,11 +318,17 @@ export function BlockImageField({
   label,
   src,
   slug,
+  collection,
   onChange,
 }: {
   label: string;
   src: string | null;
   slug: string;
+  /** PR 3a — which collection's image tree the upload lands in ("projects" | "blog").
+   *  Threaded parallel to `slug` and REQUIRED: the server maps it to a base and rejects
+   *  an unknown one, so a caller that forgets it is a compile error here, not a silent
+   *  mis-scope. */
+  collection: string;
   /** Receives the server-derived path, or null on clear. */
   onChange: (src: string | null) => void;
 }) {
@@ -335,6 +341,7 @@ export function BlockImageField({
     setError(null);
     try {
       const body = new FormData();
+      body.append("collection", collection);
       body.append("slug", slug);
       body.append("file", file);
       const res = await fetch("/api/studio/upload-block-image", { method: "POST", body });

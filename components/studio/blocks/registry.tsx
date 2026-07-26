@@ -45,6 +45,12 @@ export type BlockFormProps<K extends SectionBlockKind> = {
    *  under this project's directory. The client still never names the FILE: it posts
    *  the slug and the bytes, and the server hashes and derives the path. */
   slug: string;
+  /** PR 3a — which collection's image tree an upload lands in ("projects" | "blog").
+   *  Threaded parallel to `slug` and REQUIRED, so a host that renders these forms must
+   *  state it (SectionsEditPanel passes "projects"; the blog editor passes "blog" in
+   *  PR 3c). A required prop, not an ambient default: the mis-scope this PR fixes came
+   *  from a silent projects default nobody had to state. */
+  collection: string;
 };
 
 type Entry<K extends SectionBlockKind> = {
@@ -365,6 +371,7 @@ function ImgSpecFields<T extends RawImg>({
   onBlur,
   focusRef,
   slug,
+  collection,
   imageLabel = "Image",
 }: {
   value: T;
@@ -372,6 +379,7 @@ function ImgSpecFields<T extends RawImg>({
   onBlur?: () => void;
   focusRef?: (el: HTMLElement | null) => void;
   slug: string;
+  collection: string;
   imageLabel?: string;
 }) {
   return (
@@ -381,7 +389,7 @@ function ImgSpecFields<T extends RawImg>({
         <BlockImageField
           label={imageLabel}
           src={value.src}
-          slug={slug}
+          slug={slug} collection={collection}
           // The upload/clear commits the blob and hands back the path; the src edit
           // then rides the ordinary save, so `sections` keeps its single writer.
           onChange={(src) => set({ ...value, src })}
@@ -431,16 +439,18 @@ function DeviceFields({
   onBlur,
   focusRef,
   slug,
+  collection,
 }: {
   value: RawDevice;
   set: (next: RawDevice) => void;
   onBlur?: () => void;
   focusRef?: (el: HTMLElement | null) => void;
   slug: string;
+  collection: string;
 }) {
   return (
     <>
-      <ImgSpecFields value={value} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} imageLabel="Screen" />
+      <ImgSpecFields value={value} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} collection={collection} imageLabel="Screen" />
       {/* Theme label is copy (Content); the dot colour is appearance (Style). */}
       <TabGroup group="content">
         <TextField label="Theme label" value={value.label} onChange={(label) => set({ ...value, label })} onBlur={onBlur} />
@@ -485,7 +495,7 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
   );
 }
 
-const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, onChange, onBlur, slug }) => (
+const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
     <ItemRows
       items={value.devices}
@@ -496,7 +506,7 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
       rowLabel={(d, i) => d.label.trim() || `Device ${i + 1}`}
     >
       {({ item, set, focusRef }) => (
-        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} />
+        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} collection={collection} />
       )}
     </ItemRows>
     <TabGroup group="style">
@@ -511,7 +521,7 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
   </>
 );
 
-const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, onChange, onBlur, slug }) => (
+const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, onChange, onBlur, slug, collection }) => (
   <ItemRows
     items={value.features}
     onChange={(features) => onChange({ ...value, features })}
@@ -536,13 +546,13 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
           <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} />
           <TextArea label="Body — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
         </TabGroup>
-        <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} />
+        <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} collection={collection} />
       </>
     )}
   </ItemRows>
 );
 
-const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, onChange, onBlur, slug }) => (
+const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
     <TextField
       label="Heading (optional)"
@@ -564,16 +574,16 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
             <TextField label="Title (optional)" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
             <TextArea label="Body (optional) — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
           </TabGroup>
-          <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} />
+          <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} collection={collection} />
         </>
       )}
     </ItemRows>
   </>
 );
 
-const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug }) => (
+const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
-    <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} />
+    <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} collection={collection} />
     <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
       <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
         Scrawl (optional)
@@ -626,7 +636,7 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
   </>
 );
 
-const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onChange, onBlur, slug }) => (
+const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
     {/* Content — all the hero copy, the rating chip, and the meta facts. */}
     <TabGroup group="content">
@@ -681,7 +691,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
       rowLabel={(_, i) => (i === 0 ? "Device 1 (back)" : "Device 2 (front)")}
     >
       {({ item, set, focusRef }) => (
-        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} />
+        <DeviceFields value={item} set={set} onBlur={onBlur} focusRef={focusRef} slug={slug} collection={collection} />
       )}
     </ItemRows>
     <GlowFields value={value.glow} set={(glow) => onChange({ ...value, glow })} onBlur={onBlur} />
@@ -689,7 +699,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
 );
 
 /** The first DOUBLY nested array: pairs[] each holding their own changes[]. */
-const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur, slug }) => (
+const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur, slug, collection }) => (
   <ItemRows
     items={value.pairs}
     onChange={(pairs) => onChange({ ...value, pairs })}
@@ -706,8 +716,8 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
             <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
           </div>
         </TabGroup>
-        <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} slug={slug} imageLabel="Before image" />
-        <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} slug={slug} imageLabel="After image" />
+        <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Before image" />
+        <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="After image" />
         <TabGroup group="content">
           <ItemRows
             items={item.changes}
@@ -860,7 +870,7 @@ const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value
 // poster rides ImgSpecFields' content-addressed upload, the caption is a marker textarea
 // (the same **bold** *italic* [link](url) the inline canvas edit reads), and the frame
 // is a plain select defaulting to the browser chrome.
-const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({ value, onChange, onBlur, slug }) => {
+const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({ value, onChange, onBlur, slug, collection }) => {
   const srcInvalid = value.src.trim() !== "" && !isHttpUrl(value.src);
   return (
     <>
@@ -908,7 +918,7 @@ const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({ value, on
         />
         <TextField label="Aspect ratio, e.g. 1.7778 (optional)" value={value.aspect} onChange={(aspect) => onChange({ ...value, aspect })} onBlur={onBlur} optional />
         <DisclosureGroup revealLabel="Poster still (optional)">
-          <ImgSpecFields value={value.poster} set={(poster) => onChange({ ...value, poster })} onBlur={onBlur} slug={slug} imageLabel="Poster still" />
+          <ImgSpecFields value={value.poster} set={(poster) => onChange({ ...value, poster })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Poster still" />
         </DisclosureGroup>
       </TabGroup>
     </>

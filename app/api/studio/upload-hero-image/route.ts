@@ -14,6 +14,7 @@ import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-sess
 import { commitProjectHeroImage } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { heroImageYamlValue } from "@/lib/studio/hero-image-path";
+import { PROJECTS_IMAGE_BASE } from "@/lib/studio/collection-image-base";
 
 // Accepted upload formats (all re-encoded to webp before commit) and the pre-
 // normalize size cap. A raw phone screenshot is a few MB; 12 MB is generous.
@@ -41,8 +42,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  // heroImage is a projects-only field in this step (settings photo + block
-  // images are deferred). Reject anything else loudly rather than silently.
+  // PROJECTS ONLY, deliberately, until PR 3b. A blog hero commit goes through
+  // commitProjectHeroImage -> serializeProjectEntry (the projects head-splice), which
+  // returns unsupported_format on a blog yaml — so accepting "blog" here would derive
+  // the right path and then fail with a projects error on a blog file, worse than a
+  // clean rejection. PR 3b adds the blog hero serializer + commit and flips this to
+  // accept "blog". (The block-image route, which commits a blob only, can already go
+  // fully blog — see upload-block-image.)
   const collection = form.get("collection");
   if (collection !== "projects") {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
@@ -117,6 +123,6 @@ export async function POST(req: Request) {
     mode: "github",
     saved: true,
     sha: result.sha,
-    heroImage: clear ? null : heroImageYamlValue(slug),
+    heroImage: clear ? null : heroImageYamlValue(PROJECTS_IMAGE_BASE, slug),
   });
 }

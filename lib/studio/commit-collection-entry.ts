@@ -37,6 +37,7 @@ import {
   heroImageBlobPath,
   heroImageBlobPathFromValue,
 } from "./hero-image-path";
+import { PROJECTS_IMAGE_BASE } from "./collection-image-base";
 import { slugify, freeSlug } from "./slug";
 import { getBranchHeadOid, getBaseBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
@@ -310,16 +311,20 @@ export async function commitProjectHeroImage(
   }
 
   // The previous blob (from the current yaml) — deleted when the new path differs.
+  // PR 3a — the hero path helpers now REQUIRE a base; this is the PROJECTS hero commit
+  // (its serializer is serializeProjectEntry's head-splice, projects-only), so it names
+  // PROJECTS_IMAGE_BASE explicitly. A blog hero commit needs the blog serializer and is
+  // PR 3b's — it will be a separate path, not this projects function.
   const oldValue = (load(raw) as { heroImage?: unknown } | null)?.heroImage;
-  const oldBlobPath = heroImageBlobPathFromValue(oldValue);
+  const oldBlobPath = heroImageBlobPathFromValue(PROJECTS_IMAGE_BASE, oldValue);
 
   // heroImage HEAD edit through the proven head-splice (body kept verbatim). webp
   // ext on upload; null on clear (Keystatic writes an absent image as null).
-  const newValue = opts.image ? heroImageYamlValue(slug) : null;
+  const newValue = opts.image ? heroImageYamlValue(PROJECTS_IMAGE_BASE, slug) : null;
   const ser = serializeProjectEntry(raw, { heroImage: newValue });
   if (!ser.ok) return { ok: false, error: ser.error };
 
-  const newBlobPath = opts.image ? heroImageBlobPath(slug) : null;
+  const newBlobPath = opts.image ? heroImageBlobPath(PROJECTS_IMAGE_BASE, slug) : null;
   const additions: { path: string; contents: string | Uint8Array }[] = [
     { path: yamlPath, contents: ser.bytes },
   ];

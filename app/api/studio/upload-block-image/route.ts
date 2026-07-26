@@ -23,6 +23,7 @@ import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-sess
 import { commitFilesToDraft } from "@/lib/studio/commit-site-settings";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { blockImageHash, blockImageBlobPath, blockImageYamlValue } from "@/lib/studio/block-image-path";
+import { imageBaseForCollection } from "@/lib/studio/collection-image-base";
 
 // Same posture as upload-hero-image: accepted formats (all re-encoded to webp) and
 // the pre-normalize cap.
@@ -52,6 +53,19 @@ export async function POST(req: Request) {
   if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
     return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
   }
+
+  // PR 3a — the collection selects the image tree (projects vs blog). Validated HERE,
+  // BEFORE the file is read, BEFORE sharp normalizes anything, BEFORE the env-split, and
+  // BEFORE any commit — so an unknown collection 400s without doing any work. Unlike the
+  // hero route, block images commit a blob ONLY (the panel sets `src` through the
+  // ordinary save), so no per-collection yaml serializer is needed and BOTH collections
+  // are supported here today; the blog client wiring lands in PR 3c.
+  const collection = form.get("collection");
+  const base = imageBaseForCollection(collection);
+  if (!base) {
+    return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
+  }
+
   const file = form.get("file");
 
   // Validated BEFORE the env-split, so a bad upload is rejected in every mode and
@@ -97,9 +111,9 @@ export async function POST(req: Request) {
   // the same path — re-uploading is idempotent, and no position or session leaks in.
   const hash = blockImageHash(normalized);
   const result = await commitFilesToDraft({
-    additions: [{ path: blockImageBlobPath(slug, hash), contents: normalized }],
+    additions: [{ path: blockImageBlobPath(base, slug, hash), contents: normalized }],
     branch: DRAFT_BRANCH,
-    message: `chore(studio): upload block image for ${slug}`,
+    message: `chore(studio): upload block image for ${collection}/${slug}`,
   });
   if (!result.ok) {
     return NextResponse.json(result, { status: 500 });
@@ -111,6 +125,6 @@ export async function POST(req: Request) {
     mode: "github",
     saved: true,
     sha: result.sha,
-    src: blockImageYamlValue(slug, hash),
+    src: blockImageYamlValue(base, slug, hash),
   });
 }

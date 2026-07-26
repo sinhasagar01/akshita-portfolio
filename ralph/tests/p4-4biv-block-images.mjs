@@ -21,6 +21,11 @@ import {
   blockImageBlobPathFromValue,
   BLOCK_IMAGE_HASH_LENGTH,
 } from "../../lib/studio/block-image-path.ts";
+// PR 3a — the block-image helpers now take a REQUIRED collection base. This suite pins
+// the PROJECTS derivation, so it passes PROJECTS_IMAGE_BASE; the asserted strings are
+// byte-identical to before the parameterization (the projects-unchanged gate, G1). The
+// blog derivation and the cross-collection collision live in collection-image-paths.mjs.
+import { PROJECTS_IMAGE_BASE } from "../../lib/studio/collection-image-base.ts";
 
 let failures = 0;
 function check(name, fn) {
@@ -64,29 +69,29 @@ check("THE PROPERTY THAT MATTERS: the name has no index, session or field in it"
 
 check("the yaml value and the blob path agree — blob = 'public' + yaml", () => {
   const h = blockImageHash(bytesA);
-  const yaml = blockImageYamlValue("fosfor-ai", h);
-  const blob = blockImageBlobPath("fosfor-ai", h);
+  const yaml = blockImageYamlValue(PROJECTS_IMAGE_BASE, "fosfor-ai", h);
+  const blob = blockImageBlobPath(PROJECTS_IMAGE_BASE, "fosfor-ai", h);
   if (blob !== `public${yaml}`) throw new Error(`${blob} != public${yaml}`);
 });
 
 check("the path is under the project's own directory, in a blocks/ segment", () => {
   const h = blockImageHash(bytesA);
-  if (blockImageYamlValue("fosfor-ai", h) !== `/images/projects/fosfor-ai/blocks/${h}.webp`)
-    throw new Error(blockImageYamlValue("fosfor-ai", h));
+  if (blockImageYamlValue(PROJECTS_IMAGE_BASE, "fosfor-ai", h) !== `/images/projects/fosfor-ai/blocks/${h}.webp`)
+    throw new Error(blockImageYamlValue(PROJECTS_IMAGE_BASE, "fosfor-ai", h));
 });
 
 check("blocks/ keeps block images clear of heroImage.webp", () => {
   const h = blockImageHash(bytesA);
-  if (blockImageBlobPath("x", h).includes("/heroImage")) throw new Error("collides with the hero path");
-  if (!blockImageBlobPath("x", h).includes("/blocks/")) throw new Error("no blocks segment");
+  if (blockImageBlobPath(PROJECTS_IMAGE_BASE, "x", h).includes("/heroImage")) throw new Error("collides with the hero path");
+  if (!blockImageBlobPath(PROJECTS_IMAGE_BASE, "x", h).includes("/blocks/")) throw new Error("no blocks segment");
 });
 
 console.log("\nmapping a stored src back to its blob (for a future GC sweep)");
 
 check("a managed src maps back to its blob path", () => {
   const h = blockImageHash(bytesA);
-  const v = blockImageYamlValue("fosfor-ai", h);
-  if (blockImageBlobPathFromValue(v) !== blockImageBlobPath("fosfor-ai", h))
+  const v = blockImageYamlValue(PROJECTS_IMAGE_BASE, "fosfor-ai", h);
+  if (blockImageBlobPathFromValue(PROJECTS_IMAGE_BASE, v) !== blockImageBlobPath(PROJECTS_IMAGE_BASE, "fosfor-ai", h))
     throw new Error("round-trip broke");
 });
 
@@ -104,7 +109,7 @@ for (const [label, v] of [
   ["a non-webp", "/images/projects/fosfor-ai/blocks/abc123abc123.png"],
 ]) {
   check(`${label} is NOT treated as a managed blob`, () => {
-    if (blockImageBlobPathFromValue(v) !== null) throw new Error(`mapped to ${blockImageBlobPathFromValue(v)}`);
+    if (blockImageBlobPathFromValue(PROJECTS_IMAGE_BASE, v) !== null) throw new Error(`mapped to ${blockImageBlobPathFromValue(PROJECTS_IMAGE_BASE, v)}`);
   });
 }
 

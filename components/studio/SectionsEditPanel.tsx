@@ -1771,6 +1771,9 @@ export default function SectionsEditPanel({
                       onChange={(next) => setBlockValue(id, next)}
                       onBlur={saveDraft}
                       slug={slug}
+                      /* PR 3a — this panel edits case studies, so its uploads land in the
+                         projects image tree. The blog editor (PR 3c) passes "blog". */
+                      collection="projects"
                     />
                   </div>
                 </div>
