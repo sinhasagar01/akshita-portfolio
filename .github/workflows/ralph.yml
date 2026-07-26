@@ -32,7 +32,18 @@ jobs:
   ralph:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 IS LOAD-BEARING — DO NOT "OPTIMISE" IT BACK TO THE DEFAULT.
+      # `ralph/tests/upstash-transport.mjs` runs `git show 9a25bc0:lib/studio/login-throttle.ts`
+      # to compare the extracted transport against the last commit BEFORE the extraction.
+      # That is deliberate (pin the expected value from the PRE-CHANGE state, never from the
+      # new code), and it makes the suite depend on git history being present.
+      # actions/checkout shallow-clones by default, so the first CI run failed with
+      # `fatal: invalid object name '9a25bc0'` — a hidden environmental dependency that had
+      # never surfaced locally, where the clone is always complete. 572 commits, so a full
+      # fetch costs almost nothing.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 22.18 matches the local toolchain. The floor that actually matters is 22.6, where
       # `--experimental-strip-types` landed — every suite is a .mjs that imports .ts

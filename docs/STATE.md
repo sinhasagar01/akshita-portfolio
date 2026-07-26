@@ -716,6 +716,14 @@ All prior rules remain. Added or sharpened across this session:
   `scripts/normalize-dom.mjs` for the same reason. `ralph/run.mjs` is the second instance:
   it reads each suite's own summary, so the `rich-markers` undercount stops being something
   every session re-learns. **COMMIT THE TOOL, DO NOT DOCUMENT THE BUG.**
+- **CI FOUND A HIDDEN ENVIRONMENTAL DEPENDENCY ON ITS FIRST RUN.**
+  `upstash-transport.mjs` does `git show 9a25bc0:lib/studio/login-throttle.ts` — pinning the
+  PRE-EXTRACTION source, which is the right thing to assert — so it needs GIT HISTORY.
+  `actions/checkout` shallow-clones by default, and the suite died with
+  `fatal: invalid object name '9a25bc0'`. It had never surfaced locally, where the clone is
+  always complete. Fixed with `fetch-depth: 0` and a comment saying why, since the obvious
+  "optimisation" is to remove it. **A SUITE CAN DEPEND ON THE SHAPE OF THE CHECKOUT, NOT
+  ONLY ON THE FILES IN IT.**
 
 ---
 
