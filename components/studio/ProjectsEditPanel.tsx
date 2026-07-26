@@ -368,10 +368,36 @@ export function HeroImageField({
    *  projects tree. #173 generalised commitEntryHeroImage, so the route accepts both. */
   collection: "projects" | "blog";
   initial: string | null;
-  onChanged: () => void;
+  /** Fired after a successful upload or clear, with the values the caller would otherwise
+   *  have to re-derive.
+   *
+   *  WIDENED FOR THE BLOG CANVAS, and additive on purpose. The blog canvas draws the hero,
+   *  so it needs BOTH the committed path and the object URL — `draftImages` is a snapshot
+   *  taken server-side at page load, so a hero uploaded during the session is not in it and
+   *  the committed path 404s against main until publish. See resolveHeroSrc.
+   *
+   *  PROJECTS PASSES A ZERO-ARG ARROW AND IS UNTOUCHED. TypeScript accepts a lower-arity
+   *  function where a higher-arity one is expected, so this widening cost the projects
+   *  caller nothing — which is the check that decided it was safe to do here rather than
+   *  fork the component. */
+  onChanged: (info: { heroImage: string | null; previewUrl: string | null }) => void;
 }) {
   const [current, setCurrent] = useState<string | null>(initial);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // object URL, session-only
+  // Object URL, session-only.
+  //
+  // WHO REVOKES IT: NOBODY, AND THAT IS PRE-EXISTING. `URL.revokeObjectURL` is called on the
+  // three FAILURE paths below (fs-mode note, error response, network catch) and on none of
+  // the success paths. A second successful upload replaces this value without revoking the
+  // first, and there is no unmount cleanup. Each successful upload therefore leaks one object
+  // URL until the document unloads, which the browser then frees.
+  //
+  // NOT FIXED HERE, DELIBERATELY. Since the blog canvas the value is held in TWO places — here
+  // for this thumbnail and in BlogEditPanel for the canvas hero — so revoking it correctly now
+  // means revoking only when BOTH are done with it. Revoking on either side alone shows a
+  // broken frame on the other, which is the exact symptom the canvas hero exists to fix,
+  // reintroduced from the other direction. The leak is bounded by uploads-per-page-visit and
+  // is a pre-existing finding rather than a regression; closing it is its own change.
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [brokenSrc, setBrokenSrc] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ kind: "error" | "note"; text: string } | null>(null);
@@ -403,8 +429,11 @@ export function HeroImageField({
         } else {
           setPreviewUrl(null); // cleared
         }
-        setCurrent(json.heroImage ?? null);
-        onChanged();
+        const committed = (json.heroImage ?? null) as string | null;
+        setCurrent(committed);
+        // The object URL goes UP as well as into local state. The blog canvas needs it to
+        // draw the hero before publish; projects ignores the payload entirely.
+        onChanged({ heroImage: committed, previewUrl: objUrl });
       } else if (res.ok && json.mode === "fs") {
         setStatus({ kind: "note", text: "Image upload needs github mode (dev)." });
         if (objUrl) URL.revokeObjectURL(objUrl);

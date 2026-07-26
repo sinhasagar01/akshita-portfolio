@@ -304,8 +304,11 @@ Two commits. `a586e98` was groundwork on a branch; `0f23e5d` finished it; `438bf
 `/studio/blog/<slug>` is now list + canvas + inspector.
 
 ### THE POINT OF THE ARC, AND IT WAS A REAL BUG
-The canvas renders through `BlogProse` at the PUBLIC measure, so what the author sees is
-what the article ships. `BlogBlocksEditPanel` has CLAIMED that since #174 and it was
+The canvas renders the article's own components at the PUBLIC measure, so what the author
+sees is what the article ships. THE SCOPE IS THE BODY AND THE HERO — the header and the love
+block are not drawn, which is a composition choice rather than a fidelity gap. (It read
+"through `BlogProse`" until the hero landed in #190.)
+`BlogBlocksEditPanel` has CLAIMED the fidelity property since #174 and it was
 **FALSE BY 48px**: the public article is `max-w-[68ch] px-6`, the studio canvas was
 `max-w-[68ch]` with no padding. Adding `px-6` makes it true for the first time.
 **A1 measured both content boxes at `697.9296875px`, delta 0.** Proven as a NUMBER, not as
