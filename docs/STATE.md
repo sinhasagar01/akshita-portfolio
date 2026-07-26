@@ -6,9 +6,10 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE BLOG IS LAUNCHED — published, linked, indexable)
+## STATE (as of THE BLOG CANVAS IS INLINE-EDITABLE)
 
-**main** = `198e503` = #185 (nav link, sitemap, dead component). Pinned: `4bc1573` = #184
+**main** = `2c258cd` = #187 (the inline canvas). Pinned: `f7426a5` = #186 (STATE),
+`198e503` = #185 (nav link, sitemap, dead component), `4bc1573` = #184
 (the post published), `1e3e433` = #183 (ralph in CI), `db907ed` = #182 (the truncated
 sentence restored), `3093538` = #181 (STATE), `82edf03` = the owner's publish that carried
 the truncation, `d5bd37a` = the hero-image write (ONE line, the splice proven a second
@@ -28,12 +29,16 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1029 ACROSS 29 RUNNABLE SUITES
+### RALPH IS 1068 ACROSS 30 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
-44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below).
+44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
+`inline-canvas` 39).
+
+**THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
+it, so it cannot drift from the total the way it silently did before #183.
 
 **RUN IT WITH `npm run ralph`** (or `node ralph/run.mjs`). The runner is COMMITTED, so CI
 and humans use the same tool and cannot disagree. "There is no npm script" was true until
@@ -57,12 +62,13 @@ gate that reports zero subjects is not a pass.
 `parity.mjs` is excluded and NAMED as skipped, never silently dropped. It needs a running
 dev server and is driven from a browser console.
 
-### FIVE ARCS COMPLETE
+### SIX ARCS COMPLETE
 1. **Work-section rebuild — COMPLETE** (#159–#162).
 2. **Studio restyle — COMPLETE** (#164–#169).
 3. **Blog — COMPLETE** (#170–#176), plus #177 tooling and nav fixes.
 4. **The 3-pane editor relayout — COMPLETE** (#178, merged `438bf95`).
 5. **imageBlock, the last authoring gap — COMPLETE** (#180, merged `41fc15f`).
+6. **The inline-editable canvas — COMPLETE** (#187, merged `2c258cd`).
 
 ---
 
@@ -325,7 +331,9 @@ drafted.
   so those two write surfaces keep one implementation each.
 - **The inspector is TWO STACKED SECTIONS**, Post then the selected block. Building the
   contract literally would have deleted blog's only block-editing surface.
-- **Selection is a BLOCK STRIP, and clicking the prose is MOCK-ONLY.** Both ways to make the
+- **Selection is a BLOCK STRIP, and clicking the prose is MOCK-ONLY.**
+  **SUPERSEDED BY #187 — see ARC 6.** The reasoning below was sound about the two mechanisms
+  it examined and simply did not consider a third. Both ways to make the
   canvas clickable spend the property the PR exists to protect. A per-block wrapper changes
   the canvas DOM relative to the article (CLAUDE.md's editable-only-wrapper failure mode).
   Counting rendered children derives the mapping from `BlogProse`'s output shape, where a
@@ -590,6 +598,100 @@ Everything that enumerates home-page sections, after #185:
 - NOT surfaces: `SkipLink.tsx` (`#main-content`), `HeroSection.tsx` (a single `#process`
   anchor), `SectionsEditPanel.tsx` (`selectedSectionId` is a case study's own sections).
 
+
+---
+
+## ARC 6 — THE INLINE-EDITABLE CANVAS (COMPLETE)
+
+`#187`, merged `2c258cd`. The owner reversed #178's selection decision. Both reversed
+records are rewritten rather than deleted — see LOCKED DECISIONS and
+`docs/studio/studio-blog.html` correction 9.
+
+### THE THIRD MECHANISM, AND WHY IT WAS AVAILABLE ALL ALONG
+#178 examined two ways to make the canvas clickable and rejected both correctly. It did not
+examine a third: **THE RENDERER EMITS ITS OWN INDICES.** Under an `editable` flag the
+elements `BlogProse` already emits gain `contentEditable` and `data-edit-*` at render time.
+Nothing is wrapped, nothing is counted, and the mapping cannot drift because it is emitted by
+the same expression that emits the content. The same shape as #180's `rewriteSrc` — an
+attribute on an element that already exists.
+
+**THE GEOMETRY WAS MEASURED BEFORE ANY CODE WAS WRITTEN**, on production CSS: nine prose
+elements editable, focused and selected states, figure captions — every delta ZERO at four
+decimal places, A1 at `697.9296875`, wide figure at `935.2109`. `.cs-editable` uses an
+OUTLINE precisely so it cannot shift layout, and `contentEditable` has no box-model effect.
+**An investigation that measures the blocking gate first is what let this arc start at all.**
+
+### A CORRECTION TO THE APPROVED PLAN, CAUGHT BY CHECKING ITS PREMISE
+The plan assumed deferring the bold toolbar removed the `renderEpoch` / refocus / caret
+machinery. **IT DOES NOT.** `SectionsEditPanel:1490` states that split and merge bump the
+epoch *"for the same reason a bold does"* — the array changes LENGTH, so React's tree and the
+contentEditable DOM disagree about how many `<p>`s exist while the author's typed DOM is
+still in the subtree. Bold makes the tree untrusted by MUTATING it; a structural paragraph
+edit does it by changing the element COUNT. Different cause, identical requirement.
+Deferring the toolbar removes `boldDirty`, `execCommand` and the bold-then-unbold cleanup,
+and nothing else. **This is the second time in three arcs that checking an approved plan's
+premise changed its scope.**
+
+### richToMarkers IS REQUIRED WITHOUT THE TOOLBAR — the sharper half
+Existing posts already contain `**bold**`, which `renderRich` renders as real `<b>`. A blur
+taking `innerText` would silently strip every marker **already on disk**. No toolbar means
+bold cannot be AUTHORED inline; it does not mean bold can be ignored. Proven against the real
+post, not a fixture.
+
+### SAVE ON THE NEXT RENDER, NEVER IN THE BLUR HANDLER
+`saveDraft` closes over `values`, so calling it beside `setBlockValue` posts the PRE-EDIT
+array — #174's exact defect. The inspector's fields survive `onBlur={saveDraft}` only because
+their `onChange` fired on an earlier render; an inline edit has none. A `pendingSave` ref plus
+an effect keyed on `values.blocks` fires it one render later. **Structural ops never set the
+flag**, so #174's rule is intact.
+
+### WHAT WAS BUILT, EXTRACTED, AND DUPLICATED
+- **Extracted, byte-identical:** `paragraphCaret` and `placeCaret` → `lib/studio/inline-caret.ts`.
+  Both were module-private and entirely generic. `fieldSelector` deliberately NOT extracted —
+  its block branch is one template string each caller builds inline, and its other branch is
+  section-shell-specific, so extracting it would drag section concepts into a shared module.
+- **`.blog-editable` is a DELIBERATE DUPLICATE** of `.cs-editable` — #173's splice precedent,
+  not the combinator precedent: twelve lines with no algorithm that can drift, where a rename
+  would touch case-study CSS and drag the bundle gate onto an untouched surface.
+  `inlineEditProps` is imported UNCHANGED. **Extract if a third collection needs it.**
+- **MULTI-LINE PASTE, net-new to the repo.** No `onPaste` or `clipboardData` existed anywhere,
+  so the case-study canvas has the same gap and KEEPS it. The asymmetry is deliberate: blog is
+  THE paste surface, and the browser default collapses two paragraphs into one array item with
+  a `<br>`, rendering as a run-on paragraph in the most common workflow there is.
+- **A BLOG PARITY HARNESS** at `/dev/blog-parity/<slug>` — hazard 12's answer after three
+  hand-catches. Reuses `parity.mjs`'s walker UNCHANGED and asserts a NON-ZERO pair count,
+  because #180 found `sections: 0, verdict: PARITY OK` is a false pass.
+
+### GATES
+| Gate | Result |
+|---|---|
+| G1 article DOM | **ALL EIGHT public pages byte-identical to main**; the built article contains ZERO edit attributes |
+| G2 canvas DOM | 13 elements both sides, **element tree IDENTICAL**, only attributes added |
+| G3 A1 editable ON | `697.9296875` |
+| G4 ralph | 1029 → **1068** across 30 suites; `inline-canvas` 39; five mutations, all caught |
+| G5 extraction inert | `p4-4bii-block-forms` 132 and `paragraph-edits` 28 per-file identical |
+| G6 driven | no-op blur fires **ZERO** requests; a real edit posts `{blocks,collection,slug}` with `**missing explanation**` intact; Enter splits 2→3 with the caret in the new paragraph; Backspace merges 3→2 with the caret at offset 8 (the join); paste yields THREE entries not one; selection syncs both ways |
+| G7 | two builds byte-identical; CSS union-of-declarations ZERO modified, 3 added selectors all proven `blog-`prefixed against the emitted bundle; tsc clean |
+
+**THE NO-OP BLUR IS TWO PROOFS IN ONE.** Focusing the paragraph that carries the real
+`**bold**` and blurring without typing fires ZERO requests — which proves the skip holds AND
+that `richToMarkers` round-tripped the on-disk markers byte-identically, because a strip would
+have differed and fired.
+
+### THREE THINGS FOUND WHILE BUILDING
+1. **A mutation found a gap in the new suite.** The caret assertion used a marker-FREE string,
+   where `plainLength(s)` and `s.length` are equal, so a marker-counting bug was invisible.
+   Strengthened with a marker-bearing case. **Mutation testing earned its place again.**
+2. **A CSS rule was written and then removed in the same PR.** `.blog-editable.is-selected`
+   had no consumer, because nothing in the blog canvas applies that class. Shipping it would
+   have been the authorable-but-inert condition this project keeps catching. **Consequence:
+   clicking a chip gives no canvas highlight** — closing that needs `selectedId` threaded into
+   `BlogProse`, deferred.
+3. **BOTH MANDATORY REWRITES WERE MISSED IN #187 ITSELF** and landed one PR later. They were
+   named in the approved plan as "the standing rule, not a footnote", and the build still
+   shipped without them. A rewrite that lives only in a plan is a rewrite that does not
+   happen — see the working rules.
+
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
@@ -621,8 +723,23 @@ All prior locked decisions remain. Added across this session:
 - **THE CANVAS MEASURE EQUALS THE ARTICLE MEASURE, AS A NUMBER.** `697.9296875px` today.
   It never widens on collapse. A measure that moves when you hide a pane is a measure that
   lies, and it is the property the whole layout exists to protect.
-- **BLOCK SELECTION IS THE INSPECTOR STRIP.** Clicking the prose is mock-only and stays
-  unbuilt. The strip shows the KIND LABEL and position, never a body excerpt.
+- ~~**BLOCK SELECTION IS THE INSPECTOR STRIP. Clicking the prose is mock-only.**~~
+  **REVERSED BY THE OWNER, BUILT IN #187.** The reasoning is kept rather than deleted,
+  because a reversed decision whose reasoning is deleted leaves two contradictory rationales
+  and no record of which won.
+  **WHY IT WAS RIGHT:** the two mechanisms #178 considered BOTH spent the fidelity property
+  — a per-block wrapper changes the canvas DOM relative to the article, and counting rendered
+  children derives the mapping from `BlogProse`'s output shape and breaks silently when that
+  shape changes.
+  **WHY IT NO LONGER DECIDES IT:** a THIRD mechanism exists that #178 did not consider. The
+  RENDERER EMITS ITS OWN INDICES — the elements BlogProse already emits gain `contentEditable`
+  and `data-edit-*` at render time, so nothing is wrapped and nothing is counted. That it
+  costs no geometry is **MEASURED, not argued**: nine prose elements, focused and selected
+  states, and figure captions, every delta zero at four decimal places.
+  **STILL TRUE:** the strip stays, as A selection mechanism rather than THE one. It cannot be
+  retired — a caption-less `imageBlock` or `videoEmbed` emits NO editable element at all,
+  because `<figcaption>` is conditionally rendered. It shows the KIND LABEL and position,
+  never a body excerpt.
 - **THE LIST PANE SEARCHES AND NAVIGATES ONLY.** Create and delete live on `/studio/blog`.
 - **A SAVE INDICATOR'S LABEL IS REQUIRED IN THE TYPE.** Two unlabelled indicators read as
   one form.
@@ -815,6 +932,27 @@ All prior rules remain. Added or sharpened across this session:
   the break that prompted it was a CONTENT commit, and a suite that reads a real content file
   is exactly the kind a content commit breaks. Types and the build stay covered by Vercel,
   which runs `next build`; a second tsc job would duplicate that without adding signal.
+- **A REWRITE THAT LIVES ONLY IN A PLAN DOES NOT HAPPEN.** #187's plan named two mandatory
+  record rewrites as "the standing rule, not a footnote", and the PR shipped without either.
+  They landed one PR later, only because the next session went looking. **If a plan requires
+  a rewrite, do it in the same commit as the code that falsifies the record** — the window
+  between merging the code and updating the record is exactly when the record is wrong and
+  nobody knows.
+- **CHECK AN APPROVED PLAN'S PREMISE BEFORE BUILDING TO IT.** Twice in three arcs a premise
+  the owner and I both accepted turned out to be false in source — #185's "one line" nav link,
+  #187's "no toolbar means no rebuild machinery". Both changed the size of the work.
+  Approval is agreement about intent, not evidence about the code.
+- **`document.hasFocus()` IS FALSE IN THE BROWSER PANE**, so `.focus()` moves
+  `activeElement` WITHOUT firing focus, focusin or blur. Several #187 probes read as "the
+  handler is broken" when the handler was fine. Dispatch `focusin`/`focusout` explicitly.
+  **This is the second documented way the automation environment lies** — #178's CSS
+  transition never advancing is the first. When a driven gate says something is broken,
+  suspect the harness once before suspecting the code.
+- **A CONDITIONALLY-RENDERED ELEMENT CANNOT CARRY AN AFFORDANCE.** A caption-less
+  `imageBlock` or `videoEmbed` emits no `<figcaption>` at all, so it has nothing to make
+  editable and is unreachable from the canvas. That single fact is why the block strip
+  survived the reversal. **Ask what a feature renders in its EMPTY state before making that
+  render the only way to reach it.**
 - **A COMMITTED RUNNER RETIRES A DOCUMENTED COUNTING BUG.** #177 committed
   `scripts/normalize-dom.mjs` for the same reason. `ralph/run.mjs` is the second instance:
   it reads each suite's own summary, so the `rich-markers` undercount stops being something
@@ -856,9 +994,11 @@ All prior rules remain. Added or sharpened across this session:
 11. **The unlayered `img, video { height: auto }` at `app/globals.css:271`** (#180) — it
     silently beats every `h-*` utility on an `<img>`. Not removed, because the inline figure
     and other images legitimately want it; the cost is that image sizing must be authored.
-12. **BLOG HAS NO PARITY HARNESS.** `parity.mjs` compares the case-study canvas to the
-    case-study page only. Both the 48px fidelity gap (#178) and the `vw` bleed bug (#180)
-    had to be caught by hand. **Worth its own decision.**
+12. ~~**BLOG HAS NO PARITY HARNESS**~~ — **BUILT IN #187**, at `/dev/blog-parity/<slug>`.
+    It cost three hand-catches first: the 48px fidelity gap (#178), the `vw` bleed bug
+    (#180), and this arc's own premise. It reuses `parity.mjs`'s walker UNCHANGED and
+    asserts a NON-ZERO pair count. **Still browser-driven and dev-only**, so it is a gate
+    someone must run, not one CI enforces.
 13. **WHOLE-BRANCH PUBLISH CAN SHIP A HALF-FINISHED EDIT** — observed, not theoretical. A
     publish carried a mid-sentence truncation into a live post (see CURRENT CONTENT STATE).
     Save-on-blur persists whatever is in the field, publish merges the whole draft branch,
@@ -873,7 +1013,16 @@ All prior rules remain. Added or sharpened across this session:
 
 - ~~**Images inside a post body**~~ — **BUILT in #180.** `imageBlock`, the hidden poster and
   inline figures closed together, as the framing said they would.
-- **A BLOG PARITY HARNESS.** The case-study one does not cover blog. See hazard 12.
+- **THE BOLD TOOLBAR for the blog canvas** (#187 deferred it). Until it lands, bold, italic
+  and links are authorable as MARKERS in the inspector's textarea — existing marks render and
+  round-trip correctly, they just cannot be applied from the canvas. Bringing it means
+  extracting `BoldToolbar` and reinstating `boldDirty` and the execCommand cleanup path.
+- **THE CASE-STUDY PASTE GAP.** #187 gave blog a multi-line paste handler and deliberately
+  left case studies without one. The asymmetry is honest, not an oversight.
+- **CANVAS HIGHLIGHT ON CHIP CLICK.** Selection is dual-source, but clicking a chip gives no
+  visual feedback in the canvas because nothing applies an `is-selected` class. Needs
+  `selectedId` threaded into `BlogProse`; the CSS rule was written and removed in #187
+  rather than shipped without a consumer.
 - **A PER-ENTRY PUBLISH, or a diff preview in the PublishBar** — the real answer to hazard
   13. Whole-branch publish has already shipped a half-finished sentence once.
 - **The button system.** 87 buttons across 18 files.
@@ -960,6 +1109,7 @@ All prior rules remain. Added or sharpened across this session:
 - **#183** ralph in CI + the committed runner (`1e3e433`) — the counting note retired
 - **#184** the post published (`4bc1573`) · **#185** nav link + sitemap + delete
   FooterExplore (`198e503`)
+- **#186** docs: STATE for the launch (`f7426a5`) · **#187** the inline canvas (`2c258cd`) →1068
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -969,9 +1119,10 @@ All prior rules remain. Added or sharpened across this session:
 
 **THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
 
-1. **WRITE POSTS THROUGH `/studio`**, with images. The highest-value next step by a wide
-   margin: it closes owner-backlog items 7 and 9 together, exercises the status write path
-   for the first time, and is the first real load on the editor. **READ THE CONTENT DIFF
+1. **WRITE POSTS THROUGH `/studio`**, with images, EDITING ON THE CANVAS. The highest-value
+   next step by a wide margin: it closes owner-backlog items 7 and 9 together, exercises the
+   status write path for the first time, and is the first real load on the editor — now
+   including inline editing, whose gates are all DEV-OBSERVED. **READ THE CONTENT DIFF
    BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish has already shipped
    a half-finished sentence once, and CI cannot tell one from a finished one.
 2. **Optional:** `/code-review ultra` over `198e503`. #178, #180 and #185 were all
