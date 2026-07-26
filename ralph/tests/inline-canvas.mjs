@@ -20,6 +20,7 @@
 // PURE half of the same feature lives in paragraph-edits.ts precisely so the array math is
 // unit-testable away from carets. Do not fake a DOM here to close the gap — a fake would
 // prove the fake.
+import { readFileSync } from "node:fs";
 import { inlineEditProps } from "../../components/case-study/editable.ts";
 import { splitParagraph, mergeParagraph, plainLength } from "../../lib/studio/paragraph-edits.ts";
 
@@ -126,6 +127,40 @@ t("E: bold entirely on one side survives a split",
   splitParagraph(["**bold** tail"], 0, "**bold** ", "tail"), ["**bold** ", "tail"]);
 // And the caret offset counts VISIBLE characters, not marker characters.
 t("E: the join offset ignores marker syntax", plainLength("**bold**"), 4);
+
+/* ================================================================= F. ONE TOOLBAR, TWO CANVASES
+ * The toolbar was module-private inside SectionsEditPanel until the blog canvas needed it.
+ * Extracting it rather than copying it is what keeps ONE definition of which marks exist —
+ * bold, italic and link, because those are what RichRun can express. A second copy would
+ * drift the first time a mark was added to one collection.
+ *
+ * Structural assertions, because the toolbar itself is DOM-and-execCommand and plain node
+ * cannot run it. These prove the WIRING, not the behaviour; the behaviour is browser-driven. */
+const code = (p) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+const toolbar = code("components/studio/BoldToolbar.tsx");
+const sections = code("components/studio/SectionsEditPanel.tsx");
+const blog = code("components/studio/BlogBlocksEditPanel.tsx");
+
+t("F: the toolbar is its own module with a default export",
+  /export default function BoldToolbar/.test(toolbar), true);
+t("F: SectionsEditPanel IMPORTS it rather than defining it",
+  [/import BoldToolbar from "\.\/BoldToolbar"/.test(sections), /function BoldToolbar\(/.test(sections)],
+  [true, false]);
+t("F: the blog canvas imports the SAME module",
+  /import BoldToolbar from "\.\/BoldToolbar"/.test(blog), true);
+// Three marks, no more. A greyed button advertises a capability RichRun cannot express.
+t("F: it offers exactly bold, italic and link",
+  ["Bold", "Italic", "Link"].filter((l) => toolbar.includes(`aria-label="${l}"`)).length, 3);
+t("F: …and nothing the parser cannot round-trip",
+  /aria-label="(Underline|Strikethrough|Heading|List)"/.test(toolbar), false);
+// Both canvases must mark the tree untrusted after a command, or the rebuild never fires.
+t("F: both canvases pass an onCommand that sets boldDirty",
+  [/onCommand=\{\(\) => \{?\s*boldDirty\.current = true/.test(sections),
+   /onCommand=\{\(\) => \{ boldDirty\.current = true/.test(blog)], [true, true]);
+// The attribute contract the hide-logic keys off, in both hosts.
+t("F: both hosts treat the toolbar as part of the edit surface",
+  [sections.includes("data-rich-toolbar"), blog.includes("data-rich-toolbar")], [true, true]);
 
 console.log(`\ninline-canvas result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
