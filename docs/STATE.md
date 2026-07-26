@@ -6,42 +6,51 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE 3-PANE RELAYOUT COMPLETE AND MERGED)
+## STATE (as of THE BLOG IS FEATURE-COMPLETE — imageBlock MERGED)
 
-**main** = `438bf95` = #178 merge (the 3-pane blog editor). Pinned: `0f23e5d` = #178's
-commit, `bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
+**main** = `41fc15f` = #180 squash-merge (imageBlock, the inline figure). Pinned:
+`f54574a` = #179 (STATE), `438bf95` = #178 merge (the 3-pane blog editor), `0f23e5d` =
+#178's commit, `bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
 fixes), `2ad4856` = #176 merge (love UI), `2d837f2` = the CLAUDE.md
 proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8b9` = #172,
 `c164c85` = #171, `92f8378` = #170, `0d21a93` = #169, `7e591ae` = #168, `5839039` = #167,
 `54be07e` = #166, `4228b14` = #165, `2a87d96` = #164, `e90742f` = #163.
 
-`feat/blog-editor-3pane` is merged but NOT deleted, deliberately, and is now behind main.
+`feat/blog-editor-3pane` and `feat/blog-image-block` are merged but NOT deleted.
 
-### RALPH IS 993 ACROSS 28 RUNNABLE SUITES
+**THE BLOG IS NOW FEATURE-COMPLETE FOR AUTHORING.** Five block kinds, all renderable, all
+reachable from the picker. The remaining work is CONTENT and one launch switch.
+
+### RALPH IS 1028 ACROSS 29 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
-`three-pane` 43 + `blog-search` 20).
+`three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
+44→49).
 
 Run each suite directly — **there is no npm script**:
 `node --experimental-strip-types ralph/tests/<name>.mjs`
-Per-file: blog-format 50, blog-reading-time 13, blog-registry 44, blog-search 20,
+Per-file: blog-format 50, blog-reading-time 13, blog-registry 49, blog-search 20,
 blog-serialize 32, blog-status-filter 17, collection-image-paths 29, cs4-frame 26,
-f2-draft-overlay 11, f3-slug 31, loves-store 72, ncr-adjacent 20, p4-3c-adapter 53,
-p4-4bi-sections-serialize 28, p4-4bii-block-forms 132, p4-4biii-structural 58,
-p4-4biv-block-images 20, paragraph-edits 28, rich-markers 63, section-label 23,
-settings-photo 25, studio-nav-active 30, task1 17, task2 22, task3 14, three-pane 43,
-upstash-transport 35, validate-blog-post 37. `parity.mjs` excluded from the count (needs a
-running server), but **RUN IT ANYWAY and report the number** — see the working rules.
+f2-draft-overlay 11, f3-slug 31, image-block 30, loves-store 72, ncr-adjacent 20,
+p4-3c-adapter 53, p4-4bi-sections-serialize 28, p4-4bii-block-forms 132,
+p4-4biii-structural 58, p4-4biv-block-images 20, paragraph-edits 28, rich-markers 63,
+section-label 23, settings-photo 25, studio-nav-active 30, task1 17, task2 22, task3 14,
+three-pane 43, upstash-transport 35, validate-blog-post 37.
+**These sum to exactly 1028 across 29 files** — verified, not asserted, and the first time
+this list has been checked against its own total. `parity.mjs` is excluded from the count
+(it needs a running server), but **RUN IT ANYWAY and report the number** — see the working
+rules.
 **COUNTING NOTE:** `rich-markers` reports `✓`/`63 passed` rather than `[PASS]`, so a naive
-grep undercounts by 63. The grep total is 930 and the real total is 993. Read each suite's
+grep undercounts by 63. The grep total is 965 and the real total is 1028. Read each suite's
 own summary line.
 
-### FOUR ARCS COMPLETE
+### FIVE ARCS COMPLETE
 1. **Work-section rebuild — COMPLETE** (#159–#162).
 2. **Studio restyle — COMPLETE** (#164–#169).
 3. **Blog — COMPLETE** (#170–#176), plus #177 tooling and nav fixes.
 4. **The 3-pane editor relayout — COMPLETE** (#178, merged `438bf95`).
+5. **imageBlock, the last authoring gap — COMPLETE** (#180, merged `41fc15f`).
 
 ---
 
@@ -358,6 +367,108 @@ commit. Per CLAUDE.md they carry NO production claim.
 and 15. Pre-existing and unrelated to this arc, but it means the parity gate has been blind
 to the hero case study for an unknown number of PRs. **Worth investigating.**
 
+
+---
+
+## ARC 5 — imageBlock, THE LAST AUTHORING GAP (COMPLETE)
+
+`#180`, squash-merged `41fc15f`. One PR, because STATE framed `imageBlock`, the hidden
+`videoEmbed.poster` and inline figures as ONE question and that framing held.
+
+### RE-ADDING, NOT INVENTING — the investigation's strongest finding
+`blog-article.html` DREW two inline figures. #171 REMOVED them and recorded why:
+
+> *"There is no single-image block; `imageBlock` is net-new and needs the block-image upload
+> path, **which is hardcoded to projects and is the WRITE PR's fix.**"*
+
+Both removal sites were still marked in the markup, the figure CSS was never deleted, and
+the locked decision *"figures may break wider than the measure; nothing else does"* was still
+in force. **#172 made that path take a required per-collection base, so the blocker expired
+and nobody noticed.** A DEFERRAL'S STATED BLOCKER CAN EXPIRE WITHOUT ANYONE REVISITING IT.
+
+### THE GATE MATTERS MORE THAN THE FEATURE
+`BlogProse` dispatched through a `switch` with `default: return null`. A kind in the picker
+and the registry but missing there produces a block the author can add, fill in and save
+that renders as **NOTHING** — and because the canvas and the article are the SAME component,
+it looks consistent and correct in both. **That is the shape of the failure that left
+`videoEmbed.poster` authorable and invisible for three PRs.**
+
+**A `satisfies never` in the default arm CANNOT fix it, and this is the durable rule.** The
+discriminant arrives as `unknown`, TypeScript cannot exhaustiveness-check a switch over
+`unknown`, and narrowing with `as BlogBlockKind` to reach a `never` arm DEFEATS the check —
+it would compile forever and prove nothing. The dispatch is now
+`RENDERERS: { [K in BlogBlockKind]: … }`, which makes a missing kind a real compile error
+and deletes the silent default.
+
+**`RENDERABLE` STAYS HAND-WRITTEN rather than derived from that table.** Its own comment
+says it asks what the renderer handles and that a disagreement is a real bug it should
+SURFACE rather than inherit. Deriving it would launder exactly that disagreement. Ralph
+asserts `BLOG_PICKER_ORDER ⊆ RENDERABLE`; the type system does not paper over it.
+
+### THE SCHEMA — five fields, and NOT `imgSpecFields`
+`src`, `alt`, `caption`, `wide`, `decorative`. `imgSpecFields` would drag
+`width/rotate/translateX/translateY/z/frame` into a prose column. Those exist because a
+case-study image is **COMPOSED** on a free canvas; a figure in a 68ch measure is **PLACED**.
+Six authorable fields the renderer ignores is the poster condition six times over.
+
+**ALT IS OPTIONAL AT SAVE, ENFORCED AT PUBLISH.** A block is born `src: null, alt: ""`, so
+refusing empty at save makes the kind unaddable — `videoSrc`'s own reasoning, applied to a
+second field. `validate-blog-post` judges published posts only, so it is the one gate an
+author cannot walk past and therefore the only place "required" can be real. **A required
+field the author can leave empty is not required.**
+
+**`decorative` IS THE DELIBERATE EXEMPTION.** Without it an author facing the gate types
+`"image"` into alt to clear it, which is WORSE than empty: empty is an absence a screen
+reader skips, `"image"` is confidently wrong. Renders `alt=""`, the correct HTML.
+
+### THE BLEED WAS A REAL BUG AND A1 COULD NOT SEE IT
+The contract used `clamp(0px, 7vw, 120px)`. **`vw` resolves against the VIEWPORT**, but the
+canvas and the article give the same column different room around it, so a wide figure
+behaved differently on each **while A1 still passed — because A1 measures the WRAPPER, not
+the child.** Now `margin-inline: -17%`, a percentage of the column, identical on both.
+
+**A CORRECTION TO THE PLAN'S OWN PREDICTION.** The plan expected a wide figure to CLIP in
+the editor and accepted that as a trade. **It does not clip.** The canvas scroller is
+`overflow-y-auto`, and CSS computes the other axis to `auto`, so the pane scrolls
+horizontally instead — measured with the list open: `clientWidth 786, scrollWidth 861,
+maxScrollLeft 74.5`. Nothing is unreachable; collapsing the list removes the scroll.
+
+### THE POSTER BUG — FOUND IN REVIEW, NOT BY A TEST
+Un-hiding the poster meant `BlogProse` renders it publicly for the first time. It rendered
+**927.9px tall inside a 392.6px frame**, overflowing by 535px and clipped by the frame's
+`overflow-hidden`, so it looked like a badly CROPPED image rather than a broken one.
+
+**CAUSE, AND IT GENERALISES:** `app/globals.css:271` carries an UNLAYERED
+`img, video { max-width:100%; height:auto; display:block }`. **Unlayered rules beat
+`@layer utilities`, so `h-full` SILENTLY LOSES on every `<img>` in this project.** The
+identical classes worked on the `<iframe>` beside it, which is what made it read as a
+component bug rather than a cascade one. An inline `height: 100%` resolving to 390.578px
+identified it. Fixed with a `blog-`prefixed authored rule; measured after, poster
+695.9×390.6, exactly matching the iframe. The inline figure was NOT changed — it WANTS
+`height: auto`.
+
+### GATES
+| Gate | Result |
+|---|---|
+| A1 / G2 geometry | **IDENTICAL on all three surfaces** — wrapper content box `697.9296875` on the article, the canvas with the list open, and the canvas collapsed. Normal figure `697.93`, wide figure `935.21` everywhere |
+| G3 CSS | **union-of-declarations: ZERO** selectors changed. The two rules a naive diff flagged were selector-list REGROUPING (the merged `h2,blockquote` rule split when the figure CSS broke its adjacency; every declaration survives). 5 added selectors, all proven `blog-`prefixed **by grepping the emitted bundle** |
+| G4 DOM | public HTML **byte-identical**, and the honest reason is that **no post uses the kind YET**, not that nothing changed |
+| G5 determinism | two builds byte-identical |
+| G6 ralph | 993 → **1028**, 29 suites, 0 failures. `image-block` 30, `blog-registry` 44→49. 8 mutations, all caught |
+| G7 typecheck | clean. No ESLint config, so no lint gate |
+
+**D1 MEASURED, NOT DERIVED.** `BlockImageField` FITS the 244px inspector — 204px row, no
+overflow, no wrap — but the path readout compresses to **27.6px**, narrower than the 38px
+the arithmetic predicted. **Left as is:** `ImageThumb`'s own header already records that a
+content-addressed filename *"tells the owner nothing about which image is actually set"* and
+that the thumb is the identification, so nothing informative is lost and projects is
+untouched.
+
+**UNVERIFIED:** no `imageBlock` has been written through the LIVE seam. `STUDIO_WRITE_MODE=fs`
+locally, so every save-draft branch no-ops. Ralph covers the serializer against the real
+content file, including that `date: '2026-07-24'` stays single-quoted and the head splices
+byte-identical — but that is not a commit. Browser measurements are DEV-OBSERVED.
+
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
@@ -399,6 +510,18 @@ All prior locked decisions remain. Added across this session:
 - **A FULL-HEIGHT STUDIO PAGE OPTS IN** with `data-studio-fullheight`, and the layout keys
   off it with `:has()`. The layout never learns a route list.
 - **`ThreePaneShell` STAYS BLOG-SPECIFIC** until a second consumer.
+- **BLOG HAS FIVE BLOCK KINDS** — richText, heading, pullQuote, imageBlock, videoEmbed.
+- **`imageBlock` CARRIES FIVE FIELDS AND NO GEOMETRY** — src, alt, caption, wide,
+  decorative. **It does NOT reuse `imgSpecFields`.** A case-study image is COMPOSED on a
+  free canvas; a figure in a 68ch column is PLACED.
+- **ALT IS OPTIONAL AT SAVE AND REQUIRED AT PUBLISH**, with `decorative` as the explicit
+  exemption. The publish gate is the only place "required" can be real.
+- **THE WIDE BLEED IS COLUMN-RELATIVE, NEVER `vw`.** Same fraction of the same measure on
+  both surfaces.
+- **BLOG IMAGES ARE A PLAIN `<img>`, NEVER `next/image`.** The optimizer refetches without
+  the owner cookie, so an optimized proxy URL 401s in the canvas.
+- **`rewriteSrc` DEFAULTS TO IDENTITY** and is the ONLY way `BlogProse` diverges between the
+  two surfaces — an attribute value on the same element, never a different element.
 
 ---
 
@@ -517,6 +640,28 @@ All prior rules remain. Added or sharpened across this session:
   panel's. **Scope selectors by accessible name and await the render.**
 - **NO LINT GATE EXISTS IN THIS REPO.** There is no ESLint config, so `next lint` only
   offers to create one. Do not claim a lint pass.
+- **`h-*` UTILITIES DO NOT WORK ON AN `<img>` IN THIS PROJECT.** `app/globals.css:271`
+  carries an UNLAYERED `img, video { height: auto }`, and an unlayered rule beats
+  `@layer utilities`. Any component sizing an image must author the rule or use an inline
+  style. The identical classes work on a sibling `<iframe>`, which is what makes this read
+  as a component bug rather than a cascade one.
+- **A SWITCH OVER `unknown` CANNOT BE EXHAUSTIVENESS-CHECKED**, and casting to reach a
+  `never` arm DEFEATS the check rather than performing it. **Use a mapped-type dispatch
+  table.** A MAPPED TYPE FAILS COMPILATION; A SET, AND A `default:` ARM, JUST RETURN.
+- **DO NOT DERIVE A CROSS-CHECK FROM THE THING IT CHECKS.** `RENDERABLE` exists to surface a
+  disagreement with the renderer; deriving it from the renderer would launder exactly that.
+  Assert the relationship in ralph instead.
+- **A DEFERRAL'S STATED BLOCKER CAN EXPIRE WITHOUT ANYONE REVISITING IT.** `imageBlock` was
+  deferred because the upload path was "hardcoded to projects". #172 fixed that and the
+  deferral stood for six more PRs. **When a PR removes a constraint, grep for what was
+  deferred because of it.**
+- **CHECK WHETHER A DESIGN CONTRACT ALREADY SOLVED IT BEFORE INVENTING.** blog-article.html
+  still held the figure CSS, a `.wide` variant, a responsive reset and two marked insertion
+  points. This was RE-ADDING, not designing.
+- **REVIEW THE THING THE PR CHANGES ABOUT AN EXISTING FEATURE**, not only the feature it
+  adds. The poster bug was in the one hunk that altered an already-shipped kind, it had zero
+  test coverage, and it was found by driving the browser after several clean reads of the
+  diff.
 
 ---
 
@@ -543,14 +688,20 @@ All prior rules remain. Added or sharpened across this session:
 10. **`boat-crest` produces ZERO parity pairs** — the gate has been blind to the hero case
     study for an unknown number of PRs. Cause not investigated. **The other three render 15,
     14 and 15.**
+11. **The unlayered `img, video { height: auto }` at `app/globals.css:271`** (#180) — it
+    silently beats every `h-*` utility on an `<img>`. Not removed, because the inline figure
+    and other images legitimately want it; the cost is that image sizing must be authored.
+12. **BLOG HAS NO PARITY HARNESS.** `parity.mjs` compares the case-study canvas to the
+    case-study page only. Both the 48px fidelity gap (#178) and the `vw` bleed bug (#180)
+    had to be caught by hand. **Worth its own decision.**
 
 ---
 
 ## DEFERRED — scoped, not built
 
-- **Images inside a post body — ONE question, not three deferrals.** `imageBlock`, the
-  hidden poster, and inline figures are the same decision. **This is the next real gap: no
-  inline images in a post body today.**
+- ~~**Images inside a post body**~~ — **BUILT in #180.** `imageBlock`, the hidden poster and
+  inline figures closed together, as the framing said they would.
+- **A BLOG PARITY HARNESS.** The case-study one does not cover blog. See hazard 12.
 - **The button system.** 87 buttons across 18 files.
 - **Body scroll lock for modals.**
 - **Skills sidebar count** (#165 D3) — needs a semantic decision: categories or total.
@@ -587,15 +738,25 @@ All prior rules remain. Added or sharpened across this session:
    routes 404 under `next start`, so this cannot be closed without a real owner login on
    www.akshitas.com. **Open a post and check: three panes, the collapse control, Tab not
    entering the collapsed rail, and both save indicators reading separately.**
-8. **#178 was SELF-REVIEWED.** The same session wrote and reviewed it. `/code-review ultra`
-   is user-triggered and billed and would be a genuinely independent pass over `438bf95`.
+8. **#178 AND #180 WERE SELF-REVIEWED.** The same session wrote and reviewed both.
+   `/code-review ultra` is user-triggered and billed and would be a genuinely independent
+   pass over `41fc15f`. #180's self-review DID find a real defect (the poster sizing), but
+   it found it by driving the browser, not by reading the diff — after several clean reads.
+9. **NO `imageBlock` HAS BEEN WRITTEN THROUGH THE LIVE SEAM** (#180).
+   `STUDIO_WRITE_MODE=fs` locally, so every save-draft branch no-ops. Ralph covers the
+   serializer against the real content file, but that is not a commit. **Closes the first
+   time a post with an image is authored through `/studio` in github mode.**
 
 ---
 
 ## DESIGN REFERENCE FILES (docs/studio/)
 
 - `work-section-overlay-grid.html` — corrected during PRs 2, 3 and 4.
-- `blog-homepage.html`, `blog-article.html` — corrected in #171.
+- `blog-homepage.html` — corrected in #171.
+- `blog-article.html` — corrected in #171, then **AGAIN in #180**: the two struck inline
+  figures RESTORED, and the `.wide` bleed changed from `clamp(0px,7vw,120px)` to a
+  column-relative `-17%`. The `vw` form was a real bug that gate A1 structurally could not
+  see, because A1 measures the wrapper and the bleed is on the child.
 - `studio-blog.html` — **replaced wholesale by the owner**, then edited in #177 (the `.seg`
   convention), then **CORRECTED IN #178**. **TEN errors to date**, and the file now carries
   each correction beside what it replaced rather than silently overwritten. Error 6 (the
@@ -618,23 +779,26 @@ All prior rules remain. Added or sharpened across this session:
 - **#174** editor host (`9a25bc0`) →793 · **#175** love store →900
 - **#176** love UI (`2ad4856`) 900 · **#177** tooling + nav (`fe4b08d`) →930
 - **#178** the 3-pane blog editor (`438bf95` merge, `0f23e5d` commit, `a586e98` groundwork) →993
+- **#180** imageBlock, the inline figure (`41fc15f` squash-merge) →1028
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
+- `f54574a` #179 docs: STATE records the 3-pane arc
 
 ---
 
 ## WHAT'S NEXT
 
-1. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7 — every gate
-   on it is DEV-OBSERVED and only the owner can close this.
-2. **`imageBlock`** — built once, now that the shell is final. **The one real authoring gap:
-   there is still no way to put an image inside a post body.** `imageBlock`, the hidden
-   video poster and inline figures are ONE decision, not three deferrals.
-3. **Write 3–4 posts through `/studio`**, flipping the existing draft to Published. This is
-   also the first real exercise of the status write path and of the new editor under load.
-4. **The nav link** — one line, and the launch switch for `/blog`.
-5. **Optional:** `/code-review ultra` over `438bf95`, since #178 was self-reviewed.
-6. **Later:** migrate other studio pages to `ThreePaneShell`, extracting the shared shell at
-   the SECOND consumer.
+**THE BLOG IS FEATURE-COMPLETE. WHAT REMAINS IS CONTENT AND ONE SWITCH.**
+
+1. **WRITE POSTS THROUGH `/studio`**, with images. This is now the highest-value next step
+   and it closes three things at once — backlog items 7 and 9, and the first real exercise
+   of the editor under load.
+2. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7; every gate
+   on it is DEV-OBSERVED and only the owner can close it.
+3. **THE NAV LINK** — one line, and the launch switch for `/blog`.
+4. **Optional:** `/code-review ultra` over `41fc15f`, since #178 and #180 were self-reviewed.
+5. **Later:** a blog parity harness (hazard 12); migrate other studio pages to
+   `ThreePaneShell`, extracting the shared shell at the SECOND consumer; investigate why
+   `boat-crest` yields zero parity pairs (hazard 10).
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
 arcs stay human-gated, one at a time. Never auto-merge, never write main unattended.
