@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isStudioAreaActive } from "@/lib/studio/nav-active";
 import {
   IconHome,
   IconGrid,
@@ -38,7 +39,7 @@ export default function StudioSidebar() {
   const settings: Area = { href: "/studio/settings", label: "Site settings", Icon: IconSliders };
 
   function renderLink(area: Area, pinned = false) {
-    const active = pathname === area.href;
+    const active = isStudioAreaActive(area.href, pathname);
     return (
       <Link
         key={area.href}
@@ -52,9 +53,21 @@ export default function StudioSidebar() {
         ].join(" ")}
       >
         <area.Icon className={`size-4 ${active ? "text-cream-50" : "text-ink-400"}`} />
-        <span>{area.label}</span>
+        {/* The label carries its OWN colour rather than inheriting the anchor's. It used
+            to be a bare <span>, and in the selected pill it computed to ink-950 on an
+            ink-950 background — invisible. The icon beside it was fine precisely because
+            it already had its own class, which is the tell. Every child of this pill now
+            states its colour explicitly, so none of them depends on the anchor's. */}
+        <span className={active ? "text-cream-50" : undefined}>{area.label}</span>
         {area.count != null && (
-          <span className="ml-auto text-[11px] text-ink-400">{area.count}</span>
+          // The count carried a HARDCODED text-ink-400 that the active branch did not
+          // override, so in the selected ink pill it sat at ink-400 on ink-950 while the
+          // label beside it was cream-50 — the one element in the pill the active state
+          // did not reach. The label was never the problem; it has no class of its own and
+          // inherits cream-50 correctly.
+          <span className={`ml-auto text-[11px] ${active ? "text-cream-50/70" : "text-ink-400"}`}>
+            {area.count}
+          </span>
         )}
       </Link>
     );

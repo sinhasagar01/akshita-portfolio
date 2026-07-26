@@ -119,7 +119,17 @@ export default function BlogEditPanel({
 
           <div className="flex flex-col gap-1">
             <span className={labelCls}>Status</span>
-            <div role="group" aria-label="Status" className="flex items-center gap-0.5 rounded-md bg-cream-200 p-0.5">
+            {/* Matches SegmentedToggle's convention: accent fill on a cream track. That
+                component is the studio-wide two-segment control with two live call sites
+                and its own suite; this is the one bespoke instance, and it exists only
+                because SegmentedToggle posts a projects patch. The shared component sets
+                the convention. The old raised-on-sunk styling read as a 5-point lightness
+                delta plus a shadow — the weaker signal, on the single control that decides
+                whether a post is publicly visible.
+                aria-pressed IS correct here: a two-segment selection genuinely has a
+                pressed state. It was wrong on LoveButton only because love is one-way and
+                cannot be un-pressed. */}
+            <div role="group" aria-label="Status" className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5">
               {BLOG_STATUSES.map((s) => (
                 <button
                   key={s}
@@ -132,9 +142,9 @@ export default function BlogEditPanel({
                     // than waiting for a blur that may never come.
                     queueMicrotask(saveDraft);
                   }}
-                  className={`flex-1 rounded px-3 py-1.5 text-[12px] capitalize transition-colors ${
+                  className={`rounded px-3 py-1.5 text-[12px] capitalize transition-colors ${
                     values.status === s
-                      ? "bg-cream-50 text-ink-950 shadow-sm"
+                      ? "bg-accent-500 text-cream-50"
                       : "text-ink-600 hover:text-ink-950"
                   }`}
                 >

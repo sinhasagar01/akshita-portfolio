@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Tailwind v4 auto-detects sources across the whole repo, which means PROSE can generate
+   CSS. BS-4a proved it live: the word naming a text-transform utility, written in a ralph
+   ASSERTION NAME, shipped a real `text-transform` declaration to the production bundle.
+   ralph/ is test code and never renders, so nothing in it may contribute a class.
+   docs/ is the same case — HTML design mocks with their own hand-written stylesheets,
+   which are references, never a styling source for the app. */
+@source not "../ralph";
+@source not "../docs";
+
 html.has-custom-cursor,
 html.has-custom-cursor * { cursor: none; }
 html.has-custom-cursor input,
