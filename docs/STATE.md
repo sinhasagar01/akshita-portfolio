@@ -6,13 +6,14 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE BLOG IS FEATURE-COMPLETE — imageBlock MERGED)
+## STATE (as of THE BLOG IS LAUNCHED — published, linked, indexable)
 
-**main** = `3093538` = #181 (this STATE). Pinned: `82edf03` = the owner's publish that
-carried the truncation, `d5bd37a` = the hero-image write (ONE line, the splice proven a
-second time), `41fc15f` = #180 (imageBlock), `f54574a` = #179 (STATE), `438bf95` = #178
-merge (the 3-pane blog editor), `0f23e5d` = #178's commit,
-`bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
+**main** = `198e503` = #185 (nav link, sitemap, dead component). Pinned: `4bc1573` = #184
+(the post published), `1e3e433` = #183 (ralph in CI), `db907ed` = #182 (the truncated
+sentence restored), `3093538` = #181 (STATE), `82edf03` = the owner's publish that carried
+the truncation, `d5bd37a` = the hero-image write (ONE line, the splice proven a second
+time), `41fc15f` = #180 (imageBlock), `f54574a` = #179 (STATE), `438bf95` = #178 merge (the
+3-pane blog editor), `0f23e5d` = #178's commit, `bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
 fixes), `2ad4856` = #176 merge (love UI), `2d837f2` = the CLAUDE.md
 proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8b9` = #172,
 `c164c85` = #171, `92f8378` = #170, `0d21a93` = #169, `7e591ae` = #168, `5839039` = #167,
@@ -20,8 +21,12 @@ proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8
 
 `feat/blog-editor-3pane` and `feat/blog-image-block` are merged but NOT deleted.
 
-**THE BLOG IS NOW FEATURE-COMPLETE FOR AUTHORING.** Five block kinds, all renderable, all
-reachable from the picker. The remaining work is CONTENT and one launch switch.
+**THE BLOG IS LAUNCHED.** Five block kinds all renderable and reachable, one post
+PUBLISHED, the nav link shipped, and `/blog` plus the post in the sitemap. Verified on
+production: `www.akshitas.com/blog` returns 200, the home page carries three `href="/blog"`
+occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 URLs.
+
+**THE REMAINING WORK IS CONTENT.**
 
 ### RALPH IS 1029 ACROSS 29 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
@@ -240,10 +245,17 @@ guarantee and #173's splice both held against a real write. Publish merged twice
 (`bf32503`, `3650956`). **Backlog items 7 and 8 are closed.**
 
 ### CURRENT CONTENT STATE
-**One post, `status: draft`, with a hero image set.** This has now flipped twice, so read it
-from the file rather than from here: `content/blog/what-a-data-table-teaches-you-about-trust.yaml`.
-`/blog` renders the EMPTY STATE while it is a draft, which is the fail-closed filter working.
-Both public routes remain UNLINKED from the nav, still the launch switch.
+**One post, `status: published`, with a hero image set.** This has flipped three times, so
+read it from the file rather than from here:
+`content/blog/what-a-data-table-teaches-you-about-trust.yaml`. `/blog` renders one card and
+the article renders; both are now LINKED from the nav and listed in the sitemap.
+
+**PUBLISHING IT WAS A DIRECT COMMIT (#184), NOT A STUDIO WRITE**, so the status write path is
+STILL unexercised and owner-backlog items 7 and 9 stay open. `validateBlogPost` was run
+against the file REWRITTEN AS PUBLISHED before flipping, because drafts are not judged and
+validating it in place would have proven nothing. `dynamicParams: false` means the BUILD
+decides whether the article exists, so it was proven by building rather than by reading the
+diff.
 
 **`heroImage` IS NOW SET** to `/images/blog/what-a-data-table-teaches-you-about-trust/heroImage.webp`.
 The previously-orphaned webp became the referenced hero, so the accepted orphan posture no
@@ -501,6 +513,83 @@ locally, so every save-draft branch no-ops. Ralph covers the serializer against 
 content file, including that `date: '2026-07-24'` stays single-quoted and the head splices
 byte-identical — but that is not a commit. Browser measurements are DEV-OBSERVED.
 
+
+---
+
+## THE LAUNCH — #182 to #185
+
+Four small PRs that turned a feature-complete blog into a launched one, plus one incident.
+
+### #182 · the truncated sentence, restored (`db907ed`)
+Recorded in CURRENT CONTENT STATE and hazard 13. A publish carried a half-finished edit
+into a live post; the write route was exonerated by `d5bd37a` touching exactly one line.
+
+**It also found `main` RED and unnoticed.** `blog-serialize`'s G3 read the live post and
+pinned the literal `heroImage: null`; the owner set a hero image and the suite had been
+failing since `82edf03`. The PROPERTY never broke, only the hardcoded expectation. Repaired
+by splitting it — a FIXTURE owns the null case, the live file is asserted for INVARIANCE.
+
+### #183 · ralph in CI (`1e3e433`)
+`.github/workflows/ralph.yml`, on every PR and every push to main, **no paths filter** —
+the break that prompted it was a CONTENT commit.
+
+**`ralph/run.mjs` IS THE LARGER HALF.** One tool for CI and humans, so they cannot disagree.
+It retires the counting note by reading each suite's own summary; it reports the per-file
+list, the sum and the suite count from the SAME rows so they cannot drift; **pass/fail is
+the EXIT CODE, never parsed text** (four summary formats are in use); and it **fails a
+suite that exits 0 having asserted NOTHING**. Mutation-tested three ways.
+
+**CI CAUGHT A HIDDEN DEPENDENCY ON ITS FIRST RUN.** `upstash-transport.mjs` does
+`git show 9a25bc0:…` to pin the PRE-EXTRACTION source, so it needs GIT HISTORY, and
+`actions/checkout` shallow-clones by default. Fixed with `fetch-depth: 0` and a comment
+saying why, since the obvious optimisation is to delete it. Reproduced both ways before
+fixing rather than inferred from the error.
+
+### #184 · the post published (`4bc1573`)
+`/blog` showed "Coming soon" because the only post was a draft. **Not a bug** — #170's
+status gate and #171's three leak defences, both working. One line, `draft` → `published`.
+Pre-flighted by validating the file REWRITTEN AS PUBLISHED, and proven by BUILDING, because
+`dynamicParams: false` means the build decides whether the article exists at all.
+
+### #185 · the nav link, the sitemap, and a dead component (`198e503`)
+
+**THE NAV LINK WAS NEVER "ONE LINE".** The site nav was built for ANCHORS ONLY — `NAV` is
+`{ id, label }` where `id` is a home-page section, rendered `#id`, `preventDefault`'d,
+scrolled to `getElementById(id)`, and fed to a scroll-spy. The naive entry would have
+produced `href="/#blog"`, an anchor to a section that does not exist, plus a handler that
+CANCELS the navigation and then scrolls nowhere — a link that renders perfectly and does
+nothing, in all three render sites. `href` is now the discriminator; both handlers return
+early for a route; the spy skips routes; and `SectionId` is
+`Exclude<NavItem, { href: string }>["id"]`, so a route id reaching a scroll handler is a
+TYPE ERROR rather than a silent no-op.
+
+**THE SITEMAP HAD NO BLOG AT ALL**, and its own comment claimed it "can never drift from
+the real routes" — true when written, false the moment a second collection existed. **A
+SITEMAP DOES NOT FAIL LOUDLY; IT QUIETLY OMITS PAGES.** Now 7 URLs. **Fail-closed BY
+CONSTRUCTION, not by a new test:** it calls the SAME `getBlogPosts()` that
+`generateStaticParams` calls, so it can only list routes that were actually prerendered, and
+`blog-status-filter` already proves that seam drops drafts. That matters more here than
+anywhere — `/blog/<slug>` 404s for a draft, and a sitemap entry pointing at a 404 is worse
+than no entry. `blogLastModified` mirrors `projectLastModified` (file mtime, not the
+authored `date`), with the SHARED known limitation that a CI checkout sets mtimes to
+checkout time.
+
+**`FooterExplore.tsx` WAS DEAD CODE AND IS DELETED.** The string appeared exactly ONCE in
+the repo, in its own function declaration. Nothing imported it, nothing rendered it;
+`SiteFooter` is the only footer and shows social links. Confirmed in the browser on `/` and
+`/blog`: zero section anchors, no "Explore" heading. **The inconsistency it was asked to fix
+did not exist**, and adding an entry would have changed nothing while letting the PR claim
+the header and footer now agree. `tsc` clean after deletion is the proof nothing referenced
+it.
+
+### THE SURFACE AUDIT — keep this list
+Everything that enumerates home-page sections, after #185:
+- `components/layout/SiteHeader.tsx` — `NAV`, **three** render sites (bar, scrolled sheet,
+  mobile menu). The only one.
+- `app/sitemap.ts` enumerates ROUTES, not sections, and is the one that decays silently.
+- NOT surfaces: `SkipLink.tsx` (`#main-content`), `HeroSection.tsx` (a single `#process`
+  anchor), `SectionsEditPanel.tsx` (`selectedSectionId` is a case study's own sections).
+
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
@@ -519,7 +608,8 @@ All prior locked decisions remain. Added across this session:
 - **Image paths take a REQUIRED per-collection base. No default, ever.**
 - **`overlayCollection` takes a REQUIRED comparator.** Cache keys are
   collection-qualified.
-- **`/blog` ships live but unlinked.** The nav link is the launch switch.
+- ~~**`/blog` ships live but unlinked**~~ — **THE SWITCH IS THROWN** (#185). It is linked
+  from all three header render sites and is in the sitemap.
 - **Blog validates PUBLISHED files only.** **No `orderIndex`, no reorder arm.**
 - **Blog's splice is duplicated deliberately.** Extract on the third collection.
 - **LOVE IS ONE-WAY**, client-fetched after hydration, environment-namespaced, gated on the
@@ -616,9 +706,22 @@ All prior rules remain. Added or sharpened across this session:
   about ARCHITECTURE.** **TEN errors across two files**, including one that recommended
   rebuilding a deliberately removed pattern, and a whole threshold that was wrong by 190px
   because a unit was estimated rather than measured.
-- **A NAME IN A STATE FILE IS NOT EVIDENCE THAT THE THING EXISTS**, and neither is a
-  RECORDED BEHAVIOUR. #178 found STATE claiming a collapse was built when only a boolean
-  was wired. **Verify the record against source before planning on it.**
+- **NOTHING RECORDED IN THIS FILE IS EVIDENCE. RE-DERIVE BEFORE YOU BUILD ON IT.**
+  This is now FIVE variants of one failure, and the shape is what matters, not the
+  instances:
+    - a **NAME** — `structural()`, a function that never existed;
+    - a **COUNT** — "the 14 block-kind union", which was 16 and had decayed silently as
+      kinds were added;
+    - a **CONSTANT** — `FIT_THRESHOLD_PX`, exported with ZERO consumers while a comment
+      described variants that were never written;
+    - a **SCOPE ESTIMATE** — "the nav link is one line", which had sat unexamined since
+      #171 and was false because the nav was anchor-only;
+    - a **SURFACE** — `FooterExplore`, an inventory entry for a component nothing had
+      rendered in a long time.
+  **A scope estimate decays exactly like a name, a count, a constant or an inventory, and
+  none of them is evidence.** None failed loudly; each was found only by deriving it. Three
+  of the five were found in a single two-day stretch, which is a statement about the file's
+  reliability, not about that stretch.
 - **A GATE THAT MISFIRES GETS REWRITTEN, NOT WORKED AROUND.**
 - **A SOFT CLAIM IN A MERGED PR IS WORTH RE-CHECKING.**
 - **STOP RATHER THAN WORK AROUND AN IMPOSSIBLE INSTRUCTION**, and **STOP RATHER THAN SHIP
@@ -771,6 +874,8 @@ All prior rules remain. Added or sharpened across this session:
 - ~~**Images inside a post body**~~ — **BUILT in #180.** `imageBlock`, the hidden poster and
   inline figures closed together, as the framing said they would.
 - **A BLOG PARITY HARNESS.** The case-study one does not cover blog. See hazard 12.
+- **A PER-ENTRY PUBLISH, or a diff preview in the PublishBar** — the real answer to hazard
+  13. Whole-branch publish has already shipped a half-finished sentence once.
 - **The button system.** 87 buttons across 18 files.
 - **Body scroll lock for modals.**
 - **Skills sidebar count** (#165 D3) — needs a semantic decision: categories or total.
@@ -852,7 +957,9 @@ All prior rules remain. Added or sharpened across this session:
 - `d5bd37a` + `82edf03` owner studio writes — hero image set, then published
 - **#181** docs: STATE for imageBlock (`3093538`) · **#182** restore the truncated
   sentence + unpin blog-serialize (`db907ed`) →1029
-- **ci/ralph** ralph in CI, the runner committed, the counting note retired
+- **#183** ralph in CI + the committed runner (`1e3e433`) — the counting note retired
+- **#184** the post published (`4bc1573`) · **#185** nav link + sitemap + delete
+  FooterExplore (`198e503`)
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -860,23 +967,19 @@ All prior rules remain. Added or sharpened across this session:
 
 ## WHAT'S NEXT
 
-**THE BLOG IS FEATURE-COMPLETE. WHAT REMAINS IS CONTENT AND ONE SWITCH.**
+**THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
 
-1. **WRITE POSTS THROUGH `/studio`**, with images. This is now the highest-value next step
-   and it closes three things at once — backlog items 7 and 9, and the first real exercise
-   of the editor under load. **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13
-   has a real answer — a publish has already shipped a half-finished edit once. CI now
-   catches a content commit that breaks a suite, but it cannot tell a half-finished sentence
-   from a finished one.
-2. **DECIDE THE POST'S STATUS.** It is back to `draft`, so `/blog` shows the empty state.
-   Flipping it to published is a content call, not a code one.
-3. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7; every gate
-   on it is DEV-OBSERVED and only the owner can close it.
-4. **THE NAV LINK** — one line, and the launch switch for `/blog`.
-5. **Optional:** `/code-review ultra` over `41fc15f`, since #178 and #180 were self-reviewed.
-6. **Later:** a blog parity harness (hazard 12); migrate other studio pages to
-   `ThreePaneShell`, extracting the shared shell at the SECOND consumer; investigate why
-   `boat-crest` yields zero parity pairs (hazard 10).
+1. **WRITE POSTS THROUGH `/studio`**, with images. The highest-value next step by a wide
+   margin: it closes owner-backlog items 7 and 9 together, exercises the status write path
+   for the first time, and is the first real load on the editor. **READ THE CONTENT DIFF
+   BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish has already shipped
+   a half-finished sentence once, and CI cannot tell one from a finished one.
+2. **Optional:** `/code-review ultra` over `198e503`. #178, #180 and #185 were all
+   self-reviewed.
+3. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a
+   real incident behind it); a blog parity harness (hazard 12); migrate other studio pages
+   to `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest`
+   yields zero parity pairs (hazard 10).
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
 arcs stay human-gated, one at a time. Never auto-merge, never write main unattended.
