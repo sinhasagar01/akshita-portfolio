@@ -1,0 +1,60 @@
+# Ralph on every PR and every push to main.
+#
+# WHY THIS EXISTS. `main` was RED for three commits and nobody knew. An owner publish
+# through /studio (`82edf03`) broke `blog-serialize`, whose G3 read the live post and pinned
+# a literal value. The only check on a PR was Vercel, and Vercel BUILDS the site — it does
+# not run ralph. So the failure sat on main until someone ran the suites by hand.
+#
+# IT RUNS ON CONTENT COMMITS TOO, AND THAT IS THE POINT. The break was caused by a content
+# change, not a code change, so there is no paths filter here. A suite that reads a real
+# content file is exactly the kind that a content commit breaks, and those are the commits
+# least likely to be reviewed as code.
+#
+# WHAT IT DOES NOT COVER. Types and the production build are already covered: Vercel runs
+# `next build` on every PR, and Next type-checks during the build. Adding a second tsc job
+# here would duplicate that without adding a signal. `parity.mjs` is excluded because it
+# needs a running dev server and is driven from a browser console — the runner names it as
+# skipped rather than dropping it silently.
+name: ralph
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push supersedes an in-flight run on the same ref. Ralph is a pure unit suite with
+# no external side effects, so cancelling an older run loses nothing.
+concurrency:
+  group: ralph-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ralph:
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 IS LOAD-BEARING — DO NOT "OPTIMISE" IT BACK TO THE DEFAULT.
+      # `ralph/tests/upstash-transport.mjs` runs `git show 9a25bc0:lib/studio/login-throttle.ts`
+      # to compare the extracted transport against the last commit BEFORE the extraction.
+      # That is deliberate (pin the expected value from the PRE-CHANGE state, never from the
+      # new code), and it makes the suite depend on git history being present.
+      # actions/checkout shallow-clones by default, so the first CI run failed with
+      # `fatal: invalid object name '9a25bc0'` — a hidden environmental dependency that had
+      # never surfaced locally, where the clone is always complete. 572 commits, so a full
+      # fetch costs almost nothing.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 22.18 matches the local toolchain. The floor that actually matters is 22.6, where
+      # `--experimental-strip-types` landed — every suite is a .mjs that imports .ts
+      # directly, so an older Node does not merely warn, it cannot load them at all.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.18"
+          cache: npm
+
+      # `npm ci` needs the lockfile only. The suites are dependency-free leaves by design
+      # (the strip-types constraint), but a few import js-yaml, so install is not optional.
+      - run: npm ci
+
+      - run: node ralph/run.mjs

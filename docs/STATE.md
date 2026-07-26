@@ -30,22 +30,27 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below).
 
-Run each suite directly — **there is no npm script**:
-`node --experimental-strip-types ralph/tests/<name>.mjs`
-Per-file: blog-format 50, blog-reading-time 13, blog-registry 49, blog-search 20,
-blog-serialize 33, blog-status-filter 17, collection-image-paths 29, cs4-frame 26,
-f2-draft-overlay 11, f3-slug 31, image-block 30, loves-store 72, ncr-adjacent 20,
-p4-3c-adapter 53, p4-4bi-sections-serialize 28, p4-4bii-block-forms 132,
-p4-4biii-structural 58, p4-4biv-block-images 20, paragraph-edits 28, rich-markers 63,
-section-label 23, settings-photo 25, studio-nav-active 30, task1 17, task2 22, task3 14,
-three-pane 43, upstash-transport 35, validate-blog-post 37.
-**These sum to exactly 1029 across 29 files** — verified, not asserted, and the first time
-this list has been checked against its own total. `parity.mjs` is excluded from the count
-(it needs a running server), but **RUN IT ANYWAY and report the number** — see the working
-rules.
-**COUNTING NOTE:** `rich-markers` reports `✓`/`63 passed` rather than `[PASS]`, so a naive
-grep undercounts by 63. The grep total is 966 and the real total is 1029. Read each suite's
-own summary line.
+**RUN IT WITH `npm run ralph`** (or `node ralph/run.mjs`). The runner is COMMITTED, so CI
+and humans use the same tool and cannot disagree. "There is no npm script" was true until
+`ci/ralph` and is no longer.
+
+**THE COUNTING NOTE IS RETIRED.** STATE carried this for six PRs: "`rich-markers` reports
+`✓`/`63 passed` rather than `[PASS]`, so a naive grep undercounts by 63." The runner reads
+each suite's OWN summary line and falls back to `[PASS]` only for the eleven suites that
+print none, so `rich-markers` counts correctly with no special case. That is #177's rule
+applied again — **COMMIT THE TOOL, DO NOT DOCUMENT THE BUG.** Do not reintroduce an ad-hoc
+shell loop; it is what re-learned this trap every session.
+
+The runner prints the per-file list, the sum and the suite count from the SAME rows, so the
+list and the total cannot drift apart — they did once, undetected for six PRs.
+
+**PASS/FAIL IS THE EXIT CODE, never parsed text.** All 29 runnable suites end with
+`process.exit(failures === 0 ? 0 : 1)`, verified. Parsing is for the count only, which is
+reporting, not verdict. It also fails a suite that **exits 0 having asserted NOTHING** — a
+gate that reports zero subjects is not a pass.
+
+`parity.mjs` is excluded and NAMED as skipped, never silently dropped. It needs a running
+dev server and is driven from a browser console.
 
 ### FIVE ARCS COMPLETE
 1. **Work-section rebuild — COMPLETE** (#159–#162).
@@ -702,9 +707,23 @@ All prior rules remain. Added or sharpened across this session:
   through /studio and the suite went red on main — the PROPERTY never broke, only the
   hardcoded expectation. Content is the thing the studio exists to change, so a fixture owns
   the specific case and the live file is asserted for INVARIANCE, not for a value.
-- **RALPH IS NOT IN CI, SO MAIN CAN BE RED AND NOBODY KNOWS.** Only Vercel runs on a PR.
-  `blog-serialize` was failing on `main` from `82edf03` until it was noticed by hand. **Run
-  ralph after any content commit, not only after a code change.**
+- ~~**RALPH IS NOT IN CI**~~ — **FIXED.** `.github/workflows/ralph.yml` runs
+  `node ralph/run.mjs` on every PR and every push to main. **NO PATHS FILTER, deliberately:**
+  the break that prompted it was a CONTENT commit, and a suite that reads a real content file
+  is exactly the kind a content commit breaks. Types and the build stay covered by Vercel,
+  which runs `next build`; a second tsc job would duplicate that without adding signal.
+- **A COMMITTED RUNNER RETIRES A DOCUMENTED COUNTING BUG.** #177 committed
+  `scripts/normalize-dom.mjs` for the same reason. `ralph/run.mjs` is the second instance:
+  it reads each suite's own summary, so the `rich-markers` undercount stops being something
+  every session re-learns. **COMMIT THE TOOL, DO NOT DOCUMENT THE BUG.**
+- **CI FOUND A HIDDEN ENVIRONMENTAL DEPENDENCY ON ITS FIRST RUN.**
+  `upstash-transport.mjs` does `git show 9a25bc0:lib/studio/login-throttle.ts` — pinning the
+  PRE-EXTRACTION source, which is the right thing to assert — so it needs GIT HISTORY.
+  `actions/checkout` shallow-clones by default, and the suite died with
+  `fatal: invalid object name '9a25bc0'`. It had never surfaced locally, where the clone is
+  always complete. Fixed with `fetch-depth: 0` and a comment saying why, since the obvious
+  "optimisation" is to remove it. **A SUITE CAN DEPEND ON THE SHAPE OF THE CHECKOUT, NOT
+  ONLY ON THE FILES IN IT.**
 
 ---
 
@@ -831,7 +850,9 @@ All prior rules remain. Added or sharpened across this session:
 - **#178** the 3-pane blog editor (`438bf95` merge, `0f23e5d` commit, `a586e98` groundwork) →993
 - **#180** imageBlock, the inline figure (`41fc15f` squash-merge) →1028
 - `d5bd37a` + `82edf03` owner studio writes — hero image set, then published
-- **#181** docs: STATE for imageBlock (`3093538`)
+- **#181** docs: STATE for imageBlock (`3093538`) · **#182** restore the truncated
+  sentence + unpin blog-serialize (`db907ed`) →1029
+- **ci/ralph** ralph in CI, the runner committed, the counting note retired
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -844,7 +865,9 @@ All prior rules remain. Added or sharpened across this session:
 1. **WRITE POSTS THROUGH `/studio`**, with images. This is now the highest-value next step
    and it closes three things at once — backlog items 7 and 9, and the first real exercise
    of the editor under load. **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13
-   has a real answer — a publish has already shipped a half-finished edit once.
+   has a real answer — a publish has already shipped a half-finished edit once. CI now
+   catches a content commit that breaks a suite, but it cannot tell a half-finished sentence
+   from a finished one.
 2. **DECIDE THE POST'S STATUS.** It is back to `draft`, so `/blog` shows the empty state.
    Flipping it to published is a content call, not a code one.
 3. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7; every gate
