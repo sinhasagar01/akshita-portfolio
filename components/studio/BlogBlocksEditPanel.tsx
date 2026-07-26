@@ -51,10 +51,14 @@
 // exactly that; a unit test and a DOM diff both missed it.) SectionsEditPanel has the same
 // constraint and answers it the same way: structural changes mark the panel dirty, and the
 // save happens on the next field blur or via the explicit Save control.
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt } from "./useItemList";
+import { splitParagraph, mergeParagraph } from "@/lib/studio/paragraph-edits";
+import { paragraphCaret, placeCaret } from "@/lib/studio/inline-caret";
+import { richToMarkers } from "@/lib/studio/rich-markers";
+import { isSafeHref } from "@/lib/case-studies/adapter";
 import { FieldTabProvider, type FieldTab } from "./blocks/fields";
 import {
   BLOG_BLOCK_REGISTRY,
@@ -157,6 +161,51 @@ export default function BlogBlocksEditPanel({
   const [view, setView] = useState<"canvas" | "inspector">("canvas");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // ---- THE REBUILD CYCLE, AND IT IS REQUIRED WITHOUT ANY TOOLBAR ------------------------
+  //
+  // A split, a merge or a multi-line paste CHANGES HOW MANY <p> ELEMENTS A BLOCK HAS while
+  // the author's typed DOM is still sitting in that subtree. React's tree and the
+  // contentEditable DOM then disagree about how many paragraphs exist, and reconciling
+  // against a subtree React does not own duplicates or drops text.
+  //
+  // The case-study panel bumps its epoch "for the same reason a bold does", and that
+  // reasoning is what was checked here: the plan assumed deferring the bold toolbar removed
+  // this machinery, and it does not. Bold makes the tree untrusted because execCommand
+  // mutates it; a structural paragraph edit makes it untrusted because the element COUNT
+  // changes. Different cause, identical requirement.
+  //
+  // What deferring the toolbar DOES remove is `boldDirty`, execCommand, and the
+  // bold-then-unbold cleanup path. Not this.
+  const [renderEpoch, setRenderEpoch] = useState(0);
+  /** The element to re-focus once the rebuilt tree is on screen. */
+  const refocusAfterRebuild = useRef<string | null>(null);
+  /** ...and where the caret lands, so a split or merge reads as ONE keystroke rather than
+   *  as a jump. */
+  const caretAfterRebuild = useRef<number | null>(null);
+  /** ...and the block the strip should still be pointing at. */
+  const reselectAfterRebuild = useRef<string | null>(null);
+  /** Set by a FIELD blur only. Structural ops never set it, which is how #174's rule
+   *  survives: a split, a merge or a paste marks the panel dirty and waits. */
+  const pendingSave = useRef(false);
+
+
+  // Runs AFTER the rebuild paints, which is the whole point: the node to focus does not
+  // exist until then. Focusing from the keydown handler would target the node the rebuild
+  // is about to discard.
+  useEffect(() => {
+    const sel = refocusAfterRebuild.current;
+    const caret = caretAfterRebuild.current;
+    const reselect = reselectAfterRebuild.current;
+    refocusAfterRebuild.current = null;
+    caretAfterRebuild.current = null;
+    reselectAfterRebuild.current = null;
+    if (reselect) setSelectedId(reselect);
+    if (!sel) return;
+    const el = document.querySelector<HTMLElement>(sel);
+    el?.focus();
+    if (el && caret !== null) placeCaret(el, caret);
+  }, [renderEpoch]);
+
   // The inspector pane folds below this width and the view toggle takes over. Read HERE
   // rather than inside the shell because the answer decides which PARENT the single
   // inspector node mounts under, and the shell handing it back up would mean setting parent
@@ -174,6 +223,15 @@ export default function BlogBlocksEditPanel({
   });
 
   useReportPending(dirty || saveStatus === "saving");
+  // Fires one render AFTER the value landed, so `saveDraft` closes over the NEW blocks.
+  // Keyed on the blocks themselves rather than on saveDraft, which is a fresh function
+  // every render and would loop.
+  useEffect(() => {
+    if (!pendingSave.current) return;
+    pendingSave.current = false;
+    void saveDraft();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.blocks]);
 
   const blocks = values.blocks;
   const selectedIndex = selectedId === null ? -1 : ids.indexOf(selectedId);
@@ -231,12 +289,163 @@ export default function BlogBlocksEditPanel({
     setBlocks(moveIn(blocks as BlogRawBlock[], i, dir), moveIn(ids, i, dir));
   }
 
+  /* ------------------------------------------------------ the inline canvas edit surface */
+
+  /** Set one field of a block value by the SHALLOW paths BlogProse emits: `text`,
+   *  `caption`, or `paragraphs.N`. Deliberately not a generic deep-set — three shapes is
+   *  not enough to justify one, and a generic setter would accept paths the renderer never
+   *  emits. */
+  const setByPath = useCallback(
+    (value: Record<string, unknown>, path: string, next: string): Record<string, unknown> => {
+      const m = /^paragraphs\.(\d+)$/.exec(path);
+      if (m) {
+        const list = (Array.isArray(value.paragraphs) ? value.paragraphs : []).map(String);
+        const i = Number(m[1]);
+        if (i < 0 || i >= list.length) return value;
+        return { ...value, paragraphs: list.map((p, j) => (j === i ? next : p)) };
+      }
+      return { ...value, [path]: next };
+    },
+    []
+  );
+
+  const readByPath = (value: Record<string, unknown>, path: string): string => {
+    const m = /^paragraphs\.(\d+)$/.exec(path);
+    if (m) {
+      const list = Array.isArray(value.paragraphs) ? value.paragraphs : [];
+      return String(list[Number(m[1])] ?? "");
+    }
+    return typeof value[path] === "string" ? (value[path] as string) : "";
+  };
+
+  /** DELEGATED, one handler on the canvas wrapper rather than a prop per element — the
+   *  editable elements are emitted by BlogProse, which the panel does not own. */
+  const onCanvasBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement;
+    const ds = t?.dataset;
+    if (!ds?.editValuePath || ds.editBlockIndex === undefined) return;
+    const i = Number(ds.editBlockIndex);
+    const block = blocks[i];
+    if (!block) return;
+
+    // A RICH field renders its `**bold**` as real <b>, so innerText would hand back the
+    // words with every marker silently stripped — including markers that were already in
+    // the file before anyone edited anything. This is why richToMarkers is in scope even
+    // though the bold TOOLBAR is not: authoring bold inline is deferred, reading the bold
+    // that already exists is not optional.
+    const isRich = ds.editRich !== undefined;
+    const next = isRich ? richToMarkers(t, isSafeHref) : (t.innerText ?? "");
+
+    const value = (block.value ?? {}) as Record<string, unknown>;
+    // NO-OP SKIP. A focus-then-blur with no typing must not dirty the draft — otherwise
+    // merely reading a post marks it changed, and every post anyone clicked into would
+    // publish as modified. It also means a rich field whose markers round-trip unchanged
+    // is silent, which is the assertion that catches an innerText regression.
+    if (readByPath(value, ds.editValuePath) === next) return;
+    setBlockValue(ids[i], setByPath(value, ds.editValuePath, next));
+    // SAVE ON THE NEXT RENDER, NEVER HERE. `saveDraft` closes over `values`, so calling it
+    // in this handler would post the array as it was BEFORE the line above — #174's exact
+    // defect, which a unit test and a DOM diff both missed and only a request count caught.
+    // The inspector's fields get away with `onBlur={saveDraft}` because their onChange fired
+    // on an earlier render; an inline edit has no earlier render to rely on.
+    pendingSave.current = true;
+  };
+
+  /** Focus inside the canvas selects the block, so the inspector always describes what is
+   *  being edited. The strip's chips set the same state — DUAL-SOURCE selection over one
+   *  piece of state, not two that can disagree. */
+  const onCanvasFocus = (e: React.FocusEvent<HTMLDivElement>) => {
+    const ds = (e.target as HTMLElement)?.dataset;
+    if (ds?.editBlockIndex === undefined) return;
+    const id = ids[Number(ds.editBlockIndex)];
+    if (id && id !== selectedId) setSelectedId(id);
+  };
+
+  /** Commit a new paragraphs array and queue the focus + caret restoration. STRUCTURAL, so
+   *  it does NOT call saveDraft — #174's rule, because saveDraft closes over `values` and
+   *  would post the pre-update array. The panel is dirty and the save rides the next blur
+   *  or the explicit Save control. */
+  const commitParagraphs = (
+    blockIndex: number,
+    list: string[],
+    focusIndex: number,
+    caret: number
+  ) => {
+    const block = blocks[blockIndex];
+    if (!block) return;
+    setBlockValue(ids[blockIndex], { ...(block.value as Record<string, unknown>), paragraphs: list });
+    refocusAfterRebuild.current =
+      `[data-edit-block-index="${blockIndex}"][data-edit-value-path="paragraphs.${focusIndex}"]`;
+    caretAfterRebuild.current = caret;
+    reselectAfterRebuild.current = ids[blockIndex] ?? null;
+    setRenderEpoch((n) => n + 1);
+  };
+
+  const paragraphsOf = (blockIndex: number): string[] => {
+    const v = (blocks[blockIndex]?.value ?? {}) as Record<string, unknown>;
+    return (Array.isArray(v.paragraphs) ? v.paragraphs : []).map(String);
+  };
+
+  const serialize = (d: Parameters<typeof richToMarkers>[0]) => richToMarkers(d, isSafeHref);
+
+  /** Enter and Backspace are the two keys that change how MANY paragraphs a block has.
+   *  Left to the browser, Enter puts a <br> or a <div> INSIDE one array item — which looks
+   *  right on the canvas and is wrong on disk, one <p> with a line break where the file
+   *  should hold two entries. */
+  const onCanvasKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Enter" && e.key !== "Backspace") return;
+    if (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) return;
+    const at = paragraphCaret(e.target as HTMLElement, serialize);
+    if (!at) return;
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const list = paragraphsOf(at.blockIndex);
+      commitParagraphs(at.blockIndex, splitParagraph(list, at.index, at.before, at.after), at.index + 1, 0);
+      return;
+    }
+    // Backspace merges ONLY from the very start of a paragraph that has one above it.
+    // Anywhere else it is an ordinary character delete.
+    if (at.atStart && at.index > 0) {
+      e.preventDefault();
+      const list = paragraphsOf(at.blockIndex);
+      const { paragraphs: nextList, caret } = mergeParagraph(list, at.index);
+      commitParagraphs(at.blockIndex, nextList, at.index - 1, caret);
+    }
+  };
+
+  /** MULTI-LINE PASTE — net-new, and net-new to this repo: no paste handler existed
+   *  anywhere, so the case-study canvas has the same gap and keeps it for now.
+   *
+   *  Blog is THE paste surface. People draft elsewhere and paste in, and the browser
+   *  default collapses a two-paragraph paste into one array item with a <br> in it — the
+   *  post then renders as one run-on paragraph, silently, in the most common workflow
+   *  there is. Splitting on blank-line-or-newline and routing through the same
+   *  splitParagraph the Enter key uses keeps one definition of what a paragraph break is. */
+  const onCanvasPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    const at = paragraphCaret(e.target as HTMLElement, serialize);
+    if (!at) return;
+    const raw = e.clipboardData?.getData("text/plain") ?? "";
+    const parts = raw.split(/\r?\n\s*\r?\n|\r?\n/).map((x) => x.trim()).filter((x) => x !== "");
+    // One line (or none) is ordinary typing — let the browser insert it.
+    if (parts.length < 2) return;
+    e.preventDefault();
+    const list = paragraphsOf(at.blockIndex);
+    // The caret's own halves bracket the paste, so text either side of the cursor survives.
+    const merged = [at.before + parts[0], ...parts.slice(1, -1), parts[parts.length - 1] + at.after];
+    const next = [...list.slice(0, at.index), ...merged, ...list.slice(at.index + 1)];
+    const lastIndex = at.index + merged.length - 1;
+    commitParagraphs(at.blockIndex, next, lastIndex, parts[parts.length - 1].length);
+  };
+
   // The canvas renders through the PUBLIC component, so what the author sees is what the
   // article page will render — no studio lookalike to drift.
   const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
+  // KEYED BY renderEpoch. A structural paragraph edit discards the subtree the author has
+  // been typing into and builds a fresh one from state, so React owns the DOM again. The
+  // post-rebuild effect above puts focus and the caret back.
   const prose = useMemo(
-    () => <BlogProse blocks={blocks as unknown[]} rewriteSrc={rewriteSrc} />,
-    [blocks, rewriteSrc]
+    () => <BlogProse key={renderEpoch} blocks={blocks as unknown[]} rewriteSrc={rewriteSrc} editable />,
+    [blocks, rewriteSrc, renderEpoch]
   );
 
   /* ------------------------------------------------------------------ the canvas column */
@@ -252,7 +461,10 @@ export default function BlogBlocksEditPanel({
   // 700 when the list collapsed. A measure that moves when you hide a pane is a measure
   // that lies, and it would break the one property the 68ch is here to hold.
   const canvasColumn = (
-    <div className="py-10">
+    // The edit handlers are DELEGATED here rather than passed per element: BlogProse emits
+    // the editable elements and the panel does not own them. `onFocus`/`onBlur` are the
+    // React bubbling forms of focusin/focusout, so they see events from the whole subtree.
+    <div className="py-10" onFocus={onCanvasFocus} onBlur={onCanvasBlur} onKeyDown={onCanvasKeyDown} onPaste={onCanvasPaste}>
       {blocks.length === 0 ? (
         <p className="py-10 text-center text-[13px] text-text-subtle">
           An empty post. Add a paragraph to start writing.

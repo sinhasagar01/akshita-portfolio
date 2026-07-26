@@ -33,7 +33,24 @@
 import type { ReactNode } from "react";
 import { parseRich } from "@/lib/case-studies/adapter";
 import { renderRich } from "@/components/case-study/rich";
+import { inlineEditProps } from "@/components/case-study/editable";
 import type { BlogBlockKind, BlogRawBlock, BlogRawValue } from "@/lib/blog/blocks-raw";
+
+/** The blog affordance class, a DELIBERATE DUPLICATE of `EDIT_AFFORD`'s `cs-editable`.
+ *
+ *  #173'S SPLICE PRECEDENT, NOT THE COMBINATOR PRECEDENT. The shared thing here is twelve
+ *  lines of outline and background with no algorithm in it, so the two copies can be
+ *  compared totally and neither can silently diverge in behaviour — unlike a URL validator,
+ *  which drifts on the case nobody enumerated. Renaming `.cs-editable` to something neutral
+ *  would touch case-study CSS and drag the bundle gate onto a surface this change otherwise
+ *  leaves alone, and blog authored CSS is `blog-`prefixed by a locked decision whose proof
+ *  runs against the emitted bundle every PR.
+ *
+ *  EXTRACT IF A THIRD COLLECTION EVER NEEDS IT — the same trigger the splice carries.
+ *
+ *  `inlineEditProps` itself is imported UNCHANGED. Only the class differs, which is why
+ *  `EDIT_AFFORD` being a separate export matters. */
+const BLOG_EDIT_AFFORD = " blog-editable";
 
 /** Rewrite an image `src` before it is rendered.
  *
@@ -47,7 +64,17 @@ type RewriteSrc = (src: string) => string;
 
 const identity: RewriteSrc = (src) => src;
 
-function VideoEmbed({ value, rewriteSrc }: { value: BlogRawValue<"videoEmbed">; rewriteSrc: RewriteSrc }) {
+function VideoEmbed({
+  value,
+  rewriteSrc,
+  editable,
+  blockIndex,
+}: {
+  value: BlogRawValue<"videoEmbed">;
+  rewriteSrc: RewriteSrc;
+  editable: boolean;
+  blockIndex: number;
+}) {
   // Same per-block defensiveness as the table below: `src` is typed a string but is
   // read off disk, and `.trim()` on a non-string throws at build.
   const src = text(value.src).trim();
@@ -82,8 +109,12 @@ function VideoEmbed({ value, rewriteSrc }: { value: BlogRawValue<"videoEmbed">; 
           className="absolute inset-0 h-full w-full"
         />
       </div>
+      {/* Same as the figure: the caption is the only prose, and it is conditional. */}
       {text(value.caption) ? (
-        <figcaption className="mt-[11px] text-[13px] leading-[1.55] text-ink-600">
+        <figcaption
+          className={`mt-[11px] text-[13px] leading-[1.55] text-ink-600${editable ? BLOG_EDIT_AFFORD : ""}`}
+          {...inlineEditProps(editable, blockIndex, "caption", "Edit video caption", true)}
+        >
           {renderRich(parseRich(text(value.caption)))}
         </figcaption>
       ) : null}
@@ -103,7 +134,17 @@ function VideoEmbed({ value, rewriteSrc }: { value: BlogRawValue<"videoEmbed">; 
  *
  *  `alt=""` FOR A DECORATIVE IMAGE is the correct HTML — an empty alt tells a screen reader
  *  to skip it, whereas omitting the attribute makes it announce the filename. */
-function ImageBlock({ value, rewriteSrc }: { value: BlogRawValue<"imageBlock">; rewriteSrc: RewriteSrc }) {
+function ImageBlock({
+  value,
+  rewriteSrc,
+  editable,
+  blockIndex,
+}: {
+  value: BlogRawValue<"imageBlock">;
+  rewriteSrc: RewriteSrc;
+  editable: boolean;
+  blockIndex: number;
+}) {
   const src = text(value.src).trim();
   if (src === "") return null;
   const caption = text(value.caption);
@@ -111,7 +152,18 @@ function ImageBlock({ value, rewriteSrc }: { value: BlogRawValue<"imageBlock">; 
     <figure className={value.wide ? "blog-figure blog-figure-wide" : "blog-figure"}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={rewriteSrc(src)} alt={value.decorative ? "" : text(value.alt)} loading="lazy" />
-      {caption ? <figcaption>{renderRich(parseRich(caption))}</figcaption> : null}
+      {/* THE CAPTION IS THE ONLY PROSE HERE, so it is the only editable field — src, alt,
+          wide and decorative have no canvas representation and stay in the inspector.
+          NOTE the caption is CONDITIONAL: a figure without one emits no editable element at
+          all, which is why the inspector's block strip cannot be retired. */}
+      {caption ? (
+        <figcaption
+          className={editable ? BLOG_EDIT_AFFORD.trim() : undefined}
+          {...inlineEditProps(editable, blockIndex, "caption", "Edit image caption", true)}
+        >
+          {renderRich(parseRich(caption))}
+        </figcaption>
+      ) : null}
     </figure>
   );
 }
@@ -123,24 +175,72 @@ const text = (v: unknown): string => (typeof v === "string" ? v : "");
 
 /** Kind -> renderer. Exhaustive by construction; see the header. */
 const RENDERERS: {
-  [K in BlogBlockKind]: (v: BlogRawValue<K>, key: number, rewriteSrc: RewriteSrc) => ReactNode;
+  [K in BlogBlockKind]: (
+    v: BlogRawValue<K>,
+    key: number,
+    rewriteSrc: RewriteSrc,
+    editable: boolean
+  ) => ReactNode;
 } = {
-  heading: (v, i) => <h2 key={i}>{text(v.text)}</h2>,
-  richText: (v, i) =>
+  // NOT RICH, and that is a real distinction rather than an omission. The schema comment
+  // is explicit that a heading "carries no inline marks in the design", so its blur takes
+  // innerText. Tagging it rich would round-trip it through richToMarkers and let markers
+  // appear in a field the renderer never renders them in.
+  heading: (v, i, _rw, editable) => (
+    <h2
+      key={i}
+      className={editable ? BLOG_EDIT_AFFORD.trim() : undefined}
+      {...inlineEditProps(editable, i, "text", "Edit heading")}
+    >
+      {text(v.text)}
+    </h2>
+  ),
+  // THE MAPPING IS EMITTED, NOT DERIVED. Both indices are in scope right here — `i` is the
+  // block, `j` is the array item — so the attributes that let a blur find its way back to
+  // `paragraphs[j]` are written by the same expression that writes the content. Nothing
+  // counts rendered children afterwards, which is the mechanism that would break silently
+  // the moment this output shape changed.
+  richText: (v, i, _rw, editable) =>
     Array.isArray(v.paragraphs)
-      ? v.paragraphs.map((p, j) => <p key={`${i}-${j}`}>{renderRich(parseRich(text(p)))}</p>)
+      ? v.paragraphs.map((p, j) => (
+          <p
+            key={`${i}-${j}`}
+            className={editable ? BLOG_EDIT_AFFORD.trim() : undefined}
+            {...inlineEditProps(editable, i, `paragraphs.${j}`, "Edit paragraph", true)}
+          >
+            {renderRich(parseRich(text(p)))}
+          </p>
+        ))
       : null,
-  pullQuote: (v, i) => <blockquote key={i}>{renderRich(parseRich(text(v.text)))}</blockquote>,
-  imageBlock: (v, i, rewriteSrc) => <ImageBlock key={i} value={v} rewriteSrc={rewriteSrc} />,
-  videoEmbed: (v, i, rewriteSrc) => <VideoEmbed key={i} value={v} rewriteSrc={rewriteSrc} />,
+  pullQuote: (v, i, _rw, editable) => (
+    <blockquote
+      key={i}
+      className={editable ? BLOG_EDIT_AFFORD.trim() : undefined}
+      {...inlineEditProps(editable, i, "text", "Edit pull quote", true)}
+    >
+      {renderRich(parseRich(text(v.text)))}
+    </blockquote>
+  ),
+  imageBlock: (v, i, rewriteSrc, editable) => (
+    <ImageBlock key={i} value={v} rewriteSrc={rewriteSrc} editable={editable} blockIndex={i} />
+  ),
+  videoEmbed: (v, i, rewriteSrc, editable) => (
+    <VideoEmbed key={i} value={v} rewriteSrc={rewriteSrc} editable={editable} blockIndex={i} />
+  ),
 };
 
 export default function BlogProse({
   blocks,
   rewriteSrc = identity,
+  editable = false,
 }: {
   blocks: unknown;
   rewriteSrc?: RewriteSrc;
+  /** Studio canvas only. OFF by default, and `inlineEditProps` returns `{}` when it is off,
+   *  so the public article render is byte-identical — the property G1 proves rather than
+   *  assumes. It ADDS attributes to elements that already exist and never adds an element,
+   *  which is what keeps the canvas and the article the same boxes. */
+  editable?: boolean;
 }) {
   const list: BlogRawBlock[] = Array.isArray(blocks) ? (blocks as BlogRawBlock[]) : [];
   return (
@@ -177,9 +277,10 @@ export default function BlogProse({
         const render = RENDERERS[kind as BlogBlockKind] as (
           v: unknown,
           key: number,
-          rewriteSrc: RewriteSrc
+          rewriteSrc: RewriteSrc,
+          editable: boolean
         ) => ReactNode;
-        return render(value, i, rewriteSrc);
+        return render(value, i, rewriteSrc, editable);
       })}
     </div>
   );
