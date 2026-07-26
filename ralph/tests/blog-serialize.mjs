@@ -161,8 +161,28 @@ t("F2 …and the blocks writer refuses it too",
     Object.keys(load(out)), ["title", "dek", "date", "topic", "status", "heroImage", "blocks"]);
   t("G2 a second no-op save after that is byte-stable", bytes(serializeBlogEntry(out, {})), out);
 }
-t("G3 heroImage: null SURVIVES a head edit (null is a value, not an absence)",
-  load(bytes(serializeBlogEntry(raw, { dek: "x" }))).heroImage, null);
+/* G3 — heroImage SURVIVES a head edit. `null` is a VALUE, not an absence, so a head patch
+ * must not drop or rewrite it.
+ *
+ * THIS USED TO READ THE LIVE POST AND PIN THE LITERAL `null`, and it went RED on main the
+ * moment the owner set a hero image through /studio (`d5bd37a`). The property never broke —
+ * only the hardcoded expectation did. A suite that pins a value read from live CONTENT is
+ * coupled to content, and content is exactly the thing the studio exists to change.
+ *
+ * So the null case now uses a FIXTURE, which cannot drift, and the survival property is
+ * asserted against the real file for WHATEVER it currently holds. */
+{
+  const nullHero = dump(
+    { title: "T", dek: "D", date: "2026-08-01", topic: "", status: "draft", heroImage: null, blocks: [] },
+    { noRefs: true }
+  );
+  t("G3 heroImage: null SURVIVES a head edit (null is a value, not an absence)",
+    load(bytes(serializeBlogEntry(nullHero, { dek: "x" }))).heroImage, null);
+  // And against the REAL post, whatever it holds today: a head edit must not touch it.
+  const liveHero = load(raw).heroImage;
+  t("G3b the live post's heroImage is UNCHANGED by a head edit",
+    load(bytes(serializeBlogEntry(raw, { dek: "x" }))).heroImage, liveHero);
+}
 
 /* ---------------------------------------------- H. the create path */
 {

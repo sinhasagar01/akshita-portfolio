@@ -8,9 +8,11 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE BLOG IS FEATURE-COMPLETE — imageBlock MERGED)
 
-**main** = `41fc15f` = #180 squash-merge (imageBlock, the inline figure). Pinned:
-`f54574a` = #179 (STATE), `438bf95` = #178 merge (the 3-pane blog editor), `0f23e5d` =
-#178's commit, `bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
+**main** = `3093538` = #181 (this STATE). Pinned: `82edf03` = the owner's publish that
+carried the truncation, `d5bd37a` = the hero-image write (ONE line, the splice proven a
+second time), `41fc15f` = #180 (imageBlock), `f54574a` = #179 (STATE), `438bf95` = #178
+merge (the 3-pane blog editor), `0f23e5d` = #178's commit,
+`bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
 fixes), `2ad4856` = #176 merge (love UI), `2d837f2` = the CLAUDE.md
 proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8b9` = #172,
 `c164c85` = #171, `92f8378` = #170, `0d21a93` = #169, `7e591ae` = #168, `5839039` = #167,
@@ -21,28 +23,28 @@ proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8
 **THE BLOG IS NOW FEATURE-COMPLETE FOR AUTHORING.** Five block kinds, all renderable, all
 reachable from the picker. The remaining work is CONTENT and one launch switch.
 
-### RALPH IS 1028 ACROSS 29 RUNNABLE SUITES
+### RALPH IS 1029 ACROSS 29 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
-44→49).
+44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below).
 
 Run each suite directly — **there is no npm script**:
 `node --experimental-strip-types ralph/tests/<name>.mjs`
 Per-file: blog-format 50, blog-reading-time 13, blog-registry 49, blog-search 20,
-blog-serialize 32, blog-status-filter 17, collection-image-paths 29, cs4-frame 26,
+blog-serialize 33, blog-status-filter 17, collection-image-paths 29, cs4-frame 26,
 f2-draft-overlay 11, f3-slug 31, image-block 30, loves-store 72, ncr-adjacent 20,
 p4-3c-adapter 53, p4-4bi-sections-serialize 28, p4-4bii-block-forms 132,
 p4-4biii-structural 58, p4-4biv-block-images 20, paragraph-edits 28, rich-markers 63,
 section-label 23, settings-photo 25, studio-nav-active 30, task1 17, task2 22, task3 14,
 three-pane 43, upstash-transport 35, validate-blog-post 37.
-**These sum to exactly 1028 across 29 files** — verified, not asserted, and the first time
+**These sum to exactly 1029 across 29 files** — verified, not asserted, and the first time
 this list has been checked against its own total. `parity.mjs` is excluded from the count
 (it needs a running server), but **RUN IT ANYWAY and report the number** — see the working
 rules.
 **COUNTING NOTE:** `rich-markers` reports `✓`/`63 passed` rather than `[PASS]`, so a naive
-grep undercounts by 63. The grep total is 965 and the real total is 1028. Read each suite's
+grep undercounts by 63. The grep total is 966 and the real total is 1029. Read each suite's
 own summary line.
 
 ### FIVE ARCS COMPLETE
@@ -233,12 +235,37 @@ guarantee and #173's splice both held against a real write. Publish merged twice
 (`bf32503`, `3650956`). **Backlog items 7 and 8 are closed.**
 
 ### CURRENT CONTENT STATE
-**One post, and it is now `status: published`** — the earlier "one draft, `/blog` renders the
-empty state" note is stale. So `/blog` renders one card, `/blog/<slug>` renders the article,
-and both are still UNLINKED from the nav, which remains the launch switch. `heroImage: null`,
-with an orphaned `heroImage.webp` still committed — consistent with the accepted orphan
-posture. `date: '2026-07-24'` is still SINGLE-QUOTED, so #173's splice invariant has now
-survived every write since.
+**One post, `status: draft`, with a hero image set.** This has now flipped twice, so read it
+from the file rather than from here: `content/blog/what-a-data-table-teaches-you-about-trust.yaml`.
+`/blog` renders the EMPTY STATE while it is a draft, which is the fail-closed filter working.
+Both public routes remain UNLINKED from the nav, still the launch switch.
+
+**`heroImage` IS NOW SET** to `/images/blog/what-a-data-table-teaches-you-about-trust/heroImage.webp`.
+The previously-orphaned webp became the referenced hero, so the accepted orphan posture no
+longer describes this file. `date: '2026-07-24'` is still SINGLE-QUOTED, so #173's splice
+invariant has survived every write since — including two real ones (see below).
+
+### A REAL PUBLISH LOST A SENTENCE — RESTORED, AND THE WRITE PATH WAS NOT AT FAULT
+The owner set the hero image through `/studio` and published, in `d5bd37a` then `82edf03`.
+**The publish carried a TRUNCATED PARAGRAPH into main**: the opening block ended
+`"morning, for as long as "` — mid-sentence, with a trailing space — instead of
+`"morning, for as long as anyone could remember."` Restored byte-identically from `41fc15f`.
+
+**THE WRITE ROUTE IS EXONERATED BY THE COMMIT SHAPE, and this is why the surgical bar
+matters.** `d5bd37a`, the hero-image write, touched **exactly one line** — `heroImage: null`
+to the path — with the whole `blocks:` tail untouched. That is #173's splice doing precisely
+what it promises, on a second real commit after `4e900c9`. The truncation is not in it. It
+arrived through the PUBLISH MERGE, which means the editor had saved a field in that state
+onto the draft branch earlier.
+
+**THE LIKELY MECHANISM IS SAVE-ON-BLUR CAPTURING A MID-EDIT STATE** — the discipline working
+as designed, preserving a half-deleted sentence because a blur fired while the text was
+partially removed. **PUBLISH IS WHOLE-BRANCH** (#170), so everything sitting on the draft
+branch ships together, and a half-finished edit is indistinguishable from a finished one.
+The draft branch `studio/draft-site-settings` no longer exists on origin, so nothing else was
+queued — but **this is the first observed cost of whole-branch publish, and it is a content
+risk with no gate on it.** Ralph cannot see it: the file was structurally valid and
+`validateBlogPost` returned ok throughout.
 
 **#178's gates wrote NOTHING to content.** `STUDIO_WRITE_MODE=fs` locally, so every
 save-draft branch no-ops; the editor was driven through real edits and `git status content/`
@@ -662,6 +689,22 @@ All prior rules remain. Added or sharpened across this session:
   adds. The poster bug was in the one hunk that altered an already-shipped kind, it had zero
   test coverage, and it was found by driving the browser after several clean reads of the
   diff.
+- **A SURGICAL COMMIT IS EVIDENCE YOU CAN REASON WITH LATER.** When a sentence went missing
+  from a published post, the hero-image commit `d5bd37a` touching EXACTLY ONE LINE is what
+  exonerated the write route and located the loss in the publish merge instead. The surgical
+  bar is not only about avoiding churn; it makes each commit a usable witness.
+- **PUBLISH IS WHOLE-BRANCH, SO A HALF-FINISHED EDIT SHIPS LIKE A FINISHED ONE.** Save-on-blur
+  can persist a mid-edit state to the draft branch, and nothing distinguishes it from an
+  intended one at publish time. **No gate can see this** — the file stays structurally valid
+  and `validateBlogPost` returns ok. **Read the content diff before publishing.**
+- **NEVER PIN AN EXPECTED VALUE READ FROM LIVE CONTENT.** `blog-serialize`'s G3 read the real
+  post and asserted `heroImage` equalled the literal `null`. The owner set a hero image
+  through /studio and the suite went red on main — the PROPERTY never broke, only the
+  hardcoded expectation. Content is the thing the studio exists to change, so a fixture owns
+  the specific case and the live file is asserted for INVARIANCE, not for a value.
+- **RALPH IS NOT IN CI, SO MAIN CAN BE RED AND NOBODY KNOWS.** Only Vercel runs on a PR.
+  `blog-serialize` was failing on `main` from `82edf03` until it was noticed by hand. **Run
+  ralph after any content commit, not only after a code change.**
 
 ---
 
@@ -694,6 +737,13 @@ All prior rules remain. Added or sharpened across this session:
 12. **BLOG HAS NO PARITY HARNESS.** `parity.mjs` compares the case-study canvas to the
     case-study page only. Both the 48px fidelity gap (#178) and the `vw` bleed bug (#180)
     had to be caught by hand. **Worth its own decision.**
+13. **WHOLE-BRANCH PUBLISH CAN SHIP A HALF-FINISHED EDIT** — observed, not theoretical. A
+    publish carried a mid-sentence truncation into a live post (see CURRENT CONTENT STATE).
+    Save-on-blur persists whatever is in the field, publish merges the whole draft branch,
+    and **no gate can distinguish an in-progress edit from an intended one**: the file stays
+    structurally valid and `validateBlogPost` returns ok. The mitigation today is reading the
+    content diff before publishing. A per-entry publish, or a diff preview in the PublishBar,
+    would be the real fix and neither is scoped.
 
 ---
 
@@ -780,6 +830,8 @@ All prior rules remain. Added or sharpened across this session:
 - **#176** love UI (`2ad4856`) 900 · **#177** tooling + nav (`fe4b08d`) →930
 - **#178** the 3-pane blog editor (`438bf95` merge, `0f23e5d` commit, `a586e98` groundwork) →993
 - **#180** imageBlock, the inline figure (`41fc15f` squash-merge) →1028
+- `d5bd37a` + `82edf03` owner studio writes — hero image set, then published
+- **#181** docs: STATE for imageBlock (`3093538`)
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -791,12 +843,15 @@ All prior rules remain. Added or sharpened across this session:
 
 1. **WRITE POSTS THROUGH `/studio`**, with images. This is now the highest-value next step
    and it closes three things at once — backlog items 7 and 9, and the first real exercise
-   of the editor under load.
-2. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7; every gate
+   of the editor under load. **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13
+   has a real answer — a publish has already shipped a half-finished edit once.
+2. **DECIDE THE POST'S STATUS.** It is back to `draft`, so `/blog` shows the empty state.
+   Flipping it to published is a content call, not a code one.
+3. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7; every gate
    on it is DEV-OBSERVED and only the owner can close it.
-3. **THE NAV LINK** — one line, and the launch switch for `/blog`.
-4. **Optional:** `/code-review ultra` over `41fc15f`, since #178 and #180 were self-reviewed.
-5. **Later:** a blog parity harness (hazard 12); migrate other studio pages to
+4. **THE NAV LINK** — one line, and the launch switch for `/blog`.
+5. **Optional:** `/code-review ultra` over `41fc15f`, since #178 and #180 were self-reviewed.
+6. **Later:** a blog parity harness (hazard 12); migrate other studio pages to
    `ThreePaneShell`, extracting the shared shell at the SECOND consumer; investigate why
    `boat-crest` yields zero parity pairs (hazard 10).
 
