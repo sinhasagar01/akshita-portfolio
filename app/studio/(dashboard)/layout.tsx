@@ -32,7 +32,7 @@ export default async function DashboardLayout({
     redirect("/studio/login");
   }
 
-  const { projects, experience, skills, draftDiffers, draftReadError } = await getStudioData();
+  const { projects, experience, blog, skills, draftDiffers, draftReadError } = await getStudioData();
   // Client-side search index, built once from the data already loaded here.
   const searchItems = buildStudioSearchIndex({ projects, experience, skills });
 
@@ -42,7 +42,7 @@ export default async function DashboardLayout({
     // layout, which does not re-run on client navigation). Seeded once from the
     // server counts.
     <StudioCountsProvider
-      initial={{ projects: projects.length, experience: experience.length }}
+      initial={{ projects: projects.length, experience: experience.length, blog: blog.length }}
     >
       {/* Full-bleed shell (Task 1). The outer rounded card is gone: the sidebar
           sits on cream-100, the working surface on cream-50, one hairline (the
