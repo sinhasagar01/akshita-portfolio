@@ -2,8 +2,8 @@ title: What a data table teaches you about trust
 dek: Nobody trusts a number they cannot trace.
 date: '2026-07-24'
 topic: Enterprise UX
-status: published
-heroImage: null
+status: draft
+heroImage: /images/blog/what-a-data-table-teaches-you-about-trust/heroImage.webp
 blocks:
   - discriminant: richText
     value:
@@ -13,7 +13,7 @@ blocks:
           I was proud of the density. Six weeks later I watched an analyst
           export the whole thing to a spreadsheet, delete thirty-eight columns,
           and rebuild the three she needed by hand. She did it every Monday
-          morning, for as long as anyone could remember.
+          morning, for as long as 
         - >-
           She was not working around a missing feature. She was working around a
           **missing explanation**. Every number on that screen was correct and
