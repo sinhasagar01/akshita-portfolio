@@ -72,6 +72,7 @@ import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import ThreePaneShell from "./ThreePaneShell";
 import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
+import BoldToolbar from "./BoldToolbar";
 import { useMediaMin } from "./useMediaMin";
 import { INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
@@ -187,6 +188,17 @@ export default function BlogBlocksEditPanel({
   /** Set by a FIELD blur only. Structural ops never set it, which is how #174's rule
    *  survives: a split, a merge or a paste marks the panel dirty and waits. */
   const pendingSave = useRef(false);
+
+  /** Where the rich-text toolbar floats, or null when nothing rich has focus. */
+  const [boldAt, setBoldAt] = useState<{ top: number; left: number } | null>(null);
+  /** THE TREE IS NO LONGER REACT'S. execCommand edits the contentEditable DOM directly, so
+   *  after a bold, italic or link the subtree and React's vdom have diverged — reconciling
+   *  against it duplicates or drops text. The writeback rebuilds from state on the way out.
+   *
+   *  Deliberately at the WRITEBACK, not at the command: remounting mid-edit would drop the
+   *  selection, breaking select -> bold -> unbold. At the writeback the field is already
+   *  losing focus, so the remount costs nothing. */
+  const boldDirty = useRef(false);
 
 
   // Runs AFTER the rebuild paints, which is the whole point: the node to focus does not
@@ -336,6 +348,21 @@ export default function BlogBlocksEditPanel({
     const isRich = ds.editRich !== undefined;
     const next = isRich ? richToMarkers(t, isSafeHref) : (t.innerText ?? "");
 
+    // A COMMAND RAN IN THIS FIELD, so its DOM is no longer React's — rebuild from state on
+    // the way out. BEFORE the no-op guard below, because bold-then-unbold leaves the VALUE
+    // unchanged while still leaving execCommand's node behind, and that path must clean up
+    // too. Focus is restored on the other side when it is heading somewhere addressable.
+    if (isRich && boldDirty.current) {
+      boldDirty.current = false;
+      const to = e.relatedTarget as HTMLElement | null;
+      const tds = to?.dataset;
+      refocusAfterRebuild.current =
+        tds?.editBlockIndex !== undefined && tds?.editValuePath
+          ? `[data-edit-block-index="${tds.editBlockIndex}"][data-edit-value-path="${tds.editValuePath}"]`
+          : null;
+      setRenderEpoch((n) => n + 1);
+    }
+
     const value = (block.value ?? {}) as Record<string, unknown>;
     // NO-OP SKIP. A focus-then-blur with no typing must not dirty the draft — otherwise
     // merely reading a post marks it changed, and every post anyone clicked into would
@@ -464,7 +491,32 @@ export default function BlogBlocksEditPanel({
     // The edit handlers are DELEGATED here rather than passed per element: BlogProse emits
     // the editable elements and the panel does not own them. `onFocus`/`onBlur` are the
     // React bubbling forms of focusin/focusout, so they see events from the whole subtree.
-    <div className="py-10" onFocus={onCanvasFocus} onBlur={onCanvasBlur} onKeyDown={onCanvasKeyDown} onPaste={onCanvasPaste}>
+    <div
+      className="py-10"
+      onFocus={onCanvasFocus}
+      onBlur={onCanvasBlur}
+      onKeyDown={onCanvasKeyDown}
+      onPaste={onCanvasPaste}
+      // Position the toolbar above whichever RICH field has focus. getBoundingClientRect is
+      // post-transform, which is what `position: fixed` needs.
+      onFocusCapture={(e) => {
+        const el = (e.target as HTMLElement).closest?.("[data-edit-rich]") as HTMLElement | null;
+        if (!el) return setBoldAt(null);
+        const r = el.getBoundingClientRect();
+        setBoldAt({ top: Math.max(8, r.top - 34), left: r.left });
+      }}
+      // Hide it when focus leaves a rich field for anything that is not another rich field
+      // or the toolbar itself. onFocusCapture alone cannot do this: it only fires when focus
+      // ENTERS the pane, so clicking empty chrome would leave the toolbar floating over
+      // nothing. focusout carries relatedTarget and fires BEFORE the matching focusin, so
+      // rich-to-rich is safe. THE TOOLBAR COUNTS AS THE EDIT SURFACE — its link popover has
+      // a real text input, so opening it moves focus out of the field, and hiding at that
+      // moment would close the popover the author just opened.
+      onBlurCapture={(e) => {
+        const to = e.relatedTarget as HTMLElement | null;
+        if (!to?.closest?.("[data-edit-rich], [data-rich-toolbar]")) setBoldAt(null);
+      }}
+    >
       {blocks.length === 0 ? (
         <p className="py-10 text-center text-[13px] text-text-subtle">
           An empty post. Add a paragraph to start writing.
@@ -472,6 +524,10 @@ export default function BlogBlocksEditPanel({
       ) : (
         <div className="mx-auto max-w-[68ch] px-6 blog-article">{prose}</div>
       )}
+      {/* `position: fixed`, so it sits outside the measured column and cannot affect it.
+          Rendered inside the canvas wrapper only so the blur capture above treats it as part
+          of the same edit surface. */}
+      <BoldToolbar at={boldAt} onCommand={() => { boldDirty.current = true; }} />
     </div>
   );
 
