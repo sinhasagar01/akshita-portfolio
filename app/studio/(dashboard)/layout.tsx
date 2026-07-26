@@ -48,9 +48,39 @@ export default async function DashboardLayout({
           sits on cream-100, the working surface on cream-50, one hairline (the
           sidebar's border-r) between them. Page-level scroll is retained; the
           sidebar and topbar stick to the viewport (nothing here clips them). */}
-      <div className="flex min-h-screen flex-col lg:flex-row">
+      {/* A VIEWPORT HEIGHT AT `lg` MAKES THE WORK AREA'S HEIGHT DEFINITE, which is what a full-height page
+          needs and what `min-h-screen` alone could never give it. A `flex-1 min-h-0` child
+          only divides free space when its container has a resolved height; under
+          `min-h-screen` the container sizes to its content, so the free space is indefinite,
+          `flex-grow` does nothing, and the child sizes to ITS content instead. The blog
+          editor measured 1230px tall inside a 960px viewport for exactly that reason, and
+          `overflow-hidden` on the child did not help — overflow makes a box a scroll
+          container, it does not remove the box's own content from intrinsic sizing.
+          Deriving the height this way is also why nothing here hardcodes the topbar's 64px.
+
+          THE OTHER NINE PAGES ARE UNAFFECTED because nothing here clips. `main` keeps
+          `overflow: visible`, so a page taller than the viewport still overflows into the
+          document's scroll region and the window scrolls exactly as before. Only a child
+          that opts in with `flex-1 min-h-0` and its own overflow gets the app-shell
+          behaviour, and today that is the blog editor alone.
+
+          Below `lg` this is deliberately NOT applied. The sidebar stacks above the work
+          area there, so a 100dvh main would push its own bottom off screen. Narrow widths
+          keep ordinary document flow.
+
+          IT IS SCOPED WITH `:has()` AND THAT IS NOT DECORATION. Applied unconditionally,
+          a viewport-height rule BREAKS THE OTHER NINE PAGES: measured on /studio/projects at a 420px
+          viewport, body went from clientHeight 520 (grown to fit, window scrolls) to
+          clientHeight 420 against a scrollHeight of 520, and the last 100px became
+          UNREACHABLE — neither the window nor body would scroll to it. A page-scrolled
+          column and a full-height app shell are different layouts, and the layout cannot
+          know which one it is holding. So the PAGE declares it: the blog editor's shell
+          root carries `data-studio-fullheight`, this rule keys off it, and every page that
+          does not opt in keeps exactly the box it had before. No route list here to fall
+          out of step with the routes. */}
+      <div className="flex min-h-screen flex-col lg:flex-row lg:has-[[data-studio-fullheight]]:h-dvh">
         <StudioSidebar />
-        <main className="flex min-w-0 flex-1 flex-col bg-cream-50">
+        <main className="flex min-w-0 flex-1 flex-col bg-cream-50 lg:has-[[data-studio-fullheight]]:min-h-0">
           <StudioTopbar searchItems={searchItems} />
           {/* The Publish bar lives at the layout level (persists across /studio
               navigation), seeded once from the branch-level differs, so a

@@ -1,18 +1,36 @@
 "use client";
 
-// BS-3c — the blog index. The list IS the page; editing happens at /studio/blog/<slug>
-// at full width. Mirrors CaseStudyIndex.
+// BS-3c — the blog index. Create, delete and browse every post. Mirrors CaseStudyIndex.
 //
-// WHY NOT ListDetailLayout, despite the design contract naming it. Two reasons, and the
-// second is the real one:
+// THE OWNER REVERSED #174'S DECISION AND THE EDITOR IS NOW THREE-PANE. This file used to
+// argue that the editor should have no list rail at all. That argument is kept below rather
+// than deleted, because deleting the reasoning behind a reversed decision is exactly how the
+// `[slug]/body` drift began — a surface nobody could reach kept collecting fixes while the
+// codebase carried two contradictory rationales and no record of which had won.
+//
+// WHAT WAS ARGUED, and it was argued honestly:
 //   1. ListDetailLayout is a fixed two-column grid (`lg:grid-cols-[220px_1fr]`) with no
 //      third column and no collapse control, so "the existing ListDetailLayout with a
 //      third column" is a modification to a shell eight panels share, not a reuse.
 //   2. THE STUDIO ALREADY REMOVED THIS PATTERN. The case-study editor used to be a detail
 //      pane beside a list, and it was deleted because "that rail cost most of the
 //      horizontal room the canvas needs to render a page faithfully". The contract's
-//      collapse control was a mitigation for exactly the problem that caused the removal.
-// Having no rail at all delivers what the collapse control was reaching for.
+//      collapse control was judged a mitigation for exactly the problem that caused the
+//      removal, so having no rail at all was judged to deliver what it reached for.
+//
+// WHY THAT NO LONGER DECIDES IT. Point 1 is still true and is why the three-pane editor
+// does NOT use ListDetailLayout — it has its own shell in ThreePaneShell, and that shell is
+// blog-specific until a second consumer teaches us what varies. Point 2 rested on an
+// arithmetic claim that turned out to be false. The rail was believed to cost the canvas
+// its measure, and the measure is 68ch, which resolves to 745.9px against the wrapper's
+// 16px font. Sidebar 236 plus list 264 plus canvas 794 plus inspector 244 is 1538px, and
+// the laptop this is authored on is 1536 wide. The rail does not cost the canvas anything
+// it needs, so the objection the removal rested on does not apply here. The owner weighed
+// that and chose the rail. See lib/studio/three-pane.ts for the full arithmetic.
+//
+// THIS PAGE REMAINS THE ONLY PLACE POSTS ARE CREATED AND DELETED. The editor's list pane
+// searches and navigates and does nothing else, so those two write operations keep one
+// implementation each.
 //
 // NO REORDER. Blog has no orderIndex — posts order by `date`, edited in the post's own
 // inspector — and commitCollectionOrder refuses an order-less collection at the lib
@@ -25,6 +43,7 @@ import { useReportCount } from "./StudioCountsProvider";
 import StudioEmptyState from "./StudioEmptyState";
 import { IconPlus, IconX } from "./icons";
 import { formatShortDate } from "@/lib/blog/format";
+import { filterBlogPosts } from "@/lib/studio/blog-search";
 import type { BlogCard } from "@/lib/keystatic";
 
 export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
@@ -41,13 +60,10 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
 
   useReportCount("blog", items.length);
 
-  const shown = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter(
-      (p) => p.title.toLowerCase().includes(q) || p.dek.toLowerCase().includes(q)
-    );
-  }, [items, query]);
+  // The filter moved to lib/studio/blog-search.ts when the three-pane list pane needed the
+  // same behaviour. Same function, not a second copy — two search filters is how the index
+  // and the rail start disagreeing about which posts exist.
+  const shown = useMemo(() => filterBlogPosts(items, query), [items, query]);
 
   // CAPTURE-THEN-CREATE, identical to Experience and Projects: title only, the slug is
   // DERIVED SERVER-SIDE and echoed back, the entry is created immediately, then straight

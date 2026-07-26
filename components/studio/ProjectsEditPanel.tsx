@@ -443,7 +443,11 @@ export function HeroImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
-      <div className="flex items-center gap-4">
+      {/* `flex-wrap` is for the blog editor's 244px inspector pane. The 160px thumbnail plus
+          a 16px gap leaves 44px for the controls there, so they overflowed the pane. On
+          projects, where this has always rendered in a wide card, there is room and nothing
+          wraps — the rendered output is unchanged at that width. */}
+      <div className="flex flex-wrap items-center gap-4">
         <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-md border border-ink-950/8 bg-cream-100">
           {hasImage ? (
             // Plain img (not next/image): the source is either a session object URL
