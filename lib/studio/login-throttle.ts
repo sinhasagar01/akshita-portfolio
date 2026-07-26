@@ -10,6 +10,23 @@
 // FAIL OPEN, degrading to the in-memory throttle with a logged warning, so a
 // store outage never locks the single owner out of their own CMS while still
 // keeping per-instance brute-force protection on. Never silent.
+//
+// BS-4a — THE POLICY BELOW IS UNCHANGED. Only the transport moved out, into
+// lib/upstash.ts, so the loves store and this module send commands through one
+// implementation instead of two hand-rolled copies of the same fetch.
+//
+// A COST TAKEN KNOWINGLY: this module had no relative imports, which made it
+// loadable by a ralph suite (it never had one). Importing the transport and the
+// key prefix makes it permanently UNREACHABLE by ralph, because a suite cannot
+// resolve an extensionless relative TS import. Injecting the transport here the
+// way the loves store does would have kept that door open, but it would also
+// have let any caller of a security-adjacent function substitute its store —
+// and the throttle is the one place where that is worth refusing. The transport
+// itself is now covered by ralph/tests/upstash-transport.mjs, which is more
+// coverage of this code path than existed before the extraction, not less.
+import { pipeline, storeConfigured } from "../upstash";
+import { REDIS_KEY_PREFIXES } from "../loves/store";
+
 const WINDOW_SECONDS = 60;
 const WINDOW_MS = WINDOW_SECONDS * 1000;
 const MAX_ATTEMPTS = 5;
@@ -35,37 +52,30 @@ function memoryCheck(ip: string, nowMs: number): ThrottleResult {
 }
 
 // ---- Upstash Redis REST (prod) ----
-function storeConfigured(): boolean {
-  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
-}
-
 async function upstashCheck(ip: string): Promise<ThrottleResult> {
-  const url = process.env.UPSTASH_REDIS_REST_URL as string;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN as string;
-  const key = `login-throttle:${ip}`;
+  // The prefix is imported, not written, so the loves rate limiter can be
+  // ASSERTED never to collide with this counter. Both are fixed-window INCRs
+  // keyed by IP; sharing one key would let blog traffic lock the owner out of
+  // the studio. See ralph/tests/loves-store.mjs (A1).
+  const key = `${REDIS_KEY_PREFIXES.loginThrottle}:${ip}`;
 
   // One round-trip: INCR the counter, set the window only on the first attempt
   // (EXPIRE ... NX, so the window is fixed from the first attempt like the
   // in-memory path), and read the TTL for the retry-after.
-  const res = await fetch(`${url.replace(/\/$/, "")}/pipeline`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([
-      ["INCR", key],
-      ["EXPIRE", key, String(WINDOW_SECONDS), "NX"],
-      ["TTL", key],
-    ]),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`upstash HTTP ${res.status}`);
-
-  const data = (await res.json()) as Array<{ result?: unknown; error?: string }>;
-  if (!Array.isArray(data) || data.length < 3 || typeof data[0]?.result !== "number") {
+  const results = await pipeline([
+    ["INCR", key],
+    ["EXPIRE", key, String(WINDOW_SECONDS), "NX"],
+    ["TTL", key],
+  ]);
+  // The transport already rejects a bad envelope and per-command errors. This
+  // is the one check it cannot make for us: the counter must be a number, or we
+  // would compare undefined against MAX_ATTEMPTS and silently allow forever.
+  if (typeof results[0] !== "number") {
     throw new Error("unexpected upstash pipeline response");
   }
 
-  const count = data[0].result as number;
-  const ttl = typeof data[2]?.result === "number" ? data[2].result : WINDOW_SECONDS;
+  const count = results[0];
+  const ttl = typeof results[2] === "number" ? results[2] : WINDOW_SECONDS;
   if (count > MAX_ATTEMPTS) {
     return { allowed: false, retryAfterSeconds: ttl > 0 ? ttl : WINDOW_SECONDS };
   }
