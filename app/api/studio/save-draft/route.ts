@@ -10,8 +10,13 @@ import { cookies } from "next/headers";
 import { load } from "js-yaml";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import { commitSiteSettings } from "@/lib/studio/commit-site-settings";
-import { commitCollectionEntry, commitProjectSections } from "@/lib/studio/commit-collection-entry";
+import {
+  commitCollectionEntry,
+  commitProjectSections,
+  commitBlogBlocks,
+} from "@/lib/studio/commit-collection-entry";
 import { sanitizeSectionsPatch } from "@/lib/studio/sections-format";
+import { sanitizeBlogPatch, sanitizeBlogBlocksPatch } from "@/lib/studio/blog-format";
 import {
   DRAFT_BRANCH,
   invalidateDraftStateCache,
@@ -43,6 +48,7 @@ export async function POST(req: Request) {
     slug?: unknown;
     patch?: unknown;
     sections?: unknown;
+    blocks?: unknown;
   };
   try {
     body = await req.json();
@@ -97,13 +103,60 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, mode: "github", saved: true, sha: result.sha });
   }
 
+  // BS-3b — the blog blocks save. Carries { collection:"blog", slug, blocks } and is its
+  // own shape, NOT a `patch` key: sanitizeBlogPatch rejects `blocks` on the text path, so
+  // blocks has exactly ONE writer — the same one-writer discipline `sections` and
+  // `heroImage` have. Keyed off body.blocks so it cannot be confused with the projects
+  // sections branch above. Same owner gate + env-split, same DRAFT_BRANCH.
+  if (body?.blocks !== undefined) {
+    if (body.collection !== "blog") {
+      return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
+    }
+    const slug = body.slug;
+    if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
+    }
+    // STRICT sanitize BEFORE the env-split, so a malformed patch is rejected in every
+    // mode and the fs no-op cannot mask it.
+    const sanitizedBlocks = sanitizeBlogBlocksPatch(body.blocks);
+    if (!sanitizedBlocks.ok) {
+      return NextResponse.json(sanitizedBlocks, { status: 400 });
+    }
+    if (process.env.STUDIO_WRITE_MODE !== "github") {
+      return NextResponse.json({
+        ok: true,
+        mode: "fs",
+        saved: false,
+        note: "draft save needs github mode",
+      });
+    }
+    if (!process.env.STUDIO_GITHUB_TOKEN) {
+      return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
+    }
+    const result = await commitBlogBlocks(slug, sanitizedBlocks.blocks, {
+      branch: DRAFT_BRANCH,
+      message: `chore(studio): update blog/${slug} blocks draft`,
+    });
+    if (!result.ok) {
+      const status =
+        result.error.code === "not_found"
+          ? 404
+          : result.error.code === "unsupported_format"
+            ? 422
+            : 500;
+      return NextResponse.json(result, { status });
+    }
+    invalidateDraftStateCache();
+    return NextResponse.json({ ok: true, mode: "github", saved: true, sha: result.sha });
+  }
+
   // CE-1 — collection entry save. Carries { collection, slug, patch }. The owner
   // gate above and the env-split below mirror the settings path; the commit
   // lands on the SAME draft branch, so a collection edit accumulates with
   // settings edits (DB-1) and both publish together from the Hero panel.
   if (body?.collection !== undefined) {
     const collection = body.collection;
-    if (collection !== "experience" && collection !== "projects") {
+    if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
       return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
     }
     const slug = body.slug;
@@ -111,10 +164,14 @@ export async function POST(req: Request) {
     if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
       return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
     }
+    // Explicit per-collection arms — a two-way ternary would have routed blog into the
+    // experience sanitizer once the allowlist widened.
     const sanitizedEntry =
       collection === "projects"
         ? sanitizeProjectsPatch(body.patch)
-        : sanitizeExperiencePatch(body.patch);
+        : collection === "blog"
+          ? sanitizeBlogPatch(body.patch)
+          : sanitizeExperiencePatch(body.patch);
     if (!sanitizedEntry.ok) {
       return NextResponse.json(sanitizedEntry, { status: 400 });
     }

@@ -49,6 +49,10 @@ export type SaveErrorCode =
   // P4 4(b)-iv — a draft whose case-study sections the SSG renderer would refuse
   // (an image the owner added but never uploaded). Caught at publish, never merged.
   | "invalid_sections"
+  // BS-3b — a draft blog post whose blocks BlogProse would throw on (a null block, a
+  // null value, a richText whose paragraphs is not an array). Caught at publish, never
+  // merged. Narrower than invalid_sections by design — see validate-blog-post.ts.
+  | "invalid_blocks"
   | "invalid_patch"
   | "read_failed"
   | "write_failed"

@@ -328,7 +328,21 @@ export type BlogPostData = {
  */
 export async function getBlogPosts(): Promise<BlogCard[]> {
   const raw = await reader.collections.blog.all();
-  const items: BlogCard[] = (raw as Awaited<typeof raw>).map(({ slug, entry }) => {
+  // BS-3b — FILTER BEFORE MAPPING. This used to map every entry (computing readingTime
+  // from its blocks) and filter afterwards, so a DRAFT's blocks were read at build time.
+  // Nothing broke, because readingTimeMinutes is defensive — but that made "an
+  // unpublished post is inert at build" a property of one function staying careful
+  // rather than a property of the structure. Filtering first means a draft's blocks are
+  // never touched at all, which is what lets the publish gate skip drafts (see
+  // validate-blog-post.ts) instead of validating them forever.
+  //
+  // The pure selector below still filters, deliberately: it is the tested definition of
+  // "published" (blog-status-filter.mjs) and keeping it here means the gate survives
+  // even if this pre-filter is ever refactored away. Filtering twice is free.
+  const published = (raw as Awaited<typeof raw>).filter(
+    ({ entry }) => (entry as Record<string, unknown>).status === "published"
+  );
+  const items: BlogCard[] = published.map(({ slug, entry }) => {
     const e = entry as Record<string, unknown>;
     return { ...mapBlogListItem(slug, e), readingTime: readingTimeMinutes(e.blocks) };
   });

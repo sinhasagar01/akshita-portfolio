@@ -20,6 +20,19 @@
 // hand-synced copy of the adapter's list that carried a comment asking the next
 // reader to keep the two in step.
 //
+// BLOG PR 3b — the field COMBINATORS below (str, arrayOf, obj, imgSpec, videoSrc,
+// videoFrame, plus the Check/Ok/Fail types and invalid/isPlainObject) are now EXPORTED
+// so lib/studio/blog-format.ts can share them. The line is drawn deliberately:
+//   - PRIMITIVES are shared. imgSpec and videoSrc carry real validation LOGIC (the
+//     frame enum, the http(s) URL rule with its anti-obfuscation strip). Two copies of
+//     those would diverge the first time one is fixed — the same forking smell that
+//     made parameterizing right in 3a.
+//   - The TABLE is not shared. Each collection owns its own kind->validator map,
+//     exhaustive over its own Keystatic-derived union, so a new kind in either schema
+//     is a compile error in that collection's table and nowhere else.
+// Adding `export` changed no behaviour here; the 132-assertion block-forms suite is
+// per-file identical across the change.
+//
 // Dependency-free beyond type-only imports, so it is unit-exercisable directly.
 import type { SaveError } from "./site-settings-format";
 import type { SectionBlockKind } from "../case-studies/sections-raw";
@@ -50,19 +63,19 @@ export type SanitizedSection = {
   blocks: SanitizedBlock[];
 };
 
-type Fail = { ok: false; error: SaveError };
-const invalid = (message: string, field?: string): Fail =>
+export type Fail = { ok: false; error: SaveError };
+export const invalid = (message: string, field?: string): Fail =>
   ({ ok: false, error: { code: "invalid_patch", field, message } });
 
-const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+export const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
 /* ------------------------------------------------- per-kind field validators */
 
-type Ok<T> = { ok: true; value: T };
-type Check<T> = (raw: unknown, at: string) => Ok<T> | Fail;
+export type Ok<T> = { ok: true; value: T };
+export type Check<T> = (raw: unknown, at: string) => Ok<T> | Fail;
 
-const str: Check<string> = (raw, at) =>
+export const str: Check<string> = (raw, at) =>
   typeof raw === "string" ? { ok: true, value: raw } : invalid(`${at} must be a string`, at);
 
 const bool: Check<boolean> = (raw, at) =>
@@ -101,7 +114,7 @@ const imageSrc: Check<string | null> = (raw, at) => {
   return { ok: true, value: raw };
 };
 
-const arrayOf =
+export const arrayOf =
   <T,>(item: Check<T>): Check<T[]> =>
   (raw, at) => {
     if (!Array.isArray(raw)) return invalid(`${at} must be an array`, at);
@@ -129,7 +142,7 @@ const arrayOf =
  * Rebuilds in DECLARED order so the dump is stable no matter what key order the
  * client sent.
  */
-const obj =
+export const obj =
   <S extends Record<string, Check<unknown>>>(shape: S): Check<Record<string, unknown>> =>
   (raw, at) => {
     if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
@@ -241,7 +254,7 @@ const imageObj =
  *
  * The renderer and the adapter check again. This is the gate; those are the belt.
  */
-const videoSrc: Check<string> = (raw, at) => {
+export const videoSrc: Check<string> = (raw, at) => {
   if (typeof raw !== "string") return invalid(`${at} must be a string`, at);
   const v = raw.trim();
   // EMPTY IS ACCEPTED HERE, and that is deliberate. A block is born from the picker
@@ -263,7 +276,7 @@ const videoSrc: Check<string> = (raw, at) => {
 };
 
 /** VE-1 — the two frames the block can render in. */
-const videoFrame: Check<string> = (raw, at) => {
+export const videoFrame: Check<string> = (raw, at) => {
   if (typeof raw !== "string") return invalid(`${at} must be a string`, at);
   if (raw !== "plain" && raw !== "browser") {
     return invalid(`${at} must be "plain" or "browser"`, at);
@@ -271,7 +284,7 @@ const videoFrame: Check<string> = (raw, at) => {
   return { ok: true, value: raw };
 };
 
-const imgSpec = imageObj();
+export const imgSpec = imageObj();
 const deviceSpec = imageObj({ label: str, dotColor: str });
 /** The same shape as the section shell's own glow, one level down. */
 const glowWord = obj({ text: str, top: str, right: str, bottom: str, left: str, size: str });

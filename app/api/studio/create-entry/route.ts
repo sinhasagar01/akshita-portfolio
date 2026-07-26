@@ -14,6 +14,7 @@ import { commitCollectionEntry } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { sanitizeExperienceCreate } from "@/lib/studio/experience-format";
 import { sanitizeProjectCreate } from "@/lib/studio/projects-format";
+import { sanitizeBlogCreate } from "@/lib/studio/blog-format";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -33,17 +34,21 @@ export async function POST(req: Request) {
   }
 
   const collection = body?.collection;
-  if (collection !== "experience" && collection !== "projects") {
+  if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
 
   // Sanitize BEFORE the env-split, so a malformed body is rejected in EVERY mode
   // (the fs no-op cannot mask it). The lib re-sanitizes defensively; this is the
   // mode-independent gate. slug derivation lives in the lib (no route slugify).
+  // Explicit per-collection arms — a two-way ternary would have routed blog into the
+  // experience sanitizer once the allowlist widened.
   const sanitized =
     collection === "projects"
       ? sanitizeProjectCreate(body.input)
-      : sanitizeExperienceCreate(body.input);
+      : collection === "blog"
+        ? sanitizeBlogCreate(body.input)
+        : sanitizeExperienceCreate(body.input);
   if (!sanitized.ok) {
     return NextResponse.json(sanitized, { status: 400 });
   }

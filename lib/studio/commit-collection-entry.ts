@@ -33,22 +33,33 @@ import {
 import { serializeProjectSections } from "./sections-serialize";
 import { sanitizeProjectCreate, type ProjectsInput } from "./projects-format";
 import {
+  serializeBlogEntry,
+  serializeNewBlogPost,
+  serializeBlogBlocks,
+} from "./blog-serialize";
+import { sanitizeBlogCreate, type BlogInput } from "./blog-format";
+import {
   heroImageYamlValue,
   heroImageBlobPath,
   heroImageBlobPathFromValue,
 } from "./hero-image-path";
-import { PROJECTS_IMAGE_BASE } from "./collection-image-base";
+import {
+  PROJECTS_IMAGE_BASE,
+  BLOG_IMAGE_BASE,
+  type CollectionImageBase,
+} from "./collection-image-base";
 import { slugify, freeSlug } from "./slug";
 import { getBranchHeadOid, getBaseBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
 import { BESPOKE_SLUGS } from "../case-studies/types";
 
-export type CollectionName = "experience" | "projects";
-export type CollectionPatch = Partial<ExperienceInput> | Partial<ProjectsInput>;
+export type CollectionName = "experience" | "projects" | "blog";
+export type CollectionPatch = Partial<ExperienceInput> | Partial<ProjectsInput> | Partial<BlogInput>;
 
 const COLLECTION_PATH: Record<CollectionName, (slug: string) => string> = {
   experience: (slug) => `content/experience/${slug}.yaml`,
   projects: (slug) => `content/projects/${slug}.yaml`,
+  blog: (slug) => `content/blog/${slug}.yaml`,
 };
 
 // The top-level entry file for a collection (NOT the body subdir), used to scan
@@ -56,6 +67,21 @@ const COLLECTION_PATH: Record<CollectionName, (slug: string) => string> = {
 const COLLECTION_ENTRY_RE: Record<CollectionName, RegExp> = {
   experience: /^content\/experience\/[a-z0-9-]+\.yaml$/,
   projects: /^content\/projects\/[a-z0-9-]+\.yaml$/,
+  blog: /^content\/blog\/[a-z0-9-]+\.yaml$/,
+};
+
+/**
+ * Which collections carry an `orderIndex`. BS-3b — blog does NOT: posts order by `date`
+ * (the read path sorts on it), and there is no orderIndex field in the blog schema, so
+ * inventing one would write a key nothing declares and nothing reads.
+ *
+ * This drives two things: the create scan skips the per-entry read when it is false (see
+ * scanCollection), and reordering refuses the collection outright.
+ */
+const COLLECTION_HAS_ORDER: Record<CollectionName, boolean> = {
+  experience: true,
+  projects: true,
+  blog: false,
 };
 
 type Serialized = { ok: true; bytes: string } | { ok: false; error: SaveError };
@@ -88,8 +114,13 @@ function serializeExperienceCreate(input: ExperienceCreateInput, orderIndex: num
 /**
  * One scan of a collection at the base ref, giving BOTH facts a create needs: the
  * highest orderIndex (−1 when empty, so a first create lands at 0) and the set of
- * slugs already in use (for the auto-suffix). One tree read + the same per-entry
- * reads that the orderIndex max already cost, so uniqueness is free.
+ * slugs already in use (for the auto-suffix).
+ *
+ * BS-3b — the per-entry READ is skipped for a collection with no orderIndex (blog). It
+ * exists only to compute the max, so for blog it was one `getFileTextAtRef` per existing
+ * post to produce a number the blog serializer discards — O(n) GitHub reads growing with
+ * the archive, on the collection most likely to have a lot of entries. The tree read
+ * stays: slug uniqueness still needs it, and it is a single call.
  *
  * Reads the base the commit will use (draft head if present, else main).
  */
@@ -101,10 +132,12 @@ async function scanCollection(
   const tree = await getTreeRecursive(baseOid);
   const re = COLLECTION_ENTRY_RE[collection];
   const entryPaths = tree.filter((t) => t.type === "blob" && re.test(t.path)).map((t) => t.path);
+  const needsOrderIndex = COLLECTION_HAS_ORDER[collection];
   const slugs = new Set<string>();
   let max = -1;
   for (const path of entryPaths) {
     slugs.add(path.slice(path.lastIndexOf("/") + 1, -".yaml".length));
+    if (!needsOrderIndex) continue;
     const raw = await getFileTextAtRef(path, baseOid);
     const oi = (load(raw) as { orderIndex?: unknown } | null)?.orderIndex;
     if (typeof oi === "number" && oi > max) max = oi;
@@ -130,9 +163,18 @@ function editEntry(
           error: { code: "not_found", field: slug, message: `${collection} entry "${slug}" not found` },
         };
       }
-      return collection === "projects"
-        ? serializeProjectEntry(raw, patch as Partial<ProjectsInput>)
-        : serializeExperience(raw, patch as Partial<ExperienceInput>);
+      // An explicit switch, not a projects-or-else ternary. BS-3b widened CollectionName
+      // to three, and a two-way ternary would have silently routed blog into the
+      // experience serializer — the kind of gap a widened union opens everywhere it is
+      // branched on. Every arm is named; a fourth collection is a visible hole here.
+      switch (collection) {
+        case "projects":
+          return serializeProjectEntry(raw, patch as Partial<ProjectsInput>);
+        case "blog":
+          return serializeBlogEntry(raw, patch as Partial<BlogInput>);
+        case "experience":
+          return serializeExperience(raw, patch as Partial<ExperienceInput>);
+      }
     },
   });
 }
@@ -148,11 +190,19 @@ async function createEntry(
   let slugSeed: string;
   let buildBytes: (orderIndex: number) => Serialized;
 
+  // Explicit per-collection arms (see editEntry's note on the widened union).
   if (collection === "experience") {
     const sanitized = sanitizeExperienceCreate(input);
     if (!sanitized.ok) return { ok: false, error: sanitized.error };
     slugSeed = sanitized.value.company;
     buildBytes = (orderIndex) => serializeExperienceCreate(sanitized.value, orderIndex);
+  } else if (collection === "blog") {
+    const sanitized = sanitizeBlogCreate(input);
+    if (!sanitized.ok) return { ok: false, error: sanitized.error };
+    slugSeed = sanitized.value.title;
+    // orderIndex is IGNORED: blog has no such field (COLLECTION_HAS_ORDER), and
+    // scanCollection therefore never computed a real one. Posts order by `date`.
+    buildBytes = () => serializeNewBlogPost(sanitized.value);
   } else {
     const sanitized = sanitizeProjectCreate(input);
     if (!sanitized.ok) return { ok: false, error: sanitized.error };
@@ -272,6 +322,41 @@ export function commitProjectSections(
 }
 
 /**
+ * BS-3b — commit a post's `blocks` to the draft branch. The blog twin of
+ * commitProjectSections, and the same discipline: it rides the SAME read-modify-write
+ * path as every text edit (one base resolution, the expectedHeadOid guard, DB-1
+ * accumulation onto the shared draft) and only the serializer differs.
+ * serializeBlogBlocks preserves the head byte-for-byte and re-dumps only the blocks
+ * tail, so an edit to one block cannot disturb anything else in the file.
+ *
+ * `blocks` has exactly ONE writer, exactly as `sections` and `heroImage` do — the head
+ * sanitizer rejects a `blocks` key on the text path.
+ *
+ * INTERNET-EXPOSED WRITE: the caller (save-draft) MUST pass the owner gate and sanitize
+ * first — this takes an already-validated blocks array.
+ */
+export function commitBlogBlocks(
+  slug: string,
+  blocks: unknown[],
+  opts: { branch: string; message?: string }
+): Promise<CommitResult> {
+  return commitFileToDraft({
+    path: COLLECTION_PATH.blog(slug),
+    branch: opts.branch,
+    message: opts.message ?? `chore(studio): update blog/${slug} blocks draft`,
+    transform: (raw) => {
+      if (raw.trim() === "") {
+        return {
+          ok: false,
+          error: { code: "not_found", field: slug, message: `blog entry "${slug}" not found` },
+        };
+      }
+      return serializeBlogBlocks(raw, blocks);
+    },
+  });
+}
+
+/**
  * P4-1 — set or clear a project's heroImage on the draft branch in ONE atomic
  * commit: the normalized webp blob (or none, on clear) PLUS the yaml head edit
  * that points heroImage at it, PLUS a deletion of the previous blob when it had a
@@ -287,11 +372,23 @@ export function commitProjectSections(
  * the draft, DB-1), then commitFilesToDraft re-resolves internally. Same
  * best-effort window as createEntry; expectedHeadOid still guards the write.
  */
-export async function commitProjectHeroImage(
+export async function commitEntryHeroImage(
+  collection: "projects" | "blog",
   slug: string,
   opts: { image: Uint8Array | null; branch: string; message?: string }
 ): Promise<FilesCommitResult> {
-  const yamlPath = COLLECTION_PATH.projects(slug);
+  const yamlPath = COLLECTION_PATH[collection](slug);
+  // BS-3b — renamed from commitProjectHeroImage and generalised over the collection.
+  // 3a parameterized the PATH helpers by base and left this projects-bound because a
+  // blog hero commit needs a blog head serializer, which did not exist until now. The
+  // two remaining projects-isms — which base, and which serializer — are just values,
+  // so they are selected here rather than hardcoded.
+  const base: CollectionImageBase =
+    collection === "blog" ? BLOG_IMAGE_BASE : PROJECTS_IMAGE_BASE;
+  const serializeHead = (raw: string, heroImage: string | null) =>
+    collection === "blog"
+      ? serializeBlogEntry(raw, { heroImage })
+      : serializeProjectEntry(raw, { heroImage });
 
   let raw: string;
   try {
@@ -306,25 +403,23 @@ export async function commitProjectHeroImage(
   if (raw.trim() === "") {
     return {
       ok: false,
-      error: { code: "not_found", field: slug, message: `projects entry "${slug}" not found` },
+      error: { code: "not_found", field: slug, message: `${collection} entry "${slug}" not found` },
     };
   }
 
-  // The previous blob (from the current yaml) — deleted when the new path differs.
-  // PR 3a — the hero path helpers now REQUIRE a base; this is the PROJECTS hero commit
-  // (its serializer is serializeProjectEntry's head-splice, projects-only), so it names
-  // PROJECTS_IMAGE_BASE explicitly. A blog hero commit needs the blog serializer and is
-  // PR 3b's — it will be a separate path, not this projects function.
+  // The previous blob (from the current yaml) — deleted when the new path differs. Read
+  // under THIS collection's base, so one collection's hero is never a deletion target
+  // for another's (the 3a isolation property).
   const oldValue = (load(raw) as { heroImage?: unknown } | null)?.heroImage;
-  const oldBlobPath = heroImageBlobPathFromValue(PROJECTS_IMAGE_BASE, oldValue);
+  const oldBlobPath = heroImageBlobPathFromValue(base, oldValue);
 
-  // heroImage HEAD edit through the proven head-splice (body kept verbatim). webp
-  // ext on upload; null on clear (Keystatic writes an absent image as null).
-  const newValue = opts.image ? heroImageYamlValue(PROJECTS_IMAGE_BASE, slug) : null;
-  const ser = serializeProjectEntry(raw, { heroImage: newValue });
+  // heroImage HEAD edit through the collection's head-splice (its tail kept verbatim).
+  // webp ext on upload; null on clear (Keystatic writes an absent image as null).
+  const newValue = opts.image ? heroImageYamlValue(base, slug) : null;
+  const ser = serializeHead(raw, newValue);
   if (!ser.ok) return { ok: false, error: ser.error };
 
-  const newBlobPath = opts.image ? heroImageBlobPath(PROJECTS_IMAGE_BASE, slug) : null;
+  const newBlobPath = opts.image ? heroImageBlobPath(base, slug) : null;
   const additions: { path: string; contents: string | Uint8Array }[] = [
     { path: yamlPath, contents: ser.bytes },
   ];
@@ -337,7 +432,9 @@ export async function commitProjectHeroImage(
     additions,
     deletions,
     branch: opts.branch,
-    message: opts.message ?? `chore(studio): ${opts.image ? "set" : "clear"} projects/${slug} hero image`,
+    message:
+      opts.message ??
+      `chore(studio): ${opts.image ? "set" : "clear"} ${collection}/${slug} hero image`,
   });
 }
 
@@ -374,6 +471,21 @@ export async function commitCollectionOrder(
   orderedSlugs: readonly string[],
   opts: { branch: string; message?: string }
 ): Promise<FilesCommitResult> {
+  // BS-3b — a collection with no orderIndex cannot be reordered, and this refuses at the
+  // LIB boundary rather than relying on the route's allowlist. Widening CollectionName
+  // made `commitCollectionOrder("blog", …)` type-check, and serializeOrder's two-way
+  // branch would have written orderIndex through the EXPERIENCE serializer — inventing a
+  // field the blog schema does not declare. Refused here so no future caller can.
+  if (!COLLECTION_HAS_ORDER[collection]) {
+    return {
+      ok: false,
+      error: {
+        code: "unsupported_format",
+        message: `${collection} entries have no order to set`,
+      },
+    };
+  }
+
   const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
 
   const additions: { path: string; contents: string }[] = [];
@@ -418,11 +530,16 @@ export async function commitCollectionOrder(
 }
 
 /**
- * Delete a collection entry from the draft branch. Experience is one flat file.
- * Projects is a directory (<slug>.yaml + content/projects/<slug>/body/** mdocs):
- * the paths are enumerated from the git tree (GraphQL deletions take no globs) and
- * removed in ONE atomic commit. A bespoke slug is refused (literal route + a
+ * Delete a collection entry from the draft branch. Experience and BLOG are one flat
+ * file each. Projects is a directory (<slug>.yaml + content/projects/<slug>/body/**
+ * mdocs): the paths are enumerated from the git tree (GraphQL deletions take no globs)
+ * and removed in ONE atomic commit. A bespoke slug is refused (literal route + a
  * hardcoded lib/case-studies module — deleting its content would half-remove it).
+ *
+ * BS-3b — blog takes the FLAT-FILE branch, not the directory one. A post is a single
+ * yaml; its images live under public/images/blog/<slug>/ and are deliberately NOT
+ * enumerated here, matching the standing orphans-are-accepted decision (block images are
+ * content-addressed and may be shared, so a naive delete could break another entry).
  */
 export async function deleteCollectionEntry(
   collection: CollectionName,
@@ -431,20 +548,20 @@ export async function deleteCollectionEntry(
 ): Promise<FilesCommitResult> {
   const message = opts.message ?? `chore(studio): delete ${collection}/${slug} draft`;
 
-  if (collection === "experience") {
+  if (collection === "experience" || collection === "blog") {
     // Existence check so a delete of nothing is not reported as a false success.
     let raw: string;
     try {
       const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
-      raw = await getFileTextAtRef(COLLECTION_PATH.experience(slug), baseOid);
+      raw = await getFileTextAtRef(COLLECTION_PATH[collection](slug), baseOid);
     } catch (e) {
       return { ok: false, error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) } };
     }
     if (raw.trim() === "") {
-      return { ok: false, error: { code: "not_found", field: slug, message: `experience entry "${slug}" not found` } };
+      return { ok: false, error: { code: "not_found", field: slug, message: `${collection} entry "${slug}" not found` } };
     }
     return commitFilesToDraft({
-      deletions: [{ path: COLLECTION_PATH.experience(slug) }],
+      deletions: [{ path: COLLECTION_PATH[collection](slug) }],
       branch: opts.branch,
       message,
     });

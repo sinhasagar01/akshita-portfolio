@@ -1,20 +1,20 @@
-// POST /api/studio/upload-hero-image — P4-1 project heroImage upload (owner-gated).
+// POST /api/studio/upload-hero-image — entry heroImage upload (owner-gated).
 //
 // INTERNET-EXPOSED WRITE ENDPOINT. The owner gate runs FIRST, before any GitHub
-// call or image processing. Multipart body: { collection:"projects", slug, file }
-// to set, or { collection, slug, clear:"true" } to remove. The server normalizes
-// the upload to webp (sharp), derives the Keystatic-convention path itself (a
-// client never supplies an image path), and commits the blob + the yaml heroImage
-// edit in ONE atomic commit to the DRAFT branch (commitProjectHeroImage). github
+// call or image processing. Multipart body: { collection:"projects"|"blog", slug,
+// file } to set, or { collection, slug, clear:"true" } to remove. The server
+// normalizes the upload to webp (sharp), derives the Keystatic-convention path itself
+// (a client never supplies an image path), and commits the blob + the yaml heroImage
+// edit in ONE atomic commit to the DRAFT branch (commitEntryHeroImage). github
 // mode only (fs = no-op). Writes the draft branch only, never main.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import sharp from "sharp";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
-import { commitProjectHeroImage } from "@/lib/studio/commit-collection-entry";
+import { commitEntryHeroImage } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { heroImageYamlValue } from "@/lib/studio/hero-image-path";
-import { PROJECTS_IMAGE_BASE } from "@/lib/studio/collection-image-base";
+import { imageBaseForCollection } from "@/lib/studio/collection-image-base";
 
 // Accepted upload formats (all re-encoded to webp before commit) and the pre-
 // normalize size cap. A raw phone screenshot is a few MB; 12 MB is generous.
@@ -42,15 +42,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  // PROJECTS ONLY, deliberately, until PR 3b. A blog hero commit goes through
-  // commitProjectHeroImage -> serializeProjectEntry (the projects head-splice), which
-  // returns unsupported_format on a blog yaml — so accepting "blog" here would derive
-  // the right path and then fail with a projects error on a blog file, worse than a
-  // clean rejection. PR 3b adds the blog hero serializer + commit and flips this to
-  // accept "blog". (The block-image route, which commits a blob only, can already go
-  // fully blog — see upload-block-image.)
+  // BS-3b — blog is accepted now. 3a parameterized the path helpers by collection base
+  // but left this projects-only, because a blog hero commit needs a blog HEAD serializer
+  // (to write the heroImage key while preserving the blocks tail) and that did not exist
+  // until this PR. commitEntryHeroImage now selects both the base and the serializer, so
+  // a blog hero lands under public/images/blog and its yaml is spliced correctly.
   const collection = form.get("collection");
-  if (collection !== "projects") {
+  const base = imageBaseForCollection(collection);
+  if (!base || (collection !== "projects" && collection !== "blog")) {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
   const slug = form.get("slug");
@@ -106,7 +105,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const result = await commitProjectHeroImage(slug, { image, branch: DRAFT_BRANCH });
+  const result = await commitEntryHeroImage(collection, slug, { image, branch: DRAFT_BRANCH });
   if (!result.ok) {
     const status =
       result.error.code === "not_found"
@@ -123,6 +122,6 @@ export async function POST(req: Request) {
     mode: "github",
     saved: true,
     sha: result.sha,
-    heroImage: clear ? null : heroImageYamlValue(PROJECTS_IMAGE_BASE, slug),
+    heroImage: clear ? null : heroImageYamlValue(base, slug),
   });
 }
