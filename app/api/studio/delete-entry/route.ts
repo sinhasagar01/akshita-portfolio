@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   }
 
   const collection = body?.collection;
-  if (collection !== "experience" && collection !== "projects") {
+  if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
   // Path-traversal guard (same as save-draft): the slug must be a bare slug.

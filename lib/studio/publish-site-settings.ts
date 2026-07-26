@@ -21,6 +21,7 @@ import {
 } from "./github-commit";
 import { getFileTextAtRef, SETTINGS_PATH } from "./commit-site-settings";
 import { validateProjectSections } from "./validate-draft-sections";
+import { validateBlogPost, BLOG_POST_PATH_RE } from "./validate-blog-post";
 import { DRAFT_BRANCH } from "./draft-site-settings";
 
 export type PublishResult =
@@ -119,13 +120,30 @@ export async function publishSiteSettings(): Promise<PublishResult> {
       };
     }
     for (const file of cmp.files) {
-      const m = /^content\/projects\/([a-z0-9-]+)\.yaml$/.exec(file.filename);
-      if (!m || file.status === "removed") continue;
-      const projectRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
-      const sections = validateProjectSections(m[1], projectRaw);
-      if (!sections.ok) {
-        // main untouched, draft left in place so it can be fixed.
-        return { ok: false, error: sections.error };
+      if (file.status === "removed") continue;
+      const project = /^content\/projects\/([a-z0-9-]+)\.yaml$/.exec(file.filename);
+      if (project) {
+        const projectRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
+        const sections = validateProjectSections(project[1], projectRaw);
+        if (!sections.ok) {
+          // main untouched, draft left in place so it can be fixed.
+          return { ok: false, error: sections.error };
+        }
+        continue;
+      }
+      // BS-3b — the same gate for blog posts, with a NARROWER remit. The projects check
+      // runs the fail-loud ssg adapter; BlogProse is adapter-free and defensive, so this
+      // only catches content the renderer would THROW on (a null block, a null value, a
+      // richText whose paragraphs is not an array). validateBlogPost skips drafts
+      // outright — see its header for why that is safe and why judging them would only
+      // let one half-written post block the publish of everything else.
+      const post = BLOG_POST_PATH_RE.exec(file.filename);
+      if (post) {
+        const postRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
+        const blocks = validateBlogPost(post[1], postRaw);
+        if (!blocks.ok) {
+          return { ok: false, error: blocks.error };
+        }
       }
     }
   } catch (e) {
