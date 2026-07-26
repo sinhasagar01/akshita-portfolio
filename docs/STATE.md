@@ -6,37 +6,42 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE BLOG ARC COMPLETE + THE 3-PANE RELAYOUT HALF-BUILT)
+## STATE (as of THE 3-PANE RELAYOUT COMPLETE AND MERGED)
 
-**main** = `bbf6d3d` (CLAUDE.md blog conventions). Pinned: `fe4b08d` = #177 merge
-(tooling + nav fixes), `2ad4856` = #176 merge (love UI), `2d837f2` = the CLAUDE.md
+**main** = `438bf95` = #178 merge (the 3-pane blog editor). Pinned: `0f23e5d` = #178's
+commit, `bbf6d3d` = CLAUDE.md blog conventions, `fe4b08d` = #177 merge (tooling + nav
+fixes), `2ad4856` = #176 merge (love UI), `2d837f2` = the CLAUDE.md
 proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8b9` = #172,
 `c164c85` = #171, `92f8378` = #170, `0d21a93` = #169, `7e591ae` = #168, `5839039` = #167,
 `54be07e` = #166, `4228b14` = #165, `2a87d96` = #164, `e90742f` = #163.
 
-### RALPH IS 930 ACROSS 26 RUNNABLE SUITES
+`feat/blog-editor-3pane` is merged but NOT deleted, deliberately, and is now behind main.
+
+### RALPH IS 993 ACROSS 28 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
-ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30).
+ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
+`three-pane` 43 + `blog-search` 20).
 
 Run each suite directly — **there is no npm script**:
 `node --experimental-strip-types ralph/tests/<name>.mjs`
-Per-file: blog-format 50, blog-reading-time 13, blog-registry 44, blog-serialize 32,
-blog-status-filter 17, collection-image-paths 29, cs4-frame 26, f2-draft-overlay 11,
-f3-slug 31, loves-store 72, ncr-adjacent 20, p4-3c-adapter 53, p4-4bi-sections-serialize 28,
-p4-4bii-block-forms 132, p4-4biii-structural 58, p4-4biv-block-images 20,
-paragraph-edits 28, rich-markers 63, section-label 23, settings-photo 25,
-studio-nav-active 30, task1 17, task2 22, task3 14, upstash-transport 35,
-validate-blog-post 37. `parity.mjs` excluded (needs a running server).
+Per-file: blog-format 50, blog-reading-time 13, blog-registry 44, blog-search 20,
+blog-serialize 32, blog-status-filter 17, collection-image-paths 29, cs4-frame 26,
+f2-draft-overlay 11, f3-slug 31, loves-store 72, ncr-adjacent 20, p4-3c-adapter 53,
+p4-4bi-sections-serialize 28, p4-4bii-block-forms 132, p4-4biii-structural 58,
+p4-4biv-block-images 20, paragraph-edits 28, rich-markers 63, section-label 23,
+settings-photo 25, studio-nav-active 30, task1 17, task2 22, task3 14, three-pane 43,
+upstash-transport 35, validate-blog-post 37. `parity.mjs` excluded from the count (needs a
+running server), but **RUN IT ANYWAY and report the number** — see the working rules.
 **COUNTING NOTE:** `rich-markers` reports `✓`/`63 passed` rather than `[PASS]`, so a naive
-grep undercounts by 63. Read each suite's own summary line.
+grep undercounts by 63. The grep total is 930 and the real total is 993. Read each suite's
+own summary line.
 
-### THREE ARCS COMPLETE, ONE IN FLIGHT
+### FOUR ARCS COMPLETE
 1. **Work-section rebuild — COMPLETE** (#159–#162).
 2. **Studio restyle — COMPLETE** (#164–#169).
 3. **Blog — COMPLETE** (#170–#176), plus #177 tooling and nav fixes.
-4. **The 3-pane editor relayout — HALF-BUILT on an unpushed branch.** See the handoff
-   section at the end; that is where a fresh session starts.
+4. **The 3-pane editor relayout — COMPLETE** (#178, merged `438bf95`).
 
 ---
 
@@ -140,7 +145,7 @@ WHEN WRITTEN;** #171 silently invalidated it.
 
 ### #174 · the editor host (`9a25bc0`)
 Built **index + full-width `[slug]` editor**, rejecting the 3-pane. **THAT DECISION HAS NOW
-BEEN REVERSED BY THE OWNER** — see the handoff section.
+BEEN REVERSED BY THE OWNER** and superseded by #178 — see ARC 4.
 - **THE SWEEP — seven structures key off the projects block union.** Gaps #2–#4 closed for
   blog, still open for projects-side reuse. #6–#7 are `Set`s and fail silently.
 - **`overlayCollection` gained a REQUIRED comparator**, surfacing two call sites passing by
@@ -219,116 +224,141 @@ guarantee and #173's splice both held against a real write. Publish merged twice
 (`bf32503`, `3650956`). **Backlog items 7 and 8 are closed.**
 
 ### CURRENT CONTENT STATE
-**One post, `status: draft`.** So `/blog` renders the EMPTY STATE in production, which is
-the fail-closed filter working correctly, not a bug. `heroImage: null`, with an orphaned
-`heroImage.webp` still committed — consistent with the accepted orphan posture. Flipping to
-Published is a content operation through the editor and the first real exercise of the
-status write path.
+**One post, and it is now `status: published`** — the earlier "one draft, `/blog` renders the
+empty state" note is stale. So `/blog` renders one card, `/blog/<slug>` renders the article,
+and both are still UNLINKED from the nav, which remains the launch switch. `heroImage: null`,
+with an orphaned `heroImage.webp` still committed — consistent with the accepted orphan
+posture. `date: '2026-07-24'` is still SINGLE-QUOTED, so #173's splice invariant has now
+survived every write since.
+
+**#178's gates wrote NOTHING to content.** `STUDIO_WRITE_MODE=fs` locally, so every
+save-draft branch no-ops; the editor was driven through real edits and `git status content/`
+stayed clean, with `topic` still `Enterprise UX` rather than the gate's test value. That is
+also the reason G2 and G4 could assert on REQUEST BODIES rather than on committed files.
 
 ---
 
-## THE 3-PANE RELAYOUT — HALF-BUILT, THIS IS WHERE A FRESH SESSION STARTS
+## ARC 4 — THE 3-PANE BLOG EDITOR (COMPLETE)
 
-**Branch `feat/blog-editor-3pane` at `a586e98`. LOCAL ONLY, NOT PUSHED. Push it first.**
+Two commits. `a586e98` was groundwork on a branch; `0f23e5d` finished it; `438bf95` is the
+#178 merge. The owner reversed #174's index-plus-full-width decision, so
+`/studio/blog/<slug>` is now list + canvas + inspector.
 
-**WHY:** the owner reversed #174's index + full-width decision. `/studio/blog/<slug>` becomes
-3-pane list + canvas + inspector per `docs/studio/studio-blog.html`. Other studio pages are
-intended to adopt the layout later — but **build blog-specific first and extract at the
-SECOND consumer**, per #173's splice rule.
+### THE POINT OF THE ARC, AND IT WAS A REAL BUG
+The canvas renders through `BlogProse` at the PUBLIC measure, so what the author sees is
+what the article ships. `BlogBlocksEditPanel` has CLAIMED that since #174 and it was
+**FALSE BY 48px**: the public article is `max-w-[68ch] px-6`, the studio canvas was
+`max-w-[68ch]` with no padding. Adding `px-6` makes it true for the first time.
+**A1 measured both content boxes at `697.9296875px`, delta 0.** Proven as a NUMBER, not as
+matching class strings, because `68ch` resolves against each element's own font-size.
 
-### THE ARITHMETIC WAS WRONG AND IS NOW CORRECTED
-`68ch` resolves against the wrapper's font-size, which is **16px**, not the 18px prose —
-so 68ch is **745.9px, not 646**. The contract's 1406 threshold was wrong by 190px.
-**Corrected panes: sidebar 236 + list 264 + canvas 794 + inspector 244 = ~1538**, which
-fits a 1536 laptop. `FIT_THRESHOLD_PX = 1538`.
+### THE ARITHMETIC, CORRECTED AND NOW LOAD-BEARING
+`68ch` is **745.9px at the wrapper's 16px font**, not 646 from the 18px prose.
+**sidebar 236 + list 264 + canvas 794 + inspector 244 = 1538.** The contract said 1406 and
+was wrong by 190px. Both numbers live once each in `lib/studio/three-pane.ts` and are read
+through `matchMedia`, never as Tailwind variants — see the new working rule.
 
-**Editor-to-public fidelity is currently broken by 48px** and nobody knew: the public
-article is `max-w-[68ch] px-6` (745.9 − 48 = 697.9 prose) while the studio canvas is
-`max-w-[68ch]` with no padding (745.9). `BlogBlocksEditPanel:161`'s claim that the author
-sees what the article renders is false today. **Adding `px-6` to the studio wrapper makes it
-true for the first time** — and A1 requires proving the two measures EQUAL as a number.
+### COMMITTED IN `a586e98` (groundwork)
+D1 padding move across 9 pages via `STUDIO_PAGE`; `HeroImageField` gains `label`; the blog
+poster field hidden by parameterising `VideoEmbedForm` with `showPoster`; `ThreePaneShell`
+drafted.
 
-**Two contract errors found and corrected:** `.canvas-inner` max-width must be 746, not 620
-(620 would have shrunk the measure and broken fidelity); and
-`.split.collapsed .canvas-inner{max-width:700px}` must be DELETED — a measure that widens on
-collapse breaks the very property that justifies keeping 68ch.
+### COMMITTED IN `0f23e5d` (the relayout)
+- **`ThreePaneShell` mounted.** Geometry and the collapse rule in `lib/studio/three-pane.ts`.
+  `isListCollapsed` takes a THREE-STATE intent, because a boolean cannot distinguish
+  "nobody chose" from "the author chose open" — and an author who reopened the rail on a
+  narrow screen did so knowing it was narrow.
+- **`BlogPostList` — SEARCH AND NAVIGATE ONLY.** Create and delete stay on `/studio/blog`,
+  so those two write surfaces keep one implementation each.
+- **The inspector is TWO STACKED SECTIONS**, Post then the selected block. Building the
+  contract literally would have deleted blog's only block-editing surface.
+- **Selection is a BLOCK STRIP, and clicking the prose is MOCK-ONLY.** Both ways to make the
+  canvas clickable spend the property the PR exists to protect. A per-block wrapper changes
+  the canvas DOM relative to the article (CLAUDE.md's editable-only-wrapper failure mode).
+  Counting rendered children derives the mapping from `BlogProse`'s output shape, where a
+  `richText` block emits **one paragraph PER ENTRY** rather than one element, so a change to
+  that shape breaks selection SILENTLY.
+- **Two LABELLED save indicators** via `SaveIndicator`, whose `label` is required in the
+  type. Two unlabelled ones read as one form, which is #174's defect class and hazard 7.
+- **`lib/studio/blog-search.ts`** — one filter, used by the index and the rail.
+- `useMediaMin` via `useSyncExternalStore`, server snapshot always WIDE.
 
-### ALSO CORRECTED: THE "OFF-CENTRE CANVAS" WAS NOT A DEFECT
-I reported it from a screenshot and invented three hypotheses. The canvas is `mx-auto`, no
-reserved rail, and the arithmetic reproduces the measured 790px exactly. The real problem is
-compositional: an unbounded head strip above a 746px column makes a centred column read as
-stranded. 3-pane fixes it by construction.
+### FOUR CORRECTIONS TO THE RECORD, two of them this file's
+1. **`FIT_THRESHOLD_PX` HAD ZERO CONSUMERS** repo-wide, including its own file, while the
+   shell's comment described max-width variants that did not exist. The collapse ran off a
+   boolean and the layout never responded to width. **STATE said the collapse was built.**
+   A comment describing absent code is exactly how `structural()` became a name people
+   believed in. Code and comment were fixed TOGETHER.
+2. **The branch was already pushed.** "LOCAL ONLY, push it first" was stale.
+3. **"A fixed canvas measure" was not in the shell.** The canvas arrives as an opaque
+   `ReactNode`; the measure lives in the panel.
+4. **The inspector comment's caret claim was wrong.** `display:none` keeps React state and
+   drops the caret.
 
-### COMMITTED IN `a586e98`
-1. **D1 padding move.** The layout's `p-4 lg:p-6` wrapper and the `h-20` PublishBar spacer
-   are deleted; 9 pages opt in via a shared `STUDIO_PAGE` constant. Removing a layout-level
-   assumption this PR falsifies, rather than negating it locally (negation decays and does
-   not solve height). tsc clean.
-2. **`HeroImageField` gains `label`**, defaulted `"Hero image"` so projects is unchanged;
-   blog passes `"Card image"`. The duplicate label was a missing prop, not a stray string.
-3. **The poster field is hidden for blog** — parameterised, not forked: `VideoEmbedForm`
-   takes `showPoster = true`, blog's entry spreads the shared one overriding only `Form`.
-   #174 planned this and it never shipped, so blog had an authorable field `BlogProse`
-   ignores — the condition that got `imageBlock` deferred.
-4. **`ThreePaneShell` drafted** with `FIT_THRESHOLD_PX = 1538`, a fixed canvas measure, and
-   `inert` on the collapsed pane — the G3 fix written in from the start.
+### FOUR BUGS THE GATES FOUND, NONE VISIBLE IN SOURCE REVIEW
+- **`inert: "" as unknown as boolean` WAS THE BUG, not the workaround.** React 19 supports
+  `inert` as a real boolean and treats `""` as FALSY, so React dropped the attribute
+  entirely and all three controls in the collapsed pane stayed tabbable — the exact focus
+  trap the line existed to prevent, introduced by the code written to prevent it. G3
+  settled it: plain `inert={collapsed}`, no cast, and the documented `visibility: hidden`
+  fallback is not needed.
+- **`w-0` computed to 264px.** A flex item defaults to `min-width: auto`, floored at
+  min-content by the inner `min-w-[264px]`. Needed `min-w-0`. The class was right and the
+  box ignored it.
+- **The height chain did not hold.** `overflow-hidden` does NOT remove a box's own content
+  from intrinsic sizing, and `flex-1` divides free space only when the container's height is
+  already resolved. The shell measured 1230px in a 960px viewport. Fixed in the layout with
+  a viewport height at `lg`, **scoped by `:has([data-studio-fullheight])`** — applied
+  unconditionally it made the bottom of every OTHER studio page unreachable at a short
+  viewport (measured on `/studio/projects` at 420px: body clientHeight 420 against
+  scrollHeight 520, and neither the window nor body would scroll the last 100px).
+- **The width transition animated the HYDRATION CORRECTION**, so the rail visibly slid shut
+  on every narrow page load. Now it runs on explicit toggles only.
 
-### REMAINING, IN DEPENDENCY ORDER
-1. `BlogPostList` pane with its own search state; wire `BlogEditPanel` and
-   `BlogBlocksEditPanel` into the **two-section inspector keyed off `selectedId`**.
-2. `px-6` on the studio canvas wrapper; the editor page goes full-bleed, dropping the
-   temporary `STUDIO_PAGE` added to keep `a586e98` coherent.
-3. **The three prose rewrites** — each must record that the owner reversed the decision and
-   WHY the earlier reasoning no longer applies, not merely delete it:
-   `BlogIndex.tsx:6–15`, the `[slug]/page.tsx` header, and the CLAUDE.md bullet from
-   `bbf6d3d` whose "board and canvas own the width" clause becomes false on merge.
-4. Contract corrections; extend the `PublishBar.tsx:207` hazard comment to say why the
-   offset was left.
-5. All nine gates, A1's measure-equality number, the dev-only session route, and the
-   worktree determinism control.
+### TWO HAZARDS SURFACED
+- **`lib/site.ts` IMPORTS `node:fs` AT MODULE SCOPE and carries no server-only marker.**
+  Importing `blogPath` into a client component pulled fs into the client bundle and failed
+  the build **APP-WIDE**, with a webpack `UnhandledSchemeError` far from the import that
+  caused it. The href is now computed on the server and passed down as a prop.
+- **THE #175 TAILWIND SOURCE-SCOPE HAZARD RECURRED, from COMMENT TEXT.** Three phantom
+  rules reached production CSS because comments quoted utility names verbatim. #177 fixed
+  the `ralph/` case by excluding the directory; `components/` cannot be excluded, so the
+  comments were reworded. **Caught by the CSS gate, not by review.**
 
-### DECISIONS ALREADY MADE — build to these
-- **The inspector carries TWO STACKED SECTIONS**, Post then the selected block's fields.
-  A literal reading of the mock would DELETE blog's only block-editing surface: the
-  contract's inspector holds post fields, the shipped one holds block forms.
-- **Two separate `useDraftForm` instances stay separate** (`BlogEditPanel:53`,
-  `BlogBlocksEditPanel:101`). The shell owns NO form state. **Two labelled save indicators**
-  — one would imply one form, which is #174's confusion. G4 proves two separate patches.
-- **`dek` stays a plain input** styled to match the canvas. Blog has no contenteditable
-  infrastructure and introducing the studio's second one inside a layout PR is scope creep.
-- **Below 1100 the inspector collapses and the shipped `ViewToggle` takes over.** One
-  mechanism at two widths; the narrow layout is the already-proven layout.
-- **PublishBar's offset is ACCEPTED as-is** — 13px off canvas centre expanded, 131px
-  collapsed. A third hand-coupled width literal for ≤131px of centring is the wrong trade.
-- **Mock-only affordances are OUT:** the per-gap block inserter, drag handles, the hover
-  kind-tag overlay, the rich-text toolbar, the nav hover nudge. Append-at-end, chevron
-  reorder and the persistent inspector kind label stay as they ship.
+### THE CONTRACT IS CORRECTED — TEN ERRORS TO DATE
+Applied to `docs/studio/studio-blog.html`: the 1406 arithmetic and its five literals, the
+620 measure, and **THREE** widening sites rather than the two previously listed (the third
+sat inside the fit media query, so deleting the named two would have left the measure still
+moving). Also the pane widths (288/262 → the shipped 264/244), the `transition:max-width`
+that existed only to animate a change that must not happen, the mock-only nav hover nudge,
+and the rich-text toolbar listed as reusable when the studio's only toolbar is in
+`SectionsEditPanel`. **Error 6 self-resolved** — the poster field was claimed hidden before
+#174 shipped it and `a586e98` made the claim true, which is recorded rather than deleted.
+**Error 9 is click-the-prose selection. Error 10 is the third widening site.**
 
-### THE FOUR REVERSAL RISKS — carry them forward
-1. **It re-adds the exact pattern the studio removed for a stated reason**, recorded in
-   `BlogIndex.tsx:6–15` as a decision. The collapse control is the mitigation previously
-   judged insufficient. Rewrite both prose sites or the codebase carries two contradictory
-   rationales — exactly how the `[slug]/body` drift started.
-2. **`ListDetailLayout` becomes a second-class shell.** Eight surfaces use a fixed
-   two-column grid; blog gets a better three-pane one.
-3. **The canvas/public fidelity property** is the thing to protect, which is why 68ch and
-   `px-6` matter more than matching the mock's numbers.
-4. **A collapsed pane is a focus trap in waiting.** `width: 0` with `overflow: hidden` keeps
-   contents tabbable — #177's finding mirrored, and the contract does not mention it. G3 is
-   the gate expected to fail first. **`inert` on a React element needs a cast in this TS
-   version (`inert: "" as unknown as boolean`); if that causes trouble, use
-   `visibility: hidden` + `pointer-events: none`.**
+### GATES
+| Gate | Result |
+|---|---|
+| A1 measure equality | **697.9296875px both sides, delta 0** |
+| G1 panes at 1560 | 264 / 801 / 244, canvas clears the 794 required |
+| G2 round trip | reorder fired **ZERO** requests; the explicit save carried the new order with the edited text at the new index |
+| G3 collapsed-pane inertness | 3 controls inside, **0 accepted focus** |
+| G4 two forms | two disjoint bodies, `{collection,slug,patch}` and `{collection,slug,blocks}` |
+| G5 the 1100 fold | exactly ONE form tree, no hidden copy |
+| G6 ralph | 930 → 993, 28 suites, 0 failures, both new suites mutation-tested |
+| G7 typecheck | clean. **NO LINT GATE EXISTS** — the repo has no ESLint config, so `next lint` only offers to create one |
+| G8 CSS bundle | **zero changed declarations** on any shared selector |
+| G9 determinism | two builds byte-identical through the committed normalizer |
+| parity | RUN, not reasoned about. 3 of 4 slugs, 44 sections, 0 findings |
 
-### CONTRACT ERROR COUNT: EIGHT
-`structural()` (never existed); `imageBlock` (specified as shipped); "reuse the editor
-wholesale" (true of the block layer, false of the host); the layout claim (recommended
-rebuilding a removed pattern); the segmented-control convention; **the poster field claimed
-hidden when #174 never shipped it; the nav hover nudge (mock-only); and the rich-text
-toolbar listed as reusable when blog has none.** The reuse-wholesale overreach is now at
-three occurrences.
+**G1–G5 are DEV-OBSERVED**, driven through a temporary dev-only session route deleted before
+commit. Per CLAUDE.md they carry NO production claim.
+
+**`boat-crest` renders 0 parity pairs** on this checkout while the other three render 15, 14
+and 15. Pre-existing and unrelated to this arc, but it means the parity gate has been blind
+to the hero case study for an unknown number of PRs. **Worth investigating.**
 
 ---
-
 ## LOCKED DECISIONS (do not change without being asked)
 
 All prior locked decisions remain. Added across this session:
@@ -355,6 +385,20 @@ All prior locked decisions remain. Added across this session:
 - **The blog editor is 3-PANE** (owner reversal of #174), canvas at **68ch with `px-6`**,
   fit threshold **1538**.
 - **Structural ops NEVER call `saveDraft()`.** Fields save on blur.
+- **THE CANVAS MEASURE EQUALS THE ARTICLE MEASURE, AS A NUMBER.** `697.9296875px` today.
+  It never widens on collapse. A measure that moves when you hide a pane is a measure that
+  lies, and it is the property the whole layout exists to protect.
+- **BLOCK SELECTION IS THE INSPECTOR STRIP.** Clicking the prose is mock-only and stays
+  unbuilt. The strip shows the KIND LABEL and position, never a body excerpt.
+- **THE LIST PANE SEARCHES AND NAVIGATES ONLY.** Create and delete live on `/studio/blog`.
+- **A SAVE INDICATOR'S LABEL IS REQUIRED IN THE TYPE.** Two unlabelled indicators read as
+  one form.
+- **THE THREE-PANE BREAKPOINTS LIVE ONCE EACH**, in `lib/studio/three-pane.ts`, read through
+  `matchMedia`. No Tailwind arbitrary variant may restate them, and ralph asserts the
+  ABSENCE of a second literal.
+- **A FULL-HEIGHT STUDIO PAGE OPTS IN** with `data-studio-fullheight`, and the layout keys
+  off it with `:has()`. The layout never learns a route list.
+- **`ThreePaneShell` STAYS BLOG-SPECIFIC** until a second consumer.
 
 ---
 
@@ -414,9 +458,12 @@ All prior rules remain. Added or sharpened across this session:
 - **DERIVED NUMBERS DECAY QUIETLY.** The 2.13 dimming factor was read as a contrast ratio.
   State what a number IS, not just its value.
 - **DESIGN REFERENCE FILES ARE VISUAL SPEC, NOT PORTABLE CODE — and specifically unreliable
-  about ARCHITECTURE.** Eight errors across two files, including one that recommended
-  rebuilding a deliberately removed pattern.
-- **A NAME IN A STATE FILE IS NOT EVIDENCE THAT THE THING EXISTS.**
+  about ARCHITECTURE.** **TEN errors across two files**, including one that recommended
+  rebuilding a deliberately removed pattern, and a whole threshold that was wrong by 190px
+  because a unit was estimated rather than measured.
+- **A NAME IN A STATE FILE IS NOT EVIDENCE THAT THE THING EXISTS**, and neither is a
+  RECORDED BEHAVIOUR. #178 found STATE claiming a collapse was built when only a boolean
+  was wired. **Verify the record against source before planning on it.**
 - **A GATE THAT MISFIRES GETS REWRITTEN, NOT WORKED AROUND.**
 - **A SOFT CLAIM IN A MERGED PR IS WORTH RE-CHECKING.**
 - **STOP RATHER THAN WORK AROUND AN IMPOSSIBLE INSTRUCTION**, and **STOP RATHER THAN SHIP
@@ -427,21 +474,75 @@ All prior rules remain. Added or sharpened across this session:
   studio verification needs a real login and is OWNER-ONLY. **Prefer fixes that remove the
   dependency being tested**, so a dev-only proof holds in production by construction.
 - **Investigate before scoping.** A PR that quietly contains a feature is unreviewable.
+- **A COMMENT DESCRIBING CODE THAT DOES NOT EXIST IS THE `structural()` FAILURE.** #178
+  found an exported constant with ZERO consumers whose own file described Tailwind variants
+  that were never written, and STATE had recorded the behaviour as built. **Fix the code and
+  the comment TOGETHER** — fixing only the comment leaves a documented behaviour unbuilt,
+  and fixing only the code leaves the next reader hunting a variant they cannot find.
+- **ASSERT A DUPLICATE AWAY, DON'T ASSERT IT CONSISTENT.** Tailwind cannot interpolate a
+  constant into a class name, so a breakpoint naturally gets written twice and coupled by
+  hand — the 236px hazard again. Reading the width through `matchMedia` leaves ONE literal,
+  and the suite asserts no second one exists. **This is the precedent for the next literal
+  that wants two homes.**
+- **A CAST WRITTEN TO SATISFY THE TYPE CHECKER CAN BE THE BUG.** `inert: "" as unknown as
+  boolean` type-checked, read as defensive, and silently disabled the very protection it
+  was written for, because React 19 treats `""` as falsy. **Verify the RUNTIME EFFECT of a
+  cast, not just that it compiles.**
+- **CSS DOES NOT MEAN THE BOX OBEYED.** `w-0` computed to 264px under `min-width: auto`,
+  and `overflow-hidden` did not make a flex parent's height definite. **Read the computed
+  value off the live box; a correct class string is not a correct layout.**
+- **A SHARED-LAYOUT FIX NEEDS A NON-CONSUMER TESTED TOO.** The viewport-height change looked
+  right on the page it was for and made every OTHER studio page's bottom unreachable.
+  **Scope it so non-consumers are untouched BY CONSTRUCTION**, then measure one.
+- **DON'T ANIMATE A HYDRATION CORRECTION.** A server that must guess renders one layout and
+  the client corrects it; with a transition on, that correction plays as an animation on
+  every load and makes the box unmeasurable while it runs.
+- **A MODULE WITH A TOP-LEVEL `node:fs` IMPORT IS SERVER-ONLY AND NOTHING SAYS SO.**
+  `lib/site.ts` is one. Importing from it in a client component fails the build APP-WIDE
+  with an error far from the cause. **Compute on the server, pass the value down.**
+- **THE TAILWIND SOURCE-SCOPE HAZARD READS COMMENTS.** Quoting a utility name in a comment
+  ships a rule to production CSS. #177 excluded `ralph/`; `components/` cannot be excluded,
+  so **do not write literal utility strings in prose you do not want compiled.**
+- **RUN THE GATE, DO NOT REASON ABOUT IT.** Parity was expected to be unchanged and it was —
+  but running it surfaced that `boat-crest` produces ZERO pairs, which no amount of
+  reasoning about the diff would have shown.
+- **A GATE THAT REPORTS ZERO SUBJECTS IS NOT A PASS.** `sections: 0, verdict: PARITY OK` is
+  a false pass. **Check the denominator.**
+- **A MUTATION THAT DOES NOT FAIL MAY BE AN INVALID MUTATION.** Two of thirteen "survivors"
+  had edited a COMMENT rather than the code, because the suite strips comments and the
+  first regex match landed there. **Confirm the mutation changed what you think it did**
+  before concluding the guard is weak — and one of the real survivors was a genuine gap.
+- **DRIVING THE UI CAN LIE TOO.** Three probe results were wrong before the code was: reads
+  taken before React flushed, and a query that hit the topbar's search box instead of the
+  panel's. **Scope selectors by accessible name and await the render.**
+- **NO LINT GATE EXISTS IN THIS REPO.** There is no ESLint config, so `next lint` only
+  offers to create one. Do not claim a lint pass.
 
 ---
 
 ## HAZARDS AND KNOWN DUPLICATIONS
 
-1. **The 236px coupling** (#165) — comment-enforced only. **About to become a second
-   literal** in the 3-pane work.
+1. **The 236px coupling** (#165) — comment-enforced only, in `StudioSidebar` and
+   `PublishBar`. **It did NOT become a second literal in #178**: the three-pane widths live
+   once in `lib/studio/three-pane.ts` and ralph asserts no duplicate exists. That is the
+   pattern the 236px should follow whenever it is next touched.
 2. **`StudioModal`'s no-portal dependency** (#168).
 3. **`keystatic.config.ts`'s mirror of the image bases** (#172) — test-enforced. **OPEN:
    does the cross-check compare the full key set in both directions?**
 4. **Blog's duplicated splice** (#173) — deliberate, eight lines.
 5. **Sweep gaps #2–#4** (#174) — the projects form tables still lack `heading`.
 6. **`login-throttle` is unreachable by ralph** (#175) — a deliberate trade.
-7. **Two `useDraftForm` instances in the blog editor** — easy to assume one form once their
-   fields share a pane. #174's defect class.
+7. **Two `useDraftForm` instances in the blog editor** — easy to assume one form now that
+   their fields DO share a 244px pane. #174's defect class. Mitigated by the two labelled
+   `SaveIndicator`s and proven separate by G4, not eliminated.
+8. **`lib/site.ts` imports `node:fs` at module scope and has no server-only marker** (#178).
+   Any client component importing from it fails the build APP-WIDE. A `server-only` import
+   there would turn a confusing webpack error into a clear one. **Not done.**
+9. **`data-studio-fullheight` couples `ThreePaneShell` to the dashboard layout's `:has()`
+   rule** (#178) — two files, nothing in the type system connecting them. Ralph-enforced.
+10. **`boat-crest` produces ZERO parity pairs** — the gate has been blind to the hero case
+    study for an unknown number of PRs. Cause not investigated. **The other three render 15,
+    14 and 15.**
 
 ---
 
@@ -458,9 +559,16 @@ All prior rules remain. Added or sharpened across this session:
 - **`inputCls` duplicated across 8 files** (#168).
 - **Post renaming** — create-new, move assets, delete-old. The title is read-only for this.
 - **Blog pagination**, an OG route, RSS, the share row.
-- **PublishBar centring over the canvas** rather than the work area (131px collapsed).
+- **PublishBar centring over the canvas** rather than the work area — **13px off with the
+  list open, 131px collapsed.** Accepted in #178 and the reasoning is in the component's
+  hazard comment: centring over the canvas needs the list and inspector widths too, a third
+  and fourth hand-coupled literal on a component ten pages share.
 - **CLAUDE.md staleness beyond the blog bullet** — the build sequence ends at Phase 5 and
   Open items still lists confirming the editorial direction, long settled.
+- **An ESLint config.** There is none, so there is no lint gate.
+- **Migrating other studio pages to `ThreePaneShell`**, extracting the shared shell at the
+  SECOND consumer. `data-studio-fullheight` and the `:has()` scoping already make the
+  layout side reusable.
 
 ---
 
@@ -474,6 +582,13 @@ All prior rules remain. Added or sharpened across this session:
    Note the POST is **five commands across three round trips**, not two.
 5. ~~#173's write path~~ and ~~#174's editor~~ — **CLOSED by `4e900c9`.**
 6. ~~#177's nav label in production~~ — **CLOSED, reads white.**
+7. **#178's three-pane editor in PRODUCTION.** Every one of A1 and G1–G5 is **DEV-OBSERVED**,
+   driven through a temporary dev-only session route that was deleted before commit. `/dev`
+   routes 404 under `next start`, so this cannot be closed without a real owner login on
+   www.akshitas.com. **Open a post and check: three panes, the collapse control, Tab not
+   entering the collapsed rail, and both save indicators reading separately.**
+8. **#178 was SELF-REVIEWED.** The same session wrote and reviewed it. `/code-review ultra`
+   is user-triggered and billed and would be a genuinely independent pass over `438bf95`.
 
 ---
 
@@ -482,7 +597,11 @@ All prior rules remain. Added or sharpened across this session:
 - `work-section-overlay-grid.html` — corrected during PRs 2, 3 and 4.
 - `blog-homepage.html`, `blog-article.html` — corrected in #171.
 - `studio-blog.html` — **replaced wholesale by the owner**, then edited in #177 (the `.seg`
-  convention). **Needs the corrections listed in the handoff section.** Eight errors to date.
+  convention), then **CORRECTED IN #178**. **TEN errors to date**, and the file now carries
+  each correction beside what it replaced rather than silently overwritten. Error 6 (the
+  poster field) became TRUE when `a586e98` shipped what #174 had only planned, which is
+  recorded as such — a claim that becomes true by the code catching up is not a claim that
+  was right.
 - `studio-shell.html` — corrected three times.
 - Six untracked explorations, unrelated, left alone.
 
@@ -498,20 +617,24 @@ All prior rules remain. Added or sharpened across this session:
 - **#172** collection image paths (`a6bc8b9`) →630 · **#173** write seam (`c9bd10d`) →749
 - **#174** editor host (`9a25bc0`) →793 · **#175** love store →900
 - **#176** love UI (`2ad4856`) 900 · **#177** tooling + nav (`fe4b08d`) →930
+- **#178** the 3-pane blog editor (`438bf95` merge, `0f23e5d` commit, `a586e98` groundwork) →993
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 
 ---
 
 ## WHAT'S NEXT
 
-1. **PUSH `feat/blog-editor-3pane`** — `a586e98` is local only.
-2. **Finish the relayout in a fresh session**, per the handoff section. The gates are the
-   half that catches the mistakes; do not split them from the build again.
-3. **`imageBlock`** — built once, in the final shell. The one real authoring gap.
-4. **Write 3–4 posts through `/studio`**, flipping the existing draft to Published.
-5. **The nav link** — one line, and the launch switch.
-6. **Later:** migrate other studio pages to the 3-pane shell, extracting at the SECOND
-   consumer.
+1. **OPEN THE THREE-PANE EDITOR IN PRODUCTION** and confirm it. Backlog item 7 — every gate
+   on it is DEV-OBSERVED and only the owner can close this.
+2. **`imageBlock`** — built once, now that the shell is final. **The one real authoring gap:
+   there is still no way to put an image inside a post body.** `imageBlock`, the hidden
+   video poster and inline figures are ONE decision, not three deferrals.
+3. **Write 3–4 posts through `/studio`**, flipping the existing draft to Published. This is
+   also the first real exercise of the status write path and of the new editor under load.
+4. **The nav link** — one line, and the launch switch for `/blog`.
+5. **Optional:** `/code-review ultra` over `438bf95`, since #178 was self-reviewed.
+6. **Later:** migrate other studio pages to `ThreePaneShell`, extracting the shared shell at
+   the SECOND consumer.
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
 arcs stay human-gated, one at a time. Never auto-merge, never write main unattended.
