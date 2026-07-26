@@ -8,14 +8,34 @@ import { useReducedMotion } from "motion/react";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 import { RESUME_LABEL, type ElsewhereLink } from "@/lib/social-links";
 
+// MOST ENTRIES ARE SECTIONS ON THE HOME PAGE, ONE IS A ROUTE, and the difference is
+// load-bearing rather than cosmetic. A section entry renders `#id`, is preventDefault'd and
+// smooth-scrolled, and participates in the scroll-spy that lights the active link. A route
+// entry must do none of those: there is no element to scroll to, so the old shape would
+// have produced `/#blog` — an anchor to a section that does not exist — and a click handler
+// that cancels the navigation and then scrolls nowhere.
+//
+// `href` is the discriminator. STATE recorded the blog nav link as "one line, the launch
+// switch"; it is not, because this nav was built for anchors only, and nobody had tried it.
 const NAV = [
   { id: "process", label: "Process" },
   { id: "work",    label: "Work"    },
   { id: "about",   label: "About"   },
+  { id: "blog",    label: "Blog", href: "/blog" },
   { id: "contact", label: "Contact" },
 ] as const;
 
-type SectionId = (typeof NAV)[number]["id"];
+type NavItem = (typeof NAV)[number];
+/** The ids that are real sections — a route entry has no element and must never reach the
+ *  scroll-spy or the scroll handlers. */
+type SectionId = Exclude<NavItem, { href: string }>["id"];
+
+const isRoute = (item: NavItem): item is Extract<NavItem, { href: string }> => "href" in item;
+
+/** Where a nav entry points. A route goes to its href; a section goes to its anchor, which
+ *  needs the `/` prefix when we are not on the home page. */
+const navHref = (item: NavItem, isHome: boolean) =>
+  isRoute(item) ? item.href : isHome ? `#${item.id}` : `/#${item.id}`;
 
 // scroll-mt-20 (80px) on every section, header is 72px tall:
 // offset = scrollMargin − HEADER_H = 80 − 72 = 8
@@ -29,10 +49,13 @@ const NAV_TONE_SWITCH = 88;
 
 function getActiveSection(): SectionId | null {
   let current: SectionId | null = null;
-  for (const { id } of NAV) {
-    const el = document.getElementById(id);
+  for (const item of NAV) {
+    // A route entry has no section on this page. Skipping it keeps the spy from querying a
+    // dead id on every scroll frame.
+    if (isRoute(item)) continue;
+    const el = document.getElementById(item.id);
     if (!el) continue;
-    if (el.getBoundingClientRect().top <= HEADER_H + 2) current = id;
+    if (el.getBoundingClientRect().top <= HEADER_H + 2) current = item.id;
   }
   return current;
 }
@@ -190,7 +213,16 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     else openMenu();
   }
 
-  function handleMobileNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
+  function handleMobileNavClick(e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) {
+    // A route still has to close the menu and release the scroll lock before it navigates,
+    // or the body stays locked on the page it lands on.
+    if (isRoute(item)) {
+      setMenuOpen(false);
+      lenis?.start();
+      document.body.style.overflow = "";
+      return;
+    }
+    const id = item.id;
     if (!isHome) {
       setMenuOpen(false);
       lenis?.start();
@@ -251,7 +283,11 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     };
   }, [sheetOpen]);
 
-  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) {
+    // A ROUTE NAVIGATES. Falling through to preventDefault would cancel the navigation and
+    // then scroll to an element that does not exist — a link that silently does nothing.
+    if (isRoute(item)) return;
+    const id = item.id;
     if (!isHome) return;
     e.preventDefault();
     setActive(id);
@@ -347,16 +383,26 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
             <div className="nav-desktop">
               <nav ref={linksRef} className="nav-links" aria-label="Site sections" onPointerLeave={clearIndicator}>
                 <span ref={indRef} className="nav-ind" aria-hidden="true" />
-                {NAV.map(({ id, label }) => (
+                {NAV.map((item) => (
                   <Link
-                    key={id}
-                    href={isHome ? `#${id}` : `/#${id}`}
+                    key={item.id}
+                    href={navHref(item, isHome)}
                     scroll={false}
-                    onClick={(e) => handleNavClick(e, id)}
+                    onClick={(e) => handleNavClick(e, item)}
                     onPointerEnter={(e) => moveIndicator(e.currentTarget)}
-                    aria-current={active === id ? "true" : undefined}
+                    // A section is current when the spy says so; a ROUTE is current when
+                    // you are on it. `page` rather than `true` because that is what it is.
+                    aria-current={
+                      isRoute(item)
+                        ? pathname.startsWith(item.href)
+                          ? "page"
+                          : undefined
+                        : active === item.id
+                          ? "true"
+                          : undefined
+                    }
                   >
-                    {label}
+                    {item.label}
                   </Link>
                 ))}
               </nav>
@@ -403,14 +449,15 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         <i /><i /><i />
       </button>
       <div id="nav-sheet" className={`nav-sheet${sheetOpen ? " is-open" : ""}`}>
-        {NAV.map(({ id, label }) => (
+        {NAV.map((item) => (
           <Link
-            key={id}
-            href={isHome ? `#${id}` : `/#${id}`}
+            key={item.id}
+            href={navHref(item, isHome)}
             scroll={false}
-            onClick={(e) => { handleNavClick(e, id); setSheetOpen(false); }}
+            onClick={(e) => { handleNavClick(e, item); setSheetOpen(false); }}
+            aria-current={isRoute(item) && pathname.startsWith(item.href) ? "page" : undefined}
           >
-            {label}
+            {item.label}
           </Link>
         ))}
         <div className="nav-sheet-sep" />
@@ -443,15 +490,16 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         className={`header-mobile-menu${menuOpen ? " open" : ""}`}
       >
         <nav aria-label="Mobile site navigation" className="flex flex-col mt-auto">
-          {NAV.map(({ id, label }) => (
+          {NAV.map((item) => (
             <Link
-              key={id}
-              href={isHome ? `#${id}` : `/#${id}`}
+              key={item.id}
+              href={navHref(item, isHome)}
               scroll={false}
               className="header-mob-nav-item"
-              onClick={(e) => handleMobileNavClick(e, id)}
+              onClick={(e) => handleMobileNavClick(e, item)}
+              aria-current={isRoute(item) && pathname.startsWith(item.href) ? "page" : undefined}
             >
-              {label}
+              {item.label}
             </Link>
           ))}
         </nav>

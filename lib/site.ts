@@ -78,3 +78,20 @@ export function projectLastModified(slug: string): Date {
 
   return newest > 0 ? new Date(newest) : new Date();
 }
+
+/**
+ * A blog post's last-modified date, for the sitemap.
+ *
+ * THE FILE'S MTIME, NOT THE AUTHORED `date`. They answer different questions: `date` is
+ * when the post was WRITTEN and is what the article displays, while a sitemap's
+ * lastModified is when the content last CHANGED. A typo fix does not move the authored
+ * date and should still tell a crawler to re-read the page. This mirrors
+ * projectLastModified, which takes the same view for the same reason.
+ */
+export function blogLastModified(slug: string): Date {
+  try {
+    return new Date(statSync(path.join(process.cwd(), "content", "blog", `${slug}.yaml`)).mtimeMs);
+  } catch {
+    return new Date();
+  }
+}
