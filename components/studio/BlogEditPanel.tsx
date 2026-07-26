@@ -160,13 +160,15 @@ export default function BlogEditPanel({
           </div>
 
           <div className="flex flex-col gap-1 lg:col-span-2">
-            <span className={labelCls}>Card image</span>
             {/* ONE field, two jobs: the article hero and the index/homepage card
                 thumbnail are the same `heroImage`. The mock draws it twice; the schema
-                has one, and a post without one falls back to the typographic plate. */}
+                has one, and a post without one falls back to the typographic plate.
+                The label is passed IN — this used to render its own "Card image" span
+                above a component that already labels itself "Hero image". */}
             <HeroImageField
               slug={slug}
               collection="blog"
+              label="Card image"
               initial={heroImage}
               onChanged={() => setUnpublished(true)}
             />

@@ -9,6 +9,7 @@ import {
   IconCode,
   IconLayers,
 } from "@/components/studio/icons";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 // Hero/About/Process are edited inline in the studio settings panel; Work in the
 // projects panel; Skills in the skills panel (SK-4). All are real /studio editors.
@@ -29,7 +30,7 @@ export default async function StudioHomepage() {
     : [{ label: "Not yet created", tone: "warn" }];
 
   return (
-    <>
+    <div className={STUDIO_PAGE}>
       <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
       <div className="max-w-[60rem] border-t border-ink-950/8">
@@ -97,6 +98,6 @@ export default async function StudioHomepage() {
         Hero facets, Process stage visuals, and Contact steps are code-managed and
         edited in source, not here.
       </p>
-    </>
+    </div>
   );
 }

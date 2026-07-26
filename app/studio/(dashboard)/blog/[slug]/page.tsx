@@ -12,6 +12,7 @@ import BlogEditPanel from "@/components/studio/BlogEditPanel";
 import { blogPath } from "@/lib/site";
 import { IconArrowUpRight } from "@/components/studio/icons";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -37,7 +38,9 @@ export default async function BlogEditorPage({ params }: Props) {
   const topicSuggestions = [...new Set(blog.map((p) => p.topic).filter(Boolean))].sort();
 
   return (
-    <>
+    // TEMPORARY: padding until ThreePaneShell is mounted here, at which point this
+    // page becomes full-bleed and drops STUDIO_PAGE.
+    <div className={STUDIO_PAGE}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/studio/blog"
@@ -66,6 +69,6 @@ export default async function BlogEditorPage({ params }: Props) {
         blocks={blocks}
         topicSuggestions={topicSuggestions}
       />
-    </>
+    </div>
   );
 }

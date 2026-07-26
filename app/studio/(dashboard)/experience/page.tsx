@@ -1,6 +1,7 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
 import ExperienceListEditor from "@/components/studio/ExperienceListEditor";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export default async function StudioExperience() {
   // getStudioData().experience is F-2's draft-overlaid list — it already reflects
@@ -10,12 +11,12 @@ export default async function StudioExperience() {
   const { experience } = await getStudioData();
 
   return (
-    <>
+    <div className={STUDIO_PAGE}>
       <AreaHeader
         title="Experience"
         sub="Roles, sorted by order. Add or remove entries; edit the title, dates, and location inline."
       />
       <ExperienceListEditor entries={experience} />
-    </>
+    </div>
   );
 }

@@ -57,8 +57,17 @@ export default async function DashboardLayout({
               collection edit's "unpublished" signal shows on the page you're
               editing — not just Settings. Panels report differs + pending to it. */}
           <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError}>
-            <div className="p-4 lg:p-6">{children}</div>
-            <div className="h-20" aria-hidden />
+            {/* NO PADDING AND NO BOTTOM SPACER HERE. This used to be
+                `<div className="p-4 lg:p-6">{children}</div>` plus an `h-20` spacer
+                that kept the fixed PublishBar off the end of the content.
+                Both assumed EVERY studio page wants a padded, page-scrolled column.
+                The blog editor falsifies that — it is a full-height 3-pane layout
+                whose panes scroll internally and which must reach the viewport
+                edges. Each page now owns its own padding via STUDIO_PAGE (which
+                folds the old spacer into a bottom pad), so the exception needs no
+                negative margins to escape a shared wrapper. Negation was the
+                alternative and it is the hack that decays. */}
+            {children}
             <PublishBar />
           </PublishProvider>
         </main>

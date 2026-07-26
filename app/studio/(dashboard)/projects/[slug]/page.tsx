@@ -16,6 +16,7 @@ import ProjectsEditPanel from "@/components/studio/ProjectsEditPanel";
 import CaseStudySwitcher from "@/components/studio/CaseStudySwitcher";
 import { projectPath } from "@/lib/site";
 import { IconArrowUpRight } from "@/components/studio/icons";
+import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -29,7 +30,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
   if (!project) notFound();
 
   return (
-    <>
+    <div className={STUDIO_PAGE}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <Link
@@ -65,6 +66,6 @@ export default async function CaseStudyEditorPage({ params }: Props) {
         template={project.template}
         category={project.category}
       />
-    </>
+    </div>
   );
 }
