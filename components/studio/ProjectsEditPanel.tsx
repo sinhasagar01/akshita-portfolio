@@ -244,7 +244,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           </span>
         </label>
 
-        <HeroImageField slug={slug} initial={heroImage} onChanged={() => setUnpublished(true)} />
+        <HeroImageField slug={slug} collection="projects" initial={heroImage} onChanged={() => setUnpublished(true)} />
 
         <label className="flex flex-col gap-1.5">
           <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Summary</span>
@@ -348,12 +348,17 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_BYTES = 12 * 1024 * 1024;
 
-function HeroImageField({
+export function HeroImageField({
   slug,
+  collection,
   initial,
   onChanged,
 }: {
   slug: string;
+  /** BS-3c — which collection's hero tree the upload lands in. REQUIRED, mirroring the
+   *  change BlockImageField took in #172: a default is exactly how blog would inherit the
+   *  projects tree. #173 generalised commitEntryHeroImage, so the route accepts both. */
+  collection: "projects" | "blog";
   initial: string | null;
   onChanged: () => void;
 }) {
@@ -377,7 +382,7 @@ function HeroImageField({
     const objUrl = file ? URL.createObjectURL(file) : null;
     try {
       const fd = new FormData();
-      fd.append("collection", "projects");
+      fd.append("collection", collection);
       fd.append("slug", slug);
       if (file) fd.append("file", file);
       else fd.append("clear", "true");

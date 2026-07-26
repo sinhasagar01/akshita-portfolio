@@ -20,13 +20,37 @@
  * orderIndex-sorted upstream), so a no-draft / GitHub-error state and today's
  * edit-only case both return the same list, same order.
  */
-export function overlayCollection<T extends { slug: string; orderIndex: number }>(
+export function overlayCollection<T extends { slug: string }>(
   live: T[],
   draftEntries: Record<string, T>,
-  removedSlugs: string[]
+  removedSlugs: string[],
+  compare: (a: T, b: T) => number
 ): T[] {
   const bySlug = new Map<string, T>(live.map((e) => [e.slug, e]));
   for (const slug of removedSlugs) bySlug.delete(slug);
   for (const slug of Object.keys(draftEntries)) bySlug.set(slug, draftEntries[slug]);
-  return [...bySlug.values()].sort((a, b) => a.orderIndex - b.orderIndex);
+  return [...bySlug.values()].sort(compare);
+}
+
+/**
+ * The ordering projects and experience use. BS-3c — `orderIndex` used to be baked into
+ * both the type constraint and the sort, which blog cannot satisfy: it has no
+ * orderIndex, it orders by `date`, and inventing one would write a key the schema does
+ * not declare.
+ *
+ * The comparator is REQUIRED, not defaulted, for the reason 3a made the image base
+ * required: a silent default is exactly how a new collection inherits another's
+ * behaviour without anyone noticing. Every caller names its ordering.
+ */
+export function byOrderIndex<T extends { orderIndex: number }>(a: T, b: T): number {
+  return a.orderIndex - b.orderIndex;
+}
+
+/**
+ * The ordering blog uses — newest first, slug as a stable tiebreak. Deliberately the
+ * SAME rule as the public read's selectPublishedPostsNewestFirst, so the studio list and
+ * the live list cannot disagree about what "first" means.
+ */
+export function byDateNewestFirst<T extends { date: string; slug: string }>(a: T, b: T): number {
+  return a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date);
 }

@@ -373,8 +373,29 @@ export async function getBlogPost(slug: string): Promise<BlogPostData | null> {
   };
 }
 
-/** Every blog slug — for the future generateStaticParams. Returns [] while the
- *  collection is empty. */
+/** Every blog slug — for generateStaticParams. Returns [] while the collection is empty. */
 export async function getBlogSlugs(): Promise<string[]> {
   return reader.collections.blog.list();
+}
+
+/**
+ * BS-3c — EVERY post, published and draft, newest first. The STUDIO list read.
+ *
+ * Deliberately NOT getBlogPosts(): that one filters to `status === "published"`, which is
+ * right for the public site and wrong here — the studio index must show drafts, since
+ * being able to see and flip an unpublished post is the entire point of the status field.
+ * Two reads with opposite postures rather than one with a flag, so a public caller can
+ * never accidentally opt into seeing drafts.
+ *
+ * Sorted by the SAME rule the public list uses (newest first, slug as a stable tiebreak),
+ * so the studio order and the live order cannot disagree.
+ */
+export async function getStudioBlogPosts(): Promise<BlogCard[]> {
+  const raw = await reader.collections.blog.all();
+  return (raw as Awaited<typeof raw>)
+    .map(({ slug, entry }) => {
+      const e = entry as Record<string, unknown>;
+      return { ...mapBlogListItem(slug, e), readingTime: readingTimeMinutes(e.blocks) };
+    })
+    .sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));
 }

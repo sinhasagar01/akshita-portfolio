@@ -22,14 +22,14 @@ import {
   useState,
 } from "react";
 
-type Counts = { projects: number; experience: number };
+type Counts = { projects: number; experience: number; blog: number };
 type CountsSignal = {
   counts: Counts;
   setCount: (key: keyof Counts, value: number) => void;
 };
 
 // No-op fallback so the sidebar never crashes if rendered outside the provider.
-const NOOP: CountsSignal = { counts: { projects: 0, experience: 0 }, setCount: () => {} };
+const NOOP: CountsSignal = { counts: { projects: 0, experience: 0, blog: 0 }, setCount: () => {} };
 
 const CountsContext = createContext<CountsSignal | null>(null);
 

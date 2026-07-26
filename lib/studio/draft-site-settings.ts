@@ -17,7 +17,9 @@ import {
   type ProjectListItem,
   type ExperienceListItem,
   type SkillsEntry,
+  type BlogCard,
 } from "@/lib/keystatic";
+import { mapBlogListItem, readingTimeMinutes } from "@/lib/blog/select";
 import {
   stripEmptyOptional,
   reorderBySchema,
@@ -141,10 +143,15 @@ export type DraftBranchState = {
   // Added + modified draft entries, read from the draft branch and keyed by slug.
   projects: Record<string, ProjectListItem>;
   experience: Record<string, ExperienceListItem>;
+  // BS-3c — blog entries changed on the draft branch. Without this the studio index
+  // reads main only, so a newly-created post would commit to the draft branch and then
+  // VANISH from the list on reload until publish — a create flow that looks broken.
+  blog: Record<string, BlogCard>;
   // F-2 — slugs the draft DELETED (status "removed"). No read needed; the status
   // is the whole signal. getStudioData subtracts these from the live list.
   removedProjects: string[];
   removedExperience: string[];
+  removedBlog: string[];
   // SK-4 — the draft version of the skills singleton, or null when skills.yaml
   // did not change on the draft branch (scoped like the collection overlay).
   skills: SkillsEntry | null;
@@ -155,13 +162,15 @@ const EMPTY_DRAFT_STATE: DraftBranchState = {
   readError: false,
   projects: {},
   experience: {},
+  blog: {},
   removedProjects: [],
   removedExperience: [],
+  removedBlog: [],
   skills: null,
 };
 
 // content/<collection>/<slug>.yaml — the top-level entry file (not the body subdir).
-const COLLECTION_FILE_RE = /^content\/(projects|experience)\/([a-z0-9-]+)\.yaml$/;
+const COLLECTION_FILE_RE = /^content\/(projects|experience|blog)\/([a-z0-9-]+)\.yaml$/;
 // The skills singleton is one flat file (not content/<coll>/<slug>.yaml).
 const SKILLS_FILE = "content/skills.yaml";
 
@@ -191,17 +200,25 @@ const readDraftBranchStateCached = unstable_cache(
     // modified) is READ from the draft branch below and overlaid.
     const projectSlugs: string[] = [];
     const experienceSlugs: string[] = [];
+    const blogSlugs: string[] = [];
     const removedProjects: string[] = [];
     const removedExperience: string[] = [];
+    const removedBlog: string[] = [];
+    // BS-3c — an explicit three-way branch, not a projects-or-else ternary. Widening the
+    // regex to a third collection is exactly what made the two-way ternaries in the
+    // commit layer route blog wrong in 3b; every arm is named so a fourth collection is
+    // a visible hole rather than a silent misfile.
+    const CHANGED: Record<string, { added: string[]; removed: string[] }> = {
+      projects: { added: projectSlugs, removed: removedProjects },
+      experience: { added: experienceSlugs, removed: removedExperience },
+      blog: { added: blogSlugs, removed: removedBlog },
+    };
     for (const file of cmp.files) {
       const m = file.filename.match(COLLECTION_FILE_RE);
       if (!m) continue;
-      const isProjects = m[1] === "projects";
-      if (file.status === "removed") {
-        (isProjects ? removedProjects : removedExperience).push(m[2]);
-      } else {
-        (isProjects ? projectSlugs : experienceSlugs).push(m[2]);
-      }
+      const bucket = CHANGED[m[1]];
+      if (!bucket) continue;
+      (file.status === "removed" ? bucket.removed : bucket.added).push(m[2]);
     }
     // Skills is a SINGLETON, so unlike collection entries it gets no removed-slug
     // tracking: `some` matches added/modified/removed alike. A removed skills.yaml
@@ -212,8 +229,13 @@ const readDraftBranchStateCached = unstable_cache(
     // Read nothing when there is nothing to READ (only removals, settings-only, or
     // nothing) — a skills-only edit must still fall through, so the guard includes
     // !skillsChanged. Removed slugs need no read, so they are returned here too.
-    if (projectSlugs.length === 0 && experienceSlugs.length === 0 && !skillsChanged) {
-      return { differs, readError: false, projects: {}, experience: {}, removedProjects, removedExperience, skills: null };
+    if (
+      projectSlugs.length === 0 &&
+      experienceSlugs.length === 0 &&
+      blogSlugs.length === 0 &&
+      !skillsChanged
+    ) {
+      return { differs, readError: false, projects: {}, experience: {}, blog: {}, removedProjects, removedExperience, removedBlog, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -224,6 +246,7 @@ const readDraftBranchStateCached = unstable_cache(
     });
     const projects: Record<string, ProjectListItem> = {};
     const experience: Record<string, ExperienceListItem> = {};
+    const blog: Record<string, BlogCard> = {};
     let skills: SkillsEntry | null = null;
     await Promise.all([
       ...projectSlugs.map(async (slug) => {
@@ -234,6 +257,14 @@ const readDraftBranchStateCached = unstable_cache(
         const entry = await reader.collections.experience.read(slug);
         if (entry) experience[slug] = mapExperienceListItem(slug, entry as Record<string, unknown>);
       }),
+      ...blogSlugs.map(async (slug) => {
+        const entry = await reader.collections.blog.read(slug);
+        if (!entry) return;
+        const e = entry as Record<string, unknown>;
+        // The same shape (and the same readingTime derivation) the studio list read
+        // produces, so an overlaid draft row is indistinguishable from a live one.
+        blog[slug] = { ...mapBlogListItem(slug, e), readingTime: readingTimeMinutes(e.blocks) };
+      }),
       ...(skillsChanged
         ? [
             (async () => {
@@ -243,7 +274,7 @@ const readDraftBranchStateCached = unstable_cache(
           ]
         : []),
     ]);
-    return { differs, readError: false, projects, experience, removedProjects, removedExperience, skills };
+    return { differs, readError: false, projects, experience, blog, removedProjects, removedExperience, removedBlog, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }

@@ -14,12 +14,27 @@
   file in the same PR and say why.
 
   LOCKED DECISIONS
-  - LAYOUT = the existing ListDetailLayout with a THIRD COLUMN (list · canvas ·
-    inspector). A write-first composer shell was explored and rejected: it is
-    faster for a daily loop, but it is a SECOND SHELL, and the moment it exists
-    "ListDetailLayout is the /studio layout" stops being true and there are two
-    answers to the same question forever. Its one real win — the full-width
-    writing surface — is folded in here as a COLLAPSE CONTROL on the list.
+  - LAYOUT — CORRECTED (blog PR 3c). This file specified "the existing
+    ListDetailLayout with a THIRD COLUMN (list · canvas · inspector)" plus a
+    COLLAPSE CONTROL on the list. BOTH WERE WRONG, and the second more seriously
+    than the first:
+      (a) ListDetailLayout is a fixed TWO-column grid
+          (`lg:grid-cols-[220px_1fr]`) with no third column and no collapse
+          capability, so this was a modification to a shell eight panels share,
+          not a reuse of it.
+      (b) THE STUDIO HAD ALREADY REMOVED THIS PATTERN. The case-study editor used
+          to be exactly this — an editor beside a list — and it was deleted,
+          for a stated reason, quoted from app/studio/(dashboard)/projects/
+          [slug]/page.tsx: "The editor used to be a detail pane beside a list of
+          all four case studies, and that rail cost most of the horizontal room
+          the canvas needs to render a page faithfully. The list moves to
+          /studio/projects (an index) and the editing happens here, where nothing
+          competes for width." The collapse control was a mitigation for exactly
+          the problem that removal already solved.
+    WHAT SHIPPED: an INDEX at /studio/blog and a FULL-WIDTH EDITOR at
+    /studio/blog/<slug>, mirroring the case-study surface and the CLAUDE.md
+    convention (one editor, one URL). Having no rail at all is what the collapse
+    control was reaching for.
   - Panels stay MOUNTED (return null when unselected), per the existing rule, so
     switching posts never discards an unsaved draft.
   - A POST IS A FLAT ARRAY OF BLOCKS, not the case-study `sections` shape. The
@@ -31,19 +46,24 @@
     semantics and the projects collection already had to keep a vestigial
     `body: []` for exactly that reason. VERIFY what createReader demands of a
     fresh collection before finalising the schema.
-  - The BLOCK PICKER surfaces FOUR kinds — paragraph, image, pull quote, video.
-    The registry still holds the rest; the picker is a curated view. A stepper
-    or glanceGrid in a blog post is a case-study tool that wandered in. This is
-    a deliberate departure from the case-study picker, which is un-gated to all
-    fourteen because publish-time validation protects the build there.
-    KIND STATUS (corrected against source, blog PR 1): THREE of the four already
-    exist and are reused verbatim — `richText`, `pullQuote`, `videoEmbed`. The
-    fourth, `imageBlock`, DOES NOT EXIST in the schema (there is no standalone
-    single-image block; the image-bearing kinds are figureGrid, annotatedImage,
-    heroCover, deviceShelf, featureRows, beforeAfter). So `imageBlock` is NET-NEW:
-    the editor PR either builds it as a new kind or repurposes `figureGrid` for a
-    one-image figure. It is deliberately NOT added in the schema PR (a new kind is
-    a feature; adding one later is additive and safe).
+  - The BLOCK PICKER surfaces FOUR kinds — paragraph, heading, pull quote, video.
+    A stepper or glanceGrid in a blog post is a case-study tool that wandered in.
+    MECHANISM CORRECTED (blog PR 3c): this file called the picker "a curated
+    view" of the projects registry. It is not, and could not have been — the
+    case-study picker is `Object.keys(BLOCK_REGISTRY)` with an explicit "no
+    filter" comment, so a curated view would have needed a prop or a filter that
+    does not exist. Blog needs its OWN table anyway (see the kind status below),
+    so BLOG_BLOCK_REGISTRY *is* the curation: four keys, no filter, no fork.
+    KIND STATUS (blog PR 1, updated 3c): the four offered are `richText`,
+    `heading`, `pullQuote`, `videoEmbed`. THREE are reused by reference from the
+    projects registry; `heading` was added to the schema in PR 2 and needed its
+    own form, empty and label in 3c — every projects-keyed table
+    (BLOCK_REGISTRY, BLOCK_LABELS, BLOCK_EMPTIES) had silently lacked it, the
+    same decay #173 found in the sanitizer.
+    `imageBlock` STILL DOES NOT EXIST and is still deferred: there is no
+    standalone single-image block (the image-bearing kinds are figureGrid,
+    annotatedImage, heroCover, deviceShelf, featureRows, beforeAfter). A post can
+    carry a hero image but cannot embed an image in its prose.
   - NEW POST = CAPTURE-THEN-CREATE, identical to Experience and Projects: title
     only, slug DERIVED SERVER-SIDE and locked, entry created immediately, then
     straight into the canvas. NEVER a blank-row append.
@@ -64,22 +84,34 @@
     editor, and the inspector says so in plain words.
   - Reading time is COMPUTED from the blocks, never authored.
 
-  OPEN QUESTION — NOT ANSWERED BY THIS FILE
-  - PER-POST DRAFT/PUBLISHED STATUS vs the site's BRANCH-WIDE PUBLISH. Today
-    there is ONE draft branch and Publish merges all of it. With daily posting
-    you will routinely have a half-written post sitting alongside an unrelated
-    Hero edit, and a branch-wide publish would ship both. The status control is
-    drawn here because the editor needs it; the mechanism behind it is a real
-    architectural decision that has to be made before this is built. Options
-    worth weighing: a `status` field on the post that the public read filters
-    on (simplest, no branch changes), or per-entry publish (a much larger
-    change to the commit layer). The field approach is almost certainly right.
+  RESOLVED — the former OPEN QUESTION (status vs branch-wide publish)
+  - ANSWERED IN PR 1 AND HARDENED IN PR 4 of the arc, and no longer open. A
+    `status` field on the post, which the PUBLIC READ FILTERS ON
+    (`=== "published"`, fail-closed, so "" and any unknown value stay hidden).
+    Per-entry publish was rejected: it would have meant reworking the commit
+    layer, the draft-state read and the branch-wide Publish signal.
+    The consequence for a half-written post is handled: the publish gate SKIPS
+    drafts, and the studio read filters before mapping, so an unfinished post is
+    inert at build and never blocks publishing anything else.
 
   IMPLEMENTATION NOTES THAT ARE EASY TO GET WRONG
-  - The collapse control must not unmount the list — collapse is a width
-    transition, not a conditional render, or the search state resets each time.
-  - Slug is read-only after creation. Renaming = create-at-new-slug, move
-    assets, delete-old — the deferred entry-rename arc, not a field.
+  - (The collapse-control note is gone with the layout it belonged to.)
+  - THE TITLE IS READ-ONLY TOO, not just the slug. This file draws `.cv-title`
+    as contenteditable, but sanitizeBlogPatch REJECTS a `title` patch ("title is
+    the entry slug and cannot be edited here"), so an editable title would 400
+    on the first keystroke. Renaming = create-at-new-slug, move assets,
+    delete-old — the deferred entry-rename arc, not a field.
+  - TOPIC IS FREE TEXT, not the `<select>` drawn below. PR 4 of the arc made
+    `topic` an open string deliberately: no topic set is declared in the schema
+    or read by anything, so a closed list would be invented rather than
+    enforced. The editor offers existing values via a datalist instead.
+  - THE VIDEO POSTER FIELD IS HIDDEN in the blog form. It is in the schema,
+    uploadable and validated, but BlogProse renders an <iframe> and never reads
+    it. Wiring it is a video-presentation decision nobody has made; hiding it
+    stops three PRs of investment accreting further. Scoped, not built.
+  - The canvas hero and the inspector "Card image" drawn below are ONE field
+    (`heroImage`), shown twice. The schema has one, and it serves both the
+    article hero and the index/homepage card.
   - The inspector's card image is the post's list/homepage thumbnail. The blog
     homepage (V2, featured + stream) expects an image per post; posts without
     one fall back to a typographic plate.
