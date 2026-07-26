@@ -54,9 +54,17 @@
     the git-commit content pipeline (one love = one commit = one rebuild).
     Upstash Redis keyed by slug; per-visitor pressed state local; POST
     rate-limited by hashed IP.
-  - Cards are ONE BLOCK-LEVEL <a>, same decision as the work cards. The love
-    button inside needs position:relative + z-index to sit above it, and it
-    calls stopPropagation.
+  - Cards are ONE BLOCK-LEVEL <a>, same decision as the work cards.
+  - CORRECTION (blog PR 4b): this note used to say the love button inside the
+    card needs position:relative + z-index and calls stopPropagation. That
+    patches the click and leaves two real problems standing. A <button> inside
+    an <a> is an INVALID CONTENT MODEL, not a click-handling problem, and it
+    announces confusingly to assistive tech. And once love became ONE-WAY
+    (PR 4a) an accidental tap permanently loves an unread post — on a phone the
+    cards sit exactly where a thumb lands while scrolling.
+    So the index counts are READ-ONLY. The card shows a heart and a number in a
+    <span>; nothing inside the card anchor is focusable. Love happens once, at
+    the end of a post someone actually read.
   - The stream must survive N=200. Pagination or "older posts", never an
     infinite card wall.
   - The site goes mobile at lg (1024). This section follows that convention.
@@ -117,9 +125,9 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
 .love svg{ width:16px; height:16px; overflow:visible; transition:transform 300ms var(--pop); }
 .love .heart{ fill:none; stroke:currentColor; stroke-width:1.7; transition:fill 260ms var(--ease); }
 .love:hover svg{ transform:scale(1.12); }
-.love[aria-pressed="true"]{ color:var(--accent); }
-.love[aria-pressed="true"] .heart{ fill:currentColor; }
-.love[aria-pressed="true"] svg{ animation:thump 460ms var(--pop); }
+.love.is-loved{ color:var(--accent); }
+.love.is-loved .heart{ fill:currentColor; }
+.love.is-loved svg{ animation:thump 460ms var(--pop); }
 @keyframes thump{ 0%{transform:scale(1)} 35%{transform:scale(1.38)} 60%{transform:scale(.94)} 100%{transform:scale(1)} }
 .love .spark{ position:absolute; left:8px; top:50%; width:4px; height:4px; border-radius:99px;
   background:currentColor; opacity:0; pointer-events:none; }
@@ -221,7 +229,7 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
       <p>Nobody trusts a number they can't trace. Three years of enterprise dashboards taught me that the most important column is usually the one nobody asked for.</p>
       <div class="foot">
         <span>6 min read</span>
-        <button class="love" aria-pressed="false" data-n="48" aria-label="Love this post">
+        <span class="love" data-n="48" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
           <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
           <span class="n">48</span>
@@ -238,7 +246,7 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
       <h3>Three weeks of AI copilot patterns</h3>
       <p class="dek">What I kept, what I threw away, and the one interaction everyone copies that shouldn't be copied.</p>
       <div class="foot">
-        <button class="love" aria-pressed="false" data-n="31" aria-label="Love this post">
+        <span class="love" data-n="31" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
           <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
           <span class="n">31</span>
@@ -253,7 +261,7 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
       <h3>Notes on designing empty states</h3>
       <p class="dek">The screen a user sees most often on day one is the screen we design last.</p>
       <div class="foot">
-        <button class="love" aria-pressed="false" data-n="64" aria-label="Love this post">
+        <span class="love" data-n="64" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
           <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
           <span class="n">64</span>
@@ -267,7 +275,7 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
       <h3>The handoff is the design</h3>
       <p class="dek">If an engineer has to guess, the decision was never made — it was postponed.</p>
       <div class="foot">
-        <button class="love" aria-pressed="false" data-n="27" aria-label="Love this post">
+        <span class="love" data-n="27" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
           <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
           <span class="n">27</span>
@@ -281,7 +289,7 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
       <h3>A small win: the twelve-pixel fix</h3>
       <p class="dek">Twelve pixels of padding cut support tickets by a third. I still don't fully understand why.</p>
       <div class="foot">
-        <button class="love" aria-pressed="false" data-n="92" aria-label="Love this post">
+        <span class="love" data-n="92" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
           <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
           <span class="n">92</span>
@@ -295,19 +303,14 @@ body{ background:var(--paper); color:var(--ink); font-family:var(--sans); -webki
 </div>
 
 <script>
-/* love — optimistic. In the build: count from Upstash keyed by slug, pressed
-   state per-visitor, POST rate-limited by hashed IP. The card is a link, so the
-   handler must stop propagation or loving navigates. */
-document.querySelectorAll(".love").forEach(btn => {
-  const n = btn.querySelector(".n");
-  const base = parseInt(btn.dataset.n, 10);
-  btn.addEventListener("click", e => {
-    e.preventDefault(); e.stopPropagation();
-    const loved = btn.getAttribute("aria-pressed") === "true";
-    btn.setAttribute("aria-pressed", String(!loved));
-    n.textContent = base + (loved ? 0 : 1);
-    if (!loved){ btn.classList.remove("burst"); void btn.offsetWidth; btn.classList.add("burst"); }
-  });
+/* CORRECTION (blog PR 4b): this was a per-card decrementing toggle with stopPropagation.
+   The index counts are now READ-ONLY — nothing inside the card anchor is interactive, so
+   there is no click handler and nothing to stop. The numbers arrive from ONE batched
+   request for the whole page. A count of 0 renders nothing at all. */
+document.querySelectorAll(".love").forEach(el => {
+  const n = el.querySelector(".n");
+  const base = parseInt(el.dataset.n, 10);
+  n.textContent = base > 0 ? base : "";
 });
 </script>
 </body>

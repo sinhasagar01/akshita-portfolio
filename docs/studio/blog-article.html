@@ -167,9 +167,9 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
 .love svg{ width:18px; height:18px; overflow:visible; transition:transform 300ms var(--pop); }
 .love .heart{ fill:none; stroke:currentColor; stroke-width:1.7; transition:fill 260ms var(--ease); }
 .love:hover svg{ transform:scale(1.12); }
-.love[aria-pressed="true"]{ color:var(--accent); }
-.love[aria-pressed="true"] .heart{ fill:currentColor; }
-.love[aria-pressed="true"] svg{ animation:thump 460ms var(--pop); }
+.love.is-loved{ color:var(--accent); }
+.love.is-loved .heart{ fill:currentColor; }
+.love.is-loved svg{ animation:thump 460ms var(--pop); }
 @keyframes thump{ 0%{transform:scale(1)} 35%{transform:scale(1.4)} 60%{transform:scale(.93)} 100%{transform:scale(1)} }
 .love .spark{ position:absolute; left:9px; top:50%; width:4px; height:4px; border-radius:99px; background:currentColor; opacity:0; pointer-events:none; }
 .love.burst .spark{ animation:spark 640ms var(--ease-settle) forwards; }
@@ -198,7 +198,7 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
   transition:border-color 240ms var(--ease), background 240ms var(--ease), color 240ms var(--ease); }
 .love-block .love svg{ width:22px; height:22px; }
 .love-block .love:hover{ border-color:var(--accent); color:var(--accent); background:var(--paper-raised); }
-.love-block .love[aria-pressed="true"]{ border-color:var(--accent); background:rgba(160,80,60,.07); }
+.love-block .love.is-loved{ border-color:var(--accent); background:rgba(160,80,60,.07); }
 .love-block .hint{ margin:16px 0 0; font-size:12px; color:var(--ink-mute); }
 
 .pager{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule); margin-top:52px; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
@@ -434,12 +434,22 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
 
     <div class="love-block">
       <p>If this was useful, let me know.</p>
-      <button class="love" aria-pressed="false" aria-label="Love this post">
+      <!-- CORRECTION (blog PR 4b): NO aria-pressed. Love is ONE-WAY (PR 4a) — there is no
+           un-love and no DECR, so aria-pressed would promise a toggle that does not exist.
+           Once loved this stays MOUNTED and switches to aria-disabled; neither `disabled`
+           nor unmounting is acceptable, because both blur the element and throw a keyboard
+           reader back to <body>. The four .spark particles are dropped: they need authored
+           keyframes, and the burst is done with a scale transition plus one ping ring so
+           the blog still contributes ZERO authored selectors to the bundle. -->
+      <button class="love" aria-label="Love this post">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
-        <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
-        <span class="n">48</span>
+        Love this
       </button>
-      <p class="hint">48 people loved this</p>
+      <!-- CORRECTION (blog PR 4b): the count lives HERE, not on the button, and this line
+           renders NOTHING at 0 and at "not loaded". "0 people loved this" is the same
+           fabricated fact PR 2 refused when it declined to ship a static 0. Singular is
+           "1 person loved this". Doubles as the article's aria-live region. -->
+      <p class="hint" aria-live="polite">48 people loved this</p>
     </div>
 
     <nav class="pager">
@@ -458,7 +468,7 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
         <div class="cap-body">
           <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
           <div class="cap-right">
-            <button class="love" aria-pressed="false" aria-label="Love this post"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></button>
+            <span class="love" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></span>
             <div class="social bare"><a href="#" aria-label="Share on LinkedIn"><svg><use href="#i-linkedin"/></svg></a><a href="#" aria-label="Copy link"><svg><use href="#i-link"/></svg></a></div>
           </div>
         </div>
@@ -469,7 +479,7 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
         <div class="cap-body">
           <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
           <div class="cap-right">
-            <button class="love" aria-pressed="false" aria-label="Love this post"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></button>
+            <span class="love" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></span>
             <div class="social bare"><a href="#" aria-label="Share on LinkedIn"><svg><use href="#i-linkedin"/></svg></a><a href="#" aria-label="Copy link"><svg><use href="#i-link"/></svg></a></div>
           </div>
         </div>
@@ -480,7 +490,7 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
         <div class="cap-body">
           <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
           <div class="cap-right">
-            <button class="love" aria-pressed="false" aria-label="Love this post"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></button>
+            <span class="love" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></span>
             <div class="social bare"><a href="#" aria-label="Share on LinkedIn"><svg><use href="#i-linkedin"/></svg></a><a href="#" aria-label="Copy link"><svg><use href="#i-link"/></svg></a></div>
           </div>
         </div>
@@ -504,11 +514,13 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
     <span class="lbl">Topic</span><p class="val">Enterprise UX</p>
     <div class="sep"></div>
     <span class="lbl">Loved by</span>
-    <button class="love" aria-pressed="false" aria-label="Love this post">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
-      <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
-      <span class="n">48</span>
-    </button>
+    <!-- CORRECTION (blog PR 4b): this was a <button aria-pressed>. It is now a READ-ONLY
+         SPAN. The vessel is an aria-hidden container that takes pointer-events when shown,
+         and focusable content inside an aria-hidden subtree is an ARIA violation that
+         cannot be undone from below. It is also fixed-position and appears/vanishes on
+         scroll, so putting it in the tab order drops a keyboard reader's focus mid-article.
+         The end-of-article pill is the ONE love control on the site. -->
+    <span class="love" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg><span class="n">48</span></span>
     <!-- CORRECTION (blog PR 2): a "Share" section (LinkedIn + copy-link) sat here.
          Removed — share moves to PR 4 with the other interactive affordances. -->
     <p class="pct" data-pct>0% read</p>
@@ -521,11 +533,12 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
     <div class="cap-body">
       <p class="meta-row"><span>24 Jul</span><span>6 min</span></p>
       <div class="cap-right">
-        <button class="love" aria-pressed="false" aria-label="Love this post">
+        <!-- CORRECTION (blog PR 4b): a READOUT, for the same reason as the vessel's.
+             The capsule is aria-hidden and fixed-position. -->
+        <span class="love" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 20.5S3.5 14.8 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.6-8.5 11.3-8.5 11.3Z"/></svg>
-          <span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span>
           <span class="n">48</span>
-        </button>
+        </span>
         <!-- CORRECTION (blog PR 2): the capsule "Share" glyphs sat here. Removed with
              the vessel's Share section — share is PR 4. -->
       </div>
@@ -535,22 +548,29 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
 
 <script>
 const BASE = 48;
-const loves = [...document.querySelectorAll("button.love")];
-const counts = [...document.querySelectorAll(".n")];
-
-/* every love control refers to the SAME post — vessel, capsule and block in lockstep */
-loves.forEach(btn => {
-  btn.addEventListener("click", e => {
-    e.preventDefault();
-    const next = btn.getAttribute("aria-pressed") !== "true";
-    loves.forEach(b => {
-      b.setAttribute("aria-pressed", String(next));
-      if (next){ b.classList.remove("burst"); void b.offsetWidth; b.classList.add("burst"); }
-    });
-    counts.forEach(n => n.textContent = BASE + (next ? 1 : 0));
-    const hint = document.querySelector(".hint");
-    if (hint) hint.textContent = (BASE + (next ? 1 : 0)) + " people loved this";
-  });
+/* CORRECTION (blog PR 4b): this was a DECREMENTING TOGGLE across three buttons. Love is
+   ONE-WAY (PR 4a) — a second press is a no-op and there is no DECR anywhere. And there is
+   now exactly ONE control on the page: the end-of-article pill. The vessel and capsule
+   hearts are read-only reflections of the same count. */
+const control = document.querySelector("button.love");
+const counts  = [...document.querySelectorAll(".n")];
+const hint    = document.querySelector(".hint");
+const render  = (n) => {
+  counts.forEach(el => el.textContent = n > 0 ? n : "");
+  /* NOTHING at zero, and the singular reads correctly. "0 people loved this" is the
+     fabricated fact PR 2 refused. */
+  if (hint) hint.textContent = n > 0 ? n + (n === 1 ? " person" : " people") + " loved this" : "";
+};
+render(BASE);
+control.addEventListener("click", e => {
+  e.preventDefault();
+  if (control.classList.contains("is-loved")) return;   /* one-way: no un-love */
+  control.classList.add("is-loved", "burst");
+  /* stays MOUNTED and focusable — aria-disabled, never `disabled`, never removed */
+  control.setAttribute("aria-disabled", "true");
+  control.setAttribute("aria-label", "You loved this post");
+  document.querySelectorAll(".love").forEach(el => el.classList.add("is-loved"));
+  render(BASE + 1);
 });
 
 const vessel = document.querySelector("[data-vessel]");

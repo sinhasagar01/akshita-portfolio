@@ -7,7 +7,8 @@ import { absoluteUrl, blogPath } from "@/lib/site";
 import { formatLongDate } from "@/lib/blog/format";
 import BlogProse from "@/components/blog/BlogProse";
 import ReadingVessel from "@/components/blog/ReadingVessel";
-import LoveButton from "@/components/blog/LoveButton";
+import LoveButton, { LoveHint } from "@/components/blog/LoveButton";
+import LoveProvider from "@/components/blog/LoveProvider";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -53,7 +54,11 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post || post.status !== "published") notFound();
 
   return (
-    <div className="blog-article">
+    // P1 — the provider spans BOTH the pill (inside <main>) and the vessel's two readouts,
+    // which is the whole point: they are on opposite sides of the client boundary. The
+    // children stay server-rendered, so BlogProse never reaches the client bundle.
+    <LoveProvider slugs={[post.slug]}>
+      <div className="blog-article">
       <main
         id="main-content"
         tabIndex={-1}
@@ -94,16 +99,24 @@ export default async function BlogPostPage({ params }: Props) {
 
         <BlogProse blocks={post.blocks} />
 
-        {/* End-of-article love block. Countless + disabled in PR 2 (PR 4 wires it). */}
+        {/* The ONE love control on the site. Everything else that shows a count is a
+            readout — see LoveButton's header. */}
         <div id="blog-love-block" className="mt-[60px] border-y border-ink-950/8 py-[38px] text-center">
           <p className="mb-5 font-display text-[23px] leading-[1.35] text-ink-950">
             If this was worth your time, leave it some love.
           </p>
-          <LoveButton variant="pill" label="Love this" />
+          <LoveButton slug={post.slug} variant="control" />
+          <LoveHint slug={post.slug} />
         </div>
       </main>
 
-      <ReadingVessel date={post.date} readingTime={post.readingTime} topic={post.topic} />
-    </div>
+        <ReadingVessel
+          slug={post.slug}
+          date={post.date}
+          readingTime={post.readingTime}
+          topic={post.topic}
+        />
+      </div>
+    </LoveProvider>
   );
 }

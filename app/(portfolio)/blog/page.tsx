@@ -5,6 +5,7 @@ import { absoluteUrl, blogPath } from "@/lib/site";
 import { formatLongDate, formatShortDate } from "@/lib/blog/format";
 import Shot from "@/components/blog/Shot";
 import LoveButton from "@/components/blog/LoveButton";
+import LoveProvider from "@/components/blog/LoveProvider";
 
 // Static masthead chrome — site-level intro copy, not per-post content. A later PR could
 // move it to site settings; it is hardcoded here so PR 2 needs no schema for it.
@@ -65,7 +66,9 @@ function FeaturedCard({ post }: { post: BlogCard }) {
           ) : null}
           <div className="mt-5 flex items-center gap-4 text-[12.5px] text-ink-600">
             <span>{post.readingTime} min read</span>
-            <LoveButton variant="bare" />
+            {/* A readout. This sits inside the card's block-level <Link>, where a <button>
+                would be an invalid content model — not just a click to stop. */}
+            <LoveButton slug={post.slug} variant="readout" />
           </div>
         </div>
       </Link>
@@ -91,7 +94,8 @@ function PostCard({ post }: { post: BlogCard }) {
       </h3>
       {post.dek ? <p className="mt-2 text-[14.5px] leading-[1.55] text-ink-600">{post.dek}</p> : null}
       <div className="mt-3">
-        <LoveButton variant="bare" />
+        {/* Readout, same reason as the featured card. */}
+        <LoveButton slug={post.slug} variant="readout" />
       </div>
     </Link>
   );
@@ -138,7 +142,9 @@ async function BlogIndexBody() {
   const [featured, ...rest] = posts;
 
   return (
-    <>
+    // P2 — ONE batched request for every card. The provider is keyed by slug and each card
+    // names its own, so the featured card cannot pick up a stream card's number.
+    <LoveProvider slugs={posts.map((p) => p.slug)}>
       <Masthead />
       <FeaturedCard post={featured} />
       {rest.length > 0 ? (
@@ -149,6 +155,6 @@ async function BlogIndexBody() {
         </div>
       ) : null}
       {/* "Older posts" pagination is a later PR — never render it with a single page. */}
-    </>
+    </LoveProvider>
   );
 }

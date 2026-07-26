@@ -26,10 +26,27 @@ import { hashIp, makeLoveStore, selectReadableSlugs } from "@/lib/loves/store";
 /** Counts move on POST, so a build-time answer would be permanently stale. */
 export const dynamic = "force-dynamic";
 
-/** Cached at the edge, not in the browser: a shared 60s window absorbs the traffic while
- *  a visitor who just loved a post still sees their own number move (the POST response
- *  carries the new count, so the UI never waits on this). */
-const READ_CACHE = "public, s-maxage=60, stale-while-revalidate=300";
+/**
+ * Cached at the EDGE, never in the browser.
+ *
+ * BS-4a GOT THIS WRONG and BS-4b caught it. The original header was
+ * `public, s-maxage=60, stale-while-revalidate=300`, written on the belief that both
+ * directives were shared-cache-only. `stale-while-revalidate` is NOT: it authorises ANY
+ * cache, including the browser's private one, to serve a stale body — and with no
+ * `max-age` the browser had no explicit freshness lifetime to bound it either. The
+ * observable failure was a visitor loving a post, reloading, and being shown the
+ * PRE-LOVE number, for up to five minutes. Confirmed by resource timing, not by reading
+ * the spec: the load's first GET came back with transferSize 0 in 0.6ms and rendered 731
+ * while the store held 555.
+ *
+ * `max-age=0` makes the browser's freshness explicit rather than heuristic, and dropping
+ * `stale-while-revalidate` is what actually removes the private-cache staleness.
+ * `s-maxage=60` keeps the edge cache exactly as designed — which is the load-bearing part
+ * for the free-tier command budget, since it is what stops one command per page view.
+ * The cost is that a CDN request arriving after the 60s window blocks on revalidation
+ * instead of serving stale, which at this traffic is nothing.
+ */
+const READ_CACHE = "public, max-age=0, s-maxage=60";
 
 /** Never cache a failure — a 60s window on an outage would outlive the outage. */
 function unavailable() {

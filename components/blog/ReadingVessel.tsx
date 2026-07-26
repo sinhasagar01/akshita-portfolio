@@ -28,10 +28,12 @@ const WAVE_PATH_B =
   "M0,9 C25,3 75,3 100,9 C125,15 175,15 200,9 C225,3 275,3 300,9 C325,15 375,15 400,9 L400,16 L0,16 Z";
 
 export default function ReadingVessel({
+  slug,
   date,
   readingTime,
   topic,
 }: {
+  slug: string;
   date: string;
   readingTime: number;
   topic: string;
@@ -122,7 +124,9 @@ export default function ReadingVessel({
           <div className="blog-sep" />
           <span className="blog-lbl">Loved by</span>
           <div className="mt-2">
-            <LoveButton variant="bare" />
+            {/* A READOUT, not a control. This container is aria-hidden and fixed-position;
+                see LoveButton's header for why nothing focusable may live in here. */}
+            <LoveButton slug={slug} variant="readout" />
           </div>
           <p className="blog-pct">{pct}% read</p>
         </div>
@@ -137,7 +141,9 @@ export default function ReadingVessel({
               <span>{readingTime} min</span>
             </p>
             <div className="blog-cap-right">
-              <LoveButton variant="bare" />
+              {/* THE REFLOW RISK: margin-left:auto, so the number's width slides this
+                  whole group. Count reserves 3ch and uses tabular-nums for that reason. */}
+              <LoveButton slug={slug} variant="readout" />
             </div>
           </div>
         </div>
