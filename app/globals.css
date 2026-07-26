@@ -2310,6 +2310,21 @@ a {
 .blog-prose .blog-figure-wide {
   margin-inline: -17%;
 }
+/* The video poster, which fills its fixed-aspect frame behind the embed.
+   AUTHORED RATHER THAN UTILITY-CLASSED, AND THE REASON IS A REAL TRAP. globals.css:271
+   carries an UNLAYERED `img, video { height: auto }`. Unlayered rules beat
+   `@layer utilities`, so `h-full` SILENTLY LOSES on every <img> in this project — the
+   poster rendered 927.9px tall inside a 392.6px frame, overflowing by 535px and getting
+   clipped by the frame's overflow-hidden. It looked like a cropped image rather than a
+   broken one, which is why review rather than a test found it. This rule outranks the
+   global by specificity. The inline figure above is unaffected: it WANTS height:auto. */
+.blog-prose .blog-video-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 /* The contract's own responsive reset: below the fit breakpoint there is no room to bleed
    into, so a wide figure sits at the measure like every other block. */
 @media (max-width: 1199px) {

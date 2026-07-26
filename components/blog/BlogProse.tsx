@@ -66,15 +66,13 @@ function VideoEmbed({ value, rewriteSrc }: { value: BlogRawValue<"videoEmbed">; 
             blog form hid it. Rendered BEFORE the iframe so ordinary stacking puts the embed
             on top: the still shows while the embed loads and is covered once it paints,
             which is the whole job of a poster. Decorative — the caption and the iframe
-            title carry the meaning, so an empty alt is correct. */}
+            title carry the meaning, so an empty alt is correct.
+            The class is authored CSS, not utilities: globals.css:271 has an UNLAYERED
+            `img, video { height: auto }` that beats `@layer utilities`, so `h-full` does
+            not apply to an <img> anywhere in this project. */}
         {poster ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={rewriteSrc(poster)}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <img src={rewriteSrc(poster)} alt="" aria-hidden className="blog-video-poster" />
         ) : null}
         <iframe
           src={src}
