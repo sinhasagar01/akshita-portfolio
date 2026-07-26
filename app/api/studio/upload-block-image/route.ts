@@ -1,4 +1,10 @@
-// POST /api/studio/upload-block-image — P4 4(b)-iv case-study block image upload.
+// POST /api/studio/upload-block-image — block image upload, BOTH COLLECTIONS.
+//
+// Was "P4 4(b)-iv case-study block image upload", and further down said "the blog client
+// wiring lands in PR 3c". PR 3c shipped in #174 and the blog editor has posted through this
+// route since; the header described a state the code had left, which is the same defect
+// class as a comment describing Tailwind variants that were never written. Corrected when
+// `imageBlock` became this route's second blog consumer.
 //
 // INTERNET-EXPOSED WRITE ENDPOINT. The owner gate runs FIRST, before any GitHub call
 // or image processing. Multipart body: { slug, file }. github mode only (fs =
@@ -59,7 +65,8 @@ export async function POST(req: Request) {
   // BEFORE any commit — so an unknown collection 400s without doing any work. Unlike the
   // hero route, block images commit a blob ONLY (the panel sets `src` through the
   // ordinary save), so no per-collection yaml serializer is needed and BOTH collections
-  // are supported here today; the blog client wiring lands in PR 3c.
+  // are supported here. Both are now WIRED, too: projects through ImgSpecFields, blog
+  // through imageBlock's own form.
   const collection = form.get("collection");
   const base = imageBaseForCollection(collection);
   if (!base) {

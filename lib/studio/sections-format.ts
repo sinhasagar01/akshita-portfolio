@@ -14,8 +14,9 @@
 // renders no form for them yet, so they round-trip verbatim. An unknown kind is
 // always rejected, so the schema and the patch can never silently disagree.
 //
-// The 14 in-scope kinds are no longer a list here. Membership IS the VALIDATORS
-// table's own keys, and the table is `{ [K in SectionBlockKind]: … }` — exhaustive
+// The 16 in-scope kinds (CORRECTED FROM 14, a count that decayed silently as richText,
+// closingLine and videoEmbed were added) are no longer a list here. Membership IS the
+// VALIDATORS table's own keys, and the table is `{ [K in SectionBlockKind]: … }` — exhaustive
 // against the Keystatic-derived union, so a kind cannot be missed. This replaces a
 // hand-synced copy of the adapter's list that carried a comment asking the next
 // reader to keep the two in step.
@@ -78,7 +79,11 @@ export type Check<T> = (raw: unknown, at: string) => Ok<T> | Fail;
 export const str: Check<string> = (raw, at) =>
   typeof raw === "string" ? { ok: true, value: raw } : invalid(`${at} must be a string`, at);
 
-const bool: Check<boolean> = (raw, at) =>
+/** Exported for blog's sanitizer, which injects the shared combinators rather than
+ *  re-deriving them (#173: the COMBINATORS are shared, only the TABLE is blog's).
+ *  `imageBlock.wide` and `.decorative` are its first blog consumers; projects' only
+ *  boolean is `statCards.highlighted`, whose behaviour is unchanged. */
+export const bool: Check<boolean> = (raw, at) =>
   typeof raw === "boolean" ? { ok: true, value: raw } : invalid(`${at} must be a boolean`, at);
 
 /**
@@ -106,8 +111,12 @@ const numOrNull: Check<number | null> = (raw, at) => {
  * exists in any real file (all 16 are real paths). So an empty string can only
  * come from a form that coerced a null, which is precisely the hazard this gate
  * exists to catch. Same posture as numOrNull.
+ *
+ * EXPORTED alongside `bool` for blog's injected combinator set. `imageBlock.src` is the
+ * same `string | null` shape as every projects image src, so it gets this gate rather than
+ * a weaker blog-local one.
  */
-const imageSrc: Check<string | null> = (raw, at) => {
+export const imageSrc: Check<string | null> = (raw, at) => {
   if (raw === null) return { ok: true, value: null };
   if (typeof raw !== "string") return invalid(`${at} must be a string or null`, at);
   if (raw === "") return invalid(`${at} must be a path or null, never ""`, at);

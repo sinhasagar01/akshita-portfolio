@@ -30,9 +30,9 @@
 // the sweep is the list.
 import type { ComponentType } from "react";
 import type { BlogBlockKind, BlogRawValue } from "@/lib/blog/blocks-raw";
-import { BLOCK_REGISTRY, VideoEmbedForm } from "./registry";
+import { BLOCK_REGISTRY } from "./registry";
 import { BLOG_BLOCK_EMPTIES, emptyHeading } from "./blog-empties";
-import { TextField } from "./fields";
+import { BlockImageField, TextField, TextArea, CheckField } from "./fields";
 
 /** The props a blog block form receives — the same contract BlockFormProps states, over
  *  the BLOG value union. `collection` is threaded exactly as #172 requires. */
@@ -66,6 +66,66 @@ const HeadingForm = ({
   />
 );
 
+/** The inline figure's form. Composes existing primitives only — no new field type.
+ *
+ *  FIVE FIELDS, ALL UNDER CONTENT, because imageBlock carries no geometry. It deliberately
+ *  does NOT use ImgSpecFields, which would add width/rotate/translateX/translateY/z/frame —
+ *  six knobs BlogProse reads none of, which is the videoEmbed.poster condition multiplied.
+ *
+ *  The `wide` note states an ACTION, not an apology. A wide figure bleeds past the canvas
+ *  pane when the post list is open (measured: ~24-27px of slack against a ~120px bleed) and
+ *  fits with it collapsed (~143-146px). That clipping is a deliberate trade — one bleed
+ *  value means the canvas and the article agree on geometry whenever the canvas has room —
+ *  so the author is told what to do, not why. */
+const ImageBlockForm = ({
+  value,
+  onChange,
+  onBlur,
+  slug,
+  collection,
+}: BlogBlockFormProps<"imageBlock">) => (
+  <>
+    <BlockImageField
+      label="Image"
+      src={value.src}
+      slug={slug}
+      collection={collection}
+      // The upload commits the blob and hands back the server-derived path; the src edit
+      // then rides the ordinary save, so `blocks` keeps its single writer.
+      onChange={(src) => onChange({ ...value, src })}
+    />
+    <TextField
+      label="Alt text"
+      value={value.alt}
+      onChange={(alt) => onChange({ ...value, alt })}
+      onBlur={onBlur}
+    />
+    <TextArea
+      label="Caption (optional) — supports **bold**, *italic*, [links](url)"
+      value={value.caption}
+      onChange={(caption) => onChange({ ...value, caption })}
+      onBlur={onBlur}
+    />
+    <CheckField
+      label="Break wider than the text column"
+      value={value.wide}
+      onChange={(wide) => onChange({ ...value, wide })}
+      onBlur={onBlur}
+    />
+    {value.wide ? (
+      <p className="text-[11px] leading-relaxed text-text-subtle">
+        A wide image shows in full with the post list collapsed.
+      </p>
+    ) : null}
+    <CheckField
+      label="Decorative — no alt text needed"
+      value={value.decorative}
+      onChange={(decorative) => onChange({ ...value, decorative })}
+      onBlur={onBlur}
+    />
+  </>
+);
+
 const firstLine = (s: string, fallback: string) => s.split("\n")[0].trim() || fallback;
 
 /**
@@ -81,12 +141,17 @@ export const BLOG_BLOCK_REGISTRY: { [K in BlogBlockKind]: BlogEntry<K> } = {
     empty: emptyHeading,
   },
   pullQuote: BLOCK_REGISTRY.pullQuote,
-  // Same entry as projects EXCEPT the poster field, which BlogProse never reads. Spreading
-  // the shared entry keeps label/empty identical; only Form is wrapped.
-  videoEmbed: {
-    ...BLOCK_REGISTRY.videoEmbed,
-    Form: (props: BlogBlockFormProps<"videoEmbed">) => <VideoEmbedForm {...props} showPoster={false} />,
+  imageBlock: {
+    label: (v) => firstLine(v.alt, "Image"),
+    Form: ImageBlockForm,
+    empty: BLOG_BLOCK_EMPTIES.imageBlock,
   },
+  // THE POSTER IS NO LONGER HIDDEN. It was hidden because `BlogProse` rendered an <iframe>
+  // and never read it — an authorable field no reader shows, the same condition that kept
+  // `imageBlock` deferred. BlogProse draws images now, so the field feeds something. Blog
+  // uses the shared entry unmodified again, which is why this is a plain reference rather
+  // than a wrapper: the projects form IS the blog form again.
+  videoEmbed: BLOCK_REGISTRY.videoEmbed,
 };
 
 // Re-exported so the host has one import for the whole registry surface.

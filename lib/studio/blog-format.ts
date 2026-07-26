@@ -22,10 +22,12 @@ import {
   imgSpec,
   videoSrc,
   videoFrame,
+  bool,
+  imageSrc,
 } from "./sections-format";
 import { makeBlogSanitizers } from "./blog-format-core";
 
-const sanitizers = makeBlogSanitizers({ str, obj, arrayOf, imgSpec, videoSrc, videoFrame });
+const sanitizers = makeBlogSanitizers({ str, obj, arrayOf, imgSpec, videoSrc, videoFrame, bool, imageSrc });
 
 export const sanitizeBlogBlocksPatch = sanitizers.sanitizeBlogBlocksPatch;
 export const sanitizeBlogPatch = sanitizers.sanitizeBlogPatch;

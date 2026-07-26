@@ -42,12 +42,14 @@ import {
   imgSpec,
   videoSrc,
   videoFrame,
+  bool,
+  imageSrc,
 } from "../../lib/studio/sections-format.ts";
 import { serializeBlogBlocks, readBlogBlocks } from "../../lib/studio/blog-serialize.ts";
 import { validateBlogPost } from "../../lib/studio/validate-blog-post.ts";
 import { entryDraftCacheKey } from "../../lib/studio/entry-draft-key.ts";
 
-const { sanitizeBlogBlocksPatch } = makeBlogSanitizers({ str, obj, arrayOf, imgSpec, videoSrc, videoFrame });
+const { sanitizeBlogBlocksPatch } = makeBlogSanitizers({ str, obj, arrayOf, imgSpec, videoSrc, videoFrame, bool, imageSrc });
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const POST = path.join(root, "content/blog/what-a-data-table-teaches-you-about-trust.yaml");
@@ -62,10 +64,12 @@ const t = (name, got, want) => {
 // The four kinds the BLOG schema declares. Derived from the real content file's own
 // blocks plus the schema's picker order, so this list is not a hand-copy of the source
 // under test.
-const KINDS = ["richText", "heading", "pullQuote", "videoEmbed"];
+// FIVE since imageBlock. This list is the point of the suite — every blog table must
+// cover exactly it, so adding a kind to the schema and forgetting a table fails here.
+const KINDS = ["richText", "heading", "pullQuote", "imageBlock", "videoEmbed"];
 
 /* ------------------------------------------------- A. the table is exactly the schema */
-t("A1 the table offers exactly the four blog kinds", Object.keys(BLOG_BLOCK_EMPTIES).sort(), [...KINDS].sort());
+t("A1 the table offers exactly the five blog kinds", Object.keys(BLOG_BLOCK_EMPTIES).sort(), [...KINDS].sort());
 t("A2 heading IS in the registry (the gap this PR closes)", Object.prototype.hasOwnProperty.call(BLOG_BLOCK_EMPTIES, "heading"), true);
 t("A3 no projects-only kind leaked in", KINDS.length, Object.keys(BLOG_BLOCK_EMPTIES).length);
 for (const k of ["heroCover", "deviceShelf", "statCards", "swatchTokens", "closingLine", "figureGrid"]) {

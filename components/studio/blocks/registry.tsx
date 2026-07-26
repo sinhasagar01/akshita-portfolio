@@ -870,19 +870,19 @@ const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value
 // poster rides ImgSpecFields' content-addressed upload, the caption is a marker textarea
 // (the same **bold** *italic* [link](url) the inline canvas edit reads), and the frame
 // is a plain select defaulting to the browser chrome.
-/** `showPoster` exists for BLOG. `BlogProse` never reads `poster`, so on the blog side the
- *  field would be authorable and permanently invisible — the exact condition that got
- *  `imageBlock` deferred in #171. #174's plan said it would be hidden and that never
- *  shipped. Parameterised rather than forked: a blog-specific copy of this form would
- *  drift from the projects one, and the projects default keeps its output unchanged. */
-export const VideoEmbedForm = ({
+/** `showPoster` IS GONE, and its removal is the point of the change that removed it.
+ *  a586e98 added the flag (and this export) so blog could hide the poster, because
+ *  `BlogProse` rendered an <iframe> and never read it — an authorable, permanently
+ *  invisible field, the same condition that kept `imageBlock` deferred. BlogProse renders
+ *  images now, so the field feeds a real reader and blog uses this form unmodified again.
+ *  The flag and the export were scaffolding for a gap that is closed. */
+const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({
   value,
   onChange,
   onBlur,
   slug,
   collection,
-  showPoster = true,
-}: BlockFormProps<"videoEmbed"> & { showPoster?: boolean }) => {
+}) => {
   const srcInvalid = value.src.trim() !== "" && !isHttpUrl(value.src);
   return (
     <>
@@ -929,11 +929,9 @@ export const VideoEmbedForm = ({
           hint="Browser puts the video in window chrome; plain is a bare card."
         />
         <TextField label="Aspect ratio, e.g. 1.7778 (optional)" value={value.aspect} onChange={(aspect) => onChange({ ...value, aspect })} onBlur={onBlur} optional />
-        {showPoster ? (
-          <DisclosureGroup revealLabel="Poster still (optional)">
-            <ImgSpecFields value={value.poster} set={(poster) => onChange({ ...value, poster })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Poster still" />
-          </DisclosureGroup>
-        ) : null}
+        <DisclosureGroup revealLabel="Poster still (optional)">
+          <ImgSpecFields value={value.poster} set={(poster) => onChange({ ...value, poster })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Poster still" />
+        </DisclosureGroup>
       </TabGroup>
     </>
   );

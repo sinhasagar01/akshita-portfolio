@@ -65,6 +65,10 @@ export default async function BlogEditorPage({ params }: Props) {
       status={post.status}
       heroImage={post.heroImage}
       blocks={blocks}
+      // An image uploaded to the draft branch does not exist on main, so its public path
+      // 404s in the editor until publish. The canvas routes those through the owner-gated
+      // proxy; the article never needs to. See BlogProse's rewriteSrc.
+      draftImages={draft.draftImages}
       posts={blog}
       topicSuggestions={topicSuggestions}
     />

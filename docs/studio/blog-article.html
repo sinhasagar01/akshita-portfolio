@@ -18,11 +18,13 @@
     block kinds (richText, pullQuote, videoEmbed) and none produced an <h2>, so
     the styling was unauthorable. PR 2 adds a fourth kind, `heading` (plain text,
     fixed <h2>), as a declared schema delta. The subheads are now real content.
-  - INLINE FIGURES REMOVED. This mock originally embedded two <figure> images in
-    the prose. There is no single-image block; `imageBlock` is net-new and needs
-    the block-image upload path, which is hardcoded to projects and is the WRITE
-    PR's fix. So a post CANNOT embed inline images in PR 2. The inline figures are
-    struck from the mock; the entry-level hero image remains a schema field.
+  - INLINE FIGURES REMOVED IN PR 2, AND RE-ADDED NOW. The removal note read: "There
+    is no single-image block; `imageBlock` is net-new and needs the block-image
+    upload path, which is hardcoded to projects and is the WRITE PR's fix." #172
+    made that path take a REQUIRED per-collection base, so the blocker expired, and
+    `imageBlock` now exists with five fields (src, alt, caption, wide, decorative).
+    Both struck figures are restored below. The entry-level hero image is still a
+    separate schema field and is unchanged.
   - THE VESSEL LOSES ITS SHARE SECTION. Share (LinkedIn + copy-link) is dropped
     from the vessel and the capsule. Copy-link needs client state, so all
     interactive affordances move to PR 4 together. The approved vessel composition
@@ -155,7 +157,19 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
 .prose figure{ margin:2.3em 0; }
 .prose figure .mock{ width:100%; border-radius:10px; border:1px solid var(--rule); display:block; aspect-ratio:16/9; }
 .prose figcaption{ margin-top:11px; font-size:13px; line-height:1.55; color:var(--ink-mute); }
-.prose figure.wide{ margin-left:calc(-1 * clamp(0px,7vw,120px)); margin-right:calc(-1 * clamp(0px,7vw,120px)); }
+/* CORRECTED — WAS `calc(-1 * clamp(0px,7vw,120px))` AND THAT WAS A BUG. `vw` resolves
+   against the VIEWPORT, but the studio canvas and the public article give the same 68ch
+   column different amounts of room around it, so a wide figure bled cleanly on the article
+   and CLIPPED in the editor — while gate A1 still passed, because A1 measures the wrapper
+   and not the child. A percentage resolves against the containing block, which IS the
+   column, so the bleed is the same fraction of the same measure on both surfaces.
+   17% of the 697.93px column is ~118px, matching the old 120px cap.
+   In the editor the figure overflows the canvas pane with the post list OPEN, and the
+   pane scrolls horizontally rather than clipping (measured: clientWidth 786, scrollWidth
+   861). Collapsing the list removes the scroll. Either way the figure measures the same
+   935.21px on both surfaces, which is the property that matters — suppressing the bleed in
+   the canvas instead would make them disagree quietly, which is worse. */
+.prose figure.wide{ margin-inline:-17%; }
 
 /* ---------- love ---------- */
 .love{ position:relative; display:inline-flex; align-items:center; gap:9px;
@@ -414,16 +428,21 @@ h1{ font-family:var(--serif); font-weight:400; font-size:50px; line-height:1.06;
       <blockquote>The most important column in an enterprise table is usually the one nobody asked for.</blockquote>
       <p>In the profiling tool we ended up adding a quiet timestamp and a source chip to every computed cell. It tested badly in the first round — people said it looked cluttered. It tested extremely well in the second, once we'd sat with them long enough to see what they did with it.</p>
 
-      <!-- CORRECTION (blog PR 2): an inline <figure> sat here. Removed — inline images
-           need `imageBlock`, which is net-new and deferred to the write PR. -->
+      <!-- RESTORED: this is the first of the two figures PR 2 struck out. Plain <img>,
+           never next/image — the studio canvas routes a draft-branch image through the
+           owner-gated proxy, and the optimizer refetches without the owner cookie. -->
+      <figure><span class="mock"></span>
+        <figcaption>Sixteen columns, four of which anyone actually read.</figcaption></figure>
 
       <p>The lesson I keep relearning: clutter is what we call information we don't need <em>yet</em>. The job isn't to remove it. It's to rank it.</p>
 
       <h2>What I'd do differently</h2>
       <p>Start with the export. If the first thing a user does with your table is take the data somewhere else, that destination is the real interface and the table is a slow download button. Design the destination, then work backwards.</p>
 
-      <!-- CORRECTION (blog PR 2): a second inline <figure> sat here. Removed for the
-           same reason — no single-image block exists until the write PR. -->
+      <!-- RESTORED: the second struck figure, and the one that demonstrates `wide`.
+           A wide figure bleeds past the measure; nothing else on the page does. -->
+      <figure class="wide"><span class="mock"></span>
+        <figcaption>The provenance chip, once it stopped looking like clutter.</figcaption></figure>
 
       <p>Forty-one metrics became nine, and each of the nine carries a line of provenance nobody reads until the one week they need it desperately. That week is the whole point.</p>
 

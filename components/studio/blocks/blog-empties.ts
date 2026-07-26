@@ -51,6 +51,10 @@ export const BLOG_BLOCK_EMPTIES: { [K in BlogBlockKind]: () => BlogRawValue<K> }
   richText: () => ({ paragraphs: [] }),
   heading: emptyHeading,
   pullQuote: () => ({ text: "" }),
+  // Born with NO image and NO alt, which is why the sanitizer accepts both and the
+  // publish gate is where a blank alt actually bites. `src: null` (not "") matches how
+  // Keystatic represents an unset image and what the imageSrc gate requires.
+  imageBlock: () => ({ src: null, alt: "", caption: "", wide: false, decorative: false }),
   videoEmbed: () => ({
     src: "",
     poster: { ...img() },
@@ -66,6 +70,7 @@ export const BLOG_BLOCK_LABELS: { [K in BlogBlockKind]: string } = {
   richText: "Paragraph",
   heading: "Heading",
   pullQuote: "Pull quote",
+  imageBlock: "Image",
   videoEmbed: "Video",
 };
 
@@ -81,11 +86,22 @@ export const BLOG_KIND_HAS_STYLE: { [K in BlogBlockKind]: boolean } = {
   richText: false,
   heading: false,
   pullQuote: false,
-  // frame + aspect live under Style. The POSTER is hidden — see BlogBlocksEditPanel.
+  // FALSE, and that is the imgSpecFields decision showing through: imageBlock carries no
+  // geometry (no width/rotate/translate/z/frame), so every one of its five fields is
+  // Content. `wide` is a placement choice the author makes while writing, not styling.
+  imageBlock: false,
+  // frame + aspect live under Style. The poster is no longer hidden — BlogProse renders
+  // images now, so the field it feeds is finally one a reader shows.
   videoEmbed: true,
 };
 
 /** The order the picker offers them in — writing order, not schema order. THIS IS THE
  *  CURATION: the case-study picker is `Object.keys(BLOCK_REGISTRY)` with no filter, and
  *  because blog owns its own table there is nothing to filter. */
-export const BLOG_PICKER_ORDER: BlogBlockKind[] = ["richText", "heading", "pullQuote", "videoEmbed"];
+export const BLOG_PICKER_ORDER: BlogBlockKind[] = [
+  "richText",
+  "heading",
+  "pullQuote",
+  "imageBlock",
+  "videoEmbed",
+];

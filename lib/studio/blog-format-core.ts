@@ -48,6 +48,12 @@ export type FieldChecks = {
   imgSpec: Check<Record<string, unknown>>;
   videoSrc: Check<string>;
   videoFrame: Check<string>;
+  /** `imageBlock.wide` and `.decorative`. Shared, not blog's own — projects already
+   *  validates `statCards.highlighted` through the same check. */
+  bool: Check<boolean>;
+  /** `imageBlock.src`. A path or null, and "" is REJECTED — an empty string can only come
+   *  from a form that coerced a null, which is what that gate exists to catch. */
+  imageSrc: Check<string | null>;
 };
 
 const invalid = (message: string, field?: string): Fail =>
@@ -107,6 +113,18 @@ export function makeBlogSanitizers(f: FieldChecks): BlogSanitizers {
     heading: f.obj({ text: f.str }),
     richText: f.obj({ paragraphs: f.arrayOf(f.str) }),
     pullQuote: f.obj({ text: f.str }),
+    // `alt` is f.str, which ACCEPTS "". That is deliberate and matches videoSrc's own
+    // reasoning: a block is born from the picker with src: null and alt: "", so refusing an
+    // empty alt at SAVE would make the kind impossible to add at all. A blank alt is caught
+    // at PUBLISH by validate-blog-post, which judges published posts only — permissive about
+    // half-authored drafts, strict about what may go live.
+    imageBlock: f.obj({
+      src: f.imageSrc,
+      alt: f.str,
+      caption: f.str,
+      wide: f.bool,
+      decorative: f.bool,
+    }),
     videoEmbed: f.obj({
       src: f.videoSrc,
       // The shared imgSpec: blog's videoEmbed.poster is imgSpecFields() in the schema

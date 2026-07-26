@@ -2261,6 +2261,78 @@ a {
   color: var(--color-ink-950);
   margin: 2em 0 0.6em;
 }
+/* ---------------------------------------------------------------- inline figures
+   RE-ADDED, NOT INVENTED. blog-article.html drew two of these and #171 struck them out
+   because "imageBlock is net-new and needs the block-image upload path, which is hardcoded
+   to projects". #172 made that path take a required per-collection base, so the blocker
+   expired and the contract's own figure treatment comes back.
+
+   THE BLEED IS COLUMN-RELATIVE, NOT `7vw`, AND THAT IS A BUG FIX. The contract wrote
+   `margin-left: calc(-1 * clamp(0px, 7vw, 120px))`. `vw` resolves against the VIEWPORT in
+   both surfaces, but the studio canvas and the public article give the same column
+   different amounts of room around it — so a wide figure bled cleanly on the article and
+   clipped in the editor, while gate A1 still passed because A1 measures the WRAPPER, not
+   the child. A percentage resolves against the containing block, which is the same 68ch
+   column on both sides, so the bleed is now the same fraction of the same measure
+   everywhere and inherits the fidelity property instead of fighting it.
+
+   17% of the 697.93px column is ~118px, matching the contract's 120px cap.
+
+   IN THE EDITOR IT OVERFLOWS THE CANVAS PANE, AND THAT IS FINE — MEASURED, NOT ASSUMED.
+   The plan predicted it would CLIP. It does not: the canvas scroller is `overflow-y-auto`,
+   and CSS computes the other axis to `auto` when one axis is not `visible`, so the pane
+   becomes horizontally scrollable instead (measured with the list open: clientWidth 786,
+   scrollWidth 861, maxScrollLeft 74.5). Nothing is unreachable. Collapsing the post list
+   removes the scroll entirely — the figure then fits with ~44px of slack each side — which
+   is what the block's inspector line tells the author to do.
+
+   The bleed value is the SAME on both surfaces either way, which is the property that
+   matters: the wide figure measures 935.21px in the article and 935.21px in the canvas.
+   Suppressing the bleed in the canvas instead would make them disagree about a figure's
+   rendered width — a QUIET fidelity break, and quiet is the problem #178 exists to
+   prevent. */
+.blog-prose .blog-figure {
+  margin: 2.3em 0;
+}
+.blog-prose .blog-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--blog-rule);
+}
+.blog-prose .blog-figure figcaption {
+  margin-top: 11px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-ink-600);
+}
+.blog-prose .blog-figure-wide {
+  margin-inline: -17%;
+}
+/* The video poster, which fills its fixed-aspect frame behind the embed.
+   AUTHORED RATHER THAN UTILITY-CLASSED, AND THE REASON IS A REAL TRAP. globals.css:271
+   carries an UNLAYERED `img, video { height: auto }`. Unlayered rules beat
+   `@layer utilities`, so `h-full` SILENTLY LOSES on every <img> in this project — the
+   poster rendered 927.9px tall inside a 392.6px frame, overflowing by 535px and getting
+   clipped by the frame's overflow-hidden. It looked like a cropped image rather than a
+   broken one, which is why review rather than a test found it. This rule outranks the
+   global by specificity. The inline figure above is unaffected: it WANTS height:auto. */
+.blog-prose .blog-video-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The contract's own responsive reset: below the fit breakpoint there is no room to bleed
+   into, so a wide figure sits at the measure like every other block. */
+@media (max-width: 1199px) {
+  .blog-prose .blog-figure-wide {
+    margin-inline: 0;
+  }
+}
+
 /* Inline marks (bold / italic / links) are rendered and styled by renderRich itself
    (components/case-study/rich.tsx), so the prose column does NOT restyle <b>/<em>/<a> —
    that would double-apply and could conflict. The column owns only its block elements. */
