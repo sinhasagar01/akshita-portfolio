@@ -137,6 +137,27 @@ Where those uploads go changed. The screen exports for the three migrated projec
 
 ---
 
+## Next-case sticky rail (COMPLETE)
+
+Public case-study pages now carry a persistent bottom rail. It offers All work on the left and the next case study on the right, so a reader can move from one study to the next without returning home. Shipped as NCR-1 (#163), squash-merged to main.
+
+What it does. A fixed bottom bar that shows once the first body section has scrolled fully above the viewport and hides again while the site footer is in view. The next study is the following entry in the projects collection by orderIndex ascending, wrapping the last entry back to the first. One layout at every width, All work plus eyebrow plus title plus arrow, with no thumbnail and no responsive collapse.
+
+The locked decisions, each held.
+
+- No scroll listener anywhere, two IntersectionObservers only, so ScrollManager keeps sole ownership of scroll. One observer watches the first body section (`article.case-study` first child), the other watches `body > footer` so a block kind that renders its own footer can never become the hide trigger. The single show predicate is not intersecting and boundingClientRect.bottom is at or above zero.
+- Order comes from the collection by orderIndex, never a hardcoded slug sequence.
+- The href reuses the existing projectPath. boat-crest needs no special case because its literal route sits at the same /projects/boat-crest path, so no caseStudyHref was added. The brief's BESPOKE_SLUGS href branch would have shipped the 404 it warned about.
+- The rail reads the public path (getHomePageData), never getStudioData, and is called once per case-study render.
+- Reduced motion drops the hidden state entirely so the rail is instantly visible and never stranded off screen. The global reduced-motion killswitch only zeroes transition duration, so the rail carries its own reduce rule.
+- The rail is imported nowhere under app/studio, so the canvas and preview cannot render it. No schema change, no CMS surface, no progress bar.
+
+Where it lives. NextCaseRail in components/case-study, mounted from the two public route pages beside PreviewRail. The pure adjacentByOrderIndex in lib/case-studies/adjacent-project.ts, the getAdjacentProject read seam in lib/keystatic.ts, and the .next-rail styles in globals.css. boat-crest became async to await the next study.
+
+Proof. The ncr-adjacent suite added 20 assertions (571 in the full ralph run), tsc clean. Canvas versus live parity stayed clean on all three content studies. The production build passed with all four case-study routes prerendered. A normalized-DOM compare against main showed the homepage, the boat-crest body, and the content-study bodies byte-identical, the only public change being the added rail. PreviewRail does not collide, a 298px gap at the widest case and display none below 1280. Owner QA passed on desktop and a real phone.
+
+---
+
 ## Open items, the real blockers
 
 - Domain is configured in Vercel. The canonical host is www.akshitas.com, with the apex redirecting to the www host. The remaining launch steps are the /studio prod env vars (see the prod-readiness section) and the contact form endpoint.

@@ -53,9 +53,16 @@ t("A2 serializeBlogBlocks with the file's own blocks is BYTE-IDENTICAL",
 {
   // The visibility flip — the write path behind the status gate. Must be surgical, or
   // going live rewrites the whole file.
-  const out = bytes(serializeBlogEntry(raw, { status: "draft" }));
+  //
+  // FLIP TO THE OPPOSITE OF WHATEVER THE FIXTURE HOLDS, never to a hardcoded value. This
+  // assertion used to write "draft" unconditionally, which silently became a no-op the day
+  // a /studio publish flipped the real post to draft — it then measured zero changed lines
+  // and failed with nobody having touched a line of code. The suite reads live content as
+  // its fixture, so any assertion that assumes a field's CURRENT value is a time bomb.
+  const flipped = load(raw).status === "published" ? "draft" : "published";
+  const out = bytes(serializeBlogEntry(raw, { status: flipped }));
   t("B4 the status flip changes exactly ONE line", changedLines(raw, out).length, 1);
-  t("B5 …and it is the status line", load(out).status, "draft");
+  t("B5 …and it is the status line", load(out).status, flipped);
 }
 
 /* ---------------------------------------------- C. THE DATE QUOTING (silent if wrong)

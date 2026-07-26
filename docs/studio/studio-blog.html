@@ -3,118 +3,88 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>/studio — blog editor (final)</title>
+<title>/studio/blog — the editor (contract)</title>
 
 <!--
 ================================================================================
-  DESIGN REFERENCE — /studio BLOG EDITOR  ·  FINAL
-  akshitas.com/studio/blog
+  DESIGN REFERENCE — /studio/blog
+  akshitas.com/studio/blog  ·  list + canvas + inspector
 
-  THIS FILE IS THE CONTRACT. If the implementation must differ, change this
-  file in the same PR and say why.
+  ############################################################################
+  ##  VISUAL SPEC ONLY — DO NOT PORT THIS CSS.                              ##
+  ##  The studio authors ZERO global class names: 100% Tailwind utilities +  ##
+  ##  @theme tokens. The selectors here (.side, .list, .canvas, .insp) are   ##
+  ##  MOCKUP SCAFFOLDING. Read this file for LAYOUT, SPACING, TYPE SCALE,    ##
+  ##  STATES and COLOUR ROLE; implement as utilities on studio JSX.          ##
+  ##  `.canvas` sits adjacent to the existing .canvas-surface and            ##
+  ##  .canvas-static — do not author it.                                     ##
+  ############################################################################
 
-  LOCKED DECISIONS
-  - LAYOUT — CORRECTED (blog PR 3c). This file specified "the existing
-    ListDetailLayout with a THIRD COLUMN (list · canvas · inspector)" plus a
-    COLLAPSE CONTROL on the list. BOTH WERE WRONG, and the second more seriously
-    than the first:
-      (a) ListDetailLayout is a fixed TWO-column grid
-          (`lg:grid-cols-[220px_1fr]`) with no third column and no collapse
-          capability, so this was a modification to a shell eight panels share,
-          not a reuse of it.
-      (b) THE STUDIO HAD ALREADY REMOVED THIS PATTERN. The case-study editor used
-          to be exactly this — an editor beside a list — and it was deleted,
-          for a stated reason, quoted from app/studio/(dashboard)/projects/
-          [slug]/page.tsx: "The editor used to be a detail pane beside a list of
-          all four case studies, and that rail cost most of the horizontal room
-          the canvas needs to render a page faithfully. The list moves to
-          /studio/projects (an index) and the editing happens here, where nothing
-          competes for width." The collapse control was a mitigation for exactly
-          the problem that removal already solved.
-    WHAT SHIPPED: an INDEX at /studio/blog and a FULL-WIDTH EDITOR at
-    /studio/blog/<slug>, mirroring the case-study surface and the CLAUDE.md
-    convention (one editor, one URL). Having no rail at all is what the collapse
-    control was reaching for.
-  - Panels stay MOUNTED (return null when unselected), per the existing rule, so
-    switching posts never discards an unsaved draft.
-  - A POST IS A FLAT ARRAY OF BLOCKS, not the case-study `sections` shape. The
-    section wrapper exists because case studies have named chapters; a post does
-    not. Requiring an author to create a Section before typing a paragraph is
-    the friction that kills a daily habit. A new post opens with ONE empty
-    richText block and the cursor already in it.
-  - NAME THE ARRAY `blocks`, NOT `body`. `body` carries Keystatic document-field
-    semantics and the projects collection already had to keep a vestigial
-    `body: []` for exactly that reason. VERIFY what createReader demands of a
-    fresh collection before finalising the schema.
-  - The BLOCK PICKER surfaces FOUR kinds — paragraph, heading, pull quote, video.
-    A stepper or glanceGrid in a blog post is a case-study tool that wandered in.
-    MECHANISM CORRECTED (blog PR 3c): this file called the picker "a curated
-    view" of the projects registry. It is not, and could not have been — the
-    case-study picker is `Object.keys(BLOCK_REGISTRY)` with an explicit "no
-    filter" comment, so a curated view would have needed a prop or a filter that
-    does not exist. Blog needs its OWN table anyway (see the kind status below),
-    so BLOG_BLOCK_REGISTRY *is* the curation: four keys, no filter, no fork.
-    KIND STATUS (blog PR 1, updated 3c): the four offered are `richText`,
-    `heading`, `pullQuote`, `videoEmbed`. THREE are reused by reference from the
-    projects registry; `heading` was added to the schema in PR 2 and needed its
-    own form, empty and label in 3c — every projects-keyed table
-    (BLOCK_REGISTRY, BLOCK_LABELS, BLOCK_EMPTIES) had silently lacked it, the
-    same decay #173 found in the sanitizer.
-    `imageBlock` STILL DOES NOT EXIST and is still deferred: there is no
-    standalone single-image block (the image-bearing kinds are figureGrid,
-    annotatedImage, heroCover, deviceShelf, featureRows, beforeAfter). A post can
-    carry a hero image but cannot embed an image in its prose.
-  - NEW POST = CAPTURE-THEN-CREATE, identical to Experience and Projects: title
-    only, slug DERIVED SERVER-SIDE and locked, entry created immediately, then
-    straight into the canvas. NEVER a blank-row append.
-  - Editing is INLINE ON THE CANVAS, reusing the case-study editor's BLOCK LAYER:
-    the block registry, richToMarkers, the bold/italic/link toolbar showing only
-    live marks, Enter-splits-paragraphs, content-addressed image upload, and
-    publish-time validation. Add/remove/reorder is NOT a `structural()` function
-    (no such function exists) — it is inline, section-keyed, two-level state
-    (sectionIds / blockIds[][]) inside SectionsEditPanel.
-    WHAT "REUSE WHOLESALE" ACTUALLY MEANS (corrected, blog PR 1): the BLOCK LAYER
-    above is reusable as-is; the EDITOR HOST is NOT. SectionsEditPanel is bound to
-    the section shape (SectionsFields = { sections: RawSection[] }, the parallel
-    blockIds[][], per-section adaptSections/board/canvas), so a flat blocks array
-    cannot just point it at a different file. The path is a THIN blocks-only host
-    that reuses the block layer but keys its state on a flat blockIds[] — a smaller
-    new host, not the existing editor re-aimed.
-  - LOVES ARE NEVER EDITABLE HERE. Runtime state does not belong in a content
-    editor, and the inspector says so in plain words.
+  ---- THIS REVISION (owner reversal of #174) --------------------------------
+  #174 shipped INDEX + FULL-WIDTH EDITOR, deliberately rejecting the 3-pane
+  drawn here, because /studio/projects had already removed a list rail beside
+  a canvas for costing the canvas its width. THE OWNER HAS REVERSED THAT: the
+  blog editor matches this mock, and other studio pages are intended to adopt
+  the same layout later.
+
+  Changes in this revision:
+   1. FULL WINDOW WIDTH. The old `.screen { max-width: 1360px; margin: 26px
+      auto }` frame is gone. The app fills the viewport; one hairline between
+      the sidebar and the work area.
+   2. THE SIDEBAR IS THE REAL STUDIO'S, not the invented one this file carried
+      before. Homepage, Case studies, Blog, Experience, Skills, then Site
+      settings and Sign out below a hairline. Counts come from
+      StudioCountsProvider (Skills has none today — #165 D3, still deferred).
+   3. The logo is a LINK to /studio.
+   4. Nav items have a HOVER state distinct from the selected state: raised
+      surface, ink text, a 4px nudge right. The selected item does not nudge.
+   5. SELECTED = THE INK PILL — ink background, cream text, icon at full
+      opacity. The same treatment #165 shipped in the real sidebar.
+
+  ---- THE ARITHMETIC THAT MAKES THE COLLAPSE CONTROL LOAD-BEARING ----------
+  sidebar 236 + list 288 + canvas 620 + inspector 262 = 1406px MINIMUM.
+  At a 1440 viewport that is 34px of slack. At 1280 — a common laptop — it
+  overflows by 126px. So the collapse control is NOT a refinement. #167 was
+  right that it is a BUILD, not a repaint, and matching this mock means
+  building it. Below 1406px the list collapses by default and the reopen rail
+  is the way back. This is a FIT breakpoint, measured, not the site's lg.
+
+  ---- FOUR DIFFERENCES FROM #174 THAT ARE *NOT* LAYOUT ---------------------
+  Each is blocked by code rather than styling, and each is its own decision:
+   a. TITLE IS READ-ONLY. `sanitizeBlogPatch` rejects a `title` patch because
+      the title IS the slug. Making it editable is the rename arc
+      (create-at-new-slug, move assets, delete-old) — a feature, not a repaint.
+      Shown here with an explicit "Slug · read only" chip so the constraint is
+      visible rather than mysterious.
+   b. TOPIC IS FREE TEXT, not a select. No topic set exists in the schema or
+      the read path, so a closed list would be invented rather than enforced.
+   c. THE VIDEO POSTER FIELD IS HIDDEN. `BlogProse` never reads it, so the
+      field would be authorable and invisible. Same decision as `imageBlock`.
+   d. `imageBlock` DOES NOT EXIST, so there is no inline figure in a post body
+      and the picker offers FOUR kinds, not five. The fourth is `heading`,
+      added in #171.
+
+  ---- LOCKED DECISIONS CARRIED IN -----------------------------------------
+  - A post is a FLAT ARRAY OF BLOCKS named `blocks`. Blog's own registry IS the
+    picker's curation — Object.keys yields exactly four, no prop and no filter.
+  - New post = CAPTURE-THEN-CREATE: title only, slug derived server-side and
+    locked, always born `draft`.
   - Reading time is COMPUTED from the blocks, never authored.
+  - LOVES ARE NEVER EDITABLE HERE. Runtime state (Upstash), one-way.
+  - Add/remove/reorder is inline state in the host. There is no `structural()`
+    function — that name never existed; it was a description that hardened into
+    a name through repeated regeneration.
+  - The BLOCK LAYER is reusable wholesale (registry, richToMarkers, the
+    bold/italic/link toolbar, image upload). THE HOST IS NOT —
+    `SectionsEditPanel` is section-shaped from state to render.
+  - The collapse control is a WIDTH transition, never a conditional render.
+    Unmounting the list would reset its search field.
 
-  RESOLVED — the former OPEN QUESTION (status vs branch-wide publish)
-  - ANSWERED IN PR 1 AND HARDENED IN PR 4 of the arc, and no longer open. A
-    `status` field on the post, which the PUBLIC READ FILTERS ON
-    (`=== "published"`, fail-closed, so "" and any unknown value stay hidden).
-    Per-entry publish was rejected: it would have meant reworking the commit
-    layer, the draft-state read and the branch-wide Publish signal.
-    The consequence for a half-written post is handled: the publish gate SKIPS
-    drafts, and the studio read filters before mapping, so an unfinished post is
-    inert at build and never blocks publishing anything else.
-
-  IMPLEMENTATION NOTES THAT ARE EASY TO GET WRONG
-  - (The collapse-control note is gone with the layout it belonged to.)
-  - THE TITLE IS READ-ONLY TOO, not just the slug. This file draws `.cv-title`
-    as contenteditable, but sanitizeBlogPatch REJECTS a `title` patch ("title is
-    the entry slug and cannot be edited here"), so an editable title would 400
-    on the first keystroke. Renaming = create-at-new-slug, move assets,
-    delete-old — the deferred entry-rename arc, not a field.
-  - TOPIC IS FREE TEXT, not the `<select>` drawn below. PR 4 of the arc made
-    `topic` an open string deliberately: no topic set is declared in the schema
-    or read by anything, so a closed list would be invented rather than
-    enforced. The editor offers existing values via a datalist instead.
-  - THE VIDEO POSTER FIELD IS HIDDEN in the blog form. It is in the schema,
-    uploadable and validated, but BlogProse renders an <iframe> and never reads
-    it. Wiring it is a video-presentation decision nobody has made; hiding it
-    stops three PRs of investment accreting further. Scoped, not built.
-  - The canvas hero and the inspector "Card image" drawn below are ONE field
-    (`heroImage`), shown twice. The schema has one, and it serves both the
-    article hero and the index/homepage card.
-  - The inspector's card image is the post's list/homepage thumbnail. The blog
-    homepage (V2, featured + stream) expects an image per post; posts without
-    one fall back to a typographic plate.
+  ---- WHEN OTHER PAGES ADOPT THIS LAYOUT ----------------------------------
+  Build it BLOG-SPECIFIC first and keep the seams visible. Extract a shared
+  shell at the SECOND consumer, not the first: two consumers teach you what
+  actually varies, one teaches you nothing and you design the wrong
+  abstraction. Same rule that governed the splice (#173) and the button system.
 ================================================================================
 -->
 
@@ -122,364 +92,550 @@
 :root{
   /* TOKEN MAP — locals exist only so this file renders standalone.
      The right-hand column is the contract. Never port these literals. */
-  --paper:        oklch(98.5% 0.012 80);  /* --color-cream-50   */
-  --paper-raised: oklch(99.2% 0.008 80);  /* cream-50 lifted    */
-  --paper-sunk:   oklch(96.8% 0.018 78);  /* --color-cream-100  */
-  --ink:          oklch(14%   0.018 60);  /* --color-ink-950    */
-  --ink-2:        oklch(30%   0.016 60);  /* --color-ink-800    */
-  --ink-mute:     oklch(44%   0.016 60);  /* --color-ink-600    */
+  --paper:        oklch(98.5% 0.012 80);  /* --color-cream-50   · work surface   */
+  --paper-raised: oklch(99.2% 0.008 80);  /* cream-50 lifted    · cards, hover   */
+  --paper-sunk:   oklch(96.8% 0.018 78);  /* --color-cream-100  · sidebar        */
+  --ink:          oklch(14%   0.018 60);  /* --color-ink-950                     */
+  --ink-2:        oklch(30%   0.016 60);  /* --color-ink-800                     */
+  --ink-mute:     oklch(44%   0.016 60);  /* --color-ink-600                     */
   --rule:         oklch(14% 0.018 60 / .08); /* border-ink-950/8 — NOT --color-border */
-  --rule-strong:  oklch(62%   0.012 60);  /* --color-ink-400    */
-  --accent:       oklch(56%   0.14  42);  /* --color-accent-500 */
+  --rule-strong:  oklch(62%   0.012 60);  /* --color-ink-400                     */
+  --accent:       oklch(56%   0.14  42);  /* --color-accent-500                  */
   --ok:           oklch(46%   0.075 145); /* --color-success-700 · published dot */
-  /* DRAFT IS NEUTRAL, NOT AMBER. A draft is not a warning — it is simply
-     not-yet-live. No new token; ink-400 already exists. */
-  --draft:        oklch(62%   0.012 60);  /* --color-ink-400    */
+  /* DRAFT IS NEUTRAL, NOT AMBER. A draft is not a warning, it is not-yet-live. */
+  --draft:        oklch(62%   0.012 60);  /* --color-ink-400                     */
 
   /* site fonts, loaded via next/font/google in the root layout */
   --sans:  "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;  /* --font-body    */
   --serif: "Fraunces", "Iowan Old Style", Georgia, serif;                   /* --font-display */
+
   --ease:cubic-bezier(.22,.68,.24,1);
   --ease-settle:cubic-bezier(.16,.9,.28,1);
+
+  --w-side: 236px;
+  --w-list: 288px;
+  --w-insp: 262px;
+  --docbar: 40px;   /* mockup chrome only — not part of the design */
 }
 *,*::before,*::after{ box-sizing:border-box; }
-html,body{ margin:0; }
-body{ background:var(--paper-sunk); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; font-size:14px; }
+html,body{ margin:0; height:100%; }
+body{ background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:14px; -webkit-font-smoothing:antialiased; }
 
-.doc-bar{ position:sticky; top:0; z-index:200; display:flex; gap:12px; align-items:center;
-  padding:11px 18px; background:#171412; color:#F2ECE3; font-size:12.5px; }
+.doc-bar{
+  position:sticky; top:0; z-index:200; display:flex; gap:12px; align-items:center;
+  height:var(--docbar); padding:0 18px; background:var(--ink);
+  color:oklch(96% 0.012 80); font-size:12.5px;
+}
 .doc-bar strong{ font-weight:600; margin-right:auto; }
 .doc-bar span{ opacity:.6; }
 
-.screen{
-  max-width:1360px; margin:26px auto; height:780px; overflow:hidden; position:relative;
-  display:flex; background:var(--paper); border:1px solid var(--rule); border-radius:12px;
-  box-shadow:0 20px 50px -30px rgba(23,20,18,.4);
+/* ============================================================
+   SHELL — FULL WINDOW WIDTH. No outer card, no max-width, no inset.
+   ============================================================ */
+.app{ display:flex; min-height:calc(100vh - var(--docbar)); }
+
+/* ---------------- SIDEBAR — the real studio's ---------------- */
+.side{
+  width:var(--w-side); flex:none; background:var(--paper-sunk);
+  border-right:1px solid var(--rule); padding:18px 14px;
+  display:flex; flex-direction:column;
+  position:sticky; top:var(--docbar); height:calc(100vh - var(--docbar));
+  overflow-y:auto;   /* a short viewport must not strand Sign out */
+}
+.logo{
+  display:flex; align-items:center; gap:11px; padding:2px 8px 18px;
+  text-decoration:none; color:inherit; border-radius:9px;
+}
+.logo .mark{
+  width:30px; height:30px; border-radius:9px; background:var(--accent);
+  display:grid; place-items:center; color:#fff; flex:none;
+  transition:transform 240ms var(--ease-settle);
+}
+.logo:hover .mark{ transform:rotate(-8deg) scale(1.05); }
+.logo .mark svg{ width:16px; height:16px; }
+.logo b{ font-family:var(--serif); font-weight:400; font-size:20px; letter-spacing:-.01em; }
+.logo:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+.grp{
+  font:600 10px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--rule-strong); padding:8px 10px; margin:0;
+}
+.side nav{ display:flex; flex-direction:column; gap:1px; }
+.side nav a{
+  display:flex; align-items:center; gap:11px;
+  padding:9px 10px; border-radius:8px; text-decoration:none;
+  color:var(--ink-2); font-size:13.5px;
+  transition:background 170ms var(--ease), color 170ms var(--ease), padding-left 260ms var(--ease-settle);
+}
+.side nav a svg{ width:16px; height:16px; flex:none; opacity:.62; transition:opacity 170ms var(--ease); }
+/* HOVER — distinct from selected: raised surface, ink text, a small nudge */
+.side nav a:hover{ background:var(--paper-raised); color:var(--ink); padding-left:14px; }
+.side nav a:hover svg{ opacity:.9; }
+.side nav a:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+/* SELECTED — the ink pill: ink background, cream text, icon full opacity.
+   It does not nudge on hover; the current page should feel settled. */
+.side nav a.on{ background:var(--ink); color:oklch(98.5% 0.012 80); font-weight:500; }
+.side nav a.on svg{ opacity:1; }
+.side nav a.on:hover{ background:var(--ink); color:oklch(98.5% 0.012 80); padding-left:10px; }
+.side nav a .c{ margin-left:auto; font-size:11.5px; opacity:.5; font-variant-numeric:tabular-nums; }
+
+.side .foot{
+  margin-top:auto; padding-top:14px; border-top:1px solid var(--rule);
+  display:flex; flex-direction:column; gap:1px;
 }
 
-/* ============================== SIDEBAR ============================== */
-.side{ width:196px; flex:none; background:var(--paper-raised); border-right:1px solid var(--rule); padding:18px 12px; }
-.side .brand{ font-family:var(--serif); font-size:19px; padding:0 10px 16px; border-bottom:1px solid var(--rule); margin:0 0 12px; }
-.side nav{ display:flex; flex-direction:column; gap:1px; }
-.side a{ display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:7px; text-decoration:none;
-  color:var(--ink-2); font-size:13px; transition:background 160ms var(--ease); }
-.side a:hover{ background:var(--paper-sunk); }
-.side a.on{ background:var(--ink); color:var(--paper); }
-.side a .c{ margin-left:auto; font-size:11px; opacity:.55; font-variant-numeric:tabular-nums; }
-.side .grp{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); padding:14px 10px 6px; margin:0; }
+/* ---------------- MAIN ---------------- */
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.topbar{
+  position:sticky; top:var(--docbar); z-index:70; display:flex; align-items:center; gap:14px;
+  padding:14px 24px; background:oklch(98.5% 0.012 80 / .88); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--rule);
+}
+.search{ position:relative; flex:1; }
+.search input{
+  width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper-raised);
+  border-radius:9px; padding:10px 42px 10px 36px; font:400 13.5px/1.2 var(--sans); color:var(--ink);
+}
+.search input::placeholder{ color:var(--ink-mute); }
+.search input:focus{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+.search .mag{ position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-mute); }
+.search kbd{
+  position:absolute; right:9px; top:50%; transform:translateY(-50%);
+  font:400 11px/1 var(--sans); color:var(--ink-mute);
+  border:1px solid var(--rule); border-radius:5px; padding:4px 7px; background:var(--paper);
+}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; appearance:none; cursor:pointer;
+  font:500 12.5px/1 var(--sans); padding:10px 15px; border-radius:8px; text-decoration:none;
+  transition:background 170ms var(--ease), color 170ms var(--ease), border-color 170ms var(--ease);
+}
+.btn.ghost{ border:1px solid var(--rule); background:var(--paper-raised); color:var(--ink-2); }
+.btn.ghost:hover{ border-color:var(--accent); color:var(--accent); }
+.btn.solid{ border:0; background:var(--ink); color:var(--paper); }
+.btn.solid:hover{ background:var(--accent); }
+.btn svg{ width:14px; height:14px; }
 
-/* ============================== LIST (collapsible) ============================== */
+/* ============================================================
+   THE THREE PANES
+   ============================================================ */
+.split{ flex:1; display:flex; min-height:0; position:relative; }
+
 .list{
-  width:276px; flex:none; border-right:1px solid var(--rule); display:flex; flex-direction:column;
-  background:var(--paper); overflow:hidden;
+  width:var(--w-list); flex:none; border-right:1px solid var(--rule);
+  display:flex; flex-direction:column; background:var(--paper); overflow:hidden;
   transition:width 300ms var(--ease-settle), border-color 300ms var(--ease);
 }
-.screen.collapsed .list{ width:0; border-right-color:transparent; }
-.list .top{ padding:14px; border-bottom:1px solid var(--rule); display:flex; flex-direction:column; gap:10px; min-width:276px; }
-.list .hdr{ display:flex; align-items:center; gap:8px; }
-.list .hdr h4{ margin:0; font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); }
-.collapse{ margin-left:auto; appearance:none; border:1px solid var(--rule); background:var(--paper-raised); cursor:pointer;
-  width:24px; height:24px; border-radius:6px; color:var(--ink-mute); display:grid; place-items:center; font-size:12px; }
-.collapse:hover{ border-color:var(--accent); color:var(--accent); }
-.newbtn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
-  appearance:none; border:0; cursor:pointer; background:var(--ink); color:var(--paper);
-  font:500 12px/1 var(--sans); letter-spacing:.08em; text-transform:uppercase;
-  padding:11px 14px; border-radius:8px; transition:background 180ms var(--ease); }
-.newbtn:hover{ background:var(--accent); }
-.search{ position:relative; }
-.search input{ width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper-raised);
-  border-radius:8px; padding:8px 10px 8px 30px; font:400 13px/1.2 var(--sans); color:var(--ink); }
-.search input:focus{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
-.search svg{ position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--ink-mute); }
-.list .scroll{ flex:1; overflow-y:auto; padding:8px; min-width:276px; }
-.list .month{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); padding:12px 8px 6px; margin:0; }
-.post{ display:block; width:100%; text-align:left; appearance:none; border:0; cursor:pointer;
-  background:transparent; padding:10px; border-radius:8px; margin-bottom:1px; transition:background 150ms var(--ease); }
-.post:hover{ background:var(--paper-sunk); }
-.post.on{ background:var(--paper-sunk); box-shadow:inset 2px 0 0 var(--accent); }
-.post .t{ font-size:13.5px; line-height:1.35; color:var(--ink); display:block; margin-bottom:5px; }
-.post .m{ display:flex; align-items:center; gap:8px; font-size:11px; color:var(--ink-mute); }
+.split.collapsed .list{ width:0; border-right-color:transparent; }
+.list .lt{ padding:16px; border-bottom:1px solid var(--rule); display:flex; flex-direction:column; gap:11px; min-width:var(--w-list); }
+.list .lh{ display:flex; align-items:center; gap:8px; }
+.list .lh h4{ margin:0; font:600 10px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--rule-strong); }
+.iconbtn{
+  appearance:none; border:1px solid var(--rule); background:var(--paper-raised); cursor:pointer;
+  width:26px; height:26px; border-radius:7px; color:var(--ink-mute); display:grid; place-items:center; font-size:12px;
+  transition:border-color 170ms var(--ease), color 170ms var(--ease);
+}
+.iconbtn:hover{ border-color:var(--accent); color:var(--accent); }
+.list .lh .iconbtn{ margin-left:auto; }
+.newbtn{ width:100%; justify-content:center; }
+.minisearch{ position:relative; }
+.minisearch input{
+  width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper-raised);
+  border-radius:8px; padding:8px 10px 8px 30px; font:400 13px/1.2 var(--sans); color:var(--ink);
+}
+.minisearch input:focus{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+.minisearch svg{ position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--ink-mute); }
+.list .scroll{ flex:1; overflow-y:auto; padding:8px; min-width:var(--w-list); }
+.list .month{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); padding:13px 8px 7px; margin:0; }
+.item{
+  display:block; width:100%; text-align:left; appearance:none; border:0; cursor:pointer;
+  background:transparent; padding:11px 10px; border-radius:8px; margin-bottom:1px;
+  transition:background 150ms var(--ease);
+}
+.item:hover{ background:var(--paper-raised); }
+.item.on{ background:var(--paper-sunk); box-shadow:inset 2px 0 0 var(--accent); }
+.item .t{ font-size:13.5px; line-height:1.35; color:var(--ink); display:block; margin-bottom:5px; }
+.item .m{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-mute); }
 .dot{ width:6px; height:6px; border-radius:99px; flex:none; }
 .dot.pub{ background:var(--ok); } .dot.dr{ background:var(--draft); }
 
-/* the re-open rail, shown only when collapsed */
+/* the re-open rail, only when collapsed */
 .reopen{
-  position:absolute; left:196px; top:14px; z-index:70; width:28px; height:28px;
-  appearance:none; border:1px solid var(--rule); background:var(--paper-raised); cursor:pointer;
-  border-radius:0 8px 8px 0; border-left:0; color:var(--ink-mute); display:none; place-items:center; font-size:12px;
+  position:absolute; left:0; top:14px; z-index:60; width:26px; height:28px;
+  appearance:none; border:1px solid var(--rule); border-left:0; background:var(--paper-raised);
+  cursor:pointer; border-radius:0 8px 8px 0; color:var(--ink-mute);
+  display:none; place-items:center; font-size:12px;
 }
-.screen.collapsed .reopen{ display:grid; }
+.split.collapsed .reopen{ display:grid; }
 .reopen:hover{ color:var(--accent); border-color:var(--accent); }
 
-/* ============================== CANVAS ============================== */
+/* ---------------- CANVAS ---------------- */
 .canvas{ flex:1; overflow-y:auto; position:relative; background:var(--paper); }
-.canvas-inner{ max-width:620px; margin:0 auto; padding:44px 32px 150px; transition:max-width 300ms var(--ease-settle); }
-.screen.collapsed .canvas-inner{ max-width:680px; }
-.cv-label{ font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 10px; }
-.cv-title{ font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.08; letter-spacing:-.015em; margin:0; outline:none; border-radius:4px; }
+.canvas-inner{ max-width:620px; margin:0 auto; padding:40px 32px 150px; transition:max-width 300ms var(--ease-settle); }
+.split.collapsed .canvas-inner{ max-width:700px; }
+.cv-label{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 12px; }
+/* TITLE IS READ-ONLY — the seam rejects a title patch. See note (a). */
+.cv-title{ font-family:var(--serif); font-weight:400; font-size:38px; line-height:1.08; letter-spacing:-.015em; margin:0; }
+.cv-title .lockhint{
+  display:inline-block; margin-left:10px; vertical-align:middle;
+  font:500 9.5px/1 var(--sans); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--rule-strong); border:1px solid var(--rule); border-radius:99px; padding:4px 8px;
+}
 .cv-dek{ font-family:var(--serif); font-size:18px; line-height:1.5; color:var(--ink-2); margin:14px 0 0; outline:none; border-radius:4px; }
 [contenteditable]:focus{ box-shadow:0 0 0 2px var(--accent); }
 [contenteditable]:hover:not(:focus){ box-shadow:0 0 0 1px var(--rule-strong); }
-.cv-hero{ margin:26px 0; aspect-ratio:16/9; border-radius:10px; border:1px dashed var(--rule-strong);
-  display:grid; place-items:center; color:var(--ink-mute); font-size:12.5px; background:var(--paper-raised); cursor:pointer;
-  transition:border-color 180ms var(--ease), background 180ms var(--ease); }
+.cv-hero{
+  margin:26px 0; aspect-ratio:16/9; border-radius:10px; border:1px dashed var(--rule-strong);
+  display:grid; place-items:center; color:var(--ink-mute); font-size:12.5px;
+  background:var(--paper-raised); cursor:pointer;
+  transition:border-color 180ms var(--ease), background 180ms var(--ease);
+}
 .cv-hero:hover{ border-color:var(--accent); background:var(--paper-sunk); }
 .cv-hero.filled{ border:1px solid var(--rule); background:linear-gradient(150deg,#DDE0EC,#B9BED6); }
 
 .block{ position:relative; margin:0 0 18px; }
 .block .body{ font-size:16px; line-height:1.72; color:var(--ink-2); outline:none; border-radius:4px; padding:2px 0; }
-.block.quote .body{ font-family:var(--serif); font-size:21px; line-height:1.4; color:var(--ink);
-  border-left:2px solid var(--accent); padding-left:18px; font-style:italic; }
-.block .handle{ position:absolute; left:-34px; top:2px; width:24px; height:24px; display:grid; place-items:center;
+.block.quote .body{ font-family:var(--serif); font-size:21px; line-height:1.4; color:var(--ink); border-left:2px solid var(--accent); padding-left:18px; font-style:italic; }
+.block.head .body{ font-family:var(--serif); font-size:26px; line-height:1.2; color:var(--ink); }
+.block .handle{
+  position:absolute; left:-34px; top:2px; width:24px; height:24px; display:grid; place-items:center;
   border-radius:6px; color:var(--rule-strong); opacity:0; cursor:grab;
-  transition:opacity 160ms var(--ease), background 160ms var(--ease), color 160ms var(--ease); }
+  transition:opacity 160ms var(--ease), background 160ms var(--ease), color 160ms var(--ease);
+}
 .block:hover .handle{ opacity:1; }
 .block .handle:hover{ background:var(--paper-sunk); color:var(--ink-2); }
-.block .kindtag{ position:absolute; right:-6px; top:3px; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--rule-strong); opacity:0; transition:opacity 160ms var(--ease); }
+.block .kindtag{
+  position:absolute; right:-6px; top:3px; font:500 9.5px/1 var(--sans);
+  letter-spacing:.12em; text-transform:uppercase; color:var(--rule-strong);
+  opacity:0; transition:opacity 160ms var(--ease);
+}
 .block:hover .kindtag{ opacity:1; }
 
 .insert{ position:relative; height:22px; margin:-6px 0 6px; }
 .insert .line{ position:absolute; left:0; right:0; top:50%; height:1px; background:var(--rule); opacity:0; transition:opacity 160ms var(--ease); }
-.insert button{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+.insert button{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   width:22px; height:22px; border-radius:99px; appearance:none; cursor:pointer;
   border:1px solid var(--rule); background:var(--paper-raised); color:var(--ink-mute);
   display:grid; place-items:center; opacity:0; font-size:14px; line-height:1;
-  transition:opacity 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease), transform 220ms var(--ease-settle); }
+  transition:opacity 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease), transform 220ms var(--ease-settle);
+}
 .insert:hover .line, .insert:hover button{ opacity:1; }
 .insert button:hover{ border-color:var(--accent); color:var(--accent); transform:translate(-50%,-50%) rotate(90deg); }
-
-.picker{ position:absolute; z-index:60; left:50%; top:26px; transform:translateX(-50%);
-  width:236px; background:var(--paper-raised); border:1px solid var(--rule); border-radius:10px;
-  box-shadow:0 18px 40px -18px rgba(23,20,18,.4); padding:6px; display:none; }
+.picker{
+  position:absolute; z-index:60; left:50%; top:26px; transform:translateX(-50%);
+  width:240px; background:var(--paper-raised); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 18px 40px -18px oklch(14% 0.018 60 / .4); padding:6px; display:none;
+}
 .picker.open{ display:block; }
-.picker .h{ font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--rule-strong); padding:7px 9px 5px; margin:0; }
-.picker button{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; appearance:none; border:0;
-  background:transparent; cursor:pointer; padding:8px 9px; border-radius:7px; font:400 13px/1 var(--sans); color:var(--ink-2); }
+.picker .h{ font:600 10px/1 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--rule-strong); padding:8px 9px 6px; margin:0; }
+.picker button{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left; appearance:none; border:0;
+  background:transparent; cursor:pointer; padding:9px; border-radius:7px; font:400 13px/1 var(--sans); color:var(--ink-2);
+}
 .picker button:hover{ background:var(--paper-sunk); color:var(--ink); }
 .picker button .k{ font-size:10.5px; color:var(--rule-strong); margin-left:auto; }
 
-.rtb{ position:absolute; z-index:70; display:none; gap:2px; padding:3px;
-  background:var(--ink); border-radius:8px; box-shadow:0 12px 26px -12px rgba(0,0,0,.5); }
+.rtb{
+  position:absolute; z-index:70; display:none; gap:2px; padding:3px;
+  background:var(--ink); border-radius:8px; box-shadow:0 12px 26px -12px oklch(14% 0.018 60 / .5);
+}
 .rtb.open{ display:flex; }
-.rtb button{ appearance:none; border:0; background:transparent; color:#F2ECE3; cursor:pointer;
-  width:30px; height:28px; border-radius:6px; font-size:13px; }
-.rtb button:hover{ background:rgba(255,255,255,.14); }
+.rtb button{ appearance:none; border:0; background:transparent; color:oklch(96% 0.012 80); cursor:pointer; width:30px; height:28px; border-radius:6px; font-size:13px; }
+.rtb button:hover{ background:oklch(100% 0 0 / .14); }
 
-/* ============================== INSPECTOR ============================== */
-.insp{ width:248px; flex:none; border-left:1px solid var(--rule); background:var(--paper-raised); padding:16px; overflow-y:auto; }
-.insp h4{ font:600 10px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 12px; }
-.field{ margin-bottom:15px; }
-.field label{ display:block; font-size:11px; letter-spacing:.06em; color:var(--ink-mute); margin-bottom:5px; }
-.field input, .field select{ width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper);
-  border-radius:7px; padding:8px 10px; font:400 13px/1.2 var(--sans); color:var(--ink); }
+/* ---------------- INSPECTOR ---------------- */
+.insp{ width:var(--w-insp); flex:none; border-left:1px solid var(--rule); background:var(--paper-raised); padding:18px; overflow-y:auto; }
+.insp h4{ font:600 10px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--rule-strong); margin:0 0 14px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:11.5px; letter-spacing:.05em; color:var(--ink-mute); margin-bottom:6px; }
+.field input, .field select{
+  width:100%; appearance:none; border:1px solid var(--rule); background:var(--paper);
+  border-radius:8px; padding:9px 11px; font:400 13px/1.2 var(--sans); color:var(--ink);
+}
 .field input:focus, .field select:focus{ outline:2px solid var(--accent); outline-offset:-1px; }
 .field input[readonly]{ color:var(--ink-mute); background:var(--paper-sunk); }
-.status{ display:flex; gap:2px; padding:3px; background:var(--paper-sunk); border-radius:99px; }
-.status button{ flex:1; appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
-  font:500 11px/1 var(--sans); letter-spacing:.06em; padding:8px; border-radius:99px; }
-.status button[aria-pressed="true"]{ background:var(--paper-raised); color:var(--ink); box-shadow:0 1px 3px rgba(23,20,18,.12); }
-.insp .note{ font-size:11px; line-height:1.5; color:var(--ink-mute); border-top:1px solid var(--rule); padding-top:12px; margin:4px 0 0; }
+.field .hint{ font-size:10.5px; color:var(--rule-strong); margin:5px 0 0; }
+.seg{ display:flex; gap:2px; padding:3px; background:var(--paper-raised); border:1px solid oklch(14% 0.018 60 / .08); border-radius:99px; }
+.seg button{
+  flex:1; appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
+  font:500 11.5px/1 var(--sans); padding:9px; border-radius:99px;
+  transition:background 170ms var(--ease), color 170ms var(--ease);
+}
+/* CORRECTION: was raised-on-sunk (--paper-raised on --paper-sunk + shadow). The
+   studio-wide SegmentedToggle uses an ACCENT FILL, and the shared component sets the
+   convention — this mock and BlogEditPanel were the two that had drifted from it. */
+.seg button[aria-pressed="true"]{ background:var(--accent); color:var(--paper); }
+.insp .note{ font-size:11.5px; line-height:1.55; color:var(--ink-mute); border-top:1px solid var(--rule); padding-top:13px; margin:6px 0 0; }
 
-/* ============================== PUBLISH BAR ============================== */
-.pubbar{ position:absolute; left:50%; bottom:20px; transform:translateX(-50%); z-index:80;
+/* ---------------- PUBLISH BAR ----------------
+   Offset by half the sidebar so it centres over the WORK AREA, not the
+   viewport. HAZARD: this is hand-coupled to --w-side. Change both together. */
+.pubbar{
+  position:fixed; left:calc(50% + (var(--w-side) / 2)); bottom:24px; transform:translateX(-50%); z-index:120;
   display:flex; align-items:center; gap:14px; padding:9px 9px 9px 18px;
   background:var(--paper-raised); border:1px solid var(--rule); border-radius:99px;
-  box-shadow:0 16px 36px -18px rgba(23,20,18,.45); }
-.pubbar .s{ font-size:12px; color:var(--ink-mute); display:flex; align-items:center; gap:8px; }
-.pubbar .go{ appearance:none; border:0; cursor:pointer; background:var(--accent); color:#fff;
-  font:500 12px/1 var(--sans); letter-spacing:.08em; text-transform:uppercase; padding:10px 18px; border-radius:99px; }
-.pubbar .go:hover{ background:#8C4433; }
-.pubbar .ghost{ appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute);
-  font:400 12px/1 var(--sans); padding:10px 8px; }
+  box-shadow:0 18px 40px -20px oklch(14% 0.018 60 / .45);
+}
+.pubbar .s{ font-size:12.5px; color:var(--ink-mute); display:flex; align-items:center; gap:9px; }
+.pubbar .go{
+  appearance:none; border:0; cursor:pointer; background:var(--accent); color:#fff;
+  font:500 12px/1 var(--sans); letter-spacing:.08em; text-transform:uppercase;
+  padding:11px 19px; border-radius:99px; transition:background 170ms var(--ease);
+}
+.pubbar .go:hover{ background:oklch(48% 0.13 42); }
+.pubbar .ghost{ appearance:none; border:0; cursor:pointer; background:transparent; color:var(--ink-mute); font:400 12.5px/1 var(--sans); padding:11px 8px; }
 .pubbar .ghost:hover{ color:var(--accent); }
 
-/* ============================== DIALOG ============================== */
-.scrim{ position:absolute; inset:0; z-index:150; background:rgba(23,20,18,.32); display:none; place-items:center; }
+/* ---------------- DIALOG ---------------- */
+.scrim{ position:fixed; inset:0; z-index:200; background:oklch(14% 0.018 60 / .32); display:none; place-items:center; }
 .scrim.open{ display:grid; }
-.dlg{ width:430px; background:var(--paper-raised); border-radius:14px; padding:24px; box-shadow:0 30px 60px -24px rgba(0,0,0,.5); }
-.dlg h3{ font-family:var(--serif); font-weight:400; font-size:24px; margin:0 0 6px; }
+.dlg{ width:440px; background:var(--paper-raised); border-radius:14px; padding:26px; box-shadow:0 30px 60px -24px oklch(14% 0.018 60 / .5); }
+.dlg h3{ font-family:var(--serif); font-weight:400; font-size:25px; margin:0 0 7px; }
 .dlg p{ margin:0 0 18px; font-size:13px; line-height:1.55; color:var(--ink-mute); }
-.dlg .slug{ font-size:11.5px; color:var(--ink-mute); margin-top:7px; font-family:ui-monospace,monospace; }
-.dlg .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
-.dlg .row button{ appearance:none; border:0; cursor:pointer; font:500 12.5px/1 var(--sans); padding:11px 18px; border-radius:8px; }
-.dlg .cancel{ background:transparent; color:var(--ink-mute); }
-.dlg .create{ background:var(--ink); color:var(--paper); }
-.dlg .create:hover{ background:var(--accent); }
+.dlg .slug{ font-size:11.5px; color:var(--ink-mute); margin-top:8px; font-family:ui-monospace,monospace; }
+.dlg .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
+
+/* ---------------- FIT THRESHOLD — 1406px, measured ---------------- */
+@media (max-width:1406px){
+  .split .list{ width:0; border-right-color:transparent; }
+  .split .reopen{ display:grid; }
+  .split .canvas-inner{ max-width:700px; }
+  .split.expanded .list{ width:var(--w-list); border-right-color:var(--rule); }
+  .split.expanded .reopen{ display:none; }
+}
+@media (max-width:1100px){
+  .insp{ display:none; }   /* below this the inspector folds into a canvas tab — a build decision */
+}
 </style>
 </head>
 <body>
 
 <div class="doc-bar">
-  <strong>/studio — blog editor · final</strong>
-  <span>Click posts · ＋ between blocks · select text for the toolbar · ⟨ collapses the list</span>
+  <strong>/studio/blog — contract</strong>
+  <span>Full window width · real studio sidebar · ink-pill selected · collapse at 1406px</span>
 </div>
 
-<div class="screen" id="s">
+<div class="app">
+  <!-- ================= SIDEBAR ================= -->
   <aside class="side">
-    <p class="brand">studio</p>
+    <a class="logo" href="/studio" aria-label="Studio home">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.6L20 9.2l-4.3 3.6 1.4 5.9L12 15.6 6.9 18.7l1.4-5.9L4 9.2l5.8-1.6z"/></svg></span>
+      <b>Studio</b>
+    </a>
+
+    <p class="grp">Content</p>
     <nav>
-      <a href="#">Hero</a><a href="#">About</a><a href="#">Process</a><a href="#">Links</a>
-      <p class="grp">Collections</p>
-      <a href="#">Work <span class="c">4</span></a>
-      <a href="#">Experience <span class="c">5</span></a>
-      <a href="#">Skills <span class="c">6</span></a>
-      <a href="#" class="on">Blog <span class="c">12</span></a>
+      <a href="/studio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10l8-6 8 6v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>
+        Homepage
+      </a>
+      <a href="/studio/projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+        Case studies <span class="c">4</span>
+      </a>
+      <a href="/studio/blog" class="on" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        Blog <span class="c">4</span>
+      </a>
+      <a href="/studio/experience">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>
+        Experience <span class="c">5</span>
+      </a>
+      <a href="/studio/skills">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5"/></svg>
+        Skills
+      </a>
     </nav>
+
+    <div class="foot">
+      <nav>
+        <a href="/studio/settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg>
+          Site settings
+        </a>
+        <a href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2"/><path d="M11 12h9m0 0-3-3m3 3-3 3"/></svg>
+          Sign out
+        </a>
+      </nav>
+    </div>
   </aside>
 
-  <button class="reopen" data-collapse title="Show posts">⟩</button>
-
-  <div class="list">
-    <div class="top">
-      <div class="hdr">
-        <h4>Posts</h4>
-        <button class="collapse" data-collapse title="Collapse list">⟨</button>
-      </div>
-      <button class="newbtn" data-new>＋ New post</button>
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
       <div class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="search" placeholder="Search posts" />
+        <svg class="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search content" />
+        <kbd>/</kbd>
       </div>
+      <a class="btn ghost" href="/blog">View live
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
     </div>
-    <div class="scroll">
-      <p class="month">July 2026</p>
-      <button class="post on"><span class="t">What a data table teaches you about trust</span><span class="m"><span class="dot dr"></span>Draft · 24 Jul</span></button>
-      <button class="post"><span class="t">Three weeks of AI copilot patterns</span><span class="m"><span class="dot pub"></span>Published · 22 Jul</span></button>
-      <button class="post"><span class="t">Notes on designing empty states</span><span class="m"><span class="dot pub"></span>Published · 19 Jul</span></button>
-      <button class="post"><span class="t">The handoff is the design</span><span class="m"><span class="dot pub"></span>Published · 17 Jul</span></button>
-      <button class="post"><span class="t">A small win: the twelve-pixel fix</span><span class="m"><span class="dot pub"></span>Published · 14 Jul</span></button>
-      <p class="month">June 2026</p>
-      <button class="post"><span class="t">On naming things in a design system</span><span class="m"><span class="dot pub"></span>Published · 30 Jun</span></button>
-      <button class="post"><span class="t">Why I stopped prototyping in high fidelity</span><span class="m"><span class="dot pub"></span>Published · 27 Jun</span></button>
+
+    <div class="split" id="split">
+      <button class="reopen" data-collapse title="Show posts">⟩</button>
+
+      <!-- ---------- LIST ---------- -->
+      <div class="list">
+        <div class="lt">
+          <div class="lh">
+            <h4>Posts</h4>
+            <button class="iconbtn" data-collapse title="Collapse list">⟨</button>
+          </div>
+          <button class="btn solid newbtn" data-new>＋ New post</button>
+          <div class="minisearch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" placeholder="Search posts" />
+          </div>
+        </div>
+        <div class="scroll">
+          <p class="month">July 2026</p>
+          <button class="item on"><span class="t">What a data table teaches you about trust</span><span class="m"><span class="dot pub"></span>Published · 24 Jul</span></button>
+          <button class="item"><span class="t">Three weeks of AI copilot patterns</span><span class="m"><span class="dot dr"></span>Draft · 22 Jul</span></button>
+          <button class="item"><span class="t">Notes on designing empty states</span><span class="m"><span class="dot pub"></span>Published · 19 Jul</span></button>
+          <button class="item"><span class="t">The handoff is the design</span><span class="m"><span class="dot pub"></span>Published · 17 Jul</span></button>
+        </div>
+      </div>
+
+      <!-- ---------- CANVAS ---------- -->
+      <div class="canvas">
+        <div class="canvas-inner">
+          <p class="cv-label">Editing on the canvas</p>
+          <h1 class="cv-title" data-title>What a data table teaches you about trust<span class="lockhint">Slug · read only</span></h1>
+          <p class="cv-dek" contenteditable spellcheck="false">Nobody trusts a number they cannot trace.</p>
+          <div class="cv-hero filled"></div>
+
+          <div class="insert"><span class="line"></span><button data-ins>＋</button>
+            <div class="picker"><p class="h">Add block</p>
+              <button>Paragraph <span class="k">richText</span></button>
+              <button>Heading <span class="k">heading</span></button>
+              <button>Pull quote <span class="k">pullQuote</span></button>
+              <button>Video <span class="k">videoEmbed</span></button>
+            </div>
+          </div>
+
+          <div class="block"><span class="handle">⠿</span><span class="kindtag">richText</span>
+            <div class="body" contenteditable spellcheck="false">The first enterprise dashboard I shipped had forty-one metrics on it. I was proud of the density. Six weeks later I watched an analyst export the whole thing to Excel, delete thirty-eight columns, and rebuild the three she needed by hand.</div>
+          </div>
+
+          <div class="insert"><span class="line"></span><button data-ins>＋</button>
+            <div class="picker"><p class="h">Add block</p>
+              <button>Paragraph <span class="k">richText</span></button>
+              <button>Heading <span class="k">heading</span></button>
+              <button>Pull quote <span class="k">pullQuote</span></button>
+              <button>Video <span class="k">videoEmbed</span></button>
+            </div>
+          </div>
+
+          <div class="block head"><span class="handle">⠿</span><span class="kindtag">heading</span>
+            <div class="body" contenteditable spellcheck="false">Provenance is an interface problem</div>
+          </div>
+
+          <div class="insert"><span class="line"></span><button data-ins>＋</button>
+            <div class="picker"><p class="h">Add block</p>
+              <button>Paragraph <span class="k">richText</span></button>
+              <button>Heading <span class="k">heading</span></button>
+              <button>Pull quote <span class="k">pullQuote</span></button>
+              <button>Video <span class="k">videoEmbed</span></button>
+            </div>
+          </div>
+
+          <div class="block quote"><span class="handle">⠿</span><span class="kindtag">pullQuote</span>
+            <div class="body" contenteditable spellcheck="false">The most important column in an enterprise table is usually the one nobody asked for.</div>
+          </div>
+
+          <div class="insert"><span class="line"></span><button data-ins>＋</button>
+            <div class="picker"><p class="h">Add block</p>
+              <button>Paragraph <span class="k">richText</span></button>
+              <button>Heading <span class="k">heading</span></button>
+              <button>Pull quote <span class="k">pullQuote</span></button>
+              <button>Video <span class="k">videoEmbed</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="rtb" data-rtb><button title="Bold"><b>B</b></button><button title="Italic"><i>I</i></button><button title="Link">🔗</button></div>
+      </div>
+
+      <!-- ---------- INSPECTOR ---------- -->
+      <aside class="insp">
+        <h4>Post</h4>
+        <div class="field"><label>Status</label>
+          <div class="seg"><button aria-pressed="false">Draft</button><button aria-pressed="true">Published</button></div>
+        </div>
+        <div class="field"><label>Publish date</label><input type="date" value="2026-07-24" /></div>
+        <div class="field"><label>Topic</label>
+          <input value="Enterprise UX" />
+          <p class="hint">Free text. No topic set exists in the schema.</p>
+        </div>
+        <div class="field"><label>Slug</label><input value="what-a-data-table-teaches-you-about-trust" readonly />
+          <p class="hint">Derived on create and locked. Renaming is its own arc.</p>
+        </div>
+        <div class="field"><label>Card image</label><div class="cv-hero filled" style="aspect-ratio:16/9;margin:0"></div></div>
+        <p class="note">Reading time is computed from the blocks. Loves are runtime state and are never edited here.</p>
+      </aside>
     </div>
   </div>
+</div>
 
-  <div class="canvas">
-    <div class="canvas-inner">
-      <p class="cv-label">Editing on the canvas</p>
-      <h1 class="cv-title" contenteditable spellcheck="false">What a data table teaches you about trust</h1>
-      <p class="cv-dek" contenteditable spellcheck="false">Nobody trusts a number they can't trace.</p>
+<div class="pubbar">
+  <span class="s"><span class="dot dr"></span>Unpublished changes</span>
+  <button class="ghost">Discard</button>
+  <button class="go">Publish</button>
+</div>
 
-      <div class="cv-hero filled"></div>
-
-      <div class="insert"><span class="line"></span><button data-ins>＋</button>
-        <div class="picker"><p class="h">Add block</p>
-          <button>Paragraph <span class="k">richText</span></button>
-          <button>Image <span class="k">imageBlock</span></button>
-          <button>Pull quote <span class="k">pullQuote</span></button>
-          <button>Video <span class="k">videoEmbed</span></button>
-        </div>
-      </div>
-
-      <div class="block">
-        <span class="handle">⠿</span><span class="kindtag">richText</span>
-        <div class="body" contenteditable spellcheck="false">The first enterprise dashboard I shipped had forty-one metrics on it. I was proud of the density. Six weeks later I watched an analyst export the whole thing to Excel, delete thirty-eight columns, and rebuild the three she needed by hand — every Monday morning, for as long as anyone could remember.</div>
-      </div>
-
-      <div class="insert"><span class="line"></span><button data-ins>＋</button>
-        <div class="picker"><p class="h">Add block</p>
-          <button>Paragraph <span class="k">richText</span></button>
-          <button>Image <span class="k">imageBlock</span></button>
-          <button>Pull quote <span class="k">pullQuote</span></button>
-          <button>Video <span class="k">videoEmbed</span></button>
-        </div>
-      </div>
-
-      <div class="block quote">
-        <span class="handle">⠿</span><span class="kindtag">pullQuote</span>
-        <div class="body" contenteditable spellcheck="false">The most important column in an enterprise table is usually the one nobody asked for.</div>
-      </div>
-
-      <div class="insert"><span class="line"></span><button data-ins>＋</button>
-        <div class="picker"><p class="h">Add block</p>
-          <button>Paragraph <span class="k">richText</span></button>
-          <button>Image <span class="k">imageBlock</span></button>
-          <button>Pull quote <span class="k">pullQuote</span></button>
-          <button>Video <span class="k">videoEmbed</span></button>
-        </div>
-      </div>
-
-      <div class="block">
-        <span class="handle">⠿</span><span class="kindtag">richText</span>
-        <div class="body" contenteditable spellcheck="false">She wasn't working around a missing feature. She was working around a missing explanation. Every number on that screen was correct and not one of them said where it came from.</div>
-      </div>
-
-      <div class="insert"><span class="line"></span><button data-ins>＋</button>
-        <div class="picker"><p class="h">Add block</p>
-          <button>Paragraph <span class="k">richText</span></button>
-          <button>Image <span class="k">imageBlock</span></button>
-          <button>Pull quote <span class="k">pullQuote</span></button>
-          <button>Video <span class="k">videoEmbed</span></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="rtb" data-rtb><button title="Bold"><b>B</b></button><button title="Italic"><i>I</i></button><button title="Link">🔗</button></div>
-  </div>
-
-  <aside class="insp">
-    <h4>Post</h4>
-    <div class="field"><label>Status</label>
-      <div class="status"><button aria-pressed="true">Draft</button><button aria-pressed="false">Published</button></div>
-    </div>
-    <div class="field"><label>Publish date</label><input type="date" value="2026-07-24" /></div>
-    <div class="field"><label>Topic</label>
-      <select><option>Enterprise UX</option><option>AI patterns</option><option>Craft</option><option>Process</option></select>
-    </div>
-    <div class="field"><label>Slug</label><input value="what-a-data-table-teaches-you-about-trust" readonly /></div>
-    <div class="field"><label>Card image</label><div class="cv-hero filled" style="aspect-ratio:16/9;margin:0"></div></div>
-    <p class="note">Reading time is computed from the blocks. Loves are runtime state and are never edited here.</p>
-  </aside>
-
-  <div class="pubbar">
-    <span class="s"><span class="dot dr"></span>Unpublished changes</span>
-    <button class="ghost">Discard</button>
-    <button class="go">Publish</button>
-  </div>
-
-  <div class="scrim" data-scrim>
-    <div class="dlg">
-      <h3>New post</h3>
-      <p>Give it a title. The slug is derived server-side and locked once created — everything else can change later.</p>
-      <div class="field"><label>Title</label><input value="Notes on designing empty states" data-title /></div>
-      <p class="slug">/blog/notes-on-designing-empty-states</p>
-      <div class="row">
-        <button class="cancel" data-close>Cancel</button>
-        <button class="create" data-close>Create &amp; start writing</button>
-      </div>
+<div class="scrim" data-scrim>
+  <div class="dlg">
+    <h3>New post</h3>
+    <p>Give it a title. The slug is derived server-side and locked once created. A new post is always born as a draft.</p>
+    <div class="field"><label>Title</label><input value="Notes on designing empty states" /></div>
+    <p class="slug">/blog/notes-on-designing-empty-states</p>
+    <div class="row">
+      <button class="btn ghost" data-close>Cancel</button>
+      <button class="btn solid" data-close>Create &amp; start writing</button>
     </div>
   </div>
 </div>
 
 <script>
-const screen = document.getElementById("s");
+const split = document.getElementById("split");
 
-/* list selection */
-const posts = [...screen.querySelectorAll(".post")];
-posts.forEach(p => p.addEventListener("click", () => {
-  posts.forEach(x => x.classList.remove("on"));
-  p.classList.add("on");
-  screen.querySelector(".cv-title").textContent = p.querySelector(".t").textContent;
+/* list selection — the title is READ ONLY, so the lock chip is re-appended */
+const items = [...document.querySelectorAll(".item")];
+const titleEl = document.querySelector("[data-title]");
+items.forEach(i => i.addEventListener("click", () => {
+  items.forEach(x => x.classList.remove("on"));
+  i.classList.add("on");
+  titleEl.textContent = i.querySelector(".t").textContent;
+  const chip = document.createElement("span");
+  chip.className = "lockhint";
+  chip.textContent = "Slug · read only";
+  titleEl.appendChild(chip);
 }));
 
-/* collapse — a WIDTH transition, never an unmount, so search state survives */
-screen.querySelectorAll("[data-collapse]").forEach(b =>
-  b.addEventListener("click", () => screen.classList.toggle("collapsed")));
+/* collapse — a WIDTH transition, never an unmount, so search state survives.
+   Below the 1406px fit threshold the list is collapsed by default, so the
+   toggle flips `expanded` instead. */
+document.querySelectorAll("[data-collapse]").forEach(b =>
+  b.addEventListener("click", () => {
+    const narrow = window.matchMedia("(max-width:1406px)").matches;
+    split.classList.toggle(narrow ? "expanded" : "collapsed");
+  }));
 
 /* block picker */
-screen.querySelectorAll("[data-ins]").forEach(btn => {
+document.querySelectorAll("[data-ins]").forEach(btn => {
   btn.addEventListener("click", e => {
     e.stopPropagation();
     const pick = btn.parentElement.querySelector(".picker");
-    screen.querySelectorAll(".picker").forEach(p => { if (p !== pick) p.classList.remove("open"); });
+    document.querySelectorAll(".picker").forEach(p => { if (p !== pick) p.classList.remove("open"); });
     pick.classList.toggle("open");
   });
 });
-document.addEventListener("click", () => screen.querySelectorAll(".picker").forEach(p => p.classList.remove("open")));
+document.addEventListener("click", () => document.querySelectorAll(".picker").forEach(p => p.classList.remove("open")));
 
 /* rich-text toolbar — only live marks, never greyed placeholders */
-const rtb = screen.querySelector("[data-rtb]");
+const rtb = document.querySelector("[data-rtb]");
 document.addEventListener("selectionchange", () => {
   const sel = document.getSelection();
   if (!sel || sel.isCollapsed) return rtb.classList.remove("open");
@@ -493,9 +649,16 @@ document.addEventListener("selectionchange", () => {
 });
 
 /* capture-then-create */
-const scrim = screen.querySelector("[data-scrim]");
-screen.querySelector("[data-new]").addEventListener("click", () => scrim.classList.add("open"));
-screen.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => scrim.classList.remove("open")));
+const scrim = document.querySelector("[data-scrim]");
+document.querySelector("[data-new]").addEventListener("click", () => scrim.classList.add("open"));
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => scrim.classList.remove("open")));
+
+/* / focuses search */
+addEventListener("keydown", e => {
+  if (e.key === "/" && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && !document.activeElement.isContentEditable){
+    e.preventDefault(); document.querySelector(".search input").focus();
+  }
+});
 </script>
 </body>
 </html>
