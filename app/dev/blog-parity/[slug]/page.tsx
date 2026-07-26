@@ -1,0 +1,72 @@
+// Blog canvas-vs-article parity — the blog twin of /dev/parity, and the thing STATE's
+// hazard 12 has been asking for.
+//
+// WHY IT EXISTS NOW. Blog has never had a parity harness, and the cost is on the record:
+// the 48px fidelity gap (#178) and the `vw` bleed bug (#180) both had to be caught BY HAND,
+// and this arc's own premise — that contentEditable moves no box — had to be measured by
+// hand too. Three hand-catches for one missing gate.
+//
+// It matters more from this PR onward than it ever did before, because this is the FIRST
+// time the two renders diverge BY DESIGN. Until now "the canvas is the article" was true by
+// construction and the gate would only have caught accidents. Now the canvas deliberately
+// carries contentEditable, data-edit-* attributes and an outline, and the claim being made
+// is the narrower one: those ADD affordances and never move a box.
+//
+// HOW TO RUN
+//   1. npm run dev
+//   2. open http://localhost:3457/dev/blog-parity/<slug>   (dev only)
+//   3. paste PARITY_SCRIPT from ralph/tests/parity.mjs into the console
+//
+// The walker is REUSED UNCHANGED. It keys off [data-parity-pair] and [data-parity-side]
+// and knows nothing about case studies, so blog needed no second implementation of it —
+// only a second page that lays two renders out for it to compare.
+//
+// IT MUST REPORT A NON-ZERO PAIR COUNT. #180 ran the case-study harness against a slug that
+// produced no pairs and got `sections: 0, verdict: PARITY OK` — a false pass, and a harness
+// that reports zero subjects is worse than no harness because it reads as evidence. The
+// count is rendered on the page so a human reading the output cannot miss a zero, and the
+// blog ralph suite asserts the page emits at least one pair.
+import { notFound } from "next/navigation";
+import { getBlogPost } from "@/lib/keystatic";
+import BlogProse from "@/components/blog/BlogProse";
+import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
+
+export const metadata = { robots: { index: false, follow: false } };
+
+type Props = { params: Promise<{ slug: string }> };
+
+export default async function BlogParityHarness({ params }: Props) {
+  if (process.env.NODE_ENV === "production") notFound();
+  const { slug } = await params;
+  const post = await getBlogPost(slug);
+  if (!post) notFound();
+
+  const blocks = (Array.isArray(post.blocks) ? post.blocks : []) as BlogRawBlock[];
+
+  return (
+    <main>
+      {/* The count, in the markup, so a zero is visible to a human as well as to the
+          suite. A harness whose empty result looks like a pass is the failure #180 found. */}
+      <p data-parity-count={blocks.length} style={{ padding: "8px 16px", font: "12px monospace" }}>
+        {blocks.length} block(s) — a zero here means the harness is proving NOTHING.
+      </p>
+
+      {/* ONE pair for the whole post, not one per block. BlogProse renders a flat array
+          into a single `.blog-prose` column, and splitting it per block would compare
+          columns that never exist in isolation on either surface.
+
+          The two sides carry IDENTICAL wrapper markup, including `px-6` and the 68ch cap,
+          because the walk compares by POSITION — one extra element on one side shifts every
+          later comparison and turns a clean run into phantom mismatches. The only variable
+          is the `editable` flag. */}
+      <section data-parity-pair={0} data-parity-section="blog-prose">
+        <div data-parity-side="live" className="mx-auto max-w-[68ch] px-6 blog-article">
+          <BlogProse blocks={blocks} />
+        </div>
+        <div data-parity-side="canvas" className="mx-auto max-w-[68ch] px-6 blog-article">
+          <BlogProse blocks={blocks} editable />
+        </div>
+      </section>
+    </main>
+  );
+}

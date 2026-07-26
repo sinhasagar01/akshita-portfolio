@@ -2261,6 +2261,46 @@ a {
   color: var(--color-ink-950);
   margin: 2em 0 0.6em;
 }
+/* ---------------------------------------------------------------- the edit affordance
+   A DELIBERATE DUPLICATE of `.cs-editable`, and the duplication is the decision.
+
+   #173'S SPLICE PRECEDENT, NOT THE COMBINATOR PRECEDENT. What is shared here is twelve
+   lines of outline and background with no algorithm in it, so the two copies can be
+   compared totally and neither can silently diverge in BEHAVIOUR — unlike a URL validator,
+   which drifts precisely on the case nobody enumerated. Renaming `.cs-editable` to
+   something neutral would touch case-study CSS and drag the bundle gate onto a surface
+   this change otherwise leaves alone, and blog authored CSS is `blog-`prefixed by a locked
+   decision whose proof runs against the emitted bundle every PR.
+
+   EXTRACT IF A THIRD COLLECTION EVER NEEDS IT — the same trigger the splice carries.
+
+   OUTLINE, NEVER BORDER, and this is the load-bearing part rather than a style choice: an
+   outline does not participate in layout, so the affordance cannot move a box. Measured on
+   production CSS across nine prose elements, both figure captions, and the focused and
+   selected states — every delta was zero, and A1 held at 697.9296875 with the wide figure
+   at 935.2109. That measurement is what let this arc proceed at all. */
+.blog-editable {
+  cursor: text;
+  border-radius: 4px;
+  outline: 1px dashed color-mix(in oklch, currentColor 32%, transparent);
+  outline-offset: 3px;
+  transition: outline-color .15s ease, background-color .15s ease;
+}
+.blog-editable:hover {
+  outline-color: color-mix(in oklch, var(--color-accent-500) 55%, transparent);
+}
+/* FOCUS ONLY, deliberately. The case-study rule also carries `.is-selected`, because its
+   right-hand rail takes focus while you are still editing the field it points at. Blog's
+   inspector does not steal focus that way, and NOTHING in the blog canvas applies an
+   `is-selected` class — shipping the selector anyway would be a rule with no consumer, the
+   same authorable-but-inert condition that kept `videoEmbed.poster` hidden for three PRs.
+   If chip-click should later highlight its block in the canvas, that needs `selectedId`
+   threaded into BlogProse, and the rule comes back with it. */
+.blog-editable:focus {
+  outline: 1px solid var(--color-accent-500);
+  background-color: color-mix(in oklch, var(--color-accent-500) 8%, transparent);
+}
+
 /* ---------------------------------------------------------------- inline figures
    RE-ADDED, NOT INVENTED. blog-article.html drew two of these and #171 struck them out
    because "imageBlock is net-new and needs the block-image upload path, which is hardcoded
