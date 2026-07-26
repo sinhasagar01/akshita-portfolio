@@ -1,18 +1,49 @@
 import { config, collection, singleton, fields } from "@keystatic/core";
+// p4-4biii loads THIS config as a runtime VALUE under `node --experimental-strip-types`,
+// which cannot resolve a relative TS module (extensionless fails node; a ".ts" extension
+// fails tsc/Next). So the schema-side image bases are declared LOCALLY here rather than
+// imported. The RUNTIME single source is lib/studio/collection-image-base.ts (the path
+// helpers + upload routes take a base from there); these two mirrors are pinned EQUAL by
+// ralph/tests/collection-image-paths.mjs, so they cannot drift. The type is imported
+// type-only (erased under strip-types, so it never triggers the resolution).
+import type { CollectionImageBase } from "./lib/studio/collection-image-base";
+
+const PROJECTS_IMAGE_BASE: CollectionImageBase = {
+  directory: "public/images/projects",
+  publicPrefix: "/images/projects",
+  publicPath: "/images/projects/",
+};
+const BLOG_IMAGE_BASE: CollectionImageBase = {
+  directory: "public/images/blog",
+  publicPrefix: "/images/blog",
+  publicPath: "/images/blog/",
+};
+
+/** Exported ONLY so ralph/tests/collection-image-paths.mjs can pin these schema-side
+ *  mirrors equal to the runtime source (collection-image-base.ts) and fail if they ever
+ *  drift. Not consumed by the app — Keystatic reads the default export. */
+export const SCHEMA_IMAGE_BASES = { projects: PROJECTS_IMAGE_BASE, blog: BLOG_IMAGE_BASE };
 
 // P4 3(b) — reusable field-shapes for the new `sections` field (below), mirroring
 // lib/case-studies/types.ts's ImgSpec/GlowWord. Kept as small helpers (not inlined
 // per-block like body's simple fields.image() calls) because they're each a
 // multi-field object reused 6+ times verbatim across the block union.
 //
+// PR 3a — `base` is a REQUIRED parameter (no projects default). The bug this fixes was
+// exactly a silent projects default: the blog collection (below) called imgSpecFields()
+// and its poster was configured to land under the projects tree with nobody noticing.
+// Every call site now names its collection's base explicitly, so a future collection
+// cannot inherit the trap. Projects call sites pass PROJECTS_IMAGE_BASE, whose values
+// are byte-identical to the strings hardcoded here before this PR.
+//
 // `translate: [number, number]` has no native Keystatic tuple, so it is split into
 // translateX/translateY here — the 3(c) adapter recombines them.
-function imgSpecFields() {
+function imgSpecFields(base: CollectionImageBase) {
   return {
     src: fields.image({
       label: "Image",
-      directory: "public/images/projects",
-      publicPath: "/images/projects/",
+      directory: base.directory,
+      publicPath: base.publicPath,
     }),
     alt: fields.text({ label: "Alt text" }),
     width: fields.number({ label: "Rendered width (px, optional)" }),
@@ -29,9 +60,9 @@ function imgSpecFields() {
   };
 }
 
-function deviceSpecFields() {
+function deviceSpecFields(base: CollectionImageBase) {
   return {
-    ...imgSpecFields(),
+    ...imgSpecFields(base),
     label: fields.text({ label: "Theme label (optional)" }),
     dotColor: fields.text({ label: "Dot colour, hex (optional)" }),
   };
@@ -366,7 +397,7 @@ export default config({
                       }),
                       { label: "Meta facts", itemLabel: (props) => props.fields.label.value }
                     ),
-                    devices: fields.array(fields.object(deviceSpecFields()), {
+                    devices: fields.array(fields.object(deviceSpecFields(PROJECTS_IMAGE_BASE)), {
                       label: "Devices — exactly two, back then front",
                       validation: { length: { min: 2, max: 2 } },
                     }),
@@ -377,7 +408,7 @@ export default config({
                 deviceShelf: {
                   label: "Device shelf",
                   schema: fields.object({
-                    devices: fields.array(fields.object(deviceSpecFields()), { label: "Devices" }),
+                    devices: fields.array(fields.object(deviceSpecFields(PROJECTS_IMAGE_BASE)), { label: "Devices" }),
                     glow: fields.object(glowWordFields(), { label: "Glow word (optional)" }),
                     minHeight: fields.number({ label: "Minimum height, px (optional)" }),
                   }),
@@ -468,7 +499,7 @@ export default config({
                     heading: fields.text({ label: "Heading (optional)" }),
                     items: fields.array(
                       fields.object({
-                        image: fields.object(imgSpecFields(), { label: "Image" }),
+                        image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
                         title: fields.text({ label: "Title (optional)" }),
                         body: fields.text({ label: "Body (optional) — supports **bold**", multiline: true }),
                       }),
@@ -486,7 +517,7 @@ export default config({
                         category: fields.text({ label: "Category" }),
                         title: fields.text({ label: "Title" }),
                         body: fields.text({ label: "Body — supports **bold**", multiline: true }),
-                        image: fields.object(imgSpecFields(), { label: "Image" }),
+                        image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
                       }),
                       { label: "Features", itemLabel: (props) => props.fields.title.value }
                     ),
@@ -500,8 +531,8 @@ export default config({
                       fields.object({
                         title: fields.text({ label: "Title" }),
                         tag: fields.text({ label: "Tag" }),
-                        before: fields.object(imgSpecFields(), { label: "Before image" }),
-                        after: fields.object(imgSpecFields(), { label: "After image" }),
+                        before: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Before image" }),
+                        after: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "After image" }),
                         changes: fields.array(
                           fields.object({
                             emphasis: fields.text({ label: "Emphasis" }),
@@ -553,7 +584,7 @@ export default config({
                 annotatedImage: {
                   label: "Annotated image",
                   schema: fields.object({
-                    image: fields.object(imgSpecFields(), { label: "Image" }),
+                    image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
                     scrawl: fields.object(
                       {
                         text: fields.text({ label: "Text", multiline: true }),
@@ -607,7 +638,7 @@ export default config({
                   label: "Video embed",
                   schema: fields.object({
                     src: fields.text({ label: "Video URL (https://…) — externally hosted" }),
-                    poster: fields.object(imgSpecFields(), { label: "Poster still (optional)" }),
+                    poster: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Poster still (optional)" }),
                     caption: fields.text({
                       label: "Caption (optional) — supports **bold**, *italic*, [links](url)",
                       multiline: true,
@@ -728,16 +759,18 @@ export default config({
           publicPath: "/images/blog/",
         }),
         // A post is a FLAT array of blocks (no section shell — a post has no named
-        // chapters). Only the THREE kinds that already exist are declared: richText,
+        // chapters). Only the FOUR kinds that exist are declared: heading, richText,
         // pullQuote, videoEmbed. Their schemas are copied VERBATIM from the projects
         // `sections[].blocks` union (and reuse the same imgSpecFields() helper for the
         // video poster) so the shapes stay byte-identical — the future shared block
         // layer depends on that. A single-image `imageBlock` is NET-NEW (a kind to build
         // or figureGrid to repurpose) and is the editor PR's call, not declared here.
         //
-        // NOTE: imgSpecFields() configures the poster's directory to public/images/
-        // projects — the third write-path hardcoding to `projects` (block images, entry
-        // heroes, video posters). Inert at zero entries; consolidated in the write PR.
+        // PR 3a FIXED the poster mis-scope: imgSpecFields now takes a REQUIRED base and
+        // the poster below passes BLOG_IMAGE_BASE, so a blog poster lands under
+        // public/images/blog, not the projects tree. Blog entry heroes use the same blog
+        // base via the parameterized hero-image-path; the blog hero UPLOAD (its commit
+        // serializer) is still PR 3b.
         blocks: fields.blocks(
           {
             richText: {
@@ -774,7 +807,11 @@ export default config({
               label: "Video embed",
               schema: fields.object({
                 src: fields.text({ label: "Video URL (https://…) — externally hosted" }),
-                poster: fields.object(imgSpecFields(), { label: "Poster still (optional)" }),
+                // PR 3a — THE LIVE MIS-SCOPE FIX. Before this PR the blog poster called
+                // imgSpecFields() with no base and inherited the projects tree; it now
+                // names BLOG_IMAGE_BASE explicitly, so a blog poster lands under
+                // public/images/blog. No migration — no blog post has a poster yet.
+                poster: fields.object(imgSpecFields(BLOG_IMAGE_BASE), { label: "Poster still (optional)" }),
                 caption: fields.text({
                   label: "Caption (optional) — supports **bold**, *italic*, [links](url)",
                   multiline: true,
