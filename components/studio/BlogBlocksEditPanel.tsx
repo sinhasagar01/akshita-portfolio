@@ -18,10 +18,12 @@
 // component the public article page renders. The canvas is therefore the real renderer, not
 // a studio lookalike.
 //
-// THE POSTER IS HIDDEN, deliberately. `videoEmbed.poster` is in the schema (#171),
-// uploadable (#172) and validated (#173), but BlogProse renders an <iframe> and never reads
-// it. Wiring it is a design decision about video presentation that nobody has made, so the
-// blog form hides it rather than letting the accretion continue. Scoped, not built.
+// THE POSTER IS NO LONGER HIDDEN. `videoEmbed.poster` sat in the schema (#171), uploadable
+// (#172) and validated (#173) while no reader showed it, so the blog form hid it rather than
+// let the accretion continue. BlogProse draws images now, so the field feeds a real reader
+// and blog uses the shared form unmodified again — `showPoster` and its export are gone with
+// the gap they papered over. The same closure applies to imageBlock, which was deferred for
+// exactly this reason and is the reason this panel now offers five kinds.
 //
 // ---- THE THREE-PANE LAYOUT ------------------------------------------------------------
 //
@@ -62,6 +64,7 @@ import {
 } from "./blocks/blog-registry";
 import type { BlogBlockKind, BlogRawBlock } from "@/lib/blog/blocks-raw";
 import BlogProse from "@/components/blog/BlogProse";
+import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import ThreePaneShell from "./ThreePaneShell";
 import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
@@ -113,6 +116,7 @@ export default function BlogBlocksEditPanel({
   title,
   livePath,
   blocks: initialBlocks,
+  draftImages,
   posts,
   postSection,
 }: {
@@ -129,6 +133,11 @@ export default function BlogBlocksEditPanel({
    *  duplicate it. */
   livePath: string;
   blocks: readonly BlogRawBlock[];
+  /** Draft-branch image paths. An image uploaded to the draft branch 404s against main
+   *  until publish, so the canvas rewrites those srcs through the owner-gated proxy. The
+   *  public article does not, which is the ONLY way the two surfaces differ — an attribute
+   *  value on the same element, never a different element, so box geometry is identical. */
+  draftImages: readonly string[];
   /** Every post, for the list pane. Draft-overlaid, from getStudioData. */
   posts: readonly BlogCard[];
   /** BlogEditPanel's head fields, rendered as the inspector's first section. */
@@ -224,7 +233,11 @@ export default function BlogBlocksEditPanel({
 
   // The canvas renders through the PUBLIC component, so what the author sees is what the
   // article page will render — no studio lookalike to drift.
-  const prose = useMemo(() => <BlogProse blocks={blocks as unknown[]} />, [blocks]);
+  const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
+  const prose = useMemo(
+    () => <BlogProse blocks={blocks as unknown[]} rewriteSrc={rewriteSrc} />,
+    [blocks, rewriteSrc]
+  );
 
   /* ------------------------------------------------------------------ the canvas column */
   // `max-w-[68ch] px-6` MATCHES app/(portfolio)/blog/[slug]/page.tsx EXACTLY, and the px-6

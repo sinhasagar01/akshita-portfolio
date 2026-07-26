@@ -803,6 +803,62 @@ export default config({
               }),
               itemLabel: (props: any) => `Pull quote — ${props.fields.text.value}`,
             },
+            // THE INLINE FIGURE. Re-adding, not inventing: blog-article.html drew two of
+            // these and #171 struck them out because "imageBlock is net-new and needs the
+            // block-image upload path, which is hardcoded to projects". #172 made that path
+            // take a REQUIRED per-collection base, so the blocker expired.
+            //
+            // DELIBERATELY NOT imgSpecFields(BLOG_IMAGE_BASE). That combinator carries
+            // width, rotate, translateX, translateY, z and frame, which exist because a
+            // case-study image is COMPOSED on a free canvas. A figure in a 68ch prose column
+            // is PLACED, not composed, and BlogProse would read none of those six. Six
+            // authorable fields no reader shows is the videoEmbed.poster condition six times
+            // over — the exact thing this PR exists to clear. Blog owning its own image
+            // shape is consistent with owning its registry, its validator table and its
+            // splice.
+            //
+            // BOTH CHECKBOXES MEAN THE READER INJECTS A DEFAULT into every block of this
+            // kind, which the rest of this config avoids. Acceptable here ONLY because the
+            // kind is NEW: there is no existing content to migrate, so no file gains a key
+            // on save. Do not copy this reasoning to a field added to an existing kind.
+            imageBlock: {
+              label: "Image",
+              schema: fields.object({
+                src: fields.image({
+                  label: "Image",
+                  directory: BLOG_IMAGE_BASE.directory,
+                  publicPath: BLOG_IMAGE_BASE.publicPath,
+                }),
+                // Optional AT SAVE, enforced AT PUBLISH — see validate-blog-post. A block is
+                // born with src: null and alt: "", so refusing empty here would make the
+                // kind unaddable, exactly as videoSrc's own comment reasons.
+                alt: fields.text({ label: "Alt text" }),
+                // DISTINCT FROM ALT, and they serve different readers. `alt` replaces the
+                // image for someone who cannot see it; `caption` sits under it and tells
+                // someone who can what it MEANS. Markers, like videoEmbed.caption. Alt takes
+                // none — marker syntax in an alt attribute is read aloud literally.
+                caption: fields.text({
+                  label: "Caption (optional) — supports **bold**, *italic*, [links](url)",
+                  multiline: true,
+                }),
+                // The ONLY geometry knob, and a boolean because the design offers exactly
+                // two placements. blog-article.html, locked: "Figures may break wider than
+                // the measure; nothing else does."
+                wide: fields.checkbox({
+                  label: "Break wider than the text column",
+                  defaultValue: false,
+                }),
+                // Without this, an author facing the publish gate types "image" into alt to
+                // clear it, which is worse than empty because it is confidently wrong to a
+                // screen reader. A decorative image renders alt="" — the correct HTML, not
+                // an omitted attribute.
+                decorative: fields.checkbox({
+                  label: "Decorative — no alt text needed",
+                  defaultValue: false,
+                }),
+              }),
+              itemLabel: (props: any) => `Image — ${props.fields.alt.value || "no alt text"}`,
+            },
             videoEmbed: {
               label: "Video embed",
               schema: fields.object({

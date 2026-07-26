@@ -54,6 +54,7 @@ export default function BlogEditPanel({
   status,
   heroImage,
   blocks,
+  draftImages,
   posts,
   topicSuggestions,
 }: {
@@ -67,6 +68,8 @@ export default function BlogEditPanel({
   status: string;
   heroImage: string | null;
   blocks: readonly BlogRawBlock[];
+  /** Draft-branch image paths, passed straight through to the canvas. */
+  draftImages: readonly string[];
   /** Every post, passed straight through to the list pane. */
   posts: readonly BlogCard[];
   /** Existing topics across posts — suggestions, not a closed set (see the header). */
@@ -206,6 +209,7 @@ export default function BlogEditPanel({
       title={title}
       livePath={livePath}
       blocks={blocks}
+      draftImages={draftImages}
       posts={posts}
       postSection={postSection}
     />

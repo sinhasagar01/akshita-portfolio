@@ -37,7 +37,13 @@ export type RawSection = ProjectEntry["sections"][number];
 export type RawBlock = RawSection["blocks"][number];
 
 /**
- * The 14 block kinds the sections schema can express.
+ * The 16 block kinds the sections schema can express.
+ *
+ * CORRECTED FROM 14. The count was right when written and decayed silently as `richText`,
+ * `closingLine` and `videoEmbed` were added to the schema — nothing recomputes a number
+ * written in prose. DERIVED NUMBERS DECAY QUIETLY: state what a count IS and re-derive it
+ * rather than trusting the last person who wrote it down. The union itself is derived and
+ * was never wrong; only the comment was.
  *
  * NOT `types.ts`'s `BlockKind`, which is SIXTEEN: it also carries `featureStory`
  * and `beforeAfterStory`, boat-crest's bespoke scroll-story kinds, which the

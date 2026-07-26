@@ -53,10 +53,16 @@ export type BlogValidation = { ok: true } | { ok: false; error: SaveError };
 export const BLOG_POST_PATH_RE = /^content\/blog\/([a-z0-9-]+)\.yaml$/;
 
 /** The kinds BlogProse can render. Spelled here rather than imported from the sanitizer's
- *  table on purpose: this asks what the RENDERER handles, and the renderer's switch is
+ *  table on purpose: this asks what the RENDERER handles, and the renderer's own table is
  *  the authority. If the two ever disagree, that disagreement is a real bug and this
- *  should surface it rather than inherit it. */
-const RENDERABLE = new Set(["heading", "richText", "pullQuote", "videoEmbed"]);
+ *  should surface it rather than inherit it.
+ *
+ *  DELIBERATELY NOT DERIVED from BlogProse's RENDERERS, even though that is now a mapped
+ *  type and could be. Deriving it would launder exactly the disagreement this exists to
+ *  catch. EXPORTED so ralph can assert BLOG_PICKER_ORDER is a subset of it — a kind an
+ *  author can pick but the renderer will not draw is the silent failure that let
+ *  videoEmbed.poster sit authorable and invisible for three PRs. */
+export const RENDERABLE = new Set(["heading", "richText", "pullQuote", "imageBlock", "videoEmbed"]);
 
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
@@ -120,6 +126,40 @@ export function validateBlogPost(slug: string, raw: string): BlogValidation {
           return fail(`${at}.value.caption must be a string`);
         }
         break;
+      case "imageBlock": {
+        // src is `string | null` — null is an unset image, which BlogProse skips.
+        if (value.src !== null && typeof value.src !== "string") {
+          return fail(`${at}.value.src must be a string or null`);
+        }
+        if (value.caption !== undefined && typeof value.caption !== "string") {
+          return fail(`${at}.value.caption must be a string`);
+        }
+        // ---- THE ALT GATE, AND THIS IS WHERE "REQUIRED" BECOMES TRUE ------------------
+        //
+        // The schema types `alt` as a plain text field and the sanitizer accepts "", both
+        // deliberately: a block is born with src: null and alt: "", so refusing an empty
+        // alt at SAVE would make the kind impossible to add at all. That is videoSrc's
+        // reasoning applied to a second field — permissive about half-authored drafts,
+        // strict about what may go live.
+        //
+        // This file judges PUBLISHED posts only, so it is the one gate an author cannot
+        // walk past, and therefore the only place a required field can actually be
+        // required. A required field the author can leave empty is not required.
+        //
+        // `decorative` is the deliberate exemption. Without it an author facing this gate
+        // types "image" into alt to clear it, which is worse than empty: empty is a known
+        // absence a screen reader can skip, while "image" is confidently wrong.
+        if (typeof value.src === "string" && value.src !== "") {
+          const decorative = value.decorative === true;
+          const alt = typeof value.alt === "string" ? value.alt.trim() : "";
+          if (!decorative && alt === "") {
+            return fail(
+              `${at}.value.alt must not be empty on a published post — describe the image, or tick "Decorative"`
+            );
+          }
+        }
+        break;
+      }
     }
   }
 
