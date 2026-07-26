@@ -113,16 +113,33 @@
     authored as **bold** *italic* [link](url) markers in a textarea.
   - The collapse control is a WIDTH transition, never a conditional render.
     Unmounting the list would reset its search field.
-  - CLICKING THE PROSE TO SELECT A BLOCK IS MOCK-ONLY AND WAS NOT BUILT.
-    Contract error 9. Selection is a BLOCK STRIP in the inspector, carrying the
-    kind label, the position, and the reorder and remove controls on one row.
-    Both ways of making the canvas clickable spend the property this layout
-    exists to protect. Wrapping each block in a clickable element changes the
-    canvas DOM relative to the public article, which is the editable-only
-    wrapper failure mode CLAUDE.md names. Mapping a click to a block index by
-    counting rendered children derives the mapping from BlogProse's output
-    shape — where a `richText` block emits ONE PARAGRAPH PER ENTRY rather than
-    one element — so a change to that shape breaks selection SILENTLY.
+  - CLICKING THE PROSE IS NOW BUILT (#187). The mock was RIGHT and this file
+    was wrong to record it as mock-only — but the reasoning that struck it out
+    is kept, because it was correct about the two mechanisms it examined.
+    WHAT WAS ARGUED, and it held: both ways of making the canvas clickable
+    spend the property this layout exists to protect. Wrapping each block in a
+    clickable element changes the canvas DOM relative to the public article,
+    which is the editable-only wrapper failure mode CLAUDE.md names. Mapping a
+    click to a block index by counting rendered children derives the mapping
+    from BlogProse's output shape — where a `richText` block emits ONE
+    PARAGRAPH PER ENTRY rather than one element — so a change to that shape
+    breaks selection SILENTLY.
+    WHY IT NO LONGER DECIDES IT: there is a THIRD mechanism neither the mock
+    nor that note considered. THE RENDERER EMITS ITS OWN INDICES — under an
+    `editable` flag the elements BlogProse already emits gain contentEditable
+    and data-edit-* attributes at render time. Nothing is wrapped, nothing is
+    counted, and the mapping cannot drift because it is emitted by the same
+    expression that emits the content. It costs no geometry, and that is
+    MEASURED rather than argued: every box delta zero at four decimal places,
+    with A1 at 697.9296875 and the wide figure at 935.2109.
+    SO ERROR 9 WAS NOT AN ERROR IN THE MOCK. It was an error in this file's
+    correction, which declared a drawn affordance unbuildable on the strength
+    of two mechanisms rather than three. THE ERROR COUNT STAYS AT TEN — this
+    one moves from the mock's column to the corrections' column.
+    STILL TRUE: the block strip stays, as A selection mechanism rather than
+    THE one, keeping the reorder and remove controls and every non-prose
+    field. A caption-less image or video emits no editable element at all,
+    so the strip is the only way such a block can be reached.
   - THE PER-GAP BLOCK INSERTER, THE DRAG HANDLES AND THE HOVER KIND-TAG OVERLAY
     ARE ALSO MOCK-ONLY. Add appends at the end, chevrons reorder, and the kind
     label in the inspector is persistent rather than a hover overlay.
