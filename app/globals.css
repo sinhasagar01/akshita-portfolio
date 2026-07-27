@@ -1080,6 +1080,25 @@ a {
 /* the FAB is a standalone morph (not inside a lit pill) — keep its glass shadow */
 .nav-fab.nav-morph { box-shadow: var(--glass-shadow); background: var(--glass-fill-strong); }
 
+/* UNDER REDUCED MOTION THERE IS NO FAB, BECAUSE THERE IS NOTHING FOR IT TO BRING BACK.
+   The FAB exists as the way back to a nav that has hidden itself. The reduce rule above
+   (`[data-nav-hidden="true"] .nav-row { transform: none }`) keeps the row ON SCREEN, which
+   is right — a reader who asked for less motion should not have the bar sliding away. But
+   `navHidden` still flips, so the FAB still appeared: two controls for one nav, one of them
+   pointing at a problem that does not exist. Measured at 1440x900 scrolled to y=1400, both
+   were on screen at once under reduce and only the FAB was under no-preference.
+   THE FIX IS HERE RATHER THAN IN JS because the asymmetry is made here, one rule up, and a
+   JS guard would put the cause and the correction in different files. Nothing is stranded:
+   the row carries every desktop link plus Resume, and on mobile the in-row morph opens the
+   same menu with the same handler the FAB used.
+   THE OTHER DIRECTION WOULD BE WRONG. Hiding the row by some non-transform means would
+   re-introduce exactly the hide behaviour the rule above deliberately removes.
+   TWO CLASSES, AND DELIBERATELY SO: `.nav-morph.nav-fab-desktop { display: block }` above is
+   specificity 0,2,0, so a single-class `.nav-fab` would lose to it whatever the order. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-fab.nav-morph { display: none; }
+}
+
 /* Desktop glass sheet — the scrolled-state menu, links staggered in. */
 .nav-sheet {
   position: fixed;
