@@ -25,8 +25,10 @@ proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8
 `c164c85` = #171, `92f8378` = #170, `0d21a93` = #169, `7e591ae` = #168, `5839039` = #167,
 `54be07e` = #166, `4228b14` = #165, `2a87d96` = #164, `e90742f` = #163.
 
-**ELEVEN MERGED BRANCHES ARE STILL PRESENT**, local and remote. `feat/blog-canvas-hero`
-(#190) was deleted on merge; nothing before it was.
+**THE MERGED BRANCHES ARE GONE.** 13 were deleted (12 local, 13 remote — `docs/state-3pane-complete`
+existed on the remote only). **What remains is `main` and `ralph/phase1`, local and remote.**
+Every deletion was verified first: each branch had a merged PR whose merge commit is an
+ancestor of `main`.
 
 **DO NOT CLEAN THEM UP WITH `git branch --merged`.** This repo squash-merges, and a squash
 merge makes a NEW commit rather than making the branch an ancestor, so `--merged main` lists
@@ -34,6 +36,18 @@ only `feat/blog-editor-3pane` (a true merge commit, `438bf95`) and `ralph/phase1
 **every squash-merged branch reports as UNMERGED even though its content is on main**. The
 command would keep exactly the wrong set. Delete against the PR list or `gh pr list --state
 merged`, never against ancestry.
+
+**THE FIGURE ABOVE READ "ELEVEN" AND THE REAL NUMBER WAS 13.** It was right when written in
+\#191 and drifted as #192 to #196 merged without deleting their branches — a count that was
+accurate once and was never re-derived. See the sixth instance under the re-derive rule.
+
+**`ralph/phase1` IS KEPT, AND IT IS THE ONE ODDITY HERE.** It has **no PR at all** — not
+merged, not open, not closed — so the delete-against-the-PR-list rule would never select it.
+Investigated rather than assumed: its tip `8172b4a` is an **ANCESTOR of `main`** (0 commits
+ahead, `--is-ancestor` true), so it holds no unmerged work and is a stale pointer at a
+2026-07-07 commit. But its commits (`phase1(t3)…`, `phase1: final summary…`) reached `main`
+**DIRECTLY, WITHOUT A PR**, which makes it the one place code entered this repo unreviewed.
+That code is long superseded. The branch is deletable whenever the owner says so.
 
 **THE BLOG IS LAUNCHED.** Five block kinds all renderable and reachable, one post
 PUBLISHED, the nav link shipped, and `/blog` plus the post in the sitemap. Verified on
@@ -1067,7 +1081,7 @@ All prior rules remain. Added or sharpened across this session:
   rebuilding a deliberately removed pattern, and a whole threshold that was wrong by 190px
   because a unit was estimated rather than measured.
 - **NOTHING RECORDED IN THIS FILE IS EVIDENCE. RE-DERIVE BEFORE YOU BUILD ON IT.**
-  This is now FIVE variants of one failure, and the shape is what matters, not the
+  This is now SIX variants of one failure, and the shape is what matters, not the
   instances:
     - a **NAME** — `structural()`, a function that never existed;
     - a **COUNT** — "the 14 block-kind union", which was 16 and had decayed silently as
@@ -1078,10 +1092,15 @@ All prior rules remain. Added or sharpened across this session:
       #171 and was false because the nav was anchor-only;
     - a **SURFACE** — `FooterExplore`, an inventory entry for a component nothing had
       rendered in a long time.
+    - a **COUNT, AGAIN** — "ELEVEN merged branches are still present", which was 13. It was
+      accurate when written in #191 and drifted as #192 to #196 merged without deleting.
+      **The count variant recurring is the point:** the first one decayed as kinds were
+      added, this one as branches were, and neither was ever re-derived.
   **A scope estimate decays exactly like a name, a count, a constant or an inventory, and
   none of them is evidence.** None failed loudly; each was found only by deriving it. Three
-  of the five were found in a single two-day stretch, which is a statement about the file's
-  reliability, not about that stretch.
+  of the six were found in a single two-day stretch, which is a statement about the file's
+  reliability, not about that stretch. **The instances keep accumulating, and that is the
+  rule's value rather than an embarrassment — a rule with one example is an anecdote.**
 - **A GATE THAT MISFIRES GETS REWRITTEN, NOT WORKED AROUND.**
 - **A SOFT CLAIM IN A MERGED PR IS WORTH RE-CHECKING.**
 - **STOP RATHER THAN WORK AROUND AN IMPOSSIBLE INSTRUCTION**, and **STOP RATHER THAN SHIP
