@@ -4,4 +4,17 @@ date: '2026-07-27'
 topic: AI in product
 status: draft
 heroImage: /images/blog/ai-first-is-a-research-posture-not-a-feature/heroImage.webp
-blocks: []
+blocks:
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          The pattern is easy to recognise once you have shipped it. A product
+          exists, a model becomes available, and somebody adds a box in the
+          corner where the user can type a question. The box is real work. It
+          ships. It demos well.
+
+
+          Then you watch the analytics and almost nobody opens it, and the
+          people who do ask it to describe the screen they are already looking
+          at.
