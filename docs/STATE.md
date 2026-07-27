@@ -8,10 +8,20 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE INK CHROME ARC, COMPLETE)
 
-**main** = `cfa695f` = STATE for the ink chrome arc, with #210 (the phantom tokens) in flight. **The ink chrome arc is finished — six
-PRs, #204 to #209**, and every one of the eleven fidelity mismatches is now shipped, corrected
-in the contract, or explicitly deferred. **ralph 1385 across 39 suites** (`parity` and
-`studio-type` named as skipped, not dropped). Pinned: `e938c16` = the fidelity repaint (#208),
+**main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
+to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
+**ralph 1385 across 39 suites** (`parity` and `studio-type` named as skipped, not dropped).
+
+| items | where | how |
+|---|---|---|
+| **3, 6, 7, 8, 9, 10** | **#208** | the fidelity repaint |
+| **1, 2** | **#209** | the selection language |
+| **11** | the contract | **a bug in the file itself** (C-13), not in the build |
+| **4** | **#211** | complete on BOTH components — see the mis-mapping below |
+| **5** | deferred as **PR D** | deliberately a feature, not a styling item |
+
+Pinned: `beba883` = the card image (#211), `8ae96ba` = the phantom tokens (#210),
+`cfa695f` = STATE for the arc, `e938c16` = the fidelity repaint (#208),
 `d75eeb0` = the radius scale (#207), `37286cc` = the input dedupe (#206),
 `466df8e` = the panel language (#205),
 `e25a863` = the ink shell (#204), `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
@@ -80,7 +90,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable).
 
 **1385 ACROSS 39 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -1483,6 +1493,43 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **A MEASURED VALUE BELONGS TO ITS CONTEXT, AND THIS IS THE MIRROR OF THE RELATION-AS-VALUE
+  RULE BELOW — ONE FAMILY, SEEN FROM BOTH SIDES.** That rule says: do not freeze a relation
+  into a number. This one says: **a number you measured is only true about the surface you
+  measured it on.** Three findings in #211 share exactly that root, and every one was a
+  CORRECT value attached to the WRONG surface:
+  1. **`5.45:1` for the search placeholder** — measured against the SIDEBAR's `ink-950`, then
+     applied to the TOPBAR's well, which is ink/85 over cream plus a white wash, two
+     compositing steps lighter. Where it actually renders it was **3.27**, below AA.
+  2. **`w-full` on the card-image plate** — correct in the 320px inspector, and **941×1255px**
+     in the 967px About panel. The narrow pane had been hiding it.
+  3. **A ground colour** — correct on the cream-100 inspector, colliding inside a cream-50
+     nested card on the case-study editor.
+  **Four instances of encoding a relation as a value, three of attaching a value to the wrong
+  context.** Same failure, opposite directions: one forgets the number depends on something,
+  the other forgets what it depended on.
+  **Ask "measured against WHAT?" before reusing any ratio, width or colour.**
+
+- **A COMMENT CARRYING A STALE MEASUREMENT MAKES A LATER FIX QUIETLY FALSER — the sharper half
+  of the rule above.** A wrong number sitting in prose is not inert. The search comment claimed
+  the placeholder was `5.45:1` and "should sit below the value in the hierarchy", which reads
+  as a considered decision. It was 3.27. **And brightening the well — the correct fix, arrived
+  at independently — would have driven it to 2.60, under even the 3.0 UI floor, while the
+  comment still said 5.45.** The stale number would have licensed the regression by making it
+  look already reasoned about.
+  **When you move a surface, re-measure everything the old comments claim about it**, because a
+  comment is the one thing no gate reads.
+
+- **TESTING THE OPPOSITE DIRECTION AND LOSING ON EVIDENCE IS WORTH THE FIVE MINUTES.** "Well"
+  implies recessed, so a darker well on the ink topbar seemed obviously right — the metaphor,
+  the word itself, and the cream ladder's own logic all point that way. Measured, **every black
+  alpha from 15% to 35% lands at 1.10–1.22 against the bar, worse than white/12's 1.45**,
+  because the ink bar is already near the bottom of the range and there is no room beneath it.
+  **Lighter is correct on ink for the opposite reason it is correct on cream**: on cream the
+  well is lighter because it is the writable surface, on ink it is lighter because darker has
+  nowhere to go. Recorded because the intuition is strong, plausible and wrong, and the next
+  person will have it too.
+
 - **A COMPONENT MOUNTED ON SEVERAL GROUNDS MUST NOT ASSERT ONE.** The ladder is relational, and
   PR C found the case where no absolute value works at all. `BlockImageField`'s container was
   `cream-100` and collided on the cream-100 blog inspector. The obvious fix was the ladder's
@@ -2157,6 +2204,23 @@ All prior rules remain. Added or sharpened across this session:
     element.** `ListDetailLayout` sets `border-y-transparent border-r-transparent` explicitly
     and leaves the left edge to the bar alone, so nothing competes. `studio-ink` G3 pins it.
 
+27. **`studio-type`'s C-9 EXCLUSION HAS TURNED INTO A GAP, AND THE MECHANISM GENERALISES.**
+    The suite skips the topbar search **by name**, because it is an ink surface and not part of
+    the cream ladder the suite checks. **That was correct when written and is still true.**
+    But #211 gave that search **four derived on-ink foregrounds** — well ground, border,
+    placeholder/magnifier/kbd — each with a measured ratio, and **nothing in CI checks any of
+    them.** The contrast assertions that justified the change live in a commit message and a
+    source comment, which no gate reads.
+    **AN EXCLUSION THAT WAS CORRECT WHEN WRITTEN CAN BECOME A HOLE WHEN THE EXCLUDED THING
+    GAINS REQUIREMENTS.** The exclusion did not rot; the element grew into it. That is a
+    different failure from a stale assertion and it is invisible the same way — the suite stays
+    green and its denominator quietly shrinks.
+    **CLOSE IT BEFORE THE NEXT ON-INK WORK, NOT AFTER.** The fix is not to delete the exclusion
+    (the cream-ladder check genuinely does not apply) but to give the search its own on-ink
+    contrast assertions. **Re-read every by-name exclusion when the excluded thing changes** —
+    this is the third "check the denominator" instance, after the `<Link>` blind spot and the
+    class-string assertions.
+
 ---
 
 ## DEFERRED — scoped, not built
@@ -2380,9 +2444,8 @@ All prior rules remain. Added or sharpened across this session:
   recorded as such — a claim that becomes true by the code catching up is not a claim that
   was right.
 - `studio-shell.html` — corrected three times.
-- `studio-ink-chrome.html` — **CORRECTED FIFTEEN TIMES, C-1 to C-15, three of them in the last
-  two PRs.** It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
-  about architecture**, and the recent three are worth knowing as a group because they are three
+- `studio-ink-chrome.html` — **CORRECTED SIXTEEN TIMES, C-1 to C-16.** It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
+  about architecture**, and the recent four are worth knowing as a group because they are four
   different ways a static design file goes stale:
   - **C-12** — the topbar search is specified against a **cream topbar the direction itself
     replaced**. When one rule moves a surface, every rule that positioned something ON that
@@ -2397,6 +2460,11 @@ All prior rules remain. Added or sharpened across this session:
     file had assumed grounds the studio did not have until then. Right about a studio that did
     not exist. And the numbers were never the rule — the third surface, which the file never
     drew, needs a value it never names.
+  - **C-16** — `.thumb` is 16:9, which is right for block figures and **wrong for the settings
+    portrait**; and, in the same PR's addendum, **`.thumb` was never `ImageThumb` at all**. It
+    sits under "Card image" in the POST section, which is `HeroImageField`. The file describes
+    a mockup, so it names no components — and that is precisely why a rule can be mapped to the
+    wrong one and nothing notices.
   **Corrected in place beside what they replace**, never silently overwritten.
 - Six untracked explorations, unrelated, left alone.
 
@@ -2462,21 +2530,41 @@ All prior rules remain. Added or sharpened across this session:
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
 - **#210** the phantom tokens deleted and the class gated (`8ae96ba`) →1385
-- **#211** the card image →1385. Fidelity item 4, the last one that is LAYOUT.
-  **THE CONTRACT'S `.thumb` WAS `HeroImageField`, NOT `ImageThumb`, AND THE INVESTIGATION GOT
-  THAT WRONG.** It sits under `<label>Card image</label>` in the POST section with the hint
-  "the article hero and the card thumbnail"; `ImageThumb` serves `BlockImageField` (inside a
-  BLOCK's form, under BODY) and `SettingsPhotoField` (another page). Caught in review, fixed in
-  the same PR — so **both** are plates now, but only `HeroImageField` was ever the specified
-  one. **The lesson is that "which component does this rule describe" is itself a claim to
-  verify**, and a contract written as a mockup does not name its components.
-  Also in the same pass: the Post band's SaveIndicator moved INSIDE the ink bar (a #205 miss —
-  the Body band always had its own inside), and `.rowbtns` went inline.
-  The 36px chip
-  becomes a plate, capped by HEIGHT at 160 so it stays a preview — a `w-full` plate measured
-  **941 x 1255px** in the wide settings panel, which the 320px inspector had hidden. Aspect
-  derived per call site from the PUBLIC renderer; the settings portrait takes a stated 3:4
-  because its public column gives it no ratio at all. Correction **C-16**.
+- **#211** the card image (`beba883`) →1385, no net-new assertions. Fidelity item 4, the last
+  one that is LAYOUT — and **the item that closed all eleven**. Three passes.
+
+  **PASS 1 — `ImageThumb` becomes a plate.** The 36px chip capped by HEIGHT at 160 so it stays
+  a preview: a `w-full` plate measured **941×1255px** in the wide settings panel, which the
+  320px inspector had hidden. Aspect derived per call site from the PUBLIC renderer; the
+  settings portrait takes a stated 3:4 because its public column gives it no ratio at all.
+  Correction **C-16**.
+
+  **PASS 2 — THE MIS-MAPPING, AND IT WAS FOUND BY THE OWNER'S SCREENSHOT, NOT BY REVIEW.**
+  The contract's `.thumb` sits under `<label>Card image</label>` in the POST section with the
+  hint "the article hero and the card thumbnail" — **that is `HeroImageField`**. `ImageThumb`
+  serves `BlockImageField` (inside a BLOCK's form, under BODY) and `SettingsPhotoField`
+  (another page entirely). **Item 4's investigation mapped the rule to the wrong component**, so
+  pass 1 improved one the contract was not specifying and left the specified one untouched.
+  **Pass 1 stands on its own merits** — `ImageThumb`'s own header says the thumb IS the
+  identification, and a 36px chip failed at that regardless of what the contract described —
+  **and both halves are now done.**
+  **NOTHING IN THE REPO COULD HAVE CAUGHT THIS.** Every gate checks that the code does what the
+  code says; none checks that the code implements the rule someone thinks it implements. A
+  contract written as a mockup does not name its components, so **"which component does this
+  rule describe" is itself a claim to verify** — and it was verified only because the owner
+  looked at a screenshot and asked.
+  Same pass: the Post band's SaveIndicator moved INSIDE the ink bar (a #205 miss — the Body
+  band always had its own inside, measured 10.64:1 on ink), and `.rowbtns` went inline.
+
+  **PASS 3 — the topbar search, and a defect the screenshot also surfaced.**
+  **TWO "View live" ANCHORS, 59px APART, WITH IDENTICAL ACCESSIBLE NAMES AND NEITHER CARRYING
+  AN `aria-label`** — one to `/` (the site), one to `/blog/<slug>` (the post). Not a duplicate
+  render, not an overlay: two destinations behind one name, and a screen reader announced it
+  twice identically. **#200's class again** — a control that does not say what its object is.
+  Now **"View site"** and **"View post"**.
+  The search carried the contract's INTENT onto ink rather than its values (C-9 resolved):
+  well `white/5` **1.16 → white/12 1.45**, border **1.45 → 1.98**, placeholder, magnifier and
+  kbd `ink-400` **3.27 → ink-200 5.08**, height 38.5 → 40, font 13 → 13.5.
 - **#209** the selection language (`2488500`) →1379. Items 1 and 2, the last of the eleven that is paint.
   ONE language on three surfaces — **ground + 1 step, plus an identical 3px accent left bar**.
   **The measurement is the headline**: every cream step separates by 1.05–1.19 and the accent
@@ -2491,17 +2579,24 @@ All prior rules remain. Added or sharpened across this session:
 
 ## WHAT'S NEXT
 
-**THE INK CHROME ARC IS DONE. WHAT REMAINS IS CONTENT, PLUS TWO SCOPED PRs AND TWO OPEN
-HAZARDS.**
+**THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. WHAT REMAINS IS
+CONTENT, ONE SCOPED PR, AND THREE OPEN HAZARDS.**
 
-0. **THE STUDIO WORK STILL SCOPED** — both deferred with their reasoning above, neither urgent:
-   **PR C** the card image (layout, `INSPECTOR_FOLD_PX`, not blog-only — **and it must run
-   `studio-type` by hand**), and **PR D** topic as a set (schema, options source, migration).
+0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED.** ~~PR C~~ shipped as #211. What remains is
+   **PR D** — topic as a set (schema field, options source of truth, migration for three
+   posts), deliberately a feature rather than a styling item.
+   **AND ONE GATE DEBT THAT SHOULD GO FIRST: hazard 27**, `studio-type`'s C-9 exclusion, now a
+   hole because the topbar search gained four on-ink foregrounds nothing in CI checks. Close it
+   **before** the next on-ink work, not after.
    **HAZARDS 23 AND 24 REMAIN OPEN AND ARE BOTH ONE DECISION, NOT MANY EDITS.**
-   **23** — `text-ink-500` (41 uses) and `text-ink-700` (11 uses) are **phantoms**: no `@theme`
-   token exists, so Tailwind generates nothing and **52 sites render inherited ink-950** while
-   their code says otherwise. Fixed by adding the two tokens or re-pointing every site — one
-   choice, made once. Do not fix them blind; several may look better as they render.
+   **23 — HALF CLOSED BY #210.** The 11 `text-ink-700` sites were **deleted** (they read
+   correctly at full ink); the **40 `text-ink-500` sites remain**, each a class meaning *muted*
+   that renders full ink-950. **The follow-up now inherits the answer, not the question**:
+   `text-text-subtle` is already what the neighbouring field hints use, so badges, "Saving
+   draft…" and the readonly fields are *match the neighbour*. The 13 icon buttons stay a
+   separate question — rest-versus-hover, not muted text. `studio-tokens` B2 pins the count at
+   40, so it fails if a new dead site appears **and** if the set reaches zero.
+   Do not fix them blind; several may look better as they render.
    **24** — `--radius-2xl` (1rem) sits **below `--radius-xl`** (1.5rem) and equal to `lg`,
    because the project overrode `sm`–`xl` in `@theme` and left Tailwind's default `2xl` behind.
    Two consumers, both **outside** studio, so changing it moves the public site. The risk is a
