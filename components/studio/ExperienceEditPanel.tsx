@@ -113,7 +113,20 @@ export default function ExperienceEditPanel({
             readOnly
             aria-readonly="true"
             tabIndex={-1}
-            className="w-full cursor-not-allowed rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            // DELIBERATELY LOCAL — the READONLY-DISPLAY family (see ralph's studio-ink
+            // suite), and the reason is SEMANTIC rather than layout: the shared export
+            // carries focus styling, which is dead on a tabIndex={-1} control that cannot
+            // be focused, and this field wants cursor-not-allowed. It was ALREADY
+            // bg-cream-100 before the well existed, because readonly-is-darker was the
+            // prior convention; the well arrived here first, for a different reason.
+            // Height tracks the well.
+            //
+            // `text-ink-500` IS A PHANTOM — hazard 23. There is no --color-ink-500 token,
+            // so Tailwind v4 generates nothing for it and this field has ALWAYS rendered
+            // inherited ink-950, same as an editable one. The muted-readonly intent never
+            // reached the screen. The class is kept because 41 sites carry it and the fix
+            // is one decision (add the token, or re-point them all), not two files.
+            className="min-h-11 w-full cursor-not-allowed rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The entry&rsquo;s identity, set when you add it. Not editable here.

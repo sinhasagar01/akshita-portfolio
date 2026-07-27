@@ -7,6 +7,7 @@
 // with the freshly set httpOnly cookie.
 import { useState } from "react";
 import { IconSparkles } from "./icons";
+import { inputClsMd } from "./blocks/fields";
 
 type Status = "idle" | "submitting" | "error";
 
@@ -70,7 +71,7 @@ export default function LoginForm() {
               setPassword(e.target.value);
               if (status === "error") setStatus("idle");
             }}
-            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className={inputClsMd}
           />
         </label>
 

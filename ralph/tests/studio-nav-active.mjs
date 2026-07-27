@@ -114,8 +114,14 @@ t("F1 args are ordered (href, pathname)",
     shared.every((d) => d.startsWith("blocks/fields.tsx")), true);
   // LinksEditPanel's local is EXPECTED. Asserted so that deleting it becomes a deliberate
   // act rather than a silent one, and so G1 cannot be satisfied by removing the exception.
-  t("G4 LinksEditPanel keeps its own, deliberately",
-    decls.some((d) => d === "LinksEditPanel.tsx:inputCls"), true);
+  //
+  // RENAMED `inputCls` -> `inputBase` IN PR 2b, and the rename is the point: it stopped being
+  // "our copy of the shared input" and became a BASE that three sites compose with the
+  // okBorder/errBorder constants. PR 2a had edited the old const, which had exactly ONE
+  // consumer, leaving the panel's other two inputs behind — a 44px well beside a 39px flat
+  // box in every link row. One base, three compositions is what makes that impossible again.
+  t("G4 LinksEditPanel keeps its own local BASE, deliberately (renamed from inputCls in PR 2b)",
+    /const inputBase =/.test(readFileSync(new URL("../../components/studio/LinksEditPanel.tsx", import.meta.url), "utf8")), true);
 
   const fields = readFileSync(new URL("../../components/studio/blocks/fields.tsx", import.meta.url), "utf8");
   const grab = (n) => fields.match(new RegExp(`const ${n} =\\s*"([^"]*)"`))?.[1] ?? "";

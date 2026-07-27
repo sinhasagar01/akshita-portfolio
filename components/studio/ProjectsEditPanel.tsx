@@ -265,7 +265,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             readOnly
             aria-readonly="true"
             tabIndex={-1}
-            className="w-full cursor-not-allowed rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            // DELIBERATELY LOCAL — the READONLY-DISPLAY family; ExperienceEditPanel's
+            // Company field carries the full reasoning, including why `text-ink-500` is a
+            // phantom (hazard 23) that has never rendered. The family's real distinction is
+            // the focus styling the export carries, dead on tabIndex={-1}, plus
+            // cursor-not-allowed. Height tracks the well.
+            className="min-h-11 w-full cursor-not-allowed rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The project&rsquo;s identity, set when you add it. The case study body is edited below.
@@ -281,7 +286,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             value={values.summary}
             onChange={(e) => setField("summary", e.target.value)}
             onBlur={saveDraft}
-            className="w-full resize-y rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className={`${inputClsMd} resize-y leading-relaxed`}
           />
           <span className="text-[10px] text-text-subtle">One sentence shown on the project card.</span>
         </label>

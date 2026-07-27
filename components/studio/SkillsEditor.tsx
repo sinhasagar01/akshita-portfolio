@@ -19,6 +19,7 @@ import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
+import { inputClsMd } from "./blocks/fields";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
@@ -199,7 +200,7 @@ function CategoryPanel({
             onChange={(e) => onName(e.target.value)}
             onBlur={onBlurSave}
             placeholder="e.g. Design"
-            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className={inputClsMd}
           />
         </label>
 
