@@ -75,3 +75,16 @@ blocks:
   - discriminant: heading
     value:
       text: The posture
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          AI first does not mean the model goes in front. It means you ask what
+          the job becomes when the model is assumed, before you decide what to
+          build.
+
+
+          That is uncomfortable, because it produces no artefact for several
+          weeks. You cannot show a chat box in a review. You can only show that
+          the five steps somebody used to take are now two, and that the two
+          remaining ones are the ones they were paid to do.
