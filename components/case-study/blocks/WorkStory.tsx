@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import { useReducedMotion } from "motion/react";
 import type { Feature } from "@/lib/case-studies/types";
 import { renderRich } from "../rich";

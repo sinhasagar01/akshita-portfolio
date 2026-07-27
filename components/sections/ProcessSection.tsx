@@ -174,6 +174,17 @@ export default function ProcessSection({ settings }: Props) {
       if (snapTimer) clearTimeout(snapTimer);
       ctx.revert();
     };
+    // DISABLED RATHER THAN SATISFIED, and the choice is deliberate.
+    // The missing dep is `isProgrammaticRef`, which is a `useRef` created once in
+    // SmoothScrollProvider (:47) and memoised into the context value (:77), so its identity
+    // NEVER CHANGES. Listing it would therefore be inert — it could not trigger a re-run.
+    //
+    // But adding a dep to THIS effect is not free in principle: its cleanup calls
+    // `ctx.revert()`, tearing down and rebuilding every GSAP ScrollTrigger on the page. An
+    // inert dep today is a re-run the day someone makes that context value unstable, and the
+    // symptom would be scroll behaviour breaking far from the change. Stating the reason is
+    // the honest form — the repo already does this in six places.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isProgrammaticRef is a stable ref; see above
   }, [noPin]);
 
   const scrollToStage = useCallback(

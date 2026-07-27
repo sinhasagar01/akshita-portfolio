@@ -34,7 +34,9 @@ const FRAME_LABELS: Record<FrameOption, string> = {
   browser: "Browser",
   macbook: "MacBook",
 };
-import { BLOCK_EMPTIES, emptyDevice, emptyImg, emptyGlow } from "./empties";
+// `emptyGlow` is NOT imported here. It is used inside empties.ts (by `deviceShelf` and the
+// glow-bearing block), and this file only ever reached for it by habit.
+import { BLOCK_EMPTIES, emptyDevice, emptyImg } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
   value: RawValue<K>;
@@ -820,7 +822,12 @@ function TokenFields({
         <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-600">
           {entry.label}
         </span>
-        <span className="text-[10px] text-text-subtle">Fixed — a token's type can't be changed here</span>
+        {/* REWRITTEN, NOT ESCAPED. The lint error was two unescaped apostrophes, but the
+            string ALSO carried an em dash, which CLAUDE.md's writing rules forbid and which
+            nothing had ever caught. Those rules say to rewrite rather than patch, so the
+            sentence loses the dash and both apostrophes together instead of gaining two
+            `&apos;` entities and keeping the dash. */}
+        <span className="text-[10px] text-text-subtle">Fixed. The type of a token cannot be changed here.</span>
       </div>
       <Form
         value={token.value}

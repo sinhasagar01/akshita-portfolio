@@ -34,7 +34,8 @@ const MTIME_SOURCES = ["content", "public", "lib/case-studies"];
 const walk = (dir, out = []) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
-    e.isDirectory() ? walk(p, out) : out.push(p);
+    if (e.isDirectory()) walk(p, out);
+    else out.push(p);
   }
   return out;
 };
