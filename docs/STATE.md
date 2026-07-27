@@ -1483,6 +1483,18 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **A COMPONENT MOUNTED ON SEVERAL GROUNDS MUST NOT ASSERT ONE.** The ladder is relational, and
+  PR C found the case where no absolute value works at all. `BlockImageField`'s container was
+  `cream-100` and collided on the cream-100 blog inspector. The obvious fix was the ladder's
+  well step, `cream-50` — and measured, THAT collided too: on the case-study editor the
+  videoEmbed "Poster still" field is nested inside a cream-50 CARD. One absolute traded for
+  another, the fourth instance in this arc.
+  **The row is used on cream-100, on cream-50 panels and inside cream-50 cards, and Tailwind has
+  no "one step lighter than my parent" utility.** So the container now DECLARES NOTHING: it
+  inherits, its border delineates it, and the plate inside is cream-200 which reads against
+  every cream step. **Declaring no ground is correct on all three by construction.**
+  Ask what grounds a component can land on BEFORE giving it one.
+
 - **GENERALISING THE ASSERTION BEATS CLOSING THE INSTANCE — THREE TIMES NOW, AND IT WON EVERY
   TIME.** The pattern is the same each time: the obvious gate encodes the bug you just found,
   and the general one derives the rule the bug broke.
@@ -2178,7 +2190,10 @@ All prior rules remain. Added or sharpened across this session:
   fits.
   **`studio-tokens` B2 pins the count at 40**: growing means a new dead site was added, and
   zero means the decision was made and the exemption should be deleted.
-- **PR C — THE CARD IMAGE (fidelity item 4).** `ImageThumb` is a **36×36 chip** (`size-9`); the
+- ~~**PR C — THE CARD IMAGE (fidelity item 4)**~~ — **BUILT in #211.** Kept below for its
+  reasoning; the plate is capped by HEIGHT (160px) rather than width, because the height a
+  width produces depends on the aspect, and the aspect is per call site.
+  **PR C — THE CARD IMAGE (fidelity item 4), as scoped.** `ImageThumb` is a **36×36 chip** (`size-9`); the
   contract draws a **full-width 16:9 plate, 164px tall** at inspector width. **NOT A REPAINT** —
   it changes the inspector's vertical rhythm, pushes fields down, and interacts with
   `INSPECTOR_FOLD_PX`. It also touches **every** `ImageThumb` consumer, `BlockImageField` and
@@ -2446,6 +2461,12 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **#210** the phantom tokens deleted and the class gated (`8ae96ba`) →1385
+- **#211** the card image →1385. Fidelity item 4, the last one that is LAYOUT. The 36px chip
+  becomes a plate, capped by HEIGHT at 160 so it stays a preview — a `w-full` plate measured
+  **941 x 1255px** in the wide settings panel, which the 320px inspector had hidden. Aspect
+  derived per call site from the PUBLIC renderer; the settings portrait takes a stated 3:4
+  because its public column gives it no ratio at all. Correction **C-16**.
 - **#209** the selection language (`2488500`) →1379. Items 1 and 2, the last of the eleven that is paint.
   ONE language on three surfaces — **ground + 1 step, plus an identical 3px accent left bar**.
   **The measurement is the headline**: every cream step separates by 1.05–1.19 and the accent

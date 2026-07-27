@@ -76,8 +76,23 @@ export default function SettingsPhotoField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo</span>
-      <div className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
-        <ImageThumb src={photo} />
+      {/* Vertical, and the container declares NO ground — see BlockImageField, which carries
+          the full note. This row had the identical class string and the identical collision,
+          and the same reason applies: it is mounted on more than one ground. */}
+      <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2.5">
+        {/* 3/4 IS A STATED DEFAULT, NOT A DERIVATION, AND THE DIFFERENCE MATTERS.
+            Every other plate reads its aspect off the public renderer. This one cannot: the
+            public About column gives the photo NO ratio — `.ab-img` is `position:absolute;
+            inset:0` inside a flexible grid column with `min-h-[520px]`, so there is simply
+            nothing to match. 3/4 is chosen against shipping evidence rather than taste: the
+            asset is 1536x2048, exactly 3:4, and this component's own public placeholder reads
+            "900 x 1200", also 3:4.
+            THE CONTRACT'S 16/9 WOULD BE WRONG HERE (correction C-16). It was drawn for the
+            blog inspector, where images are landscape figures; applied to a portrait it crops
+            to a letterbox strip on the one surface where the author most needs to recognise
+            the image. */}
+        <ImageThumb src={photo} aspect={3 / 4} className="w-full" />
+        <div className="flex items-center gap-2">
         {photo ? (
           <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{photo}</code>
         ) : (
@@ -99,7 +114,9 @@ export default function SettingsPhotoField({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          // No background: the container declares none either, so a fixed value here would be
+          // the same absolute-on-an-unknown-ground mistake. The border delineates it.
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : photo ? "Replace" : "Upload"}
         </button>
@@ -115,6 +132,7 @@ export default function SettingsPhotoField({
             <IconX />
           </button>
         )}
+        </div>
       </div>
       {/* Announced: an upload failure is the one thing here a screen-reader user
           cannot otherwise notice, since the visible change is a small line of text. */}

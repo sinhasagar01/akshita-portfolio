@@ -244,6 +244,24 @@
        4.48. Any future surface needing selection needs the BAR; a darker cream
        alone will not do it.
 
+  C-16. CORRECTED IN PR C. `.thumb` IS 16:9, AND THAT IS RIGHT FOR BLOCK FIGURES
+       AND WRONG FOR THE SETTINGS PORTRAIT. This file was drawn for the blog
+       inspector, where every image is a landscape article figure. The same
+       control also serves SettingsPhotoField, whose asset is photo.webp at
+       1536x2048 — a 3:4 PORTRAIT that the public About column renders as a tall
+       column. A 16:9 plate with object-cover crops it to a horizontal slice,
+       showing roughly the middle third on the ONE surface where the author most
+       needs to recognise the image.
+       THE RULE IS NOT A RATIO, IT IS A DERIVATION: each plate takes the shape
+       ITS OWN public renderer gives that image. Measured, `imageBlock` gets no
+       ratio at all publicly — BlogProse renders a bare <img> inside .blog-figure
+       — so its plate lets the image keep its own shape and never crops. The
+       settings photo has no public ratio either, so it takes a STATED DEFAULT of
+       3:4, justified by the asset's own dimensions and by this field's public
+       placeholder, which reads "900 x 1200".
+       A fixed 16:9 for both would have been a relation encoded as a value, the
+       fourth time in this arc.
+
   ---- OPEN QUESTIONS THIS FILE CANNOT ANSWER ------------------------------
   a. CONTRAST ON INK. Every foreground on the sidebar needs a measured ratio:
      label, count, icon, group heading, active item, hover, and both footer
