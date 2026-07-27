@@ -63,7 +63,7 @@ export default function StudioSidebar() {
         // `group` so the LABEL can react to the anchor's hover. It has to: a colour utility on
         // an anchor does nothing here — see the label's note below.
         className={[
-          "group flex items-center gap-2.5 whitespace-nowrap rounded-md px-2.5 py-2 text-[13px] transition-colors",
+          "group flex items-center gap-2.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] px-2.5 py-2 text-[13px] transition-colors",
           active
             ? // THE INK PILL IS INVERTED AT `lg`, AND IT HAD TO BE. `bg-ink-950` on the ink
               // sidebar measures 1.00:1 — the pill would vanish and take the only selection
@@ -143,7 +143,7 @@ export default function StudioSidebar() {
       <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-4">
         {/* The accent chip is UNCHANGED. accent-500 on ink-950 is 4.05:1, and rule 6 keeps the
             accent discipline: this direction adds no new colour. */}
-        <span className="grid size-6 place-items-center rounded-md bg-accent-500 text-cream-50">
+        <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500 text-cream-50">
           <IconSparkles className="size-3.5" />
         </span>
         <span className="font-display text-base text-ink-950 lg:text-cream-50">Studio</span>
@@ -167,7 +167,7 @@ export default function StudioSidebar() {
                 ink-950 hover 1.00:1. It is not `renderLink` because it posts a form. */}
             <button
               type="submit"
-              className="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-2.5 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-50/70 hover:text-ink-950 lg:text-ink-200 lg:hover:bg-white/5 lg:hover:text-cream-50"
+              className="flex w-full items-center gap-2.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] px-2.5 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-50/70 hover:text-ink-950 lg:text-ink-200 lg:hover:bg-white/5 lg:hover:text-cream-50"
             >
               <IconLogout className="size-4 text-ink-400" />
               <span>Sign out</span>

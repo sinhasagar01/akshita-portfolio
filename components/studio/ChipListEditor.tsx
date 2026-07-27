@@ -43,7 +43,7 @@ export default function ChipListEditor({
   const list = useItemList(chips, onChange, () => "");
 
   const iconBtn =
-    "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+    "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -66,7 +66,7 @@ export default function ChipListEditor({
                 // only distinction is a layout context is a constant nobody would remember.
                 // Local does not mean behind: the well (height, ground, border) tracks
                 // blocks/fields.tsx exactly and moves whenever it does.
-                className="min-h-11 min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                className="min-h-11 min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
               />
               {/* preventDefault on mousedown keeps focus on the input so the click
                   does not blur-save mid-op (the About-panel fix). */}
@@ -95,7 +95,7 @@ export default function ChipListEditor({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => list.remove(i)}
                 aria-label={`Remove ${name}${fromSuffix}`}
-                className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
               >
                 <IconX />
               </button>
@@ -106,7 +106,7 @@ export default function ChipListEditor({
       <button
         type="button"
         onClick={list.add}
-        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
       >
         <IconPlus /> {addLabel}
       </button>

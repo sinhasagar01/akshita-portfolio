@@ -136,11 +136,11 @@ export default function HeroEditPanel({
   return (
     <section
       aria-label="Edit Hero"
-      className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
     >
       <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconSparkles />
           </span>
           <span className="font-display text-base text-ink-950">Hero</span>
@@ -157,7 +157,7 @@ export default function HeroEditPanel({
           // (review finding 3). Keyboard Tab still blur-saves by design.
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -300,7 +300,7 @@ export default function HeroEditPanel({
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving"}
-          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>

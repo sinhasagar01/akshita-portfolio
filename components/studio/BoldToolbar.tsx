@@ -129,12 +129,12 @@ export default function BoldToolbar({
   };
 
   const btn =
-    "grid size-[30px] place-items-center rounded-[7px] text-[15px] text-ink-950 transition-colors hover:bg-cream-200";
+    "grid size-[30px] place-items-center rounded-[var(--studio-radius-control,4px)] text-[15px] text-ink-950 transition-colors hover:bg-cream-200";
   // Layout only. Colour is per-button, because a shared `bg-white` here and a
   // `bg-accent-500` on the primary are the same Tailwind property — the generated sheet
   // decides which wins, not the order they appear in the string, and the primary loses.
   const action =
-    "h-[30px] rounded-[7px] border border-[0.5px] px-[13px] text-[12px] transition-colors disabled:cursor-not-allowed disabled:opacity-45";
+    "h-[30px] rounded-[var(--studio-radius-control,4px)] border border-[0.5px] px-[13px] text-[12px] transition-colors disabled:cursor-not-allowed disabled:opacity-45";
   const actionQuiet = `${action} border-ink-950/16 bg-white text-ink-950 hover:bg-cream-100`;
   const actionPrimary = `${action} border-accent-500 bg-accent-500 text-white hover:bg-accent-600`;
 
@@ -156,7 +156,7 @@ export default function BoldToolbar({
       <div
         role="toolbar"
         aria-label="Text formatting"
-        className="inline-flex items-center gap-0.5 rounded-[10px] border border-[0.5px] border-ink-950/16 bg-cream-50 p-1 shadow-[0_6px_20px_-8px_rgba(60,50,38,0.4)]"
+        className="inline-flex items-center gap-0.5 rounded-[var(--studio-radius-card,8px)] border border-[0.5px] border-ink-950/16 bg-cream-50 p-1 shadow-[0_6px_20px_-8px_rgba(60,50,38,0.4)]"
       >
         <button
           type="button"
@@ -227,7 +227,7 @@ export default function BoldToolbar({
 
       {linkOpen && (
         <div
-          className="mt-1.5 w-[280px] rounded-[10px] border border-ink-950/12 bg-cream-50 p-2.5 shadow-[0_18px_40px_-18px_rgba(60,45,30,0.4)]"
+          className="mt-1.5 w-[280px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-2.5 shadow-[0_18px_40px_-18px_rgba(60,45,30,0.4)]"
           role="dialog"
           aria-label="Link URL"
         >
@@ -245,7 +245,7 @@ export default function BoldToolbar({
             aria-label="Link URL"
             aria-invalid={rejected}
             placeholder="https://, mailto: or /path"
-            className={`h-[34px] w-full rounded-[7px] border border-[0.5px] bg-white px-2.5 text-[13px] text-ink-950 outline-none ${
+            className={`h-[34px] w-full rounded-[var(--studio-radius-control,4px)] border border-[0.5px] bg-white px-2.5 text-[13px] text-ink-950 outline-none ${
               rejected
                 ? "border-danger-600 ring-2 ring-danger-600/12"
                 : "border-ink-950/16 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/15"

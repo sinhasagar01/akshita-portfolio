@@ -109,7 +109,7 @@ export function DisclosureGroup({
           <button
             type="button"
             onClick={() => setRevealed(true)}
-            className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> {revealLabel}
           </button>
@@ -157,7 +157,7 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 // #199's dedupe honest. A min-height lands both on exactly 44 and leaves the ONE token of
 // difference intact.
 export const inputCls =
-  "w-full min-h-11 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 /**
  * The same box at 14px, for the ENTRY PANELS rather than the block forms.
@@ -175,7 +175,7 @@ export const inputCls =
  * NAMED FOR WHAT DIFFERS, not for a surface, because it spans four unrelated panels.
  */
 export const inputClsMd =
-  "w-full min-h-11 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 /** The same box, in the rejection state — a danger border and ring.
  *
@@ -185,7 +185,7 @@ export const inputClsMd =
  *  for a long time. There are FIVE strings with this geometry; see the ralph suite, which
  *  enumerates them so a sixth is loud. */
 export const inputErrorCls =
-  "w-full min-h-11 rounded-md border border-danger-600 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
 
 /**
  * The field label — STRUCTURE, not a caption. 11px / 700 / 0.14em / ink-600.
@@ -436,7 +436,7 @@ export function BlockImageField({
   return (
     <div className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
-      <div className="flex items-center gap-2 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
         <ImageThumb src={src} />
         {src ? (
           <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{src}</code>
@@ -458,7 +458,7 @@ export function BlockImageField({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-md border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : src ? "Replace" : "Upload"}
         </button>
@@ -468,7 +468,7 @@ export function BlockImageField({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onChange(null)}
             aria-label={`Clear ${label}`}
-            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconX />
           </button>
@@ -610,14 +610,14 @@ export function ItemRows<T>({
 }) {
   const list = useItemList(items, onChange, empty);
   const iconBtn =
-    "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+    "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
   return (
     <div className="flex flex-col gap-2">
       {items.map((item, i) => {
         const name = rowLabel?.(item, i) || `${itemNoun} ${i + 1}`;
         return (
-          <div key={i} className="rounded-md border border-ink-950/12 bg-cream-100 p-3">
+          <div key={i} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
               <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">{name}</span>
               <div className="flex gap-1">
@@ -649,7 +649,7 @@ export function ItemRows<T>({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => list.remove(i)}
                     aria-label={`Remove ${name}`}
-                    className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+                    className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
                   >
                     <IconX />
                   </button>
@@ -670,7 +670,7 @@ export function ItemRows<T>({
         <button
           type="button"
           onClick={list.add}
-          className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> {addLabel}
         </button>

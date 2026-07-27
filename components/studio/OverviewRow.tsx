@@ -124,7 +124,7 @@ export default function OverviewRow({
       <a
         href={href}
         aria-label={ariaLabel}
-        className="group flex items-center gap-4 rounded-lg border-b border-ink-950/12 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-cream-100 hover:pl-6"
+        className="group flex items-center gap-4 rounded-[var(--studio-radius-card,8px)] border-b border-ink-950/12 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-cream-100 hover:pl-6"
       >
         {inner}
       </a>

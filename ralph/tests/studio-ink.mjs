@@ -144,7 +144,11 @@ const readStudio = (f) => read(`components/studio/${f}`);
 // lesson), so each assertion says which family a site belongs to and why it is local — a
 // future sweep that wants to "finish the job" reads the reason, not a number.
 {
-  const sig = /rounded-md border[^"`]*?px-3 py-2/g;
+  // THE RADIUS IS A WILDCARD ON PURPOSE. This pinned `rounded-md` and broke when PR 3 swept
+  // the studio onto a scoped scale — a legitimate change with nothing to do with the box
+  // GEOMETRY this detector exists to find. Same lesson three-pane's width regex learned: an
+  // assertion that pins more than its subject fails for the wrong reason.
+  const sig = /rounded-\S+ border[^"`]*?px-3 py-2/g;
   const inline = [];
   for (const f of studioFiles) {
     const src = readStudio(f);
@@ -246,6 +250,101 @@ t("E6: the blog canvas strip colours its own row, so the View live anchor inheri
   /px-4 py-2 text-ink-600"/.test(code("components/studio/ThreePaneShell.tsx")), true);
 t("E6: the projects header row colours itself, so its Preview anchor inherits — that anchor and the Cancel button next to it once carried byte-identical classes and only the button's worked",
   /flex items-center gap-1 text-ink-600"/.test(code("components/studio/ProjectsEditPanel.tsx")), true);
+
+/* ================================================ F. THE RADIUS SCALE (PR 3) */
+// The scale is SCOPED, not a @theme token, and the reason is the design rather than tidiness:
+// @theme is sm 4 / md 8 / lg 16 / xl 24, so halving lands on 12/8/4 and THERE IS NO 12. The
+// studio would collapse onto sm + full — two radii — and rule 1 asks for three steps.
+{
+  const css = read("app/globals.css");
+  const val = (role) => css.match(new RegExp(`--studio-radius-${role}:\\s*(\\d+)px`))?.[1];
+  const SCALE = { panel: "12", card: "8", control: "4" };
+  for (const [role, px] of Object.entries(SCALE)) {
+    t(`F1: --studio-radius-${role} is ${px}px — an exact halving of what shipped before, nothing invented`,
+      val(role), px);
+  }
+  // 12 is the whole justification. If it ever equals a @theme step, the block has no reason
+  // to exist and someone should ask why it is still here.
+  t("F1: the panel step is a value @theme cannot express — that is why this block exists rather than a token",
+    ["4", "8", "16", "24"].includes(val("panel")), false);
+
+  // THE SCOPE HOST. The OUTER studio layout, because it wraps the login page as well as the
+  // dashboard — scoping to (dashboard) would leave login on fallbacks only.
+  t("F2: the scale is hosted on the outer studio layout, so LOGIN inherits it too",
+    /className="studio-chrome /.test(read("app/studio/layout.tsx")), true);
+  t("F2: …and the block is scoped to that class, never :root",
+    /\.studio-chrome\s*\{/.test(css), true);
+
+  // F3 — THE FALLBACK IS A SECOND PLACE THE NUMBER LIVES, which is the 236px hazard's shape.
+  // Every fallback must equal its scoped value or the duplicate has drifted.
+  {
+    const uses = [];
+    for (const f of studioFiles) {
+      for (const m of readStudio(f).matchAll(/--studio-radius-(panel|card|control),(\d+)px/g)) {
+        uses.push({ file: f, role: m[1], px: m[2] });
+      }
+    }
+    const wrong = uses.filter((u) => u.px !== SCALE[u.role]);
+    t("F3: every fallback equals its scoped value — the fallback duplicates the number, so it can drift",
+      wrong.map((u) => `${u.file}:${u.role}=${u.px}`), []);
+    // A BARE USE IS `var(--studio-radius-X)` WITH NO COMMA. The first version of this
+    // excluded both `,` and `)` after the name, so it matched NOTHING and could never fire —
+    // a guard that cannot fail, caught by mutation-testing rather than by reading it.
+    const bare = studioFiles.flatMap((f) =>
+      [...readStudio(f).matchAll(/var\(--studio-radius-(?:panel|card|control)\)/g)].map(() => f));
+    t("F3: …and every studio radius utility carries a fallback — bare var() computes to 0, giving SQUARE corners rather than the old value",
+      bare, []);
+  }
+
+  // F4 — THE NESTED RADIUS. BoldToolbar's shell and buttons are a RELATIONSHIP: the button
+  // radius was chosen to sit concentrically inside the shell (inner = outer - padding). It was
+  // 10/7 against p-1, off by one from true concentric; at card 8 with the same p-1 the inner
+  // is EXACTLY 4, the control step. An accidental approximation landed on the scale. No
+  // per-site assertion can see a relationship, which is why this one exists.
+  {
+    const bt = readStudio("BoldToolbar.tsx");
+    t("F4: BoldToolbar's shell is the card step", /gap-0\.5 rounded-\[var\(--studio-radius-card,8px\)\]/.test(bt), true);
+    t("F4: …with p-1, so concentric inner = 8 - 4 = the control step, EXACTLY rather than approximately",
+      /rounded-\[var\(--studio-radius-card,8px\)\][^"]*\bp-1\b/.test(bt), true);
+    t("F4: …and its buttons ARE the control step", (bt.match(/rounded-\[var\(--studio-radius-control,4px\)\]/g) ?? []).length, 3);
+  }
+
+  // F5 — WHAT MUST NOT MOVE. Pills carry meaning; the 1px dot is deliberate on a 6px handle.
+  {
+    // BOTH swept directories, because the sweep covered both — one pill lives in app/studio.
+    const appStudio = [];
+    const walkApp = (d) => { for (const e of readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true })) {
+      if (e.isDirectory()) walkApp(`${d}/${e.name}`); else if (e.name.endsWith(".tsx")) appStudio.push(read(`${d}/${e.name}`)); } };
+    walkApp("app/studio");
+    const all = studioFiles.map(readStudio).join("") + appStudio.join("");
+    t("F5: the 25 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 25);
+    t("F5: the 1px drag dot survives — the control step would visibly round a 6px handle",
+      (all.match(/rounded-\[1px\]/g) ?? []).length, 1);
+    // COMMENT-STRIPPED, and it has to be: this first ran against raw source and tripped on the
+    // ENGLISH WORD "rounded" in a layout comment ("the outer rounded card is gone"). An
+    // assertion about class strings that reads prose is asserting about prose.
+    const codeOnly = studioFiles.map((f) => code(`components/studio/${f}`)).join("");
+    t("F5: no legacy radius token survives in studio — a leftover is a corner that did not move with its neighbours",
+      /(?<![\w-])rounded(?:-(?:sm|md|lg|xl|2xl))?(?![\w[-])/.test(codeOnly.replace(/rounded-\[var\([^)]*\)\]/g, "")), false);
+  }
+
+  // F6 — THE CANVAS CENSUS, EXACT COUNTS. `> 0` walks straight through a one-file mutation;
+  // PR 2a proved that. The canvas renders through the PUBLIC article components, so a studio
+  // radius reaching it would move the published page.
+  {
+    const dirCount = (dir) => {
+      const out = [];
+      const walk = (d) => { for (const e of readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true })) {
+        if (e.isDirectory()) walk(`${d}/${e.name}`); else if (e.name.endsWith(".tsx")) out.push(`${d}/${e.name}`); } };
+      walk(dir);
+      return out.reduce((n, f) => n + (read(f).match(/--studio-radius-/g) ?? []).length, 0);
+    };
+    for (const d of ["components/blog", "components/case-study", "app/(portfolio)"]) {
+      t(`F6: ${d} carries ZERO studio radius vars — it is canvas/public code and a studio corner there would move the published page`,
+        dirCount(d), 0);
+    }
+  }
+}
 
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

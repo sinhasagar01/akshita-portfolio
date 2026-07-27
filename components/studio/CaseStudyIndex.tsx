@@ -128,7 +128,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-md bg-accent-500 px-3.5 py-2 text-[13px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
+          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[13px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> Add case study
         </button>
@@ -143,7 +143,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
         </p>
       )}
 
-      <ul className="overflow-hidden rounded-xl border border-ink-950/12 bg-cream-50">
+      <ul className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/12 bg-cream-50">
         {items.map((p, i) => {
           // boat-crest's sections are hand-built in code, so it is shown but dimmed:
           // present in the order (it still ranks on the homepage) and not removable.
@@ -165,7 +165,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                   }}
                   disabled={i === 0 || reorderBusy}
                   aria-label={`Move ${p.title} up`}
-                  className="grid size-5 place-items-center rounded text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
+                  className="grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
                 >
                   <IconChevronUp />
                 </button>
@@ -177,7 +177,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                   }}
                   disabled={i === items.length - 1 || reorderBusy}
                   aria-label={`Move ${p.title} down`}
-                  className="grid size-5 place-items-center rounded text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
+                  className="grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
                 >
                   <IconChevronDown />
                 </button>
@@ -186,7 +186,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
               {/* The whole row is the link — a bigger target than the title alone. */}
               <Link
                 href={`/studio/projects/${p.slug}`}
-                className="flex min-w-0 flex-1 items-center gap-4 rounded-lg px-1 py-1 transition-colors hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+                className="flex min-w-0 flex-1 items-center gap-4 rounded-[var(--studio-radius-card,8px)] px-1 py-1 transition-colors hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-display text-[15px] text-ink-950">
@@ -222,7 +222,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                 }}
                 aria-label={`Remove ${p.title}`}
                 aria-disabled={bespoke}
-                className={`grid size-7 shrink-0 place-items-center rounded-md text-ink-400 transition-colors [&>svg]:size-3.5 ${
+                className={`grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors [&>svg]:size-3.5 ${
                   bespoke ? "opacity-25" : "hover:bg-cream-200 hover:text-ink-950"
                 }`}
               >

@@ -45,7 +45,7 @@ export default function ImageThumb({ src }: { src: string | null }) {
   const showImage = src && !failed;
 
   return (
-    <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded border border-ink-950/12 bg-cream-50 text-ink-400 [&>svg]:size-3.5">
+    <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 text-ink-400 [&>svg]:size-3.5">
       {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element -- see the header note
         <img

@@ -173,6 +173,24 @@
        leading-relaxed and cursor-not-allowed. Some of that is legitimate and
        composes with the export; only the geometry should be shared.
 
+  C-10. CORRECTED IN PR 3. RULE 1 SAYS FULL PILLS SURVIVE ON "the sidebar's
+       nav items". THEY ARE NOT PILLS AND NEVER HAVE BEEN. StudioSidebar carries
+       three medium-radius utilities and ZERO rounded-full; the nav item has been
+       a rounded rectangle since #165, and PR 1 inverted its FILL without ever
+       touching its shape. The rule described an element that does not exist —
+       the same failure as the invented radius scale in C-2.
+       The 25 real full pills are the PublishBar and its buttons, the status
+       dots, and the badges. Confirmed from source, not from this file.
+
+  C-11. AND THE SHIPPED SCALE IS 12 / 8 / 4, SCOPED, NOT @theme. C-2 said a
+       studio radius change needs NEW @theme tokens. PR 3 found a better answer:
+       `rounded-[var(--x,Npx)]` is an ordinary Tailwind arbitrary value, so the
+       scale lives in a block scoped to /studio and adds no global token at all.
+       THE REASON IS THE DESIGN, NOT TIDINESS: @theme is 4/8/16/24, halving lands
+       on 12/8/4, and THERE IS NO 12 — the studio would have collapsed onto two
+       radii. 12px is precisely what @theme cannot express.
+       Every step is an exact halving of what shipped: 24->12, 16->8, 8->4.
+
   ---- OPEN QUESTIONS THIS FILE CANNOT ANSWER ------------------------------
   a. CONTRAST ON INK. Every foreground on the sidebar needs a measured ratio:
      label, count, icon, group heading, active item, hover, and both footer

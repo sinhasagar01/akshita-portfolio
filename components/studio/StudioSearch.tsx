@@ -88,7 +88,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           is inline. So restyling it here does not pre-empt PR 2, which owns `inputCls`,
           `inputClsMd` and `inputErrorCls`. It is recorded in STATE's deferred list rather than
           left for PR 2 to rediscover. */}
-      <div className="flex items-center gap-2 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/12 lg:bg-white/5">
+      <div className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/12 lg:bg-white/5">
         <IconSearch className="size-4 text-ink-400" />
         <input
           ref={inputRef}
@@ -116,7 +116,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
         />
         <kbd
           aria-hidden
-          className="rounded border border-ink-950/12 px-1.5 py-px text-[11px] text-ink-400 lg:border-white/12"
+          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[11px] text-ink-400 lg:border-white/12"
         >
           /
         </kbd>
@@ -127,7 +127,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           id={listboxId}
           role="listbox"
           aria-label="Search results"
-          className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-auto rounded-md border border-ink-950/12 bg-cream-50 py-1 shadow-[0_8px_30px_rgba(60,45,30,0.14)]"
+          className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-auto rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 py-1 shadow-[0_8px_30px_rgba(60,45,30,0.14)]"
         >
           {results.length === 0 ? (
             <li className="px-3 py-2 text-[12px] text-text-subtle">No results</li>

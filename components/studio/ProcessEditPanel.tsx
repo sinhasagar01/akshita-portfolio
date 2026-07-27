@@ -74,11 +74,11 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
   return (
     <section
       aria-label="Edit Process"
-      className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
     >
       <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconWorkflow />
           </span>
           <span className="font-display text-base text-ink-950">Process</span>
@@ -92,7 +92,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -100,7 +100,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
 
       <div className="flex flex-col gap-4 px-4 py-5">
         {stages.map((stage, i) => (
-          <div key={i} className="flex flex-col gap-3 rounded-lg border border-ink-950/12 bg-cream-100/50 p-3.5">
+          <div key={i} className="flex flex-col gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100/50 p-3.5">
             <span className="text-eyebrow uppercase tracking-eyebrow text-accent-600">
               Stage {i + 1}
             </span>
@@ -163,7 +163,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving"}
-          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>

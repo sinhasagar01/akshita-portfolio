@@ -6,10 +6,11 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE INPUT DEDUPE)
+## STATE (as of THE RADIUS SCALE)
 
-**main** = `466df8e` = the panel language (#205), with the input dedupe (PR 2b) in flight.
-Pinned: `e25a863` = the ink shell (#204), `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
+**main** = `37286cc` = the input dedupe (#206), with the radius scale (PR 3) in flight —
+the last stage of the ink chrome arc. Pinned: `466df8e` = the panel language (#205),
+`e25a863` = the ink shell (#204), `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
 STATE for #201 and #202, `6b28e91` + `01c2251` + `6ebd513` = the owner's studio hero uploads for
 the two Fosfor studies and Elevate, `49a2a29` = #202 (the canvas draws a block image before it
 is published), `9982db9` = #201 (the dropped save, coalesced), `50a5275` = STATE for #200 and two closed
@@ -68,16 +69,16 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1315 ACROSS 37 RUNNABLE SUITES
+### RALPH IS 1332 ACROSS 37 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68).
 
-**1315 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1332 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -1869,6 +1870,21 @@ All prior rules remain. Added or sharpened across this session:
     **This is the third "the code says one thing, the screen does another" class**, after
     hazard 11 (unlayered element rules beating utilities) and hazard 22 (anchor colour
     utilities dead under `a { color: inherit }`).
+
+24. **`--radius-2xl` IS SMALLER THAN `--radius-xl`** — a scale inversion nobody introduced.
+    Emitted values are `sm .25rem · md .5rem · lg 1rem · xl 1.5rem · **2xl 1rem** · full 9999px`.
+    `--radius-2xl` is **not declared in globals.css**: the project overrode `sm`–`xl` in
+    `@theme` and left Tailwind v4's default `2xl` (1rem) behind, so it now sits **below `xl`
+    and equal to `lg`**.
+    **RECORDED, NOT FIXED, AND DELIBERATELY SO.** Its two consumers are
+    `app/(portfolio)/blog/page.tsx` and `components/layout/SiteFooter.tsx` — both **outside
+    studio**, so PR 3 has no business touching them, and changing the token would move the
+    public site. **The risk is a future PR that redefines the scale and inherits the inversion
+    silently**, which is exactly why it is written down before that PR exists.
+    Related and worth knowing together: **`.rounded` (bare) is a hardcoded `0.25rem` and
+    dereferences no token at all** — every other radius utility resolves `var(--radius-*)`. No
+    `@theme` edit and no scoped property can reach it, which is why PR 3 rewrote its 14 studio
+    sites by hand.
 
 ---
 

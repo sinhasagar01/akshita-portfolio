@@ -147,7 +147,7 @@ export default function ThreePaneShell({
           onClick={() => toggle("open")}
           aria-label="Show posts"
           aria-expanded={false}
-          className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-lg border border-l-0 border-ink-950/12 bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+          className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-[var(--studio-radius-control,4px)] border border-l-0 border-ink-950/12 bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
         >
           <IconChevronRight className="size-3.5" />
         </button>
@@ -172,7 +172,7 @@ export default function ThreePaneShell({
               onClick={() => toggle("closed")}
               aria-label="Collapse posts"
               aria-expanded
-              className="grid size-[26px] flex-none place-items-center rounded-md border border-ink-950/12 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+              className="grid size-[26px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
             >
               <IconChevronRight className="size-3.5 rotate-180" />
             </button>

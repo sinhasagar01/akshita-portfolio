@@ -35,7 +35,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
         // `color`, which is exactly why `hover:border-accent-500` on the same element works.
         // The border hover is a real affordance and stays; the dead colour is removed rather
         // than left looking like it does something.
-        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-ink-950/12 px-3 py-2 text-[12px] transition-colors hover:border-accent-500 lg:border-white/12"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-[12px] transition-colors hover:border-accent-500 lg:border-white/12"
       >
         View live
         <IconArrowUpRight className="size-3.5" />

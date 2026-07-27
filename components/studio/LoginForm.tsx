@@ -49,10 +49,10 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-sm overflow-hidden rounded-xl border border-ink-950/12 bg-cream-50"
+      className="w-full max-w-sm overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/12 bg-cream-50"
     >
       <div className="flex items-center gap-2.5 border-b border-ink-950/12 bg-cream-100 px-5 py-4">
-        <span className="grid size-6 place-items-center rounded-md bg-accent-500 text-cream-50">
+        <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500 text-cream-50">
           <IconSparkles className="size-3.5" />
         </span>
         <span className="font-display text-lg text-ink-950">Studio</span>
@@ -82,7 +82,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={status === "submitting" || !password}
-          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {status === "submitting" ? "Signing in…" : "Sign in"}
         </button>

@@ -190,7 +190,7 @@ export default function BlogEditPanel({
             aria-pressed IS correct here: a two-segment selection genuinely has a pressed
             state. It was wrong on LoveButton only because love is one-way and cannot be
             un-pressed. */}
-        <div role="group" aria-label="Status" className="inline-flex rounded-md border border-ink-950/12 bg-cream-50 p-0.5">
+        <div role="group" aria-label="Status" className="inline-flex rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5">
           {BLOG_STATUSES.map((s) => (
             <button
               key={s}
@@ -203,7 +203,7 @@ export default function BlogEditPanel({
                 // waiting for a blur that may never come.
                 queueMicrotask(saveDraft);
               }}
-              className={`flex-1 rounded px-2 py-1.5 text-[12px] capitalize transition-colors ${
+              className={`flex-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1.5 text-[12px] capitalize transition-colors ${
                 values.status === s
                   ? "bg-accent-500 text-cream-50"
                   : "text-ink-600 hover:text-ink-950"

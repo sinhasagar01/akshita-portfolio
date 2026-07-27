@@ -101,7 +101,7 @@ import type { BlogCard } from "@/lib/keystatic";
 type BlogFields = { blocks: readonly BlogRawBlock[] };
 
 const iconBtn =
-  "grid size-6 shrink-0 place-items-center rounded border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
+  "grid size-6 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
 
 /** A local two-option toggle. SegmentedToggle is deliberately NOT reused: despite the name
  *  it is a projects-specific control that POSTS a template/category patch on change
@@ -118,14 +118,14 @@ function ViewToggle<T extends string>({
   label: string;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex items-center gap-0.5 rounded-md bg-cream-200 p-0.5">
+    <div role="group" aria-label={label} className="flex items-center gap-0.5 rounded-[var(--studio-radius-control,4px)] bg-cream-200 p-0.5">
       {options.map((o) => (
         <button
           key={o}
           type="button"
           aria-pressed={value === o}
           onClick={() => onChange(o)}
-          className={`rounded px-2.5 py-1 text-[12px] capitalize transition-colors ${
+          className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] capitalize transition-colors ${
             value === o ? "bg-cream-50 text-ink-950 shadow-sm" : "text-ink-600 hover:text-ink-950"
           }`}
         >
@@ -736,7 +736,7 @@ export default function BlogBlocksEditPanel({
                     // whether pressing Enter would change anything. #177 drew the same
                     // distinction for the sidebar's hover against its selected pill. The
                     // ring is ink rather than accent so it reads on the accent fill too.
-                    className={`min-w-0 flex-1 rounded px-1.5 py-1 text-left text-[12px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ink-950 ${
+                    className={`min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] px-1.5 py-1 text-left text-[12px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ink-950 ${
                       isSelected ? "text-ink-950" : "text-ink-600 hover:text-ink-950"
                     }`}
                   >
@@ -784,7 +784,7 @@ export default function BlogBlocksEditPanel({
             type="button"
             onClick={() => setPicker((p) => !p)}
             aria-expanded={picker}
-            className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-2.5 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-50 hover:text-ink-950 [&>svg]:size-3"
+            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-2.5 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-50 hover:text-ink-950 [&>svg]:size-3"
           >
             <IconPlus /> Add block
           </button>
@@ -792,20 +792,20 @@ export default function BlogBlocksEditPanel({
             type="button"
             onClick={saveDraft}
             disabled={!dirty || saveStatus === "saving"}
-            className="ml-auto rounded-md bg-accent-500 px-3 py-1.5 text-[12px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            className="ml-auto rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3 py-1.5 text-[12px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
             {saveStatus === "saving" ? "Saving…" : "Save"}
           </button>
           {picker && (
             // The picker offers exactly the blog kinds because BLOG_BLOCK_REGISTRY IS the
             // curation — no filter, no prop, no fork of the case-study picker.
-            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-lg border border-ink-950/12 bg-cream-50 p-1.5 shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)]">
+            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-1.5 shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)]">
               {BLOG_PICKER_ORDER.map((k) => (
                 <button
                   key={k}
                   type="button"
                   onClick={() => addBlock(k)}
-                  className="flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                  className="flex w-full items-center rounded-[var(--studio-radius-control,4px)] px-2.5 py-1.5 text-left text-[12.5px] text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-950"
                 >
                   {BLOG_BLOCK_LABELS[k]}
                 </button>
@@ -888,7 +888,7 @@ export default function BlogBlocksEditPanel({
             // `a { color: inherit }` outranks the utility layer. The colour is inherited from
             // ThreePaneShell's strip now; the BORDER hover survives because no unlayered rule
             // claims border-color, which is exactly the asymmetry that made this hard to see.
-            className="hidden shrink-0 items-center gap-1.5 rounded-md border border-ink-950/12 px-2.5 py-1 text-[11.5px] transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
+            className="hidden shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11.5px] transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
           >
             View live <IconArrowUpRight />
           </a>

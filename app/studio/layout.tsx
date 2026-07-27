@@ -16,6 +16,13 @@ export default function StudioLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-canvas font-body text-ink-950">{children}</div>
+    // `studio-chrome` carries the STUDIO RADIUS SCALE (globals.css) — three custom
+    // properties, scoped rather than added to @theme because the design needs a 12px step
+    // the theme scale cannot express. THIS layout is the right host precisely because of
+    // the note above: it wraps the login page AND the dashboard, so login inherits the
+    // scale instead of falling back to the literals baked into each utility.
+    <div className="studio-chrome min-h-screen bg-canvas font-body text-ink-950">
+      {children}
+    </div>
   );
 }

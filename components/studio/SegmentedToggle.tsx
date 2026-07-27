@@ -95,7 +95,7 @@ export default function SegmentedToggle({
       <div
         role="group"
         aria-label={ariaLabel}
-        className="inline-flex rounded-md border border-ink-950/12 bg-cream-50 p-0.5"
+        className="inline-flex rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5"
       >
         {(["mobile", "web"] as const).map((opt) => {
           const on = selected === opt;
@@ -107,7 +107,7 @@ export default function SegmentedToggle({
               disabled={busy}
               aria-pressed={on}
               className={[
-                "rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
+                "rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
                 on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
               ].join(" ")}
             >

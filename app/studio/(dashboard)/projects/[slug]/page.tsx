@@ -35,7 +35,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/studio/projects"
-            className="shrink-0 rounded-md border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
           >
             ← Case studies
           </Link>
@@ -50,7 +50,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
           href={projectPath(slug)}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
+          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
         >
           View live <IconArrowUpRight />
         </a>
