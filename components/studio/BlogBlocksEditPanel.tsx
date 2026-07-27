@@ -177,8 +177,9 @@ export default function BlogBlocksEditPanel({
    *  file uploaded after it was taken. See resolveHeroSrc. */
   heroPreviewUrl: string | null;
   /** The head fields, LIVE from BlogEditPanel's useDraftForm rather than from the server, so
-   *  the canvas head tracks the inspector as it is typed. The title is not among them: it is
-   *  the slug, already a prop, and read-only everywhere. */
+   *  the canvas head tracks the inspector as it is typed. `title` (a separate prop) IS live
+   *  too since #216 — BlogEditPanel passes `values.title.trim() || slug`, so it tracks the
+   *  inspector and falls back to the slug when blank, exactly as the public read path does. */
   headDek: string;
   headDate: string;
   headTopic: string;

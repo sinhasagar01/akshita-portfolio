@@ -42,7 +42,7 @@ import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 import type { BlogCard } from "@/lib/keystatic";
 import { inputCls, labelCls } from "./blocks/fields";
 
-type HeadFields = { dek: string; date: string; topic: string; status: string };
+type HeadFields = { title: string; dek: string; date: string; topic: string; status: string };
 
 export default function BlogEditPanel({
   slug,
@@ -121,8 +121,8 @@ export default function BlogEditPanel({
   };
 
   const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<HeadFields>({
-    initial: { dek, date, topic, status },
-    buildCommitted: (v) => ({ dek: v.dek, date: v.date, topic: v.topic, status: v.status }),
+    initial: { title, dek, date, topic, status },
+    buildCommitted: (v) => ({ title: v.title, dek: v.dek, date: v.date, topic: v.topic, status: v.status }),
     isDirty: (v, b) => JSON.stringify(v) !== JSON.stringify(b),
     saveExtras: { collection: "blog", slug },
     buildBody: (committed, extras) => ({ ...extras, patch: committed }),
@@ -144,6 +144,27 @@ export default function BlogEditPanel({
 
   const postSection = (
     <div className="flex flex-col gap-3 px-3 py-3">
+
+      {/* THE TITLE IS EDITABLE NOW, and the slug shows beneath it as the read-only thing.
+          The two used to be conflated — the field said "the title is the slug and is read
+          only", which was false: the slug is the filename and this is a frontmatter key that
+          moves nothing when edited (#216). Blank is allowed and the article falls back to the
+          slug; publish requires a non-empty one, enforced in validate-blog-post. */}
+      <label className="flex flex-col gap-1">
+        <span className={labelCls}>Title</span>
+        <input
+          type="text"
+          value={values.title}
+          onChange={(e) => setField("title", e.target.value)}
+          onBlur={saveDraft}
+          placeholder={slug}
+          className={inputCls}
+        />
+        <span className="text-[11px] text-text-subtle">
+          Slug <span className="font-mono text-ink-400">{slug}</span> — set at create, fixed.
+          The URL, the images and the love count key on it, so it never moves.
+        </span>
+      </label>
 
       <label className="flex flex-col gap-1">
         <span className={labelCls}>Dek</span>
@@ -256,8 +277,8 @@ export default function BlogEditPanel({
       </div>
 
       <p className="border-t border-ink-950/12 pt-2.5 text-[11px] leading-relaxed text-text-subtle">
-        The title is the slug and is read only. Reading time is computed from the blocks.
-        Loves are runtime state and are never edited here.
+        The slug is set at create and never moves; the title above is editable. Reading time
+        is computed from the blocks. Loves are runtime state and are never edited here.
       </p>
     </div>
   );
@@ -265,7 +286,12 @@ export default function BlogEditPanel({
   return (
     <BlogBlocksEditPanel
       slug={slug}
-      title={title}
+      // LIVE, AND WITH THE SLUG FALLBACK, so the canvas mirrors the public article exactly.
+      // The read path renders `resolveSlugField(title, slug)` — title when set, slug when
+      // blank (select.ts:55). Blanking the field in the inspector now shows the slug in the
+      // canvas heading and bar, which is what will actually publish. `title` was a static
+      // prop until #216 made it editable; it joins headDek/headDate/headTopic as a live value.
+      title={values.title.trim() || slug}
       livePath={livePath}
       blocks={blocks}
       draftImages={draftImages}

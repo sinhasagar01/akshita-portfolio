@@ -9,13 +9,15 @@
 // Nothing here is contenteditable, and that is a decision rather than an omission. Of the
 // five things the head shows, only two could ever take an inline edit:
 //
-//   title        THE SLUG. keystatic.config declares `slugField: "title"` with
-//                `fields.slug`, and sanitizeBlogPatch rejects the key outright —
-//                "title is the entry slug and cannot be edited here". A contenteditable
-//                title would 400 on the first keystroke. Changing it is a RENAME (new file
-//                at the new slug, move public/images/blog/<slug>/, delete the old, and the
-//                published URL 404s because the article sets dynamicParams = false), which
-//                is the deferred renaming arc and not a field.
+//   title        EDITABLE — in the INSPECTOR, not here. The old note in this slot claimed it
+//                was the slug and would 400 on the first keystroke. That was FALSE and #216
+//                fixed it: the slug is the FILENAME, `title` is an ordinary frontmatter key,
+//                and editing it moves nothing the URL/images/loves key on. It is a normal
+//                inspector field now, previewed here like dek and topic. (A SLUG rename — new
+//                file, moved images, a 404 on the old URL under dynamicParams = false — is a
+//                different, still-deferred arc, and is not what editing the title does.)
+//                It is not INLINE-editable in the canvas for the same reason nothing here is:
+//                the head is preview-only, per the decision below.
 //   readingTime  COMPUTED from the blocks. There is nothing to edit.
 //   date         STORED as `2026-07-24`, RENDERED as `24 JULY 2026`. Editing the rendered
 //                text would mean parsing a display format back to ISO, and a bad parse

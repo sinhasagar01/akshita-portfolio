@@ -83,12 +83,19 @@ export type HomePageData = {
   experience: ExperienceListItem[];
 };
 
+// #216: FALLS BACK ON A BLANK VALUE, NOT ONLY AN ABSENT ONE — mirrors the copy in
+// lib/blog/select.ts (KEEP THE TWO IN STEP). `title` (blog) is editable and blankable now, so
+// an empty string must yield the slug exactly as a missing key does; blank company (experience)
+// and blank title (projects) get the same robustness as a free side effect, and no existing
+// entry is blank, so nothing rendered changes today. Defense-in-depth behind validate-blog-post.
 function resolveSlugField(value: unknown, fallback: string): string {
-  if (typeof value === "string") return value;
-  if (value !== null && typeof value === "object" && "value" in value) {
-    return (value as { value: string }).value;
-  }
-  return fallback;
+  const resolved =
+    typeof value === "string"
+      ? value
+      : value !== null && typeof value === "object" && "value" in value
+        ? (value as { value: string }).value
+        : null;
+  return resolved !== null && resolved.trim() !== "" ? resolved : fallback;
 }
 
 /** Map a raw processStages value to ProcessStage[] in a fixed {name,

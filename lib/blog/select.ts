@@ -38,13 +38,21 @@ export type BlogListItem = {
 
 /** Resolve a Keystatic slug field, which the reader may hand back as a bare string or
  *  as `{ value }`. Inlined (not imported from lib/keystatic.ts) to keep this module
- *  reader-free; mirrors resolveSlugField there. */
+ *  reader-free; mirrors resolveSlugField there — KEEP THE TWO IN STEP.
+ *
+ *  #216: FALLS BACK ON A BLANK VALUE, NOT ONLY AN ABSENT ONE. `title` is editable and
+ *  blankable now, and an empty string is a blank heading — it must yield the slug exactly as
+ *  a missing key does. This is defense-in-depth behind validate-blog-post, which already
+ *  forbids PUBLISHING a blank title; this keeps the read path robust regardless. Before #216
+ *  the fields were never blankable, so `""` -> `""` never surfaced. */
 function resolveSlugField(value: unknown, fallback: string): string {
-  if (typeof value === "string") return value;
-  if (value !== null && typeof value === "object" && "value" in value) {
-    return (value as { value: string }).value;
-  }
-  return fallback;
+  const resolved =
+    typeof value === "string"
+      ? value
+      : value !== null && typeof value === "object" && "value" in value
+        ? (value as { value: string }).value
+        : null;
+  return resolved !== null && resolved.trim() !== "" ? resolved : fallback;
 }
 
 /** Map one raw blog reader entry to a BlogListItem, coalescing every absent field to
