@@ -308,7 +308,21 @@ export default function PublishBar() {
               aria-disabled={!canPublish}
               className="shrink-0 rounded-full bg-accent-500 px-[19px] py-[11px] text-[12px] font-medium uppercase tracking-[0.08em] text-cream-50 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:bg-accent-500/45"
             >
-              {publishStatus === "publishing" ? "Publishing…" : "Publish"}
+              {/* "PUBLISH SITE", NOT "PUBLISH", BECAUSE THIS DEPLOYS EVERYTHING.
+                  An author set a post's status to Published, pressed this, and the post did
+                  not appear on /blog. Nothing was broken: this merges the draft branch to
+                  main and rebuilds the whole site, while a post's own `status` decides
+                  whether it renders. Both are right alone and ambiguous together at the one
+                  moment an author decides they are done.
+                  THE REST OF THIS BAR ALREADY KNEW. The success message says "Your site is
+                  rebuilding", and the status line describes CHANGES rather than an entry. The
+                  button was the only string that did not name its object, so it is the only
+                  one that changed.
+                  `Publishing…` IS DELIBERATELY UNCHANGED. The ambiguity is in the RESTING
+                  label, which is what gets read while deciding; the progress label appears
+                  only after the choice is made. Keeping it short also stops this `shrink-0`
+                  pill changing width mid-action. */}
+              {publishStatus === "publishing" ? "Publishing…" : "Publish site"}
             </button>
           </>
         )}
