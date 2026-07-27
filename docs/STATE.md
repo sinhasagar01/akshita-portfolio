@@ -205,8 +205,30 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
   with three of six items off screen, so the pill is the primary wayfinding cue and the wash
   would be the weakest possible replacement. **One decision, two grounds, two answers.**
 - **#166 overview rows** — Contact is a visually LOCKED `<div>`, proven by Tab sequence.
-- **#167 ListDetailLayout** — **CONSUMERS ARE SETTINGS, EXPERIENCE, SKILLS.** Selected stays
-  the ACCENT-TINTED PILL. **The attribute-invariant gate was invented here.**
+- **#167 ListDetailLayout** — **CONSUMERS ARE SETTINGS, EXPERIENCE, SKILLS** (now seven panels).
+  Selected was the ACCENT-TINTED PILL. **The attribute-invariant gate was invented here.**
+
+  **THE ORIGINAL REASONING, KEPT.** #167 rejected an INK fill for the selected row because the
+  row carries an **accent badge** and an **accent dirty dot**, and an ink ground would have
+  needed inverted variants of both. It chose an accent tint instead, so the accent elements
+  inside the row kept working unchanged.
+
+  **RESOLVED IN PR B, AND THE CONCERN WAS RIGHT — THE REMEDY WAS HALF OF ONE.** The objection
+  was that a selection treatment must not fight the accent elements *inside* the row. **A 3px
+  left bar sits at the EDGE while the badge sits INLINE**, so it satisfies the objection more
+  completely than the tint did: measured, the badge ends up **78px** from where the bar stops,
+  and its text reads **6.00:1** on the new fill. Both accent elements survive untouched, which
+  is the property #167 was protecting.
+
+  **WHAT THE TINT ACTUALLY COST.** Measured at **1.15** against its ground — inside the same
+  **1.05–1.19** band as every plain cream step, i.e. no better than no fill at all. That is why
+  selection was hard to see on the blog rail (1.103) and why the owner reported it. The bar
+  reads at **3.43–4.48**, roughly thirty times the separation. **The tint was never the signal;
+  it only looked like a decision because it was accent-coloured.**
+
+  This is a REWRITE, not an overwrite: #167's reasoning stands above and the resolution sits
+  beside it, so nobody later reads the accent pill as live convention or the reversal as a
+  contradiction.
 - **#168 `StudioModal`** — **4 modals in 2 files.** Six-item delta list up front.
   **SHADOW LITERAL EXCEPTION.** **HAZARD: no portal.**
 - **#169 chrome pass** — PublishBar becomes a pill. **ERROR TONE SPLIT.** All EIGHT
@@ -1373,6 +1395,26 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **"GROUND + 1 STEP, PLUS AN IDENTICAL BAR" — THE FORM A SHARED VISUAL RULE SHOULD TAKE.**
+  PR B paints one selection language across three surfaces sitting on three different ladder
+  steps. **The shared thing is the RULE and the BAR; the fill value differs on every surface**
+  — cream-100, cream-300, cream-200 — precisely so the relation holds everywhere. A single hex
+  would have been **the third instance in this arc of a relation encoded as a value**, after
+  #205's input colour and my own item-3 recommendation.
+  **The generalisation:** when a treatment must read the same on grounds that differ, share the
+  *step* and share the *constant* (here, the bar). Sharing the literal is what makes it three
+  bugs that each look correct in isolation.
+
+- **A SUBSTRING CHECK ANSWERS THE WRONG QUESTION, AND COMMENTS ARE PART OF THE FILE.**
+  Two PR B assertions passed mutation because they used `src.includes(...)`: collapsing the
+  strip onto a shared hex survived because `bg-cream-200` appears four times in that file for
+  unrelated controls, and **deleting `border-l-transparent` survived because the string also
+  appeared in the comment explaining why it was there — the assertion was reading my own
+  prose.** This is the second time in one session a check matched documentation instead of
+  code (the first tripped on the English word "rounded").
+  **STANDING METHOD: strip comments, then parse the construct you are asserting about** — the
+  ternary branch, the declaration — rather than asking whether a token appears anywhere.
+
 - **A RELATIONAL RULE NEEDS A RELATIONAL GATE. ASSERTING ONE SIDE PINS THE BUG.**
   "An input sits one step lighter than its panel" was implemented twice as an absolute — #205
   set inputs to cream-100, PR A's own findings proposed cream-50 — and **each was correct on
@@ -2172,6 +2214,15 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **PR B** the selection language →1379. Items 1 and 2, the last of the eleven that is paint.
+  ONE language on three surfaces — **ground + 1 step, plus an identical 3px accent left bar**.
+  **The measurement is the headline**: every cream step separates by 1.05–1.19 and the accent
+  tint it replaces was 1.15, inside that same band, so **the fill was never the signal** — which
+  explains the original complaint rather than merely fixing it. The bar reads 3.43–4.48.
+  **#167 is rewritten, not overwritten**: its concern was right and the tint was half a remedy.
+  Both accent elements it protected survive, measured at 6.00:1 and 78px clear of the bar.
+  Correction **C-15**. Two assertions were killed by mutation and rewritten to parse ternary
+  branches from comment-stripped source — one had been matching its own explanatory comment.
 
 ---
 

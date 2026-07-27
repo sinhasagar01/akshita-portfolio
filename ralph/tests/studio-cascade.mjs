@@ -86,6 +86,13 @@ const FAMILY = [
   { property: "max-width",       test: (c) => /^max-w-/.test(c) },
   { property: "display",         test: (c) => /^(block|inline|inline-block|flex|inline-flex|grid|inline-grid|hidden|contents)$/.test(c) },
   { property: "text-decoration-thickness", test: (c) => /^decoration-\d/.test(c) },
+  // BORDER COLOUR — added for the selection language (PR B), which paints a 3px accent left
+  // bar on an <a>, a <button> and an <li>. NO unlayered rule touches border today, verified,
+  // so nothing collides right now. It is here because the bar is the selection signal on three
+  // surfaces, and the day someone adds `a { border-bottom: ... }` for link underlines, the
+  // rail's bar would die silently on exactly the class of bug this suite exists for.
+  { property: "border-color",      test: (c) => /^border-(ink|cream|accent|danger|transparent)/.test(c) },
+  { property: "border-left-color", test: (c) => /^border-l-(ink|cream|accent|danger|transparent)/.test(c) },
 ];
 
 /** element tag -> Set(properties its unlayered rule sets) */

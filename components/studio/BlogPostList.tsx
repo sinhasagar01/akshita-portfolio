@@ -60,12 +60,27 @@ export default function BlogPostList({
                 <li key={p.slug}>
                   <Link
                     href={`/studio/blog/${p.slug}`}
-                    // aria-current is the accessible half of the accent pill. #167 settled
-                    // that the selected row is the accent-tinted pill, so this follows the
-                    // convention rather than inventing a third selected treatment.
+                    // aria-current is the accessible half of the selection language.
+                    //
+                    // THIS USED TO BE THE ACCENT PILL, AND #167's CONCERN IS RESOLVED RATHER
+                    // THAN OVERRULED. #167 rejected an ink fill because a selected row carries
+                    // an accent badge and an accent dirty dot, and an ink ground would have
+                    // needed inverted variants of both. A 3px bar sits at the EDGE while a
+                    // badge sits INLINE, so it marks selection without competing with anything
+                    // in the row. The accent tint was the half-measure: measured at 1.103
+                    // against this rail's cream-200 ground, it was inside the same 1.05–1.19
+                    // band as every plain cream step, which is why selection here was hard to
+                    // see at all. The bar reads at 3.43.
+                    //
+                    // GROUND + 1 STEP. This rail is cream-200 (PR A), so the fill is cream-300.
+                    // The value differs per surface because the RULE is what is shared; see
+                    // ListDetailLayout for why a fixed hex would have been three bugs.
+                    //
+                    // `border-l-[3px]` is in the base with `pl-[9px]` absorbing it, so 3 + 9
+                    // matches the old 0 + 12 and selection causes no reflow.
                     aria-current={current ? "page" : undefined}
-                    className={`flex items-start gap-2.5 border-b border-ink-950/12 px-3 py-2.5 transition-colors ${
-                      current ? "bg-accent-500/8" : "hover:bg-cream-100"
+                    className={`flex items-start gap-2.5 border-b border-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-3 transition-colors ${
+                      current ? "border-l-accent-500 bg-cream-300" : "border-l-transparent hover:bg-cream-100"
                     }`}
                   >
                     <span

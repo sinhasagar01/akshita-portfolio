@@ -368,5 +368,114 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   }
 }
 
+/* ================================================ G. THE SELECTION LANGUAGE (PR B)
+ * ONE language across three surfaces: a cream fill one step darker than that surface's own
+ * ground, plus an IDENTICAL 3px accent-500 left bar.
+ *
+ * THE RULE IS SHARED; THE VALUE IS NOT, AND THAT IS THE POINT. The three grounds are three
+ * different ladder steps — ListDetailLayout sits on cream-50, the blog rail on cream-200, the
+ * block strip on cream-100 — so a single fill colour would be one step from its ground on one
+ * surface and wrong on the other two. That would have been the THIRD time in this arc a
+ * relation was encoded as a value, after #205's input colour and the fidelity findings' own
+ * item-3 recommendation. Assert the STEP, never the hex.
+ *
+ * MEASURED, and the numbers are why the bar exists: every cream step separates by 1.05–1.19,
+ * and the accent tint this replaces was 1.15 — inside the same band. The bar reads at
+ * 3.43–4.48. The fill was never the signal. */
+{
+  const PAIRS = [
+    { file: "ListDetailLayout.tsx", ground: "cream-50",  fill: "bg-cream-100", surface: "the shared list row (7 panels)" },
+    { file: "BlogPostList.tsx",     ground: "cream-200", fill: "bg-cream-300", surface: "the blog list rail" },
+    { file: "BlogBlocksEditPanel.tsx", ground: "cream-100", fill: "bg-cream-200", surface: "the block strip" },
+  ];
+  // The ladder, so "one step darker" is checked against a declared order rather than a guess.
+  const LADDER = ["cream-50", "cream-100", "cream-200", "cream-300"];
+
+  /**
+   * THE SELECTED AND INACTIVE BRANCHES, PARSED — NOT `src.includes(...)`.
+   *
+   * MUTATION TESTING KILLED THE FIRST VERSION OF THIS BLOCK, TWICE, AND BOTH FAILURES ARE
+   * WORTH KEEPING WRITTEN DOWN:
+   *
+   *   - Changing the strip's selected fill from cream-200 to cream-100 — collapsing it onto a
+   *     SHARED HEX, the exact bug these assertions exist to prevent — still PASSED, because
+   *     `bg-cream-200` appears four times in that file for unrelated controls.
+   *   - Deleting `border-l-transparent` from the inactive branch still PASSED, because the
+   *     string also appears IN THE COMMENT four lines above explaining why it is there. The
+   *     assertion was reading my own prose.
+   *
+   * A file-wide substring check answers "does this token appear anywhere", which is not the
+   * question. Comments are stripped and the ternary branches are parsed, so each assertion
+   * reads the branch it names.
+   */
+  const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const branches = (src) => {
+    const m = stripComments(src).match(/\?\s*"([^"]*border-l-accent-500[^"]*)"\s*:\s*"([^"]*)"/);
+    return m ? { selected: m[1], inactive: m[2] } : null;
+  };
+
+  for (const p of PAIRS) {
+    const src = readStudio(p.file);
+    const b = branches(src);
+    t(`G1: ${p.surface} has a parseable selected/inactive pair — if this fails every assertion below it is reading nothing`,
+      b !== null, true);
+    if (!b) continue;
+    t(`G1: ${p.surface} fills ${p.fill} IN ITS SELECTED BRANCH — GROUND + 1 STEP from its own ${p.ground}, not a shared hex`,
+      b.selected.split(/\s+/).includes(p.fill), true);
+    t(`G1: …and ${p.fill} really is one step below ${p.ground} on the ladder`,
+      LADDER.indexOf(p.fill.replace("bg-", "")) - LADDER.indexOf(p.ground), 1);
+    t(`G2: ${p.surface} carries the 3px bar — identical width on all three, which is what makes it ONE language`,
+      /border-l-\[3px\]/.test(stripComments(src)), true);
+    t(`G2: ${p.surface} paints the bar accent-500 when selected`,
+      b.selected.split(/\s+/).includes("border-l-accent-500"), true);
+    t(`G2: ${p.surface} reserves the bar IN ITS INACTIVE BRANCH — border-l-transparent is what keeps selection from reflowing the row`,
+      b.inactive.split(/\s+/).includes("border-l-transparent"), true);
+    // THE TINT IS GONE FROM THE SELECTED BRANCH. #167's objection was a fill competing with the
+    // accent badge and dot inside the row; leaving the tint under the bar would keep the
+    // problem beside its own fix.
+    //
+    // SCOPED TO THE BRANCH THAT PAINTS THE BAR, NOT THE FILE. A file-wide check fails on
+    // ListDetailLayout's BADGE, which is `bg-accent-500/10` and MUST STAY — it is one of the
+    // two accent elements #167 protected, and the bar was chosen precisely so it could. An
+    // assertion that cannot tell the selection fill from the badge would force deleting the
+    // thing this design exists to preserve.
+    t(`G2: ${p.surface}'s SELECTED branch carries no accent fill — the bar is the only accent on the row itself`,
+      /bg-accent/.test(b.selected), false);
+  }
+
+  // G2b · THE TWO ACCENT ELEMENTS #167 PROTECTED MUST SURVIVE. This is the positive half of
+  // the assertion above, and it is the whole reason the bar was chosen over an ink fill:
+  // #167 rejected ink because the row carries an accent badge and an accent dirty dot that
+  // would each have needed an inverted variant. A bar at the EDGE leaves both untouched.
+  // Measured on the new cream-100 fill: badge text 6.00:1 (AA needs 4.5), and the badge sits
+  // 78px from where the bar ends — not adjacent, so the row never reads as two accent marks.
+  {
+    const ld = readStudio("ListDetailLayout.tsx");
+    t("G2b: the accent BADGE survives the repaint — the bar exists so it could, and deleting it would answer #167 by removing the thing #167 protected",
+      /rounded-full bg-accent-500\/10[^"]*text-accent-600/.test(ld), true);
+    t("G2b: the accent DIRTY DOT survives too — the other element #167 named",
+      /size-1\.5 shrink-0 rounded-full bg-accent-500/.test(ld), true);
+  }
+
+  // G3 · NO `border-transparent` SHORTHAND ON THESE ROWS. It writes `border-color` while the
+  // bar writes `border-left-color`; both are utilities at equal specificity, so the left edge
+  // would be decided by their order in the generated sheet. A coin-flip dressed as a class.
+  t("G3: ListDetailLayout sets the three non-bar sides explicitly — the border-color shorthand would race border-left-color for the bar's edge",
+    /border-y-transparent border-r-transparent/.test(readStudio("ListDetailLayout.tsx")), true);
+
+  // G4 · THE INHERITED GROUND, PINNED — AND WHY IT IS PINNED RATHER THAN JUST STATED.
+  // ListDetailLayout's list column declares NO background of its own; it inherits cream-50
+  // from whatever page hosts it. Measured constant on /studio/experience and /studio/skills,
+  // but by accident rather than by construction. A future page that mounts the layout on a
+  // different ground silently breaks surface 1's step — the fill would no longer be one step
+  // from anything — AND NOTHING WOULD FAIL, because every class involved is still correct.
+  // This asserts the absence, so adding a background here becomes a deliberate act that has to
+  // come with a decision about the selection step.
+  t("G4: ListDetailLayout's list column still declares NO ground — the selection step DEPENDS on it inheriting cream-50, and that is inherited, not declared",
+    /<nav[\s\S]{0,400}?className=\{`\$\{selectedId === null \? "block" : "hidden"\} lg:block`\}/.test(readStudio("ListDetailLayout.tsx")), true);
+  t("G4: …and no cream ground has been added to it since",
+    /role="tablist"[\s\S]{0,300}?bg-cream/.test(readStudio("ListDetailLayout.tsx")), false);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
