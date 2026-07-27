@@ -227,7 +227,7 @@ export default function BoldToolbar({
 
       {linkOpen && (
         <div
-          className="mt-1.5 w-[280px] rounded-[10px] border border-ink-950/8 bg-cream-50 p-2.5 shadow-[0_18px_40px_-18px_rgba(60,45,30,0.4)]"
+          className="mt-1.5 w-[280px] rounded-[10px] border border-ink-950/12 bg-cream-50 p-2.5 shadow-[0_18px_40px_-18px_rgba(60,45,30,0.4)]"
           role="dialog"
           aria-label="Link URL"
         >

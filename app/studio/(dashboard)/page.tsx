@@ -33,7 +33,7 @@ export default async function StudioHomepage() {
     <div className={STUDIO_PAGE}>
       <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
-      <div className="max-w-[60rem] border-t border-ink-950/8">
+      <div className="max-w-[60rem] border-t border-ink-950/12">
         <OverviewRow
           index="01"
           title="Hero"

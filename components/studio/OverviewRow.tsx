@@ -93,7 +93,7 @@ export default function OverviewRow({
                 className={[
                   "inline-block rounded-full border px-2 py-0.5 text-[10px]",
                   s.tone === "muted"
-                    ? "border-ink-950/8 text-text-subtle"
+                    ? "border-ink-950/12 text-text-subtle"
                     : "border-accent-500/35 text-accent-500",
                 ].join(" ")}
               >
@@ -124,7 +124,7 @@ export default function OverviewRow({
       <a
         href={href}
         aria-label={ariaLabel}
-        className="group flex items-center gap-4 rounded-lg border-b border-ink-950/8 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-cream-100 hover:pl-6"
+        className="group flex items-center gap-4 rounded-lg border-b border-ink-950/12 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-cream-100 hover:pl-6"
       >
         {inner}
       </a>
@@ -135,7 +135,7 @@ export default function OverviewRow({
   // no shift, no chevron. A row that looks clickable and isn't is worse than one
   // that admits it.
   return (
-    <div className="flex items-center gap-4 border-b border-ink-950/8 py-4 pl-3.5 pr-3.5">
+    <div className="flex items-center gap-4 border-b border-ink-950/12 py-4 pl-3.5 pr-3.5">
       {inner}
     </div>
   );

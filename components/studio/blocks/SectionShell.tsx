@@ -34,7 +34,7 @@ export function SectionShellForm({
   const set = <K extends keyof RawSection>(k: K, v: RawSection[K]) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-ink-950/8 bg-cream-100 p-3">
+    <div className="flex flex-col gap-2 rounded-md border border-ink-950/12 bg-cream-100 p-3">
       <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Section settings</span>
       {/* Content — the copy that renders in the section header, plus the anchor id
           and display index that identify it. */}

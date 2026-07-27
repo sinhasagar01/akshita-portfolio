@@ -22,7 +22,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
     // body (18.13:1 on cream, so it looked right). Setting it here works WITH that rule
     // instead of fighting it, and needs no extra element, which the repaint's
     // attribute-invariant gate would reject. Same finding as StudioSidebar's label.
-    <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-ink-950/8 bg-cream-50/85 px-4 py-3 text-ink-600 backdrop-blur lg:border-white/12 lg:bg-ink-950/85 lg:px-6 lg:text-ink-200">
+    <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-ink-950/12 bg-cream-50/85 px-4 py-3 text-ink-600 backdrop-blur lg:border-white/12 lg:bg-ink-950/85 lg:px-6 lg:text-ink-200">
       <StudioSearch items={searchItems} />
       <a
         href="/"
@@ -35,7 +35,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
         // `color`, which is exactly why `hover:border-accent-500` on the same element works.
         // The border hover is a real affordance and stays; the dead colour is removed rather
         // than left looking like it does something.
-        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-ink-950/8 px-3 py-2 text-[12px] transition-colors hover:border-accent-500 lg:border-white/12"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-ink-950/12 px-3 py-2 text-[12px] transition-colors hover:border-accent-500 lg:border-white/12"
       >
         View live
         <IconArrowUpRight className="size-3.5" />

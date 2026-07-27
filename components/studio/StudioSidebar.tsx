@@ -44,7 +44,7 @@ export default function StudioSidebar() {
   // #195 flagged `renderLink(settings, true)` as an intent stated at the call site and never
   // implemented, and hazard 19 recorded it that way. BOTH WERE WRONG ABOUT THE CAUSE. The
   // distinction IS implemented — Site settings is wrapped below in
-  // `lg:mt-auto lg:border-t lg:border-ink-950/8 lg:pt-2.5`, which pushes it to the bottom of
+  // `lg:mt-auto lg:border-t lg:border-ink-950/12 lg:pt-2.5`, which pushes it to the bottom of
   // the flex column and draws its separator. It has never rendered like the other links.
   //
   // `git log -S` puts the parameter in `ca6ab8b`, the original dashboard, ALREADY UNUSED. It
@@ -139,7 +139,7 @@ export default function StudioSidebar() {
     // three of six are off screen), which makes the active pill the primary wayfinding cue —
     // and inverting it there would take it from 19.04:1 to 1.25:1. Mobile ink chrome is real
     // work with its own composition, and it is SCOPED SEPARATELY rather than absorbed here.
-    <aside className="flex flex-col border-b border-ink-950/8 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/12 lg:bg-ink-950 lg:p-4">
+    <aside className="flex flex-col border-b border-ink-950/12 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/12 lg:bg-ink-950 lg:p-4">
       <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-4">
         {/* The accent chip is UNCHANGED. accent-500 on ink-950 is 4.05:1, and rule 6 keeps the
             accent discipline: this direction adds no new colour. */}
@@ -160,7 +160,7 @@ export default function StudioSidebar() {
 
       <nav className="flex flex-1 flex-row gap-1 overflow-x-auto lg:flex-col lg:gap-0.5 lg:overflow-visible">
         {areas.map((area) => renderLink(area))}
-        <div className="lg:mt-auto lg:border-t lg:border-ink-950/8 lg:border-white/12 lg:pt-2.5">
+        <div className="lg:mt-auto lg:border-t lg:border-ink-950/12 lg:border-white/12 lg:pt-2.5">
           {renderLink(settings)}
           <form action="/api/studio/logout" method="post">
             {/* Same rewrite as a nav link at rest — ink-600 would be 2.57:1 and the

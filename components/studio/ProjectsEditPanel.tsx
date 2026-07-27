@@ -171,14 +171,18 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        {/* THE COLOUR IS ON THIS ROW, NOT ON THE LINK. The Preview <a> and the Cancel <button>
+            below carried BYTE-IDENTICAL class strings and only the button's worked: an
+            unlayered `a { color: inherit }` beats the utility layer, so the anchor had never
+            been ink-600. Setting it here lets the anchor inherit it with no extra element. */}
+        <div className="flex items-center gap-1 text-ink-600">
           {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard),
               so the owner keeps the editor open beside it. */}
           <a
             href={`/studio/projects/${slug}/preview`}
             target="_blank"
             rel="noopener"
-            className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-md px-2 py-1 text-[12px] transition-colors hover:bg-cream-200"
           >
             Preview
           </a>
@@ -197,7 +201,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           so they read straight off the bar; title and hero image live inside the
           expanded form because they are set once. Replaces the Details|Sections
           tablist — a case study is one thing, not two tabs. */}
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/8 bg-cream-100 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/12 bg-cream-100 px-4 py-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-2">
           <span className="flex min-w-0 max-w-[46ch] flex-col">
             <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Summary</span>
@@ -240,7 +244,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             onClick={() => setDetailsOpen((o) => !o)}
             aria-expanded={detailsOpen}
             aria-controls={`cs-details-${slug}`}
-            className="rounded-md border border-ink-950/8 bg-cream-50 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-md border border-ink-950/12 bg-cream-50 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
           >
             Edit details {detailsOpen ? "▴" : "▾"}
           </button>
@@ -261,7 +265,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             readOnly
             aria-readonly="true"
             tabIndex={-1}
-            className="w-full cursor-not-allowed rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            className="w-full cursor-not-allowed rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The project&rsquo;s identity, set when you add it. The case study body is edited below.
@@ -277,7 +281,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             value={values.summary}
             onChange={(e) => setField("summary", e.target.value)}
             onBlur={saveDraft}
-            className="w-full resize-y rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full resize-y rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
           <span className="text-[10px] text-text-subtle">One sentence shown on the project card.</span>
         </label>
@@ -299,7 +303,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         </div>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>
@@ -328,7 +332,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           bespoke → read-only notice, never fetched. */}
       <div className="px-4 py-5">
         {bespoke ? (
-          <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
+          <div className="rounded-lg border border-ink-950/12 bg-cream-100 px-4 py-8 text-center">
             <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
             <p className="mx-auto mt-2 max-w-[46ch] text-[13px] leading-relaxed text-ink-600">
               {title} is a bespoke, hand-coded showpiece. Its sections and its work-filter
@@ -343,18 +347,18 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             draftImages={draftImages}
           />
         ) : sectionsStatus === "error" ? (
-          <div className="rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-center">
+          <div className="rounded-lg border border-ink-950/12 bg-cream-100 px-4 py-8 text-center">
             <p className="text-[13px] text-accent-600">Could not load the sections.</p>
             <button
               type="button"
               onClick={() => void loadSections()}
-              className="mt-2 rounded-md border border-ink-950/8 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+              className="mt-2 rounded-md border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
             >
               Try again
             </button>
           </div>
         ) : (
-          <div className="grid place-items-center rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-8 text-[13px] text-text-subtle">
+          <div className="grid place-items-center rounded-lg border border-ink-950/12 bg-cream-100 px-4 py-8 text-[13px] text-text-subtle">
             Loading sections…
           </div>
         )}
@@ -530,7 +534,7 @@ export function HeroImageField({
           On projects, where this has always rendered in a wide card, there is room and
           nothing wraps — the rendered output is unchanged at that width. */}
       <div className="flex flex-wrap items-center gap-4">
-        <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-md border border-ink-950/8 bg-cream-100">
+        <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-md border border-ink-950/12 bg-cream-100">
           {hasImage ? (
             // Plain img (not next/image): the source is either a session object URL
             // or a public path; onError falls back to the placeholder so an unresolved

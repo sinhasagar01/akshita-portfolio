@@ -157,6 +157,22 @@
        therefore scopes ink to `lg:` and up. MOBILE INK CHROME IS SEPARATE,
        UNSCOPED WORK.
 
+  C-9. CORRECTED IN PR 2a. "THE PRIMITIVES ARE THE REASON THIS IS TRACTABLE IN
+       ONE PASS" IS FALSE FOR INPUTS. `inputCls` / `inputClsMd` / `inputErrorCls`
+       are consumed by the BLOCK FORMS only. TWENTY-ONE form controls in the
+       entry panels carry the box geometry as INLINE LITERALS and reference no
+       export at all — Hero 5, About 4, BlogIndex 2, Links 2, Projects 2, and one
+       each in BlogPostList, ChipListEditor, ExperienceEditPanel, LoginForm,
+       SectionsEditPanel, SkillsEditor.
+       So a "one edit reaches most surfaces" input change reaches the block forms
+       and nothing else. PR 2a therefore ships the rest of the panel language and
+       states the gap; PR 2b makes those 21 sites CONSUME the export rather than
+       converting the literals in place, because converting them by hand
+       re-creates the drift #199 spent a PR removing.
+       NOTE the literals have already drifted — 13px against 14px, plus resize-y,
+       leading-relaxed and cursor-not-allowed. Some of that is legitimate and
+       composes with the export; only the geometry should be shared.
+
   ---- OPEN QUESTIONS THIS FILE CANNOT ANSWER ------------------------------
   a. CONTRAST ON INK. Every foreground on the sidebar needs a measured ratio:
      label, count, icon, group heading, active item, hover, and both footer

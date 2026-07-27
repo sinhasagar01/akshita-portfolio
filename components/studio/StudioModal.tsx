@@ -85,7 +85,7 @@ export function StudioModal({
         onKeyDown={(e) => {
           if (e.key === "Escape" && !busy) onClose();
         }}
-        className="w-full max-w-[440px] rounded-[14px] border border-ink-950/8 bg-cream-50 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
+        className="w-full max-w-[440px] rounded-[14px] border border-ink-950/12 bg-cream-50 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
       >
         <h2 id={titleId} className="font-display text-2xl text-ink-950">
           {title}

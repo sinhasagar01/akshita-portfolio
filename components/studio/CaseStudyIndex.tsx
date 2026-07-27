@@ -143,7 +143,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
         </p>
       )}
 
-      <ul className="overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50">
+      <ul className="overflow-hidden rounded-xl border border-ink-950/12 bg-cream-50">
         {items.map((p, i) => {
           // boat-crest's sections are hand-built in code, so it is shown but dimmed:
           // present in the order (it still ranks on the homepage) and not removable.
@@ -152,7 +152,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
           return (
             <li
               key={p.slug}
-              className={`group relative flex items-center gap-3 border-b border-ink-950/8 px-3 py-2.5 last:border-b-0 ${
+              className={`group relative flex items-center gap-3 border-b border-ink-950/12 px-3 py-2.5 last:border-b-0 ${
                 bespoke ? "opacity-60" : ""
               }`}
             >
@@ -196,7 +196,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                     {p.summary || "No summary yet"}
                   </span>
                 </span>
-                <span className="hidden shrink-0 rounded-full border border-ink-950/8 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-500 sm:inline">
+                <span className="hidden shrink-0 rounded-full border border-ink-950/12 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-500 sm:inline">
                   {p.template === "web" ? "Web" : "Mobile"}
                 </span>
                 <span className="hidden w-[86px] shrink-0 text-[11.5px] text-text-subtle lg:inline">

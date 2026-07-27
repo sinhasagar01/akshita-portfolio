@@ -148,7 +148,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         ))}
       </ListDetailLayout>
 
-      <footer className="flex items-center justify-between gap-3 rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 rounded-lg border border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px] text-text-subtle" aria-live="polite">
           {statusText}
         </span>
@@ -199,7 +199,7 @@ function CategoryPanel({
             onChange={(e) => onName(e.target.value)}
             onBlur={onBlurSave}
             placeholder="e.g. Design"
-            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
 

@@ -76,7 +76,7 @@ export default function SettingsPhotoField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo</span>
-      <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2">
         <ImageThumb src={photo} />
         {photo ? (
           <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{photo}</code>
@@ -99,7 +99,7 @@ export default function SettingsPhotoField({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-md border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-md border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : photo ? "Replace" : "Upload"}
         </button>
@@ -110,7 +110,7 @@ export default function SettingsPhotoField({
             onClick={clear}
             disabled={busy}
             aria-label="Clear photo"
-            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
           >
             <IconX />
           </button>
