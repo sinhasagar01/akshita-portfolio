@@ -18,3 +18,6 @@ blocks:
           Then you watch the analytics and almost nobody opens it, and the
           people who do ask it to describe the screen they are already looking
           at.
+  - discriminant: heading
+    value:
+      text: Why the box does not work
