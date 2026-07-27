@@ -910,7 +910,9 @@ export default function BlogBlocksEditPanel({
             // claims border-color, which is exactly the asymmetry that made this hard to see.
             className="hidden shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11.5px] transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
           >
-            View live <IconArrowUpRight />
+            {/* "VIEW POST", NOT "VIEW LIVE" — this goes to THIS article, while the topbar's
+                link goes to the site root. See StudioTopbar for the full note. */}
+            View post <IconArrowUpRight />
           </a>
           {/* THE SAVE STATE, WHERE THE EDITING IS. Below the fold the canvas and the
               inspector are mutually exclusive, so the ONE view in which inline editing works

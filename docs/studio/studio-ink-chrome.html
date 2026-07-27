@@ -200,6 +200,17 @@
        The lesson is narrower than it looks: when one rule moves a surface, every
        rule that positioned something ON that surface is stale, and nothing in a
        static document makes that visible.
+       RESOLVED IN #211 BY CARRYING THE INTENT, NOT THE VALUES. Everything this
+       file asks of the search transfers to ink except the two colours: a legible
+       well, a visible border, 40px, control radius, 13.5px, magnifier left and a
+       `/` kbd right. All of those now hold. The colours are derived from PR 1's
+       on-ink set instead: MEASURED over the topbar's composited ink, the well went
+       white/5 (1.16:1, LESS than the 10% wash STATE calls nearly invisible) to
+       white/12 (1.45), the border white/12 (1.45) to white/24 (1.98), and the
+       placeholder, magnifier and kbd ink-400 (3.27, BELOW AA) to ink-200 (5.08).
+       A recessed well was tested and rejected on evidence: black/15-35 all land
+       at 1.10-1.22 against the bar, worse than white/12, because the bar is
+       already near the bottom of the range.
 
   C-13. THIS FILE'S OWN LIST RENDERS IN ARIAL, AND IT MATERIALLY DISTORTS EVERY
        SIDE-BY-SIDE COMPARISON MADE AGAINST IT. `.item` is a <button>, buttons do
