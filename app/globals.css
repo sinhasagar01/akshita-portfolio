@@ -2691,3 +2691,37 @@ a {
   .blog-bub { animation: none !important; }
   .blog-wave { filter: none; }
 }
+
+/* ============================================================ STUDIO RADIUS SCALE
+   Local design vars scoped to /studio — NO new @theme token, the same rule the Pearl
+   Smoke palette follows on .blog-vessel: it never leaks into the global namespace.
+
+   WHY THIS IS NOT @theme, and the reason is the design rather than tidiness. The ink
+   direction asks for a visible hierarchy — panel > card > control — and the @theme scale
+   (sm 4, md 8, lg 16, xl 24) CANNOT EXPRESS IT: halving those lands on 12/8/4, and there
+   is no 12. Everything would collapse onto sm and full, a two-radius studio. 12px is
+   precisely the value @theme cannot hold, so a scoped block is the only option that
+   delivers three steps.
+
+   NOTHING HERE IS INVENTED. Every step is an exact halving of what shipped before this:
+   24 -> 12, 16 -> 8, 8 -> 4.
+
+   NAMED BY ROLE, NOT BY SIZE, because the point is a baseline someone can apply to a NEW
+   element without reading 154 call sites to infer the rule. `card: 8px` says what it is
+   worth; it does not say when to reach for it. The lines below say when.
+
+   THE TWO SCALES MUST MOVE INDEPENDENTLY, which is why control and card are declared here
+   even though they coincide with --radius-sm and --radius-md today. @theme serves the
+   public site; this serves /studio. A change to either must not drag the other. */
+.studio-chrome {
+  /* A PAGE-LEVEL SHELL — the outermost surface of a panel, a list container, a sticky
+     rail. Every consumer is a <section>/<ul>/<aside> that owns a region of the page. */
+  --studio-radius-panel: 12px;
+  /* A ROW OR A FLOATING SURFACE — list items, cards inside a panel, the empty state, and
+     anything that floats over the page (modal, toolbar, popover). Not the page's own
+     shell, and not something you type into. */
+  --studio-radius-card: 8px;
+  /* ANYTHING A PERSON CLICKS OR TYPES INTO — inputs, textareas, buttons, icon buttons,
+     chips, thumbnails, segmented options. The smallest step, and the most common. */
+  --studio-radius-control: 4px;
+}

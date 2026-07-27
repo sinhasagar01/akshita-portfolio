@@ -149,7 +149,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         ))}
       </ListDetailLayout>
 
-      <footer className="flex items-center justify-between gap-3 rounded-lg border border-ink-950/12 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px] text-text-subtle" aria-live="polite">
           {statusText}
         </span>
@@ -157,7 +157,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving"}
-          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>
@@ -189,7 +189,7 @@ function CategoryPanel({
   return (
     <section
       aria-label={`Edit ${category.trim() || "category"}`}
-      className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
     >
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
@@ -215,7 +215,7 @@ function CategoryPanel({
         </div>
 
         {isOnlyCategory && (
-          <p className="rounded-md border border-accent-500/25 bg-accent-500/5 px-3 py-2 text-[11px] text-accent-600">
+          <p className="rounded-[var(--studio-radius-control,4px)] border border-accent-500/25 bg-accent-500/5 px-3 py-2 text-[11px] text-accent-600">
             This is your only category. Removing it leaves no skills — the Skills section won&rsquo;t render on your site.
           </p>
         )}

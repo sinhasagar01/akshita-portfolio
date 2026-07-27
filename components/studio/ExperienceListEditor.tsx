@@ -200,14 +200,14 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
     <>
       {banner && (
         <div
-          className="mb-3 flex items-center justify-between gap-3 rounded-md border border-ink-950/10 bg-cream-100 px-3 py-2 text-[12px] text-ink-600"
+          className="mb-3 flex items-center justify-between gap-3 rounded-[var(--studio-radius-control,4px)] border border-ink-950/10 bg-cream-100 px-3 py-2 text-[12px] text-ink-600"
           role="status"
         >
           <span>{banner}</span>
           <button
             type="button"
             onClick={() => setBanner("")}
-            className="rounded px-2 py-0.5 text-ink-500 hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-0.5 text-ink-500 hover:bg-cream-200 hover:text-ink-950"
           >
             Dismiss
           </button>

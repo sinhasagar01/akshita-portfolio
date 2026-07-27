@@ -98,7 +98,7 @@ export default function BlogPostList({
       <div className="flex-none border-t border-ink-950/12 p-3">
         <Link
           href="/studio/blog"
-          className="block rounded-md border border-ink-950/12 px-3 py-2 text-center text-[12px] text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+          className="block rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-center text-[12px] text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
         >
           All posts
         </Link>

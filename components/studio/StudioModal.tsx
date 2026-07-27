@@ -24,11 +24,11 @@ import { useFocusTrap } from "./useFocusTrap";
 // Shared modal-footer button classes — ONE source, consumed by all four footers in
 // the callers. The markup stays in `children`; only the class string is shared.
 export const modalGhostBtn =
-  "rounded-md px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:cursor-not-allowed disabled:opacity-40";
 export const modalAccentBtn =
-  "rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 export const modalInkBtn =
-  "rounded-md bg-ink-950 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] bg-ink-950 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 
 export function StudioModal({
   role,
@@ -85,7 +85,7 @@ export function StudioModal({
         onKeyDown={(e) => {
           if (e.key === "Escape" && !busy) onClose();
         }}
-        className="w-full max-w-[440px] rounded-[14px] border border-ink-950/12 bg-cream-50 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
+        className="w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
       >
         <h2 id={titleId} className="font-display text-2xl text-ink-950">
           {title}

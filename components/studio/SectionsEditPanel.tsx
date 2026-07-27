@@ -72,7 +72,7 @@ const sectionLabel = (s: RawSection, i: number) =>
   sectionDisplayLabel({ title: s.title, eyebrow: s.eyebrow, id: s.id }, i);
 
 const iconBtn =
-  "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+  "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
 // CS-3 — the block kinds that carry any STYLE field (image geometry or a glow
 // word). Under the Style tab, blocks NOT in this set have nothing to show, so their
@@ -127,10 +127,10 @@ function sectionNeedsImage(section: RawSection): boolean {
  *  kind family plus the kind's label, so the board reads as an overview. */
 function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
   return (
-    <span className="flex items-center gap-2 rounded border border-ink-950/6 bg-cream-100 px-2 py-1">
+    <span className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/6 bg-cream-100 px-2 py-1">
       <span aria-hidden className="shrink-0">
         {IMAGE_KINDS.has(kind) ? (
-          <span className="block size-3.5 rounded-sm border border-ink-950/20 bg-ink-950/5" />
+          <span className="block size-3.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/20 bg-ink-950/5" />
         ) : GRID_KINDS.has(kind) ? (
           <span className="grid grid-cols-2 gap-0.5">
             {[0, 1, 2, 3].map((n) => (
@@ -139,8 +139,8 @@ function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
           </span>
         ) : (
           <span className="flex w-3.5 flex-col gap-0.5">
-            <span className="block h-0.5 w-full rounded bg-ink-950/20" />
-            <span className="block h-0.5 w-2/3 rounded bg-ink-950/20" />
+            <span className="block h-0.5 w-full rounded-[var(--studio-radius-control,4px)] bg-ink-950/20" />
+            <span className="block h-0.5 w-2/3 rounded-[var(--studio-radius-control,4px)] bg-ink-950/20" />
           </span>
         )}
       </span>
@@ -362,7 +362,7 @@ function SelectedRail({
 }) {
   const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
   return (
-    <aside ref={railRef} className="sticky top-4 rounded-xl border border-ink-950/12 bg-cream-50 p-3.5">
+    <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/12 bg-cream-50 p-3.5">
       <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
@@ -491,7 +491,7 @@ function SectionCanvas({
     // on the same colour it does live rather than on the global canvas beige.
     <div
       ref={paneRef}
-      className="case-study canvas-static canvas-surface overflow-hidden rounded-lg border border-ink-950/12"
+      className="case-study canvas-static canvas-surface overflow-hidden rounded-[var(--studio-radius-card,8px)] border border-ink-950/12"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
@@ -883,11 +883,11 @@ export default function SectionsEditPanel({
   return (
     <section
       aria-label="Edit case study body"
-      className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
     >
       <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconGrid />
           </span>
           <span className="font-display text-base text-ink-950">Case study body</span>
@@ -901,7 +901,7 @@ export default function SectionsEditPanel({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={handleCancel}
-          className="rounded-md px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -921,7 +921,7 @@ export default function SectionsEditPanel({
               return (
                 <div
                   key={ids.sectionIds[i]}
-                  className="relative flex flex-col gap-2 rounded-lg border border-ink-950/12 bg-cream-50 p-3 transition-colors hover:border-accent-500/40 hover:bg-cream-100"
+                  className="relative flex flex-col gap-2 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3 transition-colors hover:border-accent-500/40 hover:bg-cream-100"
                 >
                   {/* The whole card selects; the reorder arrows are SIBLINGS of this
                       button, never nested, so the markup stays valid. The overlay sits
@@ -931,7 +931,7 @@ export default function SectionsEditPanel({
                     type="button"
                     onClick={() => setSelectedSectionId(ids.sectionIds[i])}
                     aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
-                    className="absolute inset-0 z-0 rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+                    className="absolute inset-0 z-0 rounded-[var(--studio-radius-card,8px)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
                   />
                   <div className="pointer-events-none relative z-[1] flex items-start justify-between gap-2">
                     <div className="flex min-w-0 flex-col">
@@ -995,7 +995,7 @@ export default function SectionsEditPanel({
           <button
             type="button"
             onClick={addSection}
-            className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> Add a section
           </button>
@@ -1009,7 +1009,7 @@ export default function SectionsEditPanel({
           <button
             type="button"
             onClick={() => setSelectedSectionId(null)}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] text-accent-600 transition-colors hover:bg-cream-200"
+            className="inline-flex items-center gap-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-accent-600 transition-colors hover:bg-cream-200"
           >
             ← Board
           </button>
@@ -1019,7 +1019,7 @@ export default function SectionsEditPanel({
               value={selectedSectionId}
               onChange={(e) => setSelectedSectionId(e.target.value)}
               aria-label="Jump to section"
-              className="rounded-md border border-ink-950/12 bg-cream-50 px-2 py-1 text-[12px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2 py-1 text-[12px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
             >
               {values.sections.map((section, i) => (
                 <option key={ids.sectionIds[i]} value={ids.sectionIds[i]}>
@@ -1325,7 +1325,7 @@ export default function SectionsEditPanel({
           <div
             key={ids.sectionIds[i]}
             hidden={selectedSectionId !== ids.sectionIds[i]}
-            className="flex flex-col gap-3 rounded-lg border border-ink-950/12 p-3"
+            className="flex flex-col gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 p-3"
           >
             {confirmRemove === ids.sectionIds[i] ? (
               // Removing a section discards every block in it, and the control sits
@@ -1338,7 +1338,7 @@ export default function SectionsEditPanel({
                 onKeyDown={(e) => {
                   if (e.key === "Escape") setConfirmRemove(null);
                 }}
-                className="flex items-center justify-between gap-2 rounded-md border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
+                className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
               >
                 <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[11px] text-ink-700">
                   Remove this section and its blocks? You can still undo it with Discard until you
@@ -1349,7 +1349,7 @@ export default function SectionsEditPanel({
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setConfirmRemove(null)}
-                  className="shrink-0 rounded-md px-2.5 py-1 text-[11px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[11px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
                 >
                   Cancel
                 </button>
@@ -1360,7 +1360,7 @@ export default function SectionsEditPanel({
                     setConfirmRemove(null);
                     removeSection(i);
                   }}
-                  className="shrink-0 rounded-md border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[11px] text-accent-600 transition-colors hover:bg-accent-500/20"
+                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[11px] text-accent-600 transition-colors hover:bg-accent-500/20"
                 >
                   Remove
                 </button>
@@ -1377,7 +1377,7 @@ export default function SectionsEditPanel({
                 <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
                   <IconChevronDown />
                 </button>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                   <IconX />
                 </button>
               </div>
@@ -1400,7 +1400,7 @@ export default function SectionsEditPanel({
               const entry = (BLOCK_REGISTRY as Record<string, (typeof BLOCK_REGISTRY)[EditableBlockKind] | undefined>)[kind];
               if (!entry) {
                 return (
-                  <div key={ids.blockIds[i][j]} className="rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2">
+                  <div key={ids.blockIds[i][j]} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
                     <p className="text-[11px] text-ink-600">
                       {blockLabel(kind)} — no editor yet. It renders on the page once built.
                     </p>
@@ -1418,7 +1418,7 @@ export default function SectionsEditPanel({
                   // CS-3 — under the Style tab, a copy-only block has nothing to show,
                   // so its card is hidden here (the form stays MOUNTED). Content shows all.
                   hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
-                  className="rounded-lg border border-ink-950/12 bg-cream-50 p-3"
+                  className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
                 >
                   <div className="mb-2 flex items-baseline justify-between gap-2">
                     <span className="text-[12px] font-medium text-ink-950">
@@ -1434,7 +1434,7 @@ export default function SectionsEditPanel({
                         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
                           <IconChevronDown />
                         </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                           <IconX />
                         </button>
                       </div>
@@ -1457,7 +1457,7 @@ export default function SectionsEditPanel({
             })}
 
             {picker === ids.sectionIds[i] ? (
-              <div className="flex flex-col gap-2 rounded-md border border-accent-500/30 bg-cream-100 p-3">
+              <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-cream-100 p-3">
                 <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Add a block</span>
                 <div className="flex flex-wrap gap-1.5">
                   {addableKinds.map((k) => (
@@ -1465,13 +1465,13 @@ export default function SectionsEditPanel({
                       key={k}
                       type="button"
                       onClick={() => addBlock(i, k)}
-                      className="rounded-md border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
+                      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
                     >
                       {blockLabel(k)}
                     </button>
                   ))}
                 </div>
-                <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-md px-2 py-1 text-[11px] text-ink-600 hover:text-ink-950">
+                <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[11px] text-ink-600 hover:text-ink-950">
                   Cancel
                 </button>
               </div>
@@ -1479,7 +1479,7 @@ export default function SectionsEditPanel({
               <button
                 type="button"
                 onClick={() => setPicker(ids.sectionIds[i])}
-                className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+                className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
               >
                 <IconPlus /> Add a block
               </button>
@@ -1513,7 +1513,7 @@ export default function SectionsEditPanel({
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
-          className="rounded-md bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>
