@@ -2,7 +2,8 @@ title: What a design system is for when the machine can draw
 dek: ''
 date: ''
 status: draft
-heroImage: null
+heroImage: >-
+  /images/blog/what-a-design-system-is-for-when-the-machine-can-draw/heroImage.webp
 blocks:
   - discriminant: richText
     value:
