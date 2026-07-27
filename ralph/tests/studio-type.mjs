@@ -102,6 +102,22 @@ export const ON_INK = [
     why: "#214: the two halves of one chrome frame, meeting at a corner, had been 1.44:1 apart. 1.00 means IDENTICAL and is the assertion — anything above it is the defect returning" },
   { surface: "the L",                role: "sidebar edge vs topbar edge",     min: 1.00, measured: 1.00, was: 1.58, aa: null,
     why: "same declared value on both (white/24) rendering differently only because the grounds differed; identical grounds make it identical" },
+
+  /* THESE TWO NEED A REAL POINTER AND THIS HARNESS CANNOT PROVIDE ONE.
+   *
+   * `:hover` is not settable from script — `el.matches(":hover")` reads it, nothing sets it,
+   * and dispatching a mouseover event does not move the CSS state. So the script below reports
+   * them as NOT MEASURED rather than passing, because a gate that claims a pass it never
+   * performed is worse than one that admits the gap. #215 drove them with a real pointer and
+   * recorded the values here; re-verifying needs the same.
+   *
+   * WHY THEY ARE LISTED AT ALL: the hover fill is a NEW SURFACE. Anything on it composites
+   * against cream-50, not against the ink bar, and "measured against what?" is the question
+   * this table exists to keep answerable. */
+  { surface: "topbar View site (HOVER)", role: "fill vs the bar",     min: 18.0, measured: 19.04, aa: null, needsPointer: true,
+    why: "the swing IS the affordance — a light fill on ink at 19:1 is unmistakable" },
+  { surface: "topbar View site (HOVER)", role: "label vs the fill",   min: 18.0, measured: 19.04, aa: 4.5, needsPointer: true,
+    why: "measured against the FILL, not the bar. And it only lands because the label is in a SPAN — `hover:text-*` on the <a> would be dead under hazard 22, exactly as `hover:text-accent-500` was on this same element" },
 ];
 
 export const TYPE_SCRIPT = String.raw`
@@ -260,6 +276,12 @@ export const TYPE_SCRIPT = String.raw`
        The L wants an EQUALITY: two halves of one frame must be the same colour, so 1.00 is the
        target and anything ABOVE it is the two-tone defect returning. A shared ">= min" would
        have passed 1.44, the exact value being fixed. */
+    if (e.needsPointer) {
+      onInk.push({ surface: e.surface, role: e.role, got: null, measured: e.measured,
+        status: "NOT MEASURED — :hover cannot be set from script. Drive it with a real pointer; "
+          + "#215 measured " + e.measured + ":1" });
+      continue;
+    }
     const isEquality = e.surface === "the L";
     const ok = isEquality ? got <= 1.005 : got >= e.min;
     onInk.push({ surface: e.surface, role: e.role, got, min: e.min, measured: e.measured,
@@ -272,12 +294,14 @@ export const TYPE_SCRIPT = String.raw`
             + (e.aa ? "; AA for this role is " + e.aa : "") + ")" });
   }
   const onInkFailures = onInk.filter((r) => String(r.status).startsWith("FAIL"));
+  const onInkUnmeasured = onInk.filter((r) => String(r.status).startsWith("NOT MEASURED"));
 
   return JSON.stringify({
     page: location.pathname,
     sanity: "PASS (21:1, red round-trips)",
     COLLISIONS: wells.filter((w) => !w.OK),
     ON_INK_FAILURES: onInkFailures,
+    ON_INK_NOT_MEASURED: onInkUnmeasured.map((r) => r.surface + " / " + r.role),
     onInk,
     wells,
     sectionHeads: bands,

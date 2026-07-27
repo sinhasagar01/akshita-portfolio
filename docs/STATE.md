@@ -2583,6 +2583,34 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **#215** the logo and the View site hover →1385. Three small chrome items, and **the contract
+  check split them two ways**.
+  **THE LOGO IS AN IMPLEMENTATION GAP**, verified in the file rather than taken on trust:
+  `.logo .mark { width:30px; height:30px }` and `.logo b { font-size:20px; letter-spacing:-.01em }`
+  are the contract's own values, and the app shipped **24×24 and 17px**. Now 30×30 and 20px.
+  **The radius takes the CARD step (8px), not the contract's 7px** — 7 is not a value the scale
+  has, and the scale supersedes the file exactly as it did for its 2px input and 3px button
+  radii, all three predating #207.
+  **MEASURED, THE HEADER ROW MOVED**: 41.5 → 46px, because a 30px mark in a row built for 24
+  changes it. Expected and reported rather than discovered later. The wordmark's contrast is
+  **unchanged at 19.04** — re-measured rather than assumed, because size participates in
+  legibility even when colour has not moved.
+  **THE HOVER IS A DEPARTURE FROM THE CONTRACT, NOT A CORRECTION TO IT.** `.btn.ghost:hover` is
+  `border-color: accent; color: accent`, drawn for a cream bar — and measured, **accent on the
+  ink bar reads 3.88:1**, above the 3.0 UI floor. The contract's hover transfers and works; a
+  different treatment was chosen over it, so the file is not wrong and this is not correction
+  eighteen.
+  **TWO THINGS THE REQUEST COULD NOT HAVE ANTICIPATED.** A light border on a light fill is
+  **1.00:1** against it — it extends the fill and delineates nothing, so no `hover:border-*`
+  companion was added; adding a class known to render nothing is worse than the ones this arc
+  has spent PRs deleting. And **`hover:text-*` on that anchor would have been DEAD** — hazard 22
+  defeats a hover colour exactly as it defeats a base one, and `hover:text-accent-500` had
+  already been removed from THAT SAME ELEMENT for it. The label moved into a span so
+  `group-hover` could land; measured hovered, the text composites to ink-950 at **19.04:1**
+  against the fill.
+  **AND THE HARNESS ADMITS WHAT IT CANNOT DO.** `:hover` is not settable from script, so
+  `studio-type` reports the two hover rows as **NOT MEASURED** rather than passing them. A gate
+  claiming a pass it never performed is worse than one that names the gap.
 - **#214** the ink L, one colour at last →1385. The owner reported the whole topbar row as
   mismatched; **four of the six items were downstream of C-9 and two were already correct** —
   the bar was always 65px and #213 had taken the button to 40. **The row was mismatched for a
