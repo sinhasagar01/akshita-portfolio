@@ -105,5 +105,28 @@ t("E: …and scroll-behavior, which is what `behavior: \"smooth\"` overrides",
 t("E: the nav row drops its translate but stays hidden-capable",
   /\.site-header\[data-nav-hidden="true"\] \.nav-row \{ transform: none; \}/.test(css), true);
 
+/* ================================================================= F. THE FAB FOLLOWS THE ROW
+ * The rule above created a second problem. Keeping the row on screen is right, but `navHidden`
+ * still flips, so the FAB — whose only job is bringing back a nav that hid itself — appeared
+ * alongside the row it was meant to replace. Two controls for one nav.
+ *
+ * SPECIFICITY IS THE ASSERTION, not just presence. `.nav-morph.nav-fab-desktop { display:
+ * block }` is 0,2,0, so a single-class `.nav-fab { display: none }` loses to it at any source
+ * position. A future tidy that "simplifies" the selector would silently bring the FAB back,
+ * and nothing else in the suite would notice. */
+t("F: the FAB is suppressed under reduced motion",
+  /@media \(prefers-reduced-motion: reduce\) \{\s*\.nav-fab\.nav-morph \{ display: none; \}\s*\}/.test(css), true);
+// The two-class form is what makes it win. Asserted as a shape so a single-class rewrite fails.
+t("F: …with a TWO-class selector, or it loses on specificity",
+  /\.nav-fab\.nav-morph \{ display: none; \}/.test(css), true);
+// And the rule it must outrank is still there — if that ever became single-class, this
+// assertion's premise would be stale rather than wrong, so it is pinned too.
+t("F: the display:block rule it outranks is still 0,2,0",
+  /\.nav-morph\.nav-fab-desktop \{ display: block; \}/.test(css), true);
+// SOURCE ORDER MATTERS AT EQUAL SPECIFICITY. The suppression must come after.
+t("F: …and the suppression comes AFTER it in source order",
+  css.indexOf(".nav-fab.nav-morph { display: none; }") >
+    css.indexOf(".nav-morph.nav-fab-desktop { display: block; }"), true);
+
 console.log(`\nreduced-motion result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
