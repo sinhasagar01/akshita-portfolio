@@ -6,10 +6,14 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE RADIUS SCALE)
+## STATE (as of THE INK CHROME ARC, COMPLETE)
 
-**main** = `37286cc` = the input dedupe (#206), with the radius scale (PR 3) in flight —
-the last stage of the ink chrome arc. Pinned: `466df8e` = the panel language (#205),
+**main** = `2488500` = the selection language (#209). **The ink chrome arc is finished — six
+PRs, #204 to #209**, and every one of the eleven fidelity mismatches is now shipped, corrected
+in the contract, or explicitly deferred. **ralph 1379 across 38 suites** (`parity` and
+`studio-type` named as skipped, not dropped). Pinned: `e938c16` = the fidelity repaint (#208),
+`d75eeb0` = the radius scale (#207), `37286cc` = the input dedupe (#206),
+`466df8e` = the panel language (#205),
 `e25a863` = the ink shell (#204), `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
 STATE for #201 and #202, `6b28e91` + `01c2251` + `6ebd513` = the owner's studio hero uploads for
 the two Fosfor studies and Elevate, `49a2a29` = #202 (the canvas draws a block image before it
@@ -76,13 +80,22 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103).
 
-**1332 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1379 ACROSS 38 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
+
+**TWO SUITES ARE NAMED AS SKIPPED, NOT DROPPED** — `parity` and, since #208, **`studio-type`**.
+Both need a running dev server and are driven from a browser console, so neither can run in CI.
+`studio-type` measures **rendered type and the ground ladder**, and it exists because
+`studio-cascade` is blind by construction to a **wrong-but-uncontested value**: a size that
+nothing competes for renders exactly as written and no parser can tell it is wrong. That is
+precisely the shape of fidelity item 9, and of **PR C's thumbnail resize**.
+**A PR THAT CHANGES RENDERED SIZE MUST RUN `studio-type` BY HAND. Do not read a green ralph as
+covering it** — the runner reports what it did not run for exactly this reason (#183).
 
 **RUN IT WITH `npm run ralph`** (or `node ralph/run.mjs`). The runner is COMMITTED, so CI
 and humans use the same tool and cannot disagree. "There is no npm script" was true until
@@ -1318,11 +1331,86 @@ other eight files byte-identical** — so `/blog` and `/` keeping the identity p
 rather than assumed. Two-build control clean first.
 
 ---
+## ARC 9 — THE INK CHROME (COMPLETE)
+
+Six PRs. The owner's design contract is `docs/studio/studio-ink-chrome.html`.
+
+| PR | what it settled |
+|---|---|
+| **#204** `e25a863` | **The ink shell.** Sidebar and topbar recede into darkness, scoped to `lg:` and up. On-ink foregrounds taken from the existing scale — **no new `@theme` token**. |
+| **#205** `466df8e` | **The panel language.** Wells, hairlines at `/12`, the ink bands. Shipped with a stated gap: 21 entry-panel inputs carried the geometry as literals. |
+| **#206** `37286cc` | **The input dedupe.** Those 21 sites consume the shared exports. The 13/14px split kept, deliberately unresolved. |
+| **#207** `d75eeb0` | **The radius scale**, 12 / 8 / 4, scoped. |
+| **#208** `e938c16` | **The fidelity repaint.** Items 3, 6, 7, 8, 9, 10 of eleven. Led by the dead band utilities. Produced `studio-cascade`. |
+| **#209** `2488500` | **The selection language.** Items 1 and 2, the last that is paint. |
+
+### THE THREE SCALES — THE DURABLE OUTPUT, AND ALL THE SAME SHAPE
+
+Each is **named by ROLE, not by value**, so a new element can be placed without reading call
+sites to infer the rule.
+
+- **RADIUS — 12 / 8 / 4.** Scoped custom properties on `.studio-chrome`, because `@theme`'s
+  `4/8/16/24` **cannot express a three-step hierarchy**: halving lands on 12/8/4 and there is
+  no 12, so the studio would have collapsed onto two radii. Every step an exact halving of what
+  shipped before. *panel* = a page-level shell, *card* = a row or floating surface, *control* =
+  anything clicked or typed into.
+- **GROUND — cream-200 chrome / cream-100 field surface / cream-50 well.** *Chrome* is a header,
+  footer or rail; *field surface* is anything holding inputs; *the well* is the input itself.
+- **SELECTION — ground + 1 step, plus an identical 3px accent left bar.**
+
+**THE RULE ALL THREE SHARE: EACH IS A RELATION, NOT A VALUE.** A fixed number across differing
+grounds was attempted or nearly attempted **three times in this one arc** —
+
+1. **#205's input colour**, set to cream-100 as an absolute, which worked on the cream-50 entry
+   panels and made the input identical to its ground on the cream-100 inspector;
+2. **the fidelity findings' item-3 recommendation** (mine), "inputs to cream-50, panes
+   unchanged", which would have collided on the six cream-50 entry panels instead;
+3. **PR B's selection fill**, where one hex across three grounds was the obvious move.
+
+Each would have been **three bugs wearing one number** — correct on the surface its author was
+looking at, arbitrary on the others, and every class string looking right in review.
+
+### THE FILL WAS NEVER THE SIGNAL
+
+Measured: every step on the cream ladder separates by **1.05 to 1.19**, and the accent tint the
+bar replaced was **1.15 — inside that same band**. The bar reads **3.43 to 4.48**.
+
+**That explains the original complaint rather than merely fixing it.** Selection on the blog
+rail was invisible (1.103) not because the wrong cream was chosen but because *no* cream could
+have worked. Any future surface needing selection needs the **bar**; a darker fill will not do
+it. Hover and selected therefore share a fill by necessity — at 1.05 per step the ladder cannot
+encode three legible states.
+
+### THE SIZES DID NOT MATTER
+
+Item 9 read as a size problem and was a **weight** problem. Studio carried only 28 `font-medium`
+and 4 `font-bold` in total against a contract asking for 500/600/700. **Re-measured after the
+weights landed, three deltas remained at 0.5px — invisible — and the fourth is #199's
+deliberate 13/14px split.** Nothing was changed on sizes. A delta that disappears once another
+property is correct was never a problem in the property you first blamed.
+
+### MODIFIED WAS 0, AGAINST MY PREDICTION
+
+PR A's plan said the CSS union gate's `MODIFIED` would be non-zero **for the first time in the
+arc**, because the cream values genuinely move. It came out **0**, for an instructive reason: a
+ladder re-tier changes **which utilities are USED**, never **what a utility MEANS**. Both PRs'
+`globals.css` changes were additive (PR A) or comment-only (PR B), so **the public site was
+never reachable** — a stronger guarantee than the gate itself provides, and available by
+inspection before running anything.
 
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
 All prior locked decisions remain. Added across this session:
+- **THE STUDIO HAS THREE SCALES, ALL NAMED BY ROLE, ALL RELATIONS RATHER THAN VALUES.**
+  **RADIUS** panel 12 / card 8 / control 4, scoped custom properties on `.studio-chrome`.
+  **GROUND** cream-200 chrome / cream-100 field surface / cream-50 well.
+  **SELECTION** ground + 1 step, plus an identical 3px accent-500 left bar.
+  Placing a new element means asking **which role it plays**, never which number a neighbour
+  used. **Do not collapse any of them to a fixed value across differing grounds** — that was
+  attempted or nearly attempted three times in the ink chrome arc and is three bugs wearing one
+  number. Full reasoning and measurements in ARC 9; the ladder's roles are also documented in
+  `app/globals.css` beside the radius block, which is where someone adding a panel will look.
 - **`category` is editorial taxonomy, never derived from `template`.**
 - **A new field needs BOTH the sanitizer AND the serializer.**
 - **Work cards are one block-level `<Link>`.** **No card magnification.**
@@ -1394,6 +1482,16 @@ All prior locked decisions remain. Added across this session:
 ## WORKING RULES
 
 All prior rules remain. Added or sharpened across this session:
+
+- **A FIX SCOPED TO ONE SURFACE IS NOT A LESSON LEARNED.** `globals.css:1893` documented
+  hazard 11's mechanism for `h3–h6` versus `.font-display` **in full, with the reasoning** — and
+  fixed it only for `.case-study`. Nobody generalised it, so **#205 walked straight into the
+  `h1, h2` half** and shipped ink bands whose family, weight and letter-spacing were all dead.
+  The knowledge existed, was written down, was correct, and did not travel.
+  **When a fix is scoped, say what the unscoped case is**, or the next person meets the same
+  trap with the documentation sitting three hundred lines away in a file they had no reason to
+  open. The general form of this is now `studio-cascade`, which derives the rule instead of
+  encoding the instance.
 
 - **"GROUND + 1 STEP, PLUS AN IDENTICAL BAR" — THE FORM A SHARED VISUAL RULE SHOULD TAKE.**
   PR B paints one selection language across three surfaces sitting on three different ladder
@@ -1675,6 +1773,16 @@ All prior rules remain. Added or sharpened across this session:
   **This is the second documented way the automation environment lies** — #178's CSS
   transition never advancing is the first. When a driven gate says something is broken,
   suspect the harness once before suspecting the code.
+- **PROGRAMMATIC `.focus()` DOES NOT TRIGGER `:focus-visible`** — the **third** documented way
+  this environment lies, and the most dangerous direction so far. PR B's focus-versus-selection
+  check reported `outlineStyle: none` and `boxShadow: none` on a focused control, which reads as
+  **the focus ring is gone**. It was not: `:focus-visible` is a heuristic that wants a real
+  keyboard interaction, and pressing an actual **Tab** produced `focusVisible: true` with a
+  rendered outline immediately.
+  **A FALSE NEGATIVE INVITES A FIX FOR A BUG THAT IS NOT THERE**, which is worse than a false
+  positive — the false positive merely wastes a check, this one would have added a
+  `:focus` fallback nobody needed and quietly degraded the mouse experience the ring exists to
+  stay out of. **Drive keyboard-only properties with real keys.**
 - **A CONDITIONALLY-RENDERED ELEMENT CANNOT CARRY AN AFFORDANCE.** A caption-less
   `imageBlock` or `videoEmbed` emits no `<figcaption>` at all, so it has nothing to make
   editable and is unreachable from the canvas. That single fact is why the block strip
@@ -1975,9 +2083,39 @@ All prior rules remain. Added or sharpened across this session:
     harmless sites is a gate someone deletes. Inert is not safe, though: edit one and it will
     silently not apply.
 
+26. **THE BORDER SHORTHAND RACES ITS OWN LONGHAND, AND NO CLASS-STRING CHECK CAN SEE IT.**
+    `border-transparent` writes `border-color`; `border-l-accent-500` writes
+    `border-left-color`. **Both are utilities at equal specificity**, so which one owns the left
+    edge is decided by **their order in the generated sheet** — not by anything in the source.
+    PR B's selection bar would have been a coin-flip dressed as a class name.
+    **INVISIBLE IN REVIEW AND IN EVERY ASSERTION THIS REPO WRITES**: the markup reads correctly,
+    both classes exist, both generate CSS, and `studio-cascade` does not fire because no
+    *unlayered* rule is involved — this is utility-versus-utility, a different mechanism with
+    the same symptom. It happened to render correctly when measured, which is the worst
+    outcome, because nothing would have flagged it before a Tailwind upgrade reordered the
+    sheet.
+    **THE RULE: never combine a border-colour SHORTHAND with a per-side longhand on the same
+    element.** `ListDetailLayout` sets `border-y-transparent border-r-transparent` explicitly
+    and leaves the left edge to the bar alone, so nothing competes. `studio-ink` G3 pins it.
+
 ---
 
 ## DEFERRED — scoped, not built
+
+- **PR C — THE CARD IMAGE (fidelity item 4).** `ImageThumb` is a **36×36 chip** (`size-9`); the
+  contract draws a **full-width 16:9 plate, 164px tall** at inspector width. **NOT A REPAINT** —
+  it changes the inspector's vertical rhythm, pushes fields down, and interacts with
+  `INSPECTOR_FOLD_PX`. It also touches **every** `ImageThumb` consumer, `BlockImageField` and
+  `SettingsPhotoField`, so it is **not blog-only**. Needs a measured height check.
+  **RUN `studio-type` BY HAND** — see the note in the gate section; it is the only thing that
+  catches a wrong-but-uncontested size, and resizing a thumbnail is exactly that shape.
+- **PR D — TOPIC AS A SET (fidelity item 5).** `topic` is free text **deliberately**; there is
+  no topic set in the schema or the read path, so a closed list would be *invented* rather than
+  enforced. A dropdown needs three things, each with its own failure mode: **(1)** a schema
+  field in `keystatic.config.ts` with a real option set, **(2)** a source of truth for the
+  options — a constant, or derived from existing posts, **(3)** a migration for the three
+  existing posts, whose topics (`AI in product`, `Enterprise UX`, `Design systems`) must become
+  members of that set or be rewritten. **A feature decision, not a styling one.**
 
 - ~~**Images inside a post body**~~ — **BUILT in #180.** `imageBlock`, the hidden poster and
   inline figures closed together, as the framing said they would.
@@ -2151,6 +2289,24 @@ All prior rules remain. Added or sharpened across this session:
   recorded as such — a claim that becomes true by the code catching up is not a claim that
   was right.
 - `studio-shell.html` — corrected three times.
+- `studio-ink-chrome.html` — **CORRECTED FIFTEEN TIMES, C-1 to C-15, three of them in the last
+  two PRs.** It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
+  about architecture**, and the recent three are worth knowing as a group because they are three
+  different ways a static design file goes stale:
+  - **C-12** — the topbar search is specified against a **cream topbar the direction itself
+    replaced**. When one rule moves a surface, every rule that positioned something ON that
+    surface is stale, and nothing in a static document makes that visible.
+  - **C-13** — **the file's own list renders in Arial.** `.item` is a `<button>`, buttons do not
+    inherit `font-family`, and the file never sets one. So the mockup's most prominent column
+    drew Arial while the app drew DM Sans, which **materially distorted every side-by-side
+    comparison made against it** — and was a large part of "the contract reads bigger". The
+    same class of bug as the ink bands: a declaration that never reached the screen. **The
+    contract is not exempt from the defects it is used to find.**
+  - **C-15** — its selection fills were **right, but only after PR A's re-tier**, because the
+    file had assumed grounds the studio did not have until then. Right about a studio that did
+    not exist. And the numbers were never the rule — the third surface, which the file never
+    drew, needs a value it never names.
+  **Corrected in place beside what they replace**, never silently overwritten.
 - Six untracked explorations, unrelated, left alone.
 
 ---
@@ -2203,10 +2359,10 @@ All prior rules remain. Added or sharpened across this session:
   fosfor-data-profiling and elevate-one-view, closing two thirds of the #160 remainder
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
-- **THE INK CHROME ARC**, four PRs — **#204** the shell (`e25a863`) · **#205** the panel
-  language (`466df8e`) · **#206** the entry-panel input dedupe (`37286cc`) · **#207** the
+- **THE INK CHROME ARC — SIX PRs, COMPLETE.** **#204** the shell (`e25a863`) · **#205** the
+  panel language (`466df8e`) · **#206** the entry-panel input dedupe (`37286cc`) · **#207** the
   radius scale, 12/8/4 scoped (`d75eeb0`) →1332
-- **PR A** the fidelity repaint →1353. Eleven mismatches were measured against
+- **#208** the fidelity repaint (`e938c16`) →1353. Eleven mismatches were measured against
   `studio-ink-chrome.html`; this took the six that are paint. **Item 10 led it**: the ink
   bands' `font-bold` / `tracking-eyebrow` were DEAD under the unlayered `h1, h2` reset, and
   the trap was already documented at `globals.css:1893` — scoped to `.case-study` and never
@@ -2214,7 +2370,7 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
-- **PR B** the selection language →1379. Items 1 and 2, the last of the eleven that is paint.
+- **#209** the selection language (`2488500`) →1379. Items 1 and 2, the last of the eleven that is paint.
   ONE language on three surfaces — **ground + 1 step, plus an identical 3px accent left bar**.
   **The measurement is the headline**: every cream step separates by 1.05–1.19 and the accent
   tint it replaces was 1.15, inside that same band, so **the fill was never the signal** — which
@@ -2227,6 +2383,22 @@ All prior rules remain. Added or sharpened across this session:
 ---
 
 ## WHAT'S NEXT
+
+**THE INK CHROME ARC IS DONE. WHAT REMAINS IS CONTENT, PLUS TWO SCOPED PRs AND TWO OPEN
+HAZARDS.**
+
+0. **THE STUDIO WORK STILL SCOPED** — both deferred with their reasoning above, neither urgent:
+   **PR C** the card image (layout, `INSPECTOR_FOLD_PX`, not blog-only — **and it must run
+   `studio-type` by hand**), and **PR D** topic as a set (schema, options source, migration).
+   **HAZARDS 23 AND 24 REMAIN OPEN AND ARE BOTH ONE DECISION, NOT MANY EDITS.**
+   **23** — `text-ink-500` (41 uses) and `text-ink-700` (11 uses) are **phantoms**: no `@theme`
+   token exists, so Tailwind generates nothing and **52 sites render inherited ink-950** while
+   their code says otherwise. Fixed by adding the two tokens or re-pointing every site — one
+   choice, made once. Do not fix them blind; several may look better as they render.
+   **24** — `--radius-2xl` (1rem) sits **below `--radius-xl`** (1.5rem) and equal to `lg`,
+   because the project overrode `sm`–`xl` in `@theme` and left Tailwind's default `2xl` behind.
+   Two consumers, both **outside** studio, so changing it moves the public site. The risk is a
+   future PR redefining the scale and inheriting the inversion silently.
 
 **THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
 
