@@ -44,5 +44,5 @@ blocks:
         right with an assistant hanging off the middle. In the second, three of
         the steps collapse into one.
       caption: The box adds a path. It does not remove one.
-      wide: false
+      wide: true
       decorative: false
