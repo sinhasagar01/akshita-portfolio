@@ -48,3 +48,19 @@ blocks:
   - discriminant: heading
     value:
       text: The parts that survived were not components
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          What held across four squads was never the drawing. It was the
+          decisions written next to it.
+
+
+          An error message sits above the field. A destructive action never
+          takes the primary colour. Density belongs to the table, not to the
+          person looking at it.
+
+
+          Those held because they were short enough to remember and specific
+          enough to check. The components drifted anyway, and it mattered less
+          than I expected.
