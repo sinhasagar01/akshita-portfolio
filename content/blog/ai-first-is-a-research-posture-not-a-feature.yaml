@@ -43,6 +43,6 @@ blocks:
         Two versions of the same task. In the first, five steps run left to
         right with an assistant hanging off the middle. In the second, three of
         the steps collapse into one.
-      caption: ''
+      caption: The box adds a path. It does not remove one.
       wide: false
       decorative: false
