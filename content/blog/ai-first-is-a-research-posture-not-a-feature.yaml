@@ -51,3 +51,6 @@ blocks:
       text: >
         Adding a model to a flow is a design decision. Asking whether the flow
         should still have that shape is a research one.
+  - discriminant: heading
+    value:
+      text: What we found across three personas
