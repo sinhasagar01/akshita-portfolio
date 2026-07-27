@@ -1,7 +1,7 @@
 title: Fosfor Data Profiling
 summary: Designing the data profiling experience inside the Fosfor Decision Cloud, so teams could judge the quality and shape of their data before trusting it.
 orderIndex: 3
-heroImage: null
+heroImage: /images/projects/fosfor-data-profiling/heroImage.webp
 facts:
   role: UI and UX design
   type: Enterprise data tool, feature design
