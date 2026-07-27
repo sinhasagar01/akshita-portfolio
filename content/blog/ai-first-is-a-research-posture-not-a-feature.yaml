@@ -45,4 +45,4 @@ blocks:
         the steps collapse into one.
       caption: The box adds a path. It does not remove one.
       wide: false
-      decorative: true
+      decorative: false
