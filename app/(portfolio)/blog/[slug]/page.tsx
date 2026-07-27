@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getBlogPost, getBlogPosts } from "@/lib/keystatic";
 import { absoluteUrl, blogPath } from "@/lib/site";
-import { formatLongDate } from "@/lib/blog/format";
 import BlogProse from "@/components/blog/BlogProse";
 import BlogHero from "@/components/blog/BlogHero";
+import BlogArticleHead from "@/components/blog/BlogArticleHead";
 import ReadingVessel from "@/components/blog/ReadingVessel";
 import LoveButton, { LoveHint } from "@/components/blog/LoveButton";
 import LoveProvider from "@/components/blog/LoveProvider";
@@ -73,19 +73,13 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </div>
 
-        <header id="blog-article-head" className="pt-11">
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] uppercase tracking-[0.13em] text-ink-600">
-            <span>{formatLongDate(post.date)}</span>
-            <span>{post.readingTime} min read</span>
-            {post.topic ? <span>{post.topic}</span> : null}
-          </div>
-          <h1 className="mt-[18px] font-display text-[clamp(2.25rem,5vw,3.125rem)] font-normal leading-[1.06] tracking-[-0.018em] text-ink-950">
-            {post.title}
-          </h1>
-          {post.dek ? (
-            <p className="mt-[18px] font-display text-xl leading-[1.55] text-ink-800">{post.dek}</p>
-          ) : null}
-        </header>
+        <BlogArticleHead
+          date={post.date}
+          readingTime={post.readingTime}
+          topic={post.topic}
+          title={post.title}
+          dek={post.dek}
+        />
 
         {/* Both branches (hero and the mt-[44px] spacer) live in BlogHero, so the studio
             canvas renders the same two and cannot drift from this one. */}

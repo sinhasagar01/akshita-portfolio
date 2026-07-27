@@ -85,7 +85,9 @@ import type { BlogBlockKind, BlogRawBlock } from "@/lib/blog/blocks-raw";
 import BlogProse from "@/components/blog/BlogProse";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { resolveHeroSrc } from "@/lib/blog/hero-fill";
+import { readingTimeMinutes } from "@/lib/blog/select";
 import BlogHero from "@/components/blog/BlogHero";
+import BlogArticleHead from "@/components/blog/BlogArticleHead";
 import ThreePaneShell from "./ThreePaneShell";
 import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
@@ -141,6 +143,9 @@ export default function BlogBlocksEditPanel({
   draftImages,
   heroImage,
   heroPreviewUrl,
+  headDek,
+  headDate,
+  headTopic,
   posts,
   postSection,
 }: {
@@ -169,6 +174,12 @@ export default function BlogBlocksEditPanel({
    *  committed path because `draftImages` above is a page-load snapshot and cannot contain a
    *  file uploaded after it was taken. See resolveHeroSrc. */
   heroPreviewUrl: string | null;
+  /** The head fields, LIVE from BlogEditPanel's useDraftForm rather than from the server, so
+   *  the canvas head tracks the inspector as it is typed. The title is not among them: it is
+   *  the slug, already a prop, and read-only everywhere. */
+  headDek: string;
+  headDate: string;
+  headTopic: string;
   /** Every post, for the list pane. Draft-overlaid, from getStudioData. */
   posts: readonly BlogCard[];
   /** BlogEditPanel's head fields, rendered as the inspector's first section. */
@@ -493,10 +504,11 @@ export default function BlogBlocksEditPanel({
   // The canvas renders the article's own components at the article's own measure, so what the
   // author sees is what the article page will render — no studio lookalike to drift.
   //
-  // THE SCOPE IS THE BODY AND THE HERO, not the whole article. The header (date, title, dek)
-  // and the love block are not drawn here, and that is a composition choice rather than a
-  // fidelity gap. What the canvas DOES draw, it draws at the public measure, proven as a
-  // number and not as matching class strings.
+  // THE SCOPE IS THE HEAD, THE HERO AND THE BODY, not the whole article. The back link and
+  // the love block are not drawn here — both are navigation or interaction rather than
+  // content — and that is a composition choice rather than a fidelity gap. What the canvas
+  // DOES draw, it draws at the public measure, proven as a number and not as matching class
+  // strings. The head is preview only; see BlogArticleHead for why.
   const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
   const heroSrc = resolveHeroSrc({ heroImage, previewUrl: heroPreviewUrl, rewriteSrc });
   // KEYED BY renderEpoch. A structural paragraph edit discards the subtree the author has
@@ -568,6 +580,22 @@ export default function BlogBlocksEditPanel({
           The alternative was duplicating the column class string — the exact string A1 pins —
           across two branches, which is a drift risk for no gain. */}
       <div className="mx-auto max-w-[68ch] px-6 blog-article">
+        {/* THE HEAD IS PREVIEW ONLY — see BlogArticleHead for why none of it is editable.
+            The BACK LINK is deliberately not rendered: it is navigation rather than content,
+            and in the canvas it would be a live link out of /studio to the public index. The
+            canvas already omits the love block and the reading vessel on the same grounds.
+            READING TIME IS RECOMPUTED HERE, not passed in. The article computes it from the
+            blocks at build time, so a canvas showing a server-supplied number would drift
+            from the article the moment the author added a paragraph. readingTimeMinutes is
+            dependency-free, so the canvas can run the SAME function on the CURRENT blocks. */}
+        <BlogArticleHead
+          date={headDate}
+          readingTime={readingTimeMinutes(blocks)}
+          topic={headTopic}
+          title={title}
+          dek={headDek}
+          canvas
+        />
         <BlogHero src={heroSrc} canvas />
         {blocks.length === 0 ? (
           <p className="py-10 text-center text-[13px] text-text-subtle">

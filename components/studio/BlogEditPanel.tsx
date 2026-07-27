@@ -230,6 +230,13 @@ export default function BlogEditPanel({
       draftImages={draftImages}
       heroImage={hero.path}
       heroPreviewUrl={hero.preview}
+      // THE LIVE FORM VALUES, not the server props. The canvas head is a preview, so it has
+      // to track what the inspector's fields currently hold — typing in the dek field should
+      // move the dek in the canvas, not wait for a save. `values` is useDraftForm's working
+      // copy, which is exactly that.
+      headDek={values.dek}
+      headDate={values.date}
+      headTopic={values.topic}
       posts={posts}
       postSection={postSection}
     />
