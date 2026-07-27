@@ -936,6 +936,7 @@ identical byte totals, and both `walk` implementations returning identical outpu
 files. **When a PR touches its own gate, prove the gate still sees.**
 
 ---
+## LOCKED DECISIONS (do not change without being asked)
 
 All prior locked decisions remain. Added across this session:
 - **`category` is editorial taxonomy, never derived from `template`.**
