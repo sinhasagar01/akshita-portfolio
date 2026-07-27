@@ -125,7 +125,17 @@ t("E9 blocks is rejected on the text path  [MUTANT 6]", codeOf(sanitizeBlogPatch
 t("E9b …for the STATED reason, not as an unknown field  [MUTANT 6]",
   msgOf(sanitizeBlogPatch({ blocks: [] })), "blocks are saved through the blocks path, not this patch");
 t("E10 heroImage is rejected on the text path (the image route owns it)", codeOf(sanitizeBlogPatch({ heroImage: "/x.webp" })), "invalid_patch");
-t("E11 title is rejected (it is the slug)", codeOf(sanitizeBlogPatch({ title: "New" })), "invalid_patch");
+// E11 — TITLE IS EDITABLE (#216). It was rejected on the false claim that it is the slug; the
+// slug is the FILENAME and this is a frontmatter key that moves nothing when patched. It now
+// sanitizes exactly like dek: a string is accepted, a non-string is rejected. A blank string
+// is accepted HERE (the read path falls back to the slug); publish is where it is required —
+// see validate-blog-post and f3-slug.
+t("E11 title is now ACCEPTED as a string (it is a display field, not the slug)",
+  sanitizeBlogPatch({ title: "New" }), { ok: true, patch: { title: "New" } });
+t("E11b a blank title is accepted at SAVE (the read path falls back to the slug; publish requires it)",
+  sanitizeBlogPatch({ title: "" }), { ok: true, patch: { title: "" } });
+t("E11c a non-string title is still rejected, like dek",
+  codeOf(sanitizeBlogPatch({ title: 5 })), "invalid_patch");
 t("E12 an unknown field is rejected", codeOf(sanitizeBlogPatch({ nope: 1 })), "invalid_patch");
 t("E13 a non-object patch is rejected", codeOf(sanitizeBlogPatch([])), "invalid_patch");
 t("E14 an empty patch is accepted", sanitizeBlogPatch({}), { ok: true, patch: {} });

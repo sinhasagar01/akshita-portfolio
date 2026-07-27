@@ -58,7 +58,10 @@ for (const [label, blocks] of Object.entries(FIXTURES)) {
   if (blocks === undefined) continue;
   t(`A: ${label} is REFUSED at publish`, verdict(postWith(blocks)), "invalid_blocks");
 }
-t("A: a non-array blocks value is REFUSED", verdict(dump({ status: "published", blocks: "nope" })), "invalid_blocks");
+// title added so this isolates the BLOCKS check — since #216 a published post also needs a
+// non-empty title, and without one this would fail for the wrong reason (a false pass that
+// happened to return the same code).
+t("A: a non-array blocks value is REFUSED", verdict(dump({ title: "T", status: "published", blocks: "nope" })), "invalid_blocks");
 
 /* ------------------------------------------------- B. what must still be ACCEPTED */
 t("B1 the four real kinds are accepted", verdict(postWith([
@@ -68,7 +71,20 @@ t("B1 the four real kinds are accepted", verdict(postWith([
   { discriminant: "videoEmbed", value: { src: "https://e.com/v.mp4", caption: "c" } },
 ])), "OK");
 t("B2 an empty blocks array is fine", verdict(postWith([])), "OK");
-t("B3 a post with no blocks key at all is fine", verdict(dump({ status: "published" })), "OK");
+t("B3 a post with no blocks key at all is fine", verdict(dump({ title: "T", status: "published" })), "OK");
+
+// ---- THE TITLE GATE (#216), IN ITS HOME SUITE — same shape as the alt gate below ----------
+// title is editable now and the read path falls back to the slug when it is blank, so an empty
+// title is renderable (a post headed by its own slug) rather than a crash. That is the alt
+// class of defect: permitted at save, refused at publish. Guarded both ways so it is not
+// vacuous, and the draft case confirms it is a PUBLISH gate, not a save one.
+t("B6 a published post with a title is fine", verdict(postWith([])), "OK"); // postWith carries title:"T"
+t("B6 a published post with a BLANK title is REFUSED",
+  verdict(dump({ title: "", status: "published", blocks: [] })), "invalid_blocks");
+t("B6 a published post with a WHITESPACE title is REFUSED (trim, not just empty)",
+  verdict(dump({ title: "   ", status: "published", blocks: [] })), "invalid_blocks");
+t("B6 a DRAFT with a blank title is NOT judged (publish gate, not save gate)",
+  verdict(dump({ title: "", status: "draft", blocks: [] })), "OK");
 t("B4 an EMPTY videoEmbed src is fine (BlogProse renders nothing — not a build risk)",
   verdict(postWith([{ discriminant: "videoEmbed", value: { src: "" } }])), "OK");
 t("B5 an empty richText paragraphs array is fine",

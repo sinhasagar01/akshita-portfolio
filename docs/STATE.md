@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1385 across 39 suites** (`parity` and `studio-type` named as skipped, not dropped).
+**ralph 1402 across 39 suites** (`parity` and `studio-type` named as skipped, not dropped).
 
 | items | where | how |
 |---|---|---|
@@ -90,9 +90,9 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27).
 
-**1385 ACROSS 39 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1402 ACROSS 39 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -916,14 +916,33 @@ it would report that clean.** The id is conditioned on the `canvas` flag — an 
 difference on an element present on both sides — and the assertion lives in ralph. A second
 instance of the general rule above.
 
-### PREVIEW ONLY, AND THE READ-ONLY TITLE HAS A SCHEMA REASON
-Three of the head's five fields are not unimplemented, they are **uneditable**:
-- **`title` IS THE SLUG.** `keystatic.config.ts` declares `slugField: "title"` with
-  `fields.slug`, and `sanitizeBlogPatch` rejects the key — *"title is the entry slug and
-  cannot be edited here"*. A contenteditable title would **400 on the first keystroke**.
-  Changing it is a RENAME (new file at the new slug, move `public/images/blog/<slug>/`,
-  delete the old, and the published URL HARD-404s because the article sets
-  `dynamicParams = false`). That is the deferred renaming arc, not a field.
+### PREVIEW ONLY — AND "title IS THE SLUG" WAS FALSE, CORRECTED IN #216
+> **THE CLAIM BELOW WAS WRONG, AND IT HID A ONE-LINE FEATURE FOR THREE POSTS' WORTH OF work.**
+> This section said `title` was the slug and editing it was the deferred rename arc. Measured:
+> **the slug is the FILENAME** (`content/blog/<slug>.yaml`), **`title` is an ordinary
+> frontmatter key**, `slugify` runs ONCE at create (`commit-collection-entry.ts:213`), and the
+> commit path writes `content/blog/${slug}.yaml` with `slug` as a PARAMETER — a title patch
+> **cannot reach the filename**. The read path has resolved title-then-slug since #170
+> (`select.ts:55`). So the block was a POLICY nobody re-derived, wearing a false structural
+> reason. **#216 deleted the one `if`, made `title` an ordinary editable field, and moved the
+> read-only chip onto the SLUG** (the thing that genuinely cannot move). No schema field, no
+> migration, no create-flow change; the URL / love counter / image dir / `generateStaticParams`
+> are all slug-keyed and untouched. Publish REQUIRES a non-empty title
+> (`validate-blog-post`, mirroring `alt`); blank falls back to the slug at read.
+> **Seventh instance of the re-derive rule, and the first where the false claim was load-bearing
+> enough to hide a feature.** The two OTHER collections carry the same false claim
+> ("company/title is the entry slug… renames the file") — measured, editing them ALSO cannot
+> move the file — but making them editable is a separate per-collection decision, **deliberately
+> NOT swept here**.
+
+**Of the head's five fields, `readingTime` and `date` stay uneditable for reasons that hold;
+`title` is now editable in the INSPECTOR (not inline in the canvas — the head is preview-only).**
+- ~~**`title` IS THE SLUG.**~~ **EDITABLE since #216.** It is a display field; the slug is the
+  filename. It is not INLINE-editable in the canvas for the same reason nothing there is —
+  the head is preview-only — but it is a normal inspector field, and the canvas tracks it live
+  with a slug fallback. (A true SLUG rename — new file, moved images, a 404 on the old URL under
+  `dynamicParams = false` — remains a separate, still-deferred arc, and is NOT what editing the
+  title does.)
 - **`readingTime` is COMPUTED** from the blocks.
 - **`date` is stored `2026-07-24`, rendered `24 JULY 2026`.** Editing the rendered text means
   parsing a display format back to ISO, where a bad parse **writes a wrong value rather than
@@ -2583,6 +2602,25 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **#216** the editable blog title →1402. **The headline is a FALSE CLAIM, not a feature.**
+  STATE and five source comments said "title IS the slug"; measured, the slug is the FILENAME,
+  `title` is a frontmatter key, `slugify` runs once at create and nothing re-derives — a title
+  patch is STRUCTURALLY UNABLE to move the file. So the read-only block was a POLICY nobody
+  re-derived (7th re-derive instance, first to hide a feature). **The change: delete one `if`
+  in `blog-format-core.ts`, accept title like `dek`; no schema field, no migration, no
+  create-flow change.** The slug becomes the read-only chip; publish requires a non-empty title
+  (`validate-blog-post`, mirroring `alt`).
+  **STEP 1 WAS AN ISOLATION TEST THAT COULD HAVE KILLED IT**: hand-edited one post's title to
+  mismatch its filename, built, confirmed the reader tolerates it, the article renders the
+  edited title, and `generateStaticParams` still emits the ORIGINAL slug. It passed, so step 2
+  proceeded.
+  **THE INVESTIGATION'S EMPTY-CASE CLAIM WAS ITSELF WRONG, caught by G2**: `resolveSlugField`
+  fell back only on an ABSENT key, returning `""` for a blank string. Fixed to fall back on a
+  BLANK value too (both mirror copies), defense-in-depth behind the publish gate. Experience
+  and projects carry the same false "renames the file" claim — measured false — but left
+  untouched, a per-collection decision deliberately NOT swept.
+  **Public DOM byte-identical** modulo the per-build id (no post data edited; `resolveSlugField`
+  returns the same for every non-blank title).
 - **#215** the logo and the View site hover →1385. Three small chrome items, and **the contract
   check split them two ways**.
   **THE LOGO IS AN IMPLEMENTATION GAP**, verified in the file rather than taken on trust:

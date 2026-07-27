@@ -81,7 +81,7 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
  * which on a daily-cadence collection is real recurring friction for no safety.
  */
 export function validateBlogPost(slug: string, raw: string): BlogValidation {
-  const doc = (load(raw) ?? {}) as { status?: unknown; blocks?: unknown };
+  const doc = (load(raw) ?? {}) as { status?: unknown; title?: unknown; blocks?: unknown };
 
   // Not published -> not this seam's to judge (see above).
   if (doc.status !== "published") return { ok: true };
@@ -90,6 +90,22 @@ export function validateBlogPost(slug: string, raw: string): BlogValidation {
     ok: false,
     error: { code: "invalid_blocks", field: slug, message: `${slug}: ${message}` },
   });
+
+  // ---- THE TITLE GATE, THE SAME SHAPE AS alt BELOW -------------------------------------
+  //
+  // #216 made `title` editable, and the read path falls back to the SLUG when it is blank
+  // (select.ts:55) — so a blanked title never crashes, it publishes a post HEADED BY ITS OWN
+  // SLUG (`what-a-data-table-teaches-you-about-trust` as an <h1>). That is the same class of
+  // defect as an unlabelled image: renderable, live, and wrong. Permissive at save (an author
+  // may clear it mid-edit), strict at publish — this is the one gate they cannot walk past.
+  // In the file `title` is a plain scalar (fields.slug stores the name half unwrapped), so a
+  // raw load reads a string; `.trim()` guards whitespace-only.
+  const title = typeof doc.title === "string" ? doc.title.trim() : "";
+  if (title === "") {
+    return fail(
+      "title must not be empty on a published post — it falls back to the slug, which is not a title"
+    );
+  }
 
   // A post with no blocks array renders an empty prose column — legal, not a failure.
   if (doc.blocks === undefined || doc.blocks === null) return { ok: true };

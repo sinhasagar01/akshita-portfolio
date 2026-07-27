@@ -62,10 +62,15 @@ t("B: …and carries no edit affordance class", /EDIT_AFFORD|blog-editable/.test
 // The three fields that CANNOT be edited, each for its own reason. Asserted against the
 // source of truth rather than the comment.
 const kconfig = code("keystatic.config.ts");
-t("B: title is the SLUG field in the schema", /slugField: "title"/.test(kconfig), true);
+t("B: title SEEDS the slug at create (slugField), but that is a create-time derivation, not a lock", /slugField: "title"/.test(kconfig), true);
 t("B: …declared as fields.slug", /title: fields\.slug\(/.test(kconfig), true);
-t("B: the write path REJECTS a title patch",
-  /title is the entry slug and cannot be edited here/.test(code("lib/studio/blog-format-core.ts")), true);
+// #216 — the write path ACCEPTS a title patch now. It used to reject it on the false claim
+// that title IS the slug; the slug is the filename and this is a frontmatter key. The old
+// rejection string must be GONE, not merely unmatched, so a copy does not linger elsewhere.
+t("B: the write path ACCEPTS a title patch (it is a display field, not the slug)",
+  /patch\.title = value;/.test(code("lib/studio/blog-format-core.ts")), true);
+t("B: …and the old 'title is the entry slug' rejection is gone from the blog sanitizer",
+  /title is the entry slug and cannot be edited here/.test(code("lib/studio/blog-format-core.ts")), false);
 t("B: the date is rendered long-form, not in its stored ISO shape",
   /formatLongDate\(date\)/.test(head), true);
 t("B: …and the stored shape is what the sanitizer validates",

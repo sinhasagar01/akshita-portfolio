@@ -74,6 +74,13 @@ export type BlogStatus = (typeof BLOG_STATUSES)[number];
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export type BlogInput = {
+  /** The DISPLAYED title, and — measured, not assumed — NOT the slug. The slug is the
+   *  filename (`content/blog/<slug>.yaml`); this is an ordinary frontmatter key. `slugify`
+   *  runs ONCE, at create (commit-collection-entry.ts), and nothing re-derives it after, so
+   *  editing this rewrites a key and is structurally unable to move the file. The read path
+   *  has resolved title-then-slug since #170 (select.ts:55). Editable since #216 — the block
+   *  before it was a policy nobody re-derived, not a coupling. */
+  title?: string;
   dek: string;
   date: string;
   topic?: string;
@@ -199,7 +206,18 @@ export function makeBlogSanitizers(f: FieldChecks): BlogSanitizers {
     const patch: Partial<BlogInput> = {};
     for (const [key, value] of Object.entries(raw)) {
       if (key === "title") {
-        return bad("title is the entry slug and cannot be edited here", key);
+        // TITLE IS EDITABLE, AND THE OLD REJECTION HERE WAS A FALSE CLAIM, NOT A GUARD.
+        // It said "title is the entry slug and cannot be edited here". Measured, it is not
+        // the slug: the slug is the filename, `title` is a plain frontmatter key, and the
+        // commit path writes `content/blog/${slug}.yaml` with slug as a PARAMETER — a title
+        // patch cannot reach the filename. So editing it rewrites a key and the URL, the
+        // love counter, the image directory and generateStaticParams (all slug-keyed) do
+        // not move. A published post still needs a non-empty one — enforced at PUBLISH
+        // (validate-blog-post), the only place a required field can be required, mirroring
+        // `alt`. Empty here is allowed: the read path falls back to the slug (select.ts:55).
+        if (typeof value !== "string") return bad("title must be a string", key);
+        patch.title = value;
+        continue;
       }
       if (key === "heroImage") {
         return bad("heroImage is uploaded through the image route, not this patch", key);
