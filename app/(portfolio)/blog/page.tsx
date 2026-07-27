@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 function Masthead() {
   return (
     <header className="border-b border-ink-950/8 pb-[30px] pt-16">
-      <p className="text-[11px] uppercase tracking-[0.16em] text-ink-600">Blog</p>
+      <p className="text-[12px] uppercase tracking-[0.16em] text-ink-600">Blog</p>
       <h1 className="mt-3.5 max-w-[16ch] font-display text-[clamp(2.25rem,5vw,3.25rem)] font-normal leading-[1.02] tracking-[-0.015em] text-ink-950">
         {MASTHEAD.title}
       </h1>
@@ -85,7 +85,7 @@ function PostCard({ post }: { post: BlogCard }) {
         sizes="(max-width: 1024px) 100vw, 45vw"
         className="aspect-[16/10] rounded-xl border border-ink-950/8"
       />
-      <div className="mt-3.5 flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-ink-600">
+      <div className="mt-3.5 flex items-center gap-3 text-[12px] uppercase tracking-[0.1em] text-ink-600">
         <span>{formatShortDate(post.date)}</span>
         <span>{post.readingTime} min</span>
       </div>
@@ -104,7 +104,7 @@ function PostCard({ post }: { post: BlogCard }) {
 function EmptyState() {
   return (
     <section className="relative overflow-hidden py-24 text-center">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-subtle">Blog</p>
+      <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-text-subtle">Blog</p>
       <p className="mt-4 font-display text-4xl font-normal italic text-ink-950">Coming soon</p>
       <p className="mx-auto mt-4 max-w-[52ch] text-lg leading-[1.6] text-ink-600">
         The first notes are being written. Check back shortly.

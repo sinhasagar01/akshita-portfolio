@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Case-study hero — faded peek (final)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fraunces = stand-in for the project's serif token.
+     Yellowtail = stand-in for the project's SCRIPT token (wordmark + watermark).
+     The wordmark is a SLOT — reuse the existing logo component untouched. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Yellowtail&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#E4DCCB;--paper:#FBF6EE;--ink:#1C1815;--mut:#7C7267;--faint:#A3998A;
+    --line:rgba(60,50,38,.15);
+    --acc:#B4562F;--dark:#1C1815;--peach:#E7B79E;
+    --serif:'Fraunces',Georgia,serif;--script:'Yellowtail',cursive;
+    --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --glass-blur:blur(22px) saturate(180%);
+    --glass-fill:rgba(252,248,241,.62);--glass-stroke:rgba(255,255,255,.72);
+    --glass-fill-d:rgba(46,40,34,.5);--glass-stroke-d:rgba(255,255,255,.15);
+    --glass-shadow:inset 0 1px 0 0 rgba(255,255,255,.85),inset 0 -1px 0 0 rgba(255,255,255,.28),
+       inset 0 0 0 .5px rgba(60,50,38,.06),0 2px 6px -2px rgba(60,50,38,.14),0 14px 38px -14px rgba(60,50,38,.34);
+
+    --nav-top:18px;                 /* the pill FLOATS — never flush at y=0 */
+    --nav-h:60px;
+    --runway:calc(var(--nav-top) + var(--nav-h) + 44px);
+    --rhythm:28px;                  /* section gap, site-wide */
+    --content:1100px;
+
+    --glow-on-paper:rgba(196,110,66,.20);
+    --glow-on-dark:rgba(231,183,158,.14);
+    --glow-size:820px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--tan);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  .sf{font-family:var(--serif);}
+  a{color:inherit;text-decoration:none;}
+  .eyebrow{font-size:11px;letter-spacing:.17em;text-transform:uppercase;color:var(--acc);font-weight:500;}
+
+  .switch{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:600;
+          display:flex;gap:6px;align-items:center;background:#fff;border:.5px solid var(--line);
+          border-radius:999px;padding:6px 8px;box-shadow:0 16px 38px -16px rgba(60,50,38,.5);}
+  .switch b{font-family:var(--serif);font-weight:400;font-size:12px;margin:0 3px 0 6px;}
+  .switch button{font-size:11px;border:.5px solid var(--line);background:#fff;color:var(--ink);
+                 border-radius:999px;padding:5px 12px;cursor:pointer;}
+  .switch button.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+
+  /* ---------- cursor glow (transform-only, rAF) ---------- */
+  .glowHost{position:relative;isolation:isolate;}
+  .glow{position:absolute;top:0;left:0;width:var(--glow-size);height:var(--glow-size);
+        margin:calc(var(--glow-size)/-2) 0 0 calc(var(--glow-size)/-2);border-radius:50%;
+        pointer-events:none;z-index:0;opacity:0;transition:opacity .6s ease;will-change:transform;
+        background:radial-gradient(circle closest-side,var(--glow-color,var(--glow-on-paper)),transparent 70%);}
+  .glowHost:hover .glow{opacity:1;}
+  .glowHost > *:not(.glow){position:relative;z-index:1;}
+  @media (hover:none){.glow{display:none;}}
+
+  /* ---------- nav ---------- */
+  .nav{position:fixed;top:var(--nav-top);left:0;right:0;z-index:300;display:flex;justify-content:center;padding:0 24px;}
+  .bar{display:flex;align-items:center;gap:24px;padding:8px 8px 8px 22px;border-radius:999px;
+       background:var(--glass-fill);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+       border:.5px solid var(--glass-stroke);box-shadow:var(--glass-shadow);
+       transition:background .4s ease,border-color .4s ease,color .4s ease;}
+  .bar.onDark{background:var(--glass-fill-d);border-color:var(--glass-stroke-d);color:#F3EEE4;}
+  .brand{font-family:var(--script);font-size:20px;line-height:1;}
+  .brand span{font-family:var(--sans);font-size:9.5px;letter-spacing:.18em;color:var(--acc);margin-left:8px;}
+  .bar.onDark .brand span{color:var(--peach);}
+  .navlinks{display:flex;gap:2px;font-size:13px;}
+  .navlinks a{padding:8px 12px;border-radius:999px;}
+  .cta{font-size:12.5px;padding:8px 15px;border-radius:999px;background:var(--acc);color:#fff;}
+
+  /* ============================================================
+     HERO — one centred column, exactly 100svh.
+     ORDER: eyebrow → title → (watermark behind) tagline → FACTS → image.
+     The image FADES OUT before the hero's bottom edge, and the next
+     section pulls up over it — so it reads as continuing, never cut.
+     ============================================================ */
+  .hero{height:100svh;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;
+        padding:var(--runway) 40px 0;background:var(--paper);--glow-color:var(--glow-on-paper);}
+  .hero.dark{background:var(--dark);color:#F3EEE4;--glow-color:var(--glow-on-dark);}
+  .hero.dark .eyebrow{color:var(--peach);}
+  .inner{width:100%;max-width:var(--content);display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .hero h1{font-family:var(--serif);font-weight:400;letter-spacing:-.02em;margin:14px 0 0;
+           font-size:clamp(42px,5.4vw,74px);line-height:.98;}
+  .tagWrap{position:relative;display:flex;align-items:center;justify-content:center;width:100%;
+           margin-top:18px;min-height:96px;}
+  .backdrop{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+            pointer-events:none;z-index:0;}
+  .backdrop span{font-family:var(--script);font-size:clamp(80px,10vw,150px);line-height:1;white-space:nowrap;
+                 color:rgba(226,183,161,.5);}
+  .hero.dark .backdrop span{color:rgba(231,183,158,.11);}
+  .tag{position:relative;z-index:1;margin:0;font-family:var(--serif);font-style:italic;
+       font-size:clamp(18px,2vw,26px);max-width:34ch;color:var(--acc);}
+  .hero.dark .tag{color:var(--peach);}
+
+  /* FACTS — above the image, contained, hairline grid */
+  .facts{width:100%;max-width:920px;margin-top:26px;display:grid;border-top:.5px solid var(--line);}
+  .hero.dark .facts{border-top-color:rgba(255,255,255,.14);}
+  .facts.six{grid-template-columns:repeat(3,1fr);}
+  .facts.four{grid-template-columns:repeat(4,1fr);}
+  .facts .f{padding:13px 16px;text-align:center;border-bottom:.5px solid var(--line);}
+  .hero.dark .facts .f{border-bottom-color:rgba(255,255,255,.14);}
+  .facts .f + .f{border-left:.5px solid var(--line);}
+  .hero.dark .facts .f + .f{border-left-color:rgba(255,255,255,.14);}
+  .facts.six .f:nth-child(4){border-left:none;}
+  .facts .k{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+  .hero.dark .facts .k{color:var(--peach);}
+  .facts .v{font-size:13px;font-weight:500;line-height:1.35;}
+
+  /* THE VISUAL — masked so it dissolves into the ground before the seam */
+  .visual{width:100%;max-width:1000px;margin-top:30px;position:relative;
+          -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);
+          mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);}
+  .frame{border-radius:14px 14px 0 0;overflow:hidden;background:#fff;
+         box-shadow:0 -2px 10px -2px rgba(0,0,0,.18),0 40px 90px -34px rgba(0,0,0,.5);}
+  .frameBar{height:30px;background:#2b2b30;display:flex;align-items:center;gap:6px;padding:0 13px;}
+  .frameBar i{width:8px;height:8px;border-radius:50%;display:block;}
+  .frameBar .r{background:#ff5f57;}.frameBar .y{background:#febc2e;}.frameBar .g{background:#28c840;}
+  .frameBar .u{flex:1;max-width:240px;margin:0 auto;height:13px;background:#3a3a40;border-radius:7px;}
+  .shot{aspect-ratio:16/10;display:flex;background:linear-gradient(160deg,#eef2f8,#dfe8f5);}
+  .shot .sd{width:11%;background:rgba(90,110,160,.13);}
+  .shot .bd{flex:1;padding:4%;}
+  .shot .b{background:rgba(60,80,130,.4);border-radius:4px;}
+  .shot .t{background:#fff;border-radius:6px;}
+  .phones{position:relative;height:520px;display:flex;align-items:flex-start;justify-content:center;}
+  .ph{position:absolute;border-radius:32px;background:#0f0d0b;padding:7px;
+      box-shadow:0 40px 80px -34px rgba(28,24,21,.55);}
+  .ph .scr{border-radius:26px;overflow:hidden;background:#141210;height:100%;padding:15px 12px;}
+  .ph.back{width:210px;height:440px;transform:rotate(-8deg) translateX(-62%);}
+  .ph.front{width:232px;height:480px;transform:rotate(4deg) translateX(18%);z-index:2;}
+  .ph .row{background:rgba(255,255,255,.09);border-radius:9px;margin-bottom:8px;}
+  .ph .acc{background:rgba(236,58,35,.85);border-radius:9px;}
+  .ph .lbl{height:6px;width:50%;background:rgba(255,255,255,.28);border-radius:4px;margin-bottom:10px;}
+
+  /* ---------- the seam: next section pulls up over the faded image ---------- */
+  .page{padding:0 22px 200px;position:relative;z-index:2;margin-top:calc(var(--rhythm) * -1);}
+  .card{background:var(--paper);border:.5px solid rgba(60,50,38,.08);border-radius:26px;padding:56px 44px;}
+  .card:first-child{border-top-left-radius:30px;border-top-right-radius:30px;}
+  .card + .card{margin-top:var(--rhythm);}
+  .card h2{font-family:var(--serif);font-weight:400;font-size:32px;margin:10px 0 0;}
+  .card p{color:var(--mut);max-width:56ch;margin-top:10px;}
+
+  @media (max-width:900px){
+    .facts.six,.facts.four{grid-template-columns:repeat(2,1fr);}
+    .facts .f + .f{border-left:none;}
+    .hero{padding-left:20px;padding-right:20px;}
+  }
+  @media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;} .glow{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="switch">
+  <b>Case-study hero</b>
+  <button class="on" id="sWeb">Web study</button>
+  <button id="sMob">Mobile study</button>
+</div>
+
+<nav class="nav"><div class="bar" id="navBar">
+  <span class="brand">Akshita<span>SINGH</span></span>
+  <span class="navlinks"><a>Process</a><a>Work</a><a>About</a><a>Contact</a></span>
+  <a class="cta">Resume ↗</a>
+</div></nav>
+
+<header class="hero glowHost" id="hero">
+  <div class="glow"></div>
+  <div class="inner">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 class="sf" id="title"></h1>
+    <div class="tagWrap">
+      <div class="backdrop" aria-hidden="true"><span id="word"></span></div>
+      <p class="tag" id="tag"></p>
+    </div>
+    <div class="facts" id="facts"></div>
+    <div class="visual" id="visual"></div>
+  </div>
+</header>
+
+<div class="page">
+  <section class="card"><div class="eyebrow">The setup</div><h2 class="sf">One companion, three very different people.</h2><p>The image dissolves into the ground and this section rides up over it — so the visual reads as continuing, never cut.</p></section>
+  <section class="card"><div class="eyebrow">At a glance</div><h2 class="sf">Impact, up front.</h2><p>Every section below the hero keeps its card, gutter, radius and reveal.</p></section>
+  <section class="card"><div class="eyebrow">The problem</div><h2 class="sf">Everyone hit the same wall.</h2><p>Sections sit on the 28px rhythm.</p></section>
+</div>
+
+<script>
+var BROWSER='<div class="frame"><div class="frameBar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="u"></span></div>'+
+  '<div class="shot"><div class="sd"></div><div class="bd">'+
+  '<div class="b" style="width:44%;height:8px;margin-bottom:13px;"></div>'+
+  '<div style="display:flex;gap:10px;margin-bottom:13px;"><div class="t" style="flex:1;height:50px;"></div><div class="t" style="flex:1;height:50px;"></div><div class="t" style="flex:1;height:50px;"></div></div>'+
+  '<div class="t" style="height:150px;"></div></div></div></div>';
+
+var PHONES='<div class="phones">'+
+  '<div class="ph back"><div class="scr"><div class="lbl"></div><div class="row" style="height:58px;"></div>'+
+  '<div class="acc" style="height:34px;margin-bottom:8px;"></div><div class="row" style="height:48px;"></div>'+
+  '<div class="row" style="height:48px;"></div><div class="row" style="height:70px;"></div></div></div>'+
+  '<div class="ph front"><div class="scr"><div class="lbl" style="width:36%;"></div><div class="row" style="height:52px;"></div>'+
+  '<div class="row" style="height:110px;"></div><div style="display:flex;gap:8px;margin-bottom:8px;">'+
+  '<div class="row" style="flex:1;height:62px;margin:0;"></div><div class="row" style="flex:1;height:62px;margin:0;"></div></div>'+
+  '<div class="row" style="height:80px;"></div><div class="acc" style="height:40px;"></div></div></div></div>';
+
+var WEB={dark:true,eyebrow:'LTIMindtree · Enterprise SaaS · AI platform',title:'Fosfor AI',word:'fosfor',
+  tag:'Designing an AI companion that helps enterprise teams turn complex data into confident decisions.',
+  cls:'six',
+  facts:[['My role','Senior Product Designer'],['Scope','Strategy, Research, Interaction Design, Design System, Delivery'],
+         ['Industry','Enterprise SaaS'],['Primary users','Data, Insight, Decision Designers'],
+         ['Platform','Enterprise Web Application'],['Timeline','3 Months']],
+  visual:BROWSER};
+
+var MOB={dark:false,eyebrow:'Case study · Product design',title:'boAt Crest',word:'crest',
+  tag:'Making the app worthy of the watch.',
+  cls:'four',
+  facts:[['My role','Sole product designer'],['Scope','Research · UX · UI · System'],
+         ['Platform','iOS · Android'],['Timeline','2024']],
+  visual:PHONES};
+
+function render(d){
+  document.getElementById('hero').classList.toggle('dark',d.dark);
+  document.getElementById('navBar').classList.toggle('onDark',d.dark);
+  document.getElementById('eyebrow').textContent=d.eyebrow;
+  document.getElementById('title').textContent=d.title;
+  document.getElementById('word').textContent=d.word;
+  document.getElementById('tag').textContent=d.tag;
+  var f=document.getElementById('facts');
+  f.className='facts '+d.cls;
+  f.innerHTML=d.facts.map(function(x){return '<div class="f"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div></div>';}).join('');
+  document.getElementById('visual').innerHTML=d.visual;
+}
+render(WEB);
+
+(function(){
+  var host=document.getElementById('hero'),layer=host.querySelector('.glow'),x=0,y=0,q=false;
+  function paint(){layer.style.transform='translate3d('+x+'px,'+y+'px,0)';q=false;}
+  host.addEventListener('pointermove',function(e){
+    var r=host.getBoundingClientRect();x=e.clientX-r.left;y=e.clientY-r.top;
+    if(!q){q=true;requestAnimationFrame(paint);}
+  },{passive:true});
+})();
+
+var sw=document.getElementById('sWeb'),sm=document.getElementById('sMob');
+sw.addEventListener('click',function(){render(WEB);sw.classList.add('on');sm.classList.remove('on');window.scrollTo(0,0);});
+sm.addEventListener('click',function(){render(MOB);sm.classList.add('on');sw.classList.remove('on');window.scrollTo(0,0);});
+</script>
+</body>
+</html>

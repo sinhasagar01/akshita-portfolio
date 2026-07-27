@@ -654,7 +654,7 @@ export default function BlogBlocksEditPanel({
         />
         <BlogHero src={heroSrc} canvas />
         {blocks.length === 0 ? (
-          <p className="py-10 text-center text-[13px] text-text-subtle">
+          <p className="py-10 text-center text-[14px] text-text-subtle">
             An empty post. Add a paragraph to start writing.
           </p>
         ) : (

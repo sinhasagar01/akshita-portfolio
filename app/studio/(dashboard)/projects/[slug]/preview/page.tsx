@@ -71,7 +71,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
           >
             {isDraft ? "Showing your draft" : "Showing live"}
           </span>
-          <span className="text-[11px] text-text-subtle">
+          <span className="text-[12px] text-text-subtle">
             {isDraft
               ? "Unpublished. The public page still shows live until you publish."
               : "No unpublished changes to this case study."}

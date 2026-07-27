@@ -335,7 +335,7 @@ export default function WorkStory({ features }: { features: Feature[] }) {
               ref={(el) => {
                 dotRefs.current[k] = el;
               }}
-              className="w-[34px] text-center font-display italic text-[11px] lg:text-[13px]"
+              className="w-[34px] text-center font-display italic text-[12px] lg:text-[14px]"
               style={{ color: k <= current ? "var(--color-accent-500)" : "var(--color-text-subtle)" }}
             >
               {feat.index}

@@ -389,7 +389,7 @@ export default function HeroSection({
                   smoothScroll.scrollToTarget(el);
                 }
               }}
-              className="flex items-center gap-2 text-[11px] text-[--color-text-muted] tracking-[0.08em] uppercase font-medium transition-colors duration-[--duration-base] hover:text-[--color-text-secondary]"
+              className="flex items-center gap-2 text-[12px] text-[--color-text-muted] tracking-[0.08em] uppercase font-medium transition-colors duration-[--duration-base] hover:text-[--color-text-secondary]"
             >
               <span
                 aria-hidden="true"
