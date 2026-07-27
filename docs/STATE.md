@@ -8,7 +8,8 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE CANVAS DRAWS THE WHOLE ARTICLE)
 
-**main** = `3b71ac4` = #190 (the canvas draws the head, the hero and the body). Pinned:
+**main** = `fc8c318` = #191 (STATE). Pinned: `3b71ac4` = #190 (the canvas draws the
+head, the hero and the body),
 `c3b30f4` = #189 (the bold toolbar, extracted), `f233acc` = #188 (STATE + the two rewrites
 #187 missed), `2c258cd` = #187 (the inline canvas), `f7426a5` = #186 (STATE),
 `198e503` = #185 (nav link, sitemap, dead component), `4bc1573` = #184
@@ -39,14 +40,14 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1144 ACROSS 32 RUNNABLE SUITES
+### RALPH IS 1151 ACROSS 32 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20).
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -1146,14 +1147,18 @@ All prior rules remain. Added or sharpened across this session:
     structurally valid and `validateBlogPost` returns ok. The mitigation today is reading the
     content diff before publishing. A per-entry publish, or a diff preview in the PublishBar,
     would be the real fix and neither is scoped.
-14. **`readingTimeMinutes` HAS NO `imageBlock` CASE** (`lib/blog/select.ts:108`, found in
-    #190). It switches on `heading`, `pullQuote`, `richText` and `videoEmbed` — and counts
-    `videoEmbed`'s caption — so an `imageBlock` caption contributes ZERO words. `imageBlock`
-    landed in #180 and this counter was never updated. Its `default` deliberately contributes
-    nothing rather than throwing, **so the omission is silent by design**. Same drift class the
-    mapped-type discipline prevents in `BlogProse`, but on a `switch`, where an unhandled kind
-    is not a compile error. The count is now rendered live in the canvas, so it is more visible
-    than it was. **Not fixed — it changes a published post's displayed reading time.**
+14. ~~**`readingTimeMinutes` HAS NO `imageBlock` CASE**~~ — **FIXED in #192.** The `switch`
+    became a mapped type over `BlogBlockKind`, so the omission that survived three PRs is now
+    a COMPILE error (`TS2741` on a missing kind, `TS2353` on an invented one, both driven).
+    **The published post did NOT change — 2 min before and after**, because it contains no
+    `imageBlock`; the concern that deferred this turned out not to apply, which is why it was
+    checked rather than assumed. `alt` is deliberately still uncounted: it describes an image
+    for a screen reader, it is not text in the reading order.
+    **THE ENFORCEMENT SPLIT IS WORTH KNOWING.** `ci/ralph` runs only `node ralph/run.mjs`, and
+    `--experimental-strip-types` ERASES types without checking them, so the mapped type is not
+    enforced by that job — the Vercel build's `next build` is what typechecks it. Ralph catches
+    a missing entry too, but at RUNTIME through the E-section assertions, which is why both
+    exist.
 15. **THE HERO OBJECT URL IS NEVER REVOKED** (`HeroImageField`, pre-existing, confirmed in
     #190). `URL.revokeObjectURL` runs on the three FAILURE paths and on none of the success
     paths, and there is no unmount cleanup, so each successful upload leaks one object URL
@@ -1306,10 +1311,9 @@ All prior rules remain. Added or sharpened across this session:
 2. **Optional:** `/code-review ultra` over `3b71ac4`. #178, #180, #185, #187, #189 and #190
    were all self-reviewed, and #190 is the largest of them.
 3. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a
-   real incident behind it); the `imageBlock` gap in `readingTimeMinutes` (hazard 14, a
-   one-case fix that changes a published post's displayed reading time); migrate other studio
-   pages to `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest`
-   yields zero parity pairs (hazard 10).
+   real incident behind it); migrate other studio pages to `ThreePaneShell`, extracting at the
+   SECOND consumer; investigate why `boat-crest` yields zero parity pairs (hazard 10); the
+   never-revoked hero object URL (hazard 15).
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
 arcs stay human-gated, one at a time. Never auto-merge, never write main unattended.

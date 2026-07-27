@@ -1,9 +1,19 @@
 // Blog arc PR 1 — the PURE read seam for the blog collection.
 //
-// Dependency-free by design (no @keystatic/core/reader import, no @-alias), so it is
-// unit-exercisable directly under `node --experimental-strip-types` — the same idiom
-// as lib/case-studies/adjacent-project.ts, which splits the next-case resolver out of
-// lib/keystatic.ts so ralph can test it without constructing the reader.
+// Dependency-free AT RUNTIME by design, so it is unit-exercisable directly under
+// `node --experimental-strip-types` — the same idiom as lib/case-studies/adjacent-project.ts,
+// which splits the next-case resolver out of lib/keystatic.ts so ralph can test it without
+// constructing the reader. It is also why the studio canvas can call readingTimeMinutes
+// client-side to keep the head's estimate live.
+//
+// ONE `import type` WAS ADDED, and the distinction matters enough to state. `BlogBlockKind`
+// comes from blocks-raw.ts, which does reach @keystatic/core/reader and the @-alias — but
+// only as TYPES, and `import type` is ERASED before the module is loaded, so nothing here
+// resolves at runtime and the strip-types property is intact (asserted in blog-reading-time,
+// which imports this file and would fail to load if it were not). The header used to read
+// "no @-alias" flatly; that was true of the runtime and is now stated as such rather than
+// broadened into a claim the file no longer meets.
+import type { BlogBlockKind } from "./blocks-raw";
 //
 // It is also the honest home for the status predicate, which is the ONE thing standing
 // between a draft post and the public site. lib/keystatic.ts's getBlogPosts() composes
@@ -96,14 +106,49 @@ function countWords(text: unknown): number {
 }
 
 /**
+ * Which strings each block kind contributes to the word count — one entry per kind.
+ *
+ * A MAPPED TYPE, NOT A SWITCH, AND THAT IS THE WHOLE POINT. This was a `switch` with four
+ * cases and a comment reading "unknown kind — contributes nothing rather than throwing".
+ * When #180 added `imageBlock`, nothing failed: the new kind fell through to the default and
+ * its caption silently counted zero words. The omission survived three PRs and was found by
+ * reading, not by a gate. `{ [K in BlogBlockKind]: ... }` makes the SAME mistake a
+ * compilation error — add a sixth kind to keystatic.config and this object stops compiling
+ * until it is handled. Same discipline as `BlogProse`'s RENDERERS, for the same reason.
+ *
+ * WHAT COUNTS IS WHAT A READER READS IN FLOW. Captions count because they are prose on the
+ * page. `alt` does NOT — it is an accessible description of an image, not text in the
+ * reading order, and counting it would inflate the estimate for sighted and screen-reader
+ * readers alike. `src`, `wide` and `decorative` are not prose at all.
+ *
+ * The VALUES stay `Record<string, unknown>` rather than the typed per-kind value, because
+ * this reads whatever is on disk — see the defensiveness note on the function below.
+ */
+const COUNTED: { [K in BlogBlockKind]: (v: Record<string, unknown>) => number } = {
+  heading: (v) => countWords(v.text),
+  richText: (v) =>
+    Array.isArray(v.paragraphs)
+      ? v.paragraphs.reduce<number>((n, p) => n + countWords(p), 0)
+      : 0,
+  pullQuote: (v) => countWords(v.text),
+  imageBlock: (v) => countWords(v.caption),
+  videoEmbed: (v) => countWords(v.caption),
+};
+
+/**
  * Reading time in whole minutes, COMPUTED from a post's blocks (never authored) — the
  * contract's rule. Counts the words a reader actually reads: heading text, richText
- * paragraphs, pullQuote text, and a videoEmbed caption. Floors at 1 minute, so even a
+ * paragraphs, pullQuote text, and image and video captions. Floors at 1 minute, so even a
  * one-line post reads as "1 min", never "0 min".
  *
  * Takes `unknown` (the reader hands blocks through untyped, and the ralph suite feeds
  * stubs) and is defensive about shape, so a malformed block contributes 0 rather than
  * throwing. Pure — no reader, unit-exercisable directly.
+ *
+ * THE RUNTIME LOOKUP STAYS DEFENSIVE even though the table is exhaustive. The table makes a
+ * MISSING kind a compile error; it cannot make a file on disk well-formed, and a hand-edited
+ * or future-branch entry can still carry a discriminant this build has never heard of. An
+ * unknown key yields `undefined` and contributes 0, exactly as before.
  */
 export function readingTimeMinutes(blocks: unknown): number {
   if (!Array.isArray(blocks)) return 1;
@@ -112,22 +157,8 @@ export function readingTimeMinutes(blocks: unknown): number {
     if (block === null || typeof block !== "object") continue;
     const { discriminant, value } = block as { discriminant?: unknown; value?: unknown };
     if (value === null || typeof value !== "object") continue;
-    const v = value as Record<string, unknown>;
-    switch (discriminant) {
-      case "heading":
-      case "pullQuote":
-        words += countWords(v.text);
-        break;
-      case "richText":
-        if (Array.isArray(v.paragraphs)) {
-          for (const p of v.paragraphs) words += countWords(p);
-        }
-        break;
-      case "videoEmbed":
-        words += countWords(v.caption);
-        break;
-      // unknown kind — contributes nothing rather than throwing.
-    }
+    const count = COUNTED[discriminant as BlogBlockKind];
+    if (count) words += count(value as Record<string, unknown>);
   }
   return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
