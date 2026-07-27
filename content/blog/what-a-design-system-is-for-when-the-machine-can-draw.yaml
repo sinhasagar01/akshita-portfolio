@@ -74,5 +74,5 @@ blocks:
         Four squad panels showing different layouts, with the error message bar
         in the same position in every one.
       caption: Four squads, one library. The components drifted. The rule did not.
-      wide: true
+      wide: false
       decorative: true
