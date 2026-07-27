@@ -52,6 +52,21 @@ export function ogImageUrl(slug: string): string {
 }
 
 /**
+ * Absolute URL of a blog post's generated OG card. Same shape as `ogImageUrl` above, and here
+ * for the same reason: the article page used to spell `/opengraph-image.png` inline and read
+ * it twice in one function, so og:image and twitter:image were two literals that happened to
+ * agree.
+ *
+ * NO JSON-LD CONSUMER, and that is a real difference rather than an omission here. Case studies
+ * feed `ogImageUrl` into structured data (lib/structured-data.ts) as well as the two meta tags,
+ * which is what that helper's "single source" note is about. The blog emits no structured data
+ * at all — see the deferred item in docs/STATE.md.
+ */
+export function blogOgImageUrl(slug: string): string {
+  return absoluteUrl(`${blogPath(slug)}/og`);
+}
+
+/**
  * Best-effort last-modified date for a project, used by the sitemap and JSON-LD.
  * There is no date field in the content model, so we read the file mtime: the Keystatic
  * YAML for content-driven studies, plus the bespoke TS module for code-driven ones — the

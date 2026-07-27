@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getBlogPost, getBlogPosts } from "@/lib/keystatic";
-import { absoluteUrl, blogPath } from "@/lib/site";
+import { absoluteUrl, blogPath, blogOgImageUrl } from "@/lib/site";
 import BlogProse from "@/components/blog/BlogProse";
 import BlogHero from "@/components/blog/BlogHero";
 import BlogArticleHead from "@/components/blog/BlogArticleHead";
@@ -30,7 +30,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Do not describe an unpublished (or missing) post.
   if (!post || post.status !== "published") return {};
   const path = blogPath(slug);
-  const ogImage = absoluteUrl("/opengraph-image.png");
+  // The post's OWN card, not the site identity plate. `/blog` and `/` keep that plate, which
+  // is right for them — an index is not a post. One helper feeds both tags below so they
+  // cannot drift, the same reason `ogImageUrl` exists for case studies.
+  const ogImage = blogOgImageUrl(slug);
   return {
     title: post.title,
     description: post.dek,
