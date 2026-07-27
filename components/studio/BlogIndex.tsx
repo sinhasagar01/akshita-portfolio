@@ -54,6 +54,7 @@ import { IconPlus, IconX } from "./icons";
 import { formatShortDate } from "@/lib/blog/format";
 import { filterBlogPosts } from "@/lib/studio/blog-search";
 import type { BlogCard } from "@/lib/keystatic";
+import { inputCls } from "./blocks/fields";
 
 export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
   const router = useRouter();
@@ -142,7 +143,12 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search posts"
           aria-label="Search posts"
-          className="min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          // DELIBERATELY LOCAL — the FLEX-CHILD family (see ralph's studio-ink suite). The
+          // shared exports hardcode a full-width utility that fights `flex-1` in this row;
+          // see ChipListEditor for the full reasoning. 13px is intent, not drift — the
+          // search family (StudioSearch, BlogPostList) is 13px. The well tracks
+          // blocks/fields.tsx exactly.
+          className="min-h-11 min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
         />
         <button
           type="button"
@@ -221,7 +227,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Post title"
-              className="mt-4 w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              className={`${inputCls} mt-4`}
             />
             {error && (
               <p role="alert" className="mt-2 text-[12px] text-danger-600">

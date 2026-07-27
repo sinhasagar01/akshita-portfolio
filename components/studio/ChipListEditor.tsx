@@ -59,7 +59,14 @@ export default function ChipListEditor({
                 onChange={(e) => list.set(i, e.target.value)}
                 onBlur={onBlur}
                 placeholder={placeholder}
-                className="min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                // DELIBERATELY LOCAL — the FLEX-CHILD family of the deliberate locals (see
+                // ralph's studio-ink suite). The shared exports hardcode a full-width
+                // utility, which fights `flex-1` in this row; dropping it from the exports
+                // would touch every consumer to serve two sites, and a third export whose
+                // only distinction is a layout context is a constant nobody would remember.
+                // Local does not mean behind: the well (height, ground, border) tracks
+                // blocks/fields.tsx exactly and moves whenever it does.
+                className="min-h-11 min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
               />
               {/* preventDefault on mousedown keeps focus on the input so the click
                   does not blur-save mid-op (the About-panel fix). */}

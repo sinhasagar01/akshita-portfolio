@@ -19,6 +19,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
+import { inputClsMd } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -170,7 +171,7 @@ export default function HeroEditPanel({
             value={values.heroCopy}
             onChange={(e) => edit("heroCopy", e.target.value)}
             onBlur={saveDraft}
-            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className={inputClsMd}
           />
         </label>
 
@@ -240,7 +241,7 @@ export default function HeroEditPanel({
                 onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
                 onBlur={saveDraft}
                 placeholder={TABS[activeTab].fallback}
-                className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                className={inputClsMd}
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -252,7 +253,7 @@ export default function HeroEditPanel({
                 value={values[TABS[activeTab].lineKey]}
                 onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
                 onBlur={saveDraft}
-                className="w-full resize-y rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                className={`${inputClsMd} resize-y leading-relaxed`}
               />
             </label>
           </div>
@@ -265,7 +266,7 @@ export default function HeroEditPanel({
             value={values.heroRoleLabel}
             onChange={(e) => edit("heroRoleLabel", e.target.value)}
             onBlur={saveDraft}
-            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className={inputClsMd}
           />
         </label>
 
@@ -276,7 +277,7 @@ export default function HeroEditPanel({
             value={values.heroScrollCue}
             onChange={(e) => edit("heroScrollCue", e.target.value)}
             onBlur={saveDraft}
-            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className={inputClsMd}
           />
         </label>
       </div>

@@ -6,10 +6,10 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE PANEL LANGUAGE)
+## STATE (as of THE INPUT DEDUPE)
 
-**main** = `e25a863` = the ink shell (#204), with the panel language (PR 2a) in flight.
-Pinned: `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
+**main** = `466df8e` = the panel language (#205), with the input dedupe (PR 2b) in flight.
+Pinned: `e25a863` = the ink shell (#204), `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
 STATE for #201 and #202, `6b28e91` + `01c2251` + `6ebd513` = the owner's studio hero uploads for
 the two Fosfor studies and Elevate, `49a2a29` = #202 (the canvas draws a block image before it
 is published), `9982db9` = #201 (the dropped save, coalesced), `50a5275` = STATE for #200 and two closed
@@ -68,16 +68,16 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1305 ACROSS 37 RUNNABLE SUITES
+### RALPH IS 1315 ACROSS 37 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51).
 
-**1305 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1315 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -1850,6 +1850,25 @@ All prior rules remain. Added or sharpened across this session:
     `BlogBlocksEditPanel`, `not-found.tsx`, `error.tsx` and two studio project pages.
     **Do not "fix" them blind** — each renders ink-950 today and several may look better that
     way; the defect is that the code says one thing and the screen does another.
+
+23. **TWO PHANTOM COLOUR UTILITIES: `text-ink-500` (41 uses) AND `text-ink-700` (11 uses)
+    GENERATE NOTHING.** The `@theme` ink scale is 950/800/600/400/200 — there is no
+    `--color-ink-500` and no `--color-ink-700`, and Tailwind v4 only generates utilities from
+    tokens that exist. Every site carrying them renders INHERITED colour, usually ink-950 from
+    body. Found by PR 2b's measurement gate: a readonly field whose class said ink-500
+    measured ink-950 on screen.
+    **THIS FALSIFIED A RATIONALE ONE HOUR AFTER IT WAS WRITTEN.** PR 2b's readonly-display
+    family was justified partly as "consuming the export would swap ink-500 for ink-950,
+    making a non-editable field look editable" — but the field has ALWAYS rendered ink-950,
+    because the muting never existed. The comments and the suite were corrected in the same
+    PR; the focus-ring half of the rationale stands on its own.
+    **THE CLASSES ARE KEPT, DELIBERATELY.** 52 sites carry the intent, the pixels have been
+    stable since each was written, and the fix is ONE decision — add the tokens, or re-point
+    every site to a real value — not 52 local edits. The bracket-bare rule's cousin: a bare
+    theme utility whose token does not exist fails exactly as silently.
+    **This is the third "the code says one thing, the screen does another" class**, after
+    hazard 11 (unlayered element rules beating utilities) and hazard 22 (anchor colour
+    utilities dead under `a { color: inherit }`).
 
 ---
 

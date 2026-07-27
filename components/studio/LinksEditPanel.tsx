@@ -54,24 +54,29 @@ function nonBlank(links: LinkItem[]): LinkItem[] {
     .filter((l) => l.label !== "" || l.url !== "");
 }
 
-// DELIBERATELY LOCAL, AND NOT THE SHARED `inputCls`. #199 collapsed seven hand-copied input
-// strings into two exports in blocks/fields.tsx; this one did NOT go with them, because it is
-// not the same box with a different size — it is a different box:
-//   - it is a FLEX CHILD (`min-w-0 flex-1`) rather than `w-full`, and
-//   - it carries no border colour and no focus border override, because the two constants
-//     below supply both per validation state, which the shared string cannot express.
-// (Those two properties are named without their utility spelling on purpose. Tailwind v4
-// scans raw source text, comments included, so writing the class name here would EMIT it —
-// the union-of-declarations gate caught exactly that and it is how a comment ships dead CSS.)
-// Importing the shared one and appending overrides would leave two competing border
-// declarations whose winner is decided by the generated sheet rather than by this file — the
-// trap BoldToolbar's header already records. Left alone on purpose.
+// DELIBERATELY LOCAL, AND NOT THE SHARED `inputClsMd` — the COMPOSED-BORDER family of the
+// deliberate locals (see ralph's studio-ink suite, which names all three families). Every
+// input in this panel supplies its border through the two constants below, per validation
+// state, which the shared string cannot express: importing it and appending overrides would
+// leave two competing border declarations whose winner is decided by the generated sheet
+// rather than by this file — the trap BoldToolbar's header already records.
+// (The border-colour and focus-override properties are named without their utility spelling on
+// purpose. Tailwind v4 scans raw source text, comments included, so writing the class name
+// here would EMIT it — the union-of-declarations gate caught exactly that, and it is how a
+// comment ships dead CSS.)
 //
-// IT IS THE FIFTH GEOMETRY STRING, AND STAYING LOCAL DOES NOT MEAN STAYING BEHIND. The reasons
-// above are about the BORDER and the flex sizing; they say nothing about the well, so the
-// height and the ground track blocks/fields.tsx exactly and move whenever it does.
-const inputCls =
-  "min-w-0 min-h-11 flex-1 rounded-md border bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
+// ONE BASE, THREE COMPOSITIONS — the PR 2a defect, closed. 2a's edit reached only the ONE
+// consumer this constant then had, while the email and URL inputs in the same file were
+// separate literals. Measured: every link row showed a 44px cream-100 well (Label) beside a
+// 39px cream-50 flat box (URL), with the email above them flat too — one panel, both
+// generations of the design at once. The three strings are now this single base, so the four
+// controls cannot disagree again. Width is per-site: the row inputs are flex children, the
+// email and URL are w-full.
+//
+// STAYING LOCAL DOES NOT MEAN STAYING BEHIND: the reasons above are about the BORDER, not the
+// well, so the height and ground track blocks/fields.tsx exactly and move whenever it does.
+const inputBase =
+  "min-h-11 rounded-md border bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
 const okBorder = "border-ink-950/12 focus:border-accent-500 focus:ring-accent-500/30";
 const errBorder = "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30";
 const iconBtn =
@@ -178,7 +183,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
             value={values.email}
             onChange={(e) => setField("email", e.target.value)}
             onBlur={handleBlur}
-            className={`w-full rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1 ${okBorder}`}
+            className={`${inputBase} w-full ${okBorder}`}
           />
         </label>
 
@@ -204,7 +209,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       onChange={(e) => updateLink(i, { label: e.target.value })}
                       onBlur={handleBlur}
                       placeholder="Label"
-                      className={`${inputCls} ${okBorder}`}
+                      className={`${inputBase} min-w-0 flex-1 ${okBorder}`}
                     />
                     <button
                       type="button"
@@ -245,7 +250,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                     placeholder="https://…"
                     aria-invalid={invalid || undefined}
                     aria-describedby={invalid ? errorId : undefined}
-                    className={`w-full rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1 ${
+                    className={`${inputBase} w-full ${
                       invalid ? errBorder : okBorder
                     }`}
                   />

@@ -47,7 +47,7 @@ import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
 const NO_DRAFT_IMAGES: readonly string[] = [];
-import { FieldTabProvider, type FieldTab } from "./blocks/fields";
+import { FieldTabProvider, inputCls, type FieldTab } from "./blocks/fields";
 import { IconGrid, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type SectionsFields = { sections: readonly RawSection[] };
@@ -382,7 +382,7 @@ function SelectedRail({
           // instead of pushing past the canvas. resize-none because dragging a handle
           // would fight the auto-sizing on the next keystroke.
           style={{ maxHeight }}
-          className="mt-2 w-full resize-none overflow-y-auto rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          className={`${inputCls} mt-2 resize-none overflow-y-auto`}
         />
       ) : null}
       <p className="mt-2 text-[11px] text-text-subtle">

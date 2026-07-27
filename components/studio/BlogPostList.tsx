@@ -21,6 +21,7 @@ import Link from "next/link";
 import { filterBlogPosts } from "@/lib/studio/blog-search";
 import { formatShortDate } from "@/lib/blog/format";
 import type { BlogCard } from "@/lib/keystatic";
+import { inputCls } from "./blocks/fields";
 
 export default function BlogPostList({
   posts,
@@ -42,7 +43,7 @@ export default function BlogPostList({
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search posts"
           aria-label="Search posts"
-          className="w-full min-w-0 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          className={`${inputCls} min-w-0`}
         />
       </div>
 

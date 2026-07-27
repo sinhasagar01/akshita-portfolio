@@ -138,26 +138,65 @@ const readStudio = (f) => read(`components/studio/${f}`);
   }
 }
 
-// E2 · THE COUNT THAT WAS WRONG IN KIND. The plan said "five geometry strings"; five is the
-// number of NAMED CONSTANTS. There are 21 form controls carrying the geometry inline and
-// referencing no export, which is why PR 2a could not make the inputs coherent.
+// E2 · THE DELIBERATE LOCALS, EACH WITH ITS FAMILY NAMED IN THE FAILURE. PR 2b made 15 sites
+// consume the shared exports; exactly these remain inline, in THREE families, and every one is
+// a DECISION rather than a missed site. A count that fails bare teaches nothing (#199's
+// lesson), so each assertion says which family a site belongs to and why it is local — a
+// future sweep that wants to "finish the job" reads the reason, not a number.
 {
   const sig = /rounded-md border[^"`]*?px-3 py-2/g;
-  let formControls = 0;
+  const inline = [];
   for (const f of studioFiles) {
     const src = readStudio(f);
     for (const m of src.matchAll(sig)) {
       const before = src.slice(0, m.index);
       const tags = before.match(/<([A-Za-z][A-Za-z0-9]*)/g) ?? [];
       const tag = tags.length ? tags[tags.length - 1].slice(1) : "";
-      if (tag === "input" || tag === "textarea") formControls++;
+      if (tag === "input" || tag === "textarea") inline.push(f);
     }
   }
-  // The number is pinned so a 22nd is LOUD. If this fails high, someone hand-copied the box
-  // again and #199's dedupe is decaying a second time; if it fails low, PR 2b landed and this
-  // assertion should be retired rather than edited down.
-  t("E2: still 21 inline form-control geometries — a 22nd means the dedupe is decaying again, and fewer means PR 2b landed and this should be retired",
-    formControls, 21);
+  // FAMILY 1 — COMPOSED BORDER: LinksEditPanel. Not in `inline` because its three controls
+  // share ONE local base composed with the ok/err border constants per validation state,
+  // which the shared string cannot express. PR 2a proved the cost of anything less: it edited
+  // a one-consumer const and left a 44px well beside a 39px flat box in every link row.
+  t("E2: LinksEditPanel composes ONE local base — COMPOSED-BORDER family; importing the export and appending borders would leave two competing declarations the generated sheet decides",
+    /const inputBase =/.test(readStudio("LinksEditPanel.tsx")), true);
+  t("E2: …and its three controls all reference that base, so the panel cannot split into two generations again",
+    (readStudio("LinksEditPanel.tsx").match(/\$\{inputBase\}/g) ?? []).length, 3);
+  // FAMILY 2 — FLEX CHILDREN: the shared exports hardcode a full-width utility that fights
+  // flex-1 in a row; dropping it would touch every consumer to serve two sites, and a third
+  // export whose only distinction is a layout context is a constant nobody would remember.
+  t("E2: ChipListEditor stays inline — FLEX-CHILD family, not a missed site; it must keep flex-1 where the export forces full width",
+    inline.filter((f) => f === "ChipListEditor.tsx").length, 1);
+  t("E2: BlogIndex's search stays inline — FLEX-CHILD family, and 13px is the search family's size, not drift",
+    inline.filter((f) => f === "BlogIndex.tsx").length, 1);
+  // FAMILY 3 — READONLY DISPLAYS: the reason is SEMANTIC. The export carries focus styling,
+  // which is dead on a tabIndex={-1} control, and these fields want cursor-not-allowed.
+  // (The colour half of the original rationale was FALSE: their text-ink-500 is a phantom —
+  // no --color-ink-500 token exists, so it generates nothing and they have always rendered
+  // inherited ink-950. Hazard 23. The focus-ring half stands on its own.)
+  t("E2: ExperienceEditPanel's Company stays inline — READONLY-DISPLAY family; the export's focus styling is dead on a control that cannot be focused",
+    inline.filter((f) => f === "ExperienceEditPanel.tsx").length, 1);
+  t("E2: ProjectsEditPanel's Title stays inline — READONLY-DISPLAY family, same reasoning",
+    inline.filter((f) => f === "ProjectsEditPanel.tsx").length, 1);
+  // And NOTHING ELSE. A fifth inline form control means a new hand-written copy — the decay
+  // #199 removed, starting again — OR a new local with no stated family. Either way it needs
+  // a reason here, not just a body there.
+  t("E2: exactly these four files carry an inline form-control geometry — a fifth means a new copy with no stated family",
+    [...inline].sort(), ["BlogIndex.tsx", "ChipListEditor.tsx", "ExperienceEditPanel.tsx", "ProjectsEditPanel.tsx"]);
+  // All four locals carry the WELL — local means a different REASON, never an older design.
+  for (const f of ["ChipListEditor.tsx", "BlogIndex.tsx", "ExperienceEditPanel.tsx", "ProjectsEditPanel.tsx"]) {
+    const src = readStudio(f);
+    const ok = [...src.matchAll(sig)].every((m) => {
+      const before = src.slice(0, m.index);
+      const tags = before.match(/<([A-Za-z][A-Za-z0-9]*)/g) ?? [];
+      const tag = tags.length ? tags[tags.length - 1].slice(1) : "";
+      if (tag !== "input" && tag !== "textarea") return true;
+      const lit = src.slice(src.lastIndexOf('"', m.index) + 1, src.indexOf('"', m.index + m[0].length));
+      return lit.includes("min-h-11");
+    });
+    t(`E2: ${f}'s local carries the well — staying local does not mean staying behind`, ok, true);
+  }
 }
 
 // E3 · THE HAIRLINE SCOPE. The failure has to say WHY, because the tempting fix is to make the
