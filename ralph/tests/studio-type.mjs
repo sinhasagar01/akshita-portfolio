@@ -89,6 +89,8 @@ export const ON_INK = [
   { surface: "topbar search",        role: "typed value",                  min: 8.0,  measured: 9.10, aa: 4.5 },
   { surface: "ink band",             role: "save status",                  min: 9.5,  measured: 10.64, aa: 4.5,
     why: "#211 moved it onto ink; this is the #177 shape — a colour correct on cream and possibly 1:1 on ink" },
+  { surface: "topbar View site",     role: "border vs the bar",            min: 2.00, measured: 2.17, aa: null,
+    why: "#213 raised it white/12 -> white/24 to match the search well beside it; two adjacent controls on one ink bar had disagreed about their edge" },
 ];
 
 export const TYPE_SCRIPT = String.raw`
@@ -211,6 +213,12 @@ export const TYPE_SCRIPT = String.raw`
   if (bandStatus) {
     const bandBg = flatten(stackFrom(bandStatus.parentElement));
     probes["ink band|save status"] = contrast(fgOn(getComputedStyle(bandStatus).color, bandStatus), bandBg);
+  }
+  const viewSite = [...document.querySelectorAll("a")].find((a) => /View site/.test(a.textContent));
+  if (viewSite) {
+    const btnBg = flatten(stackFrom(viewSite));
+    probes["topbar View site|border vs the bar"] =
+      contrast(fgOn(getComputedStyle(viewSite).borderTopColor, viewSite), btnBg);
   }
 
   /* THE FAILURE NAMES THE FOREGROUND AND THE SURFACE, NEVER A COUNT — a ratio that has slipped

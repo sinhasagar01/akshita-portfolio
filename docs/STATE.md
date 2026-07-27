@@ -1493,6 +1493,16 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **AN ASSERTION MUST NOT PIN ITS NEIGHBOURS.** `studio-ink` E6 guards a COLOUR property — the
+  canvas strip sets `text-ink-600` on the row so its anchor inherits, because a `text-*` utility
+  on an `<a>` is dead. Its regex read `px-4 py-2 text-ink-600"`, so #213 changing the strip's
+  PADDING — a change about height, with no bearing on colour inheritance — **failed a colour
+  assertion.**
+  **The danger is not the false failure, it is the repair.** The cheapest fix is to widen the
+  regex until it passes, and a regex widened under pressure stops guarding anything. Repinned on
+  the colour and the `border-b` that identifies the strip, and on nothing about its box.
+  **Match the property the assertion is named for, and nothing that merely sits beside it.**
+
 - **A MEASURED VALUE BELONGS TO ITS CONTEXT, AND THIS IS THE MIRROR OF THE RELATION-AS-VALUE
   RULE BELOW — ONE FAMILY, SEEN FROM BOTH SIDES.** That rule says: do not freeze a relation
   into a number. This one says: **a number you measured is only true about the surface you
@@ -2553,6 +2563,24 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **#213** the topbar button and the canvas bar →1385. Two fidelity gaps the owner spotted after
+  the arc closed, and **the first time in this arc the CONTRACT WAS RIGHT AND THE BUILD WAS
+  WRONG ON BOTH COUNTS** — no correction seventeen.
+  **THE TOPBAR'S GROUND WAS NOT THE GAP.** Its cream is C-9 working exactly as intended, so the
+  answer there was no change. The gap was geometry the reversal never covered: the contract sets
+  `.btn` and `.search input` to **40px each so they align on one row**, and #211 raised the
+  search to 40 without touching the button, leaving them 4px apart. Now both 40.
+  **THE 55px CLAIM WAS TRUE, AND MY FIRST MEASUREMENT OF IT WAS NOT.** Measured on the contract
+  file rather than read off its CSS: an initial probe said 58 because it caught the row
+  mid-layout with the title box at 35px; settled, it is **55 = 11 + 32 + 11 + 1**, the tallest
+  child being the button. The canvas bar was 44.3 and is now 55, its button 27.3 → 32, its title
+  13/400 → 13.5/500, its button 400 → **600 — an #208 miss**, that sweep having matched on
+  `text-[12px]` while this button is 11.5px.
+  **TWO THINGS THAT LOOKED LIKE GAPS AND WERE NOT**: the contract's `.cv-bar` sets **no
+  background at all**, so the app's cream-50 is not a mismatch; and its `.back` button is absent
+  from the app correctly, because `ThreePaneShell`'s collapse rail already does that job and a
+  second control for one function is worse than none.
+- **#212** studio-type asserts its on-ink ratios (`3623f0c`) →1385, closing hazard 27
 - **#210** the phantom tokens deleted and the class gated (`8ae96ba`) →1385
 - **#211** the card image (`beba883`) →1385, no net-new assertions. Fidelity item 4, the last
   one that is LAYOUT — and **the item that closed all eleven**. Three passes.

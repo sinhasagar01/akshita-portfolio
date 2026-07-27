@@ -35,7 +35,20 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
         // `color`, which is exactly why `hover:border-accent-500` on the same element works.
         // The border hover is a real affordance and stays; the dead colour is removed rather
         // than left looking like it does something.
-        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-[12px] font-semibold transition-colors hover:border-accent-500 lg:border-white/12"
+        // HEIGHT 40 TO MATCH THE SEARCH FIELD BESIDE IT. The contract sets `.btn` and
+        // `.search input` to 40px each so they align on one row; #211 brought the search to 40
+        // and did not touch this, leaving them 4px apart. `min-h-10` rather than padding —
+        // the inputCls precedent, and padding would also move the label off centre.
+        // The GROUND is untouched: the bar is ink by design (C-9), so no colour moves except
+        // the border, which follows its NEIGHBOUR rather than this element's own history:
+        // #211 measured white/12 at 1.45:1 on the search well beside this and raised it to
+        // white/24. Two adjacent controls on one ink bar disagreeing about their edge is the
+        // inconsistency, so this takes the same step. Derived from the measurement next to it.
+        //
+        // AND IT IS ONE UTILITY, NOT TWO. The first draft left `lg:border-white/12` in place
+        // beside the new value — two border-color utilities at equal specificity, decided by
+        // sheet order. That is hazard 26 exactly, in the same session it was documented.
+        className="inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-[12px] font-semibold transition-colors hover:border-accent-500 lg:border-white/24"
       >
         {/* "VIEW SITE", NOT "VIEW LIVE". This goes to `/` — the whole site. The blog editor's
             canvas bar has its OWN link, 59px below this one, going to the current article.

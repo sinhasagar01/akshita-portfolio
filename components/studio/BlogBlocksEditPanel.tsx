@@ -899,7 +899,7 @@ export default function BlogBlocksEditPanel({
       list={<BlogPostList posts={posts} currentSlug={slug} />}
       canvasBar={
         <>
-          <span className="min-w-0 flex-1 truncate text-[13px] text-ink-950">{title}</span>
+          <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink-950">{title}</span>
           <a
             href={livePath}
             target="_blank"
@@ -908,7 +908,11 @@ export default function BlogBlocksEditPanel({
             // `a { color: inherit }` outranks the utility layer. The colour is inherited from
             // ThreePaneShell's strip now; the BORDER hover survives because no unlayered rule
             // claims border-color, which is exactly the asymmetry that made this hard to see.
-            className="hidden shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11.5px] transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
+            // 32px VIA min-h-8, the contract's `.cv-bar .btn` height and the term that makes the
+            // bar 55. AND font-semibold: #208 swept action controls to 600, but it matched on
+            // `text-[12px]` and this button is 11.5px, so the sweep passed straight over it —
+            // the same shape as the Post band's SaveIndicator being an #205 miss.
+            className="hidden min-h-8 shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11.5px] font-semibold transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
           >
             {/* "VIEW POST", NOT "VIEW LIVE" — this goes to THIS article, while the topbar's
                 link goes to the site root. See StudioTopbar for the full note. */}
