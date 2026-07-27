@@ -54,3 +54,21 @@ blocks:
   - discriminant: heading
     value:
       text: What we found across three personas
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          On an AI companion built for three very different users, the
+          assumption going in was that they needed three interfaces. What they
+          actually needed was three different jobs done, and the interface
+          mattered far less than we thought.
+
+
+          The analyst wanted the working shown, because she would be asked to
+          defend the number. The manager wanted the number and nothing else. The
+          person new to the tool wanted to know which question was worth asking,
+          which is not a thing you can type into a box.
+
+
+          One model, three jobs, and only one of them was well served by a place
+          to type.
