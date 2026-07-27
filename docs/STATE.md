@@ -31,23 +31,26 @@ Every deletion was verified first: each branch had a merged PR whose merge commi
 ancestor of `main`.
 
 **DO NOT CLEAN THEM UP WITH `git branch --merged`.** This repo squash-merges, and a squash
-merge makes a NEW commit rather than making the branch an ancestor, so `--merged main` lists
-only `feat/blog-editor-3pane` (a true merge commit, `438bf95`) and `ralph/phase1` —
-**every squash-merged branch reports as UNMERGED even though its content is on main**. The
-command would keep exactly the wrong set. Delete against the PR list or `gh pr list --state
-merged`, never against ancestry.
+merge makes a NEW commit rather than making the branch an ancestor, so `--merged main`
+**reports every squash-merged branch as UNMERGED even though its content is on main** and
+would keep exactly the wrong set. Delete against the PR list or `gh pr list --state merged`,
+never against ancestry.
+
+*The illustration, dated because it decays — the mechanism above does not.* When this note
+was written (#191, 2026-07-27) `--merged main` listed `feat/blog-editor-3pane` (a true merge
+commit, `438bf95`) and `ralph/phase1`, out of the thirteen merged branches then present.
+`feat/blog-editor-3pane` has since been deleted, so run today it returns `main` itself and
+`ralph/phase1` — verified, not assumed, which is how this sentence's first draft was caught
+claiming `ralph/phase1` alone.
 
 **THE FIGURE ABOVE READ "ELEVEN" AND THE REAL NUMBER WAS 13.** It was right when written in
 \#191 and drifted as #192 to #196 merged without deleting their branches — a count that was
 accurate once and was never re-derived. See the sixth instance under the re-derive rule.
 
-**`ralph/phase1` IS KEPT, AND IT IS THE ONE ODDITY HERE.** It has **no PR at all** — not
-merged, not open, not closed — so the delete-against-the-PR-list rule would never select it.
-Investigated rather than assumed: its tip `8172b4a` is an **ANCESTOR of `main`** (0 commits
-ahead, `--is-ancestor` true), so it holds no unmerged work and is a stale pointer at a
-2026-07-07 commit. But its commits (`phase1(t3)…`, `phase1: final summary…`) reached `main`
-**DIRECTLY, WITHOUT A PR**, which makes it the one place code entered this repo unreviewed.
-That code is long superseded. The branch is deletable whenever the owner says so.
+**`ralph/phase1` IS THE ONE PLACE CODE ENTERED THIS REPO WITHOUT REVIEW** — it has no PR at
+all and its commits reached `main` directly, its tip `8172b4a` is an ancestor of `main` (0
+commits ahead) so the code is long superseded, and the branch is deletable whenever the owner
+says. **Recording that matters more than deleting it.**
 
 **THE BLOG IS LAUNCHED.** Five block kinds all renderable and reachable, one post
 PUBLISHED, the nav link shipped, and `/blog` plus the post in the sitemap. Verified on
