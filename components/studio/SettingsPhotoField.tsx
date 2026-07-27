@@ -99,7 +99,7 @@ export default function SettingsPhotoField({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : photo ? "Replace" : "Upload"}
         </button>

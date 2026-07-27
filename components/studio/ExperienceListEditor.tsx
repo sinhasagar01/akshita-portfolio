@@ -301,7 +301,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           busy={deleteBusy}
           initialFocusRef={cancelRef}
         >
-          <p id="delete-exp-msg" className="mt-2 text-[13px] text-ink-700">
+          <p id="delete-exp-msg" className="mt-2 text-[13px]">
             Remove <span className="font-medium text-ink-950">{deleteCompany}</span> from your draft?
             You can still undo it with Discard until you Publish.
           </p>

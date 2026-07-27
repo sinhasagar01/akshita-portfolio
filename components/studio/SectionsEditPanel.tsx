@@ -1340,7 +1340,7 @@ export default function SectionsEditPanel({
                 }}
                 className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
               >
-                <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[11px] text-ink-700">
+                <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[11px]">
                   Remove this section and its blocks? You can still undo it with Discard until you
                   publish.
                 </span>
@@ -1465,7 +1465,7 @@ export default function SectionsEditPanel({
                       key={k}
                       type="button"
                       onClick={() => addBlock(i, k)}
-                      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] font-semibold text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
+                      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] font-semibold transition-colors hover:border-accent-500/40 hover:text-accent-600"
                     >
                       {blockLabel(k)}
                     </button>

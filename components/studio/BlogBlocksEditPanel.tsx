@@ -819,7 +819,7 @@ export default function BlogBlocksEditPanel({
                   key={k}
                   type="button"
                   onClick={() => addBlock(k)}
-                  className="flex w-full items-center rounded-[var(--studio-radius-control,4px)] px-2.5 py-1.5 text-left text-[12.5px] text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                  className="flex w-full items-center rounded-[var(--studio-radius-control,4px)] px-2.5 py-1.5 text-left text-[12.5px] transition-colors hover:bg-cream-200 hover:text-ink-950"
                 >
                   {BLOG_BLOCK_LABELS[k]}
                 </button>
