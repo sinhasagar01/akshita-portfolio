@@ -84,6 +84,7 @@ import {
 import type { BlogBlockKind, BlogRawBlock } from "@/lib/blog/blocks-raw";
 import BlogProse from "@/components/blog/BlogProse";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
+import { createPreviewMap, type PreviewMap, type PreviewUpload } from "@/lib/studio/preview-map";
 import { resolveHeroSrc } from "@/lib/blog/hero-fill";
 import { readingTimeMinutes } from "@/lib/blog/select";
 import BlogHero from "@/components/blog/BlogHero";
@@ -260,6 +261,26 @@ export default function BlogBlocksEditPanel({
   // inspector node mounts under, and the shell handing it back up would mean setting parent
   // state during render.
   const inspectorFits = useMediaMin(INSPECTOR_FOLD_PX);
+
+  // THIS PANEL HOLDS THE SESSION PREVIEWS FOR ITS POST, and holds nothing else's.
+  //
+  // A REF, NOT STATE, because a revocable url is a side effect on a resource rather than
+  // something render reads — and because `adopt` must land SYNCHRONOUSLY beside the block
+  // edit that caused it, so the canvas never paints one frame of the 404ing committed path
+  // first. That was #190's finding for the hero and it holds here unchanged.
+  //
+  // ITS LIFETIME IS ONE POST, MEASURED RATHER THAN ASSUMED. Switching posts in the list rail
+  // is a client-side App Router transition, so the obvious guess is that this component is
+  // reused and the map outlives the post. It is not: React drops the subtree and builds a new
+  // one (`view` resets to "canvas", and the canvas DOM node is a different element that
+  // carries none of the old one's expandos). So this cleanup fires on every post switch and
+  // the map never carries one post's entries into another.
+  const previewsRef = useRef<PreviewMap | null>(null);
+  previewsRef.current ??= createPreviewMap();
+  const previews = previewsRef.current;
+  // Unmount only. Under StrictMode's dev double-invoke this runs once at mount, when the map
+  // is empty and there is nothing to free.
+  useEffect(() => () => previews.releaseAll(), [previews]);
 
   const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<BlogFields>({
     initial: { blocks: initialBlocks },
@@ -521,7 +542,24 @@ export default function BlogBlocksEditPanel({
   // content — and that is a composition choice rather than a fidelity gap. What the canvas
   // DOES draw, it draws at the public measure, proven as a number and not as matching class
   // strings. The head is preview only; see BlogArticleHead for why.
-  const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
+  // THE SESSION PREVIEW GOES AHEAD OF THE SNAPSHOT, and the order is the whole fix.
+  //
+  // `draftImages` is taken server-side at page load, so it CANNOT contain a path uploaded
+  // after it — the rewriter would leave that path alone and the plain path 404s against main
+  // until publish. The map is the only thing that can resolve it. Behind the map, the
+  // snapshot still handles every image uploaded in an EARLIER session, and an image already
+  // on main falls through both and keeps its static path.
+  //
+  // This is the same precedence resolveHeroSrc has always used for the hero, one line below.
+  //
+  // A STABLE IDENTITY IS CORRECT HERE even though the map mutates. The map is read at call
+  // time, not captured, and every adoption happens in the same handler as a `blocks` edit —
+  // so `prose` below recomputes on `blocks` and the fresh call sees the new entry. Adding the
+  // map to these deps would only make the function identity churn for no render that needs it.
+  const rewriteSrc = useMemo(() => {
+    const draft = makeDraftSrcRewriter(draftImages);
+    return (src: string) => previews.get(src) ?? (draft ? draft(src) : src);
+  }, [draftImages, previews]);
   const heroSrc = resolveHeroSrc({ heroImage, previewUrl: heroPreviewUrl, rewriteSrc });
   // KEYED BY renderEpoch. A structural paragraph edit discards the subtree the author has
   // been typing into and builds a fresh one from state, so React owns the DOM again. The
@@ -800,7 +838,14 @@ export default function BlogBlocksEditPanel({
                     // form rather than feeding one instance a different block's value.
                     key={selectedId}
                     value={selectedBlock.value}
-                    onChange={(next: unknown) => setBlockValue(selectedId as string, next)}
+                    // ADOPT BEFORE THE STATE EDIT, in the same handler. The map is a ref, so
+                    // this lands synchronously and the re-render `setBlockValue` schedules
+                    // already sees the entry — the canvas never paints the committed path,
+                    // which would 404 for the one frame it was up.
+                    onChange={(next: unknown, upload?: PreviewUpload) => {
+                      if (upload) previews.adopt(upload.src, upload.file);
+                      setBlockValue(selectedId as string, next);
+                    }}
                     onBlur={saveDraft}
                     slug={slug}
                     collection="blog"

@@ -13,6 +13,23 @@
 // <img>, NOT next/image, deliberately: the optimizer refetches the URL from the
 // server WITHOUT the owner cookie, so an optimized proxy URL would 401.
 //
+// UNCONDITIONAL IS A DELIBERATE CHOICE, NOT THE ONLY ONE THE PROJECT MAKES. There are three
+// draft-image strategies and this is the bluntest of them:
+//
+//   1. THIS — proxy every src, always. One code path, correct whether the image is on the
+//      draft branch or main, at the cost of a GitHub round trip per image. A 36px thumbnail
+//      can afford that; that is the entire justification.
+//   2. makeDraftSrcRewriter — proxy only the paths in the page-load snapshot, so published
+//      images keep their static path and the optimized route. What the canvas uses, because
+//      a full-width figure cannot afford the proxy for every image.
+//   3. lib/studio/preview-map.ts — an object URL for a file uploaded THIS session, which
+//      neither of the others can resolve because the snapshot predates it.
+//
+// This component needs none of 2 or 3: it is handed the committed path and the proxy tries
+// draft then main, so a just-uploaded image resolves without a preview. That is why the
+// thumbnail has always worked while the canvas showed nothing — same upload, different
+// strategy. Unifying them means breaking one of the three.
+//
 // Shared by BlockImageField and SettingsPhotoField because it is purely
 // presentational — unlike their commit models, which genuinely differ and stay
 // separate.

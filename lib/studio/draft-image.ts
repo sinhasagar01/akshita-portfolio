@@ -49,6 +49,14 @@ export function draftImageUrl(path: string): string {
  *
  * Returns the src unchanged when there is nothing to rewrite, so the caller can
  * pass it unconditionally.
+ *
+ * WHAT IT CANNOT DO, AND WHO COVERS IT. `draftImages` is a SNAPSHOT taken server-side at page
+ * load, so a path created after it is absent and this rewriter leaves it alone — correctly,
+ * because it has no way to know the path exists. lib/studio/preview-map.ts covers exactly
+ * that case with an object URL and is composed AHEAD of this. ImageThumb takes the third
+ * option and proxies unconditionally, which suits a 36px thumb and would not suit a
+ * full-width figure. Three strategies, one per surface, all deliberate — see ImageThumb's
+ * header for the whole table.
  */
 export function makeDraftSrcRewriter(
   draftImages: readonly string[]
