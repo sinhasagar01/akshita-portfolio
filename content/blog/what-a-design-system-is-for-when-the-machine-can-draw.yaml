@@ -3,4 +3,7 @@ dek: ''
 date: ''
 status: draft
 heroImage: null
-blocks: []
+blocks:
+  - discriminant: richText
+    value:
+      paragraphs: []
