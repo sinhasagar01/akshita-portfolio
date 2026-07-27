@@ -23,7 +23,7 @@
 // blog-specific until a second consumer teaches us what varies. Point 2 rested on an
 // arithmetic claim that turned out to be false. The rail was believed to cost the canvas
 // its measure, and the measure is 68ch, which resolves to 745.9px against the wrapper's
-// 16px font. Sidebar 236 plus list 264 plus canvas 794 plus inspector 244 is 1538px, and
+// 16px font. Sidebar 236 plus list 264 plus canvas 794 plus inspector 320 is 1614px, and
 // the laptop this is authored on is 1536 wide. The rail does not cost the canvas anything
 // it needs, so the objection the removal rested on does not apply here. The owner weighed
 // that and chose the rail. See lib/studio/three-pane.ts for the full arithmetic.

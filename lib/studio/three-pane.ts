@@ -18,15 +18,23 @@
 //      constraint now). React state and `matchMedia` stay in the shell.
 //
 // THE ARITHMETIC. Measured, not derived:
-//   sidebar 236 + list 264 + canvas 794 + inspector 244 = 1538px minimum.
+//   sidebar 236 + list 264 + canvas 794 + inspector 320 = 1614px minimum.
 // The canvas term is 68ch plus 48px of horizontal padding. 68ch resolves against the
 // WRAPPER's 16px font, not the 18px prose font, so it is 745.9px. The design contract
 // estimated it from the prose font, got 620, and computed a 1406 threshold that was wrong
-// by 190px. 1538 fits the 1536-wide laptop this is used on. Below it the list starts
-// collapsed and the reopen rail is the way back.
+// by 190px. Below the threshold the list starts collapsed and the reopen rail is the way
+// back.
+//
+// THE INSPECTOR WIDENED 244 -> 320 AND THIS NUMBER HAD TO MOVE WITH IT, 1538 -> 1614. The
+// two are one measurement, not two settings: the threshold IS the sum, so widening the pane
+// without raising it would leave 1538..1613 claiming all three panes fit while the canvas
+// actually got 718px — under the 794 it needs, which silently drops the canvas column below
+// its 697.9296875 public measure. That measure is the property the whole editor exists to
+// hold, and nothing would have failed. **Widening a pane is an arithmetic change, not a
+// styling change.**
 
 /** The width at or above which all three panes fit at their natural sizes. */
-export const FIT_THRESHOLD_PX = 1538;
+export const FIT_THRESHOLD_PX = 1614;
 
 /** Below this the inspector pane folds away and the canvas pane's own Canvas/Inspector
  *  toggle becomes the route to those fields. One mechanism at two widths, and the narrow

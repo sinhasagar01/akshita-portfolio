@@ -497,10 +497,14 @@ export function HeroImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
-      {/* `flex-wrap` is for the blog editor's 244px inspector pane. The 160px thumbnail plus
-          a 16px gap leaves 44px for the controls there, so they overflowed the pane. On
-          projects, where this has always rendered in a wide card, there is room and nothing
-          wraps — the rendered output is unchanged at that width. */}
+      {/* `flex-wrap` is for the blog editor's inspector pane, and it is STILL load-bearing
+          after that pane went 244px -> 320px — measured, because the widening looked likely
+          to make it unnecessary. At 320 the row has 280px of content width; the 160px
+          thumbnail plus a 16px gap leaves 104px, and the controls need 106.2734px. So they
+          still wrap, by 2.2734px. Anyone widening this pane again should re-measure rather
+          than assume: the margin is now under 3px in the other direction.
+          On projects, where this has always rendered in a wide card, there is room and
+          nothing wraps — the rendered output is unchanged at that width. */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-md border border-ink-950/8 bg-cream-100">
           {hasImage ? (

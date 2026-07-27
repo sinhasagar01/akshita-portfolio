@@ -8,8 +8,8 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE CANVAS DRAWS THE WHOLE ARTICLE)
 
-**main** = `2a9c8c2` = #192 (the imageBlock reading-time gap). Pinned: `fc8c318` = #191
-(STATE), `3b71ac4` = #190 (the canvas draws the
+**main** = `d21b9a5` = #193 (the hero object-URL lifetime). Pinned: `2a9c8c2` = #192 (the
+imageBlock reading-time gap), `fc8c318` = #191 (STATE), `3b71ac4` = #190 (the canvas draws the
 head, the hero and the body),
 `c3b30f4` = #189 (the bold toolbar, extracted), `f233acc` = #188 (STATE + the two rewrites
 #187 missed), `2c258cd` = #187 (the inline canvas), `f7426a5` = #186 (STATE),
@@ -41,14 +41,14 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1163 ACROSS 32 RUNNABLE SUITES
+### RALPH IS 1169 ACROSS 32 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49).
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -334,7 +334,7 @@ matching class strings, because `68ch` resolves against each element's own font-
 ### THE ARITHMETIC, CORRECTED AND NOW LOAD-BEARING
 `68ch` is **745.9px at the wrapper's 16px font**, not 646 from the 18px prose.
 **sidebar 236 + list 264 + canvas 794 + inspector 244 = 1538.** The contract said 1406 and
-was wrong by 190px. Both numbers live once each in `lib/studio/three-pane.ts` and are read
+was wrong by 190px. (#194 widened the inspector to 320, moving the threshold to **1614**.) Both numbers live once each in `lib/studio/three-pane.ts` and are read
 through `matchMedia`, never as Tailwind variants — see the new working rule.
 
 ### COMMITTED IN `a586e98` (groundwork)
@@ -1111,6 +1111,13 @@ All prior rules remain. Added or sharpened across this session:
    `PublishBar`. **It did NOT become a second literal in #178**: the three-pane widths live
    once in `lib/studio/three-pane.ts` and ralph asserts no duplicate exists. That is the
    pattern the 236px should follow whenever it is next touched.
+   **#194 FOUND THE HALF OF THIS THAT WAS NOT GUARDED.** The suite forbade a second copy of
+   the THRESHOLD but never tied the shell's pane width CLASSES to the terms of the sum that
+   produces it, so widening the inspector in the class alone would have left every gate green
+   while `FIT_THRESHOLD_PX` still claimed three panes fit 76px too early — and the canvas
+   would have silently dropped below its 697.9296875 measure. `three-pane.mjs` section H now
+   READS the widths out of the class strings and sums them, so either half moving alone
+   fails. **A coupling Tailwind makes impossible to delete is a coupling you assert.**
 2. **`StudioModal`'s no-portal dependency** (#168).
 3. **`keystatic.config.ts`'s mirror of the image bases** (#172) — test-enforced. **OPEN:
    does the cross-check compare the full key set in both directions?**

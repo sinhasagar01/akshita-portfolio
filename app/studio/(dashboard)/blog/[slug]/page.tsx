@@ -11,7 +11,7 @@
 // arithmetic claim and the arithmetic was never done. The canvas measure is 68ch, which
 // resolves to 745.9px against the wrapper's 16px font rather than the 646 you get by
 // estimating it from the 18px prose. Sidebar 236 plus list 264 plus canvas 794 plus
-// inspector 244 is 1538, and the laptop this is authored on is 1536 wide. The rail costs
+// inspector 320 is 1614, and the laptop this is authored on is 1536 wide. The rail costs
 // the canvas nothing it needs. See lib/studio/three-pane.ts.
 //
 // NO PADDING WRAPPER. This page does not take STUDIO_PAGE, and that is the exception the
