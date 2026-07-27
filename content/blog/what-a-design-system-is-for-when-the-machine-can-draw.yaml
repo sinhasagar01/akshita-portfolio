@@ -6,4 +6,14 @@ heroImage: null
 blocks:
   - discriminant: richText
     value:
-      paragraphs: []
+      paragraphs:
+        - >-
+          For most of my career a design system earned its keep by saving time.
+          Someone had already decided what a primary button looked like, so I
+          did not have to decide again. The value was easy to measure. Screens
+          per week.
+
+
+          That argument is weaker now. A model can produce a plausible button in
+          seconds. It can produce forty of them, each slightly different, each
+          defensible on its own.
