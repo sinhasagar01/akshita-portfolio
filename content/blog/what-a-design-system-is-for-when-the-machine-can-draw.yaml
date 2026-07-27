@@ -45,3 +45,6 @@ blocks:
       text: >-
         A design system is not a library of parts. It is an agreement about what
         nobody has to decide again.
+  - discriminant: heading
+    value:
+      text: The parts that survived were not components
