@@ -8,7 +8,9 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE LINT GATE)
 
-**main** = `bbf179f` = #199 (the deferred sweep). Pinned: `d9e6b06` = STATE for the
+**main** = `3e1a60a` = #200 (the Publish button names its object). Pinned: `f734a7e` = the
+owner's studio publish of the third post, `a397a1d` = STATE for the sweep, `bbf179f` = #199
+(the deferred sweep), `d9e6b06` = STATE for the
 reduced-motion arc, `fa08200` = #198 (the FAB under reduced motion), `258ee1a` = #197 (the
 reduced-motion scroll), `1449487` + `54f1954` = the branch cleanup, `90b856b` = #196 (STATE),
 `bec28c4` = #195 (the ESLint config), `9e3b1b2` = #194 (the inspector at 320), `d21b9a5` = #193 (the hero object-URL lifetime), `2a9c8c2` = #192 (the
@@ -162,7 +164,28 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
 - **#168 `StudioModal`** — **4 modals in 2 files.** Six-item delta list up front.
   **SHADOW LITERAL EXCEPTION.** **HAZARD: no portal.**
 - **#169 chrome pass** — PublishBar becomes a pill. **ERROR TONE SPLIT.** All EIGHT
-  PublishBar states captured.
+  PublishBar states captured. **THE COUNT WAS RECORDED AND THE LIST WAS NOT**, so "EIGHT" sat
+  here as a figure nobody could check — the count variant of the re-derive rule in a milder
+  form. #200 derived the list below.
+
+  **THE EIGHT STATES, DERIVED IN #200 FROM SOURCE — not reproduced from #169.** They cannot be
+  known to match #169's, and claiming they do would be the false-record failure this file
+  refuses elsewhere.
+
+  | # | state | status line | Publish control |
+  |---|---|---|---|
+  | 1 | idle, clean | All changes published | disabled, no Discard |
+  | 2 | idle, unpublished | Unpublished changes | enabled, Discard appears |
+  | 3 | pending (`anyPending`) | unchanged | **both** disabled mid-save |
+  | 4 | publishing | Publishing… | label becomes Publishing… |
+  | 5 | published | Published. Your site is rebuilding… | disabled, badge self-heals |
+  | 6 | publish error | four variants — fs mode, nothing to publish, invalid url, conflict/generic | enabled except "nothing" |
+  | 7 | draft read error | Couldn't load your draft… | server-driven, **unreachable in fs mode** |
+  | 8 | confirm open | Discard all unpublished changes? | whole row replaced by Cancel + Discard |
+
+  Seven of the eight were FORCED individually in #200 through stubbed responses. **State 7 was
+  not**, and is labelled rather than assumed: `draftReadError` is a server prop from
+  `getStudioData()` and is always false in fs mode.
 
 ---
 
@@ -289,17 +312,25 @@ guarantee and #173's splice both held against a real write. Publish merged twice
 (`bf32503`, `3650956`). **Backlog items 7 and 8 are closed.**
 
 ### CURRENT CONTENT STATE
-**One post, `status: published`, with a hero image set.** This has flipped three times, so
-read it from the file rather than from here:
-`content/blog/what-a-data-table-teaches-you-about-trust.yaml`. `/blog` renders one card and
-the article renders; both are now LINKED from the nav and listed in the sitemap.
+**THREE posts, all `status: published`, and the last two were WRITTEN AND PUBLISHED THROUGH
+/studio.** Read them from the files rather than from here, since this has flipped four times:
 
-**PUBLISHING IT WAS A DIRECT COMMIT (#184), NOT A STUDIO WRITE**, so the status write path is
-STILL unexercised and owner-backlog items 7 and 9 stay open. `validateBlogPost` was run
-against the file REWRITTEN AS PUBLISHED before flipping, because drafts are not judged and
-validating it in place would have proven nothing. `dynamicParams: false` means the BUILD
-decides whether the article exists, so it was proven by building rather than by reading the
-diff.
+- `what-a-data-table-teaches-you-about-trust.yaml`
+- `what-a-design-system-is-for-when-the-machine-can-draw.yaml`
+- `ai-first-is-a-research-posture-not-a-feature.yaml`
+
+All three render on production and are listed on `/blog`.
+
+**THE FIRST POST WAS A DIRECT COMMIT (#184), THE OTHER TWO WERE NOT.** That distinction was
+the whole reason owner-backlog items 7 and 9 stayed open, and the studio writes closed them:
+the drafts land as `chore(studio): update blog/<slug> …` commits and publish as a merge
+(`f734a7e`). The status write path, the hero upload, the block-image upload and the three-pane
+editor have all now been exercised by a real author rather than by a gate.
+
+`validateBlogPost` was run against the first file REWRITTEN AS PUBLISHED before flipping,
+because drafts are not judged and validating it in place would have proven nothing.
+`dynamicParams: false` means the BUILD decides whether an article exists, so it was proven by
+building rather than by reading the diff.
 
 **`heroImage` IS NOW SET** to `/images/blog/what-a-data-table-teaches-you-about-trust/heroImage.webp`.
 The previously-orphaned webp became the referenced hero, so the accepted orphan posture no
@@ -954,6 +985,47 @@ snapshot and the diff would read clean. Verified three ways: 9 files in every sn
 identical byte totals, and both `walk` implementations returning identical output over 123
 files. **When a PR touches its own gate, prove the gate still sees.**
 
+## #200 — THE PUBLISH BUTTON SAYS WHAT IT PUBLISHES
+
+An author set a post's status to Published, pressed Publish, and it did not appear on `/blog`.
+**Nothing was broken.** The bar merges the draft branch to main and rebuilds the whole SITE; a
+post's `status` decides whether it renders. Both are right alone and ambiguous together at the
+one moment an author decides they are done.
+
+`Publish` -> **`Publish site`**, and nothing else in the bar changed. **THE REST OF IT ALREADY
+KNEW** — the success message says "Your site is rebuilding" and the status line describes
+CHANGES rather than an entry. The button was the only string that never named its object.
+
+**`Publishing…` IS UNCHANGED, AND THE MEASUREMENT IS WHY.** It renders at **123.84px** against
+`Publish site` at **123.77px**, so the pill does not jump mid-action. `Publishing site…` would
+have. The ambiguity is in the RESTING label, which is what gets read while deciding; the
+progress label appears only after the choice is made.
+
+**THE HELPER LINE WAS THE AMBIGUITY, NOT A NEIGHBOUR TO IT.** `BlogEditPanel` read *"Live on
+/blog once published"*, and by the time it shows the STATUS already reads Published — so "once
+published" could only mean the site and said no such thing. An author reads it as already
+live. **FIXED IN PLACE RATHER THAN EXPLAINED BESIDE**, because a second line would have
+layered copy over an ambiguity instead of removing it. Same shape as #180's re-adding rather
+than inventing.
+
+`status` is untouched. Draft/Published is a universal CMS convention and breaking it would
+cost more than it saves.
+
+**NO RALPH SUITE WAS ADDED, DELIBERATELY.** These are copy strings, and a suite pinning them
+would fail on every future wording change without ever catching a defect. **That is the line
+between what is worth asserting and what is not, and this project has erred toward asserting
+everything.**
+
+### AN OBSERVATION, NOT A SCOPED ITEM
+**`Publish site` deploys the entire site with NO confirmation, while Discard has a mandatory
+one.** Publish fires straight from `onClick`; the only confirm in the bar is Discard's. That
+is backwards against consequence — Discard deletes a draft branch, Publish ships everything to
+production — and **hazard 13 is on record as a publish that shipped a half-finished
+sentence.** Recorded because it is the kind of asymmetry that becomes invisible once you are
+used to it. No fix proposed and none scoped.
+
+---
+
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
@@ -1384,6 +1456,20 @@ All prior rules remain. Added or sharpened across this session:
     that an unread parameter means an unbuilt feature, when the feature was built one line
     away. **THIS WAS NOT THE `FIT_THRESHOLD_PX` SHAPE** and treating it as one would have
     preserved a parameter that never carried the intent it named.
+20. **AN `imageBlock`'s IMAGE DOES NOT APPEAR ON THE CANVAS UNTIL A REFRESH** — OWNER-OBSERVED
+    while writing the third post, **UNDER INVESTIGATION, NOT YET FIXED.**
+    **THE SAME `draftImages` SNAPSHOT GAP #190 CLOSED FOR THE HERO, ONE CONSUMER OVER.**
+    `draftImages` is read server-side at page load, so an image uploaded DURING the session is
+    on the draft branch but not in that array; the rewriter leaves the committed path alone
+    and it 404s against main until publish.
+    #190 fixed the hero by widening `HeroImageField`'s `onChanged` to hand up the `File`, so
+    each holder makes its own object URL. **`BlockImageField` was never widened** — its
+    callback is `onChange: (src: string | null) => void`, a PATH only, with no `File` and no
+    object URL, so the canvas has nothing fresher than the path to draw.
+    That is a derivation from source, not a diagnosis of the observed symptom, and the two
+    should be confirmed to match before anything is built. **The fix shape is #190's, applied
+    to the block-image path.** Note the hero's own fix is verified by real use — see
+    owner-backlog item 10 — so the mechanism is known to work.
 
 ---
 
@@ -1474,19 +1560,18 @@ All prior rules remain. Added or sharpened across this session:
    `/code-review ultra` is user-triggered and billed and would be a genuinely independent
    pass over `41fc15f`. #180's self-review DID find a real defect (the poster sizing), but
    it found it by driving the browser, not by reading the diff — after several clean reads.
-9. **NO `imageBlock` HAS BEEN WRITTEN THROUGH THE LIVE SEAM** (#180).
-   `STUDIO_WRITE_MODE=fs` locally, so every save-draft branch no-ops. Ralph covers the
-   serializer against the real content file, but that is not a commit. **Closes the first
-   time a post with an image is authored through `/studio` in github mode.**
-10. **#190's G6b — THE FRESH HERO UPLOAD SHOWS IN THE CANVAS WITHOUT A RELOAD.** Labelled
-    **UNVERIFIED rather than DEV-OBSERVED**, because dev cannot observe it at all: in fs mode
-    `upload-hero-image` no-ops and returns `{ mode: "fs" }`, so `HeroImageField` takes its
-    middle branch and `onChanged` **never fires**. `STUDIO_GITHUB_REPO` is unset and defaults
-    to the PRODUCTION repo, so github mode is not a local option without a scratch repo — a
-    detour the owner declined, correctly, since `4e900c9` shows real uploads already happen.
-    What IS proven: the precedence rule in ralph, and the canvas rendering a real `blob:` src.
-    **Closes the first time a hero is uploaded through `/studio` in production** — watch that
-    the canvas hero updates immediately rather than after a refresh.
+9. ~~**NO `imageBlock` HAS BEEN WRITTEN THROUGH THE LIVE SEAM**~~ — **CLOSED.** The owner
+   authored, committed and published one through the live seam in `f734a7e`
+   (`content/blog/ai-first-is-a-research-posture-not-a-feature.yaml`), an `imageBlock` with a
+   real uploaded blob at `blocks/d9517012efd9.webp` among 9 blocks across 4 kinds. Open since
+   #180 and closed by use rather than by a gate, which is the only way it could close.
+10. ~~**#190's G6b — THE FRESH HERO UPLOAD SHOWS IN THE CANVAS WITHOUT A RELOAD.**~~ —
+    **CLOSED, AND IT IS AN OWNER OBSERVATION RATHER THAN AN INFERENCE.** The owner uploaded a
+    hero through `/studio` in production and confirms the canvas hero appeared **IMMEDIATELY,
+    with no reload**. #190's `draftImages` snapshot fix — handing the `File` up so each holder
+    makes its own object URL — is verified by real use. It was UNVERIFIED rather than
+    DEV-OBSERVED because fs mode made `onChanged` unreachable locally, so only production
+    could settle it, and production did.
 
 ---
 
@@ -1542,6 +1627,10 @@ All prior rules remain. Added or sharpened across this session:
   motion (`fa08200`) →1187
 - `d9e6b06` docs: STATE closes hazard 18 · **#199** the deferred sweep — inputCls, the
   rename, the skills count, `pinned`, CLAUDE.md (`bbf179f`) →1193
+- `a397a1d` docs: STATE for the sweep · **#200** the Publish button names its object
+  (`3e1a60a`) 1193
+- `f734a7e` **the owner's studio publish** — the third post, with a hero and a real
+  imageBlock, closing owner-backlog items 9 and 10
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
