@@ -6,9 +6,10 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE SOCIAL CARDS)
+## STATE (as of THE INK SHELL)
 
-**main** = `932e59c` = #203 (every blog post gets its own social card). Pinned: `de6fba0` =
+**main** = PR 1 of the ink chrome arc (the ink shell), on `91a3641` = the ink chrome contract.
+Pinned: `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
 STATE for #201 and #202, `6b28e91` + `01c2251` + `6ebd513` = the owner's studio hero uploads for
 the two Fosfor studies and Elevate, `49a2a29` = #202 (the canvas draws a block image before it
 is published), `9982db9` = #201 (the dropped save, coalesced), `50a5275` = STATE for #200 and two closed
@@ -67,16 +68,16 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1264 ACROSS 36 RUNNABLE SUITES
+### RALPH IS 1289 ACROSS 37 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new).
 
-**1264 ACROSS 36 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1289 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -188,6 +189,20 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
   not a generic toggle** — which is why the blog status control is bespoke.
 - **#165 full-bleed shell** — outer card deleted; `overflow-hidden` removal REQUIRED;
   sidebar 236px sticky; ink active pill. **HAZARD: the 236px coupling.**
+
+  **THE INK ACTIVE PILL IS REVERSED AT `lg` BY PR 1 (ink chrome), AND THE ORIGINAL REASONING
+  STAYS ABOVE RATHER THAN BEING OVERWRITTEN** — the standing rule, the one `BlogIndex.tsx`
+  follows for its own reversed decision, because a reversal whose reasoning is deleted leaves
+  two contradictory rationales and no record of which won.
+  **#165's choice was right and is still right on cream.** Measured, `bg-ink-950` with
+  `text-cream-50` is a **19.04:1** figure-ground marker — about as strong as a selection state
+  can be. What changed is the ground, not the judgement: on an ink sidebar the same pill is
+  **1.00:1** and would vanish, taking the only selection marker with it. So at `lg` the shape
+  stays and the figure-ground flips — a white wash at 10% (**1.24:1** measured), with the label
+  stepping ink-200 **10.64 → 15.30** cream-50 and `font-medium` already in place.
+  **BELOW `lg` #165's PILL SHIPS UNCHANGED**, because there the nav is a horizontal scroller
+  with three of six items off screen, so the pill is the primary wayfinding cue and the wash
+  would be the weakest possible replacement. **One decision, two grounds, two answers.**
 - **#166 overview rows** — Contact is a visually LOCKED `<div>`, proven by Tab sequence.
 - **#167 ListDetailLayout** — **CONSUMERS ARE SETTINGS, EXPERIENCE, SKILLS.** Selected stays
   the ACCENT-TINTED PILL. **The attribute-invariant gate was invented here.**
@@ -1599,6 +1614,21 @@ All prior rules remain. Added or sharpened across this session:
   always complete. Fixed with `fetch-depth: 0` and a comment saying why, since the obvious
   "optimisation" is to remove it. **A SUITE CAN DEPEND ON THE SHAPE OF THE CHECKOUT, NOT
   ONLY ON THE FILES IN IT.**
+- **A MEASUREMENT HARNESS NEEDS A SANITY PAIR, ASSERTED BEFORE THE REAL MEASUREMENT.** PR 1's
+  first contrast harness read `getComputedStyle(el).color`, which returns
+  **`oklch(0.14 0.018 60)` UNCONVERTED**, and the regex took `0.14, 0.018, 60` as RGB channels.
+  Every colour resolved to near-black, so **every ratio came back ≈1.0 — including cream-50 on
+  ink-950, which is really 19.04:1.** The output was internally consistent, plausible, and
+  entirely false.
+  **THE VALUE WAS NOT WRONG, IT WAS IN A DIFFERENT COLOUR SPACE**, which is why nothing looked
+  broken. This is a sharper form of "driving the UI can lie too": the tool answered correctly
+  and the question was wrong.
+  **THE FIX IS TWO ASSERTIONS THAT CANNOT BE ARGUED WITH — white/black = 21 and red/white = 4 —
+  RUN INSIDE THE GATE BEFORE ANY REAL PAIR.** Contrast is measured by rasterizing through
+  canvas + `getImageData`, never by parsing a computed colour string. The same harness needed a
+  second correction later, for compositing: a semi-transparent wash painted on a cleared canvas
+  reads as its own colour rather than as itself over the ground, which reported the 10% active
+  wash at 19.96:1 instead of 1.24:1. **Both bugs produced confident numbers.**
 - **A FIX'S PRECONDITION TRAVELS WITH IT.** #190's revoke-on-supersede was correct **because
   the hero's key is FIXED** — one slot, one holder. #202 was briefed to carry that rule to
   block images, whose paths are CONTENT-ADDRESSED, where a new upload creates a NEW key and
@@ -1785,6 +1815,30 @@ All prior rules remain. Added or sharpened across this session:
     enough. Whoever removes the slug should check the render first — the asset is 320×200 into
     a 500px slot, so the mock may genuinely still look better, and that is a judgement rather
     than a lookup.
+22. **A `text-*` COLOUR UTILITY ON AN `<a>` DOES NOTHING IN THIS PROJECT, AND TEN ANCHORS
+    CARRY ONE.** `app/globals.css:278` has an **unlayered** `a { color: inherit; … }`, and an
+    unlayered rule outranks `@layer utilities` **regardless of specificity**, so `.text-ink-600`
+    on an anchor silently loses. Measured both ways: the same class computes **ink-600 on a
+    `<span>` and ink-950 on an `<a>`**. Confirmed in the built bundle — the rule sits at a
+    position where the net brace depth since `@layer utilities{` opened is **0**, i.e. after
+    that layer closed.
+    **IT DEFEATS ONLY `color`.** `hover:border-accent-500` on the same anchor works, because
+    there is no unlayered `a { border-color }`. **`hover:text-*` is ALSO dead** — driven while
+    genuinely hovered, the border went accent-500 and the colour did not move. Raising
+    specificity cannot help when the loss is by layer, which is the part that reads wrong.
+    **THIS IS HAZARD 11'S MECHANISM ON A THIRD ELEMENT** (after `img,video{height:auto}` beating
+    `h-*`). It is invisible because it looks fine: the anchor inherits ink-950 from body, which
+    is 18.13:1 on cream. It only bites when the background moves — on the ink sidebar it is
+    **1.00:1**.
+    **PR 1 fixed the two in the shell** — the sidebar label moved to its `<span>` with
+    `group-hover`, and the topbar set the colour on the CONTAINER so the anchor inherits it,
+    which needs no extra element the attribute-invariant gate would reject.
+    **EIGHT REMAIN**, all on cream so all currently invisible, including a PUBLIC one: the
+    `← Blog` back link in `app/(portfolio)/blog/[slug]/page.tsx` renders ink-950 where its
+    `text-ink-600` intends otherwise. Others sit in `ProjectsEditPanel`, `BlogPostList`,
+    `BlogBlocksEditPanel`, `not-found.tsx`, `error.tsx` and two studio project pages.
+    **Do not "fix" them blind** — each renders ink-950 today and several may look better that
+    way; the defect is that the code says one thing and the screen does another.
 
 ---
 
@@ -1850,6 +1904,19 @@ All prior rules remain. Added or sharpened across this session:
   hooks or lifting selection out of the panel.
   ~~3. IMPLEMENT `pinned` IN `StudioSidebar`~~ — **REMOVED in #199**, because the intent was
   already implemented in the wrapper. See hazard 19 for why the hazard's own text was wrong.
+- **A FIFTH INPUT GEOMETRY STRING LIVES INLINE IN `StudioSearch`, AND #199 COULD NOT REACH IT.**
+  #199 deduped the shared EXPORTS into `inputCls` (13px) and `inputClsMd` (14px). `inputErrorCls`
+  is a third copy of the same box, `labelCls` a fourth export that ink chrome's rule 3 changes,
+  and `StudioSearch` holds a fifth as an inline literal — not an export, so no dedupe pass saw
+  it. **PR 2's input work is at least three edits, not the one the contract claimed.** PR 1
+  restyled the StudioSearch copy locally for the ink topbar, which is why it is recorded here
+  rather than left for PR 2 to rediscover.
+- **MOBILE INK CHROME IS UNBUILT AND DELIBERATELY UNSCOPED.** PR 1 scoped ink to `lg:` and up.
+  Below that the aside is full width above `main` with a horizontally scrolling nav — measured
+  at 500×860 the chrome is a **197px slab, 22.9%** of that viewport and ~30% on a 667px phone,
+  and the active pill is the primary wayfinding cue in a scroller with three of six items off
+  screen. Inverting it there costs **19.04:1 → 1.25:1**. It is a different composition, not the
+  same design smaller, so it needs its own decision rather than a breakpoint sweep.
 - **THE CASE-STUDY CANVAS HAS THE SAME SNAPSHOT GAP #202 CLOSED FOR BLOG.**
   `ProjectsEditPanel` fetches `draftImages` **once** inside `loadSections()` and its own
   comment says it is *"still never re-fetched once loaded"*; `SectionsEditPanel` builds
