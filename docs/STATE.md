@@ -8,7 +8,8 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE LINT GATE)
 
-**main** = `fa08200` = #198 (the FAB under reduced motion). Pinned: `258ee1a` = #197 (the
+**main** = `bbf179f` = #199 (the deferred sweep). Pinned: `d9e6b06` = STATE for the
+reduced-motion arc, `fa08200` = #198 (the FAB under reduced motion), `258ee1a` = #197 (the
 reduced-motion scroll), `1449487` + `54f1954` = the branch cleanup, `90b856b` = #196 (STATE),
 `bec28c4` = #195 (the ESLint config), `9e3b1b2` = #194 (the inspector at 320), `d21b9a5` = #193 (the hero object-URL lifetime), `2a9c8c2` = #192 (the
 imageBlock reading-time gap), `fc8c318` = #191 (STATE), `3b71ac4` = #190 (the canvas draws the
@@ -60,14 +61,14 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1187 ACROSS 33 RUNNABLE SUITES
+### RALPH IS 1193 ACROSS 33 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36).
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -1105,6 +1106,13 @@ All prior rules remain. Added or sharpened across this session:
   of the six were found in a single two-day stretch, which is a statement about the file's
   reliability, not about that stretch. **The instances keep accumulating, and that is the
   rule's value rather than an embarrassment — a rule with one example is an anecdote.**
+- **TAILWIND v4 SCANS COMMENTS, SO PROSE CAN SHIP CSS.** #199's first draft of a comment
+  contained the literal token `focus:border` while explaining that the class was NOT used, and
+  the build emitted `.focus\:border:focus { border-width: 1px }` — a dead selector added by
+  prose. **Name a utility in prose without its class spelling**, or the scanner takes it as a
+  use. Found by the union-of-declarations gate; a raw diff would have buried it in the
+  minifier's regrouping, which is the SECOND time in three PRs the naive diff would have
+  lied. **USE UNION-OF-DECLARATIONS WITH MEDIA CONTEXT AS THE DEFAULT CSS GATE.**
 - **A DEFECT CAN LIVE IN THE COMPARISON RATHER THAN IN EITHER STATE.** #198's FAB overlap was
   invisible reading either rendering on its own — reduced motion looked fine, normal motion
   looked fine — and appeared only when both were driven SIDE BY SIDE. #197's fix for one
@@ -1364,9 +1372,18 @@ All prior rules remain. Added or sharpened across this session:
     returns `null` server-side. Emulation must be set BEFORE load; a probe that toggles it
     live reports a false pass. Playwright is the tool — it is already a devDependency and the
     in-app browser cannot emulate this.
-19. **`StudioSidebar`'s `pinned` IS PASSED AND IGNORED** (found by #195).
-    `renderLink(settings, true)` states the intent at the call site; the function never reads
-    it, so Site settings renders like every other link.
+19. ~~**`StudioSidebar`'s `pinned` IS PASSED AND IGNORED**~~ — **CLOSED by #199, AND THIS
+    HAZARD'S OWN TEXT WAS WRONG.** It said Site settings "renders like every other link". IT
+    DOES NOT. The pinning IS implemented, by the wrapper's
+    `lg:mt-auto lg:border-t lg:border-ink-950/8 lg:pt-2.5`, which pushes it to the bottom of
+    the flex column and draws its separator. `git log -S` puts the parameter in `ca6ab8b`,
+    the original dashboard, **ALREADY UNUSED** — vestigial from the first commit rather than
+    aspirational. So #199 removed it instead of recording it.
+    **CORRECTED RATHER THAN STRUCK, deliberately.** A struck hazard that was wrong about its
+    own cause teaches the wrong lesson to whoever reads the history — here it would teach
+    that an unread parameter means an unbuilt feature, when the feature was built one line
+    away. **THIS WAS NOT THE `FIT_THRESHOLD_PX` SHAPE** and treating it as one would have
+    preserved a parameter that never carried the intent it named.
 
 ---
 
@@ -1395,18 +1412,33 @@ All prior rules remain. Added or sharpened across this session:
   13. Whole-branch publish has already shipped a half-finished sentence once.
 - **The button system.** 87 buttons across 18 files.
 - **Body scroll lock for modals.**
-- **Skills sidebar count** (#165 D3) — needs a semantic decision: categories or total.
-- **`ContentCard.tsx` → `OverviewRow.tsx`** (#166) — the condition never fired.
+- ~~**Skills sidebar count**~~ — **BUILT in #199.** The owner chose CATEGORIES. The recorded
+  scope was four edits and it was **FIVE** — `StudioSidebar`'s Skills entry had no `count`
+  property at all, so the four alone would have changed nothing on screen. A count claim wrong
+  about a count. `skills` is also a SINGLETON, so the seed is `skills?.categories.length ?? 0`;
+  `skills.length` would have shipped `undefined` silently.
+- ~~**`ContentCard.tsx` → `OverviewRow.tsx`**~~ — **DONE in #199.** #166 deferred it to
+  "whichever later task opens this file" and none did, so it sat nine PRs. **A DEFERRAL
+  CONDITIONAL ON SOMETHING THAT MAY NEVER HAPPEN HAS NO OWNER** — give it a trigger that
+  will actually fire, or do it.
 - **Home/End keys** and a standing ralph suite for `ListDetailLayout` (#167).
-- **`inputCls` duplicated across 8 files** (#168).
+- ~~**`inputCls` duplicated across 8 files**~~ — **DONE in #199, AND THE COUNT AND THE PREMISE
+  WERE BOTH WRONG.** SEVEN declarations, not eight, and they were **NOT IDENTICAL**: three
+  distinct strings. Four panels carried `text-[14px]`, the block forms and the case-study index
+  `text-[13px]`, and `LinksEditPanel` a structurally different box. **THE COPIES HAD DRIFTED,
+  SO THE DEDUPE WAS NEVER A DEDUPE** — a naive merge would have resized rendered type on four
+  surfaces. Only byte-identical copies were merged, into `inputCls` (13px) and `inputClsMd`
+  (14px). **THE SPLIT IS DELIBERATE AND UNRESOLVED**; unifying it is an owner decision and
+  `inputClsMd`'s comment says so. Ralph section G in `studio-nav-active` holds the dedupe.
 - **Post renaming** — create-new, move assets, delete-old. The title is read-only for this.
 - **Blog pagination**, an OG route, RSS, the share row.
 - **PublishBar centring over the canvas** rather than the work area — **13px off with the
   list open, 131px collapsed.** Accepted in #178 and the reasoning is in the component's
   hazard comment: centring over the canvas needs the list and inspector widths too, a third
   and fourth hand-coupled literal on a component ten pages share.
-- **CLAUDE.md staleness beyond the blog bullet** — the build sequence ends at Phase 5 and
-  Open items still lists confirming the editorial direction, long settled.
+- ~~**CLAUDE.md staleness**~~ — **DONE in #199.** The build sequence now says phases 0 to 5
+  are complete and lists what followed; Open items drops the editorial-direction question and
+  names content as the real remaining work.
 - ~~**An ESLint config.**~~ — **BUILT in #195.** It was never a tooling problem: every
   dependency was already installed and a `lint` script already existed, so only the config
   file was missing.
@@ -1415,8 +1447,8 @@ All prior rules remain. Added or sharpened across this session:
   one that affected a real reader. See hazard 18 for what it actually turned out to be.
   **2. DELETE THE `rules-of-hooks` DISABLE** (hazard 17) by moving the early return below the
   hooks or lifting selection out of the panel.
-  **3. IMPLEMENT `pinned` IN `StudioSidebar`** (hazard 19), or remove it from the call site
-  deliberately.
+  ~~3. IMPLEMENT `pinned` IN `StudioSidebar`~~ — **REMOVED in #199**, because the intent was
+  already implemented in the wrapper. See hazard 19 for why the hazard's own text was wrong.
 - **Migrating other studio pages to `ThreePaneShell`**, extracting the shared shell at the
   SECOND consumer. `data-studio-fullheight` and the `:has()` scoping already make the
   layout side reusable.
@@ -1508,6 +1540,8 @@ All prior rules remain. Added or sharpened across this session:
   cleanup, 13 deleted and the squash-merge illustration dated
 - **#197** the reduced-motion scroll (`258ee1a`) →1183 · **#198** the FAB under reduced
   motion (`fa08200`) →1187
+- `d9e6b06` docs: STATE closes hazard 18 · **#199** the deferred sweep — inputCls, the
+  rename, the skills count, `pinned`, CLAUDE.md (`bbf179f`) →1193
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
