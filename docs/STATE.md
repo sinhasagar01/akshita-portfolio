@@ -6,9 +6,11 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE BLOG CANVAS IS INLINE-EDITABLE)
+## STATE (as of THE CANVAS DRAWS THE WHOLE ARTICLE)
 
-**main** = `2c258cd` = #187 (the inline canvas). Pinned: `f7426a5` = #186 (STATE),
+**main** = `3b71ac4` = #190 (the canvas draws the head, the hero and the body). Pinned:
+`c3b30f4` = #189 (the bold toolbar, extracted), `f233acc` = #188 (STATE + the two rewrites
+#187 missed), `2c258cd` = #187 (the inline canvas), `f7426a5` = #186 (STATE),
 `198e503` = #185 (nav link, sitemap, dead component), `4bc1573` = #184
 (the post published), `1e3e433` = #183 (ralph in CI), `db907ed` = #182 (the truncated
 sentence restored), `3093538` = #181 (STATE), `82edf03` = the owner's publish that carried
@@ -20,7 +22,15 @@ proof-and-verification note. Earlier: `9a25bc0` = #174, `c9bd10d` = #173, `a6bc8
 `c164c85` = #171, `92f8378` = #170, `0d21a93` = #169, `7e591ae` = #168, `5839039` = #167,
 `54be07e` = #166, `4228b14` = #165, `2a87d96` = #164, `e90742f` = #163.
 
-`feat/blog-editor-3pane` and `feat/blog-image-block` are merged but NOT deleted.
+**ELEVEN MERGED BRANCHES ARE STILL PRESENT**, local and remote. `feat/blog-canvas-hero`
+(#190) was deleted on merge; nothing before it was.
+
+**DO NOT CLEAN THEM UP WITH `git branch --merged`.** This repo squash-merges, and a squash
+merge makes a NEW commit rather than making the branch an ancestor, so `--merged main` lists
+only `feat/blog-editor-3pane` (a true merge commit, `438bf95`) and `ralph/phase1` —
+**every squash-merged branch reports as UNMERGED even though its content is on main**. The
+command would keep exactly the wrong set. Delete against the PR list or `gh pr list --state
+merged`, never against ancestry.
 
 **THE BLOG IS LAUNCHED.** Five block kinds all renderable and reachable, one post
 PUBLISHED, the nav link shipped, and `/blog` plus the post in the sitemap. Verified on
@@ -29,13 +39,14 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1068 ACROSS 30 RUNNABLE SUITES
+### RALPH IS 1144 ACROSS 32 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
-`inline-canvas` 39).
+`inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
+→ 1144 (#190, `canvas-head` 26).
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -54,21 +65,25 @@ shell loop; it is what re-learned this trap every session.
 The runner prints the per-file list, the sum and the suite count from the SAME rows, so the
 list and the total cannot drift apart — they did once, undetected for six PRs.
 
-**PASS/FAIL IS THE EXIT CODE, never parsed text.** All 29 runnable suites end with
-`process.exit(failures === 0 ? 0 : 1)`, verified. Parsing is for the count only, which is
+**PASS/FAIL IS THE EXIT CODE, never parsed text.** All 32 runnable suites end with
+`process.exit(failures === 0 ? 0 : 1)`, verified. (This line read "29" while the heading
+above it read 30 — a drift of exactly the kind the committed runner exists to prevent, and
+one this file introduced by hand. Both are now re-derived from a run rather than edited.) Parsing is for the count only, which is
 reporting, not verdict. It also fails a suite that **exits 0 having asserted NOTHING** — a
 gate that reports zero subjects is not a pass.
 
 `parity.mjs` is excluded and NAMED as skipped, never silently dropped. It needs a running
 dev server and is driven from a browser console.
 
-### SIX ARCS COMPLETE
+### SEVEN ARCS COMPLETE
 1. **Work-section rebuild — COMPLETE** (#159–#162).
 2. **Studio restyle — COMPLETE** (#164–#169).
 3. **Blog — COMPLETE** (#170–#176), plus #177 tooling and nav fixes.
 4. **The 3-pane editor relayout — COMPLETE** (#178, merged `438bf95`).
 5. **imageBlock, the last authoring gap — COMPLETE** (#180, merged `41fc15f`).
-6. **The inline-editable canvas — COMPLETE** (#187, merged `2c258cd`).
+6. **The inline-editable canvas — COMPLETE** (#187, merged `2c258cd`), plus the bold
+   toolbar (#189, merged `c3b30f4`).
+7. **The canvas draws the whole article — COMPLETE** (#190, merged `3b71ac4`).
 
 ---
 
@@ -695,8 +710,125 @@ have differed and fired.
    shipped without them. A rewrite that lives only in a plan is a rewrite that does not
    happen — see the working rules.
 
+### #189 · THE BOLD TOOLBAR, EXTRACTED RATHER THAN COPIED (`c3b30f4`)
+`BoldToolbar` was module-private inside `SectionsEditPanel` until blog needed it. Extracted
+byte-identically with `selectWholeAnchor`, so ONE definition owns which marks exist — bold,
+italic and link, because those are what `RichRun` can express. A second copy would drift the
+first time a mark was added to one collection. **Self-contained Tailwind, proven by a
+byte-identical CSS bundle.** Ralph `inline-canvas` 39 → 46.
+
 ---
-## LOCKED DECISIONS (do not change without being asked)
+
+## ARC 7 — THE CANVAS DRAWS THE WHOLE ARTICLE (COMPLETE)
+
+`#190`, merged `3b71ac4`. Two commits on one branch: the hero, then the head. The canvas
+scope is now **the head, the hero and the body** — the back link and the love block stay out
+as navigation and interaction rather than content.
+
+### THE INVESTIGATION'S DECISIVE FINDING WAS A READ OF THE BUILT HTML
+`next/image` with `fill` emits a **BARE `<img>` and no wrapper element**. That single fact
+decided the arc. Had it emitted a wrapper, a canvas hero would have been a different element
+tree by construction and CLAUDE.md's named failure mode; because it emits none, the
+substitution is **same-element, different-attributes** — the identical shape as `rewriteSrc`.
+The `relative aspect-[16/9]` frame is authored by the PAGE, not by next/image.
+**Read from `.next`, not reasoned about**, and it is the reason there was anything to build.
+
+### HAZARD 11 FIRED A THIRD TIME, AND THIS TIME NO BOX COULD SEE IT
+The canvas `<img>` carries next/image's own inline fill style. The obvious cleanup —
+`absolute inset-0 h-full w-full object-cover` — renders **391.664px against the article's
+390.5781px**, because the unlayered `img, video { height: auto }` outranks `h-full`.
+
+**The dangerous part is that the outer box is unaffected.** `aspect-[16/9]` holds the frame,
+so the figure still measures `392.5781`, the prose still starts at the same y, and **A1, G2
+and the parity walk all report PASS**. Only the crop inside the frame is wrong, by an amount
+that scales with the source aspect's distance from 16/9 — 1.086px here, grossly more for a
+portrait hero.
+
+So the protection is **a string assertion against next/image's emitted output**, not a
+measurement: `HERO_FILL_STYLE_CSS` in `lib/blog/hero-fill.ts`. The mutation that writes the
+cleanup fails the suite. **This is the pattern whenever a defect is invisible to the gate
+family you would reach for first — change the gate family, do not add another measurement.**
+
+### THE COLUMN WAS HOISTED, NOT THE HERO — a catch that would have been silent
+The measured 44px gap depends on `<figure>` and `<BlogProse>` being **SIBLINGS inside one
+wrapper**, exactly as they are inside the article's `<main>`. Rendering the hero in its own
+wrapper above the empty-post branch would have introduced a margin-collapse boundary the
+article does not have. **And the figure's outer box would still have measured correctly**, so
+nothing would have caught it. One column, hero and body inside it, declared ONCE — two copies
+of the class string A1 pins is how the measure drifts.
+
+### THE DEFECT THE PARITY WALK STRUCTURALLY CANNOT SEE
+`id="blog-article-head"` is resolved by `ReadingVessel` through `document.getElementById`,
+and the harness renders **both sides on one page**. An unconditional id would put a duplicate
+in the document and hand `getElementById` whichever came first. **The walk compares BOXES, so
+it would report that clean.** The id is conditioned on the `canvas` flag — an attribute
+difference on an element present on both sides — and the assertion lives in ralph. A second
+instance of the general rule above.
+
+### PREVIEW ONLY, AND THE READ-ONLY TITLE HAS A SCHEMA REASON
+Three of the head's five fields are not unimplemented, they are **uneditable**:
+- **`title` IS THE SLUG.** `keystatic.config.ts` declares `slugField: "title"` with
+  `fields.slug`, and `sanitizeBlogPatch` rejects the key — *"title is the entry slug and
+  cannot be edited here"*. A contenteditable title would **400 on the first keystroke**.
+  Changing it is a RENAME (new file at the new slug, move `public/images/blog/<slug>/`,
+  delete the old, and the published URL HARD-404s because the article sets
+  `dynamicParams = false`). That is the deferred renaming arc, not a field.
+- **`readingTime` is COMPUTED** from the blocks.
+- **`date` is stored `2026-07-24`, rendered `24 JULY 2026`.** Editing the rendered text means
+  parsing a display format back to ISO, where a bad parse **writes a wrong value rather than
+  failing loudly**.
+
+That leaves `dek` and `topic` as the only two that could ever be inline, and a head where two
+of five fields carry a dashed outline teaches no rule at all. So none of it is editable and
+the inspector stays the one place the head is written.
+
+### READING TIME IS RECOMPUTED, NOT PASSED DOWN
+The article computes it from the blocks, so a canvas showing a server-supplied number would
+drift the moment a paragraph was added — **and the drift would read as a rendering bug rather
+than a stale prop.** `readingTimeMinutes` and `formatLongDate` are both dependency-free (zero
+imports), so the canvas runs the same functions the article does. The head's `dek`, `date`
+and `topic` come from `useDraftForm`'s working copy, so the canvas tracks the inspector as it
+is typed. **Driven: removing blocks moved it 2 min → 1 min.**
+
+### THE draftImages SNAPSHOT GAP, CLOSED
+`draftImages` is read server-side at page load, so a hero uploaded DURING the session is on
+the draft branch but not in that array — the rewriter leaves the path alone, it 404s against
+main, and the canvas shows a broken frame. **The bug the draft proxy exists to prevent,
+reappearing one layer up because the proxy's input is a snapshot.** `onChanged` was widened to
+carry `{ heroImage, previewUrl }` and the object URL wins.
+
+**The widening was additive.** Both call sites pass zero-arg arrows, and a lower-arity
+function is assignable to a higher-arity type, so projects compiled untouched — the check that
+decided it was safe to widen a shared component rather than fork it. Proven, not inferred: the
+projects hero field's DOM hashes identically before and after.
+
+### GATES
+| Gate | Result |
+|---|---|
+| G1 article DOM | **Byte-identical to main** across all 9 normalized files, re-run after BOTH commits. Two-build determinism control clean first. LCP preload and srcset survived nesting. |
+| G2 hero box | figure `697.9297 x 392.5781`, img `695.9297 x 390.5781`, gap `44` — the article's production values, delta 0 |
+| G3 A1 | `697.9296875` with hero AND head present, **both pane states** |
+| G4 branches | hero; no-hero **identical on both sides**; hero + zero blocks still shows the hero |
+| G5 parity | **3 pairs** (head 7, hero 3, prose 10 elements per side), **0 findings**, one `#blog-article-head`, zero duplicate ids |
+| G6a | the canvas renders a real `blob:` src at an unchanged box |
+| G6b | **UNVERIFIED, owner-only** — see the backlog |
+| G7 projects | DOM hash identical (`ad38db8`, 27 nodes); a real file driven through the picker hits the fs branch with ZERO JS errors |
+| G8 | ralph 1075 → **1144** across 32 suites; nine mutations, all caught; **CSS bundle BYTE-IDENTICAL** — zero selectors added, which is the point of the inline style; tsc clean |
+
+### THREE THINGS FOUND WHILE BUILDING
+1. **A COMMENT OF MINE WAS WRONG AND THE MEASUREMENT CAUGHT IT.** I wrote that the empty-post
+   message "stays centred". It was never pane-centred — the unlayered `p { max-width: 68ch }`
+   caps it at `599.5234px` — and moving it inside the column brings it **51.5313px CLOSER**,
+   not further. The comment now carries the numbers. **A plausible claim in a comment is still
+   a claim; measure it.**
+2. **CONSOLE ERRORS THAT WERE STALE, NOT REAL.** A `node:fs`-in-the-client trace and an
+   `inert` empty-string warning both appeared mid-session and both were buffer artifacts of a
+   stash/unstash rebuild. Confirmed from three directions: no client component imports
+   `lib/site`, `ThreePaneShell` has the correct `inert={collapsed}`, a fresh tab logs nothing,
+   and the production build (which fails HARD on a real client `node:fs` import) succeeded.
+   **Read a console error's provenance before reporting it.**
+3. **`readingTimeMinutes` HAS NO `imageBlock` CASE** — found while wiring the live count, not
+   fixed. See hazards.
 
 All prior locked decisions remain. Added across this session:
 - **`category` is editorial taxonomy, never derived from `template`.**
@@ -997,6 +1129,11 @@ All prior rules remain. Added or sharpened across this session:
 11. **The unlayered `img, video { height: auto }` at `app/globals.css:271`** (#180) — it
     silently beats every `h-*` utility on an `<img>`. Not removed, because the inline figure
     and other images legitimately want it; the cost is that image sizing must be authored.
+    **FIRED A THIRD TIME IN #190**, and that firing is the instructive one: inside an
+    `aspect-[16/9]` frame the WRONG sizing leaves every outer box correct, so A1, G2 and the
+    parity walk all pass while the image crops wrong. The guard there is a string assertion
+    against next/image's emitted style (`HERO_FILL_STYLE_CSS`), not a measurement. **Whenever
+    this rule is in play, ask what the box gates CANNOT see.**
 12. ~~**BLOG HAS NO PARITY HARNESS**~~ — **BUILT IN #187**, at `/dev/blog-parity/<slug>`.
     It cost three hand-catches first: the 48px fidelity gap (#178), the `vw` bleed bug
     (#180), and this arc's own premise. It reuses `parity.mjs`'s walker UNCHANGED and
@@ -1009,6 +1146,22 @@ All prior rules remain. Added or sharpened across this session:
     structurally valid and `validateBlogPost` returns ok. The mitigation today is reading the
     content diff before publishing. A per-entry publish, or a diff preview in the PublishBar,
     would be the real fix and neither is scoped.
+14. **`readingTimeMinutes` HAS NO `imageBlock` CASE** (`lib/blog/select.ts:108`, found in
+    #190). It switches on `heading`, `pullQuote`, `richText` and `videoEmbed` — and counts
+    `videoEmbed`'s caption — so an `imageBlock` caption contributes ZERO words. `imageBlock`
+    landed in #180 and this counter was never updated. Its `default` deliberately contributes
+    nothing rather than throwing, **so the omission is silent by design**. Same drift class the
+    mapped-type discipline prevents in `BlogProse`, but on a `switch`, where an unhandled kind
+    is not a compile error. The count is now rendered live in the canvas, so it is more visible
+    than it was. **Not fixed — it changes a published post's displayed reading time.**
+15. **THE HERO OBJECT URL IS NEVER REVOKED** (`HeroImageField`, pre-existing, confirmed in
+    #190). `URL.revokeObjectURL` runs on the three FAILURE paths and on none of the success
+    paths, and there is no unmount cleanup, so each successful upload leaks one object URL
+    until the document unloads. Since #190 the value is held in TWO places — the field's own
+    thumbnail and `BlogEditPanel` for the canvas hero — so **revoking on either side alone
+    shows a broken frame on the other**, which is the symptom the canvas hero exists to fix,
+    arriving from the other direction. Bounded by uploads-per-page-visit. Documented at the
+    owning site.
 
 ---
 
@@ -1016,10 +1169,17 @@ All prior rules remain. Added or sharpened across this session:
 
 - ~~**Images inside a post body**~~ — **BUILT in #180.** `imageBlock`, the hidden poster and
   inline figures closed together, as the framing said they would.
-- **THE BOLD TOOLBAR for the blog canvas** (#187 deferred it). Until it lands, bold, italic
-  and links are authorable as MARKERS in the inspector's textarea — existing marks render and
-  round-trip correctly, they just cannot be applied from the canvas. Bringing it means
-  extracting `BoldToolbar` and reinstating `boldDirty` and the execCommand cleanup path.
+- ~~**THE BOLD TOOLBAR for the blog canvas**~~ — **BUILT in #189** (`c3b30f4`). `BoldToolbar`
+  was extracted from `SectionsEditPanel` byte-identically rather than copied, so ONE module
+  owns which marks exist. Bold, italic and link are now applicable from the canvas.
+- ~~**THE CANVAS DOES NOT DRAW THE HERO OR THE HEAD**~~ — **BUILT in #190** (`3b71ac4`).
+- **INLINE-EDITING `dek` AND `topic` IN THE CANVAS HEAD.** #190 made the head preview-only,
+  and the reasoning is in `BlogArticleHead`: three of its five fields are structurally
+  uneditable, so a head with outlines on the other two teaches no rule. If it is ever wanted,
+  those two are the only candidates and `inlineEditProps` is the mechanism.
+- **CLICK-TO-FOCUS ON THE CANVAS HERO** — routing a click to the inspector's uploader. An
+  `onClick` on the existing `<figure>` costs no element and no box. Deliberately not built in
+  #190; note it if the absence of an affordance turns out to confuse.
 - **THE CASE-STUDY PASTE GAP.** #187 gave blog a multi-line paste handler and deliberately
   left case studies without one. The asymmetry is honest, not an oversight.
 - **CANVAS HIGHLIGHT ON CHIP CLICK.** Selection is dual-source, but clicking a chip gives no
@@ -1072,6 +1232,15 @@ All prior rules remain. Added or sharpened across this session:
    `STUDIO_WRITE_MODE=fs` locally, so every save-draft branch no-ops. Ralph covers the
    serializer against the real content file, but that is not a commit. **Closes the first
    time a post with an image is authored through `/studio` in github mode.**
+10. **#190's G6b — THE FRESH HERO UPLOAD SHOWS IN THE CANVAS WITHOUT A RELOAD.** Labelled
+    **UNVERIFIED rather than DEV-OBSERVED**, because dev cannot observe it at all: in fs mode
+    `upload-hero-image` no-ops and returns `{ mode: "fs" }`, so `HeroImageField` takes its
+    middle branch and `onChanged` **never fires**. `STUDIO_GITHUB_REPO` is unset and defaults
+    to the PRODUCTION repo, so github mode is not a local option without a scratch repo — a
+    detour the owner declined, correctly, since `4e900c9` shows real uploads already happen.
+    What IS proven: the precedence rule in ralph, and the canvas rendering a real `blob:` src.
+    **Closes the first time a hero is uploaded through `/studio` in production** — watch that
+    the canvas hero updates immediately rather than after a refresh.
 
 ---
 
@@ -1113,6 +1282,9 @@ All prior rules remain. Added or sharpened across this session:
 - **#184** the post published (`4bc1573`) · **#185** nav link + sitemap + delete
   FooterExplore (`198e503`)
 - **#186** docs: STATE for the launch (`f7426a5`) · **#187** the inline canvas (`2c258cd`) →1068
+- **#188** docs: STATE + the two rewrites #187 missed (`f233acc`)
+- **#189** the bold toolbar, extracted rather than copied (`c3b30f4`) →1075
+- **#190** the canvas draws the head, the hero and the body (`3b71ac4` squash-merge) →1144
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -1122,17 +1294,21 @@ All prior rules remain. Added or sharpened across this session:
 
 **THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
 
-1. **WRITE POSTS THROUGH `/studio`**, with images, EDITING ON THE CANVAS. The highest-value
-   next step by a wide margin: it closes owner-backlog items 7 and 9 together, exercises the
-   status write path for the first time, and is the first real load on the editor — now
-   including inline editing, whose gates are all DEV-OBSERVED. **READ THE CONTENT DIFF
-   BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish has already shipped
-   a half-finished sentence once, and CI cannot tell one from a finished one.
-2. **Optional:** `/code-review ultra` over `198e503`. #178, #180 and #185 were all
-   self-reviewed.
+1. **WRITE POSTS THROUGH `/studio`**, with images and a hero, EDITING ON THE CANVAS. The
+   highest-value next step by a wide margin: it closes owner-backlog items **7, 9 and 10**
+   together, exercises the status write path for the first time, and is the first real load
+   on the editor — now including inline editing and the full article preview, whose gates are
+   all DEV-OBSERVED or UNVERIFIED. **When you upload the hero, watch whether the canvas
+   updates immediately or only after a refresh** — that single observation closes item 10.
+   **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish
+   has already shipped a half-finished sentence once, and CI cannot tell one from a finished
+   one.
+2. **Optional:** `/code-review ultra` over `3b71ac4`. #178, #180, #185, #187, #189 and #190
+   were all self-reviewed, and #190 is the largest of them.
 3. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a
-   real incident behind it); a blog parity harness (hazard 12); migrate other studio pages
-   to `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest`
+   real incident behind it); the `imageBlock` gap in `readingTimeMinutes` (hazard 14, a
+   one-case fix that changes a published post's displayed reading time); migrate other studio
+   pages to `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest`
    yields zero parity pairs (hazard 10).
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
