@@ -40,3 +40,8 @@ blocks:
           at one screen at a time. It surfaced in support tickets, where someone
           described a flow that existed in no document we had, because it
           crossed three squads.
+  - discriminant: pullQuote
+    value:
+      text: >-
+        A design system is not a library of parts. It is an agreement about what
+        nobody has to decide again.
