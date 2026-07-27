@@ -17,3 +17,6 @@ blocks:
           That argument is weaker now. A model can produce a plausible button in
           seconds. It can produce forty of them, each slightly different, each
           defensible on its own.
+  - discriminant: heading
+    value:
+      text: The constraint moved
