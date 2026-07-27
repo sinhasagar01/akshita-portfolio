@@ -35,3 +35,14 @@ blocks:
           before still exists. So the assistant becomes a parallel route to the
           same screen, and a slower one, because now there is a sentence to
           compose.
+  - discriminant: imageBlock
+    value:
+      src: >-
+        /images/blog/ai-first-is-a-research-posture-not-a-feature/blocks/d9517012efd9.webp
+      alt: >-
+        Two versions of the same task. In the first, five steps run left to
+        right with an assistant hanging off the middle. In the second, three of
+        the steps collapse into one.
+      caption: ''
+      wide: false
+      decorative: false
