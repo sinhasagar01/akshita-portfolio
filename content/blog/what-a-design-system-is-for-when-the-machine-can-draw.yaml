@@ -79,3 +79,20 @@ blocks:
   - discriminant: heading
     value:
       text: The system is now an input
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          Anthropic's Claude Design makes this concrete in a way I did not
+          expect. During setup it reads your codebase and builds a design system
+          from what it finds, then applies that system to everything you make
+          afterwards.
+
+
+          The system stops being what you produce at the end of a project. It
+          becomes what you feed in at the start.
+
+
+          That is a good change, and it raises the price of a vague system. A
+          model reading an inconsistent codebase will derive an inconsistent
+          system, then apply it faithfully, at speed, to everything.
