@@ -62,17 +62,36 @@ function getActiveSection(): SectionId | null {
 
 export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   const resume                      = links.find((l) => l.label === RESUME_LABEL) ?? null;
-  // AN ACCESSIBILITY GAP, NOT DEAD CODE, AND THAT IS WHY IT IS NOT DELETED.
-  // `useReducedMotion()` is called here and its result is NEVER CONSULTED anywhere in this
-  // file — which animates a clip-path blob menu, hides the nav row on scroll, and fades a
-  // glass sheet in and out. So a reader who asks for reduced motion gets all of it anyway.
-  // The intent was set up and never wired.
+  // CONSULTED IN EXACTLY TWO PLACES, AND THE CSS IS WHY THERE ARE ONLY TWO.
   //
-  // Deleting the line would silence lint and destroy the only evidence that the intent
-  // existed, which is #178's FIT_THRESHOLD_PX failure in reverse — there a constant had no
-  // consumer, here a consumer has no constant. Kept, disabled with this reason, and named in
-  // the PR body as a follow-up. THE FOLLOW-UP IS TO WIRE IT, NOT TO REMOVE IT.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- see above; wire it, do not delete it
+  // Hazard 18 described this as unguarded animations. It was real that the hook was unused
+  // and wrong about what that cost. Every CSS animation this file drives is ALREADY handled
+  // in globals.css under `prefers-reduced-motion` — the blob menu swaps its clip-path for an
+  // opacity toggle, the sheet and FAB lose their transitions, the morph and logo blocks are
+  // wrapped in `no-preference`, and the hover affordances fall to the global
+  // `transition-duration: 0.01ms` reset. The nav row even KEEPS its hide behaviour and only
+  // loses the translate, which is the right call and not one a blanket "disable it" would
+  // have made.
+  //
+  // What the reset structurally CANNOT reach is a scroll animated by script. An explicit
+  // `behavior: "smooth"` OVERRIDES `scroll-behavior: auto !important`, so the THREE calls
+  // that pass it were animating for readers who asked for no animation. That is #171's R2
+  // finding one layer up: the CSS reset does not stop SMIL, and by extension does not stop
+  // anything driven outside CSS.
+  //
+  // THREE, not the two the investigation found. Two are `scrollIntoView`; the third is the
+  // logo's `window.scrollTo`, which a search for `scrollIntoView` walks straight past. The
+  // ralph suite found it, which is the argument for the suite existing.
+  //
+  // THE IRONY IS THE POINT: the reduced-motion path is the ONLY path that reached them.
+  // SmoothScrollProvider returns bare children under reduce, so `smoothScroll` and `lenis`
+  // are both null and both branches fall through to the `else`. A reduced-motion reader
+  // clicking a nav link got an animated smooth scroll nobody else got.
+  //
+  // NOTE IT DOES NOT LIVE-UPDATE, whatever its docstring says. `useReducedMotion` snapshots
+  // into `useState` at mount and never re-reads (the library's own TODO admits it), and it
+  // returns `null` server-side. Toggling the OS setting mid-session changes nothing until a
+  // remount — which is why the gate for this had to emulate before load and reload.
   const reduced                     = useReducedMotion();
   const [scrolled, setScrolled]     = useState(false);
   const [active, setActive]         = useState<SectionId | null>(null);
@@ -250,7 +269,10 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     requestAnimationFrame(() => {
       if (smoothScroll) smoothScroll.scrollToTarget(el, { offset: SCROLL_TO_OFFSET });
       else if (lenis) lenis.scrollTo(el, { offset: SCROLL_TO_OFFSET });
-      else el.scrollIntoView({ behavior: "smooth" });
+      // THIS `else` IS THE REDUCED-MOTION PATH. Both branches above are null under reduce
+      // (SmoothScrollProvider renders no provider), so an explicit "smooth" here animated
+      // for exactly the readers who asked it not to. Same shape as PreviewRail:317.
+      else el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
     });
   }
 
@@ -306,7 +328,9 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     if (!el) return;
     if (smoothScroll) smoothScroll.scrollToTarget(el, { offset: SCROLL_TO_OFFSET });
     else if (lenis) lenis.scrollTo(el, { offset: SCROLL_TO_OFFSET });
-    else el.scrollIntoView({ behavior: "smooth" });
+    // See the note on the same `else` in the mobile handler above — this is the desktop
+    // twin, and it is the one a reduced-motion reader hits on every nav click.
+    else el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   }
 
   // Hover sliding indicator — measure the link and move ONE pill (magic move).
@@ -343,7 +367,10 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         if (pathname !== "/") return;
         e.preventDefault();
         if (smoothScroll) smoothScroll.scrollToTarget(0);
-        else window.scrollTo({ top: 0, behavior: "smooth" });
+        // The third of the same shape, and the one the investigation MISSED — it greps as
+        // `window.scrollTo`, not `scrollIntoView`, so a search for the latter walked past it.
+        // The ralph suite caught it. Same reasoning as the two above.
+        else window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
       }}
     >
       <span className="logo-sigwrap">
