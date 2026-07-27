@@ -98,6 +98,15 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                                        already records as nearly invisible. Now white/12 -> 1.45.
             border white/12 -> 1.45:1  Now white/24 -> 1.96.
 
+          THE WELL IS white/16, NOT #211's white/12, AND THE REASON IS THE RULE THIS ARC KEEPS
+          RELEARNING. #211 derived white/12 against a topbar that composited to 51,43,39 — ink
+          at 85% over cream. #214 made that bar SOLID ink-950 to fix the L, and the same
+          white/12 over the darker ground fell to 1.32, BELOW the floor it had cleared. THE
+          VALUE DID NOT CHANGE; ITS GROUND DID. Re-derived on the new bar, white/16 reads 1.50,
+          above the 1.45 that shipped. Everything else on this well IMPROVED with the darker
+          ground — placeholder 5.08 -> 7.10, typed value 9.10 -> 12.70 — which is why this is
+          the only number that moved.
+
           A RECESSED WELL WAS TESTED AND REJECTED ON EVIDENCE. "Well" implies recessed, so
           black/15 through black/35 were measured: every one lands at 1.10-1.22 against the bar,
           WORSE than white/12, because the bar is already near the bottom of the range. Lighter
@@ -106,7 +115,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
 
           THE TRADE THIS MAKES, STATED: brightening the well LOWERS the contrast of everything
           drawn on it. That is why the foregrounds below had to move in the same change. */}
-      <div className="flex min-h-10 items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/24 lg:bg-white/12">
+      <div className="flex min-h-10 items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/24 lg:bg-white/16">
         {/* ink-200 at `lg` for the same reason as the placeholder — see below. */}
         <IconSearch className="size-4 text-ink-400 lg:text-ink-200" />
         <input

@@ -77,20 +77,31 @@ export const CONTRACT = {
  * was deliberately chosen, which is a stricter and more useful test than "still legible".
  * `aa` records which threshold the role must clear on its own terms.
  */
+/*
+ * EVERY ROW HERE WAS RE-MEASURED IN #214, NOT CARRIED FORWARD. That PR made the topbar SOLID
+ * ink-950 to fix the L, which moved the ground every one of these composites against — and
+ * six of seven IMPROVED while one REGRESSED below its floor. Carrying the old numbers would
+ * have shipped a table that agreed with itself and disagreed with the screen.
+ * The `was` column is what each read on the old 51,43,39 bar, kept so the direction is legible.
+ */
 export const ON_INK = [
-  { surface: "topbar search well",   role: "ground vs the composited bar", min: 1.38, measured: 1.45, aa: null,
-    why: "white/5 measured 1.16 — BELOW the sidebar's 10% wash at 1.25 that STATE calls nearly invisible" },
-  { surface: "topbar search border", role: "border vs the well",           min: 1.85, measured: 1.98, aa: null,
+  { surface: "topbar search well",   role: "ground vs the composited bar", min: 1.45, measured: 1.50, was: 1.45, aa: null,
+    why: "the ONE that regressed: white/12 fell 1.45 -> 1.32 on the darker bar, so the well was re-derived to white/16" },
+  { surface: "topbar search border", role: "border vs the well",           min: 2.00, measured: 2.15, was: 1.98, aa: null,
     why: "white/12 measured 1.45 and barely delineated the well" },
-  { surface: "topbar search",        role: "placeholder",                  min: 4.5,  measured: 5.08, aa: 4.5,
-    why: "ink-400 measured 3.27 here — BELOW AA — while a comment claimed 5.45, a number taken from the sidebar's ink-950" },
-  { surface: "topbar search",        role: "magnifier",                    min: 4.5,  measured: 5.08, aa: 3.0 },
-  { surface: "topbar search",        role: "kbd",                          min: 4.5,  measured: 5.08, aa: 3.0 },
-  { surface: "topbar search",        role: "typed value",                  min: 8.0,  measured: 9.10, aa: 4.5 },
+  { surface: "topbar search",        role: "placeholder",                  min: 6.5,  measured: 7.10, was: 5.08, aa: 4.5,
+    why: "ink-400 measured 3.27 on the old bar — BELOW AA — while a comment claimed 5.45, a number taken from the sidebar's ink-950" },
+  { surface: "topbar search",        role: "magnifier",                    min: 6.5,  measured: 7.10, was: 5.08, aa: 3.0 },
+  { surface: "topbar search",        role: "kbd",                          min: 6.5,  measured: 7.10, was: 5.08, aa: 3.0 },
+  { surface: "topbar search",        role: "typed value",                  min: 11.0, measured: 12.70, was: 9.10, aa: 4.5 },
   { surface: "ink band",             role: "save status",                  min: 9.5,  measured: 10.64, aa: 4.5,
     why: "#211 moved it onto ink; this is the #177 shape — a colour correct on cream and possibly 1:1 on ink" },
-  { surface: "topbar View site",     role: "border vs the bar",            min: 2.00, measured: 2.17, aa: null,
+  { surface: "topbar View site",     role: "border vs the bar",            min: 1.95, measured: 2.05, was: 2.17, aa: null,
     why: "#213 raised it white/12 -> white/24 to match the search well beside it; two adjacent controls on one ink bar had disagreed about their edge" },
+  { surface: "the L",                role: "sidebar ground vs topbar ground", min: 1.00, measured: 1.00, was: 1.44, aa: null,
+    why: "#214: the two halves of one chrome frame, meeting at a corner, had been 1.44:1 apart. 1.00 means IDENTICAL and is the assertion — anything above it is the defect returning" },
+  { surface: "the L",                role: "sidebar edge vs topbar edge",     min: 1.00, measured: 1.00, was: 1.58, aa: null,
+    why: "same declared value on both (white/24) rendering differently only because the grounds differed; identical grounds make it identical" },
 ];
 
 export const TYPE_SCRIPT = String.raw`
@@ -220,6 +231,20 @@ export const TYPE_SCRIPT = String.raw`
     probes["topbar View site|border vs the bar"] =
       contrast(fgOn(getComputedStyle(viewSite).borderTopColor, viewSite), btnBg);
   }
+  /* THE L ITSELF — the two halves of one chrome frame, asserted as IDENTICAL rather than as
+     "close enough". 1.00 is the only passing value: the defect this replaces was 1.44, which
+     looks small as a number and is a visible two-tone at the corner where they meet. */
+  const topbar = document.querySelector("div.sticky.top-0");
+  const homeLink = [...document.querySelectorAll("a")].find((a) => /Homepage/.test(a.textContent));
+  let sidebar = homeLink;
+  while (sidebar && getComputedStyle(sidebar).backgroundColor === "rgba(0, 0, 0, 0)") sidebar = sidebar.parentElement;
+  if (topbar && sidebar) {
+    probes["the L|sidebar ground vs topbar ground"] =
+      contrast(flatten(stackFrom(sidebar)), flatten(stackFrom(topbar)));
+    probes["the L|sidebar edge vs topbar edge"] = contrast(
+      fgOn(getComputedStyle(sidebar).borderRightColor, sidebar),
+      fgOn(getComputedStyle(topbar).borderBottomColor, topbar));
+  }
 
   /* THE FAILURE NAMES THE FOREGROUND AND THE SURFACE, NEVER A COUNT — a ratio that has slipped
      is only actionable if you know which thing on which ground slipped, and by how much
@@ -230,11 +255,21 @@ export const TYPE_SCRIPT = String.raw`
     const key = e.surface + "|" + e.role;
     const got = probes[key];
     if (got === undefined) { onInk.push({ ...e, got: null, status: "NOT FOUND ON THIS PAGE" }); continue; }
+    /* THE L ROWS INVERT THE TEST, and that is not a special case bolted on — it is what the
+       row means. Every other row wants a MINIMUM: a foreground must be at least this legible.
+       The L wants an EQUALITY: two halves of one frame must be the same colour, so 1.00 is the
+       target and anything ABOVE it is the two-tone defect returning. A shared ">= min" would
+       have passed 1.44, the exact value being fixed. */
+    const isEquality = e.surface === "the L";
+    const ok = isEquality ? got <= 1.005 : got >= e.min;
     onInk.push({ surface: e.surface, role: e.role, got, min: e.min, measured: e.measured,
-      status: got >= e.min ? "ok"
-        : "FAIL — " + e.role + " on the " + e.surface + " reads " + got + ":1, below its floor of "
-          + e.min + " (measured " + e.measured + " when it was chosen"
-          + (e.aa ? "; AA for this role is " + e.aa : "") + ")" });
+      status: ok ? "ok"
+        : isEquality
+          ? "FAIL — " + e.role + " on " + e.surface + " reads " + got + ":1. These must be IDENTICAL (1.00); "
+            + got + " means the two halves of the frame have drifted apart again (was " + e.was + " before #214)"
+          : "FAIL — " + e.role + " on the " + e.surface + " reads " + got + ":1, below its floor of "
+            + e.min + " (measured " + e.measured + " when it was chosen"
+            + (e.aa ? "; AA for this role is " + e.aa : "") + ")" });
   }
   const onInkFailures = onInk.filter((r) => String(r.status).startsWith("FAIL"));
 

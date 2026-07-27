@@ -212,6 +212,18 @@
        at 1.10-1.22 against the bar, worse than white/12, because the bar is
        already near the bottom of the range.
 
+       C-17, AND IT IS THE SAME FINDING AS C-9 FROM THE OTHER SIDE. THIS FILE'S
+       OWN TOPBAR SEARCH IS 1.00:1 AGAINST ITS OWN BAR. `.topbar` is cream-50 and
+       `.search input` is cream-50 — measured, IDENTICAL, separated only by a
+       1px ink/12 hairline. The field it specifies cannot be seen as a field.
+       That is not a stylistic choice the ink version departed from; it is a
+       DEFECT the ink version fixed. C-9 records "the ink topbar is correct, the
+       file is wrong" as a judgement; this is the measurement behind it.
+       Reverting to cream to match this file literally would ship a specified
+       value that is invisible. The transferred on-ink version reads 1.51 for the
+       well and 2.15 for its border — the intent survives and the result is
+       stronger than the original.
+
   C-13. THIS FILE'S OWN LIST RENDERS IN ARIAL, AND IT MATERIALLY DISTORTS EVERY
        SIDE-BY-SIDE COMPARISON MADE AGAINST IT. `.item` is a <button>, buttons do
        not inherit font-family, and this file never sets one — so the most
