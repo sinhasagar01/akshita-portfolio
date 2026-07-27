@@ -9,6 +9,7 @@
 // THE TRAP IN THE OBVIOUS FIX: prefix-matching everything makes `/studio` — a prefix of
 // every other studio route — light Homepage up on every page. So the root is exact and
 // only sections prefix-match, which is the pairing this suite exists to hold.
+import { readdirSync, readFileSync } from "node:fs";
 import { isStudioAreaActive } from "../../lib/studio/nav-active.ts";
 
 let pass = 0, fail = 0;
@@ -80,6 +81,52 @@ for (const p of ["/", "/blog", "/blog/some-post", "/projects/boat-crest", "/stud
 t("F1 args are ordered (href, pathname)",
   [isStudioAreaActive("/studio/blog", "/studio/blog/x"), isStudioAreaActive("/studio/blog/x", "/studio/blog")],
   [true, false]);
+
+/* ---------------------------------------------- G. THE INPUT CLASS STRINGS STAY DEDUPED
+ * #199 collapsed SEVEN hand-copied `inputCls` declarations across seven files into two
+ * exports. Without a gate they simply reappear one at a time, which is how there came to be
+ * seven — and worse, they had DRIFTED: four panels carried text-[14px] and the block forms
+ * carried text-[13px], so the "duplicate" was never actually duplicated.
+ *
+ * THE 13px/14px SPLIT IS DELIBERATE AND UNRESOLVED. Two exports, one each, and merging them
+ * is an owner decision because it moves rendered type. This asserts BOTH that each is
+ * declared exactly once AND that they remain distinct, so a well-meaning merge fails here
+ * rather than silently resizing four panels.
+ *
+ * LinksEditPanel keeps its own local string on purpose — it is a flex child with per-state
+ * borders, a different box rather than the same box at another size — so it is excluded by
+ * name rather than by a loose count. */
+{
+  const files = readdirSync(new URL("../../components/studio", import.meta.url), { recursive: true })
+    .filter((f) => String(f).endsWith(".tsx"))
+    .map((f) => String(f));
+  const decls = [];
+  for (const f of files) {
+    const src = readFileSync(new URL(`../../components/studio/${f}`, import.meta.url), "utf8");
+    for (const m of src.matchAll(/(?:export )?const (inputCls|inputClsMd) =/g)) decls.push(`${f}:${m[1]}`);
+  }
+  const shared = decls.filter((d) => !d.startsWith("LinksEditPanel.tsx"));
+  t("G1 `inputCls` is declared exactly once outside LinksEditPanel",
+    shared.filter((d) => d.endsWith(":inputCls")).length, 1);
+  t("G2 `inputClsMd` is declared exactly once",
+    shared.filter((d) => d.endsWith(":inputClsMd")).length, 1);
+  t("G3 both live in blocks/fields.tsx",
+    shared.every((d) => d.startsWith("blocks/fields.tsx")), true);
+  // LinksEditPanel's local is EXPECTED. Asserted so that deleting it becomes a deliberate
+  // act rather than a silent one, and so G1 cannot be satisfied by removing the exception.
+  t("G4 LinksEditPanel keeps its own, deliberately",
+    decls.some((d) => d === "LinksEditPanel.tsx:inputCls"), true);
+
+  const fields = readFileSync(new URL("../../components/studio/blocks/fields.tsx", import.meta.url), "utf8");
+  const grab = (n) => fields.match(new RegExp(`const ${n} =\\s*"([^"]*)"`))?.[1] ?? "";
+  const sm = grab("inputCls"), md = grab("inputClsMd");
+  t("G5 the two differ", sm !== md, true);
+  // ...and by EXACTLY the font size, nothing else. If a future edit diverges them further,
+  // that is a second drift and this catches it.
+  const only = (a, b) => [...new Set(a.split(" "))].filter((x) => !b.split(" ").includes(x));
+  t("G6 …by exactly the font size and nothing else",
+    [only(sm, md), only(md, sm)], [["text-[13px]"], ["text-[14px]"]]);
+}
 
 console.log(`\nstudio-nav-active result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

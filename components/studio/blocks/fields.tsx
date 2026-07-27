@@ -147,6 +147,24 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 export const inputCls =
   "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
+/**
+ * The same box at 14px, for the ENTRY PANELS rather than the block forms.
+ *
+ * THE 13px/14px SPLIT IS DELIBERATE AND UNRESOLVED — DO NOT MERGE THESE TWO. They were seven
+ * hand-copied strings across seven files until #199 collapsed them, and the copies had
+ * DRIFTED: four panels carried 14px, the block forms and the case-study index carried 13px.
+ * The two differ by exactly ONE token, `text-[14px]` against `text-[13px]`, and nothing else.
+ *
+ * Unifying them CHANGES RENDERED FONT SIZE on real surfaces — four of them one way, two the
+ * other — so it is a design decision and the owner's call, not a cleanup. #199 deduped only
+ * what was byte-identical and deliberately left this split standing rather than silently
+ * picking a winner. Read as an accident and merged, it would move type on screen.
+ *
+ * NAMED FOR WHAT DIFFERS, not for a surface, because it spans four unrelated panels.
+ */
+export const inputClsMd =
+  "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+
 /** The same box, in the rejection state — a danger border and ring. */
 export const inputErrorCls =
   "w-full rounded-md border border-danger-600 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";

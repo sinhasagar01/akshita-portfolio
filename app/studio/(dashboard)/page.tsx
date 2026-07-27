@@ -1,6 +1,6 @@
 import { getStudioData } from "@/lib/studio/data";
 import AreaHeader from "@/components/studio/AreaHeader";
-import ContentCard, { type CardSignal } from "@/components/studio/ContentCard";
+import OverviewRow, { type CardSignal } from "@/components/studio/OverviewRow";
 import {
   IconSparkles,
   IconGrid,
@@ -34,7 +34,7 @@ export default async function StudioHomepage() {
       <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
       <div className="max-w-[60rem] border-t border-ink-950/8">
-        <ContentCard
+        <OverviewRow
           index="01"
           title="Hero"
           icon={<IconSparkles />}
@@ -45,7 +45,7 @@ export default async function StudioHomepage() {
           href={settingsPanel}
           ariaLabel="Edit Hero in the studio settings panel"
         />
-        <ContentCard
+        <OverviewRow
           index="02"
           title="Work"
           icon={<IconGrid />}
@@ -54,7 +54,7 @@ export default async function StudioHomepage() {
           href={projectsPanel}
           ariaLabel="Open the Projects panel in the studio"
         />
-        <ContentCard
+        <OverviewRow
           index="03"
           title="About"
           icon={<IconUser />}
@@ -64,7 +64,7 @@ export default async function StudioHomepage() {
           href={settingsPanel}
           ariaLabel="Edit About in the studio settings panel"
         />
-        <ContentCard
+        <OverviewRow
           index="04"
           title="Process"
           icon={<IconWorkflow />}
@@ -75,14 +75,14 @@ export default async function StudioHomepage() {
           href={settingsPanel}
           ariaLabel="Edit Process in the studio settings panel"
         />
-        <ContentCard
+        <OverviewRow
           index="05"
           title="Contact"
           icon={<IconCode />}
           status="code"
           meta="Form steps managed in source"
         />
-        <ContentCard
+        <OverviewRow
           index="06"
           title="Skills"
           icon={<IconLayers />}

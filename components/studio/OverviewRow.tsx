@@ -37,10 +37,13 @@ function StatusBadge({ status }: { status: "live" | "code" }) {
 }
 
 // Overview row (Task 2). Was a filled card; now a hairline row shared by the six
-// homepage-overview entries. Kept the filename ContentCard.tsx to avoid a rename
-// inside a repaint diff — OverviewRow would be more accurate; rename deferred to
-// whichever later task opens this file.
-export default function ContentCard({
+// homepage-overview entries.
+//
+// RENAMED FROM ContentCard.tsx IN #199. #166 deferred the rename to "whichever later task
+// opens this file", and no later task did — so the condition never fired and the filename
+// stayed wrong for the whole arc. A deferral conditional on something that may never happen
+// is a deferral with no owner; this one sat for nine PRs. The name now says what it is.
+export default function OverviewRow({
   index,
   title,
   icon,

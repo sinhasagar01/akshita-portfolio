@@ -18,6 +18,7 @@ import ChipListEditor from "./ChipListEditor";
 import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { useReportCount } from "./StudioCountsProvider";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
@@ -63,6 +64,12 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
   });
 
   useReportPending(dirty || saveStatus === "saving");
+  // THE SIDEBAR BADGE COUNTS CATEGORIES, NOT INDIVIDUAL SKILLS — the owner's decision, and the
+  // reason this reports `values.categories.length` rather than a sum over `items`. Reported
+  // from the LIVE form values, like every other list editor, so adding or removing a category
+  // moves the badge before the save lands. On mount it equals the server seed, and
+  // useReportCount's guard makes that a no-op, so there is no flash.
+  useReportCount("skills", values.categories.length);
 
   // Client-only stable ids, aligned by index with values.categories. Deterministic
   // initial ids (c0, c1, …) so SSR and the client first render agree; a ref counter

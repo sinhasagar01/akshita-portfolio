@@ -14,6 +14,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import { IconWorkflow } from "./icons";
+import { inputClsMd } from "./blocks/fields";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
 type Props = { itemId: string; processStages: ProcessStage[] };
@@ -68,8 +69,6 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
   const editStage = (i: number, patch: Partial<ProcessStage>) =>
     updateStages(stages.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
 
-  const inputCls =
-    "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
   // ---- Expanded edit panel ----
   return (
@@ -114,7 +113,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
                 onChange={(e) => editStage(i, { name: e.target.value })}
                 onBlur={saveDraft}
                 placeholder="Stage name"
-                className={inputCls}
+                className={inputClsMd}
               />
             </label>
 
@@ -126,7 +125,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
                 onChange={(e) => editStage(i, { description: e.target.value })}
                 onBlur={saveDraft}
                 placeholder="One line describing the stage"
-                className={inputCls}
+                className={inputClsMd}
               />
             </label>
 
