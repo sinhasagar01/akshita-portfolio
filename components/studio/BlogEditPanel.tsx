@@ -78,6 +78,21 @@ export default function BlogEditPanel({
   const { setUnpublished } = usePublishSignal();
   const [liveStatus, setLiveStatus] = useState(status);
 
+  // THE HERO, LIFTED, so the canvas can draw it. It was HeroImageField's private state until
+  // the canvas needed it, and `onChanged` reported only that SOMETHING changed.
+  //
+  // PLAIN useState, NOT useDraftForm, and the distinction is load-bearing rather than
+  // stylistic. The head form posts a `patch` through save-draft; the hero is committed by
+  // /api/studio/upload-hero-image on its own. Putting it in the form would make the form
+  // report itself dirty over a field it never posts, and "Post" would sit unsaved forever
+  // after an upload — hazard 7's two-indicators problem with a new cause.
+  //
+  // The object URL is NOT revoked here. See HeroImageField's note on who owns that.
+  const [hero, setHero] = useState<{ path: string | null; preview: string | null }>({
+    path: heroImage,
+    preview: null,
+  });
+
   const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<HeadFields>({
     initial: { dek, date, topic, status },
     buildCommitted: (v) => ({ dek: v.dek, date: v.date, topic: v.topic, status: v.status }),
@@ -189,7 +204,10 @@ export default function BlogEditPanel({
           collection="blog"
           label="Card image"
           initial={heroImage}
-          onChanged={() => setUnpublished(true)}
+          onChanged={(info) => {
+            setHero({ path: info.heroImage, preview: info.previewUrl });
+            setUnpublished(true);
+          }}
         />
         <p className="text-[11px] leading-relaxed text-text-subtle">
           The article hero and the card thumbnail.
@@ -210,6 +228,15 @@ export default function BlogEditPanel({
       livePath={livePath}
       blocks={blocks}
       draftImages={draftImages}
+      heroImage={hero.path}
+      heroPreviewUrl={hero.preview}
+      // THE LIVE FORM VALUES, not the server props. The canvas head is a preview, so it has
+      // to track what the inspector's fields currently hold — typing in the dek field should
+      // move the dek in the canvas, not wait for a save. `values` is useDraftForm's working
+      // copy, which is exactly that.
+      headDek={values.dek}
+      headDate={values.date}
+      headTopic={values.topic}
       posts={posts}
       postSection={postSection}
     />

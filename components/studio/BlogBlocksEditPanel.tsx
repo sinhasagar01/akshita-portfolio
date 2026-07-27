@@ -33,17 +33,32 @@
 // BlogEditPanel — which keeps its own useDraftForm — and this panel stacks it above its own
 // section. Two forms, two save indicators, both labelled. See SaveIndicator.
 //
-// SELECTION IS THE BLOCK STRIP, NOT THE CANVAS. The mock selects by clicking the prose, and
-// that is deliberately not built. The canvas renders through BlogProse at the public
-// measure so that what the author sees is what the article ships, and the only two ways to
-// click prose both spend that property: wrapping each block in a clickable element changes
-// the canvas DOM relative to the article (the editable-only-wrapper failure mode CLAUDE.md
+// SELECTION IS DUAL-SOURCE — THE STRIP AND THE CANVAS. #178 shipped the strip alone, and
+// this comment said clicking the prose was "deliberately not built". #187 REVERSED THAT and
+// built it (`onCanvasFocus` below sets `selectedId` from whatever gains focus), but left this
+// paragraph standing, so the file carried #178's rationale and #187's implementation 350
+// lines apart. The reasoning is rewritten here rather than deleted, for the same reason
+// BlogIndex.tsx keeps its reversed rationale: a reversed decision whose reasoning is deleted
+// leaves two contradictory records and nothing saying which won.
+//
+// WHY #178 WAS RIGHT TO REFUSE THE TWO MECHANISMS IT LOOKED AT. Both spent the
+// canvas-to-article fidelity property. Wrapping each block in a clickable element changes the
+// canvas DOM relative to the article (the editable-only-wrapper failure mode CLAUDE.md
 // names), and mapping a click to a block index by counting rendered children derives the
 // mapping from BlogProse's output shape — where a `richText` block emits ONE PARAGRAPH PER
 // ENTRY, not one element — so a change to that shape breaks selection SILENTLY. #170's
 // "reusable wholesale" decaying into #173's unsaveable post is that failure with a
-// different subject. The strip costs the canvas nothing, and it puts select, reorder and
-// remove in one place on one row.
+// different subject.
+//
+// WHAT #178 DID NOT EXAMINE, AND WHY IT COSTS NOTHING. A third mechanism: THE RENDERER EMITS
+// ITS OWN INDICES. Under `editable`, BlogProse writes `data-edit-block-index` onto elements
+// it already emits, so the mapping is produced by the same expression that produces the
+// content and cannot drift. Nothing is wrapped and nothing is counted. Measured, not argued —
+// every box delta zero at four decimal places.
+//
+// THE STRIP STAYS, and not merely out of habit: a caption-less imageBlock or videoEmbed emits
+// no editable element at all, so without the strip such a block could be added and never
+// selected again. It also puts select, reorder and remove in one place on one row.
 //
 // STRUCTURAL OPS DO NOT CALL saveDraft(). useDraftForm's saveDraft closes over `values`, so
 // calling it synchronously after setField would post the PRE-UPDATE array — every add,
@@ -69,6 +84,10 @@ import {
 import type { BlogBlockKind, BlogRawBlock } from "@/lib/blog/blocks-raw";
 import BlogProse from "@/components/blog/BlogProse";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
+import { resolveHeroSrc } from "@/lib/blog/hero-fill";
+import { readingTimeMinutes } from "@/lib/blog/select";
+import BlogHero from "@/components/blog/BlogHero";
+import BlogArticleHead from "@/components/blog/BlogArticleHead";
 import ThreePaneShell from "./ThreePaneShell";
 import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
@@ -122,6 +141,11 @@ export default function BlogBlocksEditPanel({
   livePath,
   blocks: initialBlocks,
   draftImages,
+  heroImage,
+  heroPreviewUrl,
+  headDek,
+  headDate,
+  headTopic,
   posts,
   postSection,
 }: {
@@ -143,6 +167,19 @@ export default function BlogBlocksEditPanel({
    *  public article does not, which is the ONLY way the two surfaces differ — an attribute
    *  value on the same element, never a different element, so box geometry is identical. */
   draftImages: readonly string[];
+  /** The post's committed hero path, or null. LIFTED out of HeroImageField so the canvas can
+   *  draw it — see BlogEditPanel. */
+  heroImage: string | null;
+  /** A session-only object URL for a hero uploaded THIS session. It takes precedence over the
+   *  committed path because `draftImages` above is a page-load snapshot and cannot contain a
+   *  file uploaded after it was taken. See resolveHeroSrc. */
+  heroPreviewUrl: string | null;
+  /** The head fields, LIVE from BlogEditPanel's useDraftForm rather than from the server, so
+   *  the canvas head tracks the inspector as it is typed. The title is not among them: it is
+   *  the slug, already a prop, and read-only everywhere. */
+  headDek: string;
+  headDate: string;
+  headTopic: string;
   /** Every post, for the list pane. Draft-overlaid, from getStudioData. */
   posts: readonly BlogCard[];
   /** BlogEditPanel's head fields, rendered as the inspector's first section. */
@@ -464,9 +501,16 @@ export default function BlogBlocksEditPanel({
     commitParagraphs(at.blockIndex, next, lastIndex, parts[parts.length - 1].length);
   };
 
-  // The canvas renders through the PUBLIC component, so what the author sees is what the
-  // article page will render — no studio lookalike to drift.
+  // The canvas renders the article's own components at the article's own measure, so what the
+  // author sees is what the article page will render — no studio lookalike to drift.
+  //
+  // THE SCOPE IS THE HEAD, THE HERO AND THE BODY, not the whole article. The back link and
+  // the love block are not drawn here — both are navigation or interaction rather than
+  // content — and that is a composition choice rather than a fidelity gap. What the canvas
+  // DOES draw, it draws at the public measure, proven as a number and not as matching class
+  // strings. The head is preview only; see BlogArticleHead for why.
   const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
+  const heroSrc = resolveHeroSrc({ heroImage, previewUrl: heroPreviewUrl, rewriteSrc });
   // KEYED BY renderEpoch. A structural paragraph edit discards the subtree the author has
   // been typing into and builds a fresh one from state, so React owns the DOM again. The
   // post-rebuild effect above puts focus and the caret back.
@@ -517,13 +561,50 @@ export default function BlogBlocksEditPanel({
         if (!to?.closest?.("[data-edit-rich], [data-rich-toolbar]")) setBoldAt(null);
       }}
     >
-      {blocks.length === 0 ? (
-        <p className="py-10 text-center text-[13px] text-text-subtle">
-          An empty post. Add a paragraph to start writing.
-        </p>
-      ) : (
-        <div className="mx-auto max-w-[68ch] px-6 blog-article">{prose}</div>
-      )}
+      {/* THE COLUMN IS HOISTED ABOVE THE EMPTY-POST BRANCH, not just the hero, and the
+          reason is margin collapsing rather than tidiness.
+          On the article the <figure> and <BlogProse> are SIBLINGS inside one <main>, and the
+          44px gap between the hero and the first paragraph is the figure's own bottom margin
+          resolving against that sibling. Rendering the hero in its own wrapper above this
+          branch would put a boundary between them that the article does not have, changing
+          the gap — and it would have been silent, because the figure's OUTER box is held by
+          `aspect-[16/9]` and would still measure the same.
+          The hero must also survive `blocks.length === 0`: a post with a hero and no blocks
+          is not hypothetical, it is the state every new post passes through.
+          The empty-post message now sits inside the 68ch column, and MEASURED rather than
+          assumed: its box is unchanged at 599.5234px wide (the unlayered `p { max-width: 68ch }`
+          caps it, not the column) and it still renders on ONE line. It was never pane-centred
+          — that same cap left it 100.7383px left of centre — and moving it inside the column
+          brings it 51.5313px CLOSER, to -49.207px. So the change is small and in the right
+          direction, which is worth stating because the obvious guess is the opposite.
+          The alternative was duplicating the column class string — the exact string A1 pins —
+          across two branches, which is a drift risk for no gain. */}
+      <div className="mx-auto max-w-[68ch] px-6 blog-article">
+        {/* THE HEAD IS PREVIEW ONLY — see BlogArticleHead for why none of it is editable.
+            The BACK LINK is deliberately not rendered: it is navigation rather than content,
+            and in the canvas it would be a live link out of /studio to the public index. The
+            canvas already omits the love block and the reading vessel on the same grounds.
+            READING TIME IS RECOMPUTED HERE, not passed in. The article computes it from the
+            blocks at build time, so a canvas showing a server-supplied number would drift
+            from the article the moment the author added a paragraph. readingTimeMinutes is
+            dependency-free, so the canvas can run the SAME function on the CURRENT blocks. */}
+        <BlogArticleHead
+          date={headDate}
+          readingTime={readingTimeMinutes(blocks)}
+          topic={headTopic}
+          title={title}
+          dek={headDek}
+          canvas
+        />
+        <BlogHero src={heroSrc} canvas />
+        {blocks.length === 0 ? (
+          <p className="py-10 text-center text-[13px] text-text-subtle">
+            An empty post. Add a paragraph to start writing.
+          </p>
+        ) : (
+          prose
+        )}
+      </div>
       {/* `position: fixed`, so it sits outside the measured column and cannot affect it.
           Rendered inside the canvas wrapper only so the blur capture above treats it as part
           of the same edit surface. */}
