@@ -116,7 +116,7 @@ export default function StudioSidebar() {
           // label beside it was cream-50 — the one element in the pill the active state
           // did not reach. The label was never the problem; it has no class of its own and
           // inherits cream-50 correctly.
-          <span className={`ml-auto text-[11px] ${active ? "text-cream-50/70" : "text-ink-400"}`}>
+          <span className={`ml-auto text-[12px] ${active ? "text-cream-50/70" : "text-ink-400"}`}>
             {area.count}
           </span>
         )}

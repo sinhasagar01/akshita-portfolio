@@ -186,7 +186,7 @@ function StepContent({
 
       {/* "press Enter" hint — 11px #6d645d */}
       {step.type !== 'textarea' && (
-        <p className="text-[11px] mt-3" style={{ color: '#6d645d' }}>
+        <p className="text-[12px] mt-3" style={{ color: '#6d645d' }}>
           press Enter
         </p>
       )}

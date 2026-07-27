@@ -94,9 +94,9 @@ export default function SettingsPhotoField({
         <ImageThumb src={photo} aspect={3 / 4} className="w-full" />
         <div className="flex items-center gap-2">
         {photo ? (
-          <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{photo}</code>
+          <code className="min-w-0 flex-1 truncate text-[12px] text-ink-600">{photo}</code>
         ) : (
-          <span className="flex-1 text-[11px] text-text-subtle">No photo set</span>
+          <span className="flex-1 text-[12px] text-text-subtle">No photo set</span>
         )}
         <input
           ref={inputRef}
@@ -116,7 +116,7 @@ export default function SettingsPhotoField({
           disabled={busy}
           // No background: the container declares none either, so a fixed value here would be
           // the same absolute-on-an-unknown-ground mistake. The border delineates it.
-          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : photo ? "Replace" : "Upload"}
         </button>

@@ -103,7 +103,7 @@ export default function BlogPostList({
                       >
                         {p.title}
                       </span>
-                      <span className="mt-0.5 block text-[11px] text-text-subtle">
+                      <span className="mt-0.5 block text-[12px] text-text-subtle">
                         {p.status === "published" ? "Published" : "Draft"} ·{" "}
                         {p.date ? formatShortDate(p.date) : "no date"}
                       </span>

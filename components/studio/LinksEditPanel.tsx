@@ -277,7 +277,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[11px]" aria-live="polite">
+        <span className="text-[12px]" aria-live="polite">
           {hasUrlError ? (
             <span className="text-accent-600">Fix the highlighted URL to save.</span>
           ) : saveStatus === "saving" ? (

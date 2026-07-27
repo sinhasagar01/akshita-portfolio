@@ -253,7 +253,7 @@ export default function BoldToolbar({
           />
           <div className="mt-[9px] flex items-center justify-end gap-2">
             {rejected && (
-              <span role="alert" className="mr-auto text-[11px] text-danger-600">
+              <span role="alert" className="mr-auto text-[12px] text-danger-600">
                 Only http, https, mailto, or relative links
               </span>
             )}

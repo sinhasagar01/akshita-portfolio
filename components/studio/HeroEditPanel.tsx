@@ -215,7 +215,7 @@ export default function HeroEditPanel({
                 tabIndex={i === activeTab ? 0 : -1}
                 onClick={() => setActiveTab(i)}
                 className={[
-                  "rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide transition-colors",
+                  "rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-wide transition-colors",
                   i === activeTab
                     ? "border border-accent-500/35 bg-accent-500/10 text-accent-600"
                     : "border border-transparent text-ink-400 hover:text-ink-600",
@@ -283,7 +283,7 @@ export default function HeroEditPanel({
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[11px]" aria-live="polite">
+        <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>
           ) : saveStatus === "saved" ? (

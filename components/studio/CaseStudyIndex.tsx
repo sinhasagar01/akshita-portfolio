@@ -202,7 +202,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                 <span className="hidden w-[86px] shrink-0 text-[11.5px] text-text-subtle lg:inline">
                   {p.sectionCount} sections
                 </span>
-                <span className="w-[72px] shrink-0 text-right text-[11px]">
+                <span className="w-[72px] shrink-0 text-right text-[12px]">
                   {bespoke ? (
                     <span className="rounded-full border border-dashed border-ink-950/20 px-2 py-0.5 text-ink-500">
                       Bespoke
@@ -251,7 +251,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
               className={inputCls}
             />
           </label>
-          <p id="add-cs-desc" className="mt-1 text-[11px] text-text-subtle">
+          <p id="add-cs-desc" className="mt-1 text-[12px] text-text-subtle">
             The title is the case study&rsquo;s identity and can&rsquo;t be changed here later. It
             starts as a stub, added to the end of the list. Use the arrows to move it.
           </p>

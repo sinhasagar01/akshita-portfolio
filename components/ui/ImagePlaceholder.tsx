@@ -24,7 +24,7 @@ export default function ImagePlaceholder({ label }: Props) {
           strokeLinecap="round"
         />
       </svg>
-      <span className="relative text-[11px] font-mono text-[--color-text-muted] opacity-50 select-none tracking-wide">
+      <span className="relative text-[12px] font-mono text-[--color-text-muted] opacity-50 select-none tracking-wide">
         {label}
       </span>
     </div>

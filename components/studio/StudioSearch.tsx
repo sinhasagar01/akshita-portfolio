@@ -155,7 +155,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
         />
         <kbd
           aria-hidden
-          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[11px] text-ink-400 lg:border-white/24 lg:text-ink-200"
+          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[12px] text-ink-400 lg:border-white/24 lg:text-ink-200"
         >
           /
         </kbd>
@@ -194,7 +194,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                 ].join(" ")}
               >
                 <span className="truncate">{r.label}</span>
-                <span className="shrink-0 text-[11px] text-ink-400">{r.sublabel}</span>
+                <span className="shrink-0 text-[12px] text-ink-400">{r.sublabel}</span>
               </li>
             ))
           )}

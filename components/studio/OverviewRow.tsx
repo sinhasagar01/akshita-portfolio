@@ -84,7 +84,7 @@ export default function OverviewRow({
           {title}
         </span>
         {meta && <span className="mt-1 block text-[14px] text-ink-600">{meta}</span>}
-        {note && <span className="mt-0.5 block text-[11px] text-text-subtle">{note}</span>}
+        {note && <span className="mt-0.5 block text-[12px] text-text-subtle">{note}</span>}
         {signals.length > 0 && (
           <span className="mt-1.5 flex flex-wrap gap-1.5">
             {signals.map((s) => (

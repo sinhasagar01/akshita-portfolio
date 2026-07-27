@@ -62,7 +62,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
 
             {/* Right — social */}
             <div className="text-right">
-              <p className="text-[11px] tracking-[.18em] uppercase text-[--color-text-subtle] mb-4">
+              <p className="text-[12px] tracking-[.18em] uppercase text-[--color-text-subtle] mb-4">
                 Social
               </p>
               <div
