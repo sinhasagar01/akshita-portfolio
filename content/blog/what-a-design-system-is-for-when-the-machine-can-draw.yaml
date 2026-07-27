@@ -96,3 +96,6 @@ blocks:
           That is a good change, and it raises the price of a vague system. A
           model reading an inconsistent codebase will derive an inconsistent
           system, then apply it faithfully, at speed, to everything.
+        - >-
+          So the question I ask about a design system now is not how complete it
+          is. It is whether two people reading it would make the same decision.
