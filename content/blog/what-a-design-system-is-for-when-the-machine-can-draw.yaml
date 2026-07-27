@@ -1,0 +1,68 @@
+title: What a design system is for when the machine can draw
+dek: The bottleneck was never the drawing.
+date: '2026-07-27'
+topic: Design systems
+status: draft
+heroImage: >-
+  /images/blog/what-a-design-system-is-for-when-the-machine-can-draw/heroImage.webp
+blocks:
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          For most of my career a design system earned its keep by saving time.
+          Someone had already decided what a primary button looked like, so I
+          did not have to decide again. The value was easy to measure. Screens
+          per week.
+
+
+          That argument is weaker now. A model can produce a plausible button in
+          seconds. It can produce forty of them, each slightly different, each
+          defensible on its own.
+  - discriminant: heading
+    value:
+      text: The constraint moved
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          Producing screens stopped being the expensive part. Keeping them
+          consistent with each other did not.
+
+
+          I watched this happen on a profiling tool with four squads shipping in
+          parallel. Every squad had the same component library and every squad
+          was fast. Six months in we had three different empty states, two
+          loading patterns, and a date picker that behaved differently depending
+          on which screen you reached it from. Nobody had done anything wrong.
+          Everyone had moved quickly in a slightly different direction.
+
+
+          None of it surfaced in a design review, because a design review looks
+          at one screen at a time. It surfaced in support tickets, where someone
+          described a flow that existed in no document we had, because it
+          crossed three squads.
+  - discriminant: pullQuote
+    value:
+      text: >-
+        A design system is not a library of parts. It is an agreement about what
+        nobody has to decide again.
+  - discriminant: heading
+    value:
+      text: The parts that survived were not components
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          What held across four squads was never the drawing. It was the
+          decisions written next to it.
+
+
+          An error message sits above the field. A destructive action never
+          takes the primary colour. Density belongs to the table, not to the
+          person looking at it.
+
+
+          Those held because they were short enough to remember and specific
+          enough to check. The components drifted anyway, and it mattered less
+          than I expected.
