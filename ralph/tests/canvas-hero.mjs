@@ -170,15 +170,15 @@ t("D: the hero pair passes the same src to both sides",
 const blogPanel = code("components/studio/BlogEditPanel.tsx");
 const projects = code("components/studio/ProjectsEditPanel.tsx");
 
-t("E: onChanged carries BOTH the committed path and the preview",
-  /onChanged: \(info: \{ heroImage: string \| null; previewUrl: string \| null \}\) => void/.test(projects), true);
-t("E: …and is called with both", /onChanged\(\{ heroImage: committed, previewUrl: objUrl \}\)/.test(projects), true);
+t("E: onChanged carries the committed path and the FILE",
+  /onChanged: \(info: \{ heroImage: string \| null; file: File \| null \}\) => void/.test(projects), true);
+t("E: …and is called with both", /onChanged\(\{ heroImage: committed, file \}\)/.test(projects), true);
 // PROJECTS IGNORES THE PAYLOAD. A zero-arg arrow is assignable to a one-arg type, which is
 // what made this widening safe to do in a shared component rather than forking it.
 t("E: projects still passes a ZERO-ARG arrow and is unchanged",
   /onChanged=\{\(\) => setUnpublished\(true\)\}/.test(projects), true);
 t("E: blog lifts the value into its own state",
-  /setHero\(\{ path: info\.heroImage, preview: info\.previewUrl \}\)/.test(blogPanel), true);
+  /setHero\(\{ path: info\.heroImage, preview: adoptPreview\(info\.file\) \}\)/.test(blogPanel), true);
 // NOT useDraftForm: the hero is committed by the upload route, not by the head patch, so
 // putting it in the form would leave "Post" permanently dirty over a field it never posts.
 t("E: the hero is plain useState, NOT a useDraftForm field",
@@ -187,6 +187,56 @@ t("E: both props reach the canvas",
   [/heroImage=\{hero\.path\}/.test(blogPanel), /heroPreviewUrl=\{hero\.preview\}/.test(blogPanel)], [true, true]);
 t("E: the canvas resolves them through the shared helper",
   /resolveHeroSrc\(\{ heroImage, previewUrl: heroPreviewUrl, rewriteSrc \}\)/.test(canvas), true);
+
+/* ============================================================ F. THE OBJECT URL LIFETIME
+ * Hazard 15. Every successful upload used to strand its predecessor's url — up to 12MB of
+ * Blob each — and nothing was freed on unmount either.
+ *
+ * THE FIX WAS TO DELETE THE SHARED LIFETIME, NOT TO SCHEDULE A REVOKE. Passing the url made
+ * two components display ONE revocable resource, and the two genuinely unmount independently:
+ * below the fold BlogBlocksEditPanel renders the inspector INSTEAD of the canvas, so
+ * switching to the canvas after an upload unmounts the field while the hero is still shown.
+ * A revoke in either place would blank the other. Passing the FILE lets each own what it
+ * created.
+ *
+ * These are structural — createObjectURL is a DOM API and plain node cannot run it — so they
+ * pin the SHAPE. The behaviour is browser-driven. */
+
+// THE REGRESSION GUARD. If the url ever goes back up the callback, the shared lifetime is
+// back and so is the hazard, whatever revocation is written around it.
+t("F: the callback does NOT hand up an object url",
+  /previewUrl: (objUrl|string)/.test(projects), false);
+t("F: …it hands up the File", /file: File \| null/.test(projects), true);
+
+// Each side creates its own, from the same Blob.
+t("F: the field creates its own url", /URL\.createObjectURL\(file\)/.test(projects), true);
+t("F: the blog panel creates its OWN url too",
+  /URL\.createObjectURL\(file\)/.test(blogPanel), true);
+
+// Each side frees exactly what it created, on replace AND on unmount.
+for (const [name, src, release] of [
+  ["the field", projects, "releaseOwnUrl"],
+  ["the blog panel", blogPanel, "releasePreview"],
+]) {
+  t(`F: ${name} revokes what it owns`,
+    new RegExp(`${release} = \\(\\) => \\{[\\s\\S]{0,160}URL\\.revokeObjectURL`).test(src), true);
+  t(`F: ${name} frees on UNMOUNT`,
+    new RegExp(`useEffect\\(\\(\\) => ${release}, \\[\\]\\)`).test(src), true);
+  t(`F: ${name} frees the SUPERSEDED url before adopting a new one`,
+    new RegExp(`${release}\\(\\);[\\s\\S]{0,400}?(ownedUrl|ownedPreview)\\.current = `).test(src), true);
+}
+
+// The three FAILURE paths must still revoke immediately: nothing ever adopted those urls, so
+// they are strandable the moment the request fails. Regression guard on the pre-existing
+// behaviour this change moved code around.
+t("F: the failure paths still revoke on the spot",
+  (projects.match(/if \(objUrl\) URL\.revokeObjectURL\(objUrl\);/g) ?? []).length, 3);
+
+// A ref, not state: revocation is a side effect on a resource, and putting it in state would
+// re-render on a value nothing renders.
+t("F: ownership is tracked in a ref on both sides",
+  [/const ownedUrl = useRef<string \| null>\(null\)/.test(projects),
+   /const ownedPreview = useRef<string \| null>\(null\)/.test(blogPanel)], [true, true]);
 
 console.log(`\ncanvas-hero result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
