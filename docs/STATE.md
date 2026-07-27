@@ -1493,6 +1493,36 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **AN ASSERTION MUST NOT PIN ITS NEIGHBOURS.** `studio-ink` E6 guards a COLOUR property — the
+  canvas strip sets `text-ink-600` on the row so its anchor inherits, because a `text-*` utility
+  on an `<a>` is dead. Its regex read `px-4 py-2 text-ink-600"`, so #213 changing the strip's
+  PADDING — a change about height, with no bearing on colour inheritance — **failed a colour
+  assertion.**
+  **The danger is not the false failure, it is the repair.** The cheapest fix is to widen the
+  regex until it passes, and a regex widened under pressure stops guarding anything. Repinned on
+  the colour and the `border-b` that identifies the strip, and on nothing about its box.
+  **Match the property the assertion is named for, and nothing that merely sits beside it.**
+
+- **MOVING A GROUND INVALIDATES EVERY VALUE MEASURED AGAINST IT — RE-MEASURE, DO NOT CARRY
+  FORWARD.** #214 made the topbar solid ink-950, which changed what all eight `ON_INK` rows
+  composite against. **Six of seven improved and one regressed below its floor**: the search
+  well's `white/12`, derived in #211 against a bar at 51,43,39, fell **1.45 → 1.32** on the
+  darker ground and had to be re-derived to `white/16`.
+  **THE VALUE DID NOT CHANGE; ITS GROUND DID** — and carrying the old numbers into the table
+  would have shipped a gate that agreed with itself and disagreed with the screen, which is
+  worse than no gate. The improvements matter as much as the regression: had the table simply
+  been re-asserted at the old floors it would have PASSED while silently under-describing six
+  foregrounds.
+  **This is the third face of the relation-as-value family**, after freezing a relation into a
+  number and attaching a number to the wrong surface: here the number and the surface were both
+  right, and the surface moved underneath it.
+
+- **AN "AT LEAST" GATE CANNOT EXPRESS AN "EXACTLY".** The L's two halves must be the SAME
+  colour, so their assertion is an equality at 1.00 and anything above it is the defect
+  returning. A shared `>= min` would have passed **1.44 — precisely the value being fixed**.
+  When a row means "identical", say so in the test rather than picking a floor loose enough to
+  cover it.
+
 - **A MEASURED VALUE BELONGS TO ITS CONTEXT, AND THIS IS THE MIRROR OF THE RELATION-AS-VALUE
   RULE BELOW — ONE FAMILY, SEEN FROM BOTH SIDES.** That rule says: do not freeze a relation
   into a number. This one says: **a number you measured is only true about the surface you
@@ -2553,6 +2583,45 @@ All prior rules remain. Added or sharpened across this session:
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **#214** the ink L, one colour at last →1385. The owner reported the whole topbar row as
+  mismatched; **four of the six items were downstream of C-9 and two were already correct** —
+  the bar was always 65px and #213 had taken the button to 40. **The row was mismatched for a
+  reason none of the six named**: the two halves of the L were different inks — sidebar solid
+  `15,7,3`, topbar ink/85 over cream at `51,43,39`, **1.44:1 apart at the corner where they
+  meet** — and its two edges were different hairlines (1.58:1) despite carrying the SAME
+  declared value, differing only because their grounds did.
+  **A CONTRACT COMPARISON COULD NEVER HAVE FOUND EITHER**, because the contract has no ink
+  chrome to compare against. Both now 1.00.
+  **THE FROST WAS REAL AND WAS GIVEN UP DELIBERATELY.** #165 built `bg-ink-950/85` +
+  `backdrop-blur` so "content scrolls under the blur", and measured it was STILL LIVE — on
+  `/studio/settings` at 600px, real content passes beneath. But **ink/85 composites to 51,43,39
+  only by sitting over cream, so no alpha below 1.0 reaches the sidebar's 15,7,3**: the frost
+  and the L match are mutually exclusive, not a trade to tune. The L won — it is chrome, on
+  every page, visible at rest — and the frost is inert on the three-pane editors, which is
+  where the mismatch was noticed. **The cost is real: four page-scrolling surfaces lose it, and
+  restoring it means reopening the L.** `backdrop-blur` went with it at `lg` only; below `lg`
+  the bar is still cream and still frosts.
+  **HAZARD 26 WAS FOUND LIVE ON MAIN** — `StudioSidebar` carried `lg:border-ink-950/12
+  lg:border-white/12` on one element. Measured, white/12 won by sheet order and the ink class
+  was dead, so the render was right BY LUCK. Contract correction **C-17**.
+- **#213** the topbar button and the canvas bar →1385. Two fidelity gaps the owner spotted after
+  the arc closed, and **the first time in this arc the CONTRACT WAS RIGHT AND THE BUILD WAS
+  WRONG ON BOTH COUNTS** — no correction seventeen.
+  **THE TOPBAR'S GROUND WAS NOT THE GAP.** Its cream is C-9 working exactly as intended, so the
+  answer there was no change. The gap was geometry the reversal never covered: the contract sets
+  `.btn` and `.search input` to **40px each so they align on one row**, and #211 raised the
+  search to 40 without touching the button, leaving them 4px apart. Now both 40.
+  **THE 55px CLAIM WAS TRUE, AND MY FIRST MEASUREMENT OF IT WAS NOT.** Measured on the contract
+  file rather than read off its CSS: an initial probe said 58 because it caught the row
+  mid-layout with the title box at 35px; settled, it is **55 = 11 + 32 + 11 + 1**, the tallest
+  child being the button. The canvas bar was 44.3 and is now 55, its button 27.3 → 32, its title
+  13/400 → 13.5/500, its button 400 → **600 — an #208 miss**, that sweep having matched on
+  `text-[12px]` while this button is 11.5px.
+  **TWO THINGS THAT LOOKED LIKE GAPS AND WERE NOT**: the contract's `.cv-bar` sets **no
+  background at all**, so the app's cream-50 is not a mismatch; and its `.back` button is absent
+  from the app correctly, because `ThreePaneShell`'s collapse rail already does that job and a
+  second control for one function is worse than none.
+- **#212** studio-type asserts its on-ink ratios (`3623f0c`) →1385, closing hazard 27
 - **#210** the phantom tokens deleted and the class gated (`8ae96ba`) →1385
 - **#211** the card image (`beba883`) →1385, no net-new assertions. Fidelity item 4, the last
   one that is LAYOUT — and **the item that closed all eleven**. Three passes.

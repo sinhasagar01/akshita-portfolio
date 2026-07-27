@@ -268,8 +268,15 @@ t("E4: labelCls sizes itself locally — `--text-eyebrow` is read by 11 case-stu
 }
 
 // E6 · THE DEAD ANCHORS. Colour cannot live on an <a> here; it lives on a parent or a child.
+// PINNED ON THE COLOUR, NOT ON THE PADDING BESIDE IT. This regex used to read
+// `px-4 py-2 text-ink-600"`, so #213 changing the strip's padding to 11px/18px — a change
+// about HEIGHT, with no bearing on colour inheritance — failed a COLOUR assertion. An
+// assertion that pins its neighbours fails for reasons it does not care about, and the next
+// person's cheapest move is to re-widen the regex until it passes, which is how a gate stops
+// guarding anything. It now matches the strip's `text-ink-600` and the `border-b` that marks
+// it as the strip, and nothing about its box.
 t("E6: the blog canvas strip colours its own row, so the View live anchor inherits — a text-* utility on an <a> is defeated by the unlayered `a { color: inherit }`",
-  /px-4 py-2 text-ink-600"/.test(code("components/studio/ThreePaneShell.tsx")), true);
+  /border-b border-ink-950\/12[^"]*text-ink-600"/.test(code("components/studio/ThreePaneShell.tsx")), true);
 t("E6: the projects header row colours itself, so its Preview anchor inherits — that anchor and the Cancel button next to it once carried byte-identical classes and only the button's worked",
   /flex items-center gap-1 text-ink-600"/.test(code("components/studio/ProjectsEditPanel.tsx")), true);
 

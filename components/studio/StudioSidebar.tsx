@@ -139,7 +139,7 @@ export default function StudioSidebar() {
     // three of six are off screen), which makes the active pill the primary wayfinding cue —
     // and inverting it there would take it from 19.04:1 to 1.25:1. Mobile ink chrome is real
     // work with its own composition, and it is SCOPED SEPARATELY rather than absorbed here.
-    <aside className="flex flex-col border-b border-ink-950/12 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/12 lg:bg-ink-950 lg:p-4">
+    <aside className="flex flex-col border-b border-ink-950/12 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/24 lg:bg-ink-950 lg:p-4">
       <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-4">
         {/* The accent chip is UNCHANGED. accent-500 on ink-950 is 4.05:1, and rule 6 keeps the
             accent discipline: this direction adds no new colour. */}
@@ -160,7 +160,13 @@ export default function StudioSidebar() {
 
       <nav className="flex flex-1 flex-row gap-1 overflow-x-auto lg:flex-col lg:gap-0.5 lg:overflow-visible">
         {areas.map((area) => renderLink(area))}
-        <div className="lg:mt-auto lg:border-t lg:border-ink-950/12 lg:border-white/12 lg:pt-2.5">
+        {/* ONE BORDER COLOUR, NOT TWO. This carried `lg:border-ink-950/12 lg:border-white/12`
+            — both border-color at equal specificity, so which one drew was decided by their
+            order in the generated sheet. MEASURED: white/12 won and the ink class was dead.
+            The render was right BY LUCK OF ORDERING, which is hazard 26 live on main rather
+            than hypothetical. It stays /12 because it is an INTERIOR divider; the L's outer
+            edges are the ones at /24. */}
+        <div className="lg:mt-auto lg:border-t lg:border-white/12 lg:pt-2.5">
           {renderLink(settings)}
           <form action="/api/studio/logout" method="post">
             {/* Same rewrite as a nav link at rest — ink-600 would be 2.57:1 and the

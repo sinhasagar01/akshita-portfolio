@@ -165,7 +165,12 @@ export default function ThreePaneShell({
             and it had never applied. Setting the default here lets the anchor INHERIT the
             right value without a wrapper element, which the repaint's attribute-invariant
             gate would reject. Children that want another colour still state their own. */}
-        <div className="flex flex-none items-center gap-2.5 border-b border-ink-950/12 px-4 py-2 text-ink-600">
+        {/* 11px/18px AND A 32px BUTTON MAKE THE CONTRACT'S 55px BAR — 11 + 32 + 11 + 1.
+            MEASURED ON THE CONTRACT FILE ITSELF rather than read off its CSS: the first probe
+            said 58 because it caught the row mid-layout with the title box at 35px. Settled,
+            it is 55, and the tallest child is the button rather than the title. The owner's
+            number was right and my first reading of it was not. */}
+        <div className="flex flex-none items-center gap-2.5 border-b border-ink-950/12 px-[18px] py-[11px] text-ink-600">
           {!collapsed ? (
             <button
               type="button"
