@@ -23,4 +23,20 @@ blocks:
   - discriminant: richText
     value:
       paragraphs:
-        - ''
+        - >-
+          Producing screens stopped being the expensive part. Keeping them
+          consistent with each other did not.
+
+
+          I watched this happen on a profiling tool with four squads shipping in
+          parallel. Every squad had the same component library and every squad
+          was fast. Six months in we had three different empty states, two
+          loading patterns, and a date picker that behaved differently depending
+          on which screen you reached it from. Nobody had done anything wrong.
+          Everyone had moved quickly in a slightly different direction.
+
+
+          None of it surfaced in a design review, because a design review looks
+          at one screen at a time. It surfaced in support tickets, where someone
+          described a flow that existed in no document we had, because it
+          crossed three squads.
