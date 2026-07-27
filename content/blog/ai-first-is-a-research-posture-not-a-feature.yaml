@@ -1,0 +1,90 @@
+title: AI first is a research posture, not a feature
+dek: Most AI features are a second route to a screen that already existed.
+date: '2026-07-27'
+topic: AI in product
+status: published
+heroImage: /images/blog/ai-first-is-a-research-posture-not-a-feature/heroImage.webp
+blocks:
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          The pattern is easy to recognise once you have shipped it. A product
+          exists, a model becomes available, and somebody adds a box in the
+          corner where the user can type a question. The box is real work. It
+          ships. It demos well.
+
+
+          Then you watch the analytics and almost nobody opens it, and the
+          people who do ask it to describe the screen they are already looking
+          at.
+  - discriminant: heading
+    value:
+      text: Why the box does not work
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          A bolted on assistant asks the user to already know what to ask. That
+          is a strange request, because the reason someone opens an enterprise
+          tool is usually that they do not yet know the shape of their own
+          question.
+
+
+          It also leaves the original flow untouched. Every step that existed
+          before still exists. So the assistant becomes a parallel route to the
+          same screen, and a slower one, because now there is a sentence to
+          compose.
+  - discriminant: imageBlock
+    value:
+      src: >-
+        /images/blog/ai-first-is-a-research-posture-not-a-feature/blocks/d9517012efd9.webp
+      alt: >-
+        Two versions of the same task. In the first, five steps run left to
+        right with an assistant hanging off the middle. In the second, three of
+        the steps collapse into one.
+      caption: The box adds a path. It does not remove one.
+      wide: false
+      decorative: true
+  - discriminant: pullQuote
+    value:
+      text: >
+        Adding a model to a flow is a design decision. Asking whether the flow
+        should still have that shape is a research one.
+  - discriminant: heading
+    value:
+      text: What we found across three personas
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          On an AI companion built for three very different users, the
+          assumption going in was that they needed three interfaces. What they
+          actually needed was three different jobs done, and the interface
+          mattered far less than we thought.
+
+
+          The analyst wanted the working shown, because she would be asked to
+          defend the number. The manager wanted the number and nothing else. The
+          person new to the tool wanted to know which question was worth asking,
+          which is not a thing you can type into a box.
+
+
+          One model, three jobs, and only one of them was well served by a place
+          to type.
+  - discriminant: heading
+    value:
+      text: The posture
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          AI first does not mean the model goes in front. It means you ask what
+          the job becomes when the model is assumed, before you decide what to
+          build.
+
+
+          That is uncomfortable, because it produces no artefact for several
+          weeks. You cannot show a chat box in a review. You can only show that
+          the five steps somebody used to take are now two, and that the two
+          remaining ones are the ones they were paid to do.
