@@ -11,8 +11,11 @@
 // arithmetic claim and the arithmetic was never done. The canvas measure is 68ch, which
 // resolves to 745.9px against the wrapper's 16px font rather than the 646 you get by
 // estimating it from the 18px prose. Sidebar 236 plus list 264 plus canvas 794 plus
-// inspector 320 is 1614, and the laptop this is authored on is 1536 wide. The rail costs
-// the canvas nothing it needs. See lib/studio/three-pane.ts.
+// inspector 244 was 1538, and the laptop this is authored on is 1536 wide. The rail cost the
+// canvas nothing it needed. #194 widened the inspector to 320, making the sum 1614, so that
+// is no longer unconditionally true — with the list explicitly OPEN below 1614 the canvas
+// does lose measure. By default it collapses there and the measure holds. See BlogIndex.tsx
+// for the corrected reasoning and lib/studio/three-pane.ts for the arithmetic.
 //
 // NO PADDING WRAPPER. This page does not take STUDIO_PAGE, and that is the exception the
 // #D1 padding move existed to make possible: the shell is a full-height layout whose panes

@@ -23,10 +23,19 @@
 // blog-specific until a second consumer teaches us what varies. Point 2 rested on an
 // arithmetic claim that turned out to be false. The rail was believed to cost the canvas
 // its measure, and the measure is 68ch, which resolves to 745.9px against the wrapper's
-// 16px font. Sidebar 236 plus list 264 plus canvas 794 plus inspector 320 is 1614px, and
-// the laptop this is authored on is 1536 wide. The rail does not cost the canvas anything
-// it needs, so the objection the removal rested on does not apply here. The owner weighed
-// that and chose the rail. See lib/studio/three-pane.ts for the full arithmetic.
+// 16px font. Sidebar 236 plus list 264 plus canvas 794 plus inspector 244 was 1538px, and
+// the laptop this is authored on is 1536 wide. The rail did not cost the canvas anything it
+// needed, so the objection the removal rested on did not apply here. The owner weighed that
+// and chose the rail.
+//
+// THAT ARITHMETIC CHANGED IN #194 AND THE CONCLUSION CHANGED WITH IT — recorded rather than
+// silently renumbered, because the sentence above is the whole reason the rail exists. The
+// inspector went 244 -> 320, so the sum is now 1614. On a 1536 laptop with the list OPEN the
+// canvas gets 1536 - 236 - 264 - 320 = 716px against the 794 it needs, and the column drops
+// under its 697.9296875 measure. So the rail DOES now cost the canvas something it needs,
+// below 1614 and only when the author opens it explicitly — by default the list collapses
+// there and the measure holds. The decision stands; its justification is narrower than it
+// was. See lib/studio/three-pane.ts for the full arithmetic.
 //
 // THIS PAGE REMAINS THE ONLY PLACE POSTS ARE CREATED AND DELETED. The editor's list pane
 // searches and navigates and does nothing else, so those two write operations keep one

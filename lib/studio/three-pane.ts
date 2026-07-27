@@ -30,8 +30,16 @@
 // without raising it would leave 1538..1613 claiming all three panes fit while the canvas
 // actually got 718px — under the 794 it needs, which silently drops the canvas column below
 // its 697.9296875 public measure. That measure is the property the whole editor exists to
-// hold, and nothing would have failed. **Widening a pane is an arithmetic change, not a
-// styling change.**
+// hold, and nothing would have failed. WIDENING A PANE IS AN ARITHMETIC CHANGE, NOT A
+// STYLING CHANGE.
+//
+// THE COLLAPSED-LIST FLOOR MOVED TOO, and it is worth knowing even though nothing reads it.
+// With the list collapsed the canvas keeps its full measure down to
+// 236 + 26 (the reopen rail) + 794 + 320 = 1376, where the old inspector reached 1300. So
+// the band in which the inspector is shown but the canvas is under measure is 76px wider
+// than it was. INSPECTOR_FOLD_PX stays 1100 because it is a CHOSEN breakpoint rather than a
+// derived one — it answers "is the inspector still usable", not "does the canvas still hold
+// its measure" — but if that band ever needs closing, raising the fold to 1376 is the change.
 
 /** The width at or above which all three panes fit at their natural sizes. */
 export const FIT_THRESHOLD_PX = 1614;
