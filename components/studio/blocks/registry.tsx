@@ -22,6 +22,7 @@ import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
 import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField, inputCls, inputErrorCls, labelCls } from "./fields";
 import { isHttpUrl } from "@/lib/case-studies/adapter";
+import type { PreviewUpload } from "@/lib/studio/preview-map";
 
 // CS-6a — the per-image frame picker options. "" is a real choice ("Default"),
 // omit-when-empty in the sanitizer so it falls back to the template default then
@@ -40,7 +41,12 @@ import { BLOCK_EMPTIES, emptyDevice, emptyImg } from "./empties";
 
 export type BlockFormProps<K extends SectionBlockKind> = {
   value: RawValue<K>;
-  onChange: (next: RawValue<K>) => void;
+  /** `upload` rides ALONGSIDE the new value when an image field just took one — the path is
+   *  not fetchable until publish, so only the bytes the browser holds can draw it. Optional,
+   *  and every existing caller ignores it: the blog host adopts it (videoEmbed's poster is
+   *  drawn by BlogProse), and SectionsEditPanel does not hold a preview map yet, so the
+   *  case-study canvas still waits for a refresh. See lib/studio/preview-map.ts. */
+  onChange: (next: RawValue<K>, upload?: PreviewUpload) => void;
   /** The panel's save-on-blur. */
   onBlur?: () => void;
   /** P4 4(b)-iv — the project slug, threaded to the image fields so an upload lands
@@ -377,7 +383,11 @@ function ImgSpecFields<T extends RawImg>({
   imageLabel = "Image",
 }: {
   value: T;
-  set: (next: T) => void;
+  /** Optional second argument, exactly as BlockFormProps.onChange states it. The seven
+   *  callers that pass a one-arity arrow compile unchanged and simply drop the upload —
+   *  which is why the case-study canvas does not preview yet, and why closing that gap is
+   *  the arrows plus a map rather than a new seam. */
+  set: (next: T, upload?: PreviewUpload) => void;
   onBlur?: () => void;
   focusRef?: (el: HTMLElement | null) => void;
   slug: string;
@@ -394,7 +404,12 @@ function ImgSpecFields<T extends RawImg>({
           slug={slug} collection={collection}
           // The upload/clear commits the blob and hands back the path; the src edit
           // then rides the ordinary save, so `sections` keeps its single writer.
-          onChange={(src) => set({ ...value, src })}
+          //
+          // THE FILE IS EMITTED HERE WHETHER OR NOT THE HOST WANTS IT. Blog's videoEmbed
+          // poster adopts it; the case-study hosts drop it on the floor with a one-arity
+          // arrow. Emitting unconditionally is what makes this the only site that needs to
+          // know where the bytes come from.
+          onChange={(src, file) => set({ ...value, src }, src && file ? { src, file } : undefined)}
         />
         <TextField
           label="Alt text"
@@ -937,7 +952,10 @@ const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({
         />
         <TextField label="Aspect ratio, e.g. 1.7778 (optional)" value={value.aspect} onChange={(aspect) => onChange({ ...value, aspect })} onBlur={onBlur} optional />
         <DisclosureGroup revealLabel="Poster still (optional)">
-          <ImgSpecFields value={value.poster} set={(poster) => onChange({ ...value, poster })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Poster still" />
+          {/* The poster FORWARDS the upload — BlogProse draws it through the same rewriter
+              as an imageBlock (see its VideoEmbed), so it needs the preview for the same
+              reason and gets it from the same map. */}
+          <ImgSpecFields value={value.poster} set={(poster, upload) => onChange({ ...value, poster }, upload)} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Poster still" />
         </DisclosureGroup>
       </TabGroup>
     </>

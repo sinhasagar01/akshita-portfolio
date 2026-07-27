@@ -347,8 +347,22 @@ export function BlockImageField({
    *  an unknown one, so a caller that forgets it is a compile error here, not a silent
    *  mis-scope. */
   collection: string;
-  /** Receives the server-derived path, or null on clear. */
-  onChange: (src: string | null) => void;
+  /** Receives the server-derived path, or null on clear.
+   *
+   *  IT ALSO HANDS UP THE `File`, and that second argument is what lets a canvas draw the
+   *  image before publish. The path 404s until then, and `draftImages` — the array the
+   *  canvas rewriter consults — is a snapshot taken before this upload existed. Only the
+   *  bytes the browser already holds can resolve it. See lib/studio/preview-map.ts.
+   *
+   *  THE `File`, NOT AN OBJECT URL, which is #190's finding restated. Handing up a url makes
+   *  two components share one revocable resource that neither can safely free. Handing up the
+   *  File lets each holder make its own from the same Blob and free exactly that.
+   *
+   *  ADDITIVE, AND THAT IS WHAT MADE IT SAFE TO DO HERE RATHER THAN FORK THE COMPONENT. Both
+   *  call sites pass one-arity arrows, and TypeScript accepts a lower-arity function where a
+   *  higher-arity one is expected. Adding a parameter changes nothing about the first one, so
+   *  a caller that does not want the File simply does not name it. */
+  onChange: (src: string | null, file?: File) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -369,7 +383,10 @@ export function BlockImageField({
         return;
       }
       if (res.ok && json.ok && typeof json.src === "string") {
-        onChange(json.src);
+        // The File goes up WITH the path. It has been in scope here since this component was
+        // written and was thrown away, which is the whole of the bug: the path is not
+        // fetchable until publish, and the bytes that are were sitting right here.
+        onChange(json.src, file);
         return;
       }
       setError(

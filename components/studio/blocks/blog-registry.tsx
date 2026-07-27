@@ -33,12 +33,18 @@ import type { BlogBlockKind, BlogRawValue } from "@/lib/blog/blocks-raw";
 import { BLOCK_REGISTRY } from "./registry";
 import { BLOG_BLOCK_EMPTIES, emptyHeading } from "./blog-empties";
 import { BlockImageField, TextField, TextArea, CheckField } from "./fields";
+import type { PreviewUpload } from "@/lib/studio/preview-map";
 
 /** The props a blog block form receives — the same contract BlockFormProps states, over
  *  the BLOG value union. `collection` is threaded exactly as #172 requires. */
 export type BlogBlockFormProps<K extends BlogBlockKind> = {
   value: BlogRawValue<K>;
-  onChange: (next: BlogRawValue<K>) => void;
+  /** `upload` rides ALONGSIDE the new value when a form's image field just took one, so the
+   *  host can hold a preview for it — the committed path 404s until publish and the canvas
+   *  rewriter's snapshot predates the upload. Optional, so a form that has no image field
+   *  never mentions it. It carries the PATH beside the File deliberately: the host receives
+   *  an opaque value and must not have to guess which of its fields is the image. */
+  onChange: (next: BlogRawValue<K>, upload?: PreviewUpload) => void;
   onBlur?: () => void;
   slug: string;
   collection: string;
@@ -92,7 +98,14 @@ const ImageBlockForm = ({
       collection={collection}
       // The upload commits the blob and hands back the server-derived path; the src edit
       // then rides the ordinary save, so `blocks` keeps its single writer.
-      onChange={(src) => onChange({ ...value, src })}
+      //
+      // THE FILE RIDES BESIDE THE VALUE, never inside it. `src` stays exactly the string the
+      // server derived, so what is saved is unchanged; the bytes travel on the second
+      // argument and never reach the entry file. A clear passes no upload — `src` is null
+      // and there is nothing to preview.
+      onChange={(src, file) =>
+        onChange({ ...value, src }, src && file ? { src, file } : undefined)
+      }
     />
     <TextField
       label="Alt text"
