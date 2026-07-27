@@ -67,6 +67,25 @@ export function useDraftForm<T extends object>({
   // to "saving", so the state check alone lets a duplicate POST through. The ref
   // blocks the second call in the same tick (no commit spam).
   const savingRef = useRef(false);
+  /** A save was requested while one was in flight, so one is OWED once it settles.
+   *  This is the whole difference between coalescing and dropping — see saveDraft. */
+  const saveOwedRef = useRef(false);
+
+  // THE LATEST-REF PAIR, AND THEY ARE WHAT MAKE THE RETRY CORRECT RATHER THAN HARMFUL.
+  //
+  // `saveDraft` closes over `values` and `savedBaseline` from the render that created it. A
+  // retry that re-invoked that same closure would re-post the PRE-EDIT snapshot — #174's
+  // defect exactly, the one #187 built its `pendingSave` machinery to dodge. So the retry
+  // must not read the closure; it reads these.
+  //
+  // ASSIGNED ON EVERY RENDER, deliberately, rather than in the three places that mutate
+  // state (setField, the syncValuesOnSave branch, cancel). One line has no list of sites to
+  // keep in sync and therefore no site to miss, which is the failure mode a three-place
+  // update invites. They are never read during render, only from async callbacks.
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
+  const baselineRef = useRef(savedBaseline);
+  baselineRef.current = savedBaseline;
 
   const dirty = isDirty(values, savedBaseline);
 
@@ -77,11 +96,27 @@ export function useDraftForm<T extends object>({
 
   // On-blur (and Save button) auto-save. Posts the committed patch; DB-1 commits
   // it on top of the existing draft, so a partial patch accumulates.
+  //
+  // AN OVERLAPPING SAVE IS COALESCED, NOT DROPPED. This used to read
+  // `if (!dirty || savingRef.current) return;` — a save requested while another was in
+  // flight returned and scheduled NOTHING. The author's second edit stayed in `values` and
+  // `dirty` stayed true, so the state was honest, but the save simply never happened until
+  // some later blur or the Save button. A save takes under two seconds against GitHub, so
+  // the overlap window is routine rather than theoretical, and the loss was silent.
+  //
+  // DO NOT SIMPLIFY THE GUARD BACK TO A BARE `return`. It loses author data and nothing
+  // else in the repo would catch it, which is why ralph asserts this shape.
   async function saveDraft() {
-    if (!dirty || savingRef.current) return;
+    if (savingRef.current) {
+      saveOwedRef.current = true;
+      return;
+    }
+    // Read through the ref, not the closure — see the latest-ref note above. A stale read
+    // here would post the pre-edit snapshot and look like a working retry.
+    if (!isDirty(valuesRef.current, baselineRef.current)) return;
     savingRef.current = true;
     setSaveStatus("saving");
-    const committed = buildCommitted(values);
+    const committed = buildCommitted(valuesRef.current);
     try {
       const res = await fetch("/api/studio/save-draft", {
         method: "POST",
@@ -97,6 +132,11 @@ export function useDraftForm<T extends object>({
       }
       if (res.ok && json.ok && json.saved) {
         if (syncValuesOnSave) setValues(committed);
+        // SYNCHRONOUS, AND BESIDE THE setState ON PURPOSE. `setSavedBaseline` lands on the
+        // next render, but the owed-save retry fires in the `finally` below — before that
+        // render. Without this the retry would re-check dirtiness against the OLD baseline,
+        // decide the just-saved values still differ, and fire a redundant save.
+        baselineRef.current = committed;
         setSavedBaseline(committed);
         onSaved?.(json);
         setSaveStatus("saved");
@@ -108,6 +148,14 @@ export function useDraftForm<T extends object>({
       setSaveStatus("error"); // the local edit is NOT lost — values remain
     } finally {
       savingRef.current = false;
+      // FIRE THE OWED SAVE. At most one follow-up per settle: `saveOwedRef` is set only by a
+      // real call landing mid-flight, so with no further edits this terminates immediately.
+      // The recursion re-enters through the guard above and reads the refs, so it posts what
+      // is on screen NOW rather than the snapshot this call was built from.
+      if (saveOwedRef.current) {
+        saveOwedRef.current = false;
+        void saveDraft();
+      }
     }
   }
 
