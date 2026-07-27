@@ -11,7 +11,7 @@
 //
 // THE TWO FORMS STAY SEPARATE, and that is locked. This one patches head fields, the body
 // panel posts a whole `blocks` array through a different branch of the save-draft seam.
-// Once their fields share a 244px pane the temptation to merge them is real, so both report
+// Once their fields share a 320px pane the temptation to merge them is real, so both report
 // through a LABELLED SaveIndicator ("Post saved", "Body saved"). Standing hazard 7 is that
 // somebody reads two unlabelled indicators as one form, which is #174's defect class, and
 // G4 proves the separation by capturing two distinct patches.
@@ -132,7 +132,7 @@ export default function BlogEditPanel({
   useReportPending(dirty || saveStatus === "saving");
 
   // ONE COLUMN. The old two-column grid assumed a full-width card; the inspector pane is
-  // 244px and every field here is now full width of it.
+  // 320px and every field here is now full width of it.
   const postSection = (
     <div className="flex flex-col gap-3 px-3 py-3">
       <div className="flex items-center justify-end">

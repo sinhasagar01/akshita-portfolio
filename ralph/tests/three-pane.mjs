@@ -53,8 +53,8 @@ const code = (p) =>
  * wrapper's 16px font at 745.9px, so canvas = 745.9 + 48 padding = 794 (rounded up).
  * The contract's 620 was estimated from the 18px prose font and made the threshold wrong
  * by 190px. VERIFY A UNIT BEFORE COMPUTING WITH IT. */
-t("A: FIT_THRESHOLD_PX is 1538", FIT_THRESHOLD_PX, 1538);
-t("A: the arithmetic reproduces it", 236 + 264 + 794 + 244, FIT_THRESHOLD_PX);
+t("A: FIT_THRESHOLD_PX is 1614", FIT_THRESHOLD_PX, 1614);
+t("A: the arithmetic reproduces it", 236 + 264 + 794 + 320, FIT_THRESHOLD_PX);
 t("A: INSPECTOR_FOLD_PX is 1100", INSPECTOR_FOLD_PX, 1100);
 t("A: the fold is below the fit threshold", INSPECTOR_FOLD_PX < FIT_THRESHOLD_PX, true);
 // The 1536-wide laptop this is authored on is BELOW the threshold, which is the fact that
@@ -97,7 +97,7 @@ const CONSUMERS = [
 ];
 for (const f of CONSUMERS) {
   const src = code(f);
-  t(`C: ${f} contains no literal 1538`, /\b1538\b/.test(src), false);
+  t(`C: ${f} contains no literal 1614`, /\b1614\b/.test(src), false);
   t(`C: ${f} contains no literal 1100`, /\b1100\b/.test(src), false);
   // A Tailwind arbitrary variant is the specific shape this is guarding against, so it is
   // asserted by NAME as well as by number — `max-[1538px]` and `min-[1100px]` are what the
@@ -108,7 +108,7 @@ for (const f of CONSUMERS) {
 // same reason as the consumers: three-pane.ts's header states the arithmetic that PRODUCES
 // 1538, and prose showing its work is not a second declaration.
 const home = code("lib/studio/three-pane.ts");
-t("C: three-pane.ts declares 1538 exactly once", (home.match(/\b1538\b/g) ?? []).length, 1);
+t("C: three-pane.ts declares 1614 exactly once", (home.match(/\b1614\b/g) ?? []).length, 1);
 t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? []).length, 1);
 
 /* ================================================================= D. the constants are USED
@@ -184,6 +184,40 @@ t("G: the layout scopes min-h-0 the same way",
 t("G: the layout has no unscoped lg:h-dvh", /(?<!\]:)\blg:h-dvh\b/.test(layout), false);
 t("G: the layout keeps min-h-screen for page-scrolled routes",
   /\bmin-h-screen\b/.test(layout), true);
+
+/* ================================================================= H. the panes ARE the sum
+ * THE GAP THAT LET THE INSPECTOR WIDEN DANGEROUSLY. Section A pins the arithmetic and
+ * section C forbids a second copy of the THRESHOLD, but nothing tied the shell's pane width
+ * CLASSES to the terms of that sum. So widening the inspector from 244 to 320 in the class
+ * alone left every gate green while the threshold still claimed three panes fit at 1538 —
+ * where the canvas would actually get 718px against the 794 it needs, dropping the canvas
+ * column below its 697.9296875 public measure. Nothing would have failed, and the measure is
+ * the property the whole editor exists to hold.
+ *
+ * So the widths are READ OUT OF THE CLASS STRINGS and summed here. Change a pane's class
+ * without moving FIT_THRESHOLD_PX and this fails. It is #178's A1 discipline applied to the
+ * layout itself — ASSERT THE CONSTANT AGAINST THE CLASS STRING THAT CONSUMES IT — and it is
+ * the honest answer to a coupling Tailwind makes impossible to remove, since a class name
+ * cannot interpolate a value. Assert the pair, because you cannot delete the pair. */
+const widthFrom = (re, label) => {
+  const m = re.exec(shell);
+  t(`H: the shell declares a ${label} width`, m !== null, true);
+  return m ? Number(m[1]) : NaN;
+};
+// The list's open width, out of the collapsed/open ternary.
+const LIST_PX = widthFrom(/"w-\[(\d+)px\] border-ink-950\/8"/, "list");
+// The inspector's, off the <aside>.
+const INSPECTOR_PX = widthFrom(/<aside className="w-\[(\d+)px\] flex-none/, "inspector");
+
+t("H: the list pane is 264px", LIST_PX, 264);
+t("H: the inspector pane is 320px", INSPECTOR_PX, 320);
+// THE COUPLING, MACHINE-CHECKED. 236 is the sidebar and 794 is the canvas (68ch + 48px of
+// padding); both are measured elsewhere and are not this file's to move.
+t("H: sidebar + list + canvas + inspector IS the fit threshold",
+  236 + LIST_PX + 794 + INSPECTOR_PX, FIT_THRESHOLD_PX);
+// And the canvas term must still clear the public measure it exists to protect, or the
+// threshold is internally consistent but wrong.
+t("H: the canvas term covers 68ch (745.9) plus its 48px padding", 794 >= 745.9 + 48, true);
 
 console.log(`\nthree-pane result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

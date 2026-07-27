@@ -7,7 +7,7 @@
 // the block array in BlogBlocksEditPanel — posting two different request bodies to two
 // different branches of the save-draft seam. That separation is deliberate and locked. It
 // was also invisible: both panels rendered a bare "Saved", and once the three-pane layout
-// stacks them in one 244px inspector, two unlabelled "Saved" strings a few hundred pixels
+// stacks them in one 320px inspector, two unlabelled "Saved" strings a few hundred pixels
 // apart read as one form reporting itself twice.
 //
 // That misreading is #174's exact defect class, the one that let `saveDraft()` close over

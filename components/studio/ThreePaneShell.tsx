@@ -37,7 +37,7 @@
 // the whole reason #D1 deleted the layout's shared padding wrapper.
 //
 // The overflow rules below are `lg:`-gated to match. Below `lg` the layout is ordinary
-// document flow, the list is already collapsed (1024 is well under the 1538 fit threshold)
+// document flow, the list is already collapsed (1024 is well under the 1614 fit threshold)
 // and the inspector is folded, so the shell is a single scrolling column and clipping it to
 // a viewport height it does not have would put its bottom out of reach.
 //
@@ -88,7 +88,7 @@ export default function ThreePaneShell({
   // The server always renders the wide layout (useMediaMin has no viewport to read), so on
   // a narrow screen the first client render switches the pane from 264px to 0. With the
   // transition always on, that correction ANIMATES — the rail visibly slides shut on every
-  // single page load below 1538px, which reads as a glitch rather than a choice. It also
+  // single page load below 1614px, which reads as a glitch rather than a choice. It also
   // makes the pane's width unmeasurable for 300ms after load, which is how this was found:
   // a gate read 264px from a pane whose class already said `w-0`.
   //
@@ -182,7 +182,7 @@ export default function ThreePaneShell({
           useDraftForm-fed field trees posting through one onChange, with colliding ids and
           two carets. */}
       {inspector !== null ? (
-        <aside className="w-[244px] flex-none overflow-y-auto border-l border-ink-950/8 bg-cream-100">
+        <aside className="w-[320px] flex-none overflow-y-auto border-l border-ink-950/8 bg-cream-100">
           {inspector}
         </aside>
       ) : null}
