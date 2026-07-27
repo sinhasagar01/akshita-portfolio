@@ -141,12 +141,26 @@ export default function StudioSidebar() {
     // work with its own composition, and it is SCOPED SEPARATELY rather than absorbed here.
     <aside className="flex flex-col border-b border-ink-950/12 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/24 lg:bg-ink-950 lg:p-4">
       <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-4">
-        {/* The accent chip is UNCHANGED. accent-500 on ink-950 is 4.05:1, and rule 6 keeps the
-            accent discipline: this direction adds no new colour. */}
-        <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500 text-cream-50">
-          <IconSparkles className="size-3.5" />
+        {/* 30x30 AND 20px ARE THE CONTRACT'S OWN VALUES, verified in the file rather than
+            taken on trust — `.logo .mark { width:30px; height:30px }` and
+            `.logo b { font-size:20px; letter-spacing:-.01em }`. The app shipped 24x24 and 17px,
+            so this is an implementation gap, not a new design.
+
+            THE RADIUS TAKES THE CARD STEP, NOT THE CONTRACT'S 7px. 7 is not a value the studio
+            radius scale has, and the scale supersedes the file here exactly as it did for its
+            2px input and 3px button radii — all three predate #207. 8 is the nearest step and
+            the mark is a small surface rather than a control.
+
+            THE ACCENT CHIP'S COLOUR IS UNCHANGED. accent-500 on ink-950 is 4.05:1, and rule 6
+            keeps the accent discipline: this direction adds no new colour. The BOX grew; the
+            fill did not move. */}
+        <span className="grid size-[30px] place-items-center rounded-[var(--studio-radius-card,8px)] bg-accent-500 text-cream-50">
+          <IconSparkles className="size-4" />
         </span>
-        <span className="font-display text-base text-ink-950 lg:text-cream-50">Studio</span>
+        {/* 20px / -0.01em. The colour is untouched at cream-50, but SIZE PARTICIPATES IN
+            LEGIBILITY even when the colour has not moved, so the ratio is re-measured on the
+            ink ground rather than assumed to hold — see the PR body. */}
+        <span className="font-display text-[20px] tracking-[-0.01em] text-ink-950 lg:text-cream-50">Studio</span>
       </div>
 
       {/* PRE-EXISTING AA FAILURE, FIXED BY THE FLIP RATHER THAN REPAIRED. This heading is
