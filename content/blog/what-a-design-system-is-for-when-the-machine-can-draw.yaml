@@ -76,3 +76,6 @@ blocks:
       caption: Four squads, one library. The components drifted. The rule did not.
       wide: false
       decorative: true
+  - discriminant: heading
+    value:
+      text: The system is now an input
