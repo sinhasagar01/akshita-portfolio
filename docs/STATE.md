@@ -6,9 +6,11 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE LINT GATE)
+## STATE (as of THE BLOCK-IMAGE PREVIEW)
 
-**main** = `3e1a60a` = #200 (the Publish button names its object). Pinned: `f734a7e` = the
+**main** = `49a2a29` = #202 (the canvas draws a block image before it is published). Pinned:
+`9982db9` = #201 (the dropped save, coalesced), `50a5275` = STATE for #200 and two closed
+owner-backlog items, `3e1a60a` = #200 (the Publish button names its object), `f734a7e` = the
 owner's studio publish of the third post, `a397a1d` = STATE for the sweep, `bbf179f` = #199
 (the deferred sweep), `d9e6b06` = STATE for the
 reduced-motion arc, `fa08200` = #198 (the FAB under reduced motion), `258ee1a` = #197 (the
@@ -63,14 +65,17 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1193 ACROSS 33 RUNNABLE SUITES
+### RALPH IS 1235 ACROSS 35 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new).
+
+**1235 ACROSS 35 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -89,7 +94,7 @@ shell loop; it is what re-learned this trap every session.
 The runner prints the per-file list, the sum and the suite count from the SAME rows, so the
 list and the total cannot drift apart — they did once, undetected for six PRs.
 
-**PASS/FAIL IS THE EXIT CODE, never parsed text.** All 32 runnable suites end with
+**PASS/FAIL IS THE EXIT CODE, never parsed text.** All runnable suites end with
 `process.exit(failures === 0 ? 0 : 1)`, verified. (This line read "29" while the heading
 above it read 30 — a drift of exactly the kind the committed runner exists to prevent, and
 one this file introduced by hand. Both are now re-derived from a run rather than edited.) Parsing is for the count only, which is
@@ -320,6 +325,12 @@ guarantee and #173's splice both held against a real write. Publish merged twice
 - `ai-first-is-a-research-posture-not-a-feature.yaml`
 
 All three render on production and are listed on `/blog`.
+
+**ALL THREE CARRY A HERO, AND TWO CARRY A REAL `imageBlock`** — `ai-first…/blocks/d9517012efd9.webp`
+(added in `0a03779`) and `what-a-design-system…/blocks/6cd6a9815c3f.webp` (added in `ba41d04`).
+**Derived from the files, and the brief for this STATE pass said "one".** The count variant of
+the re-derive rule, a seventh time and this time in the instruction rather than in the file —
+which is the same failure whichever side of the conversation it starts on.
 
 **THE FIRST POST WAS A DIRECT COMMIT (#184), THE OTHER TWO WERE NOT.** That distinction was
 the whole reason owner-backlog items 7 and 9 stayed open, and the studio writes closed them:
@@ -1026,6 +1037,120 @@ used to it. No fix proposed and none scoped.
 
 ---
 
+## #201 — THE DROPPED SAVE
+
+`useDraftForm`'s in-flight guard read `if (!dirty || savingRef.current) return;`. A save
+requested while another was in flight **returned and scheduled nothing**. The author's second
+edit stayed in `values` and `dirty` stayed true — **the state was honest the whole time**,
+which is exactly what made it invisible — but the save never happened until some later blur,
+the Save button, or never. A save takes under two seconds against GitHub, so the overlap
+window is routine rather than theoretical. Shared by every studio panel.
+
+**THE TRAP IS THE RECORD, NOT THE FIX.** The obvious `finally` retry re-invokes a closure over
+stale `values` and re-posts the **pre-edit snapshot** — #174's defect, the one #187 built its
+`pendingSave` machinery to dodge. Two POSTs both carrying the old body **looks like a working
+retry, and a count assertion passes it.** That is the shape to remember: the wrong fix here is
+indistinguishable from the right one under the gate you would reach for first.
+
+**THE FIX IS THREE PARTS AND `saveOwedRef` ALONE IS NONE OF THEM.**
+1. The guard **records an owe** instead of returning bare.
+2. `saveDraft` reads **latest-value refs assigned every render**, so the retry posts what is
+   on screen now. One line, so there is no list of mutation sites to keep in sync and
+   therefore no site to miss.
+3. `baselineRef.current = committed` is set **synchronously beside `setSavedBaseline`**,
+   because the retry fires in `finally` — before that state lands — and would otherwise
+   compare against a stale baseline and fire a redundant save.
+
+**G1 ASSERTED THE SECOND BODY, NOT THE SECOND POST.** Slow-stubbed save, edit A, blur, edit B
+mid-flight, blur. On `main`: **1 POST, B never reaches the wire.** On the branch: **2 POSTs,
+gap 1503ms**, and `secondBody.heroRoleLabel` carried **this run's B** — a value that did not
+exist when the first closure was created, so a stale closure could not have produced it.
+G3 held the other side: one edit with a double blur is still exactly **one** POST, and a no-op
+blur posts **zero**. Coalescing must not resurrect commit spam.
+
+**NO SECOND GUARD IN `BlogBlocksEditPanel`, DELIBERATELY.** It clears `pendingSave` BEFORE
+calling `saveDraft`, which used to lose the owe entirely — the canvas lost more than the
+inspector, which at least had a next blur coming. The shared change closes that at the source,
+so a guard there would be two mechanisms for one problem, and **a guard that cannot fire is a
+comment describing a defence that is not defending.**
+
+### MY PART B PREMISE WAS WRONG
+The investigation was briefed on "nothing on screen says a save is in progress". **`SaveIndicator`
+has had a `saving…` state since it was written** — `{saving ? "saving…" : dirty ? "unsaved" :
+"saved"}`. **#178 made the LABEL required, not the state.** The real defects were two others:
+the feedback sits **334.6px** from where the author types, and **below `INSPECTOR_FOLD_PX` the
+canvas view rendered NO indicator at all** while being the only view where inline editing
+works. Not off-screen, not scrolled away — not rendered. It now carries one, gated on **both**
+`!inspectorFits` and `view === "canvas"`, because `canvasBar` renders unconditionally above the
+swapped content and one condition alone would duplicate it in the inspector view.
+
+**A RALPH SUITE WAS ADDED HERE WHERE #200 REFUSED ONE**, and the difference is the line #200
+drew: a simplification back to a bare `return` **silently loses author data**, produces no
+error, and nothing else in the repo would notice. It can fail for a reason.
+
+---
+
+## #202 — THE BLOCK-IMAGE PREVIEW
+
+The same `draftImages` snapshot gap #190 closed for the hero, **one consumer over**.
+`BlockImageField` handed its parent a PATH only; the `File` was in scope in `upload(file)` and
+thrown away. Measured rather than argued: the just-uploaded path returns **404**, an
+already-published one **200**.
+
+`onChange` now carries the `File`, and a **path-keyed preview map composes AHEAD of**
+`makeDraftSrcRewriter` inside the `rewriteSrc` the panel already passed — no change to
+`BlogProse`, the same trick #190 used. **ONE COMPONENT**, so `imageBlock.src`,
+`videoEmbed.poster` and the case-study editor's **emit half** are all fixed at once. The
+widening is additive: both call sites pass one-arity arrows and a lower-arity function is
+assignable to a higher-arity type, so nothing was forced to change.
+
+### THE FIX DOES NOT TRANSFER FROM #190, AND THAT IS THE DURABLE PART
+The brief for this PR said *revoke on supersede and unmount*, carrying #190's rule across. **The
+precondition does not hold.**
+
+- **The hero's key is FIXED.** One slot, one holder — a new upload replaces that key, so
+  revoking the old url is correct there.
+- **Block image paths are CONTENT-ADDRESSED.** `blockImageHash` is sha256 of the normalized
+  bytes, so the same image in two blocks yields the same path. A new upload does not overwrite
+  a key; it creates a **NEW** key and **orphans the old one, which another block may still be
+  showing.**
+
+**Under content addressing a supersede does not happen.** So the map is **APPEND-ONLY**,
+`adopt` is idempotent per path, and `releaseAll` at unmount is the only revoke. Revoking on
+removal *or* on replace would rebuild #193's shared revocable resource inside the cleanup meant
+to prevent a leak.
+
+**NO PER-PATH RELEASE API EXISTS, AND THE ABSENCE IS ENFORCED RATHER THAN DOCUMENTED.** Ralph
+fails if one is added under any of six spellings (`releas`, `revok`, `remov`, `delet`, `free`,
+`forget`/`evict`/`drop`). The dangerous operation is not one nobody happens to call — **it does
+not exist**, which is the same move as preferring a mapped type over a `Set`.
+
+**A1, MEASURED NOT ASSUMED.** The list rail makes switching posts one click, which did not
+exist in #190's world. The transition **is** client-side (a window property set before the
+click survives), so the obvious guess is that the panel is reused and the map outlives the
+post. It is not: **React drops the subtree and builds a new one** — `view` resets to its
+initial value and the canvas node is a different element carrying none of the old one's
+expandos. **`releaseAll` fires on every post switch, so the bound is uploads-per-POST.**
+
+**G3 IS THE ASSERTION THE DESIGN EXISTS FOR.** Two blocks given the same bytes render **one**
+shared blob url; remove one and the survivor still holds it and still decodes
+(`naturalWidth 40`, `complete: true`). Negative control: revoking that url by hand kills a
+fresh consumer, so the assertion is capable of failing.
+
+### THREE STRATEGIES FOR ONE PROBLEM, ALL DELIBERATE
+Nothing recorded this before #202, and the next person to unify them will break one.
+
+| | strategy | why it suits its surface |
+|---|---|---|
+| `ImageThumb` | proxies **every** src unconditionally | a 36px thumb can afford a GitHub round trip per image; one code path, always correct |
+| the canvas | `makeDraftSrcRewriter`, the **page-load snapshot** | a full-width figure cannot afford the proxy for every image, so published paths keep the static route |
+| `preview-map` (#202) | an **object URL** for a file uploaded this session | resolves what neither can, because the snapshot predates the upload |
+
+**This is why the field's thumbnail worked while the canvas showed nothing** — same upload,
+different strategy. A comment at each of the three sites names the other two.
+
+---
+
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
@@ -1324,6 +1449,14 @@ All prior rules remain. Added or sharpened across this session:
   always complete. Fixed with `fetch-depth: 0` and a comment saying why, since the obvious
   "optimisation" is to remove it. **A SUITE CAN DEPEND ON THE SHAPE OF THE CHECKOUT, NOT
   ONLY ON THE FILES IN IT.**
+- **A FIX'S PRECONDITION TRAVELS WITH IT.** #190's revoke-on-supersede was correct **because
+  the hero's key is FIXED** — one slot, one holder. #202 was briefed to carry that rule to
+  block images, whose paths are CONTENT-ADDRESSED, where a new upload creates a NEW key and
+  orphans the old one that another block may still be showing. Following the rule would have
+  **rebuilt #193's shared revocable resource inside the cleanup meant to prevent a leak.**
+  When reusing a fix, name the property that made it correct and check that property still
+  holds. **A rule reused past its precondition is worse than no rule**, because it arrives
+  carrying a successful precedent and reads as settled.
 
 ---
 
@@ -1456,7 +1589,9 @@ All prior rules remain. Added or sharpened across this session:
     that an unread parameter means an unbuilt feature, when the feature was built one line
     away. **THIS WAS NOT THE `FIT_THRESHOLD_PX` SHAPE** and treating it as one would have
     preserved a parameter that never carried the intent it named.
-20. **AN `imageBlock`'s IMAGE DOES NOT APPEAR ON THE CANVAS UNTIL A REFRESH** — OWNER-OBSERVED
+20. ~~**AN `imageBlock`'s IMAGE DOES NOT APPEAR ON THE CANVAS UNTIL A REFRESH**~~ — **CLOSED by
+    #202.** Kept in full because the last two lines of it were a trap, and the correction is
+    the durable part. Originally recorded as: OWNER-OBSERVED
     while writing the third post, **UNDER INVESTIGATION, NOT YET FIXED.**
     **THE SAME `draftImages` SNAPSHOT GAP #190 CLOSED FOR THE HERO, ONE CONSUMER OVER.**
     `draftImages` is read server-side at page load, so an image uploaded DURING the session is
@@ -1470,6 +1605,18 @@ All prior rules remain. Added or sharpened across this session:
     should be confirmed to match before anything is built. **The fix shape is #190's, applied
     to the block-image path.** Note the hero's own fix is verified by real use — see
     owner-backlog item 10 — so the mechanism is known to work.
+
+    **THE MECHANISM WAS RIGHT AND THE LAST SENTENCE WAS THE TRAP.** "The fix shape is #190's"
+    is what a reader would act on, and acting on it would have **rebuilt #193's shared
+    revocable resource.** #190 revokes the superseded url because the hero's key is FIXED. Block
+    image paths are CONTENT-ADDRESSED — the same bytes always yield the same path — so a new
+    upload creates a NEW key and orphans the old one, **which another block may still be
+    showing**, and revoking it blanks that block. Under content addressing a supersede does not
+    happen at all. #202's map is APPEND-ONLY with `releaseAll` at unmount as the only revoke,
+    and it exposes **no per-path release**, enforced by ralph rather than by comment.
+    **A HAZARD CAN BE CORRECT ABOUT A CAUSE AND WRONG ABOUT THE CURE** — this is the third
+    hazard in this file to be right and misleading at once (see 18 and 19), and the pattern is
+    now a working rule: a fix's precondition travels with it.
 
 ---
 
@@ -1535,6 +1682,16 @@ All prior rules remain. Added or sharpened across this session:
   hooks or lifting selection out of the panel.
   ~~3. IMPLEMENT `pinned` IN `StudioSidebar`~~ — **REMOVED in #199**, because the intent was
   already implemented in the wrapper. See hazard 19 for why the hazard's own text was wrong.
+- **THE CASE-STUDY CANVAS HAS THE SAME SNAPSHOT GAP #202 CLOSED FOR BLOG.**
+  `ProjectsEditPanel` fetches `draftImages` **once** inside `loadSections()` and its own
+  comment says it is *"still never re-fetched once loaded"*; `SectionsEditPanel` builds
+  `rewriteSrc` from that snapshot. So it is the identical bug, sourced from a client fetch
+  instead of a server prop, and a case-study block image uploaded during a session 404s on
+  that canvas until publish.
+  **#202 LANDED THE EMIT HALF** — `ImgSpecFields` already forwards the `File` to whoever wants
+  it — so the follow-up is **seven `ImgSpecFields` `set` arrows** (most nested inside
+  `ItemRows` row-setters) **plus a map in `SectionsEditPanel`**. Nothing new to design; reuse
+  `lib/studio/preview-map.ts` unchanged, and its append-only rule applies for the same reason.
 - **Migrating other studio pages to `ThreePaneShell`**, extracting the shared shell at the
   SECOND consumer. `data-studio-fullheight` and the `:has()` scoping already make the
   layout side reusable.
@@ -1572,6 +1729,21 @@ All prior rules remain. Added or sharpened across this session:
     makes its own object URL — is verified by real use. It was UNVERIFIED rather than
     DEV-OBSERVED because fs mode made `onChanged` unreachable locally, so only production
     could settle it, and production did.
+11. ~~**#202's G8 — THE FRESH BLOCK-IMAGE UPLOAD SHOWS IN THE CANVAS WITHOUT A RELOAD.**~~ —
+    **CLOSED BY REAL USE.** The owner uploaded a block image through `/studio` in production
+    and the figure appeared on the canvas **IMMEDIATELY, with no refresh.** It was UNVERIFIED
+    rather than DEV-OBSERVED for the same structural reason as item 10: `upload-block-image`
+    returns `{ mode: "fs" }` and `BlockImageField` returns **before** `onChange` fires, so
+    nothing downstream of the route can run locally. #202's browser gates drove everything
+    below the route with it stubbed; **only a real deployment could settle the route itself,
+    and one did.** Both halves of the `draftImages` snapshot gap — hero and block — are now
+    verified by use rather than by a gate, which is the only way either could close.
+    **WHICH DEPLOYMENT IS NOT DERIVABLE FROM THE REPO, so it is not claimed.** Both
+    block-image blobs on `main` (`0a03779`, `ba41d04`) **predate #202's merge**, and no draft
+    branch survives carrying a third, so the verifying upload was on the PR's preview
+    deployment or on a draft that was never published. That does not weaken the observation —
+    a preview build is production-mode and owner-authenticated — but it is the difference
+    between what was seen and what this file can check, and the two are kept apart.
 
 ---
 
@@ -1631,6 +1803,11 @@ All prior rules remain. Added or sharpened across this session:
   (`3e1a60a`) 1193
 - `f734a7e` **the owner's studio publish** — the third post, with a hero and a real
   imageBlock, closing owner-backlog items 9 and 10
+- `50a5275` docs: STATE for #200 and the two closed backlog items
+- **#201** the dropped save, coalesced rather than dropped (`9982db9`) →1209
+- **#202** the canvas draws a block image before it is published (`49a2a29`) →1235,
+  closing hazard 20 and owner-backlog item 11
+- `0a03779` + `ba41d04` owner studio block-image uploads — the two real `imageBlock` blobs
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -1640,12 +1817,13 @@ All prior rules remain. Added or sharpened across this session:
 
 **THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
 
-1. **WRITE POSTS THROUGH `/studio`**, with images and a hero, EDITING ON THE CANVAS. The
-   highest-value next step by a wide margin: it closes owner-backlog items **7, 9 and 10**
-   together, exercises the status write path for the first time, and is the first real load
-   on the editor — now including inline editing and the full article preview, whose gates are
-   all DEV-OBSERVED or UNVERIFIED. **When you upload the hero, watch whether the canvas
-   updates immediately or only after a refresh** — that single observation closes item 10.
+1. **KEEP WRITING POSTS THROUGH `/studio`.** Still the highest-value work, but the reason has
+   changed: real use has now closed owner-backlog items **9, 10 and 11** and produced **three
+   defects no gate found** — hazard 20's blank canvas image, #201's silently dropped save, and
+   #200's ambiguous Publish button. **THAT IS THE ARGUMENT FOR IT.** Every one was invisible to
+   lint, tsc and 1235 assertions, and every one surfaced within minutes of an author actually
+   using the editor. Item **7** (the three-pane editor in production) is the one still open,
+   and it closes by looking rather than by building.
    **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish
    has already shipped a half-finished sentence once, and CI cannot tell one from a finished
    one.
@@ -1655,8 +1833,11 @@ All prior rules remain. Added or sharpened across this session:
    it is built for. Move the early return below the hooks, or lift selection out of the panel.
 3. **Optional:** `/code-review ultra` over `fa08200`. #178, #180, #185, #187, #189, #190,
    #195, #197 and #198 were all self-reviewed, and #190 and #195 are the largest.
-4. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
-   incident behind it); implement `pinned` (hazard 19); migrate other studio pages to
+4. **THE CASE-STUDY CANVAS PREVIEW** — the same snapshot gap #202 closed for blog, and the
+   emit half already landed, so it is seven `ImgSpecFields` arrows plus a map in
+   `SectionsEditPanel` reusing `lib/studio/preview-map.ts` unchanged. See DEFERRED.
+5. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
+   incident behind it); migrate other studio pages to
    `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest` yields
    zero parity pairs (hazard 10).
 
