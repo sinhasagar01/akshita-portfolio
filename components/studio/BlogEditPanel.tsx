@@ -214,9 +214,17 @@ export default function BlogEditPanel({
           ))}
         </div>
         <p className="text-[11px] leading-relaxed text-text-subtle">
+          {/* THIS LINE WAS THE AMBIGUITY, NOT A NEIGHBOUR TO IT. It used to read "Live on
+              /blog once published", and by the time it shows, the STATUS already reads
+              Published — so "once published" could only mean the site, and said no such
+              thing. An author reads it as already live. The line was trying to say the right
+              thing and could not, because "published" names two different acts.
+              FIXED IN PLACE RATHER THAN EXPLAINED BESIDE. Adding a second line would have
+              layered copy over an ambiguity instead of removing it. Both branches now name
+              BOTH conditions, and "publish the site" matches the PublishBar's button exactly. */}
           {liveStatus === "published"
-            ? "Live on /blog once published."
-            : "Hidden from /blog until you set it to published."}
+            ? "Live on /blog after you publish the site."
+            : "Hidden from /blog until you set this to Published and publish the site."}
         </p>
       </div>
 
