@@ -31,7 +31,7 @@
 // `dek` STAYS A PLAIN INPUT. The mock draws it as part of the canvas, styled as prose, but
 // blog has no contenteditable infrastructure and introducing the studio's second one inside
 // a layout change is scope creep.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { HeroImageField } from "./ProjectsEditPanel";
@@ -86,12 +86,39 @@ export default function BlogEditPanel({
   // /api/studio/upload-hero-image on its own. Putting it in the form would make the form
   // report itself dirty over a field it never posts, and "Post" would sit unsaved forever
   // after an upload — hazard 7's two-indicators problem with a new cause.
-  //
-  // The object URL is NOT revoked here. See HeroImageField's note on who owns that.
   const [hero, setHero] = useState<{ path: string | null; preview: string | null }>({
     path: heroImage,
     preview: null,
   });
+
+  // THIS PANEL OWNS THE PREVIEW URL IT DISPLAYS, and owns nothing else's.
+  //
+  // `onChanged` hands up the File rather than HeroImageField's url, so this makes its own
+  // from the same Blob. That is hazard 15's fix: two components used to display ONE revocable
+  // url, and neither could free it without blanking the other. The unmount case is what ruled
+  // out simply revoking in the field — below the fold BlogBlocksEditPanel renders the
+  // inspector INSTEAD of the canvas, so the two holders genuinely unmount independently.
+  //
+  // THIS panel outlives both of them for one post, so its cleanup is unambiguous.
+  const ownedPreview = useRef<string | null>(null);
+  const releasePreview = () => {
+    if (ownedPreview.current) URL.revokeObjectURL(ownedPreview.current);
+    ownedPreview.current = null;
+  };
+  // Unmount only — navigating to another post frees this post's preview rather than leaving
+  // it to page unload. StrictMode's dev double-invoke fires this at mount, when the ref is
+  // null and there is nothing to free.
+  useEffect(() => releasePreview, []);
+
+  /** Adopt a new preview and free the one it supersedes. Called from the upload callback,
+   *  which is an event handler — creating the url here rather than in an effect means the
+   *  canvas hero never paints a frame with the old (404-ing) committed path first. */
+  const adoptPreview = (file: File | null) => {
+    releasePreview();
+    const url = file ? URL.createObjectURL(file) : null;
+    ownedPreview.current = url;
+    return url;
+  };
 
   const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<HeadFields>({
     initial: { dek, date, topic, status },
@@ -205,7 +232,7 @@ export default function BlogEditPanel({
           label="Card image"
           initial={heroImage}
           onChanged={(info) => {
-            setHero({ path: info.heroImage, preview: info.previewUrl });
+            setHero({ path: info.heroImage, preview: adoptPreview(info.file) });
             setUnpublished(true);
           }}
         />

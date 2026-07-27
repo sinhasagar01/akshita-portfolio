@@ -8,7 +8,8 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE CANVAS DRAWS THE WHOLE ARTICLE)
 
-**main** = `fc8c318` = #191 (STATE). Pinned: `3b71ac4` = #190 (the canvas draws the
+**main** = `2a9c8c2` = #192 (the imageBlock reading-time gap). Pinned: `fc8c318` = #191
+(STATE), `3b71ac4` = #190 (the canvas draws the
 head, the hero and the body),
 `c3b30f4` = #189 (the bold toolbar, extracted), `f233acc` = #188 (STATE + the two rewrites
 #187 missed), `2c258cd` = #187 (the inline canvas), `f7426a5` = #186 (STATE),
@@ -40,14 +41,14 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1151 ACROSS 32 RUNNABLE SUITES
+### RALPH IS 1163 ACROSS 32 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55).
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -1159,14 +1160,29 @@ All prior rules remain. Added or sharpened across this session:
     enforced by that job — the Vercel build's `next build` is what typechecks it. Ralph catches
     a missing entry too, but at RUNTIME through the E-section assertions, which is why both
     exist.
-15. **THE HERO OBJECT URL IS NEVER REVOKED** (`HeroImageField`, pre-existing, confirmed in
-    #190). `URL.revokeObjectURL` runs on the three FAILURE paths and on none of the success
-    paths, and there is no unmount cleanup, so each successful upload leaks one object URL
-    until the document unloads. Since #190 the value is held in TWO places — the field's own
-    thumbnail and `BlogEditPanel` for the canvas hero — so **revoking on either side alone
-    shows a broken frame on the other**, which is the symptom the canvas hero exists to fix,
-    arriving from the other direction. Bounded by uploads-per-page-visit. Documented at the
-    owning site.
+15. ~~**THE HERO OBJECT URL IS NEVER REVOKED**~~ — **FIXED in #193, by DELETING THE SHARED
+    LIFETIME rather than scheduling a revoke.** `onChanged` used to hand the url up, so two
+    components displayed ONE revocable resource and neither could free it. It now hands up the
+    **`File`**, and each side calls `createObjectURL` on the same Blob — a distinct url, no
+    copy of the bytes — so each revokes only what it created, on replace and on unmount.
+    **THE OBVIOUS FIX WAS WRONG, AND THE BROWSER PROVED IT.** Revoking in `HeroImageField`'s
+    unmount looks safe until you notice `BlogBlocksEditPanel` renders the inspector INSTEAD of
+    the canvas below the fold (`canvas={!inspectorFits && view === "inspector" ? inspector :
+    canvasColumn}`), so the two holders unmount independently. Measured at 900px: the field
+    and the canvas hero are **mutually exclusive in all three view states**, so an
+    unmount-revoke would blank the hero on exactly the "upload it, then go look at it" flow.
+    **A lifetime you cannot reason about locally is a lifetime to remove, not to manage.**
+16. **THE NEXT DEV CACHE REPLAYS BUILD ERRORS FOR AN IMPORT GRAPH THAT NO LONGER EXISTS**
+    (diagnosed properly in #193 after being hand-waved twice in #190). `.next` survives a dev
+    SERVER restart, so a `node:fs`-in-the-client trace naming
+    `lib/site.ts <- BlogBlocksEditPanel <- BlogEditPanel` kept reappearing — an edge that
+    exists nowhere in the source and last existed during #178's development, which is exactly
+    where `livePath` came from. An `inert` empty-string warning replayed alongside it though
+    both `inert` usages are proper booleans. **`rm -rf .next` (with the dev server STOPPED)
+    clears both; a fresh tab alone does not, and neither does restarting the server.** Before
+    reporting a console error, check it against the source graph and a cold cache — and note
+    that a production `npm run build` succeeding is itself strong evidence a client-side
+    `node:fs` import is not real, since it would fail the build app-wide.
 
 ---
 
@@ -1312,8 +1328,7 @@ All prior rules remain. Added or sharpened across this session:
    were all self-reviewed, and #190 is the largest of them.
 3. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a
    real incident behind it); migrate other studio pages to `ThreePaneShell`, extracting at the
-   SECOND consumer; investigate why `boat-crest` yields zero parity pairs (hazard 10); the
-   never-revoked hero object URL (hazard 15).
+   SECOND consumer; investigate why `boat-crest` yields zero parity pairs (hazard 10).
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
 arcs stay human-gated, one at a time. Never auto-merge, never write main unattended.

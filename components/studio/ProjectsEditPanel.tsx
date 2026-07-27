@@ -372,32 +372,51 @@ export function HeroImageField({
    *  have to re-derive.
    *
    *  WIDENED FOR THE BLOG CANVAS, and additive on purpose. The blog canvas draws the hero,
-   *  so it needs BOTH the committed path and the object URL — `draftImages` is a snapshot
-   *  taken server-side at page load, so a hero uploaded during the session is not in it and
-   *  the committed path 404s against main until publish. See resolveHeroSrc.
+   *  so it needs BOTH the committed path and a preview — `draftImages` is a snapshot taken
+   *  server-side at page load, so a hero uploaded during the session is not in it and the
+   *  committed path 404s against main until publish. See resolveHeroSrc.
+   *
+   *  IT HANDS UP THE `File`, NOT AN OBJECT URL, and that is hazard 15's fix. Passing the url
+   *  made two components share one revocable resource that neither could safely free. Passing
+   *  the File lets each make its own from the same Blob and free exactly that. See the
+   *  `previewUrl` note below for why an unmount-time revoke was not an option.
    *
    *  PROJECTS PASSES A ZERO-ARG ARROW AND IS UNTOUCHED. TypeScript accepts a lower-arity
    *  function where a higher-arity one is expected, so this widening cost the projects
    *  caller nothing — which is the check that decided it was safe to do here rather than
    *  fork the component. */
-  onChanged: (info: { heroImage: string | null; previewUrl: string | null }) => void;
+  onChanged: (info: { heroImage: string | null; file: File | null }) => void;
 }) {
   const [current, setCurrent] = useState<string | null>(initial);
-  // Object URL, session-only.
+  // Object URL, session-only, and THIS COMPONENT OWNS THIS ONE OUTRIGHT.
   //
-  // WHO REVOKES IT: NOBODY, AND THAT IS PRE-EXISTING. `URL.revokeObjectURL` is called on the
-  // three FAILURE paths below (fs-mode note, error response, network catch) and on none of
-  // the success paths. A second successful upload replaces this value without revoking the
-  // first, and there is no unmount cleanup. Each successful upload therefore leaks one object
-  // URL until the document unloads, which the browser then frees.
+  // HAZARD 15 WAS FIXED BY REMOVING THE SHARED LIFETIME, NOT BY MANAGING IT. This URL used to
+  // be handed to BlogEditPanel as a string, so two components displayed one resource and
+  // neither could safely free it: revoking here blanks the canvas hero, revoking there blanks
+  // this thumbnail. Worse, the two genuinely unmount independently — below the fold
+  // BlogBlocksEditPanel renders the inspector INSTEAD of the canvas, so switching to the
+  // canvas after an upload unmounts this field while the hero is still on screen. Any
+  // unmount-time revoke here would break exactly the "upload it, then go look at it" flow.
   //
-  // NOT FIXED HERE, DELIBERATELY. Since the blog canvas the value is held in TWO places — here
-  // for this thumbnail and in BlogEditPanel for the canvas hero — so revoking it correctly now
-  // means revoking only when BOTH are done with it. Revoking on either side alone shows a
-  // broken frame on the other, which is the exact symptom the canvas hero exists to fix,
-  // reintroduced from the other direction. The leak is bounded by uploads-per-page-visit and
-  // is a pre-existing finding rather than a regression; closing it is its own change.
+  // So `onChanged` now hands up the FILE. A second `createObjectURL` on the same File yields
+  // a DISTINCT url backed by the same Blob — no copy of the bytes — and each component
+  // revokes only what it created. Two owners, two textbook cleanups, no coupling.
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  /** The url this component created and is still showing, so a replacement can free the one
+   *  it supersedes. A ref rather than state: revocation is a side effect on a resource, not
+   *  something the render reads. */
+  const ownedUrl = useRef<string | null>(null);
+
+  /** Free whatever this field created. Replaces on every new pick, and runs on unmount.
+   *  Safe to call at unmount BECAUSE the url is this component's alone — nothing else can be
+   *  displaying it. That is the property the File-passing above buys. */
+  const releaseOwnUrl = () => {
+    if (ownedUrl.current) URL.revokeObjectURL(ownedUrl.current);
+    ownedUrl.current = null;
+  };
+  // Unmount only. Under StrictMode's dev double-invoke this cleanup fires once at mount, when
+  // `ownedUrl` is still null and there is nothing to free, so the extra pass is a no-op.
+  useEffect(() => releaseOwnUrl, []);
   const [brokenSrc, setBrokenSrc] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ kind: "error" | "note"; text: string } | null>(null);
@@ -423,17 +442,23 @@ export function HeroImageField({
       const res = await fetch("/api/studio/upload-hero-image", { method: "POST", body: fd });
       const json = await res.json();
       if (res.ok && json.saved) {
+        // FREE THE ONE THIS REPLACES, before adopting the new one. This is the leak that was
+        // real and unbounded: every successful upload used to strand its predecessor, and a
+        // hero can be up to 12MB of Blob held alive by a url nobody reads any more.
+        releaseOwnUrl();
         if (objUrl) {
           setBrokenSrc(false);
+          ownedUrl.current = objUrl;
           setPreviewUrl(objUrl);
         } else {
-          setPreviewUrl(null); // cleared
+          setPreviewUrl(null); // cleared — releaseOwnUrl above already freed the old preview
         }
         const committed = (json.heroImage ?? null) as string | null;
         setCurrent(committed);
-        // The object URL goes UP as well as into local state. The blog canvas needs it to
-        // draw the hero before publish; projects ignores the payload entirely.
-        onChanged({ heroImage: committed, previewUrl: objUrl });
+        // The FILE goes up, not this url. The blog canvas needs a preview to draw the hero
+        // before publish and makes its OWN url from the same Blob, so neither side is holding
+        // a resource the other might free. Projects ignores the payload entirely.
+        onChanged({ heroImage: committed, file });
       } else if (res.ok && json.mode === "fs") {
         setStatus({ kind: "note", text: "Image upload needs github mode (dev)." });
         if (objUrl) URL.revokeObjectURL(objUrl);
