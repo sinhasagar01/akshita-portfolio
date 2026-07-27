@@ -21,3 +21,17 @@ blocks:
   - discriminant: heading
     value:
       text: Why the box does not work
+  - discriminant: richText
+    value:
+      paragraphs:
+        - >-
+          A bolted on assistant asks the user to already know what to ask. That
+          is a strange request, because the reason someone opens an enterprise
+          tool is usually that they do not yet know the shape of their own
+          question.
+
+
+          It also leaves the original flow untouched. Every step that existed
+          before still exists. So the assistant becomes a parallel route to the
+          same screen, and a slower one, because now there is a sentence to
+          compose.
