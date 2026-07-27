@@ -6,10 +6,12 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE BLOCK-IMAGE PREVIEW)
+## STATE (as of THE SOCIAL CARDS)
 
-**main** = `49a2a29` = #202 (the canvas draws a block image before it is published). Pinned:
-`9982db9` = #201 (the dropped save, coalesced), `50a5275` = STATE for #200 and two closed
+**main** = `932e59c` = #203 (every blog post gets its own social card). Pinned: `de6fba0` =
+STATE for #201 and #202, `6b28e91` + `01c2251` + `6ebd513` = the owner's studio hero uploads for
+the two Fosfor studies and Elevate, `49a2a29` = #202 (the canvas draws a block image before it
+is published), `9982db9` = #201 (the dropped save, coalesced), `50a5275` = STATE for #200 and two closed
 owner-backlog items, `3e1a60a` = #200 (the Publish button names its object), `f734a7e` = the
 owner's studio publish of the third post, `a397a1d` = STATE for the sweep, `bbf179f` = #199
 (the deferred sweep), `d9e6b06` = STATE for the
@@ -65,16 +67,16 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1235 ACROSS 35 RUNNABLE SUITES
+### RALPH IS 1264 ACROSS 36 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new).
 
-**1235 ACROSS 35 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1264 ACROSS 36 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -144,11 +146,34 @@ Overlay grid. Quiet grid and hover-preview stage explored and rejected.
 - **#162 · filter.** **LAST-INTENT QUEUE.** **Empty category → All only.** **No
   `?platform=` URL sync** — ScrollManager is sole scroll owner.
 
-**Remainder (content, not code):** `heroImage` is `null` on BOTH Fosfor studies.
-`boat-crest`'s is an 837KB PNG that never went through sharp. `elevate-one-view`'s is
-390×988 portrait — a STRUCTURAL TENSION. Three ways out: landscape composite; a `cardImage`
-field; or a platform-tinted portrait frame for mobile cards (**recommended**). **Owner's
-call, still open.**
+**Remainder (content, not code) — RE-DERIVED FROM THE FILES, and two of its three claims had
+gone stale.** It read: *"`heroImage` is `null` on BOTH Fosfor studies. `boat-crest`'s is an
+837KB PNG that never went through sharp. `elevate-one-view`'s is 390×988 portrait — a
+STRUCTURAL TENSION."* Carried unchanged since #160 across a dozen regenerations. What the files
+say today:
+
+| study | `heroImage` | file | landed |
+|---|---|---|---|
+| `fosfor-ai` | ~~null~~ **set** | `heroImage.webp` 320×200, 2,168B | `6b28e91` studio |
+| `fosfor-data-profiling` | ~~null~~ **set** | `heroImage.webp` 320×200, 2,532B | `01c2251` studio |
+| `elevate-one-view` | ~~390×988 portrait~~ **landscape** | `heroImage.webp` 320×200, 2,772B | `6ebd513` studio |
+| `boat-crest` | unchanged | `heroImage.png` **2074×1058, 837,714B** | `46905da`, the original commit |
+
+- ~~**`heroImage` is null on both Fosfor studies**~~ — **CLOSED.** Both set through /studio.
+- ~~**`elevate-one-view` is a 390×988 portrait STRUCTURAL TENSION**~~ — **CLOSED AT THE ASSET
+  LEVEL, AND IT DID NOT NEED ANY OF THE THREE PROPOSED WAYS OUT.** No landscape composite, no
+  `cardImage` field, no portrait frame. The owner simply uploaded a landscape asset, which is
+  the option the list did not contain. **But see the hazard below: the code stopgap it caused
+  is still in place and now describes an asset that no longer exists.**
+- **`boat-crest`'s 837KB PNG IS UNTOUCHED and this item stays open.** Still the original
+  2074×1058 PNG from `46905da`, never re-uploaded through /studio — which is the fix, since the
+  upload route re-encodes to webp at quality 80. One studio upload closes it.
+- **NEW, and it applies to all three studio heroes: they are 320×200.** `ProjectCard` renders
+  them with `sizes="(min-width: 1024px) 500px, 100vw"`, so a 320px-wide source fills a 500px
+  slot on desktop and the full viewport on mobile. `next/image` never upscales past the source,
+  so it serves 320px into both. **The upload route did not cause this** — it is
+  `withoutEnlargement: true` against a 2048 long edge, so it only ever downscales; the source
+  files were 320×200. Content, not code, and a re-upload at a larger size is the whole fix.
 
 ---
 
@@ -1151,6 +1176,111 @@ different strategy. A comment at each of the three sites names the other two.
 
 ---
 
+## #203 — EVERY BLOG POST GETS ITS OWN SOCIAL CARD
+
+All three posts shared one image, `app/opengraph-image.png`, the brand identity plate. **Nothing
+was broken** — production served complete OG tags and a valid 1200×630 PNG. The card simply said
+nothing about the post. `/blog/<slug>/og` now renders the post's own, through the existing
+`renderOgImage`. Topic as the eyebrow, title, dek.
+
+**NO DATE, NO READING TIME, NO HERO.** A card is re-shared long after publication so a visible
+date only ages it, and reading time is a decision aid once you are on the page rather than in a
+feed. The hero refusal is the substantive one: compositing it means Satori fetching a remote
+image at render time, which is a network dependency per card, a failure mode that differs per
+post, **and the draft-branch 404 reappearing INSIDE the renderer** for a hero uploaded but not
+published. One typographic composition. The index plate's PRINCIPLE is mirrored (*"never a
+hole"*), its implementation is not — a second composition for the null case is the branch that
+then drifts.
+
+### THE ROUTE WAS FIXED RATHER THAN TWINNED, AND THAT DECIDED THE PR'S SHAPE
+Investigating the case-study route to copy it found **`/projects/not-a-real-slug/og` returning
+200 and a PNG on production.** Two things combined, and the first is a belief rather than a line
+of code.
+
+**`generateStaticParams` IS A BUILD MANIFEST, NOT A GATE.** It decides what gets *prerendered*;
+`dynamicParams` decides what is *allowed*. With no such export it defaults to true, so the
+filtered list was a hint and every other slug rendered on demand. `/blog/[slug]` has carried
+`dynamicParams = false` since it was written and 404s correctly; the OG route never had it, and
+**the difference was invisible because both looked like they enumerated a list.**
+
+Second, `data?.title ?? "Case study"` turned "no such entry" into a successful render. **The
+default was doing the work of a 404 while returning a 200.**
+
+**Harmless today is not the same as correct.** Projects have no draft state, so it leaked only a
+contentless card — safety that is a property of today's CONTENT rather than of this code. Blog
+does have drafts, so the copy would have been a real leak. Fixed in its own commit, first.
+
+### `dynamicParams` ON A `route.ts` WAS GENUINELY UNVERIFIED HERE
+No route handler in this repo used it, and Next's docs are not the same as this repo's build.
+**Proven at build level via the prerender manifest**, which is where the flag lands:
+
+| route | before | after |
+|---|---|---|
+| `/projects/[slug]/og` | `fallback: null` | **`fallback: false`** |
+| `/blog/[slug]/og` | — | **`fallback: false`** |
+| `/projects/[slug]` | `fallback: null` | unchanged — **it 404s only via its component's `notFound()`** |
+
+That last row is why defence 3 is load-bearing rather than belt-and-braces.
+
+### THREE DEFENCES, AND THE THIRD IS INDEPENDENT ON PURPOSE
+`generateStaticParams` reads the status-filtered `getBlogPosts`; `dynamicParams = false` refuses
+anything outside it; **and the handler itself refuses a non-published post.** `getBlogPost` is
+UNFILTERED by design (the studio preview needs drafts), so without the third check a draft would
+render its real title and dek at a guessable URL while the page 404s. **Never a `?? "Blog"`.**
+
+**The article page's defences do not reach here.** `notFound()`, `generateMetadata` and the
+component gate do not exist for a route handler — **#175's shape again**, where existing
+defences are right for their own surface and silent about a new one.
+
+### THE MEASURED CONSTANTS, AND THE FIRST ESTIMATE WAS WRONG
+The investigation claimed the longest real title was "comfortably two lines" and flagged it as
+arithmetic. Measured with **the exact Fraunces 600 TTF `lib/og.tsx` fetches**, loaded as a
+`FontFace` and replicating Satori's greedy wrap at `maxWidth 1000`:
+
+| size | fits | overflows |
+|---|---|---|
+| **84px** | 3 lines, **+73px slack** | **4 lines, −15px** |
+| **68px** | 4 lines, +52px | 5 lines, −19px |
+
+**"What a design system is for when the machine can draw" (53 chars) is THREE lines and sits one
+line from the edge.** That is the difference between a threshold that holds and one that holds
+until a future post.
+
+- **60-character step-down** to 68px. Prose first needs a 4th line at 84px at **71** characters,
+  so 60 carries 11 of headroom; a long-word title was already 3 lines by 50, so it is
+  conservative there too. All three current posts are ≤53 and stay at 84px, so **no card
+  changed shape**.
+- **100-character cap.** At 68px prose holds 4 lines to **109** and first needs a 5th at
+  **116**, so 100 can never overflow, with 9 spare. **What it costs when it fires is recorded:**
+  the ellipsis takes the END, so a headline whose payoff is its last clause loses exactly the
+  part that earned the click. That is the argument for the step-down existing at all — it pushes
+  truncation past roughly fifteen words.
+- **WORD-BOUNDARY TRUNCATION, and it came from looking at a render.** A raw slice produced
+  `…to draw the s…`, a cut mid-word that reads as a rendering fault rather than an elision.
+- **THE EYEBROW IS UNCAPPED AND THE NUMBER IS RECORDED SO THAT IS A DECISION.** `topic` is free
+  text with no schema-side set. It overflows at **51** characters against 976px of available
+  width; the three real topics are 13-14 (243-272px), so the longest carries **36 characters of
+  headroom**. A cap would be **a guard that cannot fire**, and a threshold constant with no
+  consumer is a shape this repo has already deleted once (`FIT_THRESHOLD_PX`). The number
+  belongs in the record, not in the code.
+
+**The constants live in `lib/og-fit.ts`, a plain `.ts` leaf**, because `lib/og.tsx` is `.tsx` and
+node's type-stripping cannot load it — so ralph DRIVES them rather than regexing them. Same
+reason as `hero-fill.ts` and `preview-map.ts`.
+
+**AN EMPTY `topic` IS REAL, NOT HYPOTHETICAL** — free text, and a studio-created post starts with
+`""`. It used to leave the 48px accent rule floating with no label, so the whole row is dropped,
+with an empty box keeping `space-between` honest. Also found by rendering it rather than
+reasoning about it.
+
+### THE DOM GATE HAD TEETH FOR ONCE
+Every recent PR asserted byte-identical public HTML, where a pass means "nothing leaked". Here
+the expected diff was exact: **`og:image` and `twitter:image` on the three post pages, and the
+other eight files byte-identical** — so `/blog` and `/` keeping the identity plate was proven
+rather than assumed. Two-build control clean first.
+
+---
+
 ---
 ## LOCKED DECISIONS (do not change without being asked)
 
@@ -1298,6 +1428,26 @@ All prior rules remain. Added or sharpened across this session:
       accurate when written in #191 and drifted as #192 to #196 merged without deleting.
       **The count variant recurring is the point:** the first one decayed as kinds were
       added, this one as branches were, and neither was ever re-derived.
+    - **AN INSTRUCTION, TWICE, AND THIS IS A DIFFERENT ORIGIN FROM ALL FIVE ABOVE.** #203's
+      brief carried two premises that were not in the record and never had been. One
+      **attributed a claim to THIS FILE** — that the case-study OG route enumerates an
+      unfiltered slug list — which STATE has never contained and which is also false of the
+      route, since it does filter `BESPOKE_SLUGS`. The other **asserted an observation nobody
+      made**, that every post shared on social showed no image; production was serving
+      complete OG tags and a valid 1200×630 PNG the whole time. **Neither decayed inside the
+      file. Both were invented upstream of it.**
+      **SO THE RULE IS WIDER THAN ITS OWN HEADING.** "Nothing recorded in this file is
+      evidence" reads as a warning about decay, and five of the six instances above are decay.
+      **An instruction is not evidence either**, and a premise that arrives inside a task is
+      the one least likely to be checked, because it arrives with the authority of the person
+      asking.
+      **KEEP THE SECOND HALF, BECAUSE IT IS THE USEFUL ONE.** The invented premise still found
+      a REAL defect: `/projects/not-a-real-slug/og` returned **200 and a PNG** on production,
+      a live fail-open that was fixed in #203's first commit. **The instinct was right and the
+      evidence was fabricated**, and those are separable. A hunch that turns out to be correct
+      does not retroactively become an observation. **Check a hunch; do not dress it as a
+      fact** — the checking is what turned a wrong reason into a real fix, and stating it as a
+      fact is what would have skipped the checking.
   **A scope estimate decays exactly like a name, a count, a constant or an inventory, and
   none of them is evidence.** None failed loudly; each was found only by deriving it. Three
   of the six were found in a single two-day stretch, which is a statement about the file's
@@ -1617,6 +1767,24 @@ All prior rules remain. Added or sharpened across this session:
     **A HAZARD CAN BE CORRECT ABOUT A CAUSE AND WRONG ABOUT THE CURE** — this is the third
     hazard in this file to be right and misleading at once (see 18 and 19), and the pattern is
     now a working rule: a fix's precondition travels with it.
+21. **`HERO_IMAGE_UNSUITABLE` STILL LISTS `elevate-one-view`, AND ITS REASON NO LONGER EXISTS.**
+    `components/sections/ProjectCard.tsx` carries
+    `const HERO_IMAGE_UNSUITABLE = new Set<string>(["elevate-one-view"])`, so that card renders
+    the hand-built mock and its uploaded hero is never drawn. The comment above it says the
+    asset **"is a 390x988 PORTRAIT phone shot"** and ends **"remove the slug when the asset is
+    replaced."**
+    **THE ASSET WAS REPLACED IN `6ebd513` AND THE SLUG WAS NOT REMOVED.** It is now a 320×200
+    landscape webp. So the stopgap works exactly as designed, states a fact that is false, and
+    suppresses a real hero that would render correctly in the 16:10 frame.
+    **THIS IS THE SHAPE HAZARD 19 HAD** — a component that describes content it no longer
+    matches — but with the failure pointing the other way. #199's was a parameter that read as
+    unbuilt while the feature existed one line away; this is a workaround that reads as
+    necessary while its cause is gone. **A CONTENT STOPGAP KEYED BY SLUG OUTLIVES THE CONTENT
+    IT WAS KEYED TO, silently, because nothing fails when the content changes.** The comment
+    even names its own removal condition, which is the best a stopgap can do and was still not
+    enough. Whoever removes the slug should check the render first — the asset is 320×200 into
+    a 500px slot, so the mock may genuinely still look better, and that is a judgement rather
+    than a lookup.
 
 ---
 
@@ -1816,6 +1984,10 @@ All prior rules remain. Added or sharpened across this session:
 - **#202** the canvas draws a block image before it is published (`49a2a29`) →1235,
   closing hazard 20 and owner-backlog item 11
 - `0a03779` + `ba41d04` owner studio block-image uploads — the two real `imageBlock` blobs
+- **#203** every blog post gets its own social card (`932e59c`) →1264, in two commits — the
+  case-study route's fail-open closed first, then the blog cards
+- `6b28e91` + `01c2251` + `6ebd513` **owner studio hero uploads** — fosfor-ai,
+  fosfor-data-profiling and elevate-one-view, closing two thirds of the #160 remainder
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -1829,22 +2001,31 @@ All prior rules remain. Added or sharpened across this session:
    changed: real use has now closed owner-backlog items **9, 10 and 11** and produced **three
    defects no gate found** — hazard 20's blank canvas image, #201's silently dropped save, and
    #200's ambiguous Publish button. **THAT IS THE ARGUMENT FOR IT.** Every one was invisible to
-   lint, tsc and 1235 assertions, and every one surfaced within minutes of an author actually
+   lint, tsc and 1264 assertions, and every one surfaced within minutes of an author actually
    using the editor. Item **7** (the three-pane editor in production) is the one still open,
    and it closes by looking rather than by building.
    **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish
    has already shipped a half-finished sentence once, and CI cannot tell one from a finished
    one.
-2. **DELETE THE `rules-of-hooks` DISABLE** (hazard 17). Now the highest-value follow-up left,
+2. **THREE ASSET UPLOADS, EACH ONE STUDIO ACTION AND ALL OF THEM CONTENT.** Highest value per
+   minute of anything on this list.
+   a. **`boat-crest`'s hero** — still the original 837KB, 2074×1058 PNG that never went through
+      sharp. One /studio upload re-encodes it to webp at quality 80. Open since #160.
+   b. **The three studio heroes are 320×200** into a 500px card slot, so they render soft.
+      Re-upload at a larger size; the route downscales to a 2048 long edge and never enlarges.
+   c. **Then remove `elevate-one-view` from `HERO_IMAGE_UNSUITABLE`** (hazard 21) — but LOOK at
+      the card first. Its comment describes a 390×988 portrait that no longer exists, so the
+      stopgap is stale either way; whether the mock still beats a 320×200 hero is a judgement.
+3. **DELETE THE `rules-of-hooks` DISABLE** (hazard 17). Now the highest-value follow-up left,
    and the only one carrying a latent correctness bug rather than a missing affordance —
    `ProjectsEditPanel` crashes the moment it is placed in the list shell its own comment says
    it is built for. Move the early return below the hooks, or lift selection out of the panel.
-3. **Optional:** `/code-review ultra` over `fa08200`. #178, #180, #185, #187, #189, #190,
+4. **Optional:** `/code-review ultra` over `fa08200`. #178, #180, #185, #187, #189, #190,
    #195, #197 and #198 were all self-reviewed, and #190 and #195 are the largest.
-4. **THE CASE-STUDY CANVAS PREVIEW** — the same snapshot gap #202 closed for blog, and the
+5. **THE CASE-STUDY CANVAS PREVIEW** — the same snapshot gap #202 closed for blog, and the
    emit half already landed, so it is seven `ImgSpecFields` arrows plus a map in
    `SectionsEditPanel` reusing `lib/studio/preview-map.ts` unchanged. See DEFERRED.
-5. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
+6. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
    incident behind it); migrate other studio pages to
    `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest` yields
    zero parity pairs (hazard 10).
