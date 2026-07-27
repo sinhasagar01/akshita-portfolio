@@ -2221,6 +2221,30 @@ All prior rules remain. Added or sharpened across this session:
     this is the third "check the denominator" instance, after the `<Link>` blind spot and the
     class-string assertions.
 
+    **CLOSED IN #212, AND THE AUDIT CORRECTED THIS ENTRY'S OWN FRAMING.** "The suite stays green
+    while its denominator shrinks" was too kind: **`studio-type` had no green.** It carried zero
+    assertions, no pass/fail harness and no exit code — it returned a JSON blob for a human to
+    read. So the exclusion removed one element from a *report*, not from a passing check, and
+    **no contrast was asserted anywhere in the suite** — not the search, not the sidebar's
+    on-ink set, not the band status. Every ratio this arc produced lived in commit messages and
+    source comments, which no gate reads. **The search was simply the first surface whose
+    requirements made that visible.**
+    #212 gives the suite an `ON_INK` table of seven roles with the ratios #211 measured, a
+    `VERDICT`, and failures that name the role and the surface. **The exclusion was NARROWED,
+    not deleted** — the search is still out of the cream-ladder walk, because that reason still
+    holds and always will.
+
+    **THE FULL EXCLUSION AUDIT, since this hazard implied one without stating it:**
+    - `studio-type` — `type=file` (hidden, browser-painted), `checkbox`/`radio` (browser-painted,
+      caught two false positives in #211), and the search. **All three reasons still hold**; only
+      the search needed narrowing.
+    - `studio-cascade` — capitalised components not in `COMPONENT_TAG`, skipped because their
+      root element is unknowable from source. **Measured: 11 such sites, and it hides nothing.**
+      One is `Link` (already mapped); the other ten render `<svg>`, `<span>` or `<div>`, and the
+      guarded set is `a, body, h1–h6, img, p, video`. **An exclusion that looks alarming and
+      excludes nothing is worth measuring rather than assuming** — the inverse of this hazard.
+    - `studio-tokens` — `ink-500`, by TOKEN not by site, count pinned at 40 by B2. Still holds.
+
 ---
 
 ## DEFERRED — scoped, not built
