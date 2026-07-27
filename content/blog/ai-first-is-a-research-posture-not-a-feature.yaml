@@ -46,3 +46,8 @@ blocks:
       caption: The box adds a path. It does not remove one.
       wide: false
       decorative: true
+  - discriminant: pullQuote
+    value:
+      text: >
+        Adding a model to a flow is a design decision. Asking whether the flow
+        should still have that shape is a research one.
