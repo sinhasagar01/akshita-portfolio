@@ -1,5 +1,9 @@
 import { ImageResponse } from "next/og";
 import { SITE_NAME, AUTHOR_JOB_TITLE } from "@/lib/site";
+// The measured title fit lives in a plain .ts leaf so ralph can DRIVE it rather than regex it —
+// this file is .tsx and node's type-stripping cannot load it, the same constraint
+// blog-empties.ts records. Every number's derivation is there.
+import { fitTitle } from "@/lib/og-fit";
 
 /**
  * Shared Open Graph card renderer. One brand-consistent 1200×630 layout used by every
@@ -52,6 +56,9 @@ export async function renderOgImage({
   title,
   subtitle,
 }: {
+  /** The kind of thing this is. Case studies pass the literal "Case study"; blog passes the
+   *  post's `topic`, which is FREE TEXT and may be "" — see the render below, which drops the
+   *  whole row rather than leaving the accent rule floating with no label beside it. */
   eyebrow: string;
   title: string;
   subtitle?: string;
@@ -60,6 +67,9 @@ export async function renderOgImage({
   const fontFamily = font ? "Fraunces" : undefined;
   const sub =
     subtitle && subtitle.length > 140 ? `${subtitle.slice(0, 137)}…` : subtitle;
+  // The cap and the size step, both measured — see lib/og-fit.ts for the derivation.
+  const head = fitTitle(title);
+  const showEyebrow = eyebrow.trim() !== "";
 
   return new ImageResponse(
     (
@@ -76,31 +86,42 @@ export async function renderOgImage({
           ...(fontFamily ? { fontFamily } : {}),
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 48, height: 4, backgroundColor: ACCENT }} />
-          <div
-            style={{
-              fontSize: 24,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              color: ACCENT,
-              fontWeight: 600,
-            }}
-          >
-            {eyebrow}
+        {/* THE WHOLE ROW GOES, NOT JUST THE TEXT. An empty `topic` would otherwise leave the
+            48px accent rule sitting alone at the top of the card with nothing beside it, which
+            reads as a broken element rather than a deliberate one. A rule with no label is not
+            a design detail, it is a leftover. `space-between` then distributes the slack and
+            the remaining composition is title, dek and footer — still balanced, one branch. */}
+        {showEyebrow ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 48, height: 4, backgroundColor: ACCENT }} />
+            <div
+              style={{
+                fontSize: 24,
+                letterSpacing: 4,
+                textTransform: "uppercase",
+                color: ACCENT,
+                fontWeight: 600,
+              }}
+            >
+              {eyebrow}
+            </div>
           </div>
-        </div>
+        ) : (
+          // An empty box keeps `space-between` honest, so dropping the label does not shove the
+          // title upward into where the eyebrow was.
+          <div />
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div
             style={{
-              fontSize: 84,
+              fontSize: head.sizePx,
               lineHeight: 1.05,
               fontWeight: 600,
               maxWidth: 1000,
             }}
           >
-            {title}
+            {head.text}
           </div>
           {sub ? (
             <div

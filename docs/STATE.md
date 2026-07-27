@@ -1692,6 +1692,14 @@ All prior rules remain. Added or sharpened across this session:
   it — so the follow-up is **seven `ImgSpecFields` `set` arrows** (most nested inside
   `ItemRows` row-setters) **plus a map in `SectionsEditPanel`**. Nothing new to design; reuse
   `lib/studio/preview-map.ts` unchanged, and its append-only rule applies for the same reason.
+- **THE BLOG EMITS NO STRUCTURED DATA AT ALL, and case studies do.** `lib/structured-data.ts`
+  builds JSON-LD for a case study and feeds it `ogImageUrl(slug)`, which is what that helper's
+  "single source for og:image, twitter:image and the JSON-LD image" note is about. A blog post
+  emits none — no `Article`, no author, no date, no image. So `blogOgImageUrl` deliberately has
+  only two consumers where `ogImageUrl` has three, and that asymmetry is REAL rather than an
+  oversight in the OG-card PR, which is why it is written down here instead of being quietly
+  evened up. Whoever adds blog JSON-LD should route its `image` through `blogOgImageUrl` for
+  the same reason case studies do.
 - **Migrating other studio pages to `ThreePaneShell`**, extracting the shared shell at the
   SECOND consumer. `data-studio-fullheight` and the `:has()` scoping already make the
   layout side reusable.
