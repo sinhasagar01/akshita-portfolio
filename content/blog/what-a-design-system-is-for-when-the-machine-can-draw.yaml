@@ -66,3 +66,13 @@ blocks:
           Those held because they were short enough to remember and specific
           enough to check. The components drifted anyway, and it mattered less
           than I expected.
+  - discriminant: imageBlock
+    value:
+      src: >-
+        /images/blog/what-a-design-system-is-for-when-the-machine-can-draw/blocks/6cd6a9815c3f.webp
+      alt: >-
+        Four squad panels showing different layouts, with the error message bar
+        in the same position in every one.
+      caption: ''
+      wide: false
+      decorative: false
