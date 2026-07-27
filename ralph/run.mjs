@@ -42,8 +42,12 @@ import path from "node:path";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TESTS = path.join(HERE, "tests");
 
-/** Needs a running server and is driven from a browser console, so it is not runnable here. */
-const NOT_RUNNABLE = new Set(["parity"]);
+/** Needs a running server and is driven from a browser console, so it is not runnable here.
+ *  BOTH are reported as skipped rather than dropped. `studio-type` measures rendered type and
+ *  the ground ladder, which no static check can see — a size that is simply wrong, with
+ *  nothing competing for it, renders exactly as written. Naming it here is what stops "not in
+ *  CI" from quietly becoming "nobody knows it exists". */
+const NOT_RUNNABLE = new Set(["parity", "studio-type"]);
 
 const suites = readdirSync(TESTS)
   .filter((f) => f.endsWith(".mjs"))

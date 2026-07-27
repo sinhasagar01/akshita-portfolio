@@ -76,7 +76,7 @@ export default function BlogPostList({
                     />
                     <span className="min-w-0 flex-1">
                       <span
-                        className={`block truncate text-[13px] ${
+                        className={`block truncate text-[13px] font-medium ${
                           current ? "text-ink-950" : "text-ink-700"
                         }`}
                       >
@@ -98,9 +98,13 @@ export default function BlogPostList({
       <div className="flex-none border-t border-ink-950/12 p-3">
         <Link
           href="/studio/blog"
-          className="block rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-center text-[12px] text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+          // THE COLOUR IS ON THE SPAN, NOT THE LINK — hazard 22. `Link` renders an <a>, and
+          // the unlayered `a { color: inherit }` beats any layered text-* utility, so both
+          // `text-ink-600` and `hover:text-accent-500` rendered nothing here. A <span> is not
+          // named by that reset, so the colour lands and `group-hover` carries the hover.
+          className="group block rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-center text-[12px] font-semibold transition-colors hover:border-accent-500"
         >
-          All posts
+          <span className="text-ink-600 transition-colors group-hover:text-accent-500">All posts</span>
         </Link>
       </div>
     </div>

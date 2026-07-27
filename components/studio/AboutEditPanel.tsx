@@ -100,9 +100,9 @@ export default function AboutEditPanel({
   return (
     <section
       aria-label="Edit About"
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconUser />
@@ -121,7 +121,7 @@ export default function AboutEditPanel({
           // (H1.1). Keyboard Tab still blur-saves by design.
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -195,7 +195,7 @@ export default function AboutEditPanel({
         </label>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>

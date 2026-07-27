@@ -109,7 +109,7 @@ export function DisclosureGroup({
           <button
             type="button"
             onClick={() => setRevealed(true)}
-            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> {revealLabel}
           </button>
@@ -144,11 +144,19 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 // Exported so a bespoke field (VE-3's video URL input, which owns an inline error the
 // shared TextField has no slot for) can match every other input to the pixel instead of
 // re-deriving the class string and drifting.
-// THE WELL, AND THE MEASUREMENT THAT DEFINED IT. The box was `bg-cream-50` sitting on a
-// `bg-cream-50` panel — measured, the input and its ground were THE SAME COLOUR, separated only
-// by a hairline. That is why it read as a box floating on a field rather than a recess. The
-// input now goes one value DARKER than its panel (cream-100 on cream-50), which is what makes
-// it a well.
+// THE WELL — cream-50, the bottom step of the STUDIO GROUND LADDER (globals.css).
+//
+// THE RULE IS RELATIONAL AND IT HAS NOW BEEN READ AS AN ABSOLUTE TWICE. An input reads as a
+// well because it is one step LIGHTER than the surface holding it, never because it is a
+// particular colour. #205 measured `bg-cream-50` on a `bg-cream-50` panel, correctly saw that
+// the input and its ground were identical, and fixed it by darkening THE INPUT to cream-100 —
+// which inverted the relation and reproduced the identical collision on the cream-100
+// inspector. The fidelity pass then proposed "inputs to cream-50", another absolute, which
+// would have collided on the six cream-50 entry panels instead.
+//
+// The ladder fixes it as an ORDER rather than a value: cream-200 chrome, cream-100 field
+// surface, cream-50 well. This string is the bottom step, and the panel that holds it is the
+// middle one. Change either and you must check the other.
 //
 // HEIGHT IS 44px VIA `min-h-11`, NOT VIA PADDING. Measured, the box was 39px (21px line-height
 // + 8/8 padding + 2 border), not the 36 the direction assumed. Deriving 44 from padding would
@@ -157,7 +165,7 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 // #199's dedupe honest. A min-height lands both on exactly 44 and leaves the ONE token of
 // difference intact.
 export const inputCls =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 /**
  * The same box at 14px, for the ENTRY PANELS rather than the block forms.
@@ -175,7 +183,7 @@ export const inputCls =
  * NAMED FOR WHAT DIFFERS, not for a surface, because it spans four unrelated panels.
  */
 export const inputClsMd =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 /** The same box, in the rejection state — a danger border and ring.
  *
@@ -185,7 +193,7 @@ export const inputClsMd =
  *  for a long time. There are FIVE strings with this geometry; see the ralph suite, which
  *  enumerates them so a sixth is loud. */
 export const inputErrorCls =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
 
 /**
  * The field label — STRUCTURE, not a caption. 11px / 700 / 0.14em / ink-600.
@@ -670,7 +678,7 @@ export function ItemRows<T>({
         <button
           type="button"
           onClick={list.add}
-          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> {addLabel}
         </button>

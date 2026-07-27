@@ -125,7 +125,7 @@ function ViewToggle<T extends string>({
           type="button"
           aria-pressed={value === o}
           onClick={() => onChange(o)}
-          className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] capitalize transition-colors ${
+          className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors ${
             value === o ? "bg-cream-50 text-ink-950 shadow-sm" : "text-ink-600 hover:text-ink-950"
           }`}
         >
@@ -685,7 +685,11 @@ export default function BlogBlocksEditPanel({
             ring goes with it — at 1:1 it would be invisible, and a focus ring fails silently
             because nothing looks wrong until someone tabs. */}
         <header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-eyebrow text-cream-50">Post</h2>
+          {/* `sechead` carries family, weight, size, tracking and case together — see globals.css.
+              The utilities that used to be here (font-bold, uppercase, tracking-eyebrow) WERE DEAD:
+              the unlayered `h1, h2` reset outranks @layer utilities, so this band drew Fraunces 400
+              at -0.33em from #205 until the fidelity pass measured it. */}
+          <h2 className="sechead text-cream-50">Post</h2>
         </header>
         {postSection}
       </section>
@@ -696,9 +700,7 @@ export default function BlogBlocksEditPanel({
             on-ink colour — see SaveIndicator, which now takes the ground it is drawn on rather
             than assuming cream. */}
         <header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-eyebrow text-cream-50">
-            Body · {blocks.length}
-          </h2>
+          <h2 className="sechead text-cream-50">Body · {blocks.length}</h2>
           <SaveIndicator label="Body" saving={saveStatus === "saving"} dirty={dirty} onInk />
         </header>
 
@@ -736,7 +738,7 @@ export default function BlogBlocksEditPanel({
                     // whether pressing Enter would change anything. #177 drew the same
                     // distinction for the sidebar's hover against its selected pill. The
                     // ring is ink rather than accent so it reads on the accent fill too.
-                    className={`min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] px-1.5 py-1 text-left text-[12px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ink-950 ${
+                    className={`min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] px-1.5 py-1 text-left text-[12px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ink-950 ${
                       isSelected ? "text-ink-950" : "text-ink-600 hover:text-ink-950"
                     }`}
                   >
@@ -784,7 +786,7 @@ export default function BlogBlocksEditPanel({
             type="button"
             onClick={() => setPicker((p) => !p)}
             aria-expanded={picker}
-            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-2.5 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-50 hover:text-ink-950 [&>svg]:size-3"
+            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-2.5 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-50 hover:text-ink-950 [&>svg]:size-3"
           >
             <IconPlus /> Add block
           </button>

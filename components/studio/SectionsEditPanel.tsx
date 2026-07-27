@@ -362,7 +362,7 @@ function SelectedRail({
 }) {
   const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
   return (
-    <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/12 bg-cream-50 p-3.5">
+    <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-50 p-3.5">
       <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
@@ -901,7 +901,7 @@ export default function SectionsEditPanel({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={handleCancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -995,7 +995,7 @@ export default function SectionsEditPanel({
           <button
             type="button"
             onClick={addSection}
-            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> Add a section
           </button>
@@ -1009,7 +1009,7 @@ export default function SectionsEditPanel({
           <button
             type="button"
             onClick={() => setSelectedSectionId(null)}
-            className="inline-flex items-center gap-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-accent-600 transition-colors hover:bg-cream-200"
+            className="inline-flex items-center gap-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-accent-600 transition-colors hover:bg-cream-200"
           >
             ← Board
           </button>
@@ -1019,7 +1019,7 @@ export default function SectionsEditPanel({
               value={selectedSectionId}
               onChange={(e) => setSelectedSectionId(e.target.value)}
               aria-label="Jump to section"
-              className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2 py-1 text-[12px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2 py-1 text-[12px] font-semibold text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
             >
               {values.sections.map((section, i) => (
                 <option key={ids.sectionIds[i]} value={ids.sectionIds[i]}>
@@ -1465,7 +1465,7 @@ export default function SectionsEditPanel({
                       key={k}
                       type="button"
                       onClick={() => addBlock(i, k)}
-                      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
+                      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] font-semibold text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
                     >
                       {blockLabel(k)}
                     </button>
@@ -1479,7 +1479,7 @@ export default function SectionsEditPanel({
               <button
                 type="button"
                 onClick={() => setPicker(ids.sectionIds[i])}
-                className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+                className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
               >
                 <IconPlus /> Add a block
               </button>

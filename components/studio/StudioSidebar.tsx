@@ -154,7 +154,7 @@ export default function StudioSidebar() {
           3.33:1 on cream-100, under AA, since it was written. `text-ink-400` on ink-950 is
           5.45:1, so it passes now because the background moved, not because anyone touched it.
           Worth stating so ink chrome is not credited with a repair it did not make. */}
-      <span className="hidden px-2 pb-1 text-[10px] uppercase tracking-eyebrow text-ink-400 lg:block">
+      <span className="hidden px-2 pb-1 text-[10px] font-bold uppercase tracking-eyebrow text-ink-400 lg:block">
         Content
       </span>
 

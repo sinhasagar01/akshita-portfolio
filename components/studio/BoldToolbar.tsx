@@ -134,7 +134,7 @@ export default function BoldToolbar({
   // `bg-accent-500` on the primary are the same Tailwind property — the generated sheet
   // decides which wins, not the order they appear in the string, and the primary loses.
   const action =
-    "h-[30px] rounded-[var(--studio-radius-control,4px)] border border-[0.5px] px-[13px] text-[12px] transition-colors disabled:cursor-not-allowed disabled:opacity-45";
+    "h-[30px] rounded-[var(--studio-radius-control,4px)] border border-[0.5px] px-[13px] text-[12px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45";
   const actionQuiet = `${action} border-ink-950/16 bg-white text-ink-950 hover:bg-cream-100`;
   const actionPrimary = `${action} border-accent-500 bg-accent-500 text-white hover:bg-accent-600`;
 

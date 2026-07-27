@@ -76,7 +76,7 @@ function nonBlank(links: LinkItem[]): LinkItem[] {
 // STAYING LOCAL DOES NOT MEAN STAYING BEHIND: the reasons above are about the BORDER, not the
 // well, so the height and ground track blocks/fields.tsx exactly and move whenever it does.
 const inputBase =
-  "min-h-11 rounded-[var(--studio-radius-control,4px)] border bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
+  "min-h-11 rounded-[var(--studio-radius-control,4px)] border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
 const okBorder = "border-ink-950/12 focus:border-accent-500 focus:ring-accent-500/30";
 const errBorder = "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30";
 const iconBtn =
@@ -150,9 +150,9 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
   return (
     <section
       aria-label="Edit Links"
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconArrowUpRight />
@@ -168,7 +168,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -195,7 +195,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
               const errorId = `links-${ids[i]}-error`;
               const name = link.label.trim() || `link ${i + 1}`;
               return (
-                <div key={ids[i]} className="flex flex-col gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100/50 p-2.5">
+                <div key={ids[i]} className="flex flex-col gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 p-2.5">
                   <div className="flex items-center gap-1.5">
                     <input
                       type="text"
@@ -266,7 +266,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
           <button
             type="button"
             onClick={addLink}
-            className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> Add link
           </button>
@@ -276,7 +276,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
         </div>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {hasUrlError ? (
             <span className="text-accent-600">Fix the highlighted URL to save.</span>

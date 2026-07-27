@@ -49,7 +49,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-sm overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/12 bg-cream-50"
+      className="w-full max-w-sm overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-50"
     >
       <div className="flex items-center gap-2.5 border-b border-ink-950/12 bg-cream-100 px-5 py-4">
         <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500 text-cream-50">

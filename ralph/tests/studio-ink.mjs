@@ -125,16 +125,38 @@ const studioFiles = readdirSync(new URL("../../components/studio", import.meta.u
   .map(String).filter((f) => f.endsWith(".tsx"));
 const readStudio = (f) => read(`components/studio/${f}`);
 
-// E1 · THE WELL. The box used to be cream-50 ON a cream-50 panel — the same colour as its
-// ground, which is why it read as floating rather than recessed.
+// E1 · THE WELL, AND THE ASSERTION THAT ENCODED THE BUG.
+//
+// This checked `bg-cream-100` — an ABSOLUTE VALUE — and that is precisely the error #205 made.
+// The contract's rule is RELATIONAL: an input reads as a well because it is one step lighter
+// than the surface holding it, not because it is any particular colour. #205 set the input to
+// cream-100 against the cream-50 entry panels, which worked there and made the input identical
+// to its ground on the cream-100 inspector. This assertion then held the mistake in place: it
+// passed on the wrong value and would have FAILED the correct one.
+//
+// It now asserts the well's step in the LADDER (globals.css) plus the property that actually
+// matters — that the well and every surface that hosts it are different steps. A gate for a
+// relational rule has to be relational, or it pins one side of the relation and calls it done.
 {
   const fields = readStudio("blocks/fields.tsx");
+  const WELL = "bg-cream-50";       // the ladder's bottom step
+  const FIELD_SURFACE = "bg-cream-100"; // what holds inputs
   for (const n of ["inputCls", "inputClsMd", "inputErrorCls"]) {
     const lit = fields.match(new RegExp(`const ${n} =\\s*\\n?\\s*"([^"]*)"`))?.[1] ?? "";
-    t(`E1: ${n} is a well — darker than its panel, not the same colour as it`,
-      lit.includes("bg-cream-100"), true);
+    t(`E1: ${n} sits on the ladder's WELL step — asserted as a step, not a colour, because the rule it serves is relational`,
+      lit.includes(WELL), true);
+    t(`E1: ${n} is NOT the field-surface step — an input the same colour as its panel is the exact defect this arc has now shipped twice`,
+      lit.includes(FIELD_SURFACE), false);
     t(`E1: ${n} is 44px via min-h-11, so the 13/14px pair keeps ONE token of difference`,
       lit.includes("min-h-11"), true);
+  }
+  // The other half of the relation. Six entry panels host fields directly on their shell, so
+  // the shell must be the FIELD SURFACE step — if one drifts back to cream-50 the wells on it
+  // collide again, and the input strings above would still look perfectly correct.
+  for (const f of ["HeroEditPanel", "AboutEditPanel", "ProcessEditPanel", "LinksEditPanel",
+                   "ExperienceEditPanel", "ProjectsEditPanel"]) {
+    t(`E1: ${f}'s shell is the FIELD-SURFACE step — the wells on it are only wells relative to this`,
+      /border-accent-500\/30 bg-cream-100/.test(readStudio(`${f}.tsx`)), true);
   }
 }
 
