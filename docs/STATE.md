@@ -8,9 +8,9 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE INK CHROME ARC, COMPLETE)
 
-**main** = `2488500` = the selection language (#209). **The ink chrome arc is finished — six
+**main** = `cfa695f` = STATE for the ink chrome arc, with #210 (the phantom tokens) in flight. **The ink chrome arc is finished — six
 PRs, #204 to #209**, and every one of the eleven fidelity mismatches is now shipped, corrected
-in the contract, or explicitly deferred. **ralph 1379 across 38 suites** (`parity` and
+in the contract, or explicitly deferred. **ralph 1385 across 39 suites** (`parity` and
 `studio-type` named as skipped, not dropped). Pinned: `e938c16` = the fidelity repaint (#208),
 `d75eeb0` = the radius scale (#207), `37286cc` = the input dedupe (#206),
 `466df8e` = the panel language (#205),
@@ -80,9 +80,9 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new).
 
-**1379 ACROSS 38 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1385 ACROSS 39 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -1483,6 +1483,19 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **GENERALISING THE ASSERTION BEATS CLOSING THE INSTANCE — THREE TIMES NOW, AND IT WON EVERY
+  TIME.** The pattern is the same each time: the obvious gate encodes the bug you just found,
+  and the general one derives the rule the bug broke.
+  1. **`studio-cascade`** derives the unlayered element rules from `globals.css` instead of
+     asserting the four known collisions. **Found five more on its first run.**
+  2. **`studio-ink` G1** asserts a *ladder step* rather than a hex, so a relation cannot be
+     re-encoded as a value the way #205's input colour was.
+  3. **`studio-tokens`** derives the legal colour set from `@theme` instead of banning
+     `text-ink-500` and `text-ink-700` by name — so **the next invented step fails on arrival
+     rather than after 51 uses**.
+  The instance-specific version of each would have passed on everything except the exact bug
+  already fixed. **When you find a dead class, ask what rule it violated, not what its name
+  was.**
 - **A FIX SCOPED TO ONE SURFACE IS NOT A LESSON LEARNED.** `globals.css:1893` documented
   hazard 11's mechanism for `h3–h6` versus `.font-display` **in full, with the reasoning** — and
   fixed it only for `.case-study`. Nobody generalised it, so **#205 walked straight into the
@@ -2041,9 +2054,43 @@ All prior rules remain. Added or sharpened across this session:
     stable since each was written, and the fix is ONE decision — add the tokens, or re-point
     every site to a real value — not 52 local edits. The bracket-bare rule's cousin: a bare
     theme utility whose token does not exist fails exactly as silently.
-    **This is the third "the code says one thing, the screen does another" class**, after
-    hazard 11 (unlayered element rules beating utilities) and hazard 22 (anchor colour
-    utilities dead under `a { color: inherit }`).
+
+    **RESOLVED IN #210 — THE DECISION WAS DELETE, NOT DECLARE.** Adding the tokens would widen
+    a considered scale to accommodate what is almost certainly Tailwind-default muscle memory
+    (every other project has a 500, so someone typed one), and would move **51 places on screen
+    at once**, none of which anyone has seen render as intended. Deleting is zero visual change
+    and makes the code honest.
+    **THE COUNT WAS 51, NOT 52** — re-derived, and two of the 53 grep hits were comments
+    describing the phantom rather than uses. 40 × `ink-500` + 11 × `ink-700`.
+    **THE SPLIT FELL EXACTLY ON THE TOKEN BOUNDARY, which was not planned.** All 11 `ink-700`
+    sites read correctly at full ink and were **deleted**; all 40 `ink-500` sites are **real
+    defects, named and not fixed**. Not a coincidence: `ink-700` was reached for as
+    "slightly muted body", where full ink is fine, and `ink-500` as "clearly muted chrome",
+    where it is not.
+    **MEASURED: every one of the 51 rendered ink-950**, uniformly, because nothing in the
+    studio sets an intermediate colour on any of their containers.
+    **THE BUNDLE IS THE PROOF THAT COVERS THE SITES BROWSING CANNOT REACH.** In the production
+    CSS, `ink-600` appears 11 times and **`ink-500` and `ink-700` appear ZERO times** — no
+    custom property, no rule. A class with no CSS cannot move a pixel when deleted, which
+    settles the conditional sites (confirm prompts, "Saving draft…", empty states) that only
+    render in transient states.
+
+    **THE THREE MECHANISMS, AS A SET — SAME SYMPTOM, THREE DISTINCT CAUSES.** Nothing recorded
+    them together, so each was re-derived from scratch when it appeared. The symptom is always
+    *the code says one thing and the screen does another*:
+
+    | # | cause | gated by |
+    |---|---|---|
+    | **11** | an unlayered element rule beats a layered utility | `studio-cascade` |
+    | **26** | utility versus utility, decided by **sheet order** | **UNGATED** |
+    | **23** | the token does not exist, so no CSS is generated | `studio-tokens` (#210) |
+
+    **HAZARD 26 REMAINS UNGATED, AND `studio-cascade` CANNOT SEE IT** — that suite compares a
+    utility against an *unlayered element rule*, which presumes the utility generates CSS and
+    asks whether something outranks it. Utility-versus-utility has no element rule involved and
+    two live declarations, so there is nothing for it to match on. Closing hazard 26 needs a
+    different check (shorthand and longhand for the same property on one element), and it is
+    not built.
 
 24. **`--radius-2xl` IS SMALLER THAN `--radius-xl`** — a scale inversion nobody introduced.
     Emitted values are `sm .25rem · md .5rem · lg 1rem · xl 1.5rem · **2xl 1rem** · full 9999px`.
@@ -2102,6 +2149,35 @@ All prior rules remain. Added or sharpened across this session:
 
 ## DEFERRED — scoped, not built
 
+- **THE 40 `text-ink-500` SITES — REAL DEFECTS, NAMED IN #210 AND DELIBERATELY NOT FIXED.**
+  Each is a class that meant *muted* rendering at full ink-950 beside the primary text it was
+  supposed to sit behind. Deleting them would make the code honest and leave the elements
+  looking exactly as wrong, so the class is kept until the replacement is decided.
+
+  **THE STRONGEST EVIDENCE IS ADJACENT CODE DISAGREEING WITH ITSELF, not an inference about
+  intent.** `ProjectsEditPanel:273` is the readonly Company field: phantom, rendering full ink,
+  indistinguishable from an editable input. **`ProjectsEditPanel:275` is its own hint, two
+  lines below, using `text-text-subtle` and rendering correctly muted.** The hint is muted and
+  the field it describes is not, in the same JSX block.
+
+  **THE FOLLOW-UP IS SMALLER THAN "which of ink-600 or ink-400".** The studio already has three
+  muted tokens in heavy use — `text-text-subtle` (65 uses, 109,100,93), `text-ink-400` (68) and
+  `text-ink-600` (63) — and **field hints already use `text-text-subtle`**, including the hint
+  under that broken field. So for the families below the answer is **match the neighbour**, not
+  a fresh judgement:
+  - **B · badge pills (10)** · **D · "Saving draft…" (7)** · **E · readonly fields (2)** — take
+    `text-text-subtle`, which is what the surrounding hints already use.
+
+  **C · THE 13 ICON BUTTONS STAY A SEPARATE QUESTION.** Each is `text-ink-500 …
+  enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest and hover both
+  render ink-950. That is about an icon's rest state against its own hover, not about muted
+  text, and folding it into the above would decide thirteen sites on a rationale built for ten.
+
+  **A · three tab/inactive pairs** and **G · four others** (chevron, empty state, the "Section"
+  label, the preview page's toggle) are individually small and can ride with whichever decision
+  fits.
+  **`studio-tokens` B2 pins the count at 40**: growing means a new dead site was added, and
+  zero means the decision was made and the exemption should be deleted.
 - **PR C — THE CARD IMAGE (fidelity item 4).** `ImageThumb` is a **36×36 chip** (`size-9`); the
   contract draws a **full-width 16:9 plate, 164px tall** at inspector width. **NOT A REPAINT** —
   it changes the inspector's vertical rhythm, pushes fields down, and interacts with

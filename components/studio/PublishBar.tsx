@@ -261,7 +261,7 @@ export default function PublishBar() {
       >
         {confirmOpen ? (
           <>
-            <span id="discard-confirm-msg" className="min-w-0 flex-1 text-[12.5px] text-ink-700">
+            <span id="discard-confirm-msg" className="min-w-0 flex-1 text-[12.5px]">
               Discard all unpublished changes? This can&rsquo;t be undone.
             </span>
             <button

@@ -90,9 +90,15 @@ export default function BlogPostList({
                       }`}
                     />
                     <span className="min-w-0 flex-1">
+                      {/* THE INACTIVE BRANCH IS EMPTY BECAUSE IT CARRIED A PHANTOM. It was
+                          `text-ink-700`, a token that does not exist (hazard 23), so both
+                          branches rendered ink-950 and the distinction this ternary claims
+                          has never been on screen. The class is deleted rather than replaced:
+                          a post title reads correctly at full ink, and since #209 selection
+                          is carried by the fill and the accent bar, not by colour. */}
                       <span
                         className={`block truncate text-[13px] font-medium ${
-                          current ? "text-ink-950" : "text-ink-700"
+                          current ? "text-ink-950" : ""
                         }`}
                       >
                         {p.title}

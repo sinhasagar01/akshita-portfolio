@@ -247,6 +247,14 @@ export function ListDetailLayout({
                     // as the dead utilities PR A removed. The three sides are set explicitly
                     // instead, so nothing competes.
                     //
+                    // THE INACTIVE BRANCH NO LONGER SETS A COLOUR, AND NEVER EFFECTIVELY DID.
+                    // It carried `text-ink-700`, a token with no `@theme` declaration (hazard
+                    // 23), so Tailwind generated nothing for it. MEASURED before deletion:
+                    // active and inactive rows both rendered ink-950 — `DISTINCTION_EXISTS:
+                    // false` — so the pair this ternary appears to draw has never existed on
+                    // screen. Deleting is zero visual change. A row label reads correctly at
+                    // full ink, and selection is carried by the fill and the bar below.
+                    //
                     // HOVER AND SELECTED SHARE THE FILL, BY NECESSITY. cream-100 on cream-50 is
                     // 1.05, so the cream ladder cannot encode rest, hover AND selected as three
                     // legible fills — a half-step hover would be ~1.02 and invisible. THE BAR IS
@@ -258,7 +266,7 @@ export function ListDetailLayout({
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
                         ? "border-l-accent-500 bg-cream-100 font-medium text-ink-950"
-                        : "border-l-transparent text-ink-700 hover:bg-cream-100",
+                        : "border-l-transparent hover:bg-cream-100",
                     ].join(" ")}
                   >
                     <span className="flex min-w-0 items-center gap-2">

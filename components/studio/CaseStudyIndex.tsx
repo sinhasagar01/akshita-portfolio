@@ -285,7 +285,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
           busy={deleteBusy}
           initialFocusRef={delCancelRef}
         >
-          <p id="del-cs-msg" className="text-[13px] text-ink-700">
+          <p id="del-cs-msg" className="text-[13px]">
             Remove <b>{targetTitle}</b> from your draft? You can still undo it with Discard
             until you publish.
           </p>

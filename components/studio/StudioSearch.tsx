@@ -145,9 +145,13 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                   e.preventDefault();
                   go(r);
                 }}
+                // The inactive branch is empty because it carried `text-ink-700`, a phantom
+                // (hazard 23) that generated no CSS — so active and inactive rows have always
+                // rendered the same ink. The accent fill is what marks the active row and
+                // always was; deleting the class changes nothing on screen.
                 className={[
                   "flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-[13px]",
-                  i === active ? "bg-accent-500/10 text-ink-950" : "text-ink-700",
+                  i === active ? "bg-accent-500/10 text-ink-950" : "",
                 ].join(" ")}
               >
                 <span className="truncate">{r.label}</span>
