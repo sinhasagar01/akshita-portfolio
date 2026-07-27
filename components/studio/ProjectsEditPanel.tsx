@@ -537,16 +537,28 @@ export function HeroImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
-      {/* `flex-wrap` is for the blog editor's inspector pane, and it is STILL load-bearing
-          after that pane went 244px -> 320px — measured, because the widening looked likely
-          to make it unnecessary. At 320 the row has 280px of content width; the 160px
-          thumbnail plus a 16px gap leaves 104px, and the controls need 106.2734px. So they
-          still wrap, by 2.2734px. Anyone widening this pane again should re-measure rather
-          than assume: the margin is now under 3px in the other direction.
-          On projects, where this has always rendered in a wide card, there is room and
-          nothing wraps — the rendered output is unchanged at that width. */}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200">
+      {/* THE PLATE STACKS ABOVE THE CONTROLS, which is what the contract's `.thumb` +
+          `.rowbtns` describe — and THIS is the field the contract's `.thumb` was always
+          describing. It sits under "Card image" in the POST section with the hint "the article
+          hero and the card thumbnail". PR C mapped `.thumb` to ImageThumb and improved a
+          different component; that change stands on its own merits, but this is the specified
+          one.
+          THE OLD SIDE-BY-SIDE ROW IS GONE, and with it the `flex-wrap` note about the controls
+          wrapping by 2.2734px at 320px. That measurement described a layout that no longer
+          exists: the plate is full width and the controls are on their own line beneath, so
+          there is nothing to wrap.
+
+          16/9 REPLACES 21/9 per the contract. The width comes from a HEIGHT CAP, not from
+          `w-full`, because PR C measured a `w-full` plate at 941x1255px in the wide About
+          panel — and this field renders in BOTH the 320px inspector AND the wide projects
+          card, so it is exposed to exactly that. 160px cap x 16/9 = 284px max width; the
+          inspector gives 280px, so there it is full-bleed and in the wide card it stops at
+          284 instead of running to 900+. */}
+      <div className="flex flex-col gap-2">
+        <div
+          className="relative aspect-[16/9] w-full overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200"
+          style={{ maxWidth: 160 * (16 / 9) }}
+        >
           {hasImage ? (
             // Plain img (not next/image): the source is either a session object URL
             // or a public path; onError falls back to the placeholder so an unresolved
@@ -571,7 +583,10 @@ export function HeroImageField({
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-2">
+        {/* `.rowbtns` — flex, gap 8, align-items center. They stacked in a column before; the
+            contract puts them on ONE line beneath the plate. Measured at the narrowest studio
+            width to confirm two controls fit — see the PR body. */}
+        <div className="flex items-center gap-2">
           <input
             ref={fileRef}
             type="file"

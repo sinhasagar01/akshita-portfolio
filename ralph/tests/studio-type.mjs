@@ -117,6 +117,12 @@ export const TYPE_SCRIPT = String.raw`
   const wells = [];
   for (const inp of document.querySelectorAll("input, textarea")) {
     if (inp.type === "file") continue;
+    // NATIVE CHECKBOXES AND RADIOS ARE NOT WELLS AND NEVER WERE. The browser paints them
+    // itself; they carry no cream background, so the stack walk reports the UA's white
+    // against the panel's cream and calls it a collision. Two of them fired on the blog
+    // inspector the first time this ran against PR C — a false positive that would have sent
+    // someone looking for a ground bug in a control the ladder does not govern.
+    if (inp.type === "checkbox" || inp.type === "radio") continue;
     // THE TOPBAR SEARCH IS EXCLUDED BY NAME. It is an ink surface by design (#204) — the
     // contract specifies it against a cream topbar the direction replaced, which is recorded
     // as correction C-9 in studio-ink-chrome.html. It is not part of the cream ladder.

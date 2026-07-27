@@ -88,8 +88,27 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           is inline. So restyling it here does not pre-empt PR 2, which owns `inputCls`,
           `inputClsMd` and `inputErrorCls`. It is recorded in STATE's deferred list rather than
           left for PR 2 to rediscover. */}
-      <div className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/12 lg:bg-white/5">
-        <IconSearch className="size-4 text-ink-400" />
+      {/* THE CONTRACT'S VALUES ARE FOR A CREAM TOPBAR THAT WAS DELIBERATELY REPLACED (C-9), so
+          its INTENT transfers and its two colours do not. Intent: a legible well, a visible
+          border, 40px tall, control radius, 13.5px, magnifier left and `/` right. Everything
+          but the two colours already transferred; the colours are derived below.
+
+          MEASURED, over the topbar's composited ink (51,43,39):
+            well  white/5  -> 1.16:1   LESS than the sidebar's 10% wash at 1.25, which STATE
+                                       already records as nearly invisible. Now white/12 -> 1.45.
+            border white/12 -> 1.45:1  Now white/24 -> 1.96.
+
+          A RECESSED WELL WAS TESTED AND REJECTED ON EVIDENCE. "Well" implies recessed, so
+          black/15 through black/35 were measured: every one lands at 1.10-1.22 against the bar,
+          WORSE than white/12, because the bar is already near the bottom of the range. Lighter
+          is the right direction here even though the cream ladder's well is lighter for the
+          opposite reason. Only the magnitude was wrong.
+
+          THE TRADE THIS MAKES, STATED: brightening the well LOWERS the contrast of everything
+          drawn on it. That is why the foregrounds below had to move in the same change. */}
+      <div className="flex min-h-10 items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/24 lg:bg-white/12">
+        {/* ink-200 at `lg` for the same reason as the placeholder — see below. */}
+        <IconSearch className="size-4 text-ink-400 lg:text-ink-200" />
         <input
           ref={inputRef}
           type="search"
@@ -109,14 +128,25 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           // Delay the close so a click on an option registers first.
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           onKeyDown={onKeyDown}
-          // ink-600 is 2.57:1 on ink, so the typed value moves to cream-50 at `lg`. The
-          // placeholder keeps ink-400 — 5.45:1 there, and placeholder SHOULD sit below the
-          // value in the hierarchy.
-          className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-600 outline-none placeholder:text-ink-400 lg:text-cream-50"
+          // ink-600 is 2.57:1 on ink, so the typed value moves to cream-50 at `lg` — 9.1:1 on
+          // the new well, still the strongest thing in the control.
+          //
+          // THE PLACEHOLDER MOVES ink-400 -> ink-200, AND THE OLD COMMENT'S NUMBER WAS
+          // MEASURED ON THE WRONG GROUND. It claimed "ink-400 — 5.45:1 there", but 5.45 is
+          // ink-400 against the SIDEBAR's ink-950. This placeholder sits on the TOPBAR's well,
+          // which is ink/85 over cream plus a white wash — two compositing steps lighter.
+          // Measured where it actually renders, ink-400 was 3.27:1, BELOW AA's 4.5 for text,
+          // and the brighter well would have taken it to 2.60 — under even the 3.0 UI floor.
+          // ink-200 measures 5.08:1 there and is PR 1's own on-ink set, not a new value.
+          //
+          // "Placeholder should sit below the value" still holds and is unaffected: 5.08
+          // against the value's 9.1 is a clear hierarchy, and a hierarchy is a ratio between
+          // two legible things rather than a licence for one of them to fail.
+          className="min-w-0 flex-1 bg-transparent text-[13.5px] text-ink-600 outline-none placeholder:text-ink-400 lg:text-cream-50 lg:placeholder:text-ink-200"
         />
         <kbd
           aria-hidden
-          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[11px] text-ink-400 lg:border-white/12"
+          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[11px] text-ink-400 lg:border-white/24 lg:text-ink-200"
         >
           /
         </kbd>

@@ -373,11 +373,17 @@ export function BlockImageField({
   src,
   slug,
   collection,
+  aspect,
   onChange,
 }: {
   label: string;
   src: string | null;
   slug: string;
+  /** The plate's shape, width / height. LEFT UNSET BY BOTH REGISTRIES ON PURPOSE — the public
+   *  renderer gives an `imageBlock` no ratio (a bare <img> inside `.blog-figure`), so the plate
+   *  lets the image keep its own shape and never crops. The prop exists for a call site whose
+   *  public counterpart DOES fix a ratio; `SettingsPhotoField` is the one that passes it. */
+  aspect?: number;
   /** PR 3a — which collection's image tree the upload lands in ("projects" | "blog").
    *  Threaded parallel to `slug` and REQUIRED: the server maps it to a base and rejects
    *  an unknown one, so a caller that forgets it is a compile error here, not a silent
@@ -444,8 +450,31 @@ export function BlockImageField({
   return (
     <div className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
-      <div className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
-        <ImageThumb src={src} />
+      {/* VERTICAL, AND THAT IS WHAT UNSQUEEZES THE PATH. #180 measured this readout
+          compressing to 27.6px because it shared a horizontal row with a thumb and a button
+          inside a 244px inspector. Stacked, the path gets the full content width to itself —
+          the plate does not replace the readout, it stops the readout being squeezed.
+
+          THE CONTAINER DECLARES NO GROUND AT ALL, AND THAT IS THE POINT.
+
+          It was `bg-cream-100`, which collided on the cream-100 blog inspector — the exact
+          defect the ladder exists to prevent, and a site PR A's sweep genuinely did not reach.
+          The obvious fix was the ladder's well step, cream-50. MEASURED, THAT COLLIDED TOO:
+          on the case-study editor the videoEmbed "Poster still" field is nested inside a
+          cream-50 CARD, so a cream-50 container is same-on-same there instead. One absolute
+          traded for another — the fourth time in this arc.
+
+          A COMPONENT THAT CAN BE MOUNTED ON SEVERAL GROUNDS MUST NOT ASSERT ONE. This row is
+          used on the cream-100 inspector, on cream-50 entry panels and inside cream-50 cards,
+          so no single value is right and there is no relational utility that says "one step
+          lighter than my parent". Declaring nothing makes it correct on all three by
+          construction: it inherits, the border delineates it, and the plate inside is
+          cream-200 which reads against every cream step. */}
+      <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2.5">
+        {/* NO ASPECT unless a caller supplies one. `BlogProse` renders an imageBlock as a bare
+            <img> with no ratio, so the plate matches by letting the image be its own shape. */}
+        <ImageThumb src={src} aspect={aspect} className="w-full" />
+        <div className="flex items-center gap-2">
         {src ? (
           <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{src}</code>
         ) : (
@@ -466,7 +495,10 @@ export function BlockImageField({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          // No background: the container declares none either, so a fixed value here would be
+          // the same absolute-on-an-unknown-ground mistake. The border already delineates the
+          // control, which is how the Clear button beside it has always worked.
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : src ? "Replace" : "Upload"}
         </button>
@@ -481,6 +513,7 @@ export function BlockImageField({
             <IconX />
           </button>
         )}
+        </div>
       </div>
       {/* Announced: an upload failure is the one thing here a screen-reader user
           cannot otherwise notice, since the visible change is a small line of text. */}
