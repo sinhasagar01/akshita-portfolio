@@ -25,12 +25,11 @@ import ExperienceEditPanel from "./ExperienceEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
 import { useReportCount } from "./StudioCountsProvider";
+import { inputClsMd } from "./blocks/fields";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { isCurrentRole } from "@/components/sections/experience-current";
 import type { ExperienceListItem } from "@/lib/keystatic";
 
-const inputCls =
-  "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 export default function ExperienceListEditor({ entries }: { entries: ExperienceListItem[] }) {
   const router = useRouter();
@@ -269,7 +268,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               placeholder="e.g. Acme, Bengaluru"
-              className={inputCls}
+              className={inputClsMd}
             />
             <p id="add-exp-desc" className="mt-1 text-[11px] text-text-subtle">
               Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New

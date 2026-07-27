@@ -43,12 +43,27 @@ Every case study follows this fixed eleven-section arc.
 
 ## Build sequence
 
+Phases 0 to 5 are DONE. They are kept here because later work refers back to them.
+
 - Phase 0: repo, Next.js, Tailwind, Vercel, domain, fonts, design tokens
 - Phase 1: design system, layout primitives, motion and scroll baseline
 - Phase 2: home page
 - Phase 3: case study template wired to Keystatic, all spine block types built
 - Phase 4: content pour and cleanup for all four case studies
 - Phase 5: performance, accessibility, motion tuning, launch
+
+What followed Phase 5, all shipped.
+
+- The studio editor. Every content group edits inline at /studio, writing to a draft branch
+  and publishing by merge to main.
+- The blog. A second collection with its own schema, public pages and three pane editor. One
+  post is published and the nav link is live.
+- The inline canvas. Blog prose is edited in place at the public measure, so the canvas and
+  the article render through the same components.
+- The lint gate. ESLint runs in CI beside ralph, and the repo sits at zero problems.
+
+The record of what shipped, in order and with its reasoning, is docs/STATE.md. Read that
+rather than inferring history from this list.
 
 ## Production domain and hosting
 
@@ -58,8 +73,13 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 ## Open items
 
-- Real outcome numbers for Fosfor AI and Fosfor Data Profiling
-- Confirmation on the light editorial direction before tokens are set
+- Real outcome numbers for Fosfor AI and Fosfor Data Profiling. This is the one that blocks
+  finished copy.
+- Content. Writing posts through /studio is the highest value work left, and it exercises the
+  editor paths that only a real author can reach.
+
+The light editorial direction was confirmed long ago and the tokens are set. That question is
+closed.
 
 ## Conventions (must hold across sessions)
 

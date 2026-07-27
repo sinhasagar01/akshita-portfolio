@@ -13,6 +13,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconBriefcase } from "./icons";
+import { inputClsMd } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -73,8 +74,6 @@ export default function ExperienceEditPanel({
   const { isSelected } = useListItem(itemId, dirty);
   if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
-  const inputCls =
-    "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
   return (
     <section
@@ -128,7 +127,7 @@ export default function ExperienceEditPanel({
             value={values.title}
             onChange={(e) => setField("title", e.target.value)}
             onBlur={saveDraft}
-            className={inputCls}
+            className={inputClsMd}
           />
         </label>
 
@@ -141,7 +140,7 @@ export default function ExperienceEditPanel({
               onChange={(e) => setField("startDate", e.target.value)}
               onBlur={saveDraft}
               placeholder="Aug 2022"
-              className={inputCls}
+              className={inputClsMd}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -152,7 +151,7 @@ export default function ExperienceEditPanel({
               onChange={(e) => setField("endDate", e.target.value)}
               onBlur={saveDraft}
               placeholder="Present"
-              className={inputCls}
+              className={inputClsMd}
             />
           </label>
         </div>
@@ -167,7 +166,7 @@ export default function ExperienceEditPanel({
             onChange={(e) => setField("description", e.target.value)}
             onBlur={saveDraft}
             placeholder={"Led the redesign of the mechanic app.\nShipped a design system used by three teams."}
-            className={`${inputCls} resize-y`}
+            className={`${inputClsMd} resize-y`}
           />
           <span className="text-[10px] text-text-subtle">
             One line per point. Each line renders as its own paragraph under the role.
@@ -182,7 +181,7 @@ export default function ExperienceEditPanel({
             onChange={(e) => setField("location", e.target.value)}
             onBlur={saveDraft}
             placeholder="Bengaluru"
-            className={inputCls}
+            className={inputClsMd}
           />
           <span className="text-[10px] text-text-subtle">
             City shown next to the company. Overrides the city parsed from the company name.

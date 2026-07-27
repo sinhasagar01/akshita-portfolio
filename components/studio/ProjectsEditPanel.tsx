@@ -16,6 +16,7 @@ import { useListItem } from "./ListDetailLayout";
 import SectionsEditPanel from "./SectionsEditPanel";
 import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
+import { inputClsMd } from "./blocks/fields";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
 import type { RawSection } from "@/lib/case-studies/sections-raw";
@@ -152,8 +153,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per mounted study
   }, []);
 
-  const inputCls =
-    "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
   return (
     <section
@@ -293,7 +292,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
                 onChange={(e) => setFact(key, e.target.value)}
                 onBlur={saveDraft}
                 placeholder={placeholder}
-                className={inputCls}
+                className={inputClsMd}
               />
             </label>
           ))}

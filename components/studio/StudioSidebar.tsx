@@ -33,22 +33,27 @@ export default function StudioSidebar() {
     { href: "/studio/projects", label: "Case studies", Icon: IconGrid, count: counts.projects },
     { href: "/studio/experience", label: "Experience", Icon: IconBriefcase, count: counts.experience },
     { href: "/studio/blog", label: "Blog", Icon: IconFileText, count: counts.blog },
-    { href: "/studio/skills", label: "Skills", Icon: IconLayers },
+    { href: "/studio/skills", label: "Skills", Icon: IconLayers, count: counts.skills },
   ];
 
   const settings: Area = { href: "/studio/settings", label: "Site settings", Icon: IconSliders };
 
-  // `pinned` IS PASSED AND IGNORED, which is a finding rather than a stray parameter.
-  // Below, `renderLink(settings, true)` marks Site settings as the pinned entry — the caller
-  // states the intent — and this function never reads it, so Site settings renders exactly
-  // like every other link. The distinction was designed at the call site and never
-  // implemented here.
+  // THE PINNING LIVES IN THE WRAPPER, NOT IN A PARAMETER, and that is why there is no
+  // `pinned` argument here any more.
   //
-  // NOT DELETED, for the same reason as SiteHeader's `reduced`: removing the parameter would
-  // also mean removing the `true` at the call site, and with it the only record that the
-  // distinction was ever intended. Named in the PR body as a follow-up.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- see above; implement it, do not delete it
-  function renderLink(area: Area, pinned = false) {
+  // #195 flagged `renderLink(settings, true)` as an intent stated at the call site and never
+  // implemented, and hazard 19 recorded it that way. BOTH WERE WRONG ABOUT THE CAUSE. The
+  // distinction IS implemented — Site settings is wrapped below in
+  // `lg:mt-auto lg:border-t lg:border-ink-950/8 lg:pt-2.5`, which pushes it to the bottom of
+  // the flex column and draws its separator. It has never rendered like the other links.
+  //
+  // `git log -S` puts the parameter in `ca6ab8b`, the original dashboard, ALREADY UNUSED. It
+  // was vestigial from the first commit rather than aspirational, so #199 removed it and the
+  // `true` with it. This is deliberately NOT the FIT_THRESHOLD_PX shape, where a name outlived
+  // its consumer and deleting it would have destroyed the evidence an intent existed — here
+  // the intent is on screen, in the wrapper, and the parameter was the part that never
+  // carried it. Do not re-add it looking for the distinction.
+  function renderLink(area: Area) {
     const active = isStudioAreaActive(area.href, pathname);
     return (
       <Link
@@ -99,7 +104,7 @@ export default function StudioSidebar() {
       <nav className="flex flex-1 flex-row gap-1 overflow-x-auto lg:flex-col lg:gap-0.5 lg:overflow-visible">
         {areas.map((area) => renderLink(area))}
         <div className="lg:mt-auto lg:border-t lg:border-ink-950/8 lg:pt-2.5">
-          {renderLink(settings, true)}
+          {renderLink(settings)}
           <form action="/api/studio/logout" method="post">
             <button
               type="submit"

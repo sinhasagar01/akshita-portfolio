@@ -54,6 +54,18 @@ function nonBlank(links: LinkItem[]): LinkItem[] {
     .filter((l) => l.label !== "" || l.url !== "");
 }
 
+// DELIBERATELY LOCAL, AND NOT THE SHARED `inputCls`. #199 collapsed seven hand-copied input
+// strings into two exports in blocks/fields.tsx; this one did NOT go with them, because it is
+// not the same box with a different size — it is a different box:
+//   - it is a FLEX CHILD (`min-w-0 flex-1`) rather than `w-full`, and
+//   - it carries no border colour and no focus border override, because the two constants
+//     below supply both per validation state, which the shared string cannot express.
+// (Those two properties are named without their utility spelling on purpose. Tailwind v4
+// scans raw source text, comments included, so writing the class name here would EMIT it —
+// the union-of-declarations gate caught exactly that and it is how a comment ships dead CSS.)
+// Importing the shared one and appending overrides would leave two competing border
+// declarations whose winner is decided by the generated sheet rather than by this file — the
+// trap BoldToolbar's header already records. Left alone on purpose.
 const inputCls =
   "min-w-0 flex-1 rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
 const okBorder = "border-ink-950/8 focus:border-accent-500 focus:ring-accent-500/30";

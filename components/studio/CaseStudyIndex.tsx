@@ -16,11 +16,10 @@ import type { ProjectListItem } from "@/lib/keystatic";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
+import { inputCls } from "./blocks/fields";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
-const inputCls =
-  "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[] }) {
   const router = useRouter();

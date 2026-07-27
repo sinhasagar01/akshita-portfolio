@@ -42,7 +42,7 @@ export default async function DashboardLayout({
     // layout, which does not re-run on client navigation). Seeded once from the
     // server counts.
     <StudioCountsProvider
-      initial={{ projects: projects.length, experience: experience.length, blog: blog.length }}
+      initial={{ projects: projects.length, experience: experience.length, blog: blog.length, skills: skills?.categories.length ?? 0 }}
     >
       {/* Full-bleed shell (Task 1). The outer rounded card is gone: the sidebar
           sits on cream-100, the working surface on cream-50, one hairline (the
