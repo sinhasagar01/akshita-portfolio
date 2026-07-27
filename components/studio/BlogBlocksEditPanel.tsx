@@ -149,6 +149,7 @@ export default function BlogBlocksEditPanel({
   headTopic,
   posts,
   postSection,
+  postStatus,
 }: {
   slug: string;
   title: string;
@@ -185,6 +186,10 @@ export default function BlogBlocksEditPanel({
   posts: readonly BlogCard[];
   /** BlogEditPanel's head fields, rendered as the inspector's first section. */
   postSection: ReactNode;
+  /** The Post form's SaveIndicator, rendered INSIDE the ink band beside the heading — the
+   *  contract's `.sechead` is space-between with the status on the right. It arrives as a node
+   *  because the form that owns its state is BlogEditPanel, not this panel. */
+  postStatus?: ReactNode;
 }) {
   const { setUnpublished } = usePublishSignal();
 
@@ -690,6 +695,7 @@ export default function BlogBlocksEditPanel({
               the unlayered `h1, h2` reset outranks @layer utilities, so this band drew Fraunces 400
               at -0.33em from #205 until the fidelity pass measured it. */}
           <h2 className="sechead text-cream-50">Post</h2>
+          {postStatus}
         </header>
         {postSection}
       </section>

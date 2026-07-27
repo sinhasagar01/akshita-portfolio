@@ -2462,7 +2462,17 @@ All prior rules remain. Added or sharpened across this session:
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
 - **#210** the phantom tokens deleted and the class gated (`8ae96ba`) →1385
-- **#211** the card image →1385. Fidelity item 4, the last one that is LAYOUT. The 36px chip
+- **#211** the card image →1385. Fidelity item 4, the last one that is LAYOUT.
+  **THE CONTRACT'S `.thumb` WAS `HeroImageField`, NOT `ImageThumb`, AND THE INVESTIGATION GOT
+  THAT WRONG.** It sits under `<label>Card image</label>` in the POST section with the hint
+  "the article hero and the card thumbnail"; `ImageThumb` serves `BlockImageField` (inside a
+  BLOCK's form, under BODY) and `SettingsPhotoField` (another page). Caught in review, fixed in
+  the same PR — so **both** are plates now, but only `HeroImageField` was ever the specified
+  one. **The lesson is that "which component does this rule describe" is itself a claim to
+  verify**, and a contract written as a mockup does not name its components.
+  Also in the same pass: the Post band's SaveIndicator moved INSIDE the ink bar (a #205 miss —
+  the Body band always had its own inside), and `.rowbtns` went inline.
+  The 36px chip
   becomes a plate, capped by HEIGHT at 160 so it stays a preview — a `w-full` plate measured
   **941 x 1255px** in the wide settings panel, which the 320px inspector had hidden. Aspect
   derived per call site from the PUBLIC renderer; the settings portrait takes a stated 3:4

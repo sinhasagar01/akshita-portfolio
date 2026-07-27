@@ -133,11 +133,17 @@ export default function BlogEditPanel({
 
   // ONE COLUMN. The old two-column grid assumed a full-width card; the inspector pane is
   // 320px and every field here is now full width of it.
+  // THE STATUS TRAVELS SEPARATELY BECAUSE IT BELONGS IN THE BAND, NOT UNDER IT.
+  // The contract's `.sechead` is `justify-content: space-between` with the heading left and the
+  // status right, BOTH INSIDE the filled bar. #205 built the bands and left this one outside,
+  // so it is a miss rather than a decision — the Body band has always had its indicator inside.
+  // `onInk` is not a new colour: SaveIndicator already carries PR 1's on-ink foreground.
+  const postStatus = (
+    <SaveIndicator label="Post" saving={saveStatus === "saving"} dirty={dirty} onInk />
+  );
+
   const postSection = (
     <div className="flex flex-col gap-3 px-3 py-3">
-      <div className="flex items-center justify-end">
-        <SaveIndicator label="Post" saving={saveStatus === "saving"} dirty={dirty} />
-      </div>
 
       <label className="flex flex-col gap-1">
         <span className={labelCls}>Dek</span>
@@ -274,6 +280,7 @@ export default function BlogEditPanel({
       headTopic={values.topic}
       posts={posts}
       postSection={postSection}
+      postStatus={postStatus}
     />
   );
 }

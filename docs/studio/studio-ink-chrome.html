@@ -261,6 +261,16 @@
        placeholder, which reads "900 x 1200".
        A fixed 16:9 for both would have been a relation encoded as a value, the
        fourth time in this arc.
+       ADDENDUM, SAME PR, AFTER REVIEW. `.thumb` WAS NEVER ImageThumb. It sits
+       under <label>Card image</label> in the POST section, and its own hint says
+       "the article hero and the card thumbnail" — that is HeroImageField.
+       ImageThumb serves BlockImageField, which lives inside a BLOCK's form under
+       the BODY section, and SettingsPhotoField, which is another page entirely.
+       Item 4's investigation mapped this rule to the wrong component. The
+       ImageThumb work stands on its own merits — a 36px chip failed at the
+       identification that component exists to provide — but the FIELD THIS FILE
+       SPECIFIES was untouched until the same PR came back for it. Both are now
+       plates; only this one was ever being described here.
 
   ---- OPEN QUESTIONS THIS FILE CANNOT ANSWER ------------------------------
   a. CONTRAST ON INK. Every foreground on the sidebar needs a measured ratio:
