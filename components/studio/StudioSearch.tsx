@@ -81,7 +81,14 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
 
   return (
     <div className="relative flex-1">
-      <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2">
+      {/* THE ONE INPUT THIS PR TOUCHES, and it becomes a WELL at `lg` rather than staying a
+          bright cream box floating on the ink topbar.
+          IT IS A HAND-ROLLED GEOMETRY STRING, NOT `inputCls` — a FOURTH copy of the input box
+          that #199's dedupe could not reach, because #199 merged shared EXPORTS and this one
+          is inline. So restyling it here does not pre-empt PR 2, which owns `inputCls`,
+          `inputClsMd` and `inputErrorCls`. It is recorded in STATE's deferred list rather than
+          left for PR 2 to rediscover. */}
+      <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 lg:border-white/12 lg:bg-white/5">
         <IconSearch className="size-4 text-ink-400" />
         <input
           ref={inputRef}
@@ -102,11 +109,14 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           // Delay the close so a click on an option registers first.
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           onKeyDown={onKeyDown}
-          className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-600 outline-none placeholder:text-ink-400"
+          // ink-600 is 2.57:1 on ink, so the typed value moves to cream-50 at `lg`. The
+          // placeholder keeps ink-400 — 5.45:1 there, and placeholder SHOULD sit below the
+          // value in the hierarchy.
+          className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-600 outline-none placeholder:text-ink-400 lg:text-cream-50"
         />
         <kbd
           aria-hidden
-          className="rounded border border-ink-950/8 px-1.5 py-px text-[11px] text-ink-400"
+          className="rounded border border-ink-950/8 px-1.5 py-px text-[11px] text-ink-400 lg:border-white/12"
         >
           /
         </kbd>

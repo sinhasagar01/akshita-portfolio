@@ -82,6 +82,81 @@
      in ink-400, the kind label in ink-800 at 13px medium, chevrons at ink-600
      rather than the current faint grey, and a cream-200 hover.
 
+  ==========================================================================
+  ==  CORRECTED IN PR 1 (the ink shell). SIX CLAIMS BELOW WERE WRONG.      ==
+  ==  Each correction sits BESIDE what it replaces rather than over it,    ==
+  ==  because a reference whose errors are deleted teaches nothing about   ==
+  ==  how it went wrong. This file has now joined studio-blog.html as a    ==
+  ==  design reference that was WRONG ABOUT ARCHITECTURE.                  ==
+  ==========================================================================
+
+  C-1. THE TOKEN MAP BELOW DRIFTS FROM @theme IN FIVE OF TWELVE VALUES, and
+       it claims the right column IS the contract. Real globals.css:
+         cream-200  oklch(93.5% 0.025 76)   not 94.6% 0.021 78
+         cream-300  oklch(88.0% 0.032 74)   not 91.5% 0.024 78   <- off by 3.5 L
+         ink-800    oklch(26.0% 0.018 60)   not 30%   0.016 60
+         ink-400    oklch(62.0% 0.014 60)   not 62%   0.012 60
+         danger     oklch(45.0% 0.16  25)   not 52%   0.16  27
+       ink-950, ink-600, cream-50, cream-100, accent-500 and success-700 match.
+
+  C-2. RULE 1'S RADIUS SCALE DOES NOT EXIST. Real @theme is 4 / 8 / 16 / 24
+       (--radius-sm/md/lg/xl). Panels are 16 or 24, NOT 12. The proposed 3 and
+       2 have no token at all, so "halve the radius" is ~143 arbitrary values
+       across components/studio, against CLAUDE.md's bare-utility convention.
+       A STUDIO RADIUS CHANGE NEEDS NEW @theme TOKENS, ADDED NOT REDEFINED —
+       @theme is global, so redefining moves the public site too. That is why
+       it is PR 3 and why PR 3 is the only stage whose public gates have teeth.
+
+  C-3. THREE OF THE "SHARED PRIMITIVES" ARE NOT SHARED.
+         SegmentedToggle  ONE consumer (ProjectsEditPanel). There are THREE
+                          segmented controls; the other two are local copies
+                          and both files say why. Repainting it is 3 edits.
+         SaveIndicator    BLOG ONLY — 2 consumers, both blog.
+         OverviewRow      ONE consumer, the dashboard index.
+       ListDetailLayout (13 consumers) and StudioModal + its three button
+       constants ARE shared, as claimed.
+
+  C-4. "#199 DEDUPED THEM TO TWO EXPORTS SO THIS IS ONE EDIT" — the dedupe is
+       real, the conclusion is not. `inputErrorCls` is a THIRD string carrying
+       the same box geometry, and `labelCls` is a FOURTH export that rule 3
+       changes (12px/ink-400 today against the 11px/700/ink-600 asked for).
+       StudioSearch holds a FIFTH, inline copy that #199 could not reach
+       because it is not an export. Rule 2 is at least three edits, not one.
+
+  C-5. THE 236px HAZARD IS FIVE SITES, NOT TWO, AND ONE IS BEHAVIOURAL:
+         StudioSidebar lg:w-[236px]      the source of truth
+         PublishBar    lg:left-[236px]   the hand-coupled offset
+         three-pane.ts FIT_THRESHOLD_PX  <- DECIDES WHETHER THE INSPECTOR FOLDS
+         three-pane.ts the 1376 reopen-rail sum
+         BlogIndex + blog/[slug]/page    the same arithmetic in prose
+       A width change moves a BEHAVIOUR, not just a bar's position.
+
+  C-6. OPEN QUESTION (b) IS AIMED AT THE WRONG ELEMENT. StudioSidebar has ZERO
+       focus classes — the accent ring lives on INPUTS and list controls, all
+       on cream panels this direction does not move. And measured, the worry
+       does not hold anyway: accent-500 on ink-950 is 4.05:1, over the 3:1 bar.
+       No divergence was needed and none was built.
+
+  C-7. THE --on-ink TOKENS BELOW WERE NEVER NEEDED. Measured, the existing
+       scale covers all three roles within 0.04 of a contrast ratio:
+         --on-ink     88% -> 13.94    cream-300  13.90
+         --on-ink-hi  99% -> 19.37    cream-50   19.04
+         --on-ink-dim 66% ->  6.40    ink-400     5.45
+       PR 1 shipped with cream-50 / ink-200 / ink-400 and added NO @theme
+       token, which is what keeps @theme untouched and PR 1's public gates
+       vacuous. It also uses a WIDER hierarchy than this file proposed: rest
+       ink-200 (10.64) against active cream-50 (15.30) is a 1.44x step, where
+       88%/99% would have been 1.39x with both ends brighter.
+
+  C-8. NOT AN ERROR, AN OMISSION: THIS FILE NEVER MENTIONS WHAT HAPPENS BELOW
+       `lg`. There the aside is FULL WIDTH and stacks above main, with a
+       horizontally scrolling nav. Measured at 500x860: a 197px slab, 22.9% of
+       that viewport and ~30% on a 667px phone, and the active pill is the
+       primary wayfinding cue in a scroller where three of six items are off
+       screen. Inverting it there would take it from 19.04:1 to 1.25:1. PR 1
+       therefore scopes ink to `lg:` and up. MOBILE INK CHROME IS SEPARATE,
+       UNSCOPED WORK.
+
   ---- OPEN QUESTIONS THIS FILE CANNOT ANSWER ------------------------------
   a. CONTRAST ON INK. Every foreground on the sidebar needs a measured ratio:
      label, count, icon, group heading, active item, hover, and both footer
