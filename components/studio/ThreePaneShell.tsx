@@ -130,10 +130,10 @@ export default function ThreePaneShell({
         // it at its min-content size, and the inner wrapper's `min-w-[264px]` made that
         // 264px — so `w-0` computed to 264px and the pane never actually collapsed. The
         // class was right and the box ignored it.
-        className={`relative flex min-w-0 flex-none flex-col overflow-hidden border-r bg-cream-50 ${
+        className={`relative flex min-w-0 flex-none flex-col overflow-hidden border-r bg-cream-200 ${
           animate ? "transition-[width,border-color] duration-300 ease-out" : ""
         } ${
-          collapsed ? "w-0 border-transparent" : "w-[264px] border-ink-950/12"
+          collapsed ? "w-0 border-transparent" : "w-[264px] border-ink-950/22"
         }`}
       >
         <div className="flex min-w-[264px] min-h-0 flex-1 flex-col overflow-hidden">{list}</div>
@@ -188,7 +188,7 @@ export default function ThreePaneShell({
           useDraftForm-fed field trees posting through one onChange, with colliding ids and
           two carets. */}
       {inspector !== null ? (
-        <aside className="w-[320px] flex-none overflow-y-auto border-l border-ink-950/12 bg-cream-100">
+        <aside className="w-[320px] flex-none overflow-y-auto border-l border-ink-950/22 bg-cream-100">
           {inspector}
         </aside>
       ) : null}

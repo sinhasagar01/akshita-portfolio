@@ -107,7 +107,7 @@ export default function SegmentedToggle({
               disabled={busy}
               aria-pressed={on}
               className={[
-                "rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-50",
+                "rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors disabled:opacity-50",
                 on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
               ].join(" ")}
             >

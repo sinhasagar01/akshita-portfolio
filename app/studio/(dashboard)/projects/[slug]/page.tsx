@@ -35,9 +35,13 @@ export default async function CaseStudyEditorPage({ params }: Props) {
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/studio/projects"
-            className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            // Colour on the span, not the Link — hazard 22. `a { color: inherit }` is
+            // unlayered and beats text-* on the anchor; see BlogPostList for the full note.
+            className="group shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] font-semibold transition-colors hover:bg-cream-200"
           >
-            ← Case studies
+            <span className="text-ink-600 transition-colors group-hover:text-ink-950">
+              ← Case studies
+            </span>
           </Link>
           {/* Jump between studies without going back to the index — the common move
               when applying the same change across more than one. */}
@@ -50,7 +54,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
           href={projectPath(slug)}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
+          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
         >
           View live <IconArrowUpRight />
         </a>

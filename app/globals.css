@@ -2725,3 +2725,54 @@ a {
      chips, thumbnails, segmented options. The smallest step, and the most common. */
   --studio-radius-control: 4px;
 }
+
+/* ============================================================ STUDIO GROUND LADDER
+   Three cream steps, named by role, the same shape as the radius scale above and for the
+   same reason: a baseline someone can apply to a NEW element instead of inferring the rule
+   from twenty-one call sites.
+
+     cream-200  CHROME         a panel header, a panel footer, a list rail. The frame.
+     cream-100  FIELD SURFACE  anything that HOLDS inputs — a panel body, the inspector.
+     cream-50   THE WELL       the input itself, and only the input. Textareas, searches.
+
+   THIS IS DELIBERATELY NOT A SET OF CUSTOM PROPERTIES, unlike the radius scale, and the
+   difference is the whole reason that one needed them: @theme had no 12px, so the value did
+   not exist until the block declared it. Here cream-50/100/200 are real @theme tokens that
+   already express every step exactly. A --studio-ground-* layer would be a SECOND NAME for a
+   value that already has an honest one, and a second place for it to drift. What was
+   actually missing was the roles, so the roles are what this block adds.
+
+   THE RULE IS RELATIONAL, WHICH IS THE PART THAT KEEPS GETTING LOST. An input reads as a
+   well because it is one step LIGHTER than the surface holding it — not because it is any
+   particular colour. #205 set inputs to cream-100 as an absolute value and inverted the
+   relation, so on the cream-100 inspector the input and its ground came out identical. The
+   fix for that was then written as another absolute ("inputs to cream-50"), which would have
+   collided on the six cream-50 entry panels. Twice, the same error. Read the ladder as three
+   steps that must stay in order, and neither failure is reachable.
+
+   READONLY IS DARKER, NOT LIGHTER — cream-200. A readonly field is chrome that happens to
+   hold text, so it sits with the chrome rather than with the wells. That predates this
+   ladder and survives it; see ExperienceEditPanel's Company field for the full reasoning. */
+
+/* ============================================================ STUDIO SECTION HEAD
+   UNLAYERED ON PURPOSE, exactly like the `.case-study .font-display` rule above, and for the
+   identical reason. The `h1, h2` reset near the top of this file sets font-family,
+   font-weight and letter-spacing UNLAYERED, and an unlayered rule beats @layer utilities at
+   any specificity. So `font-bold` and `tracking-eyebrow` on an <h2> render NOTHING — which
+   is exactly what shipped in #205: the ink bands asked for DM Sans 700 at 0.16em and drew
+   Fraunces 400 at -0.33em, with three of five utilities silently dead.
+
+   THE TRAP WAS ALREADY DOCUMENTED AND ONLY SCOPED TO .case-study. Generalising it is the
+   point of this rule; ralph's studio-cascade suite is the part that stops the fifth instance.
+
+   A CLASS RATHER THAN RE-ASSERTED UTILITIES because four properties must land together, one
+   of them an arbitrary tracking. Re-asserting each utility unlayered would leave the next
+   arbitrary value undefended. Specificity here is 0,2,0 against the reset's 0,0,2. */
+.studio-chrome .sechead {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}

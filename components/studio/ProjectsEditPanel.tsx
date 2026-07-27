@@ -157,9 +157,9 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   return (
     <section
       aria-label={`Edit ${title}`}
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconGrid />
@@ -182,7 +182,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             href={`/studio/projects/${slug}/preview`}
             target="_blank"
             rel="noopener"
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] transition-colors hover:bg-cream-200"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-200"
           >
             Preview
           </a>
@@ -190,7 +190,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={cancel}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
           >
             Cancel
           </button>
@@ -201,7 +201,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           so they read straight off the bar; title and hero image live inside the
           expanded form because they are set once. Replaces the Details|Sections
           tablist — a case study is one thing, not two tabs. */}
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/12 bg-cream-100 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/12 bg-cream-200 px-4 py-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-2">
           <span className="flex min-w-0 max-w-[46ch] flex-col">
             <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Summary</span>
@@ -244,7 +244,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             onClick={() => setDetailsOpen((o) => !o)}
             aria-expanded={detailsOpen}
             aria-controls={`cs-details-${slug}`}
-            className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
           >
             Edit details {detailsOpen ? "▴" : "▾"}
           </button>
@@ -270,7 +270,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             // phantom (hazard 23) that has never rendered. The family's real distinction is
             // the focus styling the export carries, dead on tabIndex={-1}, plus
             // cursor-not-allowed. Height tracks the well.
-            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The project&rsquo;s identity, set when you add it. The case study body is edited below.
@@ -308,7 +308,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         </div>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>
@@ -337,12 +337,19 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           bespoke → read-only notice, never fetched. */}
       <div className="px-4 py-5">
         {bespoke ? (
-          <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-8 text-center">
+          <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
             <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
-            <p className="mx-auto mt-2 max-w-[46ch] text-[13px] leading-relaxed text-ink-600">
-              {title} is a bespoke, hand-coded showpiece. Its sections and its work-filter
-              category are set in code, not here. The details above stay editable.
-            </p>
+            {/* THE MEASURE IS ON THE WRAPPER, NOT THE <p>. `max-w-[46ch]` on the paragraph
+                itself rendered 68ch — the unlayered `p { max-width: 68ch }` reset beats any
+                layered utility, and re-asserting it scoped does not help, because an unlayered
+                `.studio-chrome p` would beat the utility too. The constraint has to sit on an
+                element the reset does not name. Found by ralph's studio-cascade suite. */}
+            <div className="mx-auto mt-2 max-w-[46ch]">
+              <p className="text-[13px] leading-relaxed text-ink-600">
+                {title} is a bespoke, hand-coded showpiece. Its sections and its work-filter
+                category are set in code, not here. The details above stay editable.
+              </p>
+            </div>
           </div>
         ) : sectionsStatus === "loaded" && sectionsData ? (
           <SectionsEditPanel
@@ -352,18 +359,18 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             draftImages={draftImages}
           />
         ) : sectionsStatus === "error" ? (
-          <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-8 text-center">
+          <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
             <p className="text-[13px] text-accent-600">Could not load the sections.</p>
             <button
               type="button"
               onClick={() => void loadSections()}
-              className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+              className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
             >
               Try again
             </button>
           </div>
         ) : (
-          <div className="grid place-items-center rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-8 text-[13px] text-text-subtle">
+          <div className="grid place-items-center rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-[13px] text-text-subtle">
             Loading sections…
           </div>
         )}
@@ -539,7 +546,7 @@ export function HeroImageField({
           On projects, where this has always rendered in a wide card, there is room and
           nothing wraps — the rendered output is unchanged at that width. */}
       <div className="flex flex-wrap items-center gap-4">
-        <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100">
+        <div className="relative aspect-[21/9] w-40 shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200">
           {hasImage ? (
             // Plain img (not next/image): the source is either a session object URL
             // or a public path; onError falls back to the placeholder so an unresolved
@@ -548,7 +555,14 @@ export function HeroImageField({
             <img
               src={shownSrc!}
               alt=""
-              className="h-full w-full object-cover"
+              // HEIGHT COMES FROM THE INSETS, NOT FROM `h-full`. The unlayered
+              // `img, video { height: auto }` reset beats any layered height utility, so
+              // `h-full` here rendered `auto` and the image never filled its 21/9 box — it
+              // was merely clipped by the parent's overflow-hidden, which looks close enough
+              // to hide the bug. `absolute inset-0` sizes the box without the height
+              // property, so nothing the reset owns is contested. Same mechanism the
+              // canvas-hero suite pins. Found by ralph's studio-cascade suite.
+              className="absolute inset-0 w-full object-cover"
               onError={() => setBrokenSrc(true)}
             />
           ) : (
@@ -577,7 +591,7 @@ export function HeroImageField({
             <button
               type="button"
               onClick={() => void send(null)}
-              className="w-fit rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+              className="w-fit rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
             >
               Remove
             </button>

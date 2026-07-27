@@ -78,9 +78,9 @@ export default function ExperienceEditPanel({
   return (
     <section
       aria-label={`Edit ${company}`}
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconBriefcase />
@@ -96,7 +96,7 @@ export default function ExperienceEditPanel({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
         >
           Cancel
         </button>
@@ -116,17 +116,22 @@ export default function ExperienceEditPanel({
             // DELIBERATELY LOCAL — the READONLY-DISPLAY family (see ralph's studio-ink
             // suite), and the reason is SEMANTIC rather than layout: the shared export
             // carries focus styling, which is dead on a tabIndex={-1} control that cannot
-            // be focused, and this field wants cursor-not-allowed. It was ALREADY
-            // bg-cream-100 before the well existed, because readonly-is-darker was the
-            // prior convention; the well arrived here first, for a different reason.
-            // Height tracks the well.
+            // be focused, and this field wants cursor-not-allowed. Height tracks the well.
+            //
+            // READONLY IS DARKER, AND THE LADDER IS WHY IT MOVED. readonly-is-darker predates
+            // the ground ladder, and it used to mean cream-100 against a cream-50 panel. The
+            // ladder put the panel body ON cream-100, which would have made this field the
+            // same colour as its ground and inverted the convention into nothing. cream-200
+            // is the only step that keeps it darker than a normal input (now cream-50) AND
+            // visible against the body. It sits with the chrome, which is right — a readonly
+            // field is chrome that happens to hold text.
             //
             // `text-ink-500` IS A PHANTOM — hazard 23. There is no --color-ink-500 token,
             // so Tailwind v4 generates nothing for it and this field has ALWAYS rendered
             // inherited ink-950, same as an editable one. The muted-readonly intent never
             // reached the screen. The class is kept because 41 sites carry it and the fix
             // is one decision (add the token, or re-point them all), not two files.
-            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The entry&rsquo;s identity, set when you add it. Not editable here.
@@ -202,7 +207,7 @@ export default function ExperienceEditPanel({
         </label>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>

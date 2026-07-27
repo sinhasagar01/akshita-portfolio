@@ -191,6 +191,42 @@
        radii. 12px is precisely what @theme cannot express.
        Every step is an exact halving of what shipped: 24->12, 16->8, 8->4.
 
+  C-12. CORRECTED IN PR A. THE TOPBAR SEARCH IS SPECIFIED AGAINST A TOPBAR THAT
+       NO LONGER EXISTS. `.minisearch input` is cream-50 at 13.5/40px, which is
+       correct against the CREAM topbar this file draws — but PR 1 read rule 1's
+       "the chrome recedes into darkness" correctly and made the topbar INK. The
+       shipped search is a white/5 wash on that ink, measured at 61,54,50 with
+       11.31:1 text, and it is right. THIS FILE IS WRONG, not the build.
+       The lesson is narrower than it looks: when one rule moves a surface, every
+       rule that positioned something ON that surface is stale, and nothing in a
+       static document makes that visible.
+
+  C-13. THIS FILE'S OWN LIST RENDERS IN ARIAL, AND IT MATERIALLY DISTORTS EVERY
+       SIDE-BY-SIDE COMPARISON MADE AGAINST IT. `.item` is a <button>, buttons do
+       not inherit font-family, and this file never sets one — so the most
+       prominent column in the mockup draws Arial while the app draws DM Sans.
+       Arial sets wider and taller at the same px, which is a large part of why
+       the contract "reads bigger" than the studio.
+       MEASURED: the app and this file are METRICALLY IDENTICAL where they use
+       the same face — DM Sans 14/400 is 108.85px on both, 14/700 is 114.51 on
+       both, Fraunces 20/400 is 159.16 on both. There is no font-loading
+       difference and next/font versus the CDN changes nothing.
+       This is the same class of bug as C-12 and as the ink bands: a declaration
+       that never reached the screen. This file is not exempt from it.
+
+  C-14. RULE 2 IS CORRECT AND WAS MISREAD TWICE. Recorded so nobody "fixes" it.
+       "INPUTS ... sit on a panel one value darker" means THE PANEL IS DARKER
+       THAN THE INPUT — input cream-50 inside .insp cream-100, exactly as this
+       file's own CSS has always said. PR 2a implemented the inverse and put the
+       input at cream-100, which read as a well on the cream-50 entry panels and
+       identical to its ground on the cream-100 inspector. The fidelity pass then
+       proposed "inputs to cream-50" with the panels unchanged, which would have
+       collided on the six cream-50 entry panels instead.
+       BOTH FAILURES ARE THE SAME ONE: a RELATIONAL rule read as an ABSOLUTE
+       VALUE. PR A ships it as an ordered ladder — cream-200 chrome, cream-100
+       field surface, cream-50 well — because an order cannot be half-applied the
+       way a value can.
+
   ---- OPEN QUESTIONS THIS FILE CANNOT ANSWER ------------------------------
   a. CONTRAST ON INK. Every foreground on the sidebar needs a measured ratio:
      label, count, icon, group heading, active item, hover, and both footer

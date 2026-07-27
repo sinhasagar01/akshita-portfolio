@@ -203,7 +203,7 @@ export default function BlogEditPanel({
                 // waiting for a blur that may never come.
                 queueMicrotask(saveDraft);
               }}
-              className={`flex-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1.5 text-[12px] capitalize transition-colors ${
+              className={`flex-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1.5 text-[12px] font-semibold capitalize transition-colors ${
                 values.status === s
                   ? "bg-accent-500 text-cream-50"
                   : "text-ink-600 hover:text-ink-950"

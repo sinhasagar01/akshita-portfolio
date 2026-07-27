@@ -148,7 +148,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
           // see ChipListEditor for the full reasoning. 13px is intent, not drift — the
           // search family (StudioSearch, BlogPostList) is 13px. The well tracks
           // blocks/fields.tsx exactly.
-          className="min-h-11 min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          className="min-h-11 min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
         />
         <button
           type="button"

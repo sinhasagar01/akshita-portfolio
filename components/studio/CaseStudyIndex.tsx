@@ -143,7 +143,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
         </p>
       )}
 
-      <ul className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/12 bg-cream-50">
+      <ul className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-50">
         {items.map((p, i) => {
           // boat-crest's sections are hand-built in code, so it is shown but dimmed:
           // present in the order (it still ranks on the homepage) and not removable.

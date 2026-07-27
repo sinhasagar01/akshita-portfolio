@@ -200,7 +200,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
     <>
       {banner && (
         <div
-          className="mb-3 flex items-center justify-between gap-3 rounded-[var(--studio-radius-control,4px)] border border-ink-950/10 bg-cream-100 px-3 py-2 text-[12px] text-ink-600"
+          className="mb-3 flex items-center justify-between gap-3 rounded-[var(--studio-radius-control,4px)] border border-ink-950/10 bg-cream-100 px-3 py-2 text-[12px] font-semibold text-ink-600"
           role="status"
         >
           <span>{banner}</span>

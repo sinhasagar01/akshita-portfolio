@@ -80,15 +80,18 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
         <div className="flex items-center gap-2">
           <Link
             href="/studio/projects"
-            className="rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+            // Colour on the span, not the Link — hazard 22. See BlogPostList for the note.
+            className="group rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] font-semibold transition-colors hover:bg-cream-200"
           >
-            Back to projects
+            <span className="text-ink-600 transition-colors group-hover:text-ink-950">
+              Back to projects
+            </span>
           </Link>
           <a
             href={projectPath(slug)}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
+            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
           >
             View live <IconArrowUpRight />
           </a>

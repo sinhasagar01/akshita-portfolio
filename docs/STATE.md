@@ -1373,6 +1373,30 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **A RELATIONAL RULE NEEDS A RELATIONAL GATE. ASSERTING ONE SIDE PINS THE BUG.**
+  "An input sits one step lighter than its panel" was implemented twice as an absolute — #205
+  set inputs to cream-100, PR A's own findings proposed cream-50 — and **each was correct on
+  the surfaces its author was looking at and broken on the others.** The ralph assertion made
+  it worse: `E1` checked `bg-cream-100`, so it **passed on the wrong value and would have
+  failed the right one.** A gate that encodes one side of a relation preserves whichever
+  mistake shipped first.
+  **THE FIX IS TO SHIP THE ORDER, NOT THE VALUES** — cream-200 chrome, cream-100 field
+  surface, cream-50 well — and to assert both ends plus their distinctness. An order cannot be
+  half-applied the way a value can.
+
+- **A GATE'S COVERAGE IS NOT ITS PASS RATE, AND ONLY MUTATION TESTING TELLS THEM APART.**
+  `studio-cascade` matched lowercase tag names and passed clean. **Studio contains zero
+  literal `<a>` tags** — every anchor is a `<Link>` — so it covered **0% of the anchor
+  surface**, which is the entire hazard-22 class it was built to catch. Nothing in the output
+  distinguished that from real coverage. It surfaced only when injecting a coloured anchor
+  changed no result, because there was nothing to inject into.
+  **MUTATE THE THING THE GATE IS SUPPOSED TO CATCH, NOT THE FILE THE GATE READS.**
+
+- **SEPARATE INERT FROM BROKEN, OR THE GATE GETS DELETED.** A utility whose value equals the
+  reset's renders correctly and drives nothing. Twelve studio sites are in that state. Failing
+  on all twelve makes a gate that is right and unusable. **Report them, pin the count, do not
+  fail** — and say plainly that inert is not safe, because editing one silently does nothing.
+
 - **CSS-BUNDLE GATE: THE ASSERTION IS "NO EXISTING ELEMENT'S RESOLVED STYLE CHANGES."**
   Mis-specified twice. **STANDING METHOD:** selector-diff as a cheap first pass;
   **UNION-OF-DECLARATIONS** when it flags anything.
@@ -1886,6 +1910,29 @@ All prior rules remain. Added or sharpened across this session:
     `@theme` edit and no scoped property can reach it, which is why PR 3 rewrote its 14 studio
     sites by hand.
 
+25. **HAZARD 11 IS NOW GATED, AND THE GATE FOUND FIVE MORE INSTANCES ON ITS FIRST RUN.**
+    `ralph/tests/studio-cascade.mjs` parses the unlayered element rules out of `globals.css`
+    and reports every studio element carrying a utility that rule overrides. It replaces the
+    per-instance assertions that had accumulated for the four known cases.
+    **The four known instances were each found by someone measuring what they already
+    suspected**, never by review — and #205's own gate asserted the ink band `<header>`'s class
+    string while the `<h2>` inside it drew Fraunces 400. A gate that reads a class cannot see a
+    class that does nothing.
+    **What the gate found immediately**: `<p max-w-[46ch]>` rendering 68ch, `<img h-full>`
+    rendering `auto`, and **three dead-anchor sites** (six utilities) that hazard 22 had never
+    caught. All fixed in PR A.
+    **THE BLIND SPOT THAT NEARLY SHIPPED WITH IT.** The first version matched lowercase tag
+    names only — and **studio contains zero literal `<a>` tags**, every anchor being a
+    next/link `<Link>`. So it covered 0% of the anchor surface, which is hazard 22's entire
+    class, while reporting a clean run. Caught by mutation-testing (injecting a coloured anchor
+    changed nothing, because there was none to inject into), and fixed with a component→tag
+    map. **A gate's coverage is not its pass rate.**
+    **AGREEMENT IS SEPARATED FROM COLLISION.** A utility whose value equals the reset's is
+    INERT — it renders correctly and drives nothing. Twelve studio sites are in that state.
+    They are reported and count-pinned but do not fail, because a gate that fails on twelve
+    harmless sites is a gate someone deletes. Inert is not safe, though: edit one and it will
+    silently not apply.
+
 ---
 
 ## DEFERRED — scoped, not built
@@ -2114,6 +2161,17 @@ All prior rules remain. Added or sharpened across this session:
   fosfor-data-profiling and elevate-one-view, closing two thirds of the #160 remainder
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
+- **THE INK CHROME ARC**, four PRs — **#204** the shell (`e25a863`) · **#205** the panel
+  language (`466df8e`) · **#206** the entry-panel input dedupe (`37286cc`) · **#207** the
+  radius scale, 12/8/4 scoped (`d75eeb0`) →1332
+- **PR A** the fidelity repaint →1353. Eleven mismatches were measured against
+  `studio-ink-chrome.html`; this took the six that are paint. **Item 10 led it**: the ink
+  bands' `font-bold` / `tracking-eyebrow` were DEAD under the unlayered `h1, h2` reset, and
+  the trap was already documented at `globals.css:1893` — scoped to `.case-study` and never
+  generalised, which is exactly how #205 walked into it. **The durable output is
+  `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
+  failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
+  applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
 
 ---
 
