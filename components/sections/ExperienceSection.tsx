@@ -31,7 +31,7 @@ function CompanyLine({
     <div className={className}>
       {display}
       {acquiredBy && (
-        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-accent-500)" }}>
+        <span className="font-display italic normal-case tracking-[0] text-[13px]" style={{ color: "var(--color-accent-500)" }}>
           {" "}acquired by {acquiredBy}
         </span>
       )}
@@ -77,7 +77,7 @@ export default function ExperienceSection({ experience }: Props) {
             />
             {/* Eyebrow */}
             <div
-              className="relative flex items-center gap-[7px] text-[12px] tracking-[.16em] uppercase font-semibold"
+              className="relative flex items-center gap-[7px] text-[11px] tracking-[.16em] uppercase font-semibold"
               style={{ color: "var(--color-accent-500)" }}
             >
               <span
@@ -98,7 +98,7 @@ export default function ExperienceSection({ experience }: Props) {
               {feature.title}
             </div>
             {/* Date */}
-            <div className="relative text-[14px] text-[--color-text-muted] mt-[10px]">
+            <div className="relative text-[13px] text-[--color-text-muted] mt-[10px]">
               {feature.startDate} – {feature.endDate}
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function ExperienceSection({ experience }: Props) {
           {/* Previously list */}
           {previous.length > 0 && (
             <>
-              <p className="text-[12px] tracking-[.16em] uppercase text-[--color-text-muted] font-semibold mb-2 m-0">
+              <p className="text-[11px] tracking-[.16em] uppercase text-[--color-text-muted] font-semibold mb-2 m-0">
                 Previously
               </p>
               <div>
@@ -123,7 +123,7 @@ export default function ExperienceSection({ experience }: Props) {
                       <CompanyLine
                         raw={entry.company}
                         location={entry.location}
-                        className="text-[12px] tracking-[.12em] uppercase text-[--color-text-muted]"
+                        className="text-[11px] tracking-[.12em] uppercase text-[--color-text-muted]"
                       />
                       <div className="text-[15.5px] font-semibold mt-[3px] text-[--color-text-primary]">
                         {entry.title}

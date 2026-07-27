@@ -10,7 +10,7 @@ type Props = {
 
 export default function StudioEmptyState({ children }: Props) {
   return (
-    <div className="block max-w-sm rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-5 text-[14px] text-ink-600">
+    <div className="block max-w-sm rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-5 text-[13px] text-ink-600">
       <p>{children}</p>
     </div>
   );

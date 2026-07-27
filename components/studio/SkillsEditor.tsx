@@ -150,14 +150,14 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
       </ListDetailLayout>
 
       <footer className="flex items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-3">
-        <span className="text-[12px] text-text-subtle" aria-live="polite">
+        <span className="text-[11px] text-text-subtle" aria-live="polite">
           {statusText}
         </span>
         <button
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving"}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>
@@ -215,7 +215,7 @@ function CategoryPanel({
         </div>
 
         {isOnlyCategory && (
-          <p className="rounded-[var(--studio-radius-control,4px)] border border-accent-500/25 bg-accent-500/5 px-3 py-2 text-[12px] text-accent-600">
+          <p className="rounded-[var(--studio-radius-control,4px)] border border-accent-500/25 bg-accent-500/5 px-3 py-2 text-[11px] text-accent-600">
             This is your only category. Removing it leaves no skills — the Skills section won&rsquo;t render on your site.
           </p>
         )}

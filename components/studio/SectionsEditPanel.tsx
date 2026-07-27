@@ -144,7 +144,7 @@ function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
           </span>
         )}
       </span>
-      <span className="truncate text-[12px] text-ink-600">{blockLabel(kind)}</span>
+      <span className="truncate text-[11px] text-ink-600">{blockLabel(kind)}</span>
     </span>
   );
 }
@@ -385,7 +385,7 @@ function SelectedRail({
           className={`${inputCls} mt-2 resize-none overflow-y-auto`}
         />
       ) : null}
-      <p className="mt-2 text-[12px] text-text-subtle">
+      <p className="mt-2 text-[11px] text-text-subtle">
         {selected
           ? "Edits here and on the canvas are the same field."
           : "Click any dashed element on the canvas to edit it here. The title and facts come from Details."}
@@ -973,7 +973,7 @@ export default function SectionsEditPanel({
                   </div>
                   <div className="pointer-events-none relative z-[1] flex flex-col gap-1">
                     {count === 0 ? (
-                      <span className="text-[12px] text-text-subtle">No blocks yet</span>
+                      <span className="text-[11px] text-text-subtle">No blocks yet</span>
                     ) : (
                       section.blocks.map((block, j) => (
                         <BlockSkeleton
@@ -1014,7 +1014,7 @@ export default function SectionsEditPanel({
             ← Board
           </button>
           <label className="ml-auto flex items-center gap-2">
-            <span className="text-[12px] text-ink-500">Section</span>
+            <span className="text-[11px] text-ink-500">Section</span>
             <select
               value={selectedSectionId}
               onChange={(e) => setSelectedSectionId(e.target.value)}
@@ -1221,7 +1221,7 @@ export default function SectionsEditPanel({
           };
           return (
             <div>
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] uppercase tracking-eyebrow text-ink-400">
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-eyebrow text-ink-400">
                 <span>Live preview — click any dashed element to edit it, here or in the panel beside it. Rich text with **bold** edits under Inspector.</span>
                 {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
                 {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
@@ -1316,7 +1316,7 @@ export default function SectionsEditPanel({
         </div>
         <FieldTabProvider tab={contentStyleTab}>
         <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col gap-6 outline-none">
-        <p className="text-[12px] text-text-subtle">
+        <p className="text-[11px] text-text-subtle">
           {contentStyleTab === "content"
             ? "Copy for this section, including the Rich **bold** fields the canvas cannot edit."
             : "Layout, glow, frames, and image geometry for this section."}
@@ -1340,7 +1340,7 @@ export default function SectionsEditPanel({
                 }}
                 className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
               >
-                <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[12px]">
+                <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[11px]">
                   Remove this section and its blocks? You can still undo it with Discard until you
                   publish.
                 </span>
@@ -1349,7 +1349,7 @@ export default function SectionsEditPanel({
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setConfirmRemove(null)}
-                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[11px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
                 >
                   Cancel
                 </button>
@@ -1360,7 +1360,7 @@ export default function SectionsEditPanel({
                     setConfirmRemove(null);
                     removeSection(i);
                   }}
-                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[12px] text-accent-600 transition-colors hover:bg-accent-500/20"
+                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[11px] text-accent-600 transition-colors hover:bg-accent-500/20"
                 >
                   Remove
                 </button>
@@ -1401,7 +1401,7 @@ export default function SectionsEditPanel({
               if (!entry) {
                 return (
                   <div key={ids.blockIds[i][j]} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
-                    <p className="text-[12px] text-ink-600">
+                    <p className="text-[11px] text-ink-600">
                       {blockLabel(kind)} — no editor yet. It renders on the page once built.
                     </p>
                   </div>
@@ -1471,7 +1471,7 @@ export default function SectionsEditPanel({
                     </button>
                   ))}
                 </div>
-                <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 hover:text-ink-950">
+                <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[11px] text-ink-600 hover:text-ink-950">
                   Cancel
                 </button>
               </div>
@@ -1494,7 +1494,7 @@ export default function SectionsEditPanel({
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
-        <span className="text-[12px]" aria-live="polite">
+        <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>
           ) : saveStatus === "saved" ? (
@@ -1513,7 +1513,7 @@ export default function SectionsEditPanel({
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>

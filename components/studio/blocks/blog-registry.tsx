@@ -126,7 +126,7 @@ const ImageBlockForm = ({
       onBlur={onBlur}
     />
     {value.wide ? (
-      <p className="text-[12px] leading-relaxed text-text-subtle">
+      <p className="text-[11px] leading-relaxed text-text-subtle">
         A wide image shows in full with the post list collapsed.
       </p>
     ) : null}

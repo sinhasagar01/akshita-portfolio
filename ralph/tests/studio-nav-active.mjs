@@ -86,7 +86,7 @@ t("F1 args are ordered (href, pathname)",
  * #199 collapsed SEVEN hand-copied `inputCls` declarations across seven files into two
  * exports. Without a gate they simply reappear one at a time, which is how there came to be
  * seven — and worse, they had DRIFTED: four panels carried text-[14px] and the block forms
- * carried text-[14px], so the "duplicate" was never actually duplicated.
+ * carried text-[13px], so the "duplicate" was never actually duplicated.
  *
  * THE 13px/14px SPLIT IS DELIBERATE AND UNRESOLVED. Two exports, one each, and merging them
  * is an owner decision because it moves rendered type. This asserts BOTH that each is
@@ -131,7 +131,7 @@ t("F1 args are ordered (href, pathname)",
   // that is a second drift and this catches it.
   const only = (a, b) => [...new Set(a.split(" "))].filter((x) => !b.split(" ").includes(x));
   t("G6 …by exactly the font size and nothing else",
-    [only(sm, md), only(md, sm)], [["text-[14px]"], ["text-[14px]"]]);
+    [only(sm, md), only(md, sm)], [["text-[13px]"], ["text-[14px]"]]);
 }
 
 console.log(`\nstudio-nav-active result: ${pass} passed, ${fail} failed`);

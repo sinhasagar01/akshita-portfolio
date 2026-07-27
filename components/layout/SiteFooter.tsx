@@ -62,7 +62,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
 
             {/* Right — social */}
             <div className="text-right">
-              <p className="text-[12px] tracking-[.18em] uppercase text-[--color-text-subtle] mb-4">
+              <p className="text-[11px] tracking-[.18em] uppercase text-[--color-text-subtle] mb-4">
                 Social
               </p>
               <div
@@ -96,7 +96,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
 
           {/* Hairline + bottom row */}
           <div
-            className="relative flex flex-wrap justify-between items-center gap-y-[10px] text-[14px] text-[--color-text-subtle] mt-9 pt-[22px]"
+            className="relative flex flex-wrap justify-between items-center gap-y-[10px] text-[13px] text-[--color-text-subtle] mt-9 pt-[22px]"
             style={{ borderTop: "1px solid rgba(60,45,30,0.1)", zIndex: 2 }}
           >
             <span className="flex items-center gap-[7px]">

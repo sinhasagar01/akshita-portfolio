@@ -196,7 +196,7 @@ export default function AboutEditPanel({
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[12px]" aria-live="polite">
+        <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>
           ) : saveStatus === "saved" ? (
@@ -213,7 +213,7 @@ export default function AboutEditPanel({
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving"}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>

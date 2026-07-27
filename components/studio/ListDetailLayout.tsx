@@ -262,7 +262,7 @@ export function ListDetailLayout({
                     // signal anywhere in this language. A hovered row is a preview of the
                     // selected fill without the bar.
                     className={[
-                      "flex w-full items-center justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border border-y-transparent border-r-transparent border-l-[3px] py-2.5 pl-[10px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      "flex w-full items-center justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border border-y-transparent border-r-transparent border-l-[3px] py-2.5 pl-[10px] text-left text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
                         ? "border-l-accent-500 bg-cream-100 font-medium text-ink-950"
@@ -337,7 +337,7 @@ export function ListDetailLayout({
             <button
               type="button"
               onClick={handleAdd}
-              className="mt-1.5 flex w-full items-center gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-dashed border-ink-950/15 px-3 py-2 text-[14px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-100 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
+              className="mt-1.5 flex w-full items-center gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-dashed border-ink-950/15 px-3 py-2 text-[13px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-100 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
             >
               <IconPlus />
               {addItemLabel ?? "Add"}
@@ -357,7 +357,7 @@ export function ListDetailLayout({
           <button
             type="button"
             onClick={back}
-            className="mb-3 inline-flex items-center gap-1 text-[14px] text-accent-600 lg:hidden"
+            className="mb-3 inline-flex items-center gap-1 text-[13px] text-accent-600 lg:hidden"
           >
             ← All sections
           </button>

@@ -148,7 +148,7 @@ export default function HeroCover({
             {...mp}
             variants={fadeUp(0.09)}
             {...edit("eyebrow", "Edit hero eyebrow")}
-            className={`text-[12px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
+            className={`text-[11px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
           >
             {data.eyebrow}
           </motion.div>
@@ -204,7 +204,7 @@ export default function HeroCover({
               </dt>
               <dd
                 {...edit(`meta.${i}.value`, "Edit fact value")}
-                className={`text-[14px] font-medium text-on-dark leading-[1.35]${aff}`}
+                className={`text-[13px] font-medium text-on-dark leading-[1.35]${aff}`}
               >
                 {item.value}
               </dd>
@@ -237,7 +237,7 @@ export default function HeroCover({
           <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
           <span
             {...edit("eyebrow", "Edit hero eyebrow")}
-            className={`text-[12px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${aff}`}
+            className={`text-[11px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${aff}`}
           >
             {data.eyebrow}
           </span>
@@ -332,7 +332,7 @@ export default function HeroCover({
             </dt>
             <dd
               {...edit(`meta.${i}.value`, "Edit fact value")}
-              className={`text-[14px] font-medium text-ink-950 leading-[1.35]${aff}`}
+              className={`text-[13px] font-medium text-ink-950 leading-[1.35]${aff}`}
             >
               {item.value}
             </dd>

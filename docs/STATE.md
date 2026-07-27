@@ -12,13 +12,13 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
 **ralph 1402 across 39 suites** (`parity` and `studio-type` named as skipped, not dropped).
 
-| items                 | where                | how                                                     |
-| --------------------- | -------------------- | ------------------------------------------------------- |
-| **3, 6, 7, 8, 9, 10** | **#208**             | the fidelity repaint                                    |
-| **1, 2**              | **#209**             | the selection language                                  |
-| **11**                | the contract         | **a bug in the file itself** (C-13), not in the build   |
-| **4**                 | **#211**             | complete on BOTH components — see the mis-mapping below |
-| **5**                 | deferred as **PR D** | deliberately a feature, not a styling item              |
+| items | where | how |
+|---|---|---|
+| **3, 6, 7, 8, 9, 10** | **#208** | the fidelity repaint |
+| **1, 2** | **#209** | the selection language |
+| **11** | the contract | **a bug in the file itself** (C-13), not in the build |
+| **4** | **#211** | complete on BOTH components — see the mis-mapping below |
+| **5** | deferred as **PR D** | deliberately a feature, not a styling item |
 
 Pinned: `beba883` = the card image (#211), `8ae96ba` = the phantom tokens (#210),
 `cfa695f` = STATE for the arc, `e938c16` = the fidelity repaint (#208),
@@ -60,7 +60,7 @@ merge makes a NEW commit rather than making the branch an ancestor, so `--merged
 would keep exactly the wrong set. Delete against the PR list or `gh pr list --state merged`,
 never against ancestry.
 
-_The illustration, dated because it decays — the mechanism above does not._ When this note
+*The illustration, dated because it decays — the mechanism above does not.* When this note
 was written (#191, 2026-07-27) `--merged main` listed `feat/blog-editor-3pane` (a true merge
 commit, `438bf95`) and `ralph/phase1`, out of the thirteen merged branches then present.
 `feat/blog-editor-3pane` has since been deleted, so run today it returns `main` itself and
@@ -84,7 +84,6 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 **THE REMAINING WORK IS CONTENT.**
 
 ### RALPH IS 1332 ACROSS 37 RUNNABLE SUITES
-
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
@@ -133,7 +132,6 @@ gate that reports zero subjects is not a pass.
 dev server and is driven from a browser console.
 
 ### EIGHT ARCS COMPLETE
-
 1. **Work-section rebuild — COMPLETE** (#159–#162).
 2. **Studio restyle — COMPLETE** (#164–#169).
 3. **Blog — COMPLETE** (#170–#176), plus #177 tooling and nav fixes.
@@ -174,17 +172,17 @@ Overlay grid. Quiet grid and hover-preview stage explored and rejected.
   `?platform=` URL sync** — ScrollManager is sole scroll owner.
 
 **Remainder (content, not code) — RE-DERIVED FROM THE FILES, and two of its three claims had
-gone stale.** It read: _"`heroImage` is `null` on BOTH Fosfor studies. `boat-crest`'s is an
+gone stale.** It read: *"`heroImage` is `null` on BOTH Fosfor studies. `boat-crest`'s is an
 837KB PNG that never went through sharp. `elevate-one-view`'s is 390×988 portrait — a
-STRUCTURAL TENSION."_ Carried unchanged since #160 across a dozen regenerations. What the files
+STRUCTURAL TENSION."* Carried unchanged since #160 across a dozen regenerations. What the files
 say today:
 
-| study                   | `heroImage`                        | file                                    | landed                         |
-| ----------------------- | ---------------------------------- | --------------------------------------- | ------------------------------ |
-| `fosfor-ai`             | ~~null~~ **set**                   | `heroImage.webp` 320×200, 2,168B        | `6b28e91` studio               |
-| `fosfor-data-profiling` | ~~null~~ **set**                   | `heroImage.webp` 320×200, 2,532B        | `01c2251` studio               |
-| `elevate-one-view`      | ~~390×988 portrait~~ **landscape** | `heroImage.webp` 320×200, 2,772B        | `6ebd513` studio               |
-| `boat-crest`            | unchanged                          | `heroImage.png` **2074×1058, 837,714B** | `46905da`, the original commit |
+| study | `heroImage` | file | landed |
+|---|---|---|---|
+| `fosfor-ai` | ~~null~~ **set** | `heroImage.webp` 320×200, 2,168B | `6b28e91` studio |
+| `fosfor-data-profiling` | ~~null~~ **set** | `heroImage.webp` 320×200, 2,532B | `01c2251` studio |
+| `elevate-one-view` | ~~390×988 portrait~~ **landscape** | `heroImage.webp` 320×200, 2,772B | `6ebd513` studio |
+| `boat-crest` | unchanged | `heroImage.png` **2074×1058, 837,714B** | `46905da`, the original commit |
 
 - ~~**`heroImage` is null on both Fosfor studies**~~ — **CLOSED.** Both set through /studio.
 - ~~**`elevate-one-view` is a 390×988 portrait STRUCTURAL TENSION**~~ — **CLOSED AT THE ASSET
@@ -229,7 +227,6 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
   **BELOW `lg` #165's PILL SHIPS UNCHANGED**, because there the nav is a horizontal scroller
   with three of six items off screen, so the pill is the primary wayfinding cue and the wash
   would be the weakest possible replacement. **One decision, two grounds, two answers.**
-
 - **#166 overview rows** — Contact is a visually LOCKED `<div>`, proven by Tab sequence.
 - **#167 ListDetailLayout** — **CONSUMERS ARE SETTINGS, EXPERIENCE, SKILLS** (now seven panels).
   Selected was the ACCENT-TINTED PILL. **The attribute-invariant gate was invented here.**
@@ -240,7 +237,7 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
   inside the row kept working unchanged.
 
   **RESOLVED IN PR B, AND THE CONCERN WAS RIGHT — THE REMEDY WAS HALF OF ONE.** The objection
-  was that a selection treatment must not fight the accent elements _inside_ the row. **A 3px
+  was that a selection treatment must not fight the accent elements *inside* the row. **A 3px
   left bar sits at the EDGE while the badge sits INLINE**, so it satisfies the objection more
   completely than the tint did: measured, the badge ends up **78px** from where the bar stops,
   and its text reads **6.00:1** on the new fill. Both accent elements survive untouched, which
@@ -255,7 +252,6 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
   This is a REWRITE, not an overwrite: #167's reasoning stands above and the resolution sits
   beside it, so nobody later reads the accent pill as live convention or the reversal as a
   contradiction.
-
 - **#168 `StudioModal`** — **4 modals in 2 files.** Six-item delta list up front.
   **SHADOW LITERAL EXCEPTION.** **HAZARD: no portal.**
 - **#169 chrome pass** — PublishBar becomes a pill. **ERROR TONE SPLIT.** All EIGHT
@@ -267,16 +263,16 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
   known to match #169's, and claiming they do would be the false-record failure this file
   refuses elsewhere.
 
-  | #   | state                  | status line                                                                | Publish control                           |
-  | --- | ---------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-  | 1   | idle, clean            | All changes published                                                      | disabled, no Discard                      |
-  | 2   | idle, unpublished      | Unpublished changes                                                        | enabled, Discard appears                  |
-  | 3   | pending (`anyPending`) | unchanged                                                                  | **both** disabled mid-save                |
-  | 4   | publishing             | Publishing…                                                                | label becomes Publishing…                 |
-  | 5   | published              | Published. Your site is rebuilding…                                        | disabled, badge self-heals                |
-  | 6   | publish error          | four variants — fs mode, nothing to publish, invalid url, conflict/generic | enabled except "nothing"                  |
-  | 7   | draft read error       | Couldn't load your draft…                                                  | server-driven, **unreachable in fs mode** |
-  | 8   | confirm open           | Discard all unpublished changes?                                           | whole row replaced by Cancel + Discard    |
+  | # | state | status line | Publish control |
+  |---|---|---|---|
+  | 1 | idle, clean | All changes published | disabled, no Discard |
+  | 2 | idle, unpublished | Unpublished changes | enabled, Discard appears |
+  | 3 | pending (`anyPending`) | unchanged | **both** disabled mid-save |
+  | 4 | publishing | Publishing… | label becomes Publishing… |
+  | 5 | published | Published. Your site is rebuilding… | disabled, badge self-heals |
+  | 6 | publish error | four variants — fs mode, nothing to publish, invalid url, conflict/generic | enabled except "nothing" |
+  | 7 | draft read error | Couldn't load your draft… | server-driven, **unreachable in fs mode** |
+  | 8 | confirm open | Discard all unpublished changes? | whole row replaced by Cancel + Discard |
 
   Seven of the eight were FORCED individually in #200 through stubbed responses. **State 7 was
   not**, and is labelled rather than assumed: `draftReadError` is a server prop from
@@ -287,7 +283,6 @@ Six PRs, **no CSS authored in any of them**, globals.css never touched.
 ## ARC 3 — BLOG (COMPLETE)
 
 ### #170 · schema + read path (`92f8378`, invisible)
-
 `blog` collection: `title` (slug), `dek`, `date` (ISO text), `topic`, `status`, `heroImage`
 (own dir), flat `blocks`. `lib/blog/select.ts` is a **pure, reader-free seam**.
 **THE STATUS DECISION:** publish is **whole-branch**, so an unfinished post cannot be held
@@ -295,31 +290,25 @@ at the pipeline. **FAIL CLOSED — `=== "published"`.** The deliberate OPPOSITE 
 `category: ""` → visible: `category` DESCRIBES, `status` GOVERNS EXISTENCE.
 
 ### #171 · public pages (`c164c85`)
-
 `/blog` and `/blog/[slug]`, **LIVE BUT UNLINKED**.
-
 - **DECLARED DELTA: a `heading` block kind.**
 - **THREE LEAK DEFENCES:** `generateStaticParams` reads the filtered list; `dynamicParams
-= false`; the route gates on status. Proven with a temporary draft probe.
+  = false`; the route gates on status. Proven with a temporary draft probe.
 - **Pearl palette as LOCAL CUSTOM PROPERTIES scoped to `.blog-vessel`.** Prefix PROVEN.
 - **R1:** `--read` via GSAP ScrollTrigger, Lenis-synced. **R2:** `feTurbulence` animates via
   SMIL, which the CSS `animation` reset does NOT stop.
 
 ### #172 · collection-parameterized image paths (`a6bc8b9`)
-
 **"All three hardcodings are inert" was WRONG for entry heroes** — `heroImageBlobPath` is a
 FIXED path with no hash, so a same-slug blog post would **CLOBBER the project's hero**.
-
-- **THE PARAMETER IS REQUIRED, NOT PROJECTS-DEFAULTED.** The bug existed _because_
+- **THE PARAMETER IS REQUIRED, NOT PROJECTS-DEFAULTED.** The bug existed *because*
   `imgSpecFields()` silently defaulted.
 - **KNOWN DUPLICATION:** the config's local mirror + `SCHEMA_IMAGE_BASES`, test-enforced.
   **OPEN: does the cross-check compare the full key set in both directions?**
 
 ### #173 · the write seam (`c9bd10d`)
-
 `heading` had no validator and no adapter case. **#170's "reusable wholesale" was CORRECT
 WHEN WRITTEN;** #171 silently invalidated it.
-
 - **HYBRID SHAPE, decided by experiment.** The splice preserves a non-canonical tail
   verbatim where a whole-file dump reformats it.
 - **The splice is DUPLICATED deliberately; the COMBINATORS are SHARED; the TABLE is blog's.**
@@ -334,10 +323,8 @@ WHEN WRITTEN;** #171 silently invalidated it.
 - **THE FOUR TERNARIES.** Widening `CollectionName` silently rerouted four sites.
 
 ### #174 · the editor host (`9a25bc0`)
-
 Built **index + full-width `[slug]` editor**, rejecting the 3-pane. **THAT DECISION HAS NOW
 BEEN REVERSED BY THE OWNER** and superseded by #178 — see ARC 4.
-
 - **THE SWEEP — seven structures key off the projects block union.** Gaps #2–#4 closed for
   blog, still open for projects-side reuse. #6–#7 are `Set`s and fail silently.
 - **`overlayCollection` gained a REQUIRED comparator**, surfacing two call sites passing by
@@ -349,9 +336,7 @@ BEEN REVERSED BY THE OWNER** and superseded by #178 — see ARC 4.
   standing discipline: structural ops never call `saveDraft()`; fields save on blur.**
 
 ### #175 · the love store and endpoints
-
 The first **runtime state** and the first **public write endpoint**.
-
 - **LOVE IS ONE-WAY, NOT A TOGGLE.** With IP-hash dedupe and localStorage pressed-state a
   toggle is incoherent across devices.
 - **IP-HASH DEDUPE, TTL'd ONE YEAR, UNDERCOUNT ACCEPTED.** Behind carrier NAT several
@@ -371,7 +356,6 @@ The first **runtime state** and the first **public write endpoint**.
   declaration to production CSS. Fixed in #177 by excluding `ralph/`.
 
 ### #176 · the love UI (`2ad4856`)
-
 - **ONE PRESSABLE CONTROL SITE-WIDE** — the end-of-article pill. Counts render in five
   places, read-only in four. `<button>` inside `<a>` is an invalid content model, and a
   fixed control that appears and vanishes on scroll would drop a keyboard user's focus.
@@ -386,7 +370,6 @@ The first **runtime state** and the first **public write endpoint**.
   and padding the number would have been theatre.
 
 ### #177 · tooling debts + nav fixes (`fe4b08d`)
-
 - **`ralph/` excluded from Tailwind's source detection** — closes the #175 hazard. 13
   phantom rules removed, each proven consumer-free.
 - **`scripts/normalize-dom.mjs` COMMITTED and mutation-tested.** Four traps: the build-id
@@ -410,7 +393,6 @@ The first **runtime state** and the first **public write endpoint**.
   the love button only because love is one-way.
 
 ### THE WRITE PATH IS OWNER-VERIFIED BY REAL USE — cite `4e900c9`
-
 That commit changed `content/blog/….yaml` and `public/images/blog/…/heroImage.webp`
 together, so: the upload route accepted `collection: "blog"`, the generalized path helper
 resolved to `/images/blog`, `commitEntryHeroImage` committed the blob, `sanitizeBlogPatch`
@@ -421,7 +403,6 @@ guarantee and #173's splice both held against a real write. Publish merged twice
 (`bf32503`, `3650956`). **Backlog items 7 and 8 are closed.**
 
 ### CURRENT CONTENT STATE
-
 **THREE posts, all `status: published`, and the last two were WRITTEN AND PUBLISHED THROUGH
 /studio.** Read them from the files rather than from here, since this has flipped four times:
 
@@ -454,7 +435,6 @@ longer describes this file. `date: '2026-07-24'` is still SINGLE-QUOTED, so #173
 invariant has survived every write since — including two real ones (see below).
 
 ### A REAL PUBLISH LOST A SENTENCE — RESTORED, AND THE WRITE PATH WAS NOT AT FAULT
-
 The owner set the hero image through `/studio` and published, in `d5bd37a` then `82edf03`.
 **The publish carried a TRUNCATED PARAGRAPH into main**: the opening block ended
 `"morning, for as long as "` — mid-sentence, with a trailing space — instead of
@@ -490,7 +470,6 @@ Two commits. `a586e98` was groundwork on a branch; `0f23e5d` finished it; `438bf
 `/studio/blog/<slug>` is now list + canvas + inspector.
 
 ### THE POINT OF THE ARC, AND IT WAS A REAL BUG
-
 The canvas renders the article's own components at the PUBLIC measure, so what the author
 sees is what the article ships. THE SCOPE IS THE HEAD, THE HERO AND THE BODY — the back link
 and the love block are not drawn, which is a composition choice rather than a fidelity gap.
@@ -502,20 +481,17 @@ and the love block are not drawn, which is a composition choice rather than a fi
 matching class strings, because `68ch` resolves against each element's own font-size.
 
 ### THE ARITHMETIC, CORRECTED AND NOW LOAD-BEARING
-
 `68ch` is **745.9px at the wrapper's 16px font**, not 646 from the 18px prose.
 **sidebar 236 + list 264 + canvas 794 + inspector 244 = 1538.** The contract said 1406 and
 was wrong by 190px. (#194 widened the inspector to 320, moving the threshold to **1614**.) Both numbers live once each in `lib/studio/three-pane.ts` and are read
 through `matchMedia`, never as Tailwind variants — see the new working rule.
 
 ### COMMITTED IN `a586e98` (groundwork)
-
 D1 padding move across 9 pages via `STUDIO_PAGE`; `HeroImageField` gains `label`; the blog
 poster field hidden by parameterising `VideoEmbedForm` with `showPoster`; `ThreePaneShell`
 drafted.
 
 ### COMMITTED IN `0f23e5d` (the relayout)
-
 - **`ThreePaneShell` mounted.** Geometry and the collapse rule in `lib/studio/three-pane.ts`.
   `isListCollapsed` takes a THREE-STATE intent, because a boolean cannot distinguish
   "nobody chose" from "the author chose open" — and an author who reopened the rail on a
@@ -538,7 +514,6 @@ drafted.
 - `useMediaMin` via `useSyncExternalStore`, server snapshot always WIDE.
 
 ### FOUR CORRECTIONS TO THE RECORD, two of them this file's
-
 1. **`FIT_THRESHOLD_PX` HAD ZERO CONSUMERS** repo-wide, including its own file, while the
    shell's comment described max-width variants that did not exist. The collapse ran off a
    boolean and the layout never responded to width. **STATE said the collapse was built.**
@@ -551,7 +526,6 @@ drafted.
    drops the caret.
 
 ### FOUR BUGS THE GATES FOUND, NONE VISIBLE IN SOURCE REVIEW
-
 - **`inert: "" as unknown as boolean` WAS THE BUG, not the workaround.** React 19 supports
   `inert` as a real boolean and treats `""` as FALSY, so React dropped the attribute
   entirely and all three controls in the collapsed pane stayed tabbable — the exact focus
@@ -572,7 +546,6 @@ drafted.
   on every narrow page load. Now it runs on explicit toggles only.
 
 ### TWO HAZARDS SURFACED
-
 - **`lib/site.ts` IMPORTS `node:fs` AT MODULE SCOPE and carries no server-only marker.**
   Importing `blogPath` into a client component pulled fs into the client bundle and failed
   the build **APP-WIDE**, with a webpack `UnhandledSchemeError` far from the import that
@@ -583,7 +556,6 @@ drafted.
   comments were reworded. **Caught by the CSS gate, not by review.**
 
 ### THE CONTRACT IS CORRECTED — TEN ERRORS TO DATE
-
 Applied to `docs/studio/studio-blog.html`: the 1406 arithmetic and its five literals, the
 620 measure, and **THREE** widening sites rather than the two previously listed (the third
 sat inside the fit media query, so deleting the named two would have left the measure still
@@ -595,20 +567,19 @@ and the rich-text toolbar listed as reusable when the studio's only toolbar is i
 **Error 9 is click-the-prose selection. Error 10 is the third widening site.**
 
 ### GATES
-
-| Gate                        | Result                                                                                                         |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| A1 measure equality         | **697.9296875px both sides, delta 0**                                                                          |
-| G1 panes at 1560            | 264 / 801 / 244, canvas clears the 794 required                                                                |
-| G2 round trip               | reorder fired **ZERO** requests; the explicit save carried the new order with the edited text at the new index |
-| G3 collapsed-pane inertness | 3 controls inside, **0 accepted focus**                                                                        |
-| G4 two forms                | two disjoint bodies, `{collection,slug,patch}` and `{collection,slug,blocks}`                                  |
-| G5 the 1100 fold            | exactly ONE form tree, no hidden copy                                                                          |
-| G6 ralph                    | 930 → 993, 28 suites, 0 failures, both new suites mutation-tested                                              |
-| G7 typecheck                | clean. (NO LINT GATE EXISTED at the time; #195 added one.)                                                     |
-| G8 CSS bundle               | **zero changed declarations** on any shared selector                                                           |
-| G9 determinism              | two builds byte-identical through the committed normalizer                                                     |
-| parity                      | RUN, not reasoned about. 3 of 4 slugs, 44 sections, 0 findings                                                 |
+| Gate | Result |
+|---|---|
+| A1 measure equality | **697.9296875px both sides, delta 0** |
+| G1 panes at 1560 | 264 / 801 / 244, canvas clears the 794 required |
+| G2 round trip | reorder fired **ZERO** requests; the explicit save carried the new order with the edited text at the new index |
+| G3 collapsed-pane inertness | 3 controls inside, **0 accepted focus** |
+| G4 two forms | two disjoint bodies, `{collection,slug,patch}` and `{collection,slug,blocks}` |
+| G5 the 1100 fold | exactly ONE form tree, no hidden copy |
+| G6 ralph | 930 → 993, 28 suites, 0 failures, both new suites mutation-tested |
+| G7 typecheck | clean. (NO LINT GATE EXISTED at the time; #195 added one.) |
+| G8 CSS bundle | **zero changed declarations** on any shared selector |
+| G9 determinism | two builds byte-identical through the committed normalizer |
+| parity | RUN, not reasoned about. 3 of 4 slugs, 44 sections, 0 findings |
 
 **G1–G5 are DEV-OBSERVED**, driven through a temporary dev-only session route deleted before
 commit. Per CLAUDE.md they carry NO production claim.
@@ -616,6 +587,7 @@ commit. Per CLAUDE.md they carry NO production claim.
 **`boat-crest` renders 0 parity pairs** on this checkout while the other three render 15, 14
 and 15. Pre-existing and unrelated to this arc, but it means the parity gate has been blind
 to the hero case study for an unknown number of PRs. **Worth investigating.**
+
 
 ---
 
@@ -625,19 +597,17 @@ to the hero case study for an unknown number of PRs. **Worth investigating.**
 `videoEmbed.poster` and inline figures as ONE question and that framing held.
 
 ### RE-ADDING, NOT INVENTING — the investigation's strongest finding
-
 `blog-article.html` DREW two inline figures. #171 REMOVED them and recorded why:
 
-> _"There is no single-image block; `imageBlock` is net-new and needs the block-image upload
-> path, **which is hardcoded to projects and is the WRITE PR's fix.**"_
+> *"There is no single-image block; `imageBlock` is net-new and needs the block-image upload
+> path, **which is hardcoded to projects and is the WRITE PR's fix.**"*
 
 Both removal sites were still marked in the markup, the figure CSS was never deleted, and
-the locked decision _"figures may break wider than the measure; nothing else does"_ was still
+the locked decision *"figures may break wider than the measure; nothing else does"* was still
 in force. **#172 made that path take a required per-collection base, so the blocker expired
 and nobody noticed.** A DEFERRAL'S STATED BLOCKER CAN EXPIRE WITHOUT ANYONE REVISITING IT.
 
 ### THE GATE MATTERS MORE THAN THE FEATURE
-
 `BlogProse` dispatched through a `switch` with `default: return null`. A kind in the picker
 and the registry but missing there produces a block the author can add, fill in and save
 that renders as **NOTHING** — and because the canvas and the article are the SAME component,
@@ -657,7 +627,6 @@ SURFACE rather than inherit. Deriving it would launder exactly that disagreement
 asserts `BLOG_PICKER_ORDER ⊆ RENDERABLE`; the type system does not paper over it.
 
 ### THE SCHEMA — five fields, and NOT `imgSpecFields`
-
 `src`, `alt`, `caption`, `wide`, `decorative`. `imgSpecFields` would drag
 `width/rotate/translateX/translateY/z/frame` into a prose column. Those exist because a
 case-study image is **COMPOSED** on a free canvas; a figure in a 68ch measure is **PLACED**.
@@ -674,7 +643,6 @@ field the author can leave empty is not required.**
 reader skips, `"image"` is confidently wrong. Renders `alt=""`, the correct HTML.
 
 ### THE BLEED WAS A REAL BUG AND A1 COULD NOT SEE IT
-
 The contract used `clamp(0px, 7vw, 120px)`. **`vw` resolves against the VIEWPORT**, but the
 canvas and the article give the same column different room around it, so a wide figure
 behaved differently on each **while A1 still passed — because A1 measures the WRAPPER, not
@@ -687,7 +655,6 @@ horizontally instead — measured with the list open: `clientWidth 786, scrollWi
 maxScrollLeft 74.5`. Nothing is unreachable; collapsing the list removes the scroll.
 
 ### THE POSTER BUG — FOUND IN REVIEW, NOT BY A TEST
-
 Un-hiding the poster meant `BlogProse` renders it publicly for the first time. It rendered
 **927.9px tall inside a 392.6px frame**, overflowing by 535px and clipped by the frame's
 `overflow-hidden`, so it looked like a badly CROPPED image rather than a broken one.
@@ -702,20 +669,19 @@ identified it. Fixed with a `blog-`prefixed authored rule; measured after, poste
 `height: auto`.
 
 ### GATES
-
-| Gate             | Result                                                                                                                                                                                                                                                                                                            |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A1 / G2 geometry | **IDENTICAL on all three surfaces** — wrapper content box `697.9296875` on the article, the canvas with the list open, and the canvas collapsed. Normal figure `697.93`, wide figure `935.21` everywhere                                                                                                          |
-| G3 CSS           | **union-of-declarations: ZERO** selectors changed. The two rules a naive diff flagged were selector-list REGROUPING (the merged `h2,blockquote` rule split when the figure CSS broke its adjacency; every declaration survives). 5 added selectors, all proven `blog-`prefixed **by grepping the emitted bundle** |
-| G4 DOM           | public HTML **byte-identical**, and the honest reason is that **no post uses the kind YET**, not that nothing changed                                                                                                                                                                                             |
-| G5 determinism   | two builds byte-identical                                                                                                                                                                                                                                                                                         |
-| G6 ralph         | 993 → **1028**, 29 suites, 0 failures. `image-block` 30, `blog-registry` 44→49. 8 mutations, all caught                                                                                                                                                                                                           |
-| G7 typecheck     | clean. (No lint gate at the time; #195 added one.)                                                                                                                                                                                                                                                                |
+| Gate | Result |
+|---|---|
+| A1 / G2 geometry | **IDENTICAL on all three surfaces** — wrapper content box `697.9296875` on the article, the canvas with the list open, and the canvas collapsed. Normal figure `697.93`, wide figure `935.21` everywhere |
+| G3 CSS | **union-of-declarations: ZERO** selectors changed. The two rules a naive diff flagged were selector-list REGROUPING (the merged `h2,blockquote` rule split when the figure CSS broke its adjacency; every declaration survives). 5 added selectors, all proven `blog-`prefixed **by grepping the emitted bundle** |
+| G4 DOM | public HTML **byte-identical**, and the honest reason is that **no post uses the kind YET**, not that nothing changed |
+| G5 determinism | two builds byte-identical |
+| G6 ralph | 993 → **1028**, 29 suites, 0 failures. `image-block` 30, `blog-registry` 44→49. 8 mutations, all caught |
+| G7 typecheck | clean. (No lint gate at the time; #195 added one.) |
 
 **D1 MEASURED, NOT DERIVED.** `BlockImageField` FITS the 244px inspector — 204px row, no
 overflow, no wrap — but the path readout compresses to **27.6px**, narrower than the 38px
 the arithmetic predicted. **Left as is:** `ImageThumb`'s own header already records that a
-content-addressed filename _"tells the owner nothing about which image is actually set"_ and
+content-addressed filename *"tells the owner nothing about which image is actually set"* and
 that the thumb is the identification, so nothing informative is lost and projects is
 untouched.
 
@@ -724,6 +690,7 @@ locally, so every save-draft branch no-ops. Ralph covers the serializer against 
 content file, including that `date: '2026-07-24'` stays single-quoted and the head splices
 byte-identical — but that is not a commit. Browser measurements are DEV-OBSERVED.
 
+
 ---
 
 ## THE LAUNCH — #182 to #185
@@ -731,7 +698,6 @@ byte-identical — but that is not a commit. Browser measurements are DEV-OBSERV
 Four small PRs that turned a feature-complete blog into a launched one, plus one incident.
 
 ### #182 · the truncated sentence, restored (`db907ed`)
-
 Recorded in CURRENT CONTENT STATE and hazard 13. A publish carried a half-finished edit
 into a live post; the write route was exonerated by `d5bd37a` touching exactly one line.
 
@@ -741,7 +707,6 @@ failing since `82edf03`. The PROPERTY never broke, only the hardcoded expectatio
 by splitting it — a FIXTURE owns the null case, the live file is asserted for INVARIANCE.
 
 ### #183 · ralph in CI (`1e3e433`)
-
 `.github/workflows/ralph.yml`, on every PR and every push to main, **no paths filter** —
 the break that prompted it was a CONTENT commit.
 
@@ -758,7 +723,6 @@ saying why, since the obvious optimisation is to delete it. Reproduced both ways
 fixing rather than inferred from the error.
 
 ### #184 · the post published (`4bc1573`)
-
 `/blog` showed "Coming soon" because the only post was a draft. **Not a bug** — #170's
 status gate and #171's three leak defences, both working. One line, `draft` → `published`.
 Pre-flighted by validating the file REWRITTEN AS PUBLISHED, and proven by BUILDING, because
@@ -796,14 +760,13 @@ the header and footer now agree. `tsc` clean after deletion is the proof nothing
 it.
 
 ### THE SURFACE AUDIT — keep this list
-
 Everything that enumerates home-page sections, after #185:
-
 - `components/layout/SiteHeader.tsx` — `NAV`, **three** render sites (bar, scrolled sheet,
   mobile menu). The only one.
 - `app/sitemap.ts` enumerates ROUTES, not sections, and is the one that decays silently.
 - NOT surfaces: `SkipLink.tsx` (`#main-content`), `HeroSection.tsx` (a single `#process`
   anchor), `SectionsEditPanel.tsx` (`selectedSectionId` is a case study's own sections).
+
 
 ---
 
@@ -814,7 +777,6 @@ records are rewritten rather than deleted — see LOCKED DECISIONS and
 `docs/studio/studio-blog.html` correction 9.
 
 ### THE THIRD MECHANISM, AND WHY IT WAS AVAILABLE ALL ALONG
-
 #178 examined two ways to make the canvas clickable and rejected both correctly. It did not
 examine a third: **THE RENDERER EMITS ITS OWN INDICES.** Under an `editable` flag the
 elements `BlogProse` already emits gain `contentEditable` and `data-edit-*` at render time.
@@ -829,10 +791,9 @@ OUTLINE precisely so it cannot shift layout, and `contentEditable` has no box-mo
 **An investigation that measures the blocking gate first is what let this arc start at all.**
 
 ### A CORRECTION TO THE APPROVED PLAN, CAUGHT BY CHECKING ITS PREMISE
-
 The plan assumed deferring the bold toolbar removed the `renderEpoch` / refocus / caret
 machinery. **IT DOES NOT.** `SectionsEditPanel:1490` states that split and merge bump the
-epoch _"for the same reason a bold does"_ — the array changes LENGTH, so React's tree and the
+epoch *"for the same reason a bold does"* — the array changes LENGTH, so React's tree and the
 contentEditable DOM disagree about how many `<p>`s exist while the author's typed DOM is
 still in the subtree. Bold makes the tree untrusted by MUTATING it; a structural paragraph
 edit does it by changing the element COUNT. Different cause, identical requirement.
@@ -841,14 +802,12 @@ and nothing else. **This is the second time in three arcs that checking an appro
 premise changed its scope.**
 
 ### richToMarkers IS REQUIRED WITHOUT THE TOOLBAR — the sharper half
-
 Existing posts already contain `**bold**`, which `renderRich` renders as real `<b>`. A blur
 taking `innerText` would silently strip every marker **already on disk**. No toolbar means
 bold cannot be AUTHORED inline; it does not mean bold can be ignored. Proven against the real
 post, not a fixture.
 
 ### SAVE ON THE NEXT RENDER, NEVER IN THE BLUR HANDLER
-
 `saveDraft` closes over `values`, so calling it beside `setBlockValue` posts the PRE-EDIT
 array — #174's exact defect. The inspector's fields survive `onBlur={saveDraft}` only because
 their `onChange` fired on an earlier render; an inline edit has none. A `pendingSave` ref plus
@@ -856,7 +815,6 @@ an effect keyed on `values.blocks` fires it one render later. **Structural ops n
 flag**, so #174's rule is intact.
 
 ### WHAT WAS BUILT, EXTRACTED, AND DUPLICATED
-
 - **Extracted, byte-identical:** `paragraphCaret` and `placeCaret` → `lib/studio/inline-caret.ts`.
   Both were module-private and entirely generic. `fieldSelector` deliberately NOT extracted —
   its block branch is one template string each caller builds inline, and its other branch is
@@ -874,16 +832,15 @@ flag**, so #174's rule is intact.
   because #180 found `sections: 0, verdict: PARITY OK` is a false pass.
 
 ### GATES
-
-| Gate                | Result                                                                                                                                                                                                                                                                                                  |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| G1 article DOM      | **ALL EIGHT public pages byte-identical to main**; the built article contains ZERO edit attributes                                                                                                                                                                                                      |
-| G2 canvas DOM       | 13 elements both sides, **element tree IDENTICAL**, only attributes added                                                                                                                                                                                                                               |
-| G3 A1 editable ON   | `697.9296875`                                                                                                                                                                                                                                                                                           |
-| G4 ralph            | 1029 → **1068** across 30 suites; `inline-canvas` 39; five mutations, all caught                                                                                                                                                                                                                        |
-| G5 extraction inert | `p4-4bii-block-forms` 132 and `paragraph-edits` 28 per-file identical                                                                                                                                                                                                                                   |
-| G6 driven           | no-op blur fires **ZERO** requests; a real edit posts `{blocks,collection,slug}` with `**missing explanation**` intact; Enter splits 2→3 with the caret in the new paragraph; Backspace merges 3→2 with the caret at offset 8 (the join); paste yields THREE entries not one; selection syncs both ways |
-| G7                  | two builds byte-identical; CSS union-of-declarations ZERO modified, 3 added selectors all proven `blog-`prefixed against the emitted bundle; tsc clean                                                                                                                                                  |
+| Gate | Result |
+|---|---|
+| G1 article DOM | **ALL EIGHT public pages byte-identical to main**; the built article contains ZERO edit attributes |
+| G2 canvas DOM | 13 elements both sides, **element tree IDENTICAL**, only attributes added |
+| G3 A1 editable ON | `697.9296875` |
+| G4 ralph | 1029 → **1068** across 30 suites; `inline-canvas` 39; five mutations, all caught |
+| G5 extraction inert | `p4-4bii-block-forms` 132 and `paragraph-edits` 28 per-file identical |
+| G6 driven | no-op blur fires **ZERO** requests; a real edit posts `{blocks,collection,slug}` with `**missing explanation**` intact; Enter splits 2→3 with the caret in the new paragraph; Backspace merges 3→2 with the caret at offset 8 (the join); paste yields THREE entries not one; selection syncs both ways |
+| G7 | two builds byte-identical; CSS union-of-declarations ZERO modified, 3 added selectors all proven `blog-`prefixed against the emitted bundle; tsc clean |
 
 **THE NO-OP BLUR IS TWO PROOFS IN ONE.** Focusing the paragraph that carries the real
 `**bold**` and blurring without typing fires ZERO requests — which proves the skip holds AND
@@ -891,7 +848,6 @@ that `richToMarkers` round-tripped the on-disk markers byte-identically, because
 have differed and fired.
 
 ### THREE THINGS FOUND WHILE BUILDING
-
 1. **A mutation found a gap in the new suite.** The caret assertion used a marker-FREE string,
    where `plainLength(s)` and `s.length` are equal, so a marker-counting bug was invisible.
    Strengthened with a marker-bearing case. **Mutation testing earned its place again.**
@@ -906,7 +862,6 @@ have differed and fired.
    happen — see the working rules.
 
 ### #189 · THE BOLD TOOLBAR, EXTRACTED RATHER THAN COPIED (`c3b30f4`)
-
 `BoldToolbar` was module-private inside `SectionsEditPanel` until blog needed it. Extracted
 byte-identically with `selectWholeAnchor`, so ONE definition owns which marks exist — bold,
 italic and link, because those are what `RichRun` can express. A second copy would drift the
@@ -922,7 +877,6 @@ scope is now **the head, the hero and the body** — the back link and the love 
 as navigation and interaction rather than content.
 
 ### THE INVESTIGATION'S DECISIVE FINDING WAS A READ OF THE BUILT HTML
-
 `next/image` with `fill` emits a **BARE `<img>` and no wrapper element**. That single fact
 decided the arc. Had it emitted a wrapper, a canvas hero would have been a different element
 tree by construction and CLAUDE.md's named failure mode; because it emits none, the
@@ -931,7 +885,6 @@ The `relative aspect-[16/9]` frame is authored by the PAGE, not by next/image.
 **Read from `.next`, not reasoned about**, and it is the reason there was anything to build.
 
 ### HAZARD 11 FIRED A THIRD TIME, AND THIS TIME NO BOX COULD SEE IT
-
 The canvas `<img>` carries next/image's own inline fill style. The obvious cleanup —
 `absolute inset-0 h-full w-full object-cover` — renders **391.664px against the article's
 390.5781px**, because the unlayered `img, video { height: auto }` outranks `h-full`.
@@ -948,7 +901,6 @@ cleanup fails the suite. **This is the pattern whenever a defect is invisible to
 family you would reach for first — change the gate family, do not add another measurement.**
 
 ### THE COLUMN WAS HOISTED, NOT THE HERO — a catch that would have been silent
-
 The measured 44px gap depends on `<figure>` and `<BlogProse>` being **SIBLINGS inside one
 wrapper**, exactly as they are inside the article's `<main>`. Rendering the hero in its own
 wrapper above the empty-post branch would have introduced a margin-collapse boundary the
@@ -957,7 +909,6 @@ nothing would have caught it. One column, hero and body inside it, declared ONCE
 of the class string A1 pins is how the measure drifts.
 
 ### THE DEFECT THE PARITY WALK STRUCTURALLY CANNOT SEE
-
 `id="blog-article-head"` is resolved by `ReadingVessel` through `document.getElementById`,
 and the harness renders **both sides on one page**. An unconditional id would put a duplicate
 in the document and hand `getElementById` whichever came first. **The walk compares BOXES, so
@@ -966,7 +917,6 @@ difference on an element present on both sides — and the assertion lives in ra
 instance of the general rule above.
 
 ### PREVIEW ONLY — AND "title IS THE SLUG" WAS FALSE, CORRECTED IN #216
-
 > **THE CLAIM BELOW WAS WRONG, AND IT HID A ONE-LINE FEATURE FOR THREE POSTS' WORTH OF work.**
 > This section said `title` was the slug and editing it was the deferred rename arc. Measured:
 > **the slug is the FILENAME** (`content/blog/<slug>.yaml`), **`title` is an ordinary
@@ -987,7 +937,6 @@ instance of the general rule above.
 
 **Of the head's five fields, `readingTime` and `date` stay uneditable for reasons that hold;
 `title` is now editable in the INSPECTOR (not inline in the canvas — the head is preview-only).**
-
 - ~~**`title` IS THE SLUG.**~~ **EDITABLE since #216.** It is a display field; the slug is the
   filename. It is not INLINE-editable in the canvas for the same reason nothing there is —
   the head is preview-only — but it is a normal inspector field, and the canvas tracks it live
@@ -1004,7 +953,6 @@ of five fields carry a dashed outline teaches no rule at all. So none of it is e
 the inspector stays the one place the head is written.
 
 ### READING TIME IS RECOMPUTED, NOT PASSED DOWN
-
 The article computes it from the blocks, so a canvas showing a server-supplied number would
 drift the moment a paragraph was added — **and the drift would read as a rendering bug rather
 than a stale prop.** `readingTimeMinutes` and `formatLongDate` are both dependency-free (zero
@@ -1013,7 +961,6 @@ and `topic` come from `useDraftForm`'s working copy, so the canvas tracks the in
 is typed. **Driven: removing blocks moved it 2 min → 1 min.**
 
 ### THE draftImages SNAPSHOT GAP, CLOSED
-
 `draftImages` is read server-side at page load, so a hero uploaded DURING the session is on
 the draft branch but not in that array — the rewriter leaves the path alone, it 404s against
 main, and the canvas shows a broken frame. **The bug the draft proxy exists to prevent,
@@ -1026,21 +973,19 @@ decided it was safe to widen a shared component rather than fork it. Proven, not
 projects hero field's DOM hashes identically before and after.
 
 ### GATES
-
-| Gate           | Result                                                                                                                                                                      |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| G1 article DOM | **Byte-identical to main** across all 9 normalized files, re-run after BOTH commits. Two-build determinism control clean first. LCP preload and srcset survived nesting.    |
-| G2 hero box    | figure `697.9297 x 392.5781`, img `695.9297 x 390.5781`, gap `44` — the article's production values, delta 0                                                                |
-| G3 A1          | `697.9296875` with hero AND head present, **both pane states**                                                                                                              |
-| G4 branches    | hero; no-hero **identical on both sides**; hero + zero blocks still shows the hero                                                                                          |
-| G5 parity      | **3 pairs** (head 7, hero 3, prose 10 elements per side), **0 findings**, one `#blog-article-head`, zero duplicate ids                                                      |
-| G6a            | the canvas renders a real `blob:` src at an unchanged box                                                                                                                   |
-| G6b            | **UNVERIFIED, owner-only** — see the backlog                                                                                                                                |
-| G7 projects    | DOM hash identical (`ad38db8`, 27 nodes); a real file driven through the picker hits the fs branch with ZERO JS errors                                                      |
-| G8             | ralph 1075 → **1144** across 32 suites; nine mutations, all caught; **CSS bundle BYTE-IDENTICAL** — zero selectors added, which is the point of the inline style; tsc clean |
+| Gate | Result |
+|---|---|
+| G1 article DOM | **Byte-identical to main** across all 9 normalized files, re-run after BOTH commits. Two-build determinism control clean first. LCP preload and srcset survived nesting. |
+| G2 hero box | figure `697.9297 x 392.5781`, img `695.9297 x 390.5781`, gap `44` — the article's production values, delta 0 |
+| G3 A1 | `697.9296875` with hero AND head present, **both pane states** |
+| G4 branches | hero; no-hero **identical on both sides**; hero + zero blocks still shows the hero |
+| G5 parity | **3 pairs** (head 7, hero 3, prose 10 elements per side), **0 findings**, one `#blog-article-head`, zero duplicate ids |
+| G6a | the canvas renders a real `blob:` src at an unchanged box |
+| G6b | **UNVERIFIED, owner-only** — see the backlog |
+| G7 projects | DOM hash identical (`ad38db8`, 27 nodes); a real file driven through the picker hits the fs branch with ZERO JS errors |
+| G8 | ralph 1075 → **1144** across 32 suites; nine mutations, all caught; **CSS bundle BYTE-IDENTICAL** — zero selectors added, which is the point of the inline style; tsc clean |
 
 ### THREE THINGS FOUND WHILE BUILDING
-
 1. **A COMMENT OF MINE WAS WRONG AND THE MEASUREMENT CAUGHT IT.** I wrote that the empty-post
    message "stays centred". It was never pane-centred — the unlayered `p { max-width: 68ch }`
    caps it at `599.5234px` — and moving it inside the column brings it **51.5313px CLOSER**,
@@ -1063,7 +1008,6 @@ projects hero field's DOM hashes identically before and after.
 `FIT_THRESHOLD_PX` with it.
 
 ### IT WAS NEVER A TOOLING PROBLEM, AND THE RECORD SAID OTHERWISE FOR TWENTY PRs
-
 STATE said in four places that "there is no lint gate because there is no ESLint config".
 True, and misleading. **Every dependency was already installed** — eslint 9.39.4,
 eslint-config-next 15.5.19, @typescript-eslint 8.61.1, eslint-plugin-react-hooks — and a
@@ -1076,7 +1020,6 @@ its own CLI), and its scaffold writes the legacy `.eslintrc.json`. So the gate i
 run through the npm script from both CI and a terminal — #183's rule again.
 
 ### THE COUNT DECIDED THE SHAPE, AND THE INVESTIGATION RAN FIRST
-
 53 problems. 26 were ralph's shared `ok ? pass++ : fail++` idiom, 14 were one rule in one
 file, 1 was generated. **~11 in application code across 9 files, NO locked-decision file
 among them, and only 1 auto-fixable** — so there was no large mechanical diff to hide
@@ -1084,7 +1027,6 @@ judgement inside, and a recorded baseline would have deferred debt that could si
 **Counting before choosing is what made option (a) obviously right instead of arguably risky.**
 
 ### FOUR PREMISES FOR THIS WORK WERE WRONG, INCLUDING BOTH BUGS IT WAS SOLD ON
-
 - **`exhaustive-deps` could NOT have caught #174's `saveDraft` bug.** That is a plain
   `async function` in the component body, not a `useCallback` — there is no dep array to
   check. The defect was calling a stale closure at the wrong moment, which no rule here sees.
@@ -1100,7 +1042,6 @@ judgement inside, and a recorded baseline would have deferred debt that could si
 others.
 
 ### WHAT IT FOUND
-
 1. **AN ACTIVE, SECURITY-ADJACENT BUG — THE CONTACT HONEYPOT DID NOT WORK.** `botcheck` was
    missing from `advance`'s dep array, so the submit sent a stale value. **The repro is
    narrower than it looks:** filling the honeypot first does NOT expose it, because each
@@ -1109,7 +1050,7 @@ others.
    `botcheck: ""` and the bot passed; post-fix it carried `"i-am-a-bot"`.
    **Split into its own commit because the distinction is URGENCY, not category.**
 2. **A LATENT `rules-of-hooks` VIOLATION**, `ProjectsEditPanel:125` — `if (!isSelected) return
-null` above a `useEffect`. **Not active:** the panel mounts outside any `ListDetailLayout`,
+   null` above a `useEffect`. **Not active:** the panel mounts outside any `ListDetailLayout`,
    so `ctx` is null, `isSelected` is always true, the early return never runs. It becomes a
    crash the moment the panel enters the shell its own comment says it is built for.
 3. **AN ACCESSIBILITY GAP.** `SiteHeader` calls `useReducedMotion()` and **never consults it**,
@@ -1122,10 +1063,9 @@ the only evidence the intent existed — **#178's `FIT_THRESHOLD_PX` failure in 
 constant had no consumer and here a consumer has no constant.**
 
 ### TWO THINGS THE FIXES THEMSELVES TAUGHT
-
 - **`keystatic.config.ts`'s 14 `no-explicit-any` needed neither typing nor a disable.**
   Keystatic already types the parameter (`itemLabel?: (props: GenericPreviewProps<Schemas[K],
-unknown>) => string`), so **deleting `: any` lets inference supply the real type.** Proven
+  unknown>) => string`), so **deleting `: any` lets inference supply the real type.** Proven
   real rather than assumed: `props.fields.thesis.value.toFixed(2)` errors with `TS2551`, so
   the type is genuinely `string` and the fix is not cosmetic. The planned split was
   unnecessary.
@@ -1136,7 +1076,6 @@ unknown>) => string`), so **deleting `: any` lets inference supply the real type
   violation it cannot see, by pointing at the same line.**
 
 ### THE ONE ERROR IS DISABLED AT ITS SITE, NOT LEFT RED
-
 The plan was to land with the `rules-of-hooks` error failing. **The owner reversed the
 mechanism and kept the substance:** `continue-on-error` would make the gate ADVISORY from day
 one, which is worse than the theatre it guards against — **a lint step that cannot fail is not
@@ -1148,14 +1087,13 @@ fails the build from day one.** The follow-up PR deletes the disable.
 without it the gate would be advisory for exactly the class it is best at.
 
 ### GATES
-
-| Gate                                       | Result                                                                                                                                 |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| G1 the config runs                         | **0 problems**, exit 0                                                                                                                 |
-| G2 behaviour-preserving                    | `ProcessSection` is a disable, not a dep change, so no effect timing moved. The honeypot is the one intended change, driven both ways. |
-| G3 public DOM                              | **byte-identical to main** across all 9 normalized files; two-build control clean first                                                |
-| G4 ralph + tsc + **the first LINT number** | ralph **1169** unchanged; tsc clean; lint **0 errors, 0 warnings**                                                                     |
-| G5 CI                                      | `npm run lint` in `ci/ralph`, no `continue-on-error`, confirmed in the run log                                                         |
+| Gate | Result |
+|---|---|
+| G1 the config runs | **0 problems**, exit 0 |
+| G2 behaviour-preserving | `ProcessSection` is a disable, not a dep change, so no effect timing moved. The honeypot is the one intended change, driven both ways. |
+| G3 public DOM | **byte-identical to main** across all 9 normalized files; two-build control clean first |
+| G4 ralph + tsc + **the first LINT number** | ralph **1169** unchanged; tsc clean; lint **0 errors, 0 warnings** |
+| G5 CI | `npm run lint` in `ci/ralph`, no `continue-on-error`, confirmed in the run log |
 
 **A REVIEW CATCH WORTH KEEPING.** The PR modified `scripts/normalize-dom.mjs` — the G3 proof
 tool — inside the PR G3 was gating. A broken `walk()` would silently shrink the branch
@@ -1179,8 +1117,8 @@ CHANGES rather than an entry. The button was the only string that never named it
 have. The ambiguity is in the RESTING label, which is what gets read while deciding; the
 progress label appears only after the choice is made.
 
-**THE HELPER LINE WAS THE AMBIGUITY, NOT A NEIGHBOUR TO IT.** `BlogEditPanel` read _"Live on
-/blog once published"_, and by the time it shows the STATUS already reads Published — so "once
+**THE HELPER LINE WAS THE AMBIGUITY, NOT A NEIGHBOUR TO IT.** `BlogEditPanel` read *"Live on
+/blog once published"*, and by the time it shows the STATUS already reads Published — so "once
 published" could only mean the site and said no such thing. An author reads it as already
 live. **FIXED IN PLACE RATHER THAN EXPLAINED BESIDE**, because a second line would have
 layered copy over an ambiguity instead of removing it. Same shape as #180's re-adding rather
@@ -1195,7 +1133,6 @@ between what is worth asserting and what is not, and this project has erred towa
 everything.**
 
 ### AN OBSERVATION, NOT A SCOPED ITEM
-
 **`Publish site` deploys the entire site with NO confirmation, while Discard has a mandatory
 one.** Publish fires straight from `onClick`; the only confirm in the bar is Discard's. That
 is backwards against consequence — Discard deletes a draft branch, Publish ships everything to
@@ -1221,7 +1158,6 @@ retry, and a count assertion passes it.** That is the shape to remember: the wro
 indistinguishable from the right one under the gate you would reach for first.
 
 **THE FIX IS THREE PARTS AND `saveOwedRef` ALONE IS NONE OF THEM.**
-
 1. The guard **records an owe** instead of returning bare.
 2. `saveDraft` reads **latest-value refs assigned every render**, so the retry posts what is
    on screen now. One line, so there is no list of mutation sites to keep in sync and
@@ -1244,7 +1180,6 @@ so a guard there would be two mechanisms for one problem, and **a guard that can
 comment describing a defence that is not defending.**
 
 ### MY PART B PREMISE WAS WRONG
-
 The investigation was briefed on "nothing on screen says a save is in progress". **`SaveIndicator`
 has had a `saving…` state since it was written** — `{saving ? "saving…" : dirty ? "unsaved" :
 "saved"}`. **#178 made the LABEL required, not the state.** The real defects were two others:
@@ -1275,8 +1210,7 @@ widening is additive: both call sites pass one-arity arrows and a lower-arity fu
 assignable to a higher-arity type, so nothing was forced to change.
 
 ### THE FIX DOES NOT TRANSFER FROM #190, AND THAT IS THE DURABLE PART
-
-The brief for this PR said _revoke on supersede and unmount_, carrying #190's rule across. **The
+The brief for this PR said *revoke on supersede and unmount*, carrying #190's rule across. **The
 precondition does not hold.**
 
 - **The hero's key is FIXED.** One slot, one holder — a new upload replaces that key, so
@@ -1288,7 +1222,7 @@ precondition does not hold.**
 
 **Under content addressing a supersede does not happen.** So the map is **APPEND-ONLY**,
 `adopt` is idempotent per path, and `releaseAll` at unmount is the only revoke. Revoking on
-removal _or_ on replace would rebuild #193's shared revocable resource inside the cleanup meant
+removal *or* on replace would rebuild #193's shared revocable resource inside the cleanup meant
 to prevent a leak.
 
 **NO PER-PATH RELEASE API EXISTS, AND THE ABSENCE IS ENFORCED RATHER THAN DOCUMENTED.** Ralph
@@ -1309,14 +1243,13 @@ shared blob url; remove one and the survivor still holds it and still decodes
 fresh consumer, so the assertion is capable of failing.
 
 ### THREE STRATEGIES FOR ONE PROBLEM, ALL DELIBERATE
-
 Nothing recorded this before #202, and the next person to unify them will break one.
 
-|                      | strategy                                           | why it suits its surface                                                                              |
-| -------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `ImageThumb`         | proxies **every** src unconditionally              | a 36px thumb can afford a GitHub round trip per image; one code path, always correct                  |
-| the canvas           | `makeDraftSrcRewriter`, the **page-load snapshot** | a full-width figure cannot afford the proxy for every image, so published paths keep the static route |
-| `preview-map` (#202) | an **object URL** for a file uploaded this session | resolves what neither can, because the snapshot predates the upload                                   |
+| | strategy | why it suits its surface |
+|---|---|---|
+| `ImageThumb` | proxies **every** src unconditionally | a 36px thumb can afford a GitHub round trip per image; one code path, always correct |
+| the canvas | `makeDraftSrcRewriter`, the **page-load snapshot** | a full-width figure cannot afford the proxy for every image, so published paths keep the static route |
+| `preview-map` (#202) | an **object URL** for a file uploaded this session | resolves what neither can, because the snapshot predates the upload |
 
 **This is why the field's thumbnail worked while the canvas showed nothing** — same upload,
 different strategy. A comment at each of the three sites names the other two.
@@ -1335,18 +1268,17 @@ date only ages it, and reading time is a decision aid once you are on the page r
 feed. The hero refusal is the substantive one: compositing it means Satori fetching a remote
 image at render time, which is a network dependency per card, a failure mode that differs per
 post, **and the draft-branch 404 reappearing INSIDE the renderer** for a hero uploaded but not
-published. One typographic composition. The index plate's PRINCIPLE is mirrored (_"never a
-hole"_), its implementation is not — a second composition for the null case is the branch that
+published. One typographic composition. The index plate's PRINCIPLE is mirrored (*"never a
+hole"*), its implementation is not — a second composition for the null case is the branch that
 then drifts.
 
 ### THE ROUTE WAS FIXED RATHER THAN TWINNED, AND THAT DECIDED THE PR'S SHAPE
-
 Investigating the case-study route to copy it found **`/projects/not-a-real-slug/og` returning
 200 and a PNG on production.** Two things combined, and the first is a belief rather than a line
 of code.
 
-**`generateStaticParams` IS A BUILD MANIFEST, NOT A GATE.** It decides what gets _prerendered_;
-`dynamicParams` decides what is _allowed_. With no such export it defaults to true, so the
+**`generateStaticParams` IS A BUILD MANIFEST, NOT A GATE.** It decides what gets *prerendered*;
+`dynamicParams` decides what is *allowed*. With no such export it defaults to true, so the
 filtered list was a hint and every other slug rendered on demand. `/blog/[slug]` has carried
 `dynamicParams = false` since it was written and 404s correctly; the OG route never had it, and
 **the difference was invisible because both looked like they enumerated a list.**
@@ -1359,20 +1291,18 @@ contentless card — safety that is a property of today's CONTENT rather than of
 does have drafts, so the copy would have been a real leak. Fixed in its own commit, first.
 
 ### `dynamicParams` ON A `route.ts` WAS GENUINELY UNVERIFIED HERE
-
 No route handler in this repo used it, and Next's docs are not the same as this repo's build.
 **Proven at build level via the prerender manifest**, which is where the flag lands:
 
-| route                 | before           | after                                                         |
-| --------------------- | ---------------- | ------------------------------------------------------------- |
-| `/projects/[slug]/og` | `fallback: null` | **`fallback: false`**                                         |
-| `/blog/[slug]/og`     | —                | **`fallback: false`**                                         |
-| `/projects/[slug]`    | `fallback: null` | unchanged — **it 404s only via its component's `notFound()`** |
+| route | before | after |
+|---|---|---|
+| `/projects/[slug]/og` | `fallback: null` | **`fallback: false`** |
+| `/blog/[slug]/og` | — | **`fallback: false`** |
+| `/projects/[slug]` | `fallback: null` | unchanged — **it 404s only via its component's `notFound()`** |
 
 That last row is why defence 3 is load-bearing rather than belt-and-braces.
 
 ### THREE DEFENCES, AND THE THIRD IS INDEPENDENT ON PURPOSE
-
 `generateStaticParams` reads the status-filtered `getBlogPosts`; `dynamicParams = false` refuses
 anything outside it; **and the handler itself refuses a non-published post.** `getBlogPost` is
 UNFILTERED by design (the studio preview needs drafts), so without the third check a draft would
@@ -1383,15 +1313,14 @@ component gate do not exist for a route handler — **#175's shape again**, wher
 defences are right for their own surface and silent about a new one.
 
 ### THE MEASURED CONSTANTS, AND THE FIRST ESTIMATE WAS WRONG
-
 The investigation claimed the longest real title was "comfortably two lines" and flagged it as
 arithmetic. Measured with **the exact Fraunces 600 TTF `lib/og.tsx` fetches**, loaded as a
 `FontFace` and replicating Satori's greedy wrap at `maxWidth 1000`:
 
-| size     | fits                     | overflows          |
-| -------- | ------------------------ | ------------------ |
+| size | fits | overflows |
+|---|---|---|
 | **84px** | 3 lines, **+73px slack** | **4 lines, −15px** |
-| **68px** | 4 lines, +52px           | 5 lines, −19px     |
+| **68px** | 4 lines, +52px | 5 lines, −19px |
 
 **"What a design system is for when the machine can draw" (53 chars) is THREE lines and sits one
 line from the edge.** That is the difference between a threshold that holds and one that holds
@@ -1425,26 +1354,24 @@ with an empty box keeping `space-between` honest. Also found by rendering it rat
 reasoning about it.
 
 ### THE DOM GATE HAD TEETH FOR ONCE
-
 Every recent PR asserted byte-identical public HTML, where a pass means "nothing leaked". Here
 the expected diff was exact: **`og:image` and `twitter:image` on the three post pages, and the
 other eight files byte-identical** — so `/blog` and `/` keeping the identity plate was proven
 rather than assumed. Two-build control clean first.
 
 ---
-
 ## ARC 9 — THE INK CHROME (COMPLETE)
 
 Six PRs. The owner's design contract is `docs/studio/studio-ink-chrome.html`.
 
-| PR                 | what it settled                                                                                                                                                   |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PR | what it settled |
+|---|---|
 | **#204** `e25a863` | **The ink shell.** Sidebar and topbar recede into darkness, scoped to `lg:` and up. On-ink foregrounds taken from the existing scale — **no new `@theme` token**. |
-| **#205** `466df8e` | **The panel language.** Wells, hairlines at `/12`, the ink bands. Shipped with a stated gap: 21 entry-panel inputs carried the geometry as literals.              |
-| **#206** `37286cc` | **The input dedupe.** Those 21 sites consume the shared exports. The 13/14px split kept, deliberately unresolved.                                                 |
-| **#207** `d75eeb0` | **The radius scale**, 12 / 8 / 4, scoped.                                                                                                                         |
-| **#208** `e938c16` | **The fidelity repaint.** Items 3, 6, 7, 8, 9, 10 of eleven. Led by the dead band utilities. Produced `studio-cascade`.                                           |
-| **#209** `2488500` | **The selection language.** Items 1 and 2, the last that is paint.                                                                                                |
+| **#205** `466df8e` | **The panel language.** Wells, hairlines at `/12`, the ink bands. Shipped with a stated gap: 21 entry-panel inputs carried the geometry as literals. |
+| **#206** `37286cc` | **The input dedupe.** Those 21 sites consume the shared exports. The 13/14px split kept, deliberately unresolved. |
+| **#207** `d75eeb0` | **The radius scale**, 12 / 8 / 4, scoped. |
+| **#208** `e938c16` | **The fidelity repaint.** Items 3, 6, 7, 8, 9, 10 of eleven. Led by the dead band utilities. Produced `studio-cascade`. |
+| **#209** `2488500` | **The selection language.** Items 1 and 2, the last that is paint. |
 
 ### THE THREE SCALES — THE DURABLE OUTPUT, AND ALL THE SAME SHAPE
 
@@ -1454,10 +1381,10 @@ sites to infer the rule.
 - **RADIUS — 12 / 8 / 4.** Scoped custom properties on `.studio-chrome`, because `@theme`'s
   `4/8/16/24` **cannot express a three-step hierarchy**: halving lands on 12/8/4 and there is
   no 12, so the studio would have collapsed onto two radii. Every step an exact halving of what
-  shipped before. _panel_ = a page-level shell, _card_ = a row or floating surface, _control_ =
+  shipped before. *panel* = a page-level shell, *card* = a row or floating surface, *control* =
   anything clicked or typed into.
-- **GROUND — cream-200 chrome / cream-100 field surface / cream-50 well.** _Chrome_ is a header,
-  footer or rail; _field surface_ is anything holding inputs; _the well_ is the input itself.
+- **GROUND — cream-200 chrome / cream-100 field surface / cream-50 well.** *Chrome* is a header,
+  footer or rail; *field surface* is anything holding inputs; *the well* is the input itself.
 - **SELECTION — ground + 1 step, plus an identical 3px accent left bar.**
 
 **THE RULE ALL THREE SHARE: EACH IS A RELATION, NOT A VALUE.** A fixed number across differing
@@ -1478,7 +1405,7 @@ Measured: every step on the cream ladder separates by **1.05 to 1.19**, and the 
 bar replaced was **1.15 — inside that same band**. The bar reads **3.43 to 4.48**.
 
 **That explains the original complaint rather than merely fixing it.** Selection on the blog
-rail was invisible (1.103) not because the wrong cream was chosen but because _no_ cream could
+rail was invisible (1.103) not because the wrong cream was chosen but because *no* cream could
 have worked. Any future surface needing selection needs the **bar**; a darker fill will not do
 it. Hover and selected therefore share a fill by necessity — at 1.05 per step the ladder cannot
 encode three legible states.
@@ -1501,11 +1428,9 @@ never reachable** — a stronger guarantee than the gate itself provides, and av
 inspection before running anything.
 
 ---
-
 ## LOCKED DECISIONS (do not change without being asked)
 
 All prior locked decisions remain. Added across this session:
-
 - **THE STUDIO HAS THREE SCALES, ALL NAMED BY ROLE, ALL RELATIONS RATHER THAN VALUES.**
   **RADIUS** panel 12 / card 8 / control 4, scoped custom properties on `.studio-chrome`.
   **GROUND** cream-200 chrome / cream-100 field surface / cream-50 well.
@@ -1629,10 +1554,10 @@ All prior rules remain. Added or sharpened across this session:
      in the 967px About panel. The narrow pane had been hiding it.
   3. **A ground colour** — correct on the cream-100 inspector, colliding inside a cream-50
      nested card on the case-study editor.
-     **Four instances of encoding a relation as a value, three of attaching a value to the wrong
-     context.** Same failure, opposite directions: one forgets the number depends on something,
-     the other forgets what it depended on.
-     **Ask "measured against WHAT?" before reusing any ratio, width or colour.**
+  **Four instances of encoding a relation as a value, three of attaching a value to the wrong
+  context.** Same failure, opposite directions: one forgets the number depends on something,
+  the other forgets what it depended on.
+  **Ask "measured against WHAT?" before reusing any ratio, width or colour.**
 
 - **A COMMENT CARRYING A STALE MEASUREMENT MAKES A LATER FIX QUIETLY FALSER — the sharper half
   of the rule above.** A wrong number sitting in prose is not inert. The search comment claimed
@@ -1671,14 +1596,14 @@ All prior rules remain. Added or sharpened across this session:
   and the general one derives the rule the bug broke.
   1. **`studio-cascade`** derives the unlayered element rules from `globals.css` instead of
      asserting the four known collisions. **Found five more on its first run.**
-  2. **`studio-ink` G1** asserts a _ladder step_ rather than a hex, so a relation cannot be
+  2. **`studio-ink` G1** asserts a *ladder step* rather than a hex, so a relation cannot be
      re-encoded as a value the way #205's input colour was.
   3. **`studio-tokens`** derives the legal colour set from `@theme` instead of banning
      `text-ink-500` and `text-ink-700` by name — so **the next invented step fails on arrival
      rather than after 51 uses**.
-     The instance-specific version of each would have passed on everything except the exact bug
-     already fixed. **When you find a dead class, ask what rule it violated, not what its name
-     was.**
+  The instance-specific version of each would have passed on everything except the exact bug
+  already fixed. **When you find a dead class, ask what rule it violated, not what its name
+  was.**
 - **A FIX SCOPED TO ONE SURFACE IS NOT A LESSON LEARNED.** `globals.css:1893` documented
   hazard 11's mechanism for `h3–h6` versus `.font-display` **in full, with the reasoning** — and
   fixed it only for `.case-study`. Nobody generalised it, so **#205 walked straight into the
@@ -1696,7 +1621,7 @@ All prior rules remain. Added or sharpened across this session:
   would have been **the third instance in this arc of a relation encoded as a value**, after
   #205's input colour and my own item-3 recommendation.
   **The generalisation:** when a treatment must read the same on grounds that differ, share the
-  _step_ and share the _constant_ (here, the bar). Sharing the literal is what makes it three
+  *step* and share the *constant* (here, the bar). Sharing the literal is what makes it three
   bugs that each look correct in isolation.
 
 - **A SUBSTRING CHECK ANSWERS THE WRONG QUESTION, AND COMMENTS ARE PART OF THE FILE.**
@@ -1791,55 +1716,55 @@ All prior rules remain. Added or sharpened across this session:
 - **NOTHING RECORDED IN THIS FILE IS EVIDENCE. RE-DERIVE BEFORE YOU BUILD ON IT.**
   This is now SIX variants of one failure, and the shape is what matters, not the
   instances:
-  - a **NAME** — `structural()`, a function that never existed;
-  - a **COUNT** — "the 14 block-kind union", which was 16 and had decayed silently as
-    kinds were added;
-  - a **CONSTANT** — `FIT_THRESHOLD_PX`, exported with ZERO consumers while a comment
-    described variants that were never written;
-  - a **SCOPE ESTIMATE** — "the nav link is one line", which had sat unexamined since
-    #171 and was false because the nav was anchor-only;
-  - a **SURFACE** — `FooterExplore`, an inventory entry for a component nothing had
-    rendered in a long time.
-  - a **COUNT, AGAIN** — "ELEVEN merged branches are still present", which was 13. It was
-    accurate when written in #191 and drifted as #192 to #196 merged without deleting.
-    **The count variant recurring is the point:** the first one decayed as kinds were
-    added, this one as branches were, and neither was ever re-derived.
-  - **A COUNT THAT WAS WRONG IN KIND RATHER THAN IN DEGREE.** PR 2's plan said the input
-    geometry was "five strings". Five is the number of NAMED CONSTANTS. The number of form
-    controls carrying that geometry is **21**, none of which reference an export — so the
-    plan counted the wrong noun and the tally was beside the point. **Every earlier count
-    variant was off by an amount; this one was off by a CATEGORY**, and the tell was that
-    the fix "reached the primitives" and the screen did not change.
-    The same shape bit twice more inside one PR: a canvas hairline count of "6" was really
-    **4** (the grep swept up a comment in a `.ts` file and a `border-ink-950/80`, a
-    different value entirely), and the first version of the gate protecting it asserted
-    `> 0`, which a mutation that unified ONE file walked straight through. **Count the
-    thing you mean, then make the assertion able to fail for the reason it exists.**
-  - **AN INSTRUCTION, TWICE, AND THIS IS A DIFFERENT ORIGIN FROM ALL FIVE ABOVE.** #203's
-    brief carried two premises that were not in the record and never had been. One
-    **attributed a claim to THIS FILE** — that the case-study OG route enumerates an
-    unfiltered slug list — which STATE has never contained and which is also false of the
-    route, since it does filter `BESPOKE_SLUGS`. The other **asserted an observation nobody
-    made**, that every post shared on social showed no image; production was serving
-    complete OG tags and a valid 1200×630 PNG the whole time. **Neither decayed inside the
-    file. Both were invented upstream of it.**
-    **SO THE RULE IS WIDER THAN ITS OWN HEADING.** "Nothing recorded in this file is
-    evidence" reads as a warning about decay, and five of the six instances above are decay.
-    **An instruction is not evidence either**, and a premise that arrives inside a task is
-    the one least likely to be checked, because it arrives with the authority of the person
-    asking.
-    **KEEP THE SECOND HALF, BECAUSE IT IS THE USEFUL ONE.** The invented premise still found
-    a REAL defect: `/projects/not-a-real-slug/og` returned **200 and a PNG** on production,
-    a live fail-open that was fixed in #203's first commit. **The instinct was right and the
-    evidence was fabricated**, and those are separable. A hunch that turns out to be correct
-    does not retroactively become an observation. **Check a hunch; do not dress it as a
-    fact** — the checking is what turned a wrong reason into a real fix, and stating it as a
-    fact is what would have skipped the checking.
-    **A scope estimate decays exactly like a name, a count, a constant or an inventory, and
-    none of them is evidence.** None failed loudly; each was found only by deriving it. Three
-    of the six were found in a single two-day stretch, which is a statement about the file's
-    reliability, not about that stretch. **The instances keep accumulating, and that is the
-    rule's value rather than an embarrassment — a rule with one example is an anecdote.**
+    - a **NAME** — `structural()`, a function that never existed;
+    - a **COUNT** — "the 14 block-kind union", which was 16 and had decayed silently as
+      kinds were added;
+    - a **CONSTANT** — `FIT_THRESHOLD_PX`, exported with ZERO consumers while a comment
+      described variants that were never written;
+    - a **SCOPE ESTIMATE** — "the nav link is one line", which had sat unexamined since
+      #171 and was false because the nav was anchor-only;
+    - a **SURFACE** — `FooterExplore`, an inventory entry for a component nothing had
+      rendered in a long time.
+    - a **COUNT, AGAIN** — "ELEVEN merged branches are still present", which was 13. It was
+      accurate when written in #191 and drifted as #192 to #196 merged without deleting.
+      **The count variant recurring is the point:** the first one decayed as kinds were
+      added, this one as branches were, and neither was ever re-derived.
+    - **A COUNT THAT WAS WRONG IN KIND RATHER THAN IN DEGREE.** PR 2's plan said the input
+      geometry was "five strings". Five is the number of NAMED CONSTANTS. The number of form
+      controls carrying that geometry is **21**, none of which reference an export — so the
+      plan counted the wrong noun and the tally was beside the point. **Every earlier count
+      variant was off by an amount; this one was off by a CATEGORY**, and the tell was that
+      the fix "reached the primitives" and the screen did not change.
+      The same shape bit twice more inside one PR: a canvas hairline count of "6" was really
+      **4** (the grep swept up a comment in a `.ts` file and a `border-ink-950/80`, a
+      different value entirely), and the first version of the gate protecting it asserted
+      `> 0`, which a mutation that unified ONE file walked straight through. **Count the
+      thing you mean, then make the assertion able to fail for the reason it exists.**
+    - **AN INSTRUCTION, TWICE, AND THIS IS A DIFFERENT ORIGIN FROM ALL FIVE ABOVE.** #203's
+      brief carried two premises that were not in the record and never had been. One
+      **attributed a claim to THIS FILE** — that the case-study OG route enumerates an
+      unfiltered slug list — which STATE has never contained and which is also false of the
+      route, since it does filter `BESPOKE_SLUGS`. The other **asserted an observation nobody
+      made**, that every post shared on social showed no image; production was serving
+      complete OG tags and a valid 1200×630 PNG the whole time. **Neither decayed inside the
+      file. Both were invented upstream of it.**
+      **SO THE RULE IS WIDER THAN ITS OWN HEADING.** "Nothing recorded in this file is
+      evidence" reads as a warning about decay, and five of the six instances above are decay.
+      **An instruction is not evidence either**, and a premise that arrives inside a task is
+      the one least likely to be checked, because it arrives with the authority of the person
+      asking.
+      **KEEP THE SECOND HALF, BECAUSE IT IS THE USEFUL ONE.** The invented premise still found
+      a REAL defect: `/projects/not-a-real-slug/og` returned **200 and a PNG** on production,
+      a live fail-open that was fixed in #203's first commit. **The instinct was right and the
+      evidence was fabricated**, and those are separable. A hunch that turns out to be correct
+      does not retroactively become an observation. **Check a hunch; do not dress it as a
+      fact** — the checking is what turned a wrong reason into a real fix, and stating it as a
+      fact is what would have skipped the checking.
+  **A scope estimate decays exactly like a name, a count, a constant or an inventory, and
+  none of them is evidence.** None failed loudly; each was found only by deriving it. Three
+  of the six were found in a single two-day stretch, which is a statement about the file's
+  reliability, not about that stretch. **The instances keep accumulating, and that is the
+  rule's value rather than an embarrassment — a rule with one example is an anecdote.**
 - **TAILWIND v4 SCANS COMMENTS, SO PROSE CAN SHIP CSS.** #199's first draft of a comment
   contained the literal token `focus:border` while explaining that the class was NOT used, and
   the build emitted `.focus\:border:focus { border-width: 1px }` — a dead selector added by
@@ -1878,7 +1803,7 @@ All prior rules remain. Added or sharpened across this session:
   and the suite asserts no second one exists. **This is the precedent for the next literal
   that wants two homes.**
 - **A CAST WRITTEN TO SATISFY THE TYPE CHECKER CAN BE THE BUG.** `inert: "" as unknown as
-boolean` type-checked, read as defensive, and silently disabled the very protection it
+  boolean` type-checked, read as defensive, and silently disabled the very protection it
   was written for, because React 19 treats `""` as falsy. **Verify the RUNTIME EFFECT of a
   cast, not just that it compiles.**
 - **CSS DOES NOT MEAN THE BOX OBEYED.** `w-0` computed to 264px under `min-width: auto`,
@@ -2092,7 +2017,7 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
     **THE OBVIOUS FIX WAS WRONG, AND THE BROWSER PROVED IT.** Revoking in `HeroImageField`'s
     unmount looks safe until you notice `BlogBlocksEditPanel` renders the inspector INSTEAD of
     the canvas below the fold (`canvas={!inspectorFits && view === "inspector" ? inspector :
-canvasColumn}`), so the two holders unmount independently. Measured at 900px: the field
+    canvasColumn}`), so the two holders unmount independently. Measured at 900px: the field
     and the canvas hero are **mutually exclusive in all three view states**, so an
     unmount-revoke would blank the hero on exactly the "upload it, then go look at it" flow.
     **A lifetime you cannot reason about locally is a lifetime to remove, not to manage.**
@@ -2179,7 +2104,6 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     **A HAZARD CAN BE CORRECT ABOUT A CAUSE AND WRONG ABOUT THE CURE** — this is the third
     hazard in this file to be right and misleading at once (see 18 and 19), and the pattern is
     now a working rule: a fix's precondition travels with it.
-
 21. **`HERO_IMAGE_UNSUITABLE` STILL LISTS `elevate-one-view`, AND ITS REASON NO LONGER EXISTS.**
     `components/sections/ProjectCard.tsx` carries
     `const HERO_IMAGE_UNSUITABLE = new Set<string>(["elevate-one-view"])`, so that card renders
@@ -2261,16 +2185,16 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
 
     **THE THREE MECHANISMS, AS A SET — SAME SYMPTOM, THREE DISTINCT CAUSES.** Nothing recorded
     them together, so each was re-derived from scratch when it appeared. The symptom is always
-    _the code says one thing and the screen does another_:
+    *the code says one thing and the screen does another*:
 
-    | #      | cause                                              | gated by               |
-    | ------ | -------------------------------------------------- | ---------------------- |
-    | **11** | an unlayered element rule beats a layered utility  | `studio-cascade`       |
-    | **26** | utility versus utility, decided by **sheet order** | **UNGATED**            |
-    | **23** | the token does not exist, so no CSS is generated   | `studio-tokens` (#210) |
+    | # | cause | gated by |
+    |---|---|---|
+    | **11** | an unlayered element rule beats a layered utility | `studio-cascade` |
+    | **26** | utility versus utility, decided by **sheet order** | **UNGATED** |
+    | **23** | the token does not exist, so no CSS is generated | `studio-tokens` (#210) |
 
     **HAZARD 26 REMAINS UNGATED, AND `studio-cascade` CANNOT SEE IT** — that suite compares a
-    utility against an _unlayered element rule_, which presumes the utility generates CSS and
+    utility against an *unlayered element rule*, which presumes the utility generates CSS and
     asks whether something outranks it. Utility-versus-utility has no element rule involved and
     two live declarations, so there is nothing for it to match on. Closing hazard 26 needs a
     different check (shorthand and longhand for the same property on one element), and it is
@@ -2321,7 +2245,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     PR B's selection bar would have been a coin-flip dressed as a class name.
     **INVISIBLE IN REVIEW AND IN EVERY ASSERTION THIS REPO WRITES**: the markup reads correctly,
     both classes exist, both generate CSS, and `studio-cascade` does not fire because no
-    _unlayered_ rule is involved — this is utility-versus-utility, a different mechanism with
+    *unlayered* rule is involved — this is utility-versus-utility, a different mechanism with
     the same symptom. It happened to render correctly when measured, which is the worst
     outcome, because nothing would have flagged it before a Tailwind upgrade reordered the
     sheet.
@@ -2349,7 +2273,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     **CLOSED IN #212, AND THE AUDIT CORRECTED THIS ENTRY'S OWN FRAMING.** "The suite stays green
     while its denominator shrinks" was too kind: **`studio-type` had no green.** It carried zero
     assertions, no pass/fail harness and no exit code — it returned a JSON blob for a human to
-    read. So the exclusion removed one element from a _report_, not from a passing check, and
+    read. So the exclusion removed one element from a *report*, not from a passing check, and
     **no contrast was asserted anywhere in the suite** — not the search, not the sidebar's
     on-ink set, not the band status. Every ratio this arc produced lived in commit messages and
     source comments, which no gate reads. **The search was simply the first surface whose
@@ -2375,7 +2299,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
 ## DEFERRED — scoped, not built
 
 - **THE 40 `text-ink-500` SITES — REAL DEFECTS, NAMED IN #210 AND DELIBERATELY NOT FIXED.**
-  Each is a class that meant _muted_ rendering at full ink-950 beside the primary text it was
+  Each is a class that meant *muted* rendering at full ink-950 beside the primary text it was
   supposed to sit behind. Deleting them would make the code honest and leave the elements
   looking exactly as wrong, so the class is kept until the replacement is decided.
 
@@ -2394,7 +2318,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     `text-text-subtle`, which is what the surrounding hints already use.
 
   **C · THE 13 ICON BUTTONS STAY A SEPARATE QUESTION.** Each is `text-ink-500 …
-enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest and hover both
+  enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest and hover both
   render ink-950. That is about an icon's rest state against its own hover, not about muted
   text, and folding it into the above would decide thirteen sites on a rationale built for ten.
 
@@ -2403,7 +2327,6 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   fits.
   **`studio-tokens` B2 pins the count at 40**: growing means a new dead site was added, and
   zero means the decision was made and the exemption should be deleted.
-
 - ~~**PR C — THE CARD IMAGE (fidelity item 4)**~~ — **BUILT in #211.** Kept below for its
   reasoning; the plate is capped by HEIGHT (160px) rather than width, because the height a
   width produces depends on the aspect, and the aspect is per call site.
@@ -2415,7 +2338,7 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   **RUN `studio-type` BY HAND** — see the note in the gate section; it is the only thing that
   catches a wrong-but-uncontested size, and resizing a thumbnail is exactly that shape.
 - **PR D — TOPIC AS A SET (fidelity item 5).** `topic` is free text **deliberately**; there is
-  no topic set in the schema or the read path, so a closed list would be _invented_ rather than
+  no topic set in the schema or the read path, so a closed list would be *invented* rather than
   enforced. A dropdown needs three things, each with its own failure mode: **(1)** a schema
   field in `keystatic.config.ts` with a real option set, **(2)** a source of truth for the
   options — a constant, or derived from existing posts, **(3)** a migration for the three
@@ -2441,7 +2364,8 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   visual feedback in the canvas because nothing applies an `is-selected` class. Needs
   `selectedId` threaded into `BlogProse`; the CSS rule was written and removed in #187
   rather than shipped without a consumer.
-- **A PER-ENTRY PUBLISH, or a diff preview in the PublishBar** — the real answer to hazard 13. Whole-branch publish has already shipped a half-finished sentence once.
+- **A PER-ENTRY PUBLISH, or a diff preview in the PublishBar** — the real answer to hazard
+  13. Whole-branch publish has already shipped a half-finished sentence once.
 - **The button system.** 87 buttons across 18 files.
 - **Body scroll lock for modals.**
 - ~~**Skills sidebar count**~~ — **BUILT in #199.** The owner chose CATEGORIES. The recorded
@@ -2457,7 +2381,7 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 - ~~**`inputCls` duplicated across 8 files**~~ — **DONE in #199, AND THE COUNT AND THE PREMISE
   WERE BOTH WRONG.** SEVEN declarations, not eight, and they were **NOT IDENTICAL**: three
   distinct strings. Four panels carried `text-[14px]`, the block forms and the case-study index
-  `text-[14px]`, and `LinksEditPanel` a structurally different box. **THE COPIES HAD DRIFTED,
+  `text-[13px]`, and `LinksEditPanel` a structurally different box. **THE COPIES HAD DRIFTED,
   SO THE DEDUPE WAS NEVER A DEDUPE** — a naive merge would have resized rendered type on four
   surfaces. Only byte-identical copies were merged, into `inputCls` (13px) and `inputClsMd`
   (14px). **THE SPLIT IS DELIBERATE AND UNRESOLVED**; unifying it is an owner decision and
@@ -2507,7 +2431,7 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   same design smaller, so it needs its own decision rather than a breakpoint sweep.
 - **THE CASE-STUDY CANVAS HAS THE SAME SNAPSHOT GAP #202 CLOSED FOR BLOG.**
   `ProjectsEditPanel` fetches `draftImages` **once** inside `loadSections()` and its own
-  comment says it is _"still never re-fetched once loaded"_; `SectionsEditPanel` builds
+  comment says it is *"still never re-fetched once loaded"*; `SectionsEditPanel` builds
   `rewriteSrc` from that snapshot. So it is the identical bug, sourced from a client fetch
   instead of a server prop, and a case-study block image uploaded during a session 404s on
   that canvas until publish.
@@ -2614,7 +2538,7 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
     sits under "Card image" in the POST section, which is `HeroImageField`. The file describes
     a mockup, so it names no components — and that is precisely why a rule can be mapped to the
     wrong one and nothing notices.
-    **Corrected in place beside what they replace**, never silently overwritten.
+  **Corrected in place beside what they replace**, never silently overwritten.
 - Six untracked explorations, unrelated, left alone.
 
 ---
@@ -2744,7 +2668,7 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   restoring it means reopening the L.** `backdrop-blur` went with it at `lg` only; below `lg`
   the bar is still cream and still frosts.
   **HAZARD 26 WAS FOUND LIVE ON MAIN** — `StudioSidebar` carried `lg:border-ink-950/12
-lg:border-white/12` on one element. Measured, white/12 won by sheet order and the ink class
+  lg:border-white/12` on one element. Measured, white/12 won by sheet order and the ink class
   was dead, so the render was right BY LUCK. Contract correction **C-17**.
 - **#213** the topbar button and the canvas bar →1385. Two fidelity gaps the owner spotted after
   the arc closed, and **the first time in this arc the CONTRACT WAS RIGHT AND THE BUILD WAS
@@ -2800,7 +2724,6 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
   The search carried the contract's INTENT onto ink rather than its values (C-9 resolved):
   well `white/5` **1.16 → white/12 1.45**, border **1.45 → 1.98**, placeholder, magnifier and
   kbd `ink-400` **3.27 → ink-200 5.08**, height 38.5 → 40, font 13 → 13.5.
-
 - **#209** the selection language (`2488500`) →1379. Items 1 and 2, the last of the eleven that is paint.
   ONE language on three surfaces — **ground + 1 step, plus an identical 3px accent left bar**.
   **The measurement is the headline**: every cream step separates by 1.05–1.19 and the accent
@@ -2826,10 +2749,10 @@ CONTENT, ONE SCOPED PR, AND THREE OPEN HAZARDS.**
    **before** the next on-ink work, not after.
    **HAZARDS 23 AND 24 REMAIN OPEN AND ARE BOTH ONE DECISION, NOT MANY EDITS.**
    **23 — HALF CLOSED BY #210.** The 11 `text-ink-700` sites were **deleted** (they read
-   correctly at full ink); the **40 `text-ink-500` sites remain**, each a class meaning _muted_
+   correctly at full ink); the **40 `text-ink-500` sites remain**, each a class meaning *muted*
    that renders full ink-950. **The follow-up now inherits the answer, not the question**:
    `text-text-subtle` is already what the neighbouring field hints use, so badges, "Saving
-   draft…" and the readonly fields are _match the neighbour_. The 13 icon buttons stay a
+   draft…" and the readonly fields are *match the neighbour*. The 13 icon buttons stay a
    separate question — rest-versus-hover, not muted text. `studio-tokens` B2 pins the count at
    40, so it fails if a new dead site appears **and** if the set reaches zero.
    Do not fix them blind; several may look better as they render.
@@ -2853,12 +2776,12 @@ CONTENT, ONE SCOPED PR, AND THREE OPEN HAZARDS.**
 2. **THREE ASSET UPLOADS, EACH ONE STUDIO ACTION AND ALL OF THEM CONTENT.** Highest value per
    minute of anything on this list.
    a. **`boat-crest`'s hero** — still the original 837KB, 2074×1058 PNG that never went through
-   sharp. One /studio upload re-encodes it to webp at quality 80. Open since #160.
+      sharp. One /studio upload re-encodes it to webp at quality 80. Open since #160.
    b. **The three studio heroes are 320×200** into a 500px card slot, so they render soft.
-   Re-upload at a larger size; the route downscales to a 2048 long edge and never enlarges.
+      Re-upload at a larger size; the route downscales to a 2048 long edge and never enlarges.
    c. **Then remove `elevate-one-view` from `HERO_IMAGE_UNSUITABLE`** (hazard 21) — but LOOK at
-   the card first. Its comment describes a 390×988 portrait that no longer exists, so the
-   stopgap is stale either way; whether the mock still beats a 320×200 hero is a judgement.
+      the card first. Its comment describes a 390×988 portrait that no longer exists, so the
+      stopgap is stale either way; whether the mock still beats a 320×200 hero is a judgement.
 3. **DELETE THE `rules-of-hooks` DISABLE** (hazard 17). Now the highest-value follow-up left,
    and the only one carrying a latent correctness bug rather than a missing affordance —
    `ProjectsEditPanel` crashes the moment it is placed in the list shell its own comment says

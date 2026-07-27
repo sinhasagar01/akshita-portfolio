@@ -122,13 +122,13 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <p className="text-[14px] text-text-subtle">
+        <p className="text-[13px] text-text-subtle">
           Use the arrows to set the order they appear on your homepage.
         </p>
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[14px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
+          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[13px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> Add case study
         </button>
@@ -202,7 +202,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                 <span className="hidden w-[86px] shrink-0 text-[11.5px] text-text-subtle lg:inline">
                   {p.sectionCount} sections
                 </span>
-                <span className="w-[72px] shrink-0 text-right text-[12px]">
+                <span className="w-[72px] shrink-0 text-right text-[11px]">
                   {bespoke ? (
                     <span className="rounded-full border border-dashed border-ink-950/20 px-2 py-0.5 text-ink-500">
                       Bespoke
@@ -251,7 +251,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
               className={inputCls}
             />
           </label>
-          <p id="add-cs-desc" className="mt-1 text-[12px] text-text-subtle">
+          <p id="add-cs-desc" className="mt-1 text-[11px] text-text-subtle">
             The title is the case study&rsquo;s identity and can&rsquo;t be changed here later. It
             starts as a stub, added to the end of the list. Use the arrows to move it.
           </p>
@@ -285,7 +285,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
           busy={deleteBusy}
           initialFocusRef={delCancelRef}
         >
-          <p id="del-cs-msg" className="text-[14px]">
+          <p id="del-cs-msg" className="text-[13px]">
             Remove <b>{targetTitle}</b> from your draft? You can still undo it with Discard
             until you publish.
           </p>

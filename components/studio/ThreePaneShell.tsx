@@ -52,7 +52,7 @@ import { useState, type ReactNode } from "react";
 // 90 degrees. The icons carry no intrinsic width or height — they are a 24x24 viewBox with
 // `stroke="currentColor"` and nothing else — so a consumer MUST size them, either with a
 // `size-*` class on the svg or `[&>svg]:size-*` on the parent. The first draft wrapped one
-// in a `text-[12px]` span and the button rendered visibly empty.
+// in a `text-[11px]` span and the button rendered visibly empty.
 import { IconChevronRight } from "./icons";
 import { useMediaMin } from "./useMediaMin";
 import { FIT_THRESHOLD_PX, isListCollapsed, type ListIntent } from "@/lib/studio/three-pane";

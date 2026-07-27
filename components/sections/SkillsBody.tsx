@@ -102,7 +102,7 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
           >
             <div className="md:w-28 md:shrink-0">
               <p
-                className="text-[12px] tracking-[.14em] uppercase leading-none"
+                className="text-[11px] tracking-[.14em] uppercase leading-none"
                 style={{ color: "var(--color-accent-500)" }}
               >
                 {cat.category}
