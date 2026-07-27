@@ -72,3 +72,6 @@ blocks:
 
           One model, three jobs, and only one of them was well served by a place
           to type.
+  - discriminant: heading
+    value:
+      text: The posture
