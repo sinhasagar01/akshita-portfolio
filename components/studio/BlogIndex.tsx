@@ -142,7 +142,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search posts"
           aria-label="Search posts"
-          className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          className="min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
         />
         <button
           type="button"
@@ -167,7 +167,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
           {shown.map((p) => (
             <li
               key={p.slug}
-              className="group flex items-center gap-3 border-b border-ink-950/8 py-3"
+              className="group flex items-center gap-3 border-b border-ink-950/12 py-3"
             >
               <span
                 aria-hidden
@@ -187,7 +187,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
                 type="button"
                 onClick={() => setDeleteTarget(p.slug)}
                 aria-label={`Remove ${p.title}`}
-                className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
+                className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
               >
                 <IconX />
               </button>
@@ -221,7 +221,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Post title"
-              className="mt-4 w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              className="mt-4 w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
             />
             {error && (
               <p role="alert" className="mt-2 text-[12px] text-danger-600">

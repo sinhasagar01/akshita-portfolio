@@ -137,7 +137,7 @@ export default function HeroEditPanel({
       aria-label="Edit Hero"
       className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconSparkles />
@@ -170,7 +170,7 @@ export default function HeroEditPanel({
             value={values.heroCopy}
             onChange={(e) => edit("heroCopy", e.target.value)}
             onBlur={saveDraft}
-            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
 
@@ -240,7 +240,7 @@ export default function HeroEditPanel({
                 onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
                 onBlur={saveDraft}
                 placeholder={TABS[activeTab].fallback}
-                className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -252,7 +252,7 @@ export default function HeroEditPanel({
                 value={values[TABS[activeTab].lineKey]}
                 onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
                 onBlur={saveDraft}
-                className="w-full resize-y rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                className="w-full resize-y rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] leading-relaxed text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
               />
             </label>
           </div>
@@ -265,7 +265,7 @@ export default function HeroEditPanel({
             value={values.heroRoleLabel}
             onChange={(e) => edit("heroRoleLabel", e.target.value)}
             onBlur={saveDraft}
-            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
 
@@ -276,12 +276,12 @@ export default function HeroEditPanel({
             value={values.heroScrollCue}
             onChange={(e) => edit("heroScrollCue", e.target.value)}
             onBlur={saveDraft}
-            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>

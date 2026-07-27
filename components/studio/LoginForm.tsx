@@ -48,9 +48,9 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-sm overflow-hidden rounded-xl border border-ink-950/8 bg-cream-50"
+      className="w-full max-w-sm overflow-hidden rounded-xl border border-ink-950/12 bg-cream-50"
     >
-      <div className="flex items-center gap-2.5 border-b border-ink-950/8 bg-cream-100 px-5 py-4">
+      <div className="flex items-center gap-2.5 border-b border-ink-950/12 bg-cream-100 px-5 py-4">
         <span className="grid size-6 place-items-center rounded-md bg-accent-500 text-cream-50">
           <IconSparkles className="size-3.5" />
         </span>
@@ -70,7 +70,7 @@ export default function LoginForm() {
               setPassword(e.target.value);
               if (status === "error") setStatus("idle");
             }}
-            className="w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+            className="w-full rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
           />
         </label>
 

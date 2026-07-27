@@ -144,8 +144,20 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 // Exported so a bespoke field (VE-3's video URL input, which owns an inline error the
 // shared TextField has no slot for) can match every other input to the pixel instead of
 // re-deriving the class string and drifting.
+// THE WELL, AND THE MEASUREMENT THAT DEFINED IT. The box was `bg-cream-50` sitting on a
+// `bg-cream-50` panel — measured, the input and its ground were THE SAME COLOUR, separated only
+// by a hairline. That is why it read as a box floating on a field rather than a recess. The
+// input now goes one value DARKER than its panel (cream-100 on cream-50), which is what makes
+// it a well.
+//
+// HEIGHT IS 44px VIA `min-h-11`, NOT VIA PADDING. Measured, the box was 39px (21px line-height
+// + 8/8 padding + 2 border), not the 36 the direction assumed. Deriving 44 from padding would
+// mean two different padding values for the 13px and 14px variants, which would make them
+// differ by more than the font size and break `studio-nav-active` G6 — the gate that keeps
+// #199's dedupe honest. A min-height lands both on exactly 44 and leaves the ONE token of
+// difference intact.
 export const inputCls =
-  "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 /**
  * The same box at 14px, for the ENTRY PANELS rather than the block forms.
@@ -163,13 +175,29 @@ export const inputCls =
  * NAMED FOR WHAT DIFFERS, not for a surface, because it spans four unrelated panels.
  */
 export const inputClsMd =
-  "w-full rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
-/** The same box, in the rejection state — a danger border and ring. */
+/** The same box, in the rejection state — a danger border and ring.
+ *
+ *  IT CARRIES THE GEOMETRY INDEPENDENTLY, which is why it moves with the other two by hand.
+ *  It is not derived from `inputCls`, so it is the copy that silently keeps the OLD shape when
+ *  the well changes — and its only visible moment is a rejected value, so nobody would notice
+ *  for a long time. There are FIVE strings with this geometry; see the ralph suite, which
+ *  enumerates them so a sixth is loud. */
 export const inputErrorCls =
-  "w-full rounded-md border border-danger-600 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+  "w-full min-h-11 rounded-md border border-danger-600 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
 
-export const labelCls = "text-eyebrow uppercase tracking-eyebrow text-ink-400";
+/**
+ * The field label — STRUCTURE, not a caption. 11px / 700 / 0.14em / ink-600.
+ *
+ * `--text-eyebrow` IS DELIBERATELY NOT EDITED, AND THE SIZE IS A LOCAL UTILITY INSTEAD.
+ * That token is read by ELEVEN files in components/case-study — canvas code — plus
+ * components/ui/SectionLabel, app/not-found and app/(portfolio)/error. Changing it to get an
+ * 11px studio label would move the case-study canvas and two public pages, which is the one
+ * thing this arc must not do. `tracking-eyebrow` STAYS because 0.14em is already the value
+ * this label wants, so nothing is gained by localising it too.
+ */
+export const labelCls = "text-[11px] font-bold uppercase tracking-eyebrow text-ink-600";
 
 export function TextField({
   label,
@@ -408,7 +436,7 @@ export function BlockImageField({
   return (
     <div className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
-      <div className="flex items-center gap-2 rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2">
         <ImageThumb src={src} />
         {src ? (
           <code className="min-w-0 flex-1 truncate text-[11px] text-ink-600">{src}</code>
@@ -430,7 +458,7 @@ export function BlockImageField({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-md border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-md border border-ink-950/12 bg-cream-50 px-2.5 py-1 text-[11px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : src ? "Replace" : "Upload"}
         </button>
@@ -440,7 +468,7 @@ export function BlockImageField({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onChange(null)}
             aria-label={`Clear ${label}`}
-            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconX />
           </button>
@@ -582,14 +610,14 @@ export function ItemRows<T>({
 }) {
   const list = useItemList(items, onChange, empty);
   const iconBtn =
-    "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+    "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
   return (
     <div className="flex flex-col gap-2">
       {items.map((item, i) => {
         const name = rowLabel?.(item, i) || `${itemNoun} ${i + 1}`;
         return (
-          <div key={i} className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+          <div key={i} className="rounded-md border border-ink-950/12 bg-cream-100 p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
               <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">{name}</span>
               <div className="flex gap-1">
@@ -621,7 +649,7 @@ export function ItemRows<T>({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => list.remove(i)}
                     aria-label={`Remove ${name}`}
-                    className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+                    className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
                   >
                     <IconX />
                   </button>

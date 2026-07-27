@@ -101,7 +101,7 @@ import type { BlogCard } from "@/lib/keystatic";
 type BlogFields = { blocks: readonly BlogRawBlock[] };
 
 const iconBtn =
-  "grid size-6 shrink-0 place-items-center rounded border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
+  "grid size-6 shrink-0 place-items-center rounded border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
 
 /** A local two-option toggle. SegmentedToggle is deliberately NOT reused: despite the name
  *  it is a projects-specific control that POSTS a template/category patch on change
@@ -673,19 +673,33 @@ export default function BlogBlocksEditPanel({
     <div className="flex flex-col">
       {/* SECTION 1 — the post's own fields, owned by BlogEditPanel's form. */}
       <section>
-        <header className="flex items-center justify-between gap-2 border-b border-ink-950/8 px-3 py-2">
-          <h2 className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Post</h2>
+        {/* THE INK BAND. A filled bar rather than a serif whisper, which is the single largest
+            gain in perceived structure and, on ink chrome, anchors the inspector to the
+            sidebar. Foregrounds come from the EXISTING scale PR 1 established — cream-50 /
+            ink-200 / ink-400 on ink-950 — so this adds no token.
+
+            THE BAND STOPS AT THE HEADER, and that boundary is load-bearing. The block strip
+            below is still cream, which is why the strip's `focus-visible:ring-ink-950` is
+            untouched: that ring is ink ON PURPOSE so it reads against the accent SELECTION
+            fill, and it is not on this band. If the strip is ever given an ink treatment, the
+            ring goes with it — at 1:1 it would be invisible, and a focus ring fails silently
+            because nothing looks wrong until someone tabs. */}
+        <header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">
+          <h2 className="text-[11px] font-bold uppercase tracking-eyebrow text-cream-50">Post</h2>
         </header>
         {postSection}
       </section>
 
       {/* SECTION 2 — the block strip and the selected block's fields. */}
-      <section className="border-t border-ink-950/8">
-        <header className="flex items-center justify-between gap-2 border-b border-ink-950/8 px-3 py-2">
-          <h2 className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+      <section className="border-t border-ink-950/12">
+        {/* The second band. Its SaveIndicator sits ON the ink, so the indicator carries its own
+            on-ink colour — see SaveIndicator, which now takes the ground it is drawn on rather
+            than assuming cream. */}
+        <header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">
+          <h2 className="text-[11px] font-bold uppercase tracking-eyebrow text-cream-50">
             Body · {blocks.length}
           </h2>
-          <SaveIndicator label="Body" saving={saveStatus === "saving"} dirty={dirty} />
+          <SaveIndicator label="Body" saving={saveStatus === "saving"} dirty={dirty} onInk />
         </header>
 
         {/* THE BLOCK STRIP. The chip shows the KIND LABEL and the position, never a body
@@ -705,7 +719,7 @@ export default function BlogBlocksEditPanel({
               return (
                 <li
                   key={id}
-                  className={`flex items-center gap-1 border-b border-ink-950/8 px-2 py-1.5 ${
+                  className={`flex items-center gap-1 border-b border-ink-950/12 px-2 py-1.5 ${
                     isSelected ? "bg-accent-500/10" : ""
                   }`}
                 >
@@ -765,7 +779,7 @@ export default function BlogBlocksEditPanel({
 
         {/* Add is APPEND-AT-END. The mock's per-gap inserter is a mock-only affordance and
             is not built; reorder moves a block to where you want it. */}
-        <div className="relative flex items-center gap-2 border-b border-ink-950/8 px-3 py-2.5">
+        <div className="relative flex items-center gap-2 border-b border-ink-950/12 px-3 py-2.5">
           <button
             type="button"
             onClick={() => setPicker((p) => !p)}
@@ -785,7 +799,7 @@ export default function BlogBlocksEditPanel({
           {picker && (
             // The picker offers exactly the blog kinds because BLOG_BLOCK_REGISTRY IS the
             // curation — no filter, no prop, no fork of the case-study picker.
-            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-lg border border-ink-950/8 bg-cream-50 p-1.5 shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)]">
+            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-lg border border-ink-950/12 bg-cream-50 p-1.5 shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)]">
               {BLOG_PICKER_ORDER.map((k) => (
                 <button
                   key={k}
@@ -870,7 +884,11 @@ export default function BlogBlocksEditPanel({
             href={livePath}
             target="_blank"
             rel="noreferrer"
-            className="hidden shrink-0 items-center gap-1.5 rounded-md border border-ink-950/8 px-2.5 py-1 text-[11.5px] text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500 sm:inline-flex [&>svg]:size-3"
+            // `text-ink-600` and `hover:text-accent-500` WERE HERE AND BOTH WERE DEAD — an unlayered
+            // `a { color: inherit }` outranks the utility layer. The colour is inherited from
+            // ThreePaneShell's strip now; the BORDER hover survives because no unlayered rule
+            // claims border-color, which is exactly the asymmetry that made this hard to see.
+            className="hidden shrink-0 items-center gap-1.5 rounded-md border border-ink-950/12 px-2.5 py-1 text-[11.5px] transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
           >
             View live <IconArrowUpRight />
           </a>

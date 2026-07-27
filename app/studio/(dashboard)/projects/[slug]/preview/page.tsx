@@ -59,7 +59,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
 
   return (
     <div className={`${STUDIO_PAGE} flex flex-col gap-4`}>
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="font-display text-base text-ink-950">{live.title}</span>
           <span
@@ -88,7 +88,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
             href={projectPath(slug)}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border border-ink-950/8 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
+            className="inline-flex items-center gap-1.5 rounded-md border border-ink-950/12 px-3 py-1.5 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
           >
             View live <IconArrowUpRight />
           </a>
@@ -96,7 +96,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
       </header>
 
       {/* The real renderer, so the preview is the thing itself, not a mock. */}
-      <div className="overflow-hidden rounded-lg border border-ink-950/8">
+      <div className="overflow-hidden rounded-lg border border-ink-950/12">
         <CaseStudyView study={study} />
       </div>
     </div>

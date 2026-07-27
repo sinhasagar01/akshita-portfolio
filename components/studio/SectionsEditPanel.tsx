@@ -72,7 +72,7 @@ const sectionLabel = (s: RawSection, i: number) =>
   sectionDisplayLabel({ title: s.title, eyebrow: s.eyebrow, id: s.id }, i);
 
 const iconBtn =
-  "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+  "grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
 // CS-3 — the block kinds that carry any STYLE field (image geometry or a glow
 // word). Under the Style tab, blocks NOT in this set have nothing to show, so their
@@ -362,7 +362,7 @@ function SelectedRail({
 }) {
   const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
   return (
-    <aside ref={railRef} className="sticky top-4 rounded-xl border border-ink-950/8 bg-cream-50 p-3.5">
+    <aside ref={railRef} className="sticky top-4 rounded-xl border border-ink-950/12 bg-cream-50 p-3.5">
       <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
@@ -382,7 +382,7 @@ function SelectedRail({
           // instead of pushing past the canvas. resize-none because dragging a handle
           // would fight the auto-sizing on the next keystroke.
           style={{ maxHeight }}
-          className="mt-2 w-full resize-none overflow-y-auto rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          className="mt-2 w-full resize-none overflow-y-auto rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
         />
       ) : null}
       <p className="mt-2 text-[11px] text-text-subtle">
@@ -491,7 +491,7 @@ function SectionCanvas({
     // on the same colour it does live rather than on the global canvas beige.
     <div
       ref={paneRef}
-      className="case-study canvas-static canvas-surface overflow-hidden rounded-lg border border-ink-950/8"
+      className="case-study canvas-static canvas-surface overflow-hidden rounded-lg border border-ink-950/12"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
@@ -885,7 +885,7 @@ export default function SectionsEditPanel({
       aria-label="Edit case study body"
       className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconGrid />
@@ -921,7 +921,7 @@ export default function SectionsEditPanel({
               return (
                 <div
                   key={ids.sectionIds[i]}
-                  className="relative flex flex-col gap-2 rounded-lg border border-ink-950/8 bg-cream-50 p-3 transition-colors hover:border-accent-500/40 hover:bg-cream-100"
+                  className="relative flex flex-col gap-2 rounded-lg border border-ink-950/12 bg-cream-50 p-3 transition-colors hover:border-accent-500/40 hover:bg-cream-100"
                 >
                   {/* The whole card selects; the reorder arrows are SIBLINGS of this
                       button, never nested, so the markup stays valid. The overlay sits
@@ -1005,7 +1005,7 @@ export default function SectionsEditPanel({
       {/* CS-2 — FOCUSED nav (a section is selected): back to board + a native
           dropdown to jump sections. Edit-state-free, so conditionally rendered. */}
       {selectedSectionId !== null && (
-        <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-2.5">
           <button
             type="button"
             onClick={() => setSelectedSectionId(null)}
@@ -1019,7 +1019,7 @@ export default function SectionsEditPanel({
               value={selectedSectionId}
               onChange={(e) => setSelectedSectionId(e.target.value)}
               aria-label="Jump to section"
-              className="rounded-md border border-ink-950/8 bg-cream-50 px-2 py-1 text-[12px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+              className="rounded-md border border-ink-950/12 bg-cream-50 px-2 py-1 text-[12px] text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
             >
               {values.sections.map((section, i) => (
                 <option key={ids.sectionIds[i]} value={ids.sectionIds[i]}>
@@ -1038,7 +1038,7 @@ export default function SectionsEditPanel({
         {/* The design's top-level split. Both regions stay MOUNTED (hidden, never
             unmounted) so switching view keeps every dirty edit, caret and id-lockstep
             intact — the same discipline the board/section switch uses. */}
-        <div role="tablist" aria-label="Editor view" className="flex gap-1 border-b border-ink-950/8">
+        <div role="tablist" aria-label="Editor view" className="flex gap-1 border-b border-ink-950/12">
           {(["canvas", "inspector"] as const).map((v) => {
             const on = view === v;
             return (
@@ -1282,7 +1282,7 @@ export default function SectionsEditPanel({
             while a real canvas sat above it was the confusing part. Same
             roving-tabindex tablist; both panels stay mounted so switching loses no
             input, caret, or draft. */}
-        <div role="tablist" aria-label="Section content and style" className="flex gap-1 border-b border-ink-950/8">
+        <div role="tablist" aria-label="Section content and style" className="flex gap-1 border-b border-ink-950/12">
           {(["content", "style"] as const).map((t) => {
             const selected = contentStyleTab === t;
             return (
@@ -1325,7 +1325,7 @@ export default function SectionsEditPanel({
           <div
             key={ids.sectionIds[i]}
             hidden={selectedSectionId !== ids.sectionIds[i]}
-            className="flex flex-col gap-3 rounded-lg border border-ink-950/8 p-3"
+            className="flex flex-col gap-3 rounded-lg border border-ink-950/12 p-3"
           >
             {confirmRemove === ids.sectionIds[i] ? (
               // Removing a section discards every block in it, and the control sits
@@ -1377,7 +1377,7 @@ export default function SectionsEditPanel({
                 <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
                   <IconChevronDown />
                 </button>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                   <IconX />
                 </button>
               </div>
@@ -1400,7 +1400,7 @@ export default function SectionsEditPanel({
               const entry = (BLOCK_REGISTRY as Record<string, (typeof BLOCK_REGISTRY)[EditableBlockKind] | undefined>)[kind];
               if (!entry) {
                 return (
-                  <div key={ids.blockIds[i][j]} className="rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2">
+                  <div key={ids.blockIds[i][j]} className="rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2">
                     <p className="text-[11px] text-ink-600">
                       {blockLabel(kind)} — no editor yet. It renders on the page once built.
                     </p>
@@ -1418,7 +1418,7 @@ export default function SectionsEditPanel({
                   // CS-3 — under the Style tab, a copy-only block has nothing to show,
                   // so its card is hidden here (the form stays MOUNTED). Content shows all.
                   hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
-                  className="rounded-lg border border-ink-950/8 bg-cream-50 p-3"
+                  className="rounded-lg border border-ink-950/12 bg-cream-50 p-3"
                 >
                   <div className="mb-2 flex items-baseline justify-between gap-2">
                     <span className="text-[12px] font-medium text-ink-950">
@@ -1434,7 +1434,7 @@ export default function SectionsEditPanel({
                         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
                           <IconChevronDown />
                         </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                           <IconX />
                         </button>
                       </div>
@@ -1465,7 +1465,7 @@ export default function SectionsEditPanel({
                       key={k}
                       type="button"
                       onClick={() => addBlock(i, k)}
-                      className="rounded-md border border-ink-950/8 bg-cream-50 px-2.5 py-1.5 text-[12px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
+                      className="rounded-md border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] text-ink-700 transition-colors hover:border-accent-500/40 hover:text-accent-600"
                     >
                       {blockLabel(k)}
                     </button>
@@ -1493,7 +1493,7 @@ export default function SectionsEditPanel({
         <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>

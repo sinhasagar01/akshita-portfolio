@@ -43,7 +43,7 @@ export default function ChipListEditor({
   const list = useItemList(chips, onChange, () => "");
 
   const iconBtn =
-    "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+    "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -59,7 +59,7 @@ export default function ChipListEditor({
                 onChange={(e) => list.set(i, e.target.value)}
                 onBlur={onBlur}
                 placeholder={placeholder}
-                className="min-w-0 flex-1 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                className="min-w-0 flex-1 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
               />
               {/* preventDefault on mousedown keeps focus on the input so the click
                   does not blur-save mid-op (the About-panel fix). */}
@@ -88,7 +88,7 @@ export default function ChipListEditor({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => list.remove(i)}
                 aria-label={`Remove ${name}${fromSuffix}`}
-                className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
               >
                 <IconX />
               </button>

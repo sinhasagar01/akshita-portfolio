@@ -80,7 +80,7 @@ export default function ExperienceEditPanel({
       aria-label={`Edit ${company}`}
       className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconBriefcase />
@@ -113,7 +113,7 @@ export default function ExperienceEditPanel({
             readOnly
             aria-readonly="true"
             tabIndex={-1}
-            className="w-full cursor-not-allowed rounded-md border border-ink-950/8 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            className="w-full cursor-not-allowed rounded-md border border-ink-950/12 bg-cream-100 px-3 py-2 text-[14px] text-ink-500 outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The entry&rsquo;s identity, set when you add it. Not editable here.
@@ -189,7 +189,7 @@ export default function ExperienceEditPanel({
         </label>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>

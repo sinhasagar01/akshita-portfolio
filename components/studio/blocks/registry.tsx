@@ -492,7 +492,7 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
   return (
     // The glow word is pure appearance — the whole group lives under Style.
     <TabGroup group="style" className="">
-      <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+      <div className="rounded-md border border-ink-950/12 bg-cream-100 p-3">
         <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
           Glow word (optional)
         </span>
@@ -601,7 +601,7 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
 const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
     <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} collection={collection} />
-    <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+    <div className="rounded-md border border-ink-950/12 bg-cream-100 p-3">
       <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
         Scrawl (optional)
       </span>
@@ -666,7 +666,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
         <TextField label="Watermark word" value={value.watermark} onChange={(watermark) => onChange({ ...value, watermark })} onBlur={onBlur} optional />
       </div>
     </DisclosureGroup>
-    <div className="rounded-md border border-ink-950/8 bg-cream-100 p-3">
+    <div className="rounded-md border border-ink-950/12 bg-cream-100 p-3">
       <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
         Rating chip (optional)
       </span>

@@ -190,7 +190,7 @@ export default function BlogEditPanel({
             aria-pressed IS correct here: a two-segment selection genuinely has a pressed
             state. It was wrong on LoveButton only because love is one-way and cannot be
             un-pressed. */}
-        <div role="group" aria-label="Status" className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5">
+        <div role="group" aria-label="Status" className="inline-flex rounded-md border border-ink-950/12 bg-cream-50 p-0.5">
           {BLOG_STATUSES.map((s) => (
             <button
               key={s}
@@ -249,7 +249,7 @@ export default function BlogEditPanel({
         </p>
       </div>
 
-      <p className="border-t border-ink-950/8 pt-2.5 text-[11px] leading-relaxed text-text-subtle">
+      <p className="border-t border-ink-950/12 pt-2.5 text-[11px] leading-relaxed text-text-subtle">
         The title is the slug and is read only. Reading time is computed from the blocks.
         Loves are runtime state and are never edited here.
       </p>

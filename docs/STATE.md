@@ -6,9 +6,9 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE INK SHELL)
+## STATE (as of THE PANEL LANGUAGE)
 
-**main** = PR 1 of the ink chrome arc (the ink shell), on `91a3641` = the ink chrome contract.
+**main** = `e25a863` = the ink shell (#204), with the panel language (PR 2a) in flight.
 Pinned: `932e59c` = #203 (every blog post gets its own social card), `de6fba0` =
 STATE for #201 and #202, `6b28e91` + `01c2251` + `6ebd513` = the owner's studio hero uploads for
 the two Fosfor studies and Elevate, `49a2a29` = #202 (the canvas draws a block image before it
@@ -68,16 +68,16 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1289 ACROSS 37 RUNNABLE SUITES
+### RALPH IS 1305 ACROSS 37 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41).
 
-**1289 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1305 ACROSS 37 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -1443,6 +1443,17 @@ All prior rules remain. Added or sharpened across this session:
       accurate when written in #191 and drifted as #192 to #196 merged without deleting.
       **The count variant recurring is the point:** the first one decayed as kinds were
       added, this one as branches were, and neither was ever re-derived.
+    - **A COUNT THAT WAS WRONG IN KIND RATHER THAN IN DEGREE.** PR 2's plan said the input
+      geometry was "five strings". Five is the number of NAMED CONSTANTS. The number of form
+      controls carrying that geometry is **21**, none of which reference an export — so the
+      plan counted the wrong noun and the tally was beside the point. **Every earlier count
+      variant was off by an amount; this one was off by a CATEGORY**, and the tell was that
+      the fix "reached the primitives" and the screen did not change.
+      The same shape bit twice more inside one PR: a canvas hairline count of "6" was really
+      **4** (the grep swept up a comment in a `.ts` file and a `border-ink-950/80`, a
+      different value entirely), and the first version of the gate protecting it asserted
+      `> 0`, which a mutation that unified ONE file walked straight through. **Count the
+      thing you mean, then make the assertion able to fail for the reason it exists.**
     - **AN INSTRUCTION, TWICE, AND THIS IS A DIFFERENT ORIGIN FROM ALL FIVE ABOVE.** #203's
       brief carried two premises that were not in the record and never had been. One
       **attributed a claim to THIS FILE** — that the case-study OG route enumerates an
@@ -1904,6 +1915,17 @@ All prior rules remain. Added or sharpened across this session:
   hooks or lifting selection out of the panel.
   ~~3. IMPLEMENT `pinned` IN `StudioSidebar`~~ — **REMOVED in #199**, because the intent was
   already implemented in the wrapper. See hazard 19 for why the hazard's own text was wrong.
+- **PR 2b — MAKE THE 21 ENTRY-PANEL INPUTS CONSUME THE SHARED EXPORT.** PR 2a shipped the
+  panel language everywhere except here, and the gap is stated rather than quiet: **block-form
+  fields are 44px wells, the entry panels and the login form are still 39px flat boxes.**
+  **IT IS A DEDUPE, NOT A REPAINT, and must be scoped that way.** Converting the 21 literals in
+  place re-creates by hand exactly the drift #199 spent a PR removing. Do what #199 did: prove
+  which copies are byte-identical before merging, and where they differ **report the difference
+  and say what changes** rather than picking a winner silently — a dedupe that quietly resizes
+  type on a surface is not a dedupe. The literals have already drifted: 13px against 14px, plus
+  `resize-y`, `leading-relaxed` and `cursor-not-allowed`. **Some of those are legitimate** — a
+  textarea wants resize-y, a disabled control wants cursor-not-allowed — and they are additive
+  and compose with the export. **Only the geometry should be shared.**
 - **A FIFTH INPUT GEOMETRY STRING LIVES INLINE IN `StudioSearch`, AND #199 COULD NOT REACH IT.**
   #199 deduped the shared EXPORTS into `inputCls` (13px) and `inputClsMd` (14px). `inputErrorCls`
   is a third copy of the same box, `labelCls` a fourth export that ink chrome's rule 3 changes,

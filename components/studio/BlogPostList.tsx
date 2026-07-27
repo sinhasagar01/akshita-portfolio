@@ -35,14 +35,14 @@ export default function BlogPostList({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-none border-b border-ink-950/8 p-3">
+      <div className="flex-none border-b border-ink-950/12 p-3">
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search posts"
           aria-label="Search posts"
-          className="w-full min-w-0 rounded-md border border-ink-950/8 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+          className="w-full min-w-0 rounded-md border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
         />
       </div>
 
@@ -63,7 +63,7 @@ export default function BlogPostList({
                     // that the selected row is the accent-tinted pill, so this follows the
                     // convention rather than inventing a third selected treatment.
                     aria-current={current ? "page" : undefined}
-                    className={`flex items-start gap-2.5 border-b border-ink-950/8 px-3 py-2.5 transition-colors ${
+                    className={`flex items-start gap-2.5 border-b border-ink-950/12 px-3 py-2.5 transition-colors ${
                       current ? "bg-accent-500/8" : "hover:bg-cream-100"
                     }`}
                   >
@@ -94,10 +94,10 @@ export default function BlogPostList({
         )}
       </div>
 
-      <div className="flex-none border-t border-ink-950/8 p-3">
+      <div className="flex-none border-t border-ink-950/12 p-3">
         <Link
           href="/studio/blog"
-          className="block rounded-md border border-ink-950/8 px-3 py-2 text-center text-[12px] text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+          className="block rounded-md border border-ink-950/12 px-3 py-2 text-center text-[12px] text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
         >
           All posts
         </Link>

@@ -76,7 +76,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
       aria-label="Edit Process"
       className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconWorkflow />
@@ -100,7 +100,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
 
       <div className="flex flex-col gap-4 px-4 py-5">
         {stages.map((stage, i) => (
-          <div key={i} className="flex flex-col gap-3 rounded-lg border border-ink-950/8 bg-cream-100/50 p-3.5">
+          <div key={i} className="flex flex-col gap-3 rounded-lg border border-ink-950/12 bg-cream-100/50 p-3.5">
             <span className="text-eyebrow uppercase tracking-eyebrow text-accent-600">
               Stage {i + 1}
             </span>
@@ -145,7 +145,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
         ))}
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-ink-500">Saving draft…</span>

@@ -133,7 +133,7 @@ export default function ThreePaneShell({
         className={`relative flex min-w-0 flex-none flex-col overflow-hidden border-r bg-cream-50 ${
           animate ? "transition-[width,border-color] duration-300 ease-out" : ""
         } ${
-          collapsed ? "w-0 border-transparent" : "w-[264px] border-ink-950/8"
+          collapsed ? "w-0 border-transparent" : "w-[264px] border-ink-950/12"
         }`}
       >
         <div className="flex min-w-[264px] min-h-0 flex-1 flex-col overflow-hidden">{list}</div>
@@ -147,7 +147,7 @@ export default function ThreePaneShell({
           onClick={() => toggle("open")}
           aria-label="Show posts"
           aria-expanded={false}
-          className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-lg border border-l-0 border-ink-950/8 bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+          className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-lg border border-l-0 border-ink-950/12 bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
         >
           <IconChevronRight className="size-3.5" />
         </button>
@@ -159,14 +159,20 @@ export default function ThreePaneShell({
             appear and vanish as the list collapses. Only the collapse control itself is
             conditional — when the list is already collapsed, the reopen rail is the
             control, and two ways to reopen one pane is one too many. */}
-        <div className="flex flex-none items-center gap-2.5 border-b border-ink-950/8 px-4 py-2">
+        {/* `text-ink-600` IS ON THE STRIP RATHER THAN ON ITS CONTROLS, and that is forced.
+            globals.css's unlayered `a { color: inherit }` outranks @layer utilities, so a
+            `text-*` utility on an <a> does nothing — `canvasBar`'s View live link carried one
+            and it had never applied. Setting the default here lets the anchor INHERIT the
+            right value without a wrapper element, which the repaint's attribute-invariant
+            gate would reject. Children that want another colour still state their own. */}
+        <div className="flex flex-none items-center gap-2.5 border-b border-ink-950/12 px-4 py-2 text-ink-600">
           {!collapsed ? (
             <button
               type="button"
               onClick={() => toggle("closed")}
               aria-label="Collapse posts"
               aria-expanded
-              className="grid size-[26px] flex-none place-items-center rounded-md border border-ink-950/8 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+              className="grid size-[26px] flex-none place-items-center rounded-md border border-ink-950/12 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
             >
               <IconChevronRight className="size-3.5 rotate-180" />
             </button>
@@ -182,7 +188,7 @@ export default function ThreePaneShell({
           useDraftForm-fed field trees posting through one onChange, with colliding ids and
           two carets. */}
       {inspector !== null ? (
-        <aside className="w-[320px] flex-none overflow-y-auto border-l border-ink-950/8 bg-cream-100">
+        <aside className="w-[320px] flex-none overflow-y-auto border-l border-ink-950/12 bg-cream-100">
           {inspector}
         </aside>
       ) : null}

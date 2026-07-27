@@ -66,12 +66,16 @@ function nonBlank(links: LinkItem[]): LinkItem[] {
 // Importing the shared one and appending overrides would leave two competing border
 // declarations whose winner is decided by the generated sheet rather than by this file — the
 // trap BoldToolbar's header already records. Left alone on purpose.
+//
+// IT IS THE FIFTH GEOMETRY STRING, AND STAYING LOCAL DOES NOT MEAN STAYING BEHIND. The reasons
+// above are about the BORDER and the flex sizing; they say nothing about the well, so the
+// height and the ground track blocks/fields.tsx exactly and move whenever it does.
 const inputCls =
-  "min-w-0 flex-1 rounded-md border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
-const okBorder = "border-ink-950/8 focus:border-accent-500 focus:ring-accent-500/30";
+  "min-w-0 min-h-11 flex-1 rounded-md border bg-cream-100 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
+const okBorder = "border-ink-950/12 focus:border-accent-500 focus:ring-accent-500/30";
 const errBorder = "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30";
 const iconBtn =
-  "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+  "grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
 export default function LinksEditPanel({ itemId, email, links }: Props) {
   const initial: LinksFields = { email, links };
@@ -143,7 +147,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
       aria-label="Edit Links"
       className="overflow-hidden rounded-xl border border-accent-500/30 bg-cream-50"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/8 bg-cream-100 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-md bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconArrowUpRight />
@@ -186,7 +190,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
               const errorId = `links-${ids[i]}-error`;
               const name = link.label.trim() || `link ${i + 1}`;
               return (
-                <div key={ids[i]} className="flex flex-col gap-1.5 rounded-lg border border-ink-950/8 bg-cream-100/50 p-2.5">
+                <div key={ids[i]} className="flex flex-col gap-1.5 rounded-lg border border-ink-950/12 bg-cream-100/50 p-2.5">
                   <div className="flex items-center gap-1.5">
                     <input
                       type="text"
@@ -227,7 +231,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => removeLink(i)}
                       aria-label={`Remove ${name}`}
-                      className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/8 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                      className="grid size-8 shrink-0 place-items-center rounded-md border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
                     >
                       <IconX />
                     </button>
@@ -267,7 +271,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
         </div>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/8 bg-cream-100 px-4 py-3">
+      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[11px]" aria-live="polite">
           {hasUrlError ? (
             <span className="text-accent-600">Fix the highlighted URL to save.</span>

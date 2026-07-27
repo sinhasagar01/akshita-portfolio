@@ -95,7 +95,7 @@ export default function SegmentedToggle({
       <div
         role="group"
         aria-label={ariaLabel}
-        className="inline-flex rounded-md border border-ink-950/8 bg-cream-50 p-0.5"
+        className="inline-flex rounded-md border border-ink-950/12 bg-cream-50 p-0.5"
       >
         {(["mobile", "web"] as const).map((opt) => {
           const on = selected === opt;
