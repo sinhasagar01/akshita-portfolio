@@ -212,18 +212,53 @@ export function ListDetailLayout({
                     aria-label={s.badge || isDirty ? label : undefined}
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => select(s.id)}
-                    // Borderless resting row (Task 3): the item lifts to cream-100
-                    // on hover and marks selection with the accent-tint + accent
-                    // border. `border` (width) stays in the base and inactive uses
-                    // `border-transparent` ON PURPOSE — the reserved 1px keeps the
-                    // box metrics constant so the selected accent border never
-                    // reflows the row. Do not "simplify" it to drop `border`.
+                    // SELECTION IS A CREAM FILL PLUS A 3px ACCENT LEFT BAR — the studio's one
+                    // selection language, shared with the blog list rail and the block strip.
+                    //
+                    // THE FILL IS NOT THE SIGNAL AND NEVER WAS. Measured, every available cream
+                    // step separates by 1.05 to 1.19, and the accent tint this replaces was
+                    // 1.15 — inside that same band, which is why selection was hard to see at
+                    // all. The BAR carries it at 3.4 to 4.1 against these grounds, ~30x the
+                    // fill. The fill is a supporting wash; do not treat it as the cue.
+                    //
+                    // THE FILL IS `ground + 1 STEP`, NOT A FIXED COLOUR. This row's ground is
+                    // cream-50 so the fill is cream-100; the rail sits on cream-200 and fills
+                    // cream-300; the strip sits on cream-100 and fills cream-200. A single hex
+                    // across three grounds would have been the third time in this arc a
+                    // RELATION was encoded as a VALUE. Same rule and same bar is what makes it
+                    // one language — the same hex would have made it three bugs.
+                    //
+                    // THE ACCENT TINT IS GONE, DELIBERATELY. #167 objected to a fill competing
+                    // with the accent badge and dirty dot inside the row. A bar at the edge does
+                    // not compete with a badge inline, so the bar delivers what #167 wanted;
+                    // keeping the tint underneath would have preserved the problem beside its
+                    // own solution.
+                    //
+                    // `border-l-[3px]` LIVES IN THE BASE with `border-l-transparent` when
+                    // inactive, and `pl-[10px]` absorbs it so 3 + 10 matches the old 1 + 12.
+                    // The reserved width keeps the box metrics constant — selection never
+                    // reflows the row. Do not "simplify" it to drop the base border.
+                    //
+                    // NO `border-transparent` SHORTHAND ANYWHERE HERE. `border-transparent`
+                    // writes `border-color` and `border-l-accent-500` writes
+                    // `border-left-color`; both are utilities at equal specificity, so which
+                    // one owns the left edge is decided by their order in the generated sheet.
+                    // That is a coin-flip dressed as a class name, and the same family of bug
+                    // as the dead utilities PR A removed. The three sides are set explicitly
+                    // instead, so nothing competes.
+                    //
+                    // HOVER AND SELECTED SHARE THE FILL, BY NECESSITY. cream-100 on cream-50 is
+                    // 1.05, so the cream ladder cannot encode rest, hover AND selected as three
+                    // legible fills — a half-step hover would be ~1.02 and invisible. THE BAR IS
+                    // WHAT SEPARATES THEM, at ~4:1, which is the same reason the fill is not the
+                    // signal anywhere in this language. A hovered row is a preview of the
+                    // selected fill without the bar.
                     className={[
-                      "flex w-full items-center justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border py-2.5 pl-3 text-left text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      "flex w-full items-center justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border border-y-transparent border-r-transparent border-l-[3px] py-2.5 pl-[10px] text-left text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
-                        ? "border-accent-500/40 bg-accent-500/10 font-medium text-ink-950"
-                        : "border-transparent text-ink-700 hover:bg-cream-100",
+                        ? "border-l-accent-500 bg-cream-100 font-medium text-ink-950"
+                        : "border-l-transparent text-ink-700 hover:bg-cream-100",
                     ].join(" ")}
                   >
                     <span className="flex min-w-0 items-center gap-2">

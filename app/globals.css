@@ -2752,7 +2752,31 @@ a {
 
    READONLY IS DARKER, NOT LIGHTER — cream-200. A readonly field is chrome that happens to
    hold text, so it sits with the chrome rather than with the wells. That predates this
-   ladder and survives it; see ExperienceEditPanel's Company field for the full reasoning. */
+   ladder and survives it; see ExperienceEditPanel's Company field for the full reasoning.
+
+   ---- SELECTION: GROUND + 1 STEP, PLUS AN IDENTICAL BAR (PR B) ------------------------
+
+   A selected row is ONE STEP DARKER THAN ITS OWN GROUND, plus a 3px accent-500 LEFT BAR.
+   Three surfaces, three grounds, three fills, one rule:
+
+     ListDetailLayout row   on cream-50   -> cream-100
+     blog list rail post    on cream-200  -> cream-300
+     block strip block      on cream-100  -> cream-200
+
+   THE SAME RULE AND THE SAME BAR ARE WHAT MAKE IT ONE LANGUAGE. The same HEX would have made
+   it three bugs — one step from its ground on one surface and arbitrary on the other two.
+   That would have been the THIRD time in this arc a relation was encoded as a value, after
+   #205's input colour and the fidelity findings' own item-3 recommendation.
+
+   THE FILL IS NOT THE SIGNAL, AND NO CREAM FILL EVER COULD BE. Measured, every step on this
+   ladder separates by 1.05 to 1.19 — and the accent tint the bar replaced was 1.15, inside
+   that same band, which is exactly why selection was hard to see. THE BAR CARRIES IT at 3.43
+   to 4.48, roughly thirty times the separation. Treat the fill as a supporting wash and never
+   as the cue; if a surface ever needs selection without a bar, it needs a different mechanism,
+   not a darker cream.
+
+   HOVER AND SELECTED SHARE A FILL, BY NECESSITY. At 1.05 per step the ladder cannot encode
+   rest, hover AND selected as three legible fills. The bar is what separates them. */
 
 /* ============================================================ STUDIO SECTION HEAD
    UNLAYERED ON PURPOSE, exactly like the `.case-study .font-display` rule above, and for the

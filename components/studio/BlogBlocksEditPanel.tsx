@@ -721,8 +721,20 @@ export default function BlogBlocksEditPanel({
               return (
                 <li
                   key={id}
-                  className={`flex items-center gap-1 border-b border-ink-950/12 px-2 py-1.5 ${
-                    isSelected ? "bg-accent-500/10" : ""
+                  // The studio's one selection language — cream fill plus a 3px accent left
+                  // bar. This strip sits on the inspector's cream-100, so GROUND + 1 STEP is
+                  // cream-200. See ListDetailLayout for why the rule travels and the value
+                  // does not.
+                  //
+                  // `border-l-[3px]` in the base with `pl-[5px]` absorbing it: 3 + 5 matches
+                  // the old 0 + 8, so selecting a block never reflows the strip.
+                  //
+                  // THE ACCENT TINT IS GONE AND THE FOCUS RING IS UNTOUCHED. The button's ring
+                  // is ink BECAUSE it had to read against an accent fill; on cream-200 it reads
+                  // at least as well, and focus-versus-selection is the property that keeps a
+                  // keyboard user able to tell whether Enter would change anything.
+                  className={`flex items-center gap-1 border-b border-ink-950/12 border-l-[3px] py-1.5 pl-[5px] pr-2 ${
+                    isSelected ? "border-l-accent-500 bg-cream-200" : "border-l-transparent"
                   }`}
                 >
                   <button
