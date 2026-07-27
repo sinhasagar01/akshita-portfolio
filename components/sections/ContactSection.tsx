@@ -261,7 +261,7 @@ function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void })
       <button
         type="button"
         onClick={onRetry}
-        className="mt-6 font-body text-[13px] text-[--color-text-muted] underline hover:text-[--color-text-secondary] transition-colors duration-[--duration-base]"
+        className="mt-6 font-body text-[14px] text-[--color-text-muted] underline hover:text-[--color-text-secondary] transition-colors duration-[--duration-base]"
       >
         try again
       </button>
@@ -522,7 +522,7 @@ export default function ContactSection({ settings }: Props) {
                 onClick={goBack}
                 tabIndex={showBack ? 0 : -1}
                 aria-hidden={showBack ? undefined : true}
-                className="font-body text-[13px] transition-opacity duration-300"
+                className="font-body text-[14px] transition-opacity duration-300"
                 style={{
                   color: '#6d645d',
                   background: 'transparent',

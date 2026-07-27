@@ -204,7 +204,7 @@ export default function HeroCover({
               </dt>
               <dd
                 {...edit(`meta.${i}.value`, "Edit fact value")}
-                className={`text-[13px] font-medium text-on-dark leading-[1.35]${aff}`}
+                className={`text-[14px] font-medium text-on-dark leading-[1.35]${aff}`}
               >
                 {item.value}
               </dd>
@@ -332,7 +332,7 @@ export default function HeroCover({
             </dt>
             <dd
               {...edit(`meta.${i}.value`, "Edit fact value")}
-              className={`text-[13px] font-medium text-ink-950 leading-[1.35]${aff}`}
+              className={`text-[14px] font-medium text-ink-950 leading-[1.35]${aff}`}
             >
               {item.value}
             </dd>

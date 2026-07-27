@@ -225,7 +225,7 @@ export default function ExperienceEditPanel({
           type="button"
           onClick={saveDraft}
           disabled={!dirty || saveStatus === "saving"}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>

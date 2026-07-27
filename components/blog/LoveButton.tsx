@@ -150,7 +150,7 @@ export default function LoveButton({
 export function LoveHint({ slug }: { slug: string }) {
   const { count } = useLove(slug);
   return (
-    <p aria-live="polite" className="mt-4 min-h-[1.4em] text-[13px] text-ink-600">
+    <p aria-live="polite" className="mt-4 min-h-[1.4em] text-[14px] text-ink-600">
       {count !== null && count > 0 ? `${count} ${count === 1 ? "person" : "people"} loved this` : null}
     </p>
   );

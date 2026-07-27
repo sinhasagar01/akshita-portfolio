@@ -97,7 +97,7 @@ export default function BlogPostList({
                           a post title reads correctly at full ink, and since #209 selection
                           is carried by the fill and the accent bar, not by colour. */}
                       <span
-                        className={`block truncate text-[13px] font-medium ${
+                        className={`block truncate text-[14px] font-medium ${
                           current ? "text-ink-950" : ""
                         }`}
                       >

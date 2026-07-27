@@ -122,13 +122,13 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <p className="text-[13px] text-text-subtle">
+        <p className="text-[14px] text-text-subtle">
           Use the arrows to set the order they appear on your homepage.
         </p>
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[13px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
+          className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[14px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> Add case study
         </button>
@@ -285,7 +285,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
           busy={deleteBusy}
           initialFocusRef={delCancelRef}
         >
-          <p id="del-cs-msg" className="text-[13px]">
+          <p id="del-cs-msg" className="text-[14px]">
             Remove <b>{targetTitle}</b> from your draft? You can still undo it with Discard
             until you publish.
           </p>

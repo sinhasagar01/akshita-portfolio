@@ -165,7 +165,7 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 // #199's dedupe honest. A min-height lands both on exactly 44 and leaves the ONE token of
 // difference intact.
 export const inputCls =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 
 /**
  * The same box at 14px, for the ENTRY PANELS rather than the block forms.
@@ -173,7 +173,7 @@ export const inputCls =
  * THE 13px/14px SPLIT IS DELIBERATE AND UNRESOLVED — DO NOT MERGE THESE TWO. They were seven
  * hand-copied strings across seven files until #199 collapsed them, and the copies had
  * DRIFTED: four panels carried 14px, the block forms and the case-study index carried 13px.
- * The two differ by exactly ONE token, `text-[14px]` against `text-[13px]`, and nothing else.
+ * The two differ by exactly ONE token, `text-[14px]` against `text-[14px]`, and nothing else.
  *
  * Unifying them CHANGES RENDERED FONT SIZE on real surfaces — four of them one way, two the
  * other — so it is a design decision and the owner's call, not a cleanup. #199 deduped only
@@ -193,7 +193,7 @@ export const inputClsMd =
  *  for a long time. There are FIVE strings with this geometry; see the ralph suite, which
  *  enumerates them so a sixth is loud. */
 export const inputErrorCls =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-50 px-3 py-2 text-[13px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
 
 /**
  * The field label — STRUCTURE, not a caption. 11px / 700 / 0.14em / ink-600.

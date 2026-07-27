@@ -31,7 +31,7 @@ function CompanyLine({
     <div className={className}>
       {display}
       {acquiredBy && (
-        <span className="font-display italic normal-case tracking-[0] text-[13px]" style={{ color: "var(--color-accent-500)" }}>
+        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-accent-500)" }}>
           {" "}acquired by {acquiredBy}
         </span>
       )}
@@ -98,7 +98,7 @@ export default function ExperienceSection({ experience }: Props) {
               {feature.title}
             </div>
             {/* Date */}
-            <div className="relative text-[13px] text-[--color-text-muted] mt-[10px]">
+            <div className="relative text-[14px] text-[--color-text-muted] mt-[10px]">
               {feature.startDate} – {feature.endDate}
             </div>
           </div>
