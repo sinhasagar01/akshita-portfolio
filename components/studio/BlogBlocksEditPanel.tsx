@@ -275,6 +275,18 @@ export default function BlogBlocksEditPanel({
   // Fires one render AFTER the value landed, so `saveDraft` closes over the NEW blocks.
   // Keyed on the blocks themselves rather than on saveDraft, which is a fresh function
   // every render and would loop.
+  //
+  // CLEARING THE FLAG BEFORE THE CALL IS SAFE, AND IT IS `useDraftForm` THAT MAKES IT SAFE.
+  // It did not used to be. `saveDraft` returned silently when a save was already in flight,
+  // so a dropped call left `pendingSave` already false and NOTHING recorded that a save was
+  // owed — the canvas lost more than the inspector did, because the inspector at least had a
+  // next blur coming. `useDraftForm.saveDraft` now records the owe itself and fires it when
+  // the in-flight save settles, so the ordering here no longer decides anything.
+  //
+  // DO NOT ADD A SECOND GUARD HERE. Two mechanisms for one problem is the shape this project
+  // keeps removing, and a guard that cannot fire is a comment describing a defence that is
+  // not defending. If the coalescing in `useDraftForm` is ever removed, THAT is the thing to
+  // restore — not a belt here.
   useEffect(() => {
     if (!pendingSave.current) return;
     pendingSave.current = false;
@@ -817,6 +829,21 @@ export default function BlogBlocksEditPanel({
           >
             View live <IconArrowUpRight />
           </a>
+          {/* THE SAVE STATE, WHERE THE EDITING IS. Below the fold the canvas and the
+              inspector are mutually exclusive, so the ONE view in which inline editing works
+              rendered no save indicator at all — not scrolled away, not rendered. Driven at
+              1000x800: canvas view, zero indicators, canvas editable.
+              BOTH CONDITIONS ARE LOAD-BEARING. `canvasBar` renders unconditionally in the
+              strip ABOVE the swapped content, so `!inspectorFits` alone would show this
+              beside the inspector's own copy in the inspector view — two "Body" indicators,
+              which is the misreading #178's required label exists to prevent.
+              Above the fold nothing changes: the inspector's copy is on screen, 334px to the
+              right, and that distance is accepted rather than fixed here.
+              Same reasoning as the ViewToggle below — a control that exists only where the
+              other route to it is gone. */}
+          {!inspectorFits && view === "canvas" ? (
+            <SaveIndicator label="Body" saving={saveStatus === "saving"} dirty={dirty} />
+          ) : null}
           {/* The toggle exists ONLY below the fold, where the inspector pane is gone and
               this is the route to those fields. Above the fold both are on screen at once
               and a toggle between them would be a control with nothing to do. */}
