@@ -20,3 +20,7 @@ blocks:
   - discriminant: heading
     value:
       text: The constraint moved
+  - discriminant: richText
+    value:
+      paragraphs:
+        - ''
