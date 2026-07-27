@@ -122,6 +122,31 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
 
   // Sections load on mount now that they are the default view. Still never for
   // bespoke, and still never re-fetched once loaded.
+  //
+  // ---- A KNOWN, LATENT BUG. THIS DISABLE IS A PLACEHOLDER, NOT AN ANSWER. ---------------
+  //
+  // `if (!isSelected) return null` sits at line 98, ABOVE this hook. That is a real
+  // rules-of-hooks violation: on a render where the early return fires, React sees one fewer
+  // hook than on the render before, and the hook order breaks.
+  //
+  // SEVERITY, HONESTLY: LATENT, NOT ACTIVE. `useListItem` returns
+  // `isSelected: ctx === null ? true : activeId === id`, and this panel is mounted at exactly
+  // one place — app/studio/(dashboard)/projects/[slug]/page.tsx — OUTSIDE any
+  // ListDetailLayout. So `ctx` is null, `isSelected` is always true, the early return never
+  // runs, and the order is stable. Nothing is broken today.
+  //
+  // It becomes a crash the moment this panel is placed inside a list shell — which is
+  // precisely what line 98's own comment says it is built for ("stays MOUNTED … the shell
+  // shows the selected item"). A latent defect guarded only by the intended usage not having
+  // happened yet.
+  //
+  // WHY IT IS DISABLED RATHER THAN FIXED HERE: the fix is to move the early return below the
+  // hooks (or lift the selection), which changes when this panel fetches and renders. That
+  // deserves its own reasoning and its own gate rather than arriving inside the PR that
+  // merely turned lint on. **THE FOLLOW-UP PR DELETES THIS DISABLE.** It is the reason CI can
+  // enforce `eslint .` at exit 0 from day one instead of shipping an advisory gate nobody
+  // trusts.
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- known latent bug, see above; the follow-up deletes this
   useEffect(() => {
     if (!bespoke && sectionsStatus === "idle") void loadSections();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per mounted study

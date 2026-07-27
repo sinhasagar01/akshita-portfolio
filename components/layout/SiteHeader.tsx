@@ -62,6 +62,17 @@ function getActiveSection(): SectionId | null {
 
 export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   const resume                      = links.find((l) => l.label === RESUME_LABEL) ?? null;
+  // AN ACCESSIBILITY GAP, NOT DEAD CODE, AND THAT IS WHY IT IS NOT DELETED.
+  // `useReducedMotion()` is called here and its result is NEVER CONSULTED anywhere in this
+  // file — which animates a clip-path blob menu, hides the nav row on scroll, and fades a
+  // glass sheet in and out. So a reader who asks for reduced motion gets all of it anyway.
+  // The intent was set up and never wired.
+  //
+  // Deleting the line would silence lint and destroy the only evidence that the intent
+  // existed, which is #178's FIT_THRESHOLD_PX failure in reverse — there a constant had no
+  // consumer, here a consumer has no constant. Kept, disabled with this reason, and named in
+  // the PR body as a follow-up. THE FOLLOW-UP IS TO WIRE IT, NOT TO REMOVE IT.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- see above; wire it, do not delete it
   const reduced                     = useReducedMotion();
   const [scrolled, setScrolled]     = useState(false);
   const [active, setActive]         = useState<SectionId | null>(null);

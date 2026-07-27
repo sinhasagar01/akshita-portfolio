@@ -81,7 +81,6 @@ export default function BoldToolbar({
     if (!wantsRefocus.current) return;
     wantsRefocus.current = false;
     restoreSelection();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [linkOpen]);
 
   if (!at) return null;

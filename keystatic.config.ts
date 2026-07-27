@@ -142,7 +142,7 @@ export default config({
               schema: fields.object({
                 thesis: fields.text({ label: "Thesis sentence (rendered italic)" }),
               }),
-              itemLabel: (props: any) => `Hero — ${props.fields.thesis.value}`,
+              itemLabel: (props) => `Hero — ${props.fields.thesis.value}`,
             },
             summaryGrid: {
               label: "Summary grid",
@@ -187,7 +187,7 @@ export default config({
                   publicPath: "/images/projects/",
                 }),
               }),
-              itemLabel: (props: any) =>
+              itemLabel: (props) =>
                 `Problem — ${props.fields.statement.value}`,
             },
             goals: {
@@ -246,7 +246,7 @@ export default config({
                   publicPath: "/images/projects/",
                 }),
               }),
-              itemLabel: (props: any) =>
+              itemLabel: (props) =>
                 `Solution — ${props.fields.headline.value}`,
             },
             guidedDesignStep: {
@@ -263,7 +263,7 @@ export default config({
                   publicPath: "/images/projects/",
                 }),
               }),
-              itemLabel: (props: any) => `Step — ${props.fields.title.value}`,
+              itemLabel: (props) => `Step — ${props.fields.title.value}`,
             },
             imageGallery: {
               label: "Image or gallery",
@@ -310,7 +310,7 @@ export default config({
                 text: fields.text({ label: "Quote text", multiline: true }),
                 attribution: fields.text({ label: "Attribution" }),
               }),
-              itemLabel: (props: any) => `Quote — ${props.fields.text.value}`,
+              itemLabel: (props) => `Quote — ${props.fields.text.value}`,
             },
             reflection: {
               label: "Reflection",
@@ -327,7 +327,7 @@ export default config({
               schema: fields.object({
                 line: fields.text({ label: "Closing line" }),
               }),
-              itemLabel: (props: any) => `Close — ${props.fields.line.value}`,
+              itemLabel: (props) => `Close — ${props.fields.line.value}`,
             },
           },
           { label: "Case study body blocks" }
@@ -403,7 +403,7 @@ export default config({
                     }),
                     glow: fields.object(glowWordFields(), { label: "Glow word (optional)" }),
                   }),
-                  itemLabel: (props: any) => `Hero cover — ${props.fields.title.value}`,
+                  itemLabel: (props) => `Hero cover — ${props.fields.title.value}`,
                 },
                 deviceShelf: {
                   label: "Device shelf",
@@ -419,7 +419,7 @@ export default config({
                   schema: fields.object({
                     text: fields.text({ label: "Text", multiline: true }),
                   }),
-                  itemLabel: (props: any) => `Pull quote — ${props.fields.text.value}`,
+                  itemLabel: (props) => `Pull quote — ${props.fields.text.value}`,
                 },
                 glanceGrid: {
                   label: "Glance grid",
@@ -624,7 +624,7 @@ export default config({
                   schema: fields.object({
                     text: fields.text({ label: "Closing line" }),
                   }),
-                  itemLabel: (props: any) => `Closing line — ${props.fields.text.value}`,
+                  itemLabel: (props) => `Closing line — ${props.fields.text.value}`,
                 },
                 // VE-1 — the 16th kind. The video is an EXTERNALLY HOSTED URL, never a
                 // committed binary: P4-1's commit-into-the-repo rule is right for webp
@@ -658,7 +658,7 @@ export default config({
                     eyebrow: fields.text({ label: "Eyebrow (optional)" }),
                     title: fields.text({ label: "Title (optional)" }),
                   }),
-                  itemLabel: (props: any) =>
+                  itemLabel: (props) =>
                     `Video — ${props.fields.title.value || props.fields.src.value || "no source"}`,
                 },
               },
@@ -794,14 +794,14 @@ export default config({
               schema: fields.object({
                 text: fields.text({ label: "Heading" }),
               }),
-              itemLabel: (props: any) => `Heading — ${props.fields.text.value}`,
+              itemLabel: (props) => `Heading — ${props.fields.text.value}`,
             },
             pullQuote: {
               label: "Pull quote",
               schema: fields.object({
                 text: fields.text({ label: "Text", multiline: true }),
               }),
-              itemLabel: (props: any) => `Pull quote — ${props.fields.text.value}`,
+              itemLabel: (props) => `Pull quote — ${props.fields.text.value}`,
             },
             // THE INLINE FIGURE. Re-adding, not inventing: blog-article.html drew two of
             // these and #171 struck them out because "imageBlock is net-new and needs the
@@ -857,7 +857,7 @@ export default config({
                   defaultValue: false,
                 }),
               }),
-              itemLabel: (props: any) => `Image — ${props.fields.alt.value || "no alt text"}`,
+              itemLabel: (props) => `Image — ${props.fields.alt.value || "no alt text"}`,
             },
             videoEmbed: {
               label: "Video embed",
@@ -884,7 +884,7 @@ export default config({
                 eyebrow: fields.text({ label: "Eyebrow (optional)" }),
                 title: fields.text({ label: "Title (optional)" }),
               }),
-              itemLabel: (props: any) =>
+              itemLabel: (props) =>
                 `Video — ${props.fields.title.value || props.fields.src.value || "no source"}`,
             },
           },

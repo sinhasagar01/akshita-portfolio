@@ -38,6 +38,16 @@ export default function StudioSidebar() {
 
   const settings: Area = { href: "/studio/settings", label: "Site settings", Icon: IconSliders };
 
+  // `pinned` IS PASSED AND IGNORED, which is a finding rather than a stray parameter.
+  // Below, `renderLink(settings, true)` marks Site settings as the pinned entry — the caller
+  // states the intent — and this function never reads it, so Site settings renders exactly
+  // like every other link. The distinction was designed at the call site and never
+  // implemented here.
+  //
+  // NOT DELETED, for the same reason as SiteHeader's `reduced`: removing the parameter would
+  // also mean removing the `true` at the call site, and with it the only record that the
+  // distinction was ever intended. Named in the PR body as a follow-up.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- see above; implement it, do not delete it
   function renderLink(area: Area, pinned = false) {
     const active = isStudioAreaActive(area.href, pathname);
     return (

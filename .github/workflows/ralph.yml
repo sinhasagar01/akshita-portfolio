@@ -57,4 +57,17 @@ jobs:
       # (the strip-types constraint), but a few import js-yaml, so install is not optional.
       - run: npm ci
 
+      # THE LINT GATE, AND IT IS A REAL ONE — no continue-on-error. The repo is at ZERO
+      # problems, so any new violation fails this job.
+      #
+      # `--max-warnings 0` is deliberate and is the whole point. Most rules that matter here
+      # are WARN by default (no-unused-vars, exhaustive-deps), and those are exactly the ones
+      # that found real things when the config landed — an accessibility hook never consulted,
+      # and a parameter passed at the call site and ignored. Without this flag eslint exits 0
+      # on every one of them and the gate would be advisory for the class it is best at.
+      #
+      # It runs through the npm script so CI and humans run the SAME command and cannot
+      # disagree — #183's rule, the one the committed ralph runner exists to enforce.
+      - run: npm run lint
+
       - run: node ralph/run.mjs

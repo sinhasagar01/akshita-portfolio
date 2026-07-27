@@ -352,7 +352,27 @@ export default function ContactSection({ settings }: Props) {
     hasInteracted.current = true
     setStepIndex(i => i + 1)
     setFieldError('')
-  }, [status, validate, isLast, answers])
+    // `botcheck` IS LOAD-BEARING IN THIS DEP LIST — THE HONEYPOT DID NOT WORK WITHOUT IT.
+    //
+    // It is state (:281) bound to the hidden input (:427), and it is read in the POST body
+    // above. Without it here, this callback was only recreated when `answers` changed, so the
+    // submit sent whatever `botcheck` held at that moment.
+    //
+    // THE REPRO IS NARROWER THAN IT LOOKS, AND IT WAS DRIVEN BOTH WAYS RATHER THAN ARGUED.
+    // Filling the honeypot FIRST and then typing the real fields does NOT expose it — each
+    // `answers` change recreates the callback and picks the value up. It fires when the
+    // honeypot is filled AFTER the last real-field change, with nothing to recreate the
+    // callback before submit. Driven on the same three-step flow, same everything but this
+    // array:  pre-fix the POST carried  botcheck: ""  (the bot passed);
+    //         post-fix it carried       botcheck: "i-am-a-bot".
+    //
+    // SAFE TO ADD, CHECKED RATHER THAN ASSUMED: adding a dep changes how often this callback
+    // is recreated, so the question is who observes its identity. Nothing does. `advance`
+    // appears in NO dependency array in this file, and its only consumer is `onAdvance` on
+    // StepContent — which is not React.memo, calls it from a plain keydown/click handler, and
+    // whose one effect has `[]` deps. So the extra recreations are unobservable and this is
+    // a behaviour fix with no behaviour side effects.
+  }, [status, validate, isLast, answers, botcheck])
 
   const goBack = useCallback(() => {
     if (stepIndex > 0 && status === 'idle') {
