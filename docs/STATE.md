@@ -6,9 +6,10 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE CANVAS DRAWS THE WHOLE ARTICLE)
+## STATE (as of THE LINT GATE)
 
-**main** = `d21b9a5` = #193 (the hero object-URL lifetime). Pinned: `2a9c8c2` = #192 (the
+**main** = `bec28c4` = #195 (the ESLint config). Pinned: `9e3b1b2` = #194 (the inspector at
+320), `d21b9a5` = #193 (the hero object-URL lifetime), `2a9c8c2` = #192 (the
 imageBlock reading-time gap), `fc8c318` = #191 (STATE), `3b71ac4` = #190 (the canvas draws the
 head, the hero and the body),
 `c3b30f4` = #189 (the bold toolbar, extracted), `f233acc` = #188 (STATE + the two rewrites
@@ -77,7 +78,7 @@ gate that reports zero subjects is not a pass.
 `parity.mjs` is excluded and NAMED as skipped, never silently dropped. It needs a running
 dev server and is driven from a browser console.
 
-### SEVEN ARCS COMPLETE
+### EIGHT ARCS COMPLETE
 1. **Work-section rebuild — COMPLETE** (#159–#162).
 2. **Studio restyle — COMPLETE** (#164–#169).
 3. **Blog — COMPLETE** (#170–#176), plus #177 tooling and nav fixes.
@@ -86,6 +87,7 @@ dev server and is driven from a browser console.
 6. **The inline-editable canvas — COMPLETE** (#187, merged `2c258cd`), plus the bold
    toolbar (#189, merged `c3b30f4`).
 7. **The canvas draws the whole article — COMPLETE** (#190, merged `3b71ac4`).
+8. **The lint gate — COMPLETE** (#195, merged `bec28c4`), after #194 widened the inspector.
 
 ---
 
@@ -427,7 +429,7 @@ and the rich-text toolbar listed as reusable when the studio's only toolbar is i
 | G4 two forms | two disjoint bodies, `{collection,slug,patch}` and `{collection,slug,blocks}` |
 | G5 the 1100 fold | exactly ONE form tree, no hidden copy |
 | G6 ralph | 930 → 993, 28 suites, 0 failures, both new suites mutation-tested |
-| G7 typecheck | clean. **NO LINT GATE EXISTS** — the repo has no ESLint config, so `next lint` only offers to create one |
+| G7 typecheck | clean. (NO LINT GATE EXISTED at the time; #195 added one.) |
 | G8 CSS bundle | **zero changed declarations** on any shared selector |
 | G9 determinism | two builds byte-identical through the committed normalizer |
 | parity | RUN, not reasoned about. 3 of 4 slugs, 44 sections, 0 findings |
@@ -527,7 +529,7 @@ identified it. Fixed with a `blog-`prefixed authored rule; measured after, poste
 | G4 DOM | public HTML **byte-identical**, and the honest reason is that **no post uses the kind YET**, not that nothing changed |
 | G5 determinism | two builds byte-identical |
 | G6 ralph | 993 → **1028**, 29 suites, 0 failures. `image-block` 30, `blog-registry` 44→49. 8 mutations, all caught |
-| G7 typecheck | clean. No ESLint config, so no lint gate |
+| G7 typecheck | clean. (No lint gate at the time; #195 added one.) |
 
 **D1 MEASURED, NOT DERIVED.** `BlockImageField` FITS the 244px inspector — 204px row, no
 overflow, no wrap — but the path readout compresses to **27.6px**, narrower than the 38px
@@ -832,6 +834,110 @@ projects hero field's DOM hashes identically before and after.
 3. **`readingTimeMinutes` HAS NO `imageBlock` CASE** — found while wiring the live count, not
    fixed. See hazards.
 
+---
+
+## ARC 8 — THE LINT GATE (COMPLETE)
+
+`#195`, merged `bec28c4`, after `#194` (`9e3b1b2`) widened the inspector to 320 and moved
+`FIT_THRESHOLD_PX` with it.
+
+### IT WAS NEVER A TOOLING PROBLEM, AND THE RECORD SAID OTHERWISE FOR TWENTY PRs
+STATE said in four places that "there is no lint gate because there is no ESLint config".
+True, and misleading. **Every dependency was already installed** — eslint 9.39.4,
+eslint-config-next 15.5.19, @typescript-eslint 8.61.1, eslint-plugin-react-hooks — and a
+`lint` script already existed, pointing at `next lint`, which **with no config does not lint**.
+A script whose name promises a gate that does not run is a comment describing code that does
+not exist, living in package.json. Only one file was ever missing.
+
+`next lint` is also DEPRECATED in the installed Next ("will be removed in Next.js 16", from
+its own CLI), and its scaffold writes the legacy `.eslintrc.json`. So the gate is `eslint .`,
+run through the npm script from both CI and a terminal — #183's rule again.
+
+### THE COUNT DECIDED THE SHAPE, AND THE INVESTIGATION RAN FIRST
+53 problems. 26 were ralph's shared `ok ? pass++ : fail++` idiom, 14 were one rule in one
+file, 1 was generated. **~11 in application code across 9 files, NO locked-decision file
+among them, and only 1 auto-fixable** — so there was no large mechanical diff to hide
+judgement inside, and a recorded baseline would have deferred debt that could simply be paid.
+**Counting before choosing is what made option (a) obviously right instead of arguably risky.**
+
+### FOUR PREMISES FOR THIS WORK WERE WRONG, INCLUDING BOTH BUGS IT WAS SOLD ON
+- **`exhaustive-deps` could NOT have caught #174's `saveDraft` bug.** That is a plain
+  `async function` in the component body, not a `useCallback` — there is no dep array to
+  check. The defect was calling a stale closure at the wrong moment, which no rule here sees.
+- **No rule flags an unused EXPORT** like #178's `FIT_THRESHOLD_PX`. `no-unused-vars` does not
+  — an export is a use by definition. That needs `import/no-unused-modules` (installed, not in
+  `recommended`, not enabled) or `knip`/`ts-prune`.
+- **`@next/next/no-img-element` is not in `core-web-vitals`**, is `warn` not `error`, and
+  reports ZERO. **No config-level disable was needed for the locked plain-`<img>` decision.**
+- The codebase already carried **13 inline disables**. It had been written as if lint were on,
+  for twenty PRs, with the gate never running. **The gate confirms existing practice.**
+
+**The real justification was a bug nobody predicted.** Sold on two it cannot see, it found two
+others.
+
+### WHAT IT FOUND
+1. **AN ACTIVE, SECURITY-ADJACENT BUG — THE CONTACT HONEYPOT DID NOT WORK.** `botcheck` was
+   missing from `advance`'s dep array, so the submit sent a stale value. **The repro is
+   narrower than it looks:** filling the honeypot first does NOT expose it, because each
+   `answers` change recreates the callback. It fires when the honeypot is filled AFTER the
+   last real-field change. Driven both ways on one flow — pre-fix the POST carried
+   `botcheck: ""` and the bot passed; post-fix it carried `"i-am-a-bot"`.
+   **Split into its own commit because the distinction is URGENCY, not category.**
+2. **A LATENT `rules-of-hooks` VIOLATION**, `ProjectsEditPanel:125` — `if (!isSelected) return
+   null` above a `useEffect`. **Not active:** the panel mounts outside any `ListDetailLayout`,
+   so `ctx` is null, `isSelected` is always true, the early return never runs. It becomes a
+   crash the moment the panel enters the shell its own comment says it is built for.
+3. **AN ACCESSIBILITY GAP.** `SiteHeader` calls `useReducedMotion()` and **never consults it**,
+   in a file that animates a blob menu, hides the nav row and fades a glass sheet.
+4. **AN INTENT WIRED AT THE CALL SITE AND NEVER IMPLEMENTED.** `renderLink(settings, true)`
+   passes `pinned`; the function ignores it.
+
+**3 AND 4 ARE KEPT WITH A STATED REASON, NEVER DELETED.** Deleting silences lint and destroys
+the only evidence the intent existed — **#178's `FIT_THRESHOLD_PX` failure in reverse, where a
+constant had no consumer and here a consumer has no constant.**
+
+### TWO THINGS THE FIXES THEMSELVES TAUGHT
+- **`keystatic.config.ts`'s 14 `no-explicit-any` needed neither typing nor a disable.**
+  Keystatic already types the parameter (`itemLabel?: (props: GenericPreviewProps<Schemas[K],
+  unknown>) => string`), so **deleting `: any` lets inference supply the real type.** Proven
+  real rather than assumed: `props.fields.thesis.value.toFixed(2)` errors with `TS2551`, so
+  the type is genuinely `string` and the fix is not cosmetic. The planned split was
+  unnecessary.
+- **A studio string was REWRITTEN, NOT ESCAPED.** The two `no-unescaped-entities` errors were
+  apostrophes in `Fixed — a token's type can't be changed here`, which **also carried an em
+  dash CLAUDE.md forbids and nothing had ever caught**. Those rules say rewrite rather than
+  patch, so the dash and both apostrophes went together. **Lint found a writing-rule
+  violation it cannot see, by pointing at the same line.**
+
+### THE ONE ERROR IS DISABLED AT ITS SITE, NOT LEFT RED
+The plan was to land with the `rules-of-hooks` error failing. **The owner reversed the
+mechanism and kept the substance:** `continue-on-error` would make the gate ADVISORY from day
+one, which is worse than the theatre it guards against — **a lint step that cannot fail is not
+a lint step.** So the violation carries an inline disable naming the follow-up and stating its
+latent severity, CI runs `npm run lint` with no escape hatch, and **every future violation
+fails the build from day one.** The follow-up PR deletes the disable.
+
+`--max-warnings 0` is deliberate: the rules that found things here are WARN by default, so
+without it the gate would be advisory for exactly the class it is best at.
+
+### GATES
+| Gate | Result |
+|---|---|
+| G1 the config runs | **0 problems**, exit 0 |
+| G2 behaviour-preserving | `ProcessSection` is a disable, not a dep change, so no effect timing moved. The honeypot is the one intended change, driven both ways. |
+| G3 public DOM | **byte-identical to main** across all 9 normalized files; two-build control clean first |
+| G4 ralph + tsc + **the first LINT number** | ralph **1169** unchanged; tsc clean; lint **0 errors, 0 warnings** |
+| G5 CI | `npm run lint` in `ci/ralph`, no `continue-on-error`, confirmed in the run log |
+
+**A REVIEW CATCH WORTH KEEPING.** The PR modified `scripts/normalize-dom.mjs` — the G3 proof
+tool — inside the PR G3 was gating. A broken `walk()` would silently shrink the branch
+snapshot and the diff would read clean. Verified three ways: 9 files in every snapshot,
+identical byte totals, and both `walk` implementations returning identical output over 123
+files. **When a PR touches its own gate, prove the gate still sees.**
+
+---
+## LOCKED DECISIONS (do not change without being asked)
+
 All prior locked decisions remain. Added across this session:
 - **`category` is editorial taxonomy, never derived from `template`.**
 - **A new field needs BOTH the sanitizer AND the serializer.**
@@ -1027,8 +1133,11 @@ All prior rules remain. Added or sharpened across this session:
 - **DRIVING THE UI CAN LIE TOO.** Three probe results were wrong before the code was: reads
   taken before React flushed, and a query that hit the topbar's search box instead of the
   panel's. **Scope selectors by accessible name and await the render.**
-- **NO LINT GATE EXISTS IN THIS REPO.** There is no ESLint config, so `next lint` only
-  offers to create one. Do not claim a lint pass.
+- ~~**NO LINT GATE EXISTS IN THIS REPO.**~~ **THERE IS ONE SINCE #195.** Run it with
+  `npm run lint` (`eslint . --max-warnings 0`), and CI runs the same command with no
+  `continue-on-error`. **`next lint` IS NOT THE COMMAND** — Next 15.5's own CLI calls it
+  deprecated with removal in Next 16, and it never linted here anyway. The repo sits at ZERO
+  problems, so any new violation fails the build. A lint pass is now a real claim to make.
 - **`h-*` UTILITIES DO NOT WORK ON AN `<img>` IN THIS PROJECT.** `app/globals.css:271`
   carries an UNLAYERED `img, video { height: auto }`, and an unlayered rule beats
   `@layer utilities`. Any component sizing an image must author the rule or use an inline
@@ -1190,6 +1299,20 @@ All prior rules remain. Added or sharpened across this session:
     reporting a console error, check it against the source graph and a cold cache — and note
     that a production `npm run build` succeeding is itself strong evidence a client-side
     `node:fs` import is not real, since it would fail the build app-wide.
+17. **A LATENT `rules-of-hooks` VIOLATION IS DISABLED, NOT FIXED** (`ProjectsEditPanel:125`,
+    found by #195). `if (!isSelected) return null` sits above a `useEffect`. **Latent, not
+    active:** the panel mounts only outside a `ListDetailLayout`, so `isSelected` is always
+    true and the early return never runs. It becomes a crash the moment the panel is placed in
+    the shell its own line-98 comment says it is built for. **The inline disable is a
+    placeholder and the follow-up PR deletes it** — it exists so CI can enforce `eslint .` at
+    exit 0 from day one rather than shipping an advisory gate.
+18. **`SiteHeader` ASKS FOR REDUCED MOTION AND IGNORES THE ANSWER** (found by #195).
+    `useReducedMotion()` is called and never consulted, in a file that animates a clip-path
+    blob menu, hides the nav row on scroll and fades a glass sheet. **An accessibility gap,
+    not dead code.** Kept with a stated reason precisely so it is not "tidied away".
+19. **`StudioSidebar`'s `pinned` IS PASSED AND IGNORED** (found by #195).
+    `renderLink(settings, true)` states the intent at the call site; the function never reads
+    it, so Site settings renders like every other link.
 
 ---
 
@@ -1230,7 +1353,16 @@ All prior rules remain. Added or sharpened across this session:
   and fourth hand-coupled literal on a component ten pages share.
 - **CLAUDE.md staleness beyond the blog bullet** — the build sequence ends at Phase 5 and
   Open items still lists confirming the editorial direction, long settled.
-- **An ESLint config.** There is none, so there is no lint gate.
+- ~~**An ESLint config.**~~ — **BUILT in #195.** It was never a tooling problem: every
+  dependency was already installed and a `lint` script already existed, so only the config
+  file was missing.
+- **THE THREE #195 FOLLOW-UPS**, in the order they are worth doing.
+  **1. WIRE `useReducedMotion` IN `SiteHeader`** (hazard 18) — the only one that affects a
+  real reader rather than a future maintainer.
+  **2. DELETE THE `rules-of-hooks` DISABLE** (hazard 17) by moving the early return below the
+  hooks or lifting selection out of the panel.
+  **3. IMPLEMENT `pinned` IN `StudioSidebar`** (hazard 19), or remove it from the call site
+  deliberately.
 - **Migrating other studio pages to `ThreePaneShell`**, extracting the shared shell at the
   SECOND consumer. `data-studio-fullheight` and the `:has()` scoping already make the
   layout side reusable.
@@ -1313,6 +1445,11 @@ All prior rules remain. Added or sharpened across this session:
 - **#188** docs: STATE + the two rewrites #187 missed (`f233acc`)
 - **#189** the bold toolbar, extracted rather than copied (`c3b30f4`) →1075
 - **#190** the canvas draws the head, the hero and the body (`3b71ac4` squash-merge) →1144
+- **#191** docs: STATE for the canvas arc (`fc8c318`) · **#192** the imageBlock reading-time
+  gap, fixed as a mapped type (`2a9c8c2`) →1151
+- **#193** the hero object-URL lifetime, deleted rather than managed (`d21b9a5`) →1163
+- **#194** the inspector at 320 + the threshold moved with it (`9e3b1b2`) →1169
+- **#195** the ESLint config + every fix but one, and the honeypot (`bec28c4`) 1169
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -1331,11 +1468,18 @@ All prior rules remain. Added or sharpened across this session:
    **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish
    has already shipped a half-finished sentence once, and CI cannot tell one from a finished
    one.
-2. **Optional:** `/code-review ultra` over `3b71ac4`. #178, #180, #185, #187, #189 and #190
-   were all self-reviewed, and #190 is the largest of them.
-3. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a
-   real incident behind it); migrate other studio pages to `ThreePaneShell`, extracting at the
+2. **WIRE `useReducedMotion` IN `SiteHeader`** (hazard 18). The one #195 follow-up that
+   affects a real reader rather than a future maintainer, and it is small.
+3. **Optional:** `/code-review ultra` over `bec28c4`. #178, #180, #185, #187, #189, #190 and
+   #195 were all self-reviewed, and #190 and #195 are the largest.
+4. **Later:** delete the `rules-of-hooks` disable (hazard 17); a per-entry publish or a
+   PublishBar diff preview (hazard 13, the one with a real incident behind it); implement
+   `pinned` (hazard 19); migrate other studio pages to `ThreePaneShell`, extracting at the
    SECOND consumer; investigate why `boat-crest` yields zero parity pairs (hazard 10).
+
+**THREE GATES NOW, NOT TWO.** `npm run lint` · `npm run typecheck` · `npm run ralph`. CI runs
+lint and ralph; the Vercel build is what typechecks. A PR that reports "typecheck only" is now
+under-reporting.
 
 Ralph pilot remains validated for MECHANICAL, bounded work only. Design decisions and new
 arcs stay human-gated, one at a time. Never auto-merge, never write main unattended.
