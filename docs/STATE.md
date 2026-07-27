@@ -8,8 +8,9 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE LINT GATE)
 
-**main** = `bec28c4` = #195 (the ESLint config). Pinned: `9e3b1b2` = #194 (the inspector at
-320), `d21b9a5` = #193 (the hero object-URL lifetime), `2a9c8c2` = #192 (the
+**main** = `fa08200` = #198 (the FAB under reduced motion). Pinned: `258ee1a` = #197 (the
+reduced-motion scroll), `1449487` + `54f1954` = the branch cleanup, `90b856b` = #196 (STATE),
+`bec28c4` = #195 (the ESLint config), `9e3b1b2` = #194 (the inspector at 320), `d21b9a5` = #193 (the hero object-URL lifetime), `2a9c8c2` = #192 (the
 imageBlock reading-time gap), `fc8c318` = #191 (STATE), `3b71ac4` = #190 (the canvas draws the
 head, the hero and the body),
 `c3b30f4` = #189 (the bold toolbar, extracted), `f233acc` = #188 (STATE + the two rewrites
@@ -59,14 +60,14 @@ occurrences (desktop bar, scrolled sheet, mobile menu), and the sitemap lists 7 
 
 **THE REMAINING WORK IS CONTENT.**
 
-### RALPH IS 1169 ACROSS 32 RUNNABLE SUITES
+### RALPH IS 1187 ACROSS 33 RUNNABLE SUITES
 Chain: 571 → 588 (#170) → 601 (#171) → 630 (#172) → 749 (#173) → 793 (#174) → 900 (#175)
 → 900 (#176, no suites — its subject was DOM geometry and browser cache behaviour, which
 ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#178,
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18).
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
 it, so it cannot drift from the total the way it silently did before #183.
@@ -1104,6 +1105,16 @@ All prior rules remain. Added or sharpened across this session:
   of the six were found in a single two-day stretch, which is a statement about the file's
   reliability, not about that stretch. **The instances keep accumulating, and that is the
   rule's value rather than an embarrassment — a rule with one example is an anecdote.**
+- **A DEFECT CAN LIVE IN THE COMPARISON RATHER THAN IN EITHER STATE.** #198's FAB overlap was
+  invisible reading either rendering on its own — reduced motion looked fine, normal motion
+  looked fine — and appeared only when both were driven SIDE BY SIDE. #197's fix for one
+  motion problem is what created it, one CSS rule away. **When a change is conditional on a
+  media query or a mode, drive BOTH branches and compare them to each other, not just each to
+  its own expectation.**
+- **A HAZARD CAN BE REAL AND STILL BE WRONG ABOUT WHAT IT IS.** Hazard 18 correctly recorded
+  that a hook was unused and incorrectly implied unguarded animations; the CSS was complete
+  and the gap was three script-driven calls. **Re-derive the CAUSE, not just the symptom, or
+  the fix lands in the wrong layer** — here it would have been CSS that needed no change.
 - **A GATE THAT MISFIRES GETS REWRITTEN, NOT WORKED AROUND.**
 - **A SOFT CLAIM IN A MERGED PR IS WORTH RE-CHECKING.**
 - **STOP RATHER THAN WORK AROUND AN IMPOSSIBLE INSTRUCTION**, and **STOP RATHER THAN SHIP
@@ -1328,10 +1339,31 @@ All prior rules remain. Added or sharpened across this session:
     the shell its own line-98 comment says it is built for. **The inline disable is a
     placeholder and the follow-up PR deletes it** — it exists so CI can enforce `eslint .` at
     exit 0 from day one rather than shipping an advisory gate.
-18. **`SiteHeader` ASKS FOR REDUCED MOTION AND IGNORES THE ANSWER** (found by #195).
-    `useReducedMotion()` is called and never consulted, in a file that animates a clip-path
-    blob menu, hides the nav row on scroll and fades a glass sheet. **An accessibility gap,
-    not dead code.** Kept with a stated reason precisely so it is not "tidied away".
+18. ~~**`SiteHeader` ASKS FOR REDUCED MOTION AND IGNORES THE ANSWER**~~ — **CLOSED by #197
+    (`258ee1a`) and #198 (`fa08200`).** The hazard was REAL AND WRONG ABOUT WHAT IT WAS, which
+    is the part worth keeping. It described unguarded animations; every CSS animation in the
+    file was already handled, including the nav row deliberately KEEPING its hide behaviour
+    and only losing the translate. The actual gap was three script-driven scroll calls the
+    reset cannot reach, because an explicit `behavior: "smooth"` OVERRIDES
+    `scroll-behavior: auto !important` — #171's R2 one layer up. **NO CSS CHANGED in #197.**
+    **THE IRONY IS THE FINDING.** The reduced-motion path was the ONLY path that reached the
+    bug: `SmoothScrollProvider` renders no provider under reduce, so `smoothScroll` and
+    `lenis` are both null and both branches fall through to the native `else`. A
+    reduced-motion reader clicking a nav link got an animated smooth scroll nobody else got.
+    **THREE CALLS, NOT THE TWO THE INVESTIGATION FOUND.** The third is the logo's
+    `window.scrollTo`, which a grep for `scrollIntoView` walks past. The ralph suite caught it
+    before it shipped, and its count now spans the union of native scroll APIs.
+    **#198 THEN CLOSED A PROBLEM THE FIRST FIX'S NEIGHBOUR HAD CREATED.** Keeping the row on
+    screen under reduce is right, but `navHidden` still flips, so the FAB — whose only job is
+    bringing back a nav that hid itself — appeared beside the row it replaces. Two controls
+    for one nav. **A CSS FIX FOR ONE MOTION PROBLEM HAD CREATED A SECOND, UNRELATED
+    AFFORDANCE PROBLEM, AND ONLY DRIVING BOTH SETTINGS SIDE BY SIDE SURFACED IT** — neither
+    state is wrong on its own, and the defect is visible only in the comparison.
+    **`useReducedMotion` DOES NOT LIVE-UPDATE**, whatever its docstring claims: it snapshots
+    into `useState` at mount and never re-reads (the library's own TODO admits it), and
+    returns `null` server-side. Emulation must be set BEFORE load; a probe that toggles it
+    live reports a false pass. Playwright is the tool — it is already a devDependency and the
+    in-app browser cannot emulate this.
 19. **`StudioSidebar`'s `pinned` IS PASSED AND IGNORED** (found by #195).
     `renderLink(settings, true)` states the intent at the call site; the function never reads
     it, so Site settings renders like every other link.
@@ -1378,9 +1410,9 @@ All prior rules remain. Added or sharpened across this session:
 - ~~**An ESLint config.**~~ — **BUILT in #195.** It was never a tooling problem: every
   dependency was already installed and a `lint` script already existed, so only the config
   file was missing.
-- **THE THREE #195 FOLLOW-UPS**, in the order they are worth doing.
-  **1. WIRE `useReducedMotion` IN `SiteHeader`** (hazard 18) — the only one that affects a
-  real reader rather than a future maintainer.
+- **THE #195 FOLLOW-UPS — ONE DONE, TWO LEFT.**
+  ~~1. WIRE `useReducedMotion` IN `SiteHeader`~~ — **DONE in #197 and #198**, and it was the
+  one that affected a real reader. See hazard 18 for what it actually turned out to be.
   **2. DELETE THE `rules-of-hooks` DISABLE** (hazard 17) by moving the early return below the
   hooks or lifting selection out of the panel.
   **3. IMPLEMENT `pinned` IN `StudioSidebar`** (hazard 19), or remove it from the call site
@@ -1472,6 +1504,10 @@ All prior rules remain. Added or sharpened across this session:
 - **#193** the hero object-URL lifetime, deleted rather than managed (`d21b9a5`) →1163
 - **#194** the inspector at 320 + the threshold moved with it (`9e3b1b2`) →1169
 - **#195** the ESLint config + every fix but one, and the honeypot (`bec28c4`) 1169
+- **#196** docs: STATE for the lint gate (`90b856b`) · `54f1954` + `1449487` the branch
+  cleanup, 13 deleted and the squash-merge illustration dated
+- **#197** the reduced-motion scroll (`258ee1a`) →1183 · **#198** the FAB under reduced
+  motion (`fa08200`) →1187
 - `2d837f2` docs: /dev routes are dev-only · `bbf6d3d` docs: blog conventions in CLAUDE.md
 - `f54574a` #179 docs: STATE records the 3-pane arc
 
@@ -1490,14 +1526,16 @@ All prior rules remain. Added or sharpened across this session:
    **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish
    has already shipped a half-finished sentence once, and CI cannot tell one from a finished
    one.
-2. **WIRE `useReducedMotion` IN `SiteHeader`** (hazard 18). The one #195 follow-up that
-   affects a real reader rather than a future maintainer, and it is small.
-3. **Optional:** `/code-review ultra` over `bec28c4`. #178, #180, #185, #187, #189, #190 and
-   #195 were all self-reviewed, and #190 and #195 are the largest.
-4. **Later:** delete the `rules-of-hooks` disable (hazard 17); a per-entry publish or a
-   PublishBar diff preview (hazard 13, the one with a real incident behind it); implement
-   `pinned` (hazard 19); migrate other studio pages to `ThreePaneShell`, extracting at the
-   SECOND consumer; investigate why `boat-crest` yields zero parity pairs (hazard 10).
+2. **DELETE THE `rules-of-hooks` DISABLE** (hazard 17). Now the highest-value follow-up left,
+   and the only one carrying a latent correctness bug rather than a missing affordance —
+   `ProjectsEditPanel` crashes the moment it is placed in the list shell its own comment says
+   it is built for. Move the early return below the hooks, or lift selection out of the panel.
+3. **Optional:** `/code-review ultra` over `fa08200`. #178, #180, #185, #187, #189, #190,
+   #195, #197 and #198 were all self-reviewed, and #190 and #195 are the largest.
+4. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
+   incident behind it); implement `pinned` (hazard 19); migrate other studio pages to
+   `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest` yields
+   zero parity pairs (hazard 10).
 
 **THREE GATES NOW, NOT TWO.** `npm run lint` · `npm run typecheck` · `npm run ralph`. CI runs
 lint and ralph; the Vercel build is what typechecks. A PR that reports "typecheck only" is now
