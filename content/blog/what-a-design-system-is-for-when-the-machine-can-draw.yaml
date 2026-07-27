@@ -75,4 +75,4 @@ blocks:
         in the same position in every one.
       caption: Four squads, one library. The components drifted. The rule did not.
       wide: true
-      decorative: false
+      decorative: true
