@@ -166,7 +166,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           </span>
           <span className="truncate font-display text-base text-ink-950">{title}</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-500">
+            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -266,11 +266,11 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             aria-readonly="true"
             tabIndex={-1}
             // DELIBERATELY LOCAL — the READONLY-DISPLAY family; ExperienceEditPanel's
-            // Company field carries the full reasoning, including why `text-ink-500` is a
-            // phantom (hazard 23) that has never rendered. The family's real distinction is
+            // Company field carries the full reasoning, including why `text-ink-500` was a
+            // phantom (hazard 23, now closed) re-pointed to text-text-subtle. The family's real distinction is
             // the focus styling the export carries, dead on tabIndex={-1}, plus
             // cursor-not-allowed. Height tracks the well.
-            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-text-subtle outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The project&rsquo;s identity, set when you add it. The case study body is edited below.
@@ -311,7 +311,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
-            <span className="text-ink-500">Saving draft…</span>
+            <span className="text-text-subtle">Saving draft…</span>
           ) : saveStatus === "saved" ? (
             <span className="text-accent-600">Draft saved</span>
           ) : saveStatus === "error" ? (

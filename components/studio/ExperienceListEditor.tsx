@@ -207,7 +207,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           <button
             type="button"
             onClick={() => setBanner("")}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-0.5 text-ink-500 hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-0.5 text-ink-600 hover:bg-cream-200 hover:text-ink-950"
           >
             Dismiss
           </button>

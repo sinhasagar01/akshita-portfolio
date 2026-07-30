@@ -23,7 +23,7 @@ export default function CaseStudySwitcher({
           transparent, so it stays a real control rather than a div pretending. */}
       <span className="pointer-events-none flex min-w-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-1.5">
         <span className="truncate font-display text-base text-ink-950">{title}</span>
-        <span aria-hidden className="shrink-0 text-[10px] text-ink-500">
+        <span aria-hidden className="shrink-0 text-[10px] text-text-subtle">
           ▾
         </span>
       </span>

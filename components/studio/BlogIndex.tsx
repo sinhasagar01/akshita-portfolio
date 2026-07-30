@@ -193,7 +193,7 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
                 type="button"
                 onClick={() => setDeleteTarget(p.slug)}
                 aria-label={`Remove ${p.title}`}
-                className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
+                className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
               >
                 <IconX />
               </button>

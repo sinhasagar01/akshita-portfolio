@@ -80,7 +80,7 @@ const inputBase =
 const okBorder = "border-ink-950/12 focus:border-accent-500 focus:ring-accent-500/30";
 const errBorder = "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30";
 const iconBtn =
-  "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+  "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
 export default function LinksEditPanel({ itemId, email, links }: Props) {
   const initial: LinksFields = { email, links };
@@ -159,7 +159,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
           </span>
           <span className="font-display text-base text-ink-950">Links</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-500">
+            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -236,7 +236,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => removeLink(i)}
                       aria-label={`Remove ${name}`}
-                      className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                      className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
                     >
                       <IconX />
                     </button>
@@ -281,7 +281,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
           {hasUrlError ? (
             <span className="text-accent-600">Fix the highlighted URL to save.</span>
           ) : saveStatus === "saving" ? (
-            <span className="text-ink-500">Saving draft…</span>
+            <span className="text-text-subtle">Saving draft…</span>
           ) : saveStatus === "saved" ? (
             <span className="text-accent-600">Draft saved</span>
           ) : saveStatus === "error" ? (

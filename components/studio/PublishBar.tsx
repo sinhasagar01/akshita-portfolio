@@ -183,7 +183,7 @@ export default function PublishBar() {
         : publishStatus === "published"
           ? "text-accent-600"
           : publishStatus === "publishing"
-            ? "text-ink-500"
+            ? "text-text-subtle"
             : "text-text-subtle";
     statusText =
       publishStatus === "publishing"

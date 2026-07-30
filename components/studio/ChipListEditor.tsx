@@ -43,7 +43,7 @@ export default function ChipListEditor({
   const list = useItemList(chips, onChange, () => "");
 
   const iconBtn =
-    "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+    "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -95,7 +95,7 @@ export default function ChipListEditor({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => list.remove(i)}
                 aria-label={`Remove ${name}${fromSuffix}`}
-                className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
               >
                 <IconX />
               </button>
