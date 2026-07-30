@@ -742,10 +742,12 @@ export default config({
           label: "Publish date",
           description: "Format as YYYY-MM-DD, e.g. 2026-07-24. Posts sort newest first.",
         }),
-        // Authored taxonomy, like projects `category`: nothing reads it yet (the topic
-        // filter is a later homepage decision). Stored as text, not a select-with-
-        // default the reader would inject into every entry; the set is enforced in the
-        // sanitizer when the write path lands.
+        // Authored taxonomy, like projects `category`. Stored as TEXT even though the set is now
+        // CLOSED (PR D): a `fields.select` would inject a default into every entry the reader
+        // parses, and studio is the sole editor, so the set is enforced where editing happens —
+        // the sanitizer refuses a non-member at save, validate-blog-post requires a member at
+        // publish, and the editor is a dropdown over BLOG_TOPICS. The reader still reads a plain
+        // string, defensively, exactly as it reads `status`.
         topic: fields.text({ label: "Topic" }),
         status: fields.text({ label: "Status (draft | published)" }),
         // Entry hero. Reuses the projects heroImage CONVENTION (fields.image with an

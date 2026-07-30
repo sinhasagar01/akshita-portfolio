@@ -68,6 +68,17 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
 export const BLOG_STATUSES = ["draft", "published"] as const;
 export type BlogStatus = (typeof BLOG_STATUSES)[number];
 
+/** The closed topic set (PR D). The three values are EXACTLY the topics the three existing posts
+ *  already carry, deliberately not a taxonomy invented ahead of the posts that would use it — a
+ *  closed list of unused topics would be invented rather than enforced. It grows by one line when
+ *  a fourth topic is actually written, and the author who needs it is the one who names it.
+ *  ENFORCED IN TWO PLACES, each a different question: the sanitizer here refuses a NON-EMPTY value
+ *  outside the set at the write boundary (empty is allowed, a draft may be unset), and the publish
+ *  gate (validate-blog-post) requires a member on a PUBLISHED post, mirroring `alt` and the title.
+ *  Both read this one const, so the editor's dropdown and the two gates cannot disagree. */
+export const BLOG_TOPICS = ["AI in product", "Enterprise UX", "Design systems"] as const;
+export type BlogTopic = (typeof BLOG_TOPICS)[number];
+
 /** Authored ISO date, exactly YYYY-MM-DD. Enforced on the way in because the read path
  *  sorts LEXICALLY on this string — a malformed value would sort arbitrarily, and a
  *  value js-yaml reads back as a Date would break the comparison outright. */
@@ -237,10 +248,14 @@ export function makeBlogSanitizers(f: FieldChecks): BlogSanitizers {
         continue;
       }
       if (key === "topic") {
-        // OPEN string, deliberately not an enum: no topic set is declared anywhere in
-        // the schema or the read path (nothing reads `topic` yet — the filter it exists
-        // for is a later decision), so a closed list here would be invented, not enforced.
+        // CLOSED set now (PR D), but EMPTY IS STILL ALLOWED here — this is the write boundary a
+        // draft saves through, and a draft may be unset. What is refused is a non-empty value
+        // OUTSIDE the set, so junk cannot reach disk. "Required" is a publish-time question,
+        // enforced in validate-blog-post, not here — the same split as `alt` and the title.
         if (typeof value !== "string") return bad("topic must be a string", key);
+        if (value !== "" && !(BLOG_TOPICS as readonly string[]).includes(value)) {
+          return bad(`topic must be empty or one of ${BLOG_TOPICS.join(", ")}`, key);
+        }
         patch.topic = value;
         continue;
       }
@@ -288,6 +303,9 @@ export function makeBlogSanitizers(f: FieldChecks): BlogSanitizers {
       }
       if (key === "topic") {
         if (typeof value !== "string") return bad("topic must be a string", key);
+        if (value !== "" && !(BLOG_TOPICS as readonly string[]).includes(value)) {
+          return bad(`topic must be empty or one of ${BLOG_TOPICS.join(", ")}`, key);
+        }
         if (value !== "") topic = value;
         continue;
       }

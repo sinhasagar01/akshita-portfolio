@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1446 across 42 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1456 across 42 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -2507,13 +2507,29 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `SettingsPhotoField`, so it is **not blog-only**. Needs a measured height check.
   **RUN `studio-type` BY HAND** — see the note in the gate section; it is the only thing that
   catches a wrong-but-uncontested size, and resizing a thumbnail is exactly that shape.
-- **PR D — TOPIC AS A SET (fidelity item 5).** `topic` is free text **deliberately**; there is
-  no topic set in the schema or the read path, so a closed list would be _invented_ rather than
-  enforced. A dropdown needs three things, each with its own failure mode: **(1)** a schema
-  field in `keystatic.config.ts` with a real option set, **(2)** a source of truth for the
-  options — a constant, or derived from existing posts, **(3)** a migration for the three
-  existing posts, whose topics (`AI in product`, `Enterprise UX`, `Design systems`) must become
-  members of that set or be rewritten. **A feature decision, not a styling one.**
+- ~~**PR D — TOPIC AS A SET (fidelity item 5).**~~ **BUILT.** The three parts landed as scoped.
+  **(1) The source of truth** is `BLOG_TOPICS` in `blog-format-core.ts`, beside `BLOG_STATUSES`
+  and exactly its shape — `["AI in product", "Enterprise UX", "Design systems"] as const`, EXACTLY
+  the three topics the existing posts already carry. The owner chose the three over inventing a
+  taxonomy ahead of the posts that would use it, on STATE's own reasoning: a closed list of unused
+  topics would be invented rather than enforced. It grows by one line when a fourth is written.
+  **(2) The schema stays `fields.text`**, not `fields.select` — a select injects a default into
+  every entry the reader parses, and studio is the sole editor, so the set is enforced where
+  editing happens: the sanitizer refuses a non-member at SAVE (empty still allowed, a draft may be
+  unset), and the publish gate `validate-blog-post` REQUIRES a member at PUBLISH, mirroring `alt`
+  and the title. The editor is a `SelectField` over `BLOG_TOPICS` with an empty option read "No
+  topic yet" (a dash would have used an em dash, against the writing rules), replacing the open
+  datalist. Both gates and the dropdown read the one const, so they cannot disagree.
+  **(3) The migration was a no-op, PROVEN not assumed** — the set was chosen to be the topics on
+  disk, so `validate-blog-post` F7 reads the real post files and asserts every published one is
+  already a member. Zero rewrites.
+  **The empty-topic RENDER branches stay reachable** — the article head's `topic ? … : null` and
+  the OG card's dropped eyebrow row still fire for a draft previewing with no topic. The publish
+  gate judges published posts only, so those branches are NOT dead code.
+  **`validateBlogPost` TAKES THE SET AS AN ARGUMENT, not an import**, preserving the property that
+  lets ralph execute it directly (its sibling `validate-draft-sections` imports a value and so can
+  only be source-inspected). The caller `publish-site-settings` passes `BLOG_TOPICS`; the suites
+  pass it too. A relative value import would have broken every execution test of the gate.
 
 - ~~**Images inside a post body**~~ — **BUILT in #180.** `imageBlock`, the hidden poster and
   inline figures closed together, as the framing said they would.
@@ -2775,6 +2791,18 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **PR D — topic as a closed set** →1456. `topic` was free text because no set was declared; PR D
+  declared `BLOG_TOPICS` (the three topics the posts already carry) and enforced it in two places,
+  each a different question. The sanitizer refuses a non-member at SAVE while still allowing empty
+  (a draft may be unset); `validate-blog-post` REQUIRES a member at PUBLISH, mirroring `alt` and
+  the title, the one gate an author cannot walk past. The editor became a `SelectField` over the
+  const (empty option "No topic yet") replacing the open datalist. Zero migration, PROVEN — F7
+  reads the real posts and asserts each published one is already a member. The validator takes the
+  set as an ARGUMENT (`publish-site-settings` passes `BLOG_TOPICS`) rather than importing it, which
+  keeps it execution-testable — a relative value import would have broken every suite that runs it,
+  the constraint documented at `validate-draft-sections`. The empty-topic OG and head branches stay
+  reachable for drafts. Owner's calls: the three existing topics (not an invented superset), and
+  required-to-publish (confirming existing practice, like the lint gate).
 - **hazard 24 CLOSED — the radius inversion removed byte-identically, and gated** →1446. The two
   public `rounded-2xl` consumers reached Tailwind's default 1rem (the project's `@theme` ramp stops
   at xl and never declares 2xl), so 2xl rendered EQUAL to lg and BELOW xl. Measured, they split:
@@ -2972,12 +3000,12 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 
 ## WHAT'S NEXT
 
-**THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. WHAT REMAINS IS
-CONTENT AND ONE SCOPED PR — hazards 23, 24 and 27 are all closed and no ink-arc hazard is open.**
+**THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. PR D SHIPPED TOO, SO
+WHAT REMAINS IS CONTENT — hazards 23, 24 and 27 are all closed and no ink-arc hazard is open.**
 
-0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED.** ~~PR C~~ shipped as #211. What remains is
-   **PR D** — topic as a set (schema field, options source of truth, migration for three
-   posts), deliberately a feature rather than a styling item.
+0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED, AND SO IS PR D.** ~~PR C~~ shipped as #211;
+   ~~**PR D**~~ — topic as a closed set — shipped too (`BLOG_TOPICS`, enforced at save and
+   required at publish; see its log entry). There is no scoped PR left on the board.
    **THE GATE DEBT IS PAID: hazard 27 is CLOSED.** `studio-type`'s on-ink contrasts ran only by
    hand; `studio-ink-contrast` now recomputes every non-pointer `ON_INK` ratio statically from
    source and asserts it in CI, so on-ink work no longer depends on a human remembering to run a

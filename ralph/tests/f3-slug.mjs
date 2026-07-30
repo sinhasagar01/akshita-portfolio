@@ -21,6 +21,9 @@ import { slugify } from "../../lib/studio/slug.ts";
 import { serializeBlogEntry } from "../../lib/studio/blog-serialize.ts";
 import { mapBlogListItem } from "../../lib/blog/select.ts";
 import { validateBlogPost } from "../../lib/studio/validate-blog-post.ts";
+import { BLOG_TOPICS } from "../../lib/studio/blog-format-core.ts";
+// The publish gate takes the allowed topics as an argument (import-free so ralph can execute it).
+const publishGate = (slug, raw) => validateBlogPost(slug, raw, BLOG_TOPICS);
 
 let failures = 0;
 function check(name, cond, detail = "") {
@@ -108,16 +111,16 @@ const RAW = readFileSync(path.join(ROOT, `content/blog/${SLUG}.yaml`), "utf8");
 // seam's to judge); a PUBLISHED one is rejected. Guarded both ways so it is not vacuous.
 {
   const withTitle = RAW; // the real file has a title and is published
-  check("G3 a published post WITH a title validates", validateBlogPost(SLUG, withTitle).ok, "");
+  check("G3 a published post WITH a title validates", publishGate(SLUG, withTitle).ok, "");
 
   const blanked = RAW.replace(/^title: .*$/m, "title: ''");
-  const rBlank = validateBlogPost(SLUG, blanked);
+  const rBlank = publishGate(SLUG, blanked);
   check("G3 a published post with a BLANK title is rejected", !rBlank.ok,
     rBlank.ok ? "accepted a slug-headed post" : "");
 
   const draftBlank = blanked.replace(/^status: published$/m, "status: draft");
   check("G3 a DRAFT with a blank title is NOT this seam's to judge (accepted)",
-    validateBlogPost(SLUG, draftBlank).ok, "");
+    publishGate(SLUG, draftBlank).ok, "");
 }
 
 console.log(`\nF-3 slug result: ${failures === 0 ? "ALL PASS" : failures + " FAILED"}`);

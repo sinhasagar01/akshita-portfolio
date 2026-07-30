@@ -79,9 +79,20 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
  * at the publish that makes it live — there is no window. Judging drafts would only mean
  * one half-written post blocking the publish of everything else in the draft branch,
  * which on a daily-cadence collection is real recurring friction for no safety.
+ *
+ * `allowedTopics` IS PASSED IN, NOT IMPORTED, and that is deliberate. This file is
+ * dependency-free beyond js-yaml and a type-only import, which is what lets a ralph suite
+ * import and EXECUTE it directly (its sibling validate-draft-sections imports a value and so
+ * can only be source-inspected). A relative import of BLOG_TOPICS would forfeit that. The set
+ * is the caller's to supply — publish-site-settings passes BLOG_TOPICS, the one source of
+ * truth — so the gate stays a pure function of its inputs.
  */
-export function validateBlogPost(slug: string, raw: string): BlogValidation {
-  const doc = (load(raw) ?? {}) as { status?: unknown; title?: unknown; blocks?: unknown };
+export function validateBlogPost(
+  slug: string,
+  raw: string,
+  allowedTopics: readonly string[]
+): BlogValidation {
+  const doc = (load(raw) ?? {}) as { status?: unknown; title?: unknown; topic?: unknown; blocks?: unknown };
 
   // Not published -> not this seam's to judge (see above).
   if (doc.status !== "published") return { ok: true };
@@ -105,6 +116,26 @@ export function validateBlogPost(slug: string, raw: string): BlogValidation {
     return fail(
       "title must not be empty on a published post — it falls back to the slug, which is not a title"
     );
+  }
+
+  // ---- THE TOPIC GATE, THE SAME SHAPE AS title ABOVE AND alt BELOW ---------------------
+  //
+  // PR D closed the topic set (BLOG_TOPICS) and made it REQUIRED to publish. The split is the
+  // one alt and the title use: the sanitizer allows an empty topic so a draft can save unset,
+  // and this file (published posts only) is the one gate an author cannot walk past, so it is
+  // the only place "required" can be real. A non-member cannot normally reach here — the
+  // sanitizer refuses it at save and the editor is a closed dropdown — but a hand-committed
+  // file can, so both the empty and the off-set cases are refused, each with its own message.
+  //
+  // The empty-topic RENDER branches stay reachable and are NOT dead code: a draft previewing in
+  // the studio canvas can still have no topic, so the article head's `topic ? … : null` and the
+  // OG card's dropped eyebrow row still fire. This gate only judges PUBLISHED posts.
+  const topic = typeof doc.topic === "string" ? doc.topic.trim() : "";
+  if (topic === "") {
+    return fail("topic must be set on a published post, one of " + allowedTopics.join(", "));
+  }
+  if (!allowedTopics.includes(topic)) {
+    return fail(`topic "${topic}" is not one of ${allowedTopics.join(", ")}`);
   }
 
   // A post with no blocks array renders an empty prose column — legal, not a failure.

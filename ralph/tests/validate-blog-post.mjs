@@ -15,8 +15,10 @@
 // The claim to avoid: this does NOT replicate the projects gate's coverage of
 // half-authored content. An empty-src videoEmbed and a missing image are legal for a
 // post and render as nothing; for a case study the ssg adapter refuses them.
-import { dump } from "js-yaml";
+import { readdirSync, readFileSync } from "node:fs";
+import { dump, load } from "js-yaml";
 import { validateBlogPost, BLOG_POST_PATH_RE } from "../../lib/studio/validate-blog-post.ts";
+import { BLOG_TOPICS } from "../../lib/studio/blog-format-core.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -25,11 +27,16 @@ const t = (name, got, want) => {
   ok ? pass++ : fail++;
 };
 
-/** A published post file carrying the given blocks. */
+/** A published post file carrying the given blocks. Carries a valid `topic` for the same reason
+ *  it carries a `title`: since PR D a published post also needs a member topic, so without one
+ *  every block/title assertion below would fail for the wrong reason (the topic gate, not the
+ *  thing under test). The topic gate has its own isolated section (F). */
 const postWith = (blocks, status = "published") =>
-  dump({ title: "T", dek: "D", date: "2026-08-01", status, heroImage: null, blocks }, { noRefs: true });
+  dump({ title: "T", dek: "D", date: "2026-08-01", topic: "Design systems", status, heroImage: null, blocks }, { noRefs: true });
 const verdict = (raw) => {
-  const r = validateBlogPost("a-post", raw);
+  // BLOG_TOPICS is injected, not imported by the validator — see its header. The gate is a pure
+  // function of (slug, raw, allowedTopics), so the suite passes the real set here.
+  const r = validateBlogPost("a-post", raw, BLOG_TOPICS);
   return r.ok ? "OK" : r.error.code;
 };
 
@@ -61,7 +68,7 @@ for (const [label, blocks] of Object.entries(FIXTURES)) {
 // title added so this isolates the BLOCKS check — since #216 a published post also needs a
 // non-empty title, and without one this would fail for the wrong reason (a false pass that
 // happened to return the same code).
-t("A: a non-array blocks value is REFUSED", verdict(dump({ title: "T", status: "published", blocks: "nope" })), "invalid_blocks");
+t("A: a non-array blocks value is REFUSED", verdict(dump({ title: "T", topic: "Design systems", status: "published", blocks: "nope" })), "invalid_blocks");
 
 /* ------------------------------------------------- B. what must still be ACCEPTED */
 t("B1 the four real kinds are accepted", verdict(postWith([
@@ -71,7 +78,7 @@ t("B1 the four real kinds are accepted", verdict(postWith([
   { discriminant: "videoEmbed", value: { src: "https://e.com/v.mp4", caption: "c" } },
 ])), "OK");
 t("B2 an empty blocks array is fine", verdict(postWith([])), "OK");
-t("B3 a post with no blocks key at all is fine", verdict(dump({ title: "T", status: "published" })), "OK");
+t("B3 a post with no blocks key at all is fine", verdict(dump({ title: "T", topic: "Design systems", status: "published" })), "OK");
 
 // ---- THE TITLE GATE (#216), IN ITS HOME SUITE — same shape as the alt gate below ----------
 // title is editable now and the read path falls back to the slug when it is blank, so an empty
@@ -109,6 +116,39 @@ t("C: an unset status is treated as not-published (fail-closed, matching the rea
  * against these same fixtures in the PR — with the guards, and again with them reverted
  * as a control — which is how we learned the reader coerces and the guards are never
  * reached. Recorded there, not asserted here. */
+
+/* ------------------------------------------------- F. THE TOPIC GATE (PR D)
+ * Same shape as the title and alt gates: closed at save, REQUIRED at publish, drafts not judged.
+ * The three checks below are the whole rule — a published post needs a topic, it must be a member
+ * of the set, and a draft is exempt — and each is guarded both ways so none is vacuous. */
+t("F1 a published post with a member topic is fine", verdict(postWith([])), "OK"); // postWith carries topic:"Design systems"
+t("F2 a published post with an EMPTY topic is REFUSED",
+  verdict(dump({ title: "T", topic: "", status: "published", blocks: [] })), "invalid_blocks");
+t("F3 a published post with NO topic key is REFUSED",
+  verdict(dump({ title: "T", status: "published", blocks: [] })), "invalid_blocks");
+t("F4 a published post with a NON-MEMBER topic is REFUSED (the set is closed, not just non-empty)",
+  verdict(dump({ title: "T", topic: "Cooking", status: "published", blocks: [] })), "invalid_blocks");
+t("F5 a DRAFT with an empty topic is NOT judged (publish gate, not save gate)",
+  verdict(dump({ title: "T", topic: "", status: "draft", blocks: [] })), "OK");
+t("F6 a DRAFT with a non-member topic is NOT judged either",
+  verdict(dump({ title: "T", topic: "Cooking", status: "draft", blocks: [] })), "OK");
+
+/* F7 · THE MIGRATION IS A NO-OP, PROVEN NOT ASSUMED. The set was chosen to be exactly the topics
+ * the existing posts already carry, so no post needs rewriting — but that is a claim about live
+ * content, so it is checked against the real files rather than trusted. Every PUBLISHED post on
+ * disk must carry a member topic (a draft may be unset, mirroring the gate). If a post's topic is
+ * not in BLOG_TOPICS, the set and the content have drifted and this names the file. */
+const BLOG_DIR = new URL("../../content/blog/", import.meta.url);
+const postFiles = readdirSync(BLOG_DIR).filter((f) => f.endsWith(".yaml"));
+t("F7 there are blog posts on disk to check (guards against a silent empty pass)", postFiles.length > 0, true);
+const offMembers = [];
+for (const f of postFiles) {
+  const doc = load(readFileSync(new URL(f, BLOG_DIR), "utf8")) ?? {};
+  if (doc.status !== "published") continue;               // drafts may be unset
+  if (!(BLOG_TOPICS).includes(doc.topic)) offMembers.push(`${f} → ${JSON.stringify(doc.topic)}`);
+}
+t("F7 every PUBLISHED post on disk already carries a member topic — zero migration, verified",
+  offMembers, []);
 
 /* ------------------------------------------------- E. the publish-loop regex (G4) */
 t("E1 matches a blog post path", BLOG_POST_PATH_RE.test("content/blog/my-post.yaml"), true);

@@ -34,7 +34,7 @@ import {
 // comparison of values (every key, every default), not a corpus over a function — which
 // is why duplicating an empty is safe where duplicating a URL validator was not (#173).
 import { BLOCK_EMPTIES } from "../../components/studio/blocks/empties.ts";
-import { makeBlogSanitizers } from "../../lib/studio/blog-format-core.ts";
+import { makeBlogSanitizers, BLOG_TOPICS } from "../../lib/studio/blog-format-core.ts";
 import {
   str,
   obj,
@@ -47,6 +47,8 @@ import {
 } from "../../lib/studio/sections-format.ts";
 import { serializeBlogBlocks, readBlogBlocks } from "../../lib/studio/blog-serialize.ts";
 import { validateBlogPost } from "../../lib/studio/validate-blog-post.ts";
+// The publish gate takes the allowed topics as an argument (import-free so ralph can execute it).
+const publishGate = (slug, raw) => validateBlogPost(slug, raw, BLOG_TOPICS);
 import { entryDraftCacheKey } from "../../lib/studio/entry-draft-key.ts";
 
 const { sanitizeBlogBlocksPatch } = makeBlogSanitizers({ str, obj, arrayOf, imgSpec, videoSrc, videoFrame, bool, imageSrc });
@@ -135,9 +137,9 @@ for (const k of KINDS) {
  * into a corner the publish gate then refuses. */
 {
   const all = KINDS.map((k) => ({ discriminant: k, value: BLOG_BLOCK_EMPTIES[k]() }));
-  const yaml = `title: T\ndek: d\ndate: '2026-08-01'\nstatus: published\nheroImage: null\n` +
+  const yaml = `title: T\ndek: d\ndate: '2026-08-01'\ntopic: Design systems\nstatus: published\nheroImage: null\n` +
     serializeBlogBlocks(`x: 1\nblocks: []\n`, all).bytes.slice("x: 1\n".length);
-  t("D1 a published post of fresh blocks passes the publish gate", validateBlogPost("p", yaml).ok, true);
+  t("D1 a published post of fresh blocks passes the publish gate", publishGate("p", yaml).ok, true);
 }
 
 /* ------------------------------------------------- E. the heading empty, specifically */

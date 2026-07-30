@@ -18,7 +18,7 @@
 // with a `.ts` specifier — legal in a .mjs suite, which sits outside the tsc program.
 // So the code under test is the one implementation the routes run, and imgSpec/videoSrc
 // cannot drift between the two collections because there is only one of each.
-import { makeBlogSanitizers, BLOG_STATUSES } from "../../lib/studio/blog-format-core.ts";
+import { makeBlogSanitizers, BLOG_STATUSES, BLOG_TOPICS } from "../../lib/studio/blog-format-core.ts";
 import {
   str,
   obj,
@@ -116,7 +116,13 @@ t("E5 both statuses accepted", BLOG_STATUSES.every((s) => sanitizeBlogPatch({ st
 // hides a post forever, because the public read filters `=== "published"`.
 t("E6 a TYPO'd status is rejected  [MUTANT 5]", codeOf(sanitizeBlogPatch({ status: "publsihed" })), "invalid_patch");
 t("E7 a wrong-case status is rejected  [MUTANT 5]", codeOf(sanitizeBlogPatch({ status: "Published" })), "invalid_patch");
-t("E8 topic is an OPEN string (no invented enum)", sanitizeBlogPatch({ topic: "Anything At All" }), { ok: true, patch: { topic: "Anything At All" } });
+// [MUTANT 5b] topic is a CLOSED set now (PR D), but the sanitizer still allows EMPTY — the
+// write boundary a draft saves through. What it refuses is a NON-EMPTY non-member, so junk
+// cannot reach disk. "Required" is validate-blog-post's job, not this one's. Guarded three ways
+// so dropping the membership check fails E8c, and dropping the empty-allowance fails E8b.
+t("E8a a MEMBER topic is accepted", sanitizeBlogPatch({ topic: BLOG_TOPICS[0] }), { ok: true, patch: { topic: BLOG_TOPICS[0] } });
+t("E8b an EMPTY topic is accepted (a draft may be unset)", sanitizeBlogPatch({ topic: "" }), { ok: true, patch: { topic: "" } });
+t("E8c a NON-MEMBER topic is REJECTED  [MUTANT 5b]", codeOf(sanitizeBlogPatch({ topic: "Anything At All" })), "invalid_patch");
 // [MUTANT 6] let the text path accept `blocks` -> these must FAIL. blocks has ONE writer.
 // The REASON is asserted, not just the rejection: without the named guard `blocks` would
 // still be refused by the unknown-field catch-all, so a code-only assertion would pass
