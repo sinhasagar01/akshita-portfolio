@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1402 across 39 suites** (`parity` and `studio-type` named as skipped, not dropped).
+**ralph 1410 across 40 suites** (`parity` and `studio-type` named as skipped, not dropped).
 
 | items                 | where                | how                                                     |
 | --------------------- | -------------------- | ------------------------------------------------------- |
@@ -91,9 +91,9 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1410 (the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows).
 
-**1402 ACROSS 39 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
+**1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
 
 **THE PER-FILE LIST IS NO LONGER HERE, and that is deliberate** — `ralph/run.mjs` prints
@@ -2329,6 +2329,25 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     element.** `ListDetailLayout` sets `border-y-transparent border-r-transparent` explicitly
     and leaves the left edge to the bar alone, so nothing competes. `studio-ink` G3 pins it.
 
+    **NOW GATED — `studio-border-race`, and it found two LIVE instances PR B had missed.** The
+    gate classifies every border-colour utility on an element into the edges it writes
+    (`border-<c>`→all four, `border-x`→l+r, `border-l`→l …) and flags any two that overlap
+    within one variant scope; the disjoint idiom passes, a shorthand-plus-longhand fails. On its
+    first run it caught **`BlogBlocksEditPanel`'s block strip and `BlogPostList`'s rail** — both
+    still carried `border-b border-ink-950/12 border-l-[3px]`, where the `border-ink-950/12`
+    shorthand coloured the left edge and raced the accent bar. PR B fixed the ListDetailLayout
+    row and left these two behind. Both changed to `border-b-ink-950/12` (colour the bottom only);
+    render verified identical (accent bar left, ink hairline bottom) but now deterministic.
+    **Two ways the gate almost lied, both fixed before trusting it:** its colour classifier
+    missed base colours with opacity (`white/24`), so it was blind to every `border-white/24` on
+    the ink chrome until fixed; and its tokeniser pooled array-style `? "a" : "b"` ternary
+    branches (mutually-exclusive alternatives), a false positive on `OverviewRow`'s pill. Both
+    mutation-tested after the fix.
+    **ONE PUBLIC INSTANCE, REPORTED NOT SWEPT (like experience/projects):** `ContactSection`'s
+    spinner is `border-2 border-white/40 border-t-white animate-spin` — the universal Tailwind
+    loading-arc idiom, the same mechanism relied on deliberately. The gate is studio-scoped, so
+    it does not touch it; hardening the spinner to the disjoint form is an owner call.
+
 27. **`studio-type`'s C-9 EXCLUSION HAS TURNED INTO A GAP, AND THE MECHANISM GENERALISES.**
     The suite skips the topbar search **by name**, because it is an ink surface and not part of
     the cream ladder the suite checks. **That was correct when written and is still true.**
@@ -2682,6 +2701,17 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **the border-race gate** →1410. Hazard 26 (a border-colour shorthand racing a per-side
+  longhand on one element, order-decided, invisible to every existing gate) is now caught by
+  `studio-border-race`, its own suite because the mechanism is utility-vs-utility, not the
+  unlayered-vs-layered one `studio-cascade` covers. **It found two LIVE races PR B had missed**
+  — the block strip and the blog rail both kept `border-ink-950/12` (shorthand) racing the
+  accent bar on the left edge; PR B fixed only the ListDetailLayout row. Both moved to
+  `border-b-ink-950/12`; render verified identical, now deterministic. The gate itself nearly
+  lied twice — blind to `border-white/24` (base colour with opacity), and a false positive on
+  array-style ternaries — both fixed and mutation-tested before trusting it. The one public
+  instance (`ContactSection`'s spinner, the same idiom used deliberately) is reported, not
+  swept — the gate is studio-scoped.
 - **#216** the editable blog title →1402. **The headline is a FALSE CLAIM, not a feature.**
   STATE and five source comments said "title IS the slug"; measured, the slug is the FILENAME,
   `title` is a frontmatter key, `slugify` runs once at create and nothing re-derives — a title

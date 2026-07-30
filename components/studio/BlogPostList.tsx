@@ -79,7 +79,11 @@ export default function BlogPostList({
                     // `border-l-[3px]` is in the base with `pl-[9px]` absorbing it, so 3 + 9
                     // matches the old 0 + 12 and selection causes no reflow.
                     aria-current={current ? "page" : undefined}
-                    className={`flex items-start gap-2.5 border-b border-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-3 transition-colors ${
+                    // `border-b-ink-950/12`, NOT the shorthand — hazard 26. The shorthand
+                    // colours all four sides and raced `border-l-accent-500` on the left edge;
+                    // equal specificity, so sheet order decided the winner. Colour only the
+                    // bottom, leaving the left to the bar. `studio-border-race` pins it.
+                    className={`flex items-start gap-2.5 border-b border-b-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-3 transition-colors ${
                       current ? "border-l-accent-500 bg-cream-300" : "border-l-transparent hover:bg-cream-100"
                     }`}
                   >

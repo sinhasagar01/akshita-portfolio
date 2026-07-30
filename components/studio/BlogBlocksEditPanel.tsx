@@ -740,7 +740,13 @@ export default function BlogBlocksEditPanel({
                   // is ink BECAUSE it had to read against an accent fill; on cream-200 it reads
                   // at least as well, and focus-versus-selection is the property that keeps a
                   // keyboard user able to tell whether Enter would change anything.
-                  className={`flex items-center gap-1 border-b border-ink-950/12 border-l-[3px] py-1.5 pl-[5px] pr-2 ${
+                  // `border-b-ink-950/12`, NOT the `border-ink-950/12` shorthand — hazard 26.
+                  // The shorthand colours all four sides, so it wrote the LEFT edge too and raced
+                  // the accent bar's `border-l-accent-500` there; equal specificity means the
+                  // generated sheet's order decides the winner, a Tailwind-version coin flip that
+                  // renders accent today. Colouring only the bottom leaves the left to the bar.
+                  // `studio-border-race` pins this; the render is unchanged.
+                  className={`flex items-center gap-1 border-b border-b-ink-950/12 border-l-[3px] py-1.5 pl-[5px] pr-2 ${
                     isSelected ? "border-l-accent-500 bg-cream-200" : "border-l-transparent"
                   }`}
                 >
