@@ -508,7 +508,7 @@ export function BlockImageField({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onChange(null)}
             aria-label={`Clear ${label}`}
-            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
           >
             <IconX />
           </button>
@@ -651,7 +651,7 @@ export function ItemRows<T>({
 }) {
   const list = useItemList(items, onChange, empty);
   const iconBtn =
-    "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+    "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
   return (
     <div className="flex flex-col gap-2">
@@ -690,7 +690,7 @@ export function ItemRows<T>({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => list.remove(i)}
                     aria-label={`Remove ${name}`}
-                    className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+                    className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
                   >
                     <IconX />
                   </button>

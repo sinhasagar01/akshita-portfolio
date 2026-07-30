@@ -72,7 +72,7 @@ const sectionLabel = (s: RawSection, i: number) =>
   sectionDisplayLabel({ title: s.title, eyebrow: s.eyebrow, id: s.id }, i);
 
 const iconBtn =
-  "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+  "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
 // CS-3 — the block kinds that carry any STYLE field (image geometry or a glow
 // word). Under the Style tab, blocks NOT in this set have nothing to show, so their
@@ -565,7 +565,7 @@ function SectionCanvas({
         {s ? (
           <SectionRenderer key={renderEpoch} section={s} web={web} noReveal editable={editable} />
         ) : (
-          <p className="px-4 py-6 text-center text-[12px] text-ink-500">
+          <p className="px-4 py-6 text-center text-[12px] text-text-subtle">
             This section can’t be previewed yet — finish its required fields.
           </p>
         )}
@@ -892,7 +892,7 @@ export default function SectionsEditPanel({
           </span>
           <span className="font-display text-base text-ink-950">Case study body</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-500">
+            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -943,7 +943,7 @@ export default function SectionsEditPanel({
                       <span className="truncate font-display text-[14px] text-ink-950">{name}</span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      <span className="rounded-full border border-ink-950/10 px-2 py-0.5 text-[10px] text-ink-500">
+                      <span className="rounded-full border border-ink-950/10 px-2 py-0.5 text-[10px] text-text-subtle">
                         {count} {count === 1 ? "block" : "blocks"}
                       </span>
                       {/* Reorder — the SAME moveSection/structural() choke point the
@@ -1014,7 +1014,7 @@ export default function SectionsEditPanel({
             ← Board
           </button>
           <label className="ml-auto flex items-center gap-2">
-            <span className="text-[12px] text-ink-500">Section</span>
+            <span className="text-[12px] text-text-subtle">Section</span>
             <select
               value={selectedSectionId}
               onChange={(e) => setSelectedSectionId(e.target.value)}
@@ -1062,7 +1062,7 @@ export default function SectionsEditPanel({
                   "-mb-px border-b-2 px-3 py-1.5 text-[12px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                   on
                     ? "border-accent-500 font-medium text-ink-950"
-                    : "border-transparent text-ink-500 hover:text-ink-950",
+                    : "border-transparent text-ink-600 hover:text-ink-950",
                 ].join(" ")}
               >
                 {v === "canvas" ? "Canvas" : "Inspector"}
@@ -1306,7 +1306,7 @@ export default function SectionsEditPanel({
                   "-mb-px border-b-2 px-3 py-1.5 text-[12px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                   selected
                     ? "border-accent-500 font-medium text-ink-950"
-                    : "border-transparent text-ink-500 hover:text-ink-950",
+                    : "border-transparent text-ink-600 hover:text-ink-950",
                 ].join(" ")}
               >
                 {t === "content" ? "Content" : "Style"}
@@ -1377,7 +1377,7 @@ export default function SectionsEditPanel({
                 <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
                   <IconChevronDown />
                 </button>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                   <IconX />
                 </button>
               </div>
@@ -1434,7 +1434,7 @@ export default function SectionsEditPanel({
                         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
                           <IconChevronDown />
                         </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
                           <IconX />
                         </button>
                       </div>
@@ -1496,7 +1496,7 @@ export default function SectionsEditPanel({
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
-            <span className="text-ink-500">Saving draft…</span>
+            <span className="text-text-subtle">Saving draft…</span>
           ) : saveStatus === "saved" ? (
             <span className="text-accent-600">Draft saved</span>
           ) : saveStatus === "error" ? (

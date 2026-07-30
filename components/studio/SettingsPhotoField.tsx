@@ -127,7 +127,7 @@ export default function SettingsPhotoField({
             onClick={clear}
             disabled={busy}
             aria-label="Clear photo"
-            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
           >
             <IconX />
           </button>

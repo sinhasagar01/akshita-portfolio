@@ -83,7 +83,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
           </span>
           <span className="font-display text-base text-ink-950">Process</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-500">
+            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -148,7 +148,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
-            <span className="text-ink-500">Saving draft…</span>
+            <span className="text-text-subtle">Saving draft…</span>
           ) : saveStatus === "saved" ? (
             <span className="text-accent-600">Draft saved</span>
           ) : saveStatus === "error" ? (

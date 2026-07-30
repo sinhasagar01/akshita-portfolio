@@ -91,7 +91,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1410 (the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -2223,8 +2223,9 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     **Do not "fix" them blind** — each renders ink-950 today and several may look better that
     way; the defect is that the code says one thing and the screen does another.
 
-23. **TWO PHANTOM COLOUR UTILITIES: `text-ink-500` (41 uses) AND `text-ink-700` (11 uses)
-    GENERATE NOTHING.** The `@theme` ink scale is 950/800/600/400/200 — there is no
+23. **TWO PHANTOM COLOUR UTILITIES: `text-ink-500` (40 uses) AND `text-ink-700` (11 uses)
+    GENERATED NOTHING. NOW CLOSED — `ink-700` deleted in #210, `ink-500` re-pointed (see the
+    CLOSED note below).** The `@theme` ink scale is 950/800/600/400/200 — there is no
     `--color-ink-500` and no `--color-ink-700`, and Tailwind v4 only generates utilities from
     tokens that exist. Every site carrying them renders INHERITED colour, usually ink-950 from
     body. Found by PR 2b's measurement gate: a readonly field whose class said ink-500
@@ -2259,22 +2260,42 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     settles the conditional sites (confirm prompts, "Saving draft…", empty states) that only
     render in transient states.
 
+    **CLOSED — THE 40 `ink-500` SITES WERE RE-POINTED, NOT DELETED, REALISING THE INTENT.**
+    The other half is now done, and done the opposite way to the `ink-700` half: those 11 read
+    correctly at full ink so deleting was honest; these 40 always MEANT muted and never were, so
+    deleting would have left every one looking exactly as wrong. Each was re-pointed to the muted
+    token its own working, untouched neighbour already used — **13 icon buttons → `text-ink-400`**
+    (the `ListDetailLayout` idiom, `place-items-center … hover:text-ink-950`), **3 inactive tabs
+    and secondary controls → `text-ink-600`** (`SegmentedToggle`, `StudioSidebar`), **24 badges,
+    status hints and readonly fields → `text-text-subtle`** (`SkillsEditor`'s Unsaved pill and 92
+    other live uses). No value was invented; every target matches a sibling already shipping it,
+    which is the same discipline as the three scales. **The neighbour proof ran per family with
+    zero mismatches**, and **each target was checked on its ACTUAL ground** — `text-text-subtle`
+    clears AA text (4.5) on all three cream steps down to **4.78 on cream-200**, the worst case
+    (the readonly Company field's ground); `text-ink-600` clears at **6.42**; `text-ink-400` is an
+    icon rest colour, a graphical UI element, and clears the **3.0** non-text floor at **3.02 on
+    cream-200**, matching the working icon buttons exactly so it introduces no risk the studio was
+    not already carrying. Rendered proof: `text-text-subtle` now paints **109,100,93**, not the
+    inherited ink-950 (**21,17,13**) it painted for its whole life. **`studio-tokens` B2 flipped
+    from pinning the count at 40 to asserting ZERO**, and it fails the day any `text-ink-500`
+    returns — mutation-tested. Ralph holds at **1410** (B2 is a revalue, not a net-new assertion).
+
     **THE THREE MECHANISMS, AS A SET — SAME SYMPTOM, THREE DISTINCT CAUSES.** Nothing recorded
     them together, so each was re-derived from scratch when it appeared. The symptom is always
     _the code says one thing and the screen does another_:
 
-    | #      | cause                                              | gated by               |
-    | ------ | -------------------------------------------------- | ---------------------- |
-    | **11** | an unlayered element rule beats a layered utility  | `studio-cascade`       |
-    | **26** | utility versus utility, decided by **sheet order** | **UNGATED**            |
-    | **23** | the token does not exist, so no CSS is generated   | `studio-tokens` (#210) |
+    | #      | cause                                              | gated by                    |
+    | ------ | -------------------------------------------------- | --------------------------- |
+    | **11** | an unlayered element rule beats a layered utility  | `studio-cascade`            |
+    | **26** | utility versus utility, decided by **sheet order** | `studio-border-race` (#219) |
+    | **23** | the token does not exist, so no CSS is generated   | `studio-tokens` (#210, closed here) |
 
-    **HAZARD 26 REMAINS UNGATED, AND `studio-cascade` CANNOT SEE IT** — that suite compares a
+    **ALL THREE ARE NOW GATED, AND `studio-cascade` STILL CANNOT SEE 26** — that suite compares a
     utility against an _unlayered element rule_, which presumes the utility generates CSS and
     asks whether something outranks it. Utility-versus-utility has no element rule involved and
-    two live declarations, so there is nothing for it to match on. Closing hazard 26 needs a
-    different check (shorthand and longhand for the same property on one element), and it is
-    not built.
+    two live declarations, so there was nothing for it to match on. #219 built the different check
+    26 needed (a border-colour shorthand and a per-side longhand writing the same edge on one
+    element), `studio-border-race`, which found two live races in the blog rows on its first run.
 
 24. **`--radius-2xl` IS SMALLER THAN `--radius-xl`** — a scale inversion nobody introduced.
     Emitted values are `sm .25rem · md .5rem · lg 1rem · xl 1.5rem · **2xl 1rem** · full 9999px`.
@@ -2387,16 +2408,21 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
       One is `Link` (already mapped); the other ten render `<svg>`, `<span>` or `<div>`, and the
       guarded set is `a, body, h1–h6, img, p, video`. **An exclusion that looks alarming and
       excludes nothing is worth measuring rather than assuming** — the inverse of this hazard.
-    - `studio-tokens` — `ink-500`, by TOKEN not by site, count pinned at 40 by B2. Still holds.
+    - `studio-tokens` — `ink-500`, by TOKEN not by site. B2 now asserts the family is **ZERO**,
+      not 40 — the sites were re-pointed, and the guard fails if any `text-ink-500` returns.
 
 ---
 
 ## DEFERRED — scoped, not built
 
-- **THE 40 `text-ink-500` SITES — REAL DEFECTS, NAMED IN #210 AND DELIBERATELY NOT FIXED.**
-  Each is a class that meant _muted_ rendering at full ink-950 beside the primary text it was
-  supposed to sit behind. Deleting them would make the code honest and leave the elements
-  looking exactly as wrong, so the class is kept until the replacement is decided.
+- ~~**THE 40 `text-ink-500` SITES — REAL DEFECTS, NAMED IN #210 AND DELIBERATELY NOT FIXED.**~~
+  **BUILT — the sites were re-pointed to their neighbours' tokens, closing hazard 23; see that
+  hazard's CLOSED note for the mapping, the per-family neighbour proof and the per-ground
+  contrast.** The reasoning is kept below because it is exactly what the fix followed — the
+  "match the neighbour" census was the plan, and the build executed it site for site.
+  Each was a class that meant _muted_ rendering at full ink-950 beside the primary text it was
+  supposed to sit behind. Deleting them would have made the code honest and left the elements
+  looking exactly as wrong, so instead of deleting, the muted intent was realised.
 
   **THE STRONGEST EVIDENCE IS ADJACENT CODE DISAGREEING WITH ITSELF, not an inference about
   intent.** `ProjectsEditPanel:273` is the readonly Company field: phantom, rendering full ink,
@@ -2420,8 +2446,11 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   **A · three tab/inactive pairs** and **G · four others** (chevron, empty state, the "Section"
   label, the preview page's toggle) are individually small and can ride with whichever decision
   fits.
-  **`studio-tokens` B2 pins the count at 40**: growing means a new dead site was added, and
-  zero means the decision was made and the exemption should be deleted.
+  **`studio-tokens` B2 now asserts the count is ZERO** — the decision was made and the sites
+  converted, so the guard flipped from pinning 40 to failing if any `text-ink-500` returns. The
+  icon-button family (C) resolved to `text-ink-400` on exactly the reasoning above: its question
+  was rest-against-hover, so it took the muted icon rest colour its working neighbours already use
+  rather than a muted-text token, and the hover to ink-950 that never fired now does.
 
 - ~~**PR C — THE CARD IMAGE (fidelity item 4)**~~ — **BUILT in #211.** Kept below for its
   reasoning; the plate is capped by HEIGHT (160px) rather than width, because the height a
@@ -2701,7 +2730,20 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
-- **the border-race gate** →1410. Hazard 26 (a border-colour shorthand racing a per-side
+- **hazard 23 CLOSED — the 40 `text-ink-500` sites realised, not deleted** →1410. The phantom's
+  other half (the `ink-700` half was deleted in #210) is done, and done the opposite way: these
+  40 always MEANT muted and never were, so each was re-pointed to the muted token its own
+  untouched neighbour already uses — **13 icon buttons → `text-ink-400`** (`ListDetailLayout`),
+  **3 tabs and secondary controls → `text-ink-600`** (`SegmentedToggle`), **24 badges, hints and
+  readonly fields → `text-text-subtle`** (`SkillsEditor`). **No value invented; the per-family
+  neighbour proof ran with zero mismatches.** Each target was checked on its ACTUAL ground —
+  `text-text-subtle` clears AA text down to **4.78 on cream-200** (the readonly field's worst
+  case), `text-ink-600` at **6.42**, `text-ink-400` clears the **3.0** icon floor at **3.02**,
+  matching the working icon buttons exactly. Rendered proof: `text-text-subtle` paints
+  **109,100,93**, not the inherited ink-950 (**21,17,13**) it had painted for its whole life.
+  **`studio-tokens` B2 flipped from pinning 40 to asserting 0** and mutation-tested (it fails the
+  day any `text-ink-500` returns). A revalue, not net-new, so ralph holds at 1410.
+- **#219 the border-race gate** →1410. Hazard 26 (a border-colour shorthand racing a per-side
   longhand on one element, order-decided, invisible to every existing gate) is now caught by
   `studio-border-race`, its own suite because the mechanism is utility-vs-utility, not the
   unlayered-vs-layered one `studio-cascade` covers. **It found two LIVE races PR B had missed**
@@ -2712,6 +2754,14 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   array-style ternaries — both fixed and mutation-tested before trusting it. The one public
   instance (`ContactSection`'s spinner, the same idiom used deliberately) is reported, not
   swept — the gate is studio-scoped.
+- **#218** the +1px font bump, split resolved to 14 →1402. A clean site-wide +1px type bump (108
+  one-line `text-[Npx]` swaps across 43 files) that collided with three assertions, plus the
+  owner's decision to resolve the deferred 13/14 `inputCls`/`inputClsMd` split to **14px**. The
+  fix RECONCILED the assertions to the new sizes rather than reverting the bump: `studio-ink` E4
+  repinned the eyebrow literal 11→12, and `studio-nav-active` G5/G6 flipped from "the two differ
+  by the font size" to "the two are now IDENTICAL at 14px." Zero net-new. **The deploy-blocking
+  Ralph failure was this collision**, not a bad bump — main had reverted only #217 (the bump),
+  leaving the editable-title feature (#216) live; the branch was reconciled and re-merged.
 - **#216** the editable blog title →1402. **The headline is a FALSE CLAIM, not a feature.**
   STATE and five source comments said "title IS the slug"; measured, the slug is the FILENAME,
   `title` is a frontmatter key, `slugify` runs once at create and nothing re-derives — a title
@@ -2850,7 +2900,7 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 ## WHAT'S NEXT
 
 **THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. WHAT REMAINS IS
-CONTENT, ONE SCOPED PR, AND THREE OPEN HAZARDS.**
+CONTENT, ONE SCOPED PR, AND TWO OPEN HAZARDS (24 and 27; 23 closed).**
 
 0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED.** ~~PR C~~ shipped as #211. What remains is
    **PR D** — topic as a set (schema field, options source of truth, migration for three
@@ -2858,15 +2908,15 @@ CONTENT, ONE SCOPED PR, AND THREE OPEN HAZARDS.**
    **AND ONE GATE DEBT THAT SHOULD GO FIRST: hazard 27**, `studio-type`'s C-9 exclusion, now a
    hole because the topbar search gained four on-ink foregrounds nothing in CI checks. Close it
    **before** the next on-ink work, not after.
-   **HAZARDS 23 AND 24 REMAIN OPEN AND ARE BOTH ONE DECISION, NOT MANY EDITS.**
-   **23 — HALF CLOSED BY #210.** The 11 `text-ink-700` sites were **deleted** (they read
-   correctly at full ink); the **40 `text-ink-500` sites remain**, each a class meaning _muted_
-   that renders full ink-950. **The follow-up now inherits the answer, not the question**:
-   `text-text-subtle` is already what the neighbouring field hints use, so badges, "Saving
-   draft…" and the readonly fields are _match the neighbour_. The 13 icon buttons stay a
-   separate question — rest-versus-hover, not muted text. `studio-tokens` B2 pins the count at
-   40, so it fails if a new dead site appears **and** if the set reaches zero.
-   Do not fix them blind; several may look better as they render.
+   **HAZARD 23 IS NOW CLOSED; HAZARD 24 REMAINS OPEN, ONE DECISION NOT MANY EDITS.**
+   **23 — FULLY CLOSED.** The `ink-700` half was deleted in #210 (those 11 read correctly at
+   full ink); the **40 `text-ink-500` sites** were re-pointed to the muted token each neighbour
+   already used — 13 icon buttons to `text-ink-400`, 3 tabs to `text-ink-600`, 24 badges, hints
+   and readonly fields to `text-text-subtle` — so the hazard closed by REALISING the muted intent
+   the sites always carried rather than by deleting it. The follow-up did inherit the answer, not
+   the question: every target matched a working neighbour, checked per-family (zero mismatches)
+   and per-ground (down to 4.78 on cream-200). `studio-tokens` B2 now asserts the family is ZERO
+   and fails if any `text-ink-500` returns.
    **24** — `--radius-2xl` (1rem) sits **below `--radius-xl`** (1.5rem) and equal to `lg`,
    because the project overrode `sm`–`xl` in `@theme` and left Tailwind's default `2xl` behind.
    Two consumers, both **outside** studio, so changing it moves the public site. The risk is a

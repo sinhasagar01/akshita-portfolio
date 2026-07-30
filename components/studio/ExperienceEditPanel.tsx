@@ -87,7 +87,7 @@ export default function ExperienceEditPanel({
           </span>
           <span className="truncate font-display text-base text-ink-950">{company}</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-500">
+            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -126,12 +126,14 @@ export default function ExperienceEditPanel({
             // visible against the body. It sits with the chrome, which is right — a readonly
             // field is chrome that happens to hold text.
             //
-            // `text-ink-500` IS A PHANTOM — hazard 23. There is no --color-ink-500 token,
-            // so Tailwind v4 generates nothing for it and this field has ALWAYS rendered
-            // inherited ink-950, same as an editable one. The muted-readonly intent never
-            // reached the screen. The class is kept because 41 sites carry it and the fix
-            // is one decision (add the token, or re-point them all), not two files.
-            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-ink-500 outline-none"
+            // `text-text-subtle`, NOT the phantom `text-ink-500` — hazard 23, now closed. There
+            // is no --color-ink-500 token, so Tailwind v4 generated nothing for it and this field
+            // rendered inherited ink-950 for its whole life, same as an editable one. The muted
+            // intent this field always meant never reached the screen. The 40 phantom sites were
+            // re-pointed to the token each already stood next to, so the hazard closed by
+            // realising the original intent rather than by deleting the muting. This field muted
+            // against cream-200, the worst-case ground, still clears AA at 4.78.
+            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-text-subtle outline-none"
           />
           <span className="text-[10px] text-text-subtle">
             The entry&rsquo;s identity, set when you add it. Not editable here.
@@ -210,7 +212,7 @@ export default function ExperienceEditPanel({
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
-            <span className="text-ink-500">Saving draft…</span>
+            <span className="text-text-subtle">Saving draft…</span>
           ) : saveStatus === "saved" ? (
             <span className="text-accent-600">Draft saved</span>
           ) : saveStatus === "error" ? (

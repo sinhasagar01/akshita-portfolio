@@ -20,13 +20,17 @@
 // collisions) and the same lesson a third time: generalising the assertion beat closing the
 // instance.
 //
-// ---- WHAT IT FOUND WHEN FIRST RUN ----------------------------------------------------
+// ---- WHAT IT FOUND WHEN FIRST RUN, AND HOW BOTH HALVES CLOSED -------------------------
 //
 // `text-ink-500` x40 and `text-ink-700` x11 — 51 sites across 20 files, every one rendering
 // ink-950 while its code claimed otherwise. The 11 `text-ink-700` sites were deleted (they
-// read correctly at full ink). The 40 `text-ink-500` sites are REAL DEFECTS the dead class was
-// hiding and are deliberately still failing-by-exemption below, not fixed, because choosing
-// their replacement is one design decision rather than forty edits.
+// read correctly at full ink). The 40 `text-ink-500` sites were REAL DEFECTS the dead class
+// was hiding — a class that meant "muted" painting at full ink beside the text it should have
+// sat behind. They are now closed the other way: each was re-pointed to the token its own
+// working neighbour already used — icon buttons to `text-ink-400` (the ListDetailLayout idiom),
+// inactive tabs to `text-ink-600` (SegmentedToggle), badges, status hints and readonly fields
+// to `text-text-subtle`. So the hazard closed by realising the muted intent these sites always
+// carried rather than by deleting the muting, and B2 below now holds the family at zero.
 import { readdirSync, readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
@@ -100,21 +104,22 @@ for (const f of ALL) {
 }
 
 /**
- * THE 40 KNOWN `text-ink-500` SITES ARE EXEMPT, BY TOKEN AND WITH THEIR REASON — not fixed.
+ * `text-ink-500` IS THE CLOSED FAMILY, HELD AT ZERO — no longer an exemption for live defects.
  *
- * They are REAL DEFECTS: a class that meant "muted" rendering at full ink-950 beside the
- * primary text it was supposed to sit behind. Deleting the class would make the code honest
- * and leave the element looking exactly as wrong; replacing it is a DESIGN DECISION about
- * which muted value each family wants, answered once rather than forty times.
+ * It was 40 real defects: a class that meant "muted" rendering at full ink-950 beside the
+ * primary text it was supposed to sit behind. Rather than delete the muting (which would make
+ * the code honest and leave every element looking exactly as wrong), each site was re-pointed to
+ * the muted token its own working neighbour already used, so the muted intent finally reached
+ * the screen. B2 now asserts the family is EMPTY, and it fails the day any `text-ink-500`
+ * returns — the same phantom walking back in under the same name.
  *
- * THE EXEMPTION IS BY TOKEN, NOT BY SITE COUNT, DELIBERATELY. A count would have to be edited
- * every time one is fixed, which turns a shrinking list into a chore and eventually into a
- * number nobody re-derives. Keyed on the token, the exemption simply stops matching as sites
- * are converted, and A2 above fails the day someone "fixes" this by declaring the token.
+ * KEYED ON THE TOKEN, NOT A SITE COUNT, DELIBERATELY. The split is kept so B2 is a dedicated
+ * tripwire for this exact token: B1 guards every OTHER undeclared token, B2 guards that ink-500
+ * stays gone. A2 above still fails the day someone "resurrects" it by declaring the token.
  */
-const EXEMPT_TOKEN = "ink-500";
-const exempt = offenders.filter((o) => o.token === EXEMPT_TOKEN);
-const real = offenders.filter((o) => o.token !== EXEMPT_TOKEN);
+const CLOSED_TOKEN = "ink-500";
+const exempt = offenders.filter((o) => o.token === CLOSED_TOKEN);
+const real = offenders.filter((o) => o.token !== CLOSED_TOKEN);
 
 /* ================================================ C. REPORT
  * NAMES THE TOKEN AND THE SITE, NEVER A COUNT. "3 undeclared utilities" sends the next person
@@ -133,10 +138,12 @@ if (real.length) {
 t(`B1: every colour utility in /studio resolves to a declared @theme token${real.length ? " — see above" : ""}`,
   real.map((o) => `${o.where} ${o.utility} (--color-${o.token} undeclared)`), []);
 
-// B2 · the exempted family is still exactly what we think it is. If it GROWS, someone added a
-// new dead site; if it hits zero, the design decision was made and the exemption should go.
-t("B2: the `text-ink-500` sites are the known-and-deferred set — 40, all rendering ink-950 while claiming to be muted. GROWING means a new dead site; ZERO means the decision was made and this exemption should be deleted",
-  exempt.length, 40);
+// B2 · the closed family stays empty. It was 40 sites all rendering ink-950 while claiming to be
+// muted; each was re-pointed to the muted token its working neighbour already used, so the count
+// is now ZERO and this guard fails the day any `text-ink-500` returns — the phantom walking back
+// in under the same name.
+t("B2: the `text-ink-500` family is CLOSED and empty — the 40 dead sites were re-pointed to the muted token each neighbour already used (ink-400 / ink-600 / text-subtle), realising the intent rather than deleting it. Any non-zero here is the phantom returning",
+  exempt.length, 0);
 
 // B3 · the deleted half stays deleted. `text-ink-700` was the other phantom and its 11 sites
 // read correctly at full ink, so they were removed rather than deferred.

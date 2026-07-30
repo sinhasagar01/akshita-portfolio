@@ -196,7 +196,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                     {p.summary || "No summary yet"}
                   </span>
                 </span>
-                <span className="hidden shrink-0 rounded-full border border-ink-950/12 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-500 sm:inline">
+                <span className="hidden shrink-0 rounded-full border border-ink-950/12 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-text-subtle sm:inline">
                   {p.template === "web" ? "Web" : "Mobile"}
                 </span>
                 <span className="hidden w-[86px] shrink-0 text-[11.5px] text-text-subtle lg:inline">
@@ -204,7 +204,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
                 </span>
                 <span className="w-[72px] shrink-0 text-right text-[12px]">
                   {bespoke ? (
-                    <span className="rounded-full border border-dashed border-ink-950/20 px-2 py-0.5 text-ink-500">
+                    <span className="rounded-full border border-dashed border-ink-950/20 px-2 py-0.5 text-text-subtle">
                       Bespoke
                     </span>
                   ) : null}

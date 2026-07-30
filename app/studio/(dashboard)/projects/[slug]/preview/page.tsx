@@ -66,7 +66,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
             className={`rounded-full px-2 py-0.5 text-[10px] ${
               isDraft
                 ? "border border-accent-500/40 bg-accent-500/10 text-accent-600"
-                : "border border-ink-950/15 text-ink-500"
+                : "border border-ink-950/15 text-text-subtle"
             }`}
           >
             {isDraft ? "Showing your draft" : "Showing live"}

@@ -101,7 +101,7 @@ import type { BlogCard } from "@/lib/keystatic";
 type BlogFields = { blocks: readonly BlogRawBlock[] };
 
 const iconBtn =
-  "grid size-6 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-500 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
+  "grid size-6 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
 
 /** A local two-option toggle. SegmentedToggle is deliberately NOT reused: despite the name
  *  it is a projects-specific control that POSTS a template/category patch on change
