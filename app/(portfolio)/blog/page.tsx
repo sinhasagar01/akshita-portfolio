@@ -45,7 +45,7 @@ function FeaturedCard({ post }: { post: BlogCard }) {
     <article className="mt-9">
       <Link
         href={blogPath(post.slug)}
-        className="group grid gap-6 rounded-2xl lg:grid-cols-[1.15fr_1fr] lg:items-center"
+        className="group grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center"
       >
         <Shot
           heroImage={post.heroImage}
