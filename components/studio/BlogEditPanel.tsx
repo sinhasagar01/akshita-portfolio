@@ -23,10 +23,12 @@
 // The title and slug are shown READ-ONLY in the canvas bar, where the article's title
 // belongs, with the constraint stated here beside the fields that can change.
 //
-// TOPIC IS FREE TEXT, not a select. The mock draws a four-option dropdown, but #173 made
-// `topic` an open string deliberately: no topic set is declared in the schema or read by
-// anything, so a closed list here would be invented rather than enforced. A datalist offers
-// the existing values as suggestions without inventing a closed set.
+// TOPIC IS A CLOSED SELECT (PR D). #173 kept it an open datalist because no topic set was
+// declared and a closed list would have been invented rather than enforced. PR D declared the
+// set — `BLOG_TOPICS`, exactly the three topics the existing posts already carry — so the mock's
+// four-option dropdown is now honest. The options are read from the same const the sanitizer and
+// the publish gate validate against, so the control and the gates cannot disagree. The empty
+// option ("No topic yet") is the draft state; a topic becomes REQUIRED at publish, not at save.
 //
 // `dek` STAYS A PLAIN INPUT. The mock draws it as part of the canvas, styled as prose, but
 // blog has no contenteditable infrastructure and introducing the studio's second one inside
@@ -37,10 +39,10 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { HeroImageField } from "./ProjectsEditPanel";
 import BlogBlocksEditPanel from "./BlogBlocksEditPanel";
 import SaveIndicator from "./SaveIndicator";
-import { BLOG_STATUSES } from "@/lib/studio/blog-format";
+import { BLOG_STATUSES, BLOG_TOPICS } from "@/lib/studio/blog-format";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 import type { BlogCard } from "@/lib/keystatic";
-import { inputCls, labelCls } from "./blocks/fields";
+import { inputCls, labelCls, SelectField } from "./blocks/fields";
 
 type HeadFields = { title: string; dek: string; date: string; topic: string; status: string };
 
@@ -56,7 +58,6 @@ export default function BlogEditPanel({
   blocks,
   draftImages,
   posts,
-  topicSuggestions,
 }: {
   slug: string;
   title: string;
@@ -72,8 +73,6 @@ export default function BlogEditPanel({
   draftImages: readonly string[];
   /** Every post, passed straight through to the list pane. */
   posts: readonly BlogCard[];
-  /** Existing topics across posts — suggestions, not a closed set (see the header). */
-  topicSuggestions: string[];
 }) {
   const { setUnpublished } = usePublishSignal();
   const [liveStatus, setLiveStatus] = useState(status);
@@ -190,22 +189,14 @@ export default function BlogEditPanel({
         />
       </label>
 
-      <label className="flex flex-col gap-1">
-        <span className={labelCls}>Topic</span>
-        <input
-          type="text"
-          list="blog-topics"
-          value={values.topic}
-          onChange={(e) => setField("topic", e.target.value)}
-          onBlur={saveDraft}
-          className={inputCls}
-        />
-        <datalist id="blog-topics">
-          {topicSuggestions.map((t) => (
-            <option key={t} value={t} />
-          ))}
-        </datalist>
-      </label>
+      <SelectField
+        label="Topic"
+        value={values.topic}
+        options={["", ...BLOG_TOPICS]}
+        onChange={(v) => setField("topic", v)}
+        onBlur={saveDraft}
+        optionLabel={(v) => (v === "" ? "No topic yet" : v)}
+      />
 
       <div className="flex flex-col gap-1">
         <span className={labelCls}>Status</span>

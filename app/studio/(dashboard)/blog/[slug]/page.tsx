@@ -50,10 +50,8 @@ export default async function BlogEditorPage({ params }: Props) {
   const rawBlocks = draft.source === "draft" ? draft.raw : live?.blocks;
   const blocks = (Array.isArray(rawBlocks) ? rawBlocks : []) as BlogRawBlock[];
 
-  // Suggestions only — `topic` is an open string (#173), so this offers what other posts
-  // already use without inventing a closed set.
-  const topicSuggestions = [...new Set(blog.map((p) => p.topic).filter(Boolean))].sort();
-
+  // The topic dropdown reads BLOG_TOPICS directly (PR D closed the set), so the editor no longer
+  // derives a suggestion list from existing posts.
   return (
     <BlogEditPanel
       slug={slug}
@@ -73,7 +71,6 @@ export default async function BlogEditorPage({ params }: Props) {
       // proxy; the article never needs to. See BlogProse's rewriteSrc.
       draftImages={draft.draftImages}
       posts={blog}
-      topicSuggestions={topicSuggestions}
     />
   );
 }

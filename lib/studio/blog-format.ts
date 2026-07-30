@@ -35,7 +35,9 @@ export const sanitizeBlogCreate = sanitizers.sanitizeBlogCreate;
 
 export {
   BLOG_STATUSES,
+  BLOG_TOPICS,
   type BlogStatus,
+  type BlogTopic,
   type BlogInput,
   type BlogCreateInput,
 } from "./blog-format-core";

@@ -22,6 +22,7 @@ import {
 import { getFileTextAtRef, SETTINGS_PATH } from "./commit-site-settings";
 import { validateProjectSections } from "./validate-draft-sections";
 import { validateBlogPost, BLOG_POST_PATH_RE } from "./validate-blog-post";
+import { BLOG_TOPICS } from "./blog-format-core";
 import { DRAFT_BRANCH } from "./draft-site-settings";
 
 export type PublishResult =
@@ -140,7 +141,7 @@ export async function publishSiteSettings(): Promise<PublishResult> {
       const post = BLOG_POST_PATH_RE.exec(file.filename);
       if (post) {
         const postRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
-        const blocks = validateBlogPost(post[1], postRaw);
+        const blocks = validateBlogPost(post[1], postRaw, BLOG_TOPICS);
         if (!blocks.ok) {
           return { ok: false, error: blocks.error };
         }

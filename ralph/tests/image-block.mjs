@@ -29,7 +29,10 @@ import {
 } from "../../components/studio/blocks/blog-empties.ts";
 import { validateBlogPost, RENDERABLE } from "../../lib/studio/validate-blog-post.ts";
 import { serializeBlogBlocks, readBlogBlocks } from "../../lib/studio/blog-serialize.ts";
-import { makeBlogSanitizers } from "../../lib/studio/blog-format-core.ts";
+import { makeBlogSanitizers, BLOG_TOPICS } from "../../lib/studio/blog-format-core.ts";
+// The publish gate takes the allowed topics as an argument (it stays import-free so ralph can
+// execute it — see its header). Wrap it with the real set so the call sites read unchanged.
+const publishGate = (slug, raw) => validateBlogPost(slug, raw, BLOG_TOPICS);
 import {
   str,
   obj,
@@ -62,7 +65,7 @@ const img = (over = {}) => ({
   value: { src: "/images/blog/a-post/blocks/abc123.webp", alt: "A data table", caption: "", wide: false, decorative: false, ...over },
 });
 const post = (blocks, status = "published") =>
-  dump({ title: "A post", dek: "d", date: "2026-07-24", topic: "t", status, heroImage: null, blocks });
+  dump({ title: "A post", dek: "d", date: "2026-07-24", topic: "Design systems", status, heroImage: null, blocks });
 
 /* ================================================================= A. the tables
  * Five mapped types already make a missing entry a compile error. What is asserted here is
@@ -95,24 +98,24 @@ t("B: a missing field is rejected", ok([{ discriminant: "imageBlock", value: { s
  * STRICT about what may go live. This is the only gate an author cannot walk past, and
  * therefore the only place "required" can actually be required. */
 t("C: a PUBLISHED post with an image and a blank alt is REJECTED",
-  validateBlogPost("a-post", post([img({ alt: "" })])).ok, false);
+  publishGate("a-post", post([img({ alt: "" })])).ok, false);
 t("C: the same post as a DRAFT is ACCEPTED",
-  validateBlogPost("a-post", post([img({ alt: "" })], "draft")).ok, true);
+  publishGate("a-post", post([img({ alt: "" })], "draft")).ok, true);
 t("C: a published post with real alt text is ACCEPTED",
-  validateBlogPost("a-post", post([img()])).ok, true);
+  publishGate("a-post", post([img()])).ok, true);
 // The deliberate exemption. Without it an author types "image" into alt to clear the gate,
 // which is worse than empty: empty is an absence a screen reader skips, "image" is
 // confidently wrong.
 t("C: `decorative` permits a blank alt on a published post",
-  validateBlogPost("a-post", post([img({ alt: "", decorative: true })])).ok, true);
+  publishGate("a-post", post([img({ alt: "", decorative: true })])).ok, true);
 // Whitespace is not alt text.
 t("C: a whitespace-only alt is REJECTED",
-  validateBlogPost("a-post", post([img({ alt: "   " })])).ok, false);
+  publishGate("a-post", post([img({ alt: "   " })])).ok, false);
 // No image set means nothing to describe, so the gate does not fire.
 t("C: an UNSET image with a blank alt is ACCEPTED",
-  validateBlogPost("a-post", post([img({ src: null, alt: "" })])).ok, true);
+  publishGate("a-post", post([img({ src: null, alt: "" })])).ok, true);
 t("C: the failure names the field",
-  /alt/.test(validateBlogPost("a-post", post([img({ alt: "" })])).error?.message ?? ""), true);
+  /alt/.test(publishGate("a-post", post([img({ alt: "" })])).error?.message ?? ""), true);
 
 /* ================================================================= D. picker ⊆ renderable
  * THE GATE THAT WOULD HAVE CAUGHT THE ORIGINAL BUG. */
@@ -147,7 +150,7 @@ if (withImage.ok) {
   t("E: the imageBlock reads back unchanged", back[back.length - 1], img());
   t("E: the existing blocks are untouched", back.slice(0, -1), readBlogBlocks(RAW));
   // A published post containing what we just wrote still passes the gate.
-  t("E: the serialized post validates", validateBlogPost("a-post", post(back)).ok, true);
+  t("E: the serialized post validates", publishGate("a-post", post(back)).ok, true);
 }
 
 console.log(`\nimage-block result: ${pass} passed, ${fail} failed`);
