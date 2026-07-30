@@ -10,7 +10,8 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1410 across 40 suites** (`parity` and `studio-type` named as skipped, not dropped).
+**ralph 1443 across 41 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
 | --------------------- | -------------------- | ------------------------------------------------------- |
@@ -91,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -106,7 +107,13 @@ Both need a running dev server and are driven from a browser console, so neither
 nothing competes for renders exactly as written and no parser can tell it is wrong. That is
 precisely the shape of fidelity item 9, and of **PR C's thumbnail resize**.
 **A PR THAT CHANGES RENDERED SIZE MUST RUN `studio-type` BY HAND. Do not read a green ralph as
-covering it** — the runner reports what it did not run for exactly this reason (#183).
+covering it** — the runner reports what it did not run for exactly this reason (#183). **What
+that by-hand run no longer covers alone is CONTRAST**: `studio-ink-contrast` (net-new, CI) now
+recomputes every non-pointer on-ink ratio in `studio-type`'s `ON_INK` table from the same tokens
+and utilities and asserts it against the same floors, so a colour regression on the ink chrome
+fails in CI. `studio-type` stays the by-hand oracle that gate cross-checks against, and the only
+place the two `:hover` rows can be verified. **Rendered SIZE still needs the by-hand run; rendered
+CONTRAST no longer does.**
 
 **RUN IT WITH `npm run ralph`** (or `node ralph/run.mjs`). The runner is COMMITTED, so CI
 and humans use the same tool and cannot disagree. "There is no npm script" was true until
@@ -2369,7 +2376,8 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     loading-arc idiom, the same mechanism relied on deliberately. The gate is studio-scoped, so
     it does not touch it; hardening the spinner to the disjoint form is an owner call.
 
-27. **`studio-type`'s C-9 EXCLUSION HAS TURNED INTO A GAP, AND THE MECHANISM GENERALISES.**
+27. **`studio-type`'s C-9 EXCLUSION HAS TURNED INTO A GAP, AND THE MECHANISM GENERALISES. NOW
+    FULLY CLOSED — the on-ink contrasts run in CI via `studio-ink-contrast`; see the closure note.**
     The suite skips the topbar search **by name**, because it is an ink surface and not part of
     the cream ladder the suite checks. **That was correct when written and is still true.**
     But #211 gave that search **four derived on-ink foregrounds** — well ground, border,
@@ -2398,6 +2406,28 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     `VERDICT`, and failures that name the role and the surface. **The exclusion was NARROWED,
     not deleted** — the search is still out of the cream-ladder walk, because that reason still
     holds and always will.
+
+    **NOW FULLY CLOSED — THE CONTRASTS RUN IN CI, NOT ONLY BY HAND.** #212 gave `studio-type` an
+    `ON_INK` table with a pass/fail harness, but `studio-type` is a browser-console script and is
+    STILL not CI-runnable (the runner skips it beside `parity`). So the assertions existed and CI
+    ran none of them — the hole was narrowed to "checked only when a human remembers to run it,"
+    which for gate-debt is not closed. **`studio-ink-contrast` (net-new, CI-runnable) removes the
+    dependency** the way CLAUDE.md's proof rule prefers: it reproduces the browser's colour math in
+    node — oklch to sRGB, sRGB alpha-over, WCAG contrast — computes every non-pointer `ON_INK`
+    ratio from the SAME source the screen renders from (the `@theme` tokens in globals.css and the
+    `lg:` utilities in the four chrome components), and asserts each against this table's floors.
+    It imports `ON_INK` so there is ONE table. It earns trust the same two ways `studio-type` does
+    — a sanity pair first (white on black is 21, the converter lands ink-950 and cream-50 on their
+    known bytes) and a cross-check that every computed ratio is within 0.4 of the browser-measured
+    oracle (they reproduce to within 0.12). **Ten of the twelve rows are computed; the two
+    `topbar View site (HOVER)` rows need a real pointer node cannot supply, so they stay by-hand
+    and the gate asserts the exclusion is EXACTLY those two — it cannot grow the way C-9 did.**
+    Six mutations confirm it bites: a well-alpha drift, a foreground-token swap, a token retune,
+    and a broken L each fail a floor or an identity, and a renamed class throws rather than passing.
+    **This is the third gate this arc built by deriving from source rather than pinning an
+    instance** (`studio-cascade`, `studio-tokens`, now this), and the durable lesson is the entry's
+    own: an exclusion that was correct when written must be re-read when the excluded thing gains
+    requirements — and a by-hand assertion is not a closed gate until CI runs it.
 
     **THE FULL EXCLUSION AUDIT, since this hazard implied one without stating it:**
     - `studio-type` — `type=file` (hidden, browser-painted), `checkbox`/`radio` (browser-painted,
@@ -2730,6 +2760,21 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **hazard 27 CLOSED — the on-ink contrasts run in CI, not only by hand** →1443. `studio-type`'s
+  `ON_INK` table (#212) had a pass/fail harness, but `studio-type` is a browser-console script and
+  is still not CI-runnable, so CI ran none of those assertions. `studio-ink-contrast` (net-new,
+  33 assertions) removes the browser dependency: it reproduces oklch to sRGB, sRGB alpha-over and
+  WCAG contrast in node, computes every non-pointer `ON_INK` ratio from the SAME tokens
+  (globals.css) and `lg:` utilities (the four chrome components) the screen renders from, and
+  asserts each against this table's floors — importing `ON_INK` so there is one table. **Trusted
+  the way `studio-type` is**: a sanity pair first (white on black is 21, the converter lands
+  ink-950 on 15,7,3 and cream-50 on 254,249,241) and a cross-check that every computed ratio is
+  within 0.4 of the browser-measured oracle (they reproduce to within 0.12; save-status and the
+  View-site border land EXACTLY). Ten of twelve rows computed; the two hover rows need a pointer
+  node cannot supply and stay by-hand, with the gate asserting the exclusion is exactly those two.
+  Six mutations bite (well-alpha drift, foreground-token swap, token retune, broken L each fail a
+  floor or identity; a renamed class throws). The third derive-from-source gate this arc built,
+  after `studio-cascade` and `studio-tokens`.
 - **hazard 23 CLOSED — the 40 `text-ink-500` sites realised, not deleted** →1410. The phantom's
   other half (the `ink-700` half was deleted in #210) is done, and done the opposite way: these
   40 always MEANT muted and never were, so each was re-pointed to the muted token its own
@@ -2847,7 +2892,8 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
   background at all**, so the app's cream-50 is not a mismatch; and its `.back` button is absent
   from the app correctly, because `ThreePaneShell`'s collapse rail already does that job and a
   second control for one function is worse than none.
-- **#212** studio-type asserts its on-ink ratios (`3623f0c`) →1385, closing hazard 27
+- **#212** studio-type asserts its on-ink ratios (`3623f0c`) →1385, NARROWING hazard 27 (it gave
+  the by-hand suite a harness; CI still ran none of it — fully closed later by `studio-ink-contrast`)
 - **#210** the phantom tokens deleted and the class gated (`8ae96ba`) →1385
 - **#211** the card image (`beba883`) →1385, no net-new assertions. Fidelity item 4, the last
   one that is LAYOUT — and **the item that closed all eleven**. Three passes.
@@ -2900,14 +2946,15 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 ## WHAT'S NEXT
 
 **THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. WHAT REMAINS IS
-CONTENT, ONE SCOPED PR, AND TWO OPEN HAZARDS (24 and 27; 23 closed).**
+CONTENT, ONE SCOPED PR, AND ONE OPEN HAZARD (24; 23 and 27 closed).**
 
 0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED.** ~~PR C~~ shipped as #211. What remains is
    **PR D** — topic as a set (schema field, options source of truth, migration for three
    posts), deliberately a feature rather than a styling item.
-   **AND ONE GATE DEBT THAT SHOULD GO FIRST: hazard 27**, `studio-type`'s C-9 exclusion, now a
-   hole because the topbar search gained four on-ink foregrounds nothing in CI checks. Close it
-   **before** the next on-ink work, not after.
+   **THE GATE DEBT IS PAID: hazard 27 is CLOSED.** `studio-type`'s on-ink contrasts ran only by
+   hand; `studio-ink-contrast` now recomputes every non-pointer `ON_INK` ratio statically from
+   source and asserts it in CI, so on-ink work no longer depends on a human remembering to run a
+   browser script. On-ink work is safe to do again.
    **HAZARD 23 IS NOW CLOSED; HAZARD 24 REMAINS OPEN, ONE DECISION NOT MANY EDITS.**
    **23 — FULLY CLOSED.** The `ink-700` half was deleted in #210 (those 11 read correctly at
    full ink); the **40 `text-ink-500` sites** were re-pointed to the muted token each neighbour

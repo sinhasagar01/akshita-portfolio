@@ -4,6 +4,13 @@
 // against a running dev server, and the runner names it as skipped rather than dropping it
 // silently (#183: the runner reports what it did not run).
 //
+// WHAT STILL NEEDS THIS BY HAND, AND WHAT NO LONGER DOES. The RENDERED TYPE table (weights and
+// sizes) needs a real browser laying out fonts, so it stays here. The ON-INK CONTRASTS below do
+// NOT any more — `studio-ink-contrast` recomputes every non-pointer ON_INK ratio statically from
+// the same tokens and utilities and asserts it against these floors IN CI, importing ON_INK from
+// this file so there is one table. This suite remains their by-hand oracle (its measured column is
+// what that gate cross-checks against) and the only place the two hover rows can be verified.
+//
 // ---- WHY A SECOND GATE, WHEN studio-cascade ALREADY EXISTS -----------------------------
 //
 // The cascade gate is blind BY CONSTRUCTION to a wrong-but-uncontested value. It can only see
@@ -71,6 +78,11 @@ export const CONTRACT = {
  * suite stays green while its denominator shrinks" was too kind: there was no green. Every
  * contrast number this arc produced lived in commit messages and source comments, which no gate
  * reads. The search was simply the first surface whose requirements made that visible.
+ *
+ * AND CI NOW READS THEM. `studio-ink-contrast` imports this table and, for every row that is not
+ * `needsPointer`, recomputes the ratio from the tokens and utilities in source and asserts it
+ * against `min` — so these numbers are enforced without a browser. This table stays the human
+ * reference and the ORACLE that gate cross-checks its static math against; the enforcement moved.
  *
  * `min` is the floor, set at the MEASURED value less a small tolerance for antialiasing and
  * token drift — not at the AA threshold, because the point is to catch a REGRESSION from what
@@ -310,5 +322,11 @@ export const TYPE_SCRIPT = String.raw`
 })()
 `.replace("__ON_INK__", JSON.stringify(ON_INK));
 
-console.log("studio-type: not runnable here — paste TYPE_SCRIPT into a browser console.");
-console.log("Pages:", PAGES.join(", "));
+// Printed only when this file is RUN directly, not when it is imported. `studio-ink-contrast`
+// imports ON_INK from here as its shared source of floors and the browser oracle, and an import
+// that prints would put a stray line in that suite's output. Guard on direct execution.
+import { fileURLToPath } from "node:url";
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  console.log("studio-type: not runnable here — paste TYPE_SCRIPT into a browser console.");
+  console.log("Pages:", PAGES.join(", "));
+}
