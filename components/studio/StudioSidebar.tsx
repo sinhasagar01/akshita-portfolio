@@ -63,7 +63,7 @@ export default function StudioSidebar() {
         // `group` so the LABEL can react to the anchor's hover. It has to: a colour utility on
         // an anchor does nothing here — see the label's note below.
         className={[
-          "group flex items-center gap-2.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] px-2.5 py-2 text-[13px] transition-colors",
+          "group flex items-center gap-2.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] px-2.5 py-2 text-[14px] transition-colors",
           active
             ? // THE INK PILL IS INVERTED AT `lg`, AND IT HAD TO BE. `bg-ink-950` on the ink
               // sidebar measures 1.00:1 — the pill would vanish and take the only selection
@@ -116,7 +116,7 @@ export default function StudioSidebar() {
           // label beside it was cream-50 — the one element in the pill the active state
           // did not reach. The label was never the problem; it has no class of its own and
           // inherits cream-50 correctly.
-          <span className={`ml-auto text-[11px] ${active ? "text-cream-50/70" : "text-ink-400"}`}>
+          <span className={`ml-auto text-[12px] ${active ? "text-cream-50/70" : "text-ink-400"}`}>
             {area.count}
           </span>
         )}
@@ -187,7 +187,7 @@ export default function StudioSidebar() {
                 ink-950 hover 1.00:1. It is not `renderLink` because it posts a form. */}
             <button
               type="submit"
-              className="flex w-full items-center gap-2.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] px-2.5 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-50/70 hover:text-ink-950 lg:text-ink-200 lg:hover:bg-white/5 lg:hover:text-cream-50"
+              className="flex w-full items-center gap-2.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] px-2.5 py-2 text-[14px] text-ink-600 transition-colors hover:bg-cream-50/70 hover:text-ink-950 lg:text-ink-200 lg:hover:bg-white/5 lg:hover:text-cream-50"
             >
               <IconLogout className="size-4 text-ink-400" />
               <span>Sign out</span>

@@ -270,7 +270,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
               placeholder="e.g. Acme, Bengaluru"
               className={inputClsMd}
             />
-            <p id="add-exp-desc" className="mt-1 text-[11px] text-text-subtle">
+            <p id="add-exp-desc" className="mt-1 text-[12px] text-text-subtle">
               Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New
               entries are added to the end of the list. Use the up and down controls to move
               them. Two entries can share a company name.
@@ -301,7 +301,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           busy={deleteBusy}
           initialFocusRef={cancelRef}
         >
-          <p id="delete-exp-msg" className="mt-2 text-[13px]">
+          <p id="delete-exp-msg" className="mt-2 text-[14px]">
             Remove <span className="font-medium text-ink-950">{deleteCompany}</span> from your draft?
             You can still undo it with Discard until you Publish.
           </p>

@@ -24,11 +24,11 @@ import { useFocusTrap } from "./useFocusTrap";
 // Shared modal-footer button classes — ONE source, consumed by all four footers in
 // the callers. The markup stays in `children`; only the class string is shared.
 export const modalGhostBtn =
-  "rounded-[var(--studio-radius-control,4px)] px-3 py-2 text-[13px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] px-3 py-2 text-[14px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:cursor-not-allowed disabled:opacity-40";
 export const modalAccentBtn =
-  "rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 export const modalInkBtn =
-  "rounded-[var(--studio-radius-control,4px)] bg-ink-950 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] bg-ink-950 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 
 export function StudioModal({
   role,

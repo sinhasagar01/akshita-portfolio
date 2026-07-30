@@ -245,7 +245,7 @@ export default function BoldToolbar({
             aria-label="Link URL"
             aria-invalid={rejected}
             placeholder="https://, mailto: or /path"
-            className={`h-[34px] w-full rounded-[var(--studio-radius-control,4px)] border border-[0.5px] bg-white px-2.5 text-[13px] text-ink-950 outline-none ${
+            className={`h-[34px] w-full rounded-[var(--studio-radius-control,4px)] border border-[0.5px] bg-white px-2.5 text-[14px] text-ink-950 outline-none ${
               rejected
                 ? "border-danger-600 ring-2 ring-danger-600/12"
                 : "border-ink-950/16 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/15"
@@ -253,7 +253,7 @@ export default function BoldToolbar({
           />
           <div className="mt-[9px] flex items-center justify-end gap-2">
             {rejected && (
-              <span role="alert" className="mr-auto text-[11px] text-danger-600">
+              <span role="alert" className="mr-auto text-[12px] text-danger-600">
                 Only http, https, mailto, or relative links
               </span>
             )}

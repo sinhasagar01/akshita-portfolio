@@ -160,7 +160,7 @@ export default function BlogEditPanel({
           placeholder={slug}
           className={inputCls}
         />
-        <span className="text-[11px] text-text-subtle">
+        <span className="text-[12px] text-text-subtle">
           Slug <span className="font-mono text-ink-400">{slug}</span> — set at create, fixed.
           The URL, the images and the love count key on it, so it never moves.
         </span>
@@ -240,7 +240,7 @@ export default function BlogEditPanel({
             </button>
           ))}
         </div>
-        <p className="text-[11px] leading-relaxed text-text-subtle">
+        <p className="text-[12px] leading-relaxed text-text-subtle">
           {/* THIS LINE WAS THE AMBIGUITY, NOT A NEIGHBOUR TO IT. It used to read "Live on
               /blog once published", and by the time it shows, the STATUS already reads
               Published — so "once published" could only mean the site, and said no such
@@ -271,12 +271,12 @@ export default function BlogEditPanel({
             setUnpublished(true);
           }}
         />
-        <p className="text-[11px] leading-relaxed text-text-subtle">
+        <p className="text-[12px] leading-relaxed text-text-subtle">
           The article hero and the card thumbnail.
         </p>
       </div>
 
-      <p className="border-t border-ink-950/12 pt-2.5 text-[11px] leading-relaxed text-text-subtle">
+      <p className="border-t border-ink-950/12 pt-2.5 text-[12px] leading-relaxed text-text-subtle">
         The slug is set at create and never moves; the title above is editable. Reading time
         is computed from the blocks. Loves are runtime state and are never edited here.
       </p>

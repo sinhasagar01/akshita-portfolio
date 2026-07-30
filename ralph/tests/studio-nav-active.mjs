@@ -88,10 +88,15 @@ t("F1 args are ordered (href, pathname)",
  * seven — and worse, they had DRIFTED: four panels carried text-[14px] and the block forms
  * carried text-[13px], so the "duplicate" was never actually duplicated.
  *
- * THE 13px/14px SPLIT IS DELIBERATE AND UNRESOLVED. Two exports, one each, and merging them
- * is an owner decision because it moves rendered type. This asserts BOTH that each is
- * declared exactly once AND that they remain distinct, so a well-meaning merge fails here
- * rather than silently resizing four panels.
+ * THE 13px/14px SPLIT WAS RESOLVED TO 14px — the owner's decision, taken in the site-wide font
+ * bump on this branch. STATE marked the split "deliberate and unresolved, an owner decision";
+ * this is that decision made. The two exports are now IDENTICAL (both text-[14px]), so the
+ * guard flips: it used to assert they DIFFER by exactly the font size; it now asserts they are
+ * the SAME, so a future edit that re-opens the split (drifts one back to 13, or diverges them
+ * by any other token) fails here rather than silently resizing the block forms again. The
+ * dedupe guards (G1–G4) are unchanged — two exports, one declaration each, no hand-copies.
+ * (They remain two exports rather than one because merging them means re-pointing every
+ * inputClsMd consumer; that is a refactor, not this reconcile.)
  *
  * LinksEditPanel keeps its own local string on purpose — it is a flex child with per-state
  * borders, a different box rather than the same box at another size — so it is excluded by
@@ -126,12 +131,13 @@ t("F1 args are ordered (href, pathname)",
   const fields = readFileSync(new URL("../../components/studio/blocks/fields.tsx", import.meta.url), "utf8");
   const grab = (n) => fields.match(new RegExp(`const ${n} =\\s*"([^"]*)"`))?.[1] ?? "";
   const sm = grab("inputCls"), md = grab("inputClsMd");
-  t("G5 the two differ", sm !== md, true);
-  // ...and by EXACTLY the font size, nothing else. If a future edit diverges them further,
-  // that is a second drift and this catches it.
-  const only = (a, b) => [...new Set(a.split(" "))].filter((x) => !b.split(" ").includes(x));
-  t("G6 …by exactly the font size and nothing else",
-    [only(sm, md), only(md, sm)], [["text-[13px]"], ["text-[14px]"]]);
+  // G5 — the split is RESOLVED: the two are now identical. If someone re-opens it (drifts one
+  // back to 13px, or diverges them by any token), they stop being identical and this fails.
+  t("G5 the two are now IDENTICAL — the 13/14 split was resolved to 14px on this branch", sm === md, true);
+  // G6 — and both are text-[14px] specifically, so a resolution to some OTHER size (or a drift
+  // to 13) is caught too. Pinning the value keeps the recorded decision honest.
+  t("G6 …both at text-[14px], the value the split resolved to",
+    sm.split(" ").includes("text-[14px]") && md.split(" ").includes("text-[14px]"), true);
 }
 
 console.log(`\nstudio-nav-active result: ${pass} passed, ${fail} failed`);

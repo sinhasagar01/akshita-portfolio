@@ -82,7 +82,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={status === "submitting" || !password}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[13px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {status === "submitting" ? "Signing in…" : "Sign in"}
         </button>

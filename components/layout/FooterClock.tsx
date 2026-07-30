@@ -37,7 +37,7 @@ export default function FooterClock() {
           />
           <span>{display}</span>
         </span>
-        <span className="text-[13px] text-[--color-text-subtle]">IST · Bengaluru</span>
+        <span className="text-[14px] text-[--color-text-subtle]">IST · Bengaluru</span>
       </div>
     </div>
   );
