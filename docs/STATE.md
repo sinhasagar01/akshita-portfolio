@@ -2457,11 +2457,15 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 - ~~**`inputCls` duplicated across 8 files**~~ — **DONE in #199, AND THE COUNT AND THE PREMISE
   WERE BOTH WRONG.** SEVEN declarations, not eight, and they were **NOT IDENTICAL**: three
   distinct strings. Four panels carried `text-[14px]`, the block forms and the case-study index
-  `text-[14px]`, and `LinksEditPanel` a structurally different box. **THE COPIES HAD DRIFTED,
+  `text-[13px]`, and `LinksEditPanel` a structurally different box. **THE COPIES HAD DRIFTED,
   SO THE DEDUPE WAS NEVER A DEDUPE** — a naive merge would have resized rendered type on four
   surfaces. Only byte-identical copies were merged, into `inputCls` (13px) and `inputClsMd`
-  (14px). **THE SPLIT IS DELIBERATE AND UNRESOLVED**; unifying it is an owner decision and
-  `inputClsMd`'s comment says so. Ralph section G in `studio-nav-active` holds the dedupe.
+  (14px). ~~**THE SPLIT IS DELIBERATE AND UNRESOLVED**~~ — **RESOLVED TO 14px in the site-wide
+  font bump on `feat/blog-editable-title` (the owner's call).** The two exports are now
+  identical; `studio-nav-active` G5/G6 flipped from "they differ by the font size" to "they are
+  identical at 14px", so re-opening the split now fails ralph. They stay two exports (merging
+  means re-pointing every `inputClsMd` consumer — a refactor, not part of the reconcile). The
+  dedupe guards G1–G4 are unchanged.
 - **Post renaming** — create-new, move assets, delete-old. The title is read-only for this.
 - **Blog pagination**, an OG route, RSS, the share row.
 - **PublishBar centring over the canvas** rather than the work area — **13px off with the

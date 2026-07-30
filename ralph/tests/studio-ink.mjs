@@ -251,8 +251,12 @@ const readStudio = (f) => read(`components/studio/${f}`);
 }
 
 // E4 · labelCls must not reach for the SHARED size token.
-t("E4: labelCls sizes itself locally — `--text-eyebrow` is read by 11 case-study files plus two public pages, so editing the token to get an 11px studio label would move the canvas",
-  /export const labelCls = "text-\[11px\] font-bold uppercase tracking-eyebrow text-ink-600";/
+// The size moved 11px -> 12px in the site-wide font bump; what E4 actually guards is that the
+// label sizes itself with a LOCAL literal, never by editing the shared `--text-eyebrow` token
+// (read by 11 case-study files + two public pages, so touching it would move the canvas). The
+// literal is still local, so the invariant holds at 12px; only the pinned number changes.
+t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebrow` token — editing that token to size the studio label would move the canvas",
+  /export const labelCls = "text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/
     .test(readStudio("blocks/fields.tsx")), true);
 
 // E5 · THE BANDS, and the boundary that keeps hazard 22 shut.
