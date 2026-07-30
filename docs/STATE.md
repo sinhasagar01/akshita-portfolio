@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1443 across 41 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1446 across 42 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -2304,20 +2304,35 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     26 needed (a border-colour shorthand and a per-side longhand writing the same edge on one
     element), `studio-border-race`, which found two live races in the blog rows on its first run.
 
-24. **`--radius-2xl` IS SMALLER THAN `--radius-xl`** — a scale inversion nobody introduced.
-    Emitted values are `sm .25rem · md .5rem · lg 1rem · xl 1.5rem · **2xl 1rem** · full 9999px`.
+24. **`--radius-2xl` WAS SMALLER THAN `--radius-xl` — a scale inversion nobody introduced. NOW
+    CLOSED, byte-identically, and gated by `radius-scale`.**
+    Emitted values were `sm .25rem · md .5rem · lg 1rem · xl 1.5rem · **2xl 1rem** · full 9999px`.
     `--radius-2xl` is **not declared in globals.css**: the project overrode `sm`–`xl` in
-    `@theme` and left Tailwind v4's default `2xl` (1rem) behind, so it now sits **below `xl`
-    and equal to `lg`**.
-    **RECORDED, NOT FIXED, AND DELIBERATELY SO.** Its two consumers are
-    `app/(portfolio)/blog/page.tsx` and `components/layout/SiteFooter.tsx` — both **outside
-    studio**, so PR 3 has no business touching them, and changing the token would move the
-    public site. **The risk is a future PR that redefines the scale and inherits the inversion
-    silently**, which is exactly why it is written down before that PR exists.
+    `@theme` and left Tailwind v4's default `2xl` (1rem) behind, so it sat **below `xl` and equal
+    to `lg`**. The name said "bigger than xl"; the screen showed "equal to lg."
+    **THE TWO CONSUMERS WERE PUBLIC, SO CHANGING THE TOKEN WOULD HAVE MOVED THE SITE — and the
+    fix did not.** Measured, the two `rounded-2xl` sites split: `SiteFooter`'s panel rendered a
+    REAL 16px corner (`overflow-hidden`, cream-50), while the blog `FeaturedCard`'s was VISUALLY
+    INERT — 16px on a transparent, non-clipping grid `<Link>` that rounds an invisible box. So the
+    footer was repointed to `rounded-lg` (1rem, the token it already rendered — verified 16px
+    before and after) and the blog card's `rounded-2xl` was DELETED rather than repointed, the
+    same zero pixels and the honest form, matching the 11 `text-ink-700` deletions and
+    `.blog-editable.is-selected`. **This was hazard 23's first half in another property**: a
+    Tailwind default typed from muscle memory into a project whose scale considered that step and
+    declined it. "The author reached for the biggest name" was rejected as evidence of intent —
+    it is an inference from a class name, and whether the footer should be ROUNDER is a design
+    decision made by looking at it, kept as a separate question rather than smuggled in here.
+    **`radius-scale` (net-new, whole-repo) is the durable output** STATE asked for before "a
+    future PR redefines the scale and inherits the inversion silently." Two assertions: the
+    declared ramp is strictly increasing (A1 — a redeclared `--radius-2xl: 1rem` fails because
+    1rem is not above xl's 1.5rem, which B1 alone would miss), and no consumer uses a radius step
+    `@theme` does not declare (B1 — the `studio-tokens` shape generalised from colour to radius,
+    naming the token and the site, never a count; it catches the next `rounded-3xl` on arrival).
     Related and worth knowing together: **`.rounded` (bare) is a hardcoded `0.25rem` and
     dereferences no token at all** — every other radius utility resolves `var(--radius-*)`. No
     `@theme` edit and no scoped property can reach it, which is why PR 3 rewrote its 14 studio
-    sites by hand.
+    sites by hand. The survey for this fix confirmed **no bare `rounded` remains in use**, so the
+    gate scans named steps and leaves that CSS-default case alone.
 
 25. **HAZARD 11 IS NOW GATED, AND THE GATE FOUND FIVE MORE INSTANCES ON ITS FIRST RUN.**
     `ralph/tests/studio-cascade.mjs` parses the unlayered element rules out of `globals.css`
@@ -2760,6 +2775,18 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **hazard 24 CLOSED — the radius inversion removed byte-identically, and gated** →1446. The two
+  public `rounded-2xl` consumers reached Tailwind's default 1rem (the project's `@theme` ramp stops
+  at xl and never declares 2xl), so 2xl rendered EQUAL to lg and BELOW xl. Measured, they split:
+  `SiteFooter`'s panel showed a real 16px corner and was repointed to `rounded-lg` (the 1rem token
+  it already rendered — 16px before and after); the blog `FeaturedCard`'s was inert (16px on a
+  transparent, non-clipping grid) and was DELETED, the honest zero-pixel form. Owner chose Option 1
+  (byte-identical) over re-adding the dropped step or growing the footer on an inferred intent.
+  `radius-scale` (net-new, whole-repo, 3 assertions) is the durable output: the declared ramp is
+  strictly increasing, and no consumer uses a step `@theme` does not declare — the `studio-tokens`
+  shape generalised from colour to radius, catching the next `rounded-3xl` on arrival, at the site,
+  by name. Six mutations confirm it bites (a re-added 2xl, a 3xl, a below-xl redeclare, a deliberate
+  re-add). The fourth derive-from-source gate this arc built.
 - **hazard 27 CLOSED — the on-ink contrasts run in CI, not only by hand** →1443. `studio-type`'s
   `ON_INK` table (#212) had a pass/fail harness, but `studio-type` is a browser-console script and
   is still not CI-runnable, so CI ran none of those assertions. `studio-ink-contrast` (net-new,
@@ -2946,7 +2973,7 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 ## WHAT'S NEXT
 
 **THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. WHAT REMAINS IS
-CONTENT, ONE SCOPED PR, AND ONE OPEN HAZARD (24; 23 and 27 closed).**
+CONTENT AND ONE SCOPED PR — hazards 23, 24 and 27 are all closed and no ink-arc hazard is open.**
 
 0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED.** ~~PR C~~ shipped as #211. What remains is
    **PR D** — topic as a set (schema field, options source of truth, migration for three
@@ -2955,7 +2982,7 @@ CONTENT, ONE SCOPED PR, AND ONE OPEN HAZARD (24; 23 and 27 closed).**
    hand; `studio-ink-contrast` now recomputes every non-pointer `ON_INK` ratio statically from
    source and asserts it in CI, so on-ink work no longer depends on a human remembering to run a
    browser script. On-ink work is safe to do again.
-   **HAZARD 23 IS NOW CLOSED; HAZARD 24 REMAINS OPEN, ONE DECISION NOT MANY EDITS.**
+   **HAZARDS 23 AND 24 ARE BOTH NOW CLOSED.**
    **23 — FULLY CLOSED.** The `ink-700` half was deleted in #210 (those 11 read correctly at
    full ink); the **40 `text-ink-500` sites** were re-pointed to the muted token each neighbour
    already used — 13 icon buttons to `text-ink-400`, 3 tabs to `text-ink-600`, 24 badges, hints
@@ -2964,10 +2991,13 @@ CONTENT, ONE SCOPED PR, AND ONE OPEN HAZARD (24; 23 and 27 closed).**
    the question: every target matched a working neighbour, checked per-family (zero mismatches)
    and per-ground (down to 4.78 on cream-200). `studio-tokens` B2 now asserts the family is ZERO
    and fails if any `text-ink-500` returns.
-   **24** — `--radius-2xl` (1rem) sits **below `--radius-xl`** (1.5rem) and equal to `lg`,
-   because the project overrode `sm`–`xl` in `@theme` and left Tailwind's default `2xl` behind.
-   Two consumers, both **outside** studio, so changing it moves the public site. The risk is a
-   future PR redefining the scale and inheriting the inversion silently.
+   **24 — FULLY CLOSED, byte-identically.** The two public `rounded-2xl` sites reached Tailwind's
+   default 1rem (below xl, equal to lg). The footer's real 16px corner was repointed to
+   `rounded-lg` (the token it already rendered) and the blog card's inert one was deleted, so the
+   public site did not move. `radius-scale` (whole-repo) now holds the declared ramp monotonic and
+   fails any consumer of a step `@theme` does not declare — the `studio-tokens` shape for radii.
+   Whether the footer should be ROUNDER is a separate design question, made by looking at it, not
+   folded into the hazard fix.
 
 **THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
 
