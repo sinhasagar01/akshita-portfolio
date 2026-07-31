@@ -100,7 +100,22 @@ export default function AboutEditPanel({
   return (
     <section
       aria-label="Edit About"
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
+      // NO FRAME, AND THIS IS A BUG FIX RATHER THAN THE TIDY-UP IT WAS FILED AS.
+      //
+      // This carried `overflow-hidden rounded-panel border` — a panel frame, which was right
+      // while these pages were padded cards. #242 made them full-height shells, and two things
+      // changed at once: a frame inside a pane became a box drawn around a box, AND the
+      // `overflow-hidden` that the radius requires started CLIPPING.
+      //
+      // The section is now exactly as tall as the pane, so the pane has nothing to scroll while
+      // the section clips its own overflow with no scrollbar and no gesture that reaches it.
+      // Measured before this change: 61px unreachable at a 700px viewport, 161px at 600, with
+      // the last field sitting behind the save bar. #178's shape, reintroduced by the PR that
+      // cited #178.
+      //
+      // Dropping the radius is what lets the overflow go, and dropping the overflow is what
+      // makes the PANE the scroller it was already declared to be.
+      className="bg-cream-100"
     >
       <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">

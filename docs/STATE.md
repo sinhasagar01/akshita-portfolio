@@ -3014,6 +3014,41 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#245** the panel frame, and the clipping it caused →1621 (`studio-ink` 127→133,
+  `mount-discipline` 14→16). Filed by the owner as "body `<section>` loses its border and
+  border-radius". **It is a bug fix, and the bug is mine.**
+  **#242 MADE THE PANE THE SCROLLER, AND THE FRAME'S `overflow-hidden` STARTED CLIPPING.** The
+  panel `<section>` had always carried it, to clip its own rounded corners — harmless while the
+  PAGE scrolled. Full-height, the section sits exactly as tall as the pane, so **the pane has
+  nothing to scroll while the section clips with no scrollbar and no gesture that reaches it.**
+  Measured: **61px unreachable at a 700px viewport, 161px at 600**, with the last field
+  ("Location") behind the save bar. **#178's shape, reintroduced by the PR that cited #178.**
+  **WHY THE GATES MISSED IT, AND IT IS A NEW ASSERTION RATHER THAN A STRONGER OLD ONE.** #242
+  measured two things: that the save bar was reachable without scrolling, and how much content
+  ROOM the pane had. **Neither asked whether the content EXCEEDED the room.** A pane can have
+  422px of room, a perfectly placed save bar, and 161px of form below the fold with no way down —
+  every assertion passes and the page is broken. The new question is
+  **"if content is taller than its pane, something must be able to scroll"**, driven in
+  `mount-discipline`'s `REACHABILITY_SCRIPT` plus a source half that forbids a clipping
+  `overflow-hidden` inside the pane.
+  **DRIVEN, BEFORE AND AFTER:** at 600, `section` clipped 161 / pane could not scroll →
+  clipped 0 / pane scrolls 159. At 700, 61 → 0 / scrolls 59. All four settings panels reachable.
+  **THE SHARED-SEAM TRAP FIRED A FOURTH TIME AND THE SCOPING IS DERIVED, NOT REMEMBERED.**
+  `ProjectsEditPanel` renders the same `<section>` and is NOT in a shell — it is the case-study
+  route's bespoke/loading/error fallback, a lone notice on a page that scrolls, and a class-level
+  sweep would have stripped a frame it needs. `studio-ink` E1b reads the shell consumers out of
+  the three files that render `<ListDetailLayout` and asserts the rule against that set, so a new
+  panel joins the gate by being rendered there.
+  **AND A SECOND DEFECT OF MINE, FIXED IN THE SAME BRANCH.** That fallback measured
+  `distanceFromMainLeftEdge: 0` — flush against the sidebar — because #233 dropped `STUDIO_PAGE`
+  from the case-study route so the three-pane editor could reach the viewport edges, and the
+  fallback never got padding of its own. **0 → 24.**
+  **AND E1 WAS REPINNED ON ITS SUBJECT — THIRD INSTANCE OF "AN ASSERTION MUST NOT PIN ITS
+  NEIGHBOURS".** It read `border-accent-500/30 bg-cream-100`, so removing the FRAME — a change
+  about clipping, with no bearing on the ground the assertion is named for — failed a GROUND
+  assertion in five files at once. After #213's padding-in-a-colour-regex and `three-pane`'s width
+  regex. The subject is the cream-100 step; the border was never part of it.
+
 **THE FOUR STUDIO PAGES, SIX PRs. CLOSED. ralph 1577 → 1613.**
 
 - **#239** the field measure (`4e89386`) →1582 · **#240** homepage and skills (`3f2e381`) →1586
