@@ -19,7 +19,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -165,7 +165,7 @@ export default function HeroEditPanel({
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Hero copy</span>
+          <span className={labelCls}>Hero copy</span>
           <input
             type="text"
             value={values.heroCopy}
@@ -176,7 +176,7 @@ export default function HeroEditPanel({
         </label>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Tabs</span>
+          <span className={labelCls}>Tabs</span>
           {/* Mimics the real Hero tablist — pick a tab, edit its name and serif
               line below. Pill text is the LIVE edited name. */}
           <div
@@ -232,7 +232,7 @@ export default function HeroEditPanel({
             className="flex flex-col gap-1.5"
           >
             <label className="flex flex-col gap-1.5">
-              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">
+              <span className={labelCls}>
                 Tab {activeTab + 1} name
               </span>
               <input
@@ -245,7 +245,7 @@ export default function HeroEditPanel({
               />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">
+              <span className={labelCls}>
                 Tab {activeTab + 1} line
               </span>
               <textarea
@@ -260,7 +260,7 @@ export default function HeroEditPanel({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Role label</span>
+          <span className={labelCls}>Role label</span>
           <input
             type="text"
             value={values.heroRoleLabel}
@@ -271,7 +271,7 @@ export default function HeroEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Scroll cue</span>
+          <span className={labelCls}>Scroll cue</span>
           <input
             type="text"
             value={values.heroScrollCue}

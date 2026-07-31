@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1486 across 43 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1495 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -2876,6 +2876,48 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 1 · the label scale — two steps, named by role** →1495 (`studio-labels` 9, net-new suite).
+  **BRIEFED AS A CONSISTENCY SWEEP; IT IS AN ACCESSIBILITY FIX.** Measured, `text-ink-400` reads
+  **3.49 / 3.33 / 3.02** on cream-50 / cream-100 / cream-200, and 12px is not WCAG large text
+  (that is 24px, or 18.66px bold), so the 4.5 floor applies and **every ad-hoc studio label was
+  below AA**. `text-ink-600` reads 7.42 / 7.06 / 6.42. Verified live: field labels went 3.33 →
+  **7.06**, and every label on screen now clears AA.
+  **THREE PREMISE CORRECTIONS, ALL FOUND BY MEASURING RATHER THAN CITING:**
+  **(1) THERE WERE NEVER THREE SIZES.** `--text-eyebrow` is `0.75rem`, which at the 16px root is
+  exactly 12px, so `text-eyebrow` and `text-[12px]` render IDENTICALLY — browser-proven. The
+  three source spellings are two rendered sizes, 12px and 10px. **So no site shrank, and the
+  size decision the brief asked for did not exist.** The PR is a weight change, a colour fix and
+  a two-step scale — not a resize.
+  **(2) `labelCls` IS 12px, NOT 11px.** Its own doc comment said 11px; #218's site-wide font bump
+  moved it and left the prose behind. Comment fixed here — a stale measurement in a comment is
+  what made #211's placeholder claim quietly falser.
+  **(3) "#210 MEASURED ink-600 AT 4.78 ON cream-200" IS THE WRONG TOKEN.** ink-600 measures
+  **6.42** there; 4.78 is `text-text-subtle`. A correct number attached to the wrong token, the
+  same family as #211's three findings.
+  **THE DEPTH AXIS WAS REAL, AND IT DECIDED THE EXPORT SHAPE.** Six of the eleven 10px sites sat
+  inside the IDENTICAL container — `rounded-control + border + bg-cream-100 + p-3`, a nested card
+  — so the smaller step is a hierarchy somebody built, not drift. Two more (`HeroEditPanel`'s tab
+  labels) were 10px in a plain tabpanel with no card at all, and moved UP to 12px. **That they
+  separated cleanly is the evidence the axis is real.** So the answer is TWO exports named by
+  ROLE, #199's `inputCls`/`inputClsMd` precedent exactly: `labelCls` (field) and `groupLabelCls`
+  (nested-card group head). **The fourth time by-role naming has been the right answer** in this
+  arc, after listbox-vs-select, three-pane-vs-list-detail and the section headers.
+  **The group step keeps its 10px AND its 400 weight — only the colour moved** — so clearing the
+  contrast did not flatten the hierarchy the two steps exist to hold.
+  **45 SITES SWEPT ACROSS 15 FILES**; four survive by ROLE and each is recognised by its own
+  shape rather than by file and line, so the exemption cannot widen into "anything left over": a
+  badge (`rounded-full`, 7.10), nav chrome (`StudioSidebar`, 5.45 on the dark rail), an accent
+  ordinal (`text-accent-600`, 6.25) — all three ABOVE AA — and the board card's authored
+  `section.eyebrow`. **That last one measures 3.49 and is recorded in source WITH the number
+  rather than fixed**, because recolouring a preview of AUTHORED CONTENT is a design decision,
+  not a chrome repaint, and PR 7 restructures that board. One more was found mid-sweep and fixed
+  colour-only: the canvas help line, also 3.49, which keeps its own string because it is a
+  sentence and bold-700 would shout.
+  **THE GATE DERIVES THE GROUP RULE RATHER THAN LISTING THE SIX** — `studio-labels` B1 finds the
+  nested-card signature in source and requires `groupLabelCls` inside it, the `studio-cascade`
+  shape, so a seventh nested card inherits the rule and a hand-written heading fails on arrival.
+  Four mutations confirm it bites. **The token is untouched**: `--text-eyebrow` is read by 16
+  non-studio files, D1/D2 pin it and the one public eyebrow, and **zero public files changed**.
 - **PR 2 · well = ground, six sites** →1486 (no net-new; a relational repaint). **THIS APPLIED A
   DOCUMENTED RULE RATHER THAN MAKING ONE.** The note at `blocks/fields.tsx:151-166` named this
   defect class before any of these six shipped — "an input reads as a well because it is one step
@@ -3161,9 +3203,11 @@ refuted the assumption that the studio was finished except for one page. See PR 
 
 **Track 1 — the consistency sweep (each PR ships alone, in any order).**
 - ~~**PR 4 · the hooks blocker**~~ — **SHIPPED.** Hazard 17 closed; it gates all of Track 2.
-- **PR 1 · THE LABEL TREATMENT.** Adopt `labelCls` across the 36 ad-hoc eyebrow spans in 14
-  files and settle the three live sizes into one. Pure paint, mechanically checkable, gate it.
-  *Left inconsistent after:* section headers, wells.
+- ~~**PR 1 · THE LABEL TREATMENT.**~~ — **SHIPPED, and it was an ACCESSIBILITY fix rather than
+  the tidy-up it was briefed as.** Two steps named by role (`labelCls` / `groupLabelCls`), 45
+  sites across 15 files, ink-400 (3.02–3.49, below AA) → ink-600 (6.42–7.42). There were never
+  three sizes — `--text-eyebrow` is 12px and renders identically to `text-[12px]` — so nothing
+  shrank. See its log entry. *Left inconsistent after:* section headers (PR 3).
 - ~~**PR 2 · WELL = GROUND, SIX SITES.**~~ — **SHIPPED.** Six named sites, five code changes
   (`StudioModal` covers three modals). All 1.00 → 1.05, measured per site. See its log entry for
   the two that needed a different action, and for the Selected rail's coupling to PR 7.

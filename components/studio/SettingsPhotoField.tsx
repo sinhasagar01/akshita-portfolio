@@ -16,6 +16,7 @@
 import { useRef, useState } from "react";
 import { IconX } from "./icons";
 import ImageThumb from "./ImageThumb";
+import { labelCls } from "./blocks/fields";
 
 export default function SettingsPhotoField({
   photo: initialPhoto,
@@ -75,7 +76,7 @@ export default function SettingsPhotoField({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo</span>
+      <span className={labelCls}>Photo</span>
       {/* Vertical, and the container declares NO ground — see BlockImageField, which carries
           the full note. This row had the identical class string and the identical collision,
           and the same reason applies: it is mounted on more than one ground. */}

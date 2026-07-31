@@ -47,7 +47,7 @@ import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
 const NO_DRAFT_IMAGES: readonly string[] = [];
-import { FieldTabProvider, inputCls, type FieldTab } from "./blocks/fields";
+import { FieldTabProvider, inputCls, type FieldTab, labelCls, groupLabelCls } from "./blocks/fields";
 import { IconGrid, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type SectionsFields = { sections: readonly RawSection[] };
@@ -371,7 +371,7 @@ function SelectedRail({
     // it (body -> cream-100, header -> cream-200) THIS RAIL MUST MOVE TO cream-200 in the same
     // change, or body and rail both land on cream-100 and the collision comes straight back.
     <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-100 p-3.5">
-      <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+      <p className={labelCls}>
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
       {selected ? (
@@ -943,6 +943,13 @@ export default function SectionsEditPanel({
                   />
                   <div className="pointer-events-none relative z-[1] flex items-start justify-between gap-2">
                     <div className="flex min-w-0 flex-col">
+                      {/* THE AUTHOR'S OWN CONTENT, NOT CHROME — this renders `section.eyebrow`,
+                          text the author wrote, so it is out of the label sweep by role. It is
+                          left at ink-400 DELIBERATELY AND THE NUMBER IS RECORDED: measured 3.49
+                          against this card's cream-50, which is below the 4.5 AA floor. It is
+                          not fixed here because recolouring a preview of authored content is a
+                          design decision about how content reads in the editor, not a chrome
+                          repaint — and PR 7 restructures this board. Fix it there, with intent. */}
                       {section.eyebrow && (
                         <span className="truncate text-[10px] uppercase tracking-eyebrow text-ink-400">
                           {section.eyebrow}
@@ -1229,7 +1236,11 @@ export default function SectionsEditPanel({
           };
           return (
             <div>
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] uppercase tracking-eyebrow text-ink-400">
+              {/* HELP TEXT, NOT A LABEL — so it keeps its own string rather than taking
+                  `labelCls`: it is a sentence, and setting it bold-700 would shout. Only the
+                  COLOUR moved, ink-400 -> ink-600, because ink-400 measured 3.49 here against
+                  cream-50 and 12px is not WCAG large text, so it was below the 4.5 floor. */}
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] uppercase tracking-eyebrow text-ink-600">
                 <span>Live preview — click any dashed element to edit it, here or in the panel beside it. Rich text with **bold** edits under Inspector.</span>
                 {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
                 {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
@@ -1375,7 +1386,7 @@ export default function SectionsEditPanel({
               </div>
             ) : (
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+              <h3 className={labelCls}>
                 {sectionLabel(section, i)}
               </h3>
               <div className="flex gap-1">
@@ -1466,7 +1477,7 @@ export default function SectionsEditPanel({
 
             {picker === ids.sectionIds[i] ? (
               <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-cream-100 p-3">
-                <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Add a block</span>
+                <span className={groupLabelCls}>Add a block</span>
                 <div className="flex flex-wrap gap-1.5">
                   {addableKinds.map((k) => (
                     <button

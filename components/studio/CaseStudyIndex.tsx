@@ -16,7 +16,7 @@ import type { ProjectListItem } from "@/lib/keystatic";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
-import { inputCls } from "./blocks/fields";
+import { inputCls, labelCls } from "./blocks/fields";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
@@ -243,7 +243,7 @@ export default function CaseStudyIndex({ entries }: { entries: ProjectListItem[]
           initialFocusRef={addTitleRef}
         >
           <label className="mt-3 flex flex-col gap-1.5">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Title</span>
+            <span className={labelCls}>Title</span>
             <input
               ref={addTitleRef}
               value={title}

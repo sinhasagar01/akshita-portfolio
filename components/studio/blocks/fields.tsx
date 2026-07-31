@@ -196,16 +196,49 @@ export const inputErrorCls =
   "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
 
 /**
- * The field label — STRUCTURE, not a caption. 11px / 700 / 0.14em / ink-600.
+ * THE STUDIO LABEL SCALE — TWO STEPS, NAMED BY ROLE.
  *
- * `--text-eyebrow` IS DELIBERATELY NOT EDITED, AND THE SIZE IS A LOCAL UTILITY INSTEAD.
- * That token is read by ELEVEN files in components/case-study — canvas code — plus
- * components/ui/SectionLabel, app/not-found and app/(portfolio)/error. Changing it to get an
- * 11px studio label would move the case-study canvas and two public pages, which is the one
- * thing this arc must not do. `tracking-eyebrow` STAYS because 0.14em is already the value
- * this label wants, so nothing is gained by localising it too.
+ *   labelCls       a FIELD label            12px / 700 / 0.14em / ink-600
+ *   groupLabelCls  a nested-card GROUP head 10px / 400 / 0.14em / ink-600
+ *
+ * NAMED BY ROLE, NOT BY SIZE, so the name says WHEN to reach for it — the same discipline as
+ * the radius scale's panel/card/control and the ground ladder's chrome/field/well. `labelSm`
+ * would have said nothing about when it applies.
+ *
+ * WHY TWO AND NOT ONE, which #199 already settled for `inputCls`/`inputClsMd`: the 10px is a
+ * HIERARCHY SOMEBODY BUILT, not drift. Six sites carry it and all six sit inside the identical
+ * container — `rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100
+ * p-3`, a nested card — so the smaller step marks "this heading groups the fields below it,
+ * one level in". Flattening the two would have destroyed that. The `labelCls` step is the field
+ * label proper, and the two outliers that looked like the same case (HeroEditPanel's tab
+ * labels) turned out to be field labels in a plain tabpanel with no card at all, so they moved
+ * UP to 12px. That they separated cleanly is the evidence the second step is real.
+ *
+ * BOTH ARE ink-600 BECAUSE ink-400 FAILED AA, and that is this scale's real reason for
+ * existing. Measured: ink-400 reads 3.49 / 3.33 / 3.02 on cream-50 / cream-100 / cream-200,
+ * and 12px is not WCAG large text (that is 24px, or 18.66px bold), so the 4.5 floor applies and
+ * every ad-hoc label in the studio was below it. ink-600 reads 7.42 / 7.06 / 6.42. The GROUP
+ * step keeps its 10px and its 400 weight — only the colour moved — so fixing the contrast did
+ * not flatten the hierarchy the two steps exist to hold.
+ *
+ * `--text-eyebrow` IS DELIBERATELY NOT EDITED AND THE SIZE IS A LOCAL LITERAL INSTEAD. That
+ * token is read by SIXTEEN non-studio files — components/case-study canvas code, components/ui
+ * SectionLabel, app/not-found and app/(portfolio)/error — so sizing the studio label through it
+ * would move the canvas and two public pages, the one thing this arc must not do.
+ * THE TWO VALUES COINCIDE TODAY AND THAT IS NOT A REASON TO MERGE THEM: `--text-eyebrow` is
+ * 0.75rem, which at the 16px root is exactly the 12px this literal states, so `text-eyebrow`
+ * and `text-[12px]` render identically. They are kept INDEPENDENT so the token can move for the
+ * canvas without dragging the studio with it — the same coincide-but-decouple relationship
+ * `--studio-radius-control` (4px) has with `--radius-sm` (4px).
+ * (The previous comment here read "11px". It was true when written and #218's site-wide font
+ * bump moved it to 12px without updating the prose. `studio-ink` E4 pins the real value.)
+ * `tracking-eyebrow` STAYS because 0.14em is already the value both steps want.
  */
 export const labelCls = "text-[12px] font-bold uppercase tracking-eyebrow text-ink-600";
+
+/** A group heading inside a NESTED CARD — see the scale note above. Size and weight are the
+ *  ones that shipped; only the colour moved, to clear AA. */
+export const groupLabelCls = "text-[10px] uppercase tracking-eyebrow text-ink-600";
 
 export function TextField({
   label,
@@ -669,7 +702,7 @@ export function ItemRows<T>({
         return (
           <div key={i} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">{name}</span>
+              <span className={groupLabelCls}>{name}</span>
               <div className="flex gap-1">
                 {/* preventDefault on mousedown keeps focus off these controls so the
                     click cannot blur-save mid-op (the About-panel fix). */}

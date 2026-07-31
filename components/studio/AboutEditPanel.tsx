@@ -15,7 +15,7 @@ import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import SettingsPhotoField from "./SettingsPhotoField";
 import { IconUser } from "./icons";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -129,7 +129,7 @@ export default function AboutEditPanel({
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">About bio</span>
+          <span className={labelCls}>About bio</span>
           <textarea
             rows={7}
             value={values.aboutCopy}
@@ -143,7 +143,7 @@ export default function AboutEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">About note</span>
+          <span className={labelCls}>About note</span>
           <input
             type="text"
             value={values.aboutNote}
@@ -154,7 +154,7 @@ export default function AboutEditPanel({
         </label>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Focus chips</span>
+          <span className={labelCls}>Focus chips</span>
           <ChipListEditor
             chips={values.aboutFocusChips}
             onChange={updateChips}
@@ -171,7 +171,7 @@ export default function AboutEditPanel({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">About subtext</span>
+          <span className={labelCls}>About subtext</span>
           <input
             type="text"
             value={values.aboutSubtext}
@@ -184,7 +184,7 @@ export default function AboutEditPanel({
         <SettingsPhotoField photo={photo} onUploaded={() => setUnpublished(true)} />
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Photo caption</span>
+          <span className={labelCls}>Photo caption</span>
           <input
             type="text"
             value={values.aboutPhotoCaption}

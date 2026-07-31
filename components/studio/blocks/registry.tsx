@@ -20,7 +20,7 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField, inputCls, inputErrorCls, labelCls } from "./fields";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField, inputCls, inputErrorCls, labelCls, groupLabelCls } from "./fields";
 import { isHttpUrl } from "@/lib/case-studies/adapter";
 import type { PreviewUpload } from "@/lib/studio/preview-map";
 
@@ -493,7 +493,7 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
     // The glow word is pure appearance — the whole group lives under Style.
     <TabGroup group="style" className="">
       <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
-        <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+        <span className={`mb-2 block ${groupLabelCls}`}>
           Glow word (optional)
         </span>
         {/* The whole glow word is optional, so its inputs collapse behind one reveal. */}
@@ -602,7 +602,7 @@ const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ v
   <>
     <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} collection={collection} />
     <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
-      <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+      <span className={`mb-2 block ${groupLabelCls}`}>
         Scrawl (optional)
       </span>
       <div className="flex flex-col gap-2">
@@ -667,7 +667,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
       </div>
     </DisclosureGroup>
     <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
-      <span className="mb-2 block text-[10px] uppercase tracking-eyebrow text-ink-400">
+      <span className={`mb-2 block ${groupLabelCls}`}>
         Rating chip (optional)
       </span>
       <div className="grid grid-cols-2 gap-2">
@@ -833,7 +833,7 @@ function TokenFields({
     <>
       {/* READ-ONLY: switching the type would replace the value's shape. */}
       <div className="flex items-center gap-2">
-        <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Type</span>
+        <span className={labelCls}>Type</span>
         <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-600">
           {entry.label}
         </span>

@@ -14,7 +14,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import { IconWorkflow } from "./icons";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
 type Props = { itemId: string; processStages: ProcessStage[] };
@@ -106,7 +106,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
             </span>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Name</span>
+              <span className={labelCls}>Name</span>
               <input
                 type="text"
                 value={stage.name}
@@ -118,7 +118,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Description</span>
+              <span className={labelCls}>Description</span>
               <input
                 type="text"
                 value={stage.description}
@@ -130,7 +130,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
             </label>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Tags</span>
+              <span className={labelCls}>Tags</span>
               <ChipListEditor
                 chips={stage.tags}
                 onChange={(next) => editStage(i, { tags: next })}

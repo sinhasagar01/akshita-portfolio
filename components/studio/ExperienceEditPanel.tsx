@@ -13,7 +13,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconBriefcase } from "./icons";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -106,7 +106,7 @@ export default function ExperienceEditPanel({
         {/* Company is the slugField (the entry identity). Shown read-only so an
             edit here never silently fails — it is set on Add and not editable. */}
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Company</span>
+          <span className={labelCls}>Company</span>
           <input
             type="text"
             value={company}
@@ -141,7 +141,7 @@ export default function ExperienceEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Role title</span>
+          <span className={labelCls}>Role title</span>
           <input
             type="text"
             value={values.title}
@@ -153,7 +153,7 @@ export default function ExperienceEditPanel({
 
         <div className="grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Start date</span>
+            <span className={labelCls}>Start date</span>
             <input
               type="text"
               value={values.startDate}
@@ -164,7 +164,7 @@ export default function ExperienceEditPanel({
             />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">End date</span>
+            <span className={labelCls}>End date</span>
             <input
               type="text"
               value={values.endDate}
@@ -177,7 +177,7 @@ export default function ExperienceEditPanel({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+          <span className={labelCls}>
             What you did
           </span>
           <textarea
@@ -194,7 +194,7 @@ export default function ExperienceEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Location</span>
+          <span className={labelCls}>Location</span>
           <input
             type="text"
             value={values.location}
