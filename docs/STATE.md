@@ -1628,6 +1628,24 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **A RECORDED TRIGGER NAMES A DEFECT; ITS PRESCRIBED REMEDY IS A HYPOTHESIS FROM THE MOMENT IT
+  WAS WRITTEN. RE-DERIVE THE REMEDY, NOT JUST THE DEFECT.** The arc closed with three named
+  triggers. The first was "matchMedia -> a ResizeObserver on the shell", and **following it
+  literally would have shipped a worse bug than the one it closed.**
+  **MEASURING THE SHELL IS CIRCULAR.** Its root is a flex ROW container with `min-width: auto`,
+  so its width is set by its own panes' min-content — driven at a 900px viewport it measures
+  **1309px inside an 885px page**, and a threshold read off it would answer "fits" where nothing
+  fits. `<main>` and the shell's parent stay at 885, being `min-w-0` or column items; only the
+  shell overflows. The remedy was written while looking at the wide case, where the shell is
+  constrained by its parent and the circularity is invisible.
+  **AND THE DEFECT ITSELF WAS RECORDED LESS SHARPLY THAN IT COULD BE.** It is not "query vs
+  measure". `matchMedia` measures the VIEWPORT; every pane divides the PAGE BOX; the constants
+  were page-space sums all along. **The numbers were right and the comparison was wrong** — a
+  smaller, cleaner bug than the one written down, and one that no constant had to move to fix.
+  **This is the same family as the six above**, one level up: there, claims about the code decayed
+  when the code moved. Here a claim about the FIX was never tested at all, because a trigger is
+  written at the moment you decide not to do the work.
+
 - **EVERY PREMISE WRITTEN ONCE AND TRUSTED LATER TURNED OUT WRONG WHEN RE-MEASURED — SIX TIMES
   IN ONE ARC.** This is the most reusable thing the studio consistency arc produced, and it is
   worth stating as a rule rather than leaving as six anecdotes:
@@ -2874,6 +2892,40 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#235** the thresholds measure the page box, not the viewport (`usePageWidthMin`) →1549
+  (`three-pane` 78→86). **THE TRIGGER'S REMEDY WAS WRONG AND THAT IS THE DURABLE OUTPUT** — see
+  the working rule. Measuring the shell is circular; it reports 1309px inside an 885px page.
+  **THE DEFECT, SHARPER THAN RECORDED:** `matchMedia` matches the VIEWPORT, every pane divides
+  the PAGE BOX, `scrollbar-gutter: stable` keeps them apart, and the constants were page-space
+  sums all along. **The numbers were right; the comparison was wrong.** Driven: page 1460 →
+  canvas exactly 640, raw fit exactly 0.500; page 1614 → blog's pane exactly 794 and its prose
+  exactly 746, the 68ch measure the constant exists to protect.
+  **THE CONTRACT DID NOT CHANGE, AND THAT WAS THE EXPECTED HARD PART.** A measured value normally
+  cannot have a server snapshot. It can here because `documentElement` is **not a node a component
+  renders** — no ref to be null, `getSnapshot` reads it during the first client render exactly as
+  `matchMedia` did, no first-frame guess invented, `useSyncExternalStore` untouched. The plan
+  spent most of its risk budget on a problem that does not exist in this shape.
+  **#178 PROVEN RATHER THAN REASONED.** Driven at a narrow load: list width 1 on arrival,
+  `transition-duration: 0s`, no transition class, **zero running animations** — then an explicit
+  toggle switches it to `width, border-color` 0.3s. The gate is live, not merely unbroken.
+  **ONE CONSTANT RE-DERIVED, FOR A DIFFERENT REASON.** `CS_COLLAPSED_FLOOR_PX` 1222 → 1223.
+  Driven at page 1222 the canvas came out **639**, raw fit 0.499, with the clamp covering the last
+  pixel — because a collapsed list pane is `w-0 border-transparent` and **a transparent border
+  still occupies its 1px** (the border-COLOR is what animates, so it cannot be dropped). The 26px
+  rail term was 27. Corrected by re-deriving the term, not padding the total; the gate now derives
+  that pixel from the shell's own class.
+  **THE FLOOR STAYS AND IS NOT INERT — the answer neither of us predicted.** On the default path it
+  never binds, which is the point of getting the threshold right. On the EXPLICIT-OPEN path it
+  binds hard: driven at page 1225 with the list reopened, canvas 405, raw fit 0.316, rendered
+  0.500. `ListIntent = "open"` deliberately holds at every width, so the clamp stopped covering an
+  arithmetic error and started guarding the one path the arithmetic does not cover.
+  **`three-pane` PART I's GUTTER-GAP ASSERTIONS WERE REPLACED, NOT KEPT.** They asserted the gap
+  EXISTED, so keeping them would have pinned the bug — a gate that outlives the defect it
+  described is the same shape as a comment describing code that no longer exists, except that it
+  fails when someone fixes the thing.
+  **RENAMED `useMediaMin` → `usePageWidthMin`**, citing `StudioSidebar.tsx:52`'s `FIT_THRESHOLD_PX`
+  note as the precedent for a name outliving its meaning.
+
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
 PR D. Both numbers are true of different things and the arc's own contribution is the smaller
@@ -3630,14 +3682,16 @@ shell. Worst section **3.03 → 1.78 screens**; sections fitting one screen **2 
 The saving is width-independent, which is the third confirmation that field count rather than
 pane width drives the scroll.
 
-**THREE NAMED TRIGGERS ARE OPEN. None is urgent; each has its reasoning recorded where the
-decision lives.**
-1. **`matchMedia` → a ResizeObserver on the shell.** Every studio breakpoint is optimistic by the
-   reserved scrollbar gutter — `matchMedia` matches the viewport while the layout receives the
-   viewport minus it — and **blog's 1614 has the same gap**. **DO NOT CLOSE IT BY INFLATING THE
-   CONSTANT**: 15 is one machine's scrollbar width, 0 where scrollbars are overlays, ~17 on
-   Windows, so baking it into a shared threshold makes it wrong everywhere else. Pinned in
-   `three-pane` Part I.
+**TWO NAMED TRIGGERS REMAIN OPEN (the first is closed, see below). Neither is urgent; each has
+its reasoning recorded where the decision lives.**
+1. ~~**`matchMedia` → a ResizeObserver on the shell.**~~ — **CLOSED as #235, and NOT by the
+   remedy this trigger named.** See the new working rule: measuring the shell is circular. The
+   fix is `usePageWidthMin`, measuring `documentElement`'s box — the page the layout is handed.
+   **No constant was inflated and none changed**, because they were page-space sums already; the
+   canvas gets exactly 640 at page 1460 and blog's prose exactly 746 at page 1614.
+   **One constant WAS re-derived, for a different reason:** `CS_COLLAPSED_FLOOR_PX` 1222 → 1223,
+   because a collapsed list pane is `w-0 border-transparent` and a transparent border still
+   occupies its 1px. That is correcting a term, not padding a total.
 2. **Whether the case-study inspector should grow banded heads.** A live by-role question that a
    layout PR could not settle. `studio-ink` E5 now derives the band count and its location, so
    it cannot drift unnoticed while the question is open.

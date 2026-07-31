@@ -6,7 +6,7 @@
 //      name, so the obvious build — a max-width-1538 Tailwind variant beside an exported
 //      `FIT_THRESHOLD_PX = 1538` — writes each number TWICE and couples the copies by
 //      hand. That is the 236px hazard (#165) reproduced, and comment-enforced coupling is
-//      what it already costs us. So the shell reads both widths through `matchMedia`
+//      what it already costs us. So the shell reads both widths by MEASURING THE PAGE BOX
 //      instead, each number is consumed from the constant, and `ralph/tests/three-pane.mjs`
 //      asserts the ABSENCE of a second literal rather than asserting two copies agree.
 //      Asserting a duplicate away beats asserting it consistent, and this is the precedent
@@ -15,7 +15,22 @@
 //   2. THE COLLAPSE RULE IS TESTABLE ONLY IF IT IS PURE. `isListCollapsed` is a two-input
 //      function with a genuinely non-obvious middle case, and a dependency-free leaf is
 //      the only shape `--experimental-strip-types` can load (five occurrences of that
-//      constraint now). React state and `matchMedia` stay in the shell.
+//      constraint now). React state and the page measurement stay in the shell.
+//
+// ---- EVERY SUM BELOW IS THE **PAGE BOX**, NOT THE VIEWPORT. STATED ONCE, HERE. -----------
+//
+// `documentElement.getBoundingClientRect().width`, which is what the layout is handed. It is NOT
+// `window.innerWidth`: `scrollbar-gutter: stable` on `html` permanently reserves the classic
+// scrollbar's width, so the viewport is wider than the page by that amount (15 here, 0 with
+// overlay scrollbars, ~17 on Windows).
+//
+// This distinction cost a real defect. The thresholds were compared against the VIEWPORT through
+// `matchMedia`, so at a 1460 viewport the canvas got 625 rather than the 640 the sum promises,
+// the raw fit was 0.488, and the scale clamp was covering the difference. **No number here was
+// wrong** — they are page-space sums and always were, exact when compared to a page. The hook
+// now measures the page box (`usePageWidthMin`), which is why none of them changed. Anyone
+// re-deriving one of these must keep it in page space and must NOT add the gutter to it; baking
+// one machine's scrollbar width into a shared constant is how it becomes wrong everywhere else.
 //
 // THE ARITHMETIC. Measured, not derived:
 //   sidebar 236 + list 264 + canvas 794 + inspector 320 = 1614px minimum.
@@ -35,7 +50,8 @@
 //
 // THE COLLAPSED-LIST FLOOR MOVED TOO, and it is worth knowing even though nothing reads it.
 // With the list collapsed the canvas keeps its full measure down to
-// 236 + 26 (the reopen rail) + 794 + 320 = 1376, where the old inspector reached 1300. So
+// 236 + 27 (the reopen rail, plus the collapsed pane's 1px residual border) + 794 + 320 = 1377,
+// where the old inspector reached 1300. So
 // the band in which the inspector is shown but the canvas is under measure is 76px wider
 // than it was. INSPECTOR_FOLD_PX stays 1100 because it is a CHOSEN breakpoint rather than a
 // derived one — it answers "is the inspector still usable", not "does the canvas still hold
@@ -110,15 +126,23 @@ export const CS_CANVAS_MIN_PX = CS_CANVAS_WIDTH_PX * CS_MIN_SCALE;
  *  moves with it. */
 export const CS_FIT_THRESHOLD_PX = 1460;
 
-/** The collapsed-list floor, the case-study twin of the 1376 recorded above.
- *  236 + 26 (the reopen rail) + 640 + 320 = 1222. Below this the canvas drops under its minimum
- *  scale even with the list collapsed, and the inspector fold is the only lever left.
- *  DERIVED AND CONFIRMED RATHER THAN ASSUMED: collapsing the list returns 264 − 26 = 238px to
- *  the canvas, so at exactly CS_FIT_THRESHOLD_PX the collapsed canvas is 640 + 238 = 878px,
- *  which is 878 / 1280 = 68.6% — comfortably above the 50% floor. Across the whole band
- *  1222…1460 the collapsed canvas runs 640…878px, i.e. 50%…68.6%, so the rail collapsing never
+/** The collapsed-list floor, the case-study twin of the 1377 recorded above.
+ *  236 + 27 + 640 + 320 = 1223. Below this the canvas drops under its minimum scale even with
+ *  the list collapsed, and the inspector fold is the only lever left.
+ *
+ *  THE 27 IS 26 + 1 AND THE 1 WAS MISSING UNTIL IT WAS DRIVEN. The reopen rail is 26px, but a
+ *  COLLAPSED list pane is not 0px — it is `w-0 border-transparent`, and a transparent border
+ *  still occupies its 1px (the border-color is what animates, so it cannot be removed without
+ *  losing the transition). Measured at page 1222: 236 + 1 + 26 + 639 + 320. The canvas came out
+ *  639 rather than 640, raw fit 0.499, and the scale clamp was covering that last pixel —
+ *  precisely the shape this constant exists to make unnecessary. Corrected by RE-DERIVING the
+ *  term, not by padding the total.
+ *  DERIVED AND CONFIRMED RATHER THAN ASSUMED: collapsing the list returns 264 − 27 = 237px to
+ *  the canvas, so at exactly CS_FIT_THRESHOLD_PX the collapsed canvas is 640 + 237 = 877px,
+ *  which is 877 / 1280 = 68.5% — comfortably above the 50% floor. Across the whole band
+ *  1223…1460 the collapsed canvas runs 640…877px, i.e. 50%…68.5%, so the rail collapsing never
  *  takes the canvas below the floor. That is the property this constant exists to state. */
-export const CS_COLLAPSED_FLOOR_PX = 1222;
+export const CS_COLLAPSED_FLOOR_PX = 1223;
 
 /** The list pane's THREE-STATE intent.
  *

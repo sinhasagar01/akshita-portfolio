@@ -89,7 +89,7 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
 /* ================================================ C. THE INSPECTOR RENDERS EXACTLY ONCE
  * Above the fold it mounts in the shell's inspector slot, below it in the canvas slot. Two copies
  * would be two form trees sharing one onChange, with colliding ids and two carets — the reason
- * `useMediaMin` exists rather than a CSS answer. */
+ * `usePageWidthMin` exists rather than a CSS answer. */
 t("C1: `inspectorNode` is built once and placed by the fold, never rendered twice",
   (panel.match(/const inspectorNode = \(/g) ?? []).length, 1);
 t("C2: the fold chooses the PARENT — inspector in the canvas slot below it, its own slot above",
