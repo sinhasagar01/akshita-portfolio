@@ -24,7 +24,9 @@
 // substring in onRemoveItem) and is a URL-driven page shell keyed to `?item=`, so
 // two nested instances would fight over one param. The composition that works here
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
-import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
+import CaseStudySwitcher from "./CaseStudySwitcher";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
@@ -52,7 +54,7 @@ import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
 const NO_DRAFT_IMAGES: readonly string[] = [];
 import { FieldTabProvider, inputCls, type FieldTab, labelCls, groupLabelCls } from "./blocks/fields";
-import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
+import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
 
 type SectionsFields = { sections: readonly RawSection[] };
 /** The parallel stable ids, mirroring the sections structure exactly. */
@@ -340,33 +342,45 @@ type SelectedField =
  * The ceiling is measured from the canvas pane (the rail's grid sibling) rather than
  * hardcoded, so it tracks whatever that section actually renders to.
  */
-function useAutoGrow(value: string, ceilingRef: RefObject<HTMLElement | null>) {
+function useAutoGrow(value: string, ceiling: HTMLElement | null) {
   const ref = useRef<HTMLTextAreaElement>(null);
-  // Anchored to the RAIL, not the textarea: the textarea only exists once a field is
-  // selected, so measuring from it meant the effect ran on mount with nothing there,
-  // bailed, and never re-ran — leaving the box uncapped.
-  const railRef = useRef<HTMLElement>(null);
   const [maxHeight, setMaxHeight] = useState<number>();
 
   // Track the canvas pane's height. It changes with the section, the viewport, and
   // images loading, so it is observed rather than read once.
   //
-  // THE CEILING IS PASSED IN, NOT WALKED TO, AND THAT IS THIS PR'S FIX. This used to read
-  // `railRef.current?.parentElement?.firstElementChild` — the rail's first grid sibling —
-  // which silently assumed the canvas sits beside the rail in one grid. Moving the rail into
-  // a pane would have left `canvas` null, the effect would bail exactly as it did before the
-  // rail anchor was introduced, and the textarea would be UNCAPPED with nothing failing. A
-  // fix that depends on the layout staying still is the wrong shape in a layout PR, so the
-  // element is named by ref at the call site instead. Same observer, explicit subject.
+  // ---- THE CEILING IS AN ELEMENT, NOT A REF, AND THAT DISTINCTION WAS EARNED --------------
+  //
+  // Three versions, each fixing the previous one's blind spot, and it is worth keeping the
+  // sequence because each looked complete:
+  //
+  //   1. `textareaRef.current?...` — the textarea only exists once a field is selected, so the
+  //      effect ran on mount with nothing there, bailed, and never re-ran. Uncapped.
+  //   2. Anchored to the RAIL, which always existed, and walked
+  //      `railRef.current?.parentElement?.firstElementChild` to reach the canvas. Correct while
+  //      the rail sat in a grid beside the canvas; a DOM walk is a layout assumption.
+  //   3. (7a) The ceiling passed in BY REF, named rather than walked to, so a relayout could not
+  //      silently retarget it.
+  //
+  // Moving the rail into the inspector broke 3, and MEASURED IT DOING SO — 3166px of textarea
+  // in an 811px pane. A ref only fixed the SUBJECT; the effect still keyed on the ref object,
+  // which never changes, so it ran once at mount. The rail now lives in the inspector, which
+  // mounts with the page, while the canvas div appears only once a section is selected. So the
+  // effect ran, found `null`, bailed, and never re-ran — the exact failure of version 1, reached
+  // by a different road. Version 3's own comment predicted this shape and still did not prevent
+  // it, because naming a BOX that might be empty is not the same as naming what is in it.
+  //
+  // So the ceiling is the ELEMENT, held in state by a callback ref at the call site. The effect
+  // keys on the node, so it re-runs the moment one mounts or unmounts. There is no ordering left
+  // to get wrong.
   useEffect(() => {
-    const canvas = ceilingRef.current;
-    if (!canvas) return;
-    const measure = () => setMaxHeight(canvas.getBoundingClientRect().height);
+    if (!ceiling) return; // keeps the LAST measurement — see the call site
+    const measure = () => setMaxHeight(ceiling.getBoundingClientRect().height);
     measure();
     const ro = new ResizeObserver(measure);
-    ro.observe(canvas);
+    ro.observe(ceiling);
     return () => ro.disconnect();
-  }, [ceilingRef]);
+  }, [ceiling]);
 
   // Reset to auto before reading scrollHeight, or the box can only ever grow.
   useEffect(() => {
@@ -377,34 +391,45 @@ function useAutoGrow(value: string, ceilingRef: RefObject<HTMLElement | null>) {
     el.style.height = `${Math.min(el.scrollHeight, cap)}px`;
   }, [value, maxHeight]);
 
-  return { ref, railRef, maxHeight };
+  return { ref, maxHeight };
 }
 
 function SelectedRail({
   selected,
   value,
   onChange,
-  ceilingRef,
+  ceiling,
+  hidden,
 }: {
   selected: SelectedField | null;
   /** Read straight from form state on every render — see the panel's `readField`. */
   value: string;
   onChange: (v: string) => void;
-  /** The element whose height caps this textarea — named explicitly rather than reached by
-   *  DOM walk, so a relayout cannot silently uncap it. See `useAutoGrow`. */
-  ceilingRef: RefObject<HTMLElement | null>;
+  /** The element whose height caps this textarea — the NODE, not a ref to it, so the observer
+   *  re-runs when it mounts. See `useAutoGrow` for why that distinction cost a measurement. */
+  ceiling: HTMLElement | null;
+  /** Hidden under Details, never unmounted — see the call site. */
+  hidden?: boolean;
 }) {
-  const { ref: taRef, railRef, maxHeight } = useAutoGrow(value, ceilingRef);
+  const { ref: taRef, maxHeight } = useAutoGrow(value, ceiling);
   return (
-    // THE RAIL IS THE SURFACE ITS TEXTAREA SITS ON, so it takes cream-100 while the textarea
-    // keeps `inputCls`'s cream-50. Measured, this was a DOUBLE collision: the rail was cream-50
-    // on the cream-50 body section (1.00, so the rail itself was invisible) and its textarea was
-    // cream-50 on the cream-50 rail (1.00 again).
-    // NOTE FOR PR 7 — THE BODY SECTION IS STILL INVERTED and this rail is coupled to it. That
-    // section is cream-50 with a cream-100 header, the mirror of its siblings. When PR 7 rights
-    // it (body -> cream-100, header -> cream-200) THIS RAIL MUST MOVE TO cream-200 in the same
-    // change, or body and rail both land on cream-100 and the collision comes straight back.
-    <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-100 p-3.5">
+    // THE RAIL IS THE SURFACE ITS TEXTAREA SITS ON, so it takes the ground one step up from the
+    // pane it sits in while the textarea keeps `inputCls`'s cream-50. That relation is the rule;
+    // the VALUE follows from wherever the rail currently lives, which is why moving it changed it.
+    //
+    // PR 2 left a note here saying this must become cream-200 when the body section was righted.
+    // The body section is GONE — the shell owns the frame now — so the value is re-derived rather
+    // than carried over, and it lands in the same place: ThreePaneShell's inspector pane is
+    // `bg-cream-100` (:232), so a cream-100 rail would be 1.00 against it and invisible, exactly
+    // the collision PR 2 measured on the old ground. cream-200 it is, for a new reason.
+    //
+    // AND radius-card, NOT radius-panel. It used to be a panel inside a panel inside a panel;
+    // with the shell as the frame it is a card in a pane, the same level as the block cards it
+    // sits above, so one radius-panel is left at the outermost level where it belongs.
+    <aside
+      hidden={hidden}
+      className="sticky top-0 z-10 rounded-[var(--studio-radius-card,8px)] border border-ink-950/22 bg-cream-200 p-3.5"
+    >
       <p className={labelCls}>
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
@@ -423,7 +448,16 @@ function SelectedRail({
           // Height is driven by useAutoGrow; once it hits the ceiling the box scrolls
           // instead of pushing past the canvas. resize-none because dragging a handle
           // would fight the auto-sizing on the next keystroke.
-          style={{ maxHeight }}
+          //
+          // AND `50dvh`, WHICH THE MOVE MADE NECESSARY. The JS ceiling is the CANVAS height,
+          // which was the right and only bound while the rail sat beside the canvas. In the
+          // inspector it is no longer the thing the rail must not overflow — measured on a tall
+          // section, the canvas is 1034 and the pane is 811, so the JS cap alone let the rail
+          // grow past the container it is `sticky` inside, which makes sticky meaningless. The
+          // second term is the rail's new home expressed as the half-screen it may not exceed,
+          // so the fields under it stay reachable. CSS `min()` rather than another observer:
+          // `dvh` already tracks the viewport the pane fills.
+          style={{ maxHeight: maxHeight ? `min(${maxHeight}px, 50dvh)` : undefined }}
           className={`${inputCls} mt-2 resize-none overflow-y-auto`}
         />
       ) : null}
@@ -624,6 +658,8 @@ export default function SectionsEditPanel({
   draftImages = NO_DRAFT_IMAGES,
   detailsNode,
   detailsDirty = false,
+  livePath,
+  studies,
 }: {
   slug: string;
   /** The study's name, for the crumb row — identity lives there once now. */
@@ -635,6 +671,10 @@ export default function SectionsEditPanel({
   detailsNode?: ReactNode;
   /** Whether that form has unsaved edits, for the rail's Details marker. */
   detailsDirty?: boolean;
+  /** Resolved server-side; see the route. */
+  livePath: string;
+  /** Every study, for the crumb row's switcher. */
+  studies: { slug: string; title: string }[];
   /** CS-7c — the case-study template, so the inline canvas renders the same
    *  Bold-gallery web treatment (or the mobile composition) the live page shows. */
   template?: string;
@@ -695,8 +735,13 @@ export default function SectionsEditPanel({
   const lastEditedRef = useRef<Selection>("details");
   if (!showBoard) lastEditedRef.current = selection;
   const selIdxTop = selectedSectionId === null ? -1 : ids.sectionIds.indexOf(selectedSectionId);
-  // The Selected rail's height ceiling, named rather than DOM-walked — see `useAutoGrow`.
-  const canvasCeilingRef = useRef<HTMLDivElement>(null);
+  // The Selected rail's height ceiling, held as the ELEMENT so its observer re-runs when the
+  // canvas mounts — see `useAutoGrow`. When the canvas is absent (Details, the Board, or below
+  // the fold with the inspector in the canvas slot) this goes null and the hook KEEPS its last
+  // measurement rather than uncapping. That is safe rather than lucky: a textarea only renders
+  // when `selectedField` is set, and the only way to set it is to click a field on the canvas,
+  // so a measurement always precedes the box it caps.
+  const [canvasCeiling, setCanvasCeiling] = useState<HTMLDivElement | null>(null);
 
   // CS-3 — Content | Style split. One tab state for the focused section's fields,
   // provided to the shell + block forms via FieldTabProvider; each field's TabGroup
@@ -1059,17 +1104,59 @@ export default function SectionsEditPanel({
     </div>
   );
 
-  // THE CANVAS PANE. Was a tabpanel beside the inspector; now a shell slot. It holds no form
-  // state — it is a render — so unmounting it below the fold (where the inspector takes this
-  // slot) costs nothing. That is the asymmetry that makes the fold safe: the INSPECTOR is the
-  // one that must render exactly once, and it does.
+  // THE SELECTED FIELD'S ACCESSORS, AT PANEL SCOPE. They were local to the canvas IIFE while the
+  // rail lived beside the canvas; the rail is in the INSPECTOR now, so the two nodes that need
+  // them no longer share a closure. Hoisting is not a rewrite — `selIdx` inside the IIFE was
+  // defined byte-for-byte as `selIdxTop` is here, so the same index reaches the same seams. The
+  // duplicate derivation went with it, since one answer with two definitions is how they drift.
+  //
+  // The rail edits the SAME field the canvas does, so it reads and writes through these rather
+  // than keeping its own copy. Read on render, write through on change, no commit step — there
+  // is nothing that can go stale between selecting a field and leaving it.
+  const readField = (f: SelectedField): string => {
+    // No section selected — Details, or the Board. `selectedField` can still be set from the
+    // last section visited, and `values.sections[-1]` would throw on the very next line. This
+    // guard is new because the rail is now mounted in a pane that outlives the selection that
+    // filled it; beside the canvas it only ever existed inside a `selIdx < 0` early return.
+    if (selIdxTop < 0) return "";
+    if (f.kind === "section") {
+      const cur = values.sections[selIdxTop] as unknown as Record<string, unknown>;
+      return String(cur[f.field] ?? "");
+    }
+    const curVal = (values.sections[selIdxTop].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
+    return String(getAtPath(curVal, f.path) ?? "");
+  };
+  const writeSelected = (value: string) => {
+    const f = selectedField;
+    if (!f || selIdxTop < 0) return; // same reason as `readField`'s guard
+
+    if (readField(f) === value) return; // no-op, never dirty the draft
+    if (f.kind === "section") {
+      setSection(selIdxTop, { ...values.sections[selIdxTop], [f.field]: value } as RawSection);
+      return;
+    }
+    const curVal = (values.sections[selIdxTop].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
+    setBlockValue(
+      ids.blockIds[selIdxTop][f.blockIndex],
+      setAtPath(curVal, f.path, value) as Record<string, unknown>
+    );
+  };
+
+  // THE CANVAS PANE, AND NOW IT IS ONLY THE CANVAS. The Selected rail used to sit beside it in a
+  // `lg:grid-cols-[1fr_240px]` grid, which spent 240 of the pane's 640 on a textarea — so the
+  // canvas rendered into 382px and PR 6's 50% floor was a claim about a pane that did not exist.
+  // With the rail gone to the inspector the pane is the canvas, and the floor becomes measurable.
+  //
+  // It holds no form state — it is a render — so unmounting it below the fold (where the
+  // inspector takes this slot) costs nothing. That is the asymmetry that makes the fold safe:
+  // the INSPECTOR is the one that must render exactly once, and it does.
   const canvasNode = (
     <div className="min-w-0">
         {/* CS-7c — the inline canvas: a live, read-only render of the selected
             section above the forms. The forms stay the edit surface (CS-7d moves
             editing onto the canvas). */}
         {(() => {
-          const selIdx = selectedSectionId === null ? -1 : ids.sectionIds.indexOf(selectedSectionId);
+          const selIdx = selIdxTop;
           if (selIdx < 0) return null;
           // CS-7d — the blur writeback. A contentEditable plain-string field lost focus;
           // route its new text to the SAME seams the forms use (setSection for the
@@ -1133,16 +1220,6 @@ export default function SectionsEditPanel({
               );
             }
           };
-          // The rail edits the SAME field the canvas does, so it reads and writes
-          // through the same accessors rather than keeping its own copy.
-          const readField = (f: SelectedField): string => {
-            if (f.kind === "section") {
-              const cur = values.sections[selIdx] as unknown as Record<string, unknown>;
-              return String(cur[f.field] ?? "");
-            }
-            const curVal = (values.sections[selIdx].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
-            return String(getAtPath(curVal, f.path) ?? "");
-          };
           // Selecting only records WHICH field. The value is read on render, so the
           // rail cannot show something form state no longer holds.
           const selectField = (f: SelectedField) => setSelectedField(f);
@@ -1195,23 +1272,6 @@ export default function SectionsEditPanel({
             const { paragraphs: next, caret } = mergeParagraph(list, index);
             commitParagraphs(blockIndex, next, index - 1, caret);
           };
-          // Write-through on change, the same seams the canvas blur and the Inspector
-          // fields use. There is no commit step, so there is nothing to go stale
-          // between selecting a field and leaving it.
-          const writeSelected = (value: string) => {
-            const f = selectedField;
-            if (!f) return;
-            if (readField(f) === value) return; // no-op, never dirty the draft
-            if (f.kind === "section") {
-              setSection(selIdx, { ...values.sections[selIdx], [f.field]: value } as RawSection);
-              return;
-            }
-            const curVal = (values.sections[selIdx].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
-            setBlockValue(
-              ids.blockIds[selIdx][f.blockIndex],
-              setAtPath(curVal, f.path, value) as Record<string, unknown>
-            );
-          };
           return (
             <div>
               {/* HELP TEXT, NOT A LABEL — so it keeps its own string rather than taking
@@ -1223,10 +1283,10 @@ export default function SectionsEditPanel({
                 {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
                 {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
               </div>
-              {/* The approved layout: canvas beside a sticky rail for the selected
-                  field. Collapses to one column below the studio's lg breakpoint. */}
-              <div className="grid items-start gap-[18px] lg:grid-cols-[1fr_240px]">
-              <div ref={canvasCeilingRef} className="min-w-0">
+              {/* No grid. The pane IS the canvas — see the note on `canvasNode`. This div stays
+                  because it is the height ceiling the Selected rail's textarea clamps against from
+                  its new home in the inspector, captured by callback ref. */}
+              <div ref={setCanvasCeiling} className="min-w-0">
               <SectionCanvas
                 section={values.sections[selIdx]}
                 web={web}
@@ -1253,13 +1313,6 @@ export default function SectionsEditPanel({
                 }}
               />
               </div>
-              <SelectedRail
-                ceilingRef={canvasCeilingRef}
-                selected={selectedField}
-                value={selectedField ? readField(selectedField) : ""}
-                onChange={writeSelected}
-              />
-              </div>
               <input
                 ref={imageInputRef}
                 type="file"
@@ -1282,6 +1335,22 @@ export default function SectionsEditPanel({
   // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
   const inspectorNode = (
     <div className="flex flex-col gap-4">
+      {/* THE SELECTED RAIL, AT THE TOP OF THE INSPECTOR. It edits the field the canvas has
+          selected, so it belongs with the fields rather than on top of the render — and beside
+          the canvas it was costing that render 240 of its 640. Changing parent is all this is:
+          same `readField`/`writeSelected`, same textarea, same `useAutoGrow` ceiling.
+          It is HIDDEN under Details rather than dropped, for the reason everything else in this
+          pane is: Details has no canvas to select from, so a rail there would name a field you
+          cannot click, but unmounting it would throw away the caret of whoever is mid-word when
+          they glance at Details. Hidden, like its neighbours. */}
+      <SelectedRail
+        hidden={showDetails}
+        ceiling={canvasCeiling}
+        selected={selectedField}
+        value={selectedField ? readField(selectedField) : ""}
+        onChange={writeSelected}
+      />
+
       {/* THE DETAILS FORM, MOUNTED AND HIDDEN like every section editor beside it — it carries
           its own draft state, so a conditional render here would drop an in-progress edit the
           moment you clicked a section. This is also what makes Save draft reachable again: it
@@ -1509,13 +1578,41 @@ export default function SectionsEditPanel({
           sits above the split, so the Board/Editor toggle survives at every width including
           below the fold. That matters because add and remove live on the Board: if the toggle
           could scroll away or collapse with a pane, those two operations would become
-          unreachable on a narrow screen. */}
-      <div className="flex flex-none items-center gap-3 border-b border-ink-950/12 bg-cream-50 px-[18px] py-[11px]">
+          unreachable on a narrow screen.
+
+          CREAM-200, BECAUSE THIS IS THE HEADER THE LADDER WAS ABOUT. The body section PR 2 left a
+          note against is gone, so "header cream-100 -> cream-200" has to land on whatever plays
+          that role now, and this row does. It was cream-50 — one step further inverted than the
+          header it replaced — sitting directly above the shell's cream-50 canvas column, which is
+          the collision the ladder exists to prevent. Chrome is cream-200, the same value the
+          shell's own list pane takes (:169). The footer below takes it for the same reason. */}
+      <div className="flex flex-none items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-[18px] py-[11px]">
+        {/* BACK, SWITCHER AND VIEW LIVE, RE-HOMED FROM THE ROUTE. They sat in a padded bar the
+            route drew above the panel; that bar went with STUDIO_PAGE, because a full-height
+            shell has to reach the viewport edges and a second header above it would compete
+            with this one. Same controls, same hrefs, one row. */}
+        <Link
+          href="/studio/projects"
+          // Colour on the span, not the Link — hazard 22. `a { color: inherit }` is unlayered
+          // and beats text-* on the anchor; see BlogPostList for the full note.
+          className="group shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+        >
+          <span className="text-ink-600 transition-colors group-hover:text-ink-950">← Case studies</span>
+        </Link>
         <span className="truncate font-display text-[17px] text-ink-950">{title}</span>
         <span className="shrink-0 rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-600">
           {template === "web" ? "Web" : "Mobile"}
         </span>
         <span className="flex-1" />
+        <CaseStudySwitcher current={slug} options={studies} />
+        <a
+          href={livePath}
+          target="_blank"
+          rel="noreferrer"
+          className="hidden shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] font-semibold transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
+        >
+          <span className="text-ink-600">View live</span> <IconArrowUpRight />
+        </a>
         {/* BOARD | EDITOR. Not new machinery — `selection` already encoded the board as a state,
             so this is that state getting a control instead of a back link. */}
         <div role="group" aria-label="View" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5">
@@ -1595,7 +1692,9 @@ export default function SectionsEditPanel({
         />
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
+      {/* CREAM-200 for the same reason as the crumb row. Two chrome bars bracketing the split
+          must be the same ground, or the page has two answers to one question. */}
+      <footer className="flex flex-none items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-text-subtle">Saving draft…</span>

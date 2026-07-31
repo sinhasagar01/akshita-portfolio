@@ -33,6 +33,10 @@ type Props = {
   // Editorial taxonomy ("" | "mobile" | "web") for the work-section filter (PR 1),
   // for the header CategoryToggle. Drives no rendering — see keystatic.config.ts.
   category: string;
+  /** Resolved server-side — `lib/site.ts` pulls node:fs, so the path arrives as a string. */
+  livePath: string;
+  /** Every study, for the crumb row's switcher. */
+  studies: { slug: string; title: string }[];
 };
 
 // Only type + platform are editable here (Phase-1 T1). role + timeline stay in
@@ -49,7 +53,7 @@ const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] 
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
 ];
 
-export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category }: Props) {
+export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, livePath, studies }: Props) {
   const initial: ProjectsFields = {
     summary,
     facts: { type: facts.type, platform: facts.platform },
@@ -358,6 +362,8 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       draftImages={draftImages}
       detailsNode={detailsNode}
       detailsDirty={dirty}
+      livePath={livePath}
+      studies={studies}
     />
   );
 }
