@@ -165,11 +165,58 @@ const readStudio = (f) => read(`components/studio/${f}`);
   // The other half of the relation. Six entry panels host fields directly on their shell, so
   // the shell must be the FIELD SURFACE step — if one drifts back to cream-50 the wells on it
   // collide again, and the input strings above would still look perfectly correct.
+  //
+  // REPINNED ON THE GROUND ALONE. This read `border-accent-500/30 bg-cream-100`, so removing the
+  // panel FRAME — a change about clipping, with no bearing on the ground this assertion is named
+  // for — failed a GROUND assertion in five files at once. **Third instance of "an assertion must
+  // not pin its neighbours"**, after #213's padding-in-a-colour-regex and three-pane's width
+  // regex. The subject is the cream-100 step; the border was never part of it.
   for (const f of ["HeroEditPanel", "AboutEditPanel", "ProcessEditPanel", "LinksEditPanel",
                    "ExperienceEditPanel", "ProjectsEditPanel"]) {
     t(`E1: ${f}'s shell is the FIELD-SURFACE step — the wells on it are only wells relative to this`,
-      /border-accent-500\/30 bg-cream-100/.test(readStudio(`${f}.tsx`)), true);
+      /bg-cream-100/.test(readStudio(`${f}.tsx`)), true);
   }
+}
+
+/* ================================================ E1b. THE PANEL FRAME, SCOPED BY DERIVATION
+ *
+ * Five panels lost their `overflow-hidden rounded-panel border` frame in #245, because they render
+ * inside the full-height list-detail PANE and the overflow was clipping the pane's own scrolling.
+ * `ProjectsEditPanel` renders the SAME markup and must KEEP it — its copy is the case-study
+ * route's bespoke/loading/error fallback, a lone notice on a page that scrolls.
+ *
+ * A CLASS-LEVEL SWEEP WOULD HAVE TAKEN IT. Fourth firing of the shared-seam trap in this
+ * sequence, so the scoping is DERIVED rather than remembered: the shell consumers are read out of
+ * the three files that render `<ListDetailLayout`, and the rule is stated against that set. A new
+ * panel added to a shell joins this gate by being rendered there. */
+{
+  const hosts = ["app/studio/(dashboard)/settings/page.tsx",
+                 "components/studio/ExperienceListEditor.tsx",
+                 "components/studio/SkillsEditor.tsx"];
+  const rendersShell = hosts.filter((h) => /<ListDetailLayout/.test(code(h)));
+  t("E1b: the three shell hosts still render the layout — if this shrinks the derivation below is reading less than it thinks",
+    rendersShell.length, 3);
+
+  // The panels each host renders as children of that layout.
+  const shellPanels = [...new Set(rendersShell.flatMap((h) =>
+    [...code(h).matchAll(/<([A-Z][A-Za-z]*EditPanel)\b/g)].map((m) => m[1])))];
+  t("E1b: the derived shell-panel set is the five that lost the frame",
+    shellPanels.sort(), ["AboutEditPanel", "ExperienceEditPanel", "HeroEditPanel", "LinksEditPanel", "ProcessEditPanel"]);
+
+  const FRAME = /overflow-hidden rounded-\[var\(--studio-radius-panel,12px\)\] border border-accent-500\/30/;
+  const stillFramed = shellPanels.filter((f) => FRAME.test(readStudio(`${f}.tsx`)));
+  t("E1b: no panel inside the shell carries a frame — its overflow is what clipped the pane",
+    stillFramed, []);
+
+  // AND THE NON-CONSUMER KEEPS ITS FRAME. Asserted positively, so a later sweep that "finishes
+  // the job" fails here rather than silently stripping a panel that is not in a shell.
+  t("E1b: ProjectsEditPanel is NOT a shell panel — it is the case-study route's fallback",
+    shellPanels.includes("ProjectsEditPanel"), false);
+  t("E1b: …and it KEEPS its frame, because a lone notice on a scrolling page needs one",
+    FRAME.test(readStudio("ProjectsEditPanel.tsx")), true);
+  // The padding #233 took away and #245 restored, for that branch only.
+  t("E1b: …and its fallback carries the page padding #233 dropped from the route",
+    /<div className="p-4 lg:p-6">[\s\S]{0,200}?<section/.test(readStudio("ProjectsEditPanel.tsx")), true);
 }
 
 // E2 · THE DELIBERATE LOCALS, EACH WITH ITS FAMILY NAMED IN THE FAILURE. PR 2b made 15 sites

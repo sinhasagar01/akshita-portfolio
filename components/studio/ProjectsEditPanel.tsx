@@ -306,6 +306,22 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // three-pane shell would be two empty panes beside a notice. Only the loaded state composes it.
   if (bespoke || sectionsStatus !== "loaded" || !sectionsData) {
     return (
+      // ---- THIS ONE KEEPS ITS FRAME, AND THAT IS THE POINT OF SCOPING THE CHANGE ----------
+      //
+      // Five sibling panels lost this frame because they render inside the full-height list-detail
+      // pane, where it is a box around a box. THIS branch does not: it is the case-study route's
+      // bespoke/loading/error fallback, a lone notice on a PAGE that scrolls. Strip its frame and
+      // it becomes text floating on the canvas with nothing to say where it begins.
+      // A class-level sweep across "the panel section" would have taken it — the fourth firing of
+      // the shared-seam trap in this sequence — so `studio-ink` derives the shell consumers from
+      // the three `ListDetailLayout` call sites and asserts THIS file is not among them.
+      //
+      // AND THE PADDING IS A SECOND DEFECT, FIXED HERE. #233 dropped `STUDIO_PAGE` from the
+      // case-study route so the three-pane editor could reach the viewport edges, and this
+      // fallback never got padding of its own — measured, it sat flush against the sidebar at
+      // `distanceFromMainLeftEdge: 0`. The wrapper restores what the route used to supply, for
+      // this branch only, because the loaded state genuinely wants the edges.
+      <div className="p-4 lg:p-6">
       <section
         aria-label={`Edit ${title}`}
         className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
@@ -358,6 +374,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           )}
         </div>
       </section>
+      </div>
     );
   }
 

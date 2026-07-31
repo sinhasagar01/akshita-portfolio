@@ -86,6 +86,22 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
     /pendingFocus,/.test(code("components/studio/useItemList.ts")), true);
 }
 
+/* ================================================ B3. NOTHING INSIDE THE PANE MAY CLIP
+ * The source half of the reachability rule. `overflow-hidden` on a box that is as tall as its
+ * scroll container is a box that clips with nowhere to scroll — see REACHABILITY_SCRIPT. */
+{
+  const shellPanels = ["AboutEditPanel", "ExperienceEditPanel", "HeroEditPanel",
+                       "LinksEditPanel", "ProcessEditPanel"];
+  const clipping = shellPanels.filter((f) =>
+    /<section[\s\S]{0,200}?overflow-hidden/.test(code(`components/studio/${f}.tsx`)));
+  t("B3.1: no panel inside the list-detail pane clips its own overflow",
+    clipping, []);
+  // The pane is declared the scroller; if that ever stops being true the script above has nothing
+  // to check against.
+  t("B3.2: …and the pane is still the declared scroller",
+    /id="ld-panel"[\s\S]{0,400}?lg:overflow-y-auto/.test(code("components/studio/ListDetailLayout.tsx")), true);
+}
+
 /* ================================================ C. THE INSPECTOR RENDERS EXACTLY ONCE
  * Above the fold it mounts in the shell's inspector slot, below it in the canvas slot. Two copies
  * would be two form trees sharing one onChange, with colliding ids and two carets — the reason
@@ -100,6 +116,60 @@ t("C2: the fold chooses the PARENT — inspector in the canvas slot below it, it
  * Paste into the console at /studio/projects/<slug> (a CMS-driven study — NOT boat-crest, which
  * is hand-built with no sections at all, hazard 28). It counts form nodes in the tree across
  * every view transition; the counts must not move. */
+/* ---- REACHABILITY. A NEW ASSERTION, NOT A STRONGER VERSION OF AN EXISTING ONE ---------------
+ *
+ * #242 made the list-detail pane the scroller, and #245 found that 61px of the Experience form
+ * was unreachable at a 700px viewport and 161px at 600 — the panel `<section>` carried
+ * `overflow-hidden` for its rounded corners, sat exactly as tall as the pane, and clipped with no
+ * scrollbar and no gesture that reached it. The last field sat behind the save bar.
+ *
+ * WHY NOTHING CAUGHT IT, WHICH IS THE USEFUL HALF. #242's gates measured two things: that the
+ * save bar was reachable without scrolling, and how much content ROOM the pane had. **Neither
+ * asked whether the content EXCEEDED the room.** A pane can have 422px of room, a save bar
+ * perfectly placed, and 161px of form below the fold with no way down — every existing assertion
+ * passes and the page is broken. So this is a new question, not a tighter answer to an old one:
+ *
+ *     if content is taller than its pane, SOMETHING must be able to scroll.
+ *
+ * Driven, because the defect is a computed-style interaction — an ancestor's `overflow` against a
+ * height chain — and no class string states it. */
+export const REACHABILITY_SCRIPT = String.raw`
+(async () => {
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  const pane = document.getElementById('ld-panel');
+  if (!pane) return JSON.stringify({ skipped: 'not a list-detail page' });
+  const scrollableAncestorOf = (el) => {
+    let n = el;
+    while (n && n !== document.body) {
+      const oy = getComputedStyle(n).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight) return n;
+      n = n.parentElement;
+    }
+    return document.scrollingElement.scrollHeight > document.scrollingElement.clientHeight
+      ? document.scrollingElement : null;
+  };
+  const rows = [];
+  for (const h of [900, 700, 600]) {
+    // The harness cannot resize the window from script; the caller sets each height and re-runs.
+    // When run once, it reports the CURRENT height only — which is why the gate drives three.
+    if (window.innerHeight !== h) continue;
+    const fields = [...pane.querySelectorAll('input, textarea')].filter(f => f.offsetParent);
+    const last = fields[fields.length - 1];
+    const overflow = Math.max(0, pane.scrollHeight - pane.clientHeight);
+    const clippedInside = [...pane.querySelectorAll('*')]
+      .filter(e => { const o = getComputedStyle(e).overflowY;
+                     return o === 'hidden' && e.scrollHeight > e.clientHeight + 1; })
+      .map(e => ({ tag: e.tagName.toLowerCase(), clipped: e.scrollHeight - e.clientHeight }));
+    rows.push({ viewportH: h,
+      paneScrolls: pane.scrollHeight > pane.clientHeight,
+      lastFieldReachable: last ? !!scrollableAncestorOf(last) || last.getBoundingClientRect().bottom <= window.innerHeight : null,
+      clippedByAHiddenAncestor: clippedInside,
+      REACHABLE: clippedInside.length === 0 });
+  }
+  return JSON.stringify({ rows, verdict: rows.every(r => r.REACHABLE) ? 'PASS' : 'FAIL — content is clipped with no scroller' }, null, 1);
+})()
+`;
+
 export const MOUNT_SCRIPT = String.raw`
 (async () => {
   const wait = (ms) => new Promise(r => setTimeout(r, ms));

@@ -78,7 +78,10 @@ export default function ExperienceEditPanel({
   return (
     <section
       aria-label={`Edit ${company}`}
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
+      // NO FRAME — these pages are full-height shells since #242, so a panel frame here is a box
+      // drawn around a box, and its `overflow-hidden` clipped the pane's own scrolling. The full
+      // reasoning and the measurements are on `AboutEditPanel`'s copy of this line.
+      className="bg-cream-100"
     >
       <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
