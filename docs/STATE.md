@@ -1628,6 +1628,31 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **EVERY PREMISE WRITTEN ONCE AND TRUSTED LATER TURNED OUT WRONG WHEN RE-MEASURED — SIX TIMES
+  IN ONE ARC.** This is the most reusable thing the studio consistency arc produced, and it is
+  worth stating as a rule rather than leaving as six anecdotes:
+  1. **The 4.5-screen inspector scroll.** Accurate when taken, against a full-page scroll with
+     ~574px of room. #233 gave the inspector its own container and fixed most of it AS A SIDE
+     EFFECT. Real worst case **3.03**, and nobody re-measured for four PRs.
+  2. **PR 3's promised band count.** "It becomes 4 when the case-study inspector lands." It
+     landed; the count is 2. The rule maps a treatment onto a role that exists; it does not
+     conjure the role.
+  3. **#233's predicted E6 self-correction.** `ProjectsEditPanel` was expected to leave the
+     derived set. It stayed in, correctly. The derivation was right and the prediction about it
+     was not.
+  4. **#232's "the ceiling is fixed".** See the rule below — it fixed the subject, not the
+     dependency.
+  5. **The contract's block-collapse default.** Wrong about the DATA rather than the design: 12
+     of 14 sections have one block, so the proposed default was a no-op on 86% of the content.
+  6. **My own "the 15px is pane borders".** It is `scrollbar-gutter: stable`. The first reading
+     of a measurement is a hypothesis, including when it is mine.
+  **ALL SIX WERE CAUGHT BY RE-DERIVING, NONE BY A GATE**, which is the uncomfortable half.
+  **THE COROLLARY, AND IT IS THE ACTIONABLE PART: the gates that survived are the ones that
+  DERIVE FROM SOURCE rather than pinning an instance.** `studio-ink` E5 now walks every studio
+  file for the ink band, because pinning it to `BlogBlocksEditPanel` is exactly what let (2) go
+  unchecked for three PRs — a second inspector could have grown a band or lost one and the
+  number would not have moved. Prefer a gate that recomputes the set to one that remembers it.
+
 - **NAMING A BOX THAT MIGHT BE EMPTY IS NOT THE SAME AS NAMING WHAT IS IN IT.** The Selected
   rail's textarea caps against the canvas's height. Version 1 measured from the textarea, which
   does not exist until a field is selected, so the effect ran at mount, found nothing, and never
@@ -2805,7 +2830,9 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   recorded as such — a claim that becomes true by the code catching up is not a claim that
   was right.
 - `studio-shell.html` — corrected three times.
-- `studio-ink-chrome.html` — **CORRECTED SIXTEEN TIMES, C-1 to C-16.** It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
+- `studio-ink-chrome.html` — **CORRECTED SIXTEEN TIMES, C-1 to C-16** (the running count across
+  all reference files is now **EIGHTEEN**; C-17 is the sidebar border race, C-18 the case-study
+  collapse contract below). It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
   about architecture**, and the recent four are worth knowing as a group because they are four
   different ways a static design file goes stale:
   - **C-12** — the topbar search is specified against a **cream topbar the direction itself
@@ -2827,11 +2854,41 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
     a mockup, so it names no components — and that is precisely why a rule can be mapped to the
     wrong one and nothing notices.
     **Corrected in place beside what they replace**, never silently overwritten.
+- **the case-study contracts** — **THEY HAVE NOW JOINED `studio-blog.html` AND
+  `studio-ink-chrome.html` as references repeatedly wrong about ARCHITECTURE**, and the arc's
+  eighth PR added a kind neither of those produced:
+  - **C-18 — WRONG ABOUT THE DATA, NOT THE DESIGN.** The collapse contract proposed "Section
+    open, each block collapsed except the one being edited". The design is sound; the content is
+    not shaped that way. **12 of the 14 sections in `elevate-one-view` have exactly ONE block**,
+    so the default is a no-op on 86% of the content and on the rest it folds the only thing on
+    screen. The height is stacked inside one block, in `ItemRows`. **A static file can be right
+    about the shape of a solution and wrong about the shape of the problem**, and nothing in it
+    can tell you which — the previous seventeen corrections were all about the file describing a
+    studio that had changed; this one describes content it never looked at.
+  - Also refuted: "a collapsible-group pattern already exists" (`DisclosureGroup` is field-level,
+    one-way and sticky, and no `<details>` exists in `components/studio`), and "the index needs a
+    bespoke row" (it already is one). See the consistency investigation, section G.
 - Six untracked explorations, unrelated, left alone.
 
 ---
 
 ## SESSION PR/SHA LOG
+
+**THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
+1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
+PR D. Both numbers are true of different things and the arc's own contribution is the smaller
+one — recorded that way because a total attributed to the wrong span is the exact error the
+working rule above is about.
+
+- **#226** the hooks blocker — hazard 17 (`cc8f035`) 1486 · **#227** well = ground, six sites
+  (`92c54f6`) 1486
+- **#228** the label scale, two steps by role (`809dd0e`) →1495 · **#229** section headers by
+  role, Skills gets its bar (`c9ef6a3`) →1499
+- **#230** the case-study scale floor — 50%, threshold 1460 (`bbbeffd`) →1517 · **#231** the
+  shell's labelling and threshold seams (`c549120`) →1521
+- **#232** the three-pane foundation — the floor wired, the ceiling named (`18bd9bc`) 1521
+- **#233** the three-pane case-study editor (`c4f78e4`) →1535 · **#234** the group-level collapse
+  (`21ad912`) →1541
 
 - **#159–#162** work-section rebuild · **#163** NCR-1 (`e90742f`)
 - **#164** SegmentedToggle (`2a87d96`) · **#165** full-bleed shell (`4228b14`)
@@ -3532,11 +3589,66 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 
 ## WHAT'S NEXT
 
-**THE STUDIO CONSISTENCY ARC IS OPEN — TWO TRACKS, EIGHT PRs, PR 4 SHIPPED FIRST.** The ink
-chrome arc and PR D are done and no ink-arc hazard is open, but the consistency investigation
-refuted the assumption that the studio was finished except for one page. See PR 4's log entry.
+**THE STUDIO CONSISTENCY ARC IS CLOSED — EIGHT PRs, TWO TRACKS, ALL SHIPPED.** **ralph 1486 →
+1541 across the arc** (1193 → 1541 is the span since #199 and includes the ink-chrome arc, the
+hazard closures and PR D — see the log). It opened because the consistency investigation refuted
+the assumption that the studio was finished except for one page, and it ends with that page
+rebuilt and the sweep complete.
 
-**THE ARC, IN ORDER. Track 1 ships independently of the redesign; Track 2 is sequential.**
+**WHAT EACH PR SETTLED.**
+
+*Track 1 — the consistency sweep, each shipping alone.*
+- **#226 · the hooks blocker.** Hazard 17 closed. The `rules-of-hooks` disable was latent, never
+  active, and would have become a crash the moment `ProjectsEditPanel` entered a list shell —
+  which is what Track 2 does. It gated everything after it.
+- **#227 · well = ground, six sites.** All 1.00 → 1.05, measured per site. **The rule is
+  RELATIONAL**, not a value: a well is one step off whatever it sits on.
+- **#228 · the label scale.** Briefed as a tidy-up, shipped as an ACCESSIBILITY fix — 45 sites,
+  ink-400 (3.02–3.49, below AA) → ink-600 (6.42–7.42). Two exports named by role. **There were
+  never three sizes.**
+- **#229 · section headers by role.** Ink band for inspector panes, cream-200 bar for entry
+  panels. The band count stayed 2, as it had to.
+
+*Track 2 — the case-study editor, sequential.*
+- **#231 · the shell's seams.** Briefed as two aria-labels; it was three, and the third — the
+  shell reading blog's `FIT_THRESHOLD_PX` directly — was the one that would have handed a second
+  consumer the wrong breakpoint in silence.
+- **#230 · the scale floor.** 50%, threshold 1460, collapsed floor 1222, all derived.
+- **#232 + #233 · the three-pane editor.** Five stacked navigators became one `selection` value
+  and a rail | canvas | inspector shell. **#233's headline is that the natural composition is the
+  wrong one** — `{showBoard ? <Board/> : <Shell/>}` destroys every mounted editor and looks like
+  it worked.
+- **#234 · the group collapse.** The scroll fix #233 explicitly did not deliver.
+
+**THE ARC'S OWN LESSON IS IN THE WORKING RULES**, because it is more reusable than any of the
+eight: every premise written once and trusted later turned out wrong when re-measured, six times,
+all caught by re-deriving and none by a gate — and the gates that survived are the ones that
+derive from source rather than pinning an instance.
+
+**THE CASE-STUDY EDITOR'S NEW SHAPE.** Five stacked navigators in one column → a three-pane
+shell. Worst section **3.03 → 1.78 screens**; sections fitting one screen **2 of 14 → 8 of 14**.
+The saving is width-independent, which is the third confirmation that field count rather than
+pane width drives the scroll.
+
+**THREE NAMED TRIGGERS ARE OPEN. None is urgent; each has its reasoning recorded where the
+decision lives.**
+1. **`matchMedia` → a ResizeObserver on the shell.** Every studio breakpoint is optimistic by the
+   reserved scrollbar gutter — `matchMedia` matches the viewport while the layout receives the
+   viewport minus it — and **blog's 1614 has the same gap**. **DO NOT CLOSE IT BY INFLATING THE
+   CONSTANT**: 15 is one machine's scrollbar width, 0 where scrollbars are overlays, ~17 on
+   Windows, so baking it into a shared threshold makes it wrong everywhere else. Pinned in
+   `three-pane` Part I.
+2. **Whether the case-study inspector should grow banded heads.** A live by-role question that a
+   layout PR could not settle. `studio-ink` E5 now derives the band count and its location, so
+   it cannot drift unnoticed while the question is open.
+3. **`hidden="until-found"`.** Ctrl-F will not open a folded row. Named in `CollapsibleGroup`'s
+   header. Revisit when React supports it, or when an author reports a search that should have
+   found something.
+
+**THE ARC, IN ORDER — NOW A RECORD RATHER THAN A PLAN. Track 1 shipped independently of the
+redesign; Track 2 was sequential. Kept struck-through rather than deleted, so what each PR was
+BRIEFED as stays readable beside what it turned out to be — which is where most of this arc's
+findings came from.**
 
 **Track 1 — the consistency sweep (each PR ships alone, in any order).**
 - ~~**PR 4 · the hooks blocker**~~ — **SHIPPED.** Hazard 17 closed; it gates all of Track 2.
@@ -3561,15 +3673,17 @@ refuted the assumption that the studio was finished except for one page. See PR 
 - ~~**PR 6 · DERIVE THE CASE-STUDY THRESHOLD.**~~ — **SHIPPED. The floor is 50%, the threshold is
   1460 = 236 + 264 + 640 + 320, and the collapsed floor is 1222.** The owner chose against a
   rendered comparison at five floors. See its log entry for the reasoning and the numbers.
-- **PR 7 · THE THREE-PANE CASE-STUDY EDITOR.** Rail + scaled canvas + inspector; Board survives
-  as a Board/Editor toggle (it is already `selectedSectionId === null`, so it is a relabelling of
-  existing state); the Section `<select>` and the `← Board` link both go; the inspector gets its
-  own scroll container. **Its PR body must state plainly that it does NOT improve the scroll.**
-  Reorder/add and the `Needs an image` flag live only on the Board today and must stay reachable.
-- **PR 8 · THE GROUP-LEVEL COLLAPSE, BUILT NOT REUSED.** `DisclosureGroup` is field-level and
-  one-way; no group-level abstraction exists. **This is the only thing that reduces the
-  4.5-screen scroll, so it is not optional polish** — PR 7 alone ships the scroll unchanged.
-  `studio-ink`'s band count goes 2 → 4 when the case-study inspector lands.
+- ~~**PR 7 · THE THREE-PANE CASE-STUDY EDITOR.**~~ — **SHIPPED as #232 (foundation) + #233.**
+  Split so the two prerequisites were verified against today's layout rather than one changing
+  underneath them. It did state plainly that it does not improve the scroll. Reorder MOVED to the
+  rail from the two surfaces that shared it; add stayed on the Board; remove stayed in the
+  inspector. **The band count did NOT go 2 → 4** — see its log entry and E5.
+- ~~**PR 8 · THE GROUP-LEVEL COLLAPSE, BUILT NOT REUSED.**~~ — **SHIPPED as #234. TRACK 2 IS
+  COMPLETE, AND SO IS THE ARC.** `CollapsibleGroup` was built, not reused, exactly as the
+  investigation's section G said it would have to be. **But the target was wrong and the
+  measurement moved it**: the 4.5-screen figure was stale (#233 fixed most of it as a side
+  effect; the real worst case was 3.03), and the contract's block-collapse default was a no-op on
+  86% of the content. The height was in `ItemRows`. See its log entry, and C-18.
 
 0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED, AND SO IS PR D.** ~~PR C~~ shipped as #211;
    ~~**PR D**~~ — topic as a closed set — shipped too (`BLOG_TOPICS`, enforced at save and
