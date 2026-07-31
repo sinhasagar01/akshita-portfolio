@@ -5,12 +5,6 @@ import { PROJECT_SVGS, FallbackProjectSvg } from "./ProjectCardSvgs";
 
 type Props = { project: ProjectListItem };
 
-// elevate-one-view's uploaded heroImage is a 390x988 PORTRAIT phone shot, unusable in
-// the landscape 16:10 card frame (it would upscale and crop to a blurry sliver). Fall
-// back to the hand-built mock until a landscape asset is uploaded. A content stopgap
-// keyed by slug, not a code rule — remove the slug when the asset is replaced.
-const HERO_IMAGE_UNSUITABLE = new Set<string>(["elevate-one-view"]);
-
 // Rail label: the category (title-cased) plus facts.platform, but drop the platform
 // segment when it only restates the category (case-insensitive), so "web" + "Web" and
 // "mobile" + "Mobile" do not stutter. Only boat-crest ("Mobile · Android and iOS")
@@ -36,7 +30,10 @@ function railCategory(category: string, platform: string): string {
  */
 export default function ProjectCard({ project }: Props) {
   const { slug, title, summary, facts, category, heroImage } = project;
-  const useHero = Boolean(heroImage) && !HERO_IMAGE_UNSUITABLE.has(slug);
+  // Show the uploaded heroImage when there is one, else the hand-built mock. (elevate-one-view
+  // was force-fallen-back while its uploaded hero was a portrait phone shot unusable in the
+  // landscape 16:10 card; the asset is now a 1600×1000 landscape banner, so the stopgap is gone.)
+  const useHero = Boolean(heroImage);
   const svg = PROJECT_SVGS[slug] ?? FallbackProjectSvg;
   const nameId = `wc-${slug}-name`;
   const descId = `wc-${slug}-desc`;
