@@ -1628,6 +1628,47 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **A SHARED SEAM IS THE OBVIOUS HOME FOR A CHANGE AND USUALLY THE WRONG ONE**, because putting
+  it there makes the change true for pages that never asked for it. **Three instances in one
+  six-PR sequence**, each of which looked correct until it was checked:
+  - **#239, the field measure.** `ListDetailLayout`'s detail pane was the natural cap. It would
+    have capped the PANEL — its cream-200 header bar and its footer save bar with it. The panels'
+    body wrapper was the next candidate, byte-identical in five files, and it holds the TEXTAREAS
+    the measure deliberately exempts. `inputCls` was the third, and textareas use it.
+  - **#240, the ordinal's label scale.** Importing `labelCls` from the client fields module into a
+    SERVER component compiles, and yields a throwing proxy — see the rule below.
+  - **#244, the homepage head cap.** `AreaHeader` is shared with the blog and projects indexes,
+    **whose content is uncapped**, so capping the component would have created the inverse
+    misalignment on two pages to fix it on one.
+  **Each time the honest fix was NARROWER than the shared one** — a constant applied per site with
+  a gate on the application, utilities written out with the pair asserted, a wrapper on the one
+  route that needed it. **Ask what the seam is shared BY before deciding it is shared FOR this.**
+
+- **A STRING CONSTANT CROSSING THE SERVER/CLIENT BOUNDARY DOES NOT FAIL TO BUILD.** Importing a
+  plain `export const` from a `"use client"` module into a SERVER component compiles cleanly. Next
+  yields a **throwing proxy**, a template literal stringifies it, and the rendered attribute ends
+  up containing a JavaScript error message:
+  `class="w-6 shrink-0 tabular-nums function() { throw new Error("Attempted to call labelCls()…"`.
+  **tsc passed, lint passed, ralph passed, and the page looked plausible.** Only rendering it
+  showed anything. There is no static check for this in the repo and none is proposed: the fix is
+  to write the value out in the server component and ASSERT THE PAIR, plus an assertion that the
+  import has not come back. **The fifth mechanism by which the code says one thing and the screen
+  says another**, after an unlayered rule outranking a utility, a token that does not exist, two
+  utilities racing on sheet order, and a comment emitting CSS.
+
+- **AUDITING IS NOT A DIFFERENT ACTIVITY FROM BUILDING — IT NEEDS THE SAME MEASUREMENT
+  DISCIPLINE.** The four-pages fidelity audit was commissioned because three PRs had shipped a
+  DEFECT LIST rather than the artifact. It was right about that, and then **produced its own
+  errors at roughly the same rate**: four of PR B's items evaporated when measured, three more
+  were corrected during PR A's planning.
+  **THE SHARPEST WAS THE FIFTH INSTANCE OF "A RATIO BELONGS TO THE GROUND IT WAS TAKEN ON."** The
+  audit's `querySelector` took the FIRST DOM match for a label-ish class — the SIDEBAR's "Content"
+  heading, which sits on ink-950 where it reads **5.45** and is fine — and measured it against a
+  CREAM ground, reporting a "live AA failure on three pages" that **did not exist**. The labels
+  were 12px/ink-600/7.06 and had been since #228.
+  **Committed while auditing for exactly that shape.** An audit's findings are hypotheses until
+  each one is measured on the element it names, on the ground that element sits on.
+
 - **KNOWING WHICH DIRECTION AN APPROXIMATION ERRS IN IS THE WHOLE DIFFERENCE.** Proposed during
   the sidebar-resize investigation: if the sidebar becomes variable, keep the fit threshold a
   constant "derived from a MINIMUM sidebar width". **That fails in the silent direction.** With
@@ -2883,8 +2924,13 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   was right.
 - `studio-shell.html` — corrected three times.
 - `studio-ink-chrome.html` — **CORRECTED SIXTEEN TIMES, C-1 to C-16** (the running count across
-  all reference files is now **EIGHTEEN**; C-17 is the sidebar border race, C-18 the case-study
-  collapse contract below). It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
+  all reference files is now **TWENTY-SIX**; C-17 is the sidebar border race, C-18 the case-study
+  collapse contract below, and C-21 to C-26 are the four studio-page contracts.
+  **C-19 AND C-20 ARE UNASSIGNED, DELIBERATELY.** They were reserved mid-sequence for the
+  experience rail and the hero tabs, and when the six studio-page corrections were numbered as a
+  set those two landed at C-24 and C-25. The gap is left rather than closed by renumbering,
+  because a correction number is cited from PR bodies and commit messages that are already
+  written — shifting them would break references to make a sequence look tidy). It has now joined `studio-blog.html` as **a reference that was repeatedly wrong
   about architecture**, and the recent four are worth knowing as a group because they are four
   different ways a static design file goes stale:
   - **C-12** — the topbar search is specified against a **cream topbar the direction itself
@@ -2917,6 +2963,25 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
     about the shape of a solution and wrong about the shape of the problem**, and nothing in it
     can tell you which — the previous seventeen corrections were all about the file describing a
     studio that had changed; this one describes content it never looked at.
+  - **C-21 — THE ORDINAL'S SIZE.** "The ordinals move off 9.5px." They were **17px Fraunces
+    ITALIC**; 9.5px belonged to the LIVE pill, which is what #240 deleted. Right destination,
+    wrong starting point.
+  - **C-22 — THE ROW CAP.** "The rows get a content cap so a row does not run 2000px wide." They
+    were **already capped at 960**, sixty pixels TIGHTER than the contract's own 1020.
+  - **C-23 — ink-400 FOR THE ORDINAL, AND THIS ONE IS A FIRST.** The contract specifies a value
+    that **a merged PR had already removed for failing AA**: #228 swept 45 sites off ink-400
+    because it measures 3.02–3.49 on cream. **The first time a contract has prescribed something
+    the codebase had already fixed** — every earlier correction was the file describing a studio
+    that had changed, not one asking for a regression by name.
+  - **C-24 — THE EXPERIENCE RAIL LEADS WITH THE ROLE.** Measured, title-only is WORSE: three of
+    five entries are titled "UX and UI Designer", so it trades a two-row collision for a
+    three-row one, and the two LTIMindtree titles differ only in a trailing parenthetical that
+    truncation eats first. Two lines, title over company. (There is also no `role` field; the
+    contract's "role" is `title`.)
+  - **C-25 — THE HERO TABS TAKE `.seg`'s FILL.** They are a real `role="tablist"`, and source
+    already splits group→fill / tablist→underline. Adopting the fill would give TABLISTS TWO
+    LANGUAGES to make one control match a control of a different role; adopting `SegmentedToggle`
+    outright would drop Arrow keys, `aria-selected` and the tabpanel association.
   - **C-26 — THE HOMEPAGE LIST CAP.** The contract specifies `max-width:1020px` for the overview
     list; the page ships **960**, and 960 is the value that stays. The contract's 1020 was drawn
     against nothing, while 960 was deliberately chosen — **a cap that was set on purpose does not
@@ -2948,6 +3013,41 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 ---
 
 ## SESSION PR/SHA LOG
+
+**THE FOUR STUDIO PAGES, SIX PRs. CLOSED. ralph 1577 → 1613.**
+
+- **#239** the field measure (`4e89386`) →1582 · **#240** homepage and skills (`3f2e381`) →1586
+- **#241** the experience rail and the hero tabs (`ec1c84f`) →1595
+- **#242** the full-height list-detail shell (`37de36f`) →1597
+- **#243** the cream contrast gate (`aba6dcc`) →1613 · **#244** skills controls and head cap
+  (`5a275c5`) 1613
+
+**WHY THE AUDIT EXISTED, AND IT IS THE LESSON OF THE SEQUENCE.** #239 to #241 shipped a **DEFECT
+LIST** — things somebody had already identified as wrong. **A contract is a WHOLE-PAGE DESIGN**,
+and most of what it specifies was never on that list because nobody had compared it. The measure,
+the dot and the two-line rail were real and are done; they were roughly **a fifth of the delta**.
+**AND THE AUDIT PRODUCED ITS OWN ERRORS AT ROUGHLY THE SAME RATE** — four of PR B's items
+evaporated when measured, three more were corrected during PR A's planning. See the working rule:
+auditing is not a different activity from building.
+
+**THE DURABLE OUTPUT IS #243's GATE, NOT ANY FIX.** It measures every studio text token against
+every cream ground it can land on and fails with the token, the ground and the ratio — which makes
+a real failure **and a false report of one** impossible to assert without measuring. It already
+covers `text-subtle` on cream-300 at **4.03**, the pair #232 and #242 each found by hand.
+**ITS BOUNDARY IS STATED IN THE SUITE**: it computes from TOKENS, so an unlayered rule (hazard
+22), a phantom token (hazard 23), a sheet-order race (hazard 26) and a server/client proxy (#240)
+are all outside it. **It answers "is this token legible on that ground", not "is that token the
+one that renders."**
+
+**THE BY-ROLE SELECTION RULE IS NOW STATED IN `studio-ink` RATHER THAN IMPLICIT** —
+`role="group"` + `aria-pressed` takes the accent FILL, `role="tablist"` + `aria-selected` takes
+the UNDERLINE. **An unstated rule is how a fourth treatment sat unnoticed** on the hero tabs.
+
+**AND BOTH OF #241's CORRECTIONS REVERTED IN #242 WHEN THE RAIL WIDENED.** 13px and the inline
+pill were measured against a 134px content column and were right there; at 276px every title fits
+on one line at 13.5px, so both returned to the contract's values. **Right about a narrow rail and
+wrong about a wide one** — different from a mistake being undone. The rail's rhythm is the cost
+that stayed: rows were a uniform 43px and are now 58 one-line / 75 two-line, the list 239 → 349.
 
 - **#235** the thresholds measure the page box, not the viewport (`usePageWidthMin`) →1549
   (`three-pane` 78→86). **THE TRIGGER'S REMEDY WAS WRONG AND THAT IS THE DURABLE OUTPUT** — see
