@@ -1,5 +1,4 @@
 import { getStudioData } from "@/lib/studio/data";
-import AreaHeader from "@/components/studio/AreaHeader";
 import HeroEditPanel from "@/components/studio/HeroEditPanel";
 import AboutEditPanel from "@/components/studio/AboutEditPanel";
 import LinksEditPanel from "@/components/studio/LinksEditPanel";
@@ -7,28 +6,25 @@ import ProcessEditPanel from "@/components/studio/ProcessEditPanel";
 import StudioEmptyState from "@/components/studio/StudioEmptyState";
 import { ListDetailLayout } from "@/components/studio/ListDetailLayout";
 import { STUDIO_SETTINGS_SECTIONS } from "@/lib/studio/settings-sections";
-import { STUDIO_PAGE } from "@/lib/studio/page-class";
 
 export default async function StudioSettings() {
   const { settings } = await getStudioData();
 
   if (!settings) {
     return (
-      <div className={STUDIO_PAGE}>
-        <AreaHeader title="Site settings" sub="The global singleton behind the homepage." />
+      <div className="p-4 lg:p-6">
         <StudioEmptyState>Site settings have not been created yet.</StudioEmptyState>
       </div>
     );
   }
 
   return (
-    <div className={STUDIO_PAGE}>
-      <AreaHeader
-        title="Site settings"
-        sub="Every homepage group is editable here, then published from the Publish bar."
-      />
+    <>
+      {/* NO PAGE WRAPPER AND NO PAGE HEADER — see the experience route for the reasoning: a
+          full-height shell has nowhere padded to put an `h1`, and the area name is already in
+          the sidebar's active nav item while the detail bar names the group being edited.
 
-      {/* UX-1: the panels are Save-draft only; the layout-level PublishBar ships
+          UX-1: the panels are Save-draft only; the layout-level PublishBar ships
           every panel's accumulated edits in one singleton-wide merge. The
           list+detail shell puts a fixed section list on the left and one edit
           pane on the right — every panel stays MOUNTED (returns null when
@@ -70,6 +66,6 @@ export default async function StudioSettings() {
             four stages each with name, description, and a tags array. */}
         <ProcessEditPanel itemId="process" processStages={settings.processStages} />
       </ListDetailLayout>
-    </div>
+    </>
   );
 }

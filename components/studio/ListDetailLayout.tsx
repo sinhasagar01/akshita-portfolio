@@ -195,16 +195,30 @@ export function ListDetailLayout({
 
   return (
     <ListDetailContext.Provider value={value}>
-      <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-4">
-        {/* Left list */}
+      {/* ---- A FULL-HEIGHT SHELL, NOT A PADDED CARD --------------------------------------
+          `data-studio-fullheight` is how this opts into the dashboard layout's viewport-height
+          rule — the same mechanism `ThreePaneShell` has used since #178, not a new one. Both of
+          the layout's `:has()` rules are `lg:`-prefixed, so BELOW `lg` this is ordinary document
+          flow and the stacked list-then-detail behaviour is untouched. That prefix is the whole
+          of #178's protection and the reason a viewport-height rule here cannot make a short
+          page's bottom unreachable the way an unconditional one did.
+
+          THE THREE PAGES THIS REACHES are Site settings, Experience and Skills — the only three
+          that RENDER this component. Six other panels import `useListItem` from this file, but a
+          hook is not a layout: they sit inside the pane and read none of its geometry. */}
+      <div data-studio-fullheight className="flex min-h-0 flex-1 flex-col lg:flex-row lg:overflow-hidden">
+        {/* Left list — a 300px column on cream-200, its own scroll region. */}
         <nav
           role="tablist"
           aria-orientation="vertical"
           aria-label="Sections"
           onKeyDown={handleKey}
-          className={`${selectedId === null ? "block" : "hidden"} lg:block`}
+          className={`${selectedId === null ? "flex" : "hidden"} min-h-0 flex-col lg:flex lg:w-[300px] lg:flex-none lg:border-r lg:border-ink-950/22 lg:bg-cream-200`}
         >
-          <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+          {/* FULL-BLEED ROWS: no gap and no radius, because the rows now ABUT and a 1px rule
+              separates them. A gap plus a radius made each row a floating card, which is the
+              card idiom this shell is leaving. */}
+          <ul className="m-0 flex min-h-0 flex-1 list-none flex-col overflow-y-auto p-0">
             {sections.map((s, i) => {
               const isActive = s.id === activeId;
               const isDirty = dirtyIds.has(s.id);
@@ -274,12 +288,17 @@ export function ListDetailLayout({
                     // signal anywhere in this language. A hovered row is a preview of the
                     // selected fill without the bar.
                     className={[
-                      "flex w-full justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border border-y-transparent border-r-transparent border-l-[3px] py-2.5 pl-[10px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      // THE FILL MOVED BECAUSE THE GROUND DID, and the RELATION is what stayed.
+                      // This rail used to sit on cream-50 and fill cream-100 — ground + 1 step.
+                      // It sits on cream-200 now, so the fill is cream-300. Encoding the old hex
+                      // would have been the fourth time in this arc a RELATION was frozen into a
+                      // VALUE; the rule is unchanged and only the ground moved under it.
+                      "flex w-full justify-between gap-2 border-b border-b-ink-950/12 border-l-[3px] py-3 pl-[9px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                       s.meta ? "items-start" : "items-center",
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
-                        ? "border-l-accent-500 bg-cream-100 font-medium text-ink-950"
-                        : "border-l-transparent hover:bg-cream-100",
+                        ? "border-l-accent-500 bg-cream-300 font-medium text-ink-950"
+                        : "border-l-transparent hover:bg-cream-300",
                     ].join(" ")}
                   >
                     {/* TWO SHAPES, AND THE ONE-LINE SHAPE IS UNTOUCHED. A row with no meta line
@@ -291,38 +310,45 @@ export function ListDetailLayout({
                         and truncation eats the end first, so one clamped line would hide the only
                         part that distinguishes them.
 
-                        13px, AND THAT NUMBER WAS CORRECTED BY MEASURING THE REAL COLUMN. The plan
-                        said 13.5, from a probe that assumed a 1.3 line-height; the real element
-                        has `leading-snug` at 1.375 in a 134px column, where the longest title
-                        needs THREE lines at 13.5 and exactly two at 13. 13px is the studio's
-                        other rail size — the case-study index and the block forms use it — so
-                        this is still matching a precedent, just not the one the plan named.
+                        13.5px, AND IT WENT 13.5 -> 13 -> 13.5, WHICH IS NOT A MISTAKE BEING
+                        UNDONE. #241 measured the real column at the rail's then-width of 220px
+                        (134px of content) and found the longest title needed THREE lines at 13.5
+                        and exactly two at 13, so it shipped 13. The rail is 300px now — 276px of
+                        content — and measured there EVERY title fits on ONE line at 13.5,
+                        parentheticals included. The correction was right about a narrow rail and
+                        wrong about a wide one, and the rail moving is what made it wrong.
                         The meta line keeps 11.5px, which is `BlogPostList` and `SectionsRail`.
+
+                        The clamp stays as a guard for a title longer than today's data holds; on
+                        current content it does not engage.
 
                         `items-start` in this shape so the badge sits against the FIRST line
                         rather than floating against the block's centre. */}
                     {s.meta ? (
                       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="min-w-0 text-[13px] leading-snug [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+                        <span className="min-w-0 text-[13.5px] leading-snug [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
                           {s.name}
                         </span>
-                        {/* THE BADGE SITS ON THE META LINE IN THIS SHAPE, AND THAT WAS FOUND BY
-                            MEASURING. Beside the name it took 66px of a 134px column, and the
-                            one row carrying it is the one whose title most needs the room —
-                            "Specialist, Interactive UX and UI (Elevate)" lost its trailing
-                            parenthetical, which is the entire discriminator against the Fosfor
-                            row. Driven: with the badge on the name line that title reported
-                            `fullyShown: false`; moved down, both LTI titles render whole.
-                            It reads correctly there too — "Currently" is a fact about the dates,
-                            and the dates are what the meta line is about. */}
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="truncate text-[11.5px] text-text-subtle">{s.meta}</span>
-                          {s.badge && (
-                            <span className="shrink-0 rounded-full bg-accent-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent-600">
-                              {s.badge}
-                            </span>
-                          )}
-                        </span>
+                        {/* A VALUE BELONGS TO ITS GROUND — third instance, and this one was
+                            found by the ground moving under it. `text-text-subtle` measures
+                            5.52 / 5.25 / 4.78 on cream-50/100/200 but only **4.03 on the SELECTED
+                            row's cream-300**, under the 4.5 floor. #232 met this exactly in
+                            `BlogPostList` and `SectionsRail` and fixed it the same way; the meta
+                            line here was fine on the old cream-100 fill and stopped being fine
+                            the moment the rail became a cream-200 column. Selected rows take
+                            ink-600 (5.41); everything else keeps the muted token. */}
+                        <span className={`truncate text-[11.5px] ${isActive ? "text-ink-600" : "text-text-subtle"}`}>{s.meta}</span>
+                        {/* THE BADGE IS BACK ON ITS OWN LINE, AND FOR THE SAME REASON THE SIZE
+                            WENT BACK. #241 moved it beside the meta because at a 134px column it
+                            was taking 66px from the one title that most needed the room. At 276px
+                            it costs that title nothing — measured, the longest still fits on one
+                            line with the badge below it — so it returns to where the contract
+                            draws it, on its own line under the meta. */}
+                        {s.badge && (
+                          <span className="mt-1.5 inline-block w-fit rounded-full border border-accent-500/30 bg-accent-500/10 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-accent-600">
+                            {s.badge}
+                          </span>
+                        )}
                       </span>
                     ) : (
                     <span className="flex min-w-0 items-center gap-2">
@@ -409,7 +435,7 @@ export function ListDetailLayout({
           role="tabpanel"
           tabIndex={-1}
           aria-labelledby={activeId ? `ld-tab-${activeId}` : undefined}
-          className={`${selectedId === null ? "hidden" : "block"} outline-none lg:block`}
+          className={`${selectedId === null ? "hidden" : "flex"} min-h-0 flex-1 flex-col outline-none lg:flex lg:overflow-y-auto lg:bg-cream-100`}
         >
           <button
             type="button"

@@ -3121,6 +3121,57 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   **THE `ListDetailLayout` CHANGE IS ADDITIVE.** `meta` is optional and rows without it render
   byte-identical markup, so the other seven consumers of the shell are untouched.
 
+- **#242** the full-height list-detail shell →1597 (`studio-ink` 125→127, four G assertions
+  revalued). PR A of four, from the fidelity audit.
+  **THE SCOPING ERROR THIS PR EXISTS TO CORRECT.** #239, #240 and #241 shipped a DEFECT LIST —
+  things somebody had identified as wrong. **A contract is a WHOLE-PAGE DESIGN**, and most of
+  what it specifies was never on that list because nobody had compared it. The measure, the dot
+  and the two-line rail were real and are done; they were roughly **a fifth of the delta**. The
+  general lesson is about briefing from a defect list rather than from the artifact.
+  **THREE CORRECTIONS TO MY OWN AUDIT, all found while planning:**
+  **(a) THREE CONSUMERS, NOT EIGHT.** The audit conflated `<ListDetailLayout>` consumers with
+  `useListItem` consumers. Three pages render the shell; the other six import a HOOK and read
+  none of its geometry. That changes the caution the change needs. **And #178 does not apply** —
+  both `:has()` rules are already `lg:`-prefixed and the attribute is opt-in, so below `lg`
+  nothing moves by construction.
+  **(b) THE RAIL COSTS 16px, NOT 80.** Dropping `STUDIO_PAGE`'s 48px of padding and the 16px grid
+  gap returns 64 of the rail's 80: detail **1001 → 985** at page 1521. The 760 measure keeps 181px
+  to spare. "80px off the detail pane" was arithmetic that ignored what the change also removes.
+  **(c) BOTH OF #241's CORRECTIONS REVERT, and the reason is clean.** #241 measured the real
+  column at the rail's then-width and shipped a 13px title with the pill moved inline. At 300px
+  every title fits on ONE line at 13.5px, parentheticals included, so 13.5 returns and the pill
+  goes back to its own line. **Right about a narrow rail and wrong about a wide one — the rail
+  moving is what made it wrong**, which is different from a mistake being undone.
+  **THE PAGE HEADER GOES AWAY ON THE THREE LD PAGES.** A full-height shell has no padded page for
+  an `h1`, so keeping one means inventing a fourth horizontal band or floating a header over a
+  pane, neither of which is drawn. And the title is ALREADY ON SCREEN TWICE — the sidebar's active
+  nav item names the area, the detail bar names the entry. The blog and case-study editors have
+  worked this way since #178 and #233 and no page title has been missed.
+  **AN AA FAILURE FOUND BY THE GROUND MOVING — the third instance of "a value belongs to its
+  ground".** The rail went cream-50 → cream-200 and the selection cream-100 → cream-300, and the
+  selected row's meta line is `text-text-subtle`, which measures 5.52/5.25/4.78 on
+  cream-50/100/200 and **4.03 on cream-300**. #232 met this exactly in `BlogPostList` and
+  `SectionsRail`. Fixed the same way, **4.03 → 5.41**. It was fine before this PR and stopped
+  being fine the moment the ground moved — which is the whole argument for re-measuring every
+  ground a change touches rather than only the values it edits.
+  **FOUR G ASSERTIONS REVALUED, AND G4 IS THE INTERESTING ONE.** G4 pinned the ABSENCE of a
+  declared ground on the list column, because the inherited cream-50 was true by accident and a
+  future page on a different ground would have broken the selection step with nothing failing. It
+  said adding a background must become "a deliberate act that has to come with a decision about
+  the selection step". **This is that act**, and it came with that decision, so the assertion
+  inverts to "the ground IS declared and the fill is one step from THAT" — strictly stronger,
+  because the step is now derivable from source. G1's table row moved (the relation is what G1
+  asserts). G3's shape changed and its property did not: full-bleed rows carry no all-sides
+  shorthand, so the border-colour race cannot occur rather than being prevented.
+  **MEASURED.** Rail **220 → 300** on cream-200, rows full-bleed (radius 0, 1px rule, no gap),
+  detail **985** on cream-100 scrolling internally, field column **760** unchanged. At a 600px
+  viewport the save bar needed **266px of scrolling** and now needs **zero**; the sticky bar costs
+  a flat 62px of pane height, and the scroll-to-reach grew as the viewport shrank while the cost
+  did not.
+  **THE NON-CONSUMER, MEASURED BEFORE AND AFTER at 420×700** — `/studio/projects`, the #178
+  geometry: `docClientH` 700, `docScrollH` 783, `mainH` 642, last element reachable, no
+  fullheight attribute. **Identical on every value.**
+
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
 PR D. Both numbers are true of different things and the arc's own contribution is the smaller

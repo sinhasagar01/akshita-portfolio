@@ -209,7 +209,7 @@ export default function ExperienceEditPanel({
         </label>
       </div>
 
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
+      <footer className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
             <span className="text-text-subtle">Saving draft…</span>
