@@ -659,7 +659,11 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
  * 3.43–4.48. The fill was never the signal. */
 {
   const PAIRS = [
-    { file: "ListDetailLayout.tsx", ground: "cream-50",  fill: "bg-cream-100", surface: "the shared list row (7 panels)" },
+    // GROUND MOVED IN #242, RELATION DID NOT. The rail became a declared cream-200 column when
+    // the list-detail pages went full-height, so its selected fill is cream-300. G1 checks that
+    // the fill is ONE STEP from the surface's own ground, which is exactly the property that
+    // survived the move — the table row changes, the rule does not.
+    { file: "ListDetailLayout.tsx", ground: "cream-200", fill: "bg-cream-300", surface: "the shared list row (3 pages)" },
     { file: "BlogPostList.tsx",     ground: "cream-200", fill: "bg-cream-300", surface: "the blog list rail" },
     { file: "BlogBlocksEditPanel.tsx", ground: "cream-100", fill: "bg-cream-200", surface: "the block strip" },
   ];
@@ -732,24 +736,40 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
       /size-1\.5 shrink-0 rounded-full bg-accent-500/.test(ld), true);
   }
 
-  // G3 · NO `border-transparent` SHORTHAND ON THESE ROWS. It writes `border-color` while the
-  // bar writes `border-left-color`; both are utilities at equal specificity, so the left edge
-  // would be decided by their order in the generated sheet. A coin-flip dressed as a class.
-  t("G3: ListDetailLayout sets the three non-bar sides explicitly — the border-color shorthand would race border-left-color for the bar's edge",
-    /border-y-transparent border-r-transparent/.test(readStudio("ListDetailLayout.tsx")), true);
+  // G3 · NOTHING MAY WRITE `border-color` ON THESE ROWS. The bar writes `border-left-color`;
+  // a shorthand at equal specificity would race it and the left edge would be decided by the
+  // generated sheet's order. A coin-flip dressed as a class.
+  //
+  // THE SHAPE CHANGED IN #242 AND THE PROPERTY DID NOT. The row used to neutralise three sides
+  // explicitly (`border-y-transparent border-r-transparent`) because it carried an all-sides
+  // `border`. Full-bleed rows carry only a BOTTOM rule and the left bar, so there is no
+  // shorthand to neutralise — the race cannot occur rather than being prevented. Asserted as the
+  // absence of the shorthand, which is the real rule; the old assertion pinned one way of
+  // obeying it.
+  {
+    const rowCls = /className=\{\[[\s\S]{0,700}?"flex w-full justify-between[\s\S]{0,900}?\]\.join/.exec(readStudio("ListDetailLayout.tsx"))?.[0] ?? "";
+    t("G3: the row class expression was found", rowCls.length > 0, true);
+    t("G3: no bare `border-transparent` shorthand on the row — it would race the bar's border-left-color",
+      /(^|[^-])\bborder-transparent\b/.test(rowCls), false);
+    t("G3: …and the two edges it DOES draw are named per-side, so neither can race the other",
+      /border-b-ink-950\/12/.test(rowCls) && /border-l-\[3px\]/.test(rowCls), true);
+  }
 
-  // G4 · THE INHERITED GROUND, PINNED — AND WHY IT IS PINNED RATHER THAN JUST STATED.
-  // ListDetailLayout's list column declares NO background of its own; it inherits cream-50
-  // from whatever page hosts it. Measured constant on /studio/experience and /studio/skills,
-  // but by accident rather than by construction. A future page that mounts the layout on a
-  // different ground silently breaks surface 1's step — the fill would no longer be one step
-  // from anything — AND NOTHING WOULD FAIL, because every class involved is still correct.
-  // This asserts the absence, so adding a background here becomes a deliberate act that has to
-  // come with a decision about the selection step.
-  t("G4: ListDetailLayout's list column still declares NO ground — the selection step DEPENDS on it inheriting cream-50, and that is inherited, not declared",
-    /<nav[\s\S]{0,400}?className=\{`\$\{selectedId === null \? "block" : "hidden"\} lg:block`\}/.test(readStudio("ListDetailLayout.tsx")), true);
-  t("G4: …and no cream ground has been added to it since",
-    /role="tablist"[\s\S]{0,300}?bg-cream/.test(readStudio("ListDetailLayout.tsx")), false);
+  // G4 · THE GROUND IS DECLARED NOW, AND THAT IS THE DELIBERATE ACT THIS ASSERTION WAS WAITING
+  // FOR. It used to pin the ABSENCE of a background: the column inherited cream-50 from whatever
+  // page hosted it, measured constant but true by accident, so a future page on a different
+  // ground would have broken the selection step with every class still correct and nothing
+  // failing. The pin existed so that adding a background "becomes a deliberate act that has to
+  // come with a decision about the selection step".
+  //
+  // #242 IS THAT ACT, and it came with that decision: the column declares cream-200 and the fill
+  // moved to cream-300 with it (see G1). So the assertion inverts — from "no ground is declared"
+  // to "the ground IS declared, and the fill is one step from THAT" — which is strictly stronger,
+  // because the step is now derivable from source instead of from whatever the host happens to be.
+  t("G4: ListDetailLayout's list column DECLARES its ground — the selection step no longer depends on what the host page happens to be",
+    /role="tablist"[\s\S]{0,400}?lg:bg-cream-200/.test(readStudio("ListDetailLayout.tsx")), true);
+  t("G4: …and it is the ground G1's table names for this surface, so the two cannot drift",
+    PAIRS.find((p) => p.file === "ListDetailLayout.tsx")?.ground, "cream-200");
 }
 
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
