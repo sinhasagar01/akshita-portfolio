@@ -17,6 +17,8 @@
 // omits a key would drop it from the committed file. The strict sanitizer backstops
 // this: its per-kind validators require every field, so an `empty` that forgets one
 // fails the save loudly rather than corrupting the yaml.
+import type { PreviewUpload } from "@/lib/studio/preview-map";
+
 import { useRef } from "react";
 
 /* ------------------------------------------------------- pure array primitives
@@ -53,7 +55,12 @@ export const setAt = <T,>(arr: readonly T[], i: number, v: T): T[] =>
 // compile error, so the only way to change a value is to build a new one.
 export function useItemList<T>(
   items: readonly T[],
-  onChange: (next: T[]) => void,
+  /** THE SECOND ARGUMENT CARRIES AN IMAGE PREVIEW UP, and it is optional so every existing
+   *  caller compiles unchanged. A row that holds an image (deviceShelf, featureRows,
+   *  beforeAfter) has to get the uploaded bytes from `ImgSpecFields` all the way to the panel
+   *  that owns the preview map — three hops, of which this is the innermost. Dropping it here
+   *  is why the case-study canvas showed a blank image until publish. See lib/studio/preview-map.ts. */
+  onChange: (next: T[], upload?: PreviewUpload) => void,
   empty: () => T
 ) {
   // After "Add", focus the new row's first input without a layout effect: the row
@@ -63,7 +70,7 @@ export function useItemList<T>(
 
   return {
     pendingFocus,
-    set: (i: number, v: T) => onChange(setAt(items, i, v)),
+    set: (i: number, v: T, upload?: PreviewUpload) => onChange(setAt(items, i, v), upload),
     remove: (i: number) => onChange(removeAt(items, i)),
     add: () => {
       pendingFocus.current = items.length;

@@ -161,7 +161,7 @@ const RichTextForm: ComponentType<BlockFormProps<"richText">> = ({ value, onChan
 const GlanceGridForm: ComponentType<BlockFormProps<"glanceGrid">> = ({ value, onChange, onBlur }) => (
   <ItemRows
     items={value.items}
-    onChange={(items) => onChange({ ...value, items })}
+    onChange={(items, upload) => onChange({ ...value, items }, upload)}
     empty={() => ({ label: "", value: "" })}
     addLabel="Add item"
     itemNoun="Item"
@@ -190,7 +190,7 @@ const GlanceGridForm: ComponentType<BlockFormProps<"glanceGrid">> = ({ value, on
 const IssueListForm: ComponentType<BlockFormProps<"issueList">> = ({ value, onChange, onBlur }) => (
   <ItemRows
     items={value.items}
-    onChange={(items) => onChange({ ...value, items })}
+    onChange={(items, upload) => onChange({ ...value, items }, upload)}
     empty={() => ({ title: "", note: "" })}
     addLabel="Add issue"
     itemNoun="Issue"
@@ -460,7 +460,7 @@ function DeviceFields({
   collection,
 }: {
   value: RawDevice;
-  set: (next: RawDevice) => void;
+  set: (next: RawDevice, upload?: PreviewUpload) => void;
   onBlur?: () => void;
   focusRef?: (el: HTMLElement | null) => void;
   slug: string;
@@ -517,7 +517,7 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
   <>
     <ItemRows
       items={value.devices}
-      onChange={(devices) => onChange({ ...value, devices })}
+      onChange={(devices, upload) => onChange({ ...value, devices }, upload)}
       empty={emptyDevice}
       addLabel="Add device"
       itemNoun="Device"
@@ -542,7 +542,7 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
 const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, onChange, onBlur, slug, collection }) => (
   <ItemRows
     items={value.features}
-    onChange={(features) => onChange({ ...value, features })}
+    onChange={(features, upload) => onChange({ ...value, features }, upload)}
     empty={() => ({
       index: "",
       category: "",
@@ -564,7 +564,7 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
           <TextField label="Title" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} />
           <TextArea label="Body — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
         </TabGroup>
-        <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} collection={collection} />
+        <ImgSpecFields value={item.image} set={(image, upload) => set({ ...item, image }, upload)} onBlur={onBlur} slug={slug} collection={collection} />
       </>
     )}
   </ItemRows>
@@ -580,7 +580,7 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
     />
     <ItemRows
       items={value.items}
-      onChange={(items) => onChange({ ...value, items })}
+      onChange={(items, upload) => onChange({ ...value, items }, upload)}
       empty={() => ({ image: emptyImg(), title: "", body: "" })}
       addLabel="Add figure"
       itemNoun="Figure"
@@ -592,7 +592,7 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
             <TextField label="Title (optional)" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
             <TextArea label="Body (optional) — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
           </TabGroup>
-          <ImgSpecFields value={item.image} set={(image) => set({ ...item, image })} onBlur={onBlur} slug={slug} collection={collection} />
+          <ImgSpecFields value={item.image} set={(image, upload) => set({ ...item, image }, upload)} onBlur={onBlur} slug={slug} collection={collection} />
         </>
       )}
     </ItemRows>
@@ -601,7 +601,7 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
 
 const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
-    <ImgSpecFields value={value.image} set={(image) => onChange({ ...value, image })} onBlur={onBlur} slug={slug} collection={collection} />
+    <ImgSpecFields value={value.image} set={(image, upload) => onChange({ ...value, image }, upload)} onBlur={onBlur} slug={slug} collection={collection} />
     <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
       <span className={`mb-2 block ${groupLabelCls}`}>
         Scrawl (optional)
@@ -699,7 +699,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
         stays, because it swaps back and front, which is meaningful. */}
     <ItemRows
       items={value.devices}
-      onChange={(devices) => onChange({ ...value, devices })}
+      onChange={(devices, upload) => onChange({ ...value, devices }, upload)}
       empty={emptyDevice}
       addLabel="Add device"
       itemNoun="Device"
@@ -720,7 +720,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
 const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, onChange, onBlur, slug, collection }) => (
   <ItemRows
     items={value.pairs}
-    onChange={(pairs) => onChange({ ...value, pairs })}
+    onChange={(pairs, upload) => onChange({ ...value, pairs }, upload)}
     empty={() => ({ title: "", tag: "", before: emptyImg(), after: emptyImg(), changes: [] })}
     addLabel="Add pair"
     itemNoun="Pair"
@@ -734,8 +734,8 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
             <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
           </div>
         </TabGroup>
-        <ImgSpecFields value={item.before} set={(before) => set({ ...item, before })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Before image" />
-        <ImgSpecFields value={item.after} set={(after) => set({ ...item, after })} onBlur={onBlur} slug={slug} collection={collection} imageLabel="After image" />
+        <ImgSpecFields value={item.before} set={(before, upload) => set({ ...item, before }, upload)} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Before image" />
+        <ImgSpecFields value={item.after} set={(after, upload) => set({ ...item, after }, upload)} onBlur={onBlur} slug={slug} collection={collection} imageLabel="After image" />
         <TabGroup group="content">
           <ItemRows
             items={item.changes}
