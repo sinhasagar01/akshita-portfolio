@@ -94,7 +94,7 @@ import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
 import BoldToolbar from "./BoldToolbar";
 import { useMediaMin } from "./useMediaMin";
-import { INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
+import { FIT_THRESHOLD_PX, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
 import type { BlogCard } from "@/lib/keystatic";
 
@@ -903,6 +903,11 @@ export default function BlogBlocksEditPanel({
   /* -------------------------------------------------------------------------- the shell */
   return (
     <ThreePaneShell
+      // BOTH BREAKPOINTS ARE THE CONSUMER'S NOW. The inspector fold always was; the FIT
+      // threshold moved here in PR 5, because the shell had been reading blog's 1614
+      // directly and a second consumer would have inherited blog's breakpoint silently.
+      fitThresholdPx={FIT_THRESHOLD_PX}
+      listNoun="posts"
       list={<BlogPostList posts={posts} currentSlug={slug} />}
       canvasBar={
         <>
