@@ -2030,6 +2030,26 @@ All prior rules remain. Added or sharpened across this session:
   that a hook was unused and incorrectly implied unguarded animations; the CSS was complete
   and the gap was three script-driven calls. **Re-derive the CAUSE, not just the symptom, or
   the fix lands in the wrong layer** — here it would have been CSS that needed no change.
+- **A PROPERTY CAN BE TRUE WHILE THE OUTCOME IS WRONG — VERIFY IN THE REGIME THE USER OCCUPIES.**
+  Five of the six PRs in the #246–#251 arc were reported by the owner as ALREADY FIXED or already
+  correct, and in every one the property under test was genuinely true while what appeared on
+  screen was not.
+  - **#248.** `position: sticky` was present, `bottom: 0` was set, and the footer's offset measured
+    correctly. #245 had verified exactly that, at 600 and 700px — **and the bug cannot appear below
+    759px.** Both test heights sat inside the regime where the property holds. The defect lives in
+    the OPPOSITE regime, content shorter than its pane, where sticky never offsets because nothing
+    scrolls. **Bigger screen, worse bug** — 61px of float at 1440x820, 295px at 1076x1054 —
+    which is backwards from where anyone tests.
+  - **#249.** A separator was visible and in the right place. It was the LAST ROW's `border-b`,
+    which lands on the list's bottom edge only when the rows happen to be scrolled to the end.
+    **A separator that belongs to the content is a coincidence, not a separator.**
+  **THE RULE:** measuring the property confirms the property. Only measuring the OUTCOME, at a
+  viewport and a scroll position the author actually occupies, confirms the outcome. When a report
+  says "still not fixed" and the code says otherwise, **the code is usually right and the regime is
+  usually different** — find the regime before re-reading the code.
+  Both gates that came out of this are written as the inverse of the assertion that missed:
+  `mount-discipline` B4 asserts the underflow regime B3 could not reach, and B6 asserts the
+  structure that makes the rail footer's pinning true rather than the pinning itself.
 - **A GATE THAT MISFIRES GETS REWRITTEN, NOT WORKED AROUND.**
 - **A SOFT CLAIM IN A MERGED PR IS WORTH RE-CHECKING.**
 - **STOP RATHER THAN WORK AROUND AN IMPOSSIBLE INSTRUCTION**, and **STOP RATHER THAN SHIP
@@ -2081,6 +2101,20 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
 - **DRIVING THE UI CAN LIE TOO.** Three probe results were wrong before the code was: reads
   taken before React flushed, and a query that hit the topbar's search box instead of the
   panel's. **Scope selectors by accessible name and await the render.**
+  **THREE MORE IN THE #248–#251 ARC, AND ALL THREE PASSED CLEANLY WHILE MEASURING THE WRONG
+  THING** — which is the danger, because a wrong probe does not error, it reassures.
+  - **THE WRONG ELEMENT.** `document.querySelector('aside')` returns the dashboard SIDEBAR, not
+    the inspector; the probe reported an unscrollable 820px box and "no movement" at every scroll
+    position. The inspector is `aside.w-[320px]`, 631px, scrollable by 530.
+  - **THE WRONG PROPERTY.** Tailwind v4's `rotate-180` writes the individual **`rotate`**
+    property, not `transform`. Reading `transform` returned `none` on a chevron sitting at exactly
+    `180deg`. Any v4 rotate/scale/translate check must read the individual property.
+  - **THE WRONG KEY NAME.** The browser tool's `key` action with `"Down"` delivers an event whose
+    `key` is the EMPTY STRING — the handler never fires and the control looks broken.
+    **`"ArrowDown"` is the name that works**, and it was found by attaching a `keydown` listener
+    and reading `e.key` rather than trusting the press. Every keyboard gate depends on this.
+  **The shape is the same as this file's contrast errors: the number was real, the subject was
+  wrong.** A probe deserves the same "is this measuring what I think" pass as an assertion.
 - ~~**NO LINT GATE EXISTS IN THIS REPO.**~~ **THERE IS ONE SINCE #195.** Run it with
   `npm run lint` (`eslint . --max-warnings 0`), and CI runs the same command with no
   `continue-on-error`. **`next lint` IS NOT THE COMMAND** — Next 15.5's own CLI calls it
@@ -3289,6 +3323,14 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   CSS union **1533 → 1540**, seven rules added and **none removed**; the four seam variants
   generate real CSS, so the arbitrary-variant syntax is not a bracket-bare no-op. Public DOM
   byte-identical — nothing outside `components/studio` was touched.
+
+- **#247** hazard 30 recorded, not fixed →1637, docs only. `studio-ink-contrast`'s cream half
+  iterates the LABEL tokens (`ink-*`, `text-subtle`) against the cream ladder, so **`accent-600` on
+  cream is computed nowhere** — and seven dashed adds use it as a hover colour after #246.
+  Rasterised it measures 7.22 / 6.87 / 6.25 on cream-50/100/200, floor 6.25, so nothing is wrong
+  today and five of the seven already used it before #246. **Recorded rather than widened, because
+  a change made on no evidence is the other failure.** #249 later moved the rail footer's own
+  hover off the 6.25 worst case to 7.22, so the exposure is smaller than when it was written.
 
 - **#246** the dashed adds firm to solid on hover, and the hero-tab mimic gets a gate →1637
   (`studio-ink` 133→149, new Parts H and J, C4 rewritten).
@@ -4500,6 +4542,49 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 ---
 
 ## WHAT'S NEXT
+
+**THE OWNER-REPORT ARC (#246–#251) IS CLOSED — SIX PRs, ralph 1621 → 1666.** It is recorded here
+above the consistency arc because it is the most recent, and because its lesson is different from
+that arc's.
+
+**WHAT IT WAS.** Not a plan. Six rounds of the owner looking at the studio and reporting what was
+wrong, three of them things a merged PR had already claimed to fix. #246 the dashed-add hover and
+the hero-tab mimic · #247 hazard 30 recorded · #248 seven items and three root causes · #249 the
+rail footer · #250 the owner's own `gap-4` removal · #251 every select onto the listbox.
+
+**WHAT IT SETTLED THAT IS WORTH CARRYING.**
+- **The property/outcome rule**, now in WORKING RULES with #248 and #249 as its evidence. Five of
+  six were reported as already-fixed, and in every case the property under test was true while the
+  screen was wrong. **Bigger screen, worse bug** is the specific trap: #245 tested at 600 and 700px
+  and the defect cannot appear below 759.
+- **Three derivations that were hand-written lists in disguise.** `studio-ink` E1b matched a name
+  SUFFIX (`*EditPanel`), so Skills' `CategoryPanel` was never in the set and the gate passed while
+  the panel it should have covered kept its frame. E6 and C2 keyed on `/useListItem\(/` in raw
+  source, which matches the file that DEFINES the hook. **A derivation that encodes a naming
+  convention is a hand-written list wearing a derivation's clothes.**
+- **Two decisions reversed by conditions they named** — C-27 (the hero tabs' reference is the
+  public render, not the contract) and #251 (the by-role select split). Both reversals kept the
+  original reasoning beside them. **This is the reversal shape the project wants**, and it only
+  works because the rules said when they would stop applying.
+- **Every accepted cost carries a runnable trigger.** #251's touch cost names
+  `git show 2ebe6b9:components/studio/blocks/fields.tsx`, not "restore it from the parent" — a
+  trigger whose remedy is a rebuild is one nobody acts on.
+
+**WHAT IS OPEN FROM IT.**
+1. **The PublishBar pill overlaps the save bar by 42px**, uniform across all five settings panels
+   and identical on About and Process — the two the owner named as the correct reference. Recorded
+   in #248, not changed, because changing it moves the reference. **Owner's call.**
+2. **Hazard 30** — `accent-600` on cream is uncovered by the contrast gate. 6.25 worst case, so
+   nothing is wrong; the fix is widening the cream half's token list when a real need arrives.
+3. **The switcher's typeface** went `font-display text-base` → the shared trigger's 14px body face
+   in #251. Deliberate (one language) but a visible change to the editor header; one line to
+   reverse.
+4. **#250 was never verified on screen.** `/studio` is password-gated and the dev-server restart
+   dropped the session cookie. The effect is deterministic and the gates are green, but the visual
+   confirmation is **owner-only** — the same class as the production studio checks.
+5. **Hazard 2** — `inputCls`/`inputClsMd` byte-identical. Still #199's decision to make.
+
+---
 
 **THE STUDIO CONSISTENCY ARC IS CLOSED — EIGHT PRs, TWO TRACKS, ALL SHIPPED.** **ralph 1486 →
 1541 across the arc** (1193 → 1541 is the span since #199 and includes the ink-chrome arc, the
