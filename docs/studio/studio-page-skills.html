@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — Skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  SKILLS
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##########################################################################
+
+  #229 gave this page the cream-200 header bar its five siblings already had.
+  What remains is two things.
+
+  1. THE MEASURE, shared with Experience and Site settings. The detail panel
+     stretches to fill, so a skill input runs the full window width. Capped at
+     760px; see the Experience file for the full reasoning.
+
+  2. THE ROW CONTROLS SAT IN SEPARATE BORDERED BOXES to the right of a
+     full-width input, so the reorder arrows and the remove button read as
+     three unrelated controls rather than as the row's own. They come inline.
+
+  THE SAVE BAR STAYS OUTSIDE THE PANEL, and that is not drift. skills is a
+  singleton() — one useDraftForm holds every category, and one save posts them
+  all. Its five siblings save per entry, so their footer belongs inside the
+  panel and this one does not. Moving it in would render N save bars for one
+  save. A document-level save bar is a different role from a per-entry panel
+  footer, and the copy now says so.
+================================================================================
+-->
+
+<style>
+
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42); --ok:oklch(46% .075 145);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --on-ink-rule:oklch(100% 0 0 / .24);
+  --r-panel:12px; --r-card:8px; --r-ctl:4px;
+  --w-side:236px; --measure:760px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--cream-50);color:var(--ink-950);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+
+
+
+.app{display:flex;min-height:100vh}
+.side{width:var(--w-side);flex:none;background:var(--ink-950);padding:18px 12px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.logo{display:flex;align-items:center;gap:11px;padding:2px 8px 20px;text-decoration:none}
+.logo .mark{width:30px;height:30px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff}
+.logo .mark svg{width:16px;height:16px}
+.logo b{font-family:var(--serif);font-weight:400;font-size:20px;letter-spacing:-.01em;color:var(--cream-50)}
+.grp{font:700 10.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-400);padding:8px 10px 10px;margin:0}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.side nav a{display:flex;align-items:center;gap:11px;padding:10px;border-radius:99px;text-decoration:none;color:var(--ink-200);font-size:13.5px}
+.side nav a svg{width:16px;height:16px;color:var(--ink-400)}
+.side nav a.on{background:oklch(100% 0 0 / .1);color:var(--cream-50);font-weight:500}
+.side nav a.on svg{color:var(--cream-50)}
+.side nav a .c{margin-left:auto;font-size:11.5px;color:var(--ink-400);font-variant-numeric:tabular-nums}
+.side .foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--on-ink-rule)}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh}
+.topbar{display:flex;align-items:center;gap:14px;padding:12px 20px;height:65px;flex:none;background:var(--ink-950);border-bottom:1px solid var(--on-ink-rule)}
+.search{position:relative;flex:1}
+.search input{width:100%;height:40px;padding:0 42px 0 36px;font:400 13.5px/1 var(--sans);color:var(--cream-50);background:oklch(100% 0 0 / .16);border:1px solid var(--on-ink-rule);border-radius:var(--r-ctl)}
+.search input::placeholder{color:var(--ink-200)}
+.search .mag{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink-200)}
+.viewsite{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 15px;font:600 12px/1 var(--sans);border-radius:var(--r-ctl);text-decoration:none;border:1px solid var(--on-ink-rule);color:var(--ink-200)}
+.viewsite:hover{background:var(--cream-50);color:var(--ink-950);border-color:var(--cream-50)}
+
+.page{flex:1;overflow-y:auto;padding:32px 30px 110px}
+.head{max-width:1180px;margin:0 auto 24px}
+.head h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 6px}
+.head p{font:400 13.5px/1.6 var(--sans);color:var(--subtle);margin:0}
+
+/* ============ HOMEPAGE — the list becomes a panel ============ */
+.ovpanel{max-width:1180px;margin:0 auto;background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-panel);overflow:hidden}
+.ovrow{display:flex;align-items:center;gap:16px;padding:16px 18px;border-bottom:1px solid var(--rule);border-left:3px solid transparent;text-decoration:none;color:inherit}
+.ovrow:last-of-type{border-bottom:0}
+.ovrow:hover{background:var(--cream-100)}
+.ovrow .ord{font:700 12px/1 var(--sans);letter-spacing:.14em;color:var(--ink-400);width:24px;font-variant-numeric:tabular-nums}
+.ovrow .ic{width:30px;height:30px;border-radius:var(--r-ctl);display:grid;place-items:center;background:var(--cream-100);color:var(--accent);flex:none}
+.ovrow .ic svg{width:15px;height:15px}
+.ovrow .txt{flex:1;min-width:0}
+.ovrow .txt h3{font-family:var(--serif);font-weight:400;font-size:18px;margin:0 0 3px}
+.ovrow .txt p{font:400 12.5px/1.5 var(--sans);color:var(--subtle);margin:0}
+.ovrow .txt .code{font:400 11.5px/1.5 var(--sans);color:var(--ink-400);margin-top:2px}
+.status{display:inline-flex;align-items:center;gap:7px;font:500 11.5px/1 var(--sans);color:var(--ink-600);flex:none}
+.status .dot{width:6px;height:6px;border-radius:99px;background:var(--ok)}
+.status.code{color:var(--ink-400)}
+.status.code .dot{background:var(--ink-400)}
+.foot-note{max-width:1180px;margin:16px auto 0;font:400 12px/1.7 var(--sans);color:var(--subtle);max-width:66ch}
+
+/* ============ LIST + DETAIL ============ */
+.ld{flex:1;display:flex;min-height:0}
+.ldrail{width:300px;flex:none;background:var(--cream-200);border-right:1px solid var(--rule-edge);display:flex;flex-direction:column}
+.ldrail .rt{padding:12px;border-bottom:1px solid var(--rule)}
+.ldrail .rt input{width:100%;height:40px;padding:0 12px;font:400 13px/1 var(--sans);background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl)}
+.ldrail .scroll{flex:1;overflow-y:auto}
+.ldrow{display:block;width:100%;text-align:left;appearance:none;cursor:pointer;background:transparent;border:0;border-left:3px solid transparent;border-bottom:1px solid var(--rule);padding:12px 12px 12px 9px}
+.ldrow:hover{background:var(--cream-300)}
+.ldrow.on{background:var(--cream-300);border-left-color:var(--accent)}
+.ldrow .t{display:block;font:500 13.5px/1.35 var(--sans);color:var(--ink-950)}
+.ldrow .s{display:block;font:400 11.5px/1.45 var(--sans);color:var(--subtle);margin-top:4px}
+.ldrow .pill{display:inline-block;margin-top:6px;font:600 9.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:oklch(56% .14 42 / .1);border:1px solid oklch(56% .14 42 / .3);padding:4px 7px;border-radius:99px}
+.ldrail .lf{padding:11px 12px;border-top:1px solid var(--rule)}
+.ldrail .lf button{width:100%;height:36px;appearance:none;cursor:pointer;font:600 12px/1 var(--sans);color:var(--ink-800);background:var(--cream-50);border:1px dashed var(--rule-edge);border-radius:var(--r-ctl)}
+.ldrail .lf button:hover{border-color:var(--accent);color:var(--accent);border-style:solid}
+
+.lddet{flex:1;min-width:0;overflow-y:auto;background:var(--cream-100)}
+.ldbar{background:var(--cream-200);border-bottom:1px solid var(--rule);padding:12px 22px;display:flex;align-items:center;gap:11px}
+.ldbar .ic{width:26px;height:26px;border-radius:var(--r-ctl);display:grid;place-items:center;background:var(--cream-50);color:var(--accent)}
+.ldbar .ic svg{width:14px;height:14px}
+.ldbar h2{font-family:var(--serif);font-weight:400;font-size:17px;margin:0;flex:1}
+.ldbar .cancel{appearance:none;border:0;background:transparent;cursor:pointer;font:600 12px/1 var(--sans);color:var(--ink-600)}
+.ldbar .cancel:hover{color:var(--accent)}
+
+/* THE MEASURE — the whole point */
+.ldbody{padding:22px 22px 100px}
+.meas{max-width:var(--measure)}
+.field{margin-bottom:18px}
+label{display:block;font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin-bottom:7px}
+.field input,.field textarea{width:100%;min-height:44px;padding:11px 12px;font:400 14px/1.5 var(--sans);color:var(--ink-950);background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);resize:vertical}
+.field input[readonly]{background:var(--cream-200);color:var(--ink-600)}
+.field .hint{font:400 11px/1.5 var(--sans);color:var(--subtle);margin:7px 0 0}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wide{max-width:none}
+
+.savebar{position:sticky;bottom:0;background:var(--cream-200);border-top:1px solid var(--rule);padding:12px 22px;display:flex;align-items:center;gap:14px}
+.savebar p{flex:1;margin:0;font:400 12px/1 var(--sans);color:var(--subtle)}
+.savebar button{appearance:none;border:0;cursor:pointer;background:oklch(56% .14 42 / .4);color:#fff;font:600 11.5px/1 var(--sans);padding:11px 18px;border-radius:var(--r-ctl)}
+
+/* skills rows — controls inline */
+.skrow{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.skrow input{flex:1;height:44px;padding:0 12px;font:400 14px/1 var(--sans);background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl)}
+.skrow .ctl{display:flex;gap:2px;flex:none}
+.skrow .ctl button{width:32px;height:32px;appearance:none;border:0;cursor:pointer;background:transparent;color:var(--ink-400);border-radius:var(--r-ctl);display:grid;place-items:center;font-size:11px}
+.skrow .ctl button:hover{background:var(--cream-200);color:var(--ink-950)}
+.addrow{height:36px;padding:0 14px;appearance:none;cursor:pointer;font:600 12px/1 var(--sans);color:var(--ink-800);background:var(--cream-50);border:1px dashed var(--rule-edge);border-radius:var(--r-ctl)}
+.addrow:hover{border-color:var(--accent);color:var(--accent);border-style:solid}
+
+/* the tabs control — SegmentedToggle's convention */
+.seg{display:inline-flex;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden}
+.seg button{appearance:none;border:0;cursor:pointer;background:var(--cream-50);color:var(--ink-600);font:600 12.5px/1 var(--sans);padding:0 14px;height:40px}
+.seg button+button{border-left:1px solid var(--rule-edge)}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+
+.pubbar{position:fixed;left:calc(50% + (var(--w-side)/2));bottom:20px;transform:translateX(-50%);z-index:120;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 18px;background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:99px;box-shadow:0 16px 36px -18px oklch(14% .018 60 / .45)}
+.pubbar .s{font:400 12.5px/1 var(--sans);color:var(--ink-600);display:flex;align-items:center;gap:9px}
+.pubbar .go{appearance:none;border:0;cursor:pointer;background:oklch(56% .14 42 / .4);color:#fff;font:600 11.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;border-radius:99px}
+
+.note{position:fixed;bottom:20px;left:calc(var(--w-side) + 22px);max-width:330px;z-index:130;background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-card);padding:12px 14px;font:400 11.5px/1.6 var(--sans);color:var(--subtle);box-shadow:0 12px 28px -16px oklch(14% .018 60 / .4)}
+.note b{color:var(--ink-950)}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="#"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.6L20 9.2l-4.3 3.6 1.4 5.9L12 15.6 6.9 18.7l1.4-5.9L4 9.2l5.8-1.6z"/></svg></span><b>Studio</b></a>
+    <p class="grp">Content</p>
+    <nav>
+      <a href="#" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10l8-6 8 6v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Homepage</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Case studies <span class="c">4</span></a>
+      <a href="#" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>Experience <span class="c">5</span></a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Blog <span class="c">3</span></a>
+      <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/></svg>Skills <span class="c">5</span></a>
+    </nav>
+    <div class="foot"><nav>
+      <a href="#" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg>Site settings</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2"/><path d="M11 12h9m0 0-3-3m3 3-3 3"/></svg>Sign out</a>
+    </nav></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg class="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search content" />
+      </div>
+      <a class="viewsite" href="#">View site &#8599;</a>
+    </div>
+
+<div class="ld x-skills">
+      <div class="ldrail">
+        <div class="rt"><input type="search" placeholder="Search categories" /></div>
+        <div class="scroll">
+          <button class="ldrow on"><span class="t">Design</span><span class="s">5 skills</span></button>
+          <button class="ldrow"><span class="t">Research</span><span class="s">4 skills</span></button>
+          <button class="ldrow"><span class="t">Craft</span><span class="s">6 skills</span></button>
+          <button class="ldrow"><span class="t">Tools</span><span class="s">7 skills</span></button>
+          <button class="ldrow"><span class="t">Artificial intelligence</span><span class="s">3 skills</span></button>
+        </div>
+        <div class="lf"><button>+ Add category</button></div>
+      </div>
+      <div class="lddet">
+        <div class="ldbar">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/></svg></span>
+          <h2>Design</h2>
+        </div>
+        <div class="ldbody">
+          <div class="meas">
+            <div class="field"><label>Category name</label><input value="Design" /></div>
+            <label>Skills in this category</label>
+            <div class="skrow"><input value="Product Design" /><span class="ctl"><button>˄</button><button>˅</button><button>✕</button></span></div>
+            <div class="skrow"><input value="UX Design" /><span class="ctl"><button>˄</button><button>˅</button><button>✕</button></span></div>
+            <div class="skrow"><input value="UI Design" /><span class="ctl"><button>˄</button><button>˅</button><button>✕</button></span></div>
+            <div class="skrow"><input value="Interaction Design" /><span class="ctl"><button>˄</button><button>˅</button><button>✕</button></span></div>
+            <div class="skrow"><input value="Design Systems" /><span class="ctl"><button>˄</button><button>˅</button><button>✕</button></span></div>
+            <button class="addrow">+ Add skill</button>
+          </div>
+        </div>
+        <div class="savebar"><p>All changes saved. One save covers every category.</p><button>Save draft</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="note"><b>The controls come inline.</b> They sat in separate bordered boxes to the right of a full-width input. And the save bar stays outside the panel — skills is a singleton, so one save covers every category.</div>
+
+<div class="pubbar">
+  <span class="s"><span style="width:6px;height:6px;border-radius:99px;background:var(--ok);display:inline-block"></span>All changes published</span>
+  <button class="go">Publish site</button>
+</div>
+
+</body>
+</html>
