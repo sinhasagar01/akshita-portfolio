@@ -23,12 +23,13 @@
 // The title and slug are shown READ-ONLY in the canvas bar, where the article's title
 // belongs, with the constraint stated here beside the fields that can change.
 //
-// TOPIC IS A CLOSED SELECT (PR D). #173 kept it an open datalist because no topic set was
-// declared and a closed list would have been invented rather than enforced. PR D declared the
-// set — `BLOG_TOPICS`, exactly the three topics the existing posts already carry — so the mock's
-// four-option dropdown is now honest. The options are read from the same const the sanitizer and
-// the publish gate validate against, so the control and the gates cannot disagree. The empty
-// option ("No topic yet") is the draft state; a topic becomes REQUIRED at publish, not at save.
+// TOPIC IS A CLOSED LISTBOX (PR D closed the set; this PR gave it the animated control). It reads
+// its options from `BLOG_TOPICS`, the same const the sanitizer and the publish gate validate
+// against, so the control and the gates cannot disagree. The empty option ("No topic yet") is the
+// draft state; a topic becomes REQUIRED at publish, not at save. It uses `ListboxField`, not
+// `SelectField`, on purpose: topic is a CONTENT field the author reasons about, while variant,
+// layout and frame stay on the native `SelectField` as config toggles. See ListboxField's header
+// for the by-role split rule and the named migration trigger.
 //
 // `dek` STAYS A PLAIN INPUT. The mock draws it as part of the canvas, styled as prose, but
 // blog has no contenteditable infrastructure and introducing the studio's second one inside
@@ -42,7 +43,8 @@ import SaveIndicator from "./SaveIndicator";
 import { BLOG_STATUSES, BLOG_TOPICS } from "@/lib/studio/blog-format";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 import type { BlogCard } from "@/lib/keystatic";
-import { inputCls, labelCls, SelectField } from "./blocks/fields";
+import { inputCls, labelCls } from "./blocks/fields";
+import { ListboxField } from "./ListboxField";
 
 type HeadFields = { title: string; dek: string; date: string; topic: string; status: string };
 
@@ -189,7 +191,7 @@ export default function BlogEditPanel({
         />
       </label>
 
-      <SelectField
+      <ListboxField
         label="Topic"
         value={values.topic}
         options={["", ...BLOG_TOPICS]}

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Topic control · D — the animated listbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  SHAPE D — THE ANIMATED LISTBOX. Owner's choice, from an external inspiration.
+  A's collapsed footprint with C's control over how the list looks.
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Every value below is taken from the shipped scales, none invented:  ##
+  ##    trigger   44px well, cream-50 on cream-100, CONTROL radius (4px)  ##
+  ##    panel     a FLOATING surface, so CARD radius (8px) — the step     ##
+  ##              #211 gave the modal, the toolbar and the popover        ##
+  ##    option    40px row, hover ground+1, selected ground+1 plus a      ##
+  ##              CHECK rather than the 3px bar (see below)               ##
+  ##########################################################################
+
+  WHY A CHECK AND NOT THE SELECTION LANGUAGE'S LEFT BAR. #209 established
+  ground+1 plus a 3px accent bar for a selected POST IN A RAIL, a selected BLOCK
+  IN A STRIP and a selected ROW IN ListDetailLayout — all of them persistent
+  selections in a list you navigate. A dropdown option is a transient choice in
+  a list you dismiss. Using the bar here would make the same mark mean two
+  different kinds of thing. The check reads as "this is the current value",
+  which is what it is. STATE THIS AS A DECISION rather than letting it look
+  like the language was forgotten.
+
+  THREE THINGS THIS SHAPE TAKES ON THAT THE NATIVE SELECT GAVE FREE:
+    1. KEYBOARD — arrows, Home, End, Escape, type-ahead, and Enter or Space to
+       open. All of it is now yours to write.
+    2. SCREEN READER — role, state, option count, and the active-descendant
+       relationship between the trigger and the highlighted option.
+    3. FOCUS — the platform managed a ring; now the component does, and #209
+       found programmatic .focus() does not trigger :focus-visible, so it must
+       be driven with real keys to be verified at all.
+
+  AND TWO CONSTRAINTS THAT ARE NOT VISIBLE IN A MOCKUP:
+    A. THE PANEL FLOATS INSIDE A SCROLLING PANE. The inspector is
+       overflow-y-auto. A panel positioned absolutely inside it will CLIP at
+       the pane's edge for the last field in the section. Hazard 2 records that
+       StudioModal has no portal, so there is no existing portal to reuse.
+       Decide this before building, not when the last option disappears.
+    B. MOTION NEEDS THE REDUCED-MOTION PATH. #197 and #198 both landed on this,
+       and #198's finding was that a CSS fix for one motion problem created a
+       second affordance problem visible only when both settings were driven
+       SIDE BY SIDE. The toggle below exists so this mock can be read both ways.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:  oklch(98.5% 0.012 80);
+  --cream-100: oklch(96.8% 0.018 78);
+  --cream-200: oklch(93.5% 0.025 76);
+  --ink-950:   oklch(14%   0.018 60);
+  --ink-800:   oklch(26%   0.018 60);
+  --ink-600:   oklch(44%   0.016 60);
+  --subtle:    oklch(45%   0.014 62);
+  --accent:    oklch(56%   0.14  42);
+  --rule:      oklch(14% 0.018 60 / .12);
+  --rule-edge: oklch(14% 0.018 60 / .22);
+  --r-ctl: 4px;
+  --r-card: 8px;
+  --sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --dur: 160ms;
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --lift: 6px;
+}
+html.reduce{ --dur: 0.01ms; --lift: 0px; }
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{ margin:0; padding:40px 24px 220px; background:var(--cream-200);
+      font-family:var(--sans); color:var(--ink-950); -webkit-font-smoothing:antialiased; }
+h1{ font-size:15px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-600); margin:0 0 6px; }
+.sub{ font-size:13px; color:var(--subtle); margin:0 0 22px; max-width:74ch; line-height:1.6; }
+
+.toggle{ display:inline-flex; gap:3px; padding:4px; background:var(--ink-950);
+         border-radius:99px; margin-bottom:34px; }
+.toggle button{ appearance:none; border:0; cursor:pointer; background:transparent;
+  color:oklch(78% 0.012 80); font:600 11.5px/1 var(--sans); letter-spacing:.1em;
+  text-transform:uppercase; padding:9px 16px; border-radius:99px; }
+.toggle button.on{ background:var(--cream-50); color:var(--ink-950); }
+
+.insp{ width:320px; background:var(--cream-100);
+       border:1px solid var(--rule-edge); border-radius:var(--r-ctl); }
+.band{ background:var(--ink-950); color:var(--cream-50); padding:9px 14px;
+       display:flex; justify-content:space-between; align-items:center; border-radius:3px 3px 0 0; }
+.band h4{ margin:0; font-size:11.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+.band .st{ font-size:11px; color:oklch(62% 0.014 60); }
+.body{ padding:16px 14px 18px; }
+.field{ margin-bottom:18px; }
+.field:last-child{ margin-bottom:0; }
+label{ display:block; font-size:11px; font-weight:700; letter-spacing:.14em;
+       text-transform:uppercase; color:var(--ink-600); margin-bottom:7px; }
+.hint{ font-size:11px; line-height:1.5; color:var(--subtle); margin:7px 0 0; }
+input[type=text]{ width:100%; height:44px; padding:0 12px; font:400 14px/1 var(--sans);
+  color:var(--ink-950); background:var(--cream-50);
+  border:1px solid var(--rule-edge); border-radius:var(--r-ctl); }
+
+/* ============ THE LISTBOX ============ */
+.lb{ position:relative; }
+
+.lb-trigger{
+  width:100%; height:44px; padding:0 12px; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  font:400 14px/1 var(--sans); color:var(--ink-950);
+  background:var(--cream-50); border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl); text-align:left;
+}
+.lb-trigger:hover{ background:var(--cream-100); }
+.lb-trigger:focus-visible{ outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+.lb-trigger.empty{ color:var(--subtle); }
+.lb-trigger svg{ width:15px; height:15px; flex:none; color:var(--ink-600);
+                 transition:transform var(--dur) var(--ease); }
+.lb[data-open="true"] .lb-trigger svg{ transform:rotate(180deg); }
+
+.lb-panel{
+  position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:40;
+  background:var(--cream-50); border:1px solid var(--rule-edge);
+  border-radius:var(--r-card); padding:5px;
+  box-shadow:0 14px 30px -14px oklch(14% 0.018 60 / .34);
+  opacity:0; transform:translateY(calc(var(--lift) * -1)); pointer-events:none;
+  transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.lb[data-open="true"] .lb-panel{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+.lb-opt{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  appearance:none; border:0; cursor:pointer; background:transparent;
+  padding:0 10px; height:40px; border-radius:var(--r-ctl);
+  font:400 13.5px/1 var(--sans); color:var(--ink-800); text-align:left;
+}
+.lb-opt:hover,
+.lb-opt[data-active="true"]{ background:var(--cream-100); color:var(--ink-950); }
+.lb-opt[aria-selected="true"]{ background:var(--cream-100); color:var(--ink-950); font-weight:500; }
+.lb-opt .tick{ width:15px; height:15px; flex:none; color:var(--accent); opacity:0; }
+.lb-opt[aria-selected="true"] .tick{ opacity:1; }
+.lb-opt.none{ color:var(--subtle); }
+
+.notes{ width:320px; margin-top:250px; }
+.notes h3{ font-size:13px; font-weight:700; margin:0 0 6px; }
+.notes p{ font-size:12px; line-height:1.65; color:var(--subtle); margin:0 0 10px; }
+.notes b{ color:var(--ink-950); }
+</style>
+</head>
+<body>
+
+<h1>Topic control · D — the animated listbox</h1>
+<p class="sub">A's collapsed footprint with full control over the open list. Click the trigger. Switch the toggle and open it again — under reduce the panel appears instantly and the chevron does not rotate, which is the path #197 and #198 established and the one most likely to be forgotten.</p>
+
+<div class="toggle">
+  <button id="bN" class="on" onclick="rm(false)">Normal motion</button>
+  <button id="bR" onclick="rm(true)">Reduced motion</button>
+</div>
+
+<div class="insp">
+  <div class="band"><h4>Post</h4><span class="st">Saved</span></div>
+  <div class="body">
+    <div class="field">
+      <label>Dek</label>
+      <input type="text" value="Most AI features are a second route…" />
+    </div>
+    <div class="field">
+      <label>Topic</label>
+      <div class="lb" id="lb" data-open="false">
+        <button class="lb-trigger" id="trig" aria-haspopup="listbox" aria-expanded="false" onclick="tog()">
+          <span id="val">Enterprise UX</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="lb-panel" role="listbox" id="panel"></div>
+      </div>
+      <p class="hint">Published posts need a topic.</p>
+    </div>
+  </div>
+</div>
+
+<div class="notes">
+  <h3>What this shape costs</h3>
+  <p><b>Two things a mockup cannot show.</b> The panel floats inside a pane that is <code>overflow-y-auto</code>, so for the last field in a section it will clip at the pane's edge — and hazard 2 records that <code>StudioModal</code> has no portal, so there is nothing existing to reuse. And the motion needs the reduced-motion path, which is the toggle above.</p>
+  <p><b>Three things the native select gave free.</b> Keyboard (arrows, Home, End, Escape, type-ahead), screen reader (role, state, count, active descendant), and a focus ring the platform managed. All three are now the component's to write and to prove.</p>
+  <p><b>The check rather than the 3px bar is deliberate.</b> #209's selection language marks a persistent selection in a list you navigate. A dropdown option is a transient choice in a list you dismiss — using the bar would make one mark mean two kinds of thing.</p>
+</div>
+
+<script>
+const TOPICS = ["AI in product", "Enterprise UX", "Design systems"];
+let selected = "Enterprise UX";
+
+function render(){
+  const p = document.getElementById("panel");
+  p.innerHTML = "";
+  const tick = `<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>`;
+  const mk = (label, isNone) => {
+    const b = document.createElement("button");
+    b.className = "lb-opt" + (isNone ? " none" : "");
+    b.setAttribute("role", "option");
+    b.setAttribute("aria-selected", String(selected === label));
+    b.innerHTML = `<span>${label}</span>${tick}`;
+    b.onclick = () => { selected = label; render(); tog(false); };
+    return b;
+  };
+  TOPICS.forEach(t => p.appendChild(mk(t, false)));
+  p.appendChild(mk("No topic yet", true));
+
+  const v = document.getElementById("val");
+  v.textContent = selected;
+  document.getElementById("trig").classList.toggle("empty", selected === "No topic yet");
+}
+
+function tog(force){
+  const lb = document.getElementById("lb");
+  const open = force === undefined ? lb.dataset.open !== "true" : force;
+  lb.dataset.open = String(open);
+  document.getElementById("trig").setAttribute("aria-expanded", String(open));
+}
+
+function rm(on){
+  document.documentElement.classList.toggle("reduce", on);
+  document.getElementById("bN").classList.toggle("on", !on);
+  document.getElementById("bR").classList.toggle("on", on);
+}
+
+document.addEventListener("click", e => {
+  if (!document.getElementById("lb").contains(e.target)) tog(false);
+});
+render();
+</script>
+</body>
+</html>

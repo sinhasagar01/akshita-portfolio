@@ -68,15 +68,17 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
 export const BLOG_STATUSES = ["draft", "published"] as const;
 export type BlogStatus = (typeof BLOG_STATUSES)[number];
 
-/** The closed topic set (PR D). The three values are EXACTLY the topics the three existing posts
- *  already carry, deliberately not a taxonomy invented ahead of the posts that would use it — a
- *  closed list of unused topics would be invented rather than enforced. It grows by one line when
- *  a fourth topic is actually written, and the author who needs it is the one who names it.
+/** The closed topic set. PR D closed it to EXACTLY the three topics the existing posts carried,
+ *  because a list of unused options would be invented rather than enforced. `"Motion in Design"`
+ *  is a DELIBERATE DEPARTURE from that rule — it is added ahead of any post that uses it, so the
+ *  set is now a growing one authored forward rather than derived from disk. The departure is
+ *  named here and in the PR body rather than left to look like the constant drifted. The migration
+ *  stays a no-op: every PUBLISHED post remains a member, so `validate-blog-post` F7 still passes.
  *  ENFORCED IN TWO PLACES, each a different question: the sanitizer here refuses a NON-EMPTY value
  *  outside the set at the write boundary (empty is allowed, a draft may be unset), and the publish
  *  gate (validate-blog-post) requires a member on a PUBLISHED post, mirroring `alt` and the title.
  *  Both read this one const, so the editor's dropdown and the two gates cannot disagree. */
-export const BLOG_TOPICS = ["AI in product", "Enterprise UX", "Design systems"] as const;
+export const BLOG_TOPICS = ["AI in product", "Enterprise UX", "Design systems", "Motion in Design"] as const;
 export type BlogTopic = (typeof BLOG_TOPICS)[number];
 
 /** Authored ISO date, exactly YYYY-MM-DD. Enforced on the way in because the read path
