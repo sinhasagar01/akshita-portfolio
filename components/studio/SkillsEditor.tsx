@@ -140,7 +140,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
     // document-level save bar below — the wrapper becomes load-bearing.
     //
     // `lg:` to match both of the layout's rules; below `lg` this is ordinary document flow.
-    <div className="flex flex-col gap-4 lg:min-h-0 lg:flex-1">
+    <div className="flex flex-col lg:min-h-0 lg:flex-1">
       <ListDetailLayout
         sections={cats.map((c, i) => ({ id: ids[i], name: c.category.trim() || "Untitled category" }))}
         onAddItem={onAddItem}
