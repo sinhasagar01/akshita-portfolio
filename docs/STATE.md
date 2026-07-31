@@ -2917,9 +2917,32 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
     about the shape of a solution and wrong about the shape of the problem**, and nothing in it
     can tell you which — the previous seventeen corrections were all about the file describing a
     studio that had changed; this one describes content it never looked at.
+  - **C-26 — THE HOMEPAGE LIST CAP.** The contract specifies `max-width:1020px` for the overview
+    list; the page ships **960**, and 960 is the value that stays. The contract's 1020 was drawn
+    against nothing, while 960 was deliberately chosen — **a cap that was set on purpose does not
+    loosen because a mockup guessed differently.** No code changed. Worth recording because the
+    fidelity audit first read this as an implementation gap in the page's favour, when the page is
+    the stricter of the two.
   - Also refuted: "a collapsible-group pattern already exists" (`DisclosureGroup` is field-level,
     one-way and sticky, and no `<details>` exists in `components/studio`), and "the index needs a
     bespoke row" (it already is one). See the consistency investigation, section G.
+- **⚠ THE FIXED-POSITION `.note` CARD IS MOCKUP FURNITURE. DO NOT BUILD IT — IN ANY CONTRACT.**
+  Recorded here ONCE rather than as a line in each of the ten files that define it, because ten
+  copies of a warning is nine chances for them to drift.
+  **It is `position:fixed; bottom:20px; left:calc(w-side + 22px); max-width:330px; z-index:130`**,
+  and it appears in `studio-page-homepage`, `-experience`, `-skills`, `-site-settings`,
+  `studio-ink-chrome`, `studio-blog`, `studio-shell` and `blog-article`. **Its content is
+  commentary addressed to the OWNER about the design**, not UI copy — verbatim: *"No panel, per
+  the owner… What changes: the green LIVE pill becomes the published dot"*, and *"Two fixes. The
+  fields get a 760px measure — yours were ~1900px wide, which is unreadable."* Building it would
+  put "yours were ~1900px wide" permanently on a studio page.
+  **AND `.note` IS TWO DIFFERENT THINGS SHARING A CLASS NAME, which is why this needs saying.**
+  `studio-dashboard-mockup` uses `.note` for an INLINE sub-note (`font-size:10px; margin:2px 0 0`)
+  under an overview row — **and that one is real and already shipped**: `OverviewRow` carries a
+  `note` prop, and the homepage route passes exactly the mockup's strings, `note="facet labels in
+  code"` and `note="stage visuals in code"`. So the `.note` that was ever meant as UI exists; the
+  fixed card is the one that never was. A future reader meeting the fixed card should recognise
+  it as the designer talking, not as a component brief.
 - Six untracked explorations, unrelated, left alone.
 
 ---
@@ -3223,6 +3246,36 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   that does not exist (hazard 23), two utilities racing on sheet order (hazard 26), and a constant
   crossing the server/client boundary as a throwing proxy (#240). **It answers "is this token
   legible on that ground", not "is that token the one that renders."**
+
+- **#244** the skills row controls and the homepage head cap →1613 (no net-new; both are class
+  changes). PRs C and D of four, shipped together because after re-measuring they are one small
+  PR. **The fidelity audit is now closed.**
+  **D IS THE ONLY THING A PERSON WOULD NOTICE, AND IT IS MINE.** #240's brief said the skills row
+  controls should come "inline rather than sitting in separate bordered boxes" — right direction.
+  I reached for `.seg`'s shape: one border, `overflow:hidden`, hairline dividers. **`.seg` is the
+  SITE-SETTINGS segmented toggle**, a control that picks a VALUE and wears a group border because
+  its members are alternatives. These are a row's ACTIONS — move up, move down, remove — which are
+  not alternatives and do not want a box drawn round them. The row-control spec is `.skrow .ctl`:
+  `display:flex; gap:2px`, 32×32 borderless buttons. **Measured 98 → 100px**, border gone,
+  dividers gone, gaps 0 → 2.
+  **C1 IS TIDYING AND THE BODY SAYS SO.** The audit implied a visible overhang; measured, the head
+  box ran 1237 against the list's 960 — **277px** — but the `h1` renders **80px** and the lede
+  carries its own 650.926px cap, so **nothing overhangs and nothing will unless a page title
+  exceeds 960px.** A latent box inconsistency, not something on screen. **277 → 0.**
+  **AND THE CAP DID NOT GO WHERE THE RECHECK SAID.** "One class on `AreaHeader`'s wrapper" would
+  have been the shared-seam trap #239 and #240 both hit: `AreaHeader` is also rendered by the blog
+  and projects indexes, **whose content is UNCAPPED**, so capping the component would have created
+  the inverse misalignment on two pages to fix it on one. The cap went on the homepage route,
+  wrapping the head and the list together **so the 60rem is stated once and they cannot drift
+  apart again**. Verified: the blog index's head is untouched at 1237.
+  **C3 IS CORRECTION 26 AND NO CODE.** The contract wants 1020; the page ships 960 and keeps it.
+  A cap set on purpose does not loosen because a mockup guessed differently — and the audit had
+  first read this as a gap in the page's favour when the page is the stricter of the two.
+  **C2 IS RECORDED, NOT BUILT, IN ONE PLACE.** The fixed-position `.note` is commentary addressed
+  to the owner and appears in eight contracts; the record sits once in the design-reference
+  section rather than as a line in each, because ten copies of a warning is nine chances to drift.
+  **The evidence that settles it: `.note` is TWO THINGS sharing a class name, and the inline one
+  already shipped** as `OverviewRow`'s `note` prop, passing the mockup's own strings.
 
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
