@@ -2876,6 +2876,46 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 2 · well = ground, six sites** →1486 (no net-new; a relational repaint). **THIS APPLIED A
+  DOCUMENTED RULE RATHER THAN MAKING ONE.** The note at `blocks/fields.tsx:151-166` named this
+  defect class before any of these six shipped — "an input reads as a well because it is one step
+  LIGHTER than the surface holding it, never because it is a particular colour" — and the
+  investigation found all six by FOLLOWING that note, not by inspection.
+  **cream-50 IS THE LADDER'S BOTTOM STEP, so every fix moved the GROUND, never the input.** That
+  is the difference from the three times this arc got it wrong by reaching for a fixed value
+  (#205's input colour, the item-3 recommendation, PR B's fill).
+  **SIX NAMED SITES ARE FIVE CODE CHANGES**, which is itself the finding: `StudioModal` is shared
+  by the projects index, the blog index and experience, so one line fixed three of the six.
+  Measured before → after, per site, sanity pair (21:1) first each time:
+
+  | site | before | after |
+  |---|---|---|
+  | `StudioModal` panel (×3 modals) | 1.00 | **1.05** |
+  | `SkillsEditor` CategoryPanel | 1.00 | **1.05** (all 6 of its inputs) |
+  | `SectionsEditPanel` Selected rail | 1.00 **twice** | **1.05** |
+  | `BlogIndex` search | 1.00 | **1.05** |
+  | `LoginForm` password | 1.00 | **1.05** |
+
+  **TWO SITES NEEDED A DIFFERENT ACTION, AND THAT IS THE RULE WORKING RATHER THAN AN EXCEPTION.**
+  `BlogIndex`'s search sat on the bare page with NO panel between it and `main`, so there was no
+  ground to recolour — the fix had to CREATE one (a cream-100 toolbar), which matches the
+  precedent next door: `BlogPostList`'s identical search reads correctly only because the rail
+  holding it is darker. And `LoginForm` needed TWO steps, because moving the body to cream-100
+  alone would have made it identical to its cream-100 header — one same-on-same traded for
+  another — so the header moved to cream-200 and the panel now reads chrome → surface → well,
+  verified monotonic (243,232,216 < 251,243,231 < 254,249,241).
+  **THE SELECTED RAIL WAS A DOUBLE COLLISION**, not one: the rail was cream-50 on the cream-50
+  body section (so the rail itself was invisible) AND its textarea was cream-50 on the cream-50
+  rail. **It is coupled to a defect PR 7 owns** — `SectionsEditPanel:886` inverts the ladder
+  (cream-50 body, cream-100 header, the mirror of its siblings). Deliberately NOT fixed here: its
+  other half is a nested 12px-panel-inside-a-12px-panel, which is structure, and folding structure
+  into a colour sweep is how a repaint becomes a redesign. **A note in the source tells PR 7 that
+  when it rights the body to cream-100 the rail must move to cream-200 in the same change**, or
+  the collision returns.
+  **NOT A SEVENTH SITE, CONFIRMED AGAINST #206:** the readonly displays
+  (`ExperienceEditPanel:136`, and `ProjectsEditPanel:273` — there are TWO, not one) are cream-200
+  on cream-100, DARKER than their ground. That is the READONLY-DISPLAY convention, and the field's
+  own comment records that the ladder is exactly why it moved cream-100 → cream-200. Left alone.
 - **PR 4 · hazard 17 closed, and the consistency investigation recorded** →1486 (no net-new; a
   correctness fix and documentation). **The studio consistency arc opens here.** An investigation
   across all nine dashboard pages plus login **refuted the working claim** that the case-study
@@ -3124,11 +3164,10 @@ refuted the assumption that the studio was finished except for one page. See PR 
 - **PR 1 · THE LABEL TREATMENT.** Adopt `labelCls` across the 36 ad-hoc eyebrow spans in 14
   files and settle the three live sizes into one. Pure paint, mechanically checkable, gate it.
   *Left inconsistent after:* section headers, wells.
-- **PR 2 · WELL = GROUND, SIX SITES.** `StudioModal.tsx:88` (so the projects index, blog index
-  and experience modals), `SkillsEditor.tsx:192`, `SectionsEditPanel.tsx:365`,
-  `LoginForm.tsx:52`, `BlogIndex.tsx:151`. One relational rule, six applications —
-  `blocks/fields.tsx:151-166` already predicts every one of them.
-  *Left inconsistent after:* section headers.
+- ~~**PR 2 · WELL = GROUND, SIX SITES.**~~ — **SHIPPED.** Six named sites, five code changes
+  (`StudioModal` covers three modals). All 1.00 → 1.05, measured per site. See its log entry for
+  the two that needed a different action, and for the Selected rail's coupling to PR 7.
+  *Left inconsistent after:* section headers, and `SectionsEditPanel:886`'s inversion (PR 7).
 - **PR 3 · THE SECTION HEADERS.** The decision is TAKEN (see LOCKED DECISIONS): ink band for
   inspector panes, cream-200 bar for entry panels. Skills gets a cream-200 bar. `studio-ink`'s
   band count stays 2 here. *Left inconsistent after:* nothing in Track 1.

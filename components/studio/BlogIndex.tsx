@@ -136,7 +136,15 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
+      {/* THE TOOLBAR IS A SURFACE, and this is the one site in the sweep where the fix had to
+          CREATE a ground rather than recolour one. Measured, the search well was cream-50
+          sitting directly on the page's cream-50 `main` — 1.00, no panel between them. The rule
+          is relational (blocks/fields.tsx:151-166) and cream-50 is the ladder's BOTTOM step, so
+          a well on a bare cream-50 page cannot be made to read by changing the input; it needs a
+          darker surface to sit in. cream-100 is the field-surface step, and it matches the
+          precedent next door — BlogPostList's identical search reads correctly because the rail
+          holding it is darker. */}
+      <div className="flex flex-wrap items-center gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-3">
         <input
           type="search"
           value={query}

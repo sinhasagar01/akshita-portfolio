@@ -85,7 +85,14 @@ export function StudioModal({
         onKeyDown={(e) => {
           if (e.key === "Escape" && !busy) onClose();
         }}
-        className="w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
+        // THE PANEL IS THE FIELD SURFACE (cream-100), NOT THE WELL STEP. Measured, this panel
+        // was cream-50 and the inputs its consumers put inside it are `inputCls`, also cream-50
+        // — a 1.00 ratio, so the well was invisible against the box holding it. The ladder is
+        // relational (blocks/fields.tsx:151-166): a well reads because it is one step LIGHTER
+        // than its surface, and cream-50 is the BOTTOM step, so the surface had to move rather
+        // than the input. All three consumers (the projects index, the blog index and
+        // experience) are fixed by this one line.
+        className="w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
       >
         <h2 id={titleId} className="font-display text-2xl text-ink-950">
           {title}
