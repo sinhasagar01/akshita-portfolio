@@ -122,10 +122,14 @@ t("C1: ink-200 is a pre-existing token, not one this PR introduced",
  * the sidebar's appearance, so it pins that the width class still exists on the element whose
  * ground it governs. The equality with PublishBar's offset moved to `three-pane` beside the other
  * derivations, because it is a coupling between two files and not a fact about ink. */
-t("D1: the sidebar still declares a width on the element this suite governs",
-  /lg:w-\[\d+px\]/.test(sidebar), true);
-t("D1: …and the arithmetic that consumes it is DERIVED in three-pane, not restated here",
-  /const SIDEBAR_PX = \(\(\) => \{/.test(read("ralph/tests/three-pane.mjs")), true);
+t("D1: the sidebar's width is a custom property on the element this suite governs",
+  /lg:w-\[var\(--studio-sidebar-w\)\]/.test(sidebar), true);
+// THE LAST LITERAL IS GONE. #236 asserted the sidebar and PublishBar carried EQUAL literals; the
+// resize PR made them consume the same property, so there is nothing left to keep in step.
+t("D1: …and no literal width survives on it",
+  /lg:w-\[\d+px\]/.test(sidebar), false);
+t("D1: …with the bounds and the clamp owned by one module, not by this suite",
+  /export function clampSidebarWidth/.test(read("lib/studio/sidebar-width.ts")), true);
 
 /* ============================================ E. THE PANEL LANGUAGE (PR 2a) */
 import { readdirSync } from "node:fs";

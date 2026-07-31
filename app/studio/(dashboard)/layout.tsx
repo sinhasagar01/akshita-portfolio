@@ -8,6 +8,9 @@ import { PublishProvider } from "@/components/studio/PublishProvider";
 import { StudioCountsProvider } from "@/components/studio/StudioCountsProvider";
 import PublishBar from "@/components/studio/PublishBar";
 import { buildStudioSearchIndex } from "@/lib/studio/search-index";
+import SidebarWidthProvider from "@/components/studio/SidebarWidthProvider";
+import SidebarResizer from "@/components/studio/SidebarResizer";
+import { clampSidebarWidth, SIDEBAR_COOKIE } from "@/lib/studio/sidebar-width";
 
 // GH-6 — owner gate for the whole /studio dashboard. Runs in the Node RSC
 // runtime (verifyOwnerSession uses node:crypto, which Edge middleware cannot
@@ -31,6 +34,13 @@ export default async function DashboardLayout({
   if (!session) {
     redirect("/studio/login");
   }
+
+  // THE WIDTH COMES OFF THE SAME JAR AS THE SESSION, which is the whole reason there is no
+  // hydration flash: the server renders the sidebar at the stored width, so the first paint is
+  // correct rather than corrected. CLAMPED ON THE READ — a cookie written while the bounds were
+  // wider outlives the build that allowed it, so the stored value is advisory and the clamp is
+  // always today's. See lib/studio/sidebar-width.ts.
+  const sidebarWidth = clampSidebarWidth(jar.get(SIDEBAR_COOKIE)?.value);
 
   const { projects, experience, blog, skills, draftDiffers, draftReadError } = await getStudioData();
   // Client-side search index, built once from the data already loaded here.
@@ -78,8 +88,19 @@ export default async function DashboardLayout({
           root carries `data-studio-fullheight`, this rule keys off it, and every page that
           does not opt in keeps exactly the box it had before. No route list here to fall
           out of step with the routes. */}
-      <div className="flex min-h-screen flex-col lg:flex-row lg:has-[[data-studio-fullheight]]:h-dvh">
+      {/* The provider RENDERS this div rather than wrapping it — the custom property has to be
+          declared on the element the server already emits, or the SSR value and the client's
+          per-move write would land on two different ancestors and the nearer one would win.
+          The DOM is unchanged; only who renders it moved. */}
+      <SidebarWidthProvider
+        initial={sidebarWidth}
+        className="flex min-h-screen flex-col lg:flex-row lg:has-[[data-studio-fullheight]]:h-dvh"
+      >
         <StudioSidebar />
+        {/* A SIBLING OF THE ASIDE, NOT A CHILD. The aside is `lg:overflow-y-auto`, so a handle
+            inside it would scroll with the nav and disappear. It sits in the flex row between
+            the sidebar and main, where the seam it drags actually is. */}
+        <SidebarResizer />
         <main className="flex min-w-0 flex-1 flex-col bg-cream-50 lg:has-[[data-studio-fullheight]]:min-h-0">
           <StudioTopbar searchItems={searchItems} />
           {/* The Publish bar lives at the layout level (persists across /studio
@@ -101,7 +122,7 @@ export default async function DashboardLayout({
             <PublishBar />
           </PublishProvider>
         </main>
-      </div>
+      </SidebarWidthProvider>
     </StudioCountsProvider>
   );
 }

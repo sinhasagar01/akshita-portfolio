@@ -81,8 +81,10 @@ export default function ThreePaneShell({
 }: {
   list: ReactNode;
   canvas: ReactNode;
-  /** The viewport width at or above which THIS CONSUMER's three panes fit at their natural
-   *  sizes. Required, and passed rather than imported, because it is the one thing in this
+  /** The PAGE-BOX width at or above which THIS CONSUMER's three panes fit at their natural
+   *  sizes — `sidebarPx + <its pane sum>`, computed by the caller because the sidebar is now
+   *  resizable and the sum is no longer a constant anyone can import.
+   *  Required, and passed rather than imported, because it is the one thing in this
    *  shell that was genuinely blog-shaped: it read `FIT_THRESHOLD_PX` (1614) directly, which
    *  is blog's canvas measure, so a second consumer would have inherited blog's breakpoint
    *  silently and collapsed its list at the wrong width. The case study's is 1460 — LOWER,

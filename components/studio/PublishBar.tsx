@@ -204,9 +204,12 @@ export default function PublishBar() {
   }
 
   return (
-    // Task 1 full-bleed offset: lg:left-[236px] shifts the fixed bar past the
+    // Task 1 full-bleed offset: lg:left-[var(--studio-sidebar-w)] shifts the fixed bar past the
     // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
-    // this 236px is coupled to StudioSidebar's lg:w-[236px] by hand. If the
+    // THIS IS NO LONGER HAND-COUPLED. It used to be `lg:left-[236px]`, matching StudioSidebar's
+    // `lg:w-[236px]` by comment and by a ralph assertion that the two literals were equal. They
+    // are now the SAME custom property, so the coupling is structural rather than vigilant —
+    // hazard 1's display half, closed. The note below is kept for its reasoning. If the
     // sidebar width changes, change this too, or the bar drifts off-centre.
     //
     // THE THREE-PANE EDITOR MAKES THE BAR OFF-CENTRE AND THAT IS ACCEPTED. On
@@ -223,7 +226,7 @@ export default function PublishBar() {
     // The three-pane widths themselves are NOT hand-coupled — they live once in
     // lib/studio/three-pane.ts and ralph asserts no second literal exists. That
     // is the pattern this 236px should follow whenever it is next touched.
-    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[236px]">
+    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
       <div
         className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)] backdrop-blur"
         {...(confirmOpen

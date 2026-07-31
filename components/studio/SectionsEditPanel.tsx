@@ -31,7 +31,8 @@ import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-r
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
-import { CS_MIN_SCALE, CS_FIT_THRESHOLD_PX, CS_COLLAPSED_FLOOR_PX } from "@/lib/studio/three-pane";
+import { CS_MIN_SCALE, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
+import { useSidebarWidth } from "./SidebarWidthProvider";
 import { usePageWidthMin } from "./usePageWidthMin";
 import ThreePaneShell from "./ThreePaneShell";
 import SectionsRail from "./SectionsRail";
@@ -727,10 +728,15 @@ export default function SectionsEditPanel({
   const showBoard = selection === "board";
   const showDetails = selection === "details";
   // Below this the inspector pane folds and the crumb row's view toggle becomes the route to
-  // those fields. CS_COLLAPSED_FLOOR_PX rather than blog's 1100 because it is DERIVED: below it
+  // those fields. Its own DERIVED sum rather than blog's chosen 1100, because below it
   // the canvas drops under its 50% floor even with the rail collapsed, which is the width at
   // which folding the inspector is the only lever left.
-  const inspectorFits = usePageWidthMin(CS_COLLAPSED_FLOOR_PX);
+  // THE SIDEBAR IS ADJUSTABLE, SO THE THRESHOLD IS A SUM RATHER THAN A CONSTANT. The composite
+  // constants were deleted in the resize PR: a number true only at a 236px sidebar is worse than
+  // no number once the studio ships a control whose purpose is to move off 236. What stayed
+  // constant is the panes; the sidebar term arrives live.
+  const sidebarPx = useSidebarWidth();
+  const inspectorFits = usePageWidthMin(sidebarPx + CS_COLLAPSED_PANES_SUM);
   // Where the Editor toggle returns to. Without it, leaving the Board would have to guess, and
   // guessing "the first section" loses the place an author was working in.
   const lastEditedRef = useRef<Selection>("details");
@@ -1655,7 +1661,7 @@ export default function SectionsEditPanel({
 
       <div hidden={showBoard} className="flex min-h-0 flex-1">
         <ThreePaneShell
-          fitThresholdPx={CS_FIT_THRESHOLD_PX}
+          fitThresholdPx={sidebarPx + CS_PANES_SUM}
           listNoun="sections"
           list={
             <SectionsRail

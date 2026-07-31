@@ -2156,37 +2156,22 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
 
 ## HAZARDS AND KNOWN DUPLICATIONS
 
-1. **The 236px coupling** (#165) — **SEVEN sites, and the arithmetic half is now DERIVED
-   rather than counted (#236).** The recorded text said "in `StudioSidebar` and `PublishBar`"
-   (two) and `studio-ink` D said "all five sites" while pinning four. Re-derived at HEAD:
+1. ~~**The 236px coupling**~~ (#165) — **CLOSED, BOTH HALVES (#237).** It survived from #165 to
+   #237 as comment-enforced coupling, was re-derived to SEVEN sites in #236 (three display, four
+   behavioural — the recorded text had said two, and `studio-ink` D had said five while pinning
+   four), and is now gone rather than guarded:
+   - **THE ARITHMETIC HALF** — the three composite thresholds that summed 236 were DELETED. A
+     constant true only at a 236px sidebar is worse than no constant once the studio ships a
+     control whose purpose is to move off 236. What replaced them is the part that was always
+     constant: `PANES_SUM`, `CS_PANES_SUM`, `CS_COLLAPSED_PANES_SUM`, with the caller adding the
+     live width. **Third deletion of this shape**, after `FIT_THRESHOLD_PX` shipping with zero
+     consumers and `--radius-2xl` sitting below `--radius-xl`.
+   - **THE DISPLAY HALF** — `StudioSidebar`'s width and `PublishBar`'s offset are now the SAME
+     custom property. #236 had to assert the two literals were equal; there is nothing left to
+     keep in step, so the assertion became an identity. **This half was not expected to close in
+     this PR**, and it is the strongest argument for the custom property over an inline style.
+   The width now lives in `lib/studio/sidebar-width.ts` and travels as `--studio-sidebar-w`.
 
-   | site | kind |
-   |---|---|
-   | `StudioSidebar` `lg:w-[236px]` | display — the pane itself |
-   | `PublishBar` `lg:left-[236px]` | display — offsets a `fixed` bar past it |
-   | `FIT_THRESHOLD_PX` 1614 | **behavioural** — blog list collapses |
-   | `CS_FIT_THRESHOLD_PX` 1460 | **behavioural** — case-study list collapses |
-   | `CS_COLLAPSED_FLOOR_PX` 1223 | **behavioural** — case-study inspector folds |
-   | `INSPECTOR_FOLD_PX` 1100 | **behavioural, soft** — chosen not summed, but its MEANING ("is the inspector still usable") moves with the sidebar even though no arithmetic breaks |
-   | the derivation comments (×10) | documentation |
-
-   **Three display, four behavioural** — the old note's "one of them is behavioural" understated
-   it, because the two case-study constants landed after the note and nothing recounted.
-   **THE COUNT NO LONGER MATTERS, WHICH IS THE FIX.** `three-pane` Part A reads the width out of
-   `StudioSidebar`'s class and sums it into every threshold, so no site restates the number.
-   Mutation-proven: moving the class to 260 with the constants untouched fails **nine**
-   assertions across A, H and I, where before it failed one regex and left both case-study
-   constants silently wrong.
-   **It did NOT become a second literal in #178**: the three-pane widths live
-   once in `lib/studio/three-pane.ts` and ralph asserts no duplicate exists. That is the
-   pattern the 236px should follow whenever it is next touched.
-   **#194 FOUND THE HALF OF THIS THAT WAS NOT GUARDED.** The suite forbade a second copy of
-   the THRESHOLD but never tied the shell's pane width CLASSES to the terms of the sum that
-   produces it, so widening the inspector in the class alone would have left every gate green
-   while `FIT_THRESHOLD_PX` still claimed three panes fit 76px too early — and the canvas
-   would have silently dropped below its 697.9296875 measure. `three-pane.mjs` section H now
-   READS the widths out of the class strings and sums them, so either half moving alone
-   fails. **A coupling Tailwind makes impossible to delete is a coupling you assert.**
 2. **`StudioModal`'s no-portal dependency** (#168).
 3. **`keystatic.config.ts`'s mirror of the image bases** (#172) — test-enforced. **OPEN:
    does the cross-check compare the full key set in both directions?**
@@ -2959,6 +2944,55 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   fails when someone fixes the thing.
   **RENAMED `useMediaMin` → `usePageWidthMin`**, citing `StudioSidebar.tsx:52`'s `FIT_THRESHOLD_PX`
   note as the precedent for a name outliving its meaning.
+
+- **#237** the resizable sidebar — the drag (`21ad912`..) →1575 (`three-pane` 99→113, `studio-ink`
+  D re-pointed). **THE OWNER CHOSE THE DRAG KNOWING THE NUMBER**: its entire useful range below
+  236 is **52px**, where collapsing to icons would have bought **129px**. The ask was for the
+  CONTROL, not the room, and that is a legitimate thing to want.
+  **HAZARD 1 CLOSED, BOTH HALVES — and only one of them was expected.** The arithmetic half was
+  the plan; the DISPLAY half closed too, because `StudioSidebar`'s width and `PublishBar`'s offset
+  became the same custom property rather than two literals asserted equal. That is the argument
+  for the custom property over an inline style, and it was not the argument given for it.
+  **LIVE OR ON COMMIT, SPLIT BY KIND.** The width and every pane's size are LIVE with zero React
+  renders — the handle writes one CSS property on `pointermove`, the panes are flex children so
+  they reflow natively, and `useFitToWidth`'s ResizeObserver makes the canvas scale track the drag
+  for free. The THRESHOLD decisions commit on `pointerup`, because re-evaluating a discrete
+  decision per move gives a pane that pops shut and open as the pointer crosses a boundary.
+  **What stops it thrashing is structural rather than a debounce** — the only per-move write is a
+  CSS property, and no threshold is consulted until the gesture ends. There is no timer to tune.
+  **AND THE ONE HONEST COST LANDS ON A GUARD THAT ALREADY EXISTS**: dragging past the threshold
+  leaves the canvas under 640 until release, which `useFitToWidth`'s 50% clamp covers — the guard
+  #235 established for the explicit-open path, covering the mid-drag path without being told to.
+  **TWO DEFECTS FOUND BY DRIVING IT, BOTH SILENT, AND THE SECOND IS THE ONE THAT MATTERED.**
+  **(1)** In flow with `-mr-1`, `main` started 4px inside the handle and painted over half its hit
+  area — a pointerdown at x=241 inside a 236..244 handle reported a BUTTON in main as its target
+  and the drag never began. Half the affordance was dead and it looked fine.
+  **(2)** An in-flow flex item CONSUMES LAYOUT WIDTH. Net 4px came off the work area, so at a
+  288px sidebar the canvas measured **645 where every sum promises 649** — a term nobody put in
+  the arithmetic, introduced by the control built to sit on the seam. Absolute on the seam, it
+  consumes nothing. **The control built during the arithmetic arc nearly shipped the arc's own
+  defect.**
+  **DRIVEN AT THE CLAMP AND ACROSS IT.** At page 1521: sidebar 184 → canvas 749, 236 → 701,
+  288 → **649 / 0.507**, three panes holding with 9px of headroom. And the threshold is REACTIVE:
+  at page 1450, where the collapse point (sidebar > 226) falls INSIDE the clamp, 224 keeps the
+  list open at canvas 642 and 232 collapses it to 871.
+  **⚠ "288 IS SAFE" IS A FACT ABOUT A 1536 LAPTOP, NOT ABOUT THE CONTROL**, and it is recorded at
+  the clamp's definition rather than only in the PR: on a narrower display the collapse point
+  falls inside the range, and dragging to 288 there will collapse the list. That is the feature
+  working and it will look like a bug to whoever meets it first.
+  **THE CLAMP IS APPLIED ON THE READ**, which is what survives a future clamp change — a cookie
+  written under wider bounds outlives the build that allowed it. Proven from the SERVER HTML, not
+  post-hydration state: cookie 200 → 200, **320 → 288**, 50 → 184, "abc" → 236.
+  **NO HYDRATION FLASH, BY CONSTRUCTION.** The layout already called `cookies()` for the session;
+  it reads the width in the same call, so the first paint is correct rather than corrected.
+  `localStorage` would have guaranteed the opposite. **#178 survives**, driven at a narrow load
+  with a non-default cookie: sidebar 288 on arrival, list collapsed, duration 0s, **zero running
+  animations**, then an explicit toggle switches the transition on.
+  **KEYBOARD DRIVEN WITH REAL KEYS**, per #209: `:focus-visible` **true**, handle and outline both
+  accent-500, arrows ±8, Home → 184, and **Enter toggles MINIMUM ↔ last non-minimum** rather than
+  the default — binding it to 236 would hand a keyboard user the one width they already had.
+  **CONTRAST**, sanity pair 21 first: accent-500 measures **4.05 on ink-950** and **4.70 on
+  cream-50**, both clear of the 3:1 floor for a non-text indicator (1.4.11).
 
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
