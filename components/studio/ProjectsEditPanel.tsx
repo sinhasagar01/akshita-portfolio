@@ -159,7 +159,16 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       aria-label={`Edit ${title}`}
       className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 bg-cream-200 px-4 py-3">
+      {/* `border-b border-ink-950/12` — this was the ONE entry-panel header missing its
+          hairline, so the cream-200 bar ran into the cream-100 body with no edge. The other five
+          carry it, and the string is now byte-identical across all six.
+          NAMED TRIGGER FOR THE EXTRACTION: six panels now share this header string verbatim, and
+          five share their footer string verbatim — #199's `inputCls` shape exactly. It is NOT
+          extracted here because a header-consistency fix is the wrong PR to refactor six working
+          panels in. THE TRIGGER IS: the next time a panel header or footer needs CHANGING, it
+          gets extracted into a shared component rather than edited in six places. A condition
+          that fires on the next edit, not one that waits for a state that may never arrive. */}
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
             <IconGrid />

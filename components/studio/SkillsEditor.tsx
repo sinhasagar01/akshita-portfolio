@@ -19,6 +19,7 @@ import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
+import { IconLayers } from "./icons";
 import { inputClsMd, labelCls } from "./blocks/fields";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
@@ -149,6 +150,19 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         ))}
       </ListDetailLayout>
 
+      {/* THIS FOOTER SITS OUTSIDE THE PANELS ON PURPOSE, AND IT IS NOT THE SIBLINGS' FOOTER.
+          An audit flagged it as drift — "a card outside the panel while all five siblings put a
+          cream-200 footer inside" — and measured against the architecture that framing is wrong,
+          so the number is written down here rather than left to be re-flagged.
+          `skills` is a SINGLETON: this component holds every category in ONE useDraftForm and
+          `buildCommitted` posts them all together, so there is exactly ONE save for N
+          CategoryPanels. The siblings save PER ENTRY (`saveExtras: { collection, slug }`), which
+          is why a footer belongs inside each of theirs. Moving this one inside would render N
+          save bars for a single document save.
+          SO IT IS A DOCUMENT-LEVEL SAVE BAR, A DIFFERENT ROLE from a per-entry panel footer, and
+          it is deliberately NOT restyled to cream-200 either: making it look like a panel footer
+          would encode a similarity that is not there, and the next audit would find a bar that
+          looks like a sibling and behaves differently. */}
       <footer className="flex items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-3">
         <span className="text-[12px] text-text-subtle" aria-live="polite">
           {statusText}
@@ -195,6 +209,26 @@ function CategoryPanel({
       // cream-50 is its bottom step, so the panel moves, not the fields.
       className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
+      {/* A CREAM-200 BAR, NOT AN INK BAND, and that is the by-role rule rather than a
+          preference. The ink band's own reasoning is about a NARROW PANE beside ink chrome,
+          where it anchors the inspector to the sidebar; this is a full-width form on a cream
+          page, where a band would be a slab of ink mid-page. Inspector pane -> ink band; entry
+          panel -> cream-200 bar. This panel was the only one of seven with NO header at all.
+          NO DIRTY PILL AND NO CANCEL, unlike the five siblings, and that follows from the same
+          architecture as the footer below: `skills` is a singleton, so dirty is a property of
+          the DOCUMENT, not of one category. It is reported once, in the footer. A pill here
+          would claim per-category dirty state that does not exist. */}
+      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+            <IconLayers />
+          </span>
+          <span className="truncate font-display text-base text-ink-950">
+            {category.trim() || "Untitled category"}
+          </span>
+        </div>
+      </header>
+
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
           <span className={labelCls}>Category name</span>
