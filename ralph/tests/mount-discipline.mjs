@@ -185,6 +185,66 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
     });
     t("B5: …and its wrapper stretches, or the shell inside it has only content height to fill",
       notStretching, []);
+
+    /* ---- B6 · THE RAIL FOOTER, PINNED BY STRUCTURE AND PAINTED FROM THE CONTRACT ----------
+     *
+     * THE PINNING WAS ALREADY CORRECT WHEN THIS WAS REPORTED, AND IT IS WORTH SAYING WHY IT DID
+     * NOT NEED #248's FIX. The row list is `flex-1` with its OWN `overflow-y-auto`, and the
+     * footer is its SIBLING in a flex column — so the rows scroll inside their own box and the
+     * footer cannot move. Driven both ways before any edit: with the rows scrolled fully to the
+     * end the button's bottom was unchanged. No sticky rule was needed or added.
+     *
+     * WHAT WAS ACTUALLY WRONG WAS THE SEPARATOR, and not in the way it looks. There was no
+     * footer rule at all; the only line near that edge was the LAST ROW's `border-b`, which
+     * lands on the list's bottom edge ONLY when the rows are scrolled to the end — measured, at
+     * the edge scrolled-down and 147px below it scrolled-up. The rail therefore appeared to have
+     * a footer rule exactly when it did not need one. **A separator that belongs to the content
+     * is not a separator, it is a coincidence**, so these assert the rule is on the FOOTER.
+     *
+     * The three structural facts below are what make the pinning true. Break any one and the
+     * footer starts travelling with the rows. */
+    const rail = /role="tablist"[\s\S]*?<\/nav>/.exec(code("components/studio/ListDetailLayout.tsx"))?.[0] ?? "";
+    t("B6: the rail markup was found", rail.length > 0, true);
+    const list = /<ul className="([^"]*)"/.exec(rail)?.[1] ?? "";
+    t("B6: the ROW LIST owns the scrolling — `flex-1` so it takes the free height, `overflow-y-auto` so it consumes it",
+      list.includes("flex-1") && list.includes("overflow-y-auto"), true);
+    // NO `||` HERE. This assertion originally offered a second way to pass ("the footer exists and
+    // carries a border-t"), which is true whether or not the footer is inside the list — so the
+    // mutation that moves it inside, the one defect this assertion exists to catch, passed. An
+    // alternative clause in a structural assertion is a way for the structure to stop being
+    // checked. The order of the two tags IS the property: `</ul>` must close before the footer.
+    t("B6: …and the add control is the list's SIBLING, not inside it — inside, it would scroll away with the rows",
+      rail.indexOf("</ul>") > 0 && rail.indexOf("</ul>") < rail.indexOf("onAddItem &&"), true);
+    const footer = /onAddItem && \([\s\S]*?<div className="([^"]*)"/.exec(rail)?.[1] ?? "";
+    t("B6: the separator is the FOOTER's own border-top, so it does not depend on where the rows happen to be scrolled",
+      footer.includes("border-t"), true);
+
+    /* THE PAINT IS COMPARED TO THE CONTRACT FILE, not retyped here. Both page contracts carry a
+     * byte-identical `.lf` block; that equality is asserted first, so a divergence between them
+     * fails loudly instead of one silently winning. */
+    const lfRule = (p) => /\.ldrail \.lf button\{([^}]*)\}/.exec(read(p))?.[1] ?? "";
+    const [expRule, skRule] = ["docs/studio/studio-page-experience.html",
+                               "docs/studio/studio-page-skills.html"].map(lfRule);
+    t("B6: both page contracts specify the same footer button — if they diverge, neither is 'the' contract",
+      expRule === skRule && expRule.length > 0, true);
+    const num = (prop) => new RegExp(`${prop}:\\s*([\\d.]+)px`).exec(expRule)?.[1];
+    const btnCls = /onAddItem && \([\s\S]*?<button[\s\S]*?className="([^"]*)"/.exec(rail)?.[1] ?? "";
+    // The contract's px values, mapped to the utility that produces them. The map is the only
+    // hand-written part and every entry is one number; the VALUES come from the file.
+    const AS_UTILITY = { "36": "h-9", "12": "text-[12px]", "600": "font-semibold" };
+    t("B6: the contract still asks for a 36px button at 12px/600 — if it changes, the row below must too",
+      [num("height"), /font:\s*(\d+)/.exec(expRule)?.[1], /font:\s*\d+\s+([\d.]+)px/.exec(expRule)?.[1]],
+      ["36", "600", "12"]);
+    for (const [what, cls] of [
+      ["height", AS_UTILITY["36"]], ["size", AS_UTILITY["12"]], ["weight", AS_UTILITY["600"]],
+      ["the ink-800 the contract names", "text-ink-800"],
+      ["the cream-50 fill", "bg-cream-50"],
+      ["the dashed rule-edge border", "border-dashed"], ["…at /22, which IS rule-edge", "border-ink-950/22"],
+      ["the control radius, not the card radius", "rounded-[var(--studio-radius-control,4px)]"],
+      ["#246's hover, unchanged by the restyle", "hover:border-solid"],
+    ]) t(`B6: the footer button carries ${what}`, btnCls.includes(cls), true);
+    t("B6: …and NOT the card radius it used to have — that step belongs to a card, not a control",
+      btnCls.includes("--studio-radius-card"), false);
   }
 }
 

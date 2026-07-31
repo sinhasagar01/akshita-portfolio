@@ -455,18 +455,42 @@ export function ListDetailLayout({
             })}
           </ul>
           {onAddItem && (
-            // Placed after the tab list; it is an action, not a tab, so it is
-            // Tab-reachable but NOT part of the arrow-key cycle (which walks
-            // sections only). See the a11y note in the PR: it lives inside the
-            // role="tablist" nav to keep the static markup byte-identical.
-            <button
-              type="button"
-              onClick={handleAdd}
-              className="mt-1.5 flex w-full items-center gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-dashed border-ink-950/15 px-3 py-2 text-[14px] text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
-            >
-              <IconPlus />
-              {addItemLabel ?? "Add"}
-            </button>
+            // ---- THE RAIL FOOTER (the contract's `.lf`) --------------------------------------
+            //
+            // Placed after the tab list; it is an action, not a tab, so it is Tab-reachable but
+            // NOT part of the arrow-key cycle (which walks sections only). It lives inside the
+            // role="tablist" nav, as the search row above it does.
+            //
+            // THE PINNING WAS ALREADY CORRECT AND STAYS THAT WAY BY STRUCTURE, NOT BY A RULE.
+            // The row list is `flex-1` with its own `overflow-y-auto`, and this is its SIBLING in
+            // a flex column — so the rows scroll inside their own box and this never moves.
+            // Driven both ways before touching it: with the rows scrolled fully to the end the
+            // button's bottom is unchanged. This is NOT #248's shape, and nothing here needed a
+            // sticky rule; adding one would have been a fix for a bug that was not present.
+            //
+            // THE SEPARATOR IS THE REAL DEFECT, AND IT IS NOT THAT THE LINE WAS MISSING-LOOKING.
+            // There was no footer rule at all. The only line near this edge was the LAST ROW's
+            // own `border-b`, which coincides with the list's bottom edge ONLY when the rows
+            // happen to be scrolled to the end — measured, it sat at the list edge scrolled-down
+            // and 147px below it scrolled-up. So the rail appeared to have a footer rule exactly
+            // when it did not need one, and lost it the moment anyone scrolled up. The rule
+            // belongs to the FOOTER, which does not move.
+            <div className="border-t border-ink-950/12 px-3 py-[11px]">
+              <button
+                type="button"
+                onClick={handleAdd}
+                // `border-ink-950/22` is the contract's `--rule-edge`, and it makes this the one
+                // dashed add whose REST border differs from the other six (which are /15). That is
+                // deliberate: those six sit inside a form on cream-100, this one is rail chrome on
+                // cream-200 and needs the extra step to read against a darker ground. #246's hover
+                // is unchanged and still shared by all seven — the uniformity that PR established
+                // is the hover, not the rest border.
+                className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/22 bg-cream-50 text-[12px] font-semibold text-ink-800 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
+              >
+                <IconPlus />
+                {addItemLabel ?? "Add"}
+              </button>
+            </div>
           )}
         </nav>
 

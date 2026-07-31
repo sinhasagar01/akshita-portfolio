@@ -3049,6 +3049,70 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#249** the rail footer — one element, two pages →1665 (`mount-discipline` 26→42, new B6).
+  The add button and its container, reported against the contracts' `.lf` block. **Confirmed at
+  HEAD before assuming it: `ListDetailLayout:462` still serves both "Add experience" and "Add
+  category", and there was NO footer wrapper at all** — the button was a direct child of the
+  `nav`, with `mt-1.5`.
+  **THE PINNING WAS ALREADY CORRECT, IN BOTH REGIMES, AND THAT IS THE FIRST FINDING.** The brief
+  asked whether the footer stays put when the rows overflow, on the grounds that this could be
+  #248's shape again. Driven before any edit, at 1440x400 with the rows scrolled fully to the
+  end: the button's bottom was **400 before and 400 after**, because the row list is `flex-1` with
+  its OWN `overflow-y-auto` and the footer is its SIBLING in a flex column. **It is not #248's
+  shape, and no sticky rule was added — that would have been a fix for a bug that was not there.**
+  **THE SEPARATOR WAS THE REAL DEFECT, AND NOT IN THE SHAPE THE REPORT GUESSED.** There was no
+  footer rule at all. The only line near that edge was the **last ROW's own `border-b`**, which
+  lands on the list's bottom edge ONLY when the rows happen to be scrolled to the end — measured
+  at the edge scrolled-down, and **147px below it scrolled-up**. So the rail appeared to have a
+  footer rule exactly when it needed one least, and lost it the moment anyone scrolled. **A
+  separator that belongs to the content is not a separator, it is a coincidence.** The rule now
+  belongs to the footer, which does not move.
+  **EVERY AXIS DIFFERED**, and the contract was rendered in the browser rather than read, so the
+  target values are measured on both sides:
+
+  | axis | shipped | contract | now |
+  |---|---|---|---|
+  | footer wrapper | none — the nav itself | `.lf` div | div |
+  | padding | 0 | 11px 12px | 11px 12px |
+  | border-top | none | 1px solid `--rule` | 1px solid ink-950/12 |
+  | button height | 39 | 36 | 36 |
+  | button width | 299 (full-bleed) | 275 | 275 |
+  | font-size | 14px | 12px | 12px |
+  | weight | 400 | 600 | 600 |
+  | colour | ink-600 | ink-800 | ink-800 |
+  | background | transparent | cream-50 | cream-50 |
+  | border | 1px dashed /15 | 1px dashed `--rule-edge` | 1px dashed /22 |
+  | radius | 8px (card) | 4px (control) | 4px (control) |
+  | alignment | left | centre | centre |
+
+  **THE ONE DELIBERATE DIVERGENCE FROM THE OTHER SIX ADDS IS THE REST BORDER.** The contract's
+  `--rule-edge` is /22 and the other six dashed adds sit at /15. Those six are inside a form on
+  cream-100; this one is rail chrome on cream-200 and needs the extra step against a darker
+  ground. **#246's uniformity was the HOVER, which all seven still share** and which was driven
+  with a real pointer on the restyled button — still `dashed → solid`, accent-500 border,
+  accent-600 text.
+  **CONTRAST IMPROVES RATHER THAN MERELY HOLDING**, and a ground did move (the button gained a
+  cream-50 fill). Rasterised, sanity pair 21 first: rest goes **6.42 → 14.87** (ink-600 on
+  cream-200 became ink-800 on cream-50) and the hover reads **7.22**, up from the 6.25 that
+  hazard 30 records as its worst case — which no longer applies to this button.
+  **`text-ink-800` WAS CHECKED AGAINST @theme BEFORE BEING WRITTEN.** Hazard 24 was two phantom
+  ink steps that generate nothing and fail silently; `--color-ink-800` is real
+  (`oklch(26% 0.018 60)`), and the production bundle carries the utility.
+  **B6 ASSERTS THE STRUCTURE THAT MAKES THE PINNING TRUE, NOT THE PINNING ITSELF** — the list owns
+  the scrolling (`flex-1` + `overflow-y-auto`), the footer is its sibling, and the rule is on the
+  footer. The paint half **reads the contract file** rather than retyping it, and asserts both
+  page contracts are byte-identical first, so a divergence between them fails loudly instead of
+  one silently winning.
+  **ONE ASSERTION WAS WRITTEN WEAK AND THE MUTATION CAUGHT IT.** The sibling check offered an
+  alternative clause (`|| the footer carries a border-t`), which is true whether or not the footer
+  sits inside the list — so the mutation that nests it, the one defect that assertion exists for,
+  **passed**. Rewritten as the tag ORDER, with no `||`. **An alternative clause in a structural
+  assertion is a way for the structure to stop being checked.**
+  Five mutations, each caught: nest the footer → the sibling check; drop the border-top → the
+  separator check; card radius → the radius pair; 14px/400 → size, weight and colour; remove the
+  list's overflow → the scrolling check. CSS union **1540 → 1541**, one rule added (`.h-9`) and
+  **none removed**. Public DOM byte-identical.
+
 - **#248** the save bar, the rail and the frame — seven items, three root causes →1649
   (`studio-ink` 150→151 with E1b rewritten and E1c new, `mount-discipline` 16→26 with B4 and B5).
   Seven items the owner reported for the THIRD time, three of them previously reported fixed.
