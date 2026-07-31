@@ -154,7 +154,7 @@ export default function ExperienceEditPanel({
           />
         </label>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1.5">
             <span className={labelCls}>Start date</span>
             <input

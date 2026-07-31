@@ -147,8 +147,21 @@ const IMPORTS_LIST_ITEM = /import\s*\{[^}]*\buseListItem\b[^}]*\}\s*from/;
  *  has no visible box and a search box is chrome in a fixed-width rail, so neither has a measure
  *  to carry. Counts tags rather than testing the file, so one chrome input cannot excuse a file
  *  full of real fields. */
-const contentInputs = (p) => [...code(p).matchAll(/<input\b[^>]*>/g)]
-  .filter((m) => !/type="(file|search)"/.test(m[0])).length;
+const contentInputs = (p) => {
+  const src = code(p);
+  const inputs = (src.match(/<input\b/g) ?? []).length;
+  // NOT FIELDS, EXCLUDED ON WHAT THEY ARE. A file input has no visible box, a search box is
+  // chrome in a fixed-width rail, and a KEY PILL shrink-wraps its text (#253) — none of the
+  // three has a 760px measure to carry.
+  //
+  // COUNTED, NOT PARSED OUT OF THE TAG. A `<input\b[^>]*>` window stops at the FIRST `>`, so an
+  // input carrying `ref={(el) => …}` ends its match at the ARROW, long before `className`. The
+  // tag-filter form silently matched nothing and passed for the wrong reason.
+  const files = (src.match(/type="file"/g) ?? []).length;
+  const searches = (src.match(/type="search"/g) ?? []).length;
+  const pills = (src.match(/className=\{`?\$?\{?KEY_PILL_CLS/g) ?? []).length;
+  return inputs - files - searches - pills;
+};
 
 // E1 · THE WELL, AND THE ASSERTION THAT ENCODED THE BUG.
 //
@@ -291,8 +304,15 @@ const contentInputs = (p) => [...code(p).matchAll(/<input\b[^>]*>/g)]
   // a one-consumer const and left a 44px well beside a 39px flat box in every link row.
   t("E2: LinksEditPanel composes ONE local base — COMPOSED-BORDER family; importing the export and appending borders would leave two competing declarations the generated sheet decides",
     /const inputBase =/.test(readStudio("LinksEditPanel.tsx")), true);
-  t("E2: …and its three controls all reference that base, so the panel cannot split into two generations again",
-    (readStudio("LinksEditPanel.tsx").match(/\$\{inputBase\}/g) ?? []).length, 3);
+  // #253 SPLIT THIS DELIBERATELY, AND THE SPLIT IS THE FEATURE. The Links row is a KEY and its
+  // VALUE — the label NAMES the url beneath it, which is the pair the owner reported as two
+  // identical boxes. The label now takes the key pill, so only the url and the add control still
+  // reference the local base. Asserting 3 would be asserting the defect back. What the original
+  // was protecting still holds and is what is checked: ONE well base, not two generations.
+  t("E2: …and its VALUE controls reference that one base, so the panel cannot split into two well generations",
+    (readStudio("LinksEditPanel.tsx").match(/\$\{inputBase\}/g) ?? []).length, 2);
+  t("E2: …with the label on the KEY PILL rather than a second well — the split is by role, not a stray class",
+    /KEY_PILL_CLS\} min-w-0 flex-1/.test(readStudio("LinksEditPanel.tsx")), true);
   // FAMILY 2 — FLEX CHILDREN: the shared exports hardcode a full-width utility that fights
   // flex-1 in a row; dropping it would touch every consumer to serve two sites, and a third
   // export whose only distinction is a layout context is a constant nobody would remember.
@@ -721,7 +741,15 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // these are its case-study twins. The count stays a COUNT rather than becoming a floor,
     // because a count is what makes an ACCIDENTAL pill fail; a `>=` would let the next one in
     // silently, which is the whole reason this assertion exists.
-    t("F5: the 27 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 27);
+    // REVALUED 27 -> 28 IN #253, AND THE POINT IS THAT IT IS DECLARED. The key pill is the fourth
+    // shape where roundness carries meaning, after the status dots, the PublishBar and the sidebar
+    // nav items. Its justification: it reads as A KEY rather than a field, and reading as
+    // not-a-field is its entire job. The count stays a COUNT rather than a floor — a `>=` would
+    // let the next pill in silently, which is what this exists to prevent — so bumping it by hand
+    // IS the declaration, and F5b names the site so the number cannot rise without one.
+    t("F5: the 28 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 28);
+    t("F5b: …and the 28th is the key pill, a DECLARED exception rather than an undeclared fourth step",
+      /export const KEY_PILL_CLS =[\s\S]{0,240}?rounded-full/.test(readStudio("blocks/fields.tsx")), true);
     t("F5: the 1px drag dot survives — the control step would visibly round a 6px handle",
       (all.match(/rounded-\[1px\]/g) ?? []).length, 1);
     // COMMENT-STRIPPED, and it has to be: this first ran against raw source and tripped on the

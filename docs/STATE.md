@@ -2030,6 +2030,18 @@ All prior rules remain. Added or sharpened across this session:
   that a hook was unused and incorrectly implied unguarded animations; the CSS was complete
   and the gap was three script-driven calls. **Re-derive the CAUSE, not just the symptom, or
   the fix lands in the wrong layer** — here it would have been CSS that needed no change.
+- **A MEASURED HEADLINE CARRIES ITS VIEWPORT, OR IT IS NOT REPRODUCIBLE.** #234's headline was
+  "8 of 14 sections come to fit in a single screen where 2 did". Re-measured at HEAD on the
+  owner's 1440x820 it is **0 of 14** — the claim needs a viewport about **1258px tall**, because
+  the 8th-smallest section is 1064px and the inspector is viewport-height minus ~194px of chrome.
+  **Not a regression, and the mean reproduces exactly** (1.74 against #234's 1.78). The defect is
+  that a merged PR's headline was viewport-dependent and did not say so, so the next person to
+  cite it — this PR, sizing its own risk — inherits a number that cannot be reproduced on the
+  machine they are sitting at.
+  **THIS IS THE SAME SHAPE AS THE RULE BELOW**, one level up: #245 verified in the only regime
+  where its bug could not appear, and #234 reported in the only regime where its best number
+  held. Both are true statements that do not travel. **A screens-per-section figure is meaningless
+  without the viewport it was taken at**, so record it beside the number, every time.
 - **A PROPERTY CAN BE TRUE WHILE THE OUTCOME IS WRONG — VERIFY IN THE REGIME THE USER OCCUPIES.**
   Five of the six PRs in the #246–#251 arc were reported by the owner as ALREADY FIXED or already
   correct, and in every one the property under test was genuinely true while what appeared on
@@ -3082,6 +3094,68 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 ---
 
 ## SESSION PR/SHA LOG
+
+- **#253** the field contract — one input per line, the key pill, the 96px textarea →1678
+  (`studio-ink` 148→153 with E2/F5/C2 rewritten, `mount-discipline` 41→43).
+  **THE MEASUREMENT IS THE ARGUMENT AND IT CHANGED THE PLAN.** The contract AS DRAWN would have
+  undone #234. Measured on `elevate-one-view` at 1440x820: worst section **2.72 -> 3.51 screens**,
+  mean **1.74 -> 2.20**. #234 spent a whole PR taking the worst section 3.07 -> 1.72 on a
+  measurement rather than a preference, so shipping that would trade a solved problem for a
+  cosmetic one.
+  **CORRECTION 28, AND IT IS MINE.** The fix is not a compromise on the contract — it is the
+  contract's OWN item A applied properly. The file already says an author-editable key is a pill
+  INPUT and a fixed key is "the same shape without the ground, because a box you cannot type in
+  should not look like one." The DRAWING then rendered fixed keys as pill-shaped spans carrying
+  the pill's 26px height plus an 8px connector, which is the entire ~190px per section. **The
+  prose was right and the drawing was wrong.** A fixed key keeps today's 12px caption.
+  **A PILL MEANS YOU TYPED THIS KEY**, and the ambiguity the owner reported only ever occurs when
+  BOTH boxes are inputs — a caption above a field was never ambiguous with the field.
+  **THE REAL AFTER-NUMBERS, DRIVEN PER SECTION, NOT THE PROJECTION.** Worst **2.72 -> 3.05**, mean
+  **1.74 -> 1.85**. **IT STILL GREW AND THAT IS SAID PLAINLY** — R1 and R3 add height independently
+  of the pill. The correction saved **0.46 of the 0.79 screens** the contract as drawn would have
+  cost. Against #234's own headline of 1.72 the comparison does not transfer; see the viewport
+  rule in WORKING RULES, which this PR added because it needed it.
+  **THE PILL SET IS DERIVED, AND THE TEST IS RECORDED SO THE NEXT PERSON HAS A RULE NOT A LIST:**
+  does this field's value NAME the value in the field beside it, on the same object? metaFacts
+  `label`->`value`, glanceGrid `label`->`value`, TOKEN_REGISTRY `name`->`value`/`note`, Links
+  `label`->`url`, Hero `tabNLabel`->`tabNLine`. **`DeviceFields` was flagged and then DROPPED by
+  the owner on that test** — `label` sits beside `dotColor` but does not NAME it; two adjacent
+  fields, not a key and its content.
+  **FIVE PREMISE CORRECTIONS FROM THE CENSUS, ALL MINE.** (1) `rowLabel` is NOT thrown away —
+  `fields.tsx` already passed `summary={name}` and #234's record says it "consumes it rather than
+  inventing an API", so the accordion was SHAPE not wiring. (2) **statCards has no author-typed
+  key at all** (Value/Suffix/Body/Tag/Highlighted), though the brief lists it. (3) Nesting is
+  **four** bordered ancestors deep, innermost field **226px**, not the briefed three/~250 — which
+  is why the contract is right that the device group takes no card of its own. (4) ralph was 1675,
+  not 1666. (5) **The contract's `ink-400` placeholder fails a gate the project already holds** —
+  `studio-ink-contrast` H4 asserts ink-400 fails the text floor on every cream step, and on
+  cream-200 it is **3.02**. `text-subtle` is 4.79. That last one is the best kind of correction:
+  no judgement was made, the rule was already there and the contract had not caught up.
+  **THE SEAM WAS THE PART MOST LIKELY TO GO WRONG.** `labelCls` has **seven non-field consumers**
+  (SegmentedToggle, SectionsRail, OverviewRow, LoginForm, CaseStudyIndex, SettingsPhotoField,
+  BlogBlocksEditPanel); mutating it into a pill would have repeated the trap that has fired four
+  times. The pill is a NEW export applied at named sites, and R3 changes `TextArea` rather than
+  `inputCls`, so every `<input>` consumer is untouched **by construction** — `inputCls`'s
+  `min-h-11` capping textareas is the FIRST of those four failures and is fixed by appending
+  `min-h-24` after it rather than by touching the shared string.
+  **THREE ASSERTIONS WERE REWRITTEN RATHER THAN LOOSENED**, each because its subject legitimately
+  changed. E2 pinned that Links' three controls share one well base; the label is now a pill, so
+  it asserts the VALUE controls share one base and that the label is on the pill — asserting 3
+  would have been asserting the defect back. F5 counted 27 full pills; it counts **28**, and F5b
+  names the site, so **the pill is a DECLARED fourth exception to the radius scale rather than an
+  undeclared step**. B2.4 re-anchored from `summaryClassName` to `nameClassName`.
+  **AND C2's OWN HELPER HAD A REAL PARSING BUG**, found because the pill tripped it: `<input\b[^>]*>`
+  stops at the FIRST `>`, so an input carrying `ref={(el) => …}` ends its match **at the arrow**,
+  long before `className`. The tag-filter form silently matched nothing and passed for the wrong
+  reason. It counts occurrences now instead of parsing the tag.
+  **ONE THING THE MEASUREMENT CAUGHT THAT READING WOULD NOT:** the grip landed **-1px** below the
+  textarea, because a textarea is inline-block and the wrapper sits a descender taller. One
+  `block` class; re-driven to 5/5.
+  Contrast, sanity pair 21 first: pill rest **6.42**, hover **13.9**, focus **7.42**, placeholder
+  **4.79** — all clear. Real keys: a real Tab lands, `:focus-visible` lights the accent outline on
+  a cream-50 ground, typing accepted. Grip 11x11 `ink-400`, resolves (not a phantom),
+  `pointer-events-none`. CSS union **1542 -> 1557**, fifteen rules added and **none removed**.
+  Public DOM byte-identical.
 
 - **#252** the case-study canvas previews an image uploaded this session →1675
   (`block-image-preview` 25→35, new section D). The DEFERRED follow-up to #202, built.

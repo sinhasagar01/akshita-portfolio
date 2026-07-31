@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — the field contract</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE FIELD CONTRACT — STUDIO-WIDE, NO EXCEPTIONS
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS. The studio authors ZERO      ##
+  ##  global class names — implement as Tailwind utilities.                ##
+  ##  Radius 12/8/4 · ground cream-200/100/50 · selection ground+1 plus a  ##
+  ##  3px accent bar · labelCls 12/700/.14em · the 44px well.              ##
+  ##  Nothing below is invented; every value is derived from those scales   ##
+  ##  or from a shipped precedent, and each is named where it is used.     ##
+  ##########################################################################
+
+  THIS REPLACES THE PAIRED-INPUT PATTERN EVERYWHERE IT APPEARS. The owner's
+  instruction is "across the studio without exceptions", so a surface left on
+  the old shape is a defect, not a deferral.
+
+================================================================================
+  1 · THE FOUR RULES
+================================================================================
+
+  R1 · ONE INPUT PER LINE, ALWAYS. No two inputs share a row anywhere in the
+       studio. The current grid-cols-2 is UNPREFIXED, so at the inspector's
+       320px the two children squeeze to roughly 130px each rather than
+       stacking — cramped and ambiguous at once.
+
+  R2 · A LABEL IS A KEY ROW. A tinted pill above-left, a short connector, then
+       the value beneath. The pill SHRINK-WRAPS its text, so a short label
+       takes little room and a long one grows — the control tells you how much
+       there is to say.
+
+  R3 · A MULTILINE VALUE LOOKS MULTILINE. 96px minimum, text top-aligned, and
+       a VISIBLE RESIZE GRIP. The grip is the only mark that says the box is
+       meant to grow, and it is the affordance browsers already give textareas
+       and this studio currently hides. Ground and border do not change — the
+       ladder has already spent its steps on chrome, field and well.
+
+  R4 · A SINGLE-LINE VALUE IS THE 44px WELL, unchanged. It is the studio's
+       standard for a field and nothing here moves it.
+
+  WHY THE LABEL MAY SHRINK BELOW 44 AND THE VALUE MAY GROW PAST IT: the 44px
+  well is the standard for A FIELD. A label input NAMES a field rather than
+  being one, and a paragraph field is a field an author lives in. That is a
+  by-role distinction, which is the shape this project has used seven times.
+
+================================================================================
+  2 · THE KEY ROW — exact values
+================================================================================
+
+  .h-key    height 26 · padding 0 10 · radius 99 (full pill)
+            font 700 10.5px, tracking .13em, uppercase, ink-600
+            ground cream-200 · border 1px transparent
+            hover  ground cream-300, text ink-950
+            focus  outline 2px accent offset 1, ground cream-50
+            width  SHRINK-WRAP to content, min 70px
+            empty  placeholder "Label", ink-400, tracking .09em
+
+  .h-link   1px × 8px, ground rule-edge, margin-left 20px
+            The connector. It groups the pair without a border or a card.
+
+  ⚠ THE PILL IS A DELIBERATE DEPARTURE AND MUST BE RECORDED AS ONE. The radius
+  scale halved every corner in the studio to 12/8/4, and full pills survive
+  only where the shape carries meaning — the status dots, the PublishBar, the
+  sidebar nav items. A key pill is a fourth. The justification is that it is
+  the shape that reads as A KEY rather than a field, and reading as not-a-field
+  is the entire job. Record it beside the radius scale, not silently.
+
+================================================================================
+  3 · THE MULTILINE BOX
+================================================================================
+
+  textarea  min-height 96 · padding 12 12 18 · line-height 1.55
+            ground cream-50 · border 1px rule-edge · radius 4 (control)
+            resize vertical · text top-aligned
+  .grip     11×11, bottom-right inset 5, ink-400, pointer-events none
+
+  WHERE IT APPLIES, and every one is a paragraph field drawn as a one-line
+  field today: the thesis, position statement, lead and alt text in the
+  case-study inspector; "What you did" in Experience; "Tab N line" in site
+  settings.
+
+================================================================================
+  4 · THE ACCORDION — the closed state has to earn its click
+================================================================================
+
+  CLOSED    ground cream-50 · the group name in groupLabelCls
+            A LIVE SUMMARY, right-aligned, ink-400, truncating.
+            #234 already provides it: rowLabel exists at all 16 ItemRows call
+            sites, content-derived with an ordinal fallback. The summary is not
+            new work — it is currently thrown away.
+
+  HOVER     ground steps to cream-100 · name to ink-950
+            THE SUMMARY DARKENS TO ink-800 — so hovering tells you both that
+            it opens AND what is inside, which is the whole point of hovering a
+            closed thing.
+            The chevron NUDGES DOWN 1px, in the direction it will open.
+
+  OPEN      the header keeps a border-bottom · chevron rotates 180
+            hover keeps the nudge, composed with the rotation
+
+  THE SUMMARY IS THE INTUITIVENESS FIX, not the hover. A closed row reading
+  "Device 1 · 800px · −6° · z1" answers the question you opened it to ask.
+
+================================================================================
+  5 · CONTENT / STYLE — making the pane legible
+================================================================================
+
+  a. EVERY GROUP CARRIES A LIVE SUMMARY when closed, per section 4. On Style
+     that is the whole win: a stack of numeric groups you can read without
+     opening any of them.
+
+  b. NUMERIC FIELDS CARRY THEIR UNIT INSIDE THE WELL, muted, right-aligned —
+     not in the label. "Width, px" becomes "Width" with a muted px in the
+     field, so the LABEL SAYS WHAT THE FIELD IS and the field says what it
+     holds. Applies to px, deg and the stacking index.
+
+  c. THE TOGGLE'S HINT LINE STAYS and is worth keeping accurate: Content is
+     "copy for this section, including the rich **bold** fields the canvas
+     cannot edit"; Style is "layout, glow, frames and image geometry".
+
+  d. GROUPS NEST AT MOST TWO DEEP. Section → block → device is already three
+     in places, and a third border inside a 320px pane leaves ~250px of usable
+     width. The device group takes the key-row treatment WITHOUT its own card.
+
+================================================================================
+  6 · EVERY SURFACE THIS TOUCHES
+================================================================================
+
+  Meta facts, glance grid, stat cards, device fields   case-study inspector
+  Tab N name / Tab N line                              site settings, Hero
+  Label and url pairs                                  site settings, Links
+  Any remaining grid-cols-2 holding two inputs         anywhere
+
+  A CENSUS IS THE FIRST STEP OF THE BUILD, not an assumption from this file.
+  This project has recorded twenty-seven corrections to contracts drawn rather
+  than measured, including one that prescribed a value a merged PR had already
+  removed. Check both sides.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-panel:12px; --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:34px 26px 80px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 30px;max-width:90ch}
+.sub b{color:var(--ink-950)}
+
+.cols{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.col{width:320px;flex:none}
+.colhead{margin-bottom:12px}
+.colhead h2{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px}
+.colhead p{font:400 12px/1.6 var(--sans);color:var(--subtle);margin:0}
+
+.insp{background:var(--cream-100);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden}
+.band{background:var(--ink-950);color:var(--cream-50);padding:9px 14px;display:flex;justify-content:space-between;align-items:center}
+.band h4{margin:0;font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.band .st{font:500 11px/1 var(--sans);color:var(--ink-200)}
+.seg{display:flex;margin:12px 14px 0;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden}
+.seg button{flex:1;height:34px;appearance:none;border:0;cursor:pointer;background:var(--cream-50);color:var(--ink-600);font:600 12px/1 var(--sans)}
+.seg button+button{border-left:1px solid var(--rule-edge)}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.tabhint{font:400 11px/1.5 var(--sans);color:var(--subtle);margin:8px 14px 0}
+.ibody{padding:12px 14px 20px}
+.state{font:600 9px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:16px 0 7px}
+.state:first-child{margin-top:0}
+
+/* ---------- the group ---------- */
+.grp{border:1px solid var(--rule);border-radius:var(--r-card);background:var(--cream-50);margin-bottom:10px;overflow:hidden}
+.ghead{display:flex;align-items:center;gap:9px;width:100%;appearance:none;border:0;cursor:pointer;
+  background:transparent;padding:10px 11px;text-align:left}
+.ghead b{flex:none;font:700 10px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-600)}
+.ghead .sum{flex:1;min-width:0;text-align:right;font:400 11px/1 var(--sans);color:var(--ink-400);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghead .chev{width:13px;height:13px;color:var(--ink-400);flex:none;
+  transition:transform .16s cubic-bezier(.22,.61,.36,1),color .16s}
+.ghead .ctl{display:flex;gap:1px;flex:none}
+.ghead .ctl span{width:21px;height:21px;display:grid;place-items:center;border-radius:3px;color:var(--ink-400);font-size:10px}
+.ghead .ctl span:hover{background:var(--cream-200);color:var(--ink-950)}
+/* the improved hover — the summary darkens, so hovering tells you what is inside */
+.grp.hov .ghead{background:var(--cream-100)}
+.grp.hov .ghead b{color:var(--ink-950)}
+.grp.hov .ghead .sum{color:var(--ink-800)}
+.grp.hov .ghead .chev{color:var(--ink-950);transform:translateY(1px)}
+.grp.open .ghead{border-bottom:1px solid var(--rule)}
+.grp.open .ghead .chev{transform:rotate(180deg)}
+.grp.open.hov .ghead .chev{transform:rotate(180deg) translateY(-1px)}
+.gbody{padding:11px}
+
+/* ---------- THE KEY ROW ---------- */
+.kv{margin-bottom:14px}
+.kv:last-child{margin-bottom:0}
+.h-key{display:inline-block;height:26px;padding:0 10px;background:var(--cream-200);
+  border:1px solid transparent;border-radius:99px;
+  font:700 10.5px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-600);
+  width:auto;min-width:70px}
+.h-key::placeholder{color:var(--ink-400);letter-spacing:.09em}
+.h-key:hover{background:var(--cream-300);color:var(--ink-950)}
+.h-key:focus{outline:2px solid var(--accent);outline-offset:1px;background:var(--cream-50)}
+.h-link{width:1px;height:8px;background:var(--rule-edge);margin-left:20px}
+
+/* a STATIC label — where the key is not author-editable */
+.s-key{display:inline-block;height:26px;padding:0 10px;background:transparent;
+  font:700 10.5px/26px var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-600)}
+
+/* ---------- the values ---------- */
+.v1{width:100%;height:44px;padding:0 12px;font:400 14px/1 var(--sans);color:var(--ink-950);
+  background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl)}
+.vnum{position:relative}
+.vnum input{width:100%;height:44px;padding:0 34px 0 12px;font:400 14px/1 var(--sans);
+  color:var(--ink-950);background:var(--cream-50);border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);font-variant-numeric:tabular-nums}
+.vnum .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font:500 12px/1 var(--sans);color:var(--ink-400);pointer-events:none}
+.vmulti{position:relative}
+.vmulti textarea{width:100%;min-height:96px;padding:12px 12px 18px;font:400 14px/1.55 var(--sans);
+  color:var(--ink-950);background:var(--cream-50);border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);resize:vertical;display:block}
+.grip{position:absolute;right:5px;bottom:5px;width:11px;height:11px;pointer-events:none;color:var(--ink-400)}
+.foc .v1,.foc textarea,.foc .vnum input{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+
+/* listbox trigger, unchanged from what shipped */
+.lb{width:100%;height:44px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;font:400 14px/1 var(--sans);color:var(--ink-950);background:var(--cream-50);
+  border:1px solid var(--rule-edge);border-radius:var(--r-ctl);cursor:pointer;text-align:left}
+.lb svg{width:15px;height:15px;color:var(--ink-600);flex:none}
+
+.addrow{width:100%;height:36px;appearance:none;cursor:pointer;font:600 12px/1 var(--sans);
+  color:var(--ink-800);background:var(--cream-50);border:1px dashed var(--rule-edge);border-radius:var(--r-ctl)}
+.addrow:hover{border-color:var(--accent);color:var(--accent);border-style:solid}
+
+.cap{width:320px;font:400 12px/1.7 var(--sans);color:var(--subtle);margin-top:14px}
+.cap b{color:var(--ink-950)}
+.cap ul{margin:8px 0 0;padding-left:16px}
+.cap li{margin-bottom:5px}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);margin:0 0 5px}
+</style>
+</head>
+<body>
+
+<h1>The field contract · studio-wide</h1>
+<p class="sub"><b>The key row, chosen.</b> A tinted pill above-left, a short connector, the value beneath — the pill shrink-wraps its text, so the control tells you how much there is to say. <b>One input per line, always.</b> <b>A multiline value looks multiline</b> — 96px, top-aligned, with a visible grip. <b>And a closed accordion carries a live summary that darkens on hover</b>, so hovering tells you both that it opens and what is inside. Left column is Content, right is Style.</p>
+
+<div class="cols">
+
+  <!-- ================= CONTENT ================= -->
+  <div class="col">
+    <div class="colhead"><h2>Content</h2><p>Author-editable keys. The pill is an input; the value beneath is single-line or multiline.</p></div>
+    <div class="insp">
+      <div class="band"><h4>The setup</h4><span class="st">Saved</span></div>
+      <div class="seg"><button aria-pressed="true">Content</button><button aria-pressed="false">Style</button></div>
+      <p class="tabhint">Copy for this section, including the rich **bold** fields the canvas cannot edit.</p>
+      <div class="ibody">
+
+        <div class="grp open">
+          <div class="ghead"><b>Section</b><span class="sum"></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="gbody">
+            <div class="kv">
+              <span class="s-key">Eyebrow</span>
+              <div class="h-link"></div>
+              <input class="v1" value="The setup" />
+            </div>
+            <div class="kv">
+              <span class="s-key">Title</span>
+              <div class="h-link"></div>
+              <input class="v1" value="One companion, three very different people." />
+            </div>
+            <div class="kv">
+              <span class="s-key">Lead</span>
+              <div class="h-link"></div>
+              <div class="vmulti">
+                <textarea rows="4">Helping analysts navigate complex datasets through conversational AI inside LTIMindtree's Fosfor Decision Cloud.</textarea>
+                <svg class="grip" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M11 5 5 11M11 9l-2 2"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="state">Meta facts — the key is the author's</p>
+
+        <div class="grp open">
+          <div class="ghead"><b>Fact 1</b><span class="sum"></span><span class="ctl"><span>˄</span><span>˅</span><span>✕</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="gbody">
+            <div class="kv">
+              <input class="h-key" value="My role" size="8" />
+              <div class="h-link"></div>
+              <input class="v1" value="Senior Product Designer" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grp hov">
+          <div class="ghead"><b>Fact 2</b><span class="sum">Scope · Strategy, Research…</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+
+        <div class="grp">
+          <div class="ghead"><b>Fact 3</b><span class="sum">Industry · Enterprise SaaS</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+
+        <div class="grp open">
+          <div class="ghead"><b>Fact 4</b><span class="sum"></span><span class="ctl"><span>˄</span><span>˅</span><span>✕</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="gbody">
+            <div class="kv">
+              <input class="h-key" placeholder="Label" size="6" />
+              <div class="h-link"></div>
+              <input class="v1" placeholder="What it says" />
+            </div>
+          </div>
+        </div>
+
+        <button class="addrow">+ Add meta fact</button>
+
+      </div>
+    </div>
+    <div class="cap">
+      <p class="h3">Two kinds of key</p>
+      <b>An AUTHOR-EDITABLE key is a pill input</b> — meta facts, glance grid, stat cards, the Links panel. <b>A FIXED key is the same pill shape without the ground</b>, because it is a label rather than a control and a box you cannot type in should not look like one. Both sit in the same place with the same type, so the row reads identically either way.
+    </div>
+  </div>
+
+  <!-- ================= STYLE ================= -->
+  <div class="col">
+    <div class="colhead"><h2>Style</h2><p>Fixed keys, numeric values. The unit lives inside the well so the label can say what the field is.</p></div>
+    <div class="insp">
+      <div class="band"><h4>The setup</h4><span class="st">Saved</span></div>
+      <div class="seg"><button aria-pressed="false">Content</button><button aria-pressed="true">Style</button></div>
+      <p class="tabhint">Layout, glow, frames and image geometry for this section.</p>
+      <div class="ibody">
+
+        <div class="grp open">
+          <div class="ghead"><b>Section</b><span class="sum"></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="gbody">
+            <div class="kv">
+              <span class="s-key">Variant</span>
+              <div class="h-link"></div>
+              <button class="lb">hero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            </div>
+            <div class="kv">
+              <span class="s-key">Layout</span>
+              <div class="h-link"></div>
+              <button class="lb">stack <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <p class="state">A live summary is the intuitiveness fix</p>
+
+        <div class="grp hov">
+          <div class="ghead"><b>Device 1</b><span class="sum">800px · −6° · z1</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+
+        <div class="grp open">
+          <div class="ghead"><b>Device 2</b><span class="sum"></span><span class="ctl"><span>˄</span><span>˅</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="gbody">
+            <div class="kv">
+              <span class="s-key">Frame</span>
+              <div class="h-link"></div>
+              <button class="lb">Default <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            </div>
+            <div class="kv">
+              <span class="s-key">Width</span>
+              <div class="h-link"></div>
+              <div class="vnum"><input value="800" /><span class="unit">px</span></div>
+            </div>
+            <div class="kv">
+              <span class="s-key">Rotate</span>
+              <div class="h-link"></div>
+              <div class="vnum"><input value="−6" /><span class="unit">deg</span></div>
+            </div>
+            <div class="kv">
+              <span class="s-key">Translate X</span>
+              <div class="h-link"></div>
+              <div class="vnum"><input value="−86" /><span class="unit">px</span></div>
+            </div>
+            <div class="kv">
+              <span class="s-key">Translate Y</span>
+              <div class="h-link"></div>
+              <div class="vnum"><input value="16" /><span class="unit">px</span></div>
+            </div>
+            <div class="kv">
+              <span class="s-key">Stacking</span>
+              <div class="h-link"></div>
+              <div class="vnum"><input value="1" /><span class="unit">z</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="ghead"><b>Glow word</b><span class="sum">"guided" · 12vw</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="cap">
+      <p class="h3">Why the unit moves into the well</p>
+      <b>"Width, px" becomes "Width" with a muted px inside the field.</b> The label then says what the field IS and the field says what it HOLDS — and every numeric key shortens, which matters in a 320px pane.
+      <p class="h3" style="margin-top:14px">And why the summary is the real fix</p>
+      A closed group reading <b>"Device 1 · 800px · −6° · z1"</b> answers the question you opened it to ask. #234 already computes these — rowLabel exists at all 16 ItemRows call sites, content-derived with an ordinal fallback. The summary is not new work; it is currently thrown away.
+    </div>
+  </div>
+
+</div>
+
+<div class="cap" style="width:100%;max-width:90ch;margin-top:34px">
+  <p class="h3">One departure that must be recorded rather than shipped quietly</p>
+  <b>The pill is a full radius in a studio that halved every corner to 12/8/4.</b> Full pills survive only where the shape carries meaning — the status dots, the PublishBar, the sidebar nav items. A key pill is a fourth, and its justification is that a pill reads as a KEY rather than a field, which is the entire job. Record it beside the radius scale.
+  <p class="h3" style="margin-top:16px">A census is the first step of the build</p>
+  Meta facts, glance grid, stat cards and device fields in the case-study inspector; Tab N name and Tab N line in site settings; the Links panel's label and url pairs; and any remaining grid-cols-2 holding two inputs. <b>Derive that list from source rather than from this file</b> — twenty-seven corrections say so.
+</div>
+
+</body>
+</html>

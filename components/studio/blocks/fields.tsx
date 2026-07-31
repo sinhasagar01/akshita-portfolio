@@ -285,6 +285,90 @@ export const labelCls = "text-[12px] font-bold uppercase tracking-eyebrow text-i
  *  ones that shipped; only the colour moved, to clear AA. */
 export const groupLabelCls = "text-[10px] uppercase tracking-eyebrow text-ink-600";
 
+/* ---- THE KEY ROW (R2) — AND IT IS NOT `labelCls` WITH A RADIUS ---------------------------
+ *
+ * A PILL MEANS YOU TYPED THIS KEY. It marks a key the AUTHOR wrote, beside the value it names —
+ * "My role" naming "Senior Product Designer". The owner's report was two identical boxes with no
+ * way to tell which was which, and that only happens when BOTH are inputs.
+ *
+ * IT IS DELIBERATELY NOT APPLIED TO SCHEMA LABELS, and the contract's own item A is why: an
+ * author-editable key is a pill INPUT, a fixed key is "the same shape without the ground, because
+ * a box you cannot type in should not look like one." The contract then DREW the fixed key as a
+ * pill-shaped span carrying the pill's 26px height plus an 8px connector — which measured +190px
+ * per inspector section, taking the worst from 2.72 to 3.51 screens and undoing #234's measured
+ * win (3.07 -> 1.72). The prose was right and the drawing was wrong. **Correction 28.** A fixed
+ * key keeps `labelCls`, tight above its field; it was never ambiguous with the field anyway.
+ *
+ * THE TEST FOR A NEW SITE, so the next person has a rule rather than a list: does this field's
+ * value NAME the value in the field beside it, on the same object? `metaFacts.label` names
+ * `metaFacts.value` — pill. `DeviceFields.label` sits beside `dotColor` but does not name it —
+ * two adjacent fields, not a key and its content — so it keeps the caption.
+ *
+ * THIS IS A DECLARED DEPARTURE FROM THE RADIUS SCALE. The scale halved every studio corner to
+ * 12/8/4 and full pills survive only where the shape carries meaning — the status dots, the
+ * PublishBar, the sidebar nav items. This is the fourth, and it is recorded in `radius-scale`
+ * as a declared exception rather than left as an undeclared step.
+ *
+ * PLACEHOLDER IS `text-subtle`, NOT THE CONTRACT'S `ink-400`. Not a judgement — `studio-ink-
+ * contrast` H4 already asserts ink-400 fails the text floor on EVERY cream step, and this pill
+ * sits on cream-200 where it measures 3.02. `text-subtle` is 4.78 there. The project already
+ * held the rule; the contract had not caught up. */
+export const KEY_PILL_CLS =
+  "h-[26px] min-w-[70px] w-fit rounded-full border border-transparent bg-cream-200 px-2.5 " +
+  "text-[10.5px] font-bold uppercase tracking-[0.13em] text-ink-600 outline-none " +
+  "transition-colors hover:bg-cream-300 hover:text-ink-950 " +
+  "placeholder:text-text-subtle placeholder:tracking-[0.09em] " +
+  "focus-visible:bg-cream-50 focus-visible:outline focus-visible:outline-2 " +
+  "focus-visible:outline-offset-1 focus-visible:outline-accent-500";
+
+/** The connector: 1x8px of rule-edge, indented 20px. It groups the key with its value without a
+ *  border or a card, which is the whole reason the pair needs no box at this nesting depth —
+ *  measured, the innermost field is already 226px inside four bordered ancestors. */
+function KeyConnector() {
+  return <span aria-hidden className="ml-5 block h-2 w-px bg-ink-950/22" />;
+}
+
+/**
+ * A key the author typed, above the value it names.
+ *
+ * `label` is the ACCESSIBLE name of the key input (never rendered visually — the pill's own text
+ * IS the value being edited), and `children` is the value field beneath the connector.
+ */
+export function KeyRow({
+  label,
+  value,
+  onChange,
+  onBlur,
+  inputRef,
+  placeholder = "Label",
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  onBlur?: () => void;
+  inputRef?: (el: HTMLElement | null) => void;
+  placeholder?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <input
+        type="text"
+        aria-label={label}
+        value={value}
+        ref={inputRef}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        className={KEY_PILL_CLS}
+      />
+      <KeyConnector />
+      {children}
+    </div>
+  );
+}
+
 export function TextField({
   label,
   value,
@@ -342,14 +426,38 @@ export function TextArea({
   return (
     <label className="flex flex-col gap-1" hidden={!visible}>
       <span className={labelCls}>{label}</span>
-      <textarea
-        rows={rows}
-        value={value}
-        ref={inputRef}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        className={`${inputCls} resize-y leading-relaxed`}
-      />
+      {/* ---- R3 · A MULTILINE VALUE LOOKS MULTILINE, AND THE GRIP IS THE POINT --------------
+          96px minimum, text top-aligned, and a VISIBLE resize grip. The grip is the only mark
+          that says the box is meant to grow — the affordance the browser already gives a
+          textarea and this studio hid, because `inputCls` carries `min-h-11` and every textarea
+          took it. That is the FIRST of the four recorded shared-seam failures, fixed here rather
+          than by touching `inputCls`: `min-h-24` is appended AFTER it so the 44px floor is
+          overridden for textareas ONLY, and every `<input>` consumer is untouched by
+          construction. Ground and border do not change — the ladder already spent its steps on
+          chrome, field and well.
+          The wrapper is `relative` so the grip has a positioned ancestor that is already there;
+          it is `pointer-events-none` so it never eats the native resize handle underneath. */}
+      <span className="relative block">
+        <textarea
+          rows={rows}
+          value={value}
+          ref={inputRef}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          /* `block` is not cosmetic: a textarea is inline-block by default, so the wrapper
+             sits ~1px taller on the descender line and the absolutely-placed grip lands
+             1px BELOW the box it belongs to. Measured before it was added. */
+          className={`${inputCls} block min-h-24 resize-y py-3 pb-[18px] leading-[1.55]`}
+        />
+        <svg
+          aria-hidden
+          viewBox="0 0 11 11"
+          className="pointer-events-none absolute bottom-[5px] right-[5px] size-[11px] text-ink-400"
+        >
+          <path d="M11 0v11H0" fill="none" stroke="currentColor" strokeWidth="1"
+            strokeDasharray="0 4 3 4 3" strokeLinecap="round" />
+        </svg>
+      </span>
     </label>
   );
 }
@@ -693,7 +801,11 @@ export function ItemRows<T>({
   return (
     <div className="flex flex-col gap-2">
       {items.map((item, i) => {
-        const name = rowLabel?.(item, i) || `${itemNoun} ${i + 1}`;
+        // The ORDINAL identifies the row and the CONTENT summarises it — two jobs that were
+        // sharing one slot. A group with nothing to summarise renders the name alone, which is
+        // #234's Section-settings finding applied here rather than filled with a placeholder.
+        const rowName = `${itemNoun} ${i + 1}`;
+        const rowSummary = rowLabel?.(item, i) ?? "";
         return (
           <CollapsibleGroup
             key={i}
@@ -713,8 +825,9 @@ export function ItemRows<T>({
             // opens exactly the row that is about to claim focus, in the render before the ref
             // fires. Driven in `mount-discipline`, not remembered.
             defaultOpen={list.pendingFocus.current === i}
-            summary={name}
-            summaryClassName={groupLabelCls}
+            name={rowName}
+            nameClassName={groupLabelCls}
+            summary={rowSummary}
             controls={
               <div className="flex gap-1">
                 {/* preventDefault on mousedown keeps focus off these controls so the
