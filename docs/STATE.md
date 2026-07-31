@@ -2961,6 +2961,75 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   **`SectionsRail` LANDS UNCONSUMED, DELIBERATELY.** A component with no consumer is a shape this
   project deletes, so it is recorded rather than left for an audit to find and be right about.
   **NAMED TRIGGER: PR 7 consumes it.** If PR 7 does not land, this is an orphan and should go.
+- **PR 8 · the group-level collapse** →1541 (`mount-discipline` 8→14). `CollapsibleGroup`, a
+  titled region that folds, applied to three group kinds in the inspector.
+  **THE MEASUREMENT CHANGED THE PR, AND THAT IS THE ENTRY.** Both premises it was built on were
+  wrong when re-measured.
+  **CORRECTION EIGHTEEN — THE CONTRACT WAS WRONG ABOUT THE DATA, NOT THE DESIGN.** It proposed
+  "Section open, each block collapsed except the one being edited". Measured across
+  `elevate-one-view`, **12 of 14 sections have exactly ONE block**, so that default is a no-op on
+  86% of the content and on the rest it folds the only thing on screen. The height is not spread
+  across blocks — it is stacked inside one, in `ItemRows`.
+  **AND THE 4.5-SCREEN FIGURE WAS STALE, WHICH WAS MINE TO CARRY.** It was taken when the editor
+  was a full-page scroll with ~574px of room. PR 7 gave the inspector its own scroll container at
+  the full pane height and **fixed most of it as a side effect**, and nobody re-measured. The real
+  worst case was **3.03 screens**, not 4.5. A number accurate when taken, decayed when the thing
+  under it moved — the same family as #214's grounds and #211's surfaces, caught by the arc's own
+  re-derive rule rather than by a gate.
+  **MEASURED PER SECTION, DRIVEN, BEFORE AND AFTER** (expand-all then fold-all on the real
+  element, inspector 811px):
+
+  | | before | after |
+  |---|---|---|
+  | worst section | **3.03 screens** | **1.78** |
+  | mean of 14 | 1.86 | 1.02 |
+  | fitting one screen | **2 of 14** | **8 of 14** |
+
+  **AND IT IS WIDTH-INDEPENDENT**, which corroborates the finding that started this: at the folded
+  width (card 928px) the same sweep gives 1.86 → 1.01, worst 3.04 → 1.76, 2 → 8. Field count is
+  the driver, exactly as the inspector-width investigation concluded and PR 6's 38px confirmed.
+  **SPLIT DEFAULTS, DECIDED BY THE MEASUREMENT RATHER THAN THE CONTRACT.** `ItemRows` rows fold by
+  default — they are the whole saving. The block card and Section settings get the affordance and
+  stay OPEN, because closing them hides what an author opened the section for to save ~250px each.
+  **THREE THINGS THIS PR GOT FOR FREE, ALL WORTH RECORDING AS SUCH:**
+  **(1)** `rowLabel` ALREADY EXISTS AT ALL 16 `ItemRows` CALL SITES, content-derived with an
+  ordinal fallback — "Device 1", "The core flow", "Stat 3". The summary a collapsed row needs was
+  already there; this PR consumes it rather than inventing an API, which is what made C cheap.
+  **(2)** NO PERSISTENCE MACHINERY. Mount discipline already requires a folded group to stay
+  MOUNTED, so its `useState` survives every selection change with nothing added. A behaviour
+  obtained free from a constraint enforced for another reason is worth naming as that rather than
+  rebuilt.
+  **(3)** A real `<button>` gives Enter, Space, the focus ring and a screen-reader name natively.
+  **SECTION SETTINGS HAS NOTHING TO SUMMARISE, AND THAT IS A FINDING NOT A GAP.** Its content is
+  the eyebrow and title the section header directly above already renders through `sectionLabel`,
+  so a summary would restate the line above it. It keeps its name and nothing else; a placeholder
+  would have been invention, and the other two groups genuinely did have one already.
+  **NATIVE `<details>` WAS RULED OUT BY A STRUCTURAL CONSTRAINT, NOT A PREFERENCE.** `ItemRows`
+  headers already hold three buttons, and interactive controls inside `<summary>` toggle the
+  disclosure instead of firing. The pattern has to work where the height is.
+  **THE DROPPED CAPABILITY IS NAMED IN THE HEADER WHERE THE DECISION LIVES**, per the listbox
+  rule: `hidden="until-found"` is unavailable, so **Ctrl-F will not open a folded row.** Trigger to
+  revisit — React support landing, or an author reporting a search that should have found
+  something.
+  **THE `focusRef` TRAP, ASSERTED RATHER THAN REMEMBERED.** `useItemList.add` records the new index
+  in `pendingFocus` and `focusRef` claims it by calling `el.focus()` on mount. **Focus on a hidden
+  element silently no-ops**, so a new row rendered folded would swallow it and Add would look
+  broken with nothing failing — this project's recurring failure shape. `defaultOpen` reads
+  `pendingFocus` at mount, so exactly the row about to claim focus opens. **Driven**, and the
+  assertion is on VISIBILITY rather than on focus landing, because a folded row leaves
+  `activeElement` somewhere plausible; an input that is both active and non-zero height proves
+  every ancestor is open.
+  **`mount-discipline` EXTENDED, BECAUSE IT DID NOT COVER THIS.** It counted inputs across VIEW
+  changes and never exercised collapsing, so an unmounting group would have passed. Now: a driven
+  collapse-all → expand-all cycle (**editors 14 / inputs 378 constant across all six states**),
+  plus source assertions refusing `{open && …}` by name and pinning `hidden` and `open` as
+  separate axes so a card hidden under Style still cannot unmount.
+  **BESIDE `DisclosureGroup`, NOT REPLACING IT**, and the rule is recorded in both headers. One is
+  a one-way sticky reveal over a run of FIELDS whose stickiness is the property it exists for; the
+  other a two-way fold over a TITLED REGION. Making the first two-way would destroy it, so "add an
+  option" was never available. The seventh by-role split in this arc.
+  **CONTRAST RASTERISED, sanity pair 21 first**, all three group kinds in both states: row summary
+  7.06 resting / 6.42 hover, block card 19.04 / 16.49, Section settings 7.06 / 6.42.
 - **PR 7 · the three-pane case-study editor** →1535 (`mount-discipline` 8 net-new, `three-pane`
   72→78, `studio-ink` 106 with E5 rewritten). Five stacked navigators collapse into one
   `selection` value (`"board" | "details" | <id>`), `ThreePaneShell` composes rail | canvas |

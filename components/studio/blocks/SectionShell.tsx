@@ -17,6 +17,7 @@
 import type { RawSection } from "@/lib/case-studies/sections-raw";
 import { VARIANTS, LAYOUTS } from "@/lib/studio/sections-format";
 import { TextField, TextArea, SelectField, TabGroup, DisclosureGroup, groupLabelCls } from "./fields";
+import CollapsibleGroup from "./CollapsibleGroup";
 
 export function SectionShellForm({
   value,
@@ -34,8 +35,23 @@ export function SectionShellForm({
   const set = <K extends keyof RawSection>(k: K, v: RawSection[K]) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
-      <span className={groupLabelCls}>Section settings</span>
+    // OPEN BY DEFAULT, AND THE MEASUREMENT IS WHY IT GETS THE AFFORDANCE WITHOUT THE DEFAULT.
+    // This group holds the section's COPY — eyebrow, title, lead, north star — which is what an
+    // author opened the section to edit. Folding it by default would hide the thing you came
+    // for to save ~250px, where folding the ItemRows rows below saves 342–1764px of material
+    // you were not looking at.
+    //
+    // AND IT HAS NOTHING TO SUMMARISE, WHICH IS A FINDING RATHER THAN A GAP. Its content is the
+    // eyebrow and the title, and the section header directly above it already renders exactly
+    // those through `sectionLabel`. A "Section settings · <title>" summary would restate the
+    // line above it, so it keeps its name and nothing else. The other two groups this pattern
+    // serves both had a content-derived summary already; this one genuinely does not, and
+    // inventing a placeholder to fill the slot would be the wrong kind of consistency.
+    <CollapsibleGroup
+      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3"
+      summary="Section settings"
+      summaryClassName={groupLabelCls}
+    >
       {/* Content — the copy that renders in the section header, plus the anchor id
           and display index that identify it. */}
       <TabGroup group="content">
@@ -112,7 +128,7 @@ export function SectionShellForm({
           </div>
         </DisclosureGroup>
       </TabGroup>
-    </div>
+    </CollapsibleGroup>
   );
 }
 

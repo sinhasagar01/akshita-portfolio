@@ -1,0 +1,122 @@
+"use client";
+
+// A titled region that folds. The group-level counterpart to DisclosureGroup.
+//
+// ---- WHY THIS IS A SECOND COMPONENT AND NOT AN OPTION ON THE FIRST ---------------------
+//
+// `DisclosureGroup` (fields.tsx) looks close enough to reuse and is not, and the difference is
+// role rather than degree — the same by-role split this project has landed on six times now
+// (listbox vs select, three-pane vs list-detail, ink band vs cream bar, doc save bar vs panel
+// footer, canvas-for-shape vs inspector-for-words, rail-reads vs board-writes):
+//
+//                    DisclosureGroup                  CollapsibleGroup
+//   UNIT             a run of FIELDS                  a TITLED REGION
+//   DIRECTION        one-way                          two-way
+//   STICKINESS       latches via shownRef —           free; close what you just opened
+//                    "never re-collapse once
+//                     it had a value"
+//   PURPOSE          reveal BLANK OPTIONAL fields     fold a region you are not editing
+//   ARIA             none (it is a reveal, not        aria-expanded + aria-controls
+//                    a disclosure)
+//
+// A one-way sticky reveal cannot express "fold this again", and making it two-way would break
+// the property it exists for. Two components, each honest about its job.
+//
+// ---- WHY NOT NATIVE <details>/<summary>, WHICH WOULD BE FREE ---------------------------
+//
+// Ruled out by a STRUCTURAL constraint, not a preference. `ItemRows` — the surface that carries
+// this PR's entire saving — already puts three buttons in its header (move up, move down,
+// remove). Interactive controls inside `<summary>` are unreliable: the click toggles the
+// disclosure instead of firing the control. The pattern has to work where the height is, so the
+// platform option is unavailable there, and having one implementation matters more than having
+// the free one in the two places it would have fitted.
+//
+// A real <button> gives back most of what <details> would have: Enter, Space, the focus ring,
+// and a screen-reader name, all native.
+//
+// ---- WHAT IS DELIBERATELY DROPPED, NAMED HERE WHERE THE DECISION LIVES -----------------
+//
+// FIND-IN-PAGE WILL NOT OPEN A COLLAPSED GROUP. `<details>` participates in Ctrl-F through
+// `hidden="until-found"`; a `hidden` div does not, so text inside a folded row is unfindable
+// while it is folded. This is a real capability and it is dropped ON PURPOSE — dropping
+// deliberately is fine and dropping silently is not.
+// TRIGGER TO REVISIT: React gaining `hidden="until-found"` support, or an author reporting a
+// search that should have found something.
+import { useId, useState, type ReactNode } from "react";
+import { IconChevronDown } from "../icons";
+
+export default function CollapsibleGroup({
+  summary,
+  controls,
+  defaultOpen = true,
+  className = "",
+  hidden,
+  summaryClassName = "",
+  bodyClassName = "flex flex-col gap-2",
+  children,
+}: {
+  /** What a CLOSED group shows. Never a placeholder — see the call sites. */
+  summary: ReactNode;
+  /** THE HEADER'S TYPE BELONGS TO THE CALL SITE, not to this component, and passing it rather
+   *  than importing `groupLabelCls` is what keeps `fields.tsx -> CollapsibleGroup -> fields.tsx`
+   *  from being a cycle. It is also the truer shape: the three groups this serves sit at three
+   *  levels and read at three scales — an ItemRows row is a 10px eyebrow, a block card a 12px
+   *  medium. A component that fixed one would be wrong for the others. */
+  summaryClassName?: string;
+  /** Reorder/remove and friends. Rendered BESIDE the toggle, never inside it. */
+  controls?: ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+  /** Hides the WHOLE group — a different axis from `open`, and it stacks with it. The block
+   *  card uses it for the Content|Style split, which hides a copy-only card under Style. Both
+   *  are `hidden` rather than unmounted, for the same reason. */
+  hidden?: boolean;
+  bodyClassName?: string;
+  children: ReactNode;
+}) {
+  // LOCAL STATE, AND NO PERSISTENCE MACHINERY — which is not a shortcut. Mount discipline
+  // already requires this group to stay MOUNTED when it folds (see below), so this state
+  // survives every selection change for free. Surviving a reload would need storage; surviving
+  // navigation falls out of a constraint enforced for another reason entirely, and a behaviour
+  // you get free from an existing rule is worth having as such rather than rebuilding.
+  const [open, setOpen] = useState(defaultOpen);
+  const bodyId = useId();
+
+  return (
+    <div hidden={hidden} className={className}>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          // preventDefault on mousedown keeps focus off the toggle so the click cannot
+          // blur-save mid-op — the About-panel fix, same as the controls beside it.
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls={bodyId}
+          className="group/ct -my-0.5 -ml-1 flex min-w-0 flex-1 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] px-1 py-0.5 text-left transition-colors hover:bg-cream-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+        >
+          <span
+            aria-hidden
+            className={`grid size-3 shrink-0 place-items-center text-ink-600 transition-transform ${
+              open ? "" : "-rotate-90"
+            } [&>svg]:size-3`}
+          >
+            <IconChevronDown />
+          </span>
+          <span className={`min-w-0 flex-1 truncate ${summaryClassName} group-hover/ct:text-ink-950`}>
+            {summary}
+          </span>
+        </button>
+        {controls}
+      </div>
+
+      {/* HIDDEN, NEVER UNMOUNTED. A folded group holding a dirty edit must still be holding it
+          when you unfold it — unmounting drops the value, the caret and, inside ItemRows, the
+          pending-focus index, and NOTHING FAILS. It is the same defect `mount-discipline`
+          gates for the shell, one level down, and it is driven there rather than assumed. */}
+      <div id={bodyId} hidden={!open} className={bodyClassName}>
+        {children}
+      </div>
+    </div>
+  );
+}
