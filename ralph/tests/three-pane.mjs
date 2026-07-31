@@ -301,6 +301,60 @@ t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width",
   t("I: …which is above the 50% floor, so the rail collapsing never takes the canvas under it",
     canvasWhenCollapsed / CS_CANVAS_WIDTH_PX >= CS_MIN_SCALE, true);
 }
+/* ---- THE THRESHOLD IS OPTIMISTIC BY THE SCROLLBAR GUTTER, AND THE FLOOR IS WHAT COVERS IT ---
+ *
+ * MEASURED at a 1460 viewport, the exact fit threshold, with the list open:
+ *
+ *     sidebar 236 · list 264 · canvas 625 · inspector 320  =  1445, not 1460
+ *
+ * The canvas gets 625 where the arithmetic above promises 640. The raw fit is 625/1280 = 0.488,
+ * and what puts the rendered transform at exactly 0.500 is `useFitToWidth`'s FLOOR. So the floor
+ * is LOAD-BEARING at the threshold, not a safety net — remove the clamp as a simplification and
+ * the canvas silently renders at 48.8% with nothing failing.
+ *
+ * THE 15px IS NOT PANE BORDERS. That was the first reading and it was wrong; 264 and 320 are
+ * border-boxes with their borders already inside them. It is `scrollbar-gutter: stable` on
+ * `html` (globals.css:222), which permanently reserves the classic scrollbar's width. So
+ * `matchMedia("(min-width: 1460px)")` matches the VIEWPORT while the layout only ever receives
+ * the viewport minus that gutter. The two measure different things, and every media-query
+ * threshold in the studio inherits the gap — blog's 1614 included, by the same mechanism.
+ *
+ * DO NOT FIX IT BY ADDING 15 TO THE CONSTANT. 15 is this machine's scrollbar width; it is 0
+ * wherever scrollbars are overlays and ~17 on Windows. Baking one platform's value into a
+ * shared constant makes it wrong everywhere else. The durable fix is to make the query measure
+ * what the layout gets — a ResizeObserver on the shell rather than matchMedia on the viewport —
+ * which removes the discrepancy by construction instead of covering it. That is a change to a
+ * hook blog also uses, so it is named here as its own work rather than folded into a layout PR.
+ *
+ * Until then this is recorded rather than silently compensated, because a floor covering an
+ * arithmetic gap is honest only if the gap is written down. */
+t("I: the gutter gap is real — the fit threshold minus the reserved scrollbar leaves the canvas below its floor, so the clamp is load-bearing",
+  [(1460 - 15 - 236 - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX < CS_MIN_SCALE,
+   CS_FIT_THRESHOLD_PX - 236 - LIST_PX - INSPECTOR_PX], [true, CS_CANVAS_MIN_PX]);
+// The clamp itself, in source. `Math.min(1, …)` alone is the simplification this comment warns
+// against, so the FLOOR term is pinned rather than described.
+{
+  const sections = readFileSync(new URL("../../components/studio/SectionsEditPanel.tsx", import.meta.url), "utf8");
+  t("I: useFitToWidth clamps UP to CS_MIN_SCALE as well as down to 1 — dropping the floor ships 48.8% at the threshold",
+    /Math\.max\(CS_MIN_SCALE, Math\.min\(1, [^)]*\/ CANVAS_WIDTH\)\)/.test(sections), true);
+}
+
+/* ---- THE CASE-STUDY CONSUMER PASSES ITS OWN BREAKPOINT, mirroring Part D for blog. Both
+ * thresholds are the consumer's since PR 5; this is the half that proves the SECOND consumer
+ * actually uses its own rather than inheriting blog's by omission. */
+{
+  const host = readFileSync(new URL("../../components/studio/SectionsEditPanel.tsx", import.meta.url), "utf8");
+  t("I: the case-study editor passes CS_FIT_THRESHOLD_PX, not a literal and not blog's constant",
+    /fitThresholdPx=\{CS_FIT_THRESHOLD_PX\}/.test(host), true);
+  t("I: …and names its list 'sections' at the call site", /listNoun="sections"/.test(host), true);
+  t("I: …and folds its inspector at CS_COLLAPSED_FLOOR_PX, the derived floor rather than blog's 1100",
+    /useMediaMin\(CS_COLLAPSED_FLOOR_PX\)/.test(host), true);
+  // On CODE, not the raw file — the comment at :729 names 1100 to say why it is NOT used, and a
+  // check that punishes explaining a decision teaches people to stop explaining decisions.
+  t("I: the case-study editor declares no literal breakpoint of its own — the constants are the only source",
+    /\b(1460|1222|1614|1100)\b/.test(code("components/studio/SectionsEditPanel.tsx")), false);
+}
+
 // NOT REAL OPTIONS FOR THREE PANES — recorded so nobody re-derives them and proposes one.
 t("I: 75% would need 1780px and 100% would need 2100px — neither is a laptop viewport",
   [236 + LIST_PX + Math.round(1280 * 0.75) + INSPECTOR_PX, 236 + LIST_PX + 1280 + INSPECTOR_PX],

@@ -1728,7 +1728,9 @@ export default function SectionsEditPanel({
             disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
             className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {saveStatus === "saving" ? "Saving…" : "Save draft"}
+            {/* "Save sections" — the other half of #200's second instance; see the note on
+                ProjectsEditPanel's footer button. */}
+            {saveStatus === "saving" ? "Saving…" : "Save sections"}
           </button>
         </div>
       </footer>

@@ -288,7 +288,15 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           disabled={!dirty || saveStatus === "saving"}
           className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {saveStatus === "saving" ? "Saving…" : "Save draft"}
+          {/* "Save details", NOT "Save draft" — #200's fix, second instance. Two footers are
+              visible at once when Details is selected, this one and the sections footer, and
+              they commit genuinely different drafts (facts through this panel's useDraftForm,
+              sections through SectionsEditPanel's). By role neither is wrong. The defect was
+              that identical labels CLAIMED they were the same action. As in #200, the button
+              was the only string that never named its object, and as in #200 the progress
+              label is left alone: the ambiguity is in the RESTING label, which is what gets
+              read while deciding. */}
+          {saveStatus === "saving" ? "Saving…" : "Save details"}
         </button>
       </footer>
     </div>
