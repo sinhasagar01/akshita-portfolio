@@ -273,19 +273,40 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
 
 // E5 · THE BANDS, and the boundary that keeps hazard 22 shut.
 //
-// ---- THE COUNT IS 2 AND THE PREDICTION THAT IT WOULD BE 4 WAS WRONG ----------------------
+// ---- THE COUNT IS 2, THE PREDICTION THAT IT WOULD BE 4 WAS WRONG, AND SO WAS MY REASON ----
 //
 // PR 3 wrote "it becomes 4 when the case-study inspector lands, and that will be deliberate",
-// and PR 7 landed that inspector. The count is still 2. The prediction assumed a new inspector
-// pane would take the ink band because the by-role rule says INSPECTOR PANE -> ink band, but
-// the case-study inspector has no section HEADS to band: its structure is a Selected-field card,
-// a Content|Style tablist, and the per-section fields. The rule maps a treatment onto a role
-// that exists; it does not conjure the role.
+// and PR 7 landed that inspector. The count is still 2.
 //
-// Recorded rather than quietly dropped, because a number that was promised and did not arrive
-// is the shape this arc keeps getting wrong — a claim written once and trusted later. Whether
-// the case-study inspector SHOULD grow banded heads is a live by-role question and a visual
-// change, so it is not settled by a layout PR.
+// **THE REASON RECORDED HERE WAS "the case-study inspector has no section HEADS to band". THAT
+// IS FALSE.** Measured: it has FOURTEEN, one `<h3 className={labelCls}>` per section. The
+// conclusion was right and the reason was wrong, which is the arc's own recurring shape and is
+// worth correcting rather than leaving to be cited.
+//
+// ---- WHY THERE ARE NO BANDS, DERIVED FROM WHAT A BAND IS FOR ------------------------------
+//
+// A BAND DIVIDES CO-VISIBLE REGIONS. Measured in the blog inspector: two `<section>` siblings on
+// screen together, "Post" at 924px and "Body · 7" at 421px, and the band is what says where one
+// ends and the next begins. That is the job.
+//
+// THE CASE-STUDY INSPECTOR HAS NOTHING TO DIVIDE. Its 14 heads are 14 ALTERNATIVES, and exactly
+// ONE is visible at a time — the other 13 are mounted and `hidden`, which is the mount discipline
+// the editor depends on. Above the visible head is the tablist; below it are its own fields.
+// **A divider with nothing on the other side is not a divider**, so the band would be decoration
+// wearing a structural treatment's clothes.
+//
+// AND THE JOB IS ALREADY DONE, BY THE RAIL. What the blog does with two bands in one scrolling
+// pane, the case study does with a list pane: you NAVIGATE between sections instead of scrolling
+// past them. Band and rail are the same affordance at different scales, and PR 7 chose the rail.
+//
+// THE THIRD ARGUMENT IS THE ONE THAT WOULD HAVE MADE IT WORSE. Measured, the selected section's
+// name is already on screen THREE TIMES — the rail's selected row (13.5px/500), the canvas bar
+// (13.5px/500), and this `<h3>` (12px/600). Banding the inspector's copy would make the most
+// redundant of the three the loudest.
+//
+// DECIDED, NOT DEFERRED: the case-study inspector takes no ink bands, and the by-role rule is
+// unchanged — INSPECTOR PANE -> ink band still holds, for an inspector that has co-visible
+// regions to separate. This one does not.
 //
 // AND THE COUNT IS NOW DERIVED, not read off one file. Pinning it to BlogBlocksEditPanel is
 // what let the prediction go unchecked for three PRs: a second inspector could grow a band, or
@@ -299,6 +320,18 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     .filter(([, n]) => n > 0);
   t("E5: the ink band lives in exactly one file — the blog inspector — and the case-study inspector deliberately has none",
     withBands, [["BlogBlocksEditPanel.tsx", 2]]);
+  // THE PROPERTY THE DECISION RESTS ON, pinned so the decision can be re-read against a fact
+  // rather than a memory: the case-study inspector's section heads are ALTERNATIVES, hidden by
+  // selection, so at most one is ever visible and a band would divide nothing. If that ever
+  // stops being true — if two section editors become co-visible — this fails and the by-role
+  // question genuinely reopens.
+  {
+    const cs = code("components/studio/SectionsEditPanel.tsx");
+    t("E5: …because its section heads are ALTERNATIVES — hidden by selection, never co-visible",
+      /hidden=\{selectedSectionId !== ids\.sectionIds\[i\]\}/.test(cs), true);
+    t("E5: …and the blog's two ARE co-visible, which is what its bands divide",
+      (code("components/studio/BlogBlocksEditPanel.tsx").match(/<section/g) ?? []).length >= 2, true);
+  }
   const panel = code("components/studio/BlogBlocksEditPanel.tsx");
   t("E5: the SaveIndicator on the band takes its ground — text-text-subtle is chosen against cream and drops to 1.72:1 on ink",
     /<SaveIndicator label="Body"[^>]*onInk\s*\/>/.test(panel), true);
@@ -318,8 +351,9 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
  * by-role shape as ink-band-vs-cream-bar's siblings: listbox-vs-select, three-pane-vs-list-
  * detail, and the document-level save bar vs the per-entry panel footer.
  *
- * THE BAND COUNT IS 2 AND STAYS 2. E5 pins it, and E5 now also records that this comment used
- * to promise 4 once the case-study inspector landed. It landed; the count did not move. See E5.
+ * THE BAND COUNT IS 2 AND STAYS 2, and that is now a DECISION rather than an open question. E5
+ * records why: a band divides CO-VISIBLE regions, and the case-study inspector's section heads
+ * are alternatives of which one shows at a time. This comment used to promise 4; it landed at 2.
  *
  * DERIVED, NOT LISTED: an entry panel is any studio component that calls `useListItem` and
  * renders a panel `<section>`. Each must open with the cream-200 bar, byte-identical.
