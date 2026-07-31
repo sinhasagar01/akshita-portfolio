@@ -2988,6 +2988,19 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
     loosen because a mockup guessed differently.** No code changed. Worth recording because the
     fidelity audit first read this as an implementation gap in the page's favour, when the page is
     the stricter of the two.
+  - **C-27 — `.seg`'s TYPE VALUES FOR THE HERO TABS, AND THIS IS A NEW KIND OF CORRECTION.**
+    The contract specifies sentence case, 12.5px and weight 600. The panel ships **uppercase,
+    12px, weight 500** — and every one of those is correct **because the public hero renders
+    these same author-edited labels that way**. `HeroEditPanel` states twice that it mimics the
+    real Hero tablist so "the mimic cannot drift".
+    **THE DISTINCTION IS WORTH THE PARAGRAPH, BECAUSE TWENTY-SIX CORRECTIONS CAME FIRST AND NONE
+    HAD THIS SHAPE.** C-21..23 are the contract being wrong about the CURRENT STATE. C-19..20 are
+    the contract being wrong about the DESIGN. **C-27 is the contract being wrong about WHAT THE
+    ELEMENT IS FOR** — it specifies a generic segmented control's values for a control whose
+    entire purpose is fidelity to the public render. Its values are not merely different, they
+    are *inapplicable*, and applying them would have degraded the thing the panel exists to do.
+    **The three values that DID move were taken off the public hero, not off the contract**: rest
+    weight 400→500, tracking 0.06em→0.10em, padding 6/12→10/16. See #246.
   - Also refuted: "a collapsible-group pattern already exists" (`DisclosureGroup` is field-level,
     one-way and sticky, and no `<details>` exists in `components/studio`), and "the index needs a
     bespoke row" (it already is one). See the consistency investigation, section G.
@@ -3014,9 +3027,10 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
-- **#246** the dashed adds firm to solid on hover →1628 (`studio-ink` 133→140, new Part H).
-  PR 2 of the owner's six UI items, and **half of it. The Hero tabs are measured and NOT built**
-  — see below.
+- **#246** the dashed adds firm to solid on hover, and the hero-tab mimic gets a gate →1637
+  (`studio-ink` 133→149, new Parts H and J, C4 rewritten).
+  PR 2 of the owner's six UI items. **Both halves, but the tab half is not the one that was briefed**
+  — see C-27 below.
   **THE HOVER IS THE CONTRACTS' OWN UNBUILT RULE.** All four page contracts carry
   `.addrow:hover { border-color: accent; color: accent; border-style: solid }` and nothing
   implemented the `border-style` half; `hover:border-solid` appeared nowhere in source. Applied
@@ -3061,31 +3075,55 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   surviving occurrences are `lg:hover:bg-cream-50` and `hover:bg-cream-50/70`, different
   utilities that both still generate. Public DOM byte-identical **by construction**: nothing
   outside `components/studio` imports any of the six changed modules.
-  **THE HERO TABS: MEASURED, REPORTED, NOT BUILT.** The owner's check was the right one and it
-  returned a third answer. The uppercase **is** a `text-transform` utility — every label in
-  `site-settings.yaml` is sentence case, so there is no content problem. **But the PUBLIC hero
-  renders those same labels uppercase too**, and `HeroEditPanel` says twice that it "mimics the
-  real Hero tablist" so "the mimic cannot drift".
+  **THE HERO TABS: THE REFERENCE IS THE PUBLIC RENDER, NOT THE CONTRACT (C-27).** The owner's
+  check was the right one and it returned a third answer. The uppercase **is** a `text-transform`
+  utility — every label in `site-settings.yaml` is sentence case, so there is no content problem.
+  **But the PUBLIC hero renders those same labels uppercase too**, and `HeroEditPanel` says twice
+  that it "mimics the real Hero tablist" so "the mimic cannot drift". Measured, both sides:
 
-  | axis | studio panel | public hero | contract `.seg` |
-  |---|---|---|---|
-  | transform | uppercase | **uppercase** | sentence case |
-  | font-size | 12px | **12px** | 12.5px |
-  | weight, selected | 500 | **500** | 600 |
-  | weight, rest | 400 | 500 | 600 |
-  | letter-spacing | 0.72px | 1.2px | — |
-  | height | 32 | 38 | 40 |
-  | padding | 6px 12px | 10px 16px | 0 14px |
+  | axis | studio, before | studio, after | public hero | contract `.seg` |
+  |---|---|---|---|---|
+  | transform | uppercase | **uppercase** | uppercase | sentence case ✗ |
+  | font-size | 12px | **12px** | 12px | 12.5px ✗ |
+  | weight, selected | 500 | **500** | 500 | 600 ✗ |
+  | weight, rest | 400 | **500** | 500 | 600 ✗ |
+  | letter-spacing | 0.72px | **1.2px** | 1.2px | — |
+  | padding | 6px 12px | **10px 16px** | 10px 16px | 0 14px |
+  | height | 32 | **40** | 38 | 40 |
 
-  **Three of the four listed deltas would move the panel AWAY from what publishes.** The fourth
-  (height) is right in direction but the target should be the public's **38 via 10px 16px**, not
-  the contract's 40 via `0 14px`. And two real gaps the contract never mentions are where the
-  panel actually drifts: **rest weight 400 vs 500, and tracking 0.72 vs 1.2px**.
-  **CORRECTION 20 IS NOT IN TENSION WITH ANY OF THIS — it is already working.** The public hero
-  is `role="group"` with `aria-pressed` and an animated `layoutId="hero-tab-pill"` FILL; the
-  studio panel is a real `role="tablist"` with an underline. **group→fill / tablist→underline,
-  applied exactly as written.** The selection language differs because the ROLES differ, which is
-  the rule rather than an exception to it. **Contract correction 21.**
+  **THREE OF THE FOUR BRIEFED DELTAS WOULD HAVE MOVED THE PANEL AWAY FROM WHAT PUBLISHES**, so
+  the owner replaced their own four with the three the public render implies. Uppercase, 12px and
+  the selected 500 are correct **because the hero renders them that way**.
+  **THE HEIGHT LANDS AT 40, NOT THE HERO'S 38, AND THE 2px IS THE UNDERLINE.** Both compute an
+  18px line box; the hero pill has no border, the panel has `border-b-2`. Forcing 38 would need a
+  9px padding appearing in neither reference, so the PADDING is matched and the difference is the
+  selection language doing its job.
+  **THE WEIGHT MOVED TO THE SHARED BASE, WHICH IS WHY C4 BROKE AND BROKE CORRECTLY.** It pinned
+  `"border-accent-500 font-medium text-ink-950"` as one literal shared with Content|Style. The
+  hero is 500 throughout and carries selection by COLOUR, so the panel no longer bumps weight on
+  selection — meaning the weight was never part of the selection RULE, just an incidental token
+  riding inside an assertion about selection colour. C4 now compares the two tablists' selected
+  branches with weight excluded, both read from source.
+  **THE CSS UNION IS IDENTICAL — 1533 RULES, ZERO DIFFERENCES — AND THAT IS ITSELF THE PROOF.**
+  Every utility the tabs now use already existed in the bundle, because the public hero already
+  uses them. A mimic that generates no new CSS is a mimic.
+  **`studio-ink` PART J MAKES THE MIMIC ENFORCEABLE, WHICH IT HAD NEVER BEEN.** The claim was a
+  comment. J reads BOTH class strings and compares six type axes file to file — **no literal in
+  the suite**, so changing the HERO fails it too (mutation-tested from that side). J3 asserts the
+  one axis that deliberately differs.
+  **TWO TRAPS WHILE WRITING J, BOTH CAUGHT BY J1 RATHER THAN BY READING.** The public hero has
+  **two tablists with the same `aria-label="Designer facets"`** — the mobile dots come FIRST in
+  source, so the label anchor picked a variant carrying no type utilities. And comment-stripping
+  leaves whitespace, so a character window from `role="tab"` to `className` overran. **Both
+  presented as J2 PASSING, on two empty strings** — which is why J1 asserts the axes RESOLVED
+  rather than that a string was found.
+  **CORRECTION 20 IS NOT IN TENSION WITH ANY OF THIS — it is the rule confirming itself on a case
+  neither side constructed for it.** The public hero is `role="group"` with `aria-pressed` and an
+  animated `layoutId="hero-tab-pill"` FILL; the panel is a real `role="tablist"` with an
+  underline. **group→fill / tablist→underline, applied exactly as written.** The roles differ, so
+  the languages differ. **The selection-language conversation is CLOSED, not deferred** — the
+  plan had been to land four deltas then judge it with the variables removed, and the variables
+  turn out to have been mostly correct already.
 
 - **#245** the panel frame, and the clipping it caused →1621 (`studio-ink` 127→133,
   `mount-discipline` 14→16). Filed by the owner as "body `<section>` loses its border and
