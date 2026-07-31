@@ -420,7 +420,7 @@ export function ListDetailLayout({
             <button
               type="button"
               onClick={handleAdd}
-              className="mt-1.5 flex w-full items-center gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-dashed border-ink-950/15 px-3 py-2 text-[14px] text-ink-600 transition-colors hover:border-accent-500/40 hover:bg-cream-100 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
+              className="mt-1.5 flex w-full items-center gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-dashed border-ink-950/15 px-3 py-2 text-[14px] text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
             >
               <IconPlus />
               {addItemLabel ?? "Add"}

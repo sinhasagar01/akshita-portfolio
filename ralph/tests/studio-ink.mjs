@@ -819,5 +819,87 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     PAIRS.find((p) => p.file === "ListDetailLayout.tsx")?.ground, "cream-200");
 }
 
+/* ================================== H. THE DASHED AFFORDANCES, AND WHERE THEIR HOVER MAY LAND */
+//
+// THIS PART EXISTS BECAUSE THE PR THAT ADDED IT PUT THE HOVER ON THE WRONG ELEMENT THREE TIMES
+// OUT OF SEVEN. The seven dashed adds carry BYTE-IDENTICAL class strings across four files, so
+// a fragment-anchored edit resolves to the first match rather than the intended one. Two of the
+// three strays landed on solid-bordered REMOVE icon buttons, where `hover:border-solid` is a
+// dead class AND the border silently firmed from accent/40 to full accent; the third landed on
+// DisclosureGroup's reveal, which had been excluded by name in the same breath. tsc and lint
+// were clean throughout, and only a grep of the finished tree caught it.
+//
+// The whole table below is DERIVED — every `border-dashed` site under components/studio, with
+// its element tag and its enclosing component resolved from source. Nothing here is a pinned
+// file or line, so a new dashed affordance joins the table by existing.
+//
+// THE ONE EXCLUSION IS NAMED BY COMPONENT, NOT BY LINE. DisclosureGroup's reveal is dashed and
+// uses the same IconPlus, so no structural signal separates it from an add — it opens fields
+// that already exist rather than creating one. Excluding it by enclosing component means the
+// exclusion survives the file moving, and means a SECOND dashed button inside DisclosureGroup
+// would be excluded too, which is the correct reading of the rule.
+{
+  const blank = (m) => m.replace(/[^\n]/g, " ");
+  /** Comment-stripped like `code()`, but line-preserving — H reports file:line in its failures.
+   *  A comment containing a class string has re-attributed a match twice in this project. */
+  const codeLines = (p) => read(p)
+    .replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\{\/\*[\s\S]*?\*\/\}/g, blank)
+    .replace(/(^|[^:])\/\/.*$/gm, (m, p1) => p1 + " ".repeat(m.length - p1.length))
+    .split("\n");
+
+  const SOLID_HOVER = "hover:border-solid";
+  const sites = [];
+  const strays = [];
+  for (const f of studioFiles) {
+    codeLines(`components/studio/${f}`).forEach((line, i) => {
+      const at = `${f}:${i + 1}`;
+      if (line.includes(SOLID_HOVER) && !line.includes("border-dashed")) strays.push(at);
+      if (!line.includes("border-dashed")) return;
+      let tag = null;
+      for (let j = i; j >= 0 && j > i - 14 && !tag; j--) {
+        const m = [...codeLines(`components/studio/${f}`)[j].matchAll(/<([a-zA-Z][\w.]*)/g)];
+        if (m.length) tag = m[m.length - 1][1];
+      }
+      let comp = null;
+      for (let j = i; j >= 0 && !comp; j--) {
+        const m = /^(?:export\s+)?(?:default\s+)?function\s+([A-Za-z_]\w*)/.exec(codeLines(`components/studio/${f}`)[j]);
+        if (m) comp = m[1];
+      }
+      sites.push({ at, tag, comp, solid: line.includes(SOLID_HOVER), hovers: line.includes("hover:") });
+    });
+  }
+
+  // H1 · THE STRAY CHECK, AND IT NEEDS NO EXCEPTION LIST. `hover:border-solid` only means
+  // anything on an element that is dashed at rest; anywhere else it is dead weight that arrived
+  // with a live colour change riding alongside it. This is the assertion that would have caught
+  // two of the three strays with no knowledge of which elements were meant to change.
+  t("H1: `hover:border-solid` never lands on an element that is not dashed at rest", strays, []);
+
+  // H2 · THE DERIVATION HAS TO BE HONEST BEFORE THE REST CAN LEAN ON IT. If the tag or the
+  // enclosing component fails to resolve, every assertion below is quietly measuring nothing.
+  t("H2: every dashed site resolved to an element and a component",
+    sites.filter((s) => !s.tag || !s.comp).map((s) => s.at), []);
+  t("H2: …and the table is non-empty, so a bad glob cannot pass this part vacuously",
+    sites.length >= 9, true);
+
+  // H3 · THE RULE. Every dashed BUTTON is an add and firms to solid on hover — except the one
+  // reveal, excluded by its component. A new dashed add that forgets the hover fails here, and
+  // the failure names the component so the fix is obvious.
+  t("H3: every dashed button firms to solid on hover, and the only exception is DisclosureGroup's reveal",
+    sites.filter((s) => s.tag === "button" && !s.solid).map((s) => s.comp), ["DisclosureGroup"]);
+  t("H3: …and seven of them carry it, which is the count the four page contracts specify",
+    sites.filter((s) => s.solid).length, 7);
+
+  // H4 · THE REVEAL KEEPS A HOVER. Excluding it from the solid rule must not leave it inert —
+  // it is still a control and still has to answer the pointer.
+  t("H4: the excluded reveal still has a hover treatment of its own",
+    sites.find((s) => s.comp === "DisclosureGroup")?.hovers, true);
+
+  // H5 · AND THE ONE DASHED NON-BUTTON STAYS INERT. CaseStudyIndex's "Bespoke" badge is a status
+  // pill inside a link. Giving it a hover would make it read as separately clickable.
+  t("H5: the dashed non-button carries no hover at all — a status pill is not a control",
+    sites.filter((s) => s.tag !== "button").map((s) => [s.at, s.hovers]), [["CaseStudyIndex.tsx:207", false]]);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

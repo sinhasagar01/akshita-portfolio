@@ -3014,6 +3014,79 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#246** the dashed adds firm to solid on hover →1628 (`studio-ink` 133→140, new Part H).
+  PR 2 of the owner's six UI items, and **half of it. The Hero tabs are measured and NOT built**
+  — see below.
+  **THE HOVER IS THE CONTRACTS' OWN UNBUILT RULE.** All four page contracts carry
+  `.addrow:hover { border-color: accent; color: accent; border-style: solid }` and nothing
+  implemented the `border-style` half; `hover:border-solid` appeared nowhere in source. Applied
+  to **all seven** dashed add affordances, because it is a hover rather than a rest state, so
+  breadth adds consistency. Two were odd ones out that used a fill-and-darken
+  (`ListDetailLayout` `hover:bg-cream-100 hover:text-ink-950`, `BlogBlocksEditPanel`
+  `hover:bg-cream-50 hover:text-ink-950`) and now match the other five.
+  **DRIVEN WITH A REAL POINTER AT ALL SEVEN, BECAUSE `:hover` IS NOT SETTABLE FROM SCRIPT** and
+  #211 established that reporting NOT MEASURED beats claiming a pass never performed. Every one
+  went `dashed → solid`, border `oklch(0.56 0.14 42)`, text `oklch(0.46 0.13 42)`. Two controls
+  in the same frames: `DisclosureGroup`'s reveal hovered and **stayed dashed**, and "Add stat"
+  returned to dashed when the pointer left.
+  **THE PR PUT THE HOVER ON THE WRONG ELEMENT THREE TIMES OUT OF SEVEN, AND THAT IS WHY PART H
+  EXISTS.** The seven adds carry **byte-identical class strings across four files**, so a
+  fragment-anchored edit resolves to the first match rather than the intended one. Two strays
+  landed on solid-bordered **remove icon buttons** — where `hover:border-solid` is a dead class
+  and the border silently firmed from accent/40 to full accent — and the third landed on
+  `DisclosureGroup`'s reveal, **which had been excluded by name in the same breath**. Three of
+  the seven targets were left untouched. **tsc and lint were clean throughout**; only a grep of
+  the finished tree caught it, and an earlier "verified the reveal was not changed" had been
+  checked against the wrong line. Refixed by **line number with `border-dashed` as the guard**.
+  **PART H DERIVES THE WHOLE TABLE** — every `border-dashed` site under `components/studio`, with
+  its element tag and enclosing component resolved from source. Nothing is pinned to a file or a
+  line, so a new dashed affordance joins by existing. **H1 needs no exception list at all**:
+  `hover:border-solid` may only land on something dashed at rest, which catches two of the three
+  strays with no knowledge of which elements were meant to change. **The one exclusion is named
+  by COMPONENT, not by line** — the reveal is dashed and uses the same `IconPlus`, so no
+  structural signal separates it from an add; excluding `DisclosureGroup` by name survives the
+  file moving and correctly excludes a second reveal if one is added. **Mutation-tested against
+  the three real mistakes plus a hover on the Bespoke badge; each failed the right assertion.**
+  **CONTRAST IS NOT UNCHANGED, AND SAYING SO WOULD HAVE BEEN WRONG.** Two sites previously
+  hovered to `ink-950` over an ADDED cream fill and now hover to `accent-600` with no fill, so a
+  ground does move. Rasterised, sanity pair 21 first, ground taken by walking up to what actually
+  paints rather than read off a class: **accent-600 measures 7.22 on cream-50, 6.87 on cream-100,
+  6.25 on cream-200**. Floor 6.25, clear of 4.5. **`studio-ink-contrast`'s cream half covers
+  `ink-*` and `text-subtle` only, so accent-600 on cream is uncovered** — recorded, not built,
+  since five of the seven already used it before this PR.
+  **CSS UNION OF DECLARATIONS, TWO PRODUCTION BUILDS.** Rule count unchanged at 1533; exactly two
+  rules differ. Added `.hover\:border-solid:hover{--tw-border-style:solid;border-style:solid}`,
+  confirming it is a real v4 utility and not a bracket-bare no-op. Removed
+  `.hover\:bg-cream-50:hover`, whose only consumer was `BlogBlocksEditPanel` — the three
+  surviving occurrences are `lg:hover:bg-cream-50` and `hover:bg-cream-50/70`, different
+  utilities that both still generate. Public DOM byte-identical **by construction**: nothing
+  outside `components/studio` imports any of the six changed modules.
+  **THE HERO TABS: MEASURED, REPORTED, NOT BUILT.** The owner's check was the right one and it
+  returned a third answer. The uppercase **is** a `text-transform` utility — every label in
+  `site-settings.yaml` is sentence case, so there is no content problem. **But the PUBLIC hero
+  renders those same labels uppercase too**, and `HeroEditPanel` says twice that it "mimics the
+  real Hero tablist" so "the mimic cannot drift".
+
+  | axis | studio panel | public hero | contract `.seg` |
+  |---|---|---|---|
+  | transform | uppercase | **uppercase** | sentence case |
+  | font-size | 12px | **12px** | 12.5px |
+  | weight, selected | 500 | **500** | 600 |
+  | weight, rest | 400 | 500 | 600 |
+  | letter-spacing | 0.72px | 1.2px | — |
+  | height | 32 | 38 | 40 |
+  | padding | 6px 12px | 10px 16px | 0 14px |
+
+  **Three of the four listed deltas would move the panel AWAY from what publishes.** The fourth
+  (height) is right in direction but the target should be the public's **38 via 10px 16px**, not
+  the contract's 40 via `0 14px`. And two real gaps the contract never mentions are where the
+  panel actually drifts: **rest weight 400 vs 500, and tracking 0.72 vs 1.2px**.
+  **CORRECTION 20 IS NOT IN TENSION WITH ANY OF THIS — it is already working.** The public hero
+  is `role="group"` with `aria-pressed` and an animated `layoutId="hero-tab-pill"` FILL; the
+  studio panel is a real `role="tablist"` with an underline. **group→fill / tablist→underline,
+  applied exactly as written.** The selection language differs because the ROLES differ, which is
+  the rule rather than an exception to it. **Contract correction 21.**
+
 - **#245** the panel frame, and the clipping it caused →1621 (`studio-ink` 127→133,
   `mount-discipline` 14→16). Filed by the owner as "body `<section>` loses its border and
   border-radius". **It is a bug fix, and the bug is mine.**
