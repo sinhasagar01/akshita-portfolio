@@ -78,13 +78,19 @@ export default function ChipListEditor({
                 // Uncapped, these ran 1825px on a 2560 display inside About and Process.
                 className={`min-h-11 min-w-0 flex-1 ${FIELD_MEASURE} rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30`}
               />
-              {/* ONE BORDERED CLUSTER, NOT THREE BOXES — the contract's `.seg`: a single border,
-                  `overflow-hidden` so the children's corners are clipped by it, and a hairline
-                  between the buttons. Three separately bordered boxes beside an input read as
-                  three unrelated controls; grouped, they read as the row's controls.
+              {/* BORDERLESS, 2px APART — the contract's `.skrow .ctl`, and #240 used the WRONG
+                  SPEC HERE. Its brief said the row controls should come "inline rather than
+                  sitting in separate bordered boxes", which was the right direction; the shape I
+                  reached for was `.seg` — one border, `overflow:hidden`, hairline dividers. But
+                  `.seg` is the SITE-SETTINGS segmented toggle, a control that picks a VALUE and
+                  wears a group border because its members are alternatives. These are a row's
+                  ACTIONS: move up, move down, remove. They are not alternatives and do not want
+                  a box drawn round them.
+                  `.skrow .ctl` is `display:flex; gap:2px` with 32x32 borderless buttons — the
+                  controls simply sit beside the field, which is what "inline" meant.
                   preventDefault on mousedown keeps focus on the input so the click does not
                   blur-save mid-op (the About-panel fix). */}
-              <span className="inline-flex shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 [&>button+button]:border-l [&>button+button]:border-l-ink-950/12">
+              <span className="inline-flex shrink-0 gap-0.5">
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
@@ -110,9 +116,9 @@ export default function ChipListEditor({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => list.remove(i)}
                 aria-label={`Remove ${name}${fromSuffix}`}
-                // Inside the group like its siblings. The hover keeps the ACCENT TEXT and drops
-                // the accent border, which the group now owns — a border-colour hover on a child
-                // whose border is clipped by `overflow-hidden` would simply not draw.
+                // Hover is accent TEXT on a cream-200 wash, matching its siblings. It carries no
+                // border of its own and neither does the cluster, so there is nothing for a
+                // border-colour hover to draw on.
                 className="grid size-8 shrink-0 place-items-center text-ink-400 transition-colors hover:bg-cream-200 hover:text-accent-600 [&>svg]:size-4"
               >
                 <IconX />

@@ -31,9 +31,21 @@ export default async function StudioHomepage() {
 
   return (
     <div className={STUDIO_PAGE}>
+      {/* ONE CAP, DECLARED ONCE, AROUND THE HEAD AND THE LIST TOGETHER.
+          The head used to sit outside it, so its box ran the full 1237px while the list capped
+          at 960 — a 277px overhang. TIDYING RATHER THAN A FIX: measured, nothing actually
+          overhangs, because the `h1` renders 80px ("Homepage") and the lede carries its own
+          650.926px cap, so the two boxes disagreed without anything showing it. It would only
+          become visible if a page title exceeded 960px, which none does.
+          NOT ON `AreaHeader` ITSELF, which is shared: the blog and projects indexes render it
+          too and their content is UNCAPPED, so capping the component would create the inverse
+          misalignment on two pages to fix it on one. Same shared-seam trap #239 and #240 both
+          found. Wrapping both children here also means the 60rem is stated once, so the head and
+          the list cannot drift apart again. */}
+      <div className="max-w-[60rem]">
       <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
-      <div className="max-w-[60rem] border-t border-ink-950/12">
+      <div className="border-t border-ink-950/12">
         <OverviewRow
           index="01"
           title="Hero"
@@ -98,6 +110,7 @@ export default async function StudioHomepage() {
         Hero facets, Process stage visuals, and Contact steps are code-managed and
         edited in source, not here.
       </p>
+      </div>
     </div>
   );
 }
