@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1456 across 42 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1486 across 43 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -1513,6 +1513,15 @@ inspection before running anything.
 
 All prior locked decisions remain. Added across this session:
 
+- **TWO SELECT SHAPES, SPLIT BY ROLE.** `ListboxField` (the animated custom control) is for a
+  CONTENT field the author reasons about — the blog topic, its one consumer. The native
+  `SelectField` (`blocks/fields.tsx`) is for a CONFIG toggle inside a block shell — variant,
+  layout, frame ×2 — where a native `<select>` is keyboard- and screen-reader-correct for free
+  and strictly better (`CaseStudySwitcher`'s header records this). Do NOT reach for the listbox
+  for a new config toggle. The rule lives in both component headers. MIGRATION TRIGGER (named so
+  the split cannot become drift): migrate the four SelectField sites to the listbox only if one
+  needs that treatment, or if they begin to look wrong beside it.
+
 - **THE STUDIO HAS THREE SCALES, ALL NAMED BY ROLE, ALL RELATIONS RATHER THAN VALUES.**
   **RADIUS** panel 12 / card 8 / control 4, scoped custom properties on `.studio-chrome`.
   **GROUND** cream-200 chrome / cream-100 field surface / cream-50 well.
@@ -2791,6 +2800,34 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   `studio-cascade`** (hazard 25), not the repaint. Also: the ground ladder replacing two
   failed absolute readings of rule 2 (C-14), `/22` panel edges that #205 specified and never
   applied, every contract weight now matching, and corrections **C-12, C-13, C-14**.
+- **the topic listbox + a fourth topic** →1486. Two changes to the topic control. (1) A FOURTH
+  topic, `"Motion in Design"`, added to `BLOG_TOPICS` — a DELIBERATE departure from PR D's rule
+  (the set was exactly the three on disk so it could not be invented), authored forward before a
+  post uses it and named as such. The migration stays a no-op: `validate-blog-post` F7 still passes
+  because every published post remains a member. (2) The native `<select>` became a custom animated
+  `ListboxField` per `docs/studio/topic-control-listbox.html` (visual spec only — no CSS ported).
+  **TOPIC-ONLY; SelectField stays for the four config toggles** (variant, layout, frame ×2), the
+  split by ROLE recorded in BOTH headers with a named migration trigger — `CaseStudySwitcher`
+  already documents native-is-better for a config toggle, so this applies a recorded decision. The
+  listbox is reusable (SelectField's API shape) so migrating the four later is a wiring change.
+  **CLIP → upward flip + a DYNAMICALLY CAPPED height, no portal.** The inspector is overflow-y-auto;
+  live measurement found the panel opens DOWN and fits at 900px and 700px (topic is an upper field,
+  ~296px room below a 216px panel), and a bug surfaced at a 480px pane where the field centres and
+  neither side fits — a fixed max-height overflowed by 32px. Fixed to cap the panel to the measured
+  room on the chosen side (171.75px at 480px) and scroll internally, so it never clips. **The check,
+  not the 3px selection bar** — the bar marks a persistent selection in a list you navigate; a
+  dropdown option is a transient choice in a list you dismiss. **Type-ahead DROPPED as a TRIGGER not
+  a count** — dropped while every option is visible without scrolling; reconsider the moment the
+  panel scrolls (also when scroll-into-view starts mattering). **Motion is pure CSS** covered by the
+  global reduced-motion reset; the #198 guard (the chevron's rotation is a state class, only its
+  transition is motion, so reduced motion never costs the open/closed affordance) is source-proven
+  and mutation-tested. `listbox-a11y` (26, net-new) proves the keyboard/aria/focus wiring in CI;
+  every behaviour was ALSO driven LIVE with real keys in an authenticated studio (arrows, Home,
+  End, wrap, Enter commit, Escape, :focus-visible on a real key per #209, active-descendant,
+  scroll-into-view on a genuinely-scrolling short pane, per-state contrast with a sanity pair, and
+  the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
+  side (it cannot set the media query — Playwright's job); covered by construction + the source
+  guard instead.
 - **PR D — topic as a closed set** →1456. `topic` was free text because no set was declared; PR D
   declared `BLOG_TOPICS` (the three topics the posts already carry) and enforced it in two places,
   each a different question. The sanitizer refuses a non-member at SAVE while still allowing empty

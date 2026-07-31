@@ -128,5 +128,28 @@ t("F: …and the suppression comes AFTER it in source order",
   css.indexOf(".nav-fab.nav-morph { display: none; }") >
     css.indexOf(".nav-morph.nav-fab-desktop { display: block; }"), true);
 
+/* ================================================================= G. THE TOPIC LISTBOX
+ * The animated topic control opens with a pure-CSS transition on a `data-open` toggle, so the
+ * global reduced-motion reset (section E) zeroes it BY CONSTRUCTION — no `motion` library, no
+ * `useReducedMotion`, nothing script-driven the reset cannot reach (the #197 trap). Asserted
+ * from source, since the render itself is behavioural and owner-gated.
+ *
+ * G4 IS THE #198 GUARD, and it is the one most likely to be skimmed. The failure mode is not
+ * "the animation still plays under reduce" — it is the CHEVRON LOSING ITS ROTATION because
+ * someone gated the transform on a motion condition rather than gating only the transition. The
+ * open/closed affordance must survive reduced motion. So the rotation must be a STATE class tied
+ * to `open`, and MUST NOT carry a `motion-safe:`/`motion-reduce:` variant. */
+const listbox = code("components/studio/ListboxField.tsx");
+t("G: the panel animates via a CSS transition on opacity+transform (the reset reaches it)",
+  /transition-\[opacity,transform\]/.test(listbox), true);
+t("G: it uses NO motion library and NO useReducedMotion — it relies on the global CSS reset",
+  !/useReducedMotion/.test(listbox) && !/from "motion(\/react)?"/.test(listbox), true);
+t("G: the open state itself is a plain toggle, not gated on a motion query",
+  /data-open=\{open\}/.test(listbox), true);
+// G4 — the #198 guard. The chevron's ROTATION is a state class on `open`; only its TRANSITION is
+// motion. A `motion-safe:`/`motion-reduce:` on the rotate would cost the affordance under reduce.
+t("G4 the chevron rotation is a STATE class (open ? rotate-180), the transform never motion-gated",
+  /open \? "rotate-180" : ""/.test(listbox) && !/motion-(safe|reduce):[^"'`\s]*rotate/.test(listbox), true);
+
 console.log(`\nreduced-motion result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
