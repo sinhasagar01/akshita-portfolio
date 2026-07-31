@@ -20,7 +20,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconArrowUpRight, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 import type { LinkItem } from "@/lib/studio/site-settings-format";
-import { labelCls } from "./blocks/fields";
+import { labelCls, FIELD_MEASURE } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -184,7 +184,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
             value={values.email}
             onChange={(e) => setField("email", e.target.value)}
             onBlur={handleBlur}
-            className={`${inputBase} w-full ${okBorder}`}
+            className={`${inputBase} w-full ${FIELD_MEASURE} ${okBorder}`}
           />
         </label>
 
@@ -210,7 +210,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       onChange={(e) => updateLink(i, { label: e.target.value })}
                       onBlur={handleBlur}
                       placeholder="Label"
-                      className={`${inputBase} min-w-0 flex-1 ${okBorder}`}
+                      className={`${inputBase} min-w-0 flex-1 ${FIELD_MEASURE} ${okBorder}`}
                     />
                     <button
                       type="button"
@@ -251,7 +251,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                     placeholder="https://…"
                     aria-invalid={invalid || undefined}
                     aria-describedby={invalid ? errorId : undefined}
-                    className={`${inputBase} w-full ${
+                    className={`${inputBase} w-full ${FIELD_MEASURE} ${
                       invalid ? errBorder : okBorder
                     }`}
                   />

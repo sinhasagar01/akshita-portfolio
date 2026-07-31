@@ -171,6 +171,43 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 // differ by more than the font size and break `studio-nav-active` G6 — the gate that keeps
 // #199's dedupe honest. A min-height lands both on exactly 44 and leaves the ONE token of
 // difference intact.
+/**
+ * THE FIELD MEASURE — a cap on how wide a SINGLE-LINE field may run.
+ *
+ * A form is content, and content has a measure. Unbounded, a text input grows with the window:
+ * measured on the entry panels, **1939px on a 2560 display** and 915px on the 1536 laptop. At
+ * 1939 the eye cannot track from a label on the far left to a value ending nearly two thousand
+ * pixels away, and a 44px well stretched that far stops reading as a control at all. This is the
+ * argument the blog canvas already makes at 68ch, applied to a form.
+ *
+ * THE PANEL KEEPS ITS FULL WIDTH. Only the field is capped — the panel is the surface, the
+ * fields are the content on it, and those are different things.
+ *
+ * TEXTAREAS ARE DELIBERATELY EXCLUDED. "What you did", the hero's tab lines and the about copy
+ * hold paragraphs and genuinely use the room, so they keep it. That exclusion is what rules out
+ * every seam that looked shared:
+ *
+ *   ListDetailLayout's detail pane   caps the PANEL — its cream-200 header bar and its footer
+ *                                    save bar would shrink with it
+ *   the panels' body wrapper         byte-identical across five panels, and still wrong: it
+ *                                    holds the textareas that need the width
+ *   `inputCls` itself                textareas use it too, and it reaches the case-study
+ *                                    inspector, which is 304px wide and has no such problem
+ *
+ * Three plausible seams, three different failures. So this is ONE DEFINITION, N APPLICATIONS —
+ * the same shape as the well constants below it — and ralph asserts the application rather than
+ * trusting it: every single-line input element in the derived entry-panel set carries it, and no
+ * textarea element does. Applied ALONGSIDE whichever well family a field uses; a width cap is
+ * orthogonal to the border and focus styling the three families differ on.
+ *
+ * (Those two element names are written WITHOUT their angle brackets on purpose. `studio-ink`'s
+ * E2 detector attributes an inline-geometry match to the last JSX-looking tag before it, over RAW
+ * source — so an angle-bracketed mention here re-attributed the three well constants below and
+ * failed a gate about something else entirely. Same class of trap as the class name a comment
+ * emits, which LinksEditPanel's header records.)
+ */
+export const FIELD_MEASURE = "max-w-[760px]";
+
 export const inputCls =
   "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
 

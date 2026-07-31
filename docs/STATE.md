@@ -2172,24 +2172,39 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
      this PR**, and it is the strongest argument for the custom property over an inline style.
    The width now lives in `lib/studio/sidebar-width.ts` and travels as `--studio-sidebar-w`.
 
-2. **`StudioModal`'s no-portal dependency** (#168).
-3. **`keystatic.config.ts`'s mirror of the image bases** (#172) — test-enforced. **OPEN:
+2. **`inputCls` AND `inputClsMd` ARE BYTE-IDENTICAL, AND THE HEADER STILL ARGUES THEY MUST NOT
+   BE MERGED.** Found while applying the field measure (#239); deliberately not fixed there.
+   The comment says at length that the two "differ by exactly ONE token, `text-[13px]` against
+   `text-[14px]`", that unifying them "CHANGES RENDERED FONT SIZE on real surfaces — four of them
+   one way, two the other", and that #199 "deliberately left this split standing rather than
+   silently picking a winner". **Verified programmatically: the two strings are equal.** The
+   sentence that states the difference already reads `text-[14px]` on BOTH sides of itself.
+   **#218's +1px bump resolved the split to 14 and the reasoning never followed.** So the file
+   whose entire job is to be the single definition carries a paragraph describing code that does
+   not exist — and a reader deciding whether to merge them is warned off for a reason that has
+   already come true.
+   **THE MERGE IS STILL #199's OPEN DECISION AND STAYS THE OWNER'S**: two exports with one value
+   is a real duplication, but deleting one is an API change across seven files and which name
+   survives is a naming call, not a cleanup. What is NOT open is the comment, which is false.
+
+3. **`StudioModal`'s no-portal dependency** (#168).
+4. **`keystatic.config.ts`'s mirror of the image bases** (#172) — test-enforced. **OPEN:
    does the cross-check compare the full key set in both directions?**
-4. **Blog's duplicated splice** (#173) — deliberate, eight lines.
-5. **Sweep gaps #2–#4** (#174) — the projects form tables still lack `heading`.
-6. **`login-throttle` is unreachable by ralph** (#175) — a deliberate trade.
-7. **Two `useDraftForm` instances in the blog editor** — easy to assume one form now that
+5. **Blog's duplicated splice** (#173) — deliberate, eight lines.
+6. **Sweep gaps #2–#4** (#174) — the projects form tables still lack `heading`.
+7. **`login-throttle` is unreachable by ralph** (#175) — a deliberate trade.
+8. **Two `useDraftForm` instances in the blog editor** — easy to assume one form now that
    their fields DO share a 244px pane. #174's defect class. Mitigated by the two labelled
    `SaveIndicator`s and proven separate by G4, not eliminated.
-8. **`lib/site.ts` imports `node:fs` at module scope and has no server-only marker** (#178).
+9. **`lib/site.ts` imports `node:fs` at module scope and has no server-only marker** (#178).
    Any client component importing from it fails the build APP-WIDE. A `server-only` import
    there would turn a confusing webpack error into a clear one. **Not done.**
-9. **`data-studio-fullheight` couples `ThreePaneShell` to the dashboard layout's `:has()`
+10. **`data-studio-fullheight` couples `ThreePaneShell` to the dashboard layout's `:has()`
    rule** (#178) — two files, nothing in the type system connecting them. Ralph-enforced.
-10. **`boat-crest` produces ZERO parity pairs** — the gate has been blind to the hero case
+11. **`boat-crest` produces ZERO parity pairs** — the gate has been blind to the hero case
     study for an unknown number of PRs. Cause not investigated. **The other three render 15,
     14 and 15.**
-11. **The unlayered `img, video { height: auto }` at `app/globals.css:271`** (#180) — it
+12. **The unlayered `img, video { height: auto }` at `app/globals.css:271`** (#180) — it
     silently beats every `h-*` utility on an `<img>`. Not removed, because the inline figure
     and other images legitimately want it; the cost is that image sizing must be authored.
     **FIRED A THIRD TIME IN #190**, and that firing is the instructive one: inside an
@@ -2197,19 +2212,19 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
     parity walk all pass while the image crops wrong. The guard there is a string assertion
     against next/image's emitted style (`HERO_FILL_STYLE_CSS`), not a measurement. **Whenever
     this rule is in play, ask what the box gates CANNOT see.**
-12. ~~**BLOG HAS NO PARITY HARNESS**~~ — **BUILT IN #187**, at `/dev/blog-parity/<slug>`.
+13. ~~**BLOG HAS NO PARITY HARNESS**~~ — **BUILT IN #187**, at `/dev/blog-parity/<slug>`.
     It cost three hand-catches first: the 48px fidelity gap (#178), the `vw` bleed bug
     (#180), and this arc's own premise. It reuses `parity.mjs`'s walker UNCHANGED and
     asserts a NON-ZERO pair count. **Still browser-driven and dev-only**, so it is a gate
     someone must run, not one CI enforces.
-13. **WHOLE-BRANCH PUBLISH CAN SHIP A HALF-FINISHED EDIT** — observed, not theoretical. A
+14. **WHOLE-BRANCH PUBLISH CAN SHIP A HALF-FINISHED EDIT** — observed, not theoretical. A
     publish carried a mid-sentence truncation into a live post (see CURRENT CONTENT STATE).
     Save-on-blur persists whatever is in the field, publish merges the whole draft branch,
     and **no gate can distinguish an in-progress edit from an intended one**: the file stays
     structurally valid and `validateBlogPost` returns ok. The mitigation today is reading the
     content diff before publishing. A per-entry publish, or a diff preview in the PublishBar,
     would be the real fix and neither is scoped.
-14. ~~**`readingTimeMinutes` HAS NO `imageBlock` CASE**~~ — **FIXED in #192.** The `switch`
+15. ~~**`readingTimeMinutes` HAS NO `imageBlock` CASE**~~ — **FIXED in #192.** The `switch`
     became a mapped type over `BlogBlockKind`, so the omission that survived three PRs is now
     a COMPILE error (`TS2741` on a missing kind, `TS2353` on an invented one, both driven).
     **The published post did NOT change — 2 min before and after**, because it contains no
@@ -2221,7 +2236,7 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
     enforced by that job — the Vercel build's `next build` is what typechecks it. Ralph catches
     a missing entry too, but at RUNTIME through the E-section assertions, which is why both
     exist.
-15. ~~**THE HERO OBJECT URL IS NEVER REVOKED**~~ — **FIXED in #193, by DELETING THE SHARED
+16. ~~**THE HERO OBJECT URL IS NEVER REVOKED**~~ — **FIXED in #193, by DELETING THE SHARED
     LIFETIME rather than scheduling a revoke.** `onChanged` used to hand the url up, so two
     components displayed ONE revocable resource and neither could free it. It now hands up the
     **`File`**, and each side calls `createObjectURL` on the same Blob — a distinct url, no
@@ -2233,7 +2248,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     and the canvas hero are **mutually exclusive in all three view states**, so an
     unmount-revoke would blank the hero on exactly the "upload it, then go look at it" flow.
     **A lifetime you cannot reason about locally is a lifetime to remove, not to manage.**
-16. **THE NEXT DEV CACHE REPLAYS BUILD ERRORS FOR AN IMPORT GRAPH THAT NO LONGER EXISTS**
+17. **THE NEXT DEV CACHE REPLAYS BUILD ERRORS FOR AN IMPORT GRAPH THAT NO LONGER EXISTS**
     (diagnosed properly in #193 after being hand-waved twice in #190). `.next` survives a dev
     SERVER restart, so a `node:fs`-in-the-client trace naming
     `lib/site.ts <- BlogBlocksEditPanel <- BlogEditPanel` kept reappearing — an edge that
@@ -2244,7 +2259,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     reporting a console error, check it against the source graph and a cold cache — and note
     that a production `npm run build` succeeding is itself strong evidence a client-side
     `node:fs` import is not real, since it would fail the build app-wide.
-17. ~~**A LATENT `rules-of-hooks` VIOLATION IS DISABLED, NOT FIXED** (`ProjectsEditPanel:125`,
+18. ~~**A LATENT `rules-of-hooks` VIOLATION IS DISABLED, NOT FIXED** (`ProjectsEditPanel:125`,
     found by #195).~~ **CLOSED — the disable is deleted and the early return moved below the
     hooks.** `if (!isSelected) return null` sat above a `useEffect`. **Latent, not active:** the
     panel mounts only outside a `ListDetailLayout`, so `isSelected` is always true and the early
@@ -2263,7 +2278,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     **PROVEN BY MUTATION, not by the absence of a warning:** putting the return back above the
     hooks makes `eslint` fail with `react-hooks/rules-of-hooks` on the `useEffect`, so CI
     enforces the fix rather than merely permitting it.
-18. ~~**`SiteHeader` ASKS FOR REDUCED MOTION AND IGNORES THE ANSWER**~~ — **CLOSED by #197
+19. ~~**`SiteHeader` ASKS FOR REDUCED MOTION AND IGNORES THE ANSWER**~~ — **CLOSED by #197
     (`258ee1a`) and #198 (`fa08200`).** The hazard was REAL AND WRONG ABOUT WHAT IT WAS, which
     is the part worth keeping. It described unguarded animations; every CSS animation in the
     file was already handled, including the nav row deliberately KEEPING its hide behaviour
@@ -2288,7 +2303,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     returns `null` server-side. Emulation must be set BEFORE load; a probe that toggles it
     live reports a false pass. Playwright is the tool — it is already a devDependency and the
     in-app browser cannot emulate this.
-19. ~~**`StudioSidebar`'s `pinned` IS PASSED AND IGNORED**~~ — **CLOSED by #199, AND THIS
+20. ~~**`StudioSidebar`'s `pinned` IS PASSED AND IGNORED**~~ — **CLOSED by #199, AND THIS
     HAZARD'S OWN TEXT WAS WRONG.** It said Site settings "renders like every other link". IT
     DOES NOT. The pinning IS implemented, by the wrapper's
     `lg:mt-auto lg:border-t lg:border-ink-950/8 lg:pt-2.5`, which pushes it to the bottom of
@@ -2300,7 +2315,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     that an unread parameter means an unbuilt feature, when the feature was built one line
     away. **THIS WAS NOT THE `FIT_THRESHOLD_PX` SHAPE** and treating it as one would have
     preserved a parameter that never carried the intent it named.
-20. ~~**AN `imageBlock`'s IMAGE DOES NOT APPEAR ON THE CANVAS UNTIL A REFRESH**~~ — **CLOSED by
+21. ~~**AN `imageBlock`'s IMAGE DOES NOT APPEAR ON THE CANVAS UNTIL A REFRESH**~~ — **CLOSED by
     #202.** Kept in full because the last two lines of it were a trap, and the correction is
     the durable part. Originally recorded as: OWNER-OBSERVED
     while writing the third post, **UNDER INVESTIGATION, NOT YET FIXED.**
@@ -2329,7 +2344,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     hazard in this file to be right and misleading at once (see 18 and 19), and the pattern is
     now a working rule: a fix's precondition travels with it.
 
-21. **`HERO_IMAGE_UNSUITABLE` STILL LISTS `elevate-one-view`, AND ITS REASON NO LONGER EXISTS.**
+22. **`HERO_IMAGE_UNSUITABLE` STILL LISTS `elevate-one-view`, AND ITS REASON NO LONGER EXISTS.**
     `components/sections/ProjectCard.tsx` carries
     `const HERO_IMAGE_UNSUITABLE = new Set<string>(["elevate-one-view"])`, so that card renders
     the hand-built mock and its uploaded hero is never drawn. The comment above it says the
@@ -2347,7 +2362,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     enough. Whoever removes the slug should check the render first — the asset is 320×200 into
     a 500px slot, so the mock may genuinely still look better, and that is a judgement rather
     than a lookup.
-22. **A `text-*` COLOUR UTILITY ON AN `<a>` DOES NOTHING IN THIS PROJECT, AND TEN ANCHORS
+23. **A `text-*` COLOUR UTILITY ON AN `<a>` DOES NOTHING IN THIS PROJECT, AND TEN ANCHORS
     CARRY ONE.** `app/globals.css:278` has an **unlayered** `a { color: inherit; … }`, and an
     unlayered rule outranks `@layer utilities` **regardless of specificity**, so `.text-ink-600`
     on an anchor silently loses. Measured both ways: the same class computes **ink-600 on a
@@ -2372,7 +2387,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     **Do not "fix" them blind** — each renders ink-950 today and several may look better that
     way; the defect is that the code says one thing and the screen does another.
 
-23. **TWO PHANTOM COLOUR UTILITIES: `text-ink-500` (40 uses) AND `text-ink-700` (11 uses)
+24. **TWO PHANTOM COLOUR UTILITIES: `text-ink-500` (40 uses) AND `text-ink-700` (11 uses)
     GENERATED NOTHING. NOW CLOSED — `ink-700` deleted in #210, `ink-500` re-pointed (see the
     CLOSED note below).** The `@theme` ink scale is 950/800/600/400/200 — there is no
     `--color-ink-500` and no `--color-ink-700`, and Tailwind v4 only generates utilities from
@@ -2446,7 +2461,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     26 needed (a border-colour shorthand and a per-side longhand writing the same edge on one
     element), `studio-border-race`, which found two live races in the blog rows on its first run.
 
-24. **`--radius-2xl` WAS SMALLER THAN `--radius-xl` — a scale inversion nobody introduced. NOW
+25. **`--radius-2xl` WAS SMALLER THAN `--radius-xl` — a scale inversion nobody introduced. NOW
     CLOSED, byte-identically, and gated by `radius-scale`.**
     Emitted values were `sm .25rem · md .5rem · lg 1rem · xl 1.5rem · **2xl 1rem** · full 9999px`.
     `--radius-2xl` is **not declared in globals.css**: the project overrode `sm`–`xl` in
@@ -2476,7 +2491,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     sites by hand. The survey for this fix confirmed **no bare `rounded` remains in use**, so the
     gate scans named steps and leaves that CSS-default case alone.
 
-25. **HAZARD 11 IS NOW GATED, AND THE GATE FOUND FIVE MORE INSTANCES ON ITS FIRST RUN.**
+26. **HAZARD 11 IS NOW GATED, AND THE GATE FOUND FIVE MORE INSTANCES ON ITS FIRST RUN.**
     `ralph/tests/studio-cascade.mjs` parses the unlayered element rules out of `globals.css`
     and reports every studio element carrying a utility that rule overrides. It replaces the
     per-instance assertions that had accumulated for the four known cases.
@@ -2499,7 +2514,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     harmless sites is a gate someone deletes. Inert is not safe, though: edit one and it will
     silently not apply.
 
-26. **THE BORDER SHORTHAND RACES ITS OWN LONGHAND, AND NO CLASS-STRING CHECK CAN SEE IT.**
+27. **THE BORDER SHORTHAND RACES ITS OWN LONGHAND, AND NO CLASS-STRING CHECK CAN SEE IT.**
     `border-transparent` writes `border-color`; `border-l-accent-500` writes
     `border-left-color`. **Both are utilities at equal specificity**, so which one owns the left
     edge is decided by **their order in the generated sheet** — not by anything in the source.
@@ -2533,7 +2548,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     loading-arc idiom, the same mechanism relied on deliberately. The gate is studio-scoped, so
     it does not touch it; hardening the spinner to the disjoint form is an owner call.
 
-27. **`studio-type`'s C-9 EXCLUSION HAS TURNED INTO A GAP, AND THE MECHANISM GENERALISES. NOW
+28. **`studio-type`'s C-9 EXCLUSION HAS TURNED INTO A GAP, AND THE MECHANISM GENERALISES. NOW
     FULLY CLOSED — the on-ink contrasts run in CI via `studio-ink-contrast`; see the closure note.**
     The suite skips the topbar search **by name**, because it is an ink surface and not part of
     the cream ladder the suite checks. **That was correct when written and is still true.**
@@ -2598,7 +2613,7 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     - `studio-tokens` — `ink-500`, by TOKEN not by site. B2 now asserts the family is **ZERO**,
       not 40 — the sites were re-pointed, and the guard fails if any `text-ink-500` returns.
 
-28. **`boat-crest` IS HAND-BUILT AND HAS NO SECTIONS BOARD, SO IT IS THE WRONG SUBJECT FOR ANY
+29. **`boat-crest` IS HAND-BUILT AND HAS NO SECTIONS BOARD, SO IT IS THE WRONG SUBJECT FOR ANY
     EDITOR MEASUREMENT.** Its sections and its work-filter category are set in code, not in the
     CMS — the editor says so on screen ("Hand-built case study … Its sections and its
     work-filter category are set in code, not here") and `BESPOKE_SLUGS` gates the fetch, so
@@ -2993,6 +3008,39 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the default — binding it to 236 would hand a keyboard user the one width they already had.
   **CONTRAST**, sanity pair 21 first: accent-500 measures **4.05 on ink-950** and **4.70 on
   cream-50**, both clear of the 3:1 floor for a non-text indicator (1.4.11).
+
+- **#239** the field measure — the four studio pages get a readable field column →1582
+  (`studio-ink` 107→112). PR 1 of three; the four per-page items follow.
+  **A FORM IS CONTENT AND CONTENT HAS A MEASURE.** Unbounded, a single-line field grows with the
+  window: measured **1939px on a 2560 display**, 915px on the 1536 laptop. Capped at 760 the
+  panel keeps its full width — 1973 unchanged — and the textareas keep theirs, 1939 unchanged,
+  because "What you did" and the hero's tab lines hold paragraphs and use the room.
+  **THREE PLAUSIBLE SHARED SEAMS, THREE DIFFERENT FAILURES**, and the set is the finding:
+  `ListDetailLayout`'s detail pane caps the PANEL, taking its cream-200 bar and footer with it;
+  the panels' body wrapper is byte-identical across five files and still wrong, because it holds
+  the textareas; `inputCls` itself is used BY textareas and reaches the case-study inspector,
+  which is 304px wide and has no such problem. So: ONE DEFINITION, N APPLICATIONS, with the
+  applications asserted rather than trusted.
+  **THE GATE'S FIRST DERIVATION WAS TOO NARROW AND THE MEASUREMENT CAUGHT IT.** Deriving entry
+  panels the way E6 does — files calling `useListItem` — passed while About and Process still ran
+  **1825px** fields, because `ChipListEditor` puts single-line inputs on the same stretching
+  surface and is a CHILD, not a panel. The set is now the panels plus the field children they
+  import, so a future shared field component joins by being imported rather than by being
+  remembered.
+  **TWO EXCLUSIONS, EACH ON WHAT THE THING IS RATHER THAN ON ITS NAME.** `SettingsPhotoField`'s
+  only input is `type="file"` and `hidden` — a file input is not a field and has no box to cap,
+  so the rule excludes hidden file inputs generally. `ProjectsEditPanel` is excluded BEFORE its
+  imports are walked, or it drags in the whole three-pane case-study editor; its fields live in a
+  320px inspector that never stretches.
+  **AND A COMMENT NEARLY FAILED A GATE ABOUT SOMETHING ELSE.** The new constant's header
+  originally wrote the two element names in angle brackets, and `studio-ink` E2 attributes an
+  inline-geometry match to the last JSX-looking tag before it, over RAW source — so those two
+  words re-attributed the three well constants and failed E2. Same class of trap as the class
+  name a comment EMITS, which `LinksEditPanel`'s header already records. Written without the
+  brackets, with the reason.
+  **HAZARD 2 OPENED, NOT CLOSED:** `inputCls` and `inputClsMd` are byte-identical while their
+  header argues at length that they must not be merged. See the hazard; the merge stays #199's
+  open decision, the comment does not.
 
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and

@@ -388,6 +388,73 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     bandOutsideInspector, []);
 }
 
+/* ================================================ C2. THE FIELD MEASURE
+ *
+ * A form is content and content has a measure. Unbounded, a single-line field grows with the
+ * window — MEASURED at **1939px on a 2560 display**, 915px on the 1536 laptop. The panel keeps
+ * its full width; only the field is capped.
+ *
+ * THIS IS ONE DEFINITION AND N APPLICATIONS, so the applications are what need asserting.
+ * Three plausible shared seams were rejected, each for a different reason, and the reasons are
+ * worth keeping because each looked like the obvious answer:
+ *
+ *   ListDetailLayout's detail pane   caps the PANEL — its cream-200 bar and footer would shrink
+ *   the panels' body wrapper         byte-identical in five panels, and holds the TEXTAREAS
+ *   `inputCls` itself                textareas use it, and it reaches the case-study inspector
+ *
+ * DERIVED, NOT LISTED: every entry panel that renders a single-line `<input>` must carry the
+ * measure on it, and no `<textarea>` may. The set comes from the same `useListItem` derivation
+ * E6 uses, so a new entry panel joins this gate by existing rather than by being remembered. */
+{
+  // THE SET IS THE PANELS **AND THE CHILDREN THEY RENDER FIELDS THROUGH**, and the second half
+  // was a real miss. `ChipListEditor` puts single-line inputs on the same stretching surface but
+  // calls no `useListItem` — it is a child, not a panel — so a panels-only derivation passed
+  // while About and Process still ran 1825px fields. Derived from the panels' own local imports,
+  // so a future shared field component joins this gate by being imported rather than remembered.
+  const panels = readdirSync(new URL("../../components/studio", import.meta.url))
+    .map(String).filter((f) => f.endsWith(".tsx"))
+    .filter((f) => /useListItem\(/.test(readStudio(f)) && /<input\b/.test(code(`components/studio/${f}`)))
+    // Excluded HERE rather than at the end, so it cannot drag its children in either: it imports
+    // SectionsEditPanel, the whole three-pane case-study editor, whose fields are in a 320px
+    // inspector. See the note below for why the panel itself is out.
+    .filter((f) => f !== "ProjectsEditPanel.tsx");
+  const fieldChildren = [...new Set(panels.flatMap((f) =>
+    [...code(`components/studio/${f}`).matchAll(/from "\.\/([A-Za-z][A-Za-z0-9]*)"/g)].map((m) => `${m[1]}.tsx`)))]
+    .filter((f) => { try { return /<input\b/.test(code(`components/studio/${f}`)); } catch { return false; } })
+    // A FILE INPUT IS NOT A FIELD. SettingsPhotoField's only input is `type="file" class="hidden"`,
+    // clicked through a button — it has no visible box, so it has no measure to cap. Excluded on
+    // what it IS rather than by name, so any other hidden file input is covered by the same rule.
+    .filter((f) => !/type="file"/.test(code(`components/studio/${f}`)));
+  // ProjectsEditPanel is in E6's entry-panel set through its bespoke/loading/error fallback, but
+  // the fields it renders belong to the case-study DETAILS form, which lives in the three-pane
+  // inspector — a 320px pane that never stretches. The measure exists for a field that grows with
+  // the window; that one cannot. Excluded above with its reason, rather than by bending the
+  // derivation until it agreed.
+  const entryPanels = [...new Set([...panels, ...fieldChildren])];
+  t("C2: the measure is declared once, in the shared fields module",
+    /export const FIELD_MEASURE = "max-w-\[760px\]";/.test(readStudio("blocks/fields.tsx")), true);
+  // Non-vacuous: if the derivation stops matching, this empties and the checks below pass proving
+  // nothing — the failure mode E6 already names.
+  t("C2: …and the derived set of entry panels with fields is not empty", entryPanels.length >= 5, true);
+  t("C2: …and it reaches the shared field CHILDREN, not just the panels", entryPanels.includes("ChipListEditor.tsx"), true);
+
+  // EVERY single-line input carries it. Counted per file rather than asserted globally, so the
+  // failure names the panel that grew an uncapped field.
+  const uncapped = entryPanels.filter((f) => {
+    const src = code(`components/studio/${f}`);
+    const inputs = (src.match(/<input\b/g) ?? []).length;
+    const capped = (src.match(/FIELD_MEASURE/g) ?? []).length - 1; // minus the import
+    return inputs !== capped;
+  });
+  t("C2: every single-line input in an entry panel carries the measure", uncapped, []);
+
+  // AND NO TEXTAREA DOES. This is the half that keeps the rule honest: the textareas hold
+  // paragraphs and the room is the point, so a well-meaning sweep must not catch them.
+  const cappedTextarea = entryPanels.filter((f) =>
+    /<textarea[\s\S]{0,400}?FIELD_MEASURE/.test(code(`components/studio/${f}`)));
+  t("C2: …and no textarea does — the room is why they are excluded", cappedTextarea, []);
+}
+
 // E6 · THE DEAD ANCHORS. Colour cannot live on an <a> here; it lives on a parent or a child.
 // PINNED ON THE COLOUR, NOT ON THE PADDING BESIDE IT. This regex used to read
 // `px-4 py-2 text-ink-600"`, so #213 changing the strip's padding to 11px/18px — a change

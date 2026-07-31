@@ -19,7 +19,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -171,7 +171,7 @@ export default function HeroEditPanel({
             value={values.heroCopy}
             onChange={(e) => edit("heroCopy", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
 
@@ -241,7 +241,7 @@ export default function HeroEditPanel({
                 onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
                 onBlur={saveDraft}
                 placeholder={TABS[activeTab].fallback}
-                className={inputClsMd}
+                className={`${inputClsMd} ${FIELD_MEASURE}`}
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -266,7 +266,7 @@ export default function HeroEditPanel({
             value={values.heroRoleLabel}
             onChange={(e) => edit("heroRoleLabel", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
 
@@ -277,7 +277,7 @@ export default function HeroEditPanel({
             value={values.heroScrollCue}
             onChange={(e) => edit("heroScrollCue", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
       </div>

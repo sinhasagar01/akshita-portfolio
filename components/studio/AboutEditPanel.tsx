@@ -15,7 +15,7 @@ import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import SettingsPhotoField from "./SettingsPhotoField";
 import { IconUser } from "./icons";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -149,7 +149,7 @@ export default function AboutEditPanel({
             value={values.aboutNote}
             onChange={(e) => edit("aboutNote", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
 
@@ -177,7 +177,7 @@ export default function AboutEditPanel({
             value={values.aboutSubtext}
             onChange={(e) => edit("aboutSubtext", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
 
@@ -190,7 +190,7 @@ export default function AboutEditPanel({
             value={values.aboutPhotoCaption}
             onChange={(e) => edit("aboutPhotoCaption", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
       </div>
