@@ -24,11 +24,12 @@
 // substring in onRemoveItem) and is a URL-driven page shell keyed to `?item=`, so
 // two nested instances would fight over one param. The composition that works here
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
+import { CS_MIN_SCALE } from "@/lib/studio/three-pane";
 import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
@@ -114,7 +115,11 @@ const GRID_KINDS = new Set<SectionBlockKind>([
  * the single section so the verdict is per-card. A non-image failure is the
  * publish gate's to report, not this flag's, so only the image message flips it.
  */
-function sectionNeedsImage(section: RawSection): boolean {
+// EXPORTED FOR THE RAIL (PR 7). The flag is a READ, not a write, so it belongs where you
+// navigate — the rail row carries it exactly as BlogPostList's row carries published/draft.
+// Lifted rather than re-derived: it is string-coupled to the adapter's "image src is missing",
+// and a second copy would drift the moment that message changes.
+export function sectionNeedsImage(section: RawSection): boolean {
   try {
     adaptSections([section], { mode: "ssg" });
     return false;
@@ -273,7 +278,17 @@ function useFitToWidth() {
     const surface = surfaceRef.current;
     if (!pane || !surface) return;
     const measure = () => {
-      const next = Math.min(1, pane.clientWidth / CANVAS_WIDTH);
+      // THE FLOOR IS APPLIED HERE, AND UNTIL NOW NOTHING CONSUMED IT. PR 6 derived
+      // `CS_MIN_SCALE` from a rendered comparison and gated it, but this hook still read
+      // `Math.min(1, …)` with no lower bound — a gate on an unwired constant, which is the
+      // `FIT_THRESHOLD_PX` shape that shipped with zero consumers. Wiring it is what makes
+      // that gate stop being aspirational.
+      // THE CONSEQUENCE, STATED: below the floor the surface is WIDER than its pane, so the
+      // pane pans (overflow-x-auto) instead of shrinking the render. The three-pane
+      // thresholds keep the pane at or above 640 at every width the layout claims to fit, so
+      // panning is the narrow-viewport path — most visibly below `lg`, where the canvas now
+      // holds 50% and pans rather than collapsing to ~29% and staying complete but illegible.
+      const next = Math.max(CS_MIN_SCALE, Math.min(1, pane.clientWidth / CANVAS_WIDTH));
       setScale(next);
       setHeight(surface.offsetHeight * next);
     };
@@ -318,7 +333,7 @@ type SelectedField =
  * The ceiling is measured from the canvas pane (the rail's grid sibling) rather than
  * hardcoded, so it tracks whatever that section actually renders to.
  */
-function useAutoGrow(value: string) {
+function useAutoGrow(value: string, ceilingRef: RefObject<HTMLElement | null>) {
   const ref = useRef<HTMLTextAreaElement>(null);
   // Anchored to the RAIL, not the textarea: the textarea only exists once a field is
   // selected, so measuring from it meant the effect ran on mount with nothing there,
@@ -328,15 +343,23 @@ function useAutoGrow(value: string) {
 
   // Track the canvas pane's height. It changes with the section, the viewport, and
   // images loading, so it is observed rather than read once.
+  //
+  // THE CEILING IS PASSED IN, NOT WALKED TO, AND THAT IS THIS PR'S FIX. This used to read
+  // `railRef.current?.parentElement?.firstElementChild` — the rail's first grid sibling —
+  // which silently assumed the canvas sits beside the rail in one grid. Moving the rail into
+  // a pane would have left `canvas` null, the effect would bail exactly as it did before the
+  // rail anchor was introduced, and the textarea would be UNCAPPED with nothing failing. A
+  // fix that depends on the layout staying still is the wrong shape in a layout PR, so the
+  // element is named by ref at the call site instead. Same observer, explicit subject.
   useEffect(() => {
-    const canvas = railRef.current?.parentElement?.firstElementChild;
+    const canvas = ceilingRef.current;
     if (!canvas) return;
     const measure = () => setMaxHeight(canvas.getBoundingClientRect().height);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(canvas);
     return () => ro.disconnect();
-  }, []);
+  }, [ceilingRef]);
 
   // Reset to auto before reading scrollHeight, or the box can only ever grow.
   useEffect(() => {
@@ -354,13 +377,17 @@ function SelectedRail({
   selected,
   value,
   onChange,
+  ceilingRef,
 }: {
   selected: SelectedField | null;
   /** Read straight from form state on every render — see the panel's `readField`. */
   value: string;
   onChange: (v: string) => void;
+  /** The element whose height caps this textarea — named explicitly rather than reached by
+   *  DOM walk, so a relayout cannot silently uncap it. See `useAutoGrow`. */
+  ceilingRef: RefObject<HTMLElement | null>;
 }) {
-  const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
+  const { ref: taRef, railRef, maxHeight } = useAutoGrow(value, ceilingRef);
   return (
     // THE RAIL IS THE SURFACE ITS TEXTAREA SITS ON, so it takes cream-100 while the textarea
     // keeps `inputCls`'s cream-50. Measured, this was a DOUBLE collision: the rail was cream-50
@@ -630,6 +657,8 @@ export default function SectionsEditPanel({
   // section focused and the id-lockstep is untouched. Every editor stays mounted
   // regardless (rendered hidden), so switching views never drops a dirty edit.
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  // The Selected rail's height ceiling, named rather than DOM-walked — see `useAutoGrow`.
+  const canvasCeilingRef = useRef<HTMLDivElement>(null);
 
   // CS-3 — Content | Style split. One tab state for the focused section's fields,
   // provided to the shell + block forms via FieldTabProvider; each field's TabGroup
@@ -1248,6 +1277,7 @@ export default function SectionsEditPanel({
               {/* The approved layout: canvas beside a sticky rail for the selected
                   field. Collapses to one column below the studio's lg breakpoint. */}
               <div className="grid items-start gap-[18px] lg:grid-cols-[1fr_240px]">
+              <div ref={canvasCeilingRef} className="min-w-0">
               <SectionCanvas
                 section={values.sections[selIdx]}
                 web={web}
@@ -1273,7 +1303,9 @@ export default function SectionsEditPanel({
                   boldDirty.current = true;
                 }}
               />
+              </div>
               <SelectedRail
+                ceilingRef={canvasCeilingRef}
                 selected={selectedField}
                 value={selectedField ? readField(selectedField) : ""}
                 onChange={writeSelected}

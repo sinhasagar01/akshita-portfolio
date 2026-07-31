@@ -107,7 +107,12 @@ export default function BlogPostList({
                       >
                         {p.title}
                       </span>
-                      <span className="mt-0.5 block text-[12px] text-text-subtle">
+                      {/* A VALUE BELONGS TO ITS GROUND — found by PR 7a's isolation render of
+                          the sections rail, which uses this row's shape. `text-text-subtle` is
+                          4.78 on cream-200 but only 4.03 on the SELECTED row's cream-300, under
+                          the 4.5 AA floor. Pre-existing here; fixed rather than recorded, because
+                          the fix is one conditional and neither expensive nor contested. */}
+                      <span className={`mt-0.5 block text-[12px] ${current ? "text-ink-600" : "text-text-subtle"}`}>
                         {p.status === "published" ? "Published" : "Draft"} ·{" "}
                         {p.date ? formatShortDate(p.date) : "no date"}
                       </span>
