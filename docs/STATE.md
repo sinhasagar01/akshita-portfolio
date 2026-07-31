@@ -2672,6 +2672,28 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     measurement was taken on, always — a number taken on boat-crest is not wrong, it is about a
     different thing.
 
+30. **`accent-600` ON CREAM IS A TEXT COLOUR AT SEVEN SITES AND NO GATE CAN SEE IT.**
+    `studio-ink-contrast`'s cream half (#243) iterates the LABEL tokens — `ink-*` and
+    `text-subtle` — against the cream ladder. `accent-600` is not in that list, so the pairs it
+    forms are computed nowhere.
+    **NOTHING IS WRONG TODAY, AND THAT IS THE POINT.** Rasterised in #246 with the sanity pair
+    first and the ground taken by walking up to what actually paints, `accent-600` measures
+    **7.22 on cream-50, 6.87 on cream-100, 6.25 on cream-200** — floor 6.25, clear of 4.5 with
+    room. **RECORDED, NOT FIXED, DELIBERATELY.** Five of the seven dashed adds already used
+    `hover:text-accent-600` before #246, so this is not a new exposure and widening the gate now
+    would be a change made on no evidence.
+    **WHY IT IS A HAZARD RATHER THAN A NOTE.** A gate that cannot see a colour five sites already
+    use is a coverage hole of exactly the shape this project keeps finding by hand — #232 found
+    `text-subtle` on cream-300 at 4.03 by measuring, #242 hit the same pair again when the rail
+    moved to cream-200, and #243 was built because a person, not CI, noticed. The cream half
+    closed that for the label tokens and left this one open. **The failure mode is not that
+    accent-600 breaks; it is that the NEXT accent step, or accent-600 on a darker cream, lands
+    with every assertion green.**
+    **THE FIX WHEN IT IS WANTED** is to add the accent scale to the cream half's token list and
+    let it compute, the same way the label tokens do — a widening of an existing derivation, not
+    a new suite. It should be driven by a real need (a new accent-on-cream site, or a new cream
+    step) rather than by tidiness, since the current values pass and the list is short on purpose.
+
 ---
 
 ## DEFERRED — scoped, not built
@@ -3066,8 +3088,8 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   ground does move. Rasterised, sanity pair 21 first, ground taken by walking up to what actually
   paints rather than read off a class: **accent-600 measures 7.22 on cream-50, 6.87 on cream-100,
   6.25 on cream-200**. Floor 6.25, clear of 4.5. **`studio-ink-contrast`'s cream half covers
-  `ink-*` and `text-subtle` only, so accent-600 on cream is uncovered** — recorded, not built,
-  since five of the seven already used it before this PR.
+  `ink-*` and `text-subtle` only, so accent-600 on cream is uncovered** — recorded as **hazard 30**
+  and deliberately not built, since five of the seven already used it before this PR.
   **CSS UNION OF DECLARATIONS, TWO PRODUCTION BUILDS.** Rule count unchanged at 1533; exactly two
   rules differ. Added `.hover\:border-solid:hover{--tw-border-style:solid;border-style:solid}`,
   confirming it is a real v4 utility and not a bracket-bare no-op. Removed
