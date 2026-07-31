@@ -271,6 +271,45 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     /focus-visible:ring-ink-950/.test(panel), true);
 }
 
+/* E6 · SECTION HEADERS ARE CHOSEN BY ROLE, and this is the assertion that keeps the two
+ * treatments from converging.
+ *
+ *   INSPECTOR PANE -> ink band      narrow, beside ink chrome, anchors to the sidebar
+ *   ENTRY PANEL    -> cream-200 bar a full-width form on a cream page
+ *
+ * The band's own reasoning is about a NARROW PANE next to ink chrome. On a ~967px full-width
+ * form it would be a slab of ink mid-page, which is why generalising it was rejected. Same
+ * by-role shape as ink-band-vs-cream-bar's siblings: listbox-vs-select, three-pane-vs-list-
+ * detail, and the document-level save bar vs the per-entry panel footer.
+ *
+ * THE BAND COUNT IS 2 AND STAYS 2 THROUGH THIS PR. E5 pins it. Nothing in the header work adds
+ * a band — Skills got the CREAM bar — so THE COUNT MOVING HERE WOULD BE A RED FLAG, not an
+ * expected step. It becomes 4 when the case-study inspector lands, and that will be deliberate.
+ *
+ * DERIVED, NOT LISTED: an entry panel is any studio component that calls `useListItem` and
+ * renders a panel `<section>`. Each must open with the cream-200 bar, byte-identical. */
+{
+  const entryPanels = readdirSync(new URL("../../components/studio", import.meta.url))
+    .filter((f) => String(f).endsWith(".tsx"))
+    .map((f) => String(f))
+    .filter((f) => {
+      const src = readStudio(f);
+      return /useListItem\(/.test(src) && /<section/.test(src);
+    });
+  const BAR = 'className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3"';
+  const missing = entryPanels.filter((f) => !readStudio(f).includes(BAR));
+  t("E6: every entry panel opens with the cream-200 bar, byte-identical — the by-role counterpart to the inspector's ink band",
+    missing, []);
+  // Guards the derivation itself: if `useListItem` is renamed or the panels stop matching, the
+  // set silently empties and the assertion above passes while proving nothing.
+  t("E6: …and the derived entry-panel set is not empty (a vacuous pass is the failure mode here)",
+    entryPanels.length >= 6, true);
+  // The band belongs ONLY to the inspector. An entry panel that grows one has crossed the rule.
+  const bandOutsideInspector = entryPanels.filter((f) => /bg-ink-950 px-3 py-2/.test(readStudio(f)));
+  t("E6: no entry panel carries an ink band — that treatment is the inspector's alone",
+    bandOutsideInspector, []);
+}
+
 // E6 · THE DEAD ANCHORS. Colour cannot live on an <a> here; it lives on a parent or a child.
 // PINNED ON THE COLOUR, NOT ON THE PADDING BESIDE IT. This regex used to read
 // `px-4 py-2 text-ink-600"`, so #213 changing the strip's padding to 11px/18px — a change

@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1495 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1498 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1498 (PR 3, the section headers — `studio-ink` 103→106 for the by-role E6 rule) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -2876,6 +2876,45 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 3 · the section headers, by role** →1498 (`studio-ink` 103→106). **THE RULE:** an
+  INSPECTOR PANE takes the ink band, an ENTRY PANEL takes the cream-200 bar. The band's own
+  reasoning is about a NARROW pane beside ink chrome, where it anchors the inspector to the
+  sidebar; on a ~967px full-width form it would be a slab of ink mid-page. **The third time the
+  by-role shape has been the right answer** after listbox-vs-select and three-pane-vs-list-detail
+  — and a fourth turned up inside this PR (below).
+  **THE BAND COUNT IS 2 AND STAYED 2. Nothing here added a band** — Skills got the CREAM bar — so
+  **the count moving in this PR would have been a red flag, not an expected step.** It becomes 4
+  when the case-study inspector lands in PR 7, and that will be deliberate.
+  **SkillsEditor's `CategoryPanel` was the only one of seven `useListItem` panels with NO header
+  of any kind** and now opens with the bar, byte-identical to its five siblings (measured 51px /
+  243,232,216 on both). It carries no dirty pill and no Cancel, and that follows from the same
+  architecture as its footer. **`ProjectsEditPanel` was the only entry-panel header missing its
+  `border-b` hairline**; all six now share the header string verbatim.
+  **THE ListDetailLayout QUESTION, ANSWERED BEFORE BUILDING — the bar belongs in the PANEL, so
+  this is ONE edit, not seven.** The decisive fact is the one PR 4 depended on: `ProjectsEditPanel`
+  is **not inside a `ListDetailLayout` at all**, so a layout-level header would have fixed six
+  panels and MISSED the one whose header was also broken. Beyond that the header content is
+  panel-owned (icon, title, dirty, cancel) and the layout renders ALL children, each self-hiding
+  via `useListItem`, so it has no "selected panel" to decorate.
+  **AND THE FOOTER FINDING REVERSED THE BRIEF, WHICH IS THE VALUABLE PART.** The investigation
+  called Skills' save footer drift — "a card outside the panel while all five siblings put a
+  cream-200 footer inside" — and the brief repeated it. **Measured against the architecture that
+  framing is wrong.** `skills` is a `singleton()`: this component holds every category in ONE
+  `useDraftForm` and `buildCommitted` posts them together, so there is **one save for N
+  CategoryPanels**, while the siblings save PER ENTRY. Moving the footer inside would render **N
+  save bars for a single document save**. So it is a **document-level save bar, a different ROLE**
+  from a per-entry panel footer — the fourth by-role answer in this arc — and it was left in place
+  AND deliberately NOT restyled to cream-200, because making it look like a panel footer would
+  encode a similarity that is not there. **Recorded in source with the reasoning so the next audit
+  does not re-flag it**: this arc has twice found a hazard right about a cause and wrong about a
+  cure, and an unrecorded correct-but-unusual position is how a third one starts.
+  **THE EXTRACTION IS A REAL PR AND NOT THIS ONE.** Six panels now share the header string
+  verbatim and five share the footer string — #199's `inputCls` shape exactly. **NAMED TRIGGER,
+  not a condition that may never fire: the next time a panel header or footer needs CHANGING, it
+  gets extracted rather than edited in six places.**
+  **E6 DERIVES THE ENTRY-PANEL SET** (any studio component calling `useListItem` that renders a
+  panel `<section>`) rather than listing it, with a guard against the vacuous pass, and asserts no
+  entry panel carries an ink band. Three mutations bite, including the red-flag case.
 - **PR 1 · the label scale — two steps, named by role** →1495 (`studio-labels` 9, net-new suite).
   **BRIEFED AS A CONSISTENCY SWEEP; IT IS AN ACCESSIBILITY FIX.** Measured, `text-ink-400` reads
   **3.49 / 3.33 / 3.02** on cream-50 / cream-100 / cream-200, and 12px is not WCAG large text
@@ -3212,9 +3251,10 @@ refuted the assumption that the studio was finished except for one page. See PR 
   (`StudioModal` covers three modals). All 1.00 → 1.05, measured per site. See its log entry for
   the two that needed a different action, and for the Selected rail's coupling to PR 7.
   *Left inconsistent after:* section headers, and `SectionsEditPanel:886`'s inversion (PR 7).
-- **PR 3 · THE SECTION HEADERS.** The decision is TAKEN (see LOCKED DECISIONS): ink band for
-  inspector panes, cream-200 bar for entry panels. Skills gets a cream-200 bar. `studio-ink`'s
-  band count stays 2 here. *Left inconsistent after:* nothing in Track 1.
+- ~~**PR 3 · THE SECTION HEADERS.**~~ — **SHIPPED. TRACK 1 IS COMPLETE.** Ink band for inspector
+  panes, cream-200 bar for entry panels; Skills gained the bar, ProjectsEditPanel its hairline.
+  The band count stayed 2, as it had to. The footer finding reversed the brief — see the log
+  entry. *Left inconsistent after:* nothing in Track 1.
 
 **Track 2 — the case-study editor (sequential; each depends on the last).**
 - **PR 5 · EXTRACT `ThreePaneShell`'s TWO aria-labels** ("Show posts", "Collapse posts") and give
