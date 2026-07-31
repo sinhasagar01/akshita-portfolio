@@ -68,6 +68,64 @@
     is an owner call, and reintroducing it later costs nothing.
   - The mobile composition. Ink chrome is scoped to lg: and below that the
     studio is a different layout — that is unchanged and unscoped here.
+
+  ==========================================================================
+  ==  CORRECTED BY THE CONSISTENCY INVESTIGATION. THREE CLAIMS WERE WRONG. ==
+  ==  Each correction sits BESIDE what it replaces rather than over it,    ==
+  ==  because a reference whose errors are deleted teaches nothing about   ==
+  ==  how it went wrong. Same convention as studio-ink-chrome.html.        ==
+  ==========================================================================
+
+  C-1. "THE CASE-STUDY EDITOR IS THE ONLY PAGE NEEDING STRUCTURAL WORK,
+       BECAUSE EVERY OTHER PAGE GOT ITS TREATMENT DURING THE INK CHROME ARC."
+       FALSE, and it is the scope error, not a detail. The ink chrome arc's
+       two most visible inventions NEVER LEFT THE BLOG EDITOR:
+         - INK BANDS: exactly TWO in the whole studio, both in
+           BlogBlocksEditPanel.tsx (:693, :709), and pinned at exactly 2 by
+           studio-ink.mjs:265-266. ListDetailLayout has NO header element of
+           any kind, so Experience, Skills and Settings have no band at all.
+         - labelCls: 36 ad-hoc eyebrow spans across 14 files against a handful
+           of real consumers. Three label sizes are live.
+       "Well = ground" also recurs on SIX surfaces, every one predicted by the
+       note at blocks/fields.tsx:151-166.
+       SKILLS IS STRUCTURAL ON ITS OWN: SkillsEditor's CategoryPanel is the one
+       panel of seven with no header at all, and its save footer sits outside
+       the panel while all five siblings put it inside.
+       So this is TWO TRACKS, not one arc. The consolation is that the
+       divergences are systemic and repeated, so they are one shared fix
+       applied N times rather than N designs.
+
+  C-2. "parity.mjs ALREADY CHECKS THAT" (claim D above). FALSE as an
+       automation claim. parity.mjs is a PARITY_SCRIPT string you paste into a
+       browser console — no assertions, no process.exit, and it is named in
+       run.mjs:50's NOT_RUNNABLE set. It covers four slugs, LIVE data only (no
+       drafts), a block-geometry diff at ±1.5px, and it deliberately excludes
+       the scale transform. run.mjs:89-93 even records a vacuous
+       `sections: 0 / PARITY OK` false pass. It is valuable and manually
+       proven; it is not CI, and nothing in CI covers the canvas render.
+
+  C-3. "THE CASE-STUDY CANVAS HAS A DIFFERENT NATURAL MEASURE FROM BLOG'S 68ch,
+       SO THE THRESHOLD MUST BE RE-DERIVED." The INSTRUCTION IS RIGHT and it is
+       the best line in this file — but it understates the problem, and the
+       understatement is the same class of error that produced the 190px miss
+       recorded at three-pane.ts:20-26.
+       MEASURED from the public render at a 1920px viewport (at 1138px the
+       section reports a viewport-CONSTRAINED 1030px, which is what makes this
+       easy to get wrong):
+         case study   prose 937px (68ch @ 20px) · content column 1064px ·
+                      section card 1168px · outer cap 1280px (container-x)
+         blog         prose 698px (56ch @ 18px) · article 746px
+       "THE PUBLIC MEASURE" IS TWO DIFFERENT NUMBERS IN THIS REPO. The
+       three-pane arithmetic protects blog's 68ch ≈ 745.9 → 794. The
+       case-study canvas uses CANVAS_WIDTH = 1280 (SectionsEditPanel.tsx:250).
+       AND SUBSTITUTING THE TERM IS THE TRAP: 236 + 264 + 1280 + 320 = 2100px,
+       a threshold most laptops never reach. The editor already resolves this
+       by RENDERING AT 1280 AND SCALING (SectionsEditPanel.tsx:545-551),
+       deliberately, because the site's breakpoints key off the WINDOW.
+       A SCALED CANVAS HAS NO NATURAL MINIMUM WIDTH, so FIT_THRESHOLD_PX is the
+       wrong SHAPE of constant here, not merely the wrong value. What must be
+       derived is a MINIMUM LEGIBLE SCALE, and the acceptable floor is an owner
+       call taken against rendered comparisons, not a number picked in advance.
 ================================================================================
 -->
 

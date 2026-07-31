@@ -51,6 +51,56 @@
   ONE DECISION VISIBLE HERE: Style stays a TOGGLE beside Content rather than
   becoming a fourth pane. They are two views of one selection, not two
   selections — the same reason the blog inspector stacks Post and Body.
+
+  ==========================================================================
+  ==  CORRECTED BY THE CONSISTENCY INVESTIGATION. SECTION 2 WAS WRONG      ==
+  ==  ABOUT ITS OWN COST, IN BOTH DIRECTIONS. Corrections sit BESIDE what  ==
+  ==  they replace, per studio-ink-chrome.html's convention.               ==
+  ==========================================================================
+
+  C-1. "COLLAPSIBLE GROUPS. THE PATTERN ALREADY EXISTS IN THIS EDITOR"
+       (point a above). CONTRADICTED, and this is the one that would have
+       under-scoped the work. What exists is DisclosureGroup
+       (blocks/fields.tsx:80-118, 11 call sites) and it is a DIFFERENT THING:
+         - FIELD-level. It reveals individual blank OPTIONAL fields. It never
+           folds a titled region.
+         - ONE-WAY and STICKY. setRevealed(true) only; useFieldVisible latches
+           via shownRef — "never re-collapse once it had a value".
+         - No aria-expanded. No <details> ANYWHERE in components/studio.
+       The three real GROUP-level collapses — ProjectsEditPanel's detailsOpen,
+       ThreePaneShell's list pane, HeroEditPanel's card — are each ad-hoc and
+       SHARE NO ABSTRACTION.
+       SO THE COLLAPSIBLE GROUP MUST BE BUILT, not extended. "+ More section
+       fields" and "+ Glow settings" are the wrong precedent to cite: they are
+       the progressive-disclosure pattern, and pointing at them hides the cost.
+
+  C-2. "AT 320px THEY STACK, AND SIX META FACTS BECOME TWELVE ROWS."
+       CONTRADICTED, measured on the live editor. The grid is
+       `grid grid-cols-2 gap-2` — UNPREFIXED, so it does not stack at any
+       width. Its height is IDENTICAL (66px) at 794 and at 320; the children
+       merely squeeze from 367px to 130px. It gets CRAMPED, not TALLER.
+       That is still a legibility problem worth fixing — but it is an argument
+       for making the grid responsive, NOT for widening the pane.
+
+  C-3. "THE ONE REAL COST OF THREE PANES" AND "IF THE 320px PANE IS GENUINELY
+       TOO TIGHT, THE ANSWER IS A WIDER INSPECTOR" (section 2's framing, and
+       its closing line). THE MEASUREMENT SUPPORTS NEITHER REMEDY, because the
+       premise is wrong. Measured on the real #cs-view-panel-inspector element,
+       one section (Hero, 1 block, 22 visible fields):
+         794px → 2559px tall      480px → 2559      420px → 2579
+         360px → 2579             320px → 2597
+       NARROWING 794 → 320 COSTS 38px. 1.5%.
+       Available height below the tablist at a 1000px viewport is ~574px, so
+       one section's Content tab is ~4.5 SCREENS at 320px — and ~4.46 screens
+       at 794px. THE SCROLL EXISTS TODAY AT FULL WIDTH and pane geometry barely
+       touches it. WIDTH IS NOT THE DRIVER; FIELD COUNT IS.
+       Two consequences the plan must carry:
+         - A wider case-study inspector buys back 38px. It is not the fix.
+         - The collapsible group of C-1 IS the fix, which makes it a hard
+           requirement rather than optional polish. A three-pane PR that ships
+           without it ships the scroll unchanged.
+       Also found: the editor is a FULL-PAGE SCROLL — there is no inner scroll
+       container — so the field stack scrolls the whole page today.
 ================================================================================
 -->
 

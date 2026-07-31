@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -1513,6 +1513,23 @@ inspection before running anything.
 
 All prior locked decisions remain. Added across this session:
 
+- **SECTION HEADERS, SPLIT BY ROLE — INK BAND FOR INSPECTOR PANES, CREAM-200 BAR FOR ENTRY
+  PANELS.** The owner's decision, and it is neither "generalise the band" nor "declare the band
+  blog-only". **The band's own reasoning is about a NARROW PANE ADJACENT TO INK CHROME** — it
+  anchors the inspector to the sidebar. That reasoning does not transfer to a ~967px full-width
+  form, where a band becomes a large slab of ink in the middle of a cream page. So:
+  **inspector pane → ink band + `sechead`; entry panel → `bg-cream-200` bar + `font-display`.**
+  `SkillsEditor`'s `CategoryPanel` gets a **cream-200 bar**, matching its five siblings — it is
+  an entry panel, and its missing header is a real gap either way.
+  **`studio-ink`'s band count goes 2 → 2 now, and 2 → 4 when the case-study inspector lands.**
+  Both revalues are DELIBERATE; the assertion stays a COUNT because a count is what makes an
+  accidental band fail. Record the rule in both places so the next header is picked by rule
+  rather than by copy-paste.
+  **THIS IS THE THIRD TIME THE BY-ROLE SPLIT HAS BEEN THE RIGHT ANSWER**, after
+  listbox-versus-select and three-pane-versus-list-detail. When two treatments both look
+  defensible, the question that resolves it has been "what ROLE does this element play", not
+  "which treatment is better".
+
 - **TWO SELECT SHAPES, SPLIT BY ROLE.** `ListboxField` (the animated custom control) is for a
   CONTENT field the author reasons about — the blog topic, its one consumer. The native
   `SelectField` (`blocks/fields.tsx`) is for a CONFIG toggle inside a block shell — variant,
@@ -2123,13 +2140,25 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     reporting a console error, check it against the source graph and a cold cache — and note
     that a production `npm run build` succeeding is itself strong evidence a client-side
     `node:fs` import is not real, since it would fail the build app-wide.
-17. **A LATENT `rules-of-hooks` VIOLATION IS DISABLED, NOT FIXED** (`ProjectsEditPanel:125`,
-    found by #195). `if (!isSelected) return null` sits above a `useEffect`. **Latent, not
-    active:** the panel mounts only outside a `ListDetailLayout`, so `isSelected` is always
-    true and the early return never runs. It becomes a crash the moment the panel is placed in
-    the shell its own line-98 comment says it is built for. **The inline disable is a
-    placeholder and the follow-up PR deletes it** — it exists so CI can enforce `eslint .` at
-    exit 0 from day one rather than shipping an advisory gate.
+17. ~~**A LATENT `rules-of-hooks` VIOLATION IS DISABLED, NOT FIXED** (`ProjectsEditPanel:125`,
+    found by #195).~~ **CLOSED — the disable is deleted and the early return moved below the
+    hooks.** `if (!isSelected) return null` sat above a `useEffect`. **Latent, not active:** the
+    panel mounts only outside a `ListDetailLayout`, so `isSelected` is always true and the early
+    return never ran. It becomes a crash the moment the panel is placed in the shell its own
+    comment says it is built for — **which is exactly what the three-pane case-study editor
+    does**, so this closed FIRST, as that arc's blocker, rather than alongside it.
+    **THE FIX IS TWO CHANGES, NOT ONE, AND THE SECOND IS THE POINT.** Moving the return below the
+    hooks is what the hazard named. But with the return below, an UNSELECTED panel would reach
+    the effect and fetch — and sections are deliberately NOT in the list payload because they are
+    ~15KB per study and the index shows four, so mounting four panels in a shell would turn one
+    fetch into four. So the effect BODY is gated on `isSelected` too: today it is always true and
+    this fires on mount exactly as before, and in a shell it fires on first selection, with
+    `sectionsStatus === "idle"` keeping it once-only. **Moving the return alone would have fixed
+    the lint error and quietly created a fetch regression that only appears in the shell** — the
+    same shape as the hazard itself, one step later.
+    **PROVEN BY MUTATION, not by the absence of a warning:** putting the return back above the
+    hooks makes `eslint` fail with `react-hooks/rules-of-hooks` on the `useEffect`, so CI
+    enforces the fix rather than merely permitting it.
 18. ~~**`SiteHeader` ASKS FOR REDUCED MOTION AND IGNORES THE ANSWER**~~ — **CLOSED by #197
     (`258ee1a`) and #198 (`fa08200`).** The hazard was REAL AND WRONG ABOUT WHAT IT WAS, which
     is the part worth keeping. It described unguarded animations; every CSS animation in the
@@ -2465,6 +2494,24 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     - `studio-tokens` — `ink-500`, by TOKEN not by site. B2 now asserts the family is **ZERO**,
       not 40 — the sites were re-pointed, and the guard fails if any `text-ink-500` returns.
 
+28. **`boat-crest` IS HAND-BUILT AND HAS NO SECTIONS BOARD, SO IT IS THE WRONG SUBJECT FOR ANY
+    EDITOR MEASUREMENT.** Its sections and its work-filter category are set in code, not in the
+    CMS — the editor says so on screen ("Hand-built case study … Its sections and its
+    work-filter category are set in code, not here") and `BESPOKE_SLUGS` gates the fetch, so
+    `ProjectsEditPanel` never loads sections for it. Opening `/studio/projects/boat-crest` shows
+    the details strip and a read-only notice, **and nothing else**.
+    **WHY THIS IS A HAZARD RATHER THAN A NOTE:** it is the FIRST slug alphabetically, the first
+    in the index, and the canonical example everywhere in this repo — so it is the natural thing
+    to reach for, and reaching for it returns a page that looks like a broken editor rather than
+    a different kind of study. The consistency investigation measured it first and got an empty
+    board before noticing why. **It has already cost coverage once:** `parity.mjs` lists it among
+    its four slugs, so a parity run over boat-crest exercises the hand-built page, not the
+    CMS-driven render the harness exists to check — and `run.mjs:89-93` records that a vacuous
+    parity run once printed `sections: 0 / PARITY OK`, the same false pass in a different tool.
+    **USE `elevate-one-view` (14 sections) FOR EDITOR MEASUREMENTS.** State which study a
+    measurement was taken on, always — a number taken on boat-crest is not wrong, it is about a
+    different thing.
+
 ---
 
 ## DEFERRED — scoped, not built
@@ -2599,8 +2646,9 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 - **THE #195 FOLLOW-UPS — ONE DONE, TWO LEFT.**
   ~~1. WIRE `useReducedMotion` IN `SiteHeader`~~ — **DONE in #197 and #198**, and it was the
   one that affected a real reader. See hazard 18 for what it actually turned out to be.
-  **2. DELETE THE `rules-of-hooks` DISABLE** (hazard 17) by moving the early return below the
-  hooks or lifting selection out of the panel.
+  ~~**2. DELETE THE `rules-of-hooks` DISABLE** (hazard 17) by moving the early return below the
+  hooks or lifting selection out of the panel.~~ — **DONE in PR 4**, the consistency arc's
+  blocker. All three #195 follow-ups are now closed.
   ~~3. IMPLEMENT `pinned` IN `StudioSidebar`~~ — **REMOVED in #199**, because the intent was
   already implemented in the wrapper. See hazard 19 for why the hazard's own text was wrong.
 - **PR 2b — MAKE THE 21 ENTRY-PANEL INPUTS CONSUME THE SHARED EXPORT.** PR 2a shipped the
@@ -2828,6 +2876,34 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 4 · hazard 17 closed, and the consistency investigation recorded** →1486 (no net-new; a
+  correctness fix and documentation). **The studio consistency arc opens here.** An investigation
+  across all nine dashboard pages plus login **refuted the working claim** that the case-study
+  editor was the only page needing structural work — see the C-1 correction in
+  `studio-case-study.html`. The ink chrome language never left the blog editor: two ink bands in
+  the whole studio, both in one file, pinned at exactly 2; `labelCls` against 36 ad-hoc eyebrows
+  in 14 files; well-equals-ground on six surfaces. **Skills is structural on its own.** So the
+  work is TWO TRACKS, and the divergences are systemic rather than per-page, which is what keeps
+  it tractable.
+  **THIS PR IS THE BLOCKER, WHICH IS WHY IT WENT FIRST**: hazard 17's `rules-of-hooks` violation
+  is inert only because `ProjectsEditPanel` mounts outside any list shell — precisely what the
+  three-pane editor changes. Open since #195. See hazard 17 for the two-part fix and why moving
+  the early return ALONE would have traded a lint error for a fetch regression.
+  **FOUR CONTRACT CLAIMS CORRECTED, beside what they replace** (the `studio-ink-chrome.html`
+  convention): the scope claim; "a collapsible-group pattern already exists" (it does not —
+  `DisclosureGroup` is FIELD-level, one-way and sticky, with no `aria-expanded` and no
+  `<details>` anywhere in `components/studio`, so the group collapse must be BUILT); "meta facts
+  stack at 320" (they do not — `grid-cols-2` is unprefixed, so the height is identical at 794 and
+  320 and the children squeeze 367px → 130px); and "parity.mjs already covers it" (it is a
+  paste-into-console string in `NOT_RUNNABLE`, no assertions, no exit code).
+  **THE MEASUREMENT THAT CHANGES THE DESIGN:** a section's Content tab is 2559px at 794px wide
+  and 2597px at 320px — **narrowing costs 38px, 1.5%**. Against ~574px of available height that
+  is ~4.5 screens either way. **The 4.5-screen scroll exists TODAY at full width; width is not
+  the driver, field count is.** So the inspector-width debate is the wrong argument, a wider
+  case-study inspector is not the fix, and the collapsible group is a hard requirement rather
+  than optional polish. Also recorded: hazard 28 (`boat-crest` is hand-built with no sections
+  board, so it is the wrong subject for editor measurements — it has already cost parity
+  coverage), and the by-role section-header rule in LOCKED DECISIONS.
 - **PR D — topic as a closed set** →1456. `topic` was free text because no set was declared; PR D
   declared `BLOG_TOPICS` (the three topics the posts already carry) and enforced it in two places,
   each a different question. The sanitizer refuses a non-member at SAVE while still allowing empty
@@ -3037,12 +3113,49 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 
 ## WHAT'S NEXT
 
-**THE INK CHROME ARC IS DONE AND ALL ELEVEN FIDELITY ITEMS ARE CLOSED. PR D SHIPPED TOO, SO
-WHAT REMAINS IS CONTENT — hazards 23, 24 and 27 are all closed and no ink-arc hazard is open.**
+**THE STUDIO CONSISTENCY ARC IS OPEN — TWO TRACKS, EIGHT PRs, PR 4 SHIPPED FIRST.** The ink
+chrome arc and PR D are done and no ink-arc hazard is open, but the consistency investigation
+refuted the assumption that the studio was finished except for one page. See PR 4's log entry.
+
+**THE ARC, IN ORDER. Track 1 ships independently of the redesign; Track 2 is sequential.**
+
+**Track 1 — the consistency sweep (each PR ships alone, in any order).**
+- ~~**PR 4 · the hooks blocker**~~ — **SHIPPED.** Hazard 17 closed; it gates all of Track 2.
+- **PR 1 · THE LABEL TREATMENT.** Adopt `labelCls` across the 36 ad-hoc eyebrow spans in 14
+  files and settle the three live sizes into one. Pure paint, mechanically checkable, gate it.
+  *Left inconsistent after:* section headers, wells.
+- **PR 2 · WELL = GROUND, SIX SITES.** `StudioModal.tsx:88` (so the projects index, blog index
+  and experience modals), `SkillsEditor.tsx:192`, `SectionsEditPanel.tsx:365`,
+  `LoginForm.tsx:52`, `BlogIndex.tsx:151`. One relational rule, six applications —
+  `blocks/fields.tsx:151-166` already predicts every one of them.
+  *Left inconsistent after:* section headers.
+- **PR 3 · THE SECTION HEADERS.** The decision is TAKEN (see LOCKED DECISIONS): ink band for
+  inspector panes, cream-200 bar for entry panels. Skills gets a cream-200 bar. `studio-ink`'s
+  band count stays 2 here. *Left inconsistent after:* nothing in Track 1.
+
+**Track 2 — the case-study editor (sequential; each depends on the last).**
+- **PR 5 · EXTRACT `ThreePaneShell`'s TWO aria-labels** ("Show posts", "Collapse posts") and give
+  it a second consumer's threshold seam. The shell's blog-specificity is those two strings, not
+  a structural entanglement — everything else is already collection-agnostic.
+- **PR 6 · DERIVE THE CASE-STUDY THRESHOLD.** `FIT_THRESHOLD_PX` is the wrong SHAPE of constant
+  for a scaled canvas, not the wrong value — substituting the term gives 2100px. Derive a
+  MINIMUM LEGIBLE SCALE instead. **Needs an owner call, taken against a rendered comparison at
+  a few scale floors rather than a number.** A measurement PR with a constant and a gate.
+- **PR 7 · THE THREE-PANE CASE-STUDY EDITOR.** Rail + scaled canvas + inspector; Board survives
+  as a Board/Editor toggle (it is already `selectedSectionId === null`, so it is a relabelling of
+  existing state); the Section `<select>` and the `← Board` link both go; the inspector gets its
+  own scroll container. **Its PR body must state plainly that it does NOT improve the scroll.**
+  Reorder/add and the `Needs an image` flag live only on the Board today and must stay reachable.
+- **PR 8 · THE GROUP-LEVEL COLLAPSE, BUILT NOT REUSED.** `DisclosureGroup` is field-level and
+  one-way; no group-level abstraction exists. **This is the only thing that reduces the
+  4.5-screen scroll, so it is not optional polish** — PR 7 alone ships the scroll unchanged.
+  `studio-ink`'s band count goes 2 → 4 when the case-study inspector lands.
 
 0. **ALL ELEVEN FIDELITY ITEMS ARE CLOSED, AND SO IS PR D.** ~~PR C~~ shipped as #211;
    ~~**PR D**~~ — topic as a closed set — shipped too (`BLOG_TOPICS`, enforced at save and
-   required at publish; see its log entry). There is no scoped PR left on the board.
+   required at publish; see its log entry). **The board is not empty, though — the consistency
+   arc above replaced it**, and that arc exists because the investigation refuted the claim that
+   the studio was finished except for the case-study editor.
    **THE GATE DEBT IS PAID: hazard 27 is CLOSED.** `studio-type`'s on-ink contrasts ran only by
    hand; `studio-ink-contrast` now recomputes every non-pointer `ON_INK` ratio statically from
    source and asserts it in CI, so on-ink work no longer depends on a human remembering to run a
@@ -3085,10 +3198,10 @@ WHAT REMAINS IS CONTENT — hazards 23, 24 and 27 are all closed and no ink-arc 
    c. **Then remove `elevate-one-view` from `HERO_IMAGE_UNSUITABLE`** (hazard 21) — but LOOK at
    the card first. Its comment describes a 390×988 portrait that no longer exists, so the
    stopgap is stale either way; whether the mock still beats a 320×200 hero is a judgement.
-3. **DELETE THE `rules-of-hooks` DISABLE** (hazard 17). Now the highest-value follow-up left,
-   and the only one carrying a latent correctness bug rather than a missing affordance —
-   `ProjectsEditPanel` crashes the moment it is placed in the list shell its own comment says
-   it is built for. Move the early return below the hooks, or lift selection out of the panel.
+3. ~~**DELETE THE `rules-of-hooks` DISABLE** (hazard 17).~~ — **DONE in PR 4.** It was the only
+   follow-up carrying a latent correctness bug rather than a missing affordance, and the
+   consistency arc is what made it urgent: `ProjectsEditPanel` would crash the moment it is
+   placed in the list shell its own comment says it is built for, which is PR 7 exactly.
 4. **Optional:** `/code-review ultra` over `fa08200`. #178, #180, #185, #187, #189, #190,
    #195, #197 and #198 were all self-reviewed, and #190 and #195 are the largest.
 5. **THE CASE-STUDY CANVAS PREVIEW** — the same snapshot gap #202 closed for blog, and the
