@@ -24,12 +24,15 @@
 // substring in onRemoveItem) and is a URL-driven page shell keyed to `?item=`, so
 // two nested instances would fight over one param. The composition that works here
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-raw";
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
-import { CS_MIN_SCALE } from "@/lib/studio/three-pane";
+import { CS_MIN_SCALE, CS_FIT_THRESHOLD_PX, CS_COLLAPSED_FLOOR_PX } from "@/lib/studio/three-pane";
+import { useMediaMin } from "./useMediaMin";
+import ThreePaneShell from "./ThreePaneShell";
+import SectionsRail from "./SectionsRail";
 import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
@@ -49,7 +52,7 @@ import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
 const NO_DRAFT_IMAGES: readonly string[] = [];
 import { FieldTabProvider, inputCls, type FieldTab, labelCls, groupLabelCls } from "./blocks/fields";
-import { IconGrid, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
+import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type SectionsFields = { sections: readonly RawSection[] };
 /** The parallel stable ids, mirroring the sections structure exactly. */
@@ -615,12 +618,23 @@ function SectionCanvas({
 
 export default function SectionsEditPanel({
   slug,
+  title,
   sections: initialSections,
   template = "",
   draftImages = NO_DRAFT_IMAGES,
+  detailsNode,
+  detailsDirty = false,
 }: {
   slug: string;
+  /** The study's name, for the crumb row — identity lives there once now. */
+  title: string;
   sections: readonly RawSection[];
+  /** The study's own fields, rendered by ProjectsEditPanel and mounted in the INSPECTOR when
+   *  the rail's Details entry is selected. Passed as a node so that panel keeps its own
+   *  useDraftForm — two forms, two save seams, exactly as before. */
+  detailsNode?: ReactNode;
+  /** Whether that form has unsaved edits, for the rail's Details marker. */
+  detailsDirty?: boolean;
   /** CS-7c — the case-study template, so the inline canvas renders the same
    *  Bold-gallery web treatment (or the mobile composition) the live page shows. */
   template?: string;
@@ -670,6 +684,17 @@ export default function SectionsEditPanel({
   const [selection, setSelection] = useState<Selection>("board");
   const selectedSectionId = typeof selection === "object" ? selection.id : null;
   const showBoard = selection === "board";
+  const showDetails = selection === "details";
+  // Below this the inspector pane folds and the crumb row's view toggle becomes the route to
+  // those fields. CS_COLLAPSED_FLOOR_PX rather than blog's 1100 because it is DERIVED: below it
+  // the canvas drops under its 50% floor even with the rail collapsed, which is the width at
+  // which folding the inspector is the only lever left.
+  const inspectorFits = useMediaMin(CS_COLLAPSED_FLOOR_PX);
+  // Where the Editor toggle returns to. Without it, leaving the Board would have to guess, and
+  // guessing "the first section" loses the place an author was working in.
+  const lastEditedRef = useRef<Selection>("details");
+  if (!showBoard) lastEditedRef.current = selection;
+  const selIdxTop = selectedSectionId === null ? -1 : ids.sectionIds.indexOf(selectedSectionId);
   // The Selected rail's height ceiling, named rather than DOM-walked — see `useAutoGrow`.
   const canvasCeilingRef = useRef<HTMLDivElement>(null);
 
@@ -930,38 +955,12 @@ export default function SectionsEditPanel({
     })
   );
 
-  return (
-    <section
-      aria-label="Edit case study body"
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
-    >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-3">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
-            <IconGrid />
-          </span>
-          <span className="font-display text-base text-ink-950">Case study body</span>
-          {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
-              Unsaved changes
-            </span>
-          )}
-        </div>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={handleCancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-        >
-          Cancel
-        </button>
-      </header>
-
-      {/* CS-2 — BOARD view (selectedSectionId === null): one card per section, a
-          per-kind schematic (not a live render), block count, and the publish
-          gate's needs-image flag. Presentational and edit-state-free, so it is
-          conditionally rendered while every editor below stays MOUNTED. */}
-      {showBoard && (
+  // THE BOARD. Presentational and edit-state-free — no form state lives here — so it is the ONE
+  // thing in this file that may be conditionally rendered. Its job narrowed with the rail: the
+  // rail navigates while you work, the Board shows the shape of the whole study at once, which
+  // a 264px rail cannot. Reached from the crumb row rather than a back link.
+  const boardNode = (
+    <div className="overflow-y-auto px-4 py-5">
         <div className="flex flex-col gap-4 px-4 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
             {values.sections.map((section, i) => {
@@ -1057,52 +1056,15 @@ export default function SectionsEditPanel({
             <IconPlus /> Add a section
           </button>
         </div>
-      )}
+    </div>
+  );
 
-      {/* THE FOCUSED-NAV BAR IS GONE — the `← Board` link and the "Jump to section" <select>
-          both lived here, and both existed only because the Board was the ONLY way to change
-          section. The rail is that now, so a back link to a mode you no longer have to be in, and
-          a dropdown that duplicated the rail's job, are both surface with nothing to do. The
-          Board survives as a view, reached from the crumb row's toggle. */}
-
-      <div className="flex flex-col gap-4 px-4 py-5" hidden={selectedSectionId === null}>
-        {/* The design's top-level split. Both regions stay MOUNTED (hidden, never
-            unmounted) so switching view keeps every dirty edit, caret and id-lockstep
-            intact — the same discipline the board/section switch uses. */}
-        <div role="tablist" aria-label="Editor view" className="flex gap-1 border-b border-ink-950/12">
-          {(["canvas", "inspector"] as const).map((v) => {
-            const on = view === v;
-            return (
-              <button
-                key={v}
-                type="button"
-                role="tab"
-                id={`cs-view-${v}`}
-                aria-selected={on}
-                aria-controls={`cs-view-panel-${v}`}
-                tabIndex={on ? 0 : -1}
-                onClick={() => setView(v)}
-                onKeyDown={(e) => {
-                  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-                  e.preventDefault();
-                  const other = v === "canvas" ? "inspector" : "canvas";
-                  setView(other);
-                  requestAnimationFrame(() => document.getElementById(`cs-view-${other}`)?.focus());
-                }}
-                className={[
-                  "-mb-px border-b-2 px-3 py-1.5 text-[12px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
-                  on
-                    ? "border-accent-500 font-medium text-ink-950"
-                    : "border-transparent text-ink-600 hover:text-ink-950",
-                ].join(" ")}
-              >
-                {v === "canvas" ? "Canvas" : "Inspector"}
-              </button>
-            );
-          })}
-        </div>
-
-        <div id="cs-view-panel-canvas" role="tabpanel" aria-labelledby="cs-view-canvas" hidden={view !== "canvas"}>
+  // THE CANVAS PANE. Was a tabpanel beside the inspector; now a shell slot. It holds no form
+  // state — it is a render — so unmounting it below the fold (where the inspector takes this
+  // slot) costs nothing. That is the asymmetry that makes the fold safe: the INSPECTOR is the
+  // one that must render exactly once, and it does.
+  const canvasNode = (
+    <div className="min-w-0">
         {/* CS-7c — the inline canvas: a live, read-only render of the selected
             section above the forms. The forms stay the edit surface (CS-7d moves
             editing onto the canvas). */}
@@ -1311,9 +1273,21 @@ export default function SectionsEditPanel({
             </div>
           );
         })()}
-        </div>
+    </div>
+  );
 
-        <div id="cs-view-panel-inspector" role="tabpanel" aria-labelledby="cs-view-inspector" hidden={view !== "inspector"} className="flex flex-col gap-4">
+  // THE INSPECTOR PANE, AND IT MUST RENDER EXACTLY ONCE. Every section editor and every block
+  // card lives in here, hidden rather than unmounted, so a second copy would be two form trees
+  // sharing one onChange with colliding ids and two carets. Above the fold it mounts in the
+  // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
+  const inspectorNode = (
+    <div className="flex flex-col gap-4">
+      {/* THE DETAILS FORM, MOUNTED AND HIDDEN like every section editor beside it — it carries
+          its own draft state, so a conditional render here would drop an in-progress edit the
+          moment you clicked a section. This is also what makes Save draft reachable again: it
+          used to live INSIDE the collapsed disclosure, so closing the strip hid the only control
+          that saved it. */}
+      {detailsNode ? <div hidden={!showDetails}>{detailsNode}</div> : null}
         {/* CS-3's Content|Style field split, now nested UNDER the Inspector view (the
             top-level Canvas|Inspector switch sits above). Restored to its honest
             labels: it splits FIELDS, not views, and calling its content half "Canvas"
@@ -1526,9 +1500,99 @@ export default function SectionsEditPanel({
         ))}
         </div>
         </FieldTabProvider>
+      <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
+    </div>
+  );
+  return (
+    <>
+      {/* THE CRUMB ROW — identity and actions, once, and ALWAYS RENDERED. It is `flex-none` and
+          sits above the split, so the Board/Editor toggle survives at every width including
+          below the fold. That matters because add and remove live on the Board: if the toggle
+          could scroll away or collapse with a pane, those two operations would become
+          unreachable on a narrow screen. */}
+      <div className="flex flex-none items-center gap-3 border-b border-ink-950/12 bg-cream-50 px-[18px] py-[11px]">
+        <span className="truncate font-display text-[17px] text-ink-950">{title}</span>
+        <span className="shrink-0 rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-600">
+          {template === "web" ? "Web" : "Mobile"}
+        </span>
+        <span className="flex-1" />
+        {/* BOARD | EDITOR. Not new machinery — `selection` already encoded the board as a state,
+            so this is that state getting a control instead of a back link. */}
+        <div role="group" aria-label="View" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5">
+          {([["board", "Board"], ["editor", "Editor"]] as const).map(([v, label]) => {
+            const on = v === "board" ? showBoard : !showBoard;
+            return (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setSelection(v === "board" ? "board" : lastEditedRef.current)}
+                className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold transition-colors ${
+                  on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
+      {/* THE BOARD SHOWS **OVER** THE SHELL, NEVER INSTEAD OF IT, AND THIS IS THE ONE THING IN
+          THIS PR MOST LIKELY TO BE WRITTEN WRONG. The natural composition —
+          `{showBoard ? <Board/> : <Shell/>}` — reads correctly, compiles, and works, right up
+          until someone with a dirty edit opens the Board: the shell unmounts, every section
+          editor and block card in the inspector goes with it, and the draft, the caret and the
+          id-lockstep are gone. It would look like it worked. So the shell is HIDDEN, never
+          swapped — exactly as the section editors inside it are hidden rather than unmounted.
+          `mount-discipline` in ralph drives this rather than reading the class string, because
+          the defect is a runtime unmount. */}
+      {showBoard && boardNode}
+
+      <div hidden={showBoard} className="flex min-h-0 flex-1">
+        <ThreePaneShell
+          fitThresholdPx={CS_FIT_THRESHOLD_PX}
+          listNoun="sections"
+          list={
+            <SectionsRail
+              sections={values.sections}
+              sectionIds={ids.sectionIds}
+              selection={selection === "details" ? "details" : (selectedSectionId ?? "")}
+              onSelect={(next: string) => setSelection(next === "details" ? "details" : { id: next })}
+              onMove={moveSection}
+              needsImage={sectionNeedsImage}
+              detailsDirty={detailsDirty}
+            />
+          }
+          canvasBar={
+            <>
+              <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink-950">
+                {showDetails ? "Details" : selIdxTop < 0 ? "" : sectionLabel(values.sections[selIdxTop], selIdxTop)}
+              </span>
+              {/* The view toggle exists ONLY below the fold, where the inspector pane is gone and
+                  this is the route to those fields — the same rule the blog shell uses. */}
+              {!inspectorFits && (
+                <div role="group" aria-label="Editor view" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 p-0.5">
+                  {(["canvas", "inspector"] as const).map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      aria-pressed={view === v}
+                      onClick={() => setView(v)}
+                      className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors ${
+                        view === v ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950"
+                      }`}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          }
+          canvas={!inspectorFits && view === "inspector" ? inspectorNode : canvasNode}
+          inspector={inspectorFits ? inspectorNode : null}
+        />
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-100 px-4 py-3">
@@ -1547,15 +1611,28 @@ export default function SectionsEditPanel({
             <span className="text-text-subtle">Auto-saves to draft on blur. Preview to see it.</span>
           )}
         </span>
-        <button
-          type="button"
-          onClick={saveDraft}
-          disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {saveStatus === "saving" ? "Saving…" : "Save draft"}
-        </button>
+        <div className="flex items-center gap-1">
+          {/* CANCEL, RE-HOMED. It lived in the body panel's header, which the crumb row replaced.
+              It reverts this form's draft, so it belongs beside the save it undoes rather than
+              disappearing with the bar that happened to hold it. */}
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleCancel}
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={saveDraft}
+            disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
+            className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {saveStatus === "saving" ? "Saving…" : "Save draft"}
+          </button>
+        </div>
       </footer>
-    </section>
+    </>
   );
 }

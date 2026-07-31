@@ -82,7 +82,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // Sections are the reason you opened this page, so they are always visible and the
   // DETAILS collapse instead — the reverse of the old Details|Sections tabs, where the
   // thing you came for was one click away behind the thing you rarely change.
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const [sectionsData, setSectionsData] = useState<RawSection[] | null>(null);
   // The canvas composes from `template`, so it lives HERE rather than inside the
   // toggle: flipping Mobile/Web has to recompose the preview immediately, and the
@@ -154,37 +153,44 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // draft persists; the shell shows the selected item.
   if (!isSelected) return null;
 
-  return (
-    <section
-      aria-label={`Edit ${title}`}
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
-    >
-      {/* `border-b border-ink-950/12` — this was the ONE entry-panel header missing its
-          hairline, so the cream-200 bar ran into the cream-100 body with no edge. The other five
-          carry it, and the string is now byte-identical across all six.
-          NAMED TRIGGER FOR THE EXTRACTION: six panels now share this header string verbatim, and
-          five share their footer string verbatim — #199's `inputCls` shape exactly. It is NOT
-          extracted here because a header-consistency fix is the wrong PR to refactor six working
-          panels in. THE TRIGGER IS: the next time a panel header or footer needs CHANGING, it
-          gets extracted into a shared component rather than edited in six places. A condition
-          that fires on the next edit, not one that waits for a state that may never arrive. */}
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
-            <IconGrid />
-          </span>
-          <span className="truncate font-display text-base text-ink-950">{title}</span>
-          {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
-              Unsaved changes
-            </span>
-          )}
-        </div>
-        {/* THE COLOUR IS ON THIS ROW, NOT ON THE LINK. The Preview <a> and the Cancel <button>
-            below carried BYTE-IDENTICAL class strings and only the button's worked: an
-            unlayered `a { color: inherit }` beats the utility layer, so the anchor had never
-            been ink-600. Setting it here lets the anchor inherit it with no extra element. */}
-        <div className="flex items-center gap-1 text-ink-600">
+  // THE DETAILS FORM IS NOW A NODE, mounted in the INSPECTOR when the rail's Details entry is
+  // selected. The read-only strip and the `Edit details ▾` disclosure that used to sit above the
+  // body are both gone: the crumb row carries identity once and the rail carries navigation, so a
+  // strip duplicating three fields and a disclosure hiding the rest were surface with nothing
+  // left to do.
+  //
+  // AND IT CLOSES A REAL BUG INCIDENTALLY. The Save-draft footer lived INSIDE that disclosure, so
+  // with the strip collapsed — its default state — the only control that saved these fields could
+  // not be reached. Nothing failed; it simply was not clickable. Here the footer is part of the
+  // node, so whenever the form is on screen its save is too.
+  const detailsNode = (
+    <div className="flex flex-col">
+      {/* THE STUDY-LEVEL CONTROLS AND ACTIONS, re-homed from the deleted strip and header.
+          Template and category are LIVE controls — they were never read-only glances — so they
+          move with the fields they belong beside rather than disappearing with the strip that
+          happened to hold them.
+          THE COLOUR IS ON THIS ROW, NOT ON THE LINK. The Preview <a> and the Cancel <button>
+          carried BYTE-IDENTICAL class strings and only the button's worked: an unlayered
+          `a { color: inherit }` beats the utility layer, so the anchor had never been ink-600.
+          Setting it on the row lets the anchor inherit it with no extra element — hazard 22,
+          and `studio-ink` E6 pins it. */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-2.5">
+        {!bespoke && (
+          <TemplateToggle
+            slug={slug}
+            initial={template}
+            onChange={setTemplateValue}
+            onSaved={() => setUnpublished(true)}
+          />
+        )}
+        {!bespoke && (
+          <CategoryToggle
+            slug={slug}
+            initial={category}
+            onSaved={() => setUnpublished(true)}
+          />
+        )}
+        <div className="ml-auto flex items-center gap-1 text-ink-600">
           {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard),
               so the owner keeps the editor open beside it. */}
           <a
@@ -204,65 +210,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             Cancel
           </button>
         </div>
-      </header>
-
-      {/* The details STRIP. Summary, type and platform are the three you glance at,
-          so they read straight off the bar; title and hero image live inside the
-          expanded form because they are set once. Replaces the Details|Sections
-          tablist — a case study is one thing, not two tabs. */}
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/12 bg-cream-200 px-4 py-2.5">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-2">
-          <span className="flex min-w-0 max-w-[46ch] flex-col">
-            <span className={labelCls}>Summary</span>
-            <span className="truncate text-[12.5px] text-ink-600">
-              {values.summary || "No summary yet"}
-            </span>
-          </span>
-          <span className="flex flex-col">
-            <span className={labelCls}>Type</span>
-            <span className="text-[12.5px] text-ink-950">{values.facts.type || "—"}</span>
-          </span>
-          <span className="flex flex-col">
-            <span className={labelCls}>Platform</span>
-            <span className="text-[12.5px] text-ink-950">{values.facts.platform || "—"}</span>
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* CS-6a — case-study template toggle. Sections-owned only (bespoke
-              boat-crest renders no template). Writes `template` via the Details save. */}
-          {!bespoke && (
-            <TemplateToggle
-              slug={slug}
-              initial={template}
-              onChange={setTemplateValue}
-              onSaved={() => setUnpublished(true)}
-            />
-          )}
-          {/* Editorial taxonomy for the work-section filter (PR 1). Same !bespoke
-              gate as the template toggle — boat-crest's category is set in content
-              (the reseed), so its otherwise read-only panel grows no live control. */}
-          {!bespoke && (
-            <CategoryToggle
-              slug={slug}
-              initial={category}
-              onSaved={() => setUnpublished(true)}
-            />
-          )}
-          <button
-            type="button"
-            onClick={() => setDetailsOpen((o) => !o)}
-            aria-expanded={detailsOpen}
-            aria-controls={`cs-details-${slug}`}
-            className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-          >
-            Edit details {detailsOpen ? "▴" : "▾"}
-          </button>
-        </div>
       </div>
-
-      {/* The facts form, UNCHANGED — same fields, same posted patch. Kept mounted
-          (hidden, not unmounted) so collapsing the strip never drops its draft. */}
-      <div id={`cs-details-${slug}`} hidden={!detailsOpen}>
         <div className="flex flex-col gap-5 px-4 py-5">
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
               here never silently fails — it is set on Add and not editable. */}
@@ -316,7 +264,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           ))}
         </div>
       </div>
-
       <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
@@ -340,12 +287,33 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           {saveStatus === "saving" ? "Saving…" : "Save draft"}
         </button>
       </footer>
-      </div>
+    </div>
+  );
 
-      {/* Sections — the default and only view now, loaded on mount. boat-crest is
-          bespoke → read-only notice, never fetched. */}
-      <div className="px-4 py-5">
-        {bespoke ? (
+  // BESPOKE, LOADING AND ERROR KEEP A PLAIN PANEL. None of them has sections to navigate, so a
+  // three-pane shell would be two empty panes beside a notice. Only the loaded state composes it.
+  if (bespoke || sectionsStatus !== "loaded" || !sectionsData) {
+    return (
+      <section
+        aria-label={`Edit ${title}`}
+        className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
+      >
+        <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+              <IconGrid />
+            </span>
+            <span className="truncate font-display text-base text-ink-950">{title}</span>
+            {dirty && (
+              <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+                Unsaved changes
+              </span>
+            )}
+          </div>
+        </header>
+        {detailsNode}
+        <div className="px-4 pb-5">
+          {bespoke ? (
           <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
             <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
             {/* THE MEASURE IS ON THE WRAPPER, NOT THE <p>. `max-w-[46ch]` on the paragraph
@@ -360,14 +328,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
               </p>
             </div>
           </div>
-        ) : sectionsStatus === "loaded" && sectionsData ? (
-          <SectionsEditPanel
-            slug={slug}
-            sections={sectionsData}
-            template={templateValue}
-            draftImages={draftImages}
-          />
-        ) : sectionsStatus === "error" ? (
+          ) : sectionsStatus === "error" ? (
           <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
             <p className="text-[14px] text-accent-600">Could not load the sections.</p>
             <button
@@ -378,15 +339,29 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
               Try again
             </button>
           </div>
-        ) : (
+          ) : (
           <div className="grid place-items-center rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-[14px] text-text-subtle">
             Loading sections…
           </div>
-        )}
-      </div>
-    </section>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <SectionsEditPanel
+      slug={slug}
+      title={title}
+      sections={sectionsData}
+      template={templateValue}
+      draftImages={draftImages}
+      detailsNode={detailsNode}
+      detailsDirty={dirty}
+    />
   );
 }
+
 
 // P4-1 — heroImage upload field. Separate from the text useDraftForm: it posts a
 // multipart upload to /api/studio/upload-hero-image, which normalizes to webp and
