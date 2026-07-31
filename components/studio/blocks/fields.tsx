@@ -603,58 +603,6 @@ export function BlockImageField({
   );
 }
 
-/** A closed set of options — the section shell's `variant` and `layout`. The
- *  options come from the caller, which reads them from the same const the
- *  sanitizer validates against, so the two cannot disagree.
- *
- *  THIS IS THE CONFIG-TOGGLE SELECT; the CONTENT-FIELD select is `ListboxField`. The split is by
- *  ROLE, not taste: a native `<select>` is keyboard- and screen-reader-correct for free and
- *  strictly better for a config toggle inside a block shell (variant, layout, frame ×2), which is
- *  exactly what `CaseStudySwitcher`'s header records. A field the author reasons about — the blog
- *  topic — gets the animated `ListboxField` instead. Do NOT reach for the listbox for a new config
- *  toggle; reach for this. Migrate the four SelectField sites to the listbox only if one needs
- *  that treatment, or if they begin to look wrong beside it — the trigger is named so the split
- *  stays a decision rather than drifting. */
-export function SelectField<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-  onBlur,
-  hint,
-  optionLabel,
-}: {
-  label: string;
-  value: T;
-  options: readonly T[];
-  onChange: (v: T) => void;
-  onBlur?: () => void;
-  hint?: string;
-  /** Human label per option value. Defaults to the value itself, so existing
-   *  callers (variant/layout) are byte-identical; the CS-6a frame picker uses it to
-   *  show "Default (from template)" for the "" option. */
-  optionLabel?: (v: T) => string;
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className={labelCls}>{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        onBlur={onBlur}
-        className={inputCls}
-      >
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {optionLabel ? optionLabel(o) : o}
-          </option>
-        ))}
-      </select>
-      {hint && <span className="text-[10px] text-text-subtle">{hint}</span>}
-    </label>
-  );
-}
-
 export function CheckField({
   label,
   value,

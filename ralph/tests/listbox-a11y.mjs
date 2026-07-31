@@ -85,12 +85,26 @@ t("F2 the selected row shows an accent check (opacity toggled on selected)",
  * must live in BOTH headers, with a named migration trigger — a decision nobody can find is drift
  * waiting to happen. Also the type-ahead drop is recorded as a TRIGGER, not a count. */
 const fields = readFileSync(new URL("../../components/studio/blocks/fields.tsx", import.meta.url), "utf8");
-t("G1 ListboxField's header records the by-role split and names it content-vs-config",
-  /CONTENT field/i.test(src) && /CONFIG toggle/i.test(src), true);
-t("G2 ListboxField's header names the migration trigger, not an open-ended someday",
-  /migrate the four SelectField sites[\s\S]*?IF/i.test(src), true);
-t("G3 SelectField's header records the same rule from the other side (config-toggle, cite Switcher)",
-  /CONFIG-TOGGLE select/i.test(fields) && /ListboxField/.test(fields) && /CaseStudySwitcher/.test(fields), true);
+/* G1-G3 USED TO PIN THE BY-ROLE SPLIT FROM BOTH SIDES, and they failed when #251 deleted it —
+ * which is the correct behaviour for an assertion whose subject is a DECISION. They are rewritten
+ * rather than removed: the reversal now has to be recorded as carefully as the rule was, because
+ * a deleted rule with no trace is indistinguishable from drift.
+ *
+ * The split was reversed by the CONDITION IT NAMED ("if they begin to look wrong beside it"), so
+ * what these assert now is that the reversal says so, that the reasoning it replaced survives
+ * beside it, and that the accepted cost carries an ACTIONABLE remedy. */
+t("G1 the deleted split is recorded as a reversal, with the original reasoning kept beside it",
+  /SPLIT[\s\S]{0,80}DELETED/i.test(src) && /KEPT BECAUSE THE REASONING WAS SOUND/i.test(src), true);
+t("G2 …and it names the condition that fired, so this reads as the rule working rather than drift",
+  /NAMED ITS OWN UNDOING/i.test(src) && /begin[\s\S]{0,12}to look wrong beside it/i.test(src), true);
+/* The remedy has to be RUNNABLE, not described. "restore it from the parent sha" is a sentence;
+ * `git show <sha>:<path>` is a command. This asserts the concrete form, because the whole point
+ * of the trigger is that whoever meets it months later does not have to reconstruct anything. */
+t("G3 the accepted cost has an EXECUTABLE restore path — a trigger whose remedy is a rebuild is one nobody acts on",
+  /PLATFORM PICKER ON TOUCH/i.test(src)
+    && /git show [0-9a-f]{7,40}:components\/studio\/blocks\/fields\.tsx/.test(src), true);
+t("G3b SelectField is GONE rather than left unused — zero consumers is the shape this project deletes",
+  /export function SelectField/.test(fields), false);
 t("G4 the type-ahead drop is recorded as a TRIGGER (scrolling), not a count",
   /visible without scrolling/i.test(src), true);
 
