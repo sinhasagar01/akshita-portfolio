@@ -131,11 +131,29 @@ t("C: the canvas floor is computed from the scale, not spelled as a literal",
  * variants that were never written. So: each constant must be IMPORTED and READ somewhere
  * that can act on it. */
 const shell = code("components/studio/ThreePaneShell.tsx");
-t("D: the shell imports FIT_THRESHOLD_PX", /FIT_THRESHOLD_PX/.test(shell), true);
-t("D: the shell passes it to the media hook", /useMediaMin\(\s*FIT_THRESHOLD_PX\s*\)/.test(shell), true);
+/* THESE TWO WERE REVALUED IN PR 5, DELIBERATELY, AND THE INTENT IS UNCHANGED.
+ * They used to read "the SHELL imports FIT_THRESHOLD_PX" and "the shell passes it to the media
+ * hook". Both were true and both were the defect: the shell reading blog's 1614 directly is
+ * exactly what would have handed a second consumer blog's breakpoint in silence. The constant
+ * must still be IMPORTED AND READ — that is a586e98's repair and it stands — but by the CONSUMER,
+ * which is the only place that knows which collection it is. So the assertion moved with the
+ * responsibility rather than being weakened. */
+t("D: the shell no longer imports FIT_THRESHOLD_PX — it takes the threshold as a prop, so it knows no collection",
+  /FIT_THRESHOLD_PX/.test(shell), false);
+t("D: the shell drives its media query from that prop", /useMediaMin\(\s*fitThresholdPx\s*\)/.test(shell), true);
+t("D: …and the collapse controls are named from the consumer's noun, not a hardcoded 'posts'",
+  /aria-label=\{`Show \$\{listNoun\}`\}/.test(shell) && /aria-label=\{`Collapse \$\{listNoun\}`\}/.test(shell), true);
+t("D: no hardcoded collection noun survives in the shell", /"[^"]*\bposts\b[^"]*"/.test(shell), false);
 t("D: the shell drives collapse through isListCollapsed", /isListCollapsed\(/.test(shell), true);
 
 const host = code("components/studio/BlogBlocksEditPanel.tsx");
+// THE CONSUMER now owns BOTH breakpoints, which is where the a586e98 "must be used" property
+// relocated to. If the blog host stops passing its own threshold, the shell has no default to
+// fall back on (the prop is required) — but a gate that only trusted tsc would miss the case
+// where someone passes the WRONG constant, so the identity is asserted here.
+t("D: the blog host imports FIT_THRESHOLD_PX and passes it as the shell's threshold",
+  /FIT_THRESHOLD_PX/.test(host) && /fitThresholdPx=\{FIT_THRESHOLD_PX\}/.test(host), true);
+t("D: …and names its list 'posts' at the call site", /listNoun="posts"/.test(host), true);
 t("D: the host imports INSPECTOR_FOLD_PX", /INSPECTOR_FOLD_PX/.test(host), true);
 t("D: the host passes it to the media hook", /useMediaMin\(\s*INSPECTOR_FOLD_PX\s*\)/.test(host), true);
 

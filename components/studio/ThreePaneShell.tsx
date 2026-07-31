@@ -1,12 +1,26 @@
 "use client";
 
-// The blog editor's list, canvas and inspector shell.
+// The studio's list, canvas and inspector shell.
 //
-// BLOG-SPECIFIC ON PURPOSE. Other studio pages are intended to adopt this layout, and the
-// rule is to extract a shared shell at the SECOND consumer, not the first. Two consumers
-// teach you what varies, one teaches you nothing and you design the wrong abstraction.
-// Same rule that governed #173's splice. So the seams stay visible and the props stay
-// concrete rather than generic.
+// COLLECTION-AGNOSTIC SINCE PR 5, AND THE COUPLING IT SHED WAS NEVER ARCHITECTURAL.
+// This file used to open "BLOG-SPECIFIC ON PURPOSE", and the rule it stated — extract at the
+// SECOND consumer, because two teach you what varies and one teaches you nothing — was right and
+// is why nothing was generalised early. But when the second consumer finally arrived, the audit
+// found the blog-shaped surface was FOUR THINGS, not a structure: two aria-label strings, and
+// one hardcoded breakpoint. `list`, `canvas` and `inspector` were already opaque ReactNodes, the
+// collapse rule was already a pure function, and the save indicators were always the consumer's.
+//
+// SO PR 5 IS A LABELLING SEAM PLUS A THRESHOLD SEAM, NOT AN EXTRACTION, and calling it an
+// extraction would overstate what changed. What it removes:
+//   `listNoun`        named the collapse controls, which said "posts" in every consumer.
+//   `fitThresholdPx`  THE ONE THAT MATTERED. This shell read `FIT_THRESHOLD_PX` (1614) directly
+//                     — blog's canvas measure — so a second consumer would have inherited blog's
+//                     breakpoint in silence and collapsed its list at the wrong width. The case
+//                     study's is 1460, LOWER, because its canvas scales and blog's does not.
+// The inspector fold was ALREADY delegated to the caller by design, and stayed that way; this is
+// the same seam for the other breakpoint, so both now sit at the call site where they can be read.
+//
+// The shell now knows no collection at all. PR 7 adds the second consumer; this PR adds none.
 //
 // THE GEOMETRY LIVES IN lib/studio/three-pane.ts, along with the collapse rule and the
 // reasoning for both. Read that file first.
@@ -55,16 +69,38 @@ import { useState, type ReactNode } from "react";
 // in a `text-[12px]` span and the button rendered visibly empty.
 import { IconChevronRight } from "./icons";
 import { useMediaMin } from "./useMediaMin";
-import { FIT_THRESHOLD_PX, isListCollapsed, type ListIntent } from "@/lib/studio/three-pane";
+import { isListCollapsed, type ListIntent } from "@/lib/studio/three-pane";
 
 export default function ThreePaneShell({
   list,
   canvas,
   canvasBar,
   inspector,
+  fitThresholdPx,
+  listNoun,
 }: {
   list: ReactNode;
   canvas: ReactNode;
+  /** The viewport width at or above which THIS CONSUMER's three panes fit at their natural
+   *  sizes. Required, and passed rather than imported, because it is the one thing in this
+   *  shell that was genuinely blog-shaped: it read `FIT_THRESHOLD_PX` (1614) directly, which
+   *  is blog's canvas measure, so a second consumer would have inherited blog's breakpoint
+   *  silently and collapsed its list at the wrong width. The case study's is 1460 — LOWER,
+   *  because its canvas scales and blog's does not. Making it a required prop means neither
+   *  consumer can forget which number it is on, and the shell now knows no collection at all.
+   *  The inspector fold was ALREADY the caller's (see `inspector` below); this is the same
+   *  seam for the other breakpoint. */
+  fitThresholdPx: number;
+  /** The plural noun for what the list pane holds — "posts", "sections". It names the collapse
+   *  controls ("Show posts" / "Collapse posts"), which were the only other blog-shaped strings
+   *  in this file.
+   *  A NOUN RATHER THAN TWO FULL LABELS, on purpose: it reads clearest at the call site
+   *  (`listNoun="sections"` says everything) and both consumers share the identical verb
+   *  phrasing, so passing two whole strings would repeat "Show"/"Collapse" at every call for no
+   *  gain. If a third consumer ever needs different phrasing, two template strings is a cheap
+   *  change — which is the argument for taking the readable shape now rather than the most
+   *  general one. */
+  listNoun: string;
   /** Content for the canvas pane's top strip, beside the collapse control. The strip is
    *  the shell's because the collapse control lives in it, but what sits next to that
    *  control is the caller's business — for blog it is the post title and the narrow-width
@@ -80,7 +116,7 @@ export default function ThreePaneShell({
   inspector: ReactNode | null;
 }) {
   const [intent, setIntent] = useState<ListIntent>("default");
-  const fits = useMediaMin(FIT_THRESHOLD_PX);
+  const fits = useMediaMin(fitThresholdPx);
   const collapsed = isListCollapsed(intent, fits);
 
   // THE TRANSITION IS FOR USER TOGGLES ONLY, NEVER FOR THE HYDRATION CORRECTION.
@@ -145,7 +181,7 @@ export default function ThreePaneShell({
         <button
           type="button"
           onClick={() => toggle("open")}
-          aria-label="Show posts"
+          aria-label={`Show ${listNoun}`}
           aria-expanded={false}
           className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-[var(--studio-radius-control,4px)] border border-l-0 border-ink-950/12 bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
         >
@@ -175,7 +211,7 @@ export default function ThreePaneShell({
             <button
               type="button"
               onClick={() => toggle("closed")}
-              aria-label="Collapse posts"
+              aria-label={`Collapse ${listNoun}`}
               aria-expanded
               className="grid size-[26px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
             >

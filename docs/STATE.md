@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1517 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1521 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1517 (PR 6, the case-study scale floor — `three-pane` 49→68) → 1498 (PR 3, the section headers — `studio-ink` 103→106 for the by-role E6 rule) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1521 (PR 5, the shell's labelling + threshold seams — `three-pane` 68→72) → 1517 (PR 6, the case-study scale floor — `three-pane` 49→68) → 1498 (PR 3, the section headers — `studio-ink` 103→106 for the by-role E6 rule) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -1600,7 +1600,15 @@ All prior locked decisions remain. Added across this session:
   ABSENCE of a second literal.
 - **A FULL-HEIGHT STUDIO PAGE OPTS IN** with `data-studio-fullheight`, and the layout keys
   off it with `:has()`. The layout never learns a route list.
-- **`ThreePaneShell` STAYS BLOG-SPECIFIC** until a second consumer.
+- ~~**`ThreePaneShell` STAYS BLOG-SPECIFIC** until a second consumer.~~ — **CORRECTED IN PR 5.
+  The trigger was met, and THE COUPLING THIS ENTRY DESCRIBED WAS POLICY, NOT STRUCTURE.** The
+  rule was right and is why nothing was generalised early. But when the second consumer arrived,
+  the audit found the blog-shaped surface was FOUR THINGS, not an architecture: two `aria-label`
+  strings and ONE HARDCODED BREAKPOINT. `list`, `canvas` and `inspector` were already opaque
+  ReactNodes, the collapse rule was already a pure function, and the save indicators were always
+  the consumer's. So PR 5 was a LABELLING SEAM PLUS A THRESHOLD SEAM, not an extraction — calling
+  it an extraction would overstate what changed. **The shell now knows no collection at all**;
+  it takes `fitThresholdPx` and `listNoun` and PR 7 adds the actual second consumer.
 - **BLOG HAS FIVE BLOCK KINDS** — richText, heading, pullQuote, imageBlock, videoEmbed.
 - **`imageBlock` CARRIES FIVE FIELDS AND NO GEOMETRY** — src, alt, caption, wide,
   decorative. **It does NOT reuse `imgSpecFields`.** A case-study image is COMPOSED on a
@@ -2876,6 +2884,41 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 5 · the shell's two seams — labelling, and the threshold that mattered more** →1521
+  (`three-pane` 68→72). STATE recorded `ThreePaneShell` as blog-specific "until a second
+  consumer". **THE TRIGGER WAS MET, AND THE COUPLING WAS POLICY RATHER THAN STRUCTURE** — see the
+  corrected LOCKED DECISION.
+  **THE INVESTIGATION'S OWN CLAIM WAS INCOMPLETE, AND THAT IS THIS PR'S FINDING.** It reported the
+  blog-shaped surface as "two aria-label strings", which is what the brief repeated. Checked
+  against source, there was a THIRD thing and it was the one that mattered: **the shell read
+  `FIT_THRESHOLD_PX` (1614) directly** at its `useMediaMin` call. That is blog's canvas measure,
+  so a second consumer would have inherited blog's breakpoint IN SILENCE and collapsed its list at
+  the wrong width — and the case study's threshold is 1460, LOWER, because its canvas scales. The
+  cosmetic strings were the visible half; the behavioural coupling was the half that would have
+  shipped a bug.
+  **THE INSPECTOR FOLD SEAM DID HOLD**, exactly as the brief expected: `INSPECTOR_FOLD_PX` is
+  imported and read only by the consumer, never by the shell. So one breakpoint was already
+  delegated and the other was not, which is why the asymmetry went unnoticed.
+  **`listNoun` RATHER THAN TWO FULL LABEL STRINGS.** It reads clearest at the call site
+  (`listNoun="sections"` says everything), and both consumers share identical verb phrasing, so
+  passing whole strings would repeat "Show"/"Collapse" for no gain. Two template strings is a
+  cheap change if a third consumer ever needs different phrasing — which is the argument for
+  taking the readable shape now rather than the most general one.
+  **`fitThresholdPx` IS REQUIRED, NOT DEFAULTED**, so neither consumer can forget which number it
+  is on and the shell cannot silently favour blog.
+  **THE GATE'S PART D WAS REVALUED DELIBERATELY, NOT WEAKENED.** It asserted "the shell imports
+  FIT_THRESHOLD_PX" and "passes it to the media hook" — both true, and both exactly the defect.
+  a586e98's property (the constant must be USED, not decoration) is unchanged; it moved to the
+  CONSUMER, which is the only place that knows its collection. New assertions: the shell no longer
+  imports it, no hardcoded collection noun survives in the shell, and **the blog host passes the
+  RIGHT constant** — that last one earns its place because both breakpoints are `number`, so tsc
+  cannot catch a consumer passing `INSPECTOR_FOLD_PX` by mistake. Three mutations bite, including
+  that one.
+  **BLOG'S BEHAVIOUR IS BYTE-IDENTICAL, WHICH IS THE WHOLE CLAIM, AND IT WAS MEASURED:** at 800px
+  the pane is `w-0` + `inert` with "Show posts"; at 1620px it opens to exactly 264px, `inert`
+  false, with "Collapse posts". The templated labels render the same strings they hardcoded.
+  **PR 5 ADDS NO SECOND CONSUMER** — still exactly one. Shipping the seam first means PR 7 is a
+  layout change rather than a layout change plus a refactor.
 - **PR 6 · the case-study scale floor — 50%, threshold 1460** →1517 (`three-pane` 49→68).
   **A DIFFERENT SHAPE OF CONSTANT, NOT A DIFFERENT VALUE.** `FIT_THRESHOLD_PX` is derived from a
   canvas with a NATURAL MINIMUM WIDTH — blog's 68ch is a property of the text. The case-study
@@ -3301,9 +3344,9 @@ refuted the assumption that the studio was finished except for one page. See PR 
   entry. *Left inconsistent after:* nothing in Track 1.
 
 **Track 2 — the case-study editor (sequential; each depends on the last).**
-- **PR 5 · EXTRACT `ThreePaneShell`'s TWO aria-labels** ("Show posts", "Collapse posts") and give
-  it a second consumer's threshold seam. The shell's blog-specificity is those two strings, not
-  a structural entanglement — everything else is already collection-agnostic.
+- ~~**PR 5 · EXTRACT `ThreePaneShell`'s TWO aria-labels.**~~ — **SHIPPED, and it was THREE things,
+  not two.** The third — the shell reading blog's `FIT_THRESHOLD_PX` directly — was the one that
+  would have handed a second consumer the wrong breakpoint. See its log entry.
 - ~~**PR 6 · DERIVE THE CASE-STUDY THRESHOLD.**~~ — **SHIPPED. The floor is 50%, the threshold is
   1460 = 236 + 264 + 640 + 320, and the collapsed floor is 1222.** The owner chose against a
   rendered comparison at five floors. See its log entry for the reasoning and the numbers.
