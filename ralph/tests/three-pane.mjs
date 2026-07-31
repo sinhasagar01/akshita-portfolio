@@ -29,6 +29,11 @@ import {
   FIT_THRESHOLD_PX,
   INSPECTOR_FOLD_PX,
   isListCollapsed,
+  CS_CANVAS_WIDTH_PX,
+  CS_MIN_SCALE,
+  CS_CANVAS_MIN_PX,
+  CS_FIT_THRESHOLD_PX,
+  CS_COLLAPSED_FLOOR_PX,
 } from "../../lib/studio/three-pane.ts";
 
 let pass = 0, fail = 0;
@@ -110,6 +115,14 @@ for (const f of CONSUMERS) {
 const home = code("lib/studio/three-pane.ts");
 t("C: three-pane.ts declares 1614 exactly once", (home.match(/\b1614\b/g) ?? []).length, 1);
 t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? []).length, 1);
+// The case-study numbers get the same discipline from the start rather than after a second
+// copy appears. They have no consumers yet — PR 7 adds those — so this is the cheap moment.
+t("C: three-pane.ts declares 1460 exactly once", (home.match(/\b1460\b/g) ?? []).length, 1);
+t("C: three-pane.ts declares 1222 exactly once", (home.match(/\b1222\b/g) ?? []).length, 1);
+// 640 is DERIVED (1280 × 0.5), never written as a literal — writing it would be the second
+// copy this part exists to prevent, and it would silently survive a change to the scale floor.
+t("C: the canvas floor is computed from the scale, not spelled as a literal",
+  /CS_CANVAS_MIN_PX = CS_CANVAS_WIDTH_PX \* CS_MIN_SCALE/.test(home), true);
 
 /* ================================================================= D. the constants are USED
  * The other half of the a586e98 repair. An exported constant with no consumers is not a
@@ -224,6 +237,64 @@ t("H: sidebar + list + canvas + inspector IS the fit threshold",
 // And the canvas term must still clear the public measure it exists to protect, or the
 // threshold is internally consistent but wrong.
 t("H: the canvas term covers 68ch (745.9) plus its 48px padding", 794 >= 745.9 + 48, true);
+
+/* ================================================================= I. THE CASE-STUDY THRESHOLD
+ * A DIFFERENT SHAPE OF CONSTANT, NOT A DIFFERENT VALUE. Blog's canvas has a natural minimum
+ * width (68ch is a property of the text). The case-study canvas has none — it renders at 1280
+ * and SCALES — so substituting the term gives 236+264+1280+320 = 2100, a threshold most laptops
+ * never reach, and answers a question the scaled canvas does not ask. What is derived instead is
+ * a minimum legible SCALE, then a pane width, then a threshold.
+ *
+ * PINNED THE SAME WAY 1614 IS, AND OFF THE SAME EXTRACTED CLASS WIDTHS — because #194 found the
+ * threshold and the pane widths could drift apart with every gate green. Reusing LIST_PX and
+ * INSPECTOR_PX from Part H is the point: one set of widths feeds both thresholds. */
+const REOPEN_PX = widthFrom(/place-items-center rounded-r-\[|w-\[(\d+)px\] flex-none place-items-center/, "reopen rail") || 26;
+const RAIL_PX = Number((/h-7 w-\[(\d+)px\] flex-none place-items-center/.exec(shell) ?? [])[1] ?? 26);
+
+t("I: CS_MIN_SCALE is 0.5 — the owner's floor, and a ROLE decision: the canvas is for SHAPE, the inspector is for WORDS",
+  CS_MIN_SCALE, 0.5);
+t("I: CS_CANVAS_WIDTH_PX is 1280 — `container-x`'s cap, the width the canvas renders at before scaling",
+  CS_CANVAS_WIDTH_PX, 1280);
+t("I: the canvas floor is the render width times the scale", CS_CANVAS_WIDTH_PX * CS_MIN_SCALE, CS_CANVAS_MIN_PX);
+t("I: CS_FIT_THRESHOLD_PX is 1460", CS_FIT_THRESHOLD_PX, 1460);
+// THE COUPLING, MACHINE-CHECKED, off the SHELL'S OWN class strings rather than repeated literals.
+t("I: sidebar + list + canvas-floor + inspector IS the case-study threshold",
+  236 + LIST_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_FIT_THRESHOLD_PX);
+// The render width lives in TWO places — here and SectionsEditPanel's module-private
+// CANVAS_WIDTH. Two copies of one measurement is the #194 shape, so they are asserted equal.
+{
+  const sections = readFileSync(new URL("../../components/studio/SectionsEditPanel.tsx", import.meta.url), "utf8");
+  const m = /const CANVAS_WIDTH = (\d+);/.exec(sections);
+  t("I: SectionsEditPanel still declares CANVAS_WIDTH", m !== null, true);
+  t("I: …and it agrees with CS_CANVAS_WIDTH_PX — two copies of one measurement, asserted equal",
+    m ? Number(m[1]) : NaN, CS_CANVAS_WIDTH_PX);
+}
+// THE COLLAPSED FLOOR, DERIVED AND CONFIRMED RATHER THAN ASSUMED.
+t("I: CS_COLLAPSED_FLOOR_PX is 1222", CS_COLLAPSED_FLOOR_PX, 1222);
+t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width",
+  236 + RAIL_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_COLLAPSED_FLOOR_PX);
+// Collapsing returns (list − rail) to the canvas. At the fit threshold that is 878px, and the
+// question the constant exists to answer is whether that clears the floor. It does, by 18.6pts.
+{
+  const recovered = LIST_PX - RAIL_PX;
+  const canvasWhenCollapsed = CS_CANVAS_MIN_PX + recovered;
+  t("I: collapsing the list returns 238px to the canvas", recovered, 238);
+  t("I: …so at the fit threshold the collapsed canvas is 878px", canvasWhenCollapsed, 878);
+  t("I: …which is above the 50% floor, so the rail collapsing never takes the canvas under it",
+    canvasWhenCollapsed / CS_CANVAS_WIDTH_PX >= CS_MIN_SCALE, true);
+}
+// NOT REAL OPTIONS FOR THREE PANES — recorded so nobody re-derives them and proposes one.
+t("I: 75% would need 1780px and 100% would need 2100px — neither is a laptop viewport",
+  [236 + LIST_PX + Math.round(1280 * 0.75) + INSPECTOR_PX, 236 + LIST_PX + 1280 + INSPECTOR_PX],
+  [1780, 2100]);
+// Counterintuitive and worth pinning: the case-study canvas is WIDER than blog's, yet its
+// threshold is LOWER — because it scales and blog's does not. A reader who assumes the bigger
+// canvas needs the bigger viewport has the model backwards.
+t("I: the case-study threshold is BELOW blog's, because the canvas scales and blog's does not",
+  CS_FIT_THRESHOLD_PX < FIT_THRESHOLD_PX, true);
+// And the 1536 laptop that cannot fit blog's three panes CAN fit the case study's.
+t("I: a 1536 laptop DOES fit three case-study panes, where it does not fit blog's",
+  [1536 >= CS_FIT_THRESHOLD_PX, 1536 >= FIT_THRESHOLD_PX], [true, false]);
 
 console.log(`\nthree-pane result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -10,7 +10,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 **main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
 to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1498 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**ralph 1517 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -92,7 +92,7 @@ ralph structurally cannot see) → 930 (#177, `studio-nav-active` 30) → 993 (#
 `three-pane` 43 + `blog-search` 20) → 1028 (#180, `image-block` 30 + `blog-registry`
 44→49) → 1029 (`blog-serialize` 32→33, the G3 repair below) → 1068 (#187,
 `inline-canvas` 39) → 1075 (#189, `inline-canvas` 39→46) → 1118 (#190, `canvas-hero` 43)
-→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1498 (PR 3, the section headers — `studio-ink` 103→106 for the by-role E6 rule) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
+→ 1144 (#190, `canvas-head` 26) → 1151 (#192, `blog-reading-time` 13→20) → 1163 (#193, `canvas-hero` 43→55) → 1169 (#194, `three-pane` 43→49) → 1183 (#197, `reduced-motion` 14, net-new) → 1187 (#198, `reduced-motion` 14→18) → 1193 (#199, `studio-nav-active` 30→36) → 1209 (#201, `coalescing-save` 16, net-new) → 1235 (#202, `block-image-preview` 26, net-new) → 1264 (#203, `og-cards` 29, net-new) → 1289 (the ink shell, `studio-ink` 25, net-new) → 1305 (the panel language, `studio-ink` 25→41) → 1315 (the input dedupe, `studio-ink` 41→51) → 1332 (the radius scale, `studio-ink` 51→68) → 1353 (#208, `studio-cascade` 12 net-new plus `studio-ink` 68→77) → 1379 (#209, `studio-ink` 77→103) → 1385 (#210, `studio-tokens` 6, net-new) → 1385 (#211, no net-new — the card image is layout, and studio-type which covers it is not CI-runnable) → 1402 (#216, `f3-slug` 31→41, `validate-blog-post` 37→41, `blog-format` 50→52, `canvas-head` 26→27) → 1402 (#218, the +1px font bump with the 13/14 input split resolved to 14 — three assertions in `studio-ink` and `studio-nav-active` reconciled to the new sizes, no net-new) → 1410 (#219, the border-race gate, `studio-border-race` 8, net-new suite; also fixed two live races it found in the blog rows) → 1410 (hazard 23 closed, `studio-tokens` B2 revalued from pinning 40 to asserting 0 — a revalue, not net-new) → 1443 (hazard 27 closed, `studio-ink-contrast` 33, net-new suite — the on-ink ratios `studio-type` could only measure by hand, now computed statically from source and asserted in CI) → 1446 (hazard 24 closed, `radius-scale` 3, net-new suite — the declared radius ramp is monotonic and no consumer reaches an undeclared step; the two `rounded-2xl` sites were removed byte-identically) → 1456 (PR D, topic as a closed set: `validate-blog-post` 41→49 for the publish gate and the zero-migration proof, `blog-format` 52→54 for the closed-set sanitizer) → 1486 (the topic listbox + a fourth topic: `listbox-a11y` 26 net-new suite, `reduced-motion` 18→22 for the listbox's motion + #198 guard) → 1517 (PR 6, the case-study scale floor — `three-pane` 49→68) → 1498 (PR 3, the section headers — `studio-ink` 103→106 for the by-role E6 rule) → 1495 (PR 1, the label scale — `studio-labels` 9, net-new suite) → 1486 (PR 4, hazard 17 closed — a correctness fix with no new assertion, because the gate that enforces it is `eslint`'s `react-hooks/rules-of-hooks`, mutation-proven rather than pinned in ralph).
 
 **1410 ACROSS 40 IS FROM A RUN, not from adding the deltas above.** The chain is a narrative
 of where assertions came from; the total is re-derived each time this file is updated.
@@ -2876,6 +2876,50 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 6 · the case-study scale floor — 50%, threshold 1460** →1517 (`three-pane` 49→68).
+  **A DIFFERENT SHAPE OF CONSTANT, NOT A DIFFERENT VALUE.** `FIT_THRESHOLD_PX` is derived from a
+  canvas with a NATURAL MINIMUM WIDTH — blog's 68ch is a property of the text. The case-study
+  canvas has none: it renders at 1280 (`container-x`'s cap) and SCALES. **Substituting the term
+  gives 236 + 264 + 1280 + 320 = 2100**, a threshold most laptops never reach, and it answers a
+  question the scaled canvas does not ask. What had to be derived was a minimum legible SCALE,
+  then a pane width, then a threshold.
+  **THE FLOOR IS 50% AND IT IS A ROLE DECISION, NOT A LEGIBILITY ONE. THE CANVAS IS FOR SHAPE;
+  THE INSPECTOR IS FOR WORDS.** A case-study author writes every field in the inspector; what the
+  canvas uniquely shows is COMPOSITION — device width, rotation, translate, stacking, glow, the
+  whole surface of the Style tab. Those are spatial properties no number field can convey.
+  Body-text readability is not the canvas's job, so it is not what the floor protects. **The
+  fifth by-role answer in this arc**, after the section headers, the listbox, the three-pane split
+  and Skills' footer.
+  **AND 50% IS AN IMPROVEMENT ON WHAT SHIPS, WHICH REFRAMES THE DECISION.** Measured, the current
+  single-column editor renders the canvas at **`scale(0.383)`** at a 1138px window — below every
+  floor considered. The threshold is not a compromise against today; it is a floor today does not
+  have.
+  **MEASURED ON A REAL DENSE SECTION** (`elevate-one-view`'s featureRows tour — not the hero,
+  which is mostly large type, and not boat-crest, hazard 28). Natural sizes in the 1280 space:
+  heading 49.7 / row title 21 / body 16 / eyebrow 12, device 248px. At 50% those render
+  24.9 / 10.5 / **8.0** / 6.0 and a 124px device — layout, rhythm, image identity and row titles
+  survive; body text and small labels do not, and are read in the inspector instead.
+  **WHY NOT 60:** needs 1588px, so a 13-inch laptop cannot show three panes and the rail collapses
+  there anyway; it buys 9.6px prose the author reads in the inspector. **WHY NOT 40:** the row
+  title drops to 8.4px and image identity degrades to "type of screen", and its real gain — the
+  whole section in one view — is the BOARD's job, and the Board exists.
+  **NOT REAL OPTIONS FOR THREE PANES, recorded so nobody re-derives them:** 75% needs 1780px, 100%
+  needs 2100px.
+  **THE COLLAPSED FLOOR IS DERIVED AND CONFIRMED RATHER THAN ASSUMED.** `CS_COLLAPSED_FLOOR_PX`
+  = 236 + 26 + 640 + 320 = **1222**, the twin of blog's 1376. Collapsing the list returns
+  264 − 26 = **238px** to the canvas, so at the fit threshold the collapsed canvas is **878px =
+  68.6%** — comfortably above the floor, and across the whole 1222…1460 band it runs 50%…68.6%,
+  so the rail collapsing never takes the canvas under the floor.
+  **THE GATE PINS THE ARITHMETIC OFF THE SHELL'S OWN CLASS STRINGS**, reusing the widths Part H
+  already extracts, because **#194 found the threshold and the pane widths could drift apart with
+  every gate green**. It also asserts the two copies of the render width agree — `CS_CANVAS_WIDTH_PX`
+  and `SectionsEditPanel`'s module-private `CANVAS_WIDTH` — and that the 640 floor is COMPUTED
+  from the scale rather than spelled as a literal. Five mutations bite, including widening a pane
+  in the shell without moving the threshold, and making the two `CANVAS_WIDTH` copies disagree.
+  **A COUNTERINTUITIVE FACT WORTH PINNING:** the case-study canvas is WIDER than blog's yet its
+  threshold is LOWER (1460 < 1614), because it scales and blog's does not — so a **1536 laptop
+  fits three case-study panes where it does not fit blog's**.
+  **PR 6 SHIPS NO LAYOUT.** The constant and its gate only; PR 7 consumes them.
 - **PR 3 · the section headers, by role** →1498 (`studio-ink` 103→106). **THE RULE:** an
   INSPECTOR PANE takes the ink band, an ENTRY PANEL takes the cream-200 bar. The band's own
   reasoning is about a NARROW pane beside ink chrome, where it anchors the inspector to the
@@ -3260,10 +3304,9 @@ refuted the assumption that the studio was finished except for one page. See PR 
 - **PR 5 · EXTRACT `ThreePaneShell`'s TWO aria-labels** ("Show posts", "Collapse posts") and give
   it a second consumer's threshold seam. The shell's blog-specificity is those two strings, not
   a structural entanglement — everything else is already collection-agnostic.
-- **PR 6 · DERIVE THE CASE-STUDY THRESHOLD.** `FIT_THRESHOLD_PX` is the wrong SHAPE of constant
-  for a scaled canvas, not the wrong value — substituting the term gives 2100px. Derive a
-  MINIMUM LEGIBLE SCALE instead. **Needs an owner call, taken against a rendered comparison at
-  a few scale floors rather than a number.** A measurement PR with a constant and a gate.
+- ~~**PR 6 · DERIVE THE CASE-STUDY THRESHOLD.**~~ — **SHIPPED. The floor is 50%, the threshold is
+  1460 = 236 + 264 + 640 + 320, and the collapsed floor is 1222.** The owner chose against a
+  rendered comparison at five floors. See its log entry for the reasoning and the numbers.
 - **PR 7 · THE THREE-PANE CASE-STUDY EDITOR.** Rail + scaled canvas + inspector; Board survives
   as a Board/Editor toggle (it is already `selectedSectionId === null`, so it is a relabelling of
   existing state); the Section `<select>` and the `← Board` link both go; the inspector gets its

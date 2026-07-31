@@ -49,6 +49,77 @@ export const FIT_THRESHOLD_PX = 1614;
  *  layout is the one that already shipped in #174. */
 export const INSPECTOR_FOLD_PX = 1100;
 
+/* ============================================================================================
+ * THE CASE-STUDY THRESHOLD — A DIFFERENT SHAPE OF CONSTANT, NOT A DIFFERENT VALUE
+ *
+ * FIT_THRESHOLD_PX above is derived from a canvas that has a NATURAL MINIMUM WIDTH: blog's
+ * 68ch measure is a property of the text, so the pane must be at least 794px or the measure
+ * breaks. THE CASE-STUDY CANVAS HAS NO SUCH MINIMUM. It renders at the public content width
+ * (1280, `container-x`'s cap) and SCALES to fit the pane, deliberately — the site's breakpoints
+ * key off the WINDOW, so squeezing the pane produced a layout that looked nothing like the page.
+ *
+ * SO SUBSTITUTING THE TERM IS THE TRAP, and it is the same trap that produced the 190px error
+ * recorded above. 236 + 264 + 1280 + 320 = 2100px, a threshold most laptops never reach, and it
+ * would be answering a question the scaled canvas does not ask. What has to be derived is a
+ * MINIMUM LEGIBLE SCALE, and from that a pane width, and only then a threshold.
+ *
+ * THE FLOOR IS 50%, AND IT IS A ROLE DECISION RATHER THAN A LEGIBILITY ONE.
+ * THE CANVAS IS FOR SHAPE; THE INSPECTOR IS FOR WORDS. A case-study author writes every field
+ * in the inspector. What the canvas uniquely shows is COMPOSITION — device width, rotation,
+ * translate, stacking, glow, the whole surface of the Style tab. Those are spatial properties no
+ * number field can convey. Body-text readability is not the canvas's job, so it is not what the
+ * floor protects. (The fifth by-role answer in this arc, after the section headers, the listbox,
+ * the three-pane split and Skills' footer.)
+ *
+ * MEASURED at 50% on a real dense section (`elevate-one-view`, the featureRows tour — not the
+ * hero, which is mostly large type, and not boat-crest, which is hand-built with no sections at
+ * all, hazard 28). Natural sizes in the 1280 space are heading 49.7 / row title 21 / body 16 /
+ * eyebrow 12, and a 248px device. At 50% those render 24.9 / 10.5 / 8.0 / 6.0 and a 124px
+ * device: layout, rhythm, image identity and row titles all survive; body text and small labels
+ * do not, and are read in the inspector instead.
+ *
+ * WHY NOT 60%: it needs 1588px, so a 13-inch laptop cannot show three panes and the rail
+ * collapses there anyway. It buys 9.6px prose the author reads in the inspector.
+ * WHY NOT 40%: the row title drops to 8.4px and image identity degrades to "type of screen".
+ * Its real gain — the whole section in one view — is the BOARD's job, and the Board exists.
+ * NOT REAL OPTIONS FOR THREE PANES, recorded so nobody re-derives them: 75% needs 1780px and
+ * 100% needs 2100px. Neither is a laptop viewport.
+ *
+ * AND 50% IS AN IMPROVEMENT ON WHAT SHIPS. Measured today at a 1138px window, the current
+ * single-column editor renders the canvas at scale(0.383) — below every floor considered. The
+ * threshold is not a compromise against today; it is a floor today does not have.
+ * ========================================================================================== */
+
+/** The width the case-study canvas RENDERS at before scaling — `container-x`'s max-width, i.e.
+ *  the public content width. Must equal `CANVAS_WIDTH` in SectionsEditPanel, which is the
+ *  module-private constant the canvas actually uses; the gate asserts the two agree, because two
+ *  copies of one measurement is how #194's threshold and pane widths drifted with every gate
+ *  green. */
+export const CS_CANVAS_WIDTH_PX = 1280;
+
+/** The minimum legible scale for the case-study canvas — the owner's decision, see above. */
+export const CS_MIN_SCALE = 0.5;
+
+/** The canvas pane's floor: the scale applied to the render width. 1280 × 0.5 = 640. */
+export const CS_CANVAS_MIN_PX = CS_CANVAS_WIDTH_PX * CS_MIN_SCALE;
+
+/** The width at or above which all three case-study panes fit with the canvas at or above its
+ *  minimum scale. 236 + 264 + 640 + 320 = 1460.
+ *  THE SAME DISCIPLINE AS FIT_THRESHOLD_PX: the threshold IS the sum, so widening any pane —
+ *  or lowering the scale floor — is an ARITHMETIC CHANGE, NOT A STYLING CHANGE, and this number
+ *  moves with it. */
+export const CS_FIT_THRESHOLD_PX = 1460;
+
+/** The collapsed-list floor, the case-study twin of the 1376 recorded above.
+ *  236 + 26 (the reopen rail) + 640 + 320 = 1222. Below this the canvas drops under its minimum
+ *  scale even with the list collapsed, and the inspector fold is the only lever left.
+ *  DERIVED AND CONFIRMED RATHER THAN ASSUMED: collapsing the list returns 264 − 26 = 238px to
+ *  the canvas, so at exactly CS_FIT_THRESHOLD_PX the collapsed canvas is 640 + 238 = 878px,
+ *  which is 878 / 1280 = 68.6% — comfortably above the 50% floor. Across the whole band
+ *  1222…1460 the collapsed canvas runs 640…878px, i.e. 50%…68.6%, so the rail collapsing never
+ *  takes the canvas below the floor. That is the property this constant exists to state. */
+export const CS_COLLAPSED_FLOOR_PX = 1222;
+
 /** The list pane's THREE-STATE intent.
  *
  *  Not a boolean, and that is the whole point. `"default"` means the author has expressed
