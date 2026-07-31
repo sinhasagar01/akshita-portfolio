@@ -26,8 +26,10 @@
 //     documentElement.getBoundingClientRect().width     1460   <- what the panes divide
 //     body.clientWidth                                  1460
 //
-// The constants are PAGE-SPACE SUMS and always were — `CS_FIT_THRESHOLD_PX = 236 + 264 + 640 +
-// 320` describes a page, not a viewport. So at a 1460 VIEWPORT the canvas got 625 rather than
+// The thresholds are PAGE-SPACE SUMS and always were — the case study's was
+// `236 + 264 + 640 + 320`, describing a page rather than a viewport. (The sidebar term has since
+// become a runtime value and the composite constants were deleted with it; the sum is now
+// `sidebarPx + CS_PANES_SUM`, which is the same arithmetic with one term no longer frozen.) So at a 1460 VIEWPORT the canvas got 625 rather than
 // 640, the raw fit was 0.488, and `useFitToWidth`'s 50% clamp was quietly covering the
 // difference. THE NUMBERS WERE RIGHT; THE COMPARISON WAS WRONG. Not one constant changed to fix
 // it. Driven at a 1475 viewport, where the page box is exactly 1460: canvas 640, raw fit 0.500.

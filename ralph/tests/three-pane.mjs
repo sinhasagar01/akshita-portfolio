@@ -26,14 +26,17 @@
 // repair: the constant must be USED, not merely exported.
 import { readFileSync } from "node:fs";
 import {
-  FIT_THRESHOLD_PX,
+  SIDEBAR_MIN_PX, SIDEBAR_MAX_PX, SIDEBAR_DEFAULT_PX, clampSidebarWidth,
+} from "../../lib/studio/sidebar-width.ts";
+import {
+  PANES_SUM,
   INSPECTOR_FOLD_PX,
   isListCollapsed,
   CS_CANVAS_WIDTH_PX,
   CS_MIN_SCALE,
   CS_CANVAS_MIN_PX,
-  CS_FIT_THRESHOLD_PX,
-  CS_COLLAPSED_FLOOR_PX,
+  CS_PANES_SUM,
+  CS_COLLAPSED_PANES_SUM,
 } from "../../lib/studio/three-pane.ts";
 
 let pass = 0, fail = 0;
@@ -53,35 +56,84 @@ const code = (p) =>
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/(^|[^:])\/\/.*$/gm, "$1");
 
-/* ---- THE SIDEBAR TERM, READ OUT OF ITS OWN CLASS STRING LIKE EVERY OTHER PANE ---------------
+/* ---- THE SIDEBAR TERM LEFT THE SUMS, AND #236's DERIVATION CHANGED SHAPE WITH IT -----------
  *
- * #194 made Part H read the list and inspector widths from the shell's classes, because a class
- * and a threshold that state the same measurement can drift apart with every gate green. IT LEFT
- * ONE TERM OUT. The sidebar stayed a bare `236` literal on both sides of every sum in this file,
- * so the one pane whose width lives in a DIFFERENT component was the one nothing tied together.
+ * #236 read the sidebar width out of `StudioSidebar`'s class, because a class and a threshold
+ * stating one measurement drift apart with every gate green. THE CLASS HAS NO NUMBER IN IT NOW —
+ * it consumes a custom property, because Tailwind cannot interpolate a runtime value into a class
+ * name and that inability is the original cause of the whole 236px hazard.
  *
- * That gap had already started to cost. `studio-ink` D was written to pin "all five sites" and
- * pins four; at HEAD there are SEVEN, and the two it misses — `CS_FIT_THRESHOLD_PX` and
- * `CS_COLLAPSED_FLOOR_PX` — are both BEHAVIOURAL and were both added after D was written. A
- * count is accurate when written and decays as the thing under it grows.
- *
- * DERIVING IT MAKES THE COUNT STOP MATTERING, which is the point. Nothing here now restates the
- * sidebar width; it is read once from `StudioSidebar` and summed. Move the class and every sum
- * in this file moves with it, or fails. */
-const SIDEBAR_PX = (() => {
-  const m = /lg:w-\[(\d+)px\]/.exec(code("components/studio/StudioSidebar.tsx"));
-  t("A: StudioSidebar declares its own width, and it is the only place that does", m !== null, true);
-  return m ? Number(m[1]) : NaN;
-})();
-t("A: the sidebar is 236px", SIDEBAR_PX, 236);
-// THE DISPLAY HALF OF THE COUPLING, ALSO DERIVED. PublishBar offsets a `fixed` bar past the
-// sidebar by hand; hazard 1 has called that comment-enforced since #165. It is an equality
-// between two files, so assert the equality rather than pinning both to a literal.
+ * So the derivation moves rather than dies: the DEFAULT comes from `sidebar-width.ts`, and what
+ * is asserted here is that both consumers read THE SAME PROPERTY. #236 had to assert the sidebar
+ * and PublishBar were EQUAL because they were two literals; they are now one value, so the
+ * assertion is an identity rather than a vigil. **Hazard 1's display half closes here, and its
+ * arithmetic half closes in the sums below.** */
 {
-  const pb = /lg:left-\[(\d+)px\]/.exec(code("components/studio/PublishBar.tsx"));
-  t("A: PublishBar declares a sidebar offset", pb !== null, true);
-  t("A: …and it EQUALS the sidebar's width — the hand-kept coupling, machine-checked",
-    pb ? Number(pb[1]) : NaN, SIDEBAR_PX);
+  const sb = code("components/studio/StudioSidebar.tsx");
+  const pb = code("components/studio/PublishBar.tsx");
+  t("A: the sidebar's width is a custom property, not a literal", /lg:w-\[var\(--studio-sidebar-w\)\]/.test(sb), true);
+  t("A: …and no literal width survives on it", /lg:w-\[\d+px\]/.test(sb), false);
+  t("A: PublishBar offsets by the SAME property — the hand-kept pair is now one value",
+    /lg:left-\[var\(--studio-sidebar-w\)\]/.test(pb), true);
+  t("A: …and its literal offset is gone too", /lg:left-\[\d+px\]/.test(pb), false);
+  // The property's NAME lives in one place, so the two consumers cannot drift onto different ones.
+  t("A: the property name is declared once, in sidebar-width.ts",
+    /export const SIDEBAR_WIDTH_VAR = "--studio-sidebar-w";/.test(read("lib/studio/sidebar-width.ts")), true);
+}
+
+/* ---- THE CLAMP, AND THE HALF OF IT THAT MATTERS -------------------------------------------
+ * Clamping on WRITE alone is the bug: a cookie written while the max was wider outlives the
+ * build that allowed it. Clamping on READ makes the stored value ADVISORY. Asserted with an
+ * out-of-range input, which is exactly what a normal test would never produce. */
+t("A: the bounds are 184 / 236 / 288", [SIDEBAR_MIN_PX, SIDEBAR_DEFAULT_PX, SIDEBAR_MAX_PX], [184, 236, 288]);
+t("A: a stored value from a WIDER old clamp is clamped on the way in", clampSidebarWidth("320"), SIDEBAR_MAX_PX);
+t("A: …and from a NARROWER one", clampSidebarWidth("120"), SIDEBAR_MIN_PX);
+t("A: missing, junk and NaN all resolve to the default rather than throwing",
+  [clampSidebarWidth(undefined), clampSidebarWidth("abc"), clampSidebarWidth(null), clampSidebarWidth(NaN)],
+  [SIDEBAR_DEFAULT_PX, SIDEBAR_DEFAULT_PX, SIDEBAR_DEFAULT_PX, SIDEBAR_DEFAULT_PX]);
+t("A: an in-range value survives", clampSidebarWidth("200"), 200);
+// THE LAYOUT CLAMPS ON THE READ, not only the provider on the write.
+t("A: the dashboard layout clamps the cookie as it reads it",
+  /clampSidebarWidth\(jar\.get\(SIDEBAR_COOKIE\)\?\.value\)/.test(code("app/studio/(dashboard)/layout.tsx")), true);
+
+/* ---- THE HANDLE MUST NOT BE A COLUMN ------------------------------------------------------
+ *
+ * DRIVEN FIRST, PINNED AFTER, because the first build got it wrong twice and both were silent.
+ *
+ * (1) In flow with `-mr-1`, `main` started 4px inside the handle and painted over half its hit
+ *     area — a pointerdown at x=241 inside a 236..244 handle reported a BUTTON in main as its
+ *     target and the drag never began.
+ * (2) Worse: an in-flow flex item CONSUMES LAYOUT WIDTH. Net 4px came off the work area, so at a
+ *     288px sidebar the canvas measured 645 where every sum here promises 649. A term nobody put
+ *     in the arithmetic, introduced by the control built to sit on the seam — the exact defect
+ *     class this file exists for.
+ *
+ * Absolute on the seam, it consumes nothing and the sums stay true. */
+{
+  const rz = code("components/studio/SidebarResizer.tsx");
+  t("A: the resizer is absolutely positioned, so it takes no width from the panes",
+    /className="[^"]*\babsolute\b/.test(rz), true);
+  t("A: …and is NOT a flex item that could",
+    /className="[^"]*\bflex-none\b/.test(rz), false);
+  t("A: …and it rides the same property it drags, so it cannot drift off the seam",
+    /lg:left-\[var\(--studio-sidebar-w\)\]/.test(rz), true);
+  t("A: it does not render below lg, where there is no width to drag",
+    /className="[^"]*\bhidden\b[^"]*\blg:block\b/.test(rz), true);
+  // The separator contract. Driven with REAL keys (#209: a programmatic .focus() reports a false
+  // negative on :focus-visible), and pinned here so the roles cannot quietly go.
+  for (const [attr, re] of [
+    ["role=separator", /role="separator"/], ["aria-orientation", /aria-orientation="vertical"/],
+    ["aria-label", /aria-label="Resize sidebar"/], ["aria-valuenow", /aria-valuenow=\{width\}/],
+    ["aria-valuemin", /aria-valuemin=\{SIDEBAR_MIN_PX\}/], ["aria-valuemax", /aria-valuemax=\{SIDEBAR_MAX_PX\}/],
+    ["tabIndex", /tabIndex=\{0\}/], ["setPointerCapture", /setPointerCapture/],
+  ]) t(`A: the resizer declares ${attr}`, re.test(rz), true);
+  t("A: every key the plan promised is handled — arrows, Home, End, Enter",
+    ["ArrowLeft","ArrowRight","Home","End","Enter"].every((k) => rz.includes(`"${k}"`)), true);
+  // ENTER GOES TO THE MINIMUM, NOT THE DEFAULT. The obvious binding is the useless one: toggling
+  // to 236 hands a keyboard user the width they already had, and the collapse gesture is the one
+  // they cannot otherwise reach.
+  t("A: Enter toggles against the MINIMUM, which is the collapse gesture",
+    /if \(width <= SIDEBAR_MIN_PX\) commit\(lastWide\.current\);/.test(rz), true);
 }
 
 /* ================================================================= A. the numbers
@@ -89,14 +141,22 @@ t("A: the sidebar is 236px", SIDEBAR_PX, 236);
  * wrapper's 16px font at 745.9px, so canvas = 745.9 + 48 padding = 794 (rounded up).
  * The contract's 620 was estimated from the 18px prose font and made the threshold wrong
  * by 190px. VERIFY A UNIT BEFORE COMPUTING WITH IT. */
-t("A: FIT_THRESHOLD_PX is 1614", FIT_THRESHOLD_PX, 1614);
-t("A: the arithmetic reproduces it", SIDEBAR_PX + 264 + 794 + 320, FIT_THRESHOLD_PX);
+t("A: PANES_SUM is 1378 — list + measure + inspector, WITHOUT the sidebar", PANES_SUM, 1378);
+t("A: the arithmetic reproduces it", 264 + 794 + 320, PANES_SUM);
 t("A: INSPECTOR_FOLD_PX is 1100", INSPECTOR_FOLD_PX, 1100);
-t("A: the fold is below the fit threshold", INSPECTOR_FOLD_PX < FIT_THRESHOLD_PX, true);
+t("A: the fold is below the fit threshold at every legal sidebar width",
+  INSPECTOR_FOLD_PX < SIDEBAR_MIN_PX + PANES_SUM, true);
 // The 1536-wide laptop this is authored on is BELOW the threshold, which is the fact that
 // makes the collapse control load-bearing rather than a refinement. If someone "rounds"
 // the threshold down to 1536 or lower, that stops being true and this fails.
-t("A: a 1536 laptop does NOT fit three panes", 1536 < FIT_THRESHOLD_PX, true);
+// ⚠ THIS COMPARED A VIEWPORT LITERAL TO A PAGE-SPACE CONSTANT AND PASSED FOR THE WRONG REASON.
+// #235 moved every threshold into page space — `documentElement`'s box, gutter excluded — and
+// this line kept saying 1536, which is a VIEWPORT. It stayed true (1521 < 1614 as well as
+// 1536 < 1614), so nothing failed, which is exactly the shape this arc has spent eight PRs
+// finding: a gate that is right by luck of margin. Restated in page space, and now reactive.
+const LAPTOP_PAGE = 1521; // a 1536 viewport minus the reserved scrollbar gutter, measured
+t("A: the 1536 laptop does NOT fit blog's three panes at ANY legal sidebar width",
+  LAPTOP_PAGE < SIDEBAR_MIN_PX + PANES_SUM, true);
 
 /* ================================================================= B. the collapse rule
  * The WHOLE truth table. Six rows, because a table with a hole in it is how the middle
@@ -144,12 +204,18 @@ for (const f of CONSUMERS) {
 // same reason as the consumers: three-pane.ts's header states the arithmetic that PRODUCES
 // 1538, and prose showing its work is not a second declaration.
 const home = code("lib/studio/three-pane.ts");
-t("C: three-pane.ts declares 1614 exactly once", (home.match(/\b1614\b/g) ?? []).length, 1);
+t("C: three-pane.ts declares 1378 exactly once", (home.match(/\b1378\b/g) ?? []).length, 0);
+// PANES_SUM is written as its TERMS (264 + 794 + 320), never as a total — so there is no total
+// to duplicate. The strongest form of "declared once" is "not spelled at all".
+t("C: …because the blog pane sum is written as its terms, not as a total",
+  /export const PANES_SUM = 264 \+ 794 \+ 320;/.test(home), true);
 t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? []).length, 1);
 // The case-study numbers get the same discipline from the start rather than after a second
 // copy appears. They have no consumers yet — PR 7 adds those — so this is the cheap moment.
-t("C: three-pane.ts declares 1460 exactly once", (home.match(/\b1460\b/g) ?? []).length, 1);
-t("C: three-pane.ts declares 1223 exactly once", (home.match(/\b1223\b/g) ?? []).length, 1);
+t("C: the case-study pane sum is its terms too, with the canvas floor DERIVED",
+  /export const CS_PANES_SUM = 264 \+ CS_CANVAS_MIN_PX \+ 320;/.test(home), true);
+t("C: and the collapsed sum, likewise",
+  /export const CS_COLLAPSED_PANES_SUM = 27 \+ CS_CANVAS_MIN_PX \+ 320;/.test(home), true);
 // 640 is DERIVED (1280 × 0.5), never written as a literal — writing it would be the second
 // copy this part exists to prevent, and it would silently survive a change to the scale floor.
 t("C: the canvas floor is computed from the scale, not spelled as a literal",
@@ -182,8 +248,8 @@ const host = code("components/studio/BlogBlocksEditPanel.tsx");
 // relocated to. If the blog host stops passing its own threshold, the shell has no default to
 // fall back on (the prop is required) — but a gate that only trusted tsc would miss the case
 // where someone passes the WRONG constant, so the identity is asserted here.
-t("D: the blog host imports FIT_THRESHOLD_PX and passes it as the shell's threshold",
-  /FIT_THRESHOLD_PX/.test(host) && /fitThresholdPx=\{FIT_THRESHOLD_PX\}/.test(host), true);
+t("D: the blog host adds the LIVE sidebar width to its pane sum",
+  /PANES_SUM/.test(host) && /fitThresholdPx=\{sidebarPx \+ PANES_SUM\}/.test(host), true);
 t("D: …and names its list 'posts' at the call site", /listNoun="posts"/.test(host), true);
 t("D: the host imports INSPECTOR_FOLD_PX", /INSPECTOR_FOLD_PX/.test(host), true);
 t("D: the host passes it to the page-width hook", /usePageWidthMin\(\s*INSPECTOR_FOLD_PX\s*\)/.test(host), true);
@@ -282,7 +348,7 @@ t("H: the inspector pane is 320px", INSPECTOR_PX, 320);
 // THE COUPLING, MACHINE-CHECKED. The sidebar is DERIVED now (see Part A) and 794 is the canvas
 // (68ch + 48px of padding), which is measured elsewhere and is not this file's to move.
 t("H: sidebar + list + canvas + inspector IS the fit threshold",
-  SIDEBAR_PX + LIST_PX + 794 + INSPECTOR_PX, FIT_THRESHOLD_PX);
+  LIST_PX + 794 + INSPECTOR_PX, PANES_SUM);
 // And the canvas term must still clear the public measure it exists to protect, or the
 // threshold is internally consistent but wrong.
 t("H: the canvas term covers 68ch (745.9) plus its 48px padding", 794 >= 745.9 + 48, true);
@@ -312,10 +378,10 @@ t("I: CS_MIN_SCALE is 0.5 — the owner's floor, and a ROLE decision: the canvas
 t("I: CS_CANVAS_WIDTH_PX is 1280 — `container-x`'s cap, the width the canvas renders at before scaling",
   CS_CANVAS_WIDTH_PX, 1280);
 t("I: the canvas floor is the render width times the scale", CS_CANVAS_WIDTH_PX * CS_MIN_SCALE, CS_CANVAS_MIN_PX);
-t("I: CS_FIT_THRESHOLD_PX is 1460", CS_FIT_THRESHOLD_PX, 1460);
+t("I: CS_PANES_SUM is 1224 — the panes without the sidebar", CS_PANES_SUM, 1224);
 // THE COUPLING, MACHINE-CHECKED, off the SHELL'S OWN class strings rather than repeated literals.
 t("I: sidebar + list + canvas-floor + inspector IS the case-study threshold",
-  SIDEBAR_PX + LIST_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_FIT_THRESHOLD_PX);
+  LIST_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_PANES_SUM);
 // The render width lives in TWO places — here and SectionsEditPanel's module-private
 // CANVAS_WIDTH. Two copies of one measurement is the #194 shape, so they are asserted equal.
 {
@@ -326,9 +392,9 @@ t("I: sidebar + list + canvas-floor + inspector IS the case-study threshold",
     m ? Number(m[1]) : NaN, CS_CANVAS_WIDTH_PX);
 }
 // THE COLLAPSED FLOOR, DERIVED AND CONFIRMED RATHER THAN ASSUMED.
-t("I: CS_COLLAPSED_FLOOR_PX is 1223", CS_COLLAPSED_FLOOR_PX, 1223);
+t("I: CS_COLLAPSED_PANES_SUM is 987", CS_COLLAPSED_PANES_SUM, 987);
 t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width AND the collapsed pane's residual border",
-  SIDEBAR_PX + COLLAPSED_LIST_PX + RAIL_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_COLLAPSED_FLOOR_PX);
+  COLLAPSED_LIST_PX + RAIL_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_COLLAPSED_PANES_SUM);
 // Collapsing returns (list − rail) to the canvas. At the fit threshold that is 878px, and the
 // question the constant exists to answer is whether that clears the floor. It does, by 18.6pts.
 {
@@ -358,9 +424,9 @@ t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width AND the co
  * a 900px viewport it measures 1309px inside an 885px page and would have reported "fits" where
  * nothing fits. Measuring `documentElement` is what closes it. */
 t("I: the fit threshold IS the page-space sum, exactly — the canvas gets its floor at the threshold, with nothing left over",
-  CS_FIT_THRESHOLD_PX - SIDEBAR_PX - LIST_PX - INSPECTOR_PX, CS_CANVAS_MIN_PX);
+  CS_PANES_SUM - LIST_PX - INSPECTOR_PX, CS_CANVAS_MIN_PX);
 t("I: …and blog's threshold is the same shape of sum",
-  FIT_THRESHOLD_PX - SIDEBAR_PX - LIST_PX - INSPECTOR_PX, 794);
+  PANES_SUM - LIST_PX - INSPECTOR_PX, 794);
 {
   const hook = readFileSync(new URL("../../components/studio/usePageWidthMin.ts", import.meta.url), "utf8");
   t("I: the hook measures the PAGE BOX, not the viewport",
@@ -380,7 +446,7 @@ t("I: …and blog's threshold is the same shape of sum",
  * rendered 0.500. The clamp stopped covering an arithmetic error and started guarding the one
  * path the arithmetic does not. */
 t("I: with the list explicitly OPEN below the collapsed floor the raw fit drops under 50%, so the clamp is still doing work",
-  (CS_COLLAPSED_FLOOR_PX - SIDEBAR_PX - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX < CS_MIN_SCALE, true);
+  (CS_COLLAPSED_PANES_SUM - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX < CS_MIN_SCALE, true);
 t("I: …and `isListCollapsed` is what lets that happen — an explicit open beats the width",
   isListCollapsed("open", false), false);
 // The clamp itself, in source. `Math.min(1, …)` alone is the simplification this comment warns
@@ -396,11 +462,11 @@ t("I: …and `isListCollapsed` is what lets that happen — an explicit open bea
  * actually uses its own rather than inheriting blog's by omission. */
 {
   const host = readFileSync(new URL("../../components/studio/SectionsEditPanel.tsx", import.meta.url), "utf8");
-  t("I: the case-study editor passes CS_FIT_THRESHOLD_PX, not a literal and not blog's constant",
-    /fitThresholdPx=\{CS_FIT_THRESHOLD_PX\}/.test(host), true);
+  t("I: the case-study editor adds the LIVE sidebar width to ITS pane sum, not blog's",
+    /fitThresholdPx=\{sidebarPx \+ CS_PANES_SUM\}/.test(host), true);
   t("I: …and names its list 'sections' at the call site", /listNoun="sections"/.test(host), true);
-  t("I: …and folds its inspector at CS_COLLAPSED_FLOOR_PX, the derived floor rather than blog's 1100",
-    /usePageWidthMin\(CS_COLLAPSED_FLOOR_PX\)/.test(host), true);
+  t("I: …and folds its inspector at its own derived sum rather than blog's chosen 1100",
+    /usePageWidthMin\(sidebarPx \+ CS_COLLAPSED_PANES_SUM\)/.test(host), true);
   // On CODE, not the raw file — the comment at :729 names 1100 to say why it is NOT used, and a
   // check that punishes explaining a decision teaches people to stop explaining decisions.
   t("I: the case-study editor declares no literal breakpoint of its own — the constants are the only source",
@@ -409,16 +475,28 @@ t("I: …and `isListCollapsed` is what lets that happen — an explicit open bea
 
 // NOT REAL OPTIONS FOR THREE PANES — recorded so nobody re-derives them and proposes one.
 t("I: 75% would need 1780px and 100% would need 2100px — neither is a laptop viewport",
-  [SIDEBAR_PX + LIST_PX + Math.round(1280 * 0.75) + INSPECTOR_PX, SIDEBAR_PX + LIST_PX + 1280 + INSPECTOR_PX],
+  [SIDEBAR_DEFAULT_PX + LIST_PX + Math.round(1280 * 0.75) + INSPECTOR_PX,
+   SIDEBAR_DEFAULT_PX + LIST_PX + 1280 + INSPECTOR_PX],
   [1780, 2100]);
 // Counterintuitive and worth pinning: the case-study canvas is WIDER than blog's, yet its
 // threshold is LOWER — because it scales and blog's does not. A reader who assumes the bigger
 // canvas needs the bigger viewport has the model backwards.
 t("I: the case-study threshold is BELOW blog's, because the canvas scales and blog's does not",
-  CS_FIT_THRESHOLD_PX < FIT_THRESHOLD_PX, true);
+  CS_PANES_SUM < PANES_SUM, true);
 // And the 1536 laptop that cannot fit blog's three panes CAN fit the case study's.
-t("I: a 1536 laptop DOES fit three case-study panes, where it does not fit blog's",
-  [1536 >= CS_FIT_THRESHOLD_PX, 1536 >= FIT_THRESHOLD_PX], [true, false]);
+/* THE REFERENCE MACHINE ACROSS THE WHOLE CLAMP — the E table, pinned. This is the assertion the
+ * upper bound exists for: at the WIDEST legal sidebar the 1536 laptop must still fit three
+ * case-study panes, and at the narrowest it must have room to spare. */
+t("I: the 1536 laptop fits three case-study panes at EVERY legal sidebar width, and never blog's",
+  [LAPTOP_PAGE >= SIDEBAR_MAX_PX + CS_PANES_SUM,
+   LAPTOP_PAGE >= SIDEBAR_MIN_PX + CS_PANES_SUM,
+   LAPTOP_PAGE >= SIDEBAR_MIN_PX + PANES_SUM], [true, true, false]);
+// AND THE MARGIN IS SMALL AND DELIBERATE. At the max the canvas is 9px above the point where the
+// list would collapse — measured 649px, 0.507, one notch over its 50% floor. The clamp is doing
+// something invisible, so the number is stated rather than trusted.
+t("I: at the widest sidebar the reference laptop keeps 9px of headroom, and the canvas clears its floor",
+  [LAPTOP_PAGE - (SIDEBAR_MAX_PX + CS_PANES_SUM),
+   (LAPTOP_PAGE - SIDEBAR_MAX_PX - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX > CS_MIN_SCALE], [9, true]);
 
 console.log(`\nthree-pane result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -139,7 +139,17 @@ export default function StudioSidebar() {
     // three of six are off screen), which makes the active pill the primary wayfinding cue —
     // and inverting it there would take it from 19.04:1 to 1.25:1. Mobile ink chrome is real
     // work with its own composition, and it is SCOPED SEPARATELY rather than absorbed here.
-    <aside className="flex flex-col border-b border-ink-950/12 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/24 lg:bg-ink-950 lg:p-4">
+    // `lg:w-[var(--studio-sidebar-w)]` — THE WIDTH IS A RUNTIME VALUE NOW, and it arrives as a
+    // custom property because Tailwind cannot interpolate one into a class name. That inability
+    // is the original cause of the 236px hazard, so the answer must not recreate it: the value is
+    // declared once on the layout root and CONSUMED here and in PublishBar, which is how those
+    // two files stopped being a hand-kept pair of literals. Full `var()` form, never the
+    // bracket-bare `lg:w-[--x]` shape, which generates nothing in v4.
+    //
+    // AND IT IS CONSUMED ONLY INSIDE AN `lg:` UTILITY, which is what makes the below-lg answer
+    // structural. Below the breakpoint this aside is full width and stacked above `main`; the
+    // stored width is set on the root but never read, so it cannot leak into that composition.
+    <aside id="studio-sidebar" className="flex flex-col border-b border-ink-950/12 bg-cream-100 p-3 lg:sticky lg:top-0 lg:h-screen lg:w-[var(--studio-sidebar-w)] lg:flex-none lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-white/24 lg:bg-ink-950 lg:p-4">
       <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-4">
         {/* 30x30 AND 20px ARE THE CONTRACT'S OWN VALUES, verified in the file rather than
             taken on trust — `.logo .mark { width:30px; height:30px }` and

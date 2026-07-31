@@ -94,7 +94,8 @@ import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
 import BoldToolbar from "./BoldToolbar";
 import { usePageWidthMin } from "./usePageWidthMin";
-import { FIT_THRESHOLD_PX, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
+import { PANES_SUM, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
+import { useSidebarWidth } from "./SidebarWidthProvider";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
 import type { BlogCard } from "@/lib/keystatic";
 
@@ -266,7 +267,11 @@ export default function BlogBlocksEditPanel({
   // rather than inside the shell because the answer decides which PARENT the single
   // inspector node mounts under, and the shell handing it back up would mean setting parent
   // state during render.
+  // INSPECTOR_FOLD_PX stays whole because it is CHOSEN rather than summed — it asks "is the
+  // inspector still usable", and the inspector is 320px at every sidebar width.
   const inspectorFits = usePageWidthMin(INSPECTOR_FOLD_PX);
+  // The fit threshold is not chosen; it is the sum, so it takes the live sidebar width.
+  const sidebarPx = useSidebarWidth();
 
   // THIS PANEL HOLDS THE SESSION PREVIEWS FOR ITS POST, and holds nothing else's.
   //
@@ -906,7 +911,7 @@ export default function BlogBlocksEditPanel({
       // BOTH BREAKPOINTS ARE THE CONSUMER'S NOW. The inspector fold always was; the FIT
       // threshold moved here in PR 5, because the shell had been reading blog's 1614
       // directly and a second consumer would have inherited blog's breakpoint silently.
-      fitThresholdPx={FIT_THRESHOLD_PX}
+      fitThresholdPx={sidebarPx + PANES_SUM}
       listNoun="posts"
       list={<BlogPostList posts={posts} currentSlug={slug} />}
       canvasBar={

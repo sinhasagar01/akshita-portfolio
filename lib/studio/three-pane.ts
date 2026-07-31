@@ -57,18 +57,43 @@
 // derived one — it answers "is the inspector still usable", not "does the canvas still hold
 // its measure" — but if that band ever needs closing, raising the fold to 1376 is the change.
 
-/** The width at or above which all three panes fit at their natural sizes. */
-export const FIT_THRESHOLD_PX = 1614;
+/* ---- THE SIDEBAR TERM LEFT THESE SUMS, AND THE COMPOSITE CONSTANTS WENT WITH IT -----------
+ *
+ * `FIT_THRESHOLD_PX = 1614` was `236 + 264 + 794 + 320`. It was correct for as long as the
+ * sidebar was 236px, and the studio now ships a control whose entire purpose is to move off 236.
+ * **A constant true at exactly one setting of an adjustable thing is worse than no constant**:
+ * it reads as authoritative and is wrong everywhere except the default. So the composites are
+ * DELETED rather than kept "for documentation" — leaving one would have the next reader believe
+ * a number nothing produces. Third deletion of this shape, after `FIT_THRESHOLD_PX` shipping
+ * with zero consumers and `--radius-2xl` sitting below `--radius-xl`.
+ *
+ * WHAT REPLACES THEM IS THE PART THAT WAS ALWAYS CONSTANT. The panes have fixed widths; the
+ * sidebar does not. So the sum stops at the panes and the caller adds the live width:
+ *
+ *     const fits = usePageWidthMin(sidebarPx + PANES_SUM);
+ *
+ * This is hazard 1's arithmetic half closing. The sidebar was a literal in three thresholds and
+ * is now a runtime value in none of them. */
+
+/** List + canvas measure + inspector. The blog editor's three panes at their natural sizes,
+ *  WITHOUT the sidebar — add the live sidebar width to get the fit threshold. */
+export const PANES_SUM = 264 + 794 + 320;
 
 /** Below this the inspector pane folds away and the canvas pane's own Canvas/Inspector
  *  toggle becomes the route to those fields. One mechanism at two widths, and the narrow
- *  layout is the one that already shipped in #174. */
+ *  layout is the one that already shipped in #174.
+ *
+ *  THE ONE THRESHOLD THAT STAYS A WHOLE NUMBER, because it is CHOSEN rather than summed. It
+ *  answers "is the inspector still usable", and the inspector is 320px at every sidebar width.
+ *  Hazard 1 listed it as coupled-but-soft: its MEANING drifts when the sidebar moves (the page
+ *  it is measured against holds less work area) even though no arithmetic breaks. Left chosen,
+ *  and left whole, rather than manufacturing a sum for it. */
 export const INSPECTOR_FOLD_PX = 1100;
 
 /* ============================================================================================
  * THE CASE-STUDY THRESHOLD — A DIFFERENT SHAPE OF CONSTANT, NOT A DIFFERENT VALUE
  *
- * FIT_THRESHOLD_PX above is derived from a canvas that has a NATURAL MINIMUM WIDTH: blog's
+ * PANES_SUM above is derived from a canvas that has a NATURAL MINIMUM WIDTH: blog's
  * 68ch measure is a property of the text, so the pane must be at least 794px or the measure
  * breaks. THE CASE-STUDY CANVAS HAS NO SUCH MINIMUM. It renders at the public content width
  * (1280, `container-x`'s cap) and SCALES to fit the pane, deliberately — the site's breakpoints
@@ -119,30 +144,32 @@ export const CS_MIN_SCALE = 0.5;
 /** The canvas pane's floor: the scale applied to the render width. 1280 × 0.5 = 640. */
 export const CS_CANVAS_MIN_PX = CS_CANVAS_WIDTH_PX * CS_MIN_SCALE;
 
-/** The width at or above which all three case-study panes fit with the canvas at or above its
- *  minimum scale. 236 + 264 + 640 + 320 = 1460.
- *  THE SAME DISCIPLINE AS FIT_THRESHOLD_PX: the threshold IS the sum, so widening any pane —
- *  or lowering the scale floor — is an ARITHMETIC CHANGE, NOT A STYLING CHANGE, and this number
- *  moves with it. */
-export const CS_FIT_THRESHOLD_PX = 1460;
+/** List + canvas floor + inspector. The case-study editor's three panes, WITHOUT the sidebar.
+ *  264 + 640 + 320 = 1224; add the live sidebar width for the fit threshold.
+ *  THE SAME DISCIPLINE AS BEFORE: the threshold IS the sum, so widening any pane — or lowering
+ *  the scale floor — is an ARITHMETIC CHANGE, NOT A STYLING CHANGE, and this number moves with
+ *  it. Only the sidebar term left, because only the sidebar became adjustable. */
+export const CS_PANES_SUM = 264 + CS_CANVAS_MIN_PX + 320;
 
-/** The collapsed-list floor, the case-study twin of the 1377 recorded above.
- *  236 + 27 + 640 + 320 = 1223. Below this the canvas drops under its minimum scale even with
- *  the list collapsed, and the inspector fold is the only lever left.
+/** The collapsed-list pane sum: reopen rail + the collapsed pane's residual border + canvas
+ *  floor + inspector = 27 + 640 + 320 = 987. Add the live sidebar width for the fold threshold.
+ *  Below it the canvas drops under its minimum scale even with the list collapsed, and the
+ *  inspector fold is the only lever left.
  *
  *  THE 27 IS 26 + 1 AND THE 1 WAS MISSING UNTIL IT WAS DRIVEN. The reopen rail is 26px, but a
  *  COLLAPSED list pane is not 0px — it is `w-0 border-transparent`, and a transparent border
  *  still occupies its 1px (the border-color is what animates, so it cannot be removed without
- *  losing the transition). Measured at page 1222: 236 + 1 + 26 + 639 + 320. The canvas came out
- *  639 rather than 640, raw fit 0.499, and the scale clamp was covering that last pixel —
- *  precisely the shape this constant exists to make unnecessary. Corrected by RE-DERIVING the
- *  term, not by padding the total.
+ *  losing the transition). Measured at page 1222 before the fix: 236 + 1 + 26 + 639 + 320. The
+ *  canvas came out 639 rather than 640, raw fit 0.499, and the scale clamp was covering that
+ *  last pixel — precisely the shape this constant exists to make unnecessary. Corrected by
+ *  RE-DERIVING the term, not by padding the total.
+ *
  *  DERIVED AND CONFIRMED RATHER THAN ASSUMED: collapsing the list returns 264 − 27 = 237px to
- *  the canvas, so at exactly CS_FIT_THRESHOLD_PX the collapsed canvas is 640 + 237 = 877px,
- *  which is 877 / 1280 = 68.5% — comfortably above the 50% floor. Across the whole band
- *  1223…1460 the collapsed canvas runs 640…877px, i.e. 50%…68.5%, so the rail collapsing never
+ *  the canvas, so at the fit threshold the collapsed canvas is 640 + 237 = 877px, which is
+ *  877 / 1280 = 68.5% — comfortably above the 50% floor. Across the whole band between the two
+ *  thresholds the collapsed canvas runs 640…877px, i.e. 50%…68.5%, so the rail collapsing never
  *  takes the canvas below the floor. That is the property this constant exists to state. */
-export const CS_COLLAPSED_FLOOR_PX = 1223;
+export const CS_COLLAPSED_PANES_SUM = 27 + CS_CANVAS_MIN_PX + 320;
 
 /** The list pane's THREE-STATE intent.
  *
@@ -161,7 +188,7 @@ export type ListIntent = "default" | "open" | "closed";
 /** Is the list pane collapsed right now?
  *
  *  @param intent what the author has asked for, if anything
- *  @param fits   whether the viewport is at or above FIT_THRESHOLD_PX
+ *  @param fits   whether the page box is at or above `sidebarPx + PANES_SUM`
  *
  *  The shell drives BOTH the width transition and `inert` from this one answer. They must
  *  not be computed separately: a pane that is visually collapsed but still tabbable is
