@@ -3081,6 +3081,46 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   is a `singleton()`, one save covers every category, and moving the footer inside would render N
   save bars for one save.
 
+- **#241** the experience rail and the hero tabs →1595 (`studio-ink` 116→124). PR 3 of three, and
+  the one where the contract was wrong about the DESIGN rather than about the current state.
+  **C-19 — THE RAIL GOES TWO-LINE, NOT TITLE-ONLY. The diagnosis was right and the cure was
+  wrong.** Every row does truncate, and the LTI-elevate row has only 60px of its 134 because the
+  "Currently" pill takes 66 — the contract saw that correctly. But leading with the title ALONE is
+  measurably worse: three of five entries are titled "UX and UI Designer", so it trades a two-row
+  collision for a three-row one, and the two LTIMindtree titles differ only in a TRAILING
+  parenthetical that truncation eats first. Only the PAIR is unique on every row.
+  **There is no `role` field either** — the contract's "role" is `title`.
+  **AND MY OWN 13.5px WAS WRONG, CORRECTED BY MEASURING THE REAL COLUMN.** The plan's probe
+  assumed a 1.3 line-height; the real element has `leading-snug` at 1.375 in a 134px column, where
+  the longest title needs THREE lines at 13.5 and exactly TWO at 13. Shipped at 13px, which is the
+  studio's other rail size (the case-study index and the block forms), so it still matches a
+  precedent — just not the one the plan named.
+  **THE BADGE MOVED TO THE META LINE, AND THAT WAS FOUND BY DRIVING IT.** Beside the name it took
+  66px of the 134px column, and the row carrying it is the row whose title most needs the room:
+  driven, "Specialist, Interactive UX and UI (Elevate)" reported `fullyShown: false` while the
+  Fosfor row beside it reported true. The badge is a fact about the dates, and the meta line is
+  where the dates live. After: **all five titles whole, every row unique.**
+  **THE RHYTHM COST, STATED RATHER THAN DISCOVERED.** Rows were a uniform 43px; they are now 58
+  for a one-line title and 75 for a two-line one, and the list is 239 → 349. Two of five rows are
+  17px taller than the others. That is the price of discriminating them, and the alternative —
+  one clamped line — hides the only part that does.
+  **C-20 — THE HERO TABS TAKE THE UNDERLINE, WHICH APPLIES THE RULE RATHER THAN CHANGING IT.**
+  The rule was already in source and unstated, which is how a fourth treatment sat there
+  unnoticed: `role="group"` + `aria-pressed` takes the accent FILL (SegmentedToggle, Board|Editor,
+  Canvas|Inspector); `role="tablist"` + `aria-selected` takes the UNDERLINE (Content|Style). The
+  hero tabs are a real tablist and were the only one wearing an accent TINT. **The contract asked
+  for the FILL, which would give TABLISTS TWO LANGUAGES in order to make one control match a
+  control of a different role** — and swapping in `SegmentedToggle`, as its wording suggests,
+  would have dropped the Arrow keys, `aria-selected` and the tabpanel association. **A regression
+  wearing consistency's clothes.** Values read off Content|Style rather than invented.
+  **DRIVEN WITH REAL KEYS (#209):** two ArrowRights moved selection 0 → 2, focus followed,
+  `:focus-visible` **true**, roving tabindex correct, and `aria-labelledby` on the tabpanel still
+  matched the selected tab — the association the swap would have destroyed, proven present.
+  **CONTRAST, sanity pair 21 first:** selected 18.13, rest 7.06, the underline itself **4.48**
+  against cream-100, over the 3:1 floor for a non-text indicator.
+  **THE `ListDetailLayout` CHANGE IS ADDITIVE.** `meta` is optional and rows without it render
+  byte-identical markup, so the other seven consumers of the shell are untouched.
+
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
 PR D. Both numbers are true of different things and the arc's own contribution is the smaller

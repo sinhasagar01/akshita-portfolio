@@ -29,6 +29,18 @@ export type ListDetailSection = {
   // Optional status label rendered as a pill next to the name (e.g. "Currently").
   // The caller owns the label + the decision; the shell just renders it.
   badge?: string;
+  /** Optional second line beneath the name.
+   *
+   *  A ROW WITH A META LINE IS A DIFFERENT SHAPE, so it renders differently — see the row markup.
+   *  Consumers that pass no meta get byte-identical markup to before; this is a capability the
+   *  shell gained, not a change to the rows that already existed.
+   *
+   *  IT EXISTS BECAUSE ONE FIELD COULD NOT DISCRIMINATE. Experience rows led with the company,
+   *  and two entries share "LTIMindtree, Bengaluru" — at rail width they read "LTIMind…" and
+   *  "LTIMindtree, Bengal…". Leading with the title instead is WORSE, not better: three entries
+   *  share "UX and UI Designer", so it trades a two-row collision for a three-row one. Only the
+   *  PAIR discriminates every row, which is what a second line is for. */
+  meta?: string;
 };
 
 type ListDetailCtx = {
@@ -198,7 +210,7 @@ export function ListDetailLayout({
               const isDirty = dirtyIds.has(s.id);
               // Compose the accessible name from the visible states so the badge
               // (and the dirty dot) are announced even when both are present.
-              const label = [s.name, s.badge, isDirty && "unsaved changes"]
+              const label = [s.name, s.meta, s.badge, isDirty && "unsaved changes"]
                 .filter(Boolean)
                 .join(", ");
               return (
@@ -209,7 +221,7 @@ export function ListDetailLayout({
                     id={`ld-tab-${s.id}`}
                     aria-selected={isActive}
                     aria-controls="ld-panel"
-                    aria-label={s.badge || isDirty ? label : undefined}
+                    aria-label={s.meta || s.badge || isDirty ? label : undefined}
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => select(s.id)}
                     // SELECTION IS A CREAM FILL PLUS A 3px ACCENT LEFT BAR — the studio's one
@@ -262,13 +274,57 @@ export function ListDetailLayout({
                     // signal anywhere in this language. A hovered row is a preview of the
                     // selected fill without the bar.
                     className={[
-                      "flex w-full items-center justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border border-y-transparent border-r-transparent border-l-[3px] py-2.5 pl-[10px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      "flex w-full justify-between gap-2 rounded-[var(--studio-radius-card,8px)] border border-y-transparent border-r-transparent border-l-[3px] py-2.5 pl-[10px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      s.meta ? "items-start" : "items-center",
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
                         ? "border-l-accent-500 bg-cream-100 font-medium text-ink-950"
                         : "border-l-transparent hover:bg-cream-100",
                     ].join(" ")}
                   >
+                    {/* TWO SHAPES, AND THE ONE-LINE SHAPE IS UNTOUCHED. A row with no meta line
+                        renders exactly the markup it always did, so the seven other consumers of
+                        this shell are byte-identical.
+
+                        THE NAME CLAMPS TO TWO LINES rather than truncating to one: the Experience
+                        titles that need discriminating differ only in a TRAILING parenthetical,
+                        and truncation eats the end first, so one clamped line would hide the only
+                        part that distinguishes them.
+
+                        13px, AND THAT NUMBER WAS CORRECTED BY MEASURING THE REAL COLUMN. The plan
+                        said 13.5, from a probe that assumed a 1.3 line-height; the real element
+                        has `leading-snug` at 1.375 in a 134px column, where the longest title
+                        needs THREE lines at 13.5 and exactly two at 13. 13px is the studio's
+                        other rail size — the case-study index and the block forms use it — so
+                        this is still matching a precedent, just not the one the plan named.
+                        The meta line keeps 11.5px, which is `BlogPostList` and `SectionsRail`.
+
+                        `items-start` in this shape so the badge sits against the FIRST line
+                        rather than floating against the block's centre. */}
+                    {s.meta ? (
+                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="min-w-0 text-[13px] leading-snug [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+                          {s.name}
+                        </span>
+                        {/* THE BADGE SITS ON THE META LINE IN THIS SHAPE, AND THAT WAS FOUND BY
+                            MEASURING. Beside the name it took 66px of a 134px column, and the
+                            one row carrying it is the one whose title most needs the room —
+                            "Specialist, Interactive UX and UI (Elevate)" lost its trailing
+                            parenthetical, which is the entire discriminator against the Fosfor
+                            row. Driven: with the badge on the name line that title reported
+                            `fullyShown: false`; moved down, both LTI titles render whole.
+                            It reads correctly there too — "Currently" is a fact about the dates,
+                            and the dates are what the meta line is about. */}
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          <span className="truncate text-[11.5px] text-text-subtle">{s.meta}</span>
+                          {s.badge && (
+                            <span className="shrink-0 rounded-full bg-accent-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent-600">
+                              {s.badge}
+                            </span>
+                          )}
+                        </span>
+                      </span>
+                    ) : (
                     <span className="flex min-w-0 items-center gap-2">
                       <span className="truncate">{s.name}</span>
                       {s.badge && (
@@ -277,6 +333,7 @@ export function ListDetailLayout({
                         </span>
                       )}
                     </span>
+                    )}
                     {isDirty && (
                       <span className="size-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden="true" />
                     )}

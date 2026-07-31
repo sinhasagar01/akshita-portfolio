@@ -388,6 +388,51 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     bandOutsideInspector, []);
 }
 
+/* ================================================ C4. SELECTION TREATMENT, BY ROLE
+ *
+ * The rule was already in source and unstated, which is how a fourth treatment appeared without
+ * anything failing:
+ *
+ *   role="group" + aria-pressed    -> the accent FILL   (SegmentedToggle, Board|Editor, view)
+ *   role="tablist" + aria-selected -> the UNDERLINE     (Content|Style, and now the hero tabs)
+ *
+ * The hero tabs were the only tablist wearing an accent TINT. The contract asked them to take
+ * the FILL, which would have given TABLISTS TWO LANGUAGES in order to make one control match a
+ * control of a DIFFERENT role — and swapping in `SegmentedToggle`, as its wording suggests, would
+ * have dropped the Arrow keys, `aria-selected` and the tabpanel association. A regression wearing
+ * consistency's clothes. The underline APPLIES the rule; the fill would have changed it.
+ *
+ * Stated here because an unstated rule is what let the tint sit there unnoticed. */
+{
+  const hero = code("components/studio/HeroEditPanel.tsx");
+  const cs = code("components/studio/SectionsEditPanel.tsx");
+  const seg = code("components/studio/SegmentedToggle.tsx");
+  // The two tablists share their selected treatment, read off the precedent rather than pinned
+  // to a literal twice.
+  const UNDERLINE = "border-accent-500 font-medium text-ink-950";
+  t("C4: Content|Style — the precedent tablist — marks its selection with the underline",
+    cs.includes(UNDERLINE), true);
+  t("C4: …and the hero tabs now use the SAME string, not a fourth treatment",
+    hero.includes(UNDERLINE), true);
+  // SCOPED TO THE TAB'S OWN CLASS EXPRESSION, not to everything after the first role="tab".
+  // The file legitimately holds two other accent fills — the panel header's icon chip and the
+  // Save button — and an assertion that pins more than its subject fails for the wrong reason.
+  // Same lesson E2's geometry regex and three-pane's width regex both learned.
+  const tabCls = /className=\{\[\s*"-mb-px border-b-2[\s\S]*?\]\.join/.exec(hero)?.[0] ?? "";
+  t("C4: the tab class expression was found", tabCls.length > 0, true);
+  t("C4: the hero tabs carry no accent FILL or TINT — that language belongs to role=group",
+    /bg-accent-500(\/\d+)?/.test(tabCls), false);
+  t("C4: SegmentedToggle keeps the fill, because it is a group and picks a VALUE",
+    /role="group"/.test(seg) && /bg-accent-500 text-cream-50/.test(seg), true);
+  // THE SEMANTICS ARE THE REASON THE SWAP WAS REFUSED, so they are what the gate protects.
+  for (const [what, re] of [
+    ["aria-selected", /aria-selected=\{i === activeTab\}/],
+    ["aria-controls onto a real tabpanel", /aria-controls="hero-tab-edit-panel"/],
+    ["a roving tabindex", /tabIndex=\{i === activeTab \? 0 : -1\}/],
+    ["Arrow key handling", /ArrowRight|ArrowLeft/],
+  ]) t(`C4: the hero tabs keep ${what} — what adopting SegmentedToggle would have cost`, re.test(hero), true);
+}
+
 /* ================================================ C3. THE ORDINAL'S LABEL SCALE, ASSERTED AS A PAIR
  *
  * `OverviewRow` is a SERVER component; `labelCls` lives in `blocks/fields.tsx`, which is
