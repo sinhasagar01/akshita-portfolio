@@ -69,6 +69,10 @@ const blockLabel = (kind: SectionBlockKind): string =>
 // "Section N") so the board, the focused editor, and the public rail agree and none of
 // them ever prints a raw slug. Previously this fell straight to `s.id`, which surfaced
 // `hero` / `final-video` / `closing` verbatim.
+/** What the editor is pointing at. `"board"` is the overview, `"details"` the study's own
+ *  fields, and a tagged id a section. Tagged because every member would otherwise be a string. */
+type Selection = "board" | "details" | { id: string };
+
 const sectionLabel = (s: RawSection, i: number) =>
   sectionDisplayLabel({ title: s.title, eyebrow: s.eyebrow, id: s.id }, i);
 
@@ -656,7 +660,16 @@ export default function SectionsEditPanel({
   // Keyed by the STABLE section id (not an index), so a reorder keeps the same
   // section focused and the id-lockstep is untouched. Every editor stays mounted
   // regardless (rendered hidden), so switching views never drops a dirty edit.
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  // CS-2/PR 7 — ONE STATE, THREE ANSWERS. The board/section split was already toggle-driven
+  // (`selectedSectionId === null` meant the board); PR 7 extends that same state with `details`
+  // rather than adding a second one beside it. A tagged section keeps the union honest — every
+  // member is a string otherwise, so `"details"` and a section id would be indistinguishable.
+  //
+  // `selectedSectionId` REMAINS, DERIVED. Ten call sites read it and none of them care how the
+  // rail spells its selection, so it stays a `string | null` and only the SETTERS moved.
+  const [selection, setSelection] = useState<Selection>("board");
+  const selectedSectionId = typeof selection === "object" ? selection.id : null;
+  const showBoard = selection === "board";
   // The Selected rail's height ceiling, named rather than DOM-walked — see `useAutoGrow`.
   const canvasCeilingRef = useRef<HTMLDivElement>(null);
 
@@ -752,7 +765,7 @@ export default function SectionsEditPanel({
     // structural edit (add/remove/reorder) followed by Cancel leaves the arrays
     // different lengths and id-addressing throws.
     setIds(seedIds(savedBaseline.sections));
-    setSelectedSectionId(null);
+    setSelection("board");
   };
 
   /**
@@ -784,7 +797,7 @@ export default function SectionsEditPanel({
 
   const removeSection = (i: number) => {
     // If the focused section is going, drop back to the board (its id will be gone).
-    if (ids.sectionIds[i] === selectedSectionId) setSelectedSectionId(null);
+    if (ids.sectionIds[i] === selectedSectionId) setSelection("board");
     structural((s, d) => ({
       sections: removeAt(s, i),
       ids: { sectionIds: removeAt(d.sectionIds, i), blockIds: removeAt(d.blockIds, i) },
@@ -802,7 +815,7 @@ export default function SectionsEditPanel({
       sections: [...s, emptySection(`section-${n}`)],
       ids: { sectionIds: [...d.sectionIds, newId], blockIds: [...d.blockIds, []] },
     }));
-    setSelectedSectionId(newId); // jump straight into the new section
+    setSelection({ id: newId }); // jump straight into the new section
   }
 
   const setSection = (i: number, next: RawSection) =>
@@ -948,7 +961,7 @@ export default function SectionsEditPanel({
           per-kind schematic (not a live render), block count, and the publish
           gate's needs-image flag. Presentational and edit-state-free, so it is
           conditionally rendered while every editor below stays MOUNTED. */}
-      {selectedSectionId === null && (
+      {showBoard && (
         <div className="flex flex-col gap-4 px-4 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
             {values.sections.map((section, i) => {
@@ -966,7 +979,7 @@ export default function SectionsEditPanel({
                       but the arrows opens the section. */}
                   <button
                     type="button"
-                    onClick={() => setSelectedSectionId(ids.sectionIds[i])}
+                    onClick={() => setSelection({ id: ids.sectionIds[i] })}
                     aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
                     className="absolute inset-0 z-0 rounded-[var(--studio-radius-card,8px)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
                   />
@@ -1046,38 +1059,12 @@ export default function SectionsEditPanel({
         </div>
       )}
 
-      {/* CS-2 — FOCUSED nav (a section is selected): back to board + a native
-          dropdown to jump sections. Edit-state-free, so conditionally rendered. */}
-      {selectedSectionId !== null && (
-        <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/12 bg-cream-100 px-4 py-2.5">
-          <button
-            type="button"
-            onClick={() => setSelectedSectionId(null)}
-            className="inline-flex items-center gap-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-accent-600 transition-colors hover:bg-cream-200"
-          >
-            ← Board
-          </button>
-          <label className="ml-auto flex items-center gap-2">
-            <span className="text-[12px] text-text-subtle">Section</span>
-            <select
-              value={selectedSectionId}
-              onChange={(e) => setSelectedSectionId(e.target.value)}
-              aria-label="Jump to section"
-              className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2 py-1 text-[12px] font-semibold text-ink-950 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
-            >
-              {values.sections.map((section, i) => (
-                <option key={ids.sectionIds[i]} value={ids.sectionIds[i]}>
-                  {sectionLabel(section, i)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      )}
+      {/* THE FOCUSED-NAV BAR IS GONE — the `← Board` link and the "Jump to section" <select>
+          both lived here, and both existed only because the Board was the ONLY way to change
+          section. The rail is that now, so a back link to a mode you no longer have to be in, and
+          a dropdown that duplicated the rail's job, are both surface with nothing to do. The
+          Board survives as a view, reached from the crumb row's toggle. */}
 
-      {/* The editors — ALWAYS MOUNTED. The container is hidden on the board and each
-          section is hidden unless it is the focused one, so no editor ever unmounts
-          and the id-lockstep + every dirty edit survive a view/section switch. */}
       <div className="flex flex-col gap-4 px-4 py-5" hidden={selectedSectionId === null}>
         {/* The design's top-level split. Both regions stay MOUNTED (hidden, never
             unmounted) so switching view keeps every dirty edit, caret and id-lockstep
