@@ -19,6 +19,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { PreviewUpload } from "@/lib/studio/preview-map";
 import { useItemList } from "../useItemList";
 import CollapsibleGroup from "./CollapsibleGroup";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "../icons";
@@ -651,7 +652,7 @@ export function ItemRows<T>({
   children,
 }: {
   items: readonly T[];
-  onChange: (next: T[]) => void;
+  onChange: (next: T[], upload?: PreviewUpload) => void;
   /** MUST return every key the schema declares, including "" and false — a new row
    *  that omits one drops it from the file. The sanitizer rejects the save if so. */
   empty: () => T;
@@ -679,7 +680,9 @@ export function ItemRows<T>({
   addNote?: string;
   children: (args: {
     item: T;
-    set: (next: T) => void;
+    /** Second argument optional, so a row that holds no image passes a one-arity arrow and
+     *  compiles unchanged. A row that DOES hold one must forward it — see preview-map.ts. */
+    set: (next: T, upload?: PreviewUpload) => void;
     focusRef: (el: HTMLElement | null) => void;
   }) => ReactNode;
 }) {
@@ -750,7 +753,7 @@ export function ItemRows<T>({
               </div>
             }
           >
-            {children({ item, set: (v) => list.set(i, v), focusRef: list.focusRef(i) })}
+            {children({ item, set: (v, upload) => list.set(i, v, upload), focusRef: list.focusRef(i) })}
           </CollapsibleGroup>
         );
       })}

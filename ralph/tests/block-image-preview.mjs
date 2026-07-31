@@ -150,5 +150,55 @@ t("B5: the panel releases on unmount, and that is its only revoke",
 t("C2: prose recomputes on blocks, which is what re-runs rewriteSrc after an adopt",
   /\[blocks, rewriteSrc, renderEpoch\]/.test(panel), true);
 
+/* ============================ D. THE CASE-STUDY CHAIN, WHICH IS LONGER THAN BLOG'S (#252)
+ *
+ * #202 closed this for blog and the DEFERRED note scoped the follow-up as "seven ImgSpecFields
+ * arrows plus a map". **Re-derived, that understated it**: four of the seven sit inside
+ * `ItemRows`, and blog has NO ItemRows at all — `blog-registry` contains none — so #202's pattern
+ * never crossed that hop. A nested upload has to survive THREE handoffs before it reaches the
+ * panel: the row arrow, `ItemRows`' per-row `set`, and `useItemList.set` -> `onChange`. Any one
+ * of them dropping the second argument compiles fine and previews nothing.
+ *
+ * D1 IS THE ONE THAT MATTERS AND IT IS DERIVED. Every `<ImgSpecFields` in the registry is found,
+ * and its `set=` prop must either be a bare identifier (forwards by identity) or an arrow that
+ * takes a second parameter AND passes it on. A new image-bearing block joins this gate by being
+ * written, not by being remembered — which is the failure #248 found in the frame sweep. */
+{
+  const sites = [...projReg.matchAll(/<ImgSpecFields[^>]*?\sset=\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/g)]
+    .map((m) => m[1].trim());
+  t("D1: every ImgSpecFields site was found — seven, matching the census",
+    sites.length, 7);
+  // A bare identifier forwards by identity; an arrow must be two-arity and pass the 2nd on.
+  const drops = sites.filter((a) => {
+    if (/^[A-Za-z_$][\w$]*$/.test(a)) return false;            // set={set}
+    const params = /^\(([^)]*)\)/.exec(a)?.[1] ?? "";
+    const second = params.split(",")[1]?.trim();
+    return !second || !new RegExp(`,\\s*${second}\\s*\\)`).test(a);
+  });
+  t("D1: no ImgSpecFields site drops the upload — a dropped 2nd arg compiles and previews nothing",
+    drops, []);
+
+  // D2 — the two SHARED hops the nested sites cross. Blog never needed these.
+  t("D2: ItemRows hands each row a set that carries the upload",
+    /set: \(v, upload\) => list\.set\(i, v, upload\)/.test(fields), true);
+  t("D2: …and useItemList forwards it to the list's onChange",
+    /set: \(i: number, v: T, upload\?: PreviewUpload\) => onChange\(setAt\(items, i, v\), upload\)/
+      .test(code("components/studio/useItemList.ts")), true);
+  t("D2: …and every ItemRows whose rows hold an image forwards it too",
+    [...projReg.matchAll(/onChange=\{\((\w+)\) => onChange\(\{ \.\.\.value, \1 \}\)\}/g)]
+      .map((m) => m[1]).filter((k) => ["devices", "features", "items", "pairs"].includes(k)), []);
+
+  // D3-D5 — the panel end, mirroring B4/B5/C1 on the case-study side.
+  const cs = code("components/studio/SectionsEditPanel.tsx");
+  t("D3: the case-study panel adopts on upload and then edits the block",
+    /if \(upload\) previews\.adopt\(upload\.src, upload\.file\);\s*setBlockValue\(/.test(cs), true);
+  t("D4: its rewriteSrc composes preview BEFORE the draft snapshot",
+    /previews\.get\(src\) \?\? \(draft \? draft\(src\) : src\)/.test(cs), true);
+  t("D5: it releases on unmount, and that is its only revoke",
+    /useEffect\(\(\) => \(\) => previews\.releaseAll\(\), \[previews\]\)/.test(cs), true);
+  t("D5: …and it holds the map by ref, so the identity is stable for the panel's life",
+    /previewsRef\.current \?\?= createPreviewMap\(\)/.test(cs), true);
+}
+
 console.log(`\nblock-image-preview result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

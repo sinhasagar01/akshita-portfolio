@@ -3083,6 +3083,47 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#252** the case-study canvas previews an image uploaded this session →1675
+  (`block-image-preview` 25→35, new section D). The DEFERRED follow-up to #202, built.
+  **THE RECORDED SCOPE UNDERSTATED IT, AND RE-DERIVING IS WHAT FOUND THAT.** DEFERRED said
+  "seven `ImgSpecFields` arrows plus a map in `SectionsEditPanel`, reusing `preview-map.ts`
+  unchanged." The map is indeed unchanged and the arrows are indeed seven — **but four of them
+  sit inside `ItemRows`, and `blog-registry` contains NO `ItemRows` at all**, so #202's pattern
+  never crossed that hop. A nested upload has to survive THREE handoffs: the row arrow,
+  `ItemRows`' per-row `set`, and `useItemList.set` into the list's `onChange`. Two of those are
+  SHARED hops that had to be widened. **Any one of them dropping the second argument compiles
+  cleanly and previews nothing** — which is exactly why the gap survived #202.
+  **THE SEVEN, AUDITED RATHER THAN ASSUMED:** one (`videoEmbed`'s poster) already forwarded, one
+  (`DeviceFields`) forwards by identity once its own `set` type is widened, and five dropped it.
+  Plus five `ItemRows` whose rows hold an image, and the panel's own `onChange` — the adoption
+  point, which is the line #202 added on the blog side.
+  **THE WIDENING IS BACKWARD-COMPATIBLE BY CONSTRUCTION.** Every second parameter is optional, so
+  a row that holds no image passes a one-arity arrow and compiles unchanged; `useItemList` takes
+  the type as a `import type` so it stays runtime-dependency-free, which its own header requires.
+  **`rewriteSrc` NOW ALWAYS RETURNS A FUNCTION where it could previously be `undefined`**, and
+  that was checked rather than assumed: `adapter.ts:281` only tests PRESENCE
+  (`ctx.rewriteSrc ? ctx.rewriteSrc(resolved) : resolved`), and the new function returns `src`
+  unchanged when neither the map nor the snapshot matches. Identical output, same shape blog uses.
+  **SECTION D's FIRST ASSERTION IS DERIVED, NOT PINNED.** It finds every `<ImgSpecFields` in the
+  registry and requires its `set=` to be either a bare identifier (forwards by identity) or an
+  arrow that is two-arity AND passes the second argument on. **A new image-bearing block joins the
+  gate by being written** — the failure #248 found in the frame sweep, avoided here.
+  **AND D2 CAUGHT A DROPPED EDIT OF MINE.** An edit script asserted-and-exited AFTER mutating its
+  in-memory string but BEFORE `write_text`, so two `devices` `onChange` edits were silently
+  discarded while the run reported them applied. tsc stayed clean because the second argument is
+  optional. **Write first, assert after** — the gate found it, not the compiler.
+  Five mutations, each caught by the right assertion: a row arrow dropping the upload → D1; the
+  `ItemRows` hop → D2; the `useItemList` hop → D2; the panel not adopting → D3; the compose order
+  reversed → D4.
+  **THE END-TO-END UPLOAD IS OWNER-ONLY AND IS STATED AS UNVERIFIED.** The upload route requires
+  `STUDIO_WRITE_MODE=github` and this environment is `fs`, so a real file cannot reach the map
+  here. What IS proven: the map's own behaviour (section A drives it in node), every hop of the
+  chain (D1–D2), the panel's adoption and compose order (D3–D4), and that the canvas still renders
+  its three existing images unbroken. **Confirming the actual preview needs github mode against a
+  fork or scratch repo.**
+  CSS union **1542 → 1542, IDENTICAL** — this PR ships no CSS. Public DOM byte-identical; none of
+  the four changed modules is imported outside `components/studio`.
+
 - **#251** every studio select becomes the listbox — the by-role split is DELETED →1666
   (`listbox-a11y` 24→27, G1–G3 rewritten and G3b new).
   **THE MIGRATION TRIGGER FROM THE LISTBOX PR FIRING, not a sweep.** That PR split selects by

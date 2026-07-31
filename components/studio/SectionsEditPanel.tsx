@@ -31,6 +31,7 @@ import type { RawSection, SectionBlockKind } from "@/lib/case-studies/sections-r
 import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
+import { createPreviewMap, type PreviewMap } from "@/lib/studio/preview-map";
 import { CS_MIN_SCALE, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { usePageWidthMin } from "./usePageWidthMin";
@@ -687,7 +688,30 @@ export default function SectionsEditPanel({
 }) {
   const { setUnpublished } = usePublishSignal();
   const web = template === "web";
-  const rewriteSrc = useMemo(() => makeDraftSrcRewriter(draftImages), [draftImages]);
+
+  // ---- THE SESSION PREVIEW MAP — the same gap #202 closed for blog, closed here --------------
+  //
+  // `draftImages` is a SNAPSHOT. `ProjectsEditPanel` fetches it once inside `loadSections()` and
+  // its own comment says it is "still never re-fetched once loaded", so a path created AFTER that
+  // fetch is not in it, the rewriter leaves it alone, and the plain path 404s against main until
+  // publish. That is why a freshly uploaded block image stayed blank on this canvas.
+  //
+  // Created through a ref rather than useState so the identity is stable for the lifetime of the
+  // panel — see `BlogBlocksEditPanel`, which does the same. `releaseAll` at unmount is the ONLY
+  // revoke, and the map's header explains at length why there is no per-path release.
+  const previewsRef = useRef<PreviewMap>(undefined);
+  previewsRef.current ??= createPreviewMap();
+  const previews = previewsRef.current;
+  useEffect(() => () => previews.releaseAll(), [previews]);
+
+  // A STABLE IDENTITY IS CORRECT even though the map mutates: it is read at CALL time, not
+  // captured, and every adoption happens in the same handler as a block edit — so the canvas
+  // recomputes on `values` and the fresh call sees the new entry. Adding the map to these deps
+  // would churn the function identity for no render that needs it.
+  const rewriteSrc = useMemo(() => {
+    const draft = makeDraftSrcRewriter(draftImages);
+    return (src: string) => previews.get(src) ?? (draft ? draft(src) : src);
+  }, [draftImages, previews]);
 
   const nextId = useRef(0);
   const mint = () => `x${nextId.current++}`;
@@ -1538,7 +1562,12 @@ export default function SectionsEditPanel({
                     <Form
                       /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                       value={block.value as any}
-                      onChange={(next) => setBlockValue(id, next)}
+                      // THE ADOPTION POINT. Everything below this line existed already; the
+                      // upload is what #202's emit half forwards and this panel used to drop.
+                      onChange={(next, upload) => {
+                        if (upload) previews.adopt(upload.src, upload.file);
+                        setBlockValue(id, next);
+                      }}
                       onBlur={saveDraft}
                       slug={slug}
                       /* PR 3a — this panel edits case studies, so its uploads land in the
