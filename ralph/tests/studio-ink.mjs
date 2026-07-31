@@ -260,10 +260,34 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     .test(readStudio("blocks/fields.tsx")), true);
 
 // E5 · THE BANDS, and the boundary that keeps hazard 22 shut.
+//
+// ---- THE COUNT IS 2 AND THE PREDICTION THAT IT WOULD BE 4 WAS WRONG ----------------------
+//
+// PR 3 wrote "it becomes 4 when the case-study inspector lands, and that will be deliberate",
+// and PR 7 landed that inspector. The count is still 2. The prediction assumed a new inspector
+// pane would take the ink band because the by-role rule says INSPECTOR PANE -> ink band, but
+// the case-study inspector has no section HEADS to band: its structure is a Selected-field card,
+// a Content|Style tablist, and the per-section fields. The rule maps a treatment onto a role
+// that exists; it does not conjure the role.
+//
+// Recorded rather than quietly dropped, because a number that was promised and did not arrive
+// is the shape this arc keeps getting wrong — a claim written once and trusted later. Whether
+// the case-study inspector SHOULD grow banded heads is a live by-role question and a visual
+// change, so it is not settled by a layout PR.
+//
+// AND THE COUNT IS NOW DERIVED, not read off one file. Pinning it to BlogBlocksEditPanel is
+// what let the prediction go unchecked for three PRs: a second inspector could grow a band, or
+// lose one, without this number moving. The set below is every studio file carrying the band,
+// so both the count AND its location have to stay true.
 {
+  const bandRe = /<header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">/g;
+  const withBands = readdirSync(new URL("../../components/studio", import.meta.url))
+    .map(String).filter((f) => f.endsWith(".tsx"))
+    .map((f) => [f, (code(`components/studio/${f}`).match(bandRe) ?? []).length])
+    .filter(([, n]) => n > 0);
+  t("E5: the ink band lives in exactly one file — the blog inspector — and the case-study inspector deliberately has none",
+    withBands, [["BlogBlocksEditPanel.tsx", 2]]);
   const panel = code("components/studio/BlogBlocksEditPanel.tsx");
-  t("E5: both inspector section heads are ink bands",
-    (panel.match(/<header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">/g) ?? []).length, 2);
   t("E5: the SaveIndicator on the band takes its ground — text-text-subtle is chosen against cream and drops to 1.72:1 on ink",
     /<SaveIndicator label="Body"[^>]*onInk\s*\/>/.test(panel), true);
   // The strip is NOT on ink, which is the only reason its ink focus ring is still correct.
@@ -282,12 +306,20 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
  * by-role shape as ink-band-vs-cream-bar's siblings: listbox-vs-select, three-pane-vs-list-
  * detail, and the document-level save bar vs the per-entry panel footer.
  *
- * THE BAND COUNT IS 2 AND STAYS 2 THROUGH THIS PR. E5 pins it. Nothing in the header work adds
- * a band — Skills got the CREAM bar — so THE COUNT MOVING HERE WOULD BE A RED FLAG, not an
- * expected step. It becomes 4 when the case-study inspector lands, and that will be deliberate.
+ * THE BAND COUNT IS 2 AND STAYS 2. E5 pins it, and E5 now also records that this comment used
+ * to promise 4 once the case-study inspector landed. It landed; the count did not move. See E5.
  *
  * DERIVED, NOT LISTED: an entry panel is any studio component that calls `useListItem` and
- * renders a panel `<section>`. Each must open with the cream-200 bar, byte-identical. */
+ * renders a panel `<section>`. Each must open with the cream-200 bar, byte-identical.
+ *
+ * PR 7 PREDICTED THIS DERIVATION WOULD SELF-CORRECT AND IT DID NOT NEED TO. The prediction was
+ * that ProjectsEditPanel would stop rendering a panel `<section>` once the crumb row replaced
+ * its header, and so leave the set naturally. It stayed in, and correctly: its bespoke, loading
+ * and error states still return a plain panel with the bar, because none of them has sections to
+ * navigate and a three-pane shell would be two empty panes beside a notice. The derived set is 7,
+ * unchanged. A derivation that describes reality did not need rescuing — which is the argument
+ * for deriving, but is NOT the self-correction that was claimed, and the difference is recorded
+ * because the claim would otherwise read as confirmed. */
 {
   const entryPanels = readdirSync(new URL("../../components/studio", import.meta.url))
     .filter((f) => String(f).endsWith(".tsx"))

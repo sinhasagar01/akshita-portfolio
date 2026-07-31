@@ -1628,6 +1628,40 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **NAMING A BOX THAT MIGHT BE EMPTY IS NOT THE SAME AS NAMING WHAT IS IN IT.** The Selected
+  rail's textarea caps against the canvas's height. Version 1 measured from the textarea, which
+  does not exist until a field is selected, so the effect ran at mount, found nothing, and never
+  re-ran — **uncapped, with nothing failing**. Version 2 anchored to the rail and DOM-walked to
+  `parentElement.firstElementChild`, correct only while the rail sat in that grid. **#232 passed
+  the ceiling BY REF** so a relayout could not silently retarget it, and its own comment
+  predicted the exact failure that followed. It was half a fix and it was approved as a whole
+  one.
+  **A ref fixed the SUBJECT; the effect still keyed on the ref OBJECT, which never changes**, so
+  it ran once at mount. PR 7 moved the rail into the inspector, which mounts with the page, while
+  the canvas div appears only on selection — so the effect found `null`, bailed, and never
+  re-ran. **Version 1's failure reached by a different road**, measured at 3166px of textarea in
+  an 811px pane.
+  **A callback ref versus an object ref looks like a detail and is not: the second gives the
+  effect something to depend on.** An element held in state re-runs the observer the moment the
+  node mounts. When an effect must react to a DOM node appearing, depend on the NODE.
+
+- **A FLOOR THAT COVERS AN ARITHMETIC GAP IS HONEST ONLY IF THE GAP IS WRITTEN DOWN.** At the
+  case-study fit threshold the panes measure `236 + 264 + 625 + 320 = 1445`, not 1460: the canvas
+  gets **625 where the arithmetic promises 640**, so the raw fit is 0.488 and what lands the
+  rendered transform on exactly 0.500 is `useFitToWidth`'s clamp. **The floor is load-bearing at
+  the threshold, not a safety net** — delete it as a simplification and the canvas ships at 48.8%
+  with nothing failing.
+  **The 15px is `scrollbar-gutter: stable` on `html` (globals.css:222), not pane borders** — that
+  was the first reading and it was wrong, since 264 and 320 are border-boxes with their borders
+  already inside them. `matchMedia` matches the VIEWPORT while the layout receives the viewport
+  minus the reserved gutter, so **every media-query threshold in the studio inherits the gap,
+  blog's 1614 included.**
+  **Do not close it by adding 15 to the constant.** 15 is this machine's scrollbar width, 0 where
+  scrollbars are overlays, ~17 on Windows; baking one platform's value into a shared constant
+  makes it wrong everywhere else. The durable fix is to make the query measure what the layout
+  gets — a ResizeObserver on the shell rather than `matchMedia` on the viewport — which removes
+  the discrepancy by construction. Pinned in `three-pane` Part I until then.
+
 - **AN ASSERTION MUST NOT PIN ITS NEIGHBOURS.** `studio-ink` E6 guards a COLOUR property — the
   canvas strip sets `text-ink-600` on the row so its anchor inherits, because a `text-*` utility
   on an `<a>` is dead. Its regex read `px-4 py-2 text-ink-600"`, so #213 changing the strip's
@@ -2927,6 +2961,71 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   **`SectionsRail` LANDS UNCONSUMED, DELIBERATELY.** A component with no consumer is a shape this
   project deletes, so it is recorded rather than left for an audit to find and be right about.
   **NAMED TRIGGER: PR 7 consumes it.** If PR 7 does not land, this is an orphan and should go.
+- **PR 7 · the three-pane case-study editor** →1535 (`mount-discipline` 8 net-new, `three-pane`
+  72→78, `studio-ink` 106 with E5 rewritten). Five stacked navigators collapse into one
+  `selection` value (`"board" | "details" | <id>`), `ThreePaneShell` composes rail | canvas |
+  inspector, the Selected rail moves into the inspector, and the ladder is righted.
+  **THE HEADLINE IS THAT THE NATURAL COMPOSITION IS THE WRONG ONE.** `{showBoard ? <Board/> :
+  <Shell/>}` reads correctly and compiles. It also destroys every section editor the moment
+  someone with an unsaved edit opens the Board — the shell unmounts, the inspector goes with it,
+  and the draft, the caret and the id-lockstep are gone. **Nothing fails; it looks like it
+  worked.** So the shell is HIDDEN, never swapped, exactly as the editors inside it are. Found by
+  reasoning about the composition, because hitting it does not announce itself.
+  **`mount-discipline` gates it in two halves**, since the defect is a runtime unmount rather
+  than a class string: source assertions refuse the ternary BY NAME, and a browser script proves
+  the property — **14 editors / 378 inputs constant across start → section → Board → Editor.**
+  **#232's CEILING FIX WAS HALF A FIX AND IT WAS APPROVED AS A WHOLE ONE** — see the new working
+  rule. Passing the ceiling by ref fixed the subject; the effect still keyed on the ref object,
+  so it ran once at mount and found null. **Measured: 3166px of textarea in an 811px pane.** The
+  ceiling is now the ELEMENT in state via a callback ref. A second bound came with the move —
+  the canvas ceiling is 1034 against an 811px pane, so the JS cap alone let a `sticky` rail
+  outgrow the container it sticks inside; `min(<ceiling>px, 50dvh)`.
+  **THE LADDER WAS RE-DERIVED, NOT CARRIED OVER, and that matters because PR 2's note pointed at
+  a section that no longer exists.** It said the rail must go cream-200 when the body section was
+  righted; the shell owns the frame now and that section is gone. The value lands in the same
+  place for a DIFFERENT reason — `ThreePaneShell`'s inspector pane is cream-100, so a cream-100
+  rail is 1.00 against it. Radius panel → card, one `radius-panel` left at the outermost level.
+  Crumb row and footer are the chrome bracketing the split and both take cream-200; the crumb row
+  was cream-50, one step FURTHER inverted than the header it replaced, directly above the shell's
+  cream-50 canvas column.
+  **GEOMETRY, DRIVEN AT THE RENDERED TRANSFORM** and testable for the first time, because until
+  the rail moved the 640 pane yielded 382px: 1600 → 0.596 · 1460 → **0.500** · 1459 → 0.671 (list
+  collapses) · 1222 → **0.500** · 1221 → 0.723 (inspector folds, view toggle appears). **The two
+  exact-0.500 readings are the finding** — see the new working rule on the scrollbar gutter.
+  **CONTRAST RASTERISED, sanity pair 21 first**, twelve sites on the new cream-200 grounds, all
+  clearing 4.5, tightest 4.70 (`text-cream-50` on accent-500).
+  **`parity` RUN BY HAND on the canvas this PR restructured: elevate-one-view 14 sections / 0
+  findings, fosfor-ai 15 / 0.** Not boat-crest — hazard 28.
+  **E6's PREDICTED SELF-CORRECTION DID NOT HAPPEN AND DID NOT NEED TO.** PR 7 predicted
+  `ProjectsEditPanel` would stop rendering a panel `<section>` and leave the derived set
+  naturally. It stayed in, correctly: its bespoke, loading and error states still return a plain
+  panel with the cream-200 bar, because none of them has sections to navigate. Set size 7,
+  non-vacuous guard holds. **Recorded because the claim would otherwise read as confirmed.**
+  **AND THE BAND COUNT DID NOT GO 2 → 4.** PR 3 promised it would when the case-study inspector
+  landed. It landed; the count is 2. The prediction assumed a new inspector pane takes the ink
+  band, but this inspector has no section HEADS to band — a Selected card, a Content|Style
+  tablist, and fields. **The by-role rule maps a treatment onto a role that exists; it does not
+  conjure the role.** E5 is now DERIVED across every studio file rather than read off
+  `BlogBlocksEditPanel`, so neither the count nor its location can drift unnoticed — which is
+  what let this prediction go unchecked for three PRs.
+  **TWO SAVE BUTTONS, RENAMED RATHER THAN MERGED — #200's SECOND INSTANCE.** Selecting Details
+  shows two footers, and they commit genuinely different drafts (facts through
+  `ProjectsEditPanel`'s `useDraftForm`, sections through `SectionsEditPanel`'s). By role neither
+  is wrong; the defect was identical labels CLAIMING they were the same action. **"Save details"
+  and "Save sections".** As in #200 the button was the only string that never named its object,
+  and as in #200 the progress label is left alone, because the ambiguity is in the RESTING label.
+  **No ralph suite, also as in #200** — these are copy strings and a suite pinning them would
+  fail on every wording change without catching a defect.
+  **THE ATTRIBUTE-INVARIANT IS PARTLY SILENT AND HERE IS WHERE.** It is vacuous on the case-study
+  editor, which is the point of restructuring it, so that surface was DRIVEN instead (mount
+  discipline, the width sweep, contrast, parity). For the eight dashboard pages it would prove
+  untouched, the import graph is the stronger proof: `ProjectsEditPanel` reaches the site through
+  exactly one route, `SectionsEditPanel` only through it, and `BlogEditPanel`'s import of
+  `HeroImageField` is a named export this PR does not touch. **No public file changed at all**,
+  so the public DOM is byte-identical by construction and `globals.css` is untouched.
+  **WHAT IT DOES NOT DO: the 4.5-screen inspector scroll is unimproved.** Measured in PR 6 at
+  794 → 320 costing 38px, 1.5%; the scroll is field-count driven and exists today at full width.
+  **PR 8, the group-level collapse, is the fix and is REQUIRED rather than polish.**
 - **PR 5 · the shell's two seams — labelling, and the threshold that mattered more** →1521
   (`three-pane` 68→72). STATE recorded `ThreePaneShell` as blog-specific "until a second
   consumer". **THE TRIGGER WAS MET, AND THE COUPLING WAS POLICY RATHER THAN STRUCTURE** — see the
