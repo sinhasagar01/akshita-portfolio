@@ -1628,6 +1628,20 @@ All prior locked decisions remain. Added across this session:
 
 All prior rules remain. Added or sharpened across this session:
 
+- **KNOWING WHICH DIRECTION AN APPROXIMATION ERRS IN IS THE WHOLE DIFFERENCE.** Proposed during
+  the sidebar-resize investigation: if the sidebar becomes variable, keep the fit threshold a
+  constant "derived from a MINIMUM sidebar width". **That fails in the silent direction.** With
+  `T = S_min + panes`, a WIDER sidebar leaves the panes less than `T` promises, so the threshold
+  says three panes fit when they do not — no error, no failure, just a canvas under its measure.
+  That is #194's defect exactly.
+  **The MAXIMUM is the sound version of the same idea.** `T = S_max + panes` over-collapses when
+  the sidebar is narrow: it wastes space and never lies. Both approximate; only one of them
+  degrades safely.
+  **The general form: an approximation is not characterised by its magnitude but by its SIGN.**
+  Before accepting one, say which way it is wrong and what happens when it is. A bounded error in
+  the unsafe direction is still unsafe — "within 120px" is no comfort if those 120px are the ones
+  that silently drop the canvas below its floor.
+
 - **A RECORDED TRIGGER NAMES A DEFECT; ITS PRESCRIBED REMEDY IS A HYPOTHESIS FROM THE MOMENT IT
   WAS WRITTEN. RE-DERIVE THE REMEDY, NOT JUST THE DEFECT.** The arc closed with three named
   triggers. The first was "matchMedia -> a ResizeObserver on the shell", and **following it
@@ -2142,8 +2156,28 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
 
 ## HAZARDS AND KNOWN DUPLICATIONS
 
-1. **The 236px coupling** (#165) — comment-enforced only, in `StudioSidebar` and
-   `PublishBar`. **It did NOT become a second literal in #178**: the three-pane widths live
+1. **The 236px coupling** (#165) — **SEVEN sites, and the arithmetic half is now DERIVED
+   rather than counted (#236).** The recorded text said "in `StudioSidebar` and `PublishBar`"
+   (two) and `studio-ink` D said "all five sites" while pinning four. Re-derived at HEAD:
+
+   | site | kind |
+   |---|---|
+   | `StudioSidebar` `lg:w-[236px]` | display — the pane itself |
+   | `PublishBar` `lg:left-[236px]` | display — offsets a `fixed` bar past it |
+   | `FIT_THRESHOLD_PX` 1614 | **behavioural** — blog list collapses |
+   | `CS_FIT_THRESHOLD_PX` 1460 | **behavioural** — case-study list collapses |
+   | `CS_COLLAPSED_FLOOR_PX` 1223 | **behavioural** — case-study inspector folds |
+   | `INSPECTOR_FOLD_PX` 1100 | **behavioural, soft** — chosen not summed, but its MEANING ("is the inspector still usable") moves with the sidebar even though no arithmetic breaks |
+   | the derivation comments (×10) | documentation |
+
+   **Three display, four behavioural** — the old note's "one of them is behavioural" understated
+   it, because the two case-study constants landed after the note and nothing recounted.
+   **THE COUNT NO LONGER MATTERS, WHICH IS THE FIX.** `three-pane` Part A reads the width out of
+   `StudioSidebar`'s class and sums it into every threshold, so no site restates the number.
+   Mutation-proven: moving the class to 260 with the constants untouched fails **nine**
+   assertions across A, H and I, where before it failed one regex and left both case-study
+   constants silently wrong.
+   **It did NOT become a second literal in #178**: the three-pane widths live
    once in `lib/studio/three-pane.ts` and ralph asserts no duplicate exists. That is the
    pattern the 236px should follow whenever it is next touched.
    **#194 FOUND THE HALF OF THIS THAT WAS NOT GUARDED.** The suite forbade a second copy of

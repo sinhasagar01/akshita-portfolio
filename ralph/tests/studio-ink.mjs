@@ -103,21 +103,29 @@ for (const invented of ["--on-ink", "--color-on-ink"]) {
 t("C1: ink-200 is a pre-existing token, not one this PR introduced",
   /--color-ink-200:\s*oklch\(80\.0% 0\.010 60\)/.test(globals), true);
 
-/* ================================================ D. THE 236px COUPLING IS UNMOVED */
-// Layout is unchanged, so all five sites must still read 236 — and one of them is behavioural.
-t("D1: the sidebar is still 236px", /lg:w-\[236px\]/.test(sidebar), true);
-t("D1: PublishBar's hand-coupled offset still matches",
-  /lg:left-\[236px\]/.test(code("components/studio/PublishBar.tsx")), true);
-// THE BEHAVIOURAL ONE. This decides whether the blog inspector folds, so a sidebar width
-// change moves a behaviour rather than an offset — which is why "236 moves twice" understates
-// it at five sites. The constant is a LITERAL; the arithmetic that derives it lives in the
-// comment above it, so both are pinned.
-{
-  const tp = read("lib/studio/three-pane.ts");
-  t("D1: FIT_THRESHOLD_PX is still 1614", /export const FIT_THRESHOLD_PX = 1614;/.test(tp), true);
-  t("D1: …and its derivation still starts from a 236px sidebar",
-    /sidebar 236 \+ list 264 \+ canvas 794 \+ inspector 320 = 1614/.test(tp), true);
-}
+/* ================================================ D. THE 236px COUPLING
+ *
+ * ---- THIS BLOCK USED TO COUNT, AND THE COUNT WAS WRONG ------------------------------------
+ *
+ * It read "all five sites must still read 236" and pinned FOUR. At the time it was written that
+ * was very nearly right. It is not any more: `CS_FIT_THRESHOLD_PX` and `CS_COLLAPSED_FLOOR_PX`
+ * both sum the sidebar, both are BEHAVIOURAL — they decide whether the case-study list collapses
+ * and whether its inspector folds — and both landed after this was written, so the count decayed
+ * to four-of-seven without anything failing. Hazard 1's own text still said two.
+ *
+ * A COUNT IN A COMMENT IS A CLAIM WITH NO GATE UNDER IT. So this stops counting. The arithmetic
+ * half now lives in `three-pane` Part A, which READS the width out of `StudioSidebar`'s class and
+ * sums it into every threshold — #194's fix applied to the one term #194 left out. Nothing needs
+ * to know how many sites there are once no site restates the number.
+ *
+ * WHAT STAYS HERE is the half that is about INK CHROME rather than arithmetic: this suite owns
+ * the sidebar's appearance, so it pins that the width class still exists on the element whose
+ * ground it governs. The equality with PublishBar's offset moved to `three-pane` beside the other
+ * derivations, because it is a coupling between two files and not a fact about ink. */
+t("D1: the sidebar still declares a width on the element this suite governs",
+  /lg:w-\[\d+px\]/.test(sidebar), true);
+t("D1: …and the arithmetic that consumes it is DERIVED in three-pane, not restated here",
+  /const SIDEBAR_PX = \(\(\) => \{/.test(read("ralph/tests/three-pane.mjs")), true);
 
 /* ============================================ E. THE PANEL LANGUAGE (PR 2a) */
 import { readdirSync } from "node:fs";
