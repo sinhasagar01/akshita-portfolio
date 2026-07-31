@@ -93,7 +93,7 @@ import ThreePaneShell from "./ThreePaneShell";
 import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
 import BoldToolbar from "./BoldToolbar";
-import { useMediaMin } from "./useMediaMin";
+import { usePageWidthMin } from "./usePageWidthMin";
 import { FIT_THRESHOLD_PX, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
 import type { BlogCard } from "@/lib/keystatic";
@@ -266,7 +266,7 @@ export default function BlogBlocksEditPanel({
   // rather than inside the shell because the answer decides which PARENT the single
   // inspector node mounts under, and the shell handing it back up would mean setting parent
   // state during render.
-  const inspectorFits = useMediaMin(INSPECTOR_FOLD_PX);
+  const inspectorFits = usePageWidthMin(INSPECTOR_FOLD_PX);
 
   // THIS PANEL HOLDS THE SESSION PREVIEWS FOR ITS POST, and holds nothing else's.
   //

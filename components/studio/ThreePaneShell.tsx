@@ -68,7 +68,7 @@ import { useState, type ReactNode } from "react";
 // `size-*` class on the svg or `[&>svg]:size-*` on the parent. The first draft wrapped one
 // in a `text-[12px]` span and the button rendered visibly empty.
 import { IconChevronRight } from "./icons";
-import { useMediaMin } from "./useMediaMin";
+import { usePageWidthMin } from "./usePageWidthMin";
 import { isListCollapsed, type ListIntent } from "@/lib/studio/three-pane";
 
 export default function ThreePaneShell({
@@ -112,16 +112,16 @@ export default function ThreePaneShell({
    *  THE FOLD IS THE CALLER'S QUERY, NOT THE SHELL'S, and deliberately so. The shell would
    *  have to hand the answer back up for the caller to act on it, and a callback fired
    *  during render sets parent state mid-render. The caller reads INSPECTOR_FOLD_PX
-   *  through the same useMediaMin hook and simply decides what to pass. */
+   *  through the same usePageWidthMin hook and simply decides what to pass. */
   inspector: ReactNode | null;
 }) {
   const [intent, setIntent] = useState<ListIntent>("default");
-  const fits = useMediaMin(fitThresholdPx);
+  const fits = usePageWidthMin(fitThresholdPx);
   const collapsed = isListCollapsed(intent, fits);
 
   // THE TRANSITION IS FOR USER TOGGLES ONLY, NEVER FOR THE HYDRATION CORRECTION.
   //
-  // The server always renders the wide layout (useMediaMin has no viewport to read), so on
+  // The server always renders the wide layout (usePageWidthMin has no page box to read), so on
   // a narrow screen the first client render switches the pane from 264px to 0. With the
   // transition always on, that correction ANIMATES — the rail visibly slides shut on every
   // single page load below 1614px, which reads as a glitch rather than a choice. It also

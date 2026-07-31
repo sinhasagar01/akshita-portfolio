@@ -97,7 +97,7 @@ t("B: only `default` is width-sensitive",
  * the number out. */
 const CONSUMERS = [
   "components/studio/ThreePaneShell.tsx",
-  "components/studio/useMediaMin.ts",
+  "components/studio/usePageWidthMin.ts",
   "components/studio/BlogBlocksEditPanel.tsx",
 ];
 for (const f of CONSUMERS) {
@@ -118,7 +118,7 @@ t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? [])
 // The case-study numbers get the same discipline from the start rather than after a second
 // copy appears. They have no consumers yet — PR 7 adds those — so this is the cheap moment.
 t("C: three-pane.ts declares 1460 exactly once", (home.match(/\b1460\b/g) ?? []).length, 1);
-t("C: three-pane.ts declares 1222 exactly once", (home.match(/\b1222\b/g) ?? []).length, 1);
+t("C: three-pane.ts declares 1223 exactly once", (home.match(/\b1223\b/g) ?? []).length, 1);
 // 640 is DERIVED (1280 × 0.5), never written as a literal — writing it would be the second
 // copy this part exists to prevent, and it would silently survive a change to the scale floor.
 t("C: the canvas floor is computed from the scale, not spelled as a literal",
@@ -140,7 +140,7 @@ const shell = code("components/studio/ThreePaneShell.tsx");
  * responsibility rather than being weakened. */
 t("D: the shell no longer imports FIT_THRESHOLD_PX — it takes the threshold as a prop, so it knows no collection",
   /FIT_THRESHOLD_PX/.test(shell), false);
-t("D: the shell drives its media query from that prop", /useMediaMin\(\s*fitThresholdPx\s*\)/.test(shell), true);
+t("D: the shell drives its page-width query from that prop", /usePageWidthMin\(\s*fitThresholdPx\s*\)/.test(shell), true);
 t("D: …and the collapse controls are named from the consumer's noun, not a hardcoded 'posts'",
   /aria-label=\{`Show \$\{listNoun\}`\}/.test(shell) && /aria-label=\{`Collapse \$\{listNoun\}`\}/.test(shell), true);
 t("D: no hardcoded collection noun survives in the shell", /"[^"]*\bposts\b[^"]*"/.test(shell), false);
@@ -155,7 +155,7 @@ t("D: the blog host imports FIT_THRESHOLD_PX and passes it as the shell's thresh
   /FIT_THRESHOLD_PX/.test(host) && /fitThresholdPx=\{FIT_THRESHOLD_PX\}/.test(host), true);
 t("D: …and names its list 'posts' at the call site", /listNoun="posts"/.test(host), true);
 t("D: the host imports INSPECTOR_FOLD_PX", /INSPECTOR_FOLD_PX/.test(host), true);
-t("D: the host passes it to the media hook", /useMediaMin\(\s*INSPECTOR_FOLD_PX\s*\)/.test(host), true);
+t("D: the host passes it to the page-width hook", /usePageWidthMin\(\s*INSPECTOR_FOLD_PX\s*\)/.test(host), true);
 
 /* ================================================================= E. one inspector, not two
  * The fold moves the inspector node between parents; it must never render a hidden second
@@ -268,6 +268,13 @@ t("H: the canvas term covers 68ch (745.9) plus its 48px padding", 794 >= 745.9 +
  * INSPECTOR_PX from Part H is the point: one set of widths feeds both thresholds. */
 const REOPEN_PX = widthFrom(/place-items-center rounded-r-\[|w-\[(\d+)px\] flex-none place-items-center/, "reopen rail") || 26;
 const RAIL_PX = Number((/h-7 w-\[(\d+)px\] flex-none place-items-center/.exec(shell) ?? [])[1] ?? 26);
+/* THE COLLAPSED LIST PANE IS NOT ZERO, AND THAT PIXEL WAS MISSING FROM THE FLOOR. It is
+ * `w-0 border-transparent`, and a transparent border still occupies its width — the border-COLOR
+ * is what animates, so it cannot be dropped without losing the transition. Derived from the
+ * shell's own class rather than assumed, because the whole point of Part I is that the threshold
+ * IS the sum. Driven at page 1222 before the fix: canvas 639, raw fit 0.499, clamp covering it. */
+const COLLAPSED_LIST_PX = /collapsed \? "w-0 border-transparent"/.test(shell) ? 1 : 0;
+t("I: a collapsed list pane still occupies its 1px transparent border", COLLAPSED_LIST_PX, 1);
 
 t("I: CS_MIN_SCALE is 0.5 — the owner's floor, and a ROLE decision: the canvas is for SHAPE, the inspector is for WORDS",
   CS_MIN_SCALE, 0.5);
@@ -288,54 +295,68 @@ t("I: sidebar + list + canvas-floor + inspector IS the case-study threshold",
     m ? Number(m[1]) : NaN, CS_CANVAS_WIDTH_PX);
 }
 // THE COLLAPSED FLOOR, DERIVED AND CONFIRMED RATHER THAN ASSUMED.
-t("I: CS_COLLAPSED_FLOOR_PX is 1222", CS_COLLAPSED_FLOOR_PX, 1222);
-t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width",
-  236 + RAIL_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_COLLAPSED_FLOOR_PX);
+t("I: CS_COLLAPSED_FLOOR_PX is 1223", CS_COLLAPSED_FLOOR_PX, 1223);
+t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width AND the collapsed pane's residual border",
+  236 + COLLAPSED_LIST_PX + RAIL_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_COLLAPSED_FLOOR_PX);
 // Collapsing returns (list − rail) to the canvas. At the fit threshold that is 878px, and the
 // question the constant exists to answer is whether that clears the floor. It does, by 18.6pts.
 {
-  const recovered = LIST_PX - RAIL_PX;
+  const recovered = LIST_PX - RAIL_PX - COLLAPSED_LIST_PX;
   const canvasWhenCollapsed = CS_CANVAS_MIN_PX + recovered;
-  t("I: collapsing the list returns 238px to the canvas", recovered, 238);
-  t("I: …so at the fit threshold the collapsed canvas is 878px", canvasWhenCollapsed, 878);
+  t("I: collapsing the list returns 237px to the canvas", recovered, 237);
+  t("I: …so at the fit threshold the collapsed canvas is 877px", canvasWhenCollapsed, 877);
   t("I: …which is above the 50% floor, so the rail collapsing never takes the canvas under it",
     canvasWhenCollapsed / CS_CANVAS_WIDTH_PX >= CS_MIN_SCALE, true);
 }
-/* ---- THE THRESHOLD IS OPTIMISTIC BY THE SCROLLBAR GUTTER, AND THE FLOOR IS WHAT COVERS IT ---
+/* ---- THE SUMS ARE PAGE-SPACE AND THE HOOK NOW MEASURES A PAGE. THE GAP IS CLOSED. -----------
  *
- * MEASURED at a 1460 viewport, the exact fit threshold, with the list open:
+ * THIS BLOCK REPLACED ITS OWN PREDECESSOR RATHER THAN KEEPING IT. The assertions here used to
+ * prove the gap EXISTED — "the fit threshold minus the reserved scrollbar leaves the canvas below
+ * its floor, so the clamp is load-bearing". That gap is now fixed, so keeping those assertions
+ * would PIN THE BUG: a gate that outlives the defect it described is the same shape as a comment
+ * describing code that no longer exists, except that it fails when someone fixes the thing.
  *
- *     sidebar 236 · list 264 · canvas 625 · inspector 320  =  1445, not 1460
+ * WHAT THE DEFECT ACTUALLY WAS, sharper than it was first recorded. `matchMedia` matches the
+ * VIEWPORT; every pane divides the PAGE BOX, and `scrollbar-gutter: stable` keeps them apart.
+ * The constants were PAGE-SPACE SUMS all along, so not one of them was wrong — only the thing
+ * they were compared against. Driven at a 1475 viewport, where the page box is exactly 1460:
+ * canvas 640, raw fit 0.500, rendered 0.500. `usePageWidthMin` measures the page box now.
  *
- * The canvas gets 625 where the arithmetic above promises 640. The raw fit is 625/1280 = 0.488,
- * and what puts the rendered transform at exactly 0.500 is `useFitToWidth`'s FLOOR. So the floor
- * is LOAD-BEARING at the threshold, not a safety net — remove the clamp as a simplification and
- * the canvas silently renders at 48.8% with nothing failing.
- *
- * THE 15px IS NOT PANE BORDERS. That was the first reading and it was wrong; 264 and 320 are
- * border-boxes with their borders already inside them. It is `scrollbar-gutter: stable` on
- * `html` (globals.css:222), which permanently reserves the classic scrollbar's width. So
- * `matchMedia("(min-width: 1460px)")` matches the VIEWPORT while the layout only ever receives
- * the viewport minus that gutter. The two measure different things, and every media-query
- * threshold in the studio inherits the gap — blog's 1614 included, by the same mechanism.
- *
- * DO NOT FIX IT BY ADDING 15 TO THE CONSTANT. 15 is this machine's scrollbar width; it is 0
- * wherever scrollbars are overlays and ~17 on Windows. Baking one platform's value into a
- * shared constant makes it wrong everywhere else. The durable fix is to make the query measure
- * what the layout gets — a ResizeObserver on the shell rather than matchMedia on the viewport —
- * which removes the discrepancy by construction instead of covering it. That is a change to a
- * hook blog also uses, so it is named here as its own work rather than folded into a layout PR.
- *
- * Until then this is recorded rather than silently compensated, because a floor covering an
- * arithmetic gap is honest only if the gap is written down. */
-t("I: the gutter gap is real — the fit threshold minus the reserved scrollbar leaves the canvas below its floor, so the clamp is load-bearing",
-  [(1460 - 15 - 236 - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX < CS_MIN_SCALE,
-   CS_FIT_THRESHOLD_PX - 236 - LIST_PX - INSPECTOR_PX], [true, CS_CANVAS_MIN_PX]);
+ * AND THE RECORDED REMEDY WAS WRONG. The trigger said "a ResizeObserver on the shell". The
+ * shell's root is a flex ROW with `min-width: auto`, so its width is its panes' min-content — at
+ * a 900px viewport it measures 1309px inside an 885px page and would have reported "fits" where
+ * nothing fits. Measuring `documentElement` is what closes it. */
+t("I: the fit threshold IS the page-space sum, exactly — the canvas gets its floor at the threshold, with nothing left over",
+  CS_FIT_THRESHOLD_PX - 236 - LIST_PX - INSPECTOR_PX, CS_CANVAS_MIN_PX);
+t("I: …and blog's threshold is the same shape of sum",
+  FIT_THRESHOLD_PX - 236 - LIST_PX - INSPECTOR_PX, 794);
+{
+  const hook = readFileSync(new URL("../../components/studio/usePageWidthMin.ts", import.meta.url), "utf8");
+  t("I: the hook measures the PAGE BOX, not the viewport",
+    /document\.documentElement\.getBoundingClientRect\(\)\.width/.test(hook), true);
+  t("I: …and no longer asks matchMedia, which is what compared a page-space sum to a viewport",
+    /matchMedia\(/.test(hook.replace(/\/\/.*$/gm, "")), false);
+  // The subject is pinned BY NAME, because the wrong subject is the one the trigger prescribed.
+  t("I: …and it observes documentElement rather than the shell, whose width is its own panes' min-content",
+    /ro\.observe\(document\.documentElement\)/.test(hook), true);
+  t("I: the server snapshot survives the change — documentElement is not a node a component renders",
+    /getServerSnapshot = useCallback\(\(\) => true/.test(hook), true);
+}
+/* THE FLOOR IS NOT INERT AFTERWARDS, WHICH IS WHY IT STAYS. On the default path it never binds —
+ * that is the point of getting the threshold right. It binds on the EXPLICIT-OPEN path, which
+ * `ListIntent` deliberately does not cover by width: an author who reopens the list on a narrow
+ * screen keeps it open. Driven at page 1225 with the list reopened: canvas 405, raw fit 0.316,
+ * rendered 0.500. The clamp stopped covering an arithmetic error and started guarding the one
+ * path the arithmetic does not. */
+t("I: with the list explicitly OPEN below the collapsed floor the raw fit drops under 50%, so the clamp is still doing work",
+  (CS_COLLAPSED_FLOOR_PX - 236 - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX < CS_MIN_SCALE, true);
+t("I: …and `isListCollapsed` is what lets that happen — an explicit open beats the width",
+  isListCollapsed("open", false), false);
 // The clamp itself, in source. `Math.min(1, …)` alone is the simplification this comment warns
 // against, so the FLOOR term is pinned rather than described.
 {
   const sections = readFileSync(new URL("../../components/studio/SectionsEditPanel.tsx", import.meta.url), "utf8");
-  t("I: useFitToWidth clamps UP to CS_MIN_SCALE as well as down to 1 — dropping the floor ships 48.8% at the threshold",
+  t("I: useFitToWidth clamps UP to CS_MIN_SCALE as well as down to 1",
     /Math\.max\(CS_MIN_SCALE, Math\.min\(1, [^)]*\/ CANVAS_WIDTH\)\)/.test(sections), true);
 }
 
@@ -348,11 +369,11 @@ t("I: the gutter gap is real — the fit threshold minus the reserved scrollbar 
     /fitThresholdPx=\{CS_FIT_THRESHOLD_PX\}/.test(host), true);
   t("I: …and names its list 'sections' at the call site", /listNoun="sections"/.test(host), true);
   t("I: …and folds its inspector at CS_COLLAPSED_FLOOR_PX, the derived floor rather than blog's 1100",
-    /useMediaMin\(CS_COLLAPSED_FLOOR_PX\)/.test(host), true);
+    /usePageWidthMin\(CS_COLLAPSED_FLOOR_PX\)/.test(host), true);
   // On CODE, not the raw file — the comment at :729 names 1100 to say why it is NOT used, and a
   // check that punishes explaining a decision teaches people to stop explaining decisions.
   t("I: the case-study editor declares no literal breakpoint of its own — the constants are the only source",
-    /\b(1460|1222|1614|1100)\b/.test(code("components/studio/SectionsEditPanel.tsx")), false);
+    /\b(1460|1223|1614|1100)\b/.test(code("components/studio/SectionsEditPanel.tsx")), false);
 }
 
 // NOT REAL OPTIONS FOR THREE PANES — recorded so nobody re-derives them and proposes one.

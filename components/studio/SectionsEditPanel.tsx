@@ -32,7 +32,7 @@ import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { CS_MIN_SCALE, CS_FIT_THRESHOLD_PX, CS_COLLAPSED_FLOOR_PX } from "@/lib/studio/three-pane";
-import { useMediaMin } from "./useMediaMin";
+import { usePageWidthMin } from "./usePageWidthMin";
 import ThreePaneShell from "./ThreePaneShell";
 import SectionsRail from "./SectionsRail";
 import CollapsibleGroup from "./blocks/CollapsibleGroup";
@@ -730,7 +730,7 @@ export default function SectionsEditPanel({
   // those fields. CS_COLLAPSED_FLOOR_PX rather than blog's 1100 because it is DERIVED: below it
   // the canvas drops under its 50% floor even with the rail collapsed, which is the width at
   // which folding the inspector is the only lever left.
-  const inspectorFits = useMediaMin(CS_COLLAPSED_FLOOR_PX);
+  const inspectorFits = usePageWidthMin(CS_COLLAPSED_FLOOR_PX);
   // Where the Editor toggle returns to. Without it, leaving the Board would have to guess, and
   // guessing "the first section" loses the place an author was working in.
   const lastEditedRef = useRef<Selection>("details");
