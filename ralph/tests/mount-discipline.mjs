@@ -71,8 +71,13 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
     /\{\s*open\s*&&/.test(grp), false);
   t("B2.3: `hidden` (the Style-tab axis) and `open` are SEPARATE — a card hidden under Style must still not unmount",
     /<div hidden=\{hidden\} className=\{className\}>/.test(grp), true);
+  // #253 SPLIT THE HEAD INTO A STATIC NAME PLUS A LIVE SUMMARY, so the prop this anchored on
+  // moved from `summaryClassName` to `nameClassName`. The property is unchanged — ItemRows folds
+  // through the SHARED group rather than a local copy — so the anchor moves with it.
   t("B2.4: ItemRows rows fold through the shared group rather than a local copy",
-    /<CollapsibleGroup[\s\S]{0,900}summaryClassName=\{groupLabelCls\}/.test(fields), true);
+    /<CollapsibleGroup[\s\S]{0,900}nameClassName=\{groupLabelCls\}/.test(fields), true);
+  t("B2.4: …and the head carries BOTH an ordinal name and a content summary, not one slot doing two jobs",
+    /name=\{rowName\}[\s\S]{0,120}summary=\{rowSummary\}/.test(fields), true);
 
   /* THE ADD-THEN-FOCUS TRAP, PINNED IN SOURCE AND DRIVEN BELOW.
    * `useItemList.add` records the new index in `pendingFocus`; `focusRef` claims it by calling

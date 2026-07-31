@@ -252,7 +252,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           <span className="text-[10px] text-text-subtle">One sentence shown on the project card.</span>
         </label>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3">
           {FACTS.map(({ key, label, placeholder }) => (
             <label key={key} className="flex flex-col gap-1.5">
               <span className={labelCls}>{label}</span>

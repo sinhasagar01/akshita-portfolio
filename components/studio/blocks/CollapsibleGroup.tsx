@@ -47,6 +47,8 @@ import { IconChevronDown } from "../icons";
 
 export default function CollapsibleGroup({
   summary,
+  name,
+  nameClassName = "",
   controls,
   defaultOpen = true,
   className = "",
@@ -57,6 +59,10 @@ export default function CollapsibleGroup({
 }: {
   /** What a CLOSED group shows. Never a placeholder — see the call sites. */
   summary: ReactNode;
+  /** A STATIC group name, rendered before the summary. When given, the summary becomes the
+   *  contract's muted right-aligned `.sum`; when absent nothing changes for existing callers. */
+  name?: ReactNode;
+  nameClassName?: string;
   /** THE HEADER'S TYPE BELONGS TO THE CALL SITE, not to this component, and passing it rather
    *  than importing `groupLabelCls` is what keeps `fields.tsx -> CollapsibleGroup -> fields.tsx`
    *  from being a cycle. It is also the truer shape: the three groups this serves sit at three
@@ -103,7 +109,23 @@ export default function CollapsibleGroup({
           >
             <IconChevronDown />
           </span>
-          <span className={`min-w-0 flex-1 truncate ${summaryClassName} group-hover/ct:text-ink-950`}>
+          {/* ---- THE CLOSED STATE HAS TO EARN ITS CLICK ------------------------------------
+              A static NAME plus a live SUMMARY, which is the contract's `.ghead b` + `.ghead
+              .sum`. The summary is not new work and was never thrown away — #234 already routes
+              `rowLabel` here and its record says it "consumes it rather than inventing an API".
+              What was wrong is the SHAPE: the summary occupied the name slot wearing the name's
+              eyebrow, so a row said "Front door sensor" where it should say "DEVICE 2 · Front
+              door sensor" with the content muted and right-aligned.
+              `name` is optional, so every other consumer (the block cards, DisclosureGroup)
+              renders exactly as before with the summary still filling the row. */}
+          {name !== undefined && (
+            <span className={`flex-none ${nameClassName}`}>{name}</span>
+          )}
+          <span
+            className={`min-w-0 flex-1 truncate ${
+              name !== undefined ? "text-right text-[11px] font-normal normal-case tracking-normal text-ink-400" : summaryClassName
+            } group-hover/ct:text-ink-950`}
+          >
             {summary}
           </span>
         </button>

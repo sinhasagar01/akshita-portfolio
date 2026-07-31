@@ -62,7 +62,7 @@ export function SectionShellForm({
         <TextField label="Eyebrow" value={value.eyebrow} onChange={(v) => set("eyebrow", v)} onBlur={onBlur} />
         <TextField label="Title" value={value.title} onChange={(v) => set("title", v)} onBlur={onBlur} />
         <DisclosureGroup revealLabel="More section fields">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-1">
               <TextField
                 label="Anchor id"
@@ -92,7 +92,7 @@ export function SectionShellForm({
       </TabGroup>
       {/* Style — how the section presents: variant, layout, and the glow word. */}
       <TabGroup group="style">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-2">
           <ListboxField
             label="Variant"
             value={value.variant}
@@ -111,7 +111,7 @@ export function SectionShellForm({
         </div>
         {/* The glow word is optional appearance — collapse it behind one reveal. */}
         <DisclosureGroup revealLabel="Glow settings">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-2">
             <TextField label="Glow text" value={value.glow.text} onChange={(v) => onChange({ ...value, glow: { ...value.glow, text: v } })} onBlur={onBlur} optional />
             <TextField label="Glow size (CSS)" value={value.glow.size} onChange={(v) => onChange({ ...value, glow: { ...value.glow, size: v } })} onBlur={onBlur} optional />
           </div>

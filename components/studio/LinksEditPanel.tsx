@@ -20,7 +20,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconArrowUpRight, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 import type { LinkItem } from "@/lib/studio/site-settings-format";
-import { labelCls, FIELD_MEASURE } from "./blocks/fields";
+import { labelCls, KEY_PILL_CLS, FIELD_MEASURE } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -213,7 +213,13 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       onChange={(e) => updateLink(i, { label: e.target.value })}
                       onBlur={handleBlur}
                       placeholder="Label"
-                      className={`${inputBase} min-w-0 flex-1 ${FIELD_MEASURE} ${okBorder}`}
+                      aria-label={`Link ${i + 1} label`}
+                      /* THE PILL, NOT THE WELL. This label NAMES the url beneath it, so it is an
+                         author-typed key and takes the key pill — the owner's report was exactly
+                         this pair reading as two identical boxes. It keeps `flex-1` rather than
+                         the pill's own `w-fit`, because it shares its row with the reorder and
+                         remove controls and shrink-wrapping here would leave a ragged gap. */
+                      className={`${KEY_PILL_CLS} min-w-0 flex-1`}
                     />
                     <button
                       type="button"
@@ -245,6 +251,9 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       <IconX />
                     </button>
                   </div>
+                  {/* The connector, indented to the pill's left edge — it groups the key with
+                      its value without adding a border at a depth that already has one. */}
+                  <span aria-hidden className="ml-5 block h-2 w-px bg-ink-950/22" />
                   <input
                     type="text"
                     inputMode="url"

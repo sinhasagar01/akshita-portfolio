@@ -19,7 +19,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
-import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
+import { inputClsMd, labelCls, KeyRow, FIELD_MEASURE } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -278,31 +278,31 @@ export default function HeroEditPanel({
             aria-labelledby={`hero-tab-edit-${activeTab}`}
             className="flex flex-col gap-1.5"
           >
-            <label className="flex flex-col gap-1.5">
-              <span className={labelCls}>
-                Tab {activeTab + 1} name
-              </span>
-              <input
-                type="text"
-                value={values[TABS[activeTab].labelKey]}
-                onChange={(e) => edit(TABS[activeTab].labelKey, e.target.value)}
-                onBlur={saveDraft}
-                placeholder={TABS[activeTab].fallback}
-                className={`${inputClsMd} ${FIELD_MEASURE}`}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className={labelCls}>
-                Tab {activeTab + 1} line
-              </span>
-              <textarea
-                rows={3}
-                value={values[TABS[activeTab].lineKey]}
-                onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
-                onBlur={saveDraft}
-                className={`${inputClsMd} resize-y leading-relaxed`}
-              />
-            </label>
+            {/* THE TAB NAME IS AN AUTHOR-TYPED KEY and the serif line is what it names, so this
+                is a key row rather than two stacked fields. The pill IS the key, which is why
+                the "Tab N name" caption is gone — a caption above a pill would name the name.
+                The accessible name moves to `aria-label`, so nothing is lost to a screen reader.
+                The line keeps its own caption: that one is a schema label, not a typed key. */}
+            <KeyRow
+              label={`Tab ${activeTab + 1} name`}
+              value={values[TABS[activeTab].labelKey]}
+              onChange={(v) => edit(TABS[activeTab].labelKey, v)}
+              onBlur={saveDraft}
+              placeholder={TABS[activeTab].fallback}
+            >
+              <label className="flex flex-col gap-1.5">
+                <span className={labelCls}>
+                  Tab {activeTab + 1} line
+                </span>
+                <textarea
+                  rows={3}
+                  value={values[TABS[activeTab].lineKey]}
+                  onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
+                  onBlur={saveDraft}
+                  className={`${inputClsMd} min-h-24 resize-y py-3 pb-[18px] leading-[1.55]`}
+                />
+              </label>
+            </KeyRow>
           </div>
         </div>
 
