@@ -10,6 +10,7 @@
 // P4 4(b)-ii — the row mechanics now come from useItemList, shared with the block
 // forms. This file's markup is unchanged; only the four local operations moved.
 import { useItemList } from "./useItemList";
+import { FIELD_MEASURE } from "./blocks/fields";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 
 type Props = {
@@ -66,7 +67,11 @@ export default function ChipListEditor({
                 // only distinction is a layout context is a constant nobody would remember.
                 // Local does not mean behind: the well (height, ground, border) tracks
                 // blocks/fields.tsx exactly and moves whenever it does.
-                className="min-h-11 min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+                // The measure applies here too. This is the FLEX-CHILD family (E2) — it stays
+                // local because it needs `flex-1` where the shared export forces `w-full` — but
+                // that is a MIN-width concern and the measure is a MAX one, so they compose.
+                // Uncapped, these ran 1825px on a 2560 display inside About and Process.
+                className={`min-h-11 min-w-0 flex-1 ${FIELD_MEASURE} rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30`}
               />
               {/* preventDefault on mousedown keeps focus on the input so the click
                   does not blur-save mid-op (the About-panel fix). */}

@@ -20,7 +20,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
 import { IconLayers } from "./icons";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
@@ -238,7 +238,7 @@ function CategoryPanel({
             onChange={(e) => onName(e.target.value)}
             onBlur={onBlurSave}
             placeholder="e.g. Design"
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
 

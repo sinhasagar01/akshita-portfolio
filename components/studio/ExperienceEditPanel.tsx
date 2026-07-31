@@ -13,7 +13,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconBriefcase } from "./icons";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -133,7 +133,7 @@ export default function ExperienceEditPanel({
             // re-pointed to the token each already stood next to, so the hazard closed by
             // realising the original intent rather than by deleting the muting. This field muted
             // against cream-200, the worst-case ground, still clears AA at 4.78.
-            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-text-subtle outline-none"
+            className={`min-h-11 w-full ${FIELD_MEASURE} cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-text-subtle outline-none`}
           />
           <span className="text-[10px] text-text-subtle">
             The entry&rsquo;s identity, set when you add it. Not editable here.
@@ -147,7 +147,7 @@ export default function ExperienceEditPanel({
             value={values.title}
             onChange={(e) => setField("title", e.target.value)}
             onBlur={saveDraft}
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
         </label>
 
@@ -160,7 +160,7 @@ export default function ExperienceEditPanel({
               onChange={(e) => setField("startDate", e.target.value)}
               onBlur={saveDraft}
               placeholder="Aug 2022"
-              className={inputClsMd}
+              className={`${inputClsMd} ${FIELD_MEASURE}`}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -171,7 +171,7 @@ export default function ExperienceEditPanel({
               onChange={(e) => setField("endDate", e.target.value)}
               onBlur={saveDraft}
               placeholder="Present"
-              className={inputClsMd}
+              className={`${inputClsMd} ${FIELD_MEASURE}`}
             />
           </label>
         </div>
@@ -201,7 +201,7 @@ export default function ExperienceEditPanel({
             onChange={(e) => setField("location", e.target.value)}
             onBlur={saveDraft}
             placeholder="Bengaluru"
-            className={inputClsMd}
+            className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
           <span className="text-[10px] text-text-subtle">
             City shown next to the company. Overrides the city parsed from the company name.

@@ -14,7 +14,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import { IconWorkflow } from "./icons";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
 type Props = { itemId: string; processStages: ProcessStage[] };
@@ -113,7 +113,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
                 onChange={(e) => editStage(i, { name: e.target.value })}
                 onBlur={saveDraft}
                 placeholder="Stage name"
-                className={inputClsMd}
+                className={`${inputClsMd} ${FIELD_MEASURE}`}
               />
             </label>
 
@@ -125,7 +125,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
                 onChange={(e) => editStage(i, { description: e.target.value })}
                 onBlur={saveDraft}
                 placeholder="One line describing the stage"
-                className={inputClsMd}
+                className={`${inputClsMd} ${FIELD_MEASURE}`}
               />
             </label>
 
