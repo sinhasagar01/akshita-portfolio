@@ -16,7 +16,8 @@
 // the form cannot offer an option the sanitizer would reject.
 import type { RawSection } from "@/lib/case-studies/sections-raw";
 import { VARIANTS, LAYOUTS } from "@/lib/studio/sections-format";
-import { TextField, TextArea, SelectField, TabGroup, DisclosureGroup, groupLabelCls } from "./fields";
+import { ListboxField } from "../ListboxField";
+import { TextField, TextArea, TabGroup, DisclosureGroup, groupLabelCls } from "./fields";
 import CollapsibleGroup from "./CollapsibleGroup";
 
 export function SectionShellForm({
@@ -92,7 +93,7 @@ export function SectionShellForm({
       {/* Style — how the section presents: variant, layout, and the glow word. */}
       <TabGroup group="style">
         <div className="grid grid-cols-2 gap-2">
-          <SelectField
+          <ListboxField
             label="Variant"
             value={value.variant}
             options={VARIANTS}
@@ -100,7 +101,7 @@ export function SectionShellForm({
             onBlur={onBlur}
             hint="hero skips the standard header"
           />
-          <SelectField
+          <ListboxField
             label="Layout"
             value={value.layout}
             options={LAYOUTS}

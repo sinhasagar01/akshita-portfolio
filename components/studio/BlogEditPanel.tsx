@@ -26,10 +26,11 @@
 // TOPIC IS A CLOSED LISTBOX (PR D closed the set; this PR gave it the animated control). It reads
 // its options from `BLOG_TOPICS`, the same const the sanitizer and the publish gate validate
 // against, so the control and the gates cannot disagree. The empty option ("No topic yet") is the
-// draft state; a topic becomes REQUIRED at publish, not at save. It uses `ListboxField`, not
-// `SelectField`, on purpose: topic is a CONTENT field the author reasons about, while variant,
-// layout and frame stay on the native `SelectField` as config toggles. See ListboxField's header
-// for the by-role split rule and the named migration trigger.
+// draft state; a topic becomes REQUIRED at publish, not at save. It uses `ListboxField`, which
+// since #251 is the studio's ONLY select — the by-role split this comment used to describe (this
+// field on the listbox, variant/layout/frame on a native `SelectField`) was deleted when the
+// migration trigger it named actually fired. Topic was the listbox's first consumer and is now
+// one of six. See ListboxField's header.
 //
 // `dek` STAYS A PLAIN INPUT. The mock draws it as part of the canvas, styled as prose, but
 // blog has no contenteditable infrastructure and introducing the studio's second one inside

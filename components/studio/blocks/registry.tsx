@@ -20,7 +20,8 @@
 // for a block the owner only partly edited.
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
-import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, SelectField, inputCls, inputErrorCls, labelCls, groupLabelCls } from "./fields";
+import { ListboxField } from "../ListboxField";
+import { TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, inputCls, inputErrorCls, labelCls, groupLabelCls } from "./fields";
 import { isHttpUrl } from "@/lib/case-studies/adapter";
 import type { PreviewUpload } from "@/lib/studio/preview-map";
 
@@ -423,7 +424,7 @@ function ImgSpecFields<T extends RawImg>({
           not an empty knob to hide) plus the image geometry. The geometry is optional
           and collapses behind one reveal; the frame does not. */}
       <TabGroup group="style">
-        <SelectField
+        <ListboxField
           label="Frame"
           value={
             (FRAME_OPTIONS as readonly string[]).includes(value.frame)
@@ -941,7 +942,7 @@ const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({
         <TextField label="Title (optional)" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} optional />
       </TabGroup>
       <TabGroup group="style">
-        <SelectField
+        <ListboxField
           label="Frame"
           value={value.frame === "plain" ? "plain" : "browser"}
           options={VIDEO_FRAME_OPTIONS}

@@ -3049,6 +3049,78 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#251** every studio select becomes the listbox — the by-role split is DELETED →1666
+  (`listbox-a11y` 24→27, G1–G3 rewritten and G3b new).
+  **THE MIGRATION TRIGGER FROM THE LISTBOX PR FIRING, not a sweep.** That PR split selects by
+  ROLE — listbox for a content field the author reasons about, native `SelectField` for a config
+  toggle inside a block shell — and named the condition for undoing it: *"migrate the four only if
+  one needs that treatment, or if they begin to look wrong beside it."* The owner reported the
+  second. **A recorded decision reversed by the condition it named**, which is the best kind of
+  reversal: the rule did its job by saying when it stopped applying, so this is not drift.
+  **FIVE SITES, and the fifth was an exemption considered and OVERRULED.** `SectionShell`'s
+  Variant and Layout, `registry`'s two Frame pickers, and `CaseStudySwitcher`. The switcher's
+  header named three reasons to stay native; `ListboxField` answers two (it writes the whole
+  keyboard and aria surface, and focus never leaves the trigger so there is nothing to trap) and
+  **the third is a real cost that is larger there than anywhere else** — the platform picker on
+  touch, on chrome present on every case-study page, with /studio rendering below `lg`. Its header
+  is REWRITTEN rather than deleted, so the original reasoning sits beside the reversal.
+  **`SelectField` IS DELETED, not left unused.** Zero consumers is the shape this project deletes
+  — `FIT_THRESHOLD_PX` with none, `--radius-2xl` below `--radius-xl`, the eleven ink-700 sites,
+  `.blog-editable.is-selected`. **AND THE TOUCH TRIGGER CARRIES A RUNNABLE REMEDY**, written as
+  `git show 2ebe6b9:components/studio/blocks/fields.tsx` rather than "restore it from the parent",
+  because a trigger whose remedy is a rebuild is one nobody acts on. G3 asserts the command form.
+  **THREE PREMISE CORRECTIONS FROM THE CENSUS, ALL MINE.**
+  - **Topic has FIVE options, not four** (`["", ...BLOG_TOPICS]`), so no migrated site even
+    reaches its count.
+  - **The type-ahead trigger is not a count.** Verbatim it is about the PANEL scrolling, which at
+    a 280px cap and 40px rows happens at **7 options**; the largest site here has 4. Not fired on
+    either reading, so type-ahead stayed out of scope. Correcting the paraphrase rather than
+    acting on it is what kept it out.
+  - **The switcher is NOT on ink.** It renders at `SectionsEditPanel:1620` in the case-study
+    editor's own header row — measured **cream-200** behind a **cream-50** pill, with the ink
+    topbar a separate row above. So there is no ink/cream split inside one control, this is **not**
+    a fifth instance of the ratio-belongs-to-its-ground rule, and the existing cream measurements
+    transfer. Both halves were measured anyway to establish it.
+  **B MEASURED ACROSS ALL THREE REGIMES, ON THE PAGE**, room reported for VISIBLE triggers only —
+  the flip math never clamps to the visible band, so a scrolled-away trigger reports negative room,
+  which is noise rather than a case.
+
+  | regime | scroller | cases | min room below | min cap | flips up | not fitting | floor wins |
+  |---|---|---|---|---|---|---|---|
+  | above the fold | `aside.w-[320px]` | 12 deep + 28 shallow | 20 | 199 | 9 | **0** | **0** |
+  | below the fold | `div.min-h-0.flex-1` canvas slot | 20 | 20 | 219 | 9 | **0** | **0** |
+  | the switcher | `BODY` | 2 heights | 305 | 280 | 0 | **0** | **0** |
+
+  **TWO THINGS THE TOPIC FIELD NEVER EXERCISED, now recorded at the code.** The flip is the
+  COMMON PATH at the deep Frame sites (9 of 12), not the edge case it was built for. And a
+  flipped-up panel OVERLAPS the inspector's `sticky top-0 z-10` header — harmless only because the
+  panel is `z-40`. **Harmless-by-a-margin is worth pinning**: move either number and the panel
+  goes behind the header, where the symptom reads as a clipping bug rather than a stacking one.
+  **`commit()` NOW CLOSES BEFORE IT COMMITS, and that is the right order generally** rather than a
+  concession to one consumer. A panel that stays open while the value changes underneath is wrong
+  in every case; the four form fields merely HIDE it, because nothing moves when their value
+  lands. Navigation is the case where it becomes visible. Driven: Enter on a different study
+  navigated, left **no panel open**, and focus landed on `<body>` — **not on a detached node** —
+  which is what the native select did on unmount too, so no regression.
+  **ONE API ADDITION, `labelHidden`.** Every other consumer is a field in a column where the
+  eyebrow label belongs; the switcher is chrome in a flex row, where one would read as a stray
+  form label in the topbar. `sr-only` rather than dropping the span, because `aria-labelledby`
+  points at it and removing it would leave the trigger unnamed.
+  **TWO MEASUREMENT ERRORS OF MINE, BOTH CAUGHT BY THE MEASUREMENT ITSELF.**
+  `document.querySelector('aside')` returns the SIDEBAR, not the inspector, so the first scroll
+  probe measured an unscrollable 820px box and reported no movement. And **Tailwind v4's
+  `rotate-180` writes the individual `rotate` property, not `transform`** — reading `transform`
+  reported `none` on a chevron that was correctly rotated 180deg. Both are the same shape as the
+  contrast errors this project keeps finding: the number was real, the subject was wrong.
+  Real keys throughout, and **the tool's `Down` sends an EMPTY `key`** — `ArrowDown` is the name
+  that works, found by instrumenting the listener rather than trusting the press. Keyboard driven
+  per site: real Tab lights `:focus-visible`, ArrowDown opens and seeds the active option to the
+  current value, Home/End jump with the active option scrolled into view, Escape closes and
+  returns focus without navigating. Contrast every state 14.87–19.04 on cream, sanity pair 21
+  first. Reduced motion side by side: **the chevron's `rotate` survives, only the transition
+  zeroes** (0.15s → 1e-05s). CSS union **1541 → 1542**, one rule added and none removed. Public
+  DOM byte-identical.
+
 - **#250** the Skills wrapper loses its `gap-4` (owner's change) →1665, no assertion moves.
   One class. The wrapper holds the full-height shell and the document-level save bar (#229), and
   `gap-4` put **16px of bare canvas** between them — measured in #248's own verification run as
