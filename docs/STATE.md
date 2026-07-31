@@ -3172,6 +3172,58 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   geometry: `docClientH` 700, `docScrollH` 783, `mainH` 642, last element reachable, no
   fullheight attribute. **Identical on every value.**
 
+- **#243** the cream contrast gate →1613 (`studio-ink-contrast` 33→49). PR B of four — **and it
+  ships the gate with NO source change, because all four fixes it was briefed with evaporated.**
+  **ALL FOUR ERRORS WERE MINE, IN THE AUDIT. Recorded individually, because each is a different
+  kind of wrong and the set is more useful than the summary:**
+  **(1) THE AA FAILURE DID NOT EXIST.** The audit reported the field label as ink-400 at 3.49 on
+  cream-100 across three pages. Measured, labels are **12px / ink-600 / 7.06**; `labelCls` has
+  read `text-ink-600` since #228. **The audit's `querySelector` took the FIRST DOM match for a
+  label-ish class — the SIDEBAR's "Content" heading — and measured it against a CREAM ground. That
+  heading sits on ink-950, where it reads 5.45 and is fine.** A real colour attached to the wrong
+  surface: the fourth instance of that shape in this project, and the first committed while
+  auditing for it.
+  **(2) THE BORDER /12 → /22 CONTRADICTS A RECORDED CONVENTION.** `/22` has six uses at HEAD and
+  every one is a structural pane edge; CLAUDE.md states plainly that studio hairlines are `/12`. A
+  field well is not a panel edge, so this is a contract error rather than a gap.
+  **(3) THE CONTRACT'S 44px WELL IS INERT IN ITS OWN SPEC.** It asks for `min-height:44px` WITH
+  `padding:11px 12px`, which at 14px/1.5 computes to **45px** — so its own 44 never applies.
+  Today's 8px padding plus `min-h-11` lands **exactly 44**, which is the faithful reading of "a
+  44px well". Adopting the padding would have moved every studio well to 45 and broken
+  `studio-nav-active` G6.
+  **(4) THE HINTS ALREADY EXIST.** Only the EXPERIENCE contract draws them — not all three — and
+  that page already renders all three with byte-identical copy at 5.25 on cream-100. The audit
+  queried `<p>` on the settings page; they are `<span>` on experience.
+  **THE COVERAGE GAP IS THE REAL FINDING, AND THE GATE IS THE DURABLE OUTPUT.**
+  `studio-ink-contrast` computed ON-INK ratios only; `studio-labels` pinned the label scale's two
+  exports. **Nothing measured a text token against the CREAM ground it lands on** — where almost
+  all studio text sits. So no assertion could have caught a real failure of this kind OR my false
+  report of one. A coverage gap, not a gate failure; the same shape as the four
+  check-the-denominator instances, where the subject was never the thing that broke.
+  **THE GATE DERIVES AND FAILS WITH THE TOKEN, THE GROUND AND THE RATIO.** Tokens parsed from
+  `@theme`, label colours read from their exports, every pair computed. Cross-checked against the
+  browser before being trusted — **all twelve values agree exactly**, sanity pair 21 first, which
+  matters because #232 found a node calc using `oklch(45%)` for `--color-text-subtle` when it is
+  51%.
+  **MUTATION-TESTED THREE WAYS**, and the third is the one that proves it derives:
+  **(a)** `text-subtle` back on cream-300 → *"the selected row's meta is text-subtle on cream-300
+  at 4.03"*. That pair has now been found BY HAND TWICE — #232 in `BlogPostList` and
+  `SectionsRail`, #242 again when the list-detail rail became cream-200.
+  **(b)** `labelCls` → ink-400 → four failures naming each ground and ratio.
+  **(c)** cream-300 retuned 88% → 82% → the LABELS fail at 4.46, **without anyone touching a
+  label**. A ground moving under correct text is exactly what #242 hit, and the gate now catches
+  it in CI.
+  **AND AN EXPECTED VALUE THAT WAS TYPED FROM AN ESTIMATE WAS WRONG ON ARRIVAL.** The plan
+  carried 3.32 for ink-400 on cream-100; computed, it is **3.33**. Recorded in the suite, because
+  a gate whose expected values come from a hand calculation is a gate that agrees with the
+  calculation.
+  **WHAT IT DOES NOT COVER, STATED IN THE SUITE SO IT IS NOT READ AS COVERING MORE.** It computes
+  from TOKENS, so a colour reaching the screen another way is outside it — and this project has
+  four mechanisms for exactly that: an unlayered rule outranking a utility (hazard 22), a token
+  that does not exist (hazard 23), two utilities racing on sheet order (hazard 26), and a constant
+  crossing the server/client boundary as a throwing proxy (#240). **It answers "is this token
+  legible on that ground", not "is that token the one that renders."**
+
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
 PR D. Both numbers are true of different things and the arc's own contribution is the smaller

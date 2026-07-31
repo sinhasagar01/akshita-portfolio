@@ -192,5 +192,114 @@ t("G2: that token is ink-950 — the darkest step, the worst case every on-ink f
 t("G3: the search edge and the sidebar edge are the same white alpha (the L edge is one line)",
   searchBorderAlpha === sidebarBorderAlpha, true);
 
+/* ================================================ H. THE CREAM HALF — TEXT ON THE CREAM LADDER
+ *
+ * ---- THE COVERAGE GAP THIS CLOSES, AND HOW IT WAS FOUND -------------------------------------
+ *
+ * Everything above computes ON-INK ratios. `studio-labels` pins the label scale's two exports —
+ * that they exist and are named by role. **Nothing measured a text token against the CREAM ground
+ * it lands on**, which is where almost all studio text actually sits.
+ *
+ * IT WAS FOUND BY THE GAP PRODUCING A FALSE POSITIVE, not a defect. A fidelity audit reported the
+ * field label as ink-400 at 3.49 on cream-100 — a live AA failure on three pages. It was not.
+ * The audit's `querySelector` took the FIRST DOM match for a label-ish class, which is the
+ * SIDEBAR's "Content" heading, and measured it against a cream ground. That heading sits on
+ * ink-950, where it reads 5.45 and is fine. A real colour attached to the wrong surface —
+ * the fourth time this project has recorded that shape, and the first time while auditing for it.
+ * The field labels have read `text-ink-600` since #228 and measure 7.06.
+ *
+ * SO THE POINT OF THIS BLOCK IS THAT NEITHER A REAL FAILURE NOR A FALSE REPORT OF ONE CAN BE
+ * ASSERTED WITHOUT MEASURING. It is the `studio-cascade` shape applied to contrast on cream:
+ * derive the pairs from source, compute every ratio, and fail with the TOKEN, the GROUND and the
+ * RATIO — never a count, because a count tells you something moved and not what.
+ *
+ * ---- WHAT IT DOES NOT COVER, STATED SO IT IS NOT READ AS COVERING MORE --------------------
+ *
+ * It computes from TOKENS. A colour that reaches the screen some other way is outside it, and
+ * this project has four distinct mechanisms for exactly that:
+ *   - an unlayered rule outranking a utility (`a { color: inherit }`, hazard 22)
+ *   - a token that does not exist, generating nothing (`text-ink-500`, hazard 23)
+ *   - two utilities racing on sheet order (hazard 26)
+ *   - a constant crossing the server/client boundary as a throwing proxy (#240)
+ * **This gate addresses none of them.** It answers "is this token legible on that ground", not
+ * "is that token the one that renders". The browser-driven checks remain the only proof of the
+ * second question. */
+{
+  const CREAMS = ["cream-50", "cream-100", "cream-200", "cream-300"];
+  const FLOOR = 4.5; // WCAG AA for text under 18px / under 14px bold — the studio's whole label scale
+
+  // The studio's small-text vocabulary, read from the exports rather than retyped, so renaming a
+  // token or retuning its oklch moves this table on the next run.
+  const fields = read("components/studio/blocks/fields.tsx");
+  const tokenOf = (decl, label) => {
+    const m = new RegExp(`export const ${decl} = "([^"]*)"`).exec(fields);
+    if (!m) throw new Error(`could not find ${label}`);
+    const c = /text-(ink-\d+|text-subtle)/.exec(m[1]);
+    if (!c) throw new Error(`no text colour in ${label}`);
+    return c[1] === "text-subtle" ? "text-subtle" : c[1];
+  };
+  const LABEL_TOKENS = [
+    ["labelCls", tokenOf("labelCls", "labelCls")],
+    ["groupLabelCls", tokenOf("groupLabelCls", "groupLabelCls")],
+  ];
+  t("H1: the label scale's colour is read from its export, not retyped here",
+    LABEL_TOKENS.map(([, tk]) => tk), ["ink-600", "ink-600"]);
+
+  // EVERY LABEL TOKEN ON EVERY CREAM GROUND IT CAN LAND ON. The rails, panels and wells span the
+  // whole ladder — cream-50 wells inside cream-100 panes inside cream-200 rails, with cream-300
+  // as the selected fill — so a label is one refactor away from any of the four.
+  for (const [decl, tk] of LABEL_TOKENS) {
+    for (const g of CREAMS) {
+      const r = ratio(tok(tk), tok(g));
+      t(`H2: ${decl} (${tk}) on ${g} is ${r} — at or above the ${FLOOR} floor`, r >= FLOOR, true);
+    }
+  }
+
+  /* H3 — THE PAIR THAT HAS NOW BEEN FOUND BY HAND TWICE, PINNED.
+   * `text-subtle` measures 5.52 / 5.25 / 4.78 on cream-50/100/200 and **4.03 on cream-300**.
+   * #232 met it in `BlogPostList` and `SectionsRail`; #242 met it again the moment the
+   * list-detail rail became a cream-200 column and its selected fill became cream-300. Both times
+   * a person measured. The third time it fails here. */
+  const subtleByGround = Object.fromEntries(CREAMS.map((g) => [g, ratio(tok("text-subtle"), tok(g))]));
+  t("H3: text-subtle's ladder is 5.52 / 5.25 / 4.78 / 4.03 — computed, not remembered",
+    CREAMS.map((g) => subtleByGround[g]), [5.52, 5.25, 4.78, 4.03]);
+  t("H3: …so cream-300 is the one ground it may NOT sit on, and the other three are fine",
+    CREAMS.filter((g) => subtleByGround[g] < FLOOR), ["cream-300"]);
+  // The remedy both PRs reached for, asserted as adequate rather than assumed.
+  t("H3: …and ink-600 IS adequate there, which is why both fixes used it",
+    ratio(tok("ink-600"), tok("cream-300")) >= FLOOR, true);
+
+  /* H4 — `ink-400` IS NOT A TEXT COLOUR ON CREAM, ON ANY STEP. It fails all four, which is what
+   * #228 found when it swept 45 sites off it. It stays legal for ICONS and BORDERS — non-text,
+   * where the floor is 3:1 — so this asserts the fact rather than banning the token. */
+  const ink400 = CREAMS.map((g) => ratio(tok("ink-400"), tok(g)));
+  // 3.33 rather than 3.32 on cream-100, and the one-hundredth is worth a line: the plan for this
+  // gate carried 3.32 from a hand calculation, and the computed value is what shipped. A gate
+  // whose expected values are typed from an estimate is a gate that agrees with the estimate.
+  t("H4: ink-400 fails the text floor on every cream step — 3.49 / 3.33 / 3.02 / 2.55",
+    ink400, [3.49, 3.33, 3.02, 2.55]);
+  t("H4: …and it clears the 3:1 NON-TEXT floor on the two lightest, which is what it is for",
+    ink400.slice(0, 2).every((r) => r >= 3), true);
+
+  /* H5 — THE SELECTED ROW, DERIVED FROM THE SHELL RATHER THAN DESCRIBED.
+   * The one live consumer of the cream-300 ground is a selected list row. Read its meta-line
+   * colour out of `ListDetailLayout` and measure it against the fill the same file declares, so
+   * the assertion tracks the component instead of restating #242's conclusion. */
+  const ld = read("components/studio/ListDetailLayout.tsx");
+  const selFill = /isActive\s*$[\s\S]{0,120}?bg-(cream-\d+)/m.exec(ld)?.[1]
+    ?? /bg-(cream-300)/.exec(ld)?.[1];
+  // PARSED PERMISSIVELY ON PURPOSE. An earlier version matched only `text-(ink-\d+)` in the
+  // selected branch, so putting `text-text-subtle` back there — the exact regression this is here
+  // to catch — made the MATCH fail and the gate reported "no meta colour declared". True, and
+  // useless: the failure named a parse rather than the 4.03 it was standing on. A gate must fail
+  // with the token, the ground and the RATIO, so it reads whatever colour is actually there.
+  const metaPair = /isActive \? "text-((?:ink-\d+|text-subtle))" : "text-((?:ink-\d+|text-subtle))"/.exec(ld);
+  const metaSel = metaPair?.[1];
+  t("H5: the shell still declares a selected fill and a selected meta colour", [!!selFill, !!metaSel], [true, true]);
+  const metaRatio = metaSel && selFill ? ratio(tok(metaSel), tok(selFill)) : 0;
+  t(`H5: the selected row's meta is ${metaSel} on ${selFill} at ${metaRatio} — the ${FLOOR} floor`,
+    metaRatio >= FLOOR, true);
+}
+
 console.log(`\nstudio-ink-contrast result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
