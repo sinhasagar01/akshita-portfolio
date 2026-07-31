@@ -20,6 +20,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconArrowUpRight, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
 import type { LinkItem } from "@/lib/studio/site-settings-format";
+import { labelCls } from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -176,7 +177,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Contact email</span>
+          <span className={labelCls}>Contact email</span>
           <input
             type="text"
             inputMode="email"
@@ -188,7 +189,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
         </label>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Links</span>
+          <span className={labelCls}>Links</span>
           <div className="flex flex-col gap-2">
             {rows.map((link, i) => {
               const invalid = !isValidUrl(link.url);

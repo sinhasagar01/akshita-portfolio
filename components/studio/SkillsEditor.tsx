@@ -19,7 +19,7 @@ import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
@@ -197,7 +197,7 @@ function CategoryPanel({
     >
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Category name</span>
+          <span className={labelCls}>Category name</span>
           <input
             type="text"
             value={category}
@@ -209,7 +209,7 @@ function CategoryPanel({
         </label>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Skills in this category</span>
+          <span className={labelCls}>Skills in this category</span>
           <ChipListEditor chips={items} onChange={onItems} onBlur={onBlurSave} addLabel="Add skill" placeholder="Skill" />
           {items.length === 0 && (
             <span className="text-[10px] text-accent-600">

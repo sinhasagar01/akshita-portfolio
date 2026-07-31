@@ -7,7 +7,7 @@
 // with the freshly set httpOnly cookie.
 import { useState } from "react";
 import { IconSparkles } from "./icons";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 
 type Status = "idle" | "submitting" | "error";
 
@@ -66,7 +66,7 @@ export default function LoginForm() {
 
       <div className="flex flex-col gap-4 bg-cream-100 px-5 py-6">
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Password</span>
+          <span className={labelCls}>Password</span>
           <input
             type="password"
             name="password"

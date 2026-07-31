@@ -74,7 +74,7 @@ import { splitParagraph, mergeParagraph } from "@/lib/studio/paragraph-edits";
 import { paragraphCaret, placeCaret } from "@/lib/studio/inline-caret";
 import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref } from "@/lib/case-studies/adapter";
-import { FieldTabProvider, type FieldTab } from "./blocks/fields";
+import { FieldTabProvider, type FieldTab, labelCls } from "./blocks/fields";
 import {
   BLOG_BLOCK_REGISTRY,
   BLOG_BLOCK_LABELS,
@@ -854,7 +854,7 @@ export default function BlogBlocksEditPanel({
             <div className="flex items-center justify-between gap-2">
               {/* The kind label is PERSISTENT here, not a hover overlay on the canvas.
                   The overlay is mock-only. */}
-              <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
+              <span className={labelCls}>
                 {BLOG_BLOCK_LABELS[selectedKind]} {selectedIndex + 1}
               </span>
               {/* The Style tab appears only for a kind that HAS style fields. BLOG_KIND_HAS_STYLE

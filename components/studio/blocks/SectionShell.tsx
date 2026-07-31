@@ -16,7 +16,7 @@
 // the form cannot offer an option the sanitizer would reject.
 import type { RawSection } from "@/lib/case-studies/sections-raw";
 import { VARIANTS, LAYOUTS } from "@/lib/studio/sections-format";
-import { TextField, TextArea, SelectField, TabGroup, DisclosureGroup } from "./fields";
+import { TextField, TextArea, SelectField, TabGroup, DisclosureGroup, groupLabelCls } from "./fields";
 
 export function SectionShellForm({
   value,
@@ -35,7 +35,7 @@ export function SectionShellForm({
 
   return (
     <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
-      <span className="text-[10px] uppercase tracking-eyebrow text-ink-400">Section settings</span>
+      <span className={groupLabelCls}>Section settings</span>
       {/* Content — the copy that renders in the section header, plus the anchor id
           and display index that identify it. */}
       <TabGroup group="content">

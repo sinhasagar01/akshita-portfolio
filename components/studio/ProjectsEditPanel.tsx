@@ -16,7 +16,7 @@ import { useListItem } from "./ListDetailLayout";
 import SectionsEditPanel from "./SectionsEditPanel";
 import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
-import { inputClsMd } from "./blocks/fields";
+import { inputClsMd, labelCls } from "./blocks/fields";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
 import type { RawSection } from "@/lib/case-studies/sections-raw";
@@ -204,17 +204,17 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-ink-950/12 bg-cream-200 px-4 py-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-2">
           <span className="flex min-w-0 max-w-[46ch] flex-col">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Summary</span>
+            <span className={labelCls}>Summary</span>
             <span className="truncate text-[12.5px] text-ink-600">
               {values.summary || "No summary yet"}
             </span>
           </span>
           <span className="flex flex-col">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Type</span>
+            <span className={labelCls}>Type</span>
             <span className="text-[12.5px] text-ink-950">{values.facts.type || "—"}</span>
           </span>
           <span className="flex flex-col">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Platform</span>
+            <span className={labelCls}>Platform</span>
             <span className="text-[12.5px] text-ink-950">{values.facts.platform || "—"}</span>
           </span>
         </div>
@@ -258,7 +258,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
               here never silently fails — it is set on Add and not editable. */}
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Title</span>
+          <span className={labelCls}>Title</span>
           <input
             type="text"
             value={title}
@@ -280,7 +280,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         <HeroImageField slug={slug} collection="projects" initial={heroImage} onChanged={() => setUnpublished(true)} />
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">Summary</span>
+          <span className={labelCls}>Summary</span>
           <textarea
             rows={3}
             value={values.summary}
@@ -294,7 +294,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         <div className="grid grid-cols-2 gap-3">
           {FACTS.map(({ key, label, placeholder }) => (
             <label key={key} className="flex flex-col gap-1.5">
-              <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
+              <span className={labelCls}>{label}</span>
               <input
                 type="text"
                 value={values.facts[key]}
@@ -536,7 +536,7 @@ export function HeroImageField({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
+      <span className={labelCls}>{label}</span>
       {/* THE PLATE STACKS ABOVE THE CONTROLS, which is what the contract's `.thumb` +
           `.rowbtns` describe — and THIS is the field the contract's `.thumb` was always
           describing. It sits under "Card image" in the POST section with the hint "the article

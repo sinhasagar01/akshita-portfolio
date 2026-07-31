@@ -21,6 +21,7 @@
 // cleanup.
 import { useRef, useState } from "react";
 import { useReportPending } from "./PublishProvider";
+import { labelCls } from "./blocks/fields";
 
 type Choice = "mobile" | "web";
 
@@ -91,7 +92,7 @@ export default function SegmentedToggle({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-eyebrow uppercase tracking-eyebrow text-ink-400">{label}</span>
+      <span className={labelCls}>{label}</span>
       <div
         role="group"
         aria-label={ariaLabel}
