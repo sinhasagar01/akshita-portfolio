@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en" class="v-board">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Board, and the other studio pages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  TWO ANSWERS IN ONE FILE
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Every value from the shipped scales — radius 12/8/4, ground         ##
+  ##  cream-200/100/50, selection ground+1 plus a 3px accent bar,         ##
+  ##  the on-ink set, the 44px well. Nothing invented.                    ##
+  ##########################################################################
+
+  ---- VIEW 1 · THE BOARD SURVIVES, AND ITS JOB NARROWS -------------------
+  The three-pane mock made the rail the navigator, which was the Board's main
+  job. So the question was whether the Board still earns its place. It does,
+  for ONE reason the rail cannot serve: FIFTEEN SECTIONS AND THEIR BLOCKS SEEN
+  AT ONCE. That is a structural read — where the long stretches are, which
+  sections carry one block and which carry three, whether the arc has a gap —
+  and a 264px rail showing eight rows cannot give it.
+  SO THE SPLIT IS BY JOB, and it is the same shape as the listbox-versus-select
+  split: the RAIL is for navigating while you work, the BOARD is for seeing the
+  shape of the whole thing. The Board stops being a mode you must return to in
+  order to move between sections, and becomes a view you open when you want the
+  overview. Reached from the crumb row, not from a back link.
+  WHAT IT LOSES: the "Section" dropdown and the "← Board" back link, both of
+  which existed only because the Board was the only way to change section.
+
+  ---- VIEW 2 · MOST STUDIO PAGES DO NOT WANT THREE PANES ----------------
+  THE CANVAS EARNS ITS PLACE WHEN THERE IS SOMETHING TO RENDER AT THE PUBLIC
+  MEASURE. That is true of a blog post and a case-study section, and it is the
+  entire reason #178 and this redesign exist — the fidelity property.
+  Experience, Skills and Site settings render no such thing. A third pane there
+  would be an empty pane, or worse, a pane showing a preview nobody needs while
+  taking 794px from the form that is the actual work.
+  So those pages stay ListDetailLayout, which is already a two-pane list-detail
+  and already carries the ink chrome, the ladder, the radius scale and the
+  selection language. View 2 shows one of them in the finished language to make
+  the point that they need no redesign — only the selection bar, which #209
+  already gave them.
+
+  ---- THE RULE, STATED SO THE NEXT PAGE IS DECIDED NOT COPIED -----------
+    THREE PANE   content with a rendered public output — blog, case studies
+    LIST DETAIL  structured records with no public render — experience, skills,
+                 settings
+  A page that gains a public render later gains a canvas then, and not before.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:  oklch(98.5% 0.012 80);
+  --cream-100: oklch(96.8% 0.018 78);
+  --cream-200: oklch(93.5% 0.025 76);
+  --cream-300: oklch(88.0% 0.032 74);
+  --ink-950:   oklch(14%   0.018 60);
+  --ink-800:   oklch(26%   0.018 60);
+  --ink-600:   oklch(44%   0.016 60);
+  --ink-400:   oklch(62%   0.014 60);
+  --ink-200:   oklch(80%   0.010 70);
+  --subtle:    oklch(45%   0.014 62);
+  --accent:    oklch(56%   0.14  42);
+  --ok:        oklch(46%   0.075 145);
+  --rule:      oklch(14% 0.018 60 / .12);
+  --rule-edge: oklch(14% 0.018 60 / .22);
+  --on-ink-rule: oklch(100% 0 0 / .24);
+  --r-panel: 12px; --r-card: 8px; --r-ctl: 4px;
+  --w-side: 236px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif;
+  --serif:"Fraunces",Georgia,serif;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{ background:var(--cream-50); color:var(--ink-950); font-family:var(--sans); font-size:14px; -webkit-font-smoothing:antialiased; }
+
+.switch{ position:fixed; z-index:400; top:14px; left:50%; transform:translateX(-50%);
+  display:flex; gap:3px; padding:4px; background:var(--ink-950); border-radius:99px;
+  box-shadow:0 10px 30px -12px oklch(14% .018 60 / .5); }
+.switch button{ appearance:none; border:0; cursor:pointer; background:transparent;
+  color:oklch(78% .012 80); font:600 11.5px/1 var(--sans); letter-spacing:.09em;
+  text-transform:uppercase; padding:9px 16px; border-radius:99px; }
+.switch button.on{ background:var(--cream-50); color:var(--ink-950); }
+
+.app{ display:flex; min-height:100vh; }
+.v-board .only-ld{ display:none; }
+.v-ld .only-board{ display:none; }
+
+/* ---------- sidebar ---------- */
+.side{ width:var(--w-side); flex:none; background:var(--ink-950); padding:18px 12px;
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto; }
+.logo{ display:flex; align-items:center; gap:11px; padding:2px 8px 20px; text-decoration:none; }
+.logo .mark{ width:30px; height:30px; border-radius:7px; background:var(--accent); display:grid; place-items:center; color:#fff; }
+.logo .mark svg{ width:16px; height:16px; }
+.logo b{ font-family:var(--serif); font-weight:400; font-size:20px; letter-spacing:-.01em; color:var(--cream-50); }
+.grp{ font:700 10.5px/1 var(--sans); letter-spacing:.18em; text-transform:uppercase; color:var(--ink-400); padding:8px 10px 10px; margin:0; }
+.side nav{ display:flex; flex-direction:column; gap:2px; }
+.side nav a{ display:flex; align-items:center; gap:11px; padding:10px; border-radius:99px; text-decoration:none; color:var(--ink-200); font-size:13.5px; }
+.side nav a svg{ width:16px; height:16px; color:var(--ink-400); }
+.side nav a:hover{ background:oklch(100% 0 0 / .06); color:var(--cream-50); }
+.side nav a.on{ background:oklch(100% 0 0 / .10); color:var(--cream-50); font-weight:500; }
+.side nav a.on svg{ color:var(--cream-50); }
+.side nav a .c{ margin-left:auto; font-size:11.5px; color:var(--ink-400); font-variant-numeric:tabular-nums; }
+.side .foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--on-ink-rule); }
+
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; }
+.topbar{ display:flex; align-items:center; gap:14px; padding:12px 20px; height:65px; flex:none;
+  background:var(--ink-950); border-bottom:1px solid var(--on-ink-rule); }
+.search{ position:relative; flex:1; }
+.search input{ width:100%; height:40px; padding:0 42px 0 36px; font:400 13.5px/1 var(--sans);
+  color:var(--cream-50); background:oklch(100% 0 0 / .16); border:1px solid var(--on-ink-rule); border-radius:var(--r-ctl); }
+.search input::placeholder{ color:var(--ink-200); }
+.search .mag{ position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-200); }
+.viewsite{ display:inline-flex; align-items:center; gap:7px; height:40px; padding:0 15px;
+  font:600 12px/1 var(--sans); border-radius:var(--r-ctl); text-decoration:none;
+  border:1px solid var(--on-ink-rule); color:var(--ink-200); }
+.viewsite:hover{ background:var(--cream-50); color:var(--ink-950); border-color:var(--cream-50); }
+
+.crumb{ display:flex; align-items:center; gap:12px; padding:0 18px; height:55px; flex:none;
+  background:var(--cream-50); border-bottom:1px solid var(--rule); }
+.crumb .back,.crumb .act{ display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 11px;
+  font:600 11.5px/1 var(--sans); color:var(--ink-600); text-decoration:none; cursor:pointer;
+  border:1px solid var(--rule-edge); background:var(--cream-50); border-radius:var(--r-ctl); }
+.crumb .back:hover,.crumb .act:hover{ border-color:var(--accent); color:var(--accent); }
+.crumb .act.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.crumb .study{ font-family:var(--serif); font-size:17px; }
+.crumb .badge{ font:600 10px/1 var(--sans); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--accent); background:oklch(56% .14 42 / .10); border:1px solid oklch(56% .14 42 / .32);
+  padding:5px 8px; border-radius:99px; }
+.crumb .sp{ flex:1; }
+
+/* ================= VIEW 1 · THE BOARD ================= */
+.boardwrap{ flex:1; overflow-y:auto; background:var(--cream-100); padding:22px 22px 100px; }
+.boardhead{ max-width:1180px; margin:0 auto 18px; display:flex; align-items:baseline; gap:12px; }
+.boardhead h2{ font-family:var(--serif); font-weight:400; font-size:22px; margin:0; }
+.boardhead p{ font:400 12.5px/1 var(--sans); color:var(--subtle); margin:0; }
+.grid{ max-width:1180px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+.sec{ background:var(--cream-50); border:1px solid var(--rule-edge); border-radius:var(--r-card);
+      border-left:3px solid transparent; overflow:hidden; }
+.sec:hover{ border-color:var(--rule-edge); background:var(--cream-50); }
+.sec:hover .sh h3{ color:var(--accent); }
+.sec.on{ background:var(--cream-100); border-left-color:var(--accent); }
+.sh{ display:flex; align-items:flex-start; gap:10px; padding:12px 12px 10px; }
+.sh .txt{ flex:1; min-width:0; }
+.sh .eb{ display:block; font:700 9.5px/1 var(--sans); letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink-600); margin-bottom:6px; }
+.sh h3{ font:500 14px/1.3 var(--sans); margin:0; cursor:pointer; }
+.sh .n{ font:400 10.5px/1 var(--sans); color:var(--subtle); white-space:nowrap;
+  border:1px solid var(--rule); border-radius:99px; padding:5px 8px; }
+.sh .ctl{ display:flex; gap:1px; }
+.sh .ctl span{ width:24px; height:24px; display:grid; place-items:center; border-radius:3px;
+  color:var(--ink-600); font-size:11px; cursor:pointer; }
+.sh .ctl span:hover{ background:var(--cream-200); color:var(--ink-950); }
+.blocks{ padding:0 12px 12px; display:flex; flex-direction:column; gap:5px; }
+.blk{ display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:var(--r-ctl);
+  background:var(--cream-100); font:400 12.5px/1 var(--sans); color:var(--ink-800); }
+.blk svg{ width:13px; height:13px; color:var(--ink-400); flex:none; }
+.addsec{ max-width:1180px; margin:14px auto 0; }
+.addsec button{ width:100%; height:44px; appearance:none; cursor:pointer; font:600 12.5px/1 var(--sans);
+  color:var(--ink-800); background:var(--cream-50); border:1px dashed var(--rule-edge); border-radius:var(--r-card); }
+.addsec button:hover{ border-color:var(--accent); color:var(--accent); border-style:solid; }
+
+/* ================= VIEW 2 · LIST DETAIL ================= */
+.ldwrap{ flex:1; display:flex; min-height:0; }
+.ldlist{ width:300px; flex:none; background:var(--cream-200); border-right:1px solid var(--rule-edge);
+  display:flex; flex-direction:column; }
+.ldlist .lt{ padding:12px; border-bottom:1px solid var(--rule); }
+.ldlist .lt input{ width:100%; height:40px; padding:0 12px; font:400 13px/1 var(--sans);
+  background:var(--cream-50); border:1px solid var(--rule-edge); border-radius:var(--r-ctl); }
+.ldrow{ display:flex; align-items:center; gap:9px; width:100%; text-align:left; appearance:none;
+  cursor:pointer; background:transparent; border:0; border-left:3px solid transparent;
+  border-bottom:1px solid var(--rule); padding:12px 12px 12px 9px; }
+.ldrow:hover{ background:var(--cream-300); }
+.ldrow.on{ background:var(--cream-300); border-left-color:var(--accent); }
+.ldrow .t{ flex:1; min-width:0; font:500 13.5px/1.3 var(--sans); }
+.ldrow .t small{ display:block; font:400 11px/1.4 var(--sans); color:var(--subtle); margin-top:4px; font-weight:400; }
+.ldrow .pill{ font:600 9.5px/1 var(--sans); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent); background:oklch(56% .14 42 / .10); border:1px solid oklch(56% .14 42 / .3);
+  padding:4px 7px; border-radius:99px; }
+.ldlist .lf{ padding:11px 12px; border-top:1px solid var(--rule); }
+.ldlist .lf button{ width:100%; height:36px; appearance:none; cursor:pointer; font:600 12px/1 var(--sans);
+  color:var(--ink-800); background:var(--cream-50); border:1px dashed var(--rule-edge); border-radius:var(--r-ctl); }
+
+.lddetail{ flex:1; min-width:0; overflow-y:auto; background:var(--cream-100); }
+.ldband{ background:var(--ink-950); color:var(--cream-50); padding:9px 18px;
+  display:flex; align-items:center; justify-content:space-between; }
+.ldband h4{ margin:0; font:700 11.5px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; }
+.ldband .st{ font:500 11px/1 var(--sans); color:var(--ink-200); }
+.ldbody{ padding:20px 18px 90px; max-width:720px; }
+.field{ margin-bottom:16px; }
+label{ display:block; font:700 11px/1 var(--sans); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-600); margin-bottom:7px; }
+.field input,.field textarea{ width:100%; min-height:44px; padding:11px 12px; font:400 14px/1.4 var(--sans);
+  color:var(--ink-950); background:var(--cream-50); border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl); resize:vertical; }
+.field .hint{ font:400 11px/1.5 var(--sans); color:var(--subtle); margin:7px 0 0; }
+.pair{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.pubbar{ position:fixed; left:calc(50% + (var(--w-side)/2)); bottom:20px; transform:translateX(-50%);
+  z-index:120; display:flex; align-items:center; gap:14px; padding:8px 8px 8px 18px;
+  background:var(--cream-50); border:1px solid var(--rule-edge); border-radius:99px;
+  box-shadow:0 16px 36px -18px oklch(14% .018 60 / .45); }
+.pubbar .s{ font:400 12.5px/1 var(--sans); color:var(--ink-600); display:flex; align-items:center; gap:9px; }
+.dot{ width:6px; height:6px; border-radius:99px; background:var(--ok); }
+.pubbar .go{ appearance:none; border:0; cursor:pointer; background:oklch(56% .14 42 / .4); color:#fff;
+  font:600 11.5px/1 var(--sans); letter-spacing:.1em; text-transform:uppercase; padding:12px 20px; border-radius:99px; }
+
+.note{ position:fixed; bottom:20px; left:calc(var(--w-side) + 22px); max-width:340px; z-index:130;
+  background:var(--cream-50); border:1px solid var(--rule-edge); border-radius:var(--r-card);
+  padding:12px 14px; font:400 11.5px/1.6 var(--sans); color:var(--subtle);
+  box-shadow:0 12px 28px -16px oklch(14% .018 60 / .4); }
+.note b{ color:var(--ink-950); }
+</style>
+</head>
+<body>
+
+<div class="switch">
+  <button id="b1" class="on" onclick="pick('board')">1 · The Board</button>
+  <button id="b2" onclick="pick('ld')">2 · Experience</button>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="#"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.6L20 9.2l-4.3 3.6 1.4 5.9L12 15.6 6.9 18.7l1.4-5.9L4 9.2l5.8-1.6z"/></svg></span><b>Studio</b></a>
+    <p class="grp">Content</p>
+    <nav>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10l8-6 8 6v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Homepage</a>
+      <a href="#" class="on only-board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Case studies <span class="c">4</span></a>
+      <a href="#" class="only-ld"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Case studies <span class="c">4</span></a>
+      <a href="#" class="only-ld on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>Experience <span class="c">5</span></a>
+      <a href="#" class="only-board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>Experience <span class="c">5</span></a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Blog <span class="c">3</span></a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/></svg>Skills <span class="c">5</span></a>
+    </nav>
+    <div class="foot"><nav>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg>Site settings</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2"/><path d="M11 12h9m0 0-3-3m3 3-3 3"/></svg>Sign out</a>
+    </nav></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg class="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search content" />
+      </div>
+      <a class="viewsite" href="#">View site ↗</a>
+    </div>
+
+    <!-- ============ VIEW 1 · THE BOARD ============ -->
+    <div class="only-board" style="display:contents">
+      <div class="crumb">
+        <a class="back" href="#">← Case studies</a>
+        <span class="study">Fosfor AI</span>
+        <span class="badge">Web</span>
+        <span class="sp"></span>
+        <button class="act on">Board</button>
+        <button class="act">Editor</button>
+        <button class="act">View live ↗</button>
+      </div>
+
+      <div class="boardwrap">
+        <div class="boardhead">
+          <h2>The shape of it</h2>
+          <p>15 sections · 18 blocks · reorder with the arrows</p>
+        </div>
+        <div class="grid">
+          <div class="sec on">
+            <div class="sh"><div class="txt"><span class="eb">Hero</span><h3>Fosfor AI</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Hero cover</div></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">The setup</span><h3>One companion, three very different people.</h3></div><span class="n">2 blocks</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks">
+              <div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h10M4 17h13"/></svg>Pull quote</div>
+              <div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Glance grid</div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">Impact</span><h3>At a glance.</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Stat cards</div></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">The problem</span><h3>The same wall, hit three different ways.</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h10M4 17h13"/></svg>Pull quote</div></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">Goals</span><h3>Goals</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Stepper</div></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">The process</span><h3>Three phases, three personas.</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Stepper</div></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">Key insights</span><h3>Three personas, three needs.</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Principle cards</div></div>
+          </div>
+          <div class="sec">
+            <div class="sh"><div class="txt"><span class="eb">The solution</span><h3>The solution</h3></div><span class="n">1 block</span><span class="ctl"><span>˄</span><span>˅</span></span></div>
+            <div class="blocks"><div class="blk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Device shelf</div></div>
+          </div>
+        </div>
+        <div class="addsec"><button>+ Add a section</button></div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW 2 · LIST DETAIL ============ -->
+    <div class="only-ld" style="display:contents">
+      <div class="crumb">
+        <span class="study">Experience</span>
+        <span class="sp"></span>
+        <button class="act">View live ↗</button>
+      </div>
+      <div class="ldwrap">
+        <div class="ldlist">
+          <div class="lt"><input type="search" placeholder="Search roles" /></div>
+          <button class="ldrow on"><span class="t">Senior Product Designer<small>LTIMindtree · 2023 — now</small></span><span class="pill">Now</span></button>
+          <button class="ldrow"><span class="t">Product Designer<small>boAt · 2021 — 2023</small></span></button>
+          <button class="ldrow"><span class="t">UX Designer<small>Elevate · 2020 — 2021</small></span></button>
+          <button class="ldrow"><span class="t">Visual Designer<small>Freelance · 2019 — 2020</small></span></button>
+          <button class="ldrow"><span class="t">Design Intern<small>Studio Nine · 2018</small></span></button>
+          <div class="lf"><button>+ Add a role</button></div>
+        </div>
+        <div class="lddetail">
+          <div class="ldband"><h4>Senior Product Designer</h4><span class="st">Saved</span></div>
+          <div class="ldbody">
+            <div class="pair">
+              <div class="field"><label>Company</label><input value="LTIMindtree" /></div>
+              <div class="field"><label>Role</label><input value="Senior Product Designer" /></div>
+            </div>
+            <div class="pair">
+              <div class="field"><label>Start</label><input value="2023" /></div>
+              <div class="field"><label>End</label><input value="Present" /></div>
+            </div>
+            <div class="field"><label>Summary</label>
+              <textarea rows="3">Leading design for the Fosfor Decision Cloud, across three product surfaces and a shared system.</textarea>
+              <p class="hint">One or two sentences, shown on the experience list.</p>
+            </div>
+            <div class="field"><label>Highlights</label>
+              <textarea rows="4">Rebuilt the data profiling experience.
+Shipped an AI companion across three personas.
+Set the design system's density rules.</textarea>
+              <p class="hint">One per line.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="note only-board"><b>The Board's job narrows.</b> The rail navigates while you work; the Board is for seeing the shape of the whole thing — fifteen sections and their blocks at once. The Section dropdown and the "← Board" back link both go, because they existed only to change section.</div>
+<div class="note only-ld"><b>No third pane here, deliberately.</b> A canvas earns its place when there is something to render at the public measure. Experience, Skills and Settings render no such thing, so they stay list-detail — already ink, already on the ladder, already carrying the selection bar from #209.</div>
+
+<div class="pubbar">
+  <span class="s"><span class="dot"></span>All changes published</span>
+  <button class="go">Publish site</button>
+</div>
+
+<script>
+function pick(v){
+  document.documentElement.className = "v-" + v;
+  document.getElementById("b1").classList.toggle("on", v === "board");
+  document.getElementById("b2").classList.toggle("on", v === "ld");
+}
+</script>
+</body>
+</html>
