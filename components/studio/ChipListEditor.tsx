@@ -131,7 +131,7 @@ export default function ChipListEditor({
       <button
         type="button"
         onClick={list.add}
-        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
       >
         <IconPlus /> {addLabel}
       </button>

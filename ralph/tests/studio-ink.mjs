@@ -454,13 +454,24 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   const hero = code("components/studio/HeroEditPanel.tsx");
   const cs = code("components/studio/SectionsEditPanel.tsx");
   const seg = code("components/studio/SegmentedToggle.tsx");
-  // The two tablists share their selected treatment, read off the precedent rather than pinned
-  // to a literal twice.
-  const UNDERLINE = "border-accent-500 font-medium text-ink-950";
+  // THE TWO TABLISTS SHARE A SELECTION LANGUAGE, NOT A BYTE-IDENTICAL STRING, and this used to
+  // pin `"border-accent-500 font-medium text-ink-950"` as one literal. **It broke for the right
+  // reason in C-27**: the hero panel's weight moved to the SHARED BASE so all four tabs render
+  // 500, because the public hero it mimics is 500 throughout and carries selection by colour
+  // rather than by weight (see Part J). Content|Style has no such obligation and keeps its bump.
+  //
+  // So the weight was never part of the selection RULE — it was an incidental token riding inside
+  // an assertion about selection colour, and pinning the pair meant a correct change to one
+  // tablist failed a rule about both. Compared with weight excluded, and both sides read from
+  // source rather than retyped here.
+  const selectedOf = (src) => (/\? "(border-accent-500[^"]*)"/.exec(src)?.[1] ?? "")
+    .split(/\s+/).filter((tok) => !/^font-/.test(tok)).sort();
   t("C4: Content|Style — the precedent tablist — marks its selection with the underline",
-    cs.includes(UNDERLINE), true);
-  t("C4: …and the hero tabs now use the SAME string, not a fourth treatment",
-    hero.includes(UNDERLINE), true);
+    selectedOf(cs), ["border-accent-500", "text-ink-950"]);
+  t("C4: …and the hero tabs use the SAME language, not a fourth treatment",
+    selectedOf(hero), selectedOf(cs));
+  t("C4: …with the hero's weight in the shared base instead, so selection is not ALSO a weight step",
+    /className=\{\[ "-mb-px border-b-2[^"]*font-medium/.test(hero.replace(/\s+/g, " ")), true);
   // SCOPED TO THE TAB'S OWN CLASS EXPRESSION, not to everything after the first role="tab".
   // The file legitimately holds two other accent fills — the panel header's icon chip and the
   // Save button — and an assertion that pins more than its subject fails for the wrong reason.
@@ -817,6 +828,170 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /role="tablist"[\s\S]{0,400}?lg:bg-cream-200/.test(readStudio("ListDetailLayout.tsx")), true);
   t("G4: …and it is the ground G1's table names for this surface, so the two cannot drift",
     PAIRS.find((p) => p.file === "ListDetailLayout.tsx")?.ground, "cream-200");
+}
+
+/* ================================== H. THE DASHED AFFORDANCES, AND WHERE THEIR HOVER MAY LAND */
+//
+// THIS PART EXISTS BECAUSE THE PR THAT ADDED IT PUT THE HOVER ON THE WRONG ELEMENT THREE TIMES
+// OUT OF SEVEN. The seven dashed adds carry BYTE-IDENTICAL class strings across four files, so
+// a fragment-anchored edit resolves to the first match rather than the intended one. Two of the
+// three strays landed on solid-bordered REMOVE icon buttons, where `hover:border-solid` is a
+// dead class AND the border silently firmed from accent/40 to full accent; the third landed on
+// DisclosureGroup's reveal, which had been excluded by name in the same breath. tsc and lint
+// were clean throughout, and only a grep of the finished tree caught it.
+//
+// The whole table below is DERIVED — every `border-dashed` site under components/studio, with
+// its element tag and its enclosing component resolved from source. Nothing here is a pinned
+// file or line, so a new dashed affordance joins the table by existing.
+//
+// THE ONE EXCLUSION IS NAMED BY COMPONENT, NOT BY LINE. DisclosureGroup's reveal is dashed and
+// uses the same IconPlus, so no structural signal separates it from an add — it opens fields
+// that already exist rather than creating one. Excluding it by enclosing component means the
+// exclusion survives the file moving, and means a SECOND dashed button inside DisclosureGroup
+// would be excluded too, which is the correct reading of the rule.
+{
+  const blank = (m) => m.replace(/[^\n]/g, " ");
+  /** Comment-stripped like `code()`, but line-preserving — H reports file:line in its failures.
+   *  A comment containing a class string has re-attributed a match twice in this project. */
+  const codeLines = (p) => read(p)
+    .replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\{\/\*[\s\S]*?\*\/\}/g, blank)
+    .replace(/(^|[^:])\/\/.*$/gm, (m, p1) => p1 + " ".repeat(m.length - p1.length))
+    .split("\n");
+
+  const SOLID_HOVER = "hover:border-solid";
+  const sites = [];
+  const strays = [];
+  for (const f of studioFiles) {
+    codeLines(`components/studio/${f}`).forEach((line, i) => {
+      const at = `${f}:${i + 1}`;
+      if (line.includes(SOLID_HOVER) && !line.includes("border-dashed")) strays.push(at);
+      if (!line.includes("border-dashed")) return;
+      let tag = null;
+      for (let j = i; j >= 0 && j > i - 14 && !tag; j--) {
+        const m = [...codeLines(`components/studio/${f}`)[j].matchAll(/<([a-zA-Z][\w.]*)/g)];
+        if (m.length) tag = m[m.length - 1][1];
+      }
+      let comp = null;
+      for (let j = i; j >= 0 && !comp; j--) {
+        const m = /^(?:export\s+)?(?:default\s+)?function\s+([A-Za-z_]\w*)/.exec(codeLines(`components/studio/${f}`)[j]);
+        if (m) comp = m[1];
+      }
+      sites.push({ at, tag, comp, solid: line.includes(SOLID_HOVER), hovers: line.includes("hover:") });
+    });
+  }
+
+  // H1 · THE STRAY CHECK, AND IT NEEDS NO EXCEPTION LIST. `hover:border-solid` only means
+  // anything on an element that is dashed at rest; anywhere else it is dead weight that arrived
+  // with a live colour change riding alongside it. This is the assertion that would have caught
+  // two of the three strays with no knowledge of which elements were meant to change.
+  t("H1: `hover:border-solid` never lands on an element that is not dashed at rest", strays, []);
+
+  // H2 · THE DERIVATION HAS TO BE HONEST BEFORE THE REST CAN LEAN ON IT. If the tag or the
+  // enclosing component fails to resolve, every assertion below is quietly measuring nothing.
+  t("H2: every dashed site resolved to an element and a component",
+    sites.filter((s) => !s.tag || !s.comp).map((s) => s.at), []);
+  t("H2: …and the table is non-empty, so a bad glob cannot pass this part vacuously",
+    sites.length >= 9, true);
+
+  // H3 · THE RULE. Every dashed BUTTON is an add and firms to solid on hover — except the one
+  // reveal, excluded by its component. A new dashed add that forgets the hover fails here, and
+  // the failure names the component so the fix is obvious.
+  t("H3: every dashed button firms to solid on hover, and the only exception is DisclosureGroup's reveal",
+    sites.filter((s) => s.tag === "button" && !s.solid).map((s) => s.comp), ["DisclosureGroup"]);
+  t("H3: …and seven of them carry it, which is the count the four page contracts specify",
+    sites.filter((s) => s.solid).length, 7);
+
+  // H4 · THE REVEAL KEEPS A HOVER. Excluding it from the solid rule must not leave it inert —
+  // it is still a control and still has to answer the pointer.
+  t("H4: the excluded reveal still has a hover treatment of its own",
+    sites.find((s) => s.comp === "DisclosureGroup")?.hovers, true);
+
+  // H5 · AND THE ONE DASHED NON-BUTTON STAYS INERT. CaseStudyIndex's "Bespoke" badge is a status
+  // pill inside a link. Giving it a hover would make it read as separately clickable.
+  t("H5: the dashed non-button carries no hover at all — a status pill is not a control",
+    sites.filter((s) => s.tag !== "button").map((s) => [s.at, s.hovers]), [["CaseStudyIndex.tsx:207", false]]);
+}
+
+/* ============================ J. THE MIMIC, WHICH SAID IT COULD NOT DRIFT AND THEN COULD (C-27) */
+//
+// `HeroEditPanel` states TWICE that its tab strip "mimics the real Hero tablist" so that "the
+// mimic cannot drift" — and until this part, NOTHING ENFORCED IT. The claim was a comment.
+//
+// WHY THAT MATTERED. The four page contracts specify `.seg` for this control: sentence case,
+// 12.5px, weight 600. The public hero renders the same author-edited labels UPPERCASE at 12px /
+// 500, so all three contract values would have moved the panel AWAY from the thing it exists to
+// mirror. **The contract is not wrong about the current state (like C-21..23) and not wrong about
+// the design (like C-19..20) — it is wrong about WHAT THE ELEMENT IS FOR.** First correction of
+// that shape in twenty-seven, and the reason the reference here is the PUBLIC RENDER rather than
+// the contract.
+//
+// SO THE AXES ARE READ FROM BOTH FILES AND COMPARED TO EACH OTHER. Nothing below names a value:
+// change the hero's tracking and this fails until the panel follows, which is the only form of
+// this assertion that is worth having. Comment-stripped, and that is not decorative here — the
+// panel's own comment now quotes `px-3 py-1.5`, `tracking-wide` and `0.10em` while explaining
+// the change, and an unstripped match would read the history instead of the code.
+//
+// TWO TRAPS THIS PART WALKED INTO WHILE BEING WRITTEN, BOTH CAUGHT BY J1 RATHER THAN BY READING.
+// (1) THE PUBLIC HERO HAS TWO TABLISTS WITH THE SAME `aria-label="Designer facets"` — the mobile
+// dot indicators at `flex lg:hidden` come FIRST in source, so anchoring on the label picked the
+// dots, which carry no type utilities at all. The anchor is the DESKTOP container's own
+// `hidden lg:inline-flex`, which is the variant the studio's `lg:` chrome sits beside.
+// (2) Stripping comments leaves their whitespace, so a character-count window from `role="tab"`
+// to `className` overran. Whitespace is collapsed before matching.
+// Both failures presented as J2 PASSING — on two empty strings. **That is exactly why J1 exists,
+// and why it asserts the axes RESOLVED rather than merely that a string was found.**
+{
+  const flat = (p) => code(p).replace(/\s+/g, " ");
+  const heroPub = flat("components/sections/HeroSection.tsx");
+  const heroStudio = flat("components/studio/HeroEditPanel.tsx");
+
+  const pubCls = /className="hidden lg:inline-flex[\s\S]{0,400}?aria-pressed=\{[\s\S]{0,200}?className="([^"]*)"/
+    .exec(heroPub)?.[1] ?? "";
+  const studioCls = /role="tab" [\s\S]{0,400}?className=\{\[ "([^"]*)"/.exec(heroStudio)?.[1] ?? "";
+
+  /** The axes a mimic must share. Selection language is NOT among them — see J3. */
+  const axes = (cls) => ({
+    padX: /(?:^|\s)(px-[\w.[\]/-]+)/.exec(cls)?.[1] ?? null,
+    padY: /(?:^|\s)(py-[\w.[\]/-]+)/.exec(cls)?.[1] ?? null,
+    size: /(?:^|\s)(text-\[[\d.]+px\])/.exec(cls)?.[1] ?? null,
+    weight: /(?:^|\s)(font-(?:normal|medium|semibold|bold|\[\d+\]))/.exec(cls)?.[1] ?? null,
+    transform: /(?:^|\s)(uppercase|lowercase|capitalize|normal-case)/.exec(cls)?.[1] ?? null,
+    tracking: /(?:^|\s)(tracking-[\w.[\]%-]+)/.exec(cls)?.[1] ?? null,
+  });
+
+  t("J1: both tab class strings were found — the comparison below is not vacuous",
+    [pubCls.length > 0, studioCls.length > 0], [true, true]);
+  t("J1: …and every axis resolved on both sides",
+    [axes(pubCls), axes(studioCls)].map((a) => Object.values(a).filter((v) => v === null)), [[], []]);
+
+  // J2 · THE MIMIC ITSELF. Six axes, compared file to file, no literal in this suite.
+  t("J2: the studio hero tabs match the PUBLIC hero on every shared type axis — the mimic cannot drift",
+    axes(studioCls), axes(pubCls));
+
+  // J3 · AND THE ONE AXIS THAT DELIBERATELY DIFFERS, WHICH IS C-20 CONFIRMING ITSELF ON A CASE
+  // NEITHER SIDE CONSTRUCTED FOR IT. The rule is role="group" -> FILL, role="tablist" -> UNDERLINE.
+  // The public hero is a `group` with `aria-pressed` and an animated pill; the panel is a real
+  // `tablist` with `aria-selected` driving a tabpanel. The roles differ, so the languages differ —
+  // that is the rule working, not an exception to it. Asserted so that "make them match" cannot
+  // quietly take the selection language with it.
+  t("J3: the public hero is a GROUP and carries the fill",
+    [/role="group"/.test(heroPub), /layoutId="hero-tab-pill"/.test(heroPub), /rounded-full/.test(pubCls)],
+    [true, true, true]);
+  t("J3: the studio panel is a real TABLIST and carries the underline",
+    [/role="tablist"[\s\S]{0,200}?aria-label="Hero tabs"/.test(heroStudio),
+      /aria-controls="hero-tab-edit-panel"/.test(heroStudio), /border-b-2/.test(studioCls)],
+    [true, true, true]);
+  t("J3: …and the panel does NOT wear the fill, which is what C-20 forbids for a tablist",
+    /rounded-full/.test(studioCls), false);
+
+  // J4 · SELECTION IS CARRIED BY COLOUR AND THE RULE, NOT BY WEIGHT. The hero is 500 throughout;
+  // the panel used to bump the selected tab to 500 from a 400 rest, which is a third signal the
+  // hero does not have. Neither branch may set a weight now — it lives in the shared base.
+  const branches = /role="tab" [\s\S]{0,900}?\? "([^"]*)" : "([^"]*)"/.exec(heroStudio);
+  t("J4: the selected/rest branches were found", Boolean(branches), true);
+  t("J4: neither branch sets a font weight — selection is the underline plus the ink step, as on the hero",
+    [branches?.[1], branches?.[2]].map((b) => /\bfont-(?:normal|medium|semibold|bold)\b/.test(b ?? "")),
+    [false, false]);
 }
 
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
