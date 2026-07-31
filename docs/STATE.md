@@ -3049,6 +3049,22 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#250** the Skills wrapper loses its `gap-4` (owner's change) →1665, no assertion moves.
+  One class. The wrapper holds the full-height shell and the document-level save bar (#229), and
+  `gap-4` put **16px of bare canvas** between them — measured in #248's own verification run as
+  shell bottom 741 against bar top 757. The bar keeps its own `border-ink-950/12` and card radius,
+  so it still reads as a separate card where the two now abut; the gap was doing nothing the
+  border was not already doing.
+  **THIS CLASS HAS A HISTORY WORTH ONE LINE.** A stray `perl` during #248's mutation runs dropped
+  it, and it was restored as damage — correctly, since the restore preserved the then-current
+  state rather than making a design decision inside a mutation loop. The owner has now removed it
+  deliberately. Restoring it then and deleting it now are not in tension.
+  **NOT RE-VERIFIED IN THE BROWSER, AND THAT IS STATED RATHER THAN ROUTED AROUND.** `/studio` is
+  password-gated and the dev server restart dropped the session cookie; entering the password is
+  not something this agent does. The effect is deterministic (a `flex flex-col` wrapper's `gap`
+  is the only spacing between its two children) and `ralph`, `tsc` and `lint` are green, but the
+  visual confirmation is **owner-only**, in the same class as the production studio checks.
+
 - **#249** the rail footer — one element, two pages →1665 (`mount-discipline` 26→42, new B6).
   The add button and its container, reported against the contracts' `.lf` block. **Confirmed at
   HEAD before assuming it: `ListDetailLayout:462` still serves both "Add experience" and "Add
