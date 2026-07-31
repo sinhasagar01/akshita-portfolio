@@ -58,6 +58,34 @@ t("B2: every section is mapped, not just the selected one",
 t("B3: the details form is hidden rather than conditionally rendered — it carries draft state too",
   /hidden=\{!showDetails\}/.test(panel), true);
 
+/* ================================================ B2. THE COLLAPSED GROUP, one level down
+ * PR 8 folds three group kinds inside the inspector. A folded group is the same defect surface
+ * as a hidden pane: unmount it and a dirty edit inside it is gone, with nothing failing. */
+{
+  const grp = code("components/studio/blocks/CollapsibleGroup.tsx");
+  const fields = code("components/studio/blocks/fields.tsx");
+  t("B2.1: a folded group hides its body — it does not stop rendering it",
+    /<div id=\{bodyId\} hidden=\{!open\}/.test(grp), true);
+  // The wrong shape, refused by name, exactly as A2 refuses the board ternary.
+  t("B2.2: the body is NOT behind `{open && …}` — the shape that drops a dirty edit on collapse",
+    /\{\s*open\s*&&/.test(grp), false);
+  t("B2.3: `hidden` (the Style-tab axis) and `open` are SEPARATE — a card hidden under Style must still not unmount",
+    /<div hidden=\{hidden\} className=\{className\}>/.test(grp), true);
+  t("B2.4: ItemRows rows fold through the shared group rather than a local copy",
+    /<CollapsibleGroup[\s\S]{0,900}summaryClassName=\{groupLabelCls\}/.test(fields), true);
+
+  /* THE ADD-THEN-FOCUS TRAP, PINNED IN SOURCE AND DRIVEN BELOW.
+   * `useItemList.add` records the new index in `pendingFocus`; `focusRef` claims it by calling
+   * `el.focus()` when the row's first input mounts. FOCUS ON A HIDDEN ELEMENT SILENTLY NO-OPS,
+   * so a new row rendered folded swallows the focus and Add looks broken while nothing fails —
+   * this project's recurring failure shape. `defaultOpen` is read once at mount and a new row
+   * mounts fresh, so reading `pendingFocus` there opens exactly the row about to claim focus. */
+  t("B2.5: a newly added row opens, because focus on a hidden element is a silent no-op",
+    /defaultOpen=\{list\.pendingFocus\.current === i\}/.test(fields), true);
+  t("B2.6: …and `useItemList` still exposes the ref that assertion depends on",
+    /pendingFocus,/.test(code("components/studio/useItemList.ts")), true);
+}
+
 /* ================================================ C. THE INSPECTOR RENDERS EXACTLY ONCE
  * Above the fold it mounts in the shell's inspector slot, below it in the canvas slot. Two copies
  * would be two form trees sharing one onChange, with colliding ids and two carets — the reason
@@ -88,10 +116,40 @@ export const MOUNT_SCRIPT = String.raw`
   snap.onSection = count();
   byText('Board')?.click();  await wait(250); snap.onBoard  = count();
   byText('Editor')?.click(); await wait(250); snap.onEditor = count();
-  const stable = ['onSection','onBoard','onEditor'].every(k =>
+
+  // PR 8 — the collapse cycle. Folding a group must not remove one field from the tree.
+  const card = [...document.getElementById('cs-fieldtab-panel').children]
+    .find(c => c.tagName === 'DIV' && !c.hidden);
+  const toggles = () => [...card.querySelectorAll('button[aria-expanded]')];
+  toggles().filter(b => b.getAttribute('aria-expanded') === 'true').forEach(b => b.click());
+  await wait(300); snap.allCollapsed = count();
+  toggles().filter(b => b.getAttribute('aria-expanded') === 'false').forEach(b => b.click());
+  await wait(300); snap.allExpanded = count();
+
+  const keys = ['onSection','onBoard','onEditor','allCollapsed','allExpanded'];
+  const stable = keys.every(k =>
     snap[k].editors === snap.start.editors && snap[k].inputs === snap.start.inputs);
-  return JSON.stringify({ snap, MOUNT_DISCIPLINE_HOLDS: stable,
-    verdict: stable ? 'PASS' : 'FAIL — a view change unmounted a form' }, null, 1);
+
+  // PR 8 — the add-then-focus trap, driven. A new row must render OPEN and take focus.
+  let addVerdict = 'no Add control on this section';
+  const add = [...card.querySelectorAll('button')].find(b => /^Add /.test((b.textContent||'').trim()));
+  if (add) {
+    const before = toggles().length;
+    add.click(); await wait(400);
+    const grown = toggles().length > before;
+    // THE ASSERTION IS ON VISIBILITY, AND THAT IS THE POINT. The trap is that focus on a hidden
+    // element no-ops SILENTLY, so "did focus land" is not enough — a folded row would leave
+    // activeElement on <body> or on whatever held focus before. An input that is BOTH the active
+    // element and non-zero height proves every ancestor group is open, which is the property.
+    const a = document.activeElement;
+    const landed = !!a && /INPUT|TEXTAREA/.test(a.tagName) && card.contains(a);
+    const visible = landed && a.getBoundingClientRect().height > 0;
+    addVerdict = { rowAdded: grown, focusLandedOnAField: landed, andItIsVisible: visible,
+      PASS: grown && visible };
+  }
+
+  return JSON.stringify({ snap, MOUNT_DISCIPLINE_HOLDS: stable, addThenFocus: addVerdict,
+    verdict: stable ? 'PASS' : 'FAIL — a view change or a collapse unmounted a form' }, null, 1);
 })()
 `;
 

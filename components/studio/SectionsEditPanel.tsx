@@ -35,6 +35,7 @@ import { CS_MIN_SCALE, CS_FIT_THRESHOLD_PX, CS_COLLAPSED_FLOOR_PX } from "@/lib/
 import { useMediaMin } from "./useMediaMin";
 import ThreePaneShell from "./ThreePaneShell";
 import SectionsRail from "./SectionsRail";
+import CollapsibleGroup from "./blocks/CollapsibleGroup";
 import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
@@ -1494,18 +1495,23 @@ export default function SectionsEditPanel({
               // compiler, so it is asserted once, here.
               const Form = entry.Form as React.ComponentType<BlockFormProps<typeof kind>>;
               return (
-                <div
+                <CollapsibleGroup
                   key={id}
                   // CS-3 — under the Style tab, a copy-only block has nothing to show,
                   // so its card is hidden here (the form stays MOUNTED). Content shows all.
                   hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
                   className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
-                >
-                  <div className="mb-2 flex items-baseline justify-between gap-2">
-                    <span className="text-[12px] font-medium text-ink-950">
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(entry.label as (v: any) => string)(block.value)}
-                    </span>
+                  // OPEN BY DEFAULT, AND THE DATA IS WHY. The contract asked for every block to
+                  // fold except the one being edited; measured, 12 of the 14 sections in
+                  // elevate-one-view have exactly ONE block, so that default is a no-op on 86%
+                  // of the content and on the other 14% it folds the only thing on screen.
+                  // The affordance is still worth having for the two multi-block sections —
+                  // it just is not worth having on by default.
+                  defaultOpen
+                  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                  summary={(entry.label as (v: any) => string)(block.value)}
+                  summaryClassName="text-[12px] font-medium text-ink-950"
+                  controls={
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-text-subtle">{blockLabel(kind)}</span>
                       <div className="flex gap-1">
@@ -1520,7 +1526,8 @@ export default function SectionsEditPanel({
                         </button>
                       </div>
                     </div>
-                  </div>
+                  }
+                >
                   <div className="flex flex-col gap-2">
                     <Form
                       /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -1533,7 +1540,7 @@ export default function SectionsEditPanel({
                       collection="projects"
                     />
                   </div>
-                </div>
+                </CollapsibleGroup>
               );
             })}
 

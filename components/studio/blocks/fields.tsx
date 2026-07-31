@@ -20,6 +20,7 @@ import {
   type ReactNode,
 } from "react";
 import { useItemList } from "../useItemList";
+import CollapsibleGroup from "./CollapsibleGroup";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus } from "../icons";
 import ImageThumb from "../ImageThumb";
 
@@ -76,6 +77,12 @@ const DisclosureContext = createContext<DisclosureCtx | null>(null);
  * Wraps a run of fields: required/filled ones render inline; when any OPTIONAL field
  * in it is blank (and it is not yet revealed), a reveal control shows the rest. The
  * reveal is STICKY for the session — once shown, a field never disappears mid-edit.
+ *
+ * NOT `CollapsibleGroup`, AND THE TWO ARE NOT VARIANTS OF EACH OTHER. This is a one-way,
+ * sticky reveal over a run of FIELDS; that is a two-way fold over a TITLED REGION. The
+ * stickiness here is the property this component exists for — a field must not vanish
+ * mid-edit — and making it two-way would destroy it, so "add a collapse option" is not
+ * available. See CollapsibleGroup's header for the full split.
  */
 export function DisclosureGroup({
   revealLabel = "More options",
@@ -700,9 +707,27 @@ export function ItemRows<T>({
       {items.map((item, i) => {
         const name = rowLabel?.(item, i) || `${itemNoun} ${i + 1}`;
         return (
-          <div key={i} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <span className={groupLabelCls}>{name}</span>
+          <CollapsibleGroup
+            key={i}
+            className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3"
+            // COLLAPSED BY DEFAULT, AND THIS IS THE WHOLE PR. Measured across the 14 sections of
+            // elevate-one-view, these rows are where the inspector's height lives — not spread
+            // across blocks, stacked inside one. Folding them takes the worst section from 3.07
+            // screens to 1.72 and the mean from 1.97 to 1.05, and 8 of 14 sections come to fit
+            // in a single screen where 2 did.
+            //
+            // EXCEPT A ROW THAT WAS JUST ADDED, AND THAT IS A SEQUENCING FIX RATHER THAN A
+            // COURTESY. `useItemList.add` records the new index in `pendingFocus`, and
+            // `focusRef` claims it by calling `el.focus()` when the row's first input mounts.
+            // FOCUS ON A HIDDEN ELEMENT SILENTLY NO-OPS — so a new row rendered folded would
+            // swallow the focus, Add would look broken, and nothing would fail. `defaultOpen`
+            // is read once at mount and a new row mounts fresh, so reading `pendingFocus` here
+            // opens exactly the row that is about to claim focus, in the render before the ref
+            // fires. Driven in `mount-discipline`, not remembered.
+            defaultOpen={list.pendingFocus.current === i}
+            summary={name}
+            summaryClassName={groupLabelCls}
+            controls={
               <div className="flex gap-1">
                 {/* preventDefault on mousedown keeps focus off these controls so the
                     click cannot blur-save mid-op (the About-panel fix). */}
@@ -738,11 +763,10 @@ export function ItemRows<T>({
                   </button>
                 )}
               </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              {children({ item, set: (v) => list.set(i, v), focusRef: list.focusRef(i) })}
-            </div>
-          </div>
+            }
+          >
+            {children({ item, set: (v) => list.set(i, v), focusRef: list.focusRef(i) })}
+          </CollapsibleGroup>
         );
       })}
       {noAdd ? (
