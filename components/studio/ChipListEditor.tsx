@@ -44,7 +44,12 @@ export default function ChipListEditor({
   const list = useItemList(chips, onChange, () => "");
 
   const iconBtn =
-    "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+    // INSIDE THE GROUP, SO NO BORDER AND NO RADIUS OF ITS OWN. Three separately bordered boxes
+    // beside an input read as three unrelated controls; one bordered cluster with hairline
+    // dividers reads as what it is — the row's controls. The contract's `.seg` is exactly this
+    // shape (one border, `overflow:hidden`, `button+button{border-left}`), and it is also how
+    // the studio's other grouped controls already draw.
+    "grid size-8 shrink-0 place-items-center text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -73,8 +78,13 @@ export default function ChipListEditor({
                 // Uncapped, these ran 1825px on a 2560 display inside About and Process.
                 className={`min-h-11 min-w-0 flex-1 ${FIELD_MEASURE} rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30`}
               />
-              {/* preventDefault on mousedown keeps focus on the input so the click
-                  does not blur-save mid-op (the About-panel fix). */}
+              {/* ONE BORDERED CLUSTER, NOT THREE BOXES — the contract's `.seg`: a single border,
+                  `overflow-hidden` so the children's corners are clipped by it, and a hairline
+                  between the buttons. Three separately bordered boxes beside an input read as
+                  three unrelated controls; grouped, they read as the row's controls.
+                  preventDefault on mousedown keeps focus on the input so the click does not
+                  blur-save mid-op (the About-panel fix). */}
+              <span className="inline-flex shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 [&>button+button]:border-l [&>button+button]:border-l-ink-950/12">
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
@@ -100,10 +110,14 @@ export default function ChipListEditor({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => list.remove(i)}
                 aria-label={`Remove ${name}${fromSuffix}`}
-                className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                // Inside the group like its siblings. The hover keeps the ACCENT TEXT and drops
+                // the accent border, which the group now owns — a border-colour hover on a child
+                // whose border is clipped by `overflow-hidden` would simply not draw.
+                className="grid size-8 shrink-0 place-items-center text-ink-400 transition-colors hover:bg-cream-200 hover:text-accent-600 [&>svg]:size-4"
               >
                 <IconX />
               </button>
+              </span>
             </div>
           );
         })}

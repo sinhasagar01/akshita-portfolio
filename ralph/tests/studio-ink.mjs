@@ -388,6 +388,35 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     bandOutsideInspector, []);
 }
 
+/* ================================================ C3. THE ORDINAL'S LABEL SCALE, ASSERTED AS A PAIR
+ *
+ * `OverviewRow` is a SERVER component; `labelCls` lives in `blocks/fields.tsx`, which is
+ * `"use client"`. Importing the constant across that boundary does not fail to build — it yields
+ * a THROWING PROXY that a template literal stringifies, so the rendered class came out as
+ * `w-6 shrink-0 tabular-nums function() { throw new Error("Attempted to call labelCls()...`.
+ * **tsc, lint and this whole suite passed.** Only rendering the page showed it.
+ *
+ * So the utilities are written out in that file, and the pair is asserted instead of deleted —
+ * the rule `three-pane` H already runs on the pane widths: a coupling you cannot remove is a
+ * coupling you assert. The ordinal must carry every token the label scale defines, EXCEPT its
+ * colour is checked separately below because the contract asked for a different one. */
+{
+  const ord = readStudio("OverviewRow.tsx");
+  const label = /export const labelCls = "([^"]*)";/.exec(readStudio("blocks/fields.tsx"))?.[1] ?? "";
+  const ordCls = /className="(w-6 shrink-0[^"]*)"/.exec(ord)?.[1] ?? "";
+  t("C3: the label scale is still a single string in the fields module", label.length > 0, true);
+  t("C3: the ordinal carries every token of the label scale",
+    label.split(/\s+/).filter((tok) => !ordCls.split(/\s+/).includes(tok)), []);
+  // THE COLOUR IS THE HALF THE CONTRACT GOT WRONG. It specifies ink-400 for this ordinal; #228
+  // swept 45 sites OFF ink-400 because it measures 3.02–3.49 on cream and fails AA. Pinned so a
+  // later reading of the contract cannot quietly restore it.
+  t("C3: …and it is ink-600, not the contract's ink-400 — the value #228 removed",
+    /text-ink-600/.test(ordCls) && !/text-ink-400/.test(ordCls), true);
+  // AND THE BOUNDARY ITSELF, so nobody re-adds the import that looked fine and rendered a proxy.
+  t("C3: OverviewRow does NOT import from the client fields module — it is a server component",
+    /from "\.\/blocks\/fields"/.test(ord), false);
+}
+
 /* ================================================ C2. THE FIELD MEASURE
  *
  * A form is content and content has a measure. Unbounded, a single-line field grows with the

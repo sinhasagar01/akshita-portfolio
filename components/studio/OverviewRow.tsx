@@ -22,15 +22,33 @@ type Props = {
   ariaLabel?: string;
 };
 
+// THE DOT, NOT A PILL — the signal the studio already uses everywhere else it says
+// published-or-not: `BlogPostList`, `SectionsRail` and the case-study index all draw a 6px
+// circular 6px dot beside a word. This row was the one surface carrying a filled
+// badge instead, and a filled green pill reads as a stronger claim than "this section is live",
+// which is the plainest fact on the page.
+//
+// IT ALSO RETIRES THE LAST 9.5px IN THE STUDIO. That size lived here and nowhere else — a scale
+// of one, which is how a size stops being a scale.
+//
+// THE GROUND CHANGED WITH THE SHAPE, AND THAT IS WHY THE COLOUR IS RE-MEASURED RATHER THAN
+// COPIED. The existing dots sit on the rails at cream-200 and cream-300; these rows sit on
+// cream-50. A ratio belongs to the ground it was taken on — the third time this project has had
+// to say so — so success-700 and ink-400 were measured again HERE. See the PR body.
+//
+// (The dot's utilities are described above WITHOUT their class spelling, deliberately. Tailwind
+// v4 scans raw source text, comments included, so a class name written here EMITS it — and
+// `studio-ink` F5 counts the pill shape over RAW source precisely because a comment can ship
+// CSS. Second time in two PRs. The rule is in LinksEditPanel's header, and it is easiest to
+// forget while explaining the very class you are adding.)
 function StatusBadge({ status }: { status: "live" | "code" }) {
   const live = status === "live";
   return (
-    <span
-      className={[
-        "shrink-0 rounded-full px-2 py-[3px] text-[9.5px] font-medium uppercase tracking-wide",
-        live ? "bg-success-50 text-success-700" : "bg-cream-300 text-ink-600",
-      ].join(" ")}
-    >
+    <span className="flex shrink-0 items-center gap-1.5 text-[12px] text-ink-600">
+      <span
+        aria-hidden
+        className={`size-1.5 shrink-0 rounded-full ${live ? "bg-success-700" : "bg-ink-400"}`}
+      />
       {live ? "Live" : "In code"}
     </span>
   );
@@ -58,8 +76,25 @@ export default function OverviewRow({
 
   const inner = (
     <>
+      {/* THE ORDINAL TAKES THE LABEL SCALE. It was `font-display text-[17px] italic` — a Fraunces
+          italic numeral competing with the row's own 20px display title two elements to its
+          right, so the loudest thing in the row carried the least. The contract's own spec is
+          12px/700 sans at .14em tracking, which is the studio's label scale exactly.
+          ⚠ NOT the contract's ink-400 though: #228 swept 45 sites off ink-400 because it
+          measured 3.02–3.49 on cream and failed AA. Adopting it back here would walk into the
+          value that PR removed, so this takes the label scale's ink-600.
+
+          ---- WRITTEN OUT RATHER THAN IMPORTED, AND THAT IS A BOUNDARY, NOT A COPY ----------
+          This file is a SERVER component and `labelCls` lives in `blocks/fields.tsx`, which is
+          `"use client"`. Importing the constant across that boundary does not fail to build — it
+          silently yields a THROWING PROXY, which a template literal stringifies, so the rendered
+          class was literally `w-6 shrink-0 tabular-nums function() { throw new Error("Attempted
+          to call labelCls() from the server...`. **tsc passed, lint passed, ralph passed.** Only
+          rendering it showed anything. Kept as literals here, with `studio-ink` asserting the two
+          agree — the "assert the pair, because you cannot delete the pair" rule three-pane H
+          already runs on the pane widths. */}
       <span
-        className="w-6 shrink-0 font-display text-[17px] italic tabular-nums text-ink-400"
+        className="w-6 shrink-0 text-[12px] font-bold uppercase tracking-eyebrow tabular-nums text-ink-600"
         aria-hidden
       >
         {index}

@@ -3042,6 +3042,45 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   header argues at length that they must not be merged. See the hazard; the merge stays #199's
   open decision, the comment does not.
 
+- **#240** homepage and skills — the visual pass →1586 (`studio-ink` 112→116). PR 2 of three.
+  **THE HEADLINE IS A DEFECT NO GATE COULD HAVE CAUGHT, AND ONLY RENDERING DID.** The ordinal was
+  moved onto the label scale by importing `labelCls` — and `OverviewRow` is a SERVER component
+  while `blocks/fields.tsx` is `"use client"`. **Importing a plain string constant across that
+  boundary does not fail to build.** Next yields a throwing proxy, a template literal stringifies
+  it, and the element rendered with
+  `class="w-6 shrink-0 tabular-nums function() { throw new Error("Attempted to call labelCls()…"`.
+  **tsc passed, lint passed, ralph passed, the page looked plausible.** The utilities are written
+  out in that file now, with the pair asserted rather than deleted — `three-pane` H's "a coupling
+  you cannot remove is a coupling you assert" — plus an assertion that the import does not return.
+  **THREE CONTRACT CLAIMS DID NOT SURVIVE SOURCE.** (Numbers left for the owner to assign; C-19
+  and C-20 are reserved for PR 3's two.)
+  **(a)** "The ordinals move off 9.5px." They were **17px Fraunces italic**; 9.5px was the LIVE
+  pill's, and that pill is what this PR deletes. Right destination, wrong starting point.
+  **(b)** "The rows get a content cap so a row does not run 2000px wide." They were **already
+  capped at `max-w-[60rem]` = 960px** — 60px TIGHTER than the contract's own 1020. No change made;
+  a cap that already exists and is stricter than the spec does not need loosening to match it.
+  **(c)** The contract specifies **ink-400** for the ordinal. #228 swept 45 sites OFF ink-400
+  because it measures 3.02–3.49 on cream and fails AA, so adopting it would restore the exact
+  value that PR removed. Taken at the label scale's ink-600, **7.42 measured**, and pinned.
+  **THE COMMENT-EMITS-CSS TRAP, SECOND TIME IN TWO PRS.** Writing the dot's class name in prose
+  put a 28th pill in `studio-ink` F5's raw count. Tailwind v4 scans comments, so F5 counting raw
+  source is CORRECT — a comment can ship CSS — and the comment was wrong. #239 hit the same trap
+  with two element names and E2. **It is easiest to forget while explaining the very class you are
+  adding**, which is exactly when a header gets written.
+  **MEASURED, BEFORE AND AFTER.** Homepage row heights **101/81/81/101/81/81 — unchanged**;
+  ordinal 17px Fraunces italic → **12px DM Sans 700 at 1.68px tracking**, which is the contract's
+  `.14em` at 12px exactly; status 9.5px pill (38×20, success-50 fill) → 6px dot plus a 12px word.
+  Skills row height **44 → 44** and **the input's own 44px well survives** — the controls were
+  outside it and are now beside it; three separately bordered buttons became one bordered cluster
+  with hairline dividers, 108px → 98px.
+  **CONTRAST, sanity pair 21 first**, all on cream-50 because THIS is the ground — the existing
+  dots were measured on the cream-200/cream-300 rails, and a ratio belongs to the ground it was
+  taken on (third instance): success-700 **6.58**, ink-400 **3.49**, both clear of the 3:1
+  non-text floor; the ordinal 7.42.
+  **THE SKILLS SAVE BAR STAYS OUTSIDE THE PANEL**, confirmed in the DOM. #229 settled it: skills
+  is a `singleton()`, one save covers every category, and moving the footer inside would render N
+  save bars for one save.
+
 **THE STUDIO CONSISTENCY ARC, EIGHT PRs. CLOSED.** **ralph 1486 → 1541 across the arc itself**;
 1193 → 1541 is the span since #199, which also covers the ink-chrome arc, the hazard closures and
 PR D. Both numbers are true of different things and the arc's own contribution is the smaller
