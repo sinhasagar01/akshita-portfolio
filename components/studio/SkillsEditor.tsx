@@ -189,7 +189,11 @@ function CategoryPanel({
   return (
     <section
       aria-label={`Edit ${category.trim() || "category"}`}
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-50"
+      // THE FIELD SURFACE IS cream-100, matching the five sibling entry panels. Measured, this
+      // panel was cream-50 holding an `inputClsMd` name field and a ChipListEditor, both
+      // cream-50 — a 1.00 ratio. The ladder is relational (blocks/fields.tsx:151-166) and
+      // cream-50 is its bottom step, so the panel moves, not the fields.
+      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
     >
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">

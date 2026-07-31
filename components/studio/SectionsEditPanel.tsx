@@ -362,7 +362,15 @@ function SelectedRail({
 }) {
   const { ref: taRef, railRef, maxHeight } = useAutoGrow(value);
   return (
-    <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-50 p-3.5">
+    // THE RAIL IS THE SURFACE ITS TEXTAREA SITS ON, so it takes cream-100 while the textarea
+    // keeps `inputCls`'s cream-50. Measured, this was a DOUBLE collision: the rail was cream-50
+    // on the cream-50 body section (1.00, so the rail itself was invisible) and its textarea was
+    // cream-50 on the cream-50 rail (1.00 again).
+    // NOTE FOR PR 7 — THE BODY SECTION IS STILL INVERTED and this rail is coupled to it. That
+    // section is cream-50 with a cream-100 header, the mirror of its siblings. When PR 7 rights
+    // it (body -> cream-100, header -> cream-200) THIS RAIL MUST MOVE TO cream-200 in the same
+    // change, or body and rail both land on cream-100 and the collision comes straight back.
+    <aside ref={railRef} className="sticky top-4 rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-100 p-3.5">
       <p className="text-eyebrow uppercase tracking-eyebrow text-ink-400">
         {selected ? `Selected · ${selected.label}` : "Selected"}
       </p>
