@@ -128,11 +128,24 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
               : "All changes saved";
 
   return (
-    <div className="flex flex-col gap-4">
+    // ---- THIS WRAPPER HAS TO CARRY THE HEIGHT, OR THE SHELL INSIDE IT NEVER GETS ONE -------
+    //
+    // `data-studio-fullheight` was present here and the layout's `:has()` rule DID match — and
+    // the rail was still 489px in a 1054px viewport, because the chain broke one level ABOVE the
+    // shell. This div is a flex item of `<main>`; without `flex-1 min-h-0` it takes content
+    // height, so the shell it contains has only content height to fill.
+    //
+    // Experience does not need this because `ExperienceListEditor` renders `ListDetailLayout` as
+    // the route's own child. The moment a page puts anything BESIDE the shell — here, the
+    // document-level save bar below — the wrapper becomes load-bearing.
+    //
+    // `lg:` to match both of the layout's rules; below `lg` this is ordinary document flow.
+    <div className="flex flex-col gap-4 lg:min-h-0 lg:flex-1">
       <ListDetailLayout
         sections={cats.map((c, i) => ({ id: ids[i], name: c.category.trim() || "Untitled category" }))}
         onAddItem={onAddItem}
         addItemLabel="Add category"
+        searchPlaceholder="Search categories"
         onRemoveItem={onRemoveItem}
         onMoveItem={onMoveItem}
       >
@@ -207,7 +220,13 @@ function CategoryPanel({
       // panel was cream-50 holding an `inputClsMd` name field and a ChipListEditor, both
       // cream-50 — a 1.00 ratio. The ladder is relational (blocks/fields.tsx:151-166) and
       // cream-50 is its bottom step, so the panel moves, not the fields.
-      className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
+      // NO FRAME — the same removal #245 made on the five sibling panels, which MISSED this one.
+      // #245 swept BY PANEL NAME (About, Experience, Hero, Links, Process) and this panel is
+      // `CategoryPanel` inside `SkillsEditor`, so it was never in the list and the exact string
+      // survived here. `studio-ink` E1b already derived the SHELL consumers from the files that
+      // render `<ListDetailLayout`; the frame removal did not derive anything. See E1c, which
+      // now derives the panel set the same way the shell set is derived.
+      className="bg-cream-100"
     >
       {/* A CREAM-200 BAR, NOT AN INK BAND, and that is the by-role rule rather than a
           preference. The ink band's own reasoning is about a NARROW PANE beside ink chrome,

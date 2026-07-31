@@ -90,16 +90,102 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
  * The source half of the reachability rule. `overflow-hidden` on a box that is as tall as its
  * scroll container is a box that clips with nowhere to scroll — see REACHABILITY_SCRIPT. */
 {
-  const shellPanels = ["AboutEditPanel", "ExperienceEditPanel", "HeroEditPanel",
-                       "LinksEditPanel", "ProcessEditPanel"];
+  // THIS LIST USED TO BE FIVE NAMES TYPED BY HAND, AND THAT IS EXACTLY THE DEFECT #248 FOUND.
+  // #245 removed the frame from five panels chosen by hand; Skills' `CategoryPanel` was never in
+  // the list, kept its frame, and this assertion could not see it either. Derived now: the panels
+  // are whatever the three shell hosts render BETWEEN the layout's tags. See `studio-ink` E1b/E1c,
+  // which derives the same set for the frame rule.
+  const hosts = ["app/studio/(dashboard)/settings/page.tsx",
+                 "components/studio/ExperienceListEditor.tsx",
+                 "components/studio/SkillsEditor.tsx"];
+  const shellPanels = [...new Set(hosts.flatMap((h) =>
+    [...(/<ListDetailLayout[\s\S]*?>([\s\S]*?)<\/ListDetailLayout>/.exec(code(h))?.[1] ?? "")
+      .matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1])))];
+  t("B3.1: the derived shell-panel set is non-empty and includes the panel the by-name sweep missed",
+    shellPanels.includes("CategoryPanel") && shellPanels.length >= 6, true);
+  const fileFor = (n) => (n === "CategoryPanel" ? "SkillsEditor" : n);
   const clipping = shellPanels.filter((f) =>
-    /<section[\s\S]{0,200}?overflow-hidden/.test(code(`components/studio/${f}.tsx`)));
+    /<section[\s\S]{0,200}?overflow-hidden/.test(code(`components/studio/${fileFor(f)}.tsx`)));
   t("B3.1: no panel inside the list-detail pane clips its own overflow",
     clipping, []);
   // The pane is declared the scroller; if that ever stops being true the script above has nothing
   // to check against.
+  // ANCHORED ON THE EXTRACTED CLASS EXPRESSION, NOT ON A CHARACTER WINDOW FROM `id="ld-panel"`.
+  // The window was 400 chars and #248's comment pushed the class past it — comment-stripping
+  // removes the text but leaves the newlines and indentation. A window that measures distance in
+  // characters fails when someone writes a paragraph, which is the wrong reason to fail.
+  const paneCls = /id="ld-panel"[\s\S]*?className=\{`([^`]*)`\}/.exec(code("components/studio/ListDetailLayout.tsx"))?.[1] ?? "";
   t("B3.2: …and the pane is still the declared scroller",
-    /id="ld-panel"[\s\S]{0,400}?lg:overflow-y-auto/.test(code("components/studio/ListDetailLayout.tsx")), true);
+    paneCls.includes("lg:overflow-y-auto"), true);
+
+  /* ---- B4 · THE UNDERFLOW REGIME, WHICH IS THE INVERSE OF EVERYTHING ABOVE ------------------
+   *
+   * B3 AND THE REACHABILITY SCRIPT ONLY ASK WHAT HAPPENS WHEN CONTENT IS TALLER THAN THE PANE.
+   * #245 verified at 600 and 700px and passed, and the save bar was still wrong at every size the
+   * owner uses — because the bug lives in the OPPOSITE regime. When the content is SHORTER than
+   * the pane there is no scrolling, and `position: sticky` never offsets an element from its
+   * static position unless scrolling would carry it out of the sticky region. So `sticky` was
+   * present, `bottom: 0` was set, the offset measured correctly, and the bar floated anyway:
+   * 61px at 1440x820, 295px at 1076x1054. BIGGER SCREEN, WORSE BUG — backwards from where anyone
+   * tests, which is why three reports preceded any failing assertion.
+   *
+   * NEITHER HALF IS SUFFICIENT ALONE, and that is the finding rather than a footnote:
+   *   overflow  -> `sticky bottom-0` pins the bar to the scrollport. `mt-auto` is inert.
+   *   underflow -> `mt-auto` in a flex column consumes the free space. `sticky` is inert.
+   * Both must be present, so both are asserted, together with the `grow` that gives the section
+   * the pane's height in the first place. Growing the section alone does NOT fix it — measured,
+   * the section filled the pane at 755 and the bar still sat at 759. */
+  {
+    const ld = code("components/studio/ListDetailLayout.tsx");
+    const pane = /id="ld-panel"[\s\S]*?className=\{`([^`]*)`\}/.exec(ld)?.[1] ?? "";
+    t("B4: the pane's class expression was found", pane.length > 0, true);
+    for (const [what, cls] of [
+      ["the section is given the pane's height", "lg:[&>section]:grow"],
+      ["…as a flex COLUMN, so its footer can be pushed", "lg:[&>section]:flex"],
+      ["…column direction, not row", "lg:[&>section]:flex-col"],
+      ["…and the footer takes the free space above it — the UNDERFLOW half", "lg:[&>section>footer]:mt-auto"],
+    ]) t(`B4: ${what}`, pane.includes(cls), true);
+
+    // The OVERFLOW half still has to be there, on every derived panel, or scrolling regresses.
+    const notSticky = shellPanels.filter((n) =>
+      !/<footer[^>]*className="sticky bottom-0/.test(code(`components/studio/${fileFor(n)}.tsx`))
+      && /<footer/.test(code(`components/studio/${fileFor(n)}.tsx`)));
+    t("B4: every shell panel's footer keeps `sticky bottom-0` — the OVERFLOW half, which mt-auto does not replace",
+      notSticky, ["CategoryPanel"]);
+    t("B4: …and CategoryPanel is the one exception, because Skills' save bar is DOCUMENT-level (#229) and sits outside the shell",
+      /<\/ListDetailLayout>[\s\S]*<footer/.test(code("components/studio/SkillsEditor.tsx")), true);
+
+    /* ---- B5 · THE CHAIN ABOVE THE SHELL, WHICH IS WHERE SKILLS BROKE --------------------
+     *
+     * `data-studio-fullheight` was present on Skills and the layout's `:has()` rule DID match,
+     * and the rail was still 489px in a 1054px viewport. The attribute proves the shell OPTED
+     * IN; it proves nothing about whether anything gave it a height. The chain broke one level
+     * ABOVE the shell, in the host's own wrapper.
+     *
+     * THE RULE DERIVES FROM A REAL STRUCTURAL DIFFERENCE, not from naming the page. A host that
+     * renders the layout as its only content lets it inherit `<main>`'s flex context directly —
+     * `ExperienceListEditor` and the settings route both do, and both were always correct. The
+     * moment a host renders a SIBLING alongside the shell it must wrap them, and that wrapper
+     * becomes the load-bearing flex item. So: sibling => the wrapper must stretch. */
+    const hosts2 = ["app/studio/(dashboard)/settings/page.tsx",
+                    "components/studio/ExperienceListEditor.tsx",
+                    "components/studio/SkillsEditor.tsx"];
+    const withSibling = hosts2.filter((h) => {
+      const after = code(h).split("</ListDetailLayout>")[1] ?? "";
+      // A MODAL IS NOT A SIBLING IN THE LAYOUT SENSE. Experience renders dialogs after the shell;
+      // they are overlays that take no space in the column, so they cannot starve it of height.
+      return /<[a-z]/.test(after.replace(/<StudioModal[\s\S]*?\/StudioModal>/g, ""));
+    });
+    t("B5: exactly one host renders a space-taking sibling beside the shell",
+      withSibling, ["components/studio/SkillsEditor.tsx"]);
+    const notStretching = withSibling.filter((h) => {
+      const before = code(h).split("<ListDetailLayout")[0];
+      const wrapper = [...before.matchAll(/className="([^"]*)"/g)].pop()?.[1] ?? "";
+      return !(wrapper.includes("lg:flex-1") && wrapper.includes("lg:min-h-0"));
+    });
+    t("B5: …and its wrapper stretches, or the shell inside it has only content height to fill",
+      notStretching, []);
+  }
 }
 
 /* ================================================ C. THE INSPECTOR RENDERS EXACTLY ONCE

@@ -3049,6 +3049,95 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#248** the save bar, the rail and the frame — seven items, three root causes →1649
+  (`studio-ink` 150→151 with E1b rewritten and E1c new, `mount-discipline` 16→26 with B4 and B5).
+  Seven items the owner reported for the THIRD time, three of them previously reported fixed.
+  **THE TESTING FINDING IS WORTH MORE THAN ANY OF THE SEVEN FIXES.**
+  **#245 VERIFIED AT 600 AND 700px, AND THE BUG CANNOT APPEAR BELOW 759px.** Both heights sat
+  entirely inside the regime where the property holds. `position: sticky` was present, `bottom: 0`
+  was set, the footer's offset measured correctly — **and the outcome held only because the
+  content happened to overflow.** Measured floats: **61px at 1440x820, 295px at 1076x1054.**
+  **BIGGER SCREEN, WORSE BUG** — backwards from where anyone tests, and the reason the owner saw
+  it three times and the gate never did.
+  **THE MECHANISM IS THE DURABLE PART. `position: sticky` is bounded by its CONTAINING BLOCK, not
+  by the scrollport.** A sticky child cannot leave its parent's box. The panel `<section>` is an
+  ordinary block sized to its content, so when the content is shorter than the pane the bar pins
+  to the SECTION's bottom and floats with cream beneath it.
+  **THE OWNER'S OWN DIFFERENTIAL IS THE PROOF.** They reported About and Process correct and Hero
+  and Links wrong, on one page. Measured at a 989px pane: Hero 674 (315px float), Links 814 (175),
+  About **1187** (0), Process **1913** (0). Those two panels are not styled differently — **they
+  just overflow.**
+  **AND GROWING THE SECTION IS NOT SUFFICIENT ON ITS OWN**, which is the half that looks done and
+  is not: a sticky element only OFFSETS from its static position when scrolling would carry it out
+  of the sticky region. With the section filling the pane at 755 the bar still sat at 759. The
+  section must also be a flex COLUMN whose footer takes `mt-auto`. **Neither half works alone** —
+  overflow is `sticky bottom-0`'s regime and `mt-auto` is inert there; underflow is `mt-auto`'s
+  and `sticky` is inert. B4 asserts both, and states that as the finding.
+  **THREE ROOT CAUSES, NOT ONE.** The owner's hypothesis (the shell is not applying) was half
+  right, and testing it first is what separated them. The attribute was present and the `:has()`
+  rule matched on ALL THREE pages — so on Experience and Settings the shell was genuinely in
+  effect and only RC-1 applied.
+  - **RC-1 · sticky's containing block** (items 1, 5, and what LOOKED like 4 on Experience).
+    Fixed at the shared seam on `#ld-panel`. **THIS SEAM IS GENUINELY SHARED, WHICH IS NOT THE
+    USUAL FINDING HERE** — three times in this arc a shared seam was the WRONG home because the
+    change was true for pages that never asked for it (#244's `AreaHeader`, #245's
+    `ProjectsEditPanel` fallback, the E1 ground assertion). This is the opposite: all five
+    consumers want their section to fill the pane, and About and Process are unchanged in
+    appearance ONLY because they already overflow. Same fix, same intent, five consumers.
+  - **RC-2 · Skills' wrapper broke the chain one level ABOVE the shell.** `data-studio-fullheight`
+    was present and the rule matched, and the rail was still **489px in a 1054px viewport**. The
+    wrapper is a plain `flex flex-col gap-4` div holding the shell AND a sibling; without
+    `lg:flex-1 lg:min-h-0` it takes content height, so the shell has only content height to fill.
+    Experience never needed it because its editor renders the layout as the route's own child.
+    **The attribute proves the shell OPTED IN. It proves nothing about whether anything gave it a
+    height.**
+  - **RC-3 · #245's sweep was BY PANEL NAME and Skills' panel was never in the list.** The exact
+    frame string survived at `SkillsEditor.tsx:210`. On EXPERIENCE the frame was already gone —
+    measured `bg-cream-100`, border 0, radius 0 — so what read as a frame there was the footer's
+    `border-t` floating mid-panel with 295px of cream under it. **A box edge in the wrong place,
+    not a border**, and RC-1 removed it.
+  **THE GATE DERIVED AND STILL MISSED IT, WHICH IS THE SHARPER HALF OF RC-3.** `studio-ink` E1b
+  derived the shell panels from the three files rendering `<ListDetailLayout` — but matched
+  `/<([A-Z][A-Za-z]*EditPanel)\b/`, **a NAME SUFFIX**. Skills' panel is `CategoryPanel`, so it
+  never entered the set; the gate asserted "the five" and passed while the sixth kept its frame.
+  **A derivation that keys on a naming convention is a hand-written list wearing a derivation's
+  clothes.** It now reads every capitalised component rendered BETWEEN the layout's tags, which
+  still excludes `ProjectsEditPanel` by construction rather than by exception. `mount-discipline`
+  B3.1 had the same five names typed by hand and now derives the same way.
+  **TWO MORE DERIVATIONS WERE KEYING ON THE WRONG THING**, found because the rail search made
+  `ListDetailLayout` match them. E6 and C2 filtered on `/useListItem\(/` in RAW source — which
+  matches the file that DEFINES the hook, not only those that call it. Both now key on the
+  IMPORT. And C2's field count excluded whole files containing a `type="file"` input; it now
+  counts CONTENT inputs, so a panel holding a search box AND real fields still has its fields
+  checked.
+  **THE COMMENT TRAP FIRED A THIRD TIME**, after #239's input/textarea and #240's pill: a comment
+  explaining the sticky mechanism contained the literal `<section>`, and E6 reads raw source, so
+  that sentence alone enrolled `ListDetailLayout` as an entry panel. Written without the angle
+  brackets, with the reason recorded at the line.
+  **ITEM 2, THE RAIL SEARCH, WAS A SCOPING MISS RATHER THAN A REGRESSION** — in the four-page
+  audit, never in any PR's scope. Built to the contract's `.rt` block: 12px pad over a hairline,
+  a 40px cream-50 well, 13px, with the contract's distinct placeholders ("Search roles",
+  "Search categories"). Opt-in BY PLACEHOLDER with no default, so Site settings' four fixed panels
+  get no unlabelled box. It filters ROWS ONLY — never the children, so the open panel survives
+  being filtered out, and never `sections`, which selection and deep-linking read. The arrow keys
+  yield to the input, guarded on the event ORIGIN so a second rail control inherits it.
+  **ITEMS 3 AND 4 ON EXPERIENCE NEEDED NO WORK** and were verified and screenshotted rather than
+  touched — rail 989 of 989, frame already absent.
+  **SKILLS' SAVE BAR STAYS OUTSIDE THE SHELL.** #229's singleton reasoning holds — one save for N
+  categories, so a per-panel footer would render N bars for one document save. It just needed the
+  shell above it to stretch, and now sits flush at the viewport bottom.
+  **DRIVEN IN BOTH REGIMES, PER PAGE, AT A REAL VIEWPORT**, with the screen described rather than
+  a property read. At 1440x820 (underflow) and 1440x600 (overflow): every bar at its anchor's
+  bottom, rails full height, frames absent, panes still scrolling, and Experience's last field
+  ("Location") still reachable — #245's reachability assertion intact.
+  **ONE THING REPORTED, NOT FIXED: the PublishBar pill overlaps the save bar by 42px.** It does so
+  identically on About and Process, which the owner named as the correct reference and which this
+  PR does not change in appearance — so it is pre-existing, now uniform across all five rather
+  than only on the two that overflowed. Changing it would move the reference.
+  CSS union **1533 → 1540**, seven rules added and **none removed**; the four seam variants
+  generate real CSS, so the arbitrary-variant syntax is not a bracket-bare no-op. Public DOM
+  byte-identical — nothing outside `components/studio` was touched.
+
 - **#246** the dashed adds firm to solid on hover, and the hero-tab mimic gets a gate →1637
   (`studio-ink` 133→149, new Parts H and J, C4 rewritten).
   PR 2 of the owner's six UI items. **Both halves, but the tab half is not the one that was briefed**

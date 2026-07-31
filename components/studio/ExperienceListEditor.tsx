@@ -233,6 +233,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
         sections={sections}
         onAddItem={openAdd}
         addItemLabel="Add experience"
+        searchPlaceholder="Search roles"
         onRemoveItem={askDelete}
         onMoveItem={moveItem}
       >

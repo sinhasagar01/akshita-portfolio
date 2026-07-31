@@ -137,6 +137,19 @@ const studioFiles = readdirSync(new URL("../../components/studio", import.meta.u
   .map(String).filter((f) => f.endsWith(".tsx"));
 const readStudio = (f) => read(`components/studio/${f}`);
 
+/** A CONSUMER of the list-detail hook IMPORTS it; the file that DEFINES it merely exports it.
+ *  `/useListItem\(/` matched both, so `ListDetailLayout` counted itself as an entry panel the
+ *  moment it grew an input of its own (#248's rail search). Matching the IMPORT is the property
+ *  that actually means "this file renders a panel inside the shell". */
+const IMPORTS_LIST_ITEM = /import\s*\{[^}]*\buseListItem\b[^}]*\}\s*from/;
+
+/** Inputs the 760px measure exists for: it caps a field that GROWS with the window. A file input
+ *  has no visible box and a search box is chrome in a fixed-width rail, so neither has a measure
+ *  to carry. Counts tags rather than testing the file, so one chrome input cannot excuse a file
+ *  full of real fields. */
+const contentInputs = (p) => [...code(p).matchAll(/<input\b[^>]*>/g)]
+  .filter((m) => !/type="(file|search)"/.test(m[0])).length;
+
 // E1 · THE WELL, AND THE ASSERTION THAT ENCODED THE BUG.
 //
 // This checked `bg-cream-100` — an ABSOLUTE VALUE — and that is precisely the error #205 made.
@@ -197,16 +210,48 @@ const readStudio = (f) => read(`components/studio/${f}`);
   t("E1b: the three shell hosts still render the layout — if this shrinks the derivation below is reading less than it thinks",
     rendersShell.length, 3);
 
-  // The panels each host renders as children of that layout.
-  const shellPanels = [...new Set(rendersShell.flatMap((h) =>
-    [...code(h).matchAll(/<([A-Z][A-Za-z]*EditPanel)\b/g)].map((m) => m[1])))];
-  t("E1b: the derived shell-panel set is the five that lost the frame",
-    shellPanels.sort(), ["AboutEditPanel", "ExperienceEditPanel", "HeroEditPanel", "LinksEditPanel", "ProcessEditPanel"]);
+  // ---- THIS DERIVATION WAS A NAMING CONVENTION WEARING A DERIVATION'S CLOTHES (#248) ---------
+  //
+  // It used to match `/<([A-Z][A-Za-z]*EditPanel)\b/` — a NAME SUFFIX — anywhere in the host
+  // file. Skills' panel is `CategoryPanel`, defined inside `SkillsEditor`, so it never entered
+  // the set. The gate then asserted "the five" and passed, while the sixth panel kept the frame
+  // #245 was removing. **The gate derived and still encoded the same hand-written assumption the
+  // fix did**, which is why #245's sweep-by-name and this assertion missed the identical panel.
+  //
+  // Now it reads every capitalised component rendered BETWEEN the layout's own tags. That is the
+  // property that actually defines a shell panel — it is rendered inside the shell — and it
+  // still excludes `ProjectsEditPanel` by construction rather than by exception, because that
+  // component is never a child of `<ListDetailLayout>`.
+  const childrenOf = (src) =>
+    [...(/<ListDetailLayout[\s\S]*?>([\s\S]*?)<\/ListDetailLayout>/.exec(src)?.[1] ?? "")
+      .matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
+  const shellPanels = [...new Set(rendersShell.flatMap((h) => childrenOf(code(h))))];
+  t("E1b: the derived shell-panel set now includes Skills' CategoryPanel, which the suffix match never saw",
+    shellPanels.sort(), ["AboutEditPanel", "CategoryPanel", "ExperienceEditPanel", "HeroEditPanel",
+      "LinksEditPanel", "ProcessEditPanel"]);
+  t("E1b: …and ProjectsEditPanel is still out of it, by construction rather than by exception",
+    shellPanels.includes("ProjectsEditPanel"), false);
 
+  // E1c · THE FRAME RULE, STATED AGAINST THE DERIVED SET. A panel resolves to the file that
+  // DEFINES it, which is how `CategoryPanel` resolves to `SkillsEditor.tsx` rather than to a file
+  // named after it. A new panel rendered into a shell joins this gate by existing.
+  const defining = (name) => studioFiles.find((f) => f === `${name}.tsx`)
+    ?? studioFiles.find((f) => new RegExp(`function ${name}\\s*\\(`).test(code(`components/studio/${f}`)));
+  const resolved = shellPanels.map((n) => [n, defining(n)]);
+  t("E1c: every derived shell panel resolves to a defining file",
+    resolved.filter(([, f]) => !f).map(([n]) => n), []);
+  const framed = resolved.filter(([, f]) => {
+    const sec = /<section[\s\S]{0,600}?className="([^"]*)"/.exec(code(`components/studio/${f}`))?.[1] ?? "";
+    return /radius-panel|border-accent-500\/30|overflow-hidden/.test(sec);
+  }).map(([n]) => n);
+  t("E1c: no shell panel draws a frame — a box around a box, whose overflow clipped the pane (#245)",
+    framed, []);
+
+  // The old positive check here read `readStudio(`${name}.tsx`)`, which ASSUMED every panel lives
+  // in a file named after it — the same assumption the suffix match made, one line apart. It
+  // threw outright once `CategoryPanel` entered the set, which is a better failure than the
+  // silent pass it gave before. E1c above supersedes it and resolves the defining file properly.
   const FRAME = /overflow-hidden rounded-\[var\(--studio-radius-panel,12px\)\] border border-accent-500\/30/;
-  const stillFramed = shellPanels.filter((f) => FRAME.test(readStudio(`${f}.tsx`)));
-  t("E1b: no panel inside the shell carries a frame — its overflow is what clipped the pane",
-    stillFramed, []);
 
   // AND THE NON-CONSUMER KEEPS ITS FRAME. Asserted positively, so a later sweep that "finishes
   // the job" fails here rather than silently stripping a panel that is not in a shell.
@@ -419,7 +464,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     .map((f) => String(f))
     .filter((f) => {
       const src = readStudio(f);
-      return /useListItem\(/.test(src) && /<section/.test(src);
+      return IMPORTS_LIST_ITEM.test(src) && /<section/.test(src);
     });
   const BAR = 'className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3"';
   const missing = entryPanels.filter((f) => !readStudio(f).includes(BAR));
@@ -545,7 +590,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   // so a future shared field component joins this gate by being imported rather than remembered.
   const panels = readdirSync(new URL("../../components/studio", import.meta.url))
     .map(String).filter((f) => f.endsWith(".tsx"))
-    .filter((f) => /useListItem\(/.test(readStudio(f)) && /<input\b/.test(code(`components/studio/${f}`)))
+    .filter((f) => IMPORTS_LIST_ITEM.test(readStudio(f)) && /<input\b/.test(code(`components/studio/${f}`)))
     // Excluded HERE rather than at the end, so it cannot drag its children in either: it imports
     // SectionsEditPanel, the whole three-pane case-study editor, whose fields are in a 320px
     // inspector. See the note below for why the panel itself is out.
@@ -553,10 +598,14 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   const fieldChildren = [...new Set(panels.flatMap((f) =>
     [...code(`components/studio/${f}`).matchAll(/from "\.\/([A-Za-z][A-Za-z0-9]*)"/g)].map((m) => `${m[1]}.tsx`)))]
     .filter((f) => { try { return /<input\b/.test(code(`components/studio/${f}`)); } catch { return false; } })
-    // A FILE INPUT IS NOT A FIELD. SettingsPhotoField's only input is `type="file" class="hidden"`,
-    // clicked through a button — it has no visible box, so it has no measure to cap. Excluded on
-    // what it IS rather than by name, so any other hidden file input is covered by the same rule.
-    .filter((f) => !/type="file"/.test(code(`components/studio/${f}`)));
+    // A FILE INPUT IS NOT A FIELD, AND NEITHER IS A SEARCH BOX. Counted rather than pattern-
+    // excluded, because "the file contains a file input" was always the weaker form of the rule:
+    // it drops a whole file on one non-field input. `contentInputs` counts the inputs the measure
+    // is actually FOR, so a panel holding a search box AND real fields still has its fields
+    // checked. SettingsPhotoField (only `type="file"`, no visible box) and ListDetailLayout (only
+    // the rail's `type="search"`, in a `lg:w-[300px] lg:flex-none` column that cannot stretch)
+    // both fall out with zero — on what they are, not on their names.
+    .filter((f) => contentInputs(`components/studio/${f}`) > 0);
   // ProjectsEditPanel is in E6's entry-panel set through its bespoke/loading/error fallback, but
   // the fields it renders belong to the case-study DETAILS form, which lives in the three-pane
   // inspector — a 320px pane that never stretches. The measure exists for a field that grows with
@@ -574,8 +623,8 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   // failure names the panel that grew an uncapped field.
   const uncapped = entryPanels.filter((f) => {
     const src = code(`components/studio/${f}`);
-    const inputs = (src.match(/<input\b/g) ?? []).length;
-    const capped = (src.match(/FIELD_MEASURE/g) ?? []).length - 1; // minus the import
+    const inputs = contentInputs(`components/studio/${f}`);
+    const capped = Math.max(0, (src.match(/FIELD_MEASURE/g) ?? []).length - 1); // minus the import
     return inputs !== capped;
   });
   t("C2: every single-line input in an entry panel carries the measure", uncapped, []);

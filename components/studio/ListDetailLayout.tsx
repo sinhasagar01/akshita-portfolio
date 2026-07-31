@@ -88,6 +88,7 @@ export function ListDetailLayout({
   children,
   onAddItem,
   addItemLabel,
+  searchPlaceholder,
   onRemoveItem,
   onMoveItem,
 }: {
@@ -99,6 +100,11 @@ export function ListDetailLayout({
   // control; the layout re-selects a live neighbor BEFORE the consumer deletes.
   onAddItem?: () => string | undefined;
   addItemLabel?: string;
+  // The rail's own filter (the contract's `.rt` block). OPT-IN BY PLACEHOLDER, with no default:
+  // the placeholder names what is being searched ("Search roles", "Search categories"), and a
+  // generic default would put an unlabelled box on Site settings, whose four fixed panels have
+  // nothing to filter. Absent = no search row, exactly as before.
+  searchPlaceholder?: string;
   onRemoveItem?: (id: string) => void;
   // Reorder capability. Renders per-item up/down controls; the consumer applies
   // the move and persists the new order. Absent = no reorder controls, exactly
@@ -107,6 +113,19 @@ export function ListDetailLayout({
   onMoveItem?: (id: string, direction: "up" | "down") => void;
 }) {
   const hasRowControls = Boolean(onRemoveItem || onMoveItem);
+
+  // THE RAIL FILTER. It narrows the ROWS ONLY — never the children, which stay mounted under
+  // mount discipline, and never `sections`, which the deep-link and selection logic read. So
+  // filtering to nothing cannot orphan the open panel: the detail pane keeps rendering whatever
+  // is selected while the rail shows no match, which is the behaviour a filter should have.
+  // Matches the name and the meta line, because the meta is what distinguishes three entries
+  // titled "UX and UI Designer" from each other (C-24's finding, and the reason meta exists).
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const visibleSections = q
+    ? sections.filter((s) => `${s.name} ${s.meta ?? ""}`.toLowerCase().includes(q))
+    : sections;
+
   // Deep-link support: studio search navigates to /studio/<page>?item=<id> and
   // this pre-selects that entry. `item` is validated against sections so a stale
   // param falls back to the default (first on desktop / list on mobile).
@@ -177,13 +196,18 @@ export function ListDetailLayout({
   }
 
   function handleKey(e: React.KeyboardEvent) {
+    // THE FILTER LIVES INSIDE THE `role="tablist"` NAV, SO THE ARROW KEYS HAVE TO YIELD TO IT.
+    // Without this the rail would change the selected panel while the author is typing — the
+    // keys reach the nav's handler before any tab is focused. Guarded on the ORIGIN rather than
+    // on a flag, so a second control added to the rail later inherits the same protection.
+    if ((e.target as HTMLElement)?.tagName === "INPUT") return;
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
-    const idx = sections.findIndex((s) => s.id === activeId);
+    const idx = visibleSections.findIndex((s) => s.id === activeId);
     if (idx === -1) return;
-    const n = sections.length;
+    const n = visibleSections.length;
     const nextIdx = e.key === "ArrowDown" ? (idx + 1) % n : (idx - 1 + n) % n;
-    const nextId = sections[nextIdx].id;
+    const nextId = visibleSections[nextIdx].id;
     select(nextId);
     requestAnimationFrame(() => document.getElementById(`ld-tab-${nextId}`)?.focus());
   }
@@ -215,11 +239,29 @@ export function ListDetailLayout({
           onKeyDown={handleKey}
           className={`${selectedId === null ? "flex" : "hidden"} min-h-0 flex-col lg:flex lg:w-[300px] lg:flex-none lg:border-r lg:border-ink-950/22 lg:bg-cream-200`}
         >
+          {/* THE CONTRACT'S `.rt` BLOCK — a 12px pad over a hairline, a 40px well inside it.
+              The 40px matches the TOPBAR search rather than the 44px `inputCls` wells: this is
+              chrome that filters a list, not a field that edits content, and #205 already set
+              that height for the topbar's search. `placeholder:text-text-subtle` rather than the
+              topbar's `ink-400` — the topbar's placeholder sits on INK at `lg` where ink-200
+              carries it, this one is always on cream, where ink-400 is 3.49 and fails. */}
+          {searchPlaceholder && (
+            <div className="border-b border-ink-950/12 p-3">
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
+                className="h-10 w-full rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 text-[13px] text-ink-950 outline-none placeholder:text-text-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+              />
+            </div>
+          )}
           {/* FULL-BLEED ROWS: no gap and no radius, because the rows now ABUT and a 1px rule
               separates them. A gap plus a radius made each row a floating card, which is the
               card idiom this shell is leaving. */}
           <ul className="m-0 flex min-h-0 flex-1 list-none flex-col overflow-y-auto p-0">
-            {sections.map((s, i) => {
+            {visibleSections.map((s, i) => {
               const isActive = s.id === activeId;
               const isDirty = dirtyIds.has(s.id);
               // Compose the accessible name from the visible states so the badge
@@ -435,7 +477,37 @@ export function ListDetailLayout({
           role="tabpanel"
           tabIndex={-1}
           aria-labelledby={activeId ? `ld-tab-${activeId}` : undefined}
-          className={`${selectedId === null ? "hidden" : "flex"} min-h-0 flex-1 flex-col outline-none lg:flex lg:overflow-y-auto lg:bg-cream-100`}
+          // ---- THE PANEL SECTION MUST FILL THIS PANE, AND THAT IS WHY THE FIX IS HERE -------
+          //
+          // `position: sticky` is bounded by its CONTAINING BLOCK, not by the scrollport. A
+          // panel's save bar is `sticky bottom-0` inside its own section element, and a section is
+          // (that name is written without angle brackets ON PURPOSE — E6 and C2 derive the entry
+          // panel set from RAW source, so a comment mentioning the tag enrols this file in both.
+          // Third firing of the comment trap here, after #239's input/textarea and #240's pill.)
+          // an ordinary block sized to its content — so when the content is SHORTER than this
+          // pane, the bar pins to the section's bottom and floats in mid-air with cream below it.
+          // Measured at 1440x820: 61px of float. At 1076x1054: 295px. BIGGER SCREEN, WORSE BUG.
+          //
+          // `lg:[&>section]:grow` gives every panel section the pane's own height when there is
+          // free space, and changes nothing when there is not (no free space to distribute), so
+          // a section that already overflows is untouched.
+          //
+          // GROWING THE SECTION IS NOT SUFFICIENT ON ITS OWN, and this is the half that is easy
+          // to get wrong: a sticky element only OFFSETS from its static position when scrolling
+          // would otherwise carry it out of the sticky region. With no overflow there is no
+          // scrolling, so the bar stays exactly where flow put it — measured, the section filled
+          // the pane at 755 and the bar still sat at 759 with 61px below it. The section must
+          // therefore also be a flex COLUMN whose footer takes `mt-auto`, which consumes the free
+          // space above the bar. `mt-auto` is inert when there is no free space, so the overflow
+          // regime keeps behaving exactly as `sticky bottom-0` already made it behave.
+          //
+          // THIS SEAM IS GENUINELY SHARED, WHICH IS NOT THE USUAL FINDING HERE. Three times in
+          // this arc a shared seam was the WRONG home because the change was true for pages that
+          // never asked for it (#244's `AreaHeader`, #245's `ProjectsEditPanel` fallback, and the
+          // E1 ground assertion). This is the opposite: all five consumers want their section to
+          // fill the pane, and About and Process look unchanged only because they already
+          // overflow. Same fix, same intent, five consumers — so it belongs at the seam.
+          className={`${selectedId === null ? "hidden" : "flex"} min-h-0 flex-1 flex-col outline-none lg:flex lg:overflow-y-auto lg:bg-cream-100 lg:[&>section]:flex lg:[&>section]:grow lg:[&>section]:flex-col lg:[&>section>footer]:mt-auto`}
         >
           <button
             type="button"
