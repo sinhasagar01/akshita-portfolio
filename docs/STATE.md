@@ -3750,8 +3750,8 @@ shell. Worst section **3.03 → 1.78 screens**; sections fitting one screen **2 
 The saving is width-independent, which is the third confirmation that field count rather than
 pane width drives the scroll.
 
-**TWO NAMED TRIGGERS REMAIN OPEN (the first is closed, see below). Neither is urgent; each has
-its reasoning recorded where the decision lives.**
+**ONE NAMED TRIGGER REMAINS OPEN. The first two are closed, see below. Neither closure needed the
+remedy its trigger named, which is itself the pattern.**
 1. ~~**`matchMedia` → a ResizeObserver on the shell.**~~ — **CLOSED as #235, and NOT by the
    remedy this trigger named.** See the new working rule: measuring the shell is circular. The
    fix is `usePageWidthMin`, measuring `documentElement`'s box — the page the layout is handed.
@@ -3760,9 +3760,22 @@ its reasoning recorded where the decision lives.**
    **One constant WAS re-derived, for a different reason:** `CS_COLLAPSED_FLOOR_PX` 1222 → 1223,
    because a collapsed list pane is `w-0 border-transparent` and a transparent border still
    occupies its 1px. That is correcting a term, not padding a total.
-2. **Whether the case-study inspector should grow banded heads.** A live by-role question that a
-   layout PR could not settle. `studio-ink` E5 now derives the band count and its location, so
-   it cannot drift unnoticed while the question is open.
+2. ~~**Whether the case-study inspector should grow banded heads.**~~ — **DECIDED: NO (#238),
+   and the reason recorded for it was wrong.** E5 had said the inspector "has no section HEADS to
+   band". Measured, it has FOURTEEN. Right conclusion, wrong reason — the arc's own shape again.
+   **A BAND DIVIDES CO-VISIBLE REGIONS.** The blog inspector holds two `<section>` siblings on
+   screen together, "Post" at 924px and "Body · 7" at 421px, and the band says where one ends and
+   the next begins. The case-study inspector's 14 heads are ALTERNATIVES — one visible, thirteen
+   mounted and `hidden` — so a band would divide nothing from nothing.
+   **AND THE JOB IS ALREADY DONE BY THE RAIL.** What blog does with two bands in one scrolling
+   pane, the case study does with a list pane. Band and rail are the same affordance at different
+   scales; PR 7 chose the rail.
+   **THE THIRD ARGUMENT IS THAT IT WOULD MAKE THINGS WORSE.** The selected section's name is
+   already on screen three times — rail row 13.5/500, canvas bar 13.5/500, inspector `<h3>`
+   12/600. Banding the inspector's copy would make the most redundant instance the loudest.
+   **The by-role rule is UNCHANGED**: inspector pane → ink band still holds, for an inspector with
+   co-visible regions to separate. E5 now pins the property the decision rests on, so if two
+   section editors ever become co-visible the gate fails and the question genuinely reopens.
 3. **`hidden="until-found"`.** Ctrl-F will not open a folded row. Named in `CollapsibleGroup`'s
    header. Revisit when React supports it, or when an author reports a search that should have
    found something.
