@@ -2884,6 +2884,49 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
   the flip). The one gate the in-app browser cannot drive is the reduced-motion EMULATED side-by-
   side (it cannot set the media query — Playwright's job); covered by construction + the source
   guard instead.
+- **PR 7a · the three-pane foundation** →1521 (no net-new; `studio-ink` F5 revalued). **PR 7 was
+  split so the two PREREQUISITES are verified against TODAY's layout rather than against one
+  changing underneath them.** Nothing structural ships here.
+  **THE GEOMETRY FINDING LEADS, because the constant is wired here.** `CS_MIN_SCALE` had NO
+  CONSUMER — PR 6 derived and gated it while `useFitToWidth` still read `Math.min(1, …)` with no
+  lower bound. That is the `FIT_THRESHOLD_PX` shape #178 already found and this project has named:
+  a gate on an unwired constant. Wiring it is what makes that gate stop being aspirational.
+  **AND WIRING IT EXPOSED THAT PR 6's 640 WAS RIGHT ABOUT A PANE THAT DOES NOT EXIST.** The 240px
+  Selected rail sits INSIDE the canvas term (`lg:grid-cols-[1fr_240px]`, 18px gap), so at a 640px
+  canvas pane the canvas itself gets **640 − 240 − 18 = 382px = 29.8%** — below the floor the
+  constant exists to protect. **The fourth arithmetic correction in this arc**, same family as the
+  190px miss and #211's three correct-values-on-the-wrong-surface. Owner's resolution: the Selected
+  rail moves into the INSPECTOR in PR 7, so the canvas pane gets its full 640 and lands on exactly
+  50%. It also resolves a duplication rather than moving one — a "Selected" mini-inspector made
+  sense when the inspector was a TAB; with a real inspector pane always on screen, two field
+  surfaces for one selection is the shape this arc has refused five times.
+  **THE TWO HAZARDS THE RE-DERIVATION EARNED ITS PLACE BY FINDING, both fixed and DRIVEN:**
+  **(1)** `useAutoGrow` reached its ceiling by DOM walk — `railRef.current?.parentElement?.
+  firstElementChild` — so moving the rail into a pane would have left it null, the effect would
+  bail, and the textarea would be UNCAPPED with nothing failing. The element is now NAMED by ref at
+  the call site. A fix that depends on the layout staying still is the wrong shape in a layout PR.
+  **Proven:** shrinking the ceiling to 180px moved `maxHeight` to 180px, and a textarea wanting
+  2536px rendered 180 — clamped.
+  **(2)** the scale floor. **Proven:** pane 640 → exactly **0.5000**; panes 500 and 380 → **0.5**
+  where the naive fit would give 0.39 and 0.30; panes 700 and 900 track fit above the floor.
+  **THE CONSEQUENCE, STATED:** below the floor the surface is wider than its pane, so the pane pans
+  rather than shrinking the render — most visibly below `lg`, where the canvas now holds 50% and
+  pans instead of collapsing to ~29% and staying complete but illegible.
+  **AN AA DEFECT FOUND BY RENDERING THE RAIL IN ISOLATION, and it was PRE-EXISTING.** `text-text-
+  subtle` measures 5.52 / 5.25 / 4.78 on cream-50/100/200 but only **4.03 on cream-300** — the
+  SELECTED row's ground — under the 4.5 floor. **`BlogPostList` has carried it since #209.** Fixed
+  in both (selected rows take `text-ink-600`, 5.41) rather than recorded, on the arc's own rule:
+  a hazard is for when the fix is expensive or contested, and one conditional is neither.
+  **A CORRECTION TO MY OWN EARLIER NUMBERS:** an intermediate node calc used `oklch(45%)` for
+  `--color-text-subtle`; it is **51%**. The browser was right and the corrected table reproduces
+  every live measurement exactly (109,100,93 → 5.52/5.25/4.78/4.03).
+  **F5 REVALUED 25 → 27, AND KEPT A COUNT.** The rail's two status dots are the case-study twins of
+  `BlogPostList`'s published/draft dot — exactly the shape F5 protects. **A count is what makes an
+  ACCIDENTAL pill fail; `>=` would pass anything**, and a loosened assertion under pressure is a
+  pattern this arc has already caught once.
+  **`SectionsRail` LANDS UNCONSUMED, DELIBERATELY.** A component with no consumer is a shape this
+  project deletes, so it is recorded rather than left for an audit to find and be right about.
+  **NAMED TRIGGER: PR 7 consumes it.** If PR 7 does not land, this is an orphan and should go.
 - **PR 5 · the shell's two seams — labelling, and the threshold that mattered more** →1521
   (`three-pane` 68→72). STATE recorded `ThreePaneShell` as blog-specific "until a second
   consumer". **THE TRIGGER WAS MET, AND THE COUPLING WAS POLICY RATHER THAN STRUCTURE** — see the

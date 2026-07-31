@@ -389,7 +389,13 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
       if (e.isDirectory()) walkApp(`${d}/${e.name}`); else if (e.name.endsWith(".tsx")) appStudio.push(read(`${d}/${e.name}`)); } };
     walkApp("app/studio");
     const all = studioFiles.map(readStudio).join("") + appStudio.join("");
-    t("F5: the 25 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 25);
+    // REVALUED 25 -> 27 IN PR 7, DELIBERATELY. The sections rail carries two status dots — the
+    // needs-an-image marker and the details dirty marker — and a status dot is exactly the shape
+    // this assertion protects: `BlogPostList`'s published/draft dot is already among the 25, and
+    // these are its case-study twins. The count stays a COUNT rather than becoming a floor,
+    // because a count is what makes an ACCIDENTAL pill fail; a `>=` would let the next one in
+    // silently, which is the whole reason this assertion exists.
+    t("F5: the 27 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 27);
     t("F5: the 1px drag dot survives — the control step would visibly round a 6px handle",
       (all.match(/rounded-\[1px\]/g) ?? []).length, 1);
     // COMMENT-STRIPPED, and it has to be: this first ran against raw source and tripped on the
