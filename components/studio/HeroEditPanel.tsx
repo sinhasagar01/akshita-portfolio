@@ -182,7 +182,10 @@ export default function HeroEditPanel({
           <div
             role="tablist"
             aria-label="Hero tabs"
-            className="flex flex-wrap gap-1.5"
+            // The rule the tabs underline against, same as Content|Style's. `flex-wrap` is kept
+            // from before: four tab names are author-edited, so a long set can wrap, and the rule
+            // then sits under the whole block rather than through it.
+            className="flex flex-wrap gap-1 border-b border-ink-950/12"
             onKeyDown={(e) => {
               // Roving tabindex: the tablist is ONE tab stop and arrows move
               // between tabs, the pattern every other studio tablist already
@@ -214,11 +217,28 @@ export default function HeroEditPanel({
                 aria-controls="hero-tab-edit-panel"
                 tabIndex={i === activeTab ? 0 : -1}
                 onClick={() => setActiveTab(i)}
+                // ---- THE UNDERLINE, WHICH IS APPLYING THE STUDIO'S RULE RATHER THAN CHANGING IT
+                //
+                // The rule is already in source, split by ROLE:
+                //   role="group" + aria-pressed   -> the accent FILL
+                //                                    (SegmentedToggle, Board|Editor, Canvas|Inspector)
+                //   role="tablist" + aria-selected -> the UNDERLINE  (Content|Style)
+                //
+                // These are a real tablist — aria-selected, aria-controls, roving tabindex and
+                // Arrow handling, driving a real tabpanel — and they were the only one wearing a
+                // third treatment, an accent tint. The contract asked them to adopt the FILL,
+                // which would give TABLISTS TWO LANGUAGES in order to make one control match a
+                // control of a different role. And swapping in SegmentedToggle outright, as the
+                // contract's wording suggests, would drop the Arrow keys, aria-selected and the
+                // tabpanel association — a regression wearing consistency's clothes.
+                //
+                // Values read off Content|Style rather than invented: the same border weight,
+                // the same selected and rest colours, the same focus ring.
                 className={[
-                  "rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-wide transition-colors",
+                  "-mb-px border-b-2 px-3 py-1.5 text-[12px] uppercase tracking-wide transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
                   i === activeTab
-                    ? "border border-accent-500/35 bg-accent-500/10 text-accent-600"
-                    : "border border-transparent text-ink-400 hover:text-ink-600",
+                    ? "border-accent-500 font-medium text-ink-950"
+                    : "border-transparent text-ink-600 hover:text-ink-950",
                 ].join(" ")}
               >
                 {values[t.labelKey].trim() || t.fallback}

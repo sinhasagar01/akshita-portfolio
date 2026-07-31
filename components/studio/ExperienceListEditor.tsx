@@ -74,9 +74,18 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   // all owned by StudioModal now; addInputRef and cancelRef are passed as its
   // initialFocusRef below.
 
+  // TITLE LEADS, COMPANY BENEATH — and the contract asked for title ALONE, which is measurably
+  // worse. Leading with the company (what shipped) collides on two rows: both LTIMindtree
+  // entries read "LTIMind…" and "LTIMindtree, Bengal…" at rail width, and the first has only
+  // 60px because the "Currently" pill takes 66. Leading with the title alone collides on THREE:
+  // "UX and UI Designer" is the title of three of the five entries. Only the PAIR is unique on
+  // every row. The diagnosis in the contract was right and the cure was not.
+  //
+  // `title` IS THE FIELD. There is no `role` in the schema; the contract's "role" is this.
   const sections = items.map((e) => ({
     id: e.slug,
-    name: e.company,
+    name: e.title.trim() || e.company,
+    meta: e.title.trim() ? e.company : undefined,
     badge: isCurrentRole(e.endDate) ? "Currently" : undefined,
   }));
 
