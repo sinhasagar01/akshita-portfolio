@@ -3115,6 +3115,51 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#255** the unit moves into the well →1703 (`studio-labels` 24→34, new section F). PR 2 of the
+  fidelity audit's four, and the one genuinely unshipped rule from the contract.
+  **"Width, px" IS NOW "Width" WITH A MUTED px IN THE FIELD**, right-aligned — the label says what
+  the field IS and the field says what it HOLDS (contract 5b).
+  **THE CENSUS CORRECTED MY OWN AUDIT.** It said "five fields × two devices"; derived from source
+  there are **SIX** `NumberField` sites, and the sixth — `Minimum height, px` at `registry:531` —
+  is in a different block entirely, not a device field. Five take a unit; the sixth is Stacking.
+  **UNIT, FORMAT, EXAMPLE — THREE KINDS, AND ONLY ONE TAKES A SUFFIX.**
+  - **px, deg** on five numeric fields — real units of measure. **Suffix.**
+  - **`Dot colour, hex`** — hex is a FORMAT, not a measure, and a muted "hex" inside a colour
+    field reads as a value rather than an affordance. **No suffix**, and excluding it FOLLOWS the
+    contract rather than departing from it: 5b's own list is "px, deg and the stacking index".
+  - **`Index, e.g. 03`, `Aspect ratio, e.g. 1.7778`** — EXAMPLES. **No suffix.**
+  - **`Stacking order`** — the contract draws `z` as its unit. **`z` is not a unit at all**, it is
+    a letter naming the CSS property, and "Stacking order" already says what the field is.
+    **No suffix**, recorded as a contract correction.
+  **TWO DEFECTS OF MINE, BOTH FOUND BY MEASURING RATHER THAN READING.**
+  **(1) THE CONTRACT'S `ink-400` IS 3.49 ON THE cream-50 WELL** — below the 4.5 text floor, and
+  `studio-ink-contrast` H4 already asserts ink-400 fails on every cream step. `text-subtle` is
+  **5.52**. **Second time in three PRs the contract has specified a colour the project already
+  forbids** (#253's placeholder was the first), and both times the fix was to notice the rule
+  already existed rather than to make a judgement.
+  **(2) `aria-hidden` ON THE SUFFIX SILENTLY REMOVED THE UNIT FROM THE ACCESSIBLE NAME.** The
+  label used to read "Width, px"; after the move a screen reader heard only "Width". The visible
+  label shortened and the information went nowhere. Fixed with
+  `aria-label={`${label}, ${unit}`}` on the input, so the eye reads the short key and a screen
+  reader still hears the unit. **A regression introduced and caught inside the same PR**, by
+  reading the rendered accessible name instead of the diff.
+  **THE COLLISION QUESTION, MEASURED.** The contract reserves `padding-right: 34px`. Values never
+  run under the suffix — `-128000` renders 57px into 180px of available width. But the CLEARANCE
+  between the value's content edge and the suffix is **8px for `px` and 1px for `deg`**. **34
+  suffices, for `deg` by one pixel.** Harmless-by-a-margin, the same shape as #253's `z-40` over
+  the sticky header's `z-10`: a longer unit (`rem`, `%`) or a font change closes it. Recorded at
+  the code rather than left to be rediscovered.
+  **THE DEAD-ZONE CHECK WAS DRIVEN, NOT REASONED.** `elementFromPoint` at the suffix returns the
+  INPUT, and a real pointer click there focused the field with the caret at position 3.
+  **THE HEIGHT PREDICTION WAS WRONG, AND IT IS ZERO RATHER THAN SLIGHTLY NEGATIVE.** The brief
+  expected a small reduction from shorter labels wrapping less. Measured clean at 1440x820:
+  worst **3.35 -> 3.35**, mean **2.00 -> 2.00**, identical per section. The labels were never
+  wrapping — "Width, px" is ~60px of a 226px field — so shortening them saves nothing vertically.
+  Six mutations, each caught: a format passed as a unit -> F1 and F2; `pointer-events-none`
+  dropped -> F3; the reserved padding removed -> F3; the accessible name losing the unit -> F4;
+  ink-400 restored -> F5; Stacking growing `z` -> F1 and F2.
+  CSS union **1557 -> 1559**, two rules added and none removed. Public DOM byte-identical.
+
 - **#254** the pill everywhere — #253's correction reversed on measurement →1693
   (`studio-labels` 9→24, new section E). PR 1 of the fidelity audit's four.
   **THE AUDIT ANSWERED THE OWNER'S QUESTION AND THE ANSWER WAS THAT #253 WAS WRONG.** Measured on

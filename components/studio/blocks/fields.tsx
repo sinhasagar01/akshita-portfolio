@@ -521,6 +521,7 @@ export function NumberField({
   onChange,
   onBlur,
   optional,
+  unit,
 }: {
   label: string;
   value: number | null;
@@ -529,6 +530,14 @@ export function NumberField({
   /** Optional field — collapses behind its DisclosureGroup's reveal while blank
    *  (null). A real 0 is NOT blank, matching the null-vs-zero discipline below. */
   optional?: boolean;
+  /** A UNIT OF MEASURE — `px`, `deg`. Rendered muted inside the well, right-aligned, so the
+   *  LABEL says what the field IS and the field says what it HOLDS (contract 5b).
+   *
+   *  A UNIT, NOT A FORMAT, AND NOT AN EXAMPLE. `hex` is a format — a colour field holding a
+   *  muted "hex" reads as a value rather than an affordance — and "e.g. 03" is an example. The
+   *  contract's own 5b lists "px, deg and the stacking index", so excluding hex FOLLOWS it
+   *  rather than departing from it. Stacking takes none either: see its call site. */
+  unit?: string;
 }) {
   const visible = useFieldVisible(optional, value === null);
   const toText = (v: number | null) => (v === null ? "" : String(v));
@@ -547,9 +556,22 @@ export function NumberField({
   return (
     <label className="flex flex-col gap-1" hidden={!visible}>
       <FieldKey>{label}</FieldKey>
+      {/* THE WRAPPER IS THE POSITIONING CONTEXT, AND IT HAS TO BE THE INPUT'S RATHER THAN THE
+          LABEL'S. `top-1/2` against the <label> would centre the unit in the KEY ROW + field
+          together — 42px of key row sits above the input — putting the suffix near the top edge
+          or off the field entirely. Same wrapper TextArea uses for its grip, for the same
+          reason. `block` because an input is inline-block and the wrapper would otherwise sit a
+          descender taller, which is the 1px the grip landed off by in #253. */}
+      <span className="relative block">
       <input
         type="text"
         inputMode="numeric"
+        /* THE UNIT LEFT THE VISIBLE LABEL, SO IT HAS TO SURVIVE IN THE ACCESSIBLE NAME. The
+           suffix span is `aria-hidden` (it is a visual affordance, and announcing "px" as a
+           separate node mid-field is worse than not announcing it), so without this a screen
+           reader would hear "Width" where it used to hear "Width, px" — the contract's own
+           phrasing, lost. Measured as a regression before it shipped, not reasoned about. */
+        aria-label={unit ? `${label}, ${unit}` : undefined}
         value={text}
         onChange={(e) => {
           const next = e.target.value;
@@ -566,8 +588,23 @@ export function NumberField({
         }}
         onBlur={onBlur}
         placeholder="auto"
-        className={inputCls}
+        className={`${inputCls} ${unit ? "pr-[34px] tabular-nums" : ""}`}
       />
+      {/* ---- THE UNIT SITS IN THE WELL (contract 5b) ------------------------------------------
+          `pointer-events-none` IS LOAD-BEARING, not decoration: without it the span eats clicks
+          at the right edge of the field and the input develops a dead zone, which reads as a
+          broken input rather than a mislayered label. Driven in the gates, not reasoned about.
+          The input reserves `pr-[34px]` so a long value cannot run under the suffix, and
+          `tabular-nums` keeps digits from reflowing the gap as you type. */}
+      {unit && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium text-text-subtle"
+        >
+          {unit}
+        </span>
+      )}
+      </span>
     </label>
   );
 }

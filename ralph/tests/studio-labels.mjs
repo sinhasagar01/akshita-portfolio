@@ -206,5 +206,56 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
     /export function CheckField[\s\S]{0,400}?<label className="flex w-fit items-center gap-2"/.test(fields), true);
 }
 
+/* ================================================ F. THE UNIT LIVES IN THE WELL (#255)
+ *
+ * Contract 5b: a numeric field carries its unit INSIDE the well, muted and right-aligned, so the
+ * LABEL says what the field IS and the field says what it HOLDS. "Width, px" became "Width".
+ *
+ * A UNIT, NOT A FORMAT, AND NOT AN EXAMPLE — the distinction is the whole of item 1 and the
+ * contract's own 5b agrees, listing "px, deg and the stacking index". `hex` is a FORMAT, and a
+ * muted "hex" inside a colour field reads as a value rather than an affordance. "e.g. 03" and
+ * "e.g. 1.7778" are EXAMPLES. None of the three takes a suffix. */
+{
+  const fields = read("components/studio/blocks/fields.tsx");
+  const reg = read("components/studio/blocks/registry.tsx");
+
+  // F1 — every unit passed anywhere is a real unit of measure. Derived from the call sites, so a
+  // new `unit="hex"` fails here rather than being caught in review.
+  const units = [...reg.matchAll(/unit="([^"]+)"/g)].map((m) => m[1]);
+  t("F1: the unit call sites were found", units.length >= 5, true);
+  t("F1: every unit is a UNIT OF MEASURE — a format or an example would fail here",
+    units.filter((u) => !["px", "deg"].includes(u)), []);
+
+  // F2 — the three that must NOT take one, asserted by name because each was a judgement.
+  t("F2: `Dot colour, hex` keeps its label — hex is a FORMAT, and a muted hex reads as a value",
+    /label="Dot colour, hex"/.test(reg) && !/label="Dot colour"[^>]*unit=/.test(reg), true);
+  t("F2: `Stacking order` takes no suffix — the contract draws `z`, which names the PROPERTY rather than measuring anything",
+    /label="Stacking order"/.test(reg) && !/label="Stacking[^"]*"[^>]*unit=/.test(reg), true);
+  t("F2: the two `e.g.` labels are examples, not units, and keep their labels",
+    [/label="Index, e\.g\. 03"/.test(read("components/studio/blocks/SectionShell.tsx")),
+     /label="Aspect ratio, e\.g\. 1\.7778 \(optional\)"/.test(reg)], [true, true]);
+
+  // F3 — THE DEAD ZONE. `pointer-events-none` is what keeps a click at the right edge landing in
+  // the input. Without it the field grows an unclickable strip that reads as a broken input.
+  t("F3: the suffix is pointer-events-none — otherwise the field grows a dead zone at its right edge",
+    /aria-hidden\s*\n?\s*className="pointer-events-none absolute right-3/.test(fields), true);
+  t("F3: …and the input reserves room for it, so a long value cannot run underneath",
+    /unit \? "pr-\[34px\] tabular-nums" : ""/.test(fields), true);
+
+  // F4 — THE UNIT LEFT THE VISIBLE LABEL, SO IT MUST SURVIVE IN THE ACCESSIBLE NAME. The span is
+  // aria-hidden, so without this a screen reader hears "Width" where it used to hear "Width, px".
+  // Caught by measuring the rendered a11y name, not by reading the diff.
+  t("F4: the accessible name still carries the unit the visible label gave up",
+    /aria-label=\{unit \? `\$\{label\}, \$\{unit\}` : undefined\}/.test(fields), true);
+
+  // F5 — THE COLOUR. The contract says ink-400; on the cream-50 well that is 3.49, and
+  // `studio-ink-contrast` H4 already asserts ink-400 fails the text floor on EVERY cream step.
+  // `text-subtle` is 5.52 there. The rule was already the project's; the contract had not caught up.
+  t("F5: the suffix uses text-subtle, not the contract's ink-400 — 5.52 against 3.49 on the well",
+    /text-\[12px\] font-medium text-text-subtle/.test(fields), true);
+  t("F5: …and no ink-400 survives on the suffix",
+    /right-3[^"]*text-ink-400/.test(fields), false);
+}
+
 console.log(`\nstudio-labels result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
