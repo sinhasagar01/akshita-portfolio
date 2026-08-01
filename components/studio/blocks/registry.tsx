@@ -438,10 +438,10 @@ function ImgSpecFields<T extends RawImg>({
         />
         <DisclosureGroup revealLabel="Sizing & position">
           <div className="flex flex-col gap-2">
-            <NumberField label="Width, px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} optional />
-            <NumberField label="Rotate, deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} optional />
-            <NumberField label="Translate X, px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} optional />
-            <NumberField label="Translate Y, px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} optional />
+            <NumberField label="Width" unit="px" value={value.width} onChange={(width) => set({ ...value, width })} onBlur={onBlur} optional />
+            <NumberField label="Rotate" unit="deg" value={value.rotate} onChange={(rotate) => set({ ...value, rotate })} onBlur={onBlur} optional />
+            <NumberField label="Translate X" unit="px" value={value.translateX} onChange={(translateX) => set({ ...value, translateX })} onBlur={onBlur} optional />
+            <NumberField label="Translate Y" unit="px" value={value.translateY} onChange={(translateY) => set({ ...value, translateY })} onBlur={onBlur} optional />
             <NumberField label="Stacking order" value={value.z} onChange={(z) => set({ ...value, z })} onBlur={onBlur} optional />
           </div>
         </DisclosureGroup>
@@ -528,7 +528,8 @@ const DeviceShelfForm: ComponentType<BlockFormProps<"deviceShelf">> = ({ value, 
     </ItemRows>
     <TabGroup group="style">
       <NumberField
-        label="Minimum height, px"
+        label="Minimum height"
+        unit="px"
         value={value.minHeight}
         onChange={(minHeight) => onChange({ ...value, minHeight })}
         onBlur={onBlur}
