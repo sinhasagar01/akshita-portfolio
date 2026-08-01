@@ -3312,6 +3312,58 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#269** Template and Category stack their labels and share one line →1864
+  (`studio-ink` 234→242, C11 new). **PR 1 of the Details arc; PRs 2 and 3 planned, not built.**
+
+  **THE SPREAD NEEDED A WRAPPER, NOT A CLASS ON THE ROW.** The contract asks for
+  `justify-content: space-between` on the shared parent. That parent has THREE children and the
+  actions sit on `ml-auto`, and **an auto margin absorbs the free space BEFORE justify-content is
+  consulted** — measured, `justify-between` on the row renders nothing (Category stays at 72px),
+  and removing `ml-auto` to make it bite drops Category in the **centre** at 393px. A wrapper
+  holding only the two toggles has two children, which is the shape space-between was drawn for.
+
+  **AND THE STACK IS WHAT MAKES THE SPREAD POSSIBLE**, which reads as one change and is two.
+  Beside its switch a toggle was ~193px, so at the inspector's 313px the row wrapped into three
+  lines. Stacked it is ~111px and two fit on one line with **59px** between them. Row 135 → 115.
+
+  **THE BRIEF'S CONSTRAINT DID NOT APPLY, AND THE MAPPING IS WHY.** It asks to confirm the other
+  `SegmentedToggle` call site is untouched. **There are exactly two and both are Template and
+  Category** — the two halves of this row, side by side in one file. There is no second surface,
+  so the "must not reach inside it" constraint was self-imposed rather than forced.
+
+  **THE NOTE KEEPS ITS OWN ROW BESIDE THE SWITCH.** Under a bare `flex-col` it would have dropped
+  BELOW the switch, moving where "Save failed" and "needs github mode (dev)" appear — a
+  behavioural change smuggled inside a layout one. Driven on the fs-noop path.
+
+  **#164's QUIRK IS PROXIMITY, NOT COUPLING, AND IS NOW PINNED.** `onChange?.(prev)` fires only in
+  the fs-noop revert. Its header sits directly above the edited JSX and says a change there
+  "should be a decision, not a cleanup", so lines 60-91 are byte-identical by hash and C11 asserts
+  the asymmetry.
+
+  **FIVE FINDINGS FROM PLANNING THE ARC, FOUR OF WHICH CHANGE PRs 2 AND 3.**
+
+  1. **`HERO_IMAGE_UNSUITABLE` NO LONGER EXISTS** — deleted in `f3c881b` (#225). PR 2's item A is
+     already closed. It is **hazard 22, not 21**, and that entry is stale twice: it quotes a
+     deleted `Set` and calls the asset 320×200 where it is 1600×1000.
+  2. **PR 2's REAL HAZARD IS ONE THE BRIEF DOES NOT NAME.** `ProjectCard` hardcodes `next/image`,
+     and STATE:1660 records that the optimizer refetches without the owner cookie so a proxied
+     draft URL **401s**. "Render the same component" and "show a draft-only hero" are in direct
+     conflict — that is PR 2's central question, not the stopgap.
+  3. **boat-crest's hero was re-uploaded three days before this arc.** `374bec8` replaced an
+     **837,714 B** PNG with a **93,622 B** webp at 1600×1000, through the studio's own upload path.
+     **Three STATE passages calling it open are false** (`:228`, `:236-238`, `:5978-5979`). PR 3's
+     "report, don't fix" item is closed.
+  4. **`mount-discipline` would pass VACUOUSLY on boat-crest.** Its assertions are source regexes
+     over `SectionsEditPanel.tsx`, true whatever the runtime section count is; its driven proof is
+     a paste-in script the runner never executes and whose own header excludes boat-crest. **The
+     denominator is zero and nothing in the repo can say so** — `run.mjs:89-93`'s false-pass shape
+     one level down.
+  5. **`studio-ink` E1b would FAIL in PR 3.** Two of its assertions are *file*-scoped regexes over
+     `ProjectsEditPanel.tsx`; removing the bespoke fallback makes both false while the rule they
+     encode loses its subject. A gate to retire consciously.
+
+  Public DOM byte-identical; CSS zero removed. Five mutations kill five assertions.
+
 - **#268** the seven shadow literals become a declared overlay scale →1856 (`studio-ink` 222→234,
   C10 new).
 

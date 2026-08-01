@@ -1516,5 +1516,54 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     (studioSrc.match(/--studio-lift-floating,/g) ?? []).length);
 }
 
+/* ---- C11 · THE TEMPLATE / CATEGORY ROW -------------------------------------------------------
+ * Each label sits ABOVE its switch, and the two toggles share one line spread across it.
+ * THE SPREAD NEEDED A WRAPPER, NOT A CLASS ON THE ROW, and measuring is what showed it. The row
+ * has three children and the actions sit on `ml-auto`; an auto margin absorbs the free space
+ * BEFORE justify-content is consulted, so `justify-between` on the row renders nothing — measured,
+ * Category stayed at 72px — and removing `ml-auto` to make it bite drops Category in the CENTRE at
+ * 393px. Neither is the drawing. A wrapper holding only the two toggles has two children, which is
+ * the shape space-between was drawn for.
+ * AND THE STACK IS WHAT MAKES THE SPREAD POSSIBLE. Beside its switch a toggle was ~193px wide, so
+ * at the inspector's 313px the row wrapped into three lines. Stacked it is ~111px and two fit with
+ * 59px between them. */
+{
+  const seg = code("components/studio/SegmentedToggle.tsx");
+  const panel = code("components/studio/ProjectsEditPanel.tsx");
+
+  t("C11: the toggle stacks its label above its switch",
+    /<div className="flex flex-col items-start gap-1\.5">\s*<span className=\{labelCls\}>/.test(seg), true);
+
+  /* THE NOTE KEEPS ITS OWN ROW BESIDE THE SWITCH. Under a bare flex-col it would drop BELOW the
+   * switch, moving where "Save failed" and "needs github mode (dev)" appear — a behavioural change
+   * smuggled inside a layout one. Driven in the fs-noop branch: note at top 24, switch at 38. */
+  t("C11: …and the switch keeps a row with its note, so the note did not drop below the switch",
+    /<div className="flex items-center gap-2">\s*<div\s*\n\s*role="group"/.test(seg), true);
+  t("C11: the note is still the last child of that inner row, not a sibling of the label",
+    /\{note && <span className="text-\[10px\] text-text-subtle">\{note\}<\/span>\}\s*<\/div>\s*<\/div>/.test(seg), true);
+
+  t("C11: the two toggles share a wrapper that spreads them",
+    /<div className="flex w-full items-start justify-between gap-3">/.test(panel), true);
+  /* `w-full` RATHER THAN `flex-1`. The row is flex-wrap inside a 313px inspector; a full-width
+   * child takes its own line and the actions wrap beneath exactly as before. `flex-1` would share
+   * the line and squeeze both toggles into 179px. */
+  t("C11: …and it is w-full, so the actions still wrap beneath rather than sharing the line",
+    /flex w-full items-start justify-between/.test(panel) && !/flex flex-1 items-start justify-between/.test(panel), true);
+
+  /* THE ROW ITSELF DID NOT GAIN justify-between, because it would render nothing there and a class
+   * that provably does nothing is the shape this repo has deleted four times. */
+  t("C11: the row itself did NOT gain an inert justify-between",
+    /flex flex-wrap items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4 py-2\.5/.test(panel), true);
+
+  /* #164's PRESERVED QUIRK IS UNTOUCHED. `onChange?.(prev)` fires only in the fs-noop revert
+   * branch, never in the network-failure else/catch. Its header says a change there "should be a
+   * decision, not a cleanup" — and it sits directly above the JSX this PR edited, which is the
+   * trap. Asserted so a later tidy-up cannot quietly symmetrise it. */
+  t("C11: #164's asymmetric revert survives — onChange fires in the fs branch only",
+    (seg.match(/onChange\?\.\(prev\)/g) ?? []).length, 1);
+  t("C11: …and the two silent reverts stay silent",
+    /setValue\(prev\);\s*setNote\("Save failed"\);/.test(seg), true);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
