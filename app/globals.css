@@ -1789,18 +1789,44 @@ a {
    260ms AT 90ms, per the contract. The delay is what makes it an echo rather than a chorus:
    T1 has already answered by the time this begins. */
 .studio-chrome [data-studio-field] {
+  /* ONE SOURCE FOR THE BAR'S WIDTH. It is read by the inset shadow that DRAWS the bar and by the
+     inset that clears room for it, and those two must agree or the control sits proud of the
+     mark or overlaps it. Two 3s would be two places to drift. */
+  --studio-echo-bar: 3px;
   background-color: transparent;
-  box-shadow: inset 3px 0 0 0 transparent;
+  box-shadow: inset var(--studio-echo-bar) 0 0 0 transparent;
   transition:
     background-color var(--studio-out, 130ms) var(--ease-out-expo),
     box-shadow var(--studio-out, 130ms) var(--ease-out-expo);
 }
 .studio-chrome [data-studio-field].is-echoed {
   background-color: var(--color-cream-200);
-  box-shadow: inset 3px 0 0 0 var(--color-accent-500);
+  box-shadow: inset var(--studio-echo-bar) 0 0 0 var(--color-accent-500);
   transition:
     background-color var(--studio-t3, 260ms) var(--ease-out-expo) var(--studio-t3-delay, 90ms),
     box-shadow var(--studio-t3, 260ms) var(--ease-out-expo) var(--studio-t3-delay, 90ms);
+}
+
+/* THE CONTROL SITS FLUSH AGAINST THE BAR while its field is marked — no gap, no rounded corner
+   turning away from it, no second edge beside it.
+
+   THE WIDTH IS DERIVED, NOT PINNED. `calc(100% - var(--studio-echo-bar))` is "the container
+   minus the bar", so it tracks whatever the inspector currently is — and the inspector is
+   already resizable, because the sidebar drag moves every pane. A literal (249px at one pane
+   width) would be right on one screen and wrong on every other, and the studio ships no literal
+   widths for exactly that reason.
+
+   UNLAYERED, WHICH IS WHY IT LANDS. `border-radius` and `border-left` are on the control's base
+   as @layer utilities (`inputCls`), and an unlayered rule beats @layer utilities regardless of
+   specificity — the same mechanism `studio-cascade` polices in the other direction. This is NOT
+   the utility-versus-utility race `studio-border-race` exists for, because only one side is a
+   utility; both were measured rather than assumed. */
+.studio-chrome [data-studio-field].is-echoed :is(input, textarea, select) {
+  margin-left: var(--studio-echo-bar);
+  width: calc(100% - var(--studio-echo-bar));
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-width: 0;
 }
 
 .canvas-surface {
@@ -2869,6 +2895,11 @@ a {
   .studio-chrome {
     --studio-rise: 0px;
     --studio-detail: 0px;
+    /* T0 IS READ BY JS, so the global `transition-duration` reset cannot reach it — a token read
+       through `getComputedStyle` is a number, not a transition. Zeroing it here is what makes the
+       mark immediate under reduce, and it is what lets the studio keep NO `matchMedia` and no
+       motion hook: the CSS decides, exactly as it does for the scroll itself. */
+    --studio-t0: 0ms;
   }
 }
 

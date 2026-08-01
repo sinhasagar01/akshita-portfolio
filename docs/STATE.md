@@ -2142,6 +2142,17 @@ All prior rules remain. Added or sharpened across this session:
   that were never written, and STATE had recorded the behaviour as built. **Fix the code and
   the comment TOGETHER** — fixing only the comment leaves a documented behaviour unbuilt,
   and fixing only the code leaves the next reader hunting a variant they cannot find.
+- **AN EXISTENCE CHECK OVER A SET PROVES NOTHING ABOUT ANY MEMBER OF IT.** Three instances, all
+  in gates written to be careful:
+  - `studio-motion` C1 asserted `uses.length > 0` — "the tokens are consumed". True the moment ANY
+    token is read, and **`--studio-t0` shipped in #258 declared and consumed by nothing** while it
+    passed. That is the `FIT_THRESHOLD_PX` shape, introduced by the very suite meant to prevent it.
+  - G5 tested `/fieldId\?: string;/` where the string appears twice, so making ONE required left
+    the other satisfying the regex, and the mutation survived.
+  - #257's `{0,400}` window and #258's proximity lookahead are the same shape one level down —
+    "somewhere near here" instead of "this one".
+  **The fix is always the same: quantify over the set and report the members that fail.**
+  `unconsumed = names.filter(...)` returns the offenders by name; `length > 0` returns a mood.
 - **A CLAIM THAT SOMETHING IS CONDITIONAL IS A CLAIM THAT IT EXISTS.** #258's PR body said "T3
   fires only when the field is visible" and gave a reason for the narrowing. T3 was never built,
   so the conditionality was a property of nothing. **A condition that never fires and a mark that
@@ -3299,6 +3310,87 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 `b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
+
+- **#260** the flush field, and T0 scrolls the inspector — **a decision overruled, not a bug**
+  →1749 (`studio-motion` 31→45, new section H). Two things, and the second reverses #258.
+
+  **1 · THE MARKED FIELD'S CONTROL SITS FLUSH AGAINST THE BAR.** `margin-left`, zero left corners,
+  zero left border, and the width reduced by the bar.
+  **THE WIDTH IS DERIVED AND THAT IS THE WHOLE POINT.** `calc(100% - var(--studio-echo-bar))`
+  computes to **249px** in the 320px aside — the owner's number — and to **802px** below the
+  inspector fold, where the pane is 805 and the same field is 553px wider. A pinned 249 would have
+  been right on one screen and wrong on every other, and the studio ships no literal widths.
+  Measured at both, plus the invariant that matters: **`x + width` is unchanged**, so the control's
+  right edge does not move and nothing beside it reflows.
+  **THE BAR'S WIDTH HAS ONE SOURCE.** `--studio-echo-bar` is read by the inset shadow that DRAWS
+  the bar and by the inset that CLEARS room for it. Two literals would be two places to drift, and
+  the failure would be a control sitting proud of its own mark by a pixel — visible, and the kind
+  of thing nobody files.
+  **THE CASCADE TRAPS WERE CHECKED BY MEASUREMENT AND ARE NOT WHAT THEY LOOKED LIKE.** The brief
+  expected hazard 26, utility-versus-utility decided by sheet order. It is not that: the base
+  `rounded-*` and `border` are `@layer utilities` while this rule is UNLAYERED, and unlayered beats
+  a layer regardless of specificity — the deterministic half of the same mechanism
+  `studio-cascade` polices. Confirmed on the rendered box rather than from the class list:
+  radius TL/BL **4px → 0** with TR/BR **still 4px**, border-left **1px → 0** with right and top
+  **still 1px**. `studio-border-race` clean, and the longhands are why — `border-radius: 0` and
+  `border-left: 0` as shorthands would have flattened the other three corners and edges, which is
+  a different control rather than a flush one.
+
+  **2 · T0 NOW SCROLLS THE INSPECTOR. THIS OVERRULES #258's DECISION, AND THE REASONING #258 GAVE
+  IS STILL TRUE.** That PR shipped canvas-only because `ItemRows` folds by default, so a scroll to
+  a folded row lands on nothing and looks exactly like the scroll not firing. **What changed is
+  the remedy, not the finding**: open the group, then scroll, then mark.
+  **THE OPEN GOES THROUGH THE GROUP'S OWN TOGGLE.** `CollapsibleGroup` keeps `open` in local
+  `useState` — #234's decision, taken so the fold needs no persistence layer and no id registry.
+  Lifting that state or building a registry to address it is exactly the machinery #234 declined
+  to build. The group already exposes what is needed: a header `<button aria-expanded
+  aria-controls={bodyId}>` over a `<div id={bodyId} hidden={!open}>`, so a hidden ancestor names
+  its own controller. **Nothing is stored, nothing is lifted, and the group's own handler runs.**
+  Driven: group collapsed and field unrendered before the click, `aria-expanded` **false → true**,
+  field rendered, echo applied and visible after it.
+  **AND THE HONEST FALLBACK IS BUILT.** If a group cannot be opened the scroll goes to its header
+  rather than to an unrendered field. Landing on the row you would have to expand is honest;
+  landing on nothing is the failure #258 chose not to ship at all.
+
+  **#258's THREE T0 BUGS WERE RE-CHECKED ON THE INSPECTOR RATHER THAN ASSUMED TO GENERALISE, AND
+  ONE OF THEM WOULD HAVE REAPPEARED.**
+  1. **The dock's 113px inset was about to be applied to the inspector.** The dock is a sibling of
+     the CANVAS scroller; the inspector is a separate aside the dock never touches, so insetting
+     its viewport by the dock's height would have pushed every inspector reveal 113px too far
+     down — **the same arithmetic being right for one box and wrong for another**. Fixed by asking
+     the DOM which pane the scroller is in rather than assuming one dock, one viewport.
+  2. **`scrollParent` walking past a container that does not yet overflow** — already fixed
+     globally in #258 by keying on DECLARED overflow, and it is what makes the inspector reachable
+     before a group expands it. Verified rather than inherited.
+  3. **The scroll clamped to the range that existed when it was issued** — live again here,
+     because opening a group GROWS the content. Measured: the inspector's range goes **326 → 880**
+     when the group expands. The scroll is therefore deferred two frames, one for React's commit
+     and one for layout at the new height. **The clamp case could not be constructed as a failing
+     test** — all four addressed fields sit near the top of the panel, so the required scrollTop
+     is below even the pre-expansion range — so what is asserted is the ORDERING that prevents it,
+     and that limit is stated rather than dressed up as a passing test.
+
+  **`--studio-t0` HAD BEEN DECLARED WITH ZERO CONSUMERS SINCE #258 — MINE, AND MY OWN GATE PASSED
+  IT.** `studio-motion` C1 asserted `uses.length > 0`, which is true the moment any token is read.
+  **A constant with no callers is the `FIT_THRESHOLD_PX` shape, introduced by the suite written to
+  prevent it.** C1 now quantifies per token and reports offenders by name. The 55% mark rule is
+  what gives T0 a consumer: the mark starts at 55% of T0, read from the token rather than retyped.
+  Measured as a delta because the polling floor is ~130ms in both modes — **228ms between normal
+  and reduce against an expected 231**. Under reduce the TOKEN is zeroed in CSS, so the JS read
+  returns 0 and the mark is immediate: no `matchMedia`, no motion hook, and `reduced-motion` A2d
+  keeps holding.
+
+  **CONTRAST AND FINAL STATE.** Sanity pair 21 first. The bar now abuts the cream-50 well directly
+  with no border between them — **4.70**, above the 3:1 non-text floor — and the value's 19.04 is
+  unchanged. Reduced motion driven side by side, **final state pixel-identical with zero differing
+  properties** across ground, bar, margin, width, both radii, border and both boxes.
+
+  **AND MY FIRST FOLDED-CASE TEST MEASURED THE WRONG ELEMENT.** `insp.querySelector(
+  '[data-studio-field="eyebrow"]')` returns the first in DOM order, which belongs to a HIDDEN
+  section panel — so the probe reported the group had not reopened when it had. **Third time the
+  mounted-and-hidden panels have caught a measurement in this session**, after the aside query and
+  the inspector-input sweep. The code was already scoping to the shown panel correctly; only the
+  test was wrong, which is the reverse of the usual order and worth the line.
 
 - **#259** T3, the echo — built, and #258's record corrected first →1743
   (`studio-motion` 23→31, new section G). **THE CORRECTION IS THE MORE SERIOUS HALF AND IT LED
