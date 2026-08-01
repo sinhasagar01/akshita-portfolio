@@ -865,7 +865,19 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // because it sits BESIDE the template chip, which has always been one — two chips in a row,
     // one shape. Its ground is accent-tinted rather than neutral, because it is a different KIND
     // of fact: the template chip says how the study renders, this says who renders it. F5f names it.
-    t("F5: the 32 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 32);
+    // REVALUED 32 -> 33 IN THE INDEX PR, AND THE NET HIDES THREE ARRIVALS AND TWO DEPARTURES.
+    // ARRIVED: the index's "Hand-built" chip and its platform DOT (both in CaseStudyItem), and
+    // the list row's drag-handle dot. All three are the shapes this count protects — a status
+    // chip and two dots, the same family as BlogPostList's published marker.
+    // LEFT: the old index row's template pill and its dashed "Bespoke" badge, both deleted with
+    // the row that carried them. So a naive `+3` would have been wrong and a `>=` would have hidden
+    // the removals entirely. F5g names all five movements.
+    t("F5: the 33 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 33);
+    t("F5g: …and the three arrivals are the index's chip, its platform dot and the drag dot",
+      (code("components/studio/CaseStudyItem.tsx").match(/rounded-full/g) ?? []).length === 2
+        && (code("components/studio/CaseStudyRow.tsx").match(/rounded-full/g) ?? []).length === 1, true);
+    t("F5g: …and the two departures are the old row's template pill and Bespoke badge",
+      (code("components/studio/CaseStudyIndex.tsx").match(/rounded-full/g) ?? []).length, 0);
     t("F5f: …and the 32nd is the Hand-built chip, beside the template chip it matches in shape",
       /rounded-full border border-accent-500\/35[\s\S]{0,120}Hand-built/.test(
         code("components/studio/SectionsEditPanel.tsx")), true);
@@ -1110,18 +1122,34 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   // the failure names the component so the fix is obvious.
   t("H3: every dashed button firms to solid on hover, and the only exception is DisclosureGroup's reveal",
     sites.filter((s) => s.tag === "button" && !s.solid).map((s) => s.comp), ["DisclosureGroup"]);
-  t("H3: …and seven of them carry it, which is the count the four page contracts specify",
-    sites.filter((s) => s.solid).length, 7);
+  // REVALUED 7 -> 8 IN THE INDEX PR. The grid view's add tile is a dashed add that firms to solid
+  // on hover — the same shape as the other seven, on a new surface. The count stays a COUNT so a
+  // dashed add that FORGETS the hover still fails; a floor would let it in silently.
+  t("H3: …and eight of them carry it, which is the count the page contracts specify",
+    sites.filter((s) => s.solid).length, 8);
 
   // H4 · THE REVEAL KEEPS A HOVER. Excluding it from the solid rule must not leave it inert —
   // it is still a control and still has to answer the pointer.
   t("H4: the excluded reveal still has a hover treatment of its own",
     sites.find((s) => s.comp === "DisclosureGroup")?.hovers, true);
 
-  // H5 · AND THE ONE DASHED NON-BUTTON STAYS INERT. CaseStudyIndex's "Bespoke" badge is a status
-  // pill inside a link. Giving it a hover would make it read as separately clickable.
-  t("H5: the dashed non-button carries no hover at all — a status pill is not a control",
-    sites.filter((s) => s.tag !== "button").map((s) => [s.at, s.hovers]), [["CaseStudyIndex.tsx:207", false]]);
+  // H5 · RETIRED IN THE INDEX PR, CONSCIOUSLY, BECAUSE ITS SUBJECT WAS DELETED.
+  //
+  // It pinned ONE element: CaseStudyIndex's dashed "Bespoke" badge, a status pill inside a link
+  // that must not carry a hover or it reads as separately clickable. The index's two-view rebuild
+  // removed that badge — the bespoke signal is now the "Hand-built" chip, which is SOLID, not
+  // dashed, so it is not in this part's population at all.
+  //
+  // ⚠ SO THE HONEST MOVE IS TO RETIRE IT, NOT TO REVALUE IT TO `[]`. `sites.filter(...)` now
+  // returns an empty array, and asserting that an empty set has no bad members PASSES WITHOUT
+  // TESTING ANYTHING — the run.mjs false-pass shape, one assertion down. An empty expectation
+  // reads as "checked and clean" when it means "there is nothing to check".
+  //
+  // THE RULE ITSELF IS NOT REPEALED. If a dashed NON-button ever appears again it must stay
+  // inert, and H1 still catches the inverse — a `hover:border-solid` on something not dashed at
+  // rest. What is gone is the instance, and a gate with no instance is prose.
+  t("H5 (retired): there is no dashed non-button left to pin — the Bespoke badge was deleted",
+    sites.filter((s) => s.tag !== "button").length, 0);
 }
 
 /* ============================ J. THE MIMIC, WHICH SAID IT COULD NOT DRIFT AND THEN COULD (C-27) */
