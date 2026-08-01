@@ -260,6 +260,33 @@ const contentInputs = (p) => {
   t("E1c: no shell panel draws a frame — a box around a box, whose overflow clipped the pane (#245)",
     framed, []);
 
+  /* E1d · THE SAME RULE FOR THE OTHER SHELL, AND THE GAP IT CLOSES IS REAL.
+   *
+   * E1b/E1c derive from `<ListDetailLayout>` hosts. `SectionsEditPanel` renders in
+   * `ThreePaneShell`, so it was NEVER IN THE DERIVED SET — and it kept a card frame around its
+   * whole inspector body until #262 removed it. **A derivation scoped to one shell is not a rule
+   * about frames; it is a rule about that shell**, which is the #248 finding in a new costume:
+   * the set was derived honestly and still described less than the rule it was enforcing.
+   *
+   * The property is E1c's — a body rendered inside a pane the shell already frames must not draw
+   * its own — asserted on the element that carried it. */
+  {
+    const sep = readStudio("SectionsEditPanel.tsx");
+    const wrapper = /hidden=\{selectedSectionId !== ids\.sectionIds\[i\]\}[\s\S]{0,1400}?className="([^"]*)"/
+      .exec(sep)?.[1] ?? "";
+    t("E1d: the section wrapper still exists, so the assertion below is reading something",
+      wrapper !== "", true);
+    t("E1d: …and it draws NO frame — the pane is already a bordered surface (#245's rule, other shell)",
+      /rounded-\[var\(--studio-radius|border border-ink/.test(wrapper), false);
+
+    // E1d-b — AND IT KEEPS ITS PADDING, WHICH IS A SEPARATE FACT AND WAS MEASURED.
+    // The border was the extra pixel: with the frame the body's ink landed at 14 while the tabs
+    // and hint sit at 13; without it, 13. Removing `p-3` as well would put it at 1 — exactly the
+    // defect #257 fixed on the tab hint, reintroduced one element over.
+    t("E1d-b: …while keeping p-3, so its ink lands at 13 with the tabs rather than at 1",
+      /\bp-3\b/.test(wrapper), true);
+  }
+
   // The old positive check here read `readStudio(`${name}.tsx`)`, which ASSUMED every panel lives
   // in a file named after it — the same assumption the suffix match made, one line apart. It
   // threw outright once `CategoryPanel` entered the set, which is a better failure than the
