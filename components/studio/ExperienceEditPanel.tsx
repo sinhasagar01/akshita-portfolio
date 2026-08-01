@@ -13,7 +13,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconBriefcase } from "./icons";
-import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
+import { inputClsMd, FIELD_MEASURE , FieldKey} from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -109,7 +109,7 @@ export default function ExperienceEditPanel({
         {/* Company is the slugField (the entry identity). Shown read-only so an
             edit here never silently fails — it is set on Add and not editable. */}
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Company</span>
+          <FieldKey>Company</FieldKey>
           <input
             type="text"
             value={company}
@@ -144,7 +144,7 @@ export default function ExperienceEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Role title</span>
+          <FieldKey>Role title</FieldKey>
           <input
             type="text"
             value={values.title}
@@ -156,7 +156,7 @@ export default function ExperienceEditPanel({
 
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Start date</span>
+            <FieldKey>Start date</FieldKey>
             <input
               type="text"
               value={values.startDate}
@@ -167,7 +167,7 @@ export default function ExperienceEditPanel({
             />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>End date</span>
+            <FieldKey>End date</FieldKey>
             <input
               type="text"
               value={values.endDate}
@@ -180,9 +180,9 @@ export default function ExperienceEditPanel({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>
+          <FieldKey>
             What you did
-          </span>
+          </FieldKey>
           <textarea
             rows={4}
             value={values.description}
@@ -197,7 +197,7 @@ export default function ExperienceEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Location</span>
+          <FieldKey>Location</FieldKey>
           <input
             type="text"
             value={values.location}

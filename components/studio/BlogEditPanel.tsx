@@ -44,7 +44,7 @@ import SaveIndicator from "./SaveIndicator";
 import { BLOG_STATUSES, BLOG_TOPICS } from "@/lib/studio/blog-format";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 import type { BlogCard } from "@/lib/keystatic";
-import { inputCls, labelCls } from "./blocks/fields";
+import { inputCls, labelCls, FieldKey} from "./blocks/fields";
 import { ListboxField } from "./ListboxField";
 
 type HeadFields = { title: string; dek: string; date: string; topic: string; status: string };
@@ -153,7 +153,7 @@ export default function BlogEditPanel({
           moves nothing when edited (#216). Blank is allowed and the article falls back to the
           slug; publish requires a non-empty one, enforced in validate-blog-post. */}
       <label className="flex flex-col gap-1">
-        <span className={labelCls}>Title</span>
+        <FieldKey>Title</FieldKey>
         <input
           type="text"
           value={values.title}
@@ -169,7 +169,7 @@ export default function BlogEditPanel({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className={labelCls}>Dek</span>
+        <FieldKey>Dek</FieldKey>
         <input
           type="text"
           value={values.dek}
@@ -180,7 +180,7 @@ export default function BlogEditPanel({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className={labelCls}>Publish date</span>
+        <FieldKey>Publish date</FieldKey>
         {/* type="date" emits exactly YYYY-MM-DD, which is what the sanitizer's ISO_DATE
             requires — no format translation needed in either direction. */}
         <input

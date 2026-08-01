@@ -19,7 +19,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
-import { inputClsMd, labelCls, KeyRow, FIELD_MEASURE } from "./blocks/fields";
+import { inputClsMd, labelCls, KeyRow, FIELD_MEASURE , FieldKey} from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -168,7 +168,7 @@ export default function HeroEditPanel({
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Hero copy</span>
+          <FieldKey>Hero copy</FieldKey>
           <input
             type="text"
             value={values.heroCopy}
@@ -291,9 +291,9 @@ export default function HeroEditPanel({
               placeholder={TABS[activeTab].fallback}
             >
               <label className="flex flex-col gap-1.5">
-                <span className={labelCls}>
+                <FieldKey>
                   Tab {activeTab + 1} line
-                </span>
+                </FieldKey>
                 <textarea
                   rows={3}
                   value={values[TABS[activeTab].lineKey]}
@@ -307,7 +307,7 @@ export default function HeroEditPanel({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Role label</span>
+          <FieldKey>Role label</FieldKey>
           <input
             type="text"
             value={values.heroRoleLabel}
@@ -318,7 +318,7 @@ export default function HeroEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Scroll cue</span>
+          <FieldKey>Scroll cue</FieldKey>
           <input
             type="text"
             value={values.heroScrollCue}

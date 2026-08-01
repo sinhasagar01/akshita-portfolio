@@ -14,7 +14,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import { IconWorkflow } from "./icons";
-import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE , FieldKey} from "./blocks/fields";
 import type { ProcessStage } from "@/lib/studio/site-settings-format";
 
 type Props = { itemId: string; processStages: ProcessStage[] };
@@ -109,7 +109,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
             </span>
 
             <label className="flex flex-col gap-1.5">
-              <span className={labelCls}>Name</span>
+              <FieldKey>Name</FieldKey>
               <input
                 type="text"
                 value={stage.name}
@@ -121,7 +121,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5">
-              <span className={labelCls}>Description</span>
+              <FieldKey>Description</FieldKey>
               <input
                 type="text"
                 value={stage.description}

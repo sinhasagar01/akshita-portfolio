@@ -150,5 +150,61 @@ t("D1: `--text-eyebrow` is still 0.75rem — the studio never sizes itself throu
 t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouched by the sweep",
   /text-eyebrow uppercase tracking-eyebrow/.test(read("components/case-study/blocks/VideoEmbed.tsx")), true);
 
+/* ================================================ E. THE KEY ROW IS THE FIELD LABEL NOW (#254)
+ *
+ * #253 gave author-typed keys the pill and left fixed schema labels on `labelCls`, on a measured
+ * height cost. The audit that followed measured the quantity #253 never asked about: **as loaded,
+ * the case-study inspector rendered 121 captions and ZERO pills**, because the eight pill sites
+ * are `metaFacts` and `glanceGrid`, both inside `ItemRows` rows that #234 folds by default. A
+ * correct measurement of the wrong quantity. So the fixed key takes the contract's `.s-key` —
+ * the pill's height, padding, type and connector, with no ground.
+ *
+ * WHAT THIS SECTION PROTECTS IS THE SEAM, because `labelCls` was NOT mutated and must not be.
+ * It still has non-field consumers whose meaning is "a heading", and turning it into a key row
+ * would repeat the trap that has fired four times. */
+{
+  const fields = read("components/studio/blocks/fields.tsx");
+
+  // E1 — the two key kinds are the SAME SHAPE and differ only in the ground, which is item A's
+  // whole rule: "a box you cannot type in should not look like one".
+  const pill = /export const KEY_PILL_CLS =\s*([\s\S]*?);/.exec(fields)?.[1] ?? "";
+  const fixed = /export const FIXED_KEY_CLS =\s*([\s\S]*?);/.exec(fields)?.[1] ?? "";
+  t("E1: both key classes exist", [pill.length > 0, fixed.length > 0], [true, true]);
+  for (const tok of ["h-[26px]", "px-2.5", "text-[10.5px]", "font-bold", "uppercase", "tracking-[0.13em]", "text-ink-600"])
+    t(`E1: …and share ${tok}`, [pill.includes(tok), fixed.includes(tok)], [true, true]);
+  t("E1: …and ONLY the editable one carries a ground and a radius",
+    [pill.includes("bg-cream-200"), pill.includes("rounded-full"),
+     fixed.includes("bg-cream-200"), fixed.includes("rounded-full")],
+    [true, true, false, false]);
+
+  // E2 — every field component renders the key row. Derived from the components that render a
+  // `<label className="flex flex-col">` wrapper, so a new field component joins by existing.
+  // Derived from the wrapper: a field component is one that opens `<label className="flex flex-col
+  // gap-1">`. The very next label-bearing element must be the key row.
+  const comps = [...fields.matchAll(/<label className="flex flex-col gap-1"[^>]*>\s*\{?\s*(<FieldKey>|<span className=\{labelCls\}>)/g)]
+    .map((m) => m[1]);
+  t("E2: the field wrappers were found", comps.length >= 3, true);
+  t("E2: none of them still labels a field with `labelCls` — that is what left the pill invisible",
+    comps.filter((k) => k !== "<FieldKey>"), []);
+
+  // E3 — THE SEAM. `labelCls` keeps its value and its non-field consumers, untouched.
+  t("E3: `labelCls` itself is unchanged — the pill is a NEW export, not a mutation",
+    /export const labelCls = "text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+  // OverviewRow is NOT in this list, and that is #240's fix rather than an omission: it is a
+  // SERVER component, and importing `labelCls` across the client boundary yields a THROWING PROXY
+  // that a template literal stringifies into the class attribute. It writes the utilities out as
+  // literals, with `studio-ink` asserting the pair agrees.
+  const NON_FIELD = ["SegmentedToggle", "SectionsRail", "SettingsPhotoField", "BlogBlocksEditPanel"];
+  t("E3: …and every pure non-field consumer still uses it, so the seam did not sweep them",
+    NON_FIELD.filter((f) => !/className=\{`?\$?\{?labelCls/.test(read(`components/studio/${f}.tsx`))), []);
+  t("E3: …and OverviewRow still writes the label utilities out rather than importing them (#240)",
+    /from "\.\/blocks\/fields"/.test(read("components/studio/OverviewRow.tsx")), false);
+
+  // E4 — CheckField is excluded on what it IS. Its label sits INLINE beside a checkbox, naming
+  // the control rather than a value beneath it; a key row needs a value under the key.
+  t("E4: CheckField keeps its inline label — a checkbox has no value beneath its key",
+    /export function CheckField[\s\S]{0,400}?<label className="flex w-fit items-center gap-2"/.test(fields), true);
+}
+
 console.log(`\nstudio-labels result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

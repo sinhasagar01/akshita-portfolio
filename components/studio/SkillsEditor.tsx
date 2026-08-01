@@ -20,7 +20,7 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useReportCount } from "./StudioCountsProvider";
 import { IconLayers } from "./icons";
-import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE , FieldKey} from "./blocks/fields";
 
 export type SkillsCategoryInput = { category: string; items: string[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
@@ -250,7 +250,7 @@ function CategoryPanel({
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Category name</span>
+          <FieldKey>Category name</FieldKey>
           <input
             type="text"
             value={category}

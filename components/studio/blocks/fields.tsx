@@ -297,7 +297,8 @@ export const groupLabelCls = "text-[10px] uppercase tracking-eyebrow text-ink-60
  * pill-shaped span carrying the pill's 26px height plus an 8px connector — which measured +190px
  * per inspector section, taking the worst from 2.72 to 3.51 screens and undoing #234's measured
  * win (3.07 -> 1.72). The prose was right and the drawing was wrong. **Correction 28.** A fixed
- * key keeps `labelCls`, tight above its field; it was never ambiguous with the field anyway.
+ * key kept `labelCls`, tight above its field. **THAT CORRECTION WAS REVERSED IN #254** — see
+ * FIXED_KEY_CLS below for why: zero pills rendered on the surface the contract was drawn for.
  *
  * THE TEST FOR A NEW SITE, so the next person has a rule rather than a list: does this field's
  * value NAME the value in the field beside it, on the same object? `metaFacts.label` names
@@ -321,10 +322,44 @@ export const KEY_PILL_CLS =
   "focus-visible:bg-cream-50 focus-visible:outline focus-visible:outline-2 " +
   "focus-visible:outline-offset-1 focus-visible:outline-accent-500";
 
+/* ---- THE FIXED KEY (#254) — THE SAME SHAPE WITHOUT THE GROUND -----------------------------
+ *
+ * #253 CORRECTED THE CONTRACT HERE AND THE CORRECTION WAS WRONG. It kept fixed labels on the
+ * 12px caption because drawing them as pill spans cost ~190px per inspector section, and that
+ * cost was real — but the audit that followed measured the thing #253 never asked:
+ * **ZERO pills render on the surface the contract was drawn for.** As loaded, the inspector shows
+ * 121 captions and 0 pills across all 14 sections; fully expanded it is 9 pills to 216 captions,
+ * 4%, in 2 sections. The eight pill sites are `metaFacts` and `glanceGrid`, both inside
+ * `ItemRows` rows that #234 folds by default.
+ *
+ * **A CORRECT MEASUREMENT OF THE WRONG QUANTITY.** The height was priced accurately and the
+ * question of whether the thing being bought would be VISIBLE was never asked. Recorded as its
+ * own failure shape, because it is not the same as measuring badly.
+ *
+ * So a fixed key is now the contract's `.s-key`: the pill's height, padding, type and connector,
+ * with `background: transparent` and no border — "a box you cannot type in should not look like
+ * one" is satisfied by removing the GROUND, which is what item A said all along.
+ *
+ * NOT APPLIED TO `CheckField`: its label sits INLINE beside a checkbox, naming the control rather
+ * than a value beneath it. A key row needs a value under the key. */
+export const FIXED_KEY_CLS =
+  "flex h-[26px] w-fit items-center px-2.5 text-[10.5px] font-bold uppercase " +
+  "tracking-[0.13em] text-ink-600";
+
+/** A fixed key and its connector — the static half of the key row. */
+export function FieldKey({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <span className={FIXED_KEY_CLS}>{children}</span>
+      <KeyConnector />
+    </>
+  );
+}
+
 /** The connector: 1x8px of rule-edge, indented 20px. It groups the key with its value without a
  *  border or a card, which is the whole reason the pair needs no box at this nesting depth —
  *  measured, the innermost field is already 226px inside four bordered ancestors. */
-function KeyConnector() {
+export function KeyConnector() {
   return <span aria-hidden className="ml-5 block h-2 w-px bg-ink-950/22" />;
 }
 
@@ -388,7 +423,7 @@ export function TextField({
   const visible = useFieldVisible(optional, isBlankText(value));
   return (
     <label className="flex flex-col gap-1" hidden={!visible}>
-      <span className={labelCls}>{label}</span>
+      <FieldKey>{label}</FieldKey>
       <input
         type="text"
         value={value}
@@ -425,7 +460,7 @@ export function TextArea({
   const visible = useFieldVisible(optional, isBlankText(value));
   return (
     <label className="flex flex-col gap-1" hidden={!visible}>
-      <span className={labelCls}>{label}</span>
+      <FieldKey>{label}</FieldKey>
       {/* ---- R3 · A MULTILINE VALUE LOOKS MULTILINE, AND THE GRIP IS THE POINT --------------
           96px minimum, text top-aligned, and a VISIBLE resize grip. The grip is the only mark
           that says the box is meant to grow — the affordance the browser already gives a
@@ -511,7 +546,7 @@ export function NumberField({
 
   return (
     <label className="flex flex-col gap-1" hidden={!visible}>
-      <span className={labelCls}>{label}</span>
+      <FieldKey>{label}</FieldKey>
       <input
         type="text"
         inputMode="numeric"
@@ -635,7 +670,7 @@ export function BlockImageField({
 
   return (
     <div className="flex flex-col gap-1">
-      <span className={labelCls}>{label}</span>
+      <FieldKey>{label}</FieldKey>
       {/* VERTICAL, AND THAT IS WHAT UNSQUEEZES THE PATH. #180 measured this readout
           compressing to 27.6px because it shared a horizontal row with a thumb and a button
           inside a 244px inspector. Stacked, the path gets the full content width to itself —

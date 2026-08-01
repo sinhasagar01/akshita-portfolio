@@ -16,7 +16,7 @@ import { useListItem } from "./ListDetailLayout";
 import SectionsEditPanel from "./SectionsEditPanel";
 import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, labelCls, FieldKey} from "./blocks/fields";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
 import type { RawSection } from "@/lib/case-studies/sections-raw";
@@ -219,7 +219,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
               here never silently fails — it is set on Add and not editable. */}
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Title</span>
+          <FieldKey>Title</FieldKey>
           <input
             type="text"
             value={title}
@@ -241,7 +241,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         <HeroImageField slug={slug} collection="projects" initial={heroImage} onChanged={() => setUnpublished(true)} />
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Summary</span>
+          <FieldKey>Summary</FieldKey>
           <textarea
             rows={3}
             value={values.summary}
@@ -255,7 +255,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         <div className="flex flex-col gap-3">
           {FACTS.map(({ key, label, placeholder }) => (
             <label key={key} className="flex flex-col gap-1.5">
-              <span className={labelCls}>{label}</span>
+              <FieldKey>{label}</FieldKey>
               <input
                 type="text"
                 value={values.facts[key]}

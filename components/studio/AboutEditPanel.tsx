@@ -15,7 +15,7 @@ import { useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
 import SettingsPhotoField from "./SettingsPhotoField";
 import { IconUser } from "./icons";
-import { inputClsMd, labelCls, FIELD_MEASURE } from "./blocks/fields";
+import { inputClsMd, labelCls, FIELD_MEASURE , FieldKey} from "./blocks/fields";
 
 type Props = {
   itemId: string;
@@ -144,7 +144,7 @@ export default function AboutEditPanel({
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>About bio</span>
+          <FieldKey>About bio</FieldKey>
           <textarea
             rows={7}
             value={values.aboutCopy}
@@ -158,7 +158,7 @@ export default function AboutEditPanel({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>About note</span>
+          <FieldKey>About note</FieldKey>
           <input
             type="text"
             value={values.aboutNote}
@@ -186,7 +186,7 @@ export default function AboutEditPanel({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>About subtext</span>
+          <FieldKey>About subtext</FieldKey>
           <input
             type="text"
             value={values.aboutSubtext}
@@ -199,7 +199,7 @@ export default function AboutEditPanel({
         <SettingsPhotoField photo={photo} onUploaded={() => setUnpublished(true)} />
 
         <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Photo caption</span>
+          <FieldKey>Photo caption</FieldKey>
           <input
             type="text"
             value={values.aboutPhotoCaption}
