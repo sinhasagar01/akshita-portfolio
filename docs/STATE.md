@@ -8,7 +8,8 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE SELECTION CONTRACT)
 
-**main** = `98b4934` = the selection contract (#258). **The Selected rail is replaced by a dock at
+**main** = `98b4934` = the selection contract (#258), with **#259 building T3 and correcting
+#258's record** — that PR claimed T3 as shipped behaviour and it had never been built. **The Selected rail is replaced by a dock at
 the canvas foot with five timed tiers, the studio gains its first motion-token block scoped beside
 the radius scale, and `useAutoGrow` plus the canvas ceiling and its wrapper are deleted.**
 ralph **1735 across 46 suites** (`studio-motion` is new).
@@ -2011,6 +2012,18 @@ All prior rules remain. Added or sharpened across this session:
     #171 and was false because the nav was anchor-only;
   - a **SURFACE** — `FooterExplore`, an inventory entry for a component nothing had
     rendered in a long time.
+  - **A BEHAVIOUR IN A PR BODY** — #258's "T3 fires only when the field is visible", with a
+    rationale attached ("when the field is folded away the dock is the confirmation").
+    **T1, T2 and T4 shipped and T3 never did.** Not a claim that decayed: it was false the day it
+    was written. It is the `structural()` shape moved up a level — a NAME in a plan that nothing
+    implements, except the name is a BEHAVIOUR in a merged PR body rather than a function in a
+    file. **AND NO GATE COULD HAVE CAUGHT IT.** Every mechanism here reads source and asserts
+    about what is present; this failure was the ABSENCE of a class string, and there is no class
+    string to read. It surfaced because the owner looked at the screen — the same way #211's
+    mis-mapped contract rule surfaced, and the second time that is the only thing that worked.
+    **THE HARDEST VARIANT SO FAR, BECAUSE THE REASONING WAS SOUND.** The fold is real and was
+    measured; the C finding it supported still stands. Only the referent was missing, which is
+    why re-reading the argument never exposes it. Corrected in #259.
   - a **COUNT, AGAIN** — "ELEVEN merged branches are still present", which was 13. It was
     accurate when written in #191 and drifted as #192 to #196 merged without deleting.
     **The count variant recurring is the point:** the first one decayed as kinds were
@@ -2129,6 +2142,15 @@ All prior rules remain. Added or sharpened across this session:
   that were never written, and STATE had recorded the behaviour as built. **Fix the code and
   the comment TOGETHER** — fixing only the comment leaves a documented behaviour unbuilt,
   and fixing only the code leaves the next reader hunting a variant they cannot find.
+- **A CLAIM THAT SOMETHING IS CONDITIONAL IS A CLAIM THAT IT EXISTS.** #258's PR body said "T3
+  fires only when the field is visible" and gave a reason for the narrowing. T3 was never built,
+  so the conditionality was a property of nothing. **A condition that never fires and a mark that
+  renders nothing are indistinguishable from outside**, which is why the assertion must be split
+  in two: prove the treatment RENDERS when the class is applied by hand, and separately prove the
+  class is APPLIED when the condition holds. One assertion spanning both passes on an empty
+  feature. **Check the referent before checking the condition** — this is the `structural()`
+  family's worst instance to date precisely because nothing in the reasoning was wrong, only its
+  subject was absent.
 - **ASSERT A DUPLICATE AWAY, DON'T ASSERT IT CONSISTENT.** Tailwind cannot interpolate a
   constant into a class name, so a breakpoint naturally gets written twice and coupled by
   hand — the 236px hazard again. Reading the width through `matchMedia` leaves ONE literal,
@@ -3278,6 +3300,83 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#259** T3, the echo — built, and #258's record corrected first →1743
+  (`studio-motion` 23→31, new section G). **THE CORRECTION IS THE MORE SERIOUS HALF AND IT LED
+  THE PR.**
+  **#258 CLAIMED A BEHAVIOUR IT DID NOT BUILD.** Its plan and PR body both said "T3 fires only
+  when the field is visible", with a rationale attached — "when the field is folded away the dock
+  is the confirmation, which is what makes it earn its place instead of being a rail in a new
+  position". That reads as a conditional someone had built and measured. **T1, T2 and T4 shipped.
+  T3 never did**: no field-level rule, no application, no visibility test, and `selectedField`
+  never left `SectionsEditPanel`. Recorded as a `structural()` variant — **a BEHAVIOUR in a merged
+  PR body rather than a function in a file** — and the #258 entry above is corrected in place with
+  its original wording quoted rather than deleted.
+  **WHY IT SURVIVED, WHICH IS THE PART WORTH KEEPING.** The reasoning was sound and remains sound:
+  `ItemRows` really does fold by default, so a T3 that marked folded fields really would be
+  marking hidden elements, and the C finding it supported still stands on its own. **Only the
+  referent was missing**, which is why re-reading the argument never exposes it. And no gate could
+  have caught it: every mechanism here reads source and asserts about what is PRESENT, while this
+  failure was the absence of a class string. It surfaced because the owner looked at the screen —
+  the second time that has been the only thing that worked, after #211's mis-mapped contract rule.
+  **THE INVESTIGATION RULED OUT ALL THREE OFFERED EXPLANATIONS BEFORE BUILDING.** Not "working as
+  built" (there was no conditional to work), not "a defect in T3" (there was no T3), not "the
+  visibility test is wrong" (there was none). Established by driving it: selecting the canvas
+  eyebrow marked the canvas, opened the dock with the right tag, and changed **nothing** on any of
+  the five rendered inspector fields — and applying `.is-selected` to a field BY HAND rendered
+  nothing either, because the only rule is `.cs-editable.is-selected` and inspector fields do not
+  carry that class. **Both halves absent, which is exactly why it looked like one bug.**
+
+  **WHAT SHIPPED, IN THREE PARTS.**
+  - **THE MARK.** `.studio-chrome [data-studio-field].is-echoed` — cream-200 ground (one step off
+    the inspector's cream-100) plus `box-shadow: inset 3px 0 0 0 accent-500`, 260ms at 90ms on
+    `--ease-out-expo`. **BOTH PROPERTIES ARE COLOUR FADES, WHICH IS WHY THEY CANNOT MOVE A BOX.**
+    An inset shadow never participates in layout; a `border-left: 3px` would have pushed every
+    field's content 3px right on selection, and **the inspector has no parity harness to catch
+    it**. Same constraint that made T1 a background rather than a pseudo-element, and the one
+    DeviceImage's wrapper `<span>` ignored when it collapsed a 760px frame to ~90px. Measured:
+    **0 geometry deltas across 33 marked fields** over all 14 sections, wrapper and input both.
+  - **THE APPLICATION.** An effect rooted at the INSPECTOR node, mirroring the canvas's. The
+    address is an OPTIONAL `fieldId` on `TextField`/`TextArea` landing as `data-studio-field`, so
+    all ~40 unset call sites are byte-identical — the shared-seam rule, and a field with no
+    address simply never echoes, which is a missing mark rather than a wrong one.
+  - **THE VISIBILITY TEST, AND ITS DEFINITION IS A DECISION.** `offsetParent !== null`, which is
+    false exactly when an ancestor is `display: none` — how BOTH legitimate hiders work, the
+    mounted-and-hidden section editors and a folded `ItemRows` row. **Visible means RENDERED, not
+    SCROLLED INTO VIEW**: an echo below the fold of a scrolling pane is still there when you
+    scroll to it, so marking it is right; one inside `display: none` can never be seen. It is
+    therefore NOT a scroll test and cannot repeat #258's `scrollParent` bug, where walking past a
+    scroller that had not yet overflowed would have read every field as hidden and reproduced the
+    very behaviour this fixes.
+
+  **THE TWO HALVES ARE ASSERTED SEPARATELY, AND THAT IS THE POINT OF SECTION G.** A condition that
+  never fires and a mark that renders nothing are indistinguishable from outside, so one assertion
+  spanning both would have passed on the empty feature exactly as happily as on a working one.
+  G1-G3b assert the TREATMENT exists and renders; G4-G7 assert it is APPLIED and only to something
+  rendered. Eight mutations, including two that reconstruct #258's state precisely — delete the
+  rule, and keep the rule but stop applying it.
+  **AND ONE OF THE EIGHT SURVIVED FIRST TIME, WHICH IS WHY THEY ARE RUN.** G5 tested
+  `/fieldId\?: string;/.test(...)` — the string appears TWICE, so making ONE of the two required
+  left the other to satisfy the regex. Counting both is the fix, and it is #257's rule again: an
+  existence check over a set of two proves nothing about the second.
+
+  **CONTRAST, SANITY PAIR 21 FIRST — AND THE GROUND IS AGAIN NOT DOING THE WORK.** The marked
+  cream-200 against the inspector's cream-100 is **1.10**. **The 3px bar carries the mark**, at
+  4.07 on cream-200, over the 3:1 non-text floor. The field key stays legible on the moved ground
+  at **6.42** (7.06 unmarked) — the ground moved under existing text and both readings clear the
+  floor, which is the check "a value belongs to its ground" exists for. Same shape as the dock's
+  border in #258, and recorded for the same reason: **nobody should later remove the bar as
+  redundant beside a ground that looks like it is already doing the job.**
+  Reduced motion driven side by side, **final state pixel-identical** on background, shadow,
+  wrapper box and input box.
+
+  **WHAT IS NOT COVERED, STATED RATHER THAN LEFT TO BE FOUND.** Only the four SECTION-shell fields
+  echo — eyebrow, title, lead, northStar — because those are exactly the four the canvas can
+  select through `data-edit`. **Block fields select and dock normally and do not echo**, since
+  addressing them means passing `fieldId` at ~40 registry call sites. Most of them sit inside
+  folded `ItemRows` rows and would not echo anyway, but not all, and the gap is real. G7 derives
+  the wired set from `SectionShell` and asserts it equals the canvas's four, so advertising an
+  address that can never fire fails rather than passes.
+
 - **#258** the selection contract — the rail becomes a dock, and four premise corrections
   →1735 (`studio-motion` new, 23 assertions; `reduced-motion` 22→26; `studio-ink` F5 28→29).
   **THE SELECTED RAIL IS GONE.** It sat at the top of the inspector holding a SECOND control for
@@ -3302,14 +3401,21 @@ from a run on main after the merge**, not from the PR's own CI.
     open" is true by construction. This arc's own rule, a correct measurement of the wrong
     quantity, applied to a gate the brief wrote.
 
-  **C IS THE FINDING, AND IT NARROWED THE BRIEF.** T0 drives the CANVAS ONLY and T3 fires only
-  when the field is visible. `ItemRows` rows fold by default (#234), so for every `items.N.*`,
-  `stats.N.*`, `cards.N.*`, `features.N.*` and `steps.N.*` field — most of the block-level
-  editable surface — the inspector's counterpart is HIDDEN. T0's inspector half would have
-  scrolled to a folded row and T3 would have marked an element nobody can see. **#253's failure
-  shape, caught before building rather than after.** When the field is folded away **the dock is
-  the confirmation**, which is what makes it earn its place instead of being a rail in a new
-  position.
+  **C IS THE FINDING, AND IT NARROWED THE BRIEF.** T0 drives the CANVAS ONLY. `ItemRows` rows
+  fold by default (#234), so for every `items.N.*`, `stats.N.*`, `cards.N.*`, `features.N.*` and
+  `steps.N.*` field — most of the block-level editable surface — the inspector's counterpart is
+  HIDDEN, and T0's inspector half would have scrolled to a folded row. **#253's failure shape,
+  caught before building rather than after.**
+
+  > **CORRECTED BY #259, AND THE CORRECTION IS THE MORE SERIOUS HALF.** This paragraph originally
+  > read "T0 drives the CANVAS ONLY and **T3 fires only when the field is visible**", and went on
+  > to say that when the field is folded away "the dock is the confirmation, which is what makes
+  > it earn its place instead of being a rail in a new position". **T3 WAS NEVER BUILT.** T1, T2
+  > and T4 shipped; there was no field-level mark, no rule to render one, no application of a
+  > class to any inspector element, and no visibility test — so there was nothing for the
+  > conditionality to be a property of. The sentence described a conditional someone had built
+  > and measured, and the referent did not exist. The C reasoning ITSELF stands — the fold is
+  > real and was measured — which is exactly what made this hard to catch. See #259.
   **CORRECTION 32, MINE.** The contract's prose says "the inspector still does not scroll" while
   its own script scrolls it and its badge reports "canvas + inspector". The prose was written for
   the pre-T0 version and never updated.

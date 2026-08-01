@@ -1770,6 +1770,39 @@ a {
     background-size var(--studio-t1, 220ms) var(--ease-out-expo);
 }
 
+/* T3 · THE ECHO — the inspector field's mark.
+   DELIBERATELY QUIETER THAN T1, and the mechanism carries that rather than the palette alone:
+   T1 DRAWS ITSELF (a background-size wipe, top-down), this one FADES IN PLACE. If the echo
+   competed with the lead the eye would not know which one was the answer.
+
+   BOTH PROPERTIES ARE COLOUR FADES, AND THAT IS WHY THEY CANNOT MOVE A BOX.
+   `box-shadow: inset` NEVER participates in layout — no border, no wrapper, no pseudo-element,
+   no `position`. The alternative, a 3px `border-left`, would push every field's content 3px
+   right on selection, and the inspector HAS NO PARITY HARNESS to catch it. #258's T1 reached
+   for `background-size` under the same constraint, and DeviceImage's wrapper <span> is the
+   instance that collapsed a 760px frame to ~90px when the constraint was ignored.
+
+   THE GROUND IS ONE STEP, RELATIVE. The inspector pane is cream-100 (ThreePaneShell), so the
+   marked field takes cream-200 — the ground+1 rule, not an absolute value. If the pane's ground
+   ever moves, this moves with it; #256 recorded what applying such a value literally costs.
+
+   260ms AT 90ms, per the contract. The delay is what makes it an echo rather than a chorus:
+   T1 has already answered by the time this begins. */
+.studio-chrome [data-studio-field] {
+  background-color: transparent;
+  box-shadow: inset 3px 0 0 0 transparent;
+  transition:
+    background-color var(--studio-out, 130ms) var(--ease-out-expo),
+    box-shadow var(--studio-out, 130ms) var(--ease-out-expo);
+}
+.studio-chrome [data-studio-field].is-echoed {
+  background-color: var(--color-cream-200);
+  box-shadow: inset 3px 0 0 0 var(--color-accent-500);
+  transition:
+    background-color var(--studio-t3, 260ms) var(--ease-out-expo) var(--studio-t3-delay, 90ms),
+    box-shadow var(--studio-t3, 260ms) var(--ease-out-expo) var(--studio-t3-delay, 90ms);
+}
+
 .canvas-surface {
   background-color: var(--color-case-study-sand);
 }
