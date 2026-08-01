@@ -305,5 +305,71 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
     /\bleading-/.test(hint), false);
 }
 
+/* ---- G5 · THE LIVE-PREVIEW HINT IS A SENTENCE, SO IT IS NOT SET LIKE A LABEL ----------------
+ * `tracking-eyebrow` is 0.14em, sized for the two-word labels `labelCls` and `groupLabelCls` set.
+ * This line is 130 characters; uppercase at that tracking stretched it past the canvas and slowed
+ * reading, which is the opposite of what help text does. The strip around it is the studio's
+ * EXISTING neutral one — the same border/fill/radius triple as the no-editor-yet strip and
+ * `ExperienceListEditor`'s banner — so this adds a frame without adding a pattern.
+ * Comments are stripped before matching: this hint's own comment names `tracking-eyebrow` and
+ * `bg-cream-100` while explaining them, and an un-stripped regex matches the PROSE. That trap has
+ * now fired six times in this suite's history, which is why it is defended by default. */
+{
+  const src = read("components/studio/SectionsEditPanel.tsx")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  const strip = /<div className="([^"]*)">\s*<IconInfo/.exec(src)?.[1] ?? "";
+
+  t("G5: the live-preview strip was found — nothing below is a vacuous pass", strip !== "", true);
+  t("G5: it is NOT set like a label — a 130-char sentence takes neither uppercase nor eyebrow",
+    /uppercase|tracking-eyebrow/.test(strip), false);
+  t("G5: …and it reuses the EXISTING neutral strip rather than inventing a third flavour",
+    /border border-ink-950\/12/.test(strip) && /bg-cream-100/.test(strip)
+      && /rounded-\[var\(--studio-radius-control,4px\)\]/.test(strip), true);
+  t("G5: …with no left accent bar, which the studio keeps for selection markers",
+    /border-l/.test(strip), false);
+
+  /* THE STATUS LINE IS OUTSIDE THE STRIP, and that is the assertion that matters most here.
+   * Inside a framed strip an upload ERROR reads as part of the instructions. The old markup put
+   * both spans in the hint's container, each carrying `normal-case tracking-normal` to escape the
+   * uppercase it inherited — the reset was the tell that they never belonged there. */
+  t("G5: upload status is NOT inside the help strip — an error there reads as instructions",
+    /<IconInfo[\s\S]*?imageBusy/.test(/<div className="[^"]*">\s*<IconInfo[\s\S]*?<\/div>/.exec(src)?.[0] ?? ""),
+    false);
+  t("G5: …and it announces, which it never did while it was a bare span",
+    /role="status" aria-live="polite"[^>]*>\s*\{imageBusy/.test(src.replace(/\n\s*/g, " ")), true);
+  t("G5: …so the escape hatches those spans needed are gone with the uppercase",
+    /normal-case tracking-normal/.test(src), false);
+}
+
+/* ---- G6 · THE STRIP'S INSET IS DERIVED FROM THE CANVAS SCALE, NEVER A MEASURED PIXEL ---------
+ * The canvas renders at 1280 and is scaled to fit the pane, so anything drawn OUTSIDE the scaled
+ * box cannot line up with the section card by copying the card's own margin. The card's on-screen
+ * inset is `(1.5rem + clamp(0.75rem, 2vw, 2rem)) * scale`, and TWO of those move independently —
+ * the clamp tracks the VIEWPORT, the scale tracks the PANE. Measured once it was 34px; at
+ * viewport 1180 the true value is 32.8 and at 1760 it is 39.8. A hardcoded pixel is therefore
+ * correct at exactly one window size, which is why this asserts the expression and not a number. */
+{
+  const src = read("components/studio/SectionsEditPanel.tsx")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  const css = read("app/globals.css");
+  const strip = /<div className="([^"]*)">\s*<IconInfo/.exec(src)?.[1] ?? "";
+
+  t("G6: the strip's inset is the derived var, not a pixel someone measured once",
+    /mx-\[var\(--cs-card-inset\)\]/.test(strip), true);
+  t("G6: …and no hardcoded horizontal margin survives beside it",
+    /\bmx-\[\d/.test(strip) || /\bmx-\d/.test(strip), false);
+  t("G6: `--cs-card-inset` multiplies BOTH of the canvas's own numbers by the runtime scale",
+    /--cs-card-inset:\s*calc\(\(1\.5rem \+ clamp\(0\.75rem, 2vw, 2rem\)\) \* var\(--cs-canvas-scale, 1\)\)/
+      .test(css), true);
+  t("G6: the scale is published by the hook that already computes it",
+    /setProperty\("--cs-canvas-scale", String\(next\)\)/.test(src), true);
+  t("G6: …onto an EXPLICIT scope, not `parentElement` — a later wrapper would silently retarget",
+    /closest<HTMLElement>\("\[data-canvas-scope\]"\)/.test(src), true);
+  t("G6: …and that scope carries the class the var resolves through",
+    /<div data-canvas-scope className="cs-canvas-scope">/.test(src), true);
+}
+
 console.log(`\nstudio-labels result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

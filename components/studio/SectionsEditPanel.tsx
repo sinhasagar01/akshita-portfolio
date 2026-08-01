@@ -57,7 +57,7 @@ import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
 const NO_DRAFT_IMAGES: readonly string[] = [];
 import { FieldTabProvider, inputCls, type FieldTab, labelCls, groupLabelCls } from "./blocks/fields";
-import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
+import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight, IconInfo } from "./icons";
 
 type SectionsFields = { sections: readonly RawSection[] };
 /** The parallel stable ids, mirroring the sections structure exactly. */
@@ -318,6 +318,13 @@ function useFitToWidth() {
       const next = Math.max(CS_MIN_SCALE, Math.min(1, pane.clientWidth / CANVAS_WIDTH));
       setScale(next);
       setHeight(surface.offsetHeight * next);
+      // PUBLISHED FOR THE SIBLINGS DRAWN OUTSIDE THE SCALED BOX. The help strip has to
+      // line up with the section card, and the card's on-screen inset is its own margin
+      // plus `container-x`'s padding TIMES this scale — so a sibling cannot derive it
+      // from CSS alone. Written to the shared scope rather than lifted into React state
+      // because a state write here would re-render the whole panel on every resize tick,
+      // and nothing in the tree needs to re-render for a margin to change.
+      pane.closest<HTMLElement>("[data-canvas-scope]")?.style.setProperty("--cs-canvas-scale", String(next));
     };
     measure();
     // Observes the pane (window/layout changes) and the surface (content growing as
@@ -1654,16 +1661,55 @@ export default function SectionsEditPanel({
             commitParagraphs(blockIndex, next, index - 1, caret);
           };
           return (
-            <div>
+            /* `data-canvas-scope` is what `useFitToWidth` writes `--cs-canvas-scale` onto, and
+               `cs-canvas-scope` is what turns that scale into `--cs-card-inset`. Both sit here
+               because this is the nearest element that contains BOTH the strip and the scaled
+               canvas — the strip has to align with a card it is not inside. */
+            <div data-canvas-scope className="cs-canvas-scope">
               {/* HELP TEXT, NOT A LABEL — so it keeps its own string rather than taking
                   `labelCls`: it is a sentence, and setting it bold-700 would shout. Only the
                   COLOUR moved, ink-400 -> ink-600, because ink-400 measured 3.49 here against
-                  cream-50 and 12px is not WCAG large text, so it was below the 4.5 floor. */}
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] uppercase tracking-eyebrow text-ink-600">
-                <span>Live preview — click any dashed element to edit it, here or in the panel beside it. Rich text with **bold** edits under Inspector.</span>
-                {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
-                {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
+                  cream-50 and 12px is not WCAG large text, so it was below the 4.5 floor.
+                  THE UPPERCASE AND THE EYEBROW TRACKING ARE GONE, AND THAT WAS THE REAL DEFECT.
+                  `tracking-eyebrow` is 0.14em, sized for the two-word labels `labelCls` and
+                  `groupLabelCls` set. On a 130-character SENTENCE it stretched the line past the
+                  canvas and slowed reading, which is the opposite of what help text is for.
+                  THE STRIP IS THE STUDIO'S EXISTING NEUTRAL ONE, NOT A NEW PATTERN — the same
+                  `border-ink-950/12` + `bg-cream-100` + control radius already used by the
+                  no-editor-yet strip below and by `ExperienceListEditor`'s banner. A left accent
+                  bar was the alternative and was NOT taken: it would have been a third strip
+                  flavour, and the studio keeps its left bars for selection markers. */}
+              {/* THE INSET IS DERIVED, NOT MEASURED AND RETYPED. Flush to the pane the strip
+                  overhung the card by 34px a side, but 34 is correct at exactly one window
+                  size: it is `(1.5rem + clamp(0.75rem, 2vw, 2rem)) * scale`, where the clamp
+                  tracks the VIEWPORT and the scale tracks the PANE. `--cs-card-inset` carries
+                  the whole expression, so the two edges cannot drift apart on a resize. */}
+              <div className="mx-[var(--cs-card-inset)] mb-3 mt-3 flex items-start gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-ink-600">
+                <IconInfo className="mt-[3px] h-3.5 w-3.5 flex-none text-ink-400" />
+                <span>
+                  <strong className="font-semibold text-ink-950">Live preview.</strong> Click any dashed
+                  element to edit it, here or in the panel beside it. Rich text with{" "}
+                  {/* MONO, because `**bold**` is syntax the author TYPES, not emphasis. Set in the
+                      running face it reads as a typo. */}
+                  <code className="rounded-[3px] bg-cream-200 px-1 py-px font-mono text-[11px] text-accent-600">
+                    **bold**
+                  </code>{" "}
+                  edits under Inspector.
+                </span>
               </div>
+              {/* UPLOAD STATUS IS ITS OWN LINE NOW, AND THAT IS NOT COSMETIC. These two used to
+                  render INSIDE the help text's container, each carrying `normal-case
+                  tracking-normal` to escape the uppercase it inherited — the reset itself was the
+                  tell that they never belonged there. Framing the help text would have put an
+                  upload ERROR inside a strip that reads as instructions. Out here it also gets the
+                  `role="status"` it always needed, so a screen reader is told when an upload
+                  finishes or fails rather than only sighted users. */}
+              {(imageBusy || imageError) && (
+                <p role="status" aria-live="polite" className="mx-[var(--cs-card-inset)] mb-3 flex flex-wrap gap-2 text-[12px] text-accent-600">
+                  {imageBusy && <span>Uploading image…</span>}
+                  {imageError && <span>{imageError}</span>}
+                </p>
+              )}
               {/* No grid. The pane IS the canvas — see the note on `canvasNode`.
                   THE CEILING WRAPPER THAT USED TO SIT HERE IS GONE. It existed only to be
                   measured, as the bound for the Selected rail's auto-growing textarea. The dock
@@ -1774,7 +1820,7 @@ export default function SectionsEditPanel({
         <div
           role="tablist"
           aria-label="Section content and style"
-          className="mx-3 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/22"
+          className="mx-3 mt-2 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/22"
         >
           {(["content", "style"] as const).map((t) => {
             const selected = contentStyleTab === t;
@@ -1822,7 +1868,7 @@ export default function SectionsEditPanel({
           })}
         </div>
         <FieldTabProvider tab={contentStyleTab}>
-        <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col gap-6 outline-none">
+        <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col outline-none">
         {/* ---- THE TAB HINT (contract 5c) ---------------------------------------------------
             11px, and INSET to match its neighbours. Measured, this paragraph was the only child
             of the body starting flush against the pane's left border: header ink at 16, tab text
