@@ -3215,3 +3215,64 @@ a {
      frame, and below the noise floor when isolated, so it is not carried on cost. */
   --studio-lift-sheen: 620ms;
 }
+
+/* ============================================================ STUDIO — THE WORK CARD, BOTH STATES
+   Scoped to /studio. The Details canvas draws the work card TWICE, at rest and on hover, side by
+   side and labelled.
+
+   BECAUSE THE SUMMARY IS INVISIBLE AT REST, AND THAT IS THE WHOLE REASON FOR THE SECOND CARD.
+   The card shows its image, its title and its category label; the summary lives only in
+   `.wc-veil`, at `opacity: 0` until `:hover` or `:focus-visible`. So a canvas drawing one state
+   cannot show a field the inspector spends a whole textarea on — and the author is editing that
+   text while looking at it. Same shape as #198: a defect that lives in the COMPARISON rather than
+   in either state, visible only by drawing both.
+
+   `:hover` CANNOT BE SET FROM SCRIPT, so the second card is drawn by re-asserting the hover
+   declarations against a data attribute. EVERY PROPERTY THE PUBLIC `:hover` BLOCK CHANGES IS
+   RESTATED HERE AND NOWHERE ELSE — veil opacity, both text transforms, the shot's scale and its
+   border colour. If a hover property is ever added to the public card and not to this block, the
+   canvas silently stops matching what it claims to preview, which is the drift a preview exists
+   to prevent. `studio-ink` asserts the two property sets agree rather than trusting this comment.
+
+   THE ATTRIBUTE SITS ON A WRAPPER, NOT ON `.work-card`, so nothing about the card's own markup
+   differs between the two copies — they are the same component with the same props, and only an
+   ancestor differs. */
+.studio-chrome [data-card-state="hover"] .wc-veil {
+  opacity: 1;
+}
+.studio-chrome [data-card-state="hover"] .vt,
+.studio-chrome [data-card-state="hover"] .vs {
+  transform: translateY(0);
+}
+.studio-chrome [data-card-state="hover"] .wc-shot > img,
+.studio-chrome [data-card-state="hover"] .wc-shot > svg {
+  transform: scale(1.045);
+}
+.studio-chrome [data-card-state="hover"] .wc-shot {
+  border-color: transparent;
+}
+/* THE GLOW AND THE RAIL DOT, AND FINDING THEM IS WHY THE GATE COUNTS RULES RATHER THAN TRUSTING
+   A LIST. The first draft of this block mirrored four rules and stopped, because those were the
+   four the veil made obvious. `.work-card:hover` also lights `--gl` and grows the rail's category
+   dot — two more, both easy to miss precisely because neither is the thing you are looking at.
+   `--gl` is behind `@media (hover: hover)` publicly; here it is unconditional, because a drawn
+   hover state is not a hover and must not depend on the device having one. */
+.studio-chrome [data-card-state="hover"] .work-card,
+.studio-chrome [data-card-state="hover"].work-card {
+  --gl: 1;
+}
+.studio-chrome [data-card-state="hover"] .wc-rail .cat::before {
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+/* REDUCED MOTION MIRRORS THE PUBLIC EXEMPTION RATHER THAN OPTING OUT OF IT. Publicly, reduce
+   removes the image zoom and leaves the veil copy untranslated so nothing is trapped in a half
+   state — the veil still toggles, so the story stays reachable. The drawn hover does the same, or
+   the canvas would show a zoom the live page refuses. */
+@media (prefers-reduced-motion: reduce) {
+  .studio-chrome [data-card-state="hover"] .wc-shot > img,
+  .studio-chrome [data-card-state="hover"] .wc-shot > svg {
+    transform: none;
+  }
+}

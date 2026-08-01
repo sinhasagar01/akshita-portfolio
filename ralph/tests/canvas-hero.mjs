@@ -173,10 +173,21 @@ const projects = code("components/studio/ProjectsEditPanel.tsx");
 t("E: onChanged carries the committed path and the FILE",
   /onChanged: \(info: \{ heroImage: string \| null; file: File \| null \}\) => void/.test(projects), true);
 t("E: …and is called with both", /onChanged\(\{ heroImage: committed, file \}\)/.test(projects), true);
-// PROJECTS IGNORES THE PAYLOAD. A zero-arg arrow is assignable to a one-arg type, which is
-// what made this widening safe to do in a shared component rather than forking it.
-t("E: projects still passes a ZERO-ARG arrow and is unchanged",
-  /onChanged=\{\(\) => setUnpublished\(true\)\}/.test(projects), true);
+// PROJECTS NOW CONSUMES THE PAYLOAD, AND THIS ASSERTION IS RETIRED RATHER THAN ROUTED AROUND.
+// It recorded a real decision: when `onChanged` was widened for blog, projects kept a zero-arg
+// arrow, and asserting that PROVED the widening was safe in a shared component rather than a
+// fork. The Details canvas is the thing that reverses it — projects now needs the same two
+// halves blog needed, for the same reason, so the decision it pinned no longer holds.
+// WHAT REPLACES IT IS THE STRONGER CLAIM: both consumers take the payload, and each one owns and
+// revokes its object URL. A zero-arg arrow staying assignable was the old proof that the
+// signature was compatible; two live consumers is a better one.
+t("E: projects CONSUMES the payload now — the Details canvas needs the file, as blog did",
+  /onChanged=\{\(info\) => \{[\s\S]{0,200}?adoptPreview\(info\.file\)/.test(projects), true);
+t("E: …and owns its object URL, revoking on replace and on unmount",
+  /URL\.revokeObjectURL\(ownedPreview\.current\)/.test(projects)
+    && /useEffect\(\s*\(\) => \(\) => \{/.test(projects), true);
+t("E: RETIRED — projects no longer passes a zero-arg arrow, which is the point",
+  /onChanged=\{\(\) => setUnpublished\(true\)\}/.test(projects), false);
 t("E: blog lifts the value into its own state",
   /setHero\(\{ path: info\.heroImage, preview: adoptPreview\(info\.file\) \}\)/.test(blogPanel), true);
 // NOT useDraftForm: the hero is committed by the upload route, not by the head patch, so

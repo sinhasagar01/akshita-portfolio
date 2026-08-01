@@ -3,7 +3,25 @@ import Link from "next/link";
 import type { ProjectListItem } from "@/lib/keystatic";
 import { PROJECT_SVGS, FallbackProjectSvg } from "./ProjectCardSvgs";
 
-type Props = { project: ProjectListItem };
+type Props = {
+  project: ProjectListItem;
+  /**
+   * Skip the image optimizer, emitting the src as a plain `<img>`.
+   *
+   * FOR THE STUDIO'S DETAILS CANVAS. A COMMITTED hero is a plain public path and optimizes fine —
+   * 200 through `/_next/image`. A hero that changed on the DRAFT branch is served by the
+   * owner-gated proxy, and one uploaded THIS SESSION is a `blob:` url. Neither survives the
+   * optimizer.
+   * AND STATE:1660's STATED MECHANISM IS RIGHT, WHICH I ONLY ESTABLISHED BY READING THE SERVER
+   * LOG. From the browser the proxy answers 200 (the cookie is there) and the optimizer answers
+   * 400, which looks like the optimizer merely refusing the url shape. It is not: the server log
+   * shows the optimizer's own refetch of that url returning **401**, then reporting "isn't a
+   * valid image … received null". The 400 the client sees is the optimizer's outward response to
+   * its own 401. Measuring only the client half gave the wrong cause for the right symptom.
+   * DEFAULTS TO UNDEFINED, so the public render is byte-identical and the DOM gate proves it.
+   */
+  unoptimized?: boolean;
+};
 
 // Rail label: the category (title-cased) plus facts.platform, but drop the platform
 // segment when it only restates the category (case-insensitive), so "web" + "Web" and
@@ -28,7 +46,7 @@ function railCategory(category: string, platform: string): string {
  * hover duplicate (aria-hidden), and the summary reaches AT through a visually-hidden
  * node the anchor points at with aria-describedby, so it is never lost to the veil.
  */
-export default function ProjectCard({ project }: Props) {
+export default function ProjectCard({ project, unoptimized }: Props) {
   const { slug, title, summary, facts, category, heroImage } = project;
   // Show the uploaded heroImage when there is one, else the hand-built mock. (elevate-one-view
   // was force-fallen-back while its uploaded hero was a portrait phone shot unusable in the
@@ -55,6 +73,7 @@ export default function ProjectCard({ project }: Props) {
             fill
             sizes="(min-width: 1024px) 500px, 100vw"
             className="object-cover"
+            unoptimized={unoptimized}
           />
         ) : (
           svg
