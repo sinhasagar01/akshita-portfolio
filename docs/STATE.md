@@ -3312,6 +3312,50 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#268** the seven shadow literals become a declared overlay scale →1856 (`studio-ink` 222→234,
+  C10 new).
+
+  #267's own follow-up, taken. Seven copy-pasted literals across seven files, five distinct
+  values, **two already drifted off the tiers they belonged to**. #168 recorded the modal's as an
+  EXCEPTION; six call sites later it was a convention nobody had declared.
+
+  **THEY ARE NOT THE LIFT STEPS, AND TRYING TO MAKE THEM SO IS WHAT PROVED IT.** The lift scale is
+  a CARD lifting off a grid; these float OVER the page. Measured as darkening against a cream-100
+  ground, reach as blur+spread:
+
+  | | overlay | | card |
+  |---|---|---|---|
+  | modal | **2.845** / 36 | lift-active | **1.584** / 20 |
+  | floating | 2.530 / 20 | lift-hover | 1.433 / 14 |
+  | popover | 1.306 / 30 | lift-rest | 1.247 / 5 |
+
+  **The heaviest CARD step is lighter than every overlay but the popover.** Repointing the modal
+  onto it would have cut its darkening 44% and halved its reach — a regression wearing a
+  migration's clothes. Own three steps instead, named by role, in the same block.
+
+  **AND THE INK DIFFERS, WHICH IS THE HALF THAT WOULD HAVE GONE UNNOTICED.** Every legacy literal
+  uses `rgb(60,45,30)`; `ink-950` is `rgb(15,7,3)`, **distance 65**, and NO declared token is
+  closer than `ink-800` at 20. So the literal ink STAYS. A shadow ink with no honest token is a
+  worse reason to invent one than to keep the number — the inverse of the `--ease-glide` call,
+  and the same principle: do not create a second name, and do not force a value onto a name that
+  is not it.
+
+  **FIVE OF SEVEN ARE BYTE-IDENTICAL.** The two that moved are both BoldToolbar's and both drift:
+  the toolbar carried the only `rgba(60,50,38)` in the studio at reach 12 (2.189 → 2.530), and the
+  link dialog carried `-18px/0.4` where its tier is `-20px/0.45` (2.231 → 2.530). Declared at
+  their own call sites rather than folded into a rename.
+
+  **AND I WROTE THE COMMENT TRAP AGAIN, ONE PR AFTER FIXING IT — the ninth firing.** C10's drift
+  checks are ABSENCE assertions over source whose comments NAME the absent values, so raw source
+  contains `60,50,38` in prose forever and the assertion failed on its own documentation. F5 was
+  comment-stripped in #267 for exactly this, with a note explaining it. **Reading that note did
+  not stop me writing it again; the mutation did.** The durable form: *an absence assertion over
+  source that documents what is absent MUST strip comments.*
+
+  All three tiers verified painting their declared values in the running studio, including a real
+  modal opened to check the singleton tier. Public DOM byte-identical; CSS zero removed. Six
+  mutations kill six assertions.
+
 - **#267** the Board — fluid columns of elevated cards, and it opens on the Editor →1845
   (`studio-ink` 200→222, C9 new; F5 comment-stripped and revalued 29→30).
 

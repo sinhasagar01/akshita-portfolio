@@ -3135,9 +3135,10 @@ a {
    caller. NAMED BY ROLE, so a new elevated surface picks by what it IS rather than by copying a
    literal, which is exactly how the five above multiplied.
 
-   NOT MIGRATING THE EXISTING SEVEN. Those are popovers, bars and a modal — a different family
-   from a card lifting off a grid, and repointing them is a sweep with its own measurements and
-   its own risk. Recorded as the obvious follow-up rather than smuggled in here. */
+   THE EXISTING SEVEN ARE MIGRATED NOW, AND NOT ONTO THESE THREE. The first pass left them alone
+   and recorded the sweep as a follow-up; the sweep found they are a genuinely different family
+   and gave them their own three steps below rather than forcing them onto a card's. The reasoning
+   for that, with the numbers, is on the overlay block itself. */
 .studio-chrome {
   /* A CARD SITTING ON THE SURFACE. Barely there — at fourteen cards the rest state is the page's
      texture, not its subject, so it reads as separation rather than as shadow. */
@@ -3148,6 +3149,39 @@ a {
   /* THE SELECTED CARD. Deeper than hover and with NO rise, so selection is a state the card holds
      rather than a gesture it is performing. */
   --studio-lift-active: 0 2px 5px oklch(14% 0.018 60 / 0.08), 0 12px 28px -8px oklch(14% 0.018 60 / 0.2);
+
+  /* ---- THE OVERLAY FAMILY, AND IT IS A SECOND FAMILY RATHER THAN MORE STEPS OF THE FIRST ----
+     The three above are a CARD lifting off a grid. These three are surfaces that float OVER the
+     page — a dropdown, a bar, a modal. They were seven copy-pasted literals across seven files
+     before this, which is the drift the block above was declared to stop, so they are declared
+     here rather than left as the exception that outlived its exception.
+
+     THEY ARE NOT THE LIFT STEPS, AND THE ATTEMPT TO MAKE THEM SO IS WHAT PROVED IT. Measured as
+     darkening against a cream-100 ground, with reach as blur+spread:
+         modal        2.845   reach 36        lift-active  1.584   reach 20
+         floating     2.530   reach 20        lift-hover   1.433   reach 14
+         popover      1.306   reach 30        lift-rest    1.247   reach  5
+     The HEAVIEST card step is lighter than every overlay but the popover. Repointing the modal
+     onto it would have cut its darkening by 44% and halved its reach — a regression wearing a
+     migration's clothes.
+
+     AND THE INK IS DIFFERENT TOO, WHICH IS THE PART THAT WOULD HAVE GONE UNNOTICED. Every legacy
+     literal uses rgb(60,45,30); ink-950 is rgb(15,7,3), a distance of 65. NO declared token is
+     closer than ink-800 at 20, which is still visibly apart, so the literal ink STAYS rather than
+     being rounded onto a token that would change every floating surface in the studio. A shadow
+     ink with no honest token is a worse reason to invent one than to keep the number. */
+
+  /* A DROPDOWN OR A LISTBOX PANEL — close to its trigger, so it reads as attached rather than
+     lifted. Wide and faint: the widest reach of the three at the lightest ink. */
+  --studio-lift-popover: 0 8px 30px rgba(60, 45, 30, 0.14);
+  /* A SURFACE THAT FLOATS FREE OF ITS TRIGGER — the publish bar, the block toolbar, the link
+     dialog. Tighter reach than the popover but far darker, because it has to hold its own edge
+     over arbitrary content rather than over the field that opened it. */
+  --studio-lift-floating: 0 18px 40px -20px rgba(60, 45, 30, 0.45);
+  /* THE MODAL, AND IT IS THE ONLY THING AT THIS WEIGHT ON PURPOSE. It sits over a dimmed page and
+     has to separate from a ground that is already dark, which nothing else here does. One
+     consumer today, declared rather than inferred. */
+  --studio-lift-modal: 0 30px 60px -24px rgba(60, 45, 30, 0.5);
 }
 
 /* ============================================================ STUDIO HOVER TIERS

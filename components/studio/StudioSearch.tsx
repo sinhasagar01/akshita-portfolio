@@ -166,7 +166,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           id={listboxId}
           role="listbox"
           aria-label="Search results"
-          className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-auto rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 py-1 shadow-[0_8px_30px_rgba(60,45,30,0.14)]"
+          className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-auto rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 py-1 shadow-[var(--studio-lift-popover,0_8px_30px_rgba(60,45,30,0.14))]"
         >
           {results.length === 0 ? (
             <li className="px-3 py-2 text-[12px] text-text-subtle">No results</li>
