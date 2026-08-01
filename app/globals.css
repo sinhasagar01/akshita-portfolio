@@ -2999,3 +2999,114 @@ a {
   line-height: 1;
   text-transform: uppercase;
 }
+
+/* ============================================================ STUDIO SCROLLBARS — THE HAIRLINE
+   Scoped to /studio beside the radius and motion blocks and for the same reason: this serves the
+   studio's chrome, @theme serves the public site, and a change to either must not drag the other.
+
+   WHAT WAS WRONG IS NOT A COLOUR, IT IS THAT NOTHING WAS STYLED. Every scrollable surface in the
+   studio rendered the platform default. THE DEFECT IS THE INK SIDEBAR: a light platform trough is
+   the single loudest thing on the darkest surface in the product, and it is INVISIBLE TO ANYONE
+   DEVELOPING ON A MAC with overlay scrollbars. #248's shape — the bug lives in the regime the
+   author never occupies. This machine renders classic 15px bars, which is the only reason it was
+   catchable at all.
+
+   THE STANDARD PROPERTIES ARE FENCED, AND THAT IS THE WHOLE REASON THIS BLOCK IS SHAPED THIS WAY.
+   Chrome 148 supports `scrollbar-width`, and setting it DISCARDS every ::-webkit-scrollbar rule on
+   the same element. Measured in the running studio: webkit alone renders 6px, `scrollbar-width:
+   thin` + webkit renders **11px**, and `scrollbar-color` alone + webkit renders **15px**. The
+   contract's own CSS writes both, so porting its shape literally would have shipped an 11px bar
+   with no radius and no hover — the mock mis-draws its own spec in current Chrome.
+   `@supports not selector(::-webkit-scrollbar)` is false in Chromium and true in Firefox, so each
+   engine takes exactly one path and neither needs to know about the other. No UA sniffing.
+
+   THE DOCUMENT SCROLLER IS DELIBERATELY NOT HERE, AND THE SCOPING IS WHAT EXCLUDES IT.
+   `scrollbar-gutter: stable` on `html` (line 222) reserves the platform scrollbar's width, and
+   `usePageWidthMin` reads `documentElement.clientWidth`. MEASURED: styling html's own scrollbar —
+   including through `html:has(.studio-chrome)`, which does match — moves the reserved gutter from
+   15 to 6 and clientWidth from 1425 to 1434, so every studio threshold would shift 9px. That is
+   #235's discrepancy re-opened by a cosmetic change. A `.studio-chrome`-scoped rule cannot reach
+   `html`, so the scope the contract already asked for is what protects the gutter. The contract
+   lists "the document" among its surfaces AND mandates this scoping; it cannot have both.
+
+   IT DOES CHANGE LAYOUT INSIDE THE STUDIO, WHICH IS STATED RATHER THAN GLOSSED. The bar narrows
+   15 -> 6, so every pane's CONTENT box gains 9px. Border-boxes are untouched, so `three-pane.ts`'s
+   constants and every threshold derived from them are unaffected.
+
+   6px IS A FLOOR, NOT A PREFERENCE. Below it the thumb is a target you miss; above 8 it stops
+   being a hairline. The thumb's LENGTH needed no separate step for small boxes: measured on the
+   studio's smallest textarea (min-h-[46px], SectionsEditPanel) with 2000px of content, the thumb
+   renders ~18px where proportion would give 3.7 — WebKit enforces a minimum length, so a short box
+   cannot produce an ungrabbable thumb. The contract's proposal stands for a reason it had not
+   identified.
+
+   FIREFOX IS UNVERIFIED, NOT ASSUMED. The only browser available here is Chromium. Firefox takes
+   the fenced block and gets the colours — the half that matters for the sidebar — but `thin` is
+   roughly 11px there rather than 6, and it has no radius, no hover and no track control. That is
+   the EXPECTED behaviour and it has NOT been measured. Recorded as a stated difference. */
+.studio-chrome ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.studio-chrome ::-webkit-scrollbar-track,
+.studio-chrome ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.studio-chrome ::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* THE CREAM THUMB IS AN ALPHA OVER ITS SURFACE, AND THAT IS A CORRECTION TO THE CONTRACT.
+   The contract states the rule as a RELATION — "one step of separation from the surface the bar
+   sits on" — and then specifies a fixed VALUE, cream-300. A fixed value cannot hold a relation
+   across three different grounds, and measured it does not: cream-300 lands at 1.37 / 1.30 / 1.19
+   on cream-50 / 100 / 200, WORST on the list rails, which is the surface with the most scrolling.
+   An alpha over the surface IS the relation, so it lands on one number everywhere — measured
+   1.654 / 1.652 / 1.638. It is also the studio's existing hairline value, border-ink-950/22,
+   rather than a new kind of value.
+   RELATION ENCODED AS A VALUE — the contract's own correction.
+
+   THE TWO SIDES DO NOT SHARE AN ALPHA, AND THAT IS THE POINT RATHER THAN A COMPROMISE. 22% of ink
+   over cream and 18% of white over ink are the same EXPRESSION in two directions, but the
+   luminance curve is not symmetric, so equal alphas would not give equal separation. These two
+   were tuned until the measured separation matched — 1.638-1.654 on cream, 1.63 on ink. The
+   relation the contract states is a separation, so the separation is what is held equal, not the
+   number that produces it.
+   18% WAS THE FIRST VALUE AND IT MISSED BY 0.01 — cream-200 landed at 1.494 against a stated 1.50
+   floor. Fitting the floor to the value would have been the easy repair and the dishonest one,
+   directly after the ink hover was bumped from 2.99 for exactly that reason. */
+.studio-chrome ::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--color-ink-950) 22%, transparent);
+  border-radius: 99px;
+}
+.studio-chrome ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-400);
+}
+
+/* THE INK SIDEBAR, AND THE SELECTOR TARGETS THE ELEMENT ITSELF RATHER THAN ITS DESCENDANTS.
+   That is not stylistic. The sidebar CONTAINS a second scroller — the horizontal nav row — which
+   scrolls only BELOW lg, and below lg the sidebar is bg-cream-100 rather than bg-ink-950. A
+   descendant selector would put a white thumb on a cream ground at exactly the widths where that
+   row is the one that scrolls. The sidebar's own scroll is lg:-gated, so it only ever scrolls
+   where it is ink, and the nav row keeps the cream rule above.
+   HOVER IS white/40 RATHER THAN THE CONTRACT'S /34, and the reason is a measurement: /34 lands at
+   2.99 against ink-950, missing the 3:1 non-text floor by a rounding error. /40 measures 3.74. */
+.studio-chrome #studio-sidebar::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, white 18%, transparent);
+}
+.studio-chrome #studio-sidebar::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, white 40%, transparent);
+}
+
+/* FIREFOX ONLY. Fenced so Chromium never sees these — see the block comment above; setting either
+   property there silently discards every webkit rule and renders 11px. Firefox has no hover state
+   for a thumb, so the REST colour is all there is; the sidebar's is the one that matters. */
+@supports not selector(::-webkit-scrollbar) {
+  .studio-chrome * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--color-ink-950) 22%, transparent) transparent;
+  }
+  .studio-chrome #studio-sidebar {
+    scrollbar-color: color-mix(in oklch, white 18%, transparent) transparent;
+  }
+}
