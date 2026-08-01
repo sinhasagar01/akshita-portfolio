@@ -856,7 +856,15 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // protects. Every RULE in the mini takes a 2px radius instead, because at 3px tall a full
     // round and a 2px radius are the same pixels and a pill spent on something indistinguishable
     // dilutes the count. F5d names the two sites.
-    t("F5: the 30 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 30);
+    // REVALUED 30 -> 31 IN THE DETAILS CANVAS PR. The filter-row preview draws the work
+    // section's three tabs, and a filter tab is a pill on the public site — `.work-filter button`
+    // is `border-radius: 99px`. So this is the shape being COPIED faithfully rather than a new
+    // one appearing: the preview would be wrong with square tabs. One literal, inside a map over
+    // the three filters. F5e names the site.
+    t("F5: the 31 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 31);
+    t("F5e: …and the 31st is the filter-row preview, which copies the public tab's own radius",
+      /rounded-full border px-3 py-1 text-\[12px\] font-semibold capitalize/.test(
+        code("components/studio/DetailsCanvas.tsx")), true);
     t("F5d: …and the two new ones are the mini's DOTS, the stepper's marker and the annotated pins",
       /numbered \? "rounded-full"/.test(code("components/studio/SectionMini.tsx"))
         && /absolute size-\[7px\] rounded-full bg-accent-500/.test(code("components/studio/SectionMini.tsx")), true);
@@ -1563,6 +1571,97 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     (seg.match(/onChange\?\.\(prev\)/g) ?? []).length, 1);
   t("C11: …and the two silent reverts stay silent",
     /setValue\(prev\);\s*setNote\("Save failed"\);/.test(seg), true);
+}
+
+/* ---- C12 · THE DETAILS CANVAS ----------------------------------------------------------------
+ * The canvas renders `ProjectCard` ITSELF with draft values — #178's rule — and draws it in BOTH
+ * states side by side, because the summary is invisible at rest. */
+{
+  const canvas = code("components/studio/DetailsCanvas.tsx");
+  const card = code("components/sections/ProjectCard.tsx");
+
+  t("C12: the canvas renders the PUBLIC component, not a lookalike",
+    /import ProjectCard from "@\/components\/sections\/ProjectCard"/.test(canvas)
+      && /<ProjectCard project=\{project\}/.test(canvas), true);
+  t("C12: …and draws BOTH states, because the summary lives only in the hover veil",
+    /\["rest", "At rest"[\s\S]{0,120}?\["hover", "On hover"/.test(canvas), true);
+
+  /* THE DRAWN HOVER MUST CHANGE EXACTLY WHAT THE REAL ONE CHANGES. `:hover` cannot be set from
+   * script, so the second card is drawn by re-asserting the hover declarations against a data
+   * attribute — and the failure mode is a hover property added publicly and not mirrored, after
+   * which the canvas silently previews something the page does not do. The two property SETS are
+   * compared rather than a hand-written list, so a new property fails here on the day it lands.
+   * Finding them by hand is exactly what went wrong first: the initial block mirrored four rules
+   * and missed `--gl` and the rail dot. */
+  /* COMPARED BY TARGET, NOT BY PROPERTY SET, AND THE FIRST VERSION WAS THE LOOSER ONE. It
+   * gathered every property each side declares and diffed those — which passes when a whole rule
+   * goes missing, because `opacity` and `transform` are each declared by more than one rule.
+   * Deleting the rail-dot mirror left the property set identical and the gate green; the mutation
+   * is what showed it. What actually matters is that every ELEMENT the public hover reaches has a
+   * drawn counterpart, so the targets are what get compared. */
+  /* COMMENT-STRIPPED, AND THAT IS THE TENTH FIRING OF THIS TRAP IN THIS REPO. The prose above
+   * these rules NAMES `.work-card` and the attribute selector while explaining them, so a parser
+   * over raw CSS reads the explanation as selectors — it produced targets like "both easy to miss
+   * precisely because neither is the thing you are looking at". Every previous firing was the
+   * same shape and each fix was local; the durable form is that ANY parser over source whose
+   * comments discuss the thing being parsed must strip them first.
+   * `:focus-visible` SIBLINGS ARE DROPPED, and that is correct rather than convenient: the public
+   * rules list hover and focus-visible together in one declaration block, so they are the same
+   * declarations reached two ways. The drawn state mirrors the hover half by design — a drawn
+   * card has no focus — so counting the focus selectors would demand mirrors for a state the
+   * canvas cannot enter. */
+  const cssCode = globals.replace(/\/\*[\s\S]*?\*\//g, "");
+  const targetsOf = (re) => {
+    const out = new Set();
+    for (const m of cssCode.matchAll(re)) {
+      for (const sel of m[0].slice(0, m[0].indexOf("{")).split(",")) {
+        const raw = sel.trim();
+        if (/:focus-visible/.test(raw)) continue;
+        const t = raw.replace(/^\.studio-chrome\s+/, "")
+          .replace(/\.work-card:hover\s*/, "").replace(/\[data-card-state="hover"\]\s*/, "")
+          .replace(/^\.work-card$/, "").trim();
+        out.add(t === "" ? "(the card itself)" : t);
+      }
+    }
+    return [...out].sort();
+  };
+  const pubT = targetsOf(/\.work-card:hover[^{]*\{[^}]*\}/g);
+  const drawnT = targetsOf(/\[data-card-state="hover"\][^{]*\{[^}]*\}/g);
+  t("C12: both hover blocks parse to real targets — an empty parse would pass the diff below",
+    pubT.length >= 5 && drawnT.length >= 5, true);
+  t(`C12: every element the public hover reaches has a drawn counterpart${
+      pubT.filter((x) => !drawnT.includes(x)).length
+        ? ` — missing: ${pubT.filter((x) => !drawnT.includes(x)).join(" | ")}` : ""}`,
+    pubT.filter((x) => !drawnT.includes(x)), []);
+
+  /* EVERY drawn rule scoped, not just one. The first version asked whether `.studio-chrome
+   * [data-card-state=` appeared ANYWHERE, which one scoped rule satisfies while its siblings leak. */
+  const drawnRules = [...cssCode.matchAll(/[^{}\n]*\[data-card-state="hover"\][^{]*\{/g)].map((m) => m[0]);
+  t("C12: the drawn rules were found — nothing below is vacuous", drawnRules.length >= 5, true);
+  t("C12: …and EVERY one is .studio-chrome-scoped, so the public card is untouched",
+    drawnRules.filter((r) => !r.trim().startsWith(".studio-chrome")).map((r) => r.trim().slice(0, 60)), []);
+
+  /* THE CARD WIDTH IS MEASURED, NOT DERIVED. The container arithmetic gives 600 — 1280 capped,
+   * 24 padding a side, `(1232-32)/2`. The page gives 516, because the grid is inside
+   * `.section-card`, which takes its own margin and then 52px of padding a side. A preview at 600
+   * would reflow the veil body the author is editing, at a width no browser produces. */
+  t("C12: the card is drawn at the MEASURED slot width, not the derived one",
+    /const CARD_W = 516;/.test(canvas), true);
+
+  /* THE OPTIMIZER SEAM. A committed hero optimizes; the draft proxy and a blob do not — the
+   * optimizer's own refetch of the proxy 401s, and the browser sees its 400. One optional prop,
+   * defaulting to undefined so the public render is byte-identical. */
+  t("C12: ProjectCard takes an optional unoptimized, defaulting to undefined",
+    /unoptimized\?: boolean;/.test(card) && /unoptimized=\{unoptimized\}/.test(card), true);
+  t("C12: …and the canvas sets it only when the src is not a plain public path",
+    /const unoptimized = src !== heroImage;/.test(canvas), true);
+
+  /* TWO FIELDS DO NOT RENDER AND THAT IS STATED. `category` gets the filter row because it has a
+   * real public consequence; `type` gets nothing, because it renders nowhere. */
+  t("C12: category's preview is the filter row",
+    /FILTERS\.map/.test(canvas) && /Filter row/.test(canvas), true);
+  t("C12: …and NO surface is invented for `type`",
+    /facts: \{ role: "", type: "", platform, timeline: "" \}/.test(canvas), true);
 }
 
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);

@@ -875,6 +875,7 @@ export default function SectionsEditPanel({
   template = "",
   draftImages = NO_DRAFT_IMAGES,
   detailsNode,
+  detailsCanvas,
   detailsDirty = false,
   livePath,
   studies,
@@ -887,6 +888,11 @@ export default function SectionsEditPanel({
    *  the rail's Details entry is selected. Passed as a node so that panel keeps its own
    *  useDraftForm — two forms, two save seams, exactly as before. */
   detailsNode?: ReactNode;
+  /** What the CANVAS shows while Details is selected. Until this existed the canvas went blank
+   *  there — a full inspector beside an empty pane — which is the gap PR 2 closes. Passed in
+   *  rather than built here for the same reason `detailsNode` is: this panel owns the sections,
+   *  and the details fields belong to the panel above it. */
+  detailsCanvas?: ReactNode;
   /** Whether that form has unsaved edits, for the rail's Details marker. */
   detailsDirty?: boolean;
   /** Resolved server-side; see the route. */
@@ -1609,6 +1615,12 @@ export default function SectionsEditPanel({
   // the INSPECTOR is the one that must render exactly once, and it does.
   const canvasNode = (
     <div className="min-w-0">
+        {/* DETAILS TAKES THE CANVAS WHEN IT IS SELECTED, and the section canvas is HIDDEN rather
+            than swapped — the same discipline the forms below it follow. The section render holds
+            no form state, but the dock beside it does, and a ternary here would have been the one
+            composition mount-discipline exists to refuse. */}
+        {detailsCanvas ? <div hidden={!showDetails}>{detailsCanvas}</div> : null}
+        <div hidden={showDetails}>
         {/* CS-7c — the inline canvas: a live, read-only render of the selected
             section above the forms. The forms stay the edit surface (CS-7d moves
             editing onto the canvas). */}
@@ -1882,6 +1894,7 @@ export default function SectionsEditPanel({
             </div>
           );
         })()}
+        </div>
     </div>
   );
 

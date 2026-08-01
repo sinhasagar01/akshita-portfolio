@@ -14,6 +14,8 @@ import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import SectionsEditPanel from "./SectionsEditPanel";
+import DetailsCanvas from "./DetailsCanvas";
+import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
 import { inputClsMd, labelCls, FieldKey} from "./blocks/fields";
@@ -92,6 +94,30 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // editor has to render with the right one from the start. Seeded from the
   // server prop, then owned by the toggle.
   const [templateValue, setTemplateValue] = useState(template);
+  // LIVE CATEGORY, SO THE CANVAS'S FILTER ROW TRACKS THE TOGGLE. `SegmentedToggle` already takes
+  // an optional `onChange` — the template caller has always supplied it — so this is the existing
+  // seam gaining its second consumer rather than a new API.
+  const [categoryValue, setCategoryValue] = useState(category);
+  // THE SESSION HERO. `draftImages` is a snapshot taken server-side at page load, so a hero
+  // uploaded THIS session is on the draft branch and absent from it; the committed path then
+  // 404s against main until publish. An object URL covers exactly that window — #190's
+  // precedence, which `resolveHeroSrc` implements. Owned, so it is revoked rather than leaked.
+  const [heroDraft, setHeroDraft] = useState<{ path: string | null; preview: string | null }>({
+    path: heroImage,
+    preview: null,
+  });
+  const ownedPreview = useRef<string | null>(null);
+  const adoptPreview = (file: File | null) => {
+    if (ownedPreview.current) URL.revokeObjectURL(ownedPreview.current);
+    ownedPreview.current = file ? URL.createObjectURL(file) : null;
+    return ownedPreview.current;
+  };
+  useEffect(
+    () => () => {
+      if (ownedPreview.current) URL.revokeObjectURL(ownedPreview.current);
+    },
+    []
+  );
   const [draftImages, setDraftImages] = useState<string[]>([]);
   const [sectionsStatus, setSectionsStatus] = useState<
     "idle" | "loading" | "loaded" | "error"
@@ -201,6 +227,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             <CategoryToggle
               slug={slug}
               initial={category}
+              onChange={setCategoryValue}
               onSaved={() => setUnpublished(true)}
             />
           </div>
@@ -249,7 +276,18 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           </span>
         </label>
 
-        <HeroImageField slug={slug} collection="projects" initial={heroImage} onChanged={() => setUnpublished(true)} />
+        {/* WIDENED TO KEEP BOTH HALVES. It discarded the committed path AND the File, so nothing
+            on this panel could show a hero the author had just picked. Blog's call site is the
+            shape being followed. */}
+        <HeroImageField
+          slug={slug}
+          collection="projects"
+          initial={heroImage}
+          onChanged={(info) => {
+            setHeroDraft({ path: info.heroImage, preview: adoptPreview(info.file) });
+            setUnpublished(true);
+          }}
+        />
 
         <label className="flex flex-col gap-1.5">
           <FieldKey>Summary</FieldKey>
@@ -397,6 +435,18 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       template={templateValue}
       draftImages={draftImages}
       detailsNode={detailsNode}
+      detailsCanvas={
+        <DetailsCanvas
+          slug={slug}
+          title={title}
+          heroImage={heroDraft.path}
+          heroPreview={heroDraft.preview}
+          summary={values.summary}
+          platform={values.facts.platform}
+          category={categoryValue}
+          rewriteSrc={makeDraftSrcRewriter(draftImages)}
+        />
+      }
       detailsDirty={dirty}
       livePath={livePath}
       studies={studies}
@@ -700,10 +750,16 @@ function TemplateToggle({
 function CategoryToggle({
   slug,
   initial,
+  onChange,
   onSaved,
 }: {
   slug: string;
   initial: string;
+  /** Report the value up so the canvas's filter row tracks it. `SegmentedToggle` has always
+   *  accepted this — only the template wrapper forwarded it, so this is the existing seam gaining
+   *  its second consumer rather than a new prop. #164's asymmetry rides along unchanged: it fires
+   *  optimistically and on the fs-noop revert, and NOT on a network failure. */
+  onChange?: (value: string) => void;
   onSaved: () => void;
 }) {
   return (
@@ -713,6 +769,7 @@ function CategoryToggle({
       patchKey="category"
       label="Category"
       ariaLabel="Work filter category"
+      onChange={onChange}
       onSaved={onSaved}
     />
   );
