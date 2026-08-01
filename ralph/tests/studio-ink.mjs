@@ -527,13 +527,19 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
     bandOutsideInspector, []);
 }
 
-/* ================================================ C4. SELECTION TREATMENT, BY ROLE
+/* ================================================ C4. SELECTION TREATMENT, BY FUNCTION
  *
  * The rule was already in source and unstated, which is how a fourth treatment appeared without
  * anything failing:
  *
- *   role="group" + aria-pressed    -> the accent FILL   (SegmentedToggle, Board|Editor, view)
- *   role="tablist" + aria-selected -> the UNDERLINE     (Content|Style, and now the hero tabs)
+ *   a two-state MODE switch       -> the accent FILL  (SegmentedToggle, Board|Editor, view,
+ *                                                     and Content|Style since #263)
+ *   a switch between CONTENT SETS -> the UNDERLINE   (the hero tabs)
+ *   a VERTICAL list rail          -> fill + left bar (ListDetailLayout)
+ *
+ * SUPERSEDED WORDING, KEPT BECAUSE A REVERSAL NEEDS ITS ORIGINAL. This read:
+ *   role="group" + aria-pressed -> FILL / role="tablist" + aria-selected -> UNDERLINE.
+ * It described two of the three tablists, which is what #263 found when the owner overruled C-29.
  *
  * The hero tabs were the only tablist wearing an accent TINT. The contract asked them to take
  * the FILL, which would have given TABLISTS TWO LANGUAGES in order to make one control match a
@@ -558,10 +564,72 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   // source rather than retyped here.
   const selectedOf = (src) => (/\? "(border-accent-500[^"]*)"/.exec(src)?.[1] ?? "")
     .split(/\s+/).filter((tok) => !/^font-/.test(tok)).sort();
-  t("C4: Content|Style — the precedent tablist — marks its selection with the underline",
-    selectedOf(cs), ["border-accent-500", "text-ink-950"]);
-  t("C4: …and the hero tabs use the SAME language, not a fourth treatment",
-    selectedOf(hero), selectedOf(cs));
+  /* ---- C4 RESTATED: THE RULE IS BY FUNCTION, NOT BY ROLE (#263 overrules C-29) --------------
+   * This pair used to assert that BOTH tablists take the underline, encoding C-20's by-role rule.
+   * **That rule was already false of a third of its own subjects the day it was written**:
+   * `ListDetailLayout`'s VERTICAL list rail is `role="tablist"` + `aria-selected` and takes a
+   * cream fill plus a 3px accent LEFT BAR — its own comment calls that "the studio's one
+   * selection language". Two of three is not a rule about roles.
+   *
+   * ASSERTED AS A DIFFERENCE, DELIBERATELY. The old pair said "these two are the same"; saying
+   * "these two are now different" is weaker unless each side is pinned to its own treatment, so
+   * all three are — otherwise a later sweep could take them to one language and still satisfy a
+   * rule that only ever compared two. */
+  /* SCOPED TO CONTENT|STYLE'S OWN CLASS EXPRESSION, and the first draft was NOT — it tested the
+   * whole file for `? "bg-accent-500 text-cream-50"` and PASSED by matching Board|Editor at
+   * :2107, a different control entirely. Mutating the real tab left it green. That is precisely
+   * the lesson recorded twelve lines above for the hero tabs — "an assertion that pins more than
+   * its subject fails for the wrong reason" — repeated immediately beneath its own warning.
+   * The tablist's aria-label is the anchor because it appears once and only in markup. */
+  const csTab = /aria-label="Section content and style"[\s\S]*?\]\.join\(" "\)\}/.exec(
+    cs.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")
+  )?.[0] ?? "";
+  t("C4: the Content|Style tab's own class expression was found — nothing below is file-wide",
+    csTab.length > 0, true);
+  t("C4: Content|Style takes the segmented FILL — it is a two-state mode switch",
+    /\?\s*"bg-accent-500 text-cream-50/.test(csTab), true);
+  t("C4: …and keeps NO underline, so the two languages are not both applied",
+    /border-b-2/.test(csTab), false);
+  t("C4: the hero tabs KEEP the underline — they switch between content sets, so C-20 is narrowed",
+    selectedOf(hero), ["border-accent-500", "text-ink-950"]);
+  /* ---- C4b · THE CONTRACT'S `.seg` VALUES, DERIVED FROM THE FILE RATHER THAN RETYPED --------
+   * The contract is read here so the assertion cannot drift from it silently — if someone edits
+   * `.seg` the expected values move with it and this fails until the app follows. The MARGIN is
+   * deliberately excluded: `.seg{margin:12px 14px 0}` carries the same 14 as `.ibody`, which
+   * correction 31 recorded as the mock's own card padding. */
+  {
+    const contract = readFileSync(new URL("../../docs/studio/studio-field-contract.html", import.meta.url), "utf8");
+    const segBtn = /\.seg button\{([^}]*)\}/.exec(contract)?.[1] ?? "";
+    const wantH = /height:(\d+)px/.exec(segBtn)?.[1];
+    const wantFont = /font:(\d+) (\d+)px/.exec(segBtn.replace(/\s+/g, " "));
+    t("C4b: the contract still declares .seg button, so the values below are read not assumed",
+      segBtn !== "", true);
+    t("C4b: the button height matches the contract's", new RegExp(`h-\\[${wantH}px\\]`).test(cs), true);
+    t("C4b: …and its weight and size do too",
+      wantFont !== null && new RegExp(`text-\\[${wantFont[2]}px\\]`).test(cs)
+        && (wantFont[1] === "600" ? /font-semibold/.test(csTab) : false), true);
+    t("C4b: the container is a bordered, rounded, clipped box — the contract's .seg",
+      /flex overflow-hidden rounded-\[var\(--studio-radius-control,4px\)\] border border-ink-950\/22/.test(csTab), true);
+    t("C4b: …with a hairline BETWEEN the two, the contract's `.seg button+button`",
+      /\[&\+&\]:border-l/.test(cs), true);
+  }
+
+  /* ---- C4c · THE FOCUS RING READS ON BOTH GROUNDS, AND THIS IS WHAT THE FILL BROKE -----------
+   * An inset accent ring on the SELECTED button draws accent-on-accent — **measured at 1.00,
+   * invisible**. The underline never had the problem because both tabs sat on cream; the fill is
+   * what put one ring on two grounds. So the colour is per-state: cream-50 on the fill, accent on
+   * the cream. Both land at 4.70.
+   * ALSO NOTE, from driving it: selection follows focus here, so the focused tab is ALWAYS the
+   * selected one and the rest button's ring is defensive rather than reachable. Asserted anyway,
+   * because a later change to selection-follows-focus would make it reachable silently. */
+  t("C4c: the ring is inset, so `overflow-hidden` cannot clip it at the container's edge",
+    /focus-visible:-outline-offset-2/.test(csTab), true);
+  t("C4c: …and its colour is per-state, or it draws accent on accent and vanishes",
+    /bg-accent-500 text-cream-50 focus-visible:outline-cream-50/.test(csTab)
+      && /bg-cream-50[^"]*focus-visible:outline-accent-500/.test(csTab), true);
+
+  t("C4: …and the vertical list rail keeps its accent bar, the third treatment by-role missed",
+    /accent-500/.test(code("components/studio/ListDetailLayout.tsx")), true);
   t("C4: …with the hero's weight in the shared base instead, so selection is not ALSO a weight step",
     /className=\{\[ "-mb-px border-b-2[^"]*font-medium/.test(hero.replace(/\s+/g, " ")), true);
   // SCOPED TO THE TAB'S OWN CLASS EXPRESSION, not to everything after the first role="tab".

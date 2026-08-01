@@ -1739,7 +1739,43 @@ export default function SectionsEditPanel({
             while a real canvas sat above it was the confusing part. Same
             roving-tabindex tablist; both panels stay mounted so switching loses no
             input, caret, or draft. */}
-        <div role="tablist" aria-label="Section content and style" className="flex gap-1 border-b border-ink-950/12">
+        {/* ---- THE SEGMENTED FILL, AND IT OVERRULES CORRECTION 29 (MINE) --------------------
+            C-29 recorded the CONTRACT as wrong: it draws `.seg` — a segmented accent FILL — on a
+            control that is a genuine `role="tablist"`, and C-20's by-role rule says tablists take
+            the UNDERLINE. The owner has seen both and wants the fill. That is a change to the
+            rule, not an application of it, so the rule moves with it.
+
+            AND THE RULE WAS ALREADY FALSE AS WRITTEN, WHICH IS WHAT SETTLED IT. There are THREE
+            tablists in the studio, not two. The third is `ListDetailLayout`'s VERTICAL list rail,
+            whose rows take a cream fill plus a 3px accent LEFT BAR — its own comment calls that
+            "the studio's one selection language", shared with the blog rail and the block strip.
+            So "role=tablist -> underline" described two of three the day it was written. The role
+            was never what decided the treatment; SHAPE and FUNCTION were.
+
+            THE RULE RESTATED, AND NOTHING ELSE MOVES:
+              a two-state MODE switch       -> the segmented accent FILL
+                                               (SegmentedToggle, Board|Editor, Canvas|Inspector,
+                                                and now this)
+              a switch between CONTENT SETS -> the UNDERLINE   (the hero tabs, unchanged)
+              a VERTICAL list rail          -> fill + left bar (unchanged)
+            Content|Style filters WHICH FIELDS of one section show. It is a mode over one object,
+            in the same pane as Board|Editor and Canvas|Inspector, both already fills. The hero
+            tabs switch between three personas' content and stay on the underline, so C-20 is
+            NARROWED rather than contradicted and nothing needs sweeping.
+
+            THE ROLE DOES NOT CHANGE. This keeps `role="tablist"`, `aria-selected`, `aria-controls`,
+            the roving tabindex and the Arrow keys. #251 already found that swapping in
+            `SegmentedToggle` outright would drop all four — a regression wearing consistency's
+            clothes. This is the fill's LOOK on a tablist's SEMANTICS.
+
+            THE CONTRACT'S MARGIN IS NOT TAKEN. `.seg{margin:12px 14px 0}` carries the same 14 as
+            `.ibody`, which correction 31 recorded as the MOCK'S OWN CARD PADDING. The border,
+            radius, divider, height, type and both grounds are the contract's exactly. */}
+        <div
+          role="tablist"
+          aria-label="Section content and style"
+          className="mx-3 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/22"
+        >
           {(["content", "style"] as const).map((t) => {
             const selected = contentStyleTab === t;
             return (
@@ -1760,10 +1796,24 @@ export default function SectionsEditPanel({
                   requestAnimationFrame(() => document.getElementById(`cs-fieldtab-${other}`)?.focus());
                 }}
                 className={[
-                  "-mb-px border-b-2 px-3 py-1.5 text-[12px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                  // 34px, 600/12px, flex-1, and a hairline BETWEEN the two — the contract's
+                  // `.seg button` and `.seg button+button` exactly.
+                  "h-[34px] flex-1 text-[12px] font-semibold transition-colors",
+                  // THE RING IS INSET, and that is the first difference a filled tab has from an
+                  // underlined one: an outset ring would draw at the container's own rounded edge,
+                  // where `overflow-hidden` clips it. `-outline-offset-2` keeps it inside.
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2",
+                  // AND ITS COLOUR FOLLOWS ITS GROUND, WHICH IS THE SECOND AND THE ONE THAT BIT.
+                  // An inset accent ring on the SELECTED button draws accent-on-accent —
+                  // **measured at 1.00, completely invisible**. The underline never had this
+                  // problem because both tabs sat on cream; the fill is what put a ring on two
+                  // different grounds. So the selected button's ring takes the label's colour
+                  // (cream-50 on accent, 4.70) and the rest keeps accent on cream (4.70).
+                  // Same value both ways, which is the point: one ring, two grounds.
+                  "[&+&]:border-l [&+&]:border-ink-950/22",
                   selected
-                    ? "border-accent-500 font-medium text-ink-950"
-                    : "border-transparent text-ink-600 hover:text-ink-950",
+                    ? "bg-accent-500 text-cream-50 focus-visible:outline-cream-50"
+                    : "bg-cream-50 text-ink-600 hover:text-ink-950 focus-visible:outline-accent-500",
                 ].join(" ")}
               >
                 {t === "content" ? "Content" : "Style"}

@@ -271,18 +271,31 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
   const sections = read("components/studio/SectionsEditPanel.tsx");
   const panel = sections.match(/<div id="cs-fieldtab-panel"[\s\S]*?<\/p>/)?.[0] ?? "";
   const hint = panel.match(/<p className="([^"]+)">/)?.[1] ?? "";
-  // Anchored on the tab's own className array, not a byte window — the first class string after
-  // `role="tab"`. A {0,400} window silently missed it (the padding sits ~700 chars in) and reported
-  // `undefined`, which would have compared equal to a missing hint padding and passed for the wrong
-  // reason. Both sides must RESOLVE, and G3 checks that before it checks equality.
-  const tablistPad = sections.match(/role="tab"[\s\S]*?className=\{\[\s*"([^"]+)"/)?.[1]
-    ?.match(/\bpx-(\d)\b/)?.[1] ?? null;
+  // THE NEIGHBOUR MOVED FROM THE BUTTON TO THE CONTAINER (#263). The tabs were an underlined row
+  // whose BUTTONS carried `px-3`; they are now a segmented control whose CONTAINER carries `mx-3`,
+  // with the buttons `flex-1` inside it. So the thing the hint must line up with is the container,
+  // and the assertion reads it there. **The PROPERTY is unchanged** — measured after the change,
+  // the container's edge and the hint's ink both land at 13 — which is why this is a moved anchor
+  // rather than a relaxed rule.
+  //
+  // The earlier note still applies and is why both sides are required to resolve: a `{0,400}`
+  // window once missed a padding sitting ~700 chars in and returned `undefined`, which would have
+  // compared equal to a missing hint padding and passed for the wrong reason.
+  //
+  // COMMENTS STRIPPED FIRST, AND THE FIRST DRAFT OF THIS DID NOT — the sixth firing of the comment
+  // trap in this repo. The new control's own comment explains the change and therefore contains
+  // the string `role="tablist"`, so a regex anchored on that matched the PROSE and returned no
+  // className at all. Anchored on the aria-label, which appears once and only in markup.
+  const bare = sections.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const tablistPad = bare
+    .match(/aria-label="Section content and style"[\s\S]{0,300}?className="([^"]+)"/)?.[1]
+    ?.match(/\bmx-(\d)\b/)?.[1] ?? null;
   const hintPad = hint.match(/\bpx-(\d)\b/)?.[1] ?? null;
 
   t("G1: the tab hint is 11px, the contract's size", /text-\[11px\]/.test(hint), true);
   t("G2: …and it is inset, no longer flush against the pane border at 1px", hintPad !== null, true);
-  t("G3: the hint's inset EQUALS the tablist's — derived from both, so they cannot drift apart",
-    hintPad !== null && hintPad === tablistPad, true);
+  t("G3: the hint's inset EQUALS the tablist container's — derived from both, so they cannot drift",
+    hintPad !== null && tablistPad !== null && hintPad === tablistPad, true);
 
   /* G4 — `leading-[1.5]` IS IN THE CONTRACT AND IS DELIBERATELY ABSENT. studio-cascade C1 proved it
    * inert: the studio reset already sets that line-height on <p>, so the utility would not drive the

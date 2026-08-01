@@ -8,7 +8,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE SELECTION CONTRACT)
 
-**main** = `f73adac` = the block-level echo (#261). **#261 takes the echo
+**main** = `4da8deb` = the section wrapper's frame removed (#262). **#261 takes the echo
 block-level**, which is what finally makes it fire on the 77% of the canvas-editable surface that
 had been silent since #259 — the hero section was 0 of 12. **The Selected rail is replaced by a dock at
 the canvas foot with five timed tiers, the studio gains its first motion-token block scoped beside
@@ -3312,6 +3312,61 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#263** Content|Style takes the segmented fill — **an overrule, not a fix** →1776
+  (`studio-ink` 155→166, C4 restated; `studio-labels` G3 re-derived).
+
+  **THE OWNER OVERRULED CORRECTION 29, WHICH WAS MINE.** C-29 recorded the CONTRACT as wrong for
+  drawing `.seg`'s accent fill on a genuine `role="tablist"`, citing C-20's by-role rule. The
+  owner has seen both and wants the fill. That is a change to the rule rather than an application
+  of it, so the rule had to move or the studio would hold tablists in two languages.
+
+  **AND THE RULE WAS ALREADY FALSE AS WRITTEN, WHICH IS WHAT SETTLED IT RATHER THAN PREFERENCE.**
+  The brief assumed two tablists; there are **THREE**. The third is `ListDetailLayout`'s VERTICAL
+  list rail — `role="tablist"` + `aria-selected`, taking a cream fill plus a 3px accent LEFT BAR,
+  which its own comment calls "the studio's one selection language", shared with the blog rail and
+  the block strip. **"role=tablist -> underline" described two of three the day C-20 was written.**
+  So the role was never what decided the treatment. Restated by FUNCTION:
+  a two-state MODE switch takes the FILL, a switch between CONTENT SETS takes the UNDERLINE, a
+  VERTICAL rail takes the BAR. Content|Style filters which FIELDS of one section show — a mode,
+  sitting in the same pane as Board|Editor and Canvas|Inspector, both already fills. **C-20 is
+  NARROWED, the hero tabs stay put, and nothing needed sweeping** — which is why this is not the
+  two-languages problem C-29 was protecting against.
+
+  **THE FILL'S LOOK ON A TABLIST'S SEMANTICS.** `role`, `aria-selected`, `aria-controls`, the
+  roving tabindex and the Arrow keys are untouched — #251 already found that swapping in
+  `SegmentedToggle` would drop all four, a regression wearing consistency's clothes. Driven with
+  REAL keys per #209: one ArrowRight moved selection 0 → 1, focus followed, **`:focus-visible`
+  true**, and the tabpanel association held.
+
+  **EVERY CONTRACT VALUE DERIVED FROM THE FILE AND MEASURED ON BOTH SIDES.** Container border 1px
+  ink/22, radius 4, `overflow:hidden`; divider 1px ink/22 between the two; button 34px, 600/12px,
+  `flex:1`; selected accent-500 on cream-50 text; rest cream-50 with ink-600. All matched.
+  **THE MARGIN IS THE ONE VALUE NOT TAKEN** — `.seg{margin:12px 14px 0}` carries the same 14 as
+  `.ibody`, which correction 31 recorded as the mock's own card padding. Inset to `mx-3` instead,
+  measured: the container's edge and the hint's ink both land at **13**.
+
+  **THE FOCUS RING WAS INVISIBLE, AND ONLY THE FILL COULD HAVE EXPOSED IT.** An inset accent ring
+  on the SELECTED button draws accent-on-accent — **measured at 1.00**. The underline never had
+  the problem because both tabs sat on cream; the fill is what put one ring on two grounds. The
+  colour is now per-state, cream-50 on the fill and accent on the cream, **both landing at 4.70**.
+  Noted from driving it: selection follows focus here, so the focused tab is ALWAYS the selected
+  one and the rest button's ring is defensive rather than reachable — asserted anyway, because a
+  later change to selection-follows-focus would make it reachable silently.
+  **CONTRAST, sanity pair 21 first:** selected label **4.70** — the tightest text pair in the
+  studio, clearing the floor by 0.2 — rest label 7.42, and the fill 4.48 against the pane.
+
+  **AND MY OWN ASSERTION PASSED BY MATCHING A DIFFERENT CONTROL.** The first C4 tested the whole
+  file for `? "bg-accent-500 text-cream-50"` and went green against **Board|Editor at :2107**;
+  mutating the real tab left it passing. That is the lesson recorded TWELVE LINES ABOVE it in the
+  same file — "an assertion that pins more than its subject fails for the wrong reason" — repeated
+  immediately beneath its own warning. Every C4/C4b/C4c assertion is now scoped to the tab's own
+  class expression, and five mutations kill five assertions.
+  **The comment trap fired again too**, for the sixth time: `studio-labels` G3 anchored on
+  `role="tablist"`, and the new control's own comment contains that string, so the regex matched
+  the PROSE. Comments stripped, anchored on the aria-label.
+
+  Public DOM byte-identical; CSS **zero removed**, five added, all the segmented control's.
+
 - **#262** the section wrapper loses its frame →1766 (`studio-ink` 154→157, new E1d).
   A box around a box: the div holding the whole inspector body drew a card inside a pane that is
   already a bordered surface. Same finding as #245, where a panel's `<section>` frame became
@@ -3896,6 +3951,16 @@ from a run on main after the merge**, not from the PR's own CI.
     "~250px usable"; measured it is **four bordered ancestors and 226px**. A structural claim the
     contract got wrong about the surface it describes. Recorded; restructuring is not a fidelity
     pass.
+    **OVERRULED BY #263, AND THE FINDING BEHIND IT IS NEW.** The owner has seen both and wants the
+    fill. The original finding above stands exactly as written — the app IS a genuine tablist and
+    the contract DID draw a group's treatment on it — but the rule it appealed to was itself
+    wrong. **C-20's "role=tablist -> UNDERLINE" was already false of a third of its own subjects
+    the day it was written**: `ListDetailLayout`'s VERTICAL list rail is `role="tablist"` +
+    `aria-selected` and takes a cream fill plus a 3px accent LEFT BAR, which its own comment calls
+    "the studio's one selection language". Two of three is not a rule about roles. The treatment
+    follows what a control DOES — a two-state MODE switch takes the fill, a switch between CONTENT
+    SETS takes the underline, a vertical rail takes the bar — so **C-20 is NARROWED rather than
+    contradicted, the hero tabs do not move, and nothing needed sweeping.**
 
 - **#253** the field contract — one input per line, the key pill, the 96px textarea →1678
   (`studio-ink` 148→153 with E2/F5/C2 rewritten, `mount-discipline` 41→43).
