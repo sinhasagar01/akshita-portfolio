@@ -2760,6 +2760,26 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     a new suite. It should be driven by a real need (a new accent-on-cream site, or a new cream
     step) rather than by tidiness, since the current values pass and the list is short on purpose.
 
+
+31. **`ink-400` AS A TEXT COLOUR HAS A FACT ASSERTED ABOUT IT AND NO GATE ENFORCING IT — THREE
+    SITES SHIPPED IT.** `studio-ink-contrast` H4 asserts the RATIOS (3.49 / 3.33 / 3.02 / 2.55 on
+    the cream ladder) and states that ink-400 is not a text colour on cream. **It never scans for
+    the usage.** So the fact is recorded and the rule is unenforced, and three separate sites have
+    since shipped ink-400 as text, each caught by a person measuring:
+    - #253's key-pill placeholder (3.02 on cream-200) — caught in the plan.
+    - #255's unit suffix (3.49 on the cream-50 well) — caught in the PR.
+    - #253's accordion SUMMARY (3.49 / 3.33) — **shipped and lived on every collapsed row until
+      #256 found it**, which is the one that got through.
+    **WHY A GATE IS NOT TRIVIAL, AND WHY THIS IS RECORDED RATHER THAN BUILT.** Derived, the studio
+    has 35 `text-ink-400` occurrences: 23 are icon or border containers, where ink-400 is CORRECT
+    and legal (the 3:1 non-text floor). Of the remaining 12, several are comment lines and several
+    sit on INK grounds — `StudioSearch` and `StudioSidebar` at `lg` — where ink-400 is fine. A
+    naive scan misfires on all of those, and **a gate that misfires gets ignored**, which is worse
+    than none. The honest gate needs each site's GROUND, which is what hazard 30 records as the
+    missing capability. **The two hazards are the same gap seen from two directions**: 30 says a
+    colour the studio uses is uncomputed; 31 says a colour the studio forbids is unpoliced. Fixing
+    either properly means resolving a class string to the ground it renders on.
+
 ---
 
 ## DEFERRED — scoped, not built
@@ -3114,6 +3134,48 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 ---
 
 ## SESSION PR/SHA LOG
+
+- **#256** the accordion — four free values, three dropped on measurement →1703, no assertion
+  moves. PR 3 of the fidelity audit's four.
+  **MEASURED ON A THROWAWAY BRANCH BEFORE COMMITTING, AND THAT CHANGED THE PR.** I had called this
+  "the riskiest of the four" because it lands on every collapsed row. Applied and measured, all
+  seven values cost **3.35 -> 3.38 worst, 2.00 -> 2.03 mean** — about 19px. Isolated, **the
+  open-state border alone produces exactly that figure**; the other six are free. **The working
+  rule earned itself again: measuring before committing turned "structural" into "four free
+  values".** Recorded as my own correction — the audit classified all seven as implementation
+  gaps, and a gap is not automatically worth its cost.
+  **SHIPPED: the hover set, name weight 400 -> 700, and ground/radius on the ONE card that needed
+  it.** Dropped: the open-state border (all of the cost, and it duplicates a boundary the card's
+  own border already draws) and the head gap (invisible at this density — three pixels between a
+  13px chevron and a 10px label).
+  **CORRECTION 30 — THE CHEVRON STAYS.** The contract draws 13px ink-400 rotating 180deg when
+  OPEN; ours is 12px ink-600 rotating -90deg when CLOSED. **The contract's mark is QUIETER because
+  in that drawing it is not the primary affordance. Under #234's fold, on a collapsed row, it
+  is.** A disclosure triangle pointing at the thing it will reveal is the more legible of the two,
+  and the size and colour go with the orientation — they were drawn for a mark doing a different
+  job. Not a gap: the contract drew a DROPDOWN mark for a DISCLOSURE.
+  **THE GROUND CHANGE IS RELATIONAL, AND APPLYING IT AS DRAWN WOULD HAVE RECREATED #227.** Measured
+  three distinct group contexts: Section settings renders **cream-100 ON cream-100 — a live 1.00
+  ratio**, the well-equals-ground defect surviving on a CARD; block cards are already cream-50 on
+  cream-100; and **`ItemRows` rows are cream-100 on a cream-50 block card, already one step**.
+  Moving the rows to cream-50 as the contract literally says would have made them vanish into
+  their parent — **the exact defect #227 fixed at six sites, one level down**. So cream-50 +
+  radius-8 went to the card that needed it and the nested rows were left alone. **The contract's
+  `.grp{background:cream-50}` is drawn for a group on cream-100; the rule is one step off
+  WHATEVER IT SITS ON.**
+  **AND THE HOVER SET FOUND A LIVE AA FAILURE THAT IS MINE FROM #253.** The summary rendered
+  `ink-400` — **3.49 on cream-50, 3.33 on cream-100** — on every collapsed row. It is the row's
+  live CONTENT ("10%", "My role"), which is what an author reads to identify a folded row, so it
+  is text and takes the text floor. Now `text-subtle` at 5.52 / 5.25. **Third time the contract
+  has specified ink-400 as text**, and the first that actually shipped. Recorded as **hazard 31**.
+  **NON-CONSUMER REACH, STATED RATHER THAN ASSUMED.** `CollapsibleGroup` serves three consumers.
+  The name weight reaches only the `name` path, which is `ItemRows` alone. The hover set reaches
+  all three, deliberately — it is the improvement #234 identified as the real problem, and on the
+  two non-consumers it lands as ground+1 on their own grounds (cream-50 -> cream-100) exactly as
+  it does in scope. `SectionShell`'s ground/radius is one line on one consumer and reaches nothing.
+  Real-pointer hover: name and chevron ink-600 -> ink-950 (18.13), summary text-subtle -> ink-800
+  (14.16), head ground cream-100. Heights identical per section, 3.35 / 2.00. CSS union
+  **1559 -> 1560**, one rule added and none removed. Public DOM byte-identical.
 
 - **#255** the unit moves into the well →1703 (`studio-labels` 24→34, new section F). PR 2 of the
   fidelity audit's four, and the one genuinely unshipped rule from the contract.

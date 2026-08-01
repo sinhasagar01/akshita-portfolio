@@ -49,7 +49,15 @@ export function SectionShellForm({
     // serves both had a content-derived summary already; this one genuinely does not, and
     // inventing a placeholder to fill the slot would be the wrong kind of consistency.
     <CollapsibleGroup
-      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3"
+      /* GROUND + 1 STEP, WHICH THIS CARD WAS NOT. Measured: it rendered cream-100 ON the
+         inspector's cream-100 — a 1.00 ratio, the same well-equals-ground defect #227 fixed at
+         six sites, surviving here on a CARD instead of a well. cream-50 gives it the one step
+         the rule asks for, and radius-card matches the block cards beside it.
+         THE ITEMROWS ROWS ARE DELIBERATELY NOT CHANGED WITH IT: they sit INSIDE a cream-50 block
+         card, so they are already one step off their own parent. Moving them to cream-50 would
+         recreate exactly the defect this line fixes, one level down. The contract's
+         `.grp{background:cream-50}` is drawn for a group on cream-100; the rule is RELATIONAL. */
+      className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
       summary="Section settings"
       summaryClassName={groupLabelCls}
     >
