@@ -1,0 +1,150 @@
+<meta charset="utf-8">
+<title>Live-preview hint — note strip variations</title>
+<style>
+  :root{
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* verbatim from app/globals.css */
+    --canvas:     oklch(92.0% 0.022 78);
+    --cream-50:   oklch(98.5% 0.012 80);
+    --cream-100:  oklch(96.8% 0.018 78);
+    --cream-200:  oklch(93.5% 0.025 76);
+    --ink-950:    oklch(14.0% 0.018 60);
+    --ink-800:    oklch(26.0% 0.018 60);
+    --ink-600:    oklch(44.0% 0.016 60);
+    --ink-400:    oklch(62.0% 0.014 60);
+    --accent-500: oklch(56.0% 0.14 42);
+    --accent-600: oklch(46.0% 0.13 42);
+    --subtle:     oklch(51% 0.016 66);
+    --r-ctl: 4px;
+    --rule: color-mix(in oklch, var(--ink-950) 12%, transparent);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:38px 30px 70px;
+    background:var(--canvas); font-family:var(--sans); color:var(--ink-950);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font:700 19px/1.3 var(--sans);margin:0 0 5px;letter-spacing:-.01em}
+  .sub{font:400 13px/1.6 var(--sans);color:var(--subtle);margin:0 0 30px;max-width:74ch}
+
+  /* the real canvas column ground */
+  .pane{
+    background:var(--cream-50);
+    border:1px solid var(--rule);
+    border-radius:8px;
+    padding:16px 16px 18px;
+  }
+  .paneLabel{
+    font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-400);margin:0 0 9px;
+  }
+  .card{margin-bottom:26px}
+  .head{display:flex;align-items:baseline;gap:9px;margin:0 0 9px}
+  .n{
+    font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+    color:var(--cream-50);background:var(--ink-950);
+    padding:5px 7px;border-radius:3px;flex:none;
+  }
+  .n.a{background:var(--accent-500)}
+  .n.bad{background:var(--ink-400)}
+  .t{font:700 14px/1.3 var(--sans);margin:0}
+  .why{font:400 12.5px/1.65 var(--sans);color:var(--ink-600);margin:6px 0 12px;max-width:88ch}
+  .why b{color:var(--ink-950);font-weight:650}
+  code{font:500 11.5px/1 var(--mono);background:var(--cream-200);padding:2px 5px;border-radius:3px;color:var(--ink-800)}
+
+  /* ---------- CURRENT ---------- */
+  .cur{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    font:400 12px/1.5 var(--sans);text-transform:uppercase;letter-spacing:.08em;
+    color:var(--ink-600);margin-bottom:8px;
+  }
+
+  /* ---------- A · neutral info strip ---------- */
+  .stripA{
+    display:flex;gap:9px;align-items:flex-start;
+    border:1px solid var(--rule);
+    background:var(--cream-100);
+    border-radius:var(--r-ctl);
+    padding:9px 11px;
+    font:400 12px/1.6 var(--sans);
+    color:var(--ink-600);
+  }
+  .stripA svg{flex:none;margin-top:1px;color:var(--ink-400)}
+  .stripA strong{color:var(--ink-950);font-weight:600}
+
+  /* ---------- B · left-rule quote strip ---------- */
+  .stripB{
+    display:flex;gap:9px;align-items:flex-start;
+    border-left:2px solid var(--accent-500);
+    padding:2px 0 2px 12px;
+    font:400 12px/1.6 var(--sans);
+    color:var(--ink-600);
+  }
+  .stripB strong{color:var(--ink-950);font-weight:600}
+
+  .syn{font:500 11px/1 var(--mono);background:var(--cream-200);padding:2px 5px;border-radius:3px;color:var(--accent-600)}
+  .stripB .syn{background:color-mix(in oklch,var(--accent-500) 9%,transparent)}
+
+  /* the canvas card stub beneath, so the strip is judged in place */
+  .stub{
+    margin-top:12px;border:1px dashed color-mix(in oklch,var(--ink-950) 20%,transparent);
+    border-radius:8px;height:96px;background:var(--cream-50);
+    display:grid;place-items:center;
+    font:400 11px/1 var(--sans);color:var(--ink-400);letter-spacing:.04em;
+  }
+  .note{
+    margin-top:11px;font:400 11.5px/1.6 var(--sans);color:var(--subtle);
+    border-top:1px solid var(--rule);padding-top:9px;max-width:88ch;
+  }
+  .note b{color:var(--ink-800);font-weight:650}
+</style>
+
+<div class="wrap">
+  <h1>Live-preview hint — two note-strip variations</h1>
+  <p class="sub">Shown at the real ground. The canvas column is <code>bg-cream-50</code>, so both strips are drawn on cream-50 exactly as they would ship.</p>
+
+  <!-- ============ CURRENT ============ -->
+  <div class="card">
+    <div class="head"><span class="n bad">Now</span><p class="t">What ships today</p></div>
+    <p class="why">A 130-character sentence set <b>uppercase with eyebrow letter-spacing</b>. That tracking exists for two-word labels; on a full sentence it stretches the line past the canvas and slows reading. This is the actual defect — the missing frame is secondary.</p>
+    <div class="pane">
+      <p class="paneLabel">Canvas column</p>
+      <div class="cur">Live preview — click any dashed element to edit it, here or in the panel beside it. Rich text with **bold** edits under Inspector.</div>
+      <div class="stub">section card</div>
+    </div>
+  </div>
+
+  <!-- ============ A ============ -->
+  <div class="card">
+    <div class="head"><span class="n">A</span><p class="t">Neutral info strip</p></div>
+    <p class="why">Reuses the studio's <b>existing neutral strip</b> verbatim — <code>border-ink-950/12</code> + <code>bg-cream-100</code> + <code>rounded-[4px]</code>, the same one already used at <code>SectionsEditPanel:1936</code> and <code>ExperienceListEditor:212</code>. <b>Adds no new pattern.</b> Sentence case, 12px/1.6. The tinted fill separates help from content without competing with the accent.</p>
+    <div class="pane">
+      <p class="paneLabel">Canvas column</p>
+      <div class="stripA">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6.4"/><path d="M8 7.3v4" stroke-linecap="round"/><circle cx="8" cy="4.9" r=".78" fill="currentColor" stroke="none"/>
+        </svg>
+        <span><strong>Live preview.</strong> Click any dashed element to edit it, here or in the panel beside it. Rich text with <span class="syn">**bold**</span> edits under Inspector.</span>
+      </div>
+      <div class="stub">section card</div>
+    </div>
+  </div>
+
+  <!-- ============ B ============ -->
+  <div class="card">
+    <div class="head"><span class="n a">B</span><p class="t">Left-rule quote strip</p></div>
+    <p class="why">The blockquote form — a 2px accent rule, no fill, no box. Quieter than A and it echoes the public blog's own <code>blockquote</code> (<code>globals.css:2494</code>, 2px accent left rule). <b>It is a third strip pattern</b> where A is zero new ones, and the studio has so far kept its left bars for selection markers only. Worth it only if you want this line to feel like an aside rather than a chip.</p>
+    <div class="pane">
+      <p class="paneLabel">Canvas column</p>
+      <div class="stripB">
+        <span><strong>Live preview.</strong> Click any dashed element to edit it, here or in the panel beside it. Rich text with <span class="syn">**bold**</span> edits under Inspector.</span>
+      </div>
+      <div class="stub">section card</div>
+    </div>
+  </div>
+
+  <p class="note"><b>Both</b> drop the uppercase and the eyebrow tracking, lead with a bolded <b>Live preview.</b> so the line has an entry point, and set <b>**bold**</b> in mono so it reads as syntax to type rather than as emphasis.<br><br><b>One structural note either way.</b> <code>imageBusy</code> and <code>imageError</code> currently render <i>inside</i> this same container and reset <code>normal-case tracking-normal</code> to escape its styling. Those are transient upload status, not part of the hint — if they stay inside a framed strip, an upload error appears to be part of the instructions. Both variations move them to their own line below, where the error can also take a proper <code>role="status"</code>.</p>
+</div>

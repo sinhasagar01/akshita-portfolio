@@ -33,6 +33,18 @@ export function IconHome(props: IconProps) {
   );
 }
 
+export function IconInfo(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      {/* The dot is a filled dot rather than a 0-length stroked path, which some
+          renderers drop entirely at small sizes even with a round linecap. */}
+      <circle cx="12" cy="7.75" r="1.05" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
 export function IconGrid(props: IconProps) {
   return (
     <Icon {...props}>
