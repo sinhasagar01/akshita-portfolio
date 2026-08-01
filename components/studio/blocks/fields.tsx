@@ -411,6 +411,7 @@ export function TextField({
   onBlur,
   inputRef,
   optional,
+  fieldId,
 }: {
   label: string;
   value: string;
@@ -419,10 +420,15 @@ export function TextField({
   inputRef?: (el: HTMLElement | null) => void;
   /** Optional field — collapses behind its DisclosureGroup's reveal while blank. */
   optional?: boolean;
+  /** T3'S ADDRESS, AND IT IS OPTIONAL ON PURPOSE. When set it lands as `data-studio-field` on
+   *  the wrapper, which is what the selection echo looks up. Absent by default, so every one of
+   *  this component's ~40 call sites is byte-identical unless it opts in — the shared-seam rule.
+   *  A field with no id simply never echoes, which is a missing mark rather than a wrong one. */
+  fieldId?: string;
 }) {
   const visible = useFieldVisible(optional, isBlankText(value));
   return (
-    <label className="flex flex-col gap-1" hidden={!visible}>
+    <label className="flex flex-col gap-1" hidden={!visible} data-studio-field={fieldId}>
       <FieldKey>{label}</FieldKey>
       <input
         type="text"
@@ -447,6 +453,7 @@ export function TextArea({
   rows = 3,
   inputRef,
   optional,
+  fieldId,
 }: {
   label: string;
   value: string;
@@ -456,10 +463,12 @@ export function TextArea({
   inputRef?: (el: HTMLElement | null) => void;
   /** Optional field — collapses behind its DisclosureGroup's reveal while blank. */
   optional?: boolean;
+  /** T3's address — see `TextField`'s note. Optional, so unset call sites are unchanged. */
+  fieldId?: string;
 }) {
   const visible = useFieldVisible(optional, isBlankText(value));
   return (
-    <label className="flex flex-col gap-1" hidden={!visible}>
+    <label className="flex flex-col gap-1" hidden={!visible} data-studio-field={fieldId}>
       <FieldKey>{label}</FieldKey>
       {/* ---- R3 · A MULTILINE VALUE LOOKS MULTILINE, AND THE GRIP IS THE POINT --------------
           96px minimum, text top-aligned, and a VISIBLE resize grip. The grip is the only mark

@@ -1247,6 +1247,48 @@ export default function SectionsEditPanel({
     return () => document.removeEventListener("keydown", onKey);
   }, [selectedField]);
 
+  // T3 · THE ECHO. The inspector field's mark, applied imperatively for the same reason the
+  // canvas mark is: the marked node is rendered deep inside the shared field components, which
+  // know nothing about studio selection, and threading a prop to reach them would touch every
+  // one of `TextField`'s ~40 call sites to serve four.
+  //
+  // ---- THIS IS THE PIECE #258 CLAIMED AND DID NOT BUILD -------------------------------------
+  // That PR's body said "T3 fires only when the field is visible" and gave a reason for the
+  // narrowing. There was no mark, no rule to render one, no application and no visibility test —
+  // the conditionality was a property of nothing. Recorded as a `structural()` variant; the
+  // reason it survived review is that the REASONING was sound and only its subject was absent.
+  //
+  // ---- VISIBLE MEANS RENDERED, NOT SCROLLED INTO VIEW, AND THAT IS A DECISION ----------------
+  // `offsetParent === null` is true exactly when an ancestor is `display: none` — which is how
+  // BOTH things that legitimately hide a field work: a section editor for a section you are not
+  // looking at (mounted, `hidden`) and a folded `ItemRows` row or `CollapsibleGroup` body. It is
+  // NOT true for a field that is merely scrolled past, and that is deliberate: an echo below the
+  // fold of a scrolling pane is still there when you scroll to it, so marking it is right. A
+  // field inside `display: none` can never be seen, so marking it is the confirmation nobody can
+  // see that #234's fold made the whole question.
+  //
+  // NOT A SCROLL TEST, THEREFORE NOT #258's `scrollParent` BUG. That one walked past a scroller
+  // which had not yet overflowed; the same class of error here would read every field as hidden
+  // and reproduce exactly the behaviour this fixes — so the test is rendered-ness, which has no
+  // scroller in it at all.
+  const inspectorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = inspectorRef.current;
+    if (!root) return;
+    root.querySelectorAll(".is-echoed").forEach((n) => n.classList.remove("is-echoed"));
+    if (!selectedField) return;
+    // Only SECTION-shell fields carry an address today — see the note in SectionShell. A block
+    // field selects and docks normally and simply does not echo, which is a MISSING mark rather
+    // than a wrong one, and is stated as a limit rather than left to be discovered.
+    if (selectedField.kind !== "section") return;
+    const matches = [...root.querySelectorAll<HTMLElement>(`[data-studio-field="${selectedField.field}"]`)];
+    // EVERY SECTION EDITOR IS MOUNTED AND HIDDEN, so this selector matches once per section.
+    // Filtering on rendered-ness picks the one on screen; without it the mark lands in a panel
+    // nobody is looking at and the visible field stays bare — indistinguishable from no T3.
+    const shown = matches.find((n) => n.offsetParent !== null);
+    shown?.classList.add("is-echoed");
+  });
+
   // DISMISS CLEARS THE FIELD, NOT THE SECTION. "Stop editing this paragraph" and "leave this
   // section" are different intents, and the section selection is what the whole inspector is
   // bound to — collapsing both onto one key would make Escape throw away the pane you are
@@ -1500,7 +1542,7 @@ export default function SectionsEditPanel({
   // sharing one onChange with colliding ids and two carets. Above the fold it mounts in the
   // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
   const inspectorNode = (
-    <div className="flex flex-col gap-4">
+    <div ref={inspectorRef} className="flex flex-col gap-4">
       {/* THE SELECTED RAIL USED TO MOUNT HERE, AT THE TOP OF THE INSPECTOR, and it is now the
           dock at the canvas foot — see `SelectionDock`. The reasoning for putting it here is
           kept rather than deleted, because it was right about the thing it was arguing:

@@ -249,5 +249,70 @@ t("F1: zero studio motion tokens in public component code", leaks, []);
 t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .studio-chrome too",
   /background-size var\(--studio-t1,\s*220ms\)/.test(cssNoComments), true);
 
+/* ================================================================= G. T3, THE ECHO
+ * THE TWO HALVES ARE ASSERTED SEPARATELY, AND THAT IS THE WHOLE POINT OF THIS SECTION.
+ *
+ * #258's PR body claimed "T3 fires only when the field is visible" and T3 DID NOT EXIST — no
+ * mark, no rule, no application, no visibility test. **A condition that never fires and a mark
+ * that renders nothing are indistinguishable from outside**, so a single assertion spanning both
+ * would have passed on an empty feature just as happily as on a working one. G1-G3 assert the
+ * TREATMENT exists; G4-G7 assert it is APPLIED. Neither implies the other.
+ *
+ * A gate reading class strings could not have caught the original failure, because the failure
+ * was the ABSENCE of a class string. What makes these assertions real is that each one names a
+ * concrete artefact that must be present — a rule, an attribute, a filter — rather than checking
+ * that some existing text is well-formed. */
+{
+  const sections = strip(read("components/studio/SectionsEditPanel.tsx"));
+  const shell = strip(read("components/studio/blocks/SectionShell.tsx"));
+  const fields = strip(read("components/studio/blocks/fields.tsx"));
+
+  /* ---- THE MARK EXISTS AND RENDERS SOMETHING ---- */
+  const markRule = blockAt(cssNoComments, /\.studio-chrome \[data-studio-field\]\.is-echoed\s*\{/);
+  t("G1: the echo has a rule of its own — it is not the canvas's `.cs-editable.is-selected`",
+    markRule !== "", true);
+  t("G2: …and it declares BOTH halves of the treatment, the ground step and the 3px bar",
+    /background-color:\s*var\(--color-cream-200\)/.test(markRule) &&
+      /box-shadow:\s*inset 3px 0 0 0 var\(--color-accent-500\)/.test(markRule), true);
+
+  // G3 — NO BORDER AND NO WIDTH. `box-shadow: inset` cannot participate in layout; a
+  // `border-left: 3px` would push every field's content 3px right on selection, and THE
+  // INSPECTOR HAS NO PARITY HARNESS to catch it. Same constraint that made T1 a background
+  // rather than a pseudo-element, and the constraint DeviceImage's wrapper <span> ignored when
+  // it collapsed a 760px frame to ~90px.
+  t("G3: the mark moves nothing — no border, no width, no padding in the rule",
+    /border|width|padding|margin/.test(markRule), false);
+
+  // G3b — AND IT FADES RATHER THAN DRAWS. T1 wipes (background-size), T3 fades (colour only).
+  // If the echo drew itself the eye would not know which of the two was the answer.
+  t("G3b: the echo is a colour fade at T3's timing, not a wipe",
+    /transition:[\s\S]*?background-color var\(--studio-t3, 260ms\)[\s\S]*?var\(--studio-t3-delay, 90ms\)/.test(markRule),
+    true);
+
+  /* ---- THE MARK IS APPLIED, AND ONLY TO SOMETHING RENDERED ---- */
+  t("G4: the class is applied from an effect rooted at the INSPECTOR, not the canvas surface",
+    /inspectorRef\.current[\s\S]{0,400}?querySelectorAll\("\.is-echoed"\)/.test(sections), true);
+  // G5 — BOTH components, and BOTH optional. The first version of this tested `.test()` for a
+  // single `fieldId?: string;`, which appears TWICE — so making ONE of them required left the
+  // other to satisfy the regex and the mutation survived. Counting is the fix, and it is the
+  // same "require both sides to resolve" rule that #257 recorded: an existence check over a
+  // set of two proves nothing about the second one.
+  t("G5: BOTH field components take the address, and BOTH keep it optional so unset call sites are untouched",
+    [(fields.match(/fieldId\?: string;/g) ?? []).length,
+     (fields.match(/data-studio-field=\{fieldId\}/g) ?? []).length], [2, 2]);
+
+  // G6 — EVERY SECTION EDITOR IS MOUNTED AND HIDDEN, so the address matches once per section.
+  // Without the rendered-ness filter the mark lands in a panel nobody is looking at and the
+  // visible field stays bare — which looks EXACTLY like no T3 at all, i.e. the bug being fixed.
+  t("G6: the applied node is filtered on rendered-ness — the selector matches once per section",
+    /\.find\(\(n\) => n\.offsetParent !== null\)/.test(sections), true);
+
+  // G7 — THE ADDRESSES ARE THE CANVAS'S SET, derived rather than listed. The canvas can select
+  // exactly four section fields; advertising a fifth would promise an echo that can never fire.
+  const wired = [...shell.matchAll(/fieldId="([a-zA-Z]+)"/g)].map((m) => m[1]).sort();
+  t("G7: the four wired addresses are exactly the four the canvas can select",
+    wired, ["eyebrow", "lead", "northStar", "title"]);
+}
+
 console.log(`\nstudio-motion result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

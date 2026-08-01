@@ -63,12 +63,17 @@ export function SectionShellForm({
     >
       {/* Content — the copy that renders in the section header, plus the anchor id
           and display index that identify it. */}
+      {/* THE FOUR `fieldId`s BELOW ARE T3's ADDRESSES, and they are exactly the four section
+          fields the CANVAS can select — `CaseSectionHeader` emits `data-edit` for eyebrow, title
+          and lead, and `SectionRenderer` for northStar. Anchor id and Index carry none because
+          nothing on the canvas maps to them, and giving them one would advertise an echo that
+          could never fire. The set is the canvas's, not this form's. */}
       <TabGroup group="content">
         {/* Eyebrow + Title are the section's primary header, always shown. The rest
             of the shell copy is optional (adapter opt/richOpt) and collapses when
             blank so a fresh section isn't a wall of empty inputs. */}
-        <TextField label="Eyebrow" value={value.eyebrow} onChange={(v) => set("eyebrow", v)} onBlur={onBlur} />
-        <TextField label="Title" value={value.title} onChange={(v) => set("title", v)} onBlur={onBlur} />
+        <TextField fieldId="eyebrow" label="Eyebrow" value={value.eyebrow} onChange={(v) => set("eyebrow", v)} onBlur={onBlur} />
+        <TextField fieldId="title" label="Title" value={value.title} onChange={(v) => set("title", v)} onBlur={onBlur} />
         <DisclosureGroup revealLabel="More section fields">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-1">
@@ -88,6 +93,7 @@ export function SectionShellForm({
             <TextField label="Index, e.g. 03" value={value.index} onChange={(v) => set("index", v)} onBlur={onBlur} optional />
           </div>
           <TextArea
+            fieldId="lead"
             label="Lead — **bold** for emphasis"
             value={value.lead}
             onChange={(v) => set("lead", v)}
@@ -95,7 +101,7 @@ export function SectionShellForm({
             rows={2}
             optional
           />
-          <TextField label="North star" value={value.northStar} onChange={(v) => set("northStar", v)} onBlur={onBlur} optional />
+          <TextField fieldId="northStar" label="North star" value={value.northStar} onChange={(v) => set("northStar", v)} onBlur={onBlur} optional />
         </DisclosureGroup>
       </TabGroup>
       {/* Style — how the section presents: variant, layout, and the glow word. */}
