@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — case studies, List view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE CASE-STUDIES INDEX — LIST VIEW
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · radius 12/8/4 · labelCls 12/700/.14em.    ##
+  ##########################################################################
+
+  LIST ANSWERS "WHAT ORDER ARE THEY IN". Grid answers "what do they look
+  like" and is a separate file.
+
+  ---- ⚠ THE ROW IS A GRID WITH EXPLICIT TRACKS, NOT NESTED FLEX --------
+  The first attempt nested three flex contexts — row, right-hand group,
+  reorder cluster — and the cluster STRETCHED TO FILL THE ROW, squeezing the
+  title onto two lines and truncating the summary to one word. Adding
+  flex:0 0 auto at each level did not fix it, because the fragility was the
+  structure rather than any one declaration.
+  THE ROW IS NOW ONE GRID, SEVEN NAMED TRACKS, SIX OF THEM `auto` AND ONE
+  `1fr`. Nothing negotiates: every element's width is either its content or
+  the single flexible column. There is no second place for space to go.
+  THIS IS #178's `w-0` COMPUTING TO 264px, LEARNED PROPERLY — a correct class
+  string is not a correct layout, and the answer is to state the box rather
+  than to keep adding declarations that ask for it.
+
+  ---- TWO DEFECTS THIS FIXES, BOTH IN THE CURRENT PAGE ----------------
+  1. boAt CREST READS AS DISABLED. Its row is dimmed because it is bespoke —
+     but bespoke is NOT disabled: title, hero, summary and platform are all
+     editable and only the BODY is in code. A dimmed row says "you cannot
+     touch this", false about four of its five fields.
+     HAZARD 29's SHAPE ONE SCREEN EARLIER. Here it is a CHIP at full strength.
+  2. "0 SECTIONS" BECOMES "NO SECTIONS". A zero beside three fifteens reads as
+     a study that LOST its content.
+
+  ---- THE ORDER IS THE PAGE'S SUBJECT, SO IT LEADS -------------------
+  The page's own subhead says the arrows set the homepage order and nothing on
+  the page believed it. The ordinal is now the first thing read, with a drag
+  handle beside it and the arrows kept as the keyboard path.
+  ⚠ DRAG NEEDS A KEYBOARD EQUIVALENT AND THIS PROJECT HAS NO DRAG ANYWHERE.
+  The arrows ARE that equivalent, which is why they stay rather than being
+  replaced. If drag is deferred the list still works.
+
+  ---- ▲ / ▼ ARE CORRECT HERE, AND ← / → ARE CORRECT IN GRID ----------
+  One column has no wrap, so up and down mean exactly what they say. A grid
+  wraps, so the study before a row's first card is visually to its LEFT. That
+  asymmetry is each control matching its own layout, not an inconsistency.
+
+  ---- THE ROW CANNOT BE A BUTTON ELEMENT ------------------------------
+  It is clickable and it CONTAINS buttons — the arrows and remove. A button
+  inside a button is an invalid content model; the browser closes the outer one
+  early and scatters the row. #176's finding on a new surface.
+  So it is a div with role="button" and tabindex, stopPropagation on the inner
+  controls, and an AUTHORED focus ring — a role-button div gets no ring and no
+  Space/Enter for free, and no gate here would catch that.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --lift-rest:0 1px 2px oklch(14% .018 60/.06), 0 2px 8px -3px oklch(14% .018 60/.1);
+  --lift-hover:0 2px 4px oklch(14% .018 60/.07), 0 8px 20px -6px oklch(14% .018 60/.16);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:30px 26px 70px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+
+.page{background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);
+  padding:24px 26px 30px;width:1120px;max-width:100%}
+
+/* ---- head ---- */
+.phead{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;
+  max-width:60rem;margin-bottom:18px}
+.phead h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 6px}
+.phead p{font:400 13px/1.6 var(--sans);color:var(--subtle);margin:0;max-width:52ch}
+.add{background:var(--accent);color:#fff;border:0;border-radius:var(--r-ctl);
+  padding:11px 16px;font:600 12.5px/1 var(--sans);cursor:pointer;white-space:nowrap}
+
+/* ---- the view switcher: role=group + aria-pressed -> accent fill (correction 20) ---- */
+.bar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  max-width:60rem;margin-bottom:16px}
+.bar p{font:400 11.5px/1.6 var(--sans);color:var(--subtle);margin:0}
+.seg{display:grid;grid-template-columns:auto auto;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);overflow:hidden}
+.seg button{appearance:none;border:0;cursor:pointer;background:var(--cream-50);
+  color:var(--ink-600);font:600 12px/1 var(--sans);padding:9px 15px;
+  display:grid;grid-auto-flow:column;align-items:center;gap:7px}
+.seg button + button{border-left:1px solid var(--rule-edge)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg svg{width:13px;height:13px}
+
+/* ============================================================
+   THE ROW — ONE GRID, SEVEN TRACKS. Six auto, one 1fr.
+   Nothing negotiates; there is no second place for space to go.
+   ============================================================ */
+.list{max-width:60rem;display:grid;gap:8px}
+.row{
+  display:grid;
+  grid-template-columns:
+      auto   /* 1 grip     */
+      auto   /* 2 ordinal  */
+      auto   /* 3 thumb    */
+      1fr    /* 4 text     — the only flexible track */
+      auto   /* 5 meta     */
+      auto   /* 6 reorder  */
+      auto;  /* 7 remove   */
+  align-items:center;
+  gap:15px;
+  padding:12px 14px 12px 10px;
+  background:var(--cream-50);
+  border-radius:var(--r-card);
+  border-left:3px solid transparent;
+  box-shadow:var(--lift-rest);
+  cursor:pointer;
+  transition:box-shadow 200ms var(--ease),transform 200ms var(--ease),
+             border-left-color 150ms var(--ease);
+}
+.row:hover{transform:translateY(-2px);box-shadow:var(--lift-hover)}
+.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 1 · the drag handle */
+.grip{display:grid;grid-template-columns:3px 3px;gap:3px;padding:2px;cursor:grab}
+.grip span{width:3px;height:3px;border-radius:99px;background:var(--ink-400)}
+.row:hover .grip span{background:var(--ink-600)}
+
+/* 2 · the ordinal — the page's subject, so it leads */
+.num{font-family:var(--serif);font-style:italic;font-size:26px;line-height:1;
+  color:var(--ink-400);width:34px;text-align:center;
+  transition:color 150ms var(--ease)}
+.row:hover .num{color:var(--accent)}
+
+/* 3 · the thumbnail */
+.shot{position:relative;width:64px;height:40px;border-radius:var(--r-ctl);overflow:hidden;
+  background:linear-gradient(135deg,oklch(62% .13 285),oklch(52% .16 300))}
+.shot.a{background:linear-gradient(135deg,oklch(72% .12 45),oklch(52% .17 25))}
+.shot.b{background:linear-gradient(135deg,oklch(72% .1 230),oklch(52% .14 250))}
+.shot.c{background:linear-gradient(135deg,oklch(74% .11 340),oklch(54% .15 330))}
+.shot i{position:absolute;inset:16% 14%;border-radius:3px;background:oklch(97% .01 260);
+  box-shadow:0 4px 12px -4px oklch(14% .018 60/.45)}
+
+/* 4 · the text — the only flexible track, with a real floor */
+.txt{min-width:0}
+.txt h2{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.2;
+  margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txt p{font:400 12.5px/1.4 var(--sans);color:var(--subtle);margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 5 · the meta — its own grid, so the chips cannot stretch either */
+.meta{display:grid;grid-auto-flow:column;align-items:center;gap:12px;white-space:nowrap}
+.bes{font:600 9px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);border:1px solid oklch(56% .14 42/.34);
+  background:oklch(56% .14 42/.07);border-radius:99px;padding:5px 8px}
+.plat{display:grid;grid-auto-flow:column;align-items:center;gap:6px;
+  font:500 9.5px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-600)}
+.plat em{width:6px;height:6px;border-radius:99px;background:oklch(62% .13 285);font-style:normal}
+.plat.m em{background:oklch(58% .17 30)}
+.sect{font:400 11.5px/1 var(--sans);color:var(--ink-600)}
+
+/* 6 · the reorder cluster — FIXED TRACKS, so it cannot grow */
+.ord{display:grid;grid-template-columns:26px;grid-template-rows:24px 24px;width:26px;height:48px;
+  border:1px solid var(--rule);border-radius:var(--r-ctl);overflow:hidden}
+.ord button{appearance:none;border:0;padding:0;margin:0;width:26px;height:24px;
+  display:grid;place-items:center;background:var(--cream-50);color:var(--ink-600);
+  font-size:9px;line-height:1;cursor:pointer}
+.ord button + button{border-top:1px solid var(--rule)}
+.ord button:hover:not(:disabled){background:var(--cream-200);color:var(--ink-950)}
+.ord button:disabled{color:var(--ink-200);cursor:default}
+
+/* 7 · remove */
+.x{width:26px;height:26px;display:grid;place-items:center;border:0;background:transparent;
+  border-radius:var(--r-ctl);color:var(--ink-400);font-size:12px;cursor:pointer}
+.x:hover{background:var(--cream-200);color:var(--ink-950)}
+
+/* the note */
+.note{margin-top:20px;width:1120px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle)}
+.note b{color:var(--ink-950)}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px;margin-top:14px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  background:var(--cream-100);padding:2px 5px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="phead">
+    <div>
+      <h1>Case studies</h1>
+      <p>Pick one to edit its details and sections.</p>
+    </div>
+    <button class="add">+ Add case study</button>
+  </div>
+
+  <div class="bar">
+    <p>This is the order they appear on your homepage. Drag a row, or use the arrows.</p>
+    <div class="seg" role="group" aria-label="View">
+      <button aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Grid</button>
+      <button aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        List</button>
+    </div>
+  </div>
+
+  <div class="list">
+
+    <div class="row" role="button" tabindex="0">
+      <span class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="num">01</span>
+      <span class="shot a"><i></i></span>
+      <div class="txt">
+        <h2>boAt Crest</h2>
+        <p>Rebuilding boAt's fitness companion app from a cluttered tracker into a calm, guided experience.</p>
+      </div>
+      <div class="meta">
+        <span class="bes">Hand-built</span>
+        <span class="plat m"><em></em>Mobile</span>
+        <span class="sect">No sections</span>
+      </div>
+      <div class="ord"><button disabled>&#9650;</button><button>&#9660;</button></div>
+      <button class="x">&#10005;</button>
+    </div>
+
+    <div class="row" role="button" tabindex="0">
+      <span class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="num">02</span>
+      <span class="shot"><i></i></span>
+      <div class="txt">
+        <h2>Fosfor AI</h2>
+        <p>Designing an AI companion inside the Fosfor Decision Cloud that guides three kinds of users from data to decision.</p>
+      </div>
+      <div class="meta">
+        <span class="plat"><em></em>Web</span>
+        <span class="sect">15 sections</span>
+      </div>
+      <div class="ord"><button>&#9650;</button><button>&#9660;</button></div>
+      <button class="x">&#10005;</button>
+    </div>
+
+    <div class="row" role="button" tabindex="0">
+      <span class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="num">03</span>
+      <span class="shot b"><i></i></span>
+      <div class="txt">
+        <h2>Fosfor Data Profiling</h2>
+        <p>Designing the data profiling experience inside the Fosfor Decision Cloud, so teams could judge the quality and shape of their data before trusting it.</p>
+      </div>
+      <div class="meta">
+        <span class="plat"><em></em>Web</span>
+        <span class="sect">15 sections</span>
+      </div>
+      <div class="ord"><button>&#9650;</button><button>&#9660;</button></div>
+      <button class="x">&#10005;</button>
+    </div>
+
+    <div class="row" role="button" tabindex="0">
+      <span class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="num">04</span>
+      <span class="shot c"><i></i></span>
+      <div class="txt">
+        <h2>Elevate ONE View</h2>
+        <p>Designing the mobile interface field mechanics use to commission and maintain Elevate elevators worldwide.</p>
+      </div>
+      <div class="meta">
+        <span class="plat m"><em></em>Mobile</span>
+        <span class="sect">14 sections</span>
+      </div>
+      <div class="ord"><button>&#9650;</button><button disabled>&#9660;</button></div>
+      <button class="x">&#10005;</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="note">
+  <div class="warn">
+    <p class="h3">⚠ The row is a grid with explicit tracks, not nested flex</p>
+    The first attempt nested three flex contexts — row, right-hand group, reorder cluster — and the cluster <b>stretched to fill the row</b>, squeezing the title onto two lines and truncating the summary to one word. Adding <code>flex: 0 0 auto</code> at each level did not fix it, because <b>the fragility was the structure rather than any one declaration</b>.
+    The row is now <b>one grid, seven tracks: six <code>auto</code> and one <code>1fr</code></b>. Every element is either its content width or the single flexible column. There is no second place for space to go.
+    <b>This is #178's <code>w-0</code> computing to 264px, learned properly</b> — a correct class string is not a correct layout, and the answer is to state the box rather than keep adding declarations that ask for it.
+  </div>
+
+  <p class="h3" style="margin-top:16px">Two defects this fixes</p>
+  <b>boAt Crest reads as disabled today</b> — its row is dimmed because it is bespoke, but bespoke is not disabled: title, hero, summary and platform are all editable and only the body is in code. That is <b>hazard 29's shape one screen earlier</b>, and here it is a chip at full text strength.
+  <b>And "0 sections" becomes "No sections"</b> — a zero beside three fifteens reads as a study that lost its content.
+
+  <p class="h3" style="margin-top:14px">Why the ordinal leads</p>
+  The page's own subhead says the arrows set the homepage order, and nothing on the page believed it. The ordinal is the first thing read, with a drag handle beside it and the arrows kept as <b>the keyboard path</b> — this project has no drag anywhere yet, so if drag is deferred the list still works.
+
+  <p class="h3" style="margin-top:14px">▲ / ▼ here, ← / → in Grid</p>
+  One column has no wrap, so up and down mean exactly what they say. A grid wraps, so the study before a row's first card is visually to its <b>left</b>. That asymmetry is each control matching its own layout, not an inconsistency.
+
+  <p class="h3" style="margin-top:14px">The row cannot be a button element</p>
+  It is clickable and it <b>contains</b> buttons. A button inside a button is an invalid content model — #176's finding on a new surface. So it is a div with <code>role="button"</code> and <code>tabindex</code>, <code>stopPropagation</code> on the inner controls, and an <b>authored focus ring</b>, since a role-button div gets no ring and no Space/Enter for free.
+</div>
+
+</body>
+</html>

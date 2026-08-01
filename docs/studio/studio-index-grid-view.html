@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — case studies, Grid view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE CASE-STUDIES INDEX — GRID VIEW
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · radius 12/8/4 · labelCls 12/700/.14em.    ##
+  ##########################################################################
+
+  GRID ANSWERS "WHAT DO THEY LOOK LIKE". List answers "what order are they
+  in" and is a separate file.
+
+  ---- ⚠ EVERY ROW INSIDE THE CARD IS A GRID WITH EXPLICIT TRACKS ------
+  The first attempt used nested flex and the reorder cluster STRETCHED TO FILL
+  its row. Adding flex:0 0 auto at each level did not fix it, because the
+  fragility was the structure rather than any one declaration.
+  Here the card's foot is `grid-template-columns: 1fr auto` — the meta takes
+  the flexible track and the reorder cluster is its own fixed 52px box.
+  NOTHING NEGOTIATES.
+
+  ---- THE CARD IS ELEVATED, NOT BORDERED -----------------------------
+  Cream-50 cards on a cream-100 grid, because a card on the same ground has
+  nothing to lift off. That is the Board's language exactly, so the two
+  surfaces agree — and it checks out against the ladder, where a field surface
+  holding cards is what cream-100 is for.
+  ⚠ THE ELEVATION IS THREE ROLE-NAMED STEPS, NOT THREE LITERALS. #168 recorded
+  the shadow literal as an EXCEPTION because the theme has no elevation scale;
+  three steps across a grid is a scale arriving undeclared, and it gets
+  declared beside the radius block or the next surface copies a literal.
+
+  ---- ← / → , AND WHY -------------------------------------------------
+  A grid WRAPS, so the study before a row's first card is visually to its
+  LEFT, not above it. ▲ would move a card to the END of the previous row,
+  which reads as a jump rather than a step.
+  THE FIRST CARD'S ← AND THE LAST CARD'S → ARE DISABLED RATHER THAN ABSENT, so
+  the control never moves between cards.
+
+  ---- TWO DEFECTS THIS FIXES, BOTH IN THE CURRENT PAGE ---------------
+  1. boAt CREST READS AS DISABLED. Its row is dimmed because it is bespoke —
+     but bespoke is NOT disabled: title, hero, summary and platform are all
+     editable and only the BODY is in code. HAZARD 29's SHAPE ONE SCREEN
+     EARLIER. Here it is a CHIP at full strength.
+  2. "0 SECTIONS" BECOMES "NO SECTIONS". A zero beside three fifteens reads as
+     a study that LOST its content.
+
+  ---- THE CARD CANNOT BE A BUTTON ELEMENT ----------------------------
+  It is clickable and it CONTAINS buttons. A button inside a button is an
+  invalid content model; the browser closes the outer one early and scatters
+  the card. #176's finding on a new surface.
+  So it is a div with role="button" and tabindex, stopPropagation on the inner
+  controls, and an AUTHORED focus ring — a role-button div gets no ring and no
+  Space/Enter for free, and no gate here would catch that.
+
+  ---- THE SUMMARY CLAMPS TO TWO LINES, WITH A RESERVED HEIGHT --------
+  Two lines is the budget, and the box reserves it whether or not the text
+  fills it — otherwise a short summary shortens its card and the grid's rows
+  stop aligning. Measure the longest real summary before accepting the clamp.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  /* the elevation scale — named by ROLE, because three steps is a scale */
+  --lift-rest:0 1px 2px oklch(14% .018 60/.06), 0 2px 8px -3px oklch(14% .018 60/.1);
+  --lift-hover:0 2px 4px oklch(14% .018 60/.07), 0 8px 20px -6px oklch(14% .018 60/.16);
+  --lift-active:0 2px 5px oklch(14% .018 60/.08), 0 12px 28px -8px oklch(14% .018 60/.2);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:30px 26px 70px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+
+.page{background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);
+  padding:24px 26px 30px;width:1120px;max-width:100%}
+
+/* ---- head ---- */
+.phead{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;
+  max-width:60rem;margin-bottom:18px}
+.phead h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 6px}
+.phead p{font:400 13px/1.6 var(--sans);color:var(--subtle);margin:0;max-width:52ch}
+.add{background:var(--accent);color:#fff;border:0;border-radius:var(--r-ctl);
+  padding:11px 16px;font:600 12.5px/1 var(--sans);cursor:pointer;white-space:nowrap}
+
+/* ---- the view switcher: role=group + aria-pressed -> accent fill (correction 20) ---- */
+.bar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  max-width:60rem;margin-bottom:16px}
+.bar p{font:400 11.5px/1.6 var(--sans);color:var(--subtle);margin:0}
+.seg{display:grid;grid-template-columns:auto auto;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);overflow:hidden}
+.seg button{appearance:none;border:0;cursor:pointer;background:var(--cream-50);
+  color:var(--ink-600);font:600 12px/1 var(--sans);padding:9px 15px;
+  display:grid;grid-auto-flow:column;align-items:center;gap:7px}
+.seg button + button{border-left:1px solid var(--rule-edge)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg svg{width:13px;height:13px}
+
+/* ============================================================
+   THE GRID — cream-100 ground so cream-50 cards have something
+   to lift off. Three columns at this width.
+   ============================================================ */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:60rem;
+  background:var(--cream-100);padding:16px;border-radius:var(--r-card)}
+
+.card{display:grid;grid-template-rows:auto 1fr;background:var(--cream-50);
+  border-left:3px solid transparent;border-radius:var(--r-card);overflow:hidden;
+  box-shadow:var(--lift-rest);cursor:pointer;
+  transition:box-shadow 200ms var(--ease),transform 200ms var(--ease),
+             border-left-color 150ms var(--ease)}
+.card:hover{transform:translateY(-3px);box-shadow:var(--lift-hover)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card.on{border-left-color:var(--accent);box-shadow:var(--lift-active)}
+
+/* the hero */
+.shot{position:relative;width:100%;aspect-ratio:16/10;
+  background:linear-gradient(135deg,oklch(62% .13 285),oklch(52% .16 300))}
+.shot.a{background:linear-gradient(135deg,oklch(72% .12 45),oklch(52% .17 25))}
+.shot.b{background:linear-gradient(135deg,oklch(72% .1 230),oklch(52% .14 250))}
+.shot.c{background:linear-gradient(135deg,oklch(74% .11 340),oklch(54% .15 330))}
+.shot i{position:absolute;inset:15% 13%;border-radius:4px;background:oklch(97% .01 260);
+  box-shadow:0 6px 18px -6px oklch(14% .018 60/.45)}
+
+/* the body — explicit rows, so a short summary cannot shorten the card */
+.body{display:grid;grid-template-rows:auto auto auto;gap:6px;padding:12px 13px 13px;
+  align-content:start}
+.body h2{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.2;margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.body p{font:400 12px/1.5 var(--sans);color:var(--subtle);margin:0;height:36px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* THE FOOT — 1fr for the meta, a fixed track for the reorder cluster */
+.foot{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-top:5px}
+.meta{display:grid;grid-auto-flow:column;justify-content:start;align-items:center;gap:9px;
+  white-space:nowrap;min-width:0;overflow:hidden}
+.bes{font:600 9px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);border:1px solid oklch(56% .14 42/.34);
+  background:oklch(56% .14 42/.07);border-radius:99px;padding:5px 8px}
+.plat{display:grid;grid-auto-flow:column;align-items:center;gap:6px;
+  font:500 9.5px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-600)}
+.plat em{width:6px;height:6px;border-radius:99px;background:oklch(62% .13 285);font-style:normal}
+.plat.m em{background:oklch(58% .17 30)}
+.sect{font:400 11px/1 var(--sans);color:var(--ink-600)}
+
+/* the reorder cluster — FIXED TRACKS, so it cannot grow */
+.ord{display:grid;grid-template-columns:26px 26px;grid-template-rows:24px;width:52px;height:24px;
+  border:1px solid var(--rule);border-radius:var(--r-ctl);overflow:hidden}
+.ord button{appearance:none;border:0;padding:0;margin:0;width:26px;height:24px;
+  display:grid;place-items:center;background:var(--cream-50);color:var(--ink-600);
+  font-size:9px;line-height:1;cursor:pointer}
+.ord button + button{border-left:1px solid var(--rule)}
+.ord button:hover:not(:disabled){background:var(--cream-200);color:var(--ink-950)}
+.ord button:disabled{color:var(--ink-200);cursor:default}
+
+/* the add tile */
+.addtile{display:grid;place-items:center;border:1px dashed var(--rule-edge);
+  border-radius:var(--r-card);background:transparent;color:var(--ink-800);
+  font:600 12px/1 var(--sans);cursor:pointer;min-height:180px;
+  transition:border-color 200ms var(--ease),color 200ms var(--ease),background 200ms var(--ease)}
+.addtile:hover{border-style:solid;border-color:var(--accent);color:var(--accent);
+  background:var(--cream-50)}
+
+.note{margin-top:20px;width:1120px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle)}
+.note b{color:var(--ink-950)}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px;margin-top:14px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  background:var(--cream-100);padding:2px 5px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="phead">
+    <div>
+      <h1>Case studies</h1>
+      <p>Pick one to edit its details and sections.</p>
+    </div>
+    <button class="add">+ Add case study</button>
+  </div>
+
+  <div class="bar">
+    <p>Four studies, in the order they appear on your homepage.</p>
+    <div class="seg" role="group" aria-label="View">
+      <button aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Grid</button>
+      <button aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        List</button>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card" role="button" tabindex="0">
+      <span class="shot a"><i></i></span>
+      <div class="body">
+        <h2>boAt Crest</h2>
+        <p>Rebuilding boAt's fitness companion app from a cluttered tracker into a calm, guided experience.</p>
+        <div class="foot">
+          <div class="meta">
+            <span class="plat m"><em></em>Mobile</span>
+            <span class="bes">Hand-built</span>
+          </div>
+          <div class="ord"><button disabled>&#9664;</button><button>&#9654;</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" role="button" tabindex="0">
+      <span class="shot"><i></i></span>
+      <div class="body">
+        <h2>Fosfor AI</h2>
+        <p>Designing an AI companion inside the Fosfor Decision Cloud that guides three kinds of users from data to decision.</p>
+        <div class="foot">
+          <div class="meta">
+            <span class="plat"><em></em>Web</span>
+            <span class="sect">15 sections</span>
+          </div>
+          <div class="ord"><button>&#9664;</button><button>&#9654;</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card on" role="button" tabindex="0">
+      <span class="shot b"><i></i></span>
+      <div class="body">
+        <h2>Fosfor Data Profiling</h2>
+        <p>Designing the data profiling experience inside the Fosfor Decision Cloud, so teams could judge the quality of their data.</p>
+        <div class="foot">
+          <div class="meta">
+            <span class="plat"><em></em>Web</span>
+            <span class="sect">15 sections</span>
+          </div>
+          <div class="ord"><button>&#9664;</button><button>&#9654;</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" role="button" tabindex="0">
+      <span class="shot c"><i></i></span>
+      <div class="body">
+        <h2>Elevate ONE View</h2>
+        <p>Designing the mobile interface field mechanics use to commission and maintain Elevate elevators worldwide.</p>
+        <div class="foot">
+          <div class="meta">
+            <span class="plat m"><em></em>Mobile</span>
+            <span class="sect">14 sections</span>
+          </div>
+          <div class="ord"><button>&#9664;</button><button disabled>&#9654;</button></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="addtile">+ Add case study</button>
+
+  </div>
+</div>
+
+<div class="note">
+  <div class="warn">
+    <p class="h3">⚠ Every row inside the card is a grid with explicit tracks</p>
+    The first attempt used nested flex and the reorder cluster <b>stretched to fill its row</b>. Adding <code>flex: 0 0 auto</code> at each level did not fix it, because <b>the fragility was the structure rather than any one declaration</b>.
+    The card's foot is now <code>grid-template-columns: 1fr auto</code> — the meta takes the flexible track and the cluster is its own fixed 52px box. Nothing negotiates.
+  </div>
+
+  <p class="h3" style="margin-top:16px">The card is elevated, not bordered</p>
+  Cream-50 cards on a <b>cream-100 grid</b>, because a card on the same ground has nothing to lift off. That is the Board's language exactly, so the two surfaces agree, and it checks out against the ladder — a field surface holding cards is what cream-100 is for.
+  <b>⚠ The elevation is three role-named steps, not three literals.</b> #168 recorded the shadow literal as an <b>exception</b> because the theme has no elevation scale; three steps across a grid is a scale arriving undeclared, and it gets declared beside the radius block or the next surface copies a literal.
+
+  <p class="h3" style="margin-top:14px">← / → , and why</p>
+  A grid <b>wraps</b>, so the study before a row's first card is visually to its <b>left</b>. ▲ would move a card to the end of the previous row, which reads as a jump rather than a step. <b>The first card's ← and the last card's → are disabled rather than absent</b>, so the control never moves between cards.
+
+  <p class="h3" style="margin-top:14px">Two defects this fixes</p>
+  <b>boAt Crest reads as disabled today</b> — dimmed because it is bespoke, but bespoke is not disabled: title, hero, summary and platform are all editable and only the body is in code. <b>Hazard 29's shape one screen earlier</b>; here it is a chip at full text strength.
+  <b>And "0 sections" becomes "No sections"</b> — a zero beside three fifteens reads as a study that lost its content.
+
+  <p class="h3" style="margin-top:14px">The summary reserves its two lines</p>
+  Two lines is the budget and the box <b>reserves the height whether or not the text fills it</b> — otherwise a short summary shortens its card and the grid's rows stop aligning. Measure the longest real summary before accepting the clamp.
+
+  <p class="h3" style="margin-top:14px">The card cannot be a button element</p>
+  It is clickable and it <b>contains</b> buttons. A button inside a button is an invalid content model — #176's finding on a new surface. So it is a div with <code>role="button"</code> and <code>tabindex</code>, <code>stopPropagation</code> on the inner controls, and an <b>authored focus ring</b>, since a role-button div gets no ring and no Space/Enter for free.
+</div>
+
+</body>
+</html>
