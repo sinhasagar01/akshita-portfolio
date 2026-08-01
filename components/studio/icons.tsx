@@ -199,6 +199,23 @@ export function IconChevronRight(props: IconProps) {
   );
 }
 
+export function IconChevronLeft(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m15 6-6 6 6 6" />
+    </Icon>
+  );
+}
+
+/** Rows with leading bullets — the List view's half of the index switcher. */
+export function IconList(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+    </Icon>
+  );
+}
+
 export function IconX(props: IconProps) {
   return (
     <Icon {...props}>

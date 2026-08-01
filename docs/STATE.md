@@ -3312,6 +3312,150 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#275** the case-studies index — two views, one switcher →1955 across **48 suites**
+  (`studio-index` 49 new; `studio-ink` 273→275 with F5 revalued and H5 retired; `studio-cascade`
+  10→12). Contracts: `docs/studio/studio-index-grid-view.html`, `studio-index-list-view.html`.
+
+  GRID answers "what do they look like", LIST answers "what order are they in". Two questions,
+  two answers, one switcher, remembered in a cookie the ROUTE reads so the first paint is already
+  right.
+
+  **THE STRUCTURAL RULE IS THE WHOLE THING, AND ITS GATE IS A MEASUREMENT.** Every row and foot
+  is a grid with explicit tracks — the list row is seven tracks, six `auto` and exactly one
+  `1fr`; the card foot is `1fr auto`; both clusters state width AND height with fixed tracks
+  inside. **Driven at three page widths in both views: 26 wide in the list and 52 in the grid,
+  all six readings, unchanged.** A class-string assertion would have passed on every broken
+  version, which is why `studio-index`'s own header says the real gate is not in that file.
+
+  **THREE GATES CAUGHT THREE THINGS I HAD WRONG, AND ONE WAS A VISIBLE DEFECT.**
+  1. **`studio-cascade` C1 — the reserved height was derived from a line-height that never
+     applied.** globals.css carries an UNLAYERED `p { line-height: var(--leading-relaxed) }`,
+     which beats any `leading-*` utility. As a `<p>` the card summary rendered **1.7, so two
+     lines came to 40.8px inside a 36px box and the second line was CLIPPED**. The class string
+     was right and the box was wrong — exactly what that suite exists for. Both summaries became
+     `<span>`; measured after, line-height 18px, two lines 36px, box 36px, fits exactly.
+  2. **`studio-cascade` C2 — six INERT utilities.** The titles carried `font-display font-normal
+     leading-tight`, all three of which the unlayered `h1, h2` rule already sets. They rendered
+     correctly and **an edit to them would have done nothing**. Deleted rather than added to the
+     inventory: the reset also supplies `opsz 144` and `tracking-tight`, which no utility here
+     was replicating, so the `<h2>` is the right element and the utilities were pure redundancy.
+  3. **`studio-ink` F5 — the pill count moved 32→33, and the net hid five movements.** Three
+     arrived (the Hand-built chip, the platform dot, the drag dot) and two left with the old row
+     (its template pill and dashed Bespoke badge). A naive `+3` would have been wrong and a `>=`
+     would have hidden the removals. F5g names all five.
+
+  **`studio-ink` H5 IS RETIRED, CONSCIOUSLY.** It pinned exactly one element — the dashed
+  "Bespoke" badge — which this PR deletes. Revaluing it to `[]` would have been an assertion that
+  an empty set has no bad members, which passes without testing anything. The rule is not
+  repealed and H1 still catches the inverse; what is gone is the instance.
+
+  **THE SWITCHER IS A NEW SHELL, BECAUSE `SegmentedToggle` COULD NOT BE REUSED.** Its options are
+  hardcoded `["mobile","web"]` and it POSTs a draft patch — it requires a slug, a patchKey and an
+  onSaved. Fitting it would have meant adding the `options` prop its own comment refuses AND
+  making the network call optional, which is two components wearing one name. Meanwhile the
+  group+aria-pressed+fill markup was **already hand-copied twice** inside `SectionsEditPanel`, so
+  this was the fourth site. `SegmentedGroup` takes the shell only; the other three are named in
+  it as the consumers to migrate NEXT, deliberately not in the PR that adds a new screen.
+  Correction 20 decides the control: same content, two presentations, so a GROUP and the FILL.
+
+  **THE COOKIE IS READ BY THE ROUTE, NOT THE LAYOUT**, correcting the brief. The dashboard layout
+  serves ten pages and this value belongs to one. Driven: the SERVER HTML carries ordinals and
+  up/down labels with `list` stored, the add tile and earlier/later with `grid`, and **a junk
+  value falls back to grid** — the parse is on the read, `sidebar-width.ts`'s rule applied to a
+  closed set.
+
+  **THE TWO DEFECTS IT WAS FOR.** boAt Crest was `opacity-60` because it is bespoke, which is
+  false about four of its five fields — hazard 29's shape one screen earlier, now a chip at full
+  strength (6.57 on the card, 6.25 on the well, sanity pair 21 first). And "0 sections" became
+  "No sections", branched on the COUNT rather than the slug so a genuinely empty new study gets
+  the honest sentence too.
+
+  **DRAG IS DEFERRED AND THE GRIP IS DECORATIVE** (owner's call). It is `aria-hidden` and carries
+  NO grab cursor — the contract draws one, and a grab cursor on something that cannot be grabbed
+  is the lie the affordance would tell. The arrows are the keyboard equivalent and the reason
+  drag is optional at all. **The row keeps its own track for it, so wiring drag later is additive
+  rather than a re-layout.**
+
+  **KEYBOARD, DRIVEN WITH REAL KEYS.** A real Tab reaches both row and card, `:focus-visible`
+  matches, and the authored ring draws solid 2px accent at `-2px` (inset, because the card
+  clips). Real Enter activates both. **Space could NOT be driven** — the harness delivers
+  `key: ""` for every spelling of it, so Space was exercised by dispatching a real KeyboardEvent
+  instead: it activates and calls `preventDefault`. That the spacebar produces `" "` is UI-Events
+  spec, not this code. Stated rather than reported as driven. (Also worth keeping: the harness
+  wants `Enter`, not `Return` — `Return` arrives with an empty `key` and silently does nothing.)
+
+  **A REORDER CLICK DOES NOT OPEN THE STUDY** — driven, path unchanged. Reorder itself was proven
+  against a stubbed success, since dev is fs-mode and honestly reverts with "needs github mode".
+  The ends stay disabled by POSITION, so they follow the slot rather than the study.
+
+  **TWO CHANGES BEFORE MERGE, BOTH FROM THE OWNER, AND ONE REVERSES SOMETHING THIS PR GATED.**
+
+  **THE 60rem CAP IS GONE.** It shipped with #239's field measure applied and `studio-index` F5
+  pinning it. The measure exists so a line of PROSE does not run to an unreadable length, and
+  **this page has no prose**: the grid is cards and the list's summary is a single TRUNCATED line,
+  so width buys more cards and more visible summary rather than a harder paragraph. Measured at
+  1440 the content went 960 -> 1141, and the grid runs **2 columns at 900, 3 at 1440, 5 at 1800**
+  off the same `auto-fill` floor with no media query. **F5 was INVERTED rather than deleted** —
+  "no cap" is now the property, and it is the exception among four field pages that all carry one,
+  so a reflex could undo it.
+
+  **A SEARCH, LOCAL AND INLINE**, which is `SectionsRail`'s stated rule: `blog-search.ts` is a lib
+  module because TWO surfaces needed it, and generalising at the first consumer is what
+  ThreePaneShell was held back from. Matches title OR summary — driven, "elevator" returns only
+  Elevate ONE View, matching its SUMMARY and not its title. **Fails OPEN**, unlike the blog's
+  `status`: a search narrows a list the author already owns, while `status` governs whether a post
+  exists publicly.
+
+  **⚠ TWO THINGS THE SEARCH BREAKS IF THEY ARE NOT HANDLED, AND BOTH ARE ABOUT POSITION.**
+  1. **THE ORDINAL MUST COME FROM THE FULL LIST.** A filtered view renumbering 1..n would state a
+     homepage rank that does not exist. Driven: filtering to "elevate" shows **04**, not 01, and
+     "fosfor" shows **02 and 03**.
+  2. **REORDER LOCKS WHILE FILTERING.** `moveItem` swaps with a neighbour in the FULL list, which
+     filtered is usually off screen — so the arrows would commit a real move whose only visible
+     effect is nothing, and twice would move a study two places silently. They disable, and the
+     subline says "1 of 4 studies. Clear the search to change the order."
+  Two zero states are separated at the source, #271's lesson applied before anyone reports it, and
+  the add TILE hides while filtering because a create affordance inside a result set reads as one
+  of the results. The head button never moves.
+
+  **THE HEAD ROW WAS REWORKED TWICE, BY THE OWNER, AND THE SECOND NOTE IS THE INTERESTING ONE.**
+  First: the search, the switcher and Add were to sit on the SAME LEVEL as "Case studies" rather
+  than in a band beneath it, and the count sentence was to move into an INFORMATION STRIP — the
+  same one #264 built for the live-preview note, not a third flavour of strip.
+  Then: *"search + grid|list switch + add case study button in one row does not look good."*
+  **THE REASON IS WORTH KEEPING** — that row put three unrelated jobs shoulder to shoulder, a
+  FILTER beside a PRESENTATION beside a WRITE, so it read as a toolbar of equals. The switcher and
+  Add belong to the PAGE and stay with the title; the search belongs to the LIST, so it came down
+  to the list and took the left edge. It sits BESIDE the strip rather than above it because the
+  strip is the ANSWER: type, and the sentence to its right becomes "2 of 4 studies".
+  `AreaHeader` MOVED INTO THE INDEX to make that head row possible — the controls need client
+  state and a title does not, and one flex row cannot span a server and a client component. It is
+  presentational with no hooks, so a client parent renders it unchanged, and #244's rule is about
+  CAPPING it rather than about who renders it.
+
+  **AND A WIDTH UTILITY LOST A COIN FLIP, VISIBLY.** `w-[220px]` was put on the search input beside
+  `inputCls`, which already carries `w-full`. Two width utilities on one element are decided by
+  their order in the GENERATED sheet, not in the class string — so the field took the whole row and
+  pushed the strip below it. Fixed by stating the box on a WRAPPER and letting the input fill it,
+  which is the reorder cluster's lesson one element up: state the box, do not add a declaration
+  that asks for it.
+
+  **AND THE #274 GATE CAUGHT ITS OWN AUTHOR.** The comment explaining the head row's `shrink-0`
+  used the bare word for it — one of the seven ordinary English words that are also utilities —
+  and `css-comment-trap` failed the build. Reworded to "contract". The gate fired on the PR after
+  the one that built it, which is the first evidence it works on someone who knew the rule.
+
+  **A 404 ON ALL FOUR HEROES WAS THE ENVIRONMENT, NOT THE CODE**, and it is recorded because it
+  looked exactly like a broken feature. The proxy 307s to the plain path in fs mode and that path
+  serves 200 — but a dev server started on a `.next` left by a PRODUCTION build returned 404 with
+  `ENOENT ... 3.pack.gz_` in the log. Stopping, clearing `.next` and restarting fixed it; all four
+  then loaded at 1600px. Same trap the memory note already warns about, met from a new direction.
+
+  **THE PUBLIC COST, STATED AS #274 REQUIRES.** Rendered public home DOM byte-identical at 62,675
+  bytes. CSS **+2,444 raw and +287 brotli**, all studio-only utilities — all studio-only
+  utilities, landing in the chunk the public site downloads. That is the known cost the audit
+  measured, not a new category, and it is reported rather than rounded away.
+
 - **#274** the bundle audit — dead rules out, and a gate for the trap →1904 across **47 suites**
   (`css-comment-trap` new, 5 assertions). **Asked for after #273: "audit the whole bundle for
   other unused studio-only rules."**
