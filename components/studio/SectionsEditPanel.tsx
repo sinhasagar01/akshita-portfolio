@@ -876,6 +876,7 @@ export default function SectionsEditPanel({
   draftImages = NO_DRAFT_IMAGES,
   detailsNode,
   detailsCanvas,
+  bespoke,
   detailsDirty = false,
   livePath,
   studies,
@@ -893,6 +894,13 @@ export default function SectionsEditPanel({
    *  rather than built here for the same reason `detailsNode` is: this panel owns the sections,
    *  and the details fields belong to the panel above it. */
   detailsCanvas?: ReactNode;
+  /** A hand-built study: its sections and work-filter category are set in code, `BESPOKE_SLUGS`
+   *  gates the fetch, and there is nothing to arrange. It still has a title, a hero, a summary and
+   *  a platform, which still render a project card — so it gets the SAME three panes, with the
+   *  sections machinery suppressed rather than a second editor composed beside this one. That
+   *  distinction matters: "a case study has ONE editor at ONE URL" is a locked decision, and the
+   *  `[slug]/body` route is what happens when a second surface for the same content drifts. */
+  bespoke?: boolean;
   /** Whether that form has unsaved edits, for the rail's Details marker. */
   detailsDirty?: boolean;
   /** Resolved server-side; see the route. */
@@ -2267,6 +2275,16 @@ export default function SectionsEditPanel({
           <span className="text-ink-600 transition-colors group-hover:text-ink-950">← Case studies</span>
         </Link>
         <span className="truncate font-display text-[17px] text-ink-950">{title}</span>
+        {/* THE STUDY ANNOUNCES WHAT IT IS BEFORE ANYONE GOES LOOKING FOR WHAT IS MISSING. A
+            reader who opens boat-crest and finds one rail item should learn why from the header,
+            not by inferring it from an absence. Accent-tinted rather than the neutral template
+            chip beside it, because it is a different KIND of fact — the template chip says how it
+            renders, this says who renders it. */}
+        {bespoke && (
+          <span className="shrink-0 rounded-full border border-accent-500/35 bg-accent-500/[0.07] px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-accent-600">
+            Hand-built
+          </span>
+        )}
         <span className="shrink-0 rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-600">
           {template === "web" ? "Web" : "Mobile"}
         </span>
@@ -2280,6 +2298,14 @@ export default function SectionsEditPanel({
         >
           <span className="text-ink-600">View live</span> <IconArrowUpRight />
         </a>
+        {/* NO TOGGLE ON A BESPOKE STUDY, BECAUSE THERE IS NO BOARD TO TOGGLE TO. The Board
+            arranges sections; with none it is an empty grid whose Add button cannot work, since
+            `BESPOKE_SLUGS` gates the write path. A CONTROL THAT CANNOT DO ANYTHING IS WORSE THAN
+            AN ABSENT ONE — this repo has deleted that shape four times (FIT_THRESHOLD_PX, the 2xl
+            radius, the ink-700 sites, .blog-editable.is-selected). ABSENT, NOT DISABLED: a
+            disabled toggle still asserts a Board exists. */}
+        {!bespoke && (
+        <>
         {/* EDITOR | BOARD. Not new machinery — `selection` already encoded the board as a state,
             so this is that state getting a control instead of a back link.
             EDITOR IS FIRST, AND THE ORDER IS THE ONLY THING THAT CHANGED. It reads left to right
@@ -2303,6 +2329,8 @@ export default function SectionsEditPanel({
             );
           })}
         </div>
+        </>
+        )}
       </div>
 
       {/* THE BOARD SHOWS **OVER** THE SHELL, NEVER INSTEAD OF IT, AND THIS IS THE ONE THING IN
@@ -2314,9 +2342,9 @@ export default function SectionsEditPanel({
           swapped — exactly as the section editors inside it are hidden rather than unmounted.
           `mount-discipline` in ralph drives this rather than reading the class string, because
           the defect is a runtime unmount. */}
-      {showBoard && boardNode}
+      {!bespoke && showBoard && boardNode}
 
-      <div hidden={showBoard} className="flex min-h-0 flex-1">
+      <div hidden={!bespoke && showBoard} className="flex min-h-0 flex-1">
         <ThreePaneShell
           fitThresholdPx={sidebarPx + CS_PANES_SUM}
           listNoun="sections"
@@ -2342,6 +2370,7 @@ export default function SectionsEditPanel({
               onMove={moveSection}
               needsImage={sectionNeedsImage}
               detailsDirty={detailsDirty}
+              bespoke={bespoke}
             />
           }
           canvasDock={
@@ -2391,8 +2420,21 @@ export default function SectionsEditPanel({
         />
       </div>
 
-      {/* CREAM-200 for the same reason as the crumb row. Two chrome bars bracketing the split
+      {/* NO SECTIONS FOOTER ON A BESPOKE STUDY, AND THIS ONE IS #200 INVERTED. A normal study
+          shows TWO saves at once when Details is selected — "Save details" and "Save sections" —
+          renamed rather than merged because they commit genuinely different drafts. A bespoke
+          study has no sections draft to commit, so a second bar would offer to save an object
+          that does not exist. #200's defect was two buttons claiming to be the same action; this
+          would be one button naming an object with nothing behind it.
+          AND THE WRITE PATH WOULD NOT HAVE STOPPED IT HONESTLY. Only `delete-entry` carries a
+          `BESPOKE_SLUGS` guard; `save-draft` has none. The serializer does refuse — `p4-4bi`
+          asserts boat-crest is REFUSED because it has `body` and no `sections` — but that
+          surfaces as a generic "Save failed. Try again.", which reads as a broken editor. The
+          honest answer is not to offer the save. `detailsNode` brings its own "Save details"
+          footer, so a bespoke study keeps exactly the one save it can perform.
+          CREAM-200 for the same reason as the crumb row. Two chrome bars bracketing the split
           must be the same ground, or the page has two answers to one question. */}
+      {!bespoke && (
       <footer className="flex flex-none items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
         <span className="text-[12px]" aria-live="polite">
           {saveStatus === "saving" ? (
@@ -2433,6 +2475,7 @@ export default function SectionsEditPanel({
           </button>
         </div>
       </footer>
+      )}
     </>
   );
 }

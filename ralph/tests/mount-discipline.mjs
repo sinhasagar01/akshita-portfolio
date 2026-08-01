@@ -40,14 +40,34 @@ const code = (p) => read(p).replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/
 const panel = code("components/studio/SectionsEditPanel.tsx");
 
 /* ================================================ A. THE SHELL IS HIDDEN, NOT SWAPPED */
+// WIDENED FOR THE BESPOKE GUARD, WHICH IS A CONJUNCT AND NOT A CHANGE OF SHAPE. A hand-built
+// study has no Board, so the hidden expression gained `!bespoke &&`. The PROPERTY this asserts is
+// unchanged and is what the regex still pins: the shell is rendered under `hidden`, never as the
+// other arm of a ternary. A2 below is the assertion that actually refuses the dangerous shape, and
+// it did not move.
 t("A1: the shell is rendered under a `hidden` prop, so opening the Board cannot unmount it",
-  /hidden=\{showBoard\}[\s\S]{0,120}<ThreePaneShell/.test(panel), true);
+  /hidden=\{[^}]*showBoard\}[\s\S]{0,120}<ThreePaneShell/.test(panel), true);
 // The exact wrong shape, refused by name. A ternary putting the board and the shell in the same
 // slot is the composition that destroys the inspector.
 t("A2: the board and the shell are NOT alternatives of one ternary — the shape that unmounts the forms",
   /showBoard\s*\?[\s\S]{0,200}<ThreePaneShell/.test(panel), false);
 t("A3: the board is rendered as its own conditional — it holds no form state, so it MAY unmount",
-  /\{showBoard && boardNode\}/.test(panel), true);
+  /\{(?:!bespoke && )?showBoard && boardNode\}/.test(panel), true);
+
+/* A4 — THE BESPOKE DENOMINATOR, AND THIS SUITE COULD NOT SEE IT BEFORE.
+ * B1-B3 below are regexes over this file's SOURCE: they assert the string
+ * `hidden={selectedSectionId !== ids.sectionIds[i]}` exists, which is true whatever the runtime
+ * section count is. On a hand-built study that count is ZERO, so every one of them passes having
+ * asserted nothing about a page with no section editors at all. The driven proof in Part D is a
+ * paste-in script the runner never executes, and its own header excludes boat-crest.
+ * That is `run.mjs`'s false-pass shape one level down — a gate whose denominator is zero and which
+ * cannot say so. It is named here rather than left implicit: a bespoke study mounts zero section
+ * editors BY CONSTRUCTION, because it is handed an empty array, and the suite records that this is
+ * the intended zero rather than a silent one. */
+t("A4: a bespoke study is handed ZERO sections, so B1-B3 below have no subjects on that page",
+  /sections=\{bespoke \? \[\] : \(sectionsData \?\? \[\]\)\}/.test(read("components/studio/ProjectsEditPanel.tsx")), true);
+t("A4: …and it renders no Board, so the composition B1-B3 guard is never entered there",
+  /\{!bespoke && showBoard && boardNode\}/.test(panel), true);
 
 /* ================================================ B. THE FORMS ARE HIDDEN, NOT CONDITIONAL */
 t("B1: each section editor is hidden by selection rather than filtered out of the map",

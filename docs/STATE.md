@@ -3312,6 +3312,59 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#271** the bespoke three-pane — boat-crest gets the shell →1892 (`studio-ink` 254→266, C13
+  new; `mount-discipline` 26→45 with A4 new, A1/A3 widened). **PR 3 of the Details arc. CLOSES
+  HAZARD 29.**
+
+  boat-crest showed "the details strip and a read-only notice, **and nothing else**" — on the
+  first slug alphabetically, the canonical example everywhere in this repo. It read as a broken
+  editor rather than a different kind of study. It now gets the SAME three panes with the sections
+  machinery suppressed, **not a second editor composed beside this one**: "a case study has ONE
+  editor at ONE URL" is locked, and `[slug]/body` is what a second surface for the same content
+  becomes.
+
+  **THE ZERO STATE IS THE WHOLE HAZARD.** An empty list under a count heading is what a broken
+  fetch looks like. The rail states **"Sections · none"** and carries the sentence the hazard turns
+  on — *"Nothing failed to load; there is nothing to load."* The notice moved INTO the rail, where
+  an author looks for sections.
+
+  **AND THE OLD COPY WAS REACHABLE ON ANY EMPTY STUDY, NOT JUST THIS ONE.** *"No sections match
+  that search"* answered three different questions — none exist, none match, none at all — with the
+  search one. **Three zero states now**, separated.
+
+  **NO BOARD, SO NO TOGGLE — ABSENT RATHER THAN DISABLED**, because a disabled toggle still asserts
+  a Board exists. **ONE SAVE, NOT TWO, AND THAT IS #200 INVERTED:** its defect was two buttons
+  claiming to be the same action; a "Save sections" here would be one button naming an object with
+  nothing behind it. The write path would not have refused it honestly — only `delete-entry`
+  carries a `BESPOKE_SLUGS` guard, and the serializer's refusal surfaces as a generic *"Save
+  failed. Try again."*
+
+  **THE PLAN PREDICTED `studio-ink` E1b WOULD FAIL AND IT DID NOT.** Its two file-scoped regexes
+  pin the fallback's FRAME and its `p-4 lg:p-6`. Only the bespoke CONDITION was removed, not the
+  branch — loading and error still use that shared wrapper — so the markup survives and the rule
+  E1b encodes still has subjects. **A prediction about a gate is worth re-testing against the
+  actual edit rather than the imagined one.**
+
+  **AND `mount-discipline` COULD NOT SEE THE ZERO.** B1-B3 are source regexes, true whatever the
+  runtime section count is, so a page with no section editors passes them having asserted nothing;
+  the driven proof is a paste-in script the runner never executes and whose header excludes
+  boat-crest. **A4 names it:** a bespoke study is handed an empty array BY CONSTRUCTION, so the
+  zero is the intended one rather than a silent one. A1 and A3 were widened for the `!bespoke`
+  conjunct — **A2, the one that actually refuses the dangerous ternary, did not move.**
+
+  **DRIVEN ON BOTH.** boat-crest: one rail item, "Sections · none", no toggle, one save bar, the
+  Hand-built chip. elevate-one-view unchanged: Editor|Board present, "Sections · 14", both saves,
+  56 reorder controls, zero bespoke leakage.
+
+  **TWO THINGS TO REPORT, AND ONE OF THEM WAS ALREADY CLOSED.** boat-crest's hero is **NOT** the
+  837KB PNG the brief describes — `374bec8` replaced it with a **91KB webp** on 2026-07-30,
+  through the studio's own upload path. Measured here: **13.8ms, 91.4KB decoded**, with the canvas
+  card served a 22.6KB optimized variant. **And this does NOT fix the parity gap:** `parity.mjs`
+  still lists boat-crest and still yields zero pairs. **This makes the editor coherent, not the
+  harness.**
+
+  Public DOM byte-identical. Six mutations kill six assertions.
+
 - **#270** the Details canvas — the work card, in both of its states →1878 (`studio-ink` 242→254,
   C12 new; `canvas-hero` E retired and replaced). **PR 2 of the Details arc.**
 
