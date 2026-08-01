@@ -8,7 +8,7 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE SELECTION CONTRACT)
 
-**main** = `2e4e064` = the flush field and T0's inspector half (#260). **#261 takes the echo
+**main** = `f73adac` = the block-level echo (#261). **#261 takes the echo
 block-level**, which is what finally makes it fire on the 77% of the canvas-editable surface that
 had been silent since #259 — the hero section was 0 of 12. **The Selected rail is replaced by a dock at
 the canvas foot with five timed tiers, the studio gains its first motion-token block scoped beside
@@ -3311,6 +3311,40 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 `b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
+
+- **#262** the section wrapper loses its frame →1766 (`studio-ink` 154→157, new E1d).
+  A box around a box: the div holding the whole inspector body drew a card inside a pane that is
+  already a bordered surface. Same finding as #245, where a panel's `<section>` frame became
+  redundant once the shell owned it. The contract draws none.
+
+  **THE PADDING STAYS, AND THE MEASUREMENT IS WHY.** Before, the body's ink landed at **14** while
+  the tabs and the hint sit at **13**; after, **13**. **The border was the extra pixel, not the
+  padding.** Removing `p-3` as well would put the ink at 1 — precisely the defect #257 fixed on
+  the tab hint, reintroduced one element over. #257's method answered this: measure where the ink
+  starts relative to the pane edge, not what the padding says.
+
+  **NOTHING INSIDE WAS RELYING ON IT.** Every group in the body carries its own 1px hairline, so
+  none loses separation — and they gained the 2px the frame was taking, going 278 → 280 wide at
+  x 14 → 13. That is the question #256 raised when moving a ground one level up made nested rows
+  vanish into their parent, asked here of a BORDER rather than a fill, and answered by measuring
+  the children rather than reasoning about the parent.
+
+  **14 WRAPPERS, 0 STILL FRAMED.** One JSX expression in a `.map`, so it reaches every section by
+  construction rather than by sweep. Verified as a count, since every section is mounted.
+
+  **AND THE GATE THAT SHOULD HAVE HELD THIS DID NOT REACH IT — WHICH IS THE FINDING.**
+  `studio-ink` E1b/E1c derive the frame rule from `<ListDetailLayout>` hosts. `SectionsEditPanel`
+  renders in `ThreePaneShell`, so **it was never in the derived set**, and the frame survived
+  #245 untouched. **A derivation scoped to one shell is not a rule about frames; it is a rule
+  about that shell.** That is #248's finding in a new costume — there the derivation encoded a
+  NAME SUFFIX and a panel slipped past; here it encoded a SHELL and a whole surface did. Both
+  times the derivation was honest and still described less than the rule it enforced.
+  E1d states the property against the other shell, and two mutations kill it: restore the frame,
+  or drop the padding with it.
+
+  **CSS union zero added and zero removed** — both utilities keep other consumers, so nothing lost
+  its last one. Public DOM byte-identical. `studio-cascade`, `studio-tokens`, `studio-border-race`
+  clean.
 
 - **#261** the echo goes block-level — **and the framing correction leads it** →1763
   (`studio-motion` 45→50, `mount-discipline` anchor moved).

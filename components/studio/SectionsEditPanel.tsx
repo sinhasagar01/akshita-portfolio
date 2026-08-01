@@ -1794,7 +1794,21 @@ export default function SectionsEditPanel({
           <div
             key={ids.sectionIds[i]}
             hidden={selectedSectionId !== ids.sectionIds[i]}
-            className="flex flex-col gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 p-3"
+            /* NO FRAME. This drew a card around the WHOLE inspector body, inside a pane that is
+               already a bordered surface — a box around a box. Same finding as #245, where the
+               panel <section>'s frame became redundant once the shell owned it; that sweep was
+               scoped to `ListDetailLayout` hosts and this panel renders in `ThreePaneShell`, so
+               it was never in the derived set and the frame survived. The contract draws none.
+               `p-3` STAYS, AND THAT IS MEASURED RATHER THAN ASSUMED. It was not compensating for
+               the border: with the frame the ink inside landed at 14 while the tabs and hint sit
+               at 13, so the border WAS the extra pixel. Dropping it alone puts this body's ink at
+               13 with its neighbours. Removing the padding too would take it to 1, which is
+               exactly the defect #257 fixed on the tab hint.
+               THE GROUPS INSIDE DO NOT LOSE THEIR SEPARATION — measured, every one carries its
+               own 1px hairline, so none was relying on this frame. That is the question #256
+               raised when moving a ground one level up made nested rows vanish into their parent,
+               asked here of a border instead of a fill. */
+            className="flex flex-col gap-3 p-3"
           >
             {confirmRemove === ids.sectionIds[i] ? (
               // Removing a section discards every block in it, and the control sits
