@@ -3135,6 +3135,56 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+- **#257** the tab hint, and the spacing that turned out to be a drawing's own furniture →1707
+  (`studio-labels` 34→38, new section G). **PR 4 of 4, and it closes the inspector audit.**
+  **THE SPLIT WAS THE WORK; THE BUILD WAS TWO CLASSES.** The brief asked for the contract's
+  `.ibody` 12/14/20, `.gbody` 11 and `.kv` 14 against today's 0/12/4-6/8, and for the mock's own
+  card padding to be separated from values the real pane needs. **The measurement that separated
+  them was not the paddings themselves — it was WHERE THE INK STARTS relative to the pane's left
+  edge.** Header ink **16**, tab ink **13**, section-card content **13**, and the tab hint at
+  **1**. One child of the body was flush against the pane border and everything else was already
+  inset. That is a one-element defect, not a missing body gutter.
+  **SHIPPED: the hint 12px -> 11px, and `px-3` so its ink lands at 13 with the tabs above it.**
+  Height **3.35 -> 3.34 worst, 2.00 -> 2.00 mean** — the confirm-zero the brief asked for, measured
+  rather than assumed, and marginally negative because 11px carries a shorter line box. No ground
+  moved and no colour moved, so contrast is unchanged by construction.
+  **CORRECTION 31 — `.ibody{padding:12px 14px 20px}` IS THE MOCK'S OWN CARD PADDING, AND BUILDING
+  IT WOULD HAVE MADE THINGS WORSE.** The 14 appears three times in the contract — `.ibody`, `.seg`,
+  `.tabhint` — because `.insp` is a floating card whose children have no inset of their own. In
+  the real pane every child already carries one, so a body padding of 14 would have pushed the
+  section cards from 14 to **28** and halved the usable width the audit already measured at 226px.
+  **The repetition of the number IS the tell**: a value that appears at every child of a container
+  is that container's padding, drawn one level down because the drawing had nowhere else to put it.
+  Also recorded under 31: `.insp`'s border, radius and overflow-hidden (floating-card furniture,
+  already noted in #254), `.gbody` 11 vs today's 12 and `.grp` 10 vs today's gap 8 — both inside
+  2px, which is below the threshold at which anything is worth a class.
+  **`.kv` 14 IS REAL AND WAS STILL NOT BUILT, ON ITS NUMBER.** It is not mock furniture; it is a
+  genuine claim about the pane's rhythm. Simulated, 8 -> 14 costs **3.35 -> 3.51 worst, 2.00 ->
+  2.08 mean** — the single most expensive value left in the whole arc, for 6px of air. And the
+  separation it buys is already bought: the key pill and its connector make each field a bounded
+  unit, which is what the 14 was drawn to do on a mock that had neither. Reported with its number
+  rather than applied, the same way the pill and the open-state border were.
+  **THE GATE IS A RELATIONSHIP, NOT A NUMBER.** G3 derives the hint's inset AND the tablist's from
+  source and asserts they are equal, so the alignment cannot be broken from either side; `px-3`
+  pinned on the hint alone would have kept passing while the tabs moved out from under it. G4
+  asserts the contract's `leading-[1.5]` stays ABSENT — `studio-cascade` C1 caught it as inert on
+  the first run, because the studio reset already sets that line-height on `<p>`. **The contract's
+  number was already the rendered number; writing it would have added a class that cannot drive.**
+  Four mutations killed four assertions. Two of the four assertions were themselves wrong first:
+  `text-\[11px\]\b` can never match (`]` and the following space are both non-word, so there is no
+  boundary there), and a `{0,400}` byte window missed a padding sitting ~700 chars in and returned
+  `undefined` — **which would have compared equal to a missing hint padding and passed for the
+  wrong reason**. G3 now requires both sides to resolve before it compares them.
+  **CLOSING THE AUDIT, WHICH IS THE POINT OF THE FOUR.** Of what the audit classified as
+  implementation gaps: the unit suffix was real and shipped (#255); four of seven accordion values
+  were real and free, three were not worth their cost (#256); the pill was real and its reversal
+  was the owner's actual complaint (#254); and of this PR's spacing set, one value of five was
+  real. **Across four PRs, roughly half of what a drawing called a gap survived measurement.** The
+  audit's value was never in confirming the drawing — it was in sizing the real gap, and in every
+  case the sizing came from a rendered box rather than the file. **A contract drawn rather than
+  measured is wrong at about the rate it is right, and the drawing cannot tell you which half you
+  are looking at.** That is now the standing rule for `docs/studio/*.html`.
+
 - **#256** the accordion — four free values, three dropped on measurement →1703, no assertion
   moves. PR 3 of the fidelity audit's four.
   **MEASURED ON A THROWAWAY BRANCH BEFORE COMMITTING, AND THAT CHANGED THE PR.** I had called this
