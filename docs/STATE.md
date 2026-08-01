@@ -3312,6 +3312,36 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#273** the inert floor, and the comment that re-emitted it →1899 (`studio-ink` C14 gains a
+  7th assertion). **Follows directly from #272's own reported cost.**
+
+  #272 shipped honestly and the honest report was the defect: one rule, `min-h-[40vh]`, added to
+  the chunk the public home page loads. This deletes it.
+
+  **THE FLOOR WAS INERT, WHICH IS THE PART WORTH KNOWING.** A loading box looks like it needs a
+  minimum or it collapses to its text. It does not. The dashboard layout's screen-height minimum
+  gives the flex row a definite height, `<main>` stretches to it, and the `flex-1` child takes the
+  free space below the topbar. Driven at three viewports the box measured **835 / 494 / 335**
+  against floors of **360 / 280 / 160** — it never bound once, including below `lg` where the
+  sidebar stacks and at a 400px-tall viewport. Geometry after removal is identical to the pixel:
+  835px box, text centred at 483 in both.
+
+  **THEN THE COMMENT EXPLAINING THE DELETION RE-EMITTED THE RULE.** Tailwind v4 scans source as
+  PLAIN TEXT and has no concept of a comment, so writing the class name in a comment saying it was
+  removed puts the candidate straight back. Measured: the class was gone from the JSX, the bundle
+  hash **did not move**, and `grep 40vh` on the emitted CSS still found it. **The build gate is the
+  only thing that caught this** — ralph could not, because `code()` strips comments before matching,
+  which is exactly the durable rule this project already wrote after the comment trap fired ten
+  times. The rule now has a second half: **stripping comments makes your own parser honest and does
+  nothing about someone else's.** `@source not "../ralph"` is that same protection one level out,
+  which is why the suite may spell the class and a component may not.
+
+  **RESULT, MEASURED AGAINST `1f16ee6` (PRE-#272), NOT AGAINST #272.** Both CSS chunks
+  **byte-identical**, and the big chunk's hash returned to `25f321b8da28ee00` — the value it had
+  before #272 existed. Rendered public DOM byte-identical at 63,529 bytes with the build id
+  normalised. The RSC flight payload holds the same 64 rows; only the streaming chunk boundaries
+  differ, which varies build to build and is not content.
+
 - **#272** the loading window stops being a page — the details flash →1898 (`studio-ink` 266→272,
   C14 new). **Reported by the owner, not found by a gate.**
 

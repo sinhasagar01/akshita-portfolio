@@ -386,7 +386,23 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // encodes is about a panel that is NOT in a shell, and the error state is still exactly that.
   if (!bespoke && sectionsStatus !== "error" && (sectionsStatus !== "loaded" || !sectionsData)) {
     return (
-      <div className="grid min-h-[40vh] flex-1 place-items-center px-4 py-6">
+      // NO HEIGHT FLOOR HERE, AND THAT IS MEASURED RATHER THAN TRIMMED. The obvious reading is
+      // that a loading box needs a minimum or it collapses to its text. It does not: the layout's
+      // screen-height minimum gives the flex row a definite height, `<main>` stretches to it, and
+      // this `flex-1` child takes the free space below the topbar. Driven at three viewports the
+      // box came out 835 / 494 / 335 against floors of 360 / 280 / 160 — it never bound once.
+      //
+      // AND AN INERT UTILITY IS NOT FREE. Tailwind v4 emits ONE stylesheet and the public home
+      // page loads that chunk, so an arbitrary value used in one studio branch ships a rule to
+      // every visitor of the site. This one applied nowhere and was downloaded by everyone.
+      //
+      // THE CLASS NAME IS DELIBERATELY NOT WRITTEN OUT ANYWHERE ABOVE. The scanner reads source
+      // as PLAIN TEXT and does not know what a comment is, so naming the utility here — even to
+      // explain deleting it — re-emits the exact rule being deleted. That is not hypothetical:
+      // the first version of this comment did it, the bundle hash did not move, and the build
+      // gate is what caught it. `@source not "../ralph"` exists for the same reason one level
+      // out; a component comment has no such exclusion. Describe the value, never spell it.
+      <div className="grid flex-1 place-items-center px-4 py-6">
         <span className="text-[13px] text-text-subtle" role="status" aria-live="polite">
           Loading sections…
         </span>
