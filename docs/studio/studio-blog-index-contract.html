@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — the blog index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE BLOG INDEX — POST CARDS, TWO VIEWS, STATUS TABS
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · radius 12/8/4 · labelCls 12/700/.14em.    ##
+  ##########################################################################
+
+  TWO CONTROLS, AND THEY ARE NOT THE SAME KIND OF THING:
+    STATUS  All | Published | Drafts   — WHICH POSTS are shown
+    VIEW    Grid | List                — HOW those posts are arranged
+
+================================================================================
+  1 · ⚠ THE TWO CONTROLS TAKE DIFFERENT TREATMENTS, AND CORRECTION 20 SAYS SO
+================================================================================
+  This is the most likely thing to get wrong, because both are "a row of
+  buttons above a list".
+
+    STATUS is a role="tablist" with aria-selected -> THE UNDERLINE.
+      It swaps which content is shown, and each option has its own panel of
+      posts. That is what a tablist is.
+
+    VIEW is a role="group" with aria-pressed -> THE ACCENT FILL.
+      Both options show THE SAME posts, arranged differently. Same shape as
+      Board|Editor and as the case-studies index switcher.
+
+  Correction 20 states the rule and #241 applied it to the hero tabs, #246
+  gated it. TWO CONTROLS SIDE BY SIDE IN TWO LANGUAGES IS CORRECT HERE — the
+  roles differ, so the languages differ. Do not unify them for tidiness.
+
+================================================================================
+  2 · ⚠ THERE ARE ZERO DRAFTS TODAY, AND STATE ALREADY DECIDED THIS
+================================================================================
+  Three posts, all published. A "Drafts" tab with nothing behind it is a
+  control that cannot do anything — the shape this project has deleted four
+  times (FIT_THRESHOLD_PX, --radius-2xl, the eleven ink-700 sites,
+  .blog-editable.is-selected).
+  STATE HOLDS A LOCKED DECISION: "Empty blog status -> HIDDEN." So the STATUS
+  TABLIST IS ABSENT ENTIRELY WHILE EVERY POST IS PUBLISHED, and appears the
+  moment a draft exists. Both states are drawn below.
+  THE VIEW SWITCHER IS ALWAYS PRESENT, because both its options always work.
+
+================================================================================
+  3 · WHY CARDS, AND WHAT THE LIST IS FOR
+================================================================================
+  GRID answers "which post is this" — hero-led, so the index reads like the
+  blog it edits. IT IS THE ONLY ARRANGEMENT WHERE A MISSING HERO IS VISIBLE: a
+  draft with no hero shows an empty plate rather than a word, which is a real
+  authoring fact the current page cannot show at all.
+  LIST answers "what state is everything in" — denser, sortable by eye, and it
+  fits a dozen posts where the grid fits four. A blog grows; the list is what
+  it grows into.
+
+  DEFAULT IS GRID, for the same reason as the case-studies index: an author
+  arriving here is choosing which post to open, and recognising one is faster
+  than reading its title.
+
+================================================================================
+  4 · ⚠ EVERY ROW IS A GRID WITH EXPLICIT TRACKS, NOT NESTED FLEX
+================================================================================
+  The case-studies index shipped the stretching defect TWICE: nested flex let a
+  control expand to fill its row, squeezing the title onto two lines and
+  truncating the summary to one word. Adding flex:0 0 auto at each level did
+  not fix it, because the fragility was the structure.
+    LIST ROW  grid-template-columns: auto 1fr auto auto
+              thumb · TEXT · status · meta      one flexible track, no more
+    CARD      grid-template-rows: auto auto, and the body a stated 3 rows
+  THIS IS #178's `w-0` COMPUTING TO 264px. State the box; do not negotiate for
+  it. AND THE GATE IS A RENDERED-WIDTH MEASUREMENT, NOT A CLASS-STRING CHECK —
+  a class assertion passed every broken version of that index.
+
+================================================================================
+  5 · THE STATUS WORD REPLACES THE DOT
+================================================================================
+  Today status is a 6px dot in one of two greens, which nobody reads at a
+  glance, and the meta line already spends a word on it. So the word becomes
+  the chip and the dot goes.
+  A DRAFT ALSO CARRIES AN AMBER LEFT BAR on its card and its row, so it reads
+  as different even under "All" — the state is legible without the filter.
+  ⚠ THE AMBER IS A NEW COLOUR AND MUST BE CHECKED, NOT ASSUMED. The studio's
+  palette is cream / ink / accent plus a success green. A draft state needs its
+  own token measured against every ground it lands on, or it is the phantom-
+  token shape (hazard 23) in a new costume.
+
+================================================================================
+  6 · THE VIEW IS REMEMBERED IN A COOKIE
+================================================================================
+  Read by the layout that already calls cookies(), which is #237's mechanism
+  for the sidebar width — chosen so the FIRST PAINT is correct and there is no
+  hydration correction to animate (#178). localStorage guarantees a flash of
+  the wrong view on every load.
+  THE STATUS FILTER IS NOT REMEMBERED. It is a transient question about the
+  current session, and an author returning to find their posts filtered away
+  would read it as posts missing.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --ok:oklch(46% .075 145); --ok-bg:oklch(46% .075 145 / .1); --ok-edge:oklch(46% .075 145 / .3);
+  --draft:oklch(52% .1 75); --draft-bg:oklch(52% .1 75 / .12); --draft-edge:oklch(52% .1 75 / .34);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --lift-rest:0 1px 2px oklch(14% .018 60/.06), 0 2px 8px -3px oklch(14% .018 60/.1);
+  --lift-hover:0 2px 4px oklch(14% .018 60/.07), 0 8px 20px -6px oklch(14% .018 60/.16);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:30px 26px 70px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1.top{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 22px;max-width:94ch}
+.sub b{color:var(--ink-950)}
+
+.page{background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);
+  padding:24px 26px 30px;width:1120px;max-width:100%}
+
+/* head */
+.phead{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;
+  max-width:60rem;margin-bottom:18px}
+.phead h2{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 6px}
+.phead p{font:400 13px/1.6 var(--sans);color:var(--subtle);margin:0;max-width:56ch}
+.new{background:var(--accent);color:#fff;border:0;border-radius:var(--r-ctl);
+  padding:11px 16px;font:600 12.5px/1 var(--sans);cursor:pointer;white-space:nowrap}
+
+/* the two controls, side by side, deliberately in two languages */
+.controls{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:end;
+  max-width:60rem;margin-bottom:16px}
+/* STATUS — role=tablist + aria-selected -> the UNDERLINE (correction 20) */
+.tabs{display:grid;grid-auto-flow:column;justify-content:start;gap:20px;
+  border-bottom:1px solid var(--rule)}
+.tabs button{appearance:none;border:0;background:transparent;cursor:pointer;padding:10px 0 9px;
+  font:500 12.5px/1 var(--sans);color:var(--ink-600);border-bottom:2px solid transparent;
+  margin-bottom:-1px;display:grid;grid-auto-flow:column;gap:7px;align-items:center}
+.tabs button b{font-weight:500;color:var(--ink-400)}
+.tabs button[aria-selected="true"]{color:var(--ink-950);border-bottom-color:var(--accent)}
+.tabs button[aria-selected="true"] b{color:var(--ink-600)}
+.spacer{border-bottom:1px solid var(--rule);height:100%}
+/* VIEW — role=group + aria-pressed -> the accent FILL (correction 20) */
+.seg{display:grid;grid-template-columns:auto auto;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);overflow:hidden;margin-bottom:7px}
+.seg button{appearance:none;border:0;cursor:pointer;background:var(--cream-50);
+  color:var(--ink-600);font:600 12px/1 var(--sans);padding:9px 14px;
+  display:grid;grid-auto-flow:column;align-items:center;gap:7px}
+.seg button + button{border-left:1px solid var(--rule-edge)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg svg{width:13px;height:13px}
+
+.srch{height:40px;padding:0 12px;font:400 13px/1 var(--sans);background:var(--cream-50);
+  border:1px solid var(--rule-edge);border-radius:var(--r-ctl);color:var(--ink-400);
+  max-width:300px;width:100%;margin-bottom:16px;display:block}
+
+/* status chips */
+.st{font:600 9px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  border-radius:99px;padding:5px 9px;white-space:nowrap}
+.st.pub{color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-edge)}
+.st.drf{color:var(--draft);background:var(--draft-bg);border:1px solid var(--draft-edge)}
+
+/* ============ GRID ============ */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:60rem;
+  background:var(--cream-100);padding:16px;border-radius:var(--r-card)}
+.pcard{display:grid;grid-template-rows:auto auto;background:var(--cream-50);
+  border-radius:var(--r-card);overflow:hidden;box-shadow:var(--lift-rest);cursor:pointer;
+  border-left:3px solid transparent;
+  transition:box-shadow 200ms var(--ease),transform 200ms var(--ease)}
+.pcard:hover{transform:translateY(-3px);box-shadow:var(--lift-hover)}
+.pcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pcard.isdraft{border-left-color:var(--draft)}
+.pshot{position:relative;width:100%;aspect-ratio:2/1;
+  background:linear-gradient(135deg,oklch(72% .1 230),oklch(52% .14 250))}
+.pshot.b{background:linear-gradient(135deg,oklch(74% .11 340),oklch(54% .15 330))}
+.pshot.c{background:linear-gradient(135deg,oklch(72% .12 45),oklch(52% .17 25))}
+.pshot i{position:absolute;inset:16% 12%;border-radius:4px;background:oklch(97% .01 260);
+  opacity:.92;box-shadow:0 6px 18px -6px oklch(14% .018 60/.4)}
+/* the missing hero — a real authoring fact, and only the grid can show it */
+.pshot.empty{background:var(--cream-200);display:grid;place-items:center}
+.pshot.empty em{width:26px;height:26px;border:1.5px dashed var(--ink-400);border-radius:4px}
+.pshot .st{position:absolute;top:10px;left:10px}
+.pbody{display:grid;grid-template-rows:auto auto auto;gap:6px;padding:13px 14px 14px;
+  align-content:start}
+.pbody h3{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.25;margin:0}
+.pbody p{font:400 12px/1.5 var(--sans);color:var(--subtle);margin:0;height:36px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pmeta{display:grid;grid-auto-flow:column;justify-content:start;gap:10px;align-items:center;
+  font:400 11px/1 var(--sans);color:var(--ink-600);white-space:nowrap;margin-top:2px}
+
+/* ============ LIST ============ */
+.list{max-width:60rem;display:grid;gap:8px}
+.row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:15px;
+  padding:11px 14px 11px 11px;background:var(--cream-50);border-radius:var(--r-card);
+  border-left:3px solid transparent;box-shadow:var(--lift-rest);cursor:pointer;
+  transition:box-shadow 200ms var(--ease),transform 200ms var(--ease)}
+.row:hover{transform:translateY(-2px);box-shadow:var(--lift-hover)}
+.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row.isdraft{border-left-color:var(--draft)}
+.shot{position:relative;width:64px;height:44px;border-radius:var(--r-ctl);overflow:hidden;
+  background:linear-gradient(135deg,oklch(72% .1 230),oklch(52% .14 250))}
+.shot.b{background:linear-gradient(135deg,oklch(74% .11 340),oklch(54% .15 330))}
+.shot.c{background:linear-gradient(135deg,oklch(72% .12 45),oklch(52% .17 25))}
+.shot i{position:absolute;inset:18% 15%;border-radius:3px;background:oklch(97% .01 260);opacity:.9}
+.shot.empty{background:var(--cream-200);display:grid;place-items:center}
+.shot.empty i{position:static;inset:auto;width:15px;height:15px;background:transparent;
+  border:1.5px dashed var(--ink-400);border-radius:3px;opacity:1}
+.txt{min-width:0}
+.txt h3{font-family:var(--serif);font-weight:400;font-size:16.5px;line-height:1.2;margin:0 0 4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txt p{font:400 12px/1.4 var(--sans);color:var(--subtle);margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mline{font:400 11.5px/1 var(--sans);color:var(--ink-600);white-space:nowrap;
+  display:grid;grid-auto-flow:column;gap:10px;align-items:center}
+
+.hidden{display:none}
+
+.note{margin-top:20px;width:1120px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle)}
+.note b{color:var(--ink-950)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:14px}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px;margin-top:14px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  background:var(--cream-100);padding:2px 5px;border-radius:3px}
+.demolbl{font:600 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent);margin:26px 0 8px}
+</style>
+</head>
+<body>
+
+<h1 class="top">The blog index · post cards, two views</h1>
+<p class="sub"><b>Two controls, and they are not the same kind of thing.</b> Status swaps <b>which</b> posts are shown; view changes <b>how</b> they are arranged. Use both below — the tabs filter, the switcher rearranges. Status is a tablist and takes the underline; view is a group and takes the accent fill, per correction 20. Two languages side by side is correct here, because the roles differ.</p>
+
+<div class="page">
+  <div class="phead">
+    <div>
+      <h2>Blog</h2>
+      <p>Short posts. A new post starts as a draft and stays off /blog until you publish it.</p>
+    </div>
+    <button class="new">+ New post</button>
+  </div>
+
+  <input class="srch" value="Search posts" />
+
+  <div class="controls">
+    <div class="tabs" role="tablist" aria-label="Status">
+      <button role="tab" aria-selected="true" onclick="setStatus('all',this)">All <b>4</b></button>
+      <button role="tab" aria-selected="false" onclick="setStatus('pub',this)">Published <b>3</b></button>
+      <button role="tab" aria-selected="false" onclick="setStatus('drf',this)">Drafts <b>1</b></button>
+    </div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="View">
+      <button id="bGrid" aria-pressed="true" onclick="setView('grid')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Grid</button>
+      <button id="bList" aria-pressed="false" onclick="setView('list')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        List</button>
+    </div>
+  </div>
+
+  <!-- ============ GRID ============ -->
+  <div class="cards" id="viewGrid">
+    <div class="pcard isdraft" data-st="drf" role="button" tabindex="0">
+      <div class="pshot empty"><em></em><span class="st drf">Draft</span></div>
+      <div class="pbody">
+        <h3>Notes on measuring a design system</h3>
+        <p>Four blocks written, no hero yet. Stays off /blog until you publish it.</p>
+        <div class="pmeta"><span>Edited 2 Aug 2026</span><span>3 min</span><span>4 blocks</span></div>
+      </div>
+    </div>
+    <div class="pcard" data-st="pub" role="button" tabindex="0">
+      <div class="pshot"><i></i><span class="st pub">Published</span></div>
+      <div class="pbody">
+        <h3>AI first is a research posture, not a feature</h3>
+        <p>Why treating AI as a research posture changes what you build and how you test it.</p>
+        <div class="pmeta"><span>27 Jul 2026</span><span>2 min</span><span>9 blocks</span></div>
+      </div>
+    </div>
+    <div class="pcard" data-st="pub" role="button" tabindex="0">
+      <div class="pshot b"><i></i><span class="st pub">Published</span></div>
+      <div class="pbody">
+        <h3>What a design system is for when the machine can draw</h3>
+        <p>The value moves from consistency to judgement once generation is cheap.</p>
+        <div class="pmeta"><span>27 Jul 2026</span><span>3 min</span><span>12 blocks</span></div>
+      </div>
+    </div>
+    <div class="pcard" data-st="pub" role="button" tabindex="0">
+      <div class="pshot c"><i></i><span class="st pub">Published</span></div>
+      <div class="pbody">
+        <h3>What a data table teaches you about trust</h3>
+        <p>A table is a promise about where the numbers came from.</p>
+        <div class="pmeta"><span>24 Jul 2026</span><span>2 min</span><span>8 blocks</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LIST ============ -->
+  <div class="list hidden" id="viewList">
+    <div class="row isdraft" data-st="drf" role="button" tabindex="0">
+      <span class="shot empty"><i></i></span>
+      <div class="txt"><h3>Notes on measuring a design system</h3><p>No hero yet · 4 blocks</p></div>
+      <span class="st drf">Draft</span>
+      <span class="mline"><span>Edited 2 Aug 2026</span><span>3 min</span></span>
+    </div>
+    <div class="row" data-st="pub" role="button" tabindex="0">
+      <span class="shot"><i></i></span>
+      <div class="txt"><h3>AI first is a research posture, not a feature</h3><p>AI in product · 9 blocks</p></div>
+      <span class="st pub">Published</span>
+      <span class="mline"><span>27 Jul 2026</span><span>2 min</span></span>
+    </div>
+    <div class="row" data-st="pub" role="button" tabindex="0">
+      <span class="shot b"><i></i></span>
+      <div class="txt"><h3>What a design system is for when the machine can draw</h3><p>Design systems · 12 blocks</p></div>
+      <span class="st pub">Published</span>
+      <span class="mline"><span>27 Jul 2026</span><span>3 min</span></span>
+    </div>
+    <div class="row" data-st="pub" role="button" tabindex="0">
+      <span class="shot c"><i></i></span>
+      <div class="txt"><h3>What a data table teaches you about trust</h3><p>Enterprise UX · 8 blocks</p></div>
+      <span class="st pub">Published</span>
+      <span class="mline"><span>24 Jul 2026</span><span>2 min</span></span>
+    </div>
+  </div>
+</div>
+
+<p class="demolbl">Today's real state — three posts, zero drafts. The status tablist is absent entirely.</p>
+
+<div class="page">
+  <div class="phead">
+    <div>
+      <h2>Blog</h2>
+      <p>Short posts. A new post starts as a draft and stays off /blog until you publish it.</p>
+    </div>
+    <button class="new">+ New post</button>
+  </div>
+  <input class="srch" value="Search posts" />
+  <div class="controls">
+    <span></span><span></span>
+    <div class="seg" role="group" aria-label="View">
+      <button aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Grid</button>
+      <button aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        List</button>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="pcard" role="button" tabindex="0">
+      <div class="pshot"><i></i><span class="st pub">Published</span></div>
+      <div class="pbody">
+        <h3>AI first is a research posture, not a feature</h3>
+        <p>Why treating AI as a research posture changes what you build and how you test it.</p>
+        <div class="pmeta"><span>27 Jul 2026</span><span>2 min</span><span>9 blocks</span></div>
+      </div>
+    </div>
+    <div class="pcard" role="button" tabindex="0">
+      <div class="pshot b"><i></i><span class="st pub">Published</span></div>
+      <div class="pbody">
+        <h3>What a design system is for when the machine can draw</h3>
+        <p>The value moves from consistency to judgement once generation is cheap.</p>
+        <div class="pmeta"><span>27 Jul 2026</span><span>3 min</span><span>12 blocks</span></div>
+      </div>
+    </div>
+    <div class="pcard" role="button" tabindex="0">
+      <div class="pshot c"><i></i><span class="st pub">Published</span></div>
+      <div class="pbody">
+        <h3>What a data table teaches you about trust</h3>
+        <p>A table is a promise about where the numbers came from.</p>
+        <div class="pmeta"><span>24 Jul 2026</span><span>2 min</span><span>8 blocks</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <div class="warn">
+    <p class="h3">⚠ The two controls take different treatments, and correction 20 says so</p>
+    This is the most likely thing to get wrong, because both are "a row of buttons above a list".
+    <b>Status is a <code>role="tablist"</code> with <code>aria-selected</code> → the underline</b> — it swaps which content is shown, and each option has its own panel of posts.
+    <b>View is a <code>role="group"</code> with <code>aria-pressed</code> → the accent fill</b> — both options show the same posts, arranged differently. Same shape as Board|Editor.
+    <b>Two languages side by side is correct here.</b> The roles differ, so the languages differ — do not unify them for tidiness.
+  </div>
+
+  <div class="warn">
+    <p class="h3">⚠ Zero drafts today, and STATE already decided it</p>
+    A "Drafts" tab with nothing behind it is a control that cannot do anything — the shape this project has deleted four times. <b>STATE holds a locked decision: "Empty blog status → HIDDEN."</b> So the status tablist is <b>absent entirely</b> while every post is published, and appears the moment a draft exists. Both states are drawn above.
+    <b>The view switcher is always present</b>, because both its options always work.
+  </div>
+
+  <div class="cols">
+    <div>
+      <p class="h3">Why cards, and what the list is for</p>
+      <b>Grid answers "which post is this"</b> — hero-led, so the index reads like the blog it edits. It is the only arrangement where <b>a missing hero is visible</b>: a draft with no hero shows an empty plate rather than a word, which is an authoring fact the current page cannot show at all.
+      <b>List answers "what state is everything in"</b> — denser, and it fits a dozen posts where the grid fits four. A blog grows; the list is what it grows into.
+      <b>Default is Grid</b>, for the case-studies index's reason: an author arriving here is choosing which post to open.
+    </div>
+    <div>
+      <p class="h3">The status word replaces the dot</p>
+      A 6px dot in one of two greens is not a state anyone reads at a glance, and the meta line already spends a word on it. So the word becomes the chip and the dot goes. <b>A draft also carries an amber left bar</b> on its card and its row, so it reads as different even under "All".
+      <b>⚠ The amber is a new colour and must be checked, not assumed.</b> The studio's palette is cream / ink / accent plus a success green. A draft state needs its own token measured against every ground it lands on, or it is the phantom-token shape (hazard 23) in a new costume.
+    </div>
+  </div>
+
+  <div class="warn">
+    <p class="h3">⚠ Every row is a grid with explicit tracks, not nested flex</p>
+    The case-studies index shipped the stretching defect <b>twice</b>: nested flex let a control expand to fill its row, squeezing the title onto two lines and truncating the summary to one word. Adding <code>flex: 0 0 auto</code> at each level did not fix it, because the fragility was the structure.
+    List row is <code>auto 1fr auto auto</code> — thumb, text, status, meta — <b>one flexible track and no more</b>. <b>This is #178's <code>w-0</code> computing to 264px</b>: state the box, do not negotiate for it. And the gate is a <b>rendered-width measurement</b>, not a class-string check — a class assertion passed every broken version of that index.
+  </div>
+
+  <div style="margin-top:14px">
+    <p class="h3">The view is remembered; the filter is not</p>
+    <b>The view goes in a cookie read by the layout that already calls <code>cookies()</code></b> — #237's mechanism for the sidebar width, chosen so the first paint is correct and there is no hydration correction to animate.
+    <b>The status filter is not remembered.</b> It is a transient question about the current session, and an author returning to find their posts filtered away would read it as posts missing.
+    <p class="h3" style="margin-top:14px">The card cannot be a button element</p>
+    It is clickable and it contains a status chip today and may contain controls tomorrow. Both card and row are divs with <code>role="button"</code> and <code>tabindex</code>, with an <b>authored focus ring and authored Space/Enter</b> — a role-button div gets neither for free, and no gate here would catch a mouse-only card.
+  </div>
+</div>
+
+<script>
+function setView(v){
+  const grid = v === "grid";
+  document.getElementById("viewGrid").classList.toggle("hidden", !grid);
+  document.getElementById("viewList").classList.toggle("hidden", grid);
+  document.getElementById("bGrid").setAttribute("aria-pressed", String(grid));
+  document.getElementById("bList").setAttribute("aria-pressed", String(!grid));
+}
+function setStatus(st, btn){
+  document.querySelectorAll('.tabs button').forEach(b =>
+    b.setAttribute("aria-selected", String(b === btn)));
+  document.querySelectorAll("#viewGrid > *, #viewList > *").forEach(el => {
+    const show = st === "all" || el.dataset.st === st;
+    el.style.display = show ? "" : "none";
+  });
+}
+</script>
+</body>
+</html>
