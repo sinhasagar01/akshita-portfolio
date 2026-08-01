@@ -1258,5 +1258,90 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /margin-bottom: var\(--section-gap\);/.test(globals), true);
 }
 
+/* ---- C8 · THE SCROLLBAR HAIRLINE ------------------------------------------------------------
+ * Modelled on studio-motion's exists / scoped / not-global triple rather than on studio-cascade,
+ * which GENUINELY DOES NOT APPLY here and is worth saying rather than leaving implied. That suite
+ * arbitrates a Tailwind utility losing to an unlayered element rule; its parser accepts bare tag
+ * names only (studio-cascade.mjs:114), and NO TAILWIND UTILITY TARGETS A SCROLLBAR PSEUDO-ELEMENT,
+ * so there is no race for it to referee. Widening it would mean inventing a second mechanism, not
+ * extending the existing one. */
+{
+  /* ANCHORED ON THE COMMENT'S OPENING `/*`, NOT ON THE TEXT INSIDE IT, and the first draft was
+   * not — it started the slice at "STUDIO SCROLLBARS", which sits INSIDE the banner comment, so
+   * the opening delimiter was outside the slice and the comment-stripper had nothing to match.
+   * Every sentence of the prose then parsed as CSS, and two assertions failed on their own
+   * documentation. That is the comment trap for the SEVENTH time in this repo, committed here in
+   * the very gate written to catch a scrollbar regression. */
+  const sb = /\/\*[\s\S]{0,120}?STUDIO SCROLLBARS[\s\S]*$/.exec(globals)?.[0] ?? "";
+  const sbCode = sb.replace(/\/\*[\s\S]*?\*\//g, "");
+  const selectors = [...sbCode.matchAll(/([^{}]+?)\s*\{/g)]
+    .map((m) => m[1].trim().replace(/\s+/g, " "))
+    .filter((x) => x && !x.startsWith("@"));
+
+  t("C8: the scrollbar block was found — nothing below is a vacuous pass", sb !== "", true);
+  t("C8: 6px, the floor below which a thumb is a target you miss",
+    /::-webkit-scrollbar \{\s*width: 6px;\s*height: 6px;/.test(sb), true);
+  t("C8: no track and no buttons — there is no trough, which is the whole defect on ink",
+    /scrollbar-track,[\s\S]*?scrollbar-corner \{\s*background: transparent/.test(sb)
+      && /scrollbar-button \{\s*display: none/.test(sb), true);
+
+  /* THE FENCE IS THE LOAD-BEARING ASSERTION. Chrome supports `scrollbar-width`, and setting it
+   * DISCARDS every ::-webkit-scrollbar rule on the element — measured, webkit alone renders 6px
+   * while `scrollbar-width: thin` + webkit renders 11px and `scrollbar-color` + webkit renders 15.
+   * The contract's own CSS writes both, so an unfenced standard property silently reverts the
+   * whole design to a platform bar. This is the regression that would look like nothing changed. */
+  t("C8: the standard properties are FENCED behind @supports not selector(::-webkit-scrollbar)",
+    /@supports not selector\(::-webkit-scrollbar\) \{/.test(sb), true);
+  {
+    const fenceAt = sbCode.indexOf("@supports not selector(::-webkit-scrollbar)");
+    const outsideFence = fenceAt >= 0 ? sbCode.slice(0, fenceAt) : sbCode;
+    t("C8: …and NEITHER `scrollbar-width` NOR `scrollbar-color` appears outside it — in Chromium either one reverts the bar to 11px or 15px",
+      /scrollbar-(width|color)\s*:/.test(outsideFence), false);
+  }
+
+  /* THE GUTTER. Styling html's own scrollbar moves `scrollbar-gutter: stable`'s reserved width
+   * from 15 to 6 and documentElement.clientWidth by 9px, which `usePageWidthMin` reads — #235's
+   * discrepancy re-opened by a cosmetic change. `.studio-chrome` cannot reach html, so the scope
+   * IS the protection; these assert nothing widened it. */
+  t("C8: the block declares selectors at all — an empty parse would pass every check below",
+    selectors.length >= 6, true);
+  t(`C8: EVERY selector is .studio-chrome-scoped — the document scroller is excluded BY the scope${
+      selectors.filter((x) => !x.startsWith(".studio-chrome")).length
+        ? ` — stray: ${selectors.filter((x) => !x.startsWith(".studio-chrome")).join(" | ")}` : ""}`,
+    selectors.filter((sel) => !sel.split(",").every((one) => one.trim().startsWith(".studio-chrome"))), []);
+  /* `.studio-chrome *` IS scoped and must not be read as the bare universal selector — the first
+   * draft's regex flagged it, which would have forced the Firefox fence to be written worse to
+   * satisfy a gate that was wrong. */
+  t("C8: no BARE `html`, `:root` or `*` — that is the gutter, and every studio threshold rides on it",
+    selectors.some((sel) => /^(html|:root|\*)\b/.test(sel)), false);
+  t("C8: `scrollbar-gutter: stable` on html is untouched, and still on line 222",
+    globals.split("\n")[221].trim(), "scrollbar-gutter: stable;");
+
+  /* THE INK RULE TARGETS THE ELEMENT, NOT ITS DESCENDANTS, and that is a measured requirement.
+   * The sidebar CONTAINS a second scroller — the horizontal nav row — which scrolls only below
+   * `lg`, where the sidebar is bg-cream-100 rather than bg-ink-950. A descendant selector puts a
+   * white thumb on a cream ground at exactly the widths where that row is the one scrolling. */
+  t("C8: the ink rule is on #studio-sidebar ITSELF, never its descendants",
+    /\.studio-chrome #studio-sidebar::-webkit-scrollbar-thumb/.test(sb)
+      && !/#studio-sidebar [^:{,]*::-webkit-scrollbar/.test(sb), true);
+  t("C8: …and that id still exists on the element the rule names",
+    /id="studio-sidebar"/.test(code("components/studio/StudioSidebar.tsx")), true);
+
+  /* THE ALPHAS, WHICH studio-tokens CANNOT SEE. Its regex strips the opacity modifier
+   * non-capturing (studio-tokens.mjs:83-85) and it scans TSX utilities, not authored CSS, so both
+   * of these are outside it. Asserted here rather than left as a silent gap.
+   * THE TWO SIDES DO NOT SHARE AN ALPHA ON PURPOSE — the luminance curve is not symmetric, so
+   * equal alphas would not give equal separation. Tuned until the MEASURED separation matched:
+   * 1.63 on ink, 1.64-1.65 on the three creams. The relation is the separation, not the number. */
+  t("C8: the cream thumb is ink-950 at the studio's own hairline alpha, resolved through the token",
+    /color-mix\(in oklch, var\(--color-ink-950\) 22%, transparent\)/.test(sb), true);
+  t("C8: …and its base token is declared, which studio-tokens cannot check for authored CSS",
+    /--color-ink-950\s*:/.test(globals) && /--color-ink-400\s*:/.test(globals), true);
+  t("C8: the ink thumb is white/18 at rest and white/40 on hover — 34 measured 2.99 and missed 3:1",
+    /white 18%, transparent\)/.test(sb) && /white 40%, transparent\)/.test(sb), true);
+  t("C8: …and 34% is gone rather than left beside its replacement",
+    /white 34%/.test(sb.replace(/\/\*[\s\S]*?\*\//g, "")), false);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

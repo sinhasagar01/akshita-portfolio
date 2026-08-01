@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — the scrollbar contract</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE SCROLLBAR CONTRACT — the hairline, studio-wide
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · ink-950 chrome · the studio authors zero  ##
+  ##  global class names, so this ships as an authored rule SCOPED TO     ##
+  ##  .studio-chrome, the way the radius and motion blocks did.           ##
+  ##########################################################################
+
+  ---- WHAT IS WRONG TODAY ----------------------------------------------
+  Nothing is styled. Every scrollable surface in the studio uses the platform
+  default, so on macOS they are grey overlays that fade and on Windows they are
+  ~17px light-grey troughs with arrow buttons.
+  THE REAL DEFECT IS THE INK SIDEBAR: a light trough is the single loudest
+  thing on the darkest surface in the studio, and it is INVISIBLE TO ANYONE
+  DEVELOPING ON A MAC — the same class as #248's bigger-screen-worse-bug.
+
+  ---- THE TREATMENT ----------------------------------------------------
+    width            6px
+    track            transparent — there is none
+    thumb            one ladder step from its surface, radius 99px
+    thumb hover      one step further
+    no buttons, no corner, no track border
+
+  6px is the floor, not a preference: below about 6px a thumb becomes a target
+  you miss. Above about 8px it stops being a hairline and becomes B.
+
+  ---- FOUR CORRECTIONS FROM THE BUILD, ALL MEASURED -------------------
+  1. THIS FILE'S OWN CSS DID NOT DRAW ITS OWN SPEC. `scrollbar-width: thin` beside the
+     webkit rules renders 11px in Chrome 148, not 6 — the standard property discards the
+     pseudo-element rules entirely. Fixed above, fenced behind @supports.
+  2. `cream-300` IS A VALUE WHERE THE RULE IS A RELATION. Measured 1.37 / 1.30 / 1.19 on
+     cream-50 / 100 / 200 — WORST on the list rails, the surface with the most scrolling.
+     An alpha over the surface IS the relation, so it lands on one number everywhere:
+     ink-950/22 gives 1.65 / 1.65 / 1.64. Relation encoded as a value.
+  3. THE HOVER ON INK MISSED 3:1. white/34 measures 2.99 against ink-950. Now white/40, 3.74.
+  4. THE SURFACE LIST IS SIX AND THE REAL COUNT IS SEVENTEEN, and one of the six cannot be
+     styled at all — see below.
+
+  ---- INK AND CREAM ARE ONE RULE, NOT TWO DESIGNS ---------------------
+  ONE STEP OF SEPARATION FROM THE SURFACE THE BAR SITS ON. A cream thumb on ink
+  and an ink thumb on cream both satisfy it. A single colour for both is what
+  makes the sidebar look broken today, and it is the ninth by-role answer in
+  this project.
+
+    on ink-950     thumb  white / 18%     hover  white / 34%
+    on cream       thumb  cream-300       hover  ink-400
+
+  ---- THE GUTTER IS NOT TOUCHED, AND THAT IS WHY A WON ----------------
+  globals.css:222 sets scrollbar-gutter: stable on html. STATE records the
+  cost: matchMedia matches the VIEWPORT while the layout receives the viewport
+  minus the reserved gutter, so every studio threshold inherits a ~15px
+  discrepancy — this machine's scrollbar width, 0 with overlay scrollbars, ~17
+  on Windows. #235 fixed the COMPARISON rather than the gutter, deliberately.
+  A leaves all of it alone. The overlay variant would have reclaimed 15px on
+  every pane and required re-deriving every threshold to do it.
+  ⚠ CONFIRM the 6px width does not change the reserved gutter before building.
+
+  ---- FIREFOX IS A KNOWN DIFFERENCE, NOT A BUG ------------------------
+  Firefox offers only `scrollbar-width: auto | thin | none` and
+  `scrollbar-color` — no radius, no hover, no track control. `thin` is roughly
+  11px there rather than 6.
+  MEASURE WHAT IT RENDERS rather than assuming it degrades cleanly, and record
+  the result as a stated difference. The colours still apply, which is the half
+  that matters for the ink sidebar.
+
+  ---- THE SURFACES ----------------------------------------------------
+  The owner counts five. Derived from the layout:
+
+    sidebar          ink-950      the one that is actually broken today
+    list rail        cream-200
+    canvas           cream-50
+    inspector        cream-100
+    every textarea   cream-50     see the note below
+    the document     cream         and it owns the reserved gutter
+
+  A CENSUS FROM SOURCE IS THE FIRST STEP OF THE BUILD, not a reading of this
+  list. A surface missed is a default scrollbar left on screen, and this file
+  is not evidence — thirty-two corrections say so.
+
+  THE CENSUS FOUND SEVENTEEN, NOT SIX. Beyond the five panes above: the sidebar's own
+  horizontal nav row, the list-detail list and detail panes, the Board overlay, the topbar
+  search dropdown, the listbox dropdown, the canvas dock's textarea, and five further
+  textareas. All cream. Exactly ONE surface in the studio is ink-grounded.
+
+  AND THE SIXTH ENTRY ABOVE CANNOT BE STYLED, WHICH IS NOT AN OVERSIGHT BUT THE POINT.
+  "The document" owns the reserved gutter — that is precisely why it must be left alone.
+  MEASURED: styling html's scrollbar moves the gutter from 15 to 6 and clientWidth from 1425
+  to 1434, and `usePageWidthMin` reads that value, so every studio threshold shifts 9px.
+  This file asks for `.studio-chrome` scoping AND lists the document. It cannot have both,
+  and the scoping is what protects the gutter.
+
+  ALSO MEASURED: the ink rule must target the sidebar ELEMENT, never its descendants. The
+  nav row scrolls INSIDE the sidebar but only below lg, where the sidebar is cream-100.
+
+  ---- THE TEXTAREA IS A DIFFERENT CASE FROM A PANE --------------------
+  It is small, its thumb is short, and 6px on an 88px box may be a target
+  nobody can hit. MEASURE the rendered thumb height on the smallest textarea in
+  the studio and say whether it needs its own step. Drawn here at the same 6px;
+  that is the proposal, not the finding.
+
+  MEASURED, AND THE PROPOSAL STANDS FOR A REASON IT HAD NOT IDENTIFIED. The smallest is
+  min-h-[46px], not 88. With 2000px of content the thumb renders ~18px where proportion
+  would give 3.7 — WebKit enforces a MINIMUM thumb length, so a short box cannot produce an
+  ungrabbable thumb. No separate step. The worry was real and the mechanism was not.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:32px 26px 80px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 26px;max-width:92ch}
+.sub b{color:var(--ink-950)}
+
+/* ============================================================
+   THE HAIRLINE — 6px, no track, thumb only.
+   Firefox takes scrollbar-width/color; WebKit takes the rest.
+   ============================================================ */
+/* CORRECTION 1, MEASURED IN CHROME 148 AND FIXED HERE.
+   `scrollbar-width` was on the line below and it MADE THIS FILE MIS-DRAW ITS OWN SPEC.
+   Chrome supports the standard property, and setting it DISCARDS every ::-webkit-scrollbar
+   rule on the element — so this mock rendered an 11px bar with no radius and no hover while
+   the table below claimed 6px. `scrollbar-color` alone does the same and renders 15px.
+   The standard properties now sit behind @supports, as they do in globals.css. */
+.sb::-webkit-scrollbar{width:6px;height:6px}
+.sb::-webkit-scrollbar-track{background:transparent}
+.sb::-webkit-scrollbar-corner{background:transparent}
+.sb::-webkit-scrollbar-thumb{background:oklch(14% .018 60/.22);border-radius:99px}
+.sb::-webkit-scrollbar-thumb:hover{background:var(--ink-400)}
+@supports not selector(::-webkit-scrollbar){
+  .sb{scrollbar-width:thin;scrollbar-color:oklch(14% .018 60/.22) transparent}
+  .sb-ink{scrollbar-color:oklch(100% 0 0/.18) transparent}
+}
+/* on ink — the same rule, the other direction */
+.sb-ink::-webkit-scrollbar-thumb{background:oklch(100% 0 0/.18)}
+.sb-ink::-webkit-scrollbar-thumb:hover{background:oklch(100% 0 0/.40)}
+
+/* the studio frame */
+.shell{display:flex;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden;
+  width:1080px;max-width:100%;height:460px;background:var(--cream-50)}
+.side{width:200px;flex:none;background:var(--ink-950);display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:9px;padding:14px 14px 12px;flex:none}
+.brand i{width:26px;height:26px;border-radius:var(--r-card);background:var(--accent);display:grid;
+  place-items:center;color:#fff;font-style:normal;font-size:12px}
+.brand b{font-family:var(--serif);font-weight:400;font-size:17px;color:oklch(99% .008 80)}
+.snav{flex:1;min-height:0;overflow-y:auto;padding:4px 10px 12px}
+.grp{font:700 9.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-400);
+  padding:10px 10px 9px;margin:0}
+.snav a{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;
+  border-radius:99px;color:var(--ink-200);font-size:13px;text-decoration:none;margin-bottom:2px}
+.snav a.on{background:oklch(100% 0 0/.1);color:oklch(99% .008 80);font-weight:500}
+.snav a span{color:var(--ink-400);font-size:11px}
+
+.rail{width:236px;flex:none;background:var(--cream-200);border-right:1px solid var(--rule-edge);
+  display:flex;flex-direction:column}
+.rcap{font:600 9px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);
+  padding:11px 12px;border-bottom:1px solid var(--rule);flex:none}
+.rlist{flex:1;min-height:0;overflow-y:auto}
+.r{padding:11px 12px;border-bottom:1px solid var(--rule);border-left:3px solid transparent}
+.r.on{background:var(--cream-300);border-left-color:var(--accent)}
+.r b{display:block;font:500 13px/1.35 var(--sans);margin-bottom:4px}
+.r span{font:400 11px/1 var(--sans);color:var(--subtle)}
+
+.canvas{flex:1;min-width:0;background:var(--cream-50);display:flex;flex-direction:column}
+.cvbar{height:36px;flex:none;display:flex;align-items:center;padding:0 14px;
+  border-bottom:1px solid var(--rule);font:500 12px/1 var(--sans);color:var(--ink-600)}
+.stage{flex:1;min-height:0;overflow-y:auto;padding:20px 24px}
+.eb{display:inline-block;font:500 8.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-600);border:1px dashed var(--rule-edge);padding:5px 8px;border-radius:99px;margin-bottom:12px}
+.ct{font-family:var(--serif);font-weight:400;font-size:23px;line-height:1.14;margin:0 0 12px}
+.cl{font:400 12.5px/1.65 var(--sans);color:var(--ink-800);margin:0 0 12px}
+
+.insp{width:300px;flex:none;background:var(--cream-100);border-left:1px solid var(--rule-edge);
+  display:flex;flex-direction:column}
+.band{background:var(--ink-950);color:var(--cream-50);padding:9px 14px;display:flex;
+  justify-content:space-between;align-items:center;flex:none}
+.band h4{margin:0;font:700 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.band .st{font:500 10.5px/1 var(--sans);color:var(--ink-200)}
+.ibody{flex:1;min-height:0;overflow-y:auto;padding:12px 14px}
+.lbl{display:block;font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-600);margin-bottom:6px}
+.v1{width:100%;height:40px;padding:0 11px;font:400 13px/1 var(--sans);background:var(--cream-50);
+  border:1px solid var(--rule-edge);border-radius:var(--r-ctl);margin-bottom:12px}
+.ta{width:100%;height:86px;padding:9px 11px;font:400 13px/1.5 var(--sans);background:var(--cream-50);
+  border:1px solid var(--rule-edge);border-radius:var(--r-ctl);resize:none;margin-bottom:12px}
+
+.spec{margin-top:26px;width:1080px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle)}
+.spec b{color:var(--ink-950)}
+.spec table{border-collapse:collapse;margin:10px 0 0;width:100%;max-width:640px}
+.spec th{text-align:left;font:600 9.5px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-400);padding:0 14px 7px 0;border-bottom:1px solid var(--rule)}
+.spec td{padding:7px 14px 7px 0;border-bottom:1px solid var(--rule);font-size:12px}
+.spec td:first-child{font-weight:500;color:var(--ink-950)}
+.cols{display:flex;gap:28px;flex-wrap:wrap;margin-top:18px}
+.col{flex:1;min-width:250px}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px}
+</style>
+</head>
+<body>
+
+<h1>The scrollbar contract · the hairline</h1>
+<p class="sub"><b>Nothing is styled today</b> — every scrollable surface uses the platform default. The real defect is the ink sidebar, where a light trough is the loudest thing on the darkest surface in the studio, and it is invisible to anyone developing on a Mac. <b>6px, no track, thumb only, one ladder step from its surface.</b> Scroll all four panes below — the sidebar, the rail, the canvas and the inspector — and the textarea inside the inspector.</p>
+
+<div class="shell">
+  <div class="side">
+    <div class="brand"><i>★</i><b>Studio</b></div>
+    <div class="snav sb sb-ink">
+      <p class="grp">Content</p>
+      <a class="on">Homepage</a>
+      <a>Case studies <span>4</span></a>
+      <a>Experience <span>5</span></a>
+      <a>Blog <span>3</span></a>
+      <a>Skills <span>5</span></a>
+      <p class="grp">Settings</p>
+      <a>Site settings</a>
+      <a>Profile</a>
+      <a>Team</a>
+      <a>Billing</a>
+      <a>Sign out</a>
+    </div>
+  </div>
+
+  <div class="rail">
+    <div class="rcap">Sections · 15</div>
+    <div class="rlist sb">
+      <div class="r on"><b>Fosfor AI</b><span>1 block · Hero cover</span></div>
+      <div class="r"><b>One companion, three people.</b><span>2 blocks</span></div>
+      <div class="r"><b>At a glance.</b><span>1 block · Stat cards</span></div>
+      <div class="r"><b>The same wall, hit three ways.</b><span>1 block</span></div>
+      <div class="r"><b>Goals</b><span>1 block · Stepper</span></div>
+      <div class="r"><b>Three phases, three personas.</b><span>1 block</span></div>
+      <div class="r"><b>Three personas, three needs.</b><span>1 block</span></div>
+      <div class="r"><b>The solution</b><span>1 block</span></div>
+      <div class="r"><b>What makes it work.</b><span>2 blocks</span></div>
+    </div>
+  </div>
+
+  <div class="canvas">
+    <div class="cvbar">One companion, three very different people.</div>
+    <div class="stage sb">
+      <span class="eb">The setup</span>
+      <p class="ct">One companion,<br/>three very different people.</p>
+      <p class="cl">Enterprise AI isn't difficult because of the technology — it's difficult because every user expects something different. Inside Fosfor Decision Cloud, one AI companion had to support three distinct personas with different goals, workflows and definitions of success.</p>
+      <p class="cl">Designing one experience that felt intelligent to all of them became the core challenge of this project, and the thing every later decision had to answer to.</p>
+      <p class="cl">The challenge wasn't designing one AI assistant. It was designing one assistant that could think differently for three completely different people without making any of them feel like the product wasn't built for them.</p>
+      <p class="cl">Each persona solved different problems, which made a single one-size-fits-all experience ineffective from the first week of research onward.</p>
+    </div>
+  </div>
+
+  <div class="insp">
+    <div class="band"><h4>The setup</h4><span class="st">Saved</span></div>
+    <div class="ibody sb">
+      <span class="lbl">Eyebrow</span><input class="v1" value="The setup" />
+      <span class="lbl">Title</span><input class="v1" value="One companion, three very different people." />
+      <span class="lbl">Lead</span>
+      <textarea class="ta sb">Enterprise AI isn't difficult because of the technology — it's difficult because every user expects something different. Inside Fosfor Decision Cloud, one companion had to support three personas.</textarea>
+      <span class="lbl">Anchor id</span><input class="v1" value="setup" />
+      <span class="lbl">Index</span><input class="v1" value="01" />
+      <span class="lbl">Variant</span><input class="v1" value="hero" />
+      <span class="lbl">Layout</span><input class="v1" value="stack" />
+    </div>
+  </div>
+</div>
+
+<div class="spec">
+  <p class="h3">The treatment</p>
+  <table>
+    <tr><th>axis</th><th>value</th></tr>
+    <tr><td>width</td><td>6px — the floor. Below it the thumb is a target you miss; above 8 it stops being a hairline</td></tr>
+    <tr><td>track</td><td>transparent — there is none</td></tr>
+    <tr><td>thumb radius</td><td>99px</td></tr>
+    <tr><td>thumb on ink-950</td><td>white / 18% &nbsp;→&nbsp; hover white / 34%</td></tr>
+    <tr><td>thumb on cream</td><td>cream-300 &nbsp;→&nbsp; hover ink-400</td></tr>
+    <tr><td>buttons, corner</td><td>none</td></tr>
+  </table>
+
+  <div class="cols">
+    <div class="col">
+      <p class="h3">Ink and cream are one rule</p>
+      <b>One step of separation from the surface the bar sits on.</b> A cream thumb on ink and an ink thumb on cream both satisfy it — a single colour for both is what makes the sidebar look broken today. The ninth by-role answer in this project.
+    </div>
+    <div class="col">
+      <p class="h3">Firefox is a stated difference</p>
+      It offers only <b>scrollbar-width</b> and <b>scrollbar-color</b> — no radius, no hover, no track control, and <b>thin is ~11px rather than 6</b>. The colours still apply, which is the half that matters for the ink sidebar. Measure what it renders rather than assuming it degrades cleanly.
+    </div>
+  </div>
+
+  <div class="warn" style="margin-top:20px">
+    <p class="h3">The gutter is not touched, and that is why this variant won</p>
+    <b>globals.css:222 sets scrollbar-gutter: stable on html.</b> matchMedia matches the viewport while the layout receives the viewport minus the reserved gutter, so every studio threshold inherits a ~15px discrepancy — 0 with overlay scrollbars, ~17 on Windows. #235 fixed the comparison rather than the gutter, deliberately. The overlay variant would have reclaimed 15px on every pane and required re-deriving every threshold to do it. <b>Confirm the 6px width does not change the reserved gutter before building.</b>
+  </div>
+
+  <div style="margin-top:20px">
+    <p class="h3">The surfaces — and a census from source is the first step</p>
+    sidebar (ink-950, the one actually broken), list rail (cream-200), canvas (cream-50), inspector (cream-100), every textarea (cream-50), and the document, which owns the reserved gutter. <b>This file is not evidence</b> — a surface missed is a default scrollbar left on screen.
+    <p class="h3" style="margin-top:14px">The textarea is a different case from a pane</p>
+    It is small and its thumb is short. <b>6px on an 86px box may be a target nobody can hit</b> — drawn here at the same 6px, which is the proposal rather than the finding. Measure the rendered thumb height on the smallest textarea in the studio and say whether it needs its own step.
+  </div>
+</div>
+
+</body>
+</html>
