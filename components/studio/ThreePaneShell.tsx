@@ -75,6 +75,7 @@ export default function ThreePaneShell({
   list,
   canvas,
   canvasBar,
+  canvasDock,
   inspector,
   fitThresholdPx,
   listNoun,
@@ -108,6 +109,19 @@ export default function ThreePaneShell({
    *  control is the caller's business — for blog it is the post title and the narrow-width
    *  view toggle. */
   canvasBar?: ReactNode;
+  /** A strip pinned to the canvas pane's FOOT, below the scroll region. Optional and
+   *  collection-agnostic for the same reason `canvasBar` is: the shell owns the pane's
+   *  frame, the caller owns what goes in it.
+   *
+   *  IT IS A SIBLING OF THE SCROLL REGION, NOT A CHILD, and that is the point. As a sibling
+   *  it COMPRESSES the canvas rather than covering it, so nothing is ever hidden behind it —
+   *  and it stays outside the subtree `useFitToWidth` observes, so it cannot feed back into
+   *  the scale.
+   *
+   *  BELOW `lg` THE PANE IS NOT A BOUNDED COLUMN — the shell is one document-flow column
+   *  there — so this renders in flow after the canvas instead of docking. The affordance
+   *  survives at every width; only the pinning is `lg`+. */
+  canvasDock?: ReactNode;
   /** The inspector, or null when the caller has folded it and is rendering that same node
    *  inside `canvas` instead. The shell never renders a hidden second copy.
    *
@@ -222,7 +236,14 @@ export default function ThreePaneShell({
           ) : null}
           {canvasBar}
         </div>
-        <div className="min-h-0 flex-1 lg:overflow-y-auto">{canvas}</div>
+        {/* `scroll-smooth` IS THE WHOLE REDUCED-MOTION STORY FOR T0. The scroll is driven with
+            `scrollTo({top})` and NO `behavior` key, so it reads this. An explicit
+            `behavior: "smooth"` would OVERRIDE the global reset's
+            `scroll-behavior: auto !important` — that is #198 exactly, and the reason the
+            reduced-motion suite exists. Left to CSS, reduce turns the scroll instant for free,
+            with no `useReducedMotion` anywhere in studio. */}
+        <div className="min-h-0 flex-1 scroll-smooth lg:overflow-y-auto">{canvas}</div>
+        {canvasDock}
       </div>
 
       {/* INSPECTOR — rendered only when it fits. Below INSPECTOR_FOLD_PX the caller mounts

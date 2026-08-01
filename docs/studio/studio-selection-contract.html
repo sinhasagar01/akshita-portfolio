@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mark and dock — the motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  MARK AND DOCK — LAYERED MOTION
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Colour, ground and radius are the studio's. THE MOTION TOKENS ARE   ##
+  ##  NEW — the studio has --duration-fast 150ms and --ease-out-expo and  ##
+  ##  nothing else. Two easings, five durations, four delays and two      ##
+  ##  distances are all ADDITIONS to be declared, not values being reused.##
+  ##########################################################################
+
+  ---- SHIPPING VALUES. THE MOCK RUNS AT 2x SO THE ORDER IS VISIBLE. ----
+  ##  THE 1x COLUMN IS WHAT SHIPS. The speed control is a mock affordance and
+  ##  must not be ported. Every value below is the 1x number.
+
+    T0 reveal      420ms   conditional     ease-scroll  cubic-bezier(.22,.61,.36,1)
+    T1 lead        220ms   delay 0         ease-glide   cubic-bezier(.16,1,.3,1)
+    T2 structure   340ms   delay 40        ease-spring  cubic-bezier(.34,1.35,.5,1)
+    T3 echo        260ms   delay 90        ease-glide
+    T4 details     280ms   delay 150/190   ease-glide
+    dismiss        130ms   no delay        ease-glide
+    rise 20px · detail 6px · the mark starts at 55% of T0, overlapped not queued
+
+  ---- WHAT WAS WRONG WITH THE FIRST VERSION ----------------------------
+  It was correct and flat. Everything moved at one duration with one easing, so
+  the eye had nothing to follow and three simultaneous changes read as a single
+  undifferentiated flicker. CORRECT IS NOT THE SAME AS CONSIDERED.
+
+  ---- THE HIERARCHY: FOUR TIERS ---------------------------------------
+  Premium motion is not slower motion or more of it. It is A LEAD, FOLLOWERS,
+  AND DETAILS THAT RESOLVE LAST, so the eye is told where to look and in what
+  order.
+
+    T1 · THE LEAD — the accent bar on the canvas element.
+         220ms, no delay. It WIPES top-down and is the only thing that DRAWS
+         ITSELF rather than fading. It answers "what did I click", so it
+         answers first.
+
+    T2 · THE STRUCTURE — the dock.
+         340ms at 40ms, on a spring, rising 20px with roughly 3px of overshoot.
+         Slower and larger than the lead because it is a bigger object: a big
+         thing moving at a small thing's speed reads as weightless.
+
+    T3 · THE ECHO — the form field's mark.
+         260ms at 90ms, fading IN PLACE, and deliberately understated. It is a
+         confirmation in peripheral vision, not an event. If it competed with
+         T1 the eye would not know which one was the answer.
+
+    T4 · THE DETAILS — the dock's tag, then its field.
+         280ms at 150 and 190ms, 6px each. The last things to resolve, so the
+         dock reads as a surface that ARRIVES AND THEN FILLS rather than a
+         finished slab appearing whole.
+
+  ---- TWO EASINGS, AND ONLY ONE ELEMENT SPRINGS -----------------------
+    --ease-glide  cubic-bezier(.16, 1, .3, 1)     everything that arrives
+    --ease-spring cubic-bezier(.34, 1.35, .5, 1)  the dock alone
+
+  The dock is the only thing that travels far enough for a settle to be
+  legible. A 6px detail on a spring reads as a wobble; a 20px panel on a spring
+  reads as weight.
+
+  ---- WHAT STILL DOES NOT MOVE ----------------------------------------
+  The canvas element and the form field DO NOT TRANSLATE at any tier. The
+  layering is in timing, easing and the wipe — not in making more things slide.
+  And the inspector still does not scroll.
+
+  ---- DISMISS IS 40% OF THE TIME AND COLLAPSED ------------------------
+  130ms against 340, everything at once, no stagger and no overshoot. An exit
+  that mirrors its entrance makes dismissing feel like undoing. Fast and flat
+  is what "gone" should feel like.
+
+  ---- REDUCED MOTION --------------------------------------------------
+  Every duration and delay zeroes, the wipe becomes an instant fill, and the
+  overshoot is never expressed. THE FINAL STATE IS PIXEL-IDENTICAL in both
+  modes — #198's guard, and the reason this is CSS transitions covered by the
+  global reset rather than a motion library.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+
+  /* NEW MOTION TOKENS — additions, to be declared not assumed. The studio has
+     --duration-fast 150ms and --ease-out-expo, and nothing else. */
+  --ease-glide:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.35,.5,1);
+  --t1:220ms; --t1-delay:0ms;             /* T1 lead      — the bar wipe        */
+  --t2:340ms; --t2-delay:40ms;            /* T2 structure — the dock            */
+  --t3:260ms; --t3-delay:90ms;            /* T3 echo      — the form field mark */
+  --t4:280ms; --t4a:150ms; --t4b:190ms;   /* T4 details   — tag, then field     */
+  --out:130ms; --rise:20px; --detail:6px;
+  --t0:420ms;                             /* T0 reveal — the conditional scroll */
+  --ease-scroll:cubic-bezier(.22,.61,.36,1);
+}
+html.reduce{
+  --t1:0.01ms; --t2:0.01ms; --t3:0.01ms; --t4:0.01ms; --out:0.01ms;
+  --t1-delay:0ms; --t2-delay:0ms; --t3-delay:0ms; --t4a:0ms; --t4b:0ms;
+  --rise:0px; --detail:0px; --t0:0.01ms;
+  --ease-spring:linear; --ease-glide:linear; --ease-scroll:linear;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:30px 26px 70px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 20px;max-width:92ch}
+.sub b{color:var(--ink-950)}
+
+.bar{display:flex;gap:10px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
+.toggle{display:inline-flex;gap:3px;padding:4px;background:var(--ink-950);border-radius:99px}
+.toggle button{appearance:none;border:0;cursor:pointer;background:transparent;color:oklch(78% .012 80);
+  font:600 11px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;padding:8px 14px;border-radius:99px}
+.toggle button.on{background:var(--cream-50);color:var(--ink-950)}
+.tip{font:400 12px/1 var(--sans);color:var(--subtle)}
+.spdgrp{display:inline-flex;border:1px solid var(--rule-edge);border-radius:99px;overflow:hidden;background:var(--cream-50)}
+.spd{appearance:none;border:0;cursor:pointer;background:transparent;font:600 11px/1 var(--sans);
+  color:var(--ink-600);padding:9px 12px}
+.spd+.spd{border-left:1px solid var(--rule-edge)}
+.spd.on{background:var(--accent);color:#fff}
+.badge{font:600 10px/1 var(--sans);letter-spacing:.06em;color:var(--ink-400);
+  border:1px solid var(--rule-edge);background:var(--cream-50);padding:7px 10px;border-radius:99px;
+  opacity:0;transition:opacity 160ms ease}
+.badge.show{opacity:1}
+.badge.fired{color:var(--accent);border-color:oklch(56% .14 42 / .4)}
+
+.panes{display:flex;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden;
+  background:var(--cream-50);width:980px;max-width:100%}
+
+/* ---------- canvas ---------- */
+.canvas{width:640px;flex:none;background:var(--cream-50);border-right:1px solid var(--rule-edge);
+  height:430px;display:flex;flex-direction:column}
+.cvbar{height:38px;flex:none;display:flex;align-items:center;gap:9px;padding:0 14px;
+  border-bottom:1px solid var(--rule);font:500 12px/1 var(--sans);color:var(--ink-600)}
+.cvbar .back{width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);color:var(--ink-600);font-size:10px}
+.stagewrap{flex:1;min-height:0;overflow-y:auto;scroll-behavior:auto}
+.stage{padding:20px 26px 24px}
+.eb{display:inline-block;font:500 8.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-600);border:1px dashed var(--rule-edge);padding:5px 8px;border-radius:99px;margin-bottom:12px}
+/* T1 · THE LEAD — the bar WIPES top-down. The only thing that draws itself. */
+.el{position:relative;overflow:hidden;border:1px dashed var(--rule-edge);border-radius:var(--r-ctl);
+  cursor:pointer;
+  transition:background var(--t1) var(--ease-glide), border-color var(--t1) var(--ease-glide)}
+.el:hover{background:var(--cream-100)}
+.el.on{background:var(--cream-200);border-color:transparent}
+.el::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:var(--accent);
+  transform:scaleY(0);transform-origin:top;
+  transition:transform var(--out) var(--ease-glide)}
+.el.on::before{transform:scaleY(1);
+  transition:transform var(--t1) var(--ease-glide) var(--t1-delay)}
+.ct{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.12;margin:0 0 14px;padding:6px 9px}
+.cl{font:400 12.5px/1.6 var(--sans);color:var(--ink-800);margin:0 0 14px;padding:8px 9px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.cgrid .el{padding:8px 9px}
+.cgrid b{display:block;font-family:var(--serif);font-weight:400;font-size:13px;margin-bottom:4px}
+.cgrid span{font:400 10.5px/1.5 var(--sans);color:var(--subtle)}
+.cq{font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.5;color:var(--accent);
+  margin:0 0 14px;padding:9px 10px}
+
+/* ---------- the dock ---------- */
+/* T2 · THE STRUCTURE — the only spring. 20px is far enough for a settle to read. */
+.dock{flex:none;overflow:hidden;max-height:0;opacity:0;transform:translateY(var(--rise));
+  background:var(--cream-100);border-top:1px solid transparent;
+  transition:max-height var(--out) var(--ease-glide), opacity var(--out) var(--ease-glide),
+             transform var(--out) var(--ease-glide), border-color var(--out) var(--ease-glide)}
+.dock.show{max-height:124px;opacity:1;transform:translateY(0);border-top-color:var(--rule-edge);
+  box-shadow:0 -12px 28px -16px oklch(14% .018 60 / .3);
+  transition:max-height var(--t2) var(--ease-spring) var(--t2-delay),
+             opacity var(--t2) var(--ease-glide) var(--t2-delay),
+             transform var(--t2) var(--ease-spring) var(--t2-delay),
+             border-color var(--t2) var(--ease-glide) var(--t2-delay),
+             box-shadow var(--t2) var(--ease-glide) var(--t2-delay)}
+.dock .inner{padding:10px 14px 11px}
+.dock .h{display:flex;align-items:center;gap:8px;margin:0 0 7px}
+.dock .h b{font:700 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-400)}
+/* T4a · the tag — 6px, lands after the dock has arrived */
+.dock .h .tag{font:600 8.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  background:oklch(56% .14 42 / .1);border:1px solid oklch(56% .14 42 / .3);padding:4px 7px;border-radius:99px;
+  opacity:0;transform:translateY(var(--detail));
+  transition:opacity var(--out) var(--ease-glide), transform var(--out) var(--ease-glide)}
+.dock.show .h .tag{opacity:1;transform:translateY(0);
+  transition:opacity var(--t4) var(--ease-glide) var(--t4a), transform var(--t4) var(--ease-glide) var(--t4a)}
+.dock .h .sp{flex:1}
+.dock .h .x{width:20px;height:20px;display:grid;place-items:center;border-radius:3px;color:var(--ink-400);
+  font-size:11px;cursor:pointer;border:0;background:transparent;opacity:0;
+  transition:opacity var(--out) var(--ease-glide), background 120ms ease, color 120ms ease}
+.dock.show .h .x{opacity:1;transition:opacity var(--t4) var(--ease-glide) var(--t4a)}
+.dock .h .x:hover{background:var(--cream-200);color:var(--ink-950)}
+/* T4b · the field — the last thing to resolve, so the dock arrives then FILLS */
+.dock textarea{width:100%;min-height:46px;max-height:104px;padding:8px 10px;font:400 13px/1.45 var(--sans);
+  color:var(--ink-950);background:var(--cream-50);border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);resize:none;display:block;overflow-y:auto;
+  opacity:0;transform:translateY(var(--detail));
+  transition:opacity var(--out) var(--ease-glide), transform var(--out) var(--ease-glide)}
+.dock.show textarea{opacity:1;transform:translateY(0);
+  transition:opacity var(--t4) var(--ease-glide) var(--t4b), transform var(--t4) var(--ease-glide) var(--t4b)}
+.dock textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+
+/* ---------- inspector ---------- */
+.insp{width:340px;flex:none;background:var(--cream-100);display:flex;flex-direction:column;height:430px}
+.band{background:var(--ink-950);color:var(--cream-50);padding:9px 14px;display:flex;justify-content:space-between;align-items:center;flex:none}
+.band h4{margin:0;font:700 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.band .st{font:500 10.5px/1 var(--sans);color:var(--ink-200)}
+.tabs{display:flex;gap:16px;padding:0 14px;border-bottom:1px solid var(--rule);flex:none}
+.tabs button{appearance:none;border:0;background:transparent;cursor:pointer;padding:10px 0 8px;
+  font:500 12px/1 var(--sans);color:var(--ink-600);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink-950);border-bottom-color:var(--accent)}
+.ibody{flex:1;min-height:0;overflow-y:auto;padding:12px 0}
+/* T3 · THE ECHO — fades in place, no travel, deliberately quieter than T1.
+   If it competed with the lead the eye would not know which was the answer. */
+.fld{position:relative;margin:0 0 12px;padding:8px 14px;overflow:hidden;
+  transition:background var(--out) var(--ease-glide)}
+.fld::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:var(--accent);
+  opacity:0;transition:opacity var(--out) var(--ease-glide)}
+.fld.on{background:var(--cream-200);transition:background var(--t3) var(--ease-glide) var(--t3-delay)}
+.fld.on::before{opacity:1;transition:opacity var(--t3) var(--ease-glide) var(--t3-delay)}
+.fld.on .lbl{color:var(--ink-950)}
+.lbl{display:block;font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-600);margin-bottom:6px;transition:color var(--t3) var(--ease-glide) var(--t3-delay)}
+.v1{width:100%;height:40px;padding:0 11px;font:400 13px/1 var(--sans);color:var(--ink-950);
+  background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl)}
+.vt{width:100%;min-height:56px;padding:9px 11px;font:400 13px/1.45 var(--sans);color:var(--ink-950);
+  background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);resize:none;display:block}
+
+.cap{width:980px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle);margin-top:16px}
+.cap b{color:var(--ink-950)}
+.cap ul{margin:8px 0 0;padding-left:16px;columns:2;column-gap:30px}
+.cap li{margin-bottom:6px;break-inside:avoid}
+.tiers{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 0}
+.tier{flex:1;min-width:175px;border-left:2px solid var(--rule);padding-left:11px}
+.tier h4{font:700 10px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-950);margin:0 0 5px}
+.tier .n{display:block;font:500 11px/1 var(--sans);color:var(--accent);margin-bottom:6px}
+.tier p{margin:0;font:400 11.5px/1.6 var(--sans);color:var(--subtle)}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);margin:0 0 6px}
+</style>
+</head>
+<body>
+
+<h1>Mark and dock · the motion</h1>
+<p class="sub"><b>Scroll is back, but conditional.</b> T0 fires only when the target is out of view — refining the earlier decision rather than reversing it: the objection was moving the pane out from under someone already looking at it, and that only happens when the thing is <b>already visible</b>. A mark nobody can see is not a mark. Click <b>Closing line</b> or <b>Pull quote</b> to see it fire; click the <b>Title</b> to see it skip. <b>The mock runs at 2× so the order is legible — 1× is what ships.</b></p>
+
+<div class="bar">
+  <div class="toggle">
+    <button id="bN" class="on" onclick="rm(false)">Normal motion</button>
+    <button id="bR" onclick="rm(true)">Reduced motion</button>
+  </div>
+  <span class="spdgrp">
+    <button class="spd" data-k="1" onclick="setSpeed(1)">1&times;</button>
+    <button class="spd on" data-k="2" onclick="setSpeed(2)">2&times;</button>
+    <button class="spd" data-k="4" onclick="setSpeed(4)">4&times;</button>
+  </span>
+  <span class="badge" id="badge"></span>
+  <span class="tip">Click the title, the lead, or any card. Click again or press Escape to dismiss.</span>
+</div>
+
+<div class="panes">
+  <div class="canvas">
+    <div class="cvbar"><span class="back">‹</span>One companion, three very different people.</div>
+    <div class="stagewrap"><div class="stage">
+      <span class="eb">The setup</span>
+      <p class="el ct" data-f="title" data-tag="Section title">One companion,<br/>three very different people.</p>
+      <p class="el cl" data-f="lead" data-tag="Lead">Enterprise AI isn't difficult because of the technology — it's difficult because every user expects something different.</p>
+      <div class="cgrid">
+        <div class="el" data-f="c1" data-tag="Card 1 · body"><b>Opportunity</b><span>Create one AI companion that could adapt to different workflows.</span></div>
+        <div class="el" data-f="c2" data-tag="Card 2 · body"><b>Challenge</b><span>Each persona solved different problems, making one experience ineffective.</span></div>
+        <div class="el" data-f="c3" data-tag="Card 3 · body"><b>Contribution</b><span>Defined the AI experience strategy and led user research.</span></div>
+      </div>
+      <p class="el cl" style="margin-top:14px" data-f="body" data-tag="Body copy">Inside Fosfor Decision Cloud, one AI companion had to support three distinct personas with different goals, workflows and definitions of success.</p>
+      <p class="el cq" data-f="quote" data-tag="Pull quote">The challenge wasn't designing one AI assistant. It was designing one assistant that could think differently for three completely different people.</p>
+      <p class="el cl" data-f="close" data-tag="Closing line">Designing one experience that felt intelligent to all of them became the core challenge of this project.</p>
+    </div></div>
+
+    <div class="dock" id="dock">
+      <div class="inner">
+        <div class="h"><b>Editing</b><span class="tag" id="dockTag">Section title</span><span class="sp"></span><button class="x" onclick="clearSel()">✕</button></div>
+        <textarea id="dockField" rows="2">One companion, three very different people.</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="insp">
+    <div class="band"><h4>The setup</h4><span class="st">Saved</span></div>
+    <div class="tabs"><button aria-selected="true">Content</button><button aria-selected="false">Style</button></div>
+    <div class="ibody">
+      <div class="fld" data-f="eyebrow"><span class="lbl">Eyebrow</span><input class="v1" value="The setup" /></div>
+      <div class="fld" data-f="title"><span class="lbl">Title</span><textarea class="vt" rows="2">One companion, three very different people.</textarea></div>
+      <div class="fld" data-f="lead"><span class="lbl">Lead</span><textarea class="vt" rows="3">Enterprise AI isn't difficult because of the technology — it's difficult because every user expects something different.</textarea></div>
+      <div class="fld" data-f="c1"><span class="lbl">Card 1 · body</span><textarea class="vt" rows="2">Create one AI companion that could adapt to different workflows.</textarea></div>
+      <div class="fld" data-f="c2"><span class="lbl">Card 2 · body</span><textarea class="vt" rows="2">Each persona solved different problems, making one experience ineffective.</textarea></div>
+      <div class="fld" data-f="c3"><span class="lbl">Card 3 · body</span><textarea class="vt" rows="2">Defined the AI experience strategy and led user research.</textarea></div>
+      <div class="fld" data-f="body"><span class="lbl">Body copy</span><textarea class="vt" rows="3">Inside Fosfor Decision Cloud, one AI companion had to support three distinct personas with different goals, workflows and definitions of success.</textarea></div>
+      <div class="fld" data-f="quote"><span class="lbl">Pull quote</span><textarea class="vt" rows="3">The challenge wasn't designing one AI assistant. It was designing one assistant that could think differently for three completely different people.</textarea></div>
+      <div class="fld" data-f="close"><span class="lbl">Closing line</span><textarea class="vt" rows="2">Designing one experience that felt intelligent to all of them became the core challenge of this project.</textarea></div>
+    </div>
+  </div>
+</div>
+
+<div class="cap">
+  <p class="h3">The four tiers</p>
+  <div class="tiers">
+    <div class="tier">
+      <h4>T0 · the reveal</h4><span class="n">420ms · conditional · scroll</span>
+      <p>Fires <b>only if the target is out of view</b>, on either pane. The mark starts at 55% of the scroll rather than after it — <b>overlapped, not queued</b>, so it never feels sequenced.</p>
+    </div>
+    <div class="tier">
+      <h4>T1 · the lead</h4><span class="n">220ms · 0ms · glide</span>
+      <p>The accent bar <b>wipes top-down</b> — the only thing that draws itself rather than fading. It answers "what did I click", so it answers first.</p>
+    </div>
+    <div class="tier">
+      <h4>T2 · the structure</h4><span class="n">340ms · 40ms · spring</span>
+      <p>The dock rises 20px with ~3px of overshoot. Slower and larger because it is a bigger object — a big thing moving at a small thing's speed reads as weightless.</p>
+    </div>
+    <div class="tier">
+      <h4>T3 · the echo</h4><span class="n">260ms · 90ms · glide</span>
+      <p>The field's mark fades in place, no travel, <b>deliberately understated</b>. If it competed with T1 the eye would not know which was the answer.</p>
+    </div>
+    <div class="tier">
+      <h4>T4 · the details</h4><span class="n">280ms · 150 / 190ms · glide</span>
+      <p>The tag, then the field, 6px each. The dock <b>arrives and then fills</b> rather than appearing whole.</p>
+    </div>
+  </div>
+
+  <p class="h3" style="margin-top:20px">Only one element springs</p>
+  <b>--ease-glide</b> for everything that arrives; <b>--ease-spring</b> for the dock alone, because it is the only thing travelling far enough for a settle to read. A 6px detail on a spring is a wobble; a 20px panel on a spring is weight.
+
+  <p class="h3" style="margin-top:16px">Dismiss is 40% of the time and collapsed</p>
+  130ms against 340, everything at once, no stagger, no overshoot. An exit that mirrors its entrance makes dismissing feel like undoing.
+
+  <p class="h3" style="margin-top:16px">What is new and must be declared</p>
+  The studio has <b>--duration-fast 150ms</b> and <b>--ease-out-expo</b>, and nothing else. Two easings, five durations, four delays and two distances are additions — they belong in globals.css beside the radius scale with their tiers named, or the next person adding motion picks by copy-paste. <b>Reduced motion zeroes every one and the final state is pixel-identical.</b>
+</div>
+
+<script>
+let cur = null;
+
+/* T0 · THE REVEAL — conditional. Scrolls ONLY when the target is out of view.
+   This is the earlier "do not scroll" decision refined rather than reversed:
+   the objection was moving the pane out from under someone who was already
+   looking at it, and that only happens when the thing is ALREADY VISIBLE.
+   A mark nobody can see is not a mark. */
+function revealIfNeeded(el, scroller){
+  if (!el || !scroller) return false;
+  const e = el.getBoundingClientRect(), s = scroller.getBoundingClientRect();
+  const pad = 16;
+  const above = e.top < s.top + pad;
+  const below = e.bottom > s.bottom - pad;
+  if (!above && !below) return false;            // already in view — do nothing
+  const reduced = document.documentElement.classList.contains("reduce");
+  const target = scroller.scrollTop + (e.top - s.top) - (s.height - e.height) / 2;
+  scroller.scrollTo({ top: Math.max(0, target), behavior: reduced ? "auto" : "smooth" });
+  return true;
+}
+
+function clearSel(){
+  document.querySelectorAll(".el.on,.fld.on").forEach(n => n.classList.remove("on"));
+  document.getElementById("dock").classList.remove("show");
+  document.getElementById("badge").classList.remove("show");
+  cur = null;
+}
+
+function select(el){
+  const f = el.dataset.f;
+  if (cur === f) { clearSel(); return; }
+  document.querySelectorAll(".el.on,.fld.on").forEach(n => n.classList.remove("on"));
+
+  const fld = document.querySelector(`.fld[data-f="${f}"]`);
+  const cvScroller = document.querySelector(".stagewrap");
+  const inScroller = document.querySelector(".ibody");
+
+  // T0 first — reveal, then mark. Marking something off-screen wastes the lead.
+  const movedCanvas = revealIfNeeded(el, cvScroller);
+  const movedInsp   = revealIfNeeded(fld, inScroller);
+
+  const lead = (movedCanvas || movedInsp) ? getT0() : 0;
+  setTimeout(() => {
+    el.classList.add("on");
+    if (fld) fld.classList.add("on");
+    document.getElementById("dockTag").textContent = el.dataset.tag;
+    const src = fld ? fld.querySelector("textarea,input") : null;
+    document.getElementById("dockField").value = src ? src.value : "";
+    document.getElementById("dock").classList.add("show");
+  }, lead * 0.55);   // the mark starts before the scroll finishes — overlap, not queue
+
+  const badge = document.getElementById("badge");
+  badge.textContent = (movedCanvas || movedInsp)
+    ? `T0 fired — scrolled ${[movedCanvas && "canvas", movedInsp && "inspector"].filter(Boolean).join(" + ")}`
+    : "T0 skipped — already in view";
+  badge.classList.toggle("fired", movedCanvas || movedInsp);
+  badge.classList.add("show");
+
+  cur = f;
+}
+
+function getT0(){
+  const v = getComputedStyle(document.documentElement).getPropertyValue("--t0").trim();
+  return parseFloat(v) || 0;
+}
+
+document.querySelectorAll(".el").forEach(el => el.addEventListener("click", () => select(el)));
+document.addEventListener("keydown", e => { if (e.key === "Escape") clearSel(); });
+
+function rm(on){
+  document.documentElement.classList.toggle("reduce", on);
+  document.getElementById("bN").classList.toggle("on", !on);
+  document.getElementById("bR").classList.toggle("on", on);
+}
+
+const BASE={t0:420,t1:220,t2:340,t3:260,t4:280,out:130,t1d:0,t2d:40,t3d:90,t4a:150,t4b:190};
+let k = 2;                                   // slow motion x2 by default
+function setSpeed(mult){
+  k = mult; const r = document.documentElement.style;
+  r.setProperty("--t0", BASE.t0*k+"ms");
+  r.setProperty("--t1", BASE.t1*k+"ms"); r.setProperty("--t2", BASE.t2*k+"ms");
+  r.setProperty("--t3", BASE.t3*k+"ms"); r.setProperty("--t4", BASE.t4*k+"ms");
+  r.setProperty("--out", BASE.out*k+"ms");
+  r.setProperty("--t1-delay", BASE.t1d*k+"ms"); r.setProperty("--t2-delay", BASE.t2d*k+"ms");
+  r.setProperty("--t3-delay", BASE.t3d*k+"ms");
+  r.setProperty("--t4a", BASE.t4a*k+"ms"); r.setProperty("--t4b", BASE.t4b*k+"ms");
+  document.querySelectorAll(".spd").forEach(b =>
+    b.classList.toggle("on", Number(b.dataset.k) === mult));
+}
+setSpeed(2);
+</script>
+</body>
+</html>

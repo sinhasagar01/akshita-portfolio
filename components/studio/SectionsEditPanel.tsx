@@ -225,6 +225,21 @@ function fieldSelector(el: HTMLElement | null): string | null {
   return null;
 }
 
+/**
+ * The same selector, built from the SELECTION rather than from an element.
+ *
+ * `fieldSelector` above goes element -> selector; this goes field -> selector, and the two
+ * must produce the identical string or the canvas mark and anything else that looks a field up
+ * would address different nodes. It was inline inside `SectionCanvas`'s marking effect and is
+ * lifted here the moment a second caller appeared (Escape, which has to find the node it is
+ * returning focus to) — one construction, two readers.
+ */
+function selectorForField(f: SelectedField): string {
+  return f.kind === "section"
+    ? `[data-edit="${f.field}"]`
+    : `[data-edit-block-index="${f.blockIndex}"][data-edit-value-path="${f.path}"]`;
+}
+
 /** Read a dotted path (e.g. "stats.0.value") out of a block value, for a no-op check. */
 function getAtPath(value: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>(
@@ -329,150 +344,212 @@ type SelectedField =
   | { kind: "block"; blockIndex: number; path: string; label: string };
 
 /**
- * The design's right-hand rail: the one field you clicked, editable as a normal
- * control. It exists because inline contentEditable is great for a quick word change
- * and poor for anything longer — no wrapping control, no undo affordance, and on a
- * scaled canvas the text is small. Clicking the canvas selects; typing here writes.
- */
-/**
- * Grow the rail's textarea to fit its content, bounded by the canvas beside it.
+ * T0 · THE REVEAL. Scroll the clicked element into view ONLY IF IT IS OUT OF VIEW.
  *
- * A fixed 3-row box is wrong at both ends: a two-word stat value wastes most of it,
- * and a position statement is edited through a keyhole. So the height follows the
- * text — but it must not run past the section it belongs to, or the rail outgrows
- * the thing it is editing and the page scrolls for no reason.
+ * THE CONDITION IS THE DECISION, not an optimisation. This refines the earlier "the canvas
+ * does not scroll" rule rather than reversing it: the objection was moving the pane out from
+ * under someone who was already looking at the thing, and that only happens when the thing is
+ * ALREADY VISIBLE. When it is off-screen there is nobody to disturb, and a mark nobody can
+ * see is not a mark. Returns whether it moved, so the gate can assert BOTH directions — a
+ * scroll that always fires is this decision reversed by accident.
  *
- * The ceiling is measured from the canvas pane (the rail's grid sibling) rather than
- * hardcoded, so it tracks whatever that section actually renders to.
+ * NO `behavior` KEY, AND THAT IS THE WHOLE REDUCED-MOTION STORY. The scroller carries
+ * `scroll-smooth` in CSS (ThreePaneShell), and the global reset's
+ * `scroll-behavior: auto !important` overrides it under reduce. Passing `behavior: "smooth"`
+ * here would BEAT that reset — which is #198 exactly, and why this file needs no
+ * `useReducedMotion`. The scroll becomes instant under reduce rather than disappearing, so
+ * "you can see what you selected" survives a motion preference.
+ *
+ * THE SCROLLER IS FOUND BY WALKING UP rather than by holding a ref. The canvas pane is the
+ * scroller above `lg`, the document is below it, and below the inspector fold the inspector
+ * is mounted INSIDE the canvas slot — three arrangements, one of which ThreePaneShell owns
+ * and none of which this file should encode. Walking finds whichever is real.
  */
-function useAutoGrow(value: string, ceiling: HTMLElement | null) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const [maxHeight, setMaxHeight] = useState<number>();
-
-  // Track the canvas pane's height. It changes with the section, the viewport, and
-  // images loading, so it is observed rather than read once.
-  //
-  // ---- THE CEILING IS AN ELEMENT, NOT A REF, AND THAT DISTINCTION WAS EARNED --------------
-  //
-  // Three versions, each fixing the previous one's blind spot, and it is worth keeping the
-  // sequence because each looked complete:
-  //
-  //   1. `textareaRef.current?...` — the textarea only exists once a field is selected, so the
-  //      effect ran on mount with nothing there, bailed, and never re-ran. Uncapped.
-  //   2. Anchored to the RAIL, which always existed, and walked
-  //      `railRef.current?.parentElement?.firstElementChild` to reach the canvas. Correct while
-  //      the rail sat in a grid beside the canvas; a DOM walk is a layout assumption.
-  //   3. (7a) The ceiling passed in BY REF, named rather than walked to, so a relayout could not
-  //      silently retarget it.
-  //
-  // Moving the rail into the inspector broke 3, and MEASURED IT DOING SO — 3166px of textarea
-  // in an 811px pane. A ref only fixed the SUBJECT; the effect still keyed on the ref object,
-  // which never changes, so it ran once at mount. The rail now lives in the inspector, which
-  // mounts with the page, while the canvas div appears only once a section is selected. So the
-  // effect ran, found `null`, bailed, and never re-ran — the exact failure of version 1, reached
-  // by a different road. Version 3's own comment predicted this shape and still did not prevent
-  // it, because naming a BOX that might be empty is not the same as naming what is in it.
-  //
-  // So the ceiling is the ELEMENT, held in state by a callback ref at the call site. The effect
-  // keys on the node, so it re-runs the moment one mounts or unmounts. There is no ordering left
-  // to get wrong.
-  useEffect(() => {
-    if (!ceiling) return; // keeps the LAST measurement — see the call site
-    const measure = () => setMaxHeight(ceiling.getBoundingClientRect().height);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(ceiling);
-    return () => ro.disconnect();
-  }, [ceiling]);
-
-  // Reset to auto before reading scrollHeight, or the box can only ever grow.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.height = "auto";
-    const cap = maxHeight ?? Number.POSITIVE_INFINITY;
-    el.style.height = `${Math.min(el.scrollHeight, cap)}px`;
-  }, [value, maxHeight]);
-
-  return { ref, maxHeight };
+function scrollParent(el: HTMLElement): HTMLElement | null {
+  for (let n = el.parentElement; n; n = n.parentElement) {
+    const o = getComputedStyle(n).overflowY;
+    // DECLARED overflow only. The obvious extra condition — `scrollHeight > clientHeight`,
+    // "is it actually scrolling right now" — is WRONG HERE and cost a measurement to find:
+    // with the dock closed the canvas often does not overflow, so the walk skipped straight
+    // past the real scroller and the reveal bailed. What then moved the pane was the BROWSER'S
+    // native focus scroll on the contentEditable, which lands the element just inside the
+    // pre-dock viewport — and the dock then opened underneath it and pushed it back out.
+    // The element that is about to need scrolling is not the element that is scrolling now.
+    if (o === "auto" || o === "scroll") return n;
+  }
+  return null;
 }
 
-function SelectedRail({
+function revealIfNeeded(el: HTMLElement): boolean {
+  const scroller = scrollParent(el);
+  if (!scroller) return false;
+  const e = el.getBoundingClientRect();
+  const s = scroller.getBoundingClientRect();
+  const pad = 16;
+
+  // THE DOCK IS ABOUT TO EAT THE BOTTOM OF THIS VIEWPORT, AND THE REVEAL HAS TO KNOW.
+  // MEASURED, NOT REASONED: the first version scrolled against the CURRENT scroller height,
+  // then `setSelectedField` opened the dock, the scroller lost 113px, and the element it had
+  // just revealed was pushed back out of view. T0 fired, `scrollTop` changed, every property
+  // was true — and you still could not see what you clicked. The affordance is "you can see
+  // it", so that is what has to be measured.
+  //
+  // The dock is ALWAYS MOUNTED and collapsed by `max-height` with `overflow: hidden`, so its
+  // `scrollHeight` reports the height it is about to take while `clientHeight` reports the
+  // height it currently occupies. The difference is exactly what this viewport is about to
+  // lose — zero when the dock is already open, which is why one expression covers both.
+  const dock = document.querySelector<HTMLElement>("[data-studio-dock]");
+  const pending = dock ? Math.max(0, dock.scrollHeight - dock.clientHeight) : 0;
+  const bottom = s.bottom - pending;
+  const height = s.height - pending;
+
+  // Fully inside, with a margin — nothing to do. This is the branch that keeps the earlier
+  // decision intact, and it is the one the gate has to prove still fires.
+  if (e.top >= s.top + pad && e.bottom <= bottom - pad) return false;
+  // Centre it in the viewport it will HAVE, clamped at the top so a tall element lands where
+  // you can read its start rather than its middle.
+  const top = scroller.scrollTop + (e.top - s.top) - (height - e.height) / 2;
+  scroller.scrollTo({ top: Math.max(0, top) });
+  return true;
+}
+
+/**
+ * THE DOCK — the one field you clicked, at the canvas foot.
+ *
+ * It exists for the reason the Selected rail existed: inline contentEditable is fine for a
+ * quick word change and poor for anything longer — no wrapping control, no undo affordance,
+ * and on a canvas scaled to 50% the text is small. Clicking the canvas selects; typing here
+ * writes.
+ *
+ * WHAT CHANGED IS WHERE IT LIVES, NOT WHAT IT DOES. The rail sat at the top of the inspector
+ * holding a SECOND control for a value the form below it already had, with a sentence
+ * explaining they were the same thing, and it held that space whether or not anything was
+ * selected. Here it is absent until you select, and it sits beside the thing it edits.
+ *
+ * IT IS THE CONFIRMATION, AND THAT IS LOAD-BEARING RATHER THAN DECORATIVE. `ItemRows` rows
+ * fold by default (#234), so for most block fields the inspector's own field is HIDDEN when
+ * you click its element on the canvas. T3's echo cannot mark what is not rendered. The dock
+ * is what tells you the click landed, which is why it earns its place instead of being a
+ * rail in a new position. See `revealIfNeeded` for the same finding applied to T0.
+ *
+ * NO `useAutoGrow`, AND ITS DELETION IS THE POINT. The rail's textarea was capped by an
+ * observed measurement of the CANVAS's content height — a bound that was already wrong for a
+ * foot-anchored surface, and the thing that broke twice (#233 shipped 3166px of textarea in
+ * an 811px pane; #235 fixed it again by keying the effect on the node rather than the ref).
+ * A dock at the pane's foot has a fixed budget, so it takes fixed min/max heights and the
+ * hook, the ceiling state and the wrapper div that existed only to be measured all go.
+ */
+function SelectionDock({
   selected,
   value,
   onChange,
-  ceiling,
+  onDismiss,
   hidden,
 }: {
   selected: SelectedField | null;
-  /** Read straight from form state on every render — see the panel's `readField`. */
+  /** Read straight from form state on every render — see the panel's `readField`. There is
+   *  no second copy of the value here, which is why the rail's data-loss bug cannot return. */
   value: string;
   onChange: (v: string) => void;
-  /** The element whose height caps this textarea — the NODE, not a ref to it, so the observer
-   *  re-runs when it mounts. See `useAutoGrow` for why that distinction cost a measurement. */
-  ceiling: HTMLElement | null;
+  onDismiss: () => void;
   /** Hidden under Details, never unmounted — see the call site. */
   hidden?: boolean;
 }) {
-  const { ref: taRef, maxHeight } = useAutoGrow(value, ceiling);
+  const open = !!selected && !hidden;
   return (
-    // THE RAIL IS THE SURFACE ITS TEXTAREA SITS ON, so it takes the ground one step up from the
-    // pane it sits in while the textarea keeps `inputCls`'s cream-50. That relation is the rule;
-    // the VALUE follows from wherever the rail currently lives, which is why moving it changed it.
+    // T2 · THE STRUCTURE. The only tier that springs, because it is the only element
+    // travelling far enough for a settle to read — a 6px detail on a spring is a wobble, a
+    // 20px panel is weight.
     //
-    // PR 2 left a note here saying this must become cream-200 when the body section was righted.
-    // The body section is GONE — the shell owns the frame now — so the value is re-derived rather
-    // than carried over, and it lands in the same place: ThreePaneShell's inspector pane is
-    // `bg-cream-100` (:232), so a cream-100 rail would be 1.00 against it and invisible, exactly
-    // the collision PR 2 measured on the old ground. cream-200 it is, for a new reason.
-    //
-    // AND radius-card, NOT radius-panel. It used to be a panel inside a panel inside a panel;
-    // with the shell as the frame it is a card in a pane, the same level as the block cards it
-    // sits above, so one radius-panel is left at the outermost level where it belongs.
-    <aside
-      hidden={hidden}
-      className="sticky top-0 z-10 rounded-[var(--studio-radius-card,8px)] border border-ink-950/22 bg-cream-200 p-3.5"
+    // `max-h` RATHER THAN `hidden`, so the dock is always mounted and the canvas COMPRESSES
+    // as it arrives instead of being covered. Mount discipline, and also the only way the
+    // transition has a from-state to run from.
+    <div
+      // Named for `revealIfNeeded`, which has to know how much of the canvas viewport this is
+      // about to take. A data attribute rather than a ref because the reveal runs from a click
+      // handler several components away, and threading a ref through the shell to reach it
+      // would make ThreePaneShell learn what a dock is.
+      data-studio-dock=""
+      aria-hidden={!open}
+      // `inert` when closed: a max-height:0 box still keeps its textarea tabbable, which is
+      // #177's finding in mirror form and the same reason ThreePaneShell inerts its collapsed
+      // list rather than hiding it.
+      inert={!open}
+      className={[
+        "flex-none overflow-hidden border-t bg-cream-100",
+        open
+          ? "max-h-[124px] translate-y-0 border-ink-950/22 opacity-100 duration-[var(--studio-t2,340ms)] ease-[var(--studio-ease-settle,cubic-bezier(0.34,1.35,0.5,1))] delay-[var(--studio-t2-delay,40ms)]"
+          : "max-h-0 translate-y-[var(--studio-rise,20px)] border-transparent opacity-0 duration-[var(--studio-out,130ms)] ease-[var(--ease-out-expo)] delay-0",
+        "transition-[max-height,opacity,transform,border-color]",
+      ].join(" ")}
     >
-      <p className={labelCls}>
-        {selected ? `Selected · ${selected.label}` : "Selected"}
-      </p>
-      {selected ? (
+      <div className="px-3.5 pb-3 pt-2.5">
+        <div className="mb-1.5 flex items-center gap-2">
+          <span className={labelCls}>Editing</span>
+          {/* T4a · the tag. 6px, and it lands AFTER the dock has arrived, so the surface
+              reads as arriving and then filling rather than appearing whole. */}
+          <span
+            className={[
+              "rounded-full border border-accent-500/30 bg-accent-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-accent-600",
+              "transition-[opacity,transform] duration-[var(--studio-t4,280ms)] ease-[var(--ease-out-expo)]",
+              open
+                ? "translate-y-0 opacity-100 delay-[var(--studio-t4a,150ms)]"
+                : "translate-y-[var(--studio-detail,6px)] opacity-0 delay-0",
+            ].join(" ")}
+          >
+            {/* THE LABEL COMES FROM `inlineEditProps`, WHICH SPELLS IT "Edit hero title" — every
+                one of them starts with "Edit ", because that string was written to be an
+                ACCESSIBLE NAME on a contentEditable, where "Edit hero title" is exactly right.
+                Beside the word "Editing" it reads twice. Stripped for DISPLAY only.
+                THE ACCESSIBLE NAME IS UNTOUCHED — the textarea below still carries the full
+                label. This is #255's lesson in the other direction: there, shortening the
+                visible label silently shortened the accessible one too. Here the visible text
+                loses a word and the accessible name keeps it, which is the whole distinction. */}
+            {(selected?.label ?? "").replace(/^Edit /, "")}
+          </span>
+          <span className="flex-1" />
+          <button
+            type="button"
+            onClick={onDismiss}
+            aria-label="Stop editing this field"
+            className={[
+              "grid size-[22px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors hover:bg-cream-200 hover:text-ink-950",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+              open ? "opacity-100" : "opacity-0",
+            ].join(" ")}
+          >
+            <IconX className="size-3" />
+          </button>
+        </div>
+        {/* T4b · the field, the last thing to resolve.
+            FIXED min/max RATHER THAN useAutoGrow — see the header. 46 and 104 are the
+            contract's, and a foot-anchored surface can afford a fixed budget in a way a
+            sticky one in a scrolling pane could not. */}
         <textarea
           key={
-            selected.kind === "section"
-              ? `s:${selected.field}`
-              : `b:${selected.blockIndex}:${selected.path}`
+            selected
+              ? selected.kind === "section"
+                ? `s:${selected.field}`
+                : `b:${selected.blockIndex}:${selected.path}`
+              : "none"
           }
-          ref={taRef}
           rows={2}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          aria-label={selected.label}
-          // Height is driven by useAutoGrow; once it hits the ceiling the box scrolls
-          // instead of pushing past the canvas. resize-none because dragging a handle
-          // would fight the auto-sizing on the next keystroke.
-          //
-          // AND `50dvh`, WHICH THE MOVE MADE NECESSARY. The JS ceiling is the CANVAS height,
-          // which was the right and only bound while the rail sat beside the canvas. In the
-          // inspector it is no longer the thing the rail must not overflow — measured on a tall
-          // section, the canvas is 1034 and the pane is 811, so the JS cap alone let the rail
-          // grow past the container it is `sticky` inside, which makes sticky meaningless. The
-          // second term is the rail's new home expressed as the half-screen it may not exceed,
-          // so the fields under it stay reachable. CSS `min()` rather than another observer:
-          // `dvh` already tracks the viewport the pane fills.
-          style={{ maxHeight: maxHeight ? `min(${maxHeight}px, 50dvh)` : undefined }}
-          className={`${inputCls} mt-2 resize-none overflow-y-auto`}
+          aria-label={selected?.label ?? "Selected field"}
+          className={[
+            inputCls,
+            "block max-h-[104px] min-h-[46px] resize-none overflow-y-auto",
+            "transition-[opacity,transform] duration-[var(--studio-t4,280ms)] ease-[var(--ease-out-expo)]",
+            open
+              ? "translate-y-0 opacity-100 delay-[var(--studio-t4b,190ms)]"
+              : "translate-y-[var(--studio-detail,6px)] opacity-0 delay-0",
+          ].join(" ")}
         />
-      ) : null}
-      <p className="mt-2 text-[12px] text-text-subtle">
-        {selected
-          ? "Edits here and on the canvas are the same field."
-          : "Click any dashed element on the canvas to edit it here. The title and facts come from Details."}
-      </p>
-    </aside>
+      </div>
+    </div>
   );
 }
-
 
 function SectionCanvas({
   section,
@@ -502,9 +579,11 @@ function SectionCanvas({
   /** CS-7e — a Replace-image affordance was clicked; the panel resolves the image's
    *  block index + dotted path and starts the content-addressed upload. */
   onReplaceImage?: (blockIndex: number, imagePath: string) => void;
-  /** A tagged field was clicked — drives the Selected rail. */
-  onSelectField?: (f: SelectedField) => void;
-  /** The field the rail is bound to, so the canvas can mark it as selected. */
+  /** A tagged field was clicked — drives the dock.
+   *  The ELEMENT comes with it so the caller can run T0's conditional reveal. This component
+   *  only reports what was clicked; whether that causes a scroll is the caller's decision. */
+  onSelectField?: (f: SelectedField, el: HTMLElement | null) => void;
+  /** The field the dock is bound to, so the canvas can mark it as selected. */
   selectedField?: SelectedField | null;
   /** A rich field gained (or lost) focus — drives the bold control's position. */
   onRichFocus?: (at: { top: number; left: number } | null) => void;
@@ -531,9 +610,10 @@ function SectionCanvas({
       return;
     }
     // Clicking a tagged field selects it. Reads the SAME markers the blur writeback
-    // uses, so the rail can never disagree with the canvas about which field is which.
-    const f = selectedFieldFrom(target.closest?.("[data-edit-value-path], [data-edit]") as HTMLElement | null);
-    if (f) onSelectField?.(f);
+    // uses, so the dock can never disagree with the canvas about which field is which.
+    const el = target.closest?.("[data-edit-value-path], [data-edit]") as HTMLElement | null;
+    const f = selectedFieldFrom(el);
+    if (f) onSelectField?.(f, el);
   };
   let adapted: ReturnType<typeof adaptSections> = [];
   try {
@@ -553,11 +633,7 @@ function SectionCanvas({
     if (!root) return;
     root.querySelectorAll(".is-selected").forEach((n) => n.classList.remove("is-selected"));
     if (!selectedField) return;
-    const sel =
-      selectedField.kind === "section"
-        ? `[data-edit="${selectedField.field}"]`
-        : `[data-edit-block-index="${selectedField.blockIndex}"][data-edit-value-path="${selectedField.path}"]`;
-    root.querySelector(sel)?.classList.add("is-selected");
+    root.querySelector(selectorForField(selectedField))?.classList.add("is-selected");
   });
   return (
     // `canvas-static` is the visibility scope: the canvas is a static panel, so the
@@ -766,14 +842,6 @@ export default function SectionsEditPanel({
   const lastEditedRef = useRef<Selection>("details");
   if (!showBoard) lastEditedRef.current = selection;
   const selIdxTop = selectedSectionId === null ? -1 : ids.sectionIds.indexOf(selectedSectionId);
-  // The Selected rail's height ceiling, held as the ELEMENT so its observer re-runs when the
-  // canvas mounts — see `useAutoGrow`. When the canvas is absent (Details, the Board, or below
-  // the fold with the inspector in the canvas slot) this goes null and the hook KEEPS its last
-  // measurement rather than uncapping. That is safe rather than lucky: a textarea only renders
-  // when `selectedField` is set, and the only way to set it is to click a field on the canvas,
-  // so a measurement always precedes the box it caps.
-  const [canvasCeiling, setCanvasCeiling] = useState<HTMLDivElement | null>(null);
-
   // CS-3 — Content | Style split. One tab state for the focused section's fields,
   // provided to the shell + block forms via FieldTabProvider; each field's TabGroup
   // shows only under its tab. Default Content.
@@ -1157,6 +1225,33 @@ export default function SectionsEditPanel({
     const curVal = (values.sections[selIdxTop].blocks[f.blockIndex]?.value ?? {}) as Record<string, unknown>;
     return String(getAtPath(curVal, f.path) ?? "");
   };
+  // ESCAPE DISMISSES, and focus goes back to the canvas element it was marking rather than
+  // being left on a box that has just faded out. Bound to the document because the key must
+  // work from the canvas, the dock and the inspector alike, and `keydown` rather than `keyup`
+  // so it beats nothing else — there is no other Escape handler in this editor.
+  //
+  // GUARDED ON `selectedField`, so Escape stays available to anything else that wants it when
+  // nothing is selected, and the effect re-binds when the selection changes so the handler
+  // never closes over a stale one.
+  useEffect(() => {
+    if (!selectedField) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const el = document.querySelector<HTMLElement>(selectorForField(selectedField));
+      setSelectedField(null);
+      // Focus lands on the element the mark is leaving, which is a real node that stays in the
+      // document. Sending it nowhere would drop the caret to <body> and lose the reading place.
+      el?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selectedField]);
+
+  // DISMISS CLEARS THE FIELD, NOT THE SECTION. "Stop editing this paragraph" and "leave this
+  // section" are different intents, and the section selection is what the whole inspector is
+  // bound to — collapsing both onto one key would make Escape throw away the pane you are
+  // working in. Escape and the dock's close button do the same thing.
+  const dismissField = () => setSelectedField(null);
   const writeSelected = (value: string) => {
     const f = selectedField;
     if (!f || selIdxTop < 0) return; // same reason as `readField`'s guard
@@ -1252,8 +1347,48 @@ export default function SectionsEditPanel({
             }
           };
           // Selecting only records WHICH field. The value is read on render, so the
-          // rail cannot show something form state no longer holds.
-          const selectField = (f: SelectedField) => setSelectedField(f);
+          // dock cannot show something form state no longer holds.
+          //
+          // T0 · THE REVEAL fires here, BEFORE the mark, because marking something off-screen
+          // wastes the lead. It is CONDITIONAL, and that is the whole decision: this refines the
+          // earlier "do not scroll" rule rather than reversing it. The objection was moving the
+          // pane out from under someone already looking at it — which only happens when the thing
+          // is ALREADY VISIBLE. A mark nobody can see is not a mark.
+          //
+          // CANVAS ONLY, AND THE INSPECTOR HALF IS DELIBERATELY NOT DRIVEN. `ItemRows` rows fold
+          // by default (#234), so for every `items.N.*`, `stats.N.*`, `cards.N.*`, `features.N.*`
+          // and `steps.N.*` field — most of the block-level editable surface — the inspector's
+          // counterpart is HIDDEN. Scrolling a pane to show something folded away moves it to
+          // show nothing. The contract's script drives both while its own prose says the
+          // inspector does not scroll; the prose was written for the pre-T0 version and never
+          // updated. Correction 32. The dock is what confirms the click instead.
+          const selectField = (f: SelectedField, el?: HTMLElement | null) => {
+            if (el) {
+              revealIfNeeded(el);
+              // AND AGAIN ONCE THE DOCK HAS TAKEN ITS SPACE, because the first call's scroll is
+              // CLAMPED TO THE RANGE THAT EXISTS WHEN IT IS ISSUED. Measured: the reveal asked
+              // for 264, the browser clamped it to 151 — exactly `scrollHeight - clientHeight`
+              // for the pre-dock viewport — and then the dock opened, the viewport lost 113px,
+              // the reachable range grew to 264, and the element was left below the fold. Every
+              // property was true. The scroll fired, `scrollTop` changed, the maths was right
+              // for the box that existed at the time, and you still could not see what you
+              // clicked. Centring for the FUTURE viewport (see `revealIfNeeded`) fixes the
+              // arithmetic and cannot fix the clamp, because the range is not the maths.
+              //
+              // THE SECOND CALL IS FREE WHEN THE FIRST SUFFICED — `revealIfNeeded` returns early
+              // when the target is already in view, which is the same conditionality T0 is built
+              // on. So this is not "scroll twice", it is "check again once the box is final".
+              const dock = document.querySelector<HTMLElement>("[data-studio-dock]");
+              if (dock) {
+                const again = () => {
+                  dock.removeEventListener("transitionend", again);
+                  revealIfNeeded(el);
+                };
+                dock.addEventListener("transitionend", again);
+              }
+            }
+            setSelectedField(f);
+          };
 
           /**
            * Enter and Backspace in a richText paragraph, the two keys that change how
@@ -1314,10 +1449,11 @@ export default function SectionsEditPanel({
                 {imageBusy && <span className="text-accent-600 normal-case tracking-normal">Uploading image…</span>}
                 {imageError && <span className="text-accent-600 normal-case tracking-normal">{imageError}</span>}
               </div>
-              {/* No grid. The pane IS the canvas — see the note on `canvasNode`. This div stays
-                  because it is the height ceiling the Selected rail's textarea clamps against from
-                  its new home in the inspector, captured by callback ref. */}
-              <div ref={setCanvasCeiling} className="min-w-0">
+              {/* No grid. The pane IS the canvas — see the note on `canvasNode`.
+                  THE CEILING WRAPPER THAT USED TO SIT HERE IS GONE. It existed only to be
+                  measured, as the bound for the Selected rail's auto-growing textarea. The dock
+                  at the canvas foot takes a fixed budget instead, so the wrapper, the
+                  `canvasCeiling` state and `useAutoGrow` all went with the rail. */}
               <SectionCanvas
                 section={values.sections[selIdx]}
                 web={web}
@@ -1343,7 +1479,6 @@ export default function SectionsEditPanel({
                   boldDirty.current = true;
                 }}
               />
-              </div>
               <input
                 ref={imageInputRef}
                 type="file"
@@ -1366,21 +1501,16 @@ export default function SectionsEditPanel({
   // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
   const inspectorNode = (
     <div className="flex flex-col gap-4">
-      {/* THE SELECTED RAIL, AT THE TOP OF THE INSPECTOR. It edits the field the canvas has
-          selected, so it belongs with the fields rather than on top of the render — and beside
-          the canvas it was costing that render 240 of its 640. Changing parent is all this is:
-          same `readField`/`writeSelected`, same textarea, same `useAutoGrow` ceiling.
-          It is HIDDEN under Details rather than dropped, for the reason everything else in this
-          pane is: Details has no canvas to select from, so a rail there would name a field you
-          cannot click, but unmounting it would throw away the caret of whoever is mid-word when
-          they glance at Details. Hidden, like its neighbours. */}
-      <SelectedRail
-        hidden={showDetails}
-        ceiling={canvasCeiling}
-        selected={selectedField}
-        value={selectedField ? readField(selectedField) : ""}
-        onChange={writeSelected}
-      />
+      {/* THE SELECTED RAIL USED TO MOUNT HERE, AT THE TOP OF THE INSPECTOR, and it is now the
+          dock at the canvas foot — see `SelectionDock`. The reasoning for putting it here is
+          kept rather than deleted, because it was right about the thing it was arguing:
+          "it edits the field the canvas has selected, so it belongs with the fields rather than
+          on top of the render — and beside the canvas it was costing that render 240 of its 640."
+          Both halves still hold. What that argument could not see is that the rail took the top
+          of this pane whether or not anything was selected, and that the inspector's own field is
+          FOLDED for most block selections (#234), so "belongs with the fields" put the
+          confirmation next to a field you cannot see. The dock is beside the canvas without
+          costing it width, because it costs height instead. */}
 
       {/* THE DETAILS FORM, MOUNTED AND HIDDEN like every section editor beside it — it carries
           its own draft state, so a conditional render here would drop an in-progress edit the
@@ -1713,6 +1843,22 @@ export default function SectionsEditPanel({
               onMove={moveSection}
               needsImage={sectionNeedsImage}
               detailsDirty={detailsDirty}
+            />
+          }
+          canvasDock={
+            /* THE DOCK, at the canvas pane's foot. It is a SIBLING of the scroll region rather
+               than a child, so it compresses the canvas instead of covering it — nothing is ever
+               hidden behind it — and it stays outside the subtree `useFitToWidth` observes.
+               HIDDEN UNDER DETAILS, NEVER UNMOUNTED, for the reason everything else in this
+               editor is: Details has no canvas to select from, so a dock there would name a field
+               you cannot click, but unmounting it would throw away the caret of whoever is
+               mid-word when they glance at Details. */
+            <SelectionDock
+              hidden={showDetails}
+              selected={selectedField}
+              value={selectedField ? readField(selectedField) : ""}
+              onChange={writeSelected}
+              onDismiss={dismissField}
             />
           }
           canvasBar={
