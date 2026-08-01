@@ -3312,6 +3312,49 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#272** the loading window stops being a page — the details flash →1898 (`studio-ink` 266→272,
+  C14 new). **Reported by the owner, not found by a gate.**
+
+  *"Click Fosfor AI and an old Edit details page shows for a few milliseconds, then the three-pane
+  appears. Clicking boAt is fine."* Both halves of that were exactly right, including the part that
+  sounds like noise.
+
+  **MEASURED BEFORE DIAGNOSED.** On a real click from the index: framed fallback first painted at
+  **426ms**, shell at **695ms** — a **269ms** window showing a completely different page. Not a
+  paint artefact and not a transition; the guard at `ProjectsEditPanel.tsx` was true on first
+  render and its fallback contained `{detailsNode}`, the whole details form, inside a bordered
+  panel. So the old editor did flash up, because for 269ms it WAS the old editor.
+
+  **PRE-EXISTING, AND SAYING SO MATTERS.** The guard evaluated identically before the Details arc.
+  What #271 changed is that boat-crest stopped fetching and went straight to the shell, which is
+  why the owner saw three studies flash and one not. The arc did not cause this; it made it
+  visible, and the contrast is what got it reported at all.
+
+  **THE OBVIOUS FIX WOULD HAVE BEEN A DATA-LOSS BUG.** "Mount the shell immediately with
+  `sections={[]}` and let it fill in" is the first thing anyone reaches for and it cannot work here:
+  `useDraftForm` is `useState(initial)`, so a form mounted empty **ignores the sections that arrive
+  after** and stays empty for the session. That trades a 269ms flash for a silent empty save. The
+  flash is the cheaper defect and the fix had to leave the mount order alone.
+
+  **SO THE LOADING STATE STOPPED RENDERING THE EDITOR** rather than rendering it sooner. An early
+  return now precedes the framed panel with one announced line and no form, so nothing has to move
+  when the shell arrives. Measured after: loading line at **330ms**, shell at **960ms**, and the
+  details form never appears before the shell (`DETAILS_FORM_BEFORE_SHELL: NO`). boat-crest is
+  unchanged and never sees the loading line at all — it does not fetch.
+
+  **ERROR KEEPS THE PANEL, AND THAT IS THE DISTINCTION RATHER THAN A LEFTOVER.** A failed load is
+  persistent and actionable, so it keeps its frame, its retry and the editable details. A slow load
+  is none of those. This is also what keeps `studio-ink` E1b's subject alive honestly — all six of
+  its assertions still pass on the error branch rather than being retired to make room.
+
+  **THE CSS GATE DID NOT COME BACK BYTE-IDENTICAL, AND THAT IS REPORTED AS MEASURED.** Tailwind v4
+  scans every file into one stylesheet and the public home page loads that chunk, so a studio-only
+  utility can still reach it. Diffed against `1f16ee6`: **exactly one rule added,
+  `.min-h-\[40vh\]{min-height:40vh}`, none removed or changed**, and the second chunk
+  byte-identical. Public home DOM byte-identical at 108,493 bytes with the build id and css hash
+  normalised. An unused rule in a chunk the public site loads is a real, if tiny, cost — stated
+  rather than rounded to "no public change".
+
 - **#271** the bespoke three-pane — boat-crest gets the shell →1892 (`studio-ink` 254→266, C13
   new; `mount-discipline` 26→45 with A4 new, A1/A3 widened). **PR 3 of the Details arc. CLOSES
   HAZARD 29.**
