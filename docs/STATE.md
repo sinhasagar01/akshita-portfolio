@@ -6,11 +6,31 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE INK CHROME ARC, COMPLETE)
+## STATE (as of THE FIELD-CONTRACT ARC, COMPLETE)
 
-**main** = `beba883` = the card image (#211). **The ink chrome arc is finished — six PRs, #204
-to #209 — and ALL ELEVEN FIDELITY ITEMS ARE NOW CLOSED**, across two further PRs.
-**ralph 1521 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
+**main** = `0fe8fd6` = the tab hint (#257). **The field-contract arc is finished — four PRs, #254
+to #257, ralph 1678 → 1707.** It answered one owner question (why paired inputs give no way to
+tell which box is which) by auditing the whole inspector against
+`docs/studio/studio-field-contract.html` and then measuring every item the audit raised.
+**THE WHOLE ARC COST +0.32 WORST SCREENS, AND ALL OF IT IS IN #254** — the pill, which was the
+owner's actual complaint. #255 and #257 were free and #256 was free by construction, because the
+three values that were not free were dropped. Roughly HALF of what the audit called an
+implementation gap did not survive measurement, which is the arc's finding and is now a working
+rule.
+**ralph 1707 across 45 suites** (`parity` and `studio-type` still named as skipped, not dropped).
+
+### The four PRs
+
+| PR | what | ralph | worst screen |
+| --- | --- | --- | --- |
+| **#254** | the pill everywhere, reversing my own #253 correction | 1693 | 3.03 → **3.35** |
+| **#255** | the unit moves out of the label and into the well | 1703 | **0** |
+| **#256** | the accordion — four free values of seven, three dropped | 1703 | **0** |
+| **#257** | the tab hint, and one spacing value of five | 1707 | **−0.01** |
+
+**The prior header, retained**: the ink chrome arc finished at `beba883` = the card image (#211),
+six PRs #204 to #209, with **all eleven fidelity items closed** across two further PRs.
+**ralph was 1521 across 44 suites** (`parity` and `studio-type` named as skipped, not dropped; the
 on-ink CONTRASTS `studio-type` measured are now enforced in CI by `studio-ink-contrast`).
 
 | items                 | where                | how                                                     |
@@ -2258,6 +2278,57 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
   When reusing a fix, name the property that made it correct and check that property still
   holds. **A rule reused past its precondition is worse than no rule**, because it arrives
   carrying a successful precedent and reads as settled.
+- **A CONTRACT DRAWN RATHER THAN MEASURED IS WRONG AT ABOUT THE RATE IT IS RIGHT, AND THE DRAWING
+  CANNOT TELL YOU WHICH HALF YOU ARE LOOKING AT.** **Second instance, which is what makes it a
+  rule** — the four-page audit found the same thing, and the field-contract arc reproduced it at a
+  different scale. Across #254 to #257, roughly HALF of what the audit classified as an
+  implementation gap survived measurement: the unit suffix was real and shipped, four of seven
+  accordion values were real and free, one of five spacing values was real, and the pill's reversal
+  was the owner's actual complaint rather than anything the drawing asked for. The rest were
+  contract errors, mock furniture, or values not worth their cost. **The audit's value was never in
+  confirming the drawing.** It was in sizing the real gap, and every sizing came from a rendered box
+  rather than from the file. Applies to all of `docs/studio/*.html`.
+- **A CORRECT MEASUREMENT OF THE WRONG QUANTITY IS ITS OWN FAILURE SHAPE**, distinct from a wrong
+  measurement. Every number in #253 was right and reproducible. It priced what the pill would COST
+  and never asked whether what it bought would be VISIBLE. The eight pill sites all sit inside
+  `ItemRows` rows, which #234 folds by default, so the contract's headline element rendered **zero
+  times** on the surface it was drawn for — an author opening the inspector saw it never.
+  **THE TEST: when a change is scoped by measurement, measure the BENEFIT in the same units and at
+  the same default state as the cost.** Counting pills-per-section at the default fold would have
+  returned zero before the PR was written. A number being reproducible says nothing about whether it
+  is the number the decision turns on.
+- **A GROUND VALUE COPIED FROM A DRAWING CARRIES THE DRAWING'S GROUND WITH IT.** The contract's
+  `.grp{background:cream-50}` is drawn for a group sitting on cream-100. Applied literally in #256
+  it would have done two things in one edit: FIXED Section settings' live 1.00 collision (cream-100
+  on cream-100) and CREATED a defect by making `ItemRows` rows vanish into their cream-50 parent —
+  **exactly what #227 fixed at six sites, one level down.** The rule is one step off WHATEVER IT
+  SITS ON, which is why one card moved and the nested rows did not. A literal reading would have
+  shipped a fix and a regression under one green diff.
+- **THE REPETITION OF A NUMBER IS THE TELL FOR PADDING THAT ONLY EXISTS BECAUSE THE MOCK FLOATS.**
+  `.ibody`'s 14 appears three times in the field contract — `.ibody`, `.seg`, `.tabhint` — because
+  `.insp` is a floating card whose children carry no inset of their own. In the real pane every
+  child already carries one, so building it would have pushed the section cards from 14 to 28 and
+  halved a usable width already measured at 226px. **A value that appears at every child of a
+  container is that container's padding, drawn one level down because the drawing had nowhere else
+  to put it.**
+  **And the measurement that made the split was not the paddings.** It was WHERE THE INK STARTS
+  relative to the pane's edge — 16, 13, 13, and **1**. The pane was not missing a body gutter; one
+  element was missing its own. Comparing a container's padding to a drawing's compares two numbers
+  that were never the same quantity; comparing where the ink lands compares what the eye reads.
+- **A VISUAL CHANGE CAN SILENTLY DELETE AN ACCESSIBLE FACT, AND THE DIFF WILL LOOK RIGHT.** #255
+  moved the unit out of the label and into the well. The visible label shortened from "Width, px"
+  to "Width" as intended — and because the suffix is `aria-hidden`, the unit went NOWHERE. A screen
+  reader heard "Width" where it used to hear "Width, px". **Nothing in the diff looked wrong**; it
+  showed only in the rendered accessible name, and the fix was an explicit `aria-label` restoring
+  what the visible label gave up. When information moves out of a label, name where it lands in the
+  accessible name and measure it there.
+- **AN ASSERTION MUST REQUIRE BOTH SIDES TO RESOLVE BEFORE IT COMPARES THEM.** #257 shipped two
+  assertions that were wrong before they were right. `text-\[11px\]\b` can never match — `]` and
+  the following space are both non-word characters, so there is no boundary for `\b` to find. And a
+  `{0,400}` byte window missed a padding sitting ~700 chars in and returned `undefined`, **which
+  would have compared equal to a missing hint padding and passed for the wrong reason**. Same fix
+  as #246's J1, and the same family as the `||` whose second clause passed regardless in #249.
+  **A comparison between two absent things is not a passing gate.**
 
 ---
 
@@ -3134,6 +3205,12 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 ---
 
 ## SESSION PR/SHA LOG
+
+**THE FIELD-CONTRACT ARC PINS**, read from `git log` rather than recalled — I guessed two of these
+first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (the accordion),
+`b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
+(the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
+from a run on main after the merge**, not from the PR's own CI.
 
 - **#257** the tab hint, and the spacing that turned out to be a drawing's own furniture →1707
   (`studio-labels` 34→38, new section G). **PR 4 of 4, and it closes the inspector audit.**
@@ -4886,6 +4963,66 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 ---
 
 ## WHAT'S NEXT
+
+**THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
+owner-report arc because it is the most recent, and because its lesson is about the REFERENCE
+rather than about the code.
+
+**WHAT IT WAS.** One owner question — paired inputs give no way to tell which box is which —
+answered by auditing every element of the case-study inspector against
+`docs/studio/studio-field-contract.html`, classifying each as implementation gap, contract error,
+deliberate, or already shipped, and then MEASURING every item the audit raised before building it.
+#254 the pill everywhere · #255 the unit into the well · #256 the accordion · #257 the tab hint.
+
+**WHAT IT SETTLED THAT IS WORTH CARRYING.** All six are now in WORKING RULES with their evidence.
+- **A contract drawn rather than measured is wrong at about the rate it is right.** Second
+  instance — the four-page audit found the same thing — and two makes it a pattern rather than an
+  anecdote. Roughly half of what the audit called a gap survived measurement.
+- **A correct measurement of the wrong quantity is its own failure shape.** #253's numbers were
+  all right; the quantity was wrong. The test is to measure the BENEFIT in the same units and at
+  the same default state as the cost.
+- **A ground value copied from a drawing carries the drawing's ground with it** — #256 would have
+  recreated #227 one level down while fixing a live 1.00 collision in the same edit.
+- **The repetition of a number is the tell for mock padding**, and the split came from where the
+  ink starts (16, 13, 13, 1) rather than from the paddings themselves.
+- **A visual change can silently delete an accessible fact** — #255's `aria-hidden` unit.
+- **An assertion must require both sides to resolve before comparing them** — #257, twice.
+
+**CORRECTIONS 27 TO 31, AND WHO OWNS EACH.**
+- **C-27, the hero tabs' reference.** The contract's type values were wrong about WHAT THE TAB IS
+  — the reference is the public render, not the drawing. A new kind: the contract being wrong
+  about its own subject rather than about the design. **The owner reversed their own four items
+  on it.**
+- **C-28, MINE.** The contract's prose said a fixed key is the pill shape WITHOUT the ground; its
+  drawing then rendered fixed keys as pill-shaped spans carrying the 26px height and the 8px
+  connector. The prose was right and the drawing was wrong.
+- **C-29, Content/Style.** The contract draws `.seg`, a segmented control with an accent FILL, on
+  an element that is a genuine `role="tablist"` with `aria-selected`. Correction 20's by-role
+  split already rules that tablist takes the underline. The app is right; same shape as C-27.
+- **C-30, A DELIBERATE REFUSAL rather than a gap.** The contract draws a 13px ink-400 chevron
+  rotating 180° when OPEN; ours is 12px ink-600 rotating −90° when CLOSED. **The contract drew a
+  DROPDOWN mark for a DISCLOSURE.** Its mark is quieter because in that drawing it is not the
+  primary affordance; under #234's fold, on a collapsed row, it is. The size and colour go with
+  the orientation — they were drawn for a mark doing a different job.
+- **C-31, MINE.** `.ibody`'s 12/14/20 is the mock's own card padding, not a value the pane needs,
+  along with `.insp`'s border, radius and overflow-hidden. `.gbody` 11 vs 12 and `.grp` 10 vs 8
+  are inside 2px. Recorded with them: `.kv` 14 is genuinely real and was **still not built**, on
+  its number — 8 → 14 costs 3.35 → 3.51 worst, the most expensive value left in the arc, for 6px
+  of air the key pill already buys.
+
+**WHAT IS OPEN FROM IT.**
+1. **Hazard 31** — `ink-400` as a text colour is asserted and unenforced, and #253's accordion
+   summary shipped it at 3.49 on every collapsed row until #256 found it. **The first of three
+   that actually reached main.** No usage gate was built, deliberately: 23 of the studio's 35
+   `text-ink-400` sites are icon or border containers where it is correct, and several of the rest
+   sit on INK grounds. A naive scan misfires on all of those, and a gate that misfires gets
+   ignored, which is worse than none. The honest gate needs each site's GROUND — **which is
+   exactly what hazard 30 records as missing. The two hazards are one gap seen from opposite
+   directions**: 30 says a colour the studio uses is uncomputed, 31 says a colour the studio
+   forbids is unpoliced.
+2. **`.kv` 14 is the owner's call**, with its cost measured and recorded above.
+3. **The pill's +0.32 worst screens stands as the arc's whole cost** and is the number any future
+   inspector height work starts from.
 
 **THE OWNER-REPORT ARC (#246–#251) IS CLOSED — SIX PRs, ralph 1621 → 1666.** It is recorded here
 above the consistency arc because it is the most recent, and because its lesson is different from
