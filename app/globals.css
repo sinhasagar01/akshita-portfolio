@@ -3110,3 +3110,74 @@ a {
     scrollbar-color: color-mix(in oklch, white 18%, transparent) transparent;
   }
 }
+
+/* ============================================================ STUDIO ELEVATION SCALE
+   Scoped to /studio beside the radius and motion blocks and for the same reason: this serves the
+   studio's chrome, @theme serves the public site, and a change to either must not drag the other.
+
+   A CORRECTION TO THE BOARD CONTRACT FIRST, because the premise it argues from is wrong. It says
+   "the theme has no elevation scale" — @theme declares THREE, `--shadow-sm/md/lg` at lines
+   178-180. The honest justification for a studio scale is WEIGHT AND COLOUR SPACE, not absence:
+   the theme tops out at `0 12px 32px …/0.10` and is oklch warm ink, while every studio literal
+   shipped so far is `rgba(60,45,30,…)` and far heavier. Left as drawn, the next reader greps
+   @theme, finds --shadow-lg and concludes this block was written without checking.
+
+   AND THE SCALE IS NOT ARRIVING — IT ARRIVED, UNDECLARED, AND IS ALREADY DRIFTING. Seven studio
+   call sites carry five distinct literals in three de-facto tiers: `0 8px 30px …/.14` on
+   ListboxField and StudioSearch, `0 18px 40px -20px …/.45` on PublishBar and BlogBlocksEditPanel,
+   `0 30px 60px -24px …/.5` on StudioModal — plus TWO BoldToolbar values that already slipped off
+   them, one of which uses `60,50,38` where everything else uses `60,45,30`. #168 recorded the
+   modal's literal as an exception; six more call sites later it is a convention nobody declared.
+
+   THREE STEPS, EACH WITH A CONSUMER, which is the test the contract itself sets. `rest` is every
+   card at rest, `hover` is the card under the pointer, `active` is the selected card — all three
+   live on the Board simultaneously, so this is not the FIT_THRESHOLD_PX shape of a scale with one
+   caller. NAMED BY ROLE, so a new elevated surface picks by what it IS rather than by copying a
+   literal, which is exactly how the five above multiplied.
+
+   NOT MIGRATING THE EXISTING SEVEN. Those are popovers, bars and a modal — a different family
+   from a card lifting off a grid, and repointing them is a sweep with its own measurements and
+   its own risk. Recorded as the obvious follow-up rather than smuggled in here. */
+.studio-chrome {
+  /* A CARD SITTING ON THE SURFACE. Barely there — at fourteen cards the rest state is the page's
+     texture, not its subject, so it reads as separation rather than as shadow. */
+  --studio-lift-rest: 0 1px 2px oklch(14% 0.018 60 / 0.06), 0 2px 8px -3px oklch(14% 0.018 60 / 0.1);
+  /* THE CARD THE POINTER IS OVER. Paired with a 3px rise; the shadow deepens and spreads so the
+     rise reads as height rather than as the card simply moving up the page. */
+  --studio-lift-hover: 0 2px 4px oklch(14% 0.018 60 / 0.07), 0 8px 20px -6px oklch(14% 0.018 60 / 0.16);
+  /* THE SELECTED CARD. Deeper than hover and with NO rise, so selection is a state the card holds
+     rather than a gesture it is performing. */
+  --studio-lift-active: 0 2px 5px oklch(14% 0.018 60 / 0.08), 0 12px 28px -8px oklch(14% 0.018 60 / 0.2);
+}
+
+/* ============================================================ STUDIO HOVER TIERS
+   The Board's hover is four things at three speeds, the same tier discipline as the selection
+   contract's T0-T4. These are DURATIONS ONLY — every delay reuses the motion block's existing
+   ramp, because that ramp already encodes the order this design needs and a second set of delays
+   would be numeric twins sitting beside an asserted sequence.
+
+   THREE TOKENS, AND THE FOURTH IS DELIBERATELY ABSENT. The contract asks for a 150ms mark;
+   @theme's `--duration-fast` IS 150ms, byte-identical. Declaring it would be a second name for a
+   value that already has an honest one — #258 refused exactly this for `--ease-glide`, and that
+   refusal is the reason the studio has one glide easing rather than two. The mark uses
+   `--duration-fast`.
+
+   NOR ARE THESE THE T-TIERS RENAMED. `--studio-t1` is 220ms and `--studio-t3` is 260ms; the lead
+   and the follow here are 200 and 240. Twenty milliseconds is below the threshold at which anyone
+   could tell them apart, so reusing the t-tiers was the cheaper answer and was considered — but a
+   token's job is to say WHICH TIER a thing belongs to, and a card lifting off a grid is not the
+   selection contract's canvas bar. Sharing the name would make a later change to one silently
+   move the other. */
+.studio-chrome {
+  /* THE LEAD — the card itself, and the chips that resolve behind it. Everything else on the card
+     is timed against this one. */
+  --studio-lift-t: 200ms;
+  /* THE FOLLOWER — the ordinal and the shape. Slower than the lead so they TRAIL it, which is
+     what makes the card read as an object rather than as an image that changed. */
+  --studio-lift-follow: 240ms;
+  /* THE SHEEN — a single diagonal pass, once per hover, never repeating. The only thing on this
+     card that is decoration rather than feedback, and therefore the first thing to cut if it ever
+     reads as gloss. Measured at 0.2ms of style and layout for a real hover against a 16.7ms
+     frame, and below the noise floor when isolated, so it is not carried on cost. */
+  --studio-lift-sheen: 620ms;
+}

@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — the Board contract</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE BOARD CONTRACT — three columns, elevated cards
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · radius 12/8/4 · selection = ground+1 plus ##
+  ##  a 3px accent left bar · labelCls 12/700/.14em/ink-600.              ##
+  ##########################################################################
+
+  The chosen design: the index card's chips, the numbered sequence's ordinal,
+  the shape preview's miniature, at three columns, with ELEVATION rather than a
+  border doing the separating.
+
+================================================================================
+  0 · SIX CORRECTIONS FROM THE BUILD, ALL MEASURED
+================================================================================
+  1. "THE THEME HAS NO ELEVATION SCALE" IS NOT TRUE. @theme declares three —
+     --shadow-sm/md/lg at globals.css:178-180. The honest argument for a studio
+     scale is WEIGHT AND COLOUR SPACE: the theme tops out at 0 12px 32px/.10 and
+     is oklch warm ink, while every studio literal is rgba(60,45,30) and heavier.
+     Left as drawn, the next reader greps @theme and assumes nobody checked.
+
+  2. THE SCALE HAD ALREADY ARRIVED, UNDECLARED, AND WAS DRIFTING. Seven studio
+     call sites, five literals, three de-facto tiers — plus two BoldToolbar
+     values already off them, one using 60,50,38 where everything else uses
+     60,45,30. So this declares a scale that exists rather than inventing one.
+
+  3. THE TWO-LINE CLAMP DOES NOT HOLD IN THIS FILE'S OWN LAYOUT. All six long
+     real titles need a 222px title column at Fraunces 15px. Sharing the head row
+     with the ordinal AND the arrows leaves 210px in a 323px card, so the longest
+     title takes THREE lines at the dimensions this file draws.
+     THE ARROWS MOVED TO THE CARD FOOT, which buys 46px and fixes them to the
+     same place on every card rather than letting title length shift them.
+
+  4. THE CHIPS AND THE ORDINAL COLLIDE WITH THE CARD. Drawn at cream-50 on a
+     cream-50 card — measured 1.00, the same colour, with a hairline doing all
+     the work. That is #227's well-equals-ground defect and the ladder's rule is
+     ONE STEP OFF WHATEVER IT SITS ON. Both are cream-100; every nested pair now
+     measures 1.05 at rest.
+
+  5. THE SQUARE BECAME A FIXED HEIGHT, AND THE COLUMNS BECAME FLUID. `aspect-1`
+     ties height to width, so a fluid column count would have made the cards
+     taller as it made them wider — 372px tall at three columns, 300 at five,
+     changing how much board fits on screen at every resize. The card is
+     300-340 x 320 and the grid is auto-fill, so it is not capped at three.
+     Measured across 360-1600px of board width: columns flow 1 to 5, the title
+     column never drops below 230, zero titles clip.
+
+  6. THE PAINT IS FREE AND THE SHEEN IS NOT THE COST. A real hover costs 0.2ms
+     of style and layout against a 16.7ms frame. Fourteen cards animating at
+     once — 14x any real hover — dropped no vsyncs. The sheen measured below the
+     noise floor. Caveat: the measuring pane is vsync-capped at 30fps, so the
+     frame test bounds total cost at 33ms rather than 16.7.
+
+================================================================================
+  1 · THE ELEVATION SCALE — declared, because three steps IS a scale
+================================================================================
+  #168 RECORDED THE SHADOW LITERAL AS AN EXCEPTION, NOT A CONVENTION.
+  StudioModal authors one because the theme has no elevation scale, and that
+  was written down as an exception. THREE STEPS ACROSS FOURTEEN CARDS IS NOT AN
+  EXCEPTION — it is a scale arriving without being declared as one.
+
+  So it is declared beside the radius and motion blocks, scoped to
+  .studio-chrome, NAMED BY ROLE exactly as those are:
+
+    --studio-lift-rest    a card sitting on the surface
+    --studio-lift-hover   a card the pointer is over, plus a 2px rise
+    --studio-lift-active  the selected card
+
+  A new elevated surface picks BY ROLE, never by copying a literal — which is
+  the whole reason the radius and ground scales are named that way.
+  IF ONLY ONE STEP IS EVER USED, DO NOT DECLARE THREE. A scale with one
+  consumer is the FIT_THRESHOLD_PX shape this project has deleted three times.
+
+  ⚠ A SHADOW COSTS LAYOUT NOTHING AND PAINT A LOT. Fourteen blurred shadows,
+  repainting on hover, on a surface that also holds a scaled canvas. This is
+  the first time the studio paints elevation at grid scale — MEASURE IT.
+
+================================================================================
+  2 · THE GROUND MOVES, AND THAT IS PART OF THE DESIGN
+================================================================================
+  Cards are cream-50 and the grid beneath them is cream-100. A cream-50 card on
+  a cream-50 page HAS NOTHING TO LIFT OFF, so the ground change is not
+  incidental — it is what makes the elevation legible.
+  It checks out against the ladder: chrome cream-200 / field surface cream-100 /
+  well cream-50. The Board's grid is a field surface holding cards, which is
+  exactly what cream-100 is for.
+
+================================================================================
+  3 · THE LEFT EDGE — the owner's note
+================================================================================
+  The card keeps a 3px left edge whose COLOUR is the only thing that moves, so
+  the selection bar is the edge the card already had rather than something
+  appearing from nowhere. Nothing reflows between states and selection cannot
+  shift the grid by a pixel.
+    rest / hover  transparent — the shadow separates, so no hairline is needed
+    selected      accent-500
+
+  ⚠ HAZARD 26 IS LIVE ON THIS ELEMENT. A `border` shorthand beside a per-side
+  longhand is utility-versus-utility, decided by SHEET ORDER, and
+  studio-border-race exists because two live instances shipped. THERE IS NO
+  BORDER SHORTHAND HERE AT ALL — border:0 plus one left declaration — which
+  sidesteps it by construction rather than by care. Keep it that way.
+
+================================================================================
+  4 · THE SQUARE, AND WHY THE MINI TAKES THE SLACK
+================================================================================
+  `aspect-ratio: 1` makes the card square at any column width — at the fit
+  threshold that is roughly 340x340. The HEAD and the CHIPS are fixed height;
+  THE MINI TAKES THE FLEXIBLE MIDDLE. So a one-block card and a three-block
+  card are the same size, and the sparse one simply gives its shape more room
+  rather than leaving dead space at the bottom.
+  ⚠ THE TITLE CLAMPS TO TWO LINES. A square has a fixed budget and a long
+  section title is the thing most likely to exceed it. Measure the longest real
+  title at the narrowest shipping column before accepting the clamp — a title
+  cut mid-word reads as a rendering fault, which is what #203 found with the OG
+  card's raw slice.
+
+================================================================================
+  5 · THE HOVER IS FOUR THINGS AT THREE SPEEDS
+================================================================================
+  Not one lift. The same tier discipline as the selection contract:
+
+    THE CARD      lifts 3px and deepens to --studio-lift-hover, 200ms. The lead.
+    THE ORDINAL   lifts 1px, 240ms at 40ms. The follower — it trails the card
+                  rather than moving with it, which is what makes the card feel
+                  like an object rather than an image.
+    THE SHAPE     its ground steps cream-100 -> cream-200 and its contents
+                  deepen a step, 240ms at 30ms. IT GAINS DEFINITION RATHER THAN
+                  MOVING — a mini that slides competes with the card.
+    THE CHIPS     ground and text step up, 200ms at 70ms. Resolve last.
+
+  THE SHEEN is a single diagonal pass, 620ms, and it never repeats on the same
+  hover. IT IS THE ONLY DECORATION HERE rather than feedback, so it is the
+  first thing to cut if it reads as gloss. Everything else tells you something.
+
+  REDUCED MOTION zeroes every duration, drops the rise and removes the sheen —
+  and THE FINAL STATE IS IDENTICAL, because shadow, ground and colour all still
+  change. A motion fix must not cost an affordance (#198).
+
+================================================================================
+  6 · WHAT EACH PART OF THE CARD DOES
+================================================================================
+  THE ORDINAL   30px, Fraunces italic on cream-100. Selected, it takes the
+                accent and turns upright — one mark, two jobs.
+  THE EYEBROW   the section's own label at labelCls.
+  THE TITLE     Fraunces 15px, wrapping to two lines in a ~340px column.
+  THE SHAPE     a miniature of what the section RENDERS. One mini per block
+                KIND; a new kind needs a new mini or falls back to generic bars.
+                THE MINIS ARE ABSTRACTIONS, NOT RENDERS — a mini that stops
+                matching what the section draws is worse than no mini, because
+                it teaches the wrong thing. Whoever adds a kind adds its mini.
+  THE CHIPS     naming the blocks in order, beneath the shape. The shape says
+                what it looks like; the chips say what it is.
+  NO COUNT PILL — the chips are the count. Today's "1 block" restates what sits
+                beside it.
+
+================================================================================
+  7 · REORDER IS ← / → , AND THAT IS A DECISION
+================================================================================
+  Document order runs left-to-right and wraps, so the section before "Goals" is
+  visually to its LEFT. Today's ↑/↓ inherit a single-column model the layout no
+  longer matches — ↑ on the first card of a row moves it to the END of the
+  previous row, a jump rather than a step.
+  ← / → matches document order, needs no new interaction, and stays two
+  keyboard-reachable buttons. THE FIRST CARD'S ← AND THE LAST CARD'S → ARE
+  DISABLED RATHER THAN ABSENT, so the control does not move between cards.
+
+================================================================================
+  8 · THE DEFAULT VIEW CHANGES
+================================================================================
+  Opening a case study lands on EDITOR, and the toggle reads Editor | Board in
+  that order. Today it opens on the Board — showing the shape when what an
+  author came to do is write.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-panel:12px; --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --t-lift:200ms;    /* the card itself — the lead        */
+  --t-follow:240ms;  /* the shape — the follower          */
+  --t-detail:200ms;  /* the chips — resolve last          */
+  --t-mark:150ms;    /* selection colour, no travel       */
+
+  /* THE ELEVATION SCALE — named by role, declared because three steps is a scale */
+  --studio-lift-rest:0 1px 2px oklch(14% .018 60/.06), 0 2px 8px -3px oklch(14% .018 60/.1);
+  --studio-lift-hover:0 2px 4px oklch(14% .018 60/.07), 0 8px 20px -6px oklch(14% .018 60/.16);
+  --studio-lift-active:0 2px 5px oklch(14% .018 60/.08), 0 12px 28px -8px oklch(14% .018 60/.2);
+}
+*,*::before,*::after{box-sizing:border-box}
+/* REDUCED MOTION — every duration zeroes, the rise and the sheen go, and the
+   FINAL STATE IS IDENTICAL: shadow, ground and colour all still change. A
+   motion fix must not cost an affordance (#198). */
+@media (prefers-reduced-motion:reduce){
+  :root{--t-lift:0.01ms;--t-follow:0.01ms;--t-detail:0.01ms;--t-mark:0.01ms}
+  .card:hover{transform:none}
+  .card:hover .num{transform:none}
+  .card::after,.card:hover::after{display:none}
+}
+body{margin:0;padding:30px 26px 80px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 26px;max-width:94ch}
+.sub b{color:var(--ink-950)}
+
+.row{margin-bottom:40px}
+.rowhead{margin-bottom:12px;max-width:94ch}
+.rowhead h2{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:0 0 6px}
+.rowhead p{font:400 12.5px/1.65 var(--sans);color:var(--subtle);margin:0}
+.rowhead b{color:var(--ink-950)}
+
+.work{background:var(--cream-50);border:1px solid var(--rule-edge);border-radius:var(--r-ctl);
+  overflow:hidden;width:1120px;max-width:100%}
+.topbar{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--rule)}
+.back{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);padding:6px 10px;font:500 12px/1 var(--sans);color:var(--ink-600)}
+.stud{font-family:var(--serif);font-weight:400;font-size:17px}
+.chip{font:600 8.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);
+  border:1px solid var(--rule-edge);border-radius:99px;padding:5px 8px}
+.sp{flex:1}
+.seg{display:flex;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden}
+.seg button{appearance:none;border:0;cursor:pointer;background:var(--cream-50);color:var(--ink-600);
+  font:600 12px/1 var(--sans);padding:8px 14px}
+.seg button+button{border-left:1px solid var(--rule-edge)}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:16px;background:var(--cream-100)}
+
+/* shared bits */
+.head{display:flex;align-items:flex-start;gap:9px}
+.num{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--r-ctl);
+  background:var(--cream-50);border:1px solid var(--rule);
+  font-family:var(--serif);font-style:italic;font-size:14px;color:var(--ink-600);
+  transition:background 150ms var(--ease), color 150ms var(--ease)}
+.head .txt{flex:1;min-width:0}
+.eyebrow{font:700 9px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin:0 0 5px}
+.title{font-family:var(--serif);font-weight:400;font-size:15px;line-height:1.25;margin:0}
+.ctl{display:flex;gap:2px;flex:none}
+.ctl button{appearance:none;width:22px;height:22px;display:grid;place-items:center;border:0;
+  background:transparent;border-radius:3px;color:var(--ink-400);font-size:11px;cursor:pointer}
+.ctl button:hover{background:var(--cream-300);color:var(--ink-950)}
+.ctl button:disabled{opacity:.3;cursor:default}
+.ctl button:disabled:hover{background:transparent;color:var(--ink-400)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.k{display:inline-flex;align-items:center;gap:5px;background:var(--cream-50);
+  border:1px solid var(--rule);border-radius:var(--r-ctl);padding:5px 8px;
+  font:500 11px/1 var(--sans);color:var(--ink-800)}
+.k i{width:9px;height:9px;border-radius:2px;background:var(--ink-400);flex:none;font-style:normal}
+.k.text i{height:3px;width:10px;border-radius:1px;background:var(--ink-600)}
+.k.media i{background:var(--accent);opacity:.5}
+.k.grid3 i{border-radius:1px}
+
+/* the shape's parts */
+.mline{height:4px;border-radius:99px;background:var(--ink-400);opacity:.3}
+.mline.s{width:38%} .mline.m{width:66%} .mline.l{width:92%}
+.mrow{display:flex;gap:5px}
+.mbox{flex:1;height:24px;border-radius:3px;background:var(--ink-400);opacity:.22}
+.mbox.tall{height:42px}
+.mquote{border-left:2px solid var(--accent);padding-left:8px;display:flex;flex-direction:column;gap:4px;opacity:.7}
+.mdev{display:flex;gap:5px;align-items:flex-end;justify-content:center}
+.mdev span{width:15px;border-radius:2px;background:var(--ink-400);opacity:.28}
+
+/* ---------------- the square elevated card ----------------
+   aspect-ratio 1 makes the card square at any column width. The MINI takes the
+   flexible space, so a one-block card and a three-block card are the same size
+   and the shape simply gets more room in the sparse one. Head and chips are
+   fixed; only the middle breathes. */
+.card{position:relative;aspect-ratio:1;display:flex;flex-direction:column;
+  background:var(--cream-50);border:0;border-radius:var(--r-card);
+  padding:13px 14px 14px;border-left:3px solid transparent;overflow:hidden;
+  box-shadow:var(--studio-lift-rest);cursor:pointer;
+  transition:box-shadow var(--t-lift) var(--ease), transform var(--t-lift) var(--ease),
+             border-left-color var(--t-mark) var(--ease), background var(--t-mark) var(--ease)}
+
+/* THE HOVER IS FOUR THINGS AT THREE SPEEDS, not one lift.
+   The card leads, the shape follows, the chips resolve last — the same tier
+   discipline as the selection contract's T1/T2/T4. */
+.card:hover{transform:translateY(-3px);box-shadow:var(--studio-lift-hover)}
+.card.on{border-left-color:var(--accent);box-shadow:var(--studio-lift-active)}
+.card.on:hover{box-shadow:var(--studio-lift-active),0 14px 32px -10px oklch(14% .018 60/.22)}
+
+/* the sheen — a single diagonal pass, once, and it never repeats on the same
+   hover. It is the only thing here that is decoration rather than feedback, so
+   it is the first thing to cut if it reads as gloss. */
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 30%,oklch(100% 0 0/.5) 46%,transparent 62%);
+  transform:translateX(-120%);opacity:0;transition:none}
+.card:hover::after{transform:translateX(120%);opacity:1;
+  transition:transform 620ms cubic-bezier(.3,0,.2,1), opacity 620ms ease}
+
+.card.on .num{background:var(--accent);border-color:transparent;color:#fff;
+  font-family:var(--sans);font-style:normal;font-weight:600;font-size:12px}
+/* the ordinal lifts a hair, later than the card — the follower */
+.card .num{transition:background var(--t-mark) var(--ease), color var(--t-mark) var(--ease),
+  transform var(--t-follow) var(--ease) 40ms}
+.card:hover .num{transform:translateY(-1px)}
+
+.head{margin-bottom:11px}
+.title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* the shape takes the flexible middle and brightens on hover */
+.mini{flex:1;min-height:0;background:var(--cream-100);border:0;border-radius:var(--r-ctl);
+  padding:12px;display:flex;flex-direction:column;gap:6px;justify-content:center;
+  margin-bottom:11px;
+  transition:background var(--t-follow) var(--ease) 30ms}
+.card:hover .mini{background:var(--cream-200)}
+/* its contents deepen a step, so the shape gains definition rather than moving */
+.mini .mline,.mini .mbox,.mini .mdev span{transition:opacity var(--t-follow) var(--ease) 30ms}
+.card:hover .mini .mline{opacity:.42}
+.card:hover .mini .mbox{opacity:.32}
+.card:hover .mini .mdev span{opacity:.38}
+
+/* the chips resolve last — the detail tier */
+.chips{transition:none}
+.k{transition:background var(--t-detail) var(--ease) 70ms, color var(--t-detail) var(--ease) 70ms}
+.card:hover .k{background:var(--cream-200);color:var(--ink-950)}
+
+.addcard{border:1px dashed var(--rule-edge);border-radius:var(--r-card);background:transparent;
+  display:grid;place-items:center;min-height:120px;color:var(--ink-800);font:600 12px/1 var(--sans);cursor:pointer}
+.addcard:hover{border-style:solid;border-color:var(--accent);color:var(--accent);background:var(--cream-50)}
+
+
+.note{margin-top:13px;font:400 11.5px/1.7 var(--sans);color:var(--subtle);max-width:94ch}
+.note b{color:var(--ink-950)}
+.note ul{margin:7px 0 0;padding-left:16px;columns:2;column-gap:30px}
+.note li{margin-bottom:5px;break-inside:avoid}
+.spec{margin-top:26px;width:1120px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle)}
+.spec b{color:var(--ink-950)}
+.cols{display:flex;gap:28px;flex-wrap:wrap;margin-top:16px}
+.col{flex:1;min-width:250px}
+table{border-collapse:collapse;margin:9px 0 0;width:100%;max-width:600px}
+th{text-align:left;font:600 9.5px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-400);padding:0 14px 7px 0;border-bottom:1px solid var(--rule)}
+td{padding:7px 14px 7px 0;border-bottom:1px solid var(--rule);font-size:12px}
+td:first-child{font-weight:500;color:var(--ink-950)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  background:var(--cream-100);padding:2px 5px;border-radius:3px}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px}
+</style>
+</head>
+<body>
+
+<h1>The Board contract · elevated cards, three columns</h1>
+<p class="sub">Square cards — <b>aspect-ratio 1</b>, so a one-block card and a three-block card are the same size and the shape takes the slack. <b>Hover one.</b> The card lifts and deepens, the ordinal trails it by 40ms, the shape gains definition rather than moving, the chips resolve last, and a single sheen passes once. Four things at three speeds, the same tier discipline as the selection contract.</p>
+
+<!-- ============ D ============ -->
+<div class="row">
+  
+  <div class="work">
+    <div class="topbar">
+      <span class="back">← Case studies</span><span class="stud">Fosfor Data Profiling</span>
+      <span class="chip">Web</span><span class="sp"></span>
+      <span class="seg"><button aria-pressed="false">Editor</button><button aria-pressed="true">Board</button></span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="head"><span class="num">01</span><div class="txt"><p class="eyebrow">Hero</p><p class="title">Fosfor Data Profiling</p></div><span class="ctl"><button disabled>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mrow"><span class="mbox tall"></span></div></div>
+        <div class="chips"><span class="k media"><i></i>Hero cover</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><span class="num">02</span><div class="txt"><p class="eyebrow">The setup</p><p class="title">The step that decides whether data can be trusted.</p></div><span class="ctl"><button>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mline l"></div><div class="mline m"></div><div class="mrow"><span class="mbox"></span><span class="mbox"></span><span class="mbox"></span></div></div>
+        <div class="chips"><span class="k text"><i></i>Rich text</span><span class="k grid3"><i></i>Glance grid</span><span class="k media"><i></i>Figure grid</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><span class="num">03</span><div class="txt"><p class="eyebrow">Impact</p><p class="title">At a glance.</p></div><span class="ctl"><button>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mrow"><span class="mbox"></span><span class="mbox"></span><span class="mbox"></span><span class="mbox"></span></div><div class="mline s"></div></div>
+        <div class="chips"><span class="k grid3"><i></i>Stat cards</span><span class="k media"><i></i>Figure grid</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><span class="num">04</span><div class="txt"><p class="eyebrow">The problem</p><p class="title">Wrong data quietly becomes wrong conclusions.</p></div><span class="ctl"><button>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mquote"><div class="mline l"></div><div class="mline m"></div></div><div class="mrow"><span class="mbox"></span><span class="mbox"></span></div></div>
+        <div class="chips"><span class="k text"><i></i>Pull quote</span><span class="k media"><i></i>Figure grid</span></div>
+      </div>
+      <div class="card on">
+        <div class="head"><span class="num">05</span><div class="txt"><p class="eyebrow">The solution</p><p class="title">The solution</p></div><span class="ctl"><button>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mdev"><span style="height:22px"></span><span style="height:36px"></span><span style="height:22px"></span></div></div>
+        <div class="chips"><span class="k media"><i></i>Device shelf</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><span class="num">06</span><div class="txt"><p class="eyebrow">The design tour</p><p class="title">What makes profiling work.</p></div><span class="ctl"><button>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mrow"><span class="mbox"></span><span class="mbox"></span></div><div class="mline m"></div><div class="mline l"></div></div>
+        <div class="chips"><span class="k grid3"><i></i>Feature rows</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><span class="num">07</span><div class="txt"><p class="eyebrow">Screens</p><p class="title">Screens</p></div><span class="ctl"><button>←</button><button>→</button></span></div>
+        <div class="mini"><div class="mdev"><span style="height:18px"></span><span style="height:30px"></span><span style="height:38px"></span><span style="height:26px"></span></div></div>
+        <div class="chips"><span class="k media"><i></i>Device shelf</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><span class="num">08</span><div class="txt"><p class="eyebrow">Before and after</p><p class="title">Before and after</p></div><span class="ctl"><button>←</button><button disabled>→</button></span></div>
+        <div class="mini"><div class="mrow"><span class="mbox tall"></span><span class="mbox tall"></span></div></div>
+        <div class="chips"><span class="k media"><i></i>Before / after</span></div>
+      </div>
+      <div class="addcard">+ Add section</div>
+    </div>
+  </div>
+  <div class="note">
+    <ul>
+      <li><b>Hover feels responsive</b> in a way a border change does not — the card acknowledges the pointer</li>
+      <li>Three states read clearly without any colour doing the work</li>
+      <li>The selection bar still carries selection, so the shadow is reinforcement rather than the signal</li>
+      <li><b>The grid needs cream-100 under it</b> or cream-50 cards have nothing to lift off — a ground change, not just a card change</li>
+    </ul>
+  </div>
+  <div class="note warn">
+    <p class="h3">⚠ Three shadows is an elevation scale arriving undeclared</p>
+    <b>#168 recorded the shadow literal as an EXCEPTION</b> — StudioModal authors one because the theme has no elevation scale, and that was written down as an exception rather than a convention. Three steps across fourteen cards is not an exception; it is a scale. If D wins it gets <b>declared beside the radius and motion blocks with its steps named by role</b>, or the next surface picks a shadow by copy-paste.
+    And <b>a shadow costs layout nothing and paint a lot</b> — fourteen blurred shadows repainting on hover, on a surface that also holds a scaled canvas. Worth measuring rather than assuming.
+  </div>
+</div>
+
+<div class="spec">
+  <p class="h3">The elevation scale — declared, because three steps is a scale</p>
+  <b>#168 recorded the shadow literal as an exception, not a convention</b> — StudioModal authors one because the theme has no elevation scale. Three steps across fourteen cards is not an exception; it is a scale arriving undeclared. So it is declared beside the radius and motion blocks, scoped to <code>.studio-chrome</code>, <b>named by role</b> exactly as those are.
+  <table>
+    <tr><th>token</th><th>role</th></tr>
+    <tr><td>--studio-lift-rest</td><td>a card sitting on the surface</td></tr>
+    <tr><td>--studio-lift-hover</td><td>a card the pointer is over, plus a 2px rise</td></tr>
+    <tr><td>--studio-lift-active</td><td>the selected card</td></tr>
+  </table>
+  <div style="margin-top:10px">A new elevated surface picks <b>by role</b>, never by copying a literal — the whole reason radius and ground are named that way. <b>If only one step is ever used, do not declare three</b>: a scale with one consumer is the <code>FIT_THRESHOLD_PX</code> shape this project has deleted three times.</div>
+
+  <div class="warn">
+    <p class="h3">⚠ Two things to measure rather than assume</p>
+    <b>A shadow costs layout nothing and paint a lot.</b> Fourteen blurred shadows, repainting on hover, on a surface that also holds a scaled canvas. This is the first time the studio paints elevation at grid scale.
+    <b>And the ground moves.</b> Cards are cream-50 on a cream-100 grid, because a cream-50 card on a cream-50 page has nothing to lift off. That is not incidental — it is what makes the elevation legible, and it checks out against the ladder: the grid is a field surface holding cards, which is what cream-100 is for.
+  </div>
+
+  <div class="cols">
+    <div class="col">
+      <p class="h3">The left edge</p>
+      The card keeps a 3px left edge whose <b>colour is the only thing that moves</b> — transparent at rest and hover, accent-500 when selected — so nothing reflows between states and selection cannot shift the grid by a pixel.
+      <b>There is no border shorthand on this element at all</b> — <code>border:0</code> plus one left declaration — which sidesteps hazard 26 by construction rather than by care.
+    </div>
+    <div class="col">
+      <p class="h3">Reorder is ← / →</p>
+      Document order runs left-to-right and wraps, so the section before "Goals" is visually to its <b>left</b>. Today's ↑/↓ inherit a single-column model the layout no longer matches — ↑ on the first card of a row moves it to the <b>end of the previous row</b>, a jump rather than a step. <b>The first ← and the last → are disabled rather than absent</b>, so the control does not move between cards.
+      <p class="h3" style="margin-top:14px">The default view</p>
+      A case study opens on <b>Editor</b>, toggle reading <b>Editor | Board</b>. Today it opens on the Board — showing the shape when what an author came to do is write.
+    </div>
+  </div>
+
+  <div style="margin-top:18px">
+    <p class="h3">The shape, and its honest risk</p>
+    One mini per block <b>kind</b>; a new kind needs a new mini or falls back to the generic bars. <b>The minis are abstractions, not renders</b> — a mini that stops matching what the section actually draws is worse than no mini, because it teaches the wrong thing. Whoever adds a block kind adds its mini in the same PR.
+  </div>
+</div>
+
+</body>
+</html>

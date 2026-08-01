@@ -829,7 +829,14 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     const walkApp = (d) => { for (const e of readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true })) {
       if (e.isDirectory()) walkApp(`${d}/${e.name}`); else if (e.name.endsWith(".tsx")) appStudio.push(read(`${d}/${e.name}`)); } };
     walkApp("app/studio");
-    const all = studioFiles.map(readStudio).join("") + appStudio.join("");
+    // COMMENT-STRIPPED, AND IT WAS NOT UNTIL NOW — WHICH IS THE SAME BUG THE ASSERTION TWENTY
+    // LINES BELOW ALREADY CARRIES A NOTE ABOUT. That one strips comments because it once tripped
+    // on the English word "rounded" in a layout comment; this one counted RAW SOURCE, so a
+    // comment that so much as names `rounded-full` in backticks inflated the pill count and the
+    // suite reported a pill nobody had added. An assertion about class strings that reads prose
+    // is asserting about prose — the file's own words, applied to the line that needed them.
+    const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    const all = strip(studioFiles.map(readStudio).join("") + appStudio.join(""));
     // REVALUED 25 -> 27 IN PR 7, DELIBERATELY. The sections rail carries two status dots — the
     // needs-an-image marker and the details dirty marker — and a status dot is exactly the shape
     // this assertion protects: `BlogPostList`'s published/draft dot is already among the 25, and
@@ -842,7 +849,19 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // not-a-field is its entire job. The count stays a COUNT rather than a floor — a `>=` would
     // let the next pill in silently, which is what this exists to prevent — so bumping it by hand
     // IS the declaration, and F5b names the site so the number cannot rise without one.
-    t("F5: the 29 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 29);
+    // REVALUED 29 -> 30 IN THE BOARD PR, AND IT IS A NET OF THREE MOVES RATHER THAN ONE ADDITION.
+    // The Board's "N blocks" count pill is GONE — the chips are the count, so the pill restated
+    // what sat beside it — and the section mini adds TWO dots: the stepper's ordinal marker and
+    // the annotated image's callout pins. Both are the status-dot family this assertion already
+    // protects. Every RULE in the mini takes a 2px radius instead, because at 3px tall a full
+    // round and a 2px radius are the same pixels and a pill spent on something indistinguishable
+    // dilutes the count. F5d names the two sites.
+    t("F5: the 30 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 30);
+    t("F5d: …and the two new ones are the mini's DOTS, the stepper's marker and the annotated pins",
+      /numbered \? "rounded-full"/.test(code("components/studio/SectionMini.tsx"))
+        && /absolute size-\[7px\] rounded-full bg-accent-500/.test(code("components/studio/SectionMini.tsx")), true);
+    t("F5d: …and the Board's count pill is gone, because the chips ARE the count",
+      /\{count\} \{count === 1 \? "block" : "blocks"\}\s*<\/span>/.test(readStudio("SectionsEditPanel.tsx")), false);
     t("F5b: …and the 28th is the key pill, a DECLARED exception rather than an undeclared fourth step",
       /export const KEY_PILL_CLS =[\s\S]{0,240}?rounded-full/.test(readStudio("blocks/fields.tsx")), true);
     // F5c — THE 29th IS THE DOCK'S TAG, and it is named here for the same reason the key pill is:
@@ -1341,6 +1360,103 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /white 18%, transparent\)/.test(sb) && /white 40%, transparent\)/.test(sb), true);
   t("C8: …and 34% is gone rather than left beside its replacement",
     /white 34%/.test(sb.replace(/\/\*[\s\S]*?\*\//g, "")), false);
+}
+
+/* ---- C9 · THE BOARD -------------------------------------------------------------------------
+ * Two changes: a case study opens on the EDITOR, and the Board becomes fluid columns of elevated
+ * cards. Both are asserted here because both are one-line reversions away. */
+{
+  const panel = code("components/studio/SectionsEditPanel.tsx");
+  const mini = code("components/studio/SectionMini.tsx");
+
+  /* THE DEFAULT AND THE ORDER AGREE, AND THAT IS THE ASSERTION. Opening on the Board showed the
+   * SHAPE when what an author came to do is write. The toggle's tuple order is the DOM order, so
+   * a control reading "Board | Editor" beside a panel that opens on Editor is the same defect in
+   * a second place. */
+  t("C9: a case study opens on the EDITOR, not the Board",
+    /useState<Selection>\("details"\)/.test(panel), true);
+  t("C9: …and the toggle reads Editor first, so the control agrees with the default",
+    /\[\["editor", "Editor"\], \["board", "Board"\]\]/.test(panel), true);
+
+  /* FLUID COLUMNS. `auto-fill` adds a column when the pane grows rather than capping at a number
+   * someone picked, and the 300px floor is the TITLE's: measured, the six long real titles need a
+   * 222px title column, and with the arrows at the card foot the title gets `card - 67`. A
+   * smaller floor lets the grid create a track the two-line clamp cannot survive. */
+  t("C9: the grid is fluid — auto-fill, not a breakpoint ladder",
+    /grid-template-columns:repeat\(auto-fill,minmax\(300px,1fr\)\)/.test(panel), true);
+  t("C9: …and no fixed column count survives beside it",
+    /\b(sm|md|lg|xl):grid-cols-\d/.test(panel), false);
+  t("C9: the card's height is FIXED, so a wider pane cannot make the board taller",
+    /h-\[320px\] max-w-\[340px\]/.test(panel), true);
+
+  /* HAZARD 26. There is no border SHORTHAND on this element at all — `border-0` plus one left
+   * declaration — so there is no shorthand/longhand pair for sheet order to arbitrate.
+   * studio-border-race confirms it independently; this asserts the construction that makes it
+   * true rather than trusting the other suite to notice. */
+  const cardCls = /data-board-card\s*\n\s*className=\{`([^`]*)`/.exec(panel)?.[1] ?? "";
+  t("C9: the card's class expression was found — nothing below is a vacuous pass", cardCls !== "", true);
+  t("C9: the card carries NO border shorthand — hazard 26 sidestepped by construction, not by care",
+    /\bborder-\[?\d|\bborder\s|\bborder"/.test(cardCls.replace(/border-0|border-l-/g, "")), false);
+  t("C9: …and the left edge is always 3px with only its COLOUR moving, so selection cannot reflow",
+    /border-l-\[3px\]/.test(cardCls) && /border-l-accent-500/.test(cardCls)
+      && /border-l-transparent/.test(cardCls), true);
+
+  /* THE ELEVATION SCALE — THREE STEPS, THREE CONSUMERS. The contract's own guard: if only one
+   * step is ever used, do not declare three. rest, hover and active all live on this card. */
+  t("C9: the elevation scale is declared, scoped to .studio-chrome and named by role",
+    /--studio-lift-rest:/.test(globals) && /--studio-lift-hover:/.test(globals)
+      && /--studio-lift-active:/.test(globals), true);
+  t("C9: …and ALL THREE have a consumer — a scale with one caller is the shape this repo has deleted three times",
+    /--studio-lift-rest,/.test(panel) && /--studio-lift-hover,/.test(panel)
+      && /--studio-lift-active,/.test(panel), true);
+
+  /* THE HOVER DURATIONS. Three, not four — the contract's 150ms mark is byte-identical to
+   * @theme's --duration-fast, and a second name for a value that has an honest one is what #258
+   * refused for --ease-glide. */
+  t("C9: three hover durations declared, each with a consumer",
+    ["--studio-lift-t", "--studio-lift-follow", "--studio-lift-sheen"]
+      .every((n) => new RegExp(`${n}:`).test(globals) && new RegExp(`${n},`).test(panel + mini)), true);
+  t("C9: …and NO --studio-lift-mark, because --duration-fast is already exactly 150ms",
+    /--studio-lift-mark/.test(globals), false);
+  t("C9: …and no bare var() — every use carries its literal fallback, as studio-motion demands",
+    /var\(\s*--studio-lift-[a-z-]+\s*\)/.test(panel + mini), false);
+
+  /* THE MINIS. A mapped type, so a 17th kind is a compile error rather than a silent fallback —
+   * the shape STATE records as having let videoEmbed.poster stay invisible for three PRs. */
+  t("C9: the mini table is keyed by the UNION, not a Record with a fallback",
+    /const MINI: \{ \[K in SectionBlockKind\]: \(\) => React\.ReactElement \} = \{/.test(mini), true);
+  t("C9: …and it reads the kind directly rather than through a `??` default",
+    /MINI\[kind\]/.test(mini) && !/MINI\[[^\]]*\]\s*\?\?/.test(mini), true);
+
+  /* THE DEFERRED DEBT, PAID HERE BECAUSE IT WAS ASSIGNED HERE. The old comment deferred a
+   * measured 3.49 eyebrow to "PR 7 restructures this board". */
+  /* SCOPED TO THE BOARD'S OWN EYEBROW, and the first draft was not — it tested the whole file for
+   * `tracking-eyebrow text-ink-600`, which `labelCls` also contains, so reverting the board to
+   * ink-400 left it GREEN. That is #263's C4 in a third costume: an assertion that names one
+   * element and matches any. Anchored on `section.eyebrow &&`, which appears once. */
+  const boardEyebrow = /\{section\.eyebrow && \([\s\S]{0,220}?<\/span>/.exec(panel)?.[0] ?? "";
+  t("C9: the board's eyebrow was found — nothing below is a vacuous pass", boardEyebrow !== "", true);
+  t("C9: the board's eyebrow is ink-600 — the 3.49 AA failure deferred to this PR is paid",
+    /text-ink-600/.test(boardEyebrow) && !/text-ink-400/.test(boardEyebrow), true);
+  t("C9: …and the count pill is gone, because the chips ARE the count",
+    /rounded-full border border-ink-950\/10 px-2 py-0\.5/.test(panel), false);
+
+  /* REORDER. The handler is untouched — `dir` was always "previous/next index" rather than
+   * "up/down" — so only the labels and the glyphs moved. The accessible names say EARLIER and
+   * LATER rather than left and right, which stays true at one column as well as five. */
+  t("C9: reorder still routes through the one moveSection choke point",
+    /moveSection\(i, -1\)/.test(panel) && /moveSection\(i, 1\)/.test(panel), true);
+  t("C9: …with earlier/later labels, which survive a one-column grid where left/right would not",
+    /Move section \$\{name\} earlier/.test(panel) && /Move section \$\{name\} later/.test(panel), true);
+  t("C9: …and the ends are DISABLED rather than absent, so the control never moves between cards",
+    /disabled=\{i === 0\}/.test(panel) && /disabled=\{i === values\.sections\.length - 1\}/.test(panel), true);
+
+  /* REDUCED MOTION. The rise and the sheen go; shadow, ground and colour are deliberately NOT in
+   * any reduce rule, so the final state stays identical. A motion fix must not cost an affordance. */
+  t("C9: reduce kills the card's rise and the ordinal's trail",
+    /motion-reduce:hover:translate-y-0/.test(panel) && /motion-reduce:group-hover:translate-y-0/.test(panel), true);
+  t("C9: …and hides the sheen outright, because a pass with no duration is a flash not an absence",
+    /motion-reduce:hidden/.test(panel), true);
 }
 
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
