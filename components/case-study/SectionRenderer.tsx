@@ -174,7 +174,7 @@ export default function SectionRenderer({
     return (
       <section
         id={section.id}
-        className="section-card py-section relative overflow-hidden scroll-mt-20"
+        className="section-card py-section relative overflow-hidden scroll-mt-20 m-0"
         style={{ backgroundColor: "var(--color-band-dark)" }}
       >
         {section.index && (
