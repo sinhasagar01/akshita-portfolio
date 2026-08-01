@@ -1843,6 +1843,18 @@ a {
   border-left-width: 0;
 }
 
+/* THE CANVAS IS RENDERED AT 1280 AND SCALED DOWN, so anything drawn OUTSIDE the scaled
+   box cannot match the card by copying the card's own margin — the card's on-screen inset
+   is that margin plus `container-x`'s padding, all multiplied by the runtime scale.
+   Derived here from the same three numbers rather than measured and retyped, because two
+   of them move on their own: the clamp tracks the VIEWPORT and the scale tracks the PANE,
+   so a hardcoded pixel value is correct at exactly one window size.
+   `--cs-canvas-scale` is written by `useFitToWidth`'s existing measure(), which already
+   re-runs on every pane and content resize, so this needs no observer of its own. */
+.cs-canvas-scope {
+  --cs-card-inset: calc((1.5rem + clamp(0.75rem, 2vw, 2rem)) * var(--cs-canvas-scale, 1));
+}
+
 .canvas-surface {
   background-color: transparent;
   border: 0;
