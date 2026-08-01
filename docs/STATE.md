@@ -3312,6 +3312,62 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#270** the Details canvas — the work card, in both of its states →1878 (`studio-ink` 242→254,
+  C12 new; `canvas-hero` E retired and replaced). **PR 2 of the Details arc.**
+
+  Selecting Details gave an empty canvas beside a full inspector. Its five fields are exactly what
+  ONE public element renders, so the canvas renders **`ProjectCard` itself**, fed from the draft
+  form — #178's rule. Both states side by side, because **the summary is invisible at rest**.
+
+  **THE CARD IS 516 WIDE, NOT 600, AND THE DERIVATION IS WHY I GOT IT WRONG.** `container-x` caps
+  at 1280 and pads 24 a side, so `(1232 − 32) / 2` is 600 — arithmetic that skips a step. The grid
+  is not in the container; it is inside `.section-card`, which takes its own margin and then 52px
+  of padding a side. Measured: **container 1232 → section 1175 → grid 1071 → card 519.5** at 1440,
+  settling to **516** from 1600 up. **The card gets NARROWER as the window widens.** A preview at
+  600 would have reflowed the veil body the author is editing, at a width no browser produces.
+
+  **THE PAIR RENDERS AT TRUE SIZE AND SCALES.** The contract draws the two states `1fr 1fr`, which
+  buys adjacency with size. At true size they need 1224px against a ~856px pane, wrap, and the
+  hover card leaves the fold — defeating "visible while they type". Scaling keeps both, and is
+  what the section canvas already does.
+
+  **STATE:1660's MECHANISM IS RIGHT AND I NEARLY RECORDED IT AS WRONG.** From the browser the
+  draft proxy answers **200** and the optimizer answers **400**, which reads as the optimizer
+  refusing the url shape — and I wrote that down as a correction. **The server log says otherwise:
+  the optimizer's own refetch returns 401**, having no owner cookie, and the 400 is its outward
+  response to that. **Measuring only the client half gave the wrong cause for the right symptom.**
+  `unoptimized` is one optional prop defaulting to undefined, so the public render is
+  byte-identical.
+
+  **THE DRAWN HOVER MIRRORS EVERY PUBLIC HOVER RULE, AND THE FIRST BLOCK MISSED TWO.** `:hover`
+  cannot be set from script. The first version mirrored four rules and missed `--gl` and the rail's
+  category dot — neither is the thing you look at. **And the first GATE was too coarse to catch
+  it:** it compared property SETS, which stay identical when a whole rule vanishes, because
+  `opacity` and `transform` are each declared by more than one rule. **The mutation is what showed
+  it.** C12 now compares BY TARGET.
+
+  **THE COMMENT TRAP FIRED FOR THE TENTH TIME**, in that same parser: the prose above the rules
+  NAMES `.work-card` and the attribute selector, so a parser over raw CSS read the explanation as
+  selectors and produced targets like *"both easy to miss precisely because neither is the thing
+  you are looking at"*. **The durable form: any parser over source whose comments discuss the
+  thing being parsed must strip them first.**
+
+  **`canvas-hero` E RETIRED, NOT ROUTED AROUND.** It asserted projects still passes a zero-arg
+  `onChanged` — a real decision that proved the widening was safe in a shared component rather
+  than a fork. This PR reverses it, so it is replaced by the stronger claim: both consumers take
+  the payload and each owns and revokes its object URL.
+
+  **CONTRAST** — the veil text is the one pair with no fixed ground, an 88% ink gradient over an
+  arbitrary image. Worst case **10.73**, over a white image with the body's 0.85 opacity applied,
+  against a 4.5 floor.
+
+  **NOT MEASURED: a real-pointer hover.** The canvas card is `pointer-events-none` so a preview
+  cannot navigate, and pointer events would not reach the public page in this pane either.
+  Reported rather than claimed, per #211.
+
+  Public DOM byte-identical — which matters more than usual here, because this imports a PUBLIC
+  component into the studio. Six mutations kill six assertions.
+
 - **#269** Template and Category stack their labels and share one line →1864
   (`studio-ink` 234→242, C11 new). **PR 1 of the Details arc; PRs 2 and 3 planned, not built.**
 
