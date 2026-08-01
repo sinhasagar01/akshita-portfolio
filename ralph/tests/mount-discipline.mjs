@@ -69,8 +69,12 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
   // The wrong shape, refused by name, exactly as A2 refuses the board ternary.
   t("B2.2: the body is NOT behind `{open && …}` — the shape that drops a dirty edit on collapse",
     /\{\s*open\s*&&/.test(grp), false);
+  // THE ANCHOR MOVED WHEN THE BLOCK ADDRESS LANDED ON THIS SAME ELEMENT (the T0/T3 echo target),
+  // and the PROPERTY is unchanged: `hidden` is still its own attribute on the root, separate from
+  // `open`, so a card hidden under Style still renders. Matched on the two attributes rather than
+  // on the whole tag, so the next prop added here does not break it again.
   t("B2.3: `hidden` (the Style-tab axis) and `open` are SEPARATE — a card hidden under Style must still not unmount",
-    /<div hidden=\{hidden\} className=\{className\}>/.test(grp), true);
+    /<div hidden=\{hidden\}[^>]*className=\{className\}/.test(grp), true);
   // #253 SPLIT THE HEAD INTO A STATIC NAME PLUS A LIVE SUMMARY, so the prop this anchored on
   // moved from `summaryClassName` to `nameClassName`. The property is unchanged — ItemRows folds
   // through the SHARED group rather than a local copy — so the anchor moves with it.

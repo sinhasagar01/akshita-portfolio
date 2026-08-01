@@ -50,6 +50,7 @@ export default function CollapsibleGroup({
   name,
   nameClassName = "",
   controls,
+  blockAddress,
   defaultOpen = true,
   className = "",
   hidden,
@@ -78,6 +79,12 @@ export default function CollapsibleGroup({
    *  are `hidden` rather than unmounted, for the same reason. */
   hidden?: boolean;
   bodyClassName?: string;
+  /** T0/T3's address for a BLOCK, rendered as `data-studio-block` on the card.
+   *  DECLARED EXPLICITLY BECAUSE THIS COMPONENT SPREADS NOTHING — passing `data-studio-block`
+   *  as a bare prop type-checks (React allows `data-*` on intrinsic elements) and then reaches
+   *  no DOM node, which is the cast-that-compiles-and-does-nothing shape. Naming it here is
+   *  what makes the attribute real. */
+  blockAddress?: number;
   children: ReactNode;
 }) {
   // LOCAL STATE, AND NO PERSISTENCE MACHINERY — which is not a shortcut. Mount discipline
@@ -89,7 +96,7 @@ export default function CollapsibleGroup({
   const bodyId = useId();
 
   return (
-    <div hidden={hidden} className={className}>
+    <div hidden={hidden} className={className} data-studio-block={blockAddress}>
       <div className="mb-2 flex items-center justify-between gap-2">
         <button
           type="button"

@@ -280,18 +280,30 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   const fields = strip(read("components/studio/blocks/fields.tsx"));
 
   /* ---- THE MARK EXISTS AND RENDERS SOMETHING ---- */
-  const markRule = blockAt(cssNoComments, /\.studio-chrome \[data-studio-field\]\.is-echoed\s*\{/);
+  // THE BAR IS SHARED BY BOTH GRANULARITIES; THE GROUND IS THE FIELD'S ALONE.
+  const markRule = blockAt(cssNoComments,
+    /\.studio-chrome \[data-studio-field\]\.is-echoed,\s*\.studio-chrome \[data-studio-block\]\.is-echoed\s*\{/);
+  const groundRule = blockAt(cssNoComments,
+    /\.studio-chrome \[data-studio-field\]\.is-echoed\s*\{/);
   t("G1: the echo has a rule of its own — it is not the canvas's `.cs-editable.is-selected`",
     markRule !== "", true);
-  t("G2: …and it declares BOTH halves of the treatment, the ground step and the bar",
-    /background-color:\s*var\(--color-cream-200\)/.test(markRule) &&
-      /box-shadow:\s*inset var\(--studio-echo-bar\) 0 0 0 var\(--color-accent-500\)/.test(markRule), true);
+  t("G2: the BAR is shared by the field and the block card, so one mark serves both",
+    /box-shadow:\s*inset var\(--studio-echo-bar\) 0 0 0 var\(--color-accent-500\)/.test(markRule), true);
+
+  // G2c — AND THE GROUND FILL IS THE FIELD'S ALONE, WHICH IS A MEASURED DECISION NOT A SAVING.
+  // On a 320px input's label cream-200 is a thin band; on a block CARD it is the whole card, and
+  // a flat wash over a group of controls reads as selected-AND-DISABLED. The fill was never the
+  // mark anyway — #259 measured it at 1.10 against the pane while the bar is 4.07.
+  t("G2c: the ground step applies to fields only — a filled card reads as disabled",
+    /background-color:\s*var\(--color-cream-200\)/.test(groundRule) &&
+      !/data-studio-block/.test(groundRule), true);
 
   // G2b — THE BAR'S WIDTH HAS ONE SOURCE. It is read by the shadow that DRAWS the bar and by the
   // inset that clears room for it; two literals would be two places to drift, and the failure
   // would be a control sitting proud of its own mark by a pixel or two — visible, and the kind
   // of thing nobody files.
-  const base = blockAt(cssNoComments, /\.studio-chrome \[data-studio-field\]\s*\{/);
+  const base = blockAt(cssNoComments,
+    /\.studio-chrome \[data-studio-field\],\s*\.studio-chrome \[data-studio-block\]\s*\{/);
   t("G2b: the bar width is declared once and read by both the mark and the flush inset",
     /--studio-echo-bar:\s*3px/.test(base) &&
       (cssNoComments.match(/var\(--studio-echo-bar\)/g) ?? []).length >= 4, true);
@@ -307,7 +319,7 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   // G3b — AND IT FADES RATHER THAN DRAWS. T1 wipes (background-size), T3 fades (colour only).
   // If the echo drew itself the eye would not know which of the two was the answer.
   t("G3b: the echo is a colour fade at T3's timing, not a wipe",
-    /transition:[\s\S]*?background-color var\(--studio-t3, 260ms\)[\s\S]*?var\(--studio-t3-delay, 90ms\)/.test(markRule),
+    /transition:[\s\S]*?box-shadow var\(--studio-t3, 260ms\) var\(--ease-out-expo\) var\(--studio-t3-delay, 90ms\)/.test(markRule),
     true);
 
   /* ---- THE MARK IS APPLIED, AND ONLY TO SOMETHING RENDERED ---- */
@@ -358,8 +370,39 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   // G7 — THE ADDRESSES ARE THE CANVAS'S SET, derived rather than listed. The canvas can select
   // exactly four section fields; advertising a fifth would promise an echo that can never fire.
   const wired = [...shell.matchAll(/fieldId="([a-zA-Z]+)"/g)].map((m) => m[1]).sort();
-  t("G7: the four wired addresses are exactly the four the canvas can select",
+  t("G7: the four wired SECTION addresses are exactly the four the canvas can select",
     wired, ["eyebrow", "lead", "northStar", "title"]);
+
+  // G7b — THE BLOCK ADDRESS IS THE CANVAS'S OWN INDEX, AND THIS IS WHAT G7 BECOMES FOR BLOCKS.
+  // G7's job was never "count four"; it was "no address that cannot be reached". A section
+  // address is a NAME, so it is checked against the canvas's name set. A block address is an
+  // INDEX, so the equivalent check is that it comes from the same numbering the canvas emits —
+  // `j`, the loop index that also keys `ids.blockIds[i][j]` and that `SectionRenderer` emits as
+  // `data-edit-block-index`. A second numbering would agree until a reorder, and then address
+  // the wrong card silently.
+  t("G7b: the block address is the same loop index the canvas emits, not a second numbering",
+    /blockAddress=\{j\}/.test(sections) && /ids\.blockIds\[i\]\[j\]/.test(sections), true);
+
+  // G7c — AND IT REACHES THE DOM. `CollapsibleGroup` spreads nothing, so a bare `data-studio-block`
+  // prop would type-check and render no attribute — the cast-that-compiles-and-does-nothing shape
+  // this project has hit before. The prop must be declared AND written onto an element.
+  const grp = strip(read("components/studio/blocks/CollapsibleGroup.tsx"));
+  t("G7c: the address is a declared prop that reaches a real attribute, not a silently dropped one",
+    /blockAddress\?: number;/.test(grp) && /data-studio-block=\{blockAddress\}/.test(grp), true);
+
+  // G7d — ONE SELECTOR BUILDER FOR BOTH KINDS, so the echo and the reveal cannot address
+  // different nodes. Same rule `selectorForField` follows on the canvas side.
+  t("G7d: both kinds resolve through ONE inspector selector builder",
+    (sections.match(/function inspectorSelectorFor\(/g) ?? []).length === 1 &&
+      (sections.match(/inspectorSelectorFor\(/g) ?? []).length >= 3, true);
+
+  // G7e — A TALL TARGET ALIGNS ITS TOP. Centring goes negative once the element is taller than
+  // the viewport, putting its head above the fold: the scroll fires, scrollTop changes, and you
+  // land mid-card. Fields never showed it at 44px; a block card is most of a pane, which is how
+  // block-level surfaced it.
+  t("G7e: a target taller than the viewport aligns its top rather than centring",
+    /const taller = e\.height > height - pad \* 2;/.test(sections) &&
+      /taller\s*\?\s*scroller\.scrollTop \+ \(e\.top - s\.top\) - pad/.test(sections), true);
 }
 
 /* ================================================================= H. T0's INSPECTOR HALF
@@ -390,7 +433,18 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   // a field that is not rendered. Landing on the row you would have to expand is honest; landing
   // on nothing is the failure #258 chose not to ship at all.
   t("H3: an unopenable group scrolls to its header rather than to nothing",
-    /closest\("\[hidden\]"\)\?\.previousElementSibling/.test(sections), true);
+    /const hider = target\.closest\("\[hidden\]"\);/.test(sections) &&
+      /const header = hider\.previousElementSibling/.test(sections), true);
+
+  // H3b — AND A TARGET HIDDEN BY ITSELF SCROLLS NOWHERE. A block card carries `hidden` DIRECTLY
+  // under the Style tab when its kind has no style fields: nothing to show, nothing to open. The
+  // first version fell through to the header fallback, `closest("[hidden]")` returned the CARD
+  // itself, and the pane scrolled to a NEIGHBOUR's card — measured at 153 with zero cards
+  // rendered. Scrolling to the wrong thing is worse than not scrolling, and it is what the
+  // fallback existed to prevent rather than to cause.
+  t("H3b: a target that carries `hidden` itself moves nothing — there is nothing to reveal",
+    /if \(target\.hasAttribute\("hidden"\)\) return false;/.test(sections) &&
+      /if \(!hider \|\| hider === target\) return;/.test(sections), true);
 
   // H4 — THE DOCK'S INSET IS CANVAS-ONLY. The dock is a sibling of the CANVAS scroller; the
   // inspector is a separate aside the dock never touches. Subtracting 113px from the inspector's

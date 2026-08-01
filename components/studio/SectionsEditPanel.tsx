@@ -418,12 +418,23 @@ function revealTarget(el: HTMLElement): { scroller: HTMLElement; top: number } |
   const bottom = s.bottom - pending;
   const height = s.height - pending;
 
-  // Fully inside, with a margin — nothing to do. This is the branch that keeps the earlier
-  // decision intact, and it is the one the gate has to prove still fires.
-  if (e.top >= s.top + pad && e.bottom <= bottom - pad) return null;
-  // Centre it in the viewport it will HAVE, clamped at the top so a tall element lands where
-  // you can read its start rather than its middle.
-  const top = scroller.scrollTop + (e.top - s.top) - (height - e.height) / 2;
+  // A TARGET TALLER THAN THE VIEWPORT CANNOT BE "FULLY IN VIEW", so for those the question is
+  // whether its TOP is showing. Without this branch a tall target reports out-of-view forever and
+  // re-scrolls on every selection.
+  const taller = e.height > height - pad * 2;
+  if (taller ? e.top >= s.top && e.top <= bottom - pad : e.top >= s.top + pad && e.bottom <= bottom - pad) {
+    return null;
+  }
+
+  // CENTRING IS WRONG FOR A TALL TARGET, AND THE BLOCK CARD IS WHERE THAT SHOWED.
+  // `(height - e.height) / 2` goes NEGATIVE once the element is taller than the viewport, so
+  // centring pushes its top ABOVE the fold — the scroll fires, `scrollTop` changes, and you land
+  // in the middle of a card whose heading you cannot see. Measured on the hero: a 1351px range,
+  // scrolled to 899, target out of view. Fields never showed it because a field is 44px; a card
+  // is most of a pane. So a tall target aligns its TOP and a short one centres.
+  const top = taller
+    ? scroller.scrollTop + (e.top - s.top) - pad
+    : scroller.scrollTop + (e.top - s.top) - (height - e.height) / 2;
   return { scroller, top: Math.max(0, top) };
 }
 
@@ -437,6 +448,23 @@ function revealIfNeeded(el: HTMLElement): boolean {
   if (!t) return false;
   t.scroller.scrollTo({ top: t.top });
   return true;
+}
+
+/**
+ * Where a selection lands in the INSPECTOR. One builder, so the echo and the reveal can never
+ * address different nodes — the same rule `selectorForField` follows on the canvas side.
+ *
+ * TWO GRANULARITIES, AND THE DIFFERENCE IS DELIBERATE. A section-shell field is addressed
+ * exactly; a block is addressed at its CARD rather than at its field. Field-level for blocks
+ * would mean threading `blockIndex` through ~15 form components and then 64 `fieldId` props,
+ * where a mistyped path fails SILENTLY. The card is one attribute and takes the editable surface
+ * from 77% silent to responding. The dock already holds the exact field, so the finer mark buys
+ * precision that has already been supplied.
+ */
+function inspectorSelectorFor(f: SelectedField): string {
+  return f.kind === "section"
+    ? `[data-studio-field="${f.field}"]`
+    : `[data-studio-block="${f.blockIndex}"]`;
 }
 
 /** Read a studio motion token as milliseconds. Scoped to `.studio-chrome`, so it is read from an
@@ -1330,15 +1358,24 @@ export default function SectionsEditPanel({
   // different scroller.
   const revealInspectorField = (f: SelectedField): boolean => {
     const root = inspectorRef.current;
-    if (!root || f.kind !== "section") return false;
+    if (!root) return false;
     // The SHOWN section panel. Every section editor is mounted and hidden, so the address matches
     // once per section and the field must be taken from the panel on screen — the same filter T3
     // applies, for the same reason.
     const panel = [...root.querySelectorAll<HTMLElement>("#cs-fieldtab-panel > div")].find(
       (d) => d.offsetParent !== null
     );
-    const target = panel?.querySelector<HTMLElement>(`[data-studio-field="${f.field}"]`);
+    const target = panel?.querySelector<HTMLElement>(inspectorSelectorFor(f));
     if (!target) return false;
+
+    // HIDDEN BY ITSELF vs HIDDEN BY AN ANCESTOR, AND THE DIFFERENCE DECIDES WHETHER TO MOVE.
+    // A block card carries `hidden` DIRECTLY under the Style tab when its kind has no style
+    // fields — there is nothing to show and nothing to open, so the honest response is to leave
+    // the pane alone. A target hidden by an ANCESTOR is a folded group, which can be opened.
+    // Measured: without this the pane scrolled to 153 on the Style tab with zero cards rendered,
+    // landing on a neighbour's card. Scrolling to the wrong thing is worse than not scrolling,
+    // and it is the failure the header fallback was written to avoid rather than to cause.
+    if (target.hasAttribute("hidden")) return false;
 
     const folded = target.offsetParent === null;
     if (!folded && !willReveal(target)) return false;
@@ -1354,8 +1391,14 @@ export default function SectionsEditPanel({
         // COULD NOT OPEN IT — scroll to the closed group's header instead. Landing on the row you
         // would have to expand is honest; landing on nothing is not, and is the failure mode
         // #258 chose not to ship at all.
-        const header = target.closest("[hidden]")?.previousElementSibling as HTMLElement | null;
-        if (header) revealIfNeeded(header);
+        // AND THE FALLBACK HAS TO BE VISIBLE ITSELF. A block card carries `hidden` directly
+        // under the Style tab when its kind has no style fields, so `closest("[hidden]")` can be
+        // the card, whose previous sibling is a DIFFERENT card — scrolling there would take you
+        // to the wrong block confidently. Checked rather than trusted.
+        const hider = target.closest("[hidden]");
+        if (!hider || hider === target) return; // nothing to fall back to — see the guard above
+        const header = hider.previousElementSibling as HTMLElement | null;
+        if (header && header.offsetParent !== null) revealIfNeeded(header);
       })
     );
     return true;
@@ -1391,11 +1434,7 @@ export default function SectionsEditPanel({
     if (!root) return;
     root.querySelectorAll(".is-echoed").forEach((n) => n.classList.remove("is-echoed"));
     if (!selectedField) return;
-    // Only SECTION-shell fields carry an address today — see the note in SectionShell. A block
-    // field selects and docks normally and simply does not echo, which is a MISSING mark rather
-    // than a wrong one, and is stated as a limit rather than left to be discovered.
-    if (selectedField.kind !== "section") return;
-    const matches = [...root.querySelectorAll<HTMLElement>(`[data-studio-field="${selectedField.field}"]`)];
+    const matches = [...root.querySelectorAll<HTMLElement>(inspectorSelectorFor(selectedField))];
     // EVERY SECTION EDITOR IS MOUNTED AND HIDDEN, so this selector matches once per section.
     // Filtering on rendered-ness picks the one on screen; without it the mark lands in a panel
     // nobody is looking at and the visible field stays bare — indistinguishable from no T3.
@@ -1845,6 +1884,22 @@ export default function SectionsEditPanel({
               return (
                 <CollapsibleGroup
                   key={id}
+                  // THE BLOCK'S ADDRESS FOR T0 AND T3, and it is `j` — THE SAME INDEX the canvas
+                  // emits as `data-edit-block-index`, because both derive from this section's
+                  // block array order and this line sits beside `ids.blockIds[i][j]`. Taking it
+                  // from anywhere else would be a second numbering that agrees until it does not.
+                  //
+                  // BLOCK-LEVEL RATHER THAN FIELD-LEVEL, DELIBERATELY. Addressing each field
+                  // means threading `blockIndex` through ~15 form components and then 64
+                  // `fieldId` props, and a mistyped path there fails SILENTLY — which is the
+                  // exact failure this whole thread has been about. The card is one attribute,
+                  // it takes 77% of the editable surface from silent to responding, and for T0
+                  // "bring the right block into view" is arguably the correct granularity: the
+                  // dock already holds the exact field, so the finer mark buys precision that
+                  // has already been supplied. Revisit if an author scrolls to a card and then
+                  // has to hunt for the field inside it — that trigger fires from USE, which is
+                  // the only thing that has caught any of this.
+                  blockAddress={j}
                   // CS-3 — under the Style tab, a copy-only block has nothing to show,
                   // so its card is hidden here (the form stays MOUNTED). Content shows all.
                   hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
