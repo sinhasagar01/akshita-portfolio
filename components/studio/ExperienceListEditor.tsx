@@ -25,7 +25,7 @@ import ExperienceEditPanel from "./ExperienceEditPanel";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
 import { useReportCount } from "./StudioCountsProvider";
-import { inputClsMd, labelCls } from "./blocks/fields";
+import { inputClsMd, FIXED_KEY_CLS, KeyConnector } from "./blocks/fields";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { isCurrentRole } from "@/components/sections/experience-current";
 import type { ExperienceListItem } from "@/lib/keystatic";
@@ -268,9 +268,13 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
             }}
             className="mt-3 flex flex-col gap-1.5"
           >
-            <label className={labelCls} htmlFor="add-exp-company">
+            {/* Stays a <label htmlFor> rather than a FieldKey span: the association is what
+                names the input, and FieldKey renders a span. It takes the key class directly
+                and the connector follows it. */}
+            <label className={FIXED_KEY_CLS} htmlFor="add-exp-company">
               Company
             </label>
+            <KeyConnector />
             <input
               id="add-exp-company"
               ref={addInputRef}

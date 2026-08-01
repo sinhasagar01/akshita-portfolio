@@ -49,7 +49,7 @@
 // reduced-motion reader keeps the open/closed affordance and loses only the animation. Gating the
 // transform itself would be the #198 defect: an affordance lost to a motion setting.
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { labelCls } from "./blocks/fields";
+import { FIXED_KEY_CLS, KeyConnector } from "./blocks/fields";
 
 // The box mirrors `inputCls` (blocks/fields.tsx:167) EXACTLY — control radius, /12 hairline,
 // cream-50 well, 44px min-height, px-3, 14px ink — so a closed trigger is indistinguishable from
@@ -220,7 +220,17 @@ export function ListboxField<T extends string>({
     <div className="flex flex-col gap-1">
       {/* A SPAN, not a <label> — a wrapping <label> names an <input> but not a <button>, so the
           trigger is named with aria-labelledby instead. */}
-      <span id={labelId} className={labelHidden ? "sr-only" : labelCls}>{label}</span>
+      {/* The pill's key row, unless the consumer hides the label (the case-study switcher, which
+          is chrome in a header row). `id` stays on the span because `aria-labelledby` points at
+          it — the trigger would be unnamed without it. */}
+      {labelHidden ? (
+        <span id={labelId} className="sr-only">{label}</span>
+      ) : (
+        <>
+          <span id={labelId} className={FIXED_KEY_CLS}>{label}</span>
+          <KeyConnector />
+        </>
+      )}
 
       <div ref={rootRef} className="relative" data-open={open}>
         <button

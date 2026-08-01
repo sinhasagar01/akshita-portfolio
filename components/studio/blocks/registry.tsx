@@ -21,7 +21,7 @@
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
 import { ListboxField } from "../ListboxField";
-import { KeyRow, TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, inputCls, inputErrorCls, labelCls, groupLabelCls } from "./fields";
+import { KeyRow, TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, inputCls, inputErrorCls, labelCls, groupLabelCls , FieldKey} from "./fields";
 import { isHttpUrl } from "@/lib/case-studies/adapter";
 import type { PreviewUpload } from "@/lib/studio/preview-map";
 
@@ -923,7 +923,7 @@ const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({
     <>
       <TabGroup group="content">
         <label className="flex flex-col gap-1">
-          <span className={labelCls}>Video URL — externally hosted (https://…)</span>
+          <FieldKey>Video URL — externally hosted (https://…)</FieldKey>
           <input
             type="text"
             value={value.src}

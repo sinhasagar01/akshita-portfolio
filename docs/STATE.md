@@ -1521,7 +1521,13 @@ All prior locked decisions remain. Added across this session:
   **inspector pane → ink band + `sechead`; entry panel → `bg-cream-200` bar + `font-display`.**
   `SkillsEditor`'s `CategoryPanel` gets a **cream-200 bar**, matching its five siblings — it is
   an entry panel, and its missing header is a real gap either way.
-  **`studio-ink`'s band count goes 2 → 2 now, and 2 → 4 when the case-study inspector lands.**
+  ~~**`studio-ink`'s band count goes 2 → 2 now, and 2 → 4 when the case-study inspector lands.**~~
+  **THE SECOND HALF WAS SUPERSEDED AND THE COUNT STAYS 2** (corrected in #254). `studio-ink:398`
+  records the later decision: the case-study inspector takes NO ink bands, because a band
+  divides co-visible regions and its 14 heads are alternatives of which exactly one shows. The
+  by-role rule is unchanged — inspector pane → ink band still holds for an inspector that has
+  something to divide. **A prediction left standing after its decision is reversed reads as a
+  gap**, which is how the fidelity audit first scored this as unbuilt.
   Both revalues are DELIBERATE; the assertion stays a COUNT because a count is what makes an
   accidental band fail. Record the rule in both places so the next header is picked by rule
   rather than by copy-paste.
@@ -2042,6 +2048,20 @@ All prior rules remain. Added or sharpened across this session:
   where its bug could not appear, and #234 reported in the only regime where its best number
   held. Both are true statements that do not travel. **A screens-per-section figure is meaningless
   without the viewport it was taken at**, so record it beside the number, every time.
+- **A CORRECT MEASUREMENT OF THE WRONG QUANTITY IS ITS OWN FAILURE SHAPE.** #253 priced the key
+  pill's height accurately — pilling every label cost 0.79 screens, the correction kept it to 0.33
+  — and shipped the pill to eight author-typed key sites. **The audit then measured the quantity
+  the pricing never asked about: as loaded, the case-study inspector rendered 121 captions and
+  ZERO pills**, 0 of 14 sections. Fully expanded it was 9 pills to 216 captions, 4%, in 2 sections.
+  The eight sites are `metaFacts` and `glanceGrid`, both inside `ItemRows` rows that #234 folds by
+  default. **The approved design was invisible on the surface it was drawn for.**
+  **THIS IS NOT MEASURING BADLY.** Every number in #253 was correct and reproducible. The error is
+  that the cost was priced without asking whether the thing being bought would be SEEN — a
+  question about placement, which no amount of precision about height can answer.
+  **THE TEST TO CARRY:** when a change is scoped by measurement, measure the BENEFIT in the same
+  units and at the same default state as the cost. #253 measured cost per section at the default
+  fold and benefit not at all. Had it counted pills-per-section at that same fold, the answer
+  would have been zero before the PR was written.
 - **A PROPERTY CAN BE TRUE WHILE THE OUTCOME IS WRONG — VERIFY IN THE REGIME THE USER OCCUPIES.**
   Five of the six PRs in the #246–#251 arc were reported by the owner as ALREADY FIXED or already
   correct, and in every one the property under test was genuinely true while what appeared on
@@ -3094,6 +3114,58 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 ---
 
 ## SESSION PR/SHA LOG
+
+- **#254** the pill everywhere — #253's correction reversed on measurement →1693
+  (`studio-labels` 9→24, new section E). PR 1 of the fidelity audit's four.
+  **THE AUDIT ANSWERED THE OWNER'S QUESTION AND THE ANSWER WAS THAT #253 WAS WRONG.** Measured on
+  the inspector as loaded: **121 captions, 0 pills, 0 of 14 sections**. Expanded: 9 pills to 216
+  captions, **4%**, 2 of 14. Recorded as a new failure shape in WORKING RULES — a correct
+  measurement of the wrong quantity.
+  **THE REAL AFTER-NUMBERS, DRIVEN, NOT THE PROJECTION.** The audit projected +0.60 worst / +0.30
+  mean. Measured: worst **3.03 -> 3.35** (+0.32), mean **1.84 -> 2.00** (+0.16) — **the projection
+  over-estimated by half**, because it assumed all 121 captions become key rows when only 69 do;
+  the rest are group headings that legitimately keep the caption. **Key rows visible as loaded: 0
+  -> 69.**
+  **A FIXED KEY IS NOW THE CONTRACT'S `.s-key`** — the pill's height, padding, type and connector
+  with `background: transparent` and no border, which is what item A said all along: "a box you
+  cannot type in should not look like one" is satisfied by removing the GROUND. Measured against
+  the contract: 26px, padding 0/10, 700 10.5px, tracking 1.365px (.13em), uppercase, ink-600,
+  transparent, connector 1x8 at margin-left 20. Contrast **7.06** on the cream-100 panel.
+  **THE SEAM HELD AND IS NOW ASSERTED.** `labelCls` was NOT mutated — it keeps its value and its
+  four pure non-field consumers. The key row is a new export applied at named sites. **`OverviewRow`
+  is deliberately not in that consumer list**: it is a SERVER component and #240 writes the label
+  utilities out as literals, because importing across the client boundary yields a throwing proxy.
+  Section E asserts that too, so the exclusion cannot be mistaken for an omission later.
+  **`CheckField` IS EXCLUDED ON WHAT IT IS** — its label sits inline beside a checkbox, naming the
+  control rather than a value beneath it, and a key row needs a value under the key.
+  Five mutations, each caught: a field component reverting to `labelCls` -> E2; the fixed key
+  growing a ground -> E1; the two kinds drifting on type -> E1; the seam sweeping a non-field
+  consumer -> E3; `labelCls` itself mutated into a pill -> A3 **and** E3.
+  **CSS UNION IDENTICAL, 1557 -> 1557** — every utility the fixed key uses already existed for the
+  pill, which is its own confirmation that the two kinds are one shape. Public DOM byte-identical.
+
+- **THE FIDELITY AUDIT'S CONTRACT CORRECTIONS — RECORDED, NOT BUILT.**
+  - **C-29, CONTENT/STYLE.** The contract draws `.seg` — a segmented control with an accent FILL —
+    for a control that ships as `role="tablist"` with `aria-selected` and an underline.
+    **Correction 20 already settles it**: `role="group"` + `aria-pressed` -> fill, `role="tablist"`
+    + `aria-selected` -> underline. The app is right. **Same shape as C-27**: the drawing
+    contradicts a rule the project already holds.
+  - **THE INK BAND.** The contract draws one on this inspector; `studio-ink:398-421` records the
+    decision that it takes none — a band divides CO-VISIBLE regions, and these 14 heads are
+    alternatives of which one shows. **AND THE STALE LINE IN LOCKED DECISIONS IS CORRECTED**: it
+    still predicted "the band count goes 2 -> 4 when the case-study inspector lands", which that
+    later decision superseded. A prediction left standing after its decision is reversed reads as
+    a gap.
+  - **THE MOCK FURNITURE.** `.state`, `.cap`, `.h3` and `.insp`'s own border and radius are
+    annotation, not UI — the mock draws the inspector as a rounded bordered card where the real
+    pane is a full-height aside with a left border. Recorded beside the fixed-position `.note`
+    finding, which is the same shape.
+  - **ROW CONTROLS STAY 28px.** The contract specifies 21x21; shrinking a hit area to match a
+    drawing is a touch-target regression, so the contract is corrected rather than the code.
+  - **NESTING IS FOUR DEEP, NOT TWO.** The contract's 5d says "at most two deep" and estimates
+    "~250px usable"; measured it is **four bordered ancestors and 226px**. A structural claim the
+    contract got wrong about the surface it describes. Recorded; restructuring is not a fidelity
+    pass.
 
 - **#253** the field contract — one input per line, the key pill, the 96px textarea →1678
   (`studio-ink` 148→153 with E2/F5/C2 rewritten, `mount-discipline` 41→43).
