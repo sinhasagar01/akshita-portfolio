@@ -23,6 +23,47 @@
   border doing the separating.
 
 ================================================================================
+  0 · SIX CORRECTIONS FROM THE BUILD, ALL MEASURED
+================================================================================
+  1. "THE THEME HAS NO ELEVATION SCALE" IS NOT TRUE. @theme declares three —
+     --shadow-sm/md/lg at globals.css:178-180. The honest argument for a studio
+     scale is WEIGHT AND COLOUR SPACE: the theme tops out at 0 12px 32px/.10 and
+     is oklch warm ink, while every studio literal is rgba(60,45,30) and heavier.
+     Left as drawn, the next reader greps @theme and assumes nobody checked.
+
+  2. THE SCALE HAD ALREADY ARRIVED, UNDECLARED, AND WAS DRIFTING. Seven studio
+     call sites, five literals, three de-facto tiers — plus two BoldToolbar
+     values already off them, one using 60,50,38 where everything else uses
+     60,45,30. So this declares a scale that exists rather than inventing one.
+
+  3. THE TWO-LINE CLAMP DOES NOT HOLD IN THIS FILE'S OWN LAYOUT. All six long
+     real titles need a 222px title column at Fraunces 15px. Sharing the head row
+     with the ordinal AND the arrows leaves 210px in a 323px card, so the longest
+     title takes THREE lines at the dimensions this file draws.
+     THE ARROWS MOVED TO THE CARD FOOT, which buys 46px and fixes them to the
+     same place on every card rather than letting title length shift them.
+
+  4. THE CHIPS AND THE ORDINAL COLLIDE WITH THE CARD. Drawn at cream-50 on a
+     cream-50 card — measured 1.00, the same colour, with a hairline doing all
+     the work. That is #227's well-equals-ground defect and the ladder's rule is
+     ONE STEP OFF WHATEVER IT SITS ON. Both are cream-100; every nested pair now
+     measures 1.05 at rest.
+
+  5. THE SQUARE BECAME A FIXED HEIGHT, AND THE COLUMNS BECAME FLUID. `aspect-1`
+     ties height to width, so a fluid column count would have made the cards
+     taller as it made them wider — 372px tall at three columns, 300 at five,
+     changing how much board fits on screen at every resize. The card is
+     300-340 x 320 and the grid is auto-fill, so it is not capped at three.
+     Measured across 360-1600px of board width: columns flow 1 to 5, the title
+     column never drops below 230, zero titles clip.
+
+  6. THE PAINT IS FREE AND THE SHEEN IS NOT THE COST. A real hover costs 0.2ms
+     of style and layout against a 16.7ms frame. Fourteen cards animating at
+     once — 14x any real hover — dropped no vsyncs. The sheen measured below the
+     noise floor. Caveat: the measuring pane is vsync-capped at 30fps, so the
+     frame test bounds total cost at 33ms rather than 16.7.
+
+================================================================================
   1 · THE ELEVATION SCALE — declared, because three steps IS a scale
 ================================================================================
   #168 RECORDED THE SHADOW LITERAL AS AN EXCEPTION, NOT A CONVENTION.

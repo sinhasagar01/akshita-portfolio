@@ -3312,6 +3312,72 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#267** the Board — fluid columns of elevated cards, and it opens on the Editor →1845
+  (`studio-ink` 200→222, C9 new; F5 comment-stripped and revalued 29→30).
+
+  **TWO CHANGES.** A case study opened on the Board, showing the SHAPE when what an author came
+  here to do is write. It opens on the Editor now and the toggle reads Editor | Board, so the
+  control agrees with the default rather than listing the states in the order they were built.
+
+  **THE TWO-LINE CLAMP DID NOT HOLD IN THE CONTRACT'S OWN LAYOUT.** All six long real titles need
+  a **222px title column** at Fraunces 15px; sharing the head row with the ordinal AND the arrows
+  left **210px in a 323px card**, so the longest title took three lines at the dimensions the
+  contract itself draws. The arrows moved to the card FOOT — worth 46px, and it fixes them to the
+  same place on every card instead of letting title length shift them. Measured across
+  **360–1600px** of board width: columns flow **1 to 5**, the title column never drops below 230,
+  **zero titles clip at any width**.
+
+  **THE CONTRACT'S PREMISE FOR THE ELEVATION SCALE IS WRONG.** It argues from "the theme has no
+  elevation scale"; `@theme` declares **three**, `--shadow-sm/md/lg`. The honest justification is
+  weight and colour space — the theme tops out at `0 12px 32px/.10` in oklch while every studio
+  literal is `rgba(60,45,30)` and heavier. **And the scale had already arrived undeclared:** seven
+  call sites, five literals, three de-facto tiers, two of them already drifted and one using a
+  different ink. #168 recorded the modal's literal as an exception; six call sites later it was a
+  convention nobody had declared.
+
+  **THE CHIPS AND THE ORDINAL COLLIDED WITH THE CARD** — drawn at cream-50 on a cream-50 card,
+  **measured 1.00**, a hairline doing all the work. #227's well-equals-ground defect, and the
+  ladder's rule is one step off whatever it sits on. Both cream-100 now; **every nested pair
+  measures 1.05 at rest**, and the eyebrow's `ink-400` — a **3.49** AA failure whose own comment
+  deferred it to "PR 7 restructures this board" — is **7.42**.
+
+  **THE PAINT IS FREE AND THE SHEEN IS NOT THE COST.** A real hover costs **0.2ms** of style and
+  layout against a 16.7ms frame, 98.8% headroom. Fourteen cards animating at once, ~14× any real
+  hover, dropped **zero vsyncs**. The sheen measured **below the noise floor**. Caveat recorded:
+  the measuring pane is vsync-capped at 30fps, so the frame test bounds total cost at 33ms rather
+  than 16.7, and GPU raster of the blur is not captured by style+layout timing.
+
+  **THE OWNER CHANGED THE SQUARE TO A FIXED HEIGHT AND THE COLUMNS TO FLUID MID-BUILD, AND THE
+  REASON GENERALISES.** `aspect-square` ties height to width, so a fluid column count would have
+  made cards taller as it made them wider — 372px at three columns, 300 at five — changing how
+  much board fits on screen at every resize. Fixed 320 height, `max-w-340`, `auto-fill` with a
+  300px floor. **The floor is the title's**, not a round number.
+
+  **HOW MUCH SLACK A SHAPE TAKES DEPENDS ON WHAT IT REPRESENTS, and getting it wrong twice taught
+  it.** Fixed shapes centred in a 265px mini read as marks adrift in an empty panel. Stretching
+  everything to fill put four text rules 56px apart, which reads as a ladder rather than as text.
+  **Mass fills; text stays text** — and the empty space around a text mini is the section's own
+  airiness, which is the thing the mini is describing.
+
+  **THE MINIS ARE A MAPPED TYPE.** `PreviewRail`'s THUMB table is the precedent and is
+  `Record<string, …>` through `?? fallback` — the shape STATE records as having let
+  `videoEmbed.poster` stay invisible for three PRs. A 17th kind is a compile error here.
+
+  **THE REORDER HANDLER IS UNTOUCHED.** `moveSection(i, dir)` was already previous/next index
+  rather than up/down, so only labels and glyphs moved. The accessible names say **earlier/later**,
+  which stays true at one column as well as five, where left/right would not.
+
+  **AND MY OWN ASSERTION MATCHED THE WRONG ELEMENT AGAIN — THE THIRD TIME.** C9's eyebrow check
+  tested the whole file for `tracking-eyebrow text-ink-600`, which `labelCls` also contains, so
+  reverting the board to ink-400 left it GREEN. #263's C4 in a third costume. **F5 had the same
+  family of bug and it was the SUITE's:** it counted `rounded-full` in RAW source, so a comment
+  naming the class inflated the count — while the assertion twenty lines below it already strips
+  comments and carries a note saying why. Fixed there, not worked around here.
+
+  Public DOM byte-identical across 10 pages; CSS **zero removed**, 76 added. Eight mutations kill
+  eight assertions. Reduced-motion rules confirmed in the PRODUCTION bundle after dev
+  `document.styleSheets` reported them absent — the dev-introspection trap, again.
+
 - **#266** the scrollbar hairline, studio-wide →1820 (`studio-ink` 183→198, C8 new).
 
   Nothing was styled, so every studio surface rendered the platform default. **THE DEFECT IS THE
