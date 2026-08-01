@@ -8,8 +8,9 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE SELECTION CONTRACT)
 
-**main** = `98b4934` = the selection contract (#258), with **#259 building T3 and correcting
-#258's record** — that PR claimed T3 as shipped behaviour and it had never been built. **The Selected rail is replaced by a dock at
+**main** = `2e4e064` = the flush field and T0's inspector half (#260). **#261 takes the echo
+block-level**, which is what finally makes it fire on the 77% of the canvas-editable surface that
+had been silent since #259 — the hero section was 0 of 12. **The Selected rail is replaced by a dock at
 the canvas foot with five timed tiers, the studio gains its first motion-token block scoped beside
 the radius scale, and `useAutoGrow` plus the canvas ceiling and its wrapper are deleted.**
 ralph **1735 across 46 suites** (`studio-motion` is new).
@@ -3310,6 +3311,84 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 `b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
+
+- **#261** the echo goes block-level — **and the framing correction leads it** →1763
+  (`studio-motion` 45→50, `mount-discipline` anchor moved).
+
+  **"BLOCK FIELDS DON'T ECHO" WAS TOO GENEROUS TO ITSELF, AND THAT IS WHY THIS SHIPPED AS A GAP.**
+  #259 and #260 recorded the limit in that wording, which reads as an edge case. **Measured, it
+  meant 75 of 98 editable elements — 77% of the canvas-editable surface — did nothing, and the
+  HERO SECTION WAS 0 OF 12.** An author opening the study and clicking the first thing on screen
+  got silence, which is exactly what happened, three times, before anyone measured it. The
+  owner's report was right every time and the record said the feature worked.
+  **A LIMIT STATED IN THE UNITS OF THE IMPLEMENTATION HIDES ITS SIZE.** "Only section-shell
+  fields are addressed" is true and tells you nothing; "the first section is entirely inert" is
+  the same fact in the units of the person using it. **State a gap in what it costs the user, not
+  in what it costs the code.**
+
+  **THE FIX IS ONE ATTRIBUTE.** `blockAddress={j}` on the block's `CollapsibleGroup`, where `j`
+  is already in scope beside `ids.blockIds[i][j]` — the same index the canvas emits as
+  `data-edit-block-index`, so there is no second numbering to drift. T0 scrolls the block's card
+  into view; T3 marks the card.
+  **AND BLOCK-LEVEL IS RIGHT RATHER THAN MERELY CHEAPER.** 77% silent to **0% silent for roughly
+  1% of the work**. For T0, "bring the right block into view" is arguably the correct
+  granularity — you are taken to where the thing lives and the DOCK ALREADY HOLDS THE EXACT
+  FIELD, so a finer mark buys precision that has already been supplied. And 64 sites is 64
+  chances to mistype a path, where **a wrong `fieldId` fails silently** — the failure this entire
+  thread has been about.
+
+  **TWO ESTIMATE CORRECTIONS, BOTH MINE.**
+  - **"~40 registry call sites" was 64.** The count-off-by-category mistake again.
+  - **The shape was wrong too, not just the number.** The forms do not know their own index, so
+    field-level was never "64 props": `blockIndex` has to be threaded from
+    `SectionsEditPanel:1840` through ~15 form components first. **An estimate can be wrong about
+    the noun as well as the count**, and this one was wrong about both while sounding precise.
+
+  **THE FOUR THINGS SETTLED.**
+  1. **THE CARD TAKES THE BAR AND NOT THE GROUND, AND THAT IS MEASURED.** On a 320px input's
+     label the cream-200 fill is a thin band; on a card it is several hundred pixels of filled
+     surface, and **a flat wash over a group of controls reads as selected-AND-DISABLED**. The
+     fill was never the mark anyway — #259 measured it at **1.10** against the pane while the bar
+     is 4.07. So the bar is shared by both granularities and the fill stays the field's alone.
+     Card bar on cream-50 measures **4.70**, over the 3:1 non-text floor.
+  2. **G7 CHANGED SHAPE RATHER THAN LOOSENING.** Its job was never "count four", it was "no
+     address that cannot be reached". A section address is a NAME, so it is still checked against
+     the canvas's name set; a block address is an INDEX, so the equivalent is that it comes from
+     the same numbering the canvas emits (G7b). G7c adds the half that would otherwise have been
+     invisible: `CollapsibleGroup` spreads nothing, so a bare `data-studio-block` prop
+     **type-checks and reaches no DOM node** — the cast-that-compiles-and-does-nothing shape. It
+     is a declared prop written onto a real element, asserted as both.
+  3. **THE FOLDED ORDERING IS MOOT WHEN THE TARGET IS THE GROUP.** A collapsed card still renders
+     its HEADER, so the mark lands and the scroll lands without opening anything. Driven: card
+     collapsed, `aria-expanded` stays false, echo applies, mark's top visible. Nothing forces a
+     fold open, which is #234's decision left alone.
+  4. **WHAT REMAINS SILENT, AND IT IS ONE CASE.** Under the **Style** tab a copy-only block's card
+     carries `hidden` directly, because that kind has no style fields. Nothing renders, so nothing
+     marks — correct, and the dock still holds the field.
+
+  **TWO DEFECTS THE CARD-SIZED TARGET SURFACED, NEITHER VISIBLE AT FIELD SCALE.**
+  - **CENTRING IS WRONG FOR A TARGET TALLER THAN THE VIEWPORT.** `(height - e.height) / 2` goes
+    NEGATIVE once the element is taller than the pane, so centring puts its head above the fold:
+    the scroll fires, `scrollTop` changes, and you land mid-card. **Measured on the hero — a
+    1351px range, scrolled to 899, target out of view.** A 44px field could never show it; a card
+    is most of a pane. Tall targets now align their top, and the in-view test asks whether the
+    TOP is showing, since a tall target can never be "fully in view" and would otherwise
+    re-scroll on every selection.
+  - **THE HEADER FALLBACK SCROLLED TO THE WRONG THING.** For a target hidden by an ANCESTOR the
+    fallback is right. For one that carries `hidden` ITSELF — the Style-tab card — `closest`
+    returned the card, and the pane scrolled to a NEIGHBOUR's card: **measured at 153 with zero
+    cards rendered**. Scrolling to the wrong thing is worse than not scrolling, and it is what
+    the fallback was written to prevent rather than to cause. Self-hidden targets now move nothing.
+
+  **THE CLAIM, DRIVEN ACROSS ALL 98 EDITABLE ELEMENTS: 98 echo, 0 silent, and 98 have the mark's
+  top visible** — against 23 responding before. Geometry 0 deltas across 16 cards, contrast sanity
+  pair 21 first, reduced motion final state pixel-identical, public DOM byte-identical with **zero
+  CSS declarations added or removed** (the card reuses the field's rule).
+
+  **FIELD-LEVEL IS DEFERRED WITH A NAMED TRIGGER, NOT AS A VAGUE LATER.** Revisit if the card
+  proves too coarse in use — an author scrolling to a card and then hunting for the field inside
+  it. **That trigger fires from USING the studio, which is the only thing that has caught any of
+  this.**
 
 - **#260** the flush field, and T0 scrolls the inspector — **a decision overruled, not a bug**
   →1749 (`studio-motion` 31→45, new section H). Two things, and the second reverses #258.
