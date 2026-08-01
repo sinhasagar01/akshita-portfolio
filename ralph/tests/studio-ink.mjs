@@ -1172,34 +1172,52 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     [false, false]);
 }
 
-/* ---- C6 · THE CANVAS GROUND IS A UTILITY, AND `.canvas-surface` MUST NOT COME BACK ----------
+/* ---- C6 · THE GROUND IS THE CANVAS PANE'S, AND `.canvas-surface` MUST NOT COME BACK -------
  * The old rule died reduced to `background-color: transparent; border: 0`, where NEITHER
  * declaration did anything alone: nothing else painted that element, and `border: 0` existed only
- * to cancel a `border` utility written on the same element. Two declarations fighting to reach the
- * browser default, and neither side looked wrong on its own — which is exactly how it survived.
- * The ground is back as `bg-cream-100` because the card is cream-50 and was sitting on a cream-50
- * pane at contrast 1.00, the SAME COLOUR, leaving a 1px @ 8% hairline that the 0.646 canvas scale
- * renders at 0.646px as the card's only edge. Cream-100 measures 1.05. Sand would match the live
- * route at 1.35; the owner chose the quieter studio-palette ground over matching the route.
- * Asserted as a utility, and asserted that no rule reclaims the property, because the failure mode
- * here is not a wrong colour — it is the SPLIT returning. */
+ * to cancel a `border` utility on the same element. Two declarations fighting to reach the browser
+ * default, neither wrong on its own — which is how it survived.
+ * THE GROUND IS ON THE PANE, NOT THE CARD'S WRAPPER, and the first attempt got that wrong. The
+ * card is cream-50 and sat on a cream-50 pane at contrast 1.00, the SAME COLOUR, leaving a 1px @
+ * 8% hairline that the 0.646 canvas scale renders at 0.646px as its only edge. Painting the
+ * card's own wrapper tinted a box that hugs the scaled card and stops at its edge, so the tone
+ * ended AT the card instead of filling the surface it sits on. Cream-100 on the pane measures 1.05.
+ * IT IS A PROP AND NOT AN EDIT TO THE SHELL because blog is the other consumer and its canvas
+ * holds the public article measure. The default is blog's existing cream-50, so silence stays the
+ * neutral answer rather than the case study's. */
 {
-  const pane = /className="case-study canvas-static([^"]*)"/.exec(code("components/studio/SectionsEditPanel.tsx"))?.[1] ?? "";
+  const panel = code("components/studio/SectionsEditPanel.tsx");
+  const shell = code("components/studio/ThreePaneShell.tsx");
+  const blog = code("components/studio/BlogBlocksEditPanel.tsx");
+  const pane = /className="case-study canvas-static([^"]*)"/.exec(panel)?.[1] ?? "";
 
   t("C6: the canvas pane's class list was found — nothing below is a vacuous pass",
     pane !== "", true);
-  t("C6: the ground is a real token utility, on the element it paints",
-    /\bbg-cream-100\b/.test(pane), true);
+  t("C6: the card's own wrapper paints NO ground — the tone would stop at the card",
+    /\bbg-(?:cream|canvas|ink)/.test(pane), false);
   t("C6: …and the border utility that `border: 0` used to cancel is still gone",
     /\bborder\b/.test(pane), false);
+  t("C6: the ground is passed to the shell, so it fills the whole pane and not a box inside it",
+    /canvasGround="bg-cream-100"/.test(panel), true);
+  t("C6: the shell applies it to the canvas COLUMN, bar included, not just the scroll region",
+    /flex min-w-0 min-h-0 flex-1 flex-col lg:overflow-hidden \$\{canvasGround\}/.test(shell), true);
+
+  /* THE DEFAULT IS THE ASSERTION THAT PROTECTS BLOG. `fitThresholdPx` is required precisely
+   * because silence there meant inheriting blog's breakpoint — a wrong answer. Here silence must
+   * yield what both panes already rendered, so the default is cream-50 and blog passes nothing. */
+  t("C6: the shell defaults to cream-50, so a consumer that says nothing gets the neutral ground",
+    /canvasGround = "bg-cream-50"/.test(shell), true);
+  t("C6: …and blog says nothing, so its article-measure canvas is untouched",
+    /canvasGround/.test(blog), false);
+
   t("C6: NO `.canvas-surface` rule anywhere — a rule here is what let the last split hide",
     /\.canvas-surface\s*\{/.test(globals), false);
   t("C6: …and globals declares no background for the canvas pane at all",
     /\.canvas-static\s*\{/.test(globals), false);
 
   /* `.canvas-static .reveal-card` is UNRELATED and stays — it suppresses the in-view reveal
-   * because the canvas is a static panel. Asserted so a later sweep for "canvas rules" that
-   * reads the two names as one family cannot take it out with them. */
+   * because the canvas is a static panel. Asserted so a later sweep for "canvas rules" that reads
+   * the two names as one family cannot take it out with them. */
   t("C6: the reveal-suppression rule survives, which is a different concern entirely",
     /\.canvas-static \.reveal-card\s*\{/.test(globals), true);
 }

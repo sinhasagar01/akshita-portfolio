@@ -751,19 +751,15 @@ function SectionCanvas({
     // Deleting one alone would have CHANGED the render — drop the rule and the border
     // comes back, drop the utility and nothing moves — which is why that was one edit.
     //
-    // `bg-cream-100` IS THE GROUND, AND IT IS A UTILITY ON PURPOSE. The card is cream-50
-    // and was sitting on a cream-50 pane at contrast 1.00 — the same colour — so its only
-    // edge was a 1px @ 8% hairline that the 0.646 canvas scale renders at 0.646px. The
-    // ground is what separates a card here, exactly as it does on the live route, where
-    // the hairline is a refinement on top of a sand ground rather than the separator
-    // itself. Cream-100 rather than that sand keeps the canvas in the STUDIO's palette;
-    // it is the quieter of the two and the owner picked it over matching the route.
-    // Written as a utility and not as a `.canvas-surface` rule so the ground and the
-    // radius and the clip all read from one place. A rule here is what let the last one
-    // drift into contradicting the className without either side looking wrong alone.
+    // THIS ELEMENT PAINTS NOTHING, AND THAT IS DELIBERATE. The card needs a ground to
+    // separate from — it is cream-50 on what was a cream-50 pane, contrast 1.00, the same
+    // colour — but the ground belongs to the CANVAS PANE, not to the card's own wrapper.
+    // Painting it here tinted a box that hugs the scaled card and stops at its edge, so
+    // the tone ended at the card rather than filling the surface the card sits on. The
+    // ground is passed to `ThreePaneShell` as `canvasGround` instead; see the call below.
     <div
       ref={paneRef}
-      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)] bg-cream-100"
+      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)]"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
@@ -2192,6 +2188,19 @@ export default function SectionsEditPanel({
         <ThreePaneShell
           fitThresholdPx={sidebarPx + CS_PANES_SUM}
           listNoun="sections"
+          /* THE CANVAS PANE IS THE GROUND, NOT THE CARD'S WRAPPER. The section card is
+             cream-50 and sat on a cream-50 pane at contrast 1.00 — the same colour — so its
+             only edge was a 1px @ 8% hairline that the 0.646 canvas scale renders at
+             0.646px. Cream-100 puts it at 1.05.
+             NOTE WHAT THIS COSTS, because it is a real trade rather than a free win: the
+             inspector is ALREADY cream-100, so the three panes now step 200 / 100 / 100
+             instead of 200 / 50 / 100 and the canvas no longer differs in tone from the
+             inspector. They stay divided by the inspector's own `border-l border-ink-950/22`,
+             which is the harder of the studio's two hairlines and was already carrying that
+             edge on its own.
+             Blog passes nothing and keeps the cream-50 default, so its article-measure canvas
+             is untouched — the reason this is a prop and not an edit to the shell. */
+          canvasGround="bg-cream-100"
           list={
             <SectionsRail
               sections={values.sections}
