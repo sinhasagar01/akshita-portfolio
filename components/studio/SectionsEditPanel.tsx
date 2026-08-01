@@ -1428,7 +1428,19 @@ export default function SectionsEditPanel({
         </div>
         <FieldTabProvider tab={contentStyleTab}>
         <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col gap-6 outline-none">
-        <p className="text-[12px] text-text-subtle">
+        {/* ---- THE TAB HINT (contract 5c) ---------------------------------------------------
+            11px, and INSET to match its neighbours. Measured, this paragraph was the only child
+            of the body starting flush against the pane's left border: header ink at 16, tab text
+            at 13, group cards at 14, and this at **1**. It sits directly under the tablist, so it
+            takes the tabs' own inset rather than the cards'.
+            THE CONTRACT'S `.ibody{padding:12px 14px 20px}` IS NOT THE FIX AND IS NOT BUILT — see
+            correction 31. Its 14px appears three times in the mock (`.ibody`, `.seg`, `.tabhint`)
+            because `.insp` is a floating card with no padding of its own; in the real pane every
+            child already carries its own inset, so a body padding would push the cards to 28. */}
+        {/* NO `leading-[1.5]` — the contract asks for it, but studio-cascade C1 proves it INERT here:
+            the studio reset already sets that line-height on <p>, so the utility would not drive
+            the result and editing it would do nothing. The contract's value is already the value. */}
+        <p className="px-3 text-[11px] text-text-subtle">
           {contentStyleTab === "content"
             ? "Copy for this section, including the Rich **bold** fields the canvas cannot edit."
             : "Layout, glow, frames, and image geometry for this section."}
