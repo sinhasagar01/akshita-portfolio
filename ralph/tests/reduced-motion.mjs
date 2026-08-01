@@ -18,7 +18,7 @@
 // `behavior: "smooth"` literal survives in these files — which is the whole nature of the
 // defect, an un-gated literal, and exactly the thing that decays the next time somebody adds
 // a scroll call and copies the line above it.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -63,6 +63,54 @@ const NATIVE_SCROLLS = header.match(/\.scrollIntoView\(|window\.scrollTo\(|windo
 t("A: four native scroll calls — 3 gated + 1 argument-less", NATIVE_SCROLLS.length, 4);
 t("A: the logo's window.scrollTo is gated too",
   /window\.scrollTo\(\{ top: 0, behavior: reduced \? "auto" : "smooth" \}\)/.test(header), true);
+
+/* ---- A2. THE SAME RULE, EVERYWHERE THE STUDIO SCROLLS -------------------------------------
+ * SECTION A ABOVE READS TWO HARDCODED FILES, and that is the derivation-keyed-on-a-list failure
+ * in another costume: a suite pinned to `SiteHeader` and `PreviewRail` is blind to every scroll
+ * written anywhere else, which is exactly where the next one gets written. The selection
+ * contract's T0 is the live instance — it scrolls the studio canvas.
+ *
+ * THE STUDIO'S RULE IS THE STRICTER ONE, AND DELIBERATELY SO. The header GATES the behavior on
+ * `reduced` because it already has a `useReducedMotion` in hand. The studio has none and must
+ * not grow one: it OMITS the argument entirely, so the scroller's CSS `scroll-smooth` decides
+ * and the global reset's `scroll-behavior: auto !important` wins under reduce for free. A bare
+ * `behavior: "smooth"` would OVERRIDE that reset, which is the #198 defect itself. So the
+ * assertion here is not "gated" but "absent". */
+{
+  const files = [];
+  const walk = (dir) => {
+    for (const e of readdirSync(new URL(`../../${dir}`, import.meta.url), { withFileTypes: true })) {
+      if (e.isDirectory()) walk(`${dir}/${e.name}`);
+      else if (/\.tsx?$/.test(e.name)) files.push(`${dir}/${e.name}`);
+    }
+  };
+  walk("components/studio");
+  walk("app/studio");
+
+  const offenders = [];
+  let scrollCalls = 0;
+  for (const f of files) {
+    const src = code(f);
+    if (/behavior:\s*["']smooth["']/.test(src)) offenders.push(`${f} — overrides the reduced-motion reset`);
+    scrollCalls += (src.match(/\.scrollTo\(|\.scrollIntoView\(/g) ?? []).length;
+  }
+
+  t('A2: NO studio file names `behavior: "smooth"` — CSS decides, so reduce wins for free',
+    offenders, []);
+  t("A2b: …and the studio does scroll somewhere, so A2 is not vacuously true", scrollCalls > 0, true);
+
+  // A2c — THE OTHER HALF. Omitting the argument only works if the scroller actually carries
+  // `scroll-smooth`. Without it T0 would be instant in BOTH modes and A2 would be passing on a
+  // feature that does not exist. Both halves, or neither of them means anything.
+  t("A2c: the canvas scroller carries `scroll-smooth`, so the omitted argument has something to read",
+    /min-h-0 flex-1 scroll-smooth lg:overflow-y-auto/.test(code("components/studio/ThreePaneShell.tsx")), true);
+
+  // A2d — AND NO `useReducedMotion` CREPT IN. Section G asserts this for ListboxField alone;
+  // this is the same claim for the whole studio, and it is what makes the CSS-only route a rule
+  // rather than a coincidence that held while there was nothing to scroll.
+  t("A2d: no studio file reaches for useReducedMotion — the reset is the mechanism",
+    files.filter((f) => /useReducedMotion/.test(code(f))), []);
+}
 
 /* ================================================================= B. THE HOOK IS CONSULTED
  * The lint disable came off because `reduced` is genuinely read. If someone re-introduces an

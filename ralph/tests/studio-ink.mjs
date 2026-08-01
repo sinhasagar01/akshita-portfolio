@@ -747,9 +747,15 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // not-a-field is its entire job. The count stays a COUNT rather than a floor — a `>=` would
     // let the next pill in silently, which is what this exists to prevent — so bumping it by hand
     // IS the declaration, and F5b names the site so the number cannot rise without one.
-    t("F5: the 28 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 28);
+    t("F5: the 29 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 29);
     t("F5b: …and the 28th is the key pill, a DECLARED exception rather than an undeclared fourth step",
       /export const KEY_PILL_CLS =[\s\S]{0,240}?rounded-full/.test(readStudio("blocks/fields.tsx")), true);
+    // F5c — THE 29th IS THE DOCK'S TAG, and it is named here for the same reason the key pill is:
+    // this census only means something if every rise in it has a site attached. A pill shape on a
+    // one-word status tag is the shape doing its job, not a fourth radius step sneaking in.
+    t("F5c: …and the 29th is the selection dock's field tag, declared rather than drifted",
+      /function SelectionDock\b[\s\S]*?rounded-full border border-accent-500\/30/.test(
+        readStudio("SectionsEditPanel.tsx")), true);
     t("F5: the 1px drag dot survives — the control step would visibly round a 6px handle",
       (all.match(/rounded-\[1px\]/g) ?? []).length, 1);
     // COMMENT-STRIPPED, and it has to be: this first ran against raw source and tripped on the

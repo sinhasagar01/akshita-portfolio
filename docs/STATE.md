@@ -6,9 +6,16 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE FIELD-CONTRACT ARC, COMPLETE)
+## STATE (as of THE SELECTION CONTRACT)
 
-**main** = `0fe8fd6` = the tab hint (#257). **The field-contract arc is finished — four PRs, #254
+**main** = `e182ee3` = STATE for the field-contract arc. **#258, the selection contract, replaces
+the Selected rail with a dock at the canvas foot and adds the studio's first motion tier block.**
+ralph **1735 across 46 suites** (`studio-motion` is new). Four of the brief's premises were wrong
+and two of them changed the build — see the PR/SHA log.
+
+### The field-contract arc, complete, immediately before it
+
+**main** was `0fe8fd6` = the tab hint (#257). **The field-contract arc is finished — four PRs, #254
 to #257, ralph 1678 → 1707.** It answered one owner question (why paired inputs give no way to
 tell which box is which) by auditing the whole inspector against
 `docs/studio/studio-field-contract.html` and then measuring every item the audit raised.
@@ -2851,6 +2858,25 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     colour the studio uses is uncomputed; 31 says a colour the studio forbids is unpoliced. Fixing
     either properly means resolving a class string to the ground it renders on.
 
+
+32. **FOUR PUBLIC SITES SHIP A UTILITY THAT COMPILES TO AN INVALID DECLARATION.**
+    `duration-[--duration-base]` — bracket-bare, no `var()` — appears at
+    `FooterBackToTop.tsx:23`, `HeroSection.tsx:265` and `:392`, and `ContactSection.tsx:264`.
+    **VERIFIED IN THE SHIPPED PRODUCTION CSS, NOT INFERRED**: the bundle contains
+    `transition-duration:--duration-base`, which is not a valid value and which the browser
+    drops. Those four transitions run at Tailwind's 150ms default and have never run at the
+    300ms they name.
+    **AND `--duration-*` IS NOT A TAILWIND v4 NAMESPACE AT ALL.** `duration-*` resolves from
+    `--transition-duration-*`, `delay-*` from `--transition-delay-*`. So `@theme`'s five
+    `--duration-*` tokens generate NO utilities; only the `--ease-*` half does. The one studio
+    consumer (`ListboxField`) already spells it `duration-[var(--duration-fast)]` and is correct.
+    **WHY IT IS RECORDED AND NOT FIXED HERE.** It is public-site code in a studio PR, and the
+    fix changes four live transitions from 150ms to 300ms — a visible change to the public site
+    that belongs in its own measurement, not as a side effect. `studio-motion` D1 keeps the
+    studio out of the set; nothing yet covers the public half. The general gate is the one
+    `studio-tokens` already models for colour: a utility whose token does not exist emits
+    nothing, and no suite checks that outside the colour family.
+
 ---
 
 ## DEFERRED — scoped, not built
@@ -3211,6 +3237,116 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 `b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
+
+- **#258** the selection contract — the rail becomes a dock, and four premise corrections
+  →1735 (`studio-motion` new, 23 assertions; `reduced-motion` 22→26; `studio-ink` F5 28→29).
+  **THE SELECTED RAIL IS GONE.** It sat at the top of the inspector holding a SECOND control for
+  a value the form below it already had, plus a sentence explaining they were the same thing,
+  and it held that space whether or not anything was selected. It is now a dock at the canvas
+  foot, absent until you select, beside the thing it edits.
+
+  **FOUR PREMISE CORRECTIONS, TWO OF WHICH CHANGED THE BUILD.**
+  - **`--ease-glide` ALREADY EXISTS AS `--ease-out-expo`, BYTE-IDENTICAL.** The contract asks for
+    `cubic-bezier(.16,1,.3,1)`; @theme holds `cubic-bezier(0.16, 1, 0.3, 1)`. Not declared. A
+    second name for a value that has an honest one is what the GROUND LADDER block refuses.
+  - **`--ease-spring` IS A NAME COLLISION WITH A DIFFERENT VALUE.** @theme holds
+    `cubic-bezier(0.34, 1.56, 0.64, 1)`; the contract wants `(.34,1.35,.5,1)` under that name.
+    Declaring it in `.studio-chrome` would have SHADOWED the theme token studio-wide. **Nothing
+    consumes `ease-spring` today, which is exactly why it would have gone unnoticed** rather
+    than why it would have been harmless. Shipped as `--studio-ease-settle`.
+  - **`--duration-*` IS NOT A TAILWIND v4 NAMESPACE.** Recorded in full as hazard 32, with four
+    public sites already shipping the broken shape. Verified in the production CSS.
+  - **GATE D MEASURED A QUANTITY THE DOCK CANNOT MOVE.** The scale is
+    `Math.max(CS_MIN_SCALE, Math.min(1, pane.clientWidth / CANVAS_WIDTH))` — **width only**;
+    height appears once, as an output. "Confirm the scale still clears the floor with the dock
+    open" is true by construction. This arc's own rule, a correct measurement of the wrong
+    quantity, applied to a gate the brief wrote.
+
+  **C IS THE FINDING, AND IT NARROWED THE BRIEF.** T0 drives the CANVAS ONLY and T3 fires only
+  when the field is visible. `ItemRows` rows fold by default (#234), so for every `items.N.*`,
+  `stats.N.*`, `cards.N.*`, `features.N.*` and `steps.N.*` field — most of the block-level
+  editable surface — the inspector's counterpart is HIDDEN. T0's inspector half would have
+  scrolled to a folded row and T3 would have marked an element nobody can see. **#253's failure
+  shape, caught before building rather than after.** When the field is folded away **the dock is
+  the confirmation**, which is what makes it earn its place instead of being a rail in a new
+  position.
+  **CORRECTION 32, MINE.** The contract's prose says "the inspector still does not scroll" while
+  its own script scrolls it and its badge reports "canvas + inspector". The prose was written for
+  the pre-T0 version and never updated.
+
+  **T0 WAS BROKEN THREE SEPARATE WAYS AND ONLY MEASUREMENT FOUND ANY OF THEM.** Every one had
+  the same shape: the property was true and the outcome was not.
+  1. **The reveal centred against the PRE-DOCK viewport.** It scrolled, `scrollTop` changed, and
+     then the dock opened and took 113px from the bottom, pushing the element back out. Fixed by
+     reading the dock's `scrollHeight - clientHeight` — it is always mounted and collapsed by
+     `max-height`, so that difference IS the space the viewport is about to lose, and it is zero
+     when the dock is already open.
+  2. **`scrollParent` required the scroller to ALREADY overflow.** With the dock closed the
+     canvas often does not, so the walk went straight past the real scroller. The element that
+     is about to need scrolling is not the element that is scrolling now.
+  3. **THE SCROLL WAS CLAMPED TO THE RANGE THAT EXISTED WHEN IT WAS ISSUED.** The reveal asked
+     for 264 and got 151 — exactly `scrollHeight - clientHeight` for the pre-dock viewport. Then
+     the dock opened, the reachable range grew to 264, and the scroll had already finished.
+     **Centring for the future viewport fixes the arithmetic and cannot fix the clamp, because
+     the range is not the maths.** Fixed by revealing again on the dock's `transitionend` — free
+     when the first call sufficed, because the same conditionality T0 is built on makes it a
+     no-op. Driven both ways after: in-view 0→0, out-of-view 0→264 and visible, from both a
+     closed and an already-open dock.
+
+  **MY "EXPECTED ZERO" ON THE SCROLLBAR COUPLING WAS WRONG.** At 1240px the canvas pane goes
+  **640 → 625** when the dock opens — a classic scrollbar appearing where none did — which is
+  15px of horizontal pan on a pane already at the 0.5 floor. The scale itself does not move
+  (it is clamped at `CS_MIN_SCALE`), and at 1440 nothing moves at all because the scrollbar is
+  already saturated. **In this browser the gutter is 15px; on macOS overlay scrollbars it is 0**,
+  which is the owner's environment. Not fixed: `scrollbar-gutter: stable` would make the CLOSED
+  state pay the same 15px permanently, which is strictly worse.
+
+  **E IS A SIMPLIFICATION AND IS STATED AS ONE.** `useAutoGrow`, `canvasCeiling` and the wrapper
+  div that existed only to be measured are all deleted — the hook had exactly one consumer. It
+  measured the canvas's CONTENT height, already the wrong bound for a foot-anchored surface, and
+  it is the thing that broke twice (#233 shipped 3166px of textarea in an 811px pane, #235 fixed
+  it again). The dock takes a fixed `min-h-[46px] max-h-[104px]` instead.
+
+  **TWO REDUCED-MOTION GAPS THE GLOBAL RESET DOES NOT CLOSE.** It zeroes `transition-duration`
+  and NOT `transition-delay` — with four delay tokens that is a 190ms dead pause and then a snap,
+  jank rather than stillness. And zeroing a duration makes a translate INSTANT, not ABSENT, so
+  the distances have to zero too. **Both scoped to `.studio-chrome` rather than widened into the
+  global `*` reset**, because widening it would change public reduced-motion behaviour from
+  inside a studio change. Final state measured **pixel-identical to three decimals** across the
+  dock, the tag, the textarea, the mark and the bar. The scroll still HAPPENS under reduce and is
+  instant rather than absent — `scroll-behavior: auto`, done at 60ms.
+  **NO `behavior` ARGUMENT ANYWHERE.** The scroller carries `scroll-smooth` in CSS and the reset
+  overrides it under reduce for free. An explicit `"smooth"` would beat the reset, which is #198
+  itself. `reduced-motion` section A was widened from two hardcoded files to a walk over
+  `components/studio` and `app/studio` — **a suite pinned to two files is the
+  derivation-keyed-on-a-list failure in another costume**, and it was blind to exactly this code.
+
+  **T1 IS A BACKGROUND, NOT A ::before.** A pseudo-element needs `position: relative` on hosts
+  that are arbitrary case-study elements, and the `.cs-editable` rule is UNLAYERED, so a
+  `position` there would beat any @layer utilities position on the same element. A gradient sized
+  `3px 0%` -> `3px 100%` wipes top-down with no positioning and no stacking context. **Measured:
+  0 geometry deltas across all 98 editable elements**, selecting and deselecting, and parity
+  clean on all three studies that yield pairs.
+
+  **THE TAG READ "Editing · Edit hero title".** All 12 labels come from `inlineEditProps` and all
+  start with "Edit ", because that string was written to be an ACCESSIBLE NAME on a
+  contentEditable, where it is exactly right. Stripped for DISPLAY only; the textarea still
+  carries the full label. **#255's lesson in the other direction** — there, shortening the
+  visible label silently shortened the accessible one.
+
+  **TWO OF THIS SUITE'S OWN ASSERTIONS WERE WRONG FIRST**, both from matchers that cannot see
+  nesting. A fallback check using `[^)]+` truncated `cubic-bezier(0.34,1.35,0.5,1)` at its inner
+  paren; and a block extractor using `[\s\S]*?\n\}` closed the `@media` at the first nested
+  rule and asserted on the fragment — then a proximity lookahead matched a BLOG reduced-motion
+  block whose neighbour happened to contain `.studio-chrome`. **Three reduced-motion blocks of
+  the seventeen in that stylesheet would have satisfied it.** Both are balanced-brace scans now,
+  anchored on the first selector. Same family as `studio-ink` C2's `<input\b[^>]*>` stopping at
+  the `=>` inside a ref arrow. Eight mutations kill eight assertions.
+
+  **OPEN, NOT CHANGED: the PublishBar overlaps the dock by 18px, 6px of it over the textarea.**
+  That is the existing PublishBar hazard now landing on a surface you type into rather than on a
+  static save bar. Left alone for the same reason it was left alone in #248 — changing it moves
+  the reference — but it is worse here and it is the owner's call.
 
 - **#257** the tab hint, and the spacing that turned out to be a drawing's own furniture →1707
   (`studio-labels` 34→38, new section G). **PR 4 of 4, and it closes the inspector audit.**

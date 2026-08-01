@@ -1,0 +1,253 @@
+// STUDIO MOTION TIERS — the token block, and every rule that makes it honest.
+//
+// Modelled on `studio-ink` section F, which polices the radius scale, because this block is the
+// radius scale's twin: scoped custom properties in `.studio-chrome`, consumed through arbitrary
+// values with a literal fallback, never leaking into public code. The failure modes are the
+// same three, so the assertions are the same three.
+//
+// WHAT THIS SUITE EXISTS TO CATCH, in the order the mistakes were actually available:
+//
+//   1. A SECOND NAME FOR A VALUE THAT ALREADY HAS ONE. `--ease-glide` in the contract is
+//      byte-identical to @theme's `--ease-out-expo`. Declaring it would have been undetectable
+//      by any existing gate and would have left two names drifting apart.
+//   2. A SHADOWING REDEFINITION. `--ease-spring` exists in @theme with a DIFFERENT value.
+//      Declaring it inside `.studio-chrome` would silently redefine it for the whole studio.
+//      Nothing consumes it today, which is why this would have gone unnoticed rather than why
+//      it would have been harmless.
+//   3. A UTILITY THAT EMITS NOTHING. `--duration-*` is not a Tailwind v4 namespace; four public
+//      elements already ship `duration-[--duration-base]` compiling to an invalid declaration.
+//      D below is the studio's half of that, and the public half is a recorded hazard.
+//
+// Every value is read from source. Nothing here is a list of the sites that happen to exist.
+import { readFileSync, readdirSync } from "node:fs";
+
+let pass = 0;
+let fail = 0;
+const t = (name, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  if (ok) {
+    pass++;
+    console.log(`  [PASS] ${name}`);
+  } else {
+    fail++;
+    console.log(`  [FAIL] ${name}`);
+    console.log(`     got  ${JSON.stringify(got)}`);
+    console.log(`     want ${JSON.stringify(want)}`);
+  }
+};
+
+const read = (p) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8");
+// Comments are stripped before any census. THE COMMENT TRAP HAS FIRED FOUR TIMES in this repo
+// (#239, #240, #248, and the radius scale's own `rounded` prose), and this file's own header
+// names every token it is about — so reading raw source here would count the documentation.
+const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+
+// BALANCED EXTRACTION, BECAUSE `[^)]` AND `[\s\S]*?\}` BOTH LIE ON NESTED INPUT.
+// Two of this suite's own assertions shipped wrong on the first run and were caught here:
+// a fallback regex using `[^)]+` truncated `cubic-bezier(0.34,1.35,0.5,1)` at its inner paren,
+// and a block regex using `[\s\S]*?\n\}` closed the @media at the FIRST nested rule's brace
+// and then asserted on the fragment. Same family as `studio-ink` C2's `<input\b[^>]*>` stopping
+// at the `=>` inside a ref arrow. A matcher that cannot see nesting reports confidently on the
+// wrong text, so both are balanced counts now rather than patterns.
+const balanced = (src, startIdx, open, close) => {
+  let depth = 0;
+  for (let i = startIdx; i < src.length; i++) {
+    if (src[i] === open) depth++;
+    else if (src[i] === close) {
+      depth--;
+      if (depth === 0) return src.slice(startIdx, i + 1);
+    }
+  }
+  return "";
+};
+const blockAt = (src, re) => {
+  const m = re.exec(src);
+  if (!m) return "";
+  const brace = src.indexOf("{", m.index);
+  return brace < 0 ? "" : balanced(src, brace, "{", "}");
+};
+const css = read("app/globals.css");
+const cssNoComments = strip(css);
+
+const studioFiles = [];
+const walk = (dir) => {
+  for (const e of readdirSync(new URL(`../../${dir}`, import.meta.url), { withFileTypes: true })) {
+    if (e.isDirectory()) walk(`${dir}/${e.name}`);
+    else if (/\.tsx?$/.test(e.name)) studioFiles.push(`${dir}/${e.name}`);
+  }
+};
+walk("components/studio");
+walk("app/studio");
+
+console.log("\nstudio-motion");
+
+/* ================================================================= A. THE BLOCK ITSELF */
+
+// The declared block, taken as text so every later section derives from it rather than from a
+// list written here.
+const BLOCK = blockAt(cssNoComments, /\.studio-chrome\s*\{(?=[^}]*--studio-ease-settle)/);
+const declared = [...BLOCK.matchAll(/(--studio-[a-z0-9-]+)\s*:\s*([^;]+);/g)].map((m) => [
+  m[1],
+  m[2].trim(),
+]);
+const names = declared.map(([n]) => n);
+
+t("A1: the motion block exists and is scoped to .studio-chrome, not :root", BLOCK !== "", true);
+t("A2: it declares every tier — t0 through t4, the dismiss, both distances, one easing",
+  names.length, 13);
+
+// A3 — THE TIER RAMP. The tiers are an ORDER before they are durations, so the order is what is
+// asserted: the lead is quicker than the structure, the echo sits between them, and the dismiss
+// is decisively faster than the entrance it undoes. A drawing can be copied wrong; a ramp cannot
+// be satisfied by accident.
+const ms = (n) => Number((declared.find(([k]) => k === n)?.[1] ?? "").replace("ms", ""));
+t("A3: T1 is quicker than T2 — the lead resolves before the structure it leads",
+  ms("--studio-t1") < ms("--studio-t2"), true);
+t("A3: T3 sits between them — an echo, not an event",
+  ms("--studio-t3") > ms("--studio-t1") && ms("--studio-t3") < ms("--studio-t2"), true);
+t("A3: the delays are a strict ramp — t2 < t3 < t4a < t4b, so the eye is given an order",
+  [ms("--studio-t2-delay"), ms("--studio-t3-delay"), ms("--studio-t4a"), ms("--studio-t4b")],
+  [40, 90, 150, 190]);
+t("A3: dismiss is under half of T2 — an exit that mirrors its entrance reads as undoing",
+  ms("--studio-out") * 2 < ms("--studio-t2"), true);
+
+/* ================================================================= B. WHAT IS DELIBERATELY ABSENT
+ * The two easings the contract asked for and neither of which is declared. This section is the
+ * reason the suite exists: both would have been invisible to every other gate. */
+
+t("B1: `--ease-glide` is NOT declared — it is byte-identical to @theme's --ease-out-expo",
+  /--ease-glide\s*:/.test(cssNoComments), false);
+
+// B2 — AND THE VALUE IT WOULD HAVE DUPLICATED IS STILL THERE, unchanged. Asserting only the
+// absence would pass just as well if someone deleted --ease-out-expo instead, which is the
+// opposite of the intent.
+t("B2: …and --ease-out-expo still holds that value, so the tiers have something to point at",
+  /--ease-out-expo:\s*cubic-bezier\(0\.16,\s*1,\s*0\.3,\s*1\)/.test(cssNoComments), true);
+
+// B3 — THE SHADOWING ONE. `--ease-spring` may exist in @theme; it must NOT be redeclared inside
+// the studio block, where it would silently redefine the theme token for every descendant.
+t("B3: the studio block does NOT redeclare `--ease-spring` — that would shadow @theme's",
+  /--ease-spring\s*:/.test(BLOCK), false);
+t("B3b: …and the studio's own spring is named distinctly",
+  /--studio-ease-settle:\s*cubic-bezier\(/.test(BLOCK), true);
+
+// B4 — THE TWO SPRINGS ARE GENUINELY DIFFERENT VALUES. If they ever converge, B3's distinct name
+// becomes the very duplication B1 forbids, and the honest fix flips to reusing @theme's.
+const themeSpring = css.match(/--ease-spring:\s*(cubic-bezier\([^)]*\))/)?.[1]?.replace(/\s/g, "");
+const studioSpring = BLOCK.match(/--studio-ease-settle:\s*(cubic-bezier\([^)]*\))/)?.[1]?.replace(/\s/g, "");
+t("B4: the two springs differ — a distinct name is only honest while the value is distinct",
+  themeSpring !== undefined && studioSpring !== undefined && themeSpring !== studioSpring, true);
+
+/* ================================================================= C. EVERY USE CARRIES ITS FALLBACK
+ * `studio-ink` F3's rule, and F3's lesson: its own first regex could never fire and only mutation
+ * testing caught it. A bare `var(--studio-t1)` degrades to NOTHING when the token is out of
+ * scope; with the literal it degrades to the right number. */
+
+const uses = [];
+for (const f of studioFiles) {
+  const src = strip(read(f));
+  for (const m of src.matchAll(/var\(\s*(--studio-(?:t\d|out|rise|detail|ease-settle)[a-z0-9-]*)\s*([,)])/g)) {
+    uses.push({ file: f, token: m[1], hasFallback: m[2] === "," });
+  }
+}
+
+t("C1: the tokens are actually consumed — a block nothing reads is a block that cannot be wrong",
+  uses.length > 0, true);
+t("C2: EVERY use carries a literal fallback — no bare `var(--studio-…)` anywhere in studio",
+  uses.filter((u) => !u.hasFallback).map((u) => `${u.file} — ${u.token}`), []);
+
+// C3 — AND THE FALLBACK EQUALS THE DECLARED VALUE. A fallback that disagrees is worse than none:
+// it renders one number in the studio and a different one anywhere the scope does not reach,
+// which is precisely the drift the literal was added to prevent.
+const wrongFallback = [];
+const norm = (v) => v.replace(/\s/g, "");
+for (const f of studioFiles) {
+  const src = strip(read(f));
+  for (const m of src.matchAll(/var\(\s*(--studio-[a-z0-9-]+)\s*,/g)) {
+    const declaredValue = declared.find(([k]) => k === m[1])?.[1];
+    if (declaredValue === undefined) continue;
+    // Take the whole var(...) by balance, then everything after the first comma is the fallback.
+    const whole = balanced(src, src.indexOf("(", m.index), "(", ")");
+    const fallback = whole.slice(whole.indexOf(",") + 1, -1).trim();
+    if (norm(fallback) !== norm(declaredValue)) {
+      wrongFallback.push(`${f} — ${m[1]} falls back to ${fallback}, declared ${declaredValue}`);
+    }
+  }
+}
+t("C3: every fallback equals its declared value — a disagreeing fallback renders two numbers",
+  wrongFallback, []);
+
+/* ================================================================= D. NO DEAD UTILITY FAMILY
+ * `duration-*` resolves from --transition-duration-*, `delay-*` from --transition-delay-*. A
+ * `duration-[--studio-t1]` — bracket-bare, no var() — compiles to an INVALID declaration the
+ * browser drops, and no existing gate catches it. Four public sites ship exactly that shape
+ * today; this keeps the studio out of that set. */
+
+const bareBracket = [];
+for (const f of studioFiles) {
+  const src = strip(read(f));
+  for (const m of src.matchAll(/(duration|delay|ease|translate-y)-\[--[a-z0-9-]+\]/g)) {
+    bareBracket.push(`${f} — ${m[0]} emits an invalid declaration, use [var(--…,fallback)]`);
+  }
+}
+t("D1: no bracket-bare motion utility in studio — that shape compiles to nothing", bareBracket, []);
+
+/* ================================================================= E. REDUCED MOTION, BOTH HALVES
+ * The global `*` reset zeroes transition-duration and NOT transition-delay. With four delay
+ * tokens that is a dead pause followed by a snap. */
+
+// ANCHORED ON THE FIRST SELECTOR, not on "contains .studio-chrome within N chars". There are 17
+// reduced-motion blocks in this stylesheet, and a proximity lookahead matched a BLOG one whose
+// neighbour happened to hold the string — then every E assertion ran against the wrong block and
+// reported false. `{` immediately followed by the selector is the only reading that cannot drift
+// with what sits nearby.
+const reduceBlock = blockAt(cssNoComments, /@media \(prefers-reduced-motion: reduce\)\s*\{(?=\s*\.studio-chrome)/);
+t("E1: a studio-scoped reduce block exists", reduceBlock !== "", true);
+t("E2: it zeroes transition-delay, which the global `*` reset does not",
+  /transition-delay:\s*0ms\s*!important/.test(reduceBlock), true);
+t("E2b: …and animation-delay with it", /animation-delay:\s*0ms\s*!important/.test(reduceBlock), true);
+
+// E3 — THE DISTANCES ZERO TOO, and this is the half that keeps the final state pixel-identical.
+// Zeroing a duration makes a translate INSTANT, not ABSENT; the offset has to stop existing.
+t("E3: both distances zero under reduce — a duration of 0 lands an offset instantly, not nowhere",
+  /--studio-rise:\s*0px/.test(reduceBlock) && /--studio-detail:\s*0px/.test(reduceBlock), true);
+
+// E4 — SCOPED, NOT GLOBAL. Widening the `*` reset would change PUBLIC reduced-motion behaviour
+// from inside a studio change. The shared seam is the obvious home and the wrong one.
+t("E4: the delay reset is scoped to .studio-chrome, not added to the global `*` rule",
+  /\.studio-chrome \*/.test(reduceBlock), true);
+const globalReset = blockAt(cssNoComments, /@media \(prefers-reduced-motion: reduce\)\s*\{(?=\s*\*,)/);
+t("E4b: …and the global reset is left alone, still zeroing duration and scroll-behavior only",
+  /transition-duration/.test(globalReset) &&
+    /scroll-behavior:\s*auto\s*!important/.test(globalReset) &&
+    !/transition-delay/.test(globalReset),
+  true);
+
+/* ================================================================= F. NO LEAK INTO PUBLIC CODE
+ * `studio-ink` F6's rule. A studio token reaching a case-study or blog component would move a
+ * corner — or here, a duration — on the live site from a block scoped to an admin surface. */
+
+const PUBLIC_DIRS = ["components/case-study", "components/blog", "app/(portfolio)"];
+const leaks = [];
+for (const dir of PUBLIC_DIRS) {
+  const files = [];
+  const w = (d) => {
+    for (const e of readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true })) {
+      if (e.isDirectory()) w(`${d}/${e.name}`);
+      else if (/\.tsx?$/.test(e.name)) files.push(`${d}/${e.name}`);
+    }
+  };
+  w(dir);
+  for (const f of files) if (/--studio-t\d|--studio-out|--studio-rise|--studio-detail|--studio-ease/.test(read(f))) leaks.push(f);
+}
+t("F1: zero studio motion tokens in public component code", leaks, []);
+
+// F2 — THE ONE DELIBERATE EXCEPTION, STATED. `.cs-editable` lives in globals.css and is studio-
+// only by emission (the case-study components add the class only when `editable`), but the RULE
+// is global, so it reads --studio-t1 with a fallback. That fallback is what makes it correct
+// outside `.studio-chrome` — on /dev/parity, which renders `editable` with no studio shell.
+t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .studio-chrome too",
+  /background-size var\(--studio-t1,\s*220ms\)/.test(cssNoComments), true);
+
+console.log(`\nstudio-motion result: ${pass} passed, ${fail} failed`);
+process.exit(fail === 0 ? 0 : 1);

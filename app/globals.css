@@ -1731,24 +1731,43 @@ a {
    is the whole point: several fields sit in places nobody would think to click.
    OUTLINE, not border, so adding it cannot shift the canvas layout by a pixel.
    currentColor keeps it legible on both the cream cards and the dark hero band. */
+/* T1 · THE LEAD — the accent bar, and it is a BACKGROUND rather than a ::before.
+   A pseudo-element would need `position: relative` on the host, and the hosts here are
+   arbitrary <p>/<div>/<span> emitted by the case-study components. This rule is UNLAYERED,
+   so a `position` declared here would beat any @layer utilities position on the same
+   element — the studio-cascade mechanism, pointed at the canvas. A background gradient
+   sized `3px 0%` -> `3px 100%` wipes top-down with no positioning, no pseudo-element and
+   no stacking context, so it cannot move a box BY CONSTRUCTION. Same constraint `outline`
+   was chosen for below, and the one DeviceImage's wrapper <span> violated when it
+   collapsed a 760px frame to ~90px. */
 .cs-editable {
   cursor: text;
   border-radius: 4px;
   outline: 1px dashed color-mix(in oklch, currentColor 32%, transparent);
   outline-offset: 3px;
-  transition: outline-color .15s ease, background-color .15s ease;
+  background-image: linear-gradient(var(--color-accent-500), var(--color-accent-500));
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-size: 3px 0%;
+  transition: outline-color .15s ease, background-color .15s ease,
+    background-size var(--studio-out, 130ms) var(--ease-out-expo);
 }
 .cs-editable:hover {
   outline-color: color-mix(in oklch, var(--color-accent-500) 55%, transparent);
 }
-/* The selected state. Driven by an explicit class rather than :focus, because the
-   Selected rail takes focus the moment you click into it — a focus-based highlight
-   would vanish exactly while you were editing the field it points at. Focus keeps the
-   same treatment so keyboard users still see where they are. */
+/* The selected state. Driven by an explicit class rather than :focus, because the dock
+   takes focus the moment you click into it — a focus-based highlight would vanish exactly
+   while you were editing the field it points at. Focus keeps the same treatment so
+   keyboard users still see where they are.
+   THE BAR DRAWS ITSELF HERE, at T1 with no delay. It is the only tier that draws rather
+   than fades, and it answers "what did I click", so it answers first. */
 .cs-editable.is-selected,
 .cs-editable:focus {
   outline: 1px solid var(--color-accent-500);
   background-color: color-mix(in oklch, var(--color-accent-500) 8%, transparent);
+  background-size: 3px 100%;
+  transition: outline-color .15s ease, background-color .15s ease,
+    background-size var(--studio-t1, 220ms) var(--ease-out-expo);
 }
 
 .canvas-surface {
@@ -2724,6 +2743,100 @@ a {
   /* ANYTHING A PERSON CLICKS OR TYPES INTO — inputs, textareas, buttons, icon buttons,
      chips, thumbnails, segmented options. The smallest step, and the most common. */
   --studio-radius-control: 4px;
+}
+
+/* ============================================================ STUDIO MOTION TIERS
+   Scoped to /studio beside the radius scale and for the same reason: these serve the
+   studio's selection choreography, @theme serves the public site, and a change to either
+   must not drag the other.
+
+   WHAT IS NOT HERE MATTERS MORE THAN WHAT IS.
+
+   `--ease-glide` IS NOT DECLARED. The selection contract asks for cubic-bezier(.16,1,.3,1);
+   @theme's `--ease-out-expo` IS cubic-bezier(0.16, 1, 0.3, 1), BYTE-IDENTICAL. A second
+   name for a value that already has an honest one is a second place to drift — the GROUND
+   LADDER block below refuses exactly this. Every tier that glides uses `--ease-out-expo`.
+
+   `--ease-spring` IS NOT DECLARED EITHER, AND THAT ONE IS A TRAP RATHER THAN A DUPLICATE.
+   @theme already holds `--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1)`; the contract
+   wants cubic-bezier(.34,1.35,.5,1) UNDER THE SAME NAME. Declaring it here would silently
+   SHADOW the theme token for everything inside .studio-chrome. Nothing consumes
+   `ease-spring` today — which is precisely why the shadowing would have gone UNNOTICED,
+   not why it would have been harmless. Hence `--studio-ease-settle`.
+
+   AND THE NAMES ARE NOT `--duration-*`, WHICH IS NOT A TAILWIND v4 NAMESPACE. `duration-*`
+   resolves from `--transition-duration-*` and `delay-*` from `--transition-delay-*`. Four
+   public-site elements ship `duration-[--duration-base]` TODAY and compile to
+   `transition-duration:--duration-base`, an invalid declaration the browser drops —
+   verified in the production CSS, not inferred. Consumed the way the radius scale is,
+   `duration-[var(--studio-t1,220ms)]`, every use carrying its literal fallback so a
+   missing token degrades to the right number rather than to nothing.
+
+   NAMED BY TIER, NOT BY SIZE, because the ORDER is the design. `--studio-duration-medium`
+   would say what a value is worth and nothing about when to reach for it. */
+.studio-chrome {
+  /* THE ONLY THING THAT SPRINGS. The dock is the only element travelling far enough for a
+     settle to read — a 6px detail on a spring is a wobble, a 20px panel is weight. */
+  --studio-ease-settle: cubic-bezier(0.34, 1.35, 0.5, 1);
+
+  /* T0 · THE REVEAL — the conditional scroll, CANVAS ONLY. Fires only when the target is
+     out of view. See `revealIfNeeded` in SectionsEditPanel for why the inspector is not
+     driven: its rows fold by default, so it would scroll to something hidden. */
+  --studio-t0: 420ms;
+  /* T1 · THE LEAD — the canvas element's accent bar, which draws itself rather than
+     fading. It answers "what did I click", so it answers first. Its delay is 0 and is
+     deliberately NOT tokenised: a token whose only value is the property's initial value
+     is a name with nothing behind it. */
+  --studio-t1: 220ms;
+  /* T2 · THE STRUCTURE — the dock. Slower and larger than the lead because it is a bigger
+     object; a big thing moving at a small thing's speed reads as weightless. */
+  --studio-t2: 340ms;
+  --studio-t2-delay: 40ms;
+  /* T3 · THE ECHO — the form field's mark, fading in place. Deliberately quieter than T1;
+     if it competed the eye would not know which one was the answer. */
+  --studio-t3: 260ms;
+  --studio-t3-delay: 90ms;
+  /* T4 · THE DETAILS — the dock's tag, then its field, so the dock ARRIVES AND THEN FILLS
+     rather than appearing whole. Two delays, one duration. */
+  --studio-t4: 280ms;
+  --studio-t4a: 150ms;
+  --studio-t4b: 190ms;
+  /* DISMISS — 40% of T2, everything at once, no stagger and no overshoot. An exit that
+     mirrors its entrance makes dismissing feel like undoing. */
+  --studio-out: 130ms;
+
+  /* THE TWO DISTANCES. Applied as the FROM state only, never as the resting state, so
+     zeroing a duration lands the element where it belongs rather than 20px off it. */
+  --studio-rise: 20px;
+  --studio-detail: 6px;
+}
+
+/* REDUCED MOTION, AND THE GLOBAL RESET DOES NOT COVER THIS ON ITS OWN.
+   The `*` reset zeroes `transition-duration` but NOT `transition-delay`. With four delay
+   tokens that leaves a 190ms dead pause followed by a snap — jank rather than stillness,
+   and worse than the motion it replaces.
+
+   SCOPED TO .studio-chrome RATHER THAN WIDENED INTO THE GLOBAL `*` RESET, because adding
+   transition-delay there would change PUBLIC reduced-motion behaviour from inside a studio
+   change. The shared seam is the obvious home for this and the wrong one. The public gap
+   is real and is recorded as a hazard rather than fixed here.
+
+   THE DISTANCES ZERO TOO, and that half is not optional: zeroing a duration makes a
+   translate INSTANT, not ABSENT, so the offset has to stop existing rather than stop
+   animating. That is what keeps the final state pixel-identical in both modes — #198's
+   guard, and the reason this is CSS transitions rather than a motion library. */
+@media (prefers-reduced-motion: reduce) {
+  .studio-chrome,
+  .studio-chrome *,
+  .studio-chrome *::before,
+  .studio-chrome *::after {
+    transition-delay: 0ms !important;
+    animation-delay: 0ms !important;
+  }
+  .studio-chrome {
+    --studio-rise: 0px;
+    --studio-detail: 0px;
+  }
 }
 
 /* ============================================================ STUDIO GROUND LADDER
