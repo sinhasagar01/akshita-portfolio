@@ -353,7 +353,16 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
 
   // BESPOKE, LOADING AND ERROR KEEP A PLAIN PANEL. None of them has sections to navigate, so a
   // three-pane shell would be two empty panes beside a notice. Only the loaded state composes it.
-  if (bespoke || sectionsStatus !== "loaded" || !sectionsData) {
+  // BESPOKE NO LONGER FALLS BACK — it goes to the shell with zero sections, which is what
+  // hazard 29 was about. LOADING AND ERROR STILL DO, and that is why the frame and the page
+  // padding below survive: `studio-ink` E1b asserts BOTH on this file, and I expected to have to
+  // retire it. I did not. The frame belongs to the wrapper all three branches share, so removing
+  // one branch's CONDITION leaves the markup, and the rule E1b encodes — a panel that is not in a
+  // shell keeps its frame — still has two subjects.
+  // BESPOKE SKIPS THIS ENTIRELY RATHER THAN SATISFYING IT. Its fetch is gated off, so
+  // `sectionsStatus` never leaves "idle" and `sectionsData` stays null — a bespoke study can never
+  // be "loaded" and asking it to be would mean faking a load that did not happen.
+  if (!bespoke && (sectionsStatus !== "loaded" || !sectionsData)) {
     return (
       // ---- THIS ONE KEEPS ITS FRAME, AND THAT IS THE POINT OF SCOPING THE CHANGE ----------
       //
@@ -390,22 +399,10 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
         </header>
         {detailsNode}
         <div className="px-4 pb-5">
-          {bespoke ? (
-          <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
-            <p className="font-display text-[15px] text-ink-950">Hand-built case study</p>
-            {/* THE MEASURE IS ON THE WRAPPER, NOT THE <p>. `max-w-[46ch]` on the paragraph
-                itself rendered 68ch — the unlayered `p { max-width: 68ch }` reset beats any
-                layered utility, and re-asserting it scoped does not help, because an unlayered
-                `.studio-chrome p` would beat the utility too. The constraint has to sit on an
-                element the reset does not name. Found by ralph's studio-cascade suite. */}
-            <div className="mx-auto mt-2 max-w-[46ch]">
-              <p className="text-[14px] leading-relaxed text-ink-600">
-                {title} is a bespoke, hand-coded showpiece. Its sections and its work-filter
-                category are set in code, not here. The details above stay editable.
-              </p>
-            </div>
-          </div>
-          ) : sectionsStatus === "error" ? (
+          {/* THE BESPOKE NOTICE MOVED INTO THE RAIL, where the sections would be. That is where
+              an author looks for sections, so that is where the answer belongs — not floating in
+              a canvas that now has a job. Only LOADING and ERROR reach this fallback. */}
+          {sectionsStatus === "error" ? (
           <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
             <p className="text-[14px] text-accent-600">Could not load the sections.</p>
             <button
@@ -429,9 +426,15 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
 
   return (
     <SectionsEditPanel
+      bespoke={bespoke}
       slug={slug}
       title={title}
-      sections={sectionsData}
+      /* THE `?? []` IS UNREACHABLE FOR A NORMAL STUDY AND IS NOT DEAD CODE. The guard above
+         returns unless `sectionsData` is non-null OR the study is bespoke, so the false arm
+         cannot be null in practice — but the guard's condition mentions `bespoke`, so the
+         narrowing does not survive it and the type is honestly `| null` here. A non-null
+         assertion would silence that rather than answer it. */
+      sections={bespoke ? [] : (sectionsData ?? [])}
       template={templateValue}
       draftImages={draftImages}
       detailsNode={detailsNode}

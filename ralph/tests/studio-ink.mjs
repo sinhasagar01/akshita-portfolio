@@ -861,7 +861,14 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // is `border-radius: 99px`. So this is the shape being COPIED faithfully rather than a new
     // one appearing: the preview would be wrong with square tabs. One literal, inside a map over
     // the three filters. F5e names the site.
-    t("F5: the 31 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 31);
+    // REVALUED 31 -> 32 IN THE BESPOKE PR. The "Hand-built" chip in the crumb row is a pill
+    // because it sits BESIDE the template chip, which has always been one — two chips in a row,
+    // one shape. Its ground is accent-tinted rather than neutral, because it is a different KIND
+    // of fact: the template chip says how the study renders, this says who renders it. F5f names it.
+    t("F5: the 32 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 32);
+    t("F5f: …and the 32nd is the Hand-built chip, beside the template chip it matches in shape",
+      /rounded-full border border-accent-500\/35[\s\S]{0,120}Hand-built/.test(
+        code("components/studio/SectionsEditPanel.tsx")), true);
     t("F5e: …and the 31st is the filter-row preview, which copies the public tab's own radius",
       /rounded-full border px-3 py-1 text-\[12px\] font-semibold capitalize/.test(
         code("components/studio/DetailsCanvas.tsx")), true);
@@ -1662,6 +1669,61 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /FILTERS\.map/.test(canvas) && /Filter row/.test(canvas), true);
   t("C12: …and NO surface is invented for `type`",
     /facts: \{ role: "", type: "", platform, timeline: "" \}/.test(canvas), true);
+}
+
+/* ---- C13 · THE BESPOKE THREE-PANE — HAZARD 29 --------------------------------------------
+ * boat-crest is hand-built, `BESPOKE_SLUGS` gates the fetch, and opening it showed "the details
+ * strip and a read-only notice, AND NOTHING ELSE" — on the FIRST slug alphabetically, the
+ * canonical example everywhere in this repo. It read as a broken editor rather than a different
+ * kind of study, and it had already cost coverage once. */
+{
+  const panel = code("components/studio/SectionsEditPanel.tsx");
+  const projects = code("components/studio/ProjectsEditPanel.tsx");
+  const rail = code("components/studio/SectionsRail.tsx");
+
+  /* DERIVED FROM `BESPOKE_SLUGS`, NEVER A SECOND LIST. A second list of bespoke slugs is the
+   * derivation-keyed-on-a-list failure E1b already produced once. */
+  t("C13: bespoke is read from BESPOKE_SLUGS, not re-listed",
+    /BESPOKE_SLUGS\.has\(slug\)/.test(projects)
+      && !/\["boat-crest"\]/.test(panel) && !/\["boat-crest"\]/.test(rail), true);
+
+  /* ONE SHELL, NOT A SECOND EDITOR. "A case study has ONE editor at ONE URL" is locked, and the
+   * `[slug]/body` route is what a second surface for the same content becomes. */
+  t("C13: a bespoke study goes through the SAME shell, with the sections machinery suppressed",
+    /bespoke=\{bespoke\}/.test(projects) && /bespoke\?: boolean;/.test(panel), true);
+  t("C13: …and it is handed an empty sections array rather than a faked load",
+    /sections=\{bespoke \? \[\] : \(sectionsData \?\? \[\]\)\}/.test(projects), true);
+
+  /* NO BOARD, SO NO TOGGLE. A control that cannot do anything is worse than an absent one —
+   * ABSENT, not disabled, because a disabled toggle still asserts a Board exists. */
+  t("C13: no Editor|Board toggle on a bespoke study",
+    /\{!bespoke && \(\s*<>/.test(panel), true);
+  t("C13: …and no Board either, since BESPOKE_SLUGS gates the write path its Add button would need",
+    /\{!bespoke && showBoard && boardNode\}/.test(panel), true);
+
+  /* ONE SAVE, NOT TWO. #200 INVERTED: its defect was two buttons claiming to be the same action;
+   * this would be one button naming an object with nothing behind it. The write path would not
+   * have refused it honestly — only `delete-entry` carries a BESPOKE_SLUGS guard, and the
+   * serializer's refusal surfaces as a generic "Save failed. Try again.". */
+  t("C13: the sections save bar is absent on a bespoke study — it has no sections draft to commit",
+    /\{!bespoke && \(\s*<footer/.test(panel), true);
+
+  /* THE ZERO STATE IS THE WHOLE HAZARD. An empty list under a count heading is what a broken
+   * fetch looks like, so the rail states its zero and says why. */
+  t("C13: the rail states `none` rather than a bare 0 under a count heading",
+    /bespoke \? "Sections \\u00b7 none"/.test(rail) || /bespoke \? "Sections · none"/.test(rail), true);
+  t("C13: …and the notice lives in the RAIL, where an author looks for sections",
+    /Hand-built case study/.test(rail) && !/Hand-built case study/.test(projects), true);
+  t("C13: …and it says nothing FAILED, which is the difference the hazard turns on",
+    /Nothing failed to load/.test(rail), true);
+
+  /* THE SEARCH COPY WAS REACHABLE ON ANY EMPTY STUDY, not just this one. "No sections match that
+   * search" answered three different questions — none exist, none match, none at all. */
+  t("C13: the three zero states are separated, so an empty study is not told about a search",
+    /sections\.length === 0\s*\?\s*"No sections yet/.test(rail), true);
+
+  t("C13: the study announces what it is in the crumb row, before anyone looks for what is missing",
+    /\{bespoke && \([\s\S]{0,220}?Hand-built/.test(panel), true);
 }
 
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
