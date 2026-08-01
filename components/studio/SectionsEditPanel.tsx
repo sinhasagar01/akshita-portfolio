@@ -281,6 +281,26 @@ function setAtPath(value: unknown, path: string, next: string): unknown {
  *  real page instead of a squeezed version of it. */
 const CANVAS_WIDTH = 1280;
 
+/** Room for the card's own ring, which `overflow-hidden` was slicing off.
+ *
+ *  `.section-card`'s hairline is `box-shadow: 0 0 0 1px`, spread with no offset, so it extends
+ *  1px OUTSIDE the border box on every side. The card's top edge sat exactly on the pane's top
+ *  edge — measured, `cardTop - paneTop` was 0 — so the ring was drawn at -0.65 and the pane's
+ *  clip cut it, which reads as a slashed top border rather than as a missing one.
+ *  1px IS DERIVED, NOT PICKED. The ring is 1px times the scale, and the scale is capped at 1, so
+ *  a single unscaled pixel covers it at every canvas width. */
+const CANVAS_PAD_TOP = 1;
+
+/** 2rem below the card.
+ *
+ *  THE CARD'S OWN `margin-bottom: 28px` NEVER RENDERED HERE, which is why this is padding on the
+ *  pane rather than a change to that margin. `.container-x` has padding-inline only — no
+ *  padding-bottom, no border — so the last child's bottom margin COLLAPSES straight through it
+ *  and out of `offsetHeight`. Measured, the gap below the card was -0.19px, not the 18.09 that
+ *  28 times the scale would have given. Padding on the pane cannot collapse, and being outside
+ *  the transform it is a true 2rem at every scale instead of a shrinking one. */
+const CANVAS_PAD_BOTTOM = 32;
+
 /**
  * Render at CANVAS_WIDTH, then scale to whatever the pane actually is.
  *
@@ -317,7 +337,10 @@ function useFitToWidth() {
       // holds 50% and pans rather than collapsing to ~29% and staying complete but illegible.
       const next = Math.max(CS_MIN_SCALE, Math.min(1, pane.clientWidth / CANVAS_WIDTH));
       setScale(next);
-      setHeight(surface.offsetHeight * next);
+      // The pane's height is DRIVEN, so the padding has to be added here or it would be clipped
+      // by the very height that is meant to hold it — box-sizing is border-box, so an explicit
+      // height that ignored the padding would eat it rather than sit inside it.
+      setHeight(surface.offsetHeight * next + CANVAS_PAD_TOP + CANVAS_PAD_BOTTOM);
       // PUBLISHED FOR THE SIBLINGS DRAWN OUTSIDE THE SCALED BOX. The help strip has to
       // line up with the section card, and the card's on-screen inset is its own margin
       // plus `container-x`'s padding TIMES this scale — so a sibling cannot derive it
@@ -759,7 +782,7 @@ function SectionCanvas({
     // ground is passed to `ThreePaneShell` as `canvasGround` instead; see the call below.
     <div
       ref={paneRef}
-      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)]"
+      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)] pt-px pb-8"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}

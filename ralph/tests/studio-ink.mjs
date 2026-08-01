@@ -1222,5 +1222,41 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /\.canvas-static \.reveal-card\s*\{/.test(globals), true);
 }
 
+/* ---- C7 · THE PANE MAKES ROOM FOR THE RING IT WAS CLIPPING -----------------------------------
+ * `.section-card`'s hairline is `box-shadow: 0 0 0 1px` — spread, no offset — so it extends 1px
+ * OUTSIDE the border box. The card's top edge sat exactly on the pane's, measured `cardTop -
+ * paneTop` = 0, so the ring drew at -0.65 and `overflow-hidden` cut it. That reads as a SLASHED
+ * top border, not a missing one, which is why it looked like a shadow bug rather than a spacing
+ * one.
+ * 1px IS DERIVED. The ring renders at 1px times the scale and the scale is capped at 1, so one
+ * unscaled pixel covers it at every canvas width — verified at 0.646 (clearance 0.354) and at
+ * 0.836 (clearance 0.164), the widest the ring gets in practice.
+ * THE BOTTOM IS PADDING, NOT THE CARD'S MARGIN, and that distinction is the whole fix. The card
+ * declares `margin-bottom: 28px`, but `.container-x` has padding-inline only — no padding-bottom,
+ * no border — so that margin COLLAPSES straight through and out of `offsetHeight`. Measured, the
+ * gap below the card was -0.19px, never the 18.09 that 28 times the scale would give. Padding on
+ * the pane cannot collapse, and sitting outside the transform it is a true 2rem at every scale
+ * rather than a shrinking one. */
+{
+  const panel = code("components/studio/SectionsEditPanel.tsx");
+
+  t("C7: the pane reserves the ring's own width at the top",
+    /className="case-study canvas-static[^"]*\bpt-px\b/.test(panel), true);
+  t("C7: …and 2rem below the card",
+    /className="case-study canvas-static[^"]*\bpb-8\b/.test(panel), true);
+  t("C7: both are folded into the DRIVEN height, or the height would eat the padding",
+    /surface\.offsetHeight \* next \+ CANVAS_PAD_TOP \+ CANVAS_PAD_BOTTOM/.test(panel), true);
+  t("C7: the top constant is the 1px the ring needs, stated as a number not a guess",
+    /const CANVAS_PAD_TOP = 1;/.test(panel), true);
+  t("C7: …and the bottom constant is 2rem in px, outside the transform so it does not scale",
+    /const CANVAS_PAD_BOTTOM = 32;/.test(panel), true);
+
+  /* THE CARD'S OWN MARGIN IS UNTOUCHED — it is shared with the public route, where it does not
+   * collapse and does real work between stacked sections. Changing it to fix a studio clip would
+   * have moved every section gap on the live page. */
+  t("C7: `.section-card`'s shared margin-bottom is untouched — the public page stacks on it",
+    /margin-bottom: var\(--section-gap\);/.test(globals), true);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
