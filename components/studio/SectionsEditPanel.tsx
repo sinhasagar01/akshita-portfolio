@@ -749,10 +749,21 @@ function SectionCanvas({
     // already had, and `border: 0` existed only to cancel the `border border-ink-950/12`
     // written right here. Two declarations fighting to arrive at the browser default.
     // Deleting one alone would have CHANGED the render — drop the rule and the border
-    // comes back, drop the utility and nothing moves — which is why this is one edit.
+    // comes back, drop the utility and nothing moves — which is why that was one edit.
+    //
+    // `bg-cream-100` IS THE GROUND, AND IT IS A UTILITY ON PURPOSE. The card is cream-50
+    // and was sitting on a cream-50 pane at contrast 1.00 — the same colour — so its only
+    // edge was a 1px @ 8% hairline that the 0.646 canvas scale renders at 0.646px. The
+    // ground is what separates a card here, exactly as it does on the live route, where
+    // the hairline is a refinement on top of a sand ground rather than the separator
+    // itself. Cream-100 rather than that sand keeps the canvas in the STUDIO's palette;
+    // it is the quieter of the two and the owner picked it over matching the route.
+    // Written as a utility and not as a `.canvas-surface` rule so the ground and the
+    // radius and the clip all read from one place. A rule here is what let the last one
+    // drift into contradicting the className without either side looking wrong alone.
     <div
       ref={paneRef}
-      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)]"
+      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)] bg-cream-100"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}

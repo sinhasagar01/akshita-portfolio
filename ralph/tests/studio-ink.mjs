@@ -1172,5 +1172,37 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     [false, false]);
 }
 
+/* ---- C6 · THE CANVAS GROUND IS A UTILITY, AND `.canvas-surface` MUST NOT COME BACK ----------
+ * The old rule died reduced to `background-color: transparent; border: 0`, where NEITHER
+ * declaration did anything alone: nothing else painted that element, and `border: 0` existed only
+ * to cancel a `border` utility written on the same element. Two declarations fighting to reach the
+ * browser default, and neither side looked wrong on its own — which is exactly how it survived.
+ * The ground is back as `bg-cream-100` because the card is cream-50 and was sitting on a cream-50
+ * pane at contrast 1.00, the SAME COLOUR, leaving a 1px @ 8% hairline that the 0.646 canvas scale
+ * renders at 0.646px as the card's only edge. Cream-100 measures 1.05. Sand would match the live
+ * route at 1.35; the owner chose the quieter studio-palette ground over matching the route.
+ * Asserted as a utility, and asserted that no rule reclaims the property, because the failure mode
+ * here is not a wrong colour — it is the SPLIT returning. */
+{
+  const pane = /className="case-study canvas-static([^"]*)"/.exec(code("components/studio/SectionsEditPanel.tsx"))?.[1] ?? "";
+
+  t("C6: the canvas pane's class list was found — nothing below is a vacuous pass",
+    pane !== "", true);
+  t("C6: the ground is a real token utility, on the element it paints",
+    /\bbg-cream-100\b/.test(pane), true);
+  t("C6: …and the border utility that `border: 0` used to cancel is still gone",
+    /\bborder\b/.test(pane), false);
+  t("C6: NO `.canvas-surface` rule anywhere — a rule here is what let the last split hide",
+    /\.canvas-surface\s*\{/.test(globals), false);
+  t("C6: …and globals declares no background for the canvas pane at all",
+    /\.canvas-static\s*\{/.test(globals), false);
+
+  /* `.canvas-static .reveal-card` is UNRELATED and stays — it suppresses the in-view reveal
+   * because the canvas is a static panel. Asserted so a later sweep for "canvas rules" that
+   * reads the two names as one family cannot take it out with them. */
+  t("C6: the reveal-suppression rule survives, which is a different concern entirely",
+    /\.canvas-static \.reveal-card\s*\{/.test(globals), true);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
