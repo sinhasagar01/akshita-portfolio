@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — the Details contract</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE DETAILS CANVAS — the work card, previewed
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · radius 12/8/4 · the canvas renders the    ##
+  ##  PUBLIC component, never a copy of it.                               ##
+  ##########################################################################
+
+  ---- ITEM 1 · THE TEMPLATE / CATEGORY ROW ----------------------------
+  Small, self-contained, and shippable on its own. Each label sits ABOVE its
+  switch rather than beside it.
+
+    the two columns   flex-direction: column
+    each label        align-self: flex-start
+    the shared parent justify-content: space-between
+
+  Nothing else about the row changes — not the switch, not the actions beneath
+  it, not the ground. IT IS A LAYOUT CHANGE AND SHOULD BE SCOPED AS ONE.
+  ⚠ THESE TWO SWITCHES ARE `SegmentedToggle`, WHICH POSTS PATCHES. #164 records
+  a preserved quirk — `onChange?.(prev)` fires in the fs-noop revert branch —
+  so this is a shared component with two call sites and a ralph suite. A layout
+  change must not reach inside it.
+
+  ---- WHY THE WORK CARD, AND NOT SOMETHING ELSE ------------------------
+  Selecting Details today gives an EMPTY canvas beside a full inspector. The
+  five fields it edits — title, hero image, summary, type, platform — are
+  exactly what ONE public element renders: the project card in the work
+  section. Nothing else on the site shows all five and nothing else shows only
+  these.
+  So the canvas is not being given "something to display". It is being given
+  THE THING THOSE FIELDS ARE FOR.
+
+  ---- THE FINDING THAT DECIDES THE LAYOUT ------------------------------
+  ⚠ THE SUMMARY IS INVISIBLE AT REST. On the public work section the card shows
+  its image, its title and its platform label; THE SUMMARY ONLY APPEARS ON
+  HOVER, inside the overlay. So a canvas that draws one state cannot show a
+  field the inspector spends a whole textarea on.
+  BOTH STATES ARE DRAWN, SIDE BY SIDE, LABELLED. Not a hover you have to
+  discover — the author is editing the hover text, so the hover has to be
+  visible while they type.
+  This is the same shape as #198's finding: a defect that lives in the
+  COMPARISON rather than in either state, seen only by driving both.
+
+  ---- FIDELITY: THE SAME COMPONENT, NOT A COPY ------------------------
+  #178 established the rule for the blog canvas — it renders the article's own
+  components at the public measure, so what the author sees is what ships. The
+  same applies here: THE CANVAS RENDERS `ProjectCard` ITSELF, with values from
+  the draft form rather than from disk.
+  A hand-built lookalike would drift the first time the card changes, and it
+  would drift SILENTLY, which is the failure this project has spent the most
+  gates on.
+  ⚠ AND `ProjectCard` HAS A LIVE STOPGAP THAT WILL FIRE HERE. Hazard 21:
+  `HERO_IMAGE_UNSUITABLE` still lists `elevate-one-view`, so that card renders
+  the hand-built mock rather than its uploaded hero — and its comment describes
+  a 390x988 portrait that no longer exists. On the canvas that will look like
+  the upload did not work. Whoever builds this meets the hazard.
+
+  ---- THE FIELD MAP, AND ONE FIELD THAT DOES NOT RENDER ---------------
+    title       the card's title, under the image
+    heroImage   the card's image
+    summary     the hover overlay's body text
+    platform    the dot label — "WEB", "MOBILE · ANDROID AND IOS"
+    category    NOT ON THE CARD. It decides which filter tab the card appears
+                under, so its preview is the FILTER ROW rather than the card.
+    type        NOT ON THE CARD AT ALL, on any surface this canvas can draw.
+
+  TWO FIELDS THAT DO NOT APPEAR ON THE CARD IS NOT A GAP TO PAPER OVER. The
+  filter row is drawn because `category` genuinely has a public consequence and
+  it is cheap to show. `type` is not drawn, and the honest thing is to say so
+  rather than invent a surface for it.
+
+  ---- INLINE EDITING: NOT IN THE FIRST PASS ---------------------------
+  `inlineEditProps` exists and the mechanism is proven, but the card's title
+  sits inside a block-level `<Link>` (locked decision, #160) and making text
+  inside a link editable is a real interaction problem rather than an attribute.
+  THE CANVAS TRACKS THE INSPECTOR LIVE; the inspector stays the one place these
+  fields are written. Same posture as the blog head, which #190 made
+  preview-only for a comparable reason.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-panel:12px; --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:30px 26px 80px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 24px;max-width:94ch}
+.sub b{color:var(--ink-950)}
+
+.frame{display:flex;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden;
+  width:1180px;max-width:100%;background:var(--cream-50)}
+
+/* the canvas */
+.canvas{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--cream-50)}
+.cvbar{height:38px;flex:none;display:flex;align-items:center;gap:9px;padding:0 14px;
+  border-bottom:1px solid var(--rule);font:500 12px/1 var(--sans);color:var(--ink-600)}
+.cvbar .back{width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);color:var(--ink-600);font-size:10px}
+.stage{flex:1;min-height:0;overflow-y:auto;padding:22px 24px 26px}
+.hint{font:400 11px/1.6 var(--sans);color:var(--subtle);margin:0 0 18px}
+
+/* the filter row — category's only public consequence */
+.filters{display:inline-flex;gap:2px;background:var(--cream-100);border-radius:99px;padding:4px;
+  margin-bottom:20px}
+.filters span{font:600 10px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-600);padding:9px 14px;border-radius:99px}
+.filters span b{color:var(--ink-400);font-weight:500;margin-left:6px}
+.filters span.on{background:var(--ink-950);color:var(--cream-50)}
+.filters span.on b{color:var(--ink-400)}
+.filters span.match{box-shadow:inset 0 0 0 1px var(--accent)}
+
+.stateLbl{font:600 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 8px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* the card, as the public work section renders it */
+.pc{display:block;text-decoration:none;color:inherit}
+.shot{position:relative;aspect-ratio:16/10;border-radius:var(--r-card);overflow:hidden;
+  background:linear-gradient(135deg,oklch(62% .13 285),oklch(52% .16 300));
+  box-shadow:0 1px 2px oklch(14% .018 60/.08)}
+.shot .mock{position:absolute;inset:16% 10%;border-radius:5px;background:oklch(97% .01 260);
+  box-shadow:0 8px 22px -8px oklch(14% .018 60/.4);display:flex;flex-direction:column;overflow:hidden}
+.shot .mock .bar{height:9px;background:oklch(93% .012 260);display:flex;align-items:center;gap:3px;padding:0 5px}
+.shot .mock .bar i{width:3px;height:3px;border-radius:99px;background:oklch(75% .01 260)}
+.shot .mock .rows{flex:1;padding:6px;display:flex;flex-direction:column;gap:3px}
+.shot .mock .rows span{height:4px;border-radius:99px;background:oklch(90% .012 260)}
+.shot .mock .rows span:nth-child(3n){width:70%}
+.shot .mock .rows span:nth-child(4n){width:52%}
+
+.ovl{position:absolute;inset:0;padding:20px;display:flex;flex-direction:column;justify-content:flex-end;
+  background:linear-gradient(to top,oklch(14% .018 60/.86),oklch(14% .018 60/.5) 46%,transparent 78%);
+  opacity:0;transition:opacity 260ms var(--ease)}
+.ovl h4{font-family:var(--serif);font-weight:400;font-size:19px;color:#fff;margin:0 0 7px;
+  display:flex;align-items:center;gap:8px}
+.ovl p{font:400 12px/1.55 var(--sans);color:oklch(96% .01 80);margin:0}
+.pc.hov .shot .ovl{opacity:1}
+.pc.hov .shot{box-shadow:0 10px 26px -10px oklch(14% .018 60/.3)}
+.meta{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:11px}
+.meta h3{font-family:var(--serif);font-weight:400;font-size:19px;margin:0}
+.plat{display:inline-flex;align-items:center;gap:6px;font:500 9.5px/1 var(--sans);
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-600);white-space:nowrap}
+.plat i{width:6px;height:6px;border-radius:99px;background:oklch(62% .13 285)}
+
+/* the field-map key */
+.key{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.key span{display:inline-flex;align-items:center;gap:6px;background:var(--cream-100);
+  border-radius:var(--r-ctl);padding:6px 9px;font:500 11px/1 var(--sans);color:var(--ink-800)}
+.key span i{width:7px;height:7px;border-radius:2px;background:var(--accent);font-style:normal}
+.key span.off i{background:var(--ink-400)}
+.key span.off{color:var(--ink-600)}
+
+/* the inspector */
+.insp{width:340px;flex:none;background:var(--cream-100);border-left:1px solid var(--rule-edge);
+  display:flex;flex-direction:column}
+.tplrow{display:flex;justify-content:space-between;gap:14px;padding:14px;border-bottom:1px solid var(--rule);
+  background:var(--cream-200)}
+.tplcol{display:flex;flex-direction:column;gap:7px}
+.tplcol > b{align-self:flex-start;font:700 10px/1 var(--sans);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-600)}
+.sw{display:inline-flex;background:var(--cream-50);border-radius:var(--r-ctl);padding:3px;
+  box-shadow:0 1px 2px oklch(14% .018 60/.06)}
+.sw button{appearance:none;border:0;cursor:pointer;background:transparent;border-radius:3px;
+  font:600 12px/1 var(--sans);color:var(--ink-800);padding:8px 13px}
+.sw button[aria-pressed=true]{background:var(--accent);color:#fff}
+.acts{display:flex;justify-content:flex-end;gap:16px;padding:9px 14px;border-bottom:1px solid var(--rule);
+  background:var(--cream-200);font:500 12px/1 var(--sans);color:var(--ink-600)}
+.ibody{flex:1;min-height:0;overflow-y:auto;padding:13px 14px}
+.lbl{display:block;font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-600);margin-bottom:6px}
+.v1{width:100%;height:40px;padding:0 11px;font:400 13px/1 var(--sans);background:var(--cream-50);
+  border:1px solid var(--rule-edge);border-radius:var(--r-ctl);margin-bottom:5px}
+.ta{width:100%;min-height:74px;padding:9px 11px;font:400 13px/1.5 var(--sans);background:var(--cream-50);
+  border:1px solid var(--rule-edge);border-radius:var(--r-ctl);resize:none;margin-bottom:5px}
+.fhint{font:400 11px/1.5 var(--sans);color:var(--subtle);margin:0 0 13px}
+.thumb{width:100%;aspect-ratio:16/10;border-radius:var(--r-ctl);margin-bottom:8px;
+  background:linear-gradient(135deg,oklch(62% .13 285),oklch(52% .16 300))}
+
+.note{margin-top:16px;width:1180px;max-width:100%;font:400 12px/1.7 var(--sans);color:var(--subtle)}
+.note b{color:var(--ink-950)}
+.cols{display:flex;gap:28px;flex-wrap:wrap;margin-top:14px}
+.col{flex:1;min-width:270px}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<h1>The Details contract · the switch row, and the canvas</h1>
+<p class="sub">Selecting Details gives an <b>empty canvas beside a full inspector</b>. Its five fields — title, hero, summary, type, platform — are exactly what one public element renders: <b>the project card in the work section</b>. So the canvas is not being given something to display; it is being given the thing those fields are for. <b>Both hover states are drawn</b>, because the summary only exists on hover and the author is editing that text while they look at it.</p>
+
+<div class="frame">
+  <div class="canvas">
+    <div class="cvbar"><span class="back">‹</span>Details</div>
+    <div class="stage">
+      <p class="hint">Live preview — this is the card as the work section renders it. Edits in the inspector appear here as you type.</p>
+
+      <div class="filters">
+        <span class="on">All <b>4</b></span>
+        <span class="match">Web <b>2</b></span>
+        <span>Mobile <b>2</b></span>
+      </div>
+
+      <div class="pair">
+        <div>
+          <p class="stateLbl">At rest</p>
+          <a class="pc">
+            <div class="shot">
+              <div class="mock"><div class="bar"><i></i><i></i><i></i></div>
+                <div class="rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+              <div class="ovl"><h4>Fosfor AI →</h4><p>Designing an AI companion inside the Fosfor Decision Cloud.</p></div>
+            </div>
+            <div class="meta"><h3>Fosfor AI</h3><span class="plat"><i></i>Web</span></div>
+          </a>
+        </div>
+
+        <div>
+          <p class="stateLbl">Hovered — where the summary lives</p>
+          <a class="pc hov">
+            <div class="shot">
+              <div class="mock"><div class="bar"><i></i><i></i><i></i></div>
+                <div class="rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+              <div class="ovl"><h4>Fosfor AI →</h4><p>Designing an AI companion inside the Fosfor Decision Cloud that guides three kinds of users from question to decision.</p></div>
+            </div>
+            <div class="meta"><h3>Fosfor AI</h3><span class="plat"><i></i>Web</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="key">
+        <span><i></i>Title</span>
+        <span><i></i>Hero image</span>
+        <span><i></i>Summary — hover only</span>
+        <span><i></i>Platform</span>
+        <span><i></i>Category — the filter row</span>
+        <span class="off"><i></i>Type — renders nowhere</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="insp">
+    <div class="tplrow">
+      <div class="tplcol"><b>Template</b>
+        <span class="sw"><button aria-pressed="false">Mobile</button><button aria-pressed="true">Web</button></span>
+      </div>
+      <div class="tplcol"><b>Category</b>
+        <span class="sw"><button aria-pressed="false">Mobile</button><button aria-pressed="true">Web</button></span>
+      </div>
+    </div>
+    <div class="acts"><span>Preview</span><span>Cancel</span></div>
+    <div class="ibody">
+      <span class="lbl">Title</span><input class="v1" value="Fosfor AI" />
+      <p class="fhint">The project's identity, set when you add it.</p>
+      <span class="lbl">Hero image</span><div class="thumb"></div>
+      <span class="lbl">Summary</span>
+      <textarea class="ta">Designing an AI companion inside the Fosfor Decision Cloud that guides three kinds of users from question to decision.</textarea>
+      <p class="fhint">One sentence shown on the project card.</p>
+      <span class="lbl">Platform</span><input class="v1" value="Web" />
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <p class="h3">Item 1 — Template and Category, as drawn in the inspector above</p>
+  Each label sits <b>above</b> its switch rather than beside it, both columns are <code>flex-direction: column</code> with the label <code>align-self: flex-start</code>, and the shared parent is <code>justify-content: space-between</code>. That is the desired-design reference, built.
+
+  <div class="cols">
+    <div class="col">
+      <p class="h3">Why both hover states are drawn</p>
+      <b>The summary is invisible at rest.</b> The card shows its image, title and platform label; the summary only appears in the hover overlay. A canvas that draws one state cannot show a field the inspector spends a whole textarea on — and the author is editing that text while looking at it.
+      Same shape as #198's finding: a defect that lives in the <b>comparison</b> rather than in either state, visible only by driving both.
+    </div>
+    <div class="col">
+      <p class="h3">Two fields that do not render, stated rather than papered over</p>
+      <b>Category</b> is not on the card — it decides which filter tab the card appears under, so its preview is the <b>filter row</b>, drawn above with the matching tab outlined. <b>Type</b> renders nowhere on any surface this canvas can draw, and the honest thing is to say so rather than invent a surface for it.
+    </div>
+  </div>
+
+  <div class="warn">
+    <p class="h3">⚠ Fidelity, and a hazard that will fire here</p>
+    <b>The canvas renders <code>ProjectCard</code> itself</b>, with values from the draft form rather than from disk — #178's rule for the blog canvas, applied. A hand-built lookalike would drift the first time the card changes, and it would drift <b>silently</b>.
+    <b>Hazard 21 will fire on this surface.</b> <code>HERO_IMAGE_UNSUITABLE</code> still lists <code>elevate-one-view</code>, so that card renders the hand-built mock rather than its uploaded hero — and its comment describes a 390×988 portrait that no longer exists. On the canvas that will look like the upload did not work. Whoever builds this meets the hazard, and it is a content decision rather than a lookup.
+  </div>
+
+  <div style="margin-top:16px">
+    <p class="h3">Inline editing is not in the first pass</p>
+    <code>inlineEditProps</code> exists and the mechanism is proven, but the card's title sits inside a <b>block-level <code>&lt;Link&gt;</code></b> — a locked decision from #160 — and making text inside a link editable is a real interaction problem rather than an attribute. <b>The canvas tracks the inspector live and the inspector stays the one place these fields are written</b>, which is the posture #190 chose for the blog head for a comparable reason.
+  </div>
+</div>
+
+</body>
+</html>
