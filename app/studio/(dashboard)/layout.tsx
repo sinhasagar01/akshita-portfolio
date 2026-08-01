@@ -54,7 +54,7 @@ export default async function DashboardLayout({
     <StudioCountsProvider
       initial={{ projects: projects.length, experience: experience.length, blog: blog.length, skills: skills?.categories.length ?? 0 }}
     >
-      {/* Full-bleed shell (Task 1). The outer rounded card is gone: the sidebar
+      {/* Full-bleed shell (Task 1). The outer card and its corner radius are gone: the sidebar
           sits on cream-100, the working surface on cream-50, one hairline (the
           sidebar's border-r) between them. Page-level scroll is retained; the
           sidebar and topbar stick to the viewport (nothing here clips them). */}
@@ -62,7 +62,7 @@ export default async function DashboardLayout({
           needs and what `min-h-screen` alone could never give it. A `flex-1 min-h-0` child
           only divides free space when its container has a resolved height; under
           `min-h-screen` the container sizes to its content, so the free space is indefinite,
-          `flex-grow` does nothing, and the child sizes to ITS content instead. The blog
+          the grow factor does nothing, and the child sizes to ITS content instead. The blog
           editor measured 1230px tall inside a 960px viewport for exactly that reason, and
           `overflow-hidden` on the child did not help — overflow makes a box a scroll
           container, it does not remove the box's own content from intrinsic sizing.
@@ -109,7 +109,7 @@ export default async function DashboardLayout({
               editing — not just Settings. Panels report differs + pending to it. */}
           <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError}>
             {/* NO PADDING AND NO BOTTOM SPACER HERE. This used to be
-                `<div className="p-4 lg:p-6">{children}</div>` plus an `h-20` spacer
+                the page padding wrapper plus a 5rem tail spacer
                 that kept the fixed PublishBar off the end of the content.
                 Both assumed EVERY studio page wants a padded, page-scrolled column.
                 The blog editor falsifies that — it is a full-height 3-pane layout

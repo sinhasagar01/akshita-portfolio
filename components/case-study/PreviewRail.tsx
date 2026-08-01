@@ -196,7 +196,7 @@ export default function PreviewRail({ items }: { items: RailItem[] }) {
     };
 
     // resting width from |i - active|; hover width from pointer distance;
-    // final = max(resting, hover) so hover can only ADD, never shrink the active pyramid.
+    // final = max(resting, hover) so hover can only ADD, never reduce the active pyramid.
     const paint = () => {
       let best = -1;
       let bestD = Infinity;

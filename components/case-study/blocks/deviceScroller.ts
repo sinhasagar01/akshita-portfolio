@@ -16,7 +16,7 @@ export const SCREEN_BG = "#0c0c0f"; // phone letterbox — device-internal, not 
 
 export const clamp = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-/** ease-in-out (used for the in-screen auto-scroll). */
+/** Eases in and out (used for the in-screen auto-scroll). */
 export const eIO = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 export type Rect = { left: number; top: number; width: number; height: number };

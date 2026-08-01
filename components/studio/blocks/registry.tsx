@@ -909,7 +909,7 @@ const SwatchTokensForm: ComponentType<BlockFormProps<"swatchTokens">> = ({ value
 /** `showPoster` IS GONE, and its removal is the point of the change that removed it.
  *  a586e98 added the flag (and this export) so blog could hide the poster, because
  *  `BlogProse` rendered an <iframe> and never read it — an authorable, permanently
- *  invisible field, the same condition that kept `imageBlock` deferred. BlogProse renders
+ *  unseen field, the same condition that kept `imageBlock` deferred. BlogProse renders
  *  images now, so the field feeds a real reader and blog uses this form unmodified again.
  *  The flag and the export were scaffolding for a gap that is closed. */
 const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({

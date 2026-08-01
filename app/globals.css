@@ -52,7 +52,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   /* The one PLATFORM-GLOW colour, for the work-section overlay grid (PR 3). Web cards
      glow indigo (the Fosfor product colour) behind the card frame; MOBILE cards reuse
      the terracotta --color-accent-500, so this is the single addition, not a pair. Kept
-     the only one of its kind on the same principle as --color-danger-600 above — a
+     the only one of its kind on the same principle as the danger-600 colour token above — a
      palette of per-platform tints is how an editorial system slides into a brand kit.
      Stored as a base oklch; alpha comes from color-mix scaled by the cascade's --gl. */
   --color-glow-web: oklch(48.0% 0.115 266);
@@ -381,7 +381,7 @@ a {
   margin-bottom: 0;
 }
 /* The seam: the body pulls up over the faded visual by one section gap when a peek hero
-   precedes it, so the first card's rounded top rides over the dissolving image. Scoped to
+   precedes it, so the first card's curved top rides over the dissolving image. Scoped to
    a preceding peek hero, so the no-hero empty state (which keeps the nav runway) is unaffected. */
 .hero-ground--peek ~ main .case-study > .section-card:first-child {
   margin-top: calc(var(--section-gap) * -1);
@@ -533,8 +533,8 @@ a {
 @media (max-width: 1023px) { .hero-aura { display: none; } }
 
 /* Coloured silhouette glow on the two hero phones — the "switched on" cue. Overrides
-   DeviceImage's base dark drop-shadow (higher specificity) and re-declares it, so the
-   compound filter keeps the grounding shadow and adds the study's colour. */
+   DeviceImage's base dark drop filter (higher specificity) and re-declares it, so the
+   compound filter keeps the grounding darkness and adds the study's colour. */
 .hero-phones--pulse .cs-flatten {
   filter: drop-shadow(0 18px 40px oklch(24% 0.03 60 / 0.16))
           drop-shadow(0 20px 60px oklch(63% 0.2 30 / 0.46));
@@ -551,39 +551,6 @@ a {
   }
   .section-card {
     padding-inline: 2rem;
-  }
-}
-
-/* ============================================================
-   Nav link — underline wipes in from left on hover
-============================================================ */
-
-.nav-link {
-  position: relative;
-  text-decoration: none;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: currentColor;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--duration-base) var(--ease-out-expo);
-}
-
-.nav-link:hover::after,
-.nav-link:focus-visible::after {
-  transform: scaleX(1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nav-link::after {
-    transition: none;
   }
 }
 
@@ -926,62 +893,6 @@ a {
   }
 }
 
-/* ============================================================
-   Header — desktop Resume CTA + mobile circle-reveal menu
-============================================================ */
-
-.header-vdiv {
-  width: 1px;
-  height: 22px;
-  background: oklch(56.0% 0.14 42 / 0.28);
-  margin: 0 6px;
-  flex-shrink: 0;
-}
-
-.header-resume-cta {
-  font-size: 13.5px;
-  color: var(--color-accent-500);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  padding: 7px 6px;
-  white-space: nowrap;
-}
-
-.header-resume-u {
-  position: relative;
-}
-
-.header-resume-u::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -3px;
-  height: 1px;
-  width: 0;
-  background: var(--color-accent-500);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .header-resume-u::after {
-    transition: width 0.32s ease;
-  }
-  .header-resume-cta:hover .header-resume-u::after {
-    width: 100%;
-  }
-}
-
-/* Desktop/mobile swap — one breakpoint, exact opposites */
-.header-desktop-right {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-@media (min-width: 1024px) {
-  .header-desktop-right { display: flex; }
-}
 
 /* MORPH — three dots ⇄ ✕. GUARDRAIL: the glyph is ALWAYS --ink and the surface never
    inverts on open. The shape changes; the colour does not. One continuous transform. */
@@ -1028,7 +939,7 @@ a {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 .nav-morph.is-open { border-color: oklch(14% 0.018 60 / 0.28); }
-/* nested inside a LIT pill: drop its own shadow (one surface, not two). Glyph colour stays. */
+/* nested inside a LIT pill: drop its own box-shadow (one surface, not two). Glyph colour stays. */
 .nav-glass:not(.is-ghost) .nav-morph { box-shadow: none; background: oklch(100% 0 0 / 0.5); }
 @media (prefers-reduced-motion: no-preference) {
   .nav-morph {
@@ -1077,7 +988,7 @@ a {
 .nav-fab-mobile { top: 14px; right: 16px; width: 40px; height: 40px; }
 @media (min-width: 1024px) { .nav-fab-desktop { display: block; } .nav-morph.nav-fab-desktop { display: block; } }
 @media (max-width: 1023px) { .nav-fab-mobile { display: block; } }
-/* the FAB is a standalone morph (not inside a lit pill) — keep its glass shadow */
+/* the FAB is a standalone morph (not inside a lit pill) — keep its glass box-shadow */
 .nav-fab.nav-morph { box-shadow: var(--glass-shadow); background: var(--glass-fill-strong); }
 
 /* UNDER REDUCED MOTION THERE IS NO FAB, BECAUSE THERE IS NOTHING FOR IT TO BRING BACK.
@@ -1358,7 +1269,7 @@ a {
      (which absorbs the downward bleed inside the card), and by the section's own inline
      padding at the edges — so .glow-host{overflow:hidden} and .reveal-panel{clip-path}
      never shear it, with no card padding and no layout growth. Alpha is the tint scaled by
-     the cascade's --gl, invisible at rest (--gl:0) and blooming on the pointed card. */
+     the cascade's --gl, unseen at rest (--gl:0) and blooming on the pointed card. */
   box-shadow:
     0 0 24px -6px color-mix(in oklch, var(--tint, transparent) calc(var(--gl, 0) * 70%), transparent),
     0 0 0 1px color-mix(in oklch, var(--tint, transparent) calc(var(--gl, 0) * 25%), transparent);
@@ -1790,7 +1701,7 @@ a {
    T1 has already answered by the time this begins. */
 .studio-chrome [data-studio-field],
 .studio-chrome [data-studio-block] {
-  /* ONE SOURCE FOR THE BAR'S WIDTH. It is read by the inset shadow that DRAWS the bar and by the
+  /* ONE SOURCE FOR THE BAR'S WIDTH. It is read by the inset box-shadow that DRAWS the bar and by the
      inset that clears room for it, and those two must agree or the control sits proud of the
      mark or overlaps it. Two 3s would be two places to drift. */
   --studio-echo-bar: 3px;
@@ -1814,14 +1725,14 @@ a {
    reads as selected-AND-DISABLED rather than selected, because a flat wash over a group of
    controls is the shape a disabled region takes everywhere else.
    AND THE GROUND WAS NEVER THE MARK ANYWAY. Measured in #259: cream-200 against the pane's
-   cream-100 is **1.10** — all but invisible — while the bar is 4.07. The fill contributes almost
+   cream-100 is **1.10** — all but unreadable — while the bar is 4.07. The fill contributes almost
    nothing at field scale and would contribute the wrong thing at card scale, so the bar carries
    the mark on both and only the field takes the fill. */
 .studio-chrome [data-studio-field].is-echoed {
   background-color: var(--color-cream-200);
 }
 
-/* THE CONTROL SITS FLUSH AGAINST THE BAR while its field is marked — no gap, no rounded corner
+/* THE CONTROL SITS FLUSH AGAINST THE BAR while its field is marked — no gap, no curved corner
    turning away from it, no second edge beside it.
 
    THE WIDTH IS DERIVED, NOT PINNED. `calc(100% - var(--studio-echo-bar))` is "the container
@@ -2811,7 +2722,7 @@ a {
    worth; it does not say when to reach for it. The lines below say when.
 
    THE TWO SCALES MUST MOVE INDEPENDENTLY, which is why control and card are declared here
-   even though they coincide with --radius-sm and --radius-md today. @theme serves the
+   even though they coincide with the site's sm and md radius tokens today. @theme serves the
    public site; this serves /studio. A change to either must not drag the other. */
 .studio-chrome {
   /* A PAGE-LEVEL SHELL — the outermost surface of a panel, a list container, a sticky
@@ -2842,7 +2753,7 @@ a {
    @theme already holds `--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1)`; the contract
    wants cubic-bezier(.34,1.35,.5,1) UNDER THE SAME NAME. Declaring it here would silently
    SHADOW the theme token for everything inside .studio-chrome. Nothing consumes
-   `ease-spring` today — which is precisely why the shadowing would have gone UNNOTICED,
+   the spring easing token today — which is precisely why the shadowing would have gone UNNOTICED,
    not why it would have been harmless. Hence `--studio-ease-settle`.
 
    AND THE NAMES ARE NOT `--duration-*`, WHICH IS NOT A TAILWIND v4 NAMESPACE. `duration-*`
@@ -2850,7 +2761,7 @@ a {
    public-site elements ship `duration-[--duration-base]` TODAY and compile to
    `transition-duration:--duration-base`, an invalid declaration the browser drops —
    verified in the production CSS, not inferred. Consumed the way the radius scale is,
-   `duration-[var(--studio-t1,220ms)]`, every use carrying its literal fallback so a
+   a duration reading the t1 token, every use carrying its literal fallback so a
    missing token degrades to the right number rather than to nothing.
 
    NAMED BY TIER, NOT BY SIZE, because the ORDER is the design. `--studio-duration-medium`
@@ -3120,7 +3031,7 @@ a {
    178-180. The honest justification for a studio scale is WEIGHT AND COLOUR SPACE, not absence:
    the theme tops out at `0 12px 32px …/0.10` and is oklch warm ink, while every studio literal
    shipped so far is `rgba(60,45,30,…)` and far heavier. Left as drawn, the next reader greps
-   @theme, finds --shadow-lg and concludes this block was written without checking.
+   @theme, finds the lg elevation token and concludes this block was written without checking.
 
    AND THE SCALE IS NOT ARRIVING — IT ARRIVED, UNDECLARED, AND IS ALREADY DRIFTING. Seven studio
    call sites carry five distinct literals in three de-facto tiers: `0 8px 30px …/.14` on
@@ -3143,7 +3054,7 @@ a {
   /* A CARD SITTING ON THE SURFACE. Barely there — at fourteen cards the rest state is the page's
      texture, not its subject, so it reads as separation rather than as shadow. */
   --studio-lift-rest: 0 1px 2px oklch(14% 0.018 60 / 0.06), 0 2px 8px -3px oklch(14% 0.018 60 / 0.1);
-  /* THE CARD THE POINTER IS OVER. Paired with a 3px rise; the shadow deepens and spreads so the
+  /* THE CARD THE POINTER IS OVER. Paired with a 3px rise; the box-shadow deepens and spreads so the
      rise reads as height rather than as the card simply moving up the page. */
   --studio-lift-hover: 0 2px 4px oklch(14% 0.018 60 / 0.07), 0 8px 20px -6px oklch(14% 0.018 60 / 0.16);
   /* THE SELECTED CARD. Deeper than hover and with NO rise, so selection is a state the card holds
@@ -3168,7 +3079,7 @@ a {
      AND THE INK IS DIFFERENT TOO, WHICH IS THE PART THAT WOULD HAVE GONE UNNOTICED. Every legacy
      literal uses rgb(60,45,30); ink-950 is rgb(15,7,3), a distance of 65. NO declared token is
      closer than ink-800 at 20, which is still visibly apart, so the literal ink STAYS rather than
-     being rounded onto a token that would change every floating surface in the studio. A shadow
+     being folded onto a token that would change every floating surface in the studio. A box-shadow
      ink with no honest token is a worse reason to invent one than to keep the number. */
 
   /* A DROPDOWN OR A LISTBOX PANEL — close to its trigger, so it reads as attached rather than
@@ -3191,10 +3102,10 @@ a {
    would be numeric twins sitting beside an asserted sequence.
 
    THREE TOKENS, AND THE FOURTH IS DELIBERATELY ABSENT. The contract asks for a 150ms mark;
-   @theme's `--duration-fast` IS 150ms, byte-identical. Declaring it would be a second name for a
+   @theme's fast duration token IS 150ms, byte-identical. Declaring it would be a second name for a
    value that already has an honest one — #258 refused exactly this for `--ease-glide`, and that
    refusal is the reason the studio has one glide easing rather than two. The mark uses
-   `--duration-fast`.
+   that same fast duration token.
 
    NOR ARE THESE THE T-TIERS RENAMED. `--studio-t1` is 220ms and `--studio-t3` is 260ms; the lead
    and the follow here are 200 and 240. Twenty milliseconds is below the threshold at which anyone
@@ -3206,7 +3117,7 @@ a {
   /* THE LEAD — the card itself, and the chips that resolve behind it. Everything else on the card
      is timed against this one. */
   --studio-lift-t: 200ms;
-  /* THE FOLLOWER — the ordinal and the shape. Slower than the lead so they TRAIL it, which is
+  /* THE FOLLOWER — the number marker and the shape. Slower than the lead so they TRAIL it, which is
      what makes the card read as an object rather than as an image that changed. */
   --studio-lift-follow: 240ms;
   /* THE SHEEN — a single diagonal pass, once per hover, never repeating. The only thing on this

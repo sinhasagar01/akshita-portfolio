@@ -9,7 +9,7 @@
 // codebase carried two contradictory rationales and no record of which had won.
 //
 // WHAT WAS ARGUED, and it was argued honestly:
-//   1. ListDetailLayout is a fixed two-column grid (`lg:grid-cols-[220px_1fr]`) with no
+//   1. ListDetailLayout is a fixed two-column grid (220px beside 1fr, at lg) with no
 //      third column and no collapse control, so "the existing ListDetailLayout with a
 //      third column" is a modification to a shell eight panels share, not a reuse.
 //   2. THE STUDIO ALREADY REMOVED THIS PATTERN. The case-study editor used to be a detail

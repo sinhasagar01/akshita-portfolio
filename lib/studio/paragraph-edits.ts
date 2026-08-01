@@ -2,7 +2,7 @@
 //
 // WHY THESE ARE STRUCTURAL. `richText` stores prose as an ARRAY of strings, one per
 // paragraph, and the renderer emits one <p> per item. So Enter cannot be a character:
-// pressing it has to grow the array, and Backspace at a paragraph's start has to shrink
+// pressing it has to grow the array, and Backspace at a paragraph's start has to contract
 // it. Typing a newline into a single item instead would look right in the canvas and be
 // wrong on disk — one <p> containing a line break rather than two paragraphs — and the
 // public page would render it as one run-on paragraph.

@@ -87,7 +87,7 @@ export default async function BlogParityHarness({ params }: Props) {
           surfaces, and because the hero is the one place the renders differ by ELEMENT rather
           than by attribute: next/image on the article, a plain <img> on the canvas. That is
           the whole reason this pair has to exist. Written inline in the panel instead of
-          shared through BlogHero, the hero would be invisible here and this harness would go
+          shared through BlogHero, the hero would not render here and this harness would go
           on reporting a clean pass — #180's `sections: 0, verdict: PARITY OK` in a new form.
           Both sides get the SAME src. The proxy rewrite and the object URL are studio-runtime
           concerns and would only introduce a difference this walk would report as a mismatch

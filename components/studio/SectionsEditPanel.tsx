@@ -1614,7 +1614,7 @@ export default function SectionsEditPanel({
   };
 
   // THE CANVAS PANE, AND NOW IT IS ONLY THE CANVAS. The Selected rail used to sit beside it in a
-  // `lg:grid-cols-[1fr_240px]` grid, which spent 240 of the pane's 640 on a textarea — so the
+  // grid of 1fr beside 240px at lg, which spent 240 of the pane's 640 on a textarea — so the
   // canvas rendered into 382px and PR 6's 50% floor was a claim about a pane that did not exist.
   // With the rail gone to the inspector the pane is the canvas, and the floor becomes measurable.
   //
@@ -1996,12 +1996,12 @@ export default function SectionsEditPanel({
                   // `.seg button` and `.seg button+button` exactly.
                   "h-[34px] flex-1 text-[12px] font-semibold transition-colors",
                   // THE RING IS INSET, and that is the first difference a filled tab has from an
-                  // underlined one: an outset ring would draw at the container's own rounded edge,
-                  // where `overflow-hidden` clips it. `-outline-offset-2` keeps it inside.
+                  // underlined one: an outset ring would draw at the container's own curved edge,
+                  // where `overflow-hidden` clips it. The negative outline offset keeps it inside.
                   "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2",
                   // AND ITS COLOUR FOLLOWS ITS GROUND, WHICH IS THE SECOND AND THE ONE THAT BIT.
                   // An inset accent ring on the SELECTED button draws accent-on-accent —
-                  // **measured at 1.00, completely invisible**. The underline never had this
+                  // **measured at 1.00, completely unreadable**. The underline never had this
                   // problem because both tabs sat on cream; the fill is what put a ring on two
                   // different grounds. So the selected button's ring takes the label's colour
                   // (cream-50 on accent, 4.70) and the rest keeps accent on cream (4.70).

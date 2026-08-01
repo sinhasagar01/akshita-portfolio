@@ -10,7 +10,7 @@ import { renderRich } from "../rich";
  *
  * ONE component, two frames. `browser` (the chosen Variation B) puts the video in the
  * same window chrome the wide DeviceImage frames use; `plain` (Variation A) is the
- * bare rounded card. They are a branch rather than two block kinds because the only
+ * bare card with a radius. They are a branch rather than two block kinds because the only
  * difference is the chrome — the eyebrow, title, caption, aspect and every safety rule
  * are shared, and splitting them would mean keeping two of everything in step.
  *

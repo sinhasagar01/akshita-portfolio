@@ -116,7 +116,7 @@ export default function WorkFilter({ counts }: { counts: Counts }) {
             if (!dx && !dy) return;
             it.a!.style.transition = "none";
             it.a!.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
-            it.a!.getBoundingClientRect(); // force reflow — the "invert"
+            it.a!.getBoundingClientRect(); // force reflow — the I in FLIP
             it.a!.style.transition = "";
             it.a!.style.transform = "";
           });

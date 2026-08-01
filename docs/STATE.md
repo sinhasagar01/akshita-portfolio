@@ -3312,6 +3312,66 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#274** the bundle audit — dead rules out, and a gate for the trap →1904 across **47 suites**
+  (`css-comment-trap` new, 5 assertions). **Asked for after #273: "audit the whole bundle for
+  other unused studio-only rules."**
+
+  **THE HEADLINE IS THAT #273 WAS NOT AN ANOMALY.** `min-h-[40vh]` was one of 389. The public
+  stylesheet is ONE chunk (129,832 raw / 20,354 brotli) that the home page, every case study and
+  /studio all link, and **23.4% of it raw — 3,480 bytes brotli — can never match a selector on a
+  public page**. Corroborated independently: of the 389 studio-only rules, ZERO have a class
+  present in any of the 10 prerendered public pages.
+
+  **THE BUNDLE SPLIT WAS CONSIDERED AND DECLINED, WHICH IS THE LARGER HALF OF THE ANSWER.** That
+  3.4KB is the big number, but the fix is an architecture change to the property this project has
+  spent the most gates protecting — canvas and public page rendering through the same components
+  with the same CSS. The canvas still needs the public sheet, so the split is asymmetric, and the
+  cascade order it disturbs is what `studio-cascade` and `studio-border-race` exist to pin. It is
+  recorded as a measured, known cost rather than chased.
+
+  **WHAT SHIPPED IS THE PART THAT IS FREE.** Twelve dead authored rules — five class names
+  (`nav-link`, `header-vdiv`, `header-desktop-right`, `header-resume-cta`, `header-resume-u`) left
+  over from a previous header, referenced nowhere and absent from the built HTML — plus 32 distinct
+  utilities and theme tokens that existed ONLY because a comment named them. **Delivered: 2,623 raw
+  and 378 brotli.** 33 of the 34 files changed are provably comment-only, verified by comparing
+  comment-stripped source before and after; `globals.css` is the only file with real code changes.
+
+  **`.nav-link` SAT 200 LINES ABOVE `.nav-links`, AND THE GUARD CAUGHT IT.** The deletion script's
+  own assertion failed first, because `".nav-link" not in text` is False while the live plural
+  exists. A grep-driven delete would have taken the header's navigation with it.
+
+  **THE GATE ASKS TAILWIND BOTH QUESTIONS RATHER THAN GUESSING EITHER.** The hard part is telling a
+  class from a word — `isolate`, `invert`, `ordinal` and `shrink` are ordinary English AND real
+  utilities, while `precisely` and `seam` are only English. No regex knows the difference and a
+  hand-kept utility list is a stale second copy of Tailwind's namespace. So `oxide.Scanner` decides
+  what a candidate IS and `compile()` decides which candidates are REAL.
+
+  **THREE THINGS WERE WRONG BEFORE THEY WERE RIGHT, ALL THREE FOUND BY MEASURING.**
+  1. **A hand-rolled tokeniser gave a FALSE PASS.** Its character class held `.` and `,`, so
+     "nearly invisible." yielded `invisible.` and the suite never asked about `invisible` — green
+     while `.invisible{visibility:hidden}` sat in the shipped bundle. The real rule is subtler than
+     any regex would have encoded: oxide splits at the variant separator, so `invisible:` produces
+     the candidate and `invisible.` produces nothing. Replaced with the real scanner.
+  2. **`.css` WAS NOT IN THE SWEPT SET.** The scanner reads the stylesheet's own file, so a CSS
+     comment emits exactly as a TSX comment does — 12 more came out of globals.css once it was
+     included. A gate reading fewer file types than the tool it checks has a blind spot the shape
+     of the difference.
+  3. **THE SAVING WAS OVERSTATED 2.4x.** Compiling each trapped token alone against an empty
+     baseline gave 6,160 raw / 904 brotli, because every one re-emits the shared `@property` and
+     `--tw-*` infrastructure it needs. In the real sheet that is already present for utilities that
+     ARE used. **Isolated cost is not marginal cost**, and only the build diff knows.
+
+  **THE PRICE IS PAID IN PROSE AND IT IS STATED.** Because some utilities are ordinary words, this
+  forbids writing `shadow`, `invisible`, `rounded`, `shrink`, `invert`, `isolate` or `ordinal` bare
+  in a comment. Seventy-odd sentences were reworded, including **"(149.7px) rounded up"**, which was
+  ARITHMETIC and had nothing to do with a border radius. That is the honest low point of the rule.
+  It is still one rule rather than two, because enforcing only the unambiguous class-shaped tokens
+  is a judgment call at every future comment and gives up most of the bytes. Substitutes exist for
+  every banned word, and the failure message names them.
+
+  Public home DOM byte-identical. Line 222 of globals.css still `scrollbar-gutter: stable;`,
+  checked because `usePageWidthMin.ts:22` and `three-pane.ts:23` cite it BY NUMBER.
+
 - **#273** the inert floor, and the comment that re-emitted it →1899 (`studio-ink` C14 gains a
   7th assertion). **Follows directly from #272's own reported cost.**
 

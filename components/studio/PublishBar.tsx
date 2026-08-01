@@ -206,8 +206,9 @@ export default function PublishBar() {
   return (
     // Task 1 full-bleed offset: lg:left-[var(--studio-sidebar-w)] shifts the fixed bar past the
     // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
-    // THIS IS NO LONGER HAND-COUPLED. It used to be `lg:left-[236px]`, matching StudioSidebar's
-    // `lg:w-[236px]` by comment and by a ralph assertion that the two literals were equal. They
+    // THIS IS NO LONGER HAND-COUPLED. It used to be a hardcoded 236px left offset at lg, matching
+    // StudioSidebar's own 236px width by comment and by a ralph assertion that the two literals
+    // were equal. They
     // are now the SAME custom property, so the coupling is structural rather than vigilant —
     // hazard 1's display half, closed. The note below is kept for its reasoning. If the
     // sidebar width changes, change this too, or the bar drifts off-centre.

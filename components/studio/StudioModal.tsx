@@ -2,7 +2,7 @@
 
 // StudioModal — the one scrim+panel modal for the studio's dialogs. Extracted from
 // four hand-rolled copies in CaseStudyIndex and ExperienceListEditor (an add + a
-// delete each) that had drifted: border ink-950/8 vs /10, p-4 vs p-5, shadow present
+// delete each) that had drifted: border ink-950/8 vs /10, p-4 vs p-5, box-shadow present
 // vs absent, focus-trap present vs absent, aria-modal present vs absent. One
 // component now owns the shell, the a11y contract, the focus trap + restoration, and
 // the close policy.
@@ -87,7 +87,7 @@ export function StudioModal({
         }}
         // THE PANEL IS THE FIELD SURFACE (cream-100), NOT THE WELL STEP. Measured, this panel
         // was cream-50 and the inputs its consumers put inside it are `inputCls`, also cream-50
-        // — a 1.00 ratio, so the well was invisible against the box holding it. The ladder is
+        // — a 1.00 ratio, so the well did not read against the box holding it. The ladder is
         // relational (blocks/fields.tsx:151-166): a well reads because it is one step LIGHTER
         // than its surface, and cream-50 is the BOTTOM step, so the surface had to move rather
         // than the input. All three consumers (the projects index, the blog index and

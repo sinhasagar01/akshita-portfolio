@@ -154,7 +154,7 @@ export default function BoldToolbar({
       }}
     >
       {/* PULLED ONTO THE FLOATING STEP, AND THIS ONE IS A REAL CHANGE RATHER THAN A RENAME.
-          It carried `0 6px 20px -8px rgba(60,50,38,0.4)` — the only shadow in the studio using
+          It carried `0 6px 20px -8px rgba(60,50,38,0.4)` — the only box-shadow in the studio using
           60,50,38 where every other used 60,45,30, and a reach of 12 where the tier it belongs to
           is 20. Both were drift rather than design: nothing else sits at either value and no
           comment ever claimed they were deliberate. Measured, the darkening moves 2.189 -> 2.530

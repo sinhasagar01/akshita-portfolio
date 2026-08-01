@@ -12,7 +12,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
     // of main (which no longer pads it), so the hairline reaches both edges.
     //
     // SOLID INK AT `lg`, AND THE FROST IS DELIBERATELY GIVEN UP THERE. The bar was
-    // `lg:bg-ink-950/85` with `backdrop-blur`, and #165 built that on purpose: "content
+    // an 85% ink surface at lg with `backdrop-blur`, and #165 built that on purpose: "content
     // scrolls under the blur". MEASURED, IT WAS STILL LIVE — on /studio/settings at a 600px
     // viewport, real page content passes beneath it.
     //

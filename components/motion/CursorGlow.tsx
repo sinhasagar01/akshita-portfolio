@@ -14,7 +14,7 @@ import { useReducedMotion } from "motion/react";
  * never in the studio canvas. It is disabled under `prefers-reduced-motion` (here) and on
  * touch, `@media (hover: none)` (CSS) — no pointer to follow.
  *
- * The host must be `position: relative; isolation: isolate; overflow: hidden` and reveal
+ * The host must be positioned, own its stacking isolation, clip its overflow, and reveal
  * the layer on hover; see `.cursor-glow` / `.glow-host` in globals.css.
  */
 export default function CursorGlow() {

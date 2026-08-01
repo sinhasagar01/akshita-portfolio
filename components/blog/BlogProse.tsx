@@ -13,7 +13,7 @@
 // kind present in the picker and the registry but missing here produces a block the author
 // can add, fill in and save, which renders as NOTHING — and because the studio canvas and
 // the public article are both this component, it looks consistent and correct in both. That
-// is the failure that let `videoEmbed.poster` sit authorable and invisible for three PRs.
+// is the failure that let `videoEmbed.poster` sit authorable and unseen for three PRs.
 //
 // A `satisfies never` in the default arm could not fix it. The discriminant arrives as
 // `unknown` (this reads whatever is on disk), TypeScript cannot exhaustiveness-check a

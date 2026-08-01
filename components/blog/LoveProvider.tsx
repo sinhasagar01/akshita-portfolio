@@ -109,7 +109,7 @@ export default function LoveProvider({ slugs, children }: { slugs: string[]; chi
 
   // localStorage is read in an effect, never during render: reading it during render is a
   // hydration mismatch. The cost is that a loved heart fills one frame late, which is
-  // invisible next to the count arriving over the network anyway.
+  // imperceptible next to the count arriving over the network anyway.
   useEffect(() => {
     const stored = readStored();
     lovedRef.current = stored;
