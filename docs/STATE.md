@@ -3312,6 +3312,92 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#266** the scrollbar hairline, studio-wide →1820 (`studio-ink` 183→198, C8 new).
+
+  Nothing was styled, so every studio surface rendered the platform default. **THE DEFECT IS THE
+  INK SIDEBAR** — a light platform trough is the loudest thing on the darkest surface in the
+  product, and it is **INVISIBLE TO ANYONE DEVELOPING ON A MAC** with overlay scrollbars. #248's
+  shape. This machine renders classic 15px bars, which is the only reason it was catchable here.
+  Measured on that element: **15px platform trough → 6px thumb, no track.**
+
+  **THE CONTRACT'S OWN CSS DOES NOT DRAW THE CONTRACT'S DESIGN, AND THAT SHAPED THE BLOCK.**
+  Chrome 148 supports `scrollbar-width`, and setting it **discards every `::-webkit-scrollbar`
+  rule on the element**. Measured — webkit alone 6px, `scrollbar-width: thin` + webkit **11px**,
+  `scrollbar-color` + webkit **15px**. The contract writes both, so porting its shape literally
+  would have shipped an 11px bar with no radius and no hover, and the mock mis-drew its own spec
+  in its own preview. The standard properties are fenced behind
+  `@supports not selector(::-webkit-scrollbar)` — false in Chromium, true in Firefox — so each
+  engine takes one path. No UA sniffing.
+
+  **THE DOCUMENT SCROLLER IS EXCLUDED AND THE SCOPING IS WHAT EXCLUDES IT.** Styling html's own
+  bar — including through `html:has(.studio-chrome)`, which does match — moves
+  `scrollbar-gutter: stable`'s reserved width **15 → 6** and `documentElement.clientWidth`
+  **1425 → 1434**. `usePageWidthMin` reads exactly that, so every studio threshold would shift
+  9px. **#235 re-opened by a cosmetic change.** The contract lists "the document" among its
+  surfaces AND mandates `.studio-chrome` scoping; it cannot have both. Verified after the fact —
+  with the block live, a forced document overflow still renders a 15px document bar beside 6px
+  studio panes.
+
+  **THE CENSUS FOUND 17 SURFACES WHERE THE CONTRACT NAMES 6.** Beyond its five panes: the
+  sidebar's own horizontal nav row, the list-detail list and detail panes, the Board overlay, the
+  topbar search dropdown, the listbox dropdown, the dock textarea and five further textareas.
+  **Exactly one surface is ink-grounded.**
+
+  **AND THE INK RULE TARGETS THE ELEMENT, NOT ITS DESCENDANTS.** The sidebar CONTAINS a second
+  scroller — the nav row — which scrolls only below `lg`, where the sidebar is `bg-cream-100`
+  rather than `bg-ink-950`. A descendant selector would put a white thumb on a cream ground at
+  exactly those widths. Driven at 900px, the row takes cream while the sidebar keeps ink.
+
+  **THE CREAM THUMB IS AN ALPHA, AND THAT IS THE OWNER'S CORRECTION TO THEIR OWN CONTRACT.** The
+  contract states the rule as a RELATION — one step of separation from the surface the bar sits on
+  — then specifies a fixed VALUE, `cream-300`. A fixed value cannot hold a relation across three
+  grounds, and measured it does not: **1.37 / 1.30 / 1.19**, worst on the list rails, the surface
+  with the most scrolling. **RELATION ENCODED AS A VALUE.** `ink-950/22` is the studio's own
+  hairline alpha and lands at **1.65 / 1.65 / 1.64**.
+
+  **THE TWO SIDES DO NOT SHARE AN ALPHA, ON PURPOSE.** The luminance curve is not symmetric, so
+  equal alphas would not give equal separation. Tuned until the MEASURED separation matched —
+  **1.63 on ink, 1.64–1.65 on cream**. The relation is the separation, not the number producing
+  it. 18% was the first cream value and missed a stated 1.50 floor by 0.01; fitting the floor to
+  the value would have been the dishonest repair, immediately after the ink hover was bumped from
+  2.99 for that same reason.
+
+  **THE FLOORS, STATED, BECAUSE A NUMBER WITH NOTHING TO JUDGE IT AGAINST IS NOT A RESULT.**
+  Hover **3:1**, WCAG 1.4.11 non-text, because hover is the interactive state — 3.74 on ink,
+  3.49 / 3.33 / 3.02 on cream. Rest **1.5**, a perceptibility floor CHOSEN rather than inherited:
+  4.5 does not apply to a graphical element, and 1.4.11's user-agent exemption **lapses the moment
+  we style it**. The argument for not holding rest to 3:1 is that scrolling works by wheel,
+  trackpad and keyboard, so the rest thumb is a position indicator rather than the control's
+  identifying boundary. **That is an argument, not a settled reading** — an auditor who holds rest
+  to 1.4.11 fails this at 1.63, recorded as an accepted shortfall rather than a pass.
+
+  **THE SMALL-TEXTAREA WORRY WAS REAL AND ITS MECHANISM WAS NOT.** The smallest is `min-h-[46px]`,
+  not the contract's 86. With 2000px of content the thumb renders **~18px** where proportion gives
+  3.7 — WebKit enforces a minimum thumb length, so a short box cannot produce an ungrabbable
+  thumb. No separate step, for a reason the contract had not identified.
+
+  **`studio-cascade` GENUINELY DOES NOT APPLY, WHICH IS DIFFERENT FROM NEEDING WIDENING.** Its
+  parser accepts bare tag names only (`studio-cascade.mjs:114`) and its subject is a utility losing
+  to an unlayered element rule. **No Tailwind utility targets a scrollbar pseudo-element**, so
+  there is no race to referee. `studio-tokens` is equally blind — its regex strips the opacity
+  modifier non-capturing and it scans TSX, not authored CSS — so C8 asserts the alphas itself
+  rather than leaving the gap silent.
+
+  **AND THE COMMENT TRAP FIRED IN THE GATE WRITTEN TO CATCH THIS, THE SEVENTH TIME.** C8's first
+  anchor sliced from `STUDIO SCROLLBARS`, which sits INSIDE the banner comment, so the opening
+  `/*` fell outside the slice, the stripper had nothing to match, and every sentence of the prose
+  parsed as CSS. Two assertions failed against their own documentation.
+
+  **NOT RECORDED AS A BY-ROLE ANSWER, AND THE BRIEF'S "NINTH" DOES NOT HOLD.** STATE's own
+  sequence reaches *seventh* (`:5023`), never names a sixth, double-assigns fourth (`:5197`,
+  `:5233`), and two members have since been deleted (#251) or restated out of role-space entirely
+  (#263). This split is by GROUND, not by role — calling it by-role would re-import the frame #263
+  just discarded.
+
+  **Firefox UNVERIFIED** — only Chromium is available here. Public DOM byte-identical across 10
+  pages; CSS **zero removed**, 17 added, every emitted selector `.studio-chrome`-scoped and no
+  public selector gaining a rule. Six mutations kill six assertions.
+
 - **#263** Content|Style takes the segmented fill — **an overrule, not a fix** →1776
   (`studio-ink` 155→166, C4 restated; `studio-labels` G3 re-derived).
 

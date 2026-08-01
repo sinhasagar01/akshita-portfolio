@@ -37,6 +37,18 @@
   6px is the floor, not a preference: below about 6px a thumb becomes a target
   you miss. Above about 8px it stops being a hairline and becomes B.
 
+  ---- FOUR CORRECTIONS FROM THE BUILD, ALL MEASURED -------------------
+  1. THIS FILE'S OWN CSS DID NOT DRAW ITS OWN SPEC. `scrollbar-width: thin` beside the
+     webkit rules renders 11px in Chrome 148, not 6 — the standard property discards the
+     pseudo-element rules entirely. Fixed above, fenced behind @supports.
+  2. `cream-300` IS A VALUE WHERE THE RULE IS A RELATION. Measured 1.37 / 1.30 / 1.19 on
+     cream-50 / 100 / 200 — WORST on the list rails, the surface with the most scrolling.
+     An alpha over the surface IS the relation, so it lands on one number everywhere:
+     ink-950/22 gives 1.65 / 1.65 / 1.64. Relation encoded as a value.
+  3. THE HOVER ON INK MISSED 3:1. white/34 measures 2.99 against ink-950. Now white/40, 3.74.
+  4. THE SURFACE LIST IS SIX AND THE REAL COUNT IS SEVENTEEN, and one of the six cannot be
+     styled at all — see below.
+
   ---- INK AND CREAM ARE ONE RULE, NOT TWO DESIGNS ---------------------
   ONE STEP OF SEPARATION FROM THE SURFACE THE BAR SITS ON. A cream thumb on ink
   and an ink thumb on cream both satisfy it. A single colour for both is what
@@ -78,11 +90,31 @@
   list. A surface missed is a default scrollbar left on screen, and this file
   is not evidence — thirty-two corrections say so.
 
+  THE CENSUS FOUND SEVENTEEN, NOT SIX. Beyond the five panes above: the sidebar's own
+  horizontal nav row, the list-detail list and detail panes, the Board overlay, the topbar
+  search dropdown, the listbox dropdown, the canvas dock's textarea, and five further
+  textareas. All cream. Exactly ONE surface in the studio is ink-grounded.
+
+  AND THE SIXTH ENTRY ABOVE CANNOT BE STYLED, WHICH IS NOT AN OVERSIGHT BUT THE POINT.
+  "The document" owns the reserved gutter — that is precisely why it must be left alone.
+  MEASURED: styling html's scrollbar moves the gutter from 15 to 6 and clientWidth from 1425
+  to 1434, and `usePageWidthMin` reads that value, so every studio threshold shifts 9px.
+  This file asks for `.studio-chrome` scoping AND lists the document. It cannot have both,
+  and the scoping is what protects the gutter.
+
+  ALSO MEASURED: the ink rule must target the sidebar ELEMENT, never its descendants. The
+  nav row scrolls INSIDE the sidebar but only below lg, where the sidebar is cream-100.
+
   ---- THE TEXTAREA IS A DIFFERENT CASE FROM A PANE --------------------
   It is small, its thumb is short, and 6px on an 88px box may be a target
   nobody can hit. MEASURE the rendered thumb height on the smallest textarea in
   the studio and say whether it needs its own step. Drawn here at the same 6px;
   that is the proposal, not the finding.
+
+  MEASURED, AND THE PROPOSAL STANDS FOR A REASON IT HAD NOT IDENTIFIED. The smallest is
+  min-h-[46px], not 88. With 2000px of content the thumb renders ~18px where proportion
+  would give 3.7 — WebKit enforces a MINIMUM thumb length, so a short box cannot produce an
+  ungrabbable thumb. No separate step. The worry was real and the mechanism was not.
 ================================================================================
 -->
 
@@ -108,17 +140,24 @@ h1{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;col
    THE HAIRLINE — 6px, no track, thumb only.
    Firefox takes scrollbar-width/color; WebKit takes the rest.
    ============================================================ */
-.sb{scrollbar-width:thin}
+/* CORRECTION 1, MEASURED IN CHROME 148 AND FIXED HERE.
+   `scrollbar-width` was on the line below and it MADE THIS FILE MIS-DRAW ITS OWN SPEC.
+   Chrome supports the standard property, and setting it DISCARDS every ::-webkit-scrollbar
+   rule on the element — so this mock rendered an 11px bar with no radius and no hover while
+   the table below claimed 6px. `scrollbar-color` alone does the same and renders 15px.
+   The standard properties now sit behind @supports, as they do in globals.css. */
 .sb::-webkit-scrollbar{width:6px;height:6px}
 .sb::-webkit-scrollbar-track{background:transparent}
 .sb::-webkit-scrollbar-corner{background:transparent}
-.sb::-webkit-scrollbar-thumb{background:var(--cream-300);border-radius:99px}
+.sb::-webkit-scrollbar-thumb{background:oklch(14% .018 60/.22);border-radius:99px}
 .sb::-webkit-scrollbar-thumb:hover{background:var(--ink-400)}
-.sb{scrollbar-color:var(--cream-300) transparent}
+@supports not selector(::-webkit-scrollbar){
+  .sb{scrollbar-width:thin;scrollbar-color:oklch(14% .018 60/.22) transparent}
+  .sb-ink{scrollbar-color:oklch(100% 0 0/.18) transparent}
+}
 /* on ink — the same rule, the other direction */
-.sb-ink{scrollbar-color:oklch(100% 0 0/.18) transparent}
 .sb-ink::-webkit-scrollbar-thumb{background:oklch(100% 0 0/.18)}
-.sb-ink::-webkit-scrollbar-thumb:hover{background:oklch(100% 0 0/.34)}
+.sb-ink::-webkit-scrollbar-thumb:hover{background:oklch(100% 0 0/.40)}
 
 /* the studio frame */
 .shell{display:flex;border:1px solid var(--rule-edge);border-radius:var(--r-ctl);overflow:hidden;
