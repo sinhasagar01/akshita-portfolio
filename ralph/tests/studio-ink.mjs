@@ -1749,6 +1749,24 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   t("C14: …and it announces itself, because a quiet state still has to reach a screen reader",
     /role="status" aria-live="polite"/.test(loadingReturn), true);
 
+  /* AND NO HEIGHT FLOOR, WHICH IS A MEASUREMENT RATHER THAN A TIDY-UP. `min-h-[40vh]` looks like
+   * what a loading box needs and was inert at every width driven: the layout's `min-h-screen`
+   * gives the flex row a definite height, `<main>` stretches to it, and this `flex-1` child takes
+   * the free space — 835px at 1440x900, 494 at 900x700, 335 at 1440x400, against floors of 360,
+   * 280 and 160. It never bound once.
+   * IT WAS ALSO NOT FREE. Tailwind v4 emits ONE stylesheet and the public home page loads that
+   * chunk, so a studio-only arbitrary utility ships a rule to every visitor of the site. Verified
+   * against the built bundle: dropping it returns the public CSS to byte-identical with `1f16ee6`.
+   * The general rule this stands for — an arbitrary value used in one studio branch costs the
+   * public bundle a rule, so it has to earn its place by actually applying.
+   * SPELLING THE CLASS OUT IS SAFE *HERE* AND NOWHERE ELSE. globals.css carries
+   * `@source not "../ralph"`, so this suite's class-name literals never reach the scanner. A
+   * component comment has no such exclusion, and the first draft of this fix proved it — the
+   * comment explaining the deletion re-emitted the rule and the bundle hash did not move. Do not
+   * copy this phrasing into a .tsx. */
+  t("C14: …and it sets no height floor, because `flex-1` already fills and a floor never bound",
+    /min-h-/.test(loadingReturn), false);
+
   /* ERROR KEEPS THE PANEL, and that is the distinction rather than a leftover: a failed load is
    * persistent and actionable — it needs a frame, a retry, and the details still editable. A slow
    * load is none of those. It is also what keeps E1b's subject alive honestly. */
