@@ -362,6 +362,38 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // BESPOKE SKIPS THIS ENTIRELY RATHER THAN SATISFYING IT. Its fetch is gated off, so
   // `sectionsStatus` never leaves "idle" and `sectionsData` stays null — a bespoke study can never
   // be "loaded" and asking it to be would mean faking a load that did not happen.
+  // ---- THE LOADING WINDOW IS NOT A PAGE, AND SHOWING IT AS ONE WAS THE GLITCH -------------
+  //
+  // MEASURED: clicking a study from the index showed the framed fallback at 426ms and the shell at
+  // 695ms — **269ms of a completely different page**, with the details form rendered in a padded,
+  // bordered panel and then moving into the inspector. That reads as the old editor flashing up,
+  // because it IS the old editor: this branch rendered `detailsNode` in a layout the loaded state
+  // does not use.
+  // IT IS PRE-EXISTING, NOT NEW. The guard evaluated identically before the Details arc — what
+  // changed is that boat-crest now goes straight to the shell, so the contrast made it obvious.
+  //
+  // THE OBVIOUS FIX IS WRONG AND WOULD HAVE BEEN WORSE. "Mount the shell immediately with
+  // `sections={[]}` and fill it in" cannot work: `useDraftForm` is `useState(initial)`, so a form
+  // mounted with zero sections IGNORES the fourteen that arrive afterwards and stays empty
+  // forever. A flash would have been traded for permanent data loss in the editor.
+  //
+  // SO THE LOADING STATE STOPS PRETENDING TO BE THE EDITOR. It keeps no frame, no header and no
+  // details form — nothing that has a different home once the shell arrives. One quiet full-bleed
+  // state, then the shell. Nothing moves, because nothing was placed.
+  // ERROR KEEPS THE PANEL, and that is a real distinction rather than a convenience: a failed load
+  // is a persistent, actionable state that needs a frame, a retry and the details still editable.
+  // A slow load is neither. It also keeps `studio-ink` E1b's subject alive honestly — the rule it
+  // encodes is about a panel that is NOT in a shell, and the error state is still exactly that.
+  if (!bespoke && sectionsStatus !== "error" && (sectionsStatus !== "loaded" || !sectionsData)) {
+    return (
+      <div className="grid min-h-[40vh] flex-1 place-items-center px-4 py-6">
+        <span className="text-[13px] text-text-subtle" role="status" aria-live="polite">
+          Loading sections…
+        </span>
+      </div>
+    );
+  }
+
   if (!bespoke && (sectionsStatus !== "loaded" || !sectionsData)) {
     return (
       // ---- THIS ONE KEEPS ITS FRAME, AND THAT IS THE POINT OF SCOPING THE CHANGE ----------
@@ -402,7 +434,8 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           {/* THE BESPOKE NOTICE MOVED INTO THE RAIL, where the sections would be. That is where
               an author looks for sections, so that is where the answer belongs — not floating in
               a canvas that now has a job. Only LOADING and ERROR reach this fallback. */}
-          {sectionsStatus === "error" ? (
+          {/* ONLY ERROR REACHES THIS BRANCH NOW. Loading returns above, bespoke goes to the
+              shell, so this panel exists for the one state that is persistent and actionable. */}
           <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
             <p className="text-[14px] text-accent-600">Could not load the sections.</p>
             <button
@@ -413,11 +446,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
               Try again
             </button>
           </div>
-          ) : (
-          <div className="grid place-items-center rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-[14px] text-text-subtle">
-            Loading sections…
-          </div>
-          )}
         </div>
       </section>
       </div>

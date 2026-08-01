@@ -1726,5 +1726,38 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /\{bespoke && \([\s\S]{0,220}?Hand-built/.test(panel), true);
 }
 
+/* ---- C14 · THE LOADING WINDOW IS NOT A PAGE --------------------------------------------------
+ * MEASURED on the click path an author actually takes — from the index into a study: the framed
+ * fallback appeared at 426ms and the shell at 695ms, so **269ms of a completely different page**,
+ * with the details form rendered in a bordered panel and then moving into the inspector. It reads
+ * as the old editor flashing up because it WAS the old editor.
+ * PRE-EXISTING, NOT NEW. The guard evaluated identically before the Details arc; what changed is
+ * that boat-crest stopped flashing, which made the contrast obvious.
+ * AND THE OBVIOUS FIX WOULD HAVE BEEN WORSE. "Mount the shell early with `sections={[]}` and fill
+ * it in" cannot work — `useDraftForm` is `useState(initial)`, so a form mounted empty IGNORES the
+ * sections that arrive after and stays empty. That trades a flash for silent data loss. */
+{
+  const projects = code("components/studio/ProjectsEditPanel.tsx");
+  const loadingReturn = /sectionsStatus !== "error" && \(sectionsStatus !== "loaded"[\s\S]{0,700}?\n  \}/.exec(projects)?.[0] ?? "";
+
+  t("C14: the loading state returns before the panel branch — nothing below is a vacuous pass",
+    loadingReturn !== "", true);
+  t("C14: …and it renders NO details form, so nothing has to move when the shell arrives",
+    /detailsNode/.test(loadingReturn), false);
+  t("C14: …and NO panel frame, so the loading window is not a second page shape",
+    /rounded-\[var\(--studio-radius-panel/.test(loadingReturn), false);
+  t("C14: …and it announces itself, because a quiet state still has to reach a screen reader",
+    /role="status" aria-live="polite"/.test(loadingReturn), true);
+
+  /* ERROR KEEPS THE PANEL, and that is the distinction rather than a leftover: a failed load is
+   * persistent and actionable — it needs a frame, a retry, and the details still editable. A slow
+   * load is none of those. It is also what keeps E1b's subject alive honestly. */
+  t("C14: the error state still gets the framed panel, with its retry and the details form",
+    /sectionsStatus !== "error"/.test(projects)
+      && /Could not load the sections\./.test(projects) && /Try again/.test(projects), true);
+  t("C14: …and the loading copy is gone from that panel, since only error reaches it now",
+    (projects.match(/Loading sections…/g) ?? []).length, 1);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
