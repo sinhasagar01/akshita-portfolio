@@ -8,10 +8,15 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ## STATE (as of THE SELECTION CONTRACT)
 
-**main** = `e182ee3` = STATE for the field-contract arc. **#258, the selection contract, replaces
-the Selected rail with a dock at the canvas foot and adds the studio's first motion tier block.**
-ralph **1735 across 46 suites** (`studio-motion` is new). Four of the brief's premises were wrong
-and two of them changed the build — see the PR/SHA log.
+**main** = `98b4934` = the selection contract (#258). **The Selected rail is replaced by a dock at
+the canvas foot with five timed tiers, the studio gains its first motion-token block scoped beside
+the radius scale, and `useAutoGrow` plus the canvas ceiling and its wrapper are deleted.**
+ralph **1735 across 46 suites** (`studio-motion` is new).
+
+**FOUR OF THE BRIEF'S PREMISES WERE WRONG AND TWO CHANGED THE BUILD**, and **T0 was broken three
+separate ways** — every one of them with the property true and the outcome wrong. Both are in the
+PR/SHA log, and the third T0 cause is now a working rule: **a scroll is clamped to the range that
+exists when it is issued, and the range is not the maths.**
 
 ### The field-contract arc, complete, immediately before it
 
@@ -2329,6 +2334,31 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
   showed only in the rendered accessible name, and the fix was an explicit `aria-label` restoring
   what the visible label gave up. When information moves out of a label, name where it lands in the
   accessible name and measure it there.
+- **A MATCHER THAT CANNOT SEE NESTING WILL EVENTUALLY REPORT ON THE WRONG TEXT, AND IT WILL DO
+  SO CONFIDENTLY.** **Three instances in one session**, which is what makes it a rule rather than
+  a recurring nuisance:
+  - `[^)]+` truncating `cubic-bezier(0.34,1.35,0.5,1)` at its inner paren, so a fallback check
+    compared half a value and reported a mismatch that did not exist (#258).
+  - A block extractor using `[\s\S]*?\n\}` closing an `@media` at the FIRST nested rule's brace,
+    then asserting on the fragment (#258).
+  - A proximity lookahead matching a **blog** reduced-motion block whose neighbour happened to
+    contain `.studio-chrome` — **three of the seventeen reduce blocks in that stylesheet would
+    have satisfied it** (#258).
+  The earlier members of the family are `studio-ink` C2's `<input\b[^>]*>` stopping at the `=>`
+  inside a ref arrow, and #257's `{0,400}` byte window. **The failure is never a crash and never
+  an empty match — it is a confident assertion about a string that is not the one you meant.**
+  Extract by balancing braces or parens, or anchor on a token that cannot appear nested. And when
+  a suite reports something surprising, suspect the extractor before the code.
+- **A SCROLL IS CLAMPED TO THE RANGE THAT EXISTS WHEN IT IS ISSUED, AND THE RANGE IS NOT THE
+  MATHS.** #258's T0 asked to scroll to 264 and landed at **151** — exactly
+  `scrollHeight - clientHeight` for the viewport that existed at that instant. The dock then
+  opened, took 113px from the bottom, the reachable range grew to 264, and the scroll had already
+  finished. **Centring for the viewport the element will HAVE fixes the arithmetic and cannot fix
+  the clamp**, because the clamp is applied by the browser against the box as it is, not as it is
+  about to be. The fix is to re-issue the scroll once the box is final — on `transitionend` here
+  — which is free whenever the first call already sufficed, because the same conditionality the
+  feature is built on makes the second call a no-op. Applies to any scroll issued in the same
+  turn as a layout change.
 - **AN ASSERTION MUST REQUIRE BOTH SIDES TO RESOLVE BEFORE IT COMPARES THEM.** #257 shipped two
   assertions that were wrong before they were right. `text-\[11px\]\b` can never match — `]` and
   the following space are both non-word characters, so there is no boundary for `\b` to find. And a
@@ -3232,6 +3262,16 @@ enabled:hover:text-ink-950`, so **the hover affordance does not exist** — rest
 
 ## SESSION PR/SHA LOG
 
+**THE SELECTION CONTRACT PIN.** `98b4934` = #258 (the rail becomes a dock), on top of `e182ee3`
+= STATE for the field-contract arc. **main = `98b4934`, ralph 1735 across 46 suites from a run on
+main after the merge**, not from the PR's own CI.
+**AND THE MERGE DIVERGED, WHICH IS WORTH THE LINE.** A local `docs:` commit holding the contract
+file sat on main while the branch was cut from before it, so the pull was a non-fast-forward. It
+resolved with `git rebase origin/main` dropping the local commit as **already upstream** — the two
+copies of `studio-selection-contract.html` were byte-identical (`5c4dfeb…`), so there was nothing
+to reconcile. Checked before rebasing rather than after, because a rebase that silently drops a
+commit is only correct when the content is provably the same.
+
 **THE FIELD-CONTRACT ARC PINS**, read from `git log` rather than recalled — I guessed two of these
 first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (the accordion),
 `b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
@@ -3342,6 +3382,15 @@ from a run on main after the merge**, not from the PR's own CI.
   the seventeen in that stylesheet would have satisfied it.** Both are balanced-brace scans now,
   anchored on the first selector. Same family as `studio-ink` C2's `<input\b[^>]*>` stopping at
   the `=>` inside a ref arrow. Eight mutations kill eight assertions.
+
+  **THE DOCK'S GROUND IS NOT DOING THE WORK, AND THE BORDER IS NOT DECORATION.** Measured from
+  the rasteriser with the sanity pair first: the dock's cream-100 against the canvas pane's
+  cream-50 is **1.05** — indistinguishable. What separates the two surfaces is
+  `border-t border-ink-950/22`, entirely. **Recorded so nobody later removes that border as
+  redundant next to a ground that appears to already carry the edge.** The other pairs clear
+  their floors comfortably — label 7.06, tag 6.00, textarea 19.04, placeholder 5.52, hover
+  16.49 — and the close control's `ink-400` sits at **3.33 against the 3:1 ICON floor**, which
+  is the legal use of that token rather than hazard 31's text case.
 
   **OPEN, NOT CHANGED: the PublishBar overlaps the dock by 18px, 6px of it over the textarea.**
   That is the existing PublishBar hazard now landing on a surface you type into rather than on a
