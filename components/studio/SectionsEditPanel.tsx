@@ -380,9 +380,18 @@ function scrollParent(el: HTMLElement): HTMLElement | null {
   return null;
 }
 
-function revealIfNeeded(el: HTMLElement): boolean {
+/**
+ * Where `el` would have to be scrolled to, or null when it is already in view.
+ *
+ * ONE DEFINITION OF "IN VIEW", TWO CALLERS. `revealIfNeeded` scrolls with it and `willReveal`
+ * only asks — and the asking matters, because the caller has to decide whether to delay the mark
+ * BEFORE the scroll is issued. Computing the test twice is how the two answers drift apart, and
+ * a "will it scroll" that disagrees with "did it scroll" would time the mark against a scroll
+ * that never happened.
+ */
+function revealTarget(el: HTMLElement): { scroller: HTMLElement; top: number } | null {
   const scroller = scrollParent(el);
-  if (!scroller) return false;
+  if (!scroller) return null;
   const e = el.getBoundingClientRect();
   const s = scroller.getBoundingClientRect();
   const pad = 16;
@@ -398,19 +407,75 @@ function revealIfNeeded(el: HTMLElement): boolean {
   // `scrollHeight` reports the height it is about to take while `clientHeight` reports the
   // height it currently occupies. The difference is exactly what this viewport is about to
   // lose — zero when the dock is already open, which is why one expression covers both.
-  const dock = document.querySelector<HTMLElement>("[data-studio-dock]");
+  // AND IT APPLIES TO THE CANVAS PANE ONLY. The dock is a sibling of the CANVAS scroller; the
+  // inspector is a separate aside with its own scroll, which the dock does not touch. Subtracting
+  // the dock's height from the inspector's viewport would inset it by 113px of nothing and push
+  // every inspector reveal too far down — the same arithmetic being right for one box and wrong
+  // for another. `contains` asks the DOM which pane this scroller is in rather than assuming.
+  const dockNode = document.querySelector<HTMLElement>("[data-studio-dock]");
+  const dock = dockNode && dockNode.parentElement?.contains(scroller) ? dockNode : null;
   const pending = dock ? Math.max(0, dock.scrollHeight - dock.clientHeight) : 0;
   const bottom = s.bottom - pending;
   const height = s.height - pending;
 
   // Fully inside, with a margin — nothing to do. This is the branch that keeps the earlier
   // decision intact, and it is the one the gate has to prove still fires.
-  if (e.top >= s.top + pad && e.bottom <= bottom - pad) return false;
+  if (e.top >= s.top + pad && e.bottom <= bottom - pad) return null;
   // Centre it in the viewport it will HAVE, clamped at the top so a tall element lands where
   // you can read its start rather than its middle.
   const top = scroller.scrollTop + (e.top - s.top) - (height - e.height) / 2;
-  scroller.scrollTo({ top: Math.max(0, top) });
+  return { scroller, top: Math.max(0, top) };
+}
+
+/** Would a reveal move anything? Asked before the scroll is issued, to time the mark. */
+function willReveal(el: HTMLElement): boolean {
+  return revealTarget(el) !== null;
+}
+
+function revealIfNeeded(el: HTMLElement): boolean {
+  const t = revealTarget(el);
+  if (!t) return false;
+  t.scroller.scrollTo({ top: t.top });
   return true;
+}
+
+/** Read a studio motion token as milliseconds. Scoped to `.studio-chrome`, so it is read from an
+ *  element inside it rather than from the root — the value does not exist on `:root` by design. */
+function readStudioMs(name: string): string {
+  const host = document.querySelector(".studio-chrome");
+  return host ? getComputedStyle(host).getPropertyValue(name).trim() : "";
+}
+
+/**
+ * Open every collapsed group between `el` and the panel, USING THE CONTROL A PERSON WOULD USE.
+ *
+ * `CollapsibleGroup` keeps `open` in local `useState` — #234's decision, taken so the fold needs
+ * no persistence layer and no id registry. Reaching in from outside would mean lifting that state
+ * or building a registry to address it, which is the machinery #234 deliberately did not build.
+ * **So this clicks the toggle.** The group already exposes exactly what is needed: the header is a
+ * `<button aria-expanded aria-controls={bodyId}>` and the body is `<div id={bodyId} hidden={!open}>`,
+ * so a hidden ancestor with an id names its own controller. Nothing new is stored, nothing is
+ * lifted, and the group's own handler runs — which is also why the open survives exactly as long
+ * as a hand-opened one would.
+ *
+ * REACT COMMITS THE OPEN ASYNCHRONOUSLY, so callers must wait a frame before measuring. That is
+ * not incidental: scrolling before the commit is #258's third T0 bug exactly — the range that
+ * exists when the scroll is issued is smaller than the one that exists after the group expands,
+ * and the browser clamps to the former.
+ */
+function openEnclosingGroups(el: HTMLElement): boolean {
+  let opened = false;
+  for (let n: HTMLElement | null = el; n; n = n.parentElement) {
+    if (!n.hasAttribute("hidden") || !n.id) continue;
+    const btn = document.querySelector<HTMLElement>(
+      `[aria-controls="${CSS.escape(n.id)}"][aria-expanded="false"]`
+    );
+    if (btn) {
+      btn.click();
+      opened = true;
+    }
+  }
+  return opened;
 }
 
 /**
@@ -1247,6 +1312,55 @@ export default function SectionsEditPanel({
     return () => document.removeEventListener("keydown", onKey);
   }, [selectedField]);
 
+  // T0's INSPECTOR HALF. **THIS OVERRULES #258, WHICH SHIPPED T0 CANVAS-ONLY ON PURPOSE.**
+  //
+  // THE REASONING #258 GAVE HAS NOT STOPPED BEING TRUE — `ItemRows` folds by default, and a
+  // scroll to a folded row lands on nothing and looks exactly like the scroll not firing. What
+  // changed is the remedy: instead of declining to scroll, OPEN the group first, then scroll,
+  // then mark. The owner saw the canvas-only result and wanted the pane to follow.
+  //
+  // ONLY ADDRESSED FIELDS HAVE A TARGET, which is the same limit T3 has and for the same reason:
+  // a block field has no `data-studio-field`, so there is no node to scroll to. It docks and
+  // marks the canvas as usual and the inspector does not move. Stated here rather than left to
+  // be discovered, because "the pane sometimes scrolls" is otherwise indistinguishable from a bug.
+  //
+  // RETURNS SYNCHRONOUSLY WHETHER IT WILL SCROLL, and scrolls asynchronously. The caller needs
+  // the answer now to time the mark at 55% of T0; the scroll itself must wait for React to commit
+  // the group's open, or it is clamped to the pre-expansion range — #258's third T0 bug, on a
+  // different scroller.
+  const revealInspectorField = (f: SelectedField): boolean => {
+    const root = inspectorRef.current;
+    if (!root || f.kind !== "section") return false;
+    // The SHOWN section panel. Every section editor is mounted and hidden, so the address matches
+    // once per section and the field must be taken from the panel on screen — the same filter T3
+    // applies, for the same reason.
+    const panel = [...root.querySelectorAll<HTMLElement>("#cs-fieldtab-panel > div")].find(
+      (d) => d.offsetParent !== null
+    );
+    const target = panel?.querySelector<HTMLElement>(`[data-studio-field="${f.field}"]`);
+    if (!target) return false;
+
+    const folded = target.offsetParent === null;
+    if (!folded && !willReveal(target)) return false;
+
+    openEnclosingGroups(target);
+    // Two frames: one for React to commit the open, one for layout to settle at the new height.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (target.offsetParent !== null) {
+          revealIfNeeded(target);
+          return;
+        }
+        // COULD NOT OPEN IT — scroll to the closed group's header instead. Landing on the row you
+        // would have to expand is honest; landing on nothing is not, and is the failure mode
+        // #258 chose not to ship at all.
+        const header = target.closest("[hidden]")?.previousElementSibling as HTMLElement | null;
+        if (header) revealIfNeeded(header);
+      })
+    );
+    return true;
+  };
+
   // T3 · THE ECHO. The inspector field's mark, applied imperatively for the same reason the
   // canvas mark is: the marked node is rendered deep inside the shared field components, which
   // know nothing about studio selection, and threading a prop to reach them would touch every
@@ -1405,8 +1519,13 @@ export default function SectionsEditPanel({
           // inspector does not scroll; the prose was written for the pre-T0 version and never
           // updated. Correction 32. The dock is what confirms the click instead.
           const selectField = (f: SelectedField, el?: HTMLElement | null) => {
+            // BOTH PANES ARE IN SCOPE NOW. The inspector half schedules its own scroll (it may
+            // have to open a group first) but answers synchronously whether it will move, because
+            // the mark's timing depends on whether ANY scroll fired.
+            const movedInspector = revealInspectorField(f);
+            let movedCanvas = false;
             if (el) {
-              revealIfNeeded(el);
+              movedCanvas = revealIfNeeded(el);
               // AND AGAIN ONCE THE DOCK HAS TAKEN ITS SPACE, because the first call's scroll is
               // CLAMPED TO THE RANGE THAT EXISTS WHEN IT IS ISSUED. Measured: the reveal asked
               // for 264, the browser clamped it to 151 — exactly `scrollHeight - clientHeight`
@@ -1429,7 +1548,22 @@ export default function SectionsEditPanel({
                 dock.addEventListener("transitionend", again);
               }
             }
-            setSelectedField(f);
+            // THE MARK STARTS AT 55% OF T0 — OVERLAPPED, NOT QUEUED. Waiting for the scroll to
+            // finish would read as two events; starting with it would waste the lead on something
+            // still travelling. 55% is the contract's, and it is read from the TOKEN rather than
+            // retyped, which is also what finally gives `--studio-t0` a consumer: it shipped in
+            // #258 declared and used by nothing, the `FIT_THRESHOLD_PX` shape, and my own C1
+            // passed it because that assertion tested the SET rather than each token.
+            //
+            // NO `matchMedia` HERE. Under reduce the token itself is 0ms (see globals.css), so
+            // this reads zero and the mark is immediate — the same CSS-decides-it route the
+            // scroll takes, and the reason `reduced-motion` A2d can keep asserting the studio
+            // reaches for no motion hook.
+            const scrolled = movedCanvas || movedInspector;
+            const t0 = scrolled ? parseFloat(readStudioMs("--studio-t0")) || 0 : 0;
+            const lead = t0 * 0.55;
+            if (lead > 0) window.setTimeout(() => setSelectedField(f), lead);
+            else setSelectedField(f);
           };
 
           /**

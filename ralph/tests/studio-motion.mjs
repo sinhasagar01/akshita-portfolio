@@ -151,8 +151,20 @@ for (const f of studioFiles) {
   }
 }
 
-t("C1: the tokens are actually consumed — a block nothing reads is a block that cannot be wrong",
-  uses.length > 0, true);
+// C1 — PER TOKEN, NOT OVER THE SET. The first version asserted `uses.length > 0`, which is true
+// the moment ANY token is read — and `--studio-t0` shipped in #258 declared and consumed by
+// NOTHING while this passed. That is the `FIT_THRESHOLD_PX` shape (a constant with zero
+// consumers) and the same "an existence check over a set proves nothing about a member" mistake
+// G5 made. Every declared token must have a reader, and the reader may be JS: T0 is read through
+// `getComputedStyle` to time the mark, not through a CSS transition.
+{
+  const jsReads = studioFiles.map((f) => strip(read(f))).join("\n");
+  const unconsumed = names.filter(
+    (n) => !uses.some((u) => u.token === n) && !jsReads.includes(`"${n}"`) && !cssNoComments.includes(`var(${n},`)
+  );
+  t("C1: EVERY declared token has a consumer — a token nothing reads is a constant with no callers",
+    unconsumed, []);
+}
 t("C2: EVERY use carries a literal fallback — no bare `var(--studio-…)` anywhere in studio",
   uses.filter((u) => !u.hasFallback).map((u) => `${u.file} — ${u.token}`), []);
 
@@ -271,9 +283,18 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   const markRule = blockAt(cssNoComments, /\.studio-chrome \[data-studio-field\]\.is-echoed\s*\{/);
   t("G1: the echo has a rule of its own — it is not the canvas's `.cs-editable.is-selected`",
     markRule !== "", true);
-  t("G2: …and it declares BOTH halves of the treatment, the ground step and the 3px bar",
+  t("G2: …and it declares BOTH halves of the treatment, the ground step and the bar",
     /background-color:\s*var\(--color-cream-200\)/.test(markRule) &&
-      /box-shadow:\s*inset 3px 0 0 0 var\(--color-accent-500\)/.test(markRule), true);
+      /box-shadow:\s*inset var\(--studio-echo-bar\) 0 0 0 var\(--color-accent-500\)/.test(markRule), true);
+
+  // G2b — THE BAR'S WIDTH HAS ONE SOURCE. It is read by the shadow that DRAWS the bar and by the
+  // inset that clears room for it; two literals would be two places to drift, and the failure
+  // would be a control sitting proud of its own mark by a pixel or two — visible, and the kind
+  // of thing nobody files.
+  const base = blockAt(cssNoComments, /\.studio-chrome \[data-studio-field\]\s*\{/);
+  t("G2b: the bar width is declared once and read by both the mark and the flush inset",
+    /--studio-echo-bar:\s*3px/.test(base) &&
+      (cssNoComments.match(/var\(--studio-echo-bar\)/g) ?? []).length >= 4, true);
 
   // G3 — NO BORDER AND NO WIDTH. `box-shadow: inset` cannot participate in layout; a
   // `border-left: 3px` would push every field's content 3px right on selection, and THE
@@ -307,11 +328,95 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   t("G6: the applied node is filtered on rendered-ness — the selector matches once per section",
     /\.find\(\(n\) => n\.offsetParent !== null\)/.test(sections), true);
 
+  /* ---- THE FLUSH CONTROL. A DELIBERATE GEOMETRY CHANGE, WHICH IS WHY IT IS ASSERTED APART
+   * FROM G3. G3 says the MARK moves nothing; this rule moves the CONTROL on purpose, 3px, so
+   * that it sits against the bar rather than beside it. The two claims would contradict each
+   * other if they shared an assertion. */
+  const flush = blockAt(cssNoComments,
+    /\.studio-chrome \[data-studio-field\]\.is-echoed :is\(input, textarea, select\)\s*\{/);
+  t("G8: the flush rule exists and insets the control by the bar, not by a literal",
+    /margin-left:\s*var\(--studio-echo-bar\)/.test(flush), true);
+
+  // G8b — THE WIDTH IS DERIVED FROM THE CONTAINER. A pinned px would be correct at one pane
+  // width and wrong at every other, and the sidebar drag moves every pane. The studio ships no
+  // literal widths; this is that rule applied to a rule that could easily have carried one.
+  t("G8b: the width is `container minus bar`, so it tracks the pane instead of pinning it",
+    /width:\s*calc\(100% - var\(--studio-echo-bar\)\)/.test(flush), true);
+  t("G8c: …and no literal px width crept in beside it",
+    /width:\s*\d+px/.test(flush), false);
+
+  // G9 — ONLY THE LEFT EDGE IS FLATTENED. `border-radius: 0` and `border-left: 0` as shorthands
+  // would kill the control's other three corners and its other three edges, which is a different
+  // control rather than a flush one. The longhands are the whole difference.
+  t("G9: only the LEFT corners and the LEFT border are removed, not all four",
+    /border-top-left-radius:\s*0/.test(flush) &&
+      /border-bottom-left-radius:\s*0/.test(flush) &&
+      /border-left-width:\s*0/.test(flush), true);
+  t("G9b: …and no shorthand that would flatten the other three edges with them",
+    /border-radius:\s*0|border:\s*0|border-left:\s*0[^-]/.test(flush), false);
+
   // G7 — THE ADDRESSES ARE THE CANVAS'S SET, derived rather than listed. The canvas can select
   // exactly four section fields; advertising a fifth would promise an echo that can never fire.
   const wired = [...shell.matchAll(/fieldId="([a-zA-Z]+)"/g)].map((m) => m[1]).sort();
   t("G7: the four wired addresses are exactly the four the canvas can select",
     wired, ["eyebrow", "lead", "northStar", "title"]);
+}
+
+/* ================================================================= H. T0's INSPECTOR HALF
+ * **THIS OVERRULES #258, WHICH SHIPPED T0 CANVAS-ONLY DELIBERATELY.** The reasoning it gave has
+ * not stopped being true — a scroll to a folded row lands on nothing and looks exactly like the
+ * scroll not firing — so the remedy changed rather than the reasoning: OPEN the group, then
+ * scroll, then mark. These assertions pin the parts that make that safe. */
+{
+  const sections = strip(read("components/studio/SectionsEditPanel.tsx"));
+
+  // H1 — THE GROUP IS OPENED THROUGH ITS OWN CONTROL. #234 kept `CollapsibleGroup`'s state local
+  // on purpose, so it needs no persistence layer and no id registry. Lifting that state or
+  // building a registry to address it is the machinery #234 declined to build; clicking the
+  // toggle needs neither, and the group's own handler runs.
+  t("H1: folded groups are opened by clicking their own toggle, not by new state machinery",
+    /\[aria-controls="\$\{CSS\.escape\(n\.id\)\}"\]\[aria-expanded="false"\]/.test(sections), true);
+  t("H1b: …and nothing lifted CollapsibleGroup's state to do it",
+    /defaultOpen|openGroups|setGroupOpen/.test(strip(read("components/studio/blocks/CollapsibleGroup.tsx")))
+      && /useState\(defaultOpen\)/.test(strip(read("components/studio/blocks/CollapsibleGroup.tsx"))), true);
+
+  // H2 — THE SCROLL WAITS FOR THE COMMIT. React commits the open asynchronously, and a scroll
+  // issued before it is clamped to the PRE-EXPANSION range — #258's third T0 bug on a different
+  // scroller. Two frames: one for the commit, one for layout at the new height.
+  t("H2: the scroll is deferred two frames, so it cannot be clamped to the pre-expansion range",
+    /requestAnimationFrame\(\(\) =>\s*requestAnimationFrame\(/.test(sections), true);
+
+  // H3 — THE HONEST FALLBACK. If the group cannot be opened, scroll to its header rather than to
+  // a field that is not rendered. Landing on the row you would have to expand is honest; landing
+  // on nothing is the failure #258 chose not to ship at all.
+  t("H3: an unopenable group scrolls to its header rather than to nothing",
+    /closest\("\[hidden\]"\)\?\.previousElementSibling/.test(sections), true);
+
+  // H4 — THE DOCK'S INSET IS CANVAS-ONLY. The dock is a sibling of the CANVAS scroller; the
+  // inspector is a separate aside the dock never touches. Subtracting 113px from the inspector's
+  // viewport would push every inspector reveal too far down — the same arithmetic being right
+  // for one box and wrong for another.
+  t("H4: the dock's pending height insets the CANVAS viewport only, asked of the DOM not assumed",
+    /dockNode\.parentElement\?\.contains\(scroller\)/.test(sections), true);
+
+  // H5 — THE MARK IS TIMED FROM THE TOKEN. 55% of T0, read rather than retyped — and this is what
+  // finally gives `--studio-t0` a consumer (see C1).
+  t("H5: the mark starts at 55% of T0, read from the token",
+    /readStudioMs\("--studio-t0"\)/.test(sections) && /\* 0\.55/.test(sections), true);
+
+  // H6 — AND UNDER REDUCE THE TOKEN ITSELF IS ZERO. A token read by JS is a number, not a
+  // transition, so the global `transition-duration` reset cannot reach it. Zeroing it in CSS is
+  // what keeps the studio free of `matchMedia` — the same CSS-decides route the scroll takes.
+  t("H6: --studio-t0 is zeroed under reduce, so the JS read needs no motion query",
+    /--studio-t0:\s*0ms/.test(reduceBlock), true);
+
+  // H7 — ONE DEFINITION OF "IN VIEW". `willReveal` and `revealIfNeeded` both go through
+  // `revealTarget`; computing the test twice is how "will it scroll" and "did it scroll" drift,
+  // and the mark would then be timed against a scroll that never happened.
+  t("H7: the in-view test has ONE definition, shared by the asker and the scroller",
+    (sections.match(/function revealTarget\(/g) ?? []).length === 1 &&
+      /return revealTarget\(el\) !== null;/.test(sections) &&
+      /const t = revealTarget\(el\);/.test(sections), true);
 }
 
 console.log(`\nstudio-motion result: ${pass} passed, ${fail} failed`);
