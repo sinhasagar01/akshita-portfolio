@@ -57,7 +57,8 @@ import { SectionShellForm, emptySection } from "./blocks/SectionShell";
 /** Stable empty default — a fresh [] each render would rebuild the rewriter. */
 const NO_DRAFT_IMAGES: readonly string[] = [];
 import { FieldTabProvider, inputCls, type FieldTab, labelCls, groupLabelCls } from "./blocks/fields";
-import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight, IconInfo } from "./icons";
+import { IconChevronUp, IconChevronDown, IconChevronRight, IconX, IconPlus, IconArrowUpRight, IconInfo } from "./icons";
+import SectionMini from "./SectionMini";
 
 type SectionsFields = { sections: readonly RawSection[] };
 /** The parallel stable ids, mirroring the sections structure exactly. */
@@ -144,7 +145,7 @@ export function sectionNeedsImage(section: RawSection): boolean {
  *  kind family plus the kind's label, so the board reads as an overview. */
 function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
   return (
-    <span className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/6 bg-cream-100 px-2 py-1">
+    <span className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/6 bg-cream-100 px-2 py-1 transition-[background-color,color] duration-[var(--studio-lift-t,200ms)] delay-[var(--studio-t3-delay,90ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:bg-cream-200">
       <span aria-hidden className="shrink-0">
         {IMAGE_KINDS.has(kind) ? (
           <span className="block size-3.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/20 bg-ink-950/5" />
@@ -161,7 +162,9 @@ function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
           </span>
         )}
       </span>
-      <span className="truncate text-[12px] text-ink-600">{blockLabel(kind)}</span>
+      <span className="truncate text-[12px] text-ink-600 transition-colors duration-[var(--studio-lift-t,200ms)] delay-[var(--studio-t3-delay,90ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:text-ink-950">
+        {blockLabel(kind)}
+      </span>
     </span>
   );
 }
@@ -959,7 +962,12 @@ export default function SectionsEditPanel({
   //
   // `selectedSectionId` REMAINS, DERIVED. Ten call sites read it and none of them care how the
   // rail spells its selection, so it stays a `string | null` and only the SETTERS moved.
-  const [selection, setSelection] = useState<Selection>("board");
+  // A CASE STUDY OPENS ON THE EDITOR, NOT THE BOARD. Opening on the Board shows the SHAPE when
+  // what an author came here to do is write. `"details"` rather than a section id because it is
+  // the one landing that exists before anything is selected, and it is already what
+  // `lastEditedRef` defaults to below — so the open state and the returned-to state agree by
+  // construction rather than by two constants that have to be kept in step.
+  const [selection, setSelection] = useState<Selection>("details");
   const selectedSectionId = typeof selection === "object" ? selection.id : null;
   const showBoard = selection === "board";
   const showDetails = selection === "details";
@@ -1240,102 +1248,187 @@ export default function SectionsEditPanel({
   // rail navigates while you work, the Board shows the shape of the whole study at once, which
   // a 264px rail cannot. Reached from the crumb row rather than a back link.
   const boardNode = (
-    <div className="overflow-y-auto px-4 py-5">
-        <div className="flex flex-col gap-4 px-4 py-5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {values.sections.map((section, i) => {
-              const name = sectionLabel(section, i);
-              const count = section.blocks.length;
-              const needsImage = sectionNeedsImage(section);
-              return (
-                <div
-                  key={ids.sectionIds[i]}
-                  className="relative flex flex-col gap-2 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3 transition-colors hover:border-accent-500/40 hover:bg-cream-100"
-                >
-                  {/* The whole card selects; the reorder arrows are SIBLINGS of this
-                      button, never nested, so the markup stays valid. The overlay sits
-                      under the content, which is pointer-transparent, so a click anywhere
-                      but the arrows opens the section. */}
-                  <button
-                    type="button"
-                    onClick={() => setSelection({ id: ids.sectionIds[i] })}
-                    aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
-                    className="absolute inset-0 z-0 rounded-[var(--studio-radius-card,8px)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
-                  />
-                  <div className="pointer-events-none relative z-[1] flex items-start justify-between gap-2">
-                    <div className="flex min-w-0 flex-col">
-                      {/* THE AUTHOR'S OWN CONTENT, NOT CHROME — this renders `section.eyebrow`,
-                          text the author wrote, so it is out of the label sweep by role. It is
-                          left at ink-400 DELIBERATELY AND THE NUMBER IS RECORDED: measured 3.49
-                          against this card's cream-50, which is below the 4.5 AA floor. It is
-                          not fixed here because recolouring a preview of authored content is a
-                          design decision about how content reads in the editor, not a chrome
-                          repaint — and PR 7 restructures this board. Fix it there, with intent. */}
-                      {section.eyebrow && (
-                        <span className="truncate text-[10px] uppercase tracking-eyebrow text-ink-400">
-                          {section.eyebrow}
-                        </span>
-                      )}
-                      <span className="truncate font-display text-[14px] text-ink-950">{name}</span>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <span className="rounded-full border border-ink-950/10 px-2 py-0.5 text-[10px] text-text-subtle">
-                        {count} {count === 1 ? "block" : "blocks"}
+    /* THE GRID IS cream-100 AND THE CARDS ARE cream-50, AND THAT IS LOAD-BEARING RATHER THAN
+       DECORATIVE. A cream-50 card on a cream-50 page has nothing to lift off, so the ground move
+       is what makes the elevation legible at all. It also reads correctly against the ladder — a
+       field surface holding wells is exactly what cream-100 is for.
+       THE DOUBLE PADDING IS GONE. `px-4 py-5` was applied here AND on the inner column, insetting
+       the board 32px horizontally and 40px vertically. One inset now. */
+    <div className="min-h-0 flex-1 overflow-y-auto bg-cream-100">
+      <div className="flex flex-col gap-4 px-4 py-5">
+        {/* FLUID COLUMNS, NOT A BREAKPOINT LADDER. `auto-fill` with a 300px floor fits as many
+            columns as the pane can hold and adds one when it grows, so the Board is not capped at
+            three on a wide screen and does not need a breakpoint invented for each step.
+            THE 300px FLOOR IS THE TITLE'S, MEASURED. All six of the long real titles need a 222px
+            title column at Fraunces 15px; with the arrows at the card foot the title gets
+            `card - 67`, so 300 leaves it 233 and the two-line clamp holds at the narrowest track
+            the grid will ever create. A smaller floor would let the grid produce a column the
+            clamp cannot survive, which is the failure this number exists to prevent. */}
+        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+          {values.sections.map((section, i) => {
+            const name = sectionLabel(section, i);
+            const count = section.blocks.length;
+            const needsImage = sectionNeedsImage(section);
+            const selected = selectedSectionId === ids.sectionIds[i];
+            const firstKind = (section.blocks[0]?.discriminant as SectionBlockKind) ?? null;
+            return (
+              /* A FIXED 320px HEIGHT, AND THE MINI TAKES THE SLACK. The height is fixed rather
+                 than derived from an aspect ratio, so a fluid column count cannot make the cards
+                 taller as it makes them wider — a square would have grown to 372px tall at three
+                 columns and 300 at five, changing how much board fits on screen every time the
+                 pane resized. `max-w-[340px]` keeps the card near its intended proportion when a
+                 track is generous. The head and the foot are fixed and the mini is the only
+                 `flex-1`, so a one-block card and a three-block card are the same size and the
+                 sparse one gives its shape more room rather than leaving dead space.
+                 HAZARD 26 IS LIVE HERE AND IS SIDESTEPPED BY CONSTRUCTION. There is NO border
+                 shorthand on this element — `border-0` plus one left declaration — so there is no
+                 shorthand/longhand pair for sheet order to arbitrate. `studio-border-race` should
+                 confirm that rather than this comment asserting it.
+                 THE LEFT EDGE IS ALWAYS 3px AND ONLY ITS COLOUR MOVES, so selection cannot shift
+                 the grid by a pixel and nothing reflows between states. */
+              <div
+                key={ids.sectionIds[i]}
+                data-board-card
+                className={`group relative flex h-[320px] max-w-[340px] flex-col overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-cream-50 p-3.5 ${
+                  selected ? "border-l-accent-500" : "border-l-transparent"
+                } shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] ${
+                  selected
+                    ? "shadow-[var(--studio-lift-active,0_2px_5px_oklch(14%_0.018_60/0.08))]"
+                    : "hover:-translate-y-[3px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))]"
+                } transition-[box-shadow,transform,border-color,background-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] motion-reduce:hover:translate-y-0`}
+              >
+                {/* THE SHEEN — a single diagonal pass, once per hover, never repeating. The only
+                    thing on this card that is decoration rather than feedback, kept because it
+                    measured free: 0.2ms of style and layout for a real hover against a 16.7ms
+                    frame, and below the noise floor when isolated from the rest.
+                    It is `motion-reduce:hidden` rather than duration-zeroed, because a pass with
+                    no duration is a flash rather than an absence. */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-[2] -translate-x-[120%] rounded-[inherit] bg-[linear-gradient(115deg,transparent_30%,oklch(100%_0_0/.5)_46%,transparent_62%)] opacity-0 transition-none group-hover:translate-x-[120%] group-hover:opacity-100 group-hover:transition-[transform,opacity] group-hover:duration-[var(--studio-lift-sheen,620ms)] motion-reduce:hidden"
+                />
+                {/* The whole card selects; the reorder arrows are SIBLINGS of this button, never
+                    nested, so the markup stays valid. The overlay sits under the content, which is
+                    pointer-transparent, so a click anywhere but the arrows opens the section.
+                    NO COUNT IN THE VISIBLE CARD ANY MORE — the chips ARE the count — but it stays
+                    in the ACCESSIBLE NAME, because a screen reader has no chips to count. */}
+                <button
+                  type="button"
+                  onClick={() => setSelection({ id: ids.sectionIds[i] })}
+                  aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
+                  className="absolute inset-0 z-0 rounded-[var(--studio-radius-card,8px)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent-500"
+                />
+
+                {/* HEAD — fixed height. The arrows are NOT here; see the foot. */}
+                <div className="pointer-events-none relative z-[1] flex flex-none items-start gap-2.5">
+                  {/* THE ORDINAL trails the card by the follower tier rather than moving with it,
+                      which is what makes the card read as an object rather than an image that
+                      changed. Selected, it takes the accent and turns upright — one mark, two
+                      jobs. cream-100 on the cream-50 card, NOT cream-50: the contract drew it at
+                      the card's own colour, which measures 1.00 and leaves a hairline doing all
+                      the work. One step off whatever it sits on. */}
+                  <span
+                    className={`grid size-[30px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] text-[13px] ${
+                      selected
+                        ? "bg-accent-500 font-semibold text-cream-50"
+                        : "bg-cream-100 font-display italic text-ink-600 group-hover:bg-cream-200"
+                    } transition-[background-color,color,transform] duration-[var(--studio-lift-follow,240ms)] delay-[var(--studio-t2-delay,40ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:-translate-y-px motion-reduce:group-hover:translate-y-0`}
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    {/* ink-600, NOT ink-400, AND THIS IS THE PR THAT WAS TOLD TO DO IT. The old
+                        comment here deferred a measured 3.49 against cream-50 — below the 4.5 AA
+                        floor — to "PR 7 restructures this board". This is that restructure. 7.42. */}
+                    {section.eyebrow && (
+                      <span className="truncate text-[10px] uppercase tracking-eyebrow text-ink-600">
+                        {section.eyebrow}
                       </span>
-                      {/* Reorder — the SAME moveSection/structural() choke point the
-                          focused editor uses, so {sectionIds, blockIds} and sections move
-                          in lockstep and ids can never drift. */}
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => moveSection(i, -1)}
-                        disabled={i === 0}
-                        aria-label={`Move section ${name} up`}
-                        className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
-                      >
-                        <IconChevronUp />
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => moveSection(i, 1)}
-                        disabled={i === values.sections.length - 1}
-                        aria-label={`Move section ${name} down`}
-                        className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
-                      >
-                        <IconChevronDown />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="pointer-events-none relative z-[1] flex flex-col gap-1">
-                    {count === 0 ? (
-                      <span className="text-[12px] text-text-subtle">No blocks yet</span>
-                    ) : (
-                      section.blocks.map((block, j) => (
-                        <BlockSkeleton
-                          key={ids.blockIds[i][j]}
-                          kind={block.discriminant as SectionBlockKind}
-                        />
-                      ))
                     )}
-                  </div>
-                  {needsImage && (
-                    <span className="pointer-events-none relative z-[1] inline-flex w-fit items-center rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600">
-                      Needs an image
+                    {/* TWO LINES, AND THE AUTHOR'S OWN BREAK IS HONOURED. Five of the six longest
+                        real titles already carry a newline the author wrote, so `whitespace-pre-line`
+                        makes the clamp a backstop rather than a competing opinion. */}
+                    <span className="line-clamp-2 whitespace-pre-line font-display text-[15px] leading-[1.25] text-ink-950">
+                      {name}
                     </span>
+                  </div>
+                </div>
+
+                {/* THE SHAPE — the flexible middle, and the only `flex-1` on the card. */}
+                <div className="pointer-events-none relative z-[1] my-2.5 flex min-h-0 flex-1 flex-col justify-center rounded-[var(--studio-radius-control,4px)] bg-cream-100 p-3 transition-colors duration-[var(--studio-lift-follow,240ms)] delay-[var(--studio-t2-delay,40ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:bg-cream-200">
+                  {count === 0 ? (
+                    <span className="w-full text-center text-[12px] text-text-subtle">No blocks yet</span>
+                  ) : (
+                    <SectionMini kind={firstKind} />
                   )}
                 </div>
-              );
-            })}
-          </div>
-          <button
-            type="button"
-            onClick={addSection}
-            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
-          >
-            <IconPlus /> Add a section
-          </button>
+
+                {/* FOOT — fixed height. The chips say what the blocks ARE; the shape above says
+                    what they look like. THE ARROWS LIVE HERE, and that is a measured move rather
+                    than a preference: in the head they cost the title 46px, which took the longest
+                    real title to three lines in a 323px card. Here they also sit at the same place
+                    on every card instead of shifting with the title's length. */}
+                <div className="relative z-[1] flex flex-none items-end justify-between gap-2">
+                  <div className="pointer-events-none flex min-w-0 flex-wrap items-center gap-1">
+                    {section.blocks.slice(0, 3).map((block, j) => (
+                      <BlockSkeleton
+                        key={ids.blockIds[i][j]}
+                        kind={block.discriminant as SectionBlockKind}
+                      />
+                    ))}
+                    {count > 3 && (
+                      <span className="text-[11px] text-text-subtle">+{count - 3}</span>
+                    )}
+                    {needsImage && (
+                      <span className="inline-flex w-fit items-center rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600">
+                        Needs an image
+                      </span>
+                    )}
+                  </div>
+                  {/* Reorder — the SAME moveSection/structural() choke point the focused editor
+                      uses, so {sectionIds, blockIds} and sections move in lockstep.
+                      LEFT AND RIGHT, NOT UP AND DOWN, AND ONLY THE LABELS CHANGED. Document order
+                      runs left-to-right and wraps, so the section before this one is visually to
+                      its LEFT; `up` on the first card of a row moved it to the END of the previous
+                      row, a jump rather than a step. `moveSection(i, dir)` was already
+                      "previous/next index" rather than "up/down", so the handler is untouched.
+                      DISABLED AT THE ENDS RATHER THAN ABSENT, so the control never moves between
+                      cards. */}
+                  <div className="flex flex-none items-center gap-1">
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => moveSection(i, -1)}
+                      disabled={i === 0}
+                      aria-label={`Move section ${name} earlier`}
+                      className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
+                    >
+                      <IconChevronRight className="rotate-180" />
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => moveSection(i, 1)}
+                      disabled={i === values.sections.length - 1}
+                      aria-label={`Move section ${name} later`}
+                      className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
+                    >
+                      <IconChevronRight />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+        <button
+          type="button"
+          onClick={addSection}
+          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+        >
+          <IconPlus /> Add a section
+        </button>
+      </div>
     </div>
   );
 
@@ -2174,10 +2267,13 @@ export default function SectionsEditPanel({
         >
           <span className="text-ink-600">View live</span> <IconArrowUpRight />
         </a>
-        {/* BOARD | EDITOR. Not new machinery — `selection` already encoded the board as a state,
-            so this is that state getting a control instead of a back link. */}
+        {/* EDITOR | BOARD. Not new machinery — `selection` already encoded the board as a state,
+            so this is that state getting a control instead of a back link.
+            EDITOR IS FIRST, AND THE ORDER IS THE ONLY THING THAT CHANGED. It reads left to right
+            as what the panel opens on, so the control agrees with the default beside it rather
+            than listing the states in the order they were built. */}
         <div role="group" aria-label="View" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5">
-          {([["board", "Board"], ["editor", "Editor"]] as const).map(([v, label]) => {
+          {([["editor", "Editor"], ["board", "Board"]] as const).map(([v, label]) => {
             const on = v === "board" ? showBoard : !showBoard;
             return (
               <button
