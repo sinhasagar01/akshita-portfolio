@@ -283,7 +283,7 @@ export function ListboxField<T extends string>({
           style={{ maxHeight: maxH }}
           className={
             "absolute inset-x-0 z-40 overflow-y-auto rounded-[var(--studio-radius-card,8px)] " +
-            "border border-ink-950/12 bg-cream-50 p-[5px] shadow-[0_8px_30px_rgba(60,45,30,0.14)] " +
+            "border border-ink-950/12 bg-cream-50 p-[5px] shadow-[var(--studio-lift-popover,0_8px_30px_rgba(60,45,30,0.14))] " +
             "transition-[opacity,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-expo)] " +
             (flip ? "bottom-full mb-1.5 origin-bottom " : "top-full mt-1.5 origin-top ") +
             (open

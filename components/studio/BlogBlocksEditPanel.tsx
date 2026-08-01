@@ -831,7 +831,7 @@ export default function BlogBlocksEditPanel({
           {picker && (
             // The picker offers exactly the blog kinds because BLOG_BLOCK_REGISTRY IS the
             // curation — no filter, no prop, no fork of the case-study picker.
-            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-1.5 shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)]">
+            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-1.5 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]">
               {BLOG_PICKER_ORDER.map((k) => (
                 <button
                   key={k}

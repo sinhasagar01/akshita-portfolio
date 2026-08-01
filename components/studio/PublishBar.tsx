@@ -228,7 +228,7 @@ export default function PublishBar() {
     // is the pattern this 236px should follow whenever it is next touched.
     <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
       <div
-        className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[0_18px_40px_-20px_rgba(60,45,30,0.45)] backdrop-blur"
+        className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))] backdrop-blur"
         {...(confirmOpen
           ? {
               role: "alertdialog" as const,

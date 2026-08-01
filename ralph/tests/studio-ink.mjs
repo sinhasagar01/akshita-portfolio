@@ -1459,5 +1459,62 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /motion-reduce:hidden/.test(panel), true);
 }
 
+/* ---- C10 · THE OVERLAY FAMILY, AND NO RAW SHADOW LITERAL LEFT IN STUDIO --------------------
+ * Seven copy-pasted literals across seven files, five distinct values, two of them already
+ * drifted off the tiers they belonged to. #168 recorded the modal's as an exception; six sites
+ * later it was a convention nobody had declared.
+ * THEY ARE NOT THE LIFT STEPS, AND MEASURING IS WHAT SETTLED IT. Darkening against cream-100,
+ * reach = blur+spread: modal 2.845/36, floating 2.530/20, popover 1.306/30 — against the card
+ * scale's heaviest, lift-active at 1.584/20. Repointing the modal there would have cut its
+ * darkening 44% and halved its reach. And every legacy literal uses rgb(60,45,30) where ink-950
+ * is rgb(15,7,3), a distance of 65, with NO declared token closer than ink-800 at 20 — so the
+ * literal ink stays rather than rounding every floating surface onto a token that is not it. */
+{
+  /* COMMENT-STRIPPED, AND I WROTE THIS BUG ONE PR AFTER FIXING IT IN F5. The drift assertions
+   * below are ABSENCE checks, and the sites that changed carry comments NAMING the old values so
+   * a reader can see what moved — so raw source contains `60,50,38` in prose forever and the
+   * assertion fails on its own documentation. F5 was comment-stripped last PR for precisely this,
+   * with a note explaining it. Reading that note did not stop me writing it again; the mutation
+   * did. Absence assertions over source that documents what is absent MUST strip comments. */
+  const studioSrc = studioFiles.map((f) => code(`components/studio/${f}`)).join("");
+
+  t("C10: NO raw shadow literal survives anywhere in studio — that is the whole point of the sweep",
+    (studioSrc.match(/shadow-\[0_/g) ?? []).length, 0);
+  t("C10: the three overlay steps are declared, scoped to .studio-chrome and named by role",
+    /--studio-lift-popover:/.test(globals) && /--studio-lift-floating:/.test(globals)
+      && /--studio-lift-modal:/.test(globals), true);
+
+  /* EVERY STEP HAS A CONSUMER. The modal has exactly one and that is declared on the token — a
+   * modal is a distinct role, not a step someone might one day use. */
+  ["popover", "floating", "modal"].forEach((role) => {
+    t(`C10: --studio-lift-${role} has at least one consumer`,
+      new RegExp(`--studio-lift-${role},`).test(studioSrc), true);
+  });
+
+  /* THE INK STAYS LITERAL, AND ASSERTING IT IS WHAT STOPS A LATER TIDY-UP FROM "FIXING" IT ONTO
+   * ink-950 and shifting every floating surface in the studio by a distance of 65. */
+  t("C10: the overlay steps keep rgb(60,45,30) — no token is within 20 of it",
+    /--studio-lift-popover: 0 8px 30px rgba\(60, 45, 30, 0\.14\)/.test(globals), true);
+  t("C10: …and the card steps keep ink-950, so the two families stay distinguishable",
+    /--studio-lift-rest: 0 1px 2px oklch\(14% 0\.018 60/.test(globals), true);
+
+  /* THE TWO DRIFTS ARE GONE. BoldToolbar carried the only 60,50,38 in the studio and the only
+   * -18px spread; both are now the floating tier. Asserted as ABSENCE, because a drift returning
+   * is exactly what this sweep exists to prevent. */
+  t("C10: BoldToolbar's 60,50,38 ink is gone — it was the only one in the studio",
+    /60,\s*50,\s*38/.test(studioSrc), false);
+  t("C10: …and so is its -18px spread, the seventh value nobody had called a tier",
+    /40px_-18px/.test(studioSrc), false);
+
+  /* THE FALLBACKS EQUAL THE DECLARED VALUES, which is what studio-motion's C3 demands of the
+   * motion tokens and is just as load-bearing here: a fallback that disagrees renders a second
+   * shadow wherever the token fails to resolve. */
+  t("C10: every overlay use carries a literal fallback — no bare var()",
+    /var\(\s*--studio-lift-(popover|floating|modal)\s*\)/.test(studioSrc), false);
+  t("C10: …and the floating fallback matches its declaration exactly",
+    (studioSrc.match(/--studio-lift-floating,0_18px_40px_-20px_rgba\(60,45,30,0\.45\)/g) ?? []).length,
+    (studioSrc.match(/--studio-lift-floating,/g) ?? []).length);
+}
+
 console.log(`\nstudio-ink result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

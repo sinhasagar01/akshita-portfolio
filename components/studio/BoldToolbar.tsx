@@ -153,10 +153,17 @@ export default function BoldToolbar({
         }
       }}
     >
+      {/* PULLED ONTO THE FLOATING STEP, AND THIS ONE IS A REAL CHANGE RATHER THAN A RENAME.
+          It carried `0 6px 20px -8px rgba(60,50,38,0.4)` — the only shadow in the studio using
+          60,50,38 where every other used 60,45,30, and a reach of 12 where the tier it belongs to
+          is 20. Both were drift rather than design: nothing else sits at either value and no
+          comment ever claimed they were deliberate. Measured, the darkening moves 2.189 -> 2.530
+          and the ink joins the other six. Declared here rather than folded into a rename, because
+          five of the seven sites changed nothing and this one did. */}
       <div
         role="toolbar"
         aria-label="Text formatting"
-        className="inline-flex items-center gap-0.5 rounded-[var(--studio-radius-card,8px)] border border-[0.5px] border-ink-950/16 bg-cream-50 p-1 shadow-[0_6px_20px_-8px_rgba(60,50,38,0.4)]"
+        className="inline-flex items-center gap-0.5 rounded-[var(--studio-radius-card,8px)] border border-[0.5px] border-ink-950/16 bg-cream-50 p-1 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]"
       >
         <button
           type="button"
@@ -226,8 +233,11 @@ export default function BoldToolbar({
       </div>
 
       {linkOpen && (
+        /* ALSO PULLED ONTO THE FLOATING STEP. It carried `-18px / 0.4` where the tier is
+           `-20px / 0.45` — near enough that nobody would have called it a different weight, far
+           enough that it was a seventh value. Darkening 2.231 -> 2.530. */
         <div
-          className="mt-1.5 w-[280px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-2.5 shadow-[0_18px_40px_-18px_rgba(60,45,30,0.4)]"
+          className="mt-1.5 w-[280px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-2.5 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]"
           role="dialog"
           aria-label="Link URL"
         >

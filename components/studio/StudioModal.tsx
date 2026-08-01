@@ -92,7 +92,7 @@ export function StudioModal({
         // than its surface, and cream-50 is the BOTTOM step, so the surface had to move rather
         // than the input. All three consumers (the projects index, the blog index and
         // experience) are fixed by this one line.
-        className="w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[0_30px_60px_-24px_rgba(60,45,30,0.5)]"
+        className="w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
       >
         <h2 id={titleId} className="font-display text-2xl text-ink-950">
           {title}
