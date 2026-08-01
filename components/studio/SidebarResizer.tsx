@@ -84,7 +84,7 @@ export default function SidebarResizer() {
       //
       // BOTH OF THESE WERE FOUND BY DRIVING IT, and the second is the one that mattered.
       //
-      // (1) In flow with `-mr-1`, `main` STARTED 4px inside this handle and painted over the
+      // (1) In flow with a negative 4px right margin, `main` STARTED 4px inside this handle and painted over the
       //     right half of the hit area: a pointerdown at x=241, inside a 236..244 handle, reported
       //     a BUTTON in main as its target and the drag never began. Half the affordance was dead
       //     and it looked fine.

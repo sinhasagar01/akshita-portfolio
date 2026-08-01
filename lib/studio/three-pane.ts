@@ -65,7 +65,7 @@
  * it reads as authoritative and is wrong everywhere except the default. So the composites are
  * DELETED rather than kept "for documentation" — leaving one would have the next reader believe
  * a number nothing produces. Third deletion of this shape, after `FIT_THRESHOLD_PX` shipping
- * with zero consumers and `--radius-2xl` sitting below `--radius-xl`.
+ * with zero consumers and the 2xl radius token sitting below the xl one.
  *
  * WHAT REPLACES THEM IS THE PART THAT WAS ALWAYS CONSTANT. The panes have fixed widths; the
  * sidebar does not. So the sum stops at the panes and the caller adds the live width:

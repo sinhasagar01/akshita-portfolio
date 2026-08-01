@@ -17,7 +17,7 @@
 // telling us when it stopped applying, so this is not drift.
 //
 // SO `SelectField` IS GONE, not left unused. Zero consumers is the shape this project deletes:
-// `FIT_THRESHOLD_PX` shipping with none, `--radius-2xl` below `--radius-xl`, the eleven ink-700
+// `FIT_THRESHOLD_PX` shipping with none, the 2xl radius token below the xl one, the eleven ink-700
 // sites, `.blog-editable.is-selected`. An unused component is the same defect in a friendlier
 // costume.
 //
@@ -265,7 +265,7 @@ export function ListboxField<T extends string>({
         </button>
 
         {/* The panel is a FLOATING surface → CARD radius (#211), matching the modal, toolbar and
-            popover; the /12 hairline and the dropdown shadow match StudioSearch's results panel.
+            popover; the /12 hairline and the dropdown's box-shadow match StudioSearch's results panel.
             Always mounted so the open/close transition can run; aria-hidden + pointer-events-none
             when closed so its options are inert to AT and the mouse. Capped height + internal
             scroll so it fits even on a short pane, which is what makes the flip enough.

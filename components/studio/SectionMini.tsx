@@ -10,7 +10,7 @@
 // from the precedent it is modelled on. `PreviewRail.tsx`'s THUMB and LABEL tables are both
 // `Record<string, …>` read through `?? fallback`, so a 17th kind lands on "txt"/"Section" with no
 // compile error. STATE records that exact shape letting `videoEmbed.poster` stay authorable and
-// invisible for three PRs, and the rule it drew from it: A MAPPED TYPE FAILS COMPILATION; A SET,
+// unseen for three PRs, and the rule it drew from it: A MAPPED TYPE FAILS COMPILATION; A SET,
 // AND A `default:` ARM, JUST RETURN. So `MINI` is keyed by `SectionBlockKind` and adding a kind
 // to the schema breaks the build here until its mini exists.
 //
@@ -119,7 +119,7 @@ const Tiles = ({ cols, rows }: { cols: number; rows: number }) => (
   </Stack>
 );
 
-/* THE ONLY TWO `rounded-full` SHAPES IN THIS FILE ARE DOTS — the stepper's ordinal marker below
+/* THE ONLY TWO `rounded-full` SHAPES IN THIS FILE ARE DOTS — the stepper's number marker below
    and the annotated image's pins. Both are the same family as the status dots `studio-ink` F5
    already protects, so roundness carries meaning there. `rounded-[1px]` IS RESERVED for the drag handle's dot and F5 counts it; every RULE here takes 2px
    instead: at 3px tall a full round and a 2px radius are the same pixels, and spending a declared

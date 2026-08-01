@@ -93,7 +93,7 @@ const EMPTY_PLATE_ASPECT = 16 / 9;
  * is the dimension that actually costs vertical rhythm and the dimension the whole layout
  * analysis was about, and the max WIDTH is derived from it: `height x ratio`.
  *
- * 160 is the measured blog plate (149.7px) rounded up, so the case that shipped first is
+ * 160 is the measured blog plate (149.7px) taken up to the next ten, so the case that shipped first is
  * unaffected — at ~1.7 the derived max width is 272px against 254px available, and nothing
  * moves. Every other aspect now lands at the same visual weight instead of a different one.
  */

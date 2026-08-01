@@ -61,7 +61,7 @@ export const BLOG_POST_PATH_RE = /^content\/blog\/([a-z0-9-]+)\.yaml$/;
  *  type and could be. Deriving it would launder exactly the disagreement this exists to
  *  catch. EXPORTED so ralph can assert BLOG_PICKER_ORDER is a subset of it — a kind an
  *  author can pick but the renderer will not draw is the silent failure that let
- *  videoEmbed.poster sit authorable and invisible for three PRs. */
+ *  videoEmbed.poster sit authorable and unseen for three PRs. */
 export const RENDERABLE = new Set(["heading", "richText", "pullQuote", "imageBlock", "videoEmbed"]);
 
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>

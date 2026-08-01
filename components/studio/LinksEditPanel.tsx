@@ -47,7 +47,7 @@ function sameLinks(a: LinkItem[], b: LinkItem[]): boolean {
 // Trim each row and DROP fully-blank rows, so a row the owner added but never
 // filled is neither committed to the draft nor counted as dirty. Both
 // buildCommitted and isDirty use this (mirroring About's trimChips), so a trailing
-// blank row is invisible to the save boundary — adding a row does not, by itself,
+// blank row is unseen by the save boundary — adding a row does not, by itself,
 // make the form dirty or commit an empty {label:'',url:''} on the next blur.
 function nonBlank(links: LinkItem[]): LinkItem[] {
   return links

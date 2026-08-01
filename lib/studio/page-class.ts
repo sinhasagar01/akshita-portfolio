@@ -1,7 +1,7 @@
 // The studio page wrapper's padding, in ONE place.
 //
 // This used to live on a single wrapper in app/studio/(dashboard)/layout.tsx, as
-// `p-4 lg:p-6` plus a sibling `h-20` spacer that kept the fixed PublishBar off the end of
+// the page padding plus a sibling 5rem tail spacer that kept the fixed PublishBar off the end of
 // the content. Both assumed every studio page wants a padded, page-scrolled column. The
 // blog editor is a full-height 3-pane layout whose panes scroll internally and which must
 // reach the viewport edges, so the assumption is now false and the shared wrapper is gone.

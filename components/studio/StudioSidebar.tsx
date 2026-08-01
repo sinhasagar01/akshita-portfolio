@@ -44,7 +44,7 @@ export default function StudioSidebar() {
   // #195 flagged `renderLink(settings, true)` as an intent stated at the call site and never
   // implemented, and hazard 19 recorded it that way. BOTH WERE WRONG ABOUT THE CAUSE. The
   // distinction IS implemented — Site settings is wrapped below in
-  // `lg:mt-auto lg:border-t lg:border-ink-950/12 lg:pt-2.5`, which pushes it to the bottom of
+  // `lg:mt-auto lg:border-t lg:pt-2.5` with a 12% ink border colour, which pushes it to the bottom of
   // the flex column and draws its separator. It has never rendered like the other links.
   //
   // `git log -S` puts the parameter in `ca6ab8b`, the original dashboard, ALREADY UNUSED. It
@@ -144,7 +144,7 @@ export default function StudioSidebar() {
     // is the original cause of the 236px hazard, so the answer must not recreate it: the value is
     // declared once on the layout root and CONSUMED here and in PublishBar, which is how those
     // two files stopped being a hand-kept pair of literals. Full `var()` form, never the
-    // bracket-bare `lg:w-[--x]` shape, which generates nothing in v4.
+    // bracket-bare shape that names a custom property with no `var()`, which generates nothing in v4.
     //
     // AND IT IS CONSUMED ONLY INSIDE AN `lg:` UTILITY, which is what makes the below-lg answer
     // structural. Below the breakpoint this aside is full width and stacked above `main`; the
@@ -184,7 +184,7 @@ export default function StudioSidebar() {
 
       <nav className="flex flex-1 flex-row gap-1 overflow-x-auto lg:flex-col lg:gap-0.5 lg:overflow-visible">
         {areas.map((area) => renderLink(area))}
-        {/* ONE BORDER COLOUR, NOT TWO. This carried `lg:border-ink-950/12 lg:border-white/12`
+        {/* ONE BORDER COLOUR, NOT TWO. This carried a 12% ink AND a 12% white lg border class
             — both border-color at equal specificity, so which one drew was decided by their
             order in the generated sheet. MEASURED: white/12 won and the ink class was dead.
             The render was right BY LUCK OF ORDERING, which is hazard 26 live on main rather

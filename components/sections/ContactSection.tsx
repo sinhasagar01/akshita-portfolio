@@ -469,7 +469,7 @@ export default function ContactSection({ settings }: Props) {
               }}
             />
 
-            {/* Progress bar — absolute top-0, 3px, z-2 */}
+            {/* Progress bar — absolute top-0, 3px, z-index 2 */}
             <div
               role="progressbar"
               aria-valuenow={status === 'done' ? TOTAL : stepIndex + 1}
@@ -485,7 +485,7 @@ export default function ContactSection({ settings }: Props) {
               />
             </div>
 
-            {/* Stage — z-1, min-height 212px, flex center */}
+            {/* Stage — z-index 1, min-height 212px, flex center */}
             <div className="relative flex items-center min-h-[212px]" style={{ zIndex: 1 }}>
               <AnimatePresence mode="wait" initial={false}>
                 {status === 'done' ? (
@@ -542,7 +542,7 @@ export default function ContactSection({ settings }: Props) {
               </span>
             </div>
 
-            {/* Escape email link — inside panel, centered, z-1 */}
+            {/* Escape email link — inside panel, centered, z-index 1 */}
             <p
               className="relative text-center font-body text-[12px] mt-[14px]"
               style={{ zIndex: 1, color: '#9C9182' }}

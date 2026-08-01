@@ -303,7 +303,7 @@ export function ListDetailLayout({
                     // own solution.
                     //
                     // `border-l-[3px]` LIVES IN THE BASE with `border-l-transparent` when
-                    // inactive, and `pl-[10px]` absorbs it so 3 + 10 matches the old 1 + 12.
+                    // inactive, and a 10px left pad absorbs it so 3 + 10 matches the old 1 + 12.
                     // The reserved width keeps the box metrics constant — selection never
                     // reflows the row. Do not "simplify" it to drop the base border.
                     //

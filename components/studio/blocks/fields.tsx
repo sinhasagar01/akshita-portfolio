@@ -189,7 +189,7 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
  * every seam that looked shared:
  *
  *   ListDetailLayout's detail pane   caps the PANEL — its cream-200 header bar and its footer
- *                                    save bar would shrink with it
+ *                                    save bar would contract with it
  *   the panels' body wrapper         byte-identical across five panels, and still wrong: it
  *                                    holds the textareas that need the width
  *   `inputCls` itself                textareas use it too, and it reaches the case-study
@@ -266,15 +266,15 @@ export const inputErrorCls =
  * step keeps its 10px and its 400 weight — only the colour moved — so fixing the contrast did
  * not flatten the hierarchy the two steps exist to hold.
  *
- * `--text-eyebrow` IS DELIBERATELY NOT EDITED AND THE SIZE IS A LOCAL LITERAL INSTEAD. That
+ * THE EYEBROW TEXT TOKEN IS DELIBERATELY NOT EDITED AND THE SIZE IS A LOCAL LITERAL INSTEAD. That
  * token is read by SIXTEEN non-studio files — components/case-study canvas code, components/ui
  * SectionLabel, app/not-found and app/(portfolio)/error — so sizing the studio label through it
  * would move the canvas and two public pages, the one thing this arc must not do.
- * THE TWO VALUES COINCIDE TODAY AND THAT IS NOT A REASON TO MERGE THEM: `--text-eyebrow` is
+ * THE TWO VALUES COINCIDE TODAY AND THAT IS NOT A REASON TO MERGE THEM: that token is
  * 0.75rem, which at the 16px root is exactly the 12px this literal states, so `text-eyebrow`
  * and `text-[12px]` render identically. They are kept INDEPENDENT so the token can move for the
  * canvas without dragging the studio with it — the same coincide-but-decouple relationship
- * `--studio-radius-control` (4px) has with `--radius-sm` (4px).
+ * `--studio-radius-control` (4px) has with the site's small radius token (4px).
  * (The previous comment here read "11px". It was true when written and #218's site-wide font
  * bump moved it to 12px without updating the prose. `studio-ink` E4 pins the real value.)
  * `tracking-eyebrow` STAYS because 0.14em is already the value both steps want.

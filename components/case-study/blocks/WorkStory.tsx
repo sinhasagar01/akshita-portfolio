@@ -295,7 +295,7 @@ export default function WorkStory({ features }: { features: Feature[] }) {
                         className="absolute bottom-0 left-0 block h-auto w-full"
                       />
                     </div>
-                    {/* .frame — bezel overlay (status bar, notch, rounded edge) */}
+                    {/* .frame — bezel overlay (status bar, notch, curved edge) */}
                     <Image
                       src={bezel}
                       alt=""

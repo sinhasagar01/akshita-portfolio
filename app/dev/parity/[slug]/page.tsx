@@ -6,11 +6,11 @@
 // than just adding an affordance:
 //
 //   - `.reveal-card` sat at opacity 0 with no `.is-revealed` ancestor, so nine block
-//     kinds rendered invisible in the canvas.
+//     kinds that rendered but were never seen in the canvas.
 //   - the Replace-image wrapper inserted a box into the layout chain, collapsing a
 //     760px dashboard frame to about 90px.
 //
-// Both were invisible to every check we had, because those all compared PUBLIC to
+// Both were unseen by every check we had, because those all compared PUBLIC to
 // PUBLIC. The missing axis was public-vs-canvas.
 //
 // WHY BOTH RENDERS SIT ON ONE PAGE. Comparing /studio to /projects/<slug> means
@@ -36,7 +36,7 @@ export default async function ParityHarness({ params }: Props) {
   const data = await getCaseStudyData(slug);
   if (!data) notFound();
 
-  // preview mode both times: the point is to isolate `editable`/`noReveal`, not to
+  // preview mode both times: the point is to vary `editable`/`noReveal` alone, not to
   // re-test the adapter's fail-loud behaviour, which its own unit suite covers.
   const sections = adaptSections(data.rawSections, {
     mode: "preview",

@@ -2,7 +2,7 @@
 // the studio canvas. The third shared piece, after BlogProse (#187) and BlogHero (#190).
 //
 // SAME REASON AS BlogHero: /dev/blog-parity renders components, so a head written inline in
-// the page and again in the panel would be structurally invisible to the harness, which
+// the page and again in the panel would be structurally unseen by the harness, which
 // would go on reporting a clean pass. Sharing it is what makes it gateable.
 //
 // ------------------------------------------------------------------------- PREVIEW ONLY

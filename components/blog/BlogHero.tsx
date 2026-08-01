@@ -3,7 +3,7 @@
 // WHY IT IS A COMPONENT RATHER THAN MARKUP ON THE PAGE. Written inline in the panel it would
 // be a SECOND copy of a markup contract whose failure mode is 1.086px (see lib/blog/hero-fill.ts),
 // and — the reason that actually decided it — /dev/blog-parity renders components, so a hero
-// that lives in the page and in the panel is structurally invisible to the harness, which
+// that lives in the page and in the panel is structurally unseen by the harness, which
 // would go on reporting a clean pass. That is #180's `sections: 0, verdict: PARITY OK` false
 // pass in a new form: a gate that cannot see the thing being added reads as evidence that it
 // is fine. Sharing the component is what makes the hero gateable at all.
