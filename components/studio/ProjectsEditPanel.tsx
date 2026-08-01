@@ -179,20 +179,31 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           Setting it on the row lets the anchor inherit it with no extra element — hazard 22,
           and `studio-ink` E6 pins it. */}
       <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-2.5">
+        {/* THE TWO TOGGLES SHARE A LINE AND SPREAD ACROSS IT, which needs a wrapper rather than
+            a class on the row. Measured: the row has three children and the actions sit on
+            `ml-auto`, and an auto margin absorbs the free space BEFORE `justify-content` is
+            consulted — so `justify-between` on the row itself renders nothing (Category stays at
+            72px), and removing `ml-auto` to make it bite drops Category in the CENTRE at 393px.
+            Neither is the drawing. A wrapper holding only the two toggles has two children, which
+            is the shape `space-between` was drawn for.
+            `w-full` RATHER THAN `flex-1`, and that is what keeps the actions where they are. The
+            row is `flex-wrap` inside a 313px inspector; a full-width child takes its own line and
+            the actions wrap beneath exactly as they do today. `flex-1` would try to share the
+            line, leaving the toggles 179px between them and squeezing both. */}
         {!bespoke && (
-          <TemplateToggle
-            slug={slug}
-            initial={template}
-            onChange={setTemplateValue}
-            onSaved={() => setUnpublished(true)}
-          />
-        )}
-        {!bespoke && (
-          <CategoryToggle
-            slug={slug}
-            initial={category}
-            onSaved={() => setUnpublished(true)}
-          />
+          <div className="flex w-full items-start justify-between gap-3">
+            <TemplateToggle
+              slug={slug}
+              initial={template}
+              onChange={setTemplateValue}
+              onSaved={() => setUnpublished(true)}
+            />
+            <CategoryToggle
+              slug={slug}
+              initial={category}
+              onSaved={() => setUnpublished(true)}
+            />
+          </div>
         )}
         <div className="ml-auto flex items-center gap-1 text-ink-600">
           {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard),

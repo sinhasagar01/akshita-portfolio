@@ -91,8 +91,17 @@ export default function SegmentedToggle({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    /* THE LABEL SITS ABOVE ITS SWITCH, and the column is why both toggles now fit one line.
+       Beside the switch each toggle was ~193px wide, so at the inspector's 313px the row wrapped
+       into three lines — Template, Category, then the actions. Stacked, a toggle is as wide as its
+       switch, ~111px, and two of them plus a gap fit with room to spare. The stack is what makes
+       the caller's `justify-between` mean anything.
+       THE NOTE KEEPS ITS OWN ROW BESIDE THE SWITCH. Under a bare `flex-col` it would drop BELOW
+       the switch, moving where "Save failed" and "needs github mode (dev)" appear — a behavioural
+       change smuggled inside a layout one. The switch and the note keep the row they had. */
+    <div className="flex flex-col items-start gap-1.5">
       <span className={labelCls}>{label}</span>
+      <div className="flex items-center gap-2">
       <div
         role="group"
         aria-label={ariaLabel}
@@ -118,6 +127,7 @@ export default function SegmentedToggle({
         })}
       </div>
       {note && <span className="text-[10px] text-text-subtle">{note}</span>}
+      </div>
     </div>
   );
 }
