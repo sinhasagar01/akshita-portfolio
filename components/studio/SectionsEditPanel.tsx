@@ -281,6 +281,26 @@ function setAtPath(value: unknown, path: string, next: string): unknown {
  *  real page instead of a squeezed version of it. */
 const CANVAS_WIDTH = 1280;
 
+/** Room for the card's own ring, which `overflow-hidden` was slicing off.
+ *
+ *  `.section-card`'s hairline is `box-shadow: 0 0 0 1px`, spread with no offset, so it extends
+ *  1px OUTSIDE the border box on every side. The card's top edge sat exactly on the pane's top
+ *  edge — measured, `cardTop - paneTop` was 0 — so the ring was drawn at -0.65 and the pane's
+ *  clip cut it, which reads as a slashed top border rather than as a missing one.
+ *  1px IS DERIVED, NOT PICKED. The ring is 1px times the scale, and the scale is capped at 1, so
+ *  a single unscaled pixel covers it at every canvas width. */
+const CANVAS_PAD_TOP = 1;
+
+/** 2rem below the card.
+ *
+ *  THE CARD'S OWN `margin-bottom: 28px` NEVER RENDERED HERE, which is why this is padding on the
+ *  pane rather than a change to that margin. `.container-x` has padding-inline only — no
+ *  padding-bottom, no border — so the last child's bottom margin COLLAPSES straight through it
+ *  and out of `offsetHeight`. Measured, the gap below the card was -0.19px, not the 18.09 that
+ *  28 times the scale would have given. Padding on the pane cannot collapse, and being outside
+ *  the transform it is a true 2rem at every scale instead of a shrinking one. */
+const CANVAS_PAD_BOTTOM = 32;
+
 /**
  * Render at CANVAS_WIDTH, then scale to whatever the pane actually is.
  *
@@ -317,7 +337,10 @@ function useFitToWidth() {
       // holds 50% and pans rather than collapsing to ~29% and staying complete but illegible.
       const next = Math.max(CS_MIN_SCALE, Math.min(1, pane.clientWidth / CANVAS_WIDTH));
       setScale(next);
-      setHeight(surface.offsetHeight * next);
+      // The pane's height is DRIVEN, so the padding has to be added here or it would be clipped
+      // by the very height that is meant to hold it — box-sizing is border-box, so an explicit
+      // height that ignored the padding would eat it rather than sit inside it.
+      setHeight(surface.offsetHeight * next + CANVAS_PAD_TOP + CANVAS_PAD_BOTTOM);
       // PUBLISHED FOR THE SIBLINGS DRAWN OUTSIDE THE SCALED BOX. The help strip has to
       // line up with the section card, and the card's on-screen inset is its own margin
       // plus `container-x`'s padding TIMES this scale — so a sibling cannot derive it
@@ -742,11 +765,24 @@ function SectionCanvas({
     // one of that component's branches (hero, web hero, quote band, standard) at
     // once, and so no public component has to change to fix a studio-only bug.
     //
-    // `canvas-surface` paints the case-study route's own backdrop, so the card sits
-    // on the same colour it does live rather than on the global canvas beige.
+    // `canvas-surface` AND THE BORDER UTILITY ARE BOTH GONE, and they were removed
+    // together because each was only propping the other up. The rule had been reduced to
+    // `background-color: transparent; border: 0`, and NEITHER declaration did anything on
+    // its own: nothing else paints this element, so `transparent` was the default it
+    // already had, and `border: 0` existed only to cancel the `border border-ink-950/12`
+    // written right here. Two declarations fighting to arrive at the browser default.
+    // Deleting one alone would have CHANGED the render — drop the rule and the border
+    // comes back, drop the utility and nothing moves — which is why that was one edit.
+    //
+    // THIS ELEMENT PAINTS NOTHING, AND THAT IS DELIBERATE. The card needs a ground to
+    // separate from — it is cream-50 on what was a cream-50 pane, contrast 1.00, the same
+    // colour — but the ground belongs to the CANVAS PANE, not to the card's own wrapper.
+    // Painting it here tinted a box that hugs the scaled card and stops at its edge, so
+    // the tone ended at the card rather than filling the surface the card sits on. The
+    // ground is passed to `ThreePaneShell` as `canvasGround` instead; see the call below.
     <div
       ref={paneRef}
-      className="case-study canvas-static canvas-surface overflow-hidden rounded-[var(--studio-radius-card,8px)] border border-ink-950/12"
+      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)] pt-px pb-8"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
@@ -2175,6 +2211,19 @@ export default function SectionsEditPanel({
         <ThreePaneShell
           fitThresholdPx={sidebarPx + CS_PANES_SUM}
           listNoun="sections"
+          /* THE CANVAS PANE IS THE GROUND, NOT THE CARD'S WRAPPER. The section card is
+             cream-50 and sat on a cream-50 pane at contrast 1.00 — the same colour — so its
+             only edge was a 1px @ 8% hairline that the 0.646 canvas scale renders at
+             0.646px. Cream-100 puts it at 1.05.
+             NOTE WHAT THIS COSTS, because it is a real trade rather than a free win: the
+             inspector is ALREADY cream-100, so the three panes now step 200 / 100 / 100
+             instead of 200 / 50 / 100 and the canvas no longer differs in tone from the
+             inspector. They stay divided by the inspector's own `border-l border-ink-950/22`,
+             which is the harder of the studio's two hairlines and was already carrying that
+             edge on its own.
+             Blog passes nothing and keeps the cream-50 default, so its article-measure canvas
+             is untouched — the reason this is a prop and not an edit to the shell. */
+          canvasGround="bg-cream-100"
           list={
             <SectionsRail
               sections={values.sections}

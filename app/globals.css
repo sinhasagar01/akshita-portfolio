@@ -1855,11 +1855,6 @@ a {
   --cs-card-inset: calc((1.5rem + clamp(0.75rem, 2vw, 2rem)) * var(--cs-canvas-scale, 1));
 }
 
-.canvas-surface {
-  background-color: transparent;
-  border: 0;
-}
-
 .canvas-static .reveal-card {
   opacity: 1;
   transform: none;

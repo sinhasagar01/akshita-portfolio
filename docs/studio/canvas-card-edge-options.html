@@ -1,0 +1,157 @@
+<meta charset="utf-8">
+<title>Canvas card edge — options</title>
+<style>
+  :root{
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+
+    /* verbatim from app/globals.css */
+    --canvas:      oklch(92.0% 0.022 78);
+    --cream-50:    oklch(98.5% 0.012 80);
+    --cream-100:   oklch(96.8% 0.018 78);
+    --cream-200:   oklch(93.5% 0.025 76);
+    --sand:        oklch(88.5% 0.030 80);   /* --color-case-study-sand */
+    --ink-950:     oklch(14.0% 0.018 60);
+    --ink-600:     oklch(44.0% 0.016 60);
+    --ink-400:     oklch(62.0% 0.014 60);
+    --accent-500:  oklch(56.0% 0.14 42);
+    --subtle:      oklch(51% 0.016 66);
+    --radius-xl:   1.5rem;
+
+    /* the real runtime numbers, measured in the studio at viewport 1440 */
+    --scale: 0.64609375;
+    --card-margin: 28.5px;
+    --containerx-pad: 24px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:38px 30px 80px;background:var(--canvas);
+    font-family:var(--sans);color:var(--ink-950);-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto}
+  h1{font:700 19px/1.3 var(--sans);margin:0 0 5px;letter-spacing:-.01em}
+  .sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 8px;max-width:80ch}
+  .sub b{color:var(--ink-950);font-weight:650}
+  .meta{font:500 11.5px/1.6 var(--sans);color:var(--ink-400);margin:0 0 30px}
+
+  .card{margin-bottom:30px}
+  .head{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;flex-wrap:wrap}
+  .n{font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+     color:var(--cream-50);background:var(--ink-950);padding:5px 7px;border-radius:3px;flex:none}
+  .n.now{background:var(--ink-400)}
+  .n.rec{background:var(--accent-500)}
+  .t{font:700 14px/1.3 var(--sans);margin:0}
+  .why{font:400 12.5px/1.65 var(--sans);color:var(--ink-600);margin:5px 0 11px;max-width:88ch}
+  .why b{color:var(--ink-950);font-weight:650}
+  .num{font:600 11.5px/1 var(--sans);color:var(--ink-600);
+       background:var(--cream-200);padding:4px 7px;border-radius:3px;display:inline-block}
+  .num.bad{color:#8a2f14;background:color-mix(in oklch,var(--accent-500) 14%,transparent)}
+
+  /* ---- the faithful rig: 827pt pane, 1280 inner scaled to 0.646, exactly as the studio does ---- */
+  .pane{
+    width:827px;max-width:100%;height:172px;overflow:hidden;
+    border-radius:8px;                 /* --studio-radius-card */
+    background:var(--pane-ground, var(--cream-50));
+  }
+  .scaler{
+    width:1280px;transform:scale(var(--scale));transform-origin:top left;
+    padding-inline:var(--containerx-pad);   /* .container-x */
+  }
+  .mock{
+    background:var(--cream-50);
+    border-radius:var(--radius-xl);
+    margin-inline:var(--card-margin);
+    padding:44px 3.25rem;
+    /* .case-study .section-card — the 8% hairline */
+    box-shadow: 0 0 0 var(--hair, 1px) color-mix(in oklch, var(--ink-950) 8%, transparent);
+  }
+  .eyebrow{font:600 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+           color:var(--accent-500);margin:0 0 18px}
+  .disp{font:400 46px/1.1 var(--serif);margin:0 0 14px;letter-spacing:-.015em}
+  .lede{font:400 17px/1.6 var(--sans);color:var(--ink-600);margin:0;max-width:56ch}
+
+  .note{margin-top:14px;font:400 11.5px/1.65 var(--sans);color:var(--subtle);
+        border-top:1px solid color-mix(in oklch,var(--ink-950) 12%,transparent);
+        padding-top:11px;max-width:88ch}
+  .note b{color:var(--ink-950);font-weight:650}
+  code{font:500 11px/1 ui-monospace,Menlo,monospace;background:var(--cream-200);
+       padding:2px 5px;border-radius:3px;color:var(--ink-600)}
+</style>
+
+<div class="wrap">
+  <h1>The canvas card's edge — four options</h1>
+  <p class="sub">Each pane below is the <b>real rig</b>, not an impression of it: 827pt wide, holding a 1280px box scaled to <b>0.646</b>, with <code>container-x</code>'s 24px padding and the card's 28.5px margin. So the hairline renders here exactly as it renders in the studio, sub-pixel and all.</p>
+  <p class="meta">Contrast figures are card-against-the-ground-behind-it, measured in the running studio.</p>
+
+  <!-- ---------- A ---------- -->
+  <div class="card">
+    <div class="head"><span class="n now">Now</span><p class="t">Transparent — the card and the pane are the same colour</p>
+      <span class="num bad">contrast 1.00</span></div>
+    <p class="why">Nothing separates the card from the pane. The only edge is the card's own <code>1px @ 8%</code> hairline, which the 0.646 scale renders at <b>0.646px</b>. Look at the top corners — the card boundary is essentially not there.</p>
+    <div class="pane">
+      <div class="scaler"><div class="mock">
+        <p class="eyebrow">Case study · Product design</p>
+        <p class="disp">Elevate ONE View</p>
+        <p class="lede">Simplifying the app field mechanics rely on to bring elevators online, anywhere in the world.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ---------- B ---------- -->
+  <div class="card">
+    <div class="head"><span class="n">B</span><p class="t">Counter-scaled hairline only</p>
+      <span class="num bad">contrast 1.00</span></div>
+    <p class="why">The hairline is restored to a true 1px with <code>calc(1px / var(--cs-canvas-scale))</code>. It <b>is</b> crisper than A. But the ground is still identical to the card, so a 1.185-contrast line is doing all the work alone — this is the option that sounds like a fix and mostly isn't.</p>
+    <div class="pane">
+      <div class="scaler" style="--hair:calc(1px / var(--scale))"><div class="mock">
+        <p class="eyebrow">Case study · Product design</p>
+        <p class="disp">Elevate ONE View</p>
+        <p class="lede">Simplifying the app field mechanics rely on to bring elevators online, anywhere in the world.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ---------- C ---------- -->
+  <div class="card">
+    <div class="head"><span class="n rec">C</span><p class="t">Sand ground — what the live page actually does</p>
+      <span class="num">contrast 1.35</span></div>
+    <p class="why">Puts <code>--color-case-study-sand</code> back behind the card, which is what the public route does and what <code>.canvas-surface</code> was added for. The card separates because the <b>ground</b> separates it, which is how it works on the real page. Hairline left scaled.</p>
+    <div class="pane" style="--pane-ground:var(--sand)">
+      <div class="scaler"><div class="mock">
+        <p class="eyebrow">Case study · Product design</p>
+        <p class="disp">Elevate ONE View</p>
+        <p class="lede">Simplifying the app field mechanics rely on to bring elevators online, anywhere in the world.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ---------- D ---------- -->
+  <div class="card">
+    <div class="head"><span class="n">D</span><p class="t">Cream-100 ground — separation without the warmth</p>
+      <span class="num">contrast 1.06</span></div>
+    <p class="why">A quieter ground than sand. It keeps the canvas closer to the studio's own palette rather than the case-study route's, at the cost of reading much less like the live page. Included because it is the option that most preserves the calm you were going for when you made the surface transparent.</p>
+    <div class="pane" style="--pane-ground:var(--cream-100)">
+      <div class="scaler"><div class="mock">
+        <p class="eyebrow">Case study · Product design</p>
+        <p class="disp">Elevate ONE View</p>
+        <p class="lede">Simplifying the app field mechanics rely on to bring elevators online, anywhere in the world.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ---------- E ---------- -->
+  <div class="card">
+    <div class="head"><span class="n rec">E</span><p class="t">Sand ground + counter-scaled hairline</p>
+      <span class="num">contrast 1.35</span></div>
+    <p class="why">C plus B. The ground does the separating and the hairline renders at its true weight instead of 0.646px, so the card's edge matches the live page on <b>both</b> counts rather than one.</p>
+    <div class="pane" style="--pane-ground:var(--sand)">
+      <div class="scaler" style="--hair:calc(1px / var(--scale))"><div class="mock">
+        <p class="eyebrow">Case study · Product design</p>
+        <p class="disp">Elevate ONE View</p>
+        <p class="lede">Simplifying the app field mechanics rely on to bring elevators online, anywhere in the world.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <p class="note"><b>What I would pick, and why.</b> <b>E</b>. C is the fix that addresses the actual cause, because the ground was always what separated the card and the hairline was only ever a refinement on top of it. B is worth adding alongside it but not instead of it — on its own it sharpens a line nobody can see. D is a real option if you prefer the canvas to sit in the studio's palette rather than the case study's, but it trades away the one thing <code>.canvas-surface</code> existed to provide.<br><br><b>One caveat on B, stated plainly.</b> Counter-scaling means the canvas and the public page would no longer carry the same declared value for that shadow, so it needs scoping to <code>.canvas-static</code> and a note in the parity rule. It does not affect layout — <code>box-shadow</code> never does — so the parity harness stays green either way.</p>
+</div>

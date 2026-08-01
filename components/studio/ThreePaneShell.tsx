@@ -79,6 +79,7 @@ export default function ThreePaneShell({
   inspector,
   fitThresholdPx,
   listNoun,
+  canvasGround = "bg-cream-50",
 }: {
   list: ReactNode;
   canvas: ReactNode;
@@ -130,6 +131,20 @@ export default function ThreePaneShell({
    *  during render sets parent state mid-render. The caller reads INSPECTOR_FOLD_PX
    *  through the same usePageWidthMin hook and simply decides what to pass. */
   inspector: ReactNode | null;
+  /** The canvas pane's ground, as a background utility. Defaults to `bg-cream-50`.
+   *
+   *  A DEFAULT RATHER THAN A REQUIRED PROP, which is the opposite of `fitThresholdPx` above,
+   *  and the difference is what happens when a consumer says nothing. Forgetting the
+   *  threshold meant silently inheriting BLOG's breakpoint and collapsing at the wrong
+   *  width — a wrong answer. Forgetting the ground yields cream-50, which is what both
+   *  panes rendered before this prop existed, so silence is the neutral answer rather than
+   *  another consumer's. Required-ness buys nothing here and costs a line at every call.
+   *
+   *  IT IS THE WHOLE PANE, bar included, not just the scroll region. Painting only the
+   *  scroller would leave the strip above it on the old ground, which reads as a seam
+   *  rather than as a decision — the strip's `border-b` is meant to divide a pane from its
+   *  content, not two tones of pane. */
+  canvasGround?: string;
 }) {
   const [intent, setIntent] = useState<ListIntent>("default");
   const fits = usePageWidthMin(fitThresholdPx);
@@ -206,7 +221,7 @@ export default function ThreePaneShell({
       ) : null}
 
       {/* CANVAS — the only pane that owns the page's remaining width. */}
-      <div className="flex min-w-0 min-h-0 flex-1 flex-col bg-cream-50 lg:overflow-hidden">
+      <div className={`flex min-w-0 min-h-0 flex-1 flex-col lg:overflow-hidden ${canvasGround}`}>
         {/* The strip renders at BOTH states so `canvasBar` (the post title) does not
             appear and vanish as the list collapses. Only the collapse control itself is
             conditional — when the list is already collapsed, the reopen rail is the
