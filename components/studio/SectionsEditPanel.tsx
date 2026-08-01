@@ -742,11 +742,17 @@ function SectionCanvas({
     // one of that component's branches (hero, web hero, quote band, standard) at
     // once, and so no public component has to change to fix a studio-only bug.
     //
-    // `canvas-surface` paints the case-study route's own backdrop, so the card sits
-    // on the same colour it does live rather than on the global canvas beige.
+    // `canvas-surface` AND THE BORDER UTILITY ARE BOTH GONE, and they were removed
+    // together because each was only propping the other up. The rule had been reduced to
+    // `background-color: transparent; border: 0`, and NEITHER declaration did anything on
+    // its own: nothing else paints this element, so `transparent` was the default it
+    // already had, and `border: 0` existed only to cancel the `border border-ink-950/12`
+    // written right here. Two declarations fighting to arrive at the browser default.
+    // Deleting one alone would have CHANGED the render — drop the rule and the border
+    // comes back, drop the utility and nothing moves — which is why this is one edit.
     <div
       ref={paneRef}
-      className="case-study canvas-static canvas-surface overflow-hidden rounded-[var(--studio-radius-card,8px)] border border-ink-950/12"
+      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)]"
       style={{ height }}
       onBlur={onBlur}
       onClick={onClick}
