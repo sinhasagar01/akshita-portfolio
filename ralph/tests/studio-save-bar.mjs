@@ -324,7 +324,10 @@ const bar = code("components/studio/SaveBar.tsx");
   /* THE TWO PANE WIDTHS ARE READ FROM SOURCE, NOT RETYPED. The inspector is ThreePaneShell's own
    * `w-[320px]`; a settings column is the pane left over after ListDetailLayout's `lg:w-[300px]`
    * rail, which is why the lower bound below is the rail rather than a measured 1042. */
-  const inspectorPx = Number(/<aside className="[^"]*?\bw-\[(\d+)px\]/.exec(
+  // RE-ANCHORED ON THE CUSTOM PROPERTY'S FALLBACK. The case-study inspector is a cookie now; the
+  // fallback is what blog resolves to and is still a real width. `three-pane.mjs` splits the same
+  // way and says why at length.
+  const inspectorPx = Number(/w-\[var\(--studio-inspector-w,(\d+)px\)\]/.exec(
     read("components/studio/ThreePaneShell.tsx"))?.[1] ?? 0);
   const railPx = Number(/lg:w-\[(\d+)px\]/.exec(read("components/studio/ListDetailLayout.tsx"))?.[1] ?? 0);
   t("D1: …and both pane widths were actually found, so the bounds below are not vacuous",
@@ -370,7 +373,22 @@ const bar = code("components/studio/SaveBar.tsx");
   const projects = code("components/studio/ProjectsEditPanel.tsx");
   const sections = code("components/studio/SectionsEditPanel.tsx");
 
-  t("E1: the sections bar is absent on the Details view", /showDetails \? null : \(\s*<SaveBar/.test(sections), true);
+  t("E1: the sections bar is absent on the Details view",
+    /showDetails \|\| ins\.collapsed \? null : sectionsBarNode\}/.test(sections), true);
+
+  /* ⚠ AND IT LEAVES THE PANE ENTIRELY WHEN THE PANE IS SHUT. A bar nested in a zero-width
+   * inspector is clipped with it, which takes the save AND its state line off screen — an author
+   * who collapses the pane, keeps typing and cannot see "Couldn't save" is hazard 13 and #201 in
+   * one gesture. It docks to the canvas foot instead, which is a seam that already compresses the
+   * canvas rather than covering it. ONE NODE, TWO PLACES, never two copies: `detailsBar` and
+   * `sectionsBarNode` are each rendered in exactly one branch at a time, which is what keeps
+   * #200's "two buttons claiming to be the same action" from coming back. */
+  t("E6: a collapsed inspector docks its bar to the canvas rather than clipping it",
+    /ins\.collapsed \? \(showDetails \? detailsBar : sectionsBarNode\) : null/.test(sections), true);
+  t("E6: …and the details bar is a node this panel places, not one nested in the form",
+    /detailsBar\?: ReactNode;/.test(sections) && /\{ins\.collapsed \? null : detailsBar\}/.test(sections), true);
+  t("E6: …and ProjectsEditPanel hands it over rather than rendering it itself",
+    /const detailsBar = \(\s*<SaveBar/.test(projects) && /detailsBar=\{detailsBar\}/.test(projects), true);
 
   /* BOTH BARS OPEN THE DRAFT PREVIEW, and the anchor is duplicated rather than shared: the two
    * bars are rendered by two components over two different useDraftForms, so extracting a

@@ -32,7 +32,10 @@ import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { createPreviewMap, type PreviewMap } from "@/lib/studio/preview-map";
-import { CS_MIN_SCALE, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
+import { CS_MIN_SCALE, CS_CANVAS_MIN_PX, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
+import { INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
+import { useInspectorWidth } from "./useInspectorWidth";
+import InspectorResizer from "./InspectorResizer";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { usePageWidthMin } from "./usePageWidthMin";
 import ThreePaneShell from "./ThreePaneShell";
@@ -876,11 +879,13 @@ export default function SectionsEditPanel({
   template = "",
   draftImages = NO_DRAFT_IMAGES,
   detailsNode,
+  detailsBar,
   detailsCanvas,
   bespoke,
   detailsDirty = false,
   livePath,
   studies,
+  inspectorWidth,
 }: {
   slug: string;
   /** The study's name, for the crumb row — identity lives there once now. */
@@ -890,6 +895,10 @@ export default function SectionsEditPanel({
    *  the rail's Details entry is selected. Passed as a node so that panel keeps its own
    *  useDraftForm — two forms, two save seams, exactly as before. */
   detailsNode?: ReactNode;
+  /** The details form's save bar, passed SEPARATELY from the form so this panel can place it.
+   *  It sits at the foot of the form while the inspector is open and DOCKS TO THE CANVAS while
+   *  the inspector is collapsed — see where it renders. Never both: one node, two places. */
+  detailsBar?: ReactNode;
   /** What the CANVAS shows while Details is selected. Until this existed the canvas went blank
    *  there — a full inspector beside an empty pane — which is the gap PR 2 closes. Passed in
    *  rather than built here for the same reason `detailsNode` is: this panel owns the sections,
@@ -908,6 +917,8 @@ export default function SectionsEditPanel({
   livePath: string;
   /** Every study, for the crumb row's switcher. */
   studies: { slug: string; title: string }[];
+  /** The inspector's stored width, clamped on the SERVER. Seeds `useInspectorWidth`. */
+  inspectorWidth: number;
   /** CS-7c — the case-study template, so the inline canvas renders the same
    *  Bold-gallery web treatment (or the mobile composition) the live page shows. */
   template?: string;
@@ -995,7 +1006,22 @@ export default function SectionsEditPanel({
   // no number once the studio ships a control whose purpose is to move off 236. What stayed
   // constant is the panes; the sidebar term arrives live.
   const sidebarPx = useSidebarWidth();
-  const inspectorFits = usePageWidthMin(sidebarPx + CS_COLLAPSED_PANES_SUM);
+  const ins = useInspectorWidth(inspectorWidth, "cs");
+
+  /* ⚠ THE FOLD IS THE ONE THRESHOLD THE LIVE WIDTH IS THE WRONG INPUT FOR, and getting this
+     backwards fails in the silent direction.
+     `inspectorFits` asks "IF the inspector were shown, would three panes fit?" — it decides
+     whether the pane exists at all or folds into the canvas behind a toggle. Feeding it a
+     COLLAPSED 0 answers a different question: it would report that three panes fit on a page
+     where expanding the inspector immediately drops the canvas under `CS_MIN_SCALE`, and nothing
+     would fail. So it evaluates at the width the pane WOULD take, never below its minimum.
+     That errs toward folding — it over-collapses, wastes a little space, and never lies. STATE's
+     rule about characterising an approximation by its SIGN rather than its magnitude.
+     THE FIT THRESHOLD BELOW IS THE OPPOSITE CASE and takes the live width, because "does the list
+     still fit" is a question about the layout as it is right now. */
+  const inspectorFits = usePageWidthMin(
+    sidebarPx + CS_COLLAPSED_PANES_SUM + Math.max(ins.width, INSPECTOR_BOUNDS.cs.min),
+  );
   // Where the Editor toggle returns to. Without it, leaving the Board would have to guess, and
   // guessing "the first section" loses the place an author was working in.
   const lastEditedRef = useRef<Selection>("details");
@@ -1911,6 +1937,45 @@ export default function SectionsEditPanel({
   // card lives in here, hidden rather than unmounted, so a second copy would be two form trees
   // sharing one onChange with colliding ids and two carets. Above the fold it mounts in the
   // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
+  /* HOISTED SO IT HAS TWO HOMES. Rendered at the foot of the inspector while the pane is open,
+     and docked to the canvas while it is shut — the same node either way, never two. */
+  const sectionsBarNode = (
+    <SaveBar
+      className="sticky bottom-0 z-10 mt-auto"
+      status={saveStatus}
+      dirty={dirty}
+      savedAt={savedAt}
+      title="Auto-saves to draft on blur. Preview to see it."
+      validation={hasBadVideoSrc ? "A video URL must be http:// or https://." : null}
+      onCancel={handleCancel}
+      extra={
+        /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
+           `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits
+           a rule that loses. This is the second copy of that shape and it is deliberate: the
+           details bar has its own in ProjectsEditPanel, because the two bars are rendered by
+           two different components over two different useDraftForms. Extracting a shared
+           Preview would couple them for four lines of markup. */
+        <span className="flex items-center gap-1 text-ink-600">
+          <a
+            href={`/studio/projects/${slug}/preview`}
+            target="_blank"
+            rel="noopener"
+            title="Opens the draft preview in a new tab."
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+          >
+            Preview
+          </a>
+        </span>
+      }
+      primary={{
+        label: "Save draft · Sections",
+        onClick: saveDraft,
+        disabled: !dirty || saveStatus === "saving" || hasBadVideoSrc,
+        title: "Commits this study's section blocks.",
+      }}
+    />
+  );
+
   const inspectorNode = (
     // ⚠ `min-h-full` IS WHAT LETS THE SAVE BAR BELOW REACH THE PANE'S FOOT. B4's finding in
     // mount-discipline: `sticky bottom-0` only offsets an element when scrolling would carry it
@@ -1956,7 +2021,14 @@ export default function SectionsEditPanel({
           `!important` is what makes adding `flex` here safe. Without it a display utility would
           out-specify the attribute and the form would be visible on every section. */}
       {detailsNode ? (
-        <div hidden={!showDetails} className="flex grow flex-col">{detailsNode}</div>
+        <div hidden={!showDetails} className="flex grow flex-col">
+          {detailsNode}
+          {/* THE BAR IS THE WRAPPER'S LAST CHILD, WHICH IS WHAT KEEPS THE PIN WORKING. It used to
+              be the last child of `detailsNode` itself; the chain is unchanged in shape — the
+              wrapper is the flex column, `detailsNode` grows into it, and `mt-auto` here eats the
+              slack. Docked instead when the inspector is shut. */}
+          {ins.collapsed ? null : detailsBar}
+        </div>
       ) : null}
       {/* ⚠ THE SECTION FIELD SURFACE IS HIDDEN ON THE DETAILS VIEW, AND IT IS BOTH A CORRECTION
           AND THE OTHER HALF OF PINNING THE BAR ABOVE.
@@ -2308,42 +2380,7 @@ export default function SectionsEditPanel({
             into the line. "A video URL must be http:// or https://" is a fact about the CONTENT; the
             five-state line has no slot for it, and swallowing it to fit the drawing would have deleted
             the only signal saying why the save is refusing. */}
-      {bespoke || showDetails ? null : (
-        <SaveBar
-          className="sticky bottom-0 z-10 mt-auto"
-          status={saveStatus}
-          dirty={dirty}
-          savedAt={savedAt}
-          title="Auto-saves to draft on blur. Preview to see it."
-          validation={hasBadVideoSrc ? "A video URL must be http:// or https://." : null}
-          onCancel={handleCancel}
-          extra={
-            /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
-               `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits
-               a rule that loses. This is the second copy of that shape and it is deliberate: the
-               details bar has its own in ProjectsEditPanel, because the two bars are rendered by
-               two different components over two different useDraftForms. Extracting a shared
-               Preview would couple them for four lines of markup. */
-            <span className="flex items-center gap-1 text-ink-600">
-              <a
-                href={`/studio/projects/${slug}/preview`}
-                target="_blank"
-                rel="noopener"
-                title="Opens the draft preview in a new tab."
-                className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
-              >
-                Preview
-              </a>
-            </span>
-          }
-          primary={{
-            label: "Save draft · Sections",
-            onClick: saveDraft,
-            disabled: !dirty || saveStatus === "saving" || hasBadVideoSrc,
-            title: "Commits this study's section blocks.",
-          }}
-        />
-      )}
+      {bespoke || showDetails || ins.collapsed ? null : sectionsBarNode}
     </div>
   );
 
@@ -2446,7 +2483,26 @@ export default function SectionsEditPanel({
 
       <div hidden={!bespoke && showBoard} className="flex min-h-0 flex-1">
         <ThreePaneShell
-          fitThresholdPx={sidebarPx + CS_PANES_SUM}
+          rootRef={ins.rootRef}
+          rootStyle={ins.styleVar}
+          fitThresholdPx={sidebarPx + CS_PANES_SUM + ins.width}
+          inspectorCollapsed={ins.collapsed}
+          /* No seam below the fold, so no handle — the same structural answer as
+             SidebarResizer's `hidden lg:block`. A focusable control with no effect is worse
+             than no control. */
+          inspectorResizer={
+            inspectorFits ? (
+              <InspectorResizer
+                width={ins.width}
+                collapsed={ins.collapsed}
+                preview={ins.preview}
+                commit={ins.commit}
+                lastOpen={ins.lastOpen}
+                surface="cs"
+                canvasFloorPx={CS_CANVAS_MIN_PX}
+              />
+            ) : null
+          }
           listNoun="sections"
           /* THE CANVAS PANE IS THE GROUND, NOT THE CARD'S WRAPPER. The section card is
              cream-50 and sat on a cream-50 pane at contrast 1.00 — the same colour — so its
@@ -2473,6 +2529,15 @@ export default function SectionsEditPanel({
               bespoke={bespoke}
             />
           }
+          /* ⚠ THE SAVE BAR'S OTHER HOME. A collapsed inspector clips everything inside it, so
+             a bar nested there would take the save AND its state line off screen — hazard 13 and
+             #201 in one gesture. It docks to the canvas foot instead, which is a seam that
+             already exists and already COMPRESSES the canvas rather than covering it.
+             WHICHEVER BAR MATCHES THE VIEW, which is the same rule the open inspector follows:
+             each view shows the save for the thing on screen. It is the SAME NODE moved, never a
+             second copy — two bars for one draft is #200's defect.
+             AND IT RENDERS AS ONE ROW HERE, for free: the bar's `@container` switch reads its own
+             box, and the canvas is far wider than the 520px threshold. */
           canvasDock={
             /* THE DOCK, at the canvas pane's foot. It is a SIBLING of the scroll region rather
                than a child, so it compresses the canvas instead of covering it — nothing is ever
@@ -2481,13 +2546,16 @@ export default function SectionsEditPanel({
                editor is: Details has no canvas to select from, so a dock there would name a field
                you cannot click, but unmounting it would throw away the caret of whoever is
                mid-word when they glance at Details. */
-            <SelectionDock
-              hidden={showDetails}
-              selected={selectedField}
-              value={selectedField ? readField(selectedField) : ""}
-              onChange={writeSelected}
-              onDismiss={dismissField}
-            />
+            <>
+              <SelectionDock
+                hidden={showDetails}
+                selected={selectedField}
+                value={selectedField ? readField(selectedField) : ""}
+                onChange={writeSelected}
+                onDismiss={dismissField}
+              />
+              {ins.collapsed ? (showDetails ? detailsBar : sectionsBarNode) : null}
+            </>
           }
           canvasBar={
             <>

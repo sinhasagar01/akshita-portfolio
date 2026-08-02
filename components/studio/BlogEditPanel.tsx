@@ -61,6 +61,7 @@ export default function BlogEditPanel({
   blocks,
   draftImages,
   posts,
+  inspectorWidth,
 }: {
   slug: string;
   title: string;
@@ -76,6 +77,8 @@ export default function BlogEditPanel({
   draftImages: readonly string[];
   /** Every post, passed straight through to the list pane. */
   posts: readonly BlogCard[];
+  /** The inspector's stored width, read and clamped on the SERVER so the first paint is right. */
+  inspectorWidth: number;
 }) {
   const { setUnpublished } = usePublishSignal();
   const [liveStatus, setLiveStatus] = useState(status);
@@ -279,6 +282,7 @@ export default function BlogEditPanel({
 
   return (
     <BlogBlocksEditPanel
+      inspectorWidth={inspectorWidth}
       slug={slug}
       // LIVE, AND WITH THE SLUG FALLBACK, so the canvas mirrors the public article exactly.
       // The read path renders `resolveSlugField(title, slug)` — title when set, slug when

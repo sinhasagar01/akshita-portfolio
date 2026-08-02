@@ -20,7 +20,8 @@
 // there is no width to drag; a focusable control with no effect is worse than no control. This
 // pairs with the width itself being consumed only inside `lg:` utilities, so both halves of the
 // below-lg answer are structural rather than conditional.
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import StudioResizeGrip from "./StudioResizeGrip";
 import { useSidebarWidthControls } from "./SidebarWidthProvider";
 import { SIDEBAR_MAX_PX, SIDEBAR_MIN_PX, SIDEBAR_DEFAULT_PX } from "@/lib/studio/sidebar-width";
 
@@ -31,6 +32,9 @@ export default function SidebarResizer() {
   // Where Enter returns to. Seeded to the default so the first Enter at the minimum still has
   // somewhere to go.
   const lastWide = useRef(SIDEBAR_DEFAULT_PX);
+  // Drawn from the gesture rather than `:active`: pointer capture keeps the drag alive after the
+  // pointer has left the element, and `:active` does not follow it there.
+  const [dragging, setDragging] = useState(false);
   if (!ctl) return null;
   const { width, preview, commit } = ctl;
 
@@ -53,6 +57,7 @@ export default function SidebarResizer() {
         // setPointerCapture keeps the gesture alive when the pointer leaves the 8px hit area —
         // without it a fast drag drops as soon as it outruns the handle.
         e.currentTarget.setPointerCapture(e.pointerId);
+        setDragging(true);
         // The drag would otherwise select the nav labels it passes over. A class on the root
         // rather than a style on the handle, because the selection happens in the SIBLINGS.
         document.documentElement.classList.add("select-none");
@@ -65,6 +70,7 @@ export default function SidebarResizer() {
       }}
       onPointerUp={(e) => {
         e.currentTarget.releasePointerCapture(e.pointerId);
+        setDragging(false);
         document.documentElement.classList.remove("select-none");
         setTo(e.clientX);
       }}
@@ -98,15 +104,22 @@ export default function SidebarResizer() {
       // Absolutely positioned ON the seam, it consumes nothing and every pane sum stays exactly
       // as derived. `left` reads the SAME custom property the sidebar's width does, so the handle
       // cannot drift off the edge it drags.
-      className="group/rz absolute inset-y-0 z-10 hidden w-2 -translate-x-1 cursor-col-resize touch-none select-none lg:block lg:left-[var(--studio-sidebar-w)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+      // ⚠ 12px, UP FROM 8, AND THE TRANSLATE MOVES WITH IT. `-translate-x-1` centred an 8px box
+      // on the seam; a 12px box needs -6. Changing one without the other slides the whole target
+      // off the edge it drags, which is the same class of defect as (1) above and would look
+      // exactly as fine. The before and after are measured by POINTERDOWN in the PR, not by
+      // reading these classes — 8px of live band was proven that way and 12 is proven the same.
+      //
+      // ⚠ `focus-visible:outline` IS GONE FROM HERE and lives on the grip as a ring instead. An
+      // outline on a 12px transparent box drew a rectangle in the middle of the chrome that
+      // named nothing; the ring on the mark names the thing that moves.
+      className="group/rz absolute inset-y-0 z-10 hidden w-3 -translate-x-1.5 cursor-col-resize touch-none select-none lg:grid lg:place-items-center lg:left-[var(--studio-sidebar-w)] focus-visible:outline-none"
     >
-      {/* The visible affordance: nothing at rest, a hairline on hover or focus. The sidebar's
-          own `lg:border-r` is the seam; this only brightens it, so the chrome does not gain a
-          permanent line it did not have. */}
-      <span
-        aria-hidden
-        className="block h-full w-px bg-transparent transition-colors group-hover/rz:bg-accent-500 group-focus-visible/rz:bg-accent-500"
-      />
+      {/* THE MARK REPLACES THE HAIRLINE. It used to be nothing at rest, which meant the sidebar
+          resized and never said so — an affordance you have to brush the seam to discover. The
+          grip announces it, and it is the same object on both seams. ON INK HERE, because the
+          sidebar is ink-950; the inspector's is on cream. One rule, two directions. */}
+      <StudioResizeGrip ground="ink" dragging={dragging} />
     </div>
   );
 }

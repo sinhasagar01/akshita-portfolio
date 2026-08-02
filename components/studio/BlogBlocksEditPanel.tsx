@@ -95,7 +95,9 @@ import SaveIndicator from "./SaveIndicator";
 import SaveBar from "./SaveBar";
 import BoldToolbar from "./BoldToolbar";
 import { usePageWidthMin } from "./usePageWidthMin";
-import { PANES_SUM, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
+import { PANES_SUM, INSPECTOR_FOLD_PX, BLOG_CANVAS_MIN_PX } from "@/lib/studio/three-pane";
+import { useInspectorWidth } from "./useInspectorWidth";
+import InspectorResizer from "./InspectorResizer";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
 import type { BlogCard } from "@/lib/keystatic";
@@ -150,6 +152,7 @@ export default function BlogBlocksEditPanel({
   headDate,
   headTopic,
   posts,
+  inspectorWidth,
   postSection,
   postStatus,
 }: {
@@ -187,6 +190,8 @@ export default function BlogBlocksEditPanel({
   headTopic: string;
   /** Every post, for the list pane. Draft-overlaid, from getStudioData. */
   posts: readonly BlogCard[];
+  /** The inspector's stored width, clamped on the SERVER against BLOG'S bounds. */
+  inspectorWidth: number;
   /** BlogEditPanel's head fields, rendered as the inspector's first section. */
   postSection: ReactNode;
   /** The Post form's SaveIndicator, rendered INSIDE the ink band beside the heading — the
@@ -270,9 +275,15 @@ export default function BlogBlocksEditPanel({
   // state during render.
   // INSPECTOR_FOLD_PX stays whole because it is CHOSEN rather than summed — it asks "is the
   // inspector still usable", and the inspector is 320px at every sidebar width.
+  /* ⚠ THE FOLD KEEPS ITS CHOSEN BREAKPOINT AND DOES NOT BECOME A SUM, which is the one place blog
+     still differs from the case study. `INSPECTOR_FOLD_PX` answers "is the inspector still
+     USABLE", not "does the canvas still hold its measure" — it was chosen rather than derived,
+     and making the pane adjustable does not turn it into arithmetic. The case study's fold IS a
+     sum, so it takes `Math.max(width, MIN)` there; here there is nothing to feed. */
   const inspectorFits = usePageWidthMin(INSPECTOR_FOLD_PX);
   // The fit threshold is not chosen; it is the sum, so it takes the live sidebar width.
   const sidebarPx = useSidebarWidth();
+  const ins = useInspectorWidth(inspectorWidth, "blog");
 
   // THIS PANEL HOLDS THE SESSION PREVIEWS FOR ITS POST, and holds nothing else's.
   //
@@ -681,6 +692,26 @@ export default function BlogBlocksEditPanel({
       ? null
       : (selectedBlock.discriminant as BlogBlockKind);
 
+  /* HOISTED SO IT HAS TWO HOMES. At the foot of the inspector while the pane is open, docked to
+     the canvas while it is shut — the same node either way, never two. A bar nested in a
+     zero-width pane is clipped with it, which takes the save AND its state line off screen:
+     hazard 13 and #201 in one gesture. */
+  const blogSaveBar = (
+    <SaveBar
+      className="sticky bottom-0 z-10 mt-auto"
+      status={saveStatus}
+      dirty={dirty}
+      savedAt={savedAt}
+      title="Auto-saves to draft on blur. Publish from Site settings."
+      primary={{
+        label: "Save draft",
+        onClick: saveDraft,
+        disabled: !dirty || saveStatus === "saving",
+        title: "Commits this post's fields and every block together.",
+      }}
+    />
+  );
+
   const inspector = (
     // `min-h-full` SO THE BAR HAS FREE SPACE TO CONSUME. B4's finding in mount-discipline, in the
     // shape it takes here: `sticky bottom-0` is inert when nothing scrolls, so a short post would
@@ -916,19 +947,7 @@ export default function BlogBlocksEditPanel({
           control is aimed at a permanently-disabled one; that button has a dirty guard and is
           never inert, and it sits where the blocks are, which is where you are when you want it.
           #200 is not in play — both commit the same draft, so one label serves both. */}
-      <SaveBar
-        className="sticky bottom-0 z-10 mt-auto"
-        status={saveStatus}
-        dirty={dirty}
-        savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from Site settings."
-        primary={{
-          label: "Save draft",
-          onClick: saveDraft,
-          disabled: !dirty || saveStatus === "saving",
-          title: "Commits this post's fields and every block together.",
-        }}
-      />
+      {ins.collapsed ? null : blogSaveBar}
     </div>
   );
 
@@ -938,7 +957,25 @@ export default function BlogBlocksEditPanel({
       // BOTH BREAKPOINTS ARE THE CONSUMER'S NOW. The inspector fold always was; the FIT
       // threshold moved here in PR 5, because the shell had been reading blog's 1614
       // directly and a second consumer would have inherited blog's breakpoint silently.
-      fitThresholdPx={sidebarPx + PANES_SUM}
+      rootRef={ins.rootRef}
+      rootStyle={ins.styleVar}
+      fitThresholdPx={sidebarPx + PANES_SUM + ins.width}
+      inspectorCollapsed={ins.collapsed}
+      /* No seam below the fold, so no handle — a focusable control with no effect is worse than
+         no control. Structural, like SidebarResizer's `hidden lg:block`. */
+      inspectorResizer={
+        inspectorFits ? (
+          <InspectorResizer
+            width={ins.width}
+            collapsed={ins.collapsed}
+            preview={ins.preview}
+            commit={ins.commit}
+            lastOpen={ins.lastOpen}
+            surface="blog"
+            canvasFloorPx={BLOG_CANVAS_MIN_PX}
+          />
+        ) : null
+      }
       listNoun="posts"
       list={<BlogPostList posts={posts} currentSlug={slug} />}
       canvasBar={
@@ -990,6 +1027,14 @@ export default function BlogBlocksEditPanel({
           ) : null}
         </>
       }
+      /* ⚠ THE SAVE BAR'S OTHER HOME. A collapsed inspector clips everything inside it, so a bar
+         nested there would take the save AND its state line off screen. It docks to the canvas
+         foot instead — a seam that already COMPRESSES the canvas rather than covering it. Blog
+         passes no other dock, so nothing stacks here; the case study's shares the foot with
+         SelectionDock and that pair is measured in the PR.
+         IT RENDERS AS ONE ROW HERE FOR FREE: the bar's `@container` switch reads its own box and
+         the canvas is far wider than the 520px threshold. */
+      canvasDock={ins.collapsed ? blogSaveBar : null}
       canvas={!inspectorFits && view === "inspector" ? inspector : canvasColumn}
       // NULL, not a hidden copy. Below the fold the SAME node above is rendered inside the
       // canvas instead. Two copies would be two field trees posting through one onChange,

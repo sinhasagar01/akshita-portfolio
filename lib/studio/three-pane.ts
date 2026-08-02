@@ -75,9 +75,24 @@
  * This is hazard 1's arithmetic half closing. The sidebar was a literal in three thresholds and
  * is now a runtime value in none of them. */
 
-/** List + canvas measure + inspector. The blog editor's three panes at their natural sizes,
- *  WITHOUT the sidebar — add the live sidebar width to get the fit threshold. */
-export const PANES_SUM = 264 + 794 + 320;
+/** Blog's canvas floor: 68ch (745.9px against the WRAPPER's 16px font) plus 48px of horizontal
+ *  padding. UNLIKE the case study's floor this is not a scale — it is the measure itself, and the
+ *  pane cannot go under it without the article's own width changing, which is the locked property
+ *  the whole layout exists to protect.
+ *
+ *  NAMED RATHER THAN INLINE because `InspectorResizer` needs it: the drag's runtime ceiling is
+ *  "however much the canvas can give up", and each surface passes its own floor. */
+export const BLOG_CANVAS_MIN_PX = 794;
+
+/** List + canvas measure. The blog editor's two FIXED panes, WITHOUT the sidebar — add the live
+ *  sidebar width AND the live inspector width for the fit threshold.
+ *
+ *  ⚠ THE INSPECTOR TERM LEFT THIS ONE TOO, ONE PR AFTER IT LEFT THE CASE STUDY'S. #283 kept 320
+ *  here on the reasoning that blog's inspector is fixed, and that reasoning did not survive
+ *  measurement — two fields are clipped at 320 and the pane needs to widen. See
+ *  `inspector-width.ts` for the correction in full. Both editors now add the live width, so the
+ *  asymmetry this constant recorded is gone. */
+export const PANES_SUM = 264 + BLOG_CANVAS_MIN_PX;
 
 /** Below this the inspector pane folds away and the canvas pane's own Canvas/Inspector
  *  toggle becomes the route to those fields. One mechanism at two widths, and the narrow
@@ -144,17 +159,31 @@ export const CS_MIN_SCALE = 0.5;
 /** The canvas pane's floor: the scale applied to the render width. 1280 × 0.5 = 640. */
 export const CS_CANVAS_MIN_PX = CS_CANVAS_WIDTH_PX * CS_MIN_SCALE;
 
-/** List + canvas floor + inspector. The case-study editor's three panes, WITHOUT the sidebar.
- *  264 + 640 + 320 = 1224; add the live sidebar width for the fit threshold.
- *  THE SAME DISCIPLINE AS BEFORE: the threshold IS the sum, so widening any pane — or lowering
- *  the scale floor — is an ARITHMETIC CHANGE, NOT A STYLING CHANGE, and this number moves with
- *  it. Only the sidebar term left, because only the sidebar became adjustable. */
-export const CS_PANES_SUM = 264 + CS_CANVAS_MIN_PX + 320;
+/** List + canvas floor. The case-study editor's two FIXED panes — add the live sidebar width AND
+ *  the live inspector width for the fit threshold: `sidebarPx + CS_PANES_SUM + inspectorPx`.
+ *
+ *  ⚠ THE INSPECTOR TERM LEFT, FOR EXACTLY THE REASON THE SIDEBAR TERM DID. A constant true at one
+ *  setting of an adjustable thing is worse than no constant: it reads as authoritative and is
+ *  wrong everywhere except the default. The case-study inspector now drags and collapses, so 320
+ *  stopped being a fact about it. Second application of #237's move, not a new pattern.
+ *
+ *  ⚠ AND `PANES_SUM` ABOVE KEEPS ITS 320, WHICH IS NOT AN OVERSIGHT. Blog's inspector is fixed —
+ *  see `inspector-width.ts` for the by-role argument — so for blog the term IS constant and
+ *  writing it as one is honest. Two panes in one shell with two different answers, because the
+ *  panes are for different things.
+ *
+ *  THE SAME DISCIPLINE AS BEFORE for what remains: the threshold IS the sum, so widening the list
+ *  or lowering the scale floor is an ARITHMETIC CHANGE, NOT A STYLING CHANGE. */
+export const CS_PANES_SUM = 264 + CS_CANVAS_MIN_PX;
 
 /** The collapsed-list pane sum: reopen rail + the collapsed pane's residual border + canvas
- *  floor + inspector = 27 + 640 + 320 = 987. Add the live sidebar width for the fold threshold.
+ *  floor = 27 + 640 = 667. Add the live sidebar width AND the inspector's width for the fold.
  *  Below it the canvas drops under its minimum scale even with the list collapsed, and the
  *  inspector fold is the only lever left.
+ *
+ *  THE INSPECTOR TERM LEFT THIS ONE TOO — add `inspectorPx` at the call site. The derivations
+ *  below still hold at the DEFAULT 320 and are kept in those terms, because they are the record
+ *  of how the floor was established rather than live arithmetic.
  *
  *  THE 27 IS 26 + 1 AND THE 1 WAS MISSING UNTIL IT WAS DRIVEN. The reopen rail is 26px, but a
  *  COLLAPSED list pane is not 0px — it is `w-0 border-transparent`, and a transparent border
@@ -169,7 +198,7 @@ export const CS_PANES_SUM = 264 + CS_CANVAS_MIN_PX + 320;
  *  877 / 1280 = 68.5% — comfortably above the 50% floor. Across the whole band between the two
  *  thresholds the collapsed canvas runs 640…877px, i.e. 50%…68.5%, so the rail collapsing never
  *  takes the canvas below the floor. That is the property this constant exists to state. */
-export const CS_COLLAPSED_PANES_SUM = 27 + CS_CANVAS_MIN_PX + 320;
+export const CS_COLLAPSED_PANES_SUM = 27 + CS_CANVAS_MIN_PX;
 
 /** The list pane's THREE-STATE intent.
  *

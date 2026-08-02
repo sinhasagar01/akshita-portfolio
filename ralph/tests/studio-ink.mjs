@@ -916,7 +916,14 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // SURFACES is the point: nine footers previously each spelled their own state in prose, and
     // the count going up by one rather than by nine is the evidence that they share a component.
     // F5i names it.
-    t("F5: the 35 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 35);
+    // REVALUED 35 -> 37 IN THE RESIZE-GRIP PR, TWO ARRIVALS AND NO DEPARTURES. The grip's mark is
+    // a pill and so is each of its four dots — but the dots share ONE class string in a map, so
+    // the count moves by two rather than by five. That is the shape this count protects: a status
+    // dot and a rounded chip, the same family as the save bar's state dot and BlogPostList's
+    // published marker. F5j names them.
+    t("F5: the 37 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 37);
+    t("F5j: …and both arrivals are the resize grip's mark and its dots, in one component",
+      (code("components/studio/StudioResizeGrip.tsx").match(/rounded-full/g) ?? []).length, 2);
     t("F5i: …and the arrival is the save bar's state dot, which no consumer can restyle",
       (code("components/studio/SaveBar.tsx").match(/rounded-full/g) ?? []).length === 1
         && /size-1\.5 flex-none rounded-full \$\{DOT\[state\]\}/.test(code("components/studio/SaveBar.tsx")), true);
@@ -1807,13 +1814,18 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * serializer's refusal surfaces as a generic "Save failed. Try again.". */
   /* RE-ANCHORED OFF `<footer>` IN THE SAVE BAR PR — the element is gone, the guard is not. */
   t("C13: the sections save bar is absent on a bespoke study — it has no sections draft to commit",
-    /\{bespoke \|\| showDetails \? null : \(\s*<SaveBar/.test(panel), true);
+    /\{bespoke \|\| showDetails \|\| ins\.collapsed \? null : sectionsBarNode\}/.test(panel), true);
   /* AND IT IS ABSENT ON THE DETAILS VIEW TOO, which is a different reason from the bespoke one
    * and arrived later. Details had TWO bars stacked in one 320px column — its own, plus the
    * sections bar the pane always carried — offering a save for an object the visible form does
    * not edit. `detailsNode` brings the save that matches what is on screen. */
   t("C13: …and the sections bar is absent on the Details view, where the form on screen is not sections",
-    /showDetails \? null : \(\s*<SaveBar/.test(panel), true);
+    /showDetails \|\| ins\.collapsed \? null : sectionsBarNode\}/.test(panel), true);
+  /* AND ABSENT FROM THE PANE WHEN THE PANE IS SHUT — the third reason, added with the collapse.
+   * A bar nested in a zero-width pane is clipped with it, taking the save AND its state line off
+   * screen. It is docked to the canvas instead; `studio-save-bar` E6 pins the other end. */
+  t("C13: …and absent from a collapsed inspector, because it docks to the canvas instead",
+    /ins\.collapsed \? \(showDetails \? detailsBar : sectionsBarNode\) : null/.test(panel), true);
 
   /* THE ZERO STATE IS THE WHOLE HAZARD. An empty list under a count heading is what a broken
    * fetch looks like, so the rail states its zero and says why. */

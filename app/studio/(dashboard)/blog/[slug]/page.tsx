@@ -22,11 +22,13 @@
 // scroll internally and which must reach the viewport edges. Because the layout no longer
 // imposes a padded, page-scrolled column on every studio page, this needs no negative
 // margins to escape one.
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getStudioData } from "@/lib/studio/data";
 import { getBlogPost } from "@/lib/keystatic";
 import { getEntryDraftState } from "@/lib/studio/entry-draft";
 import BlogEditPanel from "@/components/studio/BlogEditPanel";
+import { clampInspectorWidth, INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
 import { blogPath } from "@/lib/site";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 
@@ -52,8 +54,17 @@ export default async function BlogEditorPage({ params }: Props) {
 
   // The topic dropdown reads BLOG_TOPICS directly (PR D closed the set), so the editor no longer
   // derives a suggestion list from existing posts.
+  // ⚠ READ ON THE SERVER SO THE FIRST PAINT IS CORRECT RATHER THAN CORRECTED — #237's rule.
+  // Clamped on the READ against BLOG'S OWN bounds: the two inspectors measure different minimums
+  // (185 here, 267 on the case study), so a width stored on one surface must not arrive at the
+  // other outside its range. That is why there are two cookies rather than one.
+  const inspectorWidth = clampInspectorWidth(
+    (await cookies()).get(INSPECTOR_BOUNDS.blog.cookie)?.value, "blog",
+  );
+
   return (
     <BlogEditPanel
+      inspectorWidth={inspectorWidth}
       slug={slug}
       title={post.title}
       // Resolved HERE, on the server. `lib/site.ts` imports node:fs at module scope, so a
