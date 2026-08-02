@@ -43,7 +43,7 @@
 // asserted below to be EXACTLY the two `needsPointer` rows, so a new hover surface cannot slip in
 // unnoticed and this exclusion cannot quietly grow the way the C-9 one did. Everything the arc
 // measured that a machine CAN compute is computed.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { ON_INK } from "./studio-type.mjs";
 
 let pass = 0, fail = 0;
@@ -299,6 +299,182 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
   const metaRatio = metaSel && selFill ? ratio(tok(metaSel), tok(selFill)) : 0;
   t(`H5: the selected row's meta is ${metaSel} on ${selFill} at ${metaRatio} — the ${FLOOR} floor`,
     metaRatio >= FLOOR, true);
+
+  /* ══════════════════════════════════════════════════════════════════════════════════════════
+   * H6 — HAZARD 31: THE USAGE SCAN. H4 above has always had the FACT (ink-400 fails the text
+   * floor on every cream step) and nothing has ever checked the USAGE, so three sites shipped it
+   * and each was caught by a person measuring. A fourth, fifth and sixth were live when this was
+   * written — the blog status-tab counts at 3.49, the search result sublabels at 3.49 and 3.04,
+   * the blog editor's slug at 3.33, the sidebar counts at 3.33 below `lg`, the search key at 3.49
+   * below `lg`, and the search PLACEHOLDER at 3.49 below `lg`.
+   *
+   * ⚠ WHY THIS ONE DOES NOT MISFIRE, WHICH IS WHY IT WAS NOT BUILT BEFORE. Most `text-ink-400`
+   * sites are ICON or BORDER containers where the token is correct at the 3:1 non-text floor, and
+   * a naive scan flags all of them. A gate that misfires gets ignored, which is worse than none.
+   * So the icon set is DERIVED STRUCTURALLY rather than listed: an occurrence is an icon site when
+   * its enclosing class expression carries an svg-targeting or icon-grid marker, or when the tag
+   * it sits on is an icon component. Everything else is TEXT and must be registered below WITH ITS
+   * GROUND — and the ratio is recomputed here from the tokens, so an entry cannot be parked in the
+   * table to silence the gate.
+   *
+   * ⚠ AND THE SCOPE IS ANCHORED AT BOTH ENDS, NOT A WINDOW. The enclosing expression is taken from
+   * the nearest preceding `className=` or `const X =` to its balanced close. A window would be the
+   * fifth unanchored match in this arc; three of the previous four passed while reading the wrong
+   * element entirely. */
+  const STUDIO_DIRS = ["components/studio", "app/studio"];
+  const tsxFiles = (dir, out = []) => {
+    for (const e of readdirSync(dir)) {
+      const p = `${dir}/${e}`;
+      if (statSync(p).isDirectory()) tsxFiles(p, out);
+      else if (p.endsWith(".tsx")) out.push(p);
+    }
+    return out;
+  };
+  const stripComments = (s) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+
+  /** The class expression enclosing an occurrence, plus the tag it is applied to. */
+  const enclosing = (src, at) => {
+    const before = src.slice(0, at);
+    const ci = before.lastIndexOf("className=");
+    const km = [...before.matchAll(/\bconst\s+\w+\s*=/g)].pop();
+    const start = Math.max(ci, km ? km.index : -1);
+    if (start < 0) return { expr: "", tag: "?" };
+    let i = src.indexOf("=", start) + 1;
+    while (src[i] === " ") i++;
+    let expr = "";
+    if (src[i] === "{") {
+      let d = 0, j = i;
+      for (; j < src.length; j++) {
+        if (src[j] === "{") d++;
+        else if (src[j] === "}") { d--; if (!d) { j++; break; } }
+      }
+      expr = src.slice(i, j);
+    } else if (src[i] === '"' || src[i] === "'" || src[i] === "`") {
+      const q = src[i]; let j = i + 1;
+      while (j < src.length && src[j] !== q) j++;
+      expr = src.slice(i, j + 1);
+    } else {
+      const j = src.indexOf(";", i);
+      expr = src.slice(i, j < 0 ? src.length : j);
+    }
+    const tm = [...src.slice(0, start).matchAll(/<([A-Za-z][\w.]*)/g)].pop();
+    return { expr, tag: tm ? tm[1] : "?" };
+  };
+  // An icon grid centres its child and sizes an svg. A dotted name (`area.Icon`) is a component
+  // read off a record — missing that cost one false TEXT classification on the first run.
+  const ICON_MARK = /\[&>svg\]|place-items-center/;
+  const ICON_TAG = /(^|\.)((svg|path)$|Icon\w*$)/i;
+
+  const iconSites = [];
+  const textSites = [];
+  for (const f of STUDIO_DIRS.flatMap((d) => tsxFiles(d))) {
+    const src = stripComments(read(f));
+    for (const m of src.matchAll(/text-ink-400/g)) {
+      const { expr, tag } = enclosing(src, m.index);
+      const where = `${f.split("/").pop()}:${src.slice(0, m.index).split("\n").length}`;
+      const site = { where, file: f.split("/").pop(), expr: expr.replace(/\s+/g, " ") };
+      (ICON_MARK.test(expr) || ICON_TAG.test(tag) ? iconSites : textSites).push(site);
+    }
+  }
+
+  /* ⚠ THE DERIVATION MUST BE PROVEN NON-VACUOUS BEFORE ANYTHING IS CONCLUDED FROM IT. An icon
+   * classifier that matched NOTHING would empty `textSites` too and the gate would pass by finding
+   * no work — the exact vacuous-pass shape that has bitten this arc repeatedly. */
+  t("H6: the scan finds ink-400 sites at all, so nothing below passes by matching nothing",
+    iconSites.length + textSites.length > 25, true);
+  t("H6: …and most of them are icon containers, where ink-400 is CORRECT at the 3:1 floor",
+    iconSites.length > 20, true);
+
+  /* THE REGISTRY. Every ink-400 site that renders as TEXT, with the ground it renders on and the
+   * floor its size earns. Each ratio is RECOMPUTED below — the numbers here are the claim, not the
+   * evidence. A new text site that is not in this table fails, the way `studio-ink` E2 fails a
+   * fourth inline form control. */
+  /* ⚠ EVERY ENTRY CARRIES A `guard`, AND THAT IS THE HALF THAT NEARLY SHIPPED MISSING. The first
+   * version recorded only the claimed ground, and mutation testing killed it: deleting the
+   * sidebar count's `text-ink-600 lg:` scoping — putting back the exact 3.33-on-cream defect this
+   * PR fixes — left the gate GREEN, because the site was still one registered text site in the
+   * same file and the entry still claimed an ink ground. A registry that records a claim and never
+   * checks it is a list of assertions about the past. The guard is the class-expression property
+   * that MAKES the claimed ground true, matched against the real expression. */
+  const INK400_TEXT_SITES = [
+    // 26px display type clears the LARGE-text floor, which is the whole reason it may stay — so
+    // the guard is the size that earns it.
+    { at: "CaseStudyRow.tsx", ground: "cream-50", floor: 3, guard: /text-\[26px\]/,
+      why: "the 26px list ordinal — large text" },
+    // Ink-only, and PROVEN so: ink-400 must be `lg:`-scoped, or it paints on the cream sidebar
+    // below the breakpoint at 3.33.
+    { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:text-ink-400/,
+      why: "the area count, ink-400 at `lg` only" },
+    // Likewise ink-only, but by VISIBILITY rather than by colour — it does not render below `lg`.
+    { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:block/,
+      why: "the Content eyebrow, `lg:block`" },
+  ];
+  t("H6: every ink-400 TEXT site is registered — an unregistered one is a new AA failure",
+    textSites.length, INK400_TEXT_SITES.length);
+  t("H6: …and the registered files are exactly the ones the scan found",
+    [...new Set(textSites.map((s) => s.file))].sort(),
+    [...new Set(INK400_TEXT_SITES.map((s) => s.at))].sort());
+  /* ⚠ AND EACH GUARD MUST MATCH THE REAL EXPRESSION. This is what makes the ground a fact about
+   * the code rather than a note about it. */
+  for (const e of INK400_TEXT_SITES) {
+    const matched = textSites.some((s) => s.file === e.at && e.guard.test(s.expr));
+    t(`H6: ${e.why} — its ${e.ground} ground is guaranteed by ${e.guard.source}, not just claimed`,
+      matched, true);
+  }
+  /* ⚠ AND EACH ENTRY MUST EARN ITS PLACE. Recomputed from the tokens, so parking a failing site in
+   * the table above does not silence anything. */
+  for (const s of INK400_TEXT_SITES) {
+    const r = ratio(tok("ink-400"), tok(s.ground));
+    t(`H6: ${s.why} — ink-400 on ${s.ground} is ${r}, floor ${s.floor}`, r >= s.floor, true);
+  }
+  /* CROSS-CHECKED AGAINST THE BROWSER, not just against itself — the posture this suite's on-ink
+   * half already takes. These are the values measured on screen with a canvas rasteriser walking
+   * the real composited ground. */
+  t("H6: the computed ink-400 ratios reproduce what the screen measured — 5.45 on ink, 3.49 on cream-50",
+    [ratio(tok("ink-400"), tok("ink-950")), ratio(tok("ink-400"), tok("cream-50"))], [5.45, 3.49]);
+  /* THE REMEDY THE SIX FIXES USED, asserted adequate rather than assumed — and on the WORST cream
+   * step any of them lands on, not the friendliest. */
+  t("H6: …and ink-600 is adequate on every cream step, which is why all six fixes used it",
+    CREAMS.every((g) => ratio(tok("ink-600"), tok(g)) >= FLOOR), true);
+
+  /* ══════════════════════════════════════════════════════════════════════════════════════════
+   * H7 — HAZARD 30: ACCENT ON CREAM, the same gap seen from the other side. The cream half covered
+   * `ink-*` and `text-subtle` only, so accent-on-cream was uncomputed while #248 had to measure it
+   * by hand. The record prescribed exactly this fix — add the accent scale to the token list and
+   * let it compute, a widening of an existing derivation rather than a new suite. */
+  const accent500 = CREAMS.map((g) => ratio(tok("accent-500"), tok(g)));
+  const accent600 = CREAMS.map((g) => ratio(tok("accent-600"), tok(g)));
+
+  /* ⚠ THE TWO ACCENTS ARE NOT INTERCHANGEABLE AS TEXT, WHICH IS WHAT COMPUTING THIS FOUND. The
+   * first version of H7 asserted that both clear the floor on every step — the reasonable
+   * assumption, and wrong. accent-500 clears it on cream-50 ALONE and misses cream-100 by 0.02.
+   * A two-hundredths miss is exactly the kind nobody catches by eye and everybody assumes away,
+   * which is the case for computing it rather than describing it. */
+  t("H7: accent-500's cream ladder is 4.7 / 4.48 / 4.07 / 3.43 — computed, not assumed",
+    accent500, [4.7, 4.48, 4.07, 3.43]);
+  t("H7: …so cream-50 is the ONLY step it may carry text on, and cream-100 misses by 0.02",
+    CREAMS.filter((g, i) => accent500[i] >= FLOOR), ["cream-50"]);
+  t("H7: accent-600's ladder is 7.22 / 6.87 / 6.25 / 5.27 — it is the accent that travels",
+    accent600, [7.22, 6.87, 6.25, 5.27]);
+  t("H7: …clearing the floor on every cream step, unlike accent-500",
+    accent600.every((r) => r >= FLOOR), true);
+  /* #248 measured accent-600 by hand at 7.22 / 6.87 / 6.25 on cream-50/100/200 and recorded the
+   * gap as hazard 30. The computation reproduces the hand reading exactly, so this is tied to the
+   * browser rather than only to itself. */
+  t("H7: …and it reproduces #248's hand measurement, which is what hazard 30 recorded",
+    accent600.slice(0, 3), [7.22, 6.87, 6.25]);
+
+  /* THE ONE TEXT CONSUMER OF accent-500, with the ground it actually renders on. It is the
+   * `tone !== "muted"` signal badge — the "Not yet created" state — which is why a DOM sweep of a
+   * fully-populated studio finds nothing: the badge only exists when content is MISSING. Measured
+   * on screen, its row's ground is cream-50, where accent-500 is 4.7 and legal. It would fail one
+   * step darker, so the ground is the whole reason it passes and is pinned as such. */
+  const overview = read("components/studio/OverviewRow.tsx");
+  t("H7: the accent signal badge still exists, so the ground assertion below is not vacuous",
+    /border-accent-500\/35 text-accent-500/.test(overview), true);
+  t("H7: …and accent-500 is legal on the cream-50 it renders on — but only there",
+    ratio(tok("accent-500"), tok("cream-50")) >= FLOOR, true);
 }
 
 console.log(`\nstudio-ink-contrast result: ${pass} passed, ${fail} failed`);

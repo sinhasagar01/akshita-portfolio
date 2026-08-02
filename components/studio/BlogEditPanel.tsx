@@ -176,7 +176,9 @@ export default function BlogEditPanel({
           placeholder={slug}
         />
         <span className="text-[12px] text-text-subtle">
-          Slug <span className="font-mono text-ink-400">{slug}</span> — set at create, fixed.
+          {/* The slug is the one part of this line an author actually reads back, and it was the
+              dimmest — ink-400 at 3.33 on the inspector's cream-100, under the 4.5 floor. */}
+          Slug <span className="font-mono text-ink-600">{slug}</span> — set at create, fixed.
           The URL, the images and the love count key on it, so it never moves.
         </span>
       </label>

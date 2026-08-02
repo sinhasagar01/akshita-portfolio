@@ -89,7 +89,18 @@ export default function BlogStatusTabs({
             {t.label}
             {/* The count is the tab's own denominator. It is what makes "Drafts" worth pressing
                 before you press it, and what makes an empty bucket visible without a click. */}
-            <span className={on ? "text-ink-600" : "text-ink-400"}>{counts[t.key]}</span>
+            {/* ⚠ ONE COLOUR, NOT TWO. The inactive count was `ink-400`, which measures 3.49 on
+                cream-50 against a 4.5 floor — a live AA failure at every width, and the exact
+                number `studio-ink-contrast` H4 already had on record for ink-400 on cream. There
+                is no `ink-500` to retreat to (it is a phantom token that emits nothing, hazard
+                23), so ink-600 is the only passing step below ink-800.
+                THE COLOUR WAS DOING TWO JOBS AND ONE OF THEM COST AA. It marked selection AND kept
+                the number quiet. Selection is already carried three other ways — the tab's
+                `border-accent-500`, its label at ink-950 against the inactive ink-600, and
+                `aria-selected` — so dropping the count's colour distinction removes a fourth
+                signal from a control that has three. The count is data the author reads before
+                deciding what to press; it should not be the dimmest thing on the row. */}
+            <span className="text-ink-600">{counts[t.key]}</span>
           </button>
         );
       })}

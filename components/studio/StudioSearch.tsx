@@ -151,11 +151,21 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           // "Placeholder should sit below the value" still holds and is unaffected: 5.08
           // against the value's 9.1 is a clear hierarchy, and a hierarchy is a ratio between
           // two legible things rather than a licence for one of them to fail.
-          className="min-w-0 flex-1 bg-transparent text-[13.5px] text-ink-600 outline-none placeholder:text-ink-400 lg:text-cream-50 lg:placeholder:text-ink-200"
+          /* ⚠ THE PLACEHOLDER IS THE ONE A DOM SWEEP CANNOT SEE. `::placeholder` is a pseudo
+             element, so `querySelectorAll("*")` never visits it and a scan that walks elements
+             reports this field clean at every width. It was `ink-400` below `lg` — 3.49 on the
+             cream field, under the 4.5 floor — and only the SOURCE scan found it. Same
+             breakpoint-scoped fix as the key beside it: the `lg:` ink value is untouched. */
+          className="min-w-0 flex-1 bg-transparent text-[13.5px] text-ink-600 outline-none placeholder:text-ink-600 lg:text-cream-50 lg:placeholder:text-ink-200"
         />
         <kbd
           aria-hidden
-          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[12px] text-ink-400 lg:border-white/24 lg:text-ink-200"
+          /* ⚠ THE BELOW-`lg` VALUE MOVED, THE `lg:` ONE DID NOT. This key sits on the ink topbar at
+             `lg`, where `ink-200` measures fine, and on cream below it, where `ink-400` measured
+             3.49 against a 4.5 floor. Recolouring it outright would have moved a value that is
+             correct to fix a ground it never renders on. The cream case takes ink-600; the ink case
+             is untouched. */
+          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[12px] text-ink-600 lg:border-white/24 lg:text-ink-200"
         >
           /
         </kbd>
@@ -194,7 +204,11 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                 ].join(" ")}
               >
                 <span className="truncate">{r.label}</span>
-                <span className="shrink-0 text-[12px] text-ink-400">{r.sublabel}</span>
+                {/* The dropdown panel is `bg-cream-50` at EVERY width — it is not part of the ink
+                    chrome the field above it joins at `lg` — so this needs no breakpoint split.
+                    It was ink-400, measuring 3.49 on the panel and 3.04 on the highlighted row's
+                    cream-200, both under the 4.5 floor. */}
+                <span className="shrink-0 text-[12px] text-ink-600">{r.sublabel}</span>
               </li>
             ))
           )}
