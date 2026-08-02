@@ -235,6 +235,87 @@ const shell = code("components/studio/ThreePaneShell.tsx");
     (code("lib/studio/inspector-width.ts").match(/cookie: "/g) ?? []).length, 2);
 }
 
+/* ================================================= F. THE PILL CLEARS THE SAVE BAR
+ *
+ * The publish pill is fixed near the foot, centred over the work area; every save bar is
+ * `sticky bottom-0` inside a pane. So the pill floated in the band the bar occupies and landed ON
+ * it — measured at 124 × 40px on the three list-detail pages, where the bar is a 1042px detail
+ * column and the centred pill sits inside it, and again on the case study below its fold. */
+{
+  const pub = code("components/studio/PublishBar.tsx");
+  const clear = code("lib/studio/bar-clearance.ts");
+  const bar = code("components/studio/SaveBar.tsx");
+
+  /* ⚠ THE PROPERTY NAME IS TWO COPIES — a module constant the bar writes, and a literal inside a
+   * class the pill reads, because Tailwind cannot interpolate one into a class name. That is the
+   * #194 shape again and it is closed the same way, by asserting the class contains the module's
+   * own string rather than by hoping. */
+  const VAR = /BAR_CLEARANCE_VAR = "([^"]+)"/.exec(clear)?.[1];
+  t("F1: the clearance property is declared once, in its own module", VAR, "--studio-bar-clearance");
+  t("F1: …and the pill's class names that exact property, with a 0px fallback",
+    pub.includes(`bottom-[calc(var(${VAR},0px)+1.25rem)]`), true);
+
+  /* THE FALLBACK IS WHAT KEEPS THE INDEX PAGES UNCHANGED. They have no save bar, so nothing writes
+   * the property and the pill keeps exactly the offset it had. A fixed offset would have had to
+   * clear the tallest bar — 117px — and would then float the pill that far up on every page that
+   * has none. Driven: /studio/projects computes 20px, byte-for-byte its old value. */
+  t("F1: …and no literal offset survives beside it, which would be a second source",
+    /bottom-5/.test(pub), false);
+
+  /* ⚠ THE MAXIMUM ACROSS MOUNTED BARS, NOT THE LAST WRITER. Two bars are mounted on the case
+   * study — the details form's and the sections form's — with one inside a `hidden` wrapper. A
+   * last-writer-wins property lets the hidden one, height 0, clobber the visible one and the pill
+   * drops back onto the bar with nothing looking wrong. Driven at 1180: two mounted, one at 0 and
+   * invisible, clearance correctly 62. */
+  t("F2: the clearance is the tallest VISIBLE bar, so a hidden one cannot clobber it",
+    /tallest = Math\.max\(tallest, el\.getBoundingClientRect\(\)\.height\)/.test(clear)
+      && /el\.offsetParent === null/.test(clear), true);
+  t("F2: …and bars register and unregister, so an unmounted one stops counting",
+    /mounted\.add\(el\)/.test(clear) && /mounted\.delete\(el\)/.test(clear), true);
+
+  /* MEASURED, NOT ASSUMED: the height changes when the container query flips the bar between one
+   * and two rows, which no interval would catch at the right moment. */
+  t("F3: the bar observes its own height rather than measuring once",
+    /new ResizeObserver\(republishBarClearance\)/.test(bar) && /registerBar\(el\)/.test(bar), true);
+}
+
+/* ================================================= G. THE BLOG FIELDS WRAP RATHER THAN CLIP
+ *
+ * ⚠ MEASURED IN THE 320px INSPECTOR: the post title needed 299px in a 289px box and the dek 305,
+ * so neither could be read without scrolling inside its own field — and they are the two an
+ * author writes first.
+ * ⚠ RAISING THE PANE'S DEFAULT WAS THE OTHER OPTION AND IT IS WRONG. Blog's canvas has a hard
+ * 794px floor, so at a 1585 page a 340px inspector leaves it 738 and the ARTICLE would narrow —
+ * the one property that layout exists to protect. The pane cannot widen there, so the field has
+ * to stop clipping instead. */
+{
+  const fields = code("components/studio/blocks/fields.tsx");
+  const blog = code("components/studio/BlogEditPanel.tsx");
+
+  t("G1: the wrapping field exists and keeps the shared well's geometry",
+    /export function WrappingField/.test(fields) && /className = inputCls/.test(fields), true);
+
+  /* ⚠ THE VALUE STAYS ONE LINE EVEN THOUGH THE BOX HAS TWO. These round-trip to YAML as
+   * single-line scalars, so Enter is suppressed and pasted newlines collapse to spaces. Asserted
+   * as BOTH halves: blocking the key alone still lets a paste through. */
+  t("G1: …and the VALUE cannot gain a newline, by key or by paste",
+    /e\.target\.value\.replace\(\/\[\\r\\n\]\+\/g, " "\)/.test(fields)
+      && /if \(e\.key === "Enter"\) \{ e\.preventDefault\(\); e\.currentTarget\.blur\(\); \}/.test(fields), true);
+
+  t("G2: both blog head fields use it, and neither is a single-line input any more",
+    (blog.match(/<WrappingField/g) ?? []).length === 2
+      && /<input\s+type="text"\s+value=\{values\.(title|dek)\}/.test(blog) === false, true);
+
+  /* ⚠ AND IT SITS BELOW THE THREE WELL CONSTANTS, which is not tidiness. studio-ink's E2
+   * attributes an inline-geometry match to the last JSX-looking tag before it over RAW source, so
+   * a component with a tag in it placed ABOVE them re-attributes all three and fails a gate about
+   * something else. The file's header records that trap for a comment; a real tag does it too.
+   * Asserted by ORDER, because the failure is positional. */
+  t("G3: …and it is declared after the well constants, or E2 re-attributes them to its tag",
+    read("components/studio/blocks/fields.tsx").indexOf("export function WrappingField")
+      > read("components/studio/blocks/fields.tsx").indexOf("export const inputErrorCls"), true);
+}
+
 /* ---- ⚠ WHAT THIS SUITE CANNOT PROVE, NAMED RATHER THAN LEFT TO LOOK COVERED ----------------
  *
  *  1. THE LIVE HIT BAND. #237's dead half was a class string that read perfectly; only a

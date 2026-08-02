@@ -227,7 +227,19 @@ export default function PublishBar() {
     // The three-pane widths themselves are NOT hand-coupled — they live once in
     // lib/studio/three-pane.ts and ralph asserts no second literal exists. That
     // is the pattern this 236px should follow whenever it is next touched.
-    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
+    //
+    // ⚠ AND IT RISES ABOVE THE SAVE BAR RATHER THAN LANDING ON IT. A flat 20px offset put the pill
+    // inside the band every `sticky bottom-0` save bar occupies — 124 × 40px of overlap on Site
+    // settings, Experience and Skills, where the bar is the whole 1042px detail column and this
+    // pill is centred inside it, and again on the case study below its fold. HORIZONTAL WAS NOT
+    // AVAILABLE: clearing that bar sideways means moving left of the detail column, over the list
+    // rail, and centring over the work area is the decision argued above.
+    // THE CLEARANCE IS MEASURED BY THE BARS THEMSELVES, with a 0px fallback so the index pages —
+    // which have no bar — keep exactly today's 20px. A fixed offset would have to clear the
+    // tallest bar (117px) and would then float this 117px up on every page that has none.
+    // (The offset utility's own name is one Tailwind emits a rule for, so it is described rather
+    // than written — `css-comment-trap` caught this comment, its seventh catch on my prose.)
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--studio-bar-clearance,0px)+1.25rem)] z-50 flex justify-center px-4 transition-[bottom] duration-200 lg:left-[var(--studio-sidebar-w)]">
       <div
         className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))] backdrop-blur"
         {...(confirmOpen

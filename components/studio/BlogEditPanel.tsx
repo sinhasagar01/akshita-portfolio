@@ -32,9 +32,14 @@
 // migration trigger it named actually fired. Topic was the listbox's first consumer and is now
 // one of six. See ListboxField's header.
 //
-// `dek` STAYS A PLAIN INPUT. The mock draws it as part of the canvas, styled as prose, but
-// blog has no contenteditable infrastructure and introducing the studio's second one inside
-// a layout change is scope creep.
+// `dek` IS NOT A CONTENTEDITABLE. The mock draws it as part of the canvas, styled as prose, but
+// blog has no contenteditable infrastructure and introducing the studio's second one inside a
+// layout change is scope creep. That still holds.
+// ⚠ IT IS NO LONGER A PLAIN `input` EITHER, and neither is the title. Both were CLIPPED at the
+// inspector's 320px default — 299px and 305px of text in a 289px box — so neither could be read
+// without scrolling inside its own field. They are `WrappingField` now: a textarea that wraps and
+// still holds a one-line value. Widening the pane was the other option and it is wrong; the
+// reasoning is at `WrappingField`.
 import { useEffect, useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -44,7 +49,7 @@ import SaveIndicator from "./SaveIndicator";
 import { BLOG_STATUSES, BLOG_TOPICS } from "@/lib/studio/blog-format";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 import type { BlogCard } from "@/lib/keystatic";
-import { inputCls, labelCls, FieldKey} from "./blocks/fields";
+import { inputCls, labelCls, FieldKey, WrappingField } from "./blocks/fields";
 import { ListboxField } from "./ListboxField";
 
 type HeadFields = { title: string; dek: string; date: string; topic: string; status: string };
@@ -156,14 +161,15 @@ export default function BlogEditPanel({
           moves nothing when edited (#216). Blank is allowed and the article falls back to the
           slug; publish requires a non-empty one, enforced in validate-blog-post. */}
       <label className="flex flex-col gap-1">
+        {/* ⚠ WRAPS RATHER THAN CLIPS. At the inspector's 320px default this needed 299px in a
+            289px box, so the headline an author writes first could not be read without scrolling
+            inside its own field. See `WrappingField` for why widening the pane was not the fix. */}
         <FieldKey>Title</FieldKey>
-        <input
-          type="text"
+        <WrappingField
           value={values.title}
-          onChange={(e) => setField("title", e.target.value)}
+          onChange={(v) => setField("title", v)}
           onBlur={saveDraft}
           placeholder={slug}
-          className={inputCls}
         />
         <span className="text-[12px] text-text-subtle">
           Slug <span className="font-mono text-ink-400">{slug}</span> — set at create, fixed.
@@ -172,13 +178,13 @@ export default function BlogEditPanel({
       </label>
 
       <label className="flex flex-col gap-1">
+        {/* Needed 305px in the same 289px box — and it is a SENTENCE, so wrapping is what it
+            wanted anyway. The value stays one line; only the box has two. */}
         <FieldKey>Dek</FieldKey>
-        <input
-          type="text"
+        <WrappingField
           value={values.dek}
-          onChange={(e) => setField("dek", e.target.value)}
+          onChange={(v) => setField("dek", v)}
           onBlur={saveDraft}
-          className={inputCls}
         />
       </label>
 
