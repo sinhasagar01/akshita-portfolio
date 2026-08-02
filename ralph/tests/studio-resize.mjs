@@ -9,6 +9,8 @@
 // stated rather than implied, because the rendered claims live in the PR body where they were
 // measured. The two that cannot be gated at all are named at the bottom.
 import { readFileSync } from "node:fs";
+import { clearanceFrom } from "../../lib/studio/bar-clearance.ts";
+import { ZOOM_STEPS, clampZoom, stepZoom, zoomLabel, ZOOM_COOKIE } from "../../lib/studio/canvas-zoom.ts";
 import {
   clampInspectorWidth,
   isInspectorCollapsed,
@@ -222,7 +224,8 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   for (const [route, surface] of [["projects/[slug]", "cs"], ["blog/[slug]", "blog"]]) {
     const page = code(`app/studio/(dashboard)/${route}/page.tsx`);
     t(`E1: ${surface} — the width is read and clamped on the SERVER against its own bounds`,
-      new RegExp(`clampInspectorWidth\\(\\s*\\(await cookies\\(\\)\\)\\.get\\(INSPECTOR_BOUNDS\\.${surface}\\.cookie\\)\\?\\.value,\\s*"${surface}",?\\s*\\)`).test(page), true);
+      new RegExp(`const jar = await cookies\\(\\);`).test(page)
+        && new RegExp(`clampInspectorWidth\\(jar\\.get\\(INSPECTOR_BOUNDS\\.${surface}\\.cookie\\)\\?\\.value, "${surface}"\\)`).test(page), true);
     t(`E1: ${surface} — …and travels as a prop rather than being read again on the client`,
       /inspectorWidth=\{inspectorWidth\}/.test(page), true);
   }
@@ -253,7 +256,7 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   const VAR = /BAR_CLEARANCE_VAR = "([^"]+)"/.exec(clear)?.[1];
   t("F1: the clearance property is declared once, in its own module", VAR, "--studio-bar-clearance");
   t("F1: …and the pill's class names that exact property, with a 0px fallback",
-    pub.includes(`bottom-[calc(var(${VAR},0px)+1.25rem)]`), true);
+    pub.includes(`bottom-[calc(var(${VAR},0px)+2rem)]`), true);
 
   /* THE FALLBACK IS WHAT KEEPS THE INDEX PAGES UNCHANGED. They have no save bar, so nothing writes
    * the property and the pill keeps exactly the offset it had. A fixed offset would have had to
@@ -267,14 +270,39 @@ const shell = code("components/studio/ThreePaneShell.tsx");
    * last-writer-wins property lets the hidden one, height 0, clobber the visible one and the pill
    * drops back onto the bar with nothing looking wrong. Driven at 1180: two mounted, one at 0 and
    * invisible, clearance correctly 62. */
-  t("F2: the clearance is the tallest VISIBLE bar, so a hidden one cannot clobber it",
-    /tallest = Math\.max\(tallest, el\.getBoundingClientRect\(\)\.height\)/.test(clear)
-      && /el\.offsetParent === null/.test(clear), true);
+  t("F2: a hidden participant is skipped, so it cannot clobber a visible one",
+    /el\.offsetParent === null/.test(clear) && /clearanceFrom\(boxes, window\.innerHeight\)/.test(clear), true);
   t("F2: …and bars register and unregister, so an unmounted one stops counting",
     /mounted\.add\(el\)/.test(clear) && /mounted\.delete\(el\)/.test(clear), true);
 
   /* MEASURED, NOT ASSUMED: the height changes when the container query flips the bar between one
    * and two rows, which no interval would catch at the right moment. */
+  /* ⚠ F4 · THE ARITHMETIC, WHICH IS THE PART THAT WAS WRONG AND THE PART A BROWSER TEST COULD
+   * NOT REACH. It began as "the tallest participant", which is right while only one can be
+   * visible and wrong the moment two STACK — the Selected rail sits at the canvas foot and the
+   * save bar docks BELOW it when the inspector is collapsed. The maximum published the bar's 62
+   * and the pill rose just enough to clear the bar and landed inside the rail: 60 × 293px,
+   * measured. Summing is wrong too, because participants in different panes do not stack.
+   * The only question actually being asked is how far up the viewport the furniture reaches. */
+  const V = 900;
+  t("F4: a rail STACKED above a bar is measured from the rail's top, not the bar's height",
+    clearanceFrom([{ top: 744, height: 114 }, { top: 838, height: 62 }], V), 156);
+  t("F4: …which the old maximum-height rule got wrong — it would have published the bar alone",
+    Math.max(114, 62) === 156, false);
+  t("F4: a lone bar is its own height", clearanceFrom([{ top: 838, height: 62 }], V), 62);
+  t("F4: nothing docked means no clearance, so the index pages keep their offset",
+    clearanceFrom([], V), 0);
+  /* A `max-h-0` rail still HAS a box, sitting at the very foot. Counting it would publish a
+   * clearance of nothing and defeat the whole mechanism, so a zero-height box is skipped. */
+  t("F4: a closed rail contributes nothing rather than pinning the clearance to the foot",
+    clearanceFrom([{ top: 899, height: 0 }, { top: 838, height: 62 }], V), 62);
+  t("F4: …and a lone closed rail leaves the pill where it was",
+    clearanceFrom([{ top: 899, height: 0 }], V), 0);
+  /* Participants in DIFFERENT panes do not stack, and the topmost still wins — which
+   * over-clears rather than under-clears. Errs in the safe direction, as STATE's sign rule asks. */
+  t("F4: two panes' furniture takes the higher edge, over-clearing rather than colliding",
+    clearanceFrom([{ top: 783, height: 117 }, { top: 806, height: 114 }], V), 117);
+
   t("F3: the bar observes its own height rather than measuring once",
     /new ResizeObserver\(republishBarClearance\)/.test(bar) && /registerBar\(el\)/.test(bar), true);
 }
@@ -314,6 +342,99 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   t("G3: …and it is declared after the well constants, or E2 re-attributes them to its tag",
     read("components/studio/blocks/fields.tsx").indexOf("export function WrappingField")
       > read("components/studio/blocks/fields.tsx").indexOf("export const inputErrorCls"), true);
+}
+
+/* ================================================= H. THE CANVAS ZOOM
+ *
+ * Absolute levels with `fit` as a state, not a multiplier on top of fit — the owner's call, and
+ * the one that keeps the readout honest: a multiplier would mean 100% is not 100%. */
+{
+  const zoomSrc = code("lib/studio/canvas-zoom.ts");
+  const sections = code("components/studio/SectionsEditPanel.tsx");
+  const blog = code("components/studio/BlogBlocksEditPanel.tsx");
+  const control = code("components/studio/CanvasZoom.tsx");
+
+  t("H1: the span is the case study's own legibility floor up to 150%",
+    [ZOOM_STEPS[0], ZOOM_STEPS[ZOOM_STEPS.length - 1]], [0.5, 1.5]);
+  /* ⚠ 10% STEPS, DOWN FROM 25%, AND THE COUNT IS HOW THAT IS PINNED. At quarter-steps the first
+   * press from a typical 84% fit threw the canvas to 100% with no way to nudge. Asserted as a
+   * COUNT and a uniform gap rather than a literal list, so the span and the increment are both
+   * checked and neither can drift while the other stays. */
+  t("H1: …in eleven stops, so a press is an adjustment rather than a decision", ZOOM_STEPS.length, 11);
+  t("H1: …evenly spaced at 10%, with no gap left behind",
+    ZOOM_STEPS.every((v, i) => i === 0 || Math.abs(v - ZOOM_STEPS[i - 1] - 0.1) < 1e-9), true);
+
+  t("H2: the default is `fit`, so nothing moves for an author who never touches it",
+    clampZoom(undefined), "fit");
+  t("H2: …and an off-scale stored level snaps to a declared step rather than smuggling itself in",
+    [clampZoom(0.63), clampZoom(9), clampZoom(-4), clampZoom("abc"), clampZoom("fit")],
+    [0.6, 1.5, 0.5, "fit", "fit"]);
+
+  /* ⚠ STEPPING IS FROM THE EFFECTIVE SCALE, NOT THE LEVEL, and this is the assertion that would
+   * have caught the bug that shipped in the first build: the readout sat at 100% while the canvas
+   * was at 84%, so `+` computed from a stale 1 and every press after the first did nothing. */
+  t("H3: a step moves to the neighbour of what is ON SCREEN",
+    [stepZoom(0.8375, 1), stepZoom(0.8375, -1), stepZoom(1.5, 1), stepZoom(0.5, -1)],
+    [0.9, 0.8, 1.5, 0.5]);
+  t("H3: …and the readout is a percentage of TRUE size on both surfaces",
+    [zoomLabel(0.8375), zoomLabel(1), zoomLabel(1.5)], ["84%", "100%", "150%"]);
+
+  /* ⚠ THE DRAWN WIDTH IS DRIVEN, WHICH IS WHAT MAKES ZOOMING IN USABLE AT ALL. A CSS transform
+   * creates no scrollable overflow: at 125% the canvas drew 1600px inside a 1072px pane and
+   * `scrollWidth` stayed 1072, so the right of the render was unreachable — measured,
+   * `canPan: false` at every level above fit. The height had solved this on the vertical axis
+   * since PR 6; the width had not, which also made that comment's "the pane pans" claim false. */
+  t("H4: the canvas box takes the width the transform draws",
+    /setWidth\(CANVAS_WIDTH \* next\);/.test(sections) && /style=\{\{ height, width \}\}/.test(sections), true);
+  /* AND THE AVAILABLE WIDTH IS READ FROM THE PARENT, or scale-from-width-from-scale is a loop. */
+  t("H4: …and the fit scale measures the PARENT, so driving the width cannot feed back",
+    /pane\.parentElement\?\.clientWidth/.test(sections), true);
+
+  t("H5: blog's `fit` is 1, because its measure is a locked number rather than a computation",
+    /zoom\.level === "fit" \? 1 : zoom\.level/.test(blog), true);
+  /* ⚠ NO WIDTH COMPENSATION ON BLOG. Scaling the box while narrowing it by `100/scale` kept the
+   * drawn result the pane's width and MOVED THE MEASURE — 746 to 659 at 150% in a 794px pane,
+   * measured, because `max-w-[68ch]` was capped by the available width. The locked decision is
+   * that the measure is a NUMBER. Asserted as an absence, because the defect was an addition. */
+  t("H5: …and nothing compensates the width, which is what moved the measure",
+    /marginLeft: `\$\{\(100/.test(blog), false);
+
+  t("H6: the control is hidden where there is nothing to zoom",
+    /showDetails \? null : \(\s*<CanvasZoom/.test(sections), true);
+  t("H6: …and one cookie per surface, clamped on the read",
+    [ZOOM_COOKIE.cs, ZOOM_COOKIE.blog], ["studio-canvas-zoom-cs", "studio-canvas-zoom-blog"]);
+  t("H6: …and the readout doubles as the reset, with that in its accessible name",
+    /aria-label=\{isFit \? `Canvas zoom, \$\{zoomLabel\(effective\)\}, fitting the pane` : `Canvas zoom, \$\{zoomLabel\(effective\)\}\. Reset to fit the pane\.`\}/.test(control), true);
+}
+
+/* ================================================= I. THE PILL YIELDS TO THE SELECTED RAIL
+ *
+ * Two answers to one overlap, for two different things. A save bar is PERMANENT and an author may
+ * want it and Publish at once, so the pill rises above it. The rail is TRANSIENT — it exists
+ * because a field was clicked — so the pill leaves for its lifetime instead. */
+{
+  const prov = code("components/studio/PublishProvider.tsx");
+  const pub = code("components/studio/PublishBar.tsx");
+  const sections = code("components/studio/SectionsEditPanel.tsx");
+
+  t("I1: the rail reports that it is occupying the corner", /useReportOccluding\(open\);/.test(sections), true);
+  t("I1: …keyed by id, so several reporters cannot overwrite one another",
+    /reportOccluding: \(id: string, occluding: boolean\) => void;/.test(prov), true);
+  /* ⚠ UNMOUNTED, NOT PAINTED OUT. A `pointer-events-auto` pill under a zero-opacity wrapper is
+   * still clickable and still in the tab order — a Publish button you cannot see but can press. */
+  t("I2: the pill unmounts rather than hiding", /if \(anyOccluding\) return null;/.test(pub), true);
+  t("I2: …and it still clears the save bar, which is the other case and is not the same fix",
+    /--studio-bar-clearance/.test(pub), true);
+
+  /* ⚠ THE OFFSET IS A WHOLE ARBITRARY VALUE, ASSERTED IN FULL — and this one is not pedantry.
+   * An edit left it as `bottom-[2rem)]`: a broken arbitrary value that Tailwind generates NOTHING
+   * for, so the pill silently fell back to its static position. `tsc` and `lint` both passed,
+   * because it is a valid string inside valid JSX. Hazard 23's shape, and only a gate that reads
+   * the literal can see it. */
+  t("I3: the offset's arbitrary value is well formed, brackets and all",
+    /bottom-\[calc\(var\(--studio-bar-clearance,0px\)\+2rem\)\]/.test(pub), true);
+  t("I3: …and no malformed remnant survives beside it",
+    /bottom-\[[^\]]*\)\]/.test(pub.replace("bottom-[calc(var(--studio-bar-clearance,0px)+2rem)]", "")), false);
 }
 
 /* ---- ⚠ WHAT THIS SUITE CANNOT PROVE, NAMED RATHER THAN LEFT TO LOOK COVERED ----------------

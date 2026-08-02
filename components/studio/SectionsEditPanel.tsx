@@ -33,6 +33,10 @@ import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { createPreviewMap, type PreviewMap } from "@/lib/studio/preview-map";
 import { CS_MIN_SCALE, CS_CANVAS_MIN_PX, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
+import { registerBar, republishBarClearance } from "@/lib/studio/bar-clearance";
+import { type ZoomLevel } from "@/lib/studio/canvas-zoom";
+import { useCanvasZoom } from "./useCanvasZoom";
+import CanvasZoom from "./CanvasZoom";
 import { INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
 import { useInspectorWidth } from "./useInspectorWidth";
 import InspectorResizer from "./InspectorResizer";
@@ -46,7 +50,7 @@ import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
-import { usePublishSignal, useReportPending } from "./PublishProvider";
+import { usePublishSignal, useReportPending, useReportOccluding } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
 import { splitParagraph, mergeParagraph } from "@/lib/studio/paragraph-edits";
 // CS-7d — the two caret primitives, EXTRACTED to be shared with the blog canvas.
@@ -321,11 +325,20 @@ const CANVAS_PAD_BOTTOM = 32;
  * an image loading. Depending on the section object instead would rebuild the
  * observer on every keystroke, since the form replaces it immutably on each edit.
  */
-function useFitToWidth() {
+function useFitToWidth(zoom: ZoomLevel, onScale?: (n: number) => void) {
   const paneRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [height, setHeight] = useState<number | undefined>(undefined);
+  /* ⚠ THE DRAWN WIDTH IS DRIVEN FOR THE SAME REASON THE HEIGHT IS, and its absence is why
+     zooming IN did nothing usable. A CSS transform does not create scrollable overflow: at 125%
+     the canvas drew 1600px inside a 1072px pane and `scrollWidth` stayed 1072, so the right of
+     the render was simply unreachable — measured, `canPan: false` at every level above fit.
+     The height already solved this on the vertical axis by giving the box the size the transform
+     draws; the width now does the same, and the scroller's `overflow-x` finally has something to
+     scroll. This also makes the "the pane pans below the floor" behaviour the comment above has
+     claimed since PR 6 actually true, which it was not. */
+  const [width, setWidth] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const pane = paneRef.current;
@@ -342,12 +355,35 @@ function useFitToWidth() {
       // thresholds keep the pane at or above 640 at every width the layout claims to fit, so
       // panning is the narrow-viewport path — most visibly below `lg`, where the canvas now
       // holds 50% and pans rather than collapsing to ~29% and staying complete but illegible.
-      const next = Math.max(CS_MIN_SCALE, Math.min(1, pane.clientWidth / CANVAS_WIDTH));
+      /* ⚠ AN EXPLICIT LEVEL BYPASSES BOTH CLAMPS, AND THAT IS THE FEATURE. The floor and the
+         ceiling exist because an AUTOMATIC scale below half was illegible and one above 1 was
+         pointless. A level the author chose is a different thing: 150% is a request to see
+         detail and 50% on a wide pane is a request to see the whole section. The pane already
+         pans when the surface is wider than it is, which is what makes an over-1 level usable.
+         `fit` is today's behaviour unchanged, and it is the default. */
+      /* ⚠ THE AVAILABLE WIDTH COMES FROM THE PARENT, NOT FROM THE PANE. The pane's own width is
+         now DRIVEN by the scale, so reading it here would be a feedback loop — scale from width,
+         width from scale. The parent is the scroller and its width is independent of both. The
+         hook's own note that "writing the pane's HEIGHT cannot change either observed width, so
+         this settles rather than loops" is exactly the property that had to be preserved. */
+      const avail = pane.parentElement?.clientWidth ?? pane.clientWidth;
+      const next = zoom === "fit"
+        ? Math.max(CS_MIN_SCALE, Math.min(1, avail / CANVAS_WIDTH))
+        : zoom;
       setScale(next);
+      // ⚠ REPORTED UPWARD SO THE READOUT CANNOT DISAGREE WITH THE RENDER. Only this hook knows
+      // what `fit` resolved to, and the control shows a PERCENTAGE OF TRUE SIZE rather than the
+      // level. Without it the readout sat at 100% while the canvas was at 84% — and the stepper
+      // reads the same number, so `+` computed its next step from a stale 1 and every press
+      // after the first did nothing.
+      onScale?.(next);
       // The pane's height is DRIVEN, so the padding has to be added here or it would be clipped
       // by the very height that is meant to hold it — box-sizing is border-box, so an explicit
       // height that ignored the padding would eat it rather than sit inside it.
       setHeight(surface.offsetHeight * next + CANVAS_PAD_TOP + CANVAS_PAD_BOTTOM);
+      // The box the transform draws into. At `fit` this equals the available width by
+      // construction, so nothing moves for an author who never touches the control.
+      setWidth(CANVAS_WIDTH * next);
       // PUBLISHED FOR THE SIBLINGS DRAWN OUTSIDE THE SCALED BOX. The help strip has to
       // line up with the section card, and the card's on-screen inset is its own margin
       // plus `container-x`'s padding TIMES this scale — so a sibling cannot derive it
@@ -361,12 +397,14 @@ function useFitToWidth() {
     // images load or a field is edited). Writing the pane's HEIGHT cannot change
     // either observed width, so this settles rather than looping.
     const ro = new ResizeObserver(measure);
-    ro.observe(pane);
+    // The PARENT is observed rather than the pane, because the pane's width is now driven from
+    // the scale and observing it would feed the loop the note above rules out.
+    if (pane.parentElement) ro.observe(pane.parentElement);
     ro.observe(surface);
     return () => ro.disconnect();
-  }, []);
+  }, [zoom, onScale]);
 
-  return { paneRef, surfaceRef, scale, height };
+  return { paneRef, surfaceRef, scale, height, width };
 }
 
 /**
@@ -585,7 +623,38 @@ function SelectionDock({
   /** Hidden under Details, never unmounted — see the call site. */
   hidden?: boolean;
 }) {
+  const dockRef = useRef<HTMLDivElement>(null);
   const open = !!selected && !hidden;
+
+  /* ⚠ THE RAIL IS A CLEARANCE PARTICIPANT, AND NOT ONLY THE SAVE BAR IS. The publish pill floats
+     over the foot of the work area and this sits there too — so without registering, the pill
+     rose just far enough to clear the BAR and landed squarely inside THIS: measured 60 × 293px,
+     the rail spanning 724…838 and the pill 758…818. The registry asks how far up the docked
+     furniture reaches, so a rail stacked above a bar is covered by the rail's own top rather
+     than by summing the two — participants in different panes do not stack and a sum would
+     over-clear them.
+     REGISTERED EVEN WHEN CLOSED, because `max-h-0` is how it hides and it still has a box. The
+     registry skips a zero-height one itself, and the observer is what makes the pill follow the
+     rail's 340ms open rather than jumping once it has finished. */
+  /* ⚠ THE PILL HIDES WHILE THE RAIL IS UP, RATHER THAN BEING CLEARED AROUND IT. Both answers to
+     the overlap exist and they are for different things. A save bar is PERMANENT and an author
+     may want it and Publish at once, so the pill rises above it. This rail is TRANSIENT — it
+     exists because a field was clicked, it is the thing being worked in, and nobody reaches for
+     Publish in the same gesture. Stacking two floating controls in one corner to serve a case
+     that does not arise is worse than yielding the corner for the rail's lifetime.
+     THE REGISTRATION BELOW STAYS ANYWAY. The rail is still docked furniture, the pill is not the
+     only thing that could ever float there, and a clearance that silently depended on the pill
+     being hidden would be true by coincidence. */
+  useReportOccluding(open);
+
+  useEffect(() => {
+    const el = dockRef.current;
+    if (!el) return;
+    const unregister = registerBar(el);
+    const ro = new ResizeObserver(republishBarClearance);
+    ro.observe(el);
+    return () => { ro.disconnect(); unregister(); };
+  }, []);
   return (
     // T2 · THE STRUCTURE. The only tier that springs, because it is the only element
     // travelling far enough for a settle to read — a 6px detail on a spring is a wobble, a
@@ -595,6 +664,7 @@ function SelectionDock({
     // as it arrives instead of being covered. Mount discipline, and also the only way the
     // transition has a from-state to run from.
     <div
+        ref={dockRef}
       // Named for `revealIfNeeded`, which has to know how much of the canvas viewport this is
       // about to take. A data attribute rather than a ref because the reveal runs from a click
       // handler several components away, and threading a ref through the shell to reach it
@@ -682,6 +752,8 @@ function SelectionDock({
 }
 
 function SectionCanvas({
+  zoom,
+  onScale,
   section,
   web,
   template,
@@ -696,6 +768,11 @@ function SectionCanvas({
   onParagraphMerge,
   renderEpoch = 0,
 }: {
+  /** What the author asked the canvas to show at. `fit` is today's auto-scale. */
+  zoom: ZoomLevel;
+  /** Reports back what `fit` resolved to, so the control's readout cannot disagree with
+   *  what is rendered. */
+  onScale?: (n: number) => void;
   section: RawSection;
   web: boolean;
   /** Routes draft-only image srcs through the owner-gated proxy — see the panel. */
@@ -752,7 +829,7 @@ function SectionCanvas({
     adapted = [];
   }
   const s = adapted[0];
-  const { paneRef, surfaceRef, scale, height } = useFitToWidth();
+  const { paneRef, surfaceRef, scale, height, width } = useFitToWidth(zoom, onScale);
 
   // Mark the selected field in the canvas. Applied imperatively rather than through
   // props because the marked node is rendered deep inside the case-study components,
@@ -790,7 +867,7 @@ function SectionCanvas({
     <div
       ref={paneRef}
       className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)] pt-px pb-8"
-      style={{ height }}
+      style={{ height, width }}
       onBlur={onBlur}
       onClick={onClick}
       onFocusCapture={(e) => {
@@ -886,6 +963,7 @@ export default function SectionsEditPanel({
   livePath,
   studies,
   inspectorWidth,
+  canvasZoom,
 }: {
   slug: string;
   /** The study's name, for the crumb row — identity lives there once now. */
@@ -919,6 +997,8 @@ export default function SectionsEditPanel({
   studies: { slug: string; title: string }[];
   /** The inspector's stored width, clamped on the SERVER. Seeds `useInspectorWidth`. */
   inspectorWidth: number;
+  /** The canvas zoom level, clamped on the SERVER. `fit` is the default. */
+  canvasZoom: ZoomLevel;
   /** CS-7c — the case-study template, so the inline canvas renders the same
    *  Bold-gallery web treatment (or the mobile composition) the live page shows. */
   template?: string;
@@ -1007,6 +1087,11 @@ export default function SectionsEditPanel({
   // constant is the panes; the sidebar term arrives live.
   const sidebarPx = useSidebarWidth();
   const ins = useInspectorWidth(inspectorWidth, "cs");
+  const zoom = useCanvasZoom(canvasZoom, "cs");
+  /* THE EFFECTIVE SCALE IS PUBLISHED BY `useFitToWidth` onto the canvas scope, because only it
+     knows what `fit` resolved to. The control reads it back rather than recomputing, so the
+     readout and the render cannot disagree. 1 until the first measure lands. */
+  const [effectiveZoom, setEffectiveZoom] = useState(1);
 
   /* ⚠ THE FOLD IS THE ONE THRESHOLD THE LIVE WIDTH IS THE WRONG INPUT FOR, and getting this
      backwards fails in the silent direction.
@@ -1892,6 +1977,8 @@ export default function SectionsEditPanel({
                   at the canvas foot takes a fixed budget instead, so the wrapper, the
                   `canvasCeiling` state and `useAutoGrow` all went with the rail. */}
               <SectionCanvas
+                zoom={zoom.level}
+                onScale={setEffectiveZoom}
                 section={values.sections[selIdx]}
                 web={web}
                 template={template}
@@ -2559,6 +2646,25 @@ export default function SectionsEditPanel({
           }
           canvasBar={
             <>
+              {/* ⚠ THE ZOOM SITS IN THE CANVAS STRIP, WITH THE THING IT ZOOMS. It is not a view
+                  switch and not a content set, so correction 20's selection language does not
+                  apply — it changes how the canvas is DRAWN, so it belongs on the canvas's own
+                  bar rather than in the inspector with the fields. FIRST, so it holds its place
+                  while the title beside it truncates. */}
+              {/* ⚠ NOT ON THE DETAILS VIEW, because there is nothing there to zoom. `detailsCanvas`
+                  is a fixed-size preview of the work card rather than a scaled render, so
+                  `useFitToWidth` never runs and the readout would report a scale nothing is
+                  using. A control that shows a number for a surface it does not drive is worse
+                  than an absent one — the same rule that keeps the resize grip off a seam that
+                  does not drag. */}
+              {showDetails ? null : (
+              <CanvasZoom
+                effective={effectiveZoom}
+                level={zoom.level}
+                onStep={(d) => zoom.step(effectiveZoom, d)}
+                onFit={zoom.fit}
+              />
+              )}
               <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink-950">
                 {showDetails ? "Details" : selIdxTop < 0 ? "" : sectionLabel(values.sections[selIdxTop], selIdxTop)}
               </span>

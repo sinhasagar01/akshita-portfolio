@@ -21,6 +21,7 @@ import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
 import { inputClsMd, labelCls, FieldKey} from "./blocks/fields";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
+import { type ZoomLevel } from "@/lib/studio/canvas-zoom";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
 import type { RawSection } from "@/lib/case-studies/sections-raw";
 
@@ -42,6 +43,8 @@ type Props = {
   studies: { slug: string; title: string }[];
   /** The inspector's stored width, read and clamped on the SERVER so the first paint is right. */
   inspectorWidth: number;
+  /** The canvas zoom level, clamped on the SERVER. */
+  canvasZoom: ZoomLevel;
 };
 
 // Only type + platform are editable here (Phase-1 T1). role + timeline stay in
@@ -58,7 +61,7 @@ const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] 
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
 ];
 
-export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, livePath, studies, inspectorWidth }: Props) {
+export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, livePath, studies, inspectorWidth, canvasZoom }: Props) {
   const initial: ProjectsFields = {
     summary,
     facts: { type: facts.type, platform: facts.platform },
@@ -527,6 +530,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       livePath={livePath}
       studies={studies}
       inspectorWidth={inspectorWidth}
+      canvasZoom={canvasZoom}
     />
   );
 }

@@ -97,6 +97,9 @@ import BoldToolbar from "./BoldToolbar";
 import { usePageWidthMin } from "./usePageWidthMin";
 import { PANES_SUM, INSPECTOR_FOLD_PX, BLOG_CANVAS_MIN_PX } from "@/lib/studio/three-pane";
 import { useInspectorWidth } from "./useInspectorWidth";
+import { useCanvasZoom } from "./useCanvasZoom";
+import CanvasZoom from "./CanvasZoom";
+import { type ZoomLevel } from "@/lib/studio/canvas-zoom";
 import InspectorResizer from "./InspectorResizer";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { IconChevronUp, IconChevronDown, IconX, IconPlus, IconArrowUpRight } from "./icons";
@@ -153,6 +156,7 @@ export default function BlogBlocksEditPanel({
   headTopic,
   posts,
   inspectorWidth,
+  canvasZoom,
   postSection,
   postStatus,
 }: {
@@ -192,6 +196,8 @@ export default function BlogBlocksEditPanel({
   posts: readonly BlogCard[];
   /** The inspector's stored width, clamped on the SERVER against BLOG'S bounds. */
   inspectorWidth: number;
+  /** The canvas zoom level, clamped on the SERVER. */
+  canvasZoom: ZoomLevel;
   /** BlogEditPanel's head fields, rendered as the inspector's first section. */
   postSection: ReactNode;
   /** The Post form's SaveIndicator, rendered INSIDE the ink band beside the heading — the
@@ -284,6 +290,13 @@ export default function BlogBlocksEditPanel({
   // The fit threshold is not chosen; it is the sum, so it takes the live sidebar width.
   const sidebarPx = useSidebarWidth();
   const ins = useInspectorWidth(inspectorWidth, "blog");
+  const zoom = useCanvasZoom(canvasZoom, "blog");
+  /* ⚠ BLOG'S `fit` IS 1, AND THAT IS THE LOCKED MEASURE SPEAKING. The case study's canvas scales
+     to its pane, so `fit` there is a computation. Blog's renders at the true public measure and
+     has never scaled — 68ch is a NUMBER, and "fit the pane" would mean widening or shrinking the
+     article to suit a pane, which is the one thing that layout exists to prevent. So `fit` means
+     "as published", and every other level is an explicit, temporary magnification. */
+  const zoomScale = zoom.level === "fit" ? 1 : zoom.level;
 
   // THIS PANEL HOLDS THE SESSION PREVIEWS FOR ITS POST, and holds nothing else's.
   //
@@ -609,6 +622,20 @@ export default function BlogBlocksEditPanel({
     // the editable elements and the panel does not own them. `onFocus`/`onBlur` are the
     // React bubbling forms of focusin/focusout, so they see events from the whole subtree.
     <div
+      /* ⚠ THE ZOOM IS A TRANSFORM ON A WRAPPER, NOT A CHANGE TO THE MEASURE. `max-w-[68ch]`
+         inside resolves against the FONT, not against this box, so the column stays exactly
+         746px at every level and only its rendered size moves. That is what keeps the locked
+         decision intact: the measure is a number and the number does not move.
+         `top center` so magnifying grows downward and outward from the column rather than
+         pushing the top of the article off screen.
+         ⚠ AND THERE IS NO WIDTH COMPENSATION, WHICH IS A CORRECTION I MEASURED RATHER THAN
+         REASONED. Scaling the box while narrowing it by `100/scale` keeps the drawn result the
+         pane's width — and it MOVED THE MEASURE: at 150% in a 794px pane the wrapper fell to
+         497px, `max-w-[68ch]` was capped by the available width, and the column measured 659px
+         instead of 746. The locked decision is that the measure is a NUMBER; a zoom that changes
+         it is the exact failure the lock exists to prevent, so the compensation goes and the
+         transform alone remains. Measured after: 746 at every level. */
+      style={zoomScale === 1 ? undefined : { transform: `scale(${zoomScale})`, transformOrigin: "top center" }}
       className="py-10"
       onFocus={onCanvasFocus}
       onBlur={onCanvasBlur}
@@ -1017,6 +1044,14 @@ export default function BlogBlocksEditPanel({
           {/* The toggle exists ONLY below the fold, where the inspector pane is gone and
               this is the route to those fields. Above the fold both are on screen at once
               and a toggle between them would be a control with nothing to do. */}
+          {/* ⚠ NOT GATED ON THE FOLD, unlike the view toggle beside it: the canvas is present at
+              every width, so its zoom is too. */}
+          <CanvasZoom
+            effective={zoomScale}
+            level={zoom.level}
+            onStep={(d) => zoom.step(zoomScale, d)}
+            onFit={zoom.fit}
+          />
           {!inspectorFits ? (
             <ViewToggle
               value={view}
