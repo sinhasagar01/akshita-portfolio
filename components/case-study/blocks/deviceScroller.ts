@@ -34,8 +34,14 @@ export type Geo =
 export function unitGeo(phoneW: number, screen: StoryScreen | undefined): Geo {
   if (!screen || !("body" in screen)) return { scrollable: false, scrollPct: 0 };
   const sc = phoneW / BEZEL_W;
-  const bodyH = screen.body.height;
-  const footerH = screen.footer.height;
+  /* ⚠ `intrinsicHeight`, NOT `.height`. These used to be raw static imports, where `.height` IS the
+     asset's pixel height. Under `ImgSpec` that name is taken: `.height` there is a RENDERED height
+     in CSS px. Reading it here would divide a scroll ratio by a layout number — and it would have
+     compiled, because both are numbers. What caught it was `ImgSpec.height` being OPTIONAL, so the
+     compiler objected to the `undefined` rather than to the meaning. A required field would have
+     shipped this silently, which is why the two are separate names on the type. */
+  const bodyH = screen.body.intrinsicHeight;
+  const footerH = screen.footer.intrinsicHeight;
   const footerTopSpace = SCREEN_BOTTOM - footerH;
   const winHeightSpace = footerTopSpace - WIN_TOP;
   const w = (BEZEL_W - 2 * INSET) * sc;

@@ -75,10 +75,16 @@ export default function BlockRenderer({
           blockIndex={blockIndex}
         />
       );
+    /* ⚠ ONE CASE, DISPATCHED ON THE VARIANT. `featureStory` was a separate case carrying the
+       identical payload. `variant` is absent on every `featureRows` written before this, so the
+       `=== "story"` test — rather than `=== "rows"` — is what makes ABSENT mean rows. Inverting it
+       would silently restyle the three shipped blocks across the other three case studies. */
     case "featureRows":
-      return <FeatureRows features={block.features} editable={editable} blockIndex={blockIndex} />;
-    case "featureStory":
-      return <WorkStory features={block.features} />;
+      return block.variant === "story" ? (
+        <WorkStory features={block.features} editable={editable} blockIndex={blockIndex} />
+      ) : (
+        <FeatureRows features={block.features} editable={editable} blockIndex={blockIndex} />
+      );
     case "beforeAfter":
       return <BeforeAfter pairs={block.pairs} editable={editable} blockIndex={blockIndex} />;
     case "beforeAfterStory":

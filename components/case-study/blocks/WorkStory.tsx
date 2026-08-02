@@ -7,6 +7,7 @@ import type { Feature } from "@/lib/case-studies/types";
 import { renderRich } from "../rich";
 import { GLOW } from "../styles";
 import { BEZEL_W, BEZEL_H, SCREEN_BG, clamp, lerp, eIO, unitGeo, EDGE } from "./deviceScroller";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 import bezel from "@/public/work/boat-crest/scroll-assets/phone-frame-bezel.png";
 
 /* Auto-playing pinned story (cs-07) — 1:1 port of docs/case-study-page/
@@ -28,7 +29,19 @@ const HAIRLINE = "color-mix(in oklch, var(--color-ink-950) 12%, transparent)";
 const ARROW_BORDER = "color-mix(in oklch, var(--color-ink-950) 16%, transparent)";
 const PHONE_W = { desktop: 220, mobile: 188 };
 
-export default function WorkStory({ features }: { features: Feature[] }) {
+export default function WorkStory({
+  features,
+  editable = false,
+  blockIndex,
+}: {
+  features: Feature[];
+  /* ⚠ ACCEPTED SO THE CANVAS CAN RENDER THIS THE WAY THE PUBLIC PAGE DOES. This component took
+     neither prop, which is why a story block could never appear in an editable canvas — parity was
+     unreachable by construction rather than by defect. `inlineEditProps` returns {} when `editable`
+     is false, so the PUBLIC render is byte-identical and the DOM diff proves it. */
+  editable?: boolean;
+  blockIndex?: number;
+}) {
   const reduce = useReducedMotion();
   const [current, setCurrent] = useState(0);
   const [mobile, setMobile] = useState(false);
@@ -213,19 +226,33 @@ export default function WorkStory({ features }: { features: Feature[] }) {
           </div>
           <div
             ref={catRef}
-            className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-500 mt-2"
+            {...inlineEditProps(editable, blockIndex, `features.${current}.category`, "Edit category")}
+            className={
+              "text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-500 mt-2" +
+              (editable ? EDIT_AFFORD : "")
+            }
           >
             {f.category}
           </div>
           <h3 className="overflow-hidden pt-1 mt-2">
             <span
               ref={titleInnerRef}
-              className="block font-display font-normal text-2xl text-ink-950 leading-[1.07]"
+              {...inlineEditProps(editable, blockIndex, `features.${current}.title`, "Edit title")}
+              className={
+                "block font-display font-normal text-2xl text-ink-950 leading-[1.07]" +
+                (editable ? EDIT_AFFORD : "")
+              }
             >
               {f.title}
             </span>
           </h3>
-          <p ref={descRef} className="text-[1rem] text-ink-600 leading-[1.62] mt-3.5">
+          <p
+            ref={descRef}
+            {...inlineEditProps(editable, blockIndex, `features.${current}.body`, "Edit feature body", true)}
+            className={
+              "text-[1rem] text-ink-600 leading-[1.62] mt-3.5" + (editable ? EDIT_AFFORD : "")
+            }
+          >
             {renderRich(f.body)}
           </p>
         </div>
@@ -265,8 +292,8 @@ export default function WorkStory({ features }: { features: Feature[] }) {
                         style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
                       >
                         <Image
-                          src={feat.screen.body}
-                          alt=""
+                          src={feat.screen.body.src}
+                          alt={feat.screen.body.alt}
                           sizes={`${Math.round(g.win.width)}px`}
                           className="block h-auto w-full"
                         />
@@ -289,8 +316,8 @@ export default function WorkStory({ features }: { features: Feature[] }) {
                       }}
                     >
                       <Image
-                        src={feat.screen.footer}
-                        alt=""
+                        src={feat.screen.footer.src}
+                        alt={feat.screen.footer.alt}
                         sizes={`${Math.round(g.footer.width)}px`}
                         className="absolute bottom-0 left-0 block h-auto w-full"
                       />
@@ -306,7 +333,7 @@ export default function WorkStory({ features }: { features: Feature[] }) {
                   </>
                 ) : feat.screen && "full" in feat.screen ? (
                   // onboarding — single static screen, no scroll
-                  <Image src={feat.screen.full} alt="" sizes={`${phoneW}px`} className="absolute inset-0 h-auto w-full" />
+                  <Image src={feat.screen.full.src} alt={feat.screen.full.alt} sizes={`${phoneW}px`} className="absolute inset-0 h-auto w-full" />
                 ) : null}
               </div>
             );

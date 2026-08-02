@@ -289,7 +289,10 @@ export const boatCrest: CaseStudy = {
       lead: "Five places the new system does real work for the person wearing the watch — each a small fix that compounds into a calmer whole.",
       blocks: [
         {
-          kind: "featureStory",
+          // ⚠ ONE KIND, TWO PRESENTATIONS. This was `kind: "featureStory"`, a separate union
+          // member carrying the identical `Feature[]`. `variant` now selects the renderer.
+          kind: "featureRows",
+          variant: "story",
           features: [
             {
               index: "01",
@@ -297,7 +300,7 @@ export const boatCrest: CaseStudy = {
               title: "A setup that holds your hand.",
               body: "Pairing used to drop people into a cluttered home. Now a short, guided flow connects the watch and sets the basics — so the first thing you feel is momentum, not confusion.",
               image: { src: onboardingPair, alt: "Guided onboarding screen for pairing the watch", width: 214 },
-              screen: { full: scrOnboarding },
+              screen: { full: { src: scrOnboarding, alt: "" } },
             },
             {
               index: "02",
@@ -305,7 +308,10 @@ export const boatCrest: CaseStudy = {
               title: "Four tabs. One glance.",
               body: "The home screen answers the only question that matters in the morning — how am I doing? — with steps, vitals, sleep and a recommended session, in that order. Everything else moved one tap away.",
               image: { src: home, alt: "Redesigned home screen with a four-tab navigation", width: 214 },
-              screen: { body: scrHomeBody, footer: scrHomeFooter },
+              screen: {
+                body: { src: scrHomeBody, alt: "", intrinsicHeight: scrHomeBody.height },
+                footer: { src: scrHomeFooter, alt: "", intrinsicHeight: scrHomeFooter.height },
+              },
             },
             {
               index: "03",
@@ -313,7 +319,10 @@ export const boatCrest: CaseStudy = {
               title: "Vitals you can watch move.",
               body: "Heart rate, SpO₂ and sleep each get a focused detail screen with live, animated readings and honest ranges — data that reassures instead of alarms.",
               image: { src: heartRate, alt: "Heart rate detail screen with a live animated reading", width: 214 },
-              screen: { body: scrHeartBody, footer: scrHeartFooter },
+              screen: {
+                body: { src: scrHeartBody, alt: "", intrinsicHeight: scrHeartBody.height },
+                footer: { src: scrHeartFooter, alt: "", intrinsicHeight: scrHeartFooter.height },
+              },
             },
             {
               index: "04",
@@ -321,7 +330,10 @@ export const boatCrest: CaseStudy = {
               title: "Make the watch yours.",
               body: "A simple studio to swap faces, accents and complications. Personalisation was buried in the old app; here it becomes a first-class place to play.",
               image: { src: watchfaceStudio, alt: "Watch face studio for swapping faces, accents and complications", width: 214 },
-              screen: { body: scrWatchBody, footer: scrWatchFooter },
+              screen: {
+                body: { src: scrWatchBody, alt: "", intrinsicHeight: scrWatchBody.height },
+                footer: { src: scrWatchFooter, alt: "", intrinsicHeight: scrWatchFooter.height },
+              },
             },
             {
               index: "05",
@@ -329,7 +341,10 @@ export const boatCrest: CaseStudy = {
               title: "Better with a crew.",
               body: "Step challenges, a shared leaderboard and a little friendly pressure. Research was clear that social accountability keeps people moving, so it earned a pillar of its own.",
               image: { src: fitCrew, alt: "Fit Crew social challenges and leaderboard screen", width: 214 },
-              screen: { body: scrCrewBody, footer: scrCrewFooter },
+              screen: {
+                body: { src: scrCrewBody, alt: "", intrinsicHeight: scrCrewBody.height },
+                footer: { src: scrCrewFooter, alt: "", intrinsicHeight: scrCrewFooter.height },
+              },
             },
           ],
         },
@@ -352,8 +367,11 @@ export const boatCrest: CaseStudy = {
             {
               title: "Home",
               tag: "Midnight Ember",
-              before: baHomeBefore,
-              after: { body: baHomeBody, footer: baHomeFooter },
+              before: { src: baHomeBefore, alt: "" },
+              after: {
+                body: { src: baHomeBody, alt: "", intrinsicHeight: baHomeBody.height },
+                footer: { src: baHomeFooter, alt: "", intrinsicHeight: baHomeFooter.height },
+              },
               changes: [
                 { emphasis: "One clear hierarchy", rest: "— weight and colour rank your day, not a flat wall of cards" },
                 { emphasis: "No upsell nags", rest: "— the coin prompts and profile pushes are gone" },
@@ -363,8 +381,11 @@ export const boatCrest: CaseStudy = {
             {
               title: "Activity",
               tag: "Midnight Ember",
-              before: baActivityBefore,
-              after: { body: baActivityBody, footer: baActivityFooter },
+              before: { src: baActivityBefore, alt: "" },
+              after: {
+                body: { src: baActivityBody, alt: "", intrinsicHeight: baActivityBody.height },
+                footer: { src: baActivityFooter, alt: "", intrinsicHeight: baActivityFooter.height },
+              },
               changes: [
                 { emphasis: "Rings & steps at a glance", rest: "— the day reads in a second, not a single gauge" },
                 { emphasis: "Trends, not a snapshot", rest: "— a week of bars instead of one number" },
@@ -374,8 +395,11 @@ export const boatCrest: CaseStudy = {
             {
               title: "Vitals",
               tag: "Midnight Ember",
-              before: baVitalsBefore,
-              after: { body: baVitalsBody, footer: baVitalsFooter },
+              before: { src: baVitalsBefore, alt: "" },
+              after: {
+                body: { src: baVitalsBody, alt: "", intrinsicHeight: baVitalsBody.height },
+                footer: { src: baVitalsFooter, alt: "", intrinsicHeight: baVitalsFooter.height },
+              },
               changes: [
                 { emphasis: "One calm hub", rest: "— heart, SpO₂ and sleep, finally together" },
                 { emphasis: "Honest ranges", rest: "— context that reassures instead of alarms" },

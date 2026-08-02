@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import { useReducedMotion } from "motion/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import type { BeforeAfterStoryPair, Rich } from "@/lib/case-studies/types";
+import type { BeforeAfterStoryPair, ImgSpec, Rich } from "@/lib/case-studies/types";
+import { EDIT_AFFORD, inlineEditProps } from "../editable";
 import CaseSectionHeader from "../CaseSectionHeader";
 import {
   BEZEL_W,
@@ -92,7 +93,7 @@ function AfterPhone({
             }}
           >
             <div ref={contentRef} style={{ position: "absolute", top: 0, left: 0, width: "100%" }}>
-              <Image src={after.body} alt="" sizes={`${imgW}px`} className="block h-auto w-full" />
+              <Image src={after.body.src} alt={after.body.alt} sizes={`${imgW}px`} className="block h-auto w-full" />
             </div>
             <div style={edgeStyle("t")} />
             <div style={edgeStyle("b")} />
@@ -112,8 +113,8 @@ function AfterPhone({
             }}
           >
             <Image
-              src={after.footer}
-              alt=""
+              src={after.footer.src}
+              alt={after.footer.alt}
               sizes={`${imgW}px`}
               className="absolute bottom-0 left-0 block h-auto w-full"
             />
@@ -136,13 +137,13 @@ function AfterPhone({
  *  bezel (1030×2165, same as the frame), so it gets no phone-frame overlay — that
  *  belongs only to the after-screen scroller, which is bare screen content.
  *  `fluid` scales it to the container (width 100% up to `maxW`); else fixed `w` px. */
-function BeforePhone({ before, w, fluid, maxW }: { before: StaticImageData; w: number; fluid?: boolean; maxW?: number }) {
+function BeforePhone({ before, w, fluid, maxW }: { before: ImgSpec; w: number; fluid?: boolean; maxW?: number }) {
   const boxStyle: CSSProperties = fluid
     ? { width: "100%", maxWidth: maxW, aspectRatio: `${BEZEL_W} / ${BEZEL_H}`, filter: GROUNDING }
     : { width: w, height: phoneH(w), filter: GROUNDING };
   return (
     <div className="relative shrink-0" style={boxStyle}>
-      <Image src={before} alt="" sizes={fluid ? `${maxW}px` : `${w}px`} className="block h-auto w-full" />
+      <Image src={before.src} alt={before.alt} sizes={fluid ? `${maxW}px` : `${w}px`} className="block h-auto w-full" />
     </div>
   );
 }
@@ -214,9 +215,24 @@ type Props = {
   lead?: Rich;
   rating?: { from: string; to: string };
   pairs: BeforeAfterStoryPair[];
+  /* ⚠ ACCEPTED FOR THE SAME REASON AS `WorkStory`'s. Neither bespoke block took these, so neither
+     could render in an editable canvas, so parity was unreachable by construction. `inlineEditProps`
+     returns {} when `editable` is false, so the PUBLIC render is untouched and the byte-identical
+     DOM diff is what proves it. */
+  editable?: boolean;
+  blockIndex?: number;
 };
 
-export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, pairs }: Props) {
+export default function BeforeAfterStory({
+  index,
+  eyebrow,
+  title,
+  lead,
+  rating,
+  pairs,
+  editable = false,
+  blockIndex,
+}: Props) {
   const prefersReduced = useReducedMotion();
   // Seed mobile-first so SSR + the first client render take the static branch (never the
   // pinned/overflowing desktop one). The matchMedia effect flips it to pinned only once it
@@ -342,8 +358,22 @@ export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, 
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <h3 className="font-display text-2xl font-normal leading-tight text-ink-950">{pair.title}</h3>
-                    <p className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-0.5">
+                    <h3
+                      {...inlineEditProps(editable, blockIndex, `pairs.${i}.title`, "Edit screen name")}
+                      className={
+                        "font-display text-2xl font-normal leading-tight text-ink-950" +
+                        (editable ? EDIT_AFFORD : "")
+                      }
+                    >
+                      {pair.title}
+                    </h3>
+                    <p
+                      {...inlineEditProps(editable, blockIndex, `pairs.${i}.tag`, "Edit tag")}
+                      className={
+                        "text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-0.5" +
+                        (editable ? EDIT_AFFORD : "")
+                      }
+                    >
                       {pair.tag}
                     </p>
                   </div>
@@ -424,8 +454,22 @@ export default function BeforeAfterStory({ index, eyebrow, title, lead, rating, 
 
                   {/* center — name, tag, change notes, progress bar */}
                   <div className="max-w-[238px] flex-1">
-                    <h3 className="font-display text-2xl font-normal leading-tight text-ink-950">{pair.title}</h3>
-                    <p className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-1">
+                    <h3
+                      {...inlineEditProps(editable, blockIndex, `pairs.${i}.title`, "Edit screen name")}
+                      className={
+                        "font-display text-2xl font-normal leading-tight text-ink-950" +
+                        (editable ? EDIT_AFFORD : "")
+                      }
+                    >
+                      {pair.title}
+                    </h3>
+                    <p
+                      {...inlineEditProps(editable, blockIndex, `pairs.${i}.tag`, "Edit tag")}
+                      className={
+                        "text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-1" +
+                        (editable ? EDIT_AFFORD : "")
+                      }
+                    >
                       {pair.tag}
                     </p>
                     <ChangeNotes
