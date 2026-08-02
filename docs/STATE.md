@@ -3320,6 +3320,73 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#277** studio navigation — **MEASURED, AND THE CODE IS NOT THE CAUSE.** Report only; no source
+  changed. ralph unchanged at 1991 across 49 suites.
+
+  Reported as "studio navigation is slow". All five switches were measured separately rather than
+  assumed to share a cause, and they do not.
+
+  **THE HEADLINE: THE DEV REGIME IS 20–35× PRODUCTION, AND THAT IS THE WHOLE REPORT.**
+
+  | switch | production | dev warm | dev COLD |
+  |---|---|---|---|
+  | sidebar sections (6 routes) | **16–38ms** | 70–89ms | **467–667ms** |
+  | Content \| Style | 12–18ms | 58–123ms | — |
+  | Board \| Editor | 17–20ms | 52–152ms | — |
+  | settings panels | 9–10ms | — | — |
+  | open a case study | **96ms** cold / 52ms warm | 250ms | **3,265ms** |
+
+  Production is the deployed studio; dev is `next dev` on :3457, which is where the report came
+  from. **Nothing in production exceeds 96ms.** The dev cold numbers are on-demand compilation and
+  the dev server names it in its own log — `Compiled /studio/projects/[slug] in 1101ms (1923
+  modules)`. Cold and warm are the same server, same routes, same data; the only difference is
+  whether that compile has happened.
+  **THIS IS #248 AND #249's SHAPE A THIRD TIME**: the code is right and the regime is different.
+
+  **THE FIVE THINGS THE BRIEF ASKED ABOUT, ANSWERED.**
+  1. **Sections are fetched per study and RE-FETCHED ON EVERY MOUNT** — 14,340 B, confirmed by
+     opening the same study twice (`SECTIONS_REFETCHED: true`). It costs **7.7ms**. Caching it by
+     slug would save 8ms and introduce a staleness surface across save. **Not worth the trade —
+     reported, not built.**
+  2. **The mount cost is AT MOUNT, not at switch.** Editors held at 16 and inputs at 421 across
+     every client switch, and those switches are 8–20ms with ZERO network. The 96ms is the route's
+     JS (254 kB First Load) arriving once.
+  3. **Every studio route is `ƒ Dynamic`** — confirmed in the build output. The whole server render
+     is **median 11.8–14.1ms** over 12 samples per route, so `cookies()` costs are not material.
+  4. **Draft images are NOT re-downloaded** — revisiting an index re-requested 0 of them; the
+     repeats were 304s at 300 B. (In github mode the proxy sets `no-store`, which I could not
+     measure from `fs` mode and do not claim.)
+  5. **PREFETCH FIRES AND IS INERT, WHICH IS THE ONE GENUINELY SURPRISING FINDING.** Five RSC
+     requests go out per studio page load with no click — and the payload is **216 bytes**, versus
+     **18,649** for a real navigation. A dynamic route with no `loading.tsx` has nothing to
+     prefetch, so Next short-circuits it server-side, and clicking still issues its own request
+     (`PREFETCH_REUSED: false`). It costs ~6ms per request off the critical path.
+     **Making prefetch useful requires a `loading.tsx` — which is a loader's visual design, and
+     that is deferred by instruction.**
+
+  **THREE CANDIDATE FIXES WERE MEASURED AND ALL THREE FAILED TO JUSTIFY THEMSELVES.**
+  - **Parallelise `getStudioData`'s four sequential awaits.** Structurally right — two are
+    independent. Measured worthless: both draft reads early-return in `fs` mode AND are
+    `unstable_cache`d in github mode, and the whole server render is 12ms. **A fix whose measured
+    gain is zero, justified by an unmeasured hypothetical, is the speculative fix this pilot
+    refuses.**
+  - **`prefetch={false}` on the sidebar links.** Saves 5 × 216 B and ~6ms of off-path server time.
+    Below noise.
+  - **A client component that could be a server one.** None. `OverviewRow` already is one —
+    my own script matched `"use client"` inside its COMMENT, which is the comment trap firing in
+    the analysis rather than in the code. The rest take function props from client parents.
+
+  **THE LOADER QUESTION, ANSWERED WITH THE NUMBER THAT WOULD JUSTIFY IT.** A spinner that appears
+  for under ~80ms reads as a glitch rather than reassurance. **In production the worst switch is
+  96ms and every other is under 40ms**, so only opening a case study is even near the threshold
+  and it is 16ms past it. **No loader is warranted for the deployed studio.** In dev cold, 3,265ms
+  plainly wants one — but that is a regime with no user.
+
+  **WHAT WOULD ACTUALLY HELP THE OWNER, AND IT IS NOT A CODE CHANGE.** The 3.3s is paid once per
+  route per dev-server start, and again after edits that invalidate a route. Keeping the dev
+  server running, and visiting the case-study editor once after starting it, converts every
+  subsequent open from 3,265ms to 250ms.
+
 - **#276** the blog index — post cards, two views, status tabs →1991 across **49 suites**
   (`studio-blog-index` 34 new; `studio-ink` 274→278 with F5 revalued, E2 revalued, H5 UN-retired
   and C8 re-anchored). Contract: `docs/studio/studio-blog-index-contract.html`.
