@@ -3320,6 +3320,40 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#282d** the details bar was never pinned, and my gate said it was →2081 across **50 suites**
+  **I REPORTED THIS FIXED IN #282b AND IT WAS NOT.** I measured the bar at scrollTop 0, saw
+  `bottom: 900` against a pane bottom of 900, and called it pinned. **A STICKY ELEMENT ALWAYS LOOKS
+  PINNED AT SCROLL ZERO.** Scrolled to the end it sat at **753 against 900 — 147px adrift**. The
+  measurement was real and the question was wrong, which is the seventh instance of that shape in
+  this arc and the first where a gate agreed with me.
+  **TWO INDEPENDENT CAUSES, AND FIXING EITHER ALONE LEAVES THE BUG.**
+  ONE, the wrapper was `flex-1`, which is `flex: 1 1 0%` — **basis ZERO**, so the box is sized from
+  the container's free space and not from its content. It came out 147px short of the form inside
+  it, and **A STICKY ELEMENT CANNOT BE HELD BELOW ITS CONTAINING BLOCK'S BOTTOM EDGE**; as that
+  edge scrolls up it takes the element with it. `grow` is the same factor with basis AUTO, so the
+  box is max(content, share) — it still fills a short pane for `mt-auto` and now also spans a tall
+  one for `sticky`. `ListDetailLayout`'s `lg:[&>section]:grow` was already the right choice; this
+  seam had the wrong one. **Changing it alone did not fix anything** — the containing block stayed
+  991 against a 1138 scroll height, the same 147.
+  TWO, the section field surface stayed IN FLOW on the Details view — a Content|Style tablist, its
+  panel and the bold hint, 36 + 37 + 17 plus three gaps = **exactly 147px** after the details form.
+  The bar could not reach the foot however the flex boxes were sized. **AND IT WAS A CORRECTION IN
+  ITS OWN RIGHT**: all three describe a SECTION, no section is selected on Details, and the panel's
+  own copy read "Copy for this section…" over sixteen mounted-and-hidden field trees. It is
+  **hidden, never unmounted** — this panel's own rule is that a conditional render "would drop an
+  in-progress edit". Verified by tagging a live node and round-tripping through Details: **the same
+  DOM node came back and the Style tab selection survived**.
+  **⚠ E3 PASSED THROUGH ALL OF IT, BECAUSE IT PINNED THE LITERAL I HAD WRITTEN.** It asserted
+  `flex-1` — my own typing — rather than the property the layout needs, so the gate confirmed the
+  bug. It now asserts `grow` AND **the absence of `flex-1`**, since only an absence fails when
+  someone tidies one into the other. **A class-string gate can prove which utility is present and
+  never which one is correct**, so the scroll behaviour is measured live instead: five scroll
+  positions from 0 to the end, on all four case studies, plus the underflow regime at 1400px where
+  `mt-auto` does the work and `sticky` is inert. `floatGap: 0`.
+  `css-comment-trap` fired on my own prose for the **fifth** time — naming the grow longhand in the
+  comment that explains the fix emitted a rule for it. 5 mutations, 5 killed. CSS unchanged from
+  the previous push; public output unchanged on all five pages.
+
 - **#282c** the blog bar joins the one-row set, and the rule it forced →2078 across **50 suites**
   **I HAD THE RULE HALF RIGHT AND THE OWNER'S NEXT REPORT IS WHAT SHOWED IT.** #282b made one row
   a question about the BOX — a 520px container query — and that is why the blog stayed stacked: its

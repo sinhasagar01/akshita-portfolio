@@ -392,12 +392,37 @@ const bar = code("components/studio/SaveBar.tsx");
   t("E3: the details bar is pinned with both halves", /className="sticky bottom-0 z-10 mt-auto"/.test(projects), true);
 
   /* AND THE HEIGHT CHAIN THAT MAKES `mt-auto` MEAN ANYTHING. Every link is load-bearing; a
-   * missing one leaves the bar floating and nothing looks broken until the form is short. */
+   * missing one leaves the bar floating and nothing looks broken until the form is short.
+   *
+   * ⚠ THIS ASSERTION PASSED WHILE THE BAR SCROLLED AWAY, AND THAT IS THE LESSON IN IT. It pinned
+   * the literal `flex-1` I had written, so it confirmed my own typing rather than the property I
+   * needed. `flex-1` is basis ZERO — the box is sized from the container's free space, not from
+   * its content — so the wrapper came out 147px short of the form inside it, and a sticky element
+   * cannot be held below its containing block's bottom edge. Measured at 1600x900: pinned at
+   * scrollTop 0, adrift by 147px at the end of the scroll.
+   * IT NOW ASSERTS `grow` AND THE ABSENCE OF `flex-1`, because only the absence can fail if
+   * someone "tidies" one into the other. A class-string gate can prove which utility is present;
+   * it can never prove which one is correct, so the scroll behaviour itself is measured live and
+   * reported in the PR rather than claimed here. */
   t("E3: …and the height reaches it — pane, wrapper, node, in that order", {
     inspectorNode: /flex min-h-full flex-col gap-4/.test(sections),
-    detailsWrapper: /hidden=\{!showDetails\} className="flex min-h-0 flex-1 flex-col"/.test(sections),
+    detailsWrapper: /hidden=\{!showDetails\} className="flex grow flex-col"/.test(sections),
     detailsNode: /<div className="flex grow flex-col">/.test(projects),
   }, { inspectorNode: true, detailsWrapper: true, detailsNode: true });
+  t("E3: …and no link in that chain uses a zero-basis `flex-1`, which cannot span its own content",
+    /className="[^"]*\bflex-1\b[^"]*"[^>]*>\{detailsNode\}/.test(sections)
+      || /const detailsNode = \(\s*<div className="[^"]*\bflex-1\b/.test(projects), false);
+
+  /* ⚠ AND NOTHING MAY FOLLOW THE DETAILS FORM IN THE SCROLL CONTENT. The wrapper sizing was only
+   * half the defect: the section field surface — a Content|Style tablist, its panel and the bold
+   * hint — stayed in flow on the Details view, 147px of it, so the bar had content below it and
+   * could not reach the pane foot however the flex boxes were sized. It is HIDDEN there now,
+   * never unmounted: sixteen field trees hang off that panel and unmounting drops in-progress
+   * edits, which is this panel's own stated rule. */
+  t("E5: the section field surface is hidden on the Details view, so nothing follows the bar",
+    /<div hidden=\{showDetails\} className="flex flex-col gap-4">/.test(sections), true);
+  t("E5: …and it is hidden rather than unmounted, so no draft or caret is dropped",
+    /\{!showDetails && \(\s*<div/.test(sections) || /showDetails \? null : \(\s*<div className="flex flex-col gap-4"/.test(sections), false);
 
   /* ⚠ THE WRAPPER KEEPS THE `hidden` ATTRIBUTE AND THAT IS ONLY SAFE BECAUSE PREFLIGHT SHOUTS.
    * Tailwind emits `[hidden]:where(:not([hidden=until-found])){display:none!important}`. The
