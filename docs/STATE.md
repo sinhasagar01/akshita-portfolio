@@ -6890,40 +6890,73 @@ findings came from.**
    Whether the footer should be ROUNDER is a separate design question, made by looking at it, not
    folded into the hazard fix.
 
-**THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT.**
+**THE BLOG IS LAUNCHED. WHAT REMAINS IS CONTENT — AND THIS LIST WAS BADLY STALE.**
 
-1. **KEEP WRITING POSTS THROUGH `/studio`.** Still the highest-value work, but the reason has
-   changed: real use has now closed owner-backlog items **9, 10 and 11** and produced **three
-   defects no gate found** — hazard 20's blank canvas image, #201's silently dropped save, and
-   #200's ambiguous Publish button. **THAT IS THE ARGUMENT FOR IT.** Every one was invisible to
-   lint, tsc and 1264 assertions, and every one surfaced within minutes of an author actually
-   using the editor. Item **7** (the three-pane editor in production) is the one still open,
-   and it closes by looking rather than by building.
-   **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer — a publish
-   has already shipped a half-finished sentence once, and CI cannot tell one from a finished
-   one.
-2. **THREE ASSET UPLOADS, EACH ONE STUDIO ACTION AND ALL OF THEM CONTENT.** Highest value per
-   minute of anything on this list.
-   a. **`boat-crest`'s hero** — still the original 837KB, 2074×1058 PNG that never went through
-   sharp. One /studio upload re-encodes it to webp at quality 80. Open since #160.
-   b. **The three studio heroes are 320×200** into a 500px card slot, so they render soft.
-   Re-upload at a larger size; the route downscales to a 2048 long edge and never enlarges.
-   c. **Then remove `elevate-one-view` from `HERO_IMAGE_UNSUITABLE`** (hazard 21) — but LOOK at
-   the card first. Its comment describes a 390×988 portrait that no longer exists, so the
-   stopgap is stale either way; whether the mock still beats a 320×200 hero is a judgement.
-3. ~~**DELETE THE `rules-of-hooks` DISABLE** (hazard 17).~~ — **DONE in PR 4.** It was the only
-   follow-up carrying a latent correctness bug rather than a missing affordance, and the
-   consistency arc is what made it urgent: `ProjectsEditPanel` would crash the moment it is
-   placed in the list shell its own comment says it is built for, which is PR 7 exactly.
-4. **Optional:** `/code-review ultra` over `fa08200`. #178, #180, #185, #187, #189, #190,
-   #195, #197 and #198 were all self-reviewed, and #190 and #195 are the largest.
-5. **THE CASE-STUDY CANVAS PREVIEW** — the same snapshot gap #202 closed for blog, and the
-   emit half already landed, so it is seven `ImgSpecFields` arrows plus a map in
-   `SectionsEditPanel` reusing `lib/studio/preview-map.ts` unchanged. See DEFERRED.
-6. **Later:** a per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
-   incident behind it); migrate other studio pages to
-   `ThreePaneShell`, extracting at the SECOND consumer; investigate why `boat-crest` yields
-   zero parity pairs (hazard 10).
+⚠ **EVERY ITEM BELOW WAS RE-VERIFIED AGAINST THE REPO ON 2026-08-02, AND MOST OF THEM WERE
+ALREADY DONE.** The list had been carried forward unchecked for long enough that it was
+recommending finished work, and it was recommended out loud three times before anyone opened the
+files. **A LIST OF OPEN ITEMS IS A CLAIM LIKE ANY OTHER AND DECAYS THE SAME WAY.** What follows is
+what the repo actually contains, with the evidence beside it.
+
+**CLOSED, WITH EVIDENCE — struck through rather than deleted, so the record shows what was
+believed open and what it turned out to be.**
+
+1. ~~**THREE ASSET UPLOADS.**~~ — **ALL THREE DONE.** Measured: every one of the four project
+   heroes is a **1600×1000 webp between 70KB and 94KB**
+   (`public/images/projects/*/heroImage.webp`). The item described `boat-crest` as "still the
+   original 837KB, 2074×1058 PNG" and the other three as "320×200 into a 500px slot"; neither is
+   true of the files on disk. And **`HERO_IMAGE_UNSUITABLE` was deleted in `f3c881b` (#225)**,
+   which THIS DOCUMENT ALREADY RECORDS at the hazard-22 follow-up — so the list contradicted an
+   entry above it for several PRs.
+2. ~~**REAL OUTCOME NUMBERS FOR FOSFOR AI AND FOSFOR DATA PROFILING.**~~ — **POPULATED.** Both
+   carry a `statCards` block with specific figures: Fosfor AI at 3 personas / 40% faster time to
+   insight in moderated testing / 80% task completion in usability testing, and Data Profiling at
+   35% adoption / 25% retention / 2 profiling depths. **WHETHER THEY ARE FINAL IS THE OWNER'S CALL
+   AND NOT A THING THE REPO CAN ANSWER** — what is settled is that the fields are not empty, which
+   is what "pending" claimed. CLAUDE.md still calls this "the one that blocks finished copy"; that
+   line is stale too.
+3. ~~**THE CASE-STUDY CANVAS PREVIEW.**~~ — **WIRED.** `SectionsEditPanel` imports
+   `createPreviewMap`, builds `rewriteSrc`, and passes it into the canvas; `adaptSections` takes it
+   in preview mode. The item described the consume half as unbuilt.
+4. ~~**DELETE THE `rules-of-hooks` DISABLE** (hazard 17).~~ — **DONE in PR 4**, as already noted.
+
+**GENUINELY OPEN, VERIFIED.**
+
+1. **THE FIVE EXPERIENCE DESCRIPTIONS ARE STILL EMPTY.** All of
+   `content/experience/*.yaml` carry `description: ""`. Write them or decide to drop the field —
+   the decision is as good as the copy, and leaving it undecided is what has kept it here.
+   **THE ONLY CONTENT ITEM ON THIS LIST THAT SURVIVED VERIFICATION.**
+2. **KEEP WRITING POSTS THROUGH `/studio`.** The argument is unchanged and is worth restating
+   because it is about GATES rather than about content: real use closed owner-backlog items 9, 10
+   and 11 and produced **three defects no gate found** — hazard 20's blank canvas image, #201's
+   silently dropped save, and #200's ambiguous Publish button. Every one was invisible to lint,
+   tsc and **the 1264 assertions of the day, and would be invisible to the 2141 there are now**,
+   and every one surfaced within minutes of an author using the editor.
+   **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer. A publish has
+   already shipped a half-finished sentence once, and CI cannot tell one from a finished one.
+3. **HAZARDS 30 AND 31, WHICH ARE ONE GAP SEEN FROM TWO SIDES.** 31 says `text-ink-400` is
+   forbidden as a text colour and unpoliced; 30 says the ground each site sits on is uncomputed.
+   An honest usage gate needs the ground, so 30 is what blocks 31. **NO GATE WAS BUILT
+   DELIBERATELY**: 23 of the studio's 35 `text-ink-400` sites are icon or border containers where
+   it is correct, and several of the rest sit on ink — a naive scan misfires on all of those, and
+   a gate that misfires gets ignored, which is worse than none.
+4. **THE MEASURED LIMITS THIS ARC ACCEPTED RATHER THAN FIXED.** Both are recorded with their
+   numbers at #283 and #283b, and both are design trades rather than defects.
+   a. **Collapsing blog's inspector gives its canvas 284px of cream it cannot spend**, because
+   the 68ch measure is locked and does not widen. Accepted for the gesture.
+   b. **Blog's head fields un-clip at a 340px inspector, which needs roughly 1641px of page** at
+   the default sidebar — so on a narrower display the drag ceiling stops short of it. #284 made
+   the fields WRAP, so nothing is unreadable; the pane simply cannot reach that width there.
+5. **Optional:** `/code-review ultra` over the studio arc. The old entry named `fa08200` and nine
+   PRs; a great many have shipped self-reviewed since, so **pick a range rather than trusting that
+   SHA**.
+6. **Later.** A per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
+   incident behind it, and still unbuilt — `PublishBar` has no diff surface). Migrating the
+   remaining studio pages to `ThreePaneShell`: Site settings, Experience and Skills still run
+   `ListDetailLayout`, and **the "extract at the SECOND consumer" rule has now been exercised
+   once** — #283b moved the inspector-width property into the shell when blog became the second
+   resizable surface. Hazard 10, why `boat-crest` yields zero parity pairs, which is a consequence
+   of it being the one `BESPOKE_SLUGS` entry.
 
 **THREE GATES NOW, NOT TWO.** `npm run lint` · `npm run typecheck` · `npm run ralph`. CI runs
 lint and ralph; the Vercel build is what typechecks. A PR that reports "typecheck only" is now

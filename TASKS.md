@@ -83,9 +83,16 @@ Where those uploads go changed. The screen exports for the three migrated projec
 
 ### Content gaps (surfaced by /studio)
 
+Re-verified against the repo on 2026-08-02. Two of the three had already been closed and the list
+had not been updated, so it was still being read as current.
+
 - All 5 experience entries have empty descriptions. Write or decide to drop the field.
-- 3 of 4 projects have no hero image (fosfor-ai, fosfor-data-profiling, elevate-one-view).
-- Fosfor AI and Fosfor Data Profiling bodies are still poured-but-thin (real outcome numbers pending).
+  **Still open, confirmed** — every file in content/experience carries an empty description.
+- ~~3 of 4 projects have no hero image.~~ **Done.** All four now carry a 1600x1000 webp between
+  70KB and 94KB, and HERO_IMAGE_UNSUITABLE was deleted in f3c881b.
+- ~~Fosfor AI and Fosfor Data Profiling need real outcome numbers.~~ **Populated.** Both carry a
+  statCards block with specific figures. Whether those figures are final is the owner's call, but
+  the fields are not empty.
 
 ---
 
