@@ -12,8 +12,15 @@
 // branch-wide: Publish MERGES the draft into main, Discard DELETES it. Discard
 // is secondary/ghost, gated on the SAME unpublished signal, requires a mandatory
 // confirm, and on success reloads so panels + bar re-seed from live.
+//
+// ⚠ AND PUBLISH NOW OPENS A PREVIEW FIRST — hazard 13. A publish shipped a half-finished sentence
+// once, and the mitigation on record was a habit (read the diff before publishing) rather than a
+// mechanism. This bar had the asymmetry backwards: Discard, which only destroys DRAFTS, required a
+// confirm, while Publish, which changes the LIVE SITE, was one click. The preview is now that
+// confirm, so looking is structural. The merge body below is unchanged — only its trigger moved.
 import { useEffect, useRef, useState } from "react";
 import { usePublishSignal } from "./PublishProvider";
+import PublishPreviewDialog, { type PreviewState } from "./PublishPreviewDialog";
 
 type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
@@ -23,6 +30,9 @@ export default function PublishBar() {
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
   const [publishMsg, setPublishMsg] = useState("");
   const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewState, setPreviewState] = useState<PreviewState>({ kind: "loading" });
 
   const [discardStatus, setDiscardStatus] = useState<DiscardStatus>("idle");
   const [discardMsg, setDiscardMsg] = useState("");
@@ -57,6 +67,49 @@ export default function PublishBar() {
   // never while a panel save is in flight (which could re-create the branch just
   // after the delete).
   const canDiscard = unpublished && !anyPending && discardStatus !== "discarding";
+
+  /** Open the preview and fetch it. THE GATE IS THE SAME `canPublish` the merge uses, so the
+   *  dialog cannot open on a state the merge would refuse — one condition, not two that can drift. */
+  async function openPreview() {
+    if (!canPublish || publishingRef.current) return;
+    setPublishStatus("idle");
+    setPublishMsg("");
+    setPreviewState({ kind: "loading" });
+    setPreviewOpen(true);
+    try {
+      const res = await fetch("/api/studio/publish-preview");
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok && json.preview) {
+        setPreviewState({ kind: "ready", preview: json.preview });
+        return;
+      }
+      if (res.ok && json.ok && json.reason === "not_applicable") {
+        setPreviewState({
+          kind: "unavailable",
+          reason: "Previewing changes needs github mode, so there is nothing to show here in dev.",
+        });
+        return;
+      }
+      // ⚠ FAILS OPEN, DELIBERATELY. Publish stays enabled below and the author is told what they
+      // are not getting. Failing closed would let one read error make the site unpublishable.
+      setPreviewState({
+        kind: "unavailable",
+        reason:
+          "Couldn't load a preview of your changes. You can still publish, but you will be doing it unseen.",
+      });
+    } catch {
+      setPreviewState({
+        kind: "unavailable",
+        reason:
+          "Couldn't load a preview of your changes. You can still publish, but you will be doing it unseen.",
+      });
+    }
+  }
+
+  function closePreview() {
+    if (publishingRef.current) return; // never dismiss a merge in flight
+    setPreviewOpen(false);
+  }
 
   async function publish() {
     if (!canPublish || publishingRef.current) return;
@@ -105,6 +158,11 @@ export default function PublishBar() {
       setPublishMsg("Could not publish. Something went wrong. Try again.");
     } finally {
       publishingRef.current = false;
+      // ⚠ CLOSED ON EVERY TERMINAL PATH, INCLUDING FAILURE — the same shape `discard` uses. Every
+      // outcome above already writes the bar's status line, which is the one place this component
+      // reports state; leaving the dialog up would put the same sentence in two places and let them
+      // disagree. `finally` covers the early `return`s too, so no path can leave it stranded open.
+      setPreviewOpen(false);
     }
   }
 
@@ -209,60 +267,91 @@ export default function PublishBar() {
      zero-opacity wrapper is still clickable — a Publish button you cannot see but can press is
      the worst version of this. Unmounting also drops it from the tab order, which merely painting
      it out would not. */
+  /* ⚠ AND THE PREVIEW DIALOG NEEDS NO EXEMPTION HERE, WHICH WAS WORTH CHECKING RATHER THAN
+     ASSUMING. `&& !previewOpen` was written here first, to stop the rail unmounting an open
+     dialog mid-publish. It guards a transition that cannot occur: `anyOccluding` is reported only
+     by the Selected rail, which opens when a canvas field is CLICKED, and the dialog traps focus
+     behind a scrim — and if the rail were already up, this line would have returned null and there
+     would be no Publish button to press. `studio-resize` I2 pins this condition verbatim and
+     failed on the widened copy, which is the assertion doing exactly its job. */
   if (anyOccluding) return null;
 
+  /* ⚠ AND THE PILL SITS AT THE OVERLAY LAYER, NOT THE MODAL ONE. It held z-50 — the value
+     globals.css names `--z-modal` — and so did `StudioModal`'s scrim, so a modal and a floating
+     action bar were claiming ONE layer, with the winner decided by DOM order. The layout renders
+     `{children}` before this bar, so the bar won against every modal in the studio.
+     MEASURED, ON THE PREVIEW DIALOG: the pill was the element `elementFromPoint` returned at the
+     dialog's own Publish button centre, so the dialog's primary action was unclickable.
+     THE THREE EXISTING CONFIRMS NEVER HIT IT, which is why nobody saw it. They are short, so their
+     footers sit near the middle of the viewport and never reach the band at the foot where this
+     pill floats — latent rather than live, the same shape as the save bar that could not spill
+     until a pane could narrow. The preview is the first modal tall enough to reach down there.
+     THE PILL MOVED RATHER THAN THE MODAL, because the scale already says which is which: a floating
+     bar is `--z-overlay`, and taking the modal above 50 would mean borrowing the toast slot for
+     something that is not a toast. Dropping to 40 changes nothing about this pill versus the
+     listbox panels that also sit at 40 — it is still later in the DOM, so it still paints over them
+     exactly as it did at 50. */
+  // Task 1 full-bleed offset: lg:left-[var(--studio-sidebar-w)] shifts the fixed bar past the
+  // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
+  // THIS IS NO LONGER HAND-COUPLED. It used to be a hardcoded 236px left offset at lg, matching
+  // StudioSidebar's own 236px width by comment and by a ralph assertion that the two literals
+  // were equal. They
+  // are now the SAME custom property, so the coupling is structural rather than vigilant —
+  // hazard 1's display half, closed. The note below is kept for its reasoning. If the
+  // sidebar width changes, change this too, or the bar drifts off-centre.
+  //
+  // THE THREE-PANE EDITOR MAKES THE BAR OFF-CENTRE AND THAT IS ACCEPTED. On
+  // /studio/blog/<slug> the work area is list + canvas + inspector, so the
+  // canvas is not centred within it: the bar sits 13px off the canvas centre
+  // with the list open and 131px off with it collapsed. Centring over the
+  // CANVAS instead would mean this rule knowing the list and inspector widths
+  // too — a third and fourth hand-coupled literal, on a component shared by
+  // ten pages, to recover at most 131px on one of them. That is the wrong
+  // trade, and the alternative that avoids the literals (measuring the canvas
+  // at runtime) puts a layout read in a fixed-position bar that renders on
+  // every page. Left deliberately. Logged as deferred, not forgotten.
+  //
+  // The three-pane widths themselves are NOT hand-coupled — they live once in
+  // lib/studio/three-pane.ts and ralph asserts no second literal exists. That
+  // is the pattern this 236px should follow whenever it is next touched.
+  //
+  // ⚠ AND IT RISES ABOVE THE SAVE BAR RATHER THAN LANDING ON IT. A flat 20px offset put the pill
+  // inside the band every `sticky bottom-0` save bar occupies — 124 × 40px of overlap on Site
+  // settings, Experience and Skills, where the bar is the whole 1042px detail column and this
+  // pill is centred inside it, and again on the case study below its fold. HORIZONTAL WAS NOT
+  // AVAILABLE: clearing that bar sideways means moving left of the detail column, over the list
+  // rail, and centring over the work area is the decision argued above.
+  // THE CLEARANCE IS MEASURED BY THE BARS THEMSELVES, with a 0px fallback so the index pages —
+  // which have no bar — keep a plain 2rem. A fixed offset would have to clear the
+  // tallest bar (117px) and would then float this 117px up on every page that has none.
+  // (Both the offset utility and the transition utility are names Tailwind emits rules for, so
+  // they are described rather than written — `css-comment-trap` has now caught this one comment
+  // twice, its seventh and eighth catches on my prose.)
+  //
+  // ⚠ AND THERE IS NO TRANSITION ON IT, WHICH IS A CORRECTION RATHER THAN AN OMISSION. #284
+  // shipped a 200ms transition on the offset here to soften the move. A transition over a
+  // `calc()` that reads an UNREGISTERED custom property cannot interpolate — and it does not
+  // merely fail to animate, IT SWALLOWS THE UPDATE. Measured: the property read 117px while
+  // computed `bottom` stayed at 20px, and became correct the instant the transition was
+  // removed. So the clearance took its value on first paint and then FROZE, which is why
+  // opening the Selected rail moved nothing and the rail rendered behind this pill.
+  // THIS FILE ALREADY KNEW THE RULE, one section over: the `--gl` / `--op` note in globals.css
+  // records the same thing from the other direction, that a `color-mix` whose alpha comes from
+  // an unregistered var cannot interpolate. Registering this one as a `<length>` was tried and
+  // did not rescue the transition, so the transition goes rather than the mechanism.
+  // NO MOTION IS LOST THAT MATTERS: the rail it makes way for runs its own 340ms open, and a
+  // pill that arrives immediately is never briefly in the way.
   return (
-    // Task 1 full-bleed offset: lg:left-[var(--studio-sidebar-w)] shifts the fixed bar past the
-    // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
-    // THIS IS NO LONGER HAND-COUPLED. It used to be a hardcoded 236px left offset at lg, matching
-    // StudioSidebar's own 236px width by comment and by a ralph assertion that the two literals
-    // were equal. They
-    // are now the SAME custom property, so the coupling is structural rather than vigilant —
-    // hazard 1's display half, closed. The note below is kept for its reasoning. If the
-    // sidebar width changes, change this too, or the bar drifts off-centre.
-    //
-    // THE THREE-PANE EDITOR MAKES THE BAR OFF-CENTRE AND THAT IS ACCEPTED. On
-    // /studio/blog/<slug> the work area is list + canvas + inspector, so the
-    // canvas is not centred within it: the bar sits 13px off the canvas centre
-    // with the list open and 131px off with it collapsed. Centring over the
-    // CANVAS instead would mean this rule knowing the list and inspector widths
-    // too — a third and fourth hand-coupled literal, on a component shared by
-    // ten pages, to recover at most 131px on one of them. That is the wrong
-    // trade, and the alternative that avoids the literals (measuring the canvas
-    // at runtime) puts a layout read in a fixed-position bar that renders on
-    // every page. Left deliberately. Logged as deferred, not forgotten.
-    //
-    // The three-pane widths themselves are NOT hand-coupled — they live once in
-    // lib/studio/three-pane.ts and ralph asserts no second literal exists. That
-    // is the pattern this 236px should follow whenever it is next touched.
-    //
-    // ⚠ AND IT RISES ABOVE THE SAVE BAR RATHER THAN LANDING ON IT. A flat 20px offset put the pill
-    // inside the band every `sticky bottom-0` save bar occupies — 124 × 40px of overlap on Site
-    // settings, Experience and Skills, where the bar is the whole 1042px detail column and this
-    // pill is centred inside it, and again on the case study below its fold. HORIZONTAL WAS NOT
-    // AVAILABLE: clearing that bar sideways means moving left of the detail column, over the list
-    // rail, and centring over the work area is the decision argued above.
-    // THE CLEARANCE IS MEASURED BY THE BARS THEMSELVES, with a 0px fallback so the index pages —
-    // which have no bar — keep a plain 2rem. A fixed offset would have to clear the
-    // tallest bar (117px) and would then float this 117px up on every page that has none.
-    // (Both the offset utility and the transition utility are names Tailwind emits rules for, so
-    // they are described rather than written — `css-comment-trap` has now caught this one comment
-    // twice, its seventh and eighth catches on my prose.)
-    //
-    // ⚠ AND THERE IS NO TRANSITION ON IT, WHICH IS A CORRECTION RATHER THAN AN OMISSION. #284
-    // shipped a 200ms transition on the offset here to soften the move. A transition over a
-    // `calc()` that reads an UNREGISTERED custom property cannot interpolate — and it does not
-    // merely fail to animate, IT SWALLOWS THE UPDATE. Measured: the property read 117px while
-    // computed `bottom` stayed at 20px, and became correct the instant the transition was
-    // removed. So the clearance took its value on first paint and then FROZE, which is why
-    // opening the Selected rail moved nothing and the rail rendered behind this pill.
-    // THIS FILE ALREADY KNEW THE RULE, one section over: the `--gl` / `--op` note in globals.css
-    // records the same thing from the other direction, that a `color-mix` whose alpha comes from
-    // an unregistered var cannot interpolate. Registering this one as a `<length>` was tried and
-    // did not rescue the transition, so the transition goes rather than the mechanism.
-    // NO MOTION IS LOST THAT MATTERS: the rail it makes way for runs its own 340ms open, and a
-    // pill that arrives immediately is never briefly in the way.
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--studio-bar-clearance,0px)+2rem)] z-50 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
+    <>
+      {previewOpen && (
+        <PublishPreviewDialog
+          state={previewState}
+          onCancel={closePreview}
+          onPublish={publish}
+          publishing={publishStatus === "publishing"}
+        />
+      )}
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--studio-bar-clearance,0px)+2rem)] z-40 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
       <div
         className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))] backdrop-blur"
         {...(confirmOpen
@@ -342,7 +431,7 @@ export default function PublishBar() {
             )}
             <button
               type="button"
-              onClick={publish}
+              onClick={openPreview}
               disabled={!canPublish}
               aria-disabled={!canPublish}
               className="shrink-0 rounded-full bg-accent-500 px-[19px] py-[11px] text-[12px] font-medium uppercase tracking-[0.08em] text-cream-50 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:bg-accent-500/45"
@@ -367,5 +456,6 @@ export default function PublishBar() {
         )}
       </div>
     </div>
+    </>
   );
 }

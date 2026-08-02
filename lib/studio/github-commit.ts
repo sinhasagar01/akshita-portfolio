@@ -203,12 +203,22 @@ export const COMPARE_FILE_CAP = 300;
 
 export async function compareBranches(
   base: string,
-  head: string
+  head: string,
+  /**
+   * ⚠ OPT-IN, AND IT DEFAULTS OFF ON PURPOSE. GitHub already sends each file's unified `patch` in
+   * this very response, and the map below has always thrown it away — the publish preview's whole
+   * cost is un-discarding it. But this function also backs the draft-state read, which runs
+   * `unstable_cache`d on EVERY studio page load, and a case study's full-file patch is ~24KB. So
+   * the hot path keeps exactly the payload it has today and only the preview asks for more. One
+   * function still owns the compare URL and the cap, so there is no second place that knows how to
+   * compare two branches.
+   */
+  opts: { withPatches?: boolean } = {}
 ): Promise<
   | {
       aheadBy: number;
       status: string;
-      files: { filename: string; status: CompareFileStatus }[];
+      files: { filename: string; status: CompareFileStatus; patch?: string | null }[];
       /**
        * GitHub caps a compare's `files` at COMPARE_FILE_CAP, with no flag saying so.
        * Surfaced rather than thrown, because the two callers need OPPOSITE postures:
@@ -231,9 +241,13 @@ export async function compareBranches(
   if (!res.ok) throw new Error(`compare failed: ${res.status} ${await res.text()}`);
   const json = await res.json();
   const files = Array.isArray(json.files)
-    ? (json.files as { filename: string; status: CompareFileStatus }[]).map((f) => ({
+    ? (json.files as { filename: string; status: CompareFileStatus; patch?: string }[]).map((f) => ({
         filename: f.filename,
         status: f.status,
+        // `?? null` rather than left undefined: GitHub WITHHOLDS `patch` for binaries and for very
+        // large files, and the preview must tell a withheld diff apart from an empty one. Absent
+        // and empty are the same value in JSON, so the distinction has to survive here.
+        ...(opts.withPatches ? { patch: f.patch ?? null } : {}),
       }))
     : [];
   return {
