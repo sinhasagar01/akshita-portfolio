@@ -251,6 +251,8 @@ const MINI: { [K in SectionBlockKind]: () => React.ReactElement } = {
   figureGrid: FigureTiles,
   featureRows: FeatureRows,
   beforeAfter: Split,
+  // Same two-column silhouette as beforeAfter — it IS a before/after, scroll-pinned.
+  beforeAfterStory: Split,
   swatchTokens: Swatches,
   annotatedImage: Annotated,
   richText: Text,

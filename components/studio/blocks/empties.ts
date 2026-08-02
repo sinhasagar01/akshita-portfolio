@@ -58,8 +58,11 @@ export const BLOCK_EMPTIES: { [K in SectionBlockKind]: () => RawValue<K> } = {
   statCards: () => ({ heading: "", stats: [] }),
   principleCards: () => ({ heading: "", subhead: "", cards: [] }),
   figureGrid: () => ({ heading: "", items: [] }),
-  featureRows: () => ({ features: [] }),
+  featureRows: () => ({ variant: "", features: [] }),
   beforeAfter: () => ({ pairs: [] }),
+  beforeAfterStory: () => ({
+    index: "", eyebrow: "", title: "", lead: "", ratingFrom: "", ratingTo: "", pairs: [],
+  }),
   swatchTokens: () => ({ groups: [] }),
   annotatedImage: () => ({
     image: emptyImg(),

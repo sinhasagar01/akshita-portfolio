@@ -108,6 +108,7 @@ export const BLOCK_LABELS: { [K in EditableBlockKind]: string } = {
   figureGrid: "Figure grid",
   featureRows: "Feature rows",
   beforeAfter: "Before / after",
+  beforeAfterStory: "Before / after (scroll story)",
   swatchTokens: "Swatch tokens",
   annotatedImage: "Annotated image",
   richText: "Rich text",
@@ -763,6 +764,86 @@ const BeforeAfterForm: ComponentType<BlockFormProps<"beforeAfter">> = ({ value, 
   </ItemRows>
 );
 
+
+/* ------------------------------------- beforeAfterStory — beforeAfter plus a card header
+ *
+ * Its `after` is not one image but a two-layer auto-scroller: a tall `body` that scrolls behind
+ * the bezel and a pinned `footer`. Each carries an `intrinsicHeight` — the asset's OWN pixel
+ * height, which `deviceScroller.unitGeo` divides by to get the scroll ratio.
+ *
+ * ⚠ THAT IS NOT THE "Width"/"Height" AN ImgSpec CARRIES. Those are RENDERED sizes; this is the
+ * source asset's height, and getting the two confused computes a scroll ratio from a layout number
+ * — which compiles, because both are numbers. The label says "Intrinsic" for that reason and the
+ * field sits apart from the image's own geometry. A static import knows it without being told; a
+ * CMS entry is a path string and cannot, and measuring it at runtime is the decode race the
+ * scroller is explicitly built to avoid. So it is authored.
+ */
+const BeforeAfterStoryForm: ComponentType<BlockFormProps<"beforeAfterStory">> = ({ value, onChange, onBlur, slug, collection }) => (
+  <>
+    <TabGroup group="content">
+      <div className="flex flex-col gap-2">
+        <TextField label="Index" value={value.index} onChange={(index) => onChange({ ...value, index })} onBlur={onBlur} />
+        <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => onChange({ ...value, eyebrow })} onBlur={onBlur} />
+        <TextField label="Title" value={value.title} onChange={(title) => onChange({ ...value, title })} onBlur={onBlur} />
+        <TextArea label="Lead" value={value.lead} onChange={(lead) => onChange({ ...value, lead })} onBlur={onBlur} />
+        <TextField label="Rating before" value={value.ratingFrom} onChange={(ratingFrom) => onChange({ ...value, ratingFrom })} onBlur={onBlur} />
+        <TextField label="Rating after" value={value.ratingTo} onChange={(ratingTo) => onChange({ ...value, ratingTo })} onBlur={onBlur} />
+      </div>
+    </TabGroup>
+    <ItemRows
+      items={value.pairs}
+      onChange={(pairs, upload) => onChange({ ...value, pairs }, upload)}
+      empty={() => ({
+        title: "", tag: "",
+        before: emptyImg(),
+        afterBody: { ...emptyImg(), intrinsicHeight: null },
+        afterFooter: { ...emptyImg(), intrinsicHeight: null },
+        changes: [],
+      })}
+      addLabel="Add pair"
+      itemNoun="Pair"
+      rowLabel={(p, i) => p.title.trim() || `Pair ${i + 1}`}
+    >
+      {({ item, set, focusRef }) => (
+        <>
+          <TabGroup group="content">
+            <div className="flex flex-col gap-2">
+              <TextField label="Screen name" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
+              <TextField label="Tag" value={item.tag} onChange={(tag) => set({ ...item, tag })} onBlur={onBlur} />
+            </div>
+          </TabGroup>
+          <ImgSpecFields value={item.before} set={(before, upload) => set({ ...item, before }, upload)} onBlur={onBlur} slug={slug} collection={collection} imageLabel="Before screen" />
+          <ImgSpecFields value={item.afterBody} set={(afterBody, upload) => set({ ...item, afterBody: { ...afterBody, intrinsicHeight: item.afterBody.intrinsicHeight } }, upload)} onBlur={onBlur} slug={slug} collection={collection} imageLabel="After — scrolling body" />
+          <TabGroup group="style">
+            <NumberField label="Intrinsic height (body)" unit="px" value={item.afterBody.intrinsicHeight} onChange={(intrinsicHeight) => set({ ...item, afterBody: { ...item.afterBody, intrinsicHeight } })} onBlur={onBlur} optional />
+          </TabGroup>
+          <ImgSpecFields value={item.afterFooter} set={(afterFooter, upload) => set({ ...item, afterFooter: { ...afterFooter, intrinsicHeight: item.afterFooter.intrinsicHeight } }, upload)} onBlur={onBlur} slug={slug} collection={collection} imageLabel="After — pinned footer" />
+          <TabGroup group="style">
+            <NumberField label="Intrinsic height (footer)" unit="px" value={item.afterFooter.intrinsicHeight} onChange={(intrinsicHeight) => set({ ...item, afterFooter: { ...item.afterFooter, intrinsicHeight } })} onBlur={onBlur} optional />
+          </TabGroup>
+          <TabGroup group="content">
+            <ItemRows
+              items={item.changes}
+              onChange={(changes) => set({ ...item, changes })}
+              empty={() => ({ emphasis: "", rest: "" })}
+              addLabel="Add change"
+              itemNoun="Change"
+              rowLabel={(c, i) => c.emphasis.trim() || `Change ${i + 1}`}
+            >
+              {({ item: ch, set: setCh, focusRef: chFocus }) => (
+                <div className="flex flex-col gap-2">
+                  <TextField label="Emphasis" value={ch.emphasis} onChange={(emphasis) => setCh({ ...ch, emphasis })} onBlur={onBlur} inputRef={chFocus} />
+                  <TextField label="Rest" value={ch.rest} onChange={(rest) => setCh({ ...ch, rest })} onBlur={onBlur} />
+                </div>
+              )}
+            </ItemRows>
+          </TabGroup>
+        </>
+      )}
+    </ItemRows>
+  </>
+);
+
 /* ------------------------------------------- swatchTokens — the nested union
  *
  * The deepest shape in the schema: groups[] -> tokens[] -> a `{ discriminant, value }`
@@ -1024,6 +1105,7 @@ export const BLOCK_REGISTRY: { [K in EditableBlockKind]: Entry<K> } = {
   deviceShelf: { empty: BLOCK_EMPTIES.deviceShelf, label: (v) => `Device shelf — ${v.devices.length} devices`, Form: DeviceShelfForm },
   featureRows: { empty: BLOCK_EMPTIES.featureRows, label: (v) => `Feature rows — ${v.features.length} features`, Form: FeatureRowsForm },
   beforeAfter: { empty: BLOCK_EMPTIES.beforeAfter, label: (v) => `Before / after — ${v.pairs.length} pairs`, Form: BeforeAfterForm },
+  beforeAfterStory: { empty: BLOCK_EMPTIES.beforeAfterStory, label: (v) => `Before / after story — ${v.pairs.length} pairs`, Form: BeforeAfterStoryForm },
   swatchTokens: { empty: BLOCK_EMPTIES.swatchTokens, label: (v) => `Swatch tokens — ${v.groups.length} groups`, Form: SwatchTokensForm },
   annotatedImage: { empty: BLOCK_EMPTIES.annotatedImage,
     label: (v) => firstLine(v.callouts[0]?.title ?? "", "Annotated image"),

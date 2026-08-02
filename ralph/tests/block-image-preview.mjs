@@ -166,8 +166,13 @@ t("C2: prose recomputes on blocks, which is what re-runs rewriteSrc after an ado
 {
   const sites = [...projReg.matchAll(/<ImgSpecFields[^>]*?\sset=\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/g)]
     .map((m) => m[1].trim());
-  t("D1: every ImgSpecFields site was found — seven, matching the census",
-    sites.length, 7);
+  /* TEN NOW, NOT SEVEN. `beforeAfterStory` added three — a `before` screen and the auto-scroller's
+   * `afterBody` and `afterFooter`. The census is the LIVENESS half of this gate: without it the
+   * forwarding check below would pass vacuously if the derivation ever matched nothing, so the
+   * number is meant to be updated deliberately when a block is added, and this is that. All three
+   * new sites forward their upload, which is what the assertion after this one actually tests. */
+  t("D1: every ImgSpecFields site was found — ten, matching the census",
+    sites.length, 10);
   // A bare identifier forwards by identity; an arrow must be two-arity and pass the 2nd on.
   const drops = sites.filter((a) => {
     if (/^[A-Za-z_$][\w$]*$/.test(a)) return false;            // set={set}

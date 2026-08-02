@@ -151,10 +151,32 @@ export const arrayOf =
  * Rebuilds in DECLARED order so the dump is stable no matter what key order the
  * client sent.
  */
+/**
+ * ⚠ `omitEmpty` IS THE ONE WAY TO ADD A FIELD WITHOUT REWRITING EVERY FILE.
+ *
+ * Every key in a shape is REQUIRED (the empties-preserved rule), and the sanitised object is
+ * dumped straight back to disk — `preserved + dump({ sections }) === raw` byte for byte. So a new
+ * key rejects all existing content for being absent, and setting it to `undefined` instead would
+ * put a `variant: null` line into three case-study files that nobody edited. Adding one naively
+ * failed 147 assertions, which is what this exists to make impossible.
+ *
+ * A key listed here behaves exactly as `frame` already does inside `imageObj`: absent or "" is
+ * DROPPED from the output, so a file that never had the key never gains it, and the Keystatic
+ * reader injecting `""` into existing entries round-trips to nothing. A non-empty value is checked
+ * and kept — IN ITS DECLARED POSITION, because the loop below still walks the shape in order and
+ * merely skips, so a present key lands where the schema puts it rather than at the end.
+ *
+ * `frame` is deliberately NOT migrated onto this. Its check is an enum test rather than a plain
+ * one, and folding it in would mean this generic helper knowing about image frames.
+ */
 export const obj =
-  <S extends Record<string, Check<unknown>>>(shape: S): Check<Record<string, unknown>> =>
+  <S extends Record<string, Check<unknown>>>(
+    shape: S,
+    opts: { omitEmpty?: readonly (keyof S & string)[] } = {},
+  ): Check<Record<string, unknown>> =>
   (raw, at) => {
     if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
+    const omit = new Set<string>(opts.omitEmpty ?? []);
     for (const k of Object.keys(raw)) {
       if (!Object.prototype.hasOwnProperty.call(shape, k)) {
         return invalid(`${at}: unknown field ${k}`, at);
@@ -162,6 +184,7 @@ export const obj =
     }
     const out: Record<string, unknown> = {};
     for (const k of Object.keys(shape)) {
+      if (omit.has(k) && (raw[k] === undefined || raw[k] === "")) continue;
       const res = shape[k](raw[k], `${at}.${k}`);
       if (!res.ok) return res;
       out[k] = res.value;
@@ -294,6 +317,11 @@ export const videoFrame: Check<string> = (raw, at) => {
 };
 
 export const imgSpec = imageObj();
+
+/** An image PLUS the source asset's own pixel height, which the auto-scroller divides by. Declared
+ *  from `imageObj` so it inherits the frame handling and the key order rather than restating them. */
+const screenAsset = imageObj({ intrinsicHeight: numOrNull });
+
 const deviceSpec = imageObj({ label: str, dotColor: str });
 /** The same shape as the section shell's own glow, one level down. */
 const glowWord = obj({ text: str, top: str, right: str, bottom: str, left: str, size: str });
@@ -352,9 +380,15 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
   }),
   // tier 3
   deviceShelf: obj({ devices: arrayOf(deviceSpec), glow: glowWord, minHeight: numOrNull }),
-  featureRows: obj({
-    features: arrayOf(obj({ index: str, category: str, title: str, body: str, image: imgSpec })),
-  }),
+  featureRows: obj(
+    {
+      // Declared FIRST because the schema declares it first — `obj` rebuilds in declared order.
+      variant: str,
+      features: arrayOf(obj({ index: str, category: str, title: str, body: str, image: imgSpec })),
+    },
+    // …and omitted when empty, so the three shipped featureRows blocks never gain a `variant:` line.
+    { omitEmpty: ["variant"] },
+  ),
   figureGrid: obj({
     heading: str,
     items: arrayOf(obj({ image: imgSpec, title: str, body: str })),
@@ -377,6 +411,27 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
     // EXACTLY two — see arrayOfLen. The UI hides add/remove for this one array.
     devices: arrayOfLen(2, deviceSpec),
     glow: glowWord,
+  }),
+  // The scroll story. `intrinsicHeight` is `numOrNull` like every other tier-3 number, so an unset
+  // one round-trips as an explicit null rather than vanishing — the empties-preserved rule. It is
+  // the asset's OWN pixel height, not a rendered one; see the schema note.
+  beforeAfterStory: obj({
+    index: str,
+    eyebrow: str,
+    title: str,
+    lead: str,
+    ratingFrom: str,
+    ratingTo: str,
+    pairs: arrayOf(
+      obj({
+        title: str,
+        tag: str,
+        before: imgSpec,
+        afterBody: screenAsset,
+        afterFooter: screenAsset,
+        changes: arrayOf(obj({ emphasis: str, rest: str })),
+      })
+    ),
   }),
   beforeAfter: obj({
     pairs: arrayOf(
