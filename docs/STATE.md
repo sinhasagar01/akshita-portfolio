@@ -3320,6 +3320,82 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#283** the resize grip, and the case-study inspector collapses →2118 across **51 suites**
+  **THE SIDEBAR HANDLE WAS NOT A NO-OP, WHICH THE BRIEF ASKED ME TO CHECK BEFORE REBUILDING IT.**
+  Measured by `elementFromPoint` rather than read off a class string: it is already `absolute`, so
+  #237's layout-width defect is fixed, and all 8px of its band report the handle, so the dead-half
+  defect is fixed too. What was missing is the **mark** — nothing at rest, only a hairline on
+  hover — and 4px of hit area. Both seams now measure a **12px box with a 12px live band and a
+  real pointerdown returning the handle**; the sidebar went 8 → 12.
+  **⚠ THE OWNER'S OWN CORRECTION WAS WRONG AND THAT IS THE USEFUL PART OF THIS ENTRY.** Mid-plan
+  they asked for blog's inspector to RESIZE but not COLLAPSE. Rejected on two grounds and they
+  accepted both. ONE, a grip on a non-dragging seam is a lie — which is the exact argument used to
+  CHOOSE the grip, "the only treatment that announces itself at rest", turned against itself. TWO,
+  **widening blog's inspector is decoration in the same way narrowing it is**: blog's canvas is a
+  FIXED MEASURE, so every pixel the pane gives or takes is cream and the article never changes. A
+  control whose entire range moves only margin is a control with no purpose.
+  **SO BLOG'S INSPECTOR IS FIXED, FULL STOP, AND BLOG'S SEAM GETS NO GRIP** — a correction to the
+  contract, which draws the inspector grip for both surfaces because it assumed both collapse. The
+  case study's canvas SCALES, so its reclaimed width becomes a larger render: measured,
+  **collapsing took the scale 0.5875 → 0.8375**. The ninth by-role answer.
+  **⚠ AND AN ANSWER GIVEN BEFORE A SCOPE CHANGE IS A PREMISE, NOT A FACT.** The owner chose TWO
+  cookies while both inspectors resized; with blog fixed there is one resizable inspector, so a
+  second cookie keys a width nothing reads — the `FIT_THRESHOLD_PX` shape, a constant with no
+  consumer. **Third time this session a later decision invalidated an earlier answer and the plan
+  caught it rather than inheriting it.** One cookie, clamped on the read.
+  **THE THRESHOLDS BECAME RUNTIME, WHICH IS #237's MOVE APPLIED A SECOND TIME.** `CS_PANES_SUM`
+  1224 → 904 and `CS_COLLAPSED_PANES_SUM` 987 → 667; the caller adds the live width. Blog's
+  `PANES_SUM` KEEPS its 320, because for blog the term genuinely is constant.
+  **⚠ THE FOLD IS THE ONE THRESHOLD THE LIVE WIDTH IS THE WRONG INPUT FOR.** It asks "IF the
+  inspector were shown, would three panes fit?" — feeding it a collapsed 0 answers a different
+  question and would report three panes fitting on a page where expanding immediately drops the
+  canvas under `CS_MIN_SCALE`, with nothing failing. It evaluates at `max(width, MIN)`, which errs
+  toward folding: it over-collapses and never lies.
+  **THE SAVE BAR DOCKS TO THE CANVAS WHILE THE PANE IS SHUT.** Observed first, per the brief: at a
+  0-width inspector the merged bar does not collapse, it **spills 32px outside the pane** and
+  paints over the canvas, because its `auto` tracks cannot shrink past the primary's 77px
+  min-content. Latent rather than live — unreachable until a pane could narrow — and fixed
+  incidentally. The bar moves to `canvasDock`, the same node in a different parent, and renders as
+  **one row (62px)** there because its `@container` switch reads its own box. This meant lifting
+  the DETAILS bar out of `detailsNode` into its own prop; #245's property — "whenever the form is
+  on screen its save is too" — is unchanged and now held one level up.
+  **THE STACK WITH `SelectionDock`, MEASURED AFTER BUILDING AS ASKED**: 114 + 62 = **176px**, and
+  the canvas scroll region goes 702 → **527, −25%**. ⚠ **The scale is provably unaffected rather
+  than measured-and-hoped**: `useFitToWidth` is `pane.clientWidth / CANVAS_WIDTH`, width-derived,
+  and both docks are siblings of the scroll region, so they cost height and never width.
+  `CS_MIN_SCALE` cannot be reached by docking, and at 0.8375 it is not close.
+  **THE MINIMUM IS DERIVED, 267**, the measured `min-content` of the inspector's own content —
+  below it the pane already overflows itself, so the drag snaps past 1…266 entirely. The clamp has
+  a **hole** in its range and snaps across it; a plain `Math.max(MIN, …)` would make collapse
+  unreachable by drag. The ceiling is 640, the canvas floor, a by-role bound.
+  **⚠ AND THE CEILING IS A SECOND COPY, BECAUSE THE LEAF DISCIPLINE FORBIDS THE IMPORT.** ralph
+  loads these as raw `.ts` leaves, Node's ESM needs the extension, and `tsc` rejects a `.ts`
+  extension without `allowImportingTsExtensions` — **the property that makes these files testable
+  is the property that prevents the import**. So it is the #194 shape, closed by a gate asserting
+  the identity, plus an ABSENCE assertion so nobody tidies the import back in and breaks every
+  suite that loads the file.
+  **TWO DEFECTS THE GATES CAUGHT MID-BUILD.** studio-ink's C10 — "no raw elevation literal
+  survives anywhere in studio" — caught the focus ring written as the contract draws it. The gate
+  is right and the contract's intent is right; what is wrong is treating a ring as an elevation, so
+  it became an `outline`. And the collapsed pane measured **1px, not 0**, because a transparent
+  border still occupies its pixel — the exact term `three-pane.ts` records as `27 = 26 + 1`, found
+  the same way both times, by driving it.
+  **PROOF.** Inertness driven by attempting focus on every control inside the shut pane: **0 of 12
+  accept it**, and inputs hold at 421 through collapse and reopen. `:focus-visible` driven with a
+  REAL Tab after confirming a programmatic `.focus()` reports the false negative #209 records.
+  Contrast on both grounds, sanity pair first: the DOTS carry the affordance and clear 3:1 at
+  **4.37 on ink** and **3.49 on cream**; accent measures **4.05 / 4.70**, reproducing #237's
+  figures exactly. The cookie proven from the SSR payload at ten inputs including the snap boundary
+  (133 → 0, 134 → 267) and 9999 → 640. ⚠ **The gate as phrased could not be met and that is stated
+  rather than routed around**: the case-study editor fetches sections client-side and the server
+  renders "Loading sections…", so the inspector pane is not in the server HTML at all — what is
+  server-side is the cookie read, travelling as a prop.
+  New `studio-resize` suite; **20 mutations, 20 killed**, after two faults of my own — a harness
+  that counted only `[FAIL]` lines and so scored a module that could not LOAD as a survivor, and a
+  mutation hidden inside a comment the suite strips. The owner's requested mutation confirms the
+  re-anchored derivation is real: moving the aside's `320px` fallback breaks **5** blog assertions,
+  deleting it breaks **7**. CSS +25 rules, −3. Public output byte-identical on all five pages.
+
 - **#282d** the details bar was never pinned, and my gate said it was →2081 across **50 suites**
   **I REPORTED THIS FIXED IN #282b AND IT WAS NOT.** I measured the bar at scrollTop 0, saw
   `bottom: 900` against a pane bottom of 900, and called it pinned. **A STICKY ELEMENT ALWAYS LOOKS

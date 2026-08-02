@@ -40,6 +40,8 @@ type Props = {
   livePath: string;
   /** Every study, for the crumb row's switcher. */
   studies: { slug: string; title: string }[];
+  /** The inspector's stored width, read and clamped on the SERVER so the first paint is right. */
+  inspectorWidth: number;
 };
 
 // Only type + platform are editable here (Phase-1 T1). role + timeline stay in
@@ -56,7 +58,7 @@ const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] 
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
 ];
 
-export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, livePath, studies }: Props) {
+export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, livePath, studies, inspectorWidth }: Props) {
   const initial: ProjectsFields = {
     summary,
     facts: { type: facts.type, platform: facts.platform },
@@ -195,6 +197,56 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // with the strip collapsed — its default state — the only control that saved these fields could
   // not be reached. Nothing failed; it simply was not clickable. Here the footer is part of the
   // node, so whenever the form is on screen its save is too.
+  /* ⚠ THE BAR IS A SEPARATE NODE NOW, AND #245'S PROPERTY IS WHAT DECIDED HOW.
+     It used to be the last child of `detailsNode`, for a good reason kept here: the save-draft
+     footer once lived INSIDE the collapsed `Edit details ▾` disclosure, so with the strip shut —
+     its default — the only control that saved these fields could not be reached. Nothing failed;
+     it simply was not clickable. Making the footer part of the node meant "whenever the form is
+     on screen its save is too".
+     THAT PROPERTY STILL HOLDS AND IS NOW HELD BY THE PANEL BELOW. `SectionsEditPanel` renders
+     this beside the form when the inspector is open and DOCKS IT TO THE CANVAS when the inspector
+     is collapsed — the form and its save move together either way. What changed is that the
+     inspector can now reach zero width, and a bar nested inside it would be clipped with it:
+     an author who collapses the pane, keeps typing, and cannot reach a save is hazard 13 and
+     #201 in one gesture, and a collapsed pane that hides "Couldn't save" is worse than one that
+     hides the button. ONE NODE, TWO PLACES — it is never rendered twice, which is #200's defect. */
+  const detailsBar = (
+    <SaveBar
+      className="sticky bottom-0 z-10 mt-auto"
+      status={saveStatus}
+      dirty={dirty}
+      savedAt={savedAt}
+      title="Auto-saves to draft on blur. Publish from Site settings."
+      onCancel={cancel}
+      extra={
+        /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
+           `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits a
+           rule that loses and the link renders at the inherited colour. This wrapper is the
+           shape the old footer already had; moving the anchor into SaveBar's `extra` slot
+           briefly dropped it, and studio-ink's E6 is the assertion that caught it. */
+        <span className="flex items-center gap-1 text-ink-600">
+          {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard), so the
+              owner keeps the editor open beside it. */}
+          <a
+            href={`/studio/projects/${slug}/preview`}
+            target="_blank"
+            rel="noopener"
+            title="Opens the draft preview in a new tab."
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+          >
+            Preview
+          </a>
+        </span>
+      }
+      primary={{
+        label: "Save draft · Details",
+        onClick: saveDraft,
+        disabled: !dirty || saveStatus === "saving",
+        title: "Commits this study's title, hero, summary, template and category.",
+      }}
+    />
+  );
+
   const detailsNode = (
     // `grow` SO THE BAR BELOW CAN REACH THE PANE'S FOOT. The node used to be content-height, so
     // its save sat wherever the form happened to end — measured at y=1027 in a 1000px viewport,
@@ -324,45 +376,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           ))}
         </div>
       </div>
-      {/* ⚠ THE OBJECT SURVIVES AS A SUFFIX, AND #200 IS WHY. This screen shows TWO saves at once
-          when Details is selected, committing genuinely different drafts — facts through this
-          panel's useDraftForm, sections through SectionsEditPanel's. The verb unifies to "Save
-          draft"; the object is what stops two identical labels claiming to be the same action.
-          Preview and Cancel sit here from #280, and the accessible name carries the object too. */}
-      <SaveBar
-        className="sticky bottom-0 z-10 mt-auto"
-        status={saveStatus}
-        dirty={dirty}
-        savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from Site settings."
-        onCancel={cancel}
-        extra={
-          /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
-             `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits a
-             rule that loses and the link renders at the inherited colour. This wrapper is the
-             shape the old footer already had; moving the anchor into SaveBar's `extra` slot
-             briefly dropped it, and studio-ink's E6 is the assertion that caught it. */
-          <span className="flex items-center gap-1 text-ink-600">
-            {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard), so the
-                owner keeps the editor open beside it. */}
-            <a
-              href={`/studio/projects/${slug}/preview`}
-              target="_blank"
-              rel="noopener"
-              title="Opens the draft preview in a new tab."
-              className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
-            >
-              Preview
-            </a>
-          </span>
-        }
-        primary={{
-          label: "Save draft · Details",
-          onClick: saveDraft,
-          disabled: !dirty || saveStatus === "saving",
-          title: "Commits this study's title, hero, summary, template and category.",
-        }}
-      />
     </div>
   );
 
@@ -497,6 +510,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       template={templateValue}
       draftImages={draftImages}
       detailsNode={detailsNode}
+      detailsBar={detailsBar}
       detailsCanvas={
         <DetailsCanvas
           slug={slug}
@@ -512,6 +526,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       detailsDirty={dirty}
       livePath={livePath}
       studies={studies}
+      inspectorWidth={inspectorWidth}
     />
   );
 }

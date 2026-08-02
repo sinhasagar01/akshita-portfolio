@@ -77,6 +77,8 @@ export default function ThreePaneShell({
   canvasBar,
   canvasDock,
   inspector,
+  inspectorResizer,
+  inspectorCollapsed = false,
   fitThresholdPx,
   listNoun,
   canvasGround = "bg-cream-50",
@@ -131,6 +133,14 @@ export default function ThreePaneShell({
    *  during render sets parent state mid-render. The caller reads INSPECTOR_FOLD_PX
    *  through the same usePageWidthMin hook and simply decides what to pass. */
   inspector: ReactNode | null;
+  /** The inspector's drag handle, absolutely positioned on its seam. Only the case study passes
+   *  one — blog's inspector is fixed, so it has no seam to drag and gets no grip. A grip on a
+   *  seam that does not move announces something false, which is worse than the hairline it
+   *  would replace; see `inspector-width.ts` for why that pane is fixed. */
+  inspectorResizer?: ReactNode;
+  /** Is the inspector dragged shut? Drives the pane's width and its `inert`, and nothing else —
+   *  the caller decides where the save bar goes, because only the caller has one. */
+  inspectorCollapsed?: boolean;
   /** The canvas pane's ground, as a background utility. Defaults to `bg-cream-50`.
    *
    *  A DEFAULT RATHER THAN A REQUIRED PROP, which is the opposite of `fitThresholdPx` above,
@@ -173,7 +183,10 @@ export default function ThreePaneShell({
     // viewport-height rule. The layout keys off it with `:has()` rather than knowing the route,
     // because applying that height to every studio page made the bottom of a short-viewport
     // page unreachable. See the layout's comment for the measurement.
-    <div data-studio-fullheight className="flex min-h-0 flex-1 lg:overflow-hidden">
+    // `relative` IS THE INSPECTOR RESIZER'S CONTAINING BLOCK. The handle is absolute on the seam
+    // so it consumes no layout width — #237's second defect, which cost 4px of work area at every
+    // sidebar width because an in-flow handle is a term nobody put in the arithmetic.
+    <div data-studio-fullheight className="relative flex min-h-0 flex-1 lg:overflow-hidden">
       {/* LIST — a width transition. overflow-hidden plus an inner min-w-[264px] so the
           children keep their intrinsic width while the box animates to zero, instead of
           reflowing on every frame of the transition. */}
@@ -272,9 +285,37 @@ export default function ThreePaneShell({
           useDraftForm-fed field trees posting through one onChange, with colliding ids and
           two carets. */}
       {inspector !== null ? (
-        <aside className="w-[320px] flex-none overflow-y-auto border-l border-ink-950/22 bg-cream-100">
-          {inspector}
-        </aside>
+        <>
+          {inspectorResizer}
+          <aside
+            id="studio-inspector"
+            // ⚠ `inert` AS A REAL BOOLEAN. #178 shipped `"" as unknown as boolean` for exactly
+            // this, and an empty string is FALSY, so React dropped the attribute and the pane it
+            // was written to protect stayed fully tabbable. G3 found it by driving focus rather
+            // than by reading the prop. COLLAPSED IS NOT UNMOUNTED — 14 editors and 378 inputs
+            // hang off this node, and unmounting destroys an unsaved draft, its caret and its
+            // id-lockstep while looking like it worked (#233).
+            inert={inspectorCollapsed}
+            // THE WIDTH IS A CUSTOM PROPERTY WITH A 320px FALLBACK, and the fallback is what
+            // keeps blog on exactly today's geometry: blog never declares the property, so it
+            // resolves to 320 and nothing about that surface moves. `three-pane.mjs` re-anchors
+            // its INSPECTOR_PX derivation on this fallback for the same reason.
+            // `overflow-hidden` when shut, so a clipped pane cannot scroll or paint outside itself.
+            // ⚠ `border-l-0` WHEN SHUT, NOT `border-transparent`. A transparent border still
+            // OCCUPIES ITS PIXEL — measured, the collapsed pane came out 1px rather than 0 — and
+            // that is the exact term `three-pane.ts` records as `27 = 26 + 1`, which was also
+            // found by driving it rather than by reading the sum. The list pane keeps its
+            // transparent border because the COLOUR is what animates there; this pane has no
+            // width transition to protect, so the border can go and zero can mean zero.
+            className={`flex-none bg-cream-100 lg:w-[var(--studio-inspector-w,320px)] ${
+              inspectorCollapsed
+                ? "overflow-hidden border-l-0"
+                : "overflow-y-auto border-l border-ink-950/22"
+            }`}
+          >
+            {inspector}
+          </aside>
+        </>
       ) : null}
     </div>
   );

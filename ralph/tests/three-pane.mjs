@@ -117,8 +117,11 @@ t("A: the dashboard layout clamps the cookie as it reads it",
     /className="[^"]*\bflex-none\b/.test(rz), false);
   t("A: …and it rides the same property it drags, so it cannot drift off the seam",
     /lg:left-\[var\(--studio-sidebar-w\)\]/.test(rz), true);
+  // `lg:grid` NOW, NOT `lg:block` — the handle centres a grip on the seam and the display mode is
+  // how. THE ASSERTION IS ABOUT `hidden` BELOW lg, which is the property that matters and has not
+  // moved; pinning the exact display keyword made a paint change fail a behaviour check.
   t("A: it does not render below lg, where there is no width to drag",
-    /className="[^"]*\bhidden\b[^"]*\blg:block\b/.test(rz), true);
+    /className="[^"]*\bhidden\b[^"]*\blg:(block|grid|flex)\b/.test(rz), true);
   // The separator contract. Driven with REAL keys (#209: a programmatic .focus() reports a false
   // negative on :focus-visible), and pinned here so the roles cannot quietly go.
   for (const [attr, re] of [
@@ -212,10 +215,12 @@ t("C: …because the blog pane sum is written as its terms, not as a total",
 t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? []).length, 1);
 // The case-study numbers get the same discipline from the start rather than after a second
 // copy appears. They have no consumers yet — PR 7 adds those — so this is the cheap moment.
+// THE INSPECTOR TERM IS GONE FROM BOTH — it is a runtime value now, added by the caller. Blog's
+// PANES_SUM above still spells 320 and still should: that pane is fixed.
 t("C: the case-study pane sum is its terms too, with the canvas floor DERIVED",
-  /export const CS_PANES_SUM = 264 \+ CS_CANVAS_MIN_PX \+ 320;/.test(home), true);
+  /export const CS_PANES_SUM = 264 \+ CS_CANVAS_MIN_PX;/.test(home), true);
 t("C: and the collapsed sum, likewise",
-  /export const CS_COLLAPSED_PANES_SUM = 27 \+ CS_CANVAS_MIN_PX \+ 320;/.test(home), true);
+  /export const CS_COLLAPSED_PANES_SUM = 27 \+ CS_CANVAS_MIN_PX;/.test(home), true);
 // 640 is DERIVED (1280 × 0.5), never written as a literal — writing it would be the second
 // copy this part exists to prevent, and it would silently survive a change to the scale floor.
 t("C: the canvas floor is computed from the scale, not spelled as a literal",
@@ -358,7 +363,18 @@ const LIST_PX = widthFrom(/"w-\[(\d+)px\] border-ink-950\/\d+"/, "list");
 // reason: the brittleness is real and the next layout utility on that element trips it. Same
 // defect studio-ink'"'"'s E6 was re-anchored for. There is exactly one aside in the shell, so matching
 // anywhere in its class list is no less specific.
-const INSPECTOR_PX = widthFrom(/<aside className="[^"]*?\bw-\[(\d+)px\]/, "inspector");
+/* ⚠ RE-ANCHORED ON THE CUSTOM PROPERTY'S FALLBACK, AND THE SPLIT IS THE POINT.
+ * The case-study inspector now drags and collapses, so its width is a cookie rather than a class
+ * literal. Blog's does NOT — that pane is fixed, because its canvas is a fixed measure and every
+ * pixel the inspector gives or takes is margin (see `inspector-width.ts`). So the aside reads
+ * `w-[var(--studio-inspector-w,320px)]`: the case study declares the property, blog never does
+ * and resolves to the fallback.
+ * THAT FALLBACK IS STILL A REAL SOURCE OF TRUTH FOR BLOG, so every blog assertion below keeps
+ * reading 320 and keeps its meaning. Only the two CASE-STUDY sums changed shape, because only
+ * they became runtime. A gate rewritten wholesale under pressure stops guarding; this splits on
+ * the property that actually moved. */
+const INSPECTOR_PX = widthFrom(/w-\[var\(--studio-inspector-w,(\d+)px\)\]/, "inspector");
+const sectionsSrc = code("components/studio/SectionsEditPanel.tsx");
 
 t("H: the list pane is 264px", LIST_PX, 264);
 t("H: the inspector pane is 320px", INSPECTOR_PX, 320);
@@ -395,10 +411,21 @@ t("I: CS_MIN_SCALE is 0.5 — the owner's floor, and a ROLE decision: the canvas
 t("I: CS_CANVAS_WIDTH_PX is 1280 — `container-x`'s cap, the width the canvas renders at before scaling",
   CS_CANVAS_WIDTH_PX, 1280);
 t("I: the canvas floor is the render width times the scale", CS_CANVAS_WIDTH_PX * CS_MIN_SCALE, CS_CANVAS_MIN_PX);
-t("I: CS_PANES_SUM is 1224 — the panes without the sidebar", CS_PANES_SUM, 1224);
-// THE COUPLING, MACHINE-CHECKED, off the SHELL'S OWN class strings rather than repeated literals.
-t("I: sidebar + list + canvas-floor + inspector IS the case-study threshold",
-  LIST_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_PANES_SUM);
+/* ⚠ 1224 -> 904: THE INSPECTOR TERM LEFT, exactly as the sidebar term left in #237. The pane is
+ * adjustable now, so a constant naming one of its widths would read as authoritative and be wrong
+ * everywhere except the default. The caller adds the live width. */
+t("I: CS_PANES_SUM is 904 — the two FIXED panes, without the sidebar or the inspector", CS_PANES_SUM, 904);
+t("I: sidebar + list + canvas-floor IS the case-study threshold, and the inspector is NOT in it",
+  LIST_PX + CS_CANVAS_MIN_PX, CS_PANES_SUM);
+// ASSERTED AS AN ABSENCE, the stronger half: a term that must not be baked in cannot be proved
+// gone by adding it up. `three-pane.ts` writes its sums as TERMS, so this reads them.
+t("I: …and neither case-study sum still spells the inspector's width",
+  /CS_PANES_SUM = 264 \+ CS_CANVAS_MIN_PX;/.test(home)
+    && /CS_COLLAPSED_PANES_SUM = 27 \+ CS_CANVAS_MIN_PX;/.test(home), true);
+// The host must ADD it back, or the threshold silently under-counts by a whole pane.
+t("I: …and the case-study host adds the live inspector width to both",
+  /fitThresholdPx=\{sidebarPx \+ CS_PANES_SUM \+ ins\.width\}/.test(sectionsSrc)
+    && /sidebarPx \+ CS_COLLAPSED_PANES_SUM \+ Math\.max\(ins\.width, CS_INSPECTOR_MIN_PX\)/.test(sectionsSrc), true);
 // The render width lives in TWO places — here and SectionsEditPanel's module-private
 // CANVAS_WIDTH. Two copies of one measurement is the #194 shape, so they are asserted equal.
 {
@@ -409,9 +436,9 @@ t("I: sidebar + list + canvas-floor + inspector IS the case-study threshold",
     m ? Number(m[1]) : NaN, CS_CANVAS_WIDTH_PX);
 }
 // THE COLLAPSED FLOOR, DERIVED AND CONFIRMED RATHER THAN ASSUMED.
-t("I: CS_COLLAPSED_PANES_SUM is 987", CS_COLLAPSED_PANES_SUM, 987);
+t("I: CS_COLLAPSED_PANES_SUM is 667", CS_COLLAPSED_PANES_SUM, 667);
 t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width AND the collapsed pane's residual border",
-  COLLAPSED_LIST_PX + RAIL_PX + CS_CANVAS_MIN_PX + INSPECTOR_PX, CS_COLLAPSED_PANES_SUM);
+  COLLAPSED_LIST_PX + RAIL_PX + CS_CANVAS_MIN_PX, CS_COLLAPSED_PANES_SUM);
 // Collapsing returns (list − rail) to the canvas. At the fit threshold that is 878px, and the
 // question the constant exists to answer is whether that clears the floor. It does, by 18.6pts.
 {
@@ -441,7 +468,7 @@ t("I: the collapsed arithmetic uses the shell's OWN reopen-rail width AND the co
  * a 900px viewport it measures 1309px inside an 885px page and would have reported "fits" where
  * nothing fits. Measuring `documentElement` is what closes it. */
 t("I: the fit threshold IS the page-space sum, exactly — the canvas gets its floor at the threshold, with nothing left over",
-  CS_PANES_SUM - LIST_PX - INSPECTOR_PX, CS_CANVAS_MIN_PX);
+  CS_PANES_SUM - LIST_PX, CS_CANVAS_MIN_PX);
 t("I: …and blog's threshold is the same shape of sum",
   PANES_SUM - LIST_PX - INSPECTOR_PX, 794);
 {
@@ -480,10 +507,15 @@ t("I: …and `isListCollapsed` is what lets that happen — an explicit open bea
 {
   const host = readFileSync(new URL("../../components/studio/SectionsEditPanel.tsx", import.meta.url), "utf8");
   t("I: the case-study editor adds the LIVE sidebar width to ITS pane sum, not blog's",
-    /fitThresholdPx=\{sidebarPx \+ CS_PANES_SUM\}/.test(host), true);
+    /fitThresholdPx=\{sidebarPx \+ CS_PANES_SUM \+ ins\.width\}/.test(host), true);
   t("I: …and names its list 'sections' at the call site", /listNoun="sections"/.test(host), true);
+  /* ⚠ AND THE FOLD TAKES `Math.max(width, MIN)`, NOT THE LIVE WIDTH, WHICH IS THE ONE PLACE THE
+   * TWO THRESHOLDS DIFFER. The fold asks "IF the inspector were shown, would three panes fit?" —
+   * feeding it a collapsed 0 answers a different question and would report that three panes fit
+   * on a page where expanding immediately drops the canvas under CS_MIN_SCALE, with nothing
+   * failing. Evaluating at the minimum errs toward folding: it over-collapses and never lies. */
   t("I: …and folds its inspector at its own derived sum rather than blog's chosen 1100",
-    /usePageWidthMin\(sidebarPx \+ CS_COLLAPSED_PANES_SUM\)/.test(host), true);
+    /usePageWidthMin\(\s*sidebarPx \+ CS_COLLAPSED_PANES_SUM \+ Math\.max\(ins\.width, CS_INSPECTOR_MIN_PX\),?\s*\)/.test(host), true);
   // On CODE, not the raw file — the comment at :729 names 1100 to say why it is NOT used, and a
   // check that punishes explaining a decision teaches people to stop explaining decisions.
   t("I: the case-study editor declares no literal breakpoint of its own — the constants are the only source",
@@ -511,8 +543,11 @@ t("I: the 1536 laptop fits three case-study panes at EVERY legal sidebar width, 
 // AND THE MARGIN IS SMALL AND DELIBERATE. At the max the canvas is 9px above the point where the
 // list would collapse — measured 649px, 0.507, one notch over its 50% floor. The clamp is doing
 // something invisible, so the number is stated rather than trusted.
+// THE INSPECTOR IS ADDED BACK EXPLICITLY HERE, at its DEFAULT, because this assertion is about the
+// reference laptop as it ships — an author who has not touched the handle. The 9px is unchanged,
+// which is the point: making the pane adjustable did not move the default geometry by a pixel.
 t("I: at the widest sidebar the reference laptop keeps 9px of headroom, and the canvas clears its floor",
-  [LAPTOP_PAGE - (SIDEBAR_MAX_PX + CS_PANES_SUM),
+  [LAPTOP_PAGE - (SIDEBAR_MAX_PX + CS_PANES_SUM + INSPECTOR_PX),
    (LAPTOP_PAGE - SIDEBAR_MAX_PX - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX > CS_MIN_SCALE], [9, true]);
 
 console.log(`\nthree-pane result: ${pass} passed, ${fail} failed`);

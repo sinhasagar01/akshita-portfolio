@@ -22,10 +22,12 @@
 // edges, so it takes no STUDIO_PAGE. The back link, the switcher and View live moved
 // into the panel's crumb row, because a bar above an edge-to-edge shell would be a
 // second header competing with the one the shell already sits under.
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getStudioData } from "@/lib/studio/data";
 import ProjectsEditPanel from "@/components/studio/ProjectsEditPanel";
 import { projectPath } from "@/lib/site";
+import { clampInspectorWidth, CS_INSPECTOR_COOKIE } from "@/lib/studio/inspector-width";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -37,6 +39,13 @@ export default async function CaseStudyEditorPage({ params }: Props) {
   const { projects } = await getStudioData();
   const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
+
+  // ⚠ READ ON THE SERVER SO THE FIRST PAINT IS CORRECT RATHER THAN CORRECTED — #237's rule, and
+  // the reason the sidebar's width does not flash. `localStorage` would guarantee the opposite:
+  // the server cannot read it, so every load would render 320 and jump on mount.
+  // CLAMPED ON THE READ, not merely on the write. A cookie stored while the bounds were wider
+  // outlives the build that allowed it; clamping here makes whatever is in the jar ADVISORY.
+  const inspectorWidth = clampInspectorWidth((await cookies()).get(CS_INSPECTOR_COOKIE)?.value);
 
   return (
     <ProjectsEditPanel
@@ -55,6 +64,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
       // Feeds the crumb row's switcher, so it and /studio/projects agree about which
       // studies exist.
       studies={projects.map((p) => ({ slug: p.slug, title: p.title }))}
+      inspectorWidth={inspectorWidth}
     />
   );
 }
