@@ -51,6 +51,7 @@ import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 import type { BlogCard } from "@/lib/keystatic";
 import { inputCls, labelCls, FieldKey, WrappingField } from "./blocks/fields";
 import { ListboxField } from "./ListboxField";
+import { type ZoomLevel } from "@/lib/studio/canvas-zoom";
 
 type HeadFields = { title: string; dek: string; date: string; topic: string; status: string };
 
@@ -67,6 +68,7 @@ export default function BlogEditPanel({
   draftImages,
   posts,
   inspectorWidth,
+  canvasZoom,
 }: {
   slug: string;
   title: string;
@@ -84,6 +86,8 @@ export default function BlogEditPanel({
   posts: readonly BlogCard[];
   /** The inspector's stored width, read and clamped on the SERVER so the first paint is right. */
   inspectorWidth: number;
+  /** The canvas zoom level, clamped on the SERVER. */
+  canvasZoom: ZoomLevel;
 }) {
   const { setUnpublished } = usePublishSignal();
   const [liveStatus, setLiveStatus] = useState(status);
@@ -289,6 +293,7 @@ export default function BlogEditPanel({
   return (
     <BlogBlocksEditPanel
       inspectorWidth={inspectorWidth}
+      canvasZoom={canvasZoom}
       slug={slug}
       // LIVE, AND WITH THE SLUG FALLBACK, so the canvas mirrors the public article exactly.
       // The read path renders `resolveSlugField(title, slug)` — title when set, slug when

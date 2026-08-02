@@ -28,6 +28,7 @@ import { getStudioData } from "@/lib/studio/data";
 import ProjectsEditPanel from "@/components/studio/ProjectsEditPanel";
 import { projectPath } from "@/lib/site";
 import { clampInspectorWidth, INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
+import { clampZoom, ZOOM_COOKIE } from "@/lib/studio/canvas-zoom";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -45,7 +46,11 @@ export default async function CaseStudyEditorPage({ params }: Props) {
   // the server cannot read it, so every load would render 320 and jump on mount.
   // CLAMPED ON THE READ, not merely on the write. A cookie stored while the bounds were wider
   // outlives the build that allowed it; clamping here makes whatever is in the jar ADVISORY.
-  const inspectorWidth = clampInspectorWidth((await cookies()).get(INSPECTOR_BOUNDS.cs.cookie)?.value, "cs");
+  const jar = await cookies();
+  const inspectorWidth = clampInspectorWidth(jar.get(INSPECTOR_BOUNDS.cs.cookie)?.value, "cs");
+  // Same rule as the widths: clamped on the READ, so a level stored under a different set of
+  // steps resolves inside today's rather than smuggling itself back in.
+  const canvasZoom = clampZoom(jar.get(ZOOM_COOKIE.cs)?.value);
 
   return (
     <ProjectsEditPanel
@@ -65,6 +70,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
       // studies exist.
       studies={projects.map((p) => ({ slug: p.slug, title: p.title }))}
       inspectorWidth={inspectorWidth}
+      canvasZoom={canvasZoom}
     />
   );
 }

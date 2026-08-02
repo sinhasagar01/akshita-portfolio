@@ -19,7 +19,7 @@ type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
-  const { unpublished, setUnpublished, draftReadError, anyPending } = usePublishSignal();
+  const { anyOccluding, unpublished, setUnpublished, draftReadError, anyPending } = usePublishSignal();
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
   const [publishMsg, setPublishMsg] = useState("");
   const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
@@ -203,6 +203,14 @@ export default function PublishBar() {
     }
   }
 
+  /* ⚠ YIELD THE CORNER WHILE SOMETHING TRANSIENT IS USING IT. `anyOccluding` is reported by the
+     Selected rail; see `useReportOccluding` for why hiding beats clearing for that one.
+     RETURNED NULL RATHER THAN HIDDEN WITH A CLASS, because a `pointer-events-auto` pill under a
+     zero-opacity wrapper is still clickable — a Publish button you cannot see but can press is
+     the worst version of this. Unmounting also drops it from the tab order, which merely painting
+     it out would not. */
+  if (anyOccluding) return null;
+
   return (
     // Task 1 full-bleed offset: lg:left-[var(--studio-sidebar-w)] shifts the fixed bar past the
     // sidebar so it centres over the WORK AREA, not the whole viewport. HAZARD:
@@ -235,11 +243,26 @@ export default function PublishBar() {
     // AVAILABLE: clearing that bar sideways means moving left of the detail column, over the list
     // rail, and centring over the work area is the decision argued above.
     // THE CLEARANCE IS MEASURED BY THE BARS THEMSELVES, with a 0px fallback so the index pages —
-    // which have no bar — keep exactly today's 20px. A fixed offset would have to clear the
+    // which have no bar — keep a plain 2rem. A fixed offset would have to clear the
     // tallest bar (117px) and would then float this 117px up on every page that has none.
-    // (The offset utility's own name is one Tailwind emits a rule for, so it is described rather
-    // than written — `css-comment-trap` caught this comment, its seventh catch on my prose.)
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--studio-bar-clearance,0px)+1.25rem)] z-50 flex justify-center px-4 transition-[bottom] duration-200 lg:left-[var(--studio-sidebar-w)]">
+    // (Both the offset utility and the transition utility are names Tailwind emits rules for, so
+    // they are described rather than written — `css-comment-trap` has now caught this one comment
+    // twice, its seventh and eighth catches on my prose.)
+    //
+    // ⚠ AND THERE IS NO TRANSITION ON IT, WHICH IS A CORRECTION RATHER THAN AN OMISSION. #284
+    // shipped a 200ms transition on the offset here to soften the move. A transition over a
+    // `calc()` that reads an UNREGISTERED custom property cannot interpolate — and it does not
+    // merely fail to animate, IT SWALLOWS THE UPDATE. Measured: the property read 117px while
+    // computed `bottom` stayed at 20px, and became correct the instant the transition was
+    // removed. So the clearance took its value on first paint and then FROZE, which is why
+    // opening the Selected rail moved nothing and the rail rendered behind this pill.
+    // THIS FILE ALREADY KNEW THE RULE, one section over: the `--gl` / `--op` note in globals.css
+    // records the same thing from the other direction, that a `color-mix` whose alpha comes from
+    // an unregistered var cannot interpolate. Registering this one as a `<length>` was tried and
+    // did not rescue the transition, so the transition goes rather than the mechanism.
+    // NO MOTION IS LOST THAT MATTERS: the rail it makes way for runs its own 340ms open, and a
+    // pill that arrives immediately is never briefly in the way.
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--studio-bar-clearance,0px)+2rem)] z-50 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
       <div
         className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))] backdrop-blur"
         {...(confirmOpen

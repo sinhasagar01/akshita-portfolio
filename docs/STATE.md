@@ -3320,6 +3320,63 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#286** the canvas zoom, and the pill yields to the Selected rail →2168 across **51 suites**
+  **THE PILL WAS NEVER CLEARING ANYTHING AFTER FIRST PAINT, AND #284's OWN DECORATION IS WHY.**
+  #284 shipped a 200ms transition on the pill's offset. A transition over a `calc()` that reads an
+  UNREGISTERED custom property cannot interpolate — and it does not merely fail to animate, **IT
+  SWALLOWS THE UPDATE**. Measured: the property read 117px while computed `bottom` stayed at 20px,
+  correct the instant the transition was removed. So the clearance took its value on load and
+  froze, which is exactly why opening the Selected rail moved nothing.
+  ⚠ **THIS FILE ALREADY RECORDED THE RULE.** The `--gl` / `--op` note in globals.css says the same
+  thing from the other direction, that a `color-mix` whose alpha comes from an unregistered var
+  cannot interpolate. Registering this one as a `<length>` was tried and did not rescue the
+  transition, so the transition went rather than the mechanism — a transition that prevents the
+  update it decorates is strictly worse than none.
+  **AND THE CLEARANCE TOOK A MAXIMUM WHERE A STACK NEEDED THE TOPMOST EDGE.** The rail sits at the
+  canvas foot and the save bar docks BELOW it when the inspector is collapsed; the maximum
+  published the bar's 62 and the pill landed inside the rail, 60 × 293px. Summing is wrong too,
+  because participants in different panes do not stack. It now asks the only question being asked
+  — how far up the viewport the furniture reaches. ⚠ **THE ARITHMETIC WAS SPLIT OUT AS A PURE
+  FUNCTION BECAUSE THE BROWSER PATH COULD NOT BE DRIVEN**: opening the rail needs a click the
+  harness cannot deliver, and a `ResizeObserver` created outside the page never fires, so injecting
+  a style proves nothing either. The part that was WRONG is now asserted directly.
+  **THE PILL ALSO YIELDS THE CORNER WHILE THE RAIL IS UP, AND THAT IS A SECOND ANSWER FOR A
+  DIFFERENT CASE.** A save bar is PERMANENT and an author may want it and Publish at once, so the
+  pill rises above it. The rail is TRANSIENT — it exists because a field was clicked, and nobody
+  reaches for Publish in the same gesture — so the pill leaves for its lifetime. It UNMOUNTS
+  rather than hiding, because a `pointer-events-auto` pill under a zero-opacity wrapper is still
+  clickable and still in the tab order.
+  **THE ZOOM IS ABSOLUTE WITH `fit` AS A LEVEL, NOT A MULTIPLIER**, which is what keeps 100%
+  meaning 100%. `fit` is the default, so nothing moves for an author who never touches it.
+  ⚠ **ZOOMING IN DID NOTHING USABLE UNTIL THE DRAWN WIDTH WAS DRIVEN.** A CSS transform creates no
+  scrollable overflow: at 125% the canvas drew 1600px inside a 1072px pane and `scrollWidth` stayed
+  1072, so the right of the render was unreachable — `canPan: false` at every level above fit. The
+  HEIGHT had solved this on the vertical axis since PR 6 and the width had not, which also means
+  the comment claiming "the pane pans below the floor" had been false the whole time. Measured
+  after: scrollWidth 1600 at 125%, 1920 at 150%, `canPan: true`.
+  ⚠ **AND MY FIRST BLOG BUILD MOVED THE LOCKED MEASURE.** Compensating the wrapper's width by
+  `100/scale` kept the drawn result the pane's width and took the column from 746 to **659 at
+  150%**, because `max-w-[68ch]` was capped by the available width. The locked decision is that the
+  measure is a NUMBER. Compensation removed; measured after, 746 at every level.
+  **THE INCREMENT IS 10%, THE OWNER'S CALL AND NOT DERIVED.** At quarter-steps the first press from
+  a typical 84% fit threw the canvas to 100% with no way to nudge. Eleven stops across the same
+  50…150% span. The pill's offset moved to 2rem in the same pass.
+  ⚠ **AN EDIT OF MINE CORRUPTED THE PILL'S OFFSET TO `bottom-[2rem)]` AND EVERY GATE PASSED.** A
+  broken arbitrary value Tailwind generates NOTHING for, so the pill silently fell back to its
+  static position — hazard 23's shape. `tsc` and `lint` both passed, because it is a valid string
+  inside valid JSX. It surfaced only because a later request made me grep for the literal. The
+  suite now asserts the arbitrary value in full AND the absence of a malformed remnant.
+  ⚠ **AND MOST OF THIS SESSION'S FALSE LEADS WERE STALE DEV BUNDLES** — three separate times a
+  "bug" was a corrupted `.next` and a clean restart fixed it, including one that made a correct
+  registration look like it had never run. Restart before diagnosing, not after.
+  14 mutations, 14 killed. New parts F/H/I in `studio-resize`. Public output byte-identical on all
+  five pages; CSS +31 rules, −4.
+  **⚠ NOT PROVEN, AND STATED RATHER THAN IMPLIED: the blog caret under transform.** The owner asked
+  for click-to-caret to be driven at several zoom levels. The probe written for it reports the
+  wrong element even at 100%, where there is no transform at all, so it is the probe that is
+  broken and there is no evidence either way. Recorded as an owner-only verification rather than
+  claimed.
+
 - **#284** the clipped blog fields, and the pill stops landing on the save bar →2141 across **51 suites**
   Two limits this arc RECORDED rather than fixed, closed together. Both were measured when they
   were recorded, so neither needed re-litigating — only building.

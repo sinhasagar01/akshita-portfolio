@@ -29,6 +29,7 @@ import { getBlogPost } from "@/lib/keystatic";
 import { getEntryDraftState } from "@/lib/studio/entry-draft";
 import BlogEditPanel from "@/components/studio/BlogEditPanel";
 import { clampInspectorWidth, INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
+import { clampZoom, ZOOM_COOKIE } from "@/lib/studio/canvas-zoom";
 import { blogPath } from "@/lib/site";
 import type { BlogRawBlock } from "@/lib/blog/blocks-raw";
 
@@ -58,13 +59,14 @@ export default async function BlogEditorPage({ params }: Props) {
   // Clamped on the READ against BLOG'S OWN bounds: the two inspectors measure different minimums
   // (185 here, 267 on the case study), so a width stored on one surface must not arrive at the
   // other outside its range. That is why there are two cookies rather than one.
-  const inspectorWidth = clampInspectorWidth(
-    (await cookies()).get(INSPECTOR_BOUNDS.blog.cookie)?.value, "blog",
-  );
+  const jar = await cookies();
+  const inspectorWidth = clampInspectorWidth(jar.get(INSPECTOR_BOUNDS.blog.cookie)?.value, "blog");
+  const canvasZoom = clampZoom(jar.get(ZOOM_COOKIE.blog)?.value);
 
   return (
     <BlogEditPanel
       inspectorWidth={inspectorWidth}
+      canvasZoom={canvasZoom}
       slug={slug}
       title={post.title}
       // Resolved HERE, on the server. `lib/site.ts` imports node:fs at module scope, so a
