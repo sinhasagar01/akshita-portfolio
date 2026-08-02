@@ -475,7 +475,7 @@ export function ListDetailLayout({
             // and 147px below it scrolled-up. So the rail appeared to have a footer rule exactly
             // when it did not need one, and lost it the moment anyone scrolled up. The rule
             // belongs to the FOOTER, which does not move.
-            <div className="border-t border-ink-950/12 px-3 py-[11px]">
+            <div className="border-t border-ink-950/12 px-3 py-[12.5px]">
               <button
                 type="button"
                 onClick={handleAdd}

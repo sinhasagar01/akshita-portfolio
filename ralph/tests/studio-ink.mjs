@@ -520,7 +520,13 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
       const src = readStudio(f);
       return IMPORTS_LIST_ITEM.test(src) && /<section/.test(src);
     });
-  const BAR = 'className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-3"';
+  // THE LITERAL MOVED WITH THE DESIGN, `py-3` -> `py-[19px]`, AND THE RULE DID NOT.
+  // E6 asserts the seven entry panels open with the SAME bar; it has no opinion about which
+  // padding that bar carries. All seven changed together, so they stayed byte-identical to each
+  // other and only this reference was stale — the failure mode a hardcoded literal has.
+  // IT STAYS A LITERAL ANYWAY. Deriving the bar from one panel and comparing the rest to it would
+  // make whichever file sorts first the silent definition, and a drift in THAT file would pass.
+  const BAR = 'className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]"';
   const missing = entryPanels.filter((f) => !readStudio(f).includes(BAR));
   t("E6: every entry panel opens with the cream-200 bar, byte-identical — the by-role counterpart to the inspector's ink band",
     missing, []);
