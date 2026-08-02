@@ -73,10 +73,15 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 ## Open items
 
-- Real outcome numbers for Fosfor AI and Fosfor Data Profiling. This is the one that blocks
-  finished copy.
+- The five experience descriptions are still empty. Write them or decide to drop the field. The
+  decision is worth as much as the copy, and leaving it undecided is what has kept it open.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
+
+Outcome numbers for Fosfor AI and Fosfor Data Profiling used to sit at the top of this list as the
+one thing blocking finished copy. Both case studies now carry a statCards block with specific
+figures, so that is no longer the blocker. Whether the figures are final is a judgement only the
+owner can make, which is a different question from whether the fields are filled.
 
 The light editorial direction was confirmed long ago and the tokens are set. That question is
 closed.
