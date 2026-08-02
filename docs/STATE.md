@@ -3320,6 +3320,63 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#287b** main was red, and the derivation that failed had silently retargeted
+  **`545f2ac` "Remove useless info copies" LANDED ON MAIN DIRECTLY, ON TOP OF #286, AND LEFT RALPH
+  FAILING.** Two info paragraphs went — the Content|Style tab hint and the bold-syntax line under
+  the field panel — with their lines in two contract docs. A deliberate design decision, and
+  `studio-labels` G1 to G4 were pinned to the first of them. **Every subsequent PR's CI would have
+  failed on it**, which is how it was found: a doc-only branch went red.
+  **THE GATE FOLLOWS THE DECISION RATHER THAN THE DECISION FOLLOWING THE GATE.** Restoring copy
+  someone deleted for being useless, to make an assertion green, is the tail wagging the dog. The
+  three assertions are retired with their reasoning kept — 11px, inset rather than flush at 1px,
+  and an inset DERIVED from the tablist's `mx-` so the two could not drift — because those are the
+  properties any future hint under that tablist would need.
+  **⚠ AND THE FAILURE WAS MORE INTERESTING THAN A STALE ASSERTION. The derivation did not go empty,
+  IT RETARGETED.** It read `<div id="cs-fieldtab-panel">[\s\S]*?</p>` and took the first
+  `<p className>` inside. With the hint deleted the non-greedy window ran on to the next `</p>` in
+  the file — **7,526 characters away** — and began reporting an unrelated paragraph's classes. So
+  three assertions were not merely stale, they were describing a different element, and G4's
+  absence check was being applied to that one as well.
+  **A WINDOW THAT ENDS AT "THE NEXT X" WILL ALWAYS FIND ONE. IT CANNOT REPORT ABSENCE, ONLY A
+  WRONG ANSWER.** Third instance of that shape in this arc, after `<SaveBar` matching
+  `<SaveBarMoved` on a prefix and `\bhidden\b` matching `overflow-hidden`. **The pattern is
+  unanchored matching, and the fix is always the same: assert the boundary, or assert the absence.**
+  What replaces them is an absence plus a LIVENESS check, so the block cannot repeat the mistake it
+  documents — if the tablist or the panel ever goes, the absence would pass for the wrong reason
+  and nobody would know. 3 mutations, 3 killed, including "the copy reappears" and "the tablist
+  goes". ralph green again at 2167.
+
+- **#287** the blog caret under transform, proven — and the probe was the defect three times over
+  **THE FEATURE WAS NEVER IN DOUBT ONCE A CONTROL EXISTED. 180 samples, 178 correct, and BOTH
+  MISSES AT THE UNTRANSFORMED 100%.** Every zoomed level — 50, 60, 70, 80, 90, 110, 120, 130, 140,
+  150 — measured **15 of 15**. A CSS transform over contenteditable prose does not move
+  click-to-caret.
+  **THE PROBE IS THE WHOLE STORY, AND IT WAS WRONG IN THREE DIFFERENT WAYS BEFORE IT WAS RIGHT.**
+  Each one read as a defect in the feature.
+  1. **IT WAS NOT MEASURING THE CANVAS.** The first version took
+     `document.querySelectorAll('[contenteditable]')[1]` — an INSPECTOR field, outside the
+     transform entirely. It reported failure at every level including 100%, which is what made
+     #286 ship with the caret unproven.
+  2. **IT MEASURED POINTS THAT WERE NOT ON SCREEN.** A hit-test only answers for a point in the
+     viewport, and above 100% the paragraphs sit below the fold, so a whole sweep returned ZERO
+     samples per level — and zero samples read as failure rather than as no result. **A gate that
+     cannot distinguish "no evidence" from "negative evidence" is worse than no gate.**
+  3. **IT MEASURED WHILE THE PAGE WAS STILL MOVING.** The canvas scroller carries `scroll-smooth`,
+     so `scrollIntoView` ANIMATES. Taking a Range rect at t and hit-testing it at t+ε mid-scroll
+     produced misses that moved between levels run to run — the signature of noise, not drift.
+     `behavior: "instant"` removed them.
+  **AND THE MEASUREMENT THAT SETTLED IT WAS THE CONTROL, NOT THE SAMPLE.** Blog applies NO style at
+  all at 100% — `zoomScale === 1 ? undefined : {…}` — so that level is a true untransformed
+  baseline. Every residual miss landed there, three separate times. Once the failures were
+  reproducing on the level with no transform, the transform was no longer a candidate. **The
+  question was never "does the caret work"; it was "is the transform the variable", and only a
+  control can answer that.**
+  The last residual is deterministic rather than noisy — `41→0` at 100%, twice — and it is a line
+  the paragraph wraps at, where clicking the end of a visual line legitimately resolves to the
+  start of the next. Not chased further, because it reproduces where nothing is transformed.
+  **NO SOURCE CHANGED.** This is verification and a correction to #286's record, which said there
+  was no evidence either way. There now is.
+
 - **#286** the canvas zoom, and the pill yields to the Selected rail →2168 across **51 suites**
   **THE PILL WAS NEVER CLEARING ANYTHING AFTER FIRST PAINT, AND #284's OWN DECORATION IS WHY.**
   #284 shipped a 200ms transition on the pill's offset. A transition over a `calc()` that reads an
@@ -3371,11 +3428,8 @@ from a run on main after the merge**, not from the PR's own CI.
   registration look like it had never run. Restart before diagnosing, not after.
   14 mutations, 14 killed. New parts F/H/I in `studio-resize`. Public output byte-identical on all
   five pages; CSS +31 rules, −4.
-  **⚠ NOT PROVEN, AND STATED RATHER THAN IMPLIED: the blog caret under transform.** The owner asked
-  for click-to-caret to be driven at several zoom levels. The probe written for it reports the
-  wrong element even at 100%, where there is no transform at all, so it is the probe that is
-  broken and there is no evidence either way. Recorded as an owner-only verification rather than
-  claimed.
+  **⚠ THE BLOG CARET UNDER TRANSFORM WAS LEFT UNPROVEN HERE, AND IS PROVEN IN #287.** It holds —
+  180 samples, 178 correct, and BOTH misses at the untransformed control. See that entry.
 
 - **#284** the clipped blog fields, and the pill stops landing on the save bar →2141 across **51 suites**
   Two limits this arc RECORDED rather than fixed, closed together. Both were measured when they

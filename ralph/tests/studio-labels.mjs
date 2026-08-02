@@ -269,40 +269,37 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
  * actually rests on. */
 {
   const sections = read("components/studio/SectionsEditPanel.tsx");
-  const panel = sections.match(/<div id="cs-fieldtab-panel"[\s\S]*?<\/p>/)?.[0] ?? "";
-  const hint = panel.match(/<p className="([^"]+)">/)?.[1] ?? "";
-  // THE NEIGHBOUR MOVED FROM THE BUTTON TO THE CONTAINER (#263). The tabs were an underlined row
-  // whose BUTTONS carried `px-3`; they are now a segmented control whose CONTAINER carries `mx-3`,
-  // with the buttons `flex-1` inside it. So the thing the hint must line up with is the container,
-  // and the assertion reads it there. **The PROPERTY is unchanged** — measured after the change,
-  // the container's edge and the hint's ink both land at 13 — which is why this is a moved anchor
-  // rather than a relaxed rule.
-  //
-  // The earlier note still applies and is why both sides are required to resolve: a `{0,400}`
-  // window once missed a padding sitting ~700 chars in and returned `undefined`, which would have
-  // compared equal to a missing hint padding and passed for the wrong reason.
-  //
-  // COMMENTS STRIPPED FIRST, AND THE FIRST DRAFT OF THIS DID NOT — the sixth firing of the comment
-  // trap in this repo. The new control's own comment explains the change and therefore contains
-  // the string `role="tablist"`, so a regex anchored on that matched the PROSE and returned no
-  // className at all. Anchored on the aria-label, which appears once and only in markup.
-  const bare = sections.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  const tablistPad = bare
+  /* ⚠ THE HINT WAS REMOVED IN `545f2ac`, DELIBERATELY, AND THE OLD DERIVATION DID NOT GO EMPTY —
+   * IT SILENTLY RETARGETED. It read `<div id="cs-fieldtab-panel">[\s\S]*?</p>` and took the first
+   * `<p className>` inside. With the hint deleted the non-greedy window simply ran on to the next
+   * `</p>` in the file — 7,526 characters away — and started reporting an UNRELATED paragraph's
+   * classes. So the three assertions built on it were not merely stale, they were describing a
+   * different element, and G4's absence check was being applied to that one too.
+   * **A WINDOW THAT ENDS AT "THE NEXT X" WILL ALWAYS FIND ONE. It cannot report absence, only a
+   * wrong answer**, which is the same shape as the prefix match that survived a mutation in
+   * `studio-save-bar` and the `\bhidden\b` that matched `overflow-hidden` in `three-pane`.
+   *
+   * WHAT THE RETIRED ASSERTIONS SAID, kept because the reasoning outlives the element: the hint
+   * was 11px, INSET rather than flush against the pane border at 1px, and its inset was DERIVED
+   * from the tablist container's `mx-` so the two could not drift. `leading-[1.5]` was in the
+   * contract and deliberately absent, because studio-cascade C1 proved it inert against the
+   * studio reset — that finding is about the RESET and C1 still holds it. If a hint ever returns
+   * under this tablist, those are the properties it needs.
+   *
+   * WHAT REPLACES THEM IS AN ABSENCE PLUS A LIVENESS CHECK. The absence is the real assertion —
+   * copy deleted for being useless should not reappear without a decision. The liveness check is
+   * what stops THIS block repeating the mistake it documents: if the tablist itself ever goes,
+   * the absence would pass for the wrong reason and nobody would know. */
+  const sectionsBare = sections.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const tablistPad = sectionsBare
     .match(/aria-label="Section content and style"[\s\S]{0,300}?className="([^"]+)"/)?.[1]
     ?.match(/\bmx-(\d)\b/)?.[1] ?? null;
-  const hintPad = hint.match(/\bpx-(\d)\b/)?.[1] ?? null;
 
-  t("G1: the tab hint is 11px, the contract's size", /text-\[11px\]/.test(hint), true);
-  t("G2: …and it is inset, no longer flush against the pane border at 1px", hintPad !== null, true);
-  t("G3: the hint's inset EQUALS the tablist container's — derived from both, so they cannot drift",
-    hintPad !== null && tablistPad !== null && hintPad === tablistPad, true);
-
-  /* G4 — `leading-[1.5]` IS IN THE CONTRACT AND IS DELIBERATELY ABSENT. studio-cascade C1 proved it
-   * inert: the studio reset already sets that line-height on <p>, so the utility would not drive the
-   * result. Asserted so a later pass cannot "restore the missing contract value" and reintroduce a
-   * class that does nothing. The contract's number is already the rendered number. */
-  t("G4: no inert leading utility on the hint — studio-cascade C1 proved it would not drive",
-    /\bleading-/.test(hint), false);
+  t("G1: the tab hint's copy is gone and stays gone — removed deliberately in 545f2ac",
+    /Copy for this section, including the Rich|double asterisks/.test(sectionsBare), false);
+  t("G2: …and the tablist it sat under is still here, so G1 is an absence rather than a vacuous pass",
+    tablistPad !== null, true);
+  t("G3: …and the panel it sat in is still here too", /id="cs-fieldtab-panel"/.test(sectionsBare), true);
 }
 
 /* ---- G5 · THE LIVE-PREVIEW HINT IS A SENTENCE, SO IT IS NOT SET LIKE A LABEL ----------------
