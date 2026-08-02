@@ -1591,7 +1591,15 @@ All prior locked decisions remain. Added across this session:
 - **`category` is editorial taxonomy, never derived from `template`.**
 - **A new field needs BOTH the sanitizer AND the serializer.**
 - **Work cards are one block-level `<Link>`.** **No card magnification.**
-- **Filter: last-intent queue.** **Empty category → All only. Empty blog status → HIDDEN.**
+- **Filter: last-intent queue.** **Empty category → All only.**
+  ~~**Empty blog status → HIDDEN.**~~ — **OVERRULED BY THE OWNER IN #276, before merge.** It was
+  implemented as hiding the whole status strip when no drafts exist, on the argument that "All"
+  and "Published" then show an identical set so all three tabs are inert. **The owner's reading is
+  that the tabs are also a READOUT**: "Drafts 0" answers "is anything unpublished?" without a
+  click, and hiding the strip makes that answer available only by noticing an absence. The strip
+  is now unconditional and an empty Drafts lands on a sentence. **The original reasoning is struck
+  through rather than deleted**, per the standing rule — a reversal whose reasoning is deleted
+  leaves two contradictory rationales and no record of which won.
 - **The studio authors NO global CSS.** Blog authored CSS is `blog-`prefixed, proven.
 - **`SegmentedToggle` posts patches** and its **accent-fill selected convention is the
   studio's**. `aria-pressed` is correct for a two-state selection.
@@ -3311,6 +3319,82 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 `b82cc37` = #255 (the unit into the well), `f6a0215` = #254 (the pill everywhere), `438015b` = #253
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
+
+- **#276** the blog index — post cards, two views, status tabs →1991 across **49 suites**
+  (`studio-blog-index` 34 new; `studio-ink` 274→278 with F5 revalued, E2 revalued, H5 UN-retired
+  and C8 re-anchored). Contract: `docs/studio/studio-blog-index-contract.html`.
+
+  The index was a bare `<ul>` of flex rows: no measure, so a title sat at the far left of a
+  ~2100px row; status was a **6px dot** nobody reads; and every post had a hero the page never
+  showed.
+
+  **⚠ THE SELECTION RULE THE BRIEF CITED IS THE SUPERSEDED WORDING, AND THE ANSWER SURVIVED
+  ANYWAY.** The brief said *"role=tablist + aria-selected → underline, per correction 20"*.
+  `studio-ink` C4 records that **#263 replaced that rule** and keeps the old text beside the new
+  so a reversal is not read as drift. The rule in force is BY FUNCTION: a two-state MODE switch
+  takes the FILL, a switch between CONTENT SETS takes the UNDERLINE. Status swaps WHICH posts are
+  shown, so it is a content-set switch, so it is the underline; view arranges the SAME posts, so
+  it is the fill. **Same conclusion, reached from the rule that actually decides.** Citing the old
+  wording would have been citing a rule that decides nothing.
+
+  **THE TABLIST SHIPPED CONDITIONAL AND THE OWNER OVERRULED IT BEFORE MERGE, AND BOTH SIDES ARE
+  KEPT.** It was the first implementation of STATE:1594's locked *"Empty blog status → HIDDEN"* —
+  a one-line entry with no code behind it and no stated interpretation — and the reading written
+  into source was that with zero drafts **all THREE tabs are inert, not just Drafts**, since All
+  and Published show an identical set.
+  **THE REVERSAL'S ARGUMENT IS THAT THIS TREATS THE TABS ONLY AS CONTROLS.** They are also a
+  READOUT: "Drafts 0" answers *is anything unpublished?* without a click, on every load, and
+  hiding the strip makes that answer available only by noticing an ABSENCE — the one thing an
+  author cannot notice. So the strip is unconditional, Drafts sits at 0, and choosing it lands on
+  a sentence rather than a blank pane. **The locked entry at :1594 is struck through, not
+  deleted**, and the original reasoning stays in `BlogIndex.tsx` beside the new one.
+  Driven both ways on real data — the full strip with correct counts on today's all-published
+  content, and again with a post flipped to draft.
+
+  **⚠ THE CONTRACT'S DRAFT COLOUR FAILED CONTRAST AND THE RASTERISER CORRECTED IT.** No amber
+  existed; today's draft was a grey `ink-400` dot, which says DISABLED rather than NOT PUBLISHED
+  YET. The contract draws `oklch(52% 0.1 75)`. **Measured, the chip's text over its own fill read
+  4.56 on cream-50 and 4.36 on cream-100** — under the 4.5 a 9px/600 label needs, so the drawn
+  value would have shipped a chip failing on one of the two grounds it lands on. **48% clears
+  both**: 5.28 / 5.05 / 4.61 across cream-50/100/200, published 5.65 / 5.41 / 4.94, the bar 6.35 /
+  6.04, sanity pair 21 and 1 first. ONE token with two alphas, not three with one consumer each.
+
+  **⚠ AND THE CHIP SAT ON A PHOTOGRAPH, WHICH IS A CONTRAST THAT CANNOT BE MEASURED.** The
+  contract puts the status chip on the hero and does not say what is under it. Measured with
+  `elementsFromPoint`, the element behind the published chip is the `<img>` itself — so its 12%
+  fill left the label on arbitrary pixels that change with every hero. Given an opaque cream-50
+  ground, so one measurement now covers both views. **Found by asking what was actually behind
+  it rather than by assuming the card was.**
+
+  **THE ROW'S TRACKS, DRIVEN AT THREE WIDTHS.** thumb **64**, status **75.7**, meta **180.1**,
+  remove **26** — constant at 900, 1280 and 1800 — while only the text track moves, **420 → 548 →
+  1068**. Titles single-line at 19px throughout. The card body reserves 36px and **holds it under
+  both the shortest and the longest substituted dek**, so every card is exactly 306px and the
+  grid's rows align. THE ROW HAS FIVE TRACKS WHERE THE CONTRACT DRAWS FOUR, because it carries a
+  remove button the contract omits — folding a control into the meta is the fold that let a
+  cluster stretch next door.
+
+  **FIVE LINE-NUMBER CITATIONS ROTTED, AND THE GATE HAD THE SAME DEFECT.** Adding one token to
+  `@theme` moved `scrollbar-gutter` from line 222 to 236 and invalidated **five source comments**
+  citing `globals.css:222`, `:271` and `:278` — and `studio-ink` **C8 asserted the CONTENT of line
+  222**, so the gate encoded the same fragility it was protecting. All six are re-anchored to the
+  RULE, which cannot drift when something is inserted above it.
+
+  **`studio-ink` E2 REVALUED AND H5 UN-RETIRED, both because a cause moved rather than a rule.**
+  `BlogIndex` LEFT the inline flex-child family: its local input copy existed because the shared
+  export's `w-full` fought the `flex-1` its old toolbar needed, and the new layout puts the field
+  in a stated-width wrapper, so the fight — and the reason — is gone. And H5, retired in #275 when
+  its only subject was deleted, has a population again: the two dashed empty-hero markers, which
+  the original rule covers unchanged.
+
+  **A MUTATION FOUND A HOLE IN MY OWN ASSERTION.** A2 was written as
+  `underlinePresent && fillPresent === false`, which **passes when the underline is REPLACED by
+  the fill** — `false && true` is the expected `false`. The mutation swapping one for the other
+  survived it. Split into two assertions; both now kill.
+
+  Public home DOM byte-identical at 62,675 bytes. CSS **+1,414 raw and +147 brotli**, 22 rules
+  added and 1 removed, and the draft token verified present in the built sheet rather than
+  phantom. lint 0, tsc clean.
 
 - **#275** the case-studies index — two views, one switcher →1955 across **48 suites**
   (`studio-index` 49 new; `studio-ink` 273→275 with F5 revalued and H5 retired; `studio-cascade`

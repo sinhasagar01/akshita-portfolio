@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getStudioData } from "@/lib/studio/data";
 import CaseStudyIndex from "@/components/studio/CaseStudyIndex";
 import { STUDIO_PAGE } from "@/lib/studio/page-class";
-import { INDEX_VIEW_COOKIE, parseIndexView } from "@/lib/studio/index-view";
+import { indexViewCookie, parseIndexView } from "@/lib/studio/index-view";
 
 export default async function StudioProjects() {
   // getStudioData().projects is F-2's draft-overlaid list — it already reflects
@@ -17,7 +17,7 @@ export default async function StudioProjects() {
   // value belongs to one, so putting it there would thread a projects-only prop through nine
   // surfaces that never read it. Same shared-seam question #239, #240 and #244 each answered
   // the same way. The route is already dynamic — it awaits getStudioData — so the jar is free.
-  const view = parseIndexView((await cookies()).get(INDEX_VIEW_COOKIE)?.value);
+  const view = parseIndexView((await cookies()).get(indexViewCookie("projects"))?.value);
 
   return (
     <div className={STUDIO_PAGE}>

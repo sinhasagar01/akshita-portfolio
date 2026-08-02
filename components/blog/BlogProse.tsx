@@ -94,7 +94,7 @@ function VideoEmbed({
             on top: the still shows while the embed loads and is covered once it paints,
             which is the whole job of a poster. Decorative — the caption and the iframe
             title carry the meaning, so an empty alt is correct.
-            The class is authored CSS, not utilities: globals.css:271 has an UNLAYERED
+            The class is authored CSS, not utilities: globals.css has an UNLAYERED
             `img, video { height: auto }` that beats `@layer utilities`, so `h-full` does
             not apply to an <img> anywhere in this project. */}
         {poster ? (

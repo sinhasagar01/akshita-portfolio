@@ -146,8 +146,19 @@ t("E4: …and takes its options as data rather than hardcoding a pair",
 
 /* localStorage guarantees a flash of the wrong view on every load, because the server cannot
  * read it. The cookie is resolved server-side so the first HTML is already right. */
-t("F1: the view has a cookie and a parse",
-  /INDEX_VIEW_COOKIE = "studio-projects-view"/.test(viewLib) && /export function parseIndexView/.test(viewLib), true);
+/* GENERALISED AT THE SECOND CONSUMER. It shipped in #275 as a bare `INDEX_VIEW_COOKIE` constant
+ * for projects alone; the blog index is the second, so it became a function keyed by collection
+ * rather than a second constant beside the first — the threshold `ThreePaneShell` and
+ * `blog-search.ts` were both held to.
+ * ONE COOKIE PER COLLECTION, NOT ONE SHARED VALUE: an author may want studies as cards and posts
+ * as rows, and a single key would make choosing on one page silently change the other. */
+t("F1: the view has a per-collection cookie and a parse",
+  /export function indexViewCookie\(collection: IndexCollection\)/.test(viewLib)
+    && /return `studio-\$\{collection\}-view`/.test(viewLib)
+    && /export function parseIndexView/.test(viewLib), true);
+
+t("F1: …and the collection set is closed, so a typo is a compile error",
+  /export type IndexCollection = "projects" \| "blog"/.test(viewLib), true);
 
 t("F2: the default is GRID — recognising a hero beats reading a title when picking a study",
   /INDEX_VIEW_DEFAULT: IndexView = "grid"/.test(viewLib), true);
@@ -158,7 +169,7 @@ t("F3: an unknown stored value falls back rather than rendering nothing",
   /return raw === "list" \? "list" : INDEX_VIEW_DEFAULT/.test(viewLib), true);
 
 t("F4: the ROUTE reads the jar, not the ten-page dashboard layout",
-  /parseIndexView\(\(await cookies\(\)\)\.get\(INDEX_VIEW_COOKIE\)/.test(route), true);
+  /parseIndexView\(\(await cookies\(\)\)\.get\(indexViewCookie\("projects"\)\)/.test(route), true);
 
 /* F5 · THE 60rem CAP IS DELIBERATELY ABSENT, AND THE ASSERTION IS INVERTED RATHER THAN DELETED.
  * It shipped WITH the cap and the owner reversed that before merge. #239's field measure exists
@@ -279,5 +290,5 @@ t("I2: it carries the sentence the page is about",
 t("I3: …and it announces, because the text changes as the author types",
   /role="status"\s*\n\s*aria-live="polite"/.test(index), true);
 
-console.log(`\nstudio-index result: ${49 - failures} passed, ${failures} failed`);
+console.log(`\nstudio-index result: ${50 - failures} passed, ${failures} failed`);
 process.exit(failures === 0 ? 0 : 1);

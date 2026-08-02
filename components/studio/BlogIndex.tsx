@@ -46,20 +46,55 @@
 // boundary (#173). A reorder control here would be a lie.
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { useReportCount } from "./StudioCountsProvider";
 import StudioEmptyState from "./StudioEmptyState";
-import { IconPlus, IconX } from "./icons";
-import { formatShortDate } from "@/lib/blog/format";
+import { IconPlus } from "./icons";
 import { filterBlogPosts } from "@/lib/studio/blog-search";
 import type { BlogCard } from "@/lib/keystatic";
 import { inputCls } from "./blocks/fields";
+import AreaHeader from "./AreaHeader";
+import SegmentedGroup from "./SegmentedGroup";
+import BlogPostCard from "./BlogPostCard";
+import BlogPostRow from "./BlogPostRow";
+import BlogStatusTabs, { type StatusFilter } from "./BlogStatusTabs";
+import { isPublished } from "./BlogStatusChip";
+import { indexViewCookie, type IndexView } from "@/lib/studio/index-view";
+import { IconGrid, IconInfo, IconList } from "./icons";
 
-export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
+const VIEW_OPTIONS = [
+  { value: "grid" as const, label: "Grid", icon: <IconGrid /> },
+  { value: "list" as const, label: "List", icon: <IconList /> },
+];
+
+/** The tabs control this element, and a tablist that names no panel is decoration. */
+const PANEL_ID = "blog-post-panel";
+
+export default function BlogIndex({
+  posts,
+  initialView,
+}: {
+  posts: BlogCard[];
+  initialView: IndexView;
+}) {
   const router = useRouter();
   const [items, setItems] = useState<BlogCard[]>(posts);
   const [query, setQuery] = useState("");
+
+  // SEEDED FROM THE SERVER, PERSISTED ON CHANGE — #237's mechanism, so the first HTML is the
+  // right view and there is nothing for hydration to correct.
+  const [view, setView] = useState<IndexView>(initialView);
+  function chooseView(next: IndexView) {
+    setView(next);
+    document.cookie = `${indexViewCookie("blog")}=${next}; path=/; max-age=31536000; samesite=lax`;
+  }
+
+  /* ⚠ THE STATUS FILTER IS DELIBERATELY NOT REMEMBERED, and that asymmetry is the point.
+   * The VIEW is a preference — how you like to look at a list — and it is safe to restore.
+   * The FILTER is a transient question about right now. An author who filtered to Drafts last
+   * week and returns to a page showing one post out of four would read it as posts MISSING, not
+   * as a filter still applied. So it resets to "all" on every load and lives only in state. */
+  const [status, setStatus] = useState<StatusFilter>("all");
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
@@ -73,7 +108,45 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
   // The filter moved to lib/studio/blog-search.ts when the three-pane list pane needed the
   // same behaviour. Same function, not a second copy — two search filters is how the index
   // and the rail start disagreeing about which posts exist.
-  const shown = useMemo(() => filterBlogPosts(items, query), [items, query]);
+  const searched = useMemo(() => filterBlogPosts(items, query), [items, query]);
+  const shown = useMemo(
+    () =>
+      status === "all"
+        ? searched
+        : searched.filter((p) => (status === "published" ? isPublished(p.status) : !isPublished(p.status))),
+    [searched, status]
+  );
+
+  /* ---- THE TABLIST IS ALWAYS PRESENT ---------------------------------------------------------
+   *
+   * ⚠ THIS REVERSES A LOCKED DECISION, AND THE ORIGINAL REASONING STAYS RATHER THAN BEING
+   * DELETED — the standing rule this file already follows for its own reversed layout decision,
+   * because a reversal whose reasoning is deleted leaves two contradictory rationales and no
+   * record of which won.
+   *
+   * WHAT IT SHIPPED AS, AND WHY. STATE held "Empty blog status -> HIDDEN", and #276 implemented
+   * it as hiding the WHOLE strip: with zero drafts, "All" and "Published" show an identical set,
+   * so all three tabs are inert rather than just "Drafts", and a control that cannot do anything
+   * is the shape this project has deleted four times.
+   *
+   * WHY THE OWNER OVERRULED IT. That argument is about the tabs as CONTROLS and misses what they
+   * also are: a READOUT. "Drafts 0" is not a dead button, it is the answer to "is anything
+   * unpublished?" — and it answers WITHOUT a click, every time the page loads. Hiding the strip
+   * makes that answer available only by noticing an absence, which is the one thing an author
+   * cannot notice. The count is the feature; the filtering is what you do after reading it.
+   * So the strip is unconditional, "Drafts" sits at 0, and choosing it lands on an empty state
+   * that says so in words.
+   *
+   * THE COUNTS STILL FOLLOW THE SEARCH, so a tab never promises posts the search already
+   * excluded — that half was right and is unchanged. */
+  const counts: Record<StatusFilter, number> = useMemo(
+    () => ({
+      all: searched.length,
+      published: searched.filter((p) => isPublished(p.status)).length,
+      draft: searched.filter((p) => !isPublished(p.status)).length,
+    }),
+    [searched]
+  );
 
   // CAPTURE-THEN-CREATE, identical to Experience and Projects: title only, the slug is
   // DERIVED SERVER-SIDE and echoed back, the entry is created immediately, then straight
@@ -136,79 +209,133 @@ export default function BlogIndex({ posts }: { posts: BlogCard[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* THE TOOLBAR IS A SURFACE, and this is the one site in the sweep where the fix had to
-          CREATE a ground rather than recolour one. Measured, the search well was cream-50
-          sitting directly on the page's cream-50 `main` — 1.00, no panel between them. The rule
-          is relational (blocks/fields.tsx:151-166) and cream-50 is the ladder's BOTTOM step, so
-          a well on a bare cream-50 page cannot be made to read by changing the input; it needs a
-          darker surface to sit in. cream-100 is the field-surface step, and it matches the
-          precedent next door — BlogPostList's identical search reads correctly because the rail
-          holding it is darker. */}
-      <div className="flex flex-wrap items-center gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-3">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search posts"
-          aria-label="Search posts"
-          // DELIBERATELY LOCAL — the FLEX-CHILD family (see ralph's studio-ink suite). The
-          // shared exports hardcode a full-width utility that fights `flex-1` in this row;
-          // see ChipListEditor for the full reasoning. 13px is intent, not drift — the
-          // search family (StudioSearch, BlogPostList) is 13px. The well tracks
-          // blocks/fields.tsx exactly.
-          className="min-h-11 min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30"
+      {/* ---- THE HEAD ROW — TITLE AND CONTROLS ON ONE LEVEL, matching the case-studies index.
+          `AreaHeader` is rendered HERE rather than by the route so it can share a flex row with
+          controls that need client state; it is presentational with no hooks, and #244's rule is
+          about not CAPPING it rather than about who renders it. */}
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <AreaHeader
+          title="Blog"
+          sub="Short posts. A new post starts as a draft and stays off /blog until you publish it."
         />
-        <button
-          type="button"
-          onClick={() => {
-            setTitle("");
-            setError(null);
-            setAdding(true);
-          }}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[12.5px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
-        >
-          <IconPlus /> New post
-        </button>
+        <div className="flex shrink-0 items-center gap-2.5">
+          <SegmentedGroup
+            options={VIEW_OPTIONS}
+            value={view}
+            onChange={chooseView}
+            ariaLabel="View"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setTitle("");
+              setError(null);
+              setAdding(true);
+            }}
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[14px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
+          >
+            <IconPlus /> New post
+          </button>
+        </div>
       </div>
 
-      {items.length === 0 ? (
-        <StudioEmptyState>
-          No posts yet. Write the first one. It starts as a draft, so nothing goes live
-          until you say so.
-        </StudioEmptyState>
-      ) : (
-        <ul className="m-0 flex list-none flex-col p-0">
-          {shown.map((p) => (
-            <li
-              key={p.slug}
-              className="group flex items-center gap-3 border-b border-ink-950/12 py-3"
-            >
-              <span
-                aria-hidden
-                title={p.status === "published" ? "Published" : "Draft"}
-                className={`size-1.5 shrink-0 rounded-full ${
-                  p.status === "published" ? "bg-success-700" : "bg-ink-400"
-                }`}
+      {/* The search sits on the LEFT beside the status it drives, not in the head cluster —
+          search, view and New post together would put a FILTER beside a PRESENTATION beside a
+          WRITE, which reads as a toolbar of equals. The strip is the answer: type, and the
+          sentence to its right becomes "2 of 4 posts". */}
+      <div className="flex flex-wrap items-stretch gap-2.5">
+        {/* The width is stated on a WRAPPER — `inputCls` already carries `w-full`, and two width
+            utilities on one element are decided by their order in the generated sheet rather
+            than in the class string. */}
+        <div className="w-[220px] min-w-0 flex-none">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search posts"
+            aria-label="Search posts"
+            className={inputCls}
+          />
+        </div>
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-ink-600"
+        >
+          <IconInfo className="h-3.5 w-3.5 flex-none text-ink-400" />
+          <span>
+            <strong className="font-semibold text-ink-950">
+              {shown.length === items.length
+                ? `${items.length} ${items.length === 1 ? "post" : "posts"}`
+                : `${shown.length} of ${items.length} ${items.length === 1 ? "post" : "posts"}`}
+              .
+            </strong>{" "}
+            A post stays off /blog until you publish it.
+          </span>
+        </div>
+      </div>
+
+      {/* ALWAYS PRESENT — the count is a readout, not only a control. See above. */}
+      <BlogStatusTabs value={status} onChange={setStatus} counts={counts} panelId={PANEL_ID} />
+
+      {/* The panel the tabs name. Unconditional now, because the tablist is. */}
+      <div id={PANEL_ID} role="tabpanel" aria-label={`${status} posts`}>
+        {items.length === 0 ? (
+          <StudioEmptyState>
+            No posts yet. Write the first one. It starts as a draft, so nothing goes live
+            until you say so.
+          </StudioEmptyState>
+        ) : shown.length === 0 ? (
+          /* THE ZERO STATES ARE SEPARATED AT THE SOURCE — #271's lesson, where one sentence had
+             been answering three different questions in the sections rail.
+             THREE ANSWERS, NOT ONE. A search that matched nothing is a different fact from a tab
+             that is genuinely empty, and an empty "Drafts" is the ordinary healthy state of a
+             blog with nothing unpublished — it is the answer the tab exists to give, so it says
+             so in words rather than showing a blank pane.
+             THE `all` ARM IS UNREACHABLE TODAY (every post passes "all" when there is no query)
+             and is still written honestly rather than left to say something false if it ever
+             becomes reachable. */
+          <div className="grid min-h-[30vh] place-items-center rounded-[var(--studio-radius-card,8px)] bg-cream-100 px-4 py-10 text-center">
+            <p className="text-[13px] text-text-subtle">
+              {query.trim() ? (
+                <>
+                  No posts match <b className="text-ink-950">{query.trim()}</b>
+                  {status !== "all" ? ` under ${status === "draft" ? "Drafts" : "Published"}` : ""}.
+                </>
+              ) : (
+                status === "draft"
+                  ? "No drafts. Everything you have written is published."
+                  : status === "published"
+                    ? "No published posts yet."
+                    : "No posts yet."
+              )}
+            </p>
+          </div>
+        ) : view === "grid" ? (
+          /* THE WELL. cream-100 under cream-50 cards, because a card on the same ground as the
+             page has nothing to lift off. Fluid columns off one floor — no breakpoint ladder. */
+          <div className="grid gap-4 rounded-[var(--studio-radius-card,8px)] bg-cream-100 p-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+            {shown.map((p) => (
+              <BlogPostCard
+                key={p.slug}
+                post={p}
+                onOpen={() => router.push(`/studio/blog/${p.slug}`)}
               />
-              <Link href={`/studio/blog/${p.slug}`} className="min-w-0 flex-1">
-                <span className="block truncate text-[13.5px] text-ink-950">{p.title}</span>
-                <span className="mt-0.5 block text-[11.5px] text-text-subtle">
-                  {p.status === "published" ? "Published" : "Draft"} ·{" "}
-                  {p.date ? formatShortDate(p.date) : "no date"} · {p.readingTime} min
-                </span>
-              </Link>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(p.slug)}
-                aria-label={`Remove ${p.title}`}
-                className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
-              >
-                <IconX />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-2">
+            {shown.map((p) => (
+              <BlogPostRow
+                key={p.slug}
+                post={p}
+                onOpen={() => router.push(`/studio/blog/${p.slug}`)}
+                onRemove={() => setDeleteTarget(p.slug)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {adding && (
         <StudioModal

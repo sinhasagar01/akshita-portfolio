@@ -27,7 +27,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectListItem } from "@/lib/keystatic";
 import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
-import { INDEX_VIEW_COOKIE, type IndexView } from "@/lib/studio/index-view";
+import { indexViewCookie, type IndexView } from "@/lib/studio/index-view";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
 import { inputCls, FieldKey} from "./blocks/fields";
@@ -63,7 +63,7 @@ export default function CaseStudyIndex({
   const [view, setView] = useState<IndexView>(initialView);
   function chooseView(next: IndexView) {
     setView(next);
-    document.cookie = `${INDEX_VIEW_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
+    document.cookie = `${indexViewCookie("projects")}=${next}; path=/; max-age=31536000; samesite=lax`;
   }
 
   /* ---- SEARCH IS LOCAL AND INLINE, WHICH IS THE RULE THIS PROJECT ALREADY WROTE DOWN --------

@@ -73,6 +73,25 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-success-50:  oklch(94.5% 0.030 145);
   --color-success-700: oklch(46.0% 0.075 145);
 
+  /* The one DRAFT colour, for the blog index's unpublished state. The palette had no amber:
+     a draft was a grey ink-400 dot, which says "disabled" rather than "not published yet", and
+     is the same grey as every other muted mark on the page.
+     ONE TOKEN, NOT THREE, AND THAT IS THE POINT. The chip's fill and border are this value at
+     12% and 34% alpha, exactly as the Hand-built chip derives its two from accent-500. Declaring
+     -bg and -edge siblings would ship two tokens with one consumer each, which is the shape this
+     project has deleted four times (FIT_THRESHOLD_PX, the unused 2xl radius token, the eleven ink-700 sites,
+     .blog-editable.is-selected).
+     MEASURED BEFORE IT SHIPPED, on every ground it lands on — the chip's text over its own fill
+     on cream-50 and on cream-100, and the 3px left bar against both card grounds. Kept the only
+     one of its kind on the same principle as danger-600 and glow-web above: a palette of state
+     shades is how a warm editorial system starts looking like a form builder. */
+  /* 48%, NOT THE 52% THE CONTRACT DRAWS, AND THE FOUR POINTS ARE MEASURED. At 52% the chip's
+     text over its own 12% fill read 4.56 on cream-50 and **4.36 on cream-100** — under the 4.5
+     a 9px/600 label needs, so the contract's value shipped a chip that failed on one of the two
+     grounds it lands on. 48% clears both with headroom. The contract is not wrong about the hue;
+     it is wrong about the lightness, and the rasteriser is what settled it. */
+  --color-draft-600: oklch(48.0% 0.100 75);
+
   --color-background:    var(--color-canvas);
   --color-surface:       var(--color-cream-100);
   --color-border:        var(--color-cream-300);

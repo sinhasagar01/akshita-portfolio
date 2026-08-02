@@ -9,7 +9,7 @@
 //
 // THE OBVIOUS CLEANUP IS WRONG, AND IT FAILS SILENTLY. Replacing this with the Tailwind
 // equivalent `absolute inset-0 h-full w-full object-cover` measures 391.664px tall against
-// the article's 390.5781 — off by 1.086px — because app/globals.css:271 carries an UNLAYERED
+// the article's 390.5781 — off by 1.086px — because app/globals.css carries an UNLAYERED
 //
 //     img, video { max-width: 100%; height: auto; display: block }
 //

@@ -345,8 +345,15 @@ const contentInputs = (p) => {
   // export whose only distinction is a layout context is a constant nobody would remember.
   t("E2: ChipListEditor stays inline — FLEX-CHILD family, not a missed site; it must keep flex-1 where the export forces full width",
     inline.filter((f) => f === "ChipListEditor.tsx").length, 1);
-  t("E2: BlogIndex's search stays inline — FLEX-CHILD family, and 13px is the search family's size, not drift",
-    inline.filter((f) => f === "BlogIndex.tsx").length, 1);
+  /* BlogIndex HAS LEFT THIS FAMILY, AND THAT IS THE CAUSE BEING REMOVED RATHER THAN THE RULE.
+   * Its local copy existed for ONE reason, stated in the file: the shared export hardcodes
+   * `w-full`, which fought the `flex-1` the search needed in its old toolbar row. The blog index
+   * rebuild puts the field in a wrapper of STATED width instead, so `w-full` is now what it
+   * wants — the fight is gone, so the local copy has nothing left to justify it.
+   * ⚠ THE FAMILY IS NOT REPEALED. `ChipListEditor` still needs it for exactly the original
+   * reason, and E2's list below is what stops a fifth copy arriving without one. */
+  t("E2: BlogIndex has LEFT the flex-child family — its stated reason was removed, not overridden",
+    inline.filter((f) => f === "BlogIndex.tsx").length, 0);
   // FAMILY 3 — READONLY DISPLAYS: the reason is SEMANTIC. The export carries focus styling,
   // which is dead on a tabIndex={-1} control, and these fields want cursor-not-allowed.
   // (The colour half of the original rationale was FALSE: their text-ink-500 is a phantom —
@@ -359,10 +366,10 @@ const contentInputs = (p) => {
   // And NOTHING ELSE. A fifth inline form control means a new hand-written copy — the decay
   // #199 removed, starting again — OR a new local with no stated family. Either way it needs
   // a reason here, not just a body there.
-  t("E2: exactly these four files carry an inline form-control geometry — a fifth means a new copy with no stated family",
-    [...inline].sort(), ["BlogIndex.tsx", "ChipListEditor.tsx", "ExperienceEditPanel.tsx", "ProjectsEditPanel.tsx"]);
+  t("E2: exactly these THREE files carry an inline form-control geometry — a fourth means a new copy with no stated family",
+    [...inline].sort(), ["ChipListEditor.tsx", "ExperienceEditPanel.tsx", "ProjectsEditPanel.tsx"]);
   // All four locals carry the WELL — local means a different REASON, never an older design.
-  for (const f of ["ChipListEditor.tsx", "BlogIndex.tsx", "ExperienceEditPanel.tsx", "ProjectsEditPanel.tsx"]) {
+  for (const f of ["ChipListEditor.tsx", "ExperienceEditPanel.tsx", "ProjectsEditPanel.tsx"]) {
     const src = readStudio(f);
     const ok = [...src.matchAll(sig)].every((m) => {
       const before = src.slice(0, m.index);
@@ -872,7 +879,18 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // LEFT: the old index row's template pill and its dashed "Bespoke" badge, both deleted with
     // the row that carried them. So a naive `+3` would have been wrong and a `>=` would have hidden
     // the removals entirely. F5g names all five movements.
-    t("F5: the 33 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 33);
+    // REVALUED 33 -> 34 IN THE BLOG INDEX PR, and the net again hides more than it shows: TWO
+    // arrivals and ONE departure. ARRIVED: the status chip itself, and the OPAQUE BACKING the card
+    // wraps it in — which is a pill only because the chip it grounds is one, and exists because
+    // the chip sits over a photograph whose contrast is otherwise unmeasurable.
+    // LEFT: the index's 6px status dot, replaced by the word. That is the whole point of the
+    // change — a dot in one of two greens is not a state anyone reads at a glance.
+    t("F5: the 34 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 34);
+    t("F5h: …and the two arrivals are the blog status chip and the opaque ground it sits on",
+      (code("components/studio/BlogStatusChip.tsx").match(/rounded-full/g) ?? []).length === 1
+        && /rounded-full bg-cream-50">\s*<BlogStatusChip/.test(code("components/studio/BlogPostCard.tsx")), true);
+    t("F5h: …and the departure is the index's status dot, replaced by the word",
+      /size-1\.5 shrink-0 rounded-full/.test(code("components/studio/BlogIndex.tsx")), false);
     t("F5g: …and the three arrivals are the index's chip, its platform dot and the drag dot",
       (code("components/studio/CaseStudyItem.tsx").match(/rounded-full/g) ?? []).length === 2
         && (code("components/studio/CaseStudyRow.tsx").match(/rounded-full/g) ?? []).length === 1, true);
@@ -1148,8 +1166,13 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   // THE RULE ITSELF IS NOT REPEALED. If a dashed NON-button ever appears again it must stay
   // inert, and H1 still catches the inverse — a `hover:border-solid` on something not dashed at
   // rest. What is gone is the instance, and a gate with no instance is prose.
-  t("H5 (retired): there is no dashed non-button left to pin — the Bespoke badge was deleted",
-    sites.filter((s) => s.tag !== "button").length, 0);
+  /* H5 · UN-RETIRED, BECAUSE ITS POPULATION CAME BACK. #275 retired this when its only subject —
+   * the dashed "Bespoke" badge — was deleted, and said plainly that an assertion over an empty
+   * set passes without testing anything. The blog index adds TWO dashed non-buttons: the
+   * empty-hero markers on the card and the row. They are pure indication, so the original rule
+   * applies to them unchanged — a dashed mark that is not a control must not suggest it is. */
+  t("H5: every dashed non-button is inert — a status marker is not a control",
+    sites.filter((s) => s.tag !== "button").map((s) => s.hovers), [false, false]);
 }
 
 /* ============================ J. THE MIMIC, WHICH SAID IT COULD NOT DRIFT AND THEN COULD (C-27) */
@@ -1376,8 +1399,13 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * satisfy a gate that was wrong. */
   t("C8: no BARE `html`, `:root` or `*` — that is the gutter, and every studio threshold rides on it",
     selectors.some((sel) => /^(html|:root|\*)\b/.test(sel)), false);
-  t("C8: `scrollbar-gutter: stable` on html is untouched, and still on line 222",
-    globals.split("\n")[221].trim(), "scrollbar-gutter: stable;");
+  /* PINNED BY NAME, NOT BY LINE. This read "still on line 222" and asserted the CONTENT of line
+   * 222 — which broke the moment a token was added anywhere above it, because a line number is a
+   * fact about a file's history rather than about the rule. The same defect was live in FIVE
+   * source comments citing `globals.css:222`, `:271` and `:278`; all six are now anchored to the
+   * rule itself, which cannot drift when something is inserted above it. */
+  t("C8: `scrollbar-gutter: stable` on html is untouched — pinned by the rule, never by its line",
+    /\bhtml\s*\{[^}]*scrollbar-gutter:\s*stable/.test(globals), true);
 
   /* THE INK RULE TARGETS THE ELEMENT, NOT ITS DESCENDANTS, and that is a measured requirement.
    * The sidebar CONTAINS a second scroller — the horizontal nav row — which scrolls only below
