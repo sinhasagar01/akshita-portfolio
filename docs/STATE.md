@@ -6888,6 +6888,60 @@ seven affected utilities emit. **No public surface is touched.**
 
 ---
 
+### #290 — THE TWO BESPOKE BLOCKS LOSE THEIR STATIC IMPORTS (PR A of two)
+
+**`boat-crest` is the only case study its owner cannot edit**, and that is hazard 10. **MEASURED
+FIRST, AND "BESPOKE" OVERSTATED IT: 12 of its 14 section instances were already in the studio's
+16-kind vocabulary.** Exactly two were not — `featureStory` and `beforeAfterStory` — so the
+flagship is an ordinary case study held out of the CMS by two blocks.
+
+**⚠ AND THEY WERE HELD OUT BY THEIR TYPES, NOT THEIR CONTENT.** `StoryScreen` and
+`BeforeAfterStoryPair` carried raw `StaticImageData` — build-time static imports, which content
+cannot express. Every other block goes through `ImgSpec`, whose `src` is already
+`StaticImageData | string`. **It also cost them their alt text**: `ImgSpec` carries `alt` and a raw
+import does not, so all 8 images rendered `alt=""` with no field that could hold anything else.
+
+**THE ALT VALUES ARE DELIBERATELY STILL EMPTY.** The field now exists; the words are the owner's.
+Leaving them empty is what keeps the rendered DOM byte-identical, which is the proof that a type
+change on the flagship's renderer moved nothing.
+
+**⚠ THE TRAP IT WALKED PAST, AND WHY IT ALMOST SHIPPED.** `deviceScroller.unitGeo` divides by
+`screen.body.height` to get `scrollPct` — the asset's INTRINSIC pixel height. Under `ImgSpec` that
+name is taken: `.height` there is a RENDERED height in CSS px. **Both are numbers, so reading the
+wrong one compiles and silently computes a scroll ratio from a layout value.** What caught it was
+`ImgSpec.height` being OPTIONAL — the compiler objected to the `undefined`, not to the meaning. **A
+required field would have shipped it silently.** So the intrinsic value is a separate name,
+`ScreenAsset.intrinsicHeight`, and boat-crest derives all 14 of them from the imports they sit
+beside rather than typing a single number.
+
+**`featureStory` FOLDED INTO A VARIANT rather than becoming a 17th kind** — owner's call. It
+carried the identical `Feature[]` and differed only in renderer and animation, so the Add menu would
+have offered two entries with the same fields and nothing to tell them apart. Three shipped
+`featureRows` blocks carry no `variant`, so **absent must mean rows**, and the dispatch tests
+`=== "story"` for exactly that reason.
+
+**⚠ THE GATE, AND THE INSTRUMENT IT NEEDED FIRST.** Raw HTML comparison is not stable: building the
+same source twice differs in the build ID, in RSC chunk ORDER, and in the NUMBER of stream chunks.
+The normaliser was built and then **validated against twin builds of identical source** before it
+was trusted — the fourth instrument this session that had to prove itself before its output meant
+anything. With it, **all four case studies render byte-identical**, the single difference being a
+JSON-LD `dateModified` that correctly moved because `boat-crest.ts` was edited.
+
+**WHAT IS NOT IN THIS PR, STATED RATHER THAN IMPLIED.** The CMS half — the Keystatic schema for
+`beforeAfterStory` and a `variant` selector — was started and **backed out**. Both need the
+sanitizer's omit-when-empty treatment (the one `frame` gets), because every existing block is
+otherwise rejected for a missing key; adding them naively turned ralph red at 147 failures. That is
+delicate surgery in a file whose every comment is about key order and churn, and it belongs in its
+own pass. **So the renderer supports the variant and content cannot yet select it — exactly the
+state these blocks were already in.** `BESPOKE_SLUGS` is untouched and hazard 10 stays open.
+
+Gates: ralph **2247 → 2271**, `bespoke-blocks` net-new at 24. **10 mutations, 10 killed** — including
+the intrinsic-height trap, the inverted variant default, and a first version of the edit-wiring
+assertion that asked only whether `inlineEditProps` appeared AT ALL, so deleting one of three
+wirings left it green. It now pins the count. lint, tsc and the production build clean.
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

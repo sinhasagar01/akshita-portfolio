@@ -78,13 +78,28 @@ export type Principle = { index: string; title: string; body: Rich };
  *  are not product-in-a-device screenshots. */
 export type FigureItem = { image: ImgSpec; title?: string; body?: Rich };
 
+/** A screen asset in an auto-scroller, carrying its INTRINSIC height in 1030-space.
+ *
+ *  ⚠ `intrinsicHeight` IS NOT `ImgSpec.height`, AND THE TWO MUST NOT BE MERGED. `ImgSpec.height`
+ *  is a RENDERED height in CSS px ("when set, width is derived"); this is the pixel height of the
+ *  asset itself, and `deviceScroller.unitGeo` divides by it to get `scrollPct`. Overloading one
+ *  field for both would compile perfectly and silently compute a scroll ratio from a layout
+ *  number — a correct measurement of the wrong quantity, which is a failure shape this project has
+ *  already recorded twice.
+ *
+ *  ⚠ AND IT IS EXPLICIT BECAUSE CONTENT CANNOT DERIVE IT. A static import carries `.height`
+ *  intrinsically, so the code path passes it straight through and nothing is hand-typed. A CMS
+ *  entry is a path string with no dims at all, and measuring at runtime is the `offsetHeight`
+ *  decode race `deviceScroller` documents itself as being free of. So the number is authored. */
+export type ScreenAsset = ImgSpec & { intrinsicHeight: number };
+
 /** cs-07 auto-scroll story assets (optional). A scrollable screen is split into a
  *  tall `body` (scrolls behind the bezel) + a pinned `footer`; onboarding is a single
- *  `full` screen. Dims (in 1030-space) are read from the static imports' width/height.
- *  Absent → the feature has no auto-scroll story (e.g. used by `featureRows`). */
+ *  `full` screen, which is NOT scrollable and therefore needs no intrinsic height.
+ *  Absent → the feature has no auto-scroll story (e.g. used by the `rows` variant). */
 export type StoryScreen =
-  | { full: StaticImageData }
-  | { body: StaticImageData; footer: StaticImageData };
+  | { full: ImgSpec }
+  | { body: ScreenAsset; footer: ScreenAsset };
 
 export type Feature = {
   index: string;
@@ -106,13 +121,16 @@ export type BeforeAfterPair = {
 };
 
 /** cs-07 scroll-pinned variant of a comparison. `before` is a single static screen
- *  shown in the bezel; `after` is the three-layer auto-scroller (body + footer), the
- *  same body/footer shape as `StoryScreen`. */
+ *  shown in the bezel; `after` is the three-layer auto-scroller (body + footer).
+ *
+ *  ⚠ `after` IS LITERALLY `StoryScreen`'s SCROLLABLE ARM, not merely "the same shape". Both
+ *  components hand it to `unitGeo`, so a second structurally-identical declaration would be one
+ *  the geometry could silently drift away from. It is extracted rather than restated. */
 export type BeforeAfterStoryPair = {
   title: string;
   tag: string;
-  before: StaticImageData;
-  after: { body: StaticImageData; footer: StaticImageData };
+  before: ImgSpec;
+  after: Extract<StoryScreen, { body: ScreenAsset }>;
   changes: Change[];
 };
 
@@ -193,8 +211,13 @@ export type Block =
   | { kind: "statCards"; heading?: string; stats: Stat[] }
   | { kind: "principleCards"; heading?: string; subhead?: string; cards: Principle[] }
   | { kind: "figureGrid"; heading?: string; items: FigureItem[] }
-  | { kind: "featureRows"; features: Feature[] }
-  | { kind: "featureStory"; features: Feature[] }
+  /* ⚠ ONE KIND, TWO PRESENTATIONS. `featureStory` used to be a separate member of this union
+     carrying the IDENTICAL payload — `Feature[]` — and differing only in which component rendered
+     it and how it animated. That is a presentation difference wearing a content difference's
+     clothes: it cost the Add menu a second entry with the same fields and nothing in the UI to
+     tell them apart. `variant` is absent on every existing `featureRows`, so ABSENT MUST MEAN
+     "rows" and the default is load-bearing rather than cosmetic. */
+  | { kind: "featureRows"; features: Feature[]; variant?: "rows" | "story" }
   | { kind: "beforeAfter"; pairs: BeforeAfterPair[] }
   | {
       kind: "beforeAfterStory";
