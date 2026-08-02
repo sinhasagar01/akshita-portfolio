@@ -81,7 +81,18 @@ function useFitPair() {
   useEffect(() => {
     const pane = paneRef.current;
     if (!pane) return;
-    const measure = () => setScale(Math.min(1, pane.clientWidth / PAIR_W));
+    // ⚠ THE CONTENT BOX, NOT `clientWidth`. `clientWidth` INCLUDES PADDING, and the pane carries
+    // `px-6` — so measuring it claimed 682px of room where only 634 existed, and the pair was
+    // scaled 48px too wide before anything else went wrong. `getBoundingClientRect()` minus the
+    // resolved padding is the width the child can actually occupy.
+    const measure = () => {
+      const cs = getComputedStyle(pane);
+      const avail =
+        pane.getBoundingClientRect().width -
+        parseFloat(cs.paddingLeft) -
+        parseFloat(cs.paddingRight);
+      setScale(Math.min(1, avail / PAIR_W));
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(pane);
@@ -151,9 +162,19 @@ export default function DetailsCanvas({
       <div ref={paneRef} className="flex flex-col gap-6 px-6 py-6">
         {/* THE TWO STATES, each at the width a desktop reader actually gets — see CARD_W, which
             is measured on the page rather than derived from the container. */}
-        {/* The scaled box takes the SCALED height, or the transform would leave the original
-            height as dead space beneath it — the same correction the section canvas needed. */}
-        <div style={{ height: pairHeight ? pairHeight * scale : undefined }}>
+        {/* ⚠ THE SCALED BOX TAKES THE SCALED WIDTH *AND* HEIGHT, AND ONLY THE HEIGHT WAS DONE.
+            A CSS transform does not change LAYOUT size: the pair below is `width: 1056px` however
+            it is scaled, so it kept reserving 1056px of layout width and pushed a horizontal
+            scrollbar onto the canvas — measured, the pane overflowed by 24px and the second card
+            was clipped at the right edge.
+            The height was corrected for exactly this reason and the comment said so; the same
+            argument applies to the width and it was not applied. Both are stated now. */}
+        <div
+          style={{
+            width: pairHeight ? PAIR_W * scale : undefined,
+            height: pairHeight ? pairHeight * scale : undefined,
+          }}
+        >
         <div
           ref={pairRef}
           className="flex gap-6"
