@@ -86,7 +86,7 @@ export default function SectionsRail({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-none border-b border-ink-950/12 p-3">
+      <div className="flex-none border-b border-ink-950/12 p-2.5">
         <input
           type="search"
           value={query}
