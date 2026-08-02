@@ -116,7 +116,15 @@ export default function StudioSidebar() {
           // label beside it was cream-50 — the one element in the pill the active state
           // did not reach. The label was never the problem; it has no class of its own and
           // inherits cream-50 correctly.
-          <span className={`ml-auto text-[12px] ${active ? "text-cream-50/70" : "text-ink-400"}`}>
+          //
+          // ⚠ AND THE SIDEBAR CHANGES GROUND AT `lg`, WHICH THIS COUNT ALSO DID NOT FOLLOW. It is
+          // ink above the breakpoint and cream below it, so the inactive `ink-400` measured a
+          // comfortable 5.45 on ink and 3.33 on cream — a failure visible ONLY below `lg`. That
+          // inverts the bigger-screen-worse-bug trap #248 recorded: here the DESKTOP reading is
+          // the one that looks clean. The ink value is kept exactly; only the cream case moves.
+          <span
+            className={`ml-auto text-[12px] ${active ? "text-cream-50/70" : "text-ink-600 lg:text-ink-400"}`}
+          >
             {area.count}
           </span>
         )}

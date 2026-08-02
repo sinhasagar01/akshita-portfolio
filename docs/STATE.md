@@ -6825,6 +6825,69 @@ outside `/studio` imports anything this changed.
 
 ---
 
+### #289 — HAZARDS 30 AND 31 CLOSE, and the hazard was not theoretical
+
+**THE FACT WAS IN CI AND THE RULE WAS NOT.** `studio-ink-contrast` H4 has always computed that
+ink-400 fails the text floor on every cream step — 3.49 / 3.33 / 3.02 / 2.55 — and **never scanned
+for the usage.** Three sites shipped it, each caught by a person measuring. **Six more were live
+when this was written**, and they reproduce H4's asserted numbers exactly.
+
+| where | ratio | when |
+|---|---|---|
+| Blog status-tab counts | **3.49** | every width |
+| Search result sublabels | **3.49**, and **3.04** on the highlighted row | whenever the dropdown is open |
+| Blog editor slug | **3.33** | every width |
+| Sidebar area counts | **3.33** | **below `lg` only** |
+| Search key `/` | **3.49** | **below `lg` only** |
+| Search **placeholder** | **3.49** | **below `lg` only** |
+
+**⚠ FOUR OF SIX ARE BELOW `lg`, WHICH INVERTS #248'S TRAP.** That finding was *bigger screen, worse
+bug*. The sidebar is **ink at `lg` and cream below it**, so ink-400 measures a comfortable 5.45 on
+the ground checked first and 3.33 on the one nearly not checked. **A desktop-only sweep reports this
+code clean.** Four of the fixes are therefore breakpoint-SCOPED rather than recoloured — the ink
+values are correct and were left exactly as they were.
+
+**⚠ AND THE PLACEHOLDER IS THE ONE NO DOM SWEEP COULD EVER HAVE FOUND.** `::placeholder` is a
+pseudo-element, so `querySelectorAll("*")` never visits it. **The source classifier found it and the
+browser oracle structurally could not.** The two instruments are complementary, and that is the
+argument for having both rather than trusting either.
+
+**WHY THE GATE WAS BUILDABLE NOW WHEN IT WAS DELIBERATELY NOT BEFORE.** The objection was that most
+`text-ink-400` sites are icon containers where the token is correct at the 3:1 floor, and a gate that
+misfires gets ignored. **So the icon set is DERIVED STRUCTURALLY rather than listed** — 28 icon, 3
+text — from the enclosing class expression, taken from the nearest preceding `className=` or
+`const X =` **to its balanced close, anchored at both ends rather than a window.** A window would
+have been the fifth unanchored match in this arc.
+
+**⚠ THE HALF THAT NEARLY SHIPPED MISSING, AND ONLY MUTATION FOUND IT.** The registry first recorded
+each text site's claimed GROUND and nothing checked the claim. Deleting the sidebar count's
+`lg:` scoping — **putting back the exact 3.33 defect this PR fixes** — left the gate GREEN, because
+the site was still one registered text entry in the same file claiming an ink ground. **A registry
+that records a claim and never verifies it is a list of assertions about the past.** Every entry now
+carries a `guard`, the class-expression property that MAKES its ground true.
+
+**HAZARD 30 FOUND SOMETHING TOO.** The first version asserted both accents clear the floor on every
+cream step — the reasonable assumption, and wrong. **accent-500 clears it on cream-50 alone and
+misses cream-100 by 0.02** (4.7 / 4.48 / 4.07 / 3.43). accent-600 is the accent that travels
+(7.22 / 6.87 / 6.25 / 5.27), reproducing #248's hand measurement. Its one text consumer, the
+`tone !== "muted"` signal badge, renders on cream-50 and is legal **only because of that ground** —
+which is why the ground is pinned rather than the token blessed. A two-hundredths miss is exactly
+what nobody catches by eye and everybody assumes away.
+
+**AND THE ORACLE ITSELF WAS WRONG FIRST.** It took the first element with any background and
+rasterised it over white, so a translucent `lg:bg-white/16` over the ink topbar read as near-white
+and the search placeholder measured **1.88** — a false positive that would have had me "fix" a
+passing site. Compositing the whole stack bottom-up gives **7.03**. Fourth instrument failure in
+this session, after the caret probe, the import-order assertion and the CSS grep. **Every one read
+as a defect in the code; none was.**
+
+Gates: ralph **2228 → 2247**, `studio-ink-contrast` 51 → 68. **14 mutations, 14 killed** — every
+fix reintroduced, the guard deleted, the icon derivation emptied, a failing ground parked in the
+registry. Sanity pair 21.00 first on every sweep. lint, tsc and the production build clean; all
+seven affected utilities emit. **No public surface is touched.**
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
@@ -7111,12 +7174,12 @@ believed open and what it turned out to be.**
    and every one surfaced within minutes of an author using the editor.
    **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer. A publish has
    already shipped a half-finished sentence once, and CI cannot tell one from a finished one.
-3. **HAZARDS 30 AND 31, WHICH ARE ONE GAP SEEN FROM TWO SIDES.** 31 says `text-ink-400` is
-   forbidden as a text colour and unpoliced; 30 says the ground each site sits on is uncomputed.
-   An honest usage gate needs the ground, so 30 is what blocks 31. **NO GATE WAS BUILT
-   DELIBERATELY**: 23 of the studio's 35 `text-ink-400` sites are icon or border containers where
-   it is correct, and several of the rest sit on ink — a naive scan misfires on all of those, and
-   a gate that misfires gets ignored, which is worse than none.
+3. ~~**HAZARDS 30 AND 31**~~ — **BOTH CLOSED in #289**, and the objection that stopped the gate
+   being built was answered rather than waived: the icon set is DERIVED structurally (28 icon, 3
+   text) instead of listed, so it does not misfire. It found **six live AA failures**, four of them
+   visible only below `lg`, and one — the search placeholder — that no DOM sweep could ever reach
+   because `::placeholder` is a pseudo-element. accent-500 turned out to be a one-ground text
+   colour, missing cream-100 by 0.02.
 4. **THE MEASURED LIMITS THIS ARC ACCEPTED RATHER THAN FIXED.** Both are recorded with their
    numbers at #283 and #283b, and both are design trades rather than defects.
    a. **Collapsing blog's inspector gives its canvas 284px of cream it cannot spend**, because
