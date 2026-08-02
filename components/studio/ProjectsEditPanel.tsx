@@ -11,6 +11,7 @@
 // normalized webp blob + the yaml path to the same draft branch.
 import { useEffect, useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
+import SaveBar from "./SaveBar";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import SectionsEditPanel from "./SectionsEditPanel";
@@ -68,6 +69,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     setField,
     dirty,
     saveStatus,
+    savedAt,
     saveDraft,
     cancel,
   } = useDraftForm<ProjectsFields>({
@@ -316,64 +318,44 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           ))}
         </div>
       </div>
-      <footer className="flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[12px]" aria-live="polite">
-          {saveStatus === "saving" ? (
-            <span className="text-text-subtle">Saving draft…</span>
-          ) : saveStatus === "saved" ? (
-            <span className="text-accent-600">Draft saved</span>
-          ) : saveStatus === "error" ? (
-            <span className="text-accent-600">Save failed. Try again.</span>
-          ) : saveStatus === "fs" ? (
-            <span className="text-text-subtle">Draft save needs github mode (dev)</span>
-          ) : (
-            <span className="text-text-subtle">Auto-saves to draft on blur. Publish from Site settings.</span>
-          )}
-        </span>
-        {/* PREVIEW AND CANCEL LIVE HERE NOW, beside the save they belong with. In the toggles
-            unit they read as a third switch; here they read as what they are — the two things you
-            do INSTEAD of saving. The colour sits on this wrapper rather than on the link: an
-            unlayered `a { color: inherit }` beats the utility layer, so a `text-*` utility on the
-            anchor does nothing. Hazard 22, and it is why the old row carried the colour too.
-            HOVER IS cream-100, NOT cream-200 — the footer IS cream-200, so the old hover matched
-            its own ground and read as nothing at all. The ground moved, so the hover had to. */}
-        <div className="flex items-center gap-1 text-ink-600">
-          {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard), so the
-              owner keeps the editor open beside it. */}
-          <a
-            href={`/studio/projects/${slug}/preview`}
-            target="_blank"
-            rel="noopener"
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
-          >
-            Preview
-          </a>
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={cancel}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-100 hover:text-ink-950"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={saveDraft}
-            disabled={!dirty || saveStatus === "saving"}
-            className="ml-1 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-          >
-          {/* "Save details", NOT "Save draft" — #200's fix, second instance. Two footers are
-              visible at once when Details is selected, this one and the sections footer, and
-              they commit genuinely different drafts (facts through this panel's useDraftForm,
-              sections through SectionsEditPanel's). By role neither is wrong. The defect was
-              that identical labels CLAIMED they were the same action. As in #200, the button
-              was the only string that never named its object, and as in #200 the progress
-              label is left alone: the ambiguity is in the RESTING label, which is what gets
-              read while deciding. */}
-            {saveStatus === "saving" ? "Saving…" : "Save details"}
-          </button>
-        </div>
-      </footer>
+      {/* ⚠ THE OBJECT SURVIVES AS A SUFFIX, AND #200 IS WHY. This screen shows TWO saves at once
+          when Details is selected, committing genuinely different drafts — facts through this
+          panel's useDraftForm, sections through SectionsEditPanel's. The verb unifies to "Save
+          draft"; the object is what stops two identical labels claiming to be the same action.
+          Preview and Cancel sit here from #280, and the accessible name carries the object too. */}
+      <SaveBar
+        status={saveStatus}
+        dirty={dirty}
+        savedAt={savedAt}
+        title="Auto-saves to draft on blur. Publish from Site settings."
+        onCancel={cancel}
+        extra={
+          /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
+             `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits a
+             rule that loses and the link renders at the inherited colour. This wrapper is the
+             shape the old footer already had; moving the anchor into SaveBar's `extra` slot
+             briefly dropped it, and studio-ink's E6 is the assertion that caught it. */
+          <span className="flex items-center gap-1 text-ink-600">
+            {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard), so the
+                owner keeps the editor open beside it. */}
+            <a
+              href={`/studio/projects/${slug}/preview`}
+              target="_blank"
+              rel="noopener"
+              title="Opens the draft preview in a new tab."
+              className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+            >
+              Preview
+            </a>
+          </span>
+        }
+        primary={{
+          label: "Save draft · Details",
+          onClick: saveDraft,
+          disabled: !dirty || saveStatus === "saving",
+          title: "Commits this study's title, hero, summary, template and category.",
+        }}
+      />
     </div>
   );
 

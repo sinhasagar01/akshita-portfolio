@@ -63,6 +63,11 @@ export function useDraftForm<T extends object>({
   // against this, so the "Unsaved changes" hint clears after a successful save.
   const [savedBaseline, setSavedBaseline] = useState<T>(initial);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  // WHEN THE LAST SAVE LANDED, AND IT CANNOT BE DERIVED FROM `saveStatus`. That flips back to
+  // "idle" 2500ms after "saved" (below), so by the time the bar wants to say "Saved 2 minutes
+  // ago" the status has read "idle" for nearly two minutes. The timestamp is the only thing that
+  // survives long enough to age.
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   // Synchronous in-flight guard: blur can fire twice before saveStatus updates
   // to "saving", so the state check alone lets a duplicate POST through. The ref
   // blocks the second call in the same tick (no commit spam).
@@ -139,6 +144,9 @@ export function useDraftForm<T extends object>({
         baselineRef.current = committed;
         setSavedBaseline(committed);
         onSaved?.(json);
+        // THE TIMESTAMP IS RECORDED HERE, at the one moment a save is known to have landed.
+        // `saveStatus` flips back to "idle" 2500ms below, so it cannot carry an age.
+        setSavedAt(Date.now());
         setSaveStatus("saved");
         window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 2500);
         return;
@@ -165,5 +173,5 @@ export function useDraftForm<T extends object>({
     setExpanded(false);
   }
 
-  return { expanded, setExpanded, values, setField, savedBaseline, dirty, saveStatus, saveDraft, cancel };
+  return { expanded, setExpanded, values, setField, savedBaseline, dirty, saveStatus, savedAt, saveDraft, cancel };
 }

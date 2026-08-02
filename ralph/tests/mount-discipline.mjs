@@ -175,14 +175,27 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
       ["…and the footer takes the free space above it — the UNDERFLOW half", "lg:[&>section>footer]:mt-auto"],
     ]) t(`B4: ${what}`, pane.includes(cls), true);
 
-    // The OVERFLOW half still has to be there, on every derived panel, or scrolling regresses.
+    /* ---- RE-ANCHORED OFF `<footer` IN THE SAVE BAR PR ------------------------------------
+     * The panels no longer write a footer element; they write `<SaveBar className="sticky
+     * bottom-0 …">`. THE TWO CLASSES THIS ASSERTION NAMES STILL HAVE TO REACH A `footer` TAG,
+     * because `lg:[&>section>footer]:mt-auto` above selects on that tag and nothing else, and
+     * `sticky bottom-0` has to land on the element that is actually the section's last child.
+     * SO THE CONSUMER-SIDE CHECK IS NO LONGER SELF-SUFFICIENT and the two assertions after it
+     * are what make it mean anything: without them, every panel could carry the right string
+     * while SaveBar rendered a div and dropped `className`, and all of this would pass. */
     const notSticky = shellPanels.filter((n) =>
-      !/<footer[^>]*className="sticky bottom-0/.test(code(`components/studio/${fileFor(n)}.tsx`))
-      && /<footer/.test(code(`components/studio/${fileFor(n)}.tsx`)));
-    t("B4: every shell panel's footer keeps `sticky bottom-0` — the OVERFLOW half, which mt-auto does not replace",
+      !/<SaveBar\s+className="sticky bottom-0/.test(code(`components/studio/${fileFor(n)}.tsx`))
+      && /<SaveBar/.test(code(`components/studio/${fileFor(n)}.tsx`)));
+    t("B4: every shell panel's save bar keeps `sticky bottom-0` — the OVERFLOW half, which mt-auto does not replace",
       notSticky, ["CategoryPanel"]);
     t("B4: …and CategoryPanel is the one exception, because Skills' save bar is DOCUMENT-level (#229) and sits outside the shell",
-      /<\/ListDetailLayout>[\s\S]*<footer/.test(code("components/studio/SkillsEditor.tsx")), true);
+      /<\/ListDetailLayout>[\s\S]*<SaveBar/.test(code("components/studio/SkillsEditor.tsx")), true);
+
+    const bar = code("components/studio/SaveBar.tsx");
+    t("B4: …and SaveBar's root is a `footer` element, which is what `[&>section>footer]` selects",
+      /return \(\s*<footer/.test(bar) && /<\/footer>\s*\);/.test(bar), true);
+    t("B4: …and it appends the consumer's className, or the sticky above never reaches the element",
+      /bg-cream-200 px-4 py-3 \$\{className\}`/.test(bar), true);
 
     /* ---- B5 · THE CHAIN ABOVE THE SHELL, WHICH IS WHERE SKILLS BROKE --------------------
      *
@@ -457,8 +470,18 @@ export const MOUNT_SCRIPT = String.raw`
   /* PREVIEW AND CANCEL LEFT THE TOGGLES UNIT. In it they wrapped onto a second line — the toggles
    * take `w-full` — so two ACTIONS sat under two SWITCHES on one ground with nothing between
    * them. They belong with the save, which is what a footer is. */
-  t("F4: Preview and Cancel are in the footer, not in the toggles bar",
-    /<footer[\s\S]*?Preview[\s\S]*?Cancel[\s\S]*?Save details/.test(panel), true);
+  /* RE-ANCHORED OFF `<footer>` IN THE SAVE BAR PR. The footer element is gone — every save bar
+   * is now one `SaveBar`, and Preview arrives through its `extra` slot while Cancel arrives
+   * through `onCancel`. THE ASSERTION'S SUBJECT NEVER MOVED: both still sit with the save and
+   * not with the toggles, which is the only thing F4 has ever cared about. The second half is
+   * new and is the half that can actually fail — the first checked that the three appear in one
+   * element, which a save bar makes true by construction. */
+  t("F4: Preview and Cancel are on the save bar, not in the toggles bar",
+    /<SaveBar[\s\S]*?Preview[\s\S]*?Save draft · Details/.test(panel)
+      && /onCancel=\{cancel\}/.test(panel), true);
+  t("F4: …and the toggles bar itself holds neither",
+    /h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"[\s\S]{0,1200}?<\/div>/
+      .exec(panel)?.[0]?.includes("Preview") ?? true, false);
 
   t("F5: …and their hover moved to cream-100, because the footer IS cream-200",
     /hover:bg-cream-100[\s\S]{0,400}Preview/.test(panel)

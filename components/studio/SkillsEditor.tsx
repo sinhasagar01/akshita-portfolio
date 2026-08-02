@@ -15,6 +15,7 @@
 import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
+import SaveBar from "./SaveBar";
 import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -49,7 +50,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
   const { setUnpublished } = usePublishSignal();
 
   const initial: SkillsFields = { categories };
-  const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<SkillsFields>({
+  const { values, setField, dirty, saveStatus, savedAt, saveDraft } = useDraftForm<SkillsFields>({
     initial,
     // The whole categories array IS the patch, posted as
     // { singleton:"skills", patch:{ categories } } (the SK-2 path). nonBlankCategories
@@ -114,19 +115,6 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
     setIds((prev) => moveIn(prev, idx, dir));
   };
 
-  const statusText =
-    saveStatus === "saving"
-      ? "Saving draft…"
-      : saveStatus === "saved"
-        ? "Draft saved"
-        : saveStatus === "error"
-          ? "Save failed. Try again."
-          : saveStatus === "fs"
-            ? "Draft save needs github mode (dev)"
-            : dirty
-              ? "Unsaved changes"
-              : "All changes saved";
-
   return (
     // ---- THIS WRAPPER HAS TO CARRY THE HEIGHT, OR THE SHELL INSIDE IT NEVER GETS ONE -------
     //
@@ -172,23 +160,34 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
           CategoryPanels. The siblings save PER ENTRY (`saveExtras: { collection, slug }`), which
           is why a footer belongs inside each of theirs. Moving this one inside would render N
           save bars for a single document save.
-          SO IT IS A DOCUMENT-LEVEL SAVE BAR, A DIFFERENT ROLE from a per-entry panel footer, and
-          it is deliberately NOT restyled to cream-200 either: making it look like a panel footer
-          would encode a similarity that is not there, and the next audit would find a bar that
-          looks like a sibling and behaves differently. */}
-      <footer className="flex items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-3">
-        <span className="text-[12px] text-text-subtle" aria-live="polite">
-          {statusText}
-        </span>
-        <button
-          type="button"
-          onClick={saveDraft}
-          disabled={!dirty || saveStatus === "saving"}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {saveStatus === "saving" ? "Saving…" : "Save draft"}
-        </button>
-      </footer>
+          SO IT IS A DOCUMENT-LEVEL SAVE BAR, A DIFFERENT ROLE from a per-entry panel footer.
+
+          ⚠ THE SECOND HALF OF #229's ARGUMENT IS RETIRED HERE, AND ITS REASONING IS KEPT RATHER
+          THAN DELETED. It read: "it is deliberately NOT restyled to cream-200 either — making it
+          look like a panel footer would encode a similarity that is not there, and the next audit
+          would find a bar that looks like a sibling and behaves differently."
+          THAT WAS TRUE OF A HAND-BUILT BAR AND IS NOT TRUE OF THIS ONE. The similarity is now
+          real: this IS the siblings' bar, the same component rendering the same five states from
+          the same derivation, so a shape that denied the resemblance would be the misleading one.
+          WHAT #229 ACTUALLY PROTECTS STILL HOLDS AND IS THE FIRST HALF — the bar stays OUTSIDE
+          the panels, one save for N CategoryPanels. That is the part about behaviour.
+          ⚠ AND IT IS STILL FULL-WIDTH, so it is the one surface the publish pill still overlaps.
+          Moving it under the detail column would mean restructuring ListDetailLayout's scroll
+          region for all five of its consumers, which is not this change. Recorded as a measured
+          limit rather than quietly left to be re-found. */}
+      <SaveBar
+        className="flex-none"
+        status={saveStatus}
+        dirty={dirty}
+        savedAt={savedAt}
+        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        primary={{
+          label: "Save draft",
+          onClick: saveDraft,
+          disabled: !dirty || saveStatus === "saving",
+          title: "Saves every category together — skills is one document, not one entry per category.",
+        }}
+      />
     </div>
   );
 }

@@ -261,8 +261,19 @@ t("D: the host passes it to the page-width hook", /usePageWidthMin\(\s*INSPECTOR
  * ASSERT THE ABSENCE OF A PATTERN, NOT JUST THE PRESENCE OF A RESULT. */
 t("E: the shell renders the inspector aside conditionally, not with a hidden class",
   /inspector\s*!==\s*null\s*\?/.test(shell), true);
-t("E: the shell's aside carries no `hidden` utility",
-  /<aside[^>]*className="[^"]*\bhidden\b/.test(shell), false);
+// ⚠ THE TOKEN, NOT THE SUBSTRING, AND THIS IS A LATENT DEFECT FOUND IN PASSING RATHER THAN A
+// RE-ANCHOR. The check read `\bhidden\b`, and a `-` is a word boundary, so `overflow-hidden` on
+// the aside matched — an assertion about `display: none` failing on a rule about OVERFLOW. The
+// save-bar PR briefly gave the aside `overflow-hidden` while trying a docked bar there, which is
+// how it surfaced; that experiment was reverted and the aside is unchanged, so NOTHING IN THAT
+// PR'"'"'S DIFF WOULD HAVE TRIPPED THIS. The defect is real anyway and fires for the next person who
+// adds any `overflow-*` utility, so the fix stays. The pair below is what proves it still sees a
+// real one — a check loosened until it passes is how a gate stops guarding anything.
+const asideCls = (src) => /<aside[^>]*className="([^"]*)"/.exec(src)?.[1] ?? "";
+const hasHiddenUtility = (src) => asideCls(src).split(/\s+/).includes("hidden");
+t("E: the shell's aside carries no `hidden` utility", hasHiddenUtility(shell), false);
+t("E: …and the check can still SEE a real one — the regex it replaces matched `overflow-hidden`",
+  hasHiddenUtility('<aside className="hidden w-[320px]">'), true);
 // The host passes null rather than a second copy when it folds.
 t("E: the host passes null below the fold",
   /inspector=\{\s*inspectorFits\s*\?\s*inspector\s*:\s*null\s*\}/.test(host), true);
@@ -341,7 +352,13 @@ const widthFrom = (re, label) => {
 // weaken it. It still anchors to the same class string, so it cannot match some other pane.
 const LIST_PX = widthFrom(/"w-\[(\d+)px\] border-ink-950\/\d+"/, "list");
 // The inspector's, off the <aside>.
-const INSPECTOR_PX = widthFrom(/<aside className="w-\[(\d+)px\] flex-none/, "inspector");
+// PINNED ON THE WIDTH, NOT ON WHAT FOLLOWS IT. This read `w-[320px] flex-none`, so it failed the
+// moment the aside gained `flex flex-col` — a change about LAYOUT breaking an assertion about
+// WIDTH. Surfaced the same way as the note above, by a reverted experiment, and kept for the same
+// reason: the brittleness is real and the next layout utility on that element trips it. Same
+// defect studio-ink'"'"'s E6 was re-anchored for. There is exactly one aside in the shell, so matching
+// anywhere in its class list is no less specific.
+const INSPECTOR_PX = widthFrom(/<aside className="[^"]*?\bw-\[(\d+)px\]/, "inspector");
 
 t("H: the list pane is 264px", LIST_PX, 264);
 t("H: the inspector pane is 320px", INSPECTOR_PX, 320);

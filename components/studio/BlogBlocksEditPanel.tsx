@@ -92,6 +92,7 @@ import BlogArticleHead from "@/components/blog/BlogArticleHead";
 import ThreePaneShell from "./ThreePaneShell";
 import BlogPostList from "./BlogPostList";
 import SaveIndicator from "./SaveIndicator";
+import SaveBar from "./SaveBar";
 import BoldToolbar from "./BoldToolbar";
 import { usePageWidthMin } from "./usePageWidthMin";
 import { PANES_SUM, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
@@ -293,7 +294,7 @@ export default function BlogBlocksEditPanel({
   // is empty and there is nothing to free.
   useEffect(() => () => previews.releaseAll(), [previews]);
 
-  const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<BlogFields>({
+  const { values, setField, dirty, saveStatus, savedAt, saveDraft } = useDraftForm<BlogFields>({
     initial: { blocks: initialBlocks },
     buildCommitted: (v) => ({ blocks: v.blocks }),
     isDirty: (v, b) => JSON.stringify(v.blocks) !== JSON.stringify(b.blocks),
@@ -681,7 +682,11 @@ export default function BlogBlocksEditPanel({
       : (selectedBlock.discriminant as BlogBlockKind);
 
   const inspector = (
-    <div className="flex flex-col">
+    // `min-h-full` SO THE BAR HAS FREE SPACE TO CONSUME. B4's finding in mount-discipline, in the
+    // shape it takes here: `sticky bottom-0` is inert when nothing scrolls, so a short post would
+    // leave the bar floating in the middle of the inspector. The height comes from the aside and
+    // `mt-auto` on the bar eats what is left over. Both halves, same as the panels.
+    <div className="flex min-h-full flex-col">
       {/* SECTION 1 — the post's own fields, owned by BlogEditPanel's form. */}
       <section>
         {/* THE INK BAND. A filled bar rather than a serif whisper, which is the single largest
@@ -902,6 +907,28 @@ export default function BlogBlocksEditPanel({
           </div>
         )}
       </section>
+
+      {/* ⚠ NET-NEW, NOT A RESTYLE. The blog had no save bar at all — no footer, no state line —
+          so this is the one surface where the change ADDS a bar rather than reshaping one. The
+          contract's census called it a bar with no explicit save; both halves were wrong, and
+          the explicit save at the top of the block strip is real and stays.
+          THE SAVE ABOVE IS KEPT ON THE OWNER'S CALL. The argument for removing a second save
+          control is aimed at a permanently-disabled one; that button has a dirty guard and is
+          never inert, and it sits where the blocks are, which is where you are when you want it.
+          #200 is not in play — both commit the same draft, so one label serves both. */}
+      <SaveBar
+        className="sticky bottom-0 z-10 mt-auto"
+        status={saveStatus}
+        dirty={dirty}
+        savedAt={savedAt}
+        title="Auto-saves to draft on blur. Publish from Site settings."
+        primary={{
+          label: "Save draft",
+          onClick: saveDraft,
+          disabled: !dirty || saveStatus === "saving",
+          title: "Commits this post's fields and every block together.",
+        }}
+      />
     </div>
   );
 

@@ -36,6 +36,7 @@ import { CS_MIN_SCALE, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { usePageWidthMin } from "./usePageWidthMin";
 import ThreePaneShell from "./ThreePaneShell";
+import SaveBar from "./SaveBar";
 import SectionsRail from "./SectionsRail";
 import CollapsibleGroup from "./blocks/CollapsibleGroup";
 import { richToMarkers } from "@/lib/studio/rich-markers";
@@ -954,7 +955,7 @@ export default function SectionsEditPanel({
   const [ids, setIds] = useState<Ids>(() => seedIds(initialSections));
   const [picker, setPicker] = useState<string | null>(null);
 
-  const { values, setField, dirty, saveStatus, saveDraft, cancel, savedBaseline } = useDraftForm<SectionsFields>({
+  const { values, setField, dirty, saveStatus, savedAt, saveDraft, cancel, savedBaseline } = useDraftForm<SectionsFields>({
     initial: { sections: initialSections },
     buildCommitted: (v) => ({ sections: v.sections }),
     isDirty: (v, b) => JSON.stringify(v.sections) !== JSON.stringify(b.sections),
@@ -1911,7 +1912,12 @@ export default function SectionsEditPanel({
   // sharing one onChange with colliding ids and two carets. Above the fold it mounts in the
   // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
   const inspectorNode = (
-    <div ref={inspectorRef} className="flex flex-col gap-4">
+    // ⚠ `min-h-full` IS WHAT LETS THE SAVE BAR BELOW REACH THE PANE'S FOOT. B4's finding in
+    // mount-discipline: `sticky bottom-0` only offsets an element when scrolling would carry it
+    // out of the sticky region, so with a short inspector the bar floats in mid-air — 61px at
+    // 1440x820, 295px at 1076x1054, bigger screen worse bug. The height comes from the aside and
+    // `mt-auto` on the bar eats the slack. Both halves, or neither works.
+    <div ref={inspectorRef} className="flex min-h-full flex-col gap-4">
       {/* THE SELECTED RAIL USED TO MOUNT HERE, AT THE TOP OF THE INSPECTOR, and it is now the
           dock at the canvas foot — see `SelectionDock`. The reasoning for putting it here is
           kept rather than deleted, because it was right about the thing it was arguing:
@@ -2245,8 +2251,43 @@ export default function SectionsEditPanel({
         </div>
         </FieldTabProvider>
       <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
+
+        {/* NO SECTIONS BAR ON A BESPOKE STUDY, AND THIS ONE IS #200 INVERTED. A normal study shows TWO
+            saves at once when Details is selected — "Save draft · Details" and "Save draft · Sections" —
+            suffixed rather than merged because they commit genuinely different drafts. A bespoke study
+            has no sections draft to commit, so a second bar would offer to save an object that does not
+            exist. #200's defect was two buttons claiming to be the same action; this would be one button
+            naming an object with nothing behind it.
+            AND THE WRITE PATH WOULD NOT HAVE STOPPED IT HONESTLY. Only `delete-entry` carries a
+            `BESPOKE_SLUGS` guard; `save-draft` has none. The serializer does refuse — `p4-4bi` asserts
+            boat-crest is REFUSED because it has `body` and no `sections` — but that surfaces as a
+            generic failure, which reads as a broken editor. The honest answer is not to offer the save.
+            `detailsNode` brings its own bar, so a bespoke study keeps exactly the one save it can do.
+
+            ⚠ THE VALIDATION MESSAGE IS NOT A SAVE STATE and travels as its own prop rather than folded
+            into the line. "A video URL must be http:// or https://" is a fact about the CONTENT; the
+            five-state line has no slot for it, and swallowing it to fit the drawing would have deleted
+            the only signal saying why the save is refusing. */}
+      {bespoke ? null : (
+        <SaveBar
+          className="sticky bottom-0 z-10 mt-auto"
+          status={saveStatus}
+          dirty={dirty}
+          savedAt={savedAt}
+          title="Auto-saves to draft on blur. Preview to see it."
+          validation={hasBadVideoSrc ? "A video URL must be http:// or https://." : null}
+          onCancel={handleCancel}
+          primary={{
+            label: "Save draft · Sections",
+            onClick: saveDraft,
+            disabled: !dirty || saveStatus === "saving" || hasBadVideoSrc,
+            title: "Commits this study's section blocks.",
+          }}
+        />
+      )}
     </div>
   );
+
   return (
     <>
       {/* THE CRUMB ROW — identity and actions, once, and ALWAYS RENDERED. It is `flex-none` and
@@ -2300,7 +2341,7 @@ export default function SectionsEditPanel({
         </a>
         {/* NO TOGGLE ON A BESPOKE STUDY, BECAUSE THERE IS NO BOARD TO TOGGLE TO. The Board
             arranges sections; with none it is an empty grid whose Add button cannot work, since
-            `BESPOKE_SLUGS` gates the write path. A CONTROL THAT CANNOT DO ANYTHING IS WORSE THAN
+          `BESPOKE_SLUGS` gates the write path. A CONTROL THAT CANNOT DO ANYTHING IS WORSE THAN
             AN ABSENT ONE — this repo has deleted that shape four times (FIT_THRESHOLD_PX, the 2xl
             radius, the ink-700 sites, .blog-editable.is-selected). ABSENT, NOT DISABLED: a
             disabled toggle still asserts a Board exists. */}
@@ -2420,62 +2461,6 @@ export default function SectionsEditPanel({
         />
       </div>
 
-      {/* NO SECTIONS FOOTER ON A BESPOKE STUDY, AND THIS ONE IS #200 INVERTED. A normal study
-          shows TWO saves at once when Details is selected — "Save details" and "Save sections" —
-          renamed rather than merged because they commit genuinely different drafts. A bespoke
-          study has no sections draft to commit, so a second bar would offer to save an object
-          that does not exist. #200's defect was two buttons claiming to be the same action; this
-          would be one button naming an object with nothing behind it.
-          AND THE WRITE PATH WOULD NOT HAVE STOPPED IT HONESTLY. Only `delete-entry` carries a
-          `BESPOKE_SLUGS` guard; `save-draft` has none. The serializer does refuse — `p4-4bi`
-          asserts boat-crest is REFUSED because it has `body` and no `sections` — but that
-          surfaces as a generic "Save failed. Try again.", which reads as a broken editor. The
-          honest answer is not to offer the save. `detailsNode` brings its own "Save details"
-          footer, so a bespoke study keeps exactly the one save it can perform.
-          CREAM-200 for the same reason as the crumb row. Two chrome bars bracketing the split
-          must be the same ground, or the page has two answers to one question. */}
-      {!bespoke && (
-      <footer className="flex flex-none items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[12px]" aria-live="polite">
-          {saveStatus === "saving" ? (
-            <span className="text-text-subtle">Saving draft…</span>
-          ) : saveStatus === "saved" ? (
-            <span className="text-accent-600">Draft saved</span>
-          ) : saveStatus === "error" ? (
-            <span className="text-accent-600">Save failed. Try again.</span>
-          ) : saveStatus === "fs" ? (
-            <span className="text-text-subtle">Draft save needs github mode (dev)</span>
-          ) : hasBadVideoSrc ? (
-            <span className="text-danger-600">A video URL must be http:// or https://.</span>
-          ) : (
-            <span className="text-text-subtle">Auto-saves to draft on blur. Preview to see it.</span>
-          )}
-        </span>
-        <div className="flex items-center gap-1">
-          {/* CANCEL, RE-HOMED. It lived in the body panel's header, which the crumb row replaced.
-              It reverts this form's draft, so it belongs beside the save it undoes rather than
-              disappearing with the bar that happened to hold it. */}
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={handleCancel}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={saveDraft}
-            disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
-            className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {/* "Save sections" — the other half of #200's second instance; see the note on
-                ProjectsEditPanel's footer button. */}
-            {saveStatus === "saving" ? "Saving…" : "Save sections"}
-          </button>
-        </div>
-      </footer>
-      )}
     </>
   );
 }

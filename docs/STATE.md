@@ -3320,6 +3320,76 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#282** the save bar — one shape, one derivation, nine surfaces →2055 across **50 suites**
+  **THE PREMISE I PLANNED FROM WAS WRONG, AND THAT IS THE HEADLINE.** I scoped this as "the bar
+  carries a permanent instruction and cannot report a failure". Verified in source, both are false.
+  **All seven panel footers already rendered a five-state line** — `saving`, `saved`, `error`, `fs`,
+  else the instruction — so **THE INSTRUCTION WAS ONLY THE IDLE FALLBACK** and "Couldn't save" was
+  already wired everywhere as "Save failed. Try again.". So this is a **narrower** change than it
+  was scoped as: one idle string replaced, one shape unified, a dot and an age added. It is not
+  state reporting arriving at a bar that had none.
+  **NINE VERIFIED CORRECTIONS TO THE CONTRACT'S CENSUS**, which said its census came from STATE and
+  to verify it. It does not survive verification. Beyond the two above: the blog HAS an explicit
+  Save (`BlogBlocksEditPanel`, with a dirty guard) **and** has no bar at all, so its bar is
+  **net-new, not a restyle**; two of the four quoted "wordings" exist nowhere and `SkillsEditor`
+  already ran a SIX-state line; the sections bar has a sixth **validation** state the contract does
+  not account for; and the details footer was **already** inspector-width and already clear of the
+  pill.
+  **THE GROUND IS cream-200, MEASURED, NOT THE CONTRACT'S cream-50 — WHICH INVALIDATES EVERY
+  CONTRAST FIGURE IT QUOTES**, because a ratio belongs to the ground it was taken against. The type
+  table was wrong on three of four rows, and **the contract said in its own words that it was read
+  off a screenshot**. A stated caveat is not a substitute for measuring, and this is the second time
+  that shortcut has shipped here.
+  **TWO ROWS, NOT THE CONTRACT'S ONE, AND THE REASON IS ARITHMETIC.** Its drawing puts the inspector
+  at 340px with a 12-character primary. This inspector is 313px inside its scrollbar and #200
+  requires "Save draft · Sections", which measures 167px; with Cancel and the padding the state
+  track was left **34px and rendered "Saved" as "S…"** — the one thing the change exists to add was
+  the one thing truncated. `extra` then had to leave the actions row too: Preview 61 + Cancel 56 +
+  primary 182 is 323 in a 281px box, and holding the `1fr` track open squeezed the primary until it
+  **wrapped inside its own button**.
+  **⚠ THE OVERLAP IS NOT FIXED EVERYWHERE AND THE LIMIT IS MEASURED, NOT CLAIMED AWAY.** The bar
+  clears the publish pill on the **case-study editor above the fold** (1920 +376, 1280 +56) and on
+  the **blog editor**. It does **NOT** clear at **1180**, where the inspector folds and the canvas
+  pane becomes the whole work area (−570 horizontal, 33px vertical), nor on **settings, experience
+  or skills**, whose "inspector track" is a 1000px+ detail column the centred pill lands inside
+  (124 × 40px). Moving those would mean restructuring `ListDetailLayout`'s scroll region for five
+  consumers, which is not this change.
+  **`fs` FOLDS INTO THE FAILURE STATE RATHER THAN DISAPPEARING.** The five-state line has no slot
+  for "the write no-oped because this dev server is not in github mode", and **dropping it into
+  silence would make a local save look successful when nothing was written**. A no-oped write IS a
+  failure to save. **Driven live and it is the strongest evidence in the PR**: a real save on the
+  dev server rendered "Couldn't save", so the failure state was forced rather than reasoned about.
+  **THE VALIDATION STATE SURVIVES AS ITS OWN BRANCH** and outranks the save state — a bad video URL
+  is a fact about the CONTENT, and swallowing it to fit the drawing would have deleted the only
+  signal saying why the save is refusing.
+  **TWO DEFECTS THE GATES CAUGHT MID-BUILD, BOTH INVISIBLE TO REVIEW.** `SaveBar`'s root started as
+  a `div`, which `ListDetailLayout`'s `lg:[&>section>footer]:mt-auto` selects nothing of — all five
+  settings bars would have resumed floating mid-air (61px at 1440x820, 295px at 1076x1054) while
+  every class-string gate passed. And the Preview anchor carried `text-ink-600` directly, which
+  **hazard 22's unlayered `a { color: inherit }` defeats**; studio-ink's E6 is the assertion that
+  caught it, and the colour went back on its wrapper.
+  **PROOF.** Five states driven live on the real editor including a forced failure. Contrast on the
+  measured cream-200, **sanity pair first** (21 / 1): dots 3.02 / 4.07 / 4.07 / 6.66 against a 3:1
+  floor — **ink-400 clears by 0.02 and that is stated rather than rounded past** — phrases 4.78 /
+  6.42 / 6.66 against 4.5. Reduced motion verified against the **production** bundle, not dev's
+  `styleSheets`, which omit rules that visibly apply: `.motion-safe\:animate-pulse` sits inside
+  `@media (prefers-reduced-motion:no-preference)` and its keyframes touch only `opacity`, so the
+  resting dot is identical either way. **CSS union +7 rules, −0, +355 bytes**, every rule
+  attributable. **Public DOM byte-identical on all five pages**; the only serialised difference is
+  two RSC module ids transposed on one page — rows `1d` and `a` differ by a single character each,
+  `$L1e` ↔ `$L1f`, same 72 rows either way.
+  New `studio-save-bar` suite, **30 mutations, 30 killed**. One survived first and it was the
+  assertion's fault, not the mutation's: `<SaveBar` matched `<SaveBarMoved` on the prefix, so a
+  check passed against markup that no longer rendered the shared bar. Re-anchored on the tag
+  boundary and a count. Two latent defects in `three-pane` fixed in passing and **labelled as such
+  in the file, because the diff that surfaced them was reverted**: `\bhidden\b` matched
+  `overflow-hidden` (a `-` is a word boundary), and the inspector-width regex pinned its neighbours.
+  **#229 IS HALF-RETIRED WITH ITS REASONING KEPT.** Its argument that skills' bar must not LOOK like
+  a panel footer because it BEHAVES differently was true of a hand-built bar and is not true of this
+  one — it is now the same component rendering the same states. The half that still holds, the bar
+  staying OUTSIDE the panels because skills is a singleton with one save for N categories, is
+  asserted.
+
 - **#277** studio navigation — **MEASURED, AND THE CODE IS NOT THE CAUSE.** Report only; no source
   changed. ralph unchanged at 1991 across 49 suites.
 

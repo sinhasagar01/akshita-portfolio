@@ -891,7 +891,16 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // the chip sits over a photograph whose contrast is otherwise unmeasurable.
     // LEFT: the index's 6px status dot, replaced by the word. That is the whole point of the
     // change — a dot in one of two greens is not a state anyone reads at a glance.
-    t("F5: the 34 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 34);
+    // REVALUED 34 -> 35 IN THE SAVE BAR PR, AND THIS ONE IS A SINGLE CLEAN ARRIVAL. The save
+    // bar's state dot is the only new pill, and it is the same family the count already protects
+    // — BlogPostList's published marker, the sections rail's two status dots. ONE DOT FOR NINE
+    // SURFACES is the point: nine footers previously each spelled their own state in prose, and
+    // the count going up by one rather than by nine is the evidence that they share a component.
+    // F5i names it.
+    t("F5: the 35 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 35);
+    t("F5i: …and the arrival is the save bar's state dot, which no consumer can restyle",
+      (code("components/studio/SaveBar.tsx").match(/rounded-full/g) ?? []).length === 1
+        && /size-1\.5 flex-none rounded-full \$\{DOT\[state\]\}/.test(code("components/studio/SaveBar.tsx")), true);
     t("F5h: …and the two arrivals are the blog status chip and the opaque ground it sits on",
       (code("components/studio/BlogStatusChip.tsx").match(/rounded-full/g) ?? []).length === 1
         && /rounded-full bg-cream-50">\s*<BlogStatusChip/.test(code("components/studio/BlogPostCard.tsx")), true);
@@ -1777,8 +1786,9 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * this would be one button naming an object with nothing behind it. The write path would not
    * have refused it honestly — only `delete-entry` carries a BESPOKE_SLUGS guard, and the
    * serializer's refusal surfaces as a generic "Save failed. Try again.". */
+  /* RE-ANCHORED OFF `<footer>` IN THE SAVE BAR PR — the element is gone, the guard is not. */
   t("C13: the sections save bar is absent on a bespoke study — it has no sections draft to commit",
-    /\{!bespoke && \(\s*<footer/.test(panel), true);
+    /\{bespoke \? null : \(\s*<SaveBar/.test(panel), true);
 
   /* THE ZERO STATE IS THE WHOLE HAZARD. An empty list under a count heading is what a broken
    * fetch looks like, so the rail states its zero and says why. */
