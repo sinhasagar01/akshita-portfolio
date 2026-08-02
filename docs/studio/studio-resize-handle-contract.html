@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/studio — the resize handle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400&display=swap" rel="stylesheet">
+
+<!--
+================================================================================
+  THE RESIZE HANDLE — one grip, two seams
+
+  ##########################################################################
+  ##  VISUAL SPEC ONLY. DO NOT PORT THIS CSS.                             ##
+  ##  Ground cream-200/100/50 · ink-950 chrome · accent-500 active.       ##
+  ##########################################################################
+
+  ONE TREATMENT ON BOTH SEAMS: the sidebar's (which already drags, since #237)
+  and the inspector's (which is being made to). Today the sidebar handle and
+  the inspector's non-existent one are two different answers to one question.
+
+================================================================================
+  1 · ⚠ INK AND CREAM ARE ONE RULE, NOT TWO DESIGNS
+================================================================================
+  The sidebar seam sits against INK-950 chrome; the inspector seam sits between
+  two CREAM panes. THE RULE IS THE SAME — one step of separation from the
+  surface the grip sits on — and it is expressed in two directions:
+
+    on the ink seam      grip cream-50 at 12% · dots white/55 · hover accent
+    on the cream seam    grip cream-50 solid  · dots ink-400  · hover accent
+
+  A single colour for both is what made the studio's scrollbars look broken on
+  the sidebar, and it is the ninth by-role answer in this project.
+  ⚠ AND THE INK SEAM'S CONTRAST MUST BE MEASURED ON INK, NOT CARRIED OVER.
+  #214 moved the topbar to solid ink and SIX OF SEVEN on-ink ratios changed
+  while one fell below its floor — "the value did not change; its ground did."
+
+================================================================================
+  2 · ⚠ TWO DEFECTS #237 SHIPPED AND CAUGHT, AND BOTH APPLY AGAIN
+================================================================================
+  1. AN IN-FLOW HANDLE CONSUMES LAYOUT WIDTH. #237's first version took 4px off
+     the work area — a term nobody put in the arithmetic, introduced by the
+     control built to sit on the seam. At a 288px sidebar the canvas measured
+     645 where every sum promised 649.
+     THE GRIP IS ABSOLUTE ON THE SEAM AND CONSUMES NOTHING, on both seams.
+  2. HALF THE HIT AREA WAS DEAD. `-mr-1` let `main` paint over it, so a
+     pointerdown at the seam reported a button in main as its target and the
+     drag never began. IT LOOKED FINE.
+     THE HIT AREA IS 12px AROUND AN 8px GRIP, and it is proven by a pointerdown
+     at the seam RETURNING THE HANDLE — not by looking at it.
+
+================================================================================
+  3 · THE GRIP SURVIVES THE COLLAPSE, WHICH IS WHY IT WON
+================================================================================
+  A pane at zero width has no handle inside it. The grip rides the edge, so THE
+  AFFORDANCE AND ITS WAY BACK ARE THE SAME OBJECT in the same place — no
+  separate rail, nothing new to learn, and nothing that exists only in one
+  state.
+  ⚠ THE WAY BACK MUST BE KEYBOARD-REACHABLE. A drag-only affordance is a pane a
+  keyboard user can close and never reopen. #237's keys are the precedent:
+  arrows step, Home/End jump, and ENTER TOGGLES MINIMUM AGAINST THE LAST
+  NON-MINIMUM — binding Enter to a fixed default would hand a keyboard user the
+  one width they already had.
+
+================================================================================
+  4 · THE STATES, AND WHAT EACH MEANS
+================================================================================
+    rest      outlined grip, dots ink-400 — present, quiet, announcing itself
+    hover     accent border, accent dots, the seam line tints
+    dragging  accent FILL, white dots, the seam line goes full accent
+    focused   accent border plus a 2px accent ring at 30%
+    collapsed the same grip on the edge, and the pane is HIDDEN AND INERT
+
+  ⚠ FOCUS MUST BE DRIVEN WITH A REAL TAB. #209 found programmatic .focus()
+  reports a FALSE NEGATIVE on :focus-visible — it said the ring was missing
+  when it was not, and a false negative invites a fix for a bug that is not
+  there, which is worse than a false positive.
+================================================================================
+-->
+
+<style>
+:root{
+  --cream-50:oklch(98.5% .012 80); --cream-100:oklch(96.8% .018 78);
+  --cream-200:oklch(93.5% .025 76); --cream-300:oklch(88% .032 74);
+  --ink-950:oklch(14% .018 60); --ink-800:oklch(26% .018 60);
+  --ink-600:oklch(44% .016 60); --ink-400:oklch(62% .014 60); --ink-200:oklch(80% .01 70);
+  --subtle:oklch(51% .014 62); --accent:oklch(56% .14 42);
+  --rule:oklch(14% .018 60 / .12); --rule-edge:oklch(14% .018 60 / .22);
+  --r-card:8px; --r-ctl:4px;
+  --sans:"DM Sans",ui-sans-serif,system-ui,sans-serif; --serif:"Fraunces",Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:30px 26px 70px;background:var(--cream-200);color:var(--ink-950);
+  font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+h1.top{font:700 14px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-600);margin:0 0 8px}
+.sub{font:400 13px/1.65 var(--sans);color:var(--subtle);margin:0 0 20px;max-width:94ch}
+.sub b{color:var(--ink-950)}
+.block{margin-bottom:34px}
+.bhead{margin-bottom:12px;max-width:94ch}
+.bhead h2{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:0 0 6px}
+.bhead p{font:400 12.5px/1.65 var(--sans);color:var(--subtle);margin:0}
+.bhead b{color:var(--ink-950)}
+.lbl{font:600 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-400);margin:0 0 7px}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+
+/* ---------------- the demo shells ---------------- */
+.demo{position:relative;height:200px;border:1px solid var(--rule-edge);
+  border-radius:var(--r-ctl);overflow:hidden;background:var(--cream-50)}
+
+/* the sidebar seam — ink on the left, work area on the right */
+.demo.side{display:grid;grid-template-columns:112px 1fr}
+.demo.side.collapsed{grid-template-columns:0 1fr}
+.nav{background:var(--ink-950);padding:11px 9px;display:grid;gap:3px;align-content:start;overflow:hidden}
+.nav p{font:700 7.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-400);margin:0 0 4px 7px}
+.nav a{display:grid;grid-auto-flow:column;justify-content:start;align-items:center;gap:7px;
+  padding:6px 8px;border-radius:99px;color:var(--ink-200);font-size:10.5px;text-decoration:none;
+  white-space:nowrap}
+.nav a.on{background:oklch(100% 0 0/.1);color:oklch(99% .008 80);font-weight:500}
+.nav a i{width:9px;height:9px;border-radius:2px;background:currentColor;opacity:.5;font-style:normal}
+.nav hr{border:0;border-top:1px solid oklch(100% 0 0/.12);margin:7px 4px}
+
+/* the inspector seam — two cream panes */
+.demo.insp{display:grid;grid-template-columns:1fr 118px}
+.demo.insp.collapsed{grid-template-columns:1fr 0}
+.canvas{background:var(--cream-50);padding:12px;display:grid;gap:7px;align-content:start}
+.canvas span{height:8px;border-radius:99px;background:var(--ink-400);opacity:.16}
+.canvas span:nth-child(2){width:72%} .canvas span:nth-child(3){width:88%}
+.canvas span:nth-child(4){width:54%}
+.pane{background:var(--cream-100);border-left:1px solid var(--rule);padding:12px 10px;
+  display:grid;gap:7px;align-content:start;overflow:hidden}
+.pane b{font:700 8px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-600)}
+.pane span{height:22px;border-radius:var(--r-ctl);background:var(--cream-50);
+  border:1px solid var(--rule)}
+.work{background:var(--cream-50);padding:12px;display:grid;gap:7px;align-content:start}
+.work span{height:8px;border-radius:99px;background:var(--ink-400);opacity:.16}
+.work span:nth-child(2){width:66%}
+
+/* ============================================================
+   THE GRIP — absolute on the seam, consuming no layout width.
+   12px hit area around an 8px mark.
+   ============================================================ */
+.seam{position:absolute;top:0;bottom:0;width:12px;z-index:6;cursor:col-resize;
+  display:grid;place-items:center}
+.demo.side .seam{left:112px;transform:translateX(-6px)}
+.demo.side.collapsed .seam{left:0;transform:translateX(0)}
+.demo.insp .seam{right:118px;transform:translateX(6px)}
+.demo.insp.collapsed .seam{right:0;transform:translateX(0)}
+
+.line{position:absolute;top:0;bottom:0;left:50%;width:1px;margin-left:-.5px;
+  background:var(--rule);transition:background 140ms var(--ease)}
+.demo.side .line{background:oklch(100% 0 0/.12)}
+
+.grip{position:relative;width:8px;padding:7px 0;border-radius:99px;
+  background:var(--cream-50);border:1px solid var(--rule-edge);
+  display:grid;gap:3px;justify-items:center;
+  transition:background 140ms var(--ease),border-color 140ms var(--ease),
+             box-shadow 140ms var(--ease)}
+.grip i{width:2px;height:2px;border-radius:99px;background:var(--ink-400);font-style:normal;
+  transition:background 140ms var(--ease)}
+/* ON INK — the same rule, the other direction */
+.demo.side .grip{background:oklch(100% 0 0/.12);border-color:oklch(100% 0 0/.22)}
+.demo.side .grip i{background:oklch(100% 0 0/.55)}
+
+/* states */
+.cell.hover .grip{border-color:var(--accent)}
+.cell.hover .grip i{background:var(--accent)}
+.cell.hover .line{background:oklch(56% .14 42/.45)}
+.cell.drag .grip{background:var(--accent);border-color:transparent}
+.cell.drag .grip i{background:#fff}
+.cell.drag .line{background:var(--accent)}
+.cell.focus .grip{border-color:var(--accent);box-shadow:0 0 0 2px oklch(56% .14 42/.3)}
+.cell.focus .grip i{background:var(--accent)}
+
+.note{margin-top:13px;font:400 11.5px/1.7 var(--sans);color:var(--subtle);max-width:94ch}
+.note b{color:var(--ink-950)}
+.note ul{margin:7px 0 0;padding-left:16px}
+.note li{margin-bottom:5px}
+.h3{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-400);margin:0 0 6px}
+.warn{border-left:2px solid var(--accent);padding-left:12px;max-width:94ch;margin-top:14px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  background:var(--cream-100);padding:2px 5px;border-radius:3px}
+table{border-collapse:collapse;width:100%;max-width:58rem;margin:9px 0 0}
+th{text-align:left;font:600 9.5px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-400);padding:0 14px 7px 0;border-bottom:1px solid var(--rule)}
+td{padding:7px 14px 7px 0;border-bottom:1px solid var(--rule);font-size:12px;vertical-align:top}
+td:first-child{font-weight:500;color:var(--ink-950);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<h1 class="top">The resize handle · one grip, two seams</h1>
+<p class="sub">The same treatment on the sidebar seam (which already drags, since #237) and the inspector seam (which is being made to). <b>Ink and cream are one rule, not two designs</b> — one step of separation from the surface the grip sits on, expressed in two directions. Every state is shown on both, including <b>collapsed</b>, because the grip rides the edge and <b>the affordance and its way back are the same object</b>.</p>
+
+<!-- ================= THE SIDEBAR SEAM ================= -->
+<div class="block">
+  <div class="bhead">
+    <h2>The sidebar seam · on ink</h2>
+    <p>Studio, Homepage, Case studies, Blog, Skills, Site settings, Sign out. The grip is a white wash on ink-950 with white dots — <b>the same one-step rule, the other direction</b>.</p>
+  </div>
+  <div class="states">
+    <div class="cell">
+      <p class="lbl">Rest</p>
+      <div class="demo side">
+        <div class="nav"><p>Content</p><a class="on"><i></i>Homepage</a><a><i></i>Case studies</a><a><i></i>Blog</a><a><i></i>Skills</a><hr/><a><i></i>Site settings</a><a><i></i>Sign out</a></div>
+        <div class="work"><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell hover">
+      <p class="lbl">Hover</p>
+      <div class="demo side">
+        <div class="nav"><p>Content</p><a class="on"><i></i>Homepage</a><a><i></i>Case studies</a><a><i></i>Blog</a><a><i></i>Skills</a><hr/><a><i></i>Site settings</a><a><i></i>Sign out</a></div>
+        <div class="work"><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell drag">
+      <p class="lbl">Dragging</p>
+      <div class="demo side">
+        <div class="nav"><p>Content</p><a class="on"><i></i>Homepage</a><a><i></i>Case studies</a><a><i></i>Blog</a><a><i></i>Skills</a><hr/><a><i></i>Site settings</a><a><i></i>Sign out</a></div>
+        <div class="work"><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell focus">
+      <p class="lbl">Keyboard-focused</p>
+      <div class="demo side">
+        <div class="nav"><p>Content</p><a class="on"><i></i>Homepage</a><a><i></i>Case studies</a><a><i></i>Blog</a><a><i></i>Skills</a><hr/><a><i></i>Site settings</a><a><i></i>Sign out</a></div>
+        <div class="work"><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= THE INSPECTOR SEAM ================= -->
+<div class="block">
+  <div class="bhead">
+    <h2>The inspector seam · on cream, and it collapses to zero</h2>
+    <p>Blog and case study, three-pane. The grip is cream-50 with ink-400 dots, and <b>at zero width it rides the edge</b> — the same object, still draggable, still clickable, still focusable.</p>
+  </div>
+  <div class="states">
+    <div class="cell">
+      <p class="lbl">Rest</p>
+      <div class="demo insp">
+        <div class="canvas"><span></span><span></span><span></span><span></span></div>
+        <div class="pane"><b>Details</b><span></span><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell hover">
+      <p class="lbl">Hover</p>
+      <div class="demo insp">
+        <div class="canvas"><span></span><span></span><span></span><span></span></div>
+        <div class="pane"><b>Details</b><span></span><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell drag">
+      <p class="lbl">Dragging</p>
+      <div class="demo insp">
+        <div class="canvas"><span></span><span></span><span></span><span></span></div>
+        <div class="pane"><b>Details</b><span></span><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell focus">
+      <p class="lbl">Keyboard-focused</p>
+      <div class="demo insp">
+        <div class="canvas"><span></span><span></span><span></span><span></span></div>
+        <div class="pane"><b>Details</b><span></span><span></span><span></span></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell">
+      <p class="lbl">Collapsed — the grip rides the edge</p>
+      <div class="demo insp collapsed">
+        <div class="canvas"><span></span><span></span><span></span><span></span></div>
+        <div class="pane"></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+    <div class="cell hover">
+      <p class="lbl">Collapsed, hovered — still the way back</p>
+      <div class="demo insp collapsed">
+        <div class="canvas"><span></span><span></span><span></span><span></span></div>
+        <div class="pane"></div>
+        <div class="seam"><span class="line"></span><span class="grip"><i></i><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <p class="h3">The grip, stated</p>
+  <table>
+    <tr><th>axis</th><th>value</th></tr>
+    <tr><td>mark</td><td>8px wide, four 2px dots at 3px gaps, radius 99px</td></tr>
+    <tr><td>hit area</td><td><b>12px</b>, absolute on the seam, consuming no layout width</td></tr>
+    <tr><td>on cream</td><td>cream-50 fill, ink-950/22 border, ink-400 dots</td></tr>
+    <tr><td>on ink</td><td>white/12 fill, white/22 border, white/55 dots</td></tr>
+    <tr><td>hover</td><td>accent border, accent dots, the seam line tints to accent/45</td></tr>
+    <tr><td>dragging</td><td>accent fill, white dots, the seam line full accent</td></tr>
+    <tr><td>focus</td><td>accent border plus a 2px accent/30 ring</td></tr>
+    <tr><td>collapsed</td><td>the same grip on the edge; the pane is hidden and <b>inert</b></td></tr>
+  </table>
+
+  <div class="warn">
+    <p class="h3">⚠ Two defects #237 shipped and caught, and both apply again</p>
+    <b>An in-flow handle consumes layout width.</b> #237's first version took 4px off the work area — a term nobody put in the arithmetic, introduced by the control built to sit on the seam. At a 288px sidebar the canvas measured 645 where every sum promised 649. <b>The grip is absolute on both seams and consumes nothing.</b>
+    <b>Half the hit area was dead.</b> <code>-mr-1</code> let <code>main</code> paint over it, so a pointerdown at the seam reported a button in main as its target and the drag never began — <b>and it looked fine</b>. Prove the 12px target with a pointerdown returning the handle, not by looking at it.
+  </div>
+
+  <div class="warn">
+    <p class="h3">⚠ Ink and cream are one rule, not two designs</p>
+    One step of separation from the surface the grip sits on, expressed in two directions. A single colour for both is what makes a control look broken on the sidebar.
+    <b>And the ink seam's contrast must be measured on ink, not carried over.</b> #214 moved the topbar to solid ink and <b>six of seven on-ink ratios changed while one fell below its floor</b> — "the value did not change; its ground did."
+  </div>
+
+  <p class="h3" style="margin-top:16px">Why the grip won</p>
+  A pane at zero width has no handle inside it. <b>The grip rides the edge, so the affordance and its way back are the same object</b> in the same place — no separate rail, nothing that exists only in one state. And it is the only treatment that <b>announces itself at rest</b>: an author learns the panes resize without having to brush the seam to find out.
+  <b>⚠ The way back must be keyboard-reachable.</b> A drag-only affordance is a pane a keyboard user can close and never reopen. #237's keys are the precedent — arrows step, Home/End jump, and <b>Enter toggles minimum against the last non-minimum</b>, because binding it to a fixed default hands a keyboard user the one width they already had.
+</div>
+
+</body>
+</html>
