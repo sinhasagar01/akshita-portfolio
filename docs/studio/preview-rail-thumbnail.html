@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Preview rail — thumbnail preview (selected)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fraunces stands in for the project's real serif token. Colours are stand-in hex —
+     use the project's real cream/accent tokens in code. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#F3EEE4;--paper:#FBF8F1;--ink:#211C18;--mut:#7C7267;--lbl:#A0937F;--line:rgba(60,50,38,.15);
+    --acc:#B4562F;--dark:#1F1B17;
+    --serif:'Fraunces',Georgia,serif;--sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --db1:#eef2f8;--db2:#dfe8f5;--dbink:rgba(60,80,130,.45);--dbpanel:#fff;
+    --hit:20px;              /* invisible click target height per tick */
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  .sf{font-family:var(--serif);}
+
+  /* demo page content only — not part of the component */
+  .doc{max-width:760px;margin:0 auto;padding:70px 32px 240px;}
+  .doc h2{font-family:var(--serif);font-weight:400;font-size:34px;margin:0 0 10px;letter-spacing:-.01em;}
+  .doc .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:500;margin-bottom:8px;}
+  .doc section{padding:80px 0;border-bottom:0.5px solid var(--line);}
+  .doc p{color:var(--mut);max-width:620px;}
+
+  /* ===================== THE RAIL ===================== */
+  .rail{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:50;
+        display:flex;flex-direction:column;align-items:flex-end;padding:8px 0;}
+
+  /* the button is a tall TRANSPARENT hit row; the visible dash is the child */
+  .tick{height:var(--hit);display:flex;align-items:center;justify-content:flex-end;
+        background:none;border:none;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .tick .dash{display:block;height:2px;border-radius:2px;background:rgba(60,50,38,.3);
+              transition:width .3s cubic-bezier(.22,1,.36,1),height .2s,background .25s,opacity .25s;}
+
+  /* RESTING — reading position, no hover needed */
+  .tick.current .dash{background:var(--acc);height:3px;}
+  .tick.near1 .dash{background:rgba(180,86,47,.55);}
+  .tick.near2 .dash{background:rgba(180,86,47,.32);}
+
+  /* HOVER — the aimed tick wins; `current` keeps a colour floor so you never lose your place */
+  .rail.aiming .tick .dash{opacity:.38;}
+  .rail.aiming .tick.current .dash{opacity:.7;}
+  .tick.aim .dash{background:var(--acc);height:3px;opacity:1 !important;}
+  .tick:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:3px;}
+
+  /* hairline tying the aimed tick to the card */
+  .conn{position:fixed;z-index:54;height:1px;background:var(--acc);opacity:0;
+        transition:opacity .16s;pointer-events:none;}
+  .conn.show{opacity:.5;}
+
+  /* floating destination preview */
+  .prev{position:fixed;z-index:55;pointer-events:none;opacity:0;transform:translateY(4px);
+        transition:opacity .16s,transform .16s;}
+  .prev.show{opacity:1;transform:translateY(0);}
+  .prevCard{background:var(--paper);border:0.5px solid var(--line);border-radius:12px;
+            box-shadow:0 18px 44px -18px rgba(60,50,38,.5);padding:12px;width:250px;}
+  .prevCard .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl);margin-bottom:4px;}
+  .prevCard .t{font-family:var(--serif);font-size:17px;line-height:1.2;}
+  .prevCard .n{font-size:11px;color:var(--mut);margin-top:6px;}
+  .prevCard .here{display:inline-block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+                  color:var(--acc);border:0.5px solid rgba(180,86,47,.4);border-radius:999px;
+                  padding:2px 7px;margin-top:8px;}
+
+  /* schematic thumbnail — DERIVED FROM THE SECTION'S FIRST BLOCK KIND, not authored content */
+  .thumb{height:88px;border-radius:7px;overflow:hidden;display:flex;margin-bottom:9px;
+         border:0.5px solid var(--line);background:linear-gradient(160deg,var(--db1),var(--db2));}
+  .thumb .sd{width:16%;background:rgba(90,110,160,.14);}
+  .thumb .bd{flex:1;padding:9px;}
+  .thumb .bar{background:var(--dbink);border-radius:3px;}
+  .thumb .tile{background:var(--dbpanel);border-radius:4px;}
+  .thumb.txt{background:var(--paper);display:block;padding:11px;}
+  .thumb.txt .l{height:6px;background:rgba(60,50,38,.16);border-radius:3px;margin-bottom:6px;}
+  .thumb.dark{background:var(--dark);}
+  .thumb.dark .l{background:rgba(243,238,228,.22);}
+
+  @media (prefers-reduced-motion: reduce){
+    .tick .dash,.prev,.conn{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="doc" id="doc"></div>
+
+<div class="conn" id="conn"></div>
+<div class="prev" id="prev"><div class="prevCard" id="prevCard"></div></div>
+
+<script>
+/* SECTIONS here stands in for the real page's sections — in code this is derived from the
+   already-editable Section shell (id, eyebrow, title) + the section's first block kind. */
+var SECTIONS=[
+ {k:"01 · Setup",t:"One companion, three people",n:"The framing problem",kind:"txt"},
+ {k:"02 · At a glance",t:"Impact at a glance",n:"Three outcome numbers",kind:"txt"},
+ {k:"03 · Problem",t:"The wall everyone hit",n:"Pull quote",kind:"dark"},
+ {k:"04 · Goals",t:"What we set out to do",n:"Goal grid",kind:"txt"},
+ {k:"05 · Process",t:"Three phases",n:"Stepper",kind:"txt"},
+ {k:"06 · Insights",t:"Three personas, three needs",n:"Principle cards",kind:"txt"},
+ {k:"07 · Solution",t:"The companion, in context",n:"Wide dashboard",kind:"ui"},
+ {k:"08 · Design tour",t:"What makes it work",n:"Feature rows",kind:"ui"},
+ {k:"09 · Screens",t:"Screens",n:"Device shelf",kind:"ui"},
+ {k:"10 · Before / after",t:"Before and after",n:"Comparison pair",kind:"ui"},
+ {k:"11 · Final design",t:"The profiler, in motion",n:"Prototype video",kind:"ui"},
+ {k:"12 · Principle",t:"My design principle",n:"Dark band",kind:"dark"},
+ {k:"13 · Reflection",t:"What this taught me",n:"Reflection",kind:"txt"},
+ {k:"14 · Closing",t:"From data to decision",n:"Closing line",kind:"txt"}
+];
+
+var doc=document.getElementById('doc');
+SECTIONS.forEach(function(s){
+  var sec=document.createElement('section');
+  sec.innerHTML='<div class="eyebrow">'+s.k+'</div><h2 class="sf">'+s.t+'</h2><p>'+s.n+
+    ' — placeholder body copy so the page scrolls and the rail has something to track.</p>';
+  doc.appendChild(sec);
+});
+
+var prev=document.getElementById('prev'),prevCard=document.getElementById('prevCard'),conn=document.getElementById('conn');
+
+function thumbFor(s){
+  if(s.kind==='ui') return '<div class="thumb"><div class="sd"></div><div class="bd">'+
+    '<div class="bar" style="width:52%;height:6px;margin-bottom:7px;"></div>'+
+    '<div style="display:flex;gap:6px;margin-bottom:7px;"><div class="tile" style="flex:1;height:24px;"></div><div class="tile" style="flex:1;height:24px;"></div></div>'+
+    '<div class="tile" style="height:22px;"></div></div></div>';
+  if(s.kind==='dark') return '<div class="thumb dark txt"><div class="l" style="width:40%;"></div>'+
+    '<div class="l" style="width:82%;"></div><div class="l" style="width:70%;"></div></div>';
+  return '<div class="thumb txt"><div class="l" style="width:34%;"></div><div class="l" style="width:88%;"></div>'+
+    '<div class="l" style="width:76%;"></div><div class="l" style="width:58%;"></div></div>';
+}
+function smooth(f){return f*f*(3-2*f);}
+
+var OPTS={baseW:10,activeW:28,maxW:44,restSpan:4,reach:70};
+
+var rail=document.createElement('nav');
+rail.className='rail';
+rail.setAttribute('aria-label','Section navigation');
+var ticks=[],active=0,pointerY=null;
+
+SECTIONS.forEach(function(s,i){
+  var b=document.createElement('button');
+  b.className='tick';
+  b.setAttribute('aria-label','Go to '+s.t);
+  var d=document.createElement('span');d.className='dash';
+  b.appendChild(d);
+  b.addEventListener('pointerenter',function(){showPrev(s,b,i);});
+  b.addEventListener('focus',function(){showPrev(s,b,i);});
+  b.addEventListener('blur',hidePrev);
+  b.addEventListener('click',function(){
+    var secs=document.querySelectorAll('.doc section');
+    if(secs[i]) secs[i].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  ticks.push(b);rail.appendChild(b);
+});
+document.body.appendChild(rail);
+
+function showPrev(s,el,i){
+  var r=el.getBoundingClientRect();
+  prevCard.innerHTML=thumbFor(s)+'<div class="k">'+s.k+'</div><div class="t sf">'+s.t+'</div>'+
+    '<div class="n">'+s.n+'</div>'+(i===active?'<span class="here">You are here</span>':'');
+  prev.classList.add('show');
+  var h=prevCard.offsetHeight,mid=r.top+r.height/2;
+  var top=Math.min(Math.max(mid-h/2,70),window.innerHeight-h-16),left=r.left-266;
+  prev.style.top=top+'px';prev.style.left=left+'px';
+  conn.classList.add('show');conn.style.top=mid+'px';conn.style.left=(left+250)+'px';
+  conn.style.width=Math.max(0,r.left-(left+250)-6)+'px';
+}
+function hidePrev(){prev.classList.remove('show');conn.classList.remove('show');}
+
+/* resting width from |i - active|; hover width from pointer distance;
+   final = max(rest, hover) so hover can only ADD, never shrink the active pyramid */
+function paint(){
+  var best=null,bestD=Infinity;
+  ticks.forEach(function(t,i){
+    var dist=Math.abs(i-active);
+    var restW=OPTS.baseW+(OPTS.activeW-OPTS.baseW)*smooth(Math.max(0,1-dist/OPTS.restSpan));
+    var hovW=0;
+    if(pointerY!==null){
+      var r=t.getBoundingClientRect(),c=r.top+r.height/2,pd=Math.abs(pointerY-c);
+      if(pd<bestD){bestD=pd;best=t;}
+      hovW=OPTS.baseW+(OPTS.maxW-OPTS.baseW)*smooth(Math.max(0,1-pd/OPTS.reach));
+    }
+    t.querySelector('.dash').style.width=Math.max(restW,hovW)+'px';
+    t.classList.toggle('current',i===active);
+    t.classList.toggle('near1',dist===1);
+    t.classList.toggle('near2',dist===2);
+    t.classList.remove('aim');
+  });
+  if(best) best.classList.add('aim');
+}
+
+rail.addEventListener('pointermove',function(e){rail.classList.add('aiming');pointerY=e.clientY;paint();});
+rail.addEventListener('pointerleave',function(){rail.classList.remove('aiming');pointerY=null;paint();hidePrev();});
+
+function spy(){
+  var secs=document.querySelectorAll('.doc section'),line=window.innerHeight*0.35,idx=0;
+  secs.forEach(function(s,i){if(s.getBoundingClientRect().top<=line) idx=i;});
+  if(idx!==active){active=idx;paint();}
+}
+window.addEventListener('scroll',spy,{passive:true});
+paint();spy();
+</script>
+</body>
+</html>

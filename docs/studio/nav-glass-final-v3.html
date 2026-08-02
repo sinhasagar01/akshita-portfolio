@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Scroll-aware liquid-glass nav — final v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fraunces stands in for the project's real serif token.
+     THE WORDMARK IS A SLOT: reuse the existing logo component (with its hover animation) untouched. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#E9E1D2;--paper:#FBF6EE;--ink:#211C18;--mut:#7C7267;--line:rgba(60,50,38,.16);
+    --acc:#B4562F;--serif:'Fraunces',Georgia,serif;
+    --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --easeBack:cubic-bezier(.62,-0.28,.28,1.3);
+    --spring:cubic-bezier(.34,1.56,.64,1);
+
+    /* ---------- liquid glass tokens — ONE set, both breakpoints ---------- */
+    --glass-fill:rgba(252,248,241,.58);
+    --glass-fill-strong:rgba(252,248,241,.78);
+    --glass-stroke:rgba(255,255,255,.72);
+    --glass-blur:blur(22px) saturate(180%);
+    --glass-shadow:
+       inset 0 1px 0 0 rgba(255,255,255,.85),
+       inset 0 -1px 0 0 rgba(255,255,255,.28),
+       inset 0 0 0 .5px rgba(60,50,38,.06),
+       0 2px 6px -2px rgba(60,50,38,.14),
+       0 14px 38px -14px rgba(60,50,38,.34);
+    --glass-shadow-hi:
+       inset 0 1px 0 0 rgba(255,255,255,.95),
+       inset 0 -1px 0 0 rgba(255,255,255,.34),
+       inset 0 0 0 .5px rgba(60,50,38,.07),
+       0 3px 8px -2px rgba(60,50,38,.16),
+       0 20px 46px -14px rgba(60,50,38,.4);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;
+       background-image:radial-gradient(680px 420px at 12% 4%, rgba(180,86,47,.10), transparent 60%),
+                        radial-gradient(560px 380px at 88% 0%, rgba(120,140,190,.10), transparent 62%);}
+  .sf{font-family:var(--serif);}
+  a{color:inherit;text-decoration:none;}
+
+  .switch{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:300;
+          display:flex;gap:8px;align-items:center;background:var(--paper);
+          border:.5px solid var(--line);border-radius:999px;padding:6px 8px;
+          box-shadow:0 14px 34px -14px rgba(60,50,38,.45);}
+  .switch b{font-family:var(--serif);font-weight:400;font-size:13px;margin:0 4px 0 8px;}
+  .switch button{font-size:12px;border:.5px solid var(--line);background:#fff;color:var(--ink);
+                 border-radius:999px;padding:6px 12px;cursor:pointer;}
+  .switch button.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+  .view{display:none;} .view.on{display:block;}
+
+  /* ============================================================
+     GLASS SURFACE — identical material on desktop and mobile.
+     `.ghost` nullifies the MATERIAL only; contents stay visible.
+     ============================================================ */
+  .glass{position:relative;isolation:isolate;border-radius:999px;
+         background:var(--glass-fill);
+         -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+         border:.5px solid var(--glass-stroke);
+         box-shadow:var(--glass-shadow);
+         transition:background .38s ease,border-color .38s ease,
+                    box-shadow .38s ease,backdrop-filter .38s ease;}
+  .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+                 background:linear-gradient(115deg, rgba(255,255,255,.5) 0%,
+                            rgba(255,255,255,.14) 26%, rgba(255,255,255,0) 52%);
+                 opacity:1;transition:opacity .38s ease;}
+  .glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+                background:radial-gradient(160px circle at var(--mx,50%) var(--my,0%),
+                           rgba(255,255,255,.55), transparent 62%);
+                opacity:0;transition:opacity .34s ease;}
+  @media (hover:hover){
+    .glass:hover::after{opacity:1;}
+    .glass:hover{box-shadow:var(--glass-shadow-hi);}
+  }
+  .glass.ghost{background:transparent;border-color:transparent;box-shadow:none;
+               -webkit-backdrop-filter:none;backdrop-filter:none;}
+  .glass.ghost::before{opacity:0;}
+  .glass.ghost::after{opacity:0;}
+
+  /* ============================================================
+     MORPH BUTTON — three dots ⇄ ✕
+     The glyph is ALWAYS --ink: the ✕ is the same colour as the dots.
+     The surface stays glass in both states — no inversion, so the
+     glyph can never end up light-on-light.
+     ============================================================ */
+  .morph{position:relative;border-radius:50%;border:.5px solid var(--glass-stroke);cursor:pointer;padding:0;
+         background:var(--glass-fill-strong);
+         -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+         box-shadow:var(--glass-shadow);flex:none;display:block;
+         transition:background .3s ease,border-color .3s ease,box-shadow .3s ease,
+                    transform .44s var(--easeBack),opacity .28s ease;}
+  .morph:focus-visible{outline:2px solid var(--acc);outline-offset:3px;}
+  .morph i{position:absolute;left:50%;top:50%;width:4.5px;height:4.5px;border-radius:50%;
+           background:var(--ink);display:block;
+           transition:width .46s var(--easeBack),height .3s var(--ease),border-radius .3s var(--ease),
+                      opacity .22s ease,transform .46s var(--easeBack);}
+  .morph i:nth-child(1){transform:translate(-50%,-50%) translateX(-7.5px);}
+  .morph i:nth-child(2){transform:translate(-50%,-50%);transition-delay:.06s;}
+  .morph i:nth-child(3){transform:translate(-50%,-50%) translateX(7.5px);}
+  /* open state: shape changes, colour does NOT */
+  .morph.isOpen i:nth-child(1){width:19px;height:1.8px;border-radius:2px;transition-delay:.05s;
+       transform:translate(-50%,-50%) rotate(45deg);}
+  .morph.isOpen i:nth-child(2){opacity:0;transition-delay:0s;transform:translate(-50%,-50%) scale(.2);}
+  .morph.isOpen i:nth-child(3){width:19px;height:1.8px;border-radius:2px;transition-delay:.05s;
+       transform:translate(-50%,-50%) rotate(-45deg);}
+  /* a subtle rim shift marks the open state instead of a colour flip */
+  .morph.isOpen{border-color:rgba(60,50,38,.28);}
+  /* nested inside a LIT pill: no second shadow. Glyph colour untouched. */
+  .glass:not(.ghost) .morph{box-shadow:none;background:rgba(255,255,255,.5);}
+
+  /* ================= DESKTOP ================= */
+  .dNav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 26px;
+        will-change:transform;transition:transform .46s var(--ease);}
+  .dRow{max-width:1180px;margin:0 auto;display:flex;justify-content:center;}
+  .dBar{display:flex;align-items:center;gap:30px;padding:8px 8px 8px 24px;}
+  .brand{font-family:var(--serif);font-size:19px;font-style:italic;white-space:nowrap;}
+  .brand span{font-style:normal;font-family:var(--sans);font-size:10.5px;letter-spacing:.18em;color:var(--acc);}
+  .sepDot{width:3px;height:3px;border-radius:50%;background:rgba(60,50,38,.22);}
+  .links{display:flex;align-items:center;position:relative;}
+  .links a{position:relative;z-index:2;font-size:14px;padding:9px 16px;border-radius:999px;
+           white-space:nowrap;transition:color .28s ease;}
+  .ind{position:absolute;z-index:1;top:50%;left:0;height:34px;border-radius:999px;width:0;
+       transform:translate(0,-50%) scaleX(.6);opacity:0;background:rgba(255,255,255,.78);
+       box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 2px 8px -3px rgba(60,50,38,.28);
+       transition:transform .46s var(--spring),width .46s var(--spring),opacity .26s ease;}
+  .links.hot .ind{opacity:1;}
+  .cta{font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;
+       background:var(--acc);color:#fff;border:.5px solid rgba(255,255,255,.35);
+       box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 6px 18px -8px rgba(180,86,47,.7);
+       transition:transform .32s var(--spring),box-shadow .32s var(--ease),filter .3s ease;}
+  .cta:hover{transform:translateY(-1px);filter:saturate(1.08);
+             box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 12px 26px -10px rgba(180,86,47,.8);}
+
+  .dotBtn{position:fixed;top:18px;right:26px;z-index:110;width:46px;height:46px;
+          opacity:0;transform:scale(.75) rotate(-30deg);pointer-events:none;}
+  .dotBtn.show{opacity:1;transform:scale(1) rotate(0);pointer-events:auto;}
+
+  .sheet{position:fixed;top:78px;right:26px;z-index:111;min-width:210px;padding:9px;
+         border-radius:18px;background:var(--glass-fill-strong);
+         -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+         border:.5px solid var(--glass-stroke);box-shadow:var(--glass-shadow-hi);
+         transform-origin:top right;opacity:0;transform:translateY(-10px) scale(.94);
+         pointer-events:none;transition:opacity .22s ease,transform .38s var(--ease);}
+  .sheet.open{opacity:1;transform:none;pointer-events:auto;}
+  .sheet a{display:block;padding:10px 14px;border-radius:11px;font-size:15px;font-family:var(--serif);
+           opacity:0;transform:translateY(8px);
+           transition:opacity .34s ease,transform .42s var(--ease),background .18s ease;}
+  .sheet.open a{opacity:1;transform:none;}
+  .sheet.open a:nth-child(1){transition-delay:.06s;}
+  .sheet.open a:nth-child(2){transition-delay:.11s;}
+  .sheet.open a:nth-child(3){transition-delay:.16s;}
+  .sheet.open a:nth-child(4){transition-delay:.21s;}
+  .sheet.open a:nth-child(6){transition-delay:.28s;}
+  .sheet a:hover{background:rgba(255,255,255,.6);}
+  .sheet .sep{height:.5px;background:rgba(60,50,38,.14);margin:7px 5px;}
+  .sheet .r{color:var(--acc);}
+
+  .hero{padding:190px 32px 90px;max-width:1080px;margin:0 auto;}
+  .hero .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:500;}
+  .hero h1{font-family:var(--serif);font-weight:400;font-size:60px;line-height:.98;margin:14px 0;}
+  .hero p{color:var(--mut);max-width:560px;font-size:18px;}
+  .body{max-width:760px;margin:0 auto;padding:0 32px 220px;}
+  .body section{padding:64px 0;border-bottom:.5px solid var(--line);}
+  .body h2{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 8px;}
+  .body p{color:var(--mut);}
+  .shot{height:190px;border-radius:16px;margin-top:22px;
+        background:linear-gradient(135deg,#dfe8f5,#f3ece2 60%,#e7d9c8);border:.5px solid var(--line);}
+
+  /* ================= MOBILE ================= */
+  .phoneWrap{display:flex;gap:28px;justify-content:center;align-items:flex-start;
+             padding:30px 20px 120px;flex-wrap:wrap;}
+  .phoneCol{text-align:center;width:300px;}
+  .phoneCap{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:10px;}
+  .phone{width:300px;height:640px;border-radius:40px;background:#0f0d0b;padding:9px;
+         box-shadow:0 30px 70px -30px rgba(60,50,38,.6);}
+  .screen{position:relative;width:100%;height:100%;border-radius:32px;overflow:hidden;background:var(--page);
+          background-image:radial-gradient(280px 200px at 18% 2%, rgba(180,86,47,.13), transparent 62%),
+                           radial-gradient(240px 180px at 92% 6%, rgba(120,140,190,.13), transparent 64%);}
+
+  .mNav{position:absolute;top:0;left:0;right:0;z-index:20;padding:10px 11px;
+        transition:transform .46s var(--ease);}
+  .mBar{display:flex;align-items:center;justify-content:space-between;gap:10px;
+        padding:6px 6px 6px 16px;}
+  .mBrand{font-family:var(--serif);font-size:16px;font-style:italic;}
+  .mBrand span{font-style:normal;font-family:var(--sans);font-size:8.5px;letter-spacing:.18em;color:var(--acc);}
+  .mMorph{width:36px;height:36px;}
+  .mPill{position:absolute;top:13px;right:14px;z-index:22;width:40px;height:40px;
+         opacity:0;transform:scale(.75) rotate(-30deg);pointer-events:none;}
+  .mPill.show{opacity:1;transform:scale(1) rotate(0);pointer-events:auto;}
+
+  .blob{position:absolute;z-index:18;top:33px;right:34px;width:52px;height:52px;border-radius:50%;
+        background:var(--paper);transform:scale(0);transform-origin:center;
+        transition:transform .58s var(--ease);}
+  .screen.menuOpen .blob{transform:scale(24);}
+
+  .menu{position:absolute;inset:0;z-index:19;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;gap:2px;opacity:0;pointer-events:none;
+        transition:opacity .2s ease;}
+  .screen.menuOpen .menu{opacity:1;pointer-events:auto;}
+  .menu a.link{font-family:var(--serif);font-size:28px;padding:8px 0;
+               opacity:0;transform:translateY(16px);
+               transition:opacity .42s ease,transform .54s var(--ease);}
+  .screen.menuOpen .menu a.link{opacity:1;transform:none;}
+  .screen.menuOpen .menu a.link:nth-child(1){transition-delay:.18s;}
+  .screen.menuOpen .menu a.link:nth-child(2){transition-delay:.235s;}
+  .screen.menuOpen .menu a.link:nth-child(3){transition-delay:.29s;}
+  .screen.menuOpen .menu a.link:nth-child(4){transition-delay:.345s;}
+  .menu .foot{position:absolute;left:0;right:0;bottom:40px;display:flex;flex-direction:column;
+              align-items:center;gap:12px;opacity:0;transform:translateY(12px);
+              transition:opacity .42s ease .38s,transform .54s var(--ease) .38s;}
+  .screen.menuOpen .menu .foot{opacity:1;transform:none;}
+  .menu .resume{border:1px solid var(--acc);color:var(--acc);border-radius:999px;
+                padding:10px 42px;font-size:13.5px;}
+  .menu .chips{display:flex;gap:7px;}
+  .menu .chips span{width:37px;height:37px;border:.5px solid var(--line);border-radius:11px;
+                    display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--mut);}
+
+  .mBody{position:absolute;inset:0;overflow-y:auto;padding:70px 16px 40px;}
+  .mBody h3{font-family:var(--serif);font-weight:400;font-size:23px;margin:0 0 6px;}
+  .mBody p{color:var(--mut);font-size:13.5px;}
+  .mBody section{padding:28px 0;border-bottom:.5px solid var(--line);}
+  .mShot{height:110px;border-radius:13px;margin-top:14px;
+         background:linear-gradient(135deg,#dfe8f5,#f3ece2 60%,#e7d9c8);border:.5px solid var(--line);}
+  .mHint{font-size:11px;color:var(--mut);margin-top:10px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration:.01ms !important;transition-delay:0ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="switch">
+  <b>Liquid glass nav</b>
+  <button class="on" data-v="desktop">Desktop</button>
+  <button data-v="mobile">Mobile</button>
+</div>
+
+<!-- ================= DESKTOP ================= -->
+<div class="view desktop on">
+  <nav class="dNav" id="dNav">
+    <div class="dRow">
+      <div class="dBar glass" data-glass>
+        <span class="brand">Akshita <span>SINGH</span></span>
+        <span class="sepDot"></span>
+        <span class="links" data-links>
+          <span class="ind"></span>
+          <a>Process</a><a>Work</a><a>About</a><a>Contact</a>
+        </span>
+        <a class="cta">Resume ↗</a>
+      </div>
+    </div>
+  </nav>
+  <button class="morph dotBtn" id="dotBtn" aria-label="Open menu" aria-expanded="false"><i></i><i></i><i></i></button>
+  <div class="sheet" id="sheet">
+    <a>Process</a><a>Work</a><a>About</a><a>Contact</a>
+    <div class="sep"></div>
+    <a class="r">Resume ↗</a>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Unified capsule</div>
+    <h1 class="sf">One piece of glass.</h1>
+    <p>Hover the capsule: a specular highlight follows the cursor and a lighter pill slides behind the link you point at. Scroll down and it lifts away, leaving the dots; scroll up and it returns.</p>
+  </div>
+  <div class="body" data-body></div>
+</div>
+
+<!-- ================= MOBILE — all four states ================= -->
+<div class="view mobile">
+  <div class="phoneWrap">
+
+    <div class="phoneCol">
+      <div class="phoneCap">1 · Interactive — scroll & tap</div>
+      <div class="phone"><div class="screen" id="scr1">
+        <div class="mBody" data-mbody></div>
+        <nav class="mNav" id="mNav1">
+          <div class="mBar glass ghost" data-glass id="mBar1">
+            <span class="mBrand">Akshita <span>SINGH</span></span>
+            <button class="morph mMorph" aria-label="Open menu" aria-expanded="false" data-toggle="scr1"><i></i><i></i><i></i></button>
+          </div>
+        </nav>
+        <button class="morph mPill" id="mPill1" aria-label="Open menu" aria-expanded="false" data-toggle="scr1"><i></i><i></i><i></i></button>
+        <div class="blob"></div>
+        <div class="menu">
+          <a class="link sf">Process</a><a class="link sf">Work</a><a class="link sf">About</a><a class="link sf">Contact</a>
+          <div class="foot">
+            <a class="resume">Resume ↗</a>
+            <div class="chips"><span>Bē</span><span>in</span><span>Db</span><span>CV</span><span>@</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="mHint">At top: no glass. Scroll down → hides + dot. Scroll up → glass pill. Tap → menu.</div>
+    </div>
+
+    <div class="phoneCol">
+      <div class="phoneCap">2 · Scrolled — glass pill</div>
+      <div class="phone"><div class="screen">
+        <div class="mBody" data-mbody-scrolled></div>
+        <nav class="mNav">
+          <div class="mBar glass" data-glass>
+            <span class="mBrand">Akshita <span>SINGH</span></span>
+            <button class="morph mMorph" aria-label="Open menu"><i></i><i></i><i></i></button>
+          </div>
+        </nav>
+      </div></div>
+      <div class="mHint">The material fades in — wordmark and button never move.</div>
+    </div>
+
+    <div class="phoneCol">
+      <div class="phoneCap">3 · Scrolling down — hidden</div>
+      <div class="phone"><div class="screen">
+        <div class="mBody" data-mbody-scrolled></div>
+        <nav class="mNav" style="transform:translateY(-130%);">
+          <div class="mBar glass" data-glass>
+            <span class="mBrand">Akshita <span>SINGH</span></span>
+            <button class="morph mMorph" aria-label="Open menu"><i></i><i></i><i></i></button>
+          </div>
+        </nav>
+        <button class="morph mPill show" aria-label="Open menu"><i></i><i></i><i></i></button>
+      </div></div>
+      <div class="mHint">The row is gone; the glass dot stays reachable.</div>
+    </div>
+
+    <div class="phoneCol">
+      <div class="phoneCap">4 · Menu open — ✕ in ink</div>
+      <div class="phone"><div class="screen menuOpen" id="scr4">
+        <div class="mBody" data-mbody-scrolled></div>
+        <nav class="mNav">
+          <div class="mBar glass" data-glass>
+            <span class="mBrand">Akshita <span>SINGH</span></span>
+            <button class="morph mMorph isOpen" aria-label="Close menu" aria-expanded="true" data-toggle="scr4"><i></i><i></i><i></i></button>
+          </div>
+        </nav>
+        <div class="blob"></div>
+        <div class="menu">
+          <a class="link sf">Process</a><a class="link sf">Work</a><a class="link sf">About</a><a class="link sf">Contact</a>
+          <div class="foot">
+            <a class="resume">Resume ↗</a>
+            <div class="chips"><span>Bē</span><span>in</span><span>Db</span><span>CV</span><span>@</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="mHint">Same ink as the dots — the shape changes, the colour doesn't.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var SECTIONS=[
+ ["The setup","Framing the problem before touching a pixel."],
+ ["At a glance","The outcome numbers, up front."],
+ ["The problem","Everyone hit the same wall."],
+ ["The process","Phases, not ceremony."],
+ ["Key insights","Three people, three needs."],
+ ["The solution","The companion, in context."],
+ ["Screens","The surfaces, in order."],
+ ["Reflection","What this taught me."]
+];
+document.querySelectorAll('[data-body]').forEach(function(el){
+  SECTIONS.forEach(function(s,i){
+    var sec=document.createElement('section');
+    sec.innerHTML='<h2 class="sf">'+s[0]+'</h2><p>'+s[1]+' Scroll to feel the bar leave and return.</p>'+(i%3===1?'<div class="shot"></div>':'');
+    el.appendChild(sec);
+  });
+});
+function fillPhone(el,startAt){
+  SECTIONS.forEach(function(s,i){
+    var sec=document.createElement('section');
+    sec.innerHTML='<h3 class="sf">'+s[0]+'</h3><p>'+s[1]+'</p>'+(i%3===1?'<div class="mShot"></div>':'');
+    el.appendChild(sec);
+  });
+  if(startAt) requestAnimationFrame(function(){ el.scrollTop=startAt; });
+}
+document.querySelectorAll('[data-mbody]').forEach(function(el){fillPhone(el,0);});
+document.querySelectorAll('[data-mbody-scrolled]').forEach(function(el){fillPhone(el,240);});
+
+/* pointer-tracked specular */
+document.querySelectorAll('[data-glass]').forEach(function(g){
+  g.addEventListener('pointermove',function(e){
+    var r=g.getBoundingClientRect();
+    g.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    g.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+
+/* sliding indicator behind the hovered link */
+document.querySelectorAll('[data-links]').forEach(function(group){
+  var ind=group.querySelector('.ind'),items=group.querySelectorAll('a');
+  items.forEach(function(a){
+    a.addEventListener('pointerenter',function(){
+      var gr=group.getBoundingClientRect(),r=a.getBoundingClientRect();
+      ind.style.width=r.width+'px';
+      ind.style.transform='translate('+(r.left-gr.left)+'px,-50%) scaleX(1)';
+      group.classList.add('hot');
+    });
+  });
+  group.addEventListener('pointerleave',function(){ group.classList.remove('hot'); });
+});
+
+var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function scrollNav(getY,onHide,onShow,onStuck,topZone){
+  var lastY=getY(),hidden=false,ticking=false,THRESH=8,TOP=topZone||80;
+  function apply(){
+    var y=getY(),dy=y-lastY;
+    onStuck(y>TOP);
+    if(y<=TOP){ if(hidden){hidden=false;onShow();} lastY=y; }
+    else if(Math.abs(dy)>THRESH){
+      if(dy>0&&!hidden){hidden=true;onHide();}
+      else if(dy<0&&hidden){hidden=false;onShow();}
+      lastY=y;
+    }
+    ticking=false;
+  }
+  return function(){ if(!ticking){ticking=true;requestAnimationFrame(apply);} };
+}
+function setOpenBtn(btn,open){
+  btn.classList.toggle('isOpen',open);
+  btn.setAttribute('aria-expanded',open?'true':'false');
+  btn.setAttribute('aria-label',open?'Close menu':'Open menu');
+}
+
+/* DESKTOP */
+(function(){
+  var nav=document.getElementById('dNav'),btn=document.getElementById('dotBtn'),sheet=document.getElementById('sheet');
+  var h=scrollNav(function(){return window.scrollY;},
+    function(){ nav.style.transform=reduce?'none':'translateY(-150%)'; btn.classList.add('show'); },
+    function(){ nav.style.transform='translateY(0)'; btn.classList.remove('show');
+                sheet.classList.remove('open'); setOpenBtn(btn,false); },
+    function(){});
+  window.addEventListener('scroll',h,{passive:true});
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    var open=!sheet.classList.contains('open');
+    sheet.classList.toggle('open',open); setOpenBtn(btn,open);
+  });
+  document.addEventListener('click',function(){ sheet.classList.remove('open'); setOpenBtn(btn,false); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){sheet.classList.remove('open');setOpenBtn(btn,false);btn.focus();} });
+})();
+
+/* MOBILE — interactive phone */
+(function(){
+  var scr=document.getElementById('scr1');
+  var body=scr.querySelector('[data-mbody]'),nav=document.getElementById('mNav1'),
+      bar=document.getElementById('mBar1'),pill=document.getElementById('mPill1');
+  var h=scrollNav(function(){return body.scrollTop;},
+    function(){ if(scr.classList.contains('menuOpen'))return;
+                nav.style.transform=reduce?'none':'translateY(-130%)'; pill.classList.add('show'); },
+    function(){ nav.style.transform='translateY(0)'; pill.classList.remove('show'); },
+    function(stuck){ bar.classList.toggle('ghost',!stuck); }, 40);
+  body.addEventListener('scroll',h,{passive:true});
+})();
+
+/* mobile open/close */
+document.querySelectorAll('[data-toggle]').forEach(function(b){
+  b.addEventListener('click',function(e){
+    e.stopPropagation();
+    var scr=document.getElementById(b.getAttribute('data-toggle'));
+    var open=!scr.classList.contains('menuOpen');
+    scr.classList.toggle('menuOpen',open);
+    var n=scr.querySelector('.mNav'),bar=scr.querySelector('.mBar');
+    if(open&&n){ n.style.transform='translateY(0)'; if(bar) bar.classList.remove('ghost'); }
+    scr.querySelectorAll('.morph').forEach(function(m){ setOpenBtn(m,open); });
+    var p=scr.querySelector('.mPill'); if(p&&open) p.classList.remove('show');
+  });
+});
+
+/* view switcher */
+var vb=document.querySelectorAll('.switch button[data-v]'),vs=document.querySelectorAll('.view');
+vb.forEach(function(b){b.addEventListener('click',function(){
+  vb.forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+  var v=b.getAttribute('data-v');
+  vs.forEach(function(s){s.classList.toggle('on',s.classList.contains(v));});
+  window.scrollTo(0,0);
+});});
+</script>
+</body>
+</html>
