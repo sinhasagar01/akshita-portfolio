@@ -6759,6 +6759,72 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 
 ---
 
+### #288 — HAZARD 13 GETS A MECHANISM, and the pill was standing on the modal layer
+
+**THE OLDEST OPEN HAZARD WITH A REAL INCIDENT BEHIND IT.** A publish shipped a half-finished
+sentence once. The mitigation on record was a HABIT — *read the content diff before each publish* —
+and a habit is what failed. No gate can close it, because CI cannot tell a half-finished sentence
+from a finished one. Only the author can, and only if they look.
+
+**THE BAR HAD THE ASYMMETRY BACKWARDS.** Discard, which only destroys DRAFTS, required a confirm.
+Publish, which changes the LIVE SITE, was one click. So the preview IS the confirm now, not a side
+door: an optional Review link is the same habit with better paint, and only helps the author who
+already chose to look — which is not the author the incident was about.
+
+**⚠ THE DIFF ALREADY EXISTED. ONLY THE BOOLEAN SURVIVED.** `compareBranches` fetches the full GitHub
+compare, which carries each file's unified `patch`, and the `.map()` one line later threw it away;
+`differs` was literally `cmp.files.length > 0`. The feature's whole cost was UN-DISCARDING data
+already on the wire. Patches are opt-in and default OFF, because that same call backs the
+`unstable_cache`d draft-state read on every studio page and a case study's full-file patch is ~24KB.
+
+**THE SPECIMEN WAS REAL AND IT WAS SITTING THERE.** The draft branch held one unpublished file —
+`5-tips-for-using-ai-for-designers.yaml`, an empty stub with `dek: ''`, `date: ''`, `blocks: []`.
+Harmless to publish, since `status` fails closed. That IS the point: the bar said "1 unpublished
+change" and gave no way to tell a stub from a finished post. It is the suite's fixture.
+
+**⚠ AND IT FOUND A LATENT DEFECT ON MAIN.** The publish pill held `z-50` — the value globals.css
+names `--z-modal` — and so did `StudioModal`'s scrim. A modal and a floating action bar were
+claiming ONE layer, decided by DOM order, and the layout renders `{children}` before the bar, so
+**the pill won against every modal in the studio.** Measured: the pill was what `elementFromPoint`
+returned at the preview dialog's own Publish button centre, so its primary action was unclickable.
+The three existing confirms never hit it because they are SHORT and never reach the band at the
+foot — latent rather than live, the same shape as the save bar that could not spill until a pane
+could narrow. **The pill moved rather than the modal**, because the scale already says which is
+which: a floating bar is `--z-overlay`, and lifting the modal above 50 would borrow the toast slot
+for something that is not a toast.
+
+**FOUR POSTURES, EACH DECIDED RATHER THAN DEFAULTED.** A failed preview **fails OPEN** and keeps
+Publish enabled — failing closed would trade a rare bad publish for a total outage of the owner's
+only write path, and the publish route keeps its own validation regardless. Truncation fails LOUD.
+A withheld patch says so, because rendering nothing would read as "no changes" — the exact inversion
+the feature exists to prevent. A deleted entry falls back to its slug, since the overlay subtracts
+it from the read.
+
+**⚠ THE LESSON IS ABOUT INSTRUMENTS, AND IT COST FOUR SEPARATE FALSE READINGS.**
+- **The suite's own owner-gate assertion was measuring the wrong thing.** `indexOf("verifyOwnerSession")`
+  and `indexOf("compareBranches")` both found the IMPORT STATEMENTS, so the order comparison read two
+  `import` lines and would have passed with the gate ANYWHERE. **Mutation testing is the only reason
+  it was found** — moving a real GitHub call above the gate left it green. Fourth instance of
+  unanchored matching in this arc and the most consequential, on the endpoint that returns
+  unpublished content. Re-anchored inside the handler body, with a liveness check so it cannot pass
+  vacuously.
+- **Tab looked broken and was not.** Sampling `document.activeElement` after each key press showed
+  focus stuck on Cancel. A focus RECORDER showed `key:Tab @Cancel → focus:Publish site`, correct
+  every time; something restores focus between harness calls.
+- **The CSS union looked empty and was not.** A grep whose escaping was wrong reported that `z-50`
+  and `max-w-[440px]` emit no rule — classes that have shipped for months.
+- **A console error looked new and was not.** It came from a long-lived tab that had accumulated HMR
+  churn; a fresh tab on the same URL is clean.
+  **Every one read as a defect in the code. None was.** Same shape as the blog caret probe, which was
+  wrong three ways before it was right.
+
+Gates: ralph **2167 → 2228 across 52 suites**, lint and tsc clean, production build clean, **19
+mutations and 19 killed**. Contrast rasterised with the sanity pair first — `+` at 6.58, `−` at
+7.70, diff text 14.87, title 19.04, meta 5.52, all AA. **No public surface is touched**: no module
+outside `/studio` imports anything this changed.
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
@@ -7061,8 +7127,10 @@ believed open and what it turned out to be.**
 5. **Optional:** `/code-review ultra` over the studio arc. The old entry named `fa08200` and nine
    PRs; a great many have shipped self-reviewed since, so **pick a range rather than trusting that
    SHA**.
-6. **Later.** A per-entry publish or a PublishBar diff preview (hazard 13, the one with a real
-   incident behind it, and still unbuilt — `PublishBar` has no diff surface). Migrating the
+6. **Later.** ~~A per-entry publish or a PublishBar diff preview (hazard 13)~~ — **THE PREVIEW
+   SHIPPED in #288**, and it is the confirm step rather than an optional link, so looking is
+   structural. A per-entry publish is still open and is now the smaller half of that item: the
+   preview tells you what a publish carries, but publish is still all-or-nothing. Migrating the
    remaining studio pages to `ThreePaneShell`: Site settings, Experience and Skills still run
    `ListDetailLayout`, and **the "extract at the SECOND consumer" rule has now been exercised
    once** — #283b moved the inspector-width property into the shell when blog became the second

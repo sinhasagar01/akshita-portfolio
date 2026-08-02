@@ -37,6 +37,7 @@ export function StudioModal({
   onClose,
   busy = false,
   initialFocusRef,
+  width = "narrow",
   children,
 }: {
   role: "dialog" | "alertdialog";
@@ -56,6 +57,12 @@ export function StudioModal({
    *  mechanism (callers pass their input for add, their Cancel for delete); it is
    *  explicit and testable, and autoFocus is deliberately not used. */
   initialFocusRef: RefObject<HTMLElement | null>;
+  /** ⚠ A NAMED PAIR, NOT A NUMBER. The three existing consumers are confirms — a sentence and two
+   *  buttons — and `narrow` is their current 440 unchanged, so this prop cannot move them. `wide`
+   *  exists for the publish preview, which lists changed entries and their text and is unreadable
+   *  at 440. Taking a px number instead would put a fourth geometry literal in a caller, which is
+   *  the drift this component was extracted to stop (border /8 vs /10, p-4 vs p-5, and so on). */
+  width?: "narrow" | "wide";
   children: ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -92,7 +99,21 @@ export function StudioModal({
         // than its surface, and cream-50 is the BOTTOM step, so the surface had to move rather
         // than the input. All three consumers (the projects index, the blog index and
         // experience) are fixed by this one line.
-        className="w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
+        // ⚠ BOTH VARIANTS ARE WRITTEN OUT WHOLE. Tailwind's scanner reads source as plain text, so
+        // a class assembled at runtime (`max-w-[${n}px]`) emits no rule and fails silently — the
+        // hazard where a class looks right and generates nothing. `narrow` is byte-for-byte the
+        // string that shipped, so the three confirms cannot move.
+        //
+        // ⚠ AND ONLY `wide` GETS THE HEIGHT CAP AND THE COLUMN. A confirm is a sentence and two
+        // buttons and can never outgrow the viewport; the preview lists every changed entry and
+        // its text, so it must cap and hand its body a scroll region. Making the panel a flex
+        // column unconditionally would change the block layout the three confirms already lay out
+        // under, for no gain to any of them.
+        className={
+          width === "wide"
+            ? "flex max-h-full w-full max-w-[640px] flex-col rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
+            : "w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
+        }
       >
         <h2 id={titleId} className="font-display text-2xl text-ink-950">
           {title}

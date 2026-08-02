@@ -169,10 +169,12 @@ const EMPTY_DRAFT_STATE: DraftBranchState = {
   skills: null,
 };
 
-// content/<collection>/<slug>.yaml — the top-level entry file (not the body subdir).
-const COLLECTION_FILE_RE = /^content\/(projects|experience|blog)\/([a-z0-9-]+)\.yaml$/;
-// The skills singleton is one flat file (not content/<coll>/<slug>.yaml).
-const SKILLS_FILE = "content/skills.yaml";
+// content/<collection>/<slug>.yaml and the skills singleton. BOTH NOW COME FROM ONE HOME rather
+// than being declared here: the publish preview classifies the same filenames off the same compare
+// response, and two patterns over one filename shape drift the moment a fourth collection lands —
+// which is a live possibility, and exactly why the dispatch below is a named record rather than a
+// ternary. `publish-preview.ts` is the leaf that holds them, importing nothing itself.
+import { COLLECTION_FILE_RE, SKILLS_FILE } from "./publish-preview";
 
 const readDraftBranchStateCached = unstable_cache(
   async (): Promise<DraftBranchState> => {
