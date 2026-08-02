@@ -133,15 +133,39 @@ const bar = code("components/studio/SaveBar.tsx");
     (bar.match(/<span \/>/g) ?? []).length, 0);
   t("B4: …and each control does state one", {
     cancel: /className="col-start-2 row-start-2 rounded/.test(bar),
-    primary: /className="col-start-3 row-start-2 rounded/.test(bar),
+    primary: /\$\{primaryCell\} rounded/.test(bar),
   }, { cancel: true, primary: true });
 
   /* THE STATE ROW IS ITS OWN ROW, AND THE REASON IS ARITHMETIC RATHER THAN TASTE. The contract
    * draws one row against a 340px track and a 12-character primary. This inspector is 313px
    * inside its scrollbar and #200 requires "Save draft · Sections", which measures 167px; with
    * Cancel and the padding the state track was left 34px and rendered "Saved" as "S…". */
-  t("B5: the state takes a full row of its own, so no label length can crush it",
-    /col-start-1 col-end-4 row-start-1 flex min-w-0 items-center justify-between gap-3/.test(bar), true);
+  /* ⚠ THE FULL-WIDTH STATE ROW IS NOW THE LOADED BAR'S ARRANGEMENT ONLY, and that distinction is
+   * the correction. A bare bar — a primary and nothing else, which is seven of the nine surfaces
+   * — fits one row in the SAME 313px inspector, measured: primary 99px, state track 157.7px, and
+   * the longest string the formatter can produce ("Saved 59 minutes ago") needs 137px with its
+   * dot and gap. Treating width as the whole answer had the blog stacking for no reason. */
+  t("B5: a loaded bar takes a full state row, so no label length can crush it",
+    /col-start-1 col-end-4 row-start-1 @\[520px\]:col-end-2/.test(bar), true);
+  t("B5: …and a bare one does not, because there is nothing there to crush it",
+    /col-start-1 col-end-2 row-start-1"/.test(bar), true);
+  t("B5: …and the state wrapper composes the chosen cell rather than hard-coding one",
+    /\$\{stateCell\} flex min-w-0 items-center justify-between gap-3/.test(bar), true);
+
+  /* WHAT "LOADED" MEANS IS THE CONTROLS, NOT THE PAGE. Reading it off `extra`/`onCancel` is what
+   * keeps the rule about whether the row is crowded; a per-page prop would have to be revisited
+   * the next time any bar gains a control. */
+  t("B5: …and `loaded` is derived from the controls present",
+    /const loaded = Boolean\(extra \|\| onCancel\);/.test(bar), true);
+
+  /* ⚠ BOTH VARIANTS ARE WRITTEN OUT IN FULL. Tailwind's scanner reads source as plain text and
+   * never sees a prefix assembled at runtime, so a composed `@[520px]:` emits NO CSS and fails
+   * silently — hazard 23's shape. Asserted as an absence of the pattern that would do it. */
+  // ANCHORED ON THE INTERPOLATION, NOT ON A LEADING QUOTE. The first version required the
+  // `@[` to open the string, so a threshold interpolated MID-string — which is exactly how it
+  // would really be written — walked straight past it. Caught by mutation.
+  t("B5: …and no variant prefix is built by interpolation, which would emit nothing",
+    /@\[\$\{/.test(bar), false);
   t("B5: …and `extra` rides on that row rather than holding the 1fr track open below it",
     /\{extra \? <span className="flex-none">\{extra\}<\/span> : null\}/.test(bar), true);
 }
@@ -319,6 +343,22 @@ const bar = code("components/studio/SaveBar.tsx");
 
   t("D4: exactly one threshold is used, so the two rows cannot disagree about where they switch",
     [...new Set((bar.match(/@\[\d+px\]:/g) ?? []))].length, 1);
+
+  /* D5 · THE CENSUS THE RULE PRODUCES, ASSERTED AT THE CALL SITES RATHER THAN INFERRED.
+   * Exactly two surfaces are loaded — the case study's two saves, which carry Preview, Cancel and
+   * a #200 suffix. The other seven are bare and take one row at every width. This is what makes
+   * "blog is one row, the case-study inspector is two" a CONSEQUENCE rather than a special case,
+   * and it fails the moment a bar gains a control without the row arithmetic being revisited. */
+  const LOADED = ["ProjectsEditPanel", "SectionsEditPanel"];
+  const SURFACE_FILES = ["AboutEditPanel", "ExperienceEditPanel", "HeroEditPanel", "LinksEditPanel",
+    "ProcessEditPanel", "ProjectsEditPanel", "SectionsEditPanel", "SkillsEditor", "BlogBlocksEditPanel"];
+  const actuallyLoaded = SURFACE_FILES.filter((n) => {
+    const src = code(`components/studio/${n}.tsx`);
+    return /onCancel=\{/.test(src) || /\n\s*extra=\{/.test(src);
+  });
+  t("D5: exactly the two case-study bars are loaded; the other seven are bare", actuallyLoaded, LOADED);
+  t("D5: …so the blog bar is bare, which is why it is one row in the same 313px inspector",
+    actuallyLoaded.includes("BlogBlocksEditPanel"), false);
 }
 
 /* ================================================= E. THE CASE-STUDY INSPECTOR SHOWS ONE SAVE

@@ -24,32 +24,37 @@
 // nesting flex, and a class-string check passed every broken version of it, so the tracks are
 // stated.
 //
-// ---- ⚠ ONE ROW OR TWO IS A QUESTION ABOUT THE BOX, NOT ABOUT THE PAGE -------------------------
+// ---- ⚠ ONE ROW OR TWO IS A QUESTION ABOUT THE BOX AND THE CONTROLS, NEVER ABOUT THE PAGE ------
 //
-// The contract draws the state and the actions on ONE row. IN A 313px INSPECTOR THEY DO NOT FIT.
-// Its own drawing puts the inspector track at 340px and its primary reads "Save draft" — 12
-// characters. This studio's inspector is 320px, 313px inside the scrollbar, and #200 requires the
-// case study's two saves to name their objects, so the primary reads "Save draft · Sections" and
-// measures 167px. With a 56px Cancel and the padding, the state track was left 34px and rendered
-// "Saved" as "S…". THE ONE THING THE STATE LINE EXISTS FOR WAS THE ONE THING TRUNCATED.
+// The contract draws the state and the actions on ONE row. IN A 313px INSPECTOR, WITH EVERY
+// CONTROL PRESENT, THEY DO NOT FIT. Its own drawing puts the inspector track at 340px and its
+// primary reads "Save draft" — 12 characters. This studio's inspector is 320px, 313px inside the
+// scrollbar, and #200 requires the case study's two saves to name their objects, so the primary
+// reads "Save draft · Sections" and measures 167px. With a 56px Cancel, a 61px Preview and the
+// padding, the state track was left 34px and rendered "Saved" as "S…". THE ONE THING THE STATE
+// LINE EXISTS FOR WAS THE ONE THING TRUNCATED.
 //
-// IN A 1042px DETAIL COLUMN THE SAME BAR HAS 800px OF SLACK and stacking it wastes a row. So the
-// bar asks its own box rather than being told which page it is on. `@container` with a 520px
-// threshold, and the number is derived rather than picked:
+// ⚠ BUT WIDTH ALONE IS NOT THE ANSWER, AND ASSUMING IT WAS COST A ROUND. The blog inspector is
+// the SAME 313px and its bar fits on one row comfortably — because it carries no Cancel, no
+// Preview, and an unsuffixed "Save draft". Two bars, one width, two correct answers. What
+// actually crowds the row is the CONTROLS, so that is what is asked:
 //
-//     one row, fully loaded  =  state 200 + Preview 61 + Cancel 56 + primary 182
-//                               + three 12px gaps + 32px padding  =  567
-//     the inspector          =  313  (ThreePaneShell's `w-[320px]`, less its scrollbar)
-//     a settings column      =  1042 at a 1600px viewport, measured
+//     loaded (Preview + Cancel + a suffixed primary)
+//         needs  state 200 + 61 + 56 + 182 + three 12px gaps + 32px padding  =  567
+//         so it takes one row only above a 520px container
+//     bare (a primary and nothing else) — the other seven surfaces
+//         needs  state 145 + one 12px gap + primary 107 + 32px padding  =  296
+//         so it takes one row always; the narrowest box it is ever in is the 313px inspector
 //
-// 520 sits 200px clear of the inspector and 500px clear of the detail column, so neither surface
-// is anywhere near the boundary. ⚠ A THRESHOLD SET TOO LOW RE-CREATES THE "S…" DEFECT, which is
-// why the margin is stated and why `studio-save-bar` pins the number against the pane widths
-// rather than merely checking it exists.
+// 520 sits 150px clear of the inspector and 500px clear of a 1042px settings column, so no
+// loaded bar is near the boundary either way. ⚠ A THRESHOLD SET TOO LOW RE-CREATES THE "S…"
+// DEFECT, which is why the margin is stated and why `studio-save-bar` pins the number against
+// both pane widths read from source rather than merely checking it exists.
 //
-// THIS IS WHY IT IS A CONTAINER QUERY AND NOT A PROP. A boolean would put the same decision at
-// six call sites and encode WHICH PAGE rather than WHETHER IT FITS — which is precisely the
-// mistake the contract's one-row drawing made.
+// THIS IS WHY IT IS DERIVED AND NOT A PROP. A per-page boolean would put the same decision at
+// nine call sites and encode WHICH PAGE rather than WHETHER IT FITS — precisely the mistake the
+// contract's one-row drawing made, and precisely what would have to be revisited the next time a
+// bar gains a control.
 //
 // ---- ⚠ `extra` SITS ON THE STATE ROW, AND THAT PLACEMENT IS A MEASUREMENT ---------------------
 //
@@ -130,6 +135,18 @@ export default function SaveBar({
     return () => window.clearInterval(id);
   }, [savedAt]);
 
+  /* THE CONTROLS DECIDE WHICH SWITCH APPLIES. Both class strings are written out in full rather
+     than composed, because Tailwind's scanner reads source as plain text and never sees a prefix
+     built at runtime — a template-assembled `@[520px]:` would emit no CSS at all and fail silent,
+     which is hazard 23's shape. */
+  const loaded = Boolean(extra || onCancel);
+  const stateCell = loaded
+    ? "col-start-1 col-end-4 row-start-1 @[520px]:col-end-2"
+    : "col-start-1 col-end-2 row-start-1";
+  const primaryCell = loaded
+    ? "col-start-3 row-start-2 @[520px]:row-start-1"
+    : "col-start-3 row-start-1";
+
   const state = deriveSaveState(status, dirty);
   const age = state === "saved" && now ? formatSavedAge(savedAt, now) : null;
 
@@ -148,7 +165,7 @@ export default function SaveBar({
           which is a fact about the CONTENT rather than about the commit. The five-state line has
           no slot for it, and a design that swallowed it to fit the drawing would have deleted a
           real signal. It wins because it is the thing blocking the save. */}
-      <div className="col-start-1 col-end-4 row-start-1 flex min-w-0 items-center justify-between gap-3 @[520px]:col-end-2">
+      <div className={`${stateCell} flex min-w-0 items-center justify-between gap-3`}>
         {validation ? (
           <span className="min-w-0 truncate text-[12px] text-danger-600" role="status" aria-live="polite">
             {validation}
@@ -199,7 +216,7 @@ export default function SaveBar({
           // suffix left a label, was aria-hidden, and a screen reader heard less than before.
           title={primary.title}
           aria-label={primary.title ? `${primary.label}. ${primary.title}` : undefined}
-          className="col-start-3 row-start-2 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40 @[520px]:row-start-1"
+          className={`${primaryCell} rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40`}
         >
           {status === "saving" ? "Saving…" : primary.label}
         </button>

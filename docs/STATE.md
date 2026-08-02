@@ -3320,6 +3320,31 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#282c** the blog bar joins the one-row set, and the rule it forced →2078 across **50 suites**
+  **I HAD THE RULE HALF RIGHT AND THE OWNER'S NEXT REPORT IS WHAT SHOWED IT.** #282b made one row
+  a question about the BOX — a 520px container query — and that is why the blog stayed stacked: its
+  inspector is the SAME 313px as the case study's. **Two bars, one width, two correct answers**, so
+  width alone was never sufficient.
+  **WHAT ACTUALLY CROWDS THE ROW IS THE CONTROLS.** The case study's two bars carry Preview, Cancel
+  and a #200 suffix; the blog's carries a primary and nothing else. So the switch reads the
+  controls and the box together: a LOADED bar takes one row only above 520px, a BARE bar takes one
+  row always. Seven surfaces are bare, two are loaded, and D5 pins that census at the call sites so
+  "blog is one row, the case-study inspector is two" is a CONSEQUENCE rather than a special case —
+  it fails the moment a bar gains a control without the arithmetic being revisited.
+  **THE WORST CASE WAS DRIVEN, NOT ESTIMATED**, because 281px of content is the tightest box a
+  one-row bar is ever in. Every string the formatter can produce was typed into the live bar and
+  measured: the longest, "Saved 59 minutes ago", needs 137px with its dot and gap against a 157.7px
+  track. **~21px of margin, stated rather than assumed.** Blog 88px → 62px.
+  **⚠ AND THE VARIANT PREFIXES ARE WRITTEN OUT IN FULL RATHER THAN COMPOSED.** Tailwind's scanner
+  reads source as plain text and never sees a prefix built at runtime, so an interpolated
+  `@[${n}px]:` emits NO CSS and fails silently — hazard 23's shape, and the mirror image of the
+  comment trap. Asserted as an ABSENCE. **That assertion survived its first mutation**: it required
+  the `@[` to open the string, so a threshold interpolated MID-string — which is how it would
+  really be written — walked past it. Re-anchored on the interpolation itself.
+  6 further mutations, 6 killed after that fix. CSS +1 rule (`.col-end-2`, the bare bar's cell),
+  and the 520px rules re-verified inside `@container (min-width:520px)` while the unconditional
+  cells sit outside it. Public output unchanged on all five pages.
+
 - **#282b** the save bar, owner corrections →2072 across **50 suites**
   Four defects the owner found by USING it, none of which any gate could see. Every one is about
   what is on screen together, which is the class of thing a class-string assertion cannot reach.
