@@ -1621,16 +1621,26 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
 
   t("C11: the two toggles share a wrapper that spreads them",
     /<div className="flex w-full items-start justify-between gap-3">/.test(panel), true);
-  /* `w-full` RATHER THAN `flex-1`. The row is flex-wrap inside a 313px inspector; a full-width
-   * child takes its own line and the actions wrap beneath exactly as before. `flex-1` would share
-   * the line and squeeze both toggles into 179px. */
+  /* `w-full` RATHER THAN `flex-1`, AND ITS ORIGINAL REASON HAS EXPIRED. It read: "the row is
+   * flex-wrap inside a 313px inspector; a full-width child takes its own line and the actions wrap
+   * beneath exactly as before." The actions left for the footer, so nothing wraps beneath any more
+   * and the row is no longer flex-wrap.
+   * IT STAYS `w-full` FOR THE REMAINING HALF OF THE REASON: it is what lets `justify-between`
+   * inside the wrapper spread the two toggles across the bar. `flex-1` would size the wrapper to
+   * its content and the spread would collapse. */
   t("C11: …and it is w-full, so the actions still wrap beneath rather than sharing the line",
     /flex w-full items-start justify-between/.test(panel) && !/flex flex-1 items-start justify-between/.test(panel), true);
 
   /* THE ROW ITSELF DID NOT GAIN justify-between, because it would render nothing there and a class
    * that provably does nothing is the shape this repo has deleted four times. */
+  /* THE ROW'S STRING MOVED AND THE RULE DID NOT. It was `flex flex-wrap ... py-2.5`; the bar now
+   * states `h-[65px]` so its bottom border lands on the header band's 65, and it dropped
+   * `flex-wrap` because there is nothing left to wrap — Preview and Cancel moved to the footer.
+   * What C11 asserts is unchanged: no `justify-between` on the ROW, which would render nothing
+   * there while looking like it did something. */
   t("C11: the row itself did NOT gain an inert justify-between",
-    /flex flex-wrap items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4 py-2\.5/.test(panel), true);
+    /flex h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"/.test(panel)
+      && /bg-cream-200 px-4"[^"]*justify-between/.test(panel) === false, true);
 
   /* #164's PRESERVED QUIRK IS UNTOUCHED. `onChange?.(prev)` fires only in the fs-noop revert
    * branch, never in the network-failure else/catch. Its header says a change there "should be a

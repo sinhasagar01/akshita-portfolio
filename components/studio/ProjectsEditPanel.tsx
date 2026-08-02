@@ -204,7 +204,26 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           `a { color: inherit }` beats the utility layer, so the anchor had never been ink-600.
           Setting it on the row lets the anchor inherit it with no extra element — hazard 22,
           and `studio-ink` E6 pins it. */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-2.5">
+      {/* ---- THE TOGGLES UNIT, AND IT HOLDS ONLY TOGGLES -------------------------------------
+          Preview and Cancel used to sit in here. The toggles take `w-full`, so the actions
+          WRAPPED onto a second line inside the same cream-200 box and read as a third control in
+          a row of controls — two SWITCHES and two ACTIONS on one ground with nothing between
+          them. They moved to the footer, which already holds "Save details" and is where this
+          panel's actions live.
+          ---- THE HEIGHT IS STATED, NOT DERIVED FROM PADDING ----------------------------------
+          65px is the studio's header-band height: the entry-panel headers are 65 and the rail's
+          search row is 65, both measured. This bar joins them so the three bottom borders land on
+          one pixel.
+          IT IS `h-[65px]` RATHER THAN A PADDING PAIR BECAUSE THE CONTENT IS 56px AND CLIMBING.
+          The toggles stack a label over a switch, so a padding derived today from 56 would drift
+          the moment the label's leading or the switch's own padding moves — the bar would silently
+          stop aligning and nothing would say so. Stating the box makes the height the fact and the
+          content fit inside it, which is the same rule the reorder cluster and the search field
+          were both fixed to follow.
+          ⚠ THE LITERAL REQUEST WAS NOT ACHIEVABLE AND THIS IS THE NEAREST THING THAT IS. Matching
+          the canvas header where it stood (59.3px) would have needed ~1px of padding around 56px
+          of content. Both bars move to 65 instead. */}
+      <div className="flex h-[65px] items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-4">
         {/* THE TWO TOGGLES SHARE A LINE AND SPREAD ACROSS IT, which needs a wrapper rather than
             a class on the row. Measured: the row has three children and the actions sit on
             `ml-auto`, and an auto margin absorbs the free space BEFORE `justify-content` is
@@ -232,26 +251,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             />
           </div>
         )}
-        <div className="ml-auto flex items-center gap-1 text-ink-600">
-          {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard),
-              so the owner keeps the editor open beside it. */}
-          <a
-            href={`/studio/projects/${slug}/preview`}
-            target="_blank"
-            rel="noopener"
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-200"
-          >
-            Preview
-          </a>
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={cancel}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-          >
-            Cancel
-          </button>
-        </div>
       </div>
         <div className="flex flex-col gap-5 px-4 py-5">
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
@@ -331,12 +330,38 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             <span className="text-text-subtle">Auto-saves to draft on blur. Publish from Site settings.</span>
           )}
         </span>
-        <button
-          type="button"
-          onClick={saveDraft}
-          disabled={!dirty || saveStatus === "saving"}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-        >
+        {/* PREVIEW AND CANCEL LIVE HERE NOW, beside the save they belong with. In the toggles
+            unit they read as a third switch; here they read as what they are — the two things you
+            do INSTEAD of saving. The colour sits on this wrapper rather than on the link: an
+            unlayered `a { color: inherit }` beats the utility layer, so a `text-*` utility on the
+            anchor does nothing. Hazard 22, and it is why the old row carried the colour too.
+            HOVER IS cream-100, NOT cream-200 — the footer IS cream-200, so the old hover matched
+            its own ground and read as nothing at all. The ground moved, so the hover had to. */}
+        <div className="flex items-center gap-1 text-ink-600">
+          {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard), so the
+              owner keeps the editor open beside it. */}
+          <a
+            href={`/studio/projects/${slug}/preview`}
+            target="_blank"
+            rel="noopener"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+          >
+            Preview
+          </a>
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={cancel}
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-100 hover:text-ink-950"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={saveDraft}
+            disabled={!dirty || saveStatus === "saving"}
+            className="ml-1 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          >
           {/* "Save details", NOT "Save draft" — #200's fix, second instance. Two footers are
               visible at once when Details is selected, this one and the sections footer, and
               they commit genuinely different drafts (facts through this panel's useDraftForm,
@@ -345,8 +370,9 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
               was the only string that never named its object, and as in #200 the progress
               label is left alone: the ambiguity is in the RESTING label, which is what gets
               read while deciding. */}
-          {saveStatus === "saving" ? "Saving…" : "Save details"}
-        </button>
+            {saveStatus === "saving" ? "Saving…" : "Save details"}
+          </button>
+        </div>
       </footer>
     </div>
   );

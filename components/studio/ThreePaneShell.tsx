@@ -237,7 +237,12 @@ export default function ThreePaneShell({
             said 58 because it caught the row mid-layout with the title box at 35px. Settled,
             it is 55, and the tallest child is the button rather than the title. The owner's
             number was right and my first reading of it was not. */}
-        <div className="flex flex-none items-center gap-2.5 border-b border-ink-950/12 px-[18px] py-[11px] text-ink-600">
+        {/* 65px, THE STUDIO'S HEADER-BAND HEIGHT — the entry-panel headers, the rail's search row
+            and the details toggles all sit at 65, so the bars across this row share one bottom
+            border. Stated rather than derived: this bar's content is only 20.3px, so a padding
+            tuned to reach 65 today would be a number with no meaning and would drift the moment
+            the crumb's type changed. */}
+        <div className="flex h-[65px] flex-none items-center gap-2.5 border-b border-ink-950/12 px-[18px] text-ink-600">
           {!collapsed ? (
             <button
               type="button"

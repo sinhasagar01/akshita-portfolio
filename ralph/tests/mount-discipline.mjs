@@ -428,6 +428,43 @@ export const MOUNT_SCRIPT = String.raw`
       && /keywords: "links resume email social urls"/.test(sections), true);
 }
 
+/* ---- F · THE HEADER BAND IS ONE HEIGHT, AND IT IS STATED ----------------------------------
+ * Three bars sit in the row under the crumb: the rail's search, the canvas header, and the
+ * details toggles. Their bottom borders are meant to land on one pixel, and they did not —
+ * measured at 197 / 191.3 / 219 before this.
+ * ⚠ THE LITERAL FIX WAS NOT AVAILABLE. Bringing the toggles down to the canvas header's 59.3px
+ * would have needed ~1px of padding around 56px of content, because the toggles stack a label
+ * over a switch. So both moved to 65 — the height the entry-panel headers and the rail search
+ * already sit at, measured, so it is the band's existing value rather than a new one.
+ * STATED, NOT DERIVED. Both carry `h-[65px]` rather than a padding pair tuned to today's content.
+ * The toggles' content is 56px and the canvas header's is 20.3px; a padding computed from either
+ * would drift the moment a label's leading or a chip's padding moved, and the bar would silently
+ * stop aligning with nothing to say so. Same rule the reorder cluster and the search field were
+ * both fixed to follow: state the box, do not negotiate for it. */
+{
+  const shell = code("components/studio/ThreePaneShell.tsx");
+  const panel = code("components/studio/ProjectsEditPanel.tsx");
+
+  t("F1: the canvas header states its height rather than deriving it from padding",
+    /className="flex h-\[65px\] flex-none items-center gap-2\.5 border-b border-ink-950\/12 px-\[18px\]/.test(shell), true);
+
+  t("F2: the details toggles bar states the same height",
+    /className="flex h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"/.test(panel), true);
+
+  t("F3: …and neither reverted to a vertical padding, which is what drifts",
+    /h-\[65px\][^"]*py-\[/.test(shell) || /h-\[65px\][^"]*py-\[/.test(panel), false);
+
+  /* PREVIEW AND CANCEL LEFT THE TOGGLES UNIT. In it they wrapped onto a second line — the toggles
+   * take `w-full` — so two ACTIONS sat under two SWITCHES on one ground with nothing between
+   * them. They belong with the save, which is what a footer is. */
+  t("F4: Preview and Cancel are in the footer, not in the toggles bar",
+    /<footer[\s\S]*?Preview[\s\S]*?Cancel[\s\S]*?Save details/.test(panel), true);
+
+  t("F5: …and their hover moved to cream-100, because the footer IS cream-200",
+    /hover:bg-cream-100[\s\S]{0,400}Preview/.test(panel)
+      && /hover:bg-cream-200[\s\S]{0,200}Preview/.test(panel) === false, true);
+}
+
 console.log(`\nmount-discipline result: ${pass} passed, ${fail} failed`);
 console.log("  (Part D is a browser script — paste MOUNT_SCRIPT at /studio/projects/<slug>.)");
 process.exit(fail === 0 ? 0 : 1);
