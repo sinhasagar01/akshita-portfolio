@@ -2235,11 +2235,6 @@ export default function SectionsEditPanel({
           {/* NO `leading-[1.5]` — the contract asks for it, but studio-cascade C1 proves it INERT here:
               the studio reset already sets that line-height on <p>, so the utility would not drive
               the result and editing it would do nothing. The contract's value is already the value. */}
-          <p className="px-3 text-[11px] text-text-subtle">
-            {contentStyleTab === "content"
-              ? "Copy for this section, including the Rich **bold** fields the canvas cannot edit."
-              : "Layout, glow, frames, and image geometry for this section."}
-          </p>
           {values.sections.map((section, i) => (
             <div
               key={ids.sectionIds[i]}
@@ -2448,7 +2443,6 @@ export default function SectionsEditPanel({
           ))}
           </div>
           </FieldTabProvider>
-        <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
       </div>
 
         {/* NO SECTIONS BAR ON A BESPOKE STUDY, AND THIS ONE IS #200 INVERTED. A normal study shows TWO
