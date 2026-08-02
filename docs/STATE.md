@@ -3320,6 +3320,54 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#282b** the save bar, owner corrections →2072 across **50 suites**
+  Four defects the owner found by USING it, none of which any gate could see. Every one is about
+  what is on screen together, which is the class of thing a class-string assertion cannot reach.
+  **THE DETAILS VIEW SHOWED TWO SAVE BARS STACKED IN A 320px COLUMN** — its own, plus the sections
+  bar the pane always carried — so the screen offered a save for an object the visible form does
+  not edit. The sections bar is now absent on Details, and each view shows the save that matches
+  what is on it. **AND THE DETAILS BAR WAS NOT PINNED**: it was static, so it sat wherever the form
+  ended, measured at **y=1027 in a 1000px viewport** — off screen until you scrolled. Fixing it
+  needed the whole height chain, pane → `min-h-full` → `flex-1` → `grow` → `mt-auto`, because
+  `sticky bottom-0` is inert when nothing scrolls. B4's finding, third surface.
+  **THE SECTIONS BAR GAINED PREVIEW.** The anchor is duplicated rather than shared — two bars,
+  two components, two `useDraftForm`s, and extracting a component would couple them for four lines
+  of markup. Both put the colour on a WRAPPER, hazard 22, which E6 caught on the details one
+  earlier in this same arc.
+  **SKILLS' BAR SPANNED THE LIST RAIL** — 1342px at a 1600px viewport against Experience's 1042,
+  because it was a SIBLING of `ListDetailLayout` while every other bar sits inside the detail
+  column. `ListDetailLayout` grew a `footer` slot and Skills passes its bar there. **#229's
+  argument is untouched and still load-bearing**: skills is a singleton, one `useDraftForm` over
+  every category, so a bar per panel would render N for one save. The slot is the LAYOUT'S, not a
+  panel's, which is the distinction that lets it be column-width without becoming per-entry.
+  ⚠ Below `lg` the bar now follows that column, so with nothing selected it is off screen where it
+  used to be on — which is what the five entry panels have always done.
+  **ONE ROW ON THE THREE LIST-DETAIL PAGES, AND IT IS A CONTAINER QUERY RATHER THAN A PROP.** The
+  two-row shape #282 shipped is right for a 313px inspector and wastes a row in a 1042px column.
+  A boolean would put the same decision at six call sites and encode **which page** rather than
+  **whether it fits** — the exact mistake the contract's one-row drawing made. `@container` at
+  **520px**, derived: a fully loaded one-row bar needs 567px, the inspector is 313, a settings
+  column is 1042. It lands 150px clear of one and 500px clear of the other, and `studio-save-bar`
+  D2/D3 pin it against BOTH pane widths read from source rather than merely asserting it exists —
+  **a threshold set too low silently re-creates the "S…" truncation**. It also does the right thing
+  unasked at 1180, where the folded pane is 889px and the bar goes to one row on its own.
+  Placement is now explicit cells rather than source order, which is what lets one row and two be
+  the same three tracks and the same DOM; the three spacer children are gone with it.
+  **⚠ A DERIVATION BROKE AND TWO SUITES READ IT.** Moving Skills' bar into `footer={<SaveBar/>}`
+  put JSX inside an opening tag, and `/<ListDetailLayout[\s\S]*?>/` stops at the FIRST `>` — so
+  the "children" capture began INSIDE the tag and **`SaveBar` was counted as a shell panel**. Both
+  suites now scan to the `>` that closes the tag at brace depth 0. studio-ink E1b caught it because
+  it pins the exact set; **mount-discipline did not, because its check was `length >= 6`** — a
+  floor cannot see a spurious member, and every per-panel check under it was then running against a
+  file with no panel in it. Found by mutation, not by review. It gained a membership-quality
+  assertion keyed on `useListItem` rather than a second copy of the list.
+  21 further mutations, **21 killed**, after two harness faults of my own: the runner only ran one
+  suite, and one mutation added an unused prop instead of reverting the derivation it claimed to
+  test. Public output unchanged — rendered HTML byte-identical on all five pages and flight rows
+  identical once the rebuild's module numbering is normalised. CSS +9 rules, −1 (`col-span-3` lost
+  its last consumer), and the 520px rules verified inside `@container (min-width:520px)` in the
+  production bundle.
+
 - **#282** the save bar — one shape, one derivation, nine surfaces →2055 across **50 suites**
   **THE PREMISE I PLANNED FROM WAS WRONG, AND THAT IS THE HEADLINE.** I scoped this as "the bar
   carries a permanent instruction and cannot report a failure". Verified in source, both are false.

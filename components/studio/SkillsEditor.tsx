@@ -136,6 +136,30 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         searchPlaceholder="Search categories"
         onRemoveItem={onRemoveItem}
         onMoveItem={onMoveItem}
+        /* ⚠ THE BAR MOVED INTO THE DETAIL COLUMN AND IT IS NO LONGER A SIBLING OF THE LAYOUT.
+           As a sibling it ran the whole page — measured 1342px at a 1600px viewport, spanning
+           the 300px list rail — while Experience's bar, which sits inside its own panel, ran
+           1042. Two bars on one shell at two widths, and the rail one was the odd one.
+           #229's ARGUMENT IS UNCHANGED AND STILL LOAD-BEARING: `skills` is a SINGLETON, one
+           `useDraftForm` over every category and one `buildCommitted` that posts them together,
+           so there is ONE save for N CategoryPanels. Putting a bar inside each panel would
+           render N of them for that one save. This slot is the layout's, not a panel's, which
+           is the distinction that lets the bar be column-width without becoming per-entry. */
+        footer={
+          <SaveBar
+            className="sticky bottom-0 z-10 mt-auto"
+            status={saveStatus}
+            dirty={dirty}
+            savedAt={savedAt}
+            title="Auto-saves to draft on blur. Publish from the Hero panel."
+            primary={{
+              label: "Save draft",
+              onClick: saveDraft,
+              disabled: !dirty || saveStatus === "saving",
+              title: "Saves every category together — skills is one document, not one entry per category.",
+            }}
+          />
+        }
       >
         {cats.map((c, i) => (
           <CategoryPanel
@@ -151,43 +175,6 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         ))}
       </ListDetailLayout>
 
-      {/* THIS FOOTER SITS OUTSIDE THE PANELS ON PURPOSE, AND IT IS NOT THE SIBLINGS' FOOTER.
-          An audit flagged it as drift — "a card outside the panel while all five siblings put a
-          cream-200 footer inside" — and measured against the architecture that framing is wrong,
-          so the number is written down here rather than left to be re-flagged.
-          `skills` is a SINGLETON: this component holds every category in ONE useDraftForm and
-          `buildCommitted` posts them all together, so there is exactly ONE save for N
-          CategoryPanels. The siblings save PER ENTRY (`saveExtras: { collection, slug }`), which
-          is why a footer belongs inside each of theirs. Moving this one inside would render N
-          save bars for a single document save.
-          SO IT IS A DOCUMENT-LEVEL SAVE BAR, A DIFFERENT ROLE from a per-entry panel footer.
-
-          ⚠ THE SECOND HALF OF #229's ARGUMENT IS RETIRED HERE, AND ITS REASONING IS KEPT RATHER
-          THAN DELETED. It read: "it is deliberately NOT restyled to cream-200 either — making it
-          look like a panel footer would encode a similarity that is not there, and the next audit
-          would find a bar that looks like a sibling and behaves differently."
-          THAT WAS TRUE OF A HAND-BUILT BAR AND IS NOT TRUE OF THIS ONE. The similarity is now
-          real: this IS the siblings' bar, the same component rendering the same five states from
-          the same derivation, so a shape that denied the resemblance would be the misleading one.
-          WHAT #229 ACTUALLY PROTECTS STILL HOLDS AND IS THE FIRST HALF — the bar stays OUTSIDE
-          the panels, one save for N CategoryPanels. That is the part about behaviour.
-          ⚠ AND IT IS STILL FULL-WIDTH, so it is the one surface the publish pill still overlaps.
-          Moving it under the detail column would mean restructuring ListDetailLayout's scroll
-          region for all five of its consumers, which is not this change. Recorded as a measured
-          limit rather than quietly left to be re-found. */}
-      <SaveBar
-        className="flex-none"
-        status={saveStatus}
-        dirty={dirty}
-        savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the Hero panel."
-        primary={{
-          label: "Save draft",
-          onClick: saveDraft,
-          disabled: !dirty || saveStatus === "saving",
-          title: "Saves every category together — skills is one document, not one entry per category.",
-        }}
-      />
     </div>
   );
 }

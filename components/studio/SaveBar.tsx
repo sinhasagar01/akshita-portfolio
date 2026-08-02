@@ -24,16 +24,32 @@
 // nesting flex, and a class-string check passed every broken version of it, so the tracks are
 // stated.
 //
-// ---- ⚠ TWO ROWS, AND THE CONTRACT'S ONE ROW IS THE THING BEING CORRECTED ----------------------
+// ---- ⚠ ONE ROW OR TWO IS A QUESTION ABOUT THE BOX, NOT ABOUT THE PAGE -------------------------
 //
-// The contract draws the state and the actions on ONE row. MEASURED IN A REAL BAR, THEY DO NOT
-// FIT. Its own drawing puts the inspector track at 340px and its primary reads "Save draft" — 12
+// The contract draws the state and the actions on ONE row. IN A 313px INSPECTOR THEY DO NOT FIT.
+// Its own drawing puts the inspector track at 340px and its primary reads "Save draft" — 12
 // characters. This studio's inspector is 320px, 313px inside the scrollbar, and #200 requires the
 // case study's two saves to name their objects, so the primary reads "Save draft · Sections" and
 // measures 167px. With a 56px Cancel and the padding, the state track was left 34px and rendered
-// "Saved" as "S…". THE ONE THING THIS CHANGE EXISTS TO ADD WAS THE ONE THING TRUNCATED.
-// So the state takes row one on its own and the actions take row two. That is one shape for nine
-// surfaces rather than a shape per label length, and no label can ever crush the line.
+// "Saved" as "S…". THE ONE THING THE STATE LINE EXISTS FOR WAS THE ONE THING TRUNCATED.
+//
+// IN A 1042px DETAIL COLUMN THE SAME BAR HAS 800px OF SLACK and stacking it wastes a row. So the
+// bar asks its own box rather than being told which page it is on. `@container` with a 520px
+// threshold, and the number is derived rather than picked:
+//
+//     one row, fully loaded  =  state 200 + Preview 61 + Cancel 56 + primary 182
+//                               + three 12px gaps + 32px padding  =  567
+//     the inspector          =  313  (ThreePaneShell's `w-[320px]`, less its scrollbar)
+//     a settings column      =  1042 at a 1600px viewport, measured
+//
+// 520 sits 200px clear of the inspector and 500px clear of the detail column, so neither surface
+// is anywhere near the boundary. ⚠ A THRESHOLD SET TOO LOW RE-CREATES THE "S…" DEFECT, which is
+// why the margin is stated and why `studio-save-bar` pins the number against the pane widths
+// rather than merely checking it exists.
+//
+// THIS IS WHY IT IS A CONTAINER QUERY AND NOT A PROP. A boolean would put the same decision at
+// six call sites and encode WHICH PAGE rather than WHETHER IT FITS — which is precisely the
+// mistake the contract's one-row drawing made.
 //
 // ---- ⚠ `extra` SITS ON THE STATE ROW, AND THAT PLACEMENT IS A MEASUREMENT ---------------------
 //
@@ -125,14 +141,14 @@ export default function SaveBar({
   // passed. THE SELECTOR IS THE CONSUMER OF THIS TAG NAME; do not change it to a div.
   return (
     <footer
-      className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2 border-t border-ink-950/12 bg-cream-200 px-4 py-3 ${className}`}
+      className={`@container grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2 border-t border-ink-950/12 bg-cream-200 px-4 py-3 ${className}`}
     >
       {/* ⚠ THE VALIDATION MESSAGE IS ITS OWN BRANCH AND OUTRANKS THE SAVE STATE. It is not a save
           state at all — the sections bar uses it for "A video URL must be http:// or https://",
           which is a fact about the CONTENT rather than about the commit. The five-state line has
           no slot for it, and a design that swallowed it to fit the drawing would have deleted a
           real signal. It wins because it is the thing blocking the save. */}
-      <div className="col-span-3 flex min-w-0 items-center justify-between gap-3">
+      <div className="col-start-1 col-end-4 row-start-1 flex min-w-0 items-center justify-between gap-3 @[520px]:col-end-2">
         {validation ? (
           <span className="min-w-0 truncate text-[12px] text-danger-600" role="status" aria-live="polite">
             {validation}
@@ -156,20 +172,21 @@ export default function SaveBar({
         {extra ? <span className="flex-none">{extra}</span> : null}
       </div>
 
-      <span />
-
+      {/* EXPLICIT PLACEMENT RATHER THAN SOURCE ORDER, which is what lets one row and two rows be
+          the SAME three tracks and the same DOM. Auto-placement needed a spacer child to hold the
+          flexible track open on the actions row; a spacer cannot also be absent in the one-row
+          arrangement, so the rows would have had to be two different trees. Stating the cell each
+          control occupies removes the spacer and the branch together. */}
       {onCancel ? (
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={onCancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-100 hover:text-ink-950"
+          className="col-start-2 row-start-2 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-100 hover:text-ink-950 @[520px]:row-start-1"
         >
           Cancel
         </button>
-      ) : (
-        <span />
-      )}
+      ) : null}
 
       {primary ? (
         <button
@@ -182,13 +199,11 @@ export default function SaveBar({
           // suffix left a label, was aria-hidden, and a screen reader heard less than before.
           title={primary.title}
           aria-label={primary.title ? `${primary.label}. ${primary.title}` : undefined}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="col-start-3 row-start-2 rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40 @[520px]:row-start-1"
         >
           {status === "saving" ? "Saving…" : primary.label}
         </button>
-      ) : (
-        <span />
-      )}
+      ) : null}
     </footer>
   );
 }

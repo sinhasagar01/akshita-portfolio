@@ -196,7 +196,13 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // not be reached. Nothing failed; it simply was not clickable. Here the footer is part of the
   // node, so whenever the form is on screen its save is too.
   const detailsNode = (
-    <div className="flex flex-col">
+    // `grow` SO THE BAR BELOW CAN REACH THE PANE'S FOOT. The node used to be content-height, so
+    // its save sat wherever the form happened to end — measured at y=1027 in a 1000px viewport,
+    // which is to say off screen until you scrolled. The height chain is inspector pane ->
+    // `min-h-full` on the inspector node -> `flex-1` on this node's wrapper -> `grow` here ->
+    // `mt-auto` on the bar. Every link is needed; `sticky bottom-0` alone is inert when nothing
+    // scrolls, which is B4's finding in mount-discipline.
+    <div className="flex grow flex-col">
       {/* THE STUDY-LEVEL CONTROLS AND ACTIONS, re-homed from the deleted strip and header.
           Template and category are LIVE controls — they were never read-only glances — so they
           move with the fields they belong beside rather than disappearing with the strip that
@@ -324,6 +330,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           draft"; the object is what stops two identical labels claiming to be the same action.
           Preview and Cancel sit here from #280, and the accessible name carries the object too. */}
       <SaveBar
+        className="sticky bottom-0 z-10 mt-auto"
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}

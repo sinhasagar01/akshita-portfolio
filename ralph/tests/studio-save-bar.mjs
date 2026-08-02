@@ -111,7 +111,7 @@ const bar = code("components/studio/SaveBar.tsx");
  * what keeps "one shape" true across nine surfaces rather than aspirational. */
 {
   t("B1: the ground, the hairline and the padding are the bar's, not the caller's",
-    /grid grid-cols-\[1fr_auto_auto\] items-center gap-x-3 gap-y-2 border-t border-ink-950\/12 bg-cream-200 px-4 py-3 \$\{className\}/.test(bar), true);
+    /@container grid grid-cols-\[1fr_auto_auto\] items-center gap-x-3 gap-y-2 border-t border-ink-950\/12 bg-cream-200 px-4 py-3 \$\{className\}/.test(bar), true);
 
   /* ⚠ THE ROOT IS A `footer`, AND ListDetailLayout IS THE CONSUMER OF THAT TAG NAME. Its
    * `lg:[&>section>footer]:mt-auto` is what stops a bar floating mid-air in a short panel —
@@ -123,19 +123,25 @@ const bar = code("components/studio/SaveBar.tsx");
    * stretching defect twice and a class-string check passed every broken version of it. */
   t("B3: the actions sit in stated tracks", /grid-cols-\[1fr_auto_auto\]/.test(bar), true);
 
-  /* ⚠ THREE TRACKS NEED THREE CHILDREN. `{extra}` rendering nothing when undefined put FOUR
-   * children against three tracks and the primary wrapped to an implicit fourth row — measured
-   * on the details bar, which is the one surface with a Preview link. Cancel and the primary
-   * already had placeholders; the third is the spacer that holds the flexible track. */
-  const placeholders = (bar.match(/<span \/>/g) ?? []).length;
-  t("B4: the actions row always has three children, absent controls included", placeholders, 3);
+  /* ⚠ THE PLACEHOLDERS ARE GONE, AND EXPLICIT PLACEMENT IS WHY. They existed because
+   * auto-placement fills cells in source order, so an absent Cancel shifted the primary a track
+   * left and an absent `extra` let a FOURTH child wrap to an implicit row. Stating the cell each
+   * control occupies makes source order irrelevant — and it is also what lets one row and two
+   * rows be the same three tracks and the same DOM, which a spacer could not be part of.
+   * ASSERTED AS AN ABSENCE, because a stray placeholder now occupies a real cell. */
+  t("B4: no spacer children survive — every control states its own cell",
+    (bar.match(/<span \/>/g) ?? []).length, 0);
+  t("B4: …and each control does state one", {
+    cancel: /className="col-start-2 row-start-2 rounded/.test(bar),
+    primary: /className="col-start-3 row-start-2 rounded/.test(bar),
+  }, { cancel: true, primary: true });
 
   /* THE STATE ROW IS ITS OWN ROW, AND THE REASON IS ARITHMETIC RATHER THAN TASTE. The contract
    * draws one row against a 340px track and a 12-character primary. This inspector is 313px
    * inside its scrollbar and #200 requires "Save draft · Sections", which measures 167px; with
    * Cancel and the padding the state track was left 34px and rendered "Saved" as "S…". */
   t("B5: the state takes a full row of its own, so no label length can crush it",
-    /col-span-3 flex min-w-0 items-center justify-between gap-3/.test(bar), true);
+    /col-start-1 col-end-4 row-start-1 flex min-w-0 items-center justify-between gap-3/.test(bar), true);
   t("B5: …and `extra` rides on that row rather than holding the 1fr track open below it",
     /\{extra \? <span className="flex-none">\{extra\}<\/span> : null\}/.test(bar), true);
 }
@@ -243,10 +249,15 @@ const bar = code("components/studio/SaveBar.tsx");
    * the prefix — the check passed against markup that no longer rendered the shared bar at all.
    * A prefix is not a tag name. It now also asserts the bar appears EXACTLY once after the
    * layout closes, which is what "one save for N CategoryPanels" actually means. */
-  t("C5: skills' bar is still outside the panels — one save for N of them",
-    (skills.split("</ListDetailLayout>")[1] ?? "").match(/<SaveBar[\s/>]/g)?.length ?? 0, 1);
-  t("C5: …and there is none inside the layout, which would be one bar per category",
-    /<SaveBar[\s/>]/.test(skills.split("</ListDetailLayout>")[0]), false);
+  /* ⚠ RE-ANCHORED WHEN THE BAR MOVED INTO THE COLUMN. It used to be a SIBLING of the layout,
+   * which is exactly why it spanned the 300px rail — 1342px at a 1600px viewport against
+   * Experience's 1042. It is now the layout's `footer` slot. WHAT THE ASSERTION PROTECTS IS
+   * UNCHANGED and is #229's point: exactly ONE bar for N CategoryPanels, because one
+   * `useDraftForm` holds every category. A bar in the CHILDREN would be one per panel. */
+  t("C5: skills renders exactly one bar, and it is the layout's footer rather than a panel's",
+    (skills.match(/<SaveBar[\s/>]/g) ?? []).length === 1 && /footer=\{\s*<SaveBar/.test(skills), true);
+  t("C5: …and none of it sits in the layout's children, which would be one bar per category",
+    /<\/ListDetailLayout>[\s\S]*<SaveBar/.test(skills), false);
   t("C5: …and its scope fact says so on the control that does it",
     /title: "Saves every category together/.test(skills), true);
   t("C5: …and the cream-100 card frame is gone, because the bar it distinguished from is now this one",
@@ -270,6 +281,92 @@ const bar = code("components/studio/SaveBar.tsx");
   t("C6: …and it is not stamped anywhere else, so it cannot mark a failed write",
     (form.match(/setSavedAt\(/g) ?? []).length, 1);
   t("C6: …and it is handed to the bar", /savedAt,/.test(form), true);
+}
+
+/* ================================================= D. ONE ROW OR TWO IS A QUESTION ABOUT THE BOX
+ *
+ * The bar asks its own container rather than being told which page it is on. A boolean prop would
+ * put the same decision at six call sites and encode WHICH PAGE instead of WHETHER IT FITS —
+ * which is precisely the mistake the contract's one-row drawing made.
+ *
+ * ⚠ THE THRESHOLD IS THE PART THAT CAN BE WRONG SILENTLY. Set too low it re-creates the "S…"
+ * truncation in the 313px inspector; set above a settings column it wastes a row on three pages.
+ * So it is pinned against BOTH pane widths rather than merely asserted to exist. */
+{
+  const M = /@\[(\d+)px\]:/.exec(bar);
+  t("D1: the bar declares a container and a threshold", Boolean(M) && /@container/.test(bar), true);
+  const THRESHOLD = Number(M?.[1] ?? 0);
+
+  /* THE TWO PANE WIDTHS ARE READ FROM SOURCE, NOT RETYPED. The inspector is ThreePaneShell's own
+   * `w-[320px]`; a settings column is the pane left over after ListDetailLayout's `lg:w-[300px]`
+   * rail, which is why the lower bound below is the rail rather than a measured 1042. */
+  const inspectorPx = Number(/<aside className="[^"]*?\bw-\[(\d+)px\]/.exec(
+    read("components/studio/ThreePaneShell.tsx"))?.[1] ?? 0);
+  const railPx = Number(/lg:w-\[(\d+)px\]/.exec(read("components/studio/ListDetailLayout.tsx"))?.[1] ?? 0);
+  t("D1: …and both pane widths were actually found, so the bounds below are not vacuous",
+    inspectorPx > 0 && railPx > 0, true);
+
+  /* THE INSPECTOR MUST LAND IN THE TWO-ROW REGIME WITH ROOM TO SPARE. Measured, a fully loaded
+   * one-row bar needs 567px: state 200 + Preview 61 + Cancel 56 + primary 182, three 12px gaps
+   * and 32px of padding. The inspector is nowhere near it and must stay nowhere near it. */
+  t("D2: the inspector is comfortably inside the two-row regime — 150px of margin, not a hair",
+    THRESHOLD >= inspectorPx + 150, true);
+
+  /* AND A ONE-ROW BAR MUST ACTUALLY BE REACHABLE. At the 1024px `lg` breakpoint, the narrowest
+   * width at which the shell is side-by-side at all, the detail column is what the rail leaves. */
+  t("D3: …and a settings column clears it at the narrowest supported desktop width",
+    THRESHOLD < 1024 - railPx, true);
+
+  t("D4: exactly one threshold is used, so the two rows cannot disagree about where they switch",
+    [...new Set((bar.match(/@\[\d+px\]:/g) ?? []))].length, 1);
+}
+
+/* ================================================= E. THE CASE-STUDY INSPECTOR SHOWS ONE SAVE
+ *
+ * Details used to render TWO bars stacked in a 320px column — its own, plus the sections bar the
+ * pane always carried — so the screen offered a save for an object the visible form does not
+ * edit. Each view now shows the save that matches what is on it, and both carry Preview. */
+{
+  const projects = code("components/studio/ProjectsEditPanel.tsx");
+  const sections = code("components/studio/SectionsEditPanel.tsx");
+
+  t("E1: the sections bar is absent on the Details view", /showDetails \? null : \(\s*<SaveBar/.test(sections), true);
+
+  /* BOTH BARS OPEN THE DRAFT PREVIEW, and the anchor is duplicated rather than shared: the two
+   * bars are rendered by two components over two different useDraftForms, so extracting a
+   * component would couple them for four lines of markup. ⚠ BOTH PUT THE COLOUR ON A WRAPPER —
+   * hazard 22's unlayered `a { color: inherit }` beats a `text-*` utility on the anchor itself,
+   * which studio-ink E6 caught on the details one during this arc. */
+  for (const [name, src] of [["details", projects], ["sections", sections]]) {
+    t(`E2: the ${name} bar offers Preview`,
+      /<span className="flex items-center gap-1 text-ink-600">[\s{}]*<a/.test(src)
+        && /\/studio\/projects\/\$\{slug\}\/preview/.test(src), true);
+    t(`E2: …and the ${name} anchor does not colour itself, which hazard 22 would defeat`,
+      /<a\b[^>]*className="[^"]*text-ink-600/.test(src), false);
+  }
+
+  /* THE DETAILS BAR PINS TO THE PANE FOOT. It was static, so it sat wherever the form ended —
+   * measured at y=1027 in a 1000px viewport, which is off screen until you scroll. BOTH HALVES
+   * ARE REQUIRED: `sticky bottom-0` is inert when nothing scrolls and `mt-auto` is inert when
+   * something does. mount-discipline B4 is the same finding on the settings panels. */
+  t("E3: the details bar is pinned with both halves", /className="sticky bottom-0 z-10 mt-auto"/.test(projects), true);
+
+  /* AND THE HEIGHT CHAIN THAT MAKES `mt-auto` MEAN ANYTHING. Every link is load-bearing; a
+   * missing one leaves the bar floating and nothing looks broken until the form is short. */
+  t("E3: …and the height reaches it — pane, wrapper, node, in that order", {
+    inspectorNode: /flex min-h-full flex-col gap-4/.test(sections),
+    detailsWrapper: /hidden=\{!showDetails\} className="flex min-h-0 flex-1 flex-col"/.test(sections),
+    detailsNode: /<div className="flex grow flex-col">/.test(projects),
+  }, { inspectorNode: true, detailsWrapper: true, detailsNode: true });
+
+  /* ⚠ THE WRAPPER KEEPS THE `hidden` ATTRIBUTE AND THAT IS ONLY SAFE BECAUSE PREFLIGHT SHOUTS.
+   * Tailwind emits `[hidden]:where(:not([hidden=until-found])){display:none!important}`. The
+   * `:where()` zeroes the specificity, so without the `!important` a `flex` utility on the same
+   * element would out-specify the attribute and the details form would render on every section. */
+  t("E4: preflight's [hidden] rule still carries !important, which is what makes `flex` safe there",
+    /\[hidden\]:where\(:not\(\[hidden='until-found'\]\)\)\{display:none!important;\}/
+      .test(readFileSync(new URL("../../node_modules/tailwindcss/preflight.css", import.meta.url), "utf8")
+        .replace(/\s+/g, "")), true);
 }
 
 console.log(`\nstudio-save-bar result: ${pass} passed, ${fail} failed`);

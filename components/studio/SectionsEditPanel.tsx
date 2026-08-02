@@ -1934,7 +1934,14 @@ export default function SectionsEditPanel({
           moment you clicked a section. This is also what makes Save draft reachable again: it
           used to live INSIDE the collapsed disclosure, so closing the strip hid the only control
           that saved it. */}
-      {detailsNode ? <div hidden={!showDetails}>{detailsNode}</div> : null}
+      {/* `flex-1` PASSES THE PANE'S HEIGHT DOWN so the details save bar can pin to its foot.
+          THE `hidden` ATTRIBUTE STILL WINS over these utilities — preflight emits
+          `[hidden]:where(:not([hidden=until-found])){display:none!important}`, and the
+          `!important` is what makes adding `flex` here safe. Without it a display utility would
+          out-specify the attribute and the form would be visible on every section. */}
+      {detailsNode ? (
+        <div hidden={!showDetails} className="flex min-h-0 flex-1 flex-col">{detailsNode}</div>
+      ) : null}
         {/* CS-3's Content|Style field split, now nested UNDER the Inspector view (the
             top-level Canvas|Inspector switch sits above). Restored to its honest
             labels: it splits FIELDS, not views, and calling its content half "Canvas"
@@ -2268,7 +2275,7 @@ export default function SectionsEditPanel({
             into the line. "A video URL must be http:// or https://" is a fact about the CONTENT; the
             five-state line has no slot for it, and swallowing it to fit the drawing would have deleted
             the only signal saying why the save is refusing. */}
-      {bespoke ? null : (
+      {bespoke || showDetails ? null : (
         <SaveBar
           className="sticky bottom-0 z-10 mt-auto"
           status={saveStatus}
@@ -2277,6 +2284,25 @@ export default function SectionsEditPanel({
           title="Auto-saves to draft on blur. Preview to see it."
           validation={hasBadVideoSrc ? "A video URL must be http:// or https://." : null}
           onCancel={handleCancel}
+          extra={
+            /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
+               `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits
+               a rule that loses. This is the second copy of that shape and it is deliberate: the
+               details bar has its own in ProjectsEditPanel, because the two bars are rendered by
+               two different components over two different useDraftForms. Extracting a shared
+               Preview would couple them for four lines of markup. */
+            <span className="flex items-center gap-1 text-ink-600">
+              <a
+                href={`/studio/projects/${slug}/preview`}
+                target="_blank"
+                rel="noopener"
+                title="Opens the draft preview in a new tab."
+                className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+              >
+                Preview
+              </a>
+            </span>
+          }
           primary={{
             label: "Save draft · Sections",
             onClick: saveDraft,

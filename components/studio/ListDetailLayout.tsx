@@ -100,6 +100,7 @@ export function ListDetailLayout({
   searchPlaceholder,
   onRemoveItem,
   onMoveItem,
+  footer,
 }: {
   sections: ListDetailSection[];
   children: React.ReactNode;
@@ -126,6 +127,8 @@ export function ListDetailLayout({
   // as before. The list order is the consumer's `sections` order, so the layout
   // re-renders from it rather than holding an order of its own.
   onMoveItem?: (id: string, direction: "up" | "down") => void;
+  /** A bar pinned to the DETAIL COLUMN's foot, below the panels. See where it renders. */
+  footer?: React.ReactNode;
 }) {
   const hasRowControls = Boolean(onRemoveItem || onMoveItem);
 
@@ -558,6 +561,22 @@ export function ListDetailLayout({
             ← All sections
           </button>
           {children}
+          {/* A DOCUMENT-LEVEL BAR FOR THE DETAIL COLUMN, and only Skills passes one.
+              ⚠ IT EXISTS SO A BAR CAN BE COLUMN-WIDTH WITHOUT SPANNING THE RAIL. Skills' save
+              was a sibling of this whole layout, so it ran the full width of the page and sat
+              under the 300px list — measured 1342px at a 1600px viewport, against Experience's
+              1042. Experience looks right because its bar is inside its own panel section, which
+              is inside this column; Skills has no per-entry panel to put one in, because one
+              `useDraftForm` holds every category and `buildCommitted` posts them together.
+              So the slot is HERE rather than in the panels: rendering it per panel would give N
+              bars for a single document save, which is #229's point and still holds.
+              A CHILD OF THE SCROLLER, NOT A SIBLING — the same arrangement the five entry
+              panels' footers already use, `sticky bottom-0` for the overflow regime and
+              `mt-auto` for the underflow one. See mount-discipline B4.
+              ⚠ BELOW `lg` IT FOLLOWS THIS COLUMN, so with nothing selected the bar is off screen
+              where it used to be on. That is what the five entry panels have always done, so
+              Skills now matches them rather than being the exception. */}
+          {footer}
         </div>
       </div>
     </ListDetailContext.Provider>
