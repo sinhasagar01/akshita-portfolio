@@ -127,12 +127,44 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
   const hosts = ["app/studio/(dashboard)/settings/page.tsx",
                  "components/studio/ExperienceListEditor.tsx",
                  "components/studio/SkillsEditor.tsx"];
-  const shellPanels = [...new Set(hosts.flatMap((h) =>
-    [...(/<ListDetailLayout[\s\S]*?>([\s\S]*?)<\/ListDetailLayout>/.exec(code(h))?.[1] ?? "")
-      .matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1])))];
+  /** The components a host renders BETWEEN `<ListDetailLayout …>` and `</ListDetailLayout>`.
+   *
+   * ⚠ THE OPENING TAG IS SCANNED, NOT REGEXED PAST, AND A PROP IS WHY. `/<ListDetailLayout[\s\S]*?>/`
+   * stops at the FIRST `>`, which is fine until a prop holds JSX — `footer={<SaveBar … />}` — and
+   * then the capture starts INSIDE the opening tag and `SaveBar` is counted as a child panel. It
+   * was, the moment Skills' bar moved into the layout's footer slot, and the set silently grew a
+   * member that is not a panel at all. This walks to the `>` that closes the tag at brace depth 0,
+   * so anything inside a prop expression is skipped by construction rather than by a deny-list. */
+  const childrenOfLayout = (src) => {
+    const open = src.indexOf("<ListDetailLayout");
+    if (open < 0) return [];
+    let i = open, depth = 0;
+    for (; i < src.length; i++) {
+      const c = src[i];
+      if (c === "{") depth++;
+      else if (c === "}") depth--;
+      else if (c === ">" && depth === 0) break;
+    }
+    const end = src.indexOf("</ListDetailLayout>", i);
+    if (end < 0) return [];
+    return [...src.slice(i + 1, end).matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
+  };
+  const shellPanels = [...new Set(hosts.flatMap((h) => childrenOfLayout(code(h))))];
   t("B3.1: the derived shell-panel set is non-empty and includes the panel the by-name sweep missed",
     shellPanels.includes("CategoryPanel") && shellPanels.length >= 6, true);
+  /* ⚠ A FLOOR CANNOT SEE A SPURIOUS MEMBER, and one got in. When Skills' bar moved into the
+   * layout's `footer` prop, the old regex read INTO the opening tag and `SaveBar` joined the set;
+   * `length >= 6` still passed, and every per-panel check below then ran against a file with no
+   * panel in it — silently covering nothing. Reverting the derivation alone still passed this
+   * suite, which is how the hole was found.
+   * PINNED ON THE PROPERTY, NOT ON A LIST. A shell panel is a thing that consumes the layout's
+   * item context, so `useListItem` is what actually distinguishes one; `CategoryPanel` is defined
+   * inside SkillsEditor and resolves there. studio-ink E1b pins the exact membership — this asks
+   * only that nothing in the set is disqualified, so the two are not two copies of one list. */
   const fileFor = (n) => (n === "CategoryPanel" ? "SkillsEditor" : n);
+  const notPanels = shellPanels.filter((n) => !/useListItem/.test(code(`components/studio/${fileFor(n)}.tsx`)));
+  t("B3.1: …and every member is actually a shell panel, not something passed to the layout as a prop",
+    notPanels, []);
   const clipping = shellPanels.filter((f) =>
     /<section[\s\S]{0,200}?overflow-hidden/.test(code(`components/studio/${fileFor(f)}.tsx`)));
   t("B3.1: no panel inside the list-detail pane clips its own overflow",
@@ -175,14 +207,37 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
       ["…and the footer takes the free space above it — the UNDERFLOW half", "lg:[&>section>footer]:mt-auto"],
     ]) t(`B4: ${what}`, pane.includes(cls), true);
 
-    // The OVERFLOW half still has to be there, on every derived panel, or scrolling regresses.
+    /* ---- RE-ANCHORED OFF `<footer` IN THE SAVE BAR PR ------------------------------------
+     * The panels no longer write a footer element; they write `<SaveBar className="sticky
+     * bottom-0 …">`. THE TWO CLASSES THIS ASSERTION NAMES STILL HAVE TO REACH A `footer` TAG,
+     * because `lg:[&>section>footer]:mt-auto` above selects on that tag and nothing else, and
+     * `sticky bottom-0` has to land on the element that is actually the section's last child.
+     * SO THE CONSUMER-SIDE CHECK IS NO LONGER SELF-SUFFICIENT and the two assertions after it
+     * are what make it mean anything: without them, every panel could carry the right string
+     * while SaveBar rendered a div and dropped `className`, and all of this would pass. */
     const notSticky = shellPanels.filter((n) =>
-      !/<footer[^>]*className="sticky bottom-0/.test(code(`components/studio/${fileFor(n)}.tsx`))
-      && /<footer/.test(code(`components/studio/${fileFor(n)}.tsx`)));
-    t("B4: every shell panel's footer keeps `sticky bottom-0` — the OVERFLOW half, which mt-auto does not replace",
-      notSticky, ["CategoryPanel"]);
-    t("B4: …and CategoryPanel is the one exception, because Skills' save bar is DOCUMENT-level (#229) and sits outside the shell",
-      /<\/ListDetailLayout>[\s\S]*<footer/.test(code("components/studio/SkillsEditor.tsx")), true);
+      !/<SaveBar\s+className="sticky bottom-0/.test(code(`components/studio/${fileFor(n)}.tsx`))
+      && /<SaveBar/.test(code(`components/studio/${fileFor(n)}.tsx`)));
+    /* ⚠ THE EXCEPTION IS GONE, AND THAT IS THE FIX RATHER THAN A RELAXATION. This expected
+     * `["CategoryPanel"]` because Skills' bar was a SIBLING of the whole layout — full-page width,
+     * running under the 300px rail, measured 1342px against Experience's 1042. It is now the
+     * layout's `footer` slot, inside the detail column and pinned like every other bar, so there
+     * is no panel left that opts out. An empty list is the stronger assertion. */
+    t("B4: every shell panel's save bar keeps `sticky bottom-0` — the OVERFLOW half, which mt-auto does not replace",
+      notSticky, []);
+    t("B4: …and Skills' bar is the layout's footer rather than its sibling, so it stops spanning the rail",
+      /footer=\{\s*<SaveBar/.test(code("components/studio/SkillsEditor.tsx"))
+        && /<\/ListDetailLayout>[\s\S]*<SaveBar/.test(code("components/studio/SkillsEditor.tsx")) === false, true);
+    // `[\s{}]*` RATHER THAN `\s*`: `code()` strips `/* … */` but leaves a JSX comment's own braces
+    // behind, so a documented line reads `{children}` `{}` `{footer}` once comments are gone.
+    t("B4: …and the layout renders that slot inside the detail column, below the panels",
+      /\{children\}[\s{}]*\{footer\}/.test(code("components/studio/ListDetailLayout.tsx")), true);
+
+    const bar = code("components/studio/SaveBar.tsx");
+    t("B4: …and SaveBar's root is a `footer` element, which is what `[&>section>footer]` selects",
+      /return \(\s*<footer/.test(bar) && /<\/footer>\s*\);/.test(bar), true);
+    t("B4: …and it appends the consumer's className, or the sticky above never reaches the element",
+      /bg-cream-200 px-4 py-3 \$\{className\}`/.test(bar), true);
 
     /* ---- B5 · THE CHAIN ABOVE THE SHELL, WHICH IS WHERE SKILLS BROKE --------------------
      *
@@ -457,8 +512,18 @@ export const MOUNT_SCRIPT = String.raw`
   /* PREVIEW AND CANCEL LEFT THE TOGGLES UNIT. In it they wrapped onto a second line — the toggles
    * take `w-full` — so two ACTIONS sat under two SWITCHES on one ground with nothing between
    * them. They belong with the save, which is what a footer is. */
-  t("F4: Preview and Cancel are in the footer, not in the toggles bar",
-    /<footer[\s\S]*?Preview[\s\S]*?Cancel[\s\S]*?Save details/.test(panel), true);
+  /* RE-ANCHORED OFF `<footer>` IN THE SAVE BAR PR. The footer element is gone — every save bar
+   * is now one `SaveBar`, and Preview arrives through its `extra` slot while Cancel arrives
+   * through `onCancel`. THE ASSERTION'S SUBJECT NEVER MOVED: both still sit with the save and
+   * not with the toggles, which is the only thing F4 has ever cared about. The second half is
+   * new and is the half that can actually fail — the first checked that the three appear in one
+   * element, which a save bar makes true by construction. */
+  t("F4: Preview and Cancel are on the save bar, not in the toggles bar",
+    /<SaveBar[\s\S]*?Preview[\s\S]*?Save draft · Details/.test(panel)
+      && /onCancel=\{cancel\}/.test(panel), true);
+  t("F4: …and the toggles bar itself holds neither",
+    /h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"[\s\S]{0,1200}?<\/div>/
+      .exec(panel)?.[0]?.includes("Preview") ?? true, false);
 
   t("F5: …and their hover moved to cream-100, because the footer IS cream-200",
     /hover:bg-cream-100[\s\S]{0,400}Preview/.test(panel)

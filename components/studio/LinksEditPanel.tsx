@@ -16,6 +16,7 @@
 // github-mode backstop.
 import { useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
+import SaveBar from "./SaveBar";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconArrowUpRight, IconChevronUp, IconChevronDown, IconX, IconPlus } from "./icons";
@@ -99,6 +100,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
     setField,
     dirty,
     saveStatus,
+    savedAt,
     saveDraft,
     cancel,
   } = useDraftForm<LinksFields>({
@@ -289,31 +291,17 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
         </div>
       </div>
 
-      <footer className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[12px]" aria-live="polite">
-          {hasUrlError ? (
-            <span className="text-accent-600">Fix the highlighted URL to save.</span>
-          ) : saveStatus === "saving" ? (
-            <span className="text-text-subtle">Saving draft…</span>
-          ) : saveStatus === "saved" ? (
-            <span className="text-accent-600">Draft saved</span>
-          ) : saveStatus === "error" ? (
-            <span className="text-accent-600">Save failed. Try again.</span>
-          ) : saveStatus === "fs" ? (
-            <span className="text-text-subtle">Draft save needs github mode (dev)</span>
-          ) : (
-            <span className="text-text-subtle">Auto-saves to draft on blur. Publish from the Hero panel.</span>
-          )}
-        </span>
-        <button
-          type="button"
-          onClick={saveDraft}
-          disabled={!dirty || saveStatus === "saving" || hasUrlError}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {saveStatus === "saving" ? "Saving…" : "Save draft"}
-        </button>
-      </footer>
+      {/* ONE SHAPE — see SaveBar. The instruction that used to be the idle string is now its
+          `title`, and the line reports state. `sticky` is preserved: this bar rides the bottom of a
+          scrolling panel and always did. */}
+      <SaveBar
+        className="sticky bottom-0 z-10"
+        status={saveStatus}
+        dirty={dirty}
+        savedAt={savedAt}
+        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
+      />
     </section>
   );
 }

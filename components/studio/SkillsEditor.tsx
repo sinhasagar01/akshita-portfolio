@@ -15,6 +15,7 @@
 import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
 import ChipListEditor from "./ChipListEditor";
+import SaveBar from "./SaveBar";
 import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -49,7 +50,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
   const { setUnpublished } = usePublishSignal();
 
   const initial: SkillsFields = { categories };
-  const { values, setField, dirty, saveStatus, saveDraft } = useDraftForm<SkillsFields>({
+  const { values, setField, dirty, saveStatus, savedAt, saveDraft } = useDraftForm<SkillsFields>({
     initial,
     // The whole categories array IS the patch, posted as
     // { singleton:"skills", patch:{ categories } } (the SK-2 path). nonBlankCategories
@@ -114,19 +115,6 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
     setIds((prev) => moveIn(prev, idx, dir));
   };
 
-  const statusText =
-    saveStatus === "saving"
-      ? "Saving draft…"
-      : saveStatus === "saved"
-        ? "Draft saved"
-        : saveStatus === "error"
-          ? "Save failed. Try again."
-          : saveStatus === "fs"
-            ? "Draft save needs github mode (dev)"
-            : dirty
-              ? "Unsaved changes"
-              : "All changes saved";
-
   return (
     // ---- THIS WRAPPER HAS TO CARRY THE HEIGHT, OR THE SHELL INSIDE IT NEVER GETS ONE -------
     //
@@ -148,6 +136,30 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         searchPlaceholder="Search categories"
         onRemoveItem={onRemoveItem}
         onMoveItem={onMoveItem}
+        /* ⚠ THE BAR MOVED INTO THE DETAIL COLUMN AND IT IS NO LONGER A SIBLING OF THE LAYOUT.
+           As a sibling it ran the whole page — measured 1342px at a 1600px viewport, spanning
+           the 300px list rail — while Experience's bar, which sits inside its own panel, ran
+           1042. Two bars on one shell at two widths, and the rail one was the odd one.
+           #229's ARGUMENT IS UNCHANGED AND STILL LOAD-BEARING: `skills` is a SINGLETON, one
+           `useDraftForm` over every category and one `buildCommitted` that posts them together,
+           so there is ONE save for N CategoryPanels. Putting a bar inside each panel would
+           render N of them for that one save. This slot is the layout's, not a panel's, which
+           is the distinction that lets the bar be column-width without becoming per-entry. */
+        footer={
+          <SaveBar
+            className="sticky bottom-0 z-10 mt-auto"
+            status={saveStatus}
+            dirty={dirty}
+            savedAt={savedAt}
+            title="Auto-saves to draft on blur. Publish from the Hero panel."
+            primary={{
+              label: "Save draft",
+              onClick: saveDraft,
+              disabled: !dirty || saveStatus === "saving",
+              title: "Saves every category together — skills is one document, not one entry per category.",
+            }}
+          />
+        }
       >
         {cats.map((c, i) => (
           <CategoryPanel
@@ -163,32 +175,6 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
         ))}
       </ListDetailLayout>
 
-      {/* THIS FOOTER SITS OUTSIDE THE PANELS ON PURPOSE, AND IT IS NOT THE SIBLINGS' FOOTER.
-          An audit flagged it as drift — "a card outside the panel while all five siblings put a
-          cream-200 footer inside" — and measured against the architecture that framing is wrong,
-          so the number is written down here rather than left to be re-flagged.
-          `skills` is a SINGLETON: this component holds every category in ONE useDraftForm and
-          `buildCommitted` posts them all together, so there is exactly ONE save for N
-          CategoryPanels. The siblings save PER ENTRY (`saveExtras: { collection, slug }`), which
-          is why a footer belongs inside each of theirs. Moving this one inside would render N
-          save bars for a single document save.
-          SO IT IS A DOCUMENT-LEVEL SAVE BAR, A DIFFERENT ROLE from a per-entry panel footer, and
-          it is deliberately NOT restyled to cream-200 either: making it look like a panel footer
-          would encode a similarity that is not there, and the next audit would find a bar that
-          looks like a sibling and behaves differently. */}
-      <footer className="flex items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-3">
-        <span className="text-[12px] text-text-subtle" aria-live="polite">
-          {statusText}
-        </span>
-        <button
-          type="button"
-          onClick={saveDraft}
-          disabled={!dirty || saveStatus === "saving"}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {saveStatus === "saving" ? "Saving…" : "Save draft"}
-        </button>
-      </footer>
     </div>
   );
 }

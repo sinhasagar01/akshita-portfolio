@@ -36,6 +36,7 @@ import { CS_MIN_SCALE, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { usePageWidthMin } from "./usePageWidthMin";
 import ThreePaneShell from "./ThreePaneShell";
+import SaveBar from "./SaveBar";
 import SectionsRail from "./SectionsRail";
 import CollapsibleGroup from "./blocks/CollapsibleGroup";
 import { richToMarkers } from "@/lib/studio/rich-markers";
@@ -954,7 +955,7 @@ export default function SectionsEditPanel({
   const [ids, setIds] = useState<Ids>(() => seedIds(initialSections));
   const [picker, setPicker] = useState<string | null>(null);
 
-  const { values, setField, dirty, saveStatus, saveDraft, cancel, savedBaseline } = useDraftForm<SectionsFields>({
+  const { values, setField, dirty, saveStatus, savedAt, saveDraft, cancel, savedBaseline } = useDraftForm<SectionsFields>({
     initial: { sections: initialSections },
     buildCommitted: (v) => ({ sections: v.sections }),
     isDirty: (v, b) => JSON.stringify(v.sections) !== JSON.stringify(b.sections),
@@ -1911,7 +1912,12 @@ export default function SectionsEditPanel({
   // sharing one onChange with colliding ids and two carets. Above the fold it mounts in the
   // shell's inspector slot; below it, in the canvas slot. One node, one parent, chosen in JS.
   const inspectorNode = (
-    <div ref={inspectorRef} className="flex flex-col gap-4">
+    // ⚠ `min-h-full` IS WHAT LETS THE SAVE BAR BELOW REACH THE PANE'S FOOT. B4's finding in
+    // mount-discipline: `sticky bottom-0` only offsets an element when scrolling would carry it
+    // out of the sticky region, so with a short inspector the bar floats in mid-air — 61px at
+    // 1440x820, 295px at 1076x1054, bigger screen worse bug. The height comes from the aside and
+    // `mt-auto` on the bar eats the slack. Both halves, or neither works.
+    <div ref={inspectorRef} className="flex min-h-full flex-col gap-4">
       {/* THE SELECTED RAIL USED TO MOUNT HERE, AT THE TOP OF THE INSPECTOR, and it is now the
           dock at the canvas foot — see `SelectionDock`. The reasoning for putting it here is
           kept rather than deleted, because it was right about the thing it was arguing:
@@ -1928,325 +1934,419 @@ export default function SectionsEditPanel({
           moment you clicked a section. This is also what makes Save draft reachable again: it
           used to live INSIDE the collapsed disclosure, so closing the strip hid the only control
           that saved it. */}
-      {detailsNode ? <div hidden={!showDetails}>{detailsNode}</div> : null}
-        {/* CS-3's Content|Style field split, now nested UNDER the Inspector view (the
-            top-level Canvas|Inspector switch sits above). Restored to its honest
-            labels: it splits FIELDS, not views, and calling its content half "Canvas"
-            while a real canvas sat above it was the confusing part. Same
-            roving-tabindex tablist; both panels stay mounted so switching loses no
-            input, caret, or draft. */}
-        {/* ---- THE SEGMENTED FILL, AND IT OVERRULES CORRECTION 29 (MINE) --------------------
-            C-29 recorded the CONTRACT as wrong: it draws `.seg` — a segmented accent FILL — on a
-            control that is a genuine `role="tablist"`, and C-20's by-role rule says tablists take
-            the UNDERLINE. The owner has seen both and wants the fill. That is a change to the
-            rule, not an application of it, so the rule moves with it.
+      {/* ⚠ `grow`, NEVER `flex-1`, AND THE DIFFERENCE IS THE WHOLE BUG THIS FIXES.
+          `flex-1` is `flex: 1 1 0%` — basis ZERO — so the box is sized from the container's free
+          space and NOT from its content. The details form is taller than the pane, so the wrapper
+          came out 147px SHORT of the content inside it, and A STICKY ELEMENT CANNOT BE HELD BELOW
+          ITS CONTAINING BLOCK'S BOTTOM EDGE. Measured at 1600x900: at scrollTop 0 the bar sat at
+          900, correctly pinned; scrolled to the end it sat at 753 against a pane bottom of 900,
+          because that edge had risen out of view and taken the bar with it.
+          `grow` sets the grow factor to 1 and leaves the basis AUTO (the property name itself is
+          one Tailwind emits a rule for, so it is not written here — `css-comment-trap` caught
+          exactly this sentence, its fifth catch on my own prose), so the box is max(content,
+          share) — it still
+          fills a short pane, which is what `mt-auto` below needs, and it now also spans a tall
+          one, which is what `sticky` needs. ListDetailLayout's `lg:[&>section]:grow` is the same
+          choice for the same reason; this is the seam that had the wrong one.
+          ⚠ A CLASS-STRING GATE CANNOT SEE THIS. `studio-save-bar` E3 asserted the literal
+          `flex-1` I wrote and passed while the bar scrolled away, so E3 now pins `grow` AND
+          names why — a string check can prove which utility is present, never which is correct.
+          THE `hidden` ATTRIBUTE STILL WINS over these utilities — preflight emits
+          `[hidden]:where(:not([hidden=until-found])){display:none!important}`, and the
+          `!important` is what makes adding `flex` here safe. Without it a display utility would
+          out-specify the attribute and the form would be visible on every section. */}
+      {detailsNode ? (
+        <div hidden={!showDetails} className="flex grow flex-col">{detailsNode}</div>
+      ) : null}
+      {/* ⚠ THE SECTION FIELD SURFACE IS HIDDEN ON THE DETAILS VIEW, AND IT IS BOTH A CORRECTION
+          AND THE OTHER HALF OF PINNING THE BAR ABOVE.
+          THE CORRECTION: these three describe a SECTION — a Content|Style tablist, a panel whose
+          own copy reads "Copy for this section…", and the bold-syntax hint. On Details no section
+          is selected, so all three were narrating fields that were not there. Measured, the
+          tabpanel rendered 37px of description over sixteen mounted-and-hidden field trees.
+          THE PIN: they are 36 + 37 + 17 plus three 16px gaps = 147px of content AFTER the details
+          form, and a sticky element cannot be held below its containing block's bottom edge. With
+          them in flow the details bar could never reach the pane foot no matter what the wrapper
+          above did — measured at 753 against a pane bottom of 900, exactly 147 short. Chasing the
+          flex sizing alone would not have fixed it, and did not.
+          ⚠ HIDDEN, NEVER UNMOUNTED. Sixteen field trees hang off that tabpanel and this file's
+          own rule is that a conditional render "would drop an in-progress edit the moment you
+          clicked a section". `hidden` takes it out of layout — so it stops adding height and
+          stops adding a gap — while every draft, caret and scroll position survives. */}
+      <div hidden={showDetails} className="flex flex-col gap-4">
+          {/* CS-3's Content|Style field split, now nested UNDER the Inspector view (the
+              top-level Canvas|Inspector switch sits above). Restored to its honest
+              labels: it splits FIELDS, not views, and calling its content half "Canvas"
+              while a real canvas sat above it was the confusing part. Same
+              roving-tabindex tablist; both panels stay mounted so switching loses no
+              input, caret, or draft. */}
+          {/* ---- THE SEGMENTED FILL, AND IT OVERRULES CORRECTION 29 (MINE) --------------------
+              C-29 recorded the CONTRACT as wrong: it draws `.seg` — a segmented accent FILL — on a
+              control that is a genuine `role="tablist"`, and C-20's by-role rule says tablists take
+              the UNDERLINE. The owner has seen both and wants the fill. That is a change to the
+              rule, not an application of it, so the rule moves with it.
 
-            AND THE RULE WAS ALREADY FALSE AS WRITTEN, WHICH IS WHAT SETTLED IT. There are THREE
-            tablists in the studio, not two. The third is `ListDetailLayout`'s VERTICAL list rail,
-            whose rows take a cream fill plus a 3px accent LEFT BAR — its own comment calls that
-            "the studio's one selection language", shared with the blog rail and the block strip.
-            So "role=tablist -> underline" described two of three the day it was written. The role
-            was never what decided the treatment; SHAPE and FUNCTION were.
+              AND THE RULE WAS ALREADY FALSE AS WRITTEN, WHICH IS WHAT SETTLED IT. There are THREE
+              tablists in the studio, not two. The third is `ListDetailLayout`'s VERTICAL list rail,
+              whose rows take a cream fill plus a 3px accent LEFT BAR — its own comment calls that
+              "the studio's one selection language", shared with the blog rail and the block strip.
+              So "role=tablist -> underline" described two of three the day it was written. The role
+              was never what decided the treatment; SHAPE and FUNCTION were.
 
-            THE RULE RESTATED, AND NOTHING ELSE MOVES:
-              a two-state MODE switch       -> the segmented accent FILL
-                                               (SegmentedToggle, Board|Editor, Canvas|Inspector,
-                                                and now this)
-              a switch between CONTENT SETS -> the UNDERLINE   (the hero tabs, unchanged)
-              a VERTICAL list rail          -> fill + left bar (unchanged)
-            Content|Style filters WHICH FIELDS of one section show. It is a mode over one object,
-            in the same pane as Board|Editor and Canvas|Inspector, both already fills. The hero
-            tabs switch between three personas' content and stay on the underline, so C-20 is
-            NARROWED rather than contradicted and nothing needs sweeping.
+              THE RULE RESTATED, AND NOTHING ELSE MOVES:
+                a two-state MODE switch       -> the segmented accent FILL
+                                                 (SegmentedToggle, Board|Editor, Canvas|Inspector,
+                                                  and now this)
+                a switch between CONTENT SETS -> the UNDERLINE   (the hero tabs, unchanged)
+                a VERTICAL list rail          -> fill + left bar (unchanged)
+              Content|Style filters WHICH FIELDS of one section show. It is a mode over one object,
+              in the same pane as Board|Editor and Canvas|Inspector, both already fills. The hero
+              tabs switch between three personas' content and stay on the underline, so C-20 is
+              NARROWED rather than contradicted and nothing needs sweeping.
 
-            THE ROLE DOES NOT CHANGE. This keeps `role="tablist"`, `aria-selected`, `aria-controls`,
-            the roving tabindex and the Arrow keys. #251 already found that swapping in
-            `SegmentedToggle` outright would drop all four — a regression wearing consistency's
-            clothes. This is the fill's LOOK on a tablist's SEMANTICS.
+              THE ROLE DOES NOT CHANGE. This keeps `role="tablist"`, `aria-selected`, `aria-controls`,
+              the roving tabindex and the Arrow keys. #251 already found that swapping in
+              `SegmentedToggle` outright would drop all four — a regression wearing consistency's
+              clothes. This is the fill's LOOK on a tablist's SEMANTICS.
 
-            THE CONTRACT'S MARGIN IS NOT TAKEN. `.seg{margin:12px 14px 0}` carries the same 14 as
-            `.ibody`, which correction 31 recorded as the MOCK'S OWN CARD PADDING. The border,
-            radius, divider, height, type and both grounds are the contract's exactly. */}
-        <div
-          role="tablist"
-          aria-label="Section content and style"
-          className="mx-3 mt-2 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/22"
-        >
-          {(["content", "style"] as const).map((t) => {
-            const selected = contentStyleTab === t;
-            return (
-              <button
-                key={t}
-                type="button"
-                role="tab"
-                id={`cs-fieldtab-${t}`}
-                aria-selected={selected}
-                aria-controls="cs-fieldtab-panel"
-                tabIndex={selected ? 0 : -1}
-                onClick={() => setContentStyleTab(t)}
-                onKeyDown={(e) => {
-                  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-                  e.preventDefault();
-                  const other = t === "content" ? "style" : "content";
-                  setContentStyleTab(other);
-                  requestAnimationFrame(() => document.getElementById(`cs-fieldtab-${other}`)?.focus());
-                }}
-                className={[
-                  // 34px, 600/12px, flex-1, and a hairline BETWEEN the two — the contract's
-                  // `.seg button` and `.seg button+button` exactly.
-                  "h-[34px] flex-1 text-[12px] font-semibold transition-colors",
-                  // THE RING IS INSET, and that is the first difference a filled tab has from an
-                  // underlined one: an outset ring would draw at the container's own curved edge,
-                  // where `overflow-hidden` clips it. The negative outline offset keeps it inside.
-                  "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2",
-                  // AND ITS COLOUR FOLLOWS ITS GROUND, WHICH IS THE SECOND AND THE ONE THAT BIT.
-                  // An inset accent ring on the SELECTED button draws accent-on-accent —
-                  // **measured at 1.00, completely unreadable**. The underline never had this
-                  // problem because both tabs sat on cream; the fill is what put a ring on two
-                  // different grounds. So the selected button's ring takes the label's colour
-                  // (cream-50 on accent, 4.70) and the rest keeps accent on cream (4.70).
-                  // Same value both ways, which is the point: one ring, two grounds.
-                  "[&+&]:border-l [&+&]:border-ink-950/22",
-                  selected
-                    ? "bg-accent-500 text-cream-50 focus-visible:outline-cream-50"
-                    : "bg-cream-50 text-ink-600 hover:text-ink-950 focus-visible:outline-accent-500",
-                ].join(" ")}
-              >
-                {t === "content" ? "Content" : "Style"}
-              </button>
-            );
-          })}
-        </div>
-        <FieldTabProvider tab={contentStyleTab}>
-        <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col outline-none">
-        {/* ---- THE TAB HINT (contract 5c) ---------------------------------------------------
-            11px, and INSET to match its neighbours. Measured, this paragraph was the only child
-            of the body starting flush against the pane's left border: header ink at 16, tab text
-            at 13, group cards at 14, and this at **1**. It sits directly under the tablist, so it
-            takes the tabs' own inset rather than the cards'.
-            THE CONTRACT'S `.ibody{padding:12px 14px 20px}` IS NOT THE FIX AND IS NOT BUILT — see
-            correction 31. Its 14px appears three times in the mock (`.ibody`, `.seg`, `.tabhint`)
-            because `.insp` is a floating card with no padding of its own; in the real pane every
-            child already carries its own inset, so a body padding would push the cards to 28. */}
-        {/* NO `leading-[1.5]` — the contract asks for it, but studio-cascade C1 proves it INERT here:
-            the studio reset already sets that line-height on <p>, so the utility would not drive
-            the result and editing it would do nothing. The contract's value is already the value. */}
-        <p className="px-3 text-[11px] text-text-subtle">
-          {contentStyleTab === "content"
-            ? "Copy for this section, including the Rich **bold** fields the canvas cannot edit."
-            : "Layout, glow, frames, and image geometry for this section."}
-        </p>
-        {values.sections.map((section, i) => (
+              THE CONTRACT'S MARGIN IS NOT TAKEN. `.seg{margin:12px 14px 0}` carries the same 14 as
+              `.ibody`, which correction 31 recorded as the MOCK'S OWN CARD PADDING. The border,
+              radius, divider, height, type and both grounds are the contract's exactly. */}
           <div
-            key={ids.sectionIds[i]}
-            hidden={selectedSectionId !== ids.sectionIds[i]}
-            /* NO FRAME. This drew a card around the WHOLE inspector body, inside a pane that is
-               already a bordered surface — a box around a box. Same finding as #245, where the
-               panel <section>'s frame became redundant once the shell owned it; that sweep was
-               scoped to `ListDetailLayout` hosts and this panel renders in `ThreePaneShell`, so
-               it was never in the derived set and the frame survived. The contract draws none.
-               `p-3` STAYS, AND THAT IS MEASURED RATHER THAN ASSUMED. It was not compensating for
-               the border: with the frame the ink inside landed at 14 while the tabs and hint sit
-               at 13, so the border WAS the extra pixel. Dropping it alone puts this body's ink at
-               13 with its neighbours. Removing the padding too would take it to 1, which is
-               exactly the defect #257 fixed on the tab hint.
-               THE GROUPS INSIDE DO NOT LOSE THEIR SEPARATION — measured, every one carries its
-               own 1px hairline, so none was relying on this frame. That is the question #256
-               raised when moving a ground one level up made nested rows vanish into their parent,
-               asked here of a border instead of a fill. */
-            className="flex flex-col gap-3 p-3"
+            role="tablist"
+            aria-label="Section content and style"
+            className="mx-3 mt-2 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/22"
           >
-            {confirmRemove === ids.sectionIds[i] ? (
-              // Removing a section discards every block in it, and the control sits
-              // right beside the reorder arrows — a misclick used to be silent and
-              // unrecoverable. Confirms in place, mirroring the PublishBar pattern.
-              <div
-                role="alertdialog"
-                aria-label={`Remove section ${sectionLabel(section, i)}`}
-                aria-describedby={`rm-msg-${ids.sectionIds[i]}`}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") setConfirmRemove(null);
-                }}
-                className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
-              >
-                <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[12px]">
-                  Remove this section and its blocks? You can still undo it with Discard until you
-                  publish.
-                </span>
-                <button
-                  ref={confirmCancelRef}
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => setConfirmRemove(null)}
-                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    setConfirmRemove(null);
-                    removeSection(i);
-                  }}
-                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[12px] text-accent-600 transition-colors hover:bg-accent-500/20"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
-            <div className="flex items-center justify-between gap-2">
-              <h3 className={labelCls}>
-                {sectionLabel(section, i)}
-              </h3>
-              <div className="flex gap-1">
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, -1)} disabled={i === 0} aria-label={`Move section ${sectionLabel(section, i)} up`} className={iconBtn}>
-                  <IconChevronUp />
-                </button>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
-                  <IconChevronDown />
-                </button>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
-                  <IconX />
-                </button>
-              </div>
-            </div>
-            )}
-
-            <SectionShellForm
-              value={section}
-              onChange={(next) => setSection(i, next)}
-              onBlur={saveDraft}
-              duplicateId={dupeIds.has(section.id)}
-            />
-
-            {section.blocks.map((block, j) => {
-              const kind = block.discriminant as SectionBlockKind;
-              // A kind can exist in the schema before it has a form (VE-1 declares
-              // videoEmbed; VE-3 builds its editor). Such a block still has to be
-              // listed, reordered and removable, so the row renders with a note where
-              // the form would be rather than crashing on a missing registry entry.
-              const entry = (BLOCK_REGISTRY as Record<string, (typeof BLOCK_REGISTRY)[EditableBlockKind] | undefined>)[kind];
-              if (!entry) {
-                return (
-                  <div key={ids.blockIds[i][j]} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
-                    <p className="text-[12px] text-ink-600">
-                      {blockLabel(kind)} — no editor yet. It renders on the page once built.
-                    </p>
-                  </div>
-                );
-              }
-              const id = ids.blockIds[i][j];
-              // The registry is keyed by discriminant and each Form is typed to its
-              // own kind's value; the lookup cannot express that correlation to the
-              // compiler, so it is asserted once, here.
-              const Form = entry.Form as React.ComponentType<BlockFormProps<typeof kind>>;
+            {(["content", "style"] as const).map((t) => {
+              const selected = contentStyleTab === t;
               return (
-                <CollapsibleGroup
-                  key={id}
-                  // THE BLOCK'S ADDRESS FOR T0 AND T3, and it is `j` — THE SAME INDEX the canvas
-                  // emits as `data-edit-block-index`, because both derive from this section's
-                  // block array order and this line sits beside `ids.blockIds[i][j]`. Taking it
-                  // from anywhere else would be a second numbering that agrees until it does not.
-                  //
-                  // BLOCK-LEVEL RATHER THAN FIELD-LEVEL, DELIBERATELY. Addressing each field
-                  // means threading `blockIndex` through ~15 form components and then 64
-                  // `fieldId` props, and a mistyped path there fails SILENTLY — which is the
-                  // exact failure this whole thread has been about. The card is one attribute,
-                  // it takes 77% of the editable surface from silent to responding, and for T0
-                  // "bring the right block into view" is arguably the correct granularity: the
-                  // dock already holds the exact field, so the finer mark buys precision that
-                  // has already been supplied. Revisit if an author scrolls to a card and then
-                  // has to hunt for the field inside it — that trigger fires from USE, which is
-                  // the only thing that has caught any of this.
-                  blockAddress={j}
-                  // CS-3 — under the Style tab, a copy-only block has nothing to show,
-                  // so its card is hidden here (the form stays MOUNTED). Content shows all.
-                  hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
-                  className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
-                  // OPEN BY DEFAULT, AND THE DATA IS WHY. The contract asked for every block to
-                  // fold except the one being edited; measured, 12 of the 14 sections in
-                  // elevate-one-view have exactly ONE block, so that default is a no-op on 86%
-                  // of the content and on the other 14% it folds the only thing on screen.
-                  // The affordance is still worth having for the two multi-block sections —
-                  // it just is not worth having on by default.
-                  defaultOpen
-                  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                  summary={(entry.label as (v: any) => string)(block.value)}
-                  summaryClassName="text-[12px] font-medium text-ink-950"
-                  controls={
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-text-subtle">{blockLabel(kind)}</span>
-                      <div className="flex gap-1">
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, -1)} disabled={j === 0} aria-label={`Move ${blockLabel(kind)} up`} className={iconBtn}>
-                          <IconChevronUp />
-                        </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
-                          <IconChevronDown />
-                        </button>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
-                          <IconX />
-                        </button>
-                      </div>
-                    </div>
-                  }
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  id={`cs-fieldtab-${t}`}
+                  aria-selected={selected}
+                  aria-controls="cs-fieldtab-panel"
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => setContentStyleTab(t)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                    e.preventDefault();
+                    const other = t === "content" ? "style" : "content";
+                    setContentStyleTab(other);
+                    requestAnimationFrame(() => document.getElementById(`cs-fieldtab-${other}`)?.focus());
+                  }}
+                  className={[
+                    // 34px, 600/12px, flex-1, and a hairline BETWEEN the two — the contract's
+                    // `.seg button` and `.seg button+button` exactly.
+                    "h-[34px] flex-1 text-[12px] font-semibold transition-colors",
+                    // THE RING IS INSET, and that is the first difference a filled tab has from an
+                    // underlined one: an outset ring would draw at the container's own curved edge,
+                    // where `overflow-hidden` clips it. The negative outline offset keeps it inside.
+                    "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2",
+                    // AND ITS COLOUR FOLLOWS ITS GROUND, WHICH IS THE SECOND AND THE ONE THAT BIT.
+                    // An inset accent ring on the SELECTED button draws accent-on-accent —
+                    // **measured at 1.00, completely unreadable**. The underline never had this
+                    // problem because both tabs sat on cream; the fill is what put a ring on two
+                    // different grounds. So the selected button's ring takes the label's colour
+                    // (cream-50 on accent, 4.70) and the rest keeps accent on cream (4.70).
+                    // Same value both ways, which is the point: one ring, two grounds.
+                    "[&+&]:border-l [&+&]:border-ink-950/22",
+                    selected
+                      ? "bg-accent-500 text-cream-50 focus-visible:outline-cream-50"
+                      : "bg-cream-50 text-ink-600 hover:text-ink-950 focus-visible:outline-accent-500",
+                  ].join(" ")}
                 >
-                  <div className="flex flex-col gap-2">
-                    <Form
-                      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                      value={block.value as any}
-                      // THE ADOPTION POINT. Everything below this line existed already; the
-                      // upload is what #202's emit half forwards and this panel used to drop.
-                      onChange={(next, upload) => {
-                        if (upload) previews.adopt(upload.src, upload.file);
-                        setBlockValue(id, next);
-                      }}
-                      onBlur={saveDraft}
-                      slug={slug}
-                      /* PR 3a — this panel edits case studies, so its uploads land in the
-                         projects image tree. The blog editor (PR 3c) passes "blog". */
-                      collection="projects"
-                    />
-                  </div>
-                </CollapsibleGroup>
+                  {t === "content" ? "Content" : "Style"}
+                </button>
               );
             })}
-
-            {picker === ids.sectionIds[i] ? (
-              <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-cream-100 p-3">
-                <span className={groupLabelCls}>Add a block</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {addableKinds.map((k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => addBlock(i, k)}
-                      className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] font-semibold transition-colors hover:border-accent-500/40 hover:text-accent-600"
-                    >
-                      {blockLabel(k)}
-                    </button>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 hover:text-ink-950">
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setPicker(ids.sectionIds[i])}
-                className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
-              >
-                <IconPlus /> Add a block
-              </button>
-            )}
           </div>
-        ))}
-        </div>
-        </FieldTabProvider>
-      <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
+          <FieldTabProvider tab={contentStyleTab}>
+          <div id="cs-fieldtab-panel" role="tabpanel" tabIndex={-1} className="flex flex-col outline-none">
+          {/* ---- THE TAB HINT (contract 5c) ---------------------------------------------------
+              11px, and INSET to match its neighbours. Measured, this paragraph was the only child
+              of the body starting flush against the pane's left border: header ink at 16, tab text
+              at 13, group cards at 14, and this at **1**. It sits directly under the tablist, so it
+              takes the tabs' own inset rather than the cards'.
+              THE CONTRACT'S `.ibody{padding:12px 14px 20px}` IS NOT THE FIX AND IS NOT BUILT — see
+              correction 31. Its 14px appears three times in the mock (`.ibody`, `.seg`, `.tabhint`)
+              because `.insp` is a floating card with no padding of its own; in the real pane every
+              child already carries its own inset, so a body padding would push the cards to 28. */}
+          {/* NO `leading-[1.5]` — the contract asks for it, but studio-cascade C1 proves it INERT here:
+              the studio reset already sets that line-height on <p>, so the utility would not drive
+              the result and editing it would do nothing. The contract's value is already the value. */}
+          <p className="px-3 text-[11px] text-text-subtle">
+            {contentStyleTab === "content"
+              ? "Copy for this section, including the Rich **bold** fields the canvas cannot edit."
+              : "Layout, glow, frames, and image geometry for this section."}
+          </p>
+          {values.sections.map((section, i) => (
+            <div
+              key={ids.sectionIds[i]}
+              hidden={selectedSectionId !== ids.sectionIds[i]}
+              /* NO FRAME. This drew a card around the WHOLE inspector body, inside a pane that is
+                 already a bordered surface — a box around a box. Same finding as #245, where the
+                 panel <section>'s frame became redundant once the shell owned it; that sweep was
+                 scoped to `ListDetailLayout` hosts and this panel renders in `ThreePaneShell`, so
+                 it was never in the derived set and the frame survived. The contract draws none.
+                 `p-3` STAYS, AND THAT IS MEASURED RATHER THAN ASSUMED. It was not compensating for
+                 the border: with the frame the ink inside landed at 14 while the tabs and hint sit
+                 at 13, so the border WAS the extra pixel. Dropping it alone puts this body's ink at
+                 13 with its neighbours. Removing the padding too would take it to 1, which is
+                 exactly the defect #257 fixed on the tab hint.
+                 THE GROUPS INSIDE DO NOT LOSE THEIR SEPARATION — measured, every one carries its
+                 own 1px hairline, so none was relying on this frame. That is the question #256
+                 raised when moving a ground one level up made nested rows vanish into their parent,
+                 asked here of a border instead of a fill. */
+              className="flex flex-col gap-3 p-3"
+            >
+              {confirmRemove === ids.sectionIds[i] ? (
+                // Removing a section discards every block in it, and the control sits
+                // right beside the reorder arrows — a misclick used to be silent and
+                // unrecoverable. Confirms in place, mirroring the PublishBar pattern.
+                <div
+                  role="alertdialog"
+                  aria-label={`Remove section ${sectionLabel(section, i)}`}
+                  aria-describedby={`rm-msg-${ids.sectionIds[i]}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setConfirmRemove(null);
+                  }}
+                  className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
+                >
+                  <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[12px]">
+                    Remove this section and its blocks? You can still undo it with Discard until you
+                    publish.
+                  </span>
+                  <button
+                    ref={confirmCancelRef}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setConfirmRemove(null)}
+                    className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setConfirmRemove(null);
+                      removeSection(i);
+                    }}
+                    className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[12px] text-accent-600 transition-colors hover:bg-accent-500/20"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+              <div className="flex items-center justify-between gap-2">
+                <h3 className={labelCls}>
+                  {sectionLabel(section, i)}
+                </h3>
+                <div className="flex gap-1">
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, -1)} disabled={i === 0} aria-label={`Move section ${sectionLabel(section, i)} up`} className={iconBtn}>
+                    <IconChevronUp />
+                  </button>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
+                    <IconChevronDown />
+                  </button>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                    <IconX />
+                  </button>
+                </div>
+              </div>
+              )}
+
+              <SectionShellForm
+                value={section}
+                onChange={(next) => setSection(i, next)}
+                onBlur={saveDraft}
+                duplicateId={dupeIds.has(section.id)}
+              />
+
+              {section.blocks.map((block, j) => {
+                const kind = block.discriminant as SectionBlockKind;
+                // A kind can exist in the schema before it has a form (VE-1 declares
+                // videoEmbed; VE-3 builds its editor). Such a block still has to be
+                // listed, reordered and removable, so the row renders with a note where
+                // the form would be rather than crashing on a missing registry entry.
+                const entry = (BLOCK_REGISTRY as Record<string, (typeof BLOCK_REGISTRY)[EditableBlockKind] | undefined>)[kind];
+                if (!entry) {
+                  return (
+                    <div key={ids.blockIds[i][j]} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
+                      <p className="text-[12px] text-ink-600">
+                        {blockLabel(kind)} — no editor yet. It renders on the page once built.
+                      </p>
+                    </div>
+                  );
+                }
+                const id = ids.blockIds[i][j];
+                // The registry is keyed by discriminant and each Form is typed to its
+                // own kind's value; the lookup cannot express that correlation to the
+                // compiler, so it is asserted once, here.
+                const Form = entry.Form as React.ComponentType<BlockFormProps<typeof kind>>;
+                return (
+                  <CollapsibleGroup
+                    key={id}
+                    // THE BLOCK'S ADDRESS FOR T0 AND T3, and it is `j` — THE SAME INDEX the canvas
+                    // emits as `data-edit-block-index`, because both derive from this section's
+                    // block array order and this line sits beside `ids.blockIds[i][j]`. Taking it
+                    // from anywhere else would be a second numbering that agrees until it does not.
+                    //
+                    // BLOCK-LEVEL RATHER THAN FIELD-LEVEL, DELIBERATELY. Addressing each field
+                    // means threading `blockIndex` through ~15 form components and then 64
+                    // `fieldId` props, and a mistyped path there fails SILENTLY — which is the
+                    // exact failure this whole thread has been about. The card is one attribute,
+                    // it takes 77% of the editable surface from silent to responding, and for T0
+                    // "bring the right block into view" is arguably the correct granularity: the
+                    // dock already holds the exact field, so the finer mark buys precision that
+                    // has already been supplied. Revisit if an author scrolls to a card and then
+                    // has to hunt for the field inside it — that trigger fires from USE, which is
+                    // the only thing that has caught any of this.
+                    blockAddress={j}
+                    // CS-3 — under the Style tab, a copy-only block has nothing to show,
+                    // so its card is hidden here (the form stays MOUNTED). Content shows all.
+                    hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
+                    className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
+                    // OPEN BY DEFAULT, AND THE DATA IS WHY. The contract asked for every block to
+                    // fold except the one being edited; measured, 12 of the 14 sections in
+                    // elevate-one-view have exactly ONE block, so that default is a no-op on 86%
+                    // of the content and on the other 14% it folds the only thing on screen.
+                    // The affordance is still worth having for the two multi-block sections —
+                    // it just is not worth having on by default.
+                    defaultOpen
+                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                    summary={(entry.label as (v: any) => string)(block.value)}
+                    summaryClassName="text-[12px] font-medium text-ink-950"
+                    controls={
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-text-subtle">{blockLabel(kind)}</span>
+                        <div className="flex gap-1">
+                          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, -1)} disabled={j === 0} aria-label={`Move ${blockLabel(kind)} up`} className={iconBtn}>
+                            <IconChevronUp />
+                          </button>
+                          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
+                            <IconChevronDown />
+                          </button>
+                          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                            <IconX />
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <div className="flex flex-col gap-2">
+                      <Form
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                        value={block.value as any}
+                        // THE ADOPTION POINT. Everything below this line existed already; the
+                        // upload is what #202's emit half forwards and this panel used to drop.
+                        onChange={(next, upload) => {
+                          if (upload) previews.adopt(upload.src, upload.file);
+                          setBlockValue(id, next);
+                        }}
+                        onBlur={saveDraft}
+                        slug={slug}
+                        /* PR 3a — this panel edits case studies, so its uploads land in the
+                           projects image tree. The blog editor (PR 3c) passes "blog". */
+                        collection="projects"
+                      />
+                    </div>
+                  </CollapsibleGroup>
+                );
+              })}
+
+              {picker === ids.sectionIds[i] ? (
+                <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-cream-100 p-3">
+                  <span className={groupLabelCls}>Add a block</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {addableKinds.map((k) => (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => addBlock(i, k)}
+                        className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] font-semibold transition-colors hover:border-accent-500/40 hover:text-accent-600"
+                      >
+                        {blockLabel(k)}
+                      </button>
+                    ))}
+                  </div>
+                  <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 hover:text-ink-950">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setPicker(ids.sectionIds[i])}
+                  className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+                >
+                  <IconPlus /> Add a block
+                </button>
+              )}
+            </div>
+          ))}
+          </div>
+          </FieldTabProvider>
+        <p className="text-[10px] text-text-subtle">Wrap words in **double asterisks** to bold them.</p>
+      </div>
+
+        {/* NO SECTIONS BAR ON A BESPOKE STUDY, AND THIS ONE IS #200 INVERTED. A normal study shows TWO
+            saves at once when Details is selected — "Save draft · Details" and "Save draft · Sections" —
+            suffixed rather than merged because they commit genuinely different drafts. A bespoke study
+            has no sections draft to commit, so a second bar would offer to save an object that does not
+            exist. #200's defect was two buttons claiming to be the same action; this would be one button
+            naming an object with nothing behind it.
+            AND THE WRITE PATH WOULD NOT HAVE STOPPED IT HONESTLY. Only `delete-entry` carries a
+            `BESPOKE_SLUGS` guard; `save-draft` has none. The serializer does refuse — `p4-4bi` asserts
+            boat-crest is REFUSED because it has `body` and no `sections` — but that surfaces as a
+            generic failure, which reads as a broken editor. The honest answer is not to offer the save.
+            `detailsNode` brings its own bar, so a bespoke study keeps exactly the one save it can do.
+
+            ⚠ THE VALIDATION MESSAGE IS NOT A SAVE STATE and travels as its own prop rather than folded
+            into the line. "A video URL must be http:// or https://" is a fact about the CONTENT; the
+            five-state line has no slot for it, and swallowing it to fit the drawing would have deleted
+            the only signal saying why the save is refusing. */}
+      {bespoke || showDetails ? null : (
+        <SaveBar
+          className="sticky bottom-0 z-10 mt-auto"
+          status={saveStatus}
+          dirty={dirty}
+          savedAt={savedAt}
+          title="Auto-saves to draft on blur. Preview to see it."
+          validation={hasBadVideoSrc ? "A video URL must be http:// or https://." : null}
+          onCancel={handleCancel}
+          extra={
+            /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
+               `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits
+               a rule that loses. This is the second copy of that shape and it is deliberate: the
+               details bar has its own in ProjectsEditPanel, because the two bars are rendered by
+               two different components over two different useDraftForms. Extracting a shared
+               Preview would couple them for four lines of markup. */
+            <span className="flex items-center gap-1 text-ink-600">
+              <a
+                href={`/studio/projects/${slug}/preview`}
+                target="_blank"
+                rel="noopener"
+                title="Opens the draft preview in a new tab."
+                className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+              >
+                Preview
+              </a>
+            </span>
+          }
+          primary={{
+            label: "Save draft · Sections",
+            onClick: saveDraft,
+            disabled: !dirty || saveStatus === "saving" || hasBadVideoSrc,
+            title: "Commits this study's section blocks.",
+          }}
+        />
+      )}
     </div>
   );
+
   return (
     <>
       {/* THE CRUMB ROW — identity and actions, once, and ALWAYS RENDERED. It is `flex-none` and
@@ -2300,7 +2400,7 @@ export default function SectionsEditPanel({
         </a>
         {/* NO TOGGLE ON A BESPOKE STUDY, BECAUSE THERE IS NO BOARD TO TOGGLE TO. The Board
             arranges sections; with none it is an empty grid whose Add button cannot work, since
-            `BESPOKE_SLUGS` gates the write path. A CONTROL THAT CANNOT DO ANYTHING IS WORSE THAN
+          `BESPOKE_SLUGS` gates the write path. A CONTROL THAT CANNOT DO ANYTHING IS WORSE THAN
             AN ABSENT ONE — this repo has deleted that shape four times (FIT_THRESHOLD_PX, the 2xl
             radius, the ink-700 sites, .blog-editable.is-selected). ABSENT, NOT DISABLED: a
             disabled toggle still asserts a Board exists. */}
@@ -2420,62 +2520,6 @@ export default function SectionsEditPanel({
         />
       </div>
 
-      {/* NO SECTIONS FOOTER ON A BESPOKE STUDY, AND THIS ONE IS #200 INVERTED. A normal study
-          shows TWO saves at once when Details is selected — "Save details" and "Save sections" —
-          renamed rather than merged because they commit genuinely different drafts. A bespoke
-          study has no sections draft to commit, so a second bar would offer to save an object
-          that does not exist. #200's defect was two buttons claiming to be the same action; this
-          would be one button naming an object with nothing behind it.
-          AND THE WRITE PATH WOULD NOT HAVE STOPPED IT HONESTLY. Only `delete-entry` carries a
-          `BESPOKE_SLUGS` guard; `save-draft` has none. The serializer does refuse — `p4-4bi`
-          asserts boat-crest is REFUSED because it has `body` and no `sections` — but that
-          surfaces as a generic "Save failed. Try again.", which reads as a broken editor. The
-          honest answer is not to offer the save. `detailsNode` brings its own "Save details"
-          footer, so a bespoke study keeps exactly the one save it can perform.
-          CREAM-200 for the same reason as the crumb row. Two chrome bars bracketing the split
-          must be the same ground, or the page has two answers to one question. */}
-      {!bespoke && (
-      <footer className="flex flex-none items-center justify-between gap-3 border-t border-ink-950/12 bg-cream-200 px-4 py-3">
-        <span className="text-[12px]" aria-live="polite">
-          {saveStatus === "saving" ? (
-            <span className="text-text-subtle">Saving draft…</span>
-          ) : saveStatus === "saved" ? (
-            <span className="text-accent-600">Draft saved</span>
-          ) : saveStatus === "error" ? (
-            <span className="text-accent-600">Save failed. Try again.</span>
-          ) : saveStatus === "fs" ? (
-            <span className="text-text-subtle">Draft save needs github mode (dev)</span>
-          ) : hasBadVideoSrc ? (
-            <span className="text-danger-600">A video URL must be http:// or https://.</span>
-          ) : (
-            <span className="text-text-subtle">Auto-saves to draft on blur. Preview to see it.</span>
-          )}
-        </span>
-        <div className="flex items-center gap-1">
-          {/* CANCEL, RE-HOMED. It lived in the body panel's header, which the crumb row replaced.
-              It reverts this form's draft, so it belongs beside the save it undoes rather than
-              disappearing with the bar that happened to hold it. */}
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={handleCancel}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={saveDraft}
-            disabled={!dirty || saveStatus === "saving" || hasBadVideoSrc}
-            className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {/* "Save sections" — the other half of #200's second instance; see the note on
-                ProjectsEditPanel's footer button. */}
-            {saveStatus === "saving" ? "Saving…" : "Save sections"}
-          </button>
-        </div>
-      </footer>
-      )}
     </>
   );
 }

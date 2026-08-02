@@ -3320,6 +3320,183 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#282d** the details bar was never pinned, and my gate said it was →2081 across **50 suites**
+  **I REPORTED THIS FIXED IN #282b AND IT WAS NOT.** I measured the bar at scrollTop 0, saw
+  `bottom: 900` against a pane bottom of 900, and called it pinned. **A STICKY ELEMENT ALWAYS LOOKS
+  PINNED AT SCROLL ZERO.** Scrolled to the end it sat at **753 against 900 — 147px adrift**. The
+  measurement was real and the question was wrong, which is the seventh instance of that shape in
+  this arc and the first where a gate agreed with me.
+  **TWO INDEPENDENT CAUSES, AND FIXING EITHER ALONE LEAVES THE BUG.**
+  ONE, the wrapper was `flex-1`, which is `flex: 1 1 0%` — **basis ZERO**, so the box is sized from
+  the container's free space and not from its content. It came out 147px short of the form inside
+  it, and **A STICKY ELEMENT CANNOT BE HELD BELOW ITS CONTAINING BLOCK'S BOTTOM EDGE**; as that
+  edge scrolls up it takes the element with it. `grow` is the same factor with basis AUTO, so the
+  box is max(content, share) — it still fills a short pane for `mt-auto` and now also spans a tall
+  one for `sticky`. `ListDetailLayout`'s `lg:[&>section]:grow` was already the right choice; this
+  seam had the wrong one. **Changing it alone did not fix anything** — the containing block stayed
+  991 against a 1138 scroll height, the same 147.
+  TWO, the section field surface stayed IN FLOW on the Details view — a Content|Style tablist, its
+  panel and the bold hint, 36 + 37 + 17 plus three gaps = **exactly 147px** after the details form.
+  The bar could not reach the foot however the flex boxes were sized. **AND IT WAS A CORRECTION IN
+  ITS OWN RIGHT**: all three describe a SECTION, no section is selected on Details, and the panel's
+  own copy read "Copy for this section…" over sixteen mounted-and-hidden field trees. It is
+  **hidden, never unmounted** — this panel's own rule is that a conditional render "would drop an
+  in-progress edit". Verified by tagging a live node and round-tripping through Details: **the same
+  DOM node came back and the Style tab selection survived**.
+  **⚠ E3 PASSED THROUGH ALL OF IT, BECAUSE IT PINNED THE LITERAL I HAD WRITTEN.** It asserted
+  `flex-1` — my own typing — rather than the property the layout needs, so the gate confirmed the
+  bug. It now asserts `grow` AND **the absence of `flex-1`**, since only an absence fails when
+  someone tidies one into the other. **A class-string gate can prove which utility is present and
+  never which one is correct**, so the scroll behaviour is measured live instead: five scroll
+  positions from 0 to the end, on all four case studies, plus the underflow regime at 1400px where
+  `mt-auto` does the work and `sticky` is inert. `floatGap: 0`.
+  `css-comment-trap` fired on my own prose for the **fifth** time — naming the grow longhand in the
+  comment that explains the fix emitted a rule for it. 5 mutations, 5 killed. CSS unchanged from
+  the previous push; public output unchanged on all five pages.
+
+- **#282c** the blog bar joins the one-row set, and the rule it forced →2078 across **50 suites**
+  **I HAD THE RULE HALF RIGHT AND THE OWNER'S NEXT REPORT IS WHAT SHOWED IT.** #282b made one row
+  a question about the BOX — a 520px container query — and that is why the blog stayed stacked: its
+  inspector is the SAME 313px as the case study's. **Two bars, one width, two correct answers**, so
+  width alone was never sufficient.
+  **WHAT ACTUALLY CROWDS THE ROW IS THE CONTROLS.** The case study's two bars carry Preview, Cancel
+  and a #200 suffix; the blog's carries a primary and nothing else. So the switch reads the
+  controls and the box together: a LOADED bar takes one row only above 520px, a BARE bar takes one
+  row always. Seven surfaces are bare, two are loaded, and D5 pins that census at the call sites so
+  "blog is one row, the case-study inspector is two" is a CONSEQUENCE rather than a special case —
+  it fails the moment a bar gains a control without the arithmetic being revisited.
+  **THE WORST CASE WAS DRIVEN, NOT ESTIMATED**, because 281px of content is the tightest box a
+  one-row bar is ever in. Every string the formatter can produce was typed into the live bar and
+  measured: the longest, "Saved 59 minutes ago", needs 137px with its dot and gap against a 157.7px
+  track. **~21px of margin, stated rather than assumed.** Blog 88px → 62px.
+  **⚠ AND THE VARIANT PREFIXES ARE WRITTEN OUT IN FULL RATHER THAN COMPOSED.** Tailwind's scanner
+  reads source as plain text and never sees a prefix built at runtime, so an interpolated
+  `@[${n}px]:` emits NO CSS and fails silently — hazard 23's shape, and the mirror image of the
+  comment trap. Asserted as an ABSENCE. **That assertion survived its first mutation**: it required
+  the `@[` to open the string, so a threshold interpolated MID-string — which is how it would
+  really be written — walked past it. Re-anchored on the interpolation itself.
+  6 further mutations, 6 killed after that fix. CSS +1 rule (`.col-end-2`, the bare bar's cell),
+  and the 520px rules re-verified inside `@container (min-width:520px)` while the unconditional
+  cells sit outside it. Public output unchanged on all five pages.
+
+- **#282b** the save bar, owner corrections →2072 across **50 suites**
+  Four defects the owner found by USING it, none of which any gate could see. Every one is about
+  what is on screen together, which is the class of thing a class-string assertion cannot reach.
+  **THE DETAILS VIEW SHOWED TWO SAVE BARS STACKED IN A 320px COLUMN** — its own, plus the sections
+  bar the pane always carried — so the screen offered a save for an object the visible form does
+  not edit. The sections bar is now absent on Details, and each view shows the save that matches
+  what is on it. **AND THE DETAILS BAR WAS NOT PINNED**: it was static, so it sat wherever the form
+  ended, measured at **y=1027 in a 1000px viewport** — off screen until you scrolled. Fixing it
+  needed the whole height chain, pane → `min-h-full` → `flex-1` → `grow` → `mt-auto`, because
+  `sticky bottom-0` is inert when nothing scrolls. B4's finding, third surface.
+  **THE SECTIONS BAR GAINED PREVIEW.** The anchor is duplicated rather than shared — two bars,
+  two components, two `useDraftForm`s, and extracting a component would couple them for four lines
+  of markup. Both put the colour on a WRAPPER, hazard 22, which E6 caught on the details one
+  earlier in this same arc.
+  **SKILLS' BAR SPANNED THE LIST RAIL** — 1342px at a 1600px viewport against Experience's 1042,
+  because it was a SIBLING of `ListDetailLayout` while every other bar sits inside the detail
+  column. `ListDetailLayout` grew a `footer` slot and Skills passes its bar there. **#229's
+  argument is untouched and still load-bearing**: skills is a singleton, one `useDraftForm` over
+  every category, so a bar per panel would render N for one save. The slot is the LAYOUT'S, not a
+  panel's, which is the distinction that lets it be column-width without becoming per-entry.
+  ⚠ Below `lg` the bar now follows that column, so with nothing selected it is off screen where it
+  used to be on — which is what the five entry panels have always done.
+  **ONE ROW ON THE THREE LIST-DETAIL PAGES, AND IT IS A CONTAINER QUERY RATHER THAN A PROP.** The
+  two-row shape #282 shipped is right for a 313px inspector and wastes a row in a 1042px column.
+  A boolean would put the same decision at six call sites and encode **which page** rather than
+  **whether it fits** — the exact mistake the contract's one-row drawing made. `@container` at
+  **520px**, derived: a fully loaded one-row bar needs 567px, the inspector is 313, a settings
+  column is 1042. It lands 150px clear of one and 500px clear of the other, and `studio-save-bar`
+  D2/D3 pin it against BOTH pane widths read from source rather than merely asserting it exists —
+  **a threshold set too low silently re-creates the "S…" truncation**. It also does the right thing
+  unasked at 1180, where the folded pane is 889px and the bar goes to one row on its own.
+  Placement is now explicit cells rather than source order, which is what lets one row and two be
+  the same three tracks and the same DOM; the three spacer children are gone with it.
+  **⚠ A DERIVATION BROKE AND TWO SUITES READ IT.** Moving Skills' bar into `footer={<SaveBar/>}`
+  put JSX inside an opening tag, and `/<ListDetailLayout[\s\S]*?>/` stops at the FIRST `>` — so
+  the "children" capture began INSIDE the tag and **`SaveBar` was counted as a shell panel**. Both
+  suites now scan to the `>` that closes the tag at brace depth 0. studio-ink E1b caught it because
+  it pins the exact set; **mount-discipline did not, because its check was `length >= 6`** — a
+  floor cannot see a spurious member, and every per-panel check under it was then running against a
+  file with no panel in it. Found by mutation, not by review. It gained a membership-quality
+  assertion keyed on `useListItem` rather than a second copy of the list.
+  21 further mutations, **21 killed**, after two harness faults of my own: the runner only ran one
+  suite, and one mutation added an unused prop instead of reverting the derivation it claimed to
+  test. Public output unchanged — rendered HTML byte-identical on all five pages and flight rows
+  identical once the rebuild's module numbering is normalised. CSS +9 rules, −1 (`col-span-3` lost
+  its last consumer), and the 520px rules verified inside `@container (min-width:520px)` in the
+  production bundle.
+
+- **#282** the save bar — one shape, one derivation, nine surfaces →2055 across **50 suites**
+  **THE PREMISE I PLANNED FROM WAS WRONG, AND THAT IS THE HEADLINE.** I scoped this as "the bar
+  carries a permanent instruction and cannot report a failure". Verified in source, both are false.
+  **All seven panel footers already rendered a five-state line** — `saving`, `saved`, `error`, `fs`,
+  else the instruction — so **THE INSTRUCTION WAS ONLY THE IDLE FALLBACK** and "Couldn't save" was
+  already wired everywhere as "Save failed. Try again.". So this is a **narrower** change than it
+  was scoped as: one idle string replaced, one shape unified, a dot and an age added. It is not
+  state reporting arriving at a bar that had none.
+  **NINE VERIFIED CORRECTIONS TO THE CONTRACT'S CENSUS**, which said its census came from STATE and
+  to verify it. It does not survive verification. Beyond the two above: the blog HAS an explicit
+  Save (`BlogBlocksEditPanel`, with a dirty guard) **and** has no bar at all, so its bar is
+  **net-new, not a restyle**; two of the four quoted "wordings" exist nowhere and `SkillsEditor`
+  already ran a SIX-state line; the sections bar has a sixth **validation** state the contract does
+  not account for; and the details footer was **already** inspector-width and already clear of the
+  pill.
+  **THE GROUND IS cream-200, MEASURED, NOT THE CONTRACT'S cream-50 — WHICH INVALIDATES EVERY
+  CONTRAST FIGURE IT QUOTES**, because a ratio belongs to the ground it was taken against. The type
+  table was wrong on three of four rows, and **the contract said in its own words that it was read
+  off a screenshot**. A stated caveat is not a substitute for measuring, and this is the second time
+  that shortcut has shipped here.
+  **TWO ROWS, NOT THE CONTRACT'S ONE, AND THE REASON IS ARITHMETIC.** Its drawing puts the inspector
+  at 340px with a 12-character primary. This inspector is 313px inside its scrollbar and #200
+  requires "Save draft · Sections", which measures 167px; with Cancel and the padding the state
+  track was left **34px and rendered "Saved" as "S…"** — the one thing the change exists to add was
+  the one thing truncated. `extra` then had to leave the actions row too: Preview 61 + Cancel 56 +
+  primary 182 is 323 in a 281px box, and holding the `1fr` track open squeezed the primary until it
+  **wrapped inside its own button**.
+  **⚠ THE OVERLAP IS NOT FIXED EVERYWHERE AND THE LIMIT IS MEASURED, NOT CLAIMED AWAY.** The bar
+  clears the publish pill on the **case-study editor above the fold** (1920 +376, 1280 +56) and on
+  the **blog editor**. It does **NOT** clear at **1180**, where the inspector folds and the canvas
+  pane becomes the whole work area (−570 horizontal, 33px vertical), nor on **settings, experience
+  or skills**, whose "inspector track" is a 1000px+ detail column the centred pill lands inside
+  (124 × 40px). Moving those would mean restructuring `ListDetailLayout`'s scroll region for five
+  consumers, which is not this change.
+  **`fs` FOLDS INTO THE FAILURE STATE RATHER THAN DISAPPEARING.** The five-state line has no slot
+  for "the write no-oped because this dev server is not in github mode", and **dropping it into
+  silence would make a local save look successful when nothing was written**. A no-oped write IS a
+  failure to save. **Driven live and it is the strongest evidence in the PR**: a real save on the
+  dev server rendered "Couldn't save", so the failure state was forced rather than reasoned about.
+  **THE VALIDATION STATE SURVIVES AS ITS OWN BRANCH** and outranks the save state — a bad video URL
+  is a fact about the CONTENT, and swallowing it to fit the drawing would have deleted the only
+  signal saying why the save is refusing.
+  **TWO DEFECTS THE GATES CAUGHT MID-BUILD, BOTH INVISIBLE TO REVIEW.** `SaveBar`'s root started as
+  a `div`, which `ListDetailLayout`'s `lg:[&>section>footer]:mt-auto` selects nothing of — all five
+  settings bars would have resumed floating mid-air (61px at 1440x820, 295px at 1076x1054) while
+  every class-string gate passed. And the Preview anchor carried `text-ink-600` directly, which
+  **hazard 22's unlayered `a { color: inherit }` defeats**; studio-ink's E6 is the assertion that
+  caught it, and the colour went back on its wrapper.
+  **PROOF.** Five states driven live on the real editor including a forced failure. Contrast on the
+  measured cream-200, **sanity pair first** (21 / 1): dots 3.02 / 4.07 / 4.07 / 6.66 against a 3:1
+  floor — **ink-400 clears by 0.02 and that is stated rather than rounded past** — phrases 4.78 /
+  6.42 / 6.66 against 4.5. Reduced motion verified against the **production** bundle, not dev's
+  `styleSheets`, which omit rules that visibly apply: `.motion-safe\:animate-pulse` sits inside
+  `@media (prefers-reduced-motion:no-preference)` and its keyframes touch only `opacity`, so the
+  resting dot is identical either way. **CSS union +7 rules, −0, +355 bytes**, every rule
+  attributable. **Public DOM byte-identical on all five pages**; the only serialised difference is
+  two RSC module ids transposed on one page — rows `1d` and `a` differ by a single character each,
+  `$L1e` ↔ `$L1f`, same 72 rows either way.
+  New `studio-save-bar` suite, **30 mutations, 30 killed**. One survived first and it was the
+  assertion's fault, not the mutation's: `<SaveBar` matched `<SaveBarMoved` on the prefix, so a
+  check passed against markup that no longer rendered the shared bar. Re-anchored on the tag
+  boundary and a count. Two latent defects in `three-pane` fixed in passing and **labelled as such
+  in the file, because the diff that surfaced them was reverted**: `\bhidden\b` matched
+  `overflow-hidden` (a `-` is a word boundary), and the inspector-width regex pinned its neighbours.
+  **#229 IS HALF-RETIRED WITH ITS REASONING KEPT.** Its argument that skills' bar must not LOOK like
+  a panel footer because it BEHAVES differently was true of a hand-built bar and is not true of this
+  one — it is now the same component rendering the same states. The half that still holds, the bar
+  staying OUTSIDE the panels because skills is a singleton with one save for N categories, is
+  asserted.
+
 - **#277** studio navigation — **MEASURED, AND THE CODE IS NOT THE CAUSE.** Report only; no source
   changed. ralph unchanged at 1991 across 49 suites.
 

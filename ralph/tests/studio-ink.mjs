@@ -235,9 +235,28 @@ const contentInputs = (p) => {
   // property that actually defines a shell panel — it is rendered inside the shell — and it
   // still excludes `ProjectsEditPanel` by construction rather than by exception, because that
   // component is never a child of `<ListDetailLayout>`.
-  const childrenOf = (src) =>
-    [...(/<ListDetailLayout[\s\S]*?>([\s\S]*?)<\/ListDetailLayout>/.exec(src)?.[1] ?? "")
-      .matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
+  /** The components a host renders BETWEEN `<ListDetailLayout …>` and `</ListDetailLayout>`.
+   *
+   * ⚠ THE OPENING TAG IS SCANNED, NOT REGEXED PAST, AND A PROP IS WHY. `/<ListDetailLayout[\s\S]*?>/`
+   * stops at the FIRST `>`, which is fine until a prop holds JSX — `footer={<SaveBar … />}` — and
+   * then the capture starts INSIDE the opening tag and `SaveBar` is counted as a child panel. It
+   * was, the moment Skills' bar moved into the layout's footer slot, and the set silently grew a
+   * member that is not a panel at all. This walks to the `>` that closes the tag at brace depth 0,
+   * so anything inside a prop expression is skipped by construction rather than by a deny-list. */
+  const childrenOf = (src) => {
+    const open = src.indexOf("<ListDetailLayout");
+    if (open < 0) return [];
+    let i = open, depth = 0;
+    for (; i < src.length; i++) {
+      const c = src[i];
+      if (c === "{") depth++;
+      else if (c === "}") depth--;
+      else if (c === ">" && depth === 0) break;
+    }
+    const end = src.indexOf("</ListDetailLayout>", i);
+    if (end < 0) return [];
+    return [...src.slice(i + 1, end).matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
+  };
   const shellPanels = [...new Set(rendersShell.flatMap((h) => childrenOf(code(h))))];
   t("E1b: the derived shell-panel set now includes Skills' CategoryPanel, which the suffix match never saw",
     shellPanels.sort(), ["AboutEditPanel", "CategoryPanel", "ExperienceEditPanel", "HeroEditPanel",
@@ -891,7 +910,16 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // the chip sits over a photograph whose contrast is otherwise unmeasurable.
     // LEFT: the index's 6px status dot, replaced by the word. That is the whole point of the
     // change — a dot in one of two greens is not a state anyone reads at a glance.
-    t("F5: the 34 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 34);
+    // REVALUED 34 -> 35 IN THE SAVE BAR PR, AND THIS ONE IS A SINGLE CLEAN ARRIVAL. The save
+    // bar's state dot is the only new pill, and it is the same family the count already protects
+    // — BlogPostList's published marker, the sections rail's two status dots. ONE DOT FOR NINE
+    // SURFACES is the point: nine footers previously each spelled their own state in prose, and
+    // the count going up by one rather than by nine is the evidence that they share a component.
+    // F5i names it.
+    t("F5: the 35 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 35);
+    t("F5i: …and the arrival is the save bar's state dot, which no consumer can restyle",
+      (code("components/studio/SaveBar.tsx").match(/rounded-full/g) ?? []).length === 1
+        && /size-1\.5 flex-none rounded-full \$\{DOT\[state\]\}/.test(code("components/studio/SaveBar.tsx")), true);
     t("F5h: …and the two arrivals are the blog status chip and the opaque ground it sits on",
       (code("components/studio/BlogStatusChip.tsx").match(/rounded-full/g) ?? []).length === 1
         && /rounded-full bg-cream-50">\s*<BlogStatusChip/.test(code("components/studio/BlogPostCard.tsx")), true);
@@ -1777,8 +1805,15 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * this would be one button naming an object with nothing behind it. The write path would not
    * have refused it honestly — only `delete-entry` carries a BESPOKE_SLUGS guard, and the
    * serializer's refusal surfaces as a generic "Save failed. Try again.". */
+  /* RE-ANCHORED OFF `<footer>` IN THE SAVE BAR PR — the element is gone, the guard is not. */
   t("C13: the sections save bar is absent on a bespoke study — it has no sections draft to commit",
-    /\{!bespoke && \(\s*<footer/.test(panel), true);
+    /\{bespoke \|\| showDetails \? null : \(\s*<SaveBar/.test(panel), true);
+  /* AND IT IS ABSENT ON THE DETAILS VIEW TOO, which is a different reason from the bespoke one
+   * and arrived later. Details had TWO bars stacked in one 320px column — its own, plus the
+   * sections bar the pane always carried — offering a save for an object the visible form does
+   * not edit. `detailsNode` brings the save that matches what is on screen. */
+  t("C13: …and the sections bar is absent on the Details view, where the form on screen is not sections",
+    /showDetails \? null : \(\s*<SaveBar/.test(panel), true);
 
   /* THE ZERO STATE IS THE WHOLE HAZARD. An empty list under a count heading is what a broken
    * fetch looks like, so the rail states its zero and says why. */
