@@ -28,14 +28,29 @@
 export type IndexView = "grid" | "list";
 
 /**
- * GRID IS THE DEFAULT, AND THAT IS A CLAIM ABOUT WHAT THE PAGE IS FOR. An author arriving here
- * is choosing which study to open, and recognising a hero is faster than reading a title.
- * Ordering is the rarer errand and it is one click away.
+ * GRID IS THE DEFAULT, AND THAT IS A CLAIM ABOUT WHAT THE PAGE IS FOR. An author arriving at
+ * either index is choosing which thing to open, and recognising a hero is faster than reading a
+ * title. The other errand — ordering studies, auditing post state — is rarer and one click away.
  */
 export const INDEX_VIEW_DEFAULT: IndexView = "grid";
 
-/** A UI preference on a single-owner tool, so not httpOnly and not a secret. */
-export const INDEX_VIEW_COOKIE = "studio-projects-view";
+/** The indexes that remember a view. A closed set, so a typo is a compile error. */
+export type IndexCollection = "projects" | "blog";
+
+/**
+ * A UI preference on a single-owner tool, so not httpOnly and not a secret.
+ *
+ * ONE COOKIE PER COLLECTION, NOT ONE SHARED VALUE. The two indexes are different lists with
+ * different reasons to be in one view or the other — an author may want studies as cards and
+ * posts as rows — so a single key would make choosing on one page silently change the other.
+ * GENERALISED AT THE SECOND CONSUMER, which is this project's stated threshold and the same rule
+ * `ThreePaneShell` and `blog-search.ts` were held to. It shipped in #275 as a bare
+ * `INDEX_VIEW_COOKIE` constant for projects alone; the blog is the second, so it becomes a
+ * function rather than a second constant beside the first.
+ */
+export function indexViewCookie(collection: IndexCollection): string {
+  return `studio-${collection}-view`;
+}
 
 /**
  * Whatever is in the jar, what reaches the page is one of the two legal values.

@@ -20,7 +20,8 @@
 //
 // This was `useMediaMin`, and it asked `matchMedia("(min-width: 1460px)")`. **`matchMedia`
 // matches the VIEWPORT. Every pane divides the PAGE BOX.** `scrollbar-gutter: stable` on `html`
-// (globals.css:222) permanently reserves the difference, so the two are never equal here:
+// (globals.css, the `html` block) permanently reserves the difference, so the two are never
+// equal here:
 //
 //     window.innerWidth                                 1475
 //     documentElement.getBoundingClientRect().width     1460   <- what the panes divide

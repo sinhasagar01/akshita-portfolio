@@ -92,7 +92,7 @@ export default function StudioSidebar() {
             THE INACTIVE BRANCH USED TO PASS `undefined`, SO THE INVARIANT ABOVE WAS ONLY
             HALF TRUE — and the half that was missing is the half that broke here.
 
-            A COLOUR UTILITY ON AN ANCHOR DOES NOTHING IN THIS PROJECT. globals.css:278 has an
+            A COLOUR UTILITY ON AN ANCHOR DOES NOTHING IN THIS PROJECT. globals.css has an
             UNLAYERED `a { color: inherit }`, and an unlayered rule outranks `@layer
             utilities`, so `.text-ink-*` on an <a> silently loses. Measured: the same
             `text-ink-600` computes ink-600 on a <span> and ink-950 on an <a>. The anchor's

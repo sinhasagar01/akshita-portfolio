@@ -32,7 +32,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
     // of an ink column breaks the L and is exactly the half-converted reading the direction
     // warns about. Below `lg` the sidebar stays cream and so does this — see StudioSidebar.
     // THE COLOUR SITS ON THIS CONTAINER, NOT ON THE LINK, and that is forced rather than
-    // stylistic. globals.css:278 carries an unlayered `a { color: inherit }`, which outranks
+    // stylistic. globals.css carries an unlayered `a { color: inherit }`, which outranks
     // `@layer utilities`, so a `text-*` utility on the <a> below does nothing — its
     // `text-ink-600` has never applied and the link has always drawn ink-950 inherited from
     // body (18.13:1 on cream, so it looked right). Setting it here works WITH that rule
