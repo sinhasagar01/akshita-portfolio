@@ -3320,6 +3320,45 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#284** the clipped blog fields, and the pill stops landing on the save bar →2141 across **51 suites**
+  Two limits this arc RECORDED rather than fixed, closed together. Both were measured when they
+  were recorded, so neither needed re-litigating — only building.
+  **THE BLOG FIELDS WRAP INSTEAD OF CLIPPING.** At the inspector's 320px default the post title
+  needed 299px in a 289px box and the dek 305, so an author could not read either without scrolling
+  inside its own field — the two written first. **RAISING THE PANE'S DEFAULT WAS THE OBVIOUS FIX
+  AND IT IS WRONG**: blog's canvas has a hard 794px floor, so at a 1585 page a 340px inspector
+  leaves it 738 and THE ARTICLE WOULD NARROW, which is the one property that layout exists to
+  protect. The pane cannot widen there, so the field stops clipping instead. `WrappingField` is a
+  textarea in the shared well's geometry; the BOX gains a second line and the VALUE does not —
+  Enter is suppressed and pasted newlines collapse, because these round-trip to YAML as
+  single-line scalars. Measured after: 0 clipped fields at 320, both boxes 58px.
+  **THE PUBLISH PILL RISES ABOVE THE SAVE BAR.** It was fixed near the foot and centred over the
+  work area while every bar is `sticky bottom-0` inside a pane, so it landed ON the bar — 124 × 40px
+  on Site settings, Experience and Skills, and again on the case study below its fold.
+  ⚠ **HORIZONTAL WAS NOT AVAILABLE**: clearing the settings bar sideways means moving left of the
+  1042px detail column, over the list rail, and centring over the work area is a decision
+  `PublishBar` argues for at length. So the pill rises by the bar's own height.
+  ⚠ **AND IT IS MEASURED, NOT A CONSTANT.** A fixed offset would have to clear the tallest bar,
+  117px, and would then float the pill that far up on every index page — which has no bar at all.
+  A property with a 0px fallback keeps those pages byte-identical: `/studio/projects` still
+  computes exactly 20px.
+  ⚠ **THE MAXIMUM ACROSS MOUNTED BARS, NOT THE LAST WRITER, AND THE CASE STUDY PROVES WHY.** Two
+  bars are mounted there — the details form's and the sections form's — with one inside a `hidden`
+  wrapper. Last-writer-wins would let the hidden one, height 0, clobber the visible one and the
+  pill would drop back onto the bar with nothing looking wrong. Driven at 1180: two mounted, one
+  reporting 0 and invisible, clearance correctly **62**. Measured after on every surface:
+  **vertical overlap 40 → 0**, with a 20px gap above the bar.
+  **TWO GATES CAUGHT ME AGAIN, AND ONE OF THEM I HAD BEEN WARNED ABOUT IN WRITING.**
+  `css-comment-trap` fired on the offset utility's name in three separate comments — its seventh
+  catch on my prose. And `studio-ink` E2 fired because I put `WrappingField` ABOVE the three well
+  constants in `fields.tsx`: E2 attributes an inline-geometry match to the last JSX-looking tag
+  before it over raw source, so a component with a tag in it re-attributes all three and fails a
+  gate about something else. **THAT FILE'S OWN HEADER RECORDS THAT TRAP** — for an angle-bracketed
+  mention in a comment, and a real tag does it too. Reading the note did not stop me; the gate did.
+  Moved below the constants, and the ORDER is now asserted because the failure is positional.
+  11 mutations, 11 killed. Public output byte-identical; the only new CSS rule is the pill's
+  calc offset.
+
 - **#283b** blog's inspector resizes too, and my argument for fixing it was wrong →2131 across **51 suites**
   **I TALKED THE OWNER OUT OF THE RIGHT ANSWER, AND THEN WE BOTH AGREED AND WERE BOTH WRONG.** They
   proposed blog RESIZE but not COLLAPSE. I rejected it on two grounds, they accepted the rejection

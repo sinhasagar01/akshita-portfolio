@@ -8,17 +8,7 @@
 // the hard requirement at the form layer: Keystatic writes every key including the
 // empty ones, so a form that tidies them up rewrites blocks the owner never
 // touched, which is exactly what the surgical bar fails on.
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import type { PreviewUpload } from "@/lib/studio/preview-map";
 import { useItemList } from "../useItemList";
 import CollapsibleGroup from "./CollapsibleGroup";
@@ -239,6 +229,79 @@ export const inputClsMd =
  *  enumerates them so a sixth is loud. */
 export const inputErrorCls =
   "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+
+/* ⚠ THIS COMPONENT SITS BELOW THE THREE WELL CONSTANTS ON PURPOSE, AND THE FILE'S OWN HEADER
+   SAYS WHY. studio-ink's E2 attributes an inline-geometry match to the last JSX-looking tag
+   before it, over RAW source — so a component with a tag in it, placed above those constants,
+   re-attributes all three to itself and fails a gate about something else entirely. The header
+   records that trap for an angle-bracketed mention in a COMMENT; a real tag does it too. Caught
+   by the gate on the first run, exactly as designed. */
+/**
+ * A one-line VALUE in a box that WRAPS. Renders a textarea and behaves like an input.
+ *
+ * ⚠ IT EXISTS BECAUSE AN `input` PHYSICALLY CANNOT WRAP, and two blog fields were clipped by it.
+ * Measured in the 320px inspector: the post title needs 299px in a 289px box and the dek needs
+ * 305 — so an author could not read either without scrolling inside the field, and they are the
+ * two written first.
+ * RAISING THE PANE'S DEFAULT WAS THE OTHER OPTION AND IT IS WRONG. Blog's canvas has a hard 794px
+ * floor (the 68ch measure), so at a 1585 page a 340px inspector leaves it 738 — the article would
+ * narrow, which is the one property the blog layout exists to protect. The pane cannot widen there
+ * and the field has to stop clipping instead.
+ *
+ * ⚠ THE VALUE STAYS ONE LINE. These round-trip to YAML as single-line scalars, so Enter is
+ * suppressed and pasted newlines collapse to spaces — the box wraps, the STRING does not gain
+ * breaks. Enter blurs instead, which is what it already did in an input.
+ *
+ * The geometry is `inputCls` unchanged, so it reads as the same well as every field beside it;
+ * only `resize-none` and the driven height are added.
+ */
+export function WrappingField({
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  className = inputCls,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  // Driven from the content on every change AND on mount, because the pane can be resized under
+  // it and the first paint has to be right rather than corrected.
+  const grow = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";        // release the old height or scrollHeight only ever grows
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+  useEffect(() => {
+    grow();
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(grow);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [grow, value]);
+  return (
+    <textarea
+      ref={ref}
+      rows={1}
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value.replace(/[\r\n]+/g, " "))}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); }
+      }}
+      onBlur={onBlur}
+      // `block` is not cosmetic: a textarea is inline-block, so the row sits ~1px taller on the
+      // descender line than the inputs beside it. Measured in the block form before it was added.
+      className={`${className} block resize-none overflow-hidden`}
+    />
+  );
+}
 
 /**
  * THE STUDIO LABEL SCALE — TWO STEPS, NAMED BY ROLE.

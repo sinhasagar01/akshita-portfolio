@@ -72,7 +72,8 @@
 // A PLACEHOLDER KEEPS THE ACTIONS ROW AT THREE CHILDREN. `{extra}` rendering nothing when
 // undefined put FOUR children against three tracks and the primary wrapped to an implicit fourth
 // row — the same reason Cancel and the primary already had theirs.
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { registerBar, republishBarClearance } from "@/lib/studio/bar-clearance";
 import {
   deriveSaveState,
   formatSavedAge,
@@ -147,6 +148,25 @@ export default function SaveBar({
     ? "col-start-3 row-start-2 @[520px]:row-start-1"
     : "col-start-3 row-start-1";
 
+  /* ⚠ THE PUBLISH PILL FLOATS OVER THIS BAR AND HAS TO KNOW HOW TALL IT IS. `PublishBar` is
+     `fixed` at a small offset from the foot, centred over the work area; every bar is `sticky
+     bottom-0` inside a pane, so
+     without this the pill lands ON the bar — measured at 124 × 40px on the three list-detail pages
+     and again on the case study below its fold.
+     REGISTERED RATHER THAN WRITTEN DIRECTLY, because more than one bar is mounted at once and a
+     hidden one measures 0; see `bar-clearance.ts` for why the maximum is the only safe answer.
+     THE OBSERVER IS ON THE BAR ITSELF, not on a timer: the height changes when the container query
+     flips it between one and two rows, which no interval would catch at the right moment. */
+  const barRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const unregister = registerBar(el);
+    const ro = new ResizeObserver(republishBarClearance);
+    ro.observe(el);
+    return () => { ro.disconnect(); unregister(); };
+  }, []);
+
   const state = deriveSaveState(status, dirty);
   const age = state === "saved" && now ? formatSavedAge(savedAt, now) : null;
 
@@ -158,6 +178,7 @@ export default function SaveBar({
   // passed. THE SELECTOR IS THE CONSUMER OF THIS TAG NAME; do not change it to a div.
   return (
     <footer
+      ref={barRef}
       className={`@container grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2 border-t border-ink-950/12 bg-cream-200 px-4 py-3 ${className}`}
     >
       {/* ⚠ THE VALIDATION MESSAGE IS ITS OWN BRANCH AND OUTRANKS THE SAVE STATE. It is not a save
