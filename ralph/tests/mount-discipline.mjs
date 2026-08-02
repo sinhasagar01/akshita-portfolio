@@ -465,6 +465,37 @@ export const MOUNT_SCRIPT = String.raw`
       && /hover:bg-cream-200[\s\S]{0,200}Preview/.test(panel) === false, true);
 }
 
+/* ---- G · A TRANSFORM DOES NOT CHANGE LAYOUT SIZE ------------------------------------------
+ * The details canvas renders the work card at TRUE size and scales the pair to fit. It corrected
+ * the scaled HEIGHT and not the scaled WIDTH — and a CSS transform changes neither. So the pair
+ * kept reserving its untransformed 1056px of layout width, the canvas grew a horizontal
+ * scrollbar, and the second card was clipped at the right edge. Measured before: the pane
+ * overflowed by 24px and the scaled wrapper by 48.
+ * THE HEIGHT WAS CORRECTED FOR EXACTLY THIS REASON AND SAID SO IN ITS OWN COMMENT. The same
+ * argument applied to the width and was not applied — half a fix, which is why this asserts BOTH
+ * dimensions rather than the one that was missing.
+ * AND THE MEASUREMENT OVERSTATED THE ROOM. `clientWidth` INCLUDES PADDING, and the pane carries
+ * `px-6`, so it claimed 682px where 634 existed and scaled the pair 48px too wide before the
+ * width bug even applied. Two defects, one symptom. */
+{
+  const dc = code("components/studio/DetailsCanvas.tsx");
+
+  t("G1: the scaled box states BOTH dimensions, not just the height",
+    /width: pairHeight \? PAIR_W \* scale : undefined,\s*height: pairHeight \? pairHeight \* scale : undefined,/.test(dc), true);
+
+  t("G2: the fit is measured off the CONTENT box, since clientWidth counts the padding",
+    /paddingLeft\)\s*-\s*parseFloat\(cs\.paddingRight\)/.test(dc), true);
+
+  t("G3: …and clientWidth is gone from the fit, which is what overstated the room",
+    /clientWidth \/ PAIR_W/.test(dc), false);
+
+  /* THE CAP AT 1 STAYS. Scaling past true size would render the card wider than any browser
+   * shows it, so the preview would be of a card nobody sees. Driven, the cap never engaged:
+   * the canvas pane tops out at 1037px against the pair's 1056, so it fills at 0.982. */
+  t("G4: the scale still caps at 1 — a preview must not be bigger than the real card",
+    /Math\.min\(1, avail \/ PAIR_W\)/.test(dc), true);
+}
+
 console.log(`\nmount-discipline result: ${pass} passed, ${fail} failed`);
 console.log("  (Part D is a browser script — paste MOUNT_SCRIPT at /studio/projects/<slug>.)");
 process.exit(fail === 0 ? 0 : 1);
