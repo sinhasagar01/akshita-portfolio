@@ -75,9 +75,24 @@
  * This is hazard 1's arithmetic half closing. The sidebar was a literal in three thresholds and
  * is now a runtime value in none of them. */
 
-/** List + canvas measure + inspector. The blog editor's three panes at their natural sizes,
- *  WITHOUT the sidebar — add the live sidebar width to get the fit threshold. */
-export const PANES_SUM = 264 + 794 + 320;
+/** Blog's canvas floor: 68ch (745.9px against the WRAPPER's 16px font) plus 48px of horizontal
+ *  padding. UNLIKE the case study's floor this is not a scale — it is the measure itself, and the
+ *  pane cannot go under it without the article's own width changing, which is the locked property
+ *  the whole layout exists to protect.
+ *
+ *  NAMED RATHER THAN INLINE because `InspectorResizer` needs it: the drag's runtime ceiling is
+ *  "however much the canvas can give up", and each surface passes its own floor. */
+export const BLOG_CANVAS_MIN_PX = 794;
+
+/** List + canvas measure. The blog editor's two FIXED panes, WITHOUT the sidebar — add the live
+ *  sidebar width AND the live inspector width for the fit threshold.
+ *
+ *  ⚠ THE INSPECTOR TERM LEFT THIS ONE TOO, ONE PR AFTER IT LEFT THE CASE STUDY'S. #283 kept 320
+ *  here on the reasoning that blog's inspector is fixed, and that reasoning did not survive
+ *  measurement — two fields are clipped at 320 and the pane needs to widen. See
+ *  `inspector-width.ts` for the correction in full. Both editors now add the live width, so the
+ *  asymmetry this constant recorded is gone. */
+export const PANES_SUM = 264 + BLOG_CANVAS_MIN_PX;
 
 /** Below this the inspector pane folds away and the canvas pane's own Canvas/Inspector
  *  toggle becomes the route to those fields. One mechanism at two widths, and the narrow

@@ -23,9 +23,9 @@ import { useCallback, useRef, useState } from "react";
 import {
   clampInspectorWidth,
   isInspectorCollapsed,
-  CS_INSPECTOR_COOKIE,
-  CS_INSPECTOR_MIN_PX,
+  INSPECTOR_BOUNDS,
   INSPECTOR_WIDTH_VAR,
+  type InspectorSurface,
 } from "@/lib/studio/inspector-width";
 
 export type InspectorWidth = {
@@ -45,27 +45,28 @@ export type InspectorWidth = {
   styleVar: React.CSSProperties;
 };
 
-export function useInspectorWidth(initial: number): InspectorWidth {
-  const [width, setWidth] = useState(() => clampInspectorWidth(initial));
+export function useInspectorWidth(initial: number, surface: InspectorSurface): InspectorWidth {
+  const { min, cookie } = INSPECTOR_BOUNDS[surface];
+  const [width, setWidth] = useState(() => clampInspectorWidth(initial, surface));
   const rootRef = useRef<HTMLDivElement>(null);
   // Seeded to the minimum so the first Enter from a collapsed pane still has somewhere to go —
   // #237's rule: binding the toggle to a fixed DEFAULT hands a keyboard user a width they may
   // never have chosen, so it returns to the last one they did.
-  const lastOpen = useRef(Math.max(CS_INSPECTOR_MIN_PX, clampInspectorWidth(initial)));
+  const lastOpen = useRef(Math.max(min, clampInspectorWidth(initial, surface)));
 
   const preview = useCallback((px: number) => {
-    rootRef.current?.style.setProperty(INSPECTOR_WIDTH_VAR, `${clampInspectorWidth(px)}px`);
-  }, []);
+    rootRef.current?.style.setProperty(INSPECTOR_WIDTH_VAR, `${clampInspectorWidth(px, surface)}px`);
+  }, [surface]);
 
   const commit = useCallback((px: number) => {
-    const next = clampInspectorWidth(px);
+    const next = clampInspectorWidth(px, surface);
     if (!isInspectorCollapsed(next)) lastOpen.current = next;
     setWidth(next);
     rootRef.current?.style.setProperty(INSPECTOR_WIDTH_VAR, `${next}px`);
     // A UI preference on a single-owner tool: not httpOnly, not a secret, SameSite=Lax so it
     // rides ordinary navigation. One year, because a width you set once should stay set.
-    document.cookie = `${CS_INSPECTOR_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
-  }, []);
+    document.cookie = `${cookie}=${next}; path=/; max-age=31536000; samesite=lax`;
+  }, [surface, cookie]);
 
   return {
     width,

@@ -3320,6 +3320,54 @@ first and both were wrong. `0fe8fd6` = #257 (the tab hint), `315b26a` = #256 (th
 (the field contract, which the arc then corrected). **main = `0fe8fd6`, ralph 1707 across 45 suites
 from a run on main after the merge**, not from the PR's own CI.
 
+- **#283b** blog's inspector resizes too, and my argument for fixing it was wrong →2131 across **51 suites**
+  **I TALKED THE OWNER OUT OF THE RIGHT ANSWER, AND THEN WE BOTH AGREED AND WERE BOTH WRONG.** They
+  proposed blog RESIZE but not COLLAPSE. I rejected it on two grounds, they accepted the rejection
+  and wrote that their correction had been wrong, and #283 shipped blog fixed. Asked afterwards why
+  the two editors differ, the measurement says the rejection was the error.
+  **THE ARGUMENT ONLY EVER ASKED WHAT THE CANVAS DOES WITH THE WIDTH.** Blog's canvas is a fixed
+  68ch measure, so reclaimed width is cream — true, and the whole of the reasoning. **It never
+  asked what the INSPECTOR does with it.** Measured on the live pane at the shipped 320: **the post
+  title needs 299px in a 289px box and the excerpt needs 305 — two fields are clipped**, and they
+  are the two an author writes first. They un-clip at 340.
+  So widening is not decoration: it fixes a live defect, and it NARROWS the cream rather than
+  widening it — the article looks less adrift, not more. **The half that survives is that
+  COLLAPSING blog gives the canvas 284px it cannot spend**; the owner chose full parity anyway, on
+  the gesture rather than the pixels, and that trade is recorded rather than buried.
+  **⚠ AND THE SECOND-ORDER LESSON IS THE ONE TO KEEP: AGREEMENT IS NOT EVIDENCE.** Two people
+  converged on a conclusion neither had measured, and the convergence made it feel settled. The
+  measurement took one browser call. This is the same shape as "the number was real, the subject
+  was wrong", one level up — the reasoning was sound and it was about the wrong pane.
+  **TWO COOKIES NOW, WHICH RESTORES THE OWNER'S ORIGINAL ANSWER 2.** #283 collapsed it to one
+  because blog was fixed and a second cookie would have keyed a width nothing reads. Blog resizing
+  makes it two again, each clamped ON THE READ against its own bounds — the floors genuinely differ
+  (185 against 267) because the panes hold different things. Third time in this arc that an answer
+  given before a scope change turned out to be a premise rather than a fact, and the second time
+  the change was in the OTHER direction.
+  **`PANES_SUM` 1378 → 1058**, so blog's threshold is runtime too and the asymmetry #283 recorded
+  is gone. `BLOG_CANVAS_MIN_PX = 794` is now named, because the drag's runtime ceiling is "whatever
+  the canvas can give up" and each surface passes its own floor.
+  **⚠ THE RUNTIME CEILING ENFORCES THE LOCKED MEASURE, WHICH IS THE NICEST RESULT HERE.** Measured
+  at a 1585 page: list 264 + canvas **794, exactly its floor** + inspector 284 = 1342, with zero
+  slack — the drag simply refuses to widen past the point where the article would narrow. At a 1905
+  page the inspector reaches **604** with the canvas still pinned at 794 and **0 clipped fields**.
+  ⚠ Consequence, stated: **340 is not reachable on a 1585 page** — un-clipping needs roughly 1641px
+  of page at the default sidebar, so on a narrower display the fields stay clipped and the ceiling
+  is why.
+  **THE DEFAULT STAYS 320 ON BOTH.** Blog clips two fields there and moving it would move the
+  shipped geometry for every author who has never touched the handle — a different decision from
+  making the pane adjustable. Recorded rather than quietly bundled.
+  **THE DECLARATION MOVED INTO THE SHELL, at the SECOND consumer**, which is this repo's rule and
+  not a preference: #283 put the custom property on the case study's own wrapper because only that
+  surface resized. Both hosts now pass `rootRef`/`rootStyle` and the shell root declares it once.
+  **PROOF.** Blog: collapsed 0 and inert with **0 of 35 controls accepting focus**, inputs steady
+  at 6, **the measure fixed at 746 through every width** — the locked property never moves. The bar
+  docks to the canvas at 62px, one row. Case study unchanged after the seam move. 12 mutations,
+  **12 killed**, after one real hole: adding a default to `clampInspectorWidth`'s surface argument
+  changes nothing at runtime — every call site passes one — so no behavioural assertion could see
+  it, and what it removes is the compile-time error that makes a forgotten surface impossible. Now
+  gated as an absence. CSS unchanged from #283 at +25/−3. Public output byte-identical.
+
 - **#283** the resize grip, and the case-study inspector collapses →2118 across **51 suites**
   **THE SIDEBAR HANDLE WAS NOT A NO-OP, WHICH THE BRIEF ASKED ME TO CHECK BEFORE REBUILDING IT.**
   Measured by `elementFromPoint` rather than read off a class string: it is already `absolute`, so

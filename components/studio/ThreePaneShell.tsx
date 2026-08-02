@@ -79,6 +79,8 @@ export default function ThreePaneShell({
   inspector,
   inspectorResizer,
   inspectorCollapsed = false,
+  rootRef,
+  rootStyle,
   fitThresholdPx,
   listNoun,
   canvasGround = "bg-cream-50",
@@ -141,6 +143,14 @@ export default function ThreePaneShell({
   /** Is the inspector dragged shut? Drives the pane's width and its `inert`, and nothing else —
    *  the caller decides where the save bar goes, because only the caller has one. */
   inspectorCollapsed?: boolean;
+  /** ⚠ THE INSPECTOR WIDTH'S CUSTOM PROPERTY IS DECLARED ON THIS SHELL'S ROOT, and these two are
+   *  how. The SSR value and the per-move write during a drag must land on the SAME element or the
+   *  closer one wins; the root is the nearest ancestor of the aside that both surfaces share.
+   *  EXTRACTED AT THE SECOND CONSUMER, which is this repo's rule rather than a preference. #283
+   *  declared it on the case study's own wrapper because only that surface resized. Blog resizing
+   *  makes two, and two is when a pattern moves into the seam. */
+  rootRef?: React.Ref<HTMLDivElement>;
+  rootStyle?: React.CSSProperties;
   /** The canvas pane's ground, as a background utility. Defaults to `bg-cream-50`.
    *
    *  A DEFAULT RATHER THAN A REQUIRED PROP, which is the opposite of `fitThresholdPx` above,
@@ -186,7 +196,7 @@ export default function ThreePaneShell({
     // `relative` IS THE INSPECTOR RESIZER'S CONTAINING BLOCK. The handle is absolute on the seam
     // so it consumes no layout width — #237's second defect, which cost 4px of work area at every
     // sidebar width because an in-flow handle is a term nobody put in the arithmetic.
-    <div data-studio-fullheight className="relative flex min-h-0 flex-1 lg:overflow-hidden">
+    <div ref={rootRef} style={rootStyle} data-studio-fullheight className="relative flex min-h-0 flex-1 lg:overflow-hidden">
       {/* LIST — a width transition. overflow-hidden plus an inner min-w-[264px] so the
           children keep their intrinsic width while the box animates to zero, instead of
           reflowing on every frame of the transition. */}

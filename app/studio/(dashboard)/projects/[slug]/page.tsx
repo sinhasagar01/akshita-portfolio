@@ -27,7 +27,7 @@ import { notFound } from "next/navigation";
 import { getStudioData } from "@/lib/studio/data";
 import ProjectsEditPanel from "@/components/studio/ProjectsEditPanel";
 import { projectPath } from "@/lib/site";
-import { clampInspectorWidth, CS_INSPECTOR_COOKIE } from "@/lib/studio/inspector-width";
+import { clampInspectorWidth, INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -45,7 +45,7 @@ export default async function CaseStudyEditorPage({ params }: Props) {
   // the server cannot read it, so every load would render 320 and jump on mount.
   // CLAMPED ON THE READ, not merely on the write. A cookie stored while the bounds were wider
   // outlives the build that allowed it; clamping here makes whatever is in the jar ADVISORY.
-  const inspectorWidth = clampInspectorWidth((await cookies()).get(CS_INSPECTOR_COOKIE)?.value);
+  const inspectorWidth = clampInspectorWidth((await cookies()).get(INSPECTOR_BOUNDS.cs.cookie)?.value, "cs");
 
   return (
     <ProjectsEditPanel

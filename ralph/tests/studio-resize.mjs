@@ -12,12 +12,11 @@ import { readFileSync } from "node:fs";
 import {
   clampInspectorWidth,
   isInspectorCollapsed,
-  CS_INSPECTOR_MIN_PX,
-  CS_INSPECTOR_MAX_PX,
-  CS_INSPECTOR_DEFAULT_PX,
+  INSPECTOR_BOUNDS,
+  INSPECTOR_FALLBACK_PX,
   CS_INSPECTOR_COLLAPSED_PX,
 } from "../../lib/studio/inspector-width.ts";
-import { CS_CANVAS_MIN_PX } from "../../lib/studio/three-pane.ts";
+import { CS_CANVAS_MIN_PX, BLOG_CANVAS_MIN_PX } from "../../lib/studio/three-pane.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -40,50 +39,78 @@ const shell = code("components/studio/ThreePaneShell.tsx");
  * clamp does not merely bound, it SNAPS across the gap. A plain `Math.max(MIN, …)` would make the
  * collapse unreachable by drag, which is the defect this shape exists to prevent. */
 {
-  t("A1: the bounds are the measured floor and a by-role ceiling",
-    [CS_INSPECTOR_MIN_PX, CS_INSPECTOR_MAX_PX, CS_INSPECTOR_DEFAULT_PX, CS_INSPECTOR_COLLAPSED_PX],
-    [267, 640, 320, 0]);
+  t("A1: each surface carries its own measured floor and its own by-role ceiling", INSPECTOR_BOUNDS, {
+    cs:   { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
+    blog: { min: 185, max: 794, fallback: 320, cookie: "studio-inspector-w-blog" },
+  });
 
-  /* THE CEILING IS THE CANVAS FLOOR. The inspector may never be wider than the canvas's own
-   * minimum: the canvas is the subject and the inspector is the apparatus, and an apparatus wider
-   * than its subject has the roles backwards. THIS ASSERTION IS THE ONLY THING HOLDING THEM
-   * TOGETHER — see the note below for why the import that would have done it cannot exist. */
-  t("A1: the ceiling IS the canvas floor, not a second copy of 640",
-    CS_INSPECTOR_MAX_PX === CS_CANVAS_MIN_PX, true);
-  /* ⚠ AND THE MODULE DOES NOT IMPORT IT, WHICH IS WHY THE ASSERTION ABOVE IS LOAD-BEARING RATHER
-   * THAN DECORATIVE. Importing the constant is the obvious move and it does not survive: ralph
-   * loads these as raw `.ts` leaves, Node's ESM needs the extension, and `tsc` rejects a `.ts`
-   * extension without `allowImportingTsExtensions`. The property that makes these files testable
-   * forbids the import. So this is a second copy of one measurement — the #194 shape — and A1 is
-   * the gate that catches it drifting. Asserted as an ABSENCE so nobody "tidies" the import back
-   * in and breaks every ralph suite that loads this file. */
+  /* ⚠ TWO COOKIES, BECAUSE THE BOUNDS DIFFER. One cookie would force the wider floor on both, so
+   * blog would lose the 185…266 band its content can legitimately use, and a width set on one
+   * surface would silently narrow the other. Asserted as DISTINCT rather than as present. */
+  t("A1: the two cookies are distinct, so neither surface can clamp the other's width",
+    INSPECTOR_BOUNDS.cs.cookie !== INSPECTOR_BOUNDS.blog.cookie, true);
+
+  /* EACH CEILING IS THAT SURFACE'S OWN CANVAS FLOOR — one by-role sentence, two numbers, because
+   * the canvases differ: the case study's floor is a SCALE (1280 × 0.5) and blog's is its MEASURE
+   * (68ch + padding). THESE ASSERTIONS ARE THE ONLY THING HOLDING THEM TOGETHER — see below for
+   * why the import that would have done it cannot exist. */
+  t("A1: the ceilings ARE the canvas floors, not two invented numbers",
+    [INSPECTOR_BOUNDS.cs.max === CS_CANVAS_MIN_PX, INSPECTOR_BOUNDS.blog.max === BLOG_CANVAS_MIN_PX],
+    [true, true]);
+
+  t("A1: the shipped default is unchanged on both, so no author's geometry moved",
+    [INSPECTOR_BOUNDS.cs.fallback, INSPECTOR_BOUNDS.blog.fallback, INSPECTOR_FALLBACK_PX],
+    [320, 320, 320]);
+
+  /* ⚠ AND THE MODULE DOES NOT IMPORT THOSE FLOORS, WHICH IS WHY THE ASSERTION ABOVE IS
+   * LOAD-BEARING RATHER THAN DECORATIVE. Importing them is the obvious move and it does not
+   * survive: ralph loads this as a raw `.ts` leaf, Node's ESM needs the extension, and `tsc`
+   * rejects a `.ts` extension without `allowImportingTsExtensions`. The property that makes this
+   * file testable forbids the import. So the maxima are second copies — the #194 shape — and A1
+   * is the gate that catches them drifting. Asserted as an ABSENCE so nobody "tidies" the import
+   * back in and breaks every ralph suite that loads this file. */
   t("A1: …and it stays a leaf, because an import here would break the loader that tests it",
     /^import /m.test(code("lib/studio/inspector-width.ts")), false);
 
-  const table = {};
-  for (const v of [0, 1, 133, 134, 200, 266, 267, 268, 320, 460, 640, 641, 9999, -40, "320", "abc", null, undefined, NaN])
-    table[String(v)] = clampInspectorWidth(v);
-  t("A2: every input resolves, and the hole is real", table, {
-    "0": 0, "1": 0, "133": 0,          // at or below half the minimum → collapsed
-    "134": 267, "200": 267, "266": 267, // above it → snapped up to the minimum
-    "267": 267, "268": 268, "320": 320, "460": 460, "640": 640,
-    "641": 640, "9999": 640,           // the ceiling holds
-    "-40": 0,                          // negative is collapsed, never a wrap
-    "320": 320, "abc": 320,            // unparseable → the default, never a throw
-    "null": 320, "undefined": 320, "NaN": 320,
-  });
+  for (const [surface, min, max] of [["cs", 267, 640], ["blog", 185, 794]]) {
+    const table = {};
+    for (const v of [0, 1, Math.floor(min / 2), Math.floor(min / 2) + 1, min - 1, min, min + 1, 320, max, max + 1, 9999, -40, "abc", null])
+      table[String(v)] = clampInspectorWidth(v, surface);
+    t(`A2: ${surface} — every input resolves, and the hole between 0 and ${min} is real`, table, {
+      "0": 0, "1": 0,
+      [String(Math.floor(min / 2))]: 0,            // at or below half the floor → collapsed
+      [String(Math.floor(min / 2) + 1)]: min,      // above it → snapped up
+      [String(min - 1)]: min, [String(min)]: min, [String(min + 1)]: min + 1,
+      "320": 320, [String(max)]: max, [String(max + 1)]: max, "9999": max,
+      "-40": 0, "abc": 320, "null": 320,
+    });
 
-  /* ⚠ NOTHING MAY LAND IN THE GAP, whatever the input. Asserted over the whole span rather than at
-   * its edges, because an off-by-one in the snap is invisible at the boundaries people test. */
-  const inGap = [];
-  for (let v = -50; v <= 700; v++) {
-    const r = clampInspectorWidth(v);
-    if (r !== 0 && (r < CS_INSPECTOR_MIN_PX || r > CS_INSPECTOR_MAX_PX)) inGap.push([v, r]);
+    /* ⚠ NOTHING MAY LAND IN THE GAP, whatever the input. Asserted across the whole span rather
+     * than at its edges, because an off-by-one in the snap is invisible where people test. */
+    const inGap = [];
+    for (let v = -50; v <= max + 60; v++) {
+      const r = clampInspectorWidth(v, surface);
+      if (r !== 0 && (r < min || r > max)) inGap.push([v, r]);
+    }
+    t(`A2: ${surface} — …and no input resolves into the forbidden band`, inGap, []);
   }
-  t("A2: …and no input in -50…700 resolves into the forbidden band", inGap, []);
+
+  /* ⚠ THE SURFACE IS REQUIRED, WITH NO DEFAULT. A default would silently apply one surface's
+   * floor to the other — the exact failure two cookies exist to prevent, one layer down. */
+  t("A2: the two surfaces really do resolve differently at the same input",
+    [clampInspectorWidth(200, "cs"), clampInspectorWidth(200, "blog")], [267, 200]);
+
+  /* ⚠ AND THE ARGUMENT MUST STAY REQUIRED, ASSERTED AS AN ABSENCE — the one hole mutation found
+   * in this part. Giving it a default changes NOTHING at runtime, because every call site passes
+   * a surface, so no behavioural assertion can see it. What it removes is the TYPE error that
+   * makes a forgotten surface impossible: with a default, a new call site silently clamps blog's
+   * pane to the case study's 267 floor. The protection is compile-time, so the gate has to be
+   * about the source. */
+  t("A2: …and the surface argument carries no default, or a forgotten one clamps to the wrong floor",
+    /surface: InspectorSurface\s*=/.test(code("lib/studio/inspector-width.ts")), false);
 
   t("A3: collapse is a width, not a flag, so the arithmetic needs no special case",
-    [isInspectorCollapsed(0), isInspectorCollapsed(267), isInspectorCollapsed(320)], [true, false, false]);
+    [isInspectorCollapsed(0), isInspectorCollapsed(185), isInspectorCollapsed(320)], [true, false, false]);
 }
 
 /* ================================================= B. THE GRIP — ONE RULE, TWO GROUNDS */
@@ -166,12 +193,22 @@ const shell = code("components/studio/ThreePaneShell.tsx");
 
   /* THE WIDTH IS A CUSTOM PROPERTY WITH A FALLBACK, and the fallback is the whole of blog's
    * geometry: blog never declares the property, so its pane resolves to 320 and does not move. */
-  t("D3: the pane's width is the property, with the fallback blog rides",
+  t("D3: the pane's width is the property, with a fallback that is the shipped default",
     /lg:w-\[var\(--studio-inspector-w,320px\)\]/.test(shell), true);
-  t("D3: …and blog does not declare it — the fixed pane stays fixed",
-    /--studio-inspector-w/.test(code("components/studio/BlogBlocksEditPanel.tsx")), false);
-  t("D3: …and blog is handed no resizer, because a grip on a fixed seam announces something false",
-    /inspectorResizer/.test(code("components/studio/BlogBlocksEditPanel.tsx")), false);
+
+  /* ⚠ BOTH SURFACES NOW RESIZE, AND THE DECLARATION MOVED INTO THE SHELL BECAUSE OF IT. #283 put
+   * it on the case study's own wrapper, when only that surface resized; blog resizing makes two,
+   * and two is when a pattern moves into the seam — this repo's "extract at the SECOND consumer"
+   * rule rather than a preference. The SSR value and the per-move write must land on the same
+   * element, and the shell root is the nearest shared ancestor of the aside. */
+  t("D3: the shell root carries the declaration, so both surfaces share one seam",
+    /<div ref=\{rootRef\} style=\{rootStyle\} data-studio-fullheight/.test(shell), true);
+  for (const host of ["SectionsEditPanel", "BlogBlocksEditPanel"]) {
+    t(`D3: …and ${host} hands the shell its width and its handle`,
+      /rootRef=\{ins\.rootRef\}/.test(code(`components/studio/${host}.tsx`))
+        && /rootStyle=\{ins\.styleVar\}/.test(code(`components/studio/${host}.tsx`))
+        && /<InspectorResizer/.test(code(`components/studio/${host}.tsx`)), true);
+  }
 }
 
 /* ================================================= E. THE COOKIE, CLAMPED ON THE READ
@@ -179,14 +216,23 @@ const shell = code("components/studio/ThreePaneShell.tsx");
  * Clamping only on write is the bug this shape exists to avoid: a cookie written while the max was
  * wider outlives the build that allowed it. Clamping on READ makes the stored value ADVISORY. */
 {
-  const page = code("app/studio/(dashboard)/projects/[slug]/page.tsx");
-  t("E1: the width is read and clamped on the SERVER, so the first render carries it",
-    /clampInspectorWidth\(\(await cookies\(\)\)\.get\(CS_INSPECTOR_COOKIE\)\?\.value\)/.test(page), true);
-  t("E1: …and travels as a prop rather than being read again on the client",
-    /inspectorWidth=\{inspectorWidth\}/.test(page)
-      && /document\.cookie/.test(code("components/studio/useInspectorWidth.ts")), true);
-  t("E2: ONE cookie, because there is one resizable inspector",
-    (code("lib/studio/inspector-width.ts").match(/COOKIE = "/g) ?? []).length, 1);
+  /* ⚠ EACH ROUTE READS ITS OWN COOKIE AND NAMES ITS OWN SURFACE. `clampInspectorWidth` takes the
+   * surface with NO DEFAULT precisely so this cannot be got wrong silently: a missing argument is
+   * a type error rather than one pane quietly clamped to the other's floor. */
+  for (const [route, surface] of [["projects/[slug]", "cs"], ["blog/[slug]", "blog"]]) {
+    const page = code(`app/studio/(dashboard)/${route}/page.tsx`);
+    t(`E1: ${surface} — the width is read and clamped on the SERVER against its own bounds`,
+      new RegExp(`clampInspectorWidth\\(\\s*\\(await cookies\\(\\)\\)\\.get\\(INSPECTOR_BOUNDS\\.${surface}\\.cookie\\)\\?\\.value,\\s*"${surface}",?\\s*\\)`).test(page), true);
+    t(`E1: ${surface} — …and travels as a prop rather than being read again on the client`,
+      /inspectorWidth=\{inspectorWidth\}/.test(page), true);
+  }
+  t("E1: …and the client writes the cookie rather than reading one",
+    /document\.cookie = `\$\{cookie\}=/.test(code("components/studio/useInspectorWidth.ts")), true);
+
+  /* TWO COOKIES, ONE PER SURFACE. Asserted by COUNT as well as by name, because "both names exist"
+   * would still pass if a third crept in. */
+  t("E2: exactly two cookies, one per resizable inspector",
+    (code("lib/studio/inspector-width.ts").match(/cookie: "/g) ?? []).length, 2);
 }
 
 /* ---- ⚠ WHAT THIS SUITE CANNOT PROVE, NAMED RATHER THAN LEFT TO LOOK COVERED ----------------

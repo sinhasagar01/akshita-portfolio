@@ -28,8 +28,7 @@
 // effect is worse than no control. Structural, like `SidebarResizer`'s `hidden lg:block`.
 import { useRef, useState } from "react";
 import StudioResizeGrip from "./StudioResizeGrip";
-import { CS_CANVAS_MIN_PX } from "@/lib/studio/three-pane";
-import { CS_INSPECTOR_MAX_PX, CS_INSPECTOR_MIN_PX } from "@/lib/studio/inspector-width";
+import { INSPECTOR_BOUNDS, type InspectorSurface } from "@/lib/studio/inspector-width";
 
 const STEP = 8;
 
@@ -39,16 +38,24 @@ export default function InspectorResizer({
   preview,
   commit,
   lastOpen,
+  surface,
+  canvasFloorPx,
 }: {
   width: number;
   collapsed: boolean;
   preview: (px: number) => void;
   commit: (px: number) => void;
   lastOpen: React.MutableRefObject<number>;
+  /** Which inspector — the two measure different bounds. */
+  surface: InspectorSurface;
+  /** The width the canvas may not go below. The case study's is a SCALE floor, blog's is its
+   *  MEASURE; the ceiling arithmetic is identical either way, so the caller passes the number. */
+  canvasFloorPx: number;
 }) {
+  const { min: MIN_PX, max: MAX_PX } = INSPECTOR_BOUNDS[surface];
   const [dragging, setDragging] = useState(false);
   // The ceiling for THIS gesture, measured once at pointerdown. See the header.
-  const ceiling = useRef(CS_INSPECTOR_MAX_PX);
+  const ceiling = useRef(MAX_PX);
   const el = useRef<HTMLDivElement>(null);
 
   /** How wide the inspector may go right now: its own width plus whatever the canvas can spare. */
@@ -56,8 +63,8 @@ export default function InspectorResizer({
     const shell = el.current?.parentElement;
     // The canvas pane is the flex child that grows; the aside is the one after it.
     const canvas = shell ? [...shell.children].find((c) => c.className.includes("flex-1")) : null;
-    const slack = canvas ? canvas.getBoundingClientRect().width - CS_CANVAS_MIN_PX : 0;
-    ceiling.current = Math.max(CS_INSPECTOR_MIN_PX, Math.min(CS_INSPECTOR_MAX_PX, width + Math.floor(slack)));
+    const slack = canvas ? canvas.getBoundingClientRect().width - canvasFloorPx : 0;
+    ceiling.current = Math.max(MIN_PX, Math.min(MAX_PX, width + Math.floor(slack)));
   };
 
   /** Pointer x → an inspector width. The pane is on the RIGHT, so it grows as x falls. */
@@ -77,7 +84,7 @@ export default function InspectorResizer({
       aria-label="Resize inspector"
       aria-valuenow={width}
       aria-valuemin={0}
-      aria-valuemax={CS_INSPECTOR_MAX_PX}
+      aria-valuemax={MAX_PX}
       aria-controls="studio-inspector"
       tabIndex={0}
       onPointerDown={(e) => {
@@ -102,7 +109,7 @@ export default function InspectorResizer({
         if (e.key === "ArrowLeft") { e.preventDefault(); measureCeiling(); setTo(width + STEP); }
         else if (e.key === "ArrowRight") { e.preventDefault(); setTo(width - STEP); }
         else if (e.key === "Home") { e.preventDefault(); commit(0); }
-        else if (e.key === "End") { e.preventDefault(); measureCeiling(); setTo(CS_INSPECTOR_MAX_PX); }
+        else if (e.key === "End") { e.preventDefault(); measureCeiling(); setTo(MAX_PX); }
         else if (e.key === "Enter") {
           e.preventDefault();
           // The collapse gesture and its undo. The clamp lives in `commit`, so a stale

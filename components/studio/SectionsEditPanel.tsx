@@ -32,8 +32,8 @@ import { adaptSections } from "@/lib/case-studies/adapter";
 import { sectionDisplayLabel } from "@/lib/case-studies/section-label";
 import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import { createPreviewMap, type PreviewMap } from "@/lib/studio/preview-map";
-import { CS_MIN_SCALE, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
-import { CS_INSPECTOR_MIN_PX } from "@/lib/studio/inspector-width";
+import { CS_MIN_SCALE, CS_CANVAS_MIN_PX, CS_PANES_SUM, CS_COLLAPSED_PANES_SUM } from "@/lib/studio/three-pane";
+import { INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
 import { useInspectorWidth } from "./useInspectorWidth";
 import InspectorResizer from "./InspectorResizer";
 import { useSidebarWidth } from "./SidebarWidthProvider";
@@ -1006,7 +1006,7 @@ export default function SectionsEditPanel({
   // no number once the studio ships a control whose purpose is to move off 236. What stayed
   // constant is the panes; the sidebar term arrives live.
   const sidebarPx = useSidebarWidth();
-  const ins = useInspectorWidth(inspectorWidth);
+  const ins = useInspectorWidth(inspectorWidth, "cs");
 
   /* ⚠ THE FOLD IS THE ONE THRESHOLD THE LIVE WIDTH IS THE WRONG INPUT FOR, and getting this
      backwards fails in the silent direction.
@@ -1020,7 +1020,7 @@ export default function SectionsEditPanel({
      THE FIT THRESHOLD BELOW IS THE OPPOSITE CASE and takes the live width, because "does the list
      still fit" is a question about the layout as it is right now. */
   const inspectorFits = usePageWidthMin(
-    sidebarPx + CS_COLLAPSED_PANES_SUM + Math.max(ins.width, CS_INSPECTOR_MIN_PX),
+    sidebarPx + CS_COLLAPSED_PANES_SUM + Math.max(ins.width, INSPECTOR_BOUNDS.cs.min),
   );
   // Where the Editor toggle returns to. Without it, leaving the Board would have to guess, and
   // guessing "the first section" loses the place an author was working in.
@@ -2481,18 +2481,10 @@ export default function SectionsEditPanel({
           the defect is a runtime unmount. */}
       {!bespoke && showBoard && boardNode}
 
-      {/* ⚠ THE PROPERTY IS DECLARED HERE, ON AN ANCESTOR OF THE SHELL'S ASIDE, and the SSR value
-          and the per-move write must land on the SAME element or the closer one wins. This is the
-          node the server already renders, so the first paint carries the stored width and nothing
-          jumps on mount. Blog never declares it, which is what leaves that surface on the 320px
-          fallback baked into the aside's class. */}
-      <div
-        ref={ins.rootRef}
-        style={ins.styleVar}
-        hidden={!bespoke && showBoard}
-        className="flex min-h-0 flex-1"
-      >
+      <div hidden={!bespoke && showBoard} className="flex min-h-0 flex-1">
         <ThreePaneShell
+          rootRef={ins.rootRef}
+          rootStyle={ins.styleVar}
           fitThresholdPx={sidebarPx + CS_PANES_SUM + ins.width}
           inspectorCollapsed={ins.collapsed}
           /* No seam below the fold, so no handle — the same structural answer as
@@ -2506,6 +2498,8 @@ export default function SectionsEditPanel({
                 preview={ins.preview}
                 commit={ins.commit}
                 lastOpen={ins.lastOpen}
+                surface="cs"
+                canvasFloorPx={CS_CANVAS_MIN_PX}
               />
             ) : null
           }
