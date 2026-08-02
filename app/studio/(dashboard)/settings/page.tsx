@@ -29,7 +29,7 @@ export default async function StudioSettings() {
           list+detail shell puts a fixed section list on the left and one edit
           pane on the right — every panel stays MOUNTED (returns null when
           unselected) so unsaved drafts survive switching sections. */}
-      <ListDetailLayout sections={STUDIO_SETTINGS_SECTIONS}>
+      <ListDetailLayout sections={STUDIO_SETTINGS_SECTIONS} searchPlaceholder="Search settings">
         {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
         <HeroEditPanel
           itemId="hero"

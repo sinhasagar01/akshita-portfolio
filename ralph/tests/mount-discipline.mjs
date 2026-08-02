@@ -398,6 +398,36 @@ export const MOUNT_SCRIPT = String.raw`
 })()
 `;
 
+/* ---- E · THE RAIL FILTER READS THE VOCABULARY IT WAS GIVEN --------------------------------
+ * Site settings opted into the rail search, and its four sections are FIXED — Hero, About,
+ * Links, Process — so a name-only filter would be near-useless: the field an author hunts is
+ * usually named nothing like its section. "resume" is under Links, "photo" under About,
+ * "scroll cue" under Hero.
+ * `STUDIO_SETTINGS_SECTIONS` HAD ALREADY AUTHORED THAT VOCABULARY for the global studio search,
+ * so the rail reads the same `keywords` rather than a second list that could drift. Driven:
+ * "resume" returns Links, "photo" returns About, "scroll cue" returns Hero, and a name still
+ * matches by name. */
+{
+  const ldl = code("components/studio/ListDetailLayout.tsx");
+  const settings = code("app/studio/(dashboard)/settings/page.tsx");
+  const sections = code("lib/studio/settings-sections.ts");
+
+  t("E1: the rail filter matches keywords, not just the name and meta",
+    /`\$\{s\.name\} \$\{s\.meta \?\? ""\} \$\{s\.keywords \?\? ""\}`/.test(ldl), true);
+
+  t("E2: …and `keywords` is a declared, optional field on the section type",
+    /keywords\?: string;/.test(ldl), true);
+
+  /* THE OPT-IN IS UNCHANGED. A default placeholder would put a search box on every consumer,
+   * which is what the prop's original reasoning refused; settings now opts in explicitly. */
+  t("E3: settings opts in by naming what it searches, rather than a default appearing",
+    /searchPlaceholder="Search settings"/.test(settings), true);
+
+  t("E4: …and the vocabulary is the one the global search already uses — not a second copy",
+    /keywords: "hero copy signature tabs role label scroll cue"/.test(sections)
+      && /keywords: "links resume email social urls"/.test(sections), true);
+}
+
 console.log(`\nmount-discipline result: ${pass} passed, ${fail} failed`);
 console.log("  (Part D is a browser script — paste MOUNT_SCRIPT at /studio/projects/<slug>.)");
 process.exit(fail === 0 ? 0 : 1);

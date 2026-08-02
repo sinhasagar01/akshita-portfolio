@@ -26,6 +26,15 @@ import { IconX, IconPlus, IconChevronUp, IconChevronDown } from "./icons";
 export type ListDetailSection = {
   id: string;
   name: string;
+  /** Extra search vocabulary, matched by the rail filter but never rendered.
+   *
+   *  IT EXISTS BECAUSE A NAME IS NOT ALWAYS THE WORD YOU LOOK FOR. Site settings has four fixed
+   *  sections — Hero, About, Links, Process — and the field an author is hunting is usually named
+   *  nothing like the section holding it: "resume" lives under Links, "photo" under About,
+   *  "scroll cue" under Hero. Filtering names alone returns nothing for every one of those.
+   *  `STUDIO_SETTINGS_SECTIONS` HAS ALREADY AUTHORED THIS VOCABULARY for the global studio search,
+   *  so the rail reads the same words rather than a second list that could drift from it. */
+  keywords?: string;
   // Optional status label rendered as a pill next to the name (e.g. "Currently").
   // The caller owns the label + the decision; the shell just renders it.
   badge?: string;
@@ -101,9 +110,15 @@ export function ListDetailLayout({
   onAddItem?: () => string | undefined;
   addItemLabel?: string;
   // The rail's own filter (the contract's `.rt` block). OPT-IN BY PLACEHOLDER, with no default:
-  // the placeholder names what is being searched ("Search roles", "Search categories"), and a
-  // generic default would put an unlabelled box on Site settings, whose four fixed panels have
-  // nothing to filter. Absent = no search row, exactly as before.
+  // the placeholder names what is being searched ("Search roles", "Search categories").
+  // Absent = no search row, exactly as before.
+  //
+  // ⚠ THIS COMMENT USED TO ARGUE SITE SETTINGS HAD NOTHING TO FILTER, and the original reasoning
+  // is kept rather than deleted: "a generic default would put an unlabelled box on Site settings,
+  // whose four fixed panels have nothing to filter."
+  // IT WAS RIGHT ABOUT THE NAMES AND WRONG ABOUT THE CONTENT. Four fixed names are not worth a
+  // filter — but `keywords` above carries the vocabulary of the FIELDS inside them, so searching
+  // "resume" now surfaces Links. The opt-in stays; settings opts in.
   searchPlaceholder?: string;
   onRemoveItem?: (id: string) => void;
   // Reorder capability. Renders per-item up/down controls; the consumer applies
@@ -123,7 +138,9 @@ export function ListDetailLayout({
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
   const visibleSections = q
-    ? sections.filter((s) => `${s.name} ${s.meta ?? ""}`.toLowerCase().includes(q))
+    ? sections.filter((s) =>
+        `${s.name} ${s.meta ?? ""} ${s.keywords ?? ""}`.toLowerCase().includes(q)
+      )
     : sections;
 
   // Deep-link support: studio search navigates to /studio/<page>?item=<id> and
