@@ -27,7 +27,7 @@ import type { BlogBlockKind, BlogRawValue } from "@/lib/blog/blocks-raw";
 const img = () => ({
   src: null,
   alt: "",
-  width: null,
+  width: null, intrinsicWidth: null, intrinsicHeight: null,
   rotate: null,
   translateX: null,
   translateY: null,

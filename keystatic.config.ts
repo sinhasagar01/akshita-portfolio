@@ -47,6 +47,11 @@ function imgSpecFields(base: CollectionImageBase) {
     }),
     alt: fields.text({ label: "Alt text" }),
     width: fields.number({ label: "Rendered width (px, optional)" }),
+    // ⚠ THE SOURCE ASSET'S OWN SIZE, not a rendered one. A static import carries it implicitly; a
+    // content path cannot, so without these `DeviceImage` falls back to a canonical phone aspect
+    // and renders a wide footer strip in a tall box. Optional — absent keeps the old fallback.
+    intrinsicWidth: fields.number({ label: "Source width (px, optional)" }),
+    intrinsicHeight: fields.number({ label: "Source height (px, optional)" }),
     rotate: fields.number({ label: "Rotation (degrees, desktop only, optional)" }),
     translateX: fields.number({ label: "Translate X (px, desktop only, optional)" }),
     translateY: fields.number({ label: "Translate Y (px, desktop only, optional)" }),
@@ -524,6 +529,36 @@ export default config({
                         title: fields.text({ label: "Title" }),
                         body: fields.text({ label: "Body — supports **bold**", multiline: true }),
                         image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
+                        // ⚠ A REAL CONDITIONAL, NOT FLAT FIELDS. Unlike beforeAfterStory's
+                        // rating/after — where the flat pair is genuinely two values — these arms
+                        // are MUTUALLY EXCLUSIVE. Flattening them would put a `screenFull` beside a
+                        // `screenBody` and let an author fill both, which the render shape cannot
+                        // represent. `none` is the default, so a plain feature carries no screen.
+                        screen: fields.conditional(
+                          fields.select({
+                            label: "Auto-scroll screen",
+                            options: [
+                              { label: "None", value: "none" },
+                              { label: "Single screen", value: "full" },
+                              { label: "Scrolling body + pinned footer", value: "split" },
+                            ],
+                            defaultValue: "none",
+                          }),
+                          {
+                            none: fields.empty(),
+                            full: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Screen" }),
+                            split: fields.object({
+                              body: fields.object(
+                                { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                                { label: "Scrolling body" }
+                              ),
+                              footer: fields.object(
+                                { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                                { label: "Pinned footer" }
+                              ),
+                            }),
+                          }
+                        ),
                       }),
                       { label: "Features", itemLabel: (props) => props.fields.title.value }
                     ),

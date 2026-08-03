@@ -123,7 +123,7 @@ function DeviceImageInner({
     );
   }
 
-  const { src, alt, width, height, rotate, translate, z, unoptimized } = image;
+  const { src, alt, width, height, rotate, translate, z, unoptimized, intrinsicWidth, intrinsicHeight } = image;
   const hasTransform = rotate != null || translate != null;
   const transform = hasTransform
     ? `rotate(${rotate ?? 0}deg) translate(${translate?.[0] ?? 0}px, ${translate?.[1] ?? 0}px)`
@@ -132,11 +132,21 @@ function DeviceImageInner({
   if (typeof src === "string") {
     // Size the wrapper by the given dimension; the other derives from the aspect.
     const sizing = height != null ? { height } : { width: width ?? 248 };
+    // ⚠ THE TRUE ASPECT WHEN CONTENT SUPPLIES IT, the canonical bezel only as a fallback. A static
+    // import knows its own shape; a path string does not, so this used to force EVERY content
+    // image into a phone-shaped box. Measured on boat-crest, 19 of 25 images are a different shape
+    // from that box and two of them are wide footer strips at 4.33 and 3.77 — `object-contain`
+    // stops the distortion but not the letterboxing. Absent dims keep the old behaviour exactly,
+    // so nothing already shipped moves.
+    const aspect =
+      intrinsicWidth != null && intrinsicHeight != null
+        ? `${intrinsicWidth} / ${intrinsicHeight}`
+        : `${BEZEL_W} / ${BEZEL_H}`;
     return (
       <span
         {...editProps}
         className={`cs-flatten relative block max-w-full drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)] ${className ?? ""}`}
-        style={{ ...sizing, aspectRatio: `${BEZEL_W} / ${BEZEL_H}`, transform, zIndex: z }}
+        style={{ ...sizing, aspectRatio: aspect, transform, zIndex: z }}
       >
         <Image
           src={src}

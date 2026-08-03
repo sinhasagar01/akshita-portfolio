@@ -549,7 +549,9 @@ const FeatureRowsForm: ComponentType<BlockFormProps<"featureRows">> = ({ value, 
       category: "",
       title: "",
       body: "",
-      image: { src: null, alt: "", width: null, rotate: null, translateX: null, translateY: null, z: null, frame: "" },
+      image: { src: null, alt: "", width: null, intrinsicWidth: null, intrinsicHeight: null, rotate: null, translateX: null, translateY: null, z: null, frame: "" },
+      // `none` is the resting arm — a plain feature row carries no auto-scroll screen.
+      screen: { discriminant: "none" as const, value: null },
     })}
     addLabel="Add feature"
     itemNoun="Feature"

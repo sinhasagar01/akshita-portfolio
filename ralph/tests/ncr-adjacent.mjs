@@ -85,10 +85,20 @@ for (const slug of slugs) {
   t(`/projects/${slug} is served (${bespoke ? "literal" : "dynamic"} route)`, served, true);
 }
 
-// The decision-#3 guard, stated directly: boat-crest is bespoke, has its own literal
-// route dir, and every bespoke slug is a real content entry (never an orphan href).
-t("boat-crest is a bespoke slug", BESPOKE_SLUGS.has("boat-crest"), true);
-t("boat-crest has a literal route", existsSync(path.join(projectsRoute, "boat-crest", "page.tsx")), true);
+/* ⚠ THE DECISION-#3 GUARD, INVERTED — boat-crest is no longer bespoke, and that is the point.
+ * These two used to assert it WAS: a member of BESPOKE_SLUGS with its own literal route dir. Its
+ * body is now `content/projects/boat-crest.yaml` and it renders through the ordinary `[slug]`
+ * route like every other study, so both facts are deliberately false and are asserted as such
+ * rather than deleted — a removed assertion leaves no record that the thing it guarded moved.
+ *
+ * The SET survives, empty, because it is the mechanism that made the literal-route escape hatch
+ * safe. The invariant below is the one worth keeping and it now holds vacuously, which is why the
+ * emptiness is asserted first: without that, "every bespoke slug is real content" would pass by
+ * having nothing to check and nobody would know the difference. */
+t("BESPOKE_SLUGS is empty — the escape hatch survives with no user", BESPOKE_SLUGS.size, 0);
+t("…so boat-crest is no longer bespoke", BESPOKE_SLUGS.has("boat-crest"), false);
+t("…and its literal route is gone", existsSync(path.join(projectsRoute, "boat-crest", "page.tsx")), false);
+t("…while it is still a real content entry served by the dynamic route", slugs.includes("boat-crest"), true);
 for (const b of BESPOKE_SLUGS) {
   t(`bespoke slug "${b}" is a real content entry`, slugs.includes(b), true);
 }
