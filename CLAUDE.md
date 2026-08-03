@@ -85,10 +85,16 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   | Site | What it draws |
   |---|---|
   | `globals.css` `.logo-sig` with `SiteHeader.tsx` | the wordmark "Akshita" in the nav, 29px, every page |
-  | `HeroSection.tsx` | the home page's single `h1`, `clamp(3rem, 6.5vw, 5rem)`, accent-500 |
   | `SiteFooter.tsx` | "Akshita Singh", 42px |
   | `HeroCover.tsx`, twice | the watermark word behind each case-study hero |
   | `HeroSection.tsx`, `ProcessSection.tsx` | two inline-styled script words |
+
+  **⚠ AND ONE SITE ASKS FOR IT AND DOES NOT GET IT, WHICH CORRECTS AN EARLIER VERSION OF THIS
+  LIST.** The home page's single `h1` in `HeroSection.tsx` carries `font-script` and **renders
+  Fraunces**, because the unlayered `h1` rule outranks the utility. Measured in the browser, not
+  inferred. So the brand question is smaller than six sites plus a heading — the heading is
+  already not cursive, and has never been. Making it cursive would be a change, not a
+  restoration. `cascade-public` registers it.
 
   Caveat is the other cursive face and is a single component, the handwritten scrawl in
   `AnnotatedImage.tsx`. Changing either is a question about the brand rather than about the
