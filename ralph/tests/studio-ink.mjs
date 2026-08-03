@@ -921,7 +921,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // the count moves by two rather than by five. That is the shape this count protects: a status
     // dot and a rounded chip, the same family as the save bar's state dot and BlogPostList's
     // published marker. F5j names them.
-    t("F5: the 37 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 37);
+    t("F5: the 36 full pills survive (37 before #293 retired the Hand-built chip) — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 36);
     t("F5j: …and both arrivals are the resize grip's mark and its dots, in one component",
       (code("components/studio/StudioResizeGrip.tsx").match(/rounded-full/g) ?? []).length, 2);
     t("F5i: …and the arrival is the save bar's state dot, which no consumer can restyle",
@@ -937,9 +937,12 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
         && (code("components/studio/CaseStudyRow.tsx").match(/rounded-full/g) ?? []).length === 1, true);
     t("F5g: …and the two departures are the old row's template pill and Bespoke badge",
       (code("components/studio/CaseStudyIndex.tsx").match(/rounded-full/g) ?? []).length, 0);
-    t("F5f: …and the 32nd is the Hand-built chip, beside the template chip it matches in shape",
-      /rounded-full border border-accent-500\/35[\s\S]{0,120}Hand-built/.test(
-        code("components/studio/SectionsEditPanel.tsx")), true);
+      /* ⚠ F5f's SUBJECT IS GONE. It named the 32nd pill as the "Hand-built" chip in the crumb row,
+       * which only ever appeared on a bespoke study; #293 removed the concept, so the chip went with
+       * it and the census below drops by one. Asserted ABSENT rather than deleted, so a chip
+       * reappearing without its machinery would be caught. */
+      t("F5f: …and the Hand-built chip is gone, because no study is hand-built any more",
+        /Hand-built/.test(code("components/studio/SectionsEditPanel.tsx")), false);
     t("F5e: …and the 31st is the filter-row preview, which copies the public tab's own radius",
       /rounded-full border px-3 py-1 text-\[12px\] font-semibold capitalize/.test(
         code("components/studio/DetailsCanvas.tsx")), true);
@@ -1778,71 +1781,43 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     /facts: \{ role: "", type: "", platform, timeline: "" \}/.test(canvas), true);
 }
 
-/* ---- C13 · THE BESPOKE THREE-PANE — HAZARD 29 --------------------------------------------
- * boat-crest is hand-built, `BESPOKE_SLUGS` gates the fetch, and opening it showed "the details
- * strip and a read-only notice, AND NOTHING ELSE" — on the FIRST slug alphabetically, the
- * canonical example everywhere in this repo. It read as a broken editor rather than a different
- * kind of study, and it had already cost coverage once. */
+/* ---- C13 · HAZARD 29's SURVIVING HALF -------------------------------------------------------
+ *
+ * ⚠ THIS BLOCK USED TO GOVERN THE BESPOKE THREE-PANE and most of it is deliberately gone. Its
+ * subject was boat-crest: hand-built, its fetch gated by `BESPOKE_SLUGS`, showing a read-only
+ * notice and a "Hand-built" chip because there were no sections to arrange. **#292 made it content
+ * and #293 deleted the concept**, so eleven of these assertions had no subject left — the empty
+ * sections array, the suppressed Board, the absent Editor|Board toggle, the rail notice, the chip.
+ * They are removed rather than rewritten, because a bespoke study is not a state this editor has.
+ *
+ * WHAT SURVIVES IS THE PART THAT WAS NEVER ABOUT BESPOKE. Hazard 29 was "an empty list under a
+ * count heading is what a broken fetch looks like" — and that is reachable on ANY empty study, not
+ * just the one that could never have sections. The three zero states stay separated, and the save
+ * bar's two remaining absence rules (Details, and a collapsed inspector) were always their own
+ * reasons and arrived later than the bespoke one. */
 {
   const panel = code("components/studio/SectionsEditPanel.tsx");
-  const projects = code("components/studio/ProjectsEditPanel.tsx");
   const rail = code("components/studio/SectionsRail.tsx");
 
-  /* DERIVED FROM `BESPOKE_SLUGS`, NEVER A SECOND LIST. A second list of bespoke slugs is the
-   * derivation-keyed-on-a-list failure E1b already produced once. */
-  t("C13: bespoke is read from BESPOKE_SLUGS, not re-listed",
-    /BESPOKE_SLUGS\.has\(slug\)/.test(projects)
-      && !/\["boat-crest"\]/.test(panel) && !/\["boat-crest"\]/.test(rail), true);
-
-  /* ONE SHELL, NOT A SECOND EDITOR. "A case study has ONE editor at ONE URL" is locked, and the
-   * `[slug]/body` route is what a second surface for the same content becomes. */
-  t("C13: a bespoke study goes through the SAME shell, with the sections machinery suppressed",
-    /bespoke=\{bespoke\}/.test(projects) && /bespoke\?: boolean;/.test(panel), true);
-  t("C13: …and it is handed an empty sections array rather than a faked load",
-    /sections=\{bespoke \? \[\] : \(sectionsData \?\? \[\]\)\}/.test(projects), true);
-
-  /* NO BOARD, SO NO TOGGLE. A control that cannot do anything is worse than an absent one —
-   * ABSENT, not disabled, because a disabled toggle still asserts a Board exists. */
-  t("C13: no Editor|Board toggle on a bespoke study",
-    /\{!bespoke && \(\s*<>/.test(panel), true);
-  t("C13: …and no Board either, since BESPOKE_SLUGS gates the write path its Add button would need",
-    /\{!bespoke && showBoard && boardNode\}/.test(panel), true);
-
-  /* ONE SAVE, NOT TWO. #200 INVERTED: its defect was two buttons claiming to be the same action;
-   * this would be one button naming an object with nothing behind it. The write path would not
-   * have refused it honestly — only `delete-entry` carries a BESPOKE_SLUGS guard, and the
-   * serializer's refusal surfaces as a generic "Save failed. Try again.". */
-  /* RE-ANCHORED OFF `<footer>` IN THE SAVE BAR PR — the element is gone, the guard is not. */
-  t("C13: the sections save bar is absent on a bespoke study — it has no sections draft to commit",
-    /\{bespoke \|\| showDetails \|\| ins\.collapsed \? null : sectionsBarNode\}/.test(panel), true);
-  /* AND IT IS ABSENT ON THE DETAILS VIEW TOO, which is a different reason from the bespoke one
-   * and arrived later. Details had TWO bars stacked in one 320px column — its own, plus the
-   * sections bar the pane always carried — offering a save for an object the visible form does
-   * not edit. `detailsNode` brings the save that matches what is on screen. */
-  t("C13: …and the sections bar is absent on the Details view, where the form on screen is not sections",
+  /* THE SAVE BAR IS ABSENT ON THE DETAILS VIEW — a different reason from the retired bespoke one.
+   * Details had TWO bars stacked in one 320px column, offering a save for an object the visible
+   * form does not edit. */
+  t("C13: the sections bar is absent on the Details view, where the form on screen is not sections",
     /showDetails \|\| ins\.collapsed \? null : sectionsBarNode\}/.test(panel), true);
-  /* AND ABSENT FROM THE PANE WHEN THE PANE IS SHUT — the third reason, added with the collapse.
-   * A bar nested in a zero-width pane is clipped with it, taking the save AND its state line off
-   * screen. It is docked to the canvas instead; `studio-save-bar` E6 pins the other end. */
+  /* AND ABSENT FROM A SHUT PANE — the third reason, added with the collapse. A bar nested in a
+   * zero-width pane is clipped with it, taking the save AND its state line off screen. */
   t("C13: …and absent from a collapsed inspector, because it docks to the canvas instead",
     /ins\.collapsed \? \(showDetails \? detailsBar : sectionsBarNode\) : null/.test(panel), true);
 
-  /* THE ZERO STATE IS THE WHOLE HAZARD. An empty list under a count heading is what a broken
-   * fetch looks like, so the rail states its zero and says why. */
-  t("C13: the rail states `none` rather than a bare 0 under a count heading",
-    /bespoke \? "Sections \\u00b7 none"/.test(rail) || /bespoke \? "Sections · none"/.test(rail), true);
-  t("C13: …and the notice lives in the RAIL, where an author looks for sections",
-    /Hand-built case study/.test(rail) && !/Hand-built case study/.test(projects), true);
-  t("C13: …and it says nothing FAILED, which is the difference the hazard turns on",
-    /Nothing failed to load/.test(rail), true);
-
-  /* THE SEARCH COPY WAS REACHABLE ON ANY EMPTY STUDY, not just this one. "No sections match that
-   * search" answered three different questions — none exist, none match, none at all. */
+  /* THE ZERO STATE IS THE WHOLE OF WHAT HAZARD 29 STILL MEANS. "No sections match that search"
+   * answered three different questions — none exist, none match, none at all — and was reachable
+   * on any empty study. */
   t("C13: the three zero states are separated, so an empty study is not told about a search",
     /sections\.length === 0\s*\?\s*"No sections yet/.test(rail), true);
-
-  t("C13: the study announces what it is in the crumb row, before anyone looks for what is missing",
-    /\{bespoke && \([\s\S]{0,220}?Hand-built/.test(panel), true);
+  /* ⚠ AND THE RETIRED HALF IS ASSERTED ABSENT, not merely deleted from this file. A stray
+   * `bespoke` prop left behind would be dead machinery nothing would ever exercise again. */
+  t("C13: no bespoke machinery survives in the panel or the rail",
+    /bespoke\?: boolean;/.test(panel) || /bespoke\?: boolean;/.test(rail), false);
 }
 
 /* ---- C14 · THE LOADING WINDOW IS NOT A PAGE --------------------------------------------------

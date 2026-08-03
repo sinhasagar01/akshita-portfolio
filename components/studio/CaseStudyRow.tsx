@@ -18,11 +18,9 @@
 // size is its CONTENT, so a long title would push the `1fr` track wider than its share and the
 // truncation would never engage — the row would simply overflow instead. This is the one place
 // where the flexible track needs a floor stated, and it is why `truncate` below works at all.
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectListItem } from "@/lib/keystatic";
 import {
   activationProps,
-  BespokeChip,
   HeroPlate,
   ITEM_FOCUS,
   PlatformTag,
@@ -52,7 +50,6 @@ export default function CaseStudyRow({
   onMove: (direction: "up" | "down") => void;
   onRemove: () => void;
 }) {
-  const bespoke = BESPOKE_SLUGS.has(item.slug);
 
   return (
     <div
@@ -103,7 +100,6 @@ export default function CaseStudyRow({
 
       {/* 5 · the meta — its own grid, so the chips cannot stretch either */}
       <div className="hidden items-center gap-3 whitespace-nowrap md:grid md:grid-flow-col">
-        {bespoke && <BespokeChip />}
         <PlatformTag template={item.template} />
         <SectionCount count={item.sectionCount} className="text-[11.5px] leading-none" />
       </div>
@@ -122,14 +118,13 @@ export default function CaseStudyRow({
       <button
         type="button"
         aria-label={`Remove ${item.title}`}
-        aria-disabled={bespoke}
         onClick={(e) => {
           stopAll(e);
           onRemove();
         }}
         onKeyDown={stopAll}
         className={`grid size-[26px] place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors [&>svg]:size-3.5 ${
-          bespoke ? "opacity-25" : "hover:bg-cream-200 hover:text-ink-950"
+          "hover:bg-cream-200 hover:text-ink-950"
         }`}
       >
         <IconX />

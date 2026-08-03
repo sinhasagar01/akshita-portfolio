@@ -275,8 +275,8 @@ if (inert.length) {
   for (const c of inert) console.log(`    ${c.where}  <${c.tag}> \`${c.cls}\` (${c.property})`);
   console.log("");
 }
-t("C2: the inert inventory is exactly the 12 utilities that agree with their reset (8 <p> line-heights, plus AreaHeader and StudioModal headings) — a NEW one means a new place an edit will silently do nothing",
-  inert.length, 12);
+t("C2: the inert inventory is exactly the 11 utilities that agree with their reset (7 <p> line-heights, plus AreaHeader and StudioModal headings) — a NEW one means a new place an edit will silently do nothing. 12 before #293: the 8th <p> was the rail's hand-built notice, removed with the bespoke concept",
+  inert.length, 11);
 
 /* ================================================ D. THE FIX ITSELF IS PRESENT
  * C1 passes just as well if the bands are deleted. These pin the shape of the repair. */

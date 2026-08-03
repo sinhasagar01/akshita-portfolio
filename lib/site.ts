@@ -1,6 +1,5 @@
 import { statSync } from "node:fs";
 import path from "node:path";
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 
 /**
  * Single source of truth for the site's identity and base URL. Everything that needs an
@@ -69,29 +68,17 @@ export function blogOgImageUrl(slug: string): string {
 /**
  * Best-effort last-modified date for a project, used by the sitemap and JSON-LD.
  * There is no date field in the content model, so we read the file mtime: the Keystatic
- * YAML for content-driven studies, plus the bespoke TS module for code-driven ones — the
- * newest of the two. Falls back to the current date if neither file can be stat'd.
+ * The entry's YAML. There used to be a second candidate — a bespoke TS module for the one
+ * code-driven study — and the newest of the two won; `boat-crest` became content in #292, so every
+ * study now has exactly one source file. Falls back to the current date if it cannot be stat'd.
  */
 export function projectLastModified(slug: string): Date {
-  const candidates = [
-    path.join(process.cwd(), "content", "projects", `${slug}.yaml`),
-  ];
-  if (BESPOKE_SLUGS.has(slug)) {
-    candidates.push(
-      path.join(process.cwd(), "lib", "case-studies", `${slug}.ts`),
-    );
+  try {
+    return new Date(statSync(path.join(process.cwd(), "content", "projects", `${slug}.yaml`)).mtimeMs);
+  } catch {
+    // No such entry — fall back to now rather than to a wrong date.
+    return new Date();
   }
-
-  let newest = 0;
-  for (const file of candidates) {
-    try {
-      newest = Math.max(newest, statSync(file).mtimeMs);
-    } catch {
-      // missing file — ignore, fall through to other candidates
-    }
-  }
-
-  return newest > 0 ? new Date(newest) : new Date();
 }
 
 /**

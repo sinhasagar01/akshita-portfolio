@@ -11,7 +11,6 @@
 // special-cased boat-crest to a different path would 404. Part A pins the pure order
 // resolver; part B proves every real slug resolves to a route that exists in the tree.
 import { adjacentByOrderIndex } from "../../lib/case-studies/adjacent-project.ts";
-import { BESPOKE_SLUGS } from "../../lib/case-studies/types.ts";
 import { readdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -72,36 +71,31 @@ const slugs = readdirSync(contentDir)
 t("exactly four content case studies", slugs.length, 4);
 t("the four expected slugs", slugs, ["boat-crest", "elevate-one-view", "fosfor-ai", "fosfor-data-profiling"]);
 
-// projectPath (lib/site.ts) serves every slug at /projects/<slug>. A bespoke slug has a
-// LITERAL route dir at that same path; every other slug is served by the [slug] dynamic
-// route. We assert the actual file that serves /projects/<slug> exists, per slug.
 const projectsRoute = path.join(root, "app", "(portfolio)", "projects");
 const dynamicRoute = path.join(projectsRoute, "[slug]", "page.tsx");
 t("the [slug] dynamic route exists", existsSync(dynamicRoute), true);
+
+// projectPath (lib/site.ts) serves every slug at /projects/<slug>. There used to be a fork here:
+// a bespoke slug was served by a literal route dir and everything else by the dynamic one. #293
+// removed the concept, so there is exactly one route and every slug goes through it.
 for (const slug of slugs) {
-  const bespoke = BESPOKE_SLUGS.has(slug);
-  const literal = path.join(projectsRoute, slug, "page.tsx");
-  const served = bespoke ? existsSync(literal) : existsSync(dynamicRoute);
-  t(`/projects/${slug} is served (${bespoke ? "literal" : "dynamic"} route)`, served, true);
+  t(`/projects/${slug} is served by the dynamic route`, existsSync(dynamicRoute), true);
 }
 
-/* ⚠ THE DECISION-#3 GUARD, INVERTED — boat-crest is no longer bespoke, and that is the point.
- * These two used to assert it WAS: a member of BESPOKE_SLUGS with its own literal route dir. Its
- * body is now `content/projects/boat-crest.yaml` and it renders through the ordinary `[slug]`
- * route like every other study, so both facts are deliberately false and are asserted as such
- * rather than deleted — a removed assertion leaves no record that the thing it guarded moved.
- *
- * The SET survives, empty, because it is the mechanism that made the literal-route escape hatch
- * safe. The invariant below is the one worth keeping and it now holds vacuously, which is why the
- * emptiness is asserted first: without that, "every bespoke slug is real content" would pass by
- * having nothing to check and nobody would know the difference. */
-t("BESPOKE_SLUGS is empty — the escape hatch survives with no user", BESPOKE_SLUGS.size, 0);
-t("…so boat-crest is no longer bespoke", BESPOKE_SLUGS.has("boat-crest"), false);
-t("…and its literal route is gone", existsSync(path.join(projectsRoute, "boat-crest", "page.tsx")), false);
-t("…while it is still a real content entry served by the dynamic route", slugs.includes("boat-crest"), true);
-for (const b of BESPOKE_SLUGS) {
-  t(`bespoke slug "${b}" is a real content entry`, slugs.includes(b), true);
-}
+/* ⚠ THE DECISION-#3 GUARD IS GONE, AND ITS ABSENCE IS THE ASSERTION NOW. It used to say boat-crest
+ * WAS bespoke with its own literal route; #292 made it content and #293 deleted the concept
+ * entirely. What is left worth checking is that no literal project route survives — a stray one
+ * would silently shadow the dynamic route for that slug and nothing else would notice. */
+/* ⚠ A ROUTE IS A `page.tsx`, NOT A DIRECTORY — which this asserted first and got wrong. A stray
+ * `.DS_Store` was holding the deleted `boat-crest/` directory alive, and a directory with no page
+ * routes nothing. Testing for the file is testing for the thing that would actually shadow. */
+t("no project has a literal route — the escape hatch is gone, not merely unused",
+  readdirSync(projectsRoute, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && d.name !== "[slug]")
+    .filter((d) => existsSync(path.join(projectsRoute, d.name, "page.tsx")))
+    .map((d) => d.name),
+  []);
+t("…and boat-crest is a real content entry served by that one route", slugs.includes("boat-crest"), true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);

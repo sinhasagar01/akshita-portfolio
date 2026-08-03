@@ -52,7 +52,6 @@ export default function SectionsRail({
   onMove,
   needsImage,
   detailsDirty,
-  bespoke,
 }: {
   sections: readonly RawSection[];
   /** Stable ids, parallel to `sections` — the same array the panel keys everything from. */
@@ -67,7 +66,6 @@ export default function SectionsRail({
   detailsDirty: boolean;
   /** A hand-built study has no sections and cannot gain any. The rail then holds ONE item and has
    *  to SAY it holds one — see the zero state below, which is the whole of hazard 29. */
-  bespoke?: boolean;
 }) {
   const [query, setQuery] = useState("");
 
@@ -131,7 +129,7 @@ export default function SectionsRail({
         </button>
 
         <p className={`${labelCls} px-3 pb-1 pt-3`}>
-          {bespoke ? "Sections \u00b7 none" : `Sections \u00b7 ${sections.length}`}
+          {`Sections \u00b7 ${sections.length}`}
         </p>
 
         {/* AN EMPTY LIST UNDER A COUNT HEADING IS WHAT A BROKEN FETCH LOOKS LIKE, and that is the
@@ -142,15 +140,7 @@ export default function SectionsRail({
             three different facts and the old copy answered all three with the search one. A rail
             reading "No sections match that search" when there is no search is the hazard restated
             in new words, and it was reachable on any empty study, not just this one. */}
-        {bespoke ? (
-          <div className="mx-3 mb-3 mt-1 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-3 py-3">
-            <p className="text-[12.5px] font-medium text-ink-950">Hand-built case study</p>
-            <p className="mt-1 text-[12px] leading-relaxed text-ink-600">
-              This study&rsquo;s sections and its work-filter category are set in code, not here.
-              Nothing failed to load — there is nothing to load. The details above stay editable.
-            </p>
-          </div>
-        ) : shown.length === 0 ? (
+        {shown.length === 0 ? (
           <p className="px-3 py-6 text-center text-[12px] text-text-subtle">
             {sections.length === 0
               ? "No sections yet. Add one from the Board."
