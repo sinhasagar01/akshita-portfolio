@@ -1694,6 +1694,20 @@ All prior locked decisions remain. Added across this session:
 
 ## WORKING RULES
 
+**⚠ A MEASUREMENT THAT FAVOURS THE ANSWER YOU WANT IS THE ONE TO RE-INSTRUMENT FIRST.** #297 sized
+the non-editable background to decide whether "drag the background" was viable. A crude
+`elementFromPoint` + own-text-node classifier mis-classified a real paragraph as background —
+**biasing the result toward the design that was already preferred.** The figures that shipped come
+from `caretRangeFromPoint` PLUS a check that the point falls inside the text node's own painted rect
+(`caretRangeFromPoint` alone snaps to the nearest text and reads padding as text), validated in both
+directions before use: mid-paragraph reads TEXT, the page edge reads BACKGROUND.
+**THE TELL THAT IT WAS MEASURING RATHER THAN AGREEING IS THAT THE CORRECTED INSTRUMENT RETURNED A
+HIGHER FIGURE — 74% against 62%.** A convenient instrument usually gets more convenient, not less.
+Same family as `studio-type`'s oklch parse, which made every ratio read ≈1.0 while remaining
+perfectly self-consistent: an instrument can be wrong and internally coherent at the same time, so
+coherence is not evidence.
+
+
 All prior rules remain. Added or sharpened across this session:
 
 - **A SHARED SEAM IS THE OBVIOUS HOME FOR A CHANGE AND USUALLY THE WRONG ONE**, because putting
@@ -7197,6 +7211,58 @@ the wrong fix (copy blog's origin). lint, tsc and the production build clean.
 **NOT VERIFIED ON SCREEN BY ME.** `/studio` is owner-gated and the session expired during this
 session; I will not enter the password. The change is one class on one element, asserted and
 mutation-proven, but the visual confirmation is the owner's.
+
+---
+
+### #297 — DRAG-TO-PAN ON THE CASE-STUDY CANVAS
+
+**The canvases zoomed but could not be moved by hand.** Now a drag moves the case-study canvas, so
+any section can be placed where the author wants it.
+
+**⚠ THE CANVAS IS AN EDITOR, WHICH IS THE WHOLE DESIGN PROBLEM.** Click already places a caret and
+click-drag already selects text, so a plain drag-to-pan destroys both. **The gesture is "drag the
+background", and it never competes with text because it never STARTS on text** — a property, not a
+heuristic that usually holds. Space+drag is the override for when the cursor is over a field.
+
+**IT IS VIABLE BECAUSE OF A MEASUREMENT, and the first instrument was wrong** — see the working rule
+added above, which is the more useful half of this PR. Across 62 windows each the size of what 150%
+shows: **74% background at the densest, 78% at the 10th percentile, 82% median, and no window under
+30%.**
+
+**⚠ THE `scroll-smooth` CONFLICT DISSOLVED RATHER THAN BEING TRADED.** The canvas slot's
+`scroll-smooth` is load-bearing — T0's reveal passes NO behavior key precisely so the reduced-motion
+reset wins for free (#198, #258) — and a drag against it is unusable: measured, a direct
+`scrollLeft = 500` reads back **0** and reaches 480 only after 400ms. `scrollTo({ behavior:
+"instant" })` lands immediately and **overrides per call, touching no CSS**.
+**AND IT IS PREFERRED OVER FLIPPING `style.scrollBehavior` FOR THE DRAG'S DURATION** — the obvious
+alternative, and the one that breaks quietly: a drag interrupted by the pointer being released
+outside the window never restores it, leaving the canvas permanently non-smooth and T0's reveal
+silently instant. **Both halves are asserted, and the second is one only an ABSENCE assertion can
+catch.**
+
+**THE SPACE LATCH IS MODELLED AS A STATE MACHINE BECAUSE ITS TRANSITIONS ARE THE BEHAVIOUR**, not
+its resting cases — the shape #248 and #249 kept producing. Three would have shipped broken: Space
+held while focus moves INTO a field, a field focused while Space is already held, and the window
+losing focus mid-hold (a keyup that never arrives, leaving the latch alive across an alt-tab).
+
+**⚠ SCOPE IS THE CASE STUDY ONLY, AND THE DEFERRAL HAS A NAMED TRIGGER.** Blog drives no box, so a
+transform above fit creates no scrollable overflow: **at 150% its 746px column draws 1119px, leaving
+roughly 325px of real content unreachable at any level above fit.** Making it pannable means giving
+its wrapper the drawn width and converging it on the case study's origin-plus-centring model —
+**adjacent to the LOCKED 68ch measure that #286 already moved once**, and not a thing to reopen
+inside a gesture PR. **Revisit when someone reports that zoomed blog content is unreachable**, which
+fires from USING the editor — the only thing that has caught any of this.
+
+Gates: ralph **2286 → 2313**, `canvas-pan` net-new at 27. **16 mutations, 16 killed** — including
+both survivors after re-anchoring, one of which was an ORDER-DEPENDENT assertion that let a
+`behavior` key slip past by being placed first. `studio-resize` H4 pinned the whole
+`style={{ height, width }}` literal and broke when `cursor` joined it; re-anchored on the two keys.
+Public DOM byte-identical on all four studies. lint, tsc and the production build clean.
+
+**⚠ UNVERIFIED, AND NAMED RATHER THAN ROUTED AROUND.** `/studio` is owner-gated and my session
+expired: that a drag tracks the cursor on screen, that a space typed in a field is still a space,
+and that click-to-caret survives, are all the owner's to drive. #211 established that reporting NOT
+MEASURED beats claiming a pass never performed.
 
 ---
 
