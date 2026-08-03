@@ -572,5 +572,40 @@ t("I: at the widest sidebar the reference laptop keeps 9px of headroom, and the 
   [LAPTOP_PAGE - (SIDEBAR_MAX_PX + CS_PANES_SUM + INSPECTOR_PX),
    (LAPTOP_PAGE - SIDEBAR_MAX_PX - LIST_PX - INSPECTOR_PX) / CS_CANVAS_WIDTH_PX > CS_MIN_SCALE], [9, true]);
 
+
+/* ---- THE TWO CANVASES ZOOM THE SAME WAY, BY DIFFERENT MEANS -------------------------------
+ *
+ * Reported by the owner: the blog canvas scaled evenly from its centre while the case-study canvas
+ * stayed pinned to its left edge and grew rightward. Both are true statements about the same
+ * feature, and the reason they diverged is that only ONE of them drives a box.
+ *
+ * ⚠ SO THE FIX IS NOT TO MATCH THE `transform-origin`, WHICH IS THE TRAP HERE. Blog drives no
+ * width, so `top center` lets its content overflow evenly either side. The case study drives the
+ * pane's width to the DRAWN size — that is what gives the transform something to scroll — so
+ * `top left` is what keeps the box and the drawn result the same rectangle. Copying `top center`
+ * onto it would misalign the two: at 50% the surface draws from 266px while the pane still starts
+ * at 0. The box is centred instead, which is a layout fix rather than a transform one.
+ */
+{
+  const cs = code("components/studio/SectionsEditPanel.tsx");
+  const blog = code("components/studio/BlogBlocksEditPanel.tsx");
+
+  t("Z1: blog centres by ORIGIN, because it drives no box",
+    /transformOrigin: "top center"/.test(blog), true);
+  t("Z2: …and drives neither a width nor a height, which is what lets it",
+    /setWidth\(|setHeight\(/.test(blog), false);
+
+  t("Z3: the case study keeps `top left`, because its box IS the drawn rectangle",
+    /transformOrigin: "top left"/.test(cs), true);
+  t("Z4: …and it drives that box from the scale",
+    /setWidth\(CANVAS_WIDTH \* next\)/.test(cs), true);
+  /* ⚠ THE ACTUAL DEFECT. A block with an explicit width and no auto margin sits at its parent's
+   * left edge, so every zoom step added its growth on the right. */
+  t("Z5: …so the PANE is centred with an auto margin, which is what makes the zoom symmetric",
+    /className="case-study canvas-static mx-auto /.test(cs), true);
+  t("Z6: …and the case study did NOT copy blog's origin, which would misalign box from content",
+    /transformOrigin: "top center"/.test(cs), false);
+}
+
 console.log(`\nthree-pane result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
