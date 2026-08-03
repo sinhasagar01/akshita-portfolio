@@ -133,5 +133,42 @@ t("F2: …and hand-typed one is nowhere in the file",
 t("F3: the file still holds both bespoke blocks, so the counts above are not vacuous",
   /kind: "beforeAfterStory"/.test(boat) && /variant: "story"/.test(boat), true);
 
+/* ── G · THE CMS SEAM (A2) ────────────────────────────────────────────────────────────────── */
+
+const fmt = code("lib/studio/sections-format.ts");
+const cfg = code("keystatic.config.ts");
+const adapter = code("lib/case-studies/adapter.ts");
+const registry = code("components/studio/blocks/registry.tsx");
+
+/* ⚠ `omitEmpty` IS WHAT MAKES ADDING A FIELD POSSIBLE AT ALL. Every key in a shape is REQUIRED
+ * (the empties-preserved rule) and the sanitised object is dumped straight back to disk, so a new
+ * key rejects all existing content for being absent. Adding `variant` and `height` naively failed
+ * 147 assertions — that is the measured cost of not having this. */
+t("G1: obj() supports omit-when-empty keys", /omitEmpty\?: readonly \(keyof S & string\)\[\]/.test(fmt), true);
+t("G2: …and skips them only when absent or \"\", never when they carry a value",
+  /if \(omit\.has\(k\) && \(raw\[k\] === undefined \|\| raw\[k\] === ""\)\) continue;/.test(fmt), true);
+t("G3: featureRows' variant uses it, so the three shipped blocks never gain a `variant:` line",
+  /\{ omitEmpty: \["variant"\] \}/.test(fmt), true);
+/* ⚠ AND IT IS DECLARED FIRST, because `obj` rebuilds in DECLARED order — a key in the wrong
+ * position re-keys every block it touches and churns files nobody edited. */
+t("G4: …declared before `features`, matching the schema, so a present value lands in position",
+  /variant: str,\s*features: arrayOf/.test(fmt), true);
+
+t("G5: beforeAfterStory is in the schema", /beforeAfterStory: \{/.test(cfg), true);
+t("G6: …in the sanitizer's table", /beforeAfterStory: obj\(\{/.test(fmt), true);
+t("G7: …in the adapter's policed kind list", /"beforeAfterStory",/.test(adapter), true);
+t("G8: …and it has a real form, not a placeholder",
+  /beforeAfterStory: \{ empty: BLOCK_EMPTIES\.beforeAfterStory/.test(registry), true);
+
+/* ⚠ THE INTRINSIC HEIGHT SURVIVES THE ROUND TRIP AS ITS OWN FIELD. If it were folded into
+ * ImgSpec's rendered `height`, the scroll ratio would be computed from a layout number — the trap
+ * Part B pins on the render side, asserted here on the content side. */
+t("G9: the screen asset carries intrinsicHeight through the sanitizer",
+  /const screenAsset = imageObj\(\{ intrinsicHeight: numOrNull \}\);/.test(fmt), true);
+t("G10: …and the adapter nests the flat schema into the render shape rather than the components doing it",
+  /after: \{ body: screen\(o2\.afterBody, "afterBody"\), footer: screen\(o2\.afterFooter, "afterFooter"\) \}/.test(adapter), true);
+t("G11: …with an unset height falling to 0, which unitGeo already treats as non-scrollable",
+  /intrinsicHeight: num\(rec\(raw\)\.intrinsicHeight\) \?\? 0/.test(adapter), true);
+
 console.log(`\n  ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

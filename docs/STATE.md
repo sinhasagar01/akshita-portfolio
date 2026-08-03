@@ -6942,6 +6942,55 @@ wirings left it green. It now pins the count. lint, tsc and the production build
 
 ---
 
+### #291 — THE CMS LEARNS BOTH BLOCKS (PR A2 of three)
+
+**#290 converted the two bespoke blocks' TYPES and stopped there**, because adding their fields to
+the schema naively **failed 147 assertions**. This is that piece done properly, and the mechanism it
+needed is one helper.
+
+**⚠ WHY A NEW FIELD IS NOT A ONE-LINE CHANGE HERE.** Every key in a sanitizer shape is REQUIRED —
+the empties-preserved rule — and the sanitised object is dumped **straight back to disk**, with
+`preserved + dump({ sections }) === raw` byte for byte. So a new key **rejects all existing content
+for being absent**, and setting it to `undefined` instead would write a `variant: null` line into
+three case-study files nobody edited. `frame` already solved this by hand inside `imageObj`;
+**`obj` now takes `omitEmpty` and does it once**, so absent-or-`""` is dropped and a real value is
+kept **in its declared position** — the loop still walks the shape in order and merely skips.
+
+**PROVEN DIRECTLY RATHER THAN INFERRED.** Round-tripping `fosfor-ai.yaml` with the reader's injected
+`variant: ""` yields keys `["features"]` — the file never gains a line. With `"story"` it yields
+`["variant","features"]` — present, and first, so nothing re-keys.
+
+**`beforeAfterStory` IS NOW A REAL KIND, and the architecture made a half-measure impossible.**
+Adding it to the schema turned six exhaustive tables into compile errors at once — empties, the
+label map, the registry entry, `SectionMini`, the sanitizer's `VALIDATORS`, and the adapter's
+`AssertComplete` (which reported `["missing block kinds:", "beforeAfterStory"]`, the assertion the
+record notes was once inert). **So it could not ship without its form.**
+
+**⚠ THE SCHEMA IS FLAT AND THE RENDER SHAPE IS NESTED, and the adapter is where they meet.** Content
+stores `ratingFrom`/`ratingTo` and `afterBody`/`afterFooter` as siblings, because Keystatic forms
+edit flat fields far better than nested objects; the components want `rating: {from,to}` and
+`after: {body,footer}`. Doing the nesting in the adapter keeps both sides idiomatic and puts the one
+mapping in the layer whose whole job is translating content into a render shape.
+`intrinsicHeight` falls back to **0**, which `unitGeo` already treats as non-scrollable — an unset
+height renders a static screen rather than dividing by nothing.
+
+**A CENSUS MOVED, DELIBERATELY.** `block-image-preview` D1 pinned seven `ImgSpecFields` sites; the
+new block adds three. That number is the LIVENESS half of the gate — without it the forwarding
+check beside it could pass vacuously — so it is meant to be updated on purpose, and all three new
+sites forward their upload, which is what the assertion actually tests.
+
+Gates: ralph **2271 → 2284**. **6 mutations, 6 killed** — including omitting a key that carries a
+value (a real variant would vanish on save), declaring it out of order, and folding
+`intrinsicHeight` back into the plain image shape. **Public DOM still byte-identical on all four
+case studies against the pre-#290 baseline**, which is expected: no content uses the new kind yet
+and `variant` is absent everywhere. lint, tsc and the production build clean.
+
+**WHAT IS LEFT.** PR B — port boat-crest's 19KB from TypeScript to YAML and delete `BESPOKE_SLUGS`.
+Everything it needs now exists: both blocks are content-expressible, both have forms, and both
+render from the adapter. **Hazard 10 closes there, not here.**
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

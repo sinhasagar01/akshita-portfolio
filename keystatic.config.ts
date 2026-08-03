@@ -511,6 +511,12 @@ export default config({
                 featureRows: {
                   label: "Feature rows",
                   schema: fields.object({
+                    // ⚠ ONE BLOCK, TWO PRESENTATIONS. `featureStory` was a separate kind carrying
+                    // the IDENTICAL fields, so the Add menu offered two entries nothing told apart.
+                    // Plain text rather than a select-with-default: a default would inject `variant`
+                    // into every existing block, and ABSENT MUST KEEP MEANING "rows". The sanitizer
+                    // lists it under `omitEmpty`, so an empty value round-trips to no key at all.
+                    variant: fields.text({ label: "Layout (blank = rows, or \"story\")" }),
                     features: fields.array(
                       fields.object({
                         index: fields.text({ label: "Index, e.g. \"01\"" }),
@@ -545,6 +551,50 @@ export default config({
                     ),
                   }),
                   itemLabel: () => "Before / after",
+                },
+                // The scroll-pinned comparison story. It is `beforeAfter` plus its own card header
+                // (index/eyebrow/title/lead), a rating stat, and an `after` that is a two-layer
+                // auto-scroller rather than one image.
+                //
+                // ⚠ `intrinsicHeight` IS NOT `width`/`height`. It is the asset's own pixel height in
+                // 1030-space, which `deviceScroller.unitGeo` divides by to get the scroll ratio. A
+                // static import carries it intrinsically; a CMS path string cannot, and measuring at
+                // runtime is the decode race the scroller documents itself as being free of. So it
+                // is authored, and it is a DISTINCT field from the rendered heights on ImgSpec.
+                beforeAfterStory: {
+                  label: "Before / after (scroll story)",
+                  schema: fields.object({
+                    index: fields.text({ label: "Index, e.g. \"07\"" }),
+                    eyebrow: fields.text({ label: "Eyebrow" }),
+                    title: fields.text({ label: "Title" }),
+                    lead: fields.text({ label: "Lead — supports **bold**", multiline: true }),
+                    ratingFrom: fields.text({ label: "Rating before, e.g. \"2.3\"" }),
+                    ratingTo: fields.text({ label: "Rating after, e.g. \"4.2\"" }),
+                    pairs: fields.array(
+                      fields.object({
+                        title: fields.text({ label: "Screen name" }),
+                        tag: fields.text({ label: "Tag" }),
+                        before: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Before screen" }),
+                        afterBody: fields.object(
+                          { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                          { label: "After — scrolling body" }
+                        ),
+                        afterFooter: fields.object(
+                          { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                          { label: "After — pinned footer" }
+                        ),
+                        changes: fields.array(
+                          fields.object({
+                            emphasis: fields.text({ label: "Emphasis" }),
+                            rest: fields.text({ label: "Rest" }),
+                          }),
+                          { label: "Changes", itemLabel: (props) => props.fields.emphasis.value }
+                        ),
+                      }),
+                      { label: "Pairs", itemLabel: (props) => props.fields.title.value }
+                    ),
+                  }),
+                  itemLabel: () => "Before / after (scroll story)",
                 },
                 swatchTokens: {
                   label: "Swatch tokens",

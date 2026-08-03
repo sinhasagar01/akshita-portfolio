@@ -356,6 +356,7 @@ const BLOCK_KINDS = [
   "figureGrid",
   "featureRows",
   "beforeAfter",
+  "beforeAfterStory",
   "swatchTokens",
   "annotatedImage",
   "richText",
@@ -519,6 +520,10 @@ function adaptBlock(raw: unknown, at: string, ctx: AdaptCtx): Block {
     case "featureRows":
       return {
         kind,
+        // ⚠ ONLY "story" IS HONOURED; anything else falls to rows. Three shipped blocks carry no
+        // variant at all, so absent MUST mean rows — reading it permissively here is what stops a
+        // typo in content from silently restyling them.
+        ...(str(v.variant) === "story" ? { variant: "story" as const } : {}),
         features: arr(v.features).map((f, i): Feature => {
           const o2 = rec(f);
           return {
@@ -540,6 +545,39 @@ function adaptBlock(raw: unknown, at: string, ctx: AdaptCtx): Block {
             tag: str(o2.tag),
             before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, ctx),
             after: adaptImgSpec(o2.after, `${at}.pairs[${i}].after`, ctx),
+            changes: arr(o2.changes).map((c): Change => {
+              const o3 = rec(c);
+              return { emphasis: str(o3.emphasis), rest: str(o3.rest) };
+            }),
+          };
+        }),
+      };
+    /* ⚠ THE SCHEMA IS FLAT AND THE RENDER SHAPE IS NESTED, so this is where they meet. Content
+       stores `ratingFrom`/`ratingTo` and `afterBody`/`afterFooter` as siblings, because Keystatic
+       forms edit flat fields far better than nested objects; the components want `rating: {from,to}`
+       and `after: {body,footer}`. Doing the nesting HERE keeps both sides idiomatic and puts the
+       one mapping in the layer whose whole job is translating content into a render shape.
+       `intrinsicHeight` falls back to 0, which `unitGeo` already treats as non-scrollable — an
+       unset height renders a static screen rather than dividing by nothing. */
+    case "beforeAfterStory":
+      return {
+        kind,
+        index: str(v.index),
+        eyebrow: str(v.eyebrow),
+        title: str(v.title),
+        lead: rich(v.lead),
+        rating: { from: str(v.ratingFrom), to: str(v.ratingTo) },
+        pairs: arr(v.pairs).map((p, i) => {
+          const o2 = rec(p);
+          const screen = (raw: unknown, which: string) => ({
+            ...adaptImgSpec(raw, `${at}.pairs[${i}].${which}`, ctx),
+            intrinsicHeight: num(rec(raw).intrinsicHeight) ?? 0,
+          });
+          return {
+            title: str(o2.title),
+            tag: str(o2.tag),
+            before: adaptImgSpec(o2.before, `${at}.pairs[${i}].before`, ctx),
+            after: { body: screen(o2.afterBody, "afterBody"), footer: screen(o2.afterFooter, "afterFooter") },
             changes: arr(o2.changes).map((c): Change => {
               const o3 = rec(c);
               return { emphasis: str(o3.emphasis), rest: str(o3.rest) };
