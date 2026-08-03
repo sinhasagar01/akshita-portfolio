@@ -109,11 +109,49 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Typography
   ============================================================ */
 
-  --font-display: var(--font-display-loaded, "Fraunces Variable", Georgia, serif);
-  --font-body:    var(--font-body-loaded, "DM Sans Variable", system-ui, sans-serif);
+  /* ---- THE FACES. One declaration each, named for what a face IS. -----------------------
+     ⚠ COMPONENTS READ THE ROLES BELOW, NEVER THESE. Splitting face from role is what turns
+     the coming family swap into a one-line repoint instead of a sweep of the 125 display
+     sites across 53 files. Nothing consumes the three incoming faces yet, which is what
+     makes this step additive.
+
+     ⚠ THE `-loaded` NAMES ARE LEFT ALONE ON PURPOSE, and the mismatch is the cost of that.
+     `--font-fraunces` reading `--font-display-loaded` reads backwards, and renaming it is
+     the obvious tidy — but next/font derives its generated class name from that string, so
+     the rename changes the class token on <html> and turns an additive diff into a modifying
+     one. They are renamed in the PR that changes the family, where the DOM moves anyway.
+
+     ⚠ METRIC-MATCHED FALLBACKS, NEVER A BARE GENERIC — the stacks end in one, but nothing
+     jumps straight to it. A generic drops to Times or Arial, whose x-heights differ enough to
+     reflow every box while the webfont loads, and on a site whose layout is pinned to measured
+     numbers a reflow is a gate failure rather than a flicker. */
+  --font-fraunces:      var(--font-display-loaded, "Fraunces Variable", Georgia, serif);
+  --font-dm-sans:       var(--font-body-loaded, "DM Sans Variable", system-ui, sans-serif);
+  --font-source-serif:  var(--font-source-serif-loaded, "Iowan Old Style", Charter, Georgia, serif);
+  --font-work-sans:     var(--font-work-sans-loaded, Avenir, "Avenir Next", ui-sans-serif, system-ui, sans-serif);
+  --font-space-grotesk: var(--font-space-grotesk-loaded, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif);
   --font-script:  var(--font-script-loaded, "Kaushan Script", cursive);
   --font-doodle:  var(--font-doodle-loaded, "Caveat", cursive);
   --font-mono:    ui-monospace, "JetBrains Mono", monospace;
+
+  /* ---- THE ROLES. Three lines, and the swap edits exactly these three. ------------------
+     Today two of them point at the outgoing faces, so the rendered result is unchanged.
+
+     ⚠ `--font-label` HAS NO CONSUMER YET, WHICH IS DELIBERATE AND NOT AN OVERSIGHT. The label
+     scale is already TWO systems — `--text-eyebrow` is read by 18 files, only 2 of them
+     studio, while the studio carries 105 `text-[12px]` and 39 `text-[10px]` local literals —
+     and reconciling them is its own PR with its own census.
+
+     ⚠ AND THE CONTRACT'S LABEL TABLE IS CORRECTED BEFORE ANYTHING CONSUMES THIS. It lists
+     `label` and `label / meta` as two steps that are BOTH 10px, differing only in tracking,
+     which is two spellings for one size — the exact defect #228 exists to stop, written into
+     a contract whose own section forbids it. THE SCALE IS THREE STEPS: 12px label, 10px group
+     and meta sharing one tracking, 9px micro. If metadata genuinely needs a different tracking
+     from a group heading, that is a case for a second TRACKING token against one size, never
+     for a second size. */
+  --font-display: var(--font-fraunces);
+  --font-body:    var(--font-dm-sans);
+  --font-label:   var(--font-space-grotesk);
 
   --text-xs:   clamp(0.694rem,  0.67rem  + 0.12vw, 0.75rem);
   --text-sm:   clamp(0.833rem,  0.80rem  + 0.15vw, 0.875rem);
@@ -264,6 +302,14 @@ body {
   overflow-x: hidden;
 }
 
+/* ⚠ THIS `opsz` VALUE CANNOT SURVIVE THE FAMILY SWAP, AND IT FAILS QUIETLY IF IT TRIES.
+   Fraunces carries opsz 9..144, so 144 is its top. Source Serif 4 carries opsz 8..60, so the
+   same declaration against the new face CLAMPS to 60 — it renders, nothing errors, and the
+   value drawn is not the value written. A number that silently becomes a different number is
+   the shape this file has been caught by before.
+   THE REPLACEMENT IS THE STEP'S OWN opsz, from the contract's scale, not "something valid".
+   The two `font-variation-settings` sites in the whole repo are this one and `.case-study
+   :is(h1, h2)`, which sets `normal` and therefore needs no new value. */
 h1,
 h2 {
   font-family: var(--font-display);

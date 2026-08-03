@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans, Kaushan_Script, Caveat } from "next/font/google";
+import {
+  Fraunces,
+  DM_Sans,
+  Kaushan_Script,
+  Caveat,
+  Source_Serif_4,
+  Work_Sans,
+  Space_Grotesk,
+} from "next/font/google";
 import {
   SITE_URL,
   SITE_NAME,
@@ -45,6 +53,52 @@ const caveat = Caveat({
   preload: false,
 });
 
+/* ============================================================================================
+   THE THREE INCOMING FACES — loaded, unconsumed, and that is the whole point of this step.
+   Source Serif 4 for display, Work Sans for body, Space Grotesk for labels.
+
+   ⚠ EVERY ONE IS `preload: false`, AND THAT IS LOAD-BEARING RATHER THAN TIDY. Nothing reads
+   these tokens yet, so a preload link would download three unused webfonts in the critical
+   window and contend with the three faces that ARE above the fold. Caveat's note below
+   already established that reasoning for a face that IS used; it applies harder to one that
+   is not. The PR that repoints `--font-display` and `--font-body` flips these to `true` and
+   flips Fraunces and DM Sans to `false`, in the same commit, so the preload budget never
+   holds both sets at once.
+
+   ⚠ SOURCE SERIF 4 TAKES `opsz` AND ITS AXIS MAXES AT 60, where Fraunces goes to 144. So
+   `font-variation-settings: "opsz" 144` at globals.css:270 cannot carry over — it would clamp
+   silently, which is a value that renders and is not the value anyone asked for. The contract's
+   scale states an opsz per step, and :270 takes that step's value rather than "something valid".
+
+   ⚠ ITALIC IS LOADED FOR THE SERIF AND NOT FOR THE OTHER TWO. The section headings are Fraunces
+   italic 400 today, so the display face needs a real italic or the swap ships a synthesised
+   oblique. Work Sans mirrors DM Sans, which loads normal only. Space Grotesk HAS no italic
+   upstream, which costs nothing because a tracked uppercase label never sets one.
+============================================================================================ */
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  style: ["normal", "italic"],
+  variable: "--font-source-serif-loaded",
+  display: "swap",
+  preload: false,
+});
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  variable: "--font-work-sans-loaded",
+  display: "swap",
+  preload: false,
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk-loaded",
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -80,7 +134,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable} ${caveat.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable} ${caveat.variable} ${sourceSerif.variable} ${workSans.variable} ${spaceGrotesk.variable}`}
+    >
       <head>
         {/* Runs at parse time, before any hydration or browser scroll restoration.
             Manual stops the browser flashing the old position before ScrollManager takes
