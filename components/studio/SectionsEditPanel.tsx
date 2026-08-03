@@ -39,6 +39,7 @@ import { useCanvasZoom } from "./useCanvasZoom";
 import CanvasZoom from "./CanvasZoom";
 import { INSPECTOR_BOUNDS } from "@/lib/studio/inspector-width";
 import { useInspectorWidth } from "./useInspectorWidth";
+import { useCanvasPan } from "./useCanvasPan";
 import InspectorResizer from "./InspectorResizer";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { usePageWidthMin } from "./usePageWidthMin";
@@ -831,6 +832,14 @@ function SectionCanvas({
   const s = adapted[0];
   const { paneRef, surfaceRef, scale, height, width } = useFitToWidth(zoom, onScale);
 
+  /* ⚠ THE SCROLLER IS RESOLVED BY THE PANEL'S OWN WALK, not re-derived in the hook. `scrollParent`
+     already encodes which of three arrangements is live and why it tests DECLARED overflow rather
+     than "is it scrolling right now" — a distinction that cost a measurement to find. A second
+     walk would be a second answer to the same question. */
+  const { panProps, panCursor } = useCanvasPan({
+    getScroller: () => (paneRef.current ? scrollParent(paneRef.current) : null),
+  });
+
   // Mark the selected field in the canvas. Applied imperatively rather than through
   // props because the marked node is rendered deep inside the case-study components,
   // which know nothing about studio selection — and re-applied after every render, so
@@ -880,7 +889,8 @@ function SectionCanvas({
          AND IT DEGRADES THE RIGHT WAY WHEN ZOOMED IN. A block wider than its container resolves
          both auto margins to 0, so nothing is pushed out of reach once the pane starts panning. */
       className="case-study canvas-static mx-auto overflow-hidden rounded-[var(--studio-radius-card,8px)] pt-px pb-8"
-      style={{ height, width }}
+      style={{ height, width, cursor: panCursor }}
+      {...panProps}
       onBlur={onBlur}
       onClick={onClick}
       onFocusCapture={(e) => {

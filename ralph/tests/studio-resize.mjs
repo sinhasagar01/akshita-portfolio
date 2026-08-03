@@ -384,8 +384,13 @@ const shell = code("components/studio/ThreePaneShell.tsx");
    * `scrollWidth` stayed 1072, so the right of the render was unreachable — measured,
    * `canPan: false` at every level above fit. The height had solved this on the vertical axis
    * since PR 6; the width had not, which also made that comment's "the pane pans" claim false. */
+  /* ⚠ MATCHED ON THE TWO KEYS, NOT THE WHOLE LITERAL. This pinned `style={{ height, width }}`
+   * exactly, and broke the moment `cursor` joined it for drag-to-pan — a true property failing
+   * because an unrelated key was added beside it. The property is that the box takes BOTH driven
+   * dimensions; what else rides in that object is not this assertion's business. */
   t("H4: the canvas box takes the width the transform draws",
-    /setWidth\(CANVAS_WIDTH \* next\);/.test(sections) && /style=\{\{ height, width \}\}/.test(sections), true);
+    /setWidth\(CANVAS_WIDTH \* next\);/.test(sections)
+      && /style=\{\{[^}]*\bheight\b[^}]*\bwidth\b[^}]*\}\}/.test(sections), true);
   /* AND THE AVAILABLE WIDTH IS READ FROM THE PARENT, or scale-from-width-from-scale is a loop. */
   t("H4: …and the fit scale measures the PARENT, so driving the width cannot feed back",
     /pane\.parentElement\?\.clientWidth/.test(sections), true);
