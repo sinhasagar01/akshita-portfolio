@@ -27,6 +27,21 @@ export type ImgSpec = {
   width?: number;
   /** Rendered height in px. When set, width is derived (used by before/after pairs). */
   height?: number;
+  /**
+   * The SOURCE asset's own pixel dimensions — not a rendered size.
+   *
+   * ⚠ A STATIC IMPORT CARRIES THESE AND A PATH STRING DOES NOT, which is the whole reason they
+   * exist. `DeviceImage` sizes a static import from its intrinsic dims and falls back, for a bare
+   * string, to the canonical bezel aspect. MEASURED on boat-crest: **19 of its 25 images have a
+   * true aspect different from that fallback**, and the scroller footers are 4.33 and 3.77 — wide
+   * strips forced into a 0.476 phone box. So porting a hand-built study to content without these
+   * does not merely lose a blur placeholder, it renders the images the wrong shape.
+   *
+   * Optional, because a static import needs neither. `ScreenAsset` below REQUIRES the height,
+   * because `unitGeo` divides by it.
+   */
+  intrinsicWidth?: number;
+  intrinsicHeight?: number;
   /** Desktop-only rotation in degrees. Dropped at the mobile breakpoint. */
   rotate?: number;
   /** Desktop-only translate [x, y] in px. Dropped at the mobile breakpoint. */
@@ -91,6 +106,9 @@ export type FigureItem = { image: ImgSpec; title?: string; body?: Rich };
  *  intrinsically, so the code path passes it straight through and nothing is hand-typed. A CMS
  *  entry is a path string with no dims at all, and measuring at runtime is the `offsetHeight`
  *  decode race `deviceScroller` documents itself as being free of. So the number is authored. */
+/** An `ImgSpec` whose intrinsic height is REQUIRED — `deviceScroller.unitGeo` divides by it, so a
+ *  missing one is not a degraded render but a broken scroll ratio. Same field, narrowed, rather
+ *  than a second name for the same measurement. */
 export type ScreenAsset = ImgSpec & { intrinsicHeight: number };
 
 /** cs-07 auto-scroll story assets (optional). A scrollable screen is split into a
@@ -271,4 +289,10 @@ export type CaseStudy = {
  * of the Keystatic [slug] route's generateStaticParams to avoid a build collision.
  * Only add a slug here once its literal route is wired and its content is poured.
  */
-export const BESPOKE_SLUGS = new Set<string>(["boat-crest"]);
+/* ⚠ EMPTY NOW, AND KEPT RATHER THAN DELETED. `boat-crest` was its only member; its content lives in
+ * `content/projects/boat-crest.yaml` and it renders through the ordinary `[slug]` route like every
+ * other study. The SET stays because it is the mechanism that made the literal-route escape hatch
+ * safe — twelve consumers read it, and every one is now a branch that correctly never fires.
+ * Removing the concept is a separate mechanical sweep; emptying it is the one line that actually
+ * moves the study, and it is the line the render proof rests on. */
+export const BESPOKE_SLUGS = new Set<string>([]);

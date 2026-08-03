@@ -22,7 +22,7 @@
 // `frame` gets), because every existing block would otherwise be rejected for a missing key. So
 // the renderer supports the variant and content cannot yet select it, which is exactly the state
 // the two blocks were already in. Named here so "asserted" is not read as "finished".
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -40,7 +40,7 @@ const scroller = code("components/case-study/blocks/deviceScroller.ts");
 const renderer = code("components/case-study/BlockRenderer.tsx");
 const work = code("components/case-study/blocks/WorkStory.tsx");
 const baStory = code("components/case-study/blocks/BeforeAfterStory.tsx");
-const boat = code("lib/case-studies/boat-crest.ts");
+const boatYaml = readFileSync(new URL("../../content/projects/boat-crest.yaml", import.meta.url), "utf8");
 
 /* ── A · THE CONVERSION ────────────────────────────────────────────────────────────────────── */
 
@@ -109,29 +109,46 @@ for (const [name, src] of [["WorkStory", work], ["BeforeAfterStory", baStory]]) 
 t("D3: the helper is the one that no-ops off the edit path",
   /if \(!editable\) return \{\} as Record<string, never>;/.test(code("components/case-study/editable.ts")), true);
 
-/* ── E · ALT IS NOW POSSIBLE, AND DELIBERATELY STILL EMPTY ────────────────────────────────── */
+/* ── E · ALT IS NOW POSSIBLE, AND THE ASSETS MOVED TO CONTENT ────────────────────────────── */
 
 t("E1: WorkStory's screens read alt off the spec instead of hard-coding it",
   (work.match(/alt=\{feat\.screen\.\w+\.alt\}/g) ?? []).length, 3);
 t("E2: BeforeAfterStory's do too", (baStory.match(/alt=\{(after|before)\.\w*\.?alt\}/g) ?? []).length >= 3, true);
 
-/* ⚠ THE VALUES ARE EMPTY ON PURPOSE, AND THAT IS THE GATE. Filling them would change the rendered
- * DOM and forfeit the byte-identical proof that a type change on the flagship's renderer moved
- * nothing. The FIELD now exists; the words are the owner's, and they are content. */
-t("E3: every converted boat-crest asset carries an explicit empty alt",
-  (boat.match(/alt: ""/g) ?? []).length >= 14, true);
+/* ⚠ THE SUBJECT MOVED FROM CODE TO CONTENT, which is the point of the port. These used to read
+ * `lib/case-studies/boat-crest.ts` and assert that every converted asset carried `alt: ""` and that
+ * every intrinsic height was DERIVED from its static import rather than typed. That file is gone.
+ *
+ * The derived-not-typed rule cannot survive the move and should not: content has no imports to
+ * derive from, so the numbers ARE literals now, written by a generator that read the real PNGs.
+ * What survives is the property that still means something — every image carries the alt FIELD
+ * (empty, waiting for the owner) and every scroller asset carries its intrinsic height. */
+t("E3: the study is content now, not code",
+  /^sections:/m.test(boatYaml) && !existsSync(new URL("../../lib/case-studies/boat-crest.ts", import.meta.url)), true);
+/* ⚠ EXACT COUNTS, NOT `>=`. The first version of these used thresholds, and mutation killed none
+ * of them: stripping ONE alt or ONE dimension still cleared `>= 25`. A threshold answers "did the
+ * generator run at all", which was never the question — the question is whether every asset kept
+ * what it was given. 28 images, and all three fields are per-image, so all three counts are 28. */
+const IMAGES = 28;
+t(`E4: all ${IMAGES} images carry an alt field, so the words are the only thing missing`,
+  (boatYaml.match(/^\s+alt: /gm) ?? []).length, IMAGES);
+t(`E5: …and all ${IMAGES} carry their source height`,
+  (boatYaml.match(/intrinsicHeight: \d+/g) ?? []).length, IMAGES);
+/* ⚠ AND THE WIDTHS TOO — this is the pair that killed the first attempt at this port. Without them
+ * `DeviceImage` falls back to the canonical bezel aspect, which 19 of these 25 source files are
+ * NOT: the scroller footers are 4.33 and 3.77, wide strips rendered in a tall phone box. */
+t(`E6: …and all ${IMAGES} carry their source width`,
+  (boatYaml.match(/intrinsicWidth: \d+/g) ?? []).length, IMAGES);
 
-/* ── F · THE INTRINSIC HEIGHTS ARE DERIVED, NOT TYPED ─────────────────────────────────────── */
-
-/* ⚠ NOT ONE OF THESE NUMBERS IS HAND-WRITTEN. Every one reads `.height` off the static import it
- * sits beside, so the asset and its declared height cannot drift. A literal here would be a number
- * someone measured once, in a file nobody re-measures. */
-t("F1: boat-crest derives every intrinsic height from its own import",
-  (boat.match(/intrinsicHeight: \w+\.height/g) ?? []).length, 14);
-t("F2: …and hand-typed one is nowhere in the file",
-  /intrinsicHeight: \d/.test(boat), false);
-t("F3: the file still holds both bespoke blocks, so the counts above are not vacuous",
-  /kind: "beforeAfterStory"/.test(boat) && /variant: "story"/.test(boat), true);
+/* And the consumer, which is the other half of that defect — content carrying the dims is useless
+ * if the component ignores them. */
+{
+  const dev = code("components/case-study/DeviceImage.tsx");
+  t("E7: DeviceImage prefers the source aspect when content supplies it",
+    /\? `\$\{intrinsicWidth\} \/ \$\{intrinsicHeight\}`/.test(dev), true);
+  t("E8: …and falls back to the canonical bezel only when it does not, so nothing shipped moves",
+    /: `\$\{BEZEL_W\} \/ \$\{BEZEL_H\}`/.test(dev), true);
+}
 
 /* ── G · THE CMS SEAM (A2) ────────────────────────────────────────────────────────────────── */
 

@@ -6991,6 +6991,65 @@ render from the adapter. **Hazard 10 closes there, not here.**
 
 ---
 
+### #292 — HAZARD 10 CLOSES. boAt Crest is content.
+
+**The flagship is editable.** Its body moved from 455 lines of TypeScript to
+`content/projects/boat-crest.yaml`, `BESPOKE_SLUGS` is empty, its literal route is gone, and it
+renders through the ordinary `[slug]` route like every other study. **Hazard 10, the last item on
+the verified-open list with a defect behind it, is closed.**
+
+**⚠ GENERATED, NOT HAND-TRANSLATED.** 19KB of flagship copy retyped by hand is exactly where a
+dropped sentence hides. Instead the 25 image imports were mechanically replaced with their real
+paths and dimensions (read from the PNGs with sharp), the real module was loaded, its object tree
+walked, and the content shape emitted. **Then verified by running it FORWARD through the real
+adapter and deep-comparing against the original object** — the port is proved at the data layer
+before a single page is built.
+
+**THAT PROCESS FOUND FOUR THINGS A HAND PORT WOULD HAVE SHIPPED.** A missing `screen` field in the
+schema, which alone would have silently dropped all five device scrollers. A swatch colour written
+to the wrong key. Four omitted required keys, each named in turn by the sanitizer — the generated
+YAML goes through `sanitizeSectionsPatch` before it is written, so content the studio could never
+save is content this port refuses to produce.
+
+**⚠ AND THE FIRST ATTEMPT WAS CORRECTLY ABANDONED.** It reached a green data-layer proof and then
+the RENDER killed it: a static import carries intrinsic dimensions and a path string does not, so
+`DeviceImage` fell back to a canonical bezel aspect. **MEASURED: 19 of the 25 images are a
+different shape from that fallback, and the scroller footers are 4.33 and 3.77 — wide strips
+rendered in a 0.476 phone box.** `object-contain` stops the distortion, not the letterboxing. So
+`ImgSpec` gained `intrinsicWidth`/`intrinsicHeight`, omit-when-empty like `frame`, and
+`DeviceImage` prefers them over the bezel. The rendered aspect is now `1030 / 2935` where it was
+`1030 / 2165`.
+
+**THE IRONY IS ON THE RECORD.** #290 backed out emitting `height` because "nothing in this PR uses
+it". That was true then. Doing the port for real is what proved the need — and the field it needed
+was not `height` at all, but a distinct pair, because a RENDERED height and a SOURCE height are
+different quantities that happen to share a type.
+
+**WHAT THE PORT COSTS, STATED.** Two things change and neither is recoverable through content:
+- **The blur placeholder is gone.** `next/image` can only generate one from a build-time import.
+  The other three studies never had one, so boat-crest joins the shared convention rather than
+  regressing below it.
+- **The meta description changes.** The code file carried its own `description`; the `[slug]` route
+  uses `summary`, as all three others do. "…up from 2.3 to 4.2" becomes "…from 2.3 to 4."
+  **The owner was asked and said finish, so this ships as the shared convention — it is one line of
+  content to change if they want the longer sentence back.**
+
+Everything else is proven identical: same images, same counts, and the other three studies differ
+only by the shared `[slug]` bundle growing to carry the two story components.
+
+**FOUR RALPH SUITES DESCRIBED THE OLD WORLD AND WERE INVERTED, NOT DELETED.** `ncr-adjacent`
+asserted boat-crest WAS bespoke and HAD a literal route; both are now asserted false, with the
+set's emptiness asserted FIRST so "every bespoke slug is real content" cannot pass by having
+nothing to check. `p4-4bi` used boat-crest as its unmigrated-file fixture; a refusal fixture that
+migrates out from under you was always temporary, so the shape moved to a synthetic file.
+
+Gates: ralph **2284 → 2288**. **6 mutations, 6 killed** — but only after the first pass, where
+**all four survived**: the counts were `>= 25` thresholds, and stripping ONE alt or ONE dimension
+still cleared them. A threshold answers "did the generator run", which was never the question. They
+are exact counts now. lint, tsc and the production build clean.
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
@@ -7293,7 +7352,9 @@ believed open and what it turned out to be.**
 5. **Optional:** `/code-review ultra` over the studio arc. The old entry named `fa08200` and nine
    PRs; a great many have shipped self-reviewed since, so **pick a range rather than trusting that
    SHA**.
-6. **Later.** ~~A per-entry publish or a PublishBar diff preview (hazard 13)~~ — **THE PREVIEW
+6. **Later.** ~~Hazard 10, why `boat-crest` yields zero parity pairs~~ — **CLOSED in #292**: it is
+   content now, so it yields pairs like every other study. ~~A per-entry publish or a PublishBar
+   diff preview (hazard 13)~~ — **THE PREVIEW
    SHIPPED in #288**, and it is the confirm step rather than an optional link, so looking is
    structural. A per-entry publish is still open and is now the smaller half of that item: the
    preview tells you what a publish carries, but publish is still all-or-nothing. Migrating the

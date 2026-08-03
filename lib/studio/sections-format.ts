@@ -233,6 +233,9 @@ const IMG_SPEC = {
  *  source); this only validates the value. */
 export const FRAMES = ["phone", "browser", "macbook"] as const;
 
+/** The source asset's own pixel dimensions. Omit-when-empty, like `frame`. */
+const INTRINSIC: readonly string[] = ["intrinsicWidth", "intrinsicHeight"];
+
 /**
  * An image-bearing object. The seven geometry keys are REQUIRED (the empties-
  * preserved rule), but `frame` is the one OMIT-WHEN-EMPTY exception: an absent or
@@ -250,7 +253,8 @@ const imageObj =
       if (
         !Object.prototype.hasOwnProperty.call(base, k) &&
         !Object.prototype.hasOwnProperty.call(extra, k) &&
-        k !== "frame"
+        k !== "frame" &&
+        !INTRINSIC.includes(k)
       ) {
         return invalid(`${at}: unknown field ${k}`, at);
       }
@@ -266,6 +270,17 @@ const imageObj =
         return invalid(`${at}.frame must be one of ${FRAMES.join(", ")}`, at);
       }
       out.frame = raw.frame;
+    }
+    // ⚠ THE SOURCE ASSET'S OWN DIMENSIONS, OMITTED WHEN EMPTY — the same posture as `frame` above
+    // and for the same reason: every image already on disk lacks them, and a required key would
+    // reject all of it. They are NOT the rendered `width`/`height` in the base shape; a static
+    // import carries these implicitly and a path string cannot, which is what let 19 of
+    // boat-crest's 25 images render at the wrong aspect when it was ported to content.
+    for (const k of INTRINSIC) {
+      if (raw[k] === undefined || raw[k] === "" || raw[k] === null) continue;
+      const res = numOrNull(raw[k], `${at}.${k}`);
+      if (!res.ok) return res;
+      out[k] = res.value;
     }
     for (const k of Object.keys(extra)) {
       const res = extra[k](raw[k], `${at}.${k}`);
@@ -355,6 +370,30 @@ const unionOf = <K extends string>(
 };
 
 /**
+ * A feature's optional auto-scroll screen. A `{ discriminant, value }` union like swatchTokens'
+ * tokens, but `unionOf` does not fit it: the `none` arm's value is NULL, not an object, and
+ * `unionOf`'s table is typed `Check<Record<string, unknown>>`. Bending that type to admit null
+ * would weaken it for the token union too, so this stays local and explicit.
+ */
+const storyScreen: Check<{ discriminant: string; value: unknown }> = (raw, at) => {
+  if (!isPlainObject(raw)) return invalid(`${at} must be an object`, at);
+  for (const k of Object.keys(raw)) {
+    if (k !== "discriminant" && k !== "value") return invalid(`${at}: unknown field ${k}`, at);
+  }
+  const d = raw.discriminant;
+  if (d === "none") return { ok: true, value: { discriminant: "none", value: null } };
+  if (d === "full") {
+    const res = imgSpec(raw.value, `${at}.value`);
+    return res.ok ? { ok: true, value: { discriminant: "full", value: res.value } } : res;
+  }
+  if (d === "split") {
+    const res = obj({ body: screenAsset, footer: screenAsset })(raw.value, `${at}.value`);
+    return res.ok ? { ok: true, value: { discriminant: "split", value: res.value } } : res;
+  }
+  return invalid(`${at}: unknown screen kind "${String(d)}"`, at);
+};
+
+/**
  * The per-kind table. Exhaustive by construction against the Keystatic-derived
  * union, so a 15th kind is a compile error here — no assertNever needed, because a
  * mapped type over the union IS the exhaustiveness check. Its keys are also the
@@ -384,7 +423,13 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
     {
       // Declared FIRST because the schema declares it first — `obj` rebuilds in declared order.
       variant: str,
-      features: arrayOf(obj({ index: str, category: str, title: str, body: str, image: imgSpec })),
+      features: arrayOf(obj(
+        { index: str, category: str, title: str, body: str, image: imgSpec, screen: storyScreen },
+        // ⚠ OMITTED WHEN ABSENT, same posture as `variant` and `frame`. Every `featureRows` feature
+        // already on disk predates this field, so a required key rejects all of it — which is
+        // exactly what it did, on 27 assertions, before this was added.
+        { omitEmpty: ["screen"] },
+      )),
     },
     // …and omitted when empty, so the three shipped featureRows blocks never gain a `variant:` line.
     { omitEmpty: ["variant"] },

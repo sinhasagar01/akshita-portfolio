@@ -20,7 +20,7 @@ import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw
 const img = () => ({
   src: null,
   alt: "",
-  width: null,
+  width: null, intrinsicWidth: null, intrinsicHeight: null,
   rotate: null,
   translateX: null,
   translateY: null,

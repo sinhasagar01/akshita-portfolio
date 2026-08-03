@@ -37,24 +37,25 @@
 //     renderer distinguishes undefined from "" (hasHeader is a Boolean check),
 //     so empty objects/strings become undefined here.
 import type {
-  Section,
+  BeforeAfterPair,
   Block,
+  Callout,
+  Change,
+  DeviceSpec,
+  Feature,
+  FigureItem,
+  GlowWord,
+  HeroCover,
+  ImgSpec,
+  Principle,
   Rich,
   RichRun,
-  ImgSpec,
-  DeviceSpec,
-  GlowWord,
+  Scrawl,
+  Section,
   Stat,
-  Principle,
-  FigureItem,
-  Feature,
-  BeforeAfterPair,
-  Change,
+  StoryScreen,
   SwatchToken,
   TokenGroup,
-  Scrawl,
-  Callout,
-  HeroCover,
 } from "./types";
 import type { SectionBlockKind, AssertComplete } from "./sections-raw";
 
@@ -266,6 +267,23 @@ function richOpt(v: unknown): Rich | undefined {
 
 /* --------------------------------------------------------- shape adapters */
 
+/** A feature's optional auto-scroll screen: the schema's `{ discriminant, value }` union turned
+ *  into the render shape, or nothing at all when the arm is `none`. */
+function adaptScreen(raw: unknown, at: string, ctx: AdaptCtx): { screen?: StoryScreen } {
+  const o = rec(raw);
+  const d = str(o.discriminant);
+  if (d === "full") return { screen: { full: adaptImgSpec(o.value, `${at}.value`, ctx) } };
+  if (d === "split") {
+    const v = rec(o.value);
+    const asset = (k: string) => ({
+      ...adaptImgSpec(v[k], `${at}.value.${k}`, ctx),
+      intrinsicHeight: num(rec(v[k]).intrinsicHeight) ?? 0,
+    });
+    return { screen: { body: asset("body"), footer: asset("footer") } };
+  }
+  return {};
+}
+
 function adaptImgSpec(v: unknown, at: string, ctx: AdaptCtx): ImgSpec {
   const o = rec(v);
   const rawSrc = str(o.src);
@@ -290,6 +308,12 @@ function adaptImgSpec(v: unknown, at: string, ctx: AdaptCtx): ImgSpec {
   if (src !== resolved) spec.unoptimized = true;
   const width = num(o.width);
   if (width !== undefined) spec.width = width;
+  // The source asset's own dimensions, when content carries them. `DeviceImage` prefers this
+  // aspect over the canonical bezel; absent, nothing changes.
+  const iw = num(o.intrinsicWidth);
+  if (iw !== undefined) spec.intrinsicWidth = iw;
+  const ih = num(o.intrinsicHeight);
+  if (ih !== undefined) spec.intrinsicHeight = ih;
   const rotate = num(o.rotate);
   if (rotate !== undefined) spec.rotate = rotate;
   if (translateX !== undefined || translateY !== undefined) {
@@ -532,6 +556,9 @@ function adaptBlock(raw: unknown, at: string, ctx: AdaptCtx): Block {
             title: str(o2.title),
             body: rich(o2.body),
             image: adaptImgSpec(o2.image, `${at}.features[${i}].image`, ctx),
+            // `none` yields NO key rather than an empty one — `unitGeo` branches on `"body" in
+            // screen`, so an absent screen is what makes a plain feature row non-scrollable.
+            ...adaptScreen(o2.screen, `${at}.features[${i}].screen`, ctx),
           };
         }),
       };

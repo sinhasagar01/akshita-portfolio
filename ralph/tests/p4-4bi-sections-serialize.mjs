@@ -135,10 +135,14 @@ check("a file with NO sections anchor -> unsupported_format (refused, not append
   deepStrictEqual(out.error.code, "unsupported_format");
 });
 
-check("boat-crest (unmigrated, has body but no sections) is REFUSED", () => {
+/* ⚠ INVERTED — boat-crest is MIGRATED now, and this is where that shows up. It used to be the
+ * fixture for "a real file with a body and no sections anchor is refused", because it was the only
+ * one. Its sections are now in the file, so it must SERIALIZE rather than refuse. The refusal case
+ * above still covers the shape, on a synthetic file — which is the right place for it, since a
+ * refusal fixture that migrates out from under you is a fixture that was always temporary. */
+check("boat-crest, now migrated, SERIALIZES rather than being refused", () => {
   const out = serializeProjectSections(fileOf("boat-crest"), []);
-  if (out.ok) throw new Error("expected a refusal — boat-crest has no sections");
-  deepStrictEqual(out.error.code, "unsupported_format");
+  if (!out.ok) throw new Error("expected success — boat-crest has sections now: " + out.error.code);
 });
 
 console.log("\nthe STRICT sanitizer (deliberately NOT the permissive adapter)");

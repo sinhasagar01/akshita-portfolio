@@ -101,11 +101,23 @@ for (const k of ["richText", "pullQuote", "videoEmbed"]) {
 /** The ONE documented transformation the sanitizer applies to a fresh block: an image
  *  spec's `frame` is OMIT-WHEN-EMPTY, so `frame: ""` is dropped rather than written. An
  *  empty is otherwise expected to survive byte-for-byte (the empties-preserved rule). */
-const afterSanitize = (value) => {
-  if (!value || typeof value !== "object" || !value.poster) return value;
-  const { frame, ...poster } = value.poster;
-  return frame === "" ? { ...value, poster } : value;
-};
+  /** ⚠ THE OMIT-WHEN-EMPTY SET, NAMED. `frame` was the only one; `intrinsicWidth` and
+   *  `intrinsicHeight` join it — the source asset's own dimensions, which a static import carries
+   *  implicitly and a content path cannot. All three are dropped rather than written as empties,
+   *  because every image already on disk lacks them and a required key would reject all of it.
+   *  An empty is otherwise expected to survive byte-for-byte (the empties-preserved rule).
+   *
+   *  The list is EXPLICIT rather than a filter over "anything falsy": a blanket drop would hide a
+   *  sanitizer that had started discarding a real field, which is the failure this gate exists for. */
+  const OMIT_WHEN_EMPTY = ["frame", "intrinsicWidth", "intrinsicHeight"];
+  const afterSanitize = (value) => {
+    if (!value || typeof value !== "object" || !value.poster) return value;
+    const poster = { ...value.poster };
+    for (const k of OMIT_WHEN_EMPTY) {
+      if (poster[k] === "" || poster[k] === null) delete poster[k];
+    }
+    return { ...value, poster };
+  };
 for (const k of KINDS) {
   const block = { discriminant: k, value: BLOG_BLOCK_EMPTIES[k]() };
   const res = sanitizeBlogBlocksPatch([block]);
