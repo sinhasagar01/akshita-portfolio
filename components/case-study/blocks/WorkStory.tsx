@@ -294,6 +294,8 @@ export default function WorkStory({
                         <Image
                           src={feat.screen.body.src}
                           alt={feat.screen.body.alt}
+                          width={feat.screen.body.intrinsicWidth}
+                          height={feat.screen.body.intrinsicHeight}
                           sizes={`${Math.round(g.win.width)}px`}
                           className="block h-auto w-full"
                         />
@@ -318,6 +320,8 @@ export default function WorkStory({
                       <Image
                         src={feat.screen.footer.src}
                         alt={feat.screen.footer.alt}
+                        width={feat.screen.footer.intrinsicWidth}
+                        height={feat.screen.footer.intrinsicHeight}
                         sizes={`${Math.round(g.footer.width)}px`}
                         className="absolute bottom-0 left-0 block h-auto w-full"
                       />
@@ -333,7 +337,14 @@ export default function WorkStory({
                   </>
                 ) : feat.screen && "full" in feat.screen ? (
                   // onboarding — single static screen, no scroll
-                  <Image src={feat.screen.full.src} alt={feat.screen.full.alt} sizes={`${phoneW}px`} className="absolute inset-0 h-auto w-full" />
+                  <Image
+                    src={feat.screen.full.src}
+                    alt={feat.screen.full.alt}
+                    width={feat.screen.full.intrinsicWidth}
+                    height={feat.screen.full.intrinsicHeight}
+                    sizes={`${phoneW}px`}
+                    className="absolute inset-0 h-auto w-full"
+                  />
                 ) : null}
               </div>
             );
