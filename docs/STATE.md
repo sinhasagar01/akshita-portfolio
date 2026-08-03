@@ -7129,6 +7129,44 @@ the production build clean.
 
 ---
 
+### #295 — THE CASE-STUDY CANVAS ZOOMS FROM ITS CENTRE, and why matching blog's origin was the wrong fix
+
+**Reported by the owner:** blog's canvas scales evenly from its centre; the case study's stayed
+pinned to its left edge and grew rightward. Both true, and the reason they diverged is that **only
+one of them drives a box**.
+
+**THE SIX DIFFERENCES, MEASURED FROM SOURCE.**
+
+| | blog | case study |
+|---|---|---|
+| `transform-origin` | `top center` | `top left` |
+| drives a width/height | **no** (0 calls) | **yes** (5 calls) |
+| `fit` resolves to | always `1` | computed from available width, floored at `CS_MIN_SCALE` |
+| at 100% | applies **no style at all** | always applies a transform |
+| can pan horizontally | no | yes — that is what the driven width is for |
+| box alignment in its parent | centred by its own measure | **left, with no auto margin** |
+
+**⚠ THE LAST ROW IS THE DEFECT, AND THE FIRST ROW IS THE TRAP.** The obvious fix — copy
+`top center` onto the case study — is wrong, and wrong in a way that would have looked right at
+100%. That canvas drives its pane's width to the DRAWN size so the transform has something to
+scroll; `top left` is what keeps the box and the drawn result **the same rectangle**. With
+`top center` they separate: at 50% the surface draws from 266px while the pane still starts at 0,
+leaving a gap on the left and an overflow on the right.
+
+**So the BOX is centred instead — `mx-auto` — which is a layout fix rather than a transform one.**
+It also degrades correctly when zoomed in: a block wider than its container resolves both auto
+margins to 0, so nothing is pushed out of reach once the pane starts panning.
+
+Gates: ralph **2280 → 2286**, six assertions in `three-pane` pinning both mechanisms and the reason
+they differ. **4 mutations, 4 killed** — including the defect as reported (drop the auto margin) and
+the wrong fix (copy blog's origin). lint, tsc and the production build clean.
+
+**NOT VERIFIED ON SCREEN BY ME.** `/studio` is owner-gated and the session expired during this
+session; I will not enter the password. The change is one class on one element, asserted and
+mutation-proven, but the visual confirmation is the owner's.
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

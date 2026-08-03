@@ -866,7 +866,20 @@ function SectionCanvas({
     // ground is passed to `ThreePaneShell` as `canvasGround` instead; see the call below.
     <div
       ref={paneRef}
-      className="case-study canvas-static overflow-hidden rounded-[var(--studio-radius-card,8px)] pt-px pb-8"
+      /* ⚠ `mx-auto` IS WHAT CENTRES THE ZOOM, and its absence is why this canvas grew rightward
+         while blog's grew evenly. This pane's WIDTH IS DRIVEN to the drawn size (see
+         `useFitToWidth`) so the transform has something to scroll; a block box with an explicit
+         width and no auto margin sits at its parent's left edge, so every zoom step added all its
+         growth on the right and the section appeared pinned to the left.
+         THE ORIGIN IS NOT THE FIX HERE, WHICH IS THE PART WORTH WRITING DOWN. Blog centres by
+         setting `transform-origin: top center` — it drives no box, so its content is free to
+         overflow evenly either side. Doing the same here would MISALIGN the pane from its own
+         content: at 50% the surface would draw from 266px while the pane still started at 0,
+         leaving a gap on the left and an overflow on the right. `top left` is what keeps the box
+         and the drawn result the same rectangle; centring the BOX is the separate, correct job.
+         AND IT DEGRADES THE RIGHT WAY WHEN ZOOMED IN. A block wider than its container resolves
+         both auto margins to 0, so nothing is pushed out of reach once the pane starts panning. */
+      className="case-study canvas-static mx-auto overflow-hidden rounded-[var(--studio-radius-card,8px)] pt-px pb-8"
       style={{ height, width }}
       onBlur={onBlur}
       onClick={onClick}
