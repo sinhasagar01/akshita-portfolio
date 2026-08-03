@@ -13,10 +13,14 @@
 // render. A5/A6 forbid it in both routes by name.
 //
 // PART B IS THE MEASUREMENT. The constants are not round numbers someone liked: they come
-// from rendering the real Fraunces TTF this file's subject fetches and replicating Satori's
+// from rendering the real SOURCE SERIF 4 TTF this file's subject fetches and replicating Satori's
 // greedy wrap. 84px holds 3 lines with 73px to spare and OVERFLOWS BY 15px at 4. The longest
 // real title is already 3 lines. Change a constant and the card silently clips — nothing else
 // in this repo can see that, which is what earns this suite its place.
+//
+// The vertical figures survived the family swap unchanged, because they are line count times size
+// times line-height and a face changes how many CHARACTERS fit, never how tall a line is. What
+// moved was the character thresholds, re-derived in og-fit.ts's header.
 import { readFileSync } from "node:fs";
 import {
   truncateAtWord, fitTitle,

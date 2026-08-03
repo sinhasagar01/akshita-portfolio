@@ -18,17 +18,31 @@ const INK = "#1c1813"; //   --color-ink-950
 const MUTED = "#6F665B"; //  --color-ink-600
 const ACCENT = "#C0673E"; // --color-accent-500
 
-// Load one static Fraunces weight from Google Fonts for the headline. The legacy UA makes
+// Load one static Source Serif 4 weight from Google Fonts for the headline. The legacy UA makes
 // Google serve a TrueType file (Satori cannot use variable woff2). Memoized for the server
 // lifetime; any failure resolves to null so the card falls back to the built-in font rather
 // than breaking the build.
+//
+// ⚠ THIS FETCHED FRAUNCES UNTIL THIS COMMIT, AND THAT WAS A LIVE INCONSISTENCY RATHER THAN A
+// LEFTOVER. Once `--font-display` repointed, every article page rendered Source Serif and every
+// social card rendered Fraunces, so the same title looked like two different sites depending on
+// whether you arrived from a link or from a feed. The card is the FIRST impression of the page
+// and the one a reader cannot compare against anything, which is what made it worth its own PR.
+//
+// THE FAMILY NAME IS USED IN THREE PLACES and they must agree: the Google query, the `fontFamily`
+// applied to the card, and the `fonts` entry Satori registers. They are one constant now, because
+// a mismatch between the registered name and the applied one falls back silently to the built-in
+// face — the card still renders, and it renders in something nobody chose.
+/** The one name. Used by the Google query, the applied `fontFamily`, and Satori's font entry. */
+const BRAND_FONT = "Source Serif 4";
+
 let fontPromise: Promise<ArrayBuffer | null> | null = null;
 function loadBrandFont(): Promise<ArrayBuffer | null> {
   if (!fontPromise) {
     fontPromise = (async () => {
       try {
         const css = await fetch(
-          "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600",
+          `https://fonts.googleapis.com/css2?family=${BRAND_FONT.replace(/ /g, "+")}:opsz,wght@8..60,600`,
           {
             headers: {
               "User-Agent":
@@ -64,7 +78,7 @@ export async function renderOgImage({
   subtitle?: string;
 }): Promise<ImageResponse> {
   const font = await loadBrandFont();
-  const fontFamily = font ? "Fraunces" : undefined;
+  const fontFamily = font ? BRAND_FONT : undefined;
   const sub =
     subtitle && subtitle.length > 140 ? `${subtitle.slice(0, 137)}…` : subtitle;
   // The cap and the size step, both measured — see lib/og-fit.ts for the derivation.
@@ -152,7 +166,7 @@ export async function renderOgImage({
     {
       ...OG_SIZE,
       ...(font
-        ? { fonts: [{ name: "Fraunces", data: font, weight: 600 as const, style: "normal" as const }] }
+        ? { fonts: [{ name: BRAND_FONT, data: font, weight: 600 as const, style: "normal" as const }] }
         : {}),
     },
   );

@@ -114,5 +114,31 @@ t("C4: exactly three faces are preloaded, the same number as before the arc bega
   ["Source_Serif_4", "Work_Sans", "Kaushan_Script", "Fraunces", "DM_Sans", "Space_Grotesk", "Caveat"]
     .filter((c) => preloadOf(c) === true).length, 3);
 
+/* ================================================ D. THE CARD AND THE PAGE AGREE
+ * ⚠ THIS IS THE ONE DEFECT THE ARC ACTUALLY SHIPPED, BRIEFLY. `--font-display` repointed to
+ * Source Serif 4 while `lib/og.tsx` went on fetching Fraunces from Google, so for one PR every
+ * article page rendered one serif and every social card rendered another — the same title looking
+ * like two different sites depending on whether you arrived from a link or from a feed.
+ *
+ * Nothing could see it. The card is generated server-side by Satori from its own font buffer, so
+ * no stylesheet, no token and no cascade gate touches it; it is the one surface where the site's
+ * type can drift without anything in the repo disagreeing. Hence this pair.
+ *
+ * MATCHED ON THE FAMILY NAME, which is the value all three of the card's sites share — the Google
+ * query, the applied `fontFamily`, and the `fonts` entry Satori registers. A mismatch between the
+ * registered name and the applied one falls back silently to the built-in face, so the card still
+ * renders and renders in something nobody chose. */
+{
+  const og = code(readFileSync(new URL("../../lib/og.tsx", import.meta.url), "utf8"));
+  const brand = (/const BRAND_FONT = "([^"]+)"/.exec(og) ?? [])[1] ?? null;
+  t("D1: the OG card names its face in ONE constant, not three string literals", brand, "Source Serif 4");
+  t("D2: …and that face is the one --font-display resolves to, so a card and its page cannot disagree",
+    brand && role("display") === `--font-${brand.toLowerCase().replace(/ /g, "-").replace("-4", "")}`, true);
+  t("D3: the Google query, the applied family and Satori's registration all read the constant",
+    [/family=\$\{BRAND_FONT/.test(og), /fontFamily = font \? BRAND_FONT/.test(og), /name: BRAND_FONT/.test(og)],
+    [true, true, true]);
+  t("D4: no literal Fraunces survives in the card renderer", /"Fraunces"/.test(og), false);
+}
+
 console.log(`\ntypography result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

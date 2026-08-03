@@ -7,10 +7,10 @@
 //
 // ------------------------------------------------------------------- THE NUMBERS ARE MEASURED
 //
-// Rendered with the exact Fraunces 600 TrueType file lib/og.tsx fetches from Google, loaded as
-// a FontFace, replicating Satori's greedy word wrap at maxWidth 1000. NOT computed from an
-// average character width — a threshold this project estimated rather than measured has been
-// wrong before by 190px.
+// Rendered with the exact SOURCE SERIF 4 600 TrueType file lib/og.tsx fetches from Google, loaded
+// as a FontFace, replicating Satori's greedy word wrap at maxWidth 1000. NOT computed from an
+// average character width, and NOT scaled from the Fraunces figures these replaced — a threshold
+// this project estimated rather than measured has been wrong before by 190px.
 //
 // The 630px card has 80px padding, leaving 470px of content. Eyebrow ~29, footer ~36, and a 24
 // gap between title and dek:
@@ -18,21 +18,40 @@
 //     84px    3 lines  ->  +73px slack        4 lines  ->  -15px, OVERFLOWS
 //     68px    4 lines  ->  +52px slack        5 lines  ->  -19px
 //
-// THE LONGEST REAL TITLE IS ALREADY THREE LINES. "What a design system is for when the machine
-// can draw" (53 chars) renders one line from the edge, which is why these are constants with a
-// derivation rather than a comment claiming it fits.
+// ⚠ THAT SLACK TABLE IS UNCHANGED BY THE FAMILY SWAP, AND THE REASON IS WORTH STATING SO NOBODY
+// RE-MEASURES IT. It is line COUNT times size times line-height — pure geometry. A face changes
+// how many CHARACTERS fit on a line, never how tall a line is. So the family swap moves the
+// character thresholds below and leaves every vertical figure exactly where it was. Re-derived
+// and confirmed identical rather than assumed.
 //
-// Prose first needs a 4th line at 84px at 71 characters, so 60 carries 11 characters of
-// headroom; a long-word title was already 3 lines by 50 characters, so 60 is conservative
-// there too. All three current posts are <=53 and stay at 84px, so no existing card changed.
+// ⚠ AND THE TABLE ASSUMES A ONE-LINE DEK, WHICH THE ORIGINAL DERIVATION DID NOT SAY. Measured
+// against the real content, the six subtitles wrap to 1, 1, 2, 2, 3 and 3 lines, and each extra
+// dek line costs 43px. The combination that would overflow — a 3-line title beside a 3-line dek —
+// does not exist in the content today, and every real card was rendered and checked. It is
+// recorded because nothing prevents it: the dek is capped at 140 characters, and a 140-character
+// dek is three lines.
+//
+// THE CHARACTER THRESHOLDS, RE-MEASURED AGAINST SOURCE SERIF 4:
+//
+//     84px   prose first needs a 4th line at  70 chars   (Fraunces: 71)
+//     68px   prose first needs a 5th line at 113 chars   (Fraunces: 116)
+//
+// So the step-down at 60 carries 9 characters of headroom and the 100 cap carries 12. Both
+// margins are narrower than Fraunces gave and both still hold, which is why the four constants
+// below are UNCHANGED. A swap that moves a threshold's justification without moving the threshold
+// is still a swap that has to be measured — the alternative is a number that was true about a
+// font nobody uses any more.
+//
+// THE LONGEST REAL TITLE IS 53 CHARACTERS and renders 3 lines at 84px, one line from the edge,
+// which is why these are constants with a derivation rather than a comment claiming it fits.
 
 export const TITLE_SIZE_PX = 84;
 /** Above this many characters the title steps down a size. Measured, see above. */
 export const TITLE_STEP_DOWN_CHARS = 60;
 export const TITLE_SMALL_SIZE_PX = 68;
 /**
- * The backstop, and it should never fire. At 68px prose holds 4 lines to 109 characters and
- * first needs a 5th at 116, so a 100 cap can never overflow, with 9 characters spare.
+ * The backstop, and it should never fire. At 68px prose holds 4 lines to 112 characters and
+ * first needs a 5th at 113, so a 100 cap can never overflow, with 12 characters spare.
  *
  * WHAT IT COSTS WHEN IT DOES FIRE, recorded because the cut is not neutral: the ellipsis takes
  * the END, so a headline whose payoff is its last clause loses exactly the part that earned the
@@ -44,10 +63,11 @@ export const TITLE_MAX_CHARS = 100;
 /* THE EYEBROW IS UNCAPPED, DELIBERATELY, AND HERE IS THE NUMBER SO THAT IS A DECISION.
  *
  * `topic` is free text — there is no schema-side set — so nothing constrains its length.
- * Measured the same way: the eyebrow row is a 48px rule plus a 16px gap inside 1040px of
- * content, leaving 976px, and an uppercase letterspaced eyebrow overflows at 51 characters.
- * The three real topics are 13-14 characters (243-272px), so the longest carries 36 characters
- * of headroom.
+ * Measured the same way, and RE-MEASURED against Source Serif 4: the eyebrow row is a 48px rule
+ * plus a 16px gap inside 1040px of content, leaving 976px, and an uppercase letterspaced eyebrow
+ * overflows at 53 characters (Fraunces: 51 — the one figure the swap improved). The three real
+ * topics are 13-14 characters and measure 232-259px, so the longest carries 39 characters of
+ * headroom.
  *
  * NO CONSTANT FOR IT, because there would be nothing to compare against: a cap here would be a
  * guard that cannot fire, and an exported threshold with zero consumers is a shape this repo
