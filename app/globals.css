@@ -149,7 +149,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      and meta sharing one tracking, 9px micro. If metadata genuinely needs a different tracking
      from a group heading, that is a case for a second TRACKING token against one size, never
      for a second size. */
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-source-serif);
   /* ⚠ THE BODY FAMILY IS A LAYOUT INPUT, NOT A TYPOGRAPHIC ONE, AND THAT IS THIS LINE'S WHOLE
      STORY. `ch` is the width of the `0` glyph in the element's OWN font, and the blog measure is
      `max-w-[68ch]` on a `<main>` that inherits its family from `html`. So repointing this token
@@ -312,18 +312,31 @@ body {
   overflow-x: hidden;
 }
 
-/* ⚠ THIS `opsz` VALUE CANNOT SURVIVE THE FAMILY SWAP, AND IT FAILS QUIETLY IF IT TRIES.
-   Fraunces carries opsz 9..144, so 144 is its top. Source Serif 4 carries opsz 8..60, so the
-   same declaration against the new face CLAMPS to 60 — it renders, nothing errors, and the
-   value drawn is not the value written. A number that silently becomes a different number is
-   the shape this file has been caught by before.
-   THE REPLACEMENT IS THE STEP'S OWN opsz, from the contract's scale, not "something valid".
-   The two `font-variation-settings` sites in the whole repo are this one and `.case-study
-   :is(h1, h2)`, which sets `normal` and therefore needs no new value. */
+/* ⚠ THE PIN IS GONE, AND IT IS REPLACED BY THE MECHANISM RATHER THAN BY ANOTHER NUMBER.
+   It read `font-variation-settings: "opsz" 144`. Fraunces carries opsz 9..144, so 144 was its
+   top; Source Serif 4 carries opsz 8..60, so the same declaration against the new face CLAMPS to
+   60 — it renders, nothing errors, and the value drawn is not the value written.
+
+   THE CONTRACT ASKS FOR A DIFFERENT opsz PER STEP — 60 for the hero and the section head, 32 for
+   an article title, 24 for a card, 18 for a sub — and THIS IS ONE RULE COVERING ALL OF THEM. So
+   there is no single "step's value" to take: h1 alone spans the 60 of a hero and the 32 of a
+   36px article title. `font-optical-sizing: auto` IS that table, computed per element from the
+   rendered size, which is what an optical size axis is for.
+
+   AND THE CASE STUDY HAD ALREADY FOUND THIS. `.case-study :is(h1, h2)` existed only to undo the
+   144 locally, its comment saying the pinned master "reads thin" and that optical sizing should
+   track the rendered size instead. That surface was right and the rule was scoped when it should
+   have been general — the same shape as `.case-study .font-display`, which `.sechead` later
+   generalised. The local override is removed with this change because it now says what the global
+   rule says.
+
+   IT ALSO CANNOT CLAMP AGAIN. `auto` is bounded by whatever axis the live face exposes, so the
+   next family swap cannot reintroduce a value the font will silently move. `typography.mjs`
+   asserts no explicit opsz outlives this. */
 h1,
 h2 {
   font-family: var(--font-display);
-  font-variation-settings: "opsz" 144;
+  font-optical-sizing: auto;
   font-weight: var(--font-weight-regular);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
@@ -1965,16 +1978,15 @@ a {
 }
 
 /* ============================================================
-   Case study — Fraunces display presence (spec A3). The global
-   h1/h2 rule pins opsz to 144 (the highest-contrast master, which
-   reads thin). Unpin it so optical sizing tracks the rendered size
-   (sturdier), and give all display text the panel's medium weight.
+   Case study — display presence (spec A3). This block once carried a
+   `.case-study :is(h1, h2)` rule too, unpinning the global `opsz 144`
+   so optical sizing could track the rendered size. THAT FINDING WAS
+   RIGHT AND WAS SCOPED TOO NARROWLY — the global rule now sets
+   `font-optical-sizing: auto` for every h1 and h2, so the local
+   override said nothing the general rule did not and is removed.
+   Same shape as `.case-study .font-display` below, which `.sechead`
+   generalised for the studio.
 ============================================================ */
-
-.case-study :is(h1, h2) {
-  font-variation-settings: normal;
-  font-optical-sizing: auto;
-}
 
 .case-study .font-display {
   /* The unlayered `h3,h4,h5,h6 { font-family: var(--font-body) }` reset outranks the

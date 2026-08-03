@@ -17,13 +17,19 @@ import {
 } from "@/lib/site";
 import "./globals.css";
 
+/* ⚠ FRAUNCES IS NO LONGER THE DISPLAY FACE. `--font-display` points at Source Serif 4 as of this
+   commit, so preloading Fraunces would spend the critical window on a face nothing reads. It stays
+   LOADED rather than deleted for one more step, because `--font-fraunces` is still a declared face
+   and deleting both outgoing families belongs in a cleanup PR rather than in the one that has to
+   prove the serif changed. Its SOFT and WONK axes go with it when it goes — Source Serif 4 has
+   neither, which is the "drops the calligraphy" half of the contract. */
 const fraunces = Fraunces({
   subsets: ["latin"],
   axes: ["SOFT", "WONK", "opsz"],
   style: ["normal", "italic"],
   variable: "--font-display-loaded",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 /* ⚠ DM SANS IS NO LONGER THE BODY FACE AND IS NO LONGER PRELOADED. `--font-body` points at Work
@@ -83,13 +89,16 @@ const caveat = Caveat({
    upstream, which costs nothing because a tracked uppercase label never sets one.
 ============================================================================================ */
 
+/* ⚠ PRELOADED FROM HERE, because it IS the display face now — every h1 and h2 on every page, and
+   the LCP element on the home page and every case study. It swaps places with Fraunces above
+   rather than joining it, so a public page's preload count does not move. */
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   axes: ["opsz"],
   style: ["normal", "italic"],
   variable: "--font-source-serif-loaded",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 /* ⚠ WORK SANS IS PRELOADED FROM HERE, because it IS the body face now — every paragraph on every
