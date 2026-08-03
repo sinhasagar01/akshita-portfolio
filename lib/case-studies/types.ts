@@ -284,15 +284,3 @@ export type CaseStudy = {
   template?: string;
 };
 
-/**
- * Slugs served by the bespoke template via a literal route segment. Filtered out
- * of the Keystatic [slug] route's generateStaticParams to avoid a build collision.
- * Only add a slug here once its literal route is wired and its content is poured.
- */
-/* ⚠ EMPTY NOW, AND KEPT RATHER THAN DELETED. `boat-crest` was its only member; its content lives in
- * `content/projects/boat-crest.yaml` and it renders through the ordinary `[slug]` route like every
- * other study. The SET stays because it is the mechanism that made the literal-route escape hatch
- * safe — twelve consumers read it, and every one is now a branch that correctly never fires.
- * Removing the concept is a separate mechanical sweep; emptying it is the one line that actually
- * moves the study, and it is the line the render proof rests on. */
-export const BESPOKE_SLUGS = new Set<string>([]);

@@ -1,5 +1,4 @@
 import { getCaseStudyData, getProjectSlugs } from "@/lib/keystatic";
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { renderOgImage } from "@/lib/og";
 
 // Stable OG-card URL (`/projects/<slug>/og`) referenced identically by og:image,
@@ -12,7 +11,9 @@ import { renderOgImage } from "@/lib/og";
 // listed here was rendered on demand — `/projects/not-a-real-slug/og` returned 200 and a PNG.
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs();
-  return slugs.filter((slug) => !BESPOKE_SLUGS.has(slug)).map((slug) => ({ slug }));
+  // Every study is content now, so none is filtered out — the exclusion existed only to
+  // avoid colliding with boat-crest's literal route, which #292 removed.
+  return slugs.map((slug) => ({ slug }));
 }
 
 /** Anything not listed above 404s at the routing layer. Visible in the build as

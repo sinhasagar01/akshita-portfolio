@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getCaseStudyData, getProjectSlugs, getAdjacentProject } from "@/lib/keystatic";
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { absoluteUrl, projectPath, projectLastModified, ogImageUrl } from "@/lib/site";
 import { caseStudySchema, breadcrumbSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
@@ -18,7 +17,9 @@ export async function generateStaticParams() {
   const slugs = await getProjectSlugs();
   // Slugs with a literal bespoke route (e.g. boat-crest) are served by that route,
   // not this dynamic one — exclude them to avoid a build-time path collision.
-  return slugs.filter((slug) => !BESPOKE_SLUGS.has(slug)).map((slug) => ({ slug }));
+  // Every study is content now, so none is filtered out — the exclusion existed only to
+  // avoid colliding with boat-crest's literal route, which #292 removed.
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

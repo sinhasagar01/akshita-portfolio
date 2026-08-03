@@ -26,7 +26,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectListItem } from "@/lib/keystatic";
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { indexViewCookie, type IndexView } from "@/lib/studio/index-view";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListReorder } from "./useListReorder";
@@ -368,13 +367,7 @@ export default function CaseStudyIndex({
                   setBanner("");
                   moveItem(p.slug, direction);
                 }}
-                onRemove={() => {
-                  if (BESPOKE_SLUGS.has(p.slug)) {
-                    setBanner(`${p.title} is a featured case study and can't be removed here.`);
-                    return;
-                  }
-                  setDeleteTarget(p.slug);
-                }}
+                onRemove={() => setDeleteTarget(p.slug)}
               />
             );
           })}

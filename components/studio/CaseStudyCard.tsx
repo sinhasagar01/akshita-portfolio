@@ -30,11 +30,9 @@
 // two lines at this width hold roughly 95. So ALL FOUR clamp today and the box is always full —
 // the reserve is guarding the NEXT summary, not these. Worth knowing that the contract's own
 // mock quietly shortened the Data Profiling summary; the real one ellipsises.
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import type { ProjectListItem } from "@/lib/keystatic";
 import {
   activationProps,
-  BespokeChip,
   HeroPlate,
   ITEM_FOCUS,
   PlatformTag,
@@ -57,7 +55,6 @@ export default function CaseStudyCard({
   onOpen: () => void;
   onMove: (direction: "up" | "down") => void;
 }) {
-  const bespoke = BESPOKE_SLUGS.has(item.slug);
 
   return (
     <div
@@ -88,11 +85,7 @@ export default function CaseStudyCard({
         <div className="mt-[5px] grid grid-cols-[1fr_auto] items-center gap-2.5">
           <div className="grid min-w-0 grid-flow-col justify-start gap-2 overflow-hidden whitespace-nowrap">
             <PlatformTag template={item.template} />
-            {bespoke ? (
-              <BespokeChip />
-            ) : (
-              <SectionCount count={item.sectionCount} className="text-[11px] leading-none" />
-            )}
+            <SectionCount count={item.sectionCount} className="text-[11px] leading-none" />
           </div>
           <ReorderCluster
             orientation="row"

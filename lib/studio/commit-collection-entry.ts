@@ -51,7 +51,6 @@ import {
 import { slugify, freeSlug } from "./slug";
 import { getBranchHeadOid, getBaseBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
-import { BESPOKE_SLUGS } from "../case-studies/types";
 
 export type CollectionName = "experience" | "projects" | "blog";
 export type CollectionPatch = Partial<ExperienceInput> | Partial<ProjectsInput> | Partial<BlogInput>;
@@ -567,14 +566,9 @@ export async function deleteCollectionEntry(
     });
   }
 
-  // projects — bespoke guard FIRST, before any read or write.
-  if (BESPOKE_SLUGS.has(slug)) {
-    return {
-      ok: false,
-      error: { code: "bespoke_locked", field: slug, message: `"${slug}" is a bespoke project and cannot be deleted here` },
-    };
-  }
-
+  /* There used to be a bespoke guard here, refusing to delete `boat-crest` because its body lived
+     in a TypeScript module a content delete could not reach. #292 moved it to YAML, so every
+     project is now deletable through exactly this path and the guard had nothing left to refuse. */
   // Enumerate <slug>.yaml + every content/projects/<slug>/** file for one atomic
   // deletion commit. DOUBLE BASE-RESOLUTION: the tree is read at the resolved base,
   // then commitFilesToDraft re-resolves; a body file added under the slug in that

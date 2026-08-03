@@ -7050,6 +7050,47 @@ are exact counts now. lint, tsc and the production build clean.
 
 ---
 
+### #293 — BESPOKE_SLUGS IS GONE, not merely empty
+
+#292 emptied the set as the one line that moved boAt Crest onto the ordinary route. **This removes
+the concept**: the constant, its twelve consumers, and the UI they gated. Every one had become a
+branch that could never fire, and dead machinery nobody exercises is machinery nobody maintains.
+
+**WHAT WENT WITH IT.** `projectLastModified`'s second candidate (the study's TS module — there is no
+longer any such file). The `bespoke_locked` error code, its guard in `deleteCollectionEntry`, and
+the 409 it mapped to. The **Hand-built** chip in the crumb row, the rail's read-only notice, the
+suppressed Editor|Board toggle, and the gate that stopped a bespoke study ever fetching its
+sections. Both `generateStaticParams` filters, which existed only to avoid colliding with a literal
+route that no longer exists.
+
+**⚠ THE PROOF IS THAT NOTHING MOVED.** All four case studies render **byte-identical** — this is
+pure removal, so anything else would mean a branch had been live after all. **The CSS union tells
+the same story precisely: exactly one selector removed, `.opacity-25`, and none added.** That was
+the disabled state on a bespoke row's remove button. `disabled:opacity-25` is a different emitted
+rule and survives, which is the distinction worth having checked rather than assumed.
+
+**FOUR RALPH SUITES LOST SUBJECTS, AND THE DENOMINATOR MATTERED IN ONE OF THEM.**
+- **`mount-discipline` A4** recorded that a bespoke study mounts zero section editors BY
+  CONSTRUCTION, so B1-B3 having no subjects on that page was the INTENDED zero rather than a silent
+  one. Every study now carries real sections, so that zero cannot occur — and the assertion says so
+  rather than vanishing, because a vanished denominator note is how a vacuous pass gets in.
+- **`studio-ink` C13** governed the bespoke three-pane; eleven of its assertions had no subject
+  left. What survives is the half that was never about bespoke — hazard 29's real content is *an
+  empty list under a count heading looks like a broken fetch*, which is reachable on ANY empty
+  study. The retired half is asserted ABSENT, so a stray `bespoke` prop cannot creep back.
+- **`studio-ink` F5** drops 37 pills to 36, and **`studio-cascade` C2** drops its inert inventory
+  from 12 to 11 — the 8th `<p>` line-height was the rail notice. Both are censuses whose whole job
+  is to be updated deliberately.
+- **`ncr-adjacent`** asserted boat-crest WAS bespoke with a literal route. It now asserts **no
+  project has a literal route at all** — and that assertion was wrong on its first pass: it counted
+  DIRECTORIES, and a stray `.DS_Store` was holding the deleted `boat-crest/` folder alive. **A route
+  is a `page.tsx`, not a folder**; a directory with no page routes nothing.
+
+Gates: ralph **2288 → 2277** (a net removal, which is the point), lint, tsc and the production build
+clean. Public DOM byte-identical on all four studies.
+
+---
+
 ### #294 — THE STORY IMAGES GET THEIR DIMENSIONS BACK, and the gate that should have caught it
 
 **A defect I shipped in #292, reported by the owner.** Opening the case-study editor threw

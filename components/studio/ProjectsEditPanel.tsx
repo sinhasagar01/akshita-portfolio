@@ -20,7 +20,6 @@ import { makeDraftSrcRewriter } from "@/lib/studio/draft-image";
 import SegmentedToggle from "./SegmentedToggle";
 import { IconGrid } from "./icons";
 import { inputClsMd, labelCls, FieldKey} from "./blocks/fields";
-import { BESPOKE_SLUGS } from "@/lib/case-studies/types";
 import { type ZoomLevel } from "@/lib/studio/canvas-zoom";
 import type { ProjectFacts } from "@/lib/studio/projects-format";
 import type { RawSection } from "@/lib/case-studies/sections-raw";
@@ -89,9 +88,9 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   });
 
   // Sections are fetched separately from the list payload, which never carries them
-  // (a project's sections are ~15KB, and the index shows four projects). boat-crest
-  // is bespoke: a read-only notice, never fetched.
-  const bespoke = BESPOKE_SLUGS.has(slug);
+  // (a project's sections are ~15KB, and the index shows four projects). There used to be a
+  // `bespoke` escape here — boat-crest showed a read-only notice and was never fetched, because its
+  // sections lived in code. #292 made it content, so every study takes exactly this path.
   // Sections are the reason you opened this page, so they are always visible and the
   // DETAILS collapse instead — the reverse of the old Details|Sections tabs, where the
   // thing you came for was one click away behind the thing you rarely change.
@@ -156,8 +155,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     }
   }
 
-  // Sections load once the panel is SELECTED. Still never for bespoke, and still never
-  // re-fetched once loaded.
+  // Sections load once the panel is SELECTED, and are never re-fetched once loaded.
   //
   // ---- HAZARD 17 IS CLOSED HERE, AND THE FETCH GATE IS WHY IT IS TWO CHANGES -------------
   //
@@ -181,7 +179,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // true so this fires on mount exactly as before, and in a shell it fires on first selection.
   // `sectionsStatus === "idle"` still makes it once-only, so re-selecting never refetches.
   useEffect(() => {
-    if (!isSelected || bespoke || sectionsStatus !== "idle") return;
+    if (!isSelected || sectionsStatus !== "idle") return;
     void loadSections();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch once, on first selection
   }, [isSelected]);
@@ -298,22 +296,20 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             row is `flex-wrap` inside a 313px inspector; a full-width child takes its own line and
             the actions wrap beneath exactly as they do today. `flex-1` would try to share the
             line, leaving the toggles 179px between them and squeezing both. */}
-        {!bespoke && (
-          <div className="flex w-full items-start justify-between gap-3">
-            <TemplateToggle
-              slug={slug}
-              initial={template}
-              onChange={setTemplateValue}
-              onSaved={() => setUnpublished(true)}
-            />
-            <CategoryToggle
-              slug={slug}
-              initial={category}
-              onChange={setCategoryValue}
-              onSaved={() => setUnpublished(true)}
-            />
-          </div>
-        )}
+        <div className="flex w-full items-start justify-between gap-3">
+          <TemplateToggle
+            slug={slug}
+            initial={template}
+            onChange={setTemplateValue}
+            onSaved={() => setUnpublished(true)}
+          />
+          <CategoryToggle
+            slug={slug}
+            initial={category}
+            onChange={setCategoryValue}
+            onSaved={() => setUnpublished(true)}
+          />
+        </div>
       </div>
         <div className="flex flex-col gap-5 px-4 py-5">
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
@@ -390,9 +386,6 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // retire it. I did not. The frame belongs to the wrapper all three branches share, so removing
   // one branch's CONDITION leaves the markup, and the rule E1b encodes — a panel that is not in a
   // shell keeps its frame — still has two subjects.
-  // BESPOKE SKIPS THIS ENTIRELY RATHER THAN SATISFYING IT. Its fetch is gated off, so
-  // `sectionsStatus` never leaves "idle" and `sectionsData` stays null — a bespoke study can never
-  // be "loaded" and asking it to be would mean faking a load that did not happen.
   // ---- THE LOADING WINDOW IS NOT A PAGE, AND SHOWING IT AS ONE WAS THE GLITCH -------------
   //
   // MEASURED: clicking a study from the index showed the framed fallback at 426ms and the shell at
@@ -415,7 +408,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
   // is a persistent, actionable state that needs a frame, a retry and the details still editable.
   // A slow load is neither. It also keeps `studio-ink` E1b's subject alive honestly — the rule it
   // encodes is about a panel that is NOT in a shell, and the error state is still exactly that.
-  if (!bespoke && sectionsStatus !== "error" && (sectionsStatus !== "loaded" || !sectionsData)) {
+  if (sectionsStatus !== "error" && (sectionsStatus !== "loaded" || !sectionsData)) {
     return (
       // NO HEIGHT FLOOR HERE, AND THAT IS MEASURED RATHER THAN TRIMMED. The obvious reading is
       // that a loading box needs a minimum or it collapses to its text. It does not: the layout's
@@ -441,7 +434,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
     );
   }
 
-  if (!bespoke && (sectionsStatus !== "loaded" || !sectionsData)) {
+  if (sectionsStatus !== "loaded" || !sectionsData) {
     return (
       // ---- THIS ONE KEEPS ITS FRAME, AND THAT IS THE POINT OF SCOPING THE CHANGE ----------
       //
@@ -501,15 +494,11 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
 
   return (
     <SectionsEditPanel
-      bespoke={bespoke}
       slug={slug}
       title={title}
-      /* THE `?? []` IS UNREACHABLE FOR A NORMAL STUDY AND IS NOT DEAD CODE. The guard above
-         returns unless `sectionsData` is non-null OR the study is bespoke, so the false arm
-         cannot be null in practice — but the guard's condition mentions `bespoke`, so the
-         narrowing does not survive it and the type is honestly `| null` here. A non-null
-         assertion would silence that rather than answer it. */
-      sections={bespoke ? [] : (sectionsData ?? [])}
+      /* The `?? []` went with `bespoke`. The guard above now returns unless `sectionsData` is
+         non-null, full stop, so the narrowing survives it and this is simply the data. */
+      sections={sectionsData}
       template={templateValue}
       draftImages={draftImages}
       detailsNode={detailsNode}

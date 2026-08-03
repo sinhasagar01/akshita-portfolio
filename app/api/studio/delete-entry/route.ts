@@ -53,12 +53,9 @@ export async function POST(req: Request) {
 
   const result = await deleteCollectionEntry(collection, slug, { branch: DRAFT_BRANCH });
   if (!result.ok) {
-    const status =
-      result.error.code === "not_found"
-        ? 404
-        : result.error.code === "bespoke_locked"
-          ? 409 // projects: a bespoke slug (boat-crest) can't be deleted here
-          : 500;
+    // The 409 for `bespoke_locked` went with #292: no slug is bespoke any more, so nothing can
+    // return that code and a branch for it would be unreachable.
+    const status = result.error.code === "not_found" ? 404 : 500;
     return NextResponse.json(result, { status });
   }
 

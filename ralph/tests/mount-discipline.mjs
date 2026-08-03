@@ -64,10 +64,15 @@ t("A3: the board is rendered as its own conditional — it holds no form state, 
  * cannot say so. It is named here rather than left implicit: a bespoke study mounts zero section
  * editors BY CONSTRUCTION, because it is handed an empty array, and the suite records that this is
  * the intended zero rather than a silent one. */
-t("A4: a bespoke study is handed ZERO sections, so B1-B3 below have no subjects on that page",
-  /sections=\{bespoke \? \[\] : \(sectionsData \?\? \[\]\)\}/.test(read("components/studio/ProjectsEditPanel.tsx")), true);
-t("A4: …and it renders no Board, so the composition B1-B3 guard is never entered there",
-  /\{!bespoke && showBoard && boardNode\}/.test(panel), true);
+/* ⚠ A4's SUBJECT IS GONE, AND THAT MATTERS FOR THE DENOMINATOR. It recorded that a BESPOKE study
+ * mounts zero section editors by construction — handed an empty array, rendering no Board — so
+ * B1-B3 below having no subjects on that page was the INTENDED zero rather than a silent one.
+ * #292 made the last such study content and #293 removed the concept, so every study now carries
+ * real sections and B1-B3 have subjects everywhere. The zero this guarded cannot occur. */
+t("A4: no study is handed a hard-coded empty sections array any more",
+  /sections=\{bespoke/.test(read("components/studio/ProjectsEditPanel.tsx")), false);
+t("A4: …and the Board renders for every study, so B1-B3 always have subjects",
+  /\{showBoard && boardNode\}/.test(panel), true);
 
 /* ================================================ B. THE FORMS ARE HIDDEN, NOT CONDITIONAL */
 t("B1: each section editor is hidden by selection rather than filtered out of the map",
