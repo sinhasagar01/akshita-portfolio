@@ -77,15 +77,15 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
-- **The 56 dead line-heights, and the one change that would make them all live.** `cascade-public`
-  counts 97 collisions outside `/studio`, and **56 of them are `line-height`** — a utility on an
+- **The 61 dead line-heights, and the one change that would make them all live.** `cascade-public`
+  counts 102 collisions outside `/studio`, and **61 of them are `line-height`** — a utility on an
   element whose unlayered rule sets the same property, so the utility draws nothing. Moving the
-  unlayered element rules into `@layer base` fixes all 56 at once, because a layered rule loses to
-  `@layer utilities` in the normal way. **One change, and a large visual change: 56 line-heights
-  becoming live is 56 boxes moving.**
+  unlayered element rules into `@layer base` fixes all 61 at once, because a layered rule loses to
+  `@layer utilities` in the normal way. **One change, and a large visual change: 61 line-heights
+  becoming live is 61 boxes moving.**
 
   **⚠ AND IT IS NOT "RESTORING INTENT", WHICH IS THE PART THAT MAKES IT RISKY.** Every one of those
-  56 is currently inert, so the values were written and have never taken effect. Making them live
+  61 is currently inert, so the values were written and have never taken effect. Making them live
   applies numbers **nobody has ever seen render**. That is a larger claim than the three headings
   below, where a heading simply draws the wrong face — it needs measuring per site, not a sweep.
   Recorded with the number so it is not re-derived. Its own PR, not a corner of the typography arc.

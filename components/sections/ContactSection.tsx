@@ -222,7 +222,7 @@ function SuccessScreen() {
       <h3
         ref={ref}
         tabIndex={-1}
-        className="font-display italic text-[30px] leading-[1.2] text-[--color-text-primary] mb-3 outline-none"
+        className="display-face italic text-[30px] leading-[1.2] text-[--color-text-primary] mb-3 outline-none"
         style={{ fontWeight: 400 }}
       >
         Thanks, talk soon.
