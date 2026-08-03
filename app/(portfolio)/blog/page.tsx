@@ -89,7 +89,7 @@ function PostCard({ post }: { post: BlogCard }) {
         <span>{formatShortDate(post.date)}</span>
         <span>{post.readingTime} min</span>
       </div>
-      <h3 className="mt-2 font-display text-[21px] font-normal leading-[1.2] text-ink-950 transition-colors group-hover:text-accent-600">
+      <h3 className="mt-2 display-face text-[21px] font-normal leading-[1.2] text-ink-950 transition-colors group-hover:text-accent-600">
         {post.title}
       </h3>
       {post.dek ? <p className="mt-2 text-[14.5px] leading-[1.55] text-ink-600">{post.dek}</p> : null}

@@ -1988,6 +1988,26 @@ a {
    generalised for the studio.
 ============================================================ */
 
+/* ============================================================ THE DISPLAY FACE, UNLAYERED
+   ⚠ UNLAYERED ON PURPOSE, exactly like `.studio-chrome .sechead` and `.case-study .font-display`
+   below, and for the identical reason. The `h3, h4, h5, h6` reset sets `font-family:
+   var(--font-body)` UNLAYERED, and an unlayered rule beats @layer utilities at any specificity —
+   so `font-display` on a heading renders NOTHING and the element draws the body sans.
+
+   THIS REALISES AN INTENT THAT WAS NEVER APPLIED, which is a different act from changing a
+   design. Both consumers already carried `font-display` and neither has ever rendered it. The
+   same shape as the forty `text-ink-500` sites that always meant muted and never were.
+
+   ⚠ AND IT IS DELIBERATELY A NAMED CLASS RATHER THAN AN UNSCOPED `.font-display`, WHICH WOULD
+   HAVE BEEN THE TIDIER CHANGE. Dropping the scope would repair every heading carrying that
+   utility, including `ProcessSection`'s stage heads — a third surface, found while measuring this
+   one, that nobody has decided about. A repair that quietly widens past what was agreed is how a
+   considered decision becomes a side effect. The generalisation stays available and is recorded
+   as the follow-up; `cascade-public` registers the site that is still dead. */
+.display-face {
+  font-family: var(--font-display);
+}
+
 .case-study .font-display {
   /* The unlayered `h3,h4,h5,h6 { font-family: var(--font-body) }` reset outranks the
      Tailwind `.font-display` utility (which lives in @layer utilities), so heading-level

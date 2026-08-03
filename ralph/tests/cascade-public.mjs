@@ -11,7 +11,7 @@
 // never a class that never worked.
 //
 // The two suites are kept apart rather than merged. studio-cascade holds /studio to ZERO
-// collisions, which it has earned and which this suite cannot claim for the public site — 97
+// collisions, which it has earned and which this suite cannot claim for the public site — 102
 // collisions exist there today. Merging them would either relax the studio's clean bill or fail
 // the build on a hundred pre-existing sites.
 //
@@ -35,11 +35,22 @@
 // utilities are theme steps. It is not enough here, where the public site is full of arbitrary
 // values. A name comparison reports `h-auto` against `height: auto` as a collision, and
 // `max-w-[68ch]` against `max-width: 68ch` as a collision, and both are agreement. The first draft
-// of this file did exactly that and claimed 127 collisions where there are 97.
+// of this file did exactly that and reported 30 collisions that were not.
 //
 // So every utility is RESOLVED to the value it would compute to, through the @theme table, and
 // compared against the reset resolved the same way. Arbitrary values are read out of their
 // brackets. The difference is 30 false positives.
+//
+// ---- ⚠ AND IT COULD NOT SEE `<motion.h3>` UNTIL THE HEADING-FIX PR ---------------------------
+//
+// The element scanner captured `motion` from `<motion.h3` — lowercase, matching no rule, silently
+// skipped. SEVEN elements sat behind that: two motion.h2, one motion.h3 and four motion.p, and one
+// of them was a FOURTH font-family collision while B1 asserted there were exactly three.
+//
+// It was found by looking at the screen. A process-stage heading rendered the body sans while
+// carrying `font-display`, and no gate disagreed. A suite that enumerates by parsing source is
+// only as complete as its idea of what an element looks like, and this repo writes elements two
+// ways. The census moved 97 -> 104 the moment the dotted form became visible.
 //
 // ---- AND SCOPED UNLAYERED REPAIRS ARE HONOURED -----------------------------------------------
 //
@@ -137,13 +148,25 @@ t("A0b: …and reads an arbitrary value out of its brackets", UTIL[3].f("leading
 t("A0b: …and knows agreement from collision", [UTIL[6].f("max-w-full"), UTIL[5].f("h-auto")], ["100%", "auto"]);
 
 const COMPONENT_TAG = new Map([["Link", "a"], ["Image", "img"], ["NextImage", "img"]]);
+/* ⚠ THE DOTTED FORM IS MATCHED TOO, AND MISSING IT WAS A REAL BLIND SPOT. `<motion.h3>` renders a
+ * literal <h3> and is subject to the unlayered reset exactly as a plain tag is — but the element
+ * name captured from `<motion.h3` is `motion`, which is lowercase, matches no rule, and was
+ * silently skipped. Seven elements sat behind it: two motion.h2, one motion.h3 and four motion.p.
+ *
+ * IT WAS FOUND BY LOOKING AT THE SCREEN, NOT AT THE GATE. A process-stage heading rendered the
+ * body sans while carrying `font-display`, and the registry below claimed the font-family
+ * collisions were "exactly three". They were four. A gate that enumerates by parsing source is
+ * only as complete as its idea of what an element looks like, and this repo writes elements two
+ * ways. */
 function* elements(src, rel) {
-  const re = /<([A-Za-z][A-Za-z0-9]*)\s([^>]*?)>/gis;
+  const re = /<([A-Za-z][A-Za-z0-9]*(?:\.[a-z][a-zA-Z0-9]*)?)\s([^>]*?)>/gis;
   let m;
   while ((m = re.exec(src))) {
     const raw0 = m[1];
-    const tag = COMPONENT_TAG.get(raw0) ?? raw0.toLowerCase();
-    if (/^[A-Z]/.test(raw0) && !COMPONENT_TAG.has(raw0)) continue;
+    // `motion.h3` -> `h3`. A namespaced element renders the tag after the dot.
+    const dotted = raw0.includes(".") ? raw0.slice(raw0.indexOf(".") + 1).toLowerCase() : null;
+    const tag = dotted ?? COMPONENT_TAG.get(raw0) ?? raw0.toLowerCase();
+    if (!dotted && /^[A-Z]/.test(raw0) && !COMPONENT_TAG.has(raw0)) continue;
     if (!RULES.has(tag)) continue;
     const cn = m[2].match(/className=(?:"([^"]*)"|\{`([\s\S]*?)`\}|\{([^}]*)\})/);
     if (!cn) continue;
@@ -208,16 +231,18 @@ const pub = collisions.filter(outside);
 const FAMILY_COLLISIONS = [
   { at: "components/sections/HeroSection.tsx", tag: "h1", cls: "font-script",
     guard: /className="font-script text-\[--color-accent-500\] leading-\[1\] m-0 font-normal"/,
-    why: "the home page signature. Asks for Kaushan Script, draws Fraunces. MEASURED." },
-  { at: "app/(portfolio)/blog/page.tsx", tag: "h3", cls: "font-display",
-    guard: /<h3[^>]*className="[^"]*\bfont-display\b/,
-    why: "a blog card title. Asks for the display serif, draws the body sans." },
-  { at: "components/sections/ContactSection.tsx", tag: "h3", cls: "font-display",
-    guard: /<h3[^>]*className="[^"]*\bfont-display\b/,
-    why: "the contact heading. Same shape as the blog card title." },
+    why: "the home page signature. Asks for Kaushan Script, draws the display serif. MEASURED. " +
+         "DEFERRED ON PURPOSE — it is the Kaushan brand question, recorded as an open item in " +
+         "CLAUDE.md and not to be settled inside a font swap." },
+  { at: "components/sections/ProcessSection.tsx", tag: "h3", cls: "font-display",
+    guard: /<motion\.h3[\s\S]{0,200}?className="font-display italic text-subheading/,
+    why: "a process stage head. FOUND BY LOOKING AT THE SCREEN, not by this gate — it is a " +
+         "`<motion.h3>`, and the element scanner could not see the dotted form until this commit. " +
+         "Left live because it is a THIRD surface nobody has decided about; the repair that would " +
+         "fix it is one scope removal away." },
 ];
 const familyHits = pub.filter((h) => h.property === "font-family");
-t("B1: the font-family collisions are exactly the three on record — a fourth means a new family utility that draws nothing",
+t("B1: the font-family collisions are exactly the two still on record — blog card titles and the contact heading were repaired, and a NEW one means a family utility that draws nothing",
   familyHits.map((h) => `${h.where.split(":")[0]} <${h.tag}> ${h.cls}`).sort(),
   FAMILY_COLLISIONS.map((e) => `${e.at} <${e.tag}> ${e.cls}`).sort());
 for (const e of FAMILY_COLLISIONS) {
@@ -234,11 +259,11 @@ const byProp = {};
 for (const h of pub) (byProp[h.property] ??= []).push(h);
 const census = Object.fromEntries(Object.keys(byProp).sort().map((k) => [k, byProp[k].length]));
 t("C1: the public collision census is exactly this — a change here is a dead utility gained or repaired",
-  census, { color: 5, "font-family": 3, "font-weight": 12, "letter-spacing": 4, "line-height": 56, "max-width": 17 });
+  census, { color: 5, "font-family": 2, "font-weight": 12, "letter-spacing": 4, "line-height": 61, "max-width": 18 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
-  inert.filter(outside).length, 36);
+  inert.filter(outside).length, 37);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
