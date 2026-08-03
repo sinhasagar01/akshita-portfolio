@@ -635,12 +635,17 @@ will silently do nothing. The current inventory, reported by `studio-cascade` an
 | BlogIndex.tsx:349, 393 | `leading-relaxed` on `<p>` |
 | blocks/blog-registry.tsx:129 | `leading-relaxed` on `<p>` |
 
-> **One blind spot, found while deriving that table.** `studio-cascade` splits the flattened
-> stylesheet on `}` without stripping comments first, so a rule preceded by a comment loses its tag
-> and never enters the rule map. `html` is the one rule that falls through, and it sets `font-family`
-> and `color`, both of which the gate guards elsewhere. There is no live consequence, since nothing
-> under `components/studio` puts a `className` on `<html>`. Recorded rather than fixed, because this
-> is a documentation change.
+> **One blind spot, found while deriving that table, and since FIXED.** `studio-cascade` split the
+> flattened stylesheet on `}` without stripping comments first, so a rule preceded by a comment lost
+> its tag and never entered the rule map. `html` was the one rule that fell through.
+>
+> **The "no live consequence" this paragraph originally claimed did not survive the week.** The
+> typography arc put a comment immediately above the `h1, h2` reset, and that rule fell through too
+> — the one rule the suite exists for, the one #205's ink bands lost to. `A0` reported `undefined`
+> and the inert inventory dropped from 11 to 7 while `C1` kept passing, because it had nothing left
+> to check. Repaired in #302, pinned with two assertions and mutation-tested. `html` is guarded for
+> the first time. **A blind spot with no consequence today is a blind spot waiting for the comment
+> that gives it one.**
 
 ### E2. Two utilities racing on sheet order
 
