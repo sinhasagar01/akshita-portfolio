@@ -6,19 +6,39 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of THE SELECTION CONTRACT)
+## STATE (as of BOAT CREST BECOMES CONTENT)
 
-**main** = `4da8deb` = the section wrapper's frame removed (#262). **#261 takes the echo
-block-level**, which is what finally makes it fire on the 77% of the canvas-editable surface that
-had been silent since #259 — the hero section was 0 of 12. **The Selected rail is replaced by a dock at
-the canvas foot with five timed tiers, the studio gains its first motion-token block scoped beside
-the radius scale, and `useAutoGrow` plus the canvas ceiling and its wrapper are deleted.**
-ralph **1735 across 46 suites** (`studio-motion` is new).
+**main** = `2ad6dac` = the case-study canvas zooms from its centre (#295).
+ralph **2286 across 53 suites**.
 
-**FOUR OF THE BRIEF'S PREMISES WERE WRONG AND TWO CHANGED THE BUILD**, and **T0 was broken three
-separate ways** — every one of them with the property true and the outcome wrong. Both are in the
-PR/SHA log, and the third T0 cause is now a working rule: **a scroll is clamped to the range that
-exists when it is issued, and the range is not the maths.**
+**THE HEADLINE IS THAT THE FLAGSHIP IS EDITABLE.** boAt Crest's body moved from 455 lines of
+TypeScript to `content/projects/boat-crest.yaml`, `BESPOKE_SLUGS` no longer exists, and every case
+study now renders through one route and edits through one editor. **Hazard 10 is closed** — and with
+it the last open item that had a defect behind it.
+
+**FOUR HAZARDS CLOSED IN THIS ARC, #287–#295.**
+- **13** — a publish shipped a half-finished sentence once, and the mitigation was a HABIT. #288
+  made the preview the confirm step, so looking is structural.
+- **30 and 31** — asserted and unpoliced. #289 built the usage gate the record said would misfire,
+  by DERIVING the legal icon set structurally rather than listing it, and **found six live AA
+  failures** — four visible only below `lg`, one unreachable by any DOM sweep.
+- **10** — `boat-crest` yielded zero parity pairs because it was the one hand-built study. #290–#293
+  gave its two bespoke blocks a content shape, taught the CMS to edit them, ported the content, and
+  removed the escape hatch.
+
+**⚠ AND THE ARC'S REAL LESSON IS ABOUT INSTRUMENTS, NOT CODE.** Six times an instrument was wrong
+before the thing it measured was: a caret probe that sampled the wrong element, an assertion that
+compared two `import` lines instead of two calls, a CSS grep with bad escaping, a contrast oracle
+compositing a translucent layer over white, raw HTML comparison that is not build-stable, and a
+`>=` threshold that let every mutation survive. **Four of the six would have had me "fix" something
+already correct.** The habit that caught every one is the same: run a known input through the
+instrument first, and do not believe a green assertion until a mutation has made it fail.
+
+**AND ONE DEFECT REACHED THE OWNER**, which is the counterweight to that. #292 dropped `width`/
+`height` from 23 of the flagship's 30 images. The gate that would have caught it had been RUN — and
+then the code changed and it was not run again, verified instead with narrower proxies that were
+both true and both blind to it. **A gate answers for the code it was run against and nothing after
+it.** #294 fixed it and pinned it.
 
 ### The field-contract arc, complete, immediately before it
 
@@ -2413,6 +2433,13 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
 
 ## HAZARDS AND KNOWN DUPLICATIONS
 
+**⚠ THE PROSE IN THIS DOC CITES SOME OF THESE OFF BY ONE, AND THE NUMBERS BELOW ARE THE TRUE ONES.**
+The list was renumbered at some point and the references never caught up, so **"hazard 10" in prose
+means entry 11 here** (boat-crest's zero parity pairs) and **"hazard 13" means entry 14** (whole-
+branch publish). Both are now closed, and I used the wrong numbers for both throughout #288–#293
+without noticing. Left as a correction rather than a mass rename: renumbering a list that dozens of
+comments and commit messages point at trades one stale reference for many.
+
 1. ~~**The 236px coupling**~~ (#165) — **CLOSED, BOTH HALVES (#237).** It survived from #165 to
    #237 as comment-enforced coupling, was re-derived to SEVEN sites in #236 (three display, four
    behavioural — the recorded text had said two, and `studio-ink` D had said five while pinning
@@ -2458,9 +2485,11 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
    there would turn a confusing webpack error into a clear one. **Not done.**
 10. **`data-studio-fullheight` couples `ThreePaneShell` to the dashboard layout's `:has()`
    rule** (#178) — two files, nothing in the type system connecting them. Ralph-enforced.
-11. **`boat-crest` produces ZERO parity pairs** — the gate has been blind to the hero case
-    study for an unknown number of PRs. Cause not investigated. **The other three render 15,
-    14 and 15.**
+11. ~~**`boat-crest` produces ZERO parity pairs**~~ — **CLOSED in #292.** It yielded none because
+    it was the one hand-built study: its body was TypeScript, so there was no content render to pair
+    against. It is `content/projects/boat-crest.yaml` now and pairs like every other study.
+    ⚠ **CITED AS "hazard 10" THROUGHOUT THE RECORD, INCLUDING BY ME ALL THE WAY THROUGH #290–#293.**
+    The prose references are off by one from this list; see the note at the head of this section.
 12. **The unlayered `img, video { height: auto }` at `app/globals.css:271`** (#180) — it
     silently beats every `h-*` utility on an `<img>`. Not removed, because the inline figure
     and other images legitimately want it; the cost is that image sizing must be authored.
@@ -2474,13 +2503,12 @@ boolean` type-checked, read as defensive, and silently disabled the very protect
     (#180), and this arc's own premise. It reuses `parity.mjs`'s walker UNCHANGED and
     asserts a NON-ZERO pair count. **Still browser-driven and dev-only**, so it is a gate
     someone must run, not one CI enforces.
-14. **WHOLE-BRANCH PUBLISH CAN SHIP A HALF-FINISHED EDIT** — observed, not theoretical. A
-    publish carried a mid-sentence truncation into a live post (see CURRENT CONTENT STATE).
-    Save-on-blur persists whatever is in the field, publish merges the whole draft branch,
-    and **no gate can distinguish an in-progress edit from an intended one**: the file stays
-    structurally valid and `validateBlogPost` returns ok. The mitigation today is reading the
-    content diff before publishing. A per-entry publish, or a diff preview in the PublishBar,
-    would be the real fix and neither is scoped.
+14. ~~**WHOLE-BRANCH PUBLISH CAN SHIP A HALF-FINISHED EDIT**~~ — **ANSWERED in #288**, which made
+    the preview the CONFIRM step rather than an optional link: `Publish site` opens a dialog listing
+    what will go live, grouped by entry and showing the changed text, and its primary button is the
+    merge. The old mitigation was a habit — *read the content diff before publishing* — and a habit
+    is what failed. A per-entry publish is still open and is the smaller half of this.
+    ⚠ **CITED AS "hazard 13" THROUGHOUT THE RECORD**, which is entry 13's number, not this one.
 15. ~~**`readingTimeMinutes` HAS NO `imageBlock` CASE**~~ — **FIXED in #192.** The `switch`
     became a mapped type over `BlogBlockKind`, so the omission that survived three PRs is now
     a COMPILE error (`TS2741` on a missing kind, `TS2353` on an invented one, both driven).
@@ -2888,49 +2916,27 @@ canvasColumn}`), so the two holders unmount independently. Measured at 900px: th
     measurement was taken on, always — a number taken on boat-crest is not wrong, it is about a
     different thing.
 
-30. **`accent-600` ON CREAM IS A TEXT COLOUR AT SEVEN SITES AND NO GATE CAN SEE IT.**
-    `studio-ink-contrast`'s cream half (#243) iterates the LABEL tokens — `ink-*` and
-    `text-subtle` — against the cream ladder. `accent-600` is not in that list, so the pairs it
-    forms are computed nowhere.
-    **NOTHING IS WRONG TODAY, AND THAT IS THE POINT.** Rasterised in #246 with the sanity pair
-    first and the ground taken by walking up to what actually paints, `accent-600` measures
-    **7.22 on cream-50, 6.87 on cream-100, 6.25 on cream-200** — floor 6.25, clear of 4.5 with
-    room. **RECORDED, NOT FIXED, DELIBERATELY.** Five of the seven dashed adds already used
-    `hover:text-accent-600` before #246, so this is not a new exposure and widening the gate now
-    would be a change made on no evidence.
-    **WHY IT IS A HAZARD RATHER THAN A NOTE.** A gate that cannot see a colour five sites already
-    use is a coverage hole of exactly the shape this project keeps finding by hand — #232 found
-    `text-subtle` on cream-300 at 4.03 by measuring, #242 hit the same pair again when the rail
-    moved to cream-200, and #243 was built because a person, not CI, noticed. The cream half
-    closed that for the label tokens and left this one open. **The failure mode is not that
-    accent-600 breaks; it is that the NEXT accent step, or accent-600 on a darker cream, lands
-    with every assertion green.**
-    **THE FIX WHEN IT IS WANTED** is to add the accent scale to the cream half's token list and
-    let it compute, the same way the label tokens do — a widening of an existing derivation, not
-    a new suite. It should be driven by a real need (a new accent-on-cream site, or a new cream
-    step) rather than by tidiness, since the current values pass and the list is short on purpose.
-
-
-31. **`ink-400` AS A TEXT COLOUR HAS A FACT ASSERTED ABOUT IT AND NO GATE ENFORCING IT — THREE
-    SITES SHIPPED IT.** `studio-ink-contrast` H4 asserts the RATIOS (3.49 / 3.33 / 3.02 / 2.55 on
-    the cream ladder) and states that ink-400 is not a text colour on cream. **It never scans for
-    the usage.** So the fact is recorded and the rule is unenforced, and three separate sites have
-    since shipped ink-400 as text, each caught by a person measuring:
-    - #253's key-pill placeholder (3.02 on cream-200) — caught in the plan.
-    - #255's unit suffix (3.49 on the cream-50 well) — caught in the PR.
-    - #253's accordion SUMMARY (3.49 / 3.33) — **shipped and lived on every collapsed row until
-      #256 found it**, which is the one that got through.
-    **WHY A GATE IS NOT TRIVIAL, AND WHY THIS IS RECORDED RATHER THAN BUILT.** Derived, the studio
-    has 35 `text-ink-400` occurrences: 23 are icon or border containers, where ink-400 is CORRECT
-    and legal (the 3:1 non-text floor). Of the remaining 12, several are comment lines and several
-    sit on INK grounds — `StudioSearch` and `StudioSidebar` at `lg` — where ink-400 is fine. A
-    naive scan misfires on all of those, and **a gate that misfires gets ignored**, which is worse
-    than none. The honest gate needs each site's GROUND, which is what hazard 30 records as the
-    missing capability. **The two hazards are the same gap seen from two directions**: 30 says a
-    colour the studio uses is uncomputed; 31 says a colour the studio forbids is unpoliced. Fixing
-    either properly means resolving a class string to the ground it renders on.
-
-
+30. ~~**`accent-600` ON CREAM IS A TEXT COLOUR AT SEVEN SITES AND NO GATE CAN SEE IT.**~~ —
+    **CLOSED in #289**, exactly as this entry prescribed: the accent scale was added to the cream
+    half's token list and left to compute, a widening of an existing derivation rather than a new
+    suite. **And computing it found something the entry did not predict.** accent-600 travels
+    (7.22 / 6.87 / 6.25 / 5.27), but **accent-500 clears the floor on cream-50 ALONE and misses
+    cream-100 by 0.02** — a two-hundredths miss nobody catches by eye and everybody assumes away.
+    Its one text consumer renders on cream-50 and is legal *only because of that ground*, so the
+    ground is pinned rather than the token blessed.
+31. ~~**`ink-400` AS A TEXT COLOUR HAS A FACT ASSERTED ABOUT IT AND NO GATE ENFORCING IT**~~ —
+    **CLOSED in #289, and the hazard was not theoretical: SIX SITES WERE LIVE.** The blog status-tab
+    counts at 3.49, the search result sublabels at 3.49 and 3.04, the blog editor's slug at 3.33,
+    the sidebar counts at 3.33 and the search key at 3.49 below `lg`, and the search PLACEHOLDER at
+    3.49 — every one reproducing the ratios H4 already had on record.
+    **THE OBJECTION THAT STOPPED THE GATE BEING BUILT WAS ANSWERED RATHER THAN WAIVED.** A naive
+    scan misfires on the icon sites, so the icon set is DERIVED structurally — 28 icon, 3 text —
+    from the enclosing class expression, anchored at both ends rather than a window.
+    **⚠ FOUR OF THE SIX WERE VISIBLE ONLY BELOW `lg`**, which inverts #248's bigger-screen-worse-bug
+    trap: the sidebar is ink above the breakpoint and cream below it, so a desktop-only sweep reads
+    this code clean. **And one — the placeholder — no DOM sweep could ever reach**, because
+    `::placeholder` is a pseudo-element; the source classifier found what the browser oracle
+    structurally could not.
 32. **FOUR PUBLIC SITES SHIP A UTILITY THAT COMPILES TO AN INVALID DECLARATION.**
     `duration-[--duration-base]` — bracket-bare, no `var()` — appears at
     `FooterBackToTop.tsx:23`, `HeroSection.tsx:265` and `:392`, and `ContactSection.tsx:264`.
@@ -6759,6 +6765,33 @@ lg:border-white/12` on one element. Measured, white/12 won by sheet order and th
 
 ---
 
+### #287 — THE BLOG CARET UNDER TRANSFORM, PROVED; and main was red
+
+**#286 shipped the canvas zoom with the caret unverified**, which is a correctness question about
+code already on main: if click-to-caret drifts at 125%, an author hits it the first time they zoom
+and edit. **It holds — 180 samples, 178 correct, and both misses at the untransformed 100%
+control.** Every zoomed level measured 15 of 15, on character boxes 3 to 6px wide.
+
+**⚠ THE PROBE WAS THE DEFECT, THREE WAYS, and each read as a failure of the feature.** It sampled an
+INSPECTOR field outside the transform (which is why #286 shipped this unproven); it hit-tested points
+below the fold and returned ZERO samples, which reads as failure rather than as *no result*; and it
+measured mid-scroll, because the canvas carries `scroll-smooth` so `scrollIntoView` animates.
+**What settled it was the CONTROL, not the sample** — blog applies no style at all at 100%, so once
+misses reproduced there, the transform stopped being the variable.
+
+**AND MAIN WAS RED, FOUND BECAUSE THIS DOC-ONLY BRANCH WENT RED.** `545f2ac` removed two info copies
+straight to main; `studio-labels` G1–G4 were pinned to one of them, so every subsequent PR's CI would
+have failed. The gate follows the decision rather than the reverse, so the assertions were retired
+with their reasoning kept rather than the copy restored.
+
+**⚠ AND THE FAILING DERIVATION DID NOT GO EMPTY — IT RETARGETED.** A non-greedy window ending at the
+next `</p>` ran on **7,526 characters** and began reporting an unrelated paragraph's classes. Three
+assertions were not stale, they were describing a different element. **A window that ends at "the
+next X" will always find one; it cannot report absence, only a wrong answer.** Replaced with an
+absence plus a liveness check.
+
+ralph green again at **2167 across 51 suites**. 3 mutations, 3 killed.
+
 ### #288 — HAZARD 13 GETS A MECHANISM, and the pill was standing on the modal layer
 
 **THE OLDEST OPEN HAZARD WITH A REAL INCIDENT BEHIND IT.** A publish shipped a half-finished
@@ -7439,47 +7472,55 @@ believed open and what it turned out to be.**
    in preview mode. The item described the consume half as unbuilt.
 4. ~~**DELETE THE `rules-of-hooks` DISABLE** (hazard 17).~~ — **DONE in PR 4**, as already noted.
 
-**GENUINELY OPEN, VERIFIED.**
+**GENUINELY OPEN, VERIFIED — and after #287–#295, NOTHING ON THIS LIST HAS A DEFECT BEHIND IT.**
+That is the honest headline. Every remaining engineering item is discretionary; the highest-value
+work left is content, and it is the owner's.
 
-1. **THE FIVE EXPERIENCE DESCRIPTIONS ARE STILL EMPTY.** All of
-   `content/experience/*.yaml` carry `description: ""`. Write them or decide to drop the field —
-   the decision is as good as the copy, and leaving it undecided is what has kept it here.
-   **THE ONLY CONTENT ITEM ON THIS LIST THAT SURVIVED VERIFICATION.**
-2. **KEEP WRITING POSTS THROUGH `/studio`.** The argument is unchanged and is worth restating
-   because it is about GATES rather than about content: real use closed owner-backlog items 9, 10
-   and 11 and produced **three defects no gate found** — hazard 20's blank canvas image, #201's
-   silently dropped save, and #200's ambiguous Publish button. Every one was invisible to lint,
-   tsc and **the 1264 assertions of the day, and would be invisible to the 2141 there are now**,
-   and every one surfaced within minutes of an author using the editor.
-   **READ THE CONTENT DIFF BEFORE EACH PUBLISH** until hazard 13 has a real answer. A publish has
-   already shipped a half-finished sentence once, and CI cannot tell one from a finished one.
-3. ~~**HAZARDS 30 AND 31**~~ — **BOTH CLOSED in #289**, and the objection that stopped the gate
-   being built was answered rather than waived: the icon set is DERIVED structurally (28 icon, 3
-   text) instead of listed, so it does not misfire. It found **six live AA failures**, four of them
-   visible only below `lg`, and one — the search placeholder — that no DOM sweep could ever reach
-   because `::placeholder` is a pseudo-element. accent-500 turned out to be a one-ground text
-   colour, missing cream-100 by 0.02.
-4. **THE MEASURED LIMITS THIS ARC ACCEPTED RATHER THAN FIXED.** Both are recorded with their
-   numbers at #283 and #283b, and both are design trades rather than defects.
-   a. **Collapsing blog's inspector gives its canvas 284px of cream it cannot spend**, because
-   the 68ch measure is locked and does not widen. Accepted for the gesture.
-   b. **Blog's head fields un-clip at a 340px inspector, which needs roughly 1641px of page** at
-   the default sidebar — so on a narrower display the drag ceiling stops short of it. #284 made
-   the fields WRAP, so nothing is unreadable; the pane simply cannot reach that width there.
-5. **Optional:** `/code-review ultra` over the studio arc. The old entry named `fa08200` and nine
-   PRs; a great many have shipped self-reviewed since, so **pick a range rather than trusting that
-   SHA**.
-6. **Later.** ~~Hazard 10, why `boat-crest` yields zero parity pairs~~ — **CLOSED in #292**: it is
-   content now, so it yields pairs like every other study. ~~A per-entry publish or a PublishBar
-   diff preview (hazard 13)~~ — **THE PREVIEW
-   SHIPPED in #288**, and it is the confirm step rather than an optional link, so looking is
-   structural. A per-entry publish is still open and is now the smaller half of that item: the
-   preview tells you what a publish carries, but publish is still all-or-nothing. Migrating the
-   remaining studio pages to `ThreePaneShell`: Site settings, Experience and Skills still run
-   `ListDetailLayout`, and **the "extract at the SECOND consumer" rule has now been exercised
-   once** — #283b moved the inspector-width property into the shell when blog became the second
-   resizable surface. Hazard 10, why `boat-crest` yields zero parity pairs, which is a consequence
-   of it being the one `BESPOKE_SLUGS` entry.
+**THEIRS.**
+
+1. **THE FIVE EXPERIENCE DESCRIPTIONS ARE STILL EMPTY.** All of `content/experience/*.yaml` carry
+   `description: ""`. Write them or decide to drop the field — the decision is as good as the copy,
+   and leaving it undecided is what has kept it here since before this arc began. **The oldest open
+   item on the list.**
+2. **THE FLAGSHIP'S ALT TEXT.** #290 made `alt` possible on the two story blocks and #292 carried
+   the field into content; **all 28 of boat-crest's images now have an empty `alt` waiting.** The
+   field exists, the words are the owner's, and this is the only open item that improves the site
+   for someone actually using it.
+3. **boAt Crest's META DESCRIPTION.** The code file carried its own `description`; the `[slug]`
+   route uses `summary`, as all three others do, so it is now "…from 2.3 to 4" where it was "…up
+   from 2.3 to 4.2". One line in the YAML if the longer sentence is wanted — and note the summary
+   and the old description disagreed about the number before either of them moved.
+4. **KEEP WRITING POSTS THROUGH `/studio`.** The argument is about GATES rather than content: real
+   use produced **three defects no gate found** — the blank canvas image, the silently dropped save,
+   the ambiguous Publish button — all invisible to lint, tsc and every assertion of the day, and all
+   surfacing within minutes of an author using the editor. **The old instruction to read the diff
+   before each publish is retired: #288 made that the confirm step, so it happens by construction.**
+5. **ONE UNPUBLISHED DRAFT IS SITTING THERE.** `content/blog/5-tips-for-using-ai-for-designers.yaml`
+   on the draft branch — title only, `dek`, `date` and `blocks` all empty. Harmless to publish
+   (`status` fails closed) but it has been **diverging from main for ten PRs**. Publish it or discard
+   it; a divergent draft is the shape that produced a merge conflict once before.
+
+**MINE, AND ALL DISCRETIONARY.**
+
+6. **A PER-ENTRY PUBLISH.** The smaller half of hazard 13's old entry: the preview now tells you
+   what a publish carries, but publish is still all-or-nothing.
+7. **MIGRATE Site settings, Experience and Skills to `ThreePaneShell`.** They still run
+   `ListDetailLayout`. Consistency work with no user-facing gain; the "extract at the SECOND
+   consumer" rule has been exercised twice now (#283b, #291).
+8. **A PUBLIC CONTRAST GATE.** Every contrast suite is studio-scoped, so the part of the site that
+   gets Akshita hired has none. **Scoped rather than speculative now**: a sweep found 25 flags of
+   which 24 were oracle artifacts and one was a WCAG-exempt logotype, and the reason is known — the
+   public site is animation- and image-heavy, so the gate needs background-image compositing,
+   ancestor-opacity awareness and hover states. A real piece of work, not an extension of the studio
+   one.
+9. **~50 MERGED REMOTE BRANCHES**, all fully contained in main. Clutter, zero risk.
+10. **THE MEASURED LIMITS THIS ARC ACCEPTED RATHER THAN FIXED**, both design trades rather than
+    defects, both with their numbers at #283 and #283b. Collapsing blog's inspector gives its canvas
+    284px of cream it cannot spend, because the 68ch measure is locked. And blog's head fields
+    un-clip at a 340px inspector, needing roughly 1641px of page — #284 made them WRAP, so nothing
+    is unreadable; the pane simply cannot reach that width on a narrower display.
+11. **Optional:** `/code-review ultra` over the studio arc. **Pick a range** — the old entry named
+    `fa08200` and nine PRs, and a great many have shipped self-reviewed since.
 
 **THREE GATES NOW, NOT TWO.** `npm run lint` · `npm run typecheck` · `npm run ralph`. CI runs
 lint and ralph; the Vercel build is what typechecks. A PR that reports "typecheck only" is now
