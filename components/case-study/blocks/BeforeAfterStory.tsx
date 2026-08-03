@@ -93,7 +93,14 @@ function AfterPhone({
             }}
           >
             <div ref={contentRef} style={{ position: "absolute", top: 0, left: 0, width: "100%" }}>
-              <Image src={after.body.src} alt={after.body.alt} sizes={`${imgW}px`} className="block h-auto w-full" />
+              <Image
+                src={after.body.src}
+                alt={after.body.alt}
+                width={after.body.intrinsicWidth}
+                height={after.body.intrinsicHeight}
+                sizes={`${imgW}px`}
+                className="block h-auto w-full"
+              />
             </div>
             <div style={edgeStyle("t")} />
             <div style={edgeStyle("b")} />
@@ -115,6 +122,8 @@ function AfterPhone({
             <Image
               src={after.footer.src}
               alt={after.footer.alt}
+              width={after.footer.intrinsicWidth}
+              height={after.footer.intrinsicHeight}
               sizes={`${imgW}px`}
               className="absolute bottom-0 left-0 block h-auto w-full"
             />
@@ -143,7 +152,14 @@ function BeforePhone({ before, w, fluid, maxW }: { before: ImgSpec; w: number; f
     : { width: w, height: phoneH(w), filter: GROUNDING };
   return (
     <div className="relative shrink-0" style={boxStyle}>
-      <Image src={before.src} alt={before.alt} sizes={fluid ? `${maxW}px` : `${w}px`} className="block h-auto w-full" />
+      <Image
+        src={before.src}
+        alt={before.alt}
+        width={before.intrinsicWidth}
+        height={before.intrinsicHeight}
+        sizes={fluid ? `${maxW}px` : `${w}px`}
+        className="block h-auto w-full"
+      />
     </div>
   );
 }

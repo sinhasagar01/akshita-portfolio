@@ -7050,6 +7050,44 @@ are exact counts now. lint, tsc and the production build clean.
 
 ---
 
+### #294 — THE STORY IMAGES GET THEIR DIMENSIONS BACK, and the gate that should have caught it
+
+**A defect I shipped in #292, reported by the owner.** Opening the case-study editor threw
+`Image with src "…feature-01-onboarding.png" is missing required "width" property`.
+
+**A STATIC IMPORT CARRIES ITS DIMENSIONS; A PATH STRING DOES NOT.** After the port, six `<Image>`s
+across `WorkStory` and `BeforeAfterStory` had a string `src` and no `width`/`height` — so
+**23 of the flagship's 30 images stopped emitting them**, which is layout shift on the page that
+matters most. All six now take the intrinsic dimensions the content already carries.
+
+**⚠ IT WAS NOT A WEAK GATE. THE GATE WAS NOT RE-RUN.** #292 compared the public DOM byte for byte,
+found the aspect-ratio problem, **changed the code to add intrinsic dimensions, and then verified
+the change with narrower proxies** — distinct aspect ratios, per-image render counts — instead of
+running the byte comparison again. Both proxies passed and both were true. Neither could see a
+missing attribute. **A gate answers for the code it was run against and nothing after it.**
+
+**AND THE BUILD COULD NOT HAVE CAUGHT IT.** `next/image` throws a clear error for this in DEV and
+renders it silently in production, so `npm run build` passed and prerendered the page. The public
+HTML was *wrong but valid*; the studio canvas was the surface that failed loudly.
+
+**WHAT THE FIX RESTORES, MEASURED.** 30 images: **25 now carry explicit width and height, and the
+other 5 use `fill` inside a wrapper with an explicit `aspect-ratio`** — `DeviceImage`'s documented
+path for a content-backed image, which reserves space just as well. **19 of the 19 comparable images
+match the hand-built original's dimensions exactly, none differ.** With the added attributes
+stripped, the rendered page is byte-identical to main — the fix adds dimensions and nothing else.
+
+**THREE CONSOLE READINGS WERE FALSE BEFORE ONE WAS TRUE**, which is the session's recurring shape
+one more time. A stale buffer in a long-lived tab reported a `StudioSidebar` syntax error that tsc,
+lint and a full production build all disagreed with. A fresh tab reported no errors — because it had
+redirected to the login page and rendered nothing. The reading that counted was the rendered DOM on
+a page reachable without a session, on a dev server restarted against a cleared `.next`.
+
+Gates: ralph **2288 → 2291**, `bespoke-blocks` Part F net-new. **3 mutations, 3 killed** — dropping a
+width, dropping a height, and using the RENDERED width where the SOURCE one belongs. lint, tsc and
+the production build clean.
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

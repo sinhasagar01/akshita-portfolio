@@ -150,6 +150,32 @@ t(`E6: …and all ${IMAGES} carry their source width`,
     /: `\$\{BEZEL_W\} \/ \$\{BEZEL_H\}`/.test(dev), true);
 }
 
+/* ── F · EVERY STORY IMAGE RESERVES ITS SPACE ────────────────────────────────────────────── */
+
+/* ⚠ THE REGRESSION THIS EXISTS FOR, AND HOW IT GOT PAST THE GATE. A static import carries its
+ * dimensions implicitly; a path string does not, so after #292 these six `<Image>`s emitted NO
+ * `width`/`height` — 23 of the flagship's 30 images stopped reserving space, which is layout shift
+ * on the page that matters most. `next/image` throws a clear error for this in DEV and renders it
+ * silently in production, so the build passed and the studio canvas was the thing that broke.
+ *
+ * IT WAS NOT THAT THE GATE WAS WEAK — IT WAS THAT THE GATE WAS NOT RE-RUN. #292 compared the DOM
+ * byte for byte, then changed the code to add intrinsic dimensions, then verified the CHANGE with
+ * narrower proxies (aspect ratios, image counts) instead of running the comparison again. A gate
+ * answers for the code it was run against and nothing later. */
+{
+  const bothStories = work + baStory;
+  /* Each string-src image must take explicit dimensions. `bezel` is a static import and needs
+   * none, which is why this counts the six rather than asserting a blanket rule. */
+  t("F1: every story image is given an explicit width",
+    (bothStories.match(/width=\{(?:feat\.screen|after|before)[^}]*intrinsicWidth\}/g) ?? []).length, 6);
+  t("F2: …and an explicit height",
+    (bothStories.match(/height=\{(?:feat\.screen|after|before)[^}]*intrinsicHeight\}/g) ?? []).length, 6);
+  /* And the pair must come from the SOURCE dimensions, not the rendered ones — the same distinction
+   * `deviceScroller` turns on. A rendered width here would reserve the wrong box. */
+  t("F3: …from the SOURCE dimensions, never the rendered ones",
+    /width=\{[^}]*\.width\}/.test(bothStories), false);
+}
+
 /* ── G · THE CMS SEAM (A2) ────────────────────────────────────────────────────────────────── */
 
 const fmt = code("lib/studio/sections-format.ts");
