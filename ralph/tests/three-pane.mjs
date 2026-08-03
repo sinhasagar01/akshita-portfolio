@@ -146,31 +146,51 @@ t("A: the dashboard layout clamps the cookie as it reads it",
 
 /* ================================================================= A. the numbers
  * Pinned from the MEASUREMENT, not read back out of the layout. 68ch resolves against the
- * wrapper's 16px font at 745.9px, so canvas = 745.9 + 48 padding = 794 (rounded up).
+ * wrapper's 16px font at 676.73px, so canvas = 676.73 + 48 padding = 725 (taken up to the whole pixel).
  * The contract's 620 was estimated from the 18px prose font and made the threshold wrong
  * by 190px. VERIFY A UNIT BEFORE COMPUTING WITH IT. */
 /* ⚠ 1378 -> 1058: THE INSPECTOR TERM LEFT BLOG'S SUM TOO, one PR after it left the case study's.
  * #283 kept 320 here because blog's inspector was fixed; that did not survive measurement — two
  * fields are clipped at 320 and the pane needs to widen. `inspector-width.ts` carries the
  * correction in full. Both editors now add the live width, so the asymmetry is gone. */
-t("A: PANES_SUM is 1058 — list + measure, WITHOUT the sidebar or the inspector", PANES_SUM, 1058);
+/* ⚠ 1058 -> 989, AND A FONT CHANGE IS WHAT MOVED IT. `--font-body` went from DM Sans to Work
+ * Sans, and `ch` is the width of the `0` glyph in the element's OWN font, so 68ch on the blog
+ * wrapper fell from 745.93px to 676.73px — measured in the browser on the real next/font face.
+ * Nothing in the typography contract anticipated that a family swap reaches the layout.
+ * A `ch` UNIT MAKES THE BODY FONT A LAYOUT INPUT. Every number below moved in the same commit as
+ * the token, because splitting them leaves a green gate asserting a stale one. */
+t("A: PANES_SUM is 989 — list + measure, WITHOUT the sidebar or the inspector", PANES_SUM, 989);
 t("A: the arithmetic reproduces it", 264 + BLOG_CANVAS_MIN_PX, PANES_SUM);
 t("A: INSPECTOR_FOLD_PX is 1100", INSPECTOR_FOLD_PX, 1100);
 t("A: the fold is below the fit threshold at every legal sidebar width",
   INSPECTOR_FOLD_PX < SIDEBAR_MIN_PX + PANES_SUM, true);
-// The 1536-wide laptop this is authored on is BELOW the threshold, which is the fact that
-// makes the collapse control load-bearing rather than a refinement. If someone "rounds"
-// the threshold down to 1536 or lower, that stops being true and this fails.
 // ⚠ THIS COMPARED A VIEWPORT LITERAL TO A PAGE-SPACE CONSTANT AND PASSED FOR THE WRONG REASON.
 // #235 moved every threshold into page space — `documentElement`'s box, gutter excluded — and
 // this line kept saying 1536, which is a VIEWPORT. It stayed true (1521 < 1614 as well as
 // 1536 < 1614), so nothing failed, which is exactly the shape this arc has spent eight PRs
 // finding: a gate that is right by luck of margin. Restated in page space, and now reactive.
 const LAPTOP_PAGE = 1521; // a 1536 viewport minus the reserved scrollbar gutter, measured
-// THE INSPECTOR IS ADDED BACK AT ITS DEFAULT, because this is about the laptop as it ships — an
-// author who has not touched the handle. The verdict is unchanged, which is the point.
-t("A: the 1536 laptop does NOT fit blog's three panes at ANY legal sidebar width",
-  LAPTOP_PAGE < SIDEBAR_MIN_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
+/* ⚠ THE VERDICT FLIPPED, AND THE ASSERTION IS RE-DERIVED RATHER THAN RELAXED.
+ *
+ * This used to read "the 1536 laptop does NOT fit blog's three panes at ANY legal sidebar width",
+ * and it was true: 1521 < 184 + 1058 + 320 = 1562. That was the fact that made the collapse
+ * control load-bearing rather than a refinement, on the machine this is authored on.
+ *
+ * The narrower measure moved the threshold to 184 + 989 + 320 = 1493, and 1521 is ABOVE it. So
+ * the laptop now fits at the MINIMUM sidebar width, and stops fitting as the sidebar widens —
+ * 236 gives 1545 and 288 gives 1597, both above 1521.
+ *
+ * A GATE EDITED UNTIL IT PASSES IS THE FAILURE THIS PROJECT HAS CAUGHT THREE TIMES, so the
+ * property is restated rather than the number nudged. What the old line was really protecting is
+ * that the collapse control MATTERS on this laptop, and it still does — just at the default
+ * sidebar rather than at every width. Both halves are asserted, so a future change that makes the
+ * laptop fit at EVERY width fails here and reopens the question honestly. */
+t("A: the 1536 laptop now FITS blog's three panes at the MINIMUM sidebar width — the measure narrowed and the threshold moved with it",
+  LAPTOP_PAGE >= SIDEBAR_MIN_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
+t("A: …and still does NOT fit at the DEFAULT sidebar width, which is what keeps the collapse control load-bearing on this machine",
+  LAPTOP_PAGE < SIDEBAR_DEFAULT_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
+t("A: …nor at the widest, so the control spans the band rather than a single width",
+  LAPTOP_PAGE < SIDEBAR_MAX_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
 
 /* ================================================================= B. the collapse rule
  * The WHOLE truth table. Six rows, because a table with a hole in it is how the middle
@@ -228,7 +248,7 @@ t("C: …because the blog pane sum is written as its terms, not as a total",
 // 794 is now NAMED, because InspectorResizer needs it: the drag's runtime ceiling is "whatever the
 // canvas can give up", and each surface passes its own floor.
 t("C: …and blog's canvas floor is declared once, as the measure plus its padding",
-  /export const BLOG_CANVAS_MIN_PX = 794;/.test(home), true);
+  /export const BLOG_CANVAS_MIN_PX = 725;/.test(home), true);
 t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? []).length, 1);
 // The case-study numbers get the same discipline from the start rather than after a second
 // copy appears. They have no consumers yet — PR 7 adds those — so this is the cheap moment.
@@ -553,15 +573,24 @@ t("I: 75% would need 1780px and 100% would need 2100px — neither is a laptop v
 // canvas needs the bigger viewport has the model backwards.
 t("I: the case-study threshold is BELOW blog's, because the canvas scales and blog's does not",
   CS_PANES_SUM < PANES_SUM, true);
-// And the 1536 laptop that cannot fit blog's three panes CAN fit the case study's.
 /* THE REFERENCE MACHINE ACROSS THE WHOLE CLAMP — the E table, pinned. This is the assertion the
  * upper bound exists for: at the WIDEST legal sidebar the 1536 laptop must still fit three
  * case-study panes, and at the narrowest it must have room to spare. */
-// AT THE SHIPPED DEFAULT on both, for the reason given at the first of these.
-t("I: the 1536 laptop fits three case-study panes at EVERY legal sidebar width, and never blog's",
+/* ⚠ THE THIRD TERM FLIPPED, AND IT IS THE SAME FACT AS SECTION A's, ASSERTED A SECOND TIME.
+ * It read "and never blog's" — true while blog's threshold was 1562. The Work Sans measure moved
+ * it to 1493, so the laptop now clears blog's three panes at the MINIMUM sidebar.
+ *
+ * FINDING IT TWICE IS THE USEFUL PART. One number moved and two assertions in one file changed
+ * their answer, in sections 400 lines apart, which is what "atomic" is protecting against: had
+ * the constant shipped without the gate, this row would have failed alone and read as a
+ * case-study regression rather than as the measure moving.
+ *
+ * The case-study half is UNTOUCHED and still holds at every width — its canvas scales, so a
+ * narrower blog measure cannot reach it. Only the blog term is re-derived. */
+t("I: the 1536 laptop fits three case-study panes at EVERY legal sidebar width, and now blog's too at the narrowest",
   [LAPTOP_PAGE >= SIDEBAR_MAX_PX + CS_PANES_SUM + INSPECTOR_FALLBACK,
    LAPTOP_PAGE >= SIDEBAR_MIN_PX + CS_PANES_SUM + INSPECTOR_FALLBACK,
-   LAPTOP_PAGE >= SIDEBAR_MIN_PX + PANES_SUM + INSPECTOR_FALLBACK], [true, true, false]);
+   LAPTOP_PAGE >= SIDEBAR_MIN_PX + PANES_SUM + INSPECTOR_FALLBACK], [true, true, true]);
 // AND THE MARGIN IS SMALL AND DELIBERATE. At the max the canvas is 9px above the point where the
 // list would collapse — measured 649px, 0.507, one notch over its 50% floor. The clamp is doing
 // something invisible, so the number is stated rather than trusted.

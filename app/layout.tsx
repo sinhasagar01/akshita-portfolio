@@ -26,12 +26,19 @@ const fraunces = Fraunces({
   preload: true,
 });
 
+/* ⚠ DM SANS IS NO LONGER THE BODY FACE AND IS NO LONGER PRELOADED. `--font-body` points at Work
+   Sans as of this commit. It is still LOADED rather than deleted because `--font-dm-sans` remains
+   a declared face and the display side of the arc has not shipped, so the two families are
+   deliberately co-present for one more step. Preloading a face nothing reads would spend the
+   critical window on it — the argument Caveat's note below already makes. It comes out with the
+   display swap, not here, because deleting it in the same commit as the measure would put an
+   unrelated change in a diff that exists to prove three numbers. */
 const dmSans = DM_Sans({
   subsets: ["latin"],
   axes: ["opsz"],
   variable: "--font-body-loaded",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 const kaushanScript = Kaushan_Script({
@@ -85,11 +92,14 @@ const sourceSerif = Source_Serif_4({
   preload: false,
 });
 
+/* ⚠ WORK SANS IS PRELOADED FROM HERE, because it IS the body face now — every paragraph on every
+   page, and the family the LCP text is set in. It swaps places with DM Sans above rather than
+   joining it, so the preload count on a public page is unchanged. */
 const workSans = Work_Sans({
   subsets: ["latin"],
   variable: "--font-work-sans-loaded",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 const spaceGrotesk = Space_Grotesk({

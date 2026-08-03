@@ -33,29 +33,32 @@
 // one machine's scrollbar width into a shared constant is how it becomes wrong everywhere else.
 //
 // THE ARITHMETIC. Measured, not derived:
-//   sidebar 236 + list 264 + canvas 794 + inspector 320 = 1614px minimum.
+//   sidebar 236 + list 264 + canvas 725 + inspector 320 = 1545px minimum.
 // The canvas term is 68ch plus 48px of horizontal padding. 68ch resolves against the
-// WRAPPER's 16px font, not the 18px prose font, so it is 745.9px. The design contract
+// WRAPPER's 16px font, not the 18px prose font, so it is 676.73px. The design contract
 // estimated it from the prose font, got 620, and computed a 1406 threshold that was wrong
 // by 190px. Below the threshold the list starts collapsed and the reopen rail is the way
 // back.
 //
-// THE INSPECTOR WIDENED 244 -> 320 AND THIS NUMBER HAD TO MOVE WITH IT, 1538 -> 1614. The
-// two are one measurement, not two settings: the threshold IS the sum, so widening the pane
-// without raising it would leave 1538..1613 claiming all three panes fit while the canvas
-// actually got 718px — under the 794 it needs, which silently drops the canvas column below
-// its 697.9296875 public measure. That measure is the property the whole editor exists to
-// hold, and nothing would have failed. WIDENING A PANE IS AN ARITHMETIC CHANGE, NOT A
-// STYLING CHANGE.
+// ⚠ AND EVERY NUMBER IN THIS BLOCK MOVED WHEN THE BODY FONT DID. `ch` is the width of the `0`
+// glyph in the element's OWN font, so repointing `--font-body` from DM Sans to Work Sans took
+// 68ch from 745.93px to 676.73px and walked the whole sum down 69px: canvas 794 -> 725, minimum
+// 1614 -> 1545, public measure 697.93 -> 628.73. A `ch` UNIT MAKES THE BODY FONT A LAYOUT INPUT.
+// Nothing in the typography contract anticipated a font change reaching the layout.
 //
-// THE COLLAPSED-LIST FLOOR MOVED TOO, and it is worth knowing even though nothing reads it.
-// With the list collapsed the canvas keeps its full measure down to
-// 236 + 27 (the reopen rail, plus the collapsed pane's 1px residual border) + 794 + 320 = 1377,
-// where the old inspector reached 1300. So
-// the band in which the inspector is shown but the canvas is under measure is 76px wider
-// than it was. INSPECTOR_FOLD_PX stays 1100 because it is a CHOSEN breakpoint rather than a
+// THE INSPECTOR WIDENED 244 -> 320 AND THIS NUMBER HAD TO MOVE WITH IT. The two are one
+// measurement, not two settings: the threshold IS the sum, so widening the pane without raising
+// it would claim all three panes fit while the canvas came up short — under the 725 it needs,
+// which silently drops the canvas column below its 628.73 public measure. That measure is the
+// property the whole editor exists to hold, and nothing would have failed. WIDENING A PANE IS AN
+// ARITHMETIC CHANGE, NOT A STYLING CHANGE.
+//
+// THE COLLAPSED-LIST FLOOR MOVES WITH IT TOO, and it is worth knowing even though nothing reads
+// it. With the list collapsed the canvas keeps its full measure down to
+// 236 + 27 (the reopen rail, plus the collapsed pane's 1px residual border) + 725 + 320 = 1308.
+// INSPECTOR_FOLD_PX stays 1100 because it is a CHOSEN breakpoint rather than a
 // derived one — it answers "is the inspector still usable", not "does the canvas still hold
-// its measure" — but if that band ever needs closing, raising the fold to 1376 is the change.
+// its measure" — but if that band ever needs closing, raising the fold to 1307 is the change.
 
 /* ---- THE SIDEBAR TERM LEFT THESE SUMS, AND THE COMPOSITE CONSTANTS WENT WITH IT -----------
  *
@@ -75,14 +78,24 @@
  * This is hazard 1's arithmetic half closing. The sidebar was a literal in three thresholds and
  * is now a runtime value in none of them. */
 
-/** Blog's canvas floor: 68ch (745.9px against the WRAPPER's 16px font) plus 48px of horizontal
+/** Blog's canvas floor: 68ch (676.73px against the WRAPPER's 16px font) plus 48px of horizontal
  *  padding. UNLIKE the case study's floor this is not a scale — it is the measure itself, and the
  *  pane cannot go under it without the article's own width changing, which is the locked property
  *  the whole layout exists to protect.
  *
  *  NAMED RATHER THAN INLINE because `InspectorResizer` needs it: the drag's runtime ceiling is
- *  "however much the canvas can give up", and each surface passes its own floor. */
-export const BLOG_CANVAS_MIN_PX = 794;
+ *  "however much the canvas can give up", and each surface passes its own floor.
+ *
+ *  ⚠ 794 -> 725, AND THE CAUSE WAS A FONT CHANGE. `ch` is the width of the `0` glyph in the
+ *  element's OWN font, so repointing `--font-body` from DM Sans to Work Sans moved what 68ch
+ *  resolves to: 745.93px -> 676.73px, measured in the browser on the real next/font face, not
+ *  computed from an average advance. 676.73 + 48 = 724.73, taken up to the next whole pixel.
+ *
+ *  THE WORKING RULE, because nothing in the typography contract anticipated this: A `ch` UNIT
+ *  MAKES THE BODY FONT A LAYOUT INPUT, so a family swap is a geometry change wearing a typography
+ *  change's clothes. This constant, PANES_SUM below and the fit threshold all move with it, in the
+ *  same commit — splitting them would leave a green gate asserting a stale number. */
+export const BLOG_CANVAS_MIN_PX = 725;
 
 /** List + canvas measure. The blog editor's two FIXED panes, WITHOUT the sidebar — add the live
  *  sidebar width AND the live inspector width for the fit threshold.
