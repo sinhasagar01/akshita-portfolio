@@ -98,7 +98,24 @@ const FAMILY = [
 /** element tag -> Set(properties its unlayered rule sets) */
 const RULES = new Map();
 {
-  const flat = topLevelOnly(css);
+  /* ⚠ COMMENTS ARE STRIPPED BEFORE THE SPLIT, AND THIS LINE IS A REPAIR RATHER THAN A TIDY.
+   * The split below anchors each rule to the `}` that ended the previous one, so anything
+   * BETWEEN that brace and the selector is read as part of the selector. A comment there makes
+   * the tag list fail the bare-tag test and the rule never enters RULES — it is dropped
+   * silently, and a dropped rule means A0 reports `undefined` while C1 goes on passing because
+   * it has nothing left to check.
+   *
+   * It was already costing coverage before anything triggered it: `html` sits behind a banner
+   * comment and has ALWAYS been missing from this map, and it sets `font-family` and `color`,
+   * two of the families guarded below. That was recorded in docs/DESIGN-SYSTEM.md as a known
+   * blind spot with no live consequence.
+   *
+   * THE TYPOGRAPHY ARC IS WHAT MADE IT CONSEQUENTIAL. Documenting the `opsz` hazard put a
+   * comment immediately above `h1, h2` — and that rule is the one this suite exists for, the
+   * one #205's ink bands lost to. The gate went from guarding it to reporting `undefined`,
+   * which is the exact failure shape this file's own header calls out: a suite that quietly
+   * checks nothing. Fixed here rather than deferred, because the family swap lands next. */
+  const flat = topLevelOnly(css).replace(/\/\*[\s\S]*?\*\//g, " ");
   // `h1,\n h2 { … }` — a selector list of BARE TAG NAMES only. A rule with a class or an
   // id in it is not an element reset and cannot be defeated by specificity alone.
   //
@@ -163,6 +180,14 @@ t("A0: the unlayered `h3..h6` reset still sets font-family — the trap .case-st
   RULES.get("h4")?.has("font-family"), true);
 t("A0: the unlayered `img, video` reset still sets height — the canvas-hero case",
   RULES.get("img")?.has("height"), true);
+/* ⚠ THE PARSER REPAIR, PINNED, because a fix with no assertion regresses the moment someone
+ * reorders this file. `html` sits behind a banner comment and was dropped by the old split for
+ * the whole life of this suite; `h1, h2` joined it the day a comment was written above it. Both
+ * are here now, and this is the row that fails if the comment strip is ever removed. */
+t("A0: `html` is in the map at all — it sits behind a comment, and the old split lost every rule that did",
+  RULES.get("html")?.has("font-family"), true);
+t("A0: …and it carries `color` too, the second family this suite guards",
+  RULES.get("html")?.has("color"), true);
 
 /* ================================================ B. DERIVE THE USAGE FROM THE SOURCE */
 

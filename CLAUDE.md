@@ -77,6 +77,23 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
+- **Kaushan Script, the wordmark face. A brand decision, deliberately outside the typography arc.**
+  The Source Serif and Work Sans swap replaces a display serif and a body sans. It does not touch
+  either face that is literally cursive, so after that arc ships, the loudest cursive on the site
+  is still there. Kaushan Script renders at seven sites, and two of them are the identity.
+
+  | Site | What it draws |
+  |---|---|
+  | `globals.css` `.logo-sig` with `SiteHeader.tsx` | the wordmark "Akshita" in the nav, 29px, every page |
+  | `HeroSection.tsx` | the home page's single `h1`, `clamp(3rem, 6.5vw, 5rem)`, accent-500 |
+  | `SiteFooter.tsx` | "Akshita Singh", 42px |
+  | `HeroCover.tsx`, twice | the watermark word behind each case-study hero |
+  | `HeroSection.tsx`, `ProcessSection.tsx` | two inline-styled script words |
+
+  Caveat is the other cursive face and is a single component, the handwritten scrawl in
+  `AnnotatedImage.tsx`. Changing either is a question about the brand rather than about the
+  type system, which is why it is recorded here rather than folded in. **The typography arc
+  finishing does not mean this was considered and declined. It means it was never in scope.**
 
 Outcome numbers for Fosfor AI and Fosfor Data Profiling used to sit at the top of this list as the
 one thing blocking finished copy. Both case studies now carry a statCards block with specific
