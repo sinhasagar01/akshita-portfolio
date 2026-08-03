@@ -62,8 +62,8 @@ export const INSPECTOR_BOUNDS: Record<InspectorSurface, {
 }> = {
   // 267 measured; 640 is CS_CANVAS_MIN_PX (1280 × 0.5).
   cs: { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
-  // 185 measured; 794 is blog's canvas term, 68ch (745.9) plus 48px of padding.
-  blog: { min: 185, max: 794, fallback: 320, cookie: "studio-inspector-w-blog" },
+  // 185 measured; 725 is blog's canvas term, 68ch (676.73, Work Sans) plus 48px of padding.
+  blog: { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
 };
 
 /** Collapsed. A real width rather than a flag, so the arithmetic never needs a special case. */

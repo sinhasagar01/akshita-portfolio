@@ -150,7 +150,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      from a group heading, that is a case for a second TRACKING token against one size, never
      for a second size. */
   --font-display: var(--font-fraunces);
-  --font-body:    var(--font-dm-sans);
+  /* ⚠ THE BODY FAMILY IS A LAYOUT INPUT, NOT A TYPOGRAPHIC ONE, AND THAT IS THIS LINE'S WHOLE
+     STORY. `ch` is the width of the `0` glyph in the element's OWN font, and the blog measure is
+     `max-w-[68ch]` on a `<main>` that inherits its family from `html`. So repointing this token
+     moves a width. Measured: DM Sans resolves 68ch to 745.93px and Work Sans to 676.73px, a 69px
+     narrower column, which walks straight through BLOG_CANVAS_MIN_PX, PANES_SUM and the fit
+     threshold and out the other side as a change to when the three-pane layout collapses.
+     Nothing in the typography contract anticipated that a font change reaches the layout.
+     THE WORKING RULE, so the next family swap does not rediscover it: a `ch` unit makes the body
+     font a layout input, so a family swap is a geometry change wearing a typography change's
+     clothes. Every derived constant moves in this same commit. */
+  --font-body:    var(--font-work-sans);
   --font-label:   var(--font-space-grotesk);
 
   --text-xs:   clamp(0.694rem,  0.67rem  + 0.12vw, 0.75rem);
