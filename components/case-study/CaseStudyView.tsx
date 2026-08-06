@@ -3,6 +3,17 @@ import SectionRenderer from "./SectionRenderer";
 
 /** Per-study behind-the-phones hero glow (see HeroAura). Only the two mobile studies
  *  are themed; every other slug is absent and keeps the generic hero glow. */
+/* ⚠ A PER-SLUG MAP WITH NO REMOVAL CONDITION — hazard 22's shape, recorded rather than fixed.
+ *
+ * It now chooses a BLUR AND AN ANIMATION and nothing else. #334 read it as product branding and
+ * built a boundary ruling on that reading; the map does not follow the product — `elevate-one-view`
+ * carried the violet treatment — so the colours collapsed onto the accent and this map's colour
+ * meaning went with them.
+ *
+ * IT IS A SMALLER HAZARD THAN IT WAS AND A MORE HONEST ONE. Which treatment a study gets is an
+ * editorial choice, and a hand-typed list may be the truthful form of that. What it must not become
+ * again is a thing other reasoning rests on: a rule that cites this map is citing a list, not a
+ * property of anything. */
 const HERO_GLOW: Record<string, "pulse" | "signal"> = {
   "boat-crest": "pulse",
   "elevate-one-view": "signal",

@@ -369,7 +369,15 @@ for (const m of globals.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/g)) {
 const publicProps = [...customProps.keys()].filter((n) => !n.startsWith("--studio-"));
 console.log(`         ${customProps.size} custom properties hold a literal colour — ${publicProps.length} public, ${customProps.size - publicProps.length} studio`);
 
-t("A2 the census finds a real population — it is not silently matching nothing", cssLeaks.size > 20, true);
+/* ⚠ NON-EMPTY, NOT A MAGNITUDE — AND THE THRESHOLD VERSION FAILED THE DAY THE SITE IMPROVED. This
+ * read `> 20`, which was true while the leaks were many and became false when the aura collapse in
+ * #360 took the authored count to 16. A GUARD THAT FAILS WHEN THE DEFECT IS REPAIRED PUNISHES THE
+ * FIX — exactly what A6 read before #332 corrected it, arriving a second time in the same file.
+ *
+ * The job here is "the scan is not silently matching nothing". That is a question about the
+ * MECHANISM, and A2b's fallback discrimination plus J1's join are what test its correctness. The
+ * count only has to be non-zero. */
+t("A2 the census finds a real population — it is not silently matching nothing", cssLeaks.size > 0, true);
 t("A2b ⚠ AND IT SEPARATES COMPILER OUTPUT FROM AUTHORED COLOUR — a zero here means the brace matcher stopped seeing nesting again",
   fallbacks > 50, true);
 /* ⚠ THE WITNESS BECAME THE CATEGORY, BECAUSE #332 FIXED THE THING A3 POINTED AT. A3 pinned

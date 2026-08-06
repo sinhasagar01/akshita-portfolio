@@ -895,32 +895,45 @@ a {
 .hero-aura { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .hero-aura span { position: absolute; top: 50%; left: 50%; display: block; border-radius: 50%; }
 
-/* ⚠ THE HERO AURAS ARE PRODUCT BRANDING AND MUST NOT FOLLOW THE THEME. Each case study's glow is
-   the colour of the product it is about — boAt's brand red below, Fosfor's violet `#2e1a47` further
-   down — which is why they are set PER STUDY rather than from the palette.
+/* ⚠ THE HERO AURAS TAKE THE PALETTE, AND #334's REASON FOR LEAVING THEM IS WHAT WAS WRONG.
 
-   SAME RULING AS THE PROCESS DIAGRAM'S FILLS, AND THE SAME SENTENCE DECIDES IT: theming these would
-   make the depicted product change colour with the portfolio. The h1 above them is `text-on-dark`
-   and the watermark is `--hero-word-*`, both themed — so this hero is deliberately part themed and
-   part not, and the line runs between THIS SITE'S CHROME and THE PRODUCT BEING SHOWN.
+   That entry read "product branding — boAt's brand red, Fosfor's violet, set per study". THERE IS
+   NO SUCH PAIRING. `--pulse` and `--signal` are two separate declarations assigned by a hand-typed
+   map in `CaseStudyView.tsx`, and `elevate-one-view` — not a Fosfor study — carries the violet one.
 
-   boAt — Vital Pulse: a warm brand-red bloom breathing on a heartbeat cadence, with a
-   cool SpO₂ wink low-left. The wash + core beat (double-thump); the wink stays steady. */
+   ⚠ A COLOUR CHOSEN BY A HARDCODED MAP IS NOT PRODUCT BRANDING. Branding would be a property of the
+   product; this was a property of a list somebody typed. The ruling described a mechanism that does
+   not exist.
+
+   SO BOTH COLLAPSE ONTO THE ACCENT, and the two treatments now differ only in GEOMETRY — blur,
+   radius, cadence. That is the honest description of what the map has always chosen: the hue
+   difference was an artefact, not a decision, and A DISTINCTION NOBODY CHOSE IS NOT ONE WORTH SIX
+   TOKENS.
+
+   ⚠ AND THIS IS #103's SHAPE — two colours collapsed onto one, erasing a distinction. The
+   difference is that #103's distinction was REAL: two text roles with two values, flattened by an
+   accessibility fix. This one was never chosen by anybody. That claim is the whole argument, and it
+   is why the before-and-after is in the PR rather than a sentence here.
+
+   Each alpha is preserved exactly, so composite strength is unchanged and only hue moves.
+
+   boAt — Vital Pulse: a bloom breathing on a heartbeat cadence, with a wink low-left. The wash +
+   core beat (double-thump); the wink stays steady. */
 .hero-aura--pulse .ha-wash {
   width: 480px; height: 480px; margin: -250px 0 0 -240px; filter: blur(36px);
   background: radial-gradient(closest-side,
-    oklch(63% 0.2 30 / 0.28) 0%, oklch(63% 0.2 30 / 0.28) 20%, transparent 74%);
+    color-mix(in srgb, var(--color-accent-500) 28%, transparent) 0%, color-mix(in srgb, var(--color-accent-500) 28%, transparent) 20%, transparent 74%);
   animation: ha-beat 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 .hero-aura--pulse .ha-core {
   width: 300px; height: 300px; margin: -200px 0 0 -150px; filter: blur(18px);
   background: radial-gradient(closest-side,
-    oklch(68% 0.19 15 / 0.48) 0%, oklch(68% 0.19 15 / 0.48) 20%, transparent 72%);
+    color-mix(in srgb, var(--color-accent-500) 48%, transparent) 0%, color-mix(in srgb, var(--color-accent-500) 48%, transparent) 20%, transparent 72%);
   animation: ha-beat 2.6s cubic-bezier(0.22, 1, 0.36, 1) 0.06s infinite;
 }
 .hero-aura--pulse .ha-wink {
   width: 240px; height: 240px; margin: -20px 0 0 -250px; filter: blur(24px);
-  background: radial-gradient(closest-side, oklch(78% 0.13 230 / 0.20), transparent 70%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent-500) 20%, transparent), transparent 70%);
 }
 @keyframes ha-beat {
   0%, 100% { transform: scale(1);    opacity: 0.82; }
@@ -930,20 +943,21 @@ a {
   60%      { transform: scale(1);    opacity: 0.82; }
 }
 
-/* Elevate — Online Signal: a steel field with #2e1a47 status waves rippling outward. */
+/* Elevate — Online Signal: a field with status waves rippling outward. Accent-toned since the
+   collapse; the treatment is the geometry, not the hue. */
 .hero-aura--signal .ha-field {
   width: 520px; height: 460px; margin: -250px 0 0 -260px; filter: blur(36px);
-  background: radial-gradient(closest-side, oklch(30% 0.08 300 / 0.16), transparent 72%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent-500) 16%, transparent), transparent 72%);
 }
 .hero-aura--signal .ha-core {
   width: 260px; height: 260px; margin: -190px 0 0 -120px; filter: blur(16px);
   background: radial-gradient(closest-side,
-    #2e1a47 0%, color-mix(in oklch, #2e1a47 55%, transparent) 16%, transparent 70%);
+    var(--color-accent-500) 0%, color-mix(in srgb, var(--color-accent-500) 55%, transparent) 16%, transparent 70%);
   opacity: 0.5;
 }
 .hero-aura--signal .ha-ping {
   width: 130px; height: 130px; margin: -170px 0 0 -65px;
-  border: 2px solid color-mix(in oklch, #2e1a47 62%, transparent);
+  border: 2px solid color-mix(in srgb, var(--color-accent-500) 62%, transparent);
   animation: ha-ping 3.4s ease-out infinite;
 }
 .hero-aura--signal .ha-ping--2 { animation-delay: 1.15s; }
@@ -963,12 +977,12 @@ a {
    DeviceImage's base dark drop filter (higher specificity) and re-declares it, so the
    compound filter keeps the grounding darkness and adds the study's colour. */
 .hero-phones--pulse .cs-flatten {
-  filter: drop-shadow(0 18px 40px oklch(24% 0.03 60 / 0.16))
-          drop-shadow(0 20px 60px oklch(63% 0.2 30 / 0.46));
+  filter: drop-shadow(0 18px 40px color-mix(in srgb, var(--color-ink-800) 16%, transparent))
+          drop-shadow(0 20px 60px color-mix(in srgb, var(--color-accent-500) 46%, transparent));
 }
 .hero-phones--signal .cs-flatten {
-  filter: drop-shadow(0 18px 40px oklch(24% 0.03 60 / 0.16))
-          drop-shadow(0 20px 56px color-mix(in oklch, #2e1a47 52%, transparent));
+  filter: drop-shadow(0 18px 40px color-mix(in srgb, var(--color-ink-800) 16%, transparent))
+          drop-shadow(0 20px 56px color-mix(in srgb, var(--color-accent-500) 52%, transparent));
 }
 
 /* Mobile — tighter inline padding below the 1024px breakpoint (desktop unchanged). */
