@@ -37,7 +37,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-ink-400: oklch(62.0% 0.014 60);
   --color-ink-200: oklch(80.0% 0.010 60);
 
-  --color-accent-400: oklch(65.0% 0.12 42);
   --color-accent-500: oklch(56.0% 0.14 42);
   --color-accent-600: oklch(46.0% 0.13 42);
 
@@ -60,9 +59,24 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   /* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
      band (the template=web Bold-gallery hero) needs its own surface + on-dark text
      tokens; ink-* text can't sit on a dark bg. WCAG AA on band-dark (verified):
-     on-dark 16.9:1, on-dark-muted 9.3:1, on-dark-quote 10.9:1, accent-400 5.7:1 —
-     accent-500 is only 3.9:1, so accent-ON-DARK uses accent-400. on-dark-line is a
-     low-alpha hairline for edit/replace affordances (used more in CS-7d/e). */
+     on-dark 16.9:1, on-dark-muted 9.3:1, on-dark-quote 10.9:1. on-dark-line is a
+     low-alpha hairline for edit/replace affordances (used more in CS-7d/e).
+
+     ⚠ THIS COMMENT USED TO END "accent-400 5.7:1 — accent-500 is only 3.9:1, so accent-ON-DARK
+     uses accent-400", AND THAT MECHANISM WAS NEVER BUILT. Nothing referenced `--color-accent-400`,
+     in any file, ever. The measurement was real and the wiring never happened, so the comment
+     described an intention in the present tense for as long as it existed.
+
+     ⚠ AND THE TOKEN WAS ALIVE ON ONE PALETTE AND DEAD ON THE OTHER, WHICH NO GATE COULD SEE.
+     Cream declared it in `@theme`, where Tailwind PRUNES a token nothing references; harbour
+     re-declared it in a plain `[data-theme]` block, which is never pruned. So the built bundle
+     carried `--color-accent-400` under harbour and NOT at `:root` — the only one of 35 overrides
+     without a base. `theme-contrast` could not catch it because it reads THIS FILE, where both
+     definitions plainly exist. The asymmetry is created by the build, so only the build shows it.
+
+     Both declarations are deleted rather than wired up. The figure above stands as the measurement
+     if an on-dark accent is ever actually needed, and it would then be added to BOTH palettes
+     deliberately. `colour-census` section T is what now stops a token existing on one theme only. */
   --color-band-dark:    oklch(16.5% 0.022 60);  /* warm near-black hero band surface */
   --color-on-dark:      oklch(95.5% 0.013 82);  /* primary text/marks on the band */
   --color-on-dark-muted: oklch(77.0% 0.014 74); /* labels, facts — AA-safe dimmed light */
@@ -124,8 +138,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-smoke-3: oklch(0.97 0.01 70 / 0.74);
   --color-smoke-4: oklch(0.87 0.015 48 / 0.74);
 
-  /* The cursor-following glow on the light ground. 22 from `accent-400`, the nearest token, so it
-     is its own colour rather than a misspelling of one — #327's finding, taking the naming route. */
+  /* The cursor-following glow on the light ground. Its own colour rather than a misspelling of one
+     — #327's finding, taking the naming route. The original measurement read "22 from `accent-400`,
+     the nearest token"; that token has since been deleted as dead, and the conclusion is unchanged
+     because 22 was never a snapping distance. Nearest LIVING token is accent-500, further still. */
   /* The vessel's front wave. ⚠ NOT A FIFTH RAMP STOP, and the name says so — the ramp is a
      gradient whose members are chosen against each other, and this is a discrete shape drawn over
      it. Its back wave snapped to `--color-smoke-4` at a composite distance of 2; this one is 16
@@ -487,7 +503,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
   /* ⚠ 52%, NOT cream's 56%. Teal carries more relative luminance than terracotta at equal oklch
      lightness, so the accent has to sit darker to hold 4.5 on cream-50. */
-  --color-accent-400: oklch(61.0% 0.11 168);
   --color-accent-500: oklch(52.0% 0.12 168);
   --color-accent-600: oklch(43.0% 0.11 168);
 

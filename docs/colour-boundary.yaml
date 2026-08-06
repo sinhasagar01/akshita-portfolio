@@ -189,6 +189,26 @@ entries:
     reason: >
       Phone and browser chrome around a product screenshot. It depicts a device, not this site.
 
+  - id: pwa-splash-ground
+    kind: judgement
+    category: forced-literal
+    where: lib/theme.ts (THEME_SPLASH)
+    count: 3
+    files: [lib/theme.ts]
+    reason: >
+      ⚠ THIS ROW EXISTED AS PROSE IN `lib/theme.ts` AND NOWHERE IN THIS FILE, WHICH IS WHY THE COUNT
+      GATE FOUND IT. `pwa-chrome-colour` joins on the whole file, so these three were swept up by a
+      row that rules on ONE colour and says so. J1 was satisfied, the record was short an entry, and
+      the two facts looked identical from either side.
+
+      `manifest.webmanifest` is JSON and cannot hold a `var()`, so a theme's splash ground is the one
+      place it must exist as a literal in JavaScript. Each value is its theme's `--color-cream-50`
+      resolved, not an approximation — the field held `#FBF6EE` for years, 5 from cream-50, which is
+      #327's shape on the last surface that had it.
+
+      FORCED, THEN, RATHER THAN A JUDGEMENT ABOUT HOW THE SPLASH SHOULD LOOK. It follows the theme by
+      construction; what it cannot do is follow it through the token layer.
+
   - id: pwa-chrome-colour
     kind: judgement
     category: signature

@@ -153,6 +153,35 @@ closed.
 
 - **⚠ AND THE MIRROR OF THAT RULE, because half a rule is what caused the confusion twice.** "Ask where a cost is emitted" was written for a studio-only preload charging every public page. The colour census hit the same seam from the other side: it reads what is EMITTED and cannot tell who USES it, so two studio status dots and a studio gradient sat in the public bundle looking exactly like public colours. **Both directions give a wrong answer and neither is visible from where you are standing.** So the rule is not "use emission" or "use consumption" — it is **ASK WHICH ONE THE QUESTION IS ABOUT. Cost is an emission question. Themeability is a consumption question.** A bundle that merges the two is why they keep being confused, and the repair is to RESOLVE the consumer rather than exclude by lookup, because excluding buries the judgement inside a filter.
 
+- **⚠ A WRONG UNIT DOES NOT PRODUCE OBVIOUS NONSENSE. IT PRODUCES SPECIFIC, CONFIDENT,
+  CHECKABLE-LOOKING CLAIMS, AND THE TRUE ONE HIDES AMONG THEM.** The boundary count gate was built
+  three times. Per row it reported 2 mismatches; per file, 5; per connected component of files linked
+  by rows, 0 false ones. Every wrong version emitted real file names and real numbers.
+  **FIVE PLAUSIBLE FINDINGS WITH ONE TRUE ONE AMONG THEM IS INDISTINGUISHABLE FROM FIVE TRUE ONES** —
+  and the real defect (`ProcessSection`'s unruled aura) was present in all three runs.
+
+  **⚠ AND IT WAS DISMISSED, WHICH IS WHAT MAKES THIS A RULE RATHER THAN AN ANECDOTE.** The first
+  mismatches were reported, then written off as a probe artefact — right about two rows and wrong
+  about two. **THE DISMISSAL WAS AS CONFIDENT AS THE FINDING AND EQUALLY UNMEASURED.** Before
+  dismissing a gate's output as instrument error, check the instances one at a time; "my probe was
+  coarse" explains away true findings exactly as well as false ones.
+
+  The practical form: when a record and an instrument disagree, **ask what UNIT each side counts in
+  before believing either.** A count that covers several files and a file that hosts several rows have
+  no common unit but the group, and picking either side alone double-counts in one direction.
+
+- **⚠ ZERO CONSUMERS IS A REASON TO DELETE A TOKEN, NOT TO EXEMPT IT FROM A FLOOR FOREVER.**
+  `theme-contrast` carried `"accent-400": "zero public consumers"` — **a true observation with the
+  wrong conclusion attached.** The exemption is what let a dead token survive review for as long as
+  the list did. It was also alive on one palette and not the other, because `@theme` prunes an
+  unreferenced token while a plain `[data-theme]` block does not.
+
+  **⚠ AND `theme-contrast` COULD NOT HAVE SEEN THAT — ITS MODEL OF A THEME MADE THE DEFECT
+  UNREPRESENTABLE.** It reads `globals.css`, where both declarations plainly exist, and constructs
+  harbour as cream-plus-overrides: **a merge that ASSUMES the parity the defect breaks.** Not
+  oversight. Reading the built bundle is the repair (`colour-census` section T), and T3 catching T2
+  passing over an empty subject is the denominator rule paying for itself a fourth time.
+
 - **`lib/studio/data.ts` is the single READ seam for /studio, `lib/studio/commit-site-settings.ts` is the write seam.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData` plus the draft-branch state, draft-preferring for settings. Writes go through the owner-gated commit layer, with the pure transforms in `lib/studio/*-format.ts`.
 
 - **Keystatic is schema-only.** `keystatic.config.ts` drives the reader (`createReader`, `createGitHubReader`) that parses all content, and `lib/case-studies/sections-raw.ts` derives the 16 block-kind union from it, so the config and `@keystatic/core` are load-bearing and stay. There is no Keystatic editor route any more.

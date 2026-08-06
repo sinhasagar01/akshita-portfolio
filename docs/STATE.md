@@ -9776,6 +9776,92 @@ while its selectors still held colour would have failed `J1`. **Every boundary e
 this one was deleted on trust.** The join was built to catch a colour with no row; catching a row with
 no colour is the same assertion read backwards, and #360 is the first time it was exercised that way.
 
+## A HAZARD NEUTRALISED BY A DOWNSTREAM TOOL IS ONE NOBODY LEARNS (#363)
+
+The comment trap has fired ten times in this repo. Every earlier instance was in source a gate read
+directly, so every earlier instance taught something. #362's did not, and the reason is structural.
+
+`colour-census` has three routes. **Routes A and B read the BUILT bundle, where the minifier has
+already stripped every comment — so they are comment-safe FOR FREE, by a property of a tool neither
+of them knows about.** Route C reads source. It was therefore the only route where the question was
+live, and it inherited nothing from the two that appeared to have solved it.
+
+The stripper it did have handled block comments and FULL-LINE `//` and not trailing `//`, so eight
+`// was #B5613C` annotations read as eight live colours and `PageLoader.tsx` reported 16 where the
+file holds 8.
+
+**THE GENERAL FORM. When two of three cases are handled by something downstream, the third looks
+covered and is not, and no amount of looking at the two teaches you about the third.** Immunity that
+comes free is immunity nobody can point at. Adjacent to the emission-versus-consumption pair already
+in CLAUDE.md, and to `mutate.mjs` confirming a source changed rather than a subject.
+
+---
+
+## THE COUNT GATE, AND AN INSTRUMENT THAT WAS WRONG THREE TIMES BEFORE IT WAS RIGHT (#363)
+
+`count:` sat on sixteen boundary rows and **nothing read it**. It would have caught the 16-versus-8
+instantly.
+
+**THE UNIT WAS THE WHOLE PROBLEM, AND EACH WRONG CHOICE PRODUCED CONFIDENT, SPECIFIC, FALSE FINDINGS.**
+
+| unit | result |
+|---|---|
+| per row, counting its files | 2 false mismatches — two rows share `lib/theme.ts`, each charged for the other's colours |
+| per file | 5 false mismatches — a multi-file row's total charged to every one of its files |
+| **per connected component of files linked by rows** | **exact** |
+
+A row's count covers all its files; a file may host several rows. So neither side is the unit, and
+the smallest region where "what was ruled" and "what is there" are both well-defined is the group.
+
+**⚠ AND THE REAL DEFECT WAS PRESENT IN ALL THREE RUNS, SITTING AMONG THE NOISE.** Five plausible
+file-and-number findings with one true one in the middle is indistinguishable from five true ones.
+The first version was reported to the owner as "my probe conflating rows sharing a file" — a
+dismissal that was **right about two rows and wrong about the two that were real**.
+
+**WHAT IT FOUND.** `THEME_SPLASH`'s three per-theme literals had **a full page of reasoning in
+`lib/theme.ts` and no row in the boundary file**, absorbed silently by `pwa-chrome-colour`'s
+file-level join. That row is now written. And `ProcessSection.tsx` holds a fourth colour —
+`rgba(224,156,96,0.34)`, a blurred decorative aura — that **no row rules on**, measured at 21.4 from
+`--color-glow-paper`'s composite and 34.3 from accent-500's, so it cannot be snapped to either.
+
+**RULED, AND IT THEMES** — `color-mix(var(--color-accent-500) 34%, transparent)`, the same treatment
+as #360's six. A warm literal doing decoratively what the accent does would stay warm on harbour
+while everything around it went cool, which is the leak pattern rather than a signature. The 34.3
+shift was expected and is the point.
+
+**⚠ AND IT IS THE ALPHA RULE'S SECOND INSTANCE, MOVING THE OTHER WAY.** Sanity 21.000 first.
+Composite against its ground goes **1.22 → 1.53 on cream and 1.22 → 1.55 on harbour** — roughly 25%
+STRONGER, where #360's signal treatment lost 40%. The mechanism is the same and the sign is
+opposite: `rgb(224,156,96)` is LIGHTER than accent-500, where `#2e1a47` was much darker, so the same
+preserved alpha carries the composite away from a light ground here and toward it there.
+
+**Two instances now, in both directions, from one cause.** Preserving alpha preserves the mix; what
+the contrast does afterwards is decided by the base's lightness relative to the token replacing it —
+which is a thing you can predict before measuring and must measure anyway.
+
+---
+
+## THE TOKEN THAT EXISTED ON ONE PALETTE ONLY, AND WHY NO GATE COULD SEE IT (#363)
+
+`--color-accent-400` was declared for cream inside `@theme` and for harbour inside a plain
+`[data-theme]` block. **Tailwind prunes an `@theme` token nothing references. It does not touch a
+plain block.** So the shipped bundle carried the token under harbour and not at `:root` — the only
+one of 35 overrides without a base.
+
+Nothing consumed it, so nothing rendered wrong. What was wrong was the record: a comment read
+*"accent-ON-DARK uses accent-400"*, **describing a mechanism that was never built**, in the present
+tense, for as long as it existed.
+
+**⚠ `theme-contrast` IS STRUCTURALLY BLIND TO THIS AND NOT BY OVERSIGHT.** It reads
+`app/globals.css`, where both declarations plainly exist, and constructs harbour as cream-plus-
+overrides — **a merge that ASSUMES the parity the defect breaks.** The asymmetry is created by the
+build, so only a reader of the build can see it. Same family as `mutate.mjs` confirming a source
+changed rather than a subject.
+
+Both declarations are deleted. `colour-census` section T now asserts that no theme defines a token
+`:root` lacks, and T1/T3 assert both populations are non-empty — **T2 passed over an empty subject on
+its first run and T3 is what said so.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

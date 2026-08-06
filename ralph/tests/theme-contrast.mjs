@@ -306,7 +306,10 @@ const BOUNDARY = {
   "case-study-sand": "artwork — the warm sand behind a case study",
   "glow-web": "atmosphere — a glow, never a foreground on a ground",
   "ink-200": "zero public consumers",
-  "accent-400": "zero public consumers",
+  /* `accent-400` sat here reading "zero public consumers" — TRUE, AND THE WRONG CONCLUSION DRAWN
+   * FROM IT. Zero consumers is a reason to delete a token, not a reason to exempt it from a contrast
+   * floor forever. The exemption made the dead token survive review for as long as this list did,
+   * and #363 removed the token instead. E2 is what reported the exclusion once its subject was gone. */
   "success-50": "zero public consumers",
   "success-700": "zero public consumers",
   "danger-600": "zero public consumers",

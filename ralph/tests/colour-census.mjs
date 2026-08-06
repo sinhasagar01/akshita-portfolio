@@ -678,6 +678,82 @@ t("J3 ⚠ EVERY BOUNDARY ROW STILL MATCHES SOMETHING — a row matching nothing 
  * had applied to the SOURCE but not to the SUBJECT. That is the never-applied family in a new
  * guise, and `mutate.mjs` cannot see it because it does not know a suite's subject is build output.
  * Rebuild, then mutate. */
+/* ⚠ `count:` WAS A SIXTEEN-ROW FIGURE NOTHING READ, AND IT WOULD HAVE CAUGHT THE ONE DEFECT #362
+ * FOUND. The census reported 16 colours in `PageLoader.tsx` where the file holds 8 — the other
+ * eight were `// was #B5613C` annotations the stripper missed. The row said `count: 8` the whole
+ * time. A number in the record and a number in the instrument disagreed by a factor of two, and
+ * NOTHING COMPARED THEM, because the join matched on file and never on quantity.
+ *
+ * ⚠ AND IT IS COUNTED PER ROW, NOT PER FILE. The first probe written for this counted every colour
+ * in a row's FILES and reported two mismatches that were not real — `pwa-chrome-colour` and
+ * `adjacent-surfaces` share `lib/theme.ts`, so each was charged for the other's colours. THAT IS THE
+ * SUBJECT-SCOPED-BY-INSTRUMENT SHAPE ONE MORE TIME, in the probe written to check the record. A row's
+ * count is about ITS OWN subject, and the join already holds exactly those pairs — so they are
+ * counted there rather than re-derived from the filesystem.
+ *
+ * Rows without a `count:` are skipped rather than assumed zero, and J5b asserts that the counted set
+ * is most of the rows, so this cannot go quiet by the field falling out of the file. */
+/* ⚠ SUMMED PER FILE, BECAUSE A FILE CAN HOST TWO ROWS AND A COUNT IS PER SUBJECT. The first build
+ * of this charged each row for every colour in its files, so `pwa-chrome-colour` (1 colour, ruled)
+ * and `pwa-splash-ground` (3, ruled) each read as claiming all 4 of `lib/theme.ts` — TWO FALSE
+ * MISMATCHES CREATED BY THE INSTRUMENT, which is the subject-scoped-by-instrument shape appearing
+ * inside the check written to audit the record. Adding the missing row made it WORSE rather than
+ * better, which is the tell.
+ *
+ * The units are what disagreed. `count` is per SUBJECT and the source join is per FILE, so the only
+ * expression that is exact in both is the SUM over a file. It needs no new key in the boundary, and
+ * a per-file total that is short by one is precisely a colour no row rules on. */
+const counted = rows.filter((e) => typeof e.count === "number");
+const byFile = new Map();
+for (const p of filePairs) byFile.set(p.file, (byFile.get(p.file) ?? 0) + 1);
+
+/* ⚠ THE UNIT IS A CONNECTED COMPONENT, AND THIS INSTRUMENT WAS WRONG THREE TIMES BEFORE IT WAS
+ * RIGHT — each time by choosing a unit the RECORD does not use.
+ *
+ *   per row   charged each row for every colour in its files → two false mismatches on a shared file
+ *   per file  charged every file a multi-file row's TOTAL    → five false mismatches
+ *   per group exact
+ *
+ * A row's count is one number covering ALL its files, and a file may host several rows. So neither
+ * side is the unit: the smallest region where "what was ruled" and "what is there" are both
+ * well-defined is the COMPONENT of files linked by shared rows. Every other choice double-counts in
+ * one direction or the other.
+ *
+ * ⚠ AND EVERY ONE OF THE THREE WRONG VERSIONS PRODUCED CONFIDENT, SPECIFIC, FALSE FINDINGS — file
+ * names and numbers, indistinguishable from the one real defect sitting among them. The real one
+ * (ProcessSection) was present in all three runs and would have been dismissed with the noise. */
+const parent = new Map();
+const find = (x) => { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+const link = (a, b) => { const [ra, rb] = [find(a), find(b)]; if (ra !== rb) parent.set(ra, rb); };
+for (const f of byFile.keys()) parent.set(f, f);
+for (const e of counted) {
+  const fs = (e.files ?? []).filter((f) => parent.has(f));
+  for (let k = 1; k < fs.length; k++) link(fs[0], fs[k]);
+}
+const found = new Map(), says = new Map();
+for (const [f, n] of byFile) found.set(find(f), (found.get(find(f)) ?? 0) + n);
+for (const e of counted) {
+  const fs = (e.files ?? []).filter((f) => parent.has(f));
+  if (!fs.length) continue;
+  says.set(find(fs[0]), (says.get(find(fs[0])) ?? 0) + e.count);
+}
+const members = (g) => [...byFile.keys()].filter((f) => find(f) === g).join(", ");
+const fileGaps = [...says].filter(([g, n]) => found.get(g) !== n)
+  .map(([g, n]) => `${members(g)}: rows declare ${n}, census finds ${found.get(g) ?? 0}`);
+console.log(`         ${counted.length} of ${rows.length} rows declare a count, covering ${says.size} file groups`);
+t("J5 ⚠ EVERY FILE GROUP'S DECLARED COUNTS SUM TO THE COLOURS THE CENSUS FINDS IN IT",
+  fileGaps.sort(), []);
+
+/* Selector-keyed rows are exact one-to-one, so those ARE checked per row. */
+const selGaps = counted.filter((e) => e.selectors)
+  .map((e) => ({ id: e.id, says: e.count, finds: poolPairs.filter((p) => matchRow(e, p.sel)).length }))
+  .filter((c) => c.says !== c.finds)
+  .map((c) => `${c.id} says ${c.says}, finds ${c.finds}`);
+t("J5b …and a selector-keyed row, which joins one-to-one, matches its count exactly", selGaps.sort(), []);
+
+t("J5c …and counts cover most rows and a real set of files, so J5 cannot pass by the field vanishing",
+  counted.length >= Math.ceil(rows.length / 2) && says.size >= 3, true);
+
 t("J4 the join has subjects on both sides, so J1 and J3 cannot pass by comparing two empty sets",
   poolPairs.length > 10 && filePairs.length > 10 && rows.length >= 4, true);
 
@@ -694,6 +770,65 @@ for (const rel of ["app/manifest.ts", "lib/og.tsx"]) {
 console.log(`         ${adjacent.length} colours on adjacent surfaces (PWA splash, address bar, OG cards)`);
 for (const a of adjacent.slice(0, 5)) console.log(`           ${a}`);
 t("D0 the adjacent population is enumerated rather than assumed empty", adjacent.length > 0, true);
+
+console.log("\nT · every theme defines the same TOKEN SET");
+
+/* ⚠ A TOKEN CAN EXIST ON ONE PALETTE AND NOT THE OTHER, AND ONLY THE BUILD SHOWS IT.
+ * `--color-accent-400` was declared for cream inside `@theme` and for harbour inside a plain
+ * `[data-theme]` block. Tailwind PRUNES an `@theme` token nothing references; it does not touch a
+ * plain block. So the shipped bundle held the token under harbour and nowhere at `:root` — one
+ * asymmetry among 35 overrides, and nothing rendered wrong because nothing consumed it.
+ *
+ * ⚠ `theme-contrast` CANNOT CATCH THIS, AND NOT BY OVERSIGHT. It reads `app/globals.css`, where both
+ * declarations plainly exist, and builds harbour as cream-plus-overrides — a merge that ASSUMES the
+ * parity this asserts. THE DEFECT IS CREATED BY THE BUILD, so a source-level reader is structurally
+ * blind to it, the same way `mutate.mjs` can confirm a source changed and not that the subject did.
+ *
+ * The failure this prevents is quiet: a `var(--color-x)` that resolves on one theme and silently
+ * inherits on the other, appearing only when someone finally consumes it. */
+const bundle = cssFiles.map((f) => readFileSync(url(`${CSS_DIR}/${f}`), "utf8")).join("\n");
+
+/* ⚠ EVERY MATCHING BLOCK, NOT THE FIRST. The first draft took `css.indexOf` / `css.search` and read
+ * whichever block came first in the concatenated bundle — which was a `:root` holding no colour at
+ * all, so the base palette measured ZERO and T2 passed over an empty set. T3 is what reported it.
+ * That is the same last-wins/first-wins error `theme-contrast` made in #325 and `studio-ink-contrast`
+ * made again later, arriving a third time; a bundle has many blocks with the same selector and the
+ * palette is their UNION. */
+const blocksFor = (re) => {
+  const out = [];
+  for (const m of bundle.matchAll(re)) {
+    let d = 0, st = bundle.indexOf("{", m.index), k = st;
+    if (st < 0) continue;
+    for (; k < bundle.length; k++) { if (bundle[k] === "{") d++; else if (bundle[k] === "}") { d--; if (!d) break; } }
+    out.push(bundle.slice(st + 1, k));
+  }
+  return out;
+};
+const themeBlock = (name) => {
+  const bs = blocksFor(new RegExp(`\\[data-theme=["']?${name}["']?\\]`, "g"));
+  return bs.length ? bs.join("\n") : null;
+};
+const rootBlock = blocksFor(/:root\b[^{]*/g).join("\n");
+const tokenNames = (b) => new Set([...b.matchAll(/(--color-[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+const rootTokens = tokenNames(rootBlock);
+console.log(`         :root defines ${rootTokens.size} --color-* tokens in the built bundle`);
+t("T1 the base palette is a real population — a zero here means the block matcher stopped seeing",
+  rootTokens.size > 30, true);
+
+const orphans = [];
+let checkedThemes = 0;
+for (const name of ["harbour", "cream-verify"]) {
+  const b = themeBlock(name);
+  if (!b) continue;
+  checkedThemes++;
+  const names = tokenNames(b);
+  console.log(`         [data-theme="${name}"] overrides ${names.size}`);
+  for (const n of names) if (!rootTokens.has(n)) orphans.push(`${name} defines ${n}, :root does not`);
+}
+t("T2 ⚠ NO THEME DEFINES A TOKEN THE BASE PALETTE LACKS — a var() that resolves on one theme only",
+  orphans.sort(), []);
+t("T3 …and a theme block was actually found and read, so T2 cannot pass over nothing",
+  checkedThemes >= 1, true);
 
 console.log("\nE · the instrument's own honesty");
 t("E1 it enumerates by VALUE, so a colour is caught regardless of what it is named",
