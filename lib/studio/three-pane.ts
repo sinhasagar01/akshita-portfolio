@@ -134,12 +134,17 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
     },
   },
 
-  /* ⚠ A VERIFICATION FIXTURE, DELETED WHEN THEME TWO ARRIVES. Identical to `cream` in every
-     measured value and different only in its key, so the per-theme lookup above is a real lookup
-     rather than a constant equalling itself. `ralph/tests/theme.mjs` asserts the two resolve
-     identically AND that there are EXACTLY TWO entries — so adding a real theme makes three and
-     fails the gate until this block is deleted. That count IS the deletion trigger. The full
-     reasoning, including why it is resolvable but not selectable, is in `lib/theme.ts`. */
+  /* ⚠ A PERMANENT CONTROL. DO NOT DELETE IT, AND DO NOT LET IT DRIFT FROM THE BLOCK ABOVE.
+
+     It shipped as a fixture with a deletion trigger and is no longer one. The cross-theme gate
+     compares two builds differing only in the published theme and asserts the output differs ONLY
+     in the `data-theme` attribute — an assertion that needs a theme byte-identical to the default,
+     and that a REAL second theme can never provide, because under a real palette every colour
+     legitimately differs and the gate would have to allow it.
+
+     `ralph/tests/theme.mjs` asserts these two resolve identically AND that there is EXACTLY ONE
+     twin beside the real themes, so it can be neither dropped nor multiplied. The full reasoning
+     is in `lib/theme.ts`, which is also where the reversal is recorded. */
   "cream-verify": {
     bodyFont: "Work Sans",
     measure68chPx: 676.734,

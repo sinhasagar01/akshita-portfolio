@@ -7675,6 +7675,77 @@ branch: **every rendered public file identical**, and `css__all` differs by exac
 `--color-studio-ground` and `.bg-studio-ground`. `--color-canvas` is unchanged and holds the same
 value, so this is a pure rename with zero pixel change. ralph 2407 → 2419.
 
+## STEP 6b — THE THEME REACHES THE DOM (#324)
+
+`data-theme` on `<html>`, resolved from the content file, baked into every prerendered page.
+
+### WHAT SHIPPED, AND WHAT DELIBERATELY DID NOT
+
+The attribute ships. **The per-theme token blocks do not, and the reason is a rule rather than a
+punt.** With one real palette, a `[data-theme="cream"]` block would hold a second copy of values
+`@theme` already declares — and this repo deletes second copies rather than gating them consistent.
+The blocks arrive with theme two, which is the first moment they carry information.
+
+**⚠ THE HOST WAS MEASURED.** `html { background-color: var(--color-background) }` paints the page
+ground. Red on `<html>`, blue on a wrapper inside `<body>`, 40px of content in a 1060px viewport:
+**the wrapper painted 40 and `<html>` painted 1020.** Any host below `<html>` leaves a band on every
+short page and every overscroll. The root is not preferable, it is the only correct answer.
+
+**AND THE CANVAS COSTS NOTHING.** It renders public components, so it inherits from the root and
+shows the active theme with no second mechanism — the A ruling satisfied by construction.
+
+**NO FLASH AND NO CLIENT SCRIPT**, because every public route is prerendered. `/studio` is dynamic,
+which is the right side of that split.
+
+### ⚠ THE TWIN STOPPED BEING A FIXTURE AND BECAME A PERMANENT CONTROL
+
+It shipped in #322 with a machine-enforced deletion trigger — exactly two entries, so theme two
+would fail CI until the twin was gone. **That trigger was correct for the job it had and wrong for
+the job it acquired.**
+
+> **A REAL SECOND THEME CANNOT REPLACE IT.** Under a real palette every colour legitimately
+> differs, so a cross-theme gate would have to ALLOW arbitrary difference, which is not an
+> assertion. The control is the only theme that can say "nothing but the attribute".
+
+So it is now defined as a clone of the DEFAULT, tracking whatever cream becomes, and the count
+assertion moved from "exactly two entries" to "the real themes plus exactly one twin". **The reason
+is written into the twin itself in both leaves, not only here** — a permanent control with no
+stated purpose is what a future cleanup deletes, and that deletion would have been silent under the
+old shape, which passes happily with one fewer entry.
+
+**⚠ AND MUTATION FOUND HALF THE NEW ASSERTION UNFALSIFIABLE.** "Not two twins" counted over
+`Object.keys(THEME_METRICS)` — and a duplicate key in an object literal collapses, so it can never
+report two however hard the mutation tries. Recounted over `THEME_NAMES`, the array, which is where
+multiplication is expressible. A companion assertion was **deleted** rather than kept, because it
+could only be falsified by removing `cream`, which crashes the module before anything runs.
+
+### C1 CHANGED SUBJECT ON THE DAY ITS OWN COMMENT PREDICTED
+
+#314 wrote C1 to assert every frozen studio colour EQUALS its public counterpart, and said in the
+same paragraph that a theme moving a public token is when it must be deliberately updated.
+
+**IT IS NOW AN INDEPENDENCE ASSERTION, WHICH IS A DIFFERENT CLAIM AND NOT A LOOSER ONE.** Every
+frozen colour must be a literal, never a `var()` reaching back into a public token. Equality was a
+snapshot four themes will falsify. Independence is what the freeze exists to guarantee and survives
+all four.
+
+**⚠ AND IT CATCHES STRICTLY MORE.** An alias to a public token evaluates EQUAL to it wherever the
+two agree, so the old row could never see the aliasing defect it was written to prevent. The new
+row also covers `studio-ground`, which the public-counterpart pairing could not reach at all
+because it has no public token of that name. #309's C3 shape — the value stays true while the
+reason is replaced entirely.
+
+### PROOF — THE CROSS-THEME COMPARISON, WHICH IS WHAT THE CONTROL EXISTS FOR
+
+Two production builds differing only in `theme:` in the content file, compared through
+`scripts/normalize-dom.mjs`.
+
+- **10 prerendered HTML files differ — every public route**, so the attribute reaches all of them.
+- **20 differing lines, 10 per side, all `data-theme`.** Lines differing without `data-theme`: **0**.
+- `css__all` is **identical**, which is the expected consequence of shipping no token blocks.
+
+ralph 2419 → 2424. Lint, tsc and the build clean.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
