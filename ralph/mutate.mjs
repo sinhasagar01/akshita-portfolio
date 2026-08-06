@@ -46,8 +46,16 @@ if (!existsSync(file)) {
 const res = spawnSync("node", ["--experimental-strip-types", file], { encoding: "utf8" });
 const out = `${res.stdout ?? ""}${res.stderr ?? ""}`;
 
-const fails = (out.match(/\[FAIL\]/g) ?? []).length;
-const passes = (out.match(/\[PASS\]/g) ?? []).length;
+/* ⚠ ELEVEN OF THE SUITES DO NOT PRINT `[FAIL]`, AND COUNTING ONLY THAT MARKER MISREPORTED THEM.
+ * `rich-markers` prints `✗ FAIL`, so a mutation that made three assertions fail was counted as
+ * ZERO and the verdict fell through to the exit-code branch — KILLED, correctly, with the detail
+ * line reading "0 assertions failed". THE RIGHT ANSWER FOR A STATED CAUSE THAT WAS FALSE, which is
+ * the fourth instance of that exact family in this file.
+ *
+ * `run.mjs` never had the bug because it treats the exit code as the verdict and a suite's own
+ * summary as the count. This now matches both markers for the same reason. */
+const fails = (out.match(/\[FAIL\]|✗ FAIL/g) ?? []).length;
+const passes = (out.match(/\[PASS\]|✓ (?!FAIL)/g) ?? []).length;
 /* A suite's own summary wins; the marker counts are the fallback for the ones without one —
  * the same precedence run.mjs uses. */
 const summary = /(\d+) passed, (\d+) failed/.exec(out);

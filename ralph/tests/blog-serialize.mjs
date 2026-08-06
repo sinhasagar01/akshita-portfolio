@@ -104,8 +104,15 @@ t("D2 a blocks write preserves the head object exactly", (() => {
 {
   const fromLoad = readBlogBlocks(raw);                        // may carry shared refs
   const fromJson = JSON.parse(JSON.stringify(fromLoad));       // as the route receives it
+  /* ⚠ E1 COMPARES TWO OUTPUTS OF THE SAME FUNCTION, so it is satisfied by a serializer that
+   * returns a constant — and E2 below, which only looks for ANCHORS, is satisfied by the empty
+   * string too. The claim ("these two input graphs agree") is the right one and it needs an anchor
+   * that is not itself derived from the serializer. E0 is that anchor. */
+  const e1Bytes = bytes(serializeBlogBlocks(raw, fromLoad));
+  t("E0 the serializer produces real output — E1 and E2 are both satisfied by an empty string",
+    e1Bytes.length > 200 && e1Bytes.includes("blocks:"), true);
   t("E1 load()-derived and JSON-parsed blocks serialize IDENTICALLY",
-    bytes(serializeBlogBlocks(raw, fromLoad)), bytes(serializeBlogBlocks(raw, fromJson)));
+    e1Bytes, bytes(serializeBlogBlocks(raw, fromJson)));
   t("E2 …and neither emits a yaml anchor", /[&*]ref_\d/.test(bytes(serializeBlogBlocks(raw, fromJson))), false);
 }
 {

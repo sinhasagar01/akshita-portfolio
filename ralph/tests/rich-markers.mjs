@@ -174,13 +174,32 @@ t("empty string still returns the empty STRING, not a run list",
   JSON.stringify(parseRich("")), JSON.stringify(""));
 
 console.log("\n--- EXISTING bold-only content must be untouched by the new branches ---");
-for (const s of [
-  "Personas served, **Data Designer**, **Insight Designer**, and **Decision Designer**",
-  "Designing for three personas at once taught me to find the shared spine.",
-  "**Lead** then rest",
-]) {
-  t(`bold-only round-trip unchanged · ${s.slice(0, 34)}…`,
-    JSON.stringify(parseRich(s)), JSON.stringify(parseRich(s)));
+/* ⚠ THE EXPECTED STRUCTURE IS WRITTEN OUT, BECAUSE THE ROW ABOVE IT USED TO BE A TAUTOLOGY.
+ * It read `t(name, JSON.stringify(parseRich(s)), JSON.stringify(parseRich(s)))` — THE SAME
+ * EXPRESSION ON BOTH SIDES — so it compared a value to itself and could not fail for any
+ * implementation of `parseRich`, including one returning a constant. Three assertions, none of
+ * which had a subject, and every run since counted them as passing.
+ *
+ * It was named "round-trip unchanged", which is the intent: these strings predate the marker
+ * branches and their parse must not have moved. THAT NEEDS A BASELINE, and there was none — so the
+ * baseline is here, spelled out, and it is the one thing a derived expectation cannot be. */
+const BOLD_ONLY = [
+  ["Personas served, **Data Designer**, **Insight Designer**, and **Decision Designer**",
+    ["Personas served, ", { b: "Data Designer" }, ", ", { b: "Insight Designer" }, ", and ",
+      { b: "Decision Designer" }]],
+  ["Designing for three personas at once taught me to find the shared spine.",
+    "Designing for three personas at once taught me to find the shared spine."],
+  ["**Lead** then rest", [{ b: "Lead" }, " then rest"]],
+];
+for (const [s, expected] of BOLD_ONLY) {
+  /* ⚠ STRINGIFIED BECAUSE THIS SUITE'S `t` COMPARES WITH `===`, unlike every other suite here,
+   * which compares `JSON.stringify` of both sides. That is the mechanism that produced the
+   * tautology: reference equality makes any structural expectation fail, so both sides were
+   * stringified, and the `want` side then had nowhere to get a value except by repeating the
+   * `got` expression. The baseline below is a literal, so the stringify is a comparison rather
+   * than a workaround. */
+  t(`bold-only parse unchanged · ${s.slice(0, 34)}…`,
+    JSON.stringify(parseRich(s)), JSON.stringify(expected));
   const runs = parseRich(s);
   const flat = typeof runs === "string" ? runs : runs.map(flatten).join("");
   t(`  text preserved · ${s.slice(0, 26)}…`, flat, s.replace(/\*\*/g, ""));
