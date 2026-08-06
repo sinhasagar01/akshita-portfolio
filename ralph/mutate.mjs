@@ -60,9 +60,22 @@ const crashed = res.status === null || res.status > 1 || /^\s*(Error|TypeError|S
  * but the REASON printed was false, which is the same defect one layer down: a harness that
  * reports the right answer for the wrong stated cause. A suite that asserted nothing tested
  * nothing, and how it terminated is a detail rather than the classification. */
+/* ⚠ A FAILURE BEFORE A CRASH IS STILL A KILL, AND THIS IS THE THIRD DEFECT IN THIS HARNESS OF THE
+ * SAME FAMILY — a verdict describing the run less accurately than the run described itself.
+ *
+ * #344's S4 mutation made an assertion FAIL BY NAME and then crashed the suite at a pre-existing
+ * `throw`. The old order put `crashed` first, so it reported INVALID: correct by the rule as
+ * written, and WRONG ABOUT WHAT HAPPENED. Left alone, a future mutation that genuinely kills an
+ * assertion would be read as never having applied, and someone would go looking for a gate that
+ * was working.
+ *
+ * SO THE FAILURE IS READ FIRST. A crash after a `[FAIL]` says the gate caught the mutation and the
+ * code then fell over downstream — which is a KILL with a footnote, not an invalid run. A crash
+ * with NO failures still means the mutation broke the code rather than testing the gate. */
 let verdict;
-if (crashed || asserted === 0) verdict = "INVALID";
-else if (res.status !== 0 || fails > 0) verdict = "KILLED";
+if (fails > 0) verdict = "KILLED";
+else if (crashed || asserted === 0) verdict = "INVALID";
+else if (res.status !== 0) verdict = "KILLED";
 else verdict = "SURVIVED";
 
 /* ⚠ THE THIRD MEMBER OF THE SAME FAMILY, FOUND BY THE #322 RUN AND CLOSED HERE. A mutation whose
@@ -76,7 +89,8 @@ else verdict = "SURVIVED";
  * below claims exactly that much. */
 const treeClean = spawnSync("git", ["diff", "--quiet", "HEAD"], { encoding: "utf8" }).status === 0;
 
-const detail = { KILLED: `${fails} assertion${fails === 1 ? "" : "s"} failed`,
+const detail = { KILLED: `${fails} assertion${fails === 1 ? "" : "s"} failed`
+    + (crashed && fails > 0 ? " — then the code crashed downstream, which does not change the kill" : ""),
   /* ⚠ SURVIVED ONLY MEANS ANYTHING WITH A MUTATION APPLIED. Where the tree is dirty the harness
    * still cannot see whether the edit touched the code this suite reads, so the wording states the
    * condition rather than the conclusion. */

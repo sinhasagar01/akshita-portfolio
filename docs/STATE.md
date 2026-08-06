@@ -9039,6 +9039,72 @@ still sees the `[FAIL]` line. Recorded rather than fixed.
 
 ralph 2497 → 2516.
 
+## EMPTINESS — THE ARC CLOSES (#345)
+
+`J1`–`J4`. **Every authored colour in the bundle is claimed by exactly one boundary row, and every
+row still matches something.** 28 pairs, 5 rows, both directions asserted.
+
+### ⚠ THE A3 FINDING IS ITS OWN SHAPE — AN ASSERTION WHOSE REACH SHRANK WHILE ITS ANSWER STAYED CORRECT
+
+Not the seventh defect repeated. A3 reported `[]` before the fix and `[]` after; **the population it
+could not see was empty anyway.** Nothing in the output was wrong, so nothing could have signalled
+it.
+
+**AND THE CAUSAL CHAIN IS THE PART TO KEEP.** #327 measured that re-expressing `text-body` and
+`rule` as oklch SHIFTED THE COLOUR, so they were correctly declared as hex and rgb — and nothing
+re-read the gate afterwards.
+
+> **THE ARC CREATED THE TOKENS ITS OWN GATE COULD NOT SEE, BY DOING THE RIGHT THING.** Hazard 27's
+> shape one level up: an exclusion that was correct when written becomes a hole when the excluded
+> thing gains members.
+
+**`colour-census` OWNING A PRIVATE COLOUR REGEX IS THE FINDING IN MINIATURE** — the same instinct
+that produced #338's one-off, sitting inside a STANDING gate rather than a throwaway script. The
+instrument built to replace name-blind censuses had written its own matcher rather than importing
+one.
+
+### THE JOIN, AND WHY IT IS NOT A PATTERN
+
+A row names a colour's LOCATION — the selector the census already extracts — and emptiness is a
+JOIN. **A matcher in the YAML would be exactly as unreviewable as one in the suite**, and this arc
+produced two filters that disagreed with each other.
+
+**A STALE ROW FAILS** · **AN ENTRY CANNOT OVER-MATCH** — a regex written for one hero aura silently
+covers a second colour that arrives later; a selector list cannot, which is the exact mechanism by
+which E1's subject shrank · **THE PROSE STAYS THE POINT.**
+
+One declared exception: a Tailwind arbitrary utility's selector IS its value, so that row says
+`selectors_match: escaped-arbitrary-utility` — **a named shape rather than a regex**.
+
+### ⚠ AND THE JOIN FOUND ONE MORE BEFORE IT WAS ASSERTED
+
+`.ab-hint` carried the same declaration as `.ab-cap`, and **#340 converted one of the two.** A count
+would have said "five judgements, two converted"; the join said `oklch(95% .018 0) in .ab-hint`.
+**That is twice now that assembling the pairs found something no number could.**
+
+### THE HARNESS'S THIRD DEFECT, FIXED RATHER THAN RECORDED
+
+A gate that FAILED BY NAME and then crashed downstream reported INVALID. **The failure is read
+first now** — a crash after a `[FAIL]` is a kill with a footnote. Third defect in `mutate.mjs`, all
+the same family: **a verdict describing the run less accurately than the run described itself.**
+
+**⚠ AND A FOURTH IS RECORDED RATHER THAN FIXED.** This suite reads the BUILT bundle, so a source
+mutation needs a rebuild before it is visible — J1 reported SURVIVED against an edited `globals.css`
+until the bundle was rebuilt. **The mutation applied to the SOURCE but not to the SUBJECT**, and the
+harness cannot see it because it does not know a suite's subject is build output.
+
+### WHAT THE LAST GATE HAS THAT NONE OF ITS PREDECESSORS DID
+
+E1 declared its subject and proved completeness of **2% of the page**. The boundary list was called
+final **twice** and was not. Two filters produced two wrong numbers.
+
+> **THIS ONE CANNOT MAKE THOSE MISTAKES.** Its subject is DECLARED rather than drawn by the
+> instrument around itself; it is joined BOTH WAYS, so a decision cannot outlive its subject; and
+> every exclusion carries a reason a person can disagree with. **The arc's own history is the
+> argument for the design.**
+
+ralph 2516 → 2520.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

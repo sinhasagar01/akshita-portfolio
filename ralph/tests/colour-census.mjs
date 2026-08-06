@@ -277,6 +277,7 @@ function authoredPart(value) {
 
 const SUPPORTS = "@supports (color:color-mix(in lab,red,red))";
 const cssLeaks = new Map();
+const cssPairs = new Set();
 let fallbacks = 0;
 for (const f of cssFiles) {
   const css = readFileSync(url(`${CSS_DIR}/${f}`), "utf8");
@@ -303,12 +304,16 @@ for (const f of cssFiles) {
       const prop = d.slice(0, d.indexOf(":")).trim();
       if (prop.startsWith("--color-")) continue;
       if (prop.startsWith("--tw-")) continue;                    // compiler default
+      /* ⚠ AND INSIDE AN `@property` BLOCK the "property" is `property --tw-…`, which the prefix
+         test above cannot reach. Same compiler default, one syntax further out. */
+      if (/^property\s+--tw-/.test(prop)) continue;
       if (/mask-image$|^mask$/.test(prop)) continue;             // alpha channel, not paint
       for (const c of (authoredPart(d.slice(d.indexOf(":") + 1)).match(COLOUR) ?? [])) {
         const key = c.replace(/\s+/g, "");
         if (key === "#0000") continue;              // Tailwind's `transparent`
         if (enhanced.has(`${sel}|${prop}`)) { fallbacks++; continue; }
         cssLeaks.set(key, (cssLeaks.get(key) ?? 0) + 1);
+        cssPairs.add({ v: key, sel });                 // the join's left-hand side
       }
     }
   }
@@ -409,6 +414,60 @@ t("A5 the token index is populated — a zero here would make A3 pass by compari
 const oklLits = [...customProps.values()].flat().filter((c) => /^oklch\(/.test(c));
 t("A6 …and nothing is silently dropped between reading a colour and parsing it",
   oklLits.filter((c) => !okl(c)), []);
+
+console.log("\nJ · ⚠ EMPTINESS — the join, asserted BOTH WAYS");
+
+/* ⚠ A JOIN, NOT A REGEX EVALUATION. Every row names a colour's LOCATION — the selector the census
+ * already extracts — and emptiness is a JOIN against those. A matcher in the YAML would be exactly
+ * as unreviewable as one in this file, and this arc has already produced two filters that
+ * disagreed with each other.
+ *
+ * THREE THINGS THE JOIN BUYS THAT A PATTERN CANNOT.
+ *   · A STALE ROW FAILS. If a colour is refactored away its entry matches nothing, and an entry
+ *     matching nothing is a decision that outlived its subject — reported rather than silently
+ *     satisfied.
+ *   · AN ENTRY CANNOT OVER-MATCH. A regex written for one hero aura silently covers a second
+ *     colour that arrives later; a selector list cannot. That is the exact mechanism by which E1's
+ *     subject shrank and nobody noticed.
+ *   · THE PROSE STAYS THE POINT. The reason is what a person reads and the join is what the gate
+ *     reads, and neither pretends to be the other.
+ *
+ * ⚠ THE ESCAPED-UTILITY ROW IS THE ONE EXCEPTION AND IT IS DECLARED, NOT ASSUMED. A Tailwind
+ * arbitrary utility's selector IS its value, so listing them would restate the pool. That row says
+ * `selectors_match: escaped-arbitrary-utility` — a named shape rather than a regex, and the one
+ * place a row is matched structurally instead of by name. */
+const rows = BOUNDARY.entries.filter((e) => e.selectors || e.selectors_match);
+const matchRow = (e, sel) =>
+  e.selectors_match === "escaped-arbitrary-utility" ? /\\\[/.test(sel)
+    : (e.selectors ?? []).includes(sel);
+
+const poolPairs = [...cssPairs];
+const unclaimed = poolPairs.filter((p) => !rows.some((e) => matchRow(e, p.sel)));
+t("J1 ⚠ EVERY AUTHORED COLOUR IN THE BUNDLE IS CLAIMED BY EXACTLY ONE BOUNDARY ROW",
+  unclaimed.map((p) => `${p.v} in ${p.sel}`).sort(), []);
+t("J2 …and none is claimed TWICE, which would make one of the two reasons a lie",
+  poolPairs.filter((p) => rows.filter((e) => matchRow(e, p.sel)).length > 1)
+    .map((p) => `${p.v} in ${p.sel}`), []);
+
+/* ⚠ THE DIRECTION NOTHING IN THIS PROJECT HAS EVER CHECKED. Every boundary list this arc produced
+ * was declared complete and was not — but none could go STALE, because none was ever joined against
+ * anything. This is the first assertion here that can catch a decision outliving its subject.
+ *
+ * WHEN IT FAILS THE REPAIR IS PER ROW, and the three causes have different answers: the colour was
+ * refactored away and the row should go; the colour moved file and the location is stale; or THE
+ * CENSUS CANNOT SEE IT AND THE ROW IS FINE WHILE THE INSTRUMENT IS NOT. The third is the dangerous
+ * one — deleting a row because the census cannot find its subject is how a real exclusion becomes a
+ * silent leak. */
+const stale = rows.filter((e) => !poolPairs.some((p) => matchRow(e, p.sel)));
+t("J3 ⚠ EVERY BOUNDARY ROW STILL MATCHES SOMETHING — a row matching nothing has outlived its subject",
+  stale.map((e) => e.id).sort(), []);
+/* ⚠ THIS SUITE READS THE BUILT BUNDLE, SO A SOURCE MUTATION NEEDS A REBUILD BEFORE IT IS VISIBLE.
+ * J1 reported SURVIVED against an edited `globals.css` until the bundle was rebuilt — the mutation
+ * had applied to the SOURCE but not to the SUBJECT. That is the never-applied family in a new
+ * guise, and `mutate.mjs` cannot see it because it does not know a suite's subject is build output.
+ * Rebuild, then mutate. */
+t("J4 the join has subjects on both sides, so J1 and J3 cannot pass by comparing two empty sets",
+  poolPairs.length > 10 && rows.length >= 4, true);
 
 console.log("\nA-c · utility classes resolved back to the file that USES them");
 
