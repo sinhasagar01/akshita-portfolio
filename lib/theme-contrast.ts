@@ -32,6 +32,38 @@
 
 export type Rgb = [number, number, number];
 
+/**
+ * ⚠ THE ONE SCANNING REGEX. Import this; do not write your own.
+ *
+ * The `rgba` defect that corrected #338 lived in a THROWAWAY VERIFICATION REGEX — one that existed
+ * for the length of a single PR, which no audit of the standing instruments could ever reach. A
+ * verification step reaches for a regex because writing one is FASTER than importing something.
+ *
+ *   SO THE JOB OF THIS EXPORT IS NOT DEDUPLICATION. IT IS MAKING THE ONE-OFF UNNECESSARY.
+ *
+ * It is a getter rather than a constant so every caller gets a fresh `lastIndex` — a shared `/g`
+ * regex carries state between `.test()` calls, which is its own silent-wrong-answer.
+ */
+export const colourPattern = () =>
+  /#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)|\boklch\([^)]*\)|\bhsla?\([^)]*\)|\bcolor\(display-p3[^)]*\)/g;
+
+/** Every colour form this matcher claims to read. The coverage fixture asserts against THIS list,
+ *  so adding a form without teaching the parser fails rather than silently widening the claim. */
+export const COLOUR_FORMS = [
+  "hex-3", "hex-4", "hex-6", "hex-8", "rgb", "rgba", "hsl", "hsla",
+  "oklch-percent", "oklch-plain", "oklch-alpha", "named", "transparent",
+] as const;
+
+/**
+ * A colour's identity, independent of spelling — `14%` and `14.0%` and `#4a4239` and
+ * `rgb(74,66,57)` all collapse to one key. Returns null for anything unreadable, and ⚠ NULL MEANS
+ * "I CANNOT READ THIS", NOT "THIS IS NOT A COLOUR". Callers that need the difference must ask.
+ */
+export function colourKey(value: string): string | null {
+  const rgb = parseColor(value);
+  return rgb ? rgb.join(",") : null;
+}
+
 /** oklch(L C H) -> sRGB 0..255. L is a fraction, H degrees. The standard Björn Ottosson transform,
  *  and the single copy — `studio-ink-contrast` imports it rather than keeping a second. */
 export function oklchToRgb(L: number, C: number, H: number): Rgb {
@@ -109,12 +141,47 @@ export function parseColor(value: string): Rgb | null {
   const v = value.trim();
   const oklch = parseOklch(v);
   if (oklch) return oklch;
-  const hex = /^#([0-9a-f]{6})$/i.exec(v);
-  if (hex) return [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16)) as Rgb;
+
+  /* Hex in all four lengths. 3 and 4 digit expand by doubling; 8 and 4 carry an alpha this drops,
+     because callers composite explicitly through `over()` and honouring it here would double it. */
+  const hex = /^#([0-9a-fA-F]{3,8})$/.exec(v);
+  if (hex) {
+    const h = hex[1];
+    if (h.length === 3 || h.length === 4) {
+      return [0, 1, 2].map((i) => parseInt(h[i] + h[i], 16)) as Rgb;
+    }
+    if (h.length === 6 || h.length === 8) {
+      return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as Rgb;
+    }
+    return null;                                   // 5 and 7 are not valid CSS
+  }
+
   const rgb = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(v);
   if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])] as Rgb;
-  return null;
+
+  const hsl = /^hsla?\(\s*([\d.]+)(?:deg)?[,\s]+([\d.]+)%[,\s]+([\d.]+)%/.exec(v);
+  if (hsl) return hslToRgb(Number(hsl[1]), Number(hsl[2]) / 100, Number(hsl[3]) / 100);
+
+  if (v === "transparent") return [0, 0, 0];
+  const named = NAMED_COLOURS[v.toLowerCase()];
+  return named ?? null;
 }
+
+function hslToRgb(h: number, s: number, l: number): Rgb {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  const seg = Math.floor(((h % 360) + 360) % 360 / 60);
+  const [r, g, b] = [[c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x]][seg];
+  return [r, g, b].map((v) => Math.round((v + m) * 255)) as Rgb;
+}
+
+/** The handful of CSS keywords this codebase actually writes. Not the full 148 — a matcher that
+ *  claims coverage it does not have is the defect this file exists to stop. */
+const NAMED_COLOURS: Record<string, Rgb> = {
+  white: [255, 255, 255], black: [0, 0, 0], red: [255, 0, 0],
+  currentcolor: [0, 0, 0],
+};
 
 /** A theme's colours: token name (without the `--color-` prefix) to a colour literal. */
 export type Palette = Record<string, string>;

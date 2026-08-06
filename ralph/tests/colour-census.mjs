@@ -1,5 +1,5 @@
 // EVERY COLOUR THAT REACHES A PUBLIC PAGE. The instrument the theme project was missing.
-// Run: node ralph/tests/colour-census.mjs   (needs a production build — see NOT RUNNABLE below)
+// Run: node --experimental-strip-types ralph/tests/colour-census.mjs   (needs a production build)
 //
 // ---- ⚠ WHY THIS EXISTS, AND IT IS NOT "ANOTHER GATE" -------------------------------------------
 //
@@ -63,6 +63,9 @@
 // No name-based gate can see that, because the property is not called `--color-anything`.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { load } from "js-yaml";
+/* ⚠ IMPORTED RATHER THAN RE-DECLARED, AND THIS SUITE IS ITS OWN EXHIBIT. It owned a private COLOUR
+ * regex until now — the same instinct that produced #338's narrower one-off, in a STANDING gate. */
+import { colourPattern, colourKey, parseColor, COLOUR_FORMS } from "../../lib/theme-contrast.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -84,7 +87,10 @@ if (!existsSync(url(CSS_DIR))) {
   process.exit(0);
 }
 
-const COLOUR = /#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)|\boklch\([^)]*\)|\bhsla?\([^)]*\)|\bcolor\(display-p3[^)]*\)/g;
+/* ⚠ IMPORTED, NOT DECLARED. This suite used to own this pattern, and #338's verification step wrote
+ * its own narrower copy because writing one was faster than reaching for this. One export, and the
+ * one-off has nothing to be faster than. */
+const COLOUR = colourPattern();
 
 /* ---------------------------------------------------------------- the token layer, for reference */
 const globals = read("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, " ");
@@ -136,6 +142,49 @@ t("Z8 the composite rule names the rule that corrects it",
   rules["composite-not-declaration"]?.corrected_by, "base-colour-highest-alpha");
 t("Z9 …and the correction says why, because the reason is the valuable half",
   (rules["base-colour-highest-alpha"]?.why ?? "").includes("TWO COLOURS WHERE THE DESIGN HAS ONE"), true);
+
+console.log("\nM · the matcher's coverage — asked what it CANNOT see, not only what it can");
+
+/* ⚠ THIS FIXTURE CLOSES A DOOR. IT DOES NOT FIX A BUG, AND SAYING SO IS WHY IT SURVIVES.
+ * The audit found two real gaps and NEITHER IS LIVE — no `hsl` exists in this codebase and every
+ * studio token is oklch. A fixture presented as a fix invites "which bug did it catch", the honest
+ * answer is none, and someone deletes it on those grounds.
+ *
+ * ⚠ AND IT ASSERTS THE NEGATIVE SIDE, WHICH IS THE HALF THAT PREVENTS RECURRENCE. Both of this
+ * arc's parser defects reported ABSENCE rather than erroring — `parseOklch` returned null for the
+ * percentless form, #338's regex simply did not match `rgba()`. ABSENCE IS THE ONE ANSWER THAT
+ * NEVER LOOKS WRONG, so the fixture asks what the matcher cannot read and requires the list to be
+ * exactly what it claims. */
+const FORM_SAMPLES = {
+  "hex-3": ["#abc", [170, 187, 204]],
+  "hex-4": ["#abcd", [170, 187, 204]],
+  "hex-6": ["#4a4239", [74, 66, 57]],
+  "hex-8": ["#4a423980", [74, 66, 57]],
+  rgb: ["rgb(120, 90, 60)", [120, 90, 60]],
+  rgba: ["rgba(233, 226, 214, 0.78)", [233, 226, 214]],
+  hsl: ["hsl(0, 0%, 100%)", [255, 255, 255]],
+  hsla: ["hsla(0, 0%, 0%, 0.5)", [0, 0, 0]],
+  "oklch-percent": ["oklch(14.0% 0.018 60)", [15, 7, 3]],
+  "oklch-plain": ["oklch(0.14 0.018 60)", [15, 7, 3]],
+  "oklch-alpha": ["oklch(0.14 0.018 60 / 0.06)", [15, 7, 3]],
+  named: ["white", [255, 255, 255]],
+  transparent: ["transparent", [0, 0, 0]],
+};
+t("M1 the declared form list matches the fixture exactly — no form claimed without a sample",
+  [...COLOUR_FORMS].sort(), Object.keys(FORM_SAMPLES).sort());
+for (const [form, [sample, want]] of Object.entries(FORM_SAMPLES)) {
+  t(`M2 ${form} — ${sample}`, parseColor(sample), want);
+}
+/* ⚠ THE NEGATIVE ROWS. A matcher that returns null for everything would pass every M2 above if the
+ * samples were removed; these require it to REFUSE what is genuinely unreadable, so "reads
+ * nothing" and "reads everything" are distinguishable. */
+t("M3 …and it refuses what it genuinely cannot read, so null means something",
+  ["#ab", "#abcde", "oklch(bananas)", "not-a-colour", ""].map((v) => parseColor(v)),
+  [null, null, null, null, null]);
+/* The scanner and the parser must agree: anything the scanner finds, the parser must read. */
+const scanned = "a #abc b rgb(1,2,3) c oklch(0.5 0.1 60 / .5) d hsl(0,0%,100%) e".match(colourPattern()) ?? [];
+t("M4 every form the SCANNER finds, the PARSER can read — a disagreement is a silent zero",
+  scanned.filter((c) => parseColor(c) === null), []);
 
 console.log("\nA · the built CSS bundle — every colour the stylesheet actually ships");
 
@@ -302,16 +351,20 @@ t("A2b ⚠ AND IT SEPARATES COMPILER OUTPUT FROM AUTHORED COLOUR — a zero here
  * these 22 compared spellings — `14%` against `14.0%` — and reported ONE longhand duplicate where
  * there were ELEVEN. A census whose premise is "enumerate by value, not by name" was name-based one
  * layer in. */
-const okl = (c) => {
-  const m = /oklch\(\s*([\d.]+)%?\s+([\d.]+)\s+([\d.]+)/.exec(c);
-  if (!m) return null;
-  const L = Number(m[1]);
-  return `${(L > 1.5 ? L / 100 : L).toFixed(4)}|${Number(m[2])}|${Number(m[3])}`;
-};
+/* ⚠ THE SHARED KEY ON BOTH SIDES, AND THE OLD ONE WAS OKLCH-ONLY ON BOTH. `tokenByValue` was built
+ * from `--color-*: oklch(…)` and the comparison ran through a local oklch parser, so FOUR PUBLIC
+ * TOKENS THIS ARC ITSELF CREATED were invisible to A3: `--color-text-body` (#4a4239),
+ * `--color-rule`, `--color-vessel-ink` and `--color-vessel-capsule`, all declared as hex or rgb
+ * BECAUSE #327 measured that re-expressing them as oklch shifted the colour.
+ *
+ * A3's wording claimed "no custom property holds a colour A TOKEN already names". Its reach was
+ * "…a colour an OKLCH-DECLARED token already names". The gap was live and in a STANDING gate, which
+ * overturns the handoff's provisional finding that only a throwaway regex was affected. */
+const okl = colourKey;
 const themeSrc = globals.slice(globals.indexOf("@theme"), globals.indexOf('[data-theme="harbour"]'));
 const tokenByValue = new Map();
-for (const m of themeSrc.matchAll(/--color-([a-z0-9-]+):\s*(oklch\([^)]*\))/g)) {
-  const k = okl(m[2]);
+for (const m of themeSrc.matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) {
+  const k = colourKey(m[2].trim());
   if (k && !tokenByValue.has(k)) tokenByValue.set(k, m[1]);
 }
 const longhand = [];
@@ -336,6 +389,10 @@ t("A5b …and a color-mix carrying a literal is not mistaken for a derivation",
   (authoredPart("color-mix(in oklch, #2e1a47 52%, transparent)").match(COLOUR) ?? []), ["#2e1a47"]);
 t("A5b …while a color-mix over a token alone is",
   authoredPart("color-mix(in srgb, var(--color-ink-950) 8%, transparent)").match(COLOUR), null);
+
+t("A5b the token index now sees NON-OKLCH tokens — four of them, all created by this arc",
+  ["#4a4239", "rgb(120, 90, 60)", "rgb(23, 20, 18)", "rgb(222, 213, 199)"]
+    .every((v) => tokenByValue.has(colourKey(v))), true);
 
 t("A5 the token index is populated — a zero here would make A3 pass by comparing against nothing",
   tokenByValue.size > 15, true);
