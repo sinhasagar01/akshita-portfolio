@@ -601,7 +601,25 @@ h6 {
 
 p {
   line-height: var(--leading-relaxed);
-  max-width: 68ch;
+}
+
+/* ⚠ THE PROSE MEASURE IS LAYERED AND THE LEADING ABOVE IS NOT, AND THE SPLIT IS THE WHOLE POINT.
+   Both used to sit in one unlayered `p` rule, where an unlayered element rule beats `@layer
+   utilities` regardless of specificity — hazard 11. That made EVERY arbitrary measure and leading utility
+   on a paragraph draw nothing: 18 measures and 34 leadings, written by people who had no way to
+   know they were inert.
+
+   ⚠ MOVING THE WHOLE RULE WOULD HAVE MADE ALL 52 LIVE AT ONCE, plus `<h3>`'s 12 weights and the
+   headings' 4 tracking values — 92 changes in one diff, where nothing could be attributed. So the
+   properties are separated and taken one at a time. THIS PR IS THE MEASURE ONLY. The leading stays
+   unlayered and stays inert until its own PR.
+
+   `@layer base` puts it exactly where Tailwind's own preflight sits, which is what every author of
+   those 18 utilities already assumed was true. */
+@layer base {
+  p {
+    max-width: 68ch;
+  }
 }
 
 img,

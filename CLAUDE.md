@@ -77,18 +77,22 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
-- **The 58 dead line-heights, and the one change that would make them all live.** `cascade-public`
-  counts 99 collisions outside `/studio`, and **58 of them are `line-height`** — a utility on an
-  element whose unlayered rule sets the same property, so the utility draws nothing. Moving the
-  unlayered element rules into `@layer base` fixes all 58 at once, because a layered rule loses to
-  `@layer utilities` in the normal way. **One change, and a large visual change: 58 line-heights
-  becoming live is 58 boxes moving.**
+- **⚠ THE DEAD UTILITIES ARE 92, NOT 58, AND THE MEASURE GROUP IS DONE.** This item said 58
+  line-heights and one change. **Moving `p`'s rule wholesale makes 92 utilities live across four
+  properties and two tag groups** — 34 `<p>` line-heights, **18 `<p>` max-widths**, 13 `<h3>`
+  line-heights, **12 `<h3>` font-weights**, 11 heading line-heights and 4 letter-spacings. One diff
+  containing 92 changes is a diff where nothing can be attributed.
 
-  **⚠ AND IT IS NOT "RESTORING INTENT", WHICH IS THE PART THAT MAKES IT RISKY.** Every one of those
-  58 is currently inert, so the values were written and have never taken effect. Making them live
-  applies numbers **nobody has ever seen render**. That is a larger claim than the three headings
-  below, where a heading simply draws the wrong face — it needs measuring per site, not a sweep.
-  Recorded with the number so it is not re-derived. Its own PR, not a corner of the typography arc.
+  **SO IT IS TAKEN ONE PROPERTY AT A TIME, and `<p>` max-width shipped in #350** — `p`'s rule is
+  split, the measure sits in `@layer base`, the leading stays unlayered and stays inert. Remaining,
+  each its own PR: `<h3>` font-weight (12, the most visible single change), line-height (58), then
+  letter-spacing (4).
+
+  **⚠ AND EVERY MEASURE NARROWED, INCLUDING THE FOUR PIXEL VALUES I PREDICTED WOULD WIDEN.** `68ch`
+  resolves against each element's own font size, so on display type it is enormous — a pull quote's
+  68ch is 1169px, and its `880px` request is 289px NARROWER, not wider. Measured, not reasoned:
+  ClosingLine −584px, the hero deck −324px, the About italic −82px, seven paragraphs asking exactly
+  68ch unchanged. **Nothing widened and the largest halved.**
 
 - **Kaushan Script — DECIDED, KEPT. The wordmark stays; the inert class on the heading is gone.**
   The question was framed as debt left by the typography arc. It is not debt. **A wordmark in its own

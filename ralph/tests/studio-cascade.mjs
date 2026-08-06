@@ -115,7 +115,16 @@ const RULES = new Map();
    * one #205's ink bands lost to. The gate went from guarding it to reporting `undefined`,
    * which is the exact failure shape this file's own header calls out: a suite that quietly
    * checks nothing. Fixed here rather than deferred, because the family swap lands next. */
-  const flat = topLevelOnly(css).replace(/\/\*[\s\S]*?\*\//g, " ");
+  /* ⚠ COMMENTS FIRST, THEN THE SCAN — AND `cascade-public` HAD THE SAME LINE THE SAME WAY ROUND.
+   * `topLevelOnly` skips at-rules by finding `@` and consuming to its balanced `}`. Over raw
+   * source, an `@layer` NAMED IN A COMMENT fires that skip and swallows every rule after it: #350
+   * wrote one sentence mentioning `@layer base` in globals.css and both suites promptly lost the
+   * `a` and `img, video` resets their whole premise rests on.
+   *
+   * ⚠ TWO SUITES, ONE DEFECT, AND THEY AGREED WITH EACH OTHER — which is why nothing caught it
+   * until a comment happened to contain the trigger. The css-comment-trap suite exists one level
+   * up from this: it stops a comment ADDING a utility, and this stops a comment REMOVING a rule. */
+  const flat = topLevelOnly(css.replace(/\/\*[\s\S]*?\*\//g, " "));
   // `h1,\n h2 { … }` — a selector list of BARE TAG NAMES only. A rule with a class or an
   // id in it is not an element reset and cannot be defeated by specificity alone.
   //

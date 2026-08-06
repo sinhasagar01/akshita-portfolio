@@ -105,7 +105,16 @@ const deref = (v, d = 0) => {
    studio-cascade's own repair records: a comment between `}` and the selector eats the tag. */
 const RULES = new Map();
 {
-  const flat = topLevelOnly(css).replace(/\/\*[\s\S]*?\*\//g, " ");
+  /* ⚠ COMMENTS ARE STRIPPED BEFORE THE SCAN, NOT AFTER, AND THE ORDER IS LOAD-BEARING.
+   * `topLevelOnly` skips at-rules by finding `@` and consuming to its balanced `}`. Run over raw
+   * source, an `@layer` mentioned INSIDE A COMMENT fires that skip and swallows every rule after it
+   * — #350 wrote "`@layer base` puts it where preflight sits" in a comment and A0 promptly reported
+   * `img` and `a` missing, because both had been eaten.
+   *
+   * THIS IS THE css-comment-trap ONE LAYER DOWN: that suite exists because a comment between `}`
+   * and a selector eats the tag, and here a comment's CONTENT reconfigures the parser. A scanner
+   * that reads prose as syntax will always find something eventually. */
+  const flat = topLevelOnly(css.replace(/\/\*[\s\S]*?\*\//g, " "));
   for (const chunk of flat.split("}")) {
     const i = chunk.indexOf("{");
     if (i === -1) continue;
@@ -259,12 +268,26 @@ for (const h of pub) (byProp[h.property] ??= []).push(h);
 const census = Object.fromEntries(Object.keys(byProp).sort().map((k) => [k, byProp[k].length]));
 t("C1: the public collision census is exactly this — a change here is a dead utility gained or repaired",
   /* ⚠ `font-family` LEFT THIS CENSUS ENTIRELY rather than dropping to 0 — a property with no
-     collisions has no key, which is the map's own shape and not a special case. */
-  census, { color: 6, "font-weight": 12, "letter-spacing": 4, "line-height": 58, "max-width": 18 });
+     collisions has no key, which is the map's own shape and not a special case.
+
+     ⚠ AND `max-width` LEFT IT IN #350, WHICH IS THE FIRST TIME A GROUP WAS REPAIRED RATHER THAN
+     RECORDED. `p`'s rule was split so the measure sits in `@layer base` and the leading stays
+     unlayered, so the 18 arbitrary measure utilities now draw and the 34 leading ones still do not.
+
+     THE SPLIT WAS THE POINT. Moving the whole `p` rule — the shape CLAUDE.md described as "one
+     change" — would have made 92 utilities live at once across four properties and two tag groups,
+     in a single diff where nothing could be attributed. The record called it 58. It was 92, and 34
+     of them were not line-height. */
+  census, { color: 6, "font-weight": 12, "letter-spacing": 4, "line-height": 58 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
-  inert.filter(outside).length, 40);
+  /* ⚠ 40 -> 37, AND THE THREE THAT LEFT ARE NOT A REPAIR. They were `<p>` utilities asking for
+     exactly `68ch` — the reset's own value — so they were INERT-AND-AGREEING. Now that the measure
+     is layered they simply WIN, drawing the same number, and a utility that wins is neither a
+     collision nor inert: there is nothing left to record. The inventory shrank because three
+     entries stopped being a category, not because three defects were fixed. */
+  inert.filter(outside).length, 37);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
