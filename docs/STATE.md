@@ -9589,6 +9589,81 @@ subject was ever a colour.
 
 ralph 2534, green.
 
+## THE AURA RULING — MEASURED, DECIDED, NOT YET BUILT (HANDOFF)
+
+### ⚠ #334's REASON DID NOT SURVIVE ITS OWN FACTS
+
+The entry read *"product branding — boAt's brand red, Fosfor's violet, set per study"*. **There is no
+such pairing.** `.hero-aura--pulse` and `.hero-aura--signal` are two entirely separate declarations,
+assigned by a hand-typed map in `CaseStudyView.tsx` — and **`elevate-one-view`, not a Fosfor study,
+is assigned the violet one.**
+
+> **A COLOUR CHOSEN BY A HARDCODED MAP IS NOT PRODUCT BRANDING.** Branding would be a property of
+> the product; this is a property of a list somebody typed. **The ruling described a mechanism that
+> does not exist** — `structural()`'s shape, landing in the boundary file itself.
+
+### THE MEASUREMENT, AND WHY NOTHING SNAPS
+
+| glow | nearest token | composite Δ |
+|---|---|---|
+| pulse wash | `glow-paper` | 14 |
+| pulse core | `accent-400` | 28 |
+| pulse wink | `ink-200` | 27 |
+| signal field | `text-body` | 8 |
+| signal core `#2e1a47` | `ink-800` | 45 |
+| **flatten warm** | **`ink-800`** | **1 — SNAP** |
+| flatten red | `glow-paper` | 23 |
+
+### THE RULING: COLLAPSE ONTO THE ACCENT (option B)
+
+Rewrite the six as `color-mix(in srgb, var(--color-accent-500) N%, transparent)`. **The hue
+distinction goes.**
+
+**⚠ AND THE CONSEQUENCE THAT LOOKED LIKE AN ARGUMENT AGAINST B IS THE ARGUMENT FOR IT.** If both
+glows become accent-coloured, `HERO_GLOW`'s only remaining job is picking a blur radius and an
+animation — **which is the honest description of what that map has always chosen.** The hue
+distinction was never editorial; it came from a hand-typed list, and #334 mistook the list for
+branding.
+
+> **A DISTINCTION NOBODY CHOSE IS NOT A DISTINCTION WORTH SIX TOKENS.**
+
+**AND OPTION A FAILS ON ITS OWN TERMS.** *Measure before naming* tells you whether a value SNAPS; it
+does not tell you a value DESERVES a name. **A name records a decision, and there is no decision
+here to record** — naming pulse-red and signal-violet would freeze an accident into the token layer
+and make it look deliberate to everyone after us.
+
+### ⚠ ONE SNAP SURVIVES AND IS TAKEN AS ITSELF
+
+`flatten warm` at **Δ1 from `ink-800`** is a real match and takes that token, **not** the accent mix.
+It is a different value doing a different job, and Δ1 is the clearest evidence in the table. **Do
+not sweep it into the collapse.**
+
+### WHAT THE PR MUST ARGUE RATHER THAN ASSERT
+
+**B is a visible change of real size on four case-study heroes, and the two treatments become
+identical except for geometry.** That is **exactly #103's shape** — raising two tokens to one
+AA-safe value and erasing a distinction nobody re-read.
+
+> **THE DIFFERENCE IS THAT #103's DISTINCTION WAS REAL AND THIS ONE IS NOT.** That claim is the PR's
+> actual content, so it has to be argued with the before-and-after, not stated.
+
+### AND `HERO_GLOW` GETS ITS HAZARD-22 NOTE ANYWAY, NOW SAYING LESS
+
+A per-slug map choosing a blur and an animation, with **no removal condition**, whose colour meaning
+is removed by this change and whose stated purpose was already false. **A smaller hazard than it
+was, and a more honest one.**
+
+### THE WIDER FINDING FOR THE REMAINING EIGHT
+
+**The boundary file's judgement rows were never tested, and they failed in two different ways.** The
+signature test was never run because there was one theme — the cursor, loader and auras all
+"passed" a test nobody could run. And this row's reason was never checked against the code it
+described.
+
+**Two different failures in the same column of the same file.** When the nine are done, re-read
+every judgement entry twice: **does its reason describe what the code actually does**, and **does it
+hold when the ground changes.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
