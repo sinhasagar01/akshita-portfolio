@@ -395,8 +395,15 @@ t("C1: the public collision census is exactly this — a change here is a dead u
      which is the check #353 exists to make: before it, lifting the paragraph leading dropped
      shadowed from 22 to 16 and the census would have read this as a clean repair.
 
-     ONE PROPERTY LEFT: letter-spacing, 4 rows. `color` is six `<a>` sites and a different question. */
-  census, { color: 6, "letter-spacing": 4 });
+     ⚠ AND `letter-spacing` LEFT IN #355, WHICH CLOSES THE SEQUENCE. Four heading sites, all asking
+     LOOSER tracking than the reset's -0.03em. 18 measures, 12 weights, 58 leadings, 4 trackings —
+     the item said 58 and one change, and it was 92 across four properties.
+
+     ⚠ WHAT REMAINS IS `color`: SIX `<a>` SITES, AND IT IS A DIFFERENT QUESTION. The unlayered
+     `a { color: inherit }` exists so links inherit their context rather than turning blue, and
+     `studio-cascade`'s whole premise rests on it. Lifting it is not the fifth step of this
+     sequence — it is a new one, with its own reason to exist. */
+  census, { color: 6 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
@@ -420,8 +427,12 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      ⚠ 31 -> 24 IN #354, AND THIS TIME SEVEN OF THEM ARE A REAL REPAIR. They were utilities agreeing
      with a leading they could not beat; now they win and draw the same number. The count falls for
      the same reason it fell twice before — a thing stopped being classifiable — but the underlying
-     state changed too: seven utilities that drew nothing now draw. */
-  inert.filter(outside).length, 24);
+     state changed too: seven utilities that drew nothing now draw.
+
+     ⚠ 24 -> 21 IN #355, three more of the same kind: heading tracking utilities that agreed with
+     the reset and can now simply win. Four times this count has fallen and four times it has been
+     worth writing down which kind it was — a reclassification, a repair, or both. */
+  inert.filter(outside).length, 21);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

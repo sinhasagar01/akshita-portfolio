@@ -77,30 +77,23 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
-- **⚠ THE DEAD UTILITIES ARE 92, NOT 58, AND THE MEASURE GROUP IS DONE.** This item said 58
-  line-heights and one change. **Moving `p`'s rule wholesale makes 92 utilities live across four
-  properties and two tag groups** — 34 `<p>` line-heights, **18 `<p>` max-widths**, 13 `<h3>`
-  line-heights, **12 `<h3>` font-weights**, 11 heading line-heights and 4 letter-spacings. One diff
-  containing 92 changes is a diff where nothing can be attributed.
+- **⚠ THE DEAD UTILITIES ARE CLOSED — 92, NOT 58, AND TAKEN ONE PROPERTY AT A TIME.** This item said
+  58 line-heights and one change. It was **92 across four properties and two tag groups**, and one
+  diff containing 92 changes is a diff where nothing can be attributed. Shipped as four PRs: `<p>`
+  max-width (18, every one narrowed, largest by 584px), `<h3>` font-weight (12), line-height (58,
+  all honoured, 33/33 verified in the browser) and heading letter-spacing (4). **The unlayered
+  element resets are now `html`, `h1,h2`, `h3..h6`, `img` and `a`; `p` has none left.**
 
-  **⚠ AND A COLLISION CAN HAVE THREE PARTIES.** `<h3>` font-weight shipped in #351 and did NOT make
-  its twelve utilities live: ten sit inside `.case-study`, where an unlayered `.case-study
-  .font-display` sets weight 500 and outranks a utility on specificity, so layering the reset
-  promoted the SECOND contender. They went 600 to 500, not 600 to 400. **`cascade-public` models a
-  two-party contest and cannot see this**, so its census reads "repaired" for ten rows that are
-  still inert. Before lifting line-height or letter-spacing, check what wins when the reset steps
-  aside.
+  **⚠ TWO FINDINGS FROM IT THAT OUTLIVE THE WORK.** A cascade contest can have **three parties** —
+  lifting the `h3` weight reset promoted `.case-study .font-display` rather than the utilities, and
+  22 remain dead by that rule rather than by the reset. And `cascade-public` enumerated only tags
+  that still HAD a reset, so lifting the last property made the element **vanish from the census**
+  along with its shadowed utilities. Both are repaired; `S2` is the assertion that says so, and it
+  held at 22 across every subsequent lift.
 
-  **SO IT IS TAKEN ONE PROPERTY AT A TIME, and `<p>` max-width shipped in #350** — `p`'s rule is
-  split, the measure sits in `@layer base`, the leading stays unlayered and stays inert. Remaining,
-  each its own PR: `<h3>` font-weight (12, the most visible single change), line-height (58), then
-  letter-spacing (4).
-
-  **⚠ AND EVERY MEASURE NARROWED, INCLUDING THE FOUR PIXEL VALUES I PREDICTED WOULD WIDEN.** `68ch`
-  resolves against each element's own font size, so on display type it is enormous — a pull quote's
-  68ch is 1169px, and its `880px` request is 289px NARROWER, not wider. Measured, not reasoned:
-  ClosingLine −584px, the hero deck −324px, the About italic −82px, seven paragraphs asking exactly
-  68ch unchanged. **Nothing widened and the largest halved.**
+  **WHAT IS LEFT IS `color`: SIX `<a>` SITES, AND IT IS A DIFFERENT QUESTION.** The unlayered
+  `a { color: inherit }` exists so links inherit their context, and `studio-cascade`'s premise rests
+  on it. Lifting it is a new sequence, not the fifth step of this one.
 
 - **Kaushan Script — DECIDED, KEPT. The wordmark stays; the inert class on the heading is gone.**
   The question was framed as debt left by the typography arc. It is not debt. **A wordmark in its own
