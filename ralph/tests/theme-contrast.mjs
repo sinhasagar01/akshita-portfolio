@@ -301,6 +301,19 @@ const BOUNDARY = {
      for a hairline — which is also why no public alpha row exists and why `over()` is exercised
      only by `studio-ink-contrast`. Listed rather than computed, and the gap is now worth naming:
      a stated hairline floor would move this row and that one out of the boundary in one go. */
+  /* ⚠ THE SIX #332 BROUGHT INTO THE NAMESPACE, LISTED THE MOMENT THEY ARRIVED. E1 demanded it, and
+     that is the gate working — a token cannot enter the namespace without a row or a reason.
+
+     THE SMOKE RAMP IS ONE ENTRY IN FOUR LINES. Its stops are gradient positions carrying 74% alpha
+     over the vessel's own backdrop, never a foreground under text. And they are related to EACH
+     OTHER rather than to the ladder, so a contrast row against a palette ground would be measuring
+     the wrong pair — the same wrong-quantity error this arc has made in three other places. */
+  "smoke-1": "gradient stop — a ramp member, 74% over the vessel, never a text foreground",
+  "smoke-2": "gradient stop — see smoke-1",
+  "smoke-3": "gradient stop — see smoke-1",
+  "smoke-4": "gradient stop — see smoke-1",
+  "glow-paper": "cursor-following glow at 20% — atmosphere, never a foreground on a ground",
+  "bounce": "the vessel's bounce highlight — a gradient source, not a text colour",
   "rule": "hairline — five alphas, never text, and this design states no hairline floor",
   "on-dark-line": "alpha derivative — a hairline, not a foreground; its base on-dark is computed",
 };
