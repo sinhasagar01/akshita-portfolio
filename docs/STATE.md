@@ -8081,6 +8081,53 @@ instrument was right and insufficient, exactly as its own header says.
 
 ralph 2462 → 2463. Lint, tsc and the build clean.
 
+## THE RENDER IS A REQUIRED STEP, AND ONE INSTRUCTION THAT WOULD HAVE DELETED A WORKING CONTROL
+
+### THE PROTOCOL, WRITTEN DOWN SO THEME THREE INHERITS IT
+
+**1 · RUN THE INSTRUMENT.** `ralph/tests/theme-contrast.mjs` answers whether every token PAIR
+clears its floor, refuses on an external or an internal failure with the kind named, and refuses a
+palette missing a token rather than reporting SHIPPABLE having checked fewer rows than it claims.
+
+**2 · THEN RENDER, AND LOOK.** Set `theme:` in the content file, render the full home page and the
+four signature components, and judge from the screen. Revert to `cream` before committing.
+
+**⚠ NEITHER STEP IS OPTIONAL, AND THE EVIDENCE IS TWO PALETTES.** The dark render found the glass
+nav and the Pearl Smoke vessel structurally light-ground at 1.15 and 1.20. Harbour found
+`SectionHeading` drawing two different colours from one prop on one page. **Neither is reachable
+from a token table.** `SHIPPABLE` is the narrow claim and always was.
+
+**AND THE SECOND ONE GENERALISES.** It was invisible on cream because both branches looked the same
+there — so **a single-theme site cannot reveal an inconsistency between two ways of producing the
+same colour.** That is the arc's closing rule and it now has a process attached rather than a
+memory of the session it was learned in.
+
+### ⚠ AND ONE INSTRUCTION WOULD HAVE DELETED A WORKING DISTINCTION
+
+The ruling on `tone` was: if both branches take the token, delete the prop unless the two values
+still differ on some axis — a control whose values produce the same result is a control that cannot
+do anything, which this repo has deleted four times.
+
+**THE CHECK IS WHAT SEPARATED THIS CASE FROM THOSE FOUR.** Composited at the alphas the component
+uses, `accent-500` lands Δ2 to 4 from the literal it replaced and `ink-600` lands Δ10 to 17. The
+two branches are visibly different colours on every palette, so `tone` has a real axis —
+accent-toned versus ink-toned — and deleting it would have collapsed a live distinction into one
+colour.
+
+> **THE RULE WAS RIGHT AND THE CASE WAS NOT ONE OF ITS INSTANCES.** A rule about controls that
+> cannot do anything has to be applied to a control that has been MEASURED, or it deletes the ones
+> that can.
+
+### WHERE THE ARC STANDS
+
+**The mechanism is complete.** Reader, attribute, per-theme token blocks, switcher, pending
+preview, contrast instrument, boundary list, and two real palettes proving the switch — plus the
+permanent control that makes the cross-theme comparison mean something.
+
+**What remains is not steps.** Themes three and four are design exercises with a protocol waiting
+for them, and the `text-muted` / `text-subtle` merge is one queued PR: two spellings of one value
+inside the token layer, #228's defect one level below where that rule was looking.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
