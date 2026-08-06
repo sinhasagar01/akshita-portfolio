@@ -7373,8 +7373,17 @@ to nothing.
   `@layer base` fixes all of them at once — **and applies values nobody has ever seen render**,
   which is a larger claim than a heading drawing the wrong face. 61 measurements, not a sweep, and
   #275 predicts the answer splits between inert and redundant.
-- **THREE UNCONSUMED WEIGHT TOKENS**, surfaced when `typography` C5 nearly asserted them as stale
-  faces. Tree-shaken, so they cost nothing; deleting them is its own call.
+- ~~**THREE UNCONSUMED WEIGHT TOKENS**~~ — **TWO, AND THE COUNT WAS WRONG WHEN WRITTEN.**
+  `typography` C5 nearly asserted `weight-light`, `weight-bold` and `weight-black` as stale faces.
+  They are not faces, and **`--font-weight-bold` was not stale either** — the `font-bold` utility
+  reads it at 19 sites. The utility is named `font-bold`, not `font-weight-bold`, so a check
+  written against the TOKEN name could not see the consumer. `light` and `black` were genuinely
+  unconsumed and are deleted; Tailwind's own defaults declare both at identical values, so the
+  utilities still compile if anything ever wants them.
+  **AND `--font-weight-regular` IS A PROJECT ALIAS FOR TAILWIND'S `normal`.** `font-normal`, 40
+  uses, reads Tailwind's token; only the three unlayered element rules read the project's through
+  `var()`. Two names, both 400, reached by different routes — the `rounded-2xl` shape without the
+  value mismatch that made that one a defect.
 
 ### UNVERIFIED, NAMED RATHER THAN ROUTED AROUND
 

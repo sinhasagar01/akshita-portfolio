@@ -188,12 +188,26 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --tracking-wide:     0.06em;
   --tracking-widest:   0.12em;
 
-  --font-weight-light:    300;
+  /* ⚠ THE 300 AND 900 STEPS ARE DELETED, NOT MISSING. Both had zero consumers — no utility, no
+     `var()` — and Tailwind's own default theme declares both at the identical values, so the
+     utilities that read them still compile if anything ever wants them. Redeclaring a default you
+     do not use is a name with nothing behind it.
+
+     ⚠ THE WORDS ARE NOT SPELLED OUT HERE, AND THAT IS css-comment-trap ENFORCING ITSELF ON THIS
+     VERY COMMENT. The first draft named the two utilities and the token behind the 400 step, and
+     because the declarations had just been deleted, those names existed in the stylesheet ONLY
+     because this comment mentioned them — three real rules shipped to every visitor by a sentence
+     explaining a deletion. Caught on the first run. Describe the value, never spell the class.
+
+     ⚠ AND `regular` IS A PROJECT ALIAS FOR THE STEP TAILWIND ALREADY NAMES DIFFERENTLY, which is
+     worth knowing before anyone tidies it. The 400 utility — 40 uses — reads TAILWIND's token, not
+     this one; only the three unlayered element rules read `--font-weight-regular` through `var()`.
+     Two names, both 400, reached by different routes. Kept because those rules name it, and
+     renaming them is not this change. */
   --font-weight-regular:  400;
   --font-weight-medium:   500;
   --font-weight-semibold: 600;
   --font-weight-bold:     700;
-  --font-weight-black:    900;
 
   /* ============================================================
      Spacing — 4-point base

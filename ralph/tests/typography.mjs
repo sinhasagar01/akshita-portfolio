@@ -185,9 +185,10 @@ t("C4: exactly three faces are preloaded, the same number as before the arc bega
     .map((m) => m[1])
     /* `--font-weight-*` is a different namespace and is excluded by name, not by accident. The
      * first version swept it in and reported `weight-light`, `weight-bold` and `weight-black` as
-     * stale faces. They are not faces — but they ARE three declared weight tokens with no
-     * consumer, which is the same shape one namespace over. Recorded rather than swept into a
-     * font-family cleanup, because Tailwind tree-shakes them and deleting them is its own call. */
+     * stale faces. They are not faces, and THAT REPORT WAS ALSO WRONG ON ONE OF THE THREE:
+     * `--font-weight-bold` is read by the `font-bold` utility at 19 sites. The utility is
+     * `font-bold`, not `font-weight-bold`, so a check written against the TOKEN name could not
+     * see it. Two were genuinely unconsumed, `light` and `black`, and both are deleted. */
     .filter((n) => !/-loaded$/.test(n) && !/^weight-/.test(n)
                    && !["display", "body", "label"].includes(n));
   t("C5: the face tokens were derived from @theme — a zero denominator is not a pass",
