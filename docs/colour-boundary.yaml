@@ -280,7 +280,12 @@ entries:
       ⚠ AND THE REAL QUESTION IS NOT COLOUR. `--shadow-*` carries offset and blur as well as tint, so
       adopting it here changes the shadow's GEOMETRY, not just its hue. That is a shadow-token
       adoption question with its own before-and-after, and folding it into a colour sweep would be
-      the wrong-noun error this arc has made four times. Listed as its own tint until then.
+      the wrong-noun error this arc has made four times.
+      ⚠ AND THE TRIGGER IS NAMED RATHER THAN LEFT AS "SEPARATE", because a deferral conditional on
+      nothing has no owner and this project has recorded that twice. REVISIT WHEN either something
+      else needs these shadows — a third component reaching for a bespoke tint means the tokens are
+      not covering the need — OR when a theme makes a warm drop-shadow read wrong on a cool ground,
+      which is the same test the cursor and the loader failed.
 
   - id: adjacent-surfaces
     kind: judgement
