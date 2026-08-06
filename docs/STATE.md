@@ -9105,6 +9105,44 @@ final **twice** and was not. Two filters produced two wrong numbers.
 
 ralph 2516 → 2520.
 
+## THE HARBOUR CONTROL RUN — IT PASSED, AND IT PROVES LESS THAN IT LOOKS (#346)
+
+Every gate run with `theme: harbour` published: **2520 assertions, 60 suites, all green.** Then the
+question worth asking of any control — **did the subject actually change?**
+
+| | |
+|---|---|
+| CSS bundle, cream vs harbour | **byte-identical** — same md5 |
+| suites reading the published theme | **2 of 60** (`theme`, `settings-photo`) |
+| suites whose subject changed | effectively **one assertion** |
+
+**⚠ THE STYLESHEET SHIPS BOTH PALETTES WHATEVER IS PUBLISHED**, which is correct behaviour and means
+every CSS-reading gate saw an identical file. **58 suites ran against an unchanged subject.**
+
+> **A RUN THAT LOOKS LIKE A CONTROL BUT WHOSE SUBJECT DID NOT CHANGE PROVES ONLY THAT NOTHING
+> UNRELATED BROKE.** The vacuous-by-construction family, arriving in the last thing the arc did.
+
+### AND THE REAL ANSWER IS BETTER THAN THE ONE EXPECTED
+
+**The gates were already meeting Harbour on every run.** `theme-contrast`'s D1–D8 compute the full
+report over the harbour palette unconditionally — Harbour's contrast has been gated since #326
+regardless of what is published. The census reads the bundle, which holds both. **The instruments
+are theme-independent by construction**, which is why publishing a second palette changes almost
+nothing about what they see.
+
+**That is a stronger property than "they pass on Harbour", for a different reason than expected:**
+they never needed Harbour to be published in order to judge it.
+
+### ⚠ WHAT THE RUN DID SURFACE — ONE GENUINELY UNASSERTED FACT
+
+**No standing gate checks that the rendered HTML carries the PUBLISHED theme.** `theme` E1–E4 assert
+the root layout emits `data-theme` from the resolver, which is source-level and deliberately so.
+#326 proved the build-level fact ONCE, by hand, with the cross-theme diff — 10 files, 20 lines, all
+`data-theme`.
+
+**It has not been asserted since.** That is the one thing a control run should have been able to
+confirm and could not, and it is the gap worth closing before theme three rather than after.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
