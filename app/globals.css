@@ -83,6 +83,23 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-on-dark-quote: oklch(81.5% 0.063 49); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
   --color-on-dark-line: color-mix(in oklch, var(--color-on-dark) 16%, transparent);
 
+  /* ⚠ THE ACCENT AS IT APPEARS ON INK — NAMED BY ROLE, LIKE `on-dark` AND `on-dark-quote`, AND
+     DELIBERATELY NOT `accent-350` OR ANY LADDER SPELLING. A ramp step invites someone to reach for
+     it on cream, where it draws 3.23 and fails; this name says the one ground it is for.
+
+     ⚠ AND IT IS THE TOKEN #363 DELETED, REBUILT ON THE MEASUREMENT THAT WAS ALWAYS CORRECT. The old
+     `accent-400` was `oklch(65.0% 0.12 42)` — byte-identical to this — and the comment beside it
+     read "accent-400 5.7:1, so accent-ON-DARK uses accent-400". THE ANALYSIS WAS RIGHT AND THE
+     WIRING WAS ABSENT, which is why deleting it and then building the implementation is the right
+     order rather than a reversal. Zero consumers was the reason to delete that one; this one has
+     two measured consumers before it exists.
+
+     WHY 65% AND NOT 60%. The trade-off that usually decides this does not exist here, because the
+     token is role-scoped to the dark band and is never drawn on cream — so its light-ground figure
+     is not a cost. Judged on the band alone: 60% gives 4.65 and 4.5 is the floor, a margin of .15
+     on a palette that already sits inside 0.1 of five floors. 65% gives 5.74 and 6.16. */
+  --color-accent-on-dark: oklch(65.0% 0.12 42);
+
   /* ============================================================
      TWO COLOURS THE DESIGN HAS ALWAYS USED AND THE SYSTEM NEVER HAD A WORD FOR.
 
@@ -514,6 +531,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-on-dark:       oklch(95.5% 0.012 233);
   --color-on-dark-muted: oklch(77.0% 0.014 233);
   --color-on-dark-quote: oklch(81.5% 0.060 168);
+  /* ⚠ DECLARED IN THE SAME COMMIT AS CREAM'S, WHICH IS WHAT SECTION T EXISTS TO ENFORCE. A token
+     on harbour and not at `:root` is precisely the asymmetry that gate now fails. 6.16 on this
+     band. */
+  --color-accent-on-dark: oklch(65.0% 0.11 168);
 
   /* Artwork grounds. On the contrast gate's boundary list because no text sits on them, but they
      must still move — a cool theme with warm sand panels reads as a bug rather than a choice. */
