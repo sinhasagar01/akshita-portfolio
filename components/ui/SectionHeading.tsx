@@ -35,11 +35,31 @@ export default function SectionHeading({
   const settled = !reveal || prefersReduced === true || inView;
   const noAnim  = !reveal || prefersReduced === true;
 
-  const wordColor  = tone === "warm" ? "rgba(181,97,60,.17)"  : "color-mix(in oklch, var(--color-ink-600) 18%, transparent)";
-  const wordShadow = tone === "warm" ? "0 0 30px rgba(181,97,60,.22)" : "0 0 30px color-mix(in oklch, var(--color-ink-600) 20%, transparent)";
-  const glowBg     = tone === "warm"
-    ? "radial-gradient(closest-side,rgba(181,97,60,.22),transparent 72%)"
-    : "radial-gradient(closest-side,color-mix(in oklch, var(--color-ink-600) 20%, transparent),transparent 72%)";
+  /* ⚠ BOTH BRANCHES TAKE A TOKEN NOW, AND THE SECOND THEME IS WHAT PROVED THEY HAD TO.
+     The warm branch was `rgba(181,97,60,…)`, a literal, while the grey branch was already a
+     `color-mix` over `--color-ink-600`. On cream both read as a warm ghost, so the two looked
+     the same and the split was invisible. On harbour, five watermarks stayed terracotta while
+     Process and About went cool — ONE COMPONENT, ONE PAGE, TWO ANSWERS.
+
+     ⚠ AND THAT REVERSES #327's RULING ON PURPOSE. The watermarks went on the contrast gate's
+     boundary list because I called them "closer to artwork than interface". The render says
+     otherwise: A COLOUR THAT MUST AGREE WITH A SIBLING RENDERED BY THE SAME COMPONENT FROM THE
+     SAME PROP IS INTERFACE. Artwork does not have to match anything. The test was wrong, not the
+     application of it.
+
+     `accent-500` RATHER THAN `ink-600` FOR THE WARM BRANCH, and it is a SNAP rather than a
+     redesign: composited over cream-50 and canvas at every alpha this component uses, the token
+     lands 2 to 4 bytes from the literal it replaces, inside Step 1's own Δ<5 snap threshold.
+     `ink-600` would have been 10 to 17 — a redesign wearing a refactor's clothes.
+
+     ⚠ SO `tone` KEEPS A REAL AXIS AND IS NOT DELETED. It no longer means "token or literal"; it
+     means ACCENT-TONED or INK-TONED, and both follow the theme. A prop whose two values produced
+     the same result would be a control that cannot do anything, which this repo has deleted four
+     times — this one still does something on every palette. */
+  const wordTint   = tone === "warm" ? "var(--color-accent-500)" : "var(--color-ink-600)";
+  const wordColor  = `color-mix(in oklch, ${wordTint} ${tone === "warm" ? 17 : 18}%, transparent)`;
+  const wordShadow = `0 0 30px color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent)`;
+  const glowBg     = `radial-gradient(closest-side,color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent),transparent 72%)`;
 
   const isCentered = variant === "centered";
 

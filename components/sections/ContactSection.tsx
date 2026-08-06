@@ -162,7 +162,7 @@ function StepContent({
         type="button"
         onClick={() => { if (status === 'idle') onAdvance() }}
         disabled={sending}
-        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-white rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(181,97,60,0.25)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
+        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-white rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent-500) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
         style={{
           background: 'var(--color-accent-500)',
           border: '1.5px solid var(--color-accent-500)',
@@ -462,7 +462,7 @@ export default function ContactSection({ settings }: Props) {
                 width: '62%',
                 height: '74%',
                 transform: 'translate(-50%, -50%)',
-                background: 'radial-gradient(closest-side, rgba(181,97,60,0.24), rgba(224,156,96,0.10) 52%, transparent 75%)',
+                background: 'radial-gradient(closest-side, color-mix(in oklch, var(--color-accent-500) 24%, transparent), rgba(224,156,96,0.10) 52%, transparent 75%)',
                 filter: 'blur(46px)',
                 zIndex: 0,
                 opacity: glowOpacity,

@@ -72,25 +72,18 @@ export type ThemeName = (typeof THEME_NAMES)[number];
 
    `cream-verify` — a permanent control. Never selectable, ever. See its block above.
 
-   `harbour` — TEMPORARY, AND THE TRIGGER IS NAMED. The contrast instrument says SHIPPABLE, which
-   is the narrow claim that every token PAIR clears its floor. Rendering the home page on harbour
-   found FOURTEEN distinct warm colours that do not move with the theme, including body copy set to
-   the literal `#4a4239`, three watermarks, the custom cursor, and every warm hairline. They are on
-   the contrast gate's boundary list precisely because a theme cannot move them.
+   ⚠ `harbour` WAS HERE AND IS NOT ANY MORE. It shipped unselectable because the render found 14
+   warm colours that no theme could move, and it unholds because 12 of them now do — two were
+   NAMED (#327, body copy and the warm hairline) and the watermarks TOOK THE ACCENT TOKEN (#328).
+   The cursor and `.ab-tint` stay on the contrast gate's boundary list, with measured reasons
+   rather than asserted ones.
 
-   ⚠ SELECTABLE-BUT-WRONG IS WORSE THAN UNSELECTABLE, because changing the theme is a WHOLE-BRANCH
-   PUBLISH — the author would discover the failure in production, on a one-line diff that showed
-   them nothing. Hazard 13's family, which is the same reason the pending preview exists.
-
-   ⚠ AND THE LITERALS ARE NOT THEME WORK. Fourteen colours that ignore the token layer are fourteen
-   places the design system does not reach, and they would be worth converting if this project were
-   cancelled tomorrow. `#4a4239` in particular is a defect in CREAM today — a literal that agrees
-   with its token by coincidence, which is the inert-utility condition inverted. Harbour becomes
-   selectable when they are converted, and this entry is deleted in that PR.
+   THE CRITERION WAS THE RENDER, NOT THE INSTRUMENT. `SHIPPABLE` was always the narrower claim —
+   every token PAIR clears its floor — and it was true of harbour on the day the render showed
+   five terracotta watermarks beside two cool ones.
 ============================================================================================ */
 const UNSELECTABLE: Record<string, string> = {
   [VERIFY_THEME]: "permanent verification control — never publishable",
-  [SECOND_THEME]: "14 public literals do not move with a theme yet — see the literals PR",
 };
 
 /** The names an author may actually set. */
