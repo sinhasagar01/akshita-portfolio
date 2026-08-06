@@ -576,7 +576,20 @@ console.log("\nC · runtime-generated colours in public JS");
 
 const runtime = new Map();
 for (const rel of files) {
-  const src = read(rel).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, "");
+  /* ⚠ TRAILING `//` COUNTS TOO, AND IT DID NOT UNTIL #362. This stripped block comments and
+   * FULL-LINE `//` only, so `[+0.023, -0.020, +1.7],   // was #B5613C` reported a colour site that
+   * is a note about a colour that no longer exists. PageLoader read 16 where the file holds 8.
+   *
+   * ⚠ AND THE CSS ROUTES ARE COMMENT-SAFE BY ACCIDENT RATHER THAN BY DESIGN — they read the BUILT
+   * bundle, where the minifier has already removed comments. Nothing in this suite strips a CSS
+   * comment, and nothing needs to; the consequence is that route C was the only place the question
+   * was live, so it was the only place it went unanswered.
+   *
+   * The guard on the left is what keeps `https://` from being read as a comment: a `//` is only a
+   * comment here when it does not follow a colon, a word character or a quote. Measured across every
+   * public TS/TSX file before it shipped — exactly one file's count changed, and by exactly the
+   * eight annotations. */
+  const src = read(rel).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:\w"'`])\/\/.*$/gm, "$1");
   let n = 0;
   for (const m of src.matchAll(COLOUR)) {
     const line = src.slice(src.lastIndexOf("\n", m.index) + 1, src.indexOf("\n", m.index));

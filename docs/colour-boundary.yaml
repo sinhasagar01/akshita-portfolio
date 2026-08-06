@@ -145,17 +145,6 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
-  - id: custom-cursor
-    kind: judgement
-    category: signature
-    where: components/ui/CustomCursor.tsx
-    count: 5
-    files: [components/ui/CustomCursor.tsx]
-    reason: >
-      ⚠ The cursor HAS NO SIBLING TO DISAGREE WITH, which is exactly the property the watermarks
-      lacked when they were converted. It is the same category as the glass nav — a thing that IS
-      the design rather than a skin on it — and it holds across all four themes deliberately.
-
   - id: about-photo-tint
     kind: judgement
     category: signature
@@ -167,16 +156,30 @@ entries:
       tonal wash rather than a scrim, compositing over artwork rather than the theme's ground, and
       it reads as photographic warmth. A cool theme keeps a warm-cast photo, deliberately.
 
-  - id: page-loader-palette
+  - id: page-loader-fallback-ramp
     kind: judgement
-    category: signature
-    where: components/motion/PageLoader.tsx
-    count: 9
+    category: forced-literal
+    where: components/motion/PageLoader.tsx (FALLBACK_SHADES)
+    count: 8
     files: [components/motion/PageLoader.tsx]
     reason: >
-      The loader's own eight-colour ramp. It is the first thing a visitor sees and it is the brand
-      arriving, not the site's surface — the same argument as the cursor, one moment earlier.
+      ⚠ THIS ROW REPLACES A SIGNATURE RULING THAT WAS WRONG, AND IT IS A NARROWER CLAIM THAN THE ONE
+      IT REPLACES. The old entry excluded the loader's whole eight-colour ramp because it was "the
+      brand arriving, not the site's surface — the same argument as the cursor, one moment earlier".
+      That argument was made when one palette had ever shipped, so the test it claims to pass was
+      never run. A full-screen terracotta curtain is the FIRST thing a harbour visitor sees.
 
+      The ramp now derives from `--color-accent-500` and follows the theme, so it is no longer
+      excluded at all. What remains is the FALLBACK the derivation fails closed to.
+
+      ⚠ AND A FALLBACK CANNOT REFERENCE THE TOKEN WHOSE ABSENCE TRIGGERS IT. That is what makes this
+      forced rather than a judgement about how the loader should look. If the accent cannot be read
+      as OKLCH the eight literals paint, which is the pre-theme ramp preserved verbatim — the right
+      thing to draw when the theme is exactly what could not be determined.
+
+      It is unreachable on every engine that resolves the token, which is every engine the rest of
+      the site already requires. Kept because a first-paint brand moment is the wrong place to
+      discover a parse failure.
   - id: device-mock-chrome
     kind: judgement
     category: artwork-by-file

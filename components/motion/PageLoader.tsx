@@ -3,11 +3,72 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLenis } from 'lenis/react'
 import { ScrollTrigger } from '@/lib/gsap'
+import { oklchToRgb } from '@/lib/theme-contrast'
 
-const WARM_SHADES = [
+/* ⚠ THE LOADER WAS RULED A SIGNATURE FOR THE SAME REASON THE CURSOR WAS, AND IT FAILS THE SAME TEST.
+ * The entry read "the brand arriving, not the site's surface — the same argument as the cursor, one
+ * moment earlier". That argument was made on a one-theme site. A full-screen terracotta curtain is
+ * the FIRST thing a harbour visitor sees, and it is the one surface where a leak is unmissable.
+ *
+ * ⚠ BUT UNLIKE THE HERO AURAS, THIS DISTINCTION WAS ACTUALLY CHOSEN. The auras' two hues came from a
+ * hand-typed map nobody selected for colour, so collapsing them erased nothing. These EIGHT were
+ * picked to give the loader eight moods — one is drawn per visit, below — and flattening them onto a
+ * single accent would delete a real decision to make a mechanical one easier. THAT IS #103's SHAPE
+ * WITH THE SIGN REVERSED, and the reason this ramp is TRANSPOSED rather than collapsed.
+ *
+ * SO THE SHAPE IS KEPT AND THE ANCHOR MOVES. Each shade is stored as its measured OKLCH offset from
+ * cream's accent-500 (L .560, C .140, H 41.9) rather than as a colour, and the ramp is rebuilt around
+ * whatever accent the live theme publishes. On cream it reproduces the original eight to a
+ * maximum distance of 1 in RGB, measured across all eight; on harbour the same spread lands as teal through blue-teal, because the offsets are
+ * relative and travel with the hue.
+ *
+ * The literals are kept in the comment as the record of what was measured, not as a value anything
+ * reads. */
+const SHADE_OFFSETS: ReadonlyArray<readonly [dL: number, dC: number, dH: number]> = [
+  [+0.023, -0.020, +1.7],   // was #B5613C
+  [+0.062, -0.011, +3.6],   // was #C56B3F
+  [-0.018, -0.020, -0.5],   // was #A85433
+  [+0.109, -0.027, +33.2],  // was #BD8A3C
+  [+0.054, -0.046, -3.5],   // was #B5705A
+  [+0.003, -0.025, -6.8],   // was #AE5A45
+  [+0.123, -0.021, +26.4],  // was #C98A3E
+  [+0.046, -0.042, +25.6],  // was #A9763C
+]
+
+/* ⚠ FAIL CLOSED TO THE ORIGINAL RAMP. If the accent cannot be read as OKLCH — an older engine, or a
+ * computed form this does not expect — the loader draws exactly what it drew before rather than
+ * nothing. A first-paint brand moment is the wrong place to discover a parse failure, and #211's
+ * rule applies: prefer the fix that removes the dependency over the one that assumes it. */
+const FALLBACK_SHADES = [
   '#B5613C', '#C56B3F', '#A85433', '#BD8A3C',
   '#B5705A', '#AE5A45', '#C98A3E', '#A9763C',
 ]
+
+/* The computed form of a themed accent, e.g. `oklch(0.56 0.14 42)`. Percentless and percent lightness
+ * are both accepted because `parseOklch` in lib/theme-contrast accepts both and this must not be the
+ * stricter of the two readers. */
+const OKLCH_RE = /oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)/
+
+function themedShades(): string[] {
+  if (typeof window === 'undefined') return FALLBACK_SHADES
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-accent-500')
+    .trim()
+  const m = OKLCH_RE.exec(raw)
+  if (!m) return FALLBACK_SHADES
+  const L = m[2] === '%' ? Number(m[1]) / 100 : Number(m[1])
+  const C = Number(m[3])
+  const H = Number(m[4])
+  if (!Number.isFinite(L) || !Number.isFinite(C) || !Number.isFinite(H)) return FALLBACK_SHADES
+  return SHADE_OFFSETS.map(([dL, dC, dH]) =>
+    toHex(oklchToRgb(clamp(L + dL, 0, 1), Math.max(0, C + dC), (H + dH + 360) % 360))
+  )
+}
+
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, n))
+}
+
 const COLS = 24
 const ROWS = 16
 
@@ -105,7 +166,8 @@ export default function PageLoader() {
     const el = overlayRef.current
     if (!el) return
 
-    const shade = WARM_SHADES[Math.floor(Math.random() * WARM_SHADES.length)]
+    const shades = themedShades()
+    const shade = shades[Math.floor(Math.random() * shades.length)]
     const pattern = Math.random() < 0.5 ? 'scatter' : 'wave'
 
     el.style.backgroundColor = shade
@@ -168,7 +230,7 @@ export default function PageLoader() {
     <div
       ref={overlayRef}
       className="page-loader"
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: '#B5613C' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: 'var(--color-accent-500)' }}
     />
   )
 }
