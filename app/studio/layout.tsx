@@ -21,7 +21,12 @@ export default function StudioLayout({
     // the theme scale cannot express. THIS layout is the right host precisely because of
     // the note above: it wraps the login page AND the dashboard, so login inherits the
     // scale instead of falling back to the literals baked into each utility.
-    <div className="studio-chrome min-h-screen bg-canvas font-body text-studio-ink-950">
+    //
+    // ⚠ `bg-studio-ground`, NOT `bg-canvas`. This was the LAST live site in the studio drawing
+    // from the public palette, and it is the ground the entire editor sits on — so a theme
+    // repointing `--color-canvas` would have repainted the largest area in the product while
+    // every panel and rail on top of it stayed put. Same value, frozen.
+    <div className="studio-chrome min-h-screen bg-studio-ground font-body text-studio-ink-950">
       {children}
     </div>
   );
