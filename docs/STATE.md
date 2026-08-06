@@ -2049,6 +2049,21 @@ All prior rules remain. Added or sharpened across this session:
   a font reaching the layout. The same fact was asserted TWICE in one file, 400 lines apart, so
   the constant and the gate must move in ONE commit or a green assertion is left stating a stale
   number.
+- **WHEN A FILE CARRIES SEVERAL SPELLINGS OF ONE VALUE, THE EQUIVALENT AND THE NEARS ARE DECIDED
+  TOGETHER.** `SectionHeading` held THREE spellings of one cool grey — `88,82,74` and `86,80,72`
+  twice. #316 tokenised the exact match and left the two 3.7 away **on adjacent lines**, so the
+  intermediate state — one token beside two literals — was HARDER TO READ than three literals had
+  been. **A PR that fixes the equivalent and leaves the near beside it makes the file worse.**
+  Split the work by DECISION if you must, but not by file.
+
+- **ARTWORK IS NOT A CATEGORY — ASK WHETHER THE FILE ALREADY TREATS ITS COLOURS AS THEMEABLE.**
+  Step 1 excluded `ProjectCardSvgs.tsx`'s 64 fills as illustration a theme does not reach, and that
+  was right. #318 reached the OPPOSITE conclusion about two fills in `ProcessSection`'s process
+  diagram — **because their sibling `<rect>` already reads `var(--color-accent-500)`**, so that
+  drawing is theme-aware by existing intent and a literal beside it is drift rather than design.
+  Two SVG files, two answers, and the difference was found by LOOKING rather than by applying the
+  rule that would have covered both.
+
 - **THE BYTE-IDENTICAL DOM GATE BELONGS TO CHANGES THAT DO NOT TOUCH A STYLE ATTRIBUTE.** It has
   been the default proof on nearly every PR this year, and #316 is the first time its subject fell
   outside it. An inline `style` puts the value in the MARKUP, so swapping a colour literal for a
