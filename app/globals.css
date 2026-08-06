@@ -586,7 +586,6 @@ h2 {
   font-family: var(--font-display);
   font-optical-sizing: auto;
   font-weight: var(--font-weight-regular);
-  line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
 }
 
@@ -595,7 +594,6 @@ h4,
 h5,
 h6 {
   font-family: var(--font-body);
-  line-height: var(--leading-snug);
 }
 
 /* ⚠ THE WEIGHT IS LAYERED AND THE FAMILY AND LEADING ARE NOT — the second property taken out of
@@ -626,10 +624,6 @@ h6 {
   }
 }
 
-p {
-  line-height: var(--leading-relaxed);
-}
-
 /* ⚠ THE PROSE MEASURE IS LAYERED AND THE LEADING ABOVE IS NOT, AND THE SPLIT IS THE WHOLE POINT.
    Both used to sit in one unlayered `p` rule, where an unlayered element rule beats `@layer
    utilities` regardless of specificity — hazard 11. That made EVERY arbitrary measure and leading utility
@@ -646,6 +640,34 @@ p {
 @layer base {
   p {
     max-width: 68ch;
+  }
+
+  /* ⚠ THE LEADING — 58 UTILITIES, THE LARGEST GROUP, AND THE THIRD PROPERTY LIFTED ONE AT A TIME.
+     The families and the heading tracking stay unlayered and stay in force; only the leading moves.
+
+     53 OF THE 58 ASK FOR TIGHTER TYPE THAN THE RESET GAVE, one asks looser, four move by 0.05 or
+     less. That is not 58 opinions — it is ONE, written 58 times by people with no way to see it was
+     inert. The largest are `<p>` elements used as display type, where 1.7 was never plausible:
+     three ask 1, one asks 0.9, one asks 0.8.
+
+     ⚠ AND `p` HAS NO UNLAYERED RULE LEFT AFTER THIS, which is why #353 had to land first. This
+     suite used to enumerate only tags that still HAD a reset, so lifting the last property made the
+     element vanish from the census along with its shadowed utilities — 22 became 16 and nothing was
+     fixed. Element discovery is decoupled now, and S2 is the check that says so. */
+  h1,
+  h2 {
+    line-height: var(--leading-tight);
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: var(--leading-snug);
+  }
+
+  p {
+    line-height: var(--leading-relaxed);
   }
 }
 

@@ -132,8 +132,15 @@ const RULES = new Map();
   }
 }
 
-t("A0: the unlayered rules were found — html, h1/h2, h3..h6, p, img, a",
-  ["html", "h1", "h2", "h3", "h6", "p", "img", "a"].filter((x) => !RULES.has(x)), []);
+/* ⚠ `p` LEFT THIS LIST IN #354 AND THAT IS THE POINT OF THE PR, NOT A CASUALTY OF IT. Its last
+ * unlayered property — the leading — moved into `@layer base`, so the element has no unlayered rule
+ * at all. Every OTHER tag here still does, and the day one of them empties, its name comes out with
+ * a line saying why. A premise list that quietly shrinks is how a suite stops testing what it
+ * claims. */
+t("A0: the unlayered rules were found — html, h1/h2, h3..h6, img, a (p is fully layered since #354)",
+  ["html", "h1", "h2", "h3", "h6", "img", "a"].filter((x) => !RULES.has(x)), []);
+t("A0: …and `p` is NOT among them, because its leading was the last thing it owned",
+  RULES.has("p"), false);
 
 /* ---- utility -> the value it resolves to. `null` means "not a utility of this family". */
 const arb = (c) => { const m = /\[(.+)\]$/.exec(c); return m ? m[1].replace(/_/g, " ") : null; };
@@ -381,8 +388,15 @@ t("C1: the public collision census is exactly this — a change here is a dead u
 
      ⚠ SO THIS CENSUS NOW READS "REPAIRED" FOR TEN ROWS THAT ARE STILL INERT. Recorded rather than
      papered over: the honest fix is a third-party model, and it is not in this PR. Measured in the
-     browser — every `<h3>` asking `font-normal` on a case study computes 500. */
-  census, { color: 6, "letter-spacing": 4, "line-height": 58 });
+     browser — every `<h3>` asking `font-normal` on a case study computes 500.
+
+     ⚠ AND `line-height` LEFT IN #354 — THE LARGEST GROUP AND THE THIRD PROPERTY LIFTED. 58 rows,
+     53 of which asked for tighter type than the reset gave. **S2 held at 22 across the change**,
+     which is the check #353 exists to make: before it, lifting the paragraph leading dropped
+     shadowed from 22 to 16 and the census would have read this as a clean repair.
+
+     ONE PROPERTY LEFT: letter-spacing, 4 rows. `color` is six `<a>` sites and a different question. */
+  census, { color: 6, "letter-spacing": 4 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
@@ -401,8 +415,13 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      `font-display` utilities inside case studies were counted INERT — agreeing with a reset they
      could not beat. The third-party model now resolves them against `.case-study .font-display`
      FIRST, which honours them, so they are not a category either. Nothing on screen moved; the
-     suite simply stopped mis-filing them. */
-  inert.filter(outside).length, 31);
+     suite simply stopped mis-filing them.
+
+     ⚠ 31 -> 24 IN #354, AND THIS TIME SEVEN OF THEM ARE A REAL REPAIR. They were utilities agreeing
+     with a leading they could not beat; now they win and draw the same number. The count falls for
+     the same reason it fell twice before — a thing stopped being classifiable — but the underlying
+     state changed too: seven utilities that drew nothing now draw. */
+  inert.filter(outside).length, 24);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
