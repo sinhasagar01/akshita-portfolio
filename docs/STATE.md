@@ -8569,6 +8569,62 @@ page depend on the thing that failed.
 
 ralph 2477 → 2482.
 
+## THE CENSUS COUNTED THE MOST THEMED FORM A COLOUR CAN TAKE AS A LITERAL (#336)
+
+### ⚠ THE INSTRUMENT BUILT TO REPLACE A NAME-BLIND CENSUS WAS DERIVATION-BLIND
+
+`oklch(from var(--bounce) l c h / .84)` is relative colour syntax over a token — **strictly more
+themed than a plain `var()`** — and it appeared **14 times in the pool as authored colour.**
+
+> Step 1 could not see WHERE a colour lived. This one could not see WHAT A COLOUR IS MADE OF. Same
+> family, one turn on.
+
+**AND IT SURVIVED BECAUSE IT OVER-REPORTS.** E1's blind spot was silent; this one was noisy, **and
+noise reads as thoroughness until someone reads the rows.**
+
+### THE THREE EXCLUSIONS, EACH A PROPERTY OF THE VALUE RATHER THAN A JUDGEMENT
+
+**1 · DERIVED VALUES, STRIPPED BY FORM.** ⚠ `contains var(--color-` is NOT the same test as
+`is derived`. A gradient with one token stop and one literal stop would pass a contains-check while
+carrying a real leak, so the derivation EXPRESSIONS are removed and whatever remains is still
+scanned. `color-mix()` is stripped only when it holds no literal. **A5b asserts all four cases**,
+including the gradient — the precision fix must not buy a new blind spot with the old one.
+
+**2 · ⚠ MASK CHANNELS — A FOURTH KIND OF BOUNDARY ENTRY.** `#000` in `mask-image` is an ALPHA
+CHANNEL, not a paint: black means opaque. **Not artwork, not signature, not forced-literal, but NOT
+A COLOUR AT ALL**, and structurally unthemeable because there is nothing to theme.
+
+**3 · `--tw-*` INITIAL VALUES.** Compiler defaults, the same argument as the `@supports` fallbacks.
+
+**Result: 95 occurrences → 71, and the undecided pool 37 distinct → 19.**
+
+### THE TWO ANSWERED ITEMS, AND THEY WERE ONE DECLARATION
+
+`oklch(56.0% 0.14 42 / 0.45)` is `accent-500` longhand at 45%, and it draws **the logo pipe** and
+**the skill-pill hover border** — items 6 and 11 of the owner's eleven. **Two reported symptoms, one
+shared value.**
+
+> **THE EASY VERSION, BECAUSE BOTH WANTED THE SAME ANSWER.** The hard version is now a known shape
+> rather than something to discover: one value used for unrelated things, where a single
+> classification is right for one site and wrong for the other. Item 3 was the inverse — one symptom
+> with three causes; this is one cause with two symptoms.
+
+**⚠ AND I HAD THE HAIRLINE WRONG.** I said `rgba(60,45,30,.09)` takes `--color-rule`. Measured, it
+composites to **`ink-800` at Δ2** while `--color-rule` is Δ7 — a different family entirely. Two
+sites converted to `ink-800`, not to the token I named.
+
+### THE POOL, WHOLE — 19 DISTINCT, AND MOSTLY NOT JUDGEMENTS
+
+Of the 19: seven are `.blog-smoke` / `.blog-glint` / `.blog-bub`, **vessel parts my selector filter
+missed** rather than new questions. Three more are `accent-500` longhand at other alphas. Two are
+the `--color-rule` family. One is `.ab-tint`, already ruled. One is a `--tw-` default inside an
+`@property` block the property-name filter did not reach.
+
+**Roughly four need an actual judgement.** One short pass, and the batching existed to detect an arc
+that the precision fix ruled out.
+
+ralph 2482 → 2486.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

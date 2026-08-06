@@ -97,7 +97,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
           {/* Hairline + bottom row */}
           <div
             className="relative flex flex-wrap justify-between items-center gap-y-[10px] text-[14px] text-text-subtle mt-9 pt-[22px]"
-            style={{ borderTop: "1px solid rgba(60,45,30,0.1)", zIndex: 2 }}
+            style={{ borderTop: "1px solid color-mix(in srgb, var(--color-ink-800) 10%, transparent)", zIndex: 2 }}
           >
             <span className="flex items-center gap-[7px]">
               Built in Bengaluru with love
