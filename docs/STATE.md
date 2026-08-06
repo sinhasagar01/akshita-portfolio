@@ -8458,6 +8458,58 @@ explicitly through `over()` and honouring it silently would double-apply it.
 
 ralph 2475 across 60 suites.
 
+## PARSE THEN EXCLUDE, AND THE LAST OF THE ELEVEN (#334)
+
+### ⚠ A NEW SHAPE — A VALUE THE INSTRUMENT CANNOT READ LOOKS EXACTLY LIKE A VALUE NOTHING NEEDED TO READ
+
+Not the same as the five measurement defects before it. `parseOklch` required a `%` on the
+lightness; `--color-smoke-1` is `oklch(0.84 0.014 58 / 0.74)`, valid CSS, percentless. Every smoke
+stop read as null. **Nothing noticed, because smoke is on the boundary list and a listed token is
+never asked to parse.**
+
+> **AN EXCLUSION LIST IS ALSO A COVERAGE GAP THE PARSER NEVER HAS TO ADMIT TO.** The parser's blind
+> spot and the list's exclusion are each individually correct, and together they make a hole neither
+> has alone.
+
+**THE REPAIR IS AN ORDER, NOT A PATCH. PARSE EVERYTHING, THEN EXCLUDE.** That makes the boundary
+list a statement about POLICY rather than a shield for CAPABILITY. E7 now asserts every unparseable
+token is DERIVED — a `var()` reference — so a literal the parser cannot read fails loudly even when
+it is listed.
+
+**AND THE AUDIT ANSWERS WHAT ELSE THE LIST WAS HIDING: NOTHING.** 17 of 18 listed tokens parse. The
+one that does not is `on-dark-line`, a `color-mix()` over another token — **unparseable by nature
+rather than by defect.** E8 pins that set at exactly one, so a second arrival is visible.
+
+### ⚠ TWO COMPONENTS, TWO COLOUR SOURCES, OPPOSITE ANSWERS — RECORDED TOGETHER
+
+`SectionHeading` drew its watermark from a literal on one branch and a token on the other, and that
+was a DEFECT: **the two branches draw the same thing** — a section watermark — and disagreed about
+its colour.
+
+The process diagram and the case-study hero also carry two sources, and that is CORRECT. The accent
+outline is the drawing gesture and follows the palette; the fills depict a product screen. The hero's
+h1 and watermark are themed; its aura is the product's brand red or violet, set per study.
+
+> **"TWO SOURCES IN ONE COMPONENT" IS NOT ITSELF THE DEFECT. DISAGREEING ABOUT THE SAME THING IS.**
+> And the sentence that decides the second case could not have come from a delta: **theming them
+> would make the depicted product change colour with the portfolio.**
+
+### THE ELEVEN ARE CLOSED, AND ITEM 3 WAS THREE THINGS
+
+The owner's item 3 — "the glow behind mobile mocks, the h1 colour, the background watermark" —
+resolved three different ways, which is why it read as one unexplained population.
+
+| surface | outcome |
+|---|---|
+| the h1 | **already themed** — `text-on-dark` and `text-ink-950`, never a leak |
+| the "crest" watermark | **fixed in #332** — it is `--hero-word-*`, which snapped to `on-dark-quote` |
+| the mock glow | **product branding, boundary list** — per study, by design |
+
+**It was never a second watermark population and never a #328 bug.** `GlowWord` was themed from the
+day the template shipped; the warm thing beside it was a different mechanism wearing the same word.
+
+ralph 2475 → 2477.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

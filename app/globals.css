@@ -788,7 +788,16 @@ a {
 .hero-aura { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .hero-aura span { position: absolute; top: 50%; left: 50%; display: block; border-radius: 50%; }
 
-/* boAt — Vital Pulse: a warm brand-red bloom breathing on a heartbeat cadence, with a
+/* ⚠ THE HERO AURAS ARE PRODUCT BRANDING AND MUST NOT FOLLOW THE THEME. Each case study's glow is
+   the colour of the product it is about — boAt's brand red below, Fosfor's violet `#2e1a47` further
+   down — which is why they are set PER STUDY rather than from the palette.
+
+   SAME RULING AS THE PROCESS DIAGRAM'S FILLS, AND THE SAME SENTENCE DECIDES IT: theming these would
+   make the depicted product change colour with the portfolio. The h1 above them is `text-on-dark`
+   and the watermark is `--hero-word-*`, both themed — so this hero is deliberately part themed and
+   part not, and the line runs between THIS SITE'S CHROME and THE PRODUCT BEING SHOWN.
+
+   boAt — Vital Pulse: a warm brand-red bloom breathing on a heartbeat cadence, with a
    cool SpO₂ wink low-left. The wash + core beat (double-thump); the wink stays steady. */
 .hero-aura--pulse .ha-wash {
   width: 480px; height: 480px; margin: -250px 0 0 -240px; filter: blur(36px);

@@ -123,8 +123,29 @@ const resolve = (name, depth = 0) => {
   return a && depth < 5 ? resolve(a, depth + 1) : rawDecl[name];
 };
 const PUBLIC = Object.keys(rawDecl).filter((k) => !k.startsWith("studio-"));
+
+/* ⚠ PARSE EVERYTHING, THEN EXCLUDE — NOT EXCLUDE, THEN PARSE. The old order silently filtered out
+ * whatever `parseColor` could not read, and the boundary list then covered the survivors. That made
+ * the list a SHIELD FOR CAPABILITY rather than a statement of POLICY: anything listed was never
+ * asked to parse, so a parser defect on a listed value was silent by construction.
+ *
+ * It hid one. `parseOklch` required a `%` on the lightness while `--color-smoke-1` is
+ * `oklch(0.84 0.014 58 / 0.74)`, so every smoke stop read as null and nothing noticed, because
+ * smoke is listed. #333 taught the parser the percentless form; this changes the ORDER so the next
+ * one cannot hide the same way.
+ *
+ * ⚠ AND THE AUDIT SAYS WHAT REMAINS. 17 of the 18 listed tokens parse. The one that does not is
+ * `on-dark-line`, a `color-mix()` over another token — UNPARSEABLE BY NATURE rather than by defect,
+ * because it is derived rather than literal. `unparseable` below asserts exactly that distinction:
+ * a failure is acceptable only when the value references another token. */
 const CREAM = {};
-for (const k of PUBLIC) { const v = resolve(k); if (v && parseColor(v)) CREAM[k] = v; }
+const unparseable = [];
+for (const k of PUBLIC) {
+  const v = resolve(k);
+  if (!v) continue;
+  if (parseColor(v)) CREAM[k] = v;
+  else unparseable.push({ name: k, value: v, derived: /var\(--/.test(v) });
+}
 
 /* ---- THE USAGE MAP. Which colour sits on which ground in which role. The palette varies per
  * theme; THIS DOES NOT. Every foreground below was confirmed to have public consumers by count
@@ -340,6 +361,13 @@ t("E5 every public token is parseable, aliased, or listed — no colour leaves s
   PUBLIC.filter((n) => !(n in CREAM) && !aliasOf(n) && !(n in BOUNDARY)), []);
 t("E6 …and every palette entry actually parsed, so no row reads a broken value as a colour",
   Object.keys(CREAM).filter((n) => parseColor(CREAM[n]) === null), []);
+/* ⚠ THE CAPABILITY ASSERTION, SEPARATE FROM THE POLICY ONE. Every token the parser cannot read must
+ * be DERIVED — a `var()` reference rather than a literal. A literal it cannot read is a parser
+ * defect, and being on the boundary list must never make one invisible again. */
+t("E7 every unparseable token is DERIVED, not a literal the parser cannot read",
+  unparseable.filter((u) => !u.derived).map((u) => `${u.name}: ${u.value}`), []);
+t("E8 …and the unparseable set is enumerated rather than filtered away silently",
+  unparseable.map((u) => u.name).sort(), ["on-dark-line"]);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
