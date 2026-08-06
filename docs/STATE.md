@@ -7571,12 +7571,32 @@ now checks the working tree against HEAD** and says NO MUTATION APPLIED when the
 limit is stated in the code rather than left implied** — a dirty tree is necessary evidence and not
 sufficient, because the harness does not know which file you meant to edit.
 
-**C · AND A ROUND-TRIP ASSERTION THAT SEEDS THE VALUE IT ASSERTS TESTS NOTHING.** The first version
-of the silent-drop gate loaded an object already carrying `theme`, so the value arrived from the
-FILE and the patch was never the subject. Teaching the serializer to skip `theme` the way it skips
-`photo` passed it cleanly. **Only mutation found this**, which is the fourth time in this arc that
-the assertion looked right and was vacuous. The fix is to start from a state that does NOT already
-satisfy the assertion, which here is also the real first-write case.
+### ⚠ AND A THIRD FAMILY CLOSES — THE CONTAMINATED INPUT
+
+**C · A ROUND-TRIP ASSERTION THAT SEEDS THE VALUE IT ASSERTS TESTS NOTHING.** The first version of
+the silent-drop gate loaded an object already carrying `theme`, so the value arrived from the FILE
+and the patch was never the subject. Teaching the serializer to skip `theme` the way it skips
+`photo` passed it cleanly — **the exact defect C6 exists to catch.** Only mutation found it.
+
+**THIS IS A GATE DEFECT RATHER THAN A CODE ONE, AND IT COMPLETES A FAMILY.** The other member is
+the typography arc's consumer count, which searched for a token's uses and found the token's own
+DECLARATION, and then on the second attempt its own COMMENT. Different suites, different subjects,
+one shape.
+
+> **AN ASSERTION WHOSE INPUT IS CONTAMINATED BY THE THING IT IS MEANT TO PROVE.** The gate looks
+> right, reads the correct property, compares the correct values, and passes for a reason that has
+> nothing to do with the code under test.
+
+**THE FIX IS ALWAYS THE SAME AND IT IS WORTH STATING ONCE. THE INPUT MUST COME FROM SOMEWHERE THE
+CHANGE CANNOT REACH.** For the consumer count that meant excluding the declaring file. For the
+round trip it meant starting from a settings object that PREDATES the field, so the only way the
+value can appear in the output is if the patch put it there — which is also the real first-write
+case, so the honest test and the realistic test turned out to be the same test.
+
+**AND IT IS DISTINCT FROM VACUOUS-BY-ABSENCE, WHICH THIS PROJECT ALREADY TRACKS.** A gate reporting
+zero subjects passes because it found nothing. A contaminated gate passes because it found the
+WRONG something. The first is caught by counting subjects, and the second is not caught by anything
+except mutation.
 
 ## WHAT'S NEXT
 
