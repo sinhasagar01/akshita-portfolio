@@ -22,12 +22,12 @@ export default function FooterClock() {
 
   return (
     <div className="mt-6">
-      <p className="text-[10px] tracking-[.18em] uppercase font-semibold text-[--color-text-subtle]">
+      <p className="text-[10px] tracking-[.18em] uppercase font-semibold text-text-subtle">
         Local time
       </p>
       <div className="flex items-center gap-[10px] mt-[7px]">
         <span
-          className="inline-flex items-center gap-2 rounded-full px-[13px] py-[6px] text-[14px] text-[--color-text-primary]"
+          className="inline-flex items-center gap-2 rounded-full px-[13px] py-[6px] text-[14px]"
           style={{ border: "1px solid rgba(120,90,60,0.25)" }}
         >
           <span
@@ -37,7 +37,7 @@ export default function FooterClock() {
           />
           <span>{display}</span>
         </span>
-        <span className="text-[14px] text-[--color-text-subtle]">IST · Bengaluru</span>
+        <span className="text-[14px] text-text-subtle">IST · Bengaluru</span>
       </div>
     </div>
   );

@@ -7394,6 +7394,55 @@ claiming a pass never performed.
 
 ---
 
+## THE THEME SYSTEM — THE PROMISE, AND WHY IT IS THE NARROWER ONE
+
+**FOUR LIGHT-GROUND VARIATIONS. Themes vary hue, chroma, accent and type, on light grounds above
+roughly 85% lightness. The four signature components are shared across all four themes and do not
+vary. DARK MODE IS A SECOND DESIGN, not a theme**, and saying so now is what makes the promise
+keepable.
+
+Established by RENDERING a genuinely far palette — the ground and ink relationship inverted — and
+rasterising, sanity pair asserted first. Not reasoned about.
+
+| component | verdict | evidence |
+|---|---|---|
+| work card mechanic | **survives** | veil title 17.35, sub 9.58, over a WHITE image 13.15. Card 15.38 / 6.95 / 6.17 |
+| hero ground and aura | **survives** | h1 6.71, body 13.15. The glow composites to an ember rather than a wash |
+| glass nav | **BROKEN** | nav link on glass **1.15** |
+| Pearl Smoke vessel | **BROKEN** | label on glass **1.20**, ink-950 on glass **1.84** |
+
+### THE MECHANISM, WHICH IS THE REUSABLE HALF
+
+- **A SCRIM IS THEMEABLE, A PANE IS NOT.** The work card's veil is an INK alpha that DARKENS
+  whatever is beneath it, so light-on-veil holds over any image and any ground. The glass nav and
+  the vessel are light PANES with hardcoded fills, so they stay light while their text inverts —
+  light text on a light slab, which reads as a rendering fault rather than a style.
+- **⚠ AND TOKENISING THE FILL DOES NOT RESCUE THEM.** What reads as glass is the inset highlight
+  stack over a blur; a dark glass needs a different highlight STRUCTURE, not a different fill
+  value. That is a structural argument, so no amount of token work reaches it — which is exactly
+  why this had to be rendered rather than reasoned about.
+- **THE WORK CARD WAS BUILT GROUND-INDEPENDENT BY ACCIDENT.** It is a scrim because it needed to
+  darken a photo, not because anyone was planning for themes. That accident is the rule the other
+  two did not follow, and it is the rule any future themeable surface should.
+
+### THE CHROME QUESTION RESOLVED ITSELF
+
+Dark-canvas-inside-dark-chrome was the pairing nobody had looked at — the studio's ink chrome is
+frozen by #314 while the canvas follows the theme. **The light-ground constraint removes it.** The
+canvas stays light on every theme, so the chrome keeps exactly the contrast relationship it has
+today. A consequence of the constraint rather than a separate decision.
+
+### ⚠ AND THE FIRST MEASUREMENT PASS WAS WRONG, WHICH IS THE THIRD TIME THIS SESSION
+
+Scrolling to a work card CLICKED it — the card is a link — and the navigation reset the runtime
+overrides, so the probe reported LIGHT-theme numbers as dark ones. **The tell was that the veil
+numbers stood while the surface numbers did not**, because the veil was measured against literal
+grounds and the surface against tokens. Discarded and re-measured rather than reported, which is
+what makes the rest of the table worth anything. A probe that passes cleanly while measuring the
+wrong thing is this session's most repeated failure.
+
+---
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

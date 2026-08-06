@@ -296,20 +296,20 @@ function StageCopy({ stage }: { stage: ResolvedStage }) {
         >
           <motion.span
             variants={stageLine}
-            className="text-meta font-[--font-weight-medium] uppercase tracking-ui"
+            className="text-meta font-medium uppercase tracking-ui"
             style={{ color: "var(--color-accent-500)" }}
           >
             {stage.index}
           </motion.span>
           <motion.h3
             variants={stageLine}
-            className="display-face italic text-subheading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mt-1 mb-2.5"
+            className="display-face italic text-subheading leading-snug tracking-snug mt-1 mb-2.5"
           >
             {stage.name}
           </motion.h3>
           <motion.p
             variants={stageLine}
-            className="text-sm text-[--color-text-secondary] leading-[--leading-normal]"
+            className="text-sm text-text-secondary leading-normal"
             style={{ minHeight: "46px" }}
           >
             {stage.description}
@@ -321,7 +321,7 @@ function StageCopy({ stage }: { stage: ResolvedStage }) {
             {stage.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-tag px-[11px] py-1 rounded-full text-[--color-text-muted] leading-none"
+                className="text-tag px-[11px] py-1 rounded-full text-text-muted leading-none"
                 style={{
                   background: "var(--color-cream-200)",
                   border: "1px solid color-mix(in oklch, var(--color-text-primary) 14%, transparent)",

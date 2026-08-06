@@ -230,7 +230,7 @@ const pub = collisions.filter(outside);
  * class expression that MAKES the claim true, matched against the real source. */
 const FAMILY_COLLISIONS = [
   { at: "components/sections/HeroSection.tsx", tag: "h1", cls: "font-script",
-    guard: /className="font-script text-\[--color-accent-500\] leading-\[1\] m-0 font-normal"/,
+    guard: /className="font-script text-accent-500 leading-\[1\] m-0 font-normal"/,
     why: "the home page signature. Asks for Kaushan Script, draws the display serif. MEASURED. " +
          "DEFERRED ON PURPOSE — it is the Kaushan brand question, recorded as an open item in " +
          "CLAUDE.md and not to be settled inside a font swap." },
@@ -253,11 +253,11 @@ const byProp = {};
 for (const h of pub) (byProp[h.property] ??= []).push(h);
 const census = Object.fromEntries(Object.keys(byProp).sort().map((k) => [k, byProp[k].length]));
 t("C1: the public collision census is exactly this — a change here is a dead utility gained or repaired",
-  census, { color: 5, "font-family": 1, "font-weight": 12, "letter-spacing": 4, "line-height": 61, "max-width": 18 });
+  census, { color: 6, "font-family": 1, "font-weight": 12, "letter-spacing": 4, "line-height": 58, "max-width": 18 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
-  inert.filter(outside).length, 37);
+  inert.filter(outside).length, 40);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

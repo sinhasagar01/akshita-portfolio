@@ -50,7 +50,7 @@ function isValidEmail(v: string) {
 
 // Shared input class — no border classes here, border applied via inline style (1.5px)
 const INPUT_BASE =
-  'w-full bg-transparent text-[20px] font-body text-[--color-text-primary] placeholder:text-[#6d645d] px-0 py-2 outline-none'
+  'w-full bg-transparent text-[20px] font-body placeholder:text-[#6d645d] px-0 py-2 outline-none'
 
 // ---------------------------------------------------------------------------
 // StepContent — separate component so its useEffect fires on mount only,
@@ -115,7 +115,7 @@ function StepContent({
       {/* Question — Fraunces italic 30px lh 1.2 ink */}
       <label
         htmlFor="contact-input"
-        className="block font-display italic text-[30px] leading-[1.2] text-[--color-text-primary] mb-6 cursor-text"
+        className="block font-display italic text-[30px] leading-[1.2] mb-6 cursor-text"
         style={{ fontWeight: 400 }}
       >
         {step.question}
@@ -222,7 +222,7 @@ function SuccessScreen() {
       <h3
         ref={ref}
         tabIndex={-1}
-        className="display-face italic text-[30px] leading-[1.2] text-[--color-text-primary] mb-3 outline-none"
+        className="display-face italic text-[30px] leading-[1.2] mb-3 outline-none"
         style={{ fontWeight: 400 }}
       >
         Thanks, talk soon.
@@ -247,12 +247,12 @@ function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void })
       <p
         ref={ref}
         tabIndex={-1}
-        className="font-display italic text-[30px] leading-[1.2] text-[--color-text-primary] mb-3 outline-none"
+        className="font-display italic text-[30px] leading-[1.2] mb-3 outline-none"
         style={{ fontWeight: 400 }}
       >
         That did not send.
       </p>
-      <p className="font-body text-[14px] text-[--color-text-secondary]">
+      <p className="font-body text-[14px] text-text-secondary">
         Try emailing me directly at{' '}
         <a href={`mailto:${email}`} style={{ color: 'var(--color-accent-500)' }} className="underline">
           {email}
@@ -261,7 +261,7 @@ function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void })
       <button
         type="button"
         onClick={onRetry}
-        className="mt-6 font-body text-[14px] text-[--color-text-muted] underline hover:text-[--color-text-secondary] transition-colors duration-[--duration-base]"
+        className="mt-6 font-body text-[14px] text-text-muted underline hover:text-text-secondary transition-colors duration-[var(--duration-base)]"
       >
         try again
       </button>
