@@ -8895,6 +8895,70 @@ repair.
 
 ralph 2497.
 
+## THE MATCHER AUDIT — WHAT THE FRESH PASS OWES (HANDOFF)
+
+Four items, in order. Written down because the pass that must do them is not the pass that found
+them, and a handoff that is remembered rather than recorded is the thing this arc kept paying for.
+
+### 1 · ⚠ CONFIRM OR OVERTURN "NO RECORDED FIGURE MOVES" — AND DO NOT HURRY IT
+
+**Provisional finding: the gapped matcher was a THROWAWAY REGEX inside one PR, not a standing
+instrument.** The 125 / 288 / 110 / 37 / 19 figures came from the census or from scripts using the
+full four-form pattern; `studio-ink-contrast`'s numbers are ratios over tokens that are all oklch.
+
+**⚠ IT WAS REACHED AT THE END OF A LONG PASS AND IT IS THE CLAIM WHOSE BEING WRONG IS MOST
+EXPENSIVE** — a figure that SIZED A PIECE OF WORK means something shipped as complete and was not.
+**READ EACH SUITE RATHER THAN GREPPING**, and state the conclusion explicitly rather than inheriting
+this one. If any figure moves, correct it IN PLACE with the original quoted, the way #342 and #258
+did — **#342 must not be the only entry that admits it**, because a record where one number was
+publicly corrected and three were quietly right-sized teaches that corrections are exceptional.
+
+**AND SAY WHICH DECISIONS RESTED ON WHICH NUMBERS**, not just which numbers moved.
+
+### 2 · ⚠ THE SHARED MATCHER'S REAL JOB IS NOT DEDUPLICATION
+
+**It is to make the one-off unnecessary.** A verification step reaches for a regex because writing
+one is FASTER than importing something.
+
+> **IF THE IMPORT IS EASIER THAN THE REGEX, THE HALF-MATCHER NEVER GETS WRITTEN.** That is a design
+> constraint on the shared matcher, not a hope about discipline.
+
+**AND IT IS THE CLASS OF DEFECT NO AUDIT OF THE STANDING INSTRUMENTS CAN REACH.** A one-off invented
+its own half-matcher; auditing the permanent ones would never have found it. Better, because nothing
+else needs correcting. Worse, because it is unrepeatable and there is no instrument to fix.
+
+### 3 · THE COVERAGE FIXTURE CLOSES A DOOR — IT DOES NOT FIX A DEFECT
+
+Both gaps found are REAL and NEITHER IS LIVE: no `hsl` exists in the codebase, and every studio
+token is oklch. **Say that**, because a fixture presented as a fix invites someone to ask which bug
+it caught and to remove it when the answer is none.
+
+It asserts hex 3/4/6/8, rgb, rgba, hsl, hsla, oklch with and without percent, `color-mix`,
+`oklch(from …)`, named colours and `transparent` — **and it ASKS WHAT THE MATCHER CANNOT SEE rather
+than only what it can**, because both of this arc's parser defects reported ABSENCE rather than
+erroring.
+
+### 4 · ⚠ `studio-ink-contrast`'s GAP IS THE ONE WITH TEETH — ASSERT THE TOKEN COUNT
+
+It matches `oklch` only. A studio token declared as hex would **vanish from its map, and its
+contrast figures would be computed over a smaller set WITHOUT SAYING SO.**
+
+> **THE SILENT-DENOMINATOR SHAPE** — the same as C-9's exclusion and the vacuous parity run. **The
+> suite stays green and its subject shrinks.** Assert the token COUNT, not only the ratios.
+
+### AND THE TWO SUB-CASES OF THE SEVENTH DEFECT HAVE DIFFERENT REPAIRS
+
+**Behind a mechanism** — the boundary list never asks a listed token to parse, so the exclusion
+shielded the capability. Fixed by parsing before excluding, in #334.
+
+**Behind nothing at all** — it was simply believed. **Fixed only by asking the instrument what it
+cannot see**, which is why the fixture is not optional.
+
+### THEN EMPTINESS
+
+Both directions, over a pool measured by something audited. **Three PRs from closed, and the middle
+one did not exist two messages ago.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
