@@ -81,6 +81,7 @@ entries:
   # ---------------------------------------------------------------- mechanical
   - id: derived
     kind: mechanical
+    entry_kind: category
     match: { form: "oklch(from var(--…) …) and color-mix() containing no literal" }
     reason: >
       ⚠ Relative colour syntax over a token is the MOST themed form a colour can take — strictly
@@ -91,6 +92,7 @@ entries:
 
   - id: mask
     kind: mechanical
+    entry_kind: category
     match: { property: "mask-image, -webkit-mask-image, mask" }
     reason: >
       ⚠ NOT A COLOUR AT ALL. #000 in a mask is an ALPHA CHANNEL — black means opaque. There is
@@ -99,6 +101,7 @@ entries:
 
   - id: compiler-default
     kind: mechanical
+    entry_kind: category
     match: { property: "--tw-*", also: "@supports color-mix fallbacks" }
     reason: >
       Tailwind emits a hex fallback beside every color-mix utility and initial values for its own
@@ -111,6 +114,7 @@ entries:
     category: artwork-by-file
     where: components/sections/ProjectCardSvgs.tsx
     count: 77
+    files: [components/sections/ProjectCardSvgs.tsx]
     reason: >
       An illustration file. 77 of the site's 82 SVG colour attributes live here and are excluded
       whole, by what the file is for rather than by the syntax the colour is written in.
@@ -120,6 +124,7 @@ entries:
     category: artwork-by-file
     where: components/sections/ProcessSection.tsx
     count: 3
+    files: [components/sections/ProcessSection.tsx]
     reason: >
       ⚠ The accent OUTLINE is the drawing gesture — this site's hand, sketching — so it follows the
       palette. These three FILLS depict a product screen being designed: a wireframe of somebody
@@ -160,6 +165,7 @@ entries:
     category: signature
     where: components/ui/CustomCursor.tsx
     count: 5
+    files: [components/ui/CustomCursor.tsx]
     reason: >
       ⚠ The cursor HAS NO SIBLING TO DISAGREE WITH, which is exactly the property the watermarks
       lacked when they were converted. It is the same category as the glass nav — a thing that IS
@@ -181,6 +187,7 @@ entries:
     category: signature
     where: components/motion/PageLoader.tsx
     count: 9
+    files: [components/motion/PageLoader.tsx]
     reason: >
       The loader's own eight-colour ramp. It is the first thing a visitor sees and it is the brand
       arriving, not the site's surface — the same argument as the cursor, one moment earlier.
@@ -190,6 +197,7 @@ entries:
     category: artwork-by-file
     where: components/case-study/blocks/deviceScroller.ts
     count: 5
+    files: [components/case-study/blocks/deviceScroller.ts]
     reason: >
       Phone and browser chrome around a product screenshot. It depicts a device, not this site.
 
@@ -198,6 +206,7 @@ entries:
     category: signature
     where: lib/theme.ts (BRAND_CHROME_COLOR)
     count: 1
+    files: [lib/theme.ts]
     reason: >
       ⚠ theme_color tints the Android address bar and the task-switcher card — the site's identity
       in SOMEONE ELSE'S FRAME. At 20 from every token it is its own near-black rather than a
@@ -211,6 +220,7 @@ entries:
     category: forced-literal
     where: app/global-error.tsx
     count: 6
+    files: [app/global-error.tsx]
     reason: >
       ⚠ THE INVERSE OF EVERY OTHER ENTRY HERE. This renders WHEN THE APP HAS FAILED — the stylesheet
       may not have loaded, so var(--color-ink-950) resolving to nothing leaves an INVISIBLE PAGE at
@@ -246,6 +256,7 @@ entries:
     category: signature
     where: lib/og.tsx
     count: 4
+    files: [lib/og.tsx, app/manifest.ts]
     reason: >
       Social cards. They reach a surface adjacent to the page rather than the page itself, and they
       are baked into an image at build time — a fifth route no static analysis of the page reaches.
