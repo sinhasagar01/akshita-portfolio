@@ -207,6 +207,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-time-saved
               title: Time on quality checks
               body: How much manual inspection time the feature removed.
             - image:
@@ -220,6 +221,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-detection-rate
               title: Issue detection
               body: How reliably teams surfaced and resolved data quality problems.
             - image:
@@ -233,6 +235,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-quality-lift
               title: Data quality lift
               body: Measurable gains in completeness, consistency, and accuracy.
             - image:
@@ -243,6 +246,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-usage
               title: Frequency of use
               body: How often the feature became part of the daily workflow.
   - variant: default
@@ -284,6 +288,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-silos
               title: Data silos
               body: >-
                 Data scattered across databases, spreadsheets, and APIs, with no
@@ -298,6 +303,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-quality
               title: Data quality issues
               body: >-
                 Inaccurate, incomplete, or inconsistent data leading to wrong
@@ -312,6 +318,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-time-cost
               title: Time consuming analysis
               body: >-
                 Manual cleaning, transformation, and analysis, slow and error
@@ -326,6 +333,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              illustration: fdp-insights
               title: No actionable insights
               body: >-
                 Raw data alone has limited value until it points to a clear next

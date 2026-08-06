@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ILLUSTRATIONS, isIllustrationId } from "../illustrations";
 import type { FigureItem } from "@/lib/case-studies/types";
 import { renderRich } from "../rich";
 import { LINE } from "../styles";
@@ -108,7 +109,23 @@ function Frame({
       className="relative block w-full overflow-hidden rounded-xl border bg-cream-100"
       style={{ borderColor: LINE, aspectRatio: aspect }}
     >
-      <Image src={item.image.src} alt={item.image.alt} fill sizes={sizes} className="object-contain" unoptimized={item.image.unoptimized} />
+      {/* ⚠ THE ILLUSTRATION BRANCH IS ADDITIVE AND SITS INSIDE THE EXISTING BOX. It replaces what is
+          PAINTED, never the frame — same rule as the editable affordances, so a figure with an
+          illustration and a figure with an image occupy identical geometry and the parity check
+          cannot tell them apart by layout. An unknown id falls through to the raster, which is why
+          the content keeps `image` alongside. */}
+      {item.illustration && isIllustrationId(item.illustration) ? (
+        (() => {
+          const Art = ILLUSTRATIONS[item.illustration];
+          return (
+            <span className="absolute inset-0 block p-[6%]">
+              <Art />
+            </span>
+          );
+        })()
+      ) : (
+        <Image src={item.image.src} alt={item.image.alt} fill sizes={sizes} className="object-contain" unoptimized={item.image.unoptimized} />
+      )}
       {editable && (
         <button
           type="button"

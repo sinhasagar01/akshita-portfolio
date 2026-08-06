@@ -436,7 +436,12 @@ const VALIDATORS: { [K in SectionBlockKind]: Check<Record<string, unknown>> } = 
   ),
   figureGrid: obj({
     heading: str,
-    items: arrayOf(obj({ image: imgSpec, title: str, body: str })),
+    /* `illustration` is omit-when-empty for the reason the block comment above gives, and this is
+     * the THIRD consumer of that rule after `screen` and `variant`. Without it, adding the key
+     * would reject every existing figure for not having it — the four studies that never set one
+     * must round-trip byte-identical, and `case-study-illustrations` C1 proves they do. */
+    items: arrayOf(obj({ image: imgSpec, illustration: str, title: str, body: str },
+      { omitEmpty: ["illustration"] })),
   }),
   annotatedImage: obj({
     image: imgSpec,
