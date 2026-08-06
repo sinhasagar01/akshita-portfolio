@@ -52,7 +52,7 @@ const SIDE_EDGES = { "": ["t", "r", "b", "l"], x: ["l", "r"], y: ["t", "b"], t: 
 // `border-l-[3px]` is a WIDTH and must not match. The base-colour case (`white/24`) is separate
 // from the shade case because `white` has no numeric shade; missing it once made the gate blind
 // to every `border-white/24` on the ink chrome, which is precisely where a race could hide.
-const COLOUR = /^((transparent|current|inherit|white|black|[a-z]+-\d{2,3})(\/\d+)?|\[(#|rgb|hsl|oklch|oklab|var\()[^\]]*\])$/;
+const COLOUR = /^((transparent|current|inherit|white|black|[a-z]+(?:-[a-z]+)*-\d{2,3})(\/\d+)?|\[(#|rgb|hsl|oklch|oklab|var\()[^\]]*\])$/;
 
 function classifyBorderColour(cls) {
   const i = cls.lastIndexOf(":");
@@ -152,11 +152,11 @@ t("A0: `border-x-transparent` writes left+right",
 t("A0: `lg:border-white/24` keeps its variant scope",
   classifyBorderColour("lg:border-white/24")?.variant, "lg:");
 t("A0: the disjoint trio does NOT race — {t,b} {r} {l} never overlap",
-  raceIn([classifyBorderColour("border-y-transparent"), classifyBorderColour("border-r-transparent"), classifyBorderColour("border-l-accent-500")]), null);
+  raceIn([classifyBorderColour("border-y-transparent"), classifyBorderColour("border-r-transparent"), classifyBorderColour("border-l-studio-accent-500")]), null);
 t("A0: a shorthand + a per-side longhand DOES race on the shared edge",
-  raceIn([classifyBorderColour("border-transparent"), classifyBorderColour("border-l-accent-500")])?.edges, "l");
+  raceIn([classifyBorderColour("border-transparent"), classifyBorderColour("border-l-studio-accent-500")])?.edges, "l");
 t("A0: same edge in DIFFERENT variant scopes does NOT race (base vs lg: is an intended override)",
-  raceIn([classifyBorderColour("border-l-transparent"), classifyBorderColour("lg:border-l-accent-500")]), null);
+  raceIn([classifyBorderColour("border-l-transparent"), classifyBorderColour("lg:border-l-studio-accent-500")]), null);
 
 /* C1 · NO ELEMENT MIXES A SHORTHAND WITH AN OVERLAPPING LONGHAND. Reports the element, the two
  * utilities, and the contested edge — never a bare count, so the fix is obvious from the message. */

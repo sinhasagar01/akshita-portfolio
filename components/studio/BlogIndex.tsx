@@ -232,7 +232,7 @@ export default function BlogIndex({
               setError(null);
               setAdding(true);
             }}
-            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[14px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-3.5 py-2 text-[14px] font-medium text-studio-cream-50 transition-colors hover:bg-studio-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> New post
           </button>
@@ -260,11 +260,11 @@ export default function BlogIndex({
         <div
           role="status"
           aria-live="polite"
-          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-ink-600"
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-studio-ink-600"
         >
-          <IconInfo className="h-3.5 w-3.5 flex-none text-ink-400" />
+          <IconInfo className="h-3.5 w-3.5 flex-none text-studio-ink-400" />
           <span>
-            <strong className="font-semibold text-ink-950">
+            <strong className="font-semibold text-studio-ink-950">
               {shown.length === items.length
                 ? `${items.length} ${items.length === 1 ? "post" : "posts"}`
                 : `${shown.length} of ${items.length} ${items.length === 1 ? "post" : "posts"}`}
@@ -295,11 +295,11 @@ export default function BlogIndex({
              THE `all` ARM IS UNREACHABLE TODAY (every post passes "all" when there is no query)
              and is still written honestly rather than left to say something false if it ever
              becomes reachable. */
-          <div className="grid min-h-[30vh] place-items-center rounded-[var(--studio-radius-card,8px)] bg-cream-100 px-4 py-10 text-center">
-            <p className="text-[13px] text-text-subtle">
+          <div className="grid min-h-[30vh] place-items-center rounded-[var(--studio-radius-card,8px)] bg-studio-cream-100 px-4 py-10 text-center">
+            <p className="text-[13px] text-studio-text-subtle">
               {query.trim() ? (
                 <>
-                  No posts match <b className="text-ink-950">{query.trim()}</b>
+                  No posts match <b className="text-studio-ink-950">{query.trim()}</b>
                   {status !== "all" ? ` under ${status === "draft" ? "Drafts" : "Published"}` : ""}.
                 </>
               ) : (
@@ -314,7 +314,7 @@ export default function BlogIndex({
         ) : view === "grid" ? (
           /* THE WELL. cream-100 under cream-50 cards, because a card on the same ground as the
              page has nothing to lift off. Fluid columns off one floor — no breakpoint ladder. */
-          <div className="grid gap-4 rounded-[var(--studio-radius-card,8px)] bg-cream-100 p-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+          <div className="grid gap-4 rounded-[var(--studio-radius-card,8px)] bg-studio-cream-100 p-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
             {shown.map((p) => (
               <BlogPostCard
                 key={p.slug}
@@ -346,7 +346,7 @@ export default function BlogIndex({
           busy={busy}
           initialFocusRef={titleRef}
         >
-          <p id="new-post-desc" className="mt-2 text-[14px] leading-relaxed text-ink-600">
+          <p id="new-post-desc" className="mt-2 text-[14px] leading-relaxed text-studio-ink-600">
             Give it a title. The slug is derived server-side and locked once created, and
             everything else can change later. It starts as a draft.
           </p>
@@ -365,7 +365,7 @@ export default function BlogIndex({
               className={`${inputCls} mt-4`}
             />
             {error && (
-              <p role="alert" className="mt-2 text-[12px] text-danger-600">
+              <p role="alert" className="mt-2 text-[12px] text-studio-danger-600">
                 {error}
               </p>
             )}
@@ -390,7 +390,7 @@ export default function BlogIndex({
           busy={busy}
           initialFocusRef={cancelRef}
         >
-          <p id="delete-post-desc" className="mt-2 text-[14px] leading-relaxed text-ink-600">
+          <p id="delete-post-desc" className="mt-2 text-[14px] leading-relaxed text-studio-ink-600">
             Remove “{targetTitle}”? This deletes the post on the draft branch. It goes for
             good when you publish.
           </p>

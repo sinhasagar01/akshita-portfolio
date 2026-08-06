@@ -32,7 +32,7 @@ const FOLLOW =
 function Line({ w, strong }: { w: string; strong?: boolean }) {
   return (
     <span
-      className={`block h-[3px] rounded-[2px] ${strong ? "bg-ink-950/34 group-hover:bg-ink-950/46" : "bg-ink-950/22 group-hover:bg-ink-950/32"} ${FOLLOW}`}
+      className={`block h-[3px] rounded-[2px] ${strong ? "bg-studio-ink-950/34 group-hover:bg-studio-ink-950/46" : "bg-studio-ink-950/22 group-hover:bg-studio-ink-950/32"} ${FOLLOW}`}
       style={{ width: w }}
     />
   );
@@ -42,7 +42,7 @@ function Line({ w, strong }: { w: string; strong?: boolean }) {
 function Box({ grow, tall }: { grow?: boolean; tall?: boolean }) {
   return (
     <span
-      className={`block rounded-[3px] bg-ink-950/16 group-hover:bg-ink-950/24 ${tall ? "h-full" : "h-[22px]"} ${grow ? "flex-1" : ""} ${FOLLOW}`}
+      className={`block rounded-[3px] bg-studio-ink-950/16 group-hover:bg-studio-ink-950/24 ${tall ? "h-full" : "h-[22px]"} ${grow ? "flex-1" : ""} ${FOLLOW}`}
     />
   );
 }
@@ -88,7 +88,7 @@ const ClosingLine = () => (
 
 const Quote = () => (
   <span className="flex w-full gap-[9px] pl-[2px]">
-    <span className="w-[2px] shrink-0 rounded-[2px] bg-accent-500/60" />
+    <span className="w-[2px] shrink-0 rounded-[2px] bg-studio-accent-500/60" />
     <Stack>
       <Line w="88%" strong /> <Line w="72%" strong /> <Line w="40%" />
     </Stack>
@@ -100,7 +100,7 @@ const Devices = ({ n }: { n: number }) => (
     {Array.from({ length: n }, (_, i) => (
       <span
         key={i}
-        className={`block w-[15px] rounded-[3px] bg-ink-950/16 group-hover:bg-ink-950/24 ${FOLLOW}`}
+        className={`block w-[15px] rounded-[3px] bg-studio-ink-950/16 group-hover:bg-studio-ink-950/24 ${FOLLOW}`}
         style={{ height: `${i === Math.floor(n / 2) ? 76 : 58}%` }}
       />
     ))}
@@ -129,7 +129,7 @@ const ListRows = ({ numbered }: { numbered?: boolean }) => (
     {[0, 1, 2].map((i) => (
       <span key={i} className="flex w-full items-center gap-[6px]">
         <span
-          className={`block size-[9px] shrink-0 bg-ink-950/20 group-hover:bg-ink-950/30 ${numbered ? "rounded-full" : "rounded-[2px]"} ${FOLLOW}`}
+          className={`block size-[9px] shrink-0 bg-studio-ink-950/20 group-hover:bg-studio-ink-950/30 ${numbered ? "rounded-full" : "rounded-[2px]"} ${FOLLOW}`}
         />
         <span className="flex flex-1 flex-col gap-[3px]">
           <Line w={["82%", "68%", "74%"][i]} strong />
@@ -167,7 +167,7 @@ const Split = () => (
     <span className="flex flex-1 flex-col gap-[4px]">
       <Box tall />
     </span>
-    <span className={`w-px shrink-0 bg-accent-500/40 ${FOLLOW}`} />
+    <span className={`w-px shrink-0 bg-studio-accent-500/40 ${FOLLOW}`} />
     <span className="flex flex-1 flex-col gap-[4px]">
       <Box tall />
     </span>
@@ -183,7 +183,7 @@ const Annotated = () => (
     ].map((p, i) => (
       <span
         key={i}
-        className={`absolute size-[7px] rounded-full bg-accent-500/70 group-hover:bg-accent-500 ${FOLLOW}`}
+        className={`absolute size-[7px] rounded-full bg-studio-accent-500/70 group-hover:bg-studio-accent-500 ${FOLLOW}`}
         style={p}
       />
     ))}
@@ -194,7 +194,7 @@ const Player = () => (
   <span className="relative flex h-full max-h-[168px] w-full items-stretch">
     <Box tall grow />
     <span
-      className={`absolute left-1/2 top-1/2 size-0 -translate-x-1/2 -translate-y-1/2 border-y-[6px] border-l-[10px] border-y-transparent border-l-ink-950/34 group-hover:border-l-ink-950/50 ${FOLLOW}`}
+      className={`absolute left-1/2 top-1/2 size-0 -translate-x-1/2 -translate-y-1/2 border-y-[6px] border-l-[10px] border-y-transparent border-l-studio-ink-950/34 group-hover:border-l-studio-ink-950/50 ${FOLLOW}`}
     />
   </span>
 );
@@ -205,7 +205,7 @@ const Swatches = () => (
       {[0, 1, 2, 3].map((i) => (
         <span
           key={i}
-          className={`block h-5 flex-1 rounded-[3px] bg-ink-950/16 group-hover:bg-ink-950/24 ${FOLLOW}`}
+          className={`block h-5 flex-1 rounded-[3px] bg-studio-ink-950/16 group-hover:bg-studio-ink-950/24 ${FOLLOW}`}
         />
       ))}
     </Row>
@@ -221,7 +221,7 @@ const Hero = () => (
       {[0, 1].map((i) => (
         <span
           key={i}
-          className={`block w-[15px] rounded-[3px] bg-ink-950/16 group-hover:bg-ink-950/24 ${FOLLOW}`}
+          className={`block w-[15px] rounded-[3px] bg-studio-ink-950/16 group-hover:bg-studio-ink-950/24 ${FOLLOW}`}
           style={{ height: i === 0 ? "52%" : "66%" }}
         />
       ))}

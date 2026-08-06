@@ -36,11 +36,11 @@ export type GripGround = "ink" | "cream";
    feedback. */
 const REST: Record<GripGround, string> = {
   ink: "bg-white/12 border-white/22",
-  cream: "bg-cream-50 border-ink-950/22",
+  cream: "bg-studio-cream-50 border-studio-ink-950/22",
 };
 const DOTS: Record<GripGround, string> = {
   ink: "bg-white/55",
-  cream: "bg-ink-400",
+  cream: "bg-studio-ink-400",
 };
 
 /**
@@ -74,8 +74,8 @@ export default function StudioResizeGrip({
          not written here — `css-comment-trap` caught this very comment, its sixth catch.) */
       className={`pointer-events-none grid w-2 justify-items-center gap-[3px] rounded-full border py-[7px] transition-colors ${
         dragging
-          ? "border-transparent bg-accent-500"
-          : `${REST[ground]} group-hover/rz:border-accent-500 group-focus-visible/rz:border-accent-500 group-focus-visible/rz:outline-2 group-focus-visible/rz:outline-accent-500/30`
+          ? "border-transparent bg-studio-accent-500"
+          : `${REST[ground]} group-hover/rz:border-studio-accent-500 group-focus-visible/rz:border-studio-accent-500 group-focus-visible/rz:outline-2 group-focus-visible/rz:outline-studio-accent-500/30`
       }`}
     >
       {/* Four dots, stated rather than mapped over a length — the count is the design, and a
@@ -84,7 +84,7 @@ export default function StudioResizeGrip({
         <span
           key={i}
           className={`size-0.5 rounded-full transition-colors ${
-            dragging ? "bg-white" : `${DOTS[ground]} group-hover/rz:bg-accent-500 group-focus-visible/rz:bg-accent-500`
+            dragging ? "bg-white" : `${DOTS[ground]} group-hover/rz:bg-studio-accent-500 group-focus-visible/rz:bg-studio-accent-500`
           }`}
         />
       ))}

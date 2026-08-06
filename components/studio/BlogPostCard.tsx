@@ -35,7 +35,7 @@ export default function BlogPostCard({ post, onOpen }: { post: BlogCard; onOpen:
       // colour is hazard 26, two declarations for one property decided by sheet order.
       // THE AMBER BAR IS WHY A DRAFT READS AS DIFFERENT UNDER "All", so the state is legible
       // without reaching for the filter at all.
-      className={`grid cursor-pointer grid-rows-[auto_auto] overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-cream-50 ${
+      className={`grid cursor-pointer grid-rows-[auto_auto] overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-studio-cream-50 ${
         draft ? "border-l-draft-600" : "border-l-transparent"
       } shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] transition-[box-shadow,transform,border-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:-translate-y-[3px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))] motion-reduce:hover:translate-y-0 ${ITEM_FOCUS}`}
     >
@@ -49,7 +49,7 @@ export default function BlogPostCard({ post, onOpen }: { post: BlogCard; onOpen:
             aria-hidden
             className="pointer-events-none absolute inset-0 grid place-items-center"
           >
-            <span className="size-[26px] rounded-[4px] border-[1.5px] border-dashed border-ink-400" />
+            <span className="size-[26px] rounded-[4px] border-[1.5px] border-dashed border-studio-ink-400" />
           </span>
         )}
         {/* ⚠ THE CHIP SITS OVER A PHOTOGRAPH, SO IT IS GIVEN A GROUND RATHER THAN INHERITING ONE.
@@ -59,7 +59,7 @@ export default function BlogPostCard({ post, onOpen }: { post: BlogCard; onOpen:
             what is under it.
             An opaque cream-50 backing makes the ground KNOWN and identical to the list's, so one
             measurement covers both views: 5.4 draft, 6.6 published. */}
-        <span className="absolute left-2.5 top-2.5 rounded-full bg-cream-50">
+        <span className="absolute left-2.5 top-2.5 rounded-full bg-studio-cream-50">
           <BlogStatusChip status={post.status} />
         </span>
       </span>
@@ -68,11 +68,11 @@ export default function BlogPostCard({ post, onOpen }: { post: BlogCard; onOpen:
         {/* No `font-display font-normal leading-tight` — the unlayered `h1, h2` rule already sets
             all three, plus `opsz 144` and `tracking-tight` that no utility here replicates, so
             stating them again would be three utilities that cannot be edited. */}
-        <h2 className="line-clamp-2 text-[17px] text-ink-950">{post.title}</h2>
-        <span className="line-clamp-2 block h-[36px] text-[12px] leading-[1.5] text-text-subtle">
+        <h2 className="line-clamp-2 text-[17px] text-studio-ink-950">{post.title}</h2>
+        <span className="line-clamp-2 block h-[36px] text-[12px] leading-[1.5] text-studio-text-subtle">
           {post.dek || "No summary yet"}
         </span>
-        <div className="mt-[2px] grid grid-flow-col justify-start gap-2.5 overflow-hidden whitespace-nowrap text-[11px] leading-none text-ink-600">
+        <div className="mt-[2px] grid grid-flow-col justify-start gap-2.5 overflow-hidden whitespace-nowrap text-[11px] leading-none text-studio-ink-600">
           <span>{post.date ? formatShortDate(post.date) : "No date"}</span>
           <span>{post.readingTime} min</span>
           {post.topic && <span className="truncate">{post.topic}</span>}

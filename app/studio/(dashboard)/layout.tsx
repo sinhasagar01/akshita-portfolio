@@ -101,7 +101,7 @@ export default async function DashboardLayout({
             inside it would scroll with the nav and disappear. It sits in the flex row between
             the sidebar and main, where the seam it drags actually is. */}
         <SidebarResizer />
-        <main className="flex min-w-0 flex-1 flex-col bg-cream-50 lg:has-[[data-studio-fullheight]]:min-h-0">
+        <main className="flex min-w-0 flex-1 flex-col bg-studio-cream-50 lg:has-[[data-studio-fullheight]]:min-h-0">
           <StudioTopbar searchItems={searchItems} />
           {/* The Publish bar lives at the layout level (persists across /studio
               navigation), seeded once from the branch-level differs, so a

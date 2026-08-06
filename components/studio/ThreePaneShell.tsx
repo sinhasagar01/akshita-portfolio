@@ -83,7 +83,7 @@ export default function ThreePaneShell({
   rootStyle,
   fitThresholdPx,
   listNoun,
-  canvasGround = "bg-cream-50",
+  canvasGround = "bg-studio-cream-50",
 }: {
   list: ReactNode;
   canvas: ReactNode;
@@ -220,10 +220,10 @@ export default function ThreePaneShell({
         // it at its min-content size, and the inner wrapper's `min-w-[264px]` made that
         // 264px — so `w-0` computed to 264px and the pane never actually collapsed. The
         // class was right and the box ignored it.
-        className={`relative flex min-w-0 flex-none flex-col overflow-hidden border-r bg-cream-200 ${
+        className={`relative flex min-w-0 flex-none flex-col overflow-hidden border-r bg-studio-cream-200 ${
           animate ? "transition-[width,border-color] duration-300 ease-out" : ""
         } ${
-          collapsed ? "w-0 border-transparent" : "w-[264px] border-ink-950/22"
+          collapsed ? "w-0 border-transparent" : "w-[264px] border-studio-ink-950/22"
         }`}
       >
         <div className="flex min-w-[264px] min-h-0 flex-1 flex-col overflow-hidden">{list}</div>
@@ -237,7 +237,7 @@ export default function ThreePaneShell({
           onClick={() => toggle("open")}
           aria-label={`Show ${listNoun}`}
           aria-expanded={false}
-          className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-[var(--studio-radius-control,4px)] border border-l-0 border-ink-950/12 bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+          className="mt-3.5 grid h-7 w-[26px] flex-none place-items-center rounded-r-[var(--studio-radius-control,4px)] border border-l-0 border-studio-ink-950/12 bg-studio-cream-50 text-studio-ink-600 transition-colors hover:border-studio-accent-500 hover:text-studio-accent-500"
         >
           <IconChevronRight className="size-3.5" />
         </button>
@@ -265,14 +265,14 @@ export default function ThreePaneShell({
             border. Stated rather than derived: this bar's content is only 20.3px, so a padding
             tuned to reach 65 today would be a number with no meaning and would drift the moment
             the crumb's type changed. */}
-        <div className="flex h-[65px] flex-none items-center gap-2.5 border-b border-ink-950/12 px-[18px] text-ink-600">
+        <div className="flex h-[65px] flex-none items-center gap-2.5 border-b border-studio-ink-950/12 px-[18px] text-studio-ink-600">
           {!collapsed ? (
             <button
               type="button"
               onClick={() => toggle("closed")}
               aria-label={`Collapse ${listNoun}`}
               aria-expanded
-              className="grid size-[26px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500"
+              className="grid size-[26px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-600 transition-colors hover:border-studio-accent-500 hover:text-studio-accent-500"
             >
               <IconChevronRight className="size-3.5 rotate-180" />
             </button>
@@ -317,10 +317,10 @@ export default function ThreePaneShell({
             // found by driving it rather than by reading the sum. The list pane keeps its
             // transparent border because the COLOUR is what animates there; this pane has no
             // width transition to protect, so the border can go and zero can mean zero.
-            className={`flex-none bg-cream-100 lg:w-[var(--studio-inspector-w,320px)] ${
+            className={`flex-none bg-studio-cream-100 lg:w-[var(--studio-inspector-w,320px)] ${
               inspectorCollapsed
                 ? "overflow-hidden border-l-0"
-                : "overflow-y-auto border-l border-ink-950/22"
+                : "overflow-y-auto border-l border-studio-ink-950/22"
             }`}
           >
             {inspector}

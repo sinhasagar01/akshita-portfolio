@@ -175,10 +175,10 @@ export default function BlogEditPanel({
           onBlur={saveDraft}
           placeholder={slug}
         />
-        <span className="text-[12px] text-text-subtle">
+        <span className="text-[12px] text-studio-text-subtle">
           {/* The slug is the one part of this line an author actually reads back, and it was the
               dimmest — ink-400 at 3.33 on the inspector's cream-100, under the 4.5 floor. */}
-          Slug <span className="font-mono text-ink-600">{slug}</span> — set at create, fixed.
+          Slug <span className="font-mono text-studio-ink-600">{slug}</span> — set at create, fixed.
           The URL, the images and the love count key on it, so it never moves.
         </span>
       </label>
@@ -226,7 +226,7 @@ export default function BlogEditPanel({
             aria-pressed IS correct here: a two-segment selection genuinely has a pressed
             state. It was wrong on LoveButton only because love is one-way and cannot be
             un-pressed. */}
-        <div role="group" aria-label="Status" className="inline-flex rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5">
+        <div role="group" aria-label="Status" className="inline-flex rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 p-0.5">
           {BLOG_STATUSES.map((s) => (
             <button
               key={s}
@@ -241,15 +241,15 @@ export default function BlogEditPanel({
               }}
               className={`flex-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1.5 text-[12px] font-semibold capitalize transition-colors ${
                 values.status === s
-                  ? "bg-accent-500 text-cream-50"
-                  : "text-ink-600 hover:text-ink-950"
+                  ? "bg-studio-accent-500 text-studio-cream-50"
+                  : "text-studio-ink-600 hover:text-studio-ink-950"
               }`}
             >
               {s}
             </button>
           ))}
         </div>
-        <p className="text-[12px] leading-relaxed text-text-subtle">
+        <p className="text-[12px] leading-relaxed text-studio-text-subtle">
           {/* THIS LINE WAS THE AMBIGUITY, NOT A NEIGHBOUR TO IT. It used to read "Live on
               /blog once published", and by the time it shows, the STATUS already reads
               Published — so "once published" could only mean the site, and said no such
@@ -280,12 +280,12 @@ export default function BlogEditPanel({
             setUnpublished(true);
           }}
         />
-        <p className="text-[12px] leading-relaxed text-text-subtle">
+        <p className="text-[12px] leading-relaxed text-studio-text-subtle">
           The article hero and the card thumbnail.
         </p>
       </div>
 
-      <p className="border-t border-ink-950/12 pt-2.5 text-[12px] leading-relaxed text-text-subtle">
+      <p className="border-t border-studio-ink-950/12 pt-2.5 text-[12px] leading-relaxed text-studio-text-subtle">
         The slug is set at create and never moves; the title above is editable. Reading time
         is computed from the blocks. Loves are runtime state and are never edited here.
       </p>

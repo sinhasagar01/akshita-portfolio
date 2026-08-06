@@ -67,7 +67,7 @@ export default function BlogStatusTabs({
   }
 
   return (
-    <div role="tablist" aria-label="Status" className="flex gap-5 border-b border-ink-950/12">
+    <div role="tablist" aria-label="Status" className="flex gap-5 border-b border-studio-ink-950/12">
       {tabs.map((t, i) => {
         const on = value === t.key;
         return (
@@ -80,10 +80,10 @@ export default function BlogStatusTabs({
             tabIndex={on ? 0 : -1}
             onClick={() => onChange(t.key)}
             onKeyDown={(e) => onKeyDown(e, i)}
-            className={`-mb-px flex items-center gap-1.5 border-b-2 pb-2.5 pt-2 text-[12.5px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 ${
+            className={`-mb-px flex items-center gap-1.5 border-b-2 pb-2.5 pt-2 text-[12.5px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500 ${
               on
-                ? "border-accent-500 text-ink-950"
-                : "border-transparent text-ink-600 hover:text-ink-950"
+                ? "border-studio-accent-500 text-studio-ink-950"
+                : "border-transparent text-studio-ink-600 hover:text-studio-ink-950"
             }`}
           >
             {t.label}
@@ -100,7 +100,7 @@ export default function BlogStatusTabs({
                 `aria-selected` — so dropping the count's colour distinction removes a fourth
                 signal from a control that has three. The count is data the author reads before
                 deciding what to press; it should not be the dimmest thing on the row. */}
-            <span className="text-ink-600">{counts[t.key]}</span>
+            <span className="text-studio-ink-600">{counts[t.key]}</span>
           </button>
         );
       })}

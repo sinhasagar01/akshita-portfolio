@@ -111,7 +111,7 @@ const bar = code("components/studio/SaveBar.tsx");
  * what keeps "one shape" true across nine surfaces rather than aspirational. */
 {
   t("B1: the ground, the hairline and the padding are the bar's, not the caller's",
-    /@container grid grid-cols-\[1fr_auto_auto\] items-center gap-x-3 gap-y-2 border-t border-ink-950\/12 bg-cream-200 px-4 py-3 \$\{className\}/.test(bar), true);
+    /@container grid grid-cols-\[1fr_auto_auto\] items-center gap-x-3 gap-y-2 border-t border-studio-ink-950\/12 bg-studio-cream-200 px-4 py-3 \$\{className\}/.test(bar), true);
 
   /* ⚠ THE ROOT IS A `footer`, AND ListDetailLayout IS THE CONSUMER OF THAT TAG NAME. Its
    * `lg:[&>section>footer]:mt-auto` is what stops a bar floating mid-air in a short panel —
@@ -183,7 +183,7 @@ const bar = code("components/studio/SaveBar.tsx");
    * its appearance is identical either way. The failure mode being avoided is a final position
    * trapped inside a no-preference block. */
   t("B6: only `saving` animates, and the animation is motion-gated",
-    /saving: "bg-accent-500 motion-safe:animate-pulse"/.test(bar), true);
+    /saving: "bg-studio-accent-500 motion-safe:animate-pulse"/.test(bar), true);
   t("B6: …and no other state carries an animation utility",
     (bar.match(/animate-/g) ?? []).length, 1);
 }
@@ -285,7 +285,7 @@ const bar = code("components/studio/SaveBar.tsx");
   t("C5: …and its scope fact says so on the control that does it",
     /title: "Saves every category together/.test(skills), true);
   t("C5: …and the cream-100 card frame is gone, because the bar it distinguished from is now this one",
-    /rounded-\[var\(--studio-radius-card,8px\)\] border border-ink-950\/12 bg-cream-100 px-4 py-3/.test(skills), false);
+    /rounded-\[var\(--studio-radius-card,8px\)\] border border-studio-ink-950\/12 bg-studio-cream-100 px-4 py-3/.test(skills), false);
 
   const blogSrc = code("components/studio/BlogBlocksEditPanel.tsx");
   t("C5: the blog's explicit Save is kept — it has a dirty guard and is never inert",
@@ -397,10 +397,10 @@ const bar = code("components/studio/SaveBar.tsx");
    * which studio-ink E6 caught on the details one during this arc. */
   for (const [name, src] of [["details", projects], ["sections", sections]]) {
     t(`E2: the ${name} bar offers Preview`,
-      /<span className="flex items-center gap-1 text-ink-600">[\s{}]*<a/.test(src)
+      /<span className="flex items-center gap-1 text-studio-ink-600">[\s{}]*<a/.test(src)
         && /\/studio\/projects\/\$\{slug\}\/preview/.test(src), true);
     t(`E2: …and the ${name} anchor does not colour itself, which hazard 22 would defeat`,
-      /<a\b[^>]*className="[^"]*text-ink-600/.test(src), false);
+      /<a\b[^>]*className="[^"]*text-studio-ink-600/.test(src), false);
   }
 
   /* THE DETAILS BAR PINS TO THE PANE FOOT. It was static, so it sat wherever the form ended —

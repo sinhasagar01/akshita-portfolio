@@ -75,10 +75,10 @@ t("E2 the flip is applied to the panel (bottom-full when flipped, top-full other
 
 /* ---------------------------------------------- F. THE CHECK, NOT THE 3px BAR (plan D)
  * The selected option carries a check and ground+1, never the selection-language left bar. */
-t("F1 the selected row uses ground+1 (bg-cream-100), not a border-l accent bar",
-  has(/bg-cream-100/) && !has(/border-l-\[?3px|border-l-accent/), true);
+t("F1 the selected row uses ground+1 (bg-studio-cream-100), not a border-l accent bar",
+  has(/bg-studio-cream-100/) && !has(/border-l-\[?3px|border-l-accent/), true);
 t("F2 the selected row shows an accent check (opacity toggled on selected)",
-  has(/text-accent-500 \$\{selected \? "opacity-100" : "opacity-0"\}/), true);
+  has(/text-studio-accent-500 \$\{selected \? "opacity-100" : "opacity-0"\}/), true);
 
 /* ---------------------------------------------- G. THE SPLIT RULE IS WRITTEN DOWN (plan E)
  * Two select shapes in one studio is a cost; the rule that keeps it a decision rather than drift

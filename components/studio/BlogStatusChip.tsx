@@ -2,7 +2,7 @@
 //
 // ---- WHAT IT REPLACES, AND WHY A DOT WAS NOT ENOUGH -----------------------------------------
 //
-// The index showed a 6px dot — `bg-success-700` published, `bg-ink-400` otherwise — and then
+// The index showed a 6px dot — `bg-studio-success-700` published, `bg-studio-ink-400` otherwise — and then
 // spent the first word of the meta line saying the same thing again. So status cost two places
 // and read at neither: a 6px mark is not a state anyone parses at a glance, and the grey draft
 // dot is the same grey as every other muted mark on the page, which says DISABLED rather than
@@ -42,7 +42,7 @@ export default function BlogStatusChip({
     <span
       className={`${BASE} ${
         live
-          ? "border-success-700/34 bg-success-700/[0.10] text-success-700"
+          ? "border-studio-success-700/34 bg-studio-success-700/[0.10] text-studio-success-700"
           : "border-draft-600/34 bg-draft-600/[0.12] text-draft-600"
       } ${className}`}
     >

@@ -48,7 +48,7 @@ export function activationProps(onOpen: () => void, label: string) {
 
 /** The authored ring. A tabindexed div matches `:focus-visible` but the UA draws nothing. */
 export const ITEM_FOCUS =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent-500";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-studio-accent-500";
 
 /**
  * Swallow a control's click so it cannot also activate the row or card behind it.
@@ -119,7 +119,7 @@ export function ReorderCluster({
     <div
       // The stated box. 26x48 stacked, 52x24 side by side — width AND height, with the tracks
       // written out, so nothing here can be resolved by whatever contains it.
-      className={`grid shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 ${
+      className={`grid shrink-0 overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 ${
         column
           ? "h-[48px] w-[26px] [grid-template-columns:26px] [grid-template-rows:24px_24px]"
           : "h-[24px] w-[52px] [grid-template-columns:26px_26px] [grid-template-rows:24px]"
@@ -136,8 +136,8 @@ export function ReorderCluster({
             onMove(s.dir);
           }}
           onKeyDown={stopAll}
-          className={`grid h-[24px] w-[26px] place-items-center bg-cream-50 text-ink-600 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:text-ink-400/45 [&>svg]:size-3 ${
-            i === 1 ? (column ? "border-t border-ink-950/12" : "border-l border-ink-950/12") : ""
+          className={`grid h-[24px] w-[26px] place-items-center bg-studio-cream-50 text-studio-ink-600 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:text-studio-ink-400/45 [&>svg]:size-3 ${
+            i === 1 ? (column ? "border-t border-studio-ink-950/12" : "border-l border-studio-ink-950/12") : ""
           }`}
         >
           {s.icon}
@@ -163,7 +163,7 @@ export function ReorderCluster({
  */
 export function BespokeChip() {
   return (
-    <span className="shrink-0 rounded-full border border-accent-500/34 bg-accent-500/[0.07] px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-accent-600">
+    <span className="shrink-0 rounded-full border border-studio-accent-500/34 bg-studio-accent-500/[0.07] px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-studio-accent-600">
       Hand-built
     </span>
   );
@@ -173,7 +173,7 @@ export function BespokeChip() {
 export function PlatformTag({ template }: { template: string }) {
   const web = template === "web";
   return (
-    <span className="inline-flex shrink-0 items-center gap-1.5 text-[9.5px] font-medium uppercase leading-none tracking-[0.13em] text-ink-600">
+    <span className="inline-flex shrink-0 items-center gap-1.5 text-[9.5px] font-medium uppercase leading-none tracking-[0.13em] text-studio-ink-600">
       <span
         aria-hidden
         className={`size-1.5 rounded-full ${web ? "bg-[oklch(62%_0.13_285)]" : "bg-[oklch(58%_0.17_30)]"}`}
@@ -192,7 +192,7 @@ export function PlatformTag({ template }: { template: string }) {
  */
 export function SectionCount({ count, className = "" }: { count: number; className?: string }) {
   return (
-    <span className={`shrink-0 tabular-nums text-ink-600 ${className}`}>
+    <span className={`shrink-0 tabular-nums text-studio-ink-600 ${className}`}>
       {count === 0 ? "No sections" : `${count} sections`}
     </span>
   );
@@ -216,7 +216,7 @@ export function HeroPlate({
   className: string;
 }) {
   return (
-    <span className={`relative block overflow-hidden bg-cream-200 ${className}`}>
+    <span className={`relative block overflow-hidden bg-studio-cream-200 ${className}`}>
       {src ? (
         // Decorative: the title sits beside it and says the same thing.
         // eslint-disable-next-line @next/next/no-img-element

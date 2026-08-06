@@ -308,7 +308,7 @@ t("C2: the inert inventory is exactly the 11 utilities that agree with their res
 {
   const panel = readFileSync(new URL("../../components/studio/BlogBlocksEditPanel.tsx", import.meta.url), "utf8");
   t("D1: both ink bands use `.sechead` — the class exists because four properties must land together and one is an arbitrary tracking",
-    (panel.match(/<h2 className="sechead text-cream-50">/g) ?? []).length, 2);
+    (panel.match(/<h2 className="sechead text-studio-cream-50">/g) ?? []).length, 2);
   t("D2: the dead utilities are GONE from the bands, not merely overridden — a class that renders nothing must not stay in the markup implying it works",
     /<h2 className="[^"]*\bfont-bold\b/.test(panel), false);
   t("D3: `.studio-chrome .sechead` is declared OUTSIDE @layer — inside one it would lose to the very reset it exists to beat",

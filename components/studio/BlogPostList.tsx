@@ -36,7 +36,7 @@ export default function BlogPostList({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-none border-b border-ink-950/12 p-3">
+      <div className="flex-none border-b border-studio-ink-950/12 p-3">
         <input
           type="search"
           value={query}
@@ -49,7 +49,7 @@ export default function BlogPostList({
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {shown.length === 0 ? (
-          <p className="px-3 py-6 text-center text-[12px] text-text-subtle">
+          <p className="px-3 py-6 text-center text-[12px] text-studio-text-subtle">
             No posts match that search.
           </p>
         ) : (
@@ -79,18 +79,18 @@ export default function BlogPostList({
                     // `border-l-[3px]` is in the base with `pl-[9px]` absorbing it, so 3 + 9
                     // matches the old 0 + 12 and selection causes no reflow.
                     aria-current={current ? "page" : undefined}
-                    // `border-b-ink-950/12`, NOT the shorthand — hazard 26. The shorthand
-                    // colours all four sides and raced `border-l-accent-500` on the left edge;
+                    // `border-b-studio-ink-950/12`, NOT the shorthand — hazard 26. The shorthand
+                    // colours all four sides and raced `border-l-studio-accent-500` on the left edge;
                     // equal specificity, so sheet order decided the winner. Colour only the
                     // bottom, leaving the left to the bar. `studio-border-race` pins it.
-                    className={`flex items-start gap-2.5 border-b border-b-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-3 transition-colors ${
-                      current ? "border-l-accent-500 bg-cream-300" : "border-l-transparent hover:bg-cream-100"
+                    className={`flex items-start gap-2.5 border-b border-b-studio-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-3 transition-colors ${
+                      current ? "border-l-studio-accent-500 bg-studio-cream-300" : "border-l-transparent hover:bg-studio-cream-100"
                     }`}
                   >
                     <span
                       aria-hidden
                       className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
-                        p.status === "published" ? "bg-success-700" : "bg-ink-400"
+                        p.status === "published" ? "bg-studio-success-700" : "bg-studio-ink-400"
                       }`}
                     />
                     <span className="min-w-0 flex-1">
@@ -102,7 +102,7 @@ export default function BlogPostList({
                           is carried by the fill and the accent bar, not by colour. */}
                       <span
                         className={`block truncate text-[14px] font-medium ${
-                          current ? "text-ink-950" : ""
+                          current ? "text-studio-ink-950" : ""
                         }`}
                       >
                         {p.title}
@@ -112,7 +112,7 @@ export default function BlogPostList({
                           4.78 on cream-200 but only 4.03 on the SELECTED row's cream-300, under
                           the 4.5 AA floor. Pre-existing here; fixed rather than recorded, because
                           the fix is one conditional and neither expensive nor contested. */}
-                      <span className={`mt-0.5 block text-[12px] ${current ? "text-ink-600" : "text-text-subtle"}`}>
+                      <span className={`mt-0.5 block text-[12px] ${current ? "text-studio-ink-600" : "text-studio-text-subtle"}`}>
                         {p.status === "published" ? "Published" : "Draft"} ·{" "}
                         {p.date ? formatShortDate(p.date) : "no date"}
                       </span>
@@ -125,16 +125,16 @@ export default function BlogPostList({
         )}
       </div>
 
-      <div className="flex-none border-t border-ink-950/12 p-3">
+      <div className="flex-none border-t border-studio-ink-950/12 p-3">
         <Link
           href="/studio/blog"
           // THE COLOUR IS ON THE SPAN, NOT THE LINK — hazard 22. `Link` renders an <a>, and
           // the unlayered `a { color: inherit }` beats any layered text-* utility, so both
           // `text-ink-600` and `hover:text-accent-500` rendered nothing here. A <span> is not
           // named by that reset, so the colour lands and `group-hover` carries the hover.
-          className="group block rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-center text-[12px] font-semibold transition-colors hover:border-accent-500"
+          className="group block rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-2 text-center text-[12px] font-semibold transition-colors hover:border-studio-accent-500"
         >
-          <span className="text-ink-600 transition-colors group-hover:text-accent-500">All posts</span>
+          <span className="text-studio-ink-600 transition-colors group-hover:text-studio-accent-500">All posts</span>
         </Link>
       </div>
     </div>

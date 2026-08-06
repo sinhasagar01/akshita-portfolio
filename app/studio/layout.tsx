@@ -21,7 +21,7 @@ export default function StudioLayout({
     // the theme scale cannot express. THIS layout is the right host precisely because of
     // the note above: it wraps the login page AND the dashboard, so login inherits the
     // scale instead of falling back to the literals baked into each utility.
-    <div className="studio-chrome min-h-screen bg-canvas font-body text-ink-950">
+    <div className="studio-chrome min-h-screen bg-canvas font-body text-studio-ink-950">
       {children}
     </div>
   );

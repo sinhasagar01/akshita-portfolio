@@ -90,7 +90,7 @@ export function useListItem(id: string, dirty: boolean): { isSelected: boolean }
 const MOBILE_MQ = "(max-width: 1023px)"; // the site's 1024 (lg) breakpoint
 
 const rowControlCls =
-  "grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors hover:bg-cream-200 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 disabled:pointer-events-none disabled:opacity-30 [&>svg]:size-3.5";
+  "grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-studio-ink-400 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500 disabled:pointer-events-none disabled:opacity-30 [&>svg]:size-3.5";
 
 export function ListDetailLayout({
   sections,
@@ -257,23 +257,23 @@ export function ListDetailLayout({
           aria-orientation="vertical"
           aria-label="Sections"
           onKeyDown={handleKey}
-          className={`${selectedId === null ? "flex" : "hidden"} min-h-0 flex-col lg:flex lg:w-[300px] lg:flex-none lg:border-r lg:border-ink-950/22 lg:bg-cream-200`}
+          className={`${selectedId === null ? "flex" : "hidden"} min-h-0 flex-col lg:flex lg:w-[300px] lg:flex-none lg:border-r lg:border-studio-ink-950/22 lg:bg-studio-cream-200`}
         >
           {/* THE CONTRACT'S `.rt` BLOCK — a 12px pad over a hairline, a 40px well inside it.
               The 40px matches the TOPBAR search rather than the 44px `inputCls` wells: this is
               chrome that filters a list, not a field that edits content, and #205 already set
-              that height for the topbar's search. `placeholder:text-text-subtle` rather than the
+              that height for the topbar's search. `placeholder:text-studio-text-subtle` rather than the
               topbar's `ink-400` — the topbar's placeholder sits on INK at `lg` where ink-200
               carries it, this one is always on cream, where ink-400 is 3.49 and fails. */}
           {searchPlaceholder && (
-            <div className="border-b border-ink-950/12 p-3">
+            <div className="border-b border-studio-ink-950/12 p-3">
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={searchPlaceholder}
                 aria-label={searchPlaceholder}
-                className="h-10 w-full rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 text-[13px] text-ink-950 outline-none placeholder:text-text-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+                className="h-10 w-full rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 px-3 text-[13px] text-studio-ink-950 outline-none placeholder:text-studio-text-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500"
               />
             </div>
           )}
@@ -328,7 +328,7 @@ export function ListDetailLayout({
                     // reflows the row. Do not "simplify" it to drop the base border.
                     //
                     // NO `border-transparent` SHORTHAND ANYWHERE HERE. `border-transparent`
-                    // writes `border-color` and `border-l-accent-500` writes
+                    // writes `border-color` and `border-l-studio-accent-500` writes
                     // `border-left-color`; both are utilities at equal specificity, so which
                     // one owns the left edge is decided by their order in the generated sheet.
                     // That is a coin-flip dressed as a class name, and the same family of bug
@@ -355,12 +355,12 @@ export function ListDetailLayout({
                       // It sits on cream-200 now, so the fill is cream-300. Encoding the old hex
                       // would have been the fourth time in this arc a RELATION was frozen into a
                       // VALUE; the rule is unchanged and only the ground moved under it.
-                      "flex w-full justify-between gap-2 border-b border-b-ink-950/12 border-l-[3px] py-3 pl-[9px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                      "flex w-full justify-between gap-2 border-b border-b-studio-ink-950/12 border-l-[3px] py-3 pl-[9px] text-left text-[14px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500",
                       s.meta ? "items-start" : "items-center",
                       onMoveItem ? "pr-[4.5rem]" : "pr-3",
                       isActive
-                        ? "border-l-accent-500 bg-cream-300 font-medium text-ink-950"
-                        : "border-l-transparent hover:bg-cream-300",
+                        ? "border-l-studio-accent-500 bg-studio-cream-300 font-medium text-studio-ink-950"
+                        : "border-l-transparent hover:bg-studio-cream-300",
                     ].join(" ")}
                   >
                     {/* TWO SHAPES, AND THE ONE-LINE SHAPE IS UNTOUCHED. A row with no meta line
@@ -399,7 +399,7 @@ export function ListDetailLayout({
                             line here was fine on the old cream-100 fill and stopped being fine
                             the moment the rail became a cream-200 column. Selected rows take
                             ink-600 (5.41); everything else keeps the muted token. */}
-                        <span className={`truncate text-[11.5px] ${isActive ? "text-ink-600" : "text-text-subtle"}`}>{s.meta}</span>
+                        <span className={`truncate text-[11.5px] ${isActive ? "text-studio-ink-600" : "text-studio-text-subtle"}`}>{s.meta}</span>
                         {/* THE BADGE IS BACK ON ITS OWN LINE, AND FOR THE SAME REASON THE SIZE
                             WENT BACK. #241 moved it beside the meta because at a 134px column it
                             was taking 66px from the one title that most needed the room. At 276px
@@ -407,7 +407,7 @@ export function ListDetailLayout({
                             line with the badge below it — so it returns to where the contract
                             draws it, on its own line under the meta. */}
                         {s.badge && (
-                          <span className="mt-1.5 inline-block w-fit rounded-full border border-accent-500/30 bg-accent-500/10 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-accent-600">
+                          <span className="mt-1.5 inline-block w-fit rounded-full border border-studio-accent-500/30 bg-studio-accent-500/10 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-studio-accent-600">
                             {s.badge}
                           </span>
                         )}
@@ -416,14 +416,14 @@ export function ListDetailLayout({
                     <span className="flex min-w-0 items-center gap-2">
                       <span className="truncate">{s.name}</span>
                       {s.badge && (
-                        <span className="shrink-0 rounded-full bg-accent-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent-600">
+                        <span className="shrink-0 rounded-full bg-studio-accent-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-studio-accent-600">
                           {s.badge}
                         </span>
                       )}
                     </span>
                     )}
                     {isDirty && (
-                      <span className="size-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden="true" />
+                      <span className="size-1.5 shrink-0 rounded-full bg-studio-accent-500" aria-hidden="true" />
                     )}
                   </button>
                   {hasRowControls && (
@@ -495,17 +495,17 @@ export function ListDetailLayout({
             // and 147px below it scrolled-up. So the rail appeared to have a footer rule exactly
             // when it did not need one, and lost it the moment anyone scrolled up. The rule
             // belongs to the FOOTER, which does not move.
-            <div className="border-t border-ink-950/12 px-3 py-[12.5px]">
+            <div className="border-t border-studio-ink-950/12 px-3 py-[12.5px]">
               <button
                 type="button"
                 onClick={handleAdd}
-                // `border-ink-950/22` is the contract's `--rule-edge`, and it makes this the one
+                // `border-studio-ink-950/22` is the contract's `--rule-edge`, and it makes this the one
                 // dashed add whose REST border differs from the other six (which are /15). That is
                 // deliberate: those six sit inside a form on cream-100, this one is rail chrome on
                 // cream-200 and needs the extra step to read against a darker ground. #246's hover
                 // is unchanged and still shared by all seven — the uniformity that PR established
                 // is the hover, not the rest border.
-                className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/22 bg-cream-50 text-[12px] font-semibold text-ink-800 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 [&>svg]:size-3.5"
+                className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/22 bg-studio-cream-50 text-[12px] font-semibold text-studio-ink-800 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500 [&>svg]:size-3.5"
               >
                 <IconPlus />
                 {addItemLabel ?? "Add"}
@@ -551,12 +551,12 @@ export function ListDetailLayout({
           // E1 ground assertion). This is the opposite: all five consumers want their section to
           // fill the pane, and About and Process look unchanged only because they already
           // overflow. Same fix, same intent, five consumers — so it belongs at the seam.
-          className={`${selectedId === null ? "hidden" : "flex"} min-h-0 flex-1 flex-col outline-none lg:flex lg:overflow-y-auto lg:bg-cream-100 lg:[&>section]:flex lg:[&>section]:grow lg:[&>section]:flex-col lg:[&>section>footer]:mt-auto`}
+          className={`${selectedId === null ? "hidden" : "flex"} min-h-0 flex-1 flex-col outline-none lg:flex lg:overflow-y-auto lg:bg-studio-cream-100 lg:[&>section]:flex lg:[&>section]:grow lg:[&>section]:flex-col lg:[&>section>footer]:mt-auto`}
         >
           <button
             type="button"
             onClick={back}
-            className="mb-3 inline-flex items-center gap-1 text-[14px] text-accent-600 lg:hidden"
+            className="mb-3 inline-flex items-center gap-1 text-[14px] text-studio-accent-600 lg:hidden"
           >
             ← All sections
           </button>

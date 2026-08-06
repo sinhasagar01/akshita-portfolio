@@ -7,10 +7,10 @@ type Props = {
 export default function AreaHeader({ title, sub }: Props) {
   return (
     <div className="mb-5">
-      <h1 className="font-display text-2xl font-normal leading-tight text-ink-950">
+      <h1 className="font-display text-2xl font-normal leading-tight text-studio-ink-950">
         {title}
       </h1>
-      {sub && <p className="mt-1 text-[14px] text-text-subtle">{sub}</p>}
+      {sub && <p className="mt-1 text-[14px] text-studio-text-subtle">{sub}</p>}
     </div>
   );
 }

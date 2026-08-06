@@ -54,7 +54,7 @@ export default function CaseStudyRow({
   return (
     <div
       {...activationProps(onOpen, `Edit ${item.title}`)}
-      className={`grid cursor-pointer items-center gap-[15px] rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] border-l-transparent bg-cream-50 py-3 pl-2.5 pr-3.5 [grid-template-columns:auto_auto_auto_1fr_auto_auto_auto] shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] transition-[box-shadow,transform,border-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:-translate-y-[2px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))] motion-reduce:hover:translate-y-0 ${ITEM_FOCUS}`}
+      className={`grid cursor-pointer items-center gap-[15px] rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] border-l-transparent bg-studio-cream-50 py-3 pl-2.5 pr-3.5 [grid-template-columns:auto_auto_auto_1fr_auto_auto_auto] shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] transition-[box-shadow,transform,border-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:-translate-y-[2px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))] motion-reduce:hover:translate-y-0 ${ITEM_FOCUS}`}
     >
       {/* 1 · THE GRIP IS DECORATIVE TODAY AND THAT IS DELIBERATE, NOT AN OVERSIGHT.
              This project has no drag anywhere, and real drag is pointer capture, a drop
@@ -65,12 +65,12 @@ export default function CaseStudyRow({
              additive rather than a re-layout. Recorded in STATE as deferred. */}
       <span aria-hidden className="grid grid-cols-2 gap-[3px] p-0.5">
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <span key={i} className="size-[3px] rounded-full bg-ink-400" />
+          <span key={i} className="size-[3px] rounded-full bg-studio-ink-400" />
         ))}
       </span>
 
       {/* 2 · the ordinal — the page's subject, so it leads */}
-      <span className="w-[34px] text-center font-display text-[26px] italic leading-none text-ink-400">
+      <span className="w-[34px] text-center font-display text-[26px] italic leading-none text-studio-ink-400">
         {ordinal}
       </span>
 
@@ -87,13 +87,13 @@ export default function CaseStudyRow({
             here was replicating — so those classes were INERT: correct on screen, and an edit to
             them would have done nothing. `studio-cascade` C2 exists to catch exactly that, and
             deleting them is the honest answer rather than adding three more to its inventory. */}
-        <h2 className="truncate text-[17px] text-ink-950">
+        <h2 className="truncate text-[17px] text-studio-ink-950">
           {item.title}
         </h2>
         {/* A `span` for the same reason the card's is — the unlayered `p` reset would override
             `leading-snug` and also impose its own `max-width: 68ch`, which is a second measure
             fighting the one this page already states. */}
-        <span className="block truncate text-[12.5px] leading-snug text-text-subtle">
+        <span className="block truncate text-[12.5px] leading-snug text-studio-text-subtle">
           {item.summary || "No summary yet"}
         </span>
       </div>
@@ -123,8 +123,8 @@ export default function CaseStudyRow({
           onRemove();
         }}
         onKeyDown={stopAll}
-        className={`grid size-[26px] place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors [&>svg]:size-3.5 ${
-          "hover:bg-cream-200 hover:text-ink-950"
+        className={`grid size-[26px] place-items-center rounded-[var(--studio-radius-control,4px)] text-studio-ink-400 transition-colors [&>svg]:size-3.5 ${
+          "hover:bg-studio-cream-200 hover:text-studio-ink-950"
         }`}
       >
         <IconX />

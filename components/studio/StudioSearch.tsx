@@ -115,9 +115,9 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
 
           THE TRADE THIS MAKES, STATED: brightening the well LOWERS the contrast of everything
           drawn on it. That is why the foregrounds below had to move in the same change. */}
-      <div className="flex min-h-10 items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 lg:border-white/24 lg:bg-white/16">
+      <div className="flex min-h-10 items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 px-3 py-2 lg:border-white/24 lg:bg-white/16">
         {/* ink-200 at `lg` for the same reason as the placeholder — see below. */}
-        <IconSearch className="size-4 text-ink-400 lg:text-ink-200" />
+        <IconSearch className="size-4 text-studio-ink-400 lg:text-studio-ink-200" />
         <input
           ref={inputRef}
           type="search"
@@ -156,7 +156,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
              reports this field clean at every width. It was `ink-400` below `lg` — 3.49 on the
              cream field, under the 4.5 floor — and only the SOURCE scan found it. Same
              breakpoint-scoped fix as the key beside it: the `lg:` ink value is untouched. */
-          className="min-w-0 flex-1 bg-transparent text-[13.5px] text-ink-600 outline-none placeholder:text-ink-600 lg:text-cream-50 lg:placeholder:text-ink-200"
+          className="min-w-0 flex-1 bg-transparent text-[13.5px] text-studio-ink-600 outline-none placeholder:text-studio-ink-600 lg:text-studio-cream-50 lg:placeholder:text-studio-ink-200"
         />
         <kbd
           aria-hidden
@@ -165,7 +165,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
              3.49 against a 4.5 floor. Recolouring it outright would have moved a value that is
              correct to fix a ground it never renders on. The cream case takes ink-600; the ink case
              is untouched. */
-          className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-1.5 py-px text-[12px] text-ink-600 lg:border-white/24 lg:text-ink-200"
+          className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-1.5 py-px text-[12px] text-studio-ink-600 lg:border-white/24 lg:text-studio-ink-200"
         >
           /
         </kbd>
@@ -176,10 +176,10 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
           id={listboxId}
           role="listbox"
           aria-label="Search results"
-          className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-auto rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 py-1 shadow-[var(--studio-lift-popover,0_8px_30px_rgba(60,45,30,0.14))]"
+          className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-auto rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 py-1 shadow-[var(--studio-lift-popover,0_8px_30px_rgba(60,45,30,0.14))]"
         >
           {results.length === 0 ? (
-            <li className="px-3 py-2 text-[12px] text-text-subtle">No results</li>
+            <li className="px-3 py-2 text-[12px] text-studio-text-subtle">No results</li>
           ) : (
             results.map((r, i) => (
               <li
@@ -200,7 +200,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                 // always was; deleting the class changes nothing on screen.
                 className={[
                   "flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-[14px]",
-                  i === active ? "bg-accent-500/10 text-ink-950" : "",
+                  i === active ? "bg-studio-accent-500/10 text-studio-ink-950" : "",
                 ].join(" ")}
               >
                 <span className="truncate">{r.label}</span>
@@ -208,7 +208,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                     chrome the field above it joins at `lg` — so this needs no breakpoint split.
                     It was ink-400, measuring 3.49 on the panel and 3.04 on the highlighted row's
                     cream-200, both under the 4.5 floor. */}
-                <span className="shrink-0 text-[12px] text-ink-600">{r.sublabel}</span>
+                <span className="shrink-0 text-[12px] text-studio-ink-600">{r.sublabel}</span>
               </li>
             ))
           )}

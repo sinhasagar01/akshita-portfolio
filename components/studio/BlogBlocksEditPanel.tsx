@@ -108,7 +108,7 @@ import type { BlogCard } from "@/lib/keystatic";
 type BlogFields = { blocks: readonly BlogRawBlock[] };
 
 const iconBtn =
-  "grid size-6 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3";
+  "grid size-6 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:opacity-30 [&>svg]:size-3";
 
 /** A local two-option toggle. SegmentedToggle is deliberately NOT reused: despite the name
  *  it is a projects-specific control that POSTS a template/category patch on change
@@ -125,7 +125,7 @@ function ViewToggle<T extends string>({
   label: string;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex items-center gap-0.5 rounded-[var(--studio-radius-control,4px)] bg-cream-200 p-0.5">
+    <div role="group" aria-label={label} className="flex items-center gap-0.5 rounded-[var(--studio-radius-control,4px)] bg-studio-cream-200 p-0.5">
       {options.map((o) => (
         <button
           key={o}
@@ -133,7 +133,7 @@ function ViewToggle<T extends string>({
           aria-pressed={value === o}
           onClick={() => onChange(o)}
           className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors ${
-            value === o ? "bg-cream-50 text-ink-950 shadow-sm" : "text-ink-600 hover:text-ink-950"
+            value === o ? "bg-studio-cream-50 text-studio-ink-950 shadow-sm" : "text-studio-ink-600 hover:text-studio-ink-950"
           }`}
         >
           {o}
@@ -698,7 +698,7 @@ export default function BlogBlocksEditPanel({
         />
         <BlogHero src={heroSrc} canvas />
         {blocks.length === 0 ? (
-          <p className="py-10 text-center text-[14px] text-text-subtle">
+          <p className="py-10 text-center text-[14px] text-studio-text-subtle">
             An empty post. Add a paragraph to start writing.
           </p>
         ) : (
@@ -753,29 +753,29 @@ export default function BlogBlocksEditPanel({
             ink-200 / ink-400 on ink-950 — so this adds no token.
 
             THE BAND STOPS AT THE HEADER, and that boundary is load-bearing. The block strip
-            below is still cream, which is why the strip's `focus-visible:ring-ink-950` is
+            below is still cream, which is why the strip's `focus-visible:ring-studio-ink-950` is
             untouched: that ring is ink ON PURPOSE so it reads against the accent SELECTION
             fill, and it is not on this band. If the strip is ever given an ink treatment, the
             ring goes with it — at 1:1 it would be invisible, and a focus ring fails silently
             because nothing looks wrong until someone tabs. */}
-        <header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">
+        <header className="flex items-center justify-between gap-2 bg-studio-ink-950 px-3 py-2">
           {/* `sechead` carries family, weight, size, tracking and case together — see globals.css.
               The utilities that used to be here (font-bold, uppercase, tracking-eyebrow) WERE DEAD:
               the unlayered `h1, h2` reset outranks @layer utilities, so this band drew Fraunces 400
               at -0.33em from #205 until the fidelity pass measured it. */}
-          <h2 className="sechead text-cream-50">Post</h2>
+          <h2 className="sechead text-studio-cream-50">Post</h2>
           {postStatus}
         </header>
         {postSection}
       </section>
 
       {/* SECTION 2 — the block strip and the selected block's fields. */}
-      <section className="border-t border-ink-950/12">
+      <section className="border-t border-studio-ink-950/12">
         {/* The second band. Its SaveIndicator sits ON the ink, so the indicator carries its own
             on-ink colour — see SaveIndicator, which now takes the ground it is drawn on rather
             than assuming cream. */}
-        <header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">
-          <h2 className="sechead text-cream-50">Body · {blocks.length}</h2>
+        <header className="flex items-center justify-between gap-2 bg-studio-ink-950 px-3 py-2">
+          <h2 className="sechead text-studio-cream-50">Body · {blocks.length}</h2>
           <SaveIndicator label="Body" saving={saveStatus === "saving"} dirty={dirty} onInk />
         </header>
 
@@ -784,7 +784,7 @@ export default function BlogBlocksEditPanel({
             and the registry's own `label()` is exactly that excerpt, so it is deliberately
             not called here. Kind plus position is unambiguous. */}
         {blocks.length === 0 ? (
-          <p className="px-3 py-4 text-[12px] text-text-subtle">
+          <p className="px-3 py-4 text-[12px] text-studio-text-subtle">
             No blocks yet. Add one below.
           </p>
         ) : (
@@ -808,14 +808,14 @@ export default function BlogBlocksEditPanel({
                   // is ink BECAUSE it had to read against an accent fill; on cream-200 it reads
                   // at least as well, and focus-versus-selection is the property that keeps a
                   // keyboard user able to tell whether Enter would change anything.
-                  // `border-b-ink-950/12`, NOT the `border-ink-950/12` shorthand — hazard 26.
+                  // `border-b-studio-ink-950/12`, NOT the `border-ink-950/12` shorthand — hazard 26.
                   // The shorthand colours all four sides, so it wrote the LEFT edge too and raced
-                  // the accent bar's `border-l-accent-500` there; equal specificity means the
+                  // the accent bar's `border-l-studio-accent-500` there; equal specificity means the
                   // generated sheet's order decides the winner, a Tailwind-version coin flip that
                   // renders accent today. Colouring only the bottom leaves the left to the bar.
                   // `studio-border-race` pins this; the render is unchanged.
-                  className={`flex items-center gap-1 border-b border-b-ink-950/12 border-l-[3px] py-1.5 pl-[5px] pr-2 ${
-                    isSelected ? "border-l-accent-500 bg-cream-200" : "border-l-transparent"
+                  className={`flex items-center gap-1 border-b border-b-studio-ink-950/12 border-l-[3px] py-1.5 pl-[5px] pr-2 ${
+                    isSelected ? "border-l-studio-accent-500 bg-studio-cream-200" : "border-l-transparent"
                   }`}
                 >
                   <button
@@ -831,12 +831,12 @@ export default function BlogBlocksEditPanel({
                     // whether pressing Enter would change anything. #177 drew the same
                     // distinction for the sidebar's hover against its selected pill. The
                     // ring is ink rather than accent so it reads on the accent fill too.
-                    className={`min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] px-1.5 py-1 text-left text-[12px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ink-950 ${
-                      isSelected ? "text-ink-950" : "text-ink-600 hover:text-ink-950"
+                    className={`min-w-0 flex-1 rounded-[var(--studio-radius-control,4px)] px-1.5 py-1 text-left text-[12px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-studio-ink-950 ${
+                      isSelected ? "text-studio-ink-950" : "text-studio-ink-600 hover:text-studio-ink-950"
                     }`}
                   >
                     <span className="block truncate">
-                      <span className="tabular-nums text-text-subtle">{i + 1}.</span>{" "}
+                      <span className="tabular-nums text-studio-text-subtle">{i + 1}.</span>{" "}
                       {BLOG_BLOCK_LABELS[kind]}
                     </span>
                   </button>
@@ -874,12 +874,12 @@ export default function BlogBlocksEditPanel({
 
         {/* Add is APPEND-AT-END. The mock's per-gap inserter is a mock-only affordance and
             is not built; reorder moves a block to where you want it. */}
-        <div className="relative flex items-center gap-2 border-b border-ink-950/12 px-3 py-2.5">
+        <div className="relative flex items-center gap-2 border-b border-studio-ink-950/12 px-3 py-2.5">
           <button
             type="button"
             onClick={() => setPicker((p) => !p)}
             aria-expanded={picker}
-            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-2.5 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3"
+            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-2.5 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 [&>svg]:size-3"
           >
             <IconPlus /> Add block
           </button>
@@ -887,20 +887,20 @@ export default function BlogBlocksEditPanel({
             type="button"
             onClick={saveDraft}
             disabled={!dirty || saveStatus === "saving"}
-            className="ml-auto rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3 py-1.5 text-[12px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            className="ml-auto rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-3 py-1.5 text-[12px] font-medium text-studio-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
             {saveStatus === "saving" ? "Saving…" : "Save"}
           </button>
           {picker && (
             // The picker offers exactly the blog kinds because BLOG_BLOCK_REGISTRY IS the
             // curation — no filter, no prop, no fork of the case-study picker.
-            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-1.5 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]">
+            <div className="absolute bottom-full left-3 z-10 mb-1.5 w-[190px] rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-50 p-1.5 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]">
               {BLOG_PICKER_ORDER.map((k) => (
                 <button
                   key={k}
                   type="button"
                   onClick={() => addBlock(k)}
-                  className="flex w-full items-center rounded-[var(--studio-radius-control,4px)] px-2.5 py-1.5 text-left text-[12.5px] transition-colors hover:bg-cream-200 hover:text-ink-950"
+                  className="flex w-full items-center rounded-[var(--studio-radius-control,4px)] px-2.5 py-1.5 text-left text-[12.5px] transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
                 >
                   {BLOG_BLOCK_LABELS[k]}
                 </button>
@@ -914,7 +914,7 @@ export default function BlogBlocksEditPanel({
             never dropped a caret; with one form at a time that tradeoff is gone, and
             changing selection blurs the active field first, which is what commits it. */}
         {selectedKind === null || selectedBlock === null || selectedBlock === undefined ? (
-          <p className="px-3 py-5 text-[12px] leading-relaxed text-text-subtle">
+          <p className="px-3 py-5 text-[12px] leading-relaxed text-studio-text-subtle">
             Select a block above to edit it.
           </p>
         ) : (
@@ -1007,7 +1007,7 @@ export default function BlogBlocksEditPanel({
       list={<BlogPostList posts={posts} currentSlug={slug} />}
       canvasBar={
         <>
-          <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink-950">{title}</span>
+          <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-studio-ink-950">{title}</span>
           <a
             href={livePath}
             target="_blank"
@@ -1020,7 +1020,7 @@ export default function BlogBlocksEditPanel({
             // bar 55. AND font-semibold: #208 swept action controls to 600, but it matched on
             // `text-[12px]` and this button is 11.5px, so the sweep passed straight over it —
             // the same shape as the Post band's SaveIndicator being an #205 miss.
-            className="hidden min-h-8 shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[11.5px] font-semibold transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
+            className="hidden min-h-8 shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2.5 py-1 text-[11.5px] font-semibold transition-colors hover:border-studio-accent-500 sm:inline-flex [&>svg]:size-3"
           >
             {/* "VIEW POST", NOT "VIEW LIVE" — this goes to THIS article, while the topbar's
                 link goes to the site root. See StudioTopbar for the full note. */}

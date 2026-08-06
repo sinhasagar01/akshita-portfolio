@@ -78,11 +78,11 @@ function nonBlank(links: LinkItem[]): LinkItem[] {
 // STAYING LOCAL DOES NOT MEAN STAYING BEHIND: the reasons above are about the BORDER, not the
 // well, so the height and ground track blocks/fields.tsx exactly and move whenever it does.
 const inputBase =
-  "min-h-11 rounded-[var(--studio-radius-control,4px)] border bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:ring-1";
-const okBorder = "border-ink-950/12 focus:border-accent-500 focus:ring-accent-500/30";
-const errBorder = "border-accent-500 focus:border-accent-500 focus:ring-accent-500/30";
+  "min-h-11 rounded-[var(--studio-radius-control,4px)] border bg-studio-cream-50 px-3 py-2 text-[14px] text-studio-ink-950 outline-none transition-colors focus:ring-1";
+const okBorder = "border-studio-ink-950/12 focus:border-studio-accent-500 focus:ring-studio-accent-500/30";
+const errBorder = "border-studio-accent-500 focus:border-studio-accent-500 focus:ring-studio-accent-500/30";
 const iconBtn =
-  "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+  "grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
 export default function LinksEditPanel({ itemId, email, links }: Props) {
   const initial: LinksFields = { email, links };
@@ -156,16 +156,16 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
       // NO FRAME — these pages are full-height shells since #242, so a panel frame here is a box
       // drawn around a box, and its `overflow-hidden` clipped the pane's own scrolling. The full
       // reasoning and the measurements are on `AboutEditPanel`'s copy of this line.
-      className="bg-cream-100"
+      className="bg-studio-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+      <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
             <IconArrowUpRight />
           </span>
-          <span className="font-display text-base text-ink-950">Links</span>
+          <span className="font-display text-base text-studio-ink-950">Links</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+            <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -174,7 +174,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
         >
           Cancel
         </button>
@@ -201,7 +201,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
               const errorId = `links-${ids[i]}-error`;
               const name = link.label.trim() || `link ${i + 1}`;
               return (
-                <div key={ids[i]} className="flex flex-col gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 p-2.5">
+                <div key={ids[i]} className="flex flex-col gap-1.5 rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-200 p-2.5">
                   <div className="flex items-center gap-1.5">
                     <input
                       type="text"
@@ -248,14 +248,14 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => removeLink(i)}
                       aria-label={`Remove ${name}`}
-                      className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-4"
+                      className="grid size-8 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 [&>svg]:size-4"
                     >
                       <IconX />
                     </button>
                   </div>
                   {/* The connector, indented to the pill's left edge — it groups the key with
                       its value without adding a border at a depth that already has one. */}
-                  <span aria-hidden className="ml-5 block h-2 w-px bg-ink-950/22" />
+                  <span aria-hidden className="ml-5 block h-2 w-px bg-studio-ink-950/22" />
                   <input
                     type="text"
                     inputMode="url"
@@ -270,7 +270,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
                     }`}
                   />
                   {invalid && (
-                    <span id={errorId} className="text-[10px] text-accent-600" aria-live="polite">
+                    <span id={errorId} className="text-[10px] text-studio-accent-600" aria-live="polite">
                       Enter a full URL including https://
                     </span>
                   )}
@@ -281,11 +281,11 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
           <button
             type="button"
             onClick={addLink}
-            className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+            className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> Add link
           </button>
-          <span className="text-[10px] text-text-subtle">
+          <span className="text-[10px] text-studio-text-subtle">
             Shown in order in the header and footer. A blank URL hides its link.
           </span>
         </div>

@@ -288,14 +288,14 @@ t("F2: the canvas mark reads the tier WITH its fallback, so it holds outside .st
   t("G1: the echo has a rule of its own — it is not the canvas's `.cs-editable.is-selected`",
     markRule !== "", true);
   t("G2: the BAR is shared by the field and the block card, so one mark serves both",
-    /box-shadow:\s*inset var\(--studio-echo-bar\) 0 0 0 var\(--color-accent-500\)/.test(markRule), true);
+    /box-shadow:\s*inset var\(--studio-echo-bar\) 0 0 0 var\(--color-studio-accent-500\)/.test(markRule), true);
 
   // G2c — AND THE GROUND FILL IS THE FIELD'S ALONE, WHICH IS A MEASURED DECISION NOT A SAVING.
   // On a 320px input's label cream-200 is a thin band; on a block CARD it is the whole card, and
   // a flat wash over a group of controls reads as selected-AND-DISABLED. The fill was never the
   // mark anyway — #259 measured it at 1.10 against the pane while the bar is 4.07.
   t("G2c: the ground step applies to fields only — a filled card reads as disabled",
-    /background-color:\s*var\(--color-cream-200\)/.test(groundRule) &&
+    /background-color:\s*var\(--color-studio-cream-200\)/.test(groundRule) &&
       !/data-studio-block/.test(groundRule), true);
 
   // G2b — THE BAR'S WIDTH HAS ONE SOURCE. It is read by the shadow that DRAWS the bar and by the

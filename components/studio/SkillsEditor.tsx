@@ -212,7 +212,7 @@ function CategoryPanel({
       // survived here. `studio-ink` E1b already derived the SHELL consumers from the files that
       // render `<ListDetailLayout`; the frame removal did not derive anything. See E1c, which
       // now derives the panel set the same way the shell set is derived.
-      className="bg-cream-100"
+      className="bg-studio-cream-100"
     >
       {/* A CREAM-200 BAR, NOT AN INK BAND, and that is the by-role rule rather than a
           preference. The ink band's own reasoning is about a NARROW PANE beside ink chrome,
@@ -223,12 +223,12 @@ function CategoryPanel({
           architecture as the footer below: `skills` is a singleton, so dirty is a property of
           the DOCUMENT, not of one category. It is reported once, in the footer. A pill here
           would claim per-category dirty state that does not exist. */}
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+      <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
             <IconLayers />
           </span>
-          <span className="truncate font-display text-base text-ink-950">
+          <span className="truncate font-display text-base text-studio-ink-950">
             {category.trim() || "Untitled category"}
           </span>
         </div>
@@ -251,14 +251,14 @@ function CategoryPanel({
           <span className={labelCls}>Skills in this category</span>
           <ChipListEditor chips={items} onChange={onItems} onBlur={onBlurSave} addLabel="Add skill" placeholder="Skill" />
           {items.length === 0 && (
-            <span className="text-[10px] text-accent-600">
+            <span className="text-[10px] text-studio-accent-600">
               This category has no skills — it will show an empty section on your site.
             </span>
           )}
         </div>
 
         {isOnlyCategory && (
-          <p className="rounded-[var(--studio-radius-control,4px)] border border-accent-500/25 bg-accent-500/5 px-3 py-2 text-[12px] text-accent-600">
+          <p className="rounded-[var(--studio-radius-control,4px)] border border-studio-accent-500/25 bg-studio-accent-500/5 px-3 py-2 text-[12px] text-studio-accent-600">
             This is your only category. Removing it leaves no skills — the Skills section won&rsquo;t render on your site.
           </p>
         )}

@@ -40,7 +40,7 @@ export default function BlogPostRow({
   return (
     <div
       {...activationProps(onOpen, `Edit ${post.title}`)}
-      className={`group grid cursor-pointer items-center gap-[15px] rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-cream-50 py-2.5 pl-2.5 pr-3.5 [grid-template-columns:auto_1fr_auto_auto_auto] ${
+      className={`group grid cursor-pointer items-center gap-[15px] rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-studio-cream-50 py-2.5 pl-2.5 pr-3.5 [grid-template-columns:auto_1fr_auto_auto_auto] ${
         draft ? "border-l-draft-600" : "border-l-transparent"
       } shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] transition-[box-shadow,transform,border-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:-translate-y-[2px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))] motion-reduce:hover:translate-y-0 ${ITEM_FOCUS}`}
     >
@@ -52,17 +52,17 @@ export default function BlogPostRow({
         />
         {!post.heroImage && (
           <span aria-hidden className="pointer-events-none absolute inset-0 grid place-items-center">
-            <span className="size-[15px] rounded-[3px] border-[1.5px] border-dashed border-ink-400" />
+            <span className="size-[15px] rounded-[3px] border-[1.5px] border-dashed border-studio-ink-400" />
           </span>
         )}
       </span>
 
       {/* 2 · the text — the only flexible track, with the floor its truncation depends on */}
       <div className="min-w-0">
-        <h2 className="truncate text-[16.5px] text-ink-950">{post.title}</h2>
+        <h2 className="truncate text-[16.5px] text-studio-ink-950">{post.title}</h2>
         {/* A `span`, not a `p` — the unlayered `p` reset would override `leading-snug` and impose
             its own `max-width: 68ch`, a second measure fighting the row's own track. */}
-        <span className="block truncate text-[12px] leading-snug text-text-subtle">
+        <span className="block truncate text-[12px] leading-snug text-studio-text-subtle">
           {post.dek || "No summary yet"}
         </span>
       </div>
@@ -71,7 +71,7 @@ export default function BlogPostRow({
       <BlogStatusChip status={post.status} />
 
       {/* 4 · the meta — its own grid, so it cannot stretch either */}
-      <div className="hidden grid-flow-col items-center gap-2.5 whitespace-nowrap text-[11.5px] leading-none text-ink-600 md:grid">
+      <div className="hidden grid-flow-col items-center gap-2.5 whitespace-nowrap text-[11.5px] leading-none text-studio-ink-600 md:grid">
         <span>{post.date ? formatShortDate(post.date) : "No date"}</span>
         <span>{post.readingTime} min</span>
         {post.topic && <span>{post.topic}</span>}
@@ -88,7 +88,7 @@ export default function BlogPostRow({
           onRemove();
         }}
         onKeyDown={stopAll}
-        className="grid size-[26px] place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 opacity-0 transition-opacity hover:bg-cream-200 hover:text-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
+        className="grid size-[26px] place-items-center rounded-[var(--studio-radius-control,4px)] text-studio-ink-400 opacity-0 transition-opacity hover:bg-studio-cream-200 hover:text-studio-ink-950 focus-visible:opacity-100 group-hover:opacity-100 [&>svg]:size-3.5"
       >
         <IconX />
       </button>

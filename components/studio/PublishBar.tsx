@@ -233,16 +233,16 @@ export default function PublishBar() {
   let statusTone: string;
   if (discardMsg) {
     statusText = discardMsg;
-    statusTone = discardStatus === "error" ? "text-danger-600" : "text-text-subtle";
+    statusTone = discardStatus === "error" ? "text-studio-danger-600" : "text-studio-text-subtle";
   } else {
     statusTone =
       publishStatus === "error"
-        ? "text-danger-600"
+        ? "text-studio-danger-600"
         : publishStatus === "published"
-          ? "text-accent-600"
+          ? "text-studio-accent-600"
           : publishStatus === "publishing"
-            ? "text-text-subtle"
-            : "text-text-subtle";
+            ? "text-studio-text-subtle"
+            : "text-studio-text-subtle";
     statusText =
       publishStatus === "publishing"
         ? "Publishing…"
@@ -257,7 +257,7 @@ export default function PublishBar() {
               ? "Unpublished changes"
               : "All changes published";
     if (draftReadError && !publishMsg && publishStatus !== "publishing") {
-      statusTone = "text-accent-600";
+      statusTone = "text-studio-accent-600";
     }
   }
 
@@ -353,7 +353,7 @@ export default function PublishBar() {
       )}
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--studio-bar-clearance,0px)+2rem)] z-40 flex justify-center px-4 lg:left-[var(--studio-sidebar-w)]">
       <div
-        className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-ink-950/12 bg-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))] backdrop-blur"
+        className="pointer-events-auto flex max-w-[min(560px,100%)] items-center gap-3.5 rounded-full border border-studio-ink-950/12 bg-studio-cream-50/95 py-[9px] pl-[18px] pr-[9px] shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))] backdrop-blur"
         {...(confirmOpen
           ? {
               role: "alertdialog" as const,
@@ -396,7 +396,7 @@ export default function PublishBar() {
               ref={cancelRef}
               type="button"
               onClick={closeConfirm}
-              className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-ink-600 transition-colors hover:text-accent-500"
+              className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-studio-ink-600 transition-colors hover:text-studio-accent-500"
             >
               Cancel
             </button>
@@ -405,7 +405,7 @@ export default function PublishBar() {
               type="button"
               onClick={discard}
               disabled={discardStatus === "discarding"}
-              className="shrink-0 rounded-full bg-ink-950 px-[19px] py-[11px] text-[12px] font-medium text-cream-50 transition-colors hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="shrink-0 rounded-full bg-studio-ink-950 px-[19px] py-[11px] text-[12px] font-medium text-studio-cream-50 transition-colors hover:bg-studio-ink-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {discardStatus === "discarding" ? "Discarding…" : "Discard"}
             </button>
@@ -424,7 +424,7 @@ export default function PublishBar() {
                 onClick={openConfirm}
                 disabled={!canDiscard}
                 aria-disabled={!canDiscard}
-                className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-ink-600 transition-colors hover:text-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-studio-ink-600 transition-colors hover:text-studio-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Discard
               </button>
@@ -434,7 +434,7 @@ export default function PublishBar() {
               onClick={openPreview}
               disabled={!canPublish}
               aria-disabled={!canPublish}
-              className="shrink-0 rounded-full bg-accent-500 px-[19px] py-[11px] text-[12px] font-medium uppercase tracking-[0.08em] text-cream-50 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:bg-accent-500/45"
+              className="shrink-0 rounded-full bg-studio-accent-500 px-[19px] py-[11px] text-[12px] font-medium uppercase tracking-[0.08em] text-studio-cream-50 transition-colors hover:bg-studio-accent-600 disabled:cursor-not-allowed disabled:bg-studio-accent-500/45"
             >
               {/* "PUBLISH SITE", NOT "PUBLISH", BECAUSE THIS DEPLOYS EVERYTHING.
                   An author set a post's status to Published, pressed this, and the post did

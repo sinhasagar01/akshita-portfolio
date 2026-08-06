@@ -392,7 +392,7 @@ const widthFrom = (re, label) => {
 // that has nothing to do with the width this line exists to extract. The assertion was pinning
 // more than its subject, which makes it fail for the wrong reason and invites someone to
 // weaken it. It still anchors to the same class string, so it cannot match some other pane.
-const LIST_PX = widthFrom(/"w-\[(\d+)px\] border-ink-950\/\d+"/, "list");
+const LIST_PX = widthFrom(/"w-\[(\d+)px\] border-studio-ink-950\/\d+"/, "list");
 // The inspector's, off the <aside>.
 // PINNED ON THE WIDTH, NOT ON WHAT FOLLOWS IT. This read `w-[320px] flex-none`, so it failed the
 // moment the aside gained `flex flex-col` — a change about LAYOUT breaking an assertion about

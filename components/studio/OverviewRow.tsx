@@ -44,10 +44,10 @@ type Props = {
 function StatusBadge({ status }: { status: "live" | "code" }) {
   const live = status === "live";
   return (
-    <span className="flex shrink-0 items-center gap-1.5 text-[12px] text-ink-600">
+    <span className="flex shrink-0 items-center gap-1.5 text-[12px] text-studio-ink-600">
       <span
         aria-hidden
-        className={`size-1.5 shrink-0 rounded-full ${live ? "bg-success-700" : "bg-ink-400"}`}
+        className={`size-1.5 shrink-0 rounded-full ${live ? "bg-studio-success-700" : "bg-studio-ink-400"}`}
       />
       {live ? "Live" : "In code"}
     </span>
@@ -94,7 +94,7 @@ export default function OverviewRow({
           agree — the "assert the pair, because you cannot delete the pair" rule three-pane H
           already runs on the pane widths. */}
       <span
-        className="w-6 shrink-0 text-[12px] font-bold uppercase tracking-eyebrow tabular-nums font-label text-ink-600"
+        className="w-6 shrink-0 text-[12px] font-bold uppercase tracking-eyebrow tabular-nums font-label text-studio-ink-600"
         aria-hidden
       >
         {index}
@@ -102,7 +102,7 @@ export default function OverviewRow({
       <span
         className={[
           "grid size-5 shrink-0 place-items-center [&>svg]:size-[19px]",
-          isCode ? "text-ink-400" : "text-accent-500",
+          isCode ? "text-studio-ink-400" : "text-studio-accent-500",
         ].join(" ")}
         aria-hidden
       >
@@ -113,13 +113,13 @@ export default function OverviewRow({
         <span
           className={[
             "block font-display text-[20px] leading-tight",
-            isCode ? "text-ink-600" : "text-ink-950",
+            isCode ? "text-studio-ink-600" : "text-studio-ink-950",
           ].join(" ")}
         >
           {title}
         </span>
-        {meta && <span className="mt-1 block text-[14px] text-ink-600">{meta}</span>}
-        {note && <span className="mt-0.5 block text-[12px] text-text-subtle">{note}</span>}
+        {meta && <span className="mt-1 block text-[14px] text-studio-ink-600">{meta}</span>}
+        {note && <span className="mt-0.5 block text-[12px] text-studio-text-subtle">{note}</span>}
         {signals.length > 0 && (
           <span className="mt-1.5 flex flex-wrap gap-1.5">
             {signals.map((s) => (
@@ -128,8 +128,8 @@ export default function OverviewRow({
                 className={[
                   "inline-block rounded-full border px-2 py-0.5 text-[10px]",
                   s.tone === "muted"
-                    ? "border-ink-950/12 text-text-subtle"
-                    : "border-accent-500/35 text-accent-500",
+                    ? "border-studio-ink-950/12 text-studio-text-subtle"
+                    : "border-studio-accent-500/35 text-studio-accent-500",
                 ].join(" ")}
               >
                 {s.label}
@@ -143,7 +143,7 @@ export default function OverviewRow({
 
       {href && (
         <span
-          className="shrink-0 -translate-x-1 text-ink-400 opacity-0 transition duration-200 ease-out group-hover:translate-x-0 group-hover:opacity-100 [&>svg]:size-4"
+          className="shrink-0 -translate-x-1 text-studio-ink-400 opacity-0 transition duration-200 ease-out group-hover:translate-x-0 group-hover:opacity-100 [&>svg]:size-4"
           aria-hidden
         >
           <IconChevronRight />
@@ -159,7 +159,7 @@ export default function OverviewRow({
       <a
         href={href}
         aria-label={ariaLabel}
-        className="group flex items-center gap-4 rounded-[var(--studio-radius-card,8px)] border-b border-ink-950/12 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-cream-100 hover:pl-6"
+        className="group flex items-center gap-4 rounded-[var(--studio-radius-card,8px)] border-b border-studio-ink-950/12 py-4 pl-3.5 pr-3.5 transition-[background-color,padding-left] duration-200 ease-out hover:bg-studio-cream-100 hover:pl-6"
       >
         {inner}
       </a>
@@ -170,7 +170,7 @@ export default function OverviewRow({
   // no shift, no chevron. A row that looks clickable and isn't is worse than one
   // that admits it.
   return (
-    <div className="flex items-center gap-4 border-b border-ink-950/12 py-4 pl-3.5 pr-3.5">
+    <div className="flex items-center gap-4 border-b border-studio-ink-950/12 py-4 pl-3.5 pr-3.5">
       {inner}
     </div>
   );

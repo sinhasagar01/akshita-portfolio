@@ -110,8 +110,8 @@ const saveInd = read("components/studio/SaveIndicator.tsx");
 const grab = (src, re, label) => { const m = src.match(re); if (!m) throw new Error(`could not find ${label}`); return m[1]; };
 
 // The bar and the sidebar are SOLID ink (the #214 fix). Assert the token, then use it as ground.
-const barToken = grab(topbar, /lg:bg-(ink-\d+)\b/, "topbar bar background");
-const sidebarBgToken = grab(sidebar, /lg:bg-(ink-\d+)\b/, "sidebar background");
+const barToken = grab(topbar, /lg:bg-(studio-ink-\d+)\b/, "topbar bar background");
+const sidebarBgToken = grab(sidebar, /lg:bg-(studio-ink-\d+)\b/, "sidebar background");
 const BAR = tok(barToken);
 
 // The search well: white at its parsed alpha over the bar. The border: white at its parsed alpha
@@ -121,13 +121,13 @@ const searchBorderAlpha = Number(grab(search, /lg:border-white\/(\d+)\b/, "searc
 const WELL = over(WHITE, wellAlpha, BAR);
 const searchBorderColour = over(WHITE, searchBorderAlpha, WELL);
 
-const magnifierTok = grab(search, /IconSearch[^>]*lg:text-(ink-\d+)/s, "search magnifier colour");
-const placeholderTok = grab(search, /lg:placeholder:text-(ink-\d+)/, "search placeholder colour");
-const valueTok = grab(search, /className="min-w-0 flex-1[^"]*lg:text-(cream-\d+)/, "search typed-value colour");
-const kbdTok = grab(search, /<kbd[\s\S]*?lg:text-(ink-\d+)/, "search kbd colour");
+const magnifierTok = grab(search, /IconSearch[^>]*lg:text-(studio-ink-\d+)/s, "search magnifier colour");
+const placeholderTok = grab(search, /lg:placeholder:text-(studio-ink-\d+)/, "search placeholder colour");
+const valueTok = grab(search, /className="min-w-0 flex-1[^"]*lg:text-(studio-cream-\d+)/, "search typed-value colour");
+const kbdTok = grab(search, /<kbd[\s\S]*?lg:text-(studio-ink-\d+)/, "search kbd colour");
 
 // Save status on the ink band: its onInk branch, on solid ink-950 (the band ground).
-const saveOnInkTok = grab(saveInd, /onInk\s*\?\s*"text-(ink-\d+)"/, "save-status on-ink colour");
+const saveOnInkTok = grab(saveInd, /onInk\s*\?\s*"text-(studio-ink-\d+)"/, "save-status on-ink colour");
 
 // View site button border: white at its parsed alpha over the bar.
 const viewSiteBorderAlpha = Number(grab(topbar, /group inline-flex[^"]*lg:border-white\/(\d+)/, "View site border alpha")) / 100;
@@ -188,7 +188,7 @@ t("F1: exactly two ON_INK rows are excluded, and both are the pointer-only View-
 t("G1: the topbar bar and the sidebar are the SAME solid ink token (the L is one ground, #214)",
   barToken === sidebarBgToken, true);
 t("G2: that token is ink-950 — the darkest step, the worst case every on-ink foreground composites against",
-  barToken, "ink-950");
+  barToken, "studio-ink-950");
 t("G3: the search edge and the sidebar edge are the same white alpha (the L edge is one line)",
   searchBorderAlpha === sidebarBorderAlpha, true);
 
@@ -237,16 +237,16 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
     // the property this helper exists for — a widened whitespace match, not a widened value match.
     const m = new RegExp(`export const ${decl} =\\s*\\n?\\s*"([^"]*)"`).exec(fields);
     if (!m) throw new Error(`could not find ${label}`);
-    const c = /text-(ink-\d+|text-subtle)/.exec(m[1]);
+    const c = /text-(studio-ink-\d+|studio-text-subtle)/.exec(m[1]);
     if (!c) throw new Error(`no text colour in ${label}`);
-    return c[1] === "text-subtle" ? "text-subtle" : c[1];
+    return c[1];
   };
   const LABEL_TOKENS = [
     ["labelCls", tokenOf("labelCls", "labelCls")],
     ["groupLabelCls", tokenOf("groupLabelCls", "groupLabelCls")],
   ];
   t("H1: the label scale's colour is read from its export, not retyped here",
-    LABEL_TOKENS.map(([, tk]) => tk), ["ink-600", "ink-600"]);
+    LABEL_TOKENS.map(([, tk]) => tk), ["studio-ink-600", "studio-ink-600"]);
 
   // EVERY LABEL TOKEN ON EVERY CREAM GROUND IT CAN LAND ON. The rails, panels and wells span the
   // whole ladder — cream-50 wells inside cream-100 panes inside cream-200 rails, with cream-300
@@ -289,14 +289,14 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
    * colour out of `ListDetailLayout` and measure it against the fill the same file declares, so
    * the assertion tracks the component instead of restating #242's conclusion. */
   const ld = read("components/studio/ListDetailLayout.tsx");
-  const selFill = /isActive\s*$[\s\S]{0,120}?bg-(cream-\d+)/m.exec(ld)?.[1]
+  const selFill = /isActive\s*$[\s\S]{0,120}?bg-(studio-cream-\d+)/m.exec(ld)?.[1]
     ?? /bg-(cream-300)/.exec(ld)?.[1];
-  // PARSED PERMISSIVELY ON PURPOSE. An earlier version matched only `text-(ink-\d+)` in the
+  // PARSED PERMISSIVELY ON PURPOSE. An earlier version matched only `text-(studio-ink-\d+)` in the
   // selected branch, so putting `text-text-subtle` back there — the exact regression this is here
   // to catch — made the MATCH fail and the gate reported "no meta colour declared". True, and
   // useless: the failure named a parse rather than the 4.03 it was standing on. A gate must fail
   // with the token, the ground and the RATIO, so it reads whatever colour is actually there.
-  const metaPair = /isActive \? "text-((?:ink-\d+|text-subtle))" : "text-((?:ink-\d+|text-subtle))"/.exec(ld);
+  const metaPair = /isActive \? "text-((?:studio-ink-\d+|studio-text-subtle))" : "text-((?:studio-ink-\d+|studio-text-subtle))"/.exec(ld);
   const metaSel = metaPair?.[1];
   t("H5: the shell still declares a selected fill and a selected meta colour", [!!selFill, !!metaSel], [true, true]);
   const metaRatio = metaSel && selFill ? ratio(tok(metaSel), tok(selFill)) : 0;
@@ -373,7 +373,7 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
   const textSites = [];
   for (const f of STUDIO_DIRS.flatMap((d) => tsxFiles(d))) {
     const src = stripComments(read(f));
-    for (const m of src.matchAll(/text-ink-400/g)) {
+    for (const m of src.matchAll(/text-studio-ink-400/g)) {
       const { expr, tag } = enclosing(src, m.index);
       const where = `${f.split("/").pop()}:${src.slice(0, m.index).split("\n").length}`;
       const site = { where, file: f.split("/").pop(), expr: expr.replace(/\s+/g, " ") };
@@ -407,7 +407,7 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
       why: "the 26px list ordinal — large text" },
     // Ink-only, and PROVEN so: ink-400 must be `lg:`-scoped, or it paints on the cream sidebar
     // below the breakpoint at 3.33.
-    { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:text-ink-400/,
+    { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:text-studio-ink-400/,
       why: "the area count, ink-400 at `lg` only" },
     // Likewise ink-only, but by VISIBILITY rather than by colour — it does not render below `lg`.
     { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:block/,
@@ -475,7 +475,7 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
    * step darker, so the ground is the whole reason it passes and is pinned as such. */
   const overview = read("components/studio/OverviewRow.tsx");
   t("H7: the accent signal badge still exists, so the ground assertion below is not vacuous",
-    /border-accent-500\/35 text-accent-500/.test(overview), true);
+    /border-studio-accent-500\/35 text-studio-accent-500/.test(overview), true);
   t("H7: …and accent-500 is legal on the cream-50 it renders on — but only there",
     ratio(tok("accent-500"), tok("cream-50")) >= FLOOR, true);
 }

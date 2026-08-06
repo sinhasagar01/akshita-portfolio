@@ -225,7 +225,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
            rule that loses and the link renders at the inherited colour. This wrapper is the
            shape the old footer already had; moving the anchor into SaveBar's `extra` slot
            briefly dropped it, and studio-ink's E6 is the assertion that caught it. */
-        <span className="flex items-center gap-1 text-ink-600">
+        <span className="flex items-center gap-1 text-studio-ink-600">
           {/* CS-1 — the draft-preferring preview opens in a new tab (never in-dashboard), so the
               owner keeps the editor open beside it. */}
           <a
@@ -233,7 +233,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             target="_blank"
             rel="noopener"
             title="Opens the draft preview in a new tab."
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-studio-cream-100"
           >
             Preview
           </a>
@@ -284,7 +284,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           ⚠ THE LITERAL REQUEST WAS NOT ACHIEVABLE AND THIS IS THE NEAREST THING THAT IS. Matching
           the canvas header where it stood (59.3px) would have needed ~1px of padding around 56px
           of content. Both bars move to 65 instead. */}
-      <div className="flex h-[65px] items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-4">
+      <div className="flex h-[65px] items-center gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4">
         {/* THE TWO TOGGLES SHARE A LINE AND SPREAD ACROSS IT, which needs a wrapper rather than
             a class on the row. Measured: the row has three children and the actions sit on
             `ml-auto`, and an auto margin absorbs the free space BEFORE `justify-content` is
@@ -327,9 +327,9 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             // phantom (hazard 23, now closed) re-pointed to text-text-subtle. The family's real distinction is
             // the focus styling the export carries, dead on tabIndex={-1}, plus
             // cursor-not-allowed. Height tracks the well.
-            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-text-subtle outline-none"
+            className="min-h-11 w-full cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-200 px-3 py-2 text-[14px] text-studio-text-subtle outline-none"
           />
-          <span className="text-[10px] text-text-subtle">
+          <span className="text-[10px] text-studio-text-subtle">
             The project&rsquo;s identity, set when you add it. The case study body is edited below.
           </span>
         </label>
@@ -356,7 +356,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             onBlur={saveDraft}
             className={`${inputClsMd} resize-y leading-relaxed`}
           />
-          <span className="text-[10px] text-text-subtle">One sentence shown on the project card.</span>
+          <span className="text-[10px] text-studio-text-subtle">One sentence shown on the project card.</span>
         </label>
 
         <div className="flex flex-col gap-3">
@@ -427,7 +427,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       // gate is what caught it. `@source not "../ralph"` exists for the same reason one level
       // out; a component comment has no such exclusion. Describe the value, never spell it.
       <div className="grid flex-1 place-items-center px-4 py-6">
-        <span className="text-[13px] text-text-subtle" role="status" aria-live="polite">
+        <span className="text-[13px] text-studio-text-subtle" role="status" aria-live="polite">
           Loading sections…
         </span>
       </div>
@@ -454,16 +454,16 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       <div className="p-4 lg:p-6">
       <section
         aria-label={`Edit ${title}`}
-        className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-accent-500/30 bg-cream-100"
+        className="overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-studio-accent-500/30 bg-studio-cream-100"
       >
-        <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+        <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+            <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
               <IconGrid />
             </span>
-            <span className="truncate font-display text-base text-ink-950">{title}</span>
+            <span className="truncate font-display text-base text-studio-ink-950">{title}</span>
             {dirty && (
-              <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+              <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-text-subtle">
                 Unsaved changes
               </span>
             )}
@@ -476,12 +476,12 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
               a canvas that now has a job. Only LOADING and ERROR reach this fallback. */}
           {/* ONLY ERROR REACHES THIS BRANCH NOW. Loading returns above, bespoke goes to the
               shell, so this panel exists for the one state that is persistent and actionable. */}
-          <div className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 px-4 py-8 text-center">
-            <p className="text-[14px] text-accent-600">Could not load the sections.</p>
+          <div className="rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-200 px-4 py-8 text-center">
+            <p className="text-[14px] text-studio-accent-600">Could not load the sections.</p>
             <button
               type="button"
               onClick={() => void loadSections()}
-              className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+              className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
             >
               Try again
             </button>
@@ -702,7 +702,7 @@ export function HeroImageField({
           284 instead of running to 900+. */}
       <div className="flex flex-col gap-2">
         <div
-          className="relative aspect-[16/9] w-full overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200"
+          className="relative aspect-[16/9] w-full overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-200"
           style={{ maxWidth: 160 * (16 / 9) }}
         >
           {hasImage ? (
@@ -724,7 +724,7 @@ export function HeroImageField({
               onError={() => setBrokenSrc(true)}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center text-[10px] text-text-subtle">
+            <div className="grid h-full w-full place-items-center text-[10px] text-studio-text-subtle">
               No image
             </div>
           )}
@@ -744,7 +744,7 @@ export function HeroImageField({
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={busy}
-            className="w-fit rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3 py-1.5 text-[12px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-fit rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-3 py-1.5 text-[12px] font-medium text-studio-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
             {busy ? "Uploading…" : hasImage ? "Replace image" : "Upload image"}
           </button>
@@ -752,7 +752,7 @@ export function HeroImageField({
             <button
               type="button"
               onClick={() => void send(null)}
-              className="w-fit rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+              className="w-fit rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
             >
               Remove
             </button>
@@ -761,11 +761,11 @@ export function HeroImageField({
       </div>
       <span className="text-[10px]" aria-live="polite">
         {status ? (
-          <span className={status.kind === "error" ? "text-accent-600" : "text-text-subtle"}>
+          <span className={status.kind === "error" ? "text-studio-accent-600" : "text-studio-text-subtle"}>
             {status.text}
           </span>
         ) : (
-          <span className="text-text-subtle">
+          <span className="text-studio-text-subtle">
             PNG, JPG, or WebP up to 12 MB. Stored as WebP. Publishes with your other changes.
           </span>
         )}

@@ -119,6 +119,42 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      jumps straight to it. A generic drops to Times or Arial, whose x-heights differ enough to
      reflow every box while the webfont loads, and on a site whose layout is pinned to measured
      numbers a reflow is a gate failure rather than a flicker. */
+  /* ============================================================
+     THE STUDIO PALETTE — FROZEN COPIES, NOT ALIASES, AND THE DIFFERENCE IS THE WHOLE POINT.
+
+     ⚠ THE STUDIO HAD NO PALETTE OF ITS OWN. It drew 895 of its colours from the public scales —
+     ink, cream, accent, danger, success and the subtle text alias — so a theme that repoints
+     `--color-ink-950` would have repainted every panel, rail and band in the editor. "The studio
+     keeps its design" was not achievable while that was true, and it was not visible from either
+     side: the studio declared radius, motion and elevation of its own and looked self-contained.
+
+     ⚠ COPIES RATHER THAN `var()` ALIASES. An alias would track the public token and defeat the
+     entire purpose — the studio would follow the theme one indirection later. These are today's
+     literals, and the gate asserts they still MATCH the public ones so that "frozen at today's
+     values" is a checkable claim rather than a hope. The day a theme moves a public token, that
+     assertion is the thing that has to be deliberately updated, which is the point.
+
+     ⚠ AND THE CANVAS IS DELIBERATELY NOT ON THESE. It renders public components at the public
+     measure, so it takes the public tokens and shows the ACTIVE THEME. That is the parity
+     contract — what the author sees is what the article ships — and it means the studio is
+     PARTLY THEMED. The scope statement narrows accordingly: the studio's CHROME keeps its design.
+     The canvas is public content drawn inside it and always was.
+  ============================================================ */
+  --color-studio-cream-50:  oklch(98.5% 0.012 80);
+  --color-studio-cream-100: oklch(96.8% 0.018 78);
+  --color-studio-cream-200: oklch(93.5% 0.025 76);
+  --color-studio-cream-300: oklch(88.0% 0.032 74);
+  --color-studio-ink-950:   oklch(14.0% 0.018 60);
+  --color-studio-ink-800:   oklch(26.0% 0.018 60);
+  --color-studio-ink-600:   oklch(44.0% 0.016 60);
+  --color-studio-ink-400:   oklch(62.0% 0.014 60);
+  --color-studio-ink-200:   oklch(80.0% 0.010 60);
+  --color-studio-accent-500: oklch(56.0% 0.14 42);
+  --color-studio-accent-600: oklch(46.0% 0.13 42);
+  --color-studio-danger-600: oklch(45.0% 0.16 25);
+  --color-studio-success-700: oklch(46.0% 0.075 145);
+  --color-studio-text-subtle: oklch(51% 0.016 66);
+
   --font-source-serif:  var(--font-source-serif-loaded, "Iowan Old Style", Charter, Georgia, serif);
   --font-work-sans:     var(--font-work-sans-loaded, Avenir, "Avenir Next", ui-sans-serif, system-ui, sans-serif);
   --font-space-grotesk: var(--font-space-grotesk-loaded, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif);
@@ -1807,7 +1843,7 @@ a {
 }
 .studio-chrome [data-studio-field].is-echoed,
 .studio-chrome [data-studio-block].is-echoed {
-  box-shadow: inset var(--studio-echo-bar) 0 0 0 var(--color-accent-500);
+  box-shadow: inset var(--studio-echo-bar) 0 0 0 var(--color-studio-accent-500);
   transition:
     background-color var(--studio-t3, 260ms) var(--ease-out-expo) var(--studio-t3-delay, 90ms),
     box-shadow var(--studio-t3, 260ms) var(--ease-out-expo) var(--studio-t3-delay, 90ms);
@@ -1823,7 +1859,7 @@ a {
    nothing at field scale and would contribute the wrong thing at card scale, so the bar carries
    the mark on both and only the field takes the fill. */
 .studio-chrome [data-studio-field].is-echoed {
-  background-color: var(--color-cream-200);
+  background-color: var(--color-studio-cream-200);
 }
 
 /* THE CONTROL SITS FLUSH AGAINST THE BAR while its field is marked — no gap, no curved corner
@@ -3100,11 +3136,11 @@ a {
    floor. Fitting the floor to the value would have been the easy repair and the dishonest one,
    directly after the ink hover was bumped from 2.99 for exactly that reason. */
 .studio-chrome ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, var(--color-ink-950) 22%, transparent);
+  background: color-mix(in oklch, var(--color-studio-ink-950) 22%, transparent);
   border-radius: 99px;
 }
 .studio-chrome ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-ink-400);
+  background: var(--color-studio-ink-400);
 }
 
 /* THE INK SIDEBAR, AND THE SELECTOR TARGETS THE ELEMENT ITSELF RATHER THAN ITS DESCENDANTS.
@@ -3128,7 +3164,7 @@ a {
 @supports not selector(::-webkit-scrollbar) {
   .studio-chrome * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--color-ink-950) 22%, transparent) transparent;
+    scrollbar-color: color-mix(in oklch, var(--color-studio-ink-950) 22%, transparent) transparent;
   }
   .studio-chrome #studio-sidebar {
     scrollbar-color: color-mix(in oklch, white 18%, transparent) transparent;

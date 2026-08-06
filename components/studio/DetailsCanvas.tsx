@@ -158,7 +158,7 @@ export default function DetailsCanvas({
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto bg-cream-100">
+    <div className="min-h-0 flex-1 overflow-y-auto bg-studio-cream-100">
       <div ref={paneRef} className="flex flex-col gap-6 px-6 py-6">
         {/* THE TWO STATES, each at the width a desktop reader actually gets — see CARD_W, which
             is measured on the page rather than derived from the container. */}
@@ -188,10 +188,10 @@ export default function DetailsCanvas({
           ).map(([state, label, hint]) => (
             <div key={state} className="flex min-w-0 flex-col gap-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-[12px] font-bold uppercase tracking-eyebrow text-ink-600">
+                <span className="text-[12px] font-bold uppercase tracking-eyebrow text-studio-ink-600">
                   {label}
                 </span>
-                <span className="text-[11px] text-text-subtle">{hint}</span>
+                <span className="text-[11px] text-studio-text-subtle">{hint}</span>
               </div>
               {/* THE ATTRIBUTE IS ON THE WRAPPER, NEVER ON THE CARD, so the two copies are the
                   same component with the same props and only an ancestor differs. The rule that
@@ -214,7 +214,7 @@ export default function DetailsCanvas({
             not. The counts are the live work section's, not invented: this draws WHICH TAB, not
             how many. */}
         <div className="flex flex-col gap-2">
-          <span className="text-[12px] font-bold uppercase tracking-eyebrow text-ink-600">
+          <span className="text-[12px] font-bold uppercase tracking-eyebrow text-studio-ink-600">
             Filter row
           </span>
           <div className="flex items-center gap-1.5" role="group" aria-label="Filter preview">
@@ -225,15 +225,15 @@ export default function DetailsCanvas({
                   key={f}
                   className={`rounded-full border px-3 py-1 text-[12px] font-semibold capitalize ${
                     on
-                      ? "border-accent-500/40 bg-accent-500/10 text-accent-600"
-                      : "border-ink-950/12 text-text-subtle"
+                      ? "border-studio-accent-500/40 bg-studio-accent-500/10 text-studio-accent-600"
+                      : "border-studio-ink-950/12 text-studio-text-subtle"
                   }`}
                 >
                   {f}
                 </span>
               );
             })}
-            <span className="ml-1 text-[11px] text-text-subtle">
+            <span className="ml-1 text-[11px] text-studio-text-subtle">
               {category
                 ? `This card appears under All and ${category}.`
                 : "No category set — this card appears under All only."}

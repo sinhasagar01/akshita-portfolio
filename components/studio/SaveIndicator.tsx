@@ -41,7 +41,7 @@ export default function SaveIndicator({
   return (
     <span
       aria-live="polite"
-      className={`shrink-0 text-[11.5px] font-medium ${onInk ? "text-ink-200" : "text-text-subtle"}`}
+      className={`shrink-0 text-[11.5px] font-medium ${onInk ? "text-studio-ink-200" : "text-studio-text-subtle"}`}
     >
       {label} {saving ? "saving…" : dirty ? "unsaved" : "saved"}
     </span>

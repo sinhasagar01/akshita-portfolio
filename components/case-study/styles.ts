@@ -11,7 +11,7 @@ export const LINE_SOFT = "color-mix(in oklch, var(--color-ink-950) 6%, transpare
 /** Faint watermark / glow — panel `rgba(181,97,60,.10)` → accent at 10%. */
 export const GLOW = "color-mix(in oklch, var(--color-accent-500) 10%, transparent)";
 
-/** Highlighted card border — spec `border-accent-500/35` (panel `.icard.hl`). */
+/** Highlighted card border — spec `the accent edge at 35%` (panel `.icard.hl`). */
 export const ACCENT_RING = "color-mix(in oklch, var(--color-accent-500) 35%, transparent)";
 
 /** Pedestal gradient — panel `linear-gradient(180deg,#FBF6EE,#F3EADB)`. */

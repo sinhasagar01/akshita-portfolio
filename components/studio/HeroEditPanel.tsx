@@ -141,16 +141,16 @@ export default function HeroEditPanel({
       // NO FRAME — these pages are full-height shells since #242, so a panel frame here is a box
       // drawn around a box, and its `overflow-hidden` clipped the pane's own scrolling. The full
       // reasoning and the measurements are on `AboutEditPanel`'s copy of this line.
-      className="bg-cream-100"
+      className="bg-studio-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+      <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
             <IconSparkles />
           </span>
-          <span className="font-display text-base text-ink-950">Hero</span>
+          <span className="font-display text-base text-studio-ink-950">Hero</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+            <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -162,7 +162,7 @@ export default function HeroEditPanel({
           // (review finding 3). Keyboard Tab still blur-saves by design.
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
         >
           Cancel
         </button>
@@ -190,7 +190,7 @@ export default function HeroEditPanel({
             // The rule the tabs underline against, same as Content|Style's. `flex-wrap` is kept
             // from before: four tab names are author-edited, so a long set can wrap, and the rule
             // then sits under the whole block rather than through it.
-            className="flex flex-wrap gap-1 border-b border-ink-950/12"
+            className="flex flex-wrap gap-1 border-b border-studio-ink-950/12"
             onKeyDown={(e) => {
               // Roving tabindex: the tablist is ONE tab stop and arrows move
               // between tabs, the pattern every other studio tablist already
@@ -264,10 +264,10 @@ export default function HeroEditPanel({
                 // would need a 9px padding that appears in neither reference, so the padding is
                 // matched and the 2px difference is the selection language doing its job.
                 className={[
-                  "-mb-px border-b-2 px-4 py-2.5 text-[12px] font-medium uppercase tracking-[0.10em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+                  "-mb-px border-b-2 px-4 py-2.5 text-[12px] font-medium uppercase tracking-[0.10em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500",
                   i === activeTab
-                    ? "border-accent-500 text-ink-950"
-                    : "border-transparent text-ink-600 hover:text-ink-950",
+                    ? "border-studio-accent-500 text-studio-ink-950"
+                    : "border-transparent text-studio-ink-600 hover:text-studio-ink-950",
                 ].join(" ")}
               >
                 {values[t.labelKey].trim() || t.fallback}

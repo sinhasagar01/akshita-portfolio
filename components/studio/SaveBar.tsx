@@ -84,16 +84,16 @@ import {
 /* THE DOT CARRIES THE STATE AS COLOUR AND THE PHRASE CARRIES IT AS WORDS, so neither is doing it
    alone — the dot is not a lone non-text indicator and the line survives colour blindness. */
 const DOT: Record<string, string> = {
-  saved: "bg-ink-400",
-  dirty: "bg-accent-500",
-  saving: "bg-accent-500 motion-safe:animate-pulse",
-  error: "bg-danger-600",
+  saved: "bg-studio-ink-400",
+  dirty: "bg-studio-accent-500",
+  saving: "bg-studio-accent-500 motion-safe:animate-pulse",
+  error: "bg-studio-danger-600",
 };
 const PHRASE: Record<string, string> = {
-  saved: "text-text-subtle",
-  dirty: "text-ink-600",
-  saving: "text-text-subtle",
-  error: "text-danger-600",
+  saved: "text-studio-text-subtle",
+  dirty: "text-studio-ink-600",
+  saving: "text-studio-text-subtle",
+  error: "text-studio-danger-600",
 };
 
 export default function SaveBar({
@@ -179,7 +179,7 @@ export default function SaveBar({
   return (
     <footer
       ref={barRef}
-      className={`@container grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2 border-t border-ink-950/12 bg-cream-200 px-4 py-3 ${className}`}
+      className={`@container grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2 border-t border-studio-ink-950/12 bg-studio-cream-200 px-4 py-3 ${className}`}
     >
       {/* ⚠ THE VALIDATION MESSAGE IS ITS OWN BRANCH AND OUTRANKS THE SAVE STATE. It is not a save
           state at all — the sections bar uses it for "A video URL must be http:// or https://",
@@ -188,7 +188,7 @@ export default function SaveBar({
           real signal. It wins because it is the thing blocking the save. */}
       <div className={`${stateCell} flex min-w-0 items-center justify-between gap-3`}>
         {validation ? (
-          <span className="min-w-0 truncate text-[12px] text-danger-600" role="status" aria-live="polite">
+          <span className="min-w-0 truncate text-[12px] text-studio-danger-600" role="status" aria-live="polite">
             {validation}
           </span>
         ) : (
@@ -220,7 +220,7 @@ export default function SaveBar({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={onCancel}
-          className="col-start-2 row-start-2 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-100 hover:text-ink-950 @[520px]:row-start-1"
+          className="col-start-2 row-start-2 rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-100 hover:text-studio-ink-950 @[520px]:row-start-1"
         >
           Cancel
         </button>
@@ -237,7 +237,7 @@ export default function SaveBar({
           // suffix left a label, was aria-hidden, and a screen reader heard less than before.
           title={primary.title}
           aria-label={primary.title ? `${primary.label}. ${primary.title}` : undefined}
-          className={`${primaryCell} rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40`}
+          className={`${primaryCell} rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-4 py-2 text-[14px] font-medium text-studio-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40`}
         >
           {status === "saving" ? "Saving…" : primary.label}
         </button>
