@@ -9385,6 +9385,33 @@ follow-up — which is the order this sequence should have had from the start.
 
 ralph 2524 → 2527.
 
+## ELEMENT DISCOVERY, DECOUPLED FROM RESET OWNERSHIP (#353)
+
+`cascade-public` enumerated only tags that still had an UNLAYERED reset — `if (!RULES.has(tag))
+continue`. **So the moment a reset is fully lifted, the element leaves the census**, taking any
+third-party shadowing with it.
+
+**MEASURED: emptying the `p` reset dropped S2 from 22 to 16, and the six that vanished were `<p>`.
+THE COUNT WENT DOWN AND NOTHING WAS FIXED.**
+
+> **THAT IS THE SHAPE #352 REPAIRED, ARRIVING THROUGH THE ONE DOOR IT DID NOT CLOSE.** The model
+> could see a third party — but only for elements that still had a reset to lose.
+
+`TAGS` is now a fixed set rather than a derivation, so an element stays enumerated after its reset
+goes. **Verified by emptying the `p` reset and confirming S2 still reported 22**, and `A1b` asserts
+the set stays a superset so it cannot quietly become derived again. `html` and `body` are excluded
+by name — they carry resets but no component writes utilities on them.
+
+**Zero counts moved on the unchanged site**, which is what a pure instrument fix should look like.
+
+### ⚠ AND THIS IS WHY THE LEADING WAS NOT ATTEMPTED IN THE SAME PR
+
+The 58 line-heights need this fix to land first, and the previous session's attempt is what found it.
+**The prerequisite discovered itself by failing** — which is the third time in this sequence that the
+order of the work was corrected by attempting it in the wrong order.
+
+ralph 2527 → 2528.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
