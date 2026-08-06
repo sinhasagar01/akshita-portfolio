@@ -287,5 +287,42 @@ t("G5 ⚠ AND THE SCOPED COPY MATCHES @theme EXACTLY — the drift objection, an
 t("G6 the verification twin rides cream's own rule, so the two cannot drift apart",
   new RegExp('\\[data-theme="cream"\\],\\s*\\[data-theme="' + VERIFY_THEME + '"\\]').test(cssSrc), true);
 
+console.log("\nH · the mark is INVARIANT — the one category no theme may move");
+
+/* ⚠ SECTION G ASSERTS EVERY THEME DECLARES THE SAME TOKEN SET, AND THAT IS NOT THIS CLAIM. G says
+ * the palettes AGREE with each other. A token absent from every block satisfies G trivially, so G
+ * would go on passing if a theme quietly started overriding the mark — because the moment BOTH
+ * blocks declared it, they would agree.
+ *
+ * So invariance is its own category rather than an exception to G, exactly as the ruling framed it.
+ * The mark is the one thing whose job is to NOT move: the cursor, the loader and the hero auras all
+ * failed the signature test because they were decoration that happened to be warm, and a logo that
+ * changes colour weekly is not a themed logo but an unreliable one.
+ *
+ * ⚠ AND THE ASSERTION IS NEGATIVE, WHICH IS WHY THE POPULATION IS STATED. "No block declares it" is
+ * true of a token that does not exist at all, so H1 pins that the tokens ARE declared in `@theme`
+ * and H3 pins that they have real consumers. Without both, deleting the mark would make this
+ * section greener. */
+const INVARIANT = ["--color-mark", "--color-mark-on-dark"];
+const themeDecl = namesIn(blockOf("@theme") ?? "");
+t("H1 the invariant tokens are declared in @theme — a missing token satisfies H2 for free",
+  INVARIANT.filter((n) => !themeDecl.has(n)), []);
+
+const overriders = [];
+for (const name of THEME_NAMES) {
+  const b = blockOf(`[data-theme="${name}"]`);
+  if (!b) continue;
+  const names = namesIn(b);
+  for (const n of INVARIANT) if (names.has(n)) overriders.push(`${name} overrides ${n}`);
+}
+t("H2 ⚠ NO THEME OVERRIDES THE MARK — this is the one category section G cannot express",
+  overriders.sort(), []);
+
+/* A token nothing uses is not invariant, it is dead — and this repo has just deleted one of those
+ * (`accent-400`, whose comment claimed it was load-bearing while nothing referenced it). */
+const markUses = (cssSrc.match(/var\(--color-mark(-on-dark)?\)/g) ?? []).length;
+console.log(`         ${markUses} consumers of the invariant tokens`);
+t("H3 …and they have real consumers, so H2 is not passing over a dead pair", markUses >= 5, true);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

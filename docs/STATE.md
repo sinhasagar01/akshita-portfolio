@@ -10224,6 +10224,62 @@ failure one step later**. It needs the network, so it is in `run.mjs`'s NOT_RUNN
 the very next uncovered commit fails — the defect was ten instances passing unnoticed, and a
 range-shaped exception would have let the eleventh through.
 
+## THE MARK IS INVARIANT — THE FIRST THING TO PASS THE SIGNATURE TEST (#362)
+
+**THE DECIDING SENTENCE: THE AURAS AND THE LOADER WERE SKINS, A MARK IS A CLAIM.** Every reversal in
+this arc turned on the signature test — does it hold when the ground moves — and the cursor, the page
+loader and the hero auras all FAILED it, because each was decoration that happened to be warm. Three
+entries failed and the category began to read as though nothing could pass. **The mark is the one
+thing whose job is to not move. A logo that changes colour weekly is not a themed logo, it is an
+unreliable one.**
+
+**THE WORK IS SUBTRACTIVE, WHICH IS THE PART WORTH SAYING PLAINLY.** `.logo-sig` inherited
+`--color-text-primary` and moved with the palette, `.logo-singh`, `.logo-vbar` and the construction
+grid all took `accent-500`. Option 1 meant REMOVING theming from six declarations, not adding any.
+
+**⚠ AND THE TOKENS ARE THE MARK'S OWN COLOURS, NOT THE ACCENT'S.** `#9B4F2C` is the ribbon's dark
+stop from `docs/logo-assets/favicon.svg`, measured **27.5 from cream's accent-500** — its own colour
+rather than a hand-typed near-copy, which is exactly what the cursor turned out to be.
+
+**TWO TOKENS, SPLIT BY GROUND RATHER THAN BY THEME** — the split the mark already makes internally,
+since the favicon draws the LIGHT ribbon on a near-black square. Sanity pair 21.000 first:
+
+| | light nav | dark nav |
+|---|---|---|
+| `--color-mark` `#9B4F2C` | **5.65 / 5.67 AA** | 3.27 ✗ |
+| `--color-mark-on-dark` `#D89067` | 2.47 ✗ | **7.46 / 7.32 AA** |
+
+Each fails on the other ground, which is why there are two and not one. Rendered: the lockup computes
+`rgb(155,79,44)` at **5.71 on both palettes, byte-identical** — and on harbour it is the one warm
+thing on a cool page, which is the fixed point doing its job rather than a leak.
+
+**⚠ SECTION G COULD NOT EXPRESS THIS, SO INVARIANCE IS ITS OWN CATEGORY.** G asserts every theme
+declares the same token SET — and a token absent from every block satisfies G **trivially**. G would
+go on passing if a theme quietly started overriding the mark, because the moment both blocks declared
+it they would AGREE. Section H asserts the negative directly, with H1 and H3 pinning that the tokens
+exist and have consumers, since "no block declares it" is also true of a token that does not exist.
+
+**AND THE MARK IS STILL CONTRAST-COMPUTED.** Invariance is a claim about whether a THEME may move a
+colour, not a licence to skip a floor — the lockup is text a visitor reads on every page.
+
+---
+
+## THE UNDEPLOYED ASSETS SHIP, AND THE TWO OBJECTIONS BOTH DISSOLVE
+
+`favicon.svg` and `apple-touch-icon-180.png` sat in `docs/logo-assets/` since the identity commit,
+designed and never wired. **Verified by rendering before shipping, because "exists in docs" is not
+"works":** the mark reads at 16, 32, 64 and 180, with the ribbon at 10.3% of the 16px raster — legible
+there, though thin.
+
+**⚠ BOTH OBJECTIONS THAT KILLED THE PER-THEME OPTION DISSOLVE UNDER INVARIANCE, AND FOR THE SAME
+REASON.** Two assets in step is an obligation on a person — but a BOUNDED one: in step at ONE value
+forever rather than once per palette. A per-theme pair would have grown with every theme; this pair
+does not. And Chrome holding a favicon for days regardless of HTTP headers **only matters if the icon
+is supposed to change.** Under an invariant mark it never is.
+
+Safari did not support SVG favicons until **26.0** — 3.1 through 18.7 do not — so the PNG is a real
+fallback rather than a courtesy, and it carries more traffic here than the 89% global figure suggests.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -166,6 +166,13 @@ const USAGE = [
   /* The case-study h1 on a wide hero. It is the accent in its heading ROLE on ink, so it is
    * computed here rather than excused anywhere — the h1 is the largest text on the page. */
   ...TEXT("accent-on-dark", ["band-dark"]),
+  /* ⚠ THE MARK IS INVARIANT AND STILL COMPUTED. Invariance is a claim about whether a THEME may
+   * move it, not a licence to skip a contrast floor — the logo lockup is text a visitor reads on
+   * every page. The two rows split by GROUND exactly as the mark itself does: the favicon draws the
+   * light ribbon on a near-black square, and each value fails on the other ground (2.47 and 3.27),
+   * which is why there are two. Section H asserts no theme overrides them. */
+  ...TEXT("mark", ["canvas", "cream-50", "cream-100"]),
+  ...TEXT("mark-on-dark", ["band-dark"]),
   /* Long-form prose. Named in #327 — it is 9.41 on cream-50, between text-primary and
      text-secondary, which is what made it a role rather than a spelling. */
   ...TEXT("text-body", ["canvas", "cream-50"]),
@@ -236,7 +243,7 @@ t("B8 a palette missing a token is UNCOMPUTABLE, never SHIPPABLE", inc.verdict, 
  * three would be one that stopped tracking its subject. */
 t("B9 and the uncomputable rows are named", inc.uncomputable, [
   "on-dark on band-dark", "on-dark-muted on band-dark", "on-dark-quote on band-dark",
-  "accent-on-dark on band-dark"]);
+  "accent-on-dark on band-dark", "mark-on-dark on band-dark"]);
 
 /* ⚠ `over()` IS NOT EXERCISED HERE, AND THAT IS STATED RATHER THAN LEFT TO LOOK LIKE COVERAGE.
  * `UsageRow.alpha` exists in the type — every hairline and scrim on this site is specified as a
