@@ -62,9 +62,45 @@ export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, VERIFY_THEME] as const;
 
 export type ThemeName = (typeof THEME_NAMES)[number];
 
-/** The names an author may actually set. The twin is resolvable but never selectable. */
+/* ============================================================================================
+   ⚠ RESOLVABLE BUT NOT SELECTABLE, AND THE TWO ENTRIES ARE HERE FOR DIFFERENT REASONS.
+
+   A theme in this map exists, renders, and is gated — it simply cannot be PUBLISHED. Keeping the
+   reason beside the name is the point: "not selectable" with no explanation is indistinguishable
+   from an oversight, and the twin already taught us that an unexplained exclusion is what a future
+   cleanup deletes.
+
+   `cream-verify` — a permanent control. Never selectable, ever. See its block above.
+
+   `harbour` — TEMPORARY, AND THE TRIGGER IS NAMED. The contrast instrument says SHIPPABLE, which
+   is the narrow claim that every token PAIR clears its floor. Rendering the home page on harbour
+   found FOURTEEN distinct warm colours that do not move with the theme, including body copy set to
+   the literal `#4a4239`, three watermarks, the custom cursor, and every warm hairline. They are on
+   the contrast gate's boundary list precisely because a theme cannot move them.
+
+   ⚠ SELECTABLE-BUT-WRONG IS WORSE THAN UNSELECTABLE, because changing the theme is a WHOLE-BRANCH
+   PUBLISH — the author would discover the failure in production, on a one-line diff that showed
+   them nothing. Hazard 13's family, which is the same reason the pending preview exists.
+
+   ⚠ AND THE LITERALS ARE NOT THEME WORK. Fourteen colours that ignore the token layer are fourteen
+   places the design system does not reach, and they would be worth converting if this project were
+   cancelled tomorrow. `#4a4239` in particular is a defect in CREAM today — a literal that agrees
+   with its token by coincidence, which is the inert-utility condition inverted. Harbour becomes
+   selectable when they are converted, and this entry is deleted in that PR.
+============================================================================================ */
+const UNSELECTABLE: Record<string, string> = {
+  [VERIFY_THEME]: "permanent verification control — never publishable",
+  [SECOND_THEME]: "14 public literals do not move with a theme yet — see the literals PR",
+};
+
+/** The names an author may actually set. */
 export function selectableThemes(): string[] {
-  return THEME_NAMES.filter((name) => name !== VERIFY_THEME);
+  return THEME_NAMES.filter((name) => !(name in UNSELECTABLE));
+}
+
+/** Why a resolvable theme cannot be published, or undefined if it can. */
+export function unselectableReason(name: string): string | undefined {
+  return UNSELECTABLE[name];
 }
 
 export function isKnownTheme(raw: unknown): raw is ThemeName {

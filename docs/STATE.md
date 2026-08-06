@@ -7882,6 +7882,25 @@ problem rather than an exemption from it.
 **THE HONEST STATUS: THE THEME SYSTEM WORKS AND THE SITE IS NOT YET FULLY THEMEABLE.** Those are
 different claims and only the first is shipped here.
 
+**⚠ SO HARBOUR SHIPS RESOLVABLE AND NOT SELECTABLE.** Publishing it would put warm body text on a
+cool ground, and changing the theme is a WHOLE-BRANCH PUBLISH — the author would discover it in
+production, from a one-line diff that showed them nothing. **Selectable-but-wrong is worse than
+unselectable**, and shipping a known-wrong site on an approval given before the render would be the
+shape this project has refused all year.
+
+The exclusion carries a REASON in the code, and a gate asserts every exclusion does. That is the
+twin's lesson applied to a second case: an unexplained exclusion is indistinguishable from an
+oversight, and it is what a future cleanup deletes.
+
+**⚠ AND THE LITERALS ARE NOT THEME WORK.** Fourteen colours that ignore the token layer are
+fourteen places the design system does not reach, and they would be worth converting if this
+project were cancelled tomorrow. They split by whether they SHOULD move — the #275 test again, and
+the same question Step 1 answered for 61 literals. Body copy and hairlines convert. The three
+watermarks and the cursor are DECIDED rather than swept, and if they are meant to hold across all
+four themes the boundary list grows by three rather than the code shrinking by three. `.ab-tint` is
+measured against what it composites over first, because a tint that darkens works on any ground and
+a light wash does not — the scrim-versus-pane rule.
+
 ### WHAT ELSE THE BUILD FOUND
 
 **⚠ `studio-ink-contrast` STARTED READING HARBOUR'S COLOURS.** Its token scan ran over the WHOLE
@@ -7897,6 +7916,12 @@ that high safely only because of the freeze** — `studio-palette` B1 asserts ze
 the public palette in studio source and `studio-tokens` C1 asserts every frozen colour is a literal,
 so the chrome is immune BY CONSTRUCTION rather than by threading a value carefully to a canvas
 wrapper and hoping nothing else picked it up.
+
+**⚠ AND A SEPARATE PR THAT LOOKED LIKE OVERHEAD IS WHAT MADE THIS ONE ONE ATTRIBUTE.** #323 was a
+single site — the studio's ground — and a gate. Without it the pending preview would have needed
+the draft theme threaded down two prop chains to two canvas wrappers, with nothing asserting that
+no other descendant had picked it up. The freeze turned a threading problem into an attribute.
+**That is the payoff for splitting it out, and it was not visible at the time.**
 
 **AND THE STUDIO'S OWN GATES CAUGHT THE NEW PANEL TWICE.** `studio-cascade` C1 found an `<h2>`
 whose `font-medium` the unlayered reset overrides, and a `<p>` whose `max-w-[52ch]` it owns — both
