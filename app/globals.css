@@ -586,7 +586,6 @@ h2 {
   font-family: var(--font-display);
   font-optical-sizing: auto;
   font-weight: var(--font-weight-regular);
-  letter-spacing: var(--tracking-tight);
 }
 
 h3,
@@ -668,6 +667,22 @@ h6 {
 
   p {
     line-height: var(--leading-relaxed);
+  }
+
+  /* ⚠ THE TRACKING — THE FOURTH AND LAST PROPERTY, AND THE SMALLEST. Four heading sites, all
+     asking for LOOSER tracking than the reset's -0.03em: -0.01em, -0.015em, -0.018em and -0.02em.
+     One direction again, and the same story as the other three — four authors writing the same
+     correction and none of them able to see it was inert.
+
+     ⚠ THE `h1, h2` RULE STILL EXISTS UNLAYERED with family, optical sizing and weight, so it stays
+     in `A0`'s premise list. Only `p` was ever emptied completely.
+
+     THIS CLOSES THE SEQUENCE: 18 measures, 12 weights, 58 leadings, 4 trackings. The item said 58
+     and one change. It was 92 across four properties, taken one at a time so each had a diff
+     somebody could read. */
+  h1,
+  h2 {
+    letter-spacing: var(--tracking-tight);
   }
 }
 

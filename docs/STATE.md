@@ -9459,6 +9459,43 @@ only reason it cost minutes rather than a false green.
 
 ralph 2528 → 2529.
 
+## THE TRACKING, AND THE SEQUENCE CLOSES (#355)
+
+Four heading sites, all asking LOOSER tracking than the reset's `-0.03em` — `-0.01em`, `-0.015em`,
+`-0.018em`, `-0.02em`. **Verified in the browser: both blog headings draw exactly what they ask.**
+`S2` held at 22 again.
+
+### THE FOUR PROPERTIES, AND WHAT THE ITEM ACTUALLY WAS
+
+| | | outcome |
+|---|---|---|
+| `<p>` max-width | 18 | every one narrowed, largest by **584px** |
+| `<h3>` font-weight | 12 | the reset stopped winning; **22 still shadowed by a third rule** |
+| line-height | 58 | all live, **33/33 verified** |
+| heading letter-spacing | 4 | all live |
+
+**The record said "58 line-heights, one change". It was 92 across four properties.** Taken one at a
+time so each had a diff somebody could read — and the second one immediately proved why, by not
+doing what it said on the tin.
+
+### WHAT THE SEQUENCE COST, AND WHAT IT BOUGHT
+
+**Two structural findings, both in the instrument rather than the site.** A cascade contest can have
+THREE parties, and a suite that enumerates only tags with a reset loses the element when the reset
+goes. **Neither was visible until the work was attempted in the wrong order and failed.**
+
+**AND THE COUNTS FELL FOUR TIMES FOR THREE DIFFERENT REASONS** — a category dissolving, a
+reclassification, and a genuine repair — and each time it was worth writing down which. A number
+going down is not evidence of anything on its own.
+
+### WHAT REMAINS, AND WHY IT IS NOT THE FIFTH STEP
+
+`color`, six `<a>` sites. The unlayered `a { color: inherit }` exists so links inherit their context
+rather than turning blue, and `studio-cascade`'s whole premise rests on it. **Lifting it is a new
+sequence with its own reason to exist**, not the tail of this one.
+
+ralph 2529, 61 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
