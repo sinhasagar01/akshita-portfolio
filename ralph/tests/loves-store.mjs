@@ -190,8 +190,16 @@ const H = hashIp("1.2.3.4", SECRET);
   r.data.set(counterKey(ENV, "c"), "-4"); // corrupted on purpose
   const counts = await store.getCounts(["a", "b", "c"]);
   t("G1.1 ONE round trip for the whole page, not one per card", r.log.length, 1);
+  /* ⚠ THE KEY FORMAT IS SPELLED OUT, NOT BUILT BY `counterKey`. Using the production builder on
+   * both sides means a change to the key SHAPE moves the expectation with the actual, and this is
+   * the one place in the repo where a silent regression costs real stored data: a renamed key does
+   * not error, it reads zero and every existing count disappears. G1.2b keeps the builder in the
+   * picture so the literal cannot drift out of date silently either — one row anchors the format,
+   * the other anchors the builder to it. */
   t("G1.2 …and it is a single MGET of the three counter keys",
-    r.log[0], ["MGET", counterKey(ENV, "a"), counterKey(ENV, "b"), counterKey(ENV, "c")]);
+    r.log[0], ["MGET", "loves:test:a", "loves:test:b", "loves:test:c"]);
+  t("G1.2b ⚠ AND THE BUILDER STILL PRODUCES THAT EXACT FORMAT — a rename reads zero, it does not error",
+    counterKey(ENV, "a"), "loves:test:a");
   t("G1.3 absent keys read as 0 and a corrupted one clamps", counts, { a: 12, b: 0, c: 0 });
   t("G1.4 …positionally aligned, not sorted or shifted", Object.keys(counts), ["a", "b", "c"]);
   const empty = fakeRedis();
@@ -223,9 +231,12 @@ const H = hashIp("1.2.3.4", SECRET);
   t("G2.4 no read of the counter precedes the INCR",
     r.log.findIndex((c) => (c[0] === "GET" || c[0] === "MGET") && c.includes(ck)), -1);
   // The dedupe claim is itself atomic — SET NX, not EXISTS-then-SET.
+  /* Same reasoning as G1.2 — the shape is literal, and G2.5b pins the builder to it. */
   t("G2.5 the dedupe claim is a single atomic SET NX",
     r.log.filter((c) => c[0] === "SET")[0],
-    ["SET", dedupeKey(ENV, "post", H), "1", "NX", "EX", String(LOVE_DEDUPE_TTL_SECONDS)]);
+    ["SET", `loved:test:post:${H}`, "1", "NX", "EX", String(LOVE_DEDUPE_TTL_SECONDS)]);
+  t("G2.5b ⚠ AND THE DEDUPE BUILDER PRODUCES THAT FORMAT — a silent rename un-dedupes every visitor",
+    dedupeKey(ENV, "post", H), `loved:test:post:${H}`);
   t("G2.6 …with no EXISTS probe before it", r.verbs().includes("EXISTS"), false);
   t("G2.7 a first love sends only these four verbs — nothing crept in",
     [...new Set(r.verbs())].sort(), ["EXPIRE", "INCR", "SET", "TTL"]);

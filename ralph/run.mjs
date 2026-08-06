@@ -36,6 +36,7 @@
 // no `process.exit`. It is skipped by name and reported as skipped, never silently dropped.
 import { readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { countAssertions } from "./count.mjs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -57,14 +58,9 @@ const suites = readdirSync(TESTS)
 const runnable = suites.filter((s) => !NOT_RUNNABLE.has(s));
 const skipped = suites.filter((s) => NOT_RUNNABLE.has(s));
 
-/** A suite's own summary wins; the [PASS] count is the fallback for suites without one. */
-function countAssertions(stdout) {
-  const summary = [...stdout.matchAll(/(\d+) passed, (\d+) failed/g)].pop();
-  if (summary) return { passed: Number(summary[1]), failed: Number(summary[2]), from: "summary" };
-  const passed = (stdout.match(/\[PASS\]/g) ?? []).length;
-  const failed = (stdout.match(/\[FAIL\]/g) ?? []).length;
-  return { passed, failed, from: "markers" };
-}
+/* Moved to `ralph/count.mjs` in #369 so `mutate.mjs` reads counts the same way. It had its own
+ * copy that recognised `[FAIL]` only, and eleven suites print `✗ FAIL` — the fourth "right verdict,
+ * wrong stated cause" defect in that file. #183's rule: commit the tool, do not document the bug. */
 
 let totalPassed = 0;
 let totalFailed = 0;

@@ -788,6 +788,30 @@ console.log("\nT · every theme defines the same TOKEN SET");
  * inherits on the other, appearing only when someone finally consumes it. */
 const bundle = cssFiles.map((f) => readFileSync(url(`${CSS_DIR}/${f}`), "utf8")).join("\n");
 
+/* ⚠ THE CSS BUNDLE IS THEME-INVARIANT, AND THAT FACT HAS HAD ITS MEANING INVERTED UNDER IT.
+ *
+ * #324 measured `css__all` IDENTICAL between two builds and explained it as "the expected
+ * consequence of shipping NO token blocks" — true then, because no `[data-theme]` block existed.
+ * #366 re-measured it identical and the reason is now the OPPOSITE: **ALL theme blocks ship in one
+ * bundle and the HTML attribute selects among them.**
+ *
+ * SAME NUMBER, OPPOSITE CAUSE, AND NOTHING IN THE OUTPUT SIGNALS THE CHANGE. A measurement whose
+ * value never moves while its meaning inverts cannot be cited without re-deriving it, which is
+ * exactly what a record is supposed to save you from.
+ *
+ * ⚠ AND UNTIL NOW IT LIVED ONLY IN A HAND-RUN SNAPSHOT PROTOCOL, so the property depended on
+ * somebody remembering to compare two builds. The property is real and it can break — a build that
+ * emitted per-theme stylesheets, or dropped a theme's block from the bundle, would be caught by
+ * nothing. So it is asserted here, where the reason travels with it. */
+const themeBlockCount = [...bundle.matchAll(/\[data-theme=["']?[a-z-]+["']?\]/g)]
+  .map((m) => m[0]).filter((v, i, a) => a.indexOf(v) === i);
+console.log(`         ${themeBlockCount.length} distinct [data-theme] selectors in the single bundle`);
+t("T0 ⚠ EVERY THEME'S BLOCK SHIPS IN ONE BUNDLE — the attribute selects, the bytes do not change",
+  themeBlockCount.length >= 2, true);
+t("T0b …and the published theme is not the only one present, which is what makes it switchable",
+  themeBlockCount.some((s) => /harbour/.test(s)) && themeBlockCount.some((s) => /cream/.test(s)), true);
+
+
 /* ⚠ EVERY MATCHING BLOCK, NOT THE FIRST. The first draft took `css.indexOf` / `css.search` and read
  * whichever block came first in the concatenated bundle — which was a `:root` holding no colour at
  * all, so the base palette measured ZERO and T2 passed over an empty set. T3 is what reported it.
