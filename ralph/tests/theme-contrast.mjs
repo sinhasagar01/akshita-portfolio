@@ -256,13 +256,33 @@ t("C3 an empty usage map is not a pass — zero subjects, zero meaning",
 console.log("\nD · theme two — judged by the instrument, not by eye");
 
 /* Harbour is the defaults with its block layered over them, which is exactly what the browser
- * computes: `@theme` on `:root`, the unlayered `[data-theme]` block winning over it. */
+ * computes: `@theme` on `:root`, the unlayered `[data-theme]` block winning over it.
+ *
+ * ⚠ AND THAT FIDELITY IS ALSO THIS SUITE'S BLIND SPOT, WHICH IS WHY THE OWNER IS NAMED BELOW. The
+ * spread means a token harbour FORGETS to override silently arrives from CREAM — so `report` would
+ * measure cream's contrast, and D1 would call the result harbour SHIPPABLE. The instrument
+ * faithfully reproduces the browser's own failure mode: the browser inherits silently too.
+ *
+ * That is not hypothetical. `--color-accent-400` shipped for months declared on ONE side, and no
+ * gate could see it because every reader either merged the two or read the source where both
+ * plainly existed. THE OWNER OF THAT CLAIM IS `theme` SECTION G, which asserts the two blocks
+ * declare the same token SET, and D3 below now compares the two counts rather than testing one
+ * against a floor. Naming it because a deferral without a named check is a deferral to nobody. */
 const HARBOUR = { ...CREAM, ...themeOverrides("harbour") };
 const harbour = report(HARBOUR, USAGE);
 t("D1 harbour is SHIPPABLE", harbour.verdict, "SHIPPABLE");
 t("D2 nothing uncomputable — every row the map names exists in the palette", harbour.uncomputable, []);
 t("D3 it is a DIFFERENT palette, not the defaults wearing a name",
   Object.keys(themeOverrides("harbour")).length > 15, true);
+/* ⚠ SYMMETRIC, BECAUSE `> 15` WOULD LET NINETEEN TOKENS VANISH. Cream did not have a block to
+ * compare against until #365 gave it one; now the two are counted against EACH OTHER, so a palette
+ * that drops a token fails here as well as in `theme` G4. Two independent readers of the same
+ * invariant is the point — G4 reads names, this reads the parsed override maps. */
+t("D3b ⚠ AND BOTH PALETTES DECLARE THE SAME NUMBER OF TOKENS — a short palette inherits the other silently",
+  Object.keys(themeOverrides("harbour")).length,
+  Object.keys(themeOverrides("cream")).length);
+t("D3c …and that number is the real palette, not two empty maps agreeing",
+  Object.keys(themeOverrides("cream")).length > 20, true);
 
 /* ⚠ THE TWO ROWS THAT REFUSED THE EARLIER DRAFTS, PINNED. Draft 1 put the ground near the old
  * "roughly 85%" figure and failed five external rows; draft 2 kept cream's `ink-400` at 62% and

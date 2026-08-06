@@ -10048,6 +10048,47 @@ resolution rather than a reversal. The original reason for refusing the block wa
 section G is what makes it unnecessary — a copy that cannot silently disagree is not the copy the
 objection was about.
 
+## THE GATE AUDIT, FIRST PASS — COMPARISONS WHOSE REFERENCE IS DERIVED FROM THE SUBJECT (#367)
+
+The twin's vacuity is one instance of a general shape. **A comparison proves nothing when both sides
+are produced by the same thing** — the contaminated-input family in cross-theme costume. Audited the
+three candidate classes the owner named.
+
+**⚠ ONE REAL INSTANCE FOUND.** `theme-contrast` builds harbour as
+`{ ...CREAM, ...themeOverrides("harbour") }`. **A token harbour forgets to override arrives silently
+from CREAM**, so `report` measures cream's contrast and D1 calls the result harbour SHIPPABLE. Its own
+comment says the merge "is exactly what the browser computes" — **true, and precisely why it is
+blind, because the browser inherits silently too. The instrument faithfully reproduces the failure
+mode it should be catching.**
+
+Not hypothetical: `--color-accent-400` shipped declared on ONE side for months, and no reader could
+see it because each either merged the two or read the source where both plainly existed.
+
+**D3 was the only guard and it tested a floor** — `overrides.length > 15` against 35 tokens, so
+nineteen could vanish unnoticed. Cream had no block to compare against until #365 gave it one. Now
+**D3b counts the two palettes against each other**, and `theme` G4 compares their token NAMES —
+**two independent readers of one invariant**, from the parsed override maps and from the selector
+text. A mutation dropping `--color-accent-600` from harbour kills both.
+
+**THREE CLASSES CHECKED AND FOUND SOUND**, stated so the audit's subject is declared rather than
+implied.
+
+- **`studio-tokens` C1** asserts every frozen studio colour is a **LITERAL**, not that it equals its
+  public counterpart. That is already the repaired form, and the reason is recorded at #324: *an
+  alias evaluates EQUAL wherever the two agree, so the equality row could never see the aliasing
+  defect it existed to prevent.* The same lesson, learned once already on this exact seam.
+- **`rendered-theme`** reads the published value from `content/site-settings.yaml` and the attribute
+  from `.next`. Source against generated output — genuinely independent.
+- **`colour-census` J1/J3** joins `docs/colour-boundary.yaml` against populations scanned from the
+  build. A hand-written record against machine-read output — independent, and the two-way join is
+  what makes a stale row fail rather than pass.
+
+**WHAT THIS PASS DID NOT COVER**, because a pass that does not say so reads as complete. It examined
+gates comparing two palettes, gates comparing a frozen copy to a public one, and gates whose control
+shares a code path with the subject. **It did not examine the other 58 suites for the same shape**,
+and the shape is not theme-specific — any assertion whose expected value is computed by the code under
+test has it. That is the next sweep, and it is larger than this one.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
