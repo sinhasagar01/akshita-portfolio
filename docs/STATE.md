@@ -1640,9 +1640,13 @@ All prior locked decisions remain. Added across this session:
 - **The blog editor is 3-PANE** (owner reversal of #174), canvas at **68ch with `px-6`**,
   fit threshold **1538**.
 - **Structural ops NEVER call `saveDraft()`.** Fields save on blur.
-- **THE CANVAS MEASURE EQUALS THE ARTICLE MEASURE, AS A NUMBER.** `697.9296875px` today.
-  It never widens on collapse. A measure that moves when you hide a pane is a measure that
-  lies, and it is the property the whole layout exists to protect.
+- **THE CANVAS MEASURE EQUALS THE ARTICLE MEASURE, AS A NUMBER.** `628.734px` today, the
+  wrapper capped at `676.736px`. It never widens on collapse. A measure that moves when you hide
+  a pane is a measure that lies, and it is the property the whole layout exists to protect.
+  **⚠ THE NUMBER MOVED IN #304 AND THE PROPERTY DID NOT.** It was `697.9296875px` under DM Sans.
+  `ch` is the width of the `0` glyph in the element's own font, so repointing `--font-body` to
+  Work Sans took 68ch from 745.93px to 676.73px. Both sides moved together, which is why the
+  equality survived; the LOCKED thing is the equality, not the figure.
 - ~~**BLOCK SELECTION IS THE INSPECTOR STRIP. Clicking the prose is mock-only.**~~
   **REVERSED BY THE OWNER, BUILT IN #187.** The reasoning is kept rather than deleted,
   because a reversed decision whose reasoning is deleted leaves two contradictory rationales
@@ -2035,8 +2039,23 @@ All prior rules remain. Added or sharpened across this session:
 - **A CONCLUSION CAN DECAY WITHOUT ANYONE TOUCHING IT.** When a PR adds to a schema, check
   what else keyed off that schema's shape.
 - **VERIFY A UNIT BEFORE COMPUTING WITH IT.** `68ch` resolves against the wrapper's
-  font-size, not the prose font-size — 745.9px, not 646. A whole threshold was wrong by
-  190px because nobody measured. **Measure the resolved value; do not derive it.**
+  font-size, not the prose font-size. A whole threshold was wrong by 190px because nobody
+  measured. **Measure the resolved value; do not derive it.**
+- **A `ch` UNIT MAKES THE BODY FONT A LAYOUT INPUT, so a family swap is a geometry change
+  wearing a typography change's clothes.** #304 repointed `--font-body` and 68ch fell from
+  745.93px to 676.73px, walking `BLOG_CANVAS_MIN_PX` 794 → 725, `PANES_SUM` 1058 → 989 and the
+  fit threshold 1562 → 1493 — which **flipped a gate**: the 1536 laptop stopped being unable to
+  fit blog's three panes at every sidebar width. Nothing in the typography contract anticipated
+  a font reaching the layout. The same fact was asserted TWICE in one file, 400 lines apart, so
+  the constant and the gate must move in ONE commit or a green assertion is left stating a stale
+  number.
+- **ASK WHERE A COST IS EMITTED, NOT WHERE THE FEATURE IS USED.** `preload` on a font is
+  declared per family and emitted from the ROOT layout, which wraps the public site — so giving
+  the studio-only label face `preload: true` put a fifth font preload on every public page for a
+  face no public page renders. Caught in the build at 4 → 5, after a comment had already claimed
+  the public count was unaffected. Same family as the CSS bundle being one chunk the public site
+  downloads, which #274 measured at 23.4% studio-only. **The consumers were scoped and the cost
+  was not.**
 - **DERIVED NUMBERS DECAY QUIETLY.** The 2.13 dimming factor was read as a contrast ratio.
   State what a number IS, not just its value.
 - **DESIGN REFERENCE FILES ARE VISUAL SPEC, NOT PORTABLE CODE — and specifically unreliable
@@ -7263,6 +7282,106 @@ Public DOM byte-identical on all four studies. lint, tsc and the production buil
 expired: that a drag tracks the cursor on screen, that a space typed in a field is still a space,
 and that click-to-caret survives, are all the owner's to drive. #211 established that reporting NOT
 MEASURED beats claiming a pass never performed.
+
+---
+
+## ARC 10 — THE TYPOGRAPHY SWAP (COMPLETE)
+
+Nine PRs, `#302`–`#310`. ralph **2313 → 2352**, two gates net-new. The owner's design contract is
+`docs/studio/typography-contract.html`; the audit it was scoped against is `docs/DESIGN-SYSTEM.md`
+(#299) and its rendered form `docs/design-system-specimen.html` (#301).
+
+**Fraunces → Source Serif 4 for display. DM Sans → Work Sans for body. Space Grotesk added for
+labels.** Font payload **1.9M → 1.3M**. Public font preloads **4 before, 4 after, every PR**.
+
+| PR                 | what it settled                                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **#302** `fc91afc` | **The three faces loaded, unconsumed**, plus the role/face token seam that made the swap a one-line repoint instead of a sweep of 125 display sites.   |
+| **#303** `ff2881a` | **`cascade-public`** — the cascade gate widened past `/studio`. 97 collisions found, censused, pinned.                                                  |
+| **#304** `49f4e8f` | **Body → Work Sans, and the measure with it**, atomic. Three constants and two flipped gate assertions in one commit.                                   |
+| **#305** `50b9c24` | **Display → Source Serif 4**, and the `opsz` pin replaced by the mechanism.                                                                            |
+| **#306** `016cda3` | **The OG card off Fraunces.** It was rendering a different serif from every page it represented.                                                        |
+| **#307** `d382d3a` | **Blog card titles and the contact heading** get the face they ask for.                                                                                 |
+| **#308** `4fa8d8f` | **The process stage heads** too — the fourth site, found only because #307 fixed the gate that could not see it.                                        |
+| **#309** `0da3221` | **The label scale gets Space Grotesk** — `--font-label`'s first consumers.                                                                              |
+| **#310** `7136714` | **Fraunces and DM Sans deleted.** Zero consumers, 658.5 KB, 8 files.                                                                                    |
+
+### THE STAGING WAS THE DESIGN, AND THE ORDER WAS ARGUED RATHER THAN ASSUMED
+
+**ADDITIVE FIRST.** #302 loads three faces nothing reads, so the swap lands on a working baseline
+and every later PR's diff is about one thing. **THE GATE BEFORE THE CHANGE.** #303 exists so that a
+heading looking wrong after the swap can only mean the new font, never a class that never worked.
+**THE DISPLAY SWAP BEFORE THE OG CARD**, because deriving the card's constants against Fraunces
+would not merely have been wasted work — it would have put numbers in `lib/og-fit.ts` that were
+wrong the moment the serif landed, **while still looking measured**.
+
+### THE FIVE FINDINGS NOBODY WAS LOOKING FOR
+
+1. **THE HOME PAGE `<h1>` CARRIES FOUR UTILITIES AND THREE DRAW NOTHING.** The site's largest
+   element. `font-script` draws the display serif, `text-[--color-accent-500]` draws inherited ink,
+   `leading-[1]` draws 1.15. The comment above it reasons about accent-500 clearing a contrast bar
+   **for a colour that has never rendered**. Fifth shipped instance of hazard 11.
+2. **`<motion.h3>` WAS INVISIBLE TO THE GATE.** The element scanner captured `motion` from
+   `<motion.h3` — lowercase, matching no rule, silently skipped. **Seven elements sat behind it**,
+   one a fourth family collision while the registry asserted there were exactly three. Found by
+   looking at the screen. The census moved **97 → 104** the moment the dotted form became visible.
+3. **THE OG CARD WAS ON A DIFFERENT SERIF FROM ITS OWN PAGE**, and nothing could see it — the card
+   is built server-side by Satori from its own font buffer, so no stylesheet, token or cascade gate
+   touches it. The one surface where the site's type can drift with nothing in the repo disagreeing.
+4. **A `ch` UNIT MADE THE BODY FONT A LAYOUT INPUT** — see the working rule. A font change moved the
+   three-pane collapse threshold and flipped a gate.
+5. **`studio-cascade` WENT DARK ON THE ONE RULE IT EXISTS FOR.** Documenting the `opsz` hazard put a
+   comment above the `h1, h2` reset, and its parser split on `}` without stripping comments, so the
+   rule stopped entering the map. `A0` reported `undefined` and the inert inventory fell 11 → 7
+   while `C1` kept passing, **because it had nothing left to check**. That was the blind spot #299
+   had recorded against `html` and called "no live consequence" — untrue within a week.
+
+### THREE DEFECTS I INTRODUCED, ALL CAUGHT BY A GATE OR A BUILD
+
+- **A preload regression.** `preload: true` on the label face put a fifth font preload on every
+  public page. The build caught it at **4 → 5**, after a comment I had just written claimed the
+  public count was unaffected.
+- **A consumer count that read the token's own declaration**, so it passed with zero consumers.
+- **The same count then reading my own comment prose** — the sentence explaining that the constants
+  carry `font-label` satisfied the check. Both found only by mutation. `studio-ink` G1 records the
+  identical failure.
+
+### THREE KINDS OF ASSERTION CHANGE, WHICH THIS ARC HAD TO TELL APART
+
+A gate whose SUBJECT changes is rewritten with its new subject. A gate that is merely INCONVENIENT
+gets loosened, and this project has caught that three times — a regex widened under pressure, a
+substring check that matched its own prose, an `||` whose second clause passed regardless.
+
+| kind                             | example                                                              |
+| -------------------------------- | -------------------------------------------------------------------- |
+| subject changes, value changes   | `three-pane` A, #304 — the laptop fits now, so the assertion says so |
+| subject changes, **value stays** | `typography` C3, #309 — same `false`, entirely different reason       |
+| **subject is deleted**           | `typography` C2, #310 — the only one that can pass VACUOUSLY          |
+
+The middle kind is the tell that nothing got easier to satisfy. The last is the dangerous one: had
+C2 been left alone it would have read `null` for both deleted faces and passed by comparing nothing
+to nothing.
+
+### WHAT IS LEFT STANDING, DELIBERATELY
+
+- **THE KAUSHAN WORDMARK.** The arc replaced a display serif and a body sans and touched **neither
+  cursive face**. Kaushan renders at five sites including the nav wordmark and the footer identity;
+  a sixth, the home `h1`, ASKS for it and draws the serif — measured, which corrected an earlier
+  claim of mine. A brand decision, the owner's, unmade. `cascade-public` holds it as the single
+  registered family collision.
+- **THE 61 LINE-HEIGHTS.** 61 of 101 public collisions. Moving the unlayered element rules into
+  `@layer base` fixes all of them at once — **and applies values nobody has ever seen render**,
+  which is a larger claim than a heading drawing the wrong face. 61 measurements, not a sweep, and
+  #275 predicts the answer splits between inert and redundant.
+- **THREE UNCONSUMED WEIGHT TOKENS**, surfaced when `typography` C5 nearly asserted them as stale
+  faces. Tree-shaken, so they cost nothing; deleting them is its own call.
+
+### UNVERIFIED, NAMED RATHER THAN ROUTED AROUND
+
+**The rendered studio.** `/studio` is owner-gated and the session expired, so #309's 47 label sites
+are measured as TYPE — Space Grotesk is narrower than Work Sans at every real label string, −2.6 to
+−17.9px — rather than observed on the surface. #211 established that reporting NOT MEASURED beats
+claiming a pass never performed.
 
 ---
 
