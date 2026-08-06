@@ -9553,6 +9553,42 @@ them.
 
 ralph 2533, one failing.
 
+## THE FOUR CLASSIFICATIONS, AND A CATEGORY THAT LIVED ONLY IN PROSE (#357)
+
+`J1b` green. Every colour in every population is claimed by exactly one row.
+
+### THREE WERE PURE WHITE AND TOOK THE TOKEN
+
+`SwatchTokens`' inset highlight, `ContactSection`'s `#fff`, `HeroSection`'s inset — all
+`--color-white`, none a judgement.
+
+### TWO ARE ELEVATION, AND THE REAL QUESTION IS NOT COLOUR
+
+`BeforeAfterStory`'s phone drop-shadow and `HeroSection`'s box-shadow roll their own tint instead of
+`--shadow-sm/md/lg`, which are already tokenised from `ink-950`. Measured as the composite rule
+requires: **Δ7 and Δ8 — outside snap**, so they are their own tints rather than misspellings.
+
+> **⚠ AND ADOPTING `--shadow-*` WOULD CHANGE THE SHADOW'S GEOMETRY, NOT JUST ITS HUE.** Those tokens
+> carry offset and blur too. That is a shadow-token adoption question with its own before-and-after,
+> and folding it into a colour sweep would be **the wrong-noun error this arc has made four times.**
+
+### ⚠ AND THE LAST TWO EXPOSED A CATEGORY THAT EXISTED ONLY IN PROSE
+
+`AboutSection` and `ContactSection` hold **Step 1b's Δ≥10 nears** — listed in this file's own header
+as boundary item 3 **from the day it was written, and never given an entry.**
+
+> **A CATEGORY DECLARED IN PROSE AND ABSENT FROM THE DATA IS EXACTLY WHAT CATEGORIES-AS-DATA WAS
+> BUILT TO REMOVE.** It survived because nothing joined against it until #356. The header said the
+> list was complete; the data had never held it.
+
+### THE FIXTURE'S ASYMMETRY, STATED WHERE THE GUARD LIVES
+
+`M5`'s comment now carries it: **a missed colour self-corrects the moment somebody looks at the
+page; a phantom colour never does**, because nobody re-opens a boundary entry to ask whether its
+subject was ever a colour.
+
+ralph 2534, green.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

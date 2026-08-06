@@ -212,7 +212,7 @@ function SuccessScreen() {
           width: 46,
           height: 46,
           background: 'var(--color-accent-500)',
-          color: '#fff',
+          color: 'var(--color-white)',
         }}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

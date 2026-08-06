@@ -287,7 +287,7 @@ export default function HeroSection({
                           WebkitBackdropFilter: "blur(9px) saturate(1.3)",
                           border: "1px solid color-mix(in oklch, var(--color-accent-500) 30%, transparent)",
                           boxShadow:
-                            "0 3px 12px oklch(30% 0.018 60 / 0.12), inset 0 1px 0 oklch(100% 0 0 / 0.70)",
+                            "0 3px 12px oklch(30% 0.018 60 / 0.12), inset 0 1px 0 color-mix(in srgb, var(--color-white) 70%, transparent)",
                         }}
                         transition={pillTransition}
                       />
