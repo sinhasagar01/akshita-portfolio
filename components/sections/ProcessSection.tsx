@@ -727,7 +727,7 @@ function ArtifactDesign({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
         <path className="dr" pathLength={1} d="M58 76 H142" />
       </g>
       {/* Warm-fill content blocks — fade in after outline draws */}
-      <g className="fd" fill="#e7d5c2">
+      <g className="fd" fill="var(--color-cream-300)">
         <rect x={72} y={90} width={56} height={18} rx={4} />
         <rect x={72} y={118} width={42} height={11} rx={3} />
         <rect x={72} y={136} width={50} height={11} rx={3} />
@@ -779,7 +779,7 @@ function ArtifactValidate({ isActive, skipAnim }: { isActive: boolean; skipAnim:
       {/* Bar chart */}
       <g className="fd">
         <rect x={72} y={112} width={14} height={32} rx={2} fill="#cdb89a" />
-        <rect x={91} y={124} width={14} height={20} rx={2} fill="#e7d5c2" />
+        <rect x={91} y={124} width={14} height={20} rx={2} fill="var(--color-cream-300)" />
         <rect x={110} y={104} width={14} height={40} rx={2} fill="var(--color-accent-500)" />
       </g>
       {/* Check circle */}

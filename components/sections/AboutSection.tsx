@@ -144,7 +144,7 @@ export default function AboutSection({ settings }: Props) {
                   style={{
                     fontSize: "12px",
                     color: "#5F584E",
-                    backgroundColor: "#F1E9DC",
+                    backgroundColor: "var(--color-cream-200)",
                     border: "1px solid rgba(120,90,60,.16)",
                     borderRadius: "9999px",
                     padding: "7px 13px",

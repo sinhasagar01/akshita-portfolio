@@ -35,8 +35,8 @@ export default function SectionHeading({
   const settled = !reveal || prefersReduced === true || inView;
   const noAnim  = !reveal || prefersReduced === true;
 
-  const wordColor  = tone === "warm" ? "rgba(181,97,60,.17)"  : "rgba(86,80,72,.18)";
-  const wordShadow = tone === "warm" ? "0 0 30px rgba(181,97,60,.22)" : "0 0 30px rgba(86,80,72,.20)";
+  const wordColor  = tone === "warm" ? "rgba(181,97,60,.17)"  : "color-mix(in oklch, var(--color-ink-600) 18%, transparent)";
+  const wordShadow = tone === "warm" ? "0 0 30px rgba(181,97,60,.22)" : "0 0 30px color-mix(in oklch, var(--color-ink-600) 20%, transparent)";
   const glowBg     = tone === "warm"
     ? "radial-gradient(closest-side,rgba(181,97,60,.22),transparent 72%)"
     : "radial-gradient(closest-side,color-mix(in oklch, var(--color-ink-600) 20%, transparent),transparent 72%)";
