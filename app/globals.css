@@ -115,18 +115,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      sites across 53 files. Nothing consumes the three incoming faces yet, which is what
      makes this step additive.
 
-     ⚠ THE `-loaded` NAMES ARE LEFT ALONE ON PURPOSE, and the mismatch is the cost of that.
-     `--font-fraunces` reading `--font-display-loaded` reads backwards, and renaming it is
-     the obvious tidy — but next/font derives its generated class name from that string, so
-     the rename changes the class token on <html> and turns an additive diff into a modifying
-     one. They are renamed in the PR that changes the family, where the DOM moves anyway.
-
      ⚠ METRIC-MATCHED FALLBACKS, NEVER A BARE GENERIC — the stacks end in one, but nothing
      jumps straight to it. A generic drops to Times or Arial, whose x-heights differ enough to
      reflow every box while the webfont loads, and on a site whose layout is pinned to measured
      numbers a reflow is a gate failure rather than a flicker. */
-  --font-fraunces:      var(--font-display-loaded, "Fraunces Variable", Georgia, serif);
-  --font-dm-sans:       var(--font-body-loaded, "DM Sans Variable", system-ui, sans-serif);
   --font-source-serif:  var(--font-source-serif-loaded, "Iowan Old Style", Charter, Georgia, serif);
   --font-work-sans:     var(--font-work-sans-loaded, Avenir, "Avenir Next", ui-sans-serif, system-ui, sans-serif);
   --font-space-grotesk: var(--font-space-grotesk-loaded, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif);
@@ -175,12 +167,12 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --text-6xl:  clamp(3.5rem,    2.70rem  + 4.00vw, 6.5rem);
 
   /* Semantic type role tokens — one source of truth per text role */
-  --text-section-heading: 2.25rem;    /* 36px — Fraunces italic 400, all section h2s */
-  --text-subheading:      1.875rem;   /* 30px — Fraunces italic 400, item names */
-  --text-eyebrow:         0.75rem;    /* 12px — DM Sans uppercase, 0.14em tracking */
-  --text-ui-label:        0.75rem;    /* 12px — DM Sans 500 uppercase, 0.08em tracking */
-  --text-meta:            0.75rem;    /* 12px — DM Sans 500, 0.08em tracking */
-  --text-tag:             0.6875rem;  /* 11px — DM Sans 400 */
+  --text-section-heading: 2.25rem;    /* 36px — display italic 400, all section h2s */
+  --text-subheading:      1.875rem;   /* 30px — display italic 400, item names */
+  --text-eyebrow:         0.75rem;    /* 12px — label face uppercase, 0.14em tracking */
+  --text-ui-label:        0.75rem;    /* 12px — body sans 500 uppercase, 0.08em tracking */
+  --text-meta:            0.75rem;    /* 12px — body sans 500, 0.08em tracking */
+  --text-tag:             0.6875rem;  /* 11px — body sans 400 */
 
   --tracking-eyebrow: 0.14em;
   --tracking-ui:      0.08em;
@@ -2012,7 +2004,7 @@ a {
   /* The unlayered `h3,h4,h5,h6 { font-family: var(--font-body) }` reset outranks the
      Tailwind `.font-display` utility (which lives in @layer utilities), so heading-level
      titles silently fell back to DM Sans. Re-assert the display face here (also unlayered)
-     so every `.font-display` card title renders Fraunces. Scoped to the case study. */
+     so every `.font-display` card title renders the display face. Scoped to the case study. */
   font-family: var(--font-display);
   font-weight: var(--font-weight-medium);
 }
