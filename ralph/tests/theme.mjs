@@ -233,5 +233,59 @@ t("E3 the value comes from the settings read, not a literal",
 t("E4 and the layout is async, so the read is awaited rather than dropped",
   /export default async function RootLayout/.test(layout), true);
 
+console.log("\nG · every palette is reachable as a SCOPED override, not only as a page default");
+
+/* ⚠ THE BUG THIS EXISTS FOR. "cream is the fallback" is true at the ROOT and false below a theme
+ * that is not cream. The studio switcher previews palettes by putting `data-theme` on a SPAN, and
+ * with harbour published `data-theme="cream"` matched no rule — so the cream swatch inherited
+ * harbour and the two palettes previewed identically.
+ *
+ * ⚠ AND THE TWIN WAS INHERITING TOO, which means its "byte-identical to the default" assertion was
+ * passing because BOTH SIDES read the ambient theme. Under harbour it was byte-identical to
+ * HARBOUR. A control that agrees with whatever surrounds it is not a control.
+ *
+ * So every theme name that renders must have a block, and the blocks must declare the SAME TOKEN
+ * SET — a palette missing one token falls through to whatever the ancestor had, which is the same
+ * defect one token at a time. */
+const cssSrc = read("app/globals.css");
+const blockOf = (sel) => {
+  const at = cssSrc.indexOf(sel);
+  if (at < 0) return null;
+  let d = 0, st = cssSrc.indexOf("{", at), k = st;
+  for (; k < cssSrc.length; k++) { if (cssSrc[k] === "{") d++; else if (cssSrc[k] === "}") { d--; if (!d) break; } }
+  return cssSrc.slice(st + 1, k);
+};
+const namesIn = (b) => new Set([...b.matchAll(/(--color-[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+const valuesIn = (b) => new Map([...b.matchAll(/(--color-[a-z0-9-]+)\s*:\s*([^;]+);/g)]
+  .map((m) => [m[1], m[2].trim()]));
+
+const creamBlock = blockOf('[data-theme="cream"]');
+const harbBlock = blockOf('[data-theme="harbour"]');
+t("G1 cream has a scoped block — without one it is unreachable below a non-cream ancestor",
+  creamBlock !== null, true);
+t("G2 …and so does harbour, so G3 compares two real sets", harbBlock !== null, true);
+
+const creamNames = creamBlock ? namesIn(creamBlock) : new Set();
+const harbNames = harbBlock ? namesIn(harbBlock) : new Set();
+console.log(`         cream declares ${creamNames.size}, harbour ${harbNames.size}`);
+t("G3 the population is real — a zero would make G4 and G5 vacuous", creamNames.size > 20, true);
+t("G4 ⚠ EVERY THEME DECLARES THE SAME TOKEN SET — one missing token inherits the ancestor's",
+  [...harbNames].filter((n) => !creamNames.has(n)).sort()
+    .concat([...creamNames].filter((n) => !harbNames.has(n)).sort()), []);
+
+/* The drift objection, answered. The scoped cream block is a second copy of values `@theme` already
+ * holds, and the reason that was refused for so long. It is allowed here because THIS compares them
+ * — a copy that cannot silently disagree is not the copy the objection was about. */
+const themeVals = valuesIn(blockOf("@theme") ?? "");
+const creamVals = creamBlock ? valuesIn(creamBlock) : new Map();
+t("G5 ⚠ AND THE SCOPED COPY MATCHES @theme EXACTLY — the drift objection, answered by comparison",
+  [...creamVals].filter(([k, v]) => themeVals.get(k) !== v).map(([k]) => k).sort(), []);
+
+/* The twin shares cream's selector list rather than having a block of its own, so they are identical
+ * by BEING ONE DECLARATION. This asserts that arrangement rather than the values, because comparing
+ * a rule to itself would prove nothing. */
+t("G6 the verification twin rides cream's own rule, so the two cannot drift apart",
+  new RegExp('\\[data-theme="cream"\\],\\s*\\[data-theme="' + VERIFY_THEME + '"\\]').test(cssSrc), true);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

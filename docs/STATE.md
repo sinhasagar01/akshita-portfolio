@@ -9960,6 +9960,46 @@ ways, fallback rasters still on disk, and the additive field proven. Four mutati
 also states what it CANNOT cover — fidelity needs a browser, and its owner is a hand re-run of the
 shape diff, named because a deferral without an owner is a deferral to nobody.
 
+## THREE OWNER FIXES, AND ONE OF THEM WAS A PALETTE THAT COULD NOT BE SCOPED (#365)
+
+**1 · THE RESUME GLOW WAS CREAM'S ACCENT SPELLED AS A LITERAL.** `.nav-cta` carried
+`oklch(56% 0.14 42 / 0.7)` and `/ 0.8` in its box-shadow — byte-identical to cream's `accent-500`, so
+on cream nothing looked wrong and on harbour the button went teal while its glow stayed terracotta.
+Now `color-mix` over the token, which is a zero-shift change on cream by construction.
+
+**2 · THE TREND ARROW DREW A "7".** The first rebuild traced the raster's tip literally; two strokes
+that meet but are not symmetric about the line do not read as an arrow. Rebuilt on the line's own
+bearing — barbs at 26 degrees either side of -14.3 degrees, equal length. **This is the one place the
+rebuild deliberately does not reproduce the original**, and the comment says so, because a shape diff
+would otherwise report it as a regression forever.
+
+**3 · ⚠ THE STUDIO SWATCHES SHOWED BOTH PALETTES AS HARBOUR, AND THE CAUSE WAS A REASONED ABSENCE.**
+
+`globals.css` argued, correctly, that cream needed no `[data-theme="cream"]` block: `@theme` holds
+cream, so cream IS the fallback and a block would be a second copy this repo would then have to keep
+in step. **That covered the DOCUMENT. It did not cover a SCOPED override.**
+
+The studio switcher previews palettes by putting `data-theme` on a SPAN. With harbour published,
+`data-theme="cream"` matched no rule at all, so the cream row inherited harbour. Measured rather than
+reasoned: under a harbour root, a `data-theme="cream"` probe resolved `accent-500` to
+`oklch(0.52 0.12 168)` — harbour's value.
+
+**⚠ AND THE VERIFICATION TWIN WAS INHERITING TOO, WHICH MADE ITS CONTROL VACUOUS.** `cream-verify`
+has no block either, so "byte-identical to the default" was holding because **both sides were reading
+the ambient theme**. Under harbour it was byte-identical to HARBOUR. **A control that agrees with
+whatever surrounds it is not a control** — and it had passed every run since it was built.
+
+**THE FIX ANSWERS THE DRIFT OBJECTION RATHER THAN IGNORING IT.** Cream now has a scoped block
+carrying the same 35 tokens harbour overrides, generated from `@theme` rather than transcribed, and
+`cream-verify` rides the same selector list so the twin is identical **by being one declaration**
+rather than by two copies agreeing. `theme` section G asserts every theme declares the same token SET
+(one missing token silently inherits the ancestor's) and that the scoped copy matches `@theme`
+exactly. **A copy that cannot silently disagree is not the copy the objection was about.**
+
+**THE GENERAL FORM. "X is the default" and "X is reachable" are different claims, and a fallback
+satisfies only the first.** Anything that scopes a theme below the root needs a real selector,
+whatever the root happens to be.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

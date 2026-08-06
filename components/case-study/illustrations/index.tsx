@@ -203,7 +203,12 @@ function QualityLift() {
       ))}
       <line x1={190.5} y1={599.5} x2={799.5} y2={599.5} stroke={INK} strokeWidth={9} strokeLinecap="round" />
       <path d="M 249 300 L 752 172" fill="none" stroke={A_DEEP} strokeWidth={9} strokeLinecap="round" />
-      <path d="M 697 176 L 752 172 L 740 226" fill="none" stroke={A_DEEP} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
+      {/* ⚠ A REAL ARROWHEAD, BUILT ON THE LINE'S OWN BEARING. The first version traced the raster's
+          tip literally and drew a "7" — two strokes that meet but do not read as an arrow, because
+          they were not symmetric about the line. These barbs are 26 degrees either side of the
+          -14.3 degree bearing at equal length, so the head points where the line actually goes.
+          This is the one place the rebuild deliberately does NOT reproduce the original. */}
+      <path d="M 701.1 161.4 L 752 172 L 712.3 205.6" fill="none" stroke={A_DEEP} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
     </Ill>
   );
 }
