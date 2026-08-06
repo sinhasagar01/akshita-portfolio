@@ -8510,6 +8510,65 @@ day the template shipped; the warm thing beside it was a different mechanism wea
 
 ralph 2475 → 2477.
 
+## THE MANIFEST SPLITS, AND THE ERROR PAGE IS A CATEGORY OF ITS OWN (#335)
+
+### ⚠ ONE REPORTED SYMPTOM, THREE UNRELATED CAUSES — ITEM 3'S SHAPE
+
+The owner's item 3 was "the glow behind mobile mocks, the h1 colour, the background watermark". One
+bullet, three surfaces, **held together only by proximity on screen**.
+
+| surface | cause |
+|---|---|
+| the h1 | already themed — `text-on-dark`, `text-ink-950`. **Never broken.** |
+| the "crest" watermark | fixed in #332, unrelatedly |
+| the mock glow | product branding, per study, must not theme |
+
+> **AN OWNER REPORTS WHAT THEY SEE, SO THE REPORT'S UNIT IS THE VIEW AND NOT THE MECHANISM.**
+> Treating one item as one cause is what produced "a second watermark population" — twice, in a
+> framing both of us accepted and neither checked.
+
+**THE GENERAL FORM: SPLIT A REPORTED AREA BY MECHANISM BEFORE DIAGNOSING IT.** Three of the eleven
+needed no fix at all, and one of those had never been broken.
+
+### THE MANIFEST'S TWO COLOURS GOT OPPOSITE ANSWERS, FROM THE SAME QUESTION
+
+**`background_color` → THEMED.** It draws the full-bleed PWA splash, which is the site's OWN
+ground. It held `#FBF6EE`, which is 5 from `cream-50` — **an approximation of a colour that already
+had a name**, #327's shape on the last surface that had it. Now `THEME_SPLASH[theme]`, resolved per
+palette.
+
+**⚠ AND THE CACHE LAG IS AN ARGUMENT FOR THEMING IT.** An installed app caches its manifest, so the
+splash can lag by days. But the status quo is a ground that is **never** right after the first theme
+change. Themed-and-sometimes-stale beats never-right, and the lag is recorded at the values so it is
+not reported as a bug.
+
+**`theme_color` → NOT THEMED, and boundary-listed with the reason.** It tints the Android address
+bar and the task-switcher card — the site's identity in SOMEONE ELSE'S FRAME. At 20 from every
+token it is its own near-black rather than a misspelling. **A colour on a surface the site does not
+own does not follow the site's palette** — the same test that keeps the mock glows in their
+products' brand colours. Its practical half: an address bar changing weekly reads as instability,
+on the one surface a user sees before the site loads.
+
+`F4` asserts it stays a single constant, so a future "finish the job" pass fails rather than
+shipping it.
+
+### ⚠ THE ERROR PAGE IS THE INVERSE OF EVERY OTHER BOUNDARY ENTRY
+
+`app/global-error.tsx` renders **when the app has failed**. The stylesheet may not have loaded, so
+the token layer may not exist — and `var(--color-ink-950)` resolving to nothing leaves an INVISIBLE
+PAGE at exactly the moment someone needs to read it.
+
+> **ITS LITERALS ARE NOT DEBT. THEY ARE THE ONLY CORRECT IMPLEMENTATION.**
+
+**AND THE LIST NOW HOLDS TWO DIFFERENT KINDS OF REASON.** The cursor and the diagram fills are
+excluded because they MUST NOT VARY. This is excluded because it CANNOT DEPEND ON ANYTHING THAT
+VARIES — and only the second gets worse the more correct the rest of the system becomes. **A fully
+tokenised app is exactly the app whose error page must not use tokens.** The reason is written at
+the file, not only in the list, because someone will otherwise finish the job and make the error
+page depend on the thing that failed.
+
+ralph 2477 → 2482.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

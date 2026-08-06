@@ -1,9 +1,24 @@
 "use client";
 
 // Last-resort boundary: catches errors thrown by the ROOT layout itself, so it must
-// render its own <html>/<body> (it replaces the root layout). Styled with inline brand
-// values rather than token classes, because a root-layout failure means the app CSS
-// cannot be relied on. Shown only in the rare case the shell itself throws.
+// render its own <html>/<body> (it replaces the root layout). Shown only in the rare case the
+// shell itself throws.
+//
+// ⚠ ITS COLOUR LITERALS ARE NOT DEBT. THEY ARE THE ONLY CORRECT IMPLEMENTATION. DO NOT TOKENISE.
+//
+// This file renders WHEN THE APP HAS FAILED. The stylesheet may not have loaded, so the token
+// layer may not exist — and `var(--color-ink-950)` that resolves to nothing leaves an INVISIBLE
+// PAGE at exactly the moment someone needs to read it. Every other surface can assume the cascade;
+// this one is what runs when that assumption is what broke.
+//
+// ⚠ AND IT IS THE INVERSE OF EVERY OTHER ENTRY ON THE THEME BOUNDARY LIST. The custom cursor and
+// the process diagram's fills are excluded because they MUST NOT VARY. This is excluded because it
+// CANNOT DEPEND ON ANYTHING THAT VARIES. Two different reasons, and only the second one gets worse
+// the more correct the rest of the system becomes — a fully tokenised app is exactly the app whose
+// error page must not use tokens.
+//
+// So a cool theme shows a warm error page. That is the trade, made deliberately, and it is the
+// right side of it.
 export default function GlobalError({
   reset,
 }: {
