@@ -111,6 +111,18 @@ const workSans = Work_Sans({
   preload: true,
 });
 
+/* ⚠ NOT PRELOADED, AND THE REASON CHANGED WITHOUT THE VALUE CHANGING — WHICH IS WHY THE COMMENT
+   IS REWRITTEN RATHER THAN LEFT ALONE. Through the arc it was `false` because `--font-label` had
+   no consumer at all. It now has two, so the old reason is gone; the flag stays `false` for a new
+   one.
+
+   EVERY CONSUMER IS UNDER /studio, WHICH IS OWNER-GATED AND NOINDEXED — but `preload` is emitted
+   from the ROOT layout, which wraps the public site too. Flipping it to `true` put a fifth font
+   preload on every public page for a face no public page renders. MEASURED IN THE BUILD, 4 -> 5,
+   after a comment here had already claimed the public count was unaffected. It was not.
+
+   SO THE STUDIO TAKES A SWAP INSTEAD. The label face arrives a frame late on an owner-only
+   surface, which is the cheaper side of the trade by a wide margin. */
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk-loaded",

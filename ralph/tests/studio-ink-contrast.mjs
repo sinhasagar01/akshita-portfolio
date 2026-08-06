@@ -232,7 +232,10 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
   // token or retuning its oklch moves this table on the next run.
   const fields = read("components/studio/blocks/fields.tsx");
   const tokenOf = (decl, label) => {
-    const m = new RegExp(`export const ${decl} = "([^"]*)"`).exec(fields);
+    // The declaration wraps to a second line now that the label constants carry the face, so the
+    // extractor spans the break. It still reads the EXPORT rather than a retyped copy, which is
+    // the property this helper exists for — a widened whitespace match, not a widened value match.
+    const m = new RegExp(`export const ${decl} =\\s*\\n?\\s*"([^"]*)"`).exec(fields);
     if (!m) throw new Error(`could not find ${label}`);
     const c = /text-(ink-\d+|text-subtle)/.exec(m[1]);
     if (!c) throw new Error(`no text colour in ${label}`);

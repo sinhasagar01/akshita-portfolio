@@ -433,7 +433,7 @@ const contentInputs = (p) => {
 // (read by 11 case-study files + two public pages, so touching it would move the canvas). The
 // literal is still local, so the invariant holds at 12px; only the pinned number changes.
 t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebrow` token — editing that token to size the studio label would move the canvas",
-  /export const labelCls = "text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/
+  /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/
     .test(readStudio("blocks/fields.tsx")), true);
 
 // E5 · THE BANDS, and the boundary that keeps hazard 22 shut.
@@ -697,7 +697,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
  * colour is checked separately below because the contract asked for a different one. */
 {
   const ord = readStudio("OverviewRow.tsx");
-  const label = /export const labelCls = "([^"]*)";/.exec(readStudio("blocks/fields.tsx"))?.[1] ?? "";
+  const label = /export const labelCls =\s*\n?\s*"([^"]*)";/.exec(readStudio("blocks/fields.tsx"))?.[1] ?? "";
   const ordCls = /className="(w-6 shrink-0[^"]*)"/.exec(ord)?.[1] ?? "";
   t("C3: the label scale is still a single string in the fields module", label.length > 0, true);
   t("C3: the ordinal carries every token of the label scale",

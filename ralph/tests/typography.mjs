@@ -28,7 +28,7 @@
 // than from a number typed here. A hand-kept copy of a font's axis bounds is a second source of
 // truth that goes stale on the first upgrade — the same argument `css-comment-trap` makes for
 // asking Tailwind instead of keeping a class list.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 
 let pass = 0, fail = 0;
@@ -106,13 +106,84 @@ t("C1: the three LIVE faces are preloaded — Source Serif 4, Work Sans, and Kau
   [preloadOf("Source_Serif_4"), preloadOf("Work_Sans"), preloadOf("Kaushan_Script")], [true, true, true]);
 t("C2: the two OUTGOING faces are not — nothing reads Fraunces or DM Sans any more",
   [preloadOf("Fraunces"), preloadOf("DM_Sans")], [false, false]);
-t("C3: Space Grotesk is not preloaded either, because --font-label still has no consumer",
+/* ⚠ C3's SUBJECT CHANGED AND ITS VALUE DID NOT, WHICH IS THE MORE INTERESTING CASE.
+ * It read "Space Grotesk is not preloaded either, BECAUSE --font-label still has no consumer".
+ * That reason is gone — the token has two consumers now. The assertion still says `false`, for a
+ * DIFFERENT reason: every consumer is under /studio, but `preload` is emitted from the ROOT
+ * layout, so `true` would put a fifth font preload on every public page for a face no public page
+ * renders. Measured in the build, 4 -> 5, after a comment had already claimed otherwise.
+ *
+ * AN ASSERTION WHOSE SUBJECT CHANGES GETS REWRITTEN WITH ITS NEW SUBJECT; one that is merely
+ * inconvenient gets loosened. This project has caught the second kind three times — a regex
+ * widened under pressure, a substring check that matched its own prose, an `||` whose second
+ * clause passed regardless. Keeping the same VALUE while replacing the REASON is the tell that
+ * this is the first kind: nothing here got easier to satisfy.
+ *
+ * The "because" is carried rather than dropped, because a gate that knows why it asserts what it
+ * asserts is the part worth preserving through a rewrite. */
+t("C3: Space Grotesk is STILL not preloaded, now because its consumers are studio-only while preload is emitted from the root layout — public pages must not pay for a face they never render",
   preloadOf("Space_Grotesk"), false);
 /* The count is what a public page actually pays. It has not moved across the whole arc: the
  * incoming faces swapped places with the outgoing ones rather than joining them. */
-t("C4: exactly three faces are preloaded, the same number as before the arc began",
+t("C4: exactly three faces are preloaded, the same number as before the arc began — the label face is read but not preloaded, so no public page pays for the studio",
   ["Source_Serif_4", "Work_Sans", "Kaushan_Script", "Fraunces", "DM_Sans", "Space_Grotesk", "Caveat"]
     .filter((c) => preloadOf(c) === true).length, 3);
+
+/* ================================================ C5. EVERY ROLE TOKEN IS READ BY SOMETHING
+ * ⚠ PER TOKEN, NOT OVER THE SET, AND THAT IS THE WHOLE POINT. #260 found `--studio-t0` declared
+ * with zero consumers for two PRs while a gate written to prevent exactly that passed — because
+ * it counted the SET and the set was non-empty. A token nobody reads is a name that reads as
+ * authoritative and drives nothing; the FIT_THRESHOLD_PX shape, deleted three times in this repo.
+ *
+ * `--font-label` was in that state from the PR that declared it until the PR that read it. The
+ * additive-first sequence was right and is not what this catches — what it catches is the state
+ * PERSISTING, which is only visible if each token is asked about by name. */
+{
+  const files = [];
+  const walk = (rel) => {
+    for (const e of readdirSync(new URL(`../../${rel}`, import.meta.url), { withFileTypes: true })) {
+      if (e.name.startsWith(".") || e.name === "node_modules") continue;
+      const child = `${rel}/${e.name}`;
+      if (e.isDirectory()) walk(child); else if (/\.(tsx?|css)$/.test(child)) files.push(child);
+    }
+  };
+  walk("app"); walk("components");
+  /* ⚠ COMMENTS STRIPPED, BECAUSE THE FIRST VERSION READ ITS OWN PROSE. The note beside these
+   * constants explains that they "carry `font-label`", and that sentence satisfied the consumer
+   * count — so the gate stayed green with both real consumers deleted. `studio-ink` G1 records the
+   * identical failure: an assertion that matched the comment four lines above the code it meant to
+   * check. Found by mutation, which is the only thing that finds it. */
+  const src = files
+    .map((f) => code(readFileSync(new URL(`../../${f}`, import.meta.url), "utf8")))
+    .join("\n");
+  /* ⚠ THE DECLARATION IS NOT A CONSUMER, and the first version of this counted it. `--font-label:`
+   * contains the string `font-label`, so a naive word match found the token's own definition and
+   * reported it as used — a gate that would have passed with zero real consumers, which is the
+   * exact false pass it exists to prevent. Caught by mutation: stripping BOTH consumers still left
+   * it green. The class token must not be preceded by `--`. */
+  const consumers = (role) =>
+    (src.match(new RegExp(`(^|[^-\\w])font-${role}\\b`, "gm")) ?? []).length
+    + (src.match(new RegExp(`var\\(--font-${role}\\)`, "g")) ?? []).length;
+  for (const role of ["display", "body", "label"]) {
+    t(`C5: --font-${role} is READ by something — a role token with no consumer is a name that drives nothing`,
+      consumers(role) > 0, true);
+  }
+  /* ⚠ THE LABEL ROLE IS READ TWICE IN SOURCE AND RENDERED AT 47 SITES, and conflating those two
+   * numbers is a mistake this assertion nearly shipped. `font-label` appears in exactly two
+   * places — `labelCls` and `groupLabelCls` — because the label scale is centralised, which is
+   * the shape #199 built. So a raw occurrence count is the WRONG measure of "in use": two is
+   * both the healthy number and, in a different world, the abandoned one.
+   * The honest measure is that both CONSTANTS carry it and that the constants are used, so that
+   * is what is asserted. "At least one occurrence" was true of --studio-t0 the day before it was
+   * deleted too. */
+  const fields = readFileSync(new URL("../../components/studio/blocks/fields.tsx", import.meta.url), "utf8");
+  t("C5: both label constants carry the label face — the role is read through the scale, not sprinkled",
+    [/export const labelCls =\s*\n?\s*"font-label /.test(fields),
+     /export const groupLabelCls =\s*\n?\s*"font-label /.test(fields)], [true, true]);
+  const uses = (n) => (src.match(new RegExp(`\\b${n}\\b`, "g")) ?? []).length;
+  t("C5: …and those constants are genuinely applied rather than merely exported",
+    uses("labelCls") > 20 && uses("groupLabelCls") > 5, true);
+}
 
 /* ================================================ D. THE CARD AND THE PAGE AGREE
  * ⚠ THIS IS THE ONE DEFECT THE ARC ACTUALLY SHIPPED, BRIEFLY. `--font-display` repointed to
