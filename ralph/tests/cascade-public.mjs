@@ -277,8 +277,19 @@ t("C1: the public collision census is exactly this — a change here is a dead u
      THE SPLIT WAS THE POINT. Moving the whole `p` rule — the shape CLAUDE.md described as "one
      change" — would have made 92 utilities live at once across four properties and two tag groups,
      in a single diff where nothing could be attributed. The record called it 58. It was 92, and 34
-     of them were not line-height. */
-  census, { color: 6, "font-weight": 12, "letter-spacing": 4, "line-height": 58 });
+     of them were not line-height.
+
+     ⚠ AND `font-weight` LEFT IN #351 — BUT NOT BECAUSE TWELVE UTILITIES STARTED DRAWING, AND THIS
+     SUITE CANNOT TELL THE DIFFERENCE. It models a TWO-PARTY contest: a utility against the element
+     reset, and it reports which wins. The cascade has THREE parties. Ten of those twelve `<h3>`
+     elements sit inside `.case-study`, where an unlayered `.case-study .font-display` sets weight
+     500 and outranks the utility on specificity — so layering the reset promoted the SECOND
+     contender rather than the utility. They went 600 -> 500, not 600 -> 400.
+
+     ⚠ SO THIS CENSUS NOW READS "REPAIRED" FOR TEN ROWS THAT ARE STILL INERT. Recorded rather than
+     papered over: the honest fix is a third-party model, and it is not in this PR. Measured in the
+     browser — every `<h3>` asking `font-normal` on a case study computes 500. */
+  census, { color: 6, "letter-spacing": 4, "line-height": 58 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
@@ -286,8 +297,13 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      exactly `68ch` — the reset's own value — so they were INERT-AND-AGREEING. Now that the measure
      is layered they simply WIN, drawing the same number, and a utility that wins is neither a
      collision nor inert: there is nothing left to record. The inventory shrank because three
-     entries stopped being a category, not because three defects were fixed. */
-  inert.filter(outside).length, 37);
+     entries stopped being a category, not because three defects were fixed.
+
+     ⚠ 37 -> 36 IN #351, FOR THE SAME REASON ONE MORE TIME. One `<h3>` carried `font-semibold`,
+     agreeing with the reset it could not beat. Layered, it wins and draws 600 — the same weight,
+     and no longer a category. A number falling because a thing stopped being classifiable is not a
+     repair, and both times it has been worth saying so rather than letting the count read as one. */
+  inert.filter(outside).length, 36);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

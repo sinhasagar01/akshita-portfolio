@@ -83,6 +83,14 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   line-heights, **12 `<h3>` font-weights**, 11 heading line-heights and 4 letter-spacings. One diff
   containing 92 changes is a diff where nothing can be attributed.
 
+  **⚠ AND A COLLISION CAN HAVE THREE PARTIES.** `<h3>` font-weight shipped in #351 and did NOT make
+  its twelve utilities live: ten sit inside `.case-study`, where an unlayered `.case-study
+  .font-display` sets weight 500 and outranks a utility on specificity, so layering the reset
+  promoted the SECOND contender. They went 600 to 500, not 600 to 400. **`cascade-public` models a
+  two-party contest and cannot see this**, so its census reads "repaired" for ten rows that are
+  still inert. Before lifting line-height or letter-spacing, check what wins when the reset steps
+  aside.
+
   **SO IT IS TAKEN ONE PROPERTY AT A TIME, and `<p>` max-width shipped in #350** — `p`'s rule is
   split, the measure sits in `@layer base`, the leading stays unlayered and stays inert. Remaining,
   each its own PR: `<h3>` font-weight (12, the most visible single change), line-height (58), then

@@ -9294,6 +9294,47 @@ three entries stopped being a category.
 
 ralph 2524, 61 suites.
 
+## THE h3 WEIGHT, AND A COLLISION THAT TURNED OUT TO HAVE THREE PARTIES (#351)
+
+The second property lifted out of a reset. `h3..h6`'s weight now sits in `@layer base`; the family
+and leading stay unlayered.
+
+### ⚠ THE CLAIM IS "THE RESET STOPS WINNING", NOT "THE UTILITIES GO LIVE"
+
+Twelve `<h3>` elements ask `font-normal` (400) against the reset's 600 — one opinion written twelve
+times. Layering the reset should have handed them the contest. **It did not.**
+
+**Ten of the twelve sit inside `.case-study`, where an UNLAYERED `.case-study .font-display` sets
+weight 500 and outranks a utility on specificity.** So the change promoted the SECOND contender
+rather than the utility. Measured in the browser: **they went 600 → 500, not 600 → 400.**
+
+> **A CASCADE CONTEST CAN HAVE THREE PARTIES, AND REMOVING ONE PROMOTES WHOEVER WAS SECOND.**
+> Every rule in this sequence assumed a two-party model — utility versus element reset — and that
+> model was right for the paragraph measure and wrong here.
+
+### ⚠ AND `cascade-public` CANNOT TELL THE DIFFERENCE
+
+It compares a utility against the ELEMENT RESET and reports which wins. It has no concept of a third
+rule that wins when the reset steps aside — so **its census now reads "repaired" for ten rows that
+are still inert.** The number moved and the defect did not.
+
+**Recorded rather than papered over.** The honest fix is a third-party model, and it is not in this
+PR: `.case-study .font-display` is a rule with its own history — it exists because heading titles
+silently fell back to DM Sans when `.font-display` lost to the reset — and it deserves its own look
+rather than being swept in behind this one.
+
+**THE ARC'S CENTRAL LESSON, ARRIVING ONE MORE TIME.** A gate whose model is narrower than its
+subject reports confidently about the part it can see. E1 declared a subject and proved completeness
+of 2% of the page; this one declares a contest and proves the outcome of two thirds of it.
+
+### WHAT DID CHANGE, HONESTLY
+
+Ten case-study headings went from semibold to medium — a real, visible, and defensible softening,
+since medium was already what the case-study display rule intended. Every `<h3>` that says nothing
+still draws 600. **Two of the twelve, outside `.case-study`, genuinely reached 400.**
+
+ralph 2524, 61 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
