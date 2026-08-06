@@ -20,7 +20,7 @@ export default function SwatchTokens({ groups }: { groups: TokenGroup[] }) {
                 <span
                   aria-hidden="true"
                   className="size-[34px] shrink-0 rounded-[10px]"
-                  style={{ background: t.value, boxShadow: "inset 0 1px 2px rgba(255,255,255,0.4)" }}
+                  style={{ background: t.value, boxShadow: "inset 0 1px 2px color-mix(in srgb, var(--color-white) 40%, transparent)" }}
                 />
                 <span>
                   <b className="text-[0.9rem] font-bold text-ink-950">{t.name}</b>

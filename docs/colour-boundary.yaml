@@ -251,6 +251,37 @@ entries:
       The census RESOLVES the consumer rather than excluding by lookup, because excluding would bury
       a judgement inside a filter — the shape categories-as-data was built to remove.
 
+  - id: step-1b-near-literals
+    kind: judgement
+    category: signature
+    where: components/sections/AboutSection.tsx, components/sections/ContactSection.tsx
+    files: [components/sections/AboutSection.tsx, components/sections/ContactSection.tsx]
+    count: 3
+    reason: >
+      ⚠ THE NINE Δ≥10 NEARS THE SNAP RULING LEFT AS LITERALS — named in this file's header from the
+      day it was written, and NEVER GIVEN AN ENTRY. The join found that: a category declared in
+      prose and absent from the data is exactly what categories-as-data was built to remove, and it
+      survived because nothing joined against it until #356.
+      `#5F584E` was re-measured under the composite rule that superseded Step 1b's method and did
+      NOT move — opaque, so composite equals declaration, and 10 from `ink-600`, the leave-as-literal
+      boundary. The verdict stands, and the member most likely to have shifted did not, which is why
+      the other eight are not re-opened as a group.
+
+  - id: component-shadow-tints
+    kind: judgement
+    category: signature
+    where: components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx
+    files: [components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx]
+    count: 2
+    reason: >
+      Two components roll their own shadow tint instead of using `--shadow-sm/md/lg`, which are
+      already tokenised from `ink-950`. Measured against that token as the composite rule requires:
+      7 and 8 — outside the snap threshold, so they are their own tints rather than misspellings.
+      ⚠ AND THE REAL QUESTION IS NOT COLOUR. `--shadow-*` carries offset and blur as well as tint, so
+      adopting it here changes the shadow's GEOMETRY, not just its hue. That is a shadow-token
+      adoption question with its own before-and-after, and folding it into a colour sweep would be
+      the wrong-noun error this arc has made four times. Listed as its own tint until then.
+
   - id: adjacent-surfaces
     kind: judgement
     category: signature
