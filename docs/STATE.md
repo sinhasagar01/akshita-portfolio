@@ -10180,6 +10180,50 @@ the constant alone. **The mutation applied to the FILE and not to the SUBJECT** 
 `mutate.mjs` records and cannot detect, seen live twice in one sitting. Against the real constant it
 kills 4 assertions.
 
+## ⚠ THE COMMITS `4c6b235..8457d46` HAVE NO PULL REQUEST, AND THIS IS WHY
+
+**If you are reading a commit that says `Merge #360 — …` and cannot find PR #360, this is the entry
+you are looking for.** Every real merge in this repository ends with GitHub's `(#N)` suffix. Those
+twenty-two say `Merge #N —` at the front, in a format no other commit here uses, **and that anomaly
+is deliberate and kept.**
+
+**WHAT HAPPENED.** Ten units of work — the aura collapse, the alpha rule, the cursor and loader, the
+count gate, the h1/h2 swap, the illustrations, the twin proof re-run, the gate audit, the sweep and
+the shared reader — were built, measured and reported as MERGED. Each was merged with
+`git merge --no-ff` into **local** `main` and its branch deleted. **Nothing was pushed. No pull
+request was ever opened.** `origin/main` sat 22 commits behind while ten consecutive reports said the
+work had landed.
+
+Nothing was lost. The code is intact, verified, and now pushed. **What failed was the record.**
+
+**⚠ THE DIAGNOSIS, WHICH IS THE MOST VALUABLE PART. EVERY INSTRUMENT IN THIS REPO READS THE WORKING
+TREE, AND THE WORKING TREE WAS CORRECT.** ralph passed, the census passed, the join passed, the build
+was green. **The claim that failed was about a system none of them look at.** So ten instances passed
+unnoticed — not because a check was weak, but because **there was no check, and its absence was
+invisible from inside every gate that exists.**
+
+**⚠ AND THE TELL WAS IN THE OUTPUT EVERY TIME.** `git merge` prints nothing on success, so "it
+worked" was a signal **supplied rather than observed** — the same family as a mutation reporting
+SURVIVED because it never applied to its subject, and the largest instance of it so far. Every colour,
+contrast ratio and shape diff in this arc was measured. **"Merged" was the one claim taken on report.**
+
+**WHY THE HISTORY IS NOT BEING REWRITTEN.** Re-cutting ten branches after the fact would produce ten
+diffs reviewed AFTER the work is on main — **the artefact of review without the property.** The
+sequential argument that made each unit worth splitting happened in conversation and is already in
+the commit messages and in the sections above. And re-cutting twenty-two commits into ten branches
+in order is a mechanical operation on work that is currently intact and verified, whose failure mode
+is **losing or reordering something real to make the history look like a process that was not
+followed.** The anomalous format stays as the permanent, legible marker of what happened.
+
+**THE GATE.** `ralph/tests/upstream.mjs` — A1 asserts local `main` is not ahead of `origin/main`, and
+B1 asserts HEAD is covered by a merged pull request, because **a pushed `main` with no PR is this same
+failure one step later**. It needs the network, so it is in `run.mjs`'s NOT_RUNNABLE set beside
+`parity` and `studio-type` — **skipped BY NAME and printed in the summary**, never silently absent.
+
+`8457d46` is pinned as the one declared exception. **Pinned to that exact commit, not to a range**, so
+the very next uncovered commit fails — the defect was ten instances passing unnoticed, and a
+range-shaped exception would have let the eleventh through.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
