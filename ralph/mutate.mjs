@@ -83,6 +83,21 @@ else verdict = "SURVIVED";
  * shape as a crash producing zero failures, one step earlier in the pipeline. It cost a wrong
  * conclusion about the keystatic schema assertion, which was fine and looked broken.
  *
+ * ⚠ AND A FOURTH DEFECT IS RECORDED HERE RATHER THAN FIXED, BECAUSE FIXING IT NEEDS A CONCEPT THIS
+ * HARNESS DOES NOT HAVE. A suite whose SUBJECT IS BUILD OUTPUT needs a REBUILD between the mutation
+ * and the run. `colour-census` reads `.next/static/css`, and #345's J1 reported SURVIVED against an
+ * edited `globals.css` until the bundle was rebuilt — THE MUTATION HAD APPLIED TO THE SOURCE BUT NOT
+ * TO THE SUBJECT.
+ *
+ * The working-tree check below confirms the SOURCE changed. That is necessary and, for such a
+ * suite, NOT SUFFICIENT — and this harness cannot tell the difference because it has no concept of
+ * a suite's subject.
+ *
+ * THE PRACTICAL RULE UNTIL IT IS FIXED: when mutation-testing a suite that reads the bundle,
+ * REBUILD BEFORE RUNNING, and treat a SURVIVED verdict from such a suite as UNPROVEN rather than as
+ * evidence. A footnote rather than a hazard — but it is the exact shape that made J1 look weak when
+ * it was fine.
+ *
  * A clean working tree PROVES no mutation was applied, so the harness can say so instead of
  * leaving it to the operator to remember. It cannot go further than that — it does not know which
  * file you meant to edit, so a dirty tree is necessary evidence and not sufficient. The wording
