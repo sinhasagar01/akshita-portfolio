@@ -90,29 +90,28 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   below, where a heading simply draws the wrong face — it needs measuring per site, not a sweep.
   Recorded with the number so it is not re-derived. Its own PR, not a corner of the typography arc.
 
-- **Kaushan Script, the wordmark face. A brand decision, deliberately outside the typography arc.**
-  The Source Serif and Work Sans swap replaces a display serif and a body sans. It does not touch
-  either face that is literally cursive, so after that arc ships, the loudest cursive on the site
-  is still there. Kaushan Script renders at seven sites, and two of them are the identity.
+- **Kaushan Script — DECIDED, KEPT. The wordmark stays; the inert class on the heading is gone.**
+  The question was framed as debt left by the typography arc. It is not debt. **A wordmark in its own
+  face is not an inconsistency — it is what a wordmark IS**, and a logo drawn in a display face beside
+  headings in a serif is ordinary practice rather than a conflict. Two of the four live sites are the
+  identity doing exactly that: `.logo-sig` pairs script "Akshita" with tracked-caps "SINGH" as a
+  designed lockup, and the footer sets the full name at 42px above "PRODUCT DESIGNER" — **a signature
+  sign-off, which is the one job a script face is unambiguously for.**
 
-  | Site | What it draws |
-  |---|---|
-  | `globals.css` `.logo-sig` with `SiteHeader.tsx` | the wordmark "Akshita" in the nav, 29px, every page |
-  | `SiteFooter.tsx` | "Akshita Singh", 42px |
-  | `HeroCover.tsx`, twice | the watermark word behind each case-study hero |
-  | `HeroSection.tsx`, `ProcessSection.tsx` | two inline-styled script words |
+  ⚠ **AND THE PREMISE THAT MADE IT LOOK LIKE DEBT WAS ALREADY FALSE.** The record said the loudest
+  cursive survived the arc untouched. Measured live, the home page's `h1` — the largest statement of
+  the name on the site, and the page's top-level heading — **renders Source Serif**, because the
+  unlayered `h1` rule beats a utility in `@layer utilities`. The cursive never held the primary slot.
+  So the choice was never "script or serif for the identity"; the serif already had it, and Kaushan
+  holds the mark and the signature.
 
-  **⚠ AND ONE SITE ASKS FOR IT AND DOES NOT GET IT, WHICH CORRECTS AN EARLIER VERSION OF THIS
-  LIST.** The home page's single `h1` in `HeroSection.tsx` carries `font-script` and **renders
-  Fraunces**, because the unlayered `h1` rule outranks the utility. Measured in the browser, not
-  inferred. So the brand question is smaller than six sites plus a heading — the heading is
-  already not cursive, and has never been. Making it cursive would be a change, not a
-  restoration. `cascade-public` registers it.
+  **What WAS real debt is fixed: `font-script` on that `h1` drew nothing and has been removed.** A
+  class that asks for one face and draws another is a lie in the markup, and it survived only because
+  the result looked right. `cascade-public`'s family-collision registry is now empty and zero is the
+  assertion.
 
-  Caveat is the other cursive face and is a single component, the handwritten scrawl in
-  `AnnotatedImage.tsx`. Changing either is a question about the brand rather than about the
-  type system, which is why it is recorded here rather than folded in. **The typography arc
-  finishing does not mean this was considered and declined. It means it was never in scope.**
+  The other cursive, Caveat in `AnnotatedImage.tsx`, is untouched and unexamined — a separate face
+  with a separate job, and no evidence either way was gathered here.
 
 Outcome numbers for Fosfor AI and Fosfor Data Profiling used to sit at the top of this list as the
 one thing blocking finished copy. Both case studies now carry a statCards block with specific

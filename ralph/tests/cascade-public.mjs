@@ -228,15 +228,20 @@ const pub = collisions.filter(outside);
  * ⚠ EVERY ENTRY CARRIES A `guard`, the shape studio-ink-contrast H6 had to learn: a registry that
  * records a claim and never checks it is a list of assertions about the past. The guard is the
  * class expression that MAKES the claim true, matched against the real source. */
-const FAMILY_COLLISIONS = [
-  { at: "components/sections/HeroSection.tsx", tag: "h1", cls: "font-script",
-    guard: /className="font-script text-accent-500 leading-\[1\] m-0 font-normal"/,
-    why: "the home page signature. Asks for Kaushan Script, draws the display serif. MEASURED. " +
-         "DEFERRED ON PURPOSE — it is the Kaushan brand question, recorded as an open item in " +
-         "CLAUDE.md and not to be settled inside a font swap." },
-];
+/* ⚠ EMPTY SINCE #349, AND THE ENTRY WAS DELETED RATHER THAN LOOSENED. It held the home page's `h1`,
+ * which asked for `font-script` and drew the display serif, and its `why` said DEFERRED ON PURPOSE
+ * — the Kaushan brand question, not to be settled inside a font swap.
+ *
+ * THE DEFERRAL WAS RESOLVED, SO THE DEFERRAL RECORD GOES. The owner took the wordmark decision:
+ * Kaushan stays, and the inert class came off the heading. A registry entry whose stated reason is
+ * "waiting on a decision" is finished when the decision arrives — keeping it with a softened
+ * assertion would leave a record claiming something is pending that is not.
+ *
+ * ZERO IS NOW THE ASSERTION. A family utility that draws nothing is a defect again, with no
+ * standing exception. */
+const FAMILY_COLLISIONS = [];
 const familyHits = pub.filter((h) => h.property === "font-family");
-t("B1: ONE font-family collision remains, the deferred Kaushan wordmark — the blog card titles, the contact heading and the process stage heads were all repaired, and a NEW one means a family utility that draws nothing",
+t("B1: ZERO font-family collisions — the last one was the home h1's inert `font-script`, removed in #349 when the Kaushan decision was taken. A NEW one means a family utility that draws nothing",
   familyHits.map((h) => `${h.where.split(":")[0]} <${h.tag}> ${h.cls}`).sort(),
   FAMILY_COLLISIONS.map((e) => `${e.at} <${e.tag}> ${e.cls}`).sort());
 for (const e of FAMILY_COLLISIONS) {
@@ -253,7 +258,9 @@ const byProp = {};
 for (const h of pub) (byProp[h.property] ??= []).push(h);
 const census = Object.fromEntries(Object.keys(byProp).sort().map((k) => [k, byProp[k].length]));
 t("C1: the public collision census is exactly this — a change here is a dead utility gained or repaired",
-  census, { color: 6, "font-family": 1, "font-weight": 12, "letter-spacing": 4, "line-height": 58, "max-width": 18 });
+  /* ⚠ `font-family` LEFT THIS CENSUS ENTIRELY rather than dropping to 0 — a property with no
+     collisions has no key, which is the map's own shape and not a special case. */
+  census, { color: 6, "font-weight": 12, "letter-spacing": 4, "line-height": 58, "max-width": 18 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
