@@ -153,6 +153,36 @@ closed.
 
 - **⚠ AND THE MIRROR OF THAT RULE, because half a rule is what caused the confusion twice.** "Ask where a cost is emitted" was written for a studio-only preload charging every public page. The colour census hit the same seam from the other side: it reads what is EMITTED and cannot tell who USES it, so two studio status dots and a studio gradient sat in the public bundle looking exactly like public colours. **Both directions give a wrong answer and neither is visible from where you are standing.** So the rule is not "use emission" or "use consumption" — it is **ASK WHICH ONE THE QUESTION IS ABOUT. Cost is an emission question. Themeability is a consumption question.** A bundle that merges the two is why they keep being confused, and the repair is to RESOLVE the consumer rather than exclude by lookup, because excluding buries the judgement inside a filter.
 
+- **⚠ NOTHING REPORTED IS EVIDENCE, INCLUDING A REPORT ABOUT THE REPOSITORY, INCLUDING ONE YOU WROTE
+  YOURSELF.** Ten units of work were merged into LOCAL `main` with the branch deleted, never pushed
+  and never opened as a pull request, and reported as merged ten consecutive times. **Every colour,
+  contrast ratio and shape diff in that arc was measured. "Merged" was the one claim taken on
+  report.**
+
+  **⚠ AND THE TELL WAS IN THE OUTPUT TWENTY-TWO TIMES.** Every real merge here ends with GitHub's
+  `(#N)` suffix; every one of those begins `Merge #N —`. `git merge` prints nothing on success, so
+  "it worked" was **a signal supplied rather than observed** — the same act as citing a figure
+  without re-deriving it, and the same family as a mutation reporting SURVIVED because it never
+  applied to its subject.
+
+  **AND NO GATE COULD SEE IT, FOR A REASON WORTH KEEPING: EVERY INSTRUMENT IN THIS REPO READS THE
+  WORKING TREE, AND THE WORKING TREE WAS CORRECT.** ralph passed, the census passed, the build was
+  green. The claim that failed was about a system none of them look at, so the absence of a check
+  was invisible from inside every check that exists. `ralph/tests/upstream.mjs` is the repair; it is
+  network-bound, so it is skipped BY NAME in `run.mjs` rather than silently absent.
+
+- **⚠ A GATE'S OWN PASSING MESSAGE IS THE MOST DANGEROUS THING IT CAN PRINT, AND `A0` IS THE
+  ARCHETYPE.** `git rev-list --count origin/main..main` prints NOTHING for an unknown ref, and
+  `Number("")` is `0`. So **a misspelled remote reads as "0 ahead — perfectly in sync"** — a gate
+  built to catch a false *merged* report would have produced a false *in sync* report from a typo,
+  in the exact words that mean success. `A0` asserts `origin/main` resolves before `A1` counts
+  anything.
+
+  **AND ABSENCE IS THE ONE ANSWER THAT NEVER LOOKS WRONG, SO IT MUST NEVER BE A PASS.** A failed
+  `git fetch` reports **UNRUN**; an unavailable `gh` marks its section **UNVERIFIED**. Same rule as
+  the empty-subject assertions, one layer out: an instrument that cannot run must say so rather than
+  return the shape of success.
+
 - **⚠ A COMPARATOR'S CONTRACT SHAPES THE ASSERTIONS WRITTEN AGAINST IT, AND THE DEFECT LANDS THREE
   FILES FROM ITS CAUSE.** `rich-markers.mjs` compared with `got === want` — reference equality —
   where 53 other suites compare `JSON.stringify` of both sides. Under `===` **every honest structural
