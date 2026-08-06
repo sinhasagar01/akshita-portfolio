@@ -7746,6 +7746,77 @@ Two production builds differing only in `theme:` in the content file, compared t
 
 ralph 2419 → 2424. Lint, tsc and the build clean.
 
+## STEP 3 — THE CONTRAST GATE, BUILT AS AN INSTRUMENT BEFORE IT IS AN ANSWER (#325)
+
+`report(palette, usage)` in `lib/theme-contrast.ts`, and `ralph/tests/theme-contrast.mjs` around it.
+It answers whether a proposed palette can ship without redesigning a component.
+
+### ⚠ THE BRIEF SAID "TAKE A PALETTE", AND CONTRAST IS A PROPERTY OF A PAIR IN USE
+
+`report(palette)` — every token against every ground, refuse anything under 4.5 — **refuses the
+site that ships today.** `accent-500`'s cream ladder is 4.7 / 4.48 / 4.07 / 3.43, so it misses
+`cream-100` by 0.02, and that is not a defect. Accent never carries text on cream-100. The pair
+exists in the palette and not in the product.
+
+So the palette varies per theme and the USAGE MAP does not. **And a near-miss is deliberately not a
+third verdict** — softening a floor by 0.02 would let every future palette land in the same crack,
+and a widened-under-pressure assertion is a thing this repo has caught three times. A pair either
+clears its floor in the roles it holds, or its usage changes.
+
+### THE ORDER, WHICH THE OWNER FIXED AND IS WORTH KEEPING
+
+**A GATE BUILT AGAINST FOUR KNOWN PALETTES IS A GATE FITTED TO THEM.** Every floor and every usage
+row would get chosen, consciously or not, to let them through, and the result would prove the
+palettes pass a test written to be passed. Fixtures first makes it an instrument.
+
+**And the known-bad fixtures are the half that matters.** Two of them, so both verdict types are
+exercised rather than only the mechanism: `ink-600` lightened until body text misses AA gives
+`REFUSED_EXTERNAL`, `cream-100` collapsed onto `cream-50` gives `REFUSED_INTERNAL` with every text
+ratio still legal. A third fixture deletes a token and must return `UNCOMPUTABLE`, never SHIPPABLE.
+
+### EXTERNAL AND INTERNAL, AND WHY THE DIFFERENCE REACHES THE OUTPUT
+
+4.5 for text and 3.0 for non-text are WCAG and do not move. The 1.05 ground-step separation is
+OURS — `cream-50 / cream-100` sits at exactly 1.05, which is where the number came from — so a
+theme with a different ladder may legitimately need it retuned.
+
+**⚠ BOTH ARE REFUSALS.** Naming the second as ours does not soften it to a warning; the palette
+does not ship either way. The distinction is about what the owner does NEXT, and a gate reporting
+both identically leaves them unable to tell "unshippable" from "one of our numbers needs retuning".
+
+### ⚠ THE COMPLETENESS ASSERTION FOUND SOMETHING ON ITS FIRST RUN
+
+E1 asserts every public colour is either computed or on the boundary list, **by name**. It
+immediately failed on `--color-on-dark-line` — a `color-mix(... 16%, transparent)` derivative that
+was in no usage row, on no list, and silently dropped by the oklch-only palette extraction.
+
+> **A COLOUR NOBODY KNEW WAS UNCOMPUTED.** Hazard 30 exactly, found by the assertion written to
+> find it, one run after the boundary list was declared final.
+
+It also revealed a boundary CATEGORY nobody had: alpha derivatives. E5 now asserts every public
+token is parseable, aliased, or listed, so the extraction cannot drop one silently again.
+
+**THE VOCABULARY BLIND SPOT HAS NOW APPEARED IN FOUR GATES** — `studio-tokens` C2 matching numbered
+scales only, the 6a census counting comments, C1's pairing unable to reach a token with no public
+twin, and now this. Each time something was uncomputed and nothing said so.
+
+### ⚠ AND MUTATION FOUND A GAP THE SUITE NOW STATES RATHER THAN HIDES
+
+Breaking `over()` — the gamma-space alpha compositing — left all 27 assertions passing, because no
+PUBLIC usage row uses alpha. The public hairline has no stated floor of its own and inventing one
+would encode a number nobody chose. The maths IS covered, by `studio-ink-contrast`, whose /8, /10
+and /22 rows kill the same mutation across 16 assertions — **checked rather than assumed**, and
+written into the suite so the gap reads as a gap instead of as coverage.
+
+### ONE COPY OF THE COLOUR MATH
+
+The oklch transform, the gamma-space alpha-over and the WCAG ratio moved out of
+`studio-ink-contrast` into the shared leaf, and that suite imports them. Its three sanity
+assertions now validate the shared code rather than a private duplicate, which is strictly more
+coverage for the same three rows. 68 passed before the move and 68 after.
+
+ralph 2424 → 2451 across 59 suites. Lint, tsc and the build clean.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

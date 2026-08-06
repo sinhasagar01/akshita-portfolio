@@ -1,5 +1,5 @@
 // THE ON-INK CONTRAST GATE — every on-ink foreground ratio, computed from source, in CI.
-// Run: node ralph/tests/studio-ink-contrast.mjs
+// Run: node --experimental-strip-types ralph/tests/studio-ink-contrast.mjs
 //
 // ---- WHAT THIS CLOSES (hazard 27) -----------------------------------------------------
 //
@@ -44,6 +44,7 @@
 // unnoticed and this exclusion cannot quietly grow the way the C-9 one did. Everything the arc
 // measured that a machine CAN compute is computed.
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { oklchToRgb, over, contrastRatio } from "../../lib/theme-contrast.ts";
 import { ON_INK } from "./studio-type.mjs";
 
 let pass = 0, fail = 0;
@@ -58,24 +59,11 @@ const read = (p) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8")
  * oklch(L C H) -> sRGB 0..255 (L a fraction, H degrees), the standard Björn Ottosson transform.
  * Then CSS alpha-over IN GAMMA SPACE (browsers composite `rgb(...)/a` on the encoded bytes, not
  * in linear light), and WCAG relative-luminance contrast. */
-function oklchToRgb(L, C, H) {
-  const h = (H * Math.PI) / 180, a = C * Math.cos(h), b = C * Math.sin(h);
-  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
-  const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
-  const lin = [
-    +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
-  ];
-  const enc = (v) => { v = Math.max(0, Math.min(1, v)); return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055; };
-  return lin.map((v) => Math.round(enc(v) * 255));
-}
-const over = (fg, alpha, bg) => fg.map((f, i) => Math.round(alpha * f + (1 - alpha) * bg[i])); // sRGB-space alpha over
-const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
-const ratioRaw = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
-const ratio = (a, b) => Math.round(ratioRaw(a, b) * 100) / 100;
+/* ⚠ IMPORTED, NOT DECLARED. The transform used to live here, and Step 3 needed the same maths to
+ * judge a candidate palette — so it moved to `lib/theme-contrast.ts` and this suite consumes it.
+ * ONE COPY OF THE COLOUR MATH, and S1..S3 below now validate the shared leaf rather than a private
+ * duplicate, which is strictly more coverage for the same three assertions. */
+const ratio = contrastRatio;
 
 /* ================================================ B. THE TOKENS, PARSED FROM @theme
  * Same source the screen renders from — a token whose oklch is retuned is picked up here on the
