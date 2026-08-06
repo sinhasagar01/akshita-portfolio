@@ -595,8 +595,35 @@ h4,
 h5,
 h6 {
   font-family: var(--font-body);
-  font-weight: var(--font-weight-semibold);
   line-height: var(--leading-snug);
+}
+
+/* ⚠ THE WEIGHT IS LAYERED AND THE FAMILY AND LEADING ARE NOT — the second property taken out of
+   this reset one at a time, after the paragraph measure in #350.
+
+   TWELVE `h3` ELEMENTS ASKED FOR REGULAR AND DREW SEMIBOLD, and every one of the twelve asked for
+   exactly the same thing: 400 against the reset's 600. Eleven of them are the case-study block
+   layer and one is the blog index. That is not twelve opinions being overridden — it is ONE
+   opinion, written twelve times, by people who each had no way to see it was inert.
+
+   ⚠ SEMIBOLD IS STILL THE DEFAULT. Every `h3` that says nothing keeps 600. The reset did not become
+   wrong — it became a default rather than a verdict.
+
+   ⚠ AND THE UTILITIES STILL DO NOT WIN, WHICH IS WHAT THIS CHANGE ACTUALLY DID. Ten of the twelve
+   are inside `.case-study`, where an UNLAYERED `.case-study .font-display` rule sets weight 500 and
+   outranks a utility on specificity. Layering this reset did not hand the contest to `font-normal`
+   — it handed it to whoever was SECOND. Those ten went 600 -> 500, not 600 -> 400.
+
+   THE CLAIM THIS CHANGE CAN MAKE IS "THE RESET STOPS WINNING", NOT "THE UTILITIES GO LIVE". The
+   second needs `.case-study .font-display` looked at on its own terms, which is a different rule
+   with its own history and its own PR. */
+@layer base {
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
 p {
