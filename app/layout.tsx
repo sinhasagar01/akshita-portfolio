@@ -114,8 +114,24 @@ export const metadata: Metadata = {
     title: "Akshita Singh, Product Designer",
     description: SITE_DESCRIPTION,
   },
+  /* ⚠ THE SVG FIRST AND THE PNG AS A REAL FALLBACK, NOT A COURTESY. Safari did not support SVG
+   * favicons until Safari 26.0 — 3.1 through 18.7 do not — and a designer's portfolio skews Mac and
+   * iOS, so the PNG carries more traffic here than the 89% global figure suggests.
+   *
+   * TWO ASSETS IN STEP IS AN OBLIGATION ON A PERSON, and that is what lost for the eight
+   * illustrations. It is acceptable here because the obligation is BOUNDED: the mark is invariant,
+   * so the two are in step at ONE value forever rather than once per theme. A per-theme pair would
+   * have grown with every palette; this pair does not.
+   *
+   * AND THE FAVICON CACHING PROBLEM STOPS APPLYING FOR THE SAME REASON. Chrome holds a favicon for
+   * days regardless of HTTP headers, which only matters if the icon is supposed to change. Under an
+   * invariant mark it never is. */
   icons: {
-    icon: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" }],
   },
   robots: { index: true, follow: true },
 };
