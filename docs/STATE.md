@@ -9110,6 +9110,12 @@ ralph 2516 → 2520.
 Every gate run with `theme: harbour` published: **2520 assertions, 60 suites, all green.** Then the
 question worth asking of any control — **did the subject actually change?**
 
+> **⚠ AND THE FIRST ANSWER IS THAT I DID NOT SET UP THE CONTROL I THOUGHT I HAD.** `main` was
+> ALREADY on harbour — the owner published it through the studio in `b2f6c03` — so setting
+> `theme: harbour` changed nothing and the "revert to cream" that followed would have SWITCHED THE
+> LIVE SITE rather than restoring it. `git status` showed `M content/site-settings.yaml` and I read
+> past it. The run's conclusions below hold for a different reason than the one I set out to test.
+
 | | |
 |---|---|
 | CSS bundle, cream vs harbour | **byte-identical** — same md5 |
@@ -9132,6 +9138,17 @@ nothing about what they see.
 
 **That is a stronger property than "they pass on Harbour", for a different reason than expected:**
 they never needed Harbour to be published in order to judge it.
+
+### AND THE PUBLISH PATH IS PROVEN END TO END, WHICH NO GATE COULD HAVE SHOWN
+
+Harbour reached production through the studio: panel to sanitizer to draft branch to merge to
+rebuild. **The sanitizer was correct at the moment of the write** — #328 unheld harbour at 14:05 and
+`b2f6c03` landed at 14:25, so `SETTINGS_THEME_VALUES` already read `["cream", "harbour"]`. A write
+twenty minutes earlier would have been refused, which is the asymmetry doing its job rather than
+being tested.
+
+**THAT IS THE ONE THING THIS ARC BUILT THAT ONLY AN AUTHOR COULD EXERCISE**, and it worked without
+anyone checking it first.
 
 ### ⚠ WHAT THE RUN DID SURFACE — ONE GENUINELY UNASSERTED FACT
 
