@@ -136,6 +136,17 @@ closed.
 
 - **The canvas and the public page must render identically.** They share `SectionRenderer`, differing only in the `editable` and `noReveal` flags, and those flags may ADD affordances but must never move or resize a box. An editable-only wrapper element is the failure mode to avoid: put markers and overlays on an element that is already positioned. `/dev/parity/<slug>` plus `ralph/tests/parity.mjs` checks this — run it after touching anything under `components/case-study`.
 
+- **Ask where a cost is EMITTED, not where the feature is USED.** A studio-only feature can charge
+  every public page, and the two questions look identical until something is measured. `preload` on
+  a font is declared per family but emitted from the ROOT layout, which wraps the public site — so
+  giving the label face `preload: true` put a fifth font preload on every public page for a face no
+  public page renders, while every consumer sat under the owner-gated `/studio`. Caught in the
+  build at 4 -> 5, after a comment had already claimed the public count was unaffected.
+
+  Same family as the CSS bundle being one chunk the public site downloads, which #274 measured at
+  23.4% studio-only. **The consumers were scoped and the cost was not.** Scoping a feature does not
+  scope what shipping it emits, and only a build diff can tell you which.
+
 - **`lib/studio/data.ts` is the single READ seam for /studio, `lib/studio/commit-site-settings.ts` is the write seam.** All studio reads go through `getStudioData()`, a `cache()` wrapper over `getHomePageData` plus the draft-branch state, draft-preferring for settings. Writes go through the owner-gated commit layer, with the pure transforms in `lib/studio/*-format.ts`.
 
 - **Keystatic is schema-only.** `keystatic.config.ts` drives the reader (`createReader`, `createGitHubReader`) that parses all content, and `lib/case-studies/sections-raw.ts` derives the 16 block-kind union from it, so the config and `@keystatic/core` are load-bearing and stay. There is no Keystatic editor route any more.

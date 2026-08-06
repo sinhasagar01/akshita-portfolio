@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Fraunces,
-  DM_Sans,
   Kaushan_Script,
   Caveat,
   Source_Serif_4,
@@ -16,36 +14,6 @@ import {
   SITE_KEYWORDS,
 } from "@/lib/site";
 import "./globals.css";
-
-/* ⚠ FRAUNCES IS NO LONGER THE DISPLAY FACE. `--font-display` points at Source Serif 4 as of this
-   commit, so preloading Fraunces would spend the critical window on a face nothing reads. It stays
-   LOADED rather than deleted for one more step, because `--font-fraunces` is still a declared face
-   and deleting both outgoing families belongs in a cleanup PR rather than in the one that has to
-   prove the serif changed. Its SOFT and WONK axes go with it when it goes — Source Serif 4 has
-   neither, which is the "drops the calligraphy" half of the contract. */
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
-  style: ["normal", "italic"],
-  variable: "--font-display-loaded",
-  display: "swap",
-  preload: false,
-});
-
-/* ⚠ DM SANS IS NO LONGER THE BODY FACE AND IS NO LONGER PRELOADED. `--font-body` points at Work
-   Sans as of this commit. It is still LOADED rather than deleted because `--font-dm-sans` remains
-   a declared face and the display side of the arc has not shipped, so the two families are
-   deliberately co-present for one more step. Preloading a face nothing reads would spend the
-   critical window on it — the argument Caveat's note below already makes. It comes out with the
-   display swap, not here, because deleting it in the same commit as the measure would put an
-   unrelated change in a diff that exists to prove three numbers. */
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  axes: ["opsz"],
-  variable: "--font-body-loaded",
-  display: "swap",
-  preload: false,
-});
 
 const kaushanScript = Kaushan_Script({
   subsets: ["latin"],
@@ -62,36 +30,28 @@ const caveat = Caveat({
   display: "swap",
   // Not preloaded: Caveat is the annotation/doodle face, used below the fold and never
   // the LCP element, so preloading it only makes it contend with the three above-the-fold
-  // faces (Fraunces, DM Sans, Kaushan) for bandwidth during the critical window.
+  // faces (the display serif, the body sans, Kaushan) for bandwidth during the critical window.
   preload: false,
 });
 
 /* ============================================================================================
-   THE THREE INCOMING FACES — loaded, unconsumed, and that is the whole point of this step.
-   Source Serif 4 for display, Work Sans for body, Space Grotesk for labels.
+   THE THREE FACES THIS SITE IS SET IN. Source Serif 4 for display, Work Sans for body,
+   Space Grotesk for labels.
 
    ⚠ EVERY ONE IS `preload: false`, AND THAT IS LOAD-BEARING RATHER THAN TIDY. Nothing reads
    these tokens yet, so a preload link would download three unused webfonts in the critical
-   window and contend with the three faces that ARE above the fold. Caveat's note below
-   already established that reasoning for a face that IS used; it applies harder to one that
-   is not. The PR that repoints `--font-display` and `--font-body` flips these to `true` and
-   flips Fraunces and DM Sans to `false`, in the same commit, so the preload budget never
-   holds both sets at once.
+   window and contend with the faces that ARE above the fold. Caveat's note above already
+   established that reasoning for a face that IS used; it applies harder to one that is not.
+   The outgoing families have since been deleted outright, so the budget holds one set.
 
-   ⚠ SOURCE SERIF 4 TAKES `opsz` AND ITS AXIS MAXES AT 60, where Fraunces goes to 144. So
-   `font-variation-settings: "opsz" 144` at globals.css:270 cannot carry over — it would clamp
-   silently, which is a value that renders and is not the value anyone asked for. The contract's
-   scale states an opsz per step, and :270 takes that step's value rather than "something valid".
-
-   ⚠ ITALIC IS LOADED FOR THE SERIF AND NOT FOR THE OTHER TWO. The section headings are Fraunces
-   italic 400 today, so the display face needs a real italic or the swap ships a synthesised
-   oblique. Work Sans mirrors DM Sans, which loads normal only. Space Grotesk HAS no italic
-   upstream, which costs nothing because a tracked uppercase label never sets one.
+   ⚠ ITALIC IS LOADED FOR THE SERIF AND NOT FOR THE OTHER TWO. The section headings are display
+   italic 400, so the display face needs a real italic or the site ships a synthesised oblique.
+   Work Sans loads normal only. Space Grotesk HAS no italic upstream, which costs nothing because
+   a tracked uppercase label never sets one.
 ============================================================================================ */
 
 /* ⚠ PRELOADED FROM HERE, because it IS the display face now — every h1 and h2 on every page, and
-   the LCP element on the home page and every case study. It swaps places with Fraunces above
-   rather than joining it, so a public page's preload count does not move. */
+   the LCP element on the home page and every case study. */
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   axes: ["opsz"],
@@ -102,8 +62,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 /* ⚠ WORK SANS IS PRELOADED FROM HERE, because it IS the body face now — every paragraph on every
-   page, and the family the LCP text is set in. It swaps places with DM Sans above rather than
-   joining it, so the preload count on a public page is unchanged. */
+   page, and the family the LCP text is set in. */
 const workSans = Work_Sans({
   subsets: ["latin"],
   variable: "--font-work-sans-loaded",
@@ -167,7 +126,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${dmSans.variable} ${kaushanScript.variable} ${caveat.variable} ${sourceSerif.variable} ${workSans.variable} ${spaceGrotesk.variable}`}
+      className={`${kaushanScript.variable} ${caveat.variable} ${sourceSerif.variable} ${workSans.variable} ${spaceGrotesk.variable}`}
     >
       <head>
         {/* Runs at parse time, before any hydration or browser scroll restoration.

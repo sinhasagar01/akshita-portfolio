@@ -104,8 +104,13 @@ const preloadOf = (ctor) => {
 };
 t("C1: the three LIVE faces are preloaded — Source Serif 4, Work Sans, and Kaushan for the wordmark",
   [preloadOf("Source_Serif_4"), preloadOf("Work_Sans"), preloadOf("Kaushan_Script")], [true, true, true]);
-t("C2: the two OUTGOING faces are not — nothing reads Fraunces or DM Sans any more",
-  [preloadOf("Fraunces"), preloadOf("DM_Sans")], [false, false]);
+/* ⚠ C2's SUBJECT WAS DELETED, WHICH IS THE THIRD KIND OF CHANGE AND THE EASIEST TO GET WRONG.
+ * It asserted the two outgoing faces were not PRELOADED. They are not LOADED at all now, so the
+ * old form would read `null` for both and pass by comparing nothing to nothing — a green row
+ * about two things that no longer exist. Restated as an absence: they must not be imported.
+ * A gate whose subject vanishes is rewritten to assert the vanishing, never left to pass vacuously. */
+t("C2: the two OUTGOING faces are gone entirely — not merely unpreloaded, but not loaded",
+  [/\bFraunces\b/.test(layoutCode), /\bDM_Sans\b/.test(layoutCode)], [false, false]);
 /* ⚠ C3's SUBJECT CHANGED AND ITS VALUE DID NOT, WHICH IS THE MORE INTERESTING CASE.
  * It read "Space Grotesk is not preloaded either, BECAUSE --font-label still has no consumer".
  * That reason is gone — the token has two consumers now. The assertion still says `false`, for a
@@ -168,6 +173,28 @@ t("C4: exactly three faces are preloaded, the same number as before the arc bega
     t(`C5: --font-${role} is READ by something — a role token with no consumer is a name that drives nothing`,
       consumers(role) > 0, true);
   }
+  /* ⚠ AND EVERY DECLARED FACE TOKEN TOO, NOT ONLY THE THREE ROLES — which is the generalisation
+   * the cleanup earned. `--font-fraunces` and `--font-dm-sans` sat in @theme with zero consumers
+   * for two PRs after the swap, and the role-only loop above could not see them: they are faces,
+   * not roles. That is the FIT_THRESHOLD_PX shape one level down, and the same list this repo has
+   * deleted from four times — the unused 2xl radius token, the eleven ink-700 sites, a threshold
+   * with no caller, a selected-state class nothing set.
+   * Derived from @theme rather than listed, so a NEW face declared and never wired fails here on
+   * arrival instead of after a year. */
+  const declaredFaces = [...cssCode.matchAll(/^\s*--font-([a-z0-9-]+):/gm)]
+    .map((m) => m[1])
+    /* `--font-weight-*` is a different namespace and is excluded by name, not by accident. The
+     * first version swept it in and reported `weight-light`, `weight-bold` and `weight-black` as
+     * stale faces. They are not faces — but they ARE three declared weight tokens with no
+     * consumer, which is the same shape one namespace over. Recorded rather than swept into a
+     * font-family cleanup, because Tailwind tree-shakes them and deleting them is its own call. */
+    .filter((n) => !/-loaded$/.test(n) && !/^weight-/.test(n)
+                   && !["display", "body", "label"].includes(n));
+  t("C5: the face tokens were derived from @theme — a zero denominator is not a pass",
+    declaredFaces.length > 0, true);
+  const stale = declaredFaces.filter((f) => consumers(f) === 0);
+  t("C5: …and every declared FACE token is read by a role or by a component — none is a name with nothing behind it",
+    stale, []);
   /* ⚠ THE LABEL ROLE IS READ TWICE IN SOURCE AND RENDERED AT 47 SITES, and conflating those two
    * numbers is a mistake this assertion nearly shipped. `font-label` appears in exactly two
    * places — `labelCls` and `groupLabelCls` — because the label scale is centralised, which is
