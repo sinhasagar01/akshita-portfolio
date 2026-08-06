@@ -8625,6 +8625,45 @@ that the precision fix ruled out.
 
 ralph 2482 → 2486.
 
+## CLOSING THE POOL, AND THE COUNT WAS WRONG AGAIN (#337)
+
+### WHAT CONVERTED
+
+`accent-500` longhand at 55%, 35% and 0 · the `--color-rule` family written as `rgba(120,90,60,a)`
+· the vessel's bubble and glint whites.
+
+**⚠ AND ONE OF THOSE NEARLY BECAME AN INVENTED TOKEN.** The sweep introduced
+`--color-vessel-bubble` for `oklch(1 0.006 80)` before measuring it. It is **Δ2 from
+`--color-bounce`** — a snap by #327's own rule, and a token for a two-byte difference is exactly
+what `--color-mark` died for. Caught and reverted inside the same commit.
+
+### ⚠ AND "≈4 REAL JUDGEMENTS" WAS WRONG. THE POOL IS 39, AND 21 OF THEM ARE ONE COMPONENT.
+
+The ~4 estimate came from a scoping script whose selector filter excluded the vessel and the hero
+auras — **the same filter gap that hid seven parts a batch earlier.** Re-derived without it:
+
+| | count | status |
+|---|---|---|
+| `.hero-aura--*`, `.hero-phones--*` | 9 | **ruled** — product branding (#334) |
+| `.blog-vessel` / `-capsule` / `-liquid` / `-bead` | **21** | **ONE COMPONENT DECISION, not 21** |
+| `.ab-tint` | 1 | ruled |
+| `--tw-ring-offset-color` in `@property` | 1 | compiler default, filter gap |
+| `.ab-cap`, `.nav-cta`, two arbitrary utilities, one gradient white | **5** | **the real judgements** |
+
+**THE ESTIMATE WAS PRODUCED BY THE INSTRUMENT WHOSE BLIND SPOT WAS THE FINDING OF THE PREVIOUS PR.**
+I fixed the census's derivation blindness and then estimated the remaining work with a *different*
+script carrying the *original* selector-filter defect. **The filters are a second boundary list that
+nothing asserts, and it produced a wrong number one message after that was named.**
+
+### THE HAIRLINE CORRECTION, AND WHOSE IT WAS
+
+`rgba(60,45,30,.09)` was approved as `--color-rule`. It composites to **`ink-800` at Δ2** while
+`--color-rule` is **Δ7** — a different family. **Fourth time this arc a Δ was computed against the
+wrong reference**, and the first where the wrong reference was approved in the same message that
+approved the method which caught it.
+
+ralph 2486, unchanged — the conversions are value-preserving.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
