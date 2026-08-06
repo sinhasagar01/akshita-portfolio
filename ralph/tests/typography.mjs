@@ -29,6 +29,8 @@
 // truth that goes stale on the first upgrade — the same argument `css-comment-trap` makes for
 // asking Tailwind instead of keeping a class list.
 import { readFileSync, readdirSync } from "node:fs";
+import { compile } from "tailwindcss";
+import { Scanner } from "@tailwindcss/oxide";
 import { createRequire } from "node:module";
 
 let pass = 0, fail = 0;
@@ -161,41 +163,85 @@ t("C4: exactly three faces are preloaded, the same number as before the arc bega
   const src = files
     .map((f) => code(readFileSync(new URL(`../../${f}`, import.meta.url), "utf8")))
     .join("\n");
-  /* ⚠ THE DECLARATION IS NOT A CONSUMER, and the first version of this counted it. `--font-label:`
-   * contains the string `font-label`, so a naive word match found the token's own definition and
-   * reported it as used — a gate that would have passed with zero real consumers, which is the
-   * exact false pass it exists to prevent. Caught by mutation: stripping BOTH consumers still left
-   * it green. The class token must not be preceded by `--`. */
-  const consumers = (role) =>
-    (src.match(new RegExp(`(^|[^-\\w])font-${role}\\b`, "gm")) ?? []).length
-    + (src.match(new RegExp(`var\\(--font-${role}\\)`, "g")) ?? []).length;
-  for (const role of ["display", "body", "label"]) {
-    t(`C5: --font-${role} is READ by something — a role token with no consumer is a name that drives nothing`,
-      consumers(role) > 0, true);
+  /* ---- ⚠ THE ORACLE IS THE COMPILER, NOT THE TOKEN'S NAME ------------------------------------
+   *
+   * The three versions before this one all matched STRINGS, and each failed differently:
+   *   1. `font-label` matched the token's own DECLARATION, so it passed with zero consumers.
+   *   2. Fixed, it matched the COMMENT beside the constants explaining that they carry it.
+   *   3. Fixed again, it still could not see a utility named differently from its token —
+   *      `--font-weight-bold` is read by `font-bold`, and a check built from the token name
+   *      looks for `font-weight-bold`, which appears nowhere. I reported that token as stale in
+   *      #310 on exactly that reasoning. It has NINETEEN consumers.
+   *
+   * All three are the same mistake: guessing how a token is reached instead of asking.
+   *
+   * TAILWIND TREE-SHAKES `@theme`, so a declared token reaches the compiled stylesheet ONLY if
+   * something uses it — whatever that something is named. Verified on the real bundle before this
+   * was built on: it carries `bold`, `medium`, `regular` and `semibold` and no others, which is
+   * exactly the consumed set. So "is this token consumed" is answered by compiling the project and
+   * looking, and the utility's name never enters the question.
+   *
+   * SCANNED FROM COMMENT-STRIPPED SOURCE, which is the one deliberate difference from what the
+   * build does. Tailwind reads prose as source, so a comment naming a utility would emit its token
+   * and satisfy this check — trap 2 again, one level down. C5 asks whether CODE consumes a token;
+   * `css-comment-trap` asks whether PROSE emits one. Two questions, two gates, neither doing the
+   * other's job. */
+  /* ⚠ THE `@theme` BLOCK IS REMOVED BEFORE SCANNING, AND SKIPPING THIS PUT TRAP 1 BACK.
+   * The scanner reads `.css` too, so `--font-fraunces:` yields the candidate `font-fraunces`,
+   * which compiles to a rule referencing the var, WHICH EMITS THE TOKEN. The declaration becomes
+   * its own consumer through the compiler — the same false pass as version 1, arriving by a
+   * completely different route. Caught by mutation: a re-declared dead token stayed green.
+   * The rest of the stylesheet is still scanned, because a hand-written rule reading
+   * `var(--font-script)` IS a real consumer and dropping `.css` would lose it. */
+  const scanned = files.map((f) => {
+    let content = code(readFileSync(new URL(`../../${f}`, import.meta.url), "utf8"));
+    if (f.endsWith(".css")) {
+      const i = content.indexOf("@theme {");
+      if (i !== -1) {
+        const end = content.indexOf("\n}", i);
+        content = content.slice(0, i) + content.slice(end === -1 ? i : end + 2);
+      }
+    }
+    return { content, extension: f.slice(f.lastIndexOf(".") + 1) };
+  });
+  const candidates = [...new Set(new Scanner({ sources: [] }).scanFiles(scanned))];
+  const ROOT = new URL("../../", import.meta.url).pathname;
+  const compiled = (await compile(readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8"), {
+    base: `${ROOT}app`,
+    loadStylesheet: async (id, base) => {
+      const p = id === "tailwindcss" ? `${ROOT}node_modules/tailwindcss/index.css` : `${base}/${id}`;
+      return { path: p, base: p.slice(0, p.lastIndexOf("/")), content: readFileSync(p, "utf8") };
+    },
+    loadModule: async () => ({ module: {}, base: "" }),
+  })).build(candidates);
+
+  /* THE ORACLE IS LIVE. If the compile ever returns nothing useful, every check below would read
+   * "absent" and the suite would fail loudly rather than pass — but a token KNOWN to be consumed
+   * proves the positive direction too, which is the half a false-pass hides in. */
+  t("C5: the compiler oracle is live — a token with real consumers reaches the stylesheet",
+    /--font-display\s*:/.test(compiled), true);
+  t("C5: …and one with none does not, which is the property the whole check rests on",
+    /--font-weight-black\s*:/.test(compiled), false);
+
+  const consumed = (tok) => new RegExp(`--${tok}\\s*:`).test(compiled);
+
+  /* ⚠ AND THE WEIGHT NAMESPACE IS NO LONGER EXCLUDED. It was excluded by name precisely because
+   * the string check could not read it; the compiler can, so the exclusion goes and every declared
+   * font token is covered by one rule. `-loaded` names are next/font's own and are set on <html>
+   * rather than consumed through a utility, so they are the one genuine exemption. */
+  const declared = [...cssCode.matchAll(/^\s*(--font-[a-z0-9-]+)\s*:/gm)]
+    .map((m) => m[1].slice(2))
+    .filter((n) => !/-loaded$/.test(n));
+  t("C5: the token set was derived from @theme — a zero denominator is not a pass",
+    declared.length > 5, true);
+  for (const role of ["font-display", "font-body", "font-label"]) {
+    t(`C5: --${role} is consumed — a role token with no consumer is a name that drives nothing`,
+      consumed(role), true);
   }
-  /* ⚠ AND EVERY DECLARED FACE TOKEN TOO, NOT ONLY THE THREE ROLES — which is the generalisation
-   * the cleanup earned. `--font-fraunces` and `--font-dm-sans` sat in @theme with zero consumers
-   * for two PRs after the swap, and the role-only loop above could not see them: they are faces,
-   * not roles. That is the FIT_THRESHOLD_PX shape one level down, and the same list this repo has
-   * deleted from four times — the unused 2xl radius token, the eleven ink-700 sites, a threshold
-   * with no caller, a selected-state class nothing set.
-   * Derived from @theme rather than listed, so a NEW face declared and never wired fails here on
-   * arrival instead of after a year. */
-  const declaredFaces = [...cssCode.matchAll(/^\s*--font-([a-z0-9-]+):/gm)]
-    .map((m) => m[1])
-    /* `--font-weight-*` is a different namespace and is excluded by name, not by accident. The
-     * first version swept it in and reported `weight-light`, `weight-bold` and `weight-black` as
-     * stale faces. They are not faces, and THAT REPORT WAS ALSO WRONG ON ONE OF THE THREE:
-     * `--font-weight-bold` is read by the `font-bold` utility at 19 sites. The utility is
-     * `font-bold`, not `font-weight-bold`, so a check written against the TOKEN name could not
-     * see it. Two were genuinely unconsumed, `light` and `black`, and both are deleted. */
-    .filter((n) => !/-loaded$/.test(n) && !/^weight-/.test(n)
-                   && !["display", "body", "label"].includes(n));
-  t("C5: the face tokens were derived from @theme — a zero denominator is not a pass",
-    declaredFaces.length > 0, true);
-  const stale = declaredFaces.filter((f) => consumers(f) === 0);
-  t("C5: …and every declared FACE token is read by a role or by a component — none is a name with nothing behind it",
+  const stale = declared.filter((tok) => !consumed(tok));
+  t("C5: EVERY declared font token is consumed — roles, faces and weights alike, asked of the compiler rather than of the token's name",
     stale, []);
+
   /* ⚠ THE LABEL ROLE IS READ TWICE IN SOURCE AND RENDERED AT 47 SITES, and conflating those two
    * numbers is a mistake this assertion nearly shipped. `font-label` appears in exactly two
    * places — `labelCls` and `groupLabelCls` — because the label scale is centralised, which is
