@@ -64,7 +64,7 @@ export default function ExperienceSection({ experience }: Props) {
           {feature && (
           <div
             className="relative overflow-hidden mb-[30px]"
-            style={{ background: "#F3EADB", borderRadius: "14px", padding: "28px 30px" }}
+            style={{ background: "var(--color-cream-200)", borderRadius: "14px", padding: "28px 30px" }}
           >
             {/* Static warm glow — inside the card, clipped by overflow hidden */}
             <div
@@ -114,7 +114,7 @@ export default function ExperienceSection({ experience }: Props) {
                 {previous.map((entry) => (
                   <div
                     key={entry.slug}
-                    className="grid grid-cols-1 sm:grid-cols-[170px_1fr] gap-x-6 gap-y-1 px-3 py-[15px] rounded-[10px] transition-colors duration-300 hover:bg-[#F3EADB] border-b border-[rgba(60,45,30,.09)] last:border-b-0"
+                    className="grid grid-cols-1 sm:grid-cols-[170px_1fr] gap-x-6 gap-y-1 px-3 py-[15px] rounded-[10px] transition-colors duration-300 hover:bg-cream-200 border-b border-[rgba(60,45,30,.09)] last:border-b-0"
                   >
                     <div className="text-[13.5px] text-text-muted">
                       {entry.startDate} – {entry.endDate}
