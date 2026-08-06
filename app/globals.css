@@ -155,6 +155,16 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-studio-success-700: oklch(46.0% 0.075 145);
   --color-studio-text-subtle: oklch(51% 0.016 66);
 
+  /* ⚠ THE FIFTEENTH, AND THE ONE THE FREEZE MISSED. It is `--color-canvas` frozen — the ground the
+     whole editor sits on, set once in app/studio/layout.tsx. A single site is exactly the shape a
+     coverage count hides, and it is the largest painted area in the product.
+
+     ⚠ NAMED `ground`, NOT `canvas`, AND THE RENAME IS THE POINT. "Canvas" already means the
+     article preview in this codebase, which the block above says is DELIBERATELY not frozen. A
+     frozen token named after the one surface that must stay themed would read as a contradiction
+     of the paragraph directly above it. */
+  --color-studio-ground: oklch(92.0% 0.022 78);
+
   --font-source-serif:  var(--font-source-serif-loaded, "Iowan Old Style", Charter, Georgia, serif);
   --font-work-sans:     var(--font-work-sans-loaded, Avenir, "Avenir Next", ui-sans-serif, system-ui, sans-serif);
   --font-space-grotesk: var(--font-space-grotesk-loaded, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif);

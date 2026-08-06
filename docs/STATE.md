@@ -7598,6 +7598,83 @@ zero subjects passes because it found nothing. A contaminated gate passes becaus
 WRONG something. The first is caught by counting subjects, and the second is not caught by anything
 except mutation.
 
+## STEP 6a — THE FREEZE FINISHED, AND A CENSUS THAT WAS WRONG BY A FACTOR OF 38 (#323)
+
+The theme is about to land on `<html>`, so the studio's immunity stops being a claim about intent
+and becomes a property something asserts. 6a makes it true and gates it. No theme code.
+
+### ⚠ THE PLACEMENT WAS MEASURED, NOT ARGUED
+
+`html { background-color: var(--color-background) }` paints the page ground. In the browser, with
+red on `<html>` and blue on a wrapper inside `<body>`, content 40px tall in a 1060px viewport
+**the wrapper painted 40px and `<html>` painted the other 1020.** So a scoped attribute or a second
+element leaves the ground on the old palette — a visible band on every short page and every
+overscroll, in every theme. **The root is the only host, and that is what forces 6a to exist.**
+
+### ⚠ AND THE CENSUS WAS WRONG THREE TIMES BEFORE IT WAS RIGHT — THIRD CONTAMINATED INPUT
+
+A grep for shared-palette utilities under the studio directories returns **38**. The plan built on
+that number. The real figure is **1**.
+
+| instrument | reported | why it was wrong |
+|---|---|---|
+| plain grep | 38 live sites | counted comments |
+| regex comment-strip | 2 live sites | its line rule stopped at a backtick, so a comment containing `` `bg-ink-950` `` survived |
+| string-aware state machine | **1 live site** | validated in both directions before use |
+
+**THE 37 NON-SITES ARE THE REPO'S OWN RECORDS OF HAZARD 23** — the ink-700 deletion, the ink-500
+re-point, the phantom-token notes. Each necessarily QUOTES the utility it is about. **The census
+counted the documentation OF the defect as instances OF the defect.**
+
+> Third instance of the same family, after the consumer count reading the token's own declaration
+> and the round-trip gate seeding the value it asserted. **AN ASSERTION WHOSE INPUT IS CONTAMINATED
+> BY THE THING IT IS MEANT TO PROVE**, and the fix is the same sentence every time — the input must
+> come from somewhere the change cannot reach.
+
+**⚠ AND THE OWNER'S RULING ON THE FIVE DEAD SITES WAS MOOT, WHICH ONLY THE THIRD INSTRUMENT COULD
+SHOW.** `text-ink-700` ×3 and `text-ink-500` ×2 were to be deleted and re-pointed on #313's
+precedent. All five are comments. **Hazard 23 was already fully closed** and the survivors were
+records of closing it. The E3 parameterisation was likewise unnecessary, because the rename it
+guarded against never happened — five `border-ink-950/12` mentions, all in comments.
+
+**`cascade-public` DOES NOT SHARE THIS DEFECT, AND IT WAS CHECKED RATHER THAN ASSUMED.** It extracts
+only from a matched `className=` on a real element tag, so comment prose cannot enter its token
+stream. The 99 and 104 figures stand.
+
+### WHAT SHIPPED
+
+One live site. `app/studio/layout.tsx` drew the editor's ground from `bg-canvas`, the PUBLIC token
+— **the largest painted area in the product**, while every panel and rail on top of it was already
+frozen. It becomes `bg-studio-ground`, a fifteenth frozen token at the identical value.
+
+**⚠ NAMED `ground` RATHER THAN `canvas`, AND THE RENAME CARRIES AN ARGUMENT.** "Canvas" already
+means the article preview, which the frozen block's own comment says is DELIBERATELY not frozen. A
+frozen token named after the one surface that must stay themed would contradict the paragraph above
+it.
+
+### THE GATE, AND THE PART THAT IS NOT ABOUT COVERAGE
+
+`ralph/tests/studio-palette.mjs`, 12 assertions. Part B asserts the shared palette **does not
+appear** in studio source rather than asserting the frozen copies agree with it — asserting a
+duplicate away beats asserting it consistent, per #202 and three-pane's Part C.
+
+**⚠ PART C ASSERTS THE VOCABULARY, WHICH IS WHAT A COVERAGE NUMBER HIDES.** The freeze was 99.9%
+by count and still incomplete, because the one remaining site needed a shade the frozen palette
+**did not have**. A gate counting sites would have reported the same number and missed it. So every
+shade used must be declared, and every shade declared must be used.
+
+**AND PART A GATES THE INSTRUMENT ITSELF.** The stripper is validated in both directions inside the
+suite — a comment-quoted utility must vanish, a string and a template literal must survive, offsets
+must be preserved. Mutating it to the naive regex kills three assertions, which is the second
+census reproduced as a test.
+
+### PROOF
+
+**Determinism control first, empty.** Base built twice, snapshots identical. Then base against
+branch: **every rendered public file identical**, and `css__all` differs by exactly two ADDITIONS —
+`--color-studio-ground` and `.bg-studio-ground`. `--color-canvas` is unchanged and holds the same
+value, so this is a pure rename with zero pixel change. ralph 2407 → 2419.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
