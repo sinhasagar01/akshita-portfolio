@@ -1441,7 +1441,7 @@ a {
 .header-mob-resume-pill {
   margin-top: auto;
   width: 100%;
-  border: 1px solid oklch(56.0% 0.14 42 / 0.55);
+  border: 1px solid color-mix(in srgb, var(--color-accent-500) 55%, transparent);
   color: var(--color-accent-500);
   border-radius: 999px;
   padding: 12px 0;
@@ -1480,7 +1480,7 @@ a {
 .header-mob-soc-chip {
   width: 36px;
   height: 36px;
-  border: 1px solid rgba(120, 90, 60, 0.3);
+  border: 1px solid color-mix(in srgb, var(--color-rule) 30%, transparent);
   border-radius: 9px;
   display: flex;
   align-items: center;
@@ -1520,8 +1520,8 @@ a {
 ============================================================ */
 
 @keyframes scroll-dot-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 oklch(56% 0.14 42 / 0.35); }
-  50%       { opacity: 0.5; box-shadow: 0 0 0 7px oklch(56% 0.14 42 / 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-500) 35%, transparent); }
+  50%       { opacity: 0.5; box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-accent-500) 0%, transparent); }
 }
 
 .scroll-dot {
@@ -2128,7 +2128,7 @@ a {
   font-size: 14px;
   color: var(--color-text-secondary);
   background: var(--color-cream-200);
-  border: 1px solid rgba(120, 90, 60, 0.16);
+  border: 1px solid color-mix(in srgb, var(--color-rule) 16%, transparent);
   border-radius: 999px;
   cursor: default;
   user-select: none;
@@ -2863,7 +2863,7 @@ a {
   background:
     radial-gradient(52px 40px at 28% 72%, oklch(0.99 0.012 60 / 0.3), transparent 70%),
     radial-gradient(64px 46px at 72% 38%, oklch(0.78 0.03 45 / 0.1), transparent 72%),
-    radial-gradient(40px 34px at 46% 14%, oklch(1 0.008 80 / 0.26), transparent 70%);
+    radial-gradient(40px 34px at 46% 14%, color-mix(in srgb, var(--color-bounce) 26%, transparent), transparent 70%);
   filter: blur(3px);
   animation: blog-churn 26s ease-in-out infinite alternate;
 }
@@ -2906,12 +2906,12 @@ a {
   right: 0;
   bottom: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(1 0.008 80 / 0.95) 30%, oklch(1 0.008 80 / 0.6) 70%, transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-bounce) 95%, transparent) 30%, color-mix(in srgb, var(--color-bounce) 60%, transparent) 70%, transparent);
 }
 .blog-bub {
   position: absolute;
   border-radius: 99px;
-  background: radial-gradient(circle at 34% 30%, oklch(1 0.006 80 / 0.95), oklch(1 0.006 80 / 0.2) 62%, transparent);
+  background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--color-bounce) 95%, transparent), color-mix(in srgb, var(--color-bounce) 20%, transparent) 62%, transparent);
   animation: blog-rise linear infinite;
 }
 .blog-bub:nth-of-type(1) { width: 5px; height: 5px; left: 24%; animation-duration: 8s; }
