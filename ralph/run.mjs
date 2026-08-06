@@ -48,7 +48,10 @@ const TESTS = path.join(HERE, "tests");
  *  the ground ladder, which no static check can see — a size that is simply wrong, with
  *  nothing competing for it, renders exactly as written. Naming it here is what stops "not in
  *  CI" from quietly becoming "nobody knows it exists". */
-const NOT_RUNNABLE = new Set(["parity", "studio-type"]);
+/* `upstream` joins these because it needs the NETWORK, and `run.mjs` must stay offline and
+ * deterministic. SKIPPED BY NAME rather than absent — a gate nobody can see they are not running is
+ * the exact shape `upstream` was written about. Run it beside the push. */
+const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream"]);
 
 const suites = readdirSync(TESTS)
   .filter((f) => f.endsWith(".mjs"))
