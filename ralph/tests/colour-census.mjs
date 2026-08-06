@@ -193,10 +193,15 @@ t("M4 every form the SCANNER finds, the PARSER can read — a disagreement is a 
  * oklch, and `rgba()` missing from a verification regex. This is the first it saw and should not
  * have: `&#8594;` is an HTML entity for an arrow, and `#8594` is a valid four-digit hex.
  *
- * ⚠ AND THE FALSE-POSITIVE DIRECTION IS THE MORE DANGEROUS ONE FOR THIS INSTRUMENT. A missed colour
- * is a leak the render eventually shows. A phantom colour becomes a ROW IN THE BOUNDARY FILE with a
- * reason somebody invented for a value that was never a colour — a permanent false record in the
- * one document whose whole value is that its reasons are arguable. */
+ * ⚠ AND THE FALSE-POSITIVE DIRECTION IS THE WORSE ONE FOR THIS INSTRUMENT, WHICH IS WHY THE GUARD
+ * BELONGS HERE RATHER THAN IN A CALLER.
+ *
+ *   A MISSED COLOUR IS A LEAK THE RENDER EVENTUALLY SHOWS.
+ *   A PHANTOM COLOUR BECOMES A ROW WITH AN INVENTED REASON in the one document whose entire value
+ *   is that its reasons are arguable.
+ *
+ * The first self-corrects the moment somebody looks at the page. The second never does — nobody
+ * re-opens a boundary entry to ask whether its subject was ever a colour. */
 const MUST_NOT_MATCH = [
   ["&#8594;", "HTML entity for an arrow — the one that actually got through"],
   ["hover &#8594;", "…and in the string it was found in"],
