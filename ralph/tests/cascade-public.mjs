@@ -103,6 +103,9 @@ const deref = (v, d = 0) => {
 
 /* ---- the unlayered element rules, parsed. Comments stripped first, for the reason
    studio-cascade's own repair records: a comment between `}` and the selector eats the tag. */
+/** Every tag this suite reasons about — the resets it finds PLUS the ones a third party can reach.
+ *  Fixed rather than derived from RULES, so an element stays enumerated after its reset is lifted. */
+const TAGS = new Set(["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "img", "video"]);
 const RULES = new Map();
 {
   /* ⚠ COMMENTS ARE STRIPPED BEFORE THE SCAN, NOT AFTER, AND THE ORDER IS LOAD-BEARING.
@@ -176,7 +179,13 @@ function* elements(src, rel) {
     const dotted = raw0.includes(".") ? raw0.slice(raw0.indexOf(".") + 1).toLowerCase() : null;
     const tag = dotted ?? COMPONENT_TAG.get(raw0) ?? raw0.toLowerCase();
     if (!dotted && /^[A-Z]/.test(raw0) && !COMPONENT_TAG.has(raw0)) continue;
-    if (!RULES.has(tag)) continue;
+    /* ⚠ ELEMENT DISCOVERY IS DECOUPLED FROM RESET OWNERSHIP, AND THAT IS #353's WHOLE POINT.
+       This read `if (!RULES.has(tag)) continue` — enumerate only tags that still have an UNLAYERED
+       reset. Which means the moment a reset is fully lifted, the element LEAVES THE CENSUS, taking
+       any third-party shadowing with it: lifting the paragraph leading dropped S2 from 22 to 16 and
+       the six that vanished were `<p>`. THE COUNT WENT DOWN AND NOTHING WAS FIXED.
+       That is the shape #352 repaired, arriving through the one door it did not close. */
+    if (!TAGS.has(tag)) continue;
     const cn = m[2].match(/className=(?:"([^"]*)"|\{`([\s\S]*?)`\}|\{([^}]*)\})/);
     if (!cn) continue;
     const raw = cn[1] ?? cn[2] ?? cn[3] ?? "";
@@ -197,6 +206,14 @@ const walk = (rel) => {
 };
 walk("app"); walk("components");
 t("A1: the sweep found files — a zero denominator is not a pass", files.length > 100, true);
+/* ⚠ THE DECOUPLING, ASSERTED. `TAGS` must be a SUPERSET of the tags that still have resets — if it
+ * were derived from `RULES` again, lifting a reset would silently shrink the census, which is the
+ * defect #353 exists to close. Proved by emptying the `p` reset and confirming S2 still reported
+ * 22: before this change it fell to 16 and the six that vanished were `<p>`. */
+t("A1b: every tag with an unlayered reset is enumerated, and the set is not derived from the resets",
+  /* `html` and `body` are excluded: they carry resets but no component writes utilities on them,
+     so enumerating them would add subjects with nothing to test rather than coverage. */
+  [...RULES.keys()].filter((t) => !TAGS.has(t) && t !== "html" && t !== "body"), []);
 
 /* ============================================================================================
    ⚠ THE THIRD PARTY. A CASCADE CONTEST HERE HAS THREE SIDES, NOT TWO — AND THIS SUITE MODELLED
@@ -244,7 +261,9 @@ const collisions = [], inert = [], shadowed = [];
 for (const rel of files) {
   const src = readFileSync(new URL(`../../${rel}`, import.meta.url), "utf8");
   for (const el of elements(src, rel)) {
-    const owned = RULES.get(el.tag);
+    /* An element with no unlayered reset left owns nothing — which is a valid state now, not a
+       reason to skip it. The third party is still consulted below. */
+    const owned = RULES.get(el.tag) ?? new Map();
     for (const cls of el.tokens) {
       const bare = cls.includes(":") ? cls.slice(cls.lastIndexOf(":") + 1) : cls;
       for (const u of UTIL) {
