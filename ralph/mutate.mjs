@@ -65,11 +65,24 @@ if (crashed || asserted === 0) verdict = "INVALID";
 else if (res.status !== 0 || fails > 0) verdict = "KILLED";
 else verdict = "SURVIVED";
 
+/* ⚠ THE THIRD MEMBER OF THE SAME FAMILY, FOUND BY THE #322 RUN AND CLOSED HERE. A mutation whose
+ * regex did not match produces a SURVIVED that is indistinguishable from a weak gate — the same
+ * shape as a crash producing zero failures, one step earlier in the pipeline. It cost a wrong
+ * conclusion about the keystatic schema assertion, which was fine and looked broken.
+ *
+ * A clean working tree PROVES no mutation was applied, so the harness can say so instead of
+ * leaving it to the operator to remember. It cannot go further than that — it does not know which
+ * file you meant to edit, so a dirty tree is necessary evidence and not sufficient. The wording
+ * below claims exactly that much. */
+const treeClean = spawnSync("git", ["diff", "--quiet", "HEAD"], { encoding: "utf8" }).status === 0;
+
 const detail = { KILLED: `${fails} assertion${fails === 1 ? "" : "s"} failed`,
-  /* ⚠ SURVIVED ONLY MEANS ANYTHING WITH A MUTATION APPLIED. Run against clean source this is the
-   * expected result and says nothing about the gate — the harness cannot see whether you mutated
-   * anything, so the wording states the condition rather than the conclusion. */
-  SURVIVED: `all ${asserted} passed — if a mutation IS applied, the gate is too weak`,
+  /* ⚠ SURVIVED ONLY MEANS ANYTHING WITH A MUTATION APPLIED. Where the tree is dirty the harness
+   * still cannot see whether the edit touched the code this suite reads, so the wording states the
+   * condition rather than the conclusion. */
+  SURVIVED: treeClean
+    ? `NO MUTATION APPLIED — the working tree matches HEAD, so this says nothing about the gate`
+    : `all ${asserted} passed — if a mutation IS applied, the gate is too weak`,
   INVALID: asserted === 0 && !crashed
     ? `asserted NOTHING (exit ${res.status}) — the mutation broke the code, not the gate, so this says nothing about it`
     : "the suite crashed — the mutation broke the code, not the gate, so this says nothing about it",

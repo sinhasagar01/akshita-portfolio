@@ -3,6 +3,7 @@ import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
 import type { ProcessStage, LinkItem } from "@/lib/studio/site-settings-format";
 import { adjacentByOrderIndex } from "@/lib/case-studies/adjacent-project";
+import { resolveTheme, type ThemeName } from "@/lib/theme";
 import {
   mapBlogListItem,
   selectPublishedPostsNewestFirst,
@@ -21,6 +22,8 @@ export type BlogCard = BlogListItem & { readingTime: number };
 const reader = createReader(process.cwd(), config);
 
 export type SiteSettingsEntry = {
+  /** The resolved public palette. Never the raw file value — see mapSiteSettings. */
+  theme: ThemeName;
   heroCopy: string;
   tab1Label: string;
   tab1Line: string;
@@ -129,6 +132,11 @@ function mapLinks(raw: unknown): LinkItem[] {
  *  (lib/studio/draft-site-settings.ts), so the two paths cannot drift. */
 export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry {
   return {
+    /* ⚠ THE ONE FIELD THAT IS RESOLVED RATHER THAN COALESCED. Every other line here falls back to
+       an empty string, which renders as nothing and is fine. A theme cannot do that — an empty
+       palette is a page with no colours — so it falls back to `cream`, the theme shipping today.
+       Missing, empty, misspelt and wrong-typed all land there, silently, by design. */
+    theme: resolveTheme(raw.theme),
     heroCopy: (raw.heroCopy as string) ?? "",
     tab1Label: (raw.tab1Label as string) ?? "",
     tab1Line: (raw.tab1Line as string) ?? "",

@@ -23,6 +23,7 @@ export type LinkItem = {
 };
 
 export type SiteSettingsInput = {
+  theme: string;
   heroCopy: string;
   tab1Label: string;
   tab1Line: string;
@@ -83,6 +84,7 @@ export type SiteSettingsRecord = Record<string, unknown>;
  * plain-Node importable. If the schema field order changes, update this too.
  */
 export const SITE_SETTINGS_FIELD_ORDER = [
+  "theme",
   "heroCopy",
   "tab1Label",
   "tab1Line",
@@ -114,6 +116,16 @@ const STAGE_KEYS = ["name", "description", "tags"] as const;
 
 /** The allowed sub-keys of a link object (item 10). */
 const LINK_KEYS = ["label", "url"] as const;
+
+/**
+ * The theme names an author may SET. Mirrors `selectableThemes()` in lib/theme.ts, which this
+ * module cannot import for the same plain-Node reason SITE_SETTINGS_FIELD_ORDER is local — it is
+ * loaded raw by ralph/tests/settings-photo.mjs. `ralph/tests/theme.mjs` asserts the two agree.
+ *
+ * ⚠ THE VERIFICATION TWIN IS ABSENT ON PURPOSE. `cream-verify` resolves but is not selectable, so
+ * the fixture cannot be published by accident.
+ */
+const SETTINGS_THEME_VALUES = ["cream"] as const;
 
 /**
  * Validate an untrusted processStages value to a normalized ProcessStage[].
@@ -240,6 +252,14 @@ export function sanitizeSiteSettingsPatch(
     }
     if (typeof value !== "string") {
       return invalid(`${key} must be a string`, key);
+    }
+    /* ⚠ THE LOUD HALF OF THE THEME'S FAIL-CLOSED PAIR. resolveTheme() falls back SILENTLY on the
+       public site so a visitor never sees an unthemed page; here the same bad value is REJECTED,
+       so an author who misspells a theme is told rather than left wondering why their choice did
+       nothing. The two halves are the same rule pointed at two audiences, and one without the
+       other is either a broken page or a silent no-op. */
+    if (key === "theme" && !(SETTINGS_THEME_VALUES as readonly string[]).includes(value)) {
+      return invalid(`unknown theme ${value}`, key);
     }
     (patch as Record<string, unknown>)[key] = value;
   }
