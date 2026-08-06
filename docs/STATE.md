@@ -9202,6 +9202,43 @@ was given for the same reason, and the shape C-9's exclusion and the vacuous par
 
 ralph 2520 → 2525, 61 suites.
 
+## THREE SHAPES WORTH CARRYING PAST THE ARC (#348)
+
+### ⚠ 1 · A CLAIM CAN FALL BETWEEN TWO CORRECT SCOPES
+
+`theme`'s E1–E4 assert the code INTENDS to emit `data-theme`. #326 proved the bytes CARRY it, once,
+by hand. **Both were right about their own subject, and each deferred the other half to the other.**
+
+> **FROM INSIDE EITHER SCOPE THE GAP IS INVISIBLE, BECAUSE THE OTHER SIDE APPEARS TO HAVE IT.**
+
+This is not a shrunken denominator and not an unreadable value. **Nothing was mis-measured and
+nothing was excluded. THE CLAIM SIMPLY HAD NO OWNER**, for twenty-one PRs, and it was the only claim
+the theme system makes to a visitor.
+
+**THE GENERAL FORM: when a gate's comment says a fact "belongs" to another check, NAME THAT CHECK.**
+A deferral without a named owner is a deferral to nobody.
+
+**AND THE SENTENCE THAT MAKES IT CONCRETE:** *a source assertion says the code intends to emit it;
+the other says the bytes carry it.*
+
+### ⚠ 2 · A MUTATION THAT LANDS IN JSX AND NOT IN THE DOM LOOKS EXACTLY LIKE ONE THE GATE WITHSTOOD
+
+Third in its family and the most deceptive. Putting `data-theme` on a React component **SURVIVED** —
+the component never forwards it, **the attribute simply never appeared, and A4 had nothing to find.**
+
+Beside #345's build-output case: **`mutate.mjs` confirms the SOURCE changed and cannot confirm the
+SUBJECT did**, and the subject is sometimes the bundle and sometimes the rendered DOM. The
+working-tree check is necessary and, for these suites, not sufficient.
+
+### 3 · ANY GATE READING GENERATED OUTPUT ASSERTS HOW MANY SUBJECTS IT FOUND
+
+**The arc's most repeated repair — three times.** `studio-ink-contrast`'s S4, C-9's exclusion, and
+`rendered-theme`'s page count. **Each would have passed trivially on an empty subject**: the output
+moves, the scan matches nothing, and zero failures reads as success.
+
+Stated once as a standing rule rather than three incidents, and moved into `CLAUDE.md` with the
+other two — because a rule found three times in one arc will be needed in the next.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
