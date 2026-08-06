@@ -9496,6 +9496,63 @@ sequence with its own reason to exist**, not the tail of this one.
 
 ralph 2529, 61 suites.
 
+## THE JOIN COVERS EVERY POPULATION, AND THE MATCHER GETS ITS NEGATIVE HALF (#356)
+
+### ⚠ J1's SUBJECT WAS THE BUILT CSS AND ITS WORDING WAS NOT
+
+*"Every authored colour is claimed by exactly one boundary row"* read as total and covered **4 of
+15 entries**. The SVG and runtime populations were counted in B and C and never joined — eleven
+rows, including the cursor and the loader, could go stale with nothing to say so.
+
+> **THIS ARC'S CENTRAL DEFECT SITTING IN ITS FINAL GATE.** E1 was caught four times for exactly
+> this, and the join inherited it because nobody asked what its LEFT SIDE was.
+
+CSS pairs now join on selector, source pairs on file, and `J0` asserts every entry is joinable or
+declares itself a **category** — a mechanical rule about a value's FORM rather than a PLACE. 15 of
+15. `J1`'s wording says "in the built CSS"; `J1b` carries the rest.
+
+### ⚠ THE MATCHER'S NEGATIVE HALF — M5
+
+`M1..M4` all ask what the matcher CAN see; `M3` asks what it cannot READ. **None asked what it must
+NOT MATCH.** `&#8594;` is an HTML entity for an arrow and `#8594` is a valid four-digit hex, so the
+pattern read TEXT as colour and the join reported `AboutSection.tsx` as holding an unclassified one.
+
+Both earlier parser defects were things the matcher could not see. **This is the first it saw and
+should not have** — and it is the more dangerous direction for this instrument:
+
+> **A MISSED COLOUR IS A LEAK THE RENDER EVENTUALLY SHOWS. A PHANTOM COLOUR BECOMES A ROW IN THE
+> BOUNDARY FILE WITH A REASON SOMEBODY INVENTED FOR A VALUE THAT WAS NEVER A COLOUR** — a permanent
+> false record in the one document whose whole value is that its reasons are arguable.
+
+### THE INSTRUMENT SCANNING ITS OWN EVIDENCE
+
+`lib/theme-contrast.ts` holds `FORM_SAMPLES`, the coverage fixture — the proof the matcher reads
+every colour form. The census scanned it and reported those samples as unclassified page colours.
+
+> **AN INSTRUMENT THAT SCANS ITS OWN EVIDENCE REPORTS ITS OWN CORRECTNESS AS A DEFECT.**
+
+**⚠ EXCLUDED BY PURPOSE, NOT BY DIRECTORY.** `lib/` holds real page colour — `theme.ts`'s splash map
+and `og.tsx`'s social hexes, both live and both boundary-listed. Excluding the neighbourhood would
+have bought a new blind spot in exactly the place the last four came from.
+
+### AND `#5F584E` DOES NOT SNAP
+
+Re-measured as the composite rule requires: it is **opaque**, so composite equals declaration, and
+it is **Δ10 from `ink-600`** — the leave-as-literal boundary. **Step 1b's verdict stands.**
+
+**SO THE OTHER EIGHT IN THAT BUCKET DO NOT INHERIT A SUSPICION.** The worry was that nine values had
+been judged by a method since corrected; the one most likely to have moved did not. That is not
+proof for the other eight, but it removes the reason to re-open them as a group.
+
+### SHIPPED RED, ON FIVE
+
+`J1b` fails on five genuinely unclassified files. **Two of its original seven were defects in the
+gate itself and are fixed here** — a red gate telling the truth about the CODE is worth shipping; a
+red gate telling the truth about ITSELF is a work in progress, and nothing in the output separated
+them.
+
+ralph 2533, one failing.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -186,6 +186,32 @@ const scanned = "a #abc b rgb(1,2,3) c oklch(0.5 0.1 60 / .5) d hsl(0,0%,100%) e
 t("M4 every form the SCANNER finds, the PARSER can read — a disagreement is a silent zero",
   scanned.filter((c) => parseColor(c) === null), []);
 
+/* ⚠ M5 IS THE HALF THIS FIXTURE HAS NEVER HAD. M1..M4 all ask what the matcher CAN see; M3 asks
+ * what it cannot READ. NONE of them asked what it MUST NOT MATCH.
+ *
+ * Both of this arc's earlier parser defects were things the matcher could not see — the percentless
+ * oklch, and `rgba()` missing from a verification regex. This is the first it saw and should not
+ * have: `&#8594;` is an HTML entity for an arrow, and `#8594` is a valid four-digit hex.
+ *
+ * ⚠ AND THE FALSE-POSITIVE DIRECTION IS THE WORSE ONE FOR THIS INSTRUMENT, WHICH IS WHY THE GUARD
+ * BELONGS HERE RATHER THAN IN A CALLER.
+ *
+ *   A MISSED COLOUR IS A LEAK THE RENDER EVENTUALLY SHOWS.
+ *   A PHANTOM COLOUR BECOMES A ROW WITH AN INVENTED REASON in the one document whose entire value
+ *   is that its reasons are arguable.
+ *
+ * The first self-corrects the moment somebody looks at the page. The second never does — nobody
+ * re-opens a boundary entry to ask whether its subject was ever a colour. */
+const MUST_NOT_MATCH = [
+  ["&#8594;", "HTML entity for an arrow — the one that actually got through"],
+  ["hover &#8594;", "…and in the string it was found in"],
+  ["&#160;", "non-breaking space entity"],
+  ["x#abc", "a fragment identifier, not a colour"],
+  ["#abcdefgh", "eight characters, but not all hex"],
+];
+t("M5 ⚠ AND IT MATCHES NOTHING THAT IS NOT A COLOUR — the half that has never been asserted",
+  MUST_NOT_MATCH.filter(([str]) => (str.match(colourPattern()) ?? []).length > 0).map(([s]) => s), []);
+
 console.log("\nA · the built CSS bundle — every colour the stylesheet actually ships");
 
 const cssFiles = readdirSync(url(CSS_DIR)).filter((f) => f.endsWith(".css"));
@@ -415,60 +441,6 @@ const oklLits = [...customProps.values()].flat().filter((c) => /^oklch\(/.test(c
 t("A6 …and nothing is silently dropped between reading a colour and parsing it",
   oklLits.filter((c) => !okl(c)), []);
 
-console.log("\nJ · ⚠ EMPTINESS — the join, asserted BOTH WAYS");
-
-/* ⚠ A JOIN, NOT A REGEX EVALUATION. Every row names a colour's LOCATION — the selector the census
- * already extracts — and emptiness is a JOIN against those. A matcher in the YAML would be exactly
- * as unreviewable as one in this file, and this arc has already produced two filters that
- * disagreed with each other.
- *
- * THREE THINGS THE JOIN BUYS THAT A PATTERN CANNOT.
- *   · A STALE ROW FAILS. If a colour is refactored away its entry matches nothing, and an entry
- *     matching nothing is a decision that outlived its subject — reported rather than silently
- *     satisfied.
- *   · AN ENTRY CANNOT OVER-MATCH. A regex written for one hero aura silently covers a second
- *     colour that arrives later; a selector list cannot. That is the exact mechanism by which E1's
- *     subject shrank and nobody noticed.
- *   · THE PROSE STAYS THE POINT. The reason is what a person reads and the join is what the gate
- *     reads, and neither pretends to be the other.
- *
- * ⚠ THE ESCAPED-UTILITY ROW IS THE ONE EXCEPTION AND IT IS DECLARED, NOT ASSUMED. A Tailwind
- * arbitrary utility's selector IS its value, so listing them would restate the pool. That row says
- * `selectors_match: escaped-arbitrary-utility` — a named shape rather than a regex, and the one
- * place a row is matched structurally instead of by name. */
-const rows = BOUNDARY.entries.filter((e) => e.selectors || e.selectors_match);
-const matchRow = (e, sel) =>
-  e.selectors_match === "escaped-arbitrary-utility" ? /\\\[/.test(sel)
-    : (e.selectors ?? []).includes(sel);
-
-const poolPairs = [...cssPairs];
-const unclaimed = poolPairs.filter((p) => !rows.some((e) => matchRow(e, p.sel)));
-t("J1 ⚠ EVERY AUTHORED COLOUR IN THE BUNDLE IS CLAIMED BY EXACTLY ONE BOUNDARY ROW",
-  unclaimed.map((p) => `${p.v} in ${p.sel}`).sort(), []);
-t("J2 …and none is claimed TWICE, which would make one of the two reasons a lie",
-  poolPairs.filter((p) => rows.filter((e) => matchRow(e, p.sel)).length > 1)
-    .map((p) => `${p.v} in ${p.sel}`), []);
-
-/* ⚠ THE DIRECTION NOTHING IN THIS PROJECT HAS EVER CHECKED. Every boundary list this arc produced
- * was declared complete and was not — but none could go STALE, because none was ever joined against
- * anything. This is the first assertion here that can catch a decision outliving its subject.
- *
- * WHEN IT FAILS THE REPAIR IS PER ROW, and the three causes have different answers: the colour was
- * refactored away and the row should go; the colour moved file and the location is stale; or THE
- * CENSUS CANNOT SEE IT AND THE ROW IS FINE WHILE THE INSTRUMENT IS NOT. The third is the dangerous
- * one — deleting a row because the census cannot find its subject is how a real exclusion becomes a
- * silent leak. */
-const stale = rows.filter((e) => !poolPairs.some((p) => matchRow(e, p.sel)));
-t("J3 ⚠ EVERY BOUNDARY ROW STILL MATCHES SOMETHING — a row matching nothing has outlived its subject",
-  stale.map((e) => e.id).sort(), []);
-/* ⚠ THIS SUITE READS THE BUILT BUNDLE, SO A SOURCE MUTATION NEEDS A REBUILD BEFORE IT IS VISIBLE.
- * J1 reported SURVIVED against an edited `globals.css` until the bundle was rebuilt — the mutation
- * had applied to the SOURCE but not to the SUBJECT. That is the never-applied family in a new
- * guise, and `mutate.mjs` cannot see it because it does not know a suite's subject is build output.
- * Rebuild, then mutate. */
-t("J4 the join has subjects on both sides, so J1 and J3 cannot pass by comparing two empty sets",
-  poolPairs.length > 10 && rows.length >= 4, true);
-
 console.log("\nA-c · utility classes resolved back to the file that USES them");
 
 /* ⚠ RESOLVED, NOT EXCLUDED BY LOOKUP — AND THE DIFFERENCE IS THE WHOLE POINT. Excluding studio
@@ -492,6 +464,7 @@ const walkSrc = (rel) => {
   }
 };
 ["components", "app", "lib"].forEach(walkSrc);
+
 
 /** A Tailwind-escaped selector back to the class an author typed. */
 const unescapeClass = (sel) => sel.replace(/^\./, "").replace(/\\/g, "");
@@ -534,11 +507,32 @@ const walk = (rel) => {
 };
 ["components", "app", "lib"].forEach(walk);
 
+/* ⚠ EXCLUDED BY WHAT THE FILE IS FOR, NOT BY DIRECTORY. `lib/theme-contrast.ts` is the INSTRUMENT:
+ * its `FORM_SAMPLES` are the coverage fixture, the evidence that the matcher reads every colour
+ * form. Scanning it made the census report those samples as unclassified page colours.
+ *
+ * AN INSTRUMENT THAT SCANS ITS OWN EVIDENCE REPORTS ITS OWN CORRECTNESS AS A DEFECT. That is the
+ * cleanest contaminated input this arc produced — not the record of a defect, but the proof of a
+ * repair, read as the thing it repaired.
+ *
+ * ⚠ AND `lib/` IS NOT THE EXCLUSION, BECAUSE `lib/` HOLDS REAL PAGE COLOUR. `lib/theme.ts` carries
+ * the PWA splash map and `lib/og.tsx` the social-card hexes, both live and both boundary-listed.
+ * Excluding the neighbourhood would buy a new blind spot in exactly the place the last four came
+ * from. */
+const INSTRUMENT = new Set(["components/../lib/theme-contrast.ts", "lib/theme-contrast.ts"]);
+const isInstrument = (rel) => INSTRUMENT.has(rel.replace(/^\.?\//, ""));
+
+for (let i = files.length - 1; i >= 0; i--) if (isInstrument(files[i])) files.splice(i, 1);
+t("B0 the instrument itself is not scanned as a page — its fixture is evidence, not colour",
+  files.some(isInstrument), false);
+
+const srcPairs = new Set();          // the join's left side for populations B and C
 const svgAttrs = new Map();
 for (const rel of files) {
   const src = read(rel);
   for (const m of src.matchAll(/\b(fill|stroke|stopColor|floodColor|lightingColor)\s*=\s*["'{]?\s*["']?(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|oklch\([^)]*\))/g)) {
     svgAttrs.set(rel, (svgAttrs.get(rel) ?? 0) + 1);
+    srcPairs.add({ v: m[2].replace(/\s+/g, ""), file: rel });
   }
 }
 const svgTotal = [...svgAttrs.values()].reduce((a, b) => a + b, 0);
@@ -557,6 +551,7 @@ for (const rel of files) {
     if (/\b(fill|stroke|stopColor|floodColor)\s*=/.test(line)) continue;   // counted in B
     if (/className=/.test(line)) continue;
     n++;
+    srcPairs.add({ v: m[0].replace(/\s+/g, ""), file: rel });
   }
   if (n) runtime.set(rel, n);
 }
@@ -564,6 +559,83 @@ const rtTotal = [...runtime.values()].reduce((a, b) => a + b, 0);
 console.log(`         ${rtTotal} colour literals in ${runtime.size} public TS/TSX files, outside SVG attrs and classNames`);
 for (const [f, n] of [...runtime].sort((a, b) => b[1] - a[1]).slice(0, 6)) console.log(`           ${String(n).padStart(3)}  ${f}`);
 t("C1 the runtime population is found", rtTotal > 10, true);
+
+console.log("\nJ · ⚠ EMPTINESS — the join, asserted BOTH WAYS");
+
+/* ⚠ A JOIN, NOT A REGEX EVALUATION. Every row names a colour's LOCATION — the selector the census
+ * already extracts — and emptiness is a JOIN against those. A matcher in the YAML would be exactly
+ * as unreviewable as one in this file, and this arc has already produced two filters that
+ * disagreed with each other.
+ *
+ * THREE THINGS THE JOIN BUYS THAT A PATTERN CANNOT.
+ *   · A STALE ROW FAILS. If a colour is refactored away its entry matches nothing, and an entry
+ *     matching nothing is a decision that outlived its subject — reported rather than silently
+ *     satisfied.
+ *   · AN ENTRY CANNOT OVER-MATCH. A regex written for one hero aura silently covers a second
+ *     colour that arrives later; a selector list cannot. That is the exact mechanism by which E1's
+ *     subject shrank and nobody noticed.
+ *   · THE PROSE STAYS THE POINT. The reason is what a person reads and the join is what the gate
+ *     reads, and neither pretends to be the other.
+ *
+ * ⚠ THE ESCAPED-UTILITY ROW IS THE ONE EXCEPTION AND IT IS DECLARED, NOT ASSUMED. A Tailwind
+ * arbitrary utility's selector IS its value, so listing them would restate the pool. That row says
+ * `selectors_match: escaped-arbitrary-utility` — a named shape rather than a regex, and the one
+ * place a row is matched structurally instead of by name. */
+/* ⚠ THE LEFT SIDE WAS THE BUILT CSS ALONE, AND J1's WORDING WAS NOT. "Every authored colour is
+ * claimed by exactly one row" read as total and covered 4 of 15 entries — the SVG and runtime
+ * populations were COUNTED in B and C and never joined, so eleven rows including the cursor and the
+ * loader could go stale with nothing to say so.
+ *
+ * ⚠ THAT IS THIS ARC'S CENTRAL DEFECT SITTING IN ITS FINAL GATE: a completeness assertion whose
+ * subject is narrower than it reads. E1 was caught four times for exactly this and the join
+ * inherited it, because nobody asked what its LEFT SIDE was.
+ *
+ * NOW: CSS pairs join on SELECTOR, source pairs join on FILE, and every entry must be joinable or
+ * declare itself a CATEGORY — a mechanical rule about a value's form rather than a place. */
+const rows = BOUNDARY.entries.filter((e) => e.selectors || e.selectors_match || e.files);
+const categories = BOUNDARY.entries.filter((e) => e.entry_kind === "category");
+t("J0 ⚠ EVERY BOUNDARY ENTRY IS JOINABLE OR DECLARES ITSELF A CATEGORY — the coverage of the join, asserted rather than assumed",
+  BOUNDARY.entries.filter((e) => !rows.includes(e) && !categories.includes(e)).map((e) => e.id), []);
+t("J0b …and both kinds exist, so J0 cannot pass by everything being one of them",
+  rows.length > 5 && categories.length === 3, true);
+const matchRow = (e, sel) =>
+  e.selectors_match === "escaped-arbitrary-utility" ? /\\\[/.test(sel)
+    : (e.selectors ?? []).includes(sel);
+
+const matchFile = (e, file) => (e.files ?? []).some((f) => file === f || file.startsWith(f));
+const poolPairs = [...cssPairs];
+const filePairs = [...srcPairs];
+const unclaimed = poolPairs.filter((p) => !rows.some((e) => matchRow(e, p.sel)));
+t("J1 ⚠ EVERY AUTHORED COLOUR IN THE BUILT CSS IS CLAIMED BY EXACTLY ONE BOUNDARY ROW",
+  unclaimed.map((p) => `${p.v} in ${p.sel}`).sort(), []);
+t("J1b ⚠ AND EVERY COLOUR IN THE SVG AND RUNTIME POPULATIONS TOO — the half the join could not see until #356",
+  [...new Set(filePairs.filter((p) => !rows.some((e) => matchFile(e, p.file)))
+    .map((p) => p.file))].sort(), []);
+t("J2 …and none is claimed TWICE, which would make one of the two reasons a lie",
+  poolPairs.filter((p) => rows.filter((e) => matchRow(e, p.sel)).length > 1)
+    .map((p) => `${p.v} in ${p.sel}`), []);
+
+/* ⚠ THE DIRECTION NOTHING IN THIS PROJECT HAS EVER CHECKED. Every boundary list this arc produced
+ * was declared complete and was not — but none could go STALE, because none was ever joined against
+ * anything. This is the first assertion here that can catch a decision outliving its subject.
+ *
+ * WHEN IT FAILS THE REPAIR IS PER ROW, and the three causes have different answers: the colour was
+ * refactored away and the row should go; the colour moved file and the location is stale; or THE
+ * CENSUS CANNOT SEE IT AND THE ROW IS FINE WHILE THE INSTRUMENT IS NOT. The third is the dangerous
+ * one — deleting a row because the census cannot find its subject is how a real exclusion becomes a
+ * silent leak. */
+const stale = rows.filter((e) =>
+  !poolPairs.some((p) => matchRow(e, p.sel)) && !filePairs.some((p) => matchFile(e, p.file)));
+t("J3 ⚠ EVERY BOUNDARY ROW STILL MATCHES SOMETHING — a row matching nothing has outlived its subject",
+  stale.map((e) => e.id).sort(), []);
+/* ⚠ THIS SUITE READS THE BUILT BUNDLE, SO A SOURCE MUTATION NEEDS A REBUILD BEFORE IT IS VISIBLE.
+ * J1 reported SURVIVED against an edited `globals.css` until the bundle was rebuilt — the mutation
+ * had applied to the SOURCE but not to the SUBJECT. That is the never-applied family in a new
+ * guise, and `mutate.mjs` cannot see it because it does not know a suite's subject is build output.
+ * Rebuild, then mutate. */
+t("J4 the join has subjects on both sides, so J1 and J3 cannot pass by comparing two empty sets",
+  poolPairs.length > 10 && filePairs.length > 10 && rows.length >= 4, true);
+
 
 console.log("\nD · adjacent surfaces — REPORTED, and deliberately not folded into A, B or C");
 
