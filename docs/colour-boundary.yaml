@@ -126,11 +126,29 @@ entries:
       else's interface, not a surface of this one. Theming them would make the depicted product
       change colour with the portfolio. Measured at 17, 54 and 73 from cream-300 before deciding.
 
+  - id: studio-chrome-and-property-defaults
+    kind: mechanical
+    category: ships-publicly-no-public-consumer
+    where: app/globals.css (.studio-chrome and its descendants), Tailwind @property blocks
+    selectors: [".studio-chrome", ".studio-chrome #studio-sidebar",
+                ".studio-chrome #studio-sidebar::-webkit-scrollbar-thumb",
+                ".studio-chrome #studio-sidebar::-webkit-scrollbar-thumb:hover",
+                "property --tw-ring-offset-color"]
+    reason: >
+      The editor's own chrome, shipped in the one stylesheet Tailwind compiles, plus a Tailwind
+      `@property` initial value whose "property" reads `property --tw-ring-offset-color` and so
+      escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
+      by construction (#323), and a compiler default is not authored colour.
+
   - id: case-study-hero-auras
     kind: judgement
     category: artwork-by-file
     where: app/globals.css (.hero-aura--*, .hero-phones--*)
-    count: 9
+    count: 11
+    selectors: [".hero-aura--pulse .ha-wash", ".hero-aura--pulse .ha-core",
+                ".hero-aura--pulse .ha-wink", ".hero-aura--signal .ha-core",
+                ".hero-aura--signal .ha-field", ".hero-aura--signal .ha-ping",
+                ".hero-phones--pulse .cs-flatten", ".hero-phones--signal .cs-flatten"]
     reason: >
       Each case study's glow is the colour of the PRODUCT it is about — boAt's brand red, Fosfor's
       violet #2e1a47 — which is why they are set per study rather than from the palette. The h1
@@ -152,6 +170,7 @@ entries:
     category: signature
     where: app/globals.css (.ab-tint)
     count: 1
+    selectors: [".ab-tint"]
     reason: >
       Measured before it was decided: mix-blend-mode soft-light at opacity .5 over a PHOTOGRAPH. A
       tonal wash rather than a scrim, compositing over artwork rather than the theme's ground, and
@@ -205,6 +224,7 @@ entries:
     category: ships-publicly-no-public-consumer
     where: components/studio/CaseStudyItem.tsx, components/studio/SectionsEditPanel.tsx
     count: 3
+    selectors_match: "escaped-arbitrary-utility"
     reason: >
       ⚠ THREE COLOURS THAT ARE IN THE PUBLIC STYLESHEET AND HAVE NO PUBLIC CONSUMER. Tailwind
       compiles one bundle, so `bg-[oklch(58%_0.17_30)]`, `bg-[oklch(62%_0.13_285)]` and a
