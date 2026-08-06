@@ -71,7 +71,7 @@ export default function ExperienceSection({ experience }: Props) {
               aria-hidden
               className="absolute right-[-40px] top-[-30px] w-[280px] h-[200px] rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(closest-side, rgba(181,97,60,.22), transparent 70%)",
+                background: "radial-gradient(closest-side, color-mix(in oklch, var(--color-accent-500) 22%, transparent), transparent 70%)",
                 filter: "blur(40px)",
               }}
             />

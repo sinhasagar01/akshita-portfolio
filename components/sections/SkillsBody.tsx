@@ -56,7 +56,7 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             width: 560,
             height: 280,
             borderRadius: "50%",
-            background: "radial-gradient(closest-side,rgba(181,97,60,.17),transparent 70%)",
+            background: "radial-gradient(closest-side,color-mix(in oklch, var(--color-accent-500) 17%, transparent),transparent 70%)",
             filter: "blur(42px)",
           }}
         />
@@ -78,8 +78,8 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
               fontStyle: "italic",
               fontWeight: 400,
               lineHeight: 1,
-              color: "rgba(181,97,60,.11)",
-              textShadow: "0 0 34px rgba(181,97,60,.14)",
+              color: "color-mix(in oklch, var(--color-accent-500) 11%, transparent)",
+              textShadow: "0 0 34px color-mix(in oklch, var(--color-accent-500) 14%, transparent)",
               whiteSpace: "nowrap",
               position: "relative",
             }}

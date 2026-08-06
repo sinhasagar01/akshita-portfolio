@@ -32,16 +32,24 @@
 //       sharpest case: it has NO public counterpart at all, which is why the pairing-based row
 //       could not see it and why 6a had to find it by census.
 //   5 · SIX PUBLIC TOKENS WITH ZERO PUBLIC CONSUMERS — measured, not assumed. Listed by name below.
-//   6 · ⚠ THE CURSOR, THE THREE WATERMARKS AND `.ab-tint` — signature colours that COULD have been
-//       tokens and deliberately are not. #327 named two unnamed colours and refused to name these,
-//       because they belong to elements that do not vary across the four themes: a watermark is
-//       closer to artwork than interface and the cursor is the same category as the glass nav, a
-//       thing that IS the design rather than a skin on it. `.ab-tint` was MEASURED before it was
-//       decided — `mix-blend-mode: soft-light` at opacity .5 over a PHOTOGRAPH, so it is a tonal
-//       wash rather than a scrim, and what it composites over is artwork rather than the theme's
-//       ground. THE LIST GROWS BY FOUR RATHER THAN THE CODE SHRINKING BY FOUR, which is the promise
-//       doing work rather than debt being deferred. A cool theme keeps a warm cursor and warm
-//       watermarks, deliberately.
+//   6 · ⚠ THE CURSOR AND `.ab-tint`. TWO, NOT FOUR — AND THE REVERSAL IS DELIBERATE.
+//       #327 put the three WATERMARKS here too, on the reasoning that they are "closer to artwork
+//       than interface". THE HARBOUR RENDER SAID OTHERWISE. `SectionHeading` draws its watermark
+//       from a `tone` prop whose warm branch was a literal and whose grey branch was already a
+//       token, so on harbour five watermarks stayed terracotta while Process and About went cool —
+//       one component, one page, two answers.
+//
+//       ⚠ A COLOUR THAT MUST AGREE WITH A SIBLING RENDERED BY THE SAME COMPONENT FROM THE SAME
+//       PROP IS INTERFACE. Artwork does not have to match anything. The artwork test was the wrong
+//       test, and applying it a second time would have preserved the defect the theme had just
+//       exposed. #328 gave both branches `accent-500` and `ink-600` — a SNAP at Δ2 to 4
+//       composited, inside Step 1's own threshold — so `tone` still means accent-toned versus
+//       ink-toned and both follow the palette.
+//
+//       WHAT REMAINS IS MEASURED RATHER THAN ASSERTED. `.ab-tint` is `mix-blend-mode: soft-light`
+//       at opacity .5 over a PHOTOGRAPH — a tonal wash rather than a scrim, compositing over
+//       artwork rather than the theme's ground, and it reads as photographic warmth. The cursor
+//       has NO SIBLING TO DISAGREE WITH, which is exactly the property the watermarks lacked.
 //
 // ⚠ AND A HEADER IS NOT ENOUGH, WHICH IS WHY PART E EXISTS. The vocabulary blind spot has now
 // appeared in THREE gates: `studio-tokens` C2 matched numbered scales only and missed `bg-canvas`;

@@ -101,8 +101,13 @@ t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
   THEME_NAMES.filter((n) => !selectableThemes().includes(n) && !unselectableReason(n)), []);
-t("A8 the twin is excluded, and so is harbour until its literals are converted",
-  THEME_NAMES.filter((n) => unselectableReason(n)).sort(), [SECOND_THEME, VERIFY_THEME].sort());
+/* ⚠ HARBOUR LEFT THIS SET IN #328 AND THE ASSERTION SAYS SO RATHER THAN SHRINKING QUIETLY. It was
+ * held back because the render found 14 warm colours no theme could move; 12 now do. The twin is
+ * the only permanent member, and a second entry appearing here again means something else is being
+ * held — which should be visible in a diff, not absorbed by a `.length` check. */
+t("A8 the twin is the ONLY permanent exclusion — harbour unheld in #328",
+  THEME_NAMES.filter((n) => unselectableReason(n)), [VERIFY_THEME]);
+t("A8 …and the second theme is publishable", selectableThemes().includes(SECOND_THEME), true);
 t("A8 …and at least one theme is publishable, or the site has no palette at all",
   selectableThemes().length >= 1, true);
 

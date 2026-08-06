@@ -322,7 +322,7 @@ export default function HeroSection({
                       fontFamily: "var(--font-script)",
                       fontSize: "clamp(5rem, 12vw, 9rem)",
                       lineHeight: 1,
-                      color: "rgba(181,97,60,0.14)",
+                      color: "color-mix(in oklch, var(--color-accent-500) 14%, transparent)",
                       whiteSpace: "nowrap",
                       textAlign: "center",
                       filter: "blur(0.4px)",

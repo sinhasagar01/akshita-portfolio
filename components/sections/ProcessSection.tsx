@@ -487,7 +487,7 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
               top: "-150px",
               filter: "blur(34px)",
               background:
-                "radial-gradient(closest-side, rgba(181,97,60,0.36), rgba(181,97,60,0.12) 48%, transparent 72%)",
+                "radial-gradient(closest-side, color-mix(in oklch, var(--color-accent-500) 36%, transparent), color-mix(in oklch, var(--color-accent-500) 12%, transparent) 48%, transparent 72%)",
               pointerEvents: "none",
             }}
           />

@@ -8012,6 +8012,75 @@ exists to avoid**, so the declaration keeps the literal and `parseColor` learned
 
 ralph 2460 → 2462. Lint, tsc and the build clean.
 
+## THE WATERMARKS TAKE THE TOKEN, AND HARBOUR UNHOLDS (#328)
+
+### ⚠ THE CLOSING RULE OF THE WHOLE ARC
+
+> **CREAM HID THE DEFECT BECAUSE BOTH BRANCHES LOOKED THE SAME ON IT.**
+
+`SectionHeading` draws its watermark from a `tone` prop. The warm branch was a literal,
+`rgba(181,97,60,.17)`; the grey branch was already `color-mix(ink-600 18%)`. On cream both read as
+a warm ghost, so the split was invisible. On harbour five watermarks stayed terracotta while
+Process, About and Skills went cool — **one component, one page, two answers.**
+
+**A SINGLE-THEME SITE CANNOT REVEAL AN INCONSISTENCY BETWEEN TWO WAYS OF PRODUCING THE SAME
+COLOUR.** The second theme was the only instrument that could. That is the same shape as a gate
+whose denominator is one, and it is why the twin exists — the arc has now found the same defect at
+three scales: a reader with one value, a census with one instrument, and a design with one palette.
+
+### ⚠ AND #327's ARTWORK RULING IS REVERSED ON EVIDENCE, NOT PREFERENCE
+
+The watermarks went on the boundary list because they were called "closer to artwork than
+interface". The render says otherwise.
+
+> **A COLOUR THAT MUST AGREE WITH A SIBLING RENDERED BY THE SAME COMPONENT FROM THE SAME PROP IS
+> INTERFACE.** Artwork does not have to match anything.
+
+The test was wrong, not its application, and applying it a second time would have preserved the
+defect the theme had just exposed. **The boundary list SHRINKS by three.** The cursor and
+`.ab-tint` remain, with measured reasons: the tint is a soft-light wash over a photograph and reads
+as photographic warmth, and **the cursor has no sibling to disagree with** — which is exactly the
+property the watermarks lacked.
+
+### THE DIRECTION WAS DECIDED BY ASYMMETRY, AND THE TOKEN BY MEASUREMENT
+
+"Both tokens" DELETES a ternary and removes three unthemeable colours. "Both literals" would have
+ADDED one, by making the grey branch's `ink-600` a literal too. One direction shrinks the boundary
+list and the other grows it, and the grey branch already proved the token form works — so this was
+deletion rather than new code.
+
+**`accent-500` RATHER THAN `ink-600`, AND IT IS A SNAP.** Composited over cream at the alphas this
+component uses, measured in the browser with the sanity pair asserted first:
+
+| alpha | was | now | Δ |
+|---|---|---|---|
+| .11 | `[246,233,222]` | `[246,231,220]` | 3 |
+| .14 | `[244,228,215]` | `[244,226,213]` | 3 |
+| .17 | `[242,224,211]` | `[242,222,208]` | 4 |
+| .22 (glow) | `[238,216,202]` | `[238,213,198]` | **5** |
+
+Three are inside Step 1's Δ<5 snap threshold. **The fourth sits exactly ON it and is stated rather
+than rounded down** — it is the glow's alpha, not the word's, so it is the softest of the four.
+`ink-600` would have been Δ10 to 17: a redesign wearing a refactor's clothes.
+
+### `tone` SURVIVES WITH A REAL AXIS
+
+It no longer means "token or literal". It means **accent-toned or ink-toned**, and both follow the
+palette. A prop whose two values produced the same result would be a control that cannot do
+anything, which this repo has deleted four times. This one still does something on every palette.
+
+### HARBOUR IS UNHELD, AND THE CRITERION WAS THE RENDER
+
+12 of the 14 warm survivors now move — two NAMED in #327, ten taking the accent token here. Every
+watermark on the page resolves to a themed value, verified in the browser: the accent-toned ones to
+`oklch(0.52 0.12 168 / …)` and the ink-toned ones to `oklch(0.45 0.018 233 / 0.18)`.
+
+**`SHIPPABLE` WAS ALWAYS THE NARROWER CLAIM** — every token PAIR clears its floor — and it was true
+of harbour on the day the render showed five terracotta watermarks beside two cool ones. The
+instrument was right and insufficient, exactly as its own header says.
+
+ralph 2462 → 2463. Lint, tsc and the build clean.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
