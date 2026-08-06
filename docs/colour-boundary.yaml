@@ -31,8 +31,13 @@
 # author trying to derive "is this artwork" from the value.
 kinds:
   mechanical:
-    what: A property of the VALUE. Decidable by inspection, no judgement required.
-    categories: [derived, mask, compiler-default, not-a-colour]
+    what: >
+      Decidable by inspection, no judgement required. ⚠ THIS DEFINITION WIDENED IN #341 and the
+      widening is stated rather than done quietly: it read "a property of the VALUE", and
+      `ships-publicly-no-public-consumer` is a property of WHERE A VALUE IS CONSUMED. Still
+      mechanical — a machine resolves it and nobody has to rule on it — but the boundary of the
+      word moved, and a kind whose definition drifts silently is how a subject stops being declared.
+    categories: [derived, mask, compiler-default, not-a-colour, ships-publicly-no-public-consumer]
   judgement:
     what: A property of WHAT IT DRAWS. No amount of parsing decides these.
     categories: [artwork-by-file, signature, forced-literal]
@@ -196,8 +201,8 @@ entries:
       whose error page must not use tokens.
 
   - id: studio-consumers-in-the-public-bundle
-    kind: judgement
-    category: signature
+    kind: mechanical
+    category: ships-publicly-no-public-consumer
     where: components/studio/CaseStudyItem.tsx, components/studio/SectionsEditPanel.tsx
     count: 3
     reason: >
@@ -209,8 +214,12 @@ entries:
       A utility class carries no studio marker; its studio-ness lives in the CONSUMER. This is the
       mirror of the project's emission rule — ask where a cost is EMITTED, not where the feature is
       USED — pointed the other way: the census reads what is emitted and cannot tell who uses it.
-      Out of scope as studio, and the reason is recorded because a future reader will find them in
-      the public bundle and reasonably assume they are public.
+      ⚠ AND WHAT IT IMPLIES: they are unthemeable AND unreachable. A theme cannot move them and no
+      visitor sees them, so they are not a leak in either direction. Recording them is honest;
+      fixing them is a bundle-size question rather than this arc's work — #274 already measured that
+      seam at 23.4% of the stylesheet, and these are the same finding at colour granularity.
+      The census RESOLVES the consumer rather than excluding by lookup, because excluding would bury
+      a judgement inside a filter — the shape categories-as-data was built to remove.
 
   - id: adjacent-surfaces
     kind: judgement

@@ -111,9 +111,14 @@ t("Z2 both kinds are declared", Object.keys(BOUNDARY.kinds ?? {}).sort(), ["judg
 /* ⚠ THE DISTINCTION THAT MATTERS MOST IS THAT THE FIRST FOUR COULD IN PRINCIPLE BE COMPUTED AND THE
  * LAST THREE NEVER CAN. Asserting it here stops a later author trying to derive "is this artwork"
  * from the value. */
-t("Z3 mechanical categories are the four decidable by inspection",
+/* ⚠ FIVE SINCE #341, AND THIS ASSERTION FAILING IS WHY THE WIDENING IS VISIBLE. `mechanical` read
+ * "a property of the VALUE"; `ships-publicly-no-public-consumer` is a property of where a value is
+ * CONSUMED. Still mechanical — a machine resolves it, nobody rules on it — but the word's boundary
+ * moved, and a kind whose definition drifts silently is how a subject stops being declared. The
+ * pinned list is what turned a silent drift into a deliberate edit. */
+t("Z3 mechanical categories are the five decidable without a judgement",
   [...BOUNDARY.kinds.mechanical.categories].sort(),
-  ["compiler-default", "derived", "mask", "not-a-colour"]);
+  ["compiler-default", "derived", "mask", "not-a-colour", "ships-publicly-no-public-consumer"]);
 t("Z4 judgement categories are the three that never can be",
   [...BOUNDARY.kinds.judgement.categories].sort(),
   ["artwork-by-file", "forced-literal", "signature"]);
@@ -347,6 +352,58 @@ t("A5 the token index is populated — a zero here would make A3 pass by compari
 const oklLits = [...customProps.values()].flat().filter((c) => /^oklch\(/.test(c));
 t("A6 …and nothing is silently dropped between reading a colour and parsing it",
   oklLits.filter((c) => !okl(c)), []);
+
+console.log("\nA-c · utility classes resolved back to the file that USES them");
+
+/* ⚠ RESOLVED, NOT EXCLUDED BY LOOKUP — AND THE DIFFERENCE IS THE WHOLE POINT. Excluding studio
+ * utilities by a name lookup would bury a JUDGEMENT INSIDE A FILTER, which is the shape
+ * categories-as-data was built to fix. Resolving the consumer produces a ROW a person can disagree
+ * with: "components/studio/CaseStudyItem.tsx — ships publicly, no public consumer."
+ *
+ * ⚠ AND THIS IS THE MIRROR OF THE PROJECT'S EMISSION RULE. "Ask where a cost is EMITTED, not where
+ * the feature is USED" was written when a studio-only font preload charged every public page. The
+ * census reads what is EMITTED and cannot tell who USES it. Both directions give a wrong answer, so
+ * the rule is not "use emission" or "use consumption" — it is ASK WHICH ONE THE QUESTION IS ABOUT.
+ * Cost is an emission question. Themeability is a consumption question. A bundle that merges the
+ * two is why they keep being confused. */
+const sourceFiles = [];
+const walkSrc = (rel) => {
+  for (const e of readdirSync(url(rel), { withFileTypes: true })) {
+    if (e.name.startsWith(".") || e.name === "node_modules") continue;
+    const child = `${rel}/${e.name}`;
+    if (e.isDirectory()) walkSrc(child);
+    else if (/\.tsx?$/.test(e.name)) sourceFiles.push({ rel: child, src: read(child) });
+  }
+};
+["components", "app", "lib"].forEach(walkSrc);
+
+/** A Tailwind-escaped selector back to the class an author typed. */
+const unescapeClass = (sel) => sel.replace(/^\./, "").replace(/\\/g, "");
+const consumersOf = (cls) => sourceFiles.filter((f) => f.src.includes(cls)).map((f) => f.rel);
+
+/* Only COLOUR-bearing utilities — this census is about colour. The wider population (122 of 342
+ * arbitrary utilities are studio-only, including spacing and position) is #274's 23.4% seam at full
+ * granularity, and it is a bundle-size question rather than a theme one. */
+const arbitrary = [...new Set(cssFiles.flatMap((f) =>
+  [...readFileSync(url(`${CSS_DIR}/${f}`), "utf8").matchAll(/(\.[a-z-]+\\\[[^{]*?\\\])\{([^}]*)\}/g)]
+    .filter((m) => COLOUR.test(m[2]) && (COLOUR.lastIndex = 0, true))
+    .map((m) => m[1])))];
+const resolved = arbitrary.map((sel) => ({ sel, cls: unescapeClass(sel), files: consumersOf(unescapeClass(sel)) }))
+  .filter((r) => r.files.length);
+const studioOnly = resolved.filter((r) => r.files.every((f) => f.includes("/studio")));
+
+console.log(`         ${resolved.length} COLOUR-bearing arbitrary utilities resolved to a consumer`);
+console.log(`         ${studioOnly.length} of them ship PUBLICLY with NO PUBLIC CONSUMER`);
+for (const r of studioOnly.slice(0, 4)) console.log(`           ${r.cls.slice(0, 40)}  <-  ${r.files[0]}`);
+
+t("Ac1 utility classes resolve to a consuming file — the lookup is recoverable, not a guess",
+  resolved.length > 0, true);
+/* ⚠ THE FINDING ASSERTED, NOT JUST REPORTED. #274 measured 23.4% of the stylesheet as studio-only
+ * rules the public site downloads; these are the same seam at colour granularity. They are
+ * unthemeable AND unreachable — a theme cannot move them and no visitor sees them — so they are not
+ * a leak in either direction. Recording them is honest; fixing them is not this arc's work. */
+t("Ac2 the studio-only public utilities are found, so the mirror is measured rather than asserted",
+  studioOnly.length > 0, true);
 
 console.log("\nB · SVG presentation attributes — never in a stylesheet, never in a className");
 

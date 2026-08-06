@@ -8797,6 +8797,50 @@ on. A colour that had a name.
 
 ralph 2495 — the two conversions are within tolerance.
 
+## THE CENSUS RESOLVES ITS CONSUMERS (#341)
+
+### ⚠ THE MIRROR OF THE EMISSION RULE, AND HALF A RULE IS WHAT CAUSED IT TWICE
+
+`CLAUDE.md` said **ask where a cost is EMITTED, not where the feature is USED** — written when a
+studio-only font preload charged every public page. The colour census hit the same seam from the
+other side: **it reads what is emitted and cannot tell who uses it**, so two studio status dots and
+a studio gradient sat in the public bundle looking exactly like public colours.
+
+> **BOTH DIRECTIONS GIVE A WRONG ANSWER AND NEITHER IS VISIBLE FROM WHERE YOU ARE STANDING.** So the
+> rule is not "use emission" or "use consumption" — it is **ASK WHICH ONE THE QUESTION IS ABOUT.
+> Cost is an emission question. Themeability is a consumption question.** A bundle that merges the
+> two is why they keep being confused.
+
+Recorded in `CLAUDE.md` beside the rule it inverts, because the half-rule is what let it happen.
+
+### RESOLVED, NOT EXCLUDED BY LOOKUP
+
+The census now walks a Tailwind-escaped selector back to the class an author typed and finds the
+files containing it. **10 colour-bearing arbitrary utilities resolve to a consumer; 8 ship publicly
+with no public consumer.**
+
+**⚠ EXCLUDING BY LOOKUP WOULD HAVE BURIED A JUDGEMENT INSIDE A FILTER** — the shape
+categories-as-data was built to remove. Resolving produces a row a person can disagree with:
+`components/studio/CaseStudyItem.tsx — ships publicly, no public consumer`.
+
+**AND THE WIDER NUMBER IS #274's SEAM AT FULL GRANULARITY.** 122 of 342 arbitrary utilities are
+studio-only, including spacing and position — the 23.4% that PR measured, now visible per rule. It
+is a bundle-size question rather than a theme one, and it is reported rather than folded in.
+
+### THE EIGHTH CATEGORY, AND A DEFINITION THAT WIDENED IN THE OPEN
+
+`ships-publicly-no-public-consumer`. **They are unthemeable AND unreachable** — a theme cannot move
+them and no visitor sees them — so they are not a leak in either direction. Recording them is
+honest; fixing them is not this arc's work.
+
+**⚠ AND ADDING IT WIDENED `mechanical` FROM "A PROPERTY OF THE VALUE" TO "DECIDABLE WITHOUT A
+JUDGEMENT".** Where a value is consumed is not a property of the value. Still mechanical — a machine
+resolves it — but the word's boundary moved, and **Z3 failed on arrival**, which is what turned a
+silent drift into a deliberate edit. **A kind whose definition drifts silently is how a subject
+stops being declared**, which is the failure this whole arc was spent repairing.
+
+ralph 2495 → 2496.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
