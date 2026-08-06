@@ -9824,9 +9824,20 @@ file-level join. That row is now written. And `ProcessSection.tsx` holds a fourt
 `rgba(224,156,96,0.34)`, a blurred decorative aura — that **no row rules on**, measured at 21.4 from
 `--color-glow-paper`'s composite and 34.3 from accent-500's, so it cannot be snapped to either.
 
-**J5 SHIPS RED ON THAT ONE ROW.** The fix is a ruling, not an edit. By #360's precedent a decorative
-glow is a theme surface rather than a signature, but a 34.3 composite shift is visible and that is a
-design call.
+**RULED, AND IT THEMES** — `color-mix(var(--color-accent-500) 34%, transparent)`, the same treatment
+as #360's six. A warm literal doing decoratively what the accent does would stay warm on harbour
+while everything around it went cool, which is the leak pattern rather than a signature. The 34.3
+shift was expected and is the point.
+
+**⚠ AND IT IS THE ALPHA RULE'S SECOND INSTANCE, MOVING THE OTHER WAY.** Sanity 21.000 first.
+Composite against its ground goes **1.22 → 1.53 on cream and 1.22 → 1.55 on harbour** — roughly 25%
+STRONGER, where #360's signal treatment lost 40%. The mechanism is the same and the sign is
+opposite: `rgb(224,156,96)` is LIGHTER than accent-500, where `#2e1a47` was much darker, so the same
+preserved alpha carries the composite away from a light ground here and toward it there.
+
+**Two instances now, in both directions, from one cause.** Preserving alpha preserves the mix; what
+the contrast does afterwards is decided by the base's lightness relative to the token replacing it —
+which is a thing you can predict before measuring and must measure anyway.
 
 ---
 
