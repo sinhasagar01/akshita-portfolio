@@ -9664,6 +9664,70 @@ described.
 every judgement entry twice: **does its reason describe what the code actually does**, and **does it
 hold when the ground changes.**
 
+## THE AURAS COLLAPSE ONTO THE ACCENT, AND THE MEASUREMENT AFTER IS THE FINDING (#360)
+
+Six aura literals became `color-mix(in srgb, var(--color-accent-500) N%, transparent)`, each alpha
+preserved exactly (28, 48, 20, 16, 55, 62, and the two flatten glows at 46 and 52). `flatten warm`
+`oklch(24% 0.03 60 / 0.16)` went to `--color-ink-800` at Δ1, taken on its own terms and deliberately
+NOT swept into the collapse — it is a near-miss snap, a different kind of change from a merge.
+
+**THE ARGUMENT, WHICH IS THE PR's CONTENT.** #334's boundary entry said the auras were "product
+branding — boAt's brand red, Fosfor's violet, set per study". There is no such pairing. `--pulse`
+and `--signal` are assigned by a hand-typed map in `CaseStudyView.tsx`, and `elevate-one-view` — not
+a Fosfor study — carried the violet. **A COLOUR CHOSEN BY A HARDCODED MAP IS NOT PRODUCT BRANDING.**
+Branding is a property of the product; this was a property of a list. The entry is deleted with that
+as its stated cause.
+
+**⚠ AND THIS IS #103's SHAPE — TWO COLOURS COLLAPSED ONTO ONE.** The difference is what the
+distinction was. #103 flattened two text roles that had genuinely been chosen and given values; this
+flattens a hue difference nobody selected. The two treatments now differ in GEOMETRY — blur, radius,
+cadence — which is what the map has always actually chosen.
+
+**THE MEASUREMENT AFTER, ON BOTH PALETTES, SANITY PAIR FIRST.** White/black rasterised to 21.000 on
+both before anything else was read. Ground is `.hero-ground`, itself themed, so it moves too.
+Contrast of each composite against its own ground:
+
+| glow | cream before → after | harbour before → after |
+|---|---|---|
+| pulse wash | 1.44 → 1.47 | 1.44 → 1.48 |
+| pulse core | 1.70 → 1.97 | 1.71 → 1.99 |
+| pulse wink | 1.14 → 1.31 | 1.14 → 1.32 |
+| signal field | 1.36 → 1.24 | 1.36 → 1.24 |
+| **signal core** | **3.62 → 2.20** | **3.63 → 2.26** |
+| **signal ping** | **4.44 → 2.47** | **4.44 → 2.54** |
+| **signal flatten** | **3.32 → 2.11** | **3.33 → 2.15** |
+| flatten warm | 1.38 → 1.38 | 1.39 → 1.38 |
+
+**⚠ THE FINDING — THE SIGNAL TREATMENT LOST ROUGHLY 40% OF ITS CONTRAST, AND THE PULSE ONE DID NOT.**
+`#2e1a47` is a very dark violet; `accent-500` is a mid-tone. At an identical alpha a darker base
+composites further from a near-white ground, so preserving the alpha did NOT preserve the strength.
+The pulse side barely moved because its old base was already mid-tone. **PRESERVING ALPHA PRESERVES
+THE MIX, NOT THE CONTRAST** — the composite depends on the base's lightness, and only one of the two
+bases was close to the accent's.
+
+Reported rather than tuned, per the ruling. Raising the signal alphas to restore the old ratios
+would be a new decision about how loud that treatment should be, and it should be taken by looking
+at it rather than by matching a number the old hue produced by accident.
+
+**Both palettes were rendered and looked at, not only computed.** On harbour the ping rings are a
+teal matching the wordmark, the Resume pill and the watermark; on cream they are terracotta against
+the same family. Neither reads wrong. The rings are FAINTER than before on both, which is the table
+above showing up where it should.
+
+**AND THE JOIN WATCHED THE DELETION.** `case-study-hero-auras` was one of the rows already covered
+by the two-way join from #356, so removing it while the selectors still held colour would have
+failed `J1`. First boundary deletion with a gate behind it.
+
+**⚠ AND A2 FAILED BECAUSE THE SITE GOT BETTER, WHICH IS A6's DEFECT ARRIVING A SECOND TIME IN THE
+SAME FILE.** `A2` read `cssLeaks.size > 20` — true while leaks were many, false once the collapse
+took the authored count to 16. **A GUARD THAT FAILS WHEN THE DEFECT IS REPAIRED PUNISHES THE FIX.**
+#332 corrected exactly this in `A6` and the lesson did not generalise across the file. Now `> 0`:
+the question is whether the scan matches anything, and its CORRECTNESS is A2b's and J1's job. **A
+POPULATION GUARD SHOULD ASSERT THE MECHANISM, NOT THE SIZE OF THE PROBLEM.**
+
+`HERO_GLOW` keeps its map and gains a smaller, honest hazard-22 note — it now picks a blur and an
+animation, and what it must not become again is something other reasoning rests on.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

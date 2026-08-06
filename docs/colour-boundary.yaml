@@ -145,21 +145,6 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
-  - id: case-study-hero-auras
-    kind: judgement
-    category: artwork-by-file
-    where: app/globals.css (.hero-aura--*, .hero-phones--*)
-    count: 11
-    selectors: [".hero-aura--pulse .ha-wash", ".hero-aura--pulse .ha-core",
-                ".hero-aura--pulse .ha-wink", ".hero-aura--signal .ha-core",
-                ".hero-aura--signal .ha-field", ".hero-aura--signal .ha-ping",
-                ".hero-phones--pulse .cs-flatten", ".hero-phones--signal .cs-flatten"]
-    reason: >
-      Each case study's glow is the colour of the PRODUCT it is about — boAt's brand red, Fosfor's
-      violet #2e1a47 — which is why they are set per study rather than from the palette. The h1
-      above them and the watermark beside them are themed, so this hero is deliberately part themed
-      and part not, and the line runs between THIS SITE'S CHROME and THE PRODUCT BEING SHOWN.
-
   - id: custom-cursor
     kind: judgement
     category: signature
