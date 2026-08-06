@@ -96,12 +96,12 @@ export default function ReadingVessel({
           <div className="blog-smoke" />
           <div className="blog-wave is-b">
             <svg viewBox="0 0 400 16" preserveAspectRatio="none">
-              <path fill="oklch(0.88 0.016 52 / .55)" d={WAVE_PATH_B} />
+              <path fill="color-mix(in srgb, var(--color-smoke-4) 55%, transparent)" d={WAVE_PATH_B} />
             </svg>
           </div>
           <div className="blog-wave is-a">
             <svg viewBox="0 0 400 13" preserveAspectRatio="none">
-              <path fill="oklch(0.93 0.012 62 / .85)" d={WAVE_PATH_A} />
+              <path fill="color-mix(in srgb, var(--color-vessel-wave) 85%, transparent)" d={WAVE_PATH_A} />
             </svg>
           </div>
           <div className="blog-glint" />

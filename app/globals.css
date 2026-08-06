@@ -126,6 +126,12 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
   /* The cursor-following glow on the light ground. 22 from `accent-400`, the nearest token, so it
      is its own colour rather than a misspelling of one — #327's finding, taking the naming route. */
+  /* The vessel's front wave. ⚠ NOT A FIFTH RAMP STOP, and the name says so — the ramp is a
+     gradient whose members are chosen against each other, and this is a discrete shape drawn over
+     it. Its back wave snapped to `--color-smoke-4` at a composite distance of 2; this one is 16
+     from the nearest stop and 7 from `cream-200`, so it is its own tone. */
+  --color-vessel-wave: oklch(93% 0.012 62);
+
   --color-glow-paper: oklch(63% 0.13 47 / 0.20);
 
   /* The vessel's bounce highlight. ⚠ IT HAS NO ALPHA, which is why the wash reasoning that snapped
@@ -482,6 +488,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-smoke-2: oklch(0.9 0.014 233 / 0.74);
   --color-smoke-3: oklch(0.97 0.010 233 / 0.74);
   --color-smoke-4: oklch(0.87 0.012 233 / 0.74);
+  --color-vessel-wave: oklch(93% 0.012 233);
   --color-glow-paper: oklch(63% 0.11 168 / 0.20);
   --color-bounce:     oklch(100% 0.008 233);
 
