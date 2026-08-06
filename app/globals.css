@@ -104,6 +104,35 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      the whole finding in one comparison. */
   --color-rule: rgb(120, 90, 60);
 
+  /* ============================================================
+     ⚠ A RAMP, WHICH IS A NEW KIND OF ENTRY IN THIS NAMESPACE.
+
+     Every other `--color-*` is a single colour that stands on its own. THESE FOUR ARE RELATED TO
+     EACH OTHER RATHER THAN TO THE LADDER — they are the stops of one gradient, chosen against each
+     other so the vessel reads as smoke rather than as bands.
+
+     ⚠ SO THE RE-THEMING OBLIGATION IS DIFFERENT FROM A SINGLE TOKEN'S. A future palette retunes all
+     four TOGETHER or leaves all four alone. Retuning two would break the evenness that makes it a
+     gradient, which is also why two of them were NOT snapped to `ink-200` and `canvas` when the
+     census found them 5 and 7 away composited — the stops were never chosen against the palette.
+
+     THEY ARE NOT NEW COLOURS. They existed as `--smoke-1..4`, live and load-bearing; this brings
+     them into the namespace so a theme can reach them. Values unchanged.
+  ============================================================ */
+  --color-smoke-1: oklch(0.84 0.014 58 / 0.74);
+  --color-smoke-2: oklch(0.9 0.018 52 / 0.74);
+  --color-smoke-3: oklch(0.97 0.01 70 / 0.74);
+  --color-smoke-4: oklch(0.87 0.015 48 / 0.74);
+
+  /* The cursor-following glow on the light ground. 22 from `accent-400`, the nearest token, so it
+     is its own colour rather than a misspelling of one — #327's finding, taking the naming route. */
+  --color-glow-paper: oklch(63% 0.13 47 / 0.20);
+
+  /* The vessel's bounce highlight. ⚠ IT HAS NO ALPHA, which is why the wash reasoning that snapped
+     the glows never reached it: at opacity 1 the composite IS the declaration, so its 10 from
+     `cream-50` is 10 on screen. A colour the system had no word for, not one that must not move. */
+  --color-bounce: oklch(100% 0.008 80);
+
   /* Status — muted warm sage for the studio "Live" pill (only green in the set) */
   --color-success-50:  oklch(94.5% 0.030 145);
   --color-success-700: oklch(46.0% 0.075 145);
@@ -348,9 +377,9 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Shadows — warm-toned
   ============================================================ */
 
-  --shadow-sm: 0 1px 2px oklch(14% 0.018 60 / 0.06);
-  --shadow-md: 0 4px 12px oklch(14% 0.018 60 / 0.08), 0 1px 3px oklch(14% 0.018 60 / 0.04);
-  --shadow-lg: 0 12px 32px oklch(14% 0.018 60 / 0.10), 0 4px 8px oklch(14% 0.018 60 / 0.05);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, var(--color-ink-950) 6%, transparent);
+  --shadow-md: 0 4px 12px color-mix(in srgb, var(--color-ink-950) 8%, transparent), 0 1px 3px color-mix(in srgb, var(--color-ink-950) 4%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, var(--color-ink-950) 10%, transparent), 0 4px 8px color-mix(in srgb, var(--color-ink-950) 5%, transparent);
 
   /* ============================================================
      Motion
@@ -447,6 +476,15 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
   /* Artwork grounds. On the contrast gate's boundary list because no text sits on them, but they
      must still move — a cool theme with warm sand panels reads as a bug rather than a choice. */
+  /* ⚠ THE SMOKE RAMP RETUNES AS A SET. Same L and C on every stop, hue swung with the palette, so
+     the evenness that makes it a gradient survives the theme. Retuning two would break it. */
+  --color-smoke-1: oklch(0.84 0.014 233 / 0.74);
+  --color-smoke-2: oklch(0.9 0.014 233 / 0.74);
+  --color-smoke-3: oklch(0.97 0.010 233 / 0.74);
+  --color-smoke-4: oklch(0.87 0.012 233 / 0.74);
+  --color-glow-paper: oklch(63% 0.11 168 / 0.20);
+  --color-bounce:     oklch(100% 0.008 233);
+
   --color-reveal-sand:     oklch(85.0% 0.032 210);
   --color-case-study-sand: oklch(88.5% 0.026 220);
   --color-glow-web:        oklch(48.0% 0.115 205);
@@ -602,14 +640,14 @@ a {
   --section-gap: 28px;
 
   /* GLOW — one token per surface it can sit on */
-  --glow-on-paper: oklch(63% 0.13 47 / 0.20);
-  --glow-on-tan:   oklch(56% 0.14 42 / 0.14);
-  --glow-on-dark:  oklch(82% 0.055 47 / 0.14);
+  --glow-on-paper: var(--color-glow-paper);
+  --glow-on-tan:   color-mix(in srgb, var(--color-accent-500) 14%, transparent);
+  --glow-on-dark:  color-mix(in srgb, var(--color-on-dark-quote) 14%, transparent);
   --glow-size: 820px;
 
   /* BACKDROP WORD — the script word behind the tagline, per surface */
-  --hero-word-light: oklch(82% 0.055 47 / 0.55);
-  --hero-word-dark:  oklch(82% 0.055 47 / 0.11);
+  --hero-word-light: color-mix(in srgb, var(--color-on-dark-quote) 55%, transparent);
+  --hero-word-dark:  color-mix(in srgb, var(--color-on-dark-quote) 11%, transparent);
 }
 
 .hero-ground {
@@ -633,7 +671,7 @@ a {
   background-color: var(--color-band-dark);
   color: var(--color-on-dark);
   --glow-color: var(--glow-on-dark);
-  --hero-facts-line: oklch(100% 0 0 / 0.14);
+  --hero-facts-line: color-mix(in srgb, var(--color-white) 14%, transparent);
 }
 
 /* THE FADED-PEEK CASE-STUDY HERO (F). Exactly 100svh with content flowing from the top,
@@ -664,17 +702,17 @@ a {
   display: grid;
   width: 100%;
   max-width: 920px;
-  border-top: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+  border-top: 0.5px solid var(--hero-facts-line, color-mix(in srgb, var(--color-ink-950) 12%, transparent));
 }
 .hero-facts--six  { grid-template-columns: repeat(3, 1fr); }
 .hero-facts--four { grid-template-columns: repeat(4, 1fr); }
 .hero-facts > div {
   padding: 13px 16px;
   text-align: center;
-  border-bottom: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+  border-bottom: 0.5px solid var(--hero-facts-line, color-mix(in srgb, var(--color-ink-950) 12%, transparent));
 }
 .hero-facts > div + div {
-  border-left: 0.5px solid var(--hero-facts-line, oklch(14% 0.018 60 / 0.12));
+  border-left: 0.5px solid var(--hero-facts-line, color-mix(in srgb, var(--color-ink-950) 12%, transparent));
 }
 .hero-facts--six  > div:nth-child(3n + 1) { border-left: none; }
 .hero-facts--four > div:nth-child(4n + 1) { border-left: none; }
@@ -832,29 +870,41 @@ a {
 ============================================================ */
 :root {
   --ease-back:         cubic-bezier(0.62, -0.28, 0.28, 1.3);
-  --glass-fill:        oklch(98.5% 0.012 80 / 0.58);
-  --glass-fill-strong: oklch(98.5% 0.012 80 / 0.78);
-  --glass-stroke:      oklch(100% 0 0 / 0.72);
+  /* ============================================================
+     ⚠ THE GLASS IS THEMEABLE ONLY WHILE THE LIGHT-GROUND PROMISE HOLDS. LOAD-BEARING.
+
+     These derive from `--color-cream-50` and `--color-white`, so they follow the palette — and that
+     is safe because every theme is a LIGHT-GROUND variation. Step 2's dark render measured this nav
+     at 1.15 against its surroundings: STRUCTURALLY light-ground, not merely tuned for cream.
+
+     ⚠ IF A PALETTE IS EVER ALLOWED BELOW THE GROUND FLOOR, THE GLASS BREAKS HERE AND IT WILL READ
+     AS A THEME BUG RATHER THAN AS A PROMISE BEING BROKEN. There is no exclusion guarding it,
+     deliberately — an exclusion duplicating a constraint already in force is a second mechanism for
+     one problem. The constraint lives on the palette; this comment is where you find that out.
+  ============================================================ */
+  --glass-fill:        color-mix(in srgb, var(--color-cream-50) 58%, transparent);
+  --glass-fill-strong: color-mix(in srgb, var(--color-cream-50) 78%, transparent);
+  --glass-stroke:      color-mix(in srgb, var(--color-white) 72%, transparent);
   --glass-blur:        blur(22px) saturate(1.8);
   --glass-shadow:
-    inset 0 1px 0 0 oklch(100% 0 0 / 0.85),
-    inset 0 -1px 0 0 oklch(100% 0 0 / 0.28),
-    inset 0 0 0 0.5px oklch(14% 0.018 60 / 0.06),
-    0 2px 6px -2px oklch(14% 0.018 60 / 0.14),
-    0 14px 38px -14px oklch(14% 0.018 60 / 0.34);
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 85%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 28.000000000000004%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-ink-950) 6%, transparent),
+    0 2px 6px -2px color-mix(in srgb, var(--color-ink-950) 14.000000000000002%, transparent),
+    0 14px 38px -14px color-mix(in srgb, var(--color-ink-950) 34%, transparent);
   --glass-shadow-hi:
-    inset 0 1px 0 0 oklch(100% 0 0 / 0.95),
-    inset 0 -1px 0 0 oklch(100% 0 0 / 0.34),
-    inset 0 0 0 0.5px oklch(14% 0.018 60 / 0.07),
-    0 3px 8px -2px oklch(14% 0.018 60 / 0.16),
-    0 20px 46px -14px oklch(14% 0.018 60 / 0.4);
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 95%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 34%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-ink-950) 7.000000000000001%, transparent),
+    0 3px 8px -2px color-mix(in srgb, var(--color-ink-950) 16%, transparent),
+    0 20px 46px -14px color-mix(in srgb, var(--color-ink-950) 40%, transparent);
 
   /* ON-DARK material — the same glass, retoned for a dark case-study hero (see
      .site-header[data-nav-tone="dark"]). Dark translucent fill + light stroke, per the
      reference (rgba(46,40,34,.5) / rgba(255,255,255,.15)). */
-  --glass-fill-dark:        oklch(26% 0.008 60 / 0.5);
-  --glass-fill-dark-strong: oklch(26% 0.008 60 / 0.72);
-  --glass-stroke-dark:      oklch(100% 0 0 / 0.15);
+  --glass-fill-dark:        color-mix(in srgb, var(--color-ink-800) 50%, transparent);
+  --glass-fill-dark-strong: color-mix(in srgb, var(--color-ink-800) 72%, transparent);
+  --glass-stroke-dark:      color-mix(in srgb, var(--color-white) 15%, transparent);
 }
 @media (max-width: 1023px) {
   /* Cheaper blur on the throttled-hardware breakpoint — one dial. */
@@ -912,8 +962,8 @@ a {
   border-radius: inherit;
   pointer-events: none;
   z-index: -1;
-  background: linear-gradient(115deg, oklch(100% 0 0 / 0.5) 0%,
-    oklch(100% 0 0 / 0.14) 26%, oklch(100% 0 0 / 0) 52%);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--color-white) 50%, transparent) 0%,
+    color-mix(in srgb, var(--color-white) 14.000000000000002%, transparent) 26%, oklch(100% 0 0 / 0) 52%);
   opacity: 1;
   transition: opacity 0.38s ease;
 }
@@ -926,7 +976,7 @@ a {
   pointer-events: none;
   z-index: -1;
   background: radial-gradient(160px circle at var(--mx, 50%) var(--my, 0%),
-    oklch(100% 0 0 / 0.55), transparent 62%);
+    color-mix(in srgb, var(--color-white) 55.00000000000001%, transparent), transparent 62%);
   opacity: 0;
   transition: opacity 0.34s ease;
 }
@@ -972,21 +1022,21 @@ a {
 }
 .site-header[data-nav-tone="dark"] .nav-glass { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .nav-glass::before {
-  background: linear-gradient(115deg, oklch(100% 0 0 / 0.15) 0%,
-    oklch(100% 0 0 / 0.04) 28%, oklch(100% 0 0 / 0) 54%);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--color-white) 15%, transparent) 0%,
+    color-mix(in srgb, var(--color-white) 4%, transparent) 28%, oklch(100% 0 0 / 0) 54%);
 }
 .site-header[data-nav-tone="dark"] .nav-links a { color: var(--color-on-dark-muted); }
 .site-header[data-nav-tone="dark"] .nav-links a:hover { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .nav-links a[aria-current="true"] { color: var(--color-on-dark-quote); }
 /* the sliding hover indicator drops to a faint white so light link text stays legible on it */
 .site-header[data-nav-tone="dark"] .nav-ind {
-  background: oklch(100% 0 0 / 0.12);
+  background: color-mix(in srgb, var(--color-white) 12%, transparent);
   box-shadow: none;
 }
-.site-header[data-nav-tone="dark"] .nav-sepdot { background: oklch(100% 0 0 / 0.32); }
+.site-header[data-nav-tone="dark"] .nav-sepdot { background: color-mix(in srgb, var(--color-white) 32%, transparent); }
 .site-header[data-nav-tone="dark"] .logo-sig { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .logo-singh { color: var(--color-on-dark-quote); }
-.site-header[data-nav-tone="dark"] .logo-vbar { background: oklch(100% 0 0 / 0.3); }
+.site-header[data-nav-tone="dark"] .logo-vbar { background: color-mix(in srgb, var(--color-white) 30%, transparent); }
 .site-header[data-nav-tone="dark"] .nav-morph i { background: var(--color-on-dark); }
 /* Resume CTA keeps its filled accent chip — it reads on both grounds (per the reference). */
 
@@ -996,7 +1046,7 @@ a {
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: oklch(14% 0.018 60 / 0.22);
+  background: color-mix(in srgb, var(--color-ink-950) 22%, transparent);
   flex: none;
 }
 .nav-desktop {
@@ -1036,8 +1086,8 @@ a {
   border-radius: 999px;
   transform: translate(0, -50%) scaleX(0.6);
   opacity: 0;
-  background: oklch(100% 0 0 / 0.78);
-  box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.9), 0 2px 8px -3px oklch(14% 0.018 60 / 0.28);
+  background: color-mix(in srgb, var(--color-white) 78%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 90%, transparent), 0 2px 8px -3px color-mix(in srgb, var(--color-ink-950) 28.000000000000004%, transparent);
   transition: transform 0.46s var(--ease-spring), width 0.46s var(--ease-spring), opacity 0.26s ease;
 }
 .nav-links.is-hot .nav-ind { opacity: 1; }
@@ -1053,15 +1103,15 @@ a {
   gap: 6px;
   background: var(--color-accent-500);
   color: oklch(100% 0 0);
-  border: 0.5px solid oklch(100% 0 0 / 0.35);
-  box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.35), 0 6px 18px -8px oklch(56% 0.14 42 / 0.7);
+  border: 0.5px solid color-mix(in srgb, var(--color-white) 35%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 35%, transparent), 0 6px 18px -8px oklch(56% 0.14 42 / 0.7);
   transition: transform 0.32s var(--ease-spring), box-shadow 0.32s var(--ease-out-expo), filter 0.3s ease;
 }
 @media (prefers-reduced-motion: no-preference) {
   .nav-cta:hover {
     transform: translateY(-1px);
     filter: saturate(1.08);
-    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.45), 0 12px 26px -10px oklch(56% 0.14 42 / 0.8);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 45%, transparent), 0 12px 26px -10px oklch(56% 0.14 42 / 0.8);
   }
 }
 
@@ -1204,9 +1254,9 @@ a {
   width: 19px; height: 1.8px; border-radius: 2px;
   transform: translate(-50%, -50%) rotate(-45deg);
 }
-.nav-morph.is-open { border-color: oklch(14% 0.018 60 / 0.28); }
+.nav-morph.is-open { border-color: color-mix(in srgb, var(--color-ink-950) 28.000000000000004%, transparent); }
 /* nested inside a LIT pill: drop its own box-shadow (one surface, not two). Glyph colour stays. */
-.nav-glass:not(.is-ghost) .nav-morph { box-shadow: none; background: oklch(100% 0 0 / 0.5); }
+.nav-glass:not(.is-ghost) .nav-morph { box-shadow: none; background: color-mix(in srgb, var(--color-white) 50%, transparent); }
 @media (prefers-reduced-motion: no-preference) {
   .nav-morph {
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
@@ -1316,8 +1366,8 @@ a {
 .nav-sheet.is-open a:nth-child(3) { transition-delay: 0.16s; }
 .nav-sheet.is-open a:nth-child(4) { transition-delay: 0.21s; }
 .nav-sheet.is-open a:nth-child(6) { transition-delay: 0.28s; }
-.nav-sheet a:hover { background: oklch(100% 0 0 / 0.6); }
-.nav-sheet .nav-sheet-sep { height: 0.5px; background: oklch(14% 0.018 60 / 0.14); margin: 7px 5px; }
+.nav-sheet a:hover { background: color-mix(in srgb, var(--color-white) 60%, transparent); }
+.nav-sheet .nav-sheet-sep { height: 0.5px; background: color-mix(in srgb, var(--color-ink-950) 14.000000000000002%, transparent); margin: 7px 5px; }
 .nav-sheet .nav-sheet-resume { color: var(--color-accent-600); }
 @media (prefers-reduced-motion: reduce) {
   .nav-sheet, .nav-sheet a, .nav-fab { transition: none; }
@@ -1808,7 +1858,7 @@ a {
   font-style: italic;
   font-size: 0.875rem;
   color: oklch(95% 0.01 80);
-  background: oklch(14% 0.018 60 / 0.42);
+  background: color-mix(in srgb, var(--color-ink-950) 42%, transparent);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   padding: 7px 13px;
@@ -1825,7 +1875,7 @@ a {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: oklch(95% 0.01 80);
-  background: oklch(14% 0.018 60 / 0.38);
+  background: color-mix(in srgb, var(--color-ink-950) 38%, transparent);
   padding: 5px 11px;
   border-radius: 9999px;
   pointer-events: none;
@@ -2731,11 +2781,11 @@ a {
    Pearl Smoke palette (A3) — local to the two liquid components, never global. */
 .blog-vessel,
 .blog-capsule {
-  --smoke-1: oklch(0.84 0.014 58 / 0.74);
-  --smoke-2: oklch(0.9 0.018 52 / 0.74);
-  --smoke-3: oklch(0.97 0.01 70 / 0.74);
-  --smoke-4: oklch(0.87 0.015 48 / 0.74);
-  --bounce: oklch(1 0.008 80);
+  --smoke-1: var(--color-smoke-1);
+  --smoke-2: var(--color-smoke-2);
+  --smoke-3: var(--color-smoke-3);
+  --smoke-4: var(--color-smoke-4);
+  --bounce: var(--color-bounce);
 }
 
 .blog-vessel {

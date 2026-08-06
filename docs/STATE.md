@@ -8334,6 +8334,85 @@ cost one `git show`.
 
 ralph 2463 → 2473 across 60 suites.
 
+## THE 22 ORPHANS COME INTO THE NAMESPACE (#332)
+
+`22 public custom properties holding a literal colour → 0.` Built CSS authored literals **110 → 68**.
+
+### THE THREE-WAY SPLIT, AND COLUMN 4 CAME OUT EMPTY
+
+**11 held a token's value LONGHAND** — `--shadow-*` and `--glass-shadow*` were `ink-950`, `--glass-fill*`
+was `cream-50`, `--glow-on-tan` was `accent-500`, three were pure white. Not rulings; duplicates.
+
+**⚠ COLUMN 4 — LONGHAND *AND* STRUCTURALLY EXCLUDED — IS EMPTY, AND THE REASON IS A RULE.** The
+glass was the candidate: `cream-50` longhand, and Step 2 measured it structurally light-ground at
+1.15 on a dark palette. But that palette is one the promise already forbids, **so an exclusion here
+would duplicate a constraint already in force — a second mechanism for one problem.** The glass
+takes the token; the light-ground ruling is what protects it.
+
+> **⚠ AND THAT DEPENDENCY IS NOW LOAD-BEARING, SO IT IS WRITTEN AT THE GLASS TOKENS.** If a palette
+> is ever allowed below the ground floor the glass breaks at 1.15, and it will read as a theme bug
+> rather than as a promise being broken.
+
+**6 SNAPPED ON THE COMPOSITE, NOT THE DECLARATION**, and that measurement is the finding.
+
+| alpha | declaration Δ | composite Δ |
+|---|---|---|
+| .11–.14 | 8 | **1** |
+| .50–.55 | 6–8 | **4–5** |
+| .74 | 7–10 | **5–7** |
+| 1.0 | 10 | **10** |
+
+**THE COMPOSITE TRACKS THE ALPHA EXACTLY.** That is a mechanism rather than eight readings — any
+future near can be judged from its alpha before it is measured.
+
+**⚠ AND IT RETROACTIVELY JUSTIFIES THE Δ<5 RULE RATHER THAN OVERTURNING IT.** Step 1's literals were
+OPAQUE, so declaration and composite were the same number and the threshold measured the right
+thing. Here they diverge by up to 7. **The threshold was never wrong — it was being applied to a
+different quantity**, which is this session's most repeated error, appearing this time inside the
+instruction to apply it.
+
+### THE SMOKE RAMP — A NEW KIND OF ENTRY IN THE NAMESPACE
+
+`--color-smoke-1..4`. Every other `--color-*` is a colour that stands alone. **These are related to
+EACH OTHER rather than to the ladder**, so a future palette retunes all four together or none.
+Naming two and snapping two would have broken the evenness that makes it a gradient — which is also
+why `smoke-2` and `smoke-3`, at composite 7 and 5, were NOT snapped to `canvas` and `cream-50`.
+
+They are not new tokens. They existed as `--smoke-1..4`; this brings them into the namespace.
+
+**`--bounce` WAS IN THE WRONG GROUP, AND IT WAS MY GROUPING.** I folded a solid into a set defined as
+"alpha washes at 11% to 58%". At opacity 1 the composite IS the declaration, so the wash reasoning
+never reached it. Classified on its own terms as a colour the system had no word for.
+
+### ⚠ FOUR MEASUREMENT DEFECTS IN ONE PR, ALL MINE
+
+**1 · The first classification compared SPELLINGS** — `14%` against `14.0%` — and reported ONE
+longhand duplicate where there were ELEVEN. **A census whose premise is "enumerate by value, not by
+name" was name-based one layer in.**
+
+**2 · A3 WAS VACUOUS AND MUTATION FOUND IT.** `customProps` stored whitespace-stripped literals, so
+A3's parser — which requires whitespace BETWEEN components — matched none of them. It compared a
+populated set against an empty one and passed on every mutation. **The assertion was correct and its
+input had been destroyed upstream by a normalisation nobody re-read.**
+
+**3 · A6's FIRST GUARD PUNISHED THE FIX.** It read "more than 10 parse", true while the duplicates
+existed and false once they were repaired. **A guard that fails when the defect is fixed is the
+wrong guard**; it now asserts the mechanism — nothing is dropped between reading a colour and
+parsing it — which holds at any population size including zero.
+
+**4 · ⚠ THE SWEEP CROSSED THE FROZEN BOUNDARY.** A blanket `ink-950` conversion caught three
+`--studio-lift-*` tokens, which would have made the studio's shadows follow the public theme — the
+exact freeze violation #323 exists to prevent. `studio-ink` C10 caught it. **A mechanical change
+applied one level wider than its subject, for the third time this session.**
+
+### AND A3 EARNED ITS KEEP THE MOMENT IT WORKED
+
+Fixed, it immediately found **four more longhand duplicates** in shadow layers my substitution list
+had missed. The witness became the category: A3 no longer pins `--glass-fill`, it asserts that NO
+custom property holds a colour a token already names.
+
+ralph 2473 → 2475 across 60 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

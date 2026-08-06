@@ -181,7 +181,12 @@ console.log(`         ${fallbacks} compiler @supports fallbacks EXCLUDED — sup
 const customProps = new Map();
 for (const m of globals.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/g)) {
   if (m[1].startsWith("--color-")) continue;
-  const lits = (m[2].match(COLOUR) ?? []).map((c) => c.replace(/\s+/g, ""));
+  /* ⚠ RAW, NOT WHITESPACE-STRIPPED. The first version stored `c.replace(/\s+/g,"")`, which turned
+     `oklch(98.5% 0.012 80 / .72)` into a string A3's parser — which requires whitespace BETWEEN the
+     components — could never match. A3 then compared an empty set to an empty set and passed on
+     every mutation. Found by mutation, and it is the vacuous shape one more time: the assertion was
+     correct, its input had been destroyed upstream by a normalisation nobody re-read. */
+  const lits = m[2].match(COLOUR) ?? [];
   if (lits.length) customProps.set(m[1], lits);
 }
 const publicProps = [...customProps.keys()].filter((n) => !n.startsWith("--studio-"));
@@ -190,12 +195,55 @@ console.log(`         ${customProps.size} custom properties hold a literal colou
 t("A2 the census finds a real population — it is not silently matching nothing", cssLeaks.size > 20, true);
 t("A2b ⚠ AND IT SEPARATES COMPILER OUTPUT FROM AUTHORED COLOUR — a zero here means the brace matcher stopped seeing nesting again",
   fallbacks > 50, true);
-t("A3 ⚠ AND IT SEES `--glass-fill`, THE CASE NO NAME-BASED GATE CAN — a token's own value longhand",
-  customProps.has("--glass-fill"), true);
-/* The proof that A3 is the category and not a coincidence. */
-const glass = (customProps.get("--glass-fill") ?? [])[0] ?? "";
-t("A4 …and its value IS cream-50's, so the leak is a spelling rather than a different colour",
-  glass.startsWith("oklch(98.5%0.01280"), true);
+/* ⚠ THE WITNESS BECAME THE CATEGORY, BECAUSE #332 FIXED THE THING A3 POINTED AT. A3 pinned
+ * `--glass-fill` holding `--color-cream-50`'s value longhand. That property now derives from the
+ * token, so pinning it would assert a defect that no longer exists — and deleting the row would
+ * lose the only check for the SHAPE. So the assertion generalises: NO custom property outside the
+ * token namespace may hold a colour a token already names.
+ *
+ * ⚠ COMPARED NUMERICALLY, NOT AS STRINGS, AND THAT IS NOT A DETAIL. The first classification of
+ * these 22 compared spellings — `14%` against `14.0%` — and reported ONE longhand duplicate where
+ * there were ELEVEN. A census whose premise is "enumerate by value, not by name" was name-based one
+ * layer in. */
+const okl = (c) => {
+  const m = /oklch\(\s*([\d.]+)%?\s+([\d.]+)\s+([\d.]+)/.exec(c);
+  if (!m) return null;
+  const L = Number(m[1]);
+  return `${(L > 1.5 ? L / 100 : L).toFixed(4)}|${Number(m[2])}|${Number(m[3])}`;
+};
+const themeSrc = globals.slice(globals.indexOf("@theme"), globals.indexOf('[data-theme="harbour"]'));
+const tokenByValue = new Map();
+for (const m of themeSrc.matchAll(/--color-([a-z0-9-]+):\s*(oklch\([^)]*\))/g)) {
+  const k = okl(m[2]);
+  if (k && !tokenByValue.has(k)) tokenByValue.set(k, m[1]);
+}
+const longhand = [];
+for (const [name, lits] of customProps) {
+  if (name.startsWith("--studio-")) continue;
+  for (const c of lits) {
+    const k = okl(c);
+    if (k && tokenByValue.has(k)) longhand.push(`${name} = --color-${tokenByValue.get(k)}`);
+  }
+}
+t("A3 ⚠ NO CUSTOM PROPERTY HOLDS A COLOUR A TOKEN ALREADY NAMES — named, not counted",
+  [...new Set(longhand)].sort(), []);
+t("A4 …and the comparison is NUMERIC, so `14%` and `14.0%` cannot read as different colours",
+  okl("oklch(14% 0.018 60)") === okl("oklch(14.0% 0.018 60 / 0.06)"), true);
+t("A5 the token index is populated — a zero here would make A3 pass by comparing against nothing",
+  tokenByValue.size > 15, true);
+/* ⚠ AND THE OTHER SIDE OF THE COMPARISON, WHICH IS THE SIDE THAT WAS EMPTY. Asserting only the
+ * token index is what let the vacuous version through — A3 compared a populated set against
+ * nothing and passed on every mutation.
+ *
+ * ⚠ BUT A POPULATION THRESHOLD IS THE WRONG GUARD, AND ITS FIRST VERSION PROVED THAT WITHIN THE
+ * SAME PR. It read "more than 10 parse", which was true while the duplicates existed and FALSE
+ * once they were fixed — a guard that fails when the defect is repaired is a guard that punishes
+ * the fix. So it asserts the MECHANISM instead: every `oklch()` a custom property holds must
+ * survive into a parseable key. That holds at any population size, including zero, and it is the
+ * actual thing the whitespace normalisation broke. */
+const oklLits = [...customProps.values()].flat().filter((c) => /^oklch\(/.test(c));
+t("A6 …and nothing is silently dropped between reading a colour and parsing it",
+  oklLits.filter((c) => !okl(c)), []);
 
 console.log("\nB · SVG presentation attributes — never in a stylesheet, never in a className");
 
