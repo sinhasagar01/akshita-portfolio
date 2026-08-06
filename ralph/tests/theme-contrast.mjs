@@ -32,6 +32,16 @@
 //       sharpest case: it has NO public counterpart at all, which is why the pairing-based row
 //       could not see it and why 6a had to find it by census.
 //   5 · SIX PUBLIC TOKENS WITH ZERO PUBLIC CONSUMERS — measured, not assumed. Listed by name below.
+//   6 · ⚠ THE CURSOR, THE THREE WATERMARKS AND `.ab-tint` — signature colours that COULD have been
+//       tokens and deliberately are not. #327 named two unnamed colours and refused to name these,
+//       because they belong to elements that do not vary across the four themes: a watermark is
+//       closer to artwork than interface and the cursor is the same category as the glass nav, a
+//       thing that IS the design rather than a skin on it. `.ab-tint` was MEASURED before it was
+//       decided — `mix-blend-mode: soft-light` at opacity .5 over a PHOTOGRAPH, so it is a tonal
+//       wash rather than a scrim, and what it composites over is artwork rather than the theme's
+//       ground. THE LIST GROWS BY FOUR RATHER THAN THE CODE SHRINKING BY FOUR, which is the promise
+//       doing work rather than debt being deferred. A cool theme keeps a warm cursor and warm
+//       watermarks, deliberately.
 //
 // ⚠ AND A HEADER IS NOT ENOUGH, WHICH IS WHY PART E EXISTS. The vocabulary blind spot has now
 // appeared in THREE gates: `studio-tokens` C2 matched numbered scales only and missed `bg-canvas`;
@@ -42,7 +52,7 @@
 // written to prevent it.
 import { readFileSync } from "node:fs";
 import {
-  report, parseOklch, contrastRatio, oklchToRgb,
+  report, parseOklch, parseColor, contrastRatio, oklchToRgb,
 } from "../../lib/theme-contrast.ts";
 
 let pass = 0, fail = 0;
@@ -106,7 +116,7 @@ const resolve = (name, depth = 0) => {
 };
 const PUBLIC = Object.keys(rawDecl).filter((k) => !k.startsWith("studio-"));
 const CREAM = {};
-for (const k of PUBLIC) { const v = resolve(k); if (v && /^oklch\(/.test(v)) CREAM[k] = v; }
+for (const k of PUBLIC) { const v = resolve(k); if (v && parseColor(v)) CREAM[k] = v; }
 
 /* ---- THE USAGE MAP. Which colour sits on which ground in which role. The palette varies per
  * theme; THIS DOES NOT. Every foreground below was confirmed to have public consumers by count
@@ -122,6 +132,9 @@ const USAGE = [
   ...TEXT("text-subtle", GROUNDS), ...TEXT("accent-600", ["canvas", "cream-50", "cream-100"]),
   ...TEXT("on-dark", ["band-dark"]), ...TEXT("on-dark-muted", ["band-dark"]),
   ...TEXT("on-dark-quote", ["band-dark"]),
+  /* Long-form prose. Named in #327 — it is 9.41 on cream-50, between text-primary and
+     text-secondary, which is what made it a role rather than a spelling. */
+  ...TEXT("text-body", ["canvas", "cream-50"]),
 
   /* ⚠ THE ROW THAT PROVES THE USAGE MAP IS LOAD-BEARING. accent-500's cream ladder is
      4.7 / 4.48 / 4.07 / 3.43, so it clears the text floor on cream-50 ALONE and misses cream-100
@@ -267,6 +280,12 @@ const BOUNDARY = {
      and the palette extraction drops it. It is a HAIRLINE on the dark band, never a foreground
      carrying text, and its base IS computed. Listed rather than computed — but listed is the
      point: before E1 existed it was neither, which is the exact shape of hazard 30. */
+  /* ⚠ THE SECOND TIME THE MISSING HAIRLINE FLOOR HAS DECIDED SOMETHING. `--color-rule` is drawn at
+     five alphas between .10 and .30 and never carries text, and this site states no contrast floor
+     for a hairline — which is also why no public alpha row exists and why `over()` is exercised
+     only by `studio-ink-contrast`. Listed rather than computed, and the gap is now worth naming:
+     a stated hairline floor would move this row and that one out of the boundary in one go. */
+  "rule": "hairline — five alphas, never text, and this design states no hairline floor",
   "on-dark-line": "alpha derivative — a hairline, not a foreground; its base on-dark is computed",
 };
 
@@ -290,7 +309,7 @@ t("E4 the public palette was found at all — a zero denominator is not a pass",
 t("E5 every public token is parseable, aliased, or listed — no colour leaves silently",
   PUBLIC.filter((n) => !(n in CREAM) && !aliasOf(n) && !(n in BOUNDARY)), []);
 t("E6 …and every palette entry actually parsed, so no row reads a broken value as a colour",
-  Object.keys(CREAM).filter((n) => parseOklch(CREAM[n]) === null), []);
+  Object.keys(CREAM).filter((n) => parseColor(CREAM[n]) === null), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

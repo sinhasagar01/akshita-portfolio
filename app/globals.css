@@ -69,6 +69,41 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-on-dark-quote: oklch(81.5% 0.063 49); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
   --color-on-dark-line: color-mix(in oklch, var(--color-on-dark) 16%, transparent);
 
+  /* ============================================================
+     TWO COLOURS THE DESIGN HAS ALWAYS USED AND THE SYSTEM NEVER HAD A WORD FOR.
+
+     ⚠ THEY ARE NOT LITERALS THAT SHOULD HAVE BEEN TOKENS. That was the diagnosis and it was wrong:
+     every survivor of the harbour render sits Δ20 to Δ35 from its nearest existing token, so under
+     the Step 1 ruling (snap under 5, leave over 10) EVERY ONE would stay a literal. Converting
+     `#4a4239` to `ink-600` would have lightened body copy from 9.41 to 7.42 on cream-50 and shipped
+     a visible design change as a cleanup.
+
+     THE DEFECT IS THAT THEY HAVE NO NAME, so they are declared HERE AT THEIR CURRENT VALUES. Zero
+     pixel change today, themeable tomorrow. Worth doing even if the theme project were cancelled,
+     because a colour the token layer cannot name is a place the design system does not reach.
+  ============================================================ */
+
+  /* Long-form prose in About and Contact. Sits BETWEEN text-primary and text-secondary — 9.41 on
+     cream-50 against ink-950's 19.04 and ink-600's 7.42 — which is what makes it a role rather
+     than a spelling: reading text, darker than supporting copy and lighter than a heading.
+
+     ⚠ AND THE TEXT VOCABULARY ALREADY HAS A DUPLICATE, WHICH THIS IS NOT. `--color-text-muted` and
+     `--color-text-subtle` are byte-identical in BOTH themes — two names for one value, the
+     two-spellings defect sitting in the token layer. That is a deletion of its own and is recorded
+     rather than fixed here, because merging two names is a change to 16+ call sites and this PR
+     is byte-identical by construction. */
+  --color-text-body: #4a4239;
+
+  /* The warm hairline. Six public sites draw it at five different alphas — About, Contact x3,
+     SiteFooter, FooterClock — and it is 35 from `ink-600`, the nearest token, so it was never a
+     misspelling of one.
+
+     ⚠ THE NAME WAS CHECKED AGAINST `--blog-rule`, WHICH ALREADY EXISTS. Different prefix and
+     different scope, so no collision — but `--blog-rule` is `color-mix(ink-950 8%)`, THEMEABLE,
+     while these six were literals. The blog solved this and the public sections did not, which is
+     the whole finding in one comparison. */
+  --color-rule: rgb(120, 90, 60);
+
   /* Status — muted warm sage for the studio "Live" pill (only green in the set) */
   --color-success-50:  oklch(94.5% 0.030 145);
   --color-success-700: oklch(46.0% 0.075 145);
@@ -384,6 +419,8 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
   --color-text-muted:  oklch(50.0% 0.018 233);
   --color-text-subtle: oklch(50.0% 0.018 233);
+  --color-text-body:   oklch(37.5% 0.017 233);
+  --color-rule:        oklch(48.5% 0.030 233);
 
   --color-band-dark:     oklch(17.5% 0.024 233);
   --color-on-dark:       oklch(95.5% 0.012 233);

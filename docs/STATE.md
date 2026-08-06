@@ -7930,6 +7930,88 @@ inventory failed on arrival, which is a derived-and-compared set doing its job.
 
 ralph 2451 → 2460 across 59 suites. Lint, tsc and the build clean.
 
+## NAMING THE UNNAMED COLOURS (#327)
+
+The harbour render found 14 warm colours that no theme can move. **The diagnosis was wrong twice
+before the fix was right, and both times the wrong diagnosis was mine.**
+
+### ⚠ THE REFRAMING, WHICH IS THE FINDING
+
+I called `#4a4239` "a literal that agrees with its token by coincidence". **Thirteen of fourteen
+agree with NOTHING**, at Δ20 to Δ35 from their nearest existing token.
+
+| survivor | nearest token | Δ |
+|---|---|---|
+| cursor + three watermarks `181,97,60` | accent-500 | 24 |
+| `.ab-tint` `156,90,58` | accent-500 | 32 |
+| body copy `#4a4239` | ink-600 | 27 |
+| five hairlines `120,90,60` | ink-600 | 35 |
+
+> **THE DESIGN USES COLOURS THE DESIGN SYSTEM HAS NO WORDS FOR.** That is a different defect from
+> "literals that should have been tokens", and it has a different fix: NAME them at their current
+> values, do not convert them.
+
+**⚠ AND THE CONVERSION I PROPOSED WOULD HAVE SHIPPED A VISIBLE CHANGE AS A CLEANUP.** `#4a4239`
+computes 9.41 on cream-50; `ink-600` computes 7.42. Body copy in About and Contact would have
+lightened. **Step 1's own NEAR ruling — snap under 5, leave over 10 — would have left every one of
+the fourteen alone**, and I proposed converting things at Δ27 against a threshold I had set.
+
+### WHAT WAS NAMED, AND WHAT DELIBERATELY WAS NOT
+
+**TWO TOKENS, NOT THREE.** `--color-mark` was proposed for the `181,97,60` family and **covers zero
+sites once the cursor and watermarks are excluded** — all twelve of its uses are one or the other.
+A name for nothing is not a name.
+
+- `--color-text-body: #4a4239` — long-form prose in About and Contact. A ROLE rather than a
+  spelling: 9.41 on cream-50, between text-primary's 19.04 and text-secondary's 7.42.
+- `--color-rule: rgb(120, 90, 60)` — six public sites at five alphas.
+
+**⚠ AND THE VOCABULARY CHECK FOUND A DUPLICATE THAT WAS ALREADY THERE.** `--color-text-muted` and
+`--color-text-subtle` are BYTE-IDENTICAL, in both themes — two names for one value, the
+two-spellings defect living inside the token layer. Recorded rather than fixed, because merging
+them touches 16+ call sites and this PR is byte-identical by construction.
+
+**THE NAME WAS CHECKED AGAINST `--blog-rule`, WHICH ALREADY EXISTS.** Different prefix, different
+scope, no collision — and the comparison is the finding: `--blog-rule` is
+`color-mix(ink-950 8%)`, THEMEABLE, while the six public hairlines were literals. **The blog solved
+this and the public sections did not.**
+
+### ⚠ THE BOUNDARY LIST GREW BY FOUR RATHER THAN THE CODE SHRINKING BY FOUR
+
+The cursor, the three watermarks and `.ab-tint` COULD have been tokens and deliberately are not.
+They belong to elements that do not vary across the four themes — a watermark is closer to artwork
+than interface, and the cursor is the same category as the glass nav, a thing that IS the design
+rather than a skin on it.
+
+**`.ab-tint` WAS MEASURED BEFORE IT WAS DECIDED**, per the scrim-versus-pane rule:
+`mix-blend-mode: soft-light` at opacity .5 **over a PHOTOGRAPH**. A tonal wash rather than a scrim,
+and what it composites over is artwork rather than the theme's ground. **A cool theme keeps a warm
+cursor and warm watermarks, deliberately.**
+
+### THE PROOF, AND WHY IT IS NOT THE BYTE-IDENTICAL DOM GATE
+
+Converting an inline `style="color:#4a4239"` to `var(--color-text-body)` CHANGES A STYLE ATTRIBUTE,
+which is exactly the boundary #317 drew. So the proof is RASTERISED instead — canvas plus
+`getImageData`, white/black sanity pair asserted first, every converted value compared as BYTES
+because `color(srgb …)` and `rgba(…)` are different serialisations of the same colour and a string
+comparison reports a false difference.
+
+| site | before | after |
+|---|---|---|
+| rule 16% | `[118,87,62,41]` | identical |
+| rule 25% | `[120,92,60,64]` | identical |
+| rule 26% | `[120,89,62,66]` | identical |
+| rule 10% | `[118,88,59,26]` | identical |
+| rule 30% | `[119,89,60,77]` | identical |
+| text-body | `[74,66,57,255]` | identical |
+
+**AND THE CONTRAST LEAF LEARNED TO READ HEX AND `rgb()` BECAUSE OF THIS.** Re-expressing `#4a4239`
+as oklch lands on `[71,64,56]` against a target of `[74,66,57]` — close, and not identical. **A
+token that shifts a colour while claiming to name it is the visible-change-as-cleanup this PR
+exists to avoid**, so the declaration keeps the literal and `parseColor` learned the spelling.
+
+ralph 2460 → 2462. Lint, tsc and the build clean.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

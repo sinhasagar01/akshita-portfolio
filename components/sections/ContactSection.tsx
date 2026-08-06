@@ -131,7 +131,7 @@ function StepContent({
           value={value}
           onChange={e => onChangeAnswer(step.field, e.target.value)}
           className={`${INPUT_BASE} resize-none min-h-[46px]`}
-          style={{ borderBottom: '1.5px solid rgba(120,90,60,0.26)' }}
+          style={{ borderBottom: '1.5px solid color-mix(in srgb, var(--color-rule) 26%, transparent)' }}
         />
       ) : (
         <input
@@ -143,7 +143,7 @@ function StepContent({
           onChange={e => onChangeAnswer(step.field, e.target.value)}
           onKeyDown={handleKeyDown}
           className={INPUT_BASE}
-          style={{ borderBottom: '1.5px solid rgba(120,90,60,0.26)' }}
+          style={{ borderBottom: '1.5px solid color-mix(in srgb, var(--color-rule) 26%, transparent)' }}
         />
       )}
 
@@ -227,7 +227,7 @@ function SuccessScreen() {
       >
         Thanks, talk soon.
       </h3>
-      <p className="font-body text-[14px] leading-[1.6] max-w-[34ch]" style={{ color: '#4a4239' }}>
+      <p className="font-body text-[14px] leading-[1.6] max-w-[34ch]" style={{ color: 'var(--color-text-body)' }}>
         I will get back to you within a day. Meanwhile, my work is just above.
       </p>
     </div>
@@ -477,7 +477,7 @@ export default function ContactSection({ settings }: Props) {
               aria-valuemax={TOTAL}
               aria-label="Form progress"
               className="absolute left-0 top-0 w-full"
-              style={{ height: 3, background: 'rgba(120,90,60,0.10)', zIndex: 2 }}
+              style={{ height: 3, background: 'color-mix(in srgb, var(--color-rule) 10%, transparent)', zIndex: 2 }}
             >
               <div
                 className="h-full transition-[width] duration-500 ease-[cubic-bezier(.22,1,.36,1)]"

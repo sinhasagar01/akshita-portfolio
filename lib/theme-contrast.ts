@@ -78,7 +78,28 @@ export function parseOklch(value: string): Rgb | null {
   return m ? oklchToRgb(Number(m[1]) / 100, Number(m[2]), Number(m[3])) : null;
 }
 
-/** A theme's colours: token name (without the `--color-` prefix) to an `oklch(...)` literal. */
+/**
+ * Parse any colour spelling the token layer actually uses. Returns null for anything unrecognised,
+ * so an unparseable entry surfaces as an uncomputable ROW rather than as a silent zero.
+ *
+ * ⚠ HEX AND `rgb()` ARE HERE BECAUSE A BYTE-IDENTICAL RENAME REQUIRES THEM. Naming a colour the
+ * design has always drawn means declaring it AT ITS CURRENT VALUE, and re-expressing `#4a4239` as
+ * oklch lands on [71,64,56] against a target of [74,66,57] — close, and not identical. A token that
+ * shifts a colour while claiming to name it is the visible-change-as-cleanup this PR exists to
+ * avoid, so the declaration keeps the literal and the parser learns to read it.
+ */
+export function parseColor(value: string): Rgb | null {
+  const v = value.trim();
+  const oklch = parseOklch(v);
+  if (oklch) return oklch;
+  const hex = /^#([0-9a-f]{6})$/i.exec(v);
+  if (hex) return [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16)) as Rgb;
+  const rgb = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(v);
+  if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])] as Rgb;
+  return null;
+}
+
+/** A theme's colours: token name (without the `--color-` prefix) to a colour literal. */
 export type Palette = Record<string, string>;
 
 export type FloorKind = "external" | "internal";
@@ -124,7 +145,7 @@ export type Report = {
 export function report(palette: Palette, usage: readonly UsageRow[]): Report {
   const rgb = (name: string): Rgb | null => {
     const v = palette[name];
-    return v ? parseOklch(v) : null;
+    return v ? parseColor(v) : null;
   };
 
   const rows: RowResult[] = usage.map((row) => {
