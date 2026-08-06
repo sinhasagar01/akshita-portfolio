@@ -531,6 +531,8 @@ function adaptBlock(raw: unknown, at: string, ctx: AdaptCtx): Block {
           const item: FigureItem = {
             image: adaptImgSpec(o2.image, `${at}.items[${i}].image`, ctx),
           };
+          const illustration = opt(o2.illustration);
+          if (illustration !== undefined) item.illustration = illustration;
           const title = opt(o2.title);
           if (title !== undefined) item.title = title;
           if (opt(o2.body) !== undefined) item.body = rich(o2.body);

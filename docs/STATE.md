@@ -9908,6 +9908,98 @@ Declared in both palettes in the same commit, which is what section T exists to 
 uncomputable-rows fixture grew by one, **which is the fixture tracking its subject rather than needing
 relaxing**.
 
+## THE EIGHT RASTERS BECOME INLINE SVG, AND THE RULING NEARLY PRODUCED A NO-OP (#365)
+
+Eight `challenge-*` and `metric-*` webps on Fosfor Data Profiling carried the site's own accent baked
+into pixels — the FIFTH SHAPE #331 named. Sampled, the dominant chromatic bucket in all eight sits
+**18 to 28 from cream's accent-500** (quantised to 16, so that is the accent). The control is what
+settles it: real Fosfor screenshots in the same folder are **blue `rgb(0,128,256)`, 285 away**.
+
+**⚠ THIS WAS NEVER A CENSUS FAILURE.** The census reads built CSS, SVG attributes and runtime JS. A
+webp is none of those, so the eight were outside every population BY CONSTRUCTION. The owner found
+them by looking at the page. **That is the render protocol doing what four instruments could not.**
+
+**⚠ AND "REBUILD AS SVG" HAS TWO READINGS, ONLY ONE OF WHICH THEMES.** Verified by rasterisation
+rather than assumed: a rect filled `var(--color-accent-500, magenta)` came back **MAGENTA** through
+an `<img src>` and came back the live accent when the same markup was inlined. **Eight `.svg` files
+handed to `figureGrid` would have looked right on cream and stayed warm on harbour — the identical
+defect in a different file format, shipped as its own fix.** The ruling was right about the direction
+and underspecified about the mechanism, and a build to its letter would have produced eight new
+unthemeable files and a PR claiming they were themed.
+
+**THE NARROW SEAM.** `figureGrid` is used by ONE study. A new optional `illustration` field ADDS a
+surface; the image path is untouched and stays as the fallback. `omitEmpty` is what makes it additive
+— its THIRD consumer after `screen` and `variant` — and `C3` proves the other three studies never
+gain the key rather than asserting it.
+
+**⚠ THE MEASUREMENT HARNESS WAS WRONG THREE TIMES AND EACH TIME PRODUCED EIGHT CREDIBLE NUMBERS.**
+
+| harness defect | what it reported |
+|---|---|
+| page was on harbour, rasters are terracotta | 10–78% mismatch |
+| threshold 60 scored the intended 67 accent shift as failure | 5–31% |
+| **probe span detached, so every `fill`/`stroke` resolved to `""`** | strokeless shapes, two false "banded errors" |
+| corrected | **0.96–6.78%, every one edge-distributed** |
+
+**That is CLAUDE.md's wrong-unit rule arriving in the instrument written the same day it was
+recorded.** Each version emitted eight file names and eight percentages, indistinguishable from
+truth. The fix that mattered was a **guard that throws when paint resolves empty**, rather than a
+better threshold.
+
+**FIDELITY IS SHAPE, AND COLOUR SHIFT IS REPORTED SEPARATELY**, because the recolour is the point.
+Shape mismatch runs 0.96% to 6.78% with no banding; mean colour shift over shared pixels runs 19.5 to
+56, which is the accent and the two creams moving to tokens.
+
+**THE SHAPE CLASSIFIER EARNED ITS KEEP TWICE** — once in the trial (a seam arc bulging BELOW its
+endpoints, 27px low, showing as two solid bands) and once after (round `stroke-linecap` pushing end
+bars 4.5px past the measured box on two files). **4.35% of edge outline and 4.35% in two bands are
+the same number and different outcomes.**
+
+`case-study-illustrations` holds the result: no colour literal, inline JSX only, ids resolve both
+ways, fallback rasters still on disk, and the additive field proven. Four mutations, all killed. It
+also states what it CANNOT cover — fidelity needs a browser, and its owner is a hand re-run of the
+shape diff, named because a deferral without an owner is a deferral to nobody.
+
+## THREE OWNER FIXES, AND ONE OF THEM WAS A PALETTE THAT COULD NOT BE SCOPED (#365)
+
+**1 · THE RESUME GLOW WAS CREAM'S ACCENT SPELLED AS A LITERAL.** `.nav-cta` carried
+`oklch(56% 0.14 42 / 0.7)` and `/ 0.8` in its box-shadow — byte-identical to cream's `accent-500`, so
+on cream nothing looked wrong and on harbour the button went teal while its glow stayed terracotta.
+Now `color-mix` over the token, which is a zero-shift change on cream by construction.
+
+**2 · THE TREND ARROW DREW A "7".** The first rebuild traced the raster's tip literally; two strokes
+that meet but are not symmetric about the line do not read as an arrow. Rebuilt on the line's own
+bearing — barbs at 26 degrees either side of -14.3 degrees, equal length. **This is the one place the
+rebuild deliberately does not reproduce the original**, and the comment says so, because a shape diff
+would otherwise report it as a regression forever.
+
+**3 · ⚠ THE STUDIO SWATCHES SHOWED BOTH PALETTES AS HARBOUR, AND THE CAUSE WAS A REASONED ABSENCE.**
+
+`globals.css` argued, correctly, that cream needed no `[data-theme="cream"]` block: `@theme` holds
+cream, so cream IS the fallback and a block would be a second copy this repo would then have to keep
+in step. **That covered the DOCUMENT. It did not cover a SCOPED override.**
+
+The studio switcher previews palettes by putting `data-theme` on a SPAN. With harbour published,
+`data-theme="cream"` matched no rule at all, so the cream row inherited harbour. Measured rather than
+reasoned: under a harbour root, a `data-theme="cream"` probe resolved `accent-500` to
+`oklch(0.52 0.12 168)` — harbour's value.
+
+**⚠ AND THE VERIFICATION TWIN WAS INHERITING TOO, WHICH MADE ITS CONTROL VACUOUS.** `cream-verify`
+has no block either, so "byte-identical to the default" was holding because **both sides were reading
+the ambient theme**. Under harbour it was byte-identical to HARBOUR. **A control that agrees with
+whatever surrounds it is not a control** — and it had passed every run since it was built.
+
+**THE FIX ANSWERS THE DRIFT OBJECTION RATHER THAN IGNORING IT.** Cream now has a scoped block
+carrying the same 35 tokens harbour overrides, generated from `@theme` rather than transcribed, and
+`cream-verify` rides the same selector list so the twin is identical **by being one declaration**
+rather than by two copies agreeing. `theme` section G asserts every theme declares the same token SET
+(one missing token silently inherits the ancestor's) and that the scoped copy matches `@theme`
+exactly. **A copy that cannot silently disagree is not the copy the objection was about.**
+
+**THE GENERAL FORM. "X is the default" and "X is reachable" are different claims, and a fallback
+satisfies only the first.** Anything that scopes a theme below the root needs a real selector,
+whatever the root happens to be.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -21,9 +21,15 @@
 import type { ComponentType } from "react";
 import type { SectionBlockKind, RawValue } from "@/lib/case-studies/sections-raw";
 import { ListboxField } from "../ListboxField";
+import { ILLUSTRATIONS } from "@/components/case-study/illustrations";
 import { KeyRow, TextField, TextArea, CheckField, NumberField, BlockImageField, ItemRows, TabGroup, DisclosureGroup, inputCls, inputErrorCls, labelCls, groupLabelCls , FieldKey} from "./fields";
 import { isHttpUrl } from "@/lib/case-studies/adapter";
 import type { PreviewUpload } from "@/lib/studio/preview-map";
+
+/* "" is a real choice ("None"), and it is omit-when-empty in the sanitizer exactly like `frame`
+ * below — so a figure that never picks an illustration writes no key and the four studies that
+ * do not use one stay byte-identical. */
+const ILLUSTRATION_OPTIONS = ["", ...Object.keys(ILLUSTRATIONS)] as const;
 
 // CS-6a — the per-image frame picker options. "" is a real choice ("Default"),
 // omit-when-empty in the sanitizer so it falls back to the template default then
@@ -584,7 +590,7 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
     <ItemRows
       items={value.items}
       onChange={(items, upload) => onChange({ ...value, items }, upload)}
-      empty={() => ({ image: emptyImg(), title: "", body: "" })}
+      empty={() => ({ image: emptyImg(), illustration: "", title: "", body: "" })}
       addLabel="Add figure"
       itemNoun="Figure"
       rowLabel={(it, i) => it.title.trim() || `Figure ${i + 1}`}
@@ -595,6 +601,21 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
             <TextField label="Title (optional)" value={item.title} onChange={(title) => set({ ...item, title })} onBlur={onBlur} inputRef={focusRef} />
             <TextArea label="Body (optional) — **bold** for emphasis" value={item.body} onChange={(body) => set({ ...item, body })} onBlur={onBlur} rows={2} />
           </TabGroup>
+          {/* ⚠ THE REAL LIST LIVES HERE, NOT IN `keystatic.config.ts`, because the ids are defined in
+              component code and that config is schema-only. Picking one draws an inline SVG that
+              follows the palette; the image below stays as the fallback for an id that stops
+              resolving. */}
+          <ListboxField
+            label="Inline illustration (optional)"
+            hint="Themed, and drawn instead of the image below."
+            value={(ILLUSTRATION_OPTIONS as readonly string[]).includes(item.illustration)
+              ? (item.illustration as (typeof ILLUSTRATION_OPTIONS)[number])
+              : ""}
+            options={ILLUSTRATION_OPTIONS}
+            optionLabel={(v) => (v === "" ? "None — use the image" : v)}
+            onChange={(illustration) => set({ ...item, illustration })}
+            onBlur={onBlur}
+          />
           <ImgSpecFields value={item.image} set={(image, upload) => set({ ...item, image }, upload)} onBlur={onBlur} slug={slug} collection={collection} />
         </>
       )}

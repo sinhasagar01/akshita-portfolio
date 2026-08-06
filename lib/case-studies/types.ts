@@ -91,7 +91,17 @@ export type Principle = { index: string; title: string; body: Rich };
 /** One cell of a `figureGrid`: a plain (frameless) illustration or diagram with an
  *  optional caption title and body. Used for concept diagrams and card grids that
  *  are not product-in-a-device screenshots. */
-export type FigureItem = { image: ImgSpec; title?: string; body?: Rich };
+export type FigureItem = {
+  image: ImgSpec;
+  title?: string;
+  body?: Rich;
+  /** ⚠ AN INLINE ILLUSTRATION COMPONENT, WHICH IS THE ONLY FORM THAT THEMES. When set and known to
+   *  `ILLUSTRATIONS`, it renders INSTEAD of `image` — the raster stays in the content as the
+   *  fallback for an id that stops resolving. An `.svg` in `image.src` would NOT have worked: an
+   *  SVG behind `<img src>` is a separate document and cannot read the page's custom properties,
+   *  verified by rasterisation. See `components/case-study/illustrations`. */
+  illustration?: string;
+};
 
 /** A screen asset in an auto-scroller, carrying its INTRINSIC height in 1030-space.
  *

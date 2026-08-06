@@ -505,6 +505,10 @@ export default config({
                     items: fields.array(
                       fields.object({
                         image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
+                        // An inline illustration id. Free text here rather than a select because
+                        // the ids live in component code and this config is schema-only; the
+                        // studio form offers the real list and a gate asserts they agree.
+                        illustration: fields.text({ label: "Inline illustration id (optional)" }),
                         title: fields.text({ label: "Title (optional)" }),
                         body: fields.text({ label: "Body (optional) — supports **bold**", multiline: true }),
                       }),
