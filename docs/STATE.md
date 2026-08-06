@@ -2049,6 +2049,16 @@ All prior rules remain. Added or sharpened across this session:
   a font reaching the layout. The same fact was asserted TWICE in one file, 400 lines apart, so
   the constant and the gate must move in ONE commit or a green assertion is left stating a stale
   number.
+- **THE BYTE-IDENTICAL DOM GATE BELONGS TO CHANGES THAT DO NOT TOUCH A STYLE ATTRIBUTE.** It has
+  been the default proof on nearly every PR this year, and #316 is the first time its subject fell
+  outside it. An inline `style` puts the value in the MARKUP, so swapping a colour literal for a
+  `color-mix(var(...))` changes the bytes BY CONSTRUCTION — six pages moved, four did not.
+  **Naming that boundary is right; widening the normaliser until it passed would have made the
+  gate blind to a real category in order to protect a claim.**
+  WHAT REPLACES IT IS STRONGER. The colour resolved identically through the oklch conversion —
+  exact sRGB matches, 109,100,93 and 15,7,3 and 254,249,241 and 182,83,41. The byte claim was only
+  ever a proxy for that, and when the proxy stops applying the thing it stood for still can.
+
 - **ASK WHERE A COST IS EMITTED, NOT WHERE THE FEATURE IS USED.** `preload` on a font is
   declared per family and emitted from the ROOT layout, which wraps the public site — so giving
   the studio-only label face `preload: true` put a fifth font preload on every public page for a
