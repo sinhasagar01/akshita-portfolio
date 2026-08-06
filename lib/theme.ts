@@ -96,6 +96,41 @@ export function unselectableReason(name: string): string | undefined {
   return UNSELECTABLE[name];
 }
 
+/* ============================================================================================
+   THE PWA SPLASH GROUND, PER THEME — AND WHY IT LIVES IN JS AT ALL.
+
+   `manifest.webmanifest` is JSON. It cannot hold a `var()`, so the splash colour is the one place
+   a theme's ground has to exist as a literal in JavaScript rather than as a token in CSS.
+
+   ⚠ EACH VALUE IS ITS THEME'S `--color-cream-50`, RESOLVED. Not an approximation: the field held
+   `#FBF6EE` for years, which is 5 from cream-50 — an approximation of a colour that already had a
+   name, spelled out where the name could not reach it. #327's shape, on the last surface that had
+   it.
+
+   ⚠ AND AN INSTALLED APP CACHES ITS MANIFEST, SO THE SPLASH CAN LAG THE THEME BY DAYS. That is an
+   argument FOR theming it rather than against: the lag means an occasionally-stale ground, and the
+   status quo is a ground that is never right after the first theme change. Themed-and-sometimes-
+   stale beats never-right. Recorded here so nobody reports the lag as a bug.
+============================================================================================ */
+export const THEME_SPLASH: Record<string, string> = {
+  [DEFAULT_THEME]: "#FEF9F1",
+  [SECOND_THEME]: "#F5FBFF",
+  /* Byte-identical to the default, like every other value the control holds. */
+  [VERIFY_THEME]: "#FEF9F1",
+};
+
+/**
+ * ⚠ `theme_color` IS DELIBERATELY NOT HERE, AND IT IS NOT AN OVERSIGHT. It tints the Android
+ * address bar and the task-switcher card — the site's identity in SOMEONE ELSE'S FRAME. At 20 from
+ * every token it is its own near-black rather than a misspelling of one, and a colour on a surface
+ * the site does not own does not follow the site's palette. The same test that keeps the case-study
+ * mock glows in their products' brand colours.
+ *
+ * It also has a practical half: an address bar that changes weekly reads as instability rather than
+ * refreshment, on the one surface a user sees BEFORE the site loads.
+ */
+export const BRAND_CHROME_COLOR = "#1c1813";
+
 export function isKnownTheme(raw: unknown): raw is ThemeName {
   return typeof raw === "string" && (THEME_NAMES as readonly string[]).includes(raw);
 }

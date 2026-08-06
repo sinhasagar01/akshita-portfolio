@@ -36,7 +36,7 @@
 import { readFileSync } from "node:fs";
 import {
   DEFAULT_THEME, VERIFY_THEME, SECOND_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
-  selectableThemes, unselectableReason,
+  selectableThemes, unselectableReason, THEME_SPLASH, BRAND_CHROME_COLOR,
 } from "../../lib/theme.ts";
 import { THEME_METRICS, ACTIVE_THEME } from "../../lib/studio/three-pane.ts";
 import {
@@ -199,6 +199,23 @@ t("D7 the reader resolves the theme rather than coalescing it",
   /theme:\s*resolveTheme\(raw\.theme\)/.test(readerSrc), true);
 t("D8 and nothing in the reader falls back to a bare string for it",
   /theme:\s*\(raw\.theme as string\)/.test(readerSrc), false);
+
+console.log("\nF · the PWA splash — the one place a theme's ground exists as JS, not CSS");
+
+t("F1 every theme has a splash ground", Object.keys(THEME_SPLASH).sort(), [...THEME_NAMES].sort());
+t("F2 the control's splash is byte-identical to the default's, like every value it holds",
+  THEME_SPLASH[VERIFY_THEME], THEME_SPLASH[DEFAULT_THEME]);
+t("F3 the real themes differ, so the field is not a constant wearing a lookup",
+  THEME_SPLASH[DEFAULT_THEME] !== THEME_SPLASH[SECOND_THEME], true);
+/* ⚠ THE FIELD THAT DOES NOT FOLLOW THE THEME, ASSERTED AS AN ABSENCE. `theme_color` tints a
+ * surface the site does not own, so it is a single constant — and a future "finish the job" pass
+ * that adds it to the per-theme map fails here rather than shipping a weekly-changing address bar. */
+t("F4 the chrome colour is a single constant, NOT a per-theme value",
+  typeof BRAND_CHROME_COLOR === "string" && !Object.values(THEME_SPLASH).includes(BRAND_CHROME_COLOR), true);
+const manifestSrc = read("app/manifest.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+t("F5 the manifest reads the splash per theme and the chrome as a constant",
+  /background_color: THEME_SPLASH\[theme\]/.test(manifestSrc)
+    && /theme_color: BRAND_CHROME_COLOR/.test(manifestSrc), true);
 
 console.log("\nE · the attribute — emitted on <html>, resolved rather than literal");
 
