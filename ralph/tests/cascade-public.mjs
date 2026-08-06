@@ -198,11 +198,49 @@ const walk = (rel) => {
 walk("app"); walk("components");
 t("A1: the sweep found files — a zero denominator is not a pass", files.length > 100, true);
 
-/** `.case-study .font-display` is itself unlayered, so inside a case study that utility lands. */
-const repairedHere = (rel, cls, prop) =>
-  rel.startsWith("components/case-study/") && cls === "font-display" && prop === "font-family";
+/* ============================================================================================
+   ⚠ THE THIRD PARTY. A CASCADE CONTEST HERE HAS THREE SIDES, NOT TWO — AND THIS SUITE MODELLED
+   ONLY ONE PROPERTY OF ONE OF THEM UNTIL #352.
 
-const collisions = [], inert = [];
+   The old helper was `repairedHere`, and it knew exactly one fact: inside a case study,
+   `.case-study .font-display` is unlayered, so `font-display` on a heading LANDS rather than losing
+   to the element reset. True — and that rule sets TWO properties, and only `font-family` was
+   modelled.
+
+   ⚠ #351 PAID FOR THE OTHER HALF. Layering the `h3` weight reset was supposed to let twelve
+   `font-normal` utilities draw 400. Ten of them are inside `.case-study`, where that same third
+   rule sets `font-weight: 500` and outranks a utility on specificity — so removing the reset
+   PROMOTED THE SECOND CONTENDER and they went 600 to 500. **The census reported "repaired" for ten
+   rows that were still inert.** The number moved and the defect did not.
+
+   SO THE MODEL NAMES THE RULE AND ITS PROPERTIES, AND CLASSIFIES THE OUTCOME RATHER THAN ASSUMING
+   IT. A third party that agrees with the utility repairs it; one that differs SHADOWS it, which is
+   still dead and must not read as fixed. */
+const THIRD_PARTY = [
+  {
+    id: ".case-study .font-display",
+    /* ⚠ KEYED ON THE ELEMENT'S CLASSES, NOT THE UTILITY BEING TESTED. The rule fires because the
+       element carries `font-display`; what it then SHADOWS is a different utility on that same
+       element — `font-normal`. Checking the utility's own class found nothing, which is how the
+       first two attempts at this model reported zero. */
+    applies: (rel, tokens) => rel.startsWith("components/case-study/") && tokens.includes("font-display"),
+    /* ⚠ THE RAW DECLARATIONS, RESOLVED THROUGH THE SAME `deref` THE RESET GOES THROUGH — because
+       the two sides of this comparison must be the same KIND of thing. The first version stored
+       class names against resolved values and reported fourteen honoured `font-family` sites as
+       shadowed, which is the compare-spellings-not-values defect this repo has now made four
+       times. Read from globals.css rather than retyped, so a retune moves this with it. */
+    gives: { "font-family": "var(--font-display)", "font-weight": "var(--font-weight-medium)" },
+  },
+];
+
+/** What wins for this element+utility if the element reset were not there, or null if the reset is
+ *  the only other contender. */
+const thirdPartyFor = (rel, tokens, prop) => {
+  for (const r of THIRD_PARTY) if (r.applies(rel, tokens) && prop in r.gives) return r;
+  return null;
+};
+
+const collisions = [], inert = [], shadowed = [];
 for (const rel of files) {
   const src = readFileSync(new URL(`../../${rel}`, import.meta.url), "utf8");
   for (const el of elements(src, rel)) {
@@ -211,8 +249,26 @@ for (const rel of files) {
       const bare = cls.includes(":") ? cls.slice(cls.lastIndexOf(":") + 1) : cls;
       for (const u of UTIL) {
         const want = u.f(bare);
-        if (want == null || !owned.has(u.p)) continue;
-        if (repairedHere(rel, bare, u.p)) continue;
+        if (want == null) continue;
+        /* ⚠ THE THIRD PARTY IS CONSULTED EVEN WHEN THE RESET NO LONGER OWNS THE PROPERTY, and that
+           ordering is the whole repair. The old loop skipped unless `owned.has(u.p)` — so the
+           moment #351 layered the `h3` weight reset, `font-weight` left `RULES` and those ten
+           utilities STOPPED BEING CONSIDERED AT ALL. Not reported as repaired: reported as absent.
+           A suite that only looks where it already knows a contest exists cannot see one move. */
+        if (!owned.has(u.p) && !thirdPartyFor(rel, el.tokens, u.p)) continue;
+        /* ⚠ THE THIRD PARTY IS RESOLVED BEFORE THE RESET, because it beats the reset. If it
+           agrees with what the utility asks, the utility is effectively honoured and there is no
+           defect. If it DIFFERS, the utility is SHADOWED — dead, but by a different rule, and
+           counting it as repaired is exactly the false green #351 shipped. */
+        const third = thirdPartyFor(rel, el.tokens, u.p);
+        if (third) {
+          const gives = deref(third.gives[u.p]);
+          if (String(gives).toLowerCase() === String(want).toLowerCase()) continue;   // honoured
+          shadowed.push({ where: `${rel}:${el.line}`, tag: el.tag, cls: bare, property: u.p,
+            want, got: gives, by: third.id });
+          continue;
+        }
+        if (!owned.has(u.p)) continue;   // third party handled above; no reset left to compare
         const got = deref(owned.get(u.p));
         const hit = { where: `${rel}:${el.line}`, tag: el.tag, cls: bare, property: u.p, want, got };
         (String(want).toLowerCase() === String(got).toLowerCase() ? inert : collisions).push(hit);
@@ -221,6 +277,24 @@ for (const rel of files) {
   }
 }
 const outside = (h) => !/\/studio\//.test(h.where);
+
+/* ================================================ S. SHADOWED — THE THIRD PARTY'S VICTIMS
+ * ⚠ A UTILITY THAT LOSES TO A RULE THAT IS NOT THE ELEMENT RESET. Neither a collision (the reset
+ * does not win) nor inert (nothing agrees) — DEAD BY A DIFFERENT HAND, and the category this suite
+ * lacked until #352.
+ *
+ * IT WAS INVISIBLE FOR THE WORST POSSIBLE REASON. Before #351 these sites WERE collisions, counted
+ * among the twelve `font-weight` rows. Layering the reset moved them out of `RULES` entirely, so
+ * they stopped being considered and the census read "repaired". The number went to zero and not one
+ * of them changed to what it asked for. */
+const shadowedPub = shadowed.filter(outside);
+t("S1: every shadowed utility is `font-weight` under `.case-study .font-display` — a NEW shape here means a third party nobody has modelled",
+  [...new Set(shadowedPub.map((h) => `${h.property} by ${h.by}`))], ["font-weight by .case-study .font-display"]);
+t("S2: ⚠ 22 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
+  shadowedPub.length, 22);
+t("S3: …and the population is real, so S1 and S2 cannot pass by finding nothing",
+  shadowedPub.every((h) => h.want === "400" && h.got === "500"), true);
+
 const pub = collisions.filter(outside);
 
 /* ================================================ B. THE FAMILY COLLISIONS
@@ -302,8 +376,14 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      ⚠ 37 -> 36 IN #351, FOR THE SAME REASON ONE MORE TIME. One `<h3>` carried `font-semibold`,
      agreeing with the reset it could not beat. Layered, it wins and draws 600 — the same weight,
      and no longer a category. A number falling because a thing stopped being classifiable is not a
-     repair, and both times it has been worth saying so rather than letting the count read as one. */
-  inert.filter(outside).length, 36);
+     repair, and both times it has been worth saying so rather than letting the count read as one.
+
+     ⚠ 36 -> 31 IN #352, AND THIS ONE IS A RECLASSIFICATION RATHER THAN A CHANGE TO THE SITE. Five
+     `font-display` utilities inside case studies were counted INERT — agreeing with a reset they
+     could not beat. The third-party model now resolves them against `.case-study .font-display`
+     FIRST, which honours them, so they are not a category either. Nothing on screen moved; the
+     suite simply stopped mis-filing them. */
+  inert.filter(outside).length, 31);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

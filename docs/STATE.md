@@ -9335,6 +9335,56 @@ still draws 600. **Two of the twelve, outside `.case-study`, genuinely reached 4
 
 ralph 2524, 61 suites.
 
+## THE THIRD-PARTY MODEL (#352)
+
+`cascade-public` modelled a two-party contest — a utility against the element reset. **The cascade
+has three parties**, and #351 paid for the gap: layering the `h3` weight reset promoted
+`.case-study .font-display` (500) rather than the `font-normal` utilities (400), and the census
+reported twelve rows repaired while ten were still dead.
+
+### ⚠ IT WAS INVISIBLE FOR THE WORST POSSIBLE REASON
+
+Before #351 those sites WERE collisions. Layering the reset **removed the property from `RULES`, so
+they stopped being considered at all** — not reported as repaired, reported as ABSENT.
+
+> **A SUITE THAT ONLY LOOKS WHERE IT ALREADY KNOWS A CONTEST EXISTS CANNOT SEE ONE MOVE.**
+
+### AND THE SUITE ALREADY KNEW HALF OF IT
+
+`repairedHere` knew exactly one fact: inside a case study, `.case-study .font-display` is unlayered,
+so `font-display` on a heading lands. **True — and that rule sets TWO properties, and only
+`font-family` was modelled.** The other half is what #351 walked into.
+
+### THE MODEL, AND THREE ATTEMPTS TO GET IT RIGHT
+
+**1 · Compared class names against resolved values** — reported fourteen honoured `font-family`
+sites as shadowed. **The compare-spellings-not-values defect, a fourth time**, in the fix for it.
+
+**2 · Consulted the third party only where the reset owned the property** — reported zero, because
+that is precisely the condition that had stopped being true.
+
+**3 · Keyed `applies` on the utility being tested rather than the ELEMENT'S classes** — reported
+zero again. The rule fires because the element carries `font-display`; what it shadows is a
+different utility on that same element.
+
+### THE ANSWER IS 22, NOT 10
+
+I measured ten on one case study. **The model finds 22** — the rest are on pages I did not open.
+`S2` pins the count, `S1` pins the shape so a new third party fails on arrival, and `S3` asserts
+every one asks 400 and draws 500 so the population cannot pass by being empty.
+
+**AND THE INERT COUNT FELL 36 → 31 AS A RECLASSIFICATION.** Five `font-display` utilities were filed
+inert — agreeing with a reset they could not beat — and are now resolved against the third party
+first, which honours them. **Nothing on screen moved; the suite stopped mis-filing them.**
+
+### ⚠ WHAT THIS MEANS FOR THE TWO REMAINING PROPERTIES
+
+Line-height is 58 sites. **Before #350 the two-party model was right; it is not any more**, and the
+same false "repaired" would land at scale. The model is now the prerequisite rather than the
+follow-up — which is the order this sequence should have had from the start.
+
+ralph 2524 → 2527.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
