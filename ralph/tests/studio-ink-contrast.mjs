@@ -68,7 +68,30 @@ const ratio = contrastRatio;
 /* ================================================ B. THE TOKENS, PARSED FROM @theme
  * Same source the screen renders from — a token whose oklch is retuned is picked up here on the
  * next run, so a contrast that moves because a token moved fails on arrival. */
-const css = read("app/globals.css");
+const cssAll = read("app/globals.css");
+
+/* ⚠ SCOPED TO THE `@theme` BLOCK, AND THEME TWO IS WHY. This scan used to run over the WHOLE
+ * stylesheet and take the last match, which was harmless while one palette existed. `harbour`
+ * redeclares `--color-ink-950` and the rest in a `[data-theme]` block LATER in the file, so the
+ * unscoped scan silently started reading harbour's colours and reporting them as the studio's —
+ * seven assertions failed at once and every one of them was measuring the wrong palette.
+ *
+ * THE SAME FAMILY, A FOURTH TIME: an assertion whose INPUT is contaminated by something it is not
+ * about. The input must come from somewhere the change cannot reach, and here that is the default
+ * block alone. `themeBlock` is brace-matched rather than regex-bounded, because a nested rule
+ * inside `@theme` would end a lazy match early and reintroduce the problem in a quieter form. */
+const themeBlock = (src) => {
+  const start = src.indexOf("@theme");
+  if (start < 0) throw new Error("no @theme block in globals.css");
+  const open = src.indexOf("{", start);
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    else if (src[i] === "}" && --depth === 0) return src.slice(open + 1, i);
+  }
+  throw new Error("unterminated @theme block");
+};
+const css = themeBlock(cssAll);
 const TOKEN = {};
 for (const m of css.matchAll(/--color-([a-z0-9-]+):\s*oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)\s*\)/g)) {
   TOKEN[m[1]] = oklchToRgb(Number(m[2]) / 100, Number(m[3]), Number(m[4]));

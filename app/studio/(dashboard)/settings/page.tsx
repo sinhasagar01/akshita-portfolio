@@ -1,4 +1,5 @@
 import { getStudioData } from "@/lib/studio/data";
+import ThemeEditPanel from "@/components/studio/ThemeEditPanel";
 import HeroEditPanel from "@/components/studio/HeroEditPanel";
 import AboutEditPanel from "@/components/studio/AboutEditPanel";
 import LinksEditPanel from "@/components/studio/LinksEditPanel";
@@ -30,6 +31,9 @@ export default async function StudioSettings() {
           pane on the right — every panel stays MOUNTED (returns null when
           unselected) so unsaved drafts survive switching sections. */}
       <ListDetailLayout sections={STUDIO_SETTINGS_SECTIONS} searchPlaceholder="Search settings">
+        {/* The palette. First because it changes how every panel below it renders. */}
+        <ThemeEditPanel itemId="theme" theme={settings.theme} />
+
         {/* GH-5a: the Hero group is the featured editable card (Surface B). */}
         <HeroEditPanel
           itemId="hero"

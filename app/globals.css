@@ -326,6 +326,77 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --z-toast:    60;
 }
 
+
+/* ============================================================================================
+   THEME TWO — HARBOUR. The first palette that is not cream, and the first block on this seam.
+
+   ⚠ THE BLOCKS ARRIVE NOW BECAUSE NOW THEY CARRY INFORMATION. 6b shipped `data-theme` on `<html>`
+   with no block at all, and that was sequencing rather than an omission: with one palette a
+   `[data-theme="cream"]` block would have held a second copy of values `@theme` already declares,
+   and this repo deletes second copies. It is also why 6b's cross-theme diff showed `css__all`
+   IDENTICAL — an expected consequence of shipping no blocks, not a suspicious result.
+
+   ⚠ CREAM AND `cream-verify` GET NO BLOCK, AND THAT IS THE MECHANISM RATHER THAN AN OMISSION.
+   `@theme` holds cream's values, so cream IS the fallback — which is the same thing `resolveTheme`
+   falls closed to. The verification twin inherits the identical defaults, so "byte-identical to the
+   default" stays true by construction instead of by a copied block that could drift.
+
+   ⚠ WHY THIS BLOCK WINS. `@theme` emits into `@layer theme`, the first layer, and this block is
+   UNLAYERED — so it takes precedence regardless of specificity. Hazard 11 working in our favour for
+   once, and the reason the override needs no `!important` and no specificity tricks.
+
+   HUE 233 AND ACCENT 168, a 155-degree swing from cream's warm 78 and a move from red-orange to
+   teal. Chosen to TEST the constraint rather than to be safe.
+
+   ⚠ AND IT WAS REFUSED TWICE BEFORE IT PASSED. Draft 1 pushed the ground toward the old "roughly
+   85%" figure and failed five external rows; draft 2 restored cream's lightness ladder and still
+   failed `ink-400 on cream-200` at 2.88. This is draft 3. The instrument judged a palette before
+   anyone committed to it, which is the entire reason it was built before the palettes.
+
+   ⚠ HARBOUR SITS ON THE SAME THREE FLOORS CREAM DOES — the ground step at 1.05, `ink-400` at 3.0,
+   `text-muted` at 4.5, each with essentially no margin. It is SHIPPABLE and it is one rounding away
+   from not. Anyone tuning a value here should know that before they touch it.
+
+   THE STATUS COLOURS DO NOT ROTATE. Danger stays red, success stays green, draft stays amber. They
+   are semantic rather than decorative, and a teal danger chip would be a worse product in every
+   theme. Recorded as a decision so a later sweep does not "finish" the rotation.
+============================================================================================ */
+[data-theme="harbour"] {
+  --color-cream-50:  oklch(98.5% 0.008 233);
+  --color-cream-100: oklch(96.8% 0.014 233);
+  --color-cream-200: oklch(93.5% 0.020 233);
+  --color-cream-300: oklch(88.0% 0.026 233);
+  --color-canvas:    oklch(92.0% 0.018 233);
+
+  --color-ink-950: oklch(15.0% 0.020 233);
+  --color-ink-800: oklch(27.0% 0.020 233);
+  --color-ink-600: oklch(45.0% 0.018 233);
+  /* ⚠ 60.5%, NOT cream's 62%. At 62% on this ground it computes 2.88 against a 3.0 floor — the
+     single row that refused draft 2. A palette copied from cream inherits cream's zero margin. */
+  --color-ink-400: oklch(60.5% 0.015 233);
+  --color-ink-200: oklch(80.0% 0.010 233);
+
+  /* ⚠ 52%, NOT cream's 56%. Teal carries more relative luminance than terracotta at equal oklch
+     lightness, so the accent has to sit darker to hold 4.5 on cream-50. */
+  --color-accent-400: oklch(61.0% 0.11 168);
+  --color-accent-500: oklch(52.0% 0.12 168);
+  --color-accent-600: oklch(43.0% 0.11 168);
+
+  --color-text-muted:  oklch(50.0% 0.018 233);
+  --color-text-subtle: oklch(50.0% 0.018 233);
+
+  --color-band-dark:     oklch(17.5% 0.024 233);
+  --color-on-dark:       oklch(95.5% 0.012 233);
+  --color-on-dark-muted: oklch(77.0% 0.014 233);
+  --color-on-dark-quote: oklch(81.5% 0.060 168);
+
+  /* Artwork grounds. On the contrast gate's boundary list because no text sits on them, but they
+     must still move — a cool theme with warm sand panels reads as a bug rather than a choice. */
+  --color-reveal-sand:     oklch(85.0% 0.032 210);
+  --color-case-study-sand: oklch(88.5% 0.026 220);
+  --color-glow-web:        oklch(48.0% 0.115 205);
+}
+
 /* ============================================================
    Base styles
 ============================================================ */

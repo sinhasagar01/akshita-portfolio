@@ -258,9 +258,13 @@ const contentInputs = (p) => {
     return [...src.slice(i + 1, end).matchAll(/<([A-Z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
   };
   const shellPanels = [...new Set(rendersShell.flatMap((h) => childrenOf(code(h))))];
+  /* ⚠ `ThemeEditPanel` JOINED IN #326 AND THE INVENTORY MOVED WITH IT. A pinned set is supposed
+   * to fail when a panel arrives — that is the whole point of deriving the set and comparing it
+   * rather than counting it — so this is the assertion working, not a chore. Anyone adding the
+   * eighth panel updates this line and confirms the panel really does belong in the shell. */
   t("E1b: the derived shell-panel set now includes Skills' CategoryPanel, which the suffix match never saw",
     shellPanels.sort(), ["AboutEditPanel", "CategoryPanel", "ExperienceEditPanel", "HeroEditPanel",
-      "LinksEditPanel", "ProcessEditPanel"]);
+      "LinksEditPanel", "ProcessEditPanel", "ThemeEditPanel"]);
   t("E1b: …and ProjectsEditPanel is still out of it, by construction rather than by exception",
     shellPanels.includes("ProjectsEditPanel"), false);
 

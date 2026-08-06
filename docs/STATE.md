@@ -7817,6 +7817,94 @@ coverage for the same three rows. 68 passed before the move and 68 after.
 
 ralph 2424 → 2451 across 59 suites. Lint, tsc and the build clean.
 
+## STEP 7 — THEME TWO, THE SWITCHER, AND A RENDER THAT CORRECTED THE PLAN (#326)
+
+Harbour ships as theme two, the token blocks arrive, the switcher exists, and the canvas previews a
+pending theme. **And rendering it found the thing the instrument cannot see.**
+
+### ⚠ CORRECTION 1 — THE LIGHT-GROUND RULING WAS WRONG BY SEVEN POINTS, AND IN THE PERMISSIVE
+### DIRECTION
+
+The ruling said ground lightness must stay **above roughly 85%**. It was inferred from a single
+dark render rather than measured across the range. Sweeping canvas lightness against `text-muted`:
+
+| canvas L | 86% | 88% | 90% | 91% | 92% | 93% |
+|---|---|---|---|---|---|---|
+| `text-muted` ratio | 3.77 | 4.00 | 4.27 | 4.40 | **4.52** | 4.68 |
+
+**4.5 is crossed at L ≈ 91.8%, not 85%.** A confidently stated number, derived from one
+observation, wrong in the direction that LICENSES PALETTES WHICH FAIL. Harbour draft 1 trusted it
+and was refused on five external rows.
+
+**⚠ AND THE BETTER RULE IS THAT IT WAS NEVER A LIGHTNESS RULE.** Three rows constrain every future
+palette, and a ground-lightness threshold is a proxy for them that was seven points off. **THE
+LIGHTNESS FIGURE IS RETIRED.** The rows are the constraint.
+
+### ⚠ CORRECTION 2 — I SAID CREAM SAT ON THREE FLOORS AND THAT HARBOUR HAD THE SAME ZERO HEADROOM
+
+Both halves were wrong, and the gate is what said so. **Cream sits inside 0.1 of SIX floors and
+harbour of THREE.** My three came from a hand-picked sample, which is the difference between
+reading a table and computing one.
+
+The three harbour keeps are the GROUND LADDER, a relation rather than a colour — "one step apart"
+means exactly 1.05 by construction. The three it escaped are exactly the rows that refused its
+earlier drafts: `ink-400` at 60.5% instead of cream's 62%, and `text-muted` at 50% instead of 51%.
+**A palette measured from scratch beat the palette it was derived from.**
+
+**CREAM IS NOT A TEMPLATE, AND CREAM IS NOT RETUNED.** Zero headroom is not a defect — the ladder
+was tuned to be exactly as separated as it needed to be, which is what "ground plus one step" means
+as a relation. Moving the live site to make unbuilt themes easier is the shape this project
+refuses. Every candidate is measured from scratch; none is derived from cream.
+
+### ⚠ CORRECTION 3 — THE RENDER, AND IT IS THE ONE THAT MATTERS
+
+`SHIPPABLE` means the token pairs clear their floors. It does not mean the site looks right. I
+predicted the signature literals would hold because harbour is light-ground. **Rendering the home
+page on harbour found 14 DISTINCT WARM COLOURS that do not move with the theme.**
+
+| survivor | what it is |
+|---|---|
+| `rgb(181,97,60)` + `rgba(181,97,60,.55)` | the custom cursor dot and ring, fixed, on every page |
+| `rgba(181,97,60,.14/.17/.11)` | three watermarks — hero, section heading, case-study |
+| `rgb(156,90,58)` | `.ab-tint`, a solid terracotta tint |
+| **`#4a4239`** | **body copy set as a literal — text that never takes the theme's ink** |
+| `#5F584E`, `#9C9182` | warm greys as text |
+| `rgba(120,90,60,.10/.16/.25/.26/.30)` | hairlines, chip borders, an input underline |
+| `rgba(60,45,30,.09/.10)` | more hairlines |
+
+**THE CONTRAST GATE CANNOT SEE ANY OF THEM, BY DESIGN.** They are on its boundary list precisely
+because a theme cannot move them — which is exactly what makes the list a statement of the
+problem rather than an exemption from it.
+
+> **"SHOULD HOLD" WAS WRONG AGAIN.** The nav, the About vessel and the accent all read well on
+> harbour. Body text set to `#4a4239` does not, and no token gate was ever going to say so.
+
+**THE HONEST STATUS: THE THEME SYSTEM WORKS AND THE SITE IS NOT YET FULLY THEMEABLE.** Those are
+different claims and only the first is shipped here.
+
+### WHAT ELSE THE BUILD FOUND
+
+**⚠ `studio-ink-contrast` STARTED READING HARBOUR'S COLOURS.** Its token scan ran over the WHOLE
+stylesheet taking the last match, which was harmless while one palette existed. Theme two
+redeclares `--color-ink-950` later in the file, and seven assertions failed at once — every one of
+them measuring the wrong palette. **The contaminated-input family, a fourth time.** Both contrast
+suites now brace-match the `@theme` block, because a lazy regex ends early on a nested rule and
+reintroduces the same bug more quietly.
+
+**THE PENDING PREVIEW IS ONE ATTRIBUTE, NOT A MECHANISM.** `data-theme` on the dashboard's `main`,
+from the DRAFT settings, overriding the root's published value by the ordinary cascade. **It sits
+that high safely only because of the freeze** — `studio-palette` B1 asserts zero live references to
+the public palette in studio source and `studio-tokens` C1 asserts every frozen colour is a literal,
+so the chrome is immune BY CONSTRUCTION rather than by threading a value carefully to a canvas
+wrapper and hoping nothing else picked it up.
+
+**AND THE STUDIO'S OWN GATES CAUGHT THE NEW PANEL TWICE.** `studio-cascade` C1 found an `<h2>`
+whose `font-medium` the unlayered reset overrides, and a `<p>` whose `max-w-[52ch]` it owns — both
+hazard 11, both in a file written after the hazard was documented. `studio-ink` E1b's pinned panel
+inventory failed on arrival, which is a derived-and-compared set doing its job.
+
+ralph 2451 → 2460 across 59 suites. Lint, tsc and the build clean.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

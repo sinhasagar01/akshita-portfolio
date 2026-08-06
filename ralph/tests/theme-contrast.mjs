@@ -51,7 +51,41 @@ const t = (name, got, want) => {
   console.log((ok ? "  [PASS] " : "  [FAIL] ") + name + (ok ? "" : `\n     got  ${JSON.stringify(got)}\n     want ${JSON.stringify(want)}`));
   ok ? pass++ : fail++;
 };
-const css = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+const cssAll = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+
+/* ⚠ SCOPED TO `@theme`, WHICH IS THE DEFAULT PALETTE — cream. Unscoped, a first-wins scan happens
+ * to read cream correctly only because `@theme` precedes the theme blocks in the file, and a gate
+ * that is right by file ordering is a gate one reorder from being wrong. `studio-ink-contrast` had
+ * the last-wins version of the same scan and started reading harbour's colours the moment theme
+ * two landed. Brace-matched rather than regex-bounded, so a nested rule cannot end it early. */
+const themeBlock = (src) => {
+  const start = src.indexOf("@theme");
+  if (start < 0) throw new Error("no @theme block in globals.css");
+  const open = src.indexOf("{", start);
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    else if (src[i] === "}" && --depth === 0) return src.slice(open + 1, i);
+  }
+  throw new Error("unterminated @theme block");
+};
+const css = themeBlock(cssAll);
+
+/** One theme's declarations, read from its `[data-theme="…"]` block. Cream has none by design —
+ *  `@theme` IS cream — so a themed palette is the defaults with that block layered over them. */
+const themeOverrides = (name) => {
+  const at = cssAll.indexOf(`[data-theme="${name}"]`);
+  if (at < 0) return {};
+  const open = cssAll.indexOf("{", at);
+  let depth = 0, end = -1;
+  for (let i = open; i < cssAll.length; i++) {
+    if (cssAll[i] === "{") depth++;
+    else if (cssAll[i] === "}" && --depth === 0) { end = i; break; }
+  }
+  const out = {};
+  for (const m of cssAll.slice(open + 1, end).matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
+  return out;
+};
 
 console.log("\nS · the sanity pair, first — abort trust if a known input reads wrong");
 t("S1 white on black is 21:1", Math.round(contrastRatio([255, 255, 255], [0, 0, 0])), 21);
@@ -166,6 +200,52 @@ t("C2 a different palette gives a different verdict — so it reads the argument
   bx.verdict !== cream.verdict, true);
 t("C3 an empty usage map is not a pass — zero subjects, zero meaning",
   report(CREAM, []).rows.length, 0);
+
+console.log("\nD · theme two — judged by the instrument, not by eye");
+
+/* Harbour is the defaults with its block layered over them, which is exactly what the browser
+ * computes: `@theme` on `:root`, the unlayered `[data-theme]` block winning over it. */
+const HARBOUR = { ...CREAM, ...themeOverrides("harbour") };
+const harbour = report(HARBOUR, USAGE);
+t("D1 harbour is SHIPPABLE", harbour.verdict, "SHIPPABLE");
+t("D2 nothing uncomputable — every row the map names exists in the palette", harbour.uncomputable, []);
+t("D3 it is a DIFFERENT palette, not the defaults wearing a name",
+  Object.keys(themeOverrides("harbour")).length > 15, true);
+
+/* ⚠ THE TWO ROWS THAT REFUSED THE EARLIER DRAFTS, PINNED. Draft 1 put the ground near the old
+ * "roughly 85%" figure and failed five external rows; draft 2 kept cream's `ink-400` at 62% and
+ * computed 2.88 against a 3.0 floor. Both numbers live here so a future tune cannot quietly walk
+ * back into them. */
+const hgot = (k) => harbour.rows.find((r) => r.key === k)?.got;
+t("D4 ink-400 sits at 60.5% BECAUSE cream's 62% computes 2.88 here — the row that refused draft 2",
+  hgot("ink-400 on cream-200 (non-text)") >= 3.0, true);
+t("D5 accent sits darker than cream's because teal carries more luminance at equal lightness",
+  hgot("accent-500 on cream-50") >= 4.5, true);
+
+/* ⚠ SHIPPABLE AND ON THE FLOOR ARE NOT THE SAME THING, AND THIS IS WHERE I HAD IT WRONG. I told the
+ * owner cream sat on THREE floors and that harbour "has the same zero headroom". Both halves were
+ * wrong, and the assertion is what said so: cream has SIX rows inside 0.1 of their floor and
+ * harbour has THREE. My three came from a hand-picked sample, which is the difference between
+ * reading a table and computing one.
+ *
+ * The three harbour keeps are the GROUND LADDER, which is a relation rather than a colour — "one
+ * step apart" means exactly 1.05 by construction, so no palette can buy margin there without
+ * changing what the ladder is. The three it does NOT keep are the three that refused its earlier
+ * drafts: darkening `ink-400` to 60.5% and `text-muted` to 50% bought real margin where cream has
+ * none. A palette measured from scratch beat the palette it was derived from.
+ *
+ * ⚠ SO THE RULE IS NOT "EVERY THEME SITS ON THE FLOOR", IT IS "CREAM IS NOT A TEMPLATE". A palette
+ * that copies cream's lightness values inherits cream's zero margin and fails the moment it moves a
+ * hue — which is precisely what draft 1 did. */
+const TIGHT = 0.1;
+const onFloor = (rep) => rep.rows.filter((r) => r.got !== null && r.got - r.min < TIGHT).map((r) => r.key).sort();
+t("D6 cream sits inside 0.1 of six floors — computed, not sampled", onFloor(cream).length, 6);
+t("D7 harbour sits on three, and they are the ground ladder — a relation no palette can loosen",
+  onFloor(harbour), ["ground step cream-100 / cream-200", "ground step cream-300 / canvas",
+    "ground step cream-50 / cream-100"]);
+t("D8 the three harbour escaped are exactly the ones its earlier drafts failed on",
+  onFloor(cream).filter((k) => !onFloor(harbour).includes(k)).sort(),
+  ["ink-400 on cream-200 (non-text)", "text-muted on canvas", "text-subtle on canvas"]);
 
 console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is computed or listed BY NAME");
 

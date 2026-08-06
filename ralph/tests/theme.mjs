@@ -90,7 +90,15 @@ t("A5 they are distinct objects, so identity is a property of the VALUES not a s
 t("A6 the twin is resolvable", resolveTheme(VERIFY_THEME), VERIFY_THEME);
 t("A7 the twin is NOT selectable, so it cannot be published by accident",
   selectableThemes().includes(VERIFY_THEME), false);
-t("A8 the shipping default IS selectable", selectableThemes(), [DEFAULT_THEME]);
+/* ⚠ WIDENED WITH ITS SUBJECT, NOT LOOSENED. It read `[DEFAULT_THEME]` while cream was the only
+ * real palette. Theme two makes that false, and the honest replacement is "every real theme is
+ * selectable" — which still fails if the twin leaks in, and now also fails if a real theme is
+ * added to the resolver and forgotten in the sanitizer, the exact drift the three-surface split
+ * makes possible. */
+t("A8 every REAL theme is selectable, and only those",
+  selectableThemes(), THEME_NAMES.filter((n) => n !== VERIFY_THEME));
+t("A8 …and there is more than one now, so the switch has something to switch between",
+  selectableThemes().length >= 2, true);
 
 console.log("\nB · three surfaces holding theme names, none able to import another");
 

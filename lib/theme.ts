@@ -46,8 +46,19 @@ export const DEFAULT_THEME = "cream";
 ============================================================================================ */
 export const VERIFY_THEME = "cream-verify";
 
+/** A real second palette. Cool ground at hue 233, teal accent at 168 — a 155-degree swing from
+ *  cream, chosen to TEST the light-ground constraint rather than to sit safely inside it.
+ *
+ *  ⚠ IT WAS REFUSED TWICE BY `ralph/tests/theme-contrast.mjs` BEFORE IT PASSED, which is the whole
+ *  reason that gate was built before any palette existed. Draft 1 failed five external rows, draft
+ *  2 failed one, this is draft 3.
+ *
+ *  ⚠ AND IT SITS ON THE SAME THREE FLOORS CREAM DOES, with essentially no margin. SHIPPABLE and one
+ *  rounding away from not. */
+export const SECOND_THEME = "harbour";
+
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, VERIFY_THEME] as const;
 
 export type ThemeName = (typeof THEME_NAMES)[number];
 
