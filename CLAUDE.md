@@ -153,6 +153,22 @@ closed.
 
 - **⚠ AND THE MIRROR OF THAT RULE, because half a rule is what caused the confusion twice.** "Ask where a cost is emitted" was written for a studio-only preload charging every public page. The colour census hit the same seam from the other side: it reads what is EMITTED and cannot tell who USES it, so two studio status dots and a studio gradient sat in the public bundle looking exactly like public colours. **Both directions give a wrong answer and neither is visible from where you are standing.** So the rule is not "use emission" or "use consumption" — it is **ASK WHICH ONE THE QUESTION IS ABOUT. Cost is an emission question. Themeability is a consumption question.** A bundle that merges the two is why they keep being confused, and the repair is to RESOLVE the consumer rather than exclude by lookup, because excluding buries the judgement inside a filter.
 
+- **⚠ A COMPARATOR'S CONTRACT SHAPES THE ASSERTIONS WRITTEN AGAINST IT, AND THE DEFECT LANDS THREE
+  FILES FROM ITS CAUSE.** `rich-markers.mjs` compared with `got === want` — reference equality —
+  where 53 other suites compare `JSON.stringify` of both sides. Under `===` **every honest structural
+  expectation fails**, so the author stringified both sides, and the `want` side then had nowhere to
+  get a value except by repeating the `got` expression. The result was
+  `t(name, JSON.stringify(parseRich(s)), JSON.stringify(parseRich(s)))` — **a value compared to
+  itself, three times, unable to fail for any implementation.**
+
+  It reads as carelessness and it was not. **It was the only form that compiled.**
+
+  **THE PRACTICAL TEST: when a suite's assertions are shaped oddly, read its harness before judging
+  its author.** A tautology, a stringify on both sides, an assertion that restates its subject — each
+  is more often a comparator forcing the shape than a mistake in the row. Audited all 64 suites
+  afterwards: 42 use the standard compare, 4 stringify inside the helper, 3 use a renamed variant,
+  and **`rich-markers` was the only true `===`. One instance, and it had produced three dead rows.**
+
 - **⚠ A WRONG UNIT DOES NOT PRODUCE OBVIOUS NONSENSE. IT PRODUCES SPECIFIC, CONFIDENT,
   CHECKABLE-LOOKING CLAIMS, AND THE TRUE ONE HIDES AMONG THEM.** The boundary count gate was built
   three times. Per row it reported 2 mismatches; per file, 5; per connected component of files linked

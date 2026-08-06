@@ -29,6 +29,7 @@
 // in the mutation. Reporting the second as the first sends you rewriting a gate that was fine.
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { countAssertions } from "./count.mjs";
 
 const name = process.argv[2];
 if (!name) {
@@ -46,16 +47,15 @@ if (!existsSync(file)) {
 const res = spawnSync("node", ["--experimental-strip-types", file], { encoding: "utf8" });
 const out = `${res.stdout ?? ""}${res.stderr ?? ""}`;
 
-/* ⚠ ELEVEN OF THE SUITES DO NOT PRINT `[FAIL]`, AND COUNTING ONLY THAT MARKER MISREPORTED THEM.
- * `rich-markers` prints `✗ FAIL`, so a mutation that made three assertions fail was counted as
- * ZERO and the verdict fell through to the exit-code branch — KILLED, correctly, with the detail
- * line reading "0 assertions failed". THE RIGHT ANSWER FOR A STATED CAUSE THAT WAS FALSE, which is
- * the fourth instance of that exact family in this file.
+/* ⚠ THE COUNTS COME FROM `ralph/count.mjs`, WHICH `run.mjs` ALSO USES. This file used to count
+ * `[FAIL]` alone, and eleven suites print `✗ FAIL` — so a mutation that failed ten assertions in
+ * `rich-markers` was reported as "KILLED · 0 assertions failed". Right verdict, false stated cause,
+ * and the FOURTH member of that family in this file.
  *
- * `run.mjs` never had the bug because it treats the exit code as the verdict and a suite's own
- * summary as the count. This now matches both markers for the same reason. */
-const fails = (out.match(/\[FAIL\]|✗ FAIL/g) ?? []).length;
-const passes = (out.match(/\[PASS\]|✓ (?!FAIL)/g) ?? []).length;
+ * ⚠ THE PREVIOUS THREE WERE EACH FIXED BY A COMMENT EXPLAINING THE HAZARD. This one is fixed by
+ * deleting the second reader — #183's rule, applied to the harness that checks the gates. A tool
+ * that reads its subject differently from the runner will drift again, and no comment prevents it. */
+const { passed: passes, failed: fails } = countAssertions(out);
 /* A suite's own summary wins; the marker counts are the fallback for the ones without one —
  * the same precedence run.mjs uses. */
 const summary = /(\d+) passed, (\d+) failed/.exec(out);

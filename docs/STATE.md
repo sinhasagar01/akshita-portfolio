@@ -10143,6 +10143,43 @@ from the same parse as its own reference. `theme-contrast`'s merge would NOT hav
 sweep, because its expectation is the literal `"SHIPPABLE"`; it was found by reading. **The sweep
 covers the syntactic form of the defect and not the semantic one.**
 
+## THE COMPARATOR AUDIT, THE SHARED READER, AND TWO CLAIMS THAT GOT ASSERTIONS (#369)
+
+**THE COMPARATOR AUDIT CAME BACK CLEAN, WHICH IS THE USEFUL ANSWER.** Of 64 suites, 42 compare
+`JSON.stringify` of both sides, 4 stringify inside the helper before comparing, 3 use a renamed
+variant, and 12 take a boolean condition rather than a got/want pair. **`rich-markers` was the only
+true `===`-on-raw-values contract, and it had produced three dead rows.** One bad contract, one
+cluster of defects — which is the shape the rule in CLAUDE.md now describes.
+
+**`mutate.mjs` NO LONGER HAS ITS OWN READER.** `ralph/count.mjs` holds `countAssertions`, imported by
+both tools. The old copy counted `[FAIL]` alone while **eleven suites print `✗ FAIL`**, so a mutation
+failing ten assertions in `rich-markers` reported *"KILLED · 0 assertions failed"*. **The previous
+three defects of that family were each fixed by a comment explaining the hazard; this one is fixed by
+deleting the second reader.** #183's rule — commit the tool, do not document the bug — applied to the
+harness that checks the gates.
+
+⚠ The fallback still matters: **twelve suites print no summary line at all**, so for those the markers
+ARE the count, and a marker form the reader cannot see reads as zero assertions.
+
+**`css__all` IS AN ASSERTION NOW** (`colour-census` T0/T0b). It was a hand-run comparison in the
+snapshot protocol, which is where the inverted meaning had nowhere to live: **identical used to mean
+"no theme blocks ship" and now means "all theme blocks ship in one bundle and the attribute selects
+among them."** Same number, opposite cause, nothing in the output signalling the change. The new
+meaning is a real property that can break — per-theme stylesheets, or a theme dropped from the bundle
+— and until now nothing would have noticed.
+
+**`loves-store`'s KEYS ARE SPELLED OUT.** `counterKey(ENV, "a")` on both sides meant a change to the
+key SHAPE moved the expectation with the actual, and **this is the one place where a silent
+regression costs real stored data** — a renamed key does not error, it reads zero and every existing
+count disappears. The format is now a literal, and a second row pins the builder to that literal so
+the literal cannot go stale either.
+
+**⚠ AND THE FIRST TWO MUTATION ATTEMPTS ON IT REPORTED SURVIVED WITHOUT THE GATE BEING WEAK.** The
+prefix comes from `REDIS_KEY_PREFIXES.lovesCounter`, so a `sed` for `loves:` hit a COMMENT and left
+the constant alone. **The mutation applied to the FILE and not to the SUBJECT** — the exact hazard
+`mutate.mjs` records and cannot detect, seen live twice in one sitting. Against the real constant it
+kills 4 assertions.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
