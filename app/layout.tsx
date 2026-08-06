@@ -13,6 +13,8 @@ import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
 } from "@/lib/site";
+import { getSiteSettings } from "@/lib/keystatic";
+import { DEFAULT_THEME } from "@/lib/theme";
 import "./globals.css";
 
 const kaushanScript = Kaushan_Script({
@@ -118,14 +120,45 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+/* ============================================================================================
+   ⚠ THE THEME IS EMITTED HERE, ON `<html>`, AND THE HOST WAS MEASURED RATHER THAN CHOSEN.
+
+   `html { background-color: var(--color-background) }` in globals.css paints the PAGE GROUND.
+   Probed in the browser with red on `<html>` and blue on a wrapper inside `<body>`, content 40px
+   tall in a 1060px viewport: THE WRAPPER PAINTED 40px AND `<html>` PAINTED THE OTHER 1020. So a
+   theme scoped to any element below `<html>` leaves the ground on the old palette — a visible band
+   on every short page and every overscroll, in every theme.
+
+   ⚠ AND THIS ROOT WRAPS /studio TOO, WHICH IS WHY #323 HAD TO SHIP FIRST. The editor's chrome
+   draws from the frozen `--color-studio-*` palette and nothing else — asserted as an absence, so a
+   new panel reaching for a public colour fails on arrival. The one site that still drew from the
+   public scale was the editor's own ground, the largest painted area in the product. Without that
+   PR this attribute would repaint the chrome the freeze exists to protect.
+
+   THE CANVAS IS THE OTHER HALF AND IT COSTS NOTHING. It renders public components, so it inherits
+   from here and shows the ACTIVE theme with no second mechanism. That was the ruling, and the root
+   placement satisfies it by construction rather than by wiring.
+
+   ⚠ NO CLIENT SCRIPT AND NO FLASH, BECAUSE EVERY PUBLIC ROUTE IS PRERENDERED. `/` and `/blog` are
+   static, `/blog/[slug]` and `/projects/[slug]` are SSG, so the attribute is baked into the HTML at
+   build time. `/studio` is dynamic, which is the right side of that split — the canvas reads the
+   current value per request instead of a stale build. It also confirms what the publish story
+   already assumed: changing the theme needs a rebuild, which is why it is a publish.
+============================================================================================ */
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  /* `getSiteSettings` is `cache()`-wrapped and the public layout already calls it, so public routes
+     pay nothing new. A null singleton resolves to the default the same way a missing field does. */
+  const settings = await getSiteSettings();
+  const theme = settings?.theme ?? DEFAULT_THEME;
+
   return (
     <html
       lang="en"
+      data-theme={theme}
       className={`${kaushanScript.variable} ${caveat.variable} ${sourceSerif.variable} ${workSans.variable} ${spaceGrotesk.variable}`}
     >
       <head>

@@ -161,9 +161,23 @@ t("B3: `text-ink-700` has no remaining sites — the 11 that carried it read cor
  * the editor. "The studio keeps its design" was not achievable while that was true.
  *
  * ⚠ FROZEN COPIES, NOT `var()` ALIASES. An alias tracks the public token and defeats the purpose
- * one indirection later. C1 asserts the copies still MATCH today's public values, which is what
- * turns "frozen at today's values" into a checkable claim — and the day a theme moves a public
- * token, C1 is the row that has to be deliberately updated rather than quietly drifting.
+ * one indirection later.
+ *
+ * ⚠ AND C1's SUBJECT CHANGED IN 6b, WHICH IS THE DAY ITS OWN COMMENT PREDICTED. It used to assert
+ * that every frozen colour still EQUALS its public counterpart, and said in this paragraph that a
+ * theme moving a public token is when it must be deliberately updated. `data-theme` now ships on
+ * `<html>`, so that day has arrived: equality is about to become false ON PURPOSE, for every theme
+ * that is not cream.
+ *
+ * THE REPLACEMENT IS A DIFFERENT CLAIM, NOT A LOOSER ONE. C1 now asserts the frozen palette is
+ * INDEPENDENT of the public one — every studio colour is a literal, never a `var()` reaching back
+ * into a public token. Equality was a snapshot that four themes will falsify. Independence is the
+ * property the freeze actually exists to guarantee, and it survives all four.
+ *
+ * ⚠ THE VALUE STAYS TRUE WHILE THE REASON IS REPLACED ENTIRELY, which is #309's C3 shape and the
+ * change type most likely to be mistaken for a no-op. A loosened C1 — dropping the row, or allowing
+ * a mismatch — would have gone quiet on the aliasing defect it was written to catch. This one still
+ * fails on it, and now also fails on a `var()` alias that equality would have happily accepted.
  *
  * ⚠ AND THE CANVAS IS DELIBERATELY EXEMPT. It renders PUBLIC components at the public measure, so
  * it takes the public tokens and shows the ACTIVE theme. That is the parity contract — what the
@@ -182,8 +196,19 @@ t("B3: `text-ink-700` has no remaining sites — the 11 that carried it read cor
     "success-700", "text-subtle"];
   t("C1: the studio palette was found at all — a zero denominator is not a pass",
     PAIRS.filter((n) => value(`studio-${n}`) !== null).length, PAIRS.length);
-  t("C1: every frozen studio colour still equals its public counterpart — this is the row a theme change must deliberately break",
-    PAIRS.filter((n) => value(n) !== value(`studio-${n}`)), []);
+  /* ⚠ INDEPENDENCE, NOT EQUALITY. A `var(--color-*)` value would make the studio follow the theme
+   * one indirection later — the exact defect the freeze exists to prevent, and the one an equality
+   * check CANNOT see, because an alias to a token evaluates equal to it on every theme where the
+   * two happen to agree. Asserted over `studio-ground` too, which equality never covered because it
+   * has no public counterpart by that name. */
+  const ALL_FROZEN = [...PAIRS, "ground"];
+  t("C1: every frozen studio colour is a LITERAL — no alias reaches back into the public palette",
+    ALL_FROZEN.filter((n) => {
+      const v = value(`studio-${n}`);
+      return v === null || /var\(\s*--color-(?!studio-)/.test(v);
+    }), []);
+  t("C1: and the studio ground is among them, which the public-counterpart pairing could not reach",
+    value("studio-ground") !== null, true);
 
   /* C2 · NO LIVE PUBLIC COLOUR UTILITY SURVIVES UNDER /studio. Asserted as an ABSENCE over the
    * derived file set, so a NEW component reaching for the public scale fails on arrival — which

@@ -53,10 +53,30 @@ const read = (p) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8")
 console.log("\nA · the verification twin, and the count that deletes it");
 
 const metricKeys = Object.keys(THEME_METRICS).sort();
-t("A1 exactly two theme entries — a third means theme two landed, delete the twin",
-  metricKeys.length, 2);
-t("A2 one of them is the twin", metricKeys.includes(VERIFY_THEME), true);
-t("A3 the other is the shipping default", metricKeys.includes(DEFAULT_THEME), true);
+
+/* ⚠ THE COUNT ASSERTION CHANGED SUBJECT IN 6b, AND THE OLD ONE WAS A DELETION TRIGGER.
+ * It read "exactly two entries", so adding a real theme made three and failed until the twin was
+ * deleted. That was right while the twin's only job was exercising a one-valued reader. The twin
+ * now carries the cross-theme gate's "nothing but the attribute" assertion, which no real theme
+ * can provide, so it is a PERMANENT CONTROL and the trigger would have deleted something
+ * load-bearing. The new assertion holds it at EXACTLY ONE beside however many real themes exist,
+ * so it can be neither dropped nor multiplied — and a silent deletion, which the old shape would
+ * have passed with one fewer entry, now fails. */
+/* ⚠ COUNTED OVER `THEME_NAMES`, THE ARRAY, AND NOT ONLY OVER THE OBJECT'S KEYS. Mutation exposed
+ * that half of this was unfalsifiable: a duplicate key in an object literal collapses, so
+ * `Object.keys` can never report two twins however hard you try to add one. The array is where
+ * multiplication is expressible, so that is where it is asserted. The metrics side still gets the
+ * presence check, which is the half a cleanup would break.
+ *
+ * The "at least one real theme" assertion that stood here is deleted rather than kept. It could
+ * only be falsified by removing `cream`, which crashes the module before any assertion runs — and
+ * B5 already asserts ACTIVE_THEME is the default. An assertion that cannot fail without a crash is
+ * the vacuous shape this repo deletes rather than documents. */
+t("A1 ⚠ EXACTLY ONE TWIN AMONG THE RESOLVER'S NAMES — not zero, which a cleanup would leave",
+  THEME_NAMES.filter((n) => n === VERIFY_THEME).length, 1);
+t("A2 and it has an entry in the metrics, so a permanent control cannot be half-deleted",
+  metricKeys.filter((k) => k === VERIFY_THEME).length, 1);
+t("A3 the shipping default is one of the real themes", metricKeys.includes(DEFAULT_THEME), true);
 
 /* ⚠ IDENTITY IS ASSERTED OVER THE WHOLE ENTRY, not over the one number the layout reads. A twin
  * that matched on `measure68chPx` and drifted on `bodyFont` would still be a fixture pretending to
@@ -160,6 +180,22 @@ t("D7 the reader resolves the theme rather than coalescing it",
   /theme:\s*resolveTheme\(raw\.theme\)/.test(readerSrc), true);
 t("D8 and nothing in the reader falls back to a bare string for it",
   /theme:\s*\(raw\.theme as string\)/.test(readerSrc), false);
+
+console.log("\nE · the attribute — emitted on <html>, resolved rather than literal");
+
+/* ⚠ SOURCE-LEVEL ONLY, DELIBERATELY. Whether the attribute lands in the PRERENDERED HTML of every
+ * public route is a build fact, and the cross-theme snapshot diff proves it far better than a
+ * regex could — two builds differing only in the published theme, compared page by page. Asserting
+ * it here from `.next` would make this suite silently vacuous whenever the build output is stale or
+ * absent, which is the failure mode ralph already refuses to accept elsewhere. */
+const layout = read("app/layout.tsx").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+t("E1 the root layout emits data-theme", /data-theme=\{/.test(layout), true);
+t("E2 ⚠ ON <html>, WHICH IS THE HOST THAT PAINTS THE PAGE GROUND — a wrapper leaves a band",
+  /<html[\s\S]{0,200}?data-theme=\{/.test(layout), true);
+t("E3 the value comes from the settings read, not a literal",
+  /const theme = settings\?\.theme/.test(layout) && /data-theme=\{theme\}/.test(layout), true);
+t("E4 and the layout is async, so the read is awaited rather than dropped",
+  /export default async function RootLayout/.test(layout), true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

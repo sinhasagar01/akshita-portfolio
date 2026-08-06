@@ -19,29 +19,34 @@
 export const DEFAULT_THEME = "cream";
 
 /* ============================================================================================
-   ⚠ `cream-verify` IS A VERIFICATION FIXTURE, NOT A DESIGN. IT IS DELETED WHEN THEME TWO LANDS.
+   ⚠ `cream-verify` IS A PERMANENT CONTROL. DO NOT DELETE IT. ITS PURPOSE DOES NOT EXPIRE.
 
-   It exists because a reader with ONE possible value exercises nothing. The lookup always hits,
-   the fallback never fires, and the whole mechanism reads as authoritative while proving that a
-   constant equals itself. This repo has deleted that shape four times rather than document it.
+   ⚠ AND THE PREVIOUS VERSION OF THIS COMMENT SAID THE OPPOSITE, WHICH IS WHY THE CHANGE IS WRITTEN
+   HERE RATHER THAN ONLY IN THE RECORD. It shipped as a verification FIXTURE with a deletion
+   trigger — "when a real second theme arrives" — because its only job was exercising a reader that
+   otherwise had one possible value. That job genuinely expires. The job it acquired does not.
 
-   The twin is byte-identical to `cream` in every measured value and differs only in its name, so
-   two keys exist, the lookup is a real lookup, and the fail-closed path has something to be
-   distinguished FROM. It costs four lines and it converts an untested mechanism into a tested one.
+   WHY IT CANNOT BE DELETED. The cross-theme gate compares two builds that differ only in this
+   file's value and asserts the rendered output differs ONLY in the `data-theme` attribute. Any
+   other diff is a leak — a colour that reached the markup instead of the stylesheet, or a studio
+   surface that moved. That assertion needs a theme whose values are byte-identical to the default.
 
-   ⚠ THE DELETION TRIGGER IS MACHINE-ENFORCED, NOT A NOTE. `ralph/tests/theme.mjs` asserts there
-   are EXACTLY TWO entries. The moment a real second theme is added the count is three and the gate
-   fails, so whoever adds theme two must delete the twin in the same commit. A fixture that
-   outlives its purpose becomes a third theme nobody meant to ship, and a comment asking politely
-   would not have stopped that.
+   ⚠ A REAL SECOND THEME CANNOT REPLACE IT, AND THAT IS THE WHOLE ARGUMENT. Under a real palette
+   every colour legitimately differs, so the gate would have to ALLOW arbitrary difference — which
+   is not an assertion. The control is the only theme that can say "nothing but the attribute".
 
-   ⚠ AND IT IS NOT SELECTABLE. `selectableThemes()` below excludes it, so the sanitizer refuses it
-   and an author cannot publish it by accident. It is resolvable, which is what the gate needs, and
-   unpublishable, which is what keeps it a fixture.
+   SO IT IS DEFINED AS A CLONE OF THE DEFAULT, tracking whatever `cream` becomes rather than
+   pinning today's values. And the count assertion moved with it, from "exactly two entries" to
+   "the real themes plus EXACTLY ONE twin", so it can neither be dropped nor multiplied.
+
+   ⚠ AND IT IS STILL NOT SELECTABLE. `selectableThemes()` below excludes it, so the sanitizer
+   refuses it and an author cannot publish it by accident. That is what answers the original fear —
+   a control that outlives its purpose becoming a third theme nobody meant to ship. It is
+   resolvable, which is what the gates need, and unpublishable, which is what keeps it a control.
 ============================================================================================ */
 export const VERIFY_THEME = "cream-verify";
 
-/** Every name the resolver accepts. Adding a real theme here means deleting the twin — see above. */
+/** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
 export const THEME_NAMES = [DEFAULT_THEME, VERIFY_THEME] as const;
 
 export type ThemeName = (typeof THEME_NAMES)[number];
