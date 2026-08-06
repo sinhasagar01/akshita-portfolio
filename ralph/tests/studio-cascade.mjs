@@ -309,8 +309,17 @@ if (inert.length) {
   for (const c of inert) console.log(`    ${c.where}  <${c.tag}> \`${c.cls}\` (${c.property})`);
   console.log("");
 }
+/* ⚠ 11 -> 3 IN #354, AND NOT ONE STUDIO PIXEL MOVED. The eight that left were seven `<p>`
+ * line-heights and one heading, all of which AGREED with the reset they could not beat. #354
+ * layered the paragraph leading for the PUBLIC site; the reset is global, so the studio's
+ * paragraphs stopped losing to it too — and since they were asking for the value they were already
+ * drawing, they now win and draw the same number.
+ *
+ * C1 STILL PASSES, WHICH IS THE PROOF: no studio element carries a utility its reset overrides. A
+ * change that emptied this inventory while C1 held is a reclassification, not a repair and not a
+ * regression. */
 t("C2: the inert inventory is exactly the 11 utilities that agree with their reset (7 <p> line-heights, plus AreaHeader and StudioModal headings) — a NEW one means a new place an edit will silently do nothing. 12 before #293: the 8th <p> was the rail's hand-built notice, removed with the bespoke concept",
-  inert.length, 11);
+  inert.length, 3);
 
 /* ================================================ D. THE FIX ITSELF IS PRESENT
  * C1 passes just as well if the bands are deleted. These pin the shape of the repair. */

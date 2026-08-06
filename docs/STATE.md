@@ -9412,6 +9412,53 @@ order of the work was corrected by attempting it in the wrong order.
 
 ralph 2527 → 2528.
 
+## THE LEADING GOES LIVE — THE LARGEST GROUP, AND THE LAST BIG ONE (#354)
+
+58 utilities. The leading moves into `@layer base` for `h1,h2`, `h3..h6` and `p`; the families and
+the heading tracking stay unlayered and stay in force.
+
+**VERIFIED IN THE BROWSER: 33 of 33 leading utilities on a case study now draw exactly what they
+ask.** The home page's `h1` asks 1 and drew 1.15; it draws 1.00. **Not one is unhonoured.**
+
+### ⚠ AND `S2` HELD AT 22 ACROSS THE CHANGE, WHICH IS THE WHOLE REASON #353 EXISTED
+
+Before element discovery was decoupled, lifting the paragraph leading dropped shadowed from 22 to
+16 — the six that vanished were `<p>`, and **the census would have read this as a clean repair.**
+The check ran, it held, and the count is trustworthy for the first time in this sequence.
+
+### `p` HAS NO UNLAYERED RULE LEFT, AND THAT IS THE POINT RATHER THAN A CASUALTY
+
+`A0`'s premise list loses `p` with a line saying why, and a second assertion pins that it is
+genuinely absent. **A premise list that quietly shrinks is how a suite stops testing what it
+claims.**
+
+### THE STUDIO MOVED TOO, AND NOT ONE PIXEL CHANGED
+
+The `p` reset is global, so the studio's inert inventory fell 11 → 3. **All eight that left were
+utilities AGREEING with the leading they could not beat** — they now win and draw the same number.
+`C1` still passes, which is the proof: no studio element carries a utility its reset overrides. **A
+change that empties an inventory while C1 holds is a reclassification, not a repair and not a
+regression.**
+
+### THE SEQUENCE, AND WHAT IT COST TO GET RIGHT
+
+| property | outcome |
+|---|---|
+| `<p>` max-width, 18 | every one narrowed, largest by 584px |
+| `<h3>` font-weight, 12 | **the reset stopped winning; 22 are still shadowed by a third rule** |
+| line-height, 58 | **all 58 live, 33/33 verified** |
+| letter-spacing, 4 | the last one |
+
+**The record said "58 line-heights, one change". It was 92 across four properties, the contest had
+three parties rather than two, and the gate could not see an element once its reset was lifted.
+Every one of those was found by attempting the work in the wrong order and having it fail.**
+
+⚠ **AND I MADE THE SAME COMMENT-BOUNDARY ERROR TWICE** — inserting prose after a closing `*/` in
+this suite, in #351 and again here. Both times the syntax error was immediate and loud, which is the
+only reason it cost minutes rather than a false green.
+
+ralph 2528 → 2529.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
