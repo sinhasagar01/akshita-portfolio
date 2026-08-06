@@ -7843,7 +7843,13 @@ LIGHTNESS FIGURE IS RETIRED.** The rows are the constraint.
 ### ⚠ CORRECTION 2 — I SAID CREAM SAT ON THREE FLOORS AND THAT HARBOUR HAD THE SAME ZERO HEADROOM
 
 Both halves were wrong, and the gate is what said so. **Cream sits inside 0.1 of SIX floors and
-harbour of THREE.** My three came from a hand-picked sample, which is the difference between
+harbour of THREE.**
+
+> **⚠ CORRECTED AGAIN IN #330, AND THE SECOND CORRECTION IS THE INTERESTING ONE. THE SIX IS FIVE.**
+> One of the six was `text-muted on canvas`, a duplicate row for a duplicate token. This number had
+> already been corrected once — from a hand-picked three to a computed six — and computing rather
+> than sampling fixed the METHOD without fixing the INPUT. Left standing above with the correction
+> attached, because a figure quietly edited twice reads as a figure nobody ever got wrong. My three came from a hand-picked sample, which is the difference between
 reading a table and computing one.
 
 The three harbour keeps are the GROUND LADDER, a relation rather than a colour — "one step apart"
@@ -8127,6 +8133,120 @@ permanent control that makes the cross-theme comparison mean something.
 **What remains is not steps.** Themes three and four are design exercises with a protocol waiting
 for them, and the `text-muted` / `text-subtle` merge is one queued PR: two spellings of one value
 inside the token layer, #228's defect one level below where that rule was looking.
+
+## ONE WORD FEWER (#330)
+
+`--color-text-muted` is deleted. It and `--color-text-subtle` held the same value, so the
+vocabulary had **five text names for four colours**.
+
+**#228's DEFECT ONE LEVEL BELOW WHERE THAT RULE WAS LOOKING.** #228 caught two spellings of one
+thing in UTILITIES. This was the same failure in the token layer itself, which is the layer #228's
+rule is stated in terms of.
+
+### ⚠ IT WAS NOT `text-body`'s ARRIVAL THAT MADE ONE REDUNDANT — GIT SAYS SO
+
+The hypothesis was that #327's `text-body` absorbed a distinction three PRs ago. It did not. The
+collapse happened in **#103, an ACCESSIBILITY PR**, long before.
+
+| | before #103 | after #103 |
+|---|---|---|
+| `text-muted` | `var(--color-ink-400)` | `oklch(51% 0.016 66)` |
+| `text-subtle` | `#A89D8D` — "lighter subtext, section heading subtexts" | `oklch(51% 0.016 66)` |
+
+They began as **different roles with different values**. #103 raised both to an AA-safe value and
+raised them to the SAME one.
+
+> **A CONTRAST FIX THAT CLAMPS TWO VALUES TO ONE FLOOR ERASES THE DISTINCTION BETWEEN THEM**, and
+> nobody noticed because the result was legal. An accessibility improvement is exactly the kind of
+> change nobody re-reads for a semantic side effect.
+
+### `subtle` SURVIVES ON DENOTATION, AND A SECOND ARGUMENT SETTLES IT
+
+The ladder on cream-50 now reads **primary 19.04** (headings), **body 9.41** (long-form prose),
+**secondary 7.42** (supporting copy), **subtle 5.52** (labels, meta, captions).
+
+"Muted" is the same voice spoken quietly — which is what `secondary` already covers. "Subtle" is
+content meant to RECEDE, which is the step that was genuinely missing a name.
+
+**⚠ AND THE FROZEN STUDIO PALETTE HAD ALREADY CHOSEN.** `--color-studio-text-subtle` exists.
+Deleting the public `text-subtle` instead would have left the frozen token with no public
+counterpart — **the exact asymmetry that made `studio-ground` invisible to C1's pairing in 6a**.
+A vocabulary decision made on one side of a frozen boundary has to be checked against the other.
+
+### ⚠ AND THE DUPLICATE HAD BEEN INFLATING A MEASUREMENT
+
+Cream's tight-floor count drops from **six to five**, because one of the six was
+`text-muted on canvas` — a duplicate ROW for a duplicate TOKEN, same value, same ground, same
+ratio. That count had already been corrected once, from a hand-picked three to a computed six, and
+it was still carrying the redundancy it was counting.
+
+**A DUPLICATE NAME INFLATES EVERY MEASUREMENT TAKEN OVER THE NAMES.** That is a quieter cost than a
+wrong colour, and it is the argument for the merge that neither of us made going in.
+
+### PROOF
+
+Not byte-identical by construction — 20 call sites across 8 files renaming at an identical value is
+still a real diff. So it is rasterised, sanity pair first: `--color-text-subtle` resolves to
+`[109,100,93]`, exactly what `text-muted` held, and P, BUTTON, SPAN, DIV, svg and path all draw it
+on the rendered page. `--color-text-muted` reads empty from the computed style.
+
+**⚠ AND THE FIRST PROBE ASKED THE WRONG QUESTION.** It resolved `var(--color-text-muted)` and read
+back `oklch(0.14 0.018 60)`, which looked like the token surviving. An undefined `var()` makes the
+`color` declaration invalid, so the element INHERITS — the probe was reading ink-950 from an
+ancestor. Reading the custom property itself is the check that means anything.
+
+ralph 2463, unchanged. Lint, tsc and the build clean.
+
+## THREE SHAPES THIS SESSION HAD NO NAME FOR
+
+### 1 · ⚠ A CONSTRAINT FIX CAN ERASE A DISTINCTION BY SATISFYING IT
+
+#103 raised `--color-text-muted` and `--color-text-subtle` to an AA-safe value and raised them to
+the SAME value. They had been `ink-400` and `#A89D8D`, two roles with two colours. Afterwards they
+were one colour with two names, and **the result passed every check because passing was the goal.**
+
+> **AN ACCESSIBILITY PR IS THE LAST PLACE ANYONE LOOKS FOR A SEMANTIC REGRESSION.** The change was
+> correct on the axis it was measured on and destructive on an axis nobody was measuring.
+
+**THE GENERAL FORM. When a fix clamps several values to one floor, ask whether the values were
+different ON PURPOSE.** Legal is not the same as correct, and a floor is a minimum rather than a
+target. The repair is not to weaken the floor — both tokens genuinely needed to clear AA — it is to
+notice that clearing it identically is a decision, and to make it deliberately or not at all.
+
+### 2 · A DUPLICATE NAME INFLATES EVERY MEASUREMENT TAKEN OVER THE NAMES
+
+The same defect seen from the other side. Cream's tight-floor count was reported as three, corrected
+to six, and is five. The three came from reading a table by hand. The six came from computing —
+**and computing rather than sampling fixed the METHOD without fixing the INPUT**, because the input
+still contained `text-muted` and `text-subtle` as two rows for one colour.
+
+A wrong colour is loud. A duplicate name is quiet, and it is quietly wrong in every count, every
+census and every boundary list that enumerates names rather than values.
+
+### 3 · ⚠ NOTHING BEING THERE LOOKED EXACTLY LIKE THE THING BEING THERE
+
+The sixth measurement defect of the session and the first of its kind. Probing whether
+`--color-text-muted` had really been deleted, the check resolved `var(--color-text-muted)` and read
+back `oklch(0.14 0.018 60)` — a plausible colour, which looked like the token surviving the merge.
+
+**An undefined `var()` makes the whole declaration invalid, so the element INHERITS.** The probe was
+reading ink-950 off an ancestor. Reading the custom property itself returns empty, which is the only
+check that means anything.
+
+**EVERY EARLIER INSTANCE THIS SESSION MEASURED A WRONG SUBJECT** — a census counting comments, a
+scan reading the wrong palette, a round trip seeded with its own answer. **This one measured the
+CORRECT subject, which had silently stopped existing**, and CSS's error handling supplied a
+convincing value in its place. Absence has to be tested for directly; it does not announce itself.
+
+### AND TWO INDEPENDENT ARGUMENTS CONVERGED ON `subtle`, WHICH IS WORTH SAYING PLAINLY
+
+Denotation gives the ladder its missing name — "subtle" is content meant to recede, where "muted"
+is the same voice spoken quietly and `secondary` already covers that. And the frozen studio palette
+had already chosen `--color-studio-text-subtle`, so deleting the public one would have left it with
+no public counterpart — the `studio-ground` asymmetry again.
+
+**Independent arguments reaching the same answer is stronger evidence than either alone**, and it
+is the reason this rename needed no fallback plan.
 
 ## WHAT'S NEXT
 

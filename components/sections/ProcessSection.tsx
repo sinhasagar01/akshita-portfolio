@@ -321,7 +321,7 @@ function StageCopy({ stage }: { stage: ResolvedStage }) {
             {stage.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-tag px-[11px] py-1 rounded-full text-text-muted leading-none"
+                className="text-tag px-[11px] py-1 rounded-full text-text-subtle leading-none"
                 style={{
                   background: "var(--color-cream-200)",
                   border: "1px solid color-mix(in oklch, var(--color-text-primary) 14%, transparent)",
@@ -411,7 +411,7 @@ function VerticalStepper({
                 border: isActive || isDone
                   ? "1.5px solid var(--color-accent-500)"
                   : "1.5px solid color-mix(in oklch, var(--color-text-primary) 32%, transparent)",
-                color: isActive || isDone ? "var(--color-cream-50)" : "var(--color-text-muted)",
+                color: isActive || isDone ? "var(--color-cream-50)" : "var(--color-text-subtle)",
                 transition: "background 0.3s, border-color 0.3s, color 0.3s",
               }}
             >
@@ -434,7 +434,7 @@ function VerticalStepper({
                 fontSize: "13px",
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: isActive ? "var(--color-accent-600)" : "var(--color-text-muted)",
+                color: isActive ? "var(--color-accent-600)" : "var(--color-text-subtle)",
                 fontWeight: isActive ? 500 : 400,
                 transition: "color 0.3s",
                 fontFamily: "var(--font-body)",

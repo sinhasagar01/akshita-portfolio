@@ -267,7 +267,7 @@ export default function HeroSection({
                       color:
                         i === active
                           ? "var(--color-accent-600)"
-                          : "var(--color-text-muted)",
+                          : "var(--color-text-subtle)",
                     }}
                   >
                     {i === active && (
@@ -389,7 +389,7 @@ export default function HeroSection({
                   smoothScroll.scrollToTarget(el);
                 }
               }}
-              className="flex items-center gap-2 text-[12px] text-text-muted tracking-[0.08em] uppercase font-medium transition-colors duration-[var(--duration-base)] hover:text-text-secondary"
+              className="flex items-center gap-2 text-[12px] text-text-subtle tracking-[0.08em] uppercase font-medium transition-colors duration-[var(--duration-base)] hover:text-text-secondary"
             >
               <span
                 aria-hidden="true"
