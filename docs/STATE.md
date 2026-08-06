@@ -10000,6 +10000,54 @@ exactly. **A copy that cannot silently disagree is not the copy the objection wa
 satisfies only the first.** Anything that scopes a theme below the root needs a real selector,
 whatever the root happens to be.
 
+## #324's PROOF RE-RUN — IT HOLDS, AND IT WAS NEVER A TEST OF WHAT IT CLAIMED
+
+#324 proved the published theme reaches every page by comparing two builds. **Both sides were
+cream**: one published `cream`, the other `cream-verify`, and with neither declaring a block both fell
+through to `@theme`. The comparison could not have failed. Its note even says so without noticing —
+*"`css__all` is identical, which is the expected consequence of shipping no token blocks."*
+
+**RE-RUN, WITH THE DETERMINISM CONTROL FIRST** (base source built twice, snapshot diff **empty**, so
+the normalizer is sound). Four builds, `scripts/normalize-dom.mjs`:
+
+| comparison | files | differing lines | without `data-theme` | `css__all` |
+|---|---|---|---|---|
+| cream vs cream-verify | 10/10 | 20 | **0** | identical |
+| **cream vs harbour** | 10/10 | 20 | **0** | identical |
+| cream-verify vs harbour | 10/10 | 20 | **0** | identical |
+
+**THE CLAIM IS TRUE. NOTHING HAS BEEN LEAKING SINCE #324.** The gate was right, and it was right
+without having tested the thing it named — the cross-theme row is the one that carries the claim, and
+it is measured here for the first time.
+
+**⚠ AND THE ONE OBSERVATION THAT SURVIVED HAS A COMPLETELY DIFFERENT CAUSE NOW.** `css__all` identical
+used to mean "no theme blocks ship". It now means "ALL theme blocks ship in one bundle and the HTML
+attribute selects among them" — the CSS is theme-invariant by design. **Same number, opposite
+reason**, which is #309's C3 shape again: the value stays true while the reason is replaced entirely.
+
+---
+
+## A CORRECT ARGUMENT WITH AN UNSTATED SCOPE
+
+`globals.css` argued that cream needed no `[data-theme="cream"]` block: `@theme` holds cream, cream IS
+the fallback, and a block would be a second copy this repo would then have to keep in step. **Every
+clause of that is true, and it is true OF THE DOCUMENT.** It says nothing about a scoped override, and
+a scoped override is what the studio switcher is.
+
+**THIS IS E1's FAMILY WEARING DIFFERENT CLOTHES.** E1 proved completeness over `--color-*` and read as
+a claim about the page. This proved sufficiency at the root and read as a claim about the selector.
+**Neither was wrong. Both were narrower than they sounded, and in both cases the gap was invisible
+from inside the argument.**
+
+**THE REPAIR IS THE SAME ONE: SAY WHAT THE ARGUMENT COVERS, NOT ONLY WHAT IT CONCLUDES.** "Cream needs
+no block" should have read "cream needs no block AT THE ROOT; anything scoping a theme below the root
+needs a real selector." That sentence would have found the bug before the owner did.
+
+**AND THE DRIFT OBJECTION WAS ANSWERED BY COMPARISON RATHER THAN BY ABSENCE**, which is the right
+resolution rather than a reversal. The original reason for refusing the block was good. `theme`
+section G is what makes it unnecessary — a copy that cannot silently disagree is not the copy the
+objection was about.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
