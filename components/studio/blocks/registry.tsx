@@ -493,7 +493,7 @@ function GlowFields<T extends { text: string; top: string; right: string; bottom
   return (
     // The glow word is pure appearance — the whole group lives under Style.
     <TabGroup group="style" className="">
-      <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
+      <div className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 p-3">
         <span className={`mb-2 block ${groupLabelCls}`}>
           Glow word (optional)
         </span>
@@ -605,7 +605,7 @@ const FigureGridForm: ComponentType<BlockFormProps<"figureGrid">> = ({ value, on
 const AnnotatedImageForm: ComponentType<BlockFormProps<"annotatedImage">> = ({ value, onChange, onBlur, slug, collection }) => (
   <>
     <ImgSpecFields value={value.image} set={(image, upload) => onChange({ ...value, image }, upload)} onBlur={onBlur} slug={slug} collection={collection} />
-    <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
+    <div className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 p-3">
       <span className={`mb-2 block ${groupLabelCls}`}>
         Scrawl (optional)
       </span>
@@ -670,7 +670,7 @@ const HeroCoverForm: ComponentType<BlockFormProps<"heroCover">> = ({ value, onCh
         <TextField label="Watermark word" value={value.watermark} onChange={(watermark) => onChange({ ...value, watermark })} onBlur={onBlur} optional />
       </div>
     </DisclosureGroup>
-    <div className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3">
+    <div className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 p-3">
       <span className={`mb-2 block ${groupLabelCls}`}>
         Rating chip (optional)
       </span>
@@ -931,7 +931,7 @@ function TokenFields({
       {/* READ-ONLY: switching the type would replace the value's shape. */}
       <div className="flex items-center gap-2">
         <span className={labelCls}>Type</span>
-        <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-ink-600">
+        <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-ink-600">
           {entry.label}
         </span>
         {/* REWRITTEN, NOT ESCAPED. The lint error was two unescaped apostrophes, but the
@@ -939,7 +939,7 @@ function TokenFields({
             nothing had ever caught. Those rules say to rewrite rather than patch, so the
             sentence loses the dash and both apostrophes together instead of gaining two
             `&apos;` entities and keeping the dash. */}
-        <span className="text-[10px] text-text-subtle">Fixed. The type of a token cannot be changed here.</span>
+        <span className="text-[10px] text-studio-text-subtle">Fixed. The type of a token cannot be changed here.</span>
       </div>
       <Form
         value={token.value}
@@ -1018,11 +1018,11 @@ const VideoEmbedForm: ComponentType<BlockFormProps<"videoEmbed">> = ({
             className={srcInvalid ? inputErrorCls : inputCls}
           />
           {srcInvalid ? (
-            <span role="alert" className="text-[10px] text-danger-600">
+            <span role="alert" className="text-[10px] text-studio-danger-600">
               Must be an http:// or https:// URL. The video is hosted elsewhere, not uploaded.
             </span>
           ) : (
-            <span className="text-[10px] text-text-subtle">
+            <span className="text-[10px] text-studio-text-subtle">
               Leave blank while drafting. Publish refuses a video with no source.
             </span>
           )}

@@ -106,7 +106,7 @@ export default function CollapsibleGroup({
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls={bodyId}
-          className="group/ct -my-0.5 -ml-1 flex min-w-0 flex-1 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] px-1 py-0.5 text-left transition-colors hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500"
+          className="group/ct -my-0.5 -ml-1 flex min-w-0 flex-1 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] px-1 py-0.5 text-left transition-colors hover:bg-studio-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500"
         >
           <span
             aria-hidden
@@ -117,7 +117,7 @@ export default function CollapsibleGroup({
                row, IT IS. A disclosure triangle pointing at the thing it will reveal is the more
                legible of the two, and the size and colour go with the orientation — they were
                drawn for a mark doing a different job. Only the HOVER is added. */
-            className={`grid size-3 shrink-0 place-items-center text-ink-600 transition-colors transition-transform group-hover/ct:text-ink-950 ${
+            className={`grid size-3 shrink-0 place-items-center text-studio-ink-600 transition-colors transition-transform group-hover/ct:text-studio-ink-950 ${
               open ? "" : "-rotate-90"
             } [&>svg]:size-3`}
           >
@@ -133,7 +133,7 @@ export default function CollapsibleGroup({
               `name` is optional, so every other consumer (the block cards, DisclosureGroup)
               renders exactly as before with the summary still filling the row. */}
           {name !== undefined && (
-            <span className={`flex-none font-bold ${nameClassName} group-hover/ct:text-ink-950`}>{name}</span>
+            <span className={`flex-none font-bold ${nameClassName} group-hover/ct:text-studio-ink-950`}>{name}</span>
           )}
           <span
             className={`min-w-0 flex-1 truncate ${
@@ -144,8 +144,8 @@ export default function CollapsibleGroup({
                   // 3.49 on cream-50 and 3.33 on cream-100. `text-subtle` is 5.52 / 5.25.
                   // THIRD TIME the contract has specified ink-400 as text, after #253's placeholder
                   // and #255's unit suffix. Each time the project already held the rule.
-                  "text-right text-[11px] font-normal normal-case tracking-normal text-text-subtle group-hover/ct:text-ink-800"
-                : `${summaryClassName} group-hover/ct:text-ink-950`
+                  "text-right text-[11px] font-normal normal-case tracking-normal text-studio-text-subtle group-hover/ct:text-studio-ink-800"
+                : `${summaryClassName} group-hover/ct:text-studio-ink-950`
             }`}
           >
             {summary}

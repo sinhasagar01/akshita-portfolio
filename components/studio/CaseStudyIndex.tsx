@@ -210,7 +210,7 @@ export default function CaseStudyIndex({
           <button
             type="button"
             onClick={() => setAddOpen(true)}
-            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-3.5 py-2 text-[14px] font-medium text-cream-50 transition-colors hover:bg-accent-600 [&>svg]:size-3.5"
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-3.5 py-2 text-[14px] font-medium text-studio-cream-50 transition-colors hover:bg-studio-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> Add case study
           </button>
@@ -257,20 +257,20 @@ export default function CaseStudyIndex({
       <div
         role="status"
         aria-live="polite"
-        className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-ink-600"
+        className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-studio-ink-600"
       >
-        <IconInfo className="mt-[3px] h-3.5 w-3.5 flex-none text-ink-400" />
+        <IconInfo className="mt-[3px] h-3.5 w-3.5 flex-none text-studio-ink-400" />
         <span>
           {filtering ? (
             <>
-              <strong className="font-semibold text-ink-950">
+              <strong className="font-semibold text-studio-ink-950">
                 {shown.length} of {items.length} {items.length === 1 ? "study" : "studies"}.
               </strong>{" "}
               Clear the search to change the order.
             </>
           ) : (
             <>
-              <strong className="font-semibold text-ink-950">
+              <strong className="font-semibold text-studio-ink-950">
                 {items.length} {items.length === 1 ? "study" : "studies"},
               </strong>{" "}
               in the order they appear on your homepage.
@@ -285,7 +285,7 @@ export default function CaseStudyIndex({
           you just took; a banner is cleared when a new action starts, so a stale
           message can never sit on top of a fresh one. */}
       {(reorderError || banner) && (
-        <p className="text-[12px] text-accent-600" role="status" aria-live="polite">
+        <p className="text-[12px] text-studio-accent-600" role="status" aria-live="polite">
           {reorderError || banner}
         </p>
       )}
@@ -296,14 +296,14 @@ export default function CaseStudyIndex({
           available here the moment a search box arrives, so the two states are split at the
           source rather than after someone reports it. */}
       {shown.length === 0 ? (
-        <div className="grid min-h-[30vh] place-items-center rounded-[var(--studio-radius-card,8px)] bg-cream-100 px-4 py-10 text-center">
+        <div className="grid min-h-[30vh] place-items-center rounded-[var(--studio-radius-card,8px)] bg-studio-cream-100 px-4 py-10 text-center">
           {items.length === 0 ? (
-            <p className="text-[13px] text-text-subtle">
+            <p className="text-[13px] text-studio-text-subtle">
               No case studies yet. Add one to get started.
             </p>
           ) : (
-            <p className="text-[13px] text-text-subtle">
-              No case studies match <b className="text-ink-950">{query.trim()}</b>.
+            <p className="text-[13px] text-studio-text-subtle">
+              No case studies match <b className="text-studio-ink-950">{query.trim()}</b>.
             </p>
           )}
         </div>
@@ -313,7 +313,7 @@ export default function CaseStudyIndex({
            FLUID COLUMNS, NOT A BREAKPOINT LADDER, the Board's answer to the same question: a
            272px floor fits as many columns as the width allows and degrades to one without a
            single media query. It is what lets this page take the full width without a ladder. */
-        <div className="grid gap-4 rounded-[var(--studio-radius-card,8px)] bg-cream-100 p-4 [grid-template-columns:repeat(auto-fill,minmax(272px,1fr))]">
+        <div className="grid gap-4 rounded-[var(--studio-radius-card,8px)] bg-studio-cream-100 p-4 [grid-template-columns:repeat(auto-fill,minmax(272px,1fr))]">
           {shown.map((p) => {
             /* ⚠ THE POSITION COMES FROM THE FULL LIST, NEVER FROM THE FILTERED ONE. The ordinal
                and the disabled ends both describe where a study sits in the HOMEPAGE ORDER, and
@@ -344,7 +344,7 @@ export default function CaseStudyIndex({
             <button
               type="button"
               onClick={() => setAddOpen(true)}
-              className="grid min-h-[180px] place-items-center rounded-[var(--studio-radius-card,8px)] border border-dashed border-ink-950/22 text-[12px] font-semibold text-ink-800 transition-[color,border-color,background-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:border-solid hover:border-accent-500 hover:bg-cream-50 hover:text-accent-600"
+              className="grid min-h-[180px] place-items-center rounded-[var(--studio-radius-card,8px)] border border-dashed border-studio-ink-950/22 text-[12px] font-semibold text-studio-ink-800 transition-[color,border-color,background-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:border-solid hover:border-studio-accent-500 hover:bg-studio-cream-50 hover:text-studio-accent-600"
             >
               + Add case study
             </button>
@@ -392,12 +392,12 @@ export default function CaseStudyIndex({
               className={inputCls}
             />
           </label>
-          <p id="add-cs-desc" className="mt-1 text-[12px] text-text-subtle">
+          <p id="add-cs-desc" className="mt-1 text-[12px] text-studio-text-subtle">
             The title is the case study&rsquo;s identity and can&rsquo;t be changed here later. It
             starts as a stub, added to the end of the list. Use the arrows to move it.
           </p>
           {addError && (
-            <p className="mt-2 text-[12px] text-accent-600" aria-live="polite">
+            <p className="mt-2 text-[12px] text-studio-accent-600" aria-live="polite">
               {addError}
             </p>
           )}

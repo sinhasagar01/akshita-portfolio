@@ -57,7 +57,7 @@ export function SectionShellForm({
          card, so they are already one step off their own parent. Moving them to cream-50 would
          recreate exactly the defect this line fixes, one level down. The contract's
          `.grp{background:cream-50}` is drawn for a group on cream-100; the rule is RELATIONAL. */
-      className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
+      className="rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-50 p-3"
       summary="Section settings"
       summaryClassName={groupLabelCls}
     >
@@ -85,7 +85,7 @@ export function SectionShellForm({
                 optional
               />
               {duplicateId && (
-                <span className="text-[10px] text-accent-600">
+                <span className="text-[10px] text-studio-accent-600">
                   Another section already uses this id. Anchors need it to be unique.
                 </span>
               )}

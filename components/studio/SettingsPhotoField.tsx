@@ -80,7 +80,7 @@ export default function SettingsPhotoField({
       {/* Vertical, and the container declares NO ground — see BlockImageField, which carries
           the full note. This row had the identical class string and the identical collision,
           and the same reason applies: it is mounted on more than one ground. */}
-      <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2.5">
+      <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-2.5">
         {/* 3/4 IS A STATED DEFAULT, NOT A DERIVATION, AND THE DIFFERENCE MATTERS.
             Every other plate reads its aspect off the public renderer. This one cannot: the
             public About column gives the photo NO ratio — `.ab-img` is `position:absolute;
@@ -95,9 +95,9 @@ export default function SettingsPhotoField({
         <ImageThumb src={photo} aspect={3 / 4} className="w-full" />
         <div className="flex items-center gap-2">
         {photo ? (
-          <code className="min-w-0 flex-1 truncate text-[12px] text-ink-600">{photo}</code>
+          <code className="min-w-0 flex-1 truncate text-[12px] text-studio-ink-600">{photo}</code>
         ) : (
-          <span className="flex-1 text-[12px] text-text-subtle">No photo set</span>
+          <span className="flex-1 text-[12px] text-studio-text-subtle">No photo set</span>
         )}
         <input
           ref={inputRef}
@@ -117,7 +117,7 @@ export default function SettingsPhotoField({
           disabled={busy}
           // No background: the container declares none either, so a fixed value here would be
           // the same absolute-on-an-unknown-ground mistake. The border delineates it.
-          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2.5 py-1 text-[12px] transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : photo ? "Replace" : "Upload"}
         </button>
@@ -128,7 +128,7 @@ export default function SettingsPhotoField({
             onClick={clear}
             disabled={busy}
             aria-label="Clear photo"
-            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 disabled:opacity-40 [&>svg]:size-3.5"
           >
             <IconX />
           </button>
@@ -138,7 +138,7 @@ export default function SettingsPhotoField({
       {/* Announced: an upload failure is the one thing here a screen-reader user
           cannot otherwise notice, since the visible change is a small line of text. */}
       {error && (
-        <span role="alert" className="text-[10px] text-accent-600">
+        <span role="alert" className="text-[10px] text-studio-accent-600">
           {error}
         </span>
       )}

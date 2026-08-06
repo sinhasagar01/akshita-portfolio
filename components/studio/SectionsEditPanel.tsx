@@ -95,7 +95,7 @@ const sectionLabel = (s: RawSection, i: number) =>
   sectionDisplayLabel({ title: s.title, eyebrow: s.eyebrow, id: s.id }, i);
 
 const iconBtn =
-  "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+  "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
 // CS-3 — the block kinds that carry any STYLE field (image geometry or a glow
 // word). Under the Style tab, blocks NOT in this set have nothing to show, so their
@@ -154,24 +154,24 @@ export function sectionNeedsImage(section: RawSection): boolean {
  *  kind family plus the kind's label, so the board reads as an overview. */
 function BlockSkeleton({ kind }: { kind: SectionBlockKind }) {
   return (
-    <span className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/6 bg-cream-100 px-2 py-1 transition-[background-color,color] duration-[var(--studio-lift-t,200ms)] delay-[var(--studio-t3-delay,90ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:bg-cream-200">
+    <span className="flex items-center gap-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/6 bg-studio-cream-100 px-2 py-1 transition-[background-color,color] duration-[var(--studio-lift-t,200ms)] delay-[var(--studio-t3-delay,90ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:bg-studio-cream-200">
       <span aria-hidden className="shrink-0">
         {IMAGE_KINDS.has(kind) ? (
-          <span className="block size-3.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/20 bg-ink-950/5" />
+          <span className="block size-3.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/20 bg-studio-ink-950/5" />
         ) : GRID_KINDS.has(kind) ? (
           <span className="grid grid-cols-2 gap-0.5">
             {[0, 1, 2, 3].map((n) => (
-              <span key={n} className="block size-1.5 rounded-[1px] bg-ink-950/20" />
+              <span key={n} className="block size-1.5 rounded-[1px] bg-studio-ink-950/20" />
             ))}
           </span>
         ) : (
           <span className="flex w-3.5 flex-col gap-0.5">
-            <span className="block h-0.5 w-full rounded-[var(--studio-radius-control,4px)] bg-ink-950/20" />
-            <span className="block h-0.5 w-2/3 rounded-[var(--studio-radius-control,4px)] bg-ink-950/20" />
+            <span className="block h-0.5 w-full rounded-[var(--studio-radius-control,4px)] bg-studio-ink-950/20" />
+            <span className="block h-0.5 w-2/3 rounded-[var(--studio-radius-control,4px)] bg-studio-ink-950/20" />
           </span>
         )}
       </span>
-      <span className="truncate text-[12px] text-ink-600 transition-colors duration-[var(--studio-lift-t,200ms)] delay-[var(--studio-t3-delay,90ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:text-ink-950">
+      <span className="truncate text-[12px] text-studio-ink-600 transition-colors duration-[var(--studio-lift-t,200ms)] delay-[var(--studio-t3-delay,90ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:text-studio-ink-950">
         {blockLabel(kind)}
       </span>
     </span>
@@ -677,9 +677,9 @@ function SelectionDock({
       // list rather than hiding it.
       inert={!open}
       className={[
-        "flex-none overflow-hidden border-t bg-cream-100",
+        "flex-none overflow-hidden border-t bg-studio-cream-100",
         open
-          ? "max-h-[124px] translate-y-0 border-ink-950/22 opacity-100 duration-[var(--studio-t2,340ms)] ease-[var(--studio-ease-settle,cubic-bezier(0.34,1.35,0.5,1))] delay-[var(--studio-t2-delay,40ms)]"
+          ? "max-h-[124px] translate-y-0 border-studio-ink-950/22 opacity-100 duration-[var(--studio-t2,340ms)] ease-[var(--studio-ease-settle,cubic-bezier(0.34,1.35,0.5,1))] delay-[var(--studio-t2-delay,40ms)]"
           : "max-h-0 translate-y-[var(--studio-rise,20px)] border-transparent opacity-0 duration-[var(--studio-out,130ms)] ease-[var(--ease-out-expo)] delay-0",
         "transition-[max-height,opacity,transform,border-color]",
       ].join(" ")}
@@ -691,7 +691,7 @@ function SelectionDock({
               reads as arriving and then filling rather than appearing whole. */}
           <span
             className={[
-              "rounded-full border border-accent-500/30 bg-accent-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-accent-600",
+              "rounded-full border border-studio-accent-500/30 bg-studio-accent-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-studio-accent-600",
               "transition-[opacity,transform] duration-[var(--studio-t4,280ms)] ease-[var(--ease-out-expo)]",
               open
                 ? "translate-y-0 opacity-100 delay-[var(--studio-t4a,150ms)]"
@@ -714,8 +714,8 @@ function SelectionDock({
             onClick={onDismiss}
             aria-label="Stop editing this field"
             className={[
-              "grid size-[22px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors hover:bg-cream-200 hover:text-ink-950",
-              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500",
+              "grid size-[22px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] text-studio-ink-400 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500",
               open ? "opacity-100" : "opacity-0",
             ].join(" ")}
           >
@@ -963,7 +963,7 @@ function SectionCanvas({
         {s ? (
           <SectionRenderer key={renderEpoch} section={s} web={web} noReveal editable={editable} />
         ) : (
-          <p className="px-4 py-6 text-center text-[12px] text-text-subtle">
+          <p className="px-4 py-6 text-center text-[12px] text-studio-text-subtle">
             This section can’t be previewed yet — finish its required fields.
           </p>
         )}
@@ -1395,7 +1395,7 @@ export default function SectionsEditPanel({
        field surface holding wells is exactly what cream-100 is for.
        THE DOUBLE PADDING IS GONE. `px-4 py-5` was applied here AND on the inner column, insetting
        the board 32px horizontally and 40px vertically. One inset now. */
-    <div className="min-h-0 flex-1 overflow-y-auto bg-cream-100">
+    <div className="min-h-0 flex-1 overflow-y-auto bg-studio-cream-100">
       <div className="flex flex-col gap-4 px-4 py-5">
         {/* FLUID COLUMNS, NOT A BREAKPOINT LADDER. `auto-fill` with a 300px floor fits as many
             columns as the pane can hold and adds one when it grows, so the Board is not capped at
@@ -1430,8 +1430,8 @@ export default function SectionsEditPanel({
               <div
                 key={ids.sectionIds[i]}
                 data-board-card
-                className={`group relative flex h-[320px] max-w-[340px] flex-col overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-cream-50 p-3.5 ${
-                  selected ? "border-l-accent-500" : "border-l-transparent"
+                className={`group relative flex h-[320px] max-w-[340px] flex-col overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] bg-studio-cream-50 p-3.5 ${
+                  selected ? "border-l-studio-accent-500" : "border-l-transparent"
                 } shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] ${
                   selected
                     ? "shadow-[var(--studio-lift-active,0_2px_5px_oklch(14%_0.018_60/0.08))]"
@@ -1457,7 +1457,7 @@ export default function SectionsEditPanel({
                   type="button"
                   onClick={() => setSelection({ id: ids.sectionIds[i] })}
                   aria-label={`Edit section ${name}, ${count} ${count === 1 ? "block" : "blocks"}${needsImage ? ", needs an image" : ""}`}
-                  className="absolute inset-0 z-0 rounded-[var(--studio-radius-card,8px)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent-500"
+                  className="absolute inset-0 z-0 rounded-[var(--studio-radius-card,8px)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-studio-accent-500"
                 />
 
                 {/* HEAD — fixed height. The arrows are NOT here; see the foot. */}
@@ -1471,8 +1471,8 @@ export default function SectionsEditPanel({
                   <span
                     className={`grid size-[30px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] text-[13px] ${
                       selected
-                        ? "bg-accent-500 font-semibold text-cream-50"
-                        : "bg-cream-100 font-display italic text-ink-600 group-hover:bg-cream-200"
+                        ? "bg-studio-accent-500 font-semibold text-studio-cream-50"
+                        : "bg-studio-cream-100 font-display italic text-studio-ink-600 group-hover:bg-studio-cream-200"
                     } transition-[background-color,color,transform] duration-[var(--studio-lift-follow,240ms)] delay-[var(--studio-t2-delay,40ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:-translate-y-px motion-reduce:group-hover:translate-y-0`}
                   >
                     {i + 1}
@@ -1482,23 +1482,23 @@ export default function SectionsEditPanel({
                         comment here deferred a measured 3.49 against cream-50 — below the 4.5 AA
                         floor — to "PR 7 restructures this board". This is that restructure. 7.42. */}
                     {section.eyebrow && (
-                      <span className="truncate text-[10px] uppercase tracking-eyebrow text-ink-600">
+                      <span className="truncate text-[10px] uppercase tracking-eyebrow text-studio-ink-600">
                         {section.eyebrow}
                       </span>
                     )}
                     {/* TWO LINES, AND THE AUTHOR'S OWN BREAK IS HONOURED. Five of the six longest
                         real titles already carry a newline the author wrote, so `whitespace-pre-line`
                         makes the clamp a backstop rather than a competing opinion. */}
-                    <span className="line-clamp-2 whitespace-pre-line font-display text-[15px] leading-[1.25] text-ink-950">
+                    <span className="line-clamp-2 whitespace-pre-line font-display text-[15px] leading-[1.25] text-studio-ink-950">
                       {name}
                     </span>
                   </div>
                 </div>
 
                 {/* THE SHAPE — the flexible middle, and the only `flex-1` on the card. */}
-                <div className="pointer-events-none relative z-[1] my-2.5 flex min-h-0 flex-1 flex-col justify-center rounded-[var(--studio-radius-control,4px)] bg-cream-100 p-3 transition-colors duration-[var(--studio-lift-follow,240ms)] delay-[var(--studio-t2-delay,40ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:bg-cream-200">
+                <div className="pointer-events-none relative z-[1] my-2.5 flex min-h-0 flex-1 flex-col justify-center rounded-[var(--studio-radius-control,4px)] bg-studio-cream-100 p-3 transition-colors duration-[var(--studio-lift-follow,240ms)] delay-[var(--studio-t2-delay,40ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] group-hover:bg-studio-cream-200">
                   {count === 0 ? (
-                    <span className="w-full text-center text-[12px] text-text-subtle">No blocks yet</span>
+                    <span className="w-full text-center text-[12px] text-studio-text-subtle">No blocks yet</span>
                   ) : (
                     <SectionMini kind={firstKind} />
                   )}
@@ -1518,10 +1518,10 @@ export default function SectionsEditPanel({
                       />
                     ))}
                     {count > 3 && (
-                      <span className="text-[11px] text-text-subtle">+{count - 3}</span>
+                      <span className="text-[11px] text-studio-text-subtle">+{count - 3}</span>
                     )}
                     {needsImage && (
-                      <span className="inline-flex w-fit items-center rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600">
+                      <span className="inline-flex w-fit items-center rounded-full bg-studio-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-studio-accent-600">
                         Needs an image
                       </span>
                     )}
@@ -1542,7 +1542,7 @@ export default function SectionsEditPanel({
                       onClick={() => moveSection(i, -1)}
                       disabled={i === 0}
                       aria-label={`Move section ${name} earlier`}
-                      className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
+                      className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500`}
                     >
                       <IconChevronRight className="rotate-180" />
                     </button>
@@ -1552,7 +1552,7 @@ export default function SectionsEditPanel({
                       onClick={() => moveSection(i, 1)}
                       disabled={i === values.sections.length - 1}
                       aria-label={`Move section ${name} later`}
-                      className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500`}
+                      className={`pointer-events-auto ${iconBtn} focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500`}
                     >
                       <IconChevronRight />
                     </button>
@@ -1565,7 +1565,7 @@ export default function SectionsEditPanel({
         <button
           type="button"
           onClick={addSection}
-          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> Add a section
         </button>
@@ -1960,14 +1960,14 @@ export default function SectionsEditPanel({
                   size: it is `(1.5rem + clamp(0.75rem, 2vw, 2rem)) * scale`, where the clamp
                   tracks the VIEWPORT and the scale tracks the PANE. `--cs-card-inset` carries
                   the whole expression, so the two edges cannot drift apart on a resize. */}
-              <div className="mx-[var(--cs-card-inset)] mb-3 mt-3 flex items-start gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-ink-600">
-                <IconInfo className="mt-[3px] h-3.5 w-3.5 flex-none text-ink-400" />
+              <div className="mx-[var(--cs-card-inset)] mb-3 mt-3 flex items-start gap-2.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 px-3 py-2.5 text-[12px] leading-relaxed text-studio-ink-600">
+                <IconInfo className="mt-[3px] h-3.5 w-3.5 flex-none text-studio-ink-400" />
                 <span>
-                  <strong className="font-semibold text-ink-950">Live preview.</strong> Click any dashed
+                  <strong className="font-semibold text-studio-ink-950">Live preview.</strong> Click any dashed
                   element to edit it, here or in the panel beside it. Rich text with{" "}
                   {/* MONO, because `**bold**` is syntax the author TYPES, not emphasis. Set in the
                       running face it reads as a typo. */}
-                  <code className="rounded-[3px] bg-cream-200 px-1 py-px font-mono text-[11px] text-accent-600">
+                  <code className="rounded-[3px] bg-studio-cream-200 px-1 py-px font-mono text-[11px] text-studio-accent-600">
                     **bold**
                   </code>{" "}
                   edits under Inspector.
@@ -1981,7 +1981,7 @@ export default function SectionsEditPanel({
                   `role="status"` it always needed, so a screen reader is told when an upload
                   finishes or fails rather than only sighted users. */}
               {(imageBusy || imageError) && (
-                <p role="status" aria-live="polite" className="mx-[var(--cs-card-inset)] mb-3 flex flex-wrap gap-2 text-[12px] text-accent-600">
+                <p role="status" aria-live="polite" className="mx-[var(--cs-card-inset)] mb-3 flex flex-wrap gap-2 text-[12px] text-studio-accent-600">
                   {imageBusy && <span>Uploading image…</span>}
                   {imageError && <span>{imageError}</span>}
                 </p>
@@ -2057,13 +2057,13 @@ export default function SectionsEditPanel({
            details bar has its own in ProjectsEditPanel, because the two bars are rendered by
            two different components over two different useDraftForms. Extracting a shared
            Preview would couple them for four lines of markup. */
-        <span className="flex items-center gap-1 text-ink-600">
+        <span className="flex items-center gap-1 text-studio-ink-600">
           <a
             href={`/studio/projects/${slug}/preview`}
             target="_blank"
             rel="noopener"
             title="Opens the draft preview in a new tab."
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold transition-colors hover:bg-studio-cream-100"
           >
             Preview
           </a>
@@ -2189,7 +2189,7 @@ export default function SectionsEditPanel({
           <div
             role="tablist"
             aria-label="Section content and style"
-            className="mx-3 mt-2 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/22"
+            className="mx-3 mt-2 flex overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/22"
           >
             {(["content", "style"] as const).map((t) => {
               const selected = contentStyleTab === t;
@@ -2225,10 +2225,10 @@ export default function SectionsEditPanel({
                     // different grounds. So the selected button's ring takes the label's colour
                     // (cream-50 on accent, 4.70) and the rest keeps accent on cream (4.70).
                     // Same value both ways, which is the point: one ring, two grounds.
-                    "[&+&]:border-l [&+&]:border-ink-950/22",
+                    "[&+&]:border-l [&+&]:border-studio-ink-950/22",
                     selected
-                      ? "bg-accent-500 text-cream-50 focus-visible:outline-cream-50"
-                      : "bg-cream-50 text-ink-600 hover:text-ink-950 focus-visible:outline-accent-500",
+                      ? "bg-studio-accent-500 text-studio-cream-50 focus-visible:outline-studio-cream-50"
+                      : "bg-studio-cream-50 text-studio-ink-600 hover:text-studio-ink-950 focus-visible:outline-studio-accent-500",
                   ].join(" ")}
                 >
                   {t === "content" ? "Content" : "Style"}
@@ -2281,7 +2281,7 @@ export default function SectionsEditPanel({
                   onKeyDown={(e) => {
                     if (e.key === "Escape") setConfirmRemove(null);
                   }}
-                  className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-accent-500/5 px-2.5 py-1.5"
+                  className="flex items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] border border-studio-accent-500/30 bg-studio-accent-500/5 px-2.5 py-1.5"
                 >
                   <span id={`rm-msg-${ids.sectionIds[i]}`} className="min-w-0 flex-1 text-[12px]">
                     Remove this section and its blocks? You can still undo it with Discard until you
@@ -2292,7 +2292,7 @@ export default function SectionsEditPanel({
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => setConfirmRemove(null)}
-                    className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+                    className="shrink-0 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
                   >
                     Cancel
                   </button>
@@ -2303,7 +2303,7 @@ export default function SectionsEditPanel({
                       setConfirmRemove(null);
                       removeSection(i);
                     }}
-                    className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-accent-500/40 bg-accent-500/10 px-2.5 py-1 text-[12px] text-accent-600 transition-colors hover:bg-accent-500/20"
+                    className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-accent-500/40 bg-studio-accent-500/10 px-2.5 py-1 text-[12px] text-studio-accent-600 transition-colors hover:bg-studio-accent-500/20"
                   >
                     Remove
                   </button>
@@ -2320,7 +2320,7 @@ export default function SectionsEditPanel({
                   <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveSection(i, 1)} disabled={i === values.sections.length - 1} aria-label={`Move section ${sectionLabel(section, i)} down`} className={iconBtn}>
                     <IconChevronDown />
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirmRemove(ids.sectionIds[i])} aria-label={`Remove section ${sectionLabel(section, i)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 [&>svg]:size-3.5">
                     <IconX />
                   </button>
                 </div>
@@ -2343,8 +2343,8 @@ export default function SectionsEditPanel({
                 const entry = (BLOCK_REGISTRY as Record<string, (typeof BLOCK_REGISTRY)[EditableBlockKind] | undefined>)[kind];
                 if (!entry) {
                   return (
-                    <div key={ids.blockIds[i][j]} className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 px-3 py-2">
-                      <p className="text-[12px] text-ink-600">
+                    <div key={ids.blockIds[i][j]} className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 px-3 py-2">
+                      <p className="text-[12px] text-studio-ink-600">
                         {blockLabel(kind)} — no editor yet. It renders on the page once built.
                       </p>
                     </div>
@@ -2377,7 +2377,7 @@ export default function SectionsEditPanel({
                     // CS-3 — under the Style tab, a copy-only block has nothing to show,
                     // so its card is hidden here (the form stays MOUNTED). Content shows all.
                     hidden={contentStyleTab === "style" && !KIND_HAS_STYLE.has(kind)}
-                    className="rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-3"
+                    className="rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-50 p-3"
                     // OPEN BY DEFAULT, AND THE DATA IS WHY. The contract asked for every block to
                     // fold except the one being edited; measured, 12 of the 14 sections in
                     // elevate-one-view have exactly ONE block, so that default is a no-op on 86%
@@ -2387,10 +2387,10 @@ export default function SectionsEditPanel({
                     defaultOpen
                     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                     summary={(entry.label as (v: any) => string)(block.value)}
-                    summaryClassName="text-[12px] font-medium text-ink-950"
+                    summaryClassName="text-[12px] font-medium text-studio-ink-950"
                     controls={
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-text-subtle">{blockLabel(kind)}</span>
+                        <span className="text-[10px] text-studio-text-subtle">{blockLabel(kind)}</span>
                         <div className="flex gap-1">
                           <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, -1)} disabled={j === 0} aria-label={`Move ${blockLabel(kind)} up`} className={iconBtn}>
                             <IconChevronUp />
@@ -2398,7 +2398,7 @@ export default function SectionsEditPanel({
                           <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => moveBlock(i, j, 1)} disabled={j === section.blocks.length - 1} aria-label={`Move ${blockLabel(kind)} down`} className={iconBtn}>
                             <IconChevronDown />
                           </button>
-                          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5">
+                          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeBlock(i, j)} aria-label={`Remove ${blockLabel(kind)}`} className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 [&>svg]:size-3.5">
                             <IconX />
                           </button>
                         </div>
@@ -2427,7 +2427,7 @@ export default function SectionsEditPanel({
               })}
 
               {picker === ids.sectionIds[i] ? (
-                <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-accent-500/30 bg-cream-100 p-3">
+                <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-studio-accent-500/30 bg-studio-cream-100 p-3">
                   <span className={groupLabelCls}>Add a block</span>
                   <div className="flex flex-wrap gap-1.5">
                     {addableKinds.map((k) => (
@@ -2435,13 +2435,13 @@ export default function SectionsEditPanel({
                         key={k}
                         type="button"
                         onClick={() => addBlock(i, k)}
-                        className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-2.5 py-1.5 text-[12px] font-semibold transition-colors hover:border-accent-500/40 hover:text-accent-600"
+                        className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 px-2.5 py-1.5 text-[12px] font-semibold transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600"
                       >
                         {blockLabel(k)}
                       </button>
                     ))}
                   </div>
-                  <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-ink-600 hover:text-ink-950">
+                  <button type="button" onClick={() => setPicker(null)} className="w-fit rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] text-studio-ink-600 hover:text-studio-ink-950">
                     Cancel
                   </button>
                 </div>
@@ -2449,7 +2449,7 @@ export default function SectionsEditPanel({
                 <button
                   type="button"
                   onClick={() => setPicker(ids.sectionIds[i])}
-                  className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+                  className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 [&>svg]:size-3.5"
                 >
                   <IconPlus /> Add a block
                 </button>
@@ -2489,7 +2489,7 @@ export default function SectionsEditPanel({
           header it replaced — sitting directly above the shell's cream-50 canvas column, which is
           the collision the ladder exists to prevent. Chrome is cream-200, the same value the
           shell's own list pane takes (:169). The footer below takes it for the same reason. */}
-      <div className="flex flex-none items-center gap-3 border-b border-ink-950/12 bg-cream-200 px-[18px] py-[11px]">
+      <div className="flex flex-none items-center gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-[18px] py-[11px]">
         {/* BACK, SWITCHER AND VIEW LIVE, RE-HOMED FROM THE ROUTE. They sat in a padded bar the
             route drew above the panel; that bar went with STUDIO_PAGE, because a full-height
             shell has to reach the viewport edges and a second header above it would compete
@@ -2498,17 +2498,17 @@ export default function SectionsEditPanel({
           href="/studio/projects"
           // Colour on the span, not the Link — hazard 22. `a { color: inherit }` is unlayered
           // and beats text-* on the anchor; see BlogPostList for the full note.
-          className="group shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-cream-100"
+          className="group shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-studio-cream-100"
         >
-          <span className="text-ink-600 transition-colors group-hover:text-ink-950">← Case studies</span>
+          <span className="text-studio-ink-600 transition-colors group-hover:text-studio-ink-950">← Case studies</span>
         </Link>
-        <span className="truncate font-display text-[17px] text-ink-950">{title}</span>
+        <span className="truncate font-display text-[17px] text-studio-ink-950">{title}</span>
         {/* THE STUDY ANNOUNCES WHAT IT IS BEFORE ANYONE GOES LOOKING FOR WHAT IS MISSING. A
             reader who opens boat-crest and finds one rail item should learn why from the header,
             not by inferring it from an absence. Accent-tinted rather than the neutral template
             chip beside it, because it is a different KIND of fact — the template chip says how it
             renders, this says who renders it. */}
-        <span className="shrink-0 rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-ink-600">
+        <span className="shrink-0 rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] uppercase tracking-eyebrow text-studio-ink-600">
           {template === "web" ? "Web" : "Mobile"}
         </span>
         <span className="flex-1" />
@@ -2517,16 +2517,16 @@ export default function SectionsEditPanel({
           href={livePath}
           target="_blank"
           rel="noreferrer"
-          className="hidden shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] font-semibold transition-colors hover:border-accent-500 sm:inline-flex [&>svg]:size-3"
+          className="hidden shrink-0 items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2.5 py-1 text-[12px] font-semibold transition-colors hover:border-studio-accent-500 sm:inline-flex [&>svg]:size-3"
         >
-          <span className="text-ink-600">View live</span> <IconArrowUpRight />
+          <span className="text-studio-ink-600">View live</span> <IconArrowUpRight />
         </a>
         {/* EDITOR | BOARD. Not new machinery — `selection` already encoded the board as a state,
             so this is that state getting a control instead of a back link.
             EDITOR IS FIRST, AND THE ORDER IS THE ONLY THING THAT CHANGED. It reads left to right
             as what the panel opens on, so the control agrees with the default beside it rather
             than listing the states in the order they were built. */}
-        <div role="group" aria-label="View" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5">
+        <div role="group" aria-label="View" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 p-0.5">
           {([["editor", "Editor"], ["board", "Board"]] as const).map(([v, label]) => {
             const on = v === "board" ? showBoard : !showBoard;
             return (
@@ -2536,7 +2536,7 @@ export default function SectionsEditPanel({
                 aria-pressed={on}
                 onClick={() => setSelection(v === "board" ? "board" : lastEditedRef.current)}
                 className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold transition-colors ${
-                  on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950"
+                  on ? "bg-studio-accent-500 text-studio-cream-50" : "text-studio-ink-600 hover:text-studio-ink-950"
                 }`}
               >
                 {label}
@@ -2587,12 +2587,12 @@ export default function SectionsEditPanel({
              NOTE WHAT THIS COSTS, because it is a real trade rather than a free win: the
              inspector is ALREADY cream-100, so the three panes now step 200 / 100 / 100
              instead of 200 / 50 / 100 and the canvas no longer differs in tone from the
-             inspector. They stay divided by the inspector's own `border-l border-ink-950/22`,
+             inspector. They stay divided by the inspector's own `border-l border-studio-ink-950/22`,
              which is the harder of the studio's two hairlines and was already carrying that
              edge on its own.
              Blog passes nothing and keeps the cream-50 default, so its article-measure canvas
              is untouched — the reason this is a prop and not an edit to the shell. */
-          canvasGround="bg-cream-100"
+          canvasGround="bg-studio-cream-100"
           list={
             <SectionsRail
               sections={values.sections}
@@ -2653,13 +2653,13 @@ export default function SectionsEditPanel({
                 onFit={zoom.fit}
               />
               )}
-              <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink-950">
+              <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-studio-ink-950">
                 {showDetails ? "Details" : selIdxTop < 0 ? "" : sectionLabel(values.sections[selIdxTop], selIdxTop)}
               </span>
               {/* The view toggle exists ONLY below the fold, where the inspector pane is gone and
                   this is the route to those fields — the same rule the blog shell uses. */}
               {!inspectorFits && (
-                <div role="group" aria-label="Editor view" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 p-0.5">
+                <div role="group" aria-label="Editor view" className="inline-flex shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 p-0.5">
                   {(["canvas", "inspector"] as const).map((v) => (
                     <button
                       key={v}
@@ -2667,7 +2667,7 @@ export default function SectionsEditPanel({
                       aria-pressed={view === v}
                       onClick={() => setView(v)}
                       className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors ${
-                        view === v ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950"
+                        view === v ? "bg-studio-accent-500 text-studio-cream-50" : "text-studio-ink-600 hover:text-studio-ink-950"
                       }`}
                     >
                       {v}

@@ -129,14 +129,14 @@ export default function BoldToolbar({
   };
 
   const btn =
-    "grid size-[30px] place-items-center rounded-[var(--studio-radius-control,4px)] text-[15px] text-ink-950 transition-colors hover:bg-cream-200";
+    "grid size-[30px] place-items-center rounded-[var(--studio-radius-control,4px)] text-[15px] text-studio-ink-950 transition-colors hover:bg-studio-cream-200";
   // Layout only. Colour is per-button, because a shared `bg-white` here and a
   // `bg-accent-500` on the primary are the same Tailwind property — the generated sheet
   // decides which wins, not the order they appear in the string, and the primary loses.
   const action =
     "h-[30px] rounded-[var(--studio-radius-control,4px)] border border-[0.5px] px-[13px] text-[12px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45";
-  const actionQuiet = `${action} border-ink-950/16 bg-white text-ink-950 hover:bg-cream-100`;
-  const actionPrimary = `${action} border-accent-500 bg-accent-500 text-white hover:bg-accent-600`;
+  const actionQuiet = `${action} border-studio-ink-950/16 bg-white text-studio-ink-950 hover:bg-studio-cream-100`;
+  const actionPrimary = `${action} border-studio-accent-500 bg-studio-accent-500 text-white hover:bg-studio-accent-600`;
 
   return (
     <div
@@ -163,7 +163,7 @@ export default function BoldToolbar({
       <div
         role="toolbar"
         aria-label="Text formatting"
-        className="inline-flex items-center gap-0.5 rounded-[var(--studio-radius-card,8px)] border border-[0.5px] border-ink-950/16 bg-cream-50 p-1 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]"
+        className="inline-flex items-center gap-0.5 rounded-[var(--studio-radius-card,8px)] border border-[0.5px] border-studio-ink-950/16 bg-studio-cream-50 p-1 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]"
       >
         <button
           type="button"
@@ -193,7 +193,7 @@ export default function BoldToolbar({
         >
           I
         </button>
-        <span aria-hidden className="mx-[3px] h-[18px] w-px bg-ink-950/16" />
+        <span aria-hidden className="mx-[3px] h-[18px] w-px bg-studio-ink-950/16" />
         <button
           type="button"
           aria-label="Link"
@@ -226,7 +226,7 @@ export default function BoldToolbar({
             setUrl(anchor?.getAttribute("href") ?? "");
             setLinkOpen(true);
           }}
-          className={`${btn} underline ${linkOpen ? "bg-accent-500 text-white hover:bg-accent-500" : ""}`}
+          className={`${btn} underline ${linkOpen ? "bg-studio-accent-500 text-white hover:bg-studio-accent-500" : ""}`}
         >
           &#128279;
         </button>
@@ -237,7 +237,7 @@ export default function BoldToolbar({
            `-20px / 0.45` — near enough that nobody would have called it a different weight, far
            enough that it was a seventh value. Darkening 2.231 -> 2.530. */
         <div
-          className="mt-1.5 w-[280px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-50 p-2.5 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]"
+          className="mt-1.5 w-[280px] rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-50 p-2.5 shadow-[var(--studio-lift-floating,0_18px_40px_-20px_rgba(60,45,30,0.45))]"
           role="dialog"
           aria-label="Link URL"
         >
@@ -255,15 +255,15 @@ export default function BoldToolbar({
             aria-label="Link URL"
             aria-invalid={rejected}
             placeholder="https://, mailto: or /path"
-            className={`h-[34px] w-full rounded-[var(--studio-radius-control,4px)] border border-[0.5px] bg-white px-2.5 text-[14px] text-ink-950 outline-none ${
+            className={`h-[34px] w-full rounded-[var(--studio-radius-control,4px)] border border-[0.5px] bg-white px-2.5 text-[14px] text-studio-ink-950 outline-none ${
               rejected
-                ? "border-danger-600 ring-2 ring-danger-600/12"
-                : "border-ink-950/16 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/15"
+                ? "border-studio-danger-600 ring-2 ring-studio-danger-600/12"
+                : "border-studio-ink-950/16 focus:border-studio-accent-500 focus:ring-2 focus:ring-studio-accent-500/15"
             }`}
           />
           <div className="mt-[9px] flex items-center justify-end gap-2">
             {rejected && (
-              <span role="alert" className="mr-auto text-[12px] text-danger-600">
+              <span role="alert" className="mr-auto text-[12px] text-studio-danger-600">
                 Only http, https, mailto, or relative links
               </span>
             )}
@@ -280,7 +280,7 @@ export default function BoldToolbar({
               onMouseDown={(e) => e.preventDefault()}
               onClick={apply}
               disabled={rejected}
-              className={`${actionPrimary} disabled:hover:bg-accent-500`}
+              className={`${actionPrimary} disabled:hover:bg-studio-accent-500`}
             >
               Apply
             </button>

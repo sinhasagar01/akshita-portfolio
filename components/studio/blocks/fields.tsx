@@ -107,7 +107,7 @@ export function DisclosureGroup({
           <button
             type="button"
             onClick={() => setRevealed(true)}
-            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 [&>svg]:size-3.5"
           >
             <IconPlus /> {revealLabel}
           </button>
@@ -200,7 +200,7 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 export const FIELD_MEASURE = "max-w-[760px]";
 
 export const inputCls =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 px-3 py-2 text-[14px] text-studio-ink-950 outline-none transition-colors focus:border-studio-accent-500 focus:ring-1 focus:ring-studio-accent-500/30";
 
 /**
  * The same box at 14px, for the ENTRY PANELS rather than the block forms.
@@ -218,7 +218,7 @@ export const inputCls =
  * NAMED FOR WHAT DIFFERS, not for a surface, because it spans four unrelated panels.
  */
 export const inputClsMd =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 px-3 py-2 text-[14px] text-studio-ink-950 outline-none transition-colors focus:border-studio-accent-500 focus:ring-1 focus:ring-studio-accent-500/30";
 
 /** The same box, in the rejection state — a danger border and ring.
  *
@@ -228,7 +228,7 @@ export const inputClsMd =
  *  for a long time. There are FIVE strings with this geometry; see the ralph suite, which
  *  enumerates them so a sixth is loud. */
 export const inputErrorCls =
-  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-danger-600 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none ring-1 ring-danger-600/20 transition-colors";
+  "w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-studio-danger-600 bg-studio-cream-50 px-3 py-2 text-[14px] text-studio-ink-950 outline-none ring-1 ring-studio-danger-600/20 transition-colors";
 
 /* ⚠ THIS COMPONENT SITS BELOW THE THREE WELL CONSTANTS ON PURPOSE, AND THE FILE'S OWN HEADER
    SAYS WHY. studio-ink's E2 attributes an inline-geometry match to the last JSX-looking tag
@@ -368,12 +368,12 @@ export function WrappingField({
  * `tracking-eyebrow` STAYS because 0.14em is already the value both steps want.
  */
 export const labelCls =
-  "font-label text-[12px] font-bold uppercase tracking-eyebrow text-ink-600";
+  "font-label text-[12px] font-bold uppercase tracking-eyebrow text-studio-ink-600";
 
 /** A group heading inside a NESTED CARD — see the scale note above. Size and weight are the
  *  ones that shipped; the colour moved to clear AA, and the FACE moved with the label role. */
 export const groupLabelCls =
-  "font-label text-[10px] uppercase tracking-eyebrow text-ink-600";
+  "font-label text-[10px] uppercase tracking-eyebrow text-studio-ink-600";
 
 /* ---- THE KEY ROW (R2) — AND IT IS NOT `labelCls` WITH A RADIUS ---------------------------
  *
@@ -405,12 +405,12 @@ export const groupLabelCls =
  * sits on cream-200 where it measures 3.02. `text-subtle` is 4.78 there. The project already
  * held the rule; the contract had not caught up. */
 export const KEY_PILL_CLS =
-  "h-[26px] min-w-[70px] w-fit rounded-full border border-transparent bg-cream-200 px-2.5 " +
-  "text-[10.5px] font-bold uppercase tracking-[0.13em] text-ink-600 outline-none " +
-  "transition-colors hover:bg-cream-300 hover:text-ink-950 " +
-  "placeholder:text-text-subtle placeholder:tracking-[0.09em] " +
-  "focus-visible:bg-cream-50 focus-visible:outline focus-visible:outline-2 " +
-  "focus-visible:outline-offset-1 focus-visible:outline-accent-500";
+  "h-[26px] min-w-[70px] w-fit rounded-full border border-transparent bg-studio-cream-200 px-2.5 " +
+  "text-[10.5px] font-bold uppercase tracking-[0.13em] text-studio-ink-600 outline-none " +
+  "transition-colors hover:bg-studio-cream-300 hover:text-studio-ink-950 " +
+  "placeholder:text-studio-text-subtle placeholder:tracking-[0.09em] " +
+  "focus-visible:bg-studio-cream-50 focus-visible:outline focus-visible:outline-2 " +
+  "focus-visible:outline-offset-1 focus-visible:outline-studio-accent-500";
 
 /* ---- THE FIXED KEY (#254) — THE SAME SHAPE WITHOUT THE GROUND -----------------------------
  *
@@ -434,7 +434,7 @@ export const KEY_PILL_CLS =
  * than a value beneath it. A key row needs a value under the key. */
 export const FIXED_KEY_CLS =
   "flex h-[26px] w-fit items-center px-2.5 text-[10.5px] font-bold uppercase " +
-  "tracking-[0.13em] text-ink-600";
+  "tracking-[0.13em] text-studio-ink-600";
 
 /** A fixed key and its connector — the static half of the key row. */
 export function FieldKey({ children }: { children: ReactNode }) {
@@ -450,7 +450,7 @@ export function FieldKey({ children }: { children: ReactNode }) {
  *  border or a card, which is the whole reason the pair needs no box at this nesting depth —
  *  measured, the innermost field is already 226px inside four bordered ancestors. */
 export function KeyConnector() {
-  return <span aria-hidden className="ml-5 block h-2 w-px bg-ink-950/22" />;
+  return <span aria-hidden className="ml-5 block h-2 w-px bg-studio-ink-950/22" />;
 }
 
 /**
@@ -586,7 +586,7 @@ export function TextArea({
         <svg
           aria-hidden
           viewBox="0 0 11 11"
-          className="pointer-events-none absolute bottom-[5px] right-[5px] size-[11px] text-ink-400"
+          className="pointer-events-none absolute bottom-[5px] right-[5px] size-[11px] text-studio-ink-400"
         >
           <path d="M11 0v11H0" fill="none" stroke="currentColor" strokeWidth="1"
             strokeDasharray="0 4 3 4 3" strokeLinecap="round" />
@@ -698,7 +698,7 @@ export function NumberField({
       {unit && (
         <span
           aria-hidden
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium text-text-subtle"
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium text-studio-text-subtle"
         >
           {unit}
         </span>
@@ -827,15 +827,15 @@ export function BlockImageField({
           lighter than my parent". Declaring nothing makes it correct on all three by
           construction: it inherits, the border delineates it, and the plate inside is
           cream-200 which reads against every cream step. */}
-      <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2.5">
+      <div className="flex flex-col gap-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-2.5">
         {/* NO ASPECT unless a caller supplies one. `BlogProse` renders an imageBlock as a bare
             <img> with no ratio, so the plate matches by letting the image be its own shape. */}
         <ImageThumb src={src} aspect={aspect} className="w-full" />
         <div className="flex items-center gap-2">
         {src ? (
-          <code className="min-w-0 flex-1 truncate text-[12px] text-ink-600">{src}</code>
+          <code className="min-w-0 flex-1 truncate text-[12px] text-studio-ink-600">{src}</code>
         ) : (
-          <span className="flex-1 text-[12px] text-text-subtle">No image set</span>
+          <span className="flex-1 text-[12px] text-studio-text-subtle">No image set</span>
         )}
         <input
           ref={inputRef}
@@ -855,7 +855,7 @@ export function BlockImageField({
           // No background: the container declares none either, so a fixed value here would be
           // the same absolute-on-an-unknown-ground mistake. The border already delineates the
           // control, which is how the Clear button beside it has always worked.
-          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-2.5 py-1 text-[12px] transition-colors hover:border-accent-500/40 hover:text-accent-600 disabled:opacity-40"
+          className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2.5 py-1 text-[12px] transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 disabled:opacity-40"
         >
           {busy ? "Uploading…" : src ? "Replace" : "Upload"}
         </button>
@@ -865,7 +865,7 @@ export function BlockImageField({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onChange(null)}
             aria-label={`Clear ${label}`}
-            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+            className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 [&>svg]:size-3.5"
           >
             <IconX />
           </button>
@@ -875,7 +875,7 @@ export function BlockImageField({
       {/* Announced: an upload failure is the one thing here a screen-reader user
           cannot otherwise notice, since the visible change is a small line of text. */}
       {error && (
-        <span role="alert" className="text-[10px] text-accent-600">
+        <span role="alert" className="text-[10px] text-studio-accent-600">
           {error}
         </span>
       )}
@@ -903,7 +903,7 @@ export function CheckField({
         onBlur={onBlur}
         className="size-3.5 accent-accent-500"
       />
-      <span className="text-[12px] text-ink-600">{label}</span>
+      <span className="text-[12px] text-studio-ink-600">{label}</span>
     </label>
   );
 }
@@ -967,7 +967,7 @@ export function ItemRows<T>({
 }) {
   const list = useItemList(items, onChange, empty);
   const iconBtn =
-    "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
+    "grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:opacity-30 [&>svg]:size-3.5";
 
   return (
     <div className="flex flex-col gap-2">
@@ -980,7 +980,7 @@ export function ItemRows<T>({
         return (
           <CollapsibleGroup
             key={i}
-            className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-100 p-3"
+            className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 p-3"
             // COLLAPSED BY DEFAULT, AND THIS IS THE WHOLE PR. Measured across the 14 sections of
             // elevate-one-view, these rows are where the inspector's height lives — not spread
             // across blocks, stacked inside one. Folding them takes the worst section from 3.07
@@ -1029,7 +1029,7 @@ export function ItemRows<T>({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => list.remove(i)}
                     aria-label={`Remove ${name}`}
-                    className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-400 transition-colors hover:border-accent-500/40 hover:text-accent-600 [&>svg]:size-3.5"
+                    className="grid size-7 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors hover:border-studio-accent-500/40 hover:text-studio-accent-600 [&>svg]:size-3.5"
                   >
                     <IconX />
                   </button>
@@ -1043,13 +1043,13 @@ export function ItemRows<T>({
       })}
       {noAdd ? (
         addNote ? (
-          <p className="text-[10px] text-text-subtle">{addNote}</p>
+          <p className="text-[10px] text-studio-text-subtle">{addNote}</p>
         ) : null
       ) : (
         <button
           type="button"
           onClick={list.add}
-          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+          className="inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 [&>svg]:size-3.5"
         >
           <IconPlus /> {addLabel}
         </button>

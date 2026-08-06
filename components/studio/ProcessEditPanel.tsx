@@ -79,16 +79,16 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
       // NO FRAME — these pages are full-height shells since #242, so a panel frame here is a box
       // drawn around a box, and its `overflow-hidden` clipped the pane's own scrolling. The full
       // reasoning and the measurements are on `AboutEditPanel`'s copy of this line.
-      className="bg-cream-100"
+      className="bg-studio-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+      <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
             <IconWorkflow />
           </span>
-          <span className="font-display text-base text-ink-950">Process</span>
+          <span className="font-display text-base text-studio-ink-950">Process</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+            <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -97,7 +97,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
         >
           Cancel
         </button>
@@ -105,8 +105,8 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
 
       <div className="flex flex-col gap-4 px-4 py-5">
         {stages.map((stage, i) => (
-          <div key={i} className="flex flex-col gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-200 p-3.5">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-accent-600">
+          <div key={i} className="flex flex-col gap-3 rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-200 p-3.5">
+            <span className="text-eyebrow uppercase tracking-eyebrow text-studio-accent-600">
               Stage {i + 1}
             </span>
 

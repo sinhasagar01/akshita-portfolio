@@ -24,11 +24,11 @@ import { useFocusTrap } from "./useFocusTrap";
 // Shared modal-footer button classes — ONE source, consumed by all four footers in
 // the callers. The markup stays in `children`; only the class string is shared.
 export const modalGhostBtn =
-  "rounded-[var(--studio-radius-control,4px)] px-3 py-2 text-[14px] text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] px-3 py-2 text-[14px] text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950 disabled:cursor-not-allowed disabled:opacity-40";
 export const modalAccentBtn =
-  "rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-4 py-2 text-[14px] font-medium text-studio-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 export const modalInkBtn =
-  "rounded-[var(--studio-radius-control,4px)] bg-ink-950 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded-[var(--studio-radius-control,4px)] bg-studio-ink-950 px-4 py-2 text-[14px] font-medium text-studio-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 
 export function StudioModal({
   role,
@@ -77,7 +77,7 @@ export function StudioModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-ink-950/30 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-studio-ink-950/30 p-4"
       onClick={() => {
         if (role === "dialog" && !busy) onClose();
       }}
@@ -111,11 +111,11 @@ export function StudioModal({
         // under, for no gain to any of them.
         className={
           width === "wide"
-            ? "flex max-h-full w-full max-w-[640px] flex-col rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
-            : "w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
+            ? "flex max-h-full w-full max-w-[640px] flex-col rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
+            : "w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
         }
       >
-        <h2 id={titleId} className="font-display text-2xl text-ink-950">
+        <h2 id={titleId} className="font-display text-2xl text-studio-ink-950">
           {title}
         </h2>
         {children}

@@ -209,14 +209,14 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
     <>
       {banner && (
         <div
-          className="mb-3 flex items-center justify-between gap-3 rounded-[var(--studio-radius-control,4px)] border border-ink-950/10 bg-cream-100 px-3 py-2 text-[12px] font-semibold text-ink-600"
+          className="mb-3 flex items-center justify-between gap-3 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/10 bg-studio-cream-100 px-3 py-2 text-[12px] font-semibold text-studio-ink-600"
           role="status"
         >
           <span>{banner}</span>
           <button
             type="button"
             onClick={() => setBanner("")}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-0.5 text-ink-600 hover:bg-cream-200 hover:text-ink-950"
+            className="rounded-[var(--studio-radius-control,4px)] px-2 py-0.5 text-studio-ink-600 hover:bg-studio-cream-200 hover:text-studio-ink-950"
           >
             Dismiss
           </button>
@@ -224,7 +224,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
       )}
 
       {reorderError && (
-        <p className="mb-2 text-[12px] text-accent-600" role="status" aria-live="polite">
+        <p className="mb-2 text-[12px] text-studio-accent-600" role="status" aria-live="polite">
           {reorderError}
         </p>
       )}
@@ -284,13 +284,13 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
               placeholder="e.g. Acme, Bengaluru"
               className={inputClsMd}
             />
-            <p id="add-exp-desc" className="mt-1 text-[12px] text-text-subtle">
+            <p id="add-exp-desc" className="mt-1 text-[12px] text-studio-text-subtle">
               Company is the entry&rsquo;s identity and can&rsquo;t be changed here later. New
               entries are added to the end of the list. Use the up and down controls to move
               them. Two entries can share a company name.
             </p>
             {addError && (
-              <p className="text-[12px] text-accent-600" aria-live="polite">
+              <p className="text-[12px] text-studio-accent-600" aria-live="polite">
                 {addError}
               </p>
             )}
@@ -316,11 +316,11 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           initialFocusRef={cancelRef}
         >
           <p id="delete-exp-msg" className="mt-2 text-[14px]">
-            Remove <span className="font-medium text-ink-950">{deleteCompany}</span> from your draft?
+            Remove <span className="font-medium text-studio-ink-950">{deleteCompany}</span> from your draft?
             You can still undo it with Discard until you Publish.
           </p>
           {deleteError && (
-            <p className="mt-2 text-[12px] text-accent-600" aria-live="polite">
+            <p className="mt-2 text-[12px] text-studio-accent-600" aria-live="polite">
               {deleteError}
             </p>
           )}

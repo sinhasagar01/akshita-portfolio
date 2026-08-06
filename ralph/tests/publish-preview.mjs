@@ -307,7 +307,7 @@ t("C6: an empty compare is an empty preview, not an error",
    * hairline that did not move with its neighbours. `studio-ink` E3 governs this globally; this is
    * the local restatement for a new file. */
   t("D7: hairlines are the studio's /12, never the canvas's /8",
-    /border-ink-950\/8\b/.test(dlg), false);
+    /border-studio-ink-950\/8\b/.test(dlg), false);
 }
 
 console.log(`\n  ${pass} passed, ${fail} failed`);

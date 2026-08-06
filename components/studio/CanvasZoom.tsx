@@ -21,7 +21,7 @@
 import { ZOOM_STEPS, zoomLabel, type ZoomLevel } from "@/lib/studio/canvas-zoom";
 
 const btn =
-  "grid size-[26px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 disabled:pointer-events-none disabled:opacity-30";
+  "grid size-[26px] flex-none place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-600 transition-colors hover:border-studio-accent-500 hover:text-studio-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500 disabled:pointer-events-none disabled:opacity-30";
 
 export default function CanvasZoom({
   effective,
@@ -61,7 +61,7 @@ export default function CanvasZoom({
         disabled={isFit}
         title={isFit ? "Fitting the pane" : "Reset to fit the pane"}
         aria-label={isFit ? `Canvas zoom, ${zoomLabel(effective)}, fitting the pane` : `Canvas zoom, ${zoomLabel(effective)}. Reset to fit the pane.`}
-        className="min-w-[46px] rounded-[var(--studio-radius-control,4px)] px-1 py-1 text-[12px] font-semibold tabular-nums text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 disabled:hover:bg-transparent disabled:hover:text-ink-600"
+        className="min-w-[46px] rounded-[var(--studio-radius-control,4px)] px-1 py-1 text-[12px] font-semibold tabular-nums text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500 disabled:hover:bg-transparent disabled:hover:text-studio-ink-600"
       >
         {zoomLabel(effective)}
       </button>

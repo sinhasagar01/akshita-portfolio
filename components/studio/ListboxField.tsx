@@ -59,9 +59,9 @@ import { FIXED_KEY_CLS, KeyConnector } from "./blocks/fields";
 // path (a real Tab, not a programmatic focus, is what lights it).
 const TRIGGER_CLS =
   "flex w-full min-h-11 items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] " +
-  "border border-ink-950/12 bg-cream-50 px-3 py-2 text-left text-[14px] text-ink-950 outline-none " +
-  "transition-colors hover:bg-cream-100 " +
-  "focus-visible:border-accent-500 focus-visible:ring-1 focus-visible:ring-accent-500/30";
+  "border border-studio-ink-950/12 bg-studio-cream-50 px-3 py-2 text-left text-[14px] text-studio-ink-950 outline-none " +
+  "transition-colors hover:bg-studio-cream-100 " +
+  "focus-visible:border-studio-accent-500 focus-visible:ring-1 focus-visible:ring-studio-accent-500/30";
 
 // Panel geometry, used by the flip measurement. Must match the panel/option classes below:
 // OPTION_H = h-10 (40px), PANEL_PAD = p-[5px], GAP = mt-1.5/mb-1.5 (6px), PANEL_MAX = max-h-[280px].
@@ -247,7 +247,7 @@ export function ListboxField<T extends string>({
           onBlur={onBlur}
           className={TRIGGER_CLS}
         >
-          <span className={`truncate ${value === "" ? "text-text-subtle" : ""}`}>{labelOf(value)}</span>
+          <span className={`truncate ${value === "" ? "text-studio-text-subtle" : ""}`}>{labelOf(value)}</span>
           {/* The rotation is a STATE class (see header — the #198 guard); only the transition is
               motion, which the reduced-motion reset zeroes. */}
           <svg
@@ -258,7 +258,7 @@ export function ListboxField<T extends string>({
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={`size-[15px] shrink-0 text-ink-600 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-out-expo)] ${open ? "rotate-180" : ""}`}
+            className={`size-[15px] shrink-0 text-studio-ink-600 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-out-expo)] ${open ? "rotate-180" : ""}`}
           >
             <path d="m6 9 6 6 6-6" />
           </svg>
@@ -283,7 +283,7 @@ export function ListboxField<T extends string>({
           style={{ maxHeight: maxH }}
           className={
             "absolute inset-x-0 z-40 overflow-y-auto rounded-[var(--studio-radius-card,8px)] " +
-            "border border-ink-950/12 bg-cream-50 p-[5px] shadow-[var(--studio-lift-popover,0_8px_30px_rgba(60,45,30,0.14))] " +
+            "border border-studio-ink-950/12 bg-studio-cream-50 p-[5px] shadow-[var(--studio-lift-popover,0_8px_30px_rgba(60,45,30,0.14))] " +
             "transition-[opacity,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-expo)] " +
             (flip ? "bottom-full mb-1.5 origin-bottom " : "top-full mt-1.5 origin-top ") +
             (open
@@ -306,7 +306,7 @@ export function ListboxField<T extends string>({
                 onClick={() => commit(i)}
                 className={
                   "flex h-10 cursor-pointer items-center justify-between gap-2 rounded-[var(--studio-radius-control,4px)] px-2.5 text-[13.5px] " +
-                  (isActive || selected ? "bg-cream-100 text-ink-950 " : opt === "" ? "text-text-subtle " : "text-ink-800 ") +
+                  (isActive || selected ? "bg-studio-cream-100 text-studio-ink-950 " : opt === "" ? "text-studio-text-subtle " : "text-studio-ink-800 ") +
                   (selected ? "font-medium" : "")
                 }
               >
@@ -322,7 +322,7 @@ export function ListboxField<T extends string>({
                   strokeWidth={2.4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`size-[15px] shrink-0 text-accent-500 ${selected ? "opacity-100" : "opacity-0"}`}
+                  className={`size-[15px] shrink-0 text-studio-accent-500 ${selected ? "opacity-100" : "opacity-0"}`}
                 >
                   <path d="m20 6-11 11-5-5" />
                 </svg>
@@ -332,7 +332,7 @@ export function ListboxField<T extends string>({
         </div>
       </div>
 
-      {hint && <span className="text-[10px] text-text-subtle">{hint}</span>}
+      {hint && <span className="text-[10px] text-studio-text-subtle">{hint}</span>}
     </div>
   );
 }

@@ -37,11 +37,11 @@ function DiffLine({ line }: { line: ChangedLine }) {
     <div className="flex gap-2 py-px">
       <span
         aria-hidden="true"
-        className={`shrink-0 select-none font-medium ${added ? "text-success-700" : "text-danger-600"}`}
+        className={`shrink-0 select-none font-medium ${added ? "text-studio-success-700" : "text-studio-danger-600"}`}
       >
         {added ? "+" : "−"}
       </span>
-      <span className="min-w-0 break-words text-ink-800">{line.text || " "}</span>
+      <span className="min-w-0 break-words text-studio-ink-800">{line.text || " "}</span>
       {/* The screen-reader name for the sign. The glyph above is decorative because "+" and the
           minus sign announce inconsistently across readers, and "added"/"removed" is the fact. */}
       <span className="sr-only">{added ? "added" : "removed"}</span>
@@ -79,24 +79,24 @@ export default function PublishPreviewDialog({
     >
       <div id="publish-preview-body" className="mt-4 min-h-0 flex-1 overflow-y-auto">
         {state.kind === "loading" && (
-          <p className="text-[14px] text-text-subtle">Loading what will change…</p>
+          <p className="text-[14px] text-studio-text-subtle">Loading what will change…</p>
         )}
 
         {state.kind === "unavailable" && (
           // ⚠ NOT STYLED AS AN ERROR THAT BLOCKS. It reads as a caveat, because Publish below is
           // still live and the author is being told what they will not get, not that they failed.
-          <p className="text-[14px] text-ink-800">{state.reason}</p>
+          <p className="text-[14px] text-studio-ink-800">{state.reason}</p>
         )}
 
         {nothing && (
-          <p className="text-[14px] text-text-subtle">
+          <p className="text-[14px] text-studio-text-subtle">
             Nothing to publish. Your draft matches the live site.
           </p>
         )}
 
         {ready && ready.fileCount > 0 && (
           <>
-            <p className="text-[14px] text-ink-950">
+            <p className="text-[14px] text-studio-ink-950">
               {ready.fileCount === 1 ? "1 file will go live." : `${ready.fileCount} files will go live.`}
             </p>
 
@@ -104,7 +104,7 @@ export default function PublishPreviewDialog({
               // ⚠ TRUNCATION IS LOUD. `compareBranches` surfaces the cap precisely because its
               // callers need opposite postures; the preview's is that an incomplete list must never
               // read as a complete one. A preview that silently under-reports is worse than none.
-              <p className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[13px] text-ink-800">
+              <p className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-200 px-3 py-2 text-[13px] text-studio-ink-800">
                 This is the first 300 files. There are more than that in this publish, and they are
                 not listed here.
               </p>
@@ -114,17 +114,17 @@ export default function PublishPreviewDialog({
               {ready.entries.map((entry, i) => (
                 <li
                   key={`${entry.group}-${entry.title}-${i}`}
-                  className="rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-3"
+                  className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 p-3"
                 >
-                  <p className="text-[14px] font-medium text-ink-950">{entry.title}</p>
-                  <p className="mt-px text-[12.5px] text-text-subtle">
+                  <p className="text-[14px] font-medium text-studio-ink-950">{entry.title}</p>
+                  <p className="mt-px text-[12.5px] text-studio-text-subtle">
                     {entry.kind} · {entry.change}
                     {entry.imageCount > 0 &&
                       ` · ${entry.imageCount === 1 ? "1 image" : `${entry.imageCount} images`}`}
                   </p>
 
                   {entry.unavailable && (
-                    <p className="mt-2 text-[13px] text-text-subtle">
+                    <p className="mt-2 text-[13px] text-studio-text-subtle">
                       Too large to preview here.
                     </p>
                   )}

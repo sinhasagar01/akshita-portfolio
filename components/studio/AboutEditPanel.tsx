@@ -117,16 +117,16 @@ export default function AboutEditPanel({
       //
       // Dropping the radius is what lets the overflow go, and dropping the overflow is what
       // makes the PANE the scroller it was already declared to be.
-      className="bg-cream-100"
+      className="bg-studio-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+      <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
             <IconUser />
           </span>
-          <span className="font-display text-base text-ink-950">About</span>
+          <span className="font-display text-base text-studio-ink-950">About</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+            <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -138,7 +138,7 @@ export default function AboutEditPanel({
           // (H1.1). Keyboard Tab still blur-saves by design.
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
         >
           Cancel
         </button>
@@ -154,7 +154,7 @@ export default function AboutEditPanel({
             onBlur={saveDraft}
             className={`${inputClsMd} resize-y leading-relaxed`}
           />
-          <span className="text-[10px] text-text-subtle">
+          <span className="text-[10px] text-studio-text-subtle">
             The first paragraph is the large lead. A blank line starts a new paragraph.
           </span>
         </label>
@@ -181,7 +181,7 @@ export default function AboutEditPanel({
             itemNoun="chip"
           />
           {values.aboutFocusChips.length === 0 && (
-            <span className="text-[10px] text-text-subtle">
+            <span className="text-[10px] text-studio-text-subtle">
               No focus chips. The About section renders without them.
             </span>
           )}

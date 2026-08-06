@@ -93,7 +93,7 @@ t("C4: …and Space prevents the default, or the page scrolls as well as navigat
   /e\.preventDefault\(\)/.test(item), true);
 
 t("C5: the focus ring is AUTHORED — `:focus-visible` matches on a tabindexed div but the UA draws nothing",
-  /focus-visible:outline focus-visible:outline-2/.test(item) && /focus-visible:outline-accent-500/.test(item), true);
+  /focus-visible:outline focus-visible:outline-2/.test(item) && /focus-visible:outline-studio-accent-500/.test(item), true);
 
 /* PER CONTROL, NOT A COUNT. The first version of this asserted `stopAll` appeared at least four
  * times, which is a threshold rather than a claim — it would pass with four uses on one button
@@ -131,7 +131,7 @@ t("E1: the switcher is a group with per-button aria-pressed",
   /role="group"/.test(seg) && /aria-pressed=\{on\}/.test(seg), true);
 
 t("E2: …and the pressed one takes the accent FILL, not an underline or a tint",
-  /on \? "bg-accent-500 text-cream-50"/.test(seg), true);
+  /on \? "bg-studio-accent-500 text-studio-cream-50"/.test(seg), true);
 
 /* IT RENDERS AND DOES NOT PERSIST. `SegmentedToggle` could not be reused because it POSTs a
  * draft patch and hardcodes ["mobile","web"]; this one takes its options as data and owns no
@@ -268,8 +268,8 @@ t("H7: the add tile is hidden while filtering, and the head button is not",
  * label for the buttons beside it. It is a STATUS, so it takes the strip the studio already uses
  * for one — #264's live-preview note — rather than becoming a third strip flavour. */
 t("I1: the status uses #264's strip, not a new one",
-  /border border-ink-950\/12 bg-cream-100 px-3 py-2\.5 text-\[12px\] leading-relaxed text-ink-600/.test(index)
-    && /<IconInfo className="mt-\[3px\] h-3\.5 w-3\.5 flex-none text-ink-400" \/>/.test(index), true);
+  /border border-studio-ink-950\/12 bg-studio-cream-100 px-3 py-2\.5 text-\[12px\] leading-relaxed text-studio-ink-600/.test(index)
+    && /<IconInfo className="mt-\[3px\] h-3\.5 w-3\.5 flex-none text-studio-ink-400" \/>/.test(index), true);
 
 /* ⚠ THE SEARCH IS NOT IN THE HEAD CLUSTER, and this is a fix rather than a preference. Search,
  * view and Add together put three unrelated jobs shoulder to shoulder — a FILTER, a PRESENTATION

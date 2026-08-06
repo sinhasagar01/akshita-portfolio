@@ -45,7 +45,7 @@ export default async function StudioHomepage() {
       <div className="max-w-[60rem]">
       <AreaHeader title="Homepage" sub="What feeds the homepage." />
 
-      <div className="border-t border-ink-950/12">
+      <div className="border-t border-studio-ink-950/12">
         <OverviewRow
           index="01"
           title="Hero"
@@ -106,7 +106,7 @@ export default async function StudioHomepage() {
         />
       </div>
 
-      <p className="mt-5 text-[12px] text-text-subtle">
+      <p className="mt-5 text-[12px] text-studio-text-subtle">
         Hero facets, Process stage visuals, and Contact steps are code-managed and
         edited in source, not here.
       </p>

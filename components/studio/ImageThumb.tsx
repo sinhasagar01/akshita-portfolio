@@ -118,7 +118,7 @@ export default function ImageThumb({
 
   return (
     <span
-      className={`relative block overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 ${className}`}
+      className={`relative block overflow-hidden rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-200 ${className}`}
       style={{
         aspectRatio: String(aspect ?? (showImage ? "auto" : EMPTY_PLATE_ASPECT)),
         // Derived from the height cap, never written as a width — see MAX_PLATE_H. With no
@@ -164,7 +164,7 @@ export default function ImageThumb({
         // awaiting input; a 143px empty plate reads as a hole unless it says what it is.
         // Icon plus label, centred, on the ladder's chrome step — the same pattern the
         // ProjectsEditPanel plate already uses for its own empty state.
-        <span className="absolute inset-0 grid place-items-center gap-1 text-text-subtle [&>svg]:size-4">
+        <span className="absolute inset-0 grid place-items-center gap-1 text-studio-text-subtle [&>svg]:size-4">
           <IconImage />
           <span className="text-[10px]">No image</span>
         </span>

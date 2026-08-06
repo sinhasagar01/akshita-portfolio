@@ -38,7 +38,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
     // body (18.13:1 on cream, so it looked right). Setting it here works WITH that rule
     // instead of fighting it, and needs no extra element, which the repaint's
     // attribute-invariant gate would reject. Same finding as StudioSidebar's label.
-    <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-ink-950/12 bg-cream-50/85 px-4 py-3 text-ink-600 backdrop-blur lg:border-white/24 lg:bg-ink-950 lg:px-6 lg:text-ink-200 lg:backdrop-blur-none">
+    <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-studio-ink-950/12 bg-studio-cream-50/85 px-4 py-3 text-studio-ink-600 backdrop-blur lg:border-white/24 lg:bg-studio-ink-950 lg:px-6 lg:text-studio-ink-200 lg:backdrop-blur-none">
       <StudioSearch items={searchItems} />
       <a
         href="/"
@@ -78,7 +78,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
         // NO `hover:border-*` COMPANION. A light border on a light fill is 1.00:1 against it —
         // it would extend the fill by one pixel and delineate nothing. This arc has spent
         // several PRs deleting classes that render nothing; adding one knowingly is worse.
-        className="group inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-2 text-[12px] font-semibold transition-colors hover:border-accent-500 lg:border-white/24 lg:hover:border-cream-50 lg:hover:bg-cream-50"
+        className="group inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-2 text-[12px] font-semibold transition-colors hover:border-studio-accent-500 lg:border-white/24 lg:hover:border-studio-cream-50 lg:hover:bg-studio-cream-50"
       >
         {/* "VIEW SITE", NOT "VIEW LIVE". This goes to `/` — the whole site. The blog editor's
             canvas bar has its OWN link, 59px below this one, going to the current article.
@@ -91,8 +91,8 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
             exactly as it defeats a base one, and `hover:text-accent-500` was removed from THIS
             ELEMENT for that reason. A span is not named by that reset, so `group-hover` works.
             Same shape as BlogPostList's All-posts link. */}
-        <span className="transition-colors lg:group-hover:text-ink-950">View site</span>
-        <IconArrowUpRight className="size-3.5 transition-colors lg:group-hover:text-ink-950" />
+        <span className="transition-colors lg:group-hover:text-studio-ink-950">View site</span>
+        <IconArrowUpRight className="size-3.5 transition-colors lg:group-hover:text-studio-ink-950" />
       </a>
     </div>
   );

@@ -49,18 +49,18 @@ t("A0: globals.css still has the unlayered `a { color: inherit }` these rules ex
   t("A1: …and no hover text colour either",
     /hover:text-/.test(linkCls), false);
   // These two are the exact strings that were dead, named so a revert is loud.
-  t("A2: the dead `text-ink-600` is gone from the link", /\btext-ink-600\b/.test(linkCls), false);
-  t("A2: the dead `hover:text-ink-950` is gone from the link",
-    /hover:text-ink-950/.test(linkCls), false);
+  t("A2: the dead `text-studio-ink-600` is gone from the link", /\btext-ink-600\b/.test(linkCls), false);
+  t("A2: the dead `hover:text-studio-ink-950` is gone from the link",
+    /hover:text-studio-ink-950/.test(linkCls), false);
 }
 // The colour moved to the span, and BOTH branches must set it — the inactive branch used to
 // pass `undefined`, which is precisely the half that broke.
 t("A3: the label span colours the ACTIVE branch",
-  /active\s*\?\s*"text-cream-50"/.test(sidebar), true);
+  /active\s*\?\s*"text-studio-cream-50"/.test(sidebar), true);
 t("A3: …and the INACTIVE branch, which used to be `undefined`",
-  /:\s*"text-ink-600 group-hover:text-ink-950 lg:text-ink-200 lg:group-hover:text-cream-50"/.test(sidebar), true);
+  /:\s*"text-studio-ink-600 group-hover:text-studio-ink-950 lg:text-studio-ink-200 lg:group-hover:text-studio-cream-50"/.test(sidebar), true);
 t("A3: …so `undefined` no longer appears as a label colour",
-  /<span className=\{active \? "text-cream-50" : undefined\}>/.test(sidebar), false);
+  /<span className=\{active \? "text-studio-cream-50" : undefined\}>/.test(sidebar), false);
 // Hover has to ride the group, since the anchor cannot carry the colour itself.
 t("A4: the link is a `group` so the span can react to its hover",
   /"group flex items-center/.test(sidebar), true);
@@ -68,15 +68,15 @@ t("A4: the link is a `group` so the span can react to its hover",
 // The topbar solves the same problem the other way: the colour sits on the CONTAINER and the
 // anchor inherits it, which needs no extra element the attribute-invariant gate would reject.
 t("A5: the topbar container carries the colour",
-  /text-ink-600[^"]*lg:text-ink-200/.test(topbar), true);
+  /text-studio-ink-600[^"]*lg:text-studio-ink-200/.test(topbar), true);
 t("A5: …and the View live anchor carries no dead hover colour",
-  /hover:text-accent-500/.test(topbar), false);
+  /hover:text-studio-accent-500/.test(topbar), false);
 
 /* ================================================ B. INK IS `lg:`-ONLY */
 const shell = sidebar + topbar + search;
 // `text-cream-50` is deliberately absent from this list: it legitimately appears UNPREFIXED on
 // the accent chip and on the active label, where it is correct at both breakpoints.
-const inkOnly = ["bg-white/10", "bg-white/5", "border-white/12", "text-ink-200"];
+const inkOnly = ["bg-white/10", "bg-white/5", "border-white/12", "text-studio-ink-200"];
 for (const u of inkOnly) {
   // THE ASSERTION IS "NO BARE OCCURRENCE", not a count comparison. An earlier version of this
   // compared bare-count to prefixed-count, but the lookbehind already excludes the prefixed
@@ -86,12 +86,12 @@ for (const u of inkOnly) {
   t(`B1: no unprefixed \`${u}\` in the shell — ink is lg-only`, bare.length, 0);
 }
 // `bg-ink-950` is the one that MUST still appear bare, because that is the mobile pill.
-t("B1: `bg-ink-950` DOES appear unprefixed — it is the pill below `lg`",
-  /(?<![\w:/-])bg-ink-950(?![\w/-])/.test(sidebar), true);
+t("B1: `bg-studio-ink-950` DOES appear unprefixed — it is the pill below `lg`",
+  /(?<![\w:/-])bg-studio-ink-950(?![\w/-])/.test(sidebar), true);
 // The pill must survive below lg, or the phone loses its only selection marker.
-t("B2: the ink pill still ships below `lg`", /"bg-ink-950 lg:bg-white\/10 font-medium"/.test(sidebar), true);
+t("B2: the ink pill still ships below `lg`", /"bg-studio-ink-950 lg:bg-white\/10 font-medium"/.test(sidebar), true);
 t("B2: the cream sidebar background still ships below `lg`",
-  /bg-cream-100[^"]*lg:bg-ink-950/.test(sidebar), true);
+  /bg-studio-cream-100[^"]*lg:bg-studio-ink-950/.test(sidebar), true);
 
 /* ================================================ C. NO NEW TOKENS */
 // The contract invented --on-ink / --on-ink-hi / --on-ink-dim. The existing scale covers all
@@ -177,8 +177,8 @@ const contentInputs = (p) => {
 // relational rule has to be relational, or it pins one side of the relation and calls it done.
 {
   const fields = readStudio("blocks/fields.tsx");
-  const WELL = "bg-cream-50";       // the ladder's bottom step
-  const FIELD_SURFACE = "bg-cream-100"; // what holds inputs
+  const WELL = "bg-studio-cream-50";       // the ladder's bottom step
+  const FIELD_SURFACE = "bg-studio-cream-100"; // what holds inputs
   for (const n of ["inputCls", "inputClsMd", "inputErrorCls"]) {
     const lit = fields.match(new RegExp(`const ${n} =\\s*\\n?\\s*"([^"]*)"`))?.[1] ?? "";
     t(`E1: ${n} sits on the ladder's WELL step — asserted as a step, not a colour, because the rule it serves is relational`,
@@ -200,7 +200,7 @@ const contentInputs = (p) => {
   for (const f of ["HeroEditPanel", "AboutEditPanel", "ProcessEditPanel", "LinksEditPanel",
                    "ExperienceEditPanel", "ProjectsEditPanel"]) {
     t(`E1: ${f}'s shell is the FIELD-SURFACE step — the wells on it are only wells relative to this`,
-      /bg-cream-100/.test(readStudio(`${f}.tsx`)), true);
+      /bg-studio-cream-100/.test(readStudio(`${f}.tsx`)), true);
   }
 }
 
@@ -274,7 +274,7 @@ const contentInputs = (p) => {
     resolved.filter(([, f]) => !f).map(([n]) => n), []);
   const framed = resolved.filter(([, f]) => {
     const sec = /<section[\s\S]{0,600}?className="([^"]*)"/.exec(code(`components/studio/${f}`))?.[1] ?? "";
-    return /radius-panel|border-accent-500\/30|overflow-hidden/.test(sec);
+    return /radius-panel|border-studio-accent-500\/30|overflow-hidden/.test(sec);
   }).map(([n]) => n);
   t("E1c: no shell panel draws a frame — a box around a box, whose overflow clipped the pane (#245)",
     framed, []);
@@ -310,7 +310,7 @@ const contentInputs = (p) => {
   // in a file named after it — the same assumption the suffix match made, one line apart. It
   // threw outright once `CategoryPanel` entered the set, which is a better failure than the
   // silent pass it gave before. E1c above supersedes it and resolves the defining file properly.
-  const FRAME = /overflow-hidden rounded-\[var\(--studio-radius-panel,12px\)\] border border-accent-500\/30/;
+  const FRAME = /overflow-hidden rounded-\[var\(--studio-radius-panel,12px\)\] border border-studio-accent-500\/30/;
 
   // AND THE NON-CONSUMER KEEPS ITS FRAME. Asserted positively, so a later sweep that "finishes
   // the job" fails here rather than silently stripping a panel that is not in a shell.
@@ -405,12 +405,17 @@ const contentInputs = (p) => {
 // E3 · THE HAIRLINE SCOPE. The failure has to say WHY, because the tempting fix is to make the
 // numbers match.
 {
-  const count = (dir) => {
+  /* ⚠ THE PATTERN IS A PARAMETER NOW, because this helper counts hairlines in BOTH the studio
+   * and the public canvas code, and those are on DIFFERENT PALETTES since the studio was given
+   * its own. A single pattern quietly returned 0 for the two public directories — the assertion
+   * still ran, still compared, and reported that case-study had lost all four of its /8 hairlines
+   * when nothing there had been touched. */
+  const count = (dir, token = "studio-ink-950") => {
     const out = [];
     const walk = (d) => { for (const e of readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true })) {
       if (e.isDirectory()) walk(`${d}/${e.name}`); else if (e.name.endsWith(".tsx")) out.push(`${d}/${e.name}`); } };
     walk(dir);
-    return out.reduce((n, f) => n + (read(f).match(/border-ink-950\/8\b/g) ?? []).length, 0);
+    return out.reduce((n, f) => n + (read(f).match(new RegExp(`border-${token}\\/8\\b`, "g")) ?? []).length, 0);
   };
   // THE COUNTS ARE EXACT, AND `> 0` WAS NOT ENOUGH. The first version of these two asserted
   // "still some /8 left", which a mutation that unified ONE case-study file walked straight
@@ -420,9 +425,9 @@ const contentInputs = (p) => {
   // `border-ink-950/80`, a different value that a careless s|/8|/12| would have corrupted into
   // `/120`. The `\b` in the pattern is what keeps them apart, here and in the sweep itself.
   t("E3: components/case-study must STAY at exactly 4 uses of /8 — it is canvas code, rendered by the public article, and /12 there would move the published page",
-    count("components/case-study"), 4);
+    count("components/case-study", "ink-950"), 4);
   t("E3: components/blog must STAY at exactly 2 for the same reason — the canvas and the article share these components",
-    count("components/blog"), 2);
+    count("components/blog", "ink-950"), 2);
   t("E3: components/studio carries NO /8 — the studio stepped to /12 and a leftover /8 is a hairline that did not move with its neighbours",
     count("components/studio"), 0);
 }
@@ -433,7 +438,7 @@ const contentInputs = (p) => {
 // (read by 11 case-study files + two public pages, so touching it would move the canvas). The
 // literal is still local, so the invariant holds at 12px; only the pinned number changes.
 t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebrow` token — editing that token to size the studio label would move the canvas",
-  /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/
+  /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-studio-ink-600";/
     .test(readStudio("blocks/fields.tsx")), true);
 
 // E5 · THE BANDS, and the boundary that keeps hazard 22 shut.
@@ -478,7 +483,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
 // lose one, without this number moving. The set below is every studio file carrying the band,
 // so both the count AND its location have to stay true.
 {
-  const bandRe = /<header className="flex items-center justify-between gap-2 bg-ink-950 px-3 py-2">/g;
+  const bandRe = /<header className="flex items-center justify-between gap-2 bg-studio-ink-950 px-3 py-2">/g;
   const withBands = readdirSync(new URL("../../components/studio", import.meta.url))
     .map(String).filter((f) => f.endsWith(".tsx"))
     .map((f) => [f, (code(`components/studio/${f}`).match(bandRe) ?? []).length])
@@ -498,11 +503,11 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
       (code("components/studio/BlogBlocksEditPanel.tsx").match(/<section/g) ?? []).length >= 2, true);
   }
   const panel = code("components/studio/BlogBlocksEditPanel.tsx");
-  t("E5: the SaveIndicator on the band takes its ground — text-text-subtle is chosen against cream and drops to 1.72:1 on ink",
+  t("E5: the SaveIndicator on the band takes its ground — text-studio-text-subtle is chosen against cream and drops to 1.72:1 on ink",
     /<SaveIndicator label="Body"[^>]*onInk\s*\/>/.test(panel), true);
   // The strip is NOT on ink, which is the only reason its ink focus ring is still correct.
   t("E5: the block strip keeps its ink focus ring — it sits BELOW the band on cream, and the ring is ink so it reads against the accent SELECTION fill",
-    /focus-visible:ring-ink-950/.test(panel), true);
+    /focus-visible:ring-studio-ink-950/.test(panel), true);
 }
 
 /* E6 · SECTION HEADERS ARE CHOSEN BY ROLE, and this is the assertion that keeps the two
@@ -545,7 +550,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   // other and only this reference was stale — the failure mode a hardcoded literal has.
   // IT STAYS A LITERAL ANYWAY. Deriving the bar from one panel and comparing the rest to it would
   // make whichever file sorts first the silent definition, and a drift in THAT file would pass.
-  const BAR = 'className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]"';
+  const BAR = 'className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]"';
   const missing = entryPanels.filter((f) => !readStudio(f).includes(BAR));
   t("E6: every entry panel opens with the cream-200 bar, byte-identical — the by-role counterpart to the inspector's ink band",
     missing, []);
@@ -554,7 +559,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   t("E6: …and the derived entry-panel set is not empty (a vacuous pass is the failure mode here)",
     entryPanels.length >= 6, true);
   // The band belongs ONLY to the inspector. An entry panel that grows one has crossed the rule.
-  const bandOutsideInspector = entryPanels.filter((f) => /bg-ink-950 px-3 py-2/.test(readStudio(f)));
+  const bandOutsideInspector = entryPanels.filter((f) => /bg-studio-ink-950 px-3 py-2/.test(readStudio(f)));
   t("E6: no entry panel carries an ink band — that treatment is the inspector's alone",
     bandOutsideInspector, []);
 }
@@ -594,7 +599,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   // an assertion about selection colour, and pinning the pair meant a correct change to one
   // tablist failed a rule about both. Compared with weight excluded, and both sides read from
   // source rather than retyped here.
-  const selectedOf = (src) => (/\? "(border-accent-500[^"]*)"/.exec(src)?.[1] ?? "")
+  const selectedOf = (src) => (/\? "(border-studio-accent-500[^"]*)"/.exec(src)?.[1] ?? "")
     .split(/\s+/).filter((tok) => !/^font-/.test(tok)).sort();
   /* ---- C4 RESTATED: THE RULE IS BY FUNCTION, NOT BY ROLE (#263 overrules C-29) --------------
    * This pair used to assert that BOTH tablists take the underline, encoding C-20's by-role rule.
@@ -619,11 +624,11 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   t("C4: the Content|Style tab's own class expression was found — nothing below is file-wide",
     csTab.length > 0, true);
   t("C4: Content|Style takes the segmented FILL — it is a two-state mode switch",
-    /\?\s*"bg-accent-500 text-cream-50/.test(csTab), true);
+    /\?\s*"bg-studio-accent-500 text-studio-cream-50/.test(csTab), true);
   t("C4: …and keeps NO underline, so the two languages are not both applied",
     /border-b-2/.test(csTab), false);
   t("C4: the hero tabs KEEP the underline — they switch between content sets, so C-20 is narrowed",
-    selectedOf(hero), ["border-accent-500", "text-ink-950"]);
+    selectedOf(hero), ["border-studio-accent-500", "text-studio-ink-950"]);
   /* ---- C4b · THE CONTRACT'S `.seg` VALUES, DERIVED FROM THE FILE RATHER THAN RETYPED --------
    * The contract is read here so the assertion cannot drift from it silently — if someone edits
    * `.seg` the expected values move with it and this fails until the app follows. The MARGIN is
@@ -641,7 +646,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
       wantFont !== null && new RegExp(`text-\\[${wantFont[2]}px\\]`).test(cs)
         && (wantFont[1] === "600" ? /font-semibold/.test(csTab) : false), true);
     t("C4b: the container is a bordered, rounded, clipped box — the contract's .seg",
-      /flex overflow-hidden rounded-\[var\(--studio-radius-control,4px\)\] border border-ink-950\/22/.test(csTab), true);
+      /flex overflow-hidden rounded-\[var\(--studio-radius-control,4px\)\] border border-studio-ink-950\/22/.test(csTab), true);
     t("C4b: …with a hairline BETWEEN the two, the contract's `.seg button+button`",
       /\[&\+&\]:border-l/.test(cs), true);
   }
@@ -657,8 +662,8 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   t("C4c: the ring is inset, so `overflow-hidden` cannot clip it at the container's edge",
     /focus-visible:-outline-offset-2/.test(csTab), true);
   t("C4c: …and its colour is per-state, or it draws accent on accent and vanishes",
-    /bg-accent-500 text-cream-50 focus-visible:outline-cream-50/.test(csTab)
-      && /bg-cream-50[^"]*focus-visible:outline-accent-500/.test(csTab), true);
+    /bg-studio-accent-500 text-studio-cream-50 focus-visible:outline-studio-cream-50/.test(csTab)
+      && /bg-studio-cream-50[^"]*focus-visible:outline-studio-accent-500/.test(csTab), true);
 
   t("C4: …and the vertical list rail keeps its accent bar, the third treatment by-role missed",
     /accent-500/.test(code("components/studio/ListDetailLayout.tsx")), true);
@@ -671,9 +676,9 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   const tabCls = /className=\{\[\s*"-mb-px border-b-2[\s\S]*?\]\.join/.exec(hero)?.[0] ?? "";
   t("C4: the tab class expression was found", tabCls.length > 0, true);
   t("C4: the hero tabs carry no accent FILL or TINT — that language belongs to role=group",
-    /bg-accent-500(\/\d+)?/.test(tabCls), false);
+    /bg-studio-accent-500(\/\d+)?/.test(tabCls), false);
   t("C4: SegmentedToggle keeps the fill, because it is a group and picks a VALUE",
-    /role="group"/.test(seg) && /bg-accent-500 text-cream-50/.test(seg), true);
+    /role="group"/.test(seg) && /bg-studio-accent-500 text-studio-cream-50/.test(seg), true);
   // THE SEMANTICS ARE THE REASON THE SWAP WAS REFUSED, so they are what the gate protects.
   for (const [what, re] of [
     ["aria-selected", /aria-selected=\{i === activeTab\}/],
@@ -706,7 +711,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   // swept 45 sites OFF ink-400 because it measures 3.02–3.49 on cream and fails AA. Pinned so a
   // later reading of the contract cannot quietly restore it.
   t("C3: …and it is ink-600, not the contract's ink-400 — the value #228 removed",
-    /text-ink-600/.test(ordCls) && !/text-ink-400/.test(ordCls), true);
+    /text-studio-ink-600/.test(ordCls) && !/text-studio-ink-400/.test(ordCls), true);
   // AND THE BOUNDARY ITSELF, so nobody re-adds the import that looked fine and rendered a proxy.
   t("C3: OverviewRow does NOT import from the client fields module — it is a server component",
     /from "\.\/blocks\/fields"/.test(ord), false);
@@ -792,9 +797,9 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
 // guarding anything. It now matches the strip's `text-ink-600` and the `border-b` that marks
 // it as the strip, and nothing about its box.
 t("E6: the blog canvas strip colours its own row, so the View live anchor inherits — a text-* utility on an <a> is defeated by the unlayered `a { color: inherit }`",
-  /border-b border-ink-950\/12[^"]*text-ink-600"/.test(code("components/studio/ThreePaneShell.tsx")), true);
+  /border-b border-studio-ink-950\/12[^"]*text-studio-ink-600"/.test(code("components/studio/ThreePaneShell.tsx")), true);
 t("E6: the projects header row colours itself, so its Preview anchor inherits — that anchor and the Cancel button next to it once carried byte-identical classes and only the button's worked",
-  /flex items-center gap-1 text-ink-600"/.test(code("components/studio/ProjectsEditPanel.tsx")), true);
+  /flex items-center gap-1 text-studio-ink-600"/.test(code("components/studio/ProjectsEditPanel.tsx")), true);
 
 /* ================================================ F. THE RADIUS SCALE (PR 3) */
 // The scale is SCOPED, not a @theme token, and the reason is the design rather than tidiness:
@@ -929,7 +934,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
         && /size-1\.5 flex-none rounded-full \$\{DOT\[state\]\}/.test(code("components/studio/SaveBar.tsx")), true);
     t("F5h: …and the two arrivals are the blog status chip and the opaque ground it sits on",
       (code("components/studio/BlogStatusChip.tsx").match(/rounded-full/g) ?? []).length === 1
-        && /rounded-full bg-cream-50">\s*<BlogStatusChip/.test(code("components/studio/BlogPostCard.tsx")), true);
+        && /rounded-full bg-studio-cream-50">\s*<BlogStatusChip/.test(code("components/studio/BlogPostCard.tsx")), true);
     t("F5h: …and the departure is the index's status dot, replaced by the word",
       /size-1\.5 shrink-0 rounded-full/.test(code("components/studio/BlogIndex.tsx")), false);
     t("F5g: …and the three arrivals are the index's chip, its platform dot and the drag dot",
@@ -948,7 +953,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
         code("components/studio/DetailsCanvas.tsx")), true);
     t("F5d: …and the two new ones are the mini's DOTS, the stepper's marker and the annotated pins",
       /numbered \? "rounded-full"/.test(code("components/studio/SectionMini.tsx"))
-        && /absolute size-\[7px\] rounded-full bg-accent-500/.test(code("components/studio/SectionMini.tsx")), true);
+        && /absolute size-\[7px\] rounded-full bg-studio-accent-500/.test(code("components/studio/SectionMini.tsx")), true);
     t("F5d: …and the Board's count pill is gone, because the chips ARE the count",
       /\{count\} \{count === 1 \? "block" : "blocks"\}\s*<\/span>/.test(readStudio("SectionsEditPanel.tsx")), false);
     t("F5b: …and the 28th is the key pill, a DECLARED exception rather than an undeclared fourth step",
@@ -957,7 +962,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // this census only means something if every rise in it has a site attached. A pill shape on a
     // one-word status tag is the shape doing its job, not a fourth radius step sneaking in.
     t("F5c: …and the 29th is the selection dock's field tag, declared rather than drifted",
-      /function SelectionDock\b[\s\S]*?rounded-full border border-accent-500\/30/.test(
+      /function SelectionDock\b[\s\S]*?rounded-full border border-studio-accent-500\/30/.test(
         readStudio("SectionsEditPanel.tsx")), true);
     t("F5: the 1px drag dot survives — the control step would visibly round a 6px handle",
       (all.match(/rounded-\[1px\]/g) ?? []).length, 1);
@@ -1007,12 +1012,16 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // the list-detail pages went full-height, so its selected fill is cream-300. G1 checks that
     // the fill is ONE STEP from the surface's own ground, which is exactly the property that
     // survived the move — the table row changes, the rule does not.
-    { file: "ListDetailLayout.tsx", ground: "cream-200", fill: "bg-cream-300", surface: "the shared list row (3 pages)" },
-    { file: "BlogPostList.tsx",     ground: "cream-200", fill: "bg-cream-300", surface: "the blog list rail" },
-    { file: "BlogBlocksEditPanel.tsx", ground: "cream-100", fill: "bg-cream-200", surface: "the block strip" },
+    { file: "ListDetailLayout.tsx", ground: "studio-cream-200", fill: "bg-studio-cream-300", surface: "the shared list row (3 pages)" },
+    { file: "BlogPostList.tsx",     ground: "studio-cream-200", fill: "bg-studio-cream-300", surface: "the blog list rail" },
+    { file: "BlogBlocksEditPanel.tsx", ground: "studio-cream-100", fill: "bg-studio-cream-200", surface: "the block strip" },
   ];
   // The ladder, so "one step darker" is checked against a declared order rather than a guess.
-  const LADDER = ["cream-50", "cream-100", "cream-200", "cream-300"];
+  /* ⚠ THE LADDER IS ON THE STUDIO PALETTE NOW. The selection language is chrome, so its four
+   * cream steps moved with the rest of the studio; leaving the public names here made every
+   * `indexOf` return -1 and the "one step darker" check report -3, which is a shape that looks
+   * like a real inversion rather than a lookup miss. */
+  const LADDER = ["studio-cream-50", "studio-cream-100", "studio-cream-200", "studio-cream-300"];
 
   /**
    * THE SELECTED AND INACTIVE BRANCHES, PARSED — NOT `src.includes(...)`.
@@ -1033,7 +1042,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    */
   const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const branches = (src) => {
-    const m = stripComments(src).match(/\?\s*"([^"]*border-l-accent-500[^"]*)"\s*:\s*"([^"]*)"/);
+    const m = stripComments(src).match(/\?\s*"([^"]*border-l-studio-accent-500[^"]*)"\s*:\s*"([^"]*)"/);
     return m ? { selected: m[1], inactive: m[2] } : null;
   };
 
@@ -1050,7 +1059,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     t(`G2: ${p.surface} carries the 3px bar — identical width on all three, which is what makes it ONE language`,
       /border-l-\[3px\]/.test(stripComments(src)), true);
     t(`G2: ${p.surface} paints the bar accent-500 when selected`,
-      b.selected.split(/\s+/).includes("border-l-accent-500"), true);
+      b.selected.split(/\s+/).includes("border-l-studio-accent-500"), true);
     t(`G2: ${p.surface} reserves the bar IN ITS INACTIVE BRANCH — border-l-transparent is what keeps selection from reflowing the row`,
       b.inactive.split(/\s+/).includes("border-l-transparent"), true);
     // THE TINT IS GONE FROM THE SELECTED BRANCH. #167's objection was a fill competing with the
@@ -1075,9 +1084,9 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   {
     const ld = readStudio("ListDetailLayout.tsx");
     t("G2b: the accent BADGE survives the repaint — the bar exists so it could, and deleting it would answer #167 by removing the thing #167 protected",
-      /rounded-full bg-accent-500\/10[^"]*text-accent-600/.test(ld), true);
+      /rounded-full bg-studio-accent-500\/10[^"]*text-studio-accent-600/.test(ld), true);
     t("G2b: the accent DIRTY DOT survives too — the other element #167 named",
-      /size-1\.5 shrink-0 rounded-full bg-accent-500/.test(ld), true);
+      /size-1\.5 shrink-0 rounded-full bg-studio-accent-500/.test(ld), true);
   }
 
   // G3 · NOTHING MAY WRITE `border-color` ON THESE ROWS. The bar writes `border-left-color`;
@@ -1096,7 +1105,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     t("G3: no bare `border-transparent` shorthand on the row — it would race the bar's border-left-color",
       /(^|[^-])\bborder-transparent\b/.test(rowCls), false);
     t("G3: …and the two edges it DOES draw are named per-side, so neither can race the other",
-      /border-b-ink-950\/12/.test(rowCls) && /border-l-\[3px\]/.test(rowCls), true);
+      /border-b-studio-ink-950\/12/.test(rowCls) && /border-l-\[3px\]/.test(rowCls), true);
   }
 
   // G4 · THE GROUND IS DECLARED NOW, AND THAT IS THE DELIBERATE ACT THIS ASSERTION WAS WAITING
@@ -1111,9 +1120,9 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   // to "the ground IS declared, and the fill is one step from THAT" — which is strictly stronger,
   // because the step is now derivable from source instead of from whatever the host happens to be.
   t("G4: ListDetailLayout's list column DECLARES its ground — the selection step no longer depends on what the host page happens to be",
-    /role="tablist"[\s\S]{0,400}?lg:bg-cream-200/.test(readStudio("ListDetailLayout.tsx")), true);
+    /role="tablist"[\s\S]{0,400}?lg:bg-studio-cream-200/.test(readStudio("ListDetailLayout.tsx")), true);
   t("G4: …and it is the ground G1's table names for this surface, so the two cannot drift",
-    PAIRS.find((p) => p.file === "ListDetailLayout.tsx")?.ground, "cream-200");
+    PAIRS.find((p) => p.file === "ListDetailLayout.tsx")?.ground, "studio-cream-200");
 }
 
 /* ================================== H. THE DASHED AFFORDANCES, AND WHERE THEIR HOVER MAY LAND */
@@ -1327,7 +1336,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   t("C6: …and the border utility that `border: 0` used to cancel is still gone",
     /\bborder\b/.test(pane), false);
   t("C6: the ground is passed to the shell, so it fills the whole pane and not a box inside it",
-    /canvasGround="bg-cream-100"/.test(panel), true);
+    /canvasGround="bg-studio-cream-100"/.test(panel), true);
   t("C6: the shell applies it to the canvas COLUMN, bar included, not just the scroll region",
     /flex min-w-0 min-h-0 flex-1 flex-col lg:overflow-hidden \$\{canvasGround\}/.test(shell), true);
 
@@ -1335,7 +1344,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * because silence there meant inheriting blog's breakpoint — a wrong answer. Here silence must
    * yield what both panes already rendered, so the default is cream-50 and blog passes nothing. */
   t("C6: the shell defaults to cream-50, so a consumer that says nothing gets the neutral ground",
-    /canvasGround = "bg-cream-50"/.test(shell), true);
+    /canvasGround = "bg-studio-cream-50"/.test(shell), true);
   t("C6: …and blog says nothing, so its article-measure canvas is untouched",
     /canvasGround/.test(blog), false);
 
@@ -1468,9 +1477,9 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * equal alphas would not give equal separation. Tuned until the MEASURED separation matched:
    * 1.63 on ink, 1.64-1.65 on the three creams. The relation is the separation, not the number. */
   t("C8: the cream thumb is ink-950 at the studio's own hairline alpha, resolved through the token",
-    /color-mix\(in oklch, var\(--color-ink-950\) 22%, transparent\)/.test(sb), true);
+    /color-mix\(in oklch, var\(--color-studio-ink-950\) 22%, transparent\)/.test(sb), true);
   t("C8: …and its base token is declared, which studio-tokens cannot check for authored CSS",
-    /--color-ink-950\s*:/.test(globals) && /--color-ink-400\s*:/.test(globals), true);
+    /--color-studio-ink-950\s*:/.test(globals) && /--color-studio-ink-400\s*:/.test(globals), true);
   t("C8: the ink thumb is white/18 at rest and white/40 on hover — 34 measured 2.99 and missed 3:1",
     /white 18%, transparent\)/.test(sb) && /white 40%, transparent\)/.test(sb), true);
   t("C8: …and 34% is gone rather than left beside its replacement",
@@ -1513,7 +1522,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   t("C9: the card carries NO border shorthand — hazard 26 sidestepped by construction, not by care",
     /\bborder-\[?\d|\bborder\s|\bborder"/.test(cardCls.replace(/border-0|border-l-/g, "")), false);
   t("C9: …and the left edge is always 3px with only its COLOUR moving, so selection cannot reflow",
-    /border-l-\[3px\]/.test(cardCls) && /border-l-accent-500/.test(cardCls)
+    /border-l-\[3px\]/.test(cardCls) && /border-l-studio-accent-500/.test(cardCls)
       && /border-l-transparent/.test(cardCls), true);
 
   /* THE ELEVATION SCALE — THREE STEPS, THREE CONSUMERS. The contract's own guard: if only one
@@ -1552,9 +1561,9 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   const boardEyebrow = /\{section\.eyebrow && \([\s\S]{0,220}?<\/span>/.exec(panel)?.[0] ?? "";
   t("C9: the board's eyebrow was found — nothing below is a vacuous pass", boardEyebrow !== "", true);
   t("C9: the board's eyebrow is ink-600 — the 3.49 AA failure deferred to this PR is paid",
-    /text-ink-600/.test(boardEyebrow) && !/text-ink-400/.test(boardEyebrow), true);
+    /text-studio-ink-600/.test(boardEyebrow) && !/text-studio-ink-400/.test(boardEyebrow), true);
   t("C9: …and the count pill is gone, because the chips ARE the count",
-    /rounded-full border border-ink-950\/10 px-2 py-0\.5/.test(panel), false);
+    /rounded-full border border-studio-ink-950\/10 px-2 py-0\.5/.test(panel), false);
 
   /* REORDER. The handler is untouched — `dir` was always "previous/next index" rather than
    * "up/down" — so only the labels and the glyphs moved. The accessible names say EARLIER and
@@ -1655,7 +1664,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   t("C11: …and the switch keeps a row with its note, so the note did not drop below the switch",
     /<div className="flex items-center gap-2">\s*<div\s*\n\s*role="group"/.test(seg), true);
   t("C11: the note is still the last child of that inner row, not a sibling of the label",
-    /\{note && <span className="text-\[10px\] text-text-subtle">\{note\}<\/span>\}\s*<\/div>\s*<\/div>/.test(seg), true);
+    /\{note && <span className="text-\[10px\] text-studio-text-subtle">\{note\}<\/span>\}\s*<\/div>\s*<\/div>/.test(seg), true);
 
   t("C11: the two toggles share a wrapper that spreads them",
     /<div className="flex w-full items-start justify-between gap-3">/.test(panel), true);
@@ -1677,8 +1686,8 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * What C11 asserts is unchanged: no `justify-between` on the ROW, which would render nothing
    * there while looking like it did something. */
   t("C11: the row itself did NOT gain an inert justify-between",
-    /flex h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"/.test(panel)
-      && /bg-cream-200 px-4"[^"]*justify-between/.test(panel) === false, true);
+    /flex h-\[65px\] items-center gap-3 border-b border-studio-ink-950\/12 bg-studio-cream-200 px-4"/.test(panel)
+      && /bg-studio-cream-200 px-4"[^"]*justify-between/.test(panel) === false, true);
 
   /* #164's PRESERVED QUIRK IS UNTOUCHED. `onChange?.(prev)` fires only in the fs-noop revert
    * branch, never in the network-failure else/catch. Its header says a change there "should be a

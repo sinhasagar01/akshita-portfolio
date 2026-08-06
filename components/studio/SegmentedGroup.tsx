@@ -60,7 +60,7 @@ export default function SegmentedGroup<T extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="inline-flex rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 p-0.5"
+      className="inline-flex rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 p-0.5"
     >
       {options.map((opt) => {
         const on = value === opt.value;
@@ -72,7 +72,7 @@ export default function SegmentedGroup<T extends string>({
             aria-pressed={on}
             className={[
               "inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold transition-colors [&>svg]:size-3.5",
-              on ? "bg-accent-500 text-cream-50" : "text-ink-600 hover:text-ink-950",
+              on ? "bg-studio-accent-500 text-studio-cream-50" : "text-studio-ink-600 hover:text-studio-ink-950",
             ].join(" ")}
           >
             {opt.icon}

@@ -62,14 +62,14 @@ export default function CaseStudyCard({
       // `border-0 border-l-[3px]` is per-side longhand ON PURPOSE. The shorthand `border` plus a
       // per-side colour is hazard 26 — two declarations for one property whose winner is decided
       // by sheet order. The Board card carries the same pair for the same reason.
-      className={`grid cursor-pointer grid-rows-[auto_1fr] overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] border-l-transparent bg-cream-50 shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] transition-[box-shadow,transform,border-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:-translate-y-[3px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))] motion-reduce:hover:translate-y-0 ${ITEM_FOCUS}`}
+      className={`grid cursor-pointer grid-rows-[auto_1fr] overflow-hidden rounded-[var(--studio-radius-card,8px)] border-0 border-l-[3px] border-l-transparent bg-studio-cream-50 shadow-[var(--studio-lift-rest,0_1px_2px_oklch(14%_0.018_60/0.06))] transition-[box-shadow,transform,border-color] duration-[var(--studio-lift-t,200ms)] ease-[var(--ease-out-expo,cubic-bezier(0.16,1,0.3,1))] hover:-translate-y-[3px] hover:shadow-[var(--studio-lift-hover,0_2px_4px_oklch(14%_0.018_60/0.07))] motion-reduce:hover:translate-y-0 ${ITEM_FOCUS}`}
     >
       <HeroPlate src={item.heroImage} className="aspect-[16/10] w-full" />
 
       <div className="grid content-start gap-1.5 px-3.5 pb-3.5 pt-3">
         {/* See CaseStudyRow — the unlayered `h1, h2` rule already supplies the family, weight and
             leading, so stating them again would be three utilities that cannot be edited. */}
-        <h2 className="truncate text-[17px] text-ink-950">
+        <h2 className="truncate text-[17px] text-studio-ink-950">
           {item.title}
         </h2>
         {/* A `span`, NOT A `p`, AND THE RESERVE IS WHY. globals.css carries an UNLAYERED
@@ -78,7 +78,7 @@ export default function CaseStudyCard({
             SECOND LINE. The height was derived from a line-height that never applied.
             `studio-cascade` C1 found it, and it is the exact failure that suite exists for: the
             class string was right and the box was wrong. */}
-        <span className="line-clamp-2 block h-[36px] text-[12px] leading-[1.5] text-text-subtle">
+        <span className="line-clamp-2 block h-[36px] text-[12px] leading-[1.5] text-studio-text-subtle">
           {item.summary || "No summary yet"}
         </span>
 

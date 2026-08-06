@@ -62,9 +62,9 @@ t("A1: `labelCls` is declared exactly once",
 t("A2: `groupLabelCls` is declared exactly once",
   (fields.match(/export const groupLabelCls =/g) ?? []).length, 1);
 t("A3: the FIELD step is 12px / 700 / ink-600",
-  /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+  /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-studio-ink-600";/.test(fields), true);
 t("A4: the GROUP step is 10px / ink-600 — one level in, and NOT bold, so the two steps stay distinct",
-  /export const groupLabelCls =\s*\n?\s*"font-label text-\[10px\] uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+  /export const groupLabelCls =\s*\n?\s*"font-label text-\[10px\] uppercase tracking-eyebrow text-studio-ink-600";/.test(fields), true);
 // A5 · the size literal stays LOCAL. `--text-eyebrow` is read by 16 non-studio files, so sizing
 // the studio label through the token would move the canvas and two public pages. The two values
 // coincide at 12px today; they are kept independent precisely so that stays a coincidence.
@@ -74,7 +74,7 @@ t("A5: neither step reaches for the shared `--text-eyebrow` token",
 /* ================================================ B. THE GROUP RULE, DERIVED
  * The nested-card signature, taken from source rather than from a list of sites. Any eyebrow
  * heading inside such a container must be the GROUP step. */
-const NESTED_CARD = /rounded-\[var\(--studio-radius-control,4px\)\][^"]*border[^"]*bg-cream-100[^"]*p-3\b/;
+const NESTED_CARD = /rounded-\[var\(--studio-radius-control,4px\)\][^"]*border[^"]*bg-studio-cream-100[^"]*p-3\b/;
 const EYEBROW_LITERAL = /className="[^"]*uppercase tracking-eyebrow[^"]*"/g;
 
 const groupViolations = [];
@@ -98,7 +98,7 @@ if (groupViolations.length) {
   for (const v of groupViolations) {
     console.log(`    ${v}`);
     console.log(`      This span sits inside the nested-card container`);
-    console.log(`      (rounded-control + border + bg-cream-100 + p-3), so it is a GROUP heading.`);
+    console.log(`      (rounded-control + border + bg-studio-cream-100 + p-3), so it is a GROUP heading.`);
     console.log(`      Use {groupLabelCls} — the 10px step means "one level in", and writing it`);
     console.log(`      by hand is how the six original sites drifted apart.\n`);
   }
@@ -112,8 +112,8 @@ t(`B1: every eyebrow heading inside a nested card uses \`groupLabelCls\`${groupV
 const isException = (line, file) =>
   /rounded-full/.test(line) ||                    // a badge/pill
   file.endsWith("StudioSidebar.tsx") ||           // nav group heading
-  /text-accent-600/.test(line) ||                 // the accent ordinal
-  /text-ink-400/.test(line) && /truncate/.test(line); // the board card's authored section.eyebrow
+  /text-studio-accent-600/.test(line) ||                 // the accent ordinal
+  /text-studio-ink-400/.test(line) && /truncate/.test(line); // the board card's authored section.eyebrow
 
 const adhoc = [];
 for (const f of files) {
@@ -124,7 +124,7 @@ for (const f of files) {
     EYEBROW_LITERAL.lastIndex = 0;
     if (isException(line, f)) return;
     // help text keeps its own string on purpose, but must not be ink-400 (it failed AA)
-    if (/text-ink-600/.test(line)) return;
+    if (/text-studio-ink-600/.test(line)) return;
     adhoc.push(`${f}:${i + 1}`);
   });
 }
@@ -170,11 +170,11 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
   const pill = /export const KEY_PILL_CLS =\s*([\s\S]*?);/.exec(fields)?.[1] ?? "";
   const fixed = /export const FIXED_KEY_CLS =\s*([\s\S]*?);/.exec(fields)?.[1] ?? "";
   t("E1: both key classes exist", [pill.length > 0, fixed.length > 0], [true, true]);
-  for (const tok of ["h-[26px]", "px-2.5", "text-[10.5px]", "font-bold", "uppercase", "tracking-[0.13em]", "text-ink-600"])
+  for (const tok of ["h-[26px]", "px-2.5", "text-[10.5px]", "font-bold", "uppercase", "tracking-[0.13em]", "text-studio-ink-600"])
     t(`E1: …and share ${tok}`, [pill.includes(tok), fixed.includes(tok)], [true, true]);
   t("E1: …and ONLY the editable one carries a ground and a radius",
-    [pill.includes("bg-cream-200"), pill.includes("rounded-full"),
-     fixed.includes("bg-cream-200"), fixed.includes("rounded-full")],
+    [pill.includes("bg-studio-cream-200"), pill.includes("rounded-full"),
+     fixed.includes("bg-studio-cream-200"), fixed.includes("rounded-full")],
     [true, true, false, false]);
 
   // E2 — every field component renders the key row. Derived from the components that render a
@@ -189,7 +189,7 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
 
   // E3 — THE SEAM. `labelCls` keeps its value and its non-field consumers, untouched.
   t("E3: `labelCls` itself is unchanged — the pill is a NEW export, not a mutation",
-    /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+    /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-studio-ink-600";/.test(fields), true);
   // OverviewRow is NOT in this list, and that is #240's fix rather than an omission: it is a
   // SERVER component, and importing `labelCls` across the client boundary yields a THROWING PROXY
   // that a template literal stringifies into the class attribute. It writes the utilities out as
@@ -252,9 +252,9 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
   // `studio-ink-contrast` H4 already asserts ink-400 fails the text floor on EVERY cream step.
   // `text-subtle` is 5.52 there. The rule was already the project's; the contract had not caught up.
   t("F5: the suffix uses text-subtle, not the contract's ink-400 — 5.52 against 3.49 on the well",
-    /text-\[12px\] font-medium text-text-subtle/.test(fields), true);
+    /text-\[12px\] font-medium text-studio-text-subtle/.test(fields), true);
   t("F5: …and no ink-400 survives on the suffix",
-    /right-3[^"]*text-ink-400/.test(fields), false);
+    /right-3[^"]*text-studio-ink-400/.test(fields), false);
 }
 
 /* ================================================ G. THE TAB HINT (PR 4)
@@ -321,7 +321,7 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
   t("G5: it is NOT set like a label — a 130-char sentence takes neither uppercase nor eyebrow",
     /uppercase|tracking-eyebrow/.test(strip), false);
   t("G5: …and it reuses the EXISTING neutral strip rather than inventing a third flavour",
-    /border border-ink-950\/12/.test(strip) && /bg-cream-100/.test(strip)
+    /border border-studio-ink-950\/12/.test(strip) && /bg-studio-cream-100/.test(strip)
       && /rounded-\[var\(--studio-radius-control,4px\)\]/.test(strip), true);
   t("G5: …with no left accent bar, which the studio keeps for selection markers",
     /border-l/.test(strip), false);

@@ -51,10 +51,10 @@ t("A1: status is a real tablist with aria-selected",
  * conjunction compared to `false` cannot say WHICH half failed, and here it did not need either
  * half to be right. */
 t("A2: …and it takes the UNDERLINE — the selected tab carries the accent border",
-  /border-accent-500 text-ink-950/.test(tabs), true);
+  /border-studio-accent-500 text-studio-ink-950/.test(tabs), true);
 
 t("A2: …and never the FILL, which belongs to the control beside it",
-  /bg-accent-500/.test(tabs), false);
+  /bg-studio-accent-500/.test(tabs), false);
 
 t("A3: view is a group with aria-pressed and takes the FILL — a different control, a different language",
   /<SegmentedGroup/.test(index) && /ariaLabel="View"/.test(index), true);
@@ -175,7 +175,7 @@ t("F3: …at the lightness the rasteriser settled on, not the one the contract d
 /* ⚠ THE CHIP OVER A HERO IS GIVEN A GROUND. Measured, the element behind it is the `<img>`, so
  * its 12% fill left the label on arbitrary pixels — a contrast that changes with every hero. */
 t("F4: the card's chip sits on an opaque ground, not on the photograph",
-  /rounded-full bg-cream-50">\s*<BlogStatusChip/.test(card), true);
+  /rounded-full bg-studio-cream-50">\s*<BlogStatusChip/.test(card), true);
 
 /* ================================================ G. THE WORD REPLACED THE DOT */
 

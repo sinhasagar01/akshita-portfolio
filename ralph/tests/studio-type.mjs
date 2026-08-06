@@ -129,7 +129,7 @@ export const ON_INK = [
   { surface: "topbar View site (HOVER)", role: "fill vs the bar",     min: 18.0, measured: 19.04, aa: null, needsPointer: true,
     why: "the swing IS the affordance — a light fill on ink at 19:1 is unmistakable" },
   { surface: "topbar View site (HOVER)", role: "label vs the fill",   min: 18.0, measured: 19.04, aa: 4.5, needsPointer: true,
-    why: "measured against the FILL, not the bar. And it only lands because the label is in a SPAN — `hover:text-*` on the <a> would be dead under hazard 22, exactly as `hover:text-accent-500` was on this same element" },
+    why: "measured against the FILL, not the bar. And it only lands because the label is in a SPAN — `hover:text-*` on the <a> would be dead under hazard 22, exactly as `hover:text-studio-accent-500` was on this same element" },
 ];
 
 export const TYPE_SCRIPT = String.raw`

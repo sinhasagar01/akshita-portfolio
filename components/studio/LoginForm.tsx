@@ -49,7 +49,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-sm overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-ink-950/22 bg-cream-50"
+      className="w-full max-w-sm overflow-hidden rounded-[var(--studio-radius-panel,12px)] border border-studio-ink-950/22 bg-studio-cream-50"
     >
       {/* CHROME IS cream-200, and it moves because the BODY moved, not as a separate opinion.
           The body below had no ground of its own, so it inherited the form's cream-50 and the
@@ -57,14 +57,14 @@ export default function LoginForm() {
           would have left this header ALSO cream-100 — one same-on-same traded for another. The
           ladder resolves the pair in one step: chrome cream-200, field surface cream-100, well
           cream-50. That is the relational rule doing the deriving (blocks/fields.tsx:151-166). */}
-      <div className="flex items-center gap-2.5 border-b border-ink-950/12 bg-cream-200 px-5 py-4">
-        <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500 text-cream-50">
+      <div className="flex items-center gap-2.5 border-b border-studio-ink-950/12 bg-studio-cream-200 px-5 py-4">
+        <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 text-studio-cream-50">
           <IconSparkles className="size-3.5" />
         </span>
-        <span className="font-display text-lg text-ink-950">Studio</span>
+        <span className="font-display text-lg text-studio-ink-950">Studio</span>
       </div>
 
-      <div className="flex flex-col gap-4 bg-cream-100 px-5 py-6">
+      <div className="flex flex-col gap-4 bg-studio-cream-100 px-5 py-6">
         <label className="flex flex-col gap-1.5">
           <FieldKey>Password</FieldKey>
           <input
@@ -81,14 +81,14 @@ export default function LoginForm() {
           />
         </label>
 
-        <p className="min-h-[16px] text-[12px] text-accent-600" aria-live="polite">
+        <p className="min-h-[16px] text-[12px] text-studio-accent-600" aria-live="polite">
           {status === "error" ? message : ""}
         </p>
 
         <button
           type="submit"
           disabled={status === "submitting" || !password}
-          className="rounded-[var(--studio-radius-control,4px)] bg-accent-500 px-4 py-2 text-[14px] font-medium text-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500 px-4 py-2 text-[14px] font-medium text-studio-cream-50 transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {status === "submitting" ? "Signing in…" : "Sign in"}
         </button>

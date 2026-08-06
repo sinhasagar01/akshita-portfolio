@@ -41,6 +41,8 @@ const t = (name, got, want) => {
 };
 
 const css = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+/** Comment bodies blanked, so prose naming an old token is not read as a declaration. */
+const code = (s) => s.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " ")).replace(/(^|[^:])\/\/.*$/gm, "$1");
 
 /* ================================================ A. THE LEGAL SET, FROM @theme
  * Parsed, never listed. Adding `--color-ink-500` to @theme makes `text-ink-500` legal here on
@@ -149,6 +151,68 @@ t("B2: the `text-ink-500` family is CLOSED and empty — the 40 dead sites were 
 // read correctly at full ink, so they were removed rather than deferred.
 t("B3: `text-ink-700` has no remaining sites — the 11 that carried it read correctly at inherited ink and were deleted, not replaced",
   offenders.filter((o) => o.token === "ink-700").length, 0);
+
+/* ================================================ C. THE STUDIO HAS ITS OWN PALETTE
+ *
+ * ⚠ IT DID NOT, AND THAT MADE ONE STATED SCOPE IMPOSSIBLE. The studio drew 895 of its colours
+ * from the PUBLIC scales — ink, cream, accent, danger, success and the subtle text alias — while
+ * declaring radius, motion and elevation of its own, so it LOOKED self-contained from either side.
+ * A runtime theme repointing `--color-ink-950` would have repainted every panel, rail and band in
+ * the editor. "The studio keeps its design" was not achievable while that was true.
+ *
+ * ⚠ FROZEN COPIES, NOT `var()` ALIASES. An alias tracks the public token and defeats the purpose
+ * one indirection later. C1 asserts the copies still MATCH today's public values, which is what
+ * turns "frozen at today's values" into a checkable claim — and the day a theme moves a public
+ * token, C1 is the row that has to be deliberately updated rather than quietly drifting.
+ *
+ * ⚠ AND THE CANVAS IS DELIBERATELY EXEMPT. It renders PUBLIC components at the public measure, so
+ * it takes the public tokens and shows the ACTIVE theme. That is the parity contract — what the
+ * author sees is what the article ships — and it means the studio is PARTLY THEMED. The scope
+ * narrows rather than gaining an exception: the studio's CHROME keeps its design, and the canvas
+ * is public content drawn inside it, as it always was. C3 pins that the canvas components are NOT
+ * swept onto studio tokens, so a later tidy cannot quietly break parity.
+ */
+{
+  const value = (n) => {
+    const m = new RegExp(`--color-${n.replace(/-/g, "\\-")}:\\s*([^;]+);`).exec(code(css));
+    return m ? m[1].trim() : null;
+  };
+  const PAIRS = ["cream-50", "cream-100", "cream-200", "cream-300", "ink-950", "ink-800",
+    "ink-600", "ink-400", "ink-200", "accent-500", "accent-600", "danger-600",
+    "success-700", "text-subtle"];
+  t("C1: the studio palette was found at all — a zero denominator is not a pass",
+    PAIRS.filter((n) => value(`studio-${n}`) !== null).length, PAIRS.length);
+  t("C1: every frozen studio colour still equals its public counterpart — this is the row a theme change must deliberately break",
+    PAIRS.filter((n) => value(n) !== value(`studio-${n}`)), []);
+
+  /* C2 · NO LIVE PUBLIC COLOUR UTILITY SURVIVES UNDER /studio. Asserted as an ABSENCE over the
+   * derived file set, so a NEW component reaching for the public scale fails on arrival — which
+   * is the only thing that keeps the separation true after today. */
+  const PUB = /\b(?:bg|text|border|border-[trblxy]{1,2}|ring|fill|stroke|from|via|to|outline|decoration|caret|divide|placeholder)-((?:cream|ink|accent|danger|success)-[0-9]+|text-subtle)\b/g;
+  const strays = [];
+  for (const f of ALL) {
+    for (const m of code(readFileSync(f.url, "utf8")).matchAll(PUB)) {
+      strays.push(`${f.rel} ${m[0]}`);
+    }
+  }
+  t("C2: no studio file reaches for a PUBLIC colour token — the chrome is on its own palette",
+    strays.slice(0, 8), []);
+
+  /* C3 · AND THE CANVAS IS STILL ON THE PUBLIC ONES, which is the other half and the easier one
+   * to lose. These are the public modules the studio renders; if a sweep ever put them on studio
+   * tokens the canvas would stop showing the theme and the parity contract would be broken with
+   * every class string still looking right. */
+  const CANVAS_MODULES = [
+    "components/blog/BlogProse.tsx",
+    "components/case-study/SectionRenderer.tsx",
+    "components/sections/ProjectCard.tsx",
+  ];
+  const onStudioTokens = CANVAS_MODULES.filter((m) =>
+    /-studio-(?:cream|ink|accent|danger|success|text)-/.test(
+      code(readFileSync(new URL(`../../${m}`, import.meta.url), "utf8"))));
+  t("C3: the public components the canvas renders are NOT on studio tokens — the canvas shows the active theme",
+    onStudioTokens, []);
+}
 
 console.log(`\nstudio-tokens result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

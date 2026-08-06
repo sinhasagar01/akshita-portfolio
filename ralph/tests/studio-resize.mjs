@@ -122,8 +122,8 @@ const shell = code("components/studio/ThreePaneShell.tsx");
    * product, and white/12 on cream is nothing at all. Passing colours IN would put the rule at
    * every call site, which is how two call sites become two designs. */
   t("B1: both grounds are declared here, in one place",
-    /ink: "bg-white\/12 border-white\/22"/.test(grip) && /cream: "bg-cream-50 border-ink-950\/22"/.test(grip)
-      && /ink: "bg-white\/55"/.test(grip) && /cream: "bg-ink-400"/.test(grip), true);
+    /ink: "bg-white\/12 border-white\/22"/.test(grip) && /cream: "bg-studio-cream-50 border-studio-ink-950\/22"/.test(grip)
+      && /ink: "bg-white\/55"/.test(grip) && /cream: "bg-studio-ink-400"/.test(grip), true);
   t("B1: …and each seam names its own ground",
     /ground="ink"/.test(sidebarRz) && /ground="cream"/.test(inspRz), true);
 
@@ -135,7 +135,7 @@ const shell = code("components/studio/ThreePaneShell.tsx");
    * an elevation, so it does not belong to the `--studio-lift-*` family and does not want a token
    * in it — C10 caught the first attempt and it was right to. */
   t("B2: the focus ring is an outline, so no raw elevation literal is invented",
-    /group-focus-visible\/rz:outline-2 group-focus-visible\/rz:outline-accent-500\/30/.test(grip), true);
+    /group-focus-visible\/rz:outline-2 group-focus-visible\/rz:outline-studio-accent-500\/30/.test(grip), true);
 
   /* IT IS NOT FOCUSABLE AND HAS NO HANDLERS. Two focusable things on one seam is two tab stops for
    * one control, and the outer element is already a `separator` with a full keymap. */

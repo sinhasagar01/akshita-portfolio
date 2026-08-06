@@ -49,7 +49,7 @@ export default function ChipListEditor({
     // dividers reads as what it is — the row's controls. The contract's `.seg` is exactly this
     // shape (one border, `overflow:hidden`, `button+button{border-left}`), and it is also how
     // the studio's other grouped controls already draw.
-    "grid size-8 shrink-0 place-items-center text-ink-400 transition-colors enabled:hover:bg-cream-200 enabled:hover:text-ink-950 disabled:opacity-30 [&>svg]:size-4";
+    "grid size-8 shrink-0 place-items-center text-studio-ink-400 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:opacity-30 [&>svg]:size-4";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -76,7 +76,7 @@ export default function ChipListEditor({
                 // local because it needs `flex-1` where the shared export forces `w-full` — but
                 // that is a MIN-width concern and the measure is a MAX one, so they compose.
                 // Uncapped, these ran 1825px on a 2560 display inside About and Process.
-                className={`min-h-11 min-w-0 flex-1 ${FIELD_MEASURE} rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-50 px-3 py-2 text-[14px] text-ink-950 outline-none transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30`}
+                className={`min-h-11 min-w-0 flex-1 ${FIELD_MEASURE} rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-50 px-3 py-2 text-[14px] text-studio-ink-950 outline-none transition-colors focus:border-studio-accent-500 focus:ring-1 focus:ring-studio-accent-500/30`}
               />
               {/* BORDERLESS, 2px APART — the contract's `.skrow .ctl`, and #240 used the WRONG
                   SPEC HERE. Its brief said the row controls should come "inline rather than
@@ -119,7 +119,7 @@ export default function ChipListEditor({
                 // Hover is accent TEXT on a cream-200 wash, matching its siblings. It carries no
                 // border of its own and neither does the cluster, so there is nothing for a
                 // border-colour hover to draw on.
-                className="grid size-8 shrink-0 place-items-center text-ink-400 transition-colors hover:bg-cream-200 hover:text-accent-600 [&>svg]:size-4"
+                className="grid size-8 shrink-0 place-items-center text-studio-ink-400 transition-colors hover:bg-studio-cream-200 hover:text-studio-accent-600 [&>svg]:size-4"
               >
                 <IconX />
               </button>
@@ -131,7 +131,7 @@ export default function ChipListEditor({
       <button
         type="button"
         onClick={list.add}
-        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-solid hover:border-accent-500 hover:text-accent-600 [&>svg]:size-3.5"
+        className="mt-0.5 inline-flex w-fit items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-dashed border-studio-ink-950/15 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:border-solid hover:border-studio-accent-500 hover:text-studio-accent-600 [&>svg]:size-3.5"
       >
         <IconPlus /> {addLabel}
       </button>

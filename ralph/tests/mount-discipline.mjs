@@ -242,7 +242,7 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
     t("B4: …and SaveBar's root is a `footer` element, which is what `[&>section>footer]` selects",
       /return \(\s*<footer/.test(bar) && /<\/footer>\s*\);/.test(bar), true);
     t("B4: …and it appends the consumer's className, or the sticky above never reaches the element",
-      /bg-cream-200 px-4 py-3 \$\{className\}`/.test(bar), true);
+      /bg-studio-cream-200 px-4 py-3 \$\{className\}`/.test(bar), true);
 
     /* ---- B5 · THE CHAIN ABOVE THE SHELL, WHICH IS WHERE SKILLS BROKE --------------------
      *
@@ -326,9 +326,9 @@ t("B3: the details form is hidden rather than conditionally rendered — it carr
       ["36", "600", "12"]);
     for (const [what, cls] of [
       ["height", AS_UTILITY["36"]], ["size", AS_UTILITY["12"]], ["weight", AS_UTILITY["600"]],
-      ["the ink-800 the contract names", "text-ink-800"],
-      ["the cream-50 fill", "bg-cream-50"],
-      ["the dashed rule-edge border", "border-dashed"], ["…at /22, which IS rule-edge", "border-ink-950/22"],
+      ["the ink-800 the contract names", "text-studio-ink-800"],
+      ["the cream-50 fill", "bg-studio-cream-50"],
+      ["the dashed rule-edge border", "border-dashed"], ["…at /22, which IS rule-edge", "border-studio-ink-950/22"],
       ["the control radius, not the card radius", "rounded-[var(--studio-radius-control,4px)]"],
       ["#246's hover, unchanged by the restyle", "hover:border-solid"],
     ]) t(`B6: the footer button carries ${what}`, btnCls.includes(cls), true);
@@ -506,10 +506,10 @@ export const MOUNT_SCRIPT = String.raw`
   const panel = code("components/studio/ProjectsEditPanel.tsx");
 
   t("F1: the canvas header states its height rather than deriving it from padding",
-    /className="flex h-\[65px\] flex-none items-center gap-2\.5 border-b border-ink-950\/12 px-\[18px\]/.test(shell), true);
+    /className="flex h-\[65px\] flex-none items-center gap-2\.5 border-b border-studio-ink-950\/12 px-\[18px\]/.test(shell), true);
 
   t("F2: the details toggles bar states the same height",
-    /className="flex h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"/.test(panel), true);
+    /className="flex h-\[65px\] items-center gap-3 border-b border-studio-ink-950\/12 bg-studio-cream-200 px-4"/.test(panel), true);
 
   t("F3: …and neither reverted to a vertical padding, which is what drifts",
     /h-\[65px\][^"]*py-\[/.test(shell) || /h-\[65px\][^"]*py-\[/.test(panel), false);
@@ -527,12 +527,12 @@ export const MOUNT_SCRIPT = String.raw`
     /<SaveBar[\s\S]*?Preview[\s\S]*?Save draft · Details/.test(panel)
       && /onCancel=\{cancel\}/.test(panel), true);
   t("F4: …and the toggles bar itself holds neither",
-    /h-\[65px\] items-center gap-3 border-b border-ink-950\/12 bg-cream-200 px-4"[\s\S]{0,1200}?<\/div>/
+    /h-\[65px\] items-center gap-3 border-b border-studio-ink-950\/12 bg-studio-cream-200 px-4"[\s\S]{0,1200}?<\/div>/
       .exec(panel)?.[0]?.includes("Preview") ?? true, false);
 
   t("F5: …and their hover moved to cream-100, because the footer IS cream-200",
-    /hover:bg-cream-100[\s\S]{0,400}Preview/.test(panel)
-      && /hover:bg-cream-200[\s\S]{0,200}Preview/.test(panel) === false, true);
+    /hover:bg-studio-cream-100[\s\S]{0,400}Preview/.test(panel)
+      && /hover:bg-studio-cream-200[\s\S]{0,200}Preview/.test(panel) === false, true);
 }
 
 /* ---- G · A TRANSFORM DOES NOT CHANGE LAYOUT SIZE ------------------------------------------

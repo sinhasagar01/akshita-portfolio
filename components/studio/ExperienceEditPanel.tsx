@@ -83,16 +83,16 @@ export default function ExperienceEditPanel({
       // NO FRAME — these pages are full-height shells since #242, so a panel frame here is a box
       // drawn around a box, and its `overflow-hidden` clipped the pane's own scrolling. The full
       // reasoning and the measurements are on `AboutEditPanel`'s copy of this line.
-      className="bg-cream-100"
+      className="bg-studio-cream-100"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-ink-950/12 bg-cream-200 px-4 py-[19px]">
+      <header className="flex items-center justify-between gap-3 border-b border-studio-ink-950/12 bg-studio-cream-200 px-4 py-[19px]">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-accent-500/10 text-accent-500 [&>svg]:size-3.5">
+          <span className="grid size-6 place-items-center rounded-[var(--studio-radius-control,4px)] bg-studio-accent-500/10 text-studio-accent-500 [&>svg]:size-3.5">
             <IconBriefcase />
           </span>
-          <span className="truncate font-display text-base text-ink-950">{company}</span>
+          <span className="truncate font-display text-base text-studio-ink-950">{company}</span>
           {dirty && (
-            <span className="rounded-full border border-ink-950/15 px-2 py-0.5 text-[10px] text-text-subtle">
+            <span className="rounded-full border border-studio-ink-950/15 px-2 py-0.5 text-[10px] text-studio-text-subtle">
               Unsaved changes
             </span>
           )}
@@ -101,7 +101,7 @@ export default function ExperienceEditPanel({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950"
+          className="rounded-[var(--studio-radius-control,4px)] px-2 py-1 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
         >
           Cancel
         </button>
@@ -138,9 +138,9 @@ export default function ExperienceEditPanel({
             // re-pointed to the token each already stood next to, so the hazard closed by
             // realising the original intent rather than by deleting the muting. This field muted
             // against cream-200, the worst-case ground, still clears AA at 4.78.
-            className={`min-h-11 w-full ${FIELD_MEASURE} cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 bg-cream-200 px-3 py-2 text-[14px] text-text-subtle outline-none`}
+            className={`min-h-11 w-full ${FIELD_MEASURE} cursor-not-allowed rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-200 px-3 py-2 text-[14px] text-studio-text-subtle outline-none`}
           />
-          <span className="text-[10px] text-text-subtle">
+          <span className="text-[10px] text-studio-text-subtle">
             The entry&rsquo;s identity, set when you add it. Not editable here.
           </span>
         </label>
@@ -193,7 +193,7 @@ export default function ExperienceEditPanel({
             placeholder={"Led the redesign of the mechanic app.\nShipped a design system used by three teams."}
             className={`${inputClsMd} resize-y`}
           />
-          <span className="text-[10px] text-text-subtle">
+          <span className="text-[10px] text-studio-text-subtle">
             One line per point. Each line renders as its own paragraph under the role.
           </span>
         </label>
@@ -208,7 +208,7 @@ export default function ExperienceEditPanel({
             placeholder="Bengaluru"
             className={`${inputClsMd} ${FIELD_MEASURE}`}
           />
-          <span className="text-[10px] text-text-subtle">
+          <span className="text-[10px] text-studio-text-subtle">
             City shown next to the company. Overrides the city parsed from the company name.
           </span>
         </label>

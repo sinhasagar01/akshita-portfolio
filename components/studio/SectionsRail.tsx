@@ -42,7 +42,7 @@ import { inputCls, labelCls } from "./blocks/fields";
 export type RailSelection = "details" | string;
 
 const rowBase =
-  "group relative flex w-full items-start gap-2 border-b border-b-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-2 text-left transition-colors";
+  "group relative flex w-full items-start gap-2 border-b border-b-studio-ink-950/12 border-l-[3px] py-2.5 pl-[9px] pr-2 text-left transition-colors";
 
 export default function SectionsRail({
   sections,
@@ -84,7 +84,7 @@ export default function SectionsRail({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-none border-b border-ink-950/12 p-2.5">
+      <div className="flex-none border-b border-studio-ink-950/12 p-2.5">
         <input
           type="search"
           value={query}
@@ -106,16 +106,16 @@ export default function SectionsRail({
           aria-current={selection === "details" ? "true" : undefined}
           className={`${rowBase} ${
             selection === "details"
-              ? "border-l-accent-500 bg-cream-300"
-              : "border-l-transparent hover:bg-cream-100"
+              ? "border-l-studio-accent-500 bg-studio-cream-300"
+              : "border-l-transparent hover:bg-studio-cream-100"
           }`}
         >
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13.5px] font-medium text-ink-950">Details</span>
+            <span className="block truncate text-[13.5px] font-medium text-studio-ink-950">Details</span>
             {/* A VALUE BELONGS TO ITS GROUND. `text-text-subtle` measures 5.52/5.25/4.78 on
                 cream-50/100/200 but only 4.03 on the SELECTED row's cream-300 — below the 4.5 AA
                 floor. The selected row is a different ground, so it takes a different value. */}
-            <span className={`mt-0.5 block truncate text-[11.5px] ${selection === "details" ? "text-ink-600" : "text-text-subtle"}`}>
+            <span className={`mt-0.5 block truncate text-[11.5px] ${selection === "details" ? "text-studio-ink-600" : "text-studio-text-subtle"}`}>
               Title, hero, summary, type, platform
             </span>
           </span>
@@ -123,7 +123,7 @@ export default function SectionsRail({
             <span
               aria-hidden
               title="Unsaved changes"
-              className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-500"
+              className="mt-1.5 size-1.5 shrink-0 rounded-full bg-studio-accent-500"
             />
           )}
         </button>
@@ -141,7 +141,7 @@ export default function SectionsRail({
             reading "No sections match that search" when there is no search is the hazard restated
             in new words, and it was reachable on any empty study, not just this one. */}
         {shown.length === 0 ? (
-          <p className="px-3 py-6 text-center text-[12px] text-text-subtle">
+          <p className="px-3 py-6 text-center text-[12px] text-studio-text-subtle">
             {sections.length === 0
               ? "No sections yet. Add one from the Board."
               : "No sections match that search."}
@@ -161,8 +161,8 @@ export default function SectionsRail({
                     aria-current={current ? "true" : undefined}
                     className={`${rowBase} ${
                       current
-                        ? "border-l-accent-500 bg-cream-300"
-                        : "border-l-transparent hover:bg-cream-100"
+                        ? "border-l-studio-accent-500 bg-studio-cream-300"
+                        : "border-l-transparent hover:bg-studio-cream-100"
                     }`}
                   >
                     {/* The needs-an-image marker. A dot, not the board's pill: at rail width a
@@ -172,19 +172,19 @@ export default function SectionsRail({
                       aria-hidden
                       title={flag ? "Needs an image" : undefined}
                       className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
-                        flag ? "bg-accent-500" : "bg-transparent"
+                        flag ? "bg-studio-accent-500" : "bg-transparent"
                       }`}
                     />
                     <span className="min-w-0 flex-1">
                       {s.eyebrow ? (
-                        <span className="block truncate text-[10px] uppercase tracking-eyebrow text-ink-600">
+                        <span className="block truncate text-[10px] uppercase tracking-eyebrow text-studio-ink-600">
                           {s.eyebrow}
                         </span>
                       ) : null}
-                      <span className="block truncate text-[13.5px] font-medium text-ink-950">
+                      <span className="block truncate text-[13.5px] font-medium text-studio-ink-950">
                         {label}
                       </span>
-                      <span className={`mt-0.5 block truncate text-[11.5px] ${current ? "text-ink-600" : "text-text-subtle"}`}>
+                      <span className={`mt-0.5 block truncate text-[11.5px] ${current ? "text-studio-ink-600" : "text-studio-text-subtle"}`}>
                         {count === 1 ? "1 block" : `${count} blocks`}
                         {flag ? " · needs an image" : ""}
                       </span>
@@ -201,7 +201,7 @@ export default function SectionsRail({
                       onClick={() => onMove(i, -1)}
                       disabled={i === 0}
                       aria-label={`Move section ${label} up`}
-                      className="grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
+                      className="grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-studio-ink-400 transition-colors enabled:hover:text-studio-ink-950 disabled:opacity-25 [&>svg]:size-3"
                     >
                       <IconChevronUp />
                     </button>
@@ -210,7 +210,7 @@ export default function SectionsRail({
                       onClick={() => onMove(i, 1)}
                       disabled={i === sections.length - 1}
                       aria-label={`Move section ${label} down`}
-                      className="grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-ink-400 transition-colors enabled:hover:text-ink-950 disabled:opacity-25 [&>svg]:size-3"
+                      className="grid size-5 place-items-center rounded-[var(--studio-radius-control,4px)] text-studio-ink-400 transition-colors enabled:hover:text-studio-ink-950 disabled:opacity-25 [&>svg]:size-3"
                     >
                       <IconChevronDown />
                     </button>

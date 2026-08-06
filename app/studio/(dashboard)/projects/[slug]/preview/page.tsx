@@ -59,19 +59,19 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
 
   return (
     <div className={`${STUDIO_PAGE} flex flex-col gap-4`}>
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-ink-950/12 bg-cream-100 px-4 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="font-display text-base text-ink-950">{live.title}</span>
+          <span className="font-display text-base text-studio-ink-950">{live.title}</span>
           <span
             className={`rounded-full px-2 py-0.5 text-[10px] ${
               isDraft
-                ? "border border-accent-500/40 bg-accent-500/10 text-accent-600"
-                : "border border-ink-950/15 text-text-subtle"
+                ? "border border-studio-accent-500/40 bg-studio-accent-500/10 text-studio-accent-600"
+                : "border border-studio-ink-950/15 text-studio-text-subtle"
             }`}
           >
             {isDraft ? "Showing your draft" : "Showing live"}
           </span>
-          <span className="text-[12px] text-text-subtle">
+          <span className="text-[12px] text-studio-text-subtle">
             {isDraft
               ? "Unpublished. The public page still shows live until you publish."
               : "No unpublished changes to this case study."}
@@ -81,9 +81,9 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
           <Link
             href="/studio/projects"
             // Colour on the span, not the Link — hazard 22. See BlogPostList for the note.
-            className="group rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] font-semibold transition-colors hover:bg-cream-200"
+            className="group rounded-[var(--studio-radius-control,4px)] px-3 py-1.5 text-[12px] font-semibold transition-colors hover:bg-studio-cream-200"
           >
-            <span className="text-ink-600 transition-colors group-hover:text-ink-950">
+            <span className="text-studio-ink-600 transition-colors group-hover:text-studio-ink-950">
               Back to projects
             </span>
           </Link>
@@ -91,7 +91,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
             href={projectPath(slug)}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-cream-200 hover:text-ink-950 [&>svg]:size-3"
+            className="inline-flex items-center gap-1.5 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950 [&>svg]:size-3"
           >
             View live <IconArrowUpRight />
           </a>
@@ -99,7 +99,7 @@ export default async function CaseStudyPreviewPage({ params }: Props) {
       </header>
 
       {/* The real renderer, so the preview is the thing itself, not a mock. */}
-      <div className="overflow-hidden rounded-[var(--studio-radius-card,8px)] border border-ink-950/12">
+      <div className="overflow-hidden rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12">
         <CaseStudyView study={study} />
       </div>
     </div>
