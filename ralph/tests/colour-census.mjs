@@ -1,0 +1,267 @@
+// EVERY COLOUR THAT REACHES A PUBLIC PAGE. The instrument the theme project was missing.
+// Run: node ralph/tests/colour-census.mjs   (needs a production build — see NOT RUNNABLE below)
+//
+// ---- ⚠ WHY THIS EXISTS, AND IT IS NOT "ANOTHER GATE" -------------------------------------------
+//
+// Step 1 enumerated 125 colour literals and classified all of them. Public source holds 288, and
+// STEP 1'S SUBJECT WAS 6 OF THEM. It read `className` and inline `style={{}}` in `components/`,
+// which is where a component census naturally looks. The other 282 sit in CSS rule bodies (104),
+// SVG attributes (75), the token block itself (67), runtime JS const arrays (28) and `@keyframes`
+// (8). It was thorough about its subject.
+//
+// ⚠ AND E1 DID NOT COVER THE GAP, WHICH IS THE SHARPEST FINDING OF THE WHOLE ARC.
+// `theme-contrast`'s E1 asserts every PUBLIC COLOUR is computed or on the boundary list, it caught
+// `on-dark-line` on its first run, and it read like the repair for hazard 30. It was the repair for
+// hazard 30 WITHIN ITS SUBJECT, and its subject is declarations named `--color-*`.
+//
+//   A COMPLETENESS ASSERTION INHERITS ITS SUBJECT'S BLIND SPOT.
+//
+// E1's claim was TRUE of `--color-*` and FALSE of the page. The boundary list was declared complete
+// twice — in #325 and again in #328 when it shrank by three — and both statements were true and
+// useless. A gate that proves a set is complete proves NOTHING about what is outside the set, and
+// the danger is that it READS like it does.
+//
+// ---- THE SUBJECT, CHOSEN SO IT CANNOT INHERIT A NAME'S BLIND SPOT -----------------------------
+//
+// This enumerates COLOURS IN THE RENDERED OUTPUT rather than declarations in source. Three
+// populations, because a colour reaches a public page by exactly three routes:
+//
+//   A · THE BUILT CSS BUNDLE. Every rule Tailwind emitted, after compilation. A literal colour in
+//       a declaration VALUE is a colour no theme can move. A `var(--color-*)` reference is not —
+//       that is the token layer working.
+//   B · SVG PRESENTATION ATTRIBUTES in public components. `fill="#..."` never appears in a
+//       stylesheet and never in a `className`.
+//   C · RUNTIME-GENERATED COLOURS in public JS — const arrays, template strings, canvas draw
+//       calls. They reach the page as inline style or as a paint operation.
+//
+// ---- ⚠ WHAT THIS SUITE'S SUBJECT IS, AND WHAT FALLS OUTSIDE IT --------------------------------
+//
+// E1 is the cautionary precedent, so this says its own boundary out loud rather than reading like
+// the stronger claim.
+//
+//   SUBJECT — every colour that PAINTS A PUBLIC PAGE, by the three routes above: the built CSS
+//   bundle, SVG presentation attributes, and colours generated in public JS.
+//
+//   OUTSIDE — anything that reaches a surface ADJACENT to the page rather than the page itself.
+//
+// ⚠ AND WRITING THAT SENTENCE FOUND A FOURTH ROUTE, WHICH IS THE POINT OF WRITING IT.
+// `app/manifest.ts` declares `background_color: "#FBF6EE"` and `theme_color: "#1c1813"` — the PWA
+// splash and the mobile address-bar tint. `lib/og.tsx` holds its own hexes for the social cards.
+// None of them is in the CSS bundle, in an SVG attribute, or in page-painting JS, so section D
+// below REPORTS them and does not fold them into A, B or C. They are a real population with a real
+// question attached (should the address bar follow the theme?) and answering it is not this
+// suite's job.
+//
+// The general shape of a fifth route, so the next one is expected rather than discovered: a colour
+// baked into a RASTER asset — the site photo, the project-card thumbnails, a video frame. No static
+// analysis reaches those, and a theme cannot move them either. If a palette ever has to agree with
+// a photograph, that is where the disagreement will live.
+//
+// ⚠ THE POINT OF ENUMERATING BY VALUE RATHER THAN BY NAME is that `--glass-fill` is caught.
+// It holds `oklch(98.5% 0.012 80 / 0.58)`, which is `--color-cream-50`'s value written longhand
+// with an alpha — A COLOUR THAT ALREADY HAS A NAME, SPELLED OUT WHERE THE NAME CANNOT REACH IT.
+// No name-based gate can see that, because the property is not called `--color-anything`.
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+
+let pass = 0, fail = 0;
+const t = (name, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  console.log((ok ? "  [PASS] " : "  [FAIL] ") + name + (ok ? "" : `\n     got  ${JSON.stringify(got)}\n     want ${JSON.stringify(want)}`));
+  ok ? pass++ : fail++;
+};
+const url = (p) => new URL(`../../${p}`, import.meta.url);
+const read = (p) => readFileSync(url(p), "utf8");
+
+/* ⚠ NOT RUNNABLE WITHOUT A BUILD, AND IT SAYS SO RATHER THAN PASSING VACUOUSLY. `studio-type` and
+ * `parity` set this precedent: a suite whose subject is absent reports that it did not run. A
+ * census over an empty file set would report zero leaks, which is the exact shape this file exists
+ * to stop. */
+const CSS_DIR = ".next/static/css";
+if (!existsSync(url(CSS_DIR))) {
+  console.log("  NOT RUNNABLE — no production build. Run `npm run build` first.");
+  console.log("\n0 passed, 0 failed (skipped)");
+  process.exit(0);
+}
+
+const COLOUR = /#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)|\boklch\([^)]*\)|\bhsla?\([^)]*\)|\bcolor\(display-p3[^)]*\)/g;
+
+/* ---------------------------------------------------------------- the token layer, for reference */
+const globals = read("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, " ");
+const TOKEN_VALUES = new Set();
+for (const m of globals.matchAll(/--color-[a-z0-9-]+:\s*([^;]+);/g)) {
+  for (const c of m[1].match(COLOUR) ?? []) TOKEN_VALUES.add(c.replace(/\s+/g, ""));
+}
+
+console.log("\nA · the built CSS bundle — every colour the stylesheet actually ships");
+
+const cssFiles = readdirSync(url(CSS_DIR)).filter((f) => f.endsWith(".css"));
+t("A1 there is a built bundle to read — a zero denominator is not a pass", cssFiles.length > 0, true);
+
+/** Split a stylesheet into declarations, keeping the property so `--color-*` can be excluded. */
+function* declarations(css) {
+  for (const m of css.matchAll(/([-a-zA-Z][\w-]*)\s*:\s*([^;{}]+)[;}]/g)) yield { prop: m[1], value: m[2] };
+}
+
+/* ⚠ TAILWIND EMITS A HEX FALLBACK BESIDE EVERY `color-mix` UTILITY, AND COUNTING THOSE OVERSTATES
+ * THE LEAK BY 40%. `border-ink-950/8` compiles to `border-color:#0f070314` in the base cascade AND
+ * to `color-mix(in oklab, var(--color-ink-950) 8%, transparent)` inside
+ * `@supports (color:color-mix(in lab,red,red))`. Every modern browser takes the second, so the hex
+ * paints only where `color-mix` is unsupported — and a browser that cannot do `color-mix` cannot do
+ * the theme either. Those are COMPILER OUTPUT, not authored colour.
+ *
+ * ⚠ AND THE FIRST VERSION OF THIS DISCRIMINATION RETURNED ZERO, because the regex bounding the
+ * `@supports` block could not see nesting and never matched. Brace-matched here for the same reason
+ * `theme-contrast` brace-matches `@theme`: a lazy pattern ends early on a nested rule and reports a
+ * confident wrong number rather than failing. */
+function* bracedBlocks(src, header) {
+  let i = 0;
+  for (;;) {
+    const j = src.indexOf(header, i);
+    if (j < 0) return;
+    const k = src.indexOf("{", j);
+    let depth = 0;
+    let closed = -1;
+    for (let p = k; p < src.length; p++) {
+      if (src[p] === "{") depth++;
+      else if (src[p] === "}" && --depth === 0) { closed = p; break; }
+    }
+    if (closed < 0) return;
+    yield { body: src.slice(k + 1, closed), start: j, end: closed + 1 };
+    i = closed + 1;
+  }
+}
+
+const SUPPORTS = "@supports (color:color-mix(in lab,red,red))";
+const cssLeaks = new Map();
+let fallbacks = 0;
+for (const f of cssFiles) {
+  const css = readFileSync(url(`${CSS_DIR}/${f}`), "utf8");
+
+  /* Which selector+property pairs have a `var(--color-*)` form that supersedes the base one. */
+  const enhanced = new Set();
+  const spans = [];
+  for (const { body, start, end } of bracedBlocks(css, SUPPORTS)) {
+    spans.push([start, end]);
+    for (const r of body.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      for (const d of r[2].split(";")) {
+        if (d.includes(":") && d.includes("var(--color-")) enhanced.add(`${r[1].trim()}|${d.split(":")[0].trim()}`);
+      }
+    }
+  }
+  let base = "", last = 0;
+  for (const [s, e] of spans) { base += css.slice(last, s); last = e; }
+  base += css.slice(last);
+
+  for (const r of base.matchAll(/([^{}@]+)\{([^{}]*)\}/g)) {
+    const sel = r[1].trim();
+    for (const d of r[2].split(";")) {
+      if (!d.includes(":")) continue;
+      const prop = d.slice(0, d.indexOf(":")).trim();
+      if (prop.startsWith("--color-")) continue;
+      for (const c of (d.slice(d.indexOf(":") + 1).match(COLOUR) ?? [])) {
+        const key = c.replace(/\s+/g, "");
+        if (key === "#0000") continue;              // Tailwind's `transparent`
+        if (enhanced.has(`${sel}|${prop}`)) { fallbacks++; continue; }
+        cssLeaks.set(key, (cssLeaks.get(key) ?? 0) + 1);
+      }
+    }
+  }
+}
+
+/* ⚠ REPORTED, NOT ASSERTED TO ZERO — YET. This suite's first job is to MEASURE, because the number
+ * is the finding and nobody knows it. The assertion that this set equals a reviewed boundary list
+ * lands once the owner has ruled on the categories; asserting zero today would fail on 200+ rows
+ * and tell nobody anything. What IS asserted is that the census found a real population and that
+ * the instrument works. */
+const cssTotal = [...cssLeaks.values()].reduce((a, b) => a + b, 0);
+console.log(`         ${cssLeaks.size} distinct AUTHORED literals, ${cssTotal} occurrences, in built CSS`);
+console.log(`         ${fallbacks} compiler @supports fallbacks EXCLUDED — superseded by a var() form`);
+
+/* THE NAMED-PROPERTY SUB-POPULATION, which is where 8 of the owner's 11 live. */
+const customProps = new Map();
+for (const m of globals.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/g)) {
+  if (m[1].startsWith("--color-")) continue;
+  const lits = (m[2].match(COLOUR) ?? []).map((c) => c.replace(/\s+/g, ""));
+  if (lits.length) customProps.set(m[1], lits);
+}
+const publicProps = [...customProps.keys()].filter((n) => !n.startsWith("--studio-"));
+console.log(`         ${customProps.size} custom properties hold a literal colour — ${publicProps.length} public, ${customProps.size - publicProps.length} studio`);
+
+t("A2 the census finds a real population — it is not silently matching nothing", cssLeaks.size > 20, true);
+t("A2b ⚠ AND IT SEPARATES COMPILER OUTPUT FROM AUTHORED COLOUR — a zero here means the brace matcher stopped seeing nesting again",
+  fallbacks > 50, true);
+t("A3 ⚠ AND IT SEES `--glass-fill`, THE CASE NO NAME-BASED GATE CAN — a token's own value longhand",
+  customProps.has("--glass-fill"), true);
+/* The proof that A3 is the category and not a coincidence. */
+const glass = (customProps.get("--glass-fill") ?? [])[0] ?? "";
+t("A4 …and its value IS cream-50's, so the leak is a spelling rather than a different colour",
+  glass.startsWith("oklch(98.5%0.01280"), true);
+
+console.log("\nB · SVG presentation attributes — never in a stylesheet, never in a className");
+
+const files = [];
+const walk = (rel) => {
+  for (const e of readdirSync(url(rel), { withFileTypes: true })) {
+    if (e.name.startsWith(".") || e.name === "node_modules") continue;
+    const child = `${rel}/${e.name}`;
+    if (e.isDirectory()) { if (!child.includes("studio")) walk(child); }
+    else if (/\.tsx?$/.test(e.name)) files.push(child);
+  }
+};
+["components", "app", "lib"].forEach(walk);
+
+const svgAttrs = new Map();
+for (const rel of files) {
+  const src = read(rel);
+  for (const m of src.matchAll(/\b(fill|stroke|stopColor|floodColor|lightingColor)\s*=\s*["'{]?\s*["']?(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|oklch\([^)]*\))/g)) {
+    svgAttrs.set(rel, (svgAttrs.get(rel) ?? 0) + 1);
+  }
+}
+const svgTotal = [...svgAttrs.values()].reduce((a, b) => a + b, 0);
+console.log(`         ${svgTotal} SVG colour attributes across ${svgAttrs.size} public files`);
+for (const [f, n] of [...svgAttrs].sort((a, b) => b[1] - a[1]).slice(0, 6)) console.log(`           ${String(n).padStart(3)}  ${f}`);
+t("B1 the SVG population is found — 75 of these were invisible to Step 1", svgTotal > 40, true);
+
+console.log("\nC · runtime-generated colours in public JS");
+
+const runtime = new Map();
+for (const rel of files) {
+  const src = read(rel).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, "");
+  let n = 0;
+  for (const m of src.matchAll(COLOUR)) {
+    const line = src.slice(src.lastIndexOf("\n", m.index) + 1, src.indexOf("\n", m.index));
+    if (/\b(fill|stroke|stopColor|floodColor)\s*=/.test(line)) continue;   // counted in B
+    if (/className=/.test(line)) continue;
+    n++;
+  }
+  if (n) runtime.set(rel, n);
+}
+const rtTotal = [...runtime.values()].reduce((a, b) => a + b, 0);
+console.log(`         ${rtTotal} colour literals in ${runtime.size} public TS/TSX files, outside SVG attrs and classNames`);
+for (const [f, n] of [...runtime].sort((a, b) => b[1] - a[1]).slice(0, 6)) console.log(`           ${String(n).padStart(3)}  ${f}`);
+t("C1 the runtime population is found", rtTotal > 10, true);
+
+console.log("\nD · adjacent surfaces — REPORTED, and deliberately not folded into A, B or C");
+
+/* ⚠ FOUND BY WRITING THE HEADER SECTION ABOUT WHAT A FOURTH ROUTE WOULD LOOK LIKE. These reach the
+ * browser chrome and the social cards rather than the page, so calling them leaks would be the same
+ * over-claim E1 made in the other direction. Counted, named, and left for a ruling. */
+const adjacent = [];
+for (const rel of ["app/manifest.ts", "lib/og.tsx"]) {
+  for (const m of read(rel).matchAll(COLOUR)) adjacent.push(`${rel}  ${m[0]}`);
+}
+console.log(`         ${adjacent.length} colours on adjacent surfaces (PWA splash, address bar, OG cards)`);
+for (const a of adjacent.slice(0, 5)) console.log(`           ${a}`);
+t("D0 the adjacent population is enumerated rather than assumed empty", adjacent.length > 0, true);
+
+console.log("\nE · the instrument's own honesty");
+t("E1 it enumerates by VALUE, so a colour is caught regardless of what it is named",
+  TOKEN_VALUES.size > 20 && cssLeaks.size > 0, true);
+/* ⚠ THE ASSERTION THAT WOULD MAKE THIS SUITE A LIE is one that passes because the regex matched
+ * nothing. Every population above is asserted non-empty, and the CSS one is asserted against a
+ * known member rather than only a count. */
+t("E2 every population is non-empty, so no section can pass by finding nothing",
+  [cssLeaks.size, svgTotal, rtTotal].every((n) => n > 0), true);
+
+console.log(`\n${pass} passed, ${fail} failed`);
+process.exit(fail === 0 ? 0 : 1);

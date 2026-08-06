@@ -8248,6 +8248,92 @@ no public counterpart — the `studio-ground` asymmetry again.
 **Independent arguments reaching the same answer is stronger evidence than either alone**, and it
 is the reason this rename needed no fallback plan.
 
+## THE COLOUR CENSUS — THE INSTRUMENT THE THEME PROJECT WAS MISSING (#331)
+
+The owner switched to Harbour and found eleven surfaces still drawing cream. **The eleven are a
+list. The mechanism that hid all eleven is the finding.**
+
+### ⚠ STEP 1'S SUBJECT WAS 6 OF 288 COLOURS
+
+It enumerated 125 literals and classified every one of them. Public source holds 288, and Step 1
+read `className` and inline `style={{}}` in `components/` — **6 of them**. The rest sit in CSS rule
+bodies (104), SVG attributes (75), the token block (67), runtime JS (28) and `@keyframes` (8).
+**It was thorough about its subject.**
+
+### ⚠ AND E1 DID NOT COVER THE GAP — THE ARC'S SHARPEST FINDING
+
+`theme-contrast`'s E1 asserts every public colour is computed or on the boundary list. It caught
+`on-dark-line` on its first run and read like the repair for hazard 30. **It was the repair for
+hazard 30 WITHIN ITS SUBJECT, and its subject is declarations named `--color-*`.**
+
+> **A COMPLETENESS ASSERTION INHERITS ITS SUBJECT'S BLIND SPOT.** E1's claim was TRUE of `--color-*`
+> and FALSE of the page. The boundary list was declared complete twice — in #325 and again in #328
+> when it shrank by three — and both statements were true and useless.
+
+**THE GENERAL FORM. A gate that proves a set is complete proves NOTHING about what is outside the
+set, and the danger is that it READS like it does.** "Every public colour is computed or listed"
+and "every `--color-*` declaration is computed or listed" are different sentences, and only one of
+them was ever asserted.
+
+### THE REPLACEMENT ENUMERATES RENDERED OUTPUT, BY VALUE
+
+| population | count |
+|---|---|
+| built CSS, AUTHORED literals | **110 distinct, 150 uses** |
+| built CSS, compiler `@supports` fallbacks (excluded) | 97 |
+| custom properties holding a literal | **28** — 22 public, 6 studio |
+| SVG presentation attributes | **82**, of which **77 are one artwork file** |
+| runtime-generated in public JS | **43** across 14 files |
+| adjacent surfaces (reported, not folded in) | 6 |
+
+**⚠ ENUMERATING BY VALUE IS WHY `--glass-fill` IS CAUGHT.** It holds `oklch(98.5% 0.012 80 / 0.58)`,
+which is `--color-cream-50`'s value written longhand with an alpha — **a colour that already has a
+name, spelled out where the name cannot reach it.** No name-based gate can see that, because the
+property is not called `--color-anything`.
+
+### TWO CORRECTIONS FOUND WHILE BUILDING IT
+
+**1 · THE 288 WAS INFLATED BY 97 COMPILER FALLBACKS.** Tailwind emits a hex beside every
+`color-mix` utility and the `var()` form inside `@supports`. **The reasoning that settles it is
+that a browser which cannot do `color-mix` cannot do the theme either** — so the fallback is not a
+themeable surface BY CONSTRUCTION rather than by exclusion.
+
+**2 · ⚠ THE FIRST ATTEMPT AT THAT DISCRIMINATION REPORTED ZERO.** The `@supports` regex could not
+see nesting, never matched, and confidently reported all 167 as authored. **The
+matcher-cannot-see-nesting family, inside the instrument built to replace a census with the same
+class of blind spot.** `A2b` asserts the fallback count is non-zero, which is the falsifiability the
+first version lacked.
+
+### ⚠ AND THE HEADER SECTION ABOUT A FOURTH ROUTE FOUND ONE
+
+Writing down what falls OUTSIDE the subject turned up `app/manifest.ts` — `background_color`
+`#FBF6EE` and `theme_color` `#1c1813`, the PWA splash and the mobile address-bar tint — plus
+`lib/og.tsx`'s social-card hexes. None is in the CSS bundle, an SVG attribute, or page-painting JS.
+They are REPORTED as their own population rather than folded in, because calling them leaks would
+be the same over-claim E1 made in the other direction.
+
+**The shape of a fifth route is recorded too**, so the next one is expected rather than discovered:
+a colour baked into a RASTER asset. No static analysis reaches those, and no theme can move them.
+
+### AND IT DOES NOT ASSERT THE LEAK SET IS EMPTY
+
+Deliberately. Asserting zero today fails on 150 rows and tells nobody anything, **and a gate that
+fails on arrival is one someone disables.** It measures, names its populations, and asserts its own
+honesty — every population non-empty, the fallback discrimination alive, `--glass-fill` present by
+name. The emptiness assertion lands once the categories are ruled on.
+
+### ⚠ AND AN INVENTED PREMISE, SECOND INSTANCE
+
+The brief said Harbour was PUBLISHED with nine known leaks and asked whether to revert.
+`content/site-settings.yaml` reads `theme: cream` and has since #322 — **Harbour has never been
+published.** What was seen was the studio's draft-preferring canvas or a local switch.
+
+**A hunch stated as an observation**, which #203 already names as the failure least likely to be
+checked, because it arrives with the authority of the person asking. Second instance, and the check
+cost one `git show`.
+
+ralph 2463 → 2473 across 60 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
