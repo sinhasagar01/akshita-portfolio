@@ -121,7 +121,7 @@ export default function AboutSection({ settings }: Props) {
             <p
               key={i}
               className="max-w-[50ch]"
-              style={{ fontSize: "15px", lineHeight: "1.62", color: "#4a4239" }}
+              style={{ fontSize: "15px", lineHeight: "1.62", color: "var(--color-text-body)" }}
             >
               {renderWithBold(para)}
             </p>
@@ -145,7 +145,7 @@ export default function AboutSection({ settings }: Props) {
                     fontSize: "12px",
                     color: "#5F584E",
                     backgroundColor: "var(--color-cream-200)",
-                    border: "1px solid rgba(120,90,60,.16)",
+                    border: "1px solid color-mix(in srgb, var(--color-rule) 16%, transparent)",
                     borderRadius: "9999px",
                     padding: "7px 13px",
                   }}

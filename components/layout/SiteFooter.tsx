@@ -78,7 +78,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
                   >
                     <span
                       className="footer-chip flex items-center justify-center w-[34px] h-[34px] rounded-[9px] text-[12px] font-semibold text-text-secondary"
-                      style={{ border: "1px solid rgba(120,90,60,0.3)", transition: "border-color 0.2s, color 0.2s" }}
+                      style={{ border: "1px solid color-mix(in srgb, var(--color-rule) 30%, transparent)", transition: "border-color 0.2s, color 0.2s" }}
                     >
                       {glyph}
                     </span>

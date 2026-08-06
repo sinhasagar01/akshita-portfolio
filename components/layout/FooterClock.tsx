@@ -28,7 +28,7 @@ export default function FooterClock() {
       <div className="flex items-center gap-[10px] mt-[7px]">
         <span
           className="inline-flex items-center gap-2 rounded-full px-[13px] py-[6px] text-[14px]"
-          style={{ border: "1px solid rgba(120,90,60,0.25)" }}
+          style={{ border: "1px solid color-mix(in srgb, var(--color-rule) 25%, transparent)" }}
         >
           <span
             className="footer-dot w-[7px] h-[7px] rounded-full shrink-0"
