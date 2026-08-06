@@ -8664,6 +8664,47 @@ approved the method which caught it.
 
 ralph 2486, unchanged — the conversions are value-preserving.
 
+## THE VESSEL TAKES THE TOKENS (#338)
+
+21 literals across `.blog-vessel`, `-capsule`, `-liquid`, `-bead`, `-smoke`, `-glint`, `-bub` →
+**zero**. One ruling, not 21 items.
+
+**THE ARGUMENT WAS NOT CONSISTENCY, IT WAS THAT #333 ALREADY ANSWERED IT ON EVIDENCE.** That PR
+called the vessel a signature SURFACE and then tokenised its waves anyway — and the back wave
+snapping to `--color-smoke-4` at composite Δ2 is what proved the waves came from the vessel's own
+family. **A component whose parts measurably derive from its own ramp is a system, and a system is
+interface.**
+
+**AND THE ARTWORK TEST FAILS ON IT BY DEFINITION.** `ProjectCardSvgs` draws somebody else's
+product, the diagram fills depict a screen being designed, the auras are boAt's red and Fosfor's
+violet. **The vessel depicts nothing.** It is a container for the site's own prose, and its colours
+are the site's own ground and accent at alphas — chrome that happens to be beautiful.
+
+### ⚠ AND A NEW RULE FELL OUT OF THE MEASUREMENT — JUDGE A BASE COLOUR ONCE, AT ITS HIGHEST ALPHA
+
+Of the 21, nine snapped and five read distinct — but **the five were three base colours appearing at
+several alphas.** `oklch(0.94 0.025 40)` is **5 from `cream-200` at .45 and 9 at .8.**
+
+> **JUDGING PER OCCURRENCE WOULD SNAP THE LOW-ALPHA USE AND LEAVE THE HIGH ONE, producing two
+> colours where the design has one.** The same failure the smoke ramp and the hero words were
+> protected from, arriving through the composite rule rather than through a ramp.
+
+So a base colour is ruled ONCE, at its worst case. All three landed distinct and are named
+`--color-vessel-glass`, `-pearl`, `-shadow` — a set that retunes with the vessel.
+
+### THE NAMING FINDING, WHICH #337 CAUGHT ONE PR EARLY
+
+`--color-vessel-bubble` was introduced before being measured and was Δ2 from `--color-bounce`.
+
+> **NAMING IS FASTER THAN MEASURING, so a sweep that is mostly renaming will invent a name where a
+> measurement would have found a snap.** Two instances now — `--color-mark` covering zero sites, and
+> a token duplicating another at Δ2. **Measure before naming, every time.**
+
+The dependency is stated at the vessel's tokens: themeable only while the light-ground promise
+holds, the same as the glass nav.
+
+ralph 2486 — the snaps are within tolerance and the three named tones are value-preserving.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

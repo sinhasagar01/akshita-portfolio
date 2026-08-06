@@ -130,6 +130,21 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      gradient whose members are chosen against each other, and this is a discrete shape drawn over
      it. Its back wave snapped to `--color-smoke-4` at a composite distance of 2; this one is 16
      from the nearest stop and 7 from `cream-200`, so it is its own tone. */
+  /* ⚠ THE VESSEL IS THEMEABLE ONLY WHILE THE LIGHT-GROUND PROMISE HOLDS — SAME DEPENDENCY AS THE
+     GLASS NAV, AND LOAD-BEARING FOR THE SAME REASON. Its tones are the site's own ground and accent
+     at alphas, so they follow the palette; a ground below the floor would leave the vessel reading
+     as a bright smear on a dark page. The constraint lives on the palette, not here.
+
+  ⚠ THE VESSEL'S THREE GLASS TONES, JUDGED ON THEIR HIGHEST ALPHA. Each appears at more than one
+     opacity, and the composite distance grows with alpha — `oklch(0.94 0.025 40)` is 5 from
+     `cream-200` at .45 and 9 at .8. JUDGING PER OCCURRENCE WOULD SNAP THE LOW-ALPHA USE AND LEAVE
+     THE HIGH ONE, producing two colours where the design has one. So a base colour is ruled ONCE,
+     at its worst case. All three land distinct, so all three are named.
+     They belong to the vessel the way the smoke stops do, and they retune with it. */
+  --color-vessel-glass:  oklch(94% 0.025 40);
+  --color-vessel-pearl:  oklch(96% 0.012 40);
+  --color-vessel-shadow: oklch(92% 0.02 40);
+
   --color-vessel-wave: oklch(93% 0.012 62);
 
   --color-glow-paper: oklch(63% 0.13 47 / 0.20);
@@ -488,6 +503,9 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-smoke-2: oklch(0.9 0.014 233 / 0.74);
   --color-smoke-3: oklch(0.97 0.010 233 / 0.74);
   --color-smoke-4: oklch(0.87 0.012 233 / 0.74);
+  --color-vessel-glass:  oklch(94% 0.020 233);
+  --color-vessel-pearl:  oklch(96% 0.010 233);
+  --color-vessel-shadow: oklch(92% 0.016 233);
   --color-vessel-wave: oklch(93% 0.012 233);
   --color-glow-paper: oklch(63% 0.11 168 / 0.20);
   --color-bounce:     oklch(100% 0.008 233);
@@ -2847,22 +2865,22 @@ a {
       oklch(from var(--bounce) l c h / 0.24) 63%, oklch(from var(--bounce) l c h / 0.1) 80%,
       oklch(from var(--bounce) l c h / 0) 100%),
     linear-gradient(to top, var(--smoke-1) 4%, var(--smoke-2) 34%, var(--smoke-3) 62%, var(--smoke-4)),
-    linear-gradient(to right, oklch(0.96 0.012 40 / 0.5), oklch(0.55 0.02 40 / 0.22) 38%, oklch(0.99 0.012 40 / 0.5)),
-    linear-gradient(158deg, oklch(0.94 0.025 40 / 0.45) 22%, oklch(0.99 0.012 40 / 0.5));
+    linear-gradient(to right, color-mix(in srgb, var(--color-smoke-3) 50%, transparent), color-mix(in srgb, var(--color-text-subtle) 22%, transparent) 38%, color-mix(in srgb, var(--color-cream-50) 50%, transparent)),
+    linear-gradient(158deg, color-mix(in srgb, var(--color-vessel-glass) 45%, transparent) 22%, color-mix(in srgb, var(--color-cream-50) 50%, transparent));
   background-blend-mode: normal, overlay, normal, normal;
   background-size: cover, 100% calc(100% / max(var(--read, 0.06), 0.06)), cover, cover;
   background-position: bottom, bottom, center, center;
   box-shadow:
-    inset 10px 10px 18px -6px oklch(0.94 0.015 50 / 0.45),
-    inset -10px -10px 18px -6px oklch(0.99 0.01 60 / 0.5);
+    inset 10px 10px 18px -6px color-mix(in srgb, var(--color-on-dark) 45%, transparent),
+    inset -10px -10px 18px -6px color-mix(in srgb, var(--color-cream-50) 50%, transparent);
 }
 .blog-smoke {
   position: absolute;
   inset: 0;
   overflow: hidden;
   background:
-    radial-gradient(52px 40px at 28% 72%, oklch(0.99 0.012 60 / 0.3), transparent 70%),
-    radial-gradient(64px 46px at 72% 38%, oklch(0.78 0.03 45 / 0.1), transparent 72%),
+    radial-gradient(52px 40px at 28% 72%, color-mix(in srgb, var(--color-cream-50) 30%, transparent), transparent 70%),
+    radial-gradient(64px 46px at 72% 38%, color-mix(in srgb, var(--color-ink-200) 10%, transparent), transparent 72%),
     radial-gradient(40px 34px at 46% 14%, color-mix(in srgb, var(--color-bounce) 26%, transparent), transparent 70%);
   filter: blur(3px);
   animation: blog-churn 26s ease-in-out infinite alternate;
@@ -2986,13 +3004,13 @@ a {
       oklch(from var(--bounce) l c h / 0.26) 63%, oklch(from var(--bounce) l c h / 0.1) 80%,
       oklch(from var(--bounce) l c h / 0) 100%),
     linear-gradient(to right, var(--smoke-1) 5%, var(--smoke-2), var(--smoke-3) 52%, var(--smoke-4)),
-    linear-gradient(to bottom, oklch(0.96 0.012 40), oklch(0.92 0.02 40 / 0.8) 33%, oklch(0.99 0.012 40 / 0.8)),
-    linear-gradient(165deg, oklch(0.94 0.025 40 / 0.8) 25%, oklch(0.99 0.012 40 / 0.8));
+    linear-gradient(to bottom, var(--color-vessel-pearl), color-mix(in srgb, var(--color-vessel-shadow) 80%, transparent) 33%, color-mix(in srgb, var(--color-cream-50) 80%, transparent)),
+    linear-gradient(165deg, color-mix(in srgb, var(--color-vessel-glass) 80%, transparent) 25%, color-mix(in srgb, var(--color-cream-50) 80%, transparent));
   background-blend-mode: normal, overlay, normal, normal;
   background-size: cover, 100% 100%, cover, cover;
   box-shadow:
-    inset 0.2em 0.2em 0.3em -0.1em oklch(0.93 0.015 50 / 0.9),
-    inset -0.2em -0.2em 0.3em -0.1em oklch(0.99 0.01 60 / 0.9);
+    inset 0.2em 0.2em 0.3em -0.1em color-mix(in srgb, var(--color-vessel-wave) 90%, transparent),
+    inset -0.2em -0.2em 0.3em -0.1em color-mix(in srgb, var(--color-cream-50) 90%, transparent);
 }
 .blog-cap-body {
   position: relative;
