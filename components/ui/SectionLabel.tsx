@@ -8,7 +8,7 @@ type Props = {
 export default function SectionLabel({ children, className }: Props) {
   return (
     <p
-      className={`text-eyebrow tracking-eyebrow uppercase text-text-muted${className ? ` ${className}` : ""}`}
+      className={`text-eyebrow tracking-eyebrow uppercase text-text-subtle${className ? ` ${className}` : ""}`}
     >
       {children}
     </p>

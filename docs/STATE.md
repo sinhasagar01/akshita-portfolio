@@ -8128,6 +8128,69 @@ permanent control that makes the cross-theme comparison mean something.
 for them, and the `text-muted` / `text-subtle` merge is one queued PR: two spellings of one value
 inside the token layer, #228's defect one level below where that rule was looking.
 
+## ONE WORD FEWER (#330)
+
+`--color-text-muted` is deleted. It and `--color-text-subtle` held the same value, so the
+vocabulary had **five text names for four colours**.
+
+**#228's DEFECT ONE LEVEL BELOW WHERE THAT RULE WAS LOOKING.** #228 caught two spellings of one
+thing in UTILITIES. This was the same failure in the token layer itself, which is the layer #228's
+rule is stated in terms of.
+
+### ⚠ IT WAS NOT `text-body`'s ARRIVAL THAT MADE ONE REDUNDANT — GIT SAYS SO
+
+The hypothesis was that #327's `text-body` absorbed a distinction three PRs ago. It did not. The
+collapse happened in **#103, an ACCESSIBILITY PR**, long before.
+
+| | before #103 | after #103 |
+|---|---|---|
+| `text-muted` | `var(--color-ink-400)` | `oklch(51% 0.016 66)` |
+| `text-subtle` | `#A89D8D` — "lighter subtext, section heading subtexts" | `oklch(51% 0.016 66)` |
+
+They began as **different roles with different values**. #103 raised both to an AA-safe value and
+raised them to the SAME one.
+
+> **A CONTRAST FIX THAT CLAMPS TWO VALUES TO ONE FLOOR ERASES THE DISTINCTION BETWEEN THEM**, and
+> nobody noticed because the result was legal. An accessibility improvement is exactly the kind of
+> change nobody re-reads for a semantic side effect.
+
+### `subtle` SURVIVES ON DENOTATION, AND A SECOND ARGUMENT SETTLES IT
+
+The ladder on cream-50 now reads **primary 19.04** (headings), **body 9.41** (long-form prose),
+**secondary 7.42** (supporting copy), **subtle 5.52** (labels, meta, captions).
+
+"Muted" is the same voice spoken quietly — which is what `secondary` already covers. "Subtle" is
+content meant to RECEDE, which is the step that was genuinely missing a name.
+
+**⚠ AND THE FROZEN STUDIO PALETTE HAD ALREADY CHOSEN.** `--color-studio-text-subtle` exists.
+Deleting the public `text-subtle` instead would have left the frozen token with no public
+counterpart — **the exact asymmetry that made `studio-ground` invisible to C1's pairing in 6a**.
+A vocabulary decision made on one side of a frozen boundary has to be checked against the other.
+
+### ⚠ AND THE DUPLICATE HAD BEEN INFLATING A MEASUREMENT
+
+Cream's tight-floor count drops from **six to five**, because one of the six was
+`text-muted on canvas` — a duplicate ROW for a duplicate TOKEN, same value, same ground, same
+ratio. That count had already been corrected once, from a hand-picked three to a computed six, and
+it was still carrying the redundancy it was counting.
+
+**A DUPLICATE NAME INFLATES EVERY MEASUREMENT TAKEN OVER THE NAMES.** That is a quieter cost than a
+wrong colour, and it is the argument for the merge that neither of us made going in.
+
+### PROOF
+
+Not byte-identical by construction — 20 call sites across 8 files renaming at an identical value is
+still a real diff. So it is rasterised, sanity pair first: `--color-text-subtle` resolves to
+`[109,100,93]`, exactly what `text-muted` held, and P, BUTTON, SPAN, DIV, svg and path all draw it
+on the rendered page. `--color-text-muted` reads empty from the computed style.
+
+**⚠ AND THE FIRST PROBE ASKED THE WRONG QUESTION.** It resolved `var(--color-text-muted)` and read
+back `oklch(0.14 0.018 60)`, which looked like the token surviving. An undefined `var()` makes the
+`color` declaration invalid, so the element INHERITS — the probe was reading ink-950 from an
+ancestor. Reading the custom property itself is the check that means anything.
+
+ralph 2463, unchanged. Lint, tsc and the build clean.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

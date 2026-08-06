@@ -87,7 +87,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      cream-50 against ink-950's 19.04 and ink-600's 7.42 — which is what makes it a role rather
      than a spelling: reading text, darker than supporting copy and lighter than a heading.
 
-     ⚠ AND THE TEXT VOCABULARY ALREADY HAS A DUPLICATE, WHICH THIS IS NOT. `--color-text-muted` and
+     ⚠ AND THE TEXT VOCABULARY ALREADY HAS A DUPLICATE, WHICH THIS IS NOT. `--color-text-subtle` and
      `--color-text-subtle` are byte-identical in BOTH themes — two names for one value, the
      two-spellings defect sitting in the token layer. That is a deletion of its own and is recorded
      rather than fixed here, because merging two names is a change to 16+ call sites and this PR
@@ -136,7 +136,26 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      still clears WCAG AA 4.5:1 on the HARDEST light surface (canvas, oklch 92%): this
      value measures 4.55:1 on canvas and 5.52:1 on cream-50, so small labels pass AA on
      every surface. ink-400 (3.50:1) and the old #A89D8D subtle (2.55:1) both failed. */
-  --color-text-muted:    oklch(51% 0.016 66);
+  /* ⚠ `--color-text-subtle` STOOD HERE AND IS GONE. It and this token held the SAME VALUE, so the
+     vocabulary had five text names for four colours — #228's two-spellings defect one level below
+     where that rule was looking, since #228 caught it in utilities and this was the token layer.
+
+     ⚠ AND IT WAS NOT `text-body`'s ARRIVAL THAT MADE ONE REDUNDANT. Git says the collapse happened
+     in #103, an ACCESSIBILITY PR, long before. They began as different roles with different values
+     — `muted` was `var(--color-ink-400)` and `subtle` was `#A89D8D`, "lighter subtext, section
+     heading subtexts". #103 raised both to an AA-safe value and raised them to the SAME one.
+     A contrast fix that clamps two values to one floor erases the distinction between them, and
+     nobody noticed because the result was legal.
+
+     `subtle` SURVIVES ON WHAT IT DENOTES, AND ON A SECOND ARGUMENT THAT SETTLES IT. The ladder now
+     reads primary 19.04 (headings), body 9.41 (long-form prose), secondary 7.42 (supporting copy),
+     subtle 5.52 (labels, meta, captions — text meant to RECEDE). "Muted" is the same voice spoken
+     quietly, which is what `secondary` already covers; "subtle" is content meant to be overlooked,
+     which is the step that was actually missing a name.
+
+     ⚠ AND THE FROZEN STUDIO PALETTE ALREADY CHOSE. `--color-studio-text-subtle` exists. Deleting
+     the public `text-subtle` instead would have left the frozen token with no public counterpart —
+     the exact asymmetry that made `studio-ground` invisible to C1's pairing in 6a. */
   --color-text-subtle:   oklch(51% 0.016 66);
   --color-accent:        var(--color-accent-500);
 
@@ -417,7 +436,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500: oklch(52.0% 0.12 168);
   --color-accent-600: oklch(43.0% 0.11 168);
 
-  --color-text-muted:  oklch(50.0% 0.018 233);
   --color-text-subtle: oklch(50.0% 0.018 233);
   --color-text-body:   oklch(37.5% 0.017 233);
   --color-rule:        oklch(48.5% 0.030 233);
@@ -1621,7 +1639,7 @@ a {
   font-size: 11px;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-text-subtle);
 }
 /* the platform dot — tinted per platform (falls back to a neutral ink dot with no tint),
    dim at rest and full + scaled up on the pointed card */

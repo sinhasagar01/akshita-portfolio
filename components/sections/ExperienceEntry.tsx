@@ -14,7 +14,7 @@ export default function ExperienceEntry({ entry }: Props) {
   return (
     <Grid cols={12} className="py-8 md:py-10">
       <div className="col-span-4 md:col-span-3">
-        <p className="text-sm text-text-muted leading-normal mt-1">
+        <p className="text-sm text-text-subtle leading-normal mt-1">
           {startDate} - {endDate}
         </p>
       </div>

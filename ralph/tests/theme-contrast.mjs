@@ -136,7 +136,9 @@ const GROUNDS = ["canvas", "cream-50", "cream-100", "cream-200"];
 const USAGE = [
   ...TEXT("ink-950", GROUNDS), ...TEXT("ink-800", ["cream-50", "cream-100"]),
   ...TEXT("ink-600", GROUNDS), ...TEXT("text-primary", ["canvas"]),
-  ...TEXT("text-secondary", ["canvas"]), ...TEXT("text-muted", GROUNDS),
+  ...TEXT("text-secondary", ["canvas"]),
+  /* `text-muted` stood beside this and is deleted — it held the same value, so its rows were a
+     second copy of these. One name, one set of rows. */
   ...TEXT("text-subtle", GROUNDS), ...TEXT("accent-600", ["canvas", "cream-50", "cream-100"]),
   ...TEXT("on-dark", ["band-dark"]), ...TEXT("on-dark-muted", ["band-dark"]),
   ...TEXT("on-dark-quote", ["band-dark"]),
@@ -252,7 +254,7 @@ t("D5 accent sits darker than cream's because teal carries more luminance at equ
  * The three harbour keeps are the GROUND LADDER, which is a relation rather than a colour — "one
  * step apart" means exactly 1.05 by construction, so no palette can buy margin there without
  * changing what the ladder is. The three it does NOT keep are the three that refused its earlier
- * drafts: darkening `ink-400` to 60.5% and `text-muted` to 50% bought real margin where cream has
+ * drafts: darkening `ink-400` to 60.5% and `text-subtle` to 50% bought real margin where cream has
  * none. A palette measured from scratch beat the palette it was derived from.
  *
  * ⚠ SO THE RULE IS NOT "EVERY THEME SITS ON THE FLOOR", IT IS "CREAM IS NOT A TEMPLATE". A palette
@@ -260,13 +262,19 @@ t("D5 accent sits darker than cream's because teal carries more luminance at equ
  * hue — which is precisely what draft 1 did. */
 const TIGHT = 0.1;
 const onFloor = (rep) => rep.rows.filter((r) => r.got !== null && r.got - r.min < TIGHT).map((r) => r.key).sort();
-t("D6 cream sits inside 0.1 of six floors — computed, not sampled", onFloor(cream).length, 6);
+/* ⚠ FIVE, AND IT WAS SIX UNTIL THE VOCABULARY LOST A WORD. One of the six was `text-muted on
+ * canvas`, a duplicate ROW for a duplicate TOKEN — same value, same ground, same ratio. So the
+ * count I had already corrected once (from a hand-picked three to a computed six) was still
+ * carrying the redundancy it was counting. A duplicate name inflates every measurement taken over
+ * the names, which is a quieter cost than a wrong colour and is why the merge was worth doing. */
+t("D6 cream sits inside 0.1 of five DISTINCT floors — computed, and one fewer since #330",
+  onFloor(cream).length, 5);
 t("D7 harbour sits on three, and they are the ground ladder — a relation no palette can loosen",
   onFloor(harbour), ["ground step cream-100 / cream-200", "ground step cream-300 / canvas",
     "ground step cream-50 / cream-100"]);
 t("D8 the three harbour escaped are exactly the ones its earlier drafts failed on",
   onFloor(cream).filter((k) => !onFloor(harbour).includes(k)).sort(),
-  ["ink-400 on cream-200 (non-text)", "text-muted on canvas", "text-subtle on canvas"]);
+  ["ink-400 on cream-200 (non-text)", "text-subtle on canvas"]);
 
 console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is computed or listed BY NAME");
 

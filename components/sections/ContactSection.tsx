@@ -50,7 +50,7 @@ function isValidEmail(v: string) {
 
 // Shared input class — no border classes here, border applied via inline style (1.5px)
 const INPUT_BASE =
-  'w-full bg-transparent text-[20px] font-body placeholder:text-text-muted px-0 py-2 outline-none'
+  'w-full bg-transparent text-[20px] font-body placeholder:text-text-subtle px-0 py-2 outline-none'
 
 // ---------------------------------------------------------------------------
 // StepContent — separate component so its useEffect fires on mount only,
@@ -186,7 +186,7 @@ function StepContent({
 
       {/* "press Enter" hint — 11px, the muted text token */}
       {step.type !== 'textarea' && (
-        <p className="text-[12px] mt-3" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-[12px] mt-3" style={{ color: 'var(--color-text-subtle)' }}>
           press Enter
         </p>
       )}
@@ -261,7 +261,7 @@ function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void })
       <button
         type="button"
         onClick={onRetry}
-        className="mt-6 font-body text-[14px] text-text-muted underline hover:text-text-secondary transition-colors duration-[var(--duration-base)]"
+        className="mt-6 font-body text-[14px] text-text-subtle underline hover:text-text-secondary transition-colors duration-[var(--duration-base)]"
       >
         try again
       </button>
@@ -524,7 +524,7 @@ export default function ContactSection({ settings }: Props) {
                 aria-hidden={showBack ? undefined : true}
                 className="font-body text-[14px] transition-opacity duration-300"
                 style={{
-                  color: 'var(--color-text-muted)',
+                  color: 'var(--color-text-subtle)',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
@@ -536,7 +536,7 @@ export default function ContactSection({ settings }: Props) {
               </button>
               <span
                 className="font-body text-[12px] tracking-[0.12em]"
-                style={{ color: 'var(--color-text-muted)' }}
+                style={{ color: 'var(--color-text-subtle)' }}
               >
                 {countLabel}
               </span>
