@@ -10089,6 +10089,60 @@ shares a code path with the subject. **It did not examine the other 58 suites fo
 and the shape is not theme-specific — any assertion whose expected value is computed by the code under
 test has it. That is the next sweep, and it is larger than this one.
 
+## THE FULL SWEEP — 1845 ASSERTIONS, AND THE TELL IS STRUCTURAL (#368)
+
+Swept all 64 suite files for the shape the twin and `theme-contrast`'s merge share: **an assertion
+whose expected value is computed by the code under test.** The tell is not textual, so the sweep
+parses each `t(...)` call and splits its arguments at top-level commas — with a splitter that
+understands strings, templates and REGEX LITERALS, because the first two versions broke on `/,/` and
+produced garbage for a third of the file.
+
+**THE FILTER, NARROWED THREE TIMES.** Expected-side-not-a-literal flagged **203**, most of them
+round-trips against hand-written objects, which are sound. Expected-side-shares-an-identifier flagged
+fewer but still mostly sound. **Expected side CALLS a production function** flagged **8**, and that is
+the population worth reading.
+
+**⚠ THE WORST WAS A VALUE COMPARED TO ITSELF.** `rich-markers` held
+
+    t(name, JSON.stringify(parseRich(s)), JSON.stringify(parseRich(s)))
+
+— **the same expression on both sides**, three times, one per string. It could not fail for any
+implementation, including one returning a constant. Named "round-trip unchanged", which is the right
+intent: those strings predate the marker branches and their parse must not move. **That needs a
+baseline and there was none.**
+
+**AND THE ROOT CAUSE IS A COMPARATOR.** `rich-markers`'s `t` uses `got === want` — reference equality
+— unlike the 53 suites comparing `JSON.stringify` of both sides. Under `===` any structural
+expectation fails, so the author stringified both sides, and **the `want` side then had nowhere to get
+a value except by repeating `got`.** The tautology was not carelessness; it was the only thing that
+compiled. Now a literal baseline, stringified for comparison rather than as a workaround. A mutation
+renaming the bold key kills 10 assertions.
+
+**AND `mutate.mjs` MISREPORTED THAT KILL.** It counted `[FAIL]` only, and **11 of 64 suites print
+`✗ FAIL`**, so the run reported *"KILLED · 0 assertions failed"* — right verdict, false stated cause,
+**the fourth instance of that family in that one file.** `run.mjs` never had it, because it treats the
+exit code as the verdict and the suite's own summary as the count.
+
+**`blog-serialize` E1 ANCHORED.** It compares two outputs of the same serializer, so a constant-
+returning serializer satisfies it — and E2, which only looks for yaml anchors, is satisfied by the
+empty string too. **Two assertions, both green on nothing.** E0 now asserts the output is real.
+
+**FIVE MORE FOUND, ASSESSED, NOT YET FIXED** — recorded so they have an owner rather than a mention.
+
+| suite | assertion | reading |
+|---|---|---|
+| `image-block` | expected is `readBlogBlocks(RAW)`, same route as the actual | real, same shape |
+| `loves-store` | expected keys built with `counterKey(ENV,…)` / `dedupeKey(…)` | real — a key-format regression moves both sides |
+| `inline-canvas` | expected is `plainLength("hello ")` | trivially a literal `6` |
+| `theme` A8 | `selectableThemes()` vs a filter restating its implementation | real, though arguably an intended equivalence of two functions |
+| `theme` B3 | source TEXT of the sanitizer vs `selectableThemes()` | **SOUND** — two genuinely different routes, the D3b model |
+
+**⚠ WHAT THE SWEEP CANNOT SEE.** It reads the expected argument of a `t(...)` call. It cannot see a
+subject narrowed before the call — a filtered population, a lookup that silently misses, a `got` built
+from the same parse as its own reference. `theme-contrast`'s merge would NOT have been caught by this
+sweep, because its expectation is the literal `"SHIPPABLE"`; it was found by reading. **The sweep
+covers the syntactic form of the defect and not the semantic one.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
