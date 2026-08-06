@@ -234,15 +234,9 @@ const FAMILY_COLLISIONS = [
     why: "the home page signature. Asks for Kaushan Script, draws the display serif. MEASURED. " +
          "DEFERRED ON PURPOSE — it is the Kaushan brand question, recorded as an open item in " +
          "CLAUDE.md and not to be settled inside a font swap." },
-  { at: "components/sections/ProcessSection.tsx", tag: "h3", cls: "font-display",
-    guard: /<motion\.h3[\s\S]{0,200}?className="font-display italic text-subheading/,
-    why: "a process stage head. FOUND BY LOOKING AT THE SCREEN, not by this gate — it is a " +
-         "`<motion.h3>`, and the element scanner could not see the dotted form until this commit. " +
-         "Left live because it is a THIRD surface nobody has decided about; the repair that would " +
-         "fix it is one scope removal away." },
 ];
 const familyHits = pub.filter((h) => h.property === "font-family");
-t("B1: the font-family collisions are exactly the two still on record — blog card titles and the contact heading were repaired, and a NEW one means a family utility that draws nothing",
+t("B1: ONE font-family collision remains, the deferred Kaushan wordmark — the blog card titles, the contact heading and the process stage heads were all repaired, and a NEW one means a family utility that draws nothing",
   familyHits.map((h) => `${h.where.split(":")[0]} <${h.tag}> ${h.cls}`).sort(),
   FAMILY_COLLISIONS.map((e) => `${e.at} <${e.tag}> ${e.cls}`).sort());
 for (const e of FAMILY_COLLISIONS) {
@@ -259,7 +253,7 @@ const byProp = {};
 for (const h of pub) (byProp[h.property] ??= []).push(h);
 const census = Object.fromEntries(Object.keys(byProp).sort().map((k) => [k, byProp[k].length]));
 t("C1: the public collision census is exactly this — a change here is a dead utility gained or repaired",
-  census, { color: 5, "font-family": 2, "font-weight": 12, "letter-spacing": 4, "line-height": 61, "max-width": 18 });
+  census, { color: 5, "font-family": 1, "font-weight": 12, "letter-spacing": 4, "line-height": 61, "max-width": 18 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
