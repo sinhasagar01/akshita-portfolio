@@ -986,6 +986,19 @@ export default config({
       label: "Site settings",
       path: "content/site-settings",
       schema: {
+        // The public site's palette, as content. First in the order because it governs every
+        // other field's rendering rather than sitting in one section.
+        //
+        // ⚠ `text` RATHER THAN `select`, DELIBERATELY. A select would put the valid list in the
+        // schema, and this config is schema-ONLY — nothing renders it, so the list would buy no
+        // author affordance while giving the reader a second opinion about validity. An unknown
+        // value must fall closed to `cream`, not throw and take a public page down with it. The
+        // one list lives in lib/theme.ts, the sanitizer refuses anything outside it at write
+        // time, and resolveTheme() is the last word at read time.
+        theme: fields.text({
+          label: "Theme",
+          description: "The public palette. Set from /studio, never by hand.",
+        }),
         heroCopy: fields.text({
           label: "Hero copy",
           description: "The large italic headline on the home page",

@@ -7482,6 +7482,102 @@ wrong thing is this session's most repeated failure.
 
 ---
 
+## STEP 5 — THE THEME BECOMES CONTENT (#322)
+
+The palette is now a field an author sets rather than a constant a developer edits. `theme: cream`
+in `content/site-settings.yaml`, a schema field, both halves of the write path, and a resolver that
+fails closed. **No CSS and no DOM changed**, which is the boundary this step was scoped to.
+
+### THE FOUR THINGS THE OWNER REQUIRED THE PLAN TO SETTLE, AND WHERE EACH LANDED
+
+**1 · CHANGING THE THEME IS A PUBLISH, AND THE AUTHOR SEES A TEXT DIFF.** Content lives in the
+repo, so the switch is a draft commit plus a whole-branch merge plus a rebuild. It reuses #288's
+publish-preview dialog and needs no new UI, because a theme change is one changed field.
+
+> **⚠ NAMED LIMITATION OF STEP 5, WITH STEP 7 AS ITS RESOLUTION. THE PUBLISH PREVIEW SHOWS WHAT
+> CHANGED IN THE CONTENT, NOT WHAT THE SITE WILL LOOK LIKE — and a theme is the one field where
+> those differ completely.** An author switching themes gets a one-line text diff and finds out
+> what they did after it is live. **That is hazard 13's family**, whole-branch publish shipping
+> something nobody looked at, and it has already cost a half-finished sentence in a live post.
+> The resolution is the studio canvas rendering the PENDING theme rather than the active one, which
+> needs the switcher to exist first. **The switcher PR inherits this as a stated requirement rather
+> than rediscovering it.**
+
+**2 · BOTH HALVES, ASSERTED BY A ROUND TRIP.** `theme` leads `SITE_SETTINGS_FIELD_ORDER` because it
+governs every other field's rendering, and `sanitizeSiteSettingsPatch` gained a branch for it.
+**#159's flag-2 is the precedent — sanitizer-only means validate-then-silently-drop**, and the
+assertion that would MISS that is "each function mentions the field". So the gate runs a patch
+through sanitize into transform and asserts the value survives to the object that gets dumped.
+
+**3 · FAIL CLOSED TO `cream`, LOUD IN THE STUDIO AND SILENT ON THE PUBLIC SITE.** Missing, empty,
+misspelt, wrong-typed and case-shifted all resolve to the theme shipping today, silently, because a
+visitor must never see an unthemed page. The same value is REJECTED by the sanitizer at write time,
+because an author must never be left wondering why their choice did nothing. **Either half without
+the other is a defect** — one is a broken page, the other is a silent no-op. The schema field is
+`fields.text` and not `fields.select` for the same reason: a select gives the reader a second
+opinion about validity, and an unknown value must fall back rather than throw and take a page down.
+
+**4 · ONE THEME IS NOT PROVABLE, SO THE STEP SHIPS TWO.** `cream-verify` is identical to `cream` in
+every measured value and different only in its key.
+
+> **A READER WITH ONE POSSIBLE VALUE IS THE `FIT_THRESHOLD_PX` SHAPE** — a mechanism that reads as
+> authoritative while proving a constant equals itself. This repo has DELETED that shape four times
+> rather than documented it, and the owner's deciding line was that the twin converts an untested
+> mechanism into a tested one for four lines.
+
+**⚠ AND THE DELETION TRIGGER IS MACHINE-ENFORCED RATHER THAN WRITTEN IN A PR BODY.** The gate
+asserts **exactly two entries**. Adding a real theme makes three and fails until the twin is gone,
+so whoever adds theme two must delete it in the same commit. **Without the count, a carelessly
+added third theme would pass the identity check by simply not being compared.** The twin is
+resolvable and NOT selectable, so it cannot be published by accident.
+
+### WHAT STEP 5 CAN HONESTLY CLAIM, AND WHAT WAITS
+
+| claimed and proved | waits for theme two |
+|---|---|
+| the reader parses, validates, and falls closed | that a DIFFERENT value produces a different site |
+| the field round-trips through both halves | that the measure data is per-theme in practice |
+| the lookup is a real lookup with two keys | that a switch is a switch |
+
+**The resolved theme reaches no CSS and no DOM yet, and that is deliberate rather than unfinished.**
+Choosing the element that carries the theme decides whether /studio inherits it, which is a real
+question about the frozen studio palette and deserves its own measurement rather than a corner of
+this PR. Step 6 owns it.
+
+### THE THREE-SURFACE AGREEMENT, ENFORCED RATHER THAN IMPORTED
+
+Theme names sit in `lib/theme.ts`, in `THEME_METRICS`, and in the sanitizer's `SETTINGS_THEME_VALUES`,
+and **none of the three can import another**. ralph loads all of them raw under
+`--experimental-strip-types`, which resolves a relative import only WITH the `.ts` extension, and
+`tsc` rejects that extension without `allowImportingTsExtensions`. So `ralph/tests/theme.mjs` is the
+single source of truth by enforcement — the same posture `SITE_SETTINGS_FIELD_ORDER` already takes
+toward `keystatic.config.ts`.
+
+### ⚠ TWO MORE MEMBERS OF THE MISREPORTED-VERDICT FAMILY, RECORDED SEPARATELY BECAUSE THEY DIFFER
+
+The crash-produces-zero-failures rule (#321) said a counter cannot tell a crash from a pass. Two
+neighbours surfaced, and folding them together would lose what distinguishes them.
+
+**A · A REPORTER CAN DESCRIBE A RUN IT OBSERVED CORRECTLY AND NARRATE IT WRONGLY.** #321's own
+first version printed "exited 0 having asserted NOTHING" for a process that had exited 1. The
+verdict was right and the stated reason was false. **The instrument built to catch misreported
+verdicts misreported a verdict.** That is not the counter's defect one layer up, it is a different
+failure — the classification was correct and the explanation was invented.
+
+**B · A MUTATION THAT NEVER APPLIED READS EXACTLY LIKE A WEAK GATE.** A regex that did not match
+leaves the source untouched, the suite passes, and the harness reports SURVIVED. It cost a wrong
+conclusion about the keystatic-schema assertion, which was fine and looked broken. **`mutate.mjs`
+now checks the working tree against HEAD** and says NO MUTATION APPLIED when they match. **Its
+limit is stated in the code rather than left implied** — a dirty tree is necessary evidence and not
+sufficient, because the harness does not know which file you meant to edit.
+
+**C · AND A ROUND-TRIP ASSERTION THAT SEEDS THE VALUE IT ASSERTS TESTS NOTHING.** The first version
+of the silent-drop gate loaded an object already carrying `theme`, so the value arrived from the
+FILE and the patch was never the subject. Teaching the serializer to skip `theme` the way it skips
+`photo` passed it cleanly. **Only mutation found this**, which is the fourth time in this arc that
+the assertion looked right and was vacuous. The fix is to start from a state that does NOT already
+satisfy the assertion, which here is also the real first-write case.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -120,9 +120,27 @@ export type ThemeMetrics = {
   provenance: { method: "browser"; route: string; viewport: string; element: string };
 };
 
-/** One entry per theme. Today there is one, which is the point of doing this before theme two. */
+/** One entry per theme, keyed by the names in `lib/theme.ts` — which this file CANNOT import, for
+ *  the leaf reason at the top. `ralph/tests/theme.mjs` asserts the two key sets are identical. */
 export const THEME_METRICS: Record<string, ThemeMetrics> = {
   cream: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6",
+    },
+  },
+
+  /* ⚠ A VERIFICATION FIXTURE, DELETED WHEN THEME TWO ARRIVES. Identical to `cream` in every
+     measured value and different only in its key, so the per-theme lookup above is a real lookup
+     rather than a constant equalling itself. `ralph/tests/theme.mjs` asserts the two resolve
+     identically AND that there are EXACTLY TWO entries — so adding a real theme makes three and
+     fails the gate until this block is deleted. That count IS the deletion trigger. The full
+     reasoning, including why it is resolvable but not selectable, is in `lib/theme.ts`. */
+  "cream-verify": {
     bodyFont: "Work Sans",
     measure68chPx: 676.734,
     provenance: {
