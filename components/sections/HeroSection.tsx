@@ -204,7 +204,13 @@ export default function HeroSection({
                 top-level heading. Rendered at 40–56px, so accent-500 on canvas clears
                 the 3:1 large-text bar. */}
             <h1
-              className="font-script text-accent-500 leading-[1] m-0 font-normal"
+              // ⚠ `font-script` WAS HERE AND DREW NOTHING. The unlayered `h1` rule sets
+              // `font-family: var(--font-display)`, which beats a utility in `@layer utilities`
+              // regardless of specificity — hazard 11. So this heading has ALWAYS rendered the
+              // display serif while its class asked for the script, and removing the class changes
+              // no pixel. A class that asks for one face and draws another is a lie in the markup;
+              // it survived because the result looked right.
+              className="text-accent-500 leading-[1] m-0 font-normal"
               style={{ fontSize: "clamp(3rem, 6.5vw, 5rem)" }}
             >
               {signature}
