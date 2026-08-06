@@ -62,9 +62,9 @@ t("A1: `labelCls` is declared exactly once",
 t("A2: `groupLabelCls` is declared exactly once",
   (fields.match(/export const groupLabelCls =/g) ?? []).length, 1);
 t("A3: the FIELD step is 12px / 700 / ink-600",
-  /export const labelCls = "text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+  /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
 t("A4: the GROUP step is 10px / ink-600 — one level in, and NOT bold, so the two steps stay distinct",
-  /export const groupLabelCls = "text-\[10px\] uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+  /export const groupLabelCls =\s*\n?\s*"font-label text-\[10px\] uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
 // A5 · the size literal stays LOCAL. `--text-eyebrow` is read by 16 non-studio files, so sizing
 // the studio label through the token would move the canvas and two public pages. The two values
 // coincide at 12px today; they are kept independent precisely so that stays a coincidence.
@@ -189,7 +189,7 @@ t("D2: the one PUBLIC eyebrow (VideoEmbed's pill) still uses the token, untouche
 
   // E3 — THE SEAM. `labelCls` keeps its value and its non-field consumers, untouched.
   t("E3: `labelCls` itself is unchanged — the pill is a NEW export, not a mutation",
-    /export const labelCls = "text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
+    /export const labelCls =\s*\n?\s*"font-label text-\[12px\] font-bold uppercase tracking-eyebrow text-ink-600";/.test(fields), true);
   // OverviewRow is NOT in this list, and that is #240's fix rather than an omission: it is a
   // SERVER component, and importing `labelCls` across the client boundary yields a THROWING PROXY
   // that a template literal stringifies into the class attribute. It writes the utilities out as

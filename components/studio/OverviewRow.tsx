@@ -94,7 +94,7 @@ export default function OverviewRow({
           agree — the "assert the pair, because you cannot delete the pair" rule three-pane H
           already runs on the pane widths. */}
       <span
-        className="w-6 shrink-0 text-[12px] font-bold uppercase tracking-eyebrow tabular-nums text-ink-600"
+        className="w-6 shrink-0 text-[12px] font-bold uppercase tracking-eyebrow tabular-nums font-label text-ink-600"
         aria-hidden
       >
         {index}

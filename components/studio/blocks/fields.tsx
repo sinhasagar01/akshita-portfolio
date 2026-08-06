@@ -329,6 +329,31 @@ export function WrappingField({
  * step keeps its 10px and its 400 weight — only the colour moved — so fixing the contrast did
  * not flatten the hierarchy the two steps exist to hold.
  *
+ * ---- THE FACE, AND `--font-label`'s FIRST CONSUMER ----------------------------------------
+ *
+ * Both steps now carry `font-label`, which is Space Grotesk. Uppercase tracked chrome is a
+ * different job from reading, and a flat-terminal grotesk holds at 10px where a humanist sans
+ * softens. The studio is mostly labels, so this is the face it wears most.
+ *
+ * ⚠ THIS TOKEN HAD ZERO CONSUMERS FROM THE PR THAT DECLARED IT UNTIL THIS ONE, which is the
+ * `FIT_THRESHOLD_PX` shape — a constant that reads as authoritative while nothing reads it. #260
+ * caught `--studio-t0` sitting in exactly that state for two PRs while a gate written to prevent
+ * it passed, because that gate counted over the SET rather than per token. The additive-first
+ * sequence was still right — it is what made the swap provable — but the gap is stated rather
+ * than left to be noticed, and `typography.mjs` now asserts consumption PER TOKEN.
+ *
+ * ⚠ AND THE CONTRACT'S UNIFORM 600 IS NOT APPLIED, WHICH IS A CORRECTION RATHER THAN AN
+ * OVERSIGHT. It gives both steps weight 600. These are 700 and 400, and the difference is
+ * load-bearing: the two steps are told apart by WEIGHT as well as size, which is what lets a
+ * 10px group head read as one level in rather than as a smaller field label. Flattening both to
+ * 600 would erase the hierarchy the scale exists to hold — the thing the note above says the
+ * contrast fix was careful not to do. The face moves; the hierarchy stays.
+ *
+ * MEASURED BEFORE IT SHIPPED. Space Grotesk is NARROWER than Work Sans at every real label
+ * string in the studio — deltas of −2.6 to −17.9px, the widest field label going 252.7px to
+ * 234.8px. A label can only get shorter, so nothing can wrap inside the 320px inspector or the
+ * 264px rail that did not wrap before.
+ *
  * THE EYEBROW TEXT TOKEN IS DELIBERATELY NOT EDITED AND THE SIZE IS A LOCAL LITERAL INSTEAD. That
  * token is read by SIXTEEN non-studio files — components/case-study canvas code, components/ui
  * SectionLabel, app/not-found and app/(portfolio)/error — so sizing the studio label through it
@@ -342,11 +367,13 @@ export function WrappingField({
  * bump moved it to 12px without updating the prose. `studio-ink` E4 pins the real value.)
  * `tracking-eyebrow` STAYS because 0.14em is already the value both steps want.
  */
-export const labelCls = "text-[12px] font-bold uppercase tracking-eyebrow text-ink-600";
+export const labelCls =
+  "font-label text-[12px] font-bold uppercase tracking-eyebrow text-ink-600";
 
 /** A group heading inside a NESTED CARD — see the scale note above. Size and weight are the
- *  ones that shipped; only the colour moved, to clear AA. */
-export const groupLabelCls = "text-[10px] uppercase tracking-eyebrow text-ink-600";
+ *  ones that shipped; the colour moved to clear AA, and the FACE moved with the label role. */
+export const groupLabelCls =
+  "font-label text-[10px] uppercase tracking-eyebrow text-ink-600";
 
 /* ---- THE KEY ROW (R2) — AND IT IS NOT `labelCls` WITH A RADIUS ---------------------------
  *
