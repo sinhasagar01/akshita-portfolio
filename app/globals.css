@@ -141,6 +141,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      THE HIGH ONE, producing two colours where the design has one. So a base colour is ruled ONCE,
      at its worst case. All three land distinct, so all three are named.
      They belong to the vessel the way the smoke stops do, and they retune with it. */
+  /* ⚠ TWO MORE VESSEL TONES, FOUND ONLY WHEN THE MATCHER LEARNED `rgba()`. #338 claimed the vessel
+     was fully converted; its verification regex had no `rgba(` branch and reported zero for eleven
+     survivors. Judged at highest alpha per the rule that PR established. */
+  --color-vessel-ink:     rgb(23, 20, 18);
+  --color-vessel-capsule: rgb(222, 213, 199);
   --color-vessel-glass:  oklch(94% 0.025 40);
   --color-vessel-pearl:  oklch(96% 0.012 40);
   --color-vessel-shadow: oklch(92% 0.02 40);
@@ -503,6 +508,8 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-smoke-2: oklch(0.9 0.014 233 / 0.74);
   --color-smoke-3: oklch(0.97 0.010 233 / 0.74);
   --color-smoke-4: oklch(0.87 0.012 233 / 0.74);
+  --color-vessel-ink:     rgb(18, 21, 24);
+  --color-vessel-capsule: rgb(199, 210, 222);
   --color-vessel-glass:  oklch(94% 0.020 233);
   --color-vessel-pearl:  oklch(96% 0.010 233);
   --color-vessel-shadow: oklch(92% 0.016 233);
@@ -2830,14 +2837,14 @@ a {
   width: 216px;
   border-radius: 24px;
   overflow: hidden;
-  background: linear-gradient(to bottom, rgba(233, 226, 214, 0.78), rgba(250, 246, 240, 0.62) 66%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--color-canvas) 78%, transparent), color-mix(in srgb, var(--color-smoke-3) 62%, transparent) 66%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
   backdrop-filter: blur(22px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  border: 1px solid color-mix(in srgb, var(--color-white) 58%, transparent);
   box-shadow:
-    inset 0 0 0 1px rgba(23, 20, 18, 0.055),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 26px 56px -26px rgba(23, 20, 18, 0.3);
+    inset 0 0 0 1px color-mix(in srgb, var(--color-vessel-ink) 5.5%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 85%, transparent),
+    0 26px 56px -26px color-mix(in srgb, var(--color-vessel-ink) 30%, transparent);
   opacity: 0;
   transform: translateX(14px);
   pointer-events: none;
@@ -2980,13 +2987,13 @@ a {
   border-radius: 99px;
   padding: 4px;
   overflow: hidden;
-  background: linear-gradient(to bottom, rgba(222, 213, 199, 0.88), rgba(250, 246, 240, 0.72) 66%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--color-vessel-capsule) 88%, transparent), color-mix(in srgb, var(--color-smoke-3) 72%, transparent) 66%);
   -webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);
   box-shadow:
-    inset 0 0 0 1px rgba(23, 20, 18, 0.09),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 14px 30px -14px rgba(23, 20, 18, 0.34);
+    inset 0 0 0 1px color-mix(in srgb, var(--color-vessel-ink) 9%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 85%, transparent),
+    0 14px 30px -14px color-mix(in srgb, var(--color-vessel-ink) 34%, transparent);
 }
 .blog-bead {
   position: absolute;

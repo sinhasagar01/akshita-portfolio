@@ -333,6 +333,8 @@ const BOUNDARY = {
   "smoke-2": "gradient stop — see smoke-1",
   "smoke-3": "gradient stop — see smoke-1",
   "smoke-4": "gradient stop — see smoke-1",
+  "vessel-ink": "vessel shadow ink — a shadow source, never a text foreground",
+  "vessel-capsule": "the capsule's ground tone — a surface wash",
   "vessel-glass": "vessel glass tone — a surface wash, never a text foreground",
   "vessel-pearl": "vessel glass tone — see vessel-glass",
   "vessel-shadow": "vessel glass tone — see vessel-glass",

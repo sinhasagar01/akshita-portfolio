@@ -8677,6 +8677,17 @@ ralph 2486, unchanged — the conversions are value-preserving.
 21 literals across `.blog-vessel`, `-capsule`, `-liquid`, `-bead`, `-smoke`, `-glint`, `-bub` →
 **zero**. One ruling, not 21 items.
 
+> **⚠ THAT CLAIM WAS FALSE AND IS CORRECTED IN PLACE. THE ORIGINAL WORDING IS QUOTED ABOVE SO THE
+> NUMBER IS SEEN TO HAVE MOVED, RATHER THAN A NUMBER THAT WAS ALWAYS RIGHT.**
+>
+> It was **21 → zero of the forms my verification matcher could see.** That regex was
+> `#[0-9a-fA-F]{6,8}|oklch\(…\)` — **it had no `rgba(` branch** — and eleven `rgba()` literals
+> survived in `.blog-vessel` and `.blog-capsule`. #342 finished them: two snapped to `canvas` and
+> `smoke-3`, one was pure white, and two became `--color-vessel-ink` and `--color-vessel-capsule`.
+>
+> **THE RULING WAS RIGHT. THE CONVERSION WAS PARTIAL. THE CLAIM WAS ABSOLUTE.** A false record is
+> worse than a missing one because it stops anyone looking.
+
 **THE ARGUMENT WAS NOT CONSISTENCY, IT WAS THAT #333 ALREADY ANSWERED IT ON EVIDENCE.** That PR
 called the vessel a signature SURFACE and then tokenised its waves anyway — and the back wave
 snapping to `--color-smoke-4` at composite Δ2 is what proved the waves came from the vessel's own
@@ -8840,6 +8851,49 @@ silent drift into a deliberate edit. **A kind whose definition drifts silently i
 stops being declared**, which is the failure this whole arc was spent repairing.
 
 ralph 2495 → 2496.
+
+## THE SEVENTH DEFECT, AND WHY IT BELONGS BESIDE THE PARSER GAP (#342)
+
+**`parseOklch` could not read the percentless form. #338's verification regex could not read
+`rgba()`. BOTH REPORTED ABSENCE.**
+
+> **A VALUE THE INSTRUMENT CANNOT READ LOOKS EXACTLY LIKE A VALUE NOTHING NEEDED TO READ — and
+> ABSENCE IS THE ONE ANSWER THAT NEVER LOOKS WRONG.** A wrong colour is loud. A wrong count is
+> arguable. Zero is congratulated.
+
+The first hid behind the boundary list, which never asks a listed token to parse. The second hid
+behind nothing at all — it was simply believed.
+
+### ⚠ AND THE JOIN FOUND IT BEFORE IT WAS A GATE
+
+The two-way join was designed to catch STALE ROWS, and that direction has not been built. Assembling
+its value-plus-location pairs put `.blog-vessel · #e9e2d6c7` on screen — **a pair no count would
+ever have shown**, because a count surfaces a NUMBER and a join surfaces PAIRS.
+
+**That is the argument for the design, made by the design, before either direction was asserted.**
+
+### WHAT SHIPPED
+
+Eleven `rgba()` literals, judged at highest alpha per #338's own rule: `rgb(233,226,214)` → `canvas`
+at Δ3 · `rgb(250,246,240)` → `smoke-3` at Δ2 · pure white → `--color-white` · and two named,
+`--color-vessel-ink` and `--color-vessel-capsule`.
+
+**The vessel now holds zero literals under a COMPLETE matcher** — the claim #338 made, verified by
+something that can see every form.
+
+### ⚠ NOT DONE, AND DELIBERATELY LEFT FOR A FRESH PASS
+
+**The matcher audit.** `rgba` was missing from at least one instrument and I do not know how many
+others share the gap. The structural fix is one shared matcher every suite imports — the same
+argument as one copy of the colour maths in #325 and as categories-as-data — **with a fixture of
+every CSS colour form that fails if any is unrecognised. THE INSTRUMENT MUST BE ASKED WHAT IT CANNOT
+SEE**, because both of this arc's parser defects were silent absences rather than errors.
+
+**Emptiness waits on that**, because asserting completeness over a pool measured by unaudited
+matchers would bake the wrong subject into the final gate — the exact failure this arc exists to
+repair.
+
+ralph 2497.
 
 ## WHAT'S NEXT
 
