@@ -9728,6 +9728,54 @@ POPULATION GUARD SHOULD ASSERT THE MECHANISM, NOT THE SIZE OF THE PROBLEM.**
 `HERO_GLOW` keeps its map and gains a smaller, honest hazard-22 note — it now picks a blur and an
 animation, and what it must not become again is something other reasoning rests on.
 
+## OPEN QUESTION FOR THE RENDER — THE SIGNAL GLOW IS NOW MATERIALLY FAINTER
+
+Named here so it is LOOKED AT rather than discovered. #360 reported the drop rather than tuning it,
+which is correct, but a reported finding with no owner is a deferral to nobody.
+
+**THE QUESTION.** The signal treatment on `elevate-one-view` — ping rings, core, flatten glow — draws
+roughly 40% less contrast against its ground than it did (ping 4.44 to 2.47 on cream, 4.44 to 2.54 on
+harbour). Both palettes were rendered and both read coherently; the rings are simply quieter. Whether
+that is the right loudness for that treatment is a DESIGN call and belongs to the owner.
+
+**IT IS NOT A BUG AND IT IS NOT A REVERT.** Raising the alphas to restore 4.44 would be choosing a
+number the old violet produced by accident. If the rings should be louder, they should be made louder
+by looking at them and picking a value, which is a different act from restoring one.
+
+**THE TRIGGER.** The next time the case-study heroes are rendered for any reason, on either palette.
+
+---
+
+## PRESERVING ALPHA PRESERVES THE MIX, NOT THE CONTRAST — A WORKING RULE
+
+**An alpha is a RATIO BETWEEN TWO COLOURS, so holding it constant while replacing one of them holds
+the RECIPE and not the RESULT.** Every collapse in this arc before #360 moved values that were already
+near their targets, so the two were indistinguishable and the question never came up.
+
+#360 is where they came apart. Six auras kept their alphas exactly. The pulse three barely moved
+because their old base was a mid-tone red close to `accent-500`'s lightness. The signal three lost
+~40% because `#2e1a47` is a very dark violet, and a darker base at the same alpha lands much closer to
+a near-white ground.
+
+**THE PRACTICAL FORM. When collapsing a literal onto a token, the alpha is not the thing to preserve.
+Measure the composite before and after, over the real ground, and decide on THAT.** Preserving the
+alpha is the correct DEFAULT — it is the smallest possible change to the declaration — but it is a
+starting point to be checked, not the property that makes the change safe.
+
+The general shape is the one this repo keeps meeting from new angles: **a value that is stable in one
+representation is not stable in the one that matters.** Same family as judging a near-miss on its
+composite rather than its declaration (#332), and as asking whether a cost is an emission question or
+a consumption question.
+
+---
+
+## THE JOIN WATCHED A BOUNDARY DELETION, WHICH HAD NEVER HAPPENED
+
+`case-study-hero-auras` was one of the rows already covered by #356's two-way join, so deleting it
+while its selectors still held colour would have failed `J1`. **Every boundary entry deleted before
+this one was deleted on trust.** The join was built to catch a colour with no row; catching a row with
+no colour is the same assertion read backwards, and #360 is the first time it was exercised that way.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

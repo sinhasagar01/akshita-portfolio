@@ -34,6 +34,30 @@
 //   C · RUNTIME-GENERATED COLOURS in public JS — const arrays, template strings, canvas draw
 //       calls. They reach the page as inline style or as a paint operation.
 //
+// ---- ⚠ A GUARD PINNED TO A POPULATION SIZE PUNISHES THE FIX — TWICE IN THIS FILE ---------------
+//
+// Read this BEFORE writing a new non-empty assertion here, because the reflex that produced both
+// instances is the natural one and it will produce a third.
+//
+//   A6, corrected in #332  `more than 10 parse` — failed once the parser was repaired.
+//   A2, corrected in #360  `cssLeaks.size > 20` — failed once the aura collapse took the authored
+//                          count to 16. The site improved and the gate went red.
+//
+// Both were written to mean "the scan is not silently matching nothing" and both encoded that as a
+// MAGNITUDE OF THE PROBLEM. Those are different claims. The number of leaks is what the work is
+// trying to reduce; pinning a floor to it means every success looks like a regression.
+//
+// ⚠ AND THE DISTINCTION IS NOT "NO THRESHOLDS". E1's `TOKEN_VALUES.size > 20` is a floor on the
+// SUBJECT — how many tokens the file found to check — and that one SHOULD fail if it shrinks, which
+// is the rule that a gate over generated output states its denominator. The test is which side of
+// the instrument the number describes.
+//
+//   FLOOR ON THE SUBJECT   how much did I find to look at        — assert it, a drop is a defect
+//   FLOOR ON THE FINDINGS  how much of it turned out to be bad   — do NOT, a drop is the goal
+//
+// Where the question is really "does the mechanism work", assert the mechanism. A2 now checks
+// non-empty and leaves correctness to A2b's fallback discrimination and to J1's two-way join.
+//
 // ---- ⚠ WHAT THIS SUITE'S SUBJECT IS, AND WHAT FALLS OUTSIDE IT --------------------------------
 //
 // E1 is the cautionary precedent, so this says its own boundary out loud rather than reading like
