@@ -2907,7 +2907,7 @@ a {
 
    AND THE NAMES ARE NOT `--duration-*`, WHICH IS NOT A TAILWIND v4 NAMESPACE. `duration-*`
    resolves from `--transition-duration-*` and `delay-*` from `--transition-delay-*`. Four
-   public-site elements ship `duration-[--duration-base]` TODAY and compile to
+   public-site elements ship `the bracket-bare duration form` TODAY and compile to
    `transition-duration:--duration-base`, an invalid declaration the browser drops —
    verified in the production CSS, not inferred. Consumed the way the radius scale is,
    a duration reading the t1 token, every use carrying its literal fallback so a

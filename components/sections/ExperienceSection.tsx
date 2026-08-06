@@ -91,14 +91,14 @@ export default function ExperienceSection({ experience }: Props) {
             <CompanyLine
               raw={feature.company}
               location={feature.location}
-              className="relative mt-[14px] text-[12px] tracking-[.13em] uppercase text-[--color-text-muted]"
+              className="relative mt-[14px] text-[12px] tracking-[.13em] uppercase text-text-muted"
             />
             {/* Role */}
-            <div className="relative font-display italic font-normal text-[23px] sm:text-[28px] leading-[1.15] mt-[6px] text-[--color-text-primary]">
+            <div className="relative font-display italic font-normal text-[23px] sm:text-[28px] leading-[1.15] mt-[6px]">
               {feature.title}
             </div>
             {/* Date */}
-            <div className="relative text-[14px] text-[--color-text-muted] mt-[10px]">
+            <div className="relative text-[14px] text-text-muted mt-[10px]">
               {feature.startDate} – {feature.endDate}
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function ExperienceSection({ experience }: Props) {
           {/* Previously list */}
           {previous.length > 0 && (
             <>
-              <p className="text-[12px] tracking-[.16em] uppercase text-[--color-text-muted] font-semibold mb-2 m-0">
+              <p className="text-[12px] tracking-[.16em] uppercase text-text-muted font-semibold mb-2 m-0">
                 Previously
               </p>
               <div>
@@ -116,16 +116,16 @@ export default function ExperienceSection({ experience }: Props) {
                     key={entry.slug}
                     className="grid grid-cols-1 sm:grid-cols-[170px_1fr] gap-x-6 gap-y-1 px-3 py-[15px] rounded-[10px] transition-colors duration-300 hover:bg-[#F3EADB] border-b border-[rgba(60,45,30,.09)] last:border-b-0"
                   >
-                    <div className="text-[13.5px] text-[--color-text-muted]">
+                    <div className="text-[13.5px] text-text-muted">
                       {entry.startDate} – {entry.endDate}
                     </div>
                     <div>
                       <CompanyLine
                         raw={entry.company}
                         location={entry.location}
-                        className="text-[12px] tracking-[.12em] uppercase text-[--color-text-muted]"
+                        className="text-[12px] tracking-[.12em] uppercase text-text-muted"
                       />
-                      <div className="text-[15.5px] font-semibold mt-[3px] text-[--color-text-primary]">
+                      <div className="text-[15.5px] font-semibold mt-[3px]">
                         {entry.title}
                       </div>
                     </div>

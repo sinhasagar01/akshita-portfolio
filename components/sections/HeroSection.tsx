@@ -204,7 +204,7 @@ export default function HeroSection({
                 top-level heading. Rendered at 40–56px, so accent-500 on canvas clears
                 the 3:1 large-text bar. */}
             <h1
-              className="font-script text-[--color-accent-500] leading-[1] m-0 font-normal"
+              className="font-script text-accent-500 leading-[1] m-0 font-normal"
               style={{ fontSize: "clamp(3rem, 6.5vw, 5rem)" }}
             >
               {signature}
@@ -227,7 +227,7 @@ export default function HeroSection({
                   aria-pressed={i === active}
                   aria-label={f.tab}
                   onClick={() => setActive(i)}
-                  className="rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-accent-500]"
+                  className="rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
                 >
                   <span
                     aria-hidden="true"
@@ -262,7 +262,7 @@ export default function HeroSection({
                     type="button"
                     aria-pressed={i === active}
                     onClick={() => setActive(i)}
-                    className="relative px-4 py-2.5 text-[12px] uppercase tracking-[0.10em] font-medium rounded-full transition-colors duration-[--duration-base] select-none cursor-pointer"
+                    className="relative px-4 py-2.5 text-[12px] uppercase tracking-[0.10em] font-medium rounded-full transition-colors duration-[var(--duration-base)] select-none cursor-pointer"
                     style={{
                       color:
                         i === active
@@ -352,7 +352,7 @@ export default function HeroSection({
               <AnimatePresence mode="wait">
                 <motion.p
                   key={active}
-                  className="font-display not-italic text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-tight] max-w-[34ch]!"
+                  className="font-display not-italic leading-snug tracking-tight max-w-[34ch]!"
                   style={{ position: "relative", zIndex: 2, fontSize: "clamp(1.75rem, 3.4vw, 2.75rem)" }}
                   variants={isReducedMotion ? lineContainerVariantsReduced : lineContainerVariants}
                   initial="hidden"
@@ -389,11 +389,11 @@ export default function HeroSection({
                   smoothScroll.scrollToTarget(el);
                 }
               }}
-              className="flex items-center gap-2 text-[12px] text-[--color-text-muted] tracking-[0.08em] uppercase font-medium transition-colors duration-[--duration-base] hover:text-[--color-text-secondary]"
+              className="flex items-center gap-2 text-[12px] text-text-muted tracking-[0.08em] uppercase font-medium transition-colors duration-[var(--duration-base)] hover:text-text-secondary"
             >
               <span
                 aria-hidden="true"
-                className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-[--color-accent-500] shrink-0"
+                className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-accent-500 shrink-0"
               />
               {cue}
             </a>

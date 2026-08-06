@@ -35,13 +35,13 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
           >
             {/* Left — identity */}
             <div>
-              <p className="font-script text-[42px] leading-none text-[--color-text-primary]">
+              <p className="font-script text-[42px] leading-none">
                 Akshita Singh
               </p>
-              <p className="mt-[13px] text-[12px] tracking-[.22em] uppercase text-[--color-text-subtle]">
+              <p className="mt-[13px] text-[12px] tracking-[.22em] uppercase text-text-subtle">
                 Product Designer
               </p>
-              <p className="hidden lg:block mt-6 text-[16px] text-[--color-ink-800]">
+              <p className="hidden lg:block mt-6 text-[16px] text-ink-800">
                 Designed by Me{" "}
                 <span style={{ color: "var(--color-text-subtle)", margin: "0 8px" }}>·</span>
                 Built by{" "}
@@ -49,7 +49,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
                   href="https://www.linkedin.com/in/sagarsinha1/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="footer-sagar relative text-[--color-accent-500] no-underline whitespace-nowrap"
+                  className="footer-sagar relative text-accent-500 no-underline whitespace-nowrap"
                 >
                   Sagar
                   <span className="footer-sagar-arrow text-[.8em] ml-[1px]" aria-hidden="true">↗</span>
@@ -62,7 +62,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
 
             {/* Right — social */}
             <div className="text-right">
-              <p className="text-[12px] tracking-[.18em] uppercase text-[--color-text-subtle] mb-4">
+              <p className="text-[12px] tracking-[.18em] uppercase text-text-subtle mb-4">
                 Social
               </p>
               <div
@@ -77,13 +77,13 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
                     style={{ display: "contents", textDecoration: "none" }}
                   >
                     <span
-                      className="footer-chip flex items-center justify-center w-[34px] h-[34px] rounded-[9px] text-[12px] font-semibold text-[--color-text-secondary]"
+                      className="footer-chip flex items-center justify-center w-[34px] h-[34px] rounded-[9px] text-[12px] font-semibold text-text-secondary"
                       style={{ border: "1px solid rgba(120,90,60,0.3)", transition: "border-color 0.2s, color 0.2s" }}
                     >
                       {glyph}
                     </span>
                     <span
-                      className="footer-label text-[15px] text-[--color-text-primary]"
+                      className="footer-label text-[15px]"
                       style={{ transition: "color 0.2s" }}
                     >
                       {label}
@@ -96,7 +96,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
 
           {/* Hairline + bottom row */}
           <div
-            className="relative flex flex-wrap justify-between items-center gap-y-[10px] text-[14px] text-[--color-text-subtle] mt-9 pt-[22px]"
+            className="relative flex flex-wrap justify-between items-center gap-y-[10px] text-[14px] text-text-subtle mt-9 pt-[22px]"
             style={{ borderTop: "1px solid rgba(60,45,30,0.1)", zIndex: 2 }}
           >
             <span className="flex items-center gap-[7px]">

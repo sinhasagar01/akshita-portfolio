@@ -110,7 +110,7 @@ export default function AboutSection({ settings }: Props) {
           <div className="mt-8 sm:mt-[52px] flex flex-col gap-5">
           {lead && (
             <p
-              className="font-display italic text-[--color-text-primary]"
+              className="font-display italic"
               style={{ fontSize: "27px", lineHeight: "1.3", letterSpacing: "var(--tracking-snug)" }}
             >
               {lead}
@@ -129,7 +129,7 @@ export default function AboutSection({ settings }: Props) {
 
           {note && (
             <p
-              className="font-display italic text-[--color-accent-500] max-w-[44ch]"
+              className="font-display italic text-accent-500 max-w-[44ch]"
               style={{ fontSize: "16px", lineHeight: "1.45" }}
             >
               {note}
