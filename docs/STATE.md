@@ -9862,6 +9862,52 @@ Both declarations are deleted. `colour-census` section T now asserts that no the
 `:root` lacks, and T1/T3 assert both populations are non-empty — **T2 passed over an empty subject on
 its first run and T3 is what said so.**
 
+## h1 TAKES THE ACCENT, h2 TAKES THE INK, AND THE RULE IS ROLE RATHER THAN GROUND (#364)
+
+The swap was specified as h1 to `accent-600` on every case study. **Measured, it was impossible on
+two of the four**, and finding that out cost nothing because it was measured before it was built.
+
+**Sanity pair 21.000 first, on both palettes, at token level and then again on the rendered page.**
+
+| | cream | harbour |
+|---|---|---|
+| `accent-600` on the DARK band | **2.55 FAIL** | **2.56 FAIL** |
+| `accent-500` on the DARK band | 3.92 AA-large | 3.74 AA-large |
+| `accent-600` on the light hero | 7.22 AA | 7.11 AA |
+
+⚠ **AND NO SINGLE ACCENT VALUE CLEARS AA ON BOTH GROUNDS.** L=55% clears the light hero at 4.92 and
+fails the band at 3.75; L≥60% does the reverse. **That two-ground split is exactly the structure
+`accent-500`/`accent-400` was described as being** — and the deleted comment's "5.7:1" reproduces at
+cream L=65% to two decimals.
+
+**SO `--color-accent-on-dark` IS THE DELETED TOKEN REBUILT ON THE MEASUREMENT THAT WAS ALWAYS RIGHT.**
+Cream's value is `oklch(65.0% 0.12 42)`, **byte-identical to the `accent-400` #363 deleted**. What was
+wrong was never the number; it was that nothing referenced it while a comment said something did.
+**Zero consumers was the reason to delete that one. This one had two measured consumers before it
+existed.** Deleting a token whose reasoning was sound and whose implementation was absent, and then
+building the implementation, is the right order — the alternative was keeping a token that did
+nothing because its comment was persuasive.
+
+**NAMED BY ROLE, NOT BY LIGHTNESS.** `accent-on-dark`, beside `on-dark` and `on-dark-quote`. A ladder
+spelling like `accent-350` invites someone to reach for it on cream, where it draws 3.23 and fails.
+
+**65% RATHER THAN 60%, AND THE TRADE-OFF THAT USUALLY DECIDES THIS DOES NOT EXIST HERE.** The token is
+role-scoped to the band and never drawn on cream, so its light-ground figure is not a cost. On the
+band alone, 60% gives 4.65 against a floor of 4.5 — a margin of .15 on a palette already inside 0.1
+of five floors. 65% gives **5.74 cream and 6.16 harbour**.
+
+**⚠ THE RULE IS ROLE, WHICH IS WHY THE DARK HEROES COULD NOT SIMPLY BE HELD AT `on-dark`.** That
+alternative would have made the h1 colour a consequence of the hero's GROUND, so `wide` would key two
+different things and a study that changed frames would silently change its heading's meaning. h1 takes
+the accent and h2 takes the ink, on both grounds, in whichever form each ground requires.
+
+**Rendered figures match the token predictions to two decimals** — dark h1 5.74 and 6.15, dark h2
+16.88 and 16.72, light h1 7.22 and 7.11, light h2 19.04 and 18.78. All AA.
+
+Declared in both palettes in the same commit, which is what section T exists to enforce. `B9`'s
+uncomputable-rows fixture grew by one, **which is the fixture tracking its subject rather than needing
+relaxing**.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

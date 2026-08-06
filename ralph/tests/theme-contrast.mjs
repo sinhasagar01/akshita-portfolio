@@ -163,6 +163,9 @@ const USAGE = [
   ...TEXT("text-subtle", GROUNDS), ...TEXT("accent-600", ["canvas", "cream-50", "cream-100"]),
   ...TEXT("on-dark", ["band-dark"]), ...TEXT("on-dark-muted", ["band-dark"]),
   ...TEXT("on-dark-quote", ["band-dark"]),
+  /* The case-study h1 on a wide hero. It is the accent in its heading ROLE on ink, so it is
+   * computed here rather than excused anywhere — the h1 is the largest text on the page. */
+  ...TEXT("accent-on-dark", ["band-dark"]),
   /* Long-form prose. Named in #327 — it is 9.41 on cream-50, between text-primary and
      text-secondary, which is what made it a role rather than a spelling. */
   ...TEXT("text-body", ["canvas", "cream-50"]),
@@ -227,8 +230,13 @@ const incomplete = { ...CREAM };
 delete incomplete["band-dark"];
 const inc = report(incomplete, USAGE);
 t("B8 a palette missing a token is UNCOMPUTABLE, never SHIPPABLE", inc.verdict, "UNCOMPUTABLE");
+/* ⚠ THIS LIST GREW WHEN `accent-on-dark` ARRIVED, AND THAT IS THE FIXTURE WORKING RATHER THAN
+ * NEEDING RELAXING. It enumerates every row that becomes uncomputable when `band-dark` is removed,
+ * so a new consumer of that ground MUST appear here — a fixture that silently accepted the old
+ * three would be one that stopped tracking its subject. */
 t("B9 and the uncomputable rows are named", inc.uncomputable, [
-  "on-dark on band-dark", "on-dark-muted on band-dark", "on-dark-quote on band-dark"]);
+  "on-dark on band-dark", "on-dark-muted on band-dark", "on-dark-quote on band-dark",
+  "accent-on-dark on band-dark"]);
 
 /* ⚠ `over()` IS NOT EXERCISED HERE, AND THAT IS STATED RATHER THAN LEFT TO LOOK LIKE COVERAGE.
  * `UsageRow.alpha` exists in the type — every hairline and scrim on this site is specified as a
