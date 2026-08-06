@@ -1,0 +1,205 @@
+# THE COLOUR BOUNDARY — every colour on this site that a theme cannot move, and why.
+#
+# ⚠ THIS IS A RECORD THAT HAPPENS TO BE MACHINE-READABLE, NOT A TEST FIXTURE. `ralph/tests/
+# colour-census.mjs` reads it, but the gate is not its audience. Every row below is a DESIGN
+# DECISION, and four PRs promised "the boundary list" as something a person could consult before
+# one existed. This is that.
+#
+# ⚠ AND EVERY ROW CARRIES ITS REASON AS PROSE. "signature" tells the next reader nothing. "The
+# vessel depicts nothing — it is a container for the site's own prose" is what makes the ruling
+# survive somebody disagreeing with it. The categories are shorthand; the sentences are the durable
+# part, and they are what to read if you are here to overturn something.
+#
+# ---- HOW THIS CAME TO EXIST -------------------------------------------------------------------
+#
+# The census's exclusions used to live as regexes inside the suite. That made the SUBJECT
+# tool-defined rather than declared — E1's shape, which this whole arc was spent repairing. It
+# produced two wrong numbers: a selector filter hid seven vessel parts, then the same filter,
+# copied into a scoping script, reported "roughly four items left" when there were thirty-nine.
+#
+#   A FILTER ENCODED TWICE IS A FILTER THAT DISAGREES WITH ITSELF, AND NEITHER COPY CAN BE REVIEWED.
+#
+# Three things this buys. A missing category becomes a ROW THAT DID NOT MATCH rather than a silent
+# omission. A wrong category becomes REVIEWABLE, which a regex is not. And the emptiness assertion
+# that follows can claim completeness over a subject that was DECLARED rather than one the
+# instrument drew around itself.
+
+# ---- THE TWO KINDS, WHICH DIFFER IN KIND RATHER THAN DEGREE -----------------------------------
+#
+# ⚠ THE FIRST FOUR COULD IN PRINCIPLE BE COMPUTED. THE LAST THREE NEVER CAN. Marking which is which
+# means a future instrument knows what it may INFER and what it must be TOLD — and stops a later
+# author trying to derive "is this artwork" from the value.
+kinds:
+  mechanical:
+    what: A property of the VALUE. Decidable by inspection, no judgement required.
+    categories: [derived, mask, compiler-default, not-a-colour]
+  judgement:
+    what: A property of WHAT IT DRAWS. No amount of parsing decides these.
+    categories: [artwork-by-file, signature, forced-literal]
+
+# ---- RULES THAT GOVERN HOW A COLOUR IS JUDGED --------------------------------------------------
+rules:
+  - id: composite-not-declaration
+    since: "#332"
+    rule: >
+      Judge a near-miss on the COMPOSITE distance over its real ground, not on the declaration.
+      The composite tracks the alpha exactly — .11 to .14 gives about 1, .50 to .55 gives 4 to 5,
+      .74 gives 5 to 7, and opacity 1 gives the declaration back.
+    corrected_by: base-colour-highest-alpha
+
+  - id: base-colour-highest-alpha
+    since: "#338"
+    rule: >
+      A base colour is ruled ONCE, at its HIGHEST alpha — not once per occurrence.
+    why: >
+      ⚠ This is a CORRECTION to composite-not-declaration, not an addition beside it. That rule as
+      approved carries this failure mode and did not say so. The vessel's oklch(0.94 0.025 40) is 5
+      from cream-200 at .45 and 9 at .8, so judging per occurrence would snap the low-alpha use and
+      leave the high one — PRODUCING TWO COLOURS WHERE THE DESIGN HAS ONE. That is the smoke-ramp
+      and hero-word defect arriving through the composite rule rather than through a ramp.
+
+  - id: artwork-by-file
+    since: "#333"
+    rule: >
+      Artwork is excluded by what the FILE IS FOR, not by where the colour sits. A fill in an
+      illustration and a fill in a UI icon are different questions.
+
+  - id: two-sources-is-not-the-defect
+    since: "#334"
+    rule: >
+      A component drawing from two colour sources is not itself wrong. SectionHeading's branches
+      drew the same thing and disagreed, which was. The process diagram's outline is the drawing
+      gesture and its fills depict a product screen — two sources, correctly.
+
+# ---- THE ENTRIES -------------------------------------------------------------------------------
+entries:
+  # ---------------------------------------------------------------- mechanical
+  - id: derived
+    kind: mechanical
+    match: { form: "oklch(from var(--…) …) and color-mix() containing no literal" }
+    reason: >
+      ⚠ Relative colour syntax over a token is the MOST themed form a colour can take — strictly
+      more themed than a plain var(). The census counted 14 of these as authored literals before
+      #336, because the instrument built to replace a name-blind census was derivation-blind.
+      Stripped by FORM, never by substring: a gradient with one token stop and one literal stop
+      must still report the literal.
+
+  - id: mask
+    kind: mechanical
+    match: { property: "mask-image, -webkit-mask-image, mask" }
+    reason: >
+      ⚠ NOT A COLOUR AT ALL. #000 in a mask is an ALPHA CHANNEL — black means opaque. There is
+      nothing to theme, which makes this different from every entry that is excluded because it
+      must not change.
+
+  - id: compiler-default
+    kind: mechanical
+    match: { property: "--tw-*", also: "@supports color-mix fallbacks" }
+    reason: >
+      Tailwind emits a hex fallback beside every color-mix utility and initial values for its own
+      custom properties. A browser that cannot do color-mix cannot do the theme either, so the
+      fallback is not a themeable surface BY CONSTRUCTION rather than by exclusion.
+
+  # ---------------------------------------------------------------- judgement
+  - id: project-card-artwork
+    kind: judgement
+    category: artwork-by-file
+    where: components/sections/ProjectCardSvgs.tsx
+    count: 77
+    reason: >
+      An illustration file. 77 of the site's 82 SVG colour attributes live here and are excluded
+      whole, by what the file is for rather than by the syntax the colour is written in.
+
+  - id: process-diagram-fills
+    kind: judgement
+    category: artwork-by-file
+    where: components/sections/ProcessSection.tsx
+    count: 3
+    reason: >
+      ⚠ The accent OUTLINE is the drawing gesture — this site's hand, sketching — so it follows the
+      palette. These three FILLS depict a product screen being designed: a wireframe of somebody
+      else's interface, not a surface of this one. Theming them would make the depicted product
+      change colour with the portfolio. Measured at 17, 54 and 73 from cream-300 before deciding.
+
+  - id: case-study-hero-auras
+    kind: judgement
+    category: artwork-by-file
+    where: app/globals.css (.hero-aura--*, .hero-phones--*)
+    count: 9
+    reason: >
+      Each case study's glow is the colour of the PRODUCT it is about — boAt's brand red, Fosfor's
+      violet #2e1a47 — which is why they are set per study rather than from the palette. The h1
+      above them and the watermark beside them are themed, so this hero is deliberately part themed
+      and part not, and the line runs between THIS SITE'S CHROME and THE PRODUCT BEING SHOWN.
+
+  - id: custom-cursor
+    kind: judgement
+    category: signature
+    where: components/ui/CustomCursor.tsx
+    count: 5
+    reason: >
+      ⚠ The cursor HAS NO SIBLING TO DISAGREE WITH, which is exactly the property the watermarks
+      lacked when they were converted. It is the same category as the glass nav — a thing that IS
+      the design rather than a skin on it — and it holds across all four themes deliberately.
+
+  - id: about-photo-tint
+    kind: judgement
+    category: signature
+    where: app/globals.css (.ab-tint)
+    count: 1
+    reason: >
+      Measured before it was decided: mix-blend-mode soft-light at opacity .5 over a PHOTOGRAPH. A
+      tonal wash rather than a scrim, compositing over artwork rather than the theme's ground, and
+      it reads as photographic warmth. A cool theme keeps a warm-cast photo, deliberately.
+
+  - id: page-loader-palette
+    kind: judgement
+    category: signature
+    where: components/motion/PageLoader.tsx
+    count: 9
+    reason: >
+      The loader's own eight-colour ramp. It is the first thing a visitor sees and it is the brand
+      arriving, not the site's surface — the same argument as the cursor, one moment earlier.
+
+  - id: device-mock-chrome
+    kind: judgement
+    category: artwork-by-file
+    where: components/case-study/blocks/deviceScroller.ts
+    count: 5
+    reason: >
+      Phone and browser chrome around a product screenshot. It depicts a device, not this site.
+
+  - id: pwa-chrome-colour
+    kind: judgement
+    category: signature
+    where: lib/theme.ts (BRAND_CHROME_COLOR)
+    count: 1
+    reason: >
+      ⚠ theme_color tints the Android address bar and the task-switcher card — the site's identity
+      in SOMEONE ELSE'S FRAME. At 20 from every token it is its own near-black rather than a
+      misspelling. A colour on a surface the site does not own does not follow the site's palette,
+      and an address bar changing weekly reads as instability on the one surface a user sees BEFORE
+      the site loads. Its sibling background_color IS themed, because that draws the site's own
+      ground on the splash.
+
+  - id: global-error-page
+    kind: judgement
+    category: forced-literal
+    where: app/global-error.tsx
+    count: 6
+    reason: >
+      ⚠ THE INVERSE OF EVERY OTHER ENTRY HERE. This renders WHEN THE APP HAS FAILED — the stylesheet
+      may not have loaded, so var(--color-ink-950) resolving to nothing leaves an INVISIBLE PAGE at
+      exactly the moment someone needs to read it. The cursor is excluded because it MUST NOT VARY;
+      this is excluded because it CANNOT DEPEND ON ANYTHING THAT VARIES, and only the second gets
+      MORE necessary as the rest of the system improves. A fully tokenised app is exactly the app
+      whose error page must not use tokens.
+
+  - id: adjacent-surfaces
+    kind: judgement
+    category: signature
+    where: lib/og.tsx
+    count: 4
+    reason: >
+      Social cards. They reach a surface adjacent to the page rather than the page itself, and they
+      are baked into an image at build time — a fifth route no static analysis of the page reaches.

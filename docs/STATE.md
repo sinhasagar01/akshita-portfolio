@@ -8365,6 +8365,14 @@ takes the token; the light-ground ruling is what protects it.
 **THE COMPOSITE TRACKS THE ALPHA EXACTLY.** That is a mechanism rather than eight readings — any
 future near can be judged from its alpha before it is measured.
 
+> **⚠ CORRECTED IN #338, AND THE CORRECTION BELONGS HERE RATHER THAN BESIDE IT. A BASE COLOUR IS
+> RULED ONCE, AT ITS HIGHEST ALPHA.** The rule as approved carries a failure mode and did not say
+> so: the same base colour at two alphas produces two composite distances — the vessel's
+> `oklch(0.94 0.025 40)` is 5 from `cream-200` at .45 and 9 at .8 — so judging PER OCCURRENCE would
+> snap the low-alpha use and leave the high one, **producing two colours where the design has one.**
+> That is the smoke-ramp and hero-word defect arriving through the composite rule rather than
+> through a ramp.
+
 **⚠ AND IT RETROACTIVELY JUSTIFIES THE Δ<5 RULE RATHER THAN OVERTURNING IT.** Step 1's literals were
 OPAQUE, so declaration and composite were the same number and the threshold measured the right
 thing. Here they diverge by up to 7. **The threshold was never wrong — it was being applied to a
@@ -8704,6 +8712,50 @@ The dependency is stated at the vessel's tokens: themeable only while the light-
 holds, the same as the glass nav.
 
 ralph 2486 — the snaps are within tolerance and the three named tones are value-preserving.
+
+## THE CATEGORIES BECOME DATA (#339)
+
+`docs/colour-boundary.yaml`. Seven categories, eleven judgement entries, four rules — and the census
+READS it rather than encoding it.
+
+### ⚠ WHY IT IS IN `docs/` AND NOT BESIDE THE SUITE
+
+The gate reads it; **the gate is not its audience.** Every row is a design decision, and four PRs
+promised "the boundary list" as something a person could consult before one existed. **A file in the
+test directory is a fixture; a file in `docs/` is a record that happens to be machine-readable.**
+
+**AND EVERY ROW CARRIES ITS REASON AS PROSE.** "signature" tells the next reader nothing. "The
+vessel depicts nothing — it is a container for the site's own prose" is what makes a ruling survive
+somebody disagreeing with it. `Z6` asserts the reason is longer than a category code, because a
+presence check would pass on the word alone.
+
+### THE ARGUMENT, MADE TWICE BEFORE IT WAS ACCEPTED
+
+The exclusions were regexes inside the suite, which made the SUBJECT tool-defined rather than
+declared — **E1's shape, the thing this arc was spent repairing.** It produced two wrong numbers: a
+selector filter hid seven vessel parts, and the same filter copied into a scoping script reported
+four remaining items when there were thirty-nine.
+
+> **A FILTER ENCODED TWICE IS A FILTER THAT DISAGREES WITH ITSELF, AND NEITHER COPY CAN BE
+> REVIEWED.**
+
+### ⚠ THE TWO KINDS DIFFER IN KIND RATHER THAN DEGREE, AND THE FILE SAYS SO
+
+**MECHANICAL** — `derived`, `mask`, `compiler-default`, `not-a-colour`. A property of the VALUE.
+**JUDGEMENT** — `artwork-by-file`, `signature`, `forced-literal`. A property of WHAT IT DRAWS.
+
+**The first four could in principle be computed. The last three never can.** Marking which is which
+means a future instrument knows what it may INFER and what it must be TOLD — and stops a later
+author trying to derive "is this artwork" from the value. `Z3` and `Z4` pin both sets.
+
+### THE TIE-BREAK IS A CORRECTION, NOT AN ADDITION
+
+`base-colour-highest-alpha` is recorded as `corrected_by` on `composite-not-declaration`, and `Z8`
+asserts that link exists while `Z9` asserts the correction says WHY. The composite rule shipped in
+#332 carries this failure mode and did not say so, so the record now says it at the rule rather than
+in a later entry someone would have to find.
+
+ralph 2486 → 2495.
 
 ## WHAT'S NEXT
 

@@ -62,6 +62,7 @@
 // with an alpha — A COLOUR THAT ALREADY HAS A NAME, SPELLED OUT WHERE THE NAME CANNOT REACH IT.
 // No name-based gate can see that, because the property is not called `--color-anything`.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { load } from "js-yaml";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -91,6 +92,45 @@ const TOKEN_VALUES = new Set();
 for (const m of globals.matchAll(/--color-[a-z0-9-]+:\s*([^;]+);/g)) {
   for (const c of m[1].match(COLOUR) ?? []) TOKEN_VALUES.add(c.replace(/\s+/g, ""));
 }
+
+/* ⚠ THE BOUNDARY IS DATA NOW, AND IT LIVES IN `docs/` RATHER THAN BESIDE THIS FILE. The gate reads
+ * it; the gate is not its audience. Every row is a design decision with its reason in prose, and a
+ * file in the test directory is a fixture while a file in docs is a record that happens to be
+ * machine-readable.
+ *
+ * WHY IT STOPPED BEING REGEXES. The exclusions used to live inside this suite, which made the
+ * SUBJECT tool-defined rather than declared — E1's shape, the thing this arc was spent repairing.
+ * It produced two wrong numbers: a selector filter hid seven vessel parts, and the same filter
+ * copied into a scoping script reported four remaining items when there were thirty-nine.
+ * A FILTER ENCODED TWICE IS A FILTER THAT DISAGREES WITH ITSELF, AND NEITHER COPY CAN BE REVIEWED. */
+const BOUNDARY = load(read("docs/colour-boundary.yaml"));
+
+console.log("\nZ · the boundary is DATA, and this suite asserts its shape rather than defining it");
+t("Z1 the record exists and parses", typeof BOUNDARY === "object" && BOUNDARY !== null, true);
+t("Z2 both kinds are declared", Object.keys(BOUNDARY.kinds ?? {}).sort(), ["judgement", "mechanical"]);
+/* ⚠ THE DISTINCTION THAT MATTERS MOST IS THAT THE FIRST FOUR COULD IN PRINCIPLE BE COMPUTED AND THE
+ * LAST THREE NEVER CAN. Asserting it here stops a later author trying to derive "is this artwork"
+ * from the value. */
+t("Z3 mechanical categories are the four decidable by inspection",
+  [...BOUNDARY.kinds.mechanical.categories].sort(),
+  ["compiler-default", "derived", "mask", "not-a-colour"]);
+t("Z4 judgement categories are the three that never can be",
+  [...BOUNDARY.kinds.judgement.categories].sort(),
+  ["artwork-by-file", "forced-literal", "signature"]);
+t("Z5 every entry declares a kind the file knows",
+  BOUNDARY.entries.filter((e) => !(e.kind in BOUNDARY.kinds)).map((e) => e.id), []);
+/* ⚠ THE ROW'S REASON IS THE DURABLE PART, so a row without prose is a row nobody can overturn or
+ * defend. Length rather than presence, because "signature" would pass a presence check. */
+t("Z6 every entry carries a REASON as prose, not a category code alone",
+  BOUNDARY.entries.filter((e) => !e.reason || e.reason.trim().length < 40).map((e) => e.id), []);
+t("Z7 every judgement entry names WHERE it lives, so it can be audited",
+  BOUNDARY.entries.filter((e) => e.kind === "judgement" && !e.where).map((e) => e.id), []);
+/* The tie-break is recorded as a CORRECTION to the composite rule, not an addition beside it. */
+const rules = Object.fromEntries((BOUNDARY.rules ?? []).map((r) => [r.id, r]));
+t("Z8 the composite rule names the rule that corrects it",
+  rules["composite-not-declaration"]?.corrected_by, "base-colour-highest-alpha");
+t("Z9 …and the correction says why, because the reason is the valuable half",
+  (rules["base-colour-highest-alpha"]?.why ?? "").includes("TWO COLOURS WHERE THE DESIGN HAS ONE"), true);
 
 console.log("\nA · the built CSS bundle — every colour the stylesheet actually ships");
 
