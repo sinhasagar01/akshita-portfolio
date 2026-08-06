@@ -39,7 +39,7 @@ export default function SectionHeading({
   const wordShadow = tone === "warm" ? "0 0 30px rgba(181,97,60,.22)" : "0 0 30px rgba(86,80,72,.20)";
   const glowBg     = tone === "warm"
     ? "radial-gradient(closest-side,rgba(181,97,60,.22),transparent 72%)"
-    : "radial-gradient(closest-side,rgba(88,82,74,.20),transparent 72%)";
+    : "radial-gradient(closest-side,color-mix(in oklch, var(--color-ink-600) 20%, transparent),transparent 72%)";
 
   const isCentered = variant === "centered";
 

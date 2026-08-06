@@ -239,7 +239,7 @@ export default function HeroSection({
                       backgroundColor:
                         i === active
                           ? "var(--color-accent-500)"
-                          : "oklch(14% 0.018 60 / 0.25)",
+                          : "color-mix(in oklch, var(--color-ink-950) 25%, transparent)",
                       transition: isReducedMotion
                         ? "background-color 0.3s ease"
                         : "width 0.35s ease, background-color 0.3s ease",
@@ -276,10 +276,10 @@ export default function HeroSection({
                         aria-hidden="true"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          backgroundColor: "oklch(98.5% 0.012 80 / 0.50)",
+                          backgroundColor: "color-mix(in oklch, var(--color-cream-50) 50%, transparent)",
                           backdropFilter: "blur(9px) saturate(1.3)",
                           WebkitBackdropFilter: "blur(9px) saturate(1.3)",
-                          border: "1px solid oklch(56% 0.14 42 / 0.30)",
+                          border: "1px solid color-mix(in oklch, var(--color-accent-500) 30%, transparent)",
                           boxShadow:
                             "0 3px 12px oklch(30% 0.018 60 / 0.12), inset 0 1px 0 oklch(100% 0 0 / 0.70)",
                         }}
