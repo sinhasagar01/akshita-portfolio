@@ -153,6 +153,19 @@ closed.
 
 - **⚠ AND THE MIRROR OF THAT RULE, because half a rule is what caused the confusion twice.** "Ask where a cost is emitted" was written for a studio-only preload charging every public page. The colour census hit the same seam from the other side: it reads what is EMITTED and cannot tell who USES it, so two studio status dots and a studio gradient sat in the public bundle looking exactly like public colours. **Both directions give a wrong answer and neither is visible from where you are standing.** So the rule is not "use emission" or "use consumption" — it is **ASK WHICH ONE THE QUESTION IS ABOUT. Cost is an emission question. Themeability is a consumption question.** A bundle that merges the two is why they keep being confused, and the repair is to RESOLVE the consumer rather than exclude by lookup, because excluding buries the judgement inside a filter.
 
+- **⚠ AN ASSERTION CAN PASS TRIVIALLY ON AN EMPTY SUBJECT *AND* KEEP PASSING IF THE SUBJECT ARRIVES
+  WRONG.** `theme` G asserts every theme declares the same token SET. A token declared by NO theme
+  satisfies it — and **a token declared by BOTH would satisfy it too.** So G would have gone on
+  passing if a palette started overriding the invariant mark, because the moment both blocks
+  declared it, they would AGREE. **Invariance is unrepresentable in that assertion's model**, which
+  is why it needed its own category (section H) rather than an exception inside G.
+
+  **SAME FAMILY AS `theme-contrast`'s MERGE**, found the same week: `{ ...CREAM, ...harbour }` made a
+  missing override unrepresentable, and the gate reported agreement rather than absence. **Both gates
+  were correct about what they modelled.** The question to ask of a gate is not "is it right" but
+  **"can the property I care about even be expressed in what it looks at"** — and a category the
+  vocabulary has no word for is one no gate is watching.
+
 - **⚠ NOTHING REPORTED IS EVIDENCE, INCLUDING A REPORT ABOUT THE REPOSITORY, INCLUDING ONE YOU WROTE
   YOURSELF.** Ten units of work were merged into LOCAL `main` with the branch deleted, never pushed
   and never opened as a pull request, and reported as merged ten consecutive times. **Every colour,
