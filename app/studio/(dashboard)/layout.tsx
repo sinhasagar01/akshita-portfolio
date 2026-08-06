@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStudioData } from "@/lib/studio/data";
+import { resolveTheme } from "@/lib/theme";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
 import StudioSidebar from "@/components/studio/StudioSidebar";
 import StudioTopbar from "@/components/studio/StudioTopbar";
@@ -42,7 +43,11 @@ export default async function DashboardLayout({
   // always today's. See lib/studio/sidebar-width.ts.
   const sidebarWidth = clampSidebarWidth(jar.get(SIDEBAR_COOKIE)?.value);
 
-  const { projects, experience, blog, skills, draftDiffers, draftReadError } = await getStudioData();
+  const { projects, experience, blog, skills, settings, draftDiffers, draftReadError } = await getStudioData();
+  /* THE PENDING THEME, WHICH IS THE DRAFT'S AND NOT THE PUBLISHED ONE. `getStudioData()` is
+     draft-preferring for settings, so a theme saved but not yet published resolves here while
+     `<html>` still carries the live value from the root layout's published read. */
+  const canvasTheme = resolveTheme(settings?.theme);
   // Client-side search index, built once from the data already loaded here.
   const searchItems = buildStudioSearchIndex({ projects, experience, skills });
 
@@ -101,7 +106,20 @@ export default async function DashboardLayout({
             inside it would scroll with the nav and disappear. It sits in the flex row between
             the sidebar and main, where the seam it drags actually is. */}
         <SidebarResizer />
-        <main className="flex min-w-0 flex-1 flex-col bg-studio-cream-50 lg:has-[[data-studio-fullheight]]:min-h-0">
+        {/* ⚠ THE PENDING-THEME PREVIEW, AND IT IS ONE ATTRIBUTE RATHER THAN A SECOND MECHANISM.
+            6b put `data-theme` on `<html>` from the PUBLISHED settings; this nested attribute
+            overrides it for the dashboard subtree with the DRAFT value, by the ordinary cascade.
+            So an author who switches theme and saves sees it on real content — the canvas renders
+            public components at the public measure — before anything is published.
+
+            ⚠ AND IT SITS THIS HIGH SAFELY ONLY BECAUSE OF THE FREEZE, WHICH IS THE POINT OF #323.
+            `studio-palette` B1 asserts ZERO live references to the public palette anywhere in
+            studio source, and `studio-tokens` C1 asserts every frozen colour is a literal rather
+            than an alias reaching back. So the chrome cannot move when this attribute changes —
+            immune BY CONSTRUCTION, not by threading the value carefully down to a canvas wrapper
+            and hoping nothing else picked it up. The canvas is the only thing under here that
+            draws from the public palette, so the attribute reaches exactly it. */}
+        <main data-theme={canvasTheme} className="flex min-w-0 flex-1 flex-col bg-studio-cream-50 lg:has-[[data-studio-fullheight]]:min-h-0">
           <StudioTopbar searchItems={searchItems} />
           {/* The Publish bar lives at the layout level (persists across /studio
               navigation), seeded once from the branch-level differs, so a

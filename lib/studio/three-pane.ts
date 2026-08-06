@@ -134,6 +134,23 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
     },
   },
 
+  /* ⚠ THE MEASURE IS A PROPERTY OF THE BODY FONT, NOT OF THE PALETTE, so harbour carries cream's
+     number rather than a fresh browser reading. `68ch` resolves against the `0` advance of
+     `--font-body`, and harbour does not change the body face — it changes colours. The provenance
+     below records that this entry is derived by FONT IDENTITY rather than measured, so nobody
+     mistakes it for a second browser session. The day a theme changes the body face, that theme
+     needs its own measurement and this note is where they will find out. */
+  harbour: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
+
   /* ⚠ A PERMANENT CONTROL. DO NOT DELETE IT, AND DO NOT LET IT DRIFT FROM THE BLOCK ABOVE.
 
      It shipped as a fixture with a deletion trigger and is no longer one. The cross-theme gate

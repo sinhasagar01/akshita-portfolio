@@ -35,7 +35,8 @@
 // Both directions are asserted, because either one alone is a defect.
 import { readFileSync } from "node:fs";
 import {
-  DEFAULT_THEME, VERIFY_THEME, THEME_NAMES, resolveTheme, isKnownTheme, selectableThemes,
+  DEFAULT_THEME, VERIFY_THEME, SECOND_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
+  selectableThemes, unselectableReason,
 } from "../../lib/theme.ts";
 import { THEME_METRICS, ACTIVE_THEME } from "../../lib/studio/three-pane.ts";
 import {
@@ -90,7 +91,20 @@ t("A5 they are distinct objects, so identity is a property of the VALUES not a s
 t("A6 the twin is resolvable", resolveTheme(VERIFY_THEME), VERIFY_THEME);
 t("A7 the twin is NOT selectable, so it cannot be published by accident",
   selectableThemes().includes(VERIFY_THEME), false);
-t("A8 the shipping default IS selectable", selectableThemes(), [DEFAULT_THEME]);
+/* ⚠ THE SUBJECT MOVED TWICE AND THE ASSERTION MOVED WITH IT BOTH TIMES. It read `[DEFAULT_THEME]`
+ * while cream was the only palette; theme two made that false; and holding harbour back made
+ * "every real theme is selectable" false in turn. The claim that survives all three is that
+ * SELECTABLE IS EXACTLY THE RESOLVABLE NAMES MINUS THE ONES WITH A STATED REASON — which still
+ * fails if the twin leaks in, still fails if a theme is added to the resolver and forgotten in the
+ * sanitizer, and now also fails if something is excluded with no reason recorded. */
+t("A8 selectable is exactly the resolvable names that have no stated exclusion",
+  selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
+t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
+  THEME_NAMES.filter((n) => !selectableThemes().includes(n) && !unselectableReason(n)), []);
+t("A8 the twin is excluded, and so is harbour until its literals are converted",
+  THEME_NAMES.filter((n) => unselectableReason(n)).sort(), [SECOND_THEME, VERIFY_THEME].sort());
+t("A8 …and at least one theme is publishable, or the site has no palette at all",
+  selectableThemes().length >= 1, true);
 
 console.log("\nB · three surfaces holding theme names, none able to import another");
 
