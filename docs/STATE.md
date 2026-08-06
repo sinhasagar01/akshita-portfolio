@@ -8757,6 +8757,46 @@ in a later entry someone would have to find.
 
 ralph 2486 → 2495.
 
+## THE FIVE JUDGEMENTS (#340)
+
+Brought whole, each asked what it DRAWS rather than what selector holds it.
+
+| | what it draws | outcome |
+|---|---|---|
+| `.ab-cap` | the photo caption, on an ink scrim over a photograph | **`on-dark` at Δ2 — a snap.** It is literally on-dark text |
+| `.nav-cta` | the CTA label on the accent button | **pure white → `--color-white`** |
+| `bg-[oklch(58%_0.17_30)]` | a status dot | **studio consumer** |
+| `bg-[oklch(62%_0.13_285)]` | a status dot | **studio consumer** |
+| a 115° gradient at 50% white | a canvas sheen | **studio consumer** |
+
+**Two converted. Three are out of scope — and the three are the finding.**
+
+### ⚠ THREE COLOURS IN THE PUBLIC BUNDLE WITH NO PUBLIC CONSUMER
+
+Tailwind compiles one stylesheet, so those two arbitrary utilities and that gradient ship in the CSS
+every visitor downloads. **Every element that uses them sits under the owner-gated `/studio`.**
+
+> **THE CENSUS CANNOT SEE THIS FROM THE SELECTOR, AND THAT IS THE FINDING RATHER THAN THE ROWS.** A
+> utility class carries no studio marker — `.bg-\[oklch\(58%_0\.17_30\)\]` looks exactly like a
+> public utility. Its studio-ness lives in the CONSUMER, not in the rule.
+
+**AND IT IS THE MIRROR OF THIS PROJECT'S OWN EMISSION RULE.** CLAUDE.md says *ask where a cost is
+EMITTED, not where the feature is USED* — written when a studio-only font preload charged every
+public page. This is the same seam from the other side: **the census reads what is EMITTED and
+cannot tell who USES it.** Both directions produce a wrong answer, and neither is visible from the
+place you are standing.
+
+Recorded as a boundary entry with that reason, because a future reader will find them in the public
+bundle and reasonably assume they are public.
+
+### AND `.ab-cap` IS THE SHAPE THE ARC KEEPS FINDING
+
+A caption sitting on an ink scrim over a photograph, declared as `oklch(95% 0.01 80)` — **2 from
+`--color-on-dark`**, the token that exists for exactly that situation. Not a near-miss to be ruled
+on. A colour that had a name.
+
+ralph 2495 — the two conversions are within tolerance.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

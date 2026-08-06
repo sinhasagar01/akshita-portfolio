@@ -195,6 +195,23 @@ entries:
       MORE necessary as the rest of the system improves. A fully tokenised app is exactly the app
       whose error page must not use tokens.
 
+  - id: studio-consumers-in-the-public-bundle
+    kind: judgement
+    category: signature
+    where: components/studio/CaseStudyItem.tsx, components/studio/SectionsEditPanel.tsx
+    count: 3
+    reason: >
+      ⚠ THREE COLOURS THAT ARE IN THE PUBLIC STYLESHEET AND HAVE NO PUBLIC CONSUMER. Tailwind
+      compiles one bundle, so `bg-[oklch(58%_0.17_30)]`, `bg-[oklch(62%_0.13_285)]` and a
+      115-degree gradient arrive in the CSS every visitor downloads — while every element that uses
+      them sits under the owner-gated /studio.
+      ⚠ THE CENSUS CANNOT SEE THIS FROM THE SELECTOR, and that is the finding rather than the rows.
+      A utility class carries no studio marker; its studio-ness lives in the CONSUMER. This is the
+      mirror of the project's emission rule — ask where a cost is EMITTED, not where the feature is
+      USED — pointed the other way: the census reads what is emitted and cannot tell who uses it.
+      Out of scope as studio, and the reason is recorded because a future reader will find them in
+      the public bundle and reasonably assume they are public.
+
   - id: adjacent-surfaces
     kind: judgement
     category: signature
