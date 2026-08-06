@@ -43,9 +43,21 @@ export type Rgb = [number, number, number];
  *
  * It is a getter rather than a constant so every caller gets a fresh `lastIndex` — a shared `/g`
  * regex carries state between `.test()` calls, which is its own silent-wrong-answer.
+ *
+ * ⚠ THE LEADING `(?<![&\w])` IS THE FALSE-POSITIVE GUARD, AND IT IS THE DIRECTION THAT MATTERS MORE
+ * FOR THIS INSTRUMENT. `&#8594;` is the HTML entity for an arrow, and `#8594` is a syntactically
+ * valid four-digit hex — so the pattern matched TEXT as a colour and the boundary join reported
+ * `AboutSection.tsx` as holding an unclassified one.
+ *
+ * A MISSED COLOUR IS A LEAK THE RENDER EVENTUALLY SHOWS. A PHANTOM COLOUR IS A ROW IN A BOUNDARY
+ * FILE WITH A REASON SOMEBODY INVENTED FOR A VALUE THAT WAS NEVER A COLOUR — a permanent false
+ * record in the one document whose entire value is that its reasons are arguable.
+ *
+ * Both of this arc's earlier parser defects were things the matcher COULD NOT SEE. This is the
+ * first it saw and should not have.
  */
 export const colourPattern = () =>
-  /#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)|\boklch\([^)]*\)|\bhsla?\([^)]*\)|\bcolor\(display-p3[^)]*\)/g;
+  /(?<![&\w])#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)|\boklch\([^)]*\)|\bhsla?\([^)]*\)|\bcolor\(display-p3[^)]*\)/g;
 
 /** Every colour form this matcher claims to read. The coverage fixture asserts against THIS list,
  *  so adding a form without teaching the parser fails rather than silently widening the claim. */

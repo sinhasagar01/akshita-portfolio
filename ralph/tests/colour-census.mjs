@@ -186,6 +186,27 @@ const scanned = "a #abc b rgb(1,2,3) c oklch(0.5 0.1 60 / .5) d hsl(0,0%,100%) e
 t("M4 every form the SCANNER finds, the PARSER can read — a disagreement is a silent zero",
   scanned.filter((c) => parseColor(c) === null), []);
 
+/* ⚠ M5 IS THE HALF THIS FIXTURE HAS NEVER HAD. M1..M4 all ask what the matcher CAN see; M3 asks
+ * what it cannot READ. NONE of them asked what it MUST NOT MATCH.
+ *
+ * Both of this arc's earlier parser defects were things the matcher could not see — the percentless
+ * oklch, and `rgba()` missing from a verification regex. This is the first it saw and should not
+ * have: `&#8594;` is an HTML entity for an arrow, and `#8594` is a valid four-digit hex.
+ *
+ * ⚠ AND THE FALSE-POSITIVE DIRECTION IS THE MORE DANGEROUS ONE FOR THIS INSTRUMENT. A missed colour
+ * is a leak the render eventually shows. A phantom colour becomes a ROW IN THE BOUNDARY FILE with a
+ * reason somebody invented for a value that was never a colour — a permanent false record in the
+ * one document whose whole value is that its reasons are arguable. */
+const MUST_NOT_MATCH = [
+  ["&#8594;", "HTML entity for an arrow — the one that actually got through"],
+  ["hover &#8594;", "…and in the string it was found in"],
+  ["&#160;", "non-breaking space entity"],
+  ["x#abc", "a fragment identifier, not a colour"],
+  ["#abcdefgh", "eight characters, but not all hex"],
+];
+t("M5 ⚠ AND IT MATCHES NOTHING THAT IS NOT A COLOUR — the half that has never been asserted",
+  MUST_NOT_MATCH.filter(([str]) => (str.match(colourPattern()) ?? []).length > 0).map(([s]) => s), []);
+
 console.log("\nA · the built CSS bundle — every colour the stylesheet actually ships");
 
 const cssFiles = readdirSync(url(CSS_DIR)).filter((f) => f.endsWith(".css"));
@@ -439,6 +460,7 @@ const walkSrc = (rel) => {
 };
 ["components", "app", "lib"].forEach(walkSrc);
 
+
 /** A Tailwind-escaped selector back to the class an author typed. */
 const unescapeClass = (sel) => sel.replace(/^\./, "").replace(/\\/g, "");
 const consumersOf = (cls) => sourceFiles.filter((f) => f.src.includes(cls)).map((f) => f.rel);
@@ -479,6 +501,25 @@ const walk = (rel) => {
   }
 };
 ["components", "app", "lib"].forEach(walk);
+
+/* ⚠ EXCLUDED BY WHAT THE FILE IS FOR, NOT BY DIRECTORY. `lib/theme-contrast.ts` is the INSTRUMENT:
+ * its `FORM_SAMPLES` are the coverage fixture, the evidence that the matcher reads every colour
+ * form. Scanning it made the census report those samples as unclassified page colours.
+ *
+ * AN INSTRUMENT THAT SCANS ITS OWN EVIDENCE REPORTS ITS OWN CORRECTNESS AS A DEFECT. That is the
+ * cleanest contaminated input this arc produced — not the record of a defect, but the proof of a
+ * repair, read as the thing it repaired.
+ *
+ * ⚠ AND `lib/` IS NOT THE EXCLUSION, BECAUSE `lib/` HOLDS REAL PAGE COLOUR. `lib/theme.ts` carries
+ * the PWA splash map and `lib/og.tsx` the social-card hexes, both live and both boundary-listed.
+ * Excluding the neighbourhood would buy a new blind spot in exactly the place the last four came
+ * from. */
+const INSTRUMENT = new Set(["components/../lib/theme-contrast.ts", "lib/theme-contrast.ts"]);
+const isInstrument = (rel) => INSTRUMENT.has(rel.replace(/^\.?\//, ""));
+
+for (let i = files.length - 1; i >= 0; i--) if (isInstrument(files[i])) files.splice(i, 1);
+t("B0 the instrument itself is not scanned as a page — its fixture is evidence, not colour",
+  files.some(isInstrument), false);
 
 const srcPairs = new Set();          // the join's left side for populations B and C
 const svgAttrs = new Map();
