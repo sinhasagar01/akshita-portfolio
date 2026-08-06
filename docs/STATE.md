@@ -2049,6 +2049,20 @@ All prior rules remain. Added or sharpened across this session:
   a font reaching the layout. The same fact was asserted TWICE in one file, 400 lines apart, so
   the constant and the gate must move in ONE commit or a green assertion is left stating a stale
   number.
+- **A CRASH PRODUCES ZERO FAILURES, WHICH IS INDISTINGUISHABLE FROM SUCCESS TO ANYTHING COUNTING.**
+  #320's provenance mutation left a syntax error. The module failed to LOAD, the suite printed no
+  `[FAIL]` lines at all, and the ad-hoc counter read it as a SURVIVING mutant — a gate that looked
+  too weak when it had never been asked. **Counting failures is not the same as observing them.**
+  `ralph/run.mjs` already knew this twice over, in "THE VERDICT IS THE EXIT CODE" and "A GATE THAT
+  REPORTS ZERO SUBJECTS IS NOT A PASS"; the mutation runs were ad-hoc shell and had neither.
+  `ralph/mutate.mjs` now applies both, and the distinction it exists for is SURVIVED against
+  INVALID: both look like "no failures", and they mean opposite things — one is a defect in the
+  gate, the other a defect in the mutation. Reporting the second as the first sends you rewriting
+  a gate that was fine.
+  **AND THE HARNESS'S OWN FIRST VERSION HAD THE SHAPE ONE LAYER DOWN**, printing "exited 0 having
+  asserted NOTHING" for a process that had exited 1 — the right verdict for a stated reason that
+  was false.
+
 - **WHEN A FILE CARRIES SEVERAL SPELLINGS OF ONE VALUE, THE EQUIVALENT AND THE NEARS ARE DECIDED
   TOGETHER.** `SectionHeading` held THREE spellings of one cool grey — `88,82,74` and `86,80,72`
   twice. #316 tokenised the exact match and left the two 3.7 away **on adjacent lines**, so the
