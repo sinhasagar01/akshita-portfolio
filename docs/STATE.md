@@ -8959,6 +8959,86 @@ cannot see**, which is why the fixture is not optional.
 Both directions, over a pool measured by something audited. **Three PRs from closed, and the middle
 one did not exist two messages ago.**
 
+## THE MATCHER AUDIT — ANSWERED (#344)
+
+### ⚠ ITEM 1: THE PROVISIONAL FINDING IS HALF OVERTURNED, AND THE HALF THAT SURVIVES IS THE LESS
+### IMPORTANT ONE
+
+The handoff said: *"the gapped matcher was a THROWAWAY REGEX inside one PR, not a standing
+instrument."* Read rather than grepped, that is **false for instruments and true for figures.**
+
+**OVERTURNED — A STANDING GATE HAD A LIVE GAP.** `colour-census`'s A3 built its token index from
+`--color-*: oklch(…)` and compared through a local oklch-only parser. **Four public tokens were
+invisible to it**, and all four were created by this arc:
+
+| token | declared as | why |
+|---|---|---|
+| `--color-text-body` | `#4a4239` | #327 measured that re-expressing it as oklch shifted it 3 bytes |
+| `--color-rule` | `rgb(120, 90, 60)` | same |
+| `--color-vessel-ink` | `rgb(23, 20, 18)` | #342 |
+| `--color-vessel-capsule` | `rgb(222, 213, 199)` | #342 |
+
+> **A3's WORDING CLAIMED "no custom property holds a colour A TOKEN already names". ITS REACH WAS
+> "…a colour an OKLCH-DECLARED token already names."** The arc created tokens in the very forms its
+> own gate could not read, because #327's measurement forced hex and rgb and nothing re-read the
+> gate afterwards.
+
+**CONFIRMED — NO RECORDED FIGURE MOVES.** Checked per figure rather than inherited:
+
+| figure | producer | complete? |
+|---|---|---|
+| 125 literals (Step 1) | pre-dates the census | n/a, superseded |
+| 288 colours | ad-hoc sweep, all four forms | yes |
+| 110 / 71 / 68 distinct authored | census `COLOUR`, all four forms | yes |
+| pool 37 → 19 | same | yes |
+| 82 SVG, 43 runtime, 28 custom properties | same | yes |
+| studio contrast ratios | `studio-ink-contrast`, oklch-with-percent only | **yes, but see S4** |
+
+**SO NO DECISION NEEDS RE-READING.** Every figure that SIZED a piece of work came from a matcher
+that could see the forms present at the time. **What was too narrow was an ASSERTION'S REACH, not a
+COUNT** — and A3 reported `[]` before and after, because the public custom-property population is
+empty either way. The gap was real, live, and had nothing to find.
+
+### 2 · THE SHARED MATCHER — AND ITS JOB IS NOT DEDUPLICATION
+
+`colourPattern()`, `colourKey()` and a widened `parseColor` in `lib/theme-contrast.ts`. Hex 3/4/6/8,
+rgb, rgba, hsl, hsla, oklch with and without percent and alpha, named colours, `transparent`.
+
+> **A VERIFICATION STEP REACHES FOR A REGEX BECAUSE WRITING ONE IS FASTER THAN IMPORTING SOMETHING.
+> SO THE JOB IS TO MAKE THE ONE-OFF UNNECESSARY**, which is a design constraint rather than a hope
+> about discipline.
+
+**⚠ AND `colour-census` WAS ITS OWN EXHIBIT.** It owned a private `COLOUR` regex — the same instinct
+that produced #338's narrower one-off, sitting in a STANDING gate. It now imports.
+
+`colourPattern` is a getter, not a constant: a shared `/g` regex carries `lastIndex` between
+`.test()` calls, which is its own silent wrong answer.
+
+### 3 · THE COVERAGE FIXTURE CLOSES A DOOR
+
+**It does not fix a bug, and the record says so** — both audited gaps are real and **neither is
+live**: no `hsl` exists in this codebase and every studio token is oklch. A fixture presented as a
+fix invites *"which bug did it catch"*, and someone deletes it when the answer is none.
+
+**M1** asserts the declared form list equals the fixture exactly, so a form cannot be claimed
+without a sample. **M3 asks what it CANNOT read**, so "reads nothing" and "reads everything" are
+distinguishable — both of this arc's parser defects reported ABSENCE rather than erroring. **M4**
+asserts the scanner and parser agree, because a disagreement between them is a silent zero.
+
+### 4 · `studio-ink-contrast`'s DENOMINATOR
+
+Its scan requires a percent and accepts only `oklch`. **S4 now asserts every declared
+`--color-studio-*` is IN the map**, counted from source independently of the parse — so a parser gap
+shows as a MISMATCH rather than as agreement between two identically-blind readings.
+
+**⚠ AND THE MUTATION EXPOSED A NUANCE IN `mutate.mjs`.** Declaring a studio token as rgb made S4 fail
+BY NAME and then crashed the suite at `tok()`'s own pre-existing guard. The harness reported
+INVALID, because a crash outranks a failure in its verdict — correct by its own rule, and it means
+**a gate that fails and then crashes downstream reads as "the mutation was invalid"**. The operator
+still sees the `[FAIL]` line. Recorded rather than fixed.
+
+ralph 2497 → 2516.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

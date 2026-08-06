@@ -93,6 +93,14 @@ const themeBlock = (src) => {
 };
 const css = themeBlock(cssAll);
 const TOKEN = {};
+/* ⚠ THIS SCAN REQUIRES A PERCENT AND ACCEPTS ONLY `oklch`, AND THAT HAS TEETH IF IT EVER FIRES. A
+ * studio token declared as hex — or an oklch one written percentless, which this codebase does use
+ * for the smoke ramp — VANISHES FROM THIS MAP, and every ratio below is then computed over a
+ * smaller set WITHOUT SAYING SO.
+ *
+ * THE SILENT-DENOMINATOR SHAPE: the suite stays green and its subject shrinks. Same as C-9's
+ * exclusion and the vacuous parity run. S4 below asserts the token COUNT, not only the ratios, so
+ * a token going missing fails rather than quietly narrowing the claim. */
 for (const m of css.matchAll(/--color-([a-z0-9-]+):\s*oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)\s*\)/g)) {
   TOKEN[m[1]] = oklchToRgb(Number(m[2]) / 100, Number(m[3]), Number(m[4]));
 }
@@ -107,6 +115,16 @@ t("S1: white on black is 21:1 — the contrast math is sound", Math.round(ratio(
 t("S2: the oklch converter lands ink-950 on its known bytes (15,7,3), so it is not misreading the colour space",
   tok("ink-950"), [15, 7, 3]);
 t("S3: …and cream-50 on its known bytes (254,249,241)", tok("cream-50"), [254, 249, 241]);
+
+/* ⚠ THE DENOMINATOR, ASSERTED. Every `--color-studio-*` this suite reasons about must be IN the
+ * map — a scan that silently skipped one would leave every ratio below true of a smaller palette
+ * than the one it names. Counted from the source independently of the parse, so a parser gap shows
+ * as a MISMATCH rather than as agreement between two identically-blind readings. */
+const declaredStudio = [...css.matchAll(/--color-(studio-[a-z0-9-]+)\s*:/g)].map((m) => m[1]);
+t("S4: every studio colour token declared in @theme is IN the map — the denominator cannot shrink silently",
+  declaredStudio.filter((n) => !TOKEN[n]), []);
+t("S4: …and the map is not empty, so S4 cannot pass by finding nothing to check",
+  declaredStudio.length >= 15, true);
 
 /* ================================================ C. THE SOURCE UTILITIES, PARSED FROM THE CHROME
  * The gate is tied to the ACTUAL classes, not the intended ones: change `lg:bg-white/16` to
