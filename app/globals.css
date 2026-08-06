@@ -1181,7 +1181,7 @@ a {
 .logo-vbar {
   width: 1px;
   height: 24px;
-  background: oklch(56.0% 0.14 42 / 0.45);
+  background: color-mix(in srgb, var(--color-accent-500) 45%, transparent);
   flex-shrink: 0;
 }
 
@@ -2137,7 +2137,7 @@ a {
 
 .skill-pill:hover {
   background: var(--color-cream-50);
-  border-color: oklch(56.0% 0.14 42 / 0.45);
+  border-color: color-mix(in srgb, var(--color-accent-500) 45%, transparent);
   color: var(--color-accent-500);
   transform: translateY(-2px);
 }

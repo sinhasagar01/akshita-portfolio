@@ -131,6 +131,56 @@ function* bracedBlocks(src, header) {
   }
 }
 
+/* ============================================================================================
+   ⚠ THREE EXCLUSIONS, EACH A PROPERTY OF THE VALUE RATHER THAN A JUDGEMENT — which is what makes
+   them safe to encode rather than to rule on.
+
+   ⚠ AND THE FINDING THAT FORCED THEM: THE CENSUS COUNTED THE MOST THEMED FORM A COLOUR CAN TAKE AS
+   A LITERAL. `oklch(from var(--bounce) l c h / .84)` is relative colour syntax over a token —
+   strictly MORE themed than a plain `var()` — and it appeared 14 times in the pool as authored
+   colour. **The instrument built to replace a NAME-blind census was DERIVATION-blind.** Step 1
+   could not see where a colour lived; this one could not see what a colour is MADE OF.
+
+   IT SURVIVED BECAUSE IT OVER-REPORTS. E1's blind spot was silent; this one was noisy, and noise
+   reads as thoroughness until someone reads the rows.
+
+   1 · DERIVED VALUES. Stripped by FORM, not by substring. ⚠ "contains var(--color-" is NOT the same
+       test as "is derived" — a gradient with one token stop and one literal stop would pass a
+       contains-check while carrying a real leak. So the derivation EXPRESSIONS are removed and
+       whatever remains is still scanned.
+   2 · MASK CHANNELS. `#000` in `mask-image` is an ALPHA CHANNEL, not a paint: black means opaque.
+       ⚠ A FOURTH KIND OF BOUNDARY ENTRY — not artwork, not signature, not forced-literal, but NOT
+       A COLOUR AT ALL, and so structurally unthemeable.
+   3 · `--tw-*` INITIAL VALUES. Compiler defaults, the same argument as the `@supports` fallbacks.
+============================================================================================ */
+
+/** A value with its DERIVATIONS removed, so only genuinely authored colour remains.
+ *
+ * ⚠ `color-mix()` IS STRIPPED ONLY WHEN IT CONTAINS NO LITERAL. One token stop beside a literal
+ * stop is a real leak, and a `contains var(--color-` check would have waved it through — which is
+ * the precision fix buying a new blind spot with the old one. A5b asserts exactly that case. */
+function authoredPart(value) {
+  /* `oklch(from var(--x) …)` is always a derivation — the `from` keyword names its source. */
+  let v = value.replace(/oklch\(\s*from\s+var\(--[^)]*\)[^)]*\)/g, " ");
+  let out = "", i = 0;
+  while (i < v.length) {
+    const j = v.indexOf("color-mix(", i);
+    if (j < 0) { out += v.slice(i); break; }
+    out += v.slice(i, j);
+    let depth = 0, end = v.length;
+    for (let p = j + "color-mix".length; p < v.length; p++) {
+      if (v[p] === "(") depth++;
+      else if (v[p] === ")" && --depth === 0) { end = p + 1; break; }
+    }
+    const body = v.slice(j, end);
+    const withoutVars = body.replace(/var\(--[^)]*\)/g, " ");
+    /* A literal survives inside -> keep the body so it is scanned. Otherwise drop it. */
+    out += new RegExp(COLOUR.source).test(withoutVars) ? withoutVars : " ";
+    i = end;
+  }
+  return out;
+}
+
 const SUPPORTS = "@supports (color:color-mix(in lab,red,red))";
 const cssLeaks = new Map();
 let fallbacks = 0;
@@ -158,7 +208,9 @@ for (const f of cssFiles) {
       if (!d.includes(":")) continue;
       const prop = d.slice(0, d.indexOf(":")).trim();
       if (prop.startsWith("--color-")) continue;
-      for (const c of (d.slice(d.indexOf(":") + 1).match(COLOUR) ?? [])) {
+      if (prop.startsWith("--tw-")) continue;                    // compiler default
+      if (/mask-image$|^mask$/.test(prop)) continue;             // alpha channel, not paint
+      for (const c of (authoredPart(d.slice(d.indexOf(":") + 1)).match(COLOUR) ?? [])) {
         const key = c.replace(/\s+/g, "");
         if (key === "#0000") continue;              // Tailwind's `transparent`
         if (enhanced.has(`${sel}|${prop}`)) { fallbacks++; continue; }
@@ -229,6 +281,17 @@ t("A3 ⚠ NO CUSTOM PROPERTY HOLDS A COLOUR A TOKEN ALREADY NAMES — named, not
   [...new Set(longhand)].sort(), []);
 t("A4 …and the comparison is NUMERIC, so `14%` and `14.0%` cannot read as different colours",
   okl("oklch(14% 0.018 60)") === okl("oklch(14.0% 0.018 60 / 0.06)"), true);
+/* ⚠ THE GUARD ON THE PRECISION FIX ITSELF. A derivation must vanish; a literal sitting BESIDE a
+ * derivation must not. Without this, "strip anything mentioning a token" would silently delete
+ * half of a gradient. */
+t("A5b a pure derivation is stripped", authoredPart("oklch(from var(--bounce) l c h / .84)").match(COLOUR), null);
+t("A5b …and a literal BESIDE a token in one value survives the strip",
+  (authoredPart("linear-gradient(var(--color-canvas), #ff0000)").match(COLOUR) ?? []), ["#ff0000"]);
+t("A5b …and a color-mix carrying a literal is not mistaken for a derivation",
+  (authoredPart("color-mix(in oklch, #2e1a47 52%, transparent)").match(COLOUR) ?? []), ["#2e1a47"]);
+t("A5b …while a color-mix over a token alone is",
+  authoredPart("color-mix(in srgb, var(--color-ink-950) 8%, transparent)").match(COLOUR), null);
+
 t("A5 the token index is populated — a zero here would make A3 pass by comparing against nothing",
   tokenByValue.size > 15, true);
 /* ⚠ AND THE OTHER SIDE OF THE COMPARISON, WHICH IS THE SIDE THAT WAS EMPTY. Asserting only the
