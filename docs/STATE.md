@@ -9160,6 +9160,48 @@ the root layout emits `data-theme` from the resolver, which is source-level and 
 **It has not been asserted since.** That is the one thing a control run should have been able to
 confirm and could not, and it is the gap worth closing before theme three rather than after.
 
+## THE RENDERED THEME, ASSERTED (#347)
+
+`ralph/tests/rendered-theme.mjs`. **Ten prerendered pages, all carrying `data-theme="harbour"` on
+`<html>`, checked against the value `content/site-settings.yaml` publishes.**
+
+### ⚠ THE GAP EXISTED BECAUSE EVERY PIECE OF IT WAS SOMEBODY ELSE'S JOB
+
+`theme`'s E1–E4 assert the ROOT LAYOUT emits the attribute from the resolver — **source-level, and
+its own comment says so deliberately**, on the reasoning that the build fact belongs to a snapshot
+diff rather than a regex over `.next`. #326 then proved that build fact **once, by hand**: two
+builds differing only in the content file, 10 files, 20 lines, all `data-theme`.
+
+**IT WAS NEVER ASSERTED AGAIN.** Each decision was right in isolation. Between them sat the only
+claim the theme system actually makes to a visitor — that publishing a theme changes what ships —
+and nothing checked it for twenty-one PRs.
+
+> **A SOURCE ASSERTION SAYS THE CODE INTENDS TO EMIT IT. THIS SAYS THE BYTES CARRY IT.**
+
+**AND IT TOOK A CONTROL RUN TO NOTICE.** #346 ran every gate with harbour published and all 2520
+passed — and the honest reading was that the CSS bundle is byte-identical between themes, so 58
+suites had an unchanged subject. **The one thing a control run should have been able to confirm was
+the one thing nothing checked.**
+
+### A4 IS THE ASSERTION WITH THE MEASUREMENT BEHIND IT
+
+The attribute must be on `<html>`, not merely present. #324 measured that `html` paints the page
+ground — a 40px wrapper painted 40px of a 1060px viewport while `<html>` painted the other 1020 —
+so an attribute landing anywhere below it is a theme that leaves a band on every short page.
+
+**Mutation confirmed it needs the real condition**: putting `data-theme` on a React component
+SURVIVED, because the component never forwards it to the DOM and the attribute simply never
+appeared. Moving it to `<body>` for real killed A2 and A4 across all ten pages, by name.
+
+### THE DENOMINATOR, AGAIN
+
+A gate reading prerendered HTML passes trivially if the build output moves and it finds no files.
+`A1` and `A5` make an empty or shrunken page set a FAILURE — the shape `studio-ink-contrast`'s S4
+was given for the same reason, and the shape C-9's exclusion and the vacuous parity run both had.
+**Third time this arc that a gate needed its own subject counted.**
+
+ralph 2520 → 2525, 61 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
