@@ -78,7 +78,7 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
 - **The 61 dead line-heights, and the one change that would make them all live.** `cascade-public`
-  counts 102 collisions outside `/studio`, and **61 of them are `line-height`** — a utility on an
+  counts 101 collisions outside `/studio`, and **61 of them are `line-height`** — a utility on an
   element whose unlayered rule sets the same property, so the utility draws nothing. Moving the
   unlayered element rules into `@layer base` fixes all 61 at once, because a layered rule loses to
   `@layer utilities` in the normal way. **One change, and a large visual change: 61 line-heights

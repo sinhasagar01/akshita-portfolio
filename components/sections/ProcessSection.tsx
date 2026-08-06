@@ -303,7 +303,7 @@ function StageCopy({ stage }: { stage: ResolvedStage }) {
           </motion.span>
           <motion.h3
             variants={stageLine}
-            className="font-display italic text-subheading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mt-1 mb-2.5"
+            className="display-face italic text-subheading text-[--color-text-primary] leading-[--leading-snug] tracking-[--tracking-snug] mt-1 mb-2.5"
           >
             {stage.name}
           </motion.h3>
