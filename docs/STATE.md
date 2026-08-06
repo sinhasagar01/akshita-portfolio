@@ -9239,6 +9239,61 @@ moves, the scan matches nothing, and zero failures reads as success.
 Stated once as a standing rule rather than three incidents, and moved into `CLAUDE.md` with the
 other two — because a rule found three times in one arc will be needed in the next.
 
+## THE MEASURE GOES LIVE, AND THE ITEM WAS NEVER 58 (#350)
+
+### ⚠ 92, NOT 58 — AND 34 OF THEM ARE NOT LINE-HEIGHT
+
+`CLAUDE.md` promised "one change, and a large visual change: 58 line-heights becoming live". Moving
+`p`'s rule wholesale makes **92** utilities live, because a layered element rule loses to utilities
+on EVERY property, not the one that was counted: 34 `<p>` line-heights, **18 `<p>` max-widths**, 13
+`<h3>` line-heights, **12 `<h3>` font-weights**, 11 heading line-heights, 4 letter-spacings.
+
+**The two undercounted groups are the ones to fear.** `max-width` changes LAYOUT rather than type,
+and `font-weight` reads as a different face at a glance. **So the properties are separated and taken
+one at a time**, and `p`'s rule is now split: the measure in `@layer base`, the leading still
+unlayered and still inert.
+
+### ⚠ NOTHING WIDENED, AND MY PREDICTION WAS BACKWARDS
+
+I said four pixel-valued sites at 720–880px would get WIDER than 68ch. **They got narrower.** I
+sized `68ch` from the blog's 16px body; it resolves against EACH ELEMENT'S OWN font size, so on
+display type it is enormous — a pull quote's 68ch is **1169px**, and its `880px` request is **289px
+narrower**.
+
+| site | asks | now | was 68ch | delta |
+|---|---|---|---|---|
+| ClosingLine | 34ch | 585 | 1169 | **−584** |
+| hero deck | 42ch | 522 | 846 | −324 |
+| PullQuote | 880px | 880 | 1169 | −289 |
+| About italic | 44ch | 372 | 574 | −82 |
+| 7 paragraphs | 68ch | 846 | 846 | unchanged |
+
+**Every one narrows or stays, and the largest halves.** Each is what its author wrote.
+
+### ⚠ AND THE CHANGE BROKE TWO GATES THROUGH A COMMENT
+
+Writing `@layer base` **inside a CSS comment** made `cascade-public` and `studio-cascade` lose the
+`a` and `img, video` resets their premises rest on. Both do `topLevelOnly(css).replace(comments)` —
+**scanning before stripping** — so `topLevelOnly` found the `@` in prose, consumed to its balanced
+brace, and ate every rule after it.
+
+> **TWO SUITES, ONE DEFECT, AND THEY AGREED WITH EACH OTHER**, which is why nothing caught it until
+> a comment happened to contain the trigger. Fixed in both: comments first, then the scan.
+
+**AND `css-comment-trap` CAUGHT MY OTHER COMMENT** — I wrote two arbitrary-utility spellings
+literally, and Tailwind scans comments, so both would have reached the stylesheet **only because a
+comment named them.** That suite stops a comment ADDING a utility; the ordering fix stops a comment
+REMOVING a rule. **One PR tripped both halves.**
+
+### THE INERT INVENTORY SHRANK FOR A REASON THAT IS NOT A REPAIR
+
+40 → 37. The three that left were `<p>` utilities asking for exactly `68ch` — the reset's own value.
+Now that the measure is layered they simply WIN, drawing the same number, and **a utility that wins
+is neither a collision nor inert: there is nothing left to record.** The inventory shrank because
+three entries stopped being a category.
+
+ralph 2524, 61 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
