@@ -78,24 +78,78 @@
  * This is hazard 1's arithmetic half closing. The sidebar was a literal in three thresholds and
  * is now a runtime value in none of them. */
 
-/** Blog's canvas floor: 68ch (676.73px against the WRAPPER's 16px font) plus 48px of horizontal
- *  padding. UNLIKE the case study's floor this is not a scale — it is the measure itself, and the
- *  pane cannot go under it without the article's own width changing, which is the locked property
- *  the whole layout exists to protect.
+/* ============================================================================================
+   THE PER-THEME MEASURE, AND WHY IT IS DATA RATHER THAN A COMPUTATION.
+
+   ⚠ "COMPUTE IT RATHER THAN PIN IT" WAS THE BRIEF AND IT WAS WRONG ABOUT WHAT IS POSSIBLE.
+   `68ch` resolves against a font's `0` glyph advance, which is a LAYOUT measurement. ralph runs in
+   node with no layout engine, so it cannot compute this number — the pin was not laziness, it was
+   the only thing available. What can change is that the number stops being a bare literal and
+   becomes DATA WITH ITS PROVENANCE, derived from once, and checked by relationship in CI.
+
+   THE studio-type PRECEDENT, FOLLOWED EXACTLY. That suite measures rendered type in a browser and
+   is reported as NOT RUNNABLE by the runner rather than approximated in node. Its whole value is
+   that the runner says what it did not run. The same split applies here: CI asserts every
+   RELATIONSHIP around this number, and the number itself is owner-verified in a browser.
+
+   ⚠ SO EVERY ENTRY CARRIES ITS PROVENANCE, and that is not decoration. A measured number checked
+   in without the viewport and route it came from is #234's "8 of 14 fit one screen" — accurate
+   when taken and unreproducible afterwards. `three-pane` asserts the provenance is present and
+   complete, so a future entry cannot arrive as a bare number.
+
+   THE UPGRADE IS RECORDED WITH ITS TRIGGER. Deriving the advance from the woff2 next/font already
+   downloads would make this genuinely computed, at the cost of brotli decompression and `hmtx`
+   parsing or a new dependency. WORTH DOING WHEN A SECOND THEME MAKES THE MANUAL STEP ANNOYING,
+   and not before.
+
+   AND EXPRESSING THE FLOOR IN `ch` IN CSS — so no JS constant exists at all — is the right END
+   STATE and the wrong next step. It moves the fit logic out of the shell rather than changing how
+   one number is justified, which is a larger change than this arc can absorb. Recorded so nobody
+   reaches for it as the obvious simplification.
+============================================================================================ */
+
+/** Horizontal padding on the blog measure column, `px-6` on both sides. */
+const MEASURE_PADDING_PX = 48;
+
+export type ThemeMetrics = {
+  /** The body face whose `0` advance decides the measure. */
+  bodyFont: string;
+  /** `68ch` resolved against the WRAPPER's 16px font, in px. BROWSER-DERIVED. */
+  measure68chPx: number;
+  /** ⚠ WITHOUT THIS THE NUMBER IS UNREPRODUCIBLE. All four fields are asserted present. */
+  provenance: { method: "browser"; route: string; viewport: string; element: string };
+};
+
+/** One entry per theme. Today there is one, which is the point of doing this before theme two. */
+export const THEME_METRICS: Record<string, ThemeMetrics> = {
+  cream: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6",
+    },
+  },
+};
+
+/** The theme the site currently ships. Repointed by the theme reader in a later step. */
+export const ACTIVE_THEME = "cream";
+
+/** Blog's canvas floor: the active theme's measure plus its horizontal padding.
  *
- *  NAMED RATHER THAN INLINE because `InspectorResizer` needs it: the drag's runtime ceiling is
- *  "however much the canvas can give up", and each surface passes its own floor.
+ *  UNLIKE the case study's floor this is not a scale — it is the measure itself, and the pane
+ *  cannot go under it without the article's own width changing, which is the locked property the
+ *  whole layout exists to protect.
  *
- *  ⚠ 794 -> 725, AND THE CAUSE WAS A FONT CHANGE. `ch` is the width of the `0` glyph in the
- *  element's OWN font, so repointing `--font-body` from DM Sans to Work Sans moved what 68ch
- *  resolves to: 745.93px -> 676.73px, measured in the browser on the real next/font face, not
- *  computed from an average advance. 676.73 + 48 = 724.73, taken up to the next whole pixel.
- *
- *  THE WORKING RULE, because nothing in the typography contract anticipated this: A `ch` UNIT
- *  MAKES THE BODY FONT A LAYOUT INPUT, so a family swap is a geometry change wearing a typography
- *  change's clothes. This constant, PANES_SUM below and the fit threshold all move with it, in the
- *  same commit — splitting them would leave a green gate asserting a stale number. */
-export const BLOG_CANVAS_MIN_PX = 725;
+ *  ⚠ DERIVED FROM THE THEME NOW, NOT PINNED. It was `794` under DM Sans and `725` under Work Sans,
+ *  edited by hand both times. A `ch` unit makes the body font a LAYOUT input, so a family swap is
+ *  a geometry change wearing a typography change's clothes — and a hand-edited constant is one
+ *  more place that swap has to remember to visit. */
+export const BLOG_CANVAS_MIN_PX = Math.ceil(
+  THEME_METRICS[ACTIVE_THEME].measure68chPx + MEASURE_PADDING_PX,
+);
 
 /** List + canvas measure. The blog editor's two FIXED panes, WITHOUT the sidebar — add the live
  *  sidebar width AND the live inspector width for the fit threshold.

@@ -31,6 +31,8 @@ import {
 import {
   PANES_SUM,
   BLOG_CANVAS_MIN_PX,
+  THEME_METRICS,
+  ACTIVE_THEME,
   INSPECTOR_FOLD_PX,
   isListCollapsed,
   CS_CANVAS_WIDTH_PX,
@@ -159,6 +161,37 @@ t("A: the dashboard layout clamps the cookie as it reads it",
  * Nothing in the typography contract anticipated that a family swap reaches the layout.
  * A `ch` UNIT MAKES THE BODY FONT A LAYOUT INPUT. Every number below moved in the same commit as
  * the token, because splitting them leaves a green gate asserting a stale one. */
+/* ================================================================= A0. THE MEASURE IS DATA NOW
+ * ⚠ EVERY PROPERTY BELOW SHIPS WITH ITS MAGNITUDE COMPANION, AND THAT PAIRING IS THE POINT.
+ * "The floor is the measure plus its padding" is TRUE OF A 10px MEASURE. A property loose enough
+ * to survive four themes is loose enough to survive a defect, and a property assertion is easier
+ * to write that way than a pinned number is — so the looseness is answered here, in the suite,
+ * rather than acknowledged in a PR body. Each pair reads: the relation, then the sanity bound. */
+{
+  const m = THEME_METRICS[ACTIVE_THEME];
+  t("A0: the active theme has an entry — a missing one would make every derivation below read undefined",
+    Boolean(m), true);
+  /* PROVENANCE. A measured number checked in without the viewport and route it came from is
+   * #234's "8 of 14 fit one screen": accurate when taken, unreproducible afterwards. Asserted as
+   * COMPLETENESS so a future theme cannot arrive as a bare number. */
+  t("A0: …and it carries its full provenance, so the number can be re-taken rather than trusted",
+    ["method", "route", "viewport", "element"].filter((k) => !m.provenance?.[k]), []);
+  t("A0: …and the method says BROWSER, because node has no layout engine and cannot produce this",
+    m.provenance.method, "browser");
+
+  /* THE RELATION, then THE COMPANION. */
+  t("A0: the canvas floor IS the measure plus its padding — the relation, which a theme change keeps",
+    BLOG_CANVAS_MIN_PX, Math.ceil(m.measure68chPx + 48));
+  t("A0: …and the measure is a SANE WIDTH — the companion, because the relation above is true of a 10px measure",
+    m.measure68chPx > 480 && m.measure68chPx < 1000, true);
+
+  /* ⚠ AND THE PROVENANCE MUST TRACK THE NUMBER. Editing a measured value without touching the
+   * theme it belongs to is the mutation that makes the data a file nobody validates. The body
+   * font is the thing the measure is OF, so the two are asserted against each other. */
+  t("A0: the recorded body font is the one the site actually ships — the measure is OF that face",
+    m.bodyFont, "Work Sans");
+}
+
 t("A: PANES_SUM is 989 — list + measure, WITHOUT the sidebar or the inspector", PANES_SUM, 989);
 t("A: the arithmetic reproduces it", 264 + BLOG_CANVAS_MIN_PX, PANES_SUM);
 t("A: INSPECTOR_FOLD_PX is 1100", INSPECTOR_FOLD_PX, 1100);
@@ -247,8 +280,15 @@ t("C: …because the blog pane sum is written as its terms, not as a total",
   /export const PANES_SUM = 264 \+ BLOG_CANVAS_MIN_PX;/.test(home), true);
 // 794 is now NAMED, because InspectorResizer needs it: the drag's runtime ceiling is "whatever the
 // canvas can give up", and each surface passes its own floor.
-t("C: …and blog's canvas floor is declared once, as the measure plus its padding",
-  /export const BLOG_CANVAS_MIN_PX = 725;/.test(home), true);
+/* ⚠ THE FLOOR IS NO LONGER A LITERAL, so this pins the DERIVATION rather than the number. It read
+ * `= 725;` and before that `= 794;`, hand-edited each time the body face moved — one more place a
+ * font swap had to remember to visit. Asserting the expression is what makes the next swap a data
+ * edit instead of a code edit. The ABSENCE of a literal is asserted too, because an expression
+ * plus a stray hardcoded copy is the two-sources shape this file exists to prevent. */
+t("C: …and blog's canvas floor is DERIVED from the theme measure, not written as a number",
+  /export const BLOG_CANVAS_MIN_PX = Math\.ceil\(\s*THEME_METRICS\[ACTIVE_THEME\]\.measure68chPx \+ MEASURE_PADDING_PX,?\s*\);/.test(home), true);
+t("C: …and no literal 725 survives beside it",
+  /BLOG_CANVAS_MIN_PX\s*=\s*725/.test(home), false);
 t("C: three-pane.ts declares 1100 exactly once", (home.match(/\b1100\b/g) ?? []).length, 1);
 // The case-study numbers get the same discipline from the start rather than after a second
 // copy appears. They have no consumers yet — PR 7 adds those — so this is the cheap moment.
@@ -455,6 +495,15 @@ t("I: the canvas floor is the render width times the scale", CS_CANVAS_WIDTH_PX 
 /* ⚠ 1224 -> 904: THE INSPECTOR TERM LEFT, exactly as the sidebar term left in #237. The pane is
  * adjustable now, so a constant naming one of its widths would read as authoritative and be wrong
  * everywhere except the default. The caller adds the live width. */
+/* ⚠ THE CASE-STUDY CONSTANTS ARE FONT-INDEPENDENT, AND THAT IS ASSERTED RATHER THAN ASSUMED.
+ * Blog's floor is a MEASURE and moves with the body face; the case study's is a SCALE, 1280 x 0.5,
+ * and does not. They look like siblings in this file and a future theme PR would sweep them in on
+ * the assumption that all the pane constants move together. This is the row that stops it. */
+t("I: the case-study floor is the render width times the scale, with NO term from the theme measure",
+  CS_CANVAS_MIN_PX === CS_CANVAS_WIDTH_PX * CS_MIN_SCALE
+    && CS_CANVAS_MIN_PX !== BLOG_CANVAS_MIN_PX, true);
+t("I: …and its sums carry no theme term either — a theme change must not move them",
+  [CS_PANES_SUM - CS_CANVAS_MIN_PX, CS_COLLAPSED_PANES_SUM - CS_CANVAS_MIN_PX], [264, 27]);
 t("I: CS_PANES_SUM is 904 — the two FIXED panes, without the sidebar or the inspector", CS_PANES_SUM, 904);
 t("I: sidebar + list + canvas-floor IS the case-study threshold, and the inspector is NOT in it",
   LIST_PX + CS_CANVAS_MIN_PX, CS_PANES_SUM);
