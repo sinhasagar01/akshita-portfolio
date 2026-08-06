@@ -8413,6 +8413,51 @@ custom property holds a colour a token already names.
 
 ralph 2473 → 2475 across 60 suites.
 
+## THE FIVE SVG SURFACES, ASKED WHAT THEY DRAW (#333)
+
+`ProjectCardSvgs.tsx`'s 77 excluded whole by the rule now in CLAUDE.md. The remaining five, each
+asked what it DRAWS rather than what element it sits in.
+
+### THE PROCESS DIAGRAM SPLITS INSIDE ONE SVG, AND THE SPLIT IS CORRECT
+
+Most of that SVG already draws from `var(--color-accent-500)` and `var(--color-cream-300)`. Three
+fills are literals, and that looked like the `SectionHeading` defect again — one component, two
+answers. **It is not.**
+
+> **THE STROKE IS BRAND AND THE FILLS ARE CONTENT.** The accent outline is the DRAWING GESTURE, this
+> site's hand sketching, so it follows the palette. The three fills depict a PRODUCT SCREEN being
+> designed — a wireframe of somebody else's interface, not a surface of this one. Theming them would
+> make the depicted product change colour with the portfolio.
+
+Measured before it was decided: 17, 54 and 73 from `cream-300`. Nobody's near-miss. **Boundary list,
+with that reason.** The list grows by three rather than the code gaining three tokens.
+
+### THE VESSEL'S TWO WAVES SPLIT THE OTHER WAY
+
+The blog's liquid-glass vessel is a signature SURFACE, not an illustration, so both waves are
+interface.
+
+- **Back wave → `--color-smoke-4`**, composite Δ**2**. A snap, and it confirms the waves were drawn
+  from the vessel's own family all along.
+- **Front wave → named `--color-vessel-wave`.** 16 from the nearest ramp stop and 7 composited from
+  `cream-200`, so it is its own tone. **⚠ NOT `--color-smoke-5`, and the name is the argument:** the
+  ramp is a gradient whose members are chosen against each other, and this is a discrete shape drawn
+  over it. Calling it a fifth stop would invite a future palette to retune it WITH the ramp.
+
+### ⚠ AND THE SHARED LEAF COULD NOT READ ITS OWN TOKENS
+
+`parseOklch` required a `%` on the lightness. `--color-smoke-1` is `oklch(0.84 0.014 58 / 0.74)` —
+valid CSS, percentless — so **every smoke stop parsed as null.** It went unnoticed because those
+tokens sit on the contrast gate's boundary list, and **a listed token is never asked to parse.**
+
+> **A VALUE THE INSTRUMENT CANNOT READ LOOKS EXACTLY LIKE A VALUE NOTHING NEEDED TO READ.** Sixth
+> measurement defect of the arc, and the first where the boundary list itself provided the cover.
+
+It now accepts both forms and parses-then-discards an embedded alpha, because callers composite
+explicitly through `over()` and honouring it silently would double-apply it.
+
+ralph 2475 across 60 suites.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

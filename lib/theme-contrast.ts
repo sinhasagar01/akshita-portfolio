@@ -71,11 +71,28 @@ export function contrastRatio(a: Rgb, b: Rgb): number {
   return Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100;
 }
 
-/** Parse `oklch(92.0% 0.022 78)`. Returns null for anything else, so an unparseable entry surfaces
- *  as an uncomputable ROW rather than as a silent zero. */
+/**
+ * Parse `oklch(92.0% 0.022 78)` or `oklch(0.92 0.022 78)`, with or without an alpha. Returns null
+ * for anything else, so an unparseable entry surfaces as an uncomputable ROW rather than a silent
+ * zero.
+ *
+ * ⚠ THE PERCENTLESS FORM WAS UNREADABLE UNTIL #333, AND THIS CODEBASE USES IT. `--color-smoke-1`
+ * is `oklch(0.84 0.014 58 / 0.74)` — valid CSS, and the `%` was MANDATORY in the old pattern, so
+ * every smoke stop parsed as null. It went unnoticed because those tokens sit on the contrast
+ * gate's boundary list, and a listed token is never asked to parse. **A value the instrument cannot
+ * read looks exactly like a value nothing needed to read**, which is the sixth measurement defect of
+ * this arc wearing a new hat.
+ *
+ * The alpha is PARSED AND DISCARDED rather than rejected. Callers composite explicitly through
+ * `over()`, so silently honouring an embedded alpha would double-apply it.
+ */
 export function parseOklch(value: string): Rgb | null {
-  const m = /^\s*oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)\s*\)\s*$/.exec(value);
-  return m ? oklchToRgb(Number(m[1]) / 100, Number(m[2]), Number(m[3])) : null;
+  const m = /^\s*oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*[\d.]+\s*)?\)\s*$/.exec(value);
+  if (!m) return null;
+  const raw = Number(m[1]);
+  /* `50%` and `0.5` are the same lightness; `50` without a unit is not valid CSS but would be
+     ambiguous, so the percent sign decides rather than a magnitude heuristic. */
+  return oklchToRgb(m[2] === "%" ? raw / 100 : raw, Number(m[3]), Number(m[4]));
 }
 
 /**

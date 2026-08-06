@@ -312,6 +312,7 @@ const BOUNDARY = {
   "smoke-2": "gradient stop — see smoke-1",
   "smoke-3": "gradient stop — see smoke-1",
   "smoke-4": "gradient stop — see smoke-1",
+  "vessel-wave": "the vessel's front wave — a discrete shape over the ramp, not a fifth stop",
   "glow-paper": "cursor-following glow at 20% — atmosphere, never a foreground on a ground",
   "bounce": "the vessel's bounce highlight — a gradient source, not a text colour",
   "rule": "hairline — five alphas, never text, and this design states no hairline floor",

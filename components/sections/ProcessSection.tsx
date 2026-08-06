@@ -726,6 +726,14 @@ function ArtifactDesign({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
         <rect className="dr" pathLength={1} x={58} y={44} width={84} height={158} rx={11} />
         <path className="dr" pathLength={1} d="M58 76 H142" />
       </g>
+      {/* ⚠ THE STROKE IS BRAND AND THE FILLS ARE CONTENT, WHICH IS WHY ONLY SOME OF THIS SVG IS
+          THEMED. The accent outline above is the DRAWING GESTURE — this site's hand, sketching —
+          so it takes `--color-accent-500` and follows the palette. The three literal fills below
+          depict a PRODUCT SCREEN being designed. They are illustration: a wireframe of somebody
+          else's interface, not a surface of this one, and theming them would make the depicted
+          product change colour with the portfolio.
+          Measured before it was decided — 17, 54 and 73 from `cream-300`, so they are nobody's
+          near-miss. On the contrast gate's boundary list with this reason. */}
       {/* Warm-fill content blocks — fade in after outline draws */}
       <g className="fd" fill="var(--color-cream-300)">
         <rect x={72} y={90} width={56} height={18} rx={4} />
