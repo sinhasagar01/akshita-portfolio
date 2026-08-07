@@ -10876,6 +10876,53 @@ colour, which is what `ProcessSection`'s diagram already does. **That is a redra
 same line drawn for the blog heroes and the OG identity card: the owner has to want it before it can
 be scoped. Building them as SVG text would have produced something worse than what is there.
 
+## THE GROUND PREDICATE GETS AN INSTRUMENT, AND ORCHID UNHOLDS (#374)
+
+**`ralph/tests/raster-grounds.mjs`** asks the one question no other gate here can: **is a raster
+drawn in the site's own ground?** The census reads built CSS, SVG attributes and runtime JS, and a
+webp is none of those — so this class was invisible for the site's entire life, found once by the
+owner looking at a page and once by rendering a third palette.
+
+**⚠ THE PREDICATE IS THE WHOLE FILE, AND IT TOOK THREE TRIES.**
+
+| | predicate | result |
+|---|---|---|
+| #365 | within 60 of **accent-500** | a diagram drawn in `cream-50` has no accent pixels |
+| #373a | within 12 of any themed ground | **66 of 84** — `cream-50` is near-white, every light UI hit |
+| #373b | closer to the token **than to a neutral of the same lightness** | 15, and the real ones among them |
+
+**A theme moves HUE.** So the question is not whether a pixel is as BRIGHT as the ground but whether
+it carries the ground's CAST. The population was complete all three times.
+
+**FOURTEEN DECLARED ENTRIES, EACH NAMING WHAT WOULD CLEAR IT** — four blog assets that ARE leaks
+pending a JSX redraw, seven Fosfor rasters that are fail-closed fallbacks no longer drawn, three boAt
+product screenshots. **⚠ `B2` CAUGHT ONE OF MINE WITH NO END CONDITION, in the commit that introduced
+that rule.** `A3` keeps a known positive positive, so the gate cannot go quiet the way both earlier
+sweeps did. Three mutations, all killed, including one that reverts the predicate to #373a's form.
+
+**⚠ AND ITS LIMIT IS STATED: it cannot tell a product's dark UI from this site's ink band.** boAt's
+app is warm-dark and therefore near `ink-950`. That is a limit of the measurement, not a judgement it
+can make, which is why those three are declared rather than filtered.
+
+---
+
+## ORCHID IS SELECTABLE
+
+The hold read *"render not yet run — SHIPPABLE is the instrument's claim, not the eye's."* **The
+condition is met and the hold is kept in the record rather than deleted**, because a hold whose
+reasoning vanishes leaves no way to tell a considered release from a forgotten one.
+
+Full home page, blog index, an article and all four signature surfaces rendered and looked at. The
+glass nav, the work cards, the hero ground and the Pearl Smoke vessel all read correctly, the vessel
+measuring **15.8 and 6.01** with the sanity pair first.
+
+**⚠ AND THE ONE THING THE RENDER FOUND WAS ABOUT THE SITE RATHER THAN THE PALETTE.** Holding orchid
+for a pre-existing leak would punish the palette that exposed it — and harbour ships with the same
+leak, unnoticed until orchid made it visible.
+
+**Three palettes selectable, and the three-surface agreement held all the way through** — `lib/theme.ts`,
+`THEME_METRICS` and `SETTINGS_THEME_VALUES` each had to be told, and ralph refused until all three did.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
