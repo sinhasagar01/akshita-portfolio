@@ -149,10 +149,13 @@ const PUBLIC = Object.keys(rawDecl).filter((k) => !k.startsWith("studio-"));
  * smoke is listed. #333 taught the parser the percentless form; this changes the ORDER so the next
  * one cannot hide the same way.
  *
- * ⚠ AND THE AUDIT SAYS WHAT REMAINS. 17 of the 18 listed tokens parse. The one that does not is
- * `on-dark-line`, a `color-mix()` over another token — UNPARSEABLE BY NATURE rather than by defect,
- * because it is derived rather than literal. `unparseable` below asserts exactly that distinction:
- * a failure is acceptable only when the value references another token. */
+ * ⚠ AND THE AUDIT SAYS WHAT REMAINS. Every listed token now parses. The one that never did was
+ * `on-dark-line`, a `color-mix()` over another token — unparseable by NATURE rather than by defect,
+ * because it was derived rather than literal. It has been deleted (zero consumers, its job already
+ * done by `--color-border` on the dark ground at the identical 16%), so E8's expected set is empty.
+ * The distinction it existed to draw is still asserted: a parse failure is acceptable ONLY when the
+ * value references another token, which is E7, and E8 keeps the population enumerated so a future
+ * derived token cannot be filtered away silently the way this one nearly was. */
 const CREAM = {};
 const unparseable = [];
 for (const k of PUBLIC) {
@@ -582,11 +585,15 @@ const BOUNDARY = {
   "danger-600": "zero public consumers",
   "draft-600": "zero public consumers",
 
-  /* ⚠ A CATEGORY THE BOUNDARY LIST DID NOT HAVE, AND E1 FOUND IT ON ITS FIRST RUN. `on-dark-line`
-     is a `color-mix(... 16%, transparent)` derivative of `on-dark`, so it is not an oklch literal
-     and the palette extraction drops it. It is a HAIRLINE on the dark band, never a foreground
-     carrying text, and its base IS computed. Listed rather than computed — but listed is the
-     point: before E1 existed it was neither, which is the exact shape of hazard 30. */
+  /* ⚠ THE CATEGORY E1 FOUND ON ITS FIRST RUN IS NOW EMPTY, AND ITS ENTRY IS DELETED WITH THE TOKEN.
+     `on-dark-line` was a `color-mix(... 16%, transparent)` derivative of `on-dark` — unparseable by
+     nature rather than by defect, so it was listed rather than computed. It had ZERO consumers for
+     its whole life and its job was already done by `--color-border` in the dark-ground block, at
+     the identical 16%. `role-layer` section L found that by deriving its subject from consumption.
+
+     ⚠ AND E2 CAUGHT THE STALE ENTRY THE MOMENT THE TOKEN WENT, which is the half of this list that
+     earns it: a dead exclusion hides a colour exactly as a missing one does, and only the both-ways
+     join can tell you which of the two you are looking at. */
   /* ⚠ THE SECOND TIME THE MISSING HAIRLINE FLOOR HAS DECIDED SOMETHING. `--color-rule` is drawn at
      five alphas between .10 and .30 and never carries text, and this site states no contrast floor
      for a hairline — which is also why no public alpha row exists and why `over()` is exercised
@@ -612,7 +619,6 @@ const BOUNDARY = {
   "glow-paper": "cursor-following glow at 20% — atmosphere, never a foreground on a ground",
   "bounce": "the vessel's bounce highlight — a gradient source, not a text colour",
   "rule": "hairline — five alphas, never text, and this design states no hairline floor",
-  "on-dark-line": "alpha derivative — a hairline, not a foreground; its base on-dark is computed",
 };
 
 const computed = new Set(USAGE.flatMap((r) => [r.fg, r.bg]));
@@ -642,7 +648,7 @@ t("E6 …and every palette entry actually parsed, so no row reads a broken value
 t("E7 every unparseable token is DERIVED, not a literal the parser cannot read",
   unparseable.filter((u) => !u.derived).map((u) => `${u.name}: ${u.value}`), []);
 t("E8 …and the unparseable set is enumerated rather than filtered away silently",
-  unparseable.map((u) => u.name).sort(), ["on-dark-line"]);
+  unparseable.map((u) => u.name).sort(), []);
 
 
 console.log("\nK · ⚠ THE GAMUT CHECK — is the colour one sRGB can actually hold?");
