@@ -11860,6 +11860,46 @@ prior ruling derived from it was correct for its subject, and **a render at a di
 refuted the generalisation.** A threshold belongs to the size it was taken at, exactly as a ratio
 belongs to the ground it was taken on.
 
+## THE BAND BECOMES A REGISTRY OF BANDS (#389)
+
+**⚠ L's BAND WAS ALWAYS A PER-CLASS FACT WEARING A SINGLE-BAND SHAPE.** There had only ever been one
+ground class, so "a band" and "a registry of one band" were indistinguishable — and the second is
+what the thing actually is. An extension of a shipped mechanism rather than a new concept, which is
+the same argument that chose shape C and per-palette grounds.
+
+    light   0.920 .. 0.962   hueFloor 60     five members
+    dark    0.150 .. 0.200   hueFloor null   no members yet
+
+**D12 now compares SAME-BAND PAIRS ONLY, and that is not a weaker check — it is a comparison that
+does not apply.** Hue can change the difference between a light and a dark ground by **0.1%**,
+against 38% within the light band. Cross-band pairs are COUNTED and reported rather than silently
+dropped.
+
+**⚠ AND THE CHEAPEST OPTION WAS REFUSED DELIBERATELY.** Moving a dark palette's hue until it cleared
+the light class's 60 degree floor would have passed a comparison that does not apply — **the
+wrong-unit rule shipped on purpose. It is the jade failure inverted**: there the instrument reported
+"too close" for a colour that could not exist; here it would report "far enough" for classes that do
+not compete.
+
+**⚠ `hueFloor: null` IS AN UNTAKEN MEASUREMENT, NOT A DEFAULT.** The ceiling work found the floor is
+a property of the CHROMA a class chooses — a dark ground at c 0.016 needs 117 degrees where c 0.030
+needs 61. A band with one member has no pair to separate, and saying so beats inheriting 60 from the
+band it was measured on.
+
+**AND THE GAP BETWEEN BANDS IS EXPLICIT FOR THE FIRST TIME.** The ground-class measurement found the
+middle is real, so a ground at L .60 belongs to neither band and **fails by name** rather than
+falling through to whichever floor it is nearest.
+
+---
+
+## ⚠ AND A MUTATION FOUND THE FIELD-AND-REASON CONTRADICTION
+
+L3a asserted that a band with a NULL floor explains itself. Setting `hueFloor: 60` walked straight
+through: the `why` still said *"no floor has been measured"* and the row passed **because its filter
+began `hueFloor === null`.** **Only the direction somebody mutated was covered.** L3b asserts the
+other direction and L3c that a stated floor names what it was measured ON, so it cannot be borrowed
+from another band.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

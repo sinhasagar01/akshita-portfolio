@@ -554,6 +554,27 @@ closed.
   published theme is CONTENT with an owner, so the file is the only correct source — same defect as
   D12's hardcoded pair list and `SETTINGS_THEME_VALUES` before ralph tied it to `THEME_NAMES`.
 
+- **⚠ THE FOUR MISSING DARK ROLES ARE ZERO NEW TOKENS, AND THAT DISSOLVED A CONTRADICTION RATHER
+  THAN RESOLVING IT.** `surface`, `surface-well`, `border` and `text-lead` had no dark values; all
+  four are `color-mix` of `band-dark`, `on-dark` and `on-dark-muted`, **which every palette already
+  declares.** So they are per-palette BY CONSTRUCTION, G4 stays at 35, and no light palette carries
+  an inert token.
+
+  **The ruling had said "only dark palettes carry the four" while G4 says every theme declares the
+  same set — incompatible, until it turned out THERE IS NOTHING TO CARRY.** Measured, the relation
+  is identical across all five palettes: `surface` at 1.130 from the ground, `surface-well` at
+  1.060. **Fourth reduction in this arc and the largest: eight tokens to four to zero.**
+
+- **⚠ A DARK SURFACE STEP IS ~1.13, DERIVED — AND IT IS NOT THE LIGHT FLOOR.** Rendered at four
+  strengths and looked at: **1.050 does not read as elevation on a dark ground** — barely a boundary
+  — while 1.130 reads clearly as a raised card. The light 1.05 was derived from cream's shipped
+  ladder; there was no dark ladder to derive from, so it was built and measured the same way.
+
+  **⚠ IT LANDS NEAR THE MOCK'S CHOSEN 1.12, AND THAT IS A DIFFERENT FINDING FROM "THE SAME NUMBER
+  FOR A DIFFERENT REASON".** The chosen number was approximately right AND IS NOW DERIVED RATHER
+  THAN INHERITED. Both phrasings are worth keeping separate: one says two derivations agree, the
+  other says a guess survived measurement.
+
 - **⚠ A DARK THEME IS NOT A SIXTH PALETTE — IT IS THE FIRST OF A DIFFERENT CLASS, AND THE COUNTING
   BOUND DOES NOT APPLY TO IT.** Measured: at ground chroma .020, the share of the difference between
   two grounds that hue can contribute is **38% across the whole light band** (dL .042) and **0.1%

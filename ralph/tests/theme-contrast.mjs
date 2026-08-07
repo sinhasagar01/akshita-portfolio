@@ -360,6 +360,33 @@ t("D9 orchid is SHIPPABLE", orchid.verdict, "SHIPPABLE");
 t("D10 nothing uncomputable — every row the map names exists in the palette", orchid.uncomputable, []);
 t("D11 …and it declares the same token set as the others, so nothing inherits silently",
   Object.keys(themeOverrides("orchid")).length, Object.keys(themeOverrides("harbour")).length);
+/* ⚠ A REGISTRY OF BANDS, NOT A BAND — AND THE DIFFERENCE ONLY BECAME VISIBLE WHEN A SECOND CLASS
+ * ARRIVED. There has only ever been one ground class, so "a band" and "a registry of one band" are
+ * indistinguishable, and the single-band form was what got written. It was always a PER-CLASS FACT
+ * WEARING A SINGLE-BAND SHAPE.
+ *
+ * ⚠ AND THE ALTERNATIVE WAS REFUSED DELIBERATELY EVEN THOUGH IT WAS CHEAPEST. Moving a dark
+ * palette's hue until it satisfied the LIGHT class's 60 degree floor would have passed a comparison
+ * that does not apply — the wrong-unit rule shipped on purpose. It is the jade failure inverted:
+ * there the instrument reported "too close" for a colour that could not exist, here it would report
+ * "far enough" for a comparison between classes that do not compete.
+ *
+ * ⚠ `hueFloor: null` IS A MEASUREMENT THAT HAS NOT BEEN TAKEN, NOT A DEFAULT. The ceiling work
+ * found the floor is a property of the CHROMA a class chooses rather than of the class — a dark
+ * ground at c 0.016 needs 117 degrees where c 0.030 needs 61. A band with one member has no
+ * separation to enforce, and saying so beats inheriting 60 from a class it was measured on. */
+const BANDS = [
+  { label: "light", min: 0.920, max: 0.962, hueFloor: 60,
+    why: "the five shipped palettes. 60 degrees is measured on THIS band and the palette count is "
+       + "bounded by it — seven hues on a circle are 51.4 apart, so five real palettes is the ceiling." },
+  { label: "dark", min: 0.150, max: 0.200, hueFloor: null,
+    why: "the dark class. ONE member, so there is no pair to separate and no floor has been measured. "
+       + "It is null rather than 60 because 60 belongs to the light band's chroma, and a dark ground "
+       + "at c 0.016 would need 117 degrees for the same separation. Set it when a second dark "
+       + "palette is proposed, by measuring that palette's chroma." },
+];
+
+
 /* ⚠ COMPUTED, NOT PATTERN-MATCHED. The first version of this row was a regex looking for a hue in
  * the 310s and it never ran — a silent non-assertion, which is the shape this suite spends its
  * comments warning about. The hues are parsed and the separations measured.
@@ -440,7 +467,21 @@ const HUES = Object.fromEntries(REAL.map((n) => {
   return [n, { ground: hueOf(p, "canvas"), accent: hueOf(p, "accent-500") }];
 }));
 const PAIRS = REAL.flatMap((a, i) => REAL.slice(i + 1).map((b) => [a, b]));
+/* ⚠ DEFINED HERE AND USED BY D12, BUT THE BAND REGISTRY LIVES IN SECTION L BELOW. Hoisted `const`
+ * would be a temporal-dead-zone error, so these read the registry through functions that run at
+ * assertion time rather than at definition time. */
+const groundLightness = (n) => {
+  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(paletteOf(n)["canvas"] ?? "");
+  return m ? (m[2] === "%" ? Number(m[1]) / 100 : Number(m[1])) : null;
+};
+const bandFor = (n) => BANDS.find((b) => { const L = groundLightness(n);
+  return L !== null && L >= b.min - 1e-9 && L <= b.max + 1e-9; }) ?? null;
+const sameBand = (a, b) => { const x = bandFor(a), y = bandFor(b); return !!x && !!y && x.label === y.label; };
+const bandFloor = (a) => bandFor(a)?.hueFloor ?? null;
+let crossBandPairs = 0;
+crossBandPairs = PAIRS.filter(([a, b]) => !sameBand(a, b)).length;
 console.log(`         ${REAL.length} real palettes -> ${PAIRS.length} pairs, derived from THEME_NAMES`);
+console.log(`         ${PAIRS.length - crossBandPairs} same-band (hue compared), ${crossBandPairs} cross-band (does not apply)`);
 for (const n of REAL) console.log(`           ${n.padEnd(10)} ground h${HUES[n].ground}  accent h${HUES[n].accent}`);
 
 t("D12a every palette resolves BOTH hues, so the rows below are not comparing nulls",
@@ -460,9 +501,20 @@ t("D12b2 …and the pair count is the closed form of it, so neither can drift fr
   PAIRS.length, (REAL.length * (REAL.length - 1)) / 2);
 t("D12c …and it grew with the palettes rather than staying at the hardcoded three", PAIRS.length >= 10, true);
 
-t("D12 ⚠ NO TWO GROUNDS ARE ADJACENT — a palette near an existing one tells you nothing new",
-  PAIRS.filter(([a, b]) => arc(HUES[a].ground, HUES[b].ground) < 60)
+/* ⚠ SAME-BAND PAIRS ONLY SINCE #389, AND CROSS-BAND IS NOT A WEAKER CHECK — IT IS A COMPARISON THAT
+ * DOES NOT APPLY. Measured in the ground-class work: hue can change the perceptual difference
+ * between a LIGHT and a DARK ground by 0.1%, against 38% within the light band. Two grounds in
+ * different classes do not compete for hue at all, so a 17 degree gap between them is not a
+ * collision and refusing it would be the wrong-unit rule shipped deliberately.
+ *
+ * The band registry in section L owns which pairs those are, and owns the floor each band enforces —
+ * this row reads both rather than holding a second copy. L3 is where the per-band comparison lives;
+ * this row keeps the SITE-WIDE statement, scoped to pairs the statement is true of. */
+t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — across classes the comparison does not apply",
+  PAIRS.filter(([a, b]) => sameBand(a, b) && arc(HUES[a].ground, HUES[b].ground) < (bandFloor(a) ?? 0))
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].ground, HUES[b].ground)}`), []);
+t("D12f ⚠ AND CROSS-BAND PAIRS ARE COUNTED RATHER THAN SILENTLY DROPPED — a skipped pair must be visible",
+  typeof crossBandPairs === "number" && crossBandPairs >= 0, true);
 t("D12d ⚠ NOR TWO ACCENTS — the accent is the colour a visitor remembers, and NOTHING checked it",
   PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 30)
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].accent, HUES[b].accent)}`), []);
@@ -723,7 +775,6 @@ console.log("\nL · ⚠ THE LIGHTNESS CLASS — is this ground one D12's floor w
  * so a ground sitting exactly ON the band's edge reported itself outside it. The band is INCLUSIVE
  * and its bounds are exact; this only stops the arithmetic from disagreeing with itself. */
 const EPS = 1e-9;
-const CLASS_BAND = { min: 0.920, max: 0.962, label: "light" };
 
 const groundL = (name) => {
   const p = paletteOf(name);
@@ -731,27 +782,61 @@ const groundL = (name) => {
   if (!m) return null;
   return m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]);
 };
+const bandOf = (L) => BANDS.find((b) => L >= b.min - EPS && L <= b.max + EPS) ?? null;
 const Ls = Object.fromEntries(REAL.map((n) => [n, groundL(n)]));
 console.log(`         ground lightness — ${REAL.map((n) => `${n} ${Ls[n]?.toFixed(3)}`).join(", ")}`);
-console.log(`         declared ${CLASS_BAND.label} band: ${CLASS_BAND.min} to ${CLASS_BAND.max}`);
+console.log(`         bands — ${BANDS.map((b) => `${b.label} ${b.min}..${b.max}`).join(", ")}`);
 
 t("L0 every ground resolves a lightness — a null would make L1 pass over nothing",
   REAL.filter((n) => typeof Ls[n] !== "number"), []);
-/* ⚠ CONSTANT, NOT DERIVED FROM `REAL`. #378's lesson: a guard computing its expectation from the
- * subject it guards passes when the subject is empty. */
 t("L0a the population is real, against a literal", REAL.length >= 5, true);
+t("L0b the registry has real bands — an empty one admits everything", BANDS.length >= 2, true);
 
-t("L1 ⚠ EVERY GROUND IS IN THE DECLARED CLASS — one outside REOPENS the separation question rather than inheriting D12's answer",
-  REAL.filter((n) => Ls[n] < CLASS_BAND.min - EPS || Ls[n] > CLASS_BAND.max + EPS)
-    .map((n) => `${n} L${Ls[n]?.toFixed(3)} is outside the ${CLASS_BAND.label} band — D12's degree floor was not calibrated for it`), []);
+t("L1 ⚠ EVERY GROUND SITS IN A DECLARED BAND — one BETWEEN bands belongs to no class and must fail by name",
+  REAL.filter((n) => !bandOf(Ls[n]))
+    .map((n) => `${n} L${Ls[n]?.toFixed(3)} is between bands — it belongs to no class, so no floor applies to it`), []);
 
-/* ⚠ AND THE BAND MUST STAY TIGHT ENOUGH THAT HUE STILL MATTERS INSIDE IT, or L1 becomes a rubber
- * stamp. At the band's own width, hue must still be able to move the total materially — otherwise
- * the band spans a class boundary and D12 is measuring across one. */
-const bandSwing = (Math.sqrt((CLASS_BAND.max - CLASS_BAND.min) ** 2 + 0.04 ** 2) / (CLASS_BAND.max - CLASS_BAND.min) - 1) * 100;
-console.log(`         across the band's own width, hue can still swing the total by ${bandSwing.toFixed(1)}%`);
-t("L2 ⚠ HUE STILL MATTERS ACROSS THE BAND'S FULL WIDTH — a band wider than this spans a class boundary",
-  bandSwing > 25, true);
+/* ⚠ THE GAP BETWEEN BANDS IS EXPLICIT FOR THE FIRST TIME, and that is the point of a registry. The
+ * ground-class measurement found the middle is REAL — hue can still swing the total by 38% at a
+ * lightness gap of .042 and only 1% at .283 — so a ground at L .60 is genuinely ambiguous and
+ * belongs to neither band. It must FAIL rather than fall through to whichever floor it is nearest. */
+t("L1a ⚠ THE BANDS DO NOT OVERLAP — an overlapping registry would admit one ground to two classes",
+  BANDS.flatMap((a, i) => BANDS.slice(i + 1)
+    .filter((b) => a.min <= b.max && b.min <= a.max).map((b) => `${a.label}/${b.label}`)), []);
+t("L1b …and a ground in the gap is refused, proven on a literal that no palette holds",
+  bandOf(0.60), null);
+
+/* ⚠ HUE STILL MATTERS ACROSS EACH BAND'S OWN WIDTH, or that band spans a class boundary and its
+ * floor is measuring across one. Checked per band rather than once. */
+const swingOf = (b) => (Math.sqrt((b.max - b.min) ** 2 + 0.04 ** 2) / (b.max - b.min) - 1) * 100;
+for (const b of BANDS) console.log(`         across ${b.label}, hue can still swing the total by ${swingOf(b).toFixed(1)}%`);
+t("L2 ⚠ HUE STILL MATTERS ACROSS EVERY BAND'S FULL WIDTH — a band wider than this spans a class boundary",
+  BANDS.filter((b) => swingOf(b) <= 25).map((b) => b.label), []);
+
+/* ⚠ AND THE HUE FLOOR IS ENFORCED PER BAND, WHICH IS WHAT D12 ABOVE COULD NOT DO. D12 compares
+ * every pair; a dark palette 17 degrees from a light one is not a collision because the two do not
+ * compete for hue at all — measured, hue can change the difference between a light and a dark
+ * ground by 0.1%. This row is the same assertion, scoped. */
+const bandPairs = BANDS.map((b) => [b, REAL.filter((n) => bandOf(Ls[n])?.label === b.label)]);
+for (const [b, members] of bandPairs) console.log(`         ${b.label}: ${members.length} member(s)${b.hueFloor === null ? " — no floor measured yet" : ""}`);
+t("L3 ⚠ EVERY BAND'S MEMBERS CLEAR THAT BAND'S OWN FLOOR — and a band with no measured floor enforces none",
+  bandPairs.flatMap(([b, members]) => b.hueFloor === null ? []
+    : members.flatMap((a, i) => members.slice(i + 1)
+        .filter((c) => arc(HUES[a].ground, HUES[c].ground) < b.hueFloor)
+        .map((c) => `${a}/${c} in ${b.label}: ${arc(HUES[a].ground, HUES[c].ground)} < ${b.hueFloor}`))), []);
+/* ⚠ THE FIELD AND ITS REASON MUST AGREE, IN BOTH DIRECTIONS — and the first version only checked
+ * one. It asserted that a NULL floor explains itself, which a mutation walked straight through:
+ * setting `hueFloor: 60` left the `why` still saying no floor had been measured, and the row passed
+ * because its filter began `hueFloor === null`. A contradiction between a value and its stated
+ * reason is the field-nothing-reads shape, and only the direction nobody mutated was covered. */
+t("L3a ⚠ A BAND WITH NO FLOOR SAYS SO — null is unmeasured, not zero",
+  BANDS.filter((b) => b.hueFloor === null && !/no floor has been measured/.test(b.why)).map((b) => b.label), []);
+t("L3b ⚠ AND A BAND WITH A FLOOR DOES NOT CLAIM OTHERWISE — the mutation that gave the dark band 60 left its reason intact",
+  BANDS.filter((b) => b.hueFloor !== null && /no floor has been measured/.test(b.why)).map((b) => b.label), []);
+t("L3c …and a stated floor names what it was measured ON, so it cannot be borrowed from another band",
+  BANDS.filter((b) => b.hueFloor !== null && !/measured on THIS band/.test(b.why)).map((b) => b.label), []);
+t("L4 every band states WHY it exists and what its floor rests on",
+  BANDS.filter((b) => !b.why || b.why.length < 60).map((b) => b.label), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
