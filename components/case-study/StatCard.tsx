@@ -19,7 +19,7 @@ export default function StatCard({
   return (
     <div
       className={`relative z-[1] rounded-lg border p-7 ${
-        stat.highlighted ? "bg-cream-200" : "bg-cream-50"
+        stat.highlighted ? "bg-cream-200" : "bg-surface"
       }`}
       style={{ borderColor: stat.highlighted ? ACCENT_RING : LINE }}
     >

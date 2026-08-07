@@ -22,6 +22,12 @@
 //
 // ---- WHAT THIS CANNOT SEE, STATED -----------------------------------------------------------
 //
+// ⚠ SECTION E READS TWO OF THE THREE FORMS A COLOUR CAN TAKE. E2 reads `className` strings and E4
+// reads `style={{ }}` objects. The third is a BARE JSX ATTRIBUTE — `<path stroke="var(--color-…)">`
+// — and the accent context for one of those lives in the PARENT's conditional, not on the element,
+// so no static scan reaches it. `ProcessSection`'s checkmark is that case: it is correct, it is
+// commented at the site, and a gate does not protect it. Stated rather than papered over.
+//
 // It reads `globals.css`. Whether a role's NAME is a good one is a judgement no gate makes; what it
 // can check is that the name resolves to a rung, that the registry and the stylesheet agree both
 // ways, and that no two roles collide without a stated reason. The jobs below are prose, and a
@@ -184,6 +190,104 @@ t("E1 …and it finds accent grounds at all, so E2 is not vacuous",
   tsxFiles.some((f) => /bg-accent-\d/.test(readFileSync(f, "utf8"))), true);
 t("E2 ⚠ NO PAGE-FOLLOWING FOREGROUND SITS ON AN ACCENT GROUND — that label must be `on-accent`, or it inverts on a dark page",
   fgOnAccent.sort(), []);
+
+/* ⚠ AND THE SAME SHAPE IN A STYLE OBJECT, WHICH E2 ABOVE CANNOT SEE. A mutation proved it: putting
+ * #384's `ProcessSection` mistake back left E2 green, because that site is a `var()` inside a
+ * `style={{ }}` and E2 reads `className`. Two of the four sites this rule exists for live there.
+ *
+ * A style object is scanned as a WINDOW rather than as one attribute — the background and the
+ * foreground are separate properties on separate lines, so the test is whether an accent background
+ * and a page-following foreground appear within the same brace-delimited object. Coarser than E2 and
+ * it covers the form E2 structurally cannot. */
+const styleObjs = [];
+for (const f of tsxFiles) {
+  const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
+  if (/^components\/studio\/|^app\/studio\//.test(rel)) continue;
+  const src = readFileSync(f, "utf8");
+  for (const m of src.matchAll(/style=\{\{([\s\S]{0,900}?)\}\}/g)) {
+    const body = m[1];
+    if (!/--color-accent-\d/.test(body)) continue;   // per-property test below decides
+    styleObjs.push({ rel, body });
+  }
+}
+/* ⚠ PARSED PER PROPERTY, AND TWO REGEX DEFECTS IN THE FIRST VERSION ARE WHY. A JS object literal
+ * has NO SEMICOLONS, so a `[^;]*` window spanned the entire object and matched a background against
+ * a border three properties away. And `(color|...)` matched `backgroundColor`, which CONTAINS
+ * "Color" — so a themed background read as a foreground. Both produced a confident false positive on
+ * a clean tree.
+ *
+ * Properties are split on top-level commas and each is tested as `name: value`, with the name
+ * anchored. Slower and correct. */
+const propsOf = (body) => {
+  const out = []; let depth = 0, cur = "";
+  for (const ch of body) {
+    if ("([{".includes(ch)) depth++;
+    else if (")]}".includes(ch)) depth--;
+    if (ch === "," && depth === 0) { out.push(cur); cur = ""; continue; }
+    cur += ch;
+  }
+  out.push(cur);
+  return out.map((p) => { const i = p.indexOf(":"); return i < 0 ? null : { k: p.slice(0, i).trim().replace(/["']/g, ""), v: p.slice(i + 1) }; })
+    .filter(Boolean);
+};
+const FG_PROP = /^(color|stroke|fill|WebkitTextFillColor)$/;
+const BG_PROP = /^(background|backgroundColor|backgroundImage)$/;
+
+const styleBad = [];
+for (const o of styleObjs) {
+  const props = propsOf(o.body);
+  const hasAccentBg = props.some((p) => BG_PROP.test(p.k) && /--color-accent-\d/.test(p.v));
+  if (!hasAccentBg) continue;
+  for (const p of props) {
+    if (!FG_PROP.test(p.k)) continue;
+    for (const role of PAGE_FOREGROUNDS)
+      if (new RegExp("--color-" + role + "\\b").test(p.v))
+        styleBad.push(`${o.rel}: \`${p.k}\` uses --color-${role} where the background is the accent`);
+  }
+}
+console.log(`         ${styleObjs.length} style objects mention the accent`);
+/* ⚠ E4's DENOMINATOR, AND IT WAS LOST IN AN EDIT. Rewriting the property parser dropped this row,
+ * and E4 went on passing — over a scan whose subject nothing was asserting. Exactly the empty-subject
+ * shape, introduced by a repair to the same section. */
+t("E3 the style-object scan has subjects — two of this rule's four sites live in this form",
+  styleObjs.length >= 5, true);
+t("E4 ⚠ NOR IN A STYLE OBJECT — the form E2 structurally cannot read, and where the mutation escaped",
+  [...new Set(styleBad)].sort(), []);
+
+console.log("\nF · ⚠ WHICH RUNGS CARRY MORE THAN ONE ROLE — the map's SHAPE, not its entries");
+
+/* ⚠ A RUNG-TO-ROLE MAP IS A FUNCTION AND A MULTI-ROLE RUNG IS NOT IN ITS DOMAIN. #383's sweep sent
+ * four accent-badge labels to `surface` because `cream-50` has two roles and the map had one answer.
+ * No correction to the map's ENTRIES fixes that — the map is the wrong SHAPE.
+ *
+ * ⚠ AND #384 FOUND TWO MORE OF THE SAME SITES BY HAND, in `ProcessSection`: the step label and the
+ * checkmark, both drawn only when the dot is filled with the accent. A second sweep with a corrected
+ * rung map would have sent both to `surface` again.
+ *
+ * The repair is a key of (RUNG, UTILITY KIND) rather than rung alone — `bg-` resolves the ground
+ * role, `text-`/`fill`/`stroke` the foreground one. That IS a function over the domain, and this
+ * section asserts the multi-role set is DECLARED so the next sweep knows which rungs it may not
+ * map. It is a list that must SHRINK or stay still, never grow silently. */
+const MULTI_ROLE = {
+  "cream-50": { roles: ["surface", "on-accent"],
+    why: "the card ground and the label drawn ON the accent share this rung until the dark ground "
+       + "ships. Disambiguated by utility KIND: a ground prefix means `surface`, a foreground prefix "
+       + "means `on-accent`. Ends when the two rungs resolve differently." },
+};
+const rolesByRung = {};
+for (const [r, v] of Object.entries(ROLES)) (rolesByRung[v.rung] ??= []).push(r);
+const actualMulti = Object.entries(rolesByRung).filter(([, rs]) => rs.length > 1).map(([k]) => k).sort();
+console.log(`         rungs carrying >1 role: ${actualMulti.join(", ") || "none"}`);
+
+t("F1 ⚠ EVERY MULTI-ROLE RUNG IS DECLARED — an undeclared one is a rung the next sweep will map wrongly",
+  actualMulti.filter((r) => !MULTI_ROLE[r]), []);
+t("F2 …and every declaration still describes a real collision — a stale entry warns about a rung that separated",
+  Object.keys(MULTI_ROLE).filter((r) => !actualMulti.includes(r)).sort(), []);
+t("F3 ⚠ AND EACH NAMES HOW TO DISAMBIGUATE, so the warning is actionable rather than a caution",
+  Object.entries(MULTI_ROLE).filter(([, v]) => !/utility KIND|Disambiguated/.test(v.why)).map(([k]) => k), []);
+/* The declared roles must match what the registry actually says, or F1 guards a fiction. */
+t("F4 the declared role pair matches the registry, both ways",
+  Object.entries(MULTI_ROLE).filter(([r, v]) => JSON.stringify(v.roles.sort()) !== JSON.stringify(rolesByRung[r]?.sort())).map(([k]) => k), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

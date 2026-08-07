@@ -187,13 +187,25 @@ closed.
   own ground"; the implementation was "this element uses a ladder background".** When a guard is
   written to express an idea, check that its vocabulary covers the idea and not just the common case.
 
-- **⚠ A PREDICTION THAT A NUMBER WILL MOVE MAKES ANY MOVEMENT LOOK LIKE THE PREDICTED ONE.** I said
-  in advance that the collision census would shift as role names replaced raw ones. It shifted 6 to
-  5 — **and that was two distinct collisions collapsing into one name because both had been given the
-  wrong role**, not the reclassification predicted. Repairing the sites restored it. `cascade-public`
-  already warns that the number moving says nothing about which of five things happened; **the
-  warning nearly failed because the DIRECTION matched the story.** Re-derive what moved, never infer
-  it from having expected movement.
+- **⚠ A FORECAST IS A HYPOTHESIS THAT ARRIVES PRE-CONFIRMED.** A prediction that a number will move
+  makes any movement look like the predicted one. The collision census was forecast to shift as role
+  names replaced raw ones; it shifted 6 to 5 — **and that was two distinct collisions collapsing into
+  one name because both had been given the wrong role**, not the reclassification predicted.
+  Repairing the sites restored it.
+
+  **⚠ THE SUITE ALREADY CARRIED THE RIGHT WARNING AND IT NEARLY FAILED ANYWAY**, which is the whole
+  point: `cascade-public` says the number moving cannot tell you WHICH of five things happened, and
+  **a forecast supplies the which for free.** This is a defect in the READER rather than in the
+  instrument, so no assertion can catch it.
+
+  **The repair: when a predicted number moves, establish WHY before accepting it, and treat
+  agreement with the forecast as NO EVIDENCE AT ALL.**
+
+- **⚠ A RUNG-TO-ROLE MAP IS A FUNCTION, AND A MULTI-ROLE RUNG IS NOT.** `cream-50` is both `surface`
+  and `on-accent`, so the map is **the wrong SHAPE and no correction to its entries fixes that.**
+  Identify which rungs are multi-role BEFORE applying any substitution, and treat those sites as
+  **manual by construction** rather than as a map with exceptions — an exception list on a function
+  that cannot represent the domain is the fixed-list shape one more time.
 
 - **⚠ RUN `css-comment-trap` WHENEVER A TOKEN IS ADDED, NOT ONLY WHEN A COMMENT IS WRITTEN.** A new
   role name plus an existing utility prefix can make **old prose compile**: a comment describing a

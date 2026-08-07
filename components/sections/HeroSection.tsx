@@ -282,7 +282,7 @@ export default function HeroSection({
                         aria-hidden="true"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          backgroundColor: "color-mix(in oklch, var(--color-cream-50) 50%, transparent)",
+                          backgroundColor: "color-mix(in oklch, var(--color-surface) 50%, transparent)",
                           backdropFilter: "blur(9px) saturate(1.3)",
                           WebkitBackdropFilter: "blur(9px) saturate(1.3)",
                           border: "1px solid color-mix(in oklch, var(--color-accent-500) 30%, transparent)",
