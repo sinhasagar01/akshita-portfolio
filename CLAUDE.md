@@ -537,6 +537,25 @@ closed.
   **AND THE DECLARATION MUST BE REQUIRED RATHER THAN DEFAULTED**, or a new palette silently joins
   the majority class, which is the failure L exists to prevent reintroduced at the declaration.
 
+- **⚠ A LABEL THAT NAMES A CAUSE RATHER THAN A THRESHOLD INVITES A GATE TO ASSERT THE CAUSE.**
+  `theme-contrast`'s 3.0 rows were called **non-text** — a claim about what elements ARE — when the
+  checkable claim is **"3.0 applies"**, a claim about which floor governs. A gate written from the
+  label reported two non-violations (`text-3xl` and `text-5xl` accent text, where 3.0 IS the WCAG
+  floor for large type). **The floor was right and the label was wrong**, and only the threshold form
+  is verifiable.
+
+- **⚠ AND THAT MAP IS UNVERIFIED RATHER THAN MOSTLY SOUND — SAY THE DENOMINATOR.** It holds **37
+  rows**. **Two have been checked against a real consumer and BOTH WERE FALSE** — accent-500's
+  non-text row (the rating chip) and ink-400's (the love readout). **35 have never been checked.**
+  A 100% failure rate on a sample of two is not evidence the rest are fine; it is evidence nobody
+  has looked.
+
+  Every TEXT row's foreground does have a consumer, so the mirror defect — a floor enforced on
+  nothing — is absent. **The standing risk is the other one: a row whose ground is resolved several
+  components away cannot be checked statically at all**, which is how the chip was found by accident
+  and how the readout escapes its own gate. **The map is protected by prose in more places than
+  anyone has counted.**
+
 - **⚠ A GUARD WHOSE FILTER IS ITS OWN PRECONDITION CAN ONLY FAIL IN ONE DIRECTION.** `L3a` selected
   rows where `hueFloor === null` and then checked their stated reason — so a row that GAINED a floor
   **left the selection entirely and took its stale reason with it.** The mutation that matters is the

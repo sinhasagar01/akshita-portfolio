@@ -11950,6 +11950,43 @@ protection**, and that is stated rather than papered over.
 **⚠ A SECOND MEMBER OF ANY CLASS IS AN INSTRUMENT — three demonstrations now.** `SectionHeading`'s
 split, every hairline measuring 0.0 on a dark ground, and this.
 
+## SAPPHIRE NEEDS NO SECOND ACCENT — THE RENDER REFUTED A THIRD FAILURE I HAD INFERRED
+
+`accent-600` measured 4.38 on sapphire's `cream-200`, short of 4.5, and darkening it looked blocked:
+at every lightness that clears cream-200 it FAILS on `band-dark` (3.29 at L.520, 2.43 at L.450). That
+pointed at a second token — the accent as it appears in a light region of a dark page.
+
+**⚠ AND THE PREMISE WAS WRONG. `accent-600` NEVER LANDS ON `band-dark`.** `SectionRenderer` gates
+`data-ground="dark"` on `isWebHero`, so the mobile hero's h1 falls through to an ordinary light card.
+Measured in the browser on `elevate-one-view`: **`insideDarkGround: false`, ratio 7.11.**
+
+**So darkening `accent-600` IS the fix and no token is earned.** L.450 gives 5.96 on cream-200 and
+7.51 on cream-50, both comfortable. **Fifth reduction in this arc: "a second accent" became
+"accent-600 was mis-derived".**
+
+**⚠ I INFERRED A THIRD LIVE AA FAILURE FROM ARITHMETIC AND THE RENDER REFUTED IT** — the same
+discipline that found the first two, working in the other direction. Measuring `accent-600` against
+`band-dark` on all five palettes gave 2.16 to 2.64, failing even the 3.0 large-text floor, and that
+number is real. **It is a ratio between two colours that never meet.**
+
+---
+
+## ⚠ AND THE USAGE MAP'S DENOMINATOR, STATED
+
+    TEXT rows (4.5)   27      UI rows (3.0)   6      internal ground steps   4      TOTAL 37
+
+**Two checked against a real consumer. Both false. Thirty-five never checked.** A 100% failure rate
+on a sample of two is not evidence the rest are sound — it is evidence nobody has looked.
+
+Every TEXT row's foreground DOES have a consumer, so the mirror defect (a floor enforced on nothing)
+is absent. **The standing risk is the other one:** a row whose ground is resolved several components
+away cannot be checked statically, which is how the chip was found by accident and how the readout
+escapes its own gate.
+
+**AND THE ROW'S REAL DEFECT WAS ITS LABEL.** "Non-text" is a claim about what elements ARE; "3.0
+applies" is a claim about which floor governs. **A gate written from the label asserted the cause and
+reported two non-violations.** Only the threshold form is checkable.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
