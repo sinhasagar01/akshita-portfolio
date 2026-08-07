@@ -53,9 +53,15 @@ import { countAssertions } from "./count.mjs";
  */
 const SNAP = join(process.env.TMPDIR ?? "/tmp", "ralph-mutate-snapshot");
 
+/* ⚠ UNTRACKED FILES COUNT, AND THE FIRST VERSION MISSED THEM. `git diff --name-only HEAD` lists
+ * MODIFICATIONS TO TRACKED FILES ONLY, so a brand-new suite being mutation-tested was never
+ * snapshotted and `--restore` silently left it mutated — discovered while mutation-testing
+ * `token-claims.mjs`, the first new file to use this. The restore reported success and restored
+ * nothing, which is the shape #364 was written about, one file later and in my own fix. */
 function dirtyFiles() {
-  const out = spawnSync("git", ["diff", "--name-only", "HEAD"], { encoding: "utf8" }).stdout ?? "";
-  return out.split("\n").map((l) => l.trim()).filter(Boolean);
+  const modified = spawnSync("git", ["diff", "--name-only", "HEAD"], { encoding: "utf8" }).stdout ?? "";
+  const untracked = spawnSync("git", ["ls-files", "--others", "--exclude-standard"], { encoding: "utf8" }).stdout ?? "";
+  return [...new Set(`${modified}\n${untracked}`.split("\n").map((l) => l.trim()).filter(Boolean))];
 }
 
 if (process.argv[2] === "--snapshot") {
