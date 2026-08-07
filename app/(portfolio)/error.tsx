@@ -33,7 +33,7 @@ export default function PortfolioError({
         </button>
         <Link
           href="/"
-          className="inline-flex items-center rounded-full border border-ink-950/12 bg-cream-50 px-6 py-3 text-[0.95rem] font-semibold text-ink-950 transition-colors hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+          className="inline-flex items-center rounded-full border border-ink-950/12 bg-surface px-6 py-3 text-[0.95rem] font-semibold text-text-primary transition-colors hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Back to home
         </Link>

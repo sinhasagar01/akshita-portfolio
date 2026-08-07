@@ -290,6 +290,12 @@ export default function HeroCover({
         {data.position}
       </motion.p>
 
+      {/* ⚠ THE RATING CHIP KEEPS RAW RUNGS ON BOTH HALVES — A PAIR MIGRATES WHOLE OR NOT AT ALL.
+          Its ground is `cream-200`, which `role-layer` measured and REFUSED a role: gradient
+          endpoints in four of nine sites, one highlighted card, one illustration constant, no
+          single job. Migrating only the FOREGROUND would put a page-following text role on a
+          ground that does not follow — so under a dark page this chip would draw light text on a
+          light pill. It moves when cream-200 earns a role, and not before. */}
       {data.ratingChip && (
         <motion.p
           {...mp}

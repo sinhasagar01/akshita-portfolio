@@ -50,7 +50,7 @@ function Note({ children }: { children: ReactNode }) {
 /** A step in the flow — a plain card with a label. */
 function Step({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[52px] flex-1 items-center justify-center rounded-lg border border-ink-950/8 bg-cream-50 px-3 py-2 text-center text-[0.8rem] leading-[1.3] text-ink-950 shadow-sm">
+    <div className="flex min-h-[52px] flex-1 items-center justify-center rounded-lg border border-ink-950/8 bg-surface px-3 py-2 text-center text-[0.8rem] leading-[1.3] text-text-primary shadow-sm">
       {children}
     </div>
   );

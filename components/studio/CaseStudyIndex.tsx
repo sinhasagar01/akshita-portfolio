@@ -223,7 +223,7 @@ export default function CaseStudyIndex({
           their order means, and while filtering, why the arrows are off — so it takes the strip
           the studio already uses for exactly that.
           THE SAME STRIP AS #264's LIVE-PREVIEW NOTE, not a second flavour of one: `border-ink-950/12`
-          + `bg-cream-100` + the control radius, with `IconInfo` at the same size and inset. A new
+          + the cream-100 ground + the control radius, with `IconInfo` at the same size and inset. A new
           strip shape here would be the third, and the studio keeps its left accent bars for
           selection markers.
           `aria-live` BECAUSE THE TEXT CHANGES UNDER THE AUTHOR. Typing in the search rewrites it

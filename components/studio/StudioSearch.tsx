@@ -204,7 +204,7 @@ export default function StudioSearch({ items }: { items: SearchItem[] }) {
                 ].join(" ")}
               >
                 <span className="truncate">{r.label}</span>
-                {/* The dropdown panel is `bg-cream-50` at EVERY width — it is not part of the ink
+                {/* The dropdown panel takes the lightest cream ground at EVERY width — it is not part of the ink
                     chrome the field above it joins at `lg` — so this needs no breakpoint split.
                     It was ink-400, measuring 3.49 on the panel and 3.04 on the highlighted row's
                     cream-200, both under the 4.5 floor. */}

@@ -1951,7 +1951,7 @@ export default function SectionsEditPanel({
                   `groupLabelCls` set. On a 130-character SENTENCE it stretched the line past the
                   canvas and slowed reading, which is the opposite of what help text is for.
                   THE STRIP IS THE STUDIO'S EXISTING NEUTRAL ONE, NOT A NEW PATTERN — the same
-                  `border-ink-950/12` + `bg-cream-100` + control radius already used by the
+                  `border-ink-950/12` + the cream-100 ground + control radius already used by the
                   no-editor-yet strip below and by `ExperienceListEditor`'s banner. A left accent
                   bar was the alternative and was NOT taken: it would have been a third strip
                   flavour, and the studio keeps its left bars for selection markers. */}
@@ -2052,7 +2052,7 @@ export default function SectionsEditPanel({
       onCancel={handleCancel}
       extra={
         /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
-           `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits
+           `a { color: inherit }` beats the utility layer, so a secondary-ink utility on the <a> emits
            a rule that loses. This is the second copy of that shape and it is deliberate: the
            details bar has its own in ProjectsEditPanel, because the two bars are rendered by
            two different components over two different useDraftForms. Extracting a shared

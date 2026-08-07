@@ -1012,7 +1012,7 @@ export default function BlogBlocksEditPanel({
             href={livePath}
             target="_blank"
             rel="noreferrer"
-            // `text-ink-600` and `hover:text-accent-500` WERE HERE AND BOTH WERE DEAD — an unlayered
+            // A secondary-ink colour utility and an accent hover WERE HERE AND BOTH WERE DEAD — an unlayered
             // `a { color: inherit }` outranks the utility layer. The colour is inherited from
             // ThreePaneShell's strip now; the BORDER hover survives because no unlayered rule
             // claims border-color, which is exactly the asymmetry that made this hard to see.

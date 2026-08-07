@@ -221,7 +221,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       onCancel={cancel}
       extra={
         /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
-           `a { color: inherit }` beats the utility layer, so `text-ink-600` on the <a> emits a
+           `a { color: inherit }` beats the utility layer, so a secondary-ink colour utility on the <a> emits a
            rule that loses and the link renders at the inherited colour. This wrapper is the
            shape the old footer already had; moving the anchor into SaveBar's `extra` slot
            briefly dropped it, and studio-ink's E6 is the assertion that caught it. */

@@ -3,6 +3,28 @@ import { EDIT_AFFORD, inlineEditProps } from "../editable";
 /** `.pull` — left-bar italic pull quote. Under template=web (CS-7b) the Bold-gallery
  *  serif quote: `dark` renders it on the dark band (on-dark-quote), otherwise the
  *  inline light serif (accent). Mobile keeps the left-bar quote, byte-identically.
+ *
+ *  ---- ⚠ THIS `dark` BRANCH IS THE ACCEPTANCE TEST FOR THE GROUND SWITCH ---------------------
+ *
+ *  It is the one true violation of the rule that a COMPONENT MUST NOT CHOOSE: the context should
+ *  select which values a token name resolves to, and the component should read one name. Here the
+ *  component reads two, and picks by the ground.
+ *
+ *  ⚠ AND IT CANNOT BE FIXED YET, WHICH IS WHY IT IS RECORDED RATHER THAN FORCED. The mechanism it
+ *  needs does not exist: the dark hero band is applied INLINE, `style={{ backgroundColor:
+ *  var(--color-band-dark) }}` in `SectionRenderer`, with no context attribute to hang a per-ground
+ *  override on. Collapsing the branches today would repaint the band's quote, because
+ *  `on-dark-quote` and `accent-600` are genuinely different colours and both are correct where they
+ *  are.
+ *
+ *  ⚠ SO WHEN THE GROUND SWITCH LANDS, THIS COLOUR BRANCH MUST DISAPPEAR. If it cannot, shape C has
+ *  failed and that should be SAID rather than patched — the owner named that trigger when the
+ *  ruling was made. The SIZE difference between the branches is a separate question: the two web
+ *  variants also differ in type scale, and that is a layout variant rather than a ground fact.
+ *
+ *  `SectionHeading`'s `tone` prop looks like the same defect and is NOT one — it means accent-toned
+ *  or ink-toned, both follow the theme, and six call sites use it deliberately. The difference is
+ *  that `tone` chooses a DESIGN AXIS and `dark` chooses a GROUND.
  *  CS-7d — `editable` tags the plain-string text as in-place editable in the studio
  *  canvas (inert markers + contentEditable); off by default, so public is unchanged. */
 export default function PullQuote({

@@ -34,7 +34,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
     // THE COLOUR SITS ON THIS CONTAINER, NOT ON THE LINK, and that is forced rather than
     // stylistic. globals.css carries an unlayered `a { color: inherit }`, which outranks
     // `@layer utilities`, so a `text-*` utility on the <a> below does nothing — its
-    // `text-ink-600` has never applied and the link has always drawn ink-950 inherited from
+    // A secondary-ink colour utility has never applied and the link has always drawn ink-950 inherited from
     // body (18.13:1 on cream, so it looked right). Setting it here works WITH that rule
     // instead of fighting it, and needs no extra element, which the repaint's
     // attribute-invariant gate would reject. Same finding as StudioSidebar's label.

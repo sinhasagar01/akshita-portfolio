@@ -151,7 +151,7 @@ export default function ThreePaneShell({
    *  makes two, and two is when a pattern moves into the seam. */
   rootRef?: React.Ref<HTMLDivElement>;
   rootStyle?: React.CSSProperties;
-  /** The canvas pane's ground, as a background utility. Defaults to `bg-cream-50`.
+  /** The canvas pane's ground, as a background utility. Defaults to the lightest cream.
    *
    *  A DEFAULT RATHER THAN A REQUIRED PROP, which is the opposite of `fitThresholdPx` above,
    *  and the difference is what happens when a consumer says nothing. Forgetting the
@@ -249,7 +249,7 @@ export default function ThreePaneShell({
             appear and vanish as the list collapses. Only the collapse control itself is
             conditional — when the list is already collapsed, the reopen rail is the
             control, and two ways to reopen one pane is one too many. */}
-        {/* `text-ink-600` IS ON THE STRIP RATHER THAN ON ITS CONTROLS, and that is forced.
+        {/* THE SECONDARY-INK COLOUR IS ON THE STRIP RATHER THAN ON ITS CONTROLS, and that is forced.
             globals.css's unlayered `a { color: inherit }` outranks @layer utilities, so a
             `text-*` utility on an <a> does nothing — `canvasBar`'s View live link carried one
             and it had never applied. Setting the default here lets the anchor INHERIT the
