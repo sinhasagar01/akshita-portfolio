@@ -11201,6 +11201,20 @@ separately, so neither can absorb the other's failure. This is the empty-subject
 assertion built to prevent it**, found the same way everything else here is — by mutating and
 looking, not by reading.
 
+**⚠ AND THIS IS THE ARC'S LAST WORD ON DENOMINATORS, SO THE REPAIR IS WORTH STATING GENERALLY: a
+denominator assertion must compare against something THE SUBJECT CANNOT HOLLOW OUT** — a literal, or
+a count reached by an independent route. That is **D3b's two-readers rule arriving one level down**,
+and it is the **sixth** place "check the denominator" has appeared in a new form.
+
+---
+
+## ⚠ THE COST OF #378, WHERE SOMEBODY RETUNING AN ACCENT WILL LOOK
+
+`harbour` accent **h165.3** and `fern` accent **h134** now sit **31.3 degrees apart against D12d's
+floor of 30** — the **tightest accent pair on the site**, and created by a correctness fix rather
+than by a design choice. **Anyone retuning either accent has 1.3 degrees of room.** Written here and
+in CLAUDE.md's ceiling convention because the palette COUNT does not tell you that.
+
 ## THE REVERT-TO-CREAM CONVENTION WAS STALE AND IS FIXED
 
 CLAUDE.md said "revert `theme:` to `cream` before committing". The owner published **harbour**
@@ -11209,6 +11223,146 @@ looking like tidying up**. It now says restore to the PUBLISHED value, read from
 `git show main:content/site-settings.yaml`. **A convention naming a specific theme is the fixed-list
 shape again** — same defect as D12's hardcoded pairs and `SETTINGS_THEME_VALUES` before ralph tied
 it to `THEME_NAMES`.
+
+## THE PLATE CARRIES THE TOPIC, AND #376's OPEN TRADE IS CLOSED (#379)
+
+`.blog-plate` set the post's TITLE beside a card that also shows its title three lines away. Fixed
+by drawing `topic` instead, italic, at 30px on a 16ch measure.
+
+**⚠ AND THE REPLACEMENT ADDS INFORMATION RATHER THAN REMOVING IT.** `topic` renders on the ARTICLE
+(the eyebrow, and the vessel's readout) and **nowhere on the index** — the featured card shows
+"Latest · date" and the stream cards show date and reading time. So the index **gains a field it
+never carried**, in the slot that was repeating one it already had. All three posts have one.
+
+The italic is the mechanism: upright display serif at that size reads as a second headline, italic
+reads as a category, which is what the site already does with the hero thesis. Rendered on harbour
+and confirmed — the two now read as different kinds of thing.
+
+**⚠ AND NOTHING GATED THE PLATE AT ALL.** `ralph/tests/blog-plate.mjs` is new, 15 assertions, and its
+subject is **a relation between two components** — which is why neither component's own gate would
+have caught the defect. `Shot` was right about plates; `page.tsx` was right about cards. C2 closes
+the content route: **an author typing the headline into the topic field would restore the
+duplication with every code assertion still green.**
+
+**⚠ AND ink-800 ON cream-200 JOINED THE USAGE MAP, WITH A CONSUMER BEHIND IT.** The plate's gradient
+reaches `cream-200`, a text-on-ground pair the map never named — because the plate had never
+rendered, so the pair had no consumer to count. Measured across all five palettes before adding:
+12.87 / 12.45 / 12.66 / 11.76 / 11.63, worst margin **+7.13**.
+
+**⚠ AND THE GATE FAILED ON ITS OWN COMMENT FIRST.** D1 reported the plate carrying a colour literal,
+correctly, about the string `#379` — **a three-digit PR reference is lexically a valid hex colour**,
+and every note in this repo cites PR numbers. `colour-census` had already met this and strips block
+comments at its line 120; this suite was newer and had not.
+
+---
+
+## ⚠ AND `mutate.mjs --restore` COULD NOT UNDO THE MUTATION ITSELF, WHICH IS BACKWARDS
+
+`dirtyFiles()` snapshots files **already dirty** — the operator's work in progress. A mutation to a
+file that was **CLEAN** at snapshot time creates a dirty file the snapshot never held, so restore
+had nothing to put back **and printed "restored N file(s)" anyway**.
+
+**IT ONLY EVER WORKED WHEN THE MUTATED FILE HAPPENED TO BE ONE ALREADY EDITED THAT SESSION.** Three
+of this PR's four mutations restored; the fourth — a content YAML nothing had touched — silently did
+not, and the restore reported success for all four. Found by reading `git status` rather than by
+trusting the tool, which is the same discipline as re-deriving a cited figure.
+
+The repair records which tracked files were CLEAN at snapshot time and reverts those with
+`git checkout` **one by one, named**. Safe **by construction**: clean at snapshot means HEAD held the
+intended state. That is precisely the distinction #364 turned on — `git checkout` is destructive when
+the tree holds unsaved intent and correct exactly when it does not. A snapshot predating this says
+so rather than reporting a clean restore.
+
+## THE GROUND-CLASS THRESHOLD, MEASURED (#380)
+
+**A dark theme is not a sixth palette. It is the first of a different class**, and the counting
+bound does not apply to it.
+
+**The definition, stated before measuring** so the number could not inherit an unstated assumption:
+two grounds compete for hue if hue is the only channel separating them. Compare their lightness gap
+against the largest separation any hue rotation could produce at their chroma — **2C, derived from
+`2C·sin(dH/2)` at 180 degrees, not chosen.**
+
+    dL 0.042  ->  hue can swing the total by 38.1%     the entire light band
+    dL 0.088  ->  10%
+    dL 0.283  ->   1%
+    dL 0.750  ->   0.1%                                light against dark
+
+**⚠ MY PROPOSED ABSOLUTE ANCHOR FAILED ITS OWN TEST AND WAS DROPPED.** I intended to take the
+threshold from the site's stated 1.05 ground-step floor. Measured, it calls cream-canvas against
+cerise-canvas (1.140) a different class — two near-white grounds. **The reason is structural: 1.05
+was set for ADJACENT rungs seen SIMULTANEOUSLY, and two themes are never seen simultaneously.** The
+project's only stated number measures the wrong perceptual situation, and it has none for the right
+one. Not invented.
+
+**⚠ THE MIDDLE IS NOT EMPTY, SO THE RULING IS A CONSTRAINT AND NOT A RULE.** A ground at L.83 against
+one at L.92 is dL .09 — a 10% swing, genuinely ambiguous, and a plausible design. Every ground must
+sit in the band the shipped palettes occupy (L .920 to .962); one proposed outside **reopens the
+separation question rather than inheriting an answer.** `theme-contrast` section L enforces it and
+fails by name.
+
+---
+
+## ⚠ THE FLOOR IS NOT A PROPERTY OF THE CLASS — IT IS A PROPERTY OF THE CHROMA THE CLASS CHOOSES
+
+    dark L.170 c.016             needs 117 degrees to match light's 60
+    dark L.170 c.030             needs  61
+    dark L.170 at its ceiling    needs  54
+
+The dark spec's `c.016` is what costs the separation. At `c.030` — reachable, the ceiling is 0.037 —
+a dark ground needs the same 60 degrees. **So degrees is a proxy that happens to work at one
+chroma**, and the dramatic-looking "dark needs twice the separation" was a fact about the proposed
+chroma rather than about darkness.
+
+---
+
+## ⚠ AND THE MODEL IS UNRESOLVED, RECORDED RATHER THAN DECIDED
+
+    OKLab   a 60 degree rotation at chroma .020 is dE 0.0200 at EVERY lightness
+    sRGB    the same rotation emits 15.68 units at L.920 and 10.30 at L.170
+
+A degree-based floor rests on OKLab's uniformity, **and that claim is contradicted by an observation
+this project made by looking**. That disqualifies OKLab as the governing model and **does not crown
+sRGB**, which is device space and whose 34% is not a perceptual claim either. Every ruling above is
+written to hold under either model — section L asserts band MEMBERSHIP, true whichever is right.
+
+---
+
+## ⚠ THE 1.2 DISCREPANCY WAS MINE, AND PULLING IT FOUND AN UNDER-SPECIFIED RECORD
+
+I re-derived the extremes figures and reported near-white matching exactly (16.8) with near-black
+off by 1.2 (26.3 against a recorded 25.1). **The recorded 25.1 was never about `band-dark`.** It is
+the two FAVICON candidate grounds, `#211C16` and `#0B1A22` — **distance 25.14**. The 16.8 is the two
+PWA splash grounds, each theme's `cream-50`, which is why that one matched: I happened to pick the
+right subject.
+
+**The convention line said "near-black grounds differ between palettes by 25.1" and named no
+grounds, so I supplied the wrong ones.** A measurement recorded without its subject invites a reader
+to supply one, and the reader who did it here is the one who wrote the surrounding rules. Both
+subjects are now named in CLAUDE.md.
+
+---
+
+## D12 STAYS ON DEGREES, AND THE GAP IS RECORDED WITH ITS TRIGGER
+
+Re-derived in distance, **two of the ten shipped ground pairs deliver less than 60 degrees was
+calibrated to buy** — cream/cerise (10.72) and orchid/cerise (14.80) against a 15.68 reference. Both
+are cerise, whose ground chroma is **0.016, forced by the gamut at h15/L.962 rather than chosen**.
+
+**⚠ SO A DISTANCE-BASED D12 WOULD REFUSE A PALETTE FOR A CONSTRAINT THE GAMUT IMPOSED** — reporting
+"too close" for something that is really "cannot exist there". That is the jade failure in a new
+costume, and it is why the section stays on degrees.
+
+**AND THE TWO PAIRS ARE SAFE FOR A REASON THAT IS NOT A RULE.** cream/cerise is the MOST separated
+pair overall (32.45 including lightness) and the LEAST by hue — the lightness ladder covered the
+gap. **The current arrangement holds by luck.** The trigger is named rather than deferred: **if a
+future palette's ground chroma is forced low again, degrees will pass a pair distance would refuse**,
+and that is when D12 changes units.
+
+**AND THE 31.3 DEGREE FIGURE IS CORRECTED WHERE IT WAS WRITTEN.** harbour/fern is 1.3 degrees above
+the accent floor, which reads as no room; in distance it is **91.5 against a 47.2 reference, nearly
+double.** Accents carry roughly seven times the chroma of grounds, so degrees understate accent room
+as badly as they overstate ground room.
 
 ## WHAT'S NEXT
 

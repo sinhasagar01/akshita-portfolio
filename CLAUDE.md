@@ -166,8 +166,16 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
-- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** Near-black grounds differ between
-  palettes by 25.1 and near-white by 16.8, and **neither hue is visible at any size.** So a surface
+- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** The two FAVICON candidate grounds
+  (`#211C16` and `#0B1A22`) differ by **25.1**, and the two PWA SPLASH grounds (each theme's
+  `cream-50`) by **16.8** — and **neither hue is visible at any size.**
+
+  **⚠ THOSE SUBJECTS ARE NAMED HERE BECAUSE THE LINE DID NOT NAME THEM AND I SUPPLIED THE WRONG
+  ONES.** Re-deriving these figures in #380 I read "near-black grounds" as the `band-dark` TOKEN,
+  measured 26.3, and reported a 1.2 discrepancy against a figure that was never about `band-dark`.
+  Both numbers were right about different pairs. **A measurement recorded without its subject invites
+  a reader to supply one**, and the reader who did it here is the one who wrote the surrounding
+  rules. So a surface
   whose ground lives at either end is one where theming buys nothing — and **that is a property of
   the GROUND, not of the surface's importance.**
 
@@ -363,21 +371,30 @@ closed.
 
 - **⚠ `mutate.mjs` CONFIRMS THE SOURCE CHANGED AND CANNOT CONFIRM THE SUBJECT DID**, and the subject is sometimes the bundle and sometimes the rendered DOM. Two instances: a mutation to `globals.css` that needed a rebuild before `colour-census` could see it, and `data-theme` moved onto a React component that never forwards it to the DOM — **the attribute simply never appeared, so the assertion had nothing to find and reported SURVIVED**. A mutation that lands in JSX and not in the DOM looks exactly like a mutation the gate withstood. **Rebuild first, and check the mutation reached the subject rather than only the file.**
 
-- **⚠ A DENOMINATOR GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING.** D12b asserted
-  `PAIRS.length === n(n-1)/2` where `n` came from the same list `PAIRS` did — so emptying that list
-  made **both sides 0 and the row passed**, and five of D12's six rows passed with it, because
-  nothing to iterate is indistinguishable from nothing wrong. **Only a comparison against a CONSTANT
-  catches an empty subject.** The closed form is still worth asserting, as a separate row that
-  cannot absorb the other's failure. Found by mutation, in the assertion written to prevent exactly
-  this.
+- **⚠ A DENOMINATOR GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING — AND THIS IS THE ARC'S LAST
+  WORD ON DENOMINATORS.** D12b existed *solely* to catch an empty run, and computed its expected
+  count from the list it was checking: `PAIRS.length === n(n-1)/2` with `n` from that same list. **An
+  empty list satisfied it exactly**, and five of D12's six rows passed with it, because nothing to
+  iterate is indistinguishable from nothing wrong. **Only the CONSTANT floor row caught the
+  mutation.**
+
+  **THE REPAIR IS THE CONSTANT.** A denominator assertion must compare against something **the
+  subject cannot hollow out** — a literal, or a count arrived at by an independent route. That is
+  **D3b's two-readers rule arriving one level down**, and it is the **sixth** place "check the
+  denominator" has turned up wearing new clothes. The closed form is still worth asserting, as a
+  separate row that cannot absorb the other's failure.
 
 - **⚠ MEASURE THROUGH THE STRING THAT GETS WRITTEN, NOT THE VARIABLE THAT PRODUCED IT.** A search
   for an in-gamut colour reported margins of +0.49 and +0.00 for values that were **2.65 and 1.7
   outside sRGB**, because `(l * 100).toFixed(1)` rounded 49.55 to "49.6" AFTER the overshoot had
   been computed on 49.55. **The number was true of a colour, and not of the colour it was written
   beside.** Round first, then measure the rounded form — `gamutOvershoot(css)` on the literal string
-  — so the value tested and the value shipped cannot differ. **And review did not catch it; the gate
-  did, because it reads the artefact rather than the search's report.**
+  — so the value tested and the value shipped cannot differ.
+
+  **⚠ SAME FAMILY AS THE MISLABELLED THEME CAPTURE: the number was real and it described a different
+  colour than the one beside it.** And **the gate outranked the author because it reads the
+  STYLESHEET rather than the report** — which is precisely why **a gate that RECOMPUTES beats one
+  that PINS**, and why K2 caught what review could not.
 
 - **⚠ A CONVENTION THAT NAMES A SPECIFIC THEME IS THE FIXED-LIST SHAPE.** "Revert `theme:` to
   `cream` before committing" went stale the moment the owner published harbour through /studio, and
@@ -386,12 +403,57 @@ closed.
   published theme is CONTENT with an owner, so the file is the only correct source — same defect as
   D12's hardcoded pair list and `SETTINGS_THEME_VALUES` before ralph tied it to `THEME_NAMES`.
 
+- **⚠ A DARK THEME IS NOT A SIXTH PALETTE — IT IS THE FIRST OF A DIFFERENT CLASS, AND THE COUNTING
+  BOUND DOES NOT APPLY TO IT.** Measured: at ground chroma .020, the share of the difference between
+  two grounds that hue can contribute is **38% across the whole light band** (dL .042) and **0.1%
+  between a light ground and a dark one** (dL .75). So light and dark grounds do not compete for
+  hue; the dark class has its own circle and its own count, and *"seven themes cannot clear 60
+  degrees"* is a statement about **light** themes.
+
+  **⚠ AND THE MIDDLE IS NOT EMPTY, SO THIS IS A CONSTRAINT RATHER THAN A RULE.** The transition is
+  gradual — 38% at dL .042, 10% at dL .088, 1% at dL .283 — and a ground at L.83 against one at L.92
+  is genuinely ambiguous and an entirely plausible design. **It would be false to claim no ground
+  will ever sit there.** So the system states a constraint instead: every ground sits in the band
+  the shipped palettes occupy (L .920 to .962), and **one proposed outside REOPENS the separation
+  question rather than inheriting an answer.** `theme-contrast` section L enforces it and fails by
+  name, because the alternative is a mid-band ground being silently judged under a floor calibrated
+  for a band it is not in.
+
+- **⚠ AND THE MODEL UNDERNEATH ALL OF THIS IS UNRESOLVED. SAY SO RATHER THAN PICKING A WINNER.**
+
+    OKLab   a 60 degree rotation at chroma .020 is dE 0.0200 at EVERY lightness — L is irrelevant
+    sRGB    the same rotation emits 15.68 units at L.920 and 10.30 at L.170 — 34% less signal
+
+  A hue floor stated in DEGREES rests on OKLab's uniformity. **That claim is contradicted by an
+  observation this project made BY LOOKING** — the favicon's two candidate grounds and the two PWA
+  splash grounds are both invisible in hue, and OKLab rates both ends identical to a mid-lightness
+  ground at the same chroma. **A model that contradicts something someone saw is wrong about
+  something, and here the render outranks the reasoning.**
+
+  **BUT THAT DISQUALIFIES OKLab WITHOUT CROWNING sRGB**, which is device space and whose 34% is not
+  a perceptual claim either — it merely agrees with the observation, which is weak evidence and not
+  none. **So the question is open, and every ruling built on it is written to hold under either
+  model.** Section L asserts band MEMBERSHIP, which is true whichever is right.
+
 - **⚠ THE PALETTE COUNT IS BOUNDED BY THE SEPARATION FLOOR, AND THE TWO ARE ONE DECISION.** Seven
   hues on a circle sit **51.4 degrees apart at perfect spacing**, so seven palettes and D12's 60
   degree ground floor **cannot both be true at ANY placement**. Cream, harbour and orchid are
   already placed unevenly, so exactly two more fit and both shipped ones land EXACTLY on 60.
   **FIVE REAL PALETTES IS THE CEILING THIS FLOOR IMPLIES.** Whoever wants a sixth is choosing to
   lower the floor, and `theme-contrast` D12d is where that gets written.
+
+  **⚠ AND THE TIGHTEST ACCENT PAIR IS 31.3 DEGREES — TRUE, AND MISLEADING AS A MEASURE OF ROOM.**
+  `harbour` h165.3 and `fern` h134 sit 1.3 degrees above D12d's floor, which reads as almost none.
+  **Measured in perceptual distance it is 91.5 against a 47.2 reference — nearly double.** Accents
+  carry roughly SEVEN TIMES the chroma of grounds, and separation scales with chroma, so degrees
+  understate accent room as badly as they overstate ground room. **Do not read the degree figure as
+  the space available**; it is the gate's unit, not the eye's.
+
+  **⚠ AND DEGREES IGNORE CHROMA AND LIGHTNESS, WHICH COSTS IN THE OTHER DIRECTION ON GROUNDS.** Two
+  of the ten shipped ground pairs deliver LESS than 60 degrees was calibrated to buy — both cerise,
+  whose ground chroma is forced to 0.016 by the gamut rather than chosen. They are safe only because
+  the lightness ladder covers the gap, which is **luck rather than rule**. `theme-contrast` D12 names
+  the trigger for changing units: a future palette whose ground chroma is forced low again.
 
   **⚠ NOTHING DISCOVERS THIS EXCEPT COUNTING.** Four candidates measured first came back as three
   unrelated hue collisions — **a result somebody tunes three hues in response to.** The bound is the
@@ -426,6 +488,25 @@ closed.
   the ground.** Knowing which kind of argument an exclusion makes tells you in advance whether a new
   theme can overturn it — so read the `test:` field before re-litigating an entry that merely looks
   wrong on a new palette.
+
+- **⚠ `mutate.mjs`'s SNAPSHOT COVERS THE FILES YOU ALREADY EDITED, NOT THE ONES THE MUTATION WILL
+  DIRTY — AND THAT IS BACKWARDS FROM HOW IT READS.** `dirtyFiles()` captures work in progress, so a
+  mutation to a file that was **CLEAN** at snapshot time was never restorable, and `--restore`
+  printed "restored N file(s)" regardless. **It only ever worked when the mutated file happened to
+  be one you had already edited that session — SO IT ONLY EVER WORKED BY COINCIDENCE**, which is why
+  five rounds of mutation testing across four PRs never exposed it. **Sixth defect in this one
+  mechanism**, which is the argument it was built to make: a safety net that restores the wrong
+  state is worse than an absent one, because it is trusted. Fixed in #379 by recording the clean set and
+  reverting exactly those with `git checkout` — safe by construction, because clean at snapshot
+  means HEAD held the intent. **Read `git status` after every restore anyway**; the tool reporting
+  success is not evidence the tree is right.
+
+- **⚠ A THREE-DIGIT PR REFERENCE IS LEXICALLY A VALID HEX COLOUR.** `#379` in a CSS comment made a
+  new gate report a colour literal — correctly, about a number. **Every note in this repo cites PR
+  numbers** — **a convention of the prose collided with a colour matcher.** Any matcher run over CSS
+  must strip comments first. `colour-census` was **immune only by accident**: it strips them at its
+  line 120 for an unrelated reason, and that happened to cover this. **A defence held for a different
+  purpose is not a defence anyone chose**, and the next matcher will not inherit it.
 
 - **⚠ `mutate.mjs --restore` CONSUMES ITS SNAPSHOT — SNAPSHOT BEFORE *EACH* MUTATION.** A second
   restore in one session reports "no snapshot to restore from" and **leaves the mutation in the

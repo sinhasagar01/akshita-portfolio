@@ -50,6 +50,7 @@ function FeaturedCard({ post }: { post: BlogCard }) {
         <Shot
           heroImage={post.heroImage}
           title={post.title}
+          topic={post.topic}
           sizes="(max-width: 1024px) 100vw, 55vw"
           priority
           className="aspect-[16/10] rounded-xl border border-ink-950/8"
@@ -82,6 +83,7 @@ function PostCard({ post }: { post: BlogCard }) {
       <Shot
         heroImage={post.heroImage}
         title={post.title}
+        topic={post.topic}
         sizes="(max-width: 1024px) 100vw, 45vw"
         className="aspect-[16/10] rounded-xl border border-ink-950/8"
       />
