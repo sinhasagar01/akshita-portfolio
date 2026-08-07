@@ -59,8 +59,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   /* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
      band (the template=web Bold-gallery hero) needs its own surface + on-dark text
      tokens; ink-* text can't sit on a dark bg. WCAG AA on band-dark (verified):
-     on-dark 16.9:1, on-dark-muted 9.3:1, on-dark-quote 10.9:1. on-dark-line is a
-     low-alpha hairline for edit/replace affordances (used more in CS-7d/e).
+     on-dark 16.9:1, on-dark-muted 9.3:1, on-dark-quote 10.9:1.
+
+     ⚠ `--color-on-dark-line` WAS DECLARED HERE AND IS DELETED, WITH ZERO CONSUMERS EVER. It was a
+     low-alpha hairline for edit affordances, and the job was taken by `--color-border` in the
+     `[data-ground="dark"]` block, which mixes `on-dark` at THE IDENTICAL 16% — same recipe, same
+     weight, one composited over the band and one left transparent. So this was not a token waiting
+     for a consumer; it was a second spelling of one that already had them.
+
+     Found by section L of `role-layer`, which derives its subject from consumption — and it fired
+     on a token I had entered into its own invariance registry ONE TURN EARLIER. Zero consumers is a
+     reason to delete a token, never to exempt it forever.
 
      ⚠ THIS COMMENT USED TO END "accent-400 5.7:1 — accent-500 is only 3.9:1, so accent-ON-DARK
      uses accent-400", AND THAT MECHANISM WAS NEVER BUILT. Nothing referenced `--color-accent-400`,
@@ -81,7 +90,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-on-dark:      oklch(95.5% 0.013 82);  /* primary text/marks on the band */
   --color-on-dark-muted: oklch(77.0% 0.014 74); /* labels, facts — AA-safe dimmed light */
   --color-on-dark-quote: oklch(81.5% 0.063 49); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
-  --color-on-dark-line: color-mix(in oklch, var(--color-on-dark) 16%, transparent);
 
   /* ⚠ `--color-mark` AND `--color-mark-on-dark` LIVED HERE AND ARE DELETED. THE REASONING THAT PUT
      THEM HERE IS KEPT, because a reversal whose reasoning is deleted leaves two contradictory
@@ -1390,6 +1398,29 @@ a {
   --color-text-primary:  var(--color-on-dark);
   --color-text-secondary: var(--color-on-dark-muted);
   --color-text-lead:     color-mix(in oklch, var(--color-on-dark) 55%, var(--color-on-dark-muted));
+  /* ⚠ THE TWO THE RENDER FOUND, AND THEY ARE PALETTE-DECLARED ROLES RATHER THAN RUNG-ALIASED ONES.
+     Both were declared by every palette, named in the `text-` family beside the three above, and
+     consumed publicly — and both were absent from this block, so on a dark ground they kept a
+     light-ground ink. `text-subtle` measured 2.75 against a 4.5 floor across 35 sites.
+
+     ⚠ AND `text-body` IS NOT THE ARTICLE'S BODY COPY — THAT CLAIM WAS MINE AND IT WAS FALSE. The
+     blog prose measured 1.24 on a dark ground and I attached that number to `text-body` because
+     `text-body` was in the unremapped list. It paints `var(--color-ink-800)`, A RAW RUNG, and it
+     still does; `text-body` has two consumers, both in `style` objects in About and Contact.
+     THE 1.24 WAS REAL AND IT WAS NEVER THIS TOKEN'S. A number without its subject invites a reader
+     to supply one, and the reader who did it here had just cited that rule.
+
+     The prose stays in `role-layer`'s ratchet, which is the honest place for it: migrating it would
+     move light pixels, because `ink-800` at L26.2 and `text-body` at L37.5 are different colours.
+
+     ⚠ THE PERCENTAGES ARE THE LIGHT LADDER'S POSITIONS, NOT A CONTRAST SEARCH. On the light ground
+     `text-body` sits 18.1% of the way from `text-secondary` toward `text-lead`, and `text-subtle`
+     sits 15.1% of the way from `text-secondary` toward the ground. Those two fractions are what is
+     reproduced here, so the ordering primary > lead > body > secondary > subtle holds on BOTH
+     grounds. Contrast was then checked rather than solved for — 9.76 and 6.36 on sapphire, and no
+     palette falls below 5.9 on either. */
+  --color-text-body:     color-mix(in oklch, var(--color-on-dark) 18%, var(--color-on-dark-muted));
+  --color-text-subtle:   color-mix(in oklch, var(--color-band-dark) 15%, var(--color-on-dark-muted));
   /* ⚠ THE INK INVERTS AND THE ALPHAS SURVIVE — measured in #386, every weight lands within 6% of
      its light separation, so a consumer's chosen opacity needs no change. */
   --color-etch:          var(--color-on-dark);

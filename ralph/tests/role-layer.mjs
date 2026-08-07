@@ -74,6 +74,33 @@ const ROLES = {
   "etch": { rung: "ink-950", job: "the ink a SURFACE MARK is incised with — a hairline, a placeholder bar, a device dot; consumers supply the alpha" },
   "on-accent": { rung: "cream-50", job: "the foreground drawn ON the accent — a pill, a badge, a filled button" },
   "accent": { rung: "accent-500", job: "the brand mark colour, as a foreground and as a fill" },
+
+  /* ⚠ TWO PALETTE-DECLARED ROLES, AND THE CONTRACT WIDENED TO HOLD THEM. Every role above aliases a
+   * LADDER RUNG. These two do not — each palette declares its own literal, and no palette's value
+   * lands on a rung. So `kind` is declared per entry and A3 asserts the DECLARED kind rather than
+   * assuming the rung form, because a contract widened without its assertion widening is the #389
+   * shape: a correct extension with nothing checking the join.
+   *
+   * ⚠ THEY SIT BETWEEN RUNGS BECAUSE NOBODY EVER PLACED THEM ON THE LADDER. That is a fact about
+   * history, not a decision — they are legacy semantic values older than the role layer. Measured,
+   * `ink-600` holds THREE DIFFERENT VALUES across six palettes (45.0 on harbour and orchid, 40.0 on
+   * cerise, fern and sapphire, 44.0 on cream), so "is `text-subtle` a second spelling of
+   * `text-secondary`" HAS NO PALETTE-INDEPENDENT ANSWER: separation is 24.2 on two palettes and 41.6
+   * on four, straddling the 32.1 that proved `etch` and `border` distinct. Folding them on the four
+   * where they nearly coincide would be a merge done on evidence that holds for two-thirds of the
+   * site, so both were promoted instead — which moves ZERO light pixels, because it describes what
+   * is already true rather than asserting they belong somewhere they do not.
+   *
+   * And cream's `text-body` is `#4a4239`, THE SYSTEM'S ONLY HEX LITERAL where every other palette
+   * declares this token in OKLCH. It reads as an oversight and it is an AGE — cream predates the
+   * convention, and that is visible in the data rather than written down anywhere else. */
+  /* ⚠ AND ITS JOB LINE ONCE CLAIMED IT WAS THE ARTICLE'S BODY COPY AT 1.24. FALSE, AND MINE. The
+   * blog prose measured 1.24 on a dark ground and I attached the number to this token because it
+   * was in the unremapped list. `.blog-prose > p` paints `var(--color-ink-800)`, a raw rung, and it
+   * still does — that site is in the ratchet below. THE MEASUREMENT WAS REAL AND THE SUBJECT WAS
+   * SUPPLIED BY THE READER, one turn after that rule was cited. */
+  "text-body": { kind: "palette-declared", job: "running body copy on a card, one step lighter than the dek. TWO consumers, both `style` objects — About's bio and Contact's note." },
+  "text-subtle": { kind: "palette-declared", job: "the dimmest readable text — eyebrows, timestamps, unit labels. Dimmer than text-secondary, and NOT a second spelling of it: see the separation figures above." },
 };
 
 /* ⚠ ONE REGISTRY, NOT TWO. This began as a `COLLISIONS` map in section C and a `MULTI_ROLE` map in
@@ -108,14 +135,38 @@ console.log(`         ${declared.size} role tokens declared as var() aliases in 
 
 /* ⚠ CONSTANT, NOT DERIVED FROM THE SUBJECT. #378: a guard computing its expectation from the thing
  * it guards passes when that thing is empty. */
+/* ⚠ A ROLE TAKES ONE OF TWO FORMS AND ITS ENTRY SAYS WHICH. Rung-aliased is the norm; a
+ * palette-declared role carries its own literal per palette because it was never on the ladder.
+ * Every row below splits on the DECLARED kind rather than assuming the common case — a widened
+ * contract whose assertion did not widen is a correct extension nothing checks. */
+const RUNG_ROLES = Object.entries(ROLES).filter(([, v]) => v.kind !== "palette-declared");
+const PALETTE_ROLES = Object.entries(ROLES).filter(([, v]) => v.kind === "palette-declared");
+console.log(`         ${RUNG_ROLES.length} rung-aliased roles, ${PALETTE_ROLES.length} palette-declared`);
+
 t("A0 the parse found a real population, against a literal", declared.size >= 8, true);
-t("A1 ⚠ EVERY REGISTERED ROLE IS DECLARED — a missing one is a name the migration would resolve to nothing",
-  Object.keys(ROLES).filter((r) => !declared.has(r)).sort(), []);
+t("A1 ⚠ EVERY RUNG-ALIASED ROLE IS DECLARED — a missing one is a name the migration would resolve to nothing",
+  RUNG_ROLES.map(([r]) => r).filter((r) => !declared.has(r)).sort(), []);
 t("A2 ⚠ AND EVERY ALIAS IN @theme IS REGISTERED — an unregistered role has no stated job",
   [...declared.keys()].filter((r) => !(r in ROLES)).sort(), []);
 t("A3 ⚠ EACH RESOLVES TO THE RUNG ITS REGISTRY ENTRY NAMES — a role that drifts from the palette is a third source of truth",
-  Object.entries(ROLES).filter(([r, v]) => declared.get(r) !== v.rung)
+  RUNG_ROLES.filter(([r, v]) => declared.get(r) !== v.rung)
     .map(([r, v]) => `${r} -> ${declared.get(r)}, registry says ${v.rung}`), []);
+/* ⚠ AND THE COMPLEMENT, or the widened contract is an escape hatch. A palette-declared role must
+ * NOT be a var() alias — if it became one it is really rung-aliased and its entry is now a fiction. */
+t("A3a ⚠ NO PALETTE-DECLARED ROLE IS SECRETLY AN ALIAS — the kind field must describe the stylesheet, not the intent",
+  PALETTE_ROLES.map(([r]) => r).filter((r) => declared.has(r)), []);
+t("A3b …and each is declared as a literal by EVERY palette, which is what makes it themeable at all",
+  PALETTE_ROLES.map(([r]) => r).filter((r) =>
+    [...css.matchAll(/\[data-theme="([a-z-]+)"\]\s*\{([\s\S]*?)\n\}/g)]
+      .filter((m) => m[1] !== "cream-verify")
+      .some((m) => !new RegExp(`--color-${r}\\s*:`).test(m[2]))), []);
+/* ⚠ THE POPULATION IS PINNED AGAINST A LITERAL. Palette-declared is the EXCEPTION; if it grows
+ * quietly it becomes the hatch that empties the ladder of meaning. A third arrival must be
+ * deliberate, so it fails here and someone states why that token is not on the ladder either. */
+t("A3c ⚠ PALETTE-DECLARED IS EXACTLY TWO — a third must be argued for, not absorbed",
+  PALETTE_ROLES.length, 2);
+t("A3d …and every entry declares a kind at all, so the default can never be assumed",
+  Object.entries(ROLES).filter(([, v]) => !v.rung && v.kind !== "palette-declared").map(([r]) => r), []);
 
 console.log("\nB · the rungs are real, so a role cannot alias a colour that does not exist");
 
@@ -123,12 +174,12 @@ const rungs = new Set([...themeBlock.matchAll(/--color-([a-z0-9-]+)\s*:\s*(?!var
 console.log(`         ${rungs.size} literal rungs in @theme`);
 t("B0 the rung population is real", rungs.size >= 20, true);
 t("B1 every role's target is a literal rung, not another role — one level of indirection, not a chain",
-  Object.entries(ROLES).filter(([, v]) => !rungs.has(v.rung)).map(([r, v]) => `${r} -> ${v.rung}`), []);
+  RUNG_ROLES.filter(([, v]) => !rungs.has(v.rung)).map(([r, v]) => `${r} -> ${v.rung}`), []);
 
 console.log("\nC · ⚠ NO ROLE IS A SECOND SPELLING OF A NEIGHBOUR");
 
 const byRung = {};
-for (const [r, v] of Object.entries(ROLES)) (byRung[v.rung] ??= []).push(r);
+for (const [r, v] of RUNG_ROLES) (byRung[v.rung] ??= []).push(r);
 const shared = Object.entries(byRung).filter(([, rs]) => rs.length > 1);
 console.log(`         ${shared.length} rung(s) carry more than one role: ${shared.map(([k, rs]) => `${k} (${rs.join(" + ")})`).join(", ") || "none"}`);
 
@@ -154,7 +205,7 @@ const REFUSED = {
 };
 console.log(`         ${Object.keys(REFUSED).length} rungs were measured for a role and refused: ${Object.keys(REFUSED).join(", ")}`);
 t("D2 ⚠ NO REFUSED RUNG QUIETLY GAINED A ROLE — the refusals are a decision, not an omission",
-  Object.keys(REFUSED).filter((r) => Object.values(ROLES).some((v) => v.rung === r)), []);
+  Object.keys(REFUSED).filter((r) => RUNG_ROLES.some(([, v]) => v.rung === r)), []);
 
 console.log("\nE · ⚠ A GROUND AND ITS FOREGROUND AGREE — the check #383's sweep needed and did not have");
 
@@ -288,7 +339,7 @@ console.log("\nF · ⚠ WHICH RUNGS CARRY MORE THAN ONE ROLE — the map's SHAPE
  * section asserts the multi-role set is DECLARED so the next sweep knows which rungs it may not
  * map. It is a list that must SHRINK or stay still, never grow silently. */
 const rolesByRung = {};
-for (const [r, v] of Object.entries(ROLES)) (rolesByRung[v.rung] ??= []).push(r);
+for (const [r, v] of RUNG_ROLES) (rolesByRung[v.rung] ??= []).push(r);
 const actualMulti = Object.entries(rolesByRung).filter(([, rs]) => rs.length > 1).map(([k]) => k).sort();
 console.log(`         rungs carrying >1 role: ${actualMulti.join(", ") || "none"}`);
 
@@ -504,8 +555,13 @@ console.log("\nK · ⚠ THE DARK BLOCK REMAPS EVERY ROLE THAT NEEDS IT — the c
  * ⚠ AND THE SAME GAP EXISTS FOR EVERY ROLE THE BLOCK IS MEANT TO REMAP, which is why this is a
  * registry rather than four assertions: a role added to the layer tomorrow needs a dark answer, and
  * without this row its absence is invisible until someone renders a dark page. */
+/* ⚠ ANCHORED AT A LINE START, AND A BARE indexOf WAS WRONG. Prose in `globals.css` now NAMES this
+ * selector while explaining a token that was deleted in its favour, so the first match in the file
+ * is inside a comment and the brace walk then measured something else entirely — K1 reported all
+ * eight remapped roles as missing. Same family as the PR-number-as-hex trap: a convention of the
+ * prose collided with a matcher, and the note about the mechanism became the defect. */
 const darkBlock = (() => {
-  const at = css.indexOf('[data-ground="dark"]');
+  const at = css.search(/^\[data-ground="dark"\]/m);
   if (at < 0) return null;
   const o = css.indexOf("{", at);
   let d = 0, e = -1;
@@ -534,6 +590,196 @@ t("K2 ⚠ AND EVERY EXEMPTION CARRIES A REASON — a role silently left out look
   Object.entries(DARK_EXEMPT).filter(([, why]) => !why || why.length < 40).map(([k]) => k), []);
 t("K3 …and no exempt role is remapped anyway, which would make its reason a fiction",
   Object.keys(DARK_EXEMPT).filter((r) => r === "on-accent" && remapped.has(r)), []);
+
+console.log("\nL · ⚠ THE SUBJECT IS DERIVED FROM CONSUMPTION, NOT DRAWN FROM THE REGISTRY");
+
+/* ⚠ K's SUBJECT IS `ROLES`, SO IT CAN ONLY SEE WHAT SOMEBODY REMEMBERED TO REGISTER. A token that
+ * SHOULD be a role and was never entered is invisible to the check built to find unregistered-role
+ * failures — the arc's central defect sitting inside the instrument built against it, one PR later.
+ *
+ * It was found by rendering, not by a gate. `text-subtle` is declared by every palette, named in the
+ * `text-` family beside the three real roles, consumed at 35 public sites — and absent from both
+ * `ROLES` and the dark block, so it painted a light-ground grey at 2.75 on a dark page.
+ * `text-body` is worse: it is the article's entire body copy and it measured 1.24.
+ *
+ * ⚠ SIXTH TIME A SUBJECT HAS BEEN DRAWN BY A LIST RATHER THAN DERIVED, and the repair is the one
+ * made five times. The question a role registry answers is "which colours must follow the ground",
+ * and that is A FACT ABOUT CONSUMPTION — a palette declares a token, a public surface paints it,
+ * and from that moment it owes an answer on both grounds. Membership of a file is not evidence.
+ *
+ * ⚠ AND THE WALK COVERS THREE FILE TYPES ON PURPOSE. `tsxFiles` above is `.tsx` only, which is how
+ * `globals.css`'s raw rungs escaped the role migration entirely; `text-body` then escaped MY OWN
+ * probe twice over, being consumed through a style object rather than a utility AND from CSS rather
+ * than from a component. A sweep bounded by directory still has a boundary by file type, and a
+ * denominator computed inside the walk cannot see it. */
+const srcFiles = [];
+(function walk(d) {
+  for (const e of readdirSync(d, { withFileTypes: true })) {
+    const p = join(d, e.name);
+    if (/node_modules|\.next|\.git|ralph|docs/.test(p)) continue;
+    if (e.isDirectory()) walk(p);
+    else if (/\.(tsx|ts|css)$/.test(e.name)) srcFiles.push(p);
+  }
+})(new URL("../../", import.meta.url).pathname);
+
+/* Every token any PALETTE declares. A token declared only in `@theme` is a base value; one a
+ * palette overrides is a themed value, and a themed value consumed publicly is the subject. */
+const paletteTokens = new Set();
+for (const m of css.matchAll(/\[data-theme="[a-z-]+"\]\s*\{([\s\S]*?)\n\}/g))
+  for (const d of m[1].matchAll(/--color-([a-z0-9-]+)\s*:/g)) paletteTokens.add(d[1]);
+
+const UTIL = "(?:text|bg|border|fill|stroke|ring|decoration|divide|from|via|to|shadow|outline|accent|caret|placeholder)";
+const root = new URL("../../", import.meta.url).pathname;
+const consumers = new Map();
+let filesScanned = 0, studioSkipped = 0;
+/* ⚠ SECTION H IS KEYED BY FILE, SO IT IS APPLIED BY FILE — never joined against a token. A
+ * file-level record consulted at the value level over-attributes totally, which is how a probe once
+ * credited 19 migration sites to rows ruling on entirely different colours in the same files. The
+ * constants are artwork: excluding the FILE is the same unit the registry is written in. */
+let constantsSkipped = 0;
+for (const f of srcFiles) {
+  const rel = f.replace(root, "");
+  if (/^components\/studio\/|^app\/studio\//.test(rel)) { studioSkipped++; continue; }
+  if (rel in CONSTANTS) { constantsSkipped++; continue; }
+  let text = readFileSync(f, "utf8");
+  if (/\.css$/.test(text ? rel : rel)) {
+    /* Strip comments — a three-digit PR citation is lexically a hex colour, and a token name inside
+     * prose is not a consumer. Then drop the declaration blocks themselves and every studio rule,
+     * so what remains is public USE rather than definition. */
+    text = text.replace(/\/\*[\s\S]*?\*\//g, " ")
+               .replace(/@theme\s*\{[\s\S]*?\n\}/g, " ")
+               .replace(/\[data-theme="[a-z-]+"\]\s*\{[\s\S]*?\n\}/g, " ")
+               .replace(/\.studio-chrome[^{]*\{[\s\S]*?\n?\}/g, " ");
+  }
+  filesScanned++;
+  for (const tok of paletteTokens) {
+    /* THREE FORMS, because each one has hidden a defect: the utility (section G's className-only
+     * vocabulary failed three times at this seam), the `var()` reference (how `text-body` is
+     * consumed, in a style object AND in CSS), and the alpha-modified utility. */
+    const hit = new RegExp(`\\b${UTIL}-${tok}\\b|var\\(\\s*--color-${tok}\\s*[,)]`).test(text);
+    if (hit) consumers.set(tok, (consumers.get(tok) ?? 0) + 1);
+  }
+}
+
+/* ⚠ A TOKEN MAY BE EXEMPT FROM FOLLOWING THE GROUND, AND THE REASON MUST SAY WHY IT IS INVARIANT
+ * RATHER THAN MERELY UNMIGRATED. "Not done yet" is not invariance; it is a backlog wearing an
+ * exemption's clothes, which is the shape that let a dead token survive a contrast floor. */
+const GROUND_INVARIANT = {
+  "on-dark": "IS the dark answer — a role remapping to it would be circular.",
+  "on-dark-muted": "IS the dark answer for secondary text, same reason.",
+  "on-dark-quote": "IS the dark answer for the italic tagline, same reason.",
+  "accent-on-dark": "IS the dark answer for the accent, referenced BY `--color-accent` in the block.",
+  "band-dark": "the dark ground itself — it is what the other side remaps TO.",
+  "glow-paper": "IS the light ground's answer for a glow; `--glow-on-dark` is its pair and the "
+    + "dark block already switches `--glow-color` between them.",
+
+  /* ⚠ BOTH HALVES, AND THE SECOND IS WHAT KEEPS THIS HONEST. Measured with #386's instrument —
+   * euclidean sRGB separation from the surface beneath, which reproduces that PR's `etch@8` = 32.9
+   * exactly. On the LIGHT ground `rule` spans 42.5 to 79.8 and `etch` spans 32.9 to 61.7: they
+   * OVERLAP, and on that evidence alone `rule` reads as a second spelling and would have been
+   * merged. On the DARK ground they are opposites — `etch`'s ink measures 0.6 (ink on ink,
+   * invisible, which is WHY etch became a role) while `rule` measures 22.4 and survives.
+   *
+   * THE STRUCTURAL DIFFERENCE IS THE DURABLE OUTPUT: AN EXTREME MUST INVERT, A MID-TONE MUST NOT.
+   * That separates two roles by WHERE A VALUE SITS ON THE LIGHTNESS AXIS rather than by what it
+   * draws, and it is the first discriminator in this arc of that kind.
+   *
+   * ⚠ AND IT IS A PROPERTY SOMEBODY MEASURED, NOT A DECISION SOMEBODY MADE. Nothing in the record
+   * shows `rule` was designed as a mid-tone for a dark ground; it predates the dark ground. It is
+   * TOLERANT, NOT NEUTRAL — 47% weakening across the ground change against etch's 6% — and 22.4
+   * still sits above etch@5's shipped 20.8, so it holds today.
+   *
+   * ⚠ TRIGGER: if a dark palette's surfaces move, `rule`'s 22.4 moves with them and NO HEADROOM HAS
+   * BEEN STATED for 47% of weakening. It is fine at one dark palette and has not been tested against
+   * three. A second dark palette re-opens this entry. */
+  "rule": "IS a mid-tone at L 48.5%, so it separates from a light surface downward and a dark one "
+    + "upward and needs no remap — 42.5 light, 22.4 dark, both above shipped hairline strength.",
+};
+
+/* ⚠ A THIRD KIND, AND IT IS NEITHER AN EXEMPTION NOR A RULING. An exemption says "this will never
+ * move"; a RATCHET says "this may only shrink". These rungs are painted directly by public surfaces
+ * the role migration has not reached — un-migrated rather than deliberate — so calling them
+ * invariant would be a backlog wearing an exemption's clothes, which L2 forbids.
+ *
+ * THE COUNT MAY ONLY FALL AND THE GATE FAILS IF IT RISES, so a new raw rung cannot hide inside an
+ * existing allowance.
+ *
+ * ⚠ END CONDITION, STATED RATHER THAN IMPLIED. The intent is zero, and the trigger is the NEXT DARK
+ * PALETTE: every one of these paints a light-ground value, so a second dark palette makes each a
+ * visible defect on a real page exactly as `text-subtle` and `text-body` became. Whichever remain
+ * when that palette is proposed must be migrated or argued into `GROUND_INVARIANT` individually —
+ * "reach zero eventually" is not an end condition and this is not one either unless that trigger is
+ * honoured. */
+const RATCHET = {
+  max: 15,
+  why: "ladder rungs and semantic tokens painted directly by public surfaces, owing a ground answer",
+};
+
+/* ⚠ THE VESSEL, AND IT IS A DIFFERENT KIND AGAIN — a MECHANIC rather than a set of values. Arrived
+ * from two independent routes on the same day: classified from the render, where it draws a glaring
+ * light pill across a dark page, and derived from consumption here, which found the same eleven
+ * tokens without being told to. That corroboration is what makes it a fact about the system rather
+ * than a judgement about a screenshot.
+ *
+ * ⚠ IT IS NOT A MISSING VALUE. Its tones ARE palette-scoped — `vessel-pearl` resolves to
+ * oklch(96.5% 0.009 250) on sapphire, hue 250 rather than cream's 40 — so every palette already
+ * themes it. Pearl, glass, smoke and bounce describe LIGHT PASSING THROUGH A PALE TRANSLUCENT BODY,
+ * and THERE IS NO DARKER VALUE OF THAT WHICH IS STILL THAT. The repair is a different highlight
+ * structure, not different numbers, which is the one piece shape C cannot reach.
+ *
+ * Predicted at 1.20 by the dark render two arcs ago and now measured on a real page. Its own unit. */
+const DEFERRED_REDRAW = {
+  tokens: ["bounce", "smoke-1", "smoke-2", "smoke-3", "smoke-4", "vessel-capsule",
+           "vessel-glass", "vessel-ink", "vessel-pearl", "vessel-shadow", "vessel-wave"],
+  why: "the reading vessel's MATERIAL — a translucent light body whose optics do not invert",
+};
+
+const subject = [...consumers.keys()].filter((t2) => paletteTokens.has(t2)).sort();
+const roleRungs = new Set(RUNG_ROLES.map(([, v]) => v.rung));
+const redraw = new Set(DEFERRED_REDRAW.tokens);
+const unclassified = subject.filter((t2) =>
+  !(t2 in ROLES) && !(t2 in GROUND_INVARIANT) && !redraw.has(t2));
+
+console.log(`         ${filesScanned} source files scanned across .tsx/.ts/.css, ${studioSkipped} skipped under the freeze, ${constantsSkipped} as artwork`);
+console.log(`         ${paletteTokens.size} palette-declared tokens; ${subject.length} of them have a public consumer`);
+console.log(`         ${unclassified.length} consumed and unclassified — neither a role, nor ground-invariant, nor a constant`);
+
+t("L0 the walk found real files — a zero denominator makes every row below vacuous, against a literal",
+  filesScanned > 150, true);
+t("L0a …and it reached all three file types, which is the boundary the role migration could not see",
+  ["tsx", "ts", "css"].filter((ext) =>
+    !srcFiles.some((f) => f.endsWith("." + ext) && !/^components\/studio\/|^app\/studio\//.test(f.replace(root, "")))), []);
+t("L0b …and the palette subject is non-empty, against a literal", paletteTokens.size >= 30, true);
+t("L0c …and the freeze was applied by DIRECTORY before any pattern ran", studioSkipped > 0, true);
+
+/* ⚠ THE ROW THE RENDER HAD TO FIND. Every themed token a public surface paints must be classified:
+ * a role that follows the ground, a value that IS the ground answer, or a declared constant. An
+ * unclassified one is a colour nobody has decided about, and it will paint a light value on a dark
+ * page exactly as `text-subtle` and `text-body` did. */
+/* ⚠ THE RATCHET IS A CEILING, NOT A LIST. A named list would let one token leave and another take
+ * its place at the same count; a ceiling on the COUNT with the names printed makes a new raw rung
+ * fail even if an old one was fixed in the same commit. */
+console.log(`         ratchet: ${unclassified.length} un-migrated against a ceiling of ${RATCHET.max}`);
+console.log(`         ${unclassified.join(", ")}`);
+/* ⚠ THE FAILURE CARRIES THE NAMES, NOT JUST THE COUNT. A ceiling that reports only a number tells
+ * you it moved and not WHICH token arrived — the same defect as a census whose movement cannot
+ * distinguish five causes. So the overflow is reported as the sorted excess. */
+t("L1 ⚠ THE UN-MIGRATED COUNT MAY ONLY FALL — a ceiling, so a new raw rung cannot hide inside an existing allowance",
+  unclassified.length <= RATCHET.max ? [] : unclassified, []);
+t("L1a …and the ceiling is not slack: it equals today's count, so the next arrival fails rather than fitting",
+  RATCHET.max, unclassified.length);
+t("L1b ⚠ AND THE DEFERRED REDRAW IS A DECLARED SET WITH A REASON, not an absence — its tokens are consumed and unfixed on purpose",
+  DEFERRED_REDRAW.tokens.filter((t2) => !consumers.has(t2)).sort(), []);
+t("L2 ⚠ AND EVERY GROUND-INVARIANT REASON ARGUES INVARIANCE — 'not migrated yet' is a backlog wearing an exemption's clothes",
+  Object.entries(GROUND_INVARIANT).filter(([, why]) => !/\bIS\b|itself|referenced/.test(why)).map(([k]) => k), []);
+t("L3 …and no token is classified twice, which would leave two answers and no way to tell which won",
+  subject.filter((t2) => (t2 in ROLES) && (t2 in GROUND_INVARIANT)), []);
+t("L3a …and the artwork files were excluded by FILE, the unit section H is written in, against a literal",
+  constantsSkipped > 0, true);
+/* ⚠ THE COMPLEMENT, because a conditional assertion can only fail in one direction. L1 catches a
+ * token that gained a consumer; this catches one that LOST every consumer and kept its entry. */
+t("L4 ⚠ AND NO GROUND-INVARIANT ENTRY HAS LOST ITS CONSUMERS — zero consumers is a reason to delete a token, not to exempt it forever",
+  Object.keys(GROUND_INVARIANT).filter((t2) => !consumers.has(t2)), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
