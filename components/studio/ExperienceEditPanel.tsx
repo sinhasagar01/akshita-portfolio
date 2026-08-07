@@ -26,14 +26,12 @@ type Props = {
   location: string;
   // Still passed by the page and preserved in the file, but NOT editable here
   // (Phase-1 T2) — so it is not destructured, seeded, or sent in the patch.
-  description: string;
 };
 
 type ExperienceFields = {
   title: string;
   startDate: string;
   endDate: string;
-  description: string;
   location: string;
 };
 
@@ -44,10 +42,9 @@ export default function ExperienceEditPanel({
   title,
   startDate,
   endDate,
-  description,
   location,
 }: Props) {
-  const initial: ExperienceFields = { title, startDate, endDate, description, location };
+  const initial: ExperienceFields = { title, startDate, endDate, location };
   // Report differs + pending up to the page Publish bar (now in the dashboard layout).
   const { setUnpublished } = usePublishSignal();
 
@@ -66,7 +63,6 @@ export default function ExperienceEditPanel({
       v.title !== b.title ||
       v.startDate !== b.startDate ||
       v.endDate !== b.endDate ||
-      v.description !== b.description ||
       v.location !== b.location,
     saveExtras: { collection: "experience", slug },
     onSaved: () => setUnpublished(true),
@@ -181,22 +177,15 @@ export default function ExperienceEditPanel({
           </label>
         </div>
 
-        <label className="flex flex-col gap-1.5">
-          <FieldKey>
-            What you did
-          </FieldKey>
-          <textarea
-            rows={4}
-            value={values.description}
-            onChange={(e) => setField("description", e.target.value)}
-            onBlur={saveDraft}
-            placeholder={"Led the redesign of the mechanic app.\nShipped a design system used by three teams."}
-            className={`${inputClsMd} resize-y`}
-          />
-          <span className="text-[10px] text-studio-text-subtle">
-            One line per point. Each line renders as its own paragraph under the role.
-          </span>
-        </label>
+        {/* ⚠ THE "WHAT YOU DID" TEXTAREA WAS HERE AND IS DELETED. It asked for four rows of copy
+            per entry, on five entries, and its hint promised "each line renders as its own paragraph
+            under the role" — WHICH WAS FALSE. `ExperienceSection` never read the field and
+            `ExperienceEntry`, which would have, was imported by nothing.
+
+            Keeping it and correcting the hint was the alternative, and it was the worst of the three:
+            it would have DOCUMENTED the lie rather than removed it — a field kept alive by a control
+            describing behaviour that does not exist. Role descriptions remain worth wanting; they are
+            a design change to the experience row, not five blanks. */}
 
         <label className="flex flex-col gap-1.5">
           <FieldKey>Location</FieldKey>

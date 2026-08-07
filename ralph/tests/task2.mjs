@@ -1,4 +1,4 @@
-// Phase-1 T2 test — experience form: description round-trips, preserved on save.
+// Phase-1 T2 test — experience form: an editable free-text field round-trips, preserved on save.
 // Run: node --experimental-strip-types ralph/tests/task2.mjs
 //
 // T2 originally pinned description as LOCKED. #117 unlocked it deliberately, because
@@ -79,24 +79,24 @@ console.log("T2.1 sanitizer accepts description; still rejects company/orderInde
 }
 
 // Deterministic canonical record (built via dump so it round-trips), with a
-// NON-EMPTY description to prove real content is preserved, not just "".
+// NON-EMPTY location to prove real content is preserved, not just "".
 const record = {
   company: "Acme Corp, Bengaluru",
   title: "Senior Designer",
   startDate: "Jan 2020",
   endDate: "Present",
-  description: "Led the end to end redesign of the mobile app.",
+  location: "Bengaluru",
   orderIndex: 3,
 };
 const raw = dump(record, { quotingType: '"' });
-const descLine = "description: Led the end to end redesign of the mobile app.";
+const descLine = "location: Bengaluru";
 const orderLine = "orderIndex: 3";
 
-console.log("T2.2 editing title/dates preserves description + orderIndex byte-identical");
+console.log("T2.2 editing title/dates preserves location + orderIndex byte-identical");
 {
   const out = serialize(raw, { title: "Principal Designer", endDate: "Dec 2024" });
-  check("description line byte-identical", out.includes(descLine + "\n") || out.endsWith(descLine),
-    "description changed/dropped");
+  check("location line byte-identical", out.includes(descLine + "\n") || out.endsWith(descLine),
+    "location changed/dropped");
   check("orderIndex line byte-identical", out.includes(orderLine),
     "orderIndex changed/dropped");
   check("title updated", /title: Principal Designer/.test(out) && !/Senior Designer/.test(out));
@@ -104,13 +104,13 @@ console.log("T2.2 editing title/dates preserves description + orderIndex byte-id
   check("company untouched", out.includes("company: Acme Corp, Bengaluru"));
 }
 
-console.log("T2.2b editing description writes through, and nothing else moves");
+console.log("T2.2b editing location writes through, and nothing else moves");
 {
   // The capability #117 added. Nothing pinned it, which is how the locked-era
   // expectation above survived unnoticed for so long.
-  const next = "Rebuilt the design system and shipped it across four squads.";
-  const out = serialize(raw, { description: next });
-  check("description updated", out.includes(`description: ${next}`) && !out.includes(descLine));
+  const next = "Pune";
+  const out = serialize(raw, { location: next });
+  check("location updated", out.includes(`location: ${next}`) && !out.includes(descLine));
   check("orderIndex still byte-identical", out.includes(orderLine));
   check("company untouched", out.includes("company: Acme Corp, Bengaluru"));
   check("title untouched", out.includes("title: Senior Designer"));
@@ -128,13 +128,20 @@ console.log("T2.3 no-op reproduces the record byte-for-byte");
   check("no-op equals input", out === raw);
 }
 
-console.log("T2.4 real content/experience/kaha-technologies.yaml preserves description + orderIndex");
+/* ⚠ RETARGETED FROM `description` TO `location` IN #369, BECAUSE THE FIELD WAS DELETED. It had no
+ * consumer for its entire life — `ExperienceSection` never read it and `ExperienceEntry`, which
+ * would have, was imported by nothing.
+ *
+ * THE SUITE'S PROPERTY SURVIVES THE SUBJECT. What T2 pins is that an EDITABLE FREE-TEXT FIELD is
+ * byte-identical after a DIFFERENT field is saved — a claim about the serializer, not about that one
+ * field. `location` is the remaining editable free-text field and carries it unchanged. */
+console.log("T2.4 real content/experience/kaha-technologies.yaml preserves location + orderIndex");
 {
   const realRaw = readFileSync(new URL("../../content/experience/kaha-technologies.yaml", import.meta.url), "utf8");
-  const descMatch = realRaw.match(/^description:.*$/m)?.[0] ?? "";
+  const descMatch = realRaw.match(/^location:.*$/m)?.[0] ?? "";
   const orderMatch = realRaw.match(/^orderIndex:.*$/m)?.[0] ?? "";
   const out = serialize(realRaw, { title: "Edited Title" });
-  check("real description line preserved", descMatch !== "" && out.includes(descMatch), `desc: ${descMatch}`);
+  check("real location line preserved", descMatch !== "" && out.includes(descMatch), `loc: ${descMatch}`);
   check("real orderIndex line preserved", orderMatch !== "" && out.includes(orderMatch), `order: ${orderMatch}`);
   check("real title updated", /title: Edited Title/.test(out));
 }

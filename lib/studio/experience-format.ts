@@ -24,16 +24,19 @@ export const EXPERIENCE_FIELD_ORDER = [
   "title",
   "startDate",
   "endDate",
-  "description",
   "location",
   "orderIndex",
 ] as const;
 
 /** The editable fields — the non-slug text fields. company is the slug (editing
  *  it renames the file) and orderIndex is set by reorder, so both are refused
- *  here. description IS editable: the site renders it as the role's bullet lines
- *  (one per newline), and it had no editor at all, so those lines could not be
- *  written from /studio. location overrides the city parsed from the company name. */
+ *  here. location overrides the city parsed from the company name.
+ *
+ *  ⚠ `description` WAS ON THIS LIST AND THE COMMENT ABOVE USED TO READ "the site renders it as the
+ *  role's bullet lines (one per newline)". THAT WAS NEVER TRUE. `ExperienceSection` is the live
+ *  renderer and never touched the field; `ExperienceEntry`, which did, was imported by nothing.
+ *  Deleted in #369 along with the field, the schema entry, the studio control and the dead
+ *  component. */
 export const EXPERIENCE_EDITABLE_FIELDS = [
   "title",
   "startDate",

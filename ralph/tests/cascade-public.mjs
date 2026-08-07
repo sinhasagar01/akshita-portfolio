@@ -431,8 +431,14 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
 
      ⚠ 24 -> 21 IN #355, three more of the same kind: heading tracking utilities that agreed with
      the reset and can now simply win. Four times this count has fallen and four times it has been
-     worth writing down which kind it was — a reclassification, a repair, or both. */
-  inert.filter(outside).length, 21);
+     worth writing down which kind it was — a reclassification, a repair, or both.
+
+     ⚠ 21 -> 20 IN #369, AND THIS ONE IS NEITHER — A WHOLE FILE LEFT THE REPO. `ExperienceEntry.tsx`
+     was deleted as dead: it rendered the experience `description` field and NOTHING IMPORTED IT,
+     which is exactly how that field came to have no consumer for its entire life. Its inert utility
+     went with it. A fifth kind of fall, and the reason to keep recording them — the number moving
+     says nothing about which of five things happened. */
+  inert.filter(outside).length, 20);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

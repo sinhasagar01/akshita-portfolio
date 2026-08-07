@@ -30,6 +30,21 @@ const t = (name, got, want) => {
   console.log((ok ? "  [PASS] " : "  [FAIL] ") + name + (ok ? "" : `\n     got  ${JSON.stringify(got)}\n     want ${JSON.stringify(want)}`));
   ok ? pass++ : fail++;
 };
+// ⚠ A LATENT TRAP LIVES HERE AND THE OBVIOUS FIX IS WORSE THAN IT. `keystatic.config.ts` holds
+// `path: "content/projects/<star>"`, and the slash-star inside that STRING reads as a comment opener
+// to the regex below. It is harmless only while no later closing delimiter pairs with it — #369
+// added one block comment further down that file and the match swallowed everything between,
+// turning `G5` red with the claim that `beforeAfterStory` had left the schema. It had not.
+//
+// THE FIX THAT SUGGESTS ITSELF IS BLANKING STRING BODIES BEFORE STRIPPING COMMENTS. It was written
+// and reverted: five assertions here READ STRING CONTENTS — `G3` matches `omitEmpty: ["variant"]`,
+// `C2` and `C4` match literal block kinds — so blanking strings breaks the suite it was meant to
+// protect. A stripper serving consumers that care about strings cannot discard them.
+//
+// SO THE TRAP IS RECORDED RATHER THAN REMOVED, with the trigger named: DO NOT ADD A BLOCK COMMENT
+// TO `keystatic.config.ts` BELOW A `path:` GLOB — use line comments, as #369's entry there does. A
+// real repair needs a tokenizer rather than a regex, which is a larger change than this suite
+// warrants and is stated here so the next person meets the reason and not just the breakage.
 const code = (p) =>
   readFileSync(new URL(`../../${p}`, import.meta.url), "utf8")
     .replace(/\/\*[\s\S]*?\*\//g, "")

@@ -10603,6 +10603,57 @@ never visible.** 18.42 against 18.50, on grounds **16.8 apart**. No change neede
 `background_color` stays themed because it is the page ground arriving early, which is what the field
 is for.
 
+## THE EXPERIENCE DESCRIPTION IS DROPPED — THE OLDEST OPEN ITEM HAD NO SUBJECT (#369)
+
+**⚠ THE FIELD HAD NO CONSUMER FOR ITS ENTIRE LIFE.** `ExperienceSection` is the live renderer and
+never touched `description`; `ExperienceEntry.tsx` — the one component that would have — **was
+imported by nothing.** So the board carried "write five descriptions" for months, and **writing them
+would have changed nothing on the site.**
+
+**That is `structural()` at the largest scale this project has found:** not a function that never
+existed, not a constant with no consumers, but **an open item whose subject does not render.**
+
+**Checked before deleting, because content is the one thing no gate restores:** `git log -p --all`
+over `content/experience/` shows `description: ""` as the **only value ever committed**, across six
+commits and all five files. No sentence is lost.
+
+**WHAT WENT.** The field from five content files, the Keystatic schema entry,
+`EXPERIENCE_EDITABLE_FIELDS`, the `ExperienceListItem` type, the reader in `lib/keystatic.ts`, two
+sites in `ExperienceListEditor`, **the four-row "What you did" textarea on every entry**, and the dead
+component. The studio change is the visible half — an author loses five textareas.
+
+**AND THE STUDIO HINT IS WHY KEEPING IT WAS THE WORST OPTION.** It promised *"each line renders as its
+own paragraph under the role"*, which was false. Keeping the field and correcting the hint would have
+**documented the lie rather than removed it.**
+
+**Dropping it does not foreclose role descriptions.** They are a design change to the experience row —
+where bullets sit in a row that is currently one line per role — and the render has to be built either
+way, so nothing is lost that was not already missing.
+
+**TWO GATES LOST THEIR SUBJECT AND WERE RETARGETED RATHER THAN DELETED.** `task2` pinned that an
+EDITABLE FREE-TEXT FIELD survives byte-identically when a different field is saved — **a claim about
+the serializer, not about `description`** — so it now carries it with `location`. `cascade-public`'s
+inert inventory fell 21 → 20, **a fifth kind of fall: a whole file left the repo**, neither a
+reclassification nor a repair.
+
+---
+
+## ⚠ AND THE COMMENT TRAP FIRED TWICE, BOTH TIMES INSIDE THE EXPLANATION OF ITSELF
+
+`keystatic.config.ts` holds `path:` globs ending in a slash-star **inside a string**, which ralph's
+`code()` stripper reads as a comment opener. Adding one block comment below it made the match swallow
+`beforeAfterStory`, and `G5` went red **claiming the block had left the schema. It had not.**
+
+**Writing the note about it broke the file twice more.** As a block comment, the closing delimiter
+written out mid-sentence **terminated the comment early** — a syntax error. Rewritten as line
+comments, the opener written out **re-paired with the glob** and swallowed the schema again.
+
+**⚠ AND THE OBVIOUS FIX WAS WRITTEN AND REVERTED.** Blanking string bodies before stripping comments
+broke **five assertions that read string contents** — `G3` matches `omitEmpty: ["variant"]`, `C2` and
+`C4` match literal block kinds. **A stripper serving consumers that care about strings cannot discard
+them.** The trap is recorded with its trigger named, and a real repair needs a tokenizer rather than a
+regex.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
