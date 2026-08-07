@@ -710,9 +710,38 @@ const GROUND_INVARIANT = {
  * when that palette is proposed must be migrated or argued into `GROUND_INVARIANT` individually —
  * "reach zero eventually" is not an end condition and this is not one either unless that trigger is
  * honoured. */
+/* ⚠ THE NOUN WAS WRONG AND THE COUNT WAS NOT. This said "ladder rungs and semantic tokens", which
+ * described twelve of fifteen — the other three were a route's PAGE GROUND, a transition's START
+ * STATE and a card TINT. Complete, measured, and still the wrong noun, in a registry two turns old.
+ * That shape has now appeared in a spec, in a census and here. */
 const RATCHET = {
-  max: 15,
-  why: "ladder rungs and semantic tokens painted directly by public surfaces, owing a ground answer",
+  max: 13,
+  why: "LADDER RUNGS painted directly by public surfaces — a rung is what a role resolves to, so a "
+     + "site naming one directly has no ground answer. Plus `glow-web`, a per-category card tint, "
+     + "which is decoration rather than a rung and is named here so the noun stays honest.",
+};
+
+/* ⚠ THE FIFTH KIND, EARNED RATHER THAN CONVENIENT. A ROLE IS A NAME A COMPONENT READS; THESE ARE
+ * VALUES A CONTEXT RESOLVES THAT NO COMPONENT NAMES. `case-study-sand` is a route's page ground set
+ * by a fixed full-bleed layer; `reveal-sand` is a transition's start state. Neither is spelled by
+ * any component, so neither can be a role — and both must change with the ground, so neither is
+ * invariant and neither is un-migrated debt. The vocabulary had no slot for this.
+ *
+ * ⚠ AND `reveal-sand` IS THE SHARPEST MEMBER: A TRANSITION WHOSE END STATE THEMED AND WHOSE START
+ * STATE DID NOT. Section G's whole-pair rule applied to a TEMPORAL pair rather than a spatial one —
+ * and G cannot express it, because G looks at elements CO-EXISTING rather than at one element over
+ * time. G's fourth vocabulary failure, and the first where widening the selector cannot help: both
+ * states are correct in isolation and only their relation is wrong, so a half-migrated animation is
+ * invisible to every static check BY CONSTRUCTION.
+ *
+ * ⚠ IT IS A CLASS RATHER THAN AN INSTANCE. Every transition, keyframe and enter/exit state in the
+ * repository pairs two values, and nothing has ever checked that both sides theme together. Section
+ * N enumerates them. */
+const GROUND_SCOPED = {
+  "case-study-sand": "a ROUTE's page ground, painted by `.case-study-bg` as a fixed full-bleed "
+    + "layer. No component names it. Remapped to the page ground on dark.",
+  "reveal-sand": "a TRANSITION's start state, settling to `var(--color-surface)`. No component "
+    + "names it. Remapped so the sweep arrives lighter than the ground and settles down.",
 };
 
 /* ⚠ THE VESSEL, AND IT IS A DIFFERENT KIND AGAIN — a MECHANIC rather than a set of values. Arrived
@@ -738,7 +767,7 @@ const subject = [...consumers.keys()].filter((t2) => paletteTokens.has(t2)).sort
 const roleRungs = new Set(RUNG_ROLES.map(([, v]) => v.rung));
 const redraw = new Set(DEFERRED_REDRAW.tokens);
 const unclassified = subject.filter((t2) =>
-  !(t2 in ROLES) && !(t2 in GROUND_INVARIANT) && !redraw.has(t2));
+  !(t2 in ROLES) && !(t2 in GROUND_INVARIANT) && !(t2 in GROUND_SCOPED) && !redraw.has(t2));
 
 console.log(`         ${filesScanned} source files scanned across .tsx/.ts/.css, ${studioSkipped} skipped under the freeze, ${constantsSkipped} as artwork`);
 console.log(`         ${paletteTokens.size} palette-declared tokens; ${subject.length} of them have a public consumer`);
@@ -780,6 +809,129 @@ t("L3a …and the artwork files were excluded by FILE, the unit section H is wri
  * token that gained a consumer; this catches one that LOST every consumer and kept its entry. */
 t("L4 ⚠ AND NO GROUND-INVARIANT ENTRY HAS LOST ITS CONSUMERS — zero consumers is a reason to delete a token, not to exempt it forever",
   Object.keys(GROUND_INVARIANT).filter((t2) => !consumers.has(t2)), []);
+
+
+console.log("\nN · ⚠ A TRANSITION PAIRS TWO VALUES, AND NOTHING HAS EVER CHECKED BOTH SIDES THEME");
+
+/* ⚠ SECTION G's FOURTH VOCABULARY FAILURE, AND THE FIRST WHERE WIDENING THE SELECTOR CANNOT HELP.
+ * G asserts a pair migrates whole or not at all — and it looks at elements CO-EXISTING. A transition
+ * pairs one element with ITSELF OVER TIME, which G cannot express. `.reveal-panel` settled to
+ * `var(--color-surface)`, a role that remaps, and started at a raw literal: correct at rest, wrong
+ * for its first 0.9 seconds, on every un-revealed panel of a dark page.
+ *
+ * ⚠ BOTH STATES WERE CORRECT IN ISOLATION AND ONLY THEIR RELATION WAS WRONG, so no static check
+ * that reads one rule at a time could see it — invisible BY CONSTRUCTION rather than by oversight.
+ *
+ * This enumerates the class rather than fixing the instance: every animated colour in the sheet,
+ * counted, with the population stated so a shrunken subject fails instead of agreeing. */
+const cssN = css.replace(/\/\*[\s\S]*?\*\//g, " ");
+const COLOUR_PROP = /(?:^|[;{\s])(background-color|background|color|border-color|fill|stroke|box-shadow|outline-color)\s*:\s*([^;}]+)/g;
+
+/* Every rule that declares a colour, keyed by selector. */
+const rules = [];
+for (const m of cssN.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+  const sel = m[1].trim(), body = m[2];
+  if (!sel || sel.startsWith("@")) continue;
+  const decls = [...body.matchAll(COLOUR_PROP)].map((d) => ({ prop: d[1], value: d[2].trim() }));
+  if (decls.length) rules.push({ sel, decls, animates: /transition\s*:/.test(body) });
+}
+
+/* A STATE rule is the same selector plus a state suffix — the second half of a temporal pair. */
+const STATE = /(\.is-[a-z-]+|:hover|:focus(-visible)?|:active|\[data-[a-z-]+=?[^\]]*\]|\.is-on)\s*$/;
+const pairs = [];
+for (const r of rules) {
+  const base = r.sel.replace(STATE, "").trim();
+  if (base === r.sel || !base) continue;
+  const baseRule = rules.find((x) => x.sel === base);
+  if (!baseRule) continue;
+  for (const d of r.decls) {
+    const bd = baseRule.decls.find((x) => x.prop === d.prop);
+    if (bd) pairs.push({ sel: r.sel, prop: d.prop, from: bd.value, to: d.value });
+  }
+}
+
+/* A side is THEMED when its value is entirely token references. A raw rung counts as themed for
+ * this row's purpose — N asks whether both sides move TOGETHER, not whether either is a role.
+ *
+ * ⚠ AND A THIRD STATE EXISTS, WHICH THE FIRST RUN OF THIS SECTION PROVED BY REPORTING IT WRONG.
+ * `transparent`, `none`, `inherit` and `currentColor` are REMOVALS rather than colours: a state
+ * that strips a material is not a half-migrated pair, it is a deliberate absence. Forcing that
+ * third state into a themed/raw binary reported `.nav-glass.is-ghost` as a defect — it sheds the
+ * glass on mobile and restores it above 1024px, which is correct and intentional.
+ *
+ * SAME SHAPE AS EVERY OTHER PROBE DEFECT IN THIS ARC: a value that belonged to a category the
+ * instrument's vocabulary did not have, given the nearest available label. The count of absences is
+ * PRINTED rather than silently dropped, so the exclusion is visible instead of buried in a filter. */
+const ABSENT = /^\s*(transparent|none|inherit|unset|initial|currentColor)\s*$/i;
+const themed = (v) => /var\(--/.test(v) && !/#[0-9a-fA-F]{3,8}\b|\brgba?\(\s*\d|\boklch\(\s*[\d.]/.test(v);
+const removals = pairs.filter((p2) => ABSENT.test(p2.from) || ABSENT.test(p2.to));
+const colourPairs = pairs.filter((p2) => !ABSENT.test(p2.from) && !ABSENT.test(p2.to));
+const splitPairs = colourPairs.filter((p2) => themed(p2.from) !== themed(p2.to));
+
+console.log(`         ${rules.length} colour-declaring rules, ${pairs.length} temporal pairs found`);
+console.log(`         ${removals.length} are REMOVALS (transparent/none) — a deliberate absence, not a pair`);
+console.log(`         ${colourPairs.length} are colour-to-colour; ${splitPairs.length} have one themed side and one raw`);
+if (splitPairs.length) for (const p2 of splitPairs.slice(0, 6))
+  console.log(`           ${p2.sel} { ${p2.prop} }  ${themed(p2.from) ? "from themed" : "FROM RAW"} -> ${themed(p2.to) ? "to themed" : "TO RAW"}`);
+
+t("N0 the sheet was parsed into real rules — a zero denominator makes N2 vacuous, against a literal",
+  rules.length > 120, true);
+t("N0a …and temporal pairs were actually found, against a literal", pairs.length >= 5, true);
+t("N0b ⚠ AND THE REMOVALS ARE COUNTED RATHER THAN FILTERED AWAY — an exclusion nobody can see is one nobody chose",
+  removals.length + colourPairs.length, pairs.length);
+t("N1 ⚠ NO TEMPORAL PAIR HAS ONE THEMED SIDE AND ONE RAW ONE — the half-migrated animation, which no per-rule check can see",
+  splitPairs.map((p2) => `${p2.sel} { ${p2.prop} }`).sort(), []);
+
+/* ⚠ AND KEYFRAMES ARE THE OTHER HALF OF THE CLASS. A keyframe's stops are the same pairing with no
+ * selector relation at all, so the join above cannot reach them. */
+const kf = [];
+for (const m of cssN.matchAll(/@keyframes\s+([\w-]+)\s*\{([\s\S]*?)\n\}/g))
+  for (const d of m[2].matchAll(COLOUR_PROP))
+    kf.push({ name: m[1], prop: d[1], value: d[2].trim() });
+const kfRaw = kf.filter((k) => !themed(k.value));
+console.log(`         ${kf.length} colour stops across keyframes; ${kfRaw.length} raw`);
+t("N2 ⚠ AND NO KEYFRAME ANIMATES A RAW COLOUR — a stop that does not theme is the same defect with no selector to join on",
+  kfRaw.map((k) => `@keyframes ${k.name} { ${k.prop} }`).sort(), []);
+
+/* ⚠ AND N1 WOULD NOT HAVE CAUGHT THE DEFECT THAT PROMPTED THIS SECTION — SAID PLAINLY, BECAUSE A
+ * GATE THAT MISSES ITS OWN ORIGIN STORY IS WORSE THAN NONE. `.reveal-panel` referenced
+ * `var(--color-reveal-sand)` and settled to `var(--color-surface)`. BOTH SIDES ARE var() — so "is
+ * this a token" reports them as agreeing, and the pair looks whole. The difference was one level
+ * down: `surface` is remapped on a dark ground and `reveal-sand` was not.
+ *
+ * So N1 catches LITERAL against TOKEN and this row catches REMAPS against DOES-NOT. Two different
+ * failures wearing the same shape, and only the second is the temporal whole-pair rule. */
+const remapsOnDark = (tok) => remapped.has(tok) || tok in GROUND_SCOPED;
+const tokensIn = (v) => [...v.matchAll(/var\(\s*--color-([a-z0-9-]+)/g)].map((m) => m[1]);
+const straddle = [];
+for (const p2 of colourPairs) {
+  const from = tokensIn(p2.from), to = tokensIn(p2.to);
+  if (!from.length || !to.length) continue;
+  const fromRemaps = from.some(remapsOnDark), toRemaps = to.some(remapsOnDark);
+  if (fromRemaps !== toRemaps)
+    straddle.push(`${p2.sel} { ${p2.prop} }  ${from.join("+")}${fromRemaps ? " remaps" : " STATIC"} -> ${to.join("+")}${toRemaps ? " remaps" : " STATIC"}`);
+}
+/* ⚠ ONE DECLARED STRADDLE, WITH THE REASON IT IS NOT FIXED HERE. Same discipline as the ratchet:
+ * a known defect with a stated trigger, not an exemption claiming nothing is wrong. */
+const STRADDLE_DEFERRED = {
+  ".skill-pill:hover { background }": "rest is `cream-200` (static), hover is `surface` (remaps), so on a "
+    + "dark palette the pill sits LIGHT at rest with light text and DARKENS on hover. The fix is "
+    + "`surface-well` on the rest state, which MOVES LIGHT PIXELS — cream-200 and cream-100 are "
+    + "different colours — so it is a design decision rather than a wiring one. TRIGGER: the ladder "
+    + "regularisation, which is already its own unit and touches the same rungs.",
+};
+const declaredKeys = Object.keys(STRADDLE_DEFERRED);
+const keyOf = (x) => x.slice(0, x.indexOf("}") + 1).trim();
+const undeclared = straddle.filter((x) => !declaredKeys.includes(keyOf(x)));
+console.log(`         ${straddle.length} pairs where one side REMAPS on dark and the other does not; ${Object.keys(STRADDLE_DEFERRED).length} declared`);
+for (const x of straddle) console.log(`           ${x}`);
+t("N3 ⚠ BOTH SIDES OF A TEMPORAL PAIR REMAP TOGETHER — the rule G cannot express, and the one N1 misses",
+  undeclared.sort(), []);
+t("N3a ⚠ AND EVERY DEFERRAL NAMES ITS TRIGGER — a straddle with no end condition is a defect wearing an exemption's clothes",
+  Object.entries(STRADDLE_DEFERRED).filter(([, why]) => !/TRIGGER:/.test(why)).map(([k]) => k), []);
+t("N3b …and no declared straddle has silently been fixed, which would leave a registry describing nothing",
+  declaredKeys.filter((k) => !straddle.some((x) => keyOf(x) === k)), []);
+
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

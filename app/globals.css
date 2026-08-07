@@ -1424,6 +1424,35 @@ a {
   /* ⚠ THE INK INVERTS AND THE ALPHAS SURVIVE — measured in #386, every weight lands within 6% of
      its light separation, so a consumer's chosen opacity needs no change. */
   --color-etch:          var(--color-on-dark);
+
+  /* ⚠ GROUND-SCOPED, NOT ROLES. A role is a name a COMPONENT reads; these are values a CONTEXT
+     resolves that no component names — one is a route's page ground, one is a transition's start
+     state. The vocabulary had no slot for "remapped but not a role" and now has members, which is
+     the threshold at which a category is a category rather than an exception.
+
+     ⚠ case-study-sand SHARES THE PAGE GROUND ON DARK, AND THAT IS A LOSS STATED RATHER THAN HIDDEN.
+     On light it is a warm ground DARKER than `canvas` so cards lift off it — but the step is 3.5 on
+     cream and harbour and 7.7 on the three newest palettes, because the token is L88.5% on ALL SIX
+     while `canvas` moves from 92.0 to 96.2. There is no single relation to carry across, and the
+     dark equivalent would have to sit BELOW `band-dark`, which is outside the band registry's
+     .150–.200 floor. So the route keeps the page ground and loses its own tint on dark grounds.
+
+     Measured on sapphire before this existed: it painted oklch(0.885 0.022 240) full-bleed at
+     z-index -1 and showed as LIGHT GUTTERS and a light band between the dark cards. I had predicted
+     it would paint the whole page light; the cards cover most of it. Directionally right, wrong
+     about magnitude, settled only by looking. */
+  --color-case-study-sand: var(--color-band-dark);
+
+  /* ⚠ A TRANSITION WHOSE END STATE THEMED AND WHOSE START STATE DID NOT. `.reveal-panel` starts at
+     `--color-reveal-sand` and settles to `var(--color-surface)` — a ROLE, which already remaps. So
+     the animation was half-migrated: correct at rest, wrong for its first 0.9 seconds, on every
+     un-revealed panel of a dark page.
+
+     ⚠ THE DIRECTION INVERTS AND THAT IS THE POINT. On light the panel sweeps in DARKER than the
+     page and settles UP to the card. On dark it must sweep in LIGHTER than the page and settle DOWN
+     to the card — 14% against `surface`'s 6% — because "arrives with emphasis, settles to rest" is
+     the behaviour, and a dark start on a dark ground would simply be invisible. */
+  --color-reveal-sand: color-mix(in oklch, var(--color-on-dark) 14%, var(--color-band-dark));
   /* The accent's own dark form. `on-accent` deliberately does NOT remap: the accent stays a
      mid-tone on both grounds, so its foreground must stay light. */
   --color-accent:        var(--color-accent-on-dark);
@@ -2901,10 +2930,21 @@ a {
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s;
 }
 
+/* ⚠ THE HOVER FOREGROUND TAKES THE ROLE, AND IT MOVES ZERO LIGHT PIXELS — `--color-accent` resolves
+   to `accent-500` on every light palette, so this is a rename on light and a remap on dark. Found by
+   `role-layer` section N3, which asks whether both sides of a TEMPORAL pair remap together.
+
+   ⚠ THE BACKGROUND HALF IS NOT FIXED HERE AND THAT IS DELIBERATE. The rest state is
+   `var(--color-cream-200)`, a raw rung that does NOT remap, while this hover state is `surface`,
+   which does — so on a dark palette the pill sits LIGHT at rest with light text on it and DARKENS on
+   hover, inverted. Migrating the rest state to `surface-well` would fix it and would move light
+   pixels, because `cream-200` and `cream-100` are different colours. That is a design change and it
+   gets its own decision rather than riding inside a gate. Recorded in N3's registry with that
+   trigger. */
 .skill-pill:hover {
   background: var(--color-surface);
-  border-color: color-mix(in srgb, var(--color-accent-500) 45%, transparent);
-  color: var(--color-accent-500);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  color: var(--color-accent);
   transform: translateY(-2px);
 }
 
