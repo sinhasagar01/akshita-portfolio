@@ -126,7 +126,6 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
           title: "",
           startDate: "",
           endDate: "",
-          description: "",
           location: "",
           orderIndex,
         };
@@ -247,7 +246,6 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
             startDate={e.startDate}
             endDate={e.endDate}
             location={e.location}
-            description={e.description}
           />
         ))}
       </ListDetailLayout>

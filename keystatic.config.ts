@@ -778,10 +778,18 @@ export default config({
           label: "End date",
           description: "Write Present if current",
         }),
-        description: fields.text({
-          label: "Short description",
-          multiline: true,
-        }),
+        // ⚠ `description` WAS HERE AND IS DELETED — IT HAD NO CONSUMER FOR ITS ENTIRE LIFE.
+        // `ExperienceSection` is the live renderer and never read it; `ExperienceEntry`, the one
+        // component that would have, was imported by nothing. Empty in every revision of all five
+        // entries across six commits, so no sentence is lost. If role descriptions are wanted they
+        // are a DESIGN CHANGE to the experience row — where bullets sit in a row that is currently
+        // one line per role — not five blanks to fill.
+        //
+        // ⚠ LINE COMMENTS, NOT A BLOCK, AND NO DELIMITER WRITTEN OUT. The `path:` glob above ends
+        // with a slash-star inside a STRING, which ralph's `code()` helper reads as a comment
+        // opener. A block comment here contributes a closer that pairs with it and swallows the
+        // schema between them — `bespoke-blocks` G5 caught exactly that, twice: once for the block
+        // comment, and again when this note tried to EXPLAIN the delimiter by writing it.
         location: fields.text({
           label: "Location",
           description: "City, e.g. Bengaluru. Overrides the city parsed from the company name.",

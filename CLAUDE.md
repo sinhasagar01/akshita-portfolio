@@ -178,6 +178,19 @@ closed.
   had nothing to trade.** Ask where a surface's ground sits before pricing a build that would theme
   it.
 
+- **⚠ EXPLAINING A DELIMITER REQUIRES WRITING IT, AND WRITING IT IS THE DEFECT.** While documenting
+  that `keystatic.config.ts`'s `path:` glob contains a slash-star that ralph's comment-stripper reads
+  as an opener, **I wrote that sequence into the explanation twice** — once as a block comment whose
+  closer terminated it early and turned the rest into a syntax error, once as a line comment whose
+  opener re-paired with the glob and swallowed the schema. **Both times the note about the trap was
+  the trap.**
+
+  **Spell delimiters out** — "slash-star", `<star>` — in any comment describing them. And when a
+  fix suggests itself, check it against the consumers first: blanking string bodies before stripping
+  comments was written and **reverted**, because five assertions in that suite READ STRING CONTENTS.
+  **A stripper serving consumers that care about strings cannot discard them**, so the trap is
+  recorded with its trigger named rather than removed by a change that breaks its own suite.
+
 - **⚠ A COMMENT NAMING A TOKEN IS A CLAIM, AND EVERY GATE HERE READS VALUES.** The claim lives in
   prose, which nothing reads, so the two drift while the comment goes on asserting equality.
   **Three instances, one mechanism:** `accent-400`'s comments called it load-bearing while nothing
