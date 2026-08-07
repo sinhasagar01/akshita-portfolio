@@ -430,8 +430,12 @@ const contentInputs = (p) => {
   // `/120`. The `\b` in the pattern is what keeps them apart, here and in the sweep itself.
   t("E3: components/case-study must STAY at exactly 4 uses of /8 — it is canvas code, rendered by the public article, and /12 there would move the published page",
     count("components/case-study", "ink-950"), 4);
-  t("E3: components/blog must STAY at exactly 2 for the same reason — the canvas and the article share these components",
-    count("components/blog", "ink-950"), 2);
+  /* ⚠ 2 -> 7 IN #375, AND EVERY NEW ONE IS THE CONVENTION RATHER THAN A DRIFT. `components/blog/
+   * diagrams` redraws two blog illustrations as JSX, and a diagram made of real boxes needs real
+   * hairlines — five of them, all `/8`, which is what PUBLIC canvas code must use. The number this
+   * row pins is "no blog component stepped to /12", not "blog never grows". */
+  t("E3: components/blog must STAY at exactly 7 uses of /8 — the canvas and the article share these components",
+    count("components/blog", "ink-950"), 7);
   t("E3: components/studio carries NO /8 — the studio stepped to /12 and a leftover /8 is a hairline that did not move with its neighbours",
     count("components/studio"), 0);
 }

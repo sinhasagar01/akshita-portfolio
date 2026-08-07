@@ -932,6 +932,10 @@ export default config({
                 // born with src: null and alt: "", so refusing empty here would make the
                 // kind unaddable, exactly as videoSrc's own comment reasons.
                 alt: fields.text({ label: "Alt text" }),
+                // An inline diagram id. Free text here rather than a select because the
+                // ids live in component code and this config is schema-only; the studio form
+                // offers the real list and a gate asserts they agree.
+                diagram: fields.text({ label: "Inline diagram id (optional)" }),
                 // DISTINCT FROM ALT, and they serve different readers. `alt` replaces the
                 // image for someone who cannot see it; `caption` sits under it and tells
                 // someone who can what it MEANS. Markers, like videoEmbed.caption. Alt takes

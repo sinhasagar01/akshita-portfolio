@@ -55,14 +55,26 @@ const GROUNDS = ["cream-50", "cream-100", "cream-200", "cream-300", "canvas", "i
  * the right form for them is JSX rather than traced SVG — a redraw, which is the owner's to want.
  * Tracing them as SVG `<text>` would ship prose that cannot reflow. */
 const KNOWN = {
+  /* ⚠ THE TWO BLOCK RASTERS ARE FALLBACK-ONLY SINCE #375 — JSX diagrams draw instead. They stay on
+   * disk for the same reason the Fosfor eight did: an id that stops resolving must draw the old
+   * picture rather than nothing. */
   "public/images/blog/ai-first-is-a-research-posture-not-a-feature/blocks/d9517012efd9.webp":
-    "flow diagram in cream's ground — LEAK, pending a JSX redraw (text-heavy, SVG text cannot reflow)",
-  "public/images/blog/ai-first-is-a-research-posture-not-a-feature/heroImage.webp":
-    "post hero in cream's ground — LEAK, pending a redraw",
+    "FALLBACK ONLY — the `assistant-route` JSX diagram draws instead since #375",
   "public/images/blog/what-a-design-system-is-for-when-the-machine-can-draw/blocks/6cd6a9815c3f.webp":
-    "squads diagram in cream's ground — LEAK, pending a JSX redraw",
+    "FALLBACK ONLY — the `four-squads` JSX diagram draws instead since #375",
+
+  /* ⚠ THE TWO HEROES ARE STILL LEAKS, AND THEY ARE BYTE-IDENTICAL COPIES OF THE TWO BLOCKS ABOVE —
+   * `cmp` confirms it. So the "four blog assets" this file first declared were TWO PIECES USED
+   * TWICE, which is a smaller job than it read as.
+   *
+   * They are NOT waiting on a redraw. `Shot` already falls back to `.blog-plate` — the title set in
+   * the display serif on a raised themed surface, built for a post with no hero — and that reads
+   * better at card size than a five-step flow shrunk to 340px ever could. Clearing these is a
+   * CONTENT decision (unset `heroImage`), which is the owner's, not a drawing problem. */
+  "public/images/blog/ai-first-is-a-research-posture-not-a-feature/heroImage.webp":
+    "LEAK — a byte-identical copy of the block diagram; clears when `heroImage` is unset and the themed plate draws",
   "public/images/blog/what-a-design-system-is-for-when-the-machine-can-draw/heroImage.webp":
-    "post hero in cream's ground — LEAK, pending a redraw",
+    "LEAK — a byte-identical copy of the block diagram; clears when `heroImage` is unset and the themed plate draws",
   "public/images/projects/fosfor-data-profiling/challenge-insights.webp": "FALLBACK ONLY — inline SVG draws instead since #365; clears when the raster is deleted",
   "public/images/projects/fosfor-data-profiling/challenge-quality.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
   "public/images/projects/fosfor-data-profiling/challenge-silos.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
