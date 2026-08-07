@@ -10465,6 +10465,92 @@ control compared an `rgb()` literal against a browser-reported `oklch()` string,
 colour in different notation. **Re-measured with transitions disabled and both sides rasterised
 through the same path.**
 
+## THE FAVICON IS NEUTRAL, AND THE PRICING IS WHY (#367)
+
+**Option 3 was buildable and was refused on two measurements.** `sharp` is already a dependency and
+rasterises the mark at 16, 32, 48, 180 and 512 in under 20ms total, **mean difference 2.6 from the
+hand export** — so the PNG fallback comes out of the same step and option 3 was never option 4 in
+disguise.
+
+**⚠ THE FIRST MEASUREMENT KILLED THE THING THAT WAS ACTUALLY ASKED FOR. The background cannot carry a
+theme at all.** The two candidate grounds are `#211C16` and `#0B1A22` — **both near-black at L≈0.17,
+25.1 apart** — and at 16 to 64px that hue is imperceptible. Ribbon contrast moves 6.52 → 6.84. A
+themed favicon would have had to theme the RIBBON, which nobody asked for.
+
+**⚠ THE SECOND MADE NEUTRAL THE LEGIBILITY WINNER RATHER THAN A COMPROMISE.**
+
+| variant | ribbon on ground |
+|---|---|
+| current terracotta | 6.52 |
+| fully themed teal | 7.79 |
+| **neutral** | **16.49** |
+
+Legible mark pixels at 16px went **12 → 25**. Giving up the accent costs least and buys most here,
+which is the opposite of how that trade usually reads.
+
+**⚠ AND THE 16px STROKE CHANGE WAS MEASURED AND NOT SHIPPED.** The ruling assumed a heavier crossbar
+helps under any option. **It does not.** Isolating colour from geometry — because the first attempt
+changed both at once and could attribute nothing — every geometry variant moved **0 to 1 pixels**:
+
+    neutral, bar as-is      counter-dark 8/25   mark px 25
+    neutral, bar heavier    counter-dark 8/25   mark px 26
+    neutral, bar lower      counter-dark 9/25   mark px 26
+
+**The colour change is the entire improvement.** A heavier bar also slightly CLOSES the counter,
+because a brighter mark bleeds into the hole. The geometry is byte-identical to the original; only
+four hex values changed. **Changing the mark's shape for a gain that measures as noise would be
+changing the identity for nothing.**
+
+---
+
+## ⚠ CORRECTING #361 — ITS EIGHT-ROUTE PROOF HAD A HOLE, AND A SHELL PRODUCED IT
+
+#361 said, of the two deleted icon files:
+
+> "Absence of references PROVEN across eight routes rather than grepped by filename … the Next `app/`
+> file convention is unused (no `app/icon.*` or `app/favicon.*`)"
+
+**THAT ROUTE WAS NEVER CHECKED.** The command was `ls app/icon.* app/favicon.* app/apple-icon.*`, and
+zsh **aborts the whole command when any glob matches nothing**. `app/favicon.*` had no match, so the
+`ls` never ran — and `app/icon.svg`, `app/apple-icon.png` and `app/opengraph-image.png` all existed.
+
+**⚠ SAME FAMILY AS THE PARSER GAP AND THE `rgba(` MATCHER, IN A THIRD MEDIUM: ABSENCE IS THE ONE
+ANSWER THAT NEVER LOOKS WRONG.** A failed glob returns nothing exactly as an empty directory does,
+and the surrounding prose supplied the interpretation. The deletion itself was correct — both files
+were genuinely unreferenced — but **the proof was seven routes wearing the authority of eight.**
+
+What was actually there: `app/icon.svg` byte-identical to `public/favicon.svg`, `app/apple-icon.png`
+byte-identical to `public/apple-touch-icon-180.png`, **both building into live routes that nothing
+linked**, because an explicit `metadata.icons` overrides the file convention.
+
+---
+
+## ONE SOURCE OF TRUTH, AND IT HASHES THE URL
+
+`metadata.icons` is deleted; the **file convention** is now the only home. `app/icon0.svg`,
+`app/icon1.png`, `app/apple-icon.png` — **the numbered form, because with plain `icon.svg` and
+`icon.png` Next emits only ONE** (it chose the PNG, silently dropping the SVG). Verified in the
+built HTML rather than assumed.
+
+**And the convention hashes the URL**, which is the only thing that reliably busts a favicon cache —
+Chrome holds them for days regardless of HTTP headers, and a hashed path is a different asset.
+`metadata.icons` at `/favicon.svg` had no hash.
+
+---
+
+## ⚠ THE IDENTITY ANSWERS THE PALETTE QUESTION TWO WAYS, BY DECISION
+
+**The wordmark themes.** The owner has seen it rendered and wants it.
+
+**The favicon is neutral.** It cannot theme meaningfully at its rendered size — the ground carries no
+visible hue at 16px and the accent measures as the least legible option there.
+
+**#362 ARGUED THE OPPOSITE** — that one identity must not answer the palette question two ways, and
+pinned both. **That argument is kept, in `globals.css` and in the #366 entry above.** What changed is
+not the logic but the evidence: the split is now made with both surfaces measured, and each answer is
+the right one for its own surface. **A reader meeting both entries should know that #362's objection
+was never refuted — it was overruled on evidence #362 did not have.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

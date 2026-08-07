@@ -114,25 +114,16 @@ export const metadata: Metadata = {
     title: "Akshita Singh, Product Designer",
     description: SITE_DESCRIPTION,
   },
-  /* ⚠ THE SVG FIRST AND THE PNG AS A REAL FALLBACK, NOT A COURTESY. Safari did not support SVG
-   * favicons until Safari 26.0 — 3.1 through 18.7 do not — and a designer's portfolio skews Mac and
-   * iOS, so the PNG carries more traffic here than the 89% global figure suggests.
+  /* ⚠ NO `icons` KEY, DELIBERATELY — the Next FILE CONVENTION is the single source of truth.
    *
-   * TWO ASSETS IN STEP IS AN OBLIGATION ON A PERSON, and that is what lost for the eight
-   * illustrations. It is acceptable here because the obligation is BOUNDED: the mark is invariant,
-   * so the two are in step at ONE value forever rather than once per theme. A per-theme pair would
-   * have grown with every palette; this pair does not.
+   * An explicit `metadata.icons` OVERRIDES the convention, and this file used to carry one while
+   * `app/icon.svg` and `app/apple-icon.png` also existed. They built into live routes that NOTHING
+   * LINKED — byte-identical duplicates of the `public/` copies, two sources of truth for one asset.
    *
-   * AND THE FAVICON CACHING PROBLEM STOPS APPLYING FOR THE SAME REASON. Chrome holds a favicon for
-   * days regardless of HTTP headers, which only matters if the icon is supposed to change. Under an
-   * invariant mark it never is. */
-  icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" }],
-  },
+   * The convention wins for a reason beyond tidiness: it HASHES THE URL. Chrome caches favicons in
+   * a separate database for days regardless of HTTP headers, so a changed icon at a stable path can
+   * stay stale indefinitely — and a hashed path is a different asset, which is the only thing that
+   * reliably busts it. `metadata.icons` at `/favicon.svg` had no hash. */
   robots: { index: true, follow: true },
 };
 
