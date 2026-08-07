@@ -10332,6 +10332,44 @@ so **if it wants a heavier stroke at small sizes that is a separate, bounded cha
 not a re-export chain. Kept here rather than filed, because "legible but thin" is the kind of
 observation that becomes a complaint six months later with nobody able to say whether it was seen.
 
+## THE FIFTH `mutate.mjs` DEFECT — THE ONLY ONE THAT DESTROYED WORK (#364)
+
+The other four misreported a verdict. This one lost a change.
+
+**⚠ AND IT WAS NOT IN THE TOOL'S CODE — `mutate.mjs` touched the working tree nowhere.** The damage
+came from reverting a mutation with `git checkout <file>`, which discards every uncommitted change in
+that file rather than just the mutation. **The fix belongs there anyway, because that tool is what
+makes an operator reach for a revert.**
+
+A mutation run is BY CONSTRUCTION performed on a dirty tree — the mutation IS the dirt — so refusing
+to run on one would refuse every legitimate run. What it can do is make the safe path the default:
+`--snapshot` before mutating, `--restore` after. **`git checkout` reverts to the last COMMIT; this
+reverts to the last INTENT.**
+
+**⚠ AND THE FIRST VERSION OF THIS FIX WAS WORSE THAN NOTHING, WHICH TESTING AGAINST THE REAL SCENARIO
+IS WHAT FOUND.** It snapshotted at RUN time — by which point the operator has already edited — so
+`--restore` handed the mutation straight back. Reproduced #362 exactly: precious work restored, and
+the mutation restored with it. **A safety net that restores the wrong state is worse than an absent
+one, because it is trusted.** The snapshot is now an explicit pre-step, and a run without one prints
+the warning instead of offering a restore that would lie.
+
+Verified against the reproduction: precious uncommitted work survives, mutation reverts to zero.
+
+---
+
+## HOW #363 KNOWS THE REPAIR IS COMPLETE — NOT THAT ralph IS GREEN
+
+**The gate cannot prove its own subject exists.** H1 and H3 were added for exactly that and they only
+worked because someone looked. So the repair was verified against the MERGED state, clean tree, at
+`origin/main` `939ce53`:
+
+- **The tokens resolve in the shipped bundle** — `--color-mark:#9b4f2c` and `--color-mark-on-dark:#d89067`, with **7 `var()` consumers**, scanned across both CSS files.
+- **No theme block overrides them** — and the probe **asserts its own subject first**, because an earlier version printed *"none override the mark"* having found **zero theme blocks**, which is the empty-subject pass appearing inside the check written to prove invariance.
+- **The wordmark renders `rgb(155,79,44)` on both palettes**, byte-identical.
+
+⚠ **And the earlier screenshot was of the working tree — an image of a state that was never shipped**,
+which is the same failure in a third costume. This one is of the merged state.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
