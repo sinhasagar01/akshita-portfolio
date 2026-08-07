@@ -299,6 +299,42 @@ closed.
   visible at the moment it was written**, which is why this is a writing discipline rather than a
   measurement problem.
 
+- **⚠ BEFORE MERGING TWO TOKENS, COUNT THE ELEMENTS AT EACH LEVEL. IF THE MERGE COLLAPSES TWO
+  POPULATIONS INTO ONE, THEY WERE A HIERARCHY — however close their values sit.** Folding
+  `text-subtle` onto `text-secondary` took the count of visible elements painting the quiet colour
+  from **49 to 89**. The quiet layer does not get darker; **it stops existing**, and a timestamp and
+  a body caption become the same thing. **49 → 89 is what losing a level looks like as a number.**
+
+  **⚠ AND THE RATIO WAS NOT WRONG — IT WAS ANSWERING A DIFFERENT QUESTION.** #386's comparator put
+  the two at **1.09× to 1.16×** apart on all six palettes, against the **1.98×** that proved `border`
+  and `etch` distinct. That says the two VALUES are close. **It says nothing about whether two ROLES
+  are one, because a role is defined by what reads at it, not by how far apart the values sit.**
+  `border` versus `etch` was a STRENGTH question; this was a HIERARCHY question; the same instrument
+  was applied to both. **The precedent held and its subject differed** — the arc's most repeated
+  shape, arriving in a comparator rather than in a count.
+
+  A future reader meeting the same 1.09× will otherwise reach the same wrong conclusion. **This is
+  the check #103 did not have**, and it would have caught `text-muted` and `text-subtle` being
+  clamped to one AA-safe value four hundred PRs ago.
+
+- **⚠ EVIDENCE PRODUCED BY THE THING IT IS OFFERED AS EVIDENCE FOR.** `text-subtle` and
+  `text-secondary` resolve differently on a dark ground, and that was cited as evidence the two roles
+  were distinct. **They differ because two PRs earlier I had given them different dark values** —
+  authored, then cited. `rule`'s dark difference was the real form: measured on tokens that already
+  shipped.
+
+  Same family as a round-trip assertion seeding its own value, **one level up — in the reasoning
+  rather than in a gate**, where nothing mechanical is watching. The test: ask whether the
+  difference existed before you went looking for it.
+
+- **⚠ A REFUSAL CAN BE RIGHT ON ITS OTHER GROUNDS AND WRONG ON ITS STATED ONE — SECOND INSTANCE.**
+  The `text-subtle` fold was forbidden citing `ink-600`'s three values across six palettes. That is
+  still true and **it was never the deciding evidence**: the separation straddled its threshold only
+  because the two tokens were compared TO EACH OTHER, where #386 compared each to the surface it sits
+  on. **The straddle was an artefact of the wrong comparison**, offered by me and accepted without
+  either of us asking which comparator the precedent had used. The refusal survived on the population
+  test instead. Same shape as the `text-body` correction.
+
 - **⚠ A WRONG PREMISE AND A WASTED INVESTIGATION ARE SEPARABLE, AND THIS ARC HAS NOW SEPARATED THEM
   FOUR TIMES.** "Sapphire gets the ladder repaint on top of the dark step" was stated by me and
   endorsed in the ruling that asked for its render. **It was false for a structural reason available
