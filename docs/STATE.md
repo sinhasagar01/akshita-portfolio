@@ -10703,6 +10703,44 @@ categories are claims rather than labels.
 - **THE SEMANTIC PASS** for narrowed subjects — the half #368's syntactic sweep provably cannot reach,
   and the half that found `theme-contrast`'s merge.
 
+## THE SEMANTIC PASS — WHAT EACH SUITE EXCLUDES BEFORE IT COMPARES (#371)
+
+A reading pass, not a script, asking one question of every suite with an exclusion: **what is cut
+from the subject before the comparison runs, and could the defect this suite guards live in the cut
+part?** #368's sweep covered the syntactic form — an expectation computed by the code under test —
+and stated it could not reach this one.
+
+**⚠ SOUND SUITES ARE REPORTED EXPLICITLY, BECAUSE A PASS THAT ONLY LISTS FINDINGS CANNOT BE
+DISTINGUISHED FROM ONE THAT STOPPED EARLY.** #369's comparator audit came back clean and that was
+evidence precisely because the search was real.
+
+| suite | what it excludes | could the defect live there? |
+|---|---|---|
+| `studio-ink`, `studio-tokens`, `studio-ink-contrast`, `studio-cascade` | `.ts` files — they scan `.tsx` only | **no.** Checked: no `.ts` under `components/studio`, `lib/studio` or `app/studio` carries a studio chrome class |
+| `typography` | nothing — scans `.tsx?` **and** `.css` | n/a, and no `.ts` carries a font utility either |
+| `mount-discipline` | non-panel children | **no.** It DERIVES the panel set from the layout's own children rather than a list, and already records a spurious member it caught that way |
+| `p4-4biii-structural` | — | **no.** Checks both directions, missing AND extra, against the schema |
+| `colour-census` | the boundary rows | **no.** The exclusions ARE the record, joined both ways by `J1` and `J3` — a row matching nothing fails |
+| `loves-store`, `studio-nav-active`, `studio-type` | filters over their own captured logs | **no.** Each filters a result set it produced, not its subject |
+
+**⚠ ONE FINDING: `cascade-public`'s TAG SET OMITS `html` AND `body`, AND BOTH HAVE UNLAYERED RULES.**
+`html { background-color; color; font-family }` and `body { min-height; overflow-x }` are exactly the
+shape this suite exists to catch — a utility on either would lose to the reset the way `h3`'s weight
+utilities did.
+
+**It is safe today for a reason in the MARKUP rather than the CSS:** `<html>` carries only next/font
+variable classes, which declare `--font-*` and set no property the reset owns, and `<body>` carries no
+className at all. **Checked, not assumed.**
+
+**⚠ AND IT WOULD BE INVISIBLE FROM INSIDE THE SUITE.** The census enumerates tags that HAVE resets,
+and both of these do — **so they look covered.** The trigger is now named in the file: the day either
+element gains a typography or colour utility, add it to `TAGS`.
+
+**THE GENERAL SHAPE, WHICH IS WHY THIS PASS WAS WORTH DOING SEPARATELY:** a subject narrowed by a
+FIXED LIST is sound only while the world outside the list stays empty, and nothing inside the suite
+observes the world. `theme-contrast`'s merge, `G`'s token-set model and this tag set are three
+instances — each correct about what it modelled, each unable to represent the case outside it.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

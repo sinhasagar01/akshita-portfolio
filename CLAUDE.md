@@ -178,6 +178,24 @@ closed.
   had nothing to trade.** Ask where a surface's ground sits before pricing a build that would theme
   it.
 
+- **⚠ A REPORTED ARTEFACT IS A CLAIM ABOUT A STATE, AND THREE OF THEM WERE TRUE OF THE WRONG ONE.**
+  A merge that never pushed, a ralph count taken before a `git checkout` reverted the change, and a
+  card screenshot labelled "cream" that was built on harbour. **Each was true of something, and none
+  was true of what it was offered as.**
+
+  **THE REPAIR THAT WORKS IS PROVENANCE IN THE ARTEFACT ITSELF.** A capture verified by measuring its
+  own dominant chromatic pixel cannot be mislabelled; a screenshot with a caption can. Prefer a
+  measurement the artefact carries over an assertion made beside it — `upstream.mjs` does this for
+  the repository, and the theme captures now do it for renders.
+
+- **⚠ EVERY PLACE A TOKEN'S VALUE IS COPIED OUT OF CSS INTO JS NEEDS A COMPARISON**, because the copy
+  is where the claim lives and the stylesheet is where the truth does. Two maps have now carried an
+  unchecked claim of exactness — `THEME_SPLASH` ("resolved. Not an approximation") and `THEME_OG` —
+  and `lib/og.tsx` carried three drifted constants beside comments naming their tokens. **The copy is
+  forced** in each case: `ImageResponse` and a JSON manifest both render outside the document. So the
+  duplication is allowed and the comparison is what allows it — `theme` section I and
+  `token-claims.mjs`.
+
 - **⚠ EXPLAINING A DELIMITER REQUIRES WRITING IT, AND WRITING IT IS THE DEFECT.** While documenting
   that `keystatic.config.ts`'s `path:` glob contains a slash-star that ralph's comment-stripper reads
   as an opener, **I wrote that sequence into the explanation twice** — once as a block comment whose
