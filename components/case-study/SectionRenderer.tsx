@@ -126,12 +126,16 @@ export default function SectionRenderer({
     return (
       <section
         id={section.id}
+        /* ⚠ ONE ATTRIBUTE FOR BOTH SCOPES, WHERE THERE WERE TWO MECHANISMS. As a GROUND it used a
+           class that set colour; as a CARD it set a background inline and NO colour, so every text
+           child had to name `on-dark` itself. The attribute resolves the foreground for both, which
+           is what made those seven utilities deletable. */
+        data-ground="dark"
         className={
           asGround
             ? "hero-ground hero-ground--peek is-dark scroll-mt-20"
             : "section-card py-section relative overflow-hidden scroll-mt-20"
         }
-        style={asGround ? undefined : { backgroundColor: "var(--color-band-dark)" }}
       >
         {asGround && <CursorGlow />}
         {section.blocks.map((block, i) => (
@@ -174,8 +178,8 @@ export default function SectionRenderer({
     return (
       <section
         id={section.id}
+        data-ground="dark"
         className="section-card py-section relative overflow-hidden scroll-mt-20 m-0"
-        style={{ backgroundColor: "var(--color-band-dark)" }}
       >
         {section.index && (
           <span
@@ -196,12 +200,12 @@ export default function SectionRenderer({
             </p>
           )}
           {section.title && (
-            <h2 className="font-display font-normal text-[clamp(1.75rem,3vw,2.25rem)] text-on-dark leading-[1.12] tracking-tight mt-3 whitespace-pre-line">
+            <h2 className="font-display font-normal text-[clamp(1.75rem,3vw,2.25rem)] leading-[1.12] tracking-tight mt-3 whitespace-pre-line">
               {section.title}
             </h2>
           )}
           <div className={section.eyebrow || section.title ? "mt-6" : ""}>
-            <PullQuote text={soleBlock.text} web dark editable={editable} blockIndex={0} />
+            <PullQuote text={soleBlock.text} web band editable={editable} blockIndex={0} />
           </div>
         </div>
       </section>

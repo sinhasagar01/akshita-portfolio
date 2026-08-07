@@ -418,31 +418,42 @@ t("H3 …and the on-dark constants still name the dark vocabulary rather than a 
   ["components/case-study/blocks/HeroCover.tsx", "components/case-study/SectionRenderer.tsx"]
     .filter((f) => !/on-dark/.test(readFileSync(new URL("../../" + f, import.meta.url), "utf8"))), []);
 
-console.log("\nI · ⚠ THE ONE COMPONENT THAT STILL CHOOSES BY GROUND");
+console.log("\nI · ⚠ NO COMPONENT CHOOSES BY GROUND — the acceptance test, fired and passed");
 
-/* `PullQuote` picks `on-dark-quote` or `accent-600` from a `dark` prop. That is the rule's one true
- * violation, and it CANNOT be repaired until a ground context attribute exists — the dark band is
- * applied inline with no selector to override against.
+/* ⚠ THIS ROW PINNED THE COUNT AT ONE AND NOW PINS IT AT ZERO, WHICH IS THE TEST WORKING RATHER
+ * THAN THE TEST BEING EDITED. `PullQuote` picked `on-dark-quote` or `accent-600` from a `dark`
+ * prop — the one true violation of "a component may choose what KIND of thing it is, never WHERE
+ * it lives". #385 could not repair it: the dark band was applied inline with no context attribute
+ * to override against, so collapsing the branch would have repainted the band's quote. It was
+ * pinned instead, with the failure condition explicit — if the branch could not disappear when the
+ * ground switch landed, shape C had failed and that was to be SAID rather than patched.
  *
- * ⚠ SO THIS ROW PINS IT AS THE ACCEPTANCE TEST. When the ground switch lands the branch must go; if
- * it cannot, shape C has failed and the failure should be visible here rather than discovered in a
- * render. The count is ONE and the assertion is that it stays one — a second component choosing by
- * ground before the switch exists is the rule eroding. */
+ * ⚠ IT DISAPPEARED, AND WITHOUT THE NEW ROLE THE REPAIR SEEMED TO NEED. The obvious fix was a
+ * `quote` role resolving per ground. Unnecessary: the prop was MISNAMED rather than misconceived.
+ * The variant is a full-bleed quote BAND — a kind of quote, chosen when it is a section's sole
+ * block — and a band is always dark, so `on-dark-quote` there is a CONSTANT of the variant. A
+ * COMPONENT WITH ONLY ONE GROUND IS NOT CHOOSING, which is the rule `HeroCover` already sat under.
+ *
+ * The row stays rather than being deleted: it is the assertion that catches the NEXT component
+ * reaching for a ground flag, and a zero it can no longer reach is what makes it falsifiable. */
 const chooseByGround = [];
 for (const f of tsxFiles) {
   const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
   if (/^components\/studio\/|^app\/studio\//.test(rel)) continue;
   const src = readFileSync(f, "utf8");
-  /* a component that BRANCHES on a dark flag AND names a dark-vocabulary colour in a branch */
-  if (!/\bdark\s*[?&]|\bdark\s*=\s*false|if\s*\([^)]*\bdark\b/.test(src)) continue;
-  if (!/on-dark/.test(src)) continue;
+  const body = src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  /* a component BRANCHING on a ground flag AND naming a dark-vocabulary colour in code */
+  if (!/\bdark\s*[?&]|\bdark\s*=\s*false|if\s*\([^)]*\bdark\b/.test(body)) continue;
+  if (!/on-dark/.test(body)) continue;
   chooseByGround.push(rel);
 }
 console.log(`         ${chooseByGround.length} component(s) branch on a ground flag AND name a dark colour`);
-t("I1 ⚠ EXACTLY ONE COMPONENT CHOOSES BY GROUND, and it is the one the ruling named",
-  chooseByGround.sort(), ["components/case-study/blocks/PullQuote.tsx"]);
-t("I2 …and it still carries the reasoning, so the next reader meets the trigger rather than the branch",
-  /ACCEPTANCE TEST FOR THE GROUND SWITCH/.test(
+t("I1 ⚠ ZERO COMPONENTS CHOOSE BY GROUND — the context resolves it, which is the whole of shape C",
+  chooseByGround.sort(), []);
+/* ⚠ AND THE DENOMINATOR, because a zero is exactly what an empty scan reports. */
+t("I1a the scan read real files, against a literal", tsxFiles.length >= 50, true);
+t("I2 …and PullQuote records how it was resolved, so the next reader meets the reasoning",
+  /THE ACCEPTANCE TEST FIRED, AND IT PASSED/.test(
     readFileSync(new URL("../../components/case-study/blocks/PullQuote.tsx", import.meta.url), "utf8")), true);
 
 console.log("\nJ · ⚠ AND A PAIR SPLIT ACROSS PARENT AND CHILD");

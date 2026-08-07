@@ -11757,6 +11757,77 @@ because the role made that drift newly spellable.
 questions; the second entry arriving is what exposed it, because `ink-950` had to be added twice or
 neither section would hold the truth. Unified.
 
+## `data-ground="dark"` — THE DARK CONTEXT, NAMED (#387)
+
+**⚠ IT IS NOT NEW CAPABILITY, AND THAT IS WHY IT COULD BE PROVEN ON SHIPPED SURFACES.**
+`.hero-ground.is-dark` already did exactly this — a scoped context painting a ground AND redirecting
+the foreground vocabulary beneath it. This is that mechanism given a name and applied to every scope
+that was doing it by hand. **The band is the proof rather than the first customer**: its correct
+appearance is already known, where a new dark theme would have nothing to compare against.
+
+**⚠ THE CENSUS'S REAL OUTPUT WAS FOUR SIGNALS, NOT THREE MECHANISMS** — four ways to say "this is
+dark", none knowing about the others, which is why `SectionHeading`'s two `tone` branches could
+disagree and why `PullQuote` had a `dark` prop at all.
+
+    1  `.hero-ground.is-dark`              a class — ground AND colour
+    2  inline `background-color`, TWICE    ground, NO colour
+    3  `PullQuote`'s `dark` prop           a component choosing by ground
+    4  `data-nav-tone="dark"`              retones the nav's glass
+
+**THREE COLLAPSE. THE FOURTH STAYS, BECAUSE IT SAYS SOMETHING DIFFERENT** — and the reason is
+STRUCTURAL rather than temporal. `SiteHeader` is a SIBLING of `{children}` in the portfolio layout,
+so it is never inside the region it overlaps and **the containment argument is simply unavailable to
+it**; it also paints no ground at all, tinting what is beneath through `--glass-fill`. Two
+predicates, written where both attributes are defined because they resolve the same vocabulary and
+that is exactly what will make someone try to fold them:
+
+    data-ground="dark"     MY GROUND IS DARK, so my descendants take the dark vocabulary
+    data-nav-tone="dark"   WHAT IS BEHIND MY TRANSLUCENT SURFACE IS DARK, so retone my glass
+
+**TWO TRIGGERS FOR ONE VOCABULARY IS NOT TWO MECHANISMS.**
+
+---
+
+## ⚠ THE ACCEPTANCE TEST FIRED AND PASSED, WITHOUT THE ROLE IT SEEMED TO NEED
+
+`PullQuote` chose its colour from a `dark` prop — the one true violation. #385 pinned it with the
+failure condition explicit. **It disappeared, and the obvious repair (a `quote` role resolving per
+ground) proved unnecessary: the prop was MISNAMED rather than misconceived.** The variant is a
+full-bleed quote BAND — a KIND of quote, chosen when it is a section's sole block — and a band is
+always dark, so `on-dark-quote` there is a **constant of the variant**, exactly as `HeroCover`'s
+on-dark names are constants. **A component with only one ground is not choosing.** `role-layer` I1
+now pins the count at ZERO.
+
+---
+
+## ⚠ THE CARD SCOPE MOVED, AND PROVING IT DID NOT RENDER DIFFERENTLY IS THE REAL RESULT
+
+Stated separately because it is the scope whose MECHANISM changed most. Mechanism 2 set a background
+and no colour, so every text child had to name `on-dark` itself; the attribute now resolves the
+foreground instead.
+
+    GROUND scope   38 descendants   IDENTICAL by hash
+    CARD scopes    6 and 4          hash MOVED
+
+**The hash moved and no pixel did.** 25 elements' inherited colour went from an unused `ink-950` to
+an unused `on-dark`, and **every one of them paints no text of its own**. Of the 22 elements that DO
+paint text, **zero inherit from the section** — 19 name a utility and 3 take an accent from CSS
+rules. So no painted text could have changed.
+
+**⚠ AND THE FIRST INSTRUMENT REPORTED "MOVED" FOR A CHANGE THAT IS INVISIBLE**, because it
+fingerprinted COMPUTED values on every descendant rather than PAINTED ones. A computed-style
+comparison is not a render comparison, and the difference only shows up where a mechanism changes
+under an unchanged appearance — which is precisely the case that proves the most.
+
+Only 3 of the 7 `on-dark` utilities were redundant, not 7 as scoped: the context sets `on-dark`, and
+`-muted` and `-quote` are distinct colours it does not set.
+
+**⚠ AND A REUSED DEV SERVER READ AS "THE ATTRIBUTE DOES NOT EXIST".** `preview_start` reused a
+process predating the edit, and the probe reported zero elements carrying `data-ground` — which is
+indistinguishable from the attribute never reaching the DOM, the hazard this project already records
+for `data-theme`. Restarting the server was the whole fix. **A stale server does not report that it
+is stale.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

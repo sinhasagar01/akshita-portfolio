@@ -228,6 +228,17 @@ closed.
   picks by GROUND, which is the violation. **They look identical in source and are opposites**: I
   cited `tone` as the precedent for the violation and it is the precedent for the exception.
 
+- **⚠ A ROLE THAT RESOLVES THE PIGMENT LETS EVERY CONSUMER KEEP ITS OWN ALPHA — AND IT IS WHY ONE
+  ROLE SUFFICED WHERE SEVEN WOULD HAVE BEEN NEEDED.** `etch` resolves to an INK, not to a finished
+  colour, so `border-etch/8`, `bg-etch/15` and `bg-etch/5` are all one role at three weights. A role
+  resolving a finished value would have needed a token per weight — seven are in use.
+
+  **THIS IS A GENERAL PROPERTY OF ALPHA-BASED ROLES AND `etch` IS THE VOCABULARY'S ONLY INSTANCE.**
+  It works because the weights are ground-independent: measured, each lands within 6% of its light
+  separation on a dark ground, so a consumer's choice survives the ground change untouched. **Check
+  that before reaching for the pattern again** — a pigment role whose alphas did NOT survive would
+  push the problem into every call site instead of solving it.
+
 - **⚠ THE DISCRIMINATOR FOR A CONSTANT: IS IT DRAWN IN THE SITE'S VOICE, OR IN THE DEPICTED THING'S
   OWN COLOURS?** A browser mock uses browser-chrome grey; a blog diagram uses the site's ink, cream
   and hairlines. **That is the rule.**
