@@ -239,10 +239,67 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-draft-600: oklch(48.0% 0.100 75);
 
   --color-background:    var(--color-canvas);
-  --color-surface:       var(--color-cream-100);
+  /* ============================================================================================
+     THE ROLE LAYER. A role says WHAT A COLOUR IS FOR; the ladder beneath says what it looks like.
+
+     ⚠ IT EXISTS SO A COMPONENT NEVER HAS TO CHOOSE. The site is gaining a second ground class, and
+     the rule that makes that safe is that the CONTEXT selects which values a name resolves to while
+     the component reads one name. A component branching on the ground is where drift lives — the
+     `SectionHeading` failure, and `PullQuote`'s `if (web && dark)` — so every colour a component
+     names must be a role rather than a rung.
+
+     ⚠ AND THE STRONGEST ARGUMENT FOR IT IS TWO ROLES THAT SHARE A VALUE TODAY AND MUST NOT LATER.
+     `surface` and `on-accent` both resolve to `cream-50` right now. Under a dark ground `surface`
+     follows the page down and `on-accent` does NOT, because the accent stays a mid-tone and its
+     foreground must stay light. A raw `cream-50` cannot express that difference; two role names
+     can, and the four sites currently spelling it `text-cream-50` would have gone dark-on-accent.
+
+     ---- ⚠ `surface` IS RE-AIMED, AND IT IS FREE EXACTLY ONCE -----------------------------------
+
+     It pointed at `cream-100` and had ZERO consumers. Measured, every `bg-cream-100` consumer is a
+     MEDIA FRAME — BlogHero, Shot, the blog diagrams' outer wrapper, DeviceImage, FigureGrid,
+     VideoEmbed — and every content CARD uses `cream-50` (17 sites). So the default surface name was
+     aimed at the specialised step and the common one had no name at all. Re-aiming costs nothing at
+     zero consumers and gets more expensive for ever after.
+
+     ---- WHAT WAS CONSIDERED AND REFUSED, because the set is being DEFINED as much as extended ----
+
+     ⚠ AND ADDING THIS ROLE RETROACTIVELY MADE AN EXISTING COMMENT COMPILE. A note in
+     `SectionsEditPanel.tsx` described an inset ring drawing the accent on top of the accent, in
+     ENGLISH, since long before this token existed — and it happened to spell, hyphenated, what the
+     `accent-color` utility prefix plus this role's name now form. The moment the role was declared
+     that phrase became a real utility and `css-comment-trap` A5 caught it shipping in the public
+     bundle. The comment did not change; THE VOCABULARY GREW UNDER IT.
+
+     ⚠ AND THE FIRST VERSION OF THIS NOTE SPELLED THE PHRASE OUT AND SO BECAME THE DEFECT IT
+     DESCRIBES — third instance of "explaining it requires writing it", after the two comment
+     delimiters in `keystatic.config.ts` and `bespoke-blocks.mjs`. Describe such a collision, never
+     transcribe it. And run `css-comment-trap` whenever a TOKEN IS ADDED, not only when a comment is
+     written: a new name can make old prose compile.
+
+     `cream-200`, `ink-400` and `ink-200` were each measured for a role and REFUSED. cream-200 is
+     gradient ENDPOINTS (four of its nine sites), one highlighted-state card and one illustration
+     constant — no single job. ink-400 is ONE border on a button. ink-200 is ONE hairline inside an
+     illustration file. A role invented for one or two sites is a second spelling entering the layer
+     at birth, which is the defect #330 spent a PR removing. They stay raw until a job appears.
+  ============================================================================================ */
+  /* The ground a content CARD draws on. 17 sites spell it `bg-cream-50` today. */
+  --color-surface:       var(--color-cream-50);
+  /* The ground a MEDIA FRAME draws — an image well, a video shell, a diagram's outer wrapper.
+     Recessed relative to `surface`, which is the stateable difference between the two. */
+  --color-surface-well:  var(--color-cream-100);
   --color-border:        var(--color-cream-300);
   --color-text-primary:  var(--color-ink-950);
   --color-text-secondary: var(--color-ink-600);
+  /* The DEK. A standfirst above body copy — larger than prose, darker than `text-body`, and every
+     one of its four sites is exactly that: the blog index dek, the featured card dek, the article
+     dek, the footer's lead line. Ruled a role on the same test `text-body` passed in #327 — it
+     holds a distinct POSITION with a distinct job, rather than being a second way to say a
+     neighbour. */
+  --color-text-lead:     var(--color-ink-800);
+  /* The foreground drawn ON the accent — a pill, a badge, a filled button. Four sites spell it
+     `text-cream-50` on `bg-accent-500`, which is a GROUND token doing a FOREGROUND job. */
+  --color-on-accent:     var(--color-cream-50);
   /* Muted + subtle are the lightest text tiers. Tuned to the lightest warm ink that
      still clears WCAG AA 4.5:1 on the HARDEST light surface (canvas, oklch 92%): this
      value measures 4.55:1 on canvas and 5.52:1 on cream-50, so small labels pass AA on
