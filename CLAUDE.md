@@ -522,6 +522,15 @@ closed.
 
 - **⚠ `mutate.mjs` CONFIRMS THE SOURCE CHANGED AND CANNOT CONFIRM THE SUBJECT DID**, and the subject is sometimes the bundle and sometimes the rendered DOM. Two instances: a mutation to `globals.css` that needed a rebuild before `colour-census` could see it, and `data-theme` moved onto a React component that never forwards it to the DOM — **the attribute simply never appeared, so the assertion had nothing to find and reported SURVIVED**. A mutation that lands in JSX and not in the DOM looks exactly like a mutation the gate withstood. **Rebuild first, and check the mutation reached the subject rather than only the file.**
 
+- **⚠ A GUARD WHOSE FILTER IS ITS OWN PRECONDITION CAN ONLY FAIL IN ONE DIRECTION.** `L3a` selected
+  rows where `hueFloor === null` and then checked their stated reason — so a row that GAINED a floor
+  **left the selection entirely and took its stale reason with it.** The mutation that matters is the
+  one that moves a row OUT of the guard's subject, and **that is invisible from inside the filter.**
+
+  **THE GENERAL FORM: A CONDITIONAL ASSERTION NEEDS ITS COMPLEMENT ASSERTED TOO** — not because the
+  complement is also true, but because **the complement is where a value and its documentation come
+  apart.** L3b and L3c close both directions.
+
 - **⚠ A DENOMINATOR GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING — AND THIS IS THE ARC'S LAST
   WORD ON DENOMINATORS.** D12b existed *solely* to catch an empty run, and computed its expected
   count from the list it was checking: `PAIRS.length === n(n-1)/2` with `n` from that same list. **An
