@@ -214,7 +214,7 @@ function WideFrame({
   const { src, alt, z, unoptimized } = image;
 
   const screen = (
-    <span className="relative block bg-surface-well" style={{ aspectRatio: WIDE_ASPECT }}>
+    <span className="relative block bg-cream-100" style={{ aspectRatio: WIDE_ASPECT }}>
       <Image
         src={src}
         alt={alt}
@@ -236,11 +236,11 @@ function WideFrame({
       style={{ maxWidth: WIDE_MAX_W, zIndex: z }}
     >
       {variant === "browser" ? (
-        <span className="block overflow-hidden rounded-xl border border-ink-950/10 bg-surface">
+        <span className="block overflow-hidden rounded-xl border border-ink-950/10 bg-cream-50">
           {/* browser chrome — decorative: three dots and a url pill */}
           <span
             aria-hidden
-            className="flex items-center gap-1.5 border-b border-ink-950/8 bg-surface-well px-3.5 py-2.5"
+            className="flex items-center gap-1.5 border-b border-ink-950/8 bg-cream-100 px-3.5 py-2.5"
           >
             <span className="size-2.5 rounded-full bg-ink-950/15" />
             <span className="size-2.5 rounded-full bg-ink-950/15" />

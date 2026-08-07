@@ -212,12 +212,40 @@ closed.
   confirms you counted everything; **it cannot tell you that the thing you counted is the thing you
   named.**
 
-- **⚠ THE DISCRIMINATOR FOR A CONSTANT, WHICH IS NOT THE SAME AS THE SENTENCE FOR ONE.** A component
-  naming a rung because the thing it **DEPICTS** is that colour is a **constant** — the role layer
-  must not reach it. A component naming a rung because that is **where it happens to sit** is a
-  **migration**. The phone bezel and `HeroCover`'s five `on-dark` names are the first kind; the
-  accent badges were the second — **and in source they looked identical.** Only the question *what
-  is this drawing* separates them, which is why a mechanical sweep cannot and a reader can.
+- **⚠ THE STUDIO FREEZE PROTECTS VALUES, NOT NAMES — A LIMIT ON #314, NOT AN INCIDENT.** The
+  studio's sites are frozen against a theme moving their colours. They are **not** frozen against
+  the public site changing what a utility MEANS to the scanner. Removing the last public use of a
+  colour utility turned ten comments into `css-comment-trap` failures, **five of them inside
+  `/studio`**, because the utility namespace is shared and **neither side owns it**.
+
+  **NOTHING WAS MISCOLOURED, AND THAT IS THE POINT.** The coupling is real, invisible from either
+  side, and the next public migration will meet it again. Expect it; it is not a defect in the
+  freeze.
+
+- **⚠ A COMPONENT MAY CHOOSE WHAT KIND OF THING IT IS; IT MAY NOT CHOOSE WHERE IT LIVES.** That is
+  the sharp form of the C-safety rule. `SectionHeading`'s `tone` picks accent-toned or ink-toned —
+  a KIND, both branches follow the theme, six call sites use it deliberately. `PullQuote`'s `dark`
+  picks by GROUND, which is the violation. **They look identical in source and are opposites**: I
+  cited `tone` as the precedent for the violation and it is the precedent for the exception.
+
+- **⚠ THE DISCRIMINATOR FOR A CONSTANT: IS IT DRAWN IN THE SITE'S VOICE, OR IN THE DEPICTED THING'S
+  OWN COLOURS?** A browser mock uses browser-chrome grey; a blog diagram uses the site's ink, cream
+  and hairlines. **That is the rule.**
+
+  **⚠ "WHAT DOES IT DRAW" GAVE THE WRONG ANSWER AND IS THE WEAKER FORM.** The blog diagrams DEPICT
+  four squads' form UIs — by that test they are constants — yet they were deliberately built to
+  theme, with `blog-diagrams` A2 asserting no colour literal *so that all of it themes*. **Two
+  depicting things, opposite rulings, both correct.**
+
+  The finer test **supersedes artwork-by-file's phrasing without moving any of its outcomes** —
+  checked: `ProjectCardSvgs` is 77 hex literals against 11 token refs (the depicted products' own
+  colours, excluded whole), and `ProcessSection` splits 28 token refs in the accent OUTLINE against
+  3 hex fills in the depicted wireframe. **It explains the split WITHIN one file, which
+  artwork-by-file could not.**
+
+  A component naming a rung because the thing it depicts IS that colour is a constant; one naming a
+  rung because that is where it happens to sit is a migration. **In source they are identical** —
+  which is why a mechanical sweep cannot tell them apart and a reader can.
 
 - **⚠ A RUNG-TO-ROLE MAP IS A FUNCTION, AND A MULTI-ROLE RUNG IS NOT.** `cream-50` is both `surface`
   and `on-accent`, so the map is **the wrong SHAPE and no correction to its entries fixes that.**

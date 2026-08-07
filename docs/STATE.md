@@ -11702,6 +11702,61 @@ block comments with a non-greedy match **terminates early on a star-slash sequen
 — the same hazard as the glob in `keystatic.config.ts`. The gate reads the built stylesheet and was
 right each time; the shortcut that would have saved rebuilds was the thing that was wrong.
 
+## `etch` — ONE ROLE, NAMED FOR THE MECHANIC (#386)
+
+19 sites. Case study 21 of 21 colour buckets identical.
+
+**⚠ IT IS THE INK, NOT THE FINISHED ALPHA, AND THAT IS THE WHOLE DESIGN.** Seven distinct weights are
+in use (19 at /8, 7 at /12, 6 at /15, 3 at /5, 3 at /10, 2 at /80, 1 at /50), so a token holding one
+of them could not serve the others. Consumers keep their own opacity — and **the same weights work
+on both grounds**, measured as separation from the surface beneath:
+
+     5%  20.8 / 19.1      8%  32.9 / 31.2     10%  41.6 / 39.3
+    12%  50.2 / 46.8     15%  62.4 / 58.3     80% 332.0 / 312.4
+
+Every pair within 6%, so a consumer's chosen weight survives the ground change untouched.
+
+**⚠ AND IT IS NOT A SECOND SPELLING OF `border`, WHICH WAS MEASURED RATHER THAN ASSUMED.** Separation
+from the surface each sits on: a `border` edge is **65.0**, an etch at /8 is **32.9** — twice the
+strength, different jobs. `border` is an edge meant to be SEEN; an etch is a division meant to be
+FELT. Re-aiming `border` was the alternative and would have moved its two consumers by **34.1** while
+destroying that distinction.
+
+**⚠ AND `ink-950/8` ON A NEAR-BLACK GROUND IS 0.0 SEPARATION — INK ON INK, LITERALLY INVISIBLE.**
+Every hairline on the site would have vanished on a dark ground. **A defect the dark theme would
+have shipped, found before the ladder was written rather than in its render.**
+
+`etch` is PUBLIC ONLY. /studio keeps its raw `/12`: the freeze exists so a theme cannot reach the
+studio's palette, **a per-ground role IS a theme mechanism**, and the studio has no dark ground for
+it to resolve against. **The /8 and /12 split is not a vocabulary gap — it is the freeze boundary
+showing through.**
+
+---
+
+## ⚠ THE PR-2 REGRESSION, FIXED HERE RATHER THAN AFTER
+
+Five migrated grounds had raw ink fills inside them — the browser mock's chrome bar moved with the
+page while its dots did not, so on a dark ground the bar would darken and the dots vanish.
+**A DEPICTED OBJECT DOES NOT HALF-THEME**, so the grounds were REVERTED rather than the fills
+migrated. `DeviceImage` and `VideoEmbed` are now raw on both halves and registered as constants.
+
+**⚠ AND SECTION G's VOCABULARY WAS NARROWER THAN ITS CONCEPT FOR THE THIRD TIME AT THE SAME SEAM.**
+G reads ONE className, so it sees a pair only when both halves sit on one element; here the ground
+was on a parent and the fills on its children. The earlier two: the accent guard recognised grounds
+only from the cream/ink ladder, and E2 read `className` while two of its four subjects lived in style
+objects. **A rule stated about ELEMENTS and implemented against ATTRIBUTES, three times.** Section J
+is the parent-child form.
+
+**AND `studio-ink` E3 READ ZERO FOR BLOG** — its matcher was pinned to the old rung, so seven
+hairlines that had only been RENAMED looked like seven that had vanished. **Case-study legitimately
+stayed at four on the old name** (its device mocks are constants), which is what made blog's zero
+read as a regression rather than a rename. Counted across both names now, with a `/12` mirror added
+because the role made that drift newly spellable.
+
+**AND TWO REGISTRIES HELD ONE FACT.** `COLLISIONS` and `MULTI_ROLE` had the same keys for two
+questions; the second entry arriving is what exposed it, because `ink-950` had to be added twice or
+neither section would hold the truth. Unified.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -67,18 +67,37 @@ const ROLES = {
   "text-primary": { rung: "ink-950", job: "body and heading text at full strength" },
   "text-secondary": { rung: "ink-600", job: "supporting text — meta lines, captions, labels" },
   "text-lead": { rung: "ink-800", job: "the DEK — a standfirst above body copy, larger than prose and darker than text-body" },
+  /* ⚠ THE ONLY ROLE THAT IS AN INK RATHER THAN A FINISHED COLOUR. Consumers keep their own alpha
+   * (`border-etch/8`, `bg-etch/15`), because seven distinct weights are in use and one baked alpha
+   * could not serve them. Measured: every weight lands within 6% of its light separation on a dark
+   * ground, so a consumer's choice survives the ground change. */
+  "etch": { rung: "ink-950", job: "the ink a SURFACE MARK is incised with — a hairline, a placeholder bar, a device dot; consumers supply the alpha" },
   "on-accent": { rung: "cream-50", job: "the foreground drawn ON the accent — a pill, a badge, a filled button" },
   "accent": { rung: "accent-500", job: "the brand mark colour, as a foreground and as a fill" },
 };
 
-/* ⚠ A COLLISION IS ALLOWED ONLY WITH A REASON THAT SAYS WHEN IT ENDS. Two roles on one rung is
- * exactly what "two spellings of one idea" looks like from outside, so the difference between that
- * and a real pair is whether anyone can say how they will diverge. */
-const COLLISIONS = {
-  "cream-50": "⚠ `surface` and `on-accent` share this rung TODAY and must not later. Under a dark "
-    + "ground `surface` follows the page down; `on-accent` does NOT, because the accent stays a "
-    + "mid-tone and its foreground must stay light. Ends when the dark ground ships and the two "
-    + "resolve differently — which is the whole reason both names exist now rather than then.",
+/* ⚠ ONE REGISTRY, NOT TWO. This began as a `COLLISIONS` map in section C and a `MULTI_ROLE` map in
+ * section F — the SAME KEYS answering two questions ("is this a second spelling?" and "which rungs
+ * may a sweep not map?"). Two lists of one fact is what this project deletes, and the second entry
+ * arriving is what made the duplication visible: `ink-950` had to be added twice or neither section
+ * would hold the truth.
+ *
+ * ⚠ A COLLISION IS ALLOWED ONLY WITH A REASON THAT SAYS WHEN IT ENDS. Two roles on one rung is
+ * exactly what "two spellings of one idea" looks like from outside; the difference between that and
+ * a real pair is whether anyone can say how they diverge and how to tell them apart today. */
+const MULTI_ROLE = {
+  "cream-50": { roles: ["surface", "on-accent"],
+    why: "⚠ the card ground and the label drawn ON the accent share this rung TODAY and must not "
+       + "later. Under a dark ground `surface` follows the page down; `on-accent` does NOT, because "
+       + "the accent stays a mid-tone and its foreground must stay light. Disambiguated by utility "
+       + "KIND: a ground prefix means `surface`, a foreground prefix means `on-accent`. Ends when "
+       + "the dark ground ships and the two resolve differently." },
+  "ink-950": { roles: ["text-primary", "etch"],
+    why: "⚠ TEXT and a SURFACE MARK share this ink. Disambiguated by utility KIND and by ALPHA: an "
+       + "opaque foreground is `text-primary`, anything carrying an opacity modifier is `etch`. Both "
+       + "invert on a dark ground, so they are not distinguished by that — they are separate roles "
+       + "because one is READ and one is FELT, and the etch keeps a consumer-supplied weight where "
+       + "text never does. Ends if the etch ever needs an ink the text does not." },
 };
 
 console.log("\nA · every declared role exists and resolves to a rung");
@@ -114,13 +133,13 @@ const shared = Object.entries(byRung).filter(([, rs]) => rs.length > 1);
 console.log(`         ${shared.length} rung(s) carry more than one role: ${shared.map(([k, rs]) => `${k} (${rs.join(" + ")})`).join(", ") || "none"}`);
 
 t("C1 ⚠ EVERY SHARED RUNG HAS A RECORDED REASON — two roles on one rung with no reason IS the second spelling",
-  shared.filter(([k]) => !COLLISIONS[k]).map(([k, rs]) => `${k}: ${rs.join(" + ")}`), []);
+  shared.filter(([k]) => !MULTI_ROLE[k]).map(([k, rs]) => `${k}: ${rs.join(" + ")}`), []);
 t("C2 …and every reason says WHEN IT ENDS, so a collision cannot become permanent by inattention",
-  Object.entries(COLLISIONS).filter(([, why]) => !/Ends when|ends when/.test(why)).map(([k]) => k), []);
+  Object.entries(MULTI_ROLE).filter(([, v]) => !/Ends when|Ends if|ends when/.test(v.why)).map(([k]) => k), []);
 /* ⚠ AND A STALE EXEMPTION IS THE OTHER DIRECTION. If the two roles diverge, this entry must go —
  * an exemption outliving its subject is what let a dead token survive a contrast floor in #330. */
 t("C3 every recorded collision still collides — a stale one exempts a pair that already separated",
-  Object.keys(COLLISIONS).filter((k) => (byRung[k] ?? []).length < 2), []);
+  Object.keys(MULTI_ROLE).filter((k) => (byRung[k] ?? []).length < 2), []);
 
 console.log("\nD · every role states what it is FOR");
 
@@ -268,12 +287,6 @@ console.log("\nF · ⚠ WHICH RUNGS CARRY MORE THAN ONE ROLE — the map's SHAPE
  * role, `text-`/`fill`/`stroke` the foreground one. That IS a function over the domain, and this
  * section asserts the multi-role set is DECLARED so the next sweep knows which rungs it may not
  * map. It is a list that must SHRINK or stay still, never grow silently. */
-const MULTI_ROLE = {
-  "cream-50": { roles: ["surface", "on-accent"],
-    why: "the card ground and the label drawn ON the accent share this rung until the dark ground "
-       + "ships. Disambiguated by utility KIND: a ground prefix means `surface`, a foreground prefix "
-       + "means `on-accent`. Ends when the two rungs resolve differently." },
-};
 const rolesByRung = {};
 for (const [r, v] of Object.entries(ROLES)) (rolesByRung[v.rung] ??= []).push(r);
 const actualMulti = Object.entries(rolesByRung).filter(([, rs]) => rs.length > 1).map(([k]) => k).sort();
@@ -354,9 +367,17 @@ console.log("\nH · ⚠ THE CONSTANTS — colours the role layer must NOT reach"
  * label; "a phone bezel is near-black because phones are" is a reason someone can disagree with. */
 const CONSTANTS = {
   "components/case-study/DeviceImage.tsx": {
-    rung: "ink-950",
-    depicts: "a PHONE BEZEL. The frame is near-black because devices are, not because the page's "
-           + "text is. Under a dark ground a text role would draw it white.",
+    rung: "ink-950 and the cream ladder, RAW ON BOTH HALVES",
+    depicts: "a DEVICE — a phone bezel and a browser window. The frame is near-black because devices "
+           + "are; the chrome bar is light because browser chrome is. #383 migrated the mock's "
+           + "GROUNDS while leaving its dots and url pill raw, so on a dark page the bar would have "
+           + "darkened and the dots vanished. A depicted object does not half-theme, so #386 "
+           + "reverted the grounds rather than migrating the fills.",
+  },
+  "components/case-study/blocks/VideoEmbed.tsx": {
+    rung: "ink-950 and the cream ladder, RAW ON BOTH HALVES",
+    depicts: "the same browser window shape, deliberately — a video and a screenshot must read as "
+           + "the same kind of object on the page, so they share the chrome and share this ruling.",
   },
   "components/case-study/blocks/HeroCover.tsx": {
     rung: "on-dark",
@@ -423,6 +444,38 @@ t("I1 ⚠ EXACTLY ONE COMPONENT CHOOSES BY GROUND, and it is the one the ruling 
 t("I2 …and it still carries the reasoning, so the next reader meets the trigger rather than the branch",
   /ACCEPTANCE TEST FOR THE GROUND SWITCH/.test(
     readFileSync(new URL("../../components/case-study/blocks/PullQuote.tsx", import.meta.url), "utf8")), true);
+
+console.log("\nJ · ⚠ AND A PAIR SPLIT ACROSS PARENT AND CHILD");
+
+/* ⚠ SECTION G's VOCABULARY WAS NARROWER THAN ITS CONCEPT — THE THIRD TIME AT THIS BOUNDARY. G reads
+ * ONE className, so it sees a ground and a foreground only when they sit on the same element. The
+ * browser mock puts the ground on a parent and the dots on its children, and G was green while the
+ * bar moved with the page and the dots did not.
+ *
+ * The earlier two: the accent-ground guard recognised grounds only from the cream/ink ladder, and
+ * E2 read `className` while two of its four subjects lived in style objects. THREE FAILURES AT THE
+ * SAME SEAM — a rule stated about ELEMENTS and implemented against ATTRIBUTES.
+ *
+ * A window of following lines is coarse and deliberately so: it reports candidates a person judges,
+ * and it is the only shape that reaches a parent/child split in flat source. */
+const nested = [];
+let groundsSeen = 0;
+for (const f of tsxFiles) {
+  const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
+  if (/^components\/studio\/|^app\/studio\/|ProjectCardSvgs/.test(rel)) continue;
+  const lines = readFileSync(f, "utf8").split("\n");
+  lines.forEach((ln, i) => {
+    if (!/\b(?:bg|from|via|to)-(?:surface|surface-well|background)\b/.test(ln)) return;
+    groundsSeen++;
+    const win = lines.slice(i + 1, i + 12);
+    const raw = win.filter((l) => /\b(?:bg|from|via|to)-(?:ink-950|cream-\d+|canvas)\b/.test(l));
+    if (raw.length) nested.push(`${rel}:${i + 1} — a migrated ground with ${raw.length} raw fill(s) beneath it`);
+  });
+}
+console.log(`         ${groundsSeen} migrated grounds scanned for raw fills beneath them`);
+t("J0 the scan found grounds, against a literal", groundsSeen >= 10, true);
+t("J1 ⚠ NO MIGRATED GROUND HAS A RAW FILL INSIDE IT — the browser mock's bar moved while its dots did not",
+  [...new Set(nested)].sort(), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

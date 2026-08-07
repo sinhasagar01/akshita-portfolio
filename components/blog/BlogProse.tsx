@@ -86,7 +86,7 @@ function VideoEmbed({
   return (
     <figure className="my-[2.3em]">
       <div
-        className="relative w-full overflow-hidden rounded-[10px] border border-ink-950/8"
+        className="relative w-full overflow-hidden rounded-[10px] border border-etch/8"
         style={{ aspectRatio: String(ratio) }}
       >
         {/* THE POSTER, FINALLY READ. It has been in the schema since #171, uploadable
