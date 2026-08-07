@@ -166,6 +166,24 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
+- **⚠ `docs/colour-boundary.yaml` IS JOINED BY VALUE-AND-LOCATION, NEVER BY FILE.** #345 built it
+  that way deliberately, and **the first probe to reach for it reached for the file** —
+  `boundary.includes(rel)` credited **19 migration sites** to rows that rule on entirely different
+  colours in the same files. `process-diagram-fills` is three tan hex fills, not ProcessSection's
+  seven ladder sites. **The corrected count was ZERO, not nineteen-minus-something**: a file-level
+  join against a colour-level record over-attributes totally, every time. The wrong-unit rule, in a
+  probe written one turn after citing it.
+
+- **⚠ RUN `css-comment-trap` WHENEVER A TOKEN IS ADDED, NOT ONLY WHEN A COMMENT IS WRITTEN.** A new
+  role name plus an existing utility prefix can make **old prose compile**: a comment describing a
+  ring drawing the accent over the accent had been inert English for months, and declaring
+  `--color-on-accent` turned it into a real utility that shipped in the public bundle. **The comment
+  did not change; the vocabulary grew under it.** Mirror of the PR-number-as-hex trap.
+
+  **⚠ AND THE FIRST NOTE RECORDING THIS SPELLED THE PHRASE OUT AND BECAME THE DEFECT IT DESCRIBED**
+  — third instance of *"explaining it requires writing it"*, after the two comment delimiters.
+  **Describe such a collision; never transcribe it.**
+
 - **⚠ A NUMBER WITHOUT ITS SUBJECT IS AN INVITATION TO SUPPLY ONE.** "Near-black grounds differ
   between palettes by 25.1" was **correct and unattached**. A reader — the one who had written the
   surrounding rules — attached it to the `band-dark` token, measured 26.3, and **spent a turn chasing

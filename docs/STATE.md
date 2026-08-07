@@ -11424,6 +11424,88 @@ whose NAME makes the claim was the one that failed to check it, and G3 caught th
 **A guard must be robust to its subject being absent, not merely to its subject being wrong** — the
 denominator lesson one turn later and one layer down.
 
+## THE ROLE LAYER IS EXTENDED — PR 1 OF 4 (#382)
+
+Four tokens, no consumers moved, nothing renders differently **by construction**. The whole change
+is the gates gaining names, so the care went into the naming rather than into proving the render.
+
+    background     -> canvas       the PAGE ground behind every surface
+    surface        -> cream-50     RE-AIMED from cream-100; the ground a content CARD draws
+    surface-well   -> cream-100    the ground a MEDIA FRAME draws — image well, video shell
+    text-lead      -> ink-800      the DEK, a standfirst above body copy
+    on-accent      -> cream-50     the foreground drawn ON the accent
+
+**⚠ `surface` WAS AIMED AT THE WRONG STEP AND RE-AIMING IS FREE EXACTLY ONCE.** It pointed at
+`cream-100` with **zero consumers**. Measured, every `bg-cream-100` consumer is a MEDIA FRAME —
+BlogHero, Shot, the diagrams' outer wrapper, DeviceImage, FigureGrid, VideoEmbed — and every content
+CARD uses `cream-50` (17 sites). The default surface name was aimed at the specialised step while
+the common one had no name. At zero consumers this costs nothing; it gets more expensive for ever
+after.
+
+**⚠ AND THE STRONGEST ARGUMENT FOR THE WHOLE LAYER IS A COLLISION.** `surface` and `on-accent`
+resolve to the same rung today and **must not later** — under a dark ground `surface` follows the
+page down and `on-accent` does not, because the accent stays a mid-tone and its foreground must stay
+light. **A raw `cream-50` cannot express that; two role names can**, and the four sites currently
+spelling it `text-cream-50` on `bg-accent-500` would have gone dark-on-accent. `role-layer` C1
+requires a recorded reason for any shared rung and C2 requires that reason to say when it ends.
+
+**⚠ THREE RUNGS WERE MEASURED FOR A ROLE AND REFUSED**, recorded where the additions are because a
+refusal is as much a decision as an addition. `cream-200` is gradient ENDPOINTS in four of nine
+sites plus one highlighted card and one illustration constant — no single job. `ink-400` is ONE
+border. `ink-200` is ONE hairline in an illustration file. **A role invented for one or two sites is
+a second spelling entering the layer at birth**, which is what #330 spent a PR removing. So the
+briefed "five new roles" became **four**, and one of those was a re-aim.
+
+**⚠ AND A2 FOUND A ROLE I HAD MISSED.** `--color-background` was already declared and absent from my
+registry; the both-ways join reported it on the turn it was written. It is real — `body` paints it.
+
+---
+
+## ⚠ ADDING A TOKEN MADE AN EXISTING COMMENT COMPILE
+
+A note in `SectionsEditPanel.tsx` described an inset ring drawing the accent over the accent, in
+ENGLISH, since long before this work — and it happened to spell, hyphenated, what the `accent-color`
+utility prefix plus the new role's name now form. **The moment the role was declared that phrase
+became a real utility and shipped in the public bundle**, caught by `css-comment-trap` A5. The
+comment did not change; **the vocabulary grew under it.**
+
+**⚠ AND THE FIRST VERSION OF THE NOTE RECORDING THIS SPELLED THE PHRASE OUT AND SO BECAME THE DEFECT
+IT DESCRIBED** — third instance of *"explaining it requires writing it"*, after the two comment
+delimiters. **Describe such a collision, never transcribe it.**
+
+The practical rule: **run `css-comment-trap` whenever a TOKEN IS ADDED**, not only when a comment is
+written. A new name can make old prose compile, and nothing about the prose looks different
+afterwards.
+
+---
+
+## ⚠ AND THE CATEGORY-1 MISCOUNT, WHICH IS THE HEADLINE OF THE SURVEY
+
+Sizing the migration, my first probe credited **19 sites** to `docs/colour-boundary.yaml` using
+`boundary.includes(file)` — **a WHOLE-FILE match against a record that rules on SPECIFIC COLOURS.**
+`process-diagram-fills` is three tan hex fills, not ProcessSection's seven ladder sites;
+`global-error-page` is six colours in a file with ONE ladder site.
+
+**Nineteen sites credited to decisions about entirely different colours, and the corrected count is
+ZERO** — a total over-attribution, which is what a file-level join against a colour-level record
+produces every time. **The wrong-unit rule, in a probe written one turn after citing it.**
+
+**⚠ THE DURABLE FORM: THE BOUNDARY FILE IS JOINED BY VALUE-AND-LOCATION, NOT BY FILE.** #345 built
+it that way deliberately, and the first probe to reach for it reached for the file.
+
+**And the survey's own denominator failed the same way**: the first categorisation walked only
+`className=` strings and silently dropped **54 of 198 sites, 27%**, without saying so. That is why
+PR 3 is separate — **a class-only sweep would have reported success on 144 of 198 and called it
+done.**
+
+    232 total  -  26 STUDIO (frozen)  -  8 ARTWORK  =  198 in scope
+      0  already ruled on
+     15  self-contained surfaces (ground AND foreground on one element)
+     54  var() in style objects and SVG attrs, outside any className
+    129  ordinary one-sided utility
+    ────
+    198  SUM
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

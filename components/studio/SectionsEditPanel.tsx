@@ -2219,8 +2219,8 @@ export default function SectionsEditPanel({
                     // where `overflow-hidden` clips it. The negative outline offset keeps it inside.
                     "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2",
                     // AND ITS COLOUR FOLLOWS ITS GROUND, WHICH IS THE SECOND AND THE ONE THAT BIT.
-                    // An inset accent ring on the SELECTED button draws accent-on-accent —
-                    // **measured at 1.00, completely unreadable**. The underline never had this
+                    // An inset accent ring on the SELECTED button draws the accent ON the accent
+                    // — **measured at 1.00, completely unreadable**. The underline never had this
                     // problem because both tabs sat on cream; the fill is what put a ring on two
                     // different grounds. So the selected button's ring takes the label's colour
                     // (cream-50 on accent, 4.70) and the rest keeps accent on cream (4.70).
