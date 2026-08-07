@@ -298,9 +298,28 @@ closed.
   constraint, ask what the cheapest way to satisfy it would be, and whether that way is also
   measured.**
 
-- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** The two FAVICON candidate grounds
-  (`#211C16` and `#0B1A22`) differ by **25.1**, and the two PWA SPLASH grounds (each theme's
-  `cream-50`) by **16.8** — and **neither hue is visible at any size.**
+- **⚠ A COMPUTED-STYLE COMPARISON IS NOT A RENDER COMPARISON.** It reports every MECHANISM change,
+  including ones no pixel expresses — so it is the right tool for proving a mechanism moved and the
+  **wrong one for proving an appearance did not.** #387's fingerprint reported two scopes MOVED when
+  nothing on screen had changed.
+
+  **⚠ THE CLEANEST POSSIBLE EXAMPLE IS THE 25 ELEMENTS INHERITING AN UNUSED COLOUR:** their computed
+  `color` went from `ink-950` to `on-dark`, and **not one of them paints text of its own.** The value
+  changed, nothing draws it, and **only asking WHICH ELEMENTS PAINT TEXT separated the two.** Restrict
+  the fingerprint to elements that actually paint, or a passing comparison is luck and a failing one
+  means nothing.
+
+- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY — AT SMALL SIZES.** The two FAVICON
+  candidate grounds (`#211C16` and `#0B1A22`) differ by **25.1**, and the two PWA SPLASH grounds
+  (each theme's `cream-50`) by **16.8** — and neither hue is visible **at 16 to 64px, which is the
+  size those two surfaces are.**
+
+  **⚠ THE ORIGINAL WORDING SAID "AT ANY SIZE" AND THAT IS FALSE, MEASURED AT PAGE SCALE IN #388.**
+  Rendered as full-bleed grounds, the five `band-dark` values are **plainly distinguishable — warm
+  black, blue black, violet black, red black, green black — and each reads as its own hue ALONE,
+  with no neighbour to compare against.** Their pairwise separations are 10.5 to 30.2, so seven of
+  ten pairs sit BELOW the 25.1 that was ruled invisible, **and the render refutes the number.** The
+  ruling was right about its subject and overgeneralised by three words.
 
   **⚠ THOSE SUBJECTS ARE NAMED HERE BECAUSE THE LINE DID NOT NAME THEM AND I SUPPLIED THE WRONG
   ONES.** Re-deriving these figures in #380 I read "near-black grounds" as the `band-dark` TOKEN,

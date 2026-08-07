@@ -11828,6 +11828,38 @@ indistinguishable from the attribute never reaching the DOM, the hazard this pro
 for `data-theme`. Restarting the server was the whole fix. **A stale server does not report that it
 is stale.**
 
+## THE LADDER IS PER-PALETTE, AND THE RENDER OVERTURNED THE NUMBER (#388, investigation)
+
+**The measurement nobody had taken: the five `band-dark` values against each other.**
+
+    cream    rgb(21,12,5)     harbour  rgb(5,18,25)     orchid  rgb(21,13,24)
+    cerise   rgb(30,10,10)    fern     rgb(6,20,8)
+
+    pairwise 10.5 to 30.2 — SEVEN OF TEN PAIRS BELOW 25.1
+
+**⚠ AND 25.1 IS THE SEPARATION THIS PROJECT ALREADY RULED INVISIBLE**, which pointed hard at a
+shared dark ground: six declarations doing the work of one, with the accent carrying the theme.
+
+**⚠ THE RENDER REFUTED IT.** At page scale the five read plainly as their own hues — warm black,
+blue black, violet black, red black, green black — and **each reads as itself ALONE, with no
+neighbour to compare against.** Not subtle. Visible at a glance.
+
+**SO: PER-PALETTE.** A dark ground does carry its palette's identity, and the site's existing
+`band-dark` — already declared six times, already differing — was right rather than accidental.
+G4 is satisfied by construction and needs no new model.
+
+**⚠ AND THE PALETTE-EXTREMES RULE IS CORRECTED WHERE IT IS WRITTEN.** It said the hue is invisible
+**"at any size"**. That is true of the favicon and the splash — 16 to 64px marks, which is what it
+was measured on — and **false at page scale.** The ruling was right about its subject and
+overgeneralised by three words. Both outcomes it decided still stand; only the reach of the claim
+moves.
+
+**⚠ THE PATTERN IS THE ONE THIS ARC KEEPS FINDING, AND THIS TIME IT WENT THE OTHER WAY.** Usually a
+number survives and a render corrects the reasoning around it. Here the number was correct, the
+prior ruling derived from it was correct for its subject, and **a render at a different scale
+refuted the generalisation.** A threshold belongs to the size it was taken at, exactly as a ratio
+belongs to the ground it was taken on.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
