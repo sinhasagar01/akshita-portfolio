@@ -267,6 +267,31 @@ entries:
       Phone and browser chrome around a product screenshot. The file DEPICTS A DEVICE rather than this
       site, so its colours belong to the depicted object.
 
+  - id: og-card-palette
+    kind: judgement
+    category: forced-literal
+    where: lib/theme.ts (THEME_OG)
+    count: 12
+    files: [lib/theme.ts]
+    reason: >
+      ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — TWELVE VALUES ACROSS THREE ENTRIES.
+      `ImageResponse` renders OUTSIDE the document and cannot read a CSS custom property, exactly as
+      a favicon cannot, so a card's colours must exist as literals in JavaScript. Same forced form as
+      `pwa-splash-ground` beside it, for the same mechanical reason.
+
+      Until #370 the cards were not themed at all — `lib/og.tsx` held four module constants, three of
+      which named a token and were 26.7, 34.8 and 30.7 away from it. #368 corrected them against
+      cream; this makes them follow the published palette.
+
+      ⚠ AND THE GROUND IS THEMED TOO, which is the part easy to miss: `cream-50` differs per palette,
+      so theming only the accent would have drawn a teal mark on a warm card.
+    test: >
+      WHAT MAKES THE TOKEN FORM IMPOSSIBLE HERE: `ImageResponse` composes its own document with no
+      access to the page's cascade, so `var(--color-accent-500)` resolves to nothing inside it. The
+      value must be a literal or the card draws unstyled. That is the mechanism, not a preference —
+      and `theme` section I compares all twelve against their own theme's declaration in
+      `globals.css`, so the duplication cannot drift silently.
+
   - id: pwa-splash-ground
     kind: judgement
     category: forced-literal

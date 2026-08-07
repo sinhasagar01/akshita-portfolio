@@ -33,10 +33,11 @@
 // PART D — THE FAIL-CLOSED ASYMMETRY. Silent on the public site, loud in the studio. A visitor must
 // never see an unthemed page; an author must never be left wondering why their choice did nothing.
 // Both directions are asserted, because either one alone is a defect.
+import { parseColor, parseOklch } from "../../lib/theme-contrast.ts";
 import { readFileSync } from "node:fs";
 import {
   DEFAULT_THEME, VERIFY_THEME, SECOND_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
-  selectableThemes, unselectableReason, THEME_SPLASH, BRAND_CHROME_COLOR,
+  selectableThemes, unselectableReason, THEME_SPLASH, THEME_OG, BRAND_CHROME_COLOR,
 } from "../../lib/theme.ts";
 import { THEME_METRICS, ACTIVE_THEME } from "../../lib/studio/three-pane.ts";
 import {
@@ -307,6 +308,65 @@ t("G6 the verification twin rides cream's own rule, so the two cannot drift apar
  * follow the palette, and it now says so as a boundary row of kind `invariant` — which is the right
  * home, because the boundary file lists colours nothing MEASURES and a baked SVG literal is exactly
  * that. `colour-census` route D scans it. */
+
+console.log("\nI · every RESOLVED HEX equals the token it was resolved from");
+
+/* ⚠ TWO MAPS HOLD RESOLVED HEX AND NEITHER WAS EVER CHECKED AGAINST THE STYLESHEET. `THEME_SPLASH`
+ * says each value "IS its theme's --color-cream-50, resolved. Not an approximation" — a claim `F1`
+ * to `F3` never tested, because they assert STRUCTURE (every theme has one, the twin matches the
+ * default, the real themes differ). `THEME_OG` makes the same kind of claim for four colours.
+ *
+ * A hex resolved by hand from an OKLCH token is exactly the shape `token-claims` was built for, one
+ * layer out: the claim lives in prose and the value drifts silently. The difference is that these
+ * are PER THEME, so the token must be read from that theme's own block rather than from `@theme`.
+ *
+ * ⚠ AND BOTH ARE FORCED, NOT PREFERRED. `ImageResponse` and a JSON manifest both render outside the
+ * document and cannot read a custom property — which is why the value is duplicated at all, and why
+ * the only honest guard is a comparison rather than a convention. */
+const themeBlockFor = (name) => (name === DEFAULT_THEME || name === VERIFY_THEME)
+  ? blockOf("@theme") : blockOf(`[data-theme="${name}"]`);
+const declaredIn = (block, token) => {
+  const m = new RegExp(`--color-${token}\\s*:\\s*([^;]+);`).exec(block ?? "");
+  return m ? m[1].trim() : null;
+};
+const toRgb = (v) => (v.startsWith("oklch") ? parseOklch(v) : parseColor(v));
+const hexOf = (v) => {
+  const c = parseColor(v);
+  return c ? c.map((n) => Math.round(n)).join(",") : null;
+};
+const near = (hex, decl) => {
+  const a = parseColor(hex), b = decl && toRgb(decl);
+  if (!a || !b) return null;
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+};
+
+const drift = [];
+let checked = 0;
+for (const name of THEME_NAMES) {
+  const block = themeBlockFor(name);
+  const splash = THEME_SPLASH[name];
+  if (splash) {
+    checked++;
+    const d = near(splash, declaredIn(block, "cream-50"));
+    if (d === null || d > 1) drift.push(`${name} splash ${splash} vs cream-50 — ${d === null ? "unresolvable" : d.toFixed(1)} away`);
+  }
+  const og = THEME_OG[name];
+  if (og) {
+    for (const [key, token] of [["cream", "cream-50"], ["ink", "ink-950"], ["muted", "ink-600"], ["accent", "accent-500"]]) {
+      checked++;
+      const d = near(og[key], declaredIn(block, token));
+      if (d === null || d > 1) drift.push(`${name} og.${key} ${og[key]} vs ${token} — ${d === null ? "unresolvable" : d.toFixed(1)} away`);
+    }
+  }
+}
+console.log(`         ${checked} resolved values compared against their own theme's declaration`);
+t("I1 the population is real — a zero here means no map was read", checked >= 12, true);
+t("I2 ⚠ EVERY RESOLVED HEX MATCHES ITS TOKEN — a hand-kept value is allowed only because this runs",
+  drift.sort(), []);
+
+/* The OG map must cover every theme, or a palette renders a card in another palette's colours. */
+t("I3 every theme has an OG palette — a missing one would silently draw cream",
+  THEME_NAMES.filter((n) => !THEME_OG[n]), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

@@ -1,5 +1,7 @@
 import { getBlogPost, getBlogPosts } from "@/lib/keystatic";
 import { renderOgImage } from "@/lib/og";
+import { getSiteSettings } from "@/lib/keystatic";
+import { resolveTheme, THEME_OG } from "@/lib/theme";
 
 // A post's social card, at a stable URL (`/blog/<slug>/og`) referenced by og:image and
 // twitter:image through `blogOgImageUrl`. Mirrors the case-study route deliberately, including
@@ -44,7 +46,17 @@ export async function GET(
   // exactly what made the case-study route return 200 for a slug that does not exist, and it
   // would render an unpublished title and dek at a guessable URL while the page 404s.
   if (!post || post.status !== "published") return new Response(null, { status: 404 });
+  /* ⚠ THE PALETTE IS READ HERE RATHER THAN INSIDE `renderOgImage`, because the helper is a pure
+   * renderer and the published theme is a CONTENT read. This route prerenders — the build writes an
+   * `og.body` per slug — so the read happens once at build time, not per request.
+   *
+   * ⚠ AND A THEMED CARD IS THEMED AT SHARE TIME, NOT RETROACTIVELY. A platform stores the image it
+   * scraped, so switching palettes does not repaint cards already sitting in feeds. Same staleness
+   * the favicon has, on a surface nobody can flush — recorded so old cards are not reported as a
+   * bug later. */
+  const palette = THEME_OG[resolveTheme((await getSiteSettings())?.theme)];
   return renderOgImage({
+    palette,
     // `topic` is free text and may be "", which renderOgImage handles by dropping the whole
     // eyebrow row rather than leaving the accent rule floating with no label.
     eyebrow: post.topic,
