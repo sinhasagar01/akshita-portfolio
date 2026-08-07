@@ -299,6 +299,22 @@ closed.
   visible at the moment it was written**, which is why this is a writing discipline rather than a
   measurement problem.
 
+- **⚠ THERE IS A STEP BETWEEN MEASURE AND LOOK, AND IT IS THE ONE THIS ARC KEPT SKIPPING: ASK WHAT
+  THE MEASUREMENT IS A MEASUREMENT OF.** Every earlier decision here split into *"the instrument is
+  silent, so look"* — the card lift, the palette renders, the vessel. **The `text-subtle` fold split
+  differently: the instrument was pointed at the wrong quantity.** It reported 1.09× confidently and
+  the number was correct; it was a measurement of value distance where the question was about
+  population.
+
+  **Only the second kind is fixable by measuring better**, and telling them apart is what the step
+  buys. **Twice now the deciding number has been a count nobody had thought to take** — pills per
+  section at the default fold, and elements per level before a merge. Neither is exotic; both were
+  invisible because the obvious instrument was already answering something.
+
+  So before running the obvious comparator, **name the quantity the decision actually turns on.** If
+  the comparator does not measure that quantity, it will still return a number, and that number will
+  be right about something else.
+
 - **⚠ BEFORE MERGING TWO TOKENS, COUNT THE ELEMENTS AT EACH LEVEL. IF THE MERGE COLLAPSES TWO
   POPULATIONS INTO ONE, THEY WERE A HIERARCHY — however close their values sit.** Folding
   `text-subtle` onto `text-secondary` took the count of visible elements painting the quiet colour
