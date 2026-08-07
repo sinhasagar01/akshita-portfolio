@@ -166,6 +166,28 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
+- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** Near-black grounds differ between
+  palettes by 25.1 and near-white by 16.8, and **neither hue is visible at any size.** So a surface
+  whose ground lives at either end is one where theming buys nothing — and **that is a property of
+  the GROUND, not of the surface's importance.**
+
+  It decided two surfaces at once. The favicon sits on near-black, so a themed ground was
+  imperceptible and neutral won at **16.49 against 6.52**; the PWA splash sits on near-white, so a
+  neutral mark against a themed splash is **not unfinished — it is a pairing where the theme was
+  never visible** (18.42 against 18.50). **The favicon ruling was therefore not a trade: the surface
+  had nothing to trade.** Ask where a surface's ground sits before pricing a build that would theme
+  it.
+
+- **⚠ A COMMENT NAMING A TOKEN IS A CLAIM, AND EVERY GATE HERE READS VALUES.** The claim lives in
+  prose, which nothing reads, so the two drift while the comment goes on asserting equality.
+  **Three instances, one mechanism:** `accent-400`'s comments called it load-bearing while nothing
+  referenced it; the cursor's `#B5613C` was a near-copy at 23.6; `lib/og.tsx`'s
+  `#C0673E // --color-accent-500` was 30.7 away and asserted equality outright.
+
+  **⚠ ALL THREE WERE FOUND BY MEASURING SOMETHING ELSE**, never by looking — which is the argument
+  for an instrument rather than for more care. `ralph/tests/token-claims.mjs` is it, and its first
+  run found `lib/og.tsx` had **three** drifted constants rather than the one under investigation.
+
 - **⚠ A SAFETY NET THAT RESTORES THE WRONG STATE IS WORSE THAN AN ABSENT ONE, BECAUSE IT IS
   TRUSTED.** Same argument as `continue-on-error` making a lint step advisory and as a gate passing
   on an empty subject — **but the snapshot case is the strongest form, because those two merely fail

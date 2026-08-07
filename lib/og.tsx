@@ -13,10 +13,29 @@ import { fitTitle } from "@/lib/og-fit";
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 export const OG_CONTENT_TYPE = "image/png";
 
-const CREAM = "#FBF6EE"; // --color-cream-50 / page background
-const INK = "#1c1813"; //   --color-ink-950
-const MUTED = "#6F665B"; //  --color-ink-600
-const ACCENT = "#C0673E"; // --color-accent-500
+/* ⚠ THESE FOUR NAME TOKENS AND THREE OF THEM WERE NOT THOSE TOKENS. Measured against
+ * `app/globals.css`: ink-950 was 26.7 away, ink-600 34.8, accent-500 30.7 — all well past the snap
+ * threshold this project settled at single digits, each sitting beside a comment asserting equality.
+ * Only `cream-50` was close, at 5.2.
+ *
+ * ⚠ A COMMENT NAMING A TOKEN IS A CLAIM AND NOTHING CHECKED IT. Every gate here reads VALUES; the
+ * claim lived in prose, which no gate reads. Third instance of that shape — `accent-400`'s comments
+ * called it load-bearing while nothing referenced it, the cursor's `#B5613C` was a near-copy at
+ * 23.6, and this one asserted equality outright. All three were found by measuring something else.
+ * `ralph/tests/token-claims.mjs` is the instrument that shape never had.
+ *
+ * They stay LITERALS because `ImageResponse` renders outside the document and cannot read a CSS
+ * custom property — the same isolation the favicon has. `THEME_SPLASH` in `lib/theme.ts` is the
+ * precedent and it is exact at distance 0, so a hand-kept resolved value is workable ONCE SOMETHING
+ * MEASURES IT.
+ *
+ * ⚠ AND THE CARDS GET MORE CONTRAST, NOT LESS. On the card ground: ink 16.41 → 19.04, muted
+ * 5.24 → 7.42, accent 3.72 → 4.70 — the accent crossing AA for the first time. The drift had been
+ * washing every value toward the paper. */
+const CREAM = "#fef9f1"; // --color-cream-50 / page background
+const INK = "#0f0703"; //   --color-ink-950
+const MUTED = "#59514a"; //  --color-ink-600
+const ACCENT = "#b65329"; // --color-accent-500
 
 // Load one static Source Serif 4 weight from Google Fonts for the headline. The legacy UA makes
 // Google serve a TrueType file (Satori cannot use variable woff2). Memoized for the server

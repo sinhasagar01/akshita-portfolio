@@ -10551,6 +10551,58 @@ not the logic but the evidence: the split is now made with both surfaces measure
 the right one for its own surface. **A reader meeting both entries should know that #362's objection
 was never refuted — it was overruled on evidence #362 did not have.**
 
+## TWO SYSTEMS, A THIRD INSTANCE, AND THE INSTRUMENT IT NEVER HAD (#368)
+
+**`lib/og.tsx` AND `app/opengraph-image.png` ARE UNRELATED.** `renderOgImage` is called by two route
+handlers — `/projects/<slug>/og` and `/blog/<slug>/og` — and nothing connects it to the static file.
+Verified in the built HTML: `index.html` and `blog.html` emit `/opengraph-image.png`;
+`elevate-one-view.html` emits its generated route. **The site already generates cards for its content
+and ships a hand-made one for its identity.**
+
+**⚠ AND THE GENERATED PATH WAS NOT THEMED EITHER — IT WAS THREE FALSE CLAIMS.** The investigation
+suspected one literal and found that **three of the four constants named a token and were not it:**
+
+| | claims | true value | distance |
+|---|---|---|---|
+| `#FBF6EE` | `cream-50` | `#fef9f1` | 5.2 — ok |
+| `#1c1813` | `ink-950` | `#0f0703` | **26.7** |
+| `#6F665B` | `ink-600` | `#59514a` | **34.8** |
+| `#C0673E` | `accent-500` | `#b65329` | **30.7** |
+
+**THE CARDS GET MORE CONTRAST, NOT LESS.** On the card ground: ink **16.41 → 19.04**, muted
+**5.24 → 7.42**, accent **3.72 → 4.70** — the accent crossing AA for the first time. **The drift had
+been washing every value toward the paper**, so the fix is visible and in the right direction on a
+surface seen once at full size.
+
+They stay literals because `ImageResponse` renders outside the document and cannot read a custom
+property. `THEME_SPLASH` is the precedent and it measures **exact at distance 0** — a hand-kept
+resolved value is workable once something measures it.
+
+**⚠ AND NOW SOMETHING DOES.** `token-claims.mjs` reads every literal whose line carries a `--color-*`
+comment, resolves the token from `globals.css` and measures. Threshold 9, stated from #332's
+single-digit snaps and #340's kept literals at 11+, **rather than tuned to make the tree pass.** It
+also declares what it cannot see: a claim made in a paragraph above a block is invisible, **and
+`accent-400`'s defect was of exactly that kind.**
+
+**⚠ AND MUTATION-TESTING IT FOUND A GAP IN #364's OWN FIX.** `dirtyFiles()` used
+`git diff --name-only HEAD`, which lists **modifications to tracked files only** — so `token-claims.mjs`,
+being new, was never snapshotted and `--restore` **reported success and restored nothing.** That is
+#364's own shape, one file later, in the fix written for it. Now includes
+`git ls-files --others --exclude-standard`.
+
+**AND ONE MUTATION SURVIVED FOR THE FOURTH-DEFECT REASON:** a `sed` for `// --color-ink-600` missed
+because the source has two spaces after `//`. **Applied to nothing, reported as a weak gate.** Re-run
+with the edit asserted, it killed.
+
+---
+
+## THE SPLASH IS SETTLED, AND THE REASON IS THE VERDICT
+
+**The neutral mark against a themed splash is not unfinished — it is a pairing where the theme was
+never visible.** 18.42 against 18.50, on grounds **16.8 apart**. No change needed, and
+`background_color` stays themed because it is the page ground arriving early, which is what the field
+is for.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
