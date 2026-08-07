@@ -280,12 +280,14 @@ const harbour = report(HARBOUR, USAGE);
  * ceiling is a change to a shipped brand colour and belongs to the owner with a render behind it,
  * not to a gate tightening its own subject. So the verdict is asserted HONESTLY and the two halves
  * are separated, which is what makes the finding survive until it is decided. */
-t("D1 harbour clears every contrast floor — the half this row always got right",
-  [harbour.external, harbour.internal], [[], []]);
-t("D1a ⚠ AND IT IS UNREPRESENTABLE ANYWAY — its accent is 60.7 outside sRGB and ships clamped",
-  harbour.verdict, "UNREPRESENTABLE");
-t("D1b …named, so the entry cannot decay into a bare verdict nobody can act on",
-  harbour.unrepresentable.map((u) => u.token).sort(), ["accent-500", "accent-600", "glow-web"]);
+/* ⚠ SHIPPABLE AGAIN SINCE #378, AND IT IS NOT THE SAME CLAIM IT WAS BEFORE #377. This row read
+ * SHIPPABLE for twenty-odd PRs while harbour's brand colour sat 60.7 outside sRGB, because nothing
+ * asked whether a colour EXISTED before asking what it contrasted with. It now passes having been
+ * asked both. */
+t("D1 harbour is SHIPPABLE — and since #377 that includes existing, not only contrasting",
+  harbour.verdict, "SHIPPABLE");
+t("D1a ⚠ AND ITS PALETTE IS ENTIRELY INSIDE sRGB — the half that was never checked until #377",
+  harbour.unrepresentable, []);
 t("D2 nothing uncomputable — every row the map names exists in the palette", harbour.uncomputable, []);
 t("D3 it is a DIFFERENT palette, not the defaults wearing a name",
   Object.keys(themeOverrides("harbour")).length > 15, true);
@@ -410,9 +412,18 @@ for (const n of REAL) console.log(`           ${n.padEnd(10)} ground h${HUES[n].
 
 t("D12a every palette resolves BOTH hues, so the rows below are not comparing nulls",
   REAL.filter((n) => typeof HUES[n].ground !== "number" || typeof HUES[n].accent !== "number"), []);
-/* ⚠ THE DENOMINATOR. A derived pair list that derived nothing would pass every row beneath it, and
- * an empty subject reading as success is this project's most repeated defect. */
-t("D12b the pair list is derived and non-trivial — 5 palettes must give 10 pairs",
+/* ⚠ THE DENOMINATOR — AND THE FIRST VERSION OF D12b WAS NOT ONE, WHICH A MUTATION PROVED. It
+ * compared `PAIRS.length` against `n(n-1)/2` computed from THE SAME `REAL`, so with `REAL = []`
+ * both sides were 0 and it PASSED. Setting `REAL = []` left **five of these six rows green** —
+ * every hue row has nothing to iterate, and nothing to iterate is indistinguishable from nothing
+ * wrong. Only the row comparing against a CONSTANT caught it.
+ *
+ * ⚠ SO A GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING, and this one was written expressly to
+ * be the guard. Both halves are asserted now: the population is real against a fixed floor, AND the
+ * pair count is the closed form of it. */
+t("D12b ⚠ THE POPULATION IS REAL, AGAINST A CONSTANT — a guard derived from its own subject guards nothing",
+  REAL.length >= 5, true);
+t("D12b2 …and the pair count is the closed form of it, so neither can drift from the other",
   PAIRS.length, (REAL.length * (REAL.length - 1)) / 2);
 t("D12c …and it grew with the palettes rather than staying at the hardcoded three", PAIRS.length >= 10, true);
 
@@ -539,17 +550,18 @@ console.log("\nK · ⚠ THE GAMUT CHECK — is the colour one sRGB can actually 
  *
  * So the shipped clips are DECLARED rather than fixed here. Repainting harbour's brand colour is a
  * design decision with a render behind it, not a tidy-up inside a gate. */
-const KNOWN_CLIPPED = {
-  "harbour accent-500": "⚠ THE BRAND COLOUR, 60.7 OUTSIDE sRGB AND SHIPPED. h168 at L .52 holds "
-    + "0.121 of chroma and this asks 0.12 at a lightness where it does not fit; the clamp lands on "
-    + "rgb(0, 126, 91), which is what THEME_OG independently recorded. Clears when harbour's accent "
-    + "is re-derived against the ceiling — a repaint of the brand colour, so it needs a render.",
-  "harbour accent-600": "the same accent one step darker, 64.3 out, clipping for the same reason. "
-    + "Clears with accent-500 in the same pass.",
-  "harbour glow-web": "atmosphere, never a foreground on a ground — 132.0 out at c 0.115 h205. "
-    + "The most extreme clip on the site and the least consequential, because it is a wash behind "
-    + "content. Clears when the glow is re-derived against the ceiling.",
-};
+/* ⚠ EMPTY SINCE #378, AND EMPTY IS AN ASSERTION HERE RATHER THAN AN ABSENCE. Three entries stood
+ * here — harbour's `accent-500`, `accent-600` and `glow-web`, 60.7, 64.3 and 286 outside sRGB. They
+ * were fixed by DECLARING THE COLOUR THE BROWSER WAS ALREADY PAINTING: the exact OKLCH of the
+ * clamped pixels, nudged just inside the boundary. Byte-identical renders, verified in a browser
+ * with the sanity pair first, because CSS Color 4 specifies gamut MAPPING and had Chrome reduced
+ * chroma instead of clamping channels, the "no pixels move" claim would have been false.
+ *
+ * ⚠ K2 NOW HAS NO EXEMPTIONS AT ALL, which is the strongest form this gate can take and also its
+ * most fragile — a map that is empty cannot be checked for staleness, so K1's DENOMINATOR is the
+ * only thing standing between "nothing clips" and "nothing was read". That is why K1 counts
+ * declarations scanned rather than clips found. */
+const KNOWN_CLIPPED = {};
 
 /* ⚠ FOUR MORE ENTRIES STOOD HERE AND ARE FIXED RATHER THAN DECLARED, because each was a change
  * nobody could see. All three palettes set `--color-bounce` at L 100%, WHICH ADMITS EXACTLY ONE
@@ -589,11 +601,16 @@ for (const c of clips) console.log(`           +${String(c.over).padStart(6)}  $
  * to; a clean site must be able to report zero without the gate reading as broken. */
 t("K1 the scan has subjects — a zero here means the block reader stopped seeing",
   scanned >= 5 * 30, true);
-t("K1a …and it still finds the known-worst, so the predicate has not quietly narrowed",
-  clips.some((c) => c.key === "harbour glow-web" && c.over > 100), true);
+/* ⚠ THE KNOWN POSITIVE MOVED OUT OF THE STYLESHEET WHEN #378 FIXED IT, so the liveness check is a
+ * SYNTHETIC one rather than a real token. A predicate proved only by the defects it currently finds
+ * stops being provable the moment the site is clean — which is exactly when it matters most. */
+t("K1a the predicate still fires on a known-bad value — a clean site must not disarm it",
+  gamutOvershoot("oklch(52.0% 0.12 168)") > 60, true);
+t("K1b …and passes a known-good one, so it is not simply reporting everything",
+  gamutOvershoot("oklch(52.5% 0.110 165.3)") <= CLIP_EPSILON, true);
 t("K2 ⚠ NO UNDECLARED TOKEN IS OUTSIDE sRGB — a new one is a colour the stylesheet asks for and no screen draws",
   clips.filter((c) => !(c.key in KNOWN_CLIPPED)).map((c) => `${c.key} (+${c.over})`), []);
-t("K3 every declared clip still clips — a stale entry is an exemption for a token that was fixed",
+t("K3 ⚠ NO PALETTE DECLARES A COLOUR IT CANNOT DRAW — the list is empty and that is the assertion",
   Object.keys(KNOWN_CLIPPED).filter((k) => !clips.some((c) => c.key === k)).sort(), []);
 t("K4 ⚠ AND EVERY ONE NAMES WHAT WOULD CLEAR IT — an entry with no end condition is permanent by inattention",
   Object.entries(KNOWN_CLIPPED).filter(([, why]) => !/Clears|clears/.test(why)).map(([k]) => k), []);
