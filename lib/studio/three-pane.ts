@@ -165,6 +165,32 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
     },
   },
 
+  /* Themes four and five. Same reason again, and the third time this note is written is the
+     argument for the FIELD rather than for the note: `provenance.element` carries "(inherited)"
+     so a reader can tell a derived entry from a measured one WITHOUT reading the comment beside
+     it. The day a theme changes the body face is the day one of these needs a real session. */
+  cerise: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
+
+  fern: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
+
   /* ⚠ A PERMANENT CONTROL. DO NOT DELETE IT, AND DO NOT LET IT DRIFT FROM THE BLOCK ABOVE.
 
      It shipped as a fixture with a deletion trigger and is no longer one. The cross-theme gate

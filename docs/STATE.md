@@ -10978,6 +10978,157 @@ legend's "everything else moved" swatch — a FILL at that opacity, not a hairli
 rule is about the line between two surfaces; a swatch is a surface. Narrowed to borders rather than
 repainting something correct to satisfy an assertion that was not.
 
+## THE HERO RASTERS ARE UNSET, AND THE RASTER CLASS IS EMPTY (#376)
+
+`heroImage: null` on both posts, and the two files deleted — **byte-identical copies of the block
+diagrams, referenced by nothing once the field was unset.** The end condition their `raster-grounds`
+entries named is exactly what happened, which is the point of writing one.
+
+**⚠ THIRTEEN DECLARED, ZERO UNDECLARED, AND NOTHING LEFT PENDING.** Every remaining entry is a
+fallback that no longer draws or a product screenshot. **The class that was invisible for the site's
+entire life is closed** — not because nothing matches, but because everything that matches is
+declared with a reason.
+
+---
+
+## ⚠ AND THE RENDER CHANGED THE ANSWER, AS IT HAS EVERY TIME
+
+I claimed the plate "reads better at card size than a five-step flow shrunk to 340px". **On
+legibility that is true, and I had not rendered it** — `.blog-plate` had never drawn on this site,
+because all three posts carried a hero.
+
+**THE ARTICLE PAGE IS CLEARLY BETTER.** It now goes eyebrow → title → dek → prose with no image
+between, and the diagram appears ONCE, in the body, where it is readable and in context. The hero was
+a duplicate of a figure four screens further down.
+
+**⚠ THE INDEX IS A TRADE, NOT A WIN.** The plate sets the post's title in the display serif — so on a
+card that also shows its title, **the title appears twice, adjacent.** That is not a defect I
+introduced; it is what a title-plate does. It was invisible until now because no post had ever used
+it.
+
+**The comparison, stated rather than implied:** before, a warm terracotta thumbnail that was
+illegible at card size AND leaked on two of three palettes. Now, a themed plate that is legible and
+repeats the title. **The leak is gone either way; the duplication is new.** Worth an eye before it is
+called finished.
+
+## FIVE THEMES WERE ASKED FOR AND TWO IS WHAT THE GEOMETRY ALLOWS (#377)
+
+Cerise and fern ship. Both SHIPPABLE, both rendered in full, all 35 tokens of each inside sRGB.
+
+**⚠ THE FINDING IS A CEILING ON THE THEME SYSTEM, NOT A PALETTE.** Seven hues on a circle sit
+**51.4 degrees apart at perfect spacing**, so seven palettes and `theme-contrast` D12's 60 degree
+ground floor **cannot both be true — at any placement**, not merely at the ones tried. Cream,
+harbour and orchid are already placed unevenly (gaps 155, 82, 123), so **at most two more fit**.
+Both new grounds land EXACTLY on 60 against a neighbour, which is what a ceiling looks like from
+the inside.
+
+**⚠ NOTHING DISCOVERS THAT EXCEPT COUNTING.** Four candidates were measured first and came back as
+three unrelated hue collisions — scarlet 46 degrees from cream, ultraviolet 27 from orchid, magenta
+25 from orchid. **That is a result somebody tunes three hues in response to.** The bound is the
+finding; the refusals were its symptom. Same shape as the wrong-unit rule: a correct measurement of
+the wrong quantity, arriving as a value where the truth was a limit.
+
+**The palette count and the separation floor are ONE DECISION.** Whoever wants a sixth is choosing
+to lower the floor, and D12d is where they have to write it.
+
+---
+
+## ⚠ AND D12 WAS CHECKING GROUNDS AND NOTHING ELSE, WHICH MATTERS MORE THAN THE BOUND
+
+The briefed fourth palette sat **65 degrees from harbour's GROUND — clear** — with its accent **10
+degrees from harbour's ACCENT** and its ground on harbour's accent hue **exactly**. D12 would have
+passed it. **Two palettes could have shipped indistinguishable accents and nothing would have
+said so.**
+
+**AND ITS PAIR LIST WAS HAND-WRITTEN AND QUADRATIC** — three pairs for three themes, twenty-one at
+seven. When cerise and fern landed the hardcoded version went on comparing the same three pairs and
+passed **without looking at either new palette**. Derived from `THEME_NAMES` it cannot. Three
+relations now, with floors that **differ on purpose**, because hue separation is not equally visible
+at every chroma: grounds 60 (near-neutral at c 0.02), accents 30 (vivid at c 0.14 and up),
+ground-on-another's-accent 25.
+
+---
+
+## ⚠ THE INSTRUMENT COULD NOT TELL "FAILS CONTRAST" FROM "DOES NOT EXIST"
+
+A candidate green measured **4.320 against a 4.5 floor** and read as a palette wanting a darker
+accent. It was not. **Its red channel computed to minus 129**, `oklchToRgb` clamped it to zero, and
+4.320 was the contrast of a colour sRGB cannot draw. Tuning the lightness in response would have
+been a correct measurement of a quantity that does not exist. `report()` now runs a gamut check
+BEFORE the contrast check and returns `UNREPRESENTABLE`, which outranks both refusals.
+
+**⚠ AND THE PREDICTION WAS BACKWARDS, WHICH IS THE ARGUMENT FOR THE INSTRUMENT RATHER THAN FOR MORE
+CARE.** Two accents at c 0.215 were expected to clip and both were fine; the one that clipped was
+at **c 0.160, the LOWEST of the four**. sRGB holds 0.289 of chroma at h300 and 0.126 at h158, so
+**CHROMA IS NOT COMPARABLE ACROSS HUES** — a number that reads as "more saturated" is a different
+proportion of the available space at every hue.
+
+**⚠ AND THE FIRST RUN FOUND THE SHIPPED SITE, NOT THE CANDIDATES.** Harbour's `accent-500` — the
+brand colour of a palette live for twenty-odd PRs — is **60.7 outside sRGB and has painted clamped
+the whole time**. Not a bug: the clamped colour is what every visitor has seen and it clears its
+floors. What was wrong is that **the declared value was never the drawn value and nothing said so**.
+
+**⚠ THERE WAS ALREADY A WITNESS IN THE REPO THAT NEVER KNEW IT WAS ONE.** `THEME_OG.harbour.accent`
+is `#007e5b` = rgb(0, 126, 91) — **a red channel of exactly zero, which is the clamp** — resolved by
+hand into a second file for a different purpose entirely. The evidence sat in the tree, readable,
+for as long as the defect did. Left declared rather than repainted: re-deriving a shipped brand
+colour is the owner's with a render behind it, not a gate tightening its own subject.
+
+Four cheaper clips were FIXED rather than declared, because each was invisible. All three shipped
+palettes set `--color-bounce` at **L 100%, which admits exactly one colour — pure white** — so every
+hue declared there was unreachable by construction. Moving them to L 99.5% shifts the rendered value
+by 2.24, 1.41 and 1.00 RGB units. Orchid's `cream-50` moved by **0.00**: the clamp was already
+producing the in-gamut value, so the declaration had simply been describing it wrongly.
+
+---
+
+## THE SECOND LADDER, AND CREAM AND HARBOUR ARE NOW THE OUTLIERS
+
+Measured both ways before choosing. On the shipped ladder three of four candidates sat at **five
+rows within 0.1 of a floor** and one refused outright; on the new one, one or two rows and no
+refusals. **Cream and harbour are not wrong — they are the two that shipped before the ladder was
+derived**, and from #377 the majority is the new ladder rather than theirs.
+
+**⚠ AND THE CHROMA RULES ARE RATIOS, WHICH HAVE NO IDEA WHAT sRGB HOLDS.** Applied blind, the
+ladder's `step-50 = ground.c x .80` put cerise's `cream-50` at **two and a half times its ceiling**.
+Every value in both palettes is clamped to 90% of its own ceiling as it is computed, which is why
+cerise's lightest rung is nearly neutral and fern's is not.
+
+**⚠ AND THE NAME FOLLOWED THE COLOUR, NOT THE OTHER WAY.** Cerise was briefed as a vermilion. h4 at
+shippable chroma resolves to `#d12d6b`, a raspberry — **the warm orange-red region is claimed by
+cream's own accent at h42**, so a palette wedged between orchid and cream cannot hold one.
+
+---
+
+## THE RENDER, WHICH FOUND WHAT NO GATE COULD
+
+Both palettes rendered in full — home page, blog index, an article, the glass nav, the work cards,
+the hero ground, the process illustrations, the About photo.
+
+**⚠ AND THE ONE THING IT SURFACED SEPARATES TWO KINDS OF EXCLUSION THAT LOOKED ALIKE.** The process
+diagram's tan wireframe fills and `.ab-tint`'s warm photo wash both read foreign against a raspberry
+and a green ground — exactly how the cursor, the loader and the hero auras read when harbour
+arrived. **But these two hold and those three did not, and the reason is the SHAPE OF THE ARGUMENT.**
+The cursor was ruled `signature` — a claim that it IS the design — and a claim about identity is
+refuted by the ground moving. These two are ruled `artwork-by-file`: the fills **depict somebody
+else's interface**, the tint composites **over a photograph**. A claim about SUBJECT does not depend
+on the ground at all. On fern the warm wash reads as a deliberately sepia-toned photograph against a
+green page, which is what it is.
+
+**So the ground-change test refutes signature claims and cannot touch depiction claims** — and
+knowing which kind an entry makes tells you in advance whether a new theme can overturn it.
+
+---
+
+## ⚠ AND AN OPERATIONAL FINDING, PAID FOR IN THIS SESSION
+
+`ralph/mutate.mjs --restore` **consumes its snapshot**, so the second restore in one session
+reported "no snapshot to restore from" and left two mutations in the tree — a globals.css hue and a
+gate's pair list. ralph then failed 22 assertions across 4 suites and **the obvious repair,
+`git checkout`, would have destroyed every uncommitted change in this PR.** Reversed by hand
+instead, then rebuilt, because the census gates read the BUILT bundle and a stale `.next` fails them
+for a reason unrelated to the mutation. **Snapshot before EACH mutation, not once per session.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

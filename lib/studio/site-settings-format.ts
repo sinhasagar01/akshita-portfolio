@@ -125,7 +125,10 @@ const LINK_KEYS = ["label", "url"] as const;
  * ⚠ THE VERIFICATION TWIN IS ABSENT ON PURPOSE. `cream-verify` resolves but is not selectable, so
  * the fixture cannot be published by accident.
  */
-const SETTINGS_THEME_VALUES = ["cream", "harbour", "orchid"] as const;
+/* ⚠ ONE OF THE THREE SURFACES THAT CANNOT IMPORT `lib/theme.ts`, so `ralph/tests/theme.mjs`
+ * enforces their agreement. Themes four and five are wedged onto D12's 60 degree floor and a
+ * SIXTH CANNOT BE ADDED without lowering it — see FOURTH_THEME in lib/theme.ts. */
+const SETTINGS_THEME_VALUES = ["cream", "harbour", "orchid", "cerise", "fern"] as const;
 
 /**
  * Validate an untrusted processStages value to a normalized ProcessStage[].

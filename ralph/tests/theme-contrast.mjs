@@ -60,8 +60,9 @@
 // written to prevent it.
 import { readFileSync } from "node:fs";
 import {
-  report, parseOklch, parseColor, contrastRatio, oklchToRgb,
+  report, parseOklch, parseColor, contrastRatio, oklchToRgb, gamutOvershoot, CLIP_EPSILON,
 } from "../../lib/theme-contrast.ts";
+import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME } from "../../lib/theme.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -270,7 +271,21 @@ console.log("\nD · theme two — judged by the instrument, not by eye");
  * against a floor. Naming it because a deferral without a named check is a deferral to nobody. */
 const HARBOUR = { ...CREAM, ...themeOverrides("harbour") };
 const harbour = report(HARBOUR, USAGE);
-t("D1 harbour is SHIPPABLE", harbour.verdict, "SHIPPABLE");
+/* ⚠ HARBOUR IS NOT SHIPPABLE UNDER THE GAMUT CHECK, AND THIS ROW SAID IT WAS FOR TWENTY-ODD PRs.
+ * It clears every contrast floor it has ever been asked about — that half was always true and is
+ * asserted below. What was never asked is whether its brand colour EXISTS: `accent-500` is 60.7
+ * outside sRGB and has painted clamped since #325.
+ *
+ * ⚠ NOT PAPERED OVER AND NOT SILENTLY REPAINTED. Re-deriving harbour's accent against the h168
+ * ceiling is a change to a shipped brand colour and belongs to the owner with a render behind it,
+ * not to a gate tightening its own subject. So the verdict is asserted HONESTLY and the two halves
+ * are separated, which is what makes the finding survive until it is decided. */
+t("D1 harbour clears every contrast floor — the half this row always got right",
+  [harbour.external, harbour.internal], [[], []]);
+t("D1a ⚠ AND IT IS UNREPRESENTABLE ANYWAY — its accent is 60.7 outside sRGB and ships clamped",
+  harbour.verdict, "UNREPRESENTABLE");
+t("D1b …named, so the entry cannot decay into a bare verdict nobody can act on",
+  harbour.unrepresentable.map((u) => u.token).sort(), ["accent-500", "accent-600", "glow-web"]);
 t("D2 nothing uncomputable — every row the map names exists in the palette", harbour.uncomputable, []);
 t("D3 it is a DIFFERENT palette, not the defaults wearing a name",
   Object.keys(themeOverrides("harbour")).length > 15, true);
@@ -340,16 +355,79 @@ t("D11 …and it declares the same token set as the others, so nothing inherits 
   Object.keys(themeOverrides("orchid")).length, Object.keys(themeOverrides("harbour")).length);
 /* ⚠ COMPUTED, NOT PATTERN-MATCHED. The first version of this row was a regex looking for a hue in
  * the 310s and it never ran — a silent non-assertion, which is the shape this suite spends its
- * comments warning about. The hues are parsed and the separations measured. */
-const hueOf = (p) => { const m = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+([\d.]+)/.exec(p["canvas"] ?? ""); return m ? Number(m[1]) : null; };
+ * comments warning about. The hues are parsed and the separations measured.
+ *
+ * ---- ⚠ AND THE PAIR LIST IS NOW DERIVED, BECAUSE IT WAS THE THING NOBODY WOULD UPDATE ---------
+ *
+ * It was written out by hand: three pairs for three themes. THAT IS QUADRATIC — 21 pairs at seven
+ * themes — and a hand-kept quadratic list is a gate that silently narrows every time the subject
+ * grows. When cerise and fern landed, the hardcoded version went on comparing the same three pairs
+ * and PASSED without looking at either new palette. Derived from `THEME_NAMES` it cannot.
+ *
+ * ---- ⚠ AND IT CHECKED GROUNDS AND NOTHING ELSE, WHICH IS THE BIGGER HOLE -----------------------
+ *
+ * A candidate green sat 65 degrees from harbour's GROUND — clear — with its accent 10 degrees from
+ * harbour's ACCENT and its ground sitting on harbour's accent hue EXACTLY. D12 would have passed
+ * it. Two palettes could ship indistinguishable accents and this suite would have said nothing,
+ * because the accent is the colour a visitor remembers and nothing was looking at it.
+ *
+ * Three relations, three floors, and the floors DIFFER ON PURPOSE:
+ *   ground / ground   60   near-neutral at c 0.02, so two grounds need a wide arc to read apart
+ *   accent / accent   30   vivid at c 0.14 and up, where 30 degrees is plainly a different colour
+ *   ground / accent   25   the specific defect above — a palette's ground ON another's accent
+ *
+ * ⚠ HUE SEPARATION IS NOT EQUALLY VISIBLE AT EVERY CHROMA, which is what makes one floor for all
+ * three wrong rather than merely conservative.
+ *
+ * ---- ⚠ AND THE FLOOR IS A CEILING ON THE PALETTE COUNT. THE TWO ARE ONE DECISION. -------------
+ *
+ * Seven hues on a circle are 51.4 degrees apart AT PERFECT SPACING, so seven palettes and a 60
+ * degree ground floor cannot both be true — at any placement, not merely at the ones tried. With
+ * cream, harbour and orchid already placed unevenly (gaps 155, 82, 123), exactly TWO more fit, and
+ * cerise and fern both land EXACTLY on 60 against a neighbour.
+ *
+ * FIVE REAL PALETTES IS THE CEILING THIS FLOOR IMPLIES. A sixth is not a matter of deriving another
+ * good palette; whoever wants one is CHOOSING TO LOWER THIS NUMBER, and D12d is where they will
+ * have to do it.
+ *
+ * ⚠ NOTHING DISCOVERS THAT EXCEPT COUNTING. Four candidates were measured first and came back as
+ * three unrelated hue collisions — a result somebody tunes three hues in response to. The bound is
+ * the finding; the refusals were its symptom. */
+const hueOf = (p, token) => { const m = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+([\d.]+)/.exec(p[token] ?? ""); return m ? Number(m[1]) : null; };
 const arc = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
-const hues = { cream: hueOf(CREAM), harbour: hueOf(HARBOUR), orchid: hueOf(ORCHID) };
-console.log(`         ground hues — cream ${hues.cream}, harbour ${hues.harbour}, orchid ${hues.orchid}`);
-t("D12a all three grounds resolve a hue, so D12 is not comparing nulls",
-  Object.values(hues).every((h) => typeof h === "number"), true);
-t("D12 ⚠ NO TWO OF THE THREE GROUNDS ARE ADJACENT — a third palette near an existing one tells you nothing",
-  [["cream", "harbour"], ["cream", "orchid"], ["harbour", "orchid"]]
-    .filter(([a, b]) => arc(hues[a], hues[b]) < 60).map(([a, b]) => `${a}/${b}`), []);
+
+/* The REAL palettes, derived. The twin is excluded by name because it is byte-identical to the
+ * default on purpose — including it would report a 0 degree collision that is the control working. */
+const REAL = THEME_NAMES.filter((n) => n !== VERIFY_THEME);
+const paletteOf = (n) => (n === DEFAULT_THEME ? CREAM : { ...CREAM, ...themeOverrides(n) });
+const HUES = Object.fromEntries(REAL.map((n) => {
+  const p = paletteOf(n);
+  return [n, { ground: hueOf(p, "canvas"), accent: hueOf(p, "accent-500") }];
+}));
+const PAIRS = REAL.flatMap((a, i) => REAL.slice(i + 1).map((b) => [a, b]));
+console.log(`         ${REAL.length} real palettes -> ${PAIRS.length} pairs, derived from THEME_NAMES`);
+for (const n of REAL) console.log(`           ${n.padEnd(10)} ground h${HUES[n].ground}  accent h${HUES[n].accent}`);
+
+t("D12a every palette resolves BOTH hues, so the rows below are not comparing nulls",
+  REAL.filter((n) => typeof HUES[n].ground !== "number" || typeof HUES[n].accent !== "number"), []);
+/* ⚠ THE DENOMINATOR. A derived pair list that derived nothing would pass every row beneath it, and
+ * an empty subject reading as success is this project's most repeated defect. */
+t("D12b the pair list is derived and non-trivial — 5 palettes must give 10 pairs",
+  PAIRS.length, (REAL.length * (REAL.length - 1)) / 2);
+t("D12c …and it grew with the palettes rather than staying at the hardcoded three", PAIRS.length >= 10, true);
+
+t("D12 ⚠ NO TWO GROUNDS ARE ADJACENT — a palette near an existing one tells you nothing new",
+  PAIRS.filter(([a, b]) => arc(HUES[a].ground, HUES[b].ground) < 60)
+    .map(([a, b]) => `${a}/${b} ${arc(HUES[a].ground, HUES[b].ground)}`), []);
+t("D12d ⚠ NOR TWO ACCENTS — the accent is the colour a visitor remembers, and NOTHING checked it",
+  PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 30)
+    .map(([a, b]) => `${a}/${b} ${arc(HUES[a].accent, HUES[b].accent)}`), []);
+/* ⚠ ORDERED, BOTH WAYS. The defect is asymmetric — a ground ON another palette's accent — so a
+ * pair list that compares each duo once would miss it in one direction. */
+t("D12e ⚠ AND NO PALETTE'S GROUND SITS ON ANOTHER'S ACCENT — the exact shape that would have passed",
+  REAL.flatMap((a) => REAL.filter((b) => b !== a)
+    .filter((b) => arc(HUES[a].ground, HUES[b].accent) < 25)
+    .map((b) => `${a} ground h${HUES[a].ground} on ${b} accent h${HUES[b].accent}`)), []);
 
 console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is computed or listed BY NAME");
 
@@ -430,6 +508,120 @@ t("E7 every unparseable token is DERIVED, not a literal the parser cannot read",
   unparseable.filter((u) => !u.derived).map((u) => `${u.name}: ${u.value}`), []);
 t("E8 …and the unparseable set is enumerated rather than filtered away silently",
   unparseable.map((u) => u.name).sort(), ["on-dark-line"]);
+
+
+console.log("\nK · ⚠ THE GAMUT CHECK — is the colour one sRGB can actually hold?");
+
+/* ⚠ THE INSTRUMENT COULD NOT TELL "FAILS CONTRAST" FROM "DOES NOT EXIST", AND BOTH ARRIVED AS A
+ * RATIO. A candidate green measured 4.320 against a 4.5 floor and read as a palette wanting a
+ * darker accent. It was not. Its red channel computed to MINUS 129, `oklchToRgb` clamped it to
+ * zero, and 4.320 was the contrast of a colour that cannot be drawn. Tuning the lightness in
+ * response would have been a correct measurement of a quantity that does not exist — the same
+ * shape as #334's parse-before-exclude, one layer down.
+ *
+ * ⚠ AND THE PREDICTION GOING IN WAS BACKWARDS, WHICH IS THE ARGUMENT FOR THE INSTRUMENT RATHER
+ * THAN FOR MORE CARE. Two candidate accents at c 0.215 were expected to clip and both were fine;
+ * the one that clipped was at c 0.160, the LOWEST of the four. sRGB holds 0.289 of chroma at h300
+ * and 0.126 at h158, so CHROMA IS NOT COMPARABLE ACROSS HUES — a number that reads as "more
+ * saturated" is a different proportion of the available space at every hue.
+ *
+ * ---- ⚠ AND THE FIRST RUN FOUND THE SHIPPED SITE, NOT THE CANDIDATES --------------------------
+ *
+ * Harbour's `accent-500` — the brand colour of a palette that has been live for twenty-odd PRs —
+ * is 60.7 outside sRGB and has been painting clamped the whole time. That is not a bug: the
+ * clamped colour is what every visitor has seen, it clears its contrast floors, and it looks
+ * right. What was wrong is that the DECLARED value was never the DRAWN value and nothing said so.
+ *
+ * ⚠ THERE WAS ALREADY A WITNESS IN THE REPO THAT NEVER KNEW IT WAS ONE. `THEME_OG.harbour.accent`
+ * is `#007e5b` = rgb(0, 126, 91) — a red channel of EXACTLY ZERO, which is the clamp, resolved by
+ * hand into a second file for a different purpose entirely. The evidence was sitting in the tree,
+ * readable, for as long as the defect was.
+ *
+ * So the shipped clips are DECLARED rather than fixed here. Repainting harbour's brand colour is a
+ * design decision with a render behind it, not a tidy-up inside a gate. */
+const KNOWN_CLIPPED = {
+  "harbour accent-500": "⚠ THE BRAND COLOUR, 60.7 OUTSIDE sRGB AND SHIPPED. h168 at L .52 holds "
+    + "0.121 of chroma and this asks 0.12 at a lightness where it does not fit; the clamp lands on "
+    + "rgb(0, 126, 91), which is what THEME_OG independently recorded. Clears when harbour's accent "
+    + "is re-derived against the ceiling — a repaint of the brand colour, so it needs a render.",
+  "harbour accent-600": "the same accent one step darker, 64.3 out, clipping for the same reason. "
+    + "Clears with accent-500 in the same pass.",
+  "harbour glow-web": "atmosphere, never a foreground on a ground — 132.0 out at c 0.115 h205. "
+    + "The most extreme clip on the site and the least consequential, because it is a wash behind "
+    + "content. Clears when the glow is re-derived against the ceiling.",
+};
+
+/* ⚠ FOUR MORE ENTRIES STOOD HERE AND ARE FIXED RATHER THAN DECLARED, because each was a change
+ * nobody could see. All three palettes set `--color-bounce` at L 100%, WHICH ADMITS EXACTLY ONE
+ * COLOUR — pure white — so the hue each one declared was unreachable by construction and what
+ * painted was a per-channel clamp. Moving them to L 99.5% at their own ceiling shifts the rendered
+ * value by 2.24, 1.41 and 1.00 RGB units. Orchid's `cream-50` moved by 0.00: the clamp was already
+ * producing the in-gamut value, so the declaration had simply been describing it wrongly.
+ *
+ * Measured before the edit, not after — the point of fixing rather than declaring is that the
+ * DECLARED value becomes the DRAWN value, and at these magnitudes nothing else changes. */
+
+/* Cream IS `@theme`, so its declarations are read from that block; every other palette from its
+ * own `[data-theme]` block through the same reader the rest of this suite uses. */
+const declarationsOf = (name) => {
+  if (name !== DEFAULT_THEME) return themeOverrides(name);
+  const out = {};
+  for (const m of css.matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
+  return out;
+};
+
+const clips = [];
+let scanned = 0;
+for (const name of REAL) {
+  for (const [token, value] of Object.entries(declarationsOf(name))) {
+    scanned++;
+    const o = gamutOvershoot(value);
+    if (o > CLIP_EPSILON) clips.push({ key: `${name} ${token}`, over: +o.toFixed(1) });
+  }
+}
+clips.sort((a, b) => b.over - a.over);
+console.log(`         ${REAL.length} palettes, ${scanned} declarations read; ${clips.length} outside sRGB`);
+for (const c of clips) console.log(`           +${String(c.over).padStart(6)}  ${c.key}`);
+
+/* ⚠ THE DENOMINATOR, AND THE FIRST VERSION OF THIS ROW HAD THE WRONG ONE. It asserted five or more
+ * CLIPS — which made the gate's own success condition into its liveness check, so fixing four of
+ * them broke it. The denominator of a scan is HOW MANY TOKENS IT READ, never how many it objected
+ * to; a clean site must be able to report zero without the gate reading as broken. */
+t("K1 the scan has subjects — a zero here means the block reader stopped seeing",
+  scanned >= 5 * 30, true);
+t("K1a …and it still finds the known-worst, so the predicate has not quietly narrowed",
+  clips.some((c) => c.key === "harbour glow-web" && c.over > 100), true);
+t("K2 ⚠ NO UNDECLARED TOKEN IS OUTSIDE sRGB — a new one is a colour the stylesheet asks for and no screen draws",
+  clips.filter((c) => !(c.key in KNOWN_CLIPPED)).map((c) => `${c.key} (+${c.over})`), []);
+t("K3 every declared clip still clips — a stale entry is an exemption for a token that was fixed",
+  Object.keys(KNOWN_CLIPPED).filter((k) => !clips.some((c) => c.key === k)).sort(), []);
+t("K4 ⚠ AND EVERY ONE NAMES WHAT WOULD CLEAR IT — an entry with no end condition is permanent by inattention",
+  Object.entries(KNOWN_CLIPPED).filter(([, why]) => !/Clears|clears/.test(why)).map(([k]) => k), []);
+
+/* ⚠ THE TWO PALETTES ADDED IN #377 ARE THE ONLY CLEAN ONES, and that is the point of building the
+ * check before deriving them rather than after. Every value in both was clamped to 90% of its own
+ * ceiling AS IT WAS COMPUTED, because the ladder states chroma as a RATIO of the family base and a
+ * ratio has no idea what sRGB holds at that lightness and hue. Applied blind it put cerise's
+ * `cream-50` at two and a half times its ceiling. */
+t("K5 ⚠ THE PALETTES DERIVED WITH THE CHECK IN HAND ARE CLEAN — cerise and fern declare nothing unreachable",
+  clips.filter((c) => c.key.startsWith("cerise ") || c.key.startsWith("fern ")).map((c) => c.key), []);
+
+/* And the verdict wiring: a palette that asks for an impossible colour must be REFUSED as
+ * unreachable rather than measured as dark. Driven with a real out-of-gamut value. */
+/* ⚠ BUILT ON A CLEAN PALETTE, NOT ON CREAM. The first version layered the impossible token over
+ * CREAM, which at the time declared its own out-of-gamut `bounce` — so the fixture reported TWO
+ * unrepresentable tokens and the row could not say which one it had injected. A fixture whose
+ * baseline carries the defect it is testing for cannot isolate anything. */
+const impossible = { ...CREAM, ...themeOverrides("fern"), "accent-500": "oklch(54.0% 0.16 158)" };
+const imp = report(impossible, USAGE);
+t("K6 a palette declaring an out-of-gamut token is UNREPRESENTABLE, never REFUSED_EXTERNAL",
+  imp.verdict, "UNREPRESENTABLE");
+t("K6a …and it names the token rather than only the verdict",
+  imp.unrepresentable.map((u) => u.token), ["accent-500"]);
+t("K6b ⚠ AND THE OVERSHOOT IS REPORTED, so a 0.5 rounding is distinguishable from a 128 unit clip",
+  imp.unrepresentable[0].overshoot > 100, true);
+t("K7 a hex or rgb() is representable BY CONSTRUCTION — it is already sRGB, so it never reports a clip",
+  [gamutOvershoot("#b65329"), gamutOvershoot("rgb(24, 18, 24)")], [0, 0]);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

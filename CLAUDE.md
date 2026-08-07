@@ -363,6 +363,55 @@ closed.
 
 - **⚠ `mutate.mjs` CONFIRMS THE SOURCE CHANGED AND CANNOT CONFIRM THE SUBJECT DID**, and the subject is sometimes the bundle and sometimes the rendered DOM. Two instances: a mutation to `globals.css` that needed a rebuild before `colour-census` could see it, and `data-theme` moved onto a React component that never forwards it to the DOM — **the attribute simply never appeared, so the assertion had nothing to find and reported SURVIVED**. A mutation that lands in JSX and not in the DOM looks exactly like a mutation the gate withstood. **Rebuild first, and check the mutation reached the subject rather than only the file.**
 
+- **⚠ THE PALETTE COUNT IS BOUNDED BY THE SEPARATION FLOOR, AND THE TWO ARE ONE DECISION.** Seven
+  hues on a circle sit **51.4 degrees apart at perfect spacing**, so seven palettes and D12's 60
+  degree ground floor **cannot both be true at ANY placement**. Cream, harbour and orchid are
+  already placed unevenly, so exactly two more fit and both shipped ones land EXACTLY on 60.
+  **FIVE REAL PALETTES IS THE CEILING THIS FLOOR IMPLIES.** Whoever wants a sixth is choosing to
+  lower the floor, and `theme-contrast` D12d is where that gets written.
+
+  **⚠ NOTHING DISCOVERS THIS EXCEPT COUNTING.** Four candidates measured first came back as three
+  unrelated hue collisions — **a result somebody tunes three hues in response to.** The bound is the
+  finding and the refusals were its symptom. Same family as the wrong-unit rule: a correct
+  measurement of the wrong quantity, arriving as a value where the truth was a limit. **When several
+  refusals share a shape, ask whether they are one constraint before fixing them one at a time.**
+
+- **⚠ AN INSTRUMENT THAT CANNOT SAY "THIS DOES NOT EXIST" WILL RETURN A PLAUSIBLE NUMBER INSTEAD.**
+  A candidate accent measured 4.320 against a 4.5 floor and read as needing to be darker. Its red
+  channel computed to **minus 129** and `oklchToRgb` clamped it to zero — 4.320 was the contrast of
+  a colour sRGB cannot draw. **"Fails contrast" and "does not exist" both arrive as a ratio.** So
+  the gamut check runs BEFORE the contrast check and `UNREPRESENTABLE` outranks both refusals. Same
+  shape as parse-before-exclude in #334.
+
+  **⚠ AND CHROMA IS NOT COMPARABLE ACROSS HUES, WHICH IS WHY CARE IS NO SUBSTITUTE FOR MEASURING.**
+  The prediction was that two accents at c 0.215 would clip; both were fine and the one that clipped
+  was at **c 0.160, the lowest of the four**. sRGB holds 0.289 of chroma at h300 and 0.126 at h158.
+  **A number that reads as "more saturated" is a different proportion of the available space at
+  every hue** — and any chroma rule stated as a RATIO (`ground.c x 1.20`) is blind to that, which is
+  how a ground rung ended up at two and a half times its ceiling.
+
+  **⚠ AND ITS FIRST RUN FOUND THE SHIPPED SITE.** Harbour's `accent-500` is 60.7 outside sRGB and has
+  painted clamped since it shipped — with **a witness already in the repo that never knew it was
+  one**: `THEME_OG.harbour.accent` is `#007e5b`, a red channel of exactly zero, which IS the clamp.
+
+- **⚠ THE GROUND-CHANGE TEST REFUTES *SIGNATURE* CLAIMS AND CANNOT TOUCH *DEPICTION* CLAIMS.** The
+  cursor, the loader and the hero auras were ruled signature — *this IS the design* — and a second
+  palette refuted all three, because a claim about IDENTITY is exactly what a moving ground tests.
+  The process diagram's tan fills and `.ab-tint`'s warm wash read equally foreign on cerise and fern
+  and **hold anyway**, because they are ruled `artwork-by-file`: the fills depict somebody else's
+  interface and the tint composites over a photograph. **A claim about SUBJECT does not depend on
+  the ground.** Knowing which kind of argument an exclusion makes tells you in advance whether a new
+  theme can overturn it — so read the `test:` field before re-litigating an entry that merely looks
+  wrong on a new palette.
+
+- **⚠ `mutate.mjs --restore` CONSUMES ITS SNAPSHOT — SNAPSHOT BEFORE *EACH* MUTATION.** A second
+  restore in one session reports "no snapshot to restore from" and **leaves the mutation in the
+  tree**, which then fails assertions for reasons unrelated to what was being proved. **And the
+  obvious repair is the dangerous one**: `git checkout` reverts to the last COMMIT and destroys
+  every uncommitted change in the work in progress. Reverse by hand. **Then rebuild** — the census
+  and rendered-theme gates read the BUILT bundle, so a stale `.next` fails them independently of the
+  mutation and reads as a broken restore.
+
 - **⚠ A CANDIDATE PALETTE IS MEASURED FROM SCRATCH, NEVER DERIVED FROM A SHIPPED ONE.** Cream sits inside 0.1 of **five** floors and Harbour of **three**, so both ship with almost no margin — which is not a defect, it is what "ground plus one step" means as a relation. The consequence is that copying either ladder and then moving a hue produces a palette the instrument REFUSES, which is exactly what happened to Harbour's first two drafts against the retired "ground lightness above roughly 85%" figure. **The two shipped palettes are evidence that no template exists, not the template.** This sits beside the render protocol for the same reason that one is here rather than only in `docs/STATE.md`: it is the fact a designer reaching for a starting point would most want to skip, and a convention is read before work begins while a record is read when someone goes looking.
 
 - **A CANDIDATE PALETTE IS JUDGED BY THE INSTRUMENT AND THEN BY THE RENDER, IN THAT ORDER, AND NEITHER STEP IS OPTIONAL.** Run `ralph/tests/theme-contrast.mjs` first — it answers whether every token PAIR clears its floor, which is the narrow claim. Then set `theme:` in `content/site-settings.yaml`, render the FULL home page and the four signature components (the work card, the glass nav, the hero ground, the Pearl Smoke vessel), and look. Only then judge. **`SHIPPABLE` is not "the site looks right"** and never was. Two palettes have now found defects no gate could reach: the dark render found the glass nav and the vessel are structurally light-ground at 1.15 and 1.20, and Harbour found `SectionHeading`'s two `tone` branches disagreeing on the same page. The second was invisible on cream because both branches looked the same there, which is the general rule — **a single-theme site cannot reveal an inconsistency between two ways of producing the same colour.** Revert `theme:` to `cream` before committing.
