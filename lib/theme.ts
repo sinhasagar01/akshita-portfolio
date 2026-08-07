@@ -179,9 +179,18 @@ const UNSELECTABLE: Record<string, string> = {
      denominators, all asserting the subject was non-empty and counted per directory, and the FILE
      TYPE was narrowed at the walk and never questioned. The render found it in one screenshot.
 
-     Clears when `globals.css`'s raw rungs move to roles. Until then publishing this would hand the
-     owner a broken page, which is what the hold is for — the same mechanism orchid used. */
-  sapphire: "held until globals.css's raw rungs migrate to roles — a dark page cannot render yet",
+     ⚠ THAT IS FIXED IN #395 AND THE PAGE NOW RENDERS DARK — 34 public references migrated, the
+     roles remap, and NOT ONE COMPONENT BRANCHES. Shape C is proven on a shipped surface.
+
+     WHAT HOLDS IT NOW IS THE GLASS NAV. Its links measure 1.29 against a 4.5 floor on a dark page,
+     because `data-nav-tone="dark"` is never set: that trigger watches the dark HERO, and a dark
+     PAGE satisfies the same predicate with nothing computing it. `--glass-fill` stays the light
+     cream at 58%, composites over the dark ground to a mid grey, and the light links vanish on it.
+
+     ⚠ THE TWO-PREDICATE DESIGN IS VINDICATED RATHER THAN QUESTIONED BY THIS. `data-nav-tone` means
+     "what is behind my translucent surface is dark", and on a dark page that is TRUE — the fix is
+     in the TRIGGER, not the vocabulary. Clears when the nav retones on a dark page. */
+  sapphire: "held until the glass nav retones on a dark PAGE — its links measure 1.29 there",
   /* ⚠ ORCHID WAS HELD HERE AND IS UNHELD IN #374. THE HOLD IS KEPT IN THE RECORD RATHER THAN
      DELETED, because a hold whose reasoning vanishes leaves no way to tell a considered release
      from a forgotten one.

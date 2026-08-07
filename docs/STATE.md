@@ -12021,6 +12021,40 @@ mechanism orchid used. Publishing it would hand the owner a broken page.
 member of any class is an instrument** — and this time it found a mechanism that had been fully
 designed, fully derived, fully asserted, and never plugged in.
 
+## globals.css MIGRATES, AND SHAPE C IS PROVEN ON A SHIPPED SURFACE (#395)
+
+**83 sites found, and the split decided the work before any of it ran:**
+
+    0   inside a studio selector — the freeze is untouched
+    11  the @theme ROLE DEFINITIONS themselves, which must stay
+    68  public rules — the real subject
+
+**34 references migrated.** Every `ink-950` alpha mix became `etch` (a surface mark whose ink
+inverts, measured in #386 to keep every consumer's weight within 6%); solid grounds became `surface`
+and `surface-well`; solid foregrounds became `text-primary`, `text-secondary` and `on-accent`.
+
+**⚠ AND THE PAGE RENDERS DARK. SHAPE C IS PROVEN: the roles remap under the ground attribute and NOT
+ONE COMPONENT BRANCHES.** That was the acceptance test for the whole arc, and it passed on a shipped
+surface rather than on a mock — sapphire's ground, the periwinkle accent, light prose, no `if (dark)`
+anywhere.
+
+---
+
+## ⚠ AND THE RENDER FOUND THE NEXT ONE IN THE SAME SCREENSHOT
+
+**The glass nav's links measure 1.29 against a 4.5 floor.** `data-nav-tone="dark"` is **not set** —
+that trigger watches the dark HERO, and a dark PAGE satisfies the same predicate with **nothing
+computing it**. So `--glass-fill` stays the light cream at 58%, composites over the dark ground to a
+mid grey of rgb(147,152,156), and the light links vanish on it.
+
+**⚠ THE TWO-PREDICATE DESIGN IS VINDICATED RATHER THAN QUESTIONED.** `data-nav-tone` means *"what is
+behind my translucent surface is dark"* — and on a dark page that is **true**. The vocabulary was
+right; **the fix is in the TRIGGER.** Sapphire's hold moves to that reason.
+
+**⚠ AND THE ARC PREDICTED THIS EXACT SURFACE.** The dark render in the theme work found the glass nav
+structurally light-ground at **1.15**; this is the same defect at **1.29**, measured on a real page
+two arcs later. **Fifth thing a new theme has found that no gate could.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -537,15 +537,34 @@ closed.
   **AND THE DECLARATION MUST BE REQUIRED RATHER THAN DEFAULTED**, or a new palette silently joins
   the majority class, which is the failure L exists to prevent reintroduced at the declaration.
 
-- **⚠ A DENOMINATOR PROVES YOU COUNTED EVERYTHING YOU LOOKED AT — NOT THAT YOU LOOKED AT
-  EVERYTHING.** The role migration ran four PRs with per-directory and per-category denominators,
-  each asserting its subject was non-empty, and **its file walk collected `.tsx` only.**
-  `globals.css` holds **81 raw rung references** and was never in the subject, so a dark ground
-  paints and every section covers it. **Every check verified the count within a population nobody
-  checked the boundary of.**
+- **⚠ A DENOMINATOR PROVES YOU COUNTED EVERYTHING YOU LOOKED AT, NOT THAT YOU LOOKED AT
+  EVERYTHING.** The role migration ran four PRs with sound per-directory and per-category
+  denominators, each asserting its subject was non-empty — **and its file walk collected `.tsx`
+  only.** `globals.css` holds 81 raw rung references and was never in the subject, so a dark ground
+  paints and every section covers it. **Every check verified the count within a population whose
+  boundary nobody stated.**
 
-  **When a sweep is bounded by directory, ask what bounds it by FILE TYPE**, and state that boundary
-  the way the directory one is stated.
+  **⚠ THE ACTIONABLE FORM: WHEN A SWEEP IS BOUNDED BY DIRECTORY, ASK WHAT BOUNDS IT BY FILE TYPE —
+  AND ASK IT OF THE OTHER SWEEPS TOO.** The census reads built CSS, SVG attributes and runtime JS;
+  the role migration read `.tsx`; `raster-grounds` walks `public/`. **Any sweep whose subject is a
+  file walk has a boundary its denominators cannot see**, because a denominator is computed inside
+  the walk.
+
+- **⚠ A DERIVATION PROVEN, MEASURED ACROSS FIVE PALETTES, AND NEVER WIRED — THE SHARPEST STRUCTURAL
+  GAP IN THIS ARC.** #389 derived the four missing dark role values, proved them `color-mix` of
+  tokens every palette already declares, and measured the relation on all five. **Nothing ever
+  referenced them from the `[data-ground="dark"]` block.** Every part was checked and **nothing
+  checked the join.**
+
+  **⚠ AND NO EXISTING GATE COULD SEE IT.** A token that resolves correctly and is referenced by
+  nothing produces **no wrong value, no failing ratio, no missing declaration** — the whole
+  instrument set reads values and declarations. Same family as a completeness assertion whose
+  subject excludes the thing that broke, arriving as **an absent connection rather than an absent
+  subject.**
+
+  **The check that catches it is a CONSUMER COUNT on the block that is supposed to remap** — assert
+  every role the dark ground must redirect is actually referenced there, because the same gap exists
+  for every role the block is meant to cover.
 
 - **⚠ A RATIO BETWEEN TWO COLOURS THAT NEVER MEET IS AS MEANINGLESS AS A RATIO INVOLVING A COLOUR
   THAT CANNOT EXIST.** Both return plausible, checkable-looking numbers. Jade's was a clipped colour
