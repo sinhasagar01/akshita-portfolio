@@ -61,18 +61,24 @@ export default function SectionHeading({
      the exact failure that made `etch` a role. On sapphire the ghost was all but invisible, which
      is how the owner found it.
 
-     ⚠ THE WATERMARK IS NOT A DEFECT AND IS NOT BEING MADE SOLID. 17% and 18% are the design, they
-     read correctly on all five light palettes, and making the heading solid would change every one
-     of them to fix one. What was wrong is that the ghost could not follow the ground.
+     ⚠ AND THEN THE OWNER RULED THE WORD SOLID, WHICH IS A DESIGN DECISION AND NOT A BUG FIX. The
+     ghost-following-the-ground change above was mine and it worked — 1.09 to 1.36 on sapphire, zero
+     light pixels moved. The owner looked at the result and wanted the heading READ rather than
+     felt. That is theirs to decide and the reasoning above is kept rather than deleted, because the
+     alpha version is what every light palette shipped with for the whole arc.
 
-     ZERO LIGHT PIXELS MOVE: `--color-accent` resolves to `accent-500` and `--color-text-secondary`
-     to `ink-600` on every light palette, so these are the same colours under names that invert.
-     Same shape as `.skill-pill`'s foreground fix — half a rename, half a remap.
+     `--color-text-primary` SATISFIES BOTH HALVES OF "solid primary colour or white" WITH ONE TOKEN:
+     it is the primary text role, it resolves to `ink-950` on light and to `on-dark` on dark, so the
+     heading is near-black on the light palettes and near-white on the dark one WITHOUT the component
+     choosing by ground. A literal white would have been a component picking a value for one ground,
+     which is the C-safety violation this file's own `tone` note exists to distinguish from.
 
-     And this is the ALPHA-BASED ROLE pattern working as designed: both roles resolve a PIGMENT, so
-     the two consumers below keep their own 17/18% and 22/20% weights untouched. */
+     ⚠ `tone` STAYS A REAL AXIS BECAUSE THE GLOW KEEPS IT. If both branches produced one solid colour
+     the prop would be a control that cannot do anything, and this repo deletes those. The WORD is
+     now ground-following and tone-independent; the HALO behind it is still accent-toned or
+     ink-toned, so the six call sites still choose something visible. */
   const wordTint   = tone === "warm" ? "var(--color-accent)" : "var(--color-text-secondary)";
-  const wordColor  = `color-mix(in oklch, ${wordTint} ${tone === "warm" ? 17 : 18}%, transparent)`;
+  const wordColor  = "var(--color-text-primary)";
   const wordShadow = `0 0 30px color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent)`;
   const glowBg     = `radial-gradient(closest-side,color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent),transparent 72%)`;
 
