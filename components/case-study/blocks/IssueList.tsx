@@ -16,8 +16,8 @@ export default function IssueList({ items }: Props) {
             {String(i + 1).padStart(2, "0")}
           </span>
           <span>
-            <b className="block text-[1.0625rem] font-bold text-ink-950">{it.title}</b>
-            <span className="block text-[0.875rem] text-ink-600 leading-[1.4] mt-0.5">
+            <b className="block text-[1.0625rem] font-bold text-text-primary">{it.title}</b>
+            <span className="block text-[0.875rem] text-text-secondary leading-[1.4] mt-0.5">
               {it.note}
             </span>
           </span>

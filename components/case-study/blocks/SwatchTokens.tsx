@@ -23,7 +23,7 @@ export default function SwatchTokens({ groups }: { groups: TokenGroup[] }) {
                   style={{ background: t.value, boxShadow: "inset 0 1px 2px color-mix(in srgb, var(--color-white) 40%, transparent)" }}
                 />
                 <span>
-                  <b className="text-[0.9rem] font-bold text-ink-950">{t.name}</b>
+                  <b className="text-[0.9rem] font-bold text-text-primary">{t.name}</b>
                   {t.hex && (
                     <span className="ml-1.5 font-mono text-[0.78rem] text-text-subtle">{t.hex}</span>
                   )}
@@ -31,7 +31,7 @@ export default function SwatchTokens({ groups }: { groups: TokenGroup[] }) {
               </div>
             ) : (
               <div key={ti}>
-                <b className="text-[0.9rem] font-bold text-ink-950">{t.name}</b>
+                <b className="text-[0.9rem] font-bold text-text-primary">{t.name}</b>
                 <span className="ml-1.5 text-[0.78rem] text-text-subtle">{t.note}</span>
               </div>
             ),

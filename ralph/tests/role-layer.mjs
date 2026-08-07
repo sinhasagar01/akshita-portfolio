@@ -26,7 +26,8 @@
 // can check is that the name resolves to a rung, that the registry and the stylesheet agree both
 // ways, and that no two roles collide without a stated reason. The jobs below are prose, and a
 // person still decides whether they are honest.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -129,6 +130,60 @@ const REFUSED = {
 console.log(`         ${Object.keys(REFUSED).length} rungs were measured for a role and refused: ${Object.keys(REFUSED).join(", ")}`);
 t("D2 ⚠ NO REFUSED RUNG QUIETLY GAINED A ROLE — the refusals are a decision, not an omission",
   Object.keys(REFUSED).filter((r) => Object.values(ROLES).some((v) => v.rung === r)), []);
+
+console.log("\nE · ⚠ A GROUND AND ITS FOREGROUND AGREE — the check #383's sweep needed and did not have");
+
+/* ⚠ THIS EXISTS BECAUSE A RUNG WITH TWO ROLES CANNOT BE MIGRATED BY A RUNG-TO-ROLE MAP. `cream-50`
+ * is both `surface` (a card ground) and `on-accent` (a foreground on the accent). The map has ONE
+ * answer per rung, so #383's sweep sent all four accent-badge labels to `surface` — the exact bug
+ * `on-accent` had been created one PR earlier to prevent, described in that PR's own comment.
+ *
+ * ⚠ AND THE PAIR TEST THAT SHOULD HAVE CAUGHT IT HAD A NARROWER VOCABULARY THAN ITS CONCEPT. It
+ * skipped any element carrying both a ground and a foreground — but looked only for grounds from
+ * the CREAM/INK LADDER, and an accent ground is in neither. So `bg-accent-500` with a light label
+ * read as one-sided and was swept. The concept was "this element brings its own ground"; the
+ * implementation was "this element uses a ladder background".
+ *
+ * ⚠ AND THE CENSUS MOVED IN THE DIRECTION I HAD PREDICTED, WHICH IS HOW IT ALMOST SURVIVED.
+ * `cascade-public` C1 went 6 to 5, and 6 to 5 is what "a role name replacing a raw one reclassifies
+ * a colour" was supposed to look like. It was two distinct collisions COLLAPSING INTO ONE NAME
+ * because both had been given the wrong role. Repairing the sites restored it to 6. A PREDICTION
+ * THAT A NUMBER WILL MOVE MAKES ANY MOVEMENT LOOK LIKE THE PREDICTED ONE — which is why that suite
+ * says the number moving tells you nothing about which of five things happened. */
+const tsxFiles = [];
+(function walk(d) {
+  for (const e of readdirSync(d, { withFileTypes: true })) {
+    const p = join(d, e.name);
+    if (/node_modules|\.next|\.git/.test(p)) continue;
+    if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFiles.push(p);
+  }
+})(new URL("../../", import.meta.url).pathname);
+
+/* Foreground roles that follow the PAGE ground. On an accent ground every one of them is wrong,
+ * because the accent does not follow the page and its label must not either. */
+const PAGE_FOREGROUNDS = ["surface", "surface-well", "background", "text-primary", "text-secondary", "text-lead"];
+const fgOnAccent = [];
+let classAttrs = 0;
+for (const f of tsxFiles) {
+  const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
+  if (/^components\/studio\/|^app\/studio\//.test(rel)) continue;
+  for (const m of readFileSync(f, "utf8").matchAll(/className=(?:\{`|["`'])([\s\S]*?)(?:`\}|["`'])/g)) {
+    classAttrs++;
+    const cls = m[1];
+    if (!/\bbg-accent-\d/.test(cls)) continue;
+    for (const role of PAGE_FOREGROUNDS) {
+      if (new RegExp("\\btext-" + role + "\\b").test(cls)) fgOnAccent.push(`${rel}: text-${role} on an accent ground`);
+    }
+  }
+}
+console.log(`         ${classAttrs} className attributes scanned outside /studio`);
+/* ⚠ CONSTANT. The subject is the scan, not the hits — a scan that read nothing must fail, and a
+ * clean site must be able to report zero without the gate reading as broken. */
+t("E0 the scan has subjects, against a literal", classAttrs >= 200, true);
+t("E1 …and it finds accent grounds at all, so E2 is not vacuous",
+  tsxFiles.some((f) => /bg-accent-\d/.test(readFileSync(f, "utf8"))), true);
+t("E2 ⚠ NO PAGE-FOLLOWING FOREGROUND SITS ON AN ACCENT GROUND — that label must be `on-accent`, or it inverts on a dark page",
+  fgOnAccent.sort(), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

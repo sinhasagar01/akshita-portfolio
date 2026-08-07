@@ -85,7 +85,7 @@ function ReplaceImageButton() {
       type="button"
       data-edit-image-replace
       aria-label="Replace image"
-      className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[12px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
+      className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[12px] font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface"
     >
       Replace image
     </button>
@@ -214,7 +214,7 @@ function WideFrame({
   const { src, alt, z, unoptimized } = image;
 
   const screen = (
-    <span className="relative block bg-cream-100" style={{ aspectRatio: WIDE_ASPECT }}>
+    <span className="relative block bg-surface-well" style={{ aspectRatio: WIDE_ASPECT }}>
       <Image
         src={src}
         alt={alt}
@@ -236,11 +236,11 @@ function WideFrame({
       style={{ maxWidth: WIDE_MAX_W, zIndex: z }}
     >
       {variant === "browser" ? (
-        <span className="block overflow-hidden rounded-xl border border-ink-950/10 bg-cream-50">
+        <span className="block overflow-hidden rounded-xl border border-ink-950/10 bg-surface">
           {/* browser chrome — decorative: three dots and a url pill */}
           <span
             aria-hidden
-            className="flex items-center gap-1.5 border-b border-ink-950/8 bg-cream-100 px-3.5 py-2.5"
+            className="flex items-center gap-1.5 border-b border-ink-950/8 bg-surface-well px-3.5 py-2.5"
           >
             <span className="size-2.5 rounded-full bg-ink-950/15" />
             <span className="size-2.5 rounded-full bg-ink-950/15" />
@@ -252,6 +252,14 @@ function WideFrame({
       ) : (
         <span className="block">
           {/* MacBook — a dark bordered screen over a base bar with a trackpad notch */}
+          {/* ⚠ RAW `ink-950` ON PURPOSE — A BEZEL IS A DEPICTED OBJECT, NOT TEXT. The #383 sweep
+              gave this a background painted from the primary TEXT role, because the mechanical rule
+              saw a rung that had one. (The class is not spelled here: naming it would make it
+              compile from this comment alone, which `css-comment-trap` exists to catch.)
+              A phone frame is near-black because PHONES ARE, so under a dark ground `text-primary`
+              would flip light and the bezel would turn white. Same category as HeroCover's on-dark
+              constants: the component is not choosing a colour for its context, it is drawing a
+              thing that has one. */}
           <span className="block overflow-hidden rounded-lg border-[3px] border-ink-950/80 bg-ink-950">
             {screen}
           </span>

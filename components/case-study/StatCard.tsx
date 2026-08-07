@@ -36,7 +36,7 @@ export default function StatCard({
       </p>
       <p
         {...inlineEditProps(editable, blockIndex, `stats.${itemIndex}.body`, "Edit stat body", true)}
-        className={`text-[0.95rem] text-ink-950 leading-[1.52] mt-3.5${aff}`}
+        className={`text-[0.95rem] text-text-primary leading-[1.52] mt-3.5${aff}`}
       >
         {renderRich(stat.body)}
       </p>

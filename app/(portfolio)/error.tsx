@@ -16,10 +16,10 @@ export default function PortfolioError({
       <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-600">
         Something went wrong
       </p>
-      <h1 className="font-display font-normal text-[clamp(1.9rem,4.5vw,2.75rem)] text-ink-950 leading-[1.1] mt-4">
+      <h1 className="font-display font-normal text-[clamp(1.9rem,4.5vw,2.75rem)] text-text-primary leading-[1.1] mt-4">
         This page hit a snag.
       </h1>
-      <p className="text-[1rem] text-ink-600 leading-[1.6] mt-4 max-w-[44ch]">
+      <p className="text-[1rem] text-text-secondary leading-[1.6] mt-4 max-w-[44ch]">
         An unexpected error stopped this page from loading. You can try again, or head
         back home.
       </p>
@@ -27,7 +27,7 @@ export default function PortfolioError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-cream-50 transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+          className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Try again
         </button>

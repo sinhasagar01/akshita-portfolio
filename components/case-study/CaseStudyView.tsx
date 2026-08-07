@@ -59,10 +59,10 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
             <p className="text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
               {study.title}
             </p>
-            <h1 className="font-display italic font-normal text-4xl text-ink-950 mt-4">
+            <h1 className="font-display italic font-normal text-4xl text-text-primary mt-4">
               Coming soon
             </h1>
-            <p className="text-lg text-ink-600 mt-4 max-w-[52ch] mx-auto">
+            <p className="text-lg text-text-secondary mt-4 max-w-[52ch] mx-auto">
               This case study is being written. Check back shortly.
             </p>
           </section>

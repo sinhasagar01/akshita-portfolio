@@ -41,7 +41,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
               <p className="mt-[13px] text-[12px] tracking-[.22em] uppercase text-text-subtle">
                 Product Designer
               </p>
-              <p className="hidden lg:block mt-6 text-[16px] text-ink-800">
+              <p className="hidden lg:block mt-6 text-[16px] text-text-lead">
                 Designed by Me{" "}
                 <span style={{ color: "var(--color-text-subtle)", margin: "0 8px" }}>·</span>
                 Built by{" "}

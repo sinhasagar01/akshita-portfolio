@@ -44,7 +44,7 @@ function Label({ children, accent = false }: { children: ReactNode; accent?: boo
 }
 
 function Note({ children }: { children: ReactNode }) {
-  return <p className="font-display italic text-[0.95rem] leading-[1.5] text-ink-600">{children}</p>;
+  return <p className="font-display italic text-[0.95rem] leading-[1.5] text-text-secondary">{children}</p>;
 }
 
 /** A step in the flow — a plain card with a label. */
@@ -59,7 +59,7 @@ function Step({ children }: { children: ReactNode }) {
 /** The arrow between steps. `aria-hidden` because the reading order already implies sequence. */
 function Arrow() {
   return (
-    <span aria-hidden="true" className="shrink-0 select-none px-1 text-ink-600">
+    <span aria-hidden="true" className="shrink-0 select-none px-1 text-text-secondary">
       →
     </span>
   );
@@ -72,7 +72,7 @@ function Arrow() {
 function AssistantRoute() {
   const before = ["Open the report", "Set the filters", "Read the table", "Export it", "Decide"];
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-ink-950/8 bg-cream-100 p-5 sm:p-7">
+    <div className="flex flex-col gap-6 rounded-xl border border-ink-950/8 bg-surface-well p-5 sm:p-7">
       <div className="flex flex-col gap-3">
         <Label>Bolted on</Label>
         <Rule />
@@ -159,7 +159,7 @@ function FourSquads() {
     { name: "Squad four", head: ["70%"], after: <><Pill w="30%" /><Pill w="42%" solid /></>, tail: ["82%", "56%"] },
   ];
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-ink-950/8 bg-cream-100 p-5 sm:p-7">
+    <div className="flex flex-col gap-6 rounded-xl border border-ink-950/8 bg-surface-well p-5 sm:p-7">
       <div className="flex flex-col gap-3">
         <Label>Four squads · one component library · six months</Label>
         <Rule />
@@ -167,8 +167,8 @@ function FourSquads() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {squads.map((s) => (
-          <div key={s.name} className="flex flex-col gap-2.5 rounded-lg border border-ink-950/8 bg-cream-50 p-3 shadow-sm">
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-600">{s.name}</p>
+          <div key={s.name} className="flex flex-col gap-2.5 rounded-lg border border-ink-950/8 bg-surface p-3 shadow-sm">
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-text-secondary">{s.name}</p>
             {/* ⚠ FIXED HEIGHT, BECAUSE THE ALIGNMENT IS THE CLAIM. Squad two's head carries an
                 avatar and the others carry a bar; letting the row size to its content put its
                 accent bar 10px below the other three — measured in the browser, and it broke the
@@ -186,7 +186,7 @@ function FourSquads() {
                 diagram's entire claim, so it is the only accent-coloured thing in the card. */}
             <div aria-hidden="true" className="h-1.5 w-[68%] rounded-full bg-accent-500" />
 
-            <div className="rounded-md border border-ink-950/8 bg-cream-100 px-2 py-2">
+            <div className="rounded-md border border-ink-950/8 bg-surface-well px-2 py-2">
               <Bar w="56%" />
             </div>
             <div className="flex flex-col gap-1.5">{s.after}</div>
@@ -197,11 +197,11 @@ function FourSquads() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-ink-950">
+        <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-text-primary">
           <span aria-hidden="true" className="mt-[7px] h-1.5 w-6 shrink-0 rounded-full bg-accent-500" />
           The error message sits above the field. Same rule, same place, four squads.
         </p>
-        <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-ink-600">
+        <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-text-secondary">
           <span aria-hidden="true" className="mt-[7px] h-1.5 w-6 shrink-0 rounded-full bg-ink-950/12" />
           Everything else moved.
         </p>

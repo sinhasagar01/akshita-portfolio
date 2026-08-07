@@ -15,12 +15,12 @@ export default function PrincipleCards({ heading, subhead, cards, web = false, e
   return (
     <div>
       {heading && (
-        <h3 className="font-display italic font-normal text-3xl text-ink-950 leading-[1.15]">
+        <h3 className="font-display italic font-normal text-3xl text-text-primary leading-[1.15]">
           {heading}
         </h3>
       )}
       {subhead && (
-        <p className="text-[1rem] text-ink-600 leading-normal mt-2">
+        <p className="text-[1rem] text-text-secondary leading-normal mt-2">
           {subhead}
         </p>
       )}

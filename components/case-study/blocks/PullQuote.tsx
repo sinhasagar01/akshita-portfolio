@@ -43,7 +43,7 @@ export default function PullQuote({
   return (
     <p
       {...edit}
-      className={`relative font-display italic font-normal text-[34px] text-ink-950 leading-[1.22] max-w-[880px] pl-7${aff}`}
+      className={`relative font-display italic font-normal text-[34px] text-text-primary leading-[1.22] max-w-[880px] pl-7${aff}`}
     >
       <span
         aria-hidden="true"

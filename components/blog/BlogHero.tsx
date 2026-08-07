@@ -61,7 +61,7 @@ export default function BlogHero({
 
   return (
     <figure className="my-[44px]">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[12px] border border-ink-950/8 bg-cream-100">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[12px] border border-ink-950/8 bg-surface-well">
         {canvas ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={src} alt="" className="object-cover" style={HERO_FILL_STYLE} />
