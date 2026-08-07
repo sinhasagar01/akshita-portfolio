@@ -980,6 +980,94 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-case-study-sand: oklch(88.5% 0.031 128);
   --color-glow-web: oklch(48.0% 0.088 89);
 }
+/* ============================================================================================
+   SAPPHIRE — THE FIRST DARK PALETTE, AND THE FIRST MEMBER OF THE DARK BAND.
+
+   ⚠ ITS IDENTITY LIVES IN THE DARK FAMILY, NOT IN THE CREAM LADDER. `ground: "dark"` in
+   `lib/theme.ts` means the root carries `data-ground="dark"`, so the roles resolve to `band-dark`,
+   `on-dark`, `on-dark-muted` and the accent's dark form — and the four that had no dark value are
+   `color-mix` of those three, per palette by construction, adding no token. (The fourth is the
+   accent's own dark form; its class is not spelled here because the `accent-color` prefix plus that
+   token name form a real utility, and naming it would make it compile from this comment alone.)
+
+   ⚠ THE CREAM AND INK RUNGS ARE NOT VESTIGIAL. They serve LIGHT REGIONS of a dark page, which the
+   case-study hero already proves exist — its rating chip draws a light pill on the dark band. That
+   chip is why `accent-600` matters here at all.
+
+   ---- DERIVED FROM h250, NEVER COPIED --------------------------------------------------------
+
+   Every existing palette's ladder was derived FOR A LIGHT GROUND. Here the ground has not moved
+   along the ladder, it has moved to the other end of it, so copying would be copying a derivation
+   whose subject inverted. Ground h250, ink h250, accent h272.
+
+   ⚠ GAMUT BEFORE CONTRAST, WHICH REFUSED THREE VALUES BEFORE ANY RATIO WAS TAKEN. h272 is tight at
+   high lightness and the brief's chromas did not fit:
+
+     accent-500      wanted 0.185  ceiling 0.193  ->  0.174
+     the accent's dark form  wanted 0.185  ceiling 0.157  ->  0.141
+     on-dark-quote   wanted 0.155  ceiling 0.131  ->  0.118
+
+   Jade's lesson: a clipped colour returns a plausible ratio rather than an error.
+
+   ⚠ AND accent-600 IS AT L.450 RATHER THAN L.520 BECAUSE THE FIRST DERIVATION WAS WRONG. At .520
+   it measured 4.38 on this palette's `cream-200` — the rating chip's ground — against a 4.5 floor.
+   Darkening it looked blocked, because at every lightness that clears cream-200 it fails on
+   `band-dark`; that pointed at a second accent token for light regions.
+
+   THE PREMISE WAS FALSE AND THE RENDER SAID SO. `accent-600` never lands on `band-dark`:
+   `SectionRenderer` gates the dark ground on `isWebHero`, so the h1 that uses it falls through to
+   an ordinary light card, measured at 7.11 on `elevate-one-view`. The 2.16–2.64 figures are a ratio
+   between two colours that never meet. So no token was earned — L.450 gives 5.96 on cream-200,
+   7.51 on cream-50, 7.09 on canvas.
+
+   ---- MEASURED, SANITY PAIR 21.000 FIRST -----------------------------------------------------
+
+   All 35 tokens in gamut. The dark page clears every floor: the surface step is 1.140 against the
+   1.13 derived in #389, `on-dark` on that surface 15.22, `on-dark-muted` 7.43, `text-lead` on the
+   ground 12.83, the accent's dark form 6.99.
+
+   ⚠ AND ITS `band-dark` AT L.170 IS THE FIRST THING EVER TO TEST THE DARK BAND'S BOUNDS. They were
+   GUESSED at 0.150 to 0.200; sapphire sits inside them, so they HELD. That makes them
+   untested-and-not-yet-wrong rather than measured, and a passing L1c does not change which.
+============================================================================================ */
+[data-theme="sapphire"] {
+  --color-cream-50: oklch(98.4% 0.007 250);
+  --color-cream-100: oklch(95.2% 0.016 250);
+  --color-cream-200: oklch(90.6% 0.019 250);
+  --color-cream-300: oklch(85.2% 0.022 250);
+  --color-canvas: oklch(96.2% 0.016 250);
+  --color-ink-950: oklch(15.0% 0.026 250);
+  --color-ink-800: oklch(26.2% 0.025 250);
+  --color-ink-600: oklch(40.0% 0.020 250);
+  --color-ink-400: oklch(56.0% 0.020 250);
+  --color-ink-200: oklch(80.0% 0.015 250);
+  --color-accent-500: oklch(64.0% 0.174 272);
+  --color-accent-600: oklch(45.0% 0.178 272);
+  --color-text-subtle: oklch(48.7% 0.020 250);
+  --color-text-body: oklch(37.5% 0.017 250);
+  --color-rule: oklch(48.5% 0.026 250);
+  --color-band-dark: oklch(17.0% 0.016 250);
+  --color-on-dark: oklch(96.5% 0.005 250);
+  --color-on-dark-muted: oklch(74.5% 0.009 250);
+  --color-on-dark-quote: oklch(74.5% 0.118 272);
+  --color-accent-on-dark: oklch(70.0% 0.141 272);
+  --color-smoke-1: oklch(0.84 0.013 250 / 0.74);
+  --color-smoke-2: oklch(0.9 0.013 250 / 0.74);
+  --color-smoke-3: oklch(0.97 0.009 250 / 0.74);
+  --color-smoke-4: oklch(0.87 0.011 250 / 0.74);
+  --color-vessel-ink: rgb(4, 12, 22);
+  --color-vessel-capsule: rgb(199, 205, 211);
+  --color-vessel-glass: oklch(94.5% 0.018 250);
+  --color-vessel-pearl: oklch(96.5% 0.009 250);
+  --color-vessel-shadow: oklch(92.5% 0.014 250);
+  --color-vessel-wave: oklch(93.5% 0.011 250);
+  --color-glow-paper: oklch(63% 0.174 272 / 0.20);
+  --color-bounce: oklch(99.5% 0.003 250);
+  --color-reveal-sand: oklch(85.0% 0.027 235);
+  --color-case-study-sand: oklch(88.5% 0.022 240);
+  --color-glow-web: oklch(48.0% 0.083 227);
+}
+
 
 
 
@@ -1287,6 +1375,27 @@ a {
   color: var(--color-on-dark);
   --glow-color: var(--glow-on-dark);
   --hero-facts-line: color-mix(in srgb, var(--color-white) 14%, transparent);
+
+  /* ⚠ THE ROLES REMAP HERE, AND UNTIL #394 THEY DID NOT. #389 derived the four missing dark values
+     and proved they are `color-mix` of tokens every palette already declares — and nothing ever
+     wired them in. The block set a ground and a colour and left every role pointing at its light
+     rung, so a dark page painted a dark ground and then covered it with light cards.
+
+     ⚠ THE RENDER FOUND THAT IN ONE SCREENSHOT. No gate could: each token was correct, the attribute
+     was correct, the derivation was correct, and the connection between them did not exist. */
+  --color-background:    var(--color-band-dark);
+  --color-surface:       color-mix(in oklch, var(--color-on-dark) 6%, var(--color-band-dark));
+  --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
+  --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
+  --color-text-primary:  var(--color-on-dark);
+  --color-text-secondary: var(--color-on-dark-muted);
+  --color-text-lead:     color-mix(in oklch, var(--color-on-dark) 55%, var(--color-on-dark-muted));
+  /* ⚠ THE INK INVERTS AND THE ALPHAS SURVIVE — measured in #386, every weight lands within 6% of
+     its light separation, so a consumer's chosen opacity needs no change. */
+  --color-etch:          var(--color-on-dark);
+  /* The accent's own dark form. `on-accent` deliberately does NOT remap: the accent stays a
+     mid-tone on both grounds, so its foreground must stay light. */
+  --color-accent:        var(--color-accent-on-dark);
 }
 /* The full-bleed hero keeps its layout class; the dark part is the attribute above. */
 .hero-ground.is-dark {

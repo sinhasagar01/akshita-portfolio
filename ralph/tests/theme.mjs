@@ -101,11 +101,16 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
 /* ⚠ A8 RESTATES THE IMPLEMENTATION, so A8a anchors it to the list a person can read. The
  * equivalence is still worth asserting — it is what fails if a theme is added to the resolver and
  * forgotten in the sanitizer — but on its own, a broken `unselectableReason` moves both sides. */
-/* ⚠ FIVE SINCE #377, AND FIVE IS THE CEILING RATHER THAN A WAYPOINT. Seven hues on a circle sit
+/* ⚠ SIX SINCE #394, AND THE SIXTH DOES NOT RAISE THE LIGHT CEILING. Five is still the maximum for
+ * the LIGHT band — seven hues on a circle sit 51.4 degrees apart, so six light palettes plus the
+ * twin cannot clear D12's 60 degree floor. Sapphire is the first member of the DARK band, which has
+ * its own circle, its own count and no measured floor yet because it has one member.
+ *
+ * ⚠ FIVE SINCE #377, AND FIVE IS THE CEILING RATHER THAN A WAYPOINT. Seven hues on a circle sit
  * 51.4 degrees apart at perfect spacing, so six real palettes plus the twin cannot all clear D12's
  * 60 degree ground floor. A sixth requires LOWERING THAT FLOOR, which is a design decision about
  * how distinct two themes must be — not a matter of finding another good palette. */
-t("A8a the selectable set is the five real palettes, named rather than derived",
+t("A8a the selectable set is the six real palettes — five light and one dark",
   selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern"]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));

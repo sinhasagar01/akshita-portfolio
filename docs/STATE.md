@@ -11987,6 +11987,40 @@ escapes its own gate.
 applies" is a claim about which floor governs. **A gate written from the label asserted the cause and
 reported two non-violations.** Only the threshold form is checkable.
 
+## SAPPHIRE SHIPS, HELD — AND THE RENDER FOUND THE MECHANISM WAS NEVER CONNECTED (#394)
+
+The palette is correct: **35 tokens, all in gamut**, three chromas reduced by their h272 ceilings,
+`accent-600` re-derived at L.450 (5.96 on cream-200, 7.51 on cream-50). Every dark-page floor
+clears. `ground: "dark"` declared, and its `band-dark` at L.170 is **the first thing ever to test the
+dark band's bounds — they held.** Guessed, tested once, untested-and-not-yet-wrong.
+
+**⚠ AND IT CANNOT RENDER A DARK PAGE, WHICH ONE SCREENSHOT SHOWED AND NO GATE COULD.** Publishing it
+produced a LIGHT page. Two causes, both invisible to every instrument:
+
+**1 · `[data-ground="dark"]` NEVER REMAPPED THE ROLES.** #389 derived the four missing dark values
+and proved they are `color-mix` of tokens every palette already declares — **and nothing ever wired
+them in.** The block set a ground and a colour and left every role pointing at its light rung. Each
+token was correct, the attribute was correct, the derivation was correct, and **the connection
+between them did not exist.** Fixed here; the tab pill goes dark, which is how far it gets.
+
+**2 · `globals.css` HOLDS 81 RAW RUNG REFERENCES AND WAS NEVER IN THE MIGRATION'S SUBJECT.**
+`.hero-ground` paints `var(--color-cream-50)` directly, and a RUNG does not remap under the dark
+ground. So a dark palette paints a dark ground and every section covers it.
+
+**⚠ THE ROLE MIGRATION'S SUBJECT WAS `.tsx` FILES. FOUR PRs OF DENOMINATORS — per directory, per
+category, each asserting the subject was non-empty — AND THE FILE TYPE WAS NARROWED AT THE WALK AND
+NEVER QUESTIONED.** Every check verified the count within a population nobody checked the boundary
+of. That is the empty-subject family's blind side: **a denominator proves you counted everything you
+looked at.**
+
+**So sapphire is HELD**, resolvable but not publishable, with the end condition named — the same
+mechanism orchid used. Publishing it would hand the owner a broken page.
+
+**⚠ AND THAT IS THE FOURTH TIME A NEW THEME HAS FOUND SOMETHING NO GATE COULD**, after
+`SectionHeading`'s split, every hairline measuring 0.0, and the rating chip's AA failure. **A second
+member of any class is an instrument** — and this time it found a mechanism that had been fully
+designed, fully derived, fully asserted, and never plugged in.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
