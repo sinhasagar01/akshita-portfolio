@@ -83,6 +83,59 @@ export const FIFTH_THEME = "fern";
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
 export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, VERIFY_THEME] as const;
 
+
+/* ============================================================================================
+   ⚠ EVERY PALETTE DECLARES ITS GROUND CLASS, AND IT IS REQUIRED RATHER THAN DEFAULTED.
+
+   A palette IS light or dark. That is a fact about the palette, not a consequence of one of its
+   tokens — and `ralph/tests/theme-contrast.mjs` section L classified palettes by reading `canvas`
+   until #391, which worked only because `canvas` IS the page ground on a LIGHT palette.
+
+   ⚠ ON A DARK PALETTE IT IS NOT. Under `[data-ground="dark"]` the page ground is `band-dark`, so a
+   classifier reading `canvas` files a dark palette in the light band and compares its hue against
+   grounds it does not compete with.
+
+   ⚠ THE SAME MISTAKE TWICE IN ONE MECHANISM, BOTH TIMES BY INFERENCE FROM A VALUE THAT HAPPENED TO
+   AGREE. First L's band was a single band hiding a per-class fact; then the band registry
+   classified members by a token that coincided with the class. Each was found only when a second
+   member arrived. A classifier that reads a VALUE rather than a DECLARATION is correct until a
+   member arrives where the two come apart.
+
+   ⚠ NO DEFAULT, ON PURPOSE. A defaulted class means a new palette silently joins the light band —
+   the failure L exists to prevent, reintroduced at the declaration. `theme` section L asserts every
+   name here has an entry, so a palette added without one fails rather than inheriting.
+
+   ⚠ AND THE DECLARATION IS CROSS-CHECKED AGAINST THE GROUND IT RESOLVES. The field says the class;
+   the measured lightness of that class's page-ground token must land in that class's band. A
+   declaration and a measurement disagreeing is exactly the case worth catching, and the one
+   inference could never surface — under inference they cannot disagree by construction.
+
+   ---- WHAT `canvas` MEANS ON A DARK PALETTE -------------------------------------------------
+
+   It is NOT the page ground there; `band-dark` is. `canvas` keeps its light meaning — the ground
+   behind cards in a LIGHT REGION of a dark page, which the case-study hero already proves exists
+   (its rating chip draws a light pill on the dark band). So it is declared, it has a job, and the
+   job is smaller than on a light palette. "Declared but not the page ground" was the ambiguity that
+   made this fork hard to see; naming the job is what removes it.
+============================================================================================ */
+export type GroundClass = "light" | "dark";
+
+/** Which page-ground token a class resolves. `theme` L cross-checks the declaration against it. */
+export const GROUND_TOKEN: Record<GroundClass, string> = {
+  light: "canvas",
+  dark: "band-dark",
+};
+
+export const THEME_GROUND: Record<string, GroundClass> = {
+  [DEFAULT_THEME]: "light",
+  [SECOND_THEME]: "light",
+  [THIRD_THEME]: "light",
+  [FOURTH_THEME]: "light",
+  [FIFTH_THEME]: "light",
+  /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
+  [VERIFY_THEME]: "light",
+};
+
 export type ThemeName = (typeof THEME_NAMES)[number];
 
 /* ============================================================================================

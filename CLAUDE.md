@@ -522,6 +522,21 @@ closed.
 
 - **⚠ `mutate.mjs` CONFIRMS THE SOURCE CHANGED AND CANNOT CONFIRM THE SUBJECT DID**, and the subject is sometimes the bundle and sometimes the rendered DOM. Two instances: a mutation to `globals.css` that needed a rebuild before `colour-census` could see it, and `data-theme` moved onto a React component that never forwards it to the DOM — **the attribute simply never appeared, so the assertion had nothing to find and reported SURVIVED**. A mutation that lands in JSX and not in the DOM looks exactly like a mutation the gate withstood. **Rebuild first, and check the mutation reached the subject rather than only the file.**
 
+- **⚠ A CLASSIFIER THAT READS A VALUE RATHER THAN A DECLARATION IS CORRECT UNTIL A MEMBER ARRIVES
+  WHERE THE VALUE AND THE CLASS COME APART.** Section L classified a palette by reading its `canvas`
+  lightness. That works for every LIGHT palette because `canvas` IS the page ground there — and
+  breaks for a dark one, where the page ground is `band-dark` and `canvas` is something else.
+
+  **⚠ THIS IS THE SAME MISTAKE TWICE IN ONE MECHANISM, BOTH TIMES BY INFERENCE FROM A VALUE THAT
+  HAPPENED TO AGREE.** First the band itself was a single band hiding a per-class fact; then the
+  band registry classified members by a token that happened to coincide with the class. **Each was
+  found only when a second member arrived.** A palette IS light or dark — that is a fact about the
+  palette, not a consequence of one of its tokens — so it is DECLARED and the measurement
+  cross-checks it.
+
+  **AND THE DECLARATION MUST BE REQUIRED RATHER THAN DEFAULTED**, or a new palette silently joins
+  the majority class, which is the failure L exists to prevent reintroduced at the declaration.
+
 - **⚠ A GUARD WHOSE FILTER IS ITS OWN PRECONDITION CAN ONLY FAIL IN ONE DIRECTION.** `L3a` selected
   rows where `hueFloor === null` and then checked their stated reason — so a row that GAINED a floor
   **left the selection entirely and took its stale reason with it.** The mutation that matters is the
