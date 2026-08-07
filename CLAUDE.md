@@ -299,6 +299,35 @@ closed.
   visible at the moment it was written**, which is why this is a writing discipline rather than a
   measurement problem.
 
+- **⚠ WHAT CANNOT SURVIVE A GROUND CHANGE IS NOT A MATERIAL — IT IS A FINISHED COLOUR THAT BAKES THE
+  DIRECTION IN.** Pale glass shows its thickness as **shadow**; dark glass shows it as **transmitted
+  light**. Both are glass. **The CSS forced a choice the physics does not**, by storing the tint as a
+  pale finished value instead of as an ink the ground could invert.
+
+  **PREDICTED BEFORE THE TEST AND CONFIRMED ON ALL SIX PALETTES.** Re-expressed as ink plus alpha at
+  2.5–3.4%, the tint reproduces today's light appearance exactly and **flips direction on dark
+  without a second value** — darkens on light, lightens on dark, six for six. So the vessel's
+  "redraw" is **zero new tokens**, the fourth time resolving the PIGMENT rather than the finished
+  value has collapsed a problem to nothing.
+
+  **One honest asymmetry: the dark magnitudes land ~11% below the light ones** (7.0–14.0 against
+  6.2–12.4), wider than `etch`'s 6% bar. Not enough to need a second token, and it is stated rather
+  than rounded away.
+
+  **A confirmed prediction is worth more than the same outcome discovered** — it means the model is
+  right, not just the answer.
+
+- **⚠ THE INERT TEST IS PER CONSUMER, NOT PER TOKEN — a token can be load-bearing at one alpha and
+  dead at another.** `bounce` measured 33.9 as a streak on the glass pane and 2.0 as a radial on
+  `cream-50`, in the same component. Applied per token it would have been kept wholesale or deleted
+  wholesale, and both would have been wrong about most of its consumers.
+
+  **⚠ AND A THIRD VERDICT WAS NEEDED: GROUND-CONTINGENT.** The rule deletes what drives nothing
+  ANYWHERE. Three `bounce` consumers drive nothing on light — 1.2, 4.5, 5.5 against the 20.8 of the
+  faintest shipped mark — **and measure 76.0, 98.8 and 361.1 on dark.** They are not inert; deleting
+  them would strip the mechanic from the ground it works best on. **Measure both grounds before
+  calling anything dead**, or the rule removes the thing it exists to protect.
+
 - **⚠ AGREEMENT ON A BOUNDARY IS NOT AGREEMENT ON WHAT IS INSIDE IT.** Two independent routes found
   the vessel's eleven tokens — a classification from the render, and section L's derivation from
   consumption — and that corroboration was cited as making the deferred redraw *"a fact about the
