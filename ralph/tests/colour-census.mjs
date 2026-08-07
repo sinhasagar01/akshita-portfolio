@@ -149,9 +149,16 @@ t("Z2 both kinds are declared", Object.keys(BOUNDARY.kinds ?? {}).sort(), ["judg
 t("Z3 mechanical categories are the five decidable without a judgement",
   [...BOUNDARY.kinds.mechanical.categories].sort(),
   ["compiler-default", "derived", "mask", "not-a-colour", "ships-publicly-no-public-consumer"]);
-t("Z4 judgement categories are the three that never can be",
-  [...BOUNDARY.kinds.judgement.categories].sort(),
-  ["artwork-by-file", "forced-literal", "signature"]);
+/* ⚠ FIVE NOW, AND `signature` IS GONE. It meant "a thing that IS the design", three entries meant
+ * it genuinely — cursor, loader, hero auras — and ALL THREE FAILED the ground-change test when a
+ * second palette arrived. The five still wearing it each meant something else, which #365 found by
+ * reading prose against label. The categories are a MAP now, keyed by name, because each one
+ * declares the test its entries must answer. */
+t("Z4 judgement categories are the five that never can be computed",
+  Object.keys(BOUNDARY.kinds.judgement.categories).sort(),
+  ["adjacent", "artwork-by-file", "forced-literal", "invariant", "near-miss-kept"]);
+t("Z4b ⚠ AND `signature` IS NOT AMONG THEM — deleted with a 100% failure rate among its true members",
+  "signature" in BOUNDARY.kinds.judgement.categories, false);
 t("Z5 every entry declares a kind the file knows",
   BOUNDARY.entries.filter((e) => !(e.kind in BOUNDARY.kinds)).map((e) => e.id), []);
 /* ⚠ THE ROW'S REASON IS THE DURABLE PART, so a row without prose is a row nobody can overturn or
@@ -160,9 +167,36 @@ t("Z6 every entry carries a REASON as prose, not a category code alone",
   BOUNDARY.entries.filter((e) => !e.reason || e.reason.trim().length < 40).map((e) => e.id), []);
 t("Z7 every judgement entry names WHERE it lives, so it can be audited",
   BOUNDARY.entries.filter((e) => e.kind === "judgement" && !e.where).map((e) => e.id), []);
+
+/* ⚠ Z8 — THE CATEGORY IS A CLAIM, NOT A LABEL, AND THIS IS WHAT MAKES IT ONE.
+ *
+ * Until #365 nothing read `category:`. Z4 asserted the VOCABULARY and Z5 that an entry declares a
+ * KNOWN kind, and no assertion ever compared a kind to its reason — so five of five `signature`
+ * entries sat in a category none of their prose argued for, for as long as the field existed.
+ * A FIELD NOTHING READS DRIFTS SILENTLY AND LOOKS AUTHORITATIVE WHILE IT DOES. `count:` was the
+ * first; this is the second.
+ *
+ * ⚠ AND IT IS DELIBERATELY NOT A LIST OF ACCEPTED PHRASES. Matching prose against known wordings
+ * would put a regex in a data file, which is exactly what #339 removed when the census's exclusions
+ * stopped being patterns and became rows. What is checkable without that is the SHAPE OF THE
+ * ARGUMENT: the category declares a question, the entry declares its answer, and an answer nobody
+ * wrote is an empty field. It forces the reasoning to exist; a person still judges whether it is
+ * good, which is the same division of labour every other row here uses. */
+const jc = BOUNDARY.kinds.judgement.categories;
+t("Z8 every judgement category declares the TEST its entries must answer — one without it is a label",
+  Object.entries(jc).filter(([, v]) => !v || typeof v.test !== "string" || v.test.trim().length < 40)
+    .map(([k]) => k).sort(), []);
+t("Z8b …and every judgement entry ANSWERS it, so the category is a claim rather than a tag",
+  BOUNDARY.entries.filter((e) => e.kind === "judgement"
+    && (typeof e.test !== "string" || e.test.trim().length < 40)).map((e) => e.id).sort(), []);
+t("Z8c …and each entry's category is one the file declares — a recategorisation cannot invent a kind",
+  BOUNDARY.entries.filter((e) => e.kind === "judgement" && !(e.category in jc)).map((e) => e.id).sort(), []);
+/* The denominator, because Z8 and Z8b are both "nothing is missing" over a set that could be empty. */
+t("Z8d the judgement population is real, so Z8 and Z8b are not passing over nothing",
+  Object.keys(jc).length >= 4 && BOUNDARY.entries.filter((e) => e.kind === "judgement").length >= 8, true);
 /* The tie-break is recorded as a CORRECTION to the composite rule, not an addition beside it. */
 const rules = Object.fromEntries((BOUNDARY.rules ?? []).map((r) => [r.id, r]));
-t("Z8 the composite rule names the rule that corrects it",
+t("Z9 the composite rule names the rule that corrects it",
   rules["composite-not-declaration"]?.corrected_by, "base-colour-highest-alpha");
 t("Z9 …and the correction says why, because the reason is the valuable half",
   (rules["base-colour-highest-alpha"]?.why ?? "").includes("TWO COLOURS WHERE THE DESIGN HAS ONE"), true);

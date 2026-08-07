@@ -166,6 +166,34 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
+- **⚠ A SAFETY NET THAT RESTORES THE WRONG STATE IS WORSE THAN AN ABSENT ONE, BECAUSE IT IS
+  TRUSTED.** Same argument as `continue-on-error` making a lint step advisory and as a gate passing
+  on an empty subject — **but the snapshot case is the strongest form, because those two merely fail
+  to catch and this one actively hands back the wrong tree while reporting success.** The first
+  version of `mutate.mjs --restore` snapshotted at RUN time, after the operator had already edited,
+  so it returned the mutation. **A snapshot taken at restore time is a snapshot of the damage**, and
+  only the operator knows when the tree held the intent — so the pre-step is explicit and a run
+  without one warns rather than offering a restore that would lie.
+
+- **⚠ A FIELD NOTHING READS DRIFTS SILENTLY AND LOOKS AUTHORITATIVE WHILE IT DOES.** Twice now in
+  `docs/colour-boundary.yaml`: `count:` sat on sixteen rows unread until #363, and `category:` was a
+  LABEL AND NOT A CLAIM until #365 — **five of five `signature` entries sat in a category none of
+  their prose argued for.** `Z4` asserted the vocabulary and `Z5` that an entry declares a known
+  kind; **no assertion ever compared a kind to its reason.**
+
+  The repair generalises: **have the schema declare the QUESTION and the entry declare its ANSWER**,
+  then assert both exist. Not a list of accepted phrases — that is a regex in a data file, the shape
+  #339 removed. It forces the reasoning to be written; a person still judges whether it is good.
+
+- **⚠ A DIAGNOSIS STATED AS A FACT CARRIES THE AUTHORITY OF WHOEVER STATES IT, AND THAT IS
+  ORTHOGONAL TO WHETHER IT IS TRUE.** Three instances: "Harbour is published" (it was, but on no
+  evidence at the time), the `loves-store` mismatches dismissed as a probe artefact (right about two
+  rows, wrong about two), and "`mutate.mjs` performs the destructive checkout" (it does not touch
+  the tree at all). **In every case the instinct about WHERE the problem lived was right and the
+  claim about WHAT CAUSED it was wrong, and those are separable.** Separating them is what makes the
+  fix correct rather than cosmetic — check the mechanism even when the conclusion is obviously
+  right, and especially when the person asserting it is the one who would know.
+
 - **⚠ A MEASUREMENT IS ABOUT THE TREE THAT EXISTED WHEN IT RAN.** Every gate figure in this project
   is a claim about a state, and a state that changes after the run **silently invalidates it — no
   error, no warning, and the number stays quotable.** #362 reported ralph green at 2567, measured
