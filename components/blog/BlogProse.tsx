@@ -34,6 +34,7 @@ import type { ReactNode } from "react";
 import { parseRich } from "@/lib/case-studies/adapter";
 import { renderRich } from "@/components/case-study/rich";
 import { inlineEditProps } from "@/components/case-study/editable";
+import { BLOG_DIAGRAMS, isBlogDiagramId } from "@/components/blog/diagrams";
 import type { BlogBlockKind, BlogRawBlock, BlogRawValue } from "@/lib/blog/blocks-raw";
 
 /** The blog affordance class, a DELIBERATE DUPLICATE of `EDIT_AFFORD`'s `cs-editable`.
@@ -146,12 +147,23 @@ function ImageBlock({
   blockIndex: number;
 }) {
   const src = text(value.src).trim();
-  if (src === "") return null;
+  const diagramId = text(value.diagram).trim();
+  const Diagram = diagramId && isBlogDiagramId(diagramId) ? BLOG_DIAGRAMS[diagramId] : null;
+  if (src === "" && !Diagram) return null;
   const caption = text(value.caption);
   return (
     <figure className={value.wide ? "blog-figure blog-figure-wide" : "blog-figure"}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={rewriteSrc(src)} alt={value.decorative ? "" : text(value.alt)} loading="lazy" />
+      {/* ⚠ THE DIAGRAM BRANCH REPLACES WHAT IS PAINTED, NEVER THE FIGURE. Same rule the case-study
+          illustrations follow: the `<figure>` and its caption are untouched, so a post with a
+          diagram and a post with an image occupy the same box and the canvas cannot diverge from
+          the article by layout. An unknown id falls through to the raster, which is why the
+          content keeps `src`. */}
+      {Diagram ? (
+        <Diagram />
+      ) : (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={rewriteSrc(src)} alt={value.decorative ? "" : text(value.alt)} loading="lazy" />
+      )}
       {/* THE CAPTION IS THE ONLY PROSE HERE, so it is the only editable field — src, alt,
           wide and decorative have no canvas representation and stay in the inspector.
           NOTE the caption is CONDITIONAL: a figure without one emits no editable element at

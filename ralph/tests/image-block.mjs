@@ -75,8 +75,11 @@ t("A: its label is 'Image'", BLOG_BLOCK_LABELS.imageBlock, "Image");
 // FALSE is the imgSpecFields decision showing through. imageBlock carries no geometry, so
 // there is nothing for a Style tab to hold and all five fields are Content.
 t("A: it has NO style tab", BLOG_KIND_HAS_STYLE.imageBlock, false);
+/* ⚠ `diagram: ""` JOINED THE EMPTY IN #375 and is omit-when-empty in the sanitizer, so a post that
+ * never picks a diagram writes no key and every existing imageBlock round-trips byte-identical.
+ * Fourth consumer of that rule, after `screen`, `variant` and `illustration`. */
 t("A: the empty is born unset and un-flagged", BLOG_BLOCK_EMPTIES.imageBlock(),
-  { src: null, alt: "", caption: "", wide: false, decorative: false });
+  { src: null, alt: "", caption: "", wide: false, decorative: false, diagram: "" });
 // src null, not "" — the imageSrc gate rejects "" precisely because it can only come from a
 // form that coerced a null.
 t("A: the empty's src is null, never \"\"", BLOG_BLOCK_EMPTIES.imageBlock().src, null);

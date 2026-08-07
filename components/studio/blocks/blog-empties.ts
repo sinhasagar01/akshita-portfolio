@@ -54,7 +54,7 @@ export const BLOG_BLOCK_EMPTIES: { [K in BlogBlockKind]: () => BlogRawValue<K> }
   // Born with NO image and NO alt, which is why the sanitizer accepts both and the
   // publish gate is where a blank alt actually bites. `src: null` (not "") matches how
   // Keystatic represents an unset image and what the imageSrc gate requires.
-  imageBlock: () => ({ src: null, alt: "", caption: "", wide: false, decorative: false }),
+  imageBlock: () => ({ src: null, alt: "", caption: "", wide: false, decorative: false, diagram: "" }),
   videoEmbed: () => ({
     src: "",
     poster: { ...img() },

@@ -43,7 +43,14 @@ import type { Check, Fail, SanitizedBlock } from "./sections-format";
  *  since they carry no domain logic and nothing about them can silently diverge. */
 export type FieldChecks = {
   str: Check<string>;
-  obj: (shape: Record<string, Check<unknown>>) => Check<Record<string, unknown>>;
+  /* ⚠ THE OPTIONS ARG WAS MISSING FROM THIS TYPE, NOT FROM THE IMPLEMENTATION. `sections-format`'s
+   * `obj` has taken `omitEmpty` since #171; blog's injected type simply never declared it, so the
+   * capability existed and was unreachable from here. Widened in #375 rather than worked around —
+   * a second `obj` for blog would have been the copy this factory exists to avoid. */
+  obj: (
+    shape: Record<string, Check<unknown>>,
+    opts?: { omitEmpty?: readonly string[] },
+  ) => Check<Record<string, unknown>>;
   arrayOf: <T>(item: Check<T>) => Check<T[]>;
   imgSpec: Check<Record<string, unknown>>;
   videoSrc: Check<string>;
@@ -138,13 +145,18 @@ export function makeBlogSanitizers(f: FieldChecks): BlogSanitizers {
     // empty alt at SAVE would make the kind impossible to add at all. A blank alt is caught
     // at PUBLISH by validate-blog-post, which judges published posts only — permissive about
     // half-authored drafts, strict about what may go live.
+    /* ⚠ `diagram` IS OMIT-WHEN-EMPTY, which is the only way to add a key without rewriting every
+     * post. Same rule `figureGrid.illustration` uses on the projects side, and the FOURTH consumer
+     * of it after `screen`, `variant` and `illustration`. Without it, every existing imageBlock
+     * would be rejected for not having the key. */
     imageBlock: f.obj({
       src: f.imageSrc,
       alt: f.str,
       caption: f.str,
+      diagram: f.str,
       wide: f.bool,
       decorative: f.bool,
-    }),
+    }, { omitEmpty: ["diagram"] }),
     videoEmbed: f.obj({
       src: f.videoSrc,
       // The shared imgSpec: blog's videoEmbed.poster is imgSpecFields() in the schema

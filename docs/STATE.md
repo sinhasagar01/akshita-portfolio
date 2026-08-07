@@ -10923,6 +10923,61 @@ leak, unnoticed until orchid made it visible.
 **Three palettes selectable, and the three-surface agreement held all the way through** — `lib/theme.ts`,
 `THEME_METRICS` and `SETTINGS_THEME_VALUES` each had to be told, and ralph refused until all three did.
 
+## THE TWO BLOG DIAGRAMS ARE JSX, AND THE HEROES TURN OUT TO BE THE SAME TWO PICTURES (#375)
+
+**⚠ JSX RATHER THAN INLINE SVG, WHICH IS THE OPPOSITE CHOICE FROM #365 AND FOR A STATED REASON.** The
+eight Fosfor illustrations were PURE GEOMETRY, so tracing paths reproduced them exactly and a
+shape-diff could verify it. These two are TEXT — eleven box labels, a legend, captions. **SVG `<text>`
+does not reflow**, so a caption would break at a fixed point regardless of container width and any
+later copy edit would break the layout silently. Real text in real boxes reflows, scales with the
+reader's font size, and is searchable.
+
+Addressed exactly as `figureGrid.illustration` is: an optional `diagram` id on `imageBlock`, **the
+raster kept in `src` as the fallback**, and `omitEmpty` making it additive — the FOURTH consumer of
+that rule after `screen`, `variant` and `illustration`.
+
+**⚠ AND THE CAPABILITY EXISTED AND WAS UNREACHABLE.** Blog's injected `FieldChecks` typed `obj` as
+taking a shape only, while the `sections-format` implementation it is given has accepted `omitEmpty`
+since #171. Widened rather than worked around — a second `obj` for blog would be the copy that
+factory exists to avoid.
+
+**THE RENDER FOUND BOTH DEFECTS, AND NEITHER IS EXPRESSIBLE IN A GATE.**
+
+- **⚠ SQUAD TWO'S ACCENT BAR SAT 10px BELOW THE OTHER THREE**, because its head row carries an avatar
+  and the others carry a bar, so the row sized to its content. **That breaks the diagram's only
+  claim** — "same rule, same place, four squads". The row now has a fixed height, and the alignment
+  measures at **0px spread** rather than by coincidence.
+- **AN 11px TRACKED-CAPS LABEL AT `ink-400` MEASURED 3.33 ON CREAM** — a FAIL, since nothing about
+  tracked caps counts as large text. Raised to `ink-600`; the worst text row across all three
+  palettes is now **6.77**, sanity pair 21.000 first.
+
+**⚠ AND ONE MEASUREMENT OF MINE WAS WRONG BEFORE IT WAS RIGHT.** "Ask the assistant" first read 1.49,
+because its ground is `accent-500/8` and I rasterised a translucent colour onto a transparent canvas.
+Composited through the whole ancestor stack it is **6.12**. The same alpha error the arc has now made
+in three different files.
+
+---
+
+## ⚠ THE TWO "POST HEROES" ARE BYTE-IDENTICAL COPIES OF THE TWO DIAGRAMS
+
+`cmp` confirms it for both posts. So **the "four blog assets" were two pieces used twice**, which is a
+smaller job than the count read as — and I reported the larger figure.
+
+**They are not waiting on a redraw either.** `Shot` already falls back to `.blog-plate` — the title
+set in the display serif on a raised themed surface, built for a post with no hero — and **that reads
+better at card size than a five-step flow shrunk to 340px ever could.** Clearing them is unsetting
+`heroImage`, which is a CONTENT decision and the owner's. Left alone as instructed, and
+`raster-grounds` now says so in their entries.
+
+**`blog-diagrams` is the gate**, mirroring `case-study-illustrations` for the other collection: no
+colour literal, hairlines at the public `/8`, ids resolving both ways, the additive field proven, and
+the fallback rasters still on disk. Three mutations, all killed.
+
+**⚠ ITS `A3` WAS WRONG FIRST AND THE SWATCH WAS RIGHT.** It matched any `ink-950/12` and failed on the
+legend's "everything else moved" swatch — a FILL at that opacity, not a hairline. The /8-versus-/12
+rule is about the line between two surfaces; a swatch is a surface. Narrowed to borders rather than
+repainting something correct to satisfy an assertion that was not.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

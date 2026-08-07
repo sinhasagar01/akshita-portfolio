@@ -110,13 +110,26 @@ for (const k of ["richText", "pullQuote", "videoEmbed"]) {
    *  The list is EXPLICIT rather than a filter over "anything falsy": a blanket drop would hide a
    *  sanitizer that had started discarding a real field, which is the failure this gate exists for. */
   const OMIT_WHEN_EMPTY = ["frame", "intrinsicWidth", "intrinsicHeight"];
+  /* ⚠ `imageBlock.diagram` JOINED THE OMITTED SET IN #375, AT THE VALUE LEVEL RATHER THAN INSIDE
+   * `poster`. It names an inline JSX diagram that draws instead of the raster, and it is
+   * omit-when-empty for the reason every other entry here is: every imageBlock already on disk
+   * lacks the key, and a required one would reject all of them.
+   *
+   * Listed EXPLICITLY, like the three above and for the same stated reason — a blanket drop of
+   * anything falsy would hide a sanitizer that had begun discarding a real field. */
+  const OMIT_AT_VALUE = ["diagram"];
   const afterSanitize = (value) => {
-    if (!value || typeof value !== "object" || !value.poster) return value;
-    const poster = { ...value.poster };
+    if (!value || typeof value !== "object") return value;
+    const out = { ...value };
+    for (const k of OMIT_AT_VALUE) {
+      if (out[k] === "" || out[k] === null) delete out[k];
+    }
+    if (!out.poster) return out;
+    const poster = { ...out.poster };
     for (const k of OMIT_WHEN_EMPTY) {
       if (poster[k] === "" || poster[k] === null) delete poster[k];
     }
-    return { ...value, poster };
+    return { ...out, poster };
   };
 for (const k of KINDS) {
   const block = { discriminant: k, value: BLOG_BLOCK_EMPTIES[k]() };
