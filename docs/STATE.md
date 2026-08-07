@@ -10418,6 +10418,53 @@ positions while iterating the stale list — `pwa-splash-ground` came out `invar
 `global-error-page` `near-miss-kept`. Caught by reading the result back rather than by any assertion.
 Redone in REVERSE order, so every earlier offset stays valid.
 
+## THE WORDMARK GOES BACK TO THEMING — HALF OF #362 REVERSED ON THE OWNER'S CALL (#366)
+
+**#362's REASONING IS KEPT BESIDE THE REVERSAL**, per the standing rule: a reversal whose reasoning
+is deleted leaves two contradictory rationales and no record of which won. #362 argued that the mark
+is the one thing whose job is to not move, and pinned the WORDMARK **because** the favicon
+structurally cannot theme — one identity must not answer the palette question two ways.
+
+**THE OWNER HAS SEEN IT RENDERED AND RULED THE WORDMARK THEMES.** So the surviving ruling is
+narrower: **the FAVICON is invariant because it has no other option; the WORDMARK follows the
+palette.** The SectionHeading objection — one subject, two colour sources — **stands and is accepted
+as a stated cost rather than dissolved.** A deliberate split, recorded, not an accident.
+
+Seven declarations revert: `.logo-sig` (both the base and the dark-nav variant), `.logo-singh`,
+`.logo-vbar`, the hover, and the construction grid's stroke and fill.
+
+**⚠ AND THE TWO TOKENS BECAME ORPHANS THE MOMENT IT REVERTED.** The favicon is an SVG FILE with baked
+hex — it references nothing, and a CSS token could not reach it if it did. So `--color-mark` and
+`--color-mark-on-dark` had **zero consumers**, which is `accent-400` exactly: a token nothing
+references while a comment calls it load-bearing. Both deleted.
+
+**SECTION H IS DELETED AND IT WAS CORRECT — ITS SUBJECT WAS REMOVED, NOT ITS REASONING.** H3 asserted
+the tokens had consumers precisely so the negative could not pass over nothing, and **H3 is what
+failed the instant the wordmark reverted.** A gate whose subject disappears should go red, not quiet.
+
+**THE INVARIANCE CLAIM DID NOT DISAPPEAR; IT MOVED** — to a boundary row of kind `invariant`, which
+is the right home, because the boundary file lists colours nothing MEASURES and a baked SVG literal
+is exactly that.
+
+**⚠ AND WRITING THAT ROW FOUND A POPULATION NOTHING SCANNED.** `public/favicon.svg` was in **no census
+route at all** — not built CSS, not an SVG attribute inside a component, not runtime JS. **The eight
+webps' shape, in a file format the census can actually read.** The row failed `J3` immediately for
+matching nothing, which is the join doing its job. New route `C-svg` scans standalone `public/*.svg`
+into the join's pair set: 4 colours, 1 file, count matching the row.
+
+**#356 SAID THE JOIN COVERS EVERY POPULATION. IT COVERED A, B AND C** — route D's adjacent surfaces
+were never in it, and nothing said so until a row needed the coverage.
+
+**PROVED FROM THE MERGED STATE, CREAM AS THE CONTROL:** `.logo-singh` returns to **`rgb(182,83,41)` —
+cream's accent-500, byte-identical to before #362.** Both parts track their tokens on both palettes.
+
+**⚠ AND THE FIRST MEASUREMENT WAS WRONG TWICE.** `.logo-sig` carries a 0.45s colour transition, so
+reading its computed style immediately after flipping `data-theme` returns **an interpolating frame,
+not the value** — it read the same on both palettes and looked like the revert had failed. And the
+control compared an `rgb()` literal against a browser-reported `oklch()` string, which are the same
+colour in different notation. **Re-measured with transitions disabled and both sides rasterised
+through the same path.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

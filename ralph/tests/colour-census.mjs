@@ -639,6 +639,26 @@ console.log(`         ${rtTotal} colour literals in ${runtime.size} public TS/TS
 for (const [f, n] of [...runtime].sort((a, b) => b[1] - a[1]).slice(0, 6)) console.log(`           ${String(n).padStart(3)}  ${f}`);
 t("C1 the runtime population is found", rtTotal > 10, true);
 
+console.log("\nC-svg · standalone SVG assets under public/");
+
+/* ⚠ A `.svg` FILE UNDER `public/` WAS IN NO POPULATION AT ALL, WHICH IS THE EIGHT WEBPS' SHAPE. It
+ * is not built CSS (A), not an SVG attribute inside a component (B), and not runtime JS (C) — so
+ * every route missed it and nothing could have said so. `public/favicon.svg` ships the site's mark
+ * with four baked literals.
+ *
+ * ⚠ AND IT GOES INTO `srcPairs` RATHER THAN ONLY BEING REPORTED, because a boundary row that joins
+ * against nothing FAILS J3 — which is exactly what happened when the favicon row was written before
+ * this route existed. #356 said the join covers every population; it covered A, B and C, and route
+ * D's adjacent surfaces were never in it. This closes the half of that claim that was not true. */
+const publicSvgs = readdirSync(url("public")).filter((f) => f.endsWith(".svg")).map((f) => `public/${f}`);
+let svgAssetColours = 0;
+for (const rel of publicSvgs) {
+  for (const m of read(rel).matchAll(COLOUR)) { svgAssetColours++; srcPairs.add({ v: m[0].replace(/\s+/g, ""), file: rel }); }
+}
+console.log(`         ${svgAssetColours} colours in ${publicSvgs.length} standalone public SVG file(s)`);
+t("Csvg1 the standalone-SVG population is enumerated rather than assumed empty",
+  publicSvgs.length > 0 && svgAssetColours > 0, true);
+
 console.log("\nJ · ⚠ EMPTINESS — the join, asserted BOTH WAYS");
 
 /* ⚠ A JOIN, NOT A REGEX EVALUATION. Every row names a colour's LOCATION — the selector the census
@@ -798,7 +818,12 @@ console.log("\nD · adjacent surfaces — REPORTED, and deliberately not folded 
  * browser chrome and the social cards rather than the page, so calling them leaks would be the same
  * over-claim E1 made in the other direction. Counted, named, and left for a ruling. */
 const adjacent = [];
-for (const rel of ["app/manifest.ts", "lib/og.tsx"]) {
+/* ⚠ `public/favicon.svg` JOINS THIS ROUTE IN #366, AND IT WAS IN NO POPULATION BEFORE THAT — the
+ * same shape the eight Fosfor webps had. A standalone `.svg` under `public/` is not built CSS, not
+ * an SVG attribute in a component, and not runtime JS, so routes A, B and C all miss it. The
+ * browser tab is an adjacent surface by the same test the OG card is: rendered by someone else's
+ * chrome, never by this page. */
+for (const rel of ["app/manifest.ts", "lib/og.tsx", "public/favicon.svg"]) {
   for (const m of read(rel).matchAll(COLOUR)) adjacent.push(`${rel}  ${m[0]}`);
 }
 console.log(`         ${adjacent.length} colours on adjacent surfaces (PWA splash, address bar, OG cards)`);
