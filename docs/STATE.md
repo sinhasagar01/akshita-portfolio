@@ -11364,6 +11364,38 @@ the accent floor, which reads as no room; in distance it is **91.5 against a 47.
 double.** Accents carry roughly seven times the chroma of grounds, so degrees understate accent room
 as badly as they overstate ground room.
 
+## THE TOKEN-SET QUESTION, INVESTIGATED (not ruled)
+
+**⚠ AND G4 DOES NOT DO WHAT ITS NAME SAYS, WHICH HAD TO BE ESTABLISHED FIRST.** It reads *"EVERY
+THEME DECLARES THE SAME TOKEN SET"* and compares **cream against harbour, hardcoded**. Orchid,
+cerise and fern are not checked. Measured: **deleting `--color-vessel-wave` from fern leaves ralph
+green at 2642.** Section J's own comment already names G as blind — *"Section G compares cream's
+block to harbour's BY NAME"* — so the gap was **documented and never closed**. Whichever shape is
+ruled, G must become universal first or the assertion enforcing it will not run on most themes.
+
+**THE VOCABULARY IS ALREADY BAKED IN AT 681 CALL SITES** across the 35 names, every one consumed.
+`accent-500` alone has 203, `ink-950` 146. **The names are the interface**, so a dark class that
+introduces new ones does not add tokens — it rewrites consumers.
+
+**⚠ AND THE DARK SPEC IS THE SAME SHAPE AS THE LIGHT ONE, RENAMED.** Five ground rungs against five,
+five text steps against five, three accent roles against three. The structures are identical and the
+direction is inverted.
+
+**⚠ THE SITE ALREADY HAS A DARK SUB-VOCABULARY AND A DARK MECHANIC.** Every light theme already
+declares six tokens it uses only on the case-study hero band — `band-dark`, `on-dark`,
+`on-dark-muted`, `on-dark-quote`, `accent-on-dark`, `vessel-ink` — plus a derived `on-dark-line`, and
+`on-dark` appears 46 times in `globals.css`. The glass nav's dark mechanic is **built and themed**:
+`--glass-fill-dark-strong` and `--glass-stroke-dark`, switched by `data-nav-tone="dark"`. And
+`accent-on-dark` **is** the accent split, already shipped in all five palettes.
+
+**⚠ SO TWO OF THE SEVEN MECHANICS ARE ALREADY BUILT, AND THE REST ARE COMPONENT PROBLEMS RATHER
+THAN TOKEN ONES.** The vessel's own comment says it plainly — the constraint *"lives on the palette,
+not here"*, and its failure on dark is that a translucent light fill over a dark ground reads wrong
+**whatever the tokens are called.** Elevation-on-dark and a dark focus ring are genuinely absent.
+Those costs land identically under either shape, so **the mechanics do not decide the vocabulary
+question** — which is the opposite of how they were framed, and worth stating because the framing
+was mine to check rather than to accept.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
