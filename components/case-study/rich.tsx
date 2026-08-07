@@ -17,7 +17,7 @@ export function renderRich(rich: Rich) {
     if (typeof run === "string") return <Fragment key={i}>{run}</Fragment>;
     if ("b" in run) {
       return (
-        <b key={i} className="font-semibold text-ink-950">
+        <b key={i} className="font-semibold text-text-primary">
           {run.b}
         </b>
       );

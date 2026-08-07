@@ -59,7 +59,7 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
         <h2
           {...editProps("Edit section title")}
           data-edit={editable ? "title" : undefined}
-          className={`font-display text-4xl font-normal text-ink-950 leading-[1.05] tracking-snug mt-6 max-w-[44rem]${editable ? EDIT_AFFORD : ""}`}
+          className={`font-display text-4xl font-normal text-text-primary leading-[1.05] tracking-snug mt-6 max-w-[44rem]${editable ? EDIT_AFFORD : ""}`}
         >
           {title.split("\n").map((line, i, arr) => (
             <Fragment key={i}>
@@ -74,7 +74,7 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
         <p
           {...editProps("Edit section lead", true)}
           data-edit={editable ? "lead" : undefined}
-          className={`text-lg text-ink-600 leading-relaxed mt-5 max-w-[68ch]${aff}`}
+          className={`text-lg text-text-secondary leading-relaxed mt-5 max-w-[68ch]${aff}`}
         >
           {renderRich(lead)}
         </p>

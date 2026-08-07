@@ -88,7 +88,7 @@ export default function BeforeAfter({
           <div className={wide ? "w-full" : "flex-1"}>
             <h3
               {...edit(`pairs.${i}.title`, "Edit pair title")}
-              className={`font-display font-normal text-2xl text-ink-950 leading-[1.1]${aff}`}
+              className={`font-display font-normal text-2xl text-text-primary leading-[1.1]${aff}`}
             >
               {p.title}
             </h3>
@@ -102,10 +102,10 @@ export default function BeforeAfter({
               {p.changes.map((c, ci) => (
                 <li key={ci} className="flex items-baseline gap-2.5">
                   <span aria-hidden="true" className="mt-1.5 size-[6px] shrink-0 rounded-full bg-accent-500" />
-                  <span className="text-[0.95rem] text-ink-600 leading-[1.5]">
+                  <span className="text-[0.95rem] text-text-secondary leading-[1.5]">
                     <b
                       {...edit(`pairs.${i}.changes.${ci}.emphasis`, "Edit change emphasis")}
-                      className={`font-bold text-ink-950${aff}`}
+                      className={`font-bold text-text-primary${aff}`}
                     >
                       {c.emphasis}
                     </b>{" "}

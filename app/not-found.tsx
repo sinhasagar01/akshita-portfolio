@@ -21,16 +21,16 @@ export default function NotFound() {
       <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-600 mt-2">
         Page not found
       </p>
-      <h1 className="font-display font-normal text-[clamp(1.9rem,4.5vw,2.75rem)] text-ink-950 leading-[1.1] mt-4">
+      <h1 className="font-display font-normal text-[clamp(1.9rem,4.5vw,2.75rem)] text-text-primary leading-[1.1] mt-4">
         This page wandered off.
       </h1>
-      <p className="text-[1rem] text-ink-600 leading-[1.6] mt-4 max-w-[42ch]">
+      <p className="text-[1rem] text-text-secondary leading-[1.6] mt-4 max-w-[42ch]">
         The page you were looking for is not here. It may have moved, or the link
         was mistyped.
       </p>
       <Link
         href="/"
-        className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-cream-50 mt-9 transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+        className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent mt-9 transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
       >
         Back to home
       </Link>

@@ -70,7 +70,7 @@ export default function FeatureRows({
               </div>
               <h3
                 {...inlineEditProps(editable, blockIndex, `features.${i}.title`, "Edit title")}
-                className={`font-display font-normal text-2xl text-ink-950 leading-[1.07] mt-3${
+                className={`font-display font-normal text-2xl text-text-primary leading-[1.07] mt-3${
                   editable ? EDIT_AFFORD : ""
                 }`}
               >
@@ -78,7 +78,7 @@ export default function FeatureRows({
               </h3>
               <p
                 {...inlineEditProps(editable, blockIndex, `features.${i}.body`, "Edit feature body", true)}
-                className={`text-[1rem] text-ink-600 leading-[1.62] mt-3.5${editable ? EDIT_AFFORD : ""}`}
+                className={`text-[1rem] text-text-secondary leading-[1.62] mt-3.5${editable ? EDIT_AFFORD : ""}`}
               >
                 {renderRich(f.body)}
               </p>

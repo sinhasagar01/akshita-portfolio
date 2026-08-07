@@ -31,11 +31,11 @@ export const metadata: Metadata = {
 function Masthead() {
   return (
     <header className="border-b border-ink-950/8 pb-[30px] pt-16">
-      <p className="text-[12px] uppercase tracking-[0.16em] text-ink-600">Blog</p>
-      <h1 className="mt-3.5 max-w-[16ch] font-display text-[clamp(2.25rem,5vw,3.25rem)] font-normal leading-[1.02] tracking-[-0.015em] text-ink-950">
+      <p className="text-[12px] uppercase tracking-[0.16em] text-text-secondary">Blog</p>
+      <h1 className="mt-3.5 max-w-[16ch] font-display text-[clamp(2.25rem,5vw,3.25rem)] font-normal leading-[1.02] tracking-[-0.015em] text-text-primary">
         {MASTHEAD.title}
       </h1>
-      <p className="mt-3.5 max-w-[54ch] text-base leading-[1.6] text-ink-800">{MASTHEAD.dek}</p>
+      <p className="mt-3.5 max-w-[54ch] text-base leading-[1.6] text-text-lead">{MASTHEAD.dek}</p>
     </header>
   );
 }
@@ -56,16 +56,16 @@ function FeaturedCard({ post }: { post: BlogCard }) {
           className="aspect-[16/10] rounded-xl border border-ink-950/8"
         />
         <div>
-          <p className="text-[11.5px] uppercase tracking-[0.13em] text-ink-600">
+          <p className="text-[11.5px] uppercase tracking-[0.13em] text-text-secondary">
             Latest · {formatLongDate(post.date)}
           </p>
-          <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2rem)] font-normal leading-[1.12] tracking-[-0.01em] text-ink-950 transition-colors group-hover:text-accent-600">
+          <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2rem)] font-normal leading-[1.12] tracking-[-0.01em] text-text-primary transition-colors group-hover:text-accent-600">
             {post.title}
           </h2>
           {post.dek ? (
-            <p className="mt-3 text-[17px] leading-[1.6] text-ink-800">{post.dek}</p>
+            <p className="mt-3 text-[17px] leading-[1.6] text-text-lead">{post.dek}</p>
           ) : null}
-          <div className="mt-5 flex items-center gap-4 text-[12.5px] text-ink-600">
+          <div className="mt-5 flex items-center gap-4 text-[12.5px] text-text-secondary">
             <span>{post.readingTime} min read</span>
             {/* A readout. This sits inside the card's block-level <Link>, where a <button>
                 would be an invalid content model — not just a click to stop. */}
@@ -87,14 +87,14 @@ function PostCard({ post }: { post: BlogCard }) {
         sizes="(max-width: 1024px) 100vw, 45vw"
         className="aspect-[16/10] rounded-xl border border-ink-950/8"
       />
-      <div className="mt-3.5 flex items-center gap-3 text-[12px] uppercase tracking-[0.1em] text-ink-600">
+      <div className="mt-3.5 flex items-center gap-3 text-[12px] uppercase tracking-[0.1em] text-text-secondary">
         <span>{formatShortDate(post.date)}</span>
         <span>{post.readingTime} min</span>
       </div>
-      <h3 className="mt-2 display-face text-[21px] font-normal leading-[1.2] text-ink-950 transition-colors group-hover:text-accent-600">
+      <h3 className="mt-2 display-face text-[21px] font-normal leading-[1.2] text-text-primary transition-colors group-hover:text-accent-600">
         {post.title}
       </h3>
-      {post.dek ? <p className="mt-2 text-[14.5px] leading-[1.55] text-ink-600">{post.dek}</p> : null}
+      {post.dek ? <p className="mt-2 text-[14.5px] leading-[1.55] text-text-secondary">{post.dek}</p> : null}
       <div className="mt-3">
         {/* Readout, same reason as the featured card. */}
         <LoveButton slug={post.slug} variant="readout" />
@@ -107,8 +107,8 @@ function EmptyState() {
   return (
     <section className="relative overflow-hidden py-24 text-center">
       <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-text-subtle">Blog</p>
-      <p className="mt-4 font-display text-4xl font-normal italic text-ink-950">Coming soon</p>
-      <p className="mx-auto mt-4 max-w-[52ch] text-lg leading-[1.6] text-ink-600">
+      <p className="mt-4 font-display text-4xl font-normal italic text-text-primary">Coming soon</p>
+      <p className="mx-auto mt-4 max-w-[52ch] text-lg leading-[1.6] text-text-secondary">
         The first notes are being written. Check back shortly.
       </p>
     </section>

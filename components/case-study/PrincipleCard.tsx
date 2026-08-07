@@ -31,10 +31,10 @@ export default function PrincipleCard({
         <div {...idxProps} className={`font-display text-3xl text-accent-500 leading-none${aff}`}>
           {principle.index}
         </div>
-        <h3 {...titleProps} className={`font-display text-2xl font-normal text-ink-950 leading-[1.1] mt-3${aff}`}>
+        <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3${aff}`}>
           {principle.title}
         </h3>
-        <p {...bodyProps} className={`text-[0.95rem] text-ink-600 leading-[1.56] mt-2.5${aff}`}>
+        <p {...bodyProps} className={`text-[0.95rem] text-text-secondary leading-[1.56] mt-2.5${aff}`}>
           {renderRich(principle.body)}
         </p>
       </div>
@@ -48,10 +48,10 @@ export default function PrincipleCard({
       <div {...idxProps} className={`font-display italic text-3xl text-accent-500 leading-none${aff}`}>
         {principle.index}
       </div>
-      <h3 {...titleProps} className={`font-display text-2xl font-normal text-ink-950 leading-[1.1] mt-3.5${aff}`}>
+      <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3.5${aff}`}>
         {principle.title}
       </h3>
-      <p {...bodyProps} className={`text-[0.95rem] text-ink-600 leading-[1.56] mt-3${aff}`}>
+      <p {...bodyProps} className={`text-[0.95rem] text-text-secondary leading-[1.56] mt-3${aff}`}>
         {renderRich(principle.body)}
       </p>
     </div>

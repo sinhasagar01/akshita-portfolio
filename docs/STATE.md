@@ -11506,6 +11506,80 @@ done.**
     ────
     198  SUM
 
+## THE ONE-SIDED UTILITIES MIGRATE — PR 2 OF 4 (#383)
+
+96 substitutions across 33 files, bounded by DIRECTORY before pattern. Studio (26 sites, frozen) and
+artwork (8) excluded first, not filtered later.
+
+    components/case-study   59        app/(portfolio)   17        components/blog   16
+    app/*                    3        components/layout  1
+
+**33 sites were LEFT RAW with a stated reason**, which is why the per-directory denominator matters:
+31 carry an OPACITY MODIFIER and 2 are refused rungs. `border-ink-950/8` is the hairline convention;
+its role would be `border`, which resolves to a **different colour**, so substituting moves pixels.
+Those need roles that do not exist — a `hairline` and a `scrim` that resolve per ground — and that
+is a decision rather than a migration.
+
+**Verified by fingerprinting every element's RESOLVED COLOUR** on three pages, keyed structurally.
+Home 10 of 10 buckets identical, blog 5 of 5, case study 21 of 21.
+
+**⚠ AND "BYTE-IDENTICAL DOM" WAS THE WRONG PROOF AND I CORRECTED IT BEFORE MEASURING.** This PR
+rewrites class names by design, so a DOM comparison would report a difference that is the change
+working. What must be identical is the colour at every element — so the key is tag-and-index, and
+`className` appears nowhere in it.
+
+**⚠ AND THE `loose` BUCKET IS UNSTABLE ACROSS LOADS, PROVEN RATHER THAN ASSUMED.** It mismatched
+once; reloading twice with no code change at all moved it 758 to 759 elements with a different hash.
+It holds dynamically-mounted nodes. Excluded, and excluded for a measured reason.
+
+---
+
+## ⚠ TWO REAL DEFECTS, AND THE SECOND IS THE ARGUMENT FOR PR 1 MADE TWICE
+
+**A RUNG WITH TWO ROLES CANNOT BE MIGRATED BY A RUNG-TO-ROLE MAP.** `cream-50` is both `surface` and
+`on-accent`. The map has one answer per rung, so the sweep sent **all four accent-badge labels to
+`surface`** — the exact bug `on-accent` was created one PR earlier to prevent, described in that
+PR's own comment.
+
+**⚠ AND THE PAIR TEST THAT SHOULD HAVE CAUGHT IT HAD A NARROWER VOCABULARY THAN ITS CONCEPT.** It
+skipped elements carrying both a ground and a foreground — but looked only for grounds from the
+cream/ink ladder, and **an accent ground is in neither**. So a light label on `bg-accent-500` read as
+one-sided. The concept was *"this element brings its own ground"*; the implementation was *"this
+element uses a ladder background"*.
+
+**AND A DEVICE BEZEL WAS GIVEN A TEXT ROLE.** `bg-ink-950` on a phone frame became a primary-text
+background, because the mechanical rule saw a rung that had a role. **A bezel is near-black because
+PHONES ARE** — under a dark ground it would have turned white. Reverted to raw with the reason
+recorded beside it: same category as HeroCover's on-dark constants, **a component not choosing a
+colour for its context but drawing a thing that has one.** Exactly the class predicted before the
+sweep ran, and it took a human-shaped review to find rather than the rule that produced it.
+
+---
+
+## ⚠ THE CENSUS MOVED IN THE DIRECTION I HAD PREDICTED, WHICH IS HOW IT ALMOST SURVIVED
+
+`cascade-public` C1 went **6 to 5**, and I had said in advance that a role name replacing a raw one
+reclassifies a colour without moving a pixel. **6 to 5 is what that was supposed to look like.**
+
+It was not. It was **two distinct collisions collapsing into ONE NAME because both had been given
+the wrong role**. Repairing the four sites restored the census to 6.
+
+**⚠ A PREDICTION THAT A NUMBER WILL MOVE MAKES ANY MOVEMENT LOOK LIKE THE PREDICTED ONE.** That
+suite's own comment says the number moving tells you nothing about which of five things happened —
+written for exactly this, and it still nearly passed because the direction matched the story.
+
+`role-layer` section E is the durable form: no page-following foreground may sit on an accent
+ground. Both directions mutation-proven.
+
+---
+
+## ⚠ AND A COMMENT BECAME A TRAP BY THE MARKUP SHRINKING UNDER IT
+
+PR 1's note named the four sites by their class. **The migration removed the last real use, so the
+comment became the only reason that utility compiled** — `css-comment-trap` A5, caught twice more
+while rewording. Inverse of the #382 case: there the vocabulary grew under the prose, here the
+markup shrank out from under it. **Both directions of the same hostage relation.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

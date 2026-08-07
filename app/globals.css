@@ -249,10 +249,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      names must be a role rather than a rung.
 
      ⚠ AND THE STRONGEST ARGUMENT FOR IT IS TWO ROLES THAT SHARE A VALUE TODAY AND MUST NOT LATER.
-     `surface` and `on-accent` both resolve to `cream-50` right now. Under a dark ground `surface`
+     `surface` and `on-accent` both resolve to the same rung right now. Under a dark ground `surface`
      follows the page down and `on-accent` does NOT, because the accent stays a mid-tone and its
-     foreground must stay light. A raw `cream-50` cannot express that difference; two role names
-     can, and the four sites currently spelling it `text-cream-50` would have gone dark-on-accent.
+     foreground must stay light. A raw rung name cannot express that difference; two role names can,
+     and the four badge and button labels that used to spell it as a ground token would have gone
+     dark-on-accent.
+
+     ⚠ AND #383's SWEEP SENT ALL FOUR TO THE WRONG ONE, WHICH IS THE ARGUMENT MADE TWICE. A rung
+     with two roles cannot be migrated by a rung-to-role map — the map has one answer and the site
+     needs two. The pair test that should have caught it looked only for a GROUND from the ladder,
+     and an accent ground is not in the ladder, so `bg-accent-500` with a light label read as
+     one-sided. `role-layer` section E is the durable form.
 
      ---- ⚠ `surface` IS RE-AIMED, AND IT IS FREE EXACTLY ONCE -----------------------------------
 
@@ -297,8 +304,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      holds a distinct POSITION with a distinct job, rather than being a second way to say a
      neighbour. */
   --color-text-lead:     var(--color-ink-800);
-  /* The foreground drawn ON the accent — a pill, a badge, a filled button. Four sites spell it
-     `text-cream-50` on `bg-accent-500`, which is a GROUND token doing a FOREGROUND job. */
+  /* The foreground drawn ON the accent — a pill, a badge, a filled button. Four sites used to draw
+     it with the lightest GROUND rung, which is a ground token doing a foreground's job. The class
+     is described rather than spelled: naming it here would make it compile from this comment alone,
+     which is the trap `css-comment-trap` exists to catch and which this note tripped twice. */
   --color-on-accent:     var(--color-cream-50);
   /* Muted + subtle are the lightest text tiers. Tuned to the lightest warm ink that
      still clears WCAG AA 4.5:1 on the HARDEST light surface (canvas, oklch 92%): this

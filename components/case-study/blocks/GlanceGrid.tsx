@@ -22,13 +22,13 @@ export default function GlanceGrid({ items, web = false, editable = false, block
           <div key={i} className="reveal-card border-t-2 border-accent-500 pt-4">
             <h3
               {...inlineEditProps(editable, blockIndex, `items.${i}.label`, "Edit label")}
-              className={`font-display text-2xl font-normal text-ink-950 leading-[1.1]${aff}`}
+              className={`font-display text-2xl font-normal text-text-primary leading-[1.1]${aff}`}
             >
               {it.label}
             </h3>
             <p
               {...inlineEditProps(editable, blockIndex, `items.${i}.value`, "Edit value")}
-              className={`text-[0.95rem] text-ink-600 leading-[1.56] mt-2.5${aff}`}
+              className={`text-[0.95rem] text-text-secondary leading-[1.56] mt-2.5${aff}`}
             >
               {it.value}
             </p>
@@ -43,7 +43,7 @@ export default function GlanceGrid({ items, web = false, editable = false, block
       style={{ background: LINE, borderColor: LINE }}
     >
       {items.map((it, i) => (
-        <div key={i} className="reveal-card bg-cream-50 p-6">
+        <div key={i} className="reveal-card bg-surface p-6">
           <b
             {...inlineEditProps(editable, blockIndex, `items.${i}.label`, "Edit label")}
             className={`block text-eyebrow tracking-[0.15em] uppercase font-semibold text-text-subtle${aff}`}
@@ -52,7 +52,7 @@ export default function GlanceGrid({ items, web = false, editable = false, block
           </b>
           <span
             {...inlineEditProps(editable, blockIndex, `items.${i}.value`, "Edit value")}
-            className={`block text-[1.05rem] font-semibold text-ink-950 leading-[1.35] mt-2.5${aff}`}
+            className={`block text-[1.05rem] font-semibold text-text-primary leading-[1.35] mt-2.5${aff}`}
           >
             {it.value}
           </span>

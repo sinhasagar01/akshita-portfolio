@@ -75,7 +75,7 @@ export default function SectionRenderer({
                   "data-edit-rich": "",
                 }
               : {})}
-            className={`font-display italic font-normal text-3xl text-ink-950 leading-[1.3] max-w-[850px] mt-6${editable ? EDIT_AFFORD : ""}`}
+            className={`font-display italic font-normal text-3xl text-text-primary leading-[1.3] max-w-[850px] mt-6${editable ? EDIT_AFFORD : ""}`}
           >
             {renderRich(section.northStar)}
           </p>

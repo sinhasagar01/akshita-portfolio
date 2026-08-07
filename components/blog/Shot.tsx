@@ -40,7 +40,7 @@ export default function Shot({
 }) {
   const plateText = topic.trim() || title;
   return (
-    <div className={`relative overflow-hidden bg-cream-100 ${className}`}>
+    <div className={`relative overflow-hidden bg-surface-well ${className}`}>
       {heroImage ? (
         <Image
           src={heroImage}

@@ -174,6 +174,27 @@ closed.
   join against a colour-level record over-attributes totally, every time. The wrong-unit rule, in a
   probe written one turn after citing it.
 
+- **⚠ A RUNG WITH TWO ROLES CANNOT BE MIGRATED BY A RUNG-TO-ROLE MAP.** `cream-50` is both
+  `surface` and `on-accent`; the map has one answer per rung and the site needs two, so #383's sweep
+  sent all four accent-badge labels to the wrong role — **the exact bug `on-accent` had been created
+  one PR earlier to prevent, described in that PR's own comment.** Any mechanical substitution over
+  a many-to-one mapping needs a human-shaped review of the ambiguous rungs, and `role-layer` E is
+  the gate.
+
+  **⚠ AND THE GUARD THAT SHOULD HAVE CAUGHT IT HAD A NARROWER VOCABULARY THAN ITS CONCEPT.** It
+  skipped elements carrying both a ground and a foreground — but recognised grounds only from the
+  cream/ink ladder, and an accent ground is in neither. **The concept was "this element brings its
+  own ground"; the implementation was "this element uses a ladder background".** When a guard is
+  written to express an idea, check that its vocabulary covers the idea and not just the common case.
+
+- **⚠ A PREDICTION THAT A NUMBER WILL MOVE MAKES ANY MOVEMENT LOOK LIKE THE PREDICTED ONE.** I said
+  in advance that the collision census would shift as role names replaced raw ones. It shifted 6 to
+  5 — **and that was two distinct collisions collapsing into one name because both had been given the
+  wrong role**, not the reclassification predicted. Repairing the sites restored it. `cascade-public`
+  already warns that the number moving says nothing about which of five things happened; **the
+  warning nearly failed because the DIRECTION matched the story.** Re-derive what moved, never infer
+  it from having expected movement.
+
 - **⚠ RUN `css-comment-trap` WHENEVER A TOKEN IS ADDED, NOT ONLY WHEN A COMMENT IS WRITTEN.** A new
   role name plus an existing utility prefix can make **old prose compile**: a comment describing a
   ring drawing the accent over the accent had been inert English for months, and declaring

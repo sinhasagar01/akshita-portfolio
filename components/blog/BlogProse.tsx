@@ -113,7 +113,7 @@ function VideoEmbed({
       {/* Same as the figure: the caption is the only prose, and it is conditional. */}
       {text(value.caption) ? (
         <figcaption
-          className={`mt-[11px] text-[14px] leading-[1.55] text-ink-600${editable ? BLOG_EDIT_AFFORD : ""}`}
+          className={`mt-[11px] text-[14px] leading-[1.55] text-text-secondary${editable ? BLOG_EDIT_AFFORD : ""}`}
           {...inlineEditProps(editable, blockIndex, "caption", "Edit video caption", true)}
         >
           {renderRich(parseRich(text(value.caption)))}

@@ -26,8 +26,8 @@ export default function Annotation({ callout }: { callout: Callout }) {
         className="hidden lg:block h-px w-[84px] shrink-0 bg-accent-500 opacity-50 mx-4"
       />
       <span className="max-w-[300px]">
-        <b className="block text-[1rem] font-bold text-ink-950">{callout.title}</b>
-        <span className="block text-[0.875rem] text-ink-600 leading-[1.42] mt-0.5">
+        <b className="block text-[1rem] font-bold text-text-primary">{callout.title}</b>
+        <span className="block text-[0.875rem] text-text-secondary leading-[1.42] mt-0.5">
           {callout.note}
         </span>
       </span>

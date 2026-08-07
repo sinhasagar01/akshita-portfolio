@@ -34,7 +34,7 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
             </h3>
             <p
               {...inlineEditProps(editable, blockIndex, `steps.${i}.text`, "Edit step text")}
-              className={`text-[1rem] text-ink-600 leading-[1.6] max-w-[56ch]${aff}`}
+              className={`text-[1rem] text-text-secondary leading-[1.6] max-w-[56ch]${aff}`}
             >
               {s.text}
             </p>
@@ -45,7 +45,7 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
   }
   return (
     <div
-      className="grid grid-cols-1 overflow-hidden rounded-lg border bg-cream-50 lg:grid-cols-4"
+      className="grid grid-cols-1 overflow-hidden rounded-lg border bg-surface lg:grid-cols-4"
       style={{ borderColor: LINE }}
     >
       {steps.map((s, i) => (
@@ -58,14 +58,14 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
             <span aria-hidden="true" className="size-[9px] shrink-0 rounded-full bg-accent-500" />
             <span
               {...inlineEditProps(editable, blockIndex, `steps.${i}.label`, "Edit step label")}
-              className={`font-display italic text-[1.1875rem] text-ink-950${aff}`}
+              className={`font-display italic text-[1.1875rem] text-text-primary${aff}`}
             >
               {s.label}
             </span>
           </div>
           <p
             {...inlineEditProps(editable, blockIndex, `steps.${i}.text`, "Edit step text")}
-            className={`text-[0.84rem] text-ink-600 leading-[1.45] mt-2.5${aff}`}
+            className={`text-[0.84rem] text-text-secondary leading-[1.45] mt-2.5${aff}`}
           >
             {s.text}
           </p>

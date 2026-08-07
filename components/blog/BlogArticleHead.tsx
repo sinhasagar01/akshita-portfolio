@@ -56,16 +56,16 @@ export default function BlogArticleHead({
 }) {
   return (
     <header id={canvas ? undefined : "blog-article-head"} className="pt-11">
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] uppercase tracking-[0.13em] text-ink-600">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] uppercase tracking-[0.13em] text-text-secondary">
         <span>{formatLongDate(date)}</span>
         <span>{readingTime} min read</span>
         {topic ? <span>{topic}</span> : null}
       </div>
-      <h1 className="mt-[18px] font-display text-[clamp(2.25rem,5vw,3.125rem)] font-normal leading-[1.06] tracking-[-0.018em] text-ink-950">
+      <h1 className="mt-[18px] font-display text-[clamp(2.25rem,5vw,3.125rem)] font-normal leading-[1.06] tracking-[-0.018em] text-text-primary">
         {title}
       </h1>
       {dek ? (
-        <p className="mt-[18px] font-display text-xl leading-[1.55] text-ink-800">{dek}</p>
+        <p className="mt-[18px] font-display text-xl leading-[1.55] text-text-lead">{dek}</p>
       ) : null}
     </header>
   );

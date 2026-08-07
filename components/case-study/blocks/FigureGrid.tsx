@@ -31,7 +31,7 @@ export default function FigureGrid({
       {heading && (
         <h3
           {...edit("heading", "Edit figure grid heading")}
-          className={`font-display italic font-normal text-3xl text-ink-950 leading-[1.15]${aff}`}
+          className={`font-display italic font-normal text-3xl text-text-primary leading-[1.15]${aff}`}
         >
           {heading}
         </h3>
@@ -58,7 +58,7 @@ export default function FigureGrid({
                 {it.title && (
                   <div
                     {...edit(`items.${i}.title`, "Edit figure title")}
-                    className={`font-display font-normal text-xl text-ink-950 leading-[1.15]${aff}`}
+                    className={`font-display font-normal text-xl text-text-primary leading-[1.15]${aff}`}
                   >
                     {it.title}
                   </div>
@@ -66,7 +66,7 @@ export default function FigureGrid({
                 {it.body && (
                   <div
                     {...edit(`items.${i}.body`, "Edit figure body", true)}
-                    className={`text-[0.95rem] text-ink-600 leading-[1.55] ${it.title ? "mt-2" : ""}${aff}`}
+                    className={`text-[0.95rem] text-text-secondary leading-[1.55] ${it.title ? "mt-2" : ""}${aff}`}
                   >
                     {renderRich(it.body)}
                   </div>
@@ -106,7 +106,7 @@ function Frame({
       {...(editable
         ? { "data-edit-block-index": blockIndex, "data-edit-image-path": editPath }
         : {})}
-      className="relative block w-full overflow-hidden rounded-xl border bg-cream-100"
+      className="relative block w-full overflow-hidden rounded-xl border bg-surface-well"
       style={{ borderColor: LINE, aspectRatio: aspect }}
     >
       {/* ⚠ THE ILLUSTRATION BRANCH IS ADDITIVE AND SITS INSIDE THE EXISTING BOX. It replaces what is
@@ -131,7 +131,7 @@ function Frame({
           type="button"
           data-edit-image-replace
           aria-label="Replace image"
-          className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[12px] font-medium text-cream-50 shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream-50"
+          className="absolute right-2 top-2 z-[20] rounded-full bg-accent-500 px-2.5 py-1 text-[12px] font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface"
         >
           Replace image
         </button>

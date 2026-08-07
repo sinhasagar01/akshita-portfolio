@@ -200,8 +200,8 @@ function ChangeNotes({
           <span className="w-[18px] shrink-0 font-display italic text-[14px] leading-[1.5] text-accent-500">
             {String(j + 1).padStart(2, "0")}
           </span>
-          <span className="text-[12.5px] leading-[1.45] text-ink-600">
-            <b className="font-semibold text-ink-950">{c.emphasis}</b> {c.rest}
+          <span className="text-[12.5px] leading-[1.45] text-text-secondary">
+            <b className="font-semibold text-text-primary">{c.emphasis}</b> {c.rest}
           </span>
         </li>
       ))}
@@ -444,7 +444,7 @@ export default function BeforeAfterStory({
                   className="size-[9px] shrink-0 rounded-full border-[1.5px] border-accent-500"
                   style={{ background: i === 0 ? "var(--color-accent-500)" : "transparent" }}
                 />
-                <span className="whitespace-nowrap text-[12px] font-semibold text-ink-950">{pair.title}</span>
+                <span className="whitespace-nowrap text-[12px] font-semibold text-text-primary">{pair.title}</span>
               </div>
             ))}
           </div>

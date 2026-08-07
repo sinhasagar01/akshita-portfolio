@@ -70,7 +70,7 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="pt-[34px]">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-[11.5px] font-medium uppercase tracking-[0.13em] text-ink-600 transition-colors hover:text-accent-500"
+            className="inline-flex items-center gap-2 text-[11.5px] font-medium uppercase tracking-[0.13em] text-text-secondary transition-colors hover:text-accent-500"
           >
             ← Blog
           </Link>
@@ -93,7 +93,7 @@ export default async function BlogPostPage({ params }: Props) {
         {/* The ONE love control on the site. Everything else that shows a count is a
             readout — see LoveButton's header. */}
         <div id="blog-love-block" className="mt-[60px] border-y border-ink-950/8 py-[38px] text-center">
-          <p className="mb-5 font-display text-[23px] leading-[1.35] text-ink-950">
+          <p className="mb-5 font-display text-[23px] leading-[1.35] text-text-primary">
             If this was worth your time, leave it some love.
           </p>
           <LoveButton slug={post.slug} variant="control" />
