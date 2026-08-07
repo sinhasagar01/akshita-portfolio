@@ -10370,6 +10370,54 @@ worked because someone looked. So the repair was verified against the MERGED sta
 ⚠ **And the earlier screenshot was of the working tree — an image of a state that was never shipped**,
 which is the same failure in a third costume. This one is of the merged state.
 
+## THE JUDGEMENT AUDIT — `signature` IS DELETED AND `category:` BECOMES A CLAIM (#365)
+
+Four questions asked of every judgement entry. **Q1 and Q3 came back clean** — every reason describes
+code that exists, and the measured values match what the prose claims. **Q2 is fine everywhere, and
+that is the point: each entry survives a ground change FOR THE REASON ITS PROSE GIVES, which is not
+the reason its category named.**
+
+**⚠ Q4 EXPLAINED THE REST: NO GATE READ A CATEGORY.** `Z4` asserted the vocabulary, `Z5`–`Z7` that an
+entry declares a known kind, carries prose and names a location. **Nothing compared a kind to its
+reason.** So `category:` was a label — **the second field in that file to be decoration, after
+`count:`** — and five of five `signature` entries had drifted into a category none of their reasons
+argued for.
+
+| entry | what its prose actually argues | now |
+|---|---|---|
+| `about-photo-tint` | composites over a PHOTOGRAPH, not the theme's ground | `artwork-by-file` |
+| `pwa-chrome-colour` | an address bar changing weekly reads as instability | `invariant` |
+| `step-1b-near-literals` | Δ11 from ink-600, past the snap threshold | `near-miss-kept` |
+| `component-shadow-tints` | `--shadow-*` carries GEOMETRY, so adopting it changes what is drawn | `forced-literal` |
+| `adjacent-surfaces` | reaches a feed rendered by someone else's client | `adjacent` |
+
+**`signature` IS DELETED.** Three entries genuinely meant it — cursor, loader, hero auras — and **all
+three failed the ground-change test and were deleted rather than recategorised. Zero correct members,
+and a hundred percent failure rate among the true ones.**
+
+**⚠ AND THE ONE THING THAT PASSES THE TEST IS NOT IN THE FILE AT ALL.** The mark is COMPUTED —
+`theme-contrast` measures both tokens against their grounds — because **invariance is a claim about
+whether a theme MAY MOVE a colour, and the boundary file is a list of colours nothing MEASURES. One
+word was doing both questions.** `invariant` carries the first half, the contrast map the second.
+Confirmed rather than assumed: zero boundary rows mention the mark, and `E3` already forbids a token
+being both listed and computed.
+
+**`raster-baked` IS RULED A REAL SHAPE AND NOT A CATEGORY.** A colour in a webp and one in an OG card
+are both unreachable, and they are different claims — adjacent is about WHERE the colour lands,
+raster-baked about WHAT FORM it is in. **The eight Fosfor illustrations settled it: a raster-baked
+colour is FIXABLE, so its correct treatment is repair rather than exemption.** A category for it would
+have zero members and would invite the next one to be excused instead of rebuilt.
+
+**THE GATE IS `Z8`.** Each category declares the QUESTION its entries must answer; each entry
+declares its ANSWER in a `test:` field. **Deliberately not a list of accepted phrases** — that is a
+regex in a data file, the shape #339 removed. `Z8d` states the denominator because Z8 and Z8b are
+both "nothing is missing" over a set that could be empty. Three mutations, all killed.
+
+**⚠ AND THE FIRST APPLICATION SHIFTED EVERY CATEGORY BY ONE**, because the loop recomputed entry
+positions while iterating the stale list — `pwa-splash-ground` came out `invariant` and
+`global-error-page` `near-miss-kept`. Caught by reading the result back rather than by any assertion.
+Redone in REVERSE order, so every earlier offset stays valid.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

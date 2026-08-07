@@ -39,8 +39,65 @@ kinds:
       word moved, and a kind whose definition drifts silently is how a subject stops being declared.
     categories: [derived, mask, compiler-default, not-a-colour, ships-publicly-no-public-consumer]
   judgement:
-    what: A property of WHAT IT DRAWS. No amount of parsing decides these.
-    categories: [artwork-by-file, signature, forced-literal]
+    what: >
+      A property of WHAT IT DRAWS. No amount of parsing decides these.
+
+      ⚠ EACH CATEGORY DECLARES THE TEST ITS PROSE MUST ANSWER, and every entry carries its answer in
+      a `test:` field. `category:` was A LABEL AND NOT A CLAIM until #365 — nothing read it. `Z4`
+      asserted the vocabulary and `Z5` that an entry declares a known kind, but NO ASSERTION EVER
+      COMPARED A KIND TO ITS REASON, so five of five `signature` entries sat in a category none of
+      their reasons argued for. The second field here to be decoration, after `count:`.
+      A FIELD NOTHING READS DRIFTS SILENTLY AND LOOKS AUTHORITATIVE WHILE IT DOES.
+
+      The gate is `Z8`: a category with no declared test FAILS, and an entry with no answer FAILS.
+      Deliberately NOT a list of accepted phrases — that would be a regex in a data file, which is
+      the shape #339 removed.
+    categories:
+      artwork-by-file:
+        test: >
+          WHAT DOES THE FILE DEPICT? A `fill=` in an illustration and a `fill=` in a UI icon are
+          different questions, and the test is the file's purpose rather than the syntax it uses.
+      forced-literal:
+        test: >
+          WHAT MAKES THE TOKEN FORM IMPOSSIBLE HERE? Name the mechanism, not the inconvenience.
+      invariant:
+        test: >
+          ⚠ DOES IT HOLD WHEN THE GROUND MOVES, AND WHY MUST IT NOT MOVE? State the ground-change
+          test explicitly. THIS KIND INHERITS `signature`'s FAILURE MODE — every entry that meant
+          "this IS the design" was ruled on a one-theme site, which is to say the test was never
+          run, and all three failed it when a second palette arrived.
+      near-miss-kept:
+        test: >
+          WHAT IS THE MEASURED DISTANCE, OVER WHAT GROUND, AND WHY IS IT PAST THE SNAP THRESHOLD?
+          The claim is a MEASUREMENT, so the prose carries its number or it is not this kind.
+      adjacent:
+        test: >
+          WHICH SURFACE DOES IT REACH, AND WHY IS THAT SURFACE NOT THE PAGE?
+
+          ⚠ `raster-baked` IS A REAL SHAPE AND IS DELIBERATELY NOT A CATEGORY. A colour in a webp
+          and a colour in an OG card are both unreachable by static analysis, and they are not the
+          same claim: adjacent is about WHERE the colour lands, raster-baked about WHAT FORM it is
+          in. The eight Fosfor illustrations settled it — a raster-baked colour is FIXABLE by
+          rebuilding the asset as inline SVG, so its correct treatment is REPAIR RATHER THAN
+          EXEMPTION. A category for it would have zero members and would invite the next one to be
+          excused instead of rebuilt.
+
+# ---- ⚠ `signature` IS DELETED FROM THIS VOCABULARY, AND THE AUDIT IS WHY -----------------------
+#
+# It meant "a thing that IS the design rather than a skin on it". THREE ENTRIES GENUINELY MEANT IT —
+# the custom cursor, the page loader ramp and the case-study hero auras — and ALL THREE FAILED THE
+# GROUND-CHANGE TEST when a second palette arrived, because each was decoration that happened to be
+# warm. All three were deleted rather than recategorised.
+#
+# The five entries still wearing the word each meant something else, which the #365 audit found by
+# reading their prose against their label. ZERO CORRECT MEMBERS, AND A HUNDRED PERCENT FAILURE RATE
+# AMONG THE TRUE ONES.
+#
+# ⚠ AND THE ONE THING THAT PASSES THE SIGNATURE TEST IS NOT IN THIS FILE AT ALL. The mark is
+# COMPUTED — `theme-contrast` measures `--color-mark` and `--color-mark-on-dark` against their
+# grounds — because invariance is a claim about whether a THEME MAY MOVE a colour, and this file is
+# a list of colours nothing MEASURES. Those are different questions and one word was doing both.
+# `invariant` above carries the first half; the contrast map carries the second.
 
 # ---- RULES THAT GOVERN HOW A COLOUR IS JUDGED --------------------------------------------------
 rules:
@@ -118,6 +175,10 @@ entries:
     reason: >
       An illustration file. 77 of the site's 82 SVG colour attributes live here and are excluded
       whole, by what the file is for rather than by the syntax the colour is written in.
+    test: >
+      The file is an ILLUSTRATION SET — 77 of the site's 82 SVG colour attributes live in it, drawing
+      product cards rather than interface. Its purpose is depiction, so every colour in it is excluded
+      whole rather than attribute by attribute.
 
   - id: process-diagram-fills
     kind: judgement
@@ -130,6 +191,10 @@ entries:
       palette. These three FILLS depict a product screen being designed: a wireframe of somebody
       else's interface, not a surface of this one. Theming them would make the depicted product
       change colour with the portfolio. Measured at 17, 54 and 73 from cream-300 before deciding.
+    test: >
+      The three fills DEPICT a product screen being designed, a wireframe of somebody else's
+      interface. The accent OUTLINE around them is this site's hand sketching and it themes; the fills
+      are the thing being drawn and they do not.
 
   - id: studio-chrome-and-property-defaults
     kind: mechanical
@@ -147,7 +212,7 @@ entries:
 
   - id: about-photo-tint
     kind: judgement
-    category: signature
+    category: artwork-by-file
     where: app/globals.css (.ab-tint)
     count: 1
     selectors: [".ab-tint"]
@@ -155,6 +220,11 @@ entries:
       Measured before it was decided: mix-blend-mode soft-light at opacity .5 over a PHOTOGRAPH. A
       tonal wash rather than a scrim, compositing over artwork rather than the theme's ground, and
       it reads as photographic warmth. A cool theme keeps a warm-cast photo, deliberately.
+    test: >
+      It composites over a PHOTOGRAPH rather than over the theme's ground — mix-blend-mode soft-light
+      at opacity .5 — so what it draws is a tonal wash on artwork, not a scrim on the site.
+      Recategorised in #365, where the audit found its prose had argued artwork from the day it was
+      written while its label said signature.
 
   - id: page-loader-fallback-ramp
     kind: judgement
@@ -180,6 +250,11 @@ entries:
       It is unreachable on every engine that resolves the token, which is every engine the rest of
       the site already requires. Kept because a first-paint brand moment is the wrong place to
       discover a parse failure.
+    test: >
+      A fallback cannot reference the token whose absence triggers it. The derivation reads
+      --color-accent-500; if that cannot be parsed as OKLCH these eight literals paint, which is the
+      pre-theme ramp preserved verbatim. The mechanism is the impossibility, not the inconvenience.
+
   - id: device-mock-chrome
     kind: judgement
     category: artwork-by-file
@@ -188,6 +263,9 @@ entries:
     files: [components/case-study/blocks/deviceScroller.ts]
     reason: >
       Phone and browser chrome around a product screenshot. It depicts a device, not this site.
+    test: >
+      Phone and browser chrome around a product screenshot. The file DEPICTS A DEVICE rather than this
+      site, so its colours belong to the depicted object.
 
   - id: pwa-splash-ground
     kind: judgement
@@ -208,10 +286,14 @@ entries:
 
       FORCED, THEN, RATHER THAN A JUDGEMENT ABOUT HOW THE SPLASH SHOULD LOOK. It follows the theme by
       construction; what it cannot do is follow it through the token layer.
+    test: >
+      manifest.webmanifest is JSON and cannot hold a var(). That is the mechanism: the splash ground
+      is the one place a theme's colour must exist as a literal in JavaScript. Each value is its
+      theme's --color-cream-50 resolved, so it follows the palette by construction.
 
   - id: pwa-chrome-colour
     kind: judgement
-    category: signature
+    category: invariant
     where: lib/theme.ts (BRAND_CHROME_COLOR)
     count: 1
     files: [lib/theme.ts]
@@ -222,6 +304,13 @@ entries:
       and an address bar changing weekly reads as instability on the one surface a user sees BEFORE
       the site loads. Its sibling background_color IS themed, because that draws the site's own
       ground on the splash.
+    test: >
+      ⚠ THE GROUND-CHANGE TEST, RUN RATHER THAN ASSUMED: it must NOT move when the palette does.
+      theme_color tints the Android address bar and the task-switcher card, a surface the site does
+      not own and does not render, and an address bar changing colour weekly reads as instability on
+      the one surface a user sees BEFORE the site loads. Holding still is the requirement rather than
+      a side effect of nobody having themed it. Recategorised from signature in #365, where the audit
+      found this prose was already the invariance argument the mark later won on.
 
   - id: global-error-page
     kind: judgement
@@ -236,6 +325,10 @@ entries:
       this is excluded because it CANNOT DEPEND ON ANYTHING THAT VARIES, and only the second gets
       MORE necessary as the rest of the system improves. A fully tokenised app is exactly the app
       whose error page must not use tokens.
+    test: >
+      The error page renders when the app's own CSS may not have loaded, so a var() there can resolve
+      to nothing on exactly the surface that exists to stay legible when everything else failed. The
+      impossibility is the failure mode it is written for.
 
   - id: studio-consumers-in-the-public-bundle
     kind: mechanical
@@ -261,7 +354,7 @@ entries:
 
   - id: step-1b-near-literals
     kind: judgement
-    category: signature
+    category: near-miss-kept
     where: components/sections/AboutSection.tsx, components/sections/ContactSection.tsx
     files: [components/sections/AboutSection.tsx, components/sections/ContactSection.tsx]
     count: 3
@@ -274,10 +367,15 @@ entries:
       NOT move — opaque, so composite equals declaration, and 10 from `ink-600`, the leave-as-literal
       boundary. The verdict stands, and the member most likely to have shifted did not, which is why
       the other eight are not re-opened as a group.
+    test: >
+      MEASURED AND KEPT, and the number is the claim. #5F584E re-measured under the composite rule at
+      delta 11 from ink-600 over its own ground, past the snap threshold this project settled at
+      single digits; the other two were measured the same way in #340. Without the number this is not
+      this kind.
 
   - id: component-shadow-tints
     kind: judgement
-    category: signature
+    category: forced-literal
     where: components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx
     files: [components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx]
     count: 2
@@ -294,13 +392,24 @@ entries:
       else needs these shadows — a third component reaching for a bespoke tint means the tokens are
       not covering the need — OR when a theme makes a warm drop-shadow read wrong on a cool ground,
       which is the same test the cursor and the loader failed.
+    test: >
+      Adopting --shadow-sm/md/lg is impossible without changing what is drawn: those tokens carry
+      OFFSET AND BLUR as well as tint, so taking them here changes the shadow's GEOMETRY and not only
+      its colour. The mechanism is that the token is not a colour token. Measured at 7 and 8 from
+      ink-950, outside the snap threshold, so they are their own tints as well.
 
   - id: adjacent-surfaces
     kind: judgement
-    category: signature
+    category: adjacent
     where: lib/og.tsx
     count: 4
     files: [lib/og.tsx, app/manifest.ts]
     reason: >
       Social cards. They reach a surface adjacent to the page rather than the page itself, and they
       are baked into an image at build time — a fifth route no static analysis of the page reaches.
+    test: >
+      SOCIAL CARDS. They reach a feed, a message preview or a link unfurl — a surface rendered by
+      someone else's client and never by this page — and they are baked into an image at build time, a
+      fifth route no static analysis of the page reaches. Recategorised from signature in #365; the
+      prose already argued adjacency and the label never did.
+
