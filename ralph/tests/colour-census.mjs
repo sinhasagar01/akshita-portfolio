@@ -639,7 +639,7 @@ console.log(`         ${rtTotal} colour literals in ${runtime.size} public TS/TS
 for (const [f, n] of [...runtime].sort((a, b) => b[1] - a[1]).slice(0, 6)) console.log(`           ${String(n).padStart(3)}  ${f}`);
 t("C1 the runtime population is found", rtTotal > 10, true);
 
-console.log("\nC-svg · standalone SVG assets under public/");
+console.log("\nC-svg · standalone SVG assets under public/ and app/");
 
 /* ⚠ A `.svg` FILE UNDER `public/` WAS IN NO POPULATION AT ALL, WHICH IS THE EIGHT WEBPS' SHAPE. It
  * is not built CSS (A), not an SVG attribute inside a component (B), and not runtime JS (C) — so
@@ -650,12 +650,20 @@ console.log("\nC-svg · standalone SVG assets under public/");
  * against nothing FAILS J3 — which is exactly what happened when the favicon row was written before
  * this route existed. #356 said the join covers every population; it covered A, B and C, and route
  * D's adjacent surfaces were never in it. This closes the half of that claim that was not true. */
-const publicSvgs = readdirSync(url("public")).filter((f) => f.endsWith(".svg")).map((f) => `public/${f}`);
+/* ⚠ `app/` AS WELL AS `public/`, because the icon moved to the Next FILE CONVENTION in #367 — an
+ * explicit `metadata.icons` had been overriding it while duplicate files sat in both places. A route
+ * scanning only `public/` would have gone quiet the moment the asset moved, reporting zero and
+ * passing, which is this suite's own recurring failure mode. */
+const svgAssetFiles = [
+  ...readdirSync(url("public")).filter((f) => f.endsWith(".svg")).map((f) => `public/${f}`),
+  ...readdirSync(url("app")).filter((f) => /^(icon|apple-icon)\d*\.svg$/.test(f)).map((f) => `app/${f}`),
+];
+const publicSvgs = svgAssetFiles;
 let svgAssetColours = 0;
 for (const rel of publicSvgs) {
   for (const m of read(rel).matchAll(COLOUR)) { svgAssetColours++; srcPairs.add({ v: m[0].replace(/\s+/g, ""), file: rel }); }
 }
-console.log(`         ${svgAssetColours} colours in ${publicSvgs.length} standalone public SVG file(s)`);
+console.log(`         ${svgAssetColours} colours in ${publicSvgs.length} standalone SVG asset file(s)`);
 t("Csvg1 the standalone-SVG population is enumerated rather than assumed empty",
   publicSvgs.length > 0 && svgAssetColours > 0, true);
 
@@ -823,7 +831,7 @@ const adjacent = [];
  * an SVG attribute in a component, and not runtime JS, so routes A, B and C all miss it. The
  * browser tab is an adjacent surface by the same test the OG card is: rendered by someone else's
  * chrome, never by this page. */
-for (const rel of ["app/manifest.ts", "lib/og.tsx", "public/favicon.svg"]) {
+for (const rel of ["app/manifest.ts", "lib/og.tsx", ...svgAssetFiles]) {
   for (const m of read(rel).matchAll(COLOUR)) adjacent.push(`${rel}  ${m[0]}`);
 }
 console.log(`         ${adjacent.length} colours on adjacent surfaces (PWA splash, address bar, OG cards)`);

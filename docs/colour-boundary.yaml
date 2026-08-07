@@ -401,31 +401,31 @@ entries:
   - id: favicon-mark
     kind: judgement
     category: invariant
-    where: public/favicon.svg
+    where: app/icon0.svg
     count: 4
-    files: [public/favicon.svg]
+    files: [app/icon0.svg]
     reason: >
-      ⚠ THE MARK, AND THE ONLY SURFACE WHERE INVARIANCE IS FORCED RATHER THAN CHOSEN. A favicon is
-      fetched by the browser entirely outside the document, so an SVG served as one CANNOT SEE THE
-      PAGE'S CUSTOM PROPERTIES — measured in #365 by rasterising it: a rect filled
-      `var(--color-accent-500, magenta)` came back MAGENTA through an `<img>` and came back the live
-      accent only when the same markup was inlined. A favicon is more isolated still.
+      ⚠ THE MARK IS NEUTRAL, AND THE MEASUREMENT IS WHY RATHER THAN A PREFERENCE. Four grey values,
+      chroma ZERO, so it belongs to no palette and there is nothing left for a theme to move.
 
-      So "themed favicon" would mean a per-theme ASSET, not a themed one — the re-export obligation
-      that lost for the eight illustrations, and worse here because Chrome holds a favicon for days
-      regardless of HTTP headers.
+      A favicon is fetched outside the document, so an SVG served as one cannot see the page's
+      custom properties — measured in #365 by rasterisation. So "themed favicon" would have meant a
+      per-theme ASSET. #367 priced that and it was buildable: `sharp` is already a dependency and
+      rasterises this file at every size in under 20ms, mean difference 2.6 from the hand export.
 
-      ⚠ AND THE WORDMARK NO LONGER MATCHES IT, DELIBERATELY. #362 pinned both, arguing one identity
-      must not answer the palette question two ways. The owner has seen it rendered and ruled the
-      WORDMARK THEMES. The surviving ruling is narrower — the favicon is invariant BECAUSE IT HAS NO
-      OTHER OPTION — and the objection stands as a STATED COST rather than being dissolved. A
-      deliberate split, recorded, not an accident.
+      ⚠ IT WAS PRICED AND REFUSED, ON TWO MEASUREMENTS. The GROUND cannot carry a theme at all — the
+      two candidate grounds are both near-black at L≈0.17, 25.1 apart, and at 16 to 64px that hue is
+      imperceptible. And neutral is the MOST LEGIBLE option at the size that matters: 16.49 against
+      6.52 for the terracotta mark and 7.79 for a fully themed one. Legible mark pixels at 16px went
+      12 to 25.
+
+      Giving up the accent here costs least and buys most, which is the opposite of how that trade
+      usually reads.
     test: >
-      ⚠ THE GROUND-CHANGE TEST: it must NOT move when the palette does, and here it CANNOT. The four
-      values are baked into a file the page's cascade cannot reach — #211C16 ground, the #D89067 to
-      #9B4F2C ribbon, #7E3F22 shade — and the tab strip sits beside other tabs for a whole session,
-      so an icon that changed with the palette would read as instability on the surface that
-      identifies the site. Holding still is the requirement, not an accident of nobody theming it.
+      ⚠ THE GROUND-CHANGE TEST: it must NOT move when the palette does, and here there is nothing to
+      move — every value is chroma 0. That is stronger than the previous form, which held only
+      because the cascade could not reach the file. A neutral mark on a tab strip beside a dozen
+      other tabs holds still because it has no hue to change, not because nobody themed it.
 
   - id: adjacent-surfaces
     kind: judgement
