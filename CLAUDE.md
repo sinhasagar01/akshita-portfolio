@@ -166,6 +166,23 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
+- **⚠ A MEASUREMENT IS ABOUT THE TREE THAT EXISTED WHEN IT RAN.** Every gate figure in this project
+  is a claim about a state, and a state that changes after the run **silently invalidates it — no
+  error, no warning, and the number stays quotable.** #362 reported ralph green at 2567, measured
+  before a `git checkout` that reverted the change being shipped; the commit went out with gates
+  asserting tokens that did not exist and a STATE entry claiming a ruling was implemented.
+
+  **SO: RE-RUN AFTER THE LAST EDIT, AND CHECK THE STAGED SET AGAINST WHAT THE PR CLAIMS.** The
+  second half is the one that catches it — `git status` would have shown `app/globals.css` absent,
+  exactly as `Merge #N —` showed the merge format was wrong. **Twice the evidence was in the tool
+  output and was not read.**
+
+  **AND A MUTATION TEST IS THE SPECIFIC HAZARD, because reverting one is a DESTRUCTIVE OPERATION RUN
+  AS PART OF VERIFICATION.** `git checkout <file>` reverts to the last COMMIT, not to the last
+  INTENT, so it discards the change the mutation was proving. Use
+  `node ralph/mutate.mjs --snapshot` before mutating and `--restore` after; a run with no snapshot
+  now says so.
+
 - **⚠ NOTHING REPORTED IS EVIDENCE, INCLUDING A REPORT ABOUT THE REPOSITORY, INCLUDING ONE YOU WROTE
   YOURSELF.** Ten units of work were merged into LOCAL `main` with the branch deleted, never pushed
   and never opened as a pull request, and reported as merged ten consecutive times. **Every colour,
