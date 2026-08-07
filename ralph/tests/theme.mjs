@@ -108,11 +108,22 @@ t("A8 selectable is exactly the resolvable names that have no stated exclusion",
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
   THEME_NAMES.filter((n) => !selectableThemes().includes(n) && !unselectableReason(n)), []);
 /* ⚠ HARBOUR LEFT THIS SET IN #328 AND THE ASSERTION SAYS SO RATHER THAN SHRINKING QUIETLY. It was
- * held back because the render found 14 warm colours no theme could move; 12 now do. The twin is
- * the only permanent member, and a second entry appearing here again means something else is being
- * held — which should be visible in a diff, not absorbed by a `.length` check. */
-t("A8 the twin is the ONLY permanent exclusion — harbour unheld in #328",
-  THEME_NAMES.filter((n) => unselectableReason(n)), [VERIFY_THEME]);
+ * held back because the render found 14 warm colours no theme could move; 12 now do.
+ *
+ * ⚠ AND THE ROW USED TO CONFLATE "EXCLUDED" WITH "PERMANENTLY EXCLUDED", which #372 exposed. It read
+ * `filter(unselectableReason) === [VERIFY_THEME]` — true while the twin was the only member, and
+ * FALSE the moment a new palette was held pending its render, which is exactly what harbour itself
+ * did in #326. The assertion was tightened after that hold came off and quietly forbade the next one.
+ *
+ * The distinction is real and now stated: the TWIN is permanent; anything else here is TEMPORARY and
+ * says so in its reason. A hold with no end condition is the thing that should not exist. */
+const held = THEME_NAMES.filter((n) => unselectableReason(n));
+const permanent = held.filter((n) => /permanent/i.test(unselectableReason(n) ?? ""));
+t("A8 the twin is the only PERMANENT exclusion — harbour unheld in #328",
+  permanent, [VERIFY_THEME]);
+t("A8 ⚠ AND EVERY TEMPORARY HOLD NAMES WHAT WOULD END IT — a hold with no end condition is a deletion nobody made",
+  held.filter((n) => !permanent.includes(n))
+    .filter((n) => !/render|until|pending/i.test(unselectableReason(n) ?? "")), []);
 t("A8 …and the second theme is publishable", selectableThemes().includes(SECOND_THEME), true);
 t("A8 …and at least one theme is publishable, or the site has no palette at all",
   selectableThemes().length >= 1, true);
@@ -367,6 +378,31 @@ t("I2 ⚠ EVERY RESOLVED HEX MATCHES ITS TOKEN — a hand-kept value is allowed 
 /* The OG map must cover every theme, or a palette renders a card in another palette's colours. */
 t("I3 every theme has an OG palette — a missing one would silently draw cream",
   THEME_NAMES.filter((n) => !THEME_OG[n]), []);
+
+console.log("\nJ · every palette IN THE STYLESHEET is a palette the code knows about");
+
+/* ⚠ A WHOLE PALETTE ENTERED `globals.css` AND NO GATE SAW IT. Theme three was written as a
+ * `[data-theme="orchid"]` block with 35 tokens and ralph stayed green at 2585 — because EVERY theme
+ * check here enumerates from `THEME_NAMES` or from a hardcoded pair, and none reads the stylesheet
+ * to ask what is actually declared.
+ *
+ * Section G compares cream's block to harbour's BY NAME. Section I walks `THEME_NAMES`.
+ * `colour-census` T2 checks `["harbour", "cream-verify"]` as a literal list. All three are correct
+ * about the palettes they were told about, and blind to one they were not.
+ *
+ * ⚠ THIRD INSTANCE OF THE FIXED-LIST SHAPE IN AS MANY TASKS — `theme-contrast`'s cream-plus-overrides
+ * merge, `cascade-public`'s TAG set, and now this. #371's semantic pass named it: a subject narrowed
+ * by a fixed list is sound only while the world outside the list stays empty, and NOTHING INSIDE THE
+ * SUITE OBSERVES THAT WORLD. This is the row that observes it. */
+const declaredThemes = [...new Set(
+  [...cssSrc.matchAll(/\[data-theme="([a-z-]+)"\]/g)].map((m) => m[1]),
+)].sort();
+console.log(`         ${declaredThemes.length} palettes declared in globals.css: ${declaredThemes.join(", ")}`);
+t("J1 the stylesheet declares palettes at all — a zero would make J2 vacuous", declaredThemes.length >= 2, true);
+t("J2 ⚠ EVERY PALETTE IN THE STYLESHEET IS IN `THEME_NAMES` — an unregistered one is invisible to every other row",
+  declaredThemes.filter((n) => !THEME_NAMES.includes(n)), []);
+t("J3 …and every registered name has a block or is the default, so the two lists agree both ways",
+  THEME_NAMES.filter((n) => n !== DEFAULT_THEME && !declaredThemes.includes(n)), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

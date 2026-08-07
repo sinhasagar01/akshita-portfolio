@@ -271,10 +271,10 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_OG)
-    count: 12
+    count: 16
     files: [lib/theme.ts]
     reason: >
-      ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — TWELVE VALUES ACROSS THREE ENTRIES.
+      ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — SIXTEEN VALUES ACROSS FOUR ENTRIES.
       `ImageResponse` renders OUTSIDE the document and cannot read a CSS custom property, exactly as
       a favicon cannot, so a card's colours must exist as literals in JavaScript. Same forced form as
       `pwa-splash-ground` beside it, for the same mechanical reason.
@@ -289,14 +289,14 @@ entries:
       WHAT MAKES THE TOKEN FORM IMPOSSIBLE HERE: `ImageResponse` composes its own document with no
       access to the page's cascade, so `var(--color-accent-500)` resolves to nothing inside it. The
       value must be a literal or the card draws unstyled. That is the mechanism, not a preference —
-      and `theme` section I compares all twelve against their own theme's declaration in
+      and `theme` section I compares all sixteen against their own theme's declaration in
       `globals.css`, so the duplication cannot drift silently.
 
   - id: pwa-splash-ground
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_SPLASH)
-    count: 3
+    count: 4
     files: [lib/theme.ts]
     reason: >
       ⚠ THIS ROW EXISTED AS PROSE IN `lib/theme.ts` AND NOWHERE IN THIS FILE, WHICH IS WHY THE COUNT

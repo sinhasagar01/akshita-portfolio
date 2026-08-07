@@ -645,6 +645,75 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-web:        oklch(48.0% 0.115 205);
 }
 
+/* ============================================================================================
+   THEME THREE — ORCHID. A violet ground with a magenta accent.
+
+   ⚠ CHOSEN TO TEST THE PROMISE RATHER THAN TO BE SAFE. Cream sits at ground hue ~78 with a
+   terracotta accent at 42; harbour at 233 with a teal accent at 168. 315 / 330 is a region neither
+   has occupied — roughly 80 degrees past harbour and 125 past cream — so no pair of the three is
+   adjacent, and the render has somewhere new to fail.
+
+   ⚠ AND THE GROUND LADDER IS TAKEN LIGHTER, WHICH THE BINDING ROWS REWARD. Cream sits inside 0.1 of
+   five floors and harbour of three; both ship with almost no margin, and the ground step
+   `cream-50 / cream-100` is EXACTLY 1.050 on both — zero margin, because 1.05 is a minimum and the
+   two shipped ladders sit on it. Raising the ladder 0.5 to 0.6 of a point buys headroom on every
+   TEXT row (a lighter ground means more contrast under dark type) while leaving that step intact.
+
+   Measured before the tokens were written, not after:
+     ink-400   @61.5%  on cream-200  3.120   floor 3.0   margin +0.120
+     text-subtle @50%  on canvas     4.840   floor 4.5   margin +0.340
+     accent-500 @52%   on cream-50   5.820   floor 4.5   margin +1.320
+============================================================================================ */
+[data-theme="orchid"] {
+  --color-cream-50: oklch(99.0% 0.010 315);
+  --color-cream-100: oklch(97.2% 0.016 315);
+  --color-cream-200: oklch(94.0% 0.022 315);
+  --color-cream-300: oklch(88.6% 0.028 315);
+  --color-canvas: oklch(92.6% 0.020 315);
+
+  --color-ink-950: oklch(15.0% 0.022 315);
+  --color-ink-800: oklch(27.0% 0.022 315);
+  --color-ink-600: oklch(45.0% 0.020 315);
+  /* ⚠ 61.5%, chosen from the pre-check rather than copied. Harbour needed 60.5 where cream used
+     62; a lighter ground here allows 61.5 at margin +0.120. */
+  --color-ink-400: oklch(61.5% 0.016 315);
+  --color-ink-200: oklch(80.0% 0.011 315);
+
+  /* Magenta rather than violet, so the accent is not simply the ground at higher chroma —
+     the same separation cream keeps between hue 78 and 42. */
+  --color-accent-500: oklch(52.0% 0.16 330);
+  --color-accent-600: oklch(43.0% 0.15 330);
+
+  --color-text-subtle: oklch(50.0% 0.020 315);
+  --color-text-body: oklch(37.5% 0.019 315);
+  --color-rule: oklch(48.5% 0.032 315);
+
+  --color-band-dark: oklch(17.5% 0.026 315);
+  --color-on-dark: oklch(95.5% 0.014 315);
+  --color-on-dark-muted: oklch(77.0% 0.016 315);
+  --color-on-dark-quote: oklch(81.5% 0.070 330);
+  --color-accent-on-dark: oklch(65.0% 0.15 330);
+
+  --color-smoke-1: oklch(0.84 0.016 315 / 0.74);
+  --color-smoke-2: oklch(0.9 0.016 315 / 0.74);
+  --color-smoke-3: oklch(0.97 0.011 315 / 0.74);
+  --color-smoke-4: oklch(0.87 0.014 315 / 0.74);
+
+  --color-vessel-ink: rgb(24, 18, 24);
+  --color-vessel-capsule: rgb(214, 201, 216);
+  --color-vessel-glass: oklch(94.5% 0.022 315);
+  --color-vessel-pearl: oklch(96.5% 0.011 315);
+  --color-vessel-shadow: oklch(92.5% 0.018 315);
+  --color-vessel-wave: oklch(93.5% 0.014 315);
+
+  --color-glow-paper: oklch(63% 0.15 330 / 0.20);
+  --color-bounce: oklch(100% 0.010 315);
+  --color-reveal-sand: oklch(85.0% 0.034 300);
+  --color-case-study-sand: oklch(88.5% 0.028 305);
+  --color-glow-web: oklch(48.0% 0.115 285);
+}
+
+
 /* ============================================================
    Base styles
 ============================================================ */

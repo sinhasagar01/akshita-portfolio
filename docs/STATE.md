@@ -10741,6 +10741,78 @@ FIXED LIST is sound only while the world outside the list stays empty, and nothi
 observes the world. `theme-contrast`'s merge, `G`'s token-set model and this tag set are three
 instances — each correct about what it modelled, each unable to represent the case outside it.
 
+## THEME THREE — ORCHID, SHIPPABLE ON THE FIRST DRAFT AND HELD UNSELECTABLE (#372)
+
+**Ground hue 315, accent 330.** Cream sits at ground 78 with a terracotta accent at 42; harbour at
+233 with teal at 168. The three separations are **155, 82 and 123 degrees — no pair adjacent**, which
+`D12` now asserts by computing them rather than by matching a pattern.
+
+**⚠ SHIPPABLE ON THE FIRST DRAFT, WHERE HARBOUR TOOK THREE — AND THE REASON IS THE LADDER, NOT LUCK.**
+The three binding rows were measured BEFORE the 35 tokens were written. `cream-50 / cream-100` is
+**exactly 1.050 on both shipped palettes — zero margin**, because 1.05 is a MINIMUM and both sit on
+it. Raising the ground ladder about half a point buys headroom on every TEXT row (a lighter ground
+means more contrast under dark type) and leaves that step untouched:
+
+| | cream | harbour | orchid |
+|---|---|---|---|
+| ground step | 1.050 (+0.000) | 1.050 (+0.000) | 1.050 (+0.000) |
+| `ink-400` on `cream-200` | 3.020 (+0.020) | 3.210 (+0.210) | **3.120 (+0.120)** |
+| `text-subtle` on `canvas` | 4.560 (+0.060) | 4.730 (+0.230) | **4.840 (+0.340)** |
+| `accent-500` on `cream-50` | 4.700 (+0.200) | 4.870 (+0.370) | **5.820 (+1.320)** |
+
+**The lightness ladder is the one thing that IS shared**, and it is forced rather than copied — the
+1.05 floor pins the step, so a palette may spread the ladder but not compress it. Hue and chroma were
+designed; `ink-400` landed at 61.5% from the pre-check, where cream uses 62 and harbour needed 60.5.
+
+**HELD UNSELECTABLE UNTIL THE RENDER**, which is harbour's own precedent, and the hold names what
+would end it.
+
+---
+
+## ⚠ A WHOLE PALETTE ENTERED THE STYLESHEET AND NO GATE SAW IT
+
+Orchid's 35-token block sat in `globals.css` and **ralph stayed green at 2585**. Every theme check
+enumerates from `THEME_NAMES` or a hardcoded pair — section G compares cream to harbour BY NAME,
+section I walks `THEME_NAMES`, `colour-census` T2 checks a literal `["harbour", "cream-verify"]`.
+**All correct about the palettes they were told about, and blind to one they were not.**
+
+**THIRD INSTANCE OF THE FIXED-LIST SHAPE IN AS MANY TASKS** — `theme-contrast`'s merge,
+`cascade-public`'s TAG set, and this. #371's pass named it: *a subject narrowed by a fixed list is
+sound only while the world outside the list stays empty, and nothing inside the suite observes that
+world.* **`theme` section J is the row that observes it**, both ways.
+
+**AND `A8` CONFLATED "EXCLUDED" WITH "PERMANENTLY EXCLUDED".** It asserted the held set was exactly
+the twin — true while the twin was alone, and false the moment a palette was held pending its render,
+**which is exactly what harbour did in #326.** The assertion was tightened after that hold came off
+and quietly forbade the next one. Permanent and temporary are now separate, and **a temporary hold
+must name what would end it.**
+
+---
+
+## THE RENDER FOUND SOMETHING — AND IT IS ABOUT THE SITE, NOT THE PALETTE
+
+Full home page, blog index, an article, and the four signature surfaces. **The glass nav, the work
+cards, the hero ground and the Pearl Smoke vessel all read correctly on orchid** — the vessel's parts
+measure 15.8 and 6.01, sanity 21.000 first.
+
+**⚠ ONE LEAK: A BLOG ILLUSTRATION IS A RASTER DRAWN IN CREAM'S GROUND.**
+`blocks/d9517012efd9.webp` in the AI-first post — a "BOLTED ON / RESHAPED" flow diagram, 2048x1200,
+**77% of it at distance 3.7 from `cream-50`**, with `cream-200` tints. On an orchid page it is a warm
+card in the middle of a violet article.
+
+**It is the eight Fosfor illustrations' shape, in the blog**, and it is a PRE-EXISTING leak that
+orchid revealed rather than caused — the palette itself is clean.
+
+**⚠ AND #365's RASTER SWEEP MISSED IT, FOR A REASON WORTH KEEPING.** That sweep scanned all 86 assets
+for **accent-proximity** — "within 60 of accent-500, at least 0.5% of pixels". A diagram drawn in
+`cream-50` and `cream-200` has almost no accent pixels, **so it never appeared in a search that
+covered every file.** The population was complete and the PREDICATE was narrow. Looking for the
+accent finds accent leaks; a ground leak needs a different question.
+
+**THE RENDER HAS NOW FOUND SOMETHING ON ALL THREE RUNS** — the glass nav and vessel on dark,
+SectionHeading on harbour, and this. **The surface is not yet demonstrated stable**, and the third
+render is why.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

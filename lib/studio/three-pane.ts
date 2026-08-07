@@ -151,6 +151,20 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
     },
   },
 
+  /* Theme three. The measure is a FONT fact, not a colour one — orchid changes no font, so it
+     inherits the same figure for the same reason harbour does. Recorded rather than omitted,
+     because `theme` B1 asserts this key set equals `THEME_NAMES` exactly. */
+  orchid: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
+
   /* ⚠ A PERMANENT CONTROL. DO NOT DELETE IT, AND DO NOT LET IT DRIFT FROM THE BLOCK ABOVE.
 
      It shipped as a fixture with a deletion trigger and is no longer one. The cross-theme gate
