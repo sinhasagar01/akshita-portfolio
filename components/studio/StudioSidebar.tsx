@@ -77,7 +77,7 @@ export default function StudioSidebar() {
             : "hover:bg-studio-cream-50/70 lg:hover:bg-white/5",
         ].join(" ")}
       >
-        {/* `text-ink-400` IS KEPT AT BOTH BREAKPOINTS, AND THAT IS A CHECKED DECISION RATHER
+        {/* THE ink-400 COLOUR UTILITY IS KEPT AT BOTH BREAKPOINTS, AND THAT IS A CHECKED DECISION RATHER
             THAN AN INHERITANCE. It measures 3.33:1 on cream-100 and 5.45:1 on ink-950, so the
             flip improves it and no class needs to change. Recorded because an unchanged class
             is indistinguishable from an overlooked one, and the next background move has to
@@ -111,7 +111,7 @@ export default function StudioSidebar() {
           {area.label}
         </span>
         {area.count != null && (
-          // The count carried a HARDCODED text-ink-400 that the active branch did not
+          // The count carried a HARDCODED ink-400 colour utility that the active branch did not
           // override, so in the selected ink pill it sat at ink-400 on ink-950 while the
           // label beside it was cream-50 — the one element in the pill the active state
           // did not reach. The label was never the problem; it has no class of its own and
@@ -183,7 +183,7 @@ export default function StudioSidebar() {
 
       {/* PRE-EXISTING AA FAILURE, FIXED BY THE FLIP RATHER THAN REPAIRED. This heading is
           `lg:block` — it only ever renders at the breakpoint that is now ink — and it sat at
-          3.33:1 on cream-100, under AA, since it was written. `text-ink-400` on ink-950 is
+          3.33:1 on cream-100, under AA, since it was written. That utility on ink-950 is
           5.45:1, so it passes now because the background moved, not because anyone touched it.
           Worth stating so ink chrome is not credited with a repair it did not make. */}
       <span className="hidden px-2 pb-1 text-[10px] font-bold uppercase tracking-eyebrow text-studio-ink-400 lg:block">

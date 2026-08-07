@@ -11900,6 +11900,56 @@ began `hueFloor === null`.** **Only the direction somebody mutated was covered.*
 other direction and L3c that a stated floor names what it was measured ON, so it cannot be borrowed
 from another band.
 
+## SAPPHIRE'S REFUSAL WAS A SYMPTOM AND THE FOUR SHIPPED PALETTES WERE THE DISEASE (#392)
+
+A new palette's gate refusal exposed a **live AA failure on the published site** that had passed
+every run since the element was built.
+
+    accent-500 on cream-200, 14.4px weight 700 — the case-study rating chip's stat
+      cream 4.07   harbour 4.21   orchid 5.01   cerise 3.66   fern 3.67   sapphire 2.65
+    accent-600 replaces it
+      cream 6.25   harbour 6.14   orchid 7.36   cerise 6.09   fern 5.45
+
+All four case studies populate `ratingChip`. Confirmed in the browser on the published theme, sanity
+pair first: the stat reads **★ 4.2 at 14.4px / weight 700 against 4.21**.
+
+**⚠ THE COMMENT WAS THE DEFECT AND THE CONTRAST WAS THE SYMPTOM.** The usage map said *"it is text on
+ONE step and a non-text mark everywhere else, and that is a fact about the product rather than a
+tolerance in the gate."* **A claimed product fact, stated with unusual confidence, that nothing
+checked and that was false. THE GATE WAS NOT WRONG — IT WAS TOLD THE WRONG THING, in prose, by
+someone who was certain.** That is the token-claim shape moved from TOKENS to USAGE, and it is worse:
+a wrong token claim mislabels a colour; a wrong usage claim mislabels **what an element IS**, and the
+floor follows from that.
+
+**⚠ AND ENUMERATING THE OTHER NON-TEXT ROWS FOUND A SECOND FALSE CLAIM AND A SECOND LIVE FAILURE.**
+The `ink-400` row said *"never text"*; the blog's love readout drew it at **12.5px**, failing on ALL
+FIVE palettes (3.49 / 3.71 / 3.62 / 4.50 / 4.42 on cream-50, worse on canvas). **Two rows in that
+section, two false product facts** — one found by a new palette's refusal, one by checking its
+neighbour because the first had been found by accident.
+
+**Both ELEMENTS moved, not the tokens.** `accent-500` and `ink-400` are correct everywhere else they
+land, which is what makes a single-site fix honest rather than a patch.
+
+---
+
+## ⚠ AND THE GATE FOR IT WAS WRONG TWICE BEFORE IT WAS RIGHT
+
+**First form** asked "is this token a foreground anywhere" — which `accent-500` legitimately is, by
+its own TEXT row. **The assertion itself was false.**
+
+**Second form** narrowed to the row's own ground and reported two violations that are not:
+`PrincipleCard` at `text-3xl` and `StatCard` at `text-5xl`. **A 3.0 floor is correct for LARGE TEXT
+as well as for non-text marks** — so the row's FLOOR was right and its LABEL was wrong. It is not
+"non-text"; it is **"3.0 applies"**, which covers a mark and large type alike.
+
+**⚠ AND ONE OF THE TWO FAILURES IS OUTSIDE ANY STATIC GATE, PROVEN BY MUTATION.** Restoring the love
+readout's failure leaves the section GREEN: it inherits its ground from the article card several
+components up, so no window in its own file contains one. **The comment beside it is its only
+protection**, and that is stated rather than papered over.
+
+**⚠ A SECOND MEMBER OF ANY CLASS IS AN INSTRUMENT — three demonstrations now.** `SectionHeading`'s
+split, every hairline measuring 0.0 on a dark ground, and this.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

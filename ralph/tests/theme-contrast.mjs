@@ -64,6 +64,20 @@ import {
 } from "../../lib/theme-contrast.ts";
 import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME } from "../../lib/theme.ts";
 
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+const tsxFilesForUsage = [];
+(function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
+  const p = join(d, e.name);
+  if (/node_modules|\.next|\.git|components\/studio|app\/studio/.test(p)) continue;
+  if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFilesForUsage.push(p); }
+})(new URL("../../components", import.meta.url).pathname);
+(function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
+  const p = join(d, e.name);
+  if (/node_modules|\.next|\.git|app\/studio/.test(p)) continue;
+  if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFilesForUsage.push(p); }
+})(new URL("../../app", import.meta.url).pathname);
+
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
   const ok = JSON.stringify(got) === JSON.stringify(want);
@@ -179,11 +193,31 @@ const USAGE = [
   /* ⚠ THE ROW THAT PROVES THE USAGE MAP IS LOAD-BEARING. accent-500's cream ladder is
      4.7 / 4.48 / 4.07 / 3.43, so it clears the text floor on cream-50 ALONE and misses cream-100
      by 0.02. A palette-only gate — every token against every ground — would refuse the site that
-     ships today. It is text on ONE step and a non-text mark everywhere else, and that is a fact
-     about the product rather than a tolerance in the gate. */
+     ships today.
+
+     ⚠ AND THE SENTENCE THAT USED TO FOLLOW WAS FALSE, WHICH IS THE MORE IMPORTANT HALF. It read
+     "it is text on ONE step and a non-text mark everywhere else, and that is a fact about the
+     product rather than a tolerance in the gate." A CLAIMED PRODUCT FACT, STATED WITH UNUSUAL
+     CONFIDENCE, THAT NOTHING CHECKED AND THAT WAS WRONG. `HeroCover`'s rating chip drew accent-500
+     as TEXT on cream-200 at 14.4px — failing AA on four of five shipped palettes, on all four case
+     studies, since the chip was built.
+
+     ⚠ THE GATE WAS NOT WRONG. IT WAS TOLD THE WRONG THING, in prose, by someone who was certain.
+     That is the token-claim shape moved from TOKENS to USAGE, and it is worse: a wrong token claim
+     mislabels a colour, a wrong usage claim mislabels WHAT AN ELEMENT IS — and the floor follows
+     from that.
+
+     ⚠ THE `ink-400` ROW BELOW CARRIED THE SAME DEFECT AND WAS FOUND BY ENUMERATING RATHER THAN BY
+     ACCIDENT. It said "never text"; the blog's love readout drew it at 12.5px, failing on ALL FIVE
+     palettes. Two rows in this section, two false product facts, one found by a new palette's
+     refusal and one by checking its neighbour.
+
+     Both elements moved rather than the tokens — accent-500 and ink-400 are correct everywhere else
+     they land, which is what makes a single-site fix honest rather than a patch. Section M asserts
+     every non-text row against a real consumer, so the claim cannot be false again in silence. */
   ...TEXT("accent-500", ["cream-50"], "text on cream-50 only — misses cream-100 by 0.02"),
-  ...UI("accent-500", ["canvas", "cream-100", "cream-200"]),
-  ...UI("ink-400", ["cream-50", "cream-100", "cream-200"], "never text — fails 4.5 on every step"),
+  ...UI("accent-500", ["canvas", "cream-100", "cream-200"], "non-text ONLY — asserted by section M"),
+  ...UI("ink-400", ["cream-50", "cream-100", "cream-200"], "non-text ONLY — asserted by section M"),
 
   /* ⚠ INTERNAL. THE GROUND LADDER IS THIS DESIGN'S OWN NUMBER, NOT WCAG'S. cream-50/cream-100 sits
      at exactly 1.05, which is where the floor came from, so a theme with a different ladder may
@@ -837,6 +871,78 @@ t("L3c …and a stated floor names what it was measured ON, so it cannot be borr
   BANDS.filter((b) => b.hueFloor !== null && !/measured on THIS band/.test(b.why)).map((b) => b.label), []);
 t("L4 every band states WHY it exists and what its floor rests on",
   BANDS.filter((b) => !b.why || b.why.length < 60).map((b) => b.label), []);
+
+console.log("\nM · ⚠ EVERY NON-TEXT ROW, CHECKED AGAINST A REAL CONSUMER");
+
+/* ⚠ A NON-TEXT ROW ASSERTS A PRODUCT FACT: that this token never draws TEXT on this ground, so 3.0
+ * is the right floor rather than 4.5. Both rows in this map were wrong — accent-500 drew the rating
+ * chip's stat, ink-400 drew the love readout — and both were prose nothing checked.
+ *
+ * ⚠ THE CHECK IS COARSE ON PURPOSE. It cannot know which GROUND a text utility sits on, so it asks
+ * the weaker question: does this token appear as a FOREGROUND anywhere in public source? A "yes" is
+ * not proof the row is wrong, but it means the claim needs a human to look — which is exactly what
+ * neither row got. It fails LOUD and is answered by naming the consumer, not by deleting the row. */
+const NON_TEXT_ROWS = USAGE.filter((r) => r.min === 3.0).map((r) => ({ fg: r.fg, bg: r.bg }));
+console.log(`         ${NON_TEXT_ROWS.length} non-text rows to check against real markup`);
+
+/* ⚠ THE CHECKABLE QUESTION IS NARROWER THAN THE CLAIM, AND THE FIRST VERSION OF THIS ROW MISSED
+ * THAT. It asked "is this token a foreground anywhere", which accent-500 legitimately is — it is
+ * TEXT on cream-50 by its own row. Asserting the broad form made the assertion itself false.
+ *
+ * The answerable question is whether the token is a foreground ON THE GROUND THIS ROW NAMES. And
+ * the chip proves that must span PARENT AND CHILD: the pill carried `bg-cream-200` and its stat was
+ * a child span. Same seam as `role-layer` J, for the same reason — a rule about ELEMENTS
+ * implemented against ATTRIBUTES sees only half of them. */
+const violations = [];
+let windowsScanned = 0;
+for (const f of tsxFilesForUsage) {
+  const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const lines = src.split("\n");
+  const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
+  lines.forEach((ln, i) => {
+    for (const row of NON_TEXT_ROWS) {
+      if (!new RegExp("\\b(?:bg|from|via|to)-" + row.bg + "\\b(?!/)").test(ln)) continue;
+      windowsScanned++;
+      const win = lines.slice(i, i + 12).join("\n");
+      if (!new RegExp("\\b(?:text|fill|stroke|decoration)-" + row.fg + "\\b(?!/)").test(win)) continue;
+      /* ⚠ A 3.0 FLOOR IS CORRECT FOR LARGE TEXT AS WELL AS FOR NON-TEXT MARKS, which is why the
+       * first narrowed version reported two false positives. `PrincipleCard` draws the row's token
+       * at `text-3xl` (30px) and `StatCard` at `text-5xl` (48px) — both LARGE by WCAG, where 3.0 IS
+       * the floor. The chip failed at 14.4px and the readout at 12.5px, which is the real class.
+       *
+       * SO THE ROW'S FLOOR WAS RIGHT AND ITS LABEL WAS WRONG. It is not "non-text"; it is "3.0
+       * applies", which covers a mark and large type alike. Only SMALL text on that ground is a
+       * violation. */
+      const bold = /\bfont-(?:bold|semibold|black|extrabold)\b|\bfont-\[7\d\d\]/.test(win);
+      const px = (() => {
+        const named = { "text-xs": 12, "text-sm": 14, "text-base": 16, "text-lg": 18, "text-xl": 20,
+          "text-2xl": 24, "text-3xl": 30, "text-4xl": 36, "text-5xl": 48, "text-6xl": 60, "text-7xl": 72 };
+        for (const [k, v] of Object.entries(named)) if (new RegExp("\\b" + k + "\\b").test(win)) return v;
+        const rem = /text-\[([\d.]+)rem\]/.exec(win); if (rem) return Number(rem[1]) * 16;
+        const p2 = /text-\[([\d.]+)px\]/.exec(win); if (p2) return Number(p2[1]);
+        const cl = /text-\[clamp\(([\d.]+)rem/.exec(win); if (cl) return Number(cl[1]) * 16;
+        return null;
+      })();
+      const large = px !== null && (bold ? px >= 18.66 : px >= 24);
+      if (!large)
+        violations.push(`${rel}:${i + 1} — ${row.fg} drawn as ${px === null ? "text of unknown size" : px + "px" + (bold ? " bold" : "")} on a ${row.bg} ground`);
+    }
+  });
+}
+console.log(`         ${windowsScanned} ground windows scanned for a foreground of the same row`);
+/* ⚠ WHAT THIS SECTION CANNOT SEE, PROVEN BY A MUTATION RATHER THAN GUESSED. It finds a foreground
+ * within 12 lines of a ground DECLARED IN THE SAME FILE. The rating chip is that shape and is
+ * caught. THE LOVE READOUT IS NOT: it inherits its ground from the blog article's card several
+ * components up, so no window in `LoveButton.tsx` contains one. Restoring its failure leaves this
+ * row GREEN.
+ *
+ * That case needs a RENDER — the ground only exists once the tree is assembled — which is where the
+ * chip was confirmed too. Stated rather than papered over: one of the two failures this section was
+ * written for is outside its reach, and the comment beside the readout is its only protection. */
+t("M0 there ARE non-text rows to check — a zero would make M1 vacuous", NON_TEXT_ROWS.length >= 4, true);
+t("M0a …and the scan found grounds to look inside, against a literal", windowsScanned >= 3, true);
+t("M1 ⚠ NO NON-TEXT TOKEN IS DRAWN AS TEXT ON THE GROUND ITS ROW NAMES — the claim both rows got wrong",
+  [...new Set(violations)].sort(), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

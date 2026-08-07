@@ -305,7 +305,13 @@ export default function HeroCover({
         >
           <span
             {...edit("ratingChip.stat", "Edit rating stat")}
-            className={`font-bold text-accent-500${aff}`}
+            /* ⚠ `accent-600`, NOT `accent-500` — THIS IS TEXT AND IT WAS FAILING AA. 14.4px at
+               weight 700 on `cream-200` needs 4.5; accent-500 measured 4.07 on cream, 4.21 on
+               harbour, 3.66 on cerise, 3.67 on fern. Only orchid cleared. accent-600 lands at
+               6.25 / 6.14 / 7.36 / 6.09 / 5.45 — and orchid IMPROVES rather than regressing.
+               The chip is accent-500's only text consumer on this rung, which is why the ELEMENT
+               moved rather than the token: accent-500 is correct everywhere else it lands. */
+            className={`font-bold text-accent-600${aff}`}
           >
             {data.ratingChip.stat}
           </span>
