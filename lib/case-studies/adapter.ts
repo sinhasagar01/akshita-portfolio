@@ -76,7 +76,18 @@ type AdaptCtx = {
 };
 
 /** The stand-in for an image the owner has not set yet. Only ever reachable in
- *  preview mode — the ssg path throws before it can be produced. */
+ *  preview mode — the ssg path throws before it can be produced.
+ *
+ *  ⚠ NEUTRAL SINCE #373, AND FOR THE FAVICON'S REASON RATHER THAN TIDINESS. It used to be drawn in
+ *  cream's ground — 98.3% of its pixels within 12 of `cream-200` — so on a violet or teal palette it
+ *  was a warm card in the middle of a themed canvas. The studio canvases DO carry `data-theme`, so
+ *  that was visible while authoring even though the placeholder never reaches a public page.
+ *
+ *  It could not simply be themed: a raster cannot read a token, and an SVG behind `<img src>` cannot
+ *  either — #365 measured that. Making it inline would mean the adapter emitting something other
+ *  than a `src`, which is a contract change for a preview-only affordance. NEUTRAL DISSOLVES IT: a
+ *  placeholder for an unset image has no business carrying the brand, and grey reads correctly on
+ *  every palette. 98.3% themed-ground pixels to 0.0%. */
 const MISSING_IMAGE_SRC = "/images/projects/placeholder-missing.webp";
 const MISSING_IMAGE_ALT = "Image not set yet";
 

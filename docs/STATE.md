@@ -10813,6 +10813,69 @@ accent finds accent leaks; a ground leak needs a different question.
 SectionHeading on harbour, and this. **The surface is not yet demonstrated stable**, and the third
 render is why.
 
+## THE GROUND SWEEP — THREE PREDICATES, AND ONLY THE THIRD ASKED THE QUESTION (#373)
+
+**#365 asked too narrow a question.** Complete population of 86 assets, ACCENT predicate — a diagram
+drawn in `cream-50` has almost no accent pixels, so it could not appear.
+
+**⚠ AND THE FIRST GROUND SWEEP ASKED TOO BROAD A ONE: 66 OF 84 FILES.** `cream-50` is near-white and
+`ink-950` near-black, so plain distance matched **every light or dark UI screenshot**. The corrected
+predicate asks whether a pixel sits closer to the token **than to a neutral of the same lightness** —
+testing HUE, which is the only thing a theme moves. That gives **19**.
+
+**THE POPULATION WAS COMPLETE ALL THREE TIMES. THE QUESTION WAS WRONG TWICE, IN OPPOSITE
+DIRECTIONS** — and a complete population searched with a bad predicate **reads as thorough, because
+the denominator is right.**
+
+**AND 19 IS NOT THE LEAK COUNT EITHER.** Six are the Fosfor rasters replaced by inline SVG in #365 —
+still on disk as fail-closed fallbacks, no longer drawn. Two are boat-crest product screenshots of a
+dark app UI. **The real figure is four blog assets and one placeholder.**
+
+---
+
+## THE ELEVATE REDACTIONS WERE NEVER A JUDGEMENT CALL
+
+`screen-a/b/c` looked like the hardest case — abstracted wireframes drawn in cream and terracotta
+because Elevate's real UI is confidentiality-constrained, so they DEPICT a product while being
+COLOURED in site chrome. Both readings live.
+
+**⚠ THE QUESTION DISSOLVED IN ONE COMMAND.** They are referenced nowhere in content, never emitted in
+the build, and git history shows a studio edit REMOVED their references when content-addressed
+uploads replaced them. **Dead files. They render nowhere, so they leak nowhere.** Deleted.
+
+**ASK WHETHER IT RENDERS BEFORE ASKING WHAT IT DEPICTS** — `monogram-mark.svg` in #361 was the same
+shape, and both times the cheap check came second.
+
+---
+
+## THE PLACEHOLDER GOES NEUTRAL, FOR THE FAVICON'S REASON
+
+`placeholder-missing.webp` was **98.3% within 12 of `cream-200`**. It never reaches a public page —
+the SSG path throws and only preview produces it — but **the studio canvases carry `data-theme`**, so
+it was a warm card on a themed canvas while authoring.
+
+It could not simply be themed: a raster cannot read a token, and an SVG behind `<img src>` cannot
+either. Making it inline would mean the adapter emitting something other than a `src` — a contract
+change for a preview-only affordance. **Neutral dissolves it. 98.3% to 0.0%.**
+
+---
+
+## ⚠ THE TWO BLOG DIAGRAMS ARE NOT THE FOSFOR CASE, AND ARE LEFT ALONE
+
+The eight Fosfor illustrations were **pure geometry** — cylinders, bars, an hourglass, a clock. That
+is why tracing them as SVG paths was faithful, and why the shape-diff loop could verify it.
+
+**These two are text.** The flow diagram carries eleven box labels, two section labels, an inline
+annotation and two italic captions; the squads diagram carries a tracked-caps header, four card
+labels, a two-line legend and a caption. **Reproducing them as SVG `<text>` means typesetting prose
+that cannot reflow** — a caption would break at a fixed point regardless of container width, and any
+later copy edit would silently break the layout.
+
+**THE RIGHT FORM FOR A TEXT-HEAVY DIAGRAM IS JSX, NOT SVG** — real text, real reflow, tokens for
+colour, which is what `ProcessSection`'s diagram already does. **That is a redraw**, and it is the
+same line drawn for the blog heroes and the OG identity card: the owner has to want it before it can
+be scoped. Building them as SVG text would have produced something worse than what is there.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
