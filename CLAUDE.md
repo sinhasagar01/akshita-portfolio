@@ -286,6 +286,31 @@ closed.
   rather than merely true** — an unattached figure survives every review, because every review has to
   guess the same way.
 
+  **⚠ AND IT IS NOW COUNTABLE, WHICH MAKES IT THE SIGNATURE FAILURE RATHER THAN AN ANECDOTE.** Seven
+  instances share one shape — **a number that described a different subject than the one claimed**:
+  the 25.1 above; the mislabelled theme capture; the ratio between two colours that never meet; and
+  **four probes in a single session** — an `opacity` filter that missed alpha carried in the COLOUR,
+  a `:scope > img` widened to `img` so one image excluded the whole page, a `.tsx`-only walk, and an
+  `indexOf` that found `[data-ground="dark"]` **inside a comment written about it one turn earlier**.
+  Each produced a confident, checkable-looking figure. **Three of the four read as PASSES.**
+
+  **THE REPAIR IS THE SAME EVERY TIME AND IT IS CHEAP: STATE THE SUBJECT BESIDE THE NUMBER.** Not
+  "1.24 fails" but "1.24, on this element, on this ground". **Every one of the seven would have been
+  visible at the moment it was written**, which is why this is a writing discipline rather than a
+  measurement problem.
+
+- **⚠ A RULING'S EVIDENCE CAN BE PARTLY FALSE WHILE THE RULING SURVIVES — SAY BOTH.** The fold of
+  `text-subtle` into `text-secondary` was refused partly on "`text-body` is the article's entire body
+  copy at 1.24". **That figure was mine and the reasoning built on it was the owner's, and neither
+  was checked.** The prose paints `var(--color-ink-800)`, a raw rung, and still does; `text-body` has
+  two consumers, both `style` objects in About and Contact.
+
+  **THE RULING STANDS ON ITS OTHER EVIDENCE** — `ink-600` holds three values across six palettes, so
+  the fold had no palette-independent justification, and that measurement is intact. **But a correct
+  ruling must not keep a wrong justification.** A ruling that survives its evidence being corrected
+  should be **seen to have survived it**, because the alternative is a true conclusion propped up by
+  a reason nobody can reproduce — which is indistinguishable from luck the next time it is cited.
+
 - **⚠ GATE THE OBVIOUS WORKAROUND, NOT ONLY THE THING ITSELF.** `theme-contrast` L1 requires every
   ground to sit in the light band; **L2 requires the band to stay narrow enough that hue still
   matters across it.** Widening the band to make L1 pass therefore fails — the escape hatch is
