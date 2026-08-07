@@ -121,7 +121,19 @@ export default function SectionHeading({
     margin: 0,
     fontFamily: "var(--font-display)",
     fontStyle: "italic",
-    fontWeight: 400,
+    /* ⚠ 600, AND IT WAS 400 WHILE THE HEADING WAS TWICE THE SIZE OF ITS OWN SUBORDINATE. Measured:
+       this h2 renders at 60px/400 and the `Discover` h3 beneath it at 30px/600 — SIZE SAID "more
+       important" AND WEIGHT SAID "less", so the two axes cancelled and the pair read as one level.
+
+       ⚠ NOTHING WAS BROKEN BY MAKING THE WORD SOLID. At 18% alpha this was background texture and
+       nothing ever compared the two, so THE HIERARCHY HAD BEEN RESTING ON OPACITY the whole time —
+       and opacity is exactly the mechanism that cannot survive a change of ground. The solid ruling
+       did not cause this; it revealed it. Same failure as `etch` and `text-subtle`, arriving in the
+       type scale instead of the colour tokens.
+
+       A section heading must not be lighter in weight than the heading it outranks. Size and weight
+       are ground-independent; colour and alpha are not. */
+    fontWeight: 600,
     lineHeight: 1,
     letterSpacing: "-.01em",
     color: wordColor,
