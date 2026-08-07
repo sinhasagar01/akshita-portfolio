@@ -94,7 +94,17 @@ export default function LoveButton({
   if (variant === "readout") {
     // Not a button, not focusable, no handler. A reflection of state it does not own.
     return (
-      <span className={`inline-flex items-center gap-1.5 ${loved ? "text-accent-500" : "text-ink-400"}`}>
+      /* ⚠ THE SECONDARY TEXT ROLE, NOT THE ink-400 RUNG — THIS IS TEXT, at 12.5px, and it was
+         failing AA on EVERY palette: 3.49 / 3.71 / 3.62 / 4.50 / 4.42 on cream-50 and worse on
+         canvas. The usage map's row for that rung asserted "never text"; this readout is where the
+         claim was false. The role lands at 7.42 / 7.11 / 7.26 / 8.94 / 8.73.
+
+         ⚠ AND NO GATE PROTECTS THIS ONE. `theme-contrast` M finds a foreground near a ground
+         declared in the same file; this readout inherits its ground from the article card several
+         components up, so restoring the failure leaves M green — proven by mutation. The comment is
+         the protection. (The old class is described rather than spelled: naming it would make it
+         compile from this comment alone.) */
+      <span className={`inline-flex items-center gap-1.5 ${loved ? "text-accent-500" : "text-text-secondary"}`}>
         <Heart filled={loved} className="size-[18px]" />
         <Count count={count} className="text-[12.5px]" />
       </span>

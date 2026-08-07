@@ -27,7 +27,7 @@
 // read correctly at full ink). The 40 `text-ink-500` sites were REAL DEFECTS the dead class
 // was hiding — a class that meant "muted" painting at full ink beside the text it should have
 // sat behind. They are now closed the other way: each was re-pointed to the token its own
-// working neighbour already used — icon buttons to `text-ink-400` (the ListDetailLayout idiom),
+// working neighbour already used — icon buttons to the ink-400 colour utility (the ListDetailLayout idiom),
 // inactive tabs to `text-ink-600` (SegmentedToggle), badges, status hints and readonly fields
 // to `text-text-subtle`. So the hazard closed by realising the muted intent these sites always
 // carried rather than by deleting the muting, and B2 below now holds the family at zero.
