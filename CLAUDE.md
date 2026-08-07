@@ -299,6 +299,22 @@ closed.
   visible at the moment it was written**, which is why this is a writing discipline rather than a
   measurement problem.
 
+- **⚠ HIERARCHY RIDES ON SIZE AND WEIGHT, NEVER ON COLOUR OR OPACITY — because the first pair is
+  ground-independent and the second is not.** The section `h2` rendered at **60px/400** above an `h3`
+  at **30px/600**: size said "more important", weight said "less", and the two axes cancelled. It
+  read as one level.
+
+  **⚠ AND NOTHING BROKE IT — MAKING THE WORD SOLID REVEALED IT.** At 18% alpha the `h2` was
+  background texture, so nothing ever compared the two, and **the hierarchy had been resting on
+  opacity the whole time.** Opacity is exactly the mechanism that cannot survive a change of ground,
+  so on the dark palette the heading vanished and the latent defect surfaced looking like a
+  regression the palette had caused. **Same failure as `etch` and `text-subtle`, arriving in the type
+  scale instead of the colour tokens** — which is why it is recorded here rather than in the
+  component.
+
+  The concrete form: **a heading must not be lighter in weight than the heading it outranks.** Anything
+  separating two levels by tint alone will collapse the first time a palette changes ground.
+
 - **⚠ A RULING'S EVIDENCE CAN BE PARTLY FALSE WHILE THE RULING SURVIVES — SAY BOTH.** The fold of
   `text-subtle` into `text-secondary` was refused partly on "`text-body` is the article's entire body
   copy at 1.24". **That figure was mine and the reasoning built on it was the owner's, and neither

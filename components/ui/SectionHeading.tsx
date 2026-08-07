@@ -56,8 +56,29 @@ export default function SectionHeading({
      means ACCENT-TONED or INK-TONED, and both follow the theme. A prop whose two values produced
      the same result would be a control that cannot do anything, which this repo has deleted four
      times — this one still does something on every palette. */
-  const wordTint   = tone === "warm" ? "var(--color-accent-500)" : "var(--color-ink-600)";
-  const wordColor  = `color-mix(in oklch, ${wordTint} ${tone === "warm" ? 17 : 18}%, transparent)`;
+  /* ⚠ THE TWO TINTS TAKE ROLES, AND IT IS A RENAME ON LIGHT AND A REMAP ON DARK. Both were RAW
+     RUNGS, so neither followed the ground — and an ink at 18% over a near-black page is ink on ink,
+     the exact failure that made `etch` a role. On sapphire the ghost was all but invisible, which
+     is how the owner found it.
+
+     ⚠ AND THEN THE OWNER RULED THE WORD SOLID, WHICH IS A DESIGN DECISION AND NOT A BUG FIX. The
+     ghost-following-the-ground change above was mine and it worked — 1.09 to 1.36 on sapphire, zero
+     light pixels moved. The owner looked at the result and wanted the heading READ rather than
+     felt. That is theirs to decide and the reasoning above is kept rather than deleted, because the
+     alpha version is what every light palette shipped with for the whole arc.
+
+     `--color-text-primary` SATISFIES BOTH HALVES OF "solid primary colour or white" WITH ONE TOKEN:
+     it is the primary text role, it resolves to `ink-950` on light and to `on-dark` on dark, so the
+     heading is near-black on the light palettes and near-white on the dark one WITHOUT the component
+     choosing by ground. A literal white would have been a component picking a value for one ground,
+     which is the C-safety violation this file's own `tone` note exists to distinguish from.
+
+     ⚠ `tone` STAYS A REAL AXIS BECAUSE THE GLOW KEEPS IT. If both branches produced one solid colour
+     the prop would be a control that cannot do anything, and this repo deletes those. The WORD is
+     now ground-following and tone-independent; the HALO behind it is still accent-toned or
+     ink-toned, so the six call sites still choose something visible. */
+  const wordTint   = tone === "warm" ? "var(--color-accent)" : "var(--color-text-secondary)";
+  const wordColor  = "var(--color-text-primary)";
   const wordShadow = `0 0 30px color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent)`;
   const glowBg     = `radial-gradient(closest-side,color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent),transparent 72%)`;
 
@@ -100,7 +121,19 @@ export default function SectionHeading({
     margin: 0,
     fontFamily: "var(--font-display)",
     fontStyle: "italic",
-    fontWeight: 400,
+    /* ⚠ 600, AND IT WAS 400 WHILE THE HEADING WAS TWICE THE SIZE OF ITS OWN SUBORDINATE. Measured:
+       this h2 renders at 60px/400 and the `Discover` h3 beneath it at 30px/600 — SIZE SAID "more
+       important" AND WEIGHT SAID "less", so the two axes cancelled and the pair read as one level.
+
+       ⚠ NOTHING WAS BROKEN BY MAKING THE WORD SOLID. At 18% alpha this was background texture and
+       nothing ever compared the two, so THE HIERARCHY HAD BEEN RESTING ON OPACITY the whole time —
+       and opacity is exactly the mechanism that cannot survive a change of ground. The solid ruling
+       did not cause this; it revealed it. Same failure as `etch` and `text-subtle`, arriving in the
+       type scale instead of the colour tokens.
+
+       A section heading must not be lighter in weight than the heading it outranks. Size and weight
+       are ground-independent; colour and alpha are not. */
+    fontWeight: 600,
     lineHeight: 1,
     letterSpacing: "-.01em",
     color: wordColor,

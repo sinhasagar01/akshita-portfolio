@@ -715,7 +715,7 @@ const GROUND_INVARIANT = {
  * STATE and a card TINT. Complete, measured, and still the wrong noun, in a registry two turns old.
  * That shape has now appeared in a spec, in a census and here. */
 const RATCHET = {
-  max: 13,
+  max: 12,
   why: "LADDER RUNGS painted directly by public surfaces — a rung is what a role resolves to, so a "
      + "site naming one directly has no ground answer. Plus `glow-web`, a per-category card tint, "
      + "which is decoration rather than a rung and is named here so the noun stays honest.",

@@ -259,10 +259,10 @@ export function unselectableReason(name: string): string | undefined {
 export const THEME_OG: Record<string, { cream: string; ink: string; muted: string; accent: string }> = {
   [DEFAULT_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
   [SECOND_THEME]: { cream: "#f5fbff", ink: "#040d12", muted: "#4c575e", accent: "#007e5b" },
-  [THIRD_THEME]: { cream: "#fefaff", ink: "#0f0812", muted: "#5a525d", accent: "#993f94" },
+  [THIRD_THEME]: { cream: "#fcf9fd", ink: "#0f0812", muted: "#5a525d", accent: "#993f94" },
   [FOURTH_THEME]: { cream: "#fef8f8", ink: "#190405", muted: "#574141", accent: "#d12d6b" },
   [FIFTH_THEME]: { cream: "#f4fdf1", ink: "#020f03", muted: "#3e4c3f", accent: "#4b7f20" },
-  [SIXTH_THEME]: { cream: "#f6fafe", ink: "#040c16", muted: "#404952", accent: "#6980f4" },
+  [SIXTH_THEME]: { cream: "#f7fbff", ink: "#040c16", muted: "#404952", accent: "#6980f4" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -270,10 +270,10 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
 export const THEME_SPLASH: Record<string, string> = {
   [DEFAULT_THEME]: "#FEF9F1",
   [SECOND_THEME]: "#F5FBFF",
-  [THIRD_THEME]: "#FEFAFF",
+  [THIRD_THEME]: "#FCF9FD",
   [FOURTH_THEME]: "#FEF8F8",
   [FIFTH_THEME]: "#F4FDF1",
-  [SIXTH_THEME]: "#F6FAFE",
+  [SIXTH_THEME]: "#F7FBFF",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };
