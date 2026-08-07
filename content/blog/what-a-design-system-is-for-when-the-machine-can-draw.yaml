@@ -3,8 +3,7 @@ dek: The bottleneck was never the drawing.
 date: '2026-07-27'
 topic: Design systems
 status: published
-heroImage: >-
-  /images/blog/what-a-design-system-is-for-when-the-machine-can-draw/heroImage.webp
+heroImage: null
 blocks:
   - discriminant: richText
     value:

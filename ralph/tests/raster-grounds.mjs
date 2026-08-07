@@ -63,18 +63,12 @@ const KNOWN = {
   "public/images/blog/what-a-design-system-is-for-when-the-machine-can-draw/blocks/6cd6a9815c3f.webp":
     "FALLBACK ONLY — the `four-squads` JSX diagram draws instead since #375",
 
-  /* ⚠ THE TWO HEROES ARE STILL LEAKS, AND THEY ARE BYTE-IDENTICAL COPIES OF THE TWO BLOCKS ABOVE —
-   * `cmp` confirms it. So the "four blog assets" this file first declared were TWO PIECES USED
-   * TWICE, which is a smaller job than it read as.
+  /* ⚠ THE TWO HERO RASTERS WERE HERE AND ARE DELETED IN #376. They were byte-identical copies of
+   * the two block diagrams above — so the "four blog assets" this file first declared were TWO
+   * PIECES USED TWICE, and unsetting `heroImage` left the copies referenced by nothing.
    *
-   * They are NOT waiting on a redraw. `Shot` already falls back to `.blog-plate` — the title set in
-   * the display serif on a raised themed surface, built for a post with no hero — and that reads
-   * better at card size than a five-step flow shrunk to 340px ever could. Clearing these is a
-   * CONTENT decision (unset `heroImage`), which is the owner's, not a drawing problem. */
-  "public/images/blog/ai-first-is-a-research-posture-not-a-feature/heroImage.webp":
-    "LEAK — a byte-identical copy of the block diagram; clears when `heroImage` is unset and the themed plate draws",
-  "public/images/blog/what-a-design-system-is-for-when-the-machine-can-draw/heroImage.webp":
-    "LEAK — a byte-identical copy of the block diagram; clears when `heroImage` is unset and the themed plate draws",
+   * The end condition their entries named — "clears when `heroImage` is unset and the themed plate
+   * draws" — is exactly what happened, which is the point of writing one. */
   "public/images/projects/fosfor-data-profiling/challenge-insights.webp": "FALLBACK ONLY — inline SVG draws instead since #365; clears when the raster is deleted",
   "public/images/projects/fosfor-data-profiling/challenge-quality.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
   "public/images/projects/fosfor-data-profiling/challenge-silos.webp": "FALLBACK ONLY — inline SVG draws instead since #365",

@@ -10978,6 +10978,39 @@ legend's "everything else moved" swatch — a FILL at that opacity, not a hairli
 rule is about the line between two surfaces; a swatch is a surface. Narrowed to borders rather than
 repainting something correct to satisfy an assertion that was not.
 
+## THE HERO RASTERS ARE UNSET, AND THE RASTER CLASS IS EMPTY (#376)
+
+`heroImage: null` on both posts, and the two files deleted — **byte-identical copies of the block
+diagrams, referenced by nothing once the field was unset.** The end condition their `raster-grounds`
+entries named is exactly what happened, which is the point of writing one.
+
+**⚠ THIRTEEN DECLARED, ZERO UNDECLARED, AND NOTHING LEFT PENDING.** Every remaining entry is a
+fallback that no longer draws or a product screenshot. **The class that was invisible for the site's
+entire life is closed** — not because nothing matches, but because everything that matches is
+declared with a reason.
+
+---
+
+## ⚠ AND THE RENDER CHANGED THE ANSWER, AS IT HAS EVERY TIME
+
+I claimed the plate "reads better at card size than a five-step flow shrunk to 340px". **On
+legibility that is true, and I had not rendered it** — `.blog-plate` had never drawn on this site,
+because all three posts carried a hero.
+
+**THE ARTICLE PAGE IS CLEARLY BETTER.** It now goes eyebrow → title → dek → prose with no image
+between, and the diagram appears ONCE, in the body, where it is readable and in context. The hero was
+a duplicate of a figure four screens further down.
+
+**⚠ THE INDEX IS A TRADE, NOT A WIN.** The plate sets the post's title in the display serif — so on a
+card that also shows its title, **the title appears twice, adjacent.** That is not a defect I
+introduced; it is what a title-plate does. It was invisible until now because no post had ever used
+it.
+
+**The comparison, stated rather than implied:** before, a warm terracotta thumbnail that was
+illegible at card size AND leaked on two of three palettes. Now, a themed plate that is legible and
+repeats the title. **The leak is gone either way; the duplication is new.** Worth an eye before it is
+called finished.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
