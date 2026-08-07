@@ -299,6 +299,21 @@ closed.
   visible at the moment it was written**, which is why this is a writing discipline rather than a
   measurement problem.
 
+- **⚠ AGREEMENT ON A BOUNDARY IS NOT AGREEMENT ON WHAT IS INSIDE IT.** Two independent routes found
+  the vessel's eleven tokens — a classification from the render, and section L's derivation from
+  consumption — and that corroboration was cited as making the deferred redraw *"a fact about the
+  system rather than a judgement about a screenshot"*. **It was a fact about the system and the
+  judgement inside it was still wrong.** Measured per mechanic, **only three of the eleven invert**;
+  the shadow takes `etch`'s treatment and the highlight is kept untouched. **The redraw was three
+  tokens wearing eleven's clothes for two arcs**, and neither route asked whether the eleven were one
+  kind, because both were answering "which tokens" rather than "how many mechanics".
+
+  **⚠ AND THE INSTRUMENT THAT SPLIT THEM ALREADY EXISTED.** `etch`'s comparator — separation from the
+  surface beneath, at each consumer's own alpha — was reused to ask **which mechanics depend on being
+  LIGHTER than their backdrop rather than merely DIFFERENT from it.** That is the move that settled
+  `rule` (*an extreme must invert, a mid-tone must not*) **generalised from a token to a mechanic**.
+  Nothing had to be built; naming the quantity first is what found it.
+
 - **⚠ THERE IS A STEP BETWEEN MEASURE AND LOOK, AND IT IS THE ONE THIS ARC KEPT SKIPPING: ASK WHAT
   THE MEASUREMENT IS A MEASUREMENT OF.** Every earlier decision here split into *"the instrument is
   silent, so look"* — the card lift, the palette renders, the vessel. **The `text-subtle` fold split
