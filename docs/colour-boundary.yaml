@@ -398,6 +398,35 @@ entries:
       its colour. The mechanism is that the token is not a colour token. Measured at 7 and 8 from
       ink-950, outside the snap threshold, so they are their own tints as well.
 
+  - id: favicon-mark
+    kind: judgement
+    category: invariant
+    where: public/favicon.svg
+    count: 4
+    files: [public/favicon.svg]
+    reason: >
+      ⚠ THE MARK, AND THE ONLY SURFACE WHERE INVARIANCE IS FORCED RATHER THAN CHOSEN. A favicon is
+      fetched by the browser entirely outside the document, so an SVG served as one CANNOT SEE THE
+      PAGE'S CUSTOM PROPERTIES — measured in #365 by rasterising it: a rect filled
+      `var(--color-accent-500, magenta)` came back MAGENTA through an `<img>` and came back the live
+      accent only when the same markup was inlined. A favicon is more isolated still.
+
+      So "themed favicon" would mean a per-theme ASSET, not a themed one — the re-export obligation
+      that lost for the eight illustrations, and worse here because Chrome holds a favicon for days
+      regardless of HTTP headers.
+
+      ⚠ AND THE WORDMARK NO LONGER MATCHES IT, DELIBERATELY. #362 pinned both, arguing one identity
+      must not answer the palette question two ways. The owner has seen it rendered and ruled the
+      WORDMARK THEMES. The surviving ruling is narrower — the favicon is invariant BECAUSE IT HAS NO
+      OTHER OPTION — and the objection stands as a STATED COST rather than being dissolved. A
+      deliberate split, recorded, not an accident.
+    test: >
+      ⚠ THE GROUND-CHANGE TEST: it must NOT move when the palette does, and here it CANNOT. The four
+      values are baked into a file the page's cascade cannot reach — #211C16 ground, the #D89067 to
+      #9B4F2C ribbon, #7E3F22 shade — and the tab strip sits beside other tabs for a whole session,
+      so an icon that changed with the palette would read as instability on the surface that
+      identifies the site. Holding still is the requirement, not an accident of nobody theming it.
+
   - id: adjacent-surfaces
     kind: judgement
     category: adjacent

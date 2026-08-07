@@ -83,33 +83,27 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-on-dark-quote: oklch(81.5% 0.063 49); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
   --color-on-dark-line: color-mix(in oklch, var(--color-on-dark) 16%, transparent);
 
-  /* ⚠ THE MARK IS INVARIANT, AND THESE TWO ARE THE ONLY `--color-*` TOKENS NO THEME MAY OVERRIDE.
-     `theme` section H asserts that — not as an exception to section G but as its own category,
-     because a token absent from every block satisfies G trivially and a token declared by BOTH
-     would satisfy it too. Invariance is unrepresentable in G's model.
+  /* ⚠ `--color-mark` AND `--color-mark-on-dark` LIVED HERE AND ARE DELETED. THE REASONING THAT PUT
+     THEM HERE IS KEPT, because a reversal whose reasoning is deleted leaves two contradictory
+     rationales and no record of which won.
 
-     THE RULING. Every reversal in this arc turned on the signature test: does it hold when the
-     ground moves. The cursor, the page loader and the hero auras all FAILED it, because each was
-     decoration that happened to be warm. THE MARK IS THE ONE THING WHOSE JOB IS TO NOT MOVE. A logo
-     that changes colour weekly is not a themed logo, it is an unreliable one. Three entries failed
-     the test and the category began to read as though nothing could pass; this is what it was for.
+     #362 ARGUED: the mark is the one thing whose job is to not move — the cursor, the loader and
+     the hero auras all failed the ground-change test because each was decoration that happened to
+     be warm, and a logo that changes colour weekly is unreliable rather than themed. It pinned the
+     WORDMARK to the mark's own ribbon colours BECAUSE the favicon structurally cannot theme, and
+     held that one identity must not answer the palette question two ways.
 
-     ⚠ AND THESE ARE THE MARK'S OWN COLOURS, NOT THE ACCENT'S. `#9B4F2C` is the ribbon's dark stop
-     from `docs/logo-assets/favicon.svg`, measured 27.5 from cream's accent-500 — its own colour
-     rather than a hand-typed near-copy of one, which is the defect the cursor turned out to be.
+     ⚠ THE OWNER HAS SEEN IT RENDERED AND RULED THE WORDMARK THEMES. So the surviving ruling is
+     NARROWER: the FAVICON is invariant because it has no other option, and the WORDMARK follows the
+     palette. The SectionHeading objection — one subject, two colour sources — STANDS AND IS ACCEPTED
+     AS A STATED COST rather than dissolved. It is now a deliberate split, recorded, not an accident.
 
-     TWO OF THEM, SPLIT BY GROUND RATHER THAN BY THEME, which is the split the mark already makes
-     internally: the favicon draws the LIGHT ribbon on a near-black square. Measured on both
-     palettes, sanity pair 21.000 first —
-
-       --color-mark          light nav  5.65 cream / 5.67 harbour   AA
-       --color-mark-on-dark  dark nav   7.46 cream / 7.32 harbour   AA
-
-     Each fails on the other ground (2.47 and 3.27), which is why there are two and not one.
-     Invariance is a claim about whether a THEME may move a colour, not a licence to skip a floor —
-     both are still contrast-computed in `theme-contrast`'s usage map. */
-  --color-mark: #9B4F2C;
-  --color-mark-on-dark: #D89067;
+     AND THE TOKENS GO BECAUSE THE WORDMARK WAS THEIR ONLY CONSUMER. The favicon is an SVG FILE with
+     baked hex; it references nothing and a CSS token could not reach it if it did — #365 measured
+     that an SVG behind `<img src>` cannot see the page's custom properties, and a favicon is more
+     isolated still. A token nothing references while a comment calls it load-bearing is exactly
+     `accent-400`, deleted in #363 for the same reason. The favicon's invariance is carried by a
+     boundary row, which is where a colour nothing measures belongs. */
 
 
   /* ⚠ THE ACCENT AS IT APPEARS ON INK — NAMED BY ROLE, LIKE `on-dark` AND `on-dark-quote`, AND
@@ -1300,7 +1294,7 @@ a {
   box-shadow: none;
 }
 .site-header[data-nav-tone="dark"] .nav-sepdot { background: color-mix(in srgb, var(--color-white) 32%, transparent); }
-.site-header[data-nav-tone="dark"] .logo-sig { color: var(--color-mark-on-dark); }
+.site-header[data-nav-tone="dark"] .logo-sig { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .logo-singh { color: var(--color-on-dark-quote); }
 .site-header[data-nav-tone="dark"] .logo-vbar { background: color-mix(in srgb, var(--color-white) 30%, transparent); }
 .site-header[data-nav-tone="dark"] .nav-morph i { background: var(--color-on-dark); }
@@ -1408,7 +1402,7 @@ a {
 }
 
 .logo-grid line {
-  stroke: var(--color-mark);
+  stroke: var(--color-accent-500);
   stroke-width: 0.8;
   stroke-dasharray: 150;
   stroke-dashoffset: 150;
@@ -1416,7 +1410,7 @@ a {
 }
 
 .logo-grid circle {
-  fill: var(--color-mark);
+  fill: var(--color-accent-500);
   stroke: none;
   opacity: 0;
 }
@@ -1424,15 +1418,14 @@ a {
 .logo-sig {
   font-family: var(--font-script);
   font-size: 29px;
-  /* Was `--color-text-primary`, which moved with the palette. The ruling is that it must not. */
-  color: var(--color-mark);
+  color: var(--color-text-primary);
   position: relative;
 }
 
 .logo-vbar {
   width: 1px;
   height: 24px;
-  background: color-mix(in srgb, var(--color-mark) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent-500) 45%, transparent);
   flex-shrink: 0;
 }
 
@@ -1441,7 +1434,7 @@ a {
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.28em;
-  color: var(--color-mark);
+  color: var(--color-accent-500);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1462,7 +1455,7 @@ a {
     opacity: 0.7;
   }
   .logo-link:hover .logo-sig {
-    color: var(--color-mark);
+    color: var(--color-accent-500);
   }
 }
 
