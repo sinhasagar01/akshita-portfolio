@@ -421,6 +421,14 @@ const contentInputs = (p) => {
     walk(dir);
     return out.reduce((n, f) => n + (read(f).match(new RegExp(`border-${token}\\/8\\b`, "g")) ?? []).length, 0);
   };
+  /* the same walk at an arbitrary alpha, for the /12 mirror below */
+  const countAt = (dir, token, alpha) => {
+    const out = [];
+    const walk = (d) => { for (const e of readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true })) {
+      if (e.isDirectory()) walk(`${d}/${e.name}`); else if (/\.tsx?$/.test(e.name)) out.push(`${d}/${e.name}`); } };
+    walk(dir);
+    return out.reduce((n, f) => n + (read(f).match(new RegExp(`border-${token}\\/${alpha}\\b`, "g")) ?? []).length, 0);
+  };
   // THE COUNTS ARE EXACT, AND `> 0` WAS NOT ENOUGH. The first version of these two asserted
   // "still some /8 left", which a mutation that unified ONE case-study file walked straight
   // through — the other files kept the count above zero. An assertion has to be able to fail
@@ -434,8 +442,24 @@ const contentInputs = (p) => {
    * diagrams` redraws two blog illustrations as JSX, and a diagram made of real boxes needs real
    * hairlines — five of them, all `/8`, which is what PUBLIC canvas code must use. The number this
    * row pins is "no blog component stepped to /12", not "blog never grows". */
+  /* ⚠ COUNTED ACROSS BOTH NAMES SINCE #386, BECAUSE THE CONVENTION IS THE ALPHA AND NOT THE TOKEN.
+   * The `etch` role took over the public hairline, so all seven blog sites now spell it
+   * `border-etch/8` and a matcher pinned to the old rung read ZERO — a gate reporting that every
+   * blog hairline had vanished when not one had moved.
+   *
+   * ⚠ AND CASE-STUDY LEGITIMATELY STAYED AT FOUR ON THE OLD NAME, which is what made the blog row's
+   * zero read as a real regression rather than a rename. Its four are the DEVICE MOCKS —
+   * `DeviceImage` and `VideoEmbed` — ruled constants in #386 because a depicted browser does not
+   * theme, so they keep the raw rung on purpose. Two dirs, two correct answers, one matcher that
+   * only understood one of them. */
   t("E3: components/blog must STAY at exactly 7 uses of /8 — the canvas and the article share these components",
-    count("components/blog", "ink-950"), 7);
+    count("components/blog", "ink-950") + count("components/blog", "etch"), 7);
+  /* ⚠ AND THE MIRROR THE ROW ALWAYS NEEDED: public code must not step to the studio's /12 under the
+   * new name either. `border-etch/12` is now spellable and would be the same drift the /8 pin
+   * exists to catch, wearing the role's clothes. */
+  t("E3b: NO public dir carries a /12 BORDER under either name — the studio's step must not leak back",
+    ["components/blog", "components/case-study"].flatMap((d) =>
+      ["ink-950", "etch"].map((tk) => countAt(d, tk, 12)).filter(Boolean).map(() => d)), []);
   t("E3: components/studio carries NO /8 — the studio stepped to /12 and a leftover /8 is a hairline that did not move with its neighbours",
     count("components/studio"), 0);
 }

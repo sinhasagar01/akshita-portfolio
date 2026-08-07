@@ -21,7 +21,7 @@ export default function SkipLink() {
         main.focus();
         main.scrollIntoView();
       }}
-      className="sr-only rounded-md border border-ink-950/8 bg-surface px-4 py-2 text-[14px] font-medium text-text-primary outline-2 outline-accent-500 focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-[100] focus-visible:outline"
+      className="sr-only rounded-md border border-etch/8 bg-surface px-4 py-2 text-[14px] font-medium text-text-primary outline-2 outline-accent-500 focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-[100] focus-visible:outline"
     >
       Skip to content
     </a>

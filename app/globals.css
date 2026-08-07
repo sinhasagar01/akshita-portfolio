@@ -304,6 +304,40 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      holds a distinct POSITION with a distinct job, rather than being a second way to say a
      neighbour. */
   --color-text-lead:     var(--color-ink-800);
+  /* ⚠ THE INK A SURFACE MARK IS INCISED WITH — NOT A FINISHED ALPHA, AND THAT IS THE WHOLE DESIGN.
+     Consumers keep their own opacity — the border form at 8% for the site's hairline, a filled form
+     at 15% for a dot, at 5% for a placeholder well. (Written out rather than spelled as classes:
+     naming them here would make them compile from this comment alone, which `css-comment-trap`
+     exists to catch and which these notes have now tripped four times.) Seven distinct alphas are in use (19 at /8, 7 at
+     /12, 6 at /15, 3 at /5, 3 at /10, 2 at /80, 1 at /50) and a token holding ONE of them could not
+     serve the others without moving pixels.
+
+     ⚠ AND THE SAME ALPHAS WORK ON BOTH GROUNDS, WHICH IS WHY ONE ROLE SUFFICES. Measured as
+     separation from the surface beneath, ink-950 on cream-50 against on-dark on band-dark:
+
+        5%   20.8 / 19.1      8%   32.9 / 31.2      10%  41.6 / 39.3
+       12%   50.2 / 46.8     15%   62.4 / 58.3      80% 332.0 / 312.4
+
+     Every pair is within 6%, so a consumer's chosen weight survives the ground change untouched.
+
+     ⚠ WHY `etch` AND NOT `hairline`: it is named for the MECHANIC rather than the shape, because the
+     same mark appears as a border, as a filled bar and as a one-pixel div. A background utility
+     built on the word "hairline" would be a lie about a filled bar; one built on "etch" is not. The blog diagram's `Rule()` is exactly that case — a hairline drawn as a
+     div, which is why naming by shape fails.
+
+     ⚠ AND IT IS NOT A SECOND SPELLING OF `border`, WHICH WAS CHECKED RATHER THAN ASSUMED. Measured
+     as separation from the surface each sits on: a `border` edge (cream-300) is 65.0 on cream-50,
+     an etch at /8 is 32.9 — TWICE the strength, and different jobs. `border` is an edge meant to be
+     SEEN; an etch is a division meant to be FELT. Re-aiming `border` at the hairline was the
+     alternative and it would have moved its two consumers by 34.1 and destroyed that distinction.
+
+     ⚠ AND IT IS PUBLIC ONLY. /studio keeps its raw `ink-950/12`, because the freeze exists so a
+     theme cannot reach the studio's palette and a per-ground role IS a theme mechanism. The studio
+     also has no dark ground — its chrome is ink by construction — so a role whose entire value is
+     resolving per ground has nothing to resolve there. The /8 and /12 split is not a vocabulary gap;
+     it is the freeze boundary showing through. */
+  --color-etch:          var(--color-ink-950);
+
   /* The foreground drawn ON the accent — a pill, a badge, a filled button. Four sites used to draw
      it with the lightest GROUND rung, which is a ground token doing a foreground's job. The class
      is described rather than spelled: naming it here would make it compile from this comment alone,

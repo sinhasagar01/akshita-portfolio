@@ -28,7 +28,7 @@ import type { ReactNode } from "react";
 /* One hairline, one label, one caption — shared so the two diagrams cannot drift apart in the
  * details that are supposed to be identical. */
 function Rule() {
-  return <div className="h-px w-full bg-ink-950/10" />;
+  return <div className="h-px w-full bg-etch/10" />;
 }
 
 function Label({ children, accent = false }: { children: ReactNode; accent?: boolean }) {
@@ -50,7 +50,7 @@ function Note({ children }: { children: ReactNode }) {
 /** A step in the flow — a plain card with a label. */
 function Step({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[52px] flex-1 items-center justify-center rounded-lg border border-ink-950/8 bg-surface px-3 py-2 text-center text-[0.8rem] leading-[1.3] text-text-primary shadow-sm">
+    <div className="flex min-h-[52px] flex-1 items-center justify-center rounded-lg border border-etch/8 bg-surface px-3 py-2 text-center text-[0.8rem] leading-[1.3] text-text-primary shadow-sm">
       {children}
     </div>
   );
@@ -72,7 +72,7 @@ function Arrow() {
 function AssistantRoute() {
   const before = ["Open the report", "Set the filters", "Read the table", "Export it", "Decide"];
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-ink-950/8 bg-surface-well p-5 sm:p-7">
+    <div className="flex flex-col gap-6 rounded-xl border border-etch/8 bg-surface-well p-5 sm:p-7">
       <div className="flex flex-col gap-3">
         <Label>Bolted on</Label>
         <Rule />
@@ -135,14 +135,14 @@ function AssistantRoute() {
 /** A skeleton bar. Width is passed so the four cards read as four different screens rather than
  *  four copies — which is the whole subject of the diagram. */
 function Bar({ w, tall = false }: { w: string; tall?: boolean }) {
-  return <div aria-hidden="true" className={`${tall ? "h-3" : "h-1.5"} rounded-full bg-ink-950/8`} style={{ width: w }} />;
+  return <div aria-hidden="true" className={`${tall ? "h-3" : "h-1.5"} rounded-full bg-etch/8`} style={{ width: w }} />;
 }
 
 function Pill({ w, solid = false }: { w: string; solid?: boolean }) {
   return (
     <div
       aria-hidden="true"
-      className={`h-6 rounded-full ${solid ? "bg-ink-950" : "bg-ink-950/8"}`}
+      className={`h-6 rounded-full ${solid ? "bg-ink-950" : "bg-etch/8"}`}
       style={{ width: w }}
     />
   );
@@ -155,11 +155,11 @@ function FourSquads() {
   const squads = [
     { name: "Squad one", head: ["58%"], after: <><Pill w="42%" solid /><Pill w="30%" /></>, tail: ["78%", "58%", "66%"] },
     { name: "Squad two", head: ["avatar", "62%"], after: <><Bar w="88%" /><Bar w="72%" /><Bar w="80%" /></>, tail: [], foot: <Pill w="38%" solid /> },
-    { name: "Squad three", head: ["46%"], after: <div className="rounded-md bg-ink-950/5 p-2"><Bar w="72%" /><div className="h-1.5" /><Bar w="48%" /></div>, tail: [], foot: <Pill w="46%" solid /> },
+    { name: "Squad three", head: ["46%"], after: <div className="rounded-md bg-etch/5 p-2"><Bar w="72%" /><div className="h-1.5" /><Bar w="48%" /></div>, tail: [], foot: <Pill w="46%" solid /> },
     { name: "Squad four", head: ["70%"], after: <><Pill w="30%" /><Pill w="42%" solid /></>, tail: ["82%", "56%"] },
   ];
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-ink-950/8 bg-surface-well p-5 sm:p-7">
+    <div className="flex flex-col gap-6 rounded-xl border border-etch/8 bg-surface-well p-5 sm:p-7">
       <div className="flex flex-col gap-3">
         <Label>Four squads · one component library · six months</Label>
         <Rule />
@@ -167,7 +167,7 @@ function FourSquads() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {squads.map((s) => (
-          <div key={s.name} className="flex flex-col gap-2.5 rounded-lg border border-ink-950/8 bg-surface p-3 shadow-sm">
+          <div key={s.name} className="flex flex-col gap-2.5 rounded-lg border border-etch/8 bg-surface p-3 shadow-sm">
             <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-text-secondary">{s.name}</p>
             {/* ⚠ FIXED HEIGHT, BECAUSE THE ALIGNMENT IS THE CLAIM. Squad two's head carries an
                 avatar and the others carry a bar; letting the row size to its content put its
@@ -177,7 +177,7 @@ function FourSquads() {
             <div className="flex h-4 items-center gap-1.5">
               {s.head.map((h, k) =>
                 h === "avatar"
-                  ? <div key={k} aria-hidden="true" className="size-4 shrink-0 rounded-full bg-ink-950/8" />
+                  ? <div key={k} aria-hidden="true" className="size-4 shrink-0 rounded-full bg-etch/8" />
                   : <Bar key={k} w={h} />,
               )}
             </div>
@@ -186,7 +186,7 @@ function FourSquads() {
                 diagram's entire claim, so it is the only accent-coloured thing in the card. */}
             <div aria-hidden="true" className="h-1.5 w-[68%] rounded-full bg-accent-500" />
 
-            <div className="rounded-md border border-ink-950/8 bg-surface-well px-2 py-2">
+            <div className="rounded-md border border-etch/8 bg-surface-well px-2 py-2">
               <Bar w="56%" />
             </div>
             <div className="flex flex-col gap-1.5">{s.after}</div>
@@ -202,7 +202,7 @@ function FourSquads() {
           The error message sits above the field. Same rule, same place, four squads.
         </p>
         <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-text-secondary">
-          <span aria-hidden="true" className="mt-[7px] h-1.5 w-6 shrink-0 rounded-full bg-ink-950/12" />
+          <span aria-hidden="true" className="mt-[7px] h-1.5 w-6 shrink-0 rounded-full bg-etch/12" />
           Everything else moved.
         </p>
       </div>

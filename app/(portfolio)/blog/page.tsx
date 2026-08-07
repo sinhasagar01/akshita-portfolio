@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 function Masthead() {
   return (
-    <header className="border-b border-ink-950/8 pb-[30px] pt-16">
+    <header className="border-b border-etch/8 pb-[30px] pt-16">
       <p className="text-[12px] uppercase tracking-[0.16em] text-text-secondary">Blog</p>
       <h1 className="mt-3.5 max-w-[16ch] font-display text-[clamp(2.25rem,5vw,3.25rem)] font-normal leading-[1.02] tracking-[-0.015em] text-text-primary">
         {MASTHEAD.title}
@@ -53,7 +53,7 @@ function FeaturedCard({ post }: { post: BlogCard }) {
           topic={post.topic}
           sizes="(max-width: 1024px) 100vw, 55vw"
           priority
-          className="aspect-[16/10] rounded-xl border border-ink-950/8"
+          className="aspect-[16/10] rounded-xl border border-etch/8"
         />
         <div>
           <p className="text-[11.5px] uppercase tracking-[0.13em] text-text-secondary">
@@ -85,7 +85,7 @@ function PostCard({ post }: { post: BlogCard }) {
         title={post.title}
         topic={post.topic}
         sizes="(max-width: 1024px) 100vw, 45vw"
-        className="aspect-[16/10] rounded-xl border border-ink-950/8"
+        className="aspect-[16/10] rounded-xl border border-etch/8"
       />
       <div className="mt-3.5 flex items-center gap-3 text-[12px] uppercase tracking-[0.1em] text-text-secondary">
         <span>{formatShortDate(post.date)}</span>

@@ -54,7 +54,7 @@ export default function VideoEmbed({
   const label = title ?? (typeof caption === "string" ? caption : undefined) ?? "Prototype walkthrough";
 
   const media = (
-    <div className="relative w-full bg-surface-well" style={{ aspectRatio: aspect }}>
+    <div className="relative w-full bg-cream-100" style={{ aspectRatio: aspect }}>
       {playable ? (
         <video
           // REDUCED MOTION: a muted loop is still motion, and an autoplaying one is
@@ -109,12 +109,12 @@ export default function VideoEmbed({
 
       <div className="mt-6">
         {frame === "browser" ? (
-          <div className="overflow-hidden rounded-xl border border-ink-950/10 bg-surface drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)]">
+          <div className="overflow-hidden rounded-xl border border-ink-950/10 bg-cream-50 drop-shadow-[0_18px_40px_rgba(33,28,22,0.16)]">
             {/* Window chrome — decorative, and the same shape WideFrame draws, so a
                 video and a screenshot read as the same kind of object on the page. */}
             <div
               aria-hidden
-              className="flex items-center gap-1.5 border-b border-ink-950/8 bg-surface-well px-3.5 py-2.5"
+              className="flex items-center gap-1.5 border-b border-ink-950/8 bg-cream-100 px-3.5 py-2.5"
             >
               <span className="size-2.5 rounded-full bg-ink-950/15" />
               <span className="size-2.5 rounded-full bg-ink-950/15" />
@@ -138,7 +138,7 @@ export default function VideoEmbed({
             {caption ? renderRich(caption) : null}
           </p>
           {playable && !reduce && (
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-ink-950/8 bg-surface px-2.5 py-1 text-eyebrow uppercase tracking-eyebrow text-text-subtle">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-eyebrow uppercase tracking-eyebrow text-text-subtle">
               <span aria-hidden className="size-1.5 rounded-full bg-accent-500" />
               Loops · muted
             </span>

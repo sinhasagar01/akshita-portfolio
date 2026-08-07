@@ -92,7 +92,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* The ONE love control on the site. Everything else that shows a count is a
             readout — see LoveButton's header. */}
-        <div id="blog-love-block" className="mt-[60px] border-y border-ink-950/8 py-[38px] text-center">
+        <div id="blog-love-block" className="mt-[60px] border-y border-etch/8 py-[38px] text-center">
           <p className="mb-5 font-display text-[23px] leading-[1.35] text-text-primary">
             If this was worth your time, leave it some love.
           </p>
