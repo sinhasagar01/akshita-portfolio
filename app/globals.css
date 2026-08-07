@@ -21,6 +21,21 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Color palette — warm editorial cream
   ============================================================ */
 
+  /* ⚠ RAISING A LIGHTNESS CAN PUSH A PALETTE OUT OF GAMUT — A LIGHTNESS DECISION PRODUCING A CHROMA
+     FAILURE, and nothing in the record had stated that coupling before it happened.
+
+     This ladder's card lift is 1.21 — cream-50 against canvas — and it is now the one ladder all six
+     palettes use. When the six were unified, cerise's `cream-100` had to RISE from 95.2% to 96.8%,
+     and at that lightness its chroma of 0.022 measured 4.1 OUTSIDE sRGB. Far above the 0.5 nudge
+     margin, so it was a real clip rather than the deliberate just-inside margin. sRGB holds less
+     chroma the lighter a colour gets, and cerise's hue is the tightest of the six — the ceiling
+     there is 0.016, measured through the written string rather than the variable that produced it.
+
+     ⚠ THE NEXT LADDER CHANGE WILL MEET THIS AND THE TIGHTEST HUE WILL NOT ALWAYS BE CERISE. Chroma
+     is not comparable across hues, so which palette breaks cannot be predicted from the numbers
+     looking large or small. Run `theme-contrast` section K after ANY lightness move here, and read
+     its overshoot against CLIP_EPSILON rather than against zero — six declarations sit legitimately
+     between the two. */
   --color-canvas:    oklch(92.0% 0.022 78);   /* darker warm beige — page canvas behind cards */
   --color-cream-50:  oklch(98.5% 0.012 80);
   --color-cream-100: oklch(96.8% 0.018 78);
