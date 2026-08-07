@@ -185,7 +185,7 @@ export default function HeroCover({
             {...mp}
             variants={fadeUp(0.385)}
             {...edit("thesis", "Edit hero thesis")}
-            className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] text-on-dark leading-[1.35] max-w-[36ch]${aff}`}
+            className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] leading-[1.35] max-w-[36ch]${aff}`}
           >
             {data.thesis}
           </motion.h2>
@@ -204,7 +204,7 @@ export default function HeroCover({
               </dt>
               <dd
                 {...edit(`meta.${i}.value`, "Edit fact value")}
-                className={`text-[14px] font-medium text-on-dark leading-[1.35]${aff}`}
+                className={`text-[14px] font-medium leading-[1.35]${aff}`}
               >
                 {item.value}
               </dd>

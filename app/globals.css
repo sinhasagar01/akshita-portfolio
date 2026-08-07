@@ -1241,12 +1241,56 @@ a {
      as the cards, so the hero→first-card gap equals every card→card gap. */
   margin-bottom: var(--section-gap);
 }
-/* the web case-study hero is a dark ground */
-.hero-ground.is-dark {
+/* ============================================================================================
+   ⚠ `data-ground="dark"` — THE DARK CONTEXT, NAMED. AND IT IS NOT NEW CAPABILITY.
+
+   `.hero-ground.is-dark` did exactly this and is the reason the mechanism could be proven on a
+   shipped surface: a scoped context that paints a ground AND redirects the foreground vocabulary
+   beneath it. This is that, given a name and applied to every scope that was doing it by hand.
+
+   ---- ⚠ THE CENSUS THAT PRECEDED IT: FOUR WAYS TO SAY "THIS IS DARK" -------------------------
+
+   None of the four knew about the others, which is WHY `SectionHeading`'s two `tone` branches could
+   disagree and why `PullQuote` had a `dark` prop at all.
+
+     1  `.hero-ground.is-dark`                        a class — ground AND colour
+     2  inline `background-color: band-dark`          in SectionRenderer, TWICE — ground, NO colour
+     3  `PullQuote`'s `dark` prop                     a component choosing by ground
+     4  `data-nav-tone="dark"` on the site header     retones the nav's glass
+
+   THREE COLLAPSE INTO THIS ATTRIBUTE. The fourth stays, because it says something different.
+
+   ---- ⚠ WHY THE NAV KEEPS ITS OWN ATTRIBUTE — TWO PREDICATES, NOT ONE ------------------------
+
+     data-ground="dark"     MY GROUND IS DARK, so my descendants take the dark vocabulary.
+     data-nav-tone="dark"   WHAT IS BEHIND MY TRANSLUCENT SURFACE IS DARK, so retone my glass.
+
+   They resolve the SAME on-dark vocabulary, which is exactly what will make someone try to fold
+   them. The reason they cannot is structural rather than temporal: `SiteHeader` is a SIBLING of
+   `{children}` in `app/(portfolio)/layout.tsx`, so it is never inside the region it overlaps and
+   the containment argument is unavailable to it — no ground attribute can reach a fixed element
+   that overlaps regions it does not contain. The nav also paints no ground at all; it tints what
+   is beneath through `--glass-fill`.
+
+   TWO TRIGGERS FOR ONE VOCABULARY IS NOT TWO MECHANISMS.
+
+   ---- WHAT THE CONVERSION MADE DELETABLE ----------------------------------------------------
+
+   Seven `on-dark` utilities were LOAD-BEARING before this, and only because mechanism 2 existed:
+   the card variant set a background and no colour, so nothing inherited a light foreground and
+   every child had to name one. This attribute resolves them, so they went in the same commit —
+   leaving them would have traded one dark mechanism for two, which is what the conversion exists
+   to end.
+============================================================================================ */
+[data-ground="dark"] {
   background-color: var(--color-band-dark);
   color: var(--color-on-dark);
   --glow-color: var(--glow-on-dark);
   --hero-facts-line: color-mix(in srgb, var(--color-white) 14%, transparent);
+}
+/* The full-bleed hero keeps its layout class; the dark part is the attribute above. */
+.hero-ground.is-dark {
+  --glow-color: var(--glow-on-dark);
 }
 
 /* THE FADED-PEEK CASE-STUDY HERO (F). Exactly 100svh with content flowing from the top,

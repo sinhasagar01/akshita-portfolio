@@ -1,8 +1,36 @@
 import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
 /** `.pull` — left-bar italic pull quote. Under template=web (CS-7b) the Bold-gallery
- *  serif quote: `dark` renders it on the dark band (on-dark-quote), otherwise the
- *  inline light serif (accent). Mobile keeps the left-bar quote, byte-identically.
+ *  serif quote: the BAND variant renders on the dark quote band, otherwise the inline
+ *  light serif (accent). Mobile keeps the left-bar quote, byte-identically.
+ *
+ *
+ *  ---- ⚠ THE ACCEPTANCE TEST FIRED, AND IT PASSED --------------------------------------------
+ *
+ *  This carried a `dark` prop and picked its colour from it — the one true violation of the rule
+ *  that A COMPONENT MAY CHOOSE WHAT KIND OF THING IT IS BUT NOT WHERE IT LIVES. #385 pinned it as
+ *  the acceptance test for the ground switch: when `data-ground="dark"` landed, the branch had to
+ *  disappear, and if it could not, shape C had failed and that was to be SAID rather than patched.
+ *
+ *  ⚠ AND THE RESOLUTION NEEDED NO NEW ROLE, WHICH WAS THE SURPRISE. The obvious repair was a
+ *  `quote` role resolving per ground. It is unnecessary: the prop was misnamed rather than
+ *  misconceived. This variant is a full-bleed quote BAND — a KIND of quote, chosen by
+ *  `SectionRenderer` when the quote is a section's sole block — and a band is always dark. So
+ *  `on-dark-quote` here is a CONSTANT of the variant, not a choice about the ground, exactly as
+ *  `HeroCover`'s on-dark names are constants because HeroCover has only one ground.
+ *
+ *  A COMPONENT WITH ONLY ONE GROUND IS NOT CHOOSING. Renaming `dark` to `band` is what makes that
+ *  legible, and the size difference between the variants — a band quote is set larger than an
+ *  inline one — is a layout fact that was never a ground fact.
+ *
+ *  `SectionHeading`'s `tone` is the same shape and was never a violation: accent-toned or
+ *  ink-toned, both following the theme. The difference is that a KIND is a property of the thing
+ *  and a GROUND is a property of the place.
+ */
+
+/** `.pull` — left-bar italic pull quote. Under template=web (CS-7b) the Bold-gallery
+ *  serif quote: the BAND variant renders on the dark quote band, otherwise the inline
+ *  light serif (accent). Mobile keeps the left-bar quote, byte-identically.
  *
  *  ---- ⚠ THIS `dark` BRANCH IS THE ACCEPTANCE TEST FOR THE GROUND SWITCH ---------------------
  *
@@ -30,19 +58,19 @@ import { EDIT_AFFORD, inlineEditProps } from "../editable";
 export default function PullQuote({
   text,
   web = false,
-  dark = false,
+  band = false,
   editable = false,
   blockIndex,
 }: {
   text: string;
   web?: boolean;
-  dark?: boolean;
+  band?: boolean;
   editable?: boolean;
   blockIndex?: number;
 }) {
   const edit = inlineEditProps(editable, blockIndex, "text", "Edit pull quote");
   const aff = editable ? EDIT_AFFORD : "";
-  if (web && dark) {
+  if (web && band) {
     return (
       <p
         {...edit}
