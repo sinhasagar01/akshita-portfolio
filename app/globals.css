@@ -3265,14 +3265,23 @@ a {
   background:
     linear-gradient(150deg, var(--color-cream-100), var(--color-cream-200));
 }
+/* ⚠ THE TOPIC, NOT THE TITLE, SINCE #379 — and the ITALIC is what carries that distinction.
+   The plate sets a short phrase on a card that ALSO shows its title three lines away, so the two
+   must not read as the same kind of thing. Upright display serif at this size reads as a headline;
+   italic reads as a category, which is what this site already does with the hero thesis and the
+   blog's standfirst.
+
+   ⚠ AND IT IS LARGER THAN THE TITLE VERSION WAS, BECAUSE THE SUBJECT GOT SHORTER. A topic is two
+   or three words against a full sentence, so the same box holds more of it — 16ch against 22. */
 .blog-plate span {
   font-family: var(--font-display);
+  font-style: italic;
   font-weight: 400;
-  font-size: clamp(17px, 2.4vw, 24px);
+  font-size: clamp(20px, 3vw, 30px);
   line-height: 1.16;
   letter-spacing: -0.01em;
   color: var(--color-ink-800);
-  max-width: 22ch;
+  max-width: 16ch;
 }
 
 /* ============================================================ VESSEL + CAPSULE

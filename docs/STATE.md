@@ -11201,6 +11201,20 @@ separately, so neither can absorb the other's failure. This is the empty-subject
 assertion built to prevent it**, found the same way everything else here is — by mutating and
 looking, not by reading.
 
+**⚠ AND THIS IS THE ARC'S LAST WORD ON DENOMINATORS, SO THE REPAIR IS WORTH STATING GENERALLY: a
+denominator assertion must compare against something THE SUBJECT CANNOT HOLLOW OUT** — a literal, or
+a count reached by an independent route. That is **D3b's two-readers rule arriving one level down**,
+and it is the **sixth** place "check the denominator" has appeared in a new form.
+
+---
+
+## ⚠ THE COST OF #378, WHERE SOMEBODY RETUNING AN ACCENT WILL LOOK
+
+`harbour` accent **h165.3** and `fern` accent **h134** now sit **31.3 degrees apart against D12d's
+floor of 30** — the **tightest accent pair on the site**, and created by a correctness fix rather
+than by a design choice. **Anyone retuning either accent has 1.3 degrees of room.** Written here and
+in CLAUDE.md's ceiling convention because the palette COUNT does not tell you that.
+
 ## THE REVERT-TO-CREAM CONVENTION WAS STALE AND IS FIXED
 
 CLAUDE.md said "revert `theme:` to `cream` before committing". The owner published **harbour**
@@ -11209,6 +11223,55 @@ looking like tidying up**. It now says restore to the PUBLISHED value, read from
 `git show main:content/site-settings.yaml`. **A convention naming a specific theme is the fixed-list
 shape again** — same defect as D12's hardcoded pairs and `SETTINGS_THEME_VALUES` before ralph tied
 it to `THEME_NAMES`.
+
+## THE PLATE CARRIES THE TOPIC, AND #376's OPEN TRADE IS CLOSED (#379)
+
+`.blog-plate` set the post's TITLE beside a card that also shows its title three lines away. Fixed
+by drawing `topic` instead, italic, at 30px on a 16ch measure.
+
+**⚠ AND THE REPLACEMENT ADDS INFORMATION RATHER THAN REMOVING IT.** `topic` renders on the ARTICLE
+(the eyebrow, and the vessel's readout) and **nowhere on the index** — the featured card shows
+"Latest · date" and the stream cards show date and reading time. So the index **gains a field it
+never carried**, in the slot that was repeating one it already had. All three posts have one.
+
+The italic is the mechanism: upright display serif at that size reads as a second headline, italic
+reads as a category, which is what the site already does with the hero thesis. Rendered on harbour
+and confirmed — the two now read as different kinds of thing.
+
+**⚠ AND NOTHING GATED THE PLATE AT ALL.** `ralph/tests/blog-plate.mjs` is new, 15 assertions, and its
+subject is **a relation between two components** — which is why neither component's own gate would
+have caught the defect. `Shot` was right about plates; `page.tsx` was right about cards. C2 closes
+the content route: **an author typing the headline into the topic field would restore the
+duplication with every code assertion still green.**
+
+**⚠ AND ink-800 ON cream-200 JOINED THE USAGE MAP, WITH A CONSUMER BEHIND IT.** The plate's gradient
+reaches `cream-200`, a text-on-ground pair the map never named — because the plate had never
+rendered, so the pair had no consumer to count. Measured across all five palettes before adding:
+12.87 / 12.45 / 12.66 / 11.76 / 11.63, worst margin **+7.13**.
+
+**⚠ AND THE GATE FAILED ON ITS OWN COMMENT FIRST.** D1 reported the plate carrying a colour literal,
+correctly, about the string `#379` — **a three-digit PR reference is lexically a valid hex colour**,
+and every note in this repo cites PR numbers. `colour-census` had already met this and strips block
+comments at its line 120; this suite was newer and had not.
+
+---
+
+## ⚠ AND `mutate.mjs --restore` COULD NOT UNDO THE MUTATION ITSELF, WHICH IS BACKWARDS
+
+`dirtyFiles()` snapshots files **already dirty** — the operator's work in progress. A mutation to a
+file that was **CLEAN** at snapshot time creates a dirty file the snapshot never held, so restore
+had nothing to put back **and printed "restored N file(s)" anyway**.
+
+**IT ONLY EVER WORKED WHEN THE MUTATED FILE HAPPENED TO BE ONE ALREADY EDITED THAT SESSION.** Three
+of this PR's four mutations restored; the fourth — a content YAML nothing had touched — silently did
+not, and the restore reported success for all four. Found by reading `git status` rather than by
+trusting the tool, which is the same discipline as re-deriving a cited figure.
+
+The repair records which tracked files were CLEAN at snapshot time and reverts those with
+`git checkout` **one by one, named**. Safe **by construction**: clean at snapshot means HEAD held the
+intended state. That is precisely the distinction #364 turned on — `git checkout` is destructive when
+the tree holds unsaved intent and correct exactly when it does not. A snapshot predating this says
+so rather than reporting a clean restore.
 
 ## WHAT'S NEXT
 

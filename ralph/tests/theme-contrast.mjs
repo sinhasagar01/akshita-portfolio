@@ -156,7 +156,12 @@ const UI = (fg, bgs, note) => bgs.map((bg) => ({ key: `${fg} on ${bg} (non-text)
 const GROUNDS = ["canvas", "cream-50", "cream-100", "cream-200"];
 
 const USAGE = [
-  ...TEXT("ink-950", GROUNDS), ...TEXT("ink-800", ["cream-50", "cream-100"]),
+  /* ⚠ `cream-200` JOINED ink-800's ROW IN #379, WITH A CONSUMER BEHIND IT. `.blog-plate` draws its
+     text on a `cream-100 -> cream-200` gradient, so the DARKER end is a real text-on-ground pair
+     that this map did not name — the plate had never rendered (every post carried a hero), so the
+     pair had no consumer to be counted until #376 unset two. Measured across all five palettes
+     before adding: 12.87 / 12.45 / 12.66 / 11.76 / 11.63, worst margin +7.13. */
+  ...TEXT("ink-950", GROUNDS), ...TEXT("ink-800", ["cream-50", "cream-100", "cream-200"]),
   ...TEXT("ink-600", GROUNDS), ...TEXT("text-primary", ["canvas"]),
   ...TEXT("text-secondary", ["canvas"]),
   /* `text-muted` stood beside this and is deleted — it held the same value, so its rows were a

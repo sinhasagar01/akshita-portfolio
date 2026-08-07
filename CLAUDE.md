@@ -363,21 +363,30 @@ closed.
 
 - **⚠ `mutate.mjs` CONFIRMS THE SOURCE CHANGED AND CANNOT CONFIRM THE SUBJECT DID**, and the subject is sometimes the bundle and sometimes the rendered DOM. Two instances: a mutation to `globals.css` that needed a rebuild before `colour-census` could see it, and `data-theme` moved onto a React component that never forwards it to the DOM — **the attribute simply never appeared, so the assertion had nothing to find and reported SURVIVED**. A mutation that lands in JSX and not in the DOM looks exactly like a mutation the gate withstood. **Rebuild first, and check the mutation reached the subject rather than only the file.**
 
-- **⚠ A DENOMINATOR GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING.** D12b asserted
-  `PAIRS.length === n(n-1)/2` where `n` came from the same list `PAIRS` did — so emptying that list
-  made **both sides 0 and the row passed**, and five of D12's six rows passed with it, because
-  nothing to iterate is indistinguishable from nothing wrong. **Only a comparison against a CONSTANT
-  catches an empty subject.** The closed form is still worth asserting, as a separate row that
-  cannot absorb the other's failure. Found by mutation, in the assertion written to prevent exactly
-  this.
+- **⚠ A DENOMINATOR GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING — AND THIS IS THE ARC'S LAST
+  WORD ON DENOMINATORS.** D12b existed *solely* to catch an empty run, and computed its expected
+  count from the list it was checking: `PAIRS.length === n(n-1)/2` with `n` from that same list. **An
+  empty list satisfied it exactly**, and five of D12's six rows passed with it, because nothing to
+  iterate is indistinguishable from nothing wrong. **Only the CONSTANT floor row caught the
+  mutation.**
+
+  **THE REPAIR IS THE CONSTANT.** A denominator assertion must compare against something **the
+  subject cannot hollow out** — a literal, or a count arrived at by an independent route. That is
+  **D3b's two-readers rule arriving one level down**, and it is the **sixth** place "check the
+  denominator" has turned up wearing new clothes. The closed form is still worth asserting, as a
+  separate row that cannot absorb the other's failure.
 
 - **⚠ MEASURE THROUGH THE STRING THAT GETS WRITTEN, NOT THE VARIABLE THAT PRODUCED IT.** A search
   for an in-gamut colour reported margins of +0.49 and +0.00 for values that were **2.65 and 1.7
   outside sRGB**, because `(l * 100).toFixed(1)` rounded 49.55 to "49.6" AFTER the overshoot had
   been computed on 49.55. **The number was true of a colour, and not of the colour it was written
   beside.** Round first, then measure the rounded form — `gamutOvershoot(css)` on the literal string
-  — so the value tested and the value shipped cannot differ. **And review did not catch it; the gate
-  did, because it reads the artefact rather than the search's report.**
+  — so the value tested and the value shipped cannot differ.
+
+  **⚠ SAME FAMILY AS THE MISLABELLED THEME CAPTURE: the number was real and it described a different
+  colour than the one beside it.** And **the gate outranked the author because it reads the
+  STYLESHEET rather than the report** — which is precisely why **a gate that RECOMPUTES beats one
+  that PINS**, and why K2 caught what review could not.
 
 - **⚠ A CONVENTION THAT NAMES A SPECIFIC THEME IS THE FIXED-LIST SHAPE.** "Revert `theme:` to
   `cream` before committing" went stale the moment the owner published harbour through /studio, and
@@ -392,6 +401,11 @@ closed.
   already placed unevenly, so exactly two more fit and both shipped ones land EXACTLY on 60.
   **FIVE REAL PALETTES IS THE CEILING THIS FLOOR IMPLIES.** Whoever wants a sixth is choosing to
   lower the floor, and `theme-contrast` D12d is where that gets written.
+
+  **⚠ AND THE ROOM LEFT IS 1.3 DEGREES, NOT THE COUNT.** `harbour` accent h165.3 and `fern` accent
+  h134 sit **31.3 degrees apart against D12d's floor of 30** — the tightest accent pair on the site,
+  and it was created by #378's CORRECTNESS FIX rather than by any design choice. **Anyone retuning
+  either accent has 1.3 degrees of room**, which the palette count alone does not tell them.
 
   **⚠ NOTHING DISCOVERS THIS EXCEPT COUNTING.** Four candidates measured first came back as three
   unrelated hue collisions — **a result somebody tunes three hues in response to.** The bound is the
@@ -426,6 +440,20 @@ closed.
   the ground.** Knowing which kind of argument an exclusion makes tells you in advance whether a new
   theme can overturn it — so read the `test:` field before re-litigating an entry that merely looks
   wrong on a new palette.
+
+- **⚠ `mutate.mjs`'s SNAPSHOT COVERS THE FILES YOU ALREADY EDITED, NOT THE ONES THE MUTATION WILL
+  DIRTY — AND THAT IS BACKWARDS FROM HOW IT READS.** `dirtyFiles()` captures work in progress, so a
+  mutation to a file that was **CLEAN** at snapshot time was never restorable, and `--restore`
+  printed "restored N file(s)" regardless. **It only ever worked when the mutated file happened to
+  be one you had already edited that session.** Fixed in #379 by recording the clean set and
+  reverting exactly those with `git checkout` — safe by construction, because clean at snapshot
+  means HEAD held the intent. **Read `git status` after every restore anyway**; the tool reporting
+  success is not evidence the tree is right.
+
+- **⚠ A THREE-DIGIT PR REFERENCE IS LEXICALLY A VALID HEX COLOUR.** `#379` in a CSS comment made a
+  new gate report a colour literal — correctly, about a number. **Every note in this repo cites PR
+  numbers**, so any matcher run over CSS must strip comments first, as `colour-census` does at its
+  line 120. The trap is invisible until a comment happens to cite a PR under 1000.
 
 - **⚠ `mutate.mjs --restore` CONSUMES ITS SNAPSHOT — SNAPSHOT BEFORE *EACH* MUTATION.** A second
   restore in one session reports "no snapshot to restore from" and **leaves the mutation in the

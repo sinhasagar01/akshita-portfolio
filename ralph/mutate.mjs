@@ -28,7 +28,7 @@
 // to a counter, and they mean opposite things: one is a defect in the gate, the other is a defect
 // in the mutation. Reporting the second as the first sends you rewriting a gate that was fine.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { countAssertions } from "./count.mjs";
 
@@ -73,9 +73,26 @@ if (process.argv[2] === "--snapshot") {
     mkdirSync(dirname(dest), { recursive: true });
     copyFileSync(rel, dest);
   }
+  /* ⚠ THE MANIFEST IS THE OTHER HALF, AND WITHOUT IT `--restore` CANNOT UNDO THE MUTATION ITSELF.
+   * The snapshot above captures files ALREADY DIRTY — the operator's work in progress. A mutation
+   * to a file that was CLEAN at snapshot time creates a dirty file the snapshot never held, so the
+   * restore had nothing to put back and said "restored N file(s)" anyway.
+   *
+   * ⚠ THAT IS EXACTLY BACKWARDS FROM WHAT AN OPERATOR ASSUMES. It reads as "snapshot, mutate,
+   * restore", and it only ever worked when the mutated file happened to be one already edited that
+   * session. Found mutating a content YAML in #379: three mutations restored, the fourth silently
+   * did not, and the restore reported success for all four.
+   *
+   * Recording which files were CLEAN lets restore revert them with `git checkout`, which is safe
+   * BY CONSTRUCTION here: clean at snapshot time means HEAD held the intended state. That is the
+   * distinction #364 turned on — `git checkout` is destructive when the tree holds unsaved intent,
+   * and correct precisely when it does not. */
+  writeFileSync(join(SNAP, ".clean-at-snapshot"), spawnSync("git", ["ls-files"], { encoding: "utf8" }).stdout
+    .split("\n").map((l) => l.trim()).filter(Boolean).filter((f) => !files.includes(f)).join("\n"));
+
   console.log(`snapshotted ${files.length} dirty file(s) — mutate freely, then \`--restore\`:`);
   for (const f of files) console.log(`  ${f}`);
-  if (!files.length) console.log("  (tree is clean — `git checkout` would be safe here anyway)");
+  if (!files.length) console.log("  (tree was clean — every tracked file will be reverted by `--restore`)");
   process.exit(0);
 }
 
@@ -86,10 +103,29 @@ if (process.argv[2] === "--restore") {
   }
   const walk = (d, base = "") => readdirSync(d, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? walk(join(d, e.name), join(base, e.name)) : [join(base, e.name)]);
-  const files = walk(SNAP);
+  const files = walk(SNAP).filter((f) => f !== ".clean-at-snapshot");
   for (const rel of files) { mkdirSync(dirname(rel) || ".", { recursive: true }); copyFileSync(join(SNAP, rel), rel); }
   console.log(`restored ${files.length} file(s) from the pre-mutation snapshot:`);
   for (const f of files) console.log(`  ${f}`);
+
+  /* ⚠ AND THE FILES THAT WERE CLEAN — the ones the mutation itself dirtied. `git checkout` on
+   * these is safe because they were clean when the snapshot ran, so HEAD is their intended state.
+   * Reverted ONE BY ONE and named, because a blanket checkout is the destructive operation this
+   * whole mechanism exists to avoid. */
+  const manifest = join(SNAP, ".clean-at-snapshot");
+  const wasClean = existsSync(manifest)
+    ? readFileSync(manifest, "utf8").split("\n").map((l) => l.trim()).filter(Boolean) : [];
+  const nowDirty = new Set(dirtyFiles());
+  const mutated = wasClean.filter((f) => nowDirty.has(f));
+  for (const f of mutated) spawnSync("git", ["checkout", "--", f]);
+  if (mutated.length) {
+    console.log(`reverted ${mutated.length} file(s) the mutation itself dirtied (clean at snapshot, so HEAD is the intent):`);
+    for (const f of mutated) console.log(`  ${f}`);
+  }
+  if (!existsSync(manifest)) {
+    console.log("⚠ no clean-file manifest — this snapshot predates #379, so a mutation to a");
+    console.log("  previously-clean file has NOT been reverted. Check `git status`.");
+  }
   rmSync(SNAP, { recursive: true, force: true });
   process.exit(0);
 }
