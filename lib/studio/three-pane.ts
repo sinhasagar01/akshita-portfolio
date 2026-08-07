@@ -191,6 +191,19 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
     },
   },
 
+  /* The first dark palette. The measure is still a FONT fact and sapphire changes no font, so it
+     inherits for the same reason harbour and orchid do. */
+  sapphire: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
+
   /* ⚠ A PERMANENT CONTROL. DO NOT DELETE IT, AND DO NOT LET IT DRIFT FROM THE BLOCK ABOVE.
 
      It shipped as a fixture with a deletion trigger and is no longer one. The cross-theme gate

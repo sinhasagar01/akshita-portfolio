@@ -80,8 +80,15 @@ export const THIRD_THEME = "orchid";
 export const FOURTH_THEME = "cerise";
 export const FIFTH_THEME = "fern";
 
+/* ⚠ THE FIRST DARK PALETTE, AND THE FIRST MEMBER OF A SECOND GROUND CLASS. It does not compete for
+ * hue with the light five — measured, hue changes the difference between a light and a dark ground
+ * by 0.1% — so `theme-contrast` D12 skips those pairs and section L's dark band owns it. Its h250
+ * sits 17 degrees from harbour's ground, which is a collision only under a floor calibrated for a
+ * class it is not in. */
+export const SIXTH_THEME = "sapphire";
+
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -132,6 +139,8 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [THIRD_THEME]: "light",
   [FOURTH_THEME]: "light",
   [FIFTH_THEME]: "light",
+  /* ⚠ THE ONLY DARK MEMBER. Its page ground is `band-dark`, not `canvas`. */
+  [SIXTH_THEME]: "dark",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
 };
@@ -160,6 +169,19 @@ export type ThemeName = (typeof THEME_NAMES)[number];
 ============================================================================================ */
 const UNSELECTABLE: Record<string, string> = {
   [VERIFY_THEME]: "permanent verification control — never publishable",
+  /* ⚠ HELD, AND THE RENDER IS WHY. Sapphire's 35 tokens are correct, in gamut, and every dark-page
+     floor clears. What does not work yet is the PAGE: `globals.css` holds 81 raw rung references —
+     `.hero-ground` paints `var(--color-cream-50)` directly — and a rung does not remap under
+     `[data-ground="dark"]`. So a dark palette paints a dark ground and is then covered by light
+     sections.
+
+     ⚠ THE ROLE MIGRATION'S SUBJECT WAS `.tsx` FILES AND NEVER INCLUDED THE STYLESHEET. Four PRs of
+     denominators, all asserting the subject was non-empty and counted per directory, and the FILE
+     TYPE was narrowed at the walk and never questioned. The render found it in one screenshot.
+
+     Clears when `globals.css`'s raw rungs move to roles. Until then publishing this would hand the
+     owner a broken page, which is what the hold is for — the same mechanism orchid used. */
+  sapphire: "held until globals.css's raw rungs migrate to roles — a dark page cannot render yet",
   /* ⚠ ORCHID WAS HELD HERE AND IS UNHELD IN #374. THE HOLD IS KEPT IN THE RECORD RATHER THAN
      DELETED, because a hold whose reasoning vanishes leaves no way to tell a considered release
      from a forgotten one.
@@ -231,6 +253,7 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [THIRD_THEME]: { cream: "#fefaff", ink: "#0f0812", muted: "#5a525d", accent: "#993f94" },
   [FOURTH_THEME]: { cream: "#fef8f8", ink: "#190405", muted: "#574141", accent: "#d12d6b" },
   [FIFTH_THEME]: { cream: "#f4fdf1", ink: "#020f03", muted: "#3e4c3f", accent: "#4b7f20" },
+  [SIXTH_THEME]: { cream: "#f6fafe", ink: "#040c16", muted: "#404952", accent: "#6980f4" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -241,6 +264,7 @@ export const THEME_SPLASH: Record<string, string> = {
   [THIRD_THEME]: "#FEFAFF",
   [FOURTH_THEME]: "#FEF8F8",
   [FIFTH_THEME]: "#F4FDF1",
+  [SIXTH_THEME]: "#F6FAFE",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };

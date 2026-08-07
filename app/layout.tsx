@@ -14,7 +14,7 @@ import {
   SITE_KEYWORDS,
 } from "@/lib/site";
 import { getSiteSettings } from "@/lib/keystatic";
-import { DEFAULT_THEME } from "@/lib/theme";
+import { DEFAULT_THEME, THEME_GROUND } from "@/lib/theme";
 import "./globals.css";
 
 const kaushanScript = Kaushan_Script({
@@ -161,11 +161,16 @@ export default async function RootLayout({
      pay nothing new. A null singleton resolves to the default the same way a missing field does. */
   const settings = await getSiteSettings();
   const theme = settings?.theme ?? DEFAULT_THEME;
+  /* ⚠ THE GROUND CLASS COMES FROM THE PALETTE, NOT FROM A SECOND SETTING. A palette IS light or
+     dark; there is no visitor toggle and no orthogonal preference. `data-ground="dark"` is emitted
+     only for a dark palette, which is what makes the roles resolve to the on-dark vocabulary. */
+  const ground = THEME_GROUND[theme] ?? "light";
 
   return (
     <html
       lang="en"
       data-theme={theme}
+      data-ground={ground === "dark" ? "dark" : undefined}
       className={`${kaushanScript.variable} ${caveat.variable} ${sourceSerif.variable} ${workSans.variable} ${spaceGrotesk.variable}`}
     >
       <head>

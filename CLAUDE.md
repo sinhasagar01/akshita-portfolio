@@ -537,6 +537,28 @@ closed.
   **AND THE DECLARATION MUST BE REQUIRED RATHER THAN DEFAULTED**, or a new palette silently joins
   the majority class, which is the failure L exists to prevent reintroduced at the declaration.
 
+- **⚠ A DENOMINATOR PROVES YOU COUNTED EVERYTHING YOU LOOKED AT — NOT THAT YOU LOOKED AT
+  EVERYTHING.** The role migration ran four PRs with per-directory and per-category denominators,
+  each asserting its subject was non-empty, and **its file walk collected `.tsx` only.**
+  `globals.css` holds **81 raw rung references** and was never in the subject, so a dark ground
+  paints and every section covers it. **Every check verified the count within a population nobody
+  checked the boundary of.**
+
+  **When a sweep is bounded by directory, ask what bounds it by FILE TYPE**, and state that boundary
+  the way the directory one is stated.
+
+- **⚠ A RATIO BETWEEN TWO COLOURS THAT NEVER MEET IS AS MEANINGLESS AS A RATIO INVOLVING A COLOUR
+  THAT CANNOT EXIST.** Both return plausible, checkable-looking numbers. Jade's was a clipped colour
+  measured at 4.320; `accent-600` on `band-dark` measures 2.16 to 2.64 across five palettes and
+  **those two never appear together on any page** — `SectionRenderer` gates the dark ground on
+  `isWebHero`, so the h1 that uses `accent-600` falls through to a light card.
+
+  **⚠ JADE'S WAS REFUSED ONCE THE GAMUT CHECK RAN BEFORE THE CONTRAST CHECK. THIS ONE HAS NO
+  EQUIVALENT GUARD**, because an instrument reading tokens cannot know which pairings the DOM
+  actually produces. **That is the usage map's deepest limit, now named twice from opposite sides:**
+  grounds that resolve at a distance, and pairings that never occur. **The map asserts what meets
+  what, and only the render knows.**
+
 - **⚠ A LABEL THAT NAMES A CAUSE RATHER THAN A THRESHOLD INVITES A GATE TO ASSERT THE CAUSE.**
   `theme-contrast`'s 3.0 rows were called **non-text** — a claim about what elements ARE — when the
   checkable claim is **"3.0 applies"**, a claim about which floor governs. A gate written from the
