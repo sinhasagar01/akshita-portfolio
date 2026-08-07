@@ -62,8 +62,26 @@ export const SECOND_THEME = "harbour";
  * pair, and none read the stylesheet to ask what was actually declared. */
 export const THIRD_THEME = "orchid";
 
+/* ⚠ THEMES FOUR AND FIVE, AND THE CEILING THEY SIT ON. Five were asked for and TWO IS WHAT THE
+ * GEOMETRY ALLOWS: seven hues on a circle are 51.4 degrees apart at perfect spacing, so seven
+ * palettes and `theme-contrast` D12's 60 degree ground floor cannot both be true at ANY placement.
+ * With cream, harbour and orchid already placed unevenly, exactly two more fit — and both of these
+ * land EXACTLY on the floor against a neighbour (cerise 60.0 from orchid, fern 60.0 from cream).
+ *
+ * ⚠ THE PALETTE COUNT AND THE SEPARATION FLOOR ARE ONE DECISION, NOT TWO. A sixth real theme is
+ * not a matter of deriving another good palette; it requires lowering D12's floor, and that is a
+ * choice about how distinct two themes must be. Nothing discovers this except counting — four
+ * candidates were measured first and refused as three unrelated hue collisions, which is a diff
+ * somebody tunes three hues in response to.
+ *
+ * `cerise` was briefed as a vermilion. h4 at shippable chroma resolves to #d12d6b, a raspberry —
+ * the warm orange-red region is claimed by CREAM'S OWN ACCENT at h42, so a palette wedged between
+ * orchid and cream cannot hold one. The name follows the colour. */
+export const FOURTH_THEME = "cerise";
+export const FIFTH_THEME = "fern";
+
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, VERIFY_THEME] as const;
 
 export type ThemeName = (typeof THEME_NAMES)[number];
 
@@ -158,6 +176,8 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [DEFAULT_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
   [SECOND_THEME]: { cream: "#f5fbff", ink: "#040d12", muted: "#4c575e", accent: "#007e5b" },
   [THIRD_THEME]: { cream: "#fefaff", ink: "#0f0812", muted: "#5a525d", accent: "#993f94" },
+  [FOURTH_THEME]: { cream: "#fef8f8", ink: "#190405", muted: "#574141", accent: "#d12d6b" },
+  [FIFTH_THEME]: { cream: "#f4fdf1", ink: "#020f03", muted: "#3e4c3f", accent: "#4b7f20" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -166,6 +186,8 @@ export const THEME_SPLASH: Record<string, string> = {
   [DEFAULT_THEME]: "#FEF9F1",
   [SECOND_THEME]: "#F5FBFF",
   [THIRD_THEME]: "#FEFAFF",
+  [FOURTH_THEME]: "#FEF8F8",
+  [FIFTH_THEME]: "#F4FDF1",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };

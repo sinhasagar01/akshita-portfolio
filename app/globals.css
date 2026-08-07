@@ -213,7 +213,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   /* The vessel's bounce highlight. ⚠ IT HAS NO ALPHA, which is why the wash reasoning that snapped
      the glows never reached it: at opacity 1 the composite IS the declaration, so its 10 from
      `cream-50` is 10 on screen. A colour the system had no word for, not one that must not move. */
-  --color-bounce: oklch(100% 0.008 80);
+  --color-bounce: oklch(99.5% 0.005 80);
 
   /* Status — muted warm sage for the studio "Live" pill (only green in the set) */
   --color-success-50:  oklch(94.5% 0.030 145);
@@ -550,7 +550,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-shadow: oklch(92% 0.02 40);
   --color-vessel-wave: oklch(93% 0.012 62);
   --color-glow-paper: oklch(63% 0.13 47 / 0.20);
-  --color-bounce: oklch(100% 0.008 80);
+  --color-bounce: oklch(99.5% 0.005 80);
   --color-reveal-sand: oklch(85.0% 0.040 67);
   --color-case-study-sand: oklch(88.5% 0.030 80);
   --color-glow-web: oklch(48.0% 0.115 266);
@@ -638,7 +638,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-shadow: oklch(92% 0.016 233);
   --color-vessel-wave: oklch(93% 0.012 233);
   --color-glow-paper: oklch(63% 0.11 168 / 0.20);
-  --color-bounce:     oklch(100% 0.008 233);
+  --color-bounce:     oklch(99.5% 0.003 233);
 
   --color-reveal-sand:     oklch(85.0% 0.032 210);
   --color-case-study-sand: oklch(88.5% 0.026 220);
@@ -665,7 +665,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      accent-500 @52%   on cream-50   5.820   floor 4.5   margin +1.320
 ============================================================================================ */
 [data-theme="orchid"] {
-  --color-cream-50: oklch(99.0% 0.010 315);
+  --color-cream-50: oklch(99.0% 0.007 315);
   --color-cream-100: oklch(97.2% 0.016 315);
   --color-cream-200: oklch(94.0% 0.022 315);
   --color-cream-300: oklch(88.6% 0.028 315);
@@ -707,11 +707,140 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave: oklch(93.5% 0.014 315);
 
   --color-glow-paper: oklch(63% 0.15 330 / 0.20);
-  --color-bounce: oklch(100% 0.010 315);
+  --color-bounce: oklch(99.5% 0.004 315);
   --color-reveal-sand: oklch(85.0% 0.034 300);
   --color-case-study-sand: oklch(88.5% 0.028 305);
   --color-glow-web: oklch(48.0% 0.115 285);
 }
+
+/* ============================================================================================
+   THEMES FOUR AND FIVE — CERISE AND FERN, AND THE CEILING THEY ARRIVED AT.
+
+   ⚠ THE PALETTE COUNT IS BOUNDED BY THE SEPARATION FLOOR, AND THE TWO ARE ONE DECISION. Seven
+   hues on a circle sit 51.4 degrees apart at PERFECT spacing, so seven palettes and a 60 degree
+   ground floor cannot both be true — at any placement, not merely at the ones tried. Cream,
+   harbour and orchid are already placed unevenly (gaps 155, 82 and 123), so AT MOST TWO more fit.
+   Five was the request. Two is what the geometry allows.
+
+   ⚠ NOTHING DISCOVERS THAT EXCEPT COUNTING. Four candidates were measured first and refused as
+   three unrelated hue collisions, which is a diff somebody tunes three hues in response to. The
+   bound is the finding; the refusals were its symptom. Whoever wants an eighth theme is CHOOSING
+   TO LOWER THE FLOOR, and `theme-contrast` D12 is where that choice is written down.
+
+   Both grounds sit EXACTLY on the floor against a neighbour — cerise is 60.0 from orchid, fern is
+   60.0 from cream. They are wedged in, which is what a ceiling looks like from the inside.
+
+   ---- THE SECOND LADDER, AND CREAM AND HARBOUR ARE NOW THE OUTLIERS -------------------------
+
+   These two use a ground of .962 and darker inks than the shipped palettes (ink-600 .400 against
+   .440, ink-400 .560 against .620). Measured both ways before choosing: on the SHIPPED ladder,
+   three of the four candidates sat at FIVE rows within 0.1 of a floor and one refused outright;
+   on this one, one or two rows and no refusals.
+
+   ⚠ SO CREAM AND HARBOUR ARE NOT WRONG — THEY ARE THE TWO THAT SHIPPED BEFORE THE LADDER WAS
+   DERIVED. A future reader counting blocks would otherwise assume the majority is canonical, and
+   from #377 the majority is this ladder rather than theirs.
+
+   ---- ⚠ CHROMA IS NOT COMPARABLE ACROSS HUES, AND THE CHROMA RULES ARE RATIOS -----------------
+
+   The ladder sets chroma as a ratio of the family's base. A ratio has no idea what sRGB can hold
+   at that lightness and hue, and applied blind it put cerise's `cream-50` at 0.019 where h15 at
+   L .984 admits 0.008 — TWO AND A HALF TIMES the ceiling. Every value here is clamped to 90% of
+   its own ceiling, which is why cerise's lightest rung is nearly neutral and fern's is not.
+
+   The prediction going in was that the two accents at c.215 would clip. Both were fine; the one
+   that clipped was a candidate at c.160 — the LOWEST chroma of the four — because green near h158
+   has far less sRGB volume at mid-lightness than violet or magenta does. Harbour found that same
+   ceiling empirically and ships its green at c.12.
+
+   ---- MEASURED, SANITY PAIR 21.000 FIRST -----------------------------------------------------
+
+   Both SHIPPABLE, every one of the 35 tokens in gamut, two rows within 0.1 of a floor each (the
+   two ground steps, which is where every palette here is tight).
+     cerise  accent 4.65 on its own cream-50, ceiling at h4 is 0.229 and it uses 0.202
+     fern    accent 4.63 on its own cream-50, ceiling at h134 is 0.155 and it uses 0.136
+
+   ⚠ AND CERISE IS NOT THE RED IT WAS BRIEFED AS. It was specified as a vermilion and h4 at that
+   chroma resolves to #d12d6b, a raspberry. The warm orange-red region is CLAIMED BY CREAM'S OWN
+   ACCENT at h42, so a fourth palette wedged between orchid and cream cannot have an orange-red
+   accent — the name was corrected to the colour rather than the colour to the name.
+============================================================================================ */
+[data-theme="cerise"] {
+  --color-cream-50: oklch(98.4% 0.007 15);
+  --color-cream-100: oklch(95.2% 0.022 15);
+  --color-cream-200: oklch(90.6% 0.029 15);
+  --color-cream-300: oklch(85.2% 0.032 15);
+  --color-canvas: oklch(96.2% 0.016 15);
+  --color-ink-950: oklch(15.0% 0.039 20);
+  --color-ink-800: oklch(26.2% 0.037 20);
+  --color-ink-600: oklch(40.0% 0.030 20);
+  --color-ink-400: oklch(56.0% 0.030 20);
+  --color-ink-200: oklch(80.0% 0.022 20);
+  --color-accent-500: oklch(57.5% 0.202 4);
+  --color-accent-600: oklch(45.0% 0.162 4);
+  --color-text-subtle: oklch(48.7% 0.030 20);
+  --color-text-body: oklch(37.5% 0.026 20);
+  --color-rule: oklch(48.5% 0.038 15);
+  --color-band-dark: oklch(17.5% 0.035 20);
+  --color-on-dark: oklch(95.5% 0.017 15);
+  --color-on-dark-muted: oklch(77.0% 0.019 15);
+  --color-on-dark-quote: oklch(81.5% 0.089 4);
+  --color-accent-on-dark: oklch(70.0% 0.178 4);
+  --color-smoke-1: oklch(0.84 0.019 15 / 0.74);
+  --color-smoke-2: oklch(0.9 0.019 15 / 0.74);
+  --color-smoke-3: oklch(0.97 0.013 15 / 0.74);
+  --color-smoke-4: oklch(0.87 0.017 15 / 0.74);
+  --color-vessel-ink: rgb(25, 4, 5);
+  --color-vessel-capsule: rgb(215, 200, 200);
+  --color-vessel-glass: oklch(94.5% 0.025 15);
+  --color-vessel-pearl: oklch(96.5% 0.013 15);
+  --color-vessel-shadow: oklch(92.5% 0.022 15);
+  --color-vessel-wave: oklch(93.5% 0.017 15);
+  --color-glow-paper: oklch(63% 0.190 4 / 0.20);
+  --color-bounce: oklch(99.5% 0.002 15);
+  --color-reveal-sand: oklch(85.0% 0.041 0);
+  --color-case-study-sand: oklch(88.5% 0.034 5);
+  --color-glow-web: oklch(48.0% 0.145 319);
+}
+
+[data-theme="fern"] {
+  --color-cream-50: oklch(98.4% 0.018 138);
+  --color-cream-100: oklch(95.2% 0.022 138);
+  --color-cream-200: oklch(90.6% 0.026 138);
+  --color-cream-300: oklch(85.2% 0.030 138);
+  --color-canvas: oklch(96.2% 0.022 138);
+  --color-ink-950: oklch(15.0% 0.036 146);
+  --color-ink-800: oklch(26.2% 0.035 146);
+  --color-ink-600: oklch(40.0% 0.028 146);
+  --color-ink-400: oklch(56.0% 0.028 146);
+  --color-ink-200: oklch(80.0% 0.021 146);
+  --color-accent-500: oklch(54.0% 0.136 134);
+  --color-accent-600: oklch(45.0% 0.115 134);
+  --color-text-subtle: oklch(48.7% 0.028 146);
+  --color-text-body: oklch(37.5% 0.024 146);
+  --color-rule: oklch(48.5% 0.035 138);
+  --color-band-dark: oklch(17.5% 0.033 146);
+  --color-on-dark: oklch(95.5% 0.015 138);
+  --color-on-dark-muted: oklch(77.0% 0.018 138);
+  --color-on-dark-quote: oklch(81.5% 0.060 134);
+  --color-accent-on-dark: oklch(70.0% 0.120 134);
+  --color-smoke-1: oklch(0.84 0.018 138 / 0.74);
+  --color-smoke-2: oklch(0.9 0.018 138 / 0.74);
+  --color-smoke-3: oklch(0.97 0.012 138 / 0.74);
+  --color-smoke-4: oklch(0.87 0.015 138 / 0.74);
+  --color-vessel-ink: rgb(2, 15, 3);
+  --color-vessel-capsule: rgb(199, 207, 197);
+  --color-vessel-glass: oklch(94.5% 0.024 138);
+  --color-vessel-pearl: oklch(96.5% 0.012 138);
+  --color-vessel-shadow: oklch(92.5% 0.020 138);
+  --color-vessel-wave: oklch(93.5% 0.015 138);
+  --color-glow-paper: oklch(63% 0.128 134 / 0.20);
+  --color-bounce: oklch(99.5% 0.009 138);
+  --color-reveal-sand: oklch(85.0% 0.037 123);
+  --color-case-study-sand: oklch(88.5% 0.031 128);
+  --color-glow-web: oklch(48.0% 0.088 89);
+}
+
 
 
 /* ============================================================

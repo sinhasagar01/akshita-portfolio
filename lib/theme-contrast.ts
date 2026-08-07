@@ -96,6 +96,62 @@ export function oklchToRgb(L: number, C: number, H: number): Rgb {
   return lin.map((v) => Math.round(enc(v) * 255)) as Rgb;
 }
 
+/* ============================================================================================
+   ⚠ THE GAMUT CHECK, AND WHY IT IS A SEPARATE FUNCTION FROM `oklchToRgb`.
+
+   `oklchToRgb` above CLAMPS — `Math.max(0, Math.min(1, v))` — and clamping is correct for it,
+   because a browser does the same thing and the clamped value is what actually paints. What is
+   wrong is that the clamp is SILENT: an unreachable colour comes back as a perfectly ordinary
+   RGB triple and every ratio computed from it is a real number about a colour nobody can draw.
+
+   So this returns the OVERSHOOT the clamp swallowed, in 0-255 units, before encoding. Zero means
+   the colour exists.
+
+   ⚠ CHROMA IS NOT COMPARABLE ACROSS HUES, WHICH IS THE FACT THAT MAKES THIS NECESSARY RATHER THAN
+   PEDANTIC. sRGB holds 0.289 of chroma at h300 and L .560, and 0.126 at h158 — so "c 0.16" is
+   comfortable in violet and impossible in green. A number that reads as "more saturated" is a
+   different proportion of the available space at every hue, and no amount of care substitutes for
+   measuring it. Harbour found the green ceiling empirically and ships its accent at c 0.12.
+============================================================================================ */
+
+/** Below this, treat the overshoot as rounding rather than a real clip. */
+export const CLIP_EPSILON = 0.5;
+
+/** How far outside sRGB an OKLCH triple sits, in 0-255 units. 0 when the colour is representable. */
+export function oklchOvershoot(L: number, C: number, H: number): number {
+  const h = (H * Math.PI) / 180, a = C * Math.cos(h), b = C * Math.sin(h);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+  const enc = (v: number) => (v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(Math.max(v, 0), 1 / 2.4) - 0.055);
+  return Math.max(0, ...[
+    +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+  ].map((v) => {
+    /* ⚠ BOTH BRANCHES REPORT IN THE SAME UNIT — 0-255 BYTES — WHICH TAKES CARE. A negative linear
+     * channel is the common clip, and sRGB's transfer function is LINEAR near zero with slope
+     * 12.92, so the byte-equivalent of a negative linear value is `12.92 * v * 255`. Dropping that
+     * factor understates the clip by an order of magnitude and makes a real one look like rounding.
+     * An over-one channel is already past the linear segment, so it is encoded first and compared
+     * against 255 directly.
+     *
+     * ⚠ AND `Math.max(0, ...)` IS LOAD-BEARING: an in-gamut colour produces two negative terms, and
+     * without the floor this returns "how much headroom is left" wearing the name of an overshoot. */
+    if (v < 0) return -v * 12.92 * 255;
+    return enc(v) * 255 - 255;
+  }));
+}
+
+/** The overshoot of a declared CSS value, or 0 for forms that are representable by construction
+ *  (a hex or an `rgb()` cannot be out of gamut — it is already sRGB). */
+export function gamutOvershoot(value: string): number {
+  const m = /^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)/.exec(value.trim());
+  if (!m) return 0;
+  const L = m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]);
+  return oklchOvershoot(L, Number(m[3]), Number(m[4]));
+}
+
 /** CSS alpha-over IN GAMMA SPACE — browsers composite `rgb(...)/a` on the encoded bytes, not in
  *  linear light. Compositing in linear light reads several ratios high. */
 export function over(fg: Rgb, alpha: number, bg: Rgb): Rgb {
@@ -214,7 +270,8 @@ export type UsageRow = {
 
 export type RowResult = UsageRow & { got: number | null; ok: boolean; missing?: string[] };
 
-export type Verdict = "SHIPPABLE" | "REFUSED_EXTERNAL" | "REFUSED_INTERNAL" | "UNCOMPUTABLE";
+export type Verdict =
+  | "SHIPPABLE" | "REFUSED_EXTERNAL" | "REFUSED_INTERNAL" | "UNCOMPUTABLE" | "UNREPRESENTABLE";
 
 export type Report = {
   verdict: Verdict;
@@ -225,6 +282,8 @@ export type Report = {
   internal: string[];
   /** Rows whose tokens the palette does not define. Never silently skipped — see UNCOMPUTABLE. */
   uncomputable: string[];
+  /** Tokens sRGB cannot hold, with how far outside they sit. See `UNREPRESENTABLE`. */
+  unrepresentable: { token: string; overshoot: number }[];
 };
 
 /**
@@ -237,8 +296,24 @@ export type Report = {
  *
  * ⚠ AND `REFUSED_EXTERNAL` OUTRANKS `REFUSED_INTERNAL`, because a palette failing WCAG is not
  * shippable whatever else is true, and the owner should be told the non-negotiable thing first.
+ *
+ * ⚠ AND `UNREPRESENTABLE` OUTRANKS BOTH, BECAUSE THE INSTRUMENT COULD NOT TELL "FAILS CONTRAST"
+ * FROM "DOES NOT EXIST" AND BOTH ARRIVED AS A RATIO. A candidate green measured 4.320 against a
+ * 4.5 floor and read as a palette needing a darker accent. It was not: its red channel computed to
+ * MINUS 129, `oklchToRgb` clamped it to zero, and 4.320 was the contrast of a colour sRGB cannot
+ * draw. Tuning the lightness in response would have been a correct measurement of a quantity that
+ * does not exist.
+ *
+ * Same shape as parse-before-exclude in #334 — the instrument must say what it CANNOT REPRESENT
+ * rather than return a plausible value for it. So the gamut check runs BEFORE the contrast check
+ * and outranks its verdicts.
  */
 export function report(palette: Palette, usage: readonly UsageRow[]): Report {
+  const unrepresentable = Object.entries(palette)
+    .map(([token, value]) => ({ token, overshoot: gamutOvershoot(value) }))
+    .filter((x) => x.overshoot > CLIP_EPSILON)
+    .sort((a, b) => b.overshoot - a.overshoot);
+
   const rgb = (name: string): Rgb | null => {
     const v = palette[name];
     return v ? parseColor(v) : null;
@@ -262,9 +337,10 @@ export function report(palette: Palette, usage: readonly UsageRow[]): Report {
   const internal = failures.filter((r) => r.kind === "internal").map((r) => r.key);
 
   const verdict: Verdict = uncomputable.length ? "UNCOMPUTABLE"
+    : unrepresentable.length ? "UNREPRESENTABLE"
     : external.length ? "REFUSED_EXTERNAL"
     : internal.length ? "REFUSED_INTERNAL"
     : "SHIPPABLE";
 
-  return { verdict, rows, failures, external, internal, uncomputable };
+  return { verdict, rows, failures, external, internal, uncomputable, unrepresentable };
 }

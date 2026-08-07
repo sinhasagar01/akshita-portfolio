@@ -271,10 +271,13 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_OG)
-    count: 16
+    count: 24
     files: [lib/theme.ts]
     reason: >
-      ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — SIXTEEN VALUES ACROSS FOUR ENTRIES.
+      ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — TWENTY-FOUR VALUES ACROSS SIX ENTRIES.
+      ⚠ AND THIS COUNT IS THE ONE THAT MOVES WHEN A THEME IS ADDED, four at a time, which is exactly
+      what `count:` was made readable for in #363. It went 16 to 24 in #377 when cerise and fern
+      landed, and the census caught the stale figure before a human did.
       `ImageResponse` renders OUTSIDE the document and cannot read a CSS custom property, exactly as
       a favicon cannot, so a card's colours must exist as literals in JavaScript. Same forced form as
       `pwa-splash-ground` beside it, for the same mechanical reason.
@@ -296,7 +299,7 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_SPLASH)
-    count: 4
+    count: 6
     files: [lib/theme.ts]
     reason: >
       ⚠ THIS ROW EXISTED AS PROSE IN `lib/theme.ts` AND NOWHERE IN THIS FILE, WHICH IS WHY THE COUNT
