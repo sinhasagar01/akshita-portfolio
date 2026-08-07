@@ -399,7 +399,35 @@ t("D11 …and it declares the same token set as the others, so nothing inherits 
  *
  * ⚠ NOTHING DISCOVERS THAT EXCEPT COUNTING. Four candidates were measured first and came back as
  * three unrelated hue collisions — a result somebody tunes three hues in response to. The bound is
- * the finding; the refusals were its symptom. */
+ * the finding; the refusals were its symptom.
+ *
+ * ---- ⚠ AND WHAT THIS SECTION MEASURES IS DEGREES, WHICH IS A PROXY ---------------------------
+ *
+ * Degrees ignore CHROMA and LIGHTNESS, and both change what a given rotation is worth. Re-derived
+ * in perceptual distance (#380), TWO OF THE TEN SHIPPED GROUND PAIRS deliver less separation than
+ * the 60 degree rule was calibrated to buy:
+ *
+ *   cream/cerise    63 degrees   hue-only 10.72   against a 15.68 reference
+ *   orchid/cerise   60 degrees   hue-only 14.80   against the same
+ *
+ * Both are cerise, whose ground chroma is 0.016 — the lowest on the site, and FORCED BY THE GAMUT
+ * at h15 / L.962 rather than chosen. The ladder's rule asked for 0.0192 and h15 admits 0.008 up
+ * there; 0.016 is what the canvas rung could hold.
+ *
+ * ⚠ SO A DISTANCE-BASED D12 WOULD REFUSE A PALETTE FOR A CONSTRAINT THE GAMUT IMPOSED — reporting
+ * "too close" for something that is really "cannot exist there". THAT IS THE JADE FAILURE IN A NEW
+ * COSTUME, and it is why this stays on degrees rather than moving to distance now.
+ *
+ * ⚠ AND THE TWO PAIRS ARE SAFE FOR A REASON THAT IS NOT A RULE. cream/cerise is the MOST separated
+ * pair on the site overall (32.45 including lightness) and the LEAST separated by hue. The
+ * lightness ladder covered the gap — cerise and fern sit at L.962 where cream, harbour and orchid
+ * sit at L.920 to .926. THE CURRENT ARRANGEMENT HOLDS BY LUCK RATHER THAN BY RULE, and section L
+ * is what stops that luck from being silently extended to a ground in a different class.
+ *
+ * ⚠ THE TRIGGER FOR MOVING D12 TO DISTANCE, NAMED SO IT IS NOT A DEFERRAL TO NOBODY: if a future
+ * palette's ground chroma is forced low again — by the gamut, as cerise's was — degrees will pass a
+ * pair that distance would refuse, and the lightness ladder may not be there to cover it. THAT is
+ * when this section changes units. Not before, and not on the strength of the two pairs above. */
 const hueOf = (p, token) => { const m = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+([\d.]+)/.exec(p[token] ?? ""); return m ? Number(m[1]) : null; };
 const arc = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
 
@@ -644,6 +672,86 @@ t("K6b ⚠ AND THE OVERSHOOT IS REPORTED, so a 0.5 rounding is distinguishable f
   imp.unrepresentable[0].overshoot > 100, true);
 t("K7 a hex or rgb() is representable BY CONSTRUCTION — it is already sRGB, so it never reports a clip",
   [gamutOvershoot("#b65329"), gamutOvershoot("rgb(24, 18, 24)")], [0, 0]);
+
+console.log("\nL · ⚠ THE LIGHTNESS CLASS — is this ground one D12's floor was calibrated for?");
+
+/* ---- WHAT THIS SECTION IS FOR ---------------------------------------------------------------
+ *
+ * D12 asserts hue separation in DEGREES. That floor was calibrated on grounds in a narrow band of
+ * lightness — every shipped palette sits between L .920 and L .962 — and it is only meaningful for
+ * grounds in that band. A ground far outside it does not COMPETE for hue at all: measured, at a
+ * lightness gap of 0.75 (light against dark) hue can change the total perceptual difference between
+ * two grounds by 0.1%, against 38% across the whole light band.
+ *
+ * ⚠ SO A DARK GROUND IS NOT A SIXTH PALETTE COMPETING FOR THE CIRCLE — it is the first member of a
+ * different class, with its own circle and its own count. "Seven themes cannot clear 60 degrees" is
+ * a statement about LIGHT themes.
+ *
+ * ---- ⚠ AND THE MIDDLE IS NOT EMPTY, WHICH IS WHY THIS IS A CONSTRAINT AND NOT A RULE -----------
+ *
+ * The transition is gradual. At ground chroma .020 the share of the difference hue can contribute
+ * falls through 38% at dL .042 (the whole light band), 10% at dL .088, 1% at dL .283. A ground at
+ * L .83 against one at L .92 is dL .09 — genuinely ambiguous, and an entirely plausible design.
+ *
+ * IT WOULD BE FALSE TO CLAIM NO GROUND WILL EVER SIT THERE. So this does not invent a rule for the
+ * middle. It states a CONSTRAINT: every ground must sit in the band the shipped palettes occupy,
+ * and one proposed outside REOPENS THE SEPARATION QUESTION rather than inheriting an answer.
+ *
+ * ⚠ THE ENFORCEMENT IS THE WHOLE POINT. Without it a mid-band ground would be silently measured
+ * under a floor calibrated for a band it is not in — passing or failing D12 for reasons that do not
+ * apply to it. Failing loudly, naming why, is the honest behaviour when the model runs out.
+ *
+ * ---- ⚠ AND THE MODEL BEHIND ALL OF THIS IS UNRESOLVED, WHICH IS RECORDED AND NOT HIDDEN ---------
+ *
+ * Two models disagree about whether lightness affects hue visibility at all:
+ *
+ *   OKLab   a 60 degree rotation at chroma .020 is dE 0.0200 at EVERY lightness — L is irrelevant
+ *   sRGB    the same rotation emits 15.68 units at L .920 and 10.30 at L .170 — 34% less signal
+ *
+ * OKLab's uniformity claim is what a hue floor in degrees rests on. It is ALSO contradicted by an
+ * observation this project made BY LOOKING: the favicon's two candidate grounds (25.1 apart) and
+ * the two PWA splash grounds (16.8 apart) are both invisible in hue, and OKLab rates both ends
+ * identical to a mid-lightness ground at the same chroma.
+ *
+ * ⚠ THAT DISQUALIFIES OKLab AS THE GOVERNING MODEL AND DOES NOT CROWN sRGB, which is device space
+ * and whose 34% is not a perceptual claim either. It agrees with the observation, which is weak
+ * evidence and not none. THE QUESTION IS OPEN. The rows below are written so that none of them
+ * depends on the answer — they assert membership of a band, which is true under either model. */
+
+/* ⚠ `EPS` IS ABOUT FLOATING POINT, NOT ABOUT DESIGN TOLERANCE, and the distinction matters because
+ * a design tolerance would be a number nobody chose. `96.2 / 100` is 0.9620000000000001 in IEEE754,
+ * so a ground sitting exactly ON the band's edge reported itself outside it. The band is INCLUSIVE
+ * and its bounds are exact; this only stops the arithmetic from disagreeing with itself. */
+const EPS = 1e-9;
+const CLASS_BAND = { min: 0.920, max: 0.962, label: "light" };
+
+const groundL = (name) => {
+  const p = paletteOf(name);
+  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(p["canvas"] ?? "");
+  if (!m) return null;
+  return m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]);
+};
+const Ls = Object.fromEntries(REAL.map((n) => [n, groundL(n)]));
+console.log(`         ground lightness — ${REAL.map((n) => `${n} ${Ls[n]?.toFixed(3)}`).join(", ")}`);
+console.log(`         declared ${CLASS_BAND.label} band: ${CLASS_BAND.min} to ${CLASS_BAND.max}`);
+
+t("L0 every ground resolves a lightness — a null would make L1 pass over nothing",
+  REAL.filter((n) => typeof Ls[n] !== "number"), []);
+/* ⚠ CONSTANT, NOT DERIVED FROM `REAL`. #378's lesson: a guard computing its expectation from the
+ * subject it guards passes when the subject is empty. */
+t("L0a the population is real, against a literal", REAL.length >= 5, true);
+
+t("L1 ⚠ EVERY GROUND IS IN THE DECLARED CLASS — one outside REOPENS the separation question rather than inheriting D12's answer",
+  REAL.filter((n) => Ls[n] < CLASS_BAND.min - EPS || Ls[n] > CLASS_BAND.max + EPS)
+    .map((n) => `${n} L${Ls[n]?.toFixed(3)} is outside the ${CLASS_BAND.label} band — D12's degree floor was not calibrated for it`), []);
+
+/* ⚠ AND THE BAND MUST STAY TIGHT ENOUGH THAT HUE STILL MATTERS INSIDE IT, or L1 becomes a rubber
+ * stamp. At the band's own width, hue must still be able to move the total materially — otherwise
+ * the band spans a class boundary and D12 is measuring across one. */
+const bandSwing = (Math.sqrt((CLASS_BAND.max - CLASS_BAND.min) ** 2 + 0.04 ** 2) / (CLASS_BAND.max - CLASS_BAND.min) - 1) * 100;
+console.log(`         across the band's own width, hue can still swing the total by ${bandSwing.toFixed(1)}%`);
+t("L2 ⚠ HUE STILL MATTERS ACROSS THE BAND'S FULL WIDTH — a band wider than this spans a class boundary",
+  bandSwing > 25, true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

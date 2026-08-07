@@ -166,8 +166,16 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
-- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** Near-black grounds differ between
-  palettes by 25.1 and near-white by 16.8, and **neither hue is visible at any size.** So a surface
+- **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** The two FAVICON candidate grounds
+  (`#211C16` and `#0B1A22`) differ by **25.1**, and the two PWA SPLASH grounds (each theme's
+  `cream-50`) by **16.8** — and **neither hue is visible at any size.**
+
+  **⚠ THOSE SUBJECTS ARE NAMED HERE BECAUSE THE LINE DID NOT NAME THEM AND I SUPPLIED THE WRONG
+  ONES.** Re-deriving these figures in #380 I read "near-black grounds" as the `band-dark` TOKEN,
+  measured 26.3, and reported a 1.2 discrepancy against a figure that was never about `band-dark`.
+  Both numbers were right about different pairs. **A measurement recorded without its subject invites
+  a reader to supply one**, and the reader who did it here is the one who wrote the surrounding
+  rules. So a surface
   whose ground lives at either end is one where theming buys nothing — and **that is a property of
   the GROUND, not of the surface's importance.**
 
@@ -395,6 +403,38 @@ closed.
   published theme is CONTENT with an owner, so the file is the only correct source — same defect as
   D12's hardcoded pair list and `SETTINGS_THEME_VALUES` before ralph tied it to `THEME_NAMES`.
 
+- **⚠ A DARK THEME IS NOT A SIXTH PALETTE — IT IS THE FIRST OF A DIFFERENT CLASS, AND THE COUNTING
+  BOUND DOES NOT APPLY TO IT.** Measured: at ground chroma .020, the share of the difference between
+  two grounds that hue can contribute is **38% across the whole light band** (dL .042) and **0.1%
+  between a light ground and a dark one** (dL .75). So light and dark grounds do not compete for
+  hue; the dark class has its own circle and its own count, and *"seven themes cannot clear 60
+  degrees"* is a statement about **light** themes.
+
+  **⚠ AND THE MIDDLE IS NOT EMPTY, SO THIS IS A CONSTRAINT RATHER THAN A RULE.** The transition is
+  gradual — 38% at dL .042, 10% at dL .088, 1% at dL .283 — and a ground at L.83 against one at L.92
+  is genuinely ambiguous and an entirely plausible design. **It would be false to claim no ground
+  will ever sit there.** So the system states a constraint instead: every ground sits in the band
+  the shipped palettes occupy (L .920 to .962), and **one proposed outside REOPENS the separation
+  question rather than inheriting an answer.** `theme-contrast` section L enforces it and fails by
+  name, because the alternative is a mid-band ground being silently judged under a floor calibrated
+  for a band it is not in.
+
+- **⚠ AND THE MODEL UNDERNEATH ALL OF THIS IS UNRESOLVED. SAY SO RATHER THAN PICKING A WINNER.**
+
+    OKLab   a 60 degree rotation at chroma .020 is dE 0.0200 at EVERY lightness — L is irrelevant
+    sRGB    the same rotation emits 15.68 units at L.920 and 10.30 at L.170 — 34% less signal
+
+  A hue floor stated in DEGREES rests on OKLab's uniformity. **That claim is contradicted by an
+  observation this project made BY LOOKING** — the favicon's two candidate grounds and the two PWA
+  splash grounds are both invisible in hue, and OKLab rates both ends identical to a mid-lightness
+  ground at the same chroma. **A model that contradicts something someone saw is wrong about
+  something, and here the render outranks the reasoning.**
+
+  **BUT THAT DISQUALIFIES OKLab WITHOUT CROWNING sRGB**, which is device space and whose 34% is not
+  a perceptual claim either — it merely agrees with the observation, which is weak evidence and not
+  none. **So the question is open, and every ruling built on it is written to hold under either
+  model.** Section L asserts band MEMBERSHIP, which is true whichever is right.
+
 - **⚠ THE PALETTE COUNT IS BOUNDED BY THE SEPARATION FLOOR, AND THE TWO ARE ONE DECISION.** Seven
   hues on a circle sit **51.4 degrees apart at perfect spacing**, so seven palettes and D12's 60
   degree ground floor **cannot both be true at ANY placement**. Cream, harbour and orchid are
@@ -402,10 +442,18 @@ closed.
   **FIVE REAL PALETTES IS THE CEILING THIS FLOOR IMPLIES.** Whoever wants a sixth is choosing to
   lower the floor, and `theme-contrast` D12d is where that gets written.
 
-  **⚠ AND THE ROOM LEFT IS 1.3 DEGREES, NOT THE COUNT.** `harbour` accent h165.3 and `fern` accent
-  h134 sit **31.3 degrees apart against D12d's floor of 30** — the tightest accent pair on the site,
-  and it was created by #378's CORRECTNESS FIX rather than by any design choice. **Anyone retuning
-  either accent has 1.3 degrees of room**, which the palette count alone does not tell them.
+  **⚠ AND THE TIGHTEST ACCENT PAIR IS 31.3 DEGREES — TRUE, AND MISLEADING AS A MEASURE OF ROOM.**
+  `harbour` h165.3 and `fern` h134 sit 1.3 degrees above D12d's floor, which reads as almost none.
+  **Measured in perceptual distance it is 91.5 against a 47.2 reference — nearly double.** Accents
+  carry roughly SEVEN TIMES the chroma of grounds, and separation scales with chroma, so degrees
+  understate accent room as badly as they overstate ground room. **Do not read the degree figure as
+  the space available**; it is the gate's unit, not the eye's.
+
+  **⚠ AND DEGREES IGNORE CHROMA AND LIGHTNESS, WHICH COSTS IN THE OTHER DIRECTION ON GROUNDS.** Two
+  of the ten shipped ground pairs deliver LESS than 60 degrees was calibrated to buy — both cerise,
+  whose ground chroma is forced to 0.016 by the gamut rather than chosen. They are safe only because
+  the lightness ladder covers the gap, which is **luck rather than rule**. `theme-contrast` D12 names
+  the trigger for changing units: a future palette whose ground chroma is forced low again.
 
   **⚠ NOTHING DISCOVERS THIS EXCEPT COUNTING.** Four candidates measured first came back as three
   unrelated hue collisions — **a result somebody tunes three hues in response to.** The bound is the
