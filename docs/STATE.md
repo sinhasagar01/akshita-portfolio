@@ -10280,6 +10280,58 @@ is supposed to change.** Under an invariant mark it never is.
 Safari did not support SVG favicons until **26.0** — 3.1 through 18.7 do not — so the PNG is a real
 fallback rather than a courtesy, and it carries more traffic here than the 89% global figure suggests.
 
+## ⚠ #362 SHIPPED THE GATES AND NOT THE CSS, AND I REPORTED A MEASUREMENT OF A TREE THAT NO LONGER EXISTED
+
+**`app/globals.css` was missing from #362.** The mutation test for section H ended with
+`git checkout -q app/globals.css`, which reverted **the entire change** — both tokens and all six
+pinned declarations — and the commit went out without it. So #362 shipped section H asserting tokens
+that did not exist, `theme-contrast` usage rows for the same, the favicon wiring, and a STATE entry
+claiming the ruling was implemented. **The wordmark still themed.**
+
+**⚠ AND ralph WAS GREEN AT 2567 WHEN I SAID SO — BEFORE THE CHECKOUT, NOT AFTER.** The suite was
+never re-run between reverting the file and committing. **The number was true of a tree state that
+had already been destroyed.**
+
+**THIS IS THE MERGE FAILURE'S FAMILY, ONE LAYER IN.** That one reported an action against the wrong
+system; this one reported a measurement against the wrong state. Both were **true statements about
+something other than what shipped**, and in both the tell was in my own output — `git status` would
+have shown `app/globals.css` absent from the staged set, exactly as `Merge #N —` showed the format
+was wrong.
+
+**THE RULE, WHICH THE PROJECT ALREADY HAS AND I APPLIED TO THE WRONG BOUNDARY:** a measurement is
+evidence only for the state it was taken against. **Re-run the suite after the last edit, not before
+it** — and `git status` before every commit is the one-line version.
+
+Repaired here: the CSS is reapplied, ralph re-run **after** the edit at 2570, and the staged set
+checked before committing.
+
+---
+
+## THE G FINDING, AS ITS OWN SHAPE
+
+**An assertion that passes trivially on an empty subject AND would keep passing if the subject
+arrived wrong.** G asserts every theme declares the same token SET — so a token declared by no theme
+satisfies it, **and a token declared by both would satisfy it too**. A palette that quietly began
+overriding the mark would have kept G green.
+
+**Invariance is unrepresentable in G's model**, which is why section H is a category rather than an
+exception. **Same family as `theme-contrast`'s merge**, found the same week: `{ ...CREAM, ...harbour }`
+made a missing override unrepresentable, and the gate reported agreement rather than absence.
+
+**Both gates were correct about what they modelled.** The question to ask is not whether a gate is
+right but **whether the property can be expressed in what it looks at** — and the mark would have
+been filed as "signature" under the old vocabulary, where G would have watched nothing.
+
+---
+
+## THE 16px STROKE, RECORDED WITH ITS SIZE
+
+`favicon.svg` renders legibly at **16, 32, 64 and 180**. At **16px the ribbon is 10.3% of the raster**
+and the stroke reads THIN — legible, not confident. The asset is now deployed at one value forever,
+so **if it wants a heavier stroke at small sizes that is a separate, bounded change** to one file,
+not a re-export chain. Kept here rather than filed, because "legible but thin" is the kind of
+observation that becomes a complaint six months later with nobody able to say whether it was seen.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

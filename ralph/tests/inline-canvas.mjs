@@ -109,7 +109,10 @@ t("D: surrounding entries are untouched",
   t("E: Enter splits into two", afterSplit, ["hello ", "world"]);
   const { paragraphs: back, caret } = mergeParagraph(afterSplit, 1);
   t("E: Backspace merges back to the original", back, ["hello world"]);
-  t("E: …with the caret at the join", caret, plainLength("hello "));
+  /* ⚠ 6, NOT `plainLength("hello ")`. Computing the expectation with the production helper means a
+   * broken `plainLength` moves both sides and the row passes. The literal is the whole point of a
+   * fixture whose input is also a literal. */
+  t("E: …with the caret at the join", caret, 6);
 }
 // THE CARET MUST COUNT VISIBLE CHARACTERS, NOT MARKER CHARACTERS, and this case is the only
 // one that can tell the difference. Mutation-testing this suite found the first version

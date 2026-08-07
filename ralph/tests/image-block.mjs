@@ -148,7 +148,13 @@ if (withImage.ok) {
   // And it reads back as the same block.
   const back = readBlogBlocks(out);
   t("E: the imageBlock reads back unchanged", back[back.length - 1], img());
-  t("E: the existing blocks are untouched", back.slice(0, -1), readBlogBlocks(RAW));
+  /* ⚠ THE REFERENCE WAS `readBlogBlocks(RAW)` — THE SAME READER THAT PRODUCED `back`. A reader
+   * returning `[]` for everything satisfied it, because both sides went empty together. The count
+   * and a named member anchor it to something the reader cannot supply. */
+  const before = readBlogBlocks(RAW);
+  t("E0: the fixture has blocks to preserve — an empty read satisfies E trivially", before.length >= 2, true);
+  t("E: the existing blocks are untouched", back.slice(0, -1), before);
+  t("E0b: …and the splice added exactly one", back.length, before.length + 1);
   // A published post containing what we just wrote still passes the gate.
   t("E: the serialized post validates", publishGate("a-post", post(back)).ok, true);
 }
