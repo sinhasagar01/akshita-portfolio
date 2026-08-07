@@ -299,6 +299,18 @@ closed.
   visible at the moment it was written**, which is why this is a writing discipline rather than a
   measurement problem.
 
+- **⚠ A WRONG PREMISE AND A WASTED INVESTIGATION ARE SEPARABLE, AND THIS ARC HAS NOW SEPARATED THEM
+  FOUR TIMES.** "Sapphire gets the ladder repaint on top of the dark step" was stated by me and
+  endorsed in the ruling that asked for its render. **It was false for a structural reason available
+  before either of us reasoned about it: a dark-ground palette never paints `canvas`**, so the
+  surface ladder is entirely a light-ground change and sapphire's dark page saw only the derived
+  step. Neither of us checked.
+
+  **THE RENDER WAS STILL WORTH TAKING**, because it answered the question that actually mattered —
+  whether 1.21 holds on a dark ground — and it does. **Judge the premise and the investigation
+  separately**: a check run for a wrong reason can still be the check that was needed, and killing it
+  because its justification collapsed would have left the real question unanswered.
+
 - **⚠ HIERARCHY RIDES ON SIZE AND WEIGHT, NEVER ON COLOUR OR OPACITY — because the first pair is
   ground-independent and the second is not.** The section `h2` rendered at **60px/400** above an `h3`
   at **30px/600**: size said "more important", weight said "less", and the two axes cancelled. It
