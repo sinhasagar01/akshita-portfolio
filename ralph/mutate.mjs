@@ -74,14 +74,20 @@ if (process.argv[2] === "--snapshot") {
     copyFileSync(rel, dest);
   }
   /* ⚠ THE MANIFEST IS THE OTHER HALF, AND WITHOUT IT `--restore` CANNOT UNDO THE MUTATION ITSELF.
+   * THIS IS THE SIXTH DEFECT IN THIS MECHANISM — after the run-time snapshot that returned the
+   * mutation, the missed untracked files, the consumed snapshot, and the destructive `git checkout`
+   * the whole thing exists to replace. Six in one safety net is the argument the net was making all
+   * along: A TOOL THAT RESTORES THE WRONG STATE IS WORSE THAN AN ABSENT ONE, BECAUSE IT IS TRUSTED.
    * The snapshot above captures files ALREADY DIRTY — the operator's work in progress. A mutation
    * to a file that was CLEAN at snapshot time creates a dirty file the snapshot never held, so the
    * restore had nothing to put back and said "restored N file(s)" anyway.
    *
    * ⚠ THAT IS EXACTLY BACKWARDS FROM WHAT AN OPERATOR ASSUMES. It reads as "snapshot, mutate,
    * restore", and it only ever worked when the mutated file happened to be one already edited that
-   * session. Found mutating a content YAML in #379: three mutations restored, the fourth silently
-   * did not, and the restore reported success for all four.
+   * session. ⚠ SO IT ONLY EVER WORKED BY COINCIDENCE — every prior use happened to mutate a file
+   * the operator had already edited, which is why five rounds of mutation testing across four PRs
+   * never exposed it. Found mutating a content YAML in #379: three mutations restored, the fourth
+   * silently did not, and the restore reported success for all four.
    *
    * Recording which files were CLEAN lets restore revert them with `git checkout`, which is safe
    * BY CONSTRUCTION here: clean at snapshot time means HEAD held the intended state. That is the

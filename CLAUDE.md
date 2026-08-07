@@ -445,15 +445,20 @@ closed.
   DIRTY — AND THAT IS BACKWARDS FROM HOW IT READS.** `dirtyFiles()` captures work in progress, so a
   mutation to a file that was **CLEAN** at snapshot time was never restorable, and `--restore`
   printed "restored N file(s)" regardless. **It only ever worked when the mutated file happened to
-  be one you had already edited that session.** Fixed in #379 by recording the clean set and
+  be one you had already edited that session — SO IT ONLY EVER WORKED BY COINCIDENCE**, which is why
+  five rounds of mutation testing across four PRs never exposed it. **Sixth defect in this one
+  mechanism**, which is the argument it was built to make: a safety net that restores the wrong
+  state is worse than an absent one, because it is trusted. Fixed in #379 by recording the clean set and
   reverting exactly those with `git checkout` — safe by construction, because clean at snapshot
   means HEAD held the intent. **Read `git status` after every restore anyway**; the tool reporting
   success is not evidence the tree is right.
 
 - **⚠ A THREE-DIGIT PR REFERENCE IS LEXICALLY A VALID HEX COLOUR.** `#379` in a CSS comment made a
   new gate report a colour literal — correctly, about a number. **Every note in this repo cites PR
-  numbers**, so any matcher run over CSS must strip comments first, as `colour-census` does at its
-  line 120. The trap is invisible until a comment happens to cite a PR under 1000.
+  numbers** — **a convention of the prose collided with a colour matcher.** Any matcher run over CSS
+  must strip comments first. `colour-census` was **immune only by accident**: it strips them at its
+  line 120 for an unrelated reason, and that happened to cover this. **A defence held for a different
+  purpose is not a defence anyone chose**, and the next matcher will not inherit it.
 
 - **⚠ `mutate.mjs --restore` CONSUMES ITS SNAPSHOT — SNAPSHOT BEFORE *EACH* MUTATION.** A second
   restore in one session reports "no snapshot to restore from" and **leaves the mutation in the

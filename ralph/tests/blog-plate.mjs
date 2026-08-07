@@ -90,9 +90,14 @@ console.log("\nD · the plate is themed, and reads as a category rather than a h
  * above `.blog-plate span` cites "#379", and a three-digit PR reference is LEXICALLY A VALID HEX
  * COLOUR — so the gate reported the plate carrying a colour literal, correctly, about a number.
  *
- * `colour-census` had already met this and strips block comments at its own line 120; this suite is
- * newer and had not. Recorded rather than merely fixed, because the trap is invisible until a
- * comment happens to cite a PR number under 1000, and every note in this repo cites PR numbers. */
+ * ⚠ A CONVENTION OF THE PROSE COLLIDED WITH A COLOUR MATCHER. Citing PR numbers in comments is how
+ * every note in this repository is written, and three-digit ones are indistinguishable from short
+ * hex. `colour-census` was IMMUNE ONLY BY ACCIDENT — it strips block comments at its own line 120,
+ * for an unrelated reason (a comment must not contribute to the census population), and that
+ * happened to cover this. A defence held for a different purpose is not a defence anyone chose.
+ *
+ * Recorded rather than merely fixed, because the trap is invisible until a comment happens to cite
+ * a PR number under 1000, and this project will keep writing them. */
 const cssNoComments = css.replace(/\/\*[\s\S]*?\*\//g, " ");
 const plate = cssNoComments.slice(cssNoComments.indexOf(".blog-plate"),
   cssNoComments.indexOf("}", cssNoComments.indexOf(".blog-plate span")) + 1);
