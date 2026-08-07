@@ -47,6 +47,29 @@ const THRESH = 8; // jitter guard so a trackpad wobble never flaps the bar
 // hero has scrolled up past it, the nav is over the cards and returns to light.
 const NAV_TONE_SWITCH = 88;
 
+/* ⚠ THE PREDICATE, WRITTEN AS THE PREDICATE — `data-nav-tone="dark"` means WHAT IS CURRENTLY BEHIND
+ * THE NAV IS DARK. Until #396 it computed that from one ANSWER rather than from the question: it
+ * cached `.hero-ground.is-dark` and asked whether that specific element was still under the pill.
+ *
+ * ⚠ THAT WAS ONE WAY THE PREDICATE BECOMES TRUE AND THERE ARE AT LEAST THREE. A dark PAGE ground
+ * (a dark palette puts `data-ground="dark"` on `<html>`) left the nav light over it — measured, its
+ * links fell to 1.29 against a 4.5 floor. And the dark QUOTE BAND has carried the attribute
+ * mid-page since #387, so scrolling the nav over it has the same defect TODAY on the light site.
+ *
+ * ⚠ SO IT IS NOT "hero OR dark ground" — THAT IS TWO CASES WHERE THERE IS ONE FACT, and a case list
+ * is wrong the first time a fourth answer arrives. Every dark region already declares itself with
+ * `data-ground="dark"`, including `<html>`, so the question is answerable directly: is any of them
+ * behind the nav's band right now? `<html>` on a dark palette always is, which is the page-ground
+ * case falling out for free rather than being special-cased. */
+const isDarkBehindNav = () => {
+  for (const el of document.querySelectorAll<HTMLElement>('[data-ground="dark"]')) {
+    const r = el.getBoundingClientRect();
+    /* the nav's band is the top strip; a region is behind it if it spans any of that strip */
+    if (r.top < NAV_TONE_SWITCH && r.bottom > 0) return true;
+  }
+  return false;
+};
+
 function getActiveSection(): SectionId | null {
   let current: SectionId | null = null;
   for (const item of NAV) {
@@ -99,7 +122,7 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   const [menuOpen, setMenuOpen]     = useState(false); // mobile clip-path menu (the blob)
   const [navHidden, setNavHidden]   = useState(false); // scroll-down hides the row
   const [sheetOpen, setSheetOpen]   = useState(false); // desktop scrolled glass sheet
-  const [onDark, setOnDark]         = useState(false); // pill over a dark case-study hero
+  const [onDark, setOnDark]         = useState(false); // pill over ANY dark region — see isDarkBehindNav
   const smoothScroll                = useSmoothScroll();
   const pathname                    = usePathname();
   const isHome                      = pathname === "/";
@@ -113,7 +136,6 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
   const fabDeskRef  = useRef<HTMLButtonElement>(null);
   // The current route's dark hero, if any — the page's own tone marker. Cached on route
   // change so readScroll can read its position without a querySelector every frame.
-  const darkHeroRef = useRef<HTMLElement | null>(null);
   const lastYRef    = useRef(0);
   const rafRef      = useRef(0);
   const specRafRef  = useRef(0);
@@ -139,10 +161,9 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     if (!isHome) setActive(null);
     else if (!smoothScroll?.isProgrammaticRef.current) setActive(getActiveSection());
 
-    // Nav tone: dark while the pill overlaps the page's dark hero (its own .is-dark
-    // marker, cached on route change), light once scrolled past it onto the cards.
-    const darkHero = darkHeroRef.current;
-    setOnDark(!!darkHero && darkHero.getBoundingClientRect().bottom > NAV_TONE_SWITCH);
+    // Nav tone: dark while ANY region declaring `data-ground="dark"` is behind the pill — the
+    // hero, a mid-page quote band, or the page itself under a dark palette.
+    setOnDark(isDarkBehindNav());
 
     if (!smoothScroll?.isProgrammaticRef.current) {
       const topZone = window.matchMedia("(min-width: 1024px)").matches ? 80 : 40;
@@ -194,11 +215,9 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
     lastYRef.current = window.scrollY;
     const id = requestAnimationFrame(() => {
       header?.removeAttribute("data-nav-instant");
-      // Re-cache the new route's dark hero (its own .is-dark tone marker) and set the
-      // tone for the current scroll position, so a dark hero paints the nav dark on arrival.
-      darkHeroRef.current = document.querySelector<HTMLElement>(".hero-ground.is-dark");
-      const darkHero = darkHeroRef.current;
-      setOnDark(!!darkHero && darkHero.getBoundingClientRect().bottom > NAV_TONE_SWITCH);
+      // Re-read the tone for the new route at its current scroll position, so a dark region
+      // paints the nav dark on arrival rather than after the first scroll event.
+      setOnDark(isDarkBehindNav());
     });
     return () => cancelAnimationFrame(id);
   }, [pathname]);

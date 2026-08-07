@@ -488,5 +488,52 @@ t("J0 the scan found grounds, against a literal", groundsSeen >= 10, true);
 t("J1 ⚠ NO MIGRATED GROUND HAS A RAW FILL INSIDE IT — the browser mock's bar moved while its dots did not",
   [...new Set(nested)].sort(), []);
 
+console.log("\nK · ⚠ THE DARK BLOCK REMAPS EVERY ROLE THAT NEEDS IT — the check that was missing");
+
+/* ⚠ #389 DERIVED FOUR DARK ROLE VALUES, PROVED THEM `color-mix` OF TOKENS EVERY PALETTE ALREADY
+ * DECLARES, MEASURED THE RELATION ON ALL FIVE — AND NOTHING EVER REFERENCED THEM. The
+ * `[data-ground="dark"]` block set a ground and a colour and left every role pointing at its light
+ * rung, so a dark palette painted a dark ground and every section covered it.
+ *
+ * ⚠ NO EXISTING GATE COULD SEE THAT. A token that resolves correctly and is referenced by nothing
+ * produces NO WRONG VALUE, NO FAILING RATIO, NO MISSING DECLARATION — and every instrument here
+ * reads values and declarations. Every part was checked and nothing checked the JOIN. It is the
+ * completeness-assertion failure arriving as an ABSENT CONNECTION rather than an absent subject,
+ * and only a CONSUMER COUNT on the block can catch it.
+ *
+ * ⚠ AND THE SAME GAP EXISTS FOR EVERY ROLE THE BLOCK IS MEANT TO REMAP, which is why this is a
+ * registry rather than four assertions: a role added to the layer tomorrow needs a dark answer, and
+ * without this row its absence is invisible until someone renders a dark page. */
+const darkBlock = (() => {
+  const at = css.indexOf('[data-ground="dark"]');
+  if (at < 0) return null;
+  const o = css.indexOf("{", at);
+  let d = 0, e = -1;
+  for (let i = o; i < css.length; i++) { if (css[i] === "{") d++; else if (css[i] === "}" && --d === 0) { e = i; break; } }
+  return css.slice(o + 1, e);
+})();
+
+/* Which roles MUST be redirected on a dark ground, and which deliberately must not. */
+const DARK_EXEMPT = {
+  "on-accent": "the accent stays a MID-TONE on both grounds, so its foreground must stay light. "
+    + "Remapping it would invert a label that is correct — the exact defect #383's sweep made.",
+  "accent": "remapped, but under the `--color-accent` name — listed here only so the count below "
+    + "reads as deliberate rather than short.",
+};
+const mustRemap = Object.keys(ROLES).filter((r) => !(r in DARK_EXEMPT));
+const remapped = darkBlock ? new Set([...darkBlock.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((m) => m[1])) : new Set();
+console.log(`         the dark block redirects ${remapped.size} custom properties`);
+console.log(`         ${mustRemap.length} roles must be redirected; ${Object.keys(DARK_EXEMPT).length} are exempt with a reason`);
+
+t("K0 the dark block was found and read — a null here would make every row below vacuous",
+  darkBlock !== null && darkBlock.length > 100, true);
+t("K0a …and it redirects a real number of properties, against a literal", remapped.size >= 8, true);
+t("K1 ⚠ EVERY ROLE THAT MUST INVERT IS ACTUALLY REFERENCED IN THE DARK BLOCK — a derivation nobody wired produces no wrong value",
+  mustRemap.filter((r) => !remapped.has(r)).sort(), []);
+t("K2 ⚠ AND EVERY EXEMPTION CARRIES A REASON — a role silently left out looks identical to one deliberately kept",
+  Object.entries(DARK_EXEMPT).filter(([, why]) => !why || why.length < 40).map(([k]) => k), []);
+t("K3 …and no exempt role is remapped anyway, which would make its reason a fiction",
+  Object.keys(DARK_EXEMPT).filter((r) => r === "on-accent" && remapped.has(r)), []);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
