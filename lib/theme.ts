@@ -112,6 +112,33 @@ export function unselectableReason(name: string): string | undefined {
    status quo is a ground that is never right after the first theme change. Themed-and-sometimes-
    stale beats never-right. Recorded here so nobody reports the lag as a bug.
 ============================================================================================ */
+/* ============================================================================================
+   THE OG CARD PALETTE, PER THEME — AND WHY IT IS RESOLVED HEX LIKE THE SPLASH ABOVE.
+
+   `ImageResponse` renders OUTSIDE the document. It cannot read a CSS custom property, exactly as a
+   favicon cannot — so a social card's colours must exist as literals in JavaScript. That is the same
+   forced form as `THEME_SPLASH`, for the same mechanical reason.
+
+   ⚠ AND UNTIL #370 THE CARDS WERE NOT THEMED AT ALL — `lib/og.tsx` held four module constants, three
+   of which named a token and were 26.7, 34.8 and 30.7 away from it. #368 corrected the values against
+   cream; this makes them follow the published palette.
+
+   Measured, sanity pair 21.000 first: the accent on its own card ground is 4.70 on cream and 4.87 on
+   harbour. Both clear AA, and harbour's had never been measured because it had never been drawn.
+
+   ⚠ THE GROUND IS THEMED TOO, which is easy to miss — `cream-50` differs per palette (#fef9f1 against
+   #f5fbff), so theming only the accent would have drawn a teal mark on a warm card.
+
+   `theme` section I asserts every value here equals its theme's declaration in `globals.css`. That
+   check did not exist for `THEME_SPLASH` either; it now covers both, which is how a hand-kept
+   resolved value is allowed to be hand-kept. */
+export const THEME_OG: Record<string, { cream: string; ink: string; muted: string; accent: string }> = {
+  [DEFAULT_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
+  [SECOND_THEME]: { cream: "#f5fbff", ink: "#040d12", muted: "#4c575e", accent: "#007e5b" },
+  /* Byte-identical to the default, like every other value the control holds. */
+  [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
+};
+
 export const THEME_SPLASH: Record<string, string> = {
   [DEFAULT_THEME]: "#FEF9F1",
   [SECOND_THEME]: "#F5FBFF",

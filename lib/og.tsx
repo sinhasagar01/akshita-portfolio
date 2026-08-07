@@ -13,29 +13,24 @@ import { fitTitle } from "@/lib/og-fit";
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 export const OG_CONTENT_TYPE = "image/png";
 
-/* ⚠ THESE FOUR NAME TOKENS AND THREE OF THEM WERE NOT THOSE TOKENS. Measured against
- * `app/globals.css`: ink-950 was 26.7 away, ink-600 34.8, accent-500 30.7 — all well past the snap
- * threshold this project settled at single digits, each sitting beside a comment asserting equality.
- * Only `cream-50` was close, at 5.2.
+/* ⚠ THE CARD FOLLOWS THE PUBLISHED PALETTE, AND THESE ARE ITS CREAM DEFAULTS.
  *
- * ⚠ A COMMENT NAMING A TOKEN IS A CLAIM AND NOTHING CHECKED IT. Every gate here reads VALUES; the
- * claim lived in prose, which no gate reads. Third instance of that shape — `accent-400`'s comments
- * called it load-bearing while nothing referenced it, the cursor's `#B5613C` was a near-copy at
- * 23.6, and this one asserted equality outright. All three were found by measuring something else.
- * `ralph/tests/token-claims.mjs` is the instrument that shape never had.
+ * `ImageResponse` renders OUTSIDE the document and cannot read a CSS custom property, so a card's
+ * colours must be literals — the same forced form the favicon and `THEME_SPLASH` have. `THEME_OG`
+ * in `lib/theme.ts` holds them per theme; these four are the fallback used when no palette is
+ * passed, so a caller that forgets one still draws a correct cream card rather than a black box.
  *
- * They stay LITERALS because `ImageResponse` renders outside the document and cannot read a CSS
- * custom property — the same isolation the favicon has. `THEME_SPLASH` in `lib/theme.ts` is the
- * precedent and it is exact at distance 0, so a hand-kept resolved value is workable ONCE SOMETHING
- * MEASURES IT.
- *
- * ⚠ AND THE CARDS GET MORE CONTRAST, NOT LESS. On the card ground: ink 16.41 → 19.04, muted
- * 5.24 → 7.42, accent 3.72 → 4.70 — the accent crossing AA for the first time. The drift had been
- * washing every value toward the paper. */
+ * ⚠ AND THREE OF THEM NAMED A TOKEN AND WERE NOT IT until #368 — ink-950 was 26.7 away, ink-600
+ * 34.8, accent-500 30.7, each beside a comment asserting equality. `token-claims.mjs` is the
+ * instrument that shape never had; it reads these lines. */
 const CREAM = "#fef9f1"; // --color-cream-50 / page background
 const INK = "#0f0703"; //   --color-ink-950
 const MUTED = "#59514a"; //  --color-ink-600
 const ACCENT = "#b65329"; // --color-accent-500
+
+/** The four colours a card draws in. Defaults to cream so an omitted palette is still correct. */
+export type OgPalette = { cream: string; ink: string; muted: string; accent: string };
+const CREAM_PALETTE: OgPalette = { cream: CREAM, ink: INK, muted: MUTED, accent: ACCENT };
 
 // Load one static Source Serif 4 weight from Google Fonts for the headline. The legacy UA makes
 // Google serve a TrueType file (Satori cannot use variable woff2). Memoized for the server
@@ -88,6 +83,7 @@ export async function renderOgImage({
   eyebrow,
   title,
   subtitle,
+  palette = CREAM_PALETTE,
 }: {
   /** The kind of thing this is. Case studies pass the literal "Case study"; blog passes the
    *  post's `topic`, which is FREE TEXT and may be "" — see the render below, which drops the
@@ -95,6 +91,8 @@ export async function renderOgImage({
   eyebrow: string;
   title: string;
   subtitle?: string;
+  /** The published palette's card colours. Omitted means cream — see `CREAM_PALETTE`. */
+  palette?: OgPalette;
 }): Promise<ImageResponse> {
   const font = await loadBrandFont();
   const fontFamily = font ? BRAND_FONT : undefined;
@@ -113,8 +111,8 @@ export async function renderOgImage({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: CREAM,
-          color: INK,
+          backgroundColor: palette.cream,
+          color: palette.ink,
           padding: "80px",
           ...(fontFamily ? { fontFamily } : {}),
         }}
@@ -126,13 +124,13 @@ export async function renderOgImage({
             the remaining composition is title, dek and footer — still balanced, one branch. */}
         {showEyebrow ? (
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 48, height: 4, backgroundColor: ACCENT }} />
+            <div style={{ width: 48, height: 4, backgroundColor: palette.accent }} />
             <div
               style={{
                 fontSize: 24,
                 letterSpacing: 4,
                 textTransform: "uppercase",
-                color: ACCENT,
+                color: palette.accent,
                 fontWeight: 600,
               }}
             >
@@ -161,7 +159,7 @@ export async function renderOgImage({
               style={{
                 fontSize: 32,
                 lineHeight: 1.35,
-                color: MUTED,
+                color: palette.muted,
                 maxWidth: 940,
               }}
             >
@@ -178,7 +176,7 @@ export async function renderOgImage({
           }}
         >
           <div style={{ fontSize: 30, fontWeight: 600 }}>{SITE_NAME}</div>
-          <div style={{ fontSize: 26, color: MUTED }}>{AUTHOR_JOB_TITLE}</div>
+          <div style={{ fontSize: 26, color: palette.muted }}>{AUTHOR_JOB_TITLE}</div>
         </div>
       </div>
     ),

@@ -10654,6 +10654,55 @@ broke **five assertions that read string contents** — `G3` matches `omitEmpty:
 them.** The trap is recorded with its trigger named, and a real repair needs a tokenizer rather than a
 regex.
 
+## THE SOCIAL CARDS FOLLOW THE PALETTE (#370)
+
+**It was wiring, and the one real question answered yes.** `ImageResponse` cannot read a CSS custom
+property, so the resolved palette has to be passed in — and **the route handlers can reach it**:
+`getSiteSettings` lives in `lib/keystatic.ts`, which those routes already import from, and both
+routes PRERENDER (`og.body` per slug), so the read happens once at build time rather than per request.
+
+**Measured on both palettes, sanity pair 21.000 first.** The accent on its own card ground is
+**4.70 on cream and 4.87 on harbour** — both clear AA, and **harbour's had never been measured because
+it had never been drawn**.
+
+**⚠ AND THE GROUND IS THEMED TOO, WHICH WAS THE PART EASY TO MISS.** `cream-50` differs per palette,
+`#fef9f1` against `#f5fbff`, so theming only the accent would have drawn a teal rule on a warm card.
+All four colours move.
+
+**⚠ THEMED AT SHARE TIME, NOT RETROACTIVELY — RECORDED BEFORE ANYONE REPORTS IT.** A platform stores
+the image it scraped, so switching palettes does not repaint cards already sitting in feeds. Same
+staleness the favicon has, on a surface **nobody can flush**. It is a property of the surface rather
+than a defect in the change.
+
+**`theme` SECTION I IS THE PART WORTH KEEPING.** Two maps hold resolved hex — `THEME_SPLASH` and the
+new `THEME_OG` — and **neither was ever compared to the stylesheet.** `THEME_SPLASH` claims each value
+"IS its theme's `--color-cream-50`, resolved. Not an approximation", and `F1`–`F3` only ever asserted
+STRUCTURE. Section I now compares **15 resolved values against their own theme's declaration**, which
+is what allows a hand-kept value to be hand-kept. `token-claims` one layer out, per theme.
+
+**⚠ AND MY FIRST RENDER PROVED NOTHING.** I captured a card, labelled it "cream", and it was harbour —
+the content file already said `harbour`, so the build never was cream. **A capture labelled by intent
+rather than by the state that produced it**, which is the merge failure's family in a third form.
+Re-run with the theme set explicitly per build and each capture verified by measuring its dominant
+chromatic pixel before being trusted.
+
+---
+
+## THE BOARD IS EMPTY
+
+Every one of the owner's nine items is closed. The theme arc's mechanism is closed — two palettes
+ship, the instrument and the render protocol both exist, and the boundary file is a record whose
+categories are claims rather than labels.
+
+**WHAT REMAINS IS NOT MAINTENANCE.**
+
+- **THEMES THREE AND FOUR** — design exercises. The instrument and the render protocol are waiting,
+  and **neither shipped palette is usable as a template**, which is a finding rather than an obstacle.
+- **OG PIECE (3)** — the identity card redraw. The static home card is a designed lockup: ribbon
+  glyph, Kaushan wordmark, construction grid. **The owner has to want it before it can be scoped.**
+- **THE SEMANTIC PASS** for narrowed subjects — the half #368's syntactic sweep provably cannot reach,
+  and the half that found `theme-contrast`'s merge.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -1,5 +1,7 @@
 import { getCaseStudyData, getProjectSlugs } from "@/lib/keystatic";
 import { renderOgImage } from "@/lib/og";
+import { getSiteSettings } from "@/lib/keystatic";
+import { resolveTheme, THEME_OG } from "@/lib/theme";
 
 // Stable OG-card URL (`/projects/<slug>/og`) referenced identically by og:image,
 // twitter:image, and the JSON-LD image so they never diverge. The file-convention
@@ -33,7 +35,17 @@ export async function GET(
   // route stops being able to say no. It was harmless here only because projects have no
   // draft state — a property of today's content, not of this code.
   if (!data) return new Response(null, { status: 404 });
+  /* ⚠ THE PALETTE IS READ HERE RATHER THAN INSIDE `renderOgImage`, because the helper is a pure
+   * renderer and the published theme is a CONTENT read. This route prerenders — the build writes an
+   * `og.body` per slug — so the read happens once at build time, not per request.
+   *
+   * ⚠ AND A THEMED CARD IS THEMED AT SHARE TIME, NOT RETROACTIVELY. A platform stores the image it
+   * scraped, so switching palettes does not repaint cards already sitting in feeds. Same staleness
+   * the favicon has, on a surface nobody can flush — recorded so old cards are not reported as a
+   * bug later. */
+  const palette = THEME_OG[resolveTheme((await getSiteSettings())?.theme)];
   return renderOgImage({
+    palette,
     eyebrow: "Case study",
     title: data.title,
     subtitle: data.summary,
