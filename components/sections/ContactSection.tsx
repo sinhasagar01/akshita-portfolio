@@ -434,7 +434,7 @@ export default function ContactSection({ settings }: Props) {
           <div
             className="relative overflow-hidden"
             style={{
-              background: 'var(--color-cream-50)',
+              background: 'var(--color-surface)',
               borderRadius: 16,
               minHeight: 330,
               padding: '42px 42px 26px',

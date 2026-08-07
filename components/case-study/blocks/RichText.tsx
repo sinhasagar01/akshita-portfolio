@@ -30,8 +30,8 @@ export default function RichText({
           {...inlineEditProps(editable, blockIndex, `paragraphs.${i}`, "Edit paragraph", true)}
           className={
             (web
-              ? "text-xl text-ink-600 leading-relaxed max-w-[74ch]"
-              : "text-lg text-ink-600 leading-relaxed max-w-[68ch]") +
+              ? "text-xl text-text-secondary leading-relaxed max-w-[74ch]"
+              : "text-lg text-text-secondary leading-relaxed max-w-[68ch]") +
             (editable ? EDIT_AFFORD : "")
           }
         >

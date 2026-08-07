@@ -119,7 +119,7 @@ export default function LoveButton({
       className={`inline-flex items-center gap-3 rounded-full border px-7 py-3.5 text-[15px] transition-colors ${
         loved
           ? "cursor-default border-accent-500 bg-accent-500/[0.07] text-accent-600"
-          : "border-ink-400 text-ink-600 hover:border-accent-500 hover:text-accent-600"
+          : "border-ink-400 text-text-secondary hover:border-accent-500 hover:text-accent-600"
       }`}
     >
       <span className="relative inline-flex">

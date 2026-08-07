@@ -11580,6 +11580,61 @@ comment became the only reason that utility compiled** — `css-comment-trap` A5
 while rewording. Inverse of the #382 case: there the vocabulary grew under the prose, here the
 markup shrank out from under it. **Both directions of the same hostage relation.**
 
+## THE var() SITES, BY HAND ON THE AMBIGUOUS RUNGS — PR 3 OF 4 (#384)
+
+20 substitutions — 7 `var()` sites judged individually and 13 stringly-built utilities. Home 10 of
+10 buckets identical, case study 21 of 21.
+
+**⚠ THE SUBJECT WAS 54 AND THE MIGRATABLE PART WAS 20, WHICH IS THE FINDING RATHER THAN A SHORTFALL.**
+Broken down honestly, the 54 was **34 `var()` + 20 utilities outside a `className` span**. And of the
+34, almost none is a role migration:
+
+    ink-950     every non-artwork site is color-mix(... N%, transparent) — LINE, LINE_SOFT,
+                HAIRLINE, RAIL_SPINE, BAR_TRACK. Same class as PR 2's 31 opacity-modified sites.
+    cream-100   both sites are illustration constants
+    ink-800     an illustration constant and an alpha mix
+    cream-300   two illustration fills, one decorative backdrop
+    ink-600     SectionHeading's `tone` ternary — a component CHOOSING, so PR 4
+
+**Forcing those into roles would have been the bezel mistake at scale.**
+
+---
+
+## ⚠ THE BY-HAND PASS FOUND TWO MORE OF PR 2's DEFECT BEFORE IT COULD SHIP
+
+`ProcessSection`'s step label and its checkmark are both drawn **only when the dot is filled with the
+accent** — so both are `on-accent`, and a corrected rung map would have sent them to `surface` again.
+**A second sweep with better entries would have made the same mistake**, which is the argument for
+the ruling: a rung-to-role map is a FUNCTION and `cream-50` is not in its domain.
+
+**THE REPAIR IS THE KEY, NOT THE ENTRIES.** `(rung, utility kind)` IS a function — a ground prefix
+resolves `surface`, a foreground prefix resolves `on-accent`. `role-layer` section F declares the
+multi-role set so the next sweep knows which rungs it may not map, with the disambiguation rule
+recorded and an end condition.
+
+---
+
+## ⚠ AND THE GATE NEEDED THE SAME CARE AS THE MIGRATION — THREE DEFECTS IN MY OWN ASSERTIONS
+
+**E2 reads `className` only.** A mutation putting the `ProcessSection` mistake back left it GREEN,
+because that site is a `var()` in a `style={{ }}`. **Two of the four sites this rule exists for live
+in the form the rule could not read.** E4 is the repair.
+
+**E4's first version produced a confident false positive on a clean tree**, from two regex faults at
+once: a JS object literal has **no semicolons**, so a `[^;]*` window spanned the whole object and
+matched a background against a border three properties away; and `(color|stroke|fill)` matched
+**`backgroundColor`**, which contains "Color". Now parsed per property, split on top-level commas,
+names anchored.
+
+**And rewriting the parser silently deleted E4's denominator.** E3 vanished in the edit and E4 went
+on passing over a scan nothing asserted — **the empty-subject shape, introduced by a repair to the
+section that exists to prevent it.**
+
+**⚠ AND ONE FORM REMAINS UNREACHABLE, STATED RATHER THAN PAPERED OVER.** A bare JSX attribute
+(`<path stroke="var(…)">`) whose accent context lives in the PARENT's conditional is outside both
+scans. `ProcessSection`'s checkmark is that case: correct, commented at the site, and **not
+protected by a gate.**
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

@@ -407,11 +407,11 @@ function VerticalStepper({
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "11px",
-                background: isActive || isDone ? "var(--color-accent-500)" : "var(--color-cream-50)",
+                background: isActive || isDone ? "var(--color-accent-500)" : "var(--color-surface)",
                 border: isActive || isDone
                   ? "1.5px solid var(--color-accent-500)"
                   : "1.5px solid color-mix(in oklch, var(--color-text-primary) 32%, transparent)",
-                color: isActive || isDone ? "var(--color-cream-50)" : "var(--color-text-subtle)",
+                color: isActive || isDone ? "var(--color-on-accent)" : "var(--color-text-subtle)",
                 transition: "background 0.3s, border-color 0.3s, color 0.3s",
               }}
             >
@@ -419,7 +419,12 @@ function VerticalStepper({
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path
                     d="M2.5 6 l2.2 2.2 4.8 -4.4"
-                    stroke="var(--color-cream-50)"
+                    /* ⚠ `on-accent`, NOT `surface` — this checkmark is drawn ONLY inside the
+                       accent-filled dot, so its ground is the accent and not the page. No gate
+                       reaches this: `role-layer` E2 reads className and E4 reads style objects,
+                       and a bare JSX attribute whose accent context lives in the PARENT's
+                       conditional is outside both. The comment is the protection. */
+                    stroke="var(--color-on-accent)"
                     strokeWidth="1.6"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -525,7 +530,7 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
               marginLeft: "-124px",
               borderRadius: "18px",
               border: "1.5px solid var(--color-accent-500)",
-              background: "var(--color-cream-50)",
+              background: "var(--color-surface)",
               boxShadow: "0 10px 30px color-mix(in oklch, var(--color-accent-500) 12%, transparent)",
               display: "flex",
               alignItems: "center",

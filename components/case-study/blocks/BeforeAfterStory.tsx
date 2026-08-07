@@ -377,7 +377,7 @@ export default function BeforeAfterStory({
                     <h3
                       {...inlineEditProps(editable, blockIndex, `pairs.${i}.title`, "Edit screen name")}
                       className={
-                        "font-display text-2xl font-normal leading-tight text-ink-950" +
+                        "font-display text-2xl font-normal leading-tight text-text-primary" +
                         (editable ? EDIT_AFFORD : "")
                       }
                     >
@@ -473,7 +473,7 @@ export default function BeforeAfterStory({
                     <h3
                       {...inlineEditProps(editable, blockIndex, `pairs.${i}.title`, "Edit screen name")}
                       className={
-                        "font-display text-2xl font-normal leading-tight text-ink-950" +
+                        "font-display text-2xl font-normal leading-tight text-text-primary" +
                         (editable ? EDIT_AFFORD : "")
                       }
                     >

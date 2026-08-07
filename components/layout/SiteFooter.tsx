@@ -8,7 +8,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
       <div className="container-x">
         <div
           className="footer-panel relative overflow-hidden rounded-lg px-[50px] pb-[26px]"
-          style={{ backgroundColor: "var(--color-cream-50)" }}
+          style={{ backgroundColor: "var(--color-surface)" }}
         >
           {/* Ciao backdrop */}
           <div

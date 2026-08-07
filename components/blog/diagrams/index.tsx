@@ -37,7 +37,7 @@ function Label({ children, accent = false }: { children: ReactNode; accent?: boo
        FAIL at 11px, where AA needs 4.5 and nothing about tracked caps counts as large text. Caught
        by measuring all three palettes rather than by looking, because at a glance it reads as an
        ordinary quiet label. */
-    <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${accent ? "text-accent-600" : "text-ink-600"}`}>
+    <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${accent ? "text-accent-600" : "text-text-secondary"}`}>
       {children}
     </p>
   );

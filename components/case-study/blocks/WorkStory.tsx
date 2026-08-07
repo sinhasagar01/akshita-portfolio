@@ -239,7 +239,7 @@ export default function WorkStory({
               ref={titleInnerRef}
               {...inlineEditProps(editable, blockIndex, `features.${current}.title`, "Edit title")}
               className={
-                "block font-display font-normal text-2xl text-ink-950 leading-[1.07]" +
+                "block font-display font-normal text-2xl text-text-primary leading-[1.07]" +
                 (editable ? EDIT_AFFORD : "")
               }
             >
@@ -250,7 +250,7 @@ export default function WorkStory({
             ref={descRef}
             {...inlineEditProps(editable, blockIndex, `features.${current}.body`, "Edit feature body", true)}
             className={
-              "text-[1rem] text-ink-600 leading-[1.62] mt-3.5" + (editable ? EDIT_AFFORD : "")
+              "text-[1rem] text-text-secondary leading-[1.62] mt-3.5" + (editable ? EDIT_AFFORD : "")
             }
           >
             {renderRich(f.body)}
