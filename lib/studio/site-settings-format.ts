@@ -125,7 +125,7 @@ const LINK_KEYS = ["label", "url"] as const;
  * ⚠ THE VERIFICATION TWIN IS ABSENT ON PURPOSE. `cream-verify` resolves but is not selectable, so
  * the fixture cannot be published by accident.
  */
-const SETTINGS_THEME_VALUES = ["cream", "harbour"] as const;
+const SETTINGS_THEME_VALUES = ["cream", "harbour", "orchid"] as const;
 
 /**
  * Validate an untrusted processStages value to a normalized ProcessStage[].

@@ -89,15 +89,23 @@ export type ThemeName = (typeof THEME_NAMES)[number];
 ============================================================================================ */
 const UNSELECTABLE: Record<string, string> = {
   [VERIFY_THEME]: "permanent verification control — never publishable",
-  /* ⚠ HELD UNSELECTABLE UNTIL THE RENDER RUNS, WHICH IS HARBOUR'S OWN PRECEDENT. The instrument
-     says SHIPPABLE — every token pair clears its floor on the first draft, with margins wider than
-     either shipped palette. THAT HAS NEVER MEANT THE SITE LOOKS RIGHT. Harbour was SHIPPABLE on the
-     day its render showed five terracotta watermarks beside two cool ones, and the dark render found
-     the glass nav and the vessel structurally light-ground.
+  /* ⚠ ORCHID WAS HELD HERE AND IS UNHELD IN #374. THE HOLD IS KEPT IN THE RECORD RATHER THAN
+     DELETED, because a hold whose reasoning vanishes leaves no way to tell a considered release
+     from a forgotten one.
 
-     The line comes off when the full home page and the four signature surfaces have been rendered
-     and looked at. */
-  [THIRD_THEME]: "render not yet run — SHIPPABLE is the instrument's claim, not the eye's",
+     IT READ: "render not yet run — SHIPPABLE is the instrument's claim, not the eye's." That was
+     the right condition and it named itself, which is what `A8`'s temporary-hold row now requires
+     of every entry here.
+
+     THE CONDITION IS MET. The full home page, the blog index, an article and all four signature
+     surfaces were rendered on orchid and looked at — the glass nav, the work cards, the hero ground
+     and the Pearl Smoke vessel all read correctly, the vessel measuring 15.8 and 6.01 with the
+     sanity pair first.
+
+     ⚠ AND THE ONE THING THE RENDER FOUND WAS ABOUT THE SITE RATHER THAN THE PALETTE — a blog
+     illustration baked in cream's ground, pre-existing and revealed rather than caused. Holding
+     orchid for it would punish the palette that exposed it, and harbour ships with the same leak
+     unnoticed. `raster-grounds` now watches that class. */
 };
 
 /** The names an author may actually set. */

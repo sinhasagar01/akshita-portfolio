@@ -101,8 +101,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
 /* ⚠ A8 RESTATES THE IMPLEMENTATION, so A8a anchors it to the list a person can read. The
  * equivalence is still worth asserting — it is what fails if a theme is added to the resolver and
  * forgotten in the sanitizer — but on its own, a broken `unselectableReason` moves both sides. */
-t("A8a the selectable set is the two real palettes, named rather than derived",
-  selectableThemes(), ["cream", "harbour"]);
+t("A8a the selectable set is the three real palettes, named rather than derived",
+  selectableThemes(), ["cream", "harbour", "orchid"]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
