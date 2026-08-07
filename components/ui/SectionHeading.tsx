@@ -56,7 +56,22 @@ export default function SectionHeading({
      means ACCENT-TONED or INK-TONED, and both follow the theme. A prop whose two values produced
      the same result would be a control that cannot do anything, which this repo has deleted four
      times — this one still does something on every palette. */
-  const wordTint   = tone === "warm" ? "var(--color-accent-500)" : "var(--color-ink-600)";
+  /* ⚠ THE TWO TINTS TAKE ROLES, AND IT IS A RENAME ON LIGHT AND A REMAP ON DARK. Both were RAW
+     RUNGS, so neither followed the ground — and an ink at 18% over a near-black page is ink on ink,
+     the exact failure that made `etch` a role. On sapphire the ghost was all but invisible, which
+     is how the owner found it.
+
+     ⚠ THE WATERMARK IS NOT A DEFECT AND IS NOT BEING MADE SOLID. 17% and 18% are the design, they
+     read correctly on all five light palettes, and making the heading solid would change every one
+     of them to fix one. What was wrong is that the ghost could not follow the ground.
+
+     ZERO LIGHT PIXELS MOVE: `--color-accent` resolves to `accent-500` and `--color-text-secondary`
+     to `ink-600` on every light palette, so these are the same colours under names that invert.
+     Same shape as `.skill-pill`'s foreground fix — half a rename, half a remap.
+
+     And this is the ALPHA-BASED ROLE pattern working as designed: both roles resolve a PIGMENT, so
+     the two consumers below keep their own 17/18% and 22/20% weights untouched. */
+  const wordTint   = tone === "warm" ? "var(--color-accent)" : "var(--color-text-secondary)";
   const wordColor  = `color-mix(in oklch, ${wordTint} ${tone === "warm" ? 17 : 18}%, transparent)`;
   const wordShadow = `0 0 30px color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent)`;
   const glowBg     = `radial-gradient(closest-side,color-mix(in oklch, ${wordTint} ${tone === "warm" ? 22 : 20}%, transparent),transparent 72%)`;
