@@ -166,6 +166,30 @@ closed.
   **"can the property I care about even be expressed in what it looks at"** — and a category the
   vocabulary has no word for is one no gate is watching.
 
+- **⚠ A NUMBER WITHOUT ITS SUBJECT IS AN INVITATION TO SUPPLY ONE.** "Near-black grounds differ
+  between palettes by 25.1" was **correct and unattached**. A reader — the one who had written the
+  surrounding rules — attached it to the `band-dark` token, measured 26.3, and **spent a turn chasing
+  a discrepancy that did not exist.** The 25.1 was always the two favicon candidate grounds.
+
+  **⚠ THIS IS THE COMPLEMENT OF "a ratio belongs to the ground it was taken on", WHICH THIS FILE
+  STATES FIVE TIMES.** That rule is about **reusing** a number on the wrong surface. This one is
+  about a number that **never named a surface at all**, so there was nothing to check it against and
+  no way for the misreading to fail. **Naming the subject is what makes an observation citable
+  rather than merely true** — an unattached figure survives every review, because every review has to
+  guess the same way.
+
+- **⚠ GATE THE OBVIOUS WORKAROUND, NOT ONLY THE THING ITSELF.** `theme-contrast` L1 requires every
+  ground to sit in the light band; **L2 requires the band to stay narrow enough that hue still
+  matters across it.** Widening the band to make L1 pass therefore fails — the escape hatch is
+  closed, and closing it cost one row.
+
+  **THIS IS RARE HERE AND IT SHOULD NOT BE.** Most of this arc's gates could be satisfied by
+  loosening the very thing they measure, and **three were**: the exemption list that let a dead token
+  survive a contrast floor, the hardcoded pair list that stayed at three while the subject grew, and
+  the denominator guard that computed its expectation from the subject it guarded. **When writing a
+  constraint, ask what the cheapest way to satisfy it would be, and whether that way is also
+  measured.**
+
 - **⚠ THE PALETTE'S EXTREMES ARE WHERE A THEME HAS LEAST TO SAY.** The two FAVICON candidate grounds
   (`#211C16` and `#0B1A22`) differ by **25.1**, and the two PWA SPLASH grounds (each theme's
   `cream-50`) by **16.8** — and **neither hue is visible at any size.**
