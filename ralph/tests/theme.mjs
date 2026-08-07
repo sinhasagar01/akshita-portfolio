@@ -280,25 +280,60 @@ const namesIn = (b) => new Set([...b.matchAll(/(--color-[a-z0-9-]+)\s*:/g)].map(
 const valuesIn = (b) => new Map([...b.matchAll(/(--color-[a-z0-9-]+)\s*:\s*([^;]+);/g)]
   .map((m) => [m[1], m[2].trim()]));
 
-const creamBlock = blockOf('[data-theme="cream"]');
-const harbBlock = blockOf('[data-theme="harbour"]');
-t("G1 cream has a scoped block — without one it is unreachable below a non-cream ancestor",
-  creamBlock !== null, true);
-t("G2 …and so does harbour, so G3 compares two real sets", harbBlock !== null, true);
+/* ---- ⚠ DERIVED FROM `THEME_NAMES`, AND IT WAS A HARDCODED PAIR UNTIL #381 -------------------
+ *
+ * G4's NAME said "EVERY THEME DECLARES THE SAME TOKEN SET". Its BODY compared cream against
+ * harbour. Orchid, cerise and fern were never checked — so deleting `--color-vessel-wave` from
+ * fern left ralph green at 2642, which is the exact defect the row exists to catch, in three of the
+ * five palettes it claims to cover.
+ *
+ * ⚠ AND IT WAS DOCUMENTED AND NEVER CLOSED. Section J's comment names this row by name — "Section G
+ * compares cream's block to harbour's BY NAME" — written when a whole palette entered the
+ * stylesheet unseen. J fixed the REGISTRATION half and left the TOKEN-SET half exactly as it found
+ * it. A gap that has been written down is not a gap that has been closed, and the note reads like
+ * one because it names the problem so precisely.
+ *
+ * ⚠ FOURTH INSTANCE OF THE FIXED-LIST SHAPE, and the worst-placed: it is the gate that would
+ * enforce a token-layer ruling, so a vocabulary decision made on its evidence would have been
+ * verified on two palettes out of five. */
+const blocks = Object.fromEntries(THEME_NAMES.map((n) => [n, blockOf(`[data-theme="${n}"]`)]));
+/* ⚠ TRUTHINESS, NOT `=== null`, AND A MUTATION IS WHY. The first version of this row read
+ * `blocks[n] === null`, which is what `blockOf` returns for a selector it cannot find — but an
+ * ABSENT key reads `undefined`, so emptying the map entirely left G1 GREEN while claiming every
+ * theme had a block. The row whose NAME makes the claim was the one that failed to check it, and
+ * G3 caught the mutation instead.
+ *
+ * Same family as the denominator lesson one turn earlier: a guard has to be robust to its subject
+ * being absent, not merely to its subject being wrong. */
+const missingBlock = THEME_NAMES.filter((n) => !blocks[n]);
+t("G1 ⚠ EVERY THEME HAS A SCOPED BLOCK — without one it is unreachable below a non-cream ancestor",
+  missingBlock, []);
+/* ⚠ CONSTANT, NOT DERIVED FROM `THEME_NAMES`. #378: a guard that computes its expectation from the
+ * subject it guards passes when the subject is empty. */
+t("G2 …and there are at least five of them to compare, asserted against a literal",
+  THEME_NAMES.length >= 5, true);
 
-const creamNames = creamBlock ? namesIn(creamBlock) : new Set();
-const harbNames = harbBlock ? namesIn(harbBlock) : new Set();
-console.log(`         cream declares ${creamNames.size}, harbour ${harbNames.size}`);
-t("G3 the population is real — a zero would make G4 and G5 vacuous", creamNames.size > 20, true);
-t("G4 ⚠ EVERY THEME DECLARES THE SAME TOKEN SET — one missing token inherits the ancestor's",
-  [...harbNames].filter((n) => !creamNames.has(n)).sort()
-    .concat([...creamNames].filter((n) => !harbNames.has(n)).sort()), []);
+const nameSets = Object.fromEntries(THEME_NAMES.map((n) => [n, blocks[n] ? namesIn(blocks[n]) : new Set()]));
+console.log(`         ${THEME_NAMES.map((n) => `${n} ${nameSets[n].size}`).join(", ")}`);
+t("G3 every block is a real population — a zero would make G4 vacuous for that theme",
+  THEME_NAMES.filter((n) => nameSets[n].size <= 20), []);
+
+/* Cream is the reference because `@theme` IS cream and G5 pins the scoped copy to it. Differences
+ * are reported PER THEME AND PER TOKEN, so a failure names what to fix rather than only that
+ * something is wrong. */
+const ref = nameSets[DEFAULT_THEME];
+const setDrift = THEME_NAMES.filter((n) => n !== DEFAULT_THEME).flatMap((n) => [
+  ...[...nameSets[n]].filter((k) => !ref.has(k)).sort().map((k) => `${n} declares ${k}, ${DEFAULT_THEME} does not`),
+  ...[...ref].filter((k) => !nameSets[n].has(k)).sort().map((k) => `${n} is MISSING ${k}`),
+]);
+t("G4 ⚠ EVERY THEME DECLARES THE SAME TOKEN SET — one missing token silently inherits the ancestor's",
+  setDrift, []);
 
 /* The drift objection, answered. The scoped cream block is a second copy of values `@theme` already
  * holds, and the reason that was refused for so long. It is allowed here because THIS compares them
  * — a copy that cannot silently disagree is not the copy the objection was about. */
 const themeVals = valuesIn(blockOf("@theme") ?? "");
-const creamVals = creamBlock ? valuesIn(creamBlock) : new Map();
+const creamVals = blocks[DEFAULT_THEME] ? valuesIn(blocks[DEFAULT_THEME]) : new Map();
 t("G5 ⚠ AND THE SCOPED COPY MATCHES @theme EXACTLY — the drift objection, answered by comparison",
   [...creamVals].filter(([k, v]) => themeVals.get(k) !== v).map(([k]) => k).sort(), []);
 

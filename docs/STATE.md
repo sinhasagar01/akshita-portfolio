@@ -11396,6 +11396,34 @@ Those costs land identically under either shape, so **the mechanics do not decid
 question** — which is the opposite of how they were framed, and worth stating because the framing
 was mine to check rather than to accept.
 
+## G4 RUNS ON EVERY THEME (#381)
+
+It read *"EVERY THEME DECLARES THE SAME TOKEN SET"* and compared **cream against harbour,
+hardcoded**. Orchid, cerise and fern were never checked, so deleting `--color-vessel-wave` from fern
+left ralph **green at 2642** — the exact defect the row exists to catch, in three of the five
+palettes it claimed to cover.
+
+Derived from `THEME_NAMES` now, cream as the reference, and failures name **the theme and the
+token**: `fern is MISSING --color-vessel-wave`, `orchid declares --color-invented-token, cream does
+not`. Both directions mutation-proven.
+
+**⚠ AND IT WAS DOCUMENTED AND NEVER CLOSED.** Section J's comment names this row by name — *"Section
+G compares cream's block to harbour's BY NAME"* — written when a whole palette entered the
+stylesheet unseen. **J fixed the REGISTRATION half and left the TOKEN-SET half exactly as it found
+it.** A gap that has been written down is not a gap that has been closed, and this note read like
+one **because it named the problem so precisely**.
+
+**⚠ FOURTH INSTANCE OF THE FIXED-LIST SHAPE, AND THE WORST-PLACED.** This is the gate that would
+enforce the shape C ruling, so a token-layer decision made on its evidence would have been verified
+on two palettes out of five.
+
+**⚠ AND A MUTATION CAUGHT A DEFECT IN THE REPAIR ITSELF.** G1's first version read
+`blocks[n] === null` — what `blockOf` returns for a missing selector — but an ABSENT key reads
+`undefined`, so emptying the map left **G1 green while claiming every theme had a block**. The row
+whose NAME makes the claim was the one that failed to check it, and G3 caught the mutation instead.
+**A guard must be robust to its subject being absent, not merely to its subject being wrong** — the
+denominator lesson one turn later and one layer down.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
