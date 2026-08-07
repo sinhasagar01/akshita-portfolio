@@ -154,7 +154,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      two-spellings defect sitting in the token layer. That is a deletion of its own and is recorded
      rather than fixed here, because merging two names is a change to 16+ call sites and this PR
      is byte-identical by construction. */
-  --color-text-body: #4a4239;
+  --color-text-body: oklch(38.4% 0.018 70.5);
 
   /* The warm hairline. Six public sites draw it at five different alphas — About, Contact x3,
      SiteFooter, FooterClock — and it is 35 from `ink-600`, the nearest token, so it was never a
@@ -640,7 +640,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500: oklch(56.0% 0.14 42);
   --color-accent-600: oklch(46.0% 0.13 42);
   --color-text-subtle: oklch(51% 0.016 66);
-  --color-text-body: #4a4239;
+  --color-text-body: oklch(38.4% 0.018 70.5);
   --color-rule: rgb(120, 90, 60);
   --color-band-dark: oklch(16.5% 0.022 60);
   --color-on-dark: oklch(95.5% 0.013 82);
@@ -813,11 +813,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      accent-500 @52%   on cream-50   5.820   floor 4.5   margin +1.320
 ============================================================================================ */
 [data-theme="orchid"] {
-  --color-cream-50: oklch(99.0% 0.007 315);
-  --color-cream-100: oklch(97.2% 0.016 315);
-  --color-cream-200: oklch(94.0% 0.022 315);
-  --color-cream-300: oklch(88.6% 0.028 315);
-  --color-canvas: oklch(92.6% 0.020 315);
+  --color-cream-50: oklch(98.5% 0.007 315);
+  --color-cream-100: oklch(96.8% 0.016 315);
+  --color-cream-200: oklch(93.5% 0.022 315);
+  --color-cream-300: oklch(88.0% 0.028 315);
+  --color-canvas: oklch(92.0% 0.020 315);
 
   --color-ink-950: oklch(15.0% 0.022 315);
   --color-ink-800: oklch(27.0% 0.022 315);
@@ -914,11 +914,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    accent — the name was corrected to the colour rather than the colour to the name.
 ============================================================================================ */
 [data-theme="cerise"] {
-  --color-cream-50: oklch(98.4% 0.007 15);
-  --color-cream-100: oklch(95.2% 0.022 15);
-  --color-cream-200: oklch(90.6% 0.029 15);
-  --color-cream-300: oklch(85.2% 0.032 15);
-  --color-canvas: oklch(96.2% 0.016 15);
+  --color-cream-50: oklch(98.5% 0.007 15);
+  --color-cream-100: oklch(96.8% 0.016 15);
+  --color-cream-200: oklch(93.5% 0.029 15);
+  --color-cream-300: oklch(88.0% 0.032 15);
+  --color-canvas: oklch(92.0% 0.016 15);
   --color-ink-950: oklch(15.0% 0.039 20);
   --color-ink-800: oklch(26.2% 0.037 20);
   --color-ink-600: oklch(40.0% 0.030 20);
@@ -952,11 +952,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 }
 
 [data-theme="fern"] {
-  --color-cream-50: oklch(98.4% 0.018 138);
-  --color-cream-100: oklch(95.2% 0.022 138);
-  --color-cream-200: oklch(90.6% 0.026 138);
-  --color-cream-300: oklch(85.2% 0.030 138);
-  --color-canvas: oklch(96.2% 0.022 138);
+  --color-cream-50: oklch(98.5% 0.018 138);
+  --color-cream-100: oklch(96.8% 0.022 138);
+  --color-cream-200: oklch(93.5% 0.026 138);
+  --color-cream-300: oklch(88.0% 0.030 138);
+  --color-canvas: oklch(92.0% 0.022 138);
   --color-ink-950: oklch(15.0% 0.036 146);
   --color-ink-800: oklch(26.2% 0.035 146);
   --color-ink-600: oklch(40.0% 0.028 146);
@@ -1039,11 +1039,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    untested-and-not-yet-wrong rather than measured, and a passing L1c does not change which.
 ============================================================================================ */
 [data-theme="sapphire"] {
-  --color-cream-50: oklch(98.4% 0.007 250);
-  --color-cream-100: oklch(95.2% 0.016 250);
-  --color-cream-200: oklch(90.6% 0.019 250);
-  --color-cream-300: oklch(85.2% 0.022 250);
-  --color-canvas: oklch(96.2% 0.016 250);
+  --color-cream-50: oklch(98.5% 0.007 250);
+  --color-cream-100: oklch(96.8% 0.016 250);
+  --color-cream-200: oklch(93.5% 0.019 250);
+  --color-cream-300: oklch(88.0% 0.022 250);
+  --color-canvas: oklch(92.0% 0.016 250);
   --color-ink-950: oklch(15.0% 0.026 250);
   --color-ink-800: oklch(26.2% 0.025 250);
   --color-ink-600: oklch(40.0% 0.020 250);
@@ -1392,7 +1392,18 @@ a {
      ⚠ THE RENDER FOUND THAT IN ONE SCREENSHOT. No gate could: each token was correct, the attribute
      was correct, the derivation was correct, and the connection between them did not exist. */
   --color-background:    var(--color-band-dark);
-  --color-surface:       color-mix(in oklch, var(--color-on-dark) 6%, var(--color-band-dark));
+  /* ⚠ RE-DERIVED AGAINST 1.21 AND THE DIFFERENCE WAS NEVER REAL. This was 6% -> 1.130, derived by
+     rendering four strengths on a dark ground with NO LIGHT ANCHOR to check against, and 1.130
+     agreed with neither light answer. Anchored to the ruled 1.21, dark elevation wants 8% -> 1.200.
+     So 1.130 was an accident of deriving it in isolation rather than a genuine property of dark
+     elevation — the question left open when the dark ladder was built, closed in the direction of
+     "no difference between the grounds".
+
+     ⚠ THE EARLIER OBSERVATION STILL HOLDS AND IS NARROWER THAN IT READ: 1.050 does not register as
+     elevation on a dark ground, looked at. That rules out the LOW end. It never argued for 1.130
+     specifically, and nothing was checking it against the light site because the light site had two
+     answers and no ruling. */
+  --color-surface:       color-mix(in oklch, var(--color-on-dark) 8%, var(--color-band-dark));
   --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
   --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
   --color-text-primary:  var(--color-on-dark);
