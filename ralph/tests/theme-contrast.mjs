@@ -62,7 +62,7 @@ import { readFileSync } from "node:fs";
 import {
   report, parseOklch, parseColor, contrastRatio, oklchToRgb, gamutOvershoot, CLIP_EPSILON,
 } from "../../lib/theme-contrast.ts";
-import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME } from "../../lib/theme.ts";
+import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME, THEME_GROUND, GROUND_TOKEN } from "../../lib/theme.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -470,12 +470,17 @@ const PAIRS = REAL.flatMap((a, i) => REAL.slice(i + 1).map((b) => [a, b]));
 /* ⚠ DEFINED HERE AND USED BY D12, BUT THE BAND REGISTRY LIVES IN SECTION L BELOW. Hoisted `const`
  * would be a temporal-dead-zone error, so these read the registry through functions that run at
  * assertion time rather than at definition time. */
+/* ⚠ THE PAGE-GROUND TOKEN DEPENDS ON THE CLASS, which is why reading `canvas` for everyone was
+ * wrong: it IS the page ground on a light palette and is not on a dark one. */
 const groundLightness = (n) => {
-  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(paletteOf(n)["canvas"] ?? "");
+  const cls = THEME_GROUND[n];
+  const tokenName = GROUND_TOKEN[cls] ?? "canvas";
+  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(paletteOf(n)[tokenName] ?? "");
   return m ? (m[2] === "%" ? Number(m[1]) / 100 : Number(m[1])) : null;
 };
-const bandFor = (n) => BANDS.find((b) => { const L = groundLightness(n);
-  return L !== null && L >= b.min - 1e-9 && L <= b.max + 1e-9; }) ?? null;
+/* ⚠ CLASSIFIED BY DECLARATION, NOT BY MEASUREMENT. L1c cross-checks the two against each other —
+ * under inference they could not disagree, which is precisely why inference hid the defect. */
+const bandFor = (n) => BANDS.find((b) => b.label === THEME_GROUND[n]) ?? null;
 const sameBand = (a, b) => { const x = bandFor(a), y = bandFor(b); return !!x && !!y && x.label === y.label; };
 const bandFloor = (a) => bandFor(a)?.hueFloor ?? null;
 let crossBandPairs = 0;
@@ -776,12 +781,7 @@ console.log("\nL · ⚠ THE LIGHTNESS CLASS — is this ground one D12's floor w
  * and its bounds are exact; this only stops the arithmetic from disagreeing with itself. */
 const EPS = 1e-9;
 
-const groundL = (name) => {
-  const p = paletteOf(name);
-  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(p["canvas"] ?? "");
-  if (!m) return null;
-  return m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]);
-};
+const groundL = groundLightness;
 const bandOf = (L) => BANDS.find((b) => L >= b.min - EPS && L <= b.max + EPS) ?? null;
 const Ls = Object.fromEntries(REAL.map((n) => [n, groundL(n)]));
 console.log(`         ground lightness — ${REAL.map((n) => `${n} ${Ls[n]?.toFixed(3)}`).join(", ")}`);
@@ -792,9 +792,15 @@ t("L0 every ground resolves a lightness — a null would make L1 pass over nothi
 t("L0a the population is real, against a literal", REAL.length >= 5, true);
 t("L0b the registry has real bands — an empty one admits everything", BANDS.length >= 2, true);
 
-t("L1 ⚠ EVERY GROUND SITS IN A DECLARED BAND — one BETWEEN bands belongs to no class and must fail by name",
+t("L1 ⚠ EVERY PALETTE DECLARES A GROUND CLASS — a missing one would silently join the majority band",
+  REAL.filter((n) => !THEME_GROUND[n]), []);
+t("L1c ⚠ AND THE DECLARATION AGREES WITH THE MEASUREMENT — the case inference could never surface",
+  REAL.filter((n) => { const b = BANDS.find((x) => x.label === THEME_GROUND[n]); const L = Ls[n];
+    return !b || L === null || L < b.min - EPS || L > b.max + EPS; })
+    .map((n) => `${n} declares ${THEME_GROUND[n]} but its ${GROUND_TOKEN[THEME_GROUND[n]]} is L${Ls[n]?.toFixed(3)}`), []);
+t("L1d …and a ground BETWEEN bands still belongs to no class, whatever it declares",
   REAL.filter((n) => !bandOf(Ls[n]))
-    .map((n) => `${n} L${Ls[n]?.toFixed(3)} is between bands — it belongs to no class, so no floor applies to it`), []);
+    .map((n) => `${n} L${Ls[n]?.toFixed(3)} is between bands — no floor applies to it`), []);
 
 /* ⚠ THE GAP BETWEEN BANDS IS EXPLICIT FOR THE FIRST TIME, and that is the point of a registry. The
  * ground-class measurement found the middle is REAL — hue can still swing the total by 38% at a
