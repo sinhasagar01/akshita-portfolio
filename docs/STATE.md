@@ -11635,6 +11635,73 @@ section that exists to prevent it.**
 scans. `ProcessSection`'s checkmark is that case: correct, commented at the site, and **not
 protected by a gate.**
 
+## ⚠ WHAT THE ROLE MIGRATION FOUND, WHICH WAS NOT ABOUT DARK MODE
+
+It was scoped as preparation for a dark ground. In four PRs it surfaced:
+
+  - a device bezel given a TEXT role, which would have turned a phone frame white
+  - a rung the map could not express, sending four accent labels to the wrong role
+  - a guard whose vocabulary was narrower than its concept, so it could not see them
+  - a census number that moved for the wrong reason WHILE MATCHING THE FORECAST
+  - three defects in its own gate, including an empty subject introduced by a repair
+  - a `surface` role aimed at the specialised step while the common one had no name
+  - a comment made compilable by adding a token, and another by removing markup
+
+**NONE OF THOSE IS ABOUT DARK MODE.** They are defects the light site has carried, surfaced by asking
+what each colour is FOR rather than what it looks like. **The question was the instrument** — the
+dark ground was only the reason to ask it.
+
+## THE CONSTANTS, THE PAIRS, AND THE ONE BRANCH THAT STAYS — PR 4 OF 4 (#385)
+
+The role migration is done. Home 10 of 10 colour buckets identical.
+
+**⚠ THE CONSTANTS CATEGORY IS THE PIECE THAT HAD TO SURVIVE WITHOUT CONTEXT, so it carries the
+DISCRIMINATOR rather than a sentence.** A component naming a rung because THE THING IT DEPICTS IS
+THAT COLOUR is a constant; a component naming a rung because THAT IS WHERE IT HAPPENS TO SIT is a
+migration. **In source the two are identical** — `bg-ink-950` on a phone bezel and on a dark card are
+the same six characters. Only *what is this drawing* separates them, which is why a sweep cannot and
+a reader can. `role-layer` section H is a registry of five files, each naming **what it depicts**
+rather than why it is exempt, and H2 fails if a future sweep gives the bezel a role.
+
+**⚠ SIX PAIRS REMAINED, NOT FIFTEEN** — PRs 2 and 3 had migrated the other halves. Five migrated
+whole. **The sixth is DEFERRED and it proves the rule:** `HeroCover`'s rating chip sits on
+`cream-200`, a rung measured and refused a role, so migrating only its foreground would put a
+page-following text role on a ground that does not follow — **light text on a light pill under a dark
+page.** A pair migrates whole or not at all, and section G is the general form of the accent-badge
+defect: the accent ground was the same bug, visible only because that ground is not in the ladder.
+
+**⚠ AND `SectionHeading`'s `tone` IS NOT THE VIOLATION I LISTED IT AS.** Its own comment says so —
+`tone` means ACCENT-TONED or INK-TONED, **both follow the theme**, and six call sites use it
+deliberately. It chooses a DESIGN AXIS; `PullQuote`'s `dark` chooses a GROUND. Correcting my own
+scope before building it.
+
+**⚠ AND `PullQuote` CANNOT BE FIXED YET, WHICH IS WHY IT IS PINNED RATHER THAN FORCED.** The dark
+hero band is applied INLINE — `style={{ backgroundColor: var(--color-band-dark) }}` — with no context
+attribute to hang a per-ground override on. Collapsing the branch today would repaint the band's
+quote, because `on-dark-quote` and `accent-600` are genuinely different and both correct where they
+are. **So it is the ACCEPTANCE TEST for the ground switch:** when that lands, this branch must
+disappear, and if it cannot, shape C has failed and that must be SAID. Section I pins the count at
+exactly one.
+
+---
+
+## ⚠ AND A PUBLIC MIGRATION TURNED TEN STUDIO COMMENTS INTO TRAPS
+
+Removing the last live `text-ink-600` from public markup made every comment that SPELLED it the sole
+reason it compiled — and five of those comments are in `/studio`, documenting the hazard-22 finding
+that a colour utility on an `<a>` draws nothing. **The utility namespace is shared, so a change on
+one side of the freeze reached the other.** Comment-only edits, no colour value touched.
+
+**Third and fourth directions of the same hostage relation**, now complete: a token ADDED made old
+prose compile (#382); markup REMOVED made old prose the only reason it compiles (#383, and here at
+scale).
+
+**⚠ AND MY OWN DETECTOR FOR IT WAS WRONG, BY THE TRAP THIS PROJECT ALREADY RECORDS.** A script to
+find every comment-only mention in one pass reported far fewer than the gate did, because stripping
+block comments with a non-greedy match **terminates early on a star-slash sequence inside a string**
+— the same hazard as the glob in `keystatic.config.ts`. The gate reads the built stylesheet and was
+right each time; the shortcut that would have saved rebuilds was the thing that was wrong.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

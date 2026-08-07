@@ -146,7 +146,7 @@ function useFieldVisible(optional: boolean | undefined, blank: boolean): boolean
 //
 // THE RULE IS RELATIONAL AND IT HAS NOW BEEN READ AS AN ABSOLUTE TWICE. An input reads as a
 // well because it is one step LIGHTER than the surface holding it, never because it is a
-// particular colour. #205 measured `bg-cream-50` on a `bg-cream-50` panel, correctly saw that
+// particular colour. #205 measured the lightest cream on a panel of the same cream, correctly saw that
 // the input and its ground were identical, and fixed it by darkening THE INPUT to cream-100 —
 // which inverted the relation and reproduced the identical collision on the cream-100
 // inspector. The fidelity pass then proposed "inputs to cream-50", another absolute, which
@@ -814,7 +814,7 @@ export function BlockImageField({
 
           THE CONTAINER DECLARES NO GROUND AT ALL, AND THAT IS THE POINT.
 
-          It was `bg-cream-100`, which collided on the cream-100 blog inspector — the exact
+          It was the cream-100 ground, which collided on the cream-100 blog inspector — the exact
           defect the ladder exists to prevent, and a site PR A's sweep genuinely did not reach.
           The obvious fix was the ladder's well step, cream-50. MEASURED, THAT COLLIDED TOO:
           on the case-study editor the videoEmbed "Poster still" field is nested inside a

@@ -201,6 +201,24 @@ closed.
   **The repair: when a predicted number moves, establish WHY before accepting it, and treat
   agreement with the forecast as NO EVIDENCE AT ALL.**
 
+- **⚠ A POPULATION CAN BE COMPLETE, MEASURED, AND STILL BE THE WRONG NOUN.** Every earlier miscount
+  in this arc was a subject too SMALL — a class-only sweep dropping 54 of 198, a file-level join
+  over-attributing 19. This one was **correctly sized and wrongly named**: "54 sites to migrate",
+  when 34 were `color-mix` hairlines, illustration constants and a ternary belonging to another PR.
+  **20 were migratable and the count was never wrong.**
+
+  **⚠ AND THE TELL WAS ONLY AVAILABLE BY LOOKING AT WHAT EACH SITE DREW** — the same question that
+  separated the process diagram's accent OUTLINE from its depicted FILLS. A denominator check
+  confirms you counted everything; **it cannot tell you that the thing you counted is the thing you
+  named.**
+
+- **⚠ THE DISCRIMINATOR FOR A CONSTANT, WHICH IS NOT THE SAME AS THE SENTENCE FOR ONE.** A component
+  naming a rung because the thing it **DEPICTS** is that colour is a **constant** — the role layer
+  must not reach it. A component naming a rung because that is **where it happens to sit** is a
+  **migration**. The phone bezel and `HeroCover`'s five `on-dark` names are the first kind; the
+  accent badges were the second — **and in source they looked identical.** Only the question *what
+  is this drawing* separates them, which is why a mechanical sweep cannot and a reader can.
+
 - **⚠ A RUNG-TO-ROLE MAP IS A FUNCTION, AND A MULTI-ROLE RUNG IS NOT.** `cream-50` is both `surface`
   and `on-accent`, so the map is **the wrong SHAPE and no correction to its entries fixes that.**
   Identify which rungs are multi-role BEFORE applying any substitution, and treat those sites as

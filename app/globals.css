@@ -263,7 +263,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
      ---- ⚠ `surface` IS RE-AIMED, AND IT IS FREE EXACTLY ONCE -----------------------------------
 
-     It pointed at `cream-100` and had ZERO consumers. Measured, every `bg-cream-100` consumer is a
+     It pointed at `cream-100` and had ZERO consumers. Measured, every consumer of that cream ground is a
      MEDIA FRAME — BlogHero, Shot, the blog diagrams' outer wrapper, DeviceImage, FigureGrid,
      VideoEmbed — and every content CARD uses `cream-50` (17 sites). So the default surface name was
      aimed at the specialised step and the common one had no name at all. Re-aiming costs nothing at
@@ -290,7 +290,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      illustration file. A role invented for one or two sites is a second spelling entering the layer
      at birth, which is the defect #330 spent a PR removing. They stay raw until a job appears.
   ============================================================================================ */
-  /* The ground a content CARD draws on. 17 sites spell it `bg-cream-50` today. */
+  /* The ground a content CARD draws on. 17 sites spelled it as the raw lightest cream before #382. */
   --color-surface:       var(--color-cream-50);
   /* The ground a MEDIA FRAME draws — an image well, a video shell, a diagram's outer wrapper.
      Recessed relative to `surface`, which is the stateable difference between the two. */
@@ -3904,7 +3904,7 @@ a {
 
 /* THE INK SIDEBAR, AND THE SELECTOR TARGETS THE ELEMENT ITSELF RATHER THAN ITS DESCENDANTS.
    That is not stylistic. The sidebar CONTAINS a second scroller — the horizontal nav row — which
-   scrolls only BELOW lg, and below lg the sidebar is bg-cream-100 rather than bg-ink-950. A
+   scrolls only BELOW lg, and below lg the sidebar takes the cream-100 ground rather than the ink one. A
    descendant selector would put a white thumb on a cream ground at exactly the widths where that
    row is the one that scrolls. The sidebar's own scroll is lg:-gated, so it only ever scrolls
    where it is ink, and the nav row keeps the cream rule above.

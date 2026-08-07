@@ -289,5 +289,140 @@ t("F3 ⚠ AND EACH NAMES HOW TO DISAMBIGUATE, so the warning is actionable rathe
 t("F4 the declared role pair matches the registry, both ways",
   Object.entries(MULTI_ROLE).filter(([r, v]) => JSON.stringify(v.roles.sort()) !== JSON.stringify(rolesByRung[r]?.sort())).map(([k]) => k), []);
 
+console.log("\nG · ⚠ A PAIR MIGRATES WHOLE OR NOT AT ALL");
+
+/* ⚠ THE GENERAL FORM OF THE ACCENT-BADGE DEFECT. An element that brings BOTH its ground and its
+ * foreground is a self-contained surface, and the two halves must agree about whether they follow
+ * the page. Migrating only the foreground puts a page-following text role on a ground that does not
+ * follow — so under a dark page the element draws light text on a light box.
+ *
+ * `HeroCover`'s rating chip is the live instance and it is DEFERRED rather than migrated: its ground
+ * is `cream-200`, which section D records as refused a role. It moves when that rung earns one.
+ *
+ * ⚠ AND THIS IS WHY THE ACCENT CASE WAS THE SAME BUG. There the ground was `bg-accent-500`, which
+ * also does not follow the page — the only difference is that an accent ground is not in the ladder,
+ * so the earlier guard could not see it. E2/E4 handle the accent ground; this handles the rest. */
+const ROLE_FG = ["text-primary", "text-secondary", "text-lead"];
+const ROLE_BG = ["surface", "surface-well", "background"];
+const RAW_RUNGS = ["ink-950","ink-800","ink-600","ink-400","ink-200","cream-50","cream-100","cream-200","cream-300","canvas"];
+const split = [];
+let pairAttrs = 0;
+for (const f of tsxFiles) {
+  const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
+  if (/^components\/studio\/|^app\/studio\/|ProjectCardSvgs|illustrations\/index/.test(rel)) continue;
+  for (const m of readFileSync(f, "utf8").matchAll(/className=(?:\{`|["`'])([\s\S]*?)(?:`\}|["`'])/g)) {
+    const cls = m[1];
+    const rawBg = RAW_RUNGS.filter((r) => new RegExp("\\b(?:bg|from|via|to)-" + r + "\\b(?!/)").test(cls));
+    const roleFg = ROLE_FG.filter((r) => new RegExp("\\btext-" + r + "\\b").test(cls));
+    const roleBg = ROLE_BG.filter((r) => new RegExp("\\b(?:bg|from|via|to)-" + r + "\\b").test(cls));
+    const rawFg = RAW_RUNGS.filter((r) => new RegExp("\\btext-" + r + "\\b(?!/)").test(cls));
+    if (rawBg.length || roleBg.length) pairAttrs++;
+    /* a MIGRATED foreground on a RAW ground — the half-migrated pair */
+    if (rawBg.length && roleFg.length) split.push(`${rel}: text-${roleFg[0]} on a raw bg-${rawBg[0]}`);
+    /* and the mirror — a RAW foreground on a MIGRATED ground */
+    if (roleBg.length && rawFg.length) split.push(`${rel}: raw text-${rawFg[0]} on bg-${roleBg[0]}`);
+  }
+}
+console.log(`         ${pairAttrs} className attributes carry a ground`);
+t("G0 the scan found grounds to check, against a literal", pairAttrs >= 20, true);
+t("G1 ⚠ NO ELEMENT MIXES A MIGRATED HALF WITH A RAW ONE — under a dark page that inverts",
+  [...new Set(split)].sort(), []);
+
+console.log("\nH · ⚠ THE CONSTANTS — colours the role layer must NOT reach");
+
+/* ---- ⚠ THE DISCRIMINATOR, WHICH IS THE PART THAT HAS TO SURVIVE WITHOUT CONTEXT ------------
+ *
+ * A component naming a rung because THE THING IT DEPICTS IS THAT COLOUR is a CONSTANT. A component
+ * naming a rung because THAT IS WHERE IT HAPPENS TO SIT is a MIGRATION.
+ *
+ * ⚠ IN SOURCE THE TWO LOOK IDENTICAL. `bg-ink-950` on a phone bezel and `bg-ink-950` on a dark card
+ * are the same six characters. Only the question "what is this drawing" separates them, which is
+ * why a mechanical sweep cannot and a reader can — #383's sweep gave the bezel a TEXT role, and
+ * under a dark ground the phone frame would have turned white.
+ *
+ * The same question separated the process diagram's accent OUTLINE (this site's hand sketching, so
+ * it themes) from its FILLS (a wireframe of somebody else's product, so they do not). It is the
+ * oldest discriminator in this project and it keeps arriving in new clothes.
+ *
+ * ---- WHY THIS IS A REGISTRY AND NOT A COMMENT ----------------------------------------------
+ *
+ * A constant with a reason written only at the site survives until someone runs the next sweep.
+ * Listing them here means the next sweep has something to JOIN AGAINST, and H2 means a constant
+ * that quietly gains a role fails rather than passing.
+ *
+ * ⚠ EACH ENTRY NAMES WHAT IT DEPICTS, not why it is exempt. "Excluded because it is artwork" is a
+ * label; "a phone bezel is near-black because phones are" is a reason someone can disagree with. */
+const CONSTANTS = {
+  "components/case-study/DeviceImage.tsx": {
+    rung: "ink-950",
+    depicts: "a PHONE BEZEL. The frame is near-black because devices are, not because the page's "
+           + "text is. Under a dark ground a text role would draw it white.",
+  },
+  "components/case-study/blocks/HeroCover.tsx": {
+    rung: "on-dark",
+    depicts: "text that ALWAYS sits on the dark hero band. Naming the dark vocabulary there is not "
+           + "a component choosing its context — it is a component that has only one.",
+  },
+  "components/case-study/SectionRenderer.tsx": {
+    rung: "on-dark",
+    depicts: "the same dark band, for the same reason — the quote band's identity line and numeral.",
+  },
+  "components/sections/ProjectCardSvgs.tsx": {
+    rung: "several",
+    depicts: "ILLUSTRATIONS of four products. 77 of the site's 82 SVG colour attributes live here; "
+           + "the file's purpose is depiction, so it is excluded whole rather than attribute by "
+           + "attribute.",
+  },
+  "components/case-study/illustrations/index.tsx": {
+    rung: "several",
+    depicts: "the Fosfor diagrams — a product's own interface being drawn, not this site's.",
+  },
+};
+
+/* ⚠ AND THE REGISTRY MUST DESCRIBE REAL FILES. A path that stopped existing would exempt nothing
+ * while reading like protection — the stale-exemption shape, four sections in a row. */
+const missing = Object.keys(CONSTANTS).filter((f) => {
+  try { readFileSync(new URL("../../" + f, import.meta.url), "utf8"); return false; } catch { return true; }
+});
+console.log(`         ${Object.keys(CONSTANTS).length} files hold colours the role layer must not reach`);
+t("H0 every declared constant file exists — a stale path exempts nothing and reads like protection",
+  missing, []);
+t("H1 ⚠ EVERY ENTRY SAYS WHAT IT DEPICTS — 'excluded because artwork' is a label, not a reason anyone can disagree with",
+  Object.entries(CONSTANTS).filter(([, v]) => !v.depicts || v.depicts.length < 40).map(([k]) => k), []);
+/* ⚠ THE ONE THAT WOULD HAVE CAUGHT #383. The bezel file must still name its rung raw; if a future
+ * sweep gives it a role, this goes red instead of the phone turning white on a dark page. */
+t("H2 ⚠ THE BEZEL STILL NAMES ITS RUNG RAW — a sweep that gives it a role fails here rather than in a render",
+  /bg-ink-950/.test(readFileSync(new URL("../../components/case-study/DeviceImage.tsx", import.meta.url), "utf8")), true);
+t("H3 …and the on-dark constants still name the dark vocabulary rather than a page-following role",
+  ["components/case-study/blocks/HeroCover.tsx", "components/case-study/SectionRenderer.tsx"]
+    .filter((f) => !/on-dark/.test(readFileSync(new URL("../../" + f, import.meta.url), "utf8"))), []);
+
+console.log("\nI · ⚠ THE ONE COMPONENT THAT STILL CHOOSES BY GROUND");
+
+/* `PullQuote` picks `on-dark-quote` or `accent-600` from a `dark` prop. That is the rule's one true
+ * violation, and it CANNOT be repaired until a ground context attribute exists — the dark band is
+ * applied inline with no selector to override against.
+ *
+ * ⚠ SO THIS ROW PINS IT AS THE ACCEPTANCE TEST. When the ground switch lands the branch must go; if
+ * it cannot, shape C has failed and the failure should be visible here rather than discovered in a
+ * render. The count is ONE and the assertion is that it stays one — a second component choosing by
+ * ground before the switch exists is the rule eroding. */
+const chooseByGround = [];
+for (const f of tsxFiles) {
+  const rel = f.replace(new URL("../../", import.meta.url).pathname, "");
+  if (/^components\/studio\/|^app\/studio\//.test(rel)) continue;
+  const src = readFileSync(f, "utf8");
+  /* a component that BRANCHES on a dark flag AND names a dark-vocabulary colour in a branch */
+  if (!/\bdark\s*[?&]|\bdark\s*=\s*false|if\s*\([^)]*\bdark\b/.test(src)) continue;
+  if (!/on-dark/.test(src)) continue;
+  chooseByGround.push(rel);
+}
+console.log(`         ${chooseByGround.length} component(s) branch on a ground flag AND name a dark colour`);
+t("I1 ⚠ EXACTLY ONE COMPONENT CHOOSES BY GROUND, and it is the one the ruling named",
+  chooseByGround.sort(), ["components/case-study/blocks/PullQuote.tsx"]);
+t("I2 …and it still carries the reasoning, so the next reader meets the trigger rather than the branch",
+  /ACCEPTANCE TEST FOR THE GROUND SWITCH/.test(
+    readFileSync(new URL("../../components/case-study/blocks/PullQuote.tsx", import.meta.url), "utf8")), true);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

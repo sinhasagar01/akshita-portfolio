@@ -388,7 +388,7 @@ export default function WorkStory({
           type="button"
           aria-label="Previous feature"
           onClick={() => manualRef.current(-1)}
-          className="inline-flex size-11 items-center justify-center rounded-full border bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
+          className="inline-flex size-11 items-center justify-center rounded-full border bg-surface text-text-secondary transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
           style={{ borderColor: ARROW_BORDER }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -408,7 +408,7 @@ export default function WorkStory({
           type="button"
           aria-label="Next feature"
           onClick={() => manualRef.current(1)}
-          className="inline-flex size-11 items-center justify-center rounded-full border bg-cream-50 text-ink-600 transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
+          className="inline-flex size-11 items-center justify-center rounded-full border bg-surface text-text-secondary transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
           style={{ borderColor: ARROW_BORDER }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">

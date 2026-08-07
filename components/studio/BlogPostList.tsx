@@ -130,7 +130,7 @@ export default function BlogPostList({
           href="/studio/blog"
           // THE COLOUR IS ON THE SPAN, NOT THE LINK — hazard 22. `Link` renders an <a>, and
           // the unlayered `a { color: inherit }` beats any layered text-* utility, so both
-          // `text-ink-600` and `hover:text-accent-500` rendered nothing here. A <span> is not
+          // A secondary-ink colour and an accent hover rendered nothing here. A <span> is not
           // named by that reset, so the colour lands and `group-hover` carries the hover.
           className="group block rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-2 text-center text-[12px] font-semibold transition-colors hover:border-studio-accent-500"
         >

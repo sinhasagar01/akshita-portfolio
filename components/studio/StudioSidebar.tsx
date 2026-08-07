@@ -94,9 +94,9 @@ export default function StudioSidebar() {
 
             A COLOUR UTILITY ON AN ANCHOR DOES NOTHING IN THIS PROJECT. globals.css has an
             UNLAYERED `a { color: inherit }`, and an unlayered rule outranks `@layer
-            utilities`, so `.text-ink-*` on an <a> silently loses. Measured: the same
-            `text-ink-600` computes ink-600 on a <span> and ink-950 on an <a>. The anchor's
-            `text-ink-600` had therefore been DEAD SINCE IT WAS WRITTEN — the label inherited
+            utilities`, so an ink colour utility on an <a> silently loses. Measured: the same
+            secondary-ink utility computes ink-600 on a <span> and ink-950 on an <a>. The anchor's
+            colour had therefore been DEAD SINCE IT WAS WRITTEN — the label inherited
             ink-950 from body, which is 18.13:1 on cream and looks entirely correct, which is
             why nobody caught it. On ink it is 1.00:1.
             This is hazard 11's mechanism (unlayered `img,video{height:auto}` beating `h-*`)
