@@ -105,6 +105,21 @@ const deref = (v, d = 0) => {
    studio-cascade's own repair records: a comment between `}` and the selector eats the tag. */
 /** Every tag this suite reasons about — the resets it finds PLUS the ones a third party can reach.
  *  Fixed rather than derived from RULES, so an element stays enumerated after its reset is lifted. */
+/* ⚠ `html` AND `body` HAVE UNLAYERED RULES AND ARE DELIBERATELY NOT HERE — SOUND TODAY, AND THE
+ * REASON IS A PROPERTY OF THE MARKUP RATHER THAN OF THE CSS.
+ *
+ * The semantic pass in #371 asked of every suite: what is excluded before the comparison, and could
+ * the defect live in the excluded part? This is the one place the answer was "not yet".
+ *
+ * `html { background-color; color; font-family }` and `body { min-height; overflow-x }` are both
+ * unlayered, so a utility on either element would lose to them exactly as `h3`'s weight utilities
+ * did — the collision this suite exists to find. It cannot happen because `<html>` carries ONLY
+ * next/font variable classes, which declare `--font-*` and set no property the reset owns, and
+ * `<body>` carries no className at all. Checked, not assumed.
+ *
+ * ⚠ SO THE TRIGGER IS NAMED: THE DAY `<html>` OR `<body>` GAINS A TYPOGRAPHY OR COLOUR UTILITY,
+ * ADD IT HERE. Nothing else will notice — the census enumerates tags that HAVE resets, and both do,
+ * so they look covered from inside this file. */
 const TAGS = new Set(["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "img", "video"]);
 const RULES = new Map();
 {
