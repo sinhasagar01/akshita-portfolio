@@ -11129,6 +11129,87 @@ gate's pair list. ralph then failed 22 assertions across 4 suites and **the obvi
 instead, then rebuilt, because the census gates read the BUILT bundle and a stale `.next` fails them
 for a reason unrelated to the mutation. **Snapshot before EACH mutation, not once per session.**
 
+## HARBOUR DECLARES WHAT IT PAINTS, AND ZERO PIXELS MOVE (#378)
+
+The ruling was to measure which outcome it was before proposing either. **It is the first one, and
+it is proven rather than argued.**
+
+     accent-500  oklch(52.0% 0.12  168) +60.7 out  ->  oklch(52.5% 0.110 165.3)    +0.25
+     accent-600  oklch(43.0% 0.11  168) +64.3 out  ->  oklch(43.9% 0.094 163.7)    +0.46
+     glow-web    oklch(48.0% 0.115 205) +286  out  ->  oklch(49.44% 0.0852 209.0)  +0.00
+
+Each renders `rgb(0, 126, 91)`, `rgb(0, 98, 68)` and `rgb(0, 111, 124)` — **byte-identical to what
+has shipped since #325.** Not the nearest in-gamut colour to the DECLARATION, which would have moved
+the brand by 3.00 units; the exact OKLCH of the PIXELS, nudged just inside the boundary. **So this
+is a declaration fix and not a design decision, and the live brand colour does not move.**
+
+**⚠ AND THE CHECK THAT MADE IT A FACT WAS THE BROWSER ONE, BECAUSE CSS COLOR 4 SPECIFIES GAMUT
+*MAPPING* RATHER THAN CLIPPING.** Had Chrome reduced chroma toward the boundary instead of clamping
+each channel, the painted colour would not have been what `oklchToRgb` predicted and this would have
+been **a brand repaint wearing a correctness fix's clothes**. Measured by rasterising both, sanity
+pair first: it clamps per channel. Before and after compared on six live surfaces — the Resume pill,
+the `h1`, and four tokens — all IDENTICAL.
+
+**⚠ THE HUE MOVED 168 -> 165.3, WHICH COSTS MARGIN SOMEWHERE ELSE.** Harbour's accent against fern's
+is now **31.3 degrees against D12d's floor of 30**, down from 34, and it is the tightest accent pair
+on the site. A sixth palette has less room than the ceiling arithmetic alone suggests.
+
+---
+
+## ⚠ AND THE VALUE WAS WRONG TWICE, FOR ONE REASON THE GATE CAUGHT BOTH TIMES
+
+`glow-web`'s replacement was written at +2.65 and then +1.7 outside sRGB while **the search that
+produced it reported +0.49 and +0.00.** The cause is one line: `(l * 100).toFixed(1)` rounded 49.55
+to "49.6" **after** the overshoot had been computed on 49.55. **The margin was true of a colour, and
+not of the colour it was written beside** — this project's oldest shape, in a script written to
+close an instance of it.
+
+The repair is to **measure through the string that gets written**, `gamutOvershoot(css)`, so the
+value tested and the value shipped cannot differ. `glow-web` needs four decimals of chroma to sit
+inside the boundary at all, which is why it alone carries them.
+
+**⚠ AND REVIEW DID NOT CATCH IT — K2 DID, BECAUSE IT READS THE STYLESHEET RATHER THAN THE SEARCH'S
+REPORT.** A gate is only able to disagree with the thing that produced its input when it goes back
+to the artefact. Written one PR after the same lesson about `THEME_OG` carrying the clamp unread.
+
+---
+
+## ⚠ THE WITNESS, AS ITS OWN SHAPE
+
+**A HAND-RESOLVED VALUE IN A SECOND FILE PRESERVED THE CLAMP AS EVIDENCE.** `THEME_OG` needed a hex
+because `ImageResponse` renders outside the document; somebody resolved harbour's OKLCH by hand; the
+result was the CLAMPED colour. So **the repo has carried proof of an out-of-gamut token since
+harbour shipped, in a file created for social cards**, and a red channel of **exactly zero** is the
+tell.
+
+**Third instance of evidence sitting in committed output unread**, after the `Merge #N —` format
+that appeared 22 times and the glob that aborted its own comment. The pattern is not that the
+evidence was hidden — it is that **nobody was looking at output produced for another purpose.**
+
+---
+
+## ⚠ AND THE DENOMINATOR GUARD WAS NOT ONE, WHICH A MUTATION PROVED
+
+Setting `REAL = []` in D12 left **five of its six rows green.** Every hue row has nothing to
+iterate, and **nothing to iterate is indistinguishable from nothing wrong.** The row written
+expressly to be the guard — D12b — compared `PAIRS.length` against `n(n-1)/2` computed from **the
+same empty `REAL`**, so both sides were 0 and it passed.
+
+**A GUARD DERIVED FROM ITS OWN SUBJECT GUARDS NOTHING.** Only the row comparing against a CONSTANT
+caught it. D12b now asserts the population against a fixed floor and D12b2 carries the closed form
+separately, so neither can absorb the other's failure. This is the empty-subject defect **inside the
+assertion built to prevent it**, found the same way everything else here is — by mutating and
+looking, not by reading.
+
+## THE REVERT-TO-CREAM CONVENTION WAS STALE AND IS FIXED
+
+CLAUDE.md said "revert `theme:` to `cream` before committing". The owner published **harbour**
+through /studio, so following that line would have **silently un-published their choice while
+looking like tidying up**. It now says restore to the PUBLISHED value, read from
+`git show main:content/site-settings.yaml`. **A convention naming a specific theme is the fixed-list
+shape again** — same defect as D12's hardcoded pairs and `SETTINGS_THEME_VALUES` before ralph tied
+it to `THEME_NAMES`.
+
 ## WHAT'S NEXT
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the

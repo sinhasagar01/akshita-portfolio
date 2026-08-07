@@ -590,6 +590,46 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    are semantic rather than decorative, and a teal danger chip would be a worse product in every
    theme. Recorded as a decision so a later sweep does not "finish" the rotation.
 ============================================================================================ */
+/* ⚠ HARBOUR NOW DECLARES WHAT IT PAINTS. ZERO PIXELS MOVE, AND THAT IS MEASURED (#378).
+
+   `accent-500` shipped as `oklch(52.0% 0.12 168)` — 60.7 OUTSIDE sRGB — and has painted clamped
+   since #325. The three values below are the EXACT OKLCH of the pixels the browser was already
+   drawing, nudged just inside the boundary so the declaration is representable.
+
+     accent-500  oklch(52.0% 0.12  168  ) +60.7 out  ->  oklch(52.5% 0.110 165.3) in gamut, +0.25
+     accent-600  oklch(43.0% 0.11  168  ) +64.3 out  ->  oklch(43.9% 0.094 163.7) in gamut, +0.46
+     glow-web    oklch(48.0% 0.115 205  ) +286  out  ->  oklch(49.44% 0.0852 209.0) in gamut, +0.00
+
+   Each renders rgb(0, 126, 91), rgb(0, 98, 68) and rgb(0, 111, 124) — BYTE-IDENTICAL to what
+   shipped. Verified in the browser by rasterising both, sanity pair first, not by trusting the
+   conversion in `lib/theme-contrast.ts`.
+
+   ⚠ THE GLOW-WEB VALUE WAS WRONG TWICE AND K2 CAUGHT IT BOTH TIMES, FOR ONE REASON: THE SEARCH
+   PRINTED A ROUNDED VALUE AND MEASURED AN UNROUNDED ONE. It reported margins of +0.49 and then
+   +0.00 for strings that were actually 2.65 and 1.7 outside sRGB, because `(l*100).toFixed(1)`
+   turned 49.55 into "49.6" AFTER the overshoot had been computed on 49.55. The number was true of
+   a colour, and not of the colour it was written beside — this project's oldest shape.
+
+   The repair is to measure THROUGH THE STRING THAT GETS WRITTEN, `gamutOvershoot(css)`, so the
+   value tested and the value shipped cannot differ. `glow-web` needs four decimals of chroma to sit
+   inside the boundary at all, which is why it alone carries them.
+
+   ⚠ AND K2 IS WHAT CAUGHT IT, not review — it reads the STYLESHEET rather than the search's report,
+   which is the whole reason a gate can disagree with the thing that produced its input.
+
+   ⚠ THAT CHECK WAS THE POINT, BECAUSE CSS COLOR 4 SPECIFIES GAMUT *MAPPING* RATHER THAN CLIPPING.
+   Had Chrome reduced chroma toward the boundary instead of clamping each channel, the painted
+   colour would NOT have been what the model predicted and this would have been a brand repaint
+   wearing a correctness fix's clothes. It clamps per channel; measured, not assumed.
+
+   ⚠ SO THIS IS A DECLARATION FIX AND NOT A DESIGN DECISION — the distinction the owner asked to be
+   measured before either was proposed. The live brand colour does not move. What changes is that
+   the stylesheet now says the colour it has been drawing all along.
+
+   ⚠ AND THE HUE MOVED 168 -> 165.3, WHICH COSTS MARGIN SOMEWHERE ELSE. Harbour's accent against
+   fern's is now 31.3 degrees against D12d's floor of 30, down from 34. Still clears, and it is the
+   tightest accent pair on the site — a sixth palette has less room than the count alone suggests.
+============================================================================================ */
 [data-theme="harbour"] {
   --color-cream-50:  oklch(98.5% 0.008 233);
   --color-cream-100: oklch(96.8% 0.014 233);
@@ -607,8 +647,8 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
   /* ⚠ 52%, NOT cream's 56%. Teal carries more relative luminance than terracotta at equal oklch
      lightness, so the accent has to sit darker to hold 4.5 on cream-50. */
-  --color-accent-500: oklch(52.0% 0.12 168);
-  --color-accent-600: oklch(43.0% 0.11 168);
+  --color-accent-500: oklch(52.5% 0.110 165.3);
+  --color-accent-600: oklch(43.9% 0.094 163.7);
 
   --color-text-subtle: oklch(50.0% 0.018 233);
   --color-text-body:   oklch(37.5% 0.017 233);
@@ -642,7 +682,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
   --color-reveal-sand:     oklch(85.0% 0.032 210);
   --color-case-study-sand: oklch(88.5% 0.026 220);
-  --color-glow-web:        oklch(48.0% 0.115 205);
+  --color-glow-web:        oklch(49.44% 0.0852 209.0);
 }
 
 /* ============================================================================================
