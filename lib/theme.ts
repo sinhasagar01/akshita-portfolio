@@ -56,9 +56,14 @@ export const VERIFY_THEME = "cream-verify";
  *  ⚠ AND IT SITS ON THE SAME THREE FLOORS CREAM DOES, with essentially no margin. SHIPPABLE and one
  *  rounding away from not. */
 export const SECOND_THEME = "harbour";
+/* ⚠ THEME THREE. Registering it here is not bookkeeping — `theme` J2 FAILS on a palette that exists
+ * in `globals.css` and not in `THEME_NAMES`, because until #372 a whole 35-token block could enter
+ * the stylesheet and ralph stayed green. Every theme check enumerated from this list or a hardcoded
+ * pair, and none read the stylesheet to ask what was actually declared. */
+export const THIRD_THEME = "orchid";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, VERIFY_THEME] as const;
 
 export type ThemeName = (typeof THEME_NAMES)[number];
 
@@ -84,6 +89,15 @@ export type ThemeName = (typeof THEME_NAMES)[number];
 ============================================================================================ */
 const UNSELECTABLE: Record<string, string> = {
   [VERIFY_THEME]: "permanent verification control — never publishable",
+  /* ⚠ HELD UNSELECTABLE UNTIL THE RENDER RUNS, WHICH IS HARBOUR'S OWN PRECEDENT. The instrument
+     says SHIPPABLE — every token pair clears its floor on the first draft, with margins wider than
+     either shipped palette. THAT HAS NEVER MEANT THE SITE LOOKS RIGHT. Harbour was SHIPPABLE on the
+     day its render showed five terracotta watermarks beside two cool ones, and the dark render found
+     the glass nav and the vessel structurally light-ground.
+
+     The line comes off when the full home page and the four signature surfaces have been rendered
+     and looked at. */
+  [THIRD_THEME]: "render not yet run — SHIPPABLE is the instrument's claim, not the eye's",
 };
 
 /** The names an author may actually set. */
@@ -135,6 +149,7 @@ export function unselectableReason(name: string): string | undefined {
 export const THEME_OG: Record<string, { cream: string; ink: string; muted: string; accent: string }> = {
   [DEFAULT_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
   [SECOND_THEME]: { cream: "#f5fbff", ink: "#040d12", muted: "#4c575e", accent: "#007e5b" },
+  [THIRD_THEME]: { cream: "#fefaff", ink: "#0f0812", muted: "#5a525d", accent: "#993f94" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -142,6 +157,7 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
 export const THEME_SPLASH: Record<string, string> = {
   [DEFAULT_THEME]: "#FEF9F1",
   [SECOND_THEME]: "#F5FBFF",
+  [THIRD_THEME]: "#FEFAFF",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };

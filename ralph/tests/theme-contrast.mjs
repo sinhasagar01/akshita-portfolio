@@ -325,6 +325,32 @@ t("D8 the three harbour escaped are exactly the ones its earlier drafts failed o
   onFloor(cream).filter((k) => !onFloor(harbour).includes(k)).sort(),
   ["ink-400 on cream-200 (non-text)", "text-subtle on canvas"]);
 
+console.log("\nD3 · theme three — ORCHID, judged before it is looked at");
+
+/* ⚠ THE INSTRUMENT RUNS FIRST AND THE RENDER SECOND, AND NEITHER IS OPTIONAL. `SHIPPABLE` means
+ * every token pair clears its floor; it has never meant the site looks right. Harbour took three
+ * drafts and every refusal was this working. */
+const ORCHID = { ...CREAM, ...themeOverrides("orchid") };
+const orchid = report(ORCHID, USAGE);
+console.log(`         verdict ${orchid.verdict}`);
+for (const r of orchid.rows.filter((x) => !x.ok)) console.log(`           REFUSED  ${r.fg} on ${r.bg}  got ${r.got?.toFixed(3)} floor ${r.floor} (${r.kind})`);
+t("D9 orchid is SHIPPABLE", orchid.verdict, "SHIPPABLE");
+t("D10 nothing uncomputable — every row the map names exists in the palette", orchid.uncomputable, []);
+t("D11 …and it declares the same token set as the others, so nothing inherits silently",
+  Object.keys(themeOverrides("orchid")).length, Object.keys(themeOverrides("harbour")).length);
+/* ⚠ COMPUTED, NOT PATTERN-MATCHED. The first version of this row was a regex looking for a hue in
+ * the 310s and it never ran — a silent non-assertion, which is the shape this suite spends its
+ * comments warning about. The hues are parsed and the separations measured. */
+const hueOf = (p) => { const m = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+([\d.]+)/.exec(p["canvas"] ?? ""); return m ? Number(m[1]) : null; };
+const arc = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
+const hues = { cream: hueOf(CREAM), harbour: hueOf(HARBOUR), orchid: hueOf(ORCHID) };
+console.log(`         ground hues — cream ${hues.cream}, harbour ${hues.harbour}, orchid ${hues.orchid}`);
+t("D12a all three grounds resolve a hue, so D12 is not comparing nulls",
+  Object.values(hues).every((h) => typeof h === "number"), true);
+t("D12 ⚠ NO TWO OF THE THREE GROUNDS ARE ADJACENT — a third palette near an existing one tells you nothing",
+  [["cream", "harbour"], ["cream", "orchid"], ["harbour", "orchid"]]
+    .filter(([a, b]) => arc(hues[a], hues[b]) < 60).map(([a, b]) => `${a}/${b}`), []);
+
 console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is computed or listed BY NAME");
 
 /* Measured with a public-consumer count before being written here, so "unused" is a fact rather
