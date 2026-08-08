@@ -73,6 +73,29 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 ## Open items
 
+- **⚠ THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE, AND IT IS NOT SAPPHIRE'S DEFECT.** The pressed
+  chip measures **2.03** against a 4.5 floor on harbour and on every light palette, and has since it
+  was built. The unpressed chips measure **1.30 and 1.90** on dark. Sapphire unheld without it,
+  because a defect six palettes ship is not a reason to withhold a seventh.
+
+  **⚠ ITS GROUND IS `.wf-thumb`, A POSITIONED SIBLING UNDER THE BUTTON BY z-index**, and
+  `.work-filter button` is `background: transparent` — so every cascade walk climbs past the thumb to
+  the container. **THE CASCADE DOES NOT MODEL PAINT ORDER**, and five source-based analyses of this
+  element were each wrong about something different, including which ground fails.
+
+  Measured so far, so the next attempt does not repeat it:
+  **pressed** — `on-accent` 2.03 light; `text-primary` 2.03 light and 2.23 dark; `band-dark` 7.99
+  dark but regressed light-pressed and both unpressed. **Three foregrounds tested and the FILL never
+  varied**, which is the untried half.
+  **unpressed** — a pixel strip through one shows **two grounds**, `52,58,64` and `24,30,37`, so the
+  container's fill does not extend under every chip. **The PAINTED foreground is still unestablished**
+  — every reading has used `getComputedStyle(btn).color`, which is the one input never checked and the
+  same class of reading that has been wrong five times here.
+
+  **The thumb is `ink-950`, a ratchet member**, so its migration is owed regardless — but vary it with
+  the foreground held constant. A joint change already regressed three states to repair one.
+
+
 - The five experience descriptions are still empty. Write them or decide to drop the field. The
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the

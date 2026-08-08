@@ -110,8 +110,13 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * 51.4 degrees apart at perfect spacing, so six real palettes plus the twin cannot all clear D12's
  * 60 degree ground floor. A sixth requires LOWERING THAT FLOOR, which is a design decision about
  * how distinct two themes must be — not a matter of finding another good palette. */
+/* ⚠ SIX SELECTABLE NOW, AND THE ROW'S OWN TITLE HAD BEEN WRONG SINCE SAPPHIRE WAS DERIVED. It said
+ * "six real palettes — five light and one dark" while listing FIVE, because the dark one was held.
+ * The title described the intended end state and the value described the held one, and nothing
+ * compared them. Sapphire unheld on its second end condition: the work filter's defect is
+ * pre-existing on light and shipped by six palettes, so it is not this theme's blocker. */
 t("A8a the selectable set is the six real palettes — five light and one dark",
-  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern"]);
+  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire"]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
