@@ -20,7 +20,7 @@ export default function FooterBackToTop() {
   return (
     <button
       onClick={handleClick}
-      className="flex items-center gap-[6px] text-[14px] text-text-subtle hover:text-accent-500 transition-colors duration-[var(--duration-base)] cursor-pointer bg-transparent border-0 p-0"
+      className="flex items-center gap-[6px] text-[14px] text-text-subtle hover:text-accent transition-colors duration-[var(--duration-base)] cursor-pointer bg-transparent border-0 p-0"
     >
       Back to top ↑
     </button>

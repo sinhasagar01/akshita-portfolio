@@ -328,6 +328,40 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ THE ANSWER WAS CHEAP AND THE SUBJECT WAS EXPENSIVE — TRUE OF TWO COMPONENTS NOW, AND IT
+  PREDICTS THE THIRD.** The CTA's fix is one value. Reaching it cost a token split that was refused, a
+  remap that broke a second consumer, a revert, a coupling visible only in a render, and a
+  verification that measured the wrong pair. The vessel's fix was one raw rung; reaching it cost two
+  arcs and five invalidated measurements.
+
+  **⚠ THE COMMON CAUSE IS ONE QUESTION ANSWERED BY THE WRONG AUTHORITY: "WHAT IS THIS DRAWN ON."** It
+  was answered by the cascade, by an anatomy table, by a DOM walk, and by a sibling no walk can see.
+  **THE PAINT IS THE ONLY AUTHORITY AND IT WAS CONSULTED LAST BOTH TIMES.**
+
+  The practical form: when a colour question turns on a ground, **sample the pixel before reasoning
+  about the ground** — not after the reasoning fails. Every cheaper method is a model of the paint,
+  and this project has now found two components where the models disagree with it.
+
+- **⚠ A SWEEP MUST STATE HOW MANY NODES EXIST, NOT HOW MANY IT VISITED.** The dark-page sweep
+  reported **103** nodes across four sessions and **169** the moment its scroll reached further —
+  same page, same instrument, deeper reach. **"Three of 103" was quoted four times, including in
+  rulings, and it was a count of the instrument rather than of the page.**
+
+  Every figure derived from it described a subset nobody had bounded. **A denominator that changes
+  with scroll depth is not a denominator** — state the total the DOM holds and assert the visited
+  count against it, or the sweep reports its own diligence as a property of the site.
+
+- **⚠ "DOES EVERY CONSUMER SIT ON THE GROUND THE ROLE'S NAME CLAIMS" IS NOT COMPUTABLE, AND THAT IS A
+  LIMIT RATHER THAN A TODO.** `on-accent` asserts a ground in its name. The work filter's pressed chip
+  draws it over `.wf-thumb` — **a positioned SIBLING under it by z-index, not an ancestor** — so a
+  chip with `background: transparent` walks past the thumb to the container's surface. **No cascade
+  walk reaches the thumb, because the cascade does not model paint order.**
+
+  **Second component in this arc whose ground only a pixel can answer**, after the vessel's blended
+  stack. Both were diagnosed confidently from the DOM first, and both diagnoses were wrong — including
+  a per-consumer verification that measured `on-accent` against a token the chip never composites
+  onto, which is the never-meet error committed *inside* the check meant to prove the fix.
+
 - **⚠ THE SANITY PAIR CAUGHT SOMETHING FOR THE FIRST TIME, AND THAT IS THE ARGUMENT FOR IT.** It has
   run before every rasterised measurement here as a formality. In the `N`-curve run the raster path
   was **genuinely broken** — white and black both read `255,255,255`, because the black sample landed

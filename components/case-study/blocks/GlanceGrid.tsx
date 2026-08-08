@@ -19,7 +19,7 @@ export default function GlanceGrid({ items, web = false, editable = false, block
     return (
       <div className="grid grid-cols-1 gap-x-8 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((it, i) => (
-          <div key={i} className="reveal-card border-t-2 border-accent-500 pt-4">
+          <div key={i} className="reveal-card border-t-2 border-accent pt-4">
             <h3
               {...inlineEditProps(editable, blockIndex, `items.${i}.label`, "Edit label")}
               className={`font-display text-2xl font-normal text-text-primary leading-[1.1]${aff}`}

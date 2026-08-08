@@ -70,7 +70,7 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="pt-[34px]">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-[11.5px] font-medium uppercase tracking-[0.13em] text-text-secondary transition-colors hover:text-accent-500"
+            className="inline-flex items-center gap-2 text-[11.5px] font-medium uppercase tracking-[0.13em] text-text-secondary transition-colors hover:text-accent"
           >
             ← Blog
           </Link>

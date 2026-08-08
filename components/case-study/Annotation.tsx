@@ -18,12 +18,12 @@ export default function Annotation({ callout }: { callout: Callout }) {
     >
       <span
         aria-hidden="true"
-        className="hidden lg:block size-[11px] shrink-0 rounded-full bg-accent-500 -ml-1.5"
-        style={{ boxShadow: "0 0 0 4px color-mix(in oklch, var(--color-accent-500) 16%, transparent)" }}
+        className="hidden lg:block size-[11px] shrink-0 rounded-full bg-accent -ml-1.5"
+        style={{ boxShadow: "0 0 0 4px color-mix(in oklch, var(--color-accent) 16%, transparent)" }}
       />
       <span
         aria-hidden="true"
-        className="hidden lg:block h-px w-[84px] shrink-0 bg-accent-500 opacity-50 mx-4"
+        className="hidden lg:block h-px w-[84px] shrink-0 bg-accent opacity-50 mx-4"
       />
       <span className="max-w-[300px]">
         <b className="block text-[1rem] font-bold text-text-primary">{callout.title}</b>

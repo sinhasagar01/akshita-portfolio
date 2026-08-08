@@ -55,7 +55,7 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
           style={{ borderColor: LINE }}
         >
           <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="size-[9px] shrink-0 rounded-full bg-accent-500" />
+            <span aria-hidden="true" className="size-[9px] shrink-0 rounded-full bg-accent" />
             <span
               {...inlineEditProps(editable, blockIndex, `steps.${i}.label`, "Edit step label")}
               className={`font-display italic text-[1.1875rem] text-text-primary${aff}`}

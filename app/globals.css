@@ -1119,7 +1119,34 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-ink-600: oklch(40.0% 0.020 250);
   --color-ink-400: oklch(56.0% 0.020 250);
   --color-ink-200: oklch(80.0% 0.015 250);
-  --color-accent-500: oklch(64.0% 0.174 272);
+  /* ⚠ 64.0% FAILED FOUR ROWS AND THE SOLUTION IS A HALF-LINE, NOT A POINT. A near-white label on
+     this accent measured 3.37 against 4.5, and the accent's own light-ground rows measured 3.37 /
+     2.78 / 2.90. ALL FOUR WANT THE SAME DIRECTION — three are the accent against a light ground and
+     the fourth is a light label against the accent, so darkening helps every one. Everything at or
+     below 56% clears all four; everything above fails.
+
+     ⚠ THE REPRODUCIBLE FACT IS THE THRESHOLD RULE, NOT THIS NUMBER: a dark palette's accent must be
+     dark enough that a near-white label clears 4.5 on it, which is also dark enough for its own
+     light-ground rows. A seventh dark palette finds its own threshold rather than copying 54.
+
+     ⚠ AND 56 IS THE BOUNDARY, WHICH IS NOT A VALUE. It leaves 0.19 on both text floors — and this
+     project already records cream sitting inside 0.1 of five floors as the reason cream is not a
+     template. Shipping a NEW palette onto its own boundary would repeat that deliberately. 52 clears
+     comfortably and moves the brand 12 points to buy margin nobody asked for. */
+  /* ⚠ THE FLOORS BOUND THIS ABOVE AND NOTHING BOUNDS IT BELOW. At 64% it failed four rows — a
+     near-white label on it measured 3.37 against 4.5, and its own light-ground rows measured
+     3.37 / 2.78 / 2.90. The ceiling is L57, where the worst margin is exactly +0.00, and EVERY STEP
+     DARKER IMPROVES ALL FOUR. So the floors can rule a value out; they cannot choose one.
+
+     ⚠ 52% IS THEREFORE A TASTE DECISION AND A FUTURE READER SEEING +1.05 WOULD ASSUME IT WAS
+     DERIVED. What is derived is the CEILING. Below it the only constraint is that the accent must
+     still read as an accent — at L42 the numbers are better and the colour is a near-navy. Margins
+     at 52: label 5.55, cream-50 5.55, canvas 4.57, cream-200 4.77.
+
+     ⚠ AND 53% STOOD HERE BRIEFLY AND WAS NEITHER DERIVED NOR CHOSEN. It was solved while a
+     dark-surface row was still in play; the migration of 60 raw sites to `--color-accent` removed
+     that pairing, and the value outlived its own constraint. */
+  --color-accent-500: oklch(52.0% 0.174 272);
   --color-accent-600: oklch(45.0% 0.178 272);
   --color-text-subtle: oklch(48.7% 0.020 250);
   --color-text-body: oklch(37.5% 0.017 250);
@@ -2729,6 +2756,20 @@ a {
   color: var(--color-text-primary);
 }
 .work-filter button[aria-pressed="true"] {
+  /* ⚠ UNRESOLVED, AND THE CANDIDATES ARE EXHAUSTED RATHER THAN UNTRIED. Sampled by pixel on both
+     grounds: `on-accent` gives 2.03 on light; `text-primary` gives 2.03 light and 2.23 dark;
+     `band-dark` gave 7.99 dark and broke light plus both unpressed chips.
+
+     ⚠ THE GROUND IS `.wf-thumb`, A POSITIONED SIBLING UNDER THIS BUTTON BY z-index, AND THE CASCADE
+     DOES NOT MODEL PAINT ORDER — so no computed-style check can reach it and five source-based
+     analyses of this element were each wrong about a different thing, including which side fails.
+     The thumb is `ink-950`, a raw ratchet member, and it does not remap; a near-black pill on a dark
+     page is the un-migrated-rung shape that opened this thread.
+
+     ⚠ AND THE UNPRESSED CHIPS FAIL ON DARK INDEPENDENTLY — 1.30 and 1.90, measured after every
+     change here was reverted, so they are a separate pre-existing defect rather than fallout.
+     Left as `on-accent` at its pre-thread value: a known 2.03 on light beats a fix that regresses
+     three states to repair one. */
   color: var(--color-on-accent);
 }
 .work-filter button:disabled {

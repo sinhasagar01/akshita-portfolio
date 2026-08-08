@@ -135,7 +135,7 @@ export default function WorkStory({
         if (fl) fl.style.transform = `scaleX(${clamp(i + pP - k)})`;
       });
       dotRefs.current.forEach((d, k) => {
-        if (d) d.style.color = k <= i ? "var(--color-accent-500)" : "var(--color-text-subtle)";
+        if (d) d.style.color = k <= i ? "var(--color-accent)" : "var(--color-text-subtle)";
       });
     };
 
@@ -221,14 +221,14 @@ export default function WorkStory({
 
         {/* copy */}
         <div className="relative z-[2] w-full max-w-[430px] lg:flex-1">
-          <div ref={numRef} className="font-display italic text-[1.1875rem] text-accent-500">
+          <div ref={numRef} className="font-display italic text-[1.1875rem] text-accent">
             Feature {f.index}
           </div>
           <div
             ref={catRef}
             {...inlineEditProps(editable, blockIndex, `features.${current}.category`, "Edit category")}
             className={
-              "text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-500 mt-2" +
+              "text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent mt-2" +
               (editable ? EDIT_AFFORD : "")
             }
           >
@@ -364,7 +364,7 @@ export default function WorkStory({
                   ref={(el) => {
                     fillRefs.current[k - 1] = el;
                   }}
-                  className="absolute inset-0 origin-left bg-accent-500"
+                  className="absolute inset-0 origin-left bg-accent"
                   style={{ transform: `scaleX(${k - 1 < current ? 1 : 0})` }}
                 />
               </span>
@@ -374,7 +374,7 @@ export default function WorkStory({
                 dotRefs.current[k] = el;
               }}
               className="w-[34px] text-center font-display italic text-[12px] lg:text-[14px]"
-              style={{ color: k <= current ? "var(--color-accent-500)" : "var(--color-text-subtle)" }}
+              style={{ color: k <= current ? "var(--color-accent)" : "var(--color-text-subtle)" }}
             >
               {feat.index}
             </span>
@@ -388,7 +388,7 @@ export default function WorkStory({
           type="button"
           aria-label="Previous feature"
           onClick={() => manualRef.current(-1)}
-          className="inline-flex size-11 items-center justify-center rounded-full border bg-surface text-text-secondary transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
+          className="inline-flex size-11 items-center justify-center rounded-full border bg-surface text-text-secondary transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
           style={{ borderColor: ARROW_BORDER }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -398,7 +398,7 @@ export default function WorkStory({
 
         <span className="flex min-w-[230px] items-center justify-center gap-2 text-center text-[12px] tracking-[0.02em] text-text-subtle">
           <span
-            className={`size-1.5 rounded-full bg-accent-500 opacity-60 ${reduce ? "" : "animate-pulse"}`}
+            className={`size-1.5 rounded-full bg-accent opacity-60 ${reduce ? "" : "animate-pulse"}`}
             aria-hidden="true"
           />
           {reduce ? "use the arrows to explore" : "auto-playing — tap the arrows to skip"}
@@ -408,7 +408,7 @@ export default function WorkStory({
           type="button"
           aria-label="Next feature"
           onClick={() => manualRef.current(1)}
-          className="inline-flex size-11 items-center justify-center rounded-full border bg-surface text-text-secondary transition-colors hover:border-accent-500 hover:text-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
+          className="inline-flex size-11 items-center justify-center rounded-full border bg-surface text-text-secondary transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 lg:size-[38px]"
           style={{ borderColor: ARROW_BORDER }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">

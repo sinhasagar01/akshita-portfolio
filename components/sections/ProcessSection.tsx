@@ -297,7 +297,7 @@ function StageCopy({ stage }: { stage: ResolvedStage }) {
           <motion.span
             variants={stageLine}
             className="text-meta font-medium uppercase tracking-ui"
-            style={{ color: "var(--color-accent-500)" }}
+            style={{ color: "var(--color-accent)" }}
           >
             {stage.index}
           </motion.span>
@@ -379,7 +379,7 @@ function VerticalStepper({
           top: "22px",
           width: "2px",
           height: `${fillHeight}px`,
-          background: "var(--color-accent-500)",
+          background: "var(--color-accent)",
           transition: "height 0.4s ease",
           zIndex: 2,
         }}
@@ -407,9 +407,9 @@ function VerticalStepper({
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "11px",
-                background: isActive || isDone ? "var(--color-accent-500)" : "var(--color-surface)",
+                background: isActive || isDone ? "var(--color-accent)" : "var(--color-surface)",
                 border: isActive || isDone
-                  ? "1.5px solid var(--color-accent-500)"
+                  ? "1.5px solid var(--color-accent)"
                   : "1.5px solid color-mix(in oklch, var(--color-text-primary) 32%, transparent)",
                 color: isActive || isDone ? "var(--color-on-accent)" : "var(--color-text-subtle)",
                 transition: "background 0.3s, border-color 0.3s, color 0.3s",
@@ -492,7 +492,7 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
               top: "-150px",
               filter: "blur(34px)",
               background:
-                "radial-gradient(closest-side, color-mix(in oklch, var(--color-accent-500) 36%, transparent), color-mix(in oklch, var(--color-accent-500) 12%, transparent) 48%, transparent 72%)",
+                "radial-gradient(closest-side, color-mix(in oklch, var(--color-accent) 36%, transparent), color-mix(in oklch, var(--color-accent) 12%, transparent) 48%, transparent 72%)",
               pointerEvents: "none",
             }}
           />
@@ -506,7 +506,7 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
               top: "-100px",
               filter: "blur(34px)",
               background:
-                "radial-gradient(closest-side, color-mix(in srgb, var(--color-accent-500) 34%, transparent), transparent 70%)",
+                "radial-gradient(closest-side, color-mix(in srgb, var(--color-accent) 34%, transparent), transparent 70%)",
               pointerEvents: "none",
             }}
           />
@@ -529,9 +529,9 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
               marginTop: "-160px",
               marginLeft: "-124px",
               borderRadius: "18px",
-              border: "1.5px solid var(--color-accent-500)",
+              border: "1.5px solid var(--color-accent)",
               background: "var(--color-surface)",
-              boxShadow: "0 10px 30px color-mix(in oklch, var(--color-accent-500) 12%, transparent)",
+              boxShadow: "0 10px 30px color-mix(in oklch, var(--color-accent) 12%, transparent)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -627,7 +627,7 @@ function ArtifactDiscover({ isActive, skipAnim }: { isActive: boolean; skipAnim:
       ref={ref}
       viewBox="0 0 200 240"
       fill="none"
-      stroke="var(--color-accent-500)"
+      stroke="var(--color-accent)"
       strokeWidth={3}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -656,7 +656,7 @@ function ArtifactDiscover({ isActive, skipAnim }: { isActive: boolean; skipAnim:
         textAnchor="middle"
         style={{ fontFamily: "var(--font-script)" }}
         fontSize={34}
-        fill="var(--color-accent-500)"
+        fill="var(--color-accent)"
         stroke="none"
         transform="rotate(-4 100 190)"
       >
@@ -683,7 +683,7 @@ function ArtifactDefine({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
       height="82%"
       aria-hidden
     >
-      <g stroke="var(--color-accent-500)" strokeWidth={3}>
+      <g stroke="var(--color-accent)" strokeWidth={3}>
         <rect className="dr" pathLength={1} x={40} y={62} width={50} height={38} rx={7} />
         <rect className="dr" pathLength={1} x={112} y={62} width={50} height={38} rx={7} />
         <rect className="dr" pathLength={1} x={76} y={150} width={50} height={38} rx={7} />
@@ -691,7 +691,7 @@ function ArtifactDefine({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
       {/* Dashed connectors — fade in after boxes draw */}
       <g
         className="fd"
-        stroke="var(--color-accent-500)"
+        stroke="var(--color-accent)"
         strokeWidth={2.4}
         strokeDasharray="2 7"
         fill="none"
@@ -703,7 +703,7 @@ function ArtifactDefine({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
       <path
         className="fd"
         d="M95 144 l6 6 l6 -6"
-        stroke="var(--color-accent-500)"
+        stroke="var(--color-accent)"
         strokeWidth={2.4}
         fill="none"
         strokeLinecap="round"
@@ -727,7 +727,7 @@ function ArtifactDesign({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
       height="82%"
       aria-hidden
     >
-      <g stroke="var(--color-accent-500)" strokeWidth={3}>
+      <g stroke="var(--color-accent)" strokeWidth={3}>
         <rect className="dr" pathLength={1} x={58} y={44} width={84} height={158} rx={11} />
         <path className="dr" pathLength={1} d="M58 76 H142" />
       </g>
@@ -776,14 +776,14 @@ function ArtifactValidate({ isActive, skipAnim }: { isActive: boolean; skipAnim:
         height={158}
         rx={11}
         fill="none"
-        stroke="var(--color-accent-500)"
+        stroke="var(--color-accent)"
         strokeWidth={3}
       />
       {/* Filled header bar */}
       <path
         className="fd"
         d="M58 51 a11 11 0 0 1 11 -11 h62 a11 11 0 0 1 11 11 v17 H58 Z"
-        fill="var(--color-accent-500)"
+        fill="var(--color-accent)"
       />
       {/* Header avatar dot */}
       <circle className="fd" cx={76} cy={59} r={4} fill="white" />
@@ -793,10 +793,10 @@ function ArtifactValidate({ isActive, skipAnim }: { isActive: boolean; skipAnim:
       <g className="fd">
         <rect x={72} y={112} width={14} height={32} rx={2} fill="#cdb89a" />
         <rect x={91} y={124} width={14} height={20} rx={2} fill="var(--color-cream-300)" />
-        <rect x={110} y={104} width={14} height={40} rx={2} fill="var(--color-accent-500)" />
+        <rect x={110} y={104} width={14} height={40} rx={2} fill="var(--color-accent)" />
       </g>
       {/* Check circle */}
-      <circle className="fd" cx={124} cy={172} r={12} fill="var(--color-accent-500)" />
+      <circle className="fd" cx={124} cy={172} r={12} fill="var(--color-accent)" />
       {/* Checkmark stroke — draws last (second .dr, after fills appear) */}
       <path
         className="dr"

@@ -167,7 +167,7 @@ function BeforePhone({ before, w, fluid, maxW }: { before: ImgSpec; w: number; f
 function PhoneLabel({ children, after }: { children: ReactNode; after?: boolean }) {
   return (
     <figcaption
-      className={`text-eyebrow tracking-[0.14em] uppercase font-semibold ${after ? "text-accent-500" : "text-text-subtle"}`}
+      className={`text-eyebrow tracking-[0.14em] uppercase font-semibold ${after ? "text-accent" : "text-text-subtle"}`}
     >
       {children}
     </figcaption>
@@ -197,7 +197,7 @@ function ChangeNotes({
               : { opacity: 0.25, transform: "translateX(-6px)", transition: "opacity .4s, transform .4s" }
           }
         >
-          <span className="w-[18px] shrink-0 font-display italic text-[14px] leading-[1.5] text-accent-500">
+          <span className="w-[18px] shrink-0 font-display italic text-[14px] leading-[1.5] text-accent">
             {String(j + 1).padStart(2, "0")}
           </span>
           <span className="text-[12.5px] leading-[1.45] text-text-secondary">
@@ -215,10 +215,10 @@ function RatingStat({ from, to }: { from: string; to: string }) {
       <div className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-text-subtle">App Store rating</div>
       <div className="mt-1.5 flex items-baseline justify-start gap-2 lg:justify-end">
         <span className="font-display text-lg text-text-subtle">{from}★</span>
-        <span aria-hidden="true" className="text-base text-accent-500">
+        <span aria-hidden="true" className="text-base text-accent">
           →
         </span>
-        <span className="font-display text-3xl font-medium text-accent-500">{to}★</span>
+        <span className="font-display text-3xl font-medium text-accent">{to}★</span>
       </div>
     </div>
   );
@@ -308,7 +308,7 @@ export default function BeforeAfterStory({
         const rail = railRefs.current[i];
         if (rail) rail.style.opacity = i === active ? "1" : "0.4";
         const dot = railDotRefs.current[i];
-        if (dot) dot.style.background = i === active ? "var(--color-accent-500)" : "transparent";
+        if (dot) dot.style.background = i === active ? "var(--color-accent)" : "transparent";
 
         const items = itemRefs.current[i] ?? [];
         for (let j = 0; j < items.length; j++) {
@@ -370,7 +370,7 @@ export default function BeforeAfterStory({
               >
                 {/* screen name + step (stands in for the rail on mobile) */}
                 <div className="flex items-baseline gap-3">
-                  <span className="font-display italic text-2xl leading-none text-accent-500">
+                  <span className="font-display italic text-2xl leading-none text-accent">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
@@ -386,7 +386,7 @@ export default function BeforeAfterStory({
                     <p
                       {...inlineEditProps(editable, blockIndex, `pairs.${i}.tag`, "Edit tag")}
                       className={
-                        "text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-0.5" +
+                        "text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent mt-0.5" +
                         (editable ? EDIT_AFFORD : "")
                       }
                     >
@@ -441,8 +441,8 @@ export default function BeforeAfterStory({
                   ref={(el) => {
                     railDotRefs.current[i] = el;
                   }}
-                  className="size-[9px] shrink-0 rounded-full border-[1.5px] border-accent-500"
-                  style={{ background: i === 0 ? "var(--color-accent-500)" : "transparent" }}
+                  className="size-[9px] shrink-0 rounded-full border-[1.5px] border-accent"
+                  style={{ background: i === 0 ? "var(--color-accent)" : "transparent" }}
                 />
                 <span className="whitespace-nowrap text-[12px] font-semibold text-text-primary">{pair.title}</span>
               </div>
@@ -482,7 +482,7 @@ export default function BeforeAfterStory({
                     <p
                       {...inlineEditProps(editable, blockIndex, `pairs.${i}.tag`, "Edit tag")}
                       className={
-                        "text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500 mt-1" +
+                        "text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent mt-1" +
                         (editable ? EDIT_AFFORD : "")
                       }
                     >
@@ -503,7 +503,7 @@ export default function BeforeAfterStory({
                         ref={(el) => {
                           fillRefs.current[i] = el;
                         }}
-                        className="block h-full bg-accent-500"
+                        className="block h-full bg-accent"
                         style={{ width: "0%" }}
                       />
                     </div>

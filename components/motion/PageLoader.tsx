@@ -230,7 +230,7 @@ export default function PageLoader() {
     <div
       ref={overlayRef}
       className="page-loader"
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: 'var(--color-accent-500)' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: 'var(--color-accent)' }}
     />
   )
 }

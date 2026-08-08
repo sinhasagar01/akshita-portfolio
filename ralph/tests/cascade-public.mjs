@@ -418,7 +418,7 @@ t("C1: the public collision census is exactly this — a change here is a dead u
      `a { color: inherit }` exists so links inherit their context rather than turning blue, and
      `studio-cascade`'s whole premise rests on it. Lifting it is not the fifth step of this
      sequence — it is a new one, with its own reason to exist. */
-  census, { color: 6 });
+  census, { color: 4 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",

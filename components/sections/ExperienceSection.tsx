@@ -31,7 +31,7 @@ function CompanyLine({
     <div className={className}>
       {display}
       {acquiredBy && (
-        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-accent-500)" }}>
+        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-accent)" }}>
           {" "}acquired by {acquiredBy}
         </span>
       )}
@@ -71,7 +71,7 @@ export default function ExperienceSection({ experience }: Props) {
               aria-hidden
               className="absolute right-[-40px] top-[-30px] w-[280px] h-[200px] rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(closest-side, color-mix(in oklch, var(--color-accent-500) 22%, transparent), transparent 70%)",
+                background: "radial-gradient(closest-side, color-mix(in oklch, var(--color-accent) 22%, transparent), transparent 70%)",
                 filter: "blur(40px)",
               }}
             />
@@ -87,7 +87,7 @@ export default function ExperienceSection({ experience }: Props) {
               <span
                 aria-hidden
                 className="w-[6px] h-[6px] rounded-full shrink-0"
-                style={{ background: "var(--color-accent-500)" }}
+                style={{ background: "var(--color-accent)" }}
               />
               Currently
             </div>

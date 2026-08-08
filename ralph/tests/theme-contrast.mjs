@@ -213,6 +213,23 @@ const USAGE = [
      text-secondary, which is what made it a role rather than a spelling. */
   ...TEXT("text-body", ["canvas", "cream-50"]),
 
+  /* ⚠ NINE CONSUMERS AND NO ROW UNTIL NOW, WHICH IS WHY SIX PALETTES SHIPPED UNCHECKED. `on-accent`
+   * is drawn ON `accent-500` at every accent fill — the stepper, two badges, two CTAs, the veil
+   * label, the filter chip, the submit button. The pair is as real as any in this map and nobody
+   * wrote it down, so CI passed while a manual sweep of a fourth dark palette found it.
+   *
+   * ⚠ A MISSING ROW IS SILENT BY CONSTRUCTION. This map enumerates pairs SOMEBODY WROTE, so its
+   * complement is unknown and cannot be counted — the same shape as the file-type boundary and the
+   * negative product claims, arriving in the map's own index.
+   *
+   * ⚠ AND NO FULL DERIVATION IS AVAILABLE, WHICH IS THE HONEST ANSWER RATHER THAN A TODO. Deriving
+   * "every token on every token it is drawn on" needs to know which foregrounds MEET which grounds,
+   * and this project has already established that a ground resolving several components away cannot
+   * be determined statically. THE RENDER IS THE ONLY ENUMERATOR — a swept page reports actual pairs,
+   * which is exactly how this one surfaced. So the map stays hand-written with an unknown
+   * complement, and the sweep is what closes the gap rather than a better parser. */
+  ...TEXT("on-accent", ["accent-500"]),
+
   /* ⚠ THE ROW THAT PROVES THE USAGE MAP IS LOAD-BEARING. accent-500's cream ladder is
      4.7 / 4.48 / 4.07 / 3.43, so it clears the text floor on cream-50 ALONE and misses cream-100
      by 0.02. A palette-only gate — every token against every ground — would refuse the site that
@@ -799,6 +816,42 @@ t("K5 ⚠ THE PALETTES DERIVED WITH THE CHECK IN HAND ARE CLEAN — cerise and f
  * unrepresentable tokens and the row could not say which one it had injected. A fixture whose
  * baseline carries the defect it is testing for cannot isolate anything. */
 const impossible = { ...CREAM, ...themeOverrides("fern"), "accent-500": "oklch(54.0% 0.16 158)" };
+/* ---- ⚠ EVERY PALETTE THROUGH THE MAP, DERIVED FROM THEME_NAMES ------------------------------
+ *
+ * ⚠ THREE OF SIX PALETTES HAD NEVER BEEN THROUGH THE USAGE MAP. `report()` was called for cream,
+ * harbour and orchid and for the synthetic fixtures — cerise, fern and sapphire were evaluated by
+ * NOTHING, two of them live.
+ *
+ * ⚠ AND D12 WAS FIXED FOR THIS EXACT FAILURE, IN THIS FILE, AND THE SAME SHAPE SURVIVED BESIDE IT.
+ * Its comment reads: "and PASSED without looking at either new palette. Derived from `THEME_NAMES`
+ * it cannot." That repair did not travel — the pair list was derived and the palette list was not.
+ * A REPAIR THAT DID NOT TRAVEL WITHIN THE FILE THAT RECORDS IT, which is the rule `role-layer`'s two
+ * walks produced, arriving in the file that produced it.
+ *
+ * ⚠ A MISSING ROW AND A MISSING PALETTE ARE THE SAME DEFECT AT DIFFERENT SCOPES, and the useful half
+ * is which list can be derived. THE ROWS CANNOT: a ground resolving several components away is not
+ * statically knowable, so the map stays hand-written with an unknown complement and the render is
+ * its only enumerator. THE PALETTES CAN, and were a hand-written list anyway. */
+const EVERY = THEME_NAMES.filter((n) => n !== VERIFY_THEME && n !== DEFAULT_THEME);
+console.log(`\nP · ⚠ EVERY PALETTE THROUGH THE MAP — ${EVERY.length} derived from THEME_NAMES, plus ${DEFAULT_THEME}`);
+const perPalette = EVERY.map((n) => {
+  const pal = { ...CREAM, ...themeOverrides(n) };
+  const rep = report(pal, USAGE);
+  return { name: n, verdict: rep.verdict, failures: rep.failures.map((r) => r.key), uncomputable: rep.uncomputable };
+});
+for (const r of perPalette)
+  console.log(`         ${r.name.padEnd(10)} ${r.verdict.padEnd(18)} ${r.failures.length ? r.failures.join(", ") : "no failing rows"}`);
+
+t("P0 the derived set is non-empty and covers the palettes beyond the default, against a literal",
+  EVERY.length >= 4, true);
+t("P1 ⚠ NO PALETTE HAS AN UNCOMPUTABLE ROW — a skipped row is a pair nobody knows is unchecked",
+  perPalette.flatMap((r) => r.uncomputable.map((u) => `${r.name}: ${u}`)).sort(), []);
+/* ⚠ SAPPHIRE IS HELD AND IS STILL EVALUATED. A held palette that no gate reads is a palette that
+ * unholds on a sweep nobody re-ran — which is how its `on-accent` pair reached a manual sweep of a
+ * fourth dark palette instead of CI. */
+t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never been evaluated at all",
+  perPalette.flatMap((r) => r.failures.map((f) => `${r.name}: ${f}`)).sort(), []);
+
 const imp = report(impossible, USAGE);
 t("K6 a palette declaring an out-of-gamut token is UNREPRESENTABLE, never REFUSED_EXTERNAL",
   imp.verdict, "UNREPRESENTABLE");

@@ -96,7 +96,7 @@ export default function BlogStatusTabs({
                 23), so ink-600 is the only passing step below ink-800.
                 THE COLOUR WAS DOING TWO JOBS AND ONE OF THEM COST AA. It marked selection AND kept
                 the number quiet. Selection is already carried three other ways — the tab's
-                `border-accent-500`, its label at ink-950 against the inactive ink-600, and
+                the accent border utility, its label at ink-950 against the inactive ink-600, and
                 `aria-selected` — so dropping the count's colour distinction removes a fourth
                 signal from a control that has three. The count is data the author reads before
                 deciding what to press; it should not be the dimmest thing on the row. */}

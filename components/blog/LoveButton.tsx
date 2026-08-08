@@ -104,7 +104,7 @@ export default function LoveButton({
          components up, so restoring the failure leaves M green — proven by mutation. The comment is
          the protection. (The old class is described rather than spelled: naming it would make it
          compile from this comment alone.) */
-      <span className={`inline-flex items-center gap-1.5 ${loved ? "text-accent-500" : "text-text-secondary"}`}>
+      <span className={`inline-flex items-center gap-1.5 ${loved ? "text-accent" : "text-text-secondary"}`}>
         <Heart filled={loved} className="size-[18px]" />
         <Count count={count} className="text-[12.5px]" />
       </span>
@@ -128,13 +128,13 @@ export default function LoveButton({
       }
       className={`inline-flex items-center gap-3 rounded-full border px-7 py-3.5 text-[15px] transition-colors ${
         loved
-          ? "cursor-default border-accent-500 bg-accent-500/[0.07] text-accent-text"
-          : "border-ink-400 text-text-secondary hover:border-accent-500 hover:text-accent-text"
+          ? "cursor-default border-accent bg-accent/[0.07] text-accent-text"
+          : "border-ink-400 text-text-secondary hover:border-accent hover:text-accent-text"
       }`}
     >
       <span className="relative inline-flex">
         {burst ? (
-          <span aria-hidden="true" className="absolute inset-0 animate-ping rounded-full bg-accent-500/40" />
+          <span aria-hidden="true" className="absolute inset-0 animate-ping rounded-full bg-accent/40" />
         ) : null}
         <Heart
           filled={loved}

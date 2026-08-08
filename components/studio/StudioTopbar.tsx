@@ -44,11 +44,11 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
         href="/"
         target="_blank"
         rel="noopener noreferrer"
-        // `hover:text-accent-500` WAS HERE AND WAS DEAD. Measured while genuinely hovered:
+        // A hover text-accent utility WAS HERE AND WAS DEAD. Measured while genuinely hovered:
         // the border goes accent-500 and the colour stays put. LAYER ORDER BEATS SPECIFICITY,
         // so the unlayered `a { color: inherit }` outranks a `:hover` colour utility too —
         // raising specificity does not help when the loss is by layer. It defeats ONLY
-        // `color`, which is exactly why `hover:border-accent-500` on the same element works.
+        // `color`, which is exactly why the hover BORDER form on the same element works.
         // The border hover is a real affordance and stays; the dead colour is removed rather
         // than left looking like it does something.
         // HEIGHT 40 TO MATCH THE SEARCH FIELD BESIDE IT. The contract sets `.btn` and
@@ -88,7 +88,7 @@ export default function StudioTopbar({ searchItems }: { searchItems: SearchItem[
 
             THE LABEL IS IN A SPAN SO THE HOVER COLOUR CAN LAND. `hover:text-*` on this <a>
             would be DEAD — hazard 22's unlayered `a { color: inherit }` defeats a hover colour
-            exactly as it defeats a base one, and `hover:text-accent-500` was removed from THIS
+            exactly as it defeats a base one, and the hover text-accent form was removed from THIS
             ELEMENT for that reason. A span is not named by that reset, so `group-hover` works.
             Same shape as BlogPostList's All-posts link. */}
         <span className="transition-colors lg:group-hover:text-studio-ink-950">View site</span>

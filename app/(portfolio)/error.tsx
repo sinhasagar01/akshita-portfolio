@@ -27,13 +27,13 @@ export default function PortfolioError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+          className="inline-flex items-center rounded-full bg-accent px-6 py-3 text-[0.95rem] font-semibold text-on-accent transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="inline-flex items-center rounded-full border border-etch/12 bg-surface px-6 py-3 text-[0.95rem] font-semibold text-text-primary transition-colors hover:border-accent-500 hover:text-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+          className="inline-flex items-center rounded-full border border-etch/12 bg-surface px-6 py-3 text-[0.95rem] font-semibold text-text-primary transition-colors hover:border-accent hover:text-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Back to home
         </Link>

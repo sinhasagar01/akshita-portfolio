@@ -62,7 +62,7 @@ export default function BeforeAfter({
                 editPath={`pairs.${i}.before`}
               />
             </figure>
-            <span aria-hidden="true" className="text-accent-500 text-2xl font-display">
+            <span aria-hidden="true" className="text-accent text-2xl font-display">
               →
             </span>
             <figure
@@ -72,7 +72,7 @@ export default function BeforeAfter({
                   : "flex flex-col items-center gap-2"
               }
             >
-              <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent-500">
+              <figcaption className="text-eyebrow tracking-[0.14em] uppercase font-semibold text-accent">
                 After
               </figcaption>
               <DeviceImage
@@ -101,7 +101,7 @@ export default function BeforeAfter({
             <ul className="m-0 mt-4 flex list-none flex-col gap-3 p-0">
               {p.changes.map((c, ci) => (
                 <li key={ci} className="flex items-baseline gap-2.5">
-                  <span aria-hidden="true" className="mt-1.5 size-[6px] shrink-0 rounded-full bg-accent-500" />
+                  <span aria-hidden="true" className="mt-1.5 size-[6px] shrink-0 rounded-full bg-accent" />
                   <span className="text-[0.95rem] text-text-secondary leading-[1.5]">
                     <b
                       {...edit(`pairs.${i}.changes.${ci}.emphasis`, "Edit change emphasis")}

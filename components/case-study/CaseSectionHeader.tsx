@@ -39,7 +39,7 @@ export default function CaseSectionHeader({ index, eyebrow, title, lead, editabl
       {(index || eyebrow) && (
         <div className="flex items-baseline gap-[18px]">
           {index && (
-            <span className="font-display italic text-xl text-accent-500 leading-none">
+            <span className="font-display italic text-xl text-accent leading-none">
               {index}
             </span>
           )}

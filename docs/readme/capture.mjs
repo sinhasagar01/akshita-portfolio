@@ -35,6 +35,16 @@ for (const [name, path] of [
   ["blog", "/blog"],
 ]) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
+  /* ⚠ AN EMPTY TITLE MEANS THE PAGE DID NOT RENDER, AND IT HAS COST TWO HOURS IN ONE SESSION.
+     Running `npm run build` while the dev server holds the port corrupts `.next`; the server then
+     serves nothing and every probe returns a plausible, empty-looking result. THE TELL IS THE TITLE.
+     Third mechanism-versus-intention instance in this project — the rule was written down both times
+     and only a mechanism stopped the other two. A harness that reads an empty title STOPS. */
+  if (!(await page.title())) {
+    console.error(`\n  ✗ ${path} rendered nothing — title is empty.` +
+      "\n    Almost certainly a corrupted .next: stop the dev server, rebuild, restart.\n");
+    process.exit(1);
+  }
   await page.waitForTimeout(1200); // the scroll reveals settle
   await page.screenshot({ path: `${OUT}/${name}.png` });
   console.log(`  ${name}.png`);

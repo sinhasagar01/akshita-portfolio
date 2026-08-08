@@ -107,7 +107,7 @@ function StepContent({
       {/* Eyebrow — DM Sans 12px 500 uppercase .22em tracking, terracotta */}
       <span
         className="block mb-[14px] font-body text-[12px] font-medium tracking-[0.22em] uppercase"
-        style={{ color: 'var(--color-accent-500)' }}
+        style={{ color: 'var(--color-accent)' }}
       >
         {step.eyebrow}
       </span>
@@ -150,7 +150,7 @@ function StepContent({
       {/* Validation hint — 12px terracotta, min-height 14px */}
       <p
         className="text-[12px] mt-2 min-h-[14px]"
-        style={{ color: 'var(--color-accent-500)' }}
+        style={{ color: 'var(--color-accent)' }}
         aria-live="assertive"
         aria-atomic="true"
       >
@@ -162,10 +162,10 @@ function StepContent({
         type="button"
         onClick={() => { if (status === 'idle') onAdvance() }}
         disabled={sending}
-        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-white rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent-500) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
+        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-white rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
         style={{
-          background: 'var(--color-accent-500)',
-          border: '1.5px solid var(--color-accent-500)',
+          background: 'var(--color-accent)',
+          border: '1.5px solid var(--color-accent)',
           padding: '13px 24px',
         }}
       >
@@ -211,7 +211,7 @@ function SuccessScreen() {
         style={{
           width: 46,
           height: 46,
-          background: 'var(--color-accent-500)',
+          background: 'var(--color-accent)',
           color: 'var(--color-white)',
         }}
       >
@@ -254,7 +254,7 @@ function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void })
       </p>
       <p className="font-body text-[14px] text-text-secondary">
         Try emailing me directly at{' '}
-        <a href={`mailto:${email}`} style={{ color: 'var(--color-accent-500)' }} className="underline">
+        <a href={`mailto:${email}`} style={{ color: 'var(--color-accent)' }} className="underline">
           {email}
         </a>
       </p>
@@ -462,7 +462,7 @@ export default function ContactSection({ settings }: Props) {
                 width: '62%',
                 height: '74%',
                 transform: 'translate(-50%, -50%)',
-                background: 'radial-gradient(closest-side, color-mix(in oklch, var(--color-accent-500) 24%, transparent), rgba(224,156,96,0.10) 52%, transparent 75%)',
+                background: 'radial-gradient(closest-side, color-mix(in oklch, var(--color-accent) 24%, transparent), rgba(224,156,96,0.10) 52%, transparent 75%)',
                 filter: 'blur(46px)',
                 zIndex: 0,
                 opacity: glowOpacity,
@@ -481,7 +481,7 @@ export default function ContactSection({ settings }: Props) {
             >
               <div
                 className="h-full transition-[width] duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
-                style={{ width: progressWidth, background: 'var(--color-accent-500)' }}
+                style={{ width: progressWidth, background: 'var(--color-accent)' }}
               />
             </div>
 
@@ -550,7 +550,7 @@ export default function ContactSection({ settings }: Props) {
               or just email{' '}
               <a
                 href={`mailto:${settings.email ?? ''}`}
-                style={{ color: 'var(--color-accent-500)', textDecoration: 'none' }}
+                style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
                 className="hover:underline"
               >
                 {settings.email}

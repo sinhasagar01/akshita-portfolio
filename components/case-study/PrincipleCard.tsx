@@ -27,8 +27,8 @@ export default function PrincipleCard({
   const bodyProps = inlineEditProps(editable, blockIndex, `cards.${itemIndex}.body`, "Edit principle body", true);
   if (web) {
     return (
-      <div className="relative z-[1] border-t-2 border-accent-500 pt-4">
-        <div {...idxProps} className={`font-display text-3xl text-accent-500 leading-none${aff}`}>
+      <div className="relative z-[1] border-t-2 border-accent pt-4">
+        <div {...idxProps} className={`font-display text-3xl text-accent leading-none${aff}`}>
           {principle.index}
         </div>
         <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3${aff}`}>
@@ -45,7 +45,7 @@ export default function PrincipleCard({
       className="relative z-[1] rounded-lg border bg-cream-200 p-7"
       style={{ borderColor: LINE }}
     >
-      <div {...idxProps} className={`font-display italic text-3xl text-accent-500 leading-none${aff}`}>
+      <div {...idxProps} className={`font-display italic text-3xl text-accent leading-none${aff}`}>
         {principle.index}
       </div>
       <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3.5${aff}`}>

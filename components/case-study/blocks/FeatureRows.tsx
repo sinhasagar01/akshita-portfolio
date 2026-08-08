@@ -62,7 +62,7 @@ export default function FeatureRows({
             <div className="relative z-[1] flex-1 max-w-[540px]">
               <div
                 {...inlineEditProps(editable, blockIndex, `features.${i}.category`, "Edit category")}
-                className={`text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-500${
+                className={`text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent${
                   editable ? EDIT_AFFORD : ""
                 }`}
               >

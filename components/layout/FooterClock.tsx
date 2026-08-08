@@ -32,7 +32,7 @@ export default function FooterClock() {
         >
           <span
             className="footer-dot w-[7px] h-[7px] rounded-full shrink-0"
-            style={{ backgroundColor: "var(--color-accent-500)" }}
+            style={{ backgroundColor: "var(--color-accent)" }}
             aria-hidden="true"
           />
           <span>{display}</span>
