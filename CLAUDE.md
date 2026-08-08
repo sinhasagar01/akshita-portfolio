@@ -328,6 +328,32 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ THE VESSEL WAS NEVER READ FROM WHAT IT PAINTS — FIVE INVALIDATIONS, ONE CAUSE.** Four
+  derivations came from an anatomy table, one from source, **none from a pixel**, in a component
+  whose entire behaviour is compositing. The first four were wrong about WHICH BODY; the fifth is
+  wrong about HOW THE LAYERS COMBINE — `.blog-liquid` declares `background-blend-mode` with an
+  **overlay** in it, and every vessel figure in this arc assumed linear `a·fg + (1−a)·bg`.
+
+  **Sampled at rest** (`opacity: 1`, stable five frames): tinted upper pane **34,38,43**, mid pane
+  11,16,21, lower body 10,15,20 against a page ground of **10,16,22** — the pass-through confirmed
+  from pixels. The tint's real separation is ~28 and it LIGHTENS; every analytic figure had it at
+  9–14.
+
+  **⚠ AND THE SOLVE CANNOT BE ANALYTIC.** Overlay is piecewise and depends on the backdrop, so
+  changing the tint's `N` does not move the result linearly. **It must be sampled at several values
+  and read off the curve** — and the curve must be sampled from THE SAME REGION each time, since the
+  panes differ by 20 units and a curve assembled from drifting regions is the same error in a new
+  costume.
+
+- **⚠ THE VESSEL'S EDGES ARE UNEXAMINED AND CARRY MORE OF ITS READ THAN THE TINT.** Measured
+  **61–71** against a body of 10–15 — brighter than anything the four-mechanic anatomy contained.
+  **Nobody has asked what they are or whether they theme.**
+
+  **THE ANATOMY NAMED FOUR MECHANICS AND NEVER WEIGHTED THEM.** That is the error that hid the smoke
+  stops — a taxonomy correct by KIND and never weighted by EFFECT — **recurring in the same component
+  on the same axis**, now hiding the rim. Ask before building any achromatic palette: Basalt has no
+  hue, and a rim carrying the vessel's read is exactly where that matters.
+
 - **⚠ THE VESSEL'S BODY IS THE ARC'S RECURRING WRONG SUBJECT — IT HAS INVALIDATED FOUR MEASUREMENTS
   NOW.** The tint's `N`, the shadow's 0.09× and the highlight's 76.0 were all solved against an
   assumed body and had to be re-derived when the real one turned out to be the PAGE. The anatomy
