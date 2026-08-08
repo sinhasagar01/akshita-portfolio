@@ -437,14 +437,29 @@ t("D11 …and it declares the same token set as the others, so nothing inherits 
  * ground at c 0.016 needs 117 degrees where c 0.030 needs 61. A band with one member has no
  * separation to enforce, and saying so beats inheriting 60 from a class it was measured on. */
 const BANDS = [
-  { label: "light", min: 0.920, max: 0.962, hueFloor: 60,
+  { label: "light", min: 0.920, max: 0.962, hueFloor: 60, floorUnit: "degrees",
     why: "the five shipped palettes. 60 degrees is measured on THIS band and the palette count is "
-       + "bounded by it — seven hues on a circle are 51.4 apart, so five real palettes is the ceiling." },
-  { label: "dark", min: 0.150, max: 0.200, hueFloor: null,
-    why: "the dark class. ONE member, so there is no pair to separate and no floor has been measured. "
-       + "It is null rather than 60 because 60 belongs to the light band's chroma, and a dark ground "
-       + "at c 0.016 would need 117 degrees for the same separation. Set it when a second dark "
-       + "palette is proposed, by measuring that palette's chroma." },
+       + "bounded by it — seven hues on a circle are 51.4 apart, so five real palettes is the ceiling. "
+       + "⚠ AND DEGREES IS PROBABLY THE WRONG UNIT HERE TOO, LATENT RATHER THAN BROKEN. It works only "
+       + "because every shipped light ground carries chroma (0.016 to 0.022) and NOTHING FORBIDS ZERO. "
+       + "An achromatic light palette — a paper or newsprint theme — has no hue, and this floor would "
+       + "be silent about it exactly as the dark band's would have been about Basalt. The hole is "
+       + "identical and only the dark band has met a member that exposes it. Move this to dE when one "
+       + "is proposed, or when the dark band's value is set and the two can share a unit." },
+  { label: "dark", min: 0.150, max: 0.200, hueFloor: null, floorUnit: "dE",
+    why: "the dark class. ONE member shipped, so there is no pair to separate and no floor has been "
+       + "measured. Null rather than 60 because 60 belongs to the light band's chroma — a dark ground "
+       + "at c 0.016 would need 117 degrees for the same separation. "
+       + "⚠ AND THE UNIT IS dE RATHER THAN DEGREES, WHICH IS A CANDIDATE PALETTE'S DOING. `Basalt` "
+       + "proposes a ZERO-CHROMA ground: it has no hue, so a floor in degrees is not merely wrong "
+       + "about it, it is SILENT — and silence reads as a pass. Same shape as a census row that "
+       + "cannot be matched by form: a member outside the predicate's vocabulary, passing because it "
+       + "cannot be evaluated. Measured, Basalt separates from the other three by dE 7.3 to 10.2 "
+       + "while two of its three degree figures are large and one is meaningless. "
+       + "⚠ THE VALUE STAYS NULL DELIBERATELY: four members with one achromatic is the wrong "
+       + "population to derive from, and the pair that would decide it — sapphire and Nocturne at 32 "
+       + "degrees and dE 4.7 — is a RENDER question rather than a derivation, the same one orchid and "
+       + "ultraviolet raised at 27. The first pair that looks too close sets it." },
 ];
 
 
@@ -905,6 +920,8 @@ t("L3b ⚠ AND A BAND WITH A FLOOR DOES NOT CLAIM OTHERWISE — the mutation tha
   BANDS.filter((b) => b.hueFloor !== null && /no floor has been measured/.test(b.why)).map((b) => b.label), []);
 t("L3c …and a stated floor names what it was measured ON, so it cannot be borrowed from another band",
   BANDS.filter((b) => b.hueFloor !== null && !/measured on THIS band/.test(b.why)).map((b) => b.label), []);
+t("L5 ⚠ EVERY BAND DECLARES ITS FLOOR UNIT — degrees is silent about an achromatic ground, and silence reads as a pass",
+  BANDS.filter((b) => !b.floorUnit).map((b) => b.label), []);
 t("L4 every band states WHY it exists and what its floor rests on",
   BANDS.filter((b) => !b.why || b.why.length < 60).map((b) => b.label), []);
 
