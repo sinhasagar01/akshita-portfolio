@@ -70,7 +70,7 @@ const tsxFilesForUsage = [];
 (function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
   const p = join(d, e.name);
   if (/node_modules|\.next|\.git|components\/studio|app\/studio/.test(p)) continue;
-  if (e.isDirectory()) walk(p); else if (/\.(tsx|ts)$/.test(e.name)) tsxFilesForUsage.push(p); }
+  if (e.isDirectory()) walk(p); else if (/\.(tsx|ts|css)$/.test(e.name)) tsxFilesForUsage.push(p); }
 })(new URL("../../components", import.meta.url).pathname);
 (function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
   const p = join(d, e.name);
@@ -931,6 +931,39 @@ console.log(`         ${NON_TEXT_ROWS.length} non-text rows to check against rea
  * implemented against ATTRIBUTES sees only half of them. */
 const violations = [];
 let windowsScanned = 0;
+
+/* ⚠ THE CSS PREDICATE — THE SUBJECT WAS WIDENED FIRST AND IT BOUGHT NOTHING. Admitting `.css` to
+ * the walk left the window count at 19, because the scan below reads `className` and a CSS rule has
+ * none. A WIDENED SUBJECT WITH AN UNCHANGED PREDICATE IS NOT A WIDENED SEARCH — every earlier
+ * boundary finding here was a subject too SMALL; that one was a subject correctly enlarged and a
+ * predicate that could not use it.
+ *
+ * Eleven CSS sites set `color:` to a token whose row calls it a mark, and two were a live AA
+ * failure on all four case studies. They were found BY HAND. This is what finds them next time.
+ *
+ * ⚠ IT REPORTS A CANDIDATE, NOT A VIOLATION, and deliberately so: a CSS rule names no ground, and
+ * the rail's real ground was `cream-50` at 86% over the page — a mix, not a token. The static form
+ * of this question cannot be answered, so it fails LOUD and is answered by naming the consumer. */
+const cssForUsage = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ");
+const cssCandidates = [];
+{
+  const lines = cssForUsage.split("\n");
+  let selector = "";
+  lines.forEach((ln, i) => {
+    const open = /^\s*([^{}]+?)\s*\{\s*$/.exec(ln);
+    if (open) selector = open[1];
+    const decl = /^\s*color:\s*var\(--color-([a-z0-9-]+)\)/.exec(ln);
+    if (!decl) return;
+    /* ⚠ ONE ENTRY PER SITE, NOT PER ROW. Six non-text rows share two foregrounds, so iterating rows
+     * counted each declaration up to three times — 24 for 11 real sites. A count inflated by the
+     * join is the wrong-unit shape, in a probe written to fix a wrong-subject one. */
+    if (NON_TEXT_ROWS.some((row) => decl[1] === row.fg))
+      cssCandidates.push(`globals.css:${i + 1} — ${decl[1]} as a foreground on \`${selector}\``);
+  });
+}
+console.log(`         ${cssCandidates.length} CSS foreground candidates for a non-text token`);
+
 for (const f of tsxFilesForUsage) {
   const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1");
   const lines = src.split("\n");
@@ -975,6 +1008,26 @@ console.log(`         ${windowsScanned} ground windows scanned for a foreground 
  * That case needs a RENDER — the ground only exists once the tree is assembled — which is where the
  * chip was confirmed too. Stated rather than papered over: one of the two failures this section was
  * written for is outside its reach, and the comment beside the readout is its only protection. */
+/* ⚠ RESOLVED BY HAND, EACH WITH WHAT IT PAINTS. A candidate leaves this list only when someone has
+ * looked at the element and the ground — which is what the two rail sites did not get for as long as
+ * the instrument could not see them. */
+const CSS_RESOLVED = {
+  "logo-singh": "the wordmark's tracked caps, on the nav glass — accent-500's own TEXT row covers it",
+  "logo-sig": "the script half of the wordmark, hover state, same ground and same row",
+  "header-mob-resume-pill": "text on the ACCENT fill, not a cream step — `on-accent`'s pairing",
+  "footer-chip": "a social glyph, hover — a mark rather than type",
+  "footer-label": "the social label, hover, on the footer ground",
+  "pr-here": "the process rail's position marker",
+  "next-rail-all": "a link — MOVED to text-secondary, it was 3.36 to 4.32 as ink-400",
+  "next-rail-eyebrow": "an eyebrow — MOVED to text-subtle, same measurement",
+  "next-rail-title": "the next-case title, hover",
+  "next-rail-arrow": "the arrow glyph",
+};
+t("Z-css ⚠ EVERY CSS FOREGROUND CANDIDATE IS RESOLVED BY NAME — the eleven were found by hand because nothing looked",
+  cssCandidates.filter((c) => !Object.keys(CSS_RESOLVED).some((k) => c.includes(k))).sort(), []);
+t("Z-css0 …and the scan found candidates at all, against a literal — an empty scan resolves nothing and passes",
+  cssCandidates.length >= 8, true);
+
 t("Z-ui ⚠ EVERY UI ROW NAMES WHAT DRAWS IT — the negative form was false three times out of three",
   USAGE.filter((r) => r.min === 3.0 && (!r.draws || r.draws.length < 40)).map((r) => r.key), []);
 t("M0 there ARE non-text rows to check — a zero would make M1 vacuous", NON_TEXT_ROWS.length >= 4, true);
