@@ -729,7 +729,7 @@ const GROUND_INVARIANT = {
  * STATE and a card TINT. Complete, measured, and still the wrong noun, in a registry two turns old.
  * That shape has now appeared in a spec, in a census and here. */
 const RATCHET = {
-  max: 10,
+  max: 9,
   why: "LADDER RUNGS painted directly by public surfaces — a rung is what a role resolves to, so a "
      + "site naming one directly has no ground answer. Plus `glow-web`, a per-category card tint, "
      + "which is decoration rather than a rung and is named here so the noun stays honest.",
@@ -751,6 +751,19 @@ const RATCHET = {
  * ⚠ IT IS A CLASS RATHER THAN AN INSTANCE. Every transition, keyframe and enter/exit state in the
  * repository pairs two values, and nothing has ever checked that both sides theme together. Section
  * N enumerates them. */
+/* ⚠ THE DEFINITION IS RESTATED ON THE PROPERTY, AND THE OLD WORDING DESCRIBED ITS MEMBERS RATHER
+ * THAN THE RULE. It read "values a context resolves that NO COMPONENT NAMES" — true of both members
+ * at the time, and incidental to what made them members.
+ *
+ * THE PROPERTY IS THAT THEY RESOLVE PER GROUND AND KEEP THEIR LIGHT VALUE UNTOUCHED. That is true of
+ * `case-study-sand` and `reveal-sand` as well, which is what makes this accurate rather than
+ * stretched — a definition widened to admit a case would not have to hold for the existing members,
+ * and this one does.
+ *
+ * ⚠ AND IT IS THE ONLY REPAIR THAT DOES NOT MOVE LIGHT PIXELS. Every role assignment — rung-wide or
+ * per-site — repaints six palettes to fix a dark page. THE LIGHT SIDE IS CORRECT AND ONLY THE DARK
+ * SIDE FAILS, and a value that is right on light and wrong on dark is exactly what a per-ground
+ * resolution is for. */
 const GROUND_SCOPED = {
   /* ⚠ THE VESSEL'S FIVE, MOVED HERE FROM THE DEFERRED REDRAW BECAUSE THE REDRAW HAPPENED. Each is
    * now read through a `--vessel-*` indirection that `[data-ground="dark"]` overrides — the light
@@ -761,6 +774,20 @@ const GROUND_SCOPED = {
   "vessel-pearl": "the body gradient's top stop, same mechanism.",
   "vessel-capsule": "the capsule's fill, same mechanism.",
   "vessel-ink": "the shadow and inset ring pigment. Takes `etch`'s treatment — its DIRECTION holds across the flip and only its magnitude collapses, and direction is what the ruling rested on.",
+  /* ⚠ THE REFUSAL STANDS AND THIS DOES NOT OVERTURN IT. #382 measured `cream-200` for a role and
+   * refused: gradient endpoints in four of its sites, one highlighted-state card, one illustration
+   * constant — NO SINGLE JOB. That is still true and it still has no role.
+   *
+   * ⚠ A REFUSAL TO NAME IS NOT A REFUSAL TO RESOLVE. Those are different questions about the same
+   * rung, and #382 answered the first correctly while never being asked the second. Counted: NINE of
+   * twelve sites are GROUNDS — pills, highlighted stat cards, feature cards, the experience photo
+   * wrapper — and every one has the identical dark problem. Two are gradient endpoints that follow
+   * their gradient, one is artwork excluded by file. Mixed for naming, uniform for resolving.
+   *
+   * This is what the six 2.60 rows sit on. */
+  "cream-200": "a ground with no single JOB and one single GROUND BEHAVIOUR — nine of twelve sites "
+    + "are filled chips, cards and wrappers that all need the same dark answer. Refused a role by "
+    + "#382 and that refusal stands; this resolves it per ground without naming it.",
   "case-study-sand": "a ROUTE's page ground, painted by `.case-study-bg` as a fixed full-bleed "
     + "layer. No component names it. Remapped to the page ground on dark.",
   "reveal-sand": "a TRANSITION's start state, settling to `var(--color-surface)`. No component "
@@ -938,13 +965,15 @@ for (const p2 of colourPairs) {
 }
 /* ⚠ ONE DECLARED STRADDLE, WITH THE REASON IT IS NOT FIXED HERE. Same discipline as the ratchet:
  * a known defect with a stated trigger, not an exemption claiming nothing is wrong. */
-const STRADDLE_DEFERRED = {
-  ".skill-pill:hover { background }": "rest is `cream-200` (static), hover is `surface` (remaps), so on a "
-    + "dark palette the pill sits LIGHT at rest with light text and DARKENS on hover. The fix is "
-    + "`surface-well` on the rest state, which MOVES LIGHT PIXELS — cream-200 and cream-100 are "
-    + "different colours — so it is a design decision rather than a wiring one. TRIGGER: the ladder "
-    + "regularisation, which is already its own unit and touches the same rungs.",
-};
+/* ⚠ EMPTY, AND IT EMPTIED BY BEING FIXED RATHER THAN BY BEING DELETED. `.skill-pill` sat here: rest
+ * on `cream-200` (static), hover on `surface` (remaps), so on a dark palette it was LIGHT at rest
+ * with light text and DARKENED on hover. Its trigger was named as the ladder regularisation.
+ *
+ * The real repair was neither — `cream-200` gained a DARK ANSWER without gaining a role, so both
+ * sides of the pair now remap and the straddle is gone. N3b caught that this registry had stopped
+ * describing anything, which is the half of a deferral registry that earns it: a stale entry warns
+ * about a defect that no longer exists and hides that nobody checked. */
+const STRADDLE_DEFERRED = {};
 const declaredKeys = Object.keys(STRADDLE_DEFERRED);
 const keyOf = (x) => x.slice(0, x.indexOf("}") + 1).trim();
 const undeclared = straddle.filter((x) => !declaredKeys.includes(keyOf(x)));
