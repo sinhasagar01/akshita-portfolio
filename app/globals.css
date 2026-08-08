@@ -334,8 +334,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   ============================================================================================ */
   /* The ground a content CARD draws on. 17 sites spelled it as the raw lightest cream before #382. */
   --color-surface:       var(--color-cream-50);
-  /* The ground a MEDIA FRAME draws — an image well, a video shell, a diagram's outer wrapper.
-     Recessed relative to `surface`, which is the stateable difference between the two. */
+  /* The ground a MEDIA FRAME draws — an image well, a video shell, a diagram wrapper. Recessed relative to `surface`, which is the stateable difference between the two. */
   --color-surface-well:  var(--color-cream-100);
   --color-border:        var(--color-cream-300);
   --color-text-primary:  var(--color-ink-950);
@@ -1475,6 +1474,15 @@ a {
      specifically, and nothing was checking it against the light site because the light site had two
      answers and no ruling. */
   --color-surface:       color-mix(in oklch, var(--color-on-dark) 8%, var(--color-band-dark));
+  /* ⚠ `cream-200` RESOLVES PER GROUND WITHOUT GAINING A ROLE. #382 refused it a name — gradient
+     endpoints in four sites, no single job — and that refusal stands. A REFUSAL TO NAME IS NOT A
+     REFUSAL TO RESOLVE: nine of its twelve sites are GROUNDS (pills, highlighted stat cards, feature
+     cards, the experience photo wrapper) and every one has the identical dark problem. Mixed for
+     naming, uniform for resolving.
+
+     A step ABOVE `surface`, because these are filled blocks sitting ON the page rather than recesses
+     in it. The light value is untouched — only this block overrides. */
+  --color-cream-200:     color-mix(in oklch, var(--color-on-dark) 12%, var(--color-band-dark));
   --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
   --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
   --color-text-primary:  var(--color-on-dark);
