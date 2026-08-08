@@ -328,6 +328,28 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ EIGHTEEN INSTANCES OF ONE GAP, AND IT CARRIES FORWARD AS A LIMIT RATHER THAN A BACKLOG ITEM:
+  NOTHING HERE CHECKS THAT A MEASUREMENT'S STATED SUBJECT IS THE ONE IT WAS TAKEN AGAINST.** Every
+  instrument in this repo checks VALUES. None checks PROVENANCE. The variants have been a wrong
+  element, a wrong threshold, a wrong predicate, a wrong property, a wrong population, a subject
+  supplied by a shell, and a count inflated by a join.
+
+  **⚠ THE LAST SEVERAL WERE FOUND BY READING A DOCUMENT RATHER THAN BY RUNNING ANYTHING** — the
+  unwired dark roles in a render, the unmeasured body in my own anatomy table, the split walk in a
+  census. **That is not a gap a gate can close**, and a gate for it would be the fourth form rule
+  wearing new clothes: it would check that a stated subject matches a declared one, and the defect is
+  always that the declaration was never written down.
+
+  The only thing that has reliably worked is **stating the subject beside the number** — "1.24, on
+  this element, on this ground" — which makes the mismatch visible at the moment of writing rather
+  than three turns later.
+
+  **⚠ AND THE EIGHTEENTH'S PLACEMENT IS THE WARNING:** a count inflated by a join, **inside a probe
+  written to fix a wrong-subject defect** — 24 candidates for 11 sites, because six rows sharing two
+  foregrounds were iterated per row rather than per declaration. **What proved the fix was the
+  reconciliation** (8 = 11 minus the three that had been moved), not the corrected number. A count
+  that merely looks better is not a count that has been checked.
+
 - **⚠ A UNIFORM RULE MEASURED IN THE WRONG SPACE REPORTS ITSELF AS SIX DIFFERENT RULES.** The
   vessel's tint was carried as a defect — *"7.0 to 14.0, a 2× spread, and no per-palette audit finds
   it because every palette is individually correct."* Measured properly, **every palette declares it
