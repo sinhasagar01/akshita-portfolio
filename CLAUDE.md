@@ -1105,6 +1105,41 @@ closed.
 
 ## Proof and verification
 
+- **⚠ CAPTURE THE EXIT CODE BEFORE ANY PIPE TOUCHES IT.** A pipeline's status is the LAST command's,
+  so `node ralph/run.mjs | tail -3 && git commit` gates on **`tail`**, which always succeeds. The
+  gate exists, is wired to the wrong subject, and reports success — and a commit goes out on a red
+  suite.
+
+  **THIRD OCCURRENCE, AND THE FIRST WHERE THE MECHANISM WAS IN PLACE.** The earlier two were fixed by
+  intention — remember to look — which is why they recurred. This one had the `&&` and lost it to a
+  pipe. Use `node ralph/run.mjs > /tmp/r.txt 2>&1; echo $?` and read the code, or `set -o pipefail`.
+
+  **It is the arc's own shape in a shell**: a check whose subject is not the one it appears to have.
+
+- **⚠ TWO GROUND-WALKS DISAGREE BY A FACTOR OF TWO, AND GROUND-WALKING IS HOW EVERY CONTRAST FIGURE
+  IN THIS PROJECT IS PRODUCED.** A sweep that composites through semi-transparent ancestors reported
+  `text-subtle` at **2.60**; a walk that stops at the first opaque ancestor finds a ground on which
+  it should measure about **5**. The usage map's grounds, the next-case rail's mix, the vessel's
+  stack and section M's candidates all rest on one or the other.
+
+  **⚠ THE TWO OUTCOMES ARE OPPOSITE AND BOTH ARE ACTIONABLE.** If the sweep is compositing a layer
+  the walk skips, some findings were real and **some passes are false**. If the walk is right, the
+  sweep has been **inventing failures**. Nobody knows which.
+
+  **RECONCILE BY PRINTING THE LAYERS, NOT THE VERDICTS** — which element each stops at and what it
+  composited on the way. A number from either is what misled all day, and both numbers are already
+  known. **And reconcile on a node both instruments agree they are looking at**: a `startsWith` match
+  found a `<strong>` while the sweep's row was a different node with the text "LTIMindtree ·
+  Bengaluru", so the disagreement may be two correct answers about two elements.
+
+- **⚠ SEVEN MEASUREMENTS PRODUCED AND SEVEN WITHHELD IN ONE SESSION, AND THREE WERE ABOUT THE SAME
+  SIX ROWS — EACH SUPERSEDING THE LAST.** `reveal-sand`'s start state, then an un-migrated ground,
+  then a ground that turned out to be correct. **Every one would have read as a finding.**
+
+  **THE COMPONENT DID NOT GET HARDER; THE REPORTING GOT SLOWER** — and that is the only reason none
+  of the three is in the record as fact. A wrong diagnosis costs a session; a wrong diagnosis written
+  down as a cause costs however long it takes the next person to stop believing it.
+
 - **⚠ SIX MEASUREMENTS WERE PRODUCED AND WITHHELD IN THE VESSEL IN ONE SESSION, EACH FOR A REASON THE
   PREVIOUS ONE TAUGHT — AND THAT IS THE POINT, NOT THE COST.** The tint's `N` against an assumed
   body, the shadow's 0.09×, the highlight's 76.0, a re-solve whose subject changed between runs, a
