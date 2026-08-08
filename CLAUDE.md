@@ -1105,6 +1105,23 @@ closed.
 
 ## Proof and verification
 
+- **⚠ SIX MEASUREMENTS WERE PRODUCED AND WITHHELD IN THE VESSEL IN ONE SESSION, EACH FOR A REASON THE
+  PREVIOUS ONE TAUGHT — AND THAT IS THE POINT, NOT THE COST.** The tint's `N` against an assumed
+  body, the shadow's 0.09×, the highlight's 76.0, a re-solve whose subject changed between runs, a
+  closed-form solve against a non-linear blend, and an `N` curve whose instrument failed its own
+  sanity check.
+
+  **EVERY ONE OF THOSE SIX WOULD HAVE PASSED REVIEW. FOUR OF THEM RECONCILED WITH THEIR
+  NEIGHBOURS.** They were internally consistent, checkable-looking, and produced by working
+  instruments pointed one step to the side of the question.
+
+  **The difference between this component's history and its present is not that the measurements got
+  better — it is that they stopped being reported before they were understood.** Five earlier
+  invalidations shipped as confident numbers and cost two arcs; the six above cost one session and
+  nothing else. **Withholding is the cheaper half of that trade every time**, and it does not feel
+  like it in the moment, which is why it is written here rather than left to judgement.
+
+
 - **`/dev` harness routes are DEV-ONLY.** They 404 under `next start`, so any proof gate that needs a production build cannot use them. Production verification of studio UI requires a real authenticated login, so it is owner-only. State it as UNVERIFIED rather than routing around it. Prefer fixes that remove the dependency being tested, the way #177 set the nav label colour explicitly rather than relying on inheritance, so that a dev-only proof holds in production by construction.
 
 ## Writing rules
