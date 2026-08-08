@@ -272,7 +272,7 @@ export default function HeroSection({
                     style={{
                       color:
                         i === active
-                          ? "var(--color-accent-600)"
+                          ? "var(--color-accent-text)"
                           : "var(--color-text-subtle)",
                     }}
                   >

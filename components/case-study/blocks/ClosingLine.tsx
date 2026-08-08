@@ -21,7 +21,7 @@ export default function ClosingLine({
     return (
       <p
         {...edit}
-        className={`font-display italic font-normal text-[34px] text-accent-600 leading-[1.3] max-w-[34ch] mx-auto text-center${aff}`}
+        className={`font-display italic font-normal text-[34px] text-accent-text leading-[1.3] max-w-[34ch] mx-auto text-center${aff}`}
       >
         {text}
       </p>
@@ -30,7 +30,7 @@ export default function ClosingLine({
   return (
     <p
       {...edit}
-      className={`font-display italic font-normal text-[34px] text-accent-600 leading-[1.3] max-w-[34ch]${aff}`}
+      className={`font-display italic font-normal text-[34px] text-accent-text leading-[1.3] max-w-[34ch]${aff}`}
     >
       {text}
     </p>

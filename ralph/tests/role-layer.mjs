@@ -74,6 +74,13 @@ const ROLES = {
   "etch": { rung: "ink-950", job: "the ink a SURFACE MARK is incised with — a hairline, a placeholder bar, a device dot; consumers supply the alpha" },
   "on-accent": { rung: "cream-50", job: "the foreground drawn ON the accent — a pill, a badge, a filled button" },
   "accent": { rung: "accent-500", job: "the brand mark colour, as a foreground and as a fill" },
+  /* ⚠ THE COLLISION IS DARK-ONLY AND IS NOT IN `MULTI_ROLE` DELIBERATELY. That registry keys on the
+   * LIGHT RUNG two roles share and this pair shares none — `accent` is accent-500, `accent-text` is
+   * accent-600. Filing it there would record it under a key that cannot express it, and C3/F2/F4
+   * caught exactly that when it was attempted. On dark both resolve to `accent-on-dark`, because the
+   * single dark accent already clears the text floor. ENDS IF A DARK PALETTE NEEDS A DARKER ACCENT
+   * FOR TEXT. */
+  "accent-text": { rung: "accent-600", job: "the accent at a lightness that CLEARS 4.5 AS TEXT on the cream ladder — eyebrows, links, the case-study h1. `accent` is the same brand colour as a MARK or fill and misses the floor on every cream step but the first." },
 
   /* ⚠ TWO PALETTE-DECLARED ROLES, AND THE CONTRACT WIDENED TO HOLD THEM. Every role above aliases a
    * LADDER RUNG. These two do not — each palette declares its own literal, and no palette's value
@@ -722,7 +729,7 @@ const GROUND_INVARIANT = {
  * STATE and a card TINT. Complete, measured, and still the wrong noun, in a registry two turns old.
  * That shape has now appeared in a spec, in a census and here. */
 const RATCHET = {
-  max: 11,
+  max: 10,
   why: "LADDER RUNGS painted directly by public surfaces — a rung is what a role resolves to, so a "
      + "site naming one directly has no ground answer. Plus `glow-web`, a per-category card tint, "
      + "which is decoration rather than a rung and is named here so the noun stays honest.",

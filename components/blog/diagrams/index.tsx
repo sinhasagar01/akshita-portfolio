@@ -37,7 +37,7 @@ function Label({ children, accent = false }: { children: ReactNode; accent?: boo
        FAIL at 11px, where AA needs 4.5 and nothing about tracked caps counts as large text. Caught
        by measuring all three palettes rather than by looking, because at a glance it reads as an
        ordinary quiet label. */
-    <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${accent ? "text-accent-600" : "text-text-secondary"}`}>
+    <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${accent ? "text-accent-text" : "text-text-secondary"}`}>
       {children}
     </p>
   );
@@ -91,8 +91,8 @@ function AssistantRoute() {
         {/* The bolted-on branch, hanging off the middle step. Dashed because it is the addition. */}
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
           <div className="flex flex-col items-center">
-            <span aria-hidden="true" className="text-accent-600">↑</span>
-            <div className="rounded-full border border-dashed border-accent-500/70 bg-accent-500/8 px-4 py-2 text-[0.8rem] text-accent-600">
+            <span aria-hidden="true" className="text-accent-text">↑</span>
+            <div className="rounded-full border border-dashed border-accent-500/70 bg-accent-500/8 px-4 py-2 text-[0.8rem] text-accent-text">
               Ask the assistant
             </div>
           </div>
@@ -117,7 +117,7 @@ function AssistantRoute() {
               <div key={k} className="h-5 flex-1 rounded border border-dashed border-accent-500/30" />
             ))}
           </div>
-          <p className="text-center text-[0.75rem] leading-[1.3] text-accent-600">
+          <p className="text-center text-[0.75rem] leading-[1.3] text-accent-text">
             Filter, read and export collapse into one step
           </p>
         </div>

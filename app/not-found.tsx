@@ -18,7 +18,7 @@ export default function NotFound() {
       >
         404
       </p>
-      <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-600 mt-2">
+      <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-text mt-2">
         Page not found
       </p>
       <h1 className="font-display font-normal text-[clamp(1.9rem,4.5vw,2.75rem)] text-text-primary leading-[1.1] mt-4">
@@ -30,7 +30,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent mt-9 transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+        className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent mt-9 transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
       >
         Back to home
       </Link>
