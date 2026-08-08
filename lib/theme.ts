@@ -190,7 +190,32 @@ const UNSELECTABLE: Record<string, string> = {
      ⚠ THE TWO-PREDICATE DESIGN IS VINDICATED RATHER THAN QUESTIONED BY THIS. `data-nav-tone` means
      "what is behind my translucent surface is dark", and on a dark page that is TRUE — the fix is
      in the TRIGGER, not the vocabulary. Clears when the nav retones on a dark page. */
-  sapphire: "held until the glass nav retones on a dark PAGE — its links measure 1.29 there",
+  /* ⚠ THE PREVIOUS CONDITION WAS MET AND THE THEME WAS STILL NOT SHIPPABLE, WHICH IS WHY THIS IS
+     REWRITTEN RATHER THAN DELETED. It read "held until the glass nav retones on a dark PAGE — its
+     links measure 1.29 there". #396's predicate fixed that: swept at rest, `data-nav-tone` is dark
+     and the links measure 7.68 against a 4.5 floor.
+
+     ⚠ A HOLD IS A GATE WRITTEN IN PROSE AND IT HAS THE SAME FAILURE MODE — a stated condition
+     narrower than the real one, satisfied while the thing it protects against remains. Unholding on
+     the old text would have been technically correct and would have shipped AA failures on the home
+     page. Same shape as the usage map's negative product claims, in a different medium.
+
+     THE REAL CONDITION, IN A FORM THAT CAN BE CHECKED: 103 visible text nodes sweep clean on the
+     dark home page. TEN FAIL TODAY, and every one is a `role-layer` RATCHET member — the eleven raw
+     rungs whose ceiling only falls. So the ratchet and this hold are ONE unit, and the count is the
+     clearing condition.
+
+     ⚠ AND THE TEN ARE TWO DIFFERENT KINDS, WHICH THE REPAIR MUST NOT CONFLATE. The 2.13 eyebrows are
+     raw accent rungs that never remap — straightforward members. The 2.60 experience rows are
+     `text-subtle` CORRECTLY REMAPPED, failing on a ground that is still light — a correctly-migrated
+     foreground on an un-migrated ground, where fixing the foreground would be the wrong repair.
+
+     ⚠ AND THAT GROUND IS NOT YET IDENTIFIED. It was reported as `reveal-sand`'s start state, and
+     `reveal-sand` was remapped in #399 — so that diagnosis is wrong or incomplete and the real
+     ground has not been found. Third time in this arc a ground resolving elsewhere has produced a
+     failure that looks like a foreground defect, and the first where the wrong ground was named. */
+  sapphire: "held until the dark home page sweeps clean — 10 of 103 text nodes fail today, all "
+    + "role-layer ratchet members, and the ground under the 2.60 rows is unidentified",
   /* ⚠ ORCHID WAS HELD HERE AND IS UNHELD IN #374. THE HOLD IS KEPT IN THE RECORD RATHER THAN
      DELETED, because a hold whose reasoning vanishes leaves no way to tell a considered release
      from a forgotten one.
