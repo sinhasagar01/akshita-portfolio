@@ -328,6 +328,35 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ THE VESSEL'S BODY IS THE ARC'S RECURRING WRONG SUBJECT — IT HAS INVALIDATED FOUR MEASUREMENTS
+  NOW.** The tint's `N`, the shadow's 0.09× and the highlight's 76.0 were all solved against an
+  assumed body and had to be re-derived when the real one turned out to be the PAGE. The anatomy
+  table called the body "a surface that must invert"; it is a **pass-through** — a wash at 78% over
+  whatever is behind, so on light it IS the page. **That error survived two arcs.**
+
+  **⚠ AND THE FOURTH IS OPEN AS THIS IS WRITTEN.** A re-solve used `canvas` where an earlier probe
+  used `vessel-pearl`, so its two moved values (harbour 5→11, cerise 4→12) are either a real
+  near-edge finding or an artefact of my changing the subject between runs. **Neither reading is
+  available until the body is settled** — so derive it FROM THE RENDERED STACK rather than from any
+  table, and re-solve once against that.
+
+- **⚠ A UNANIMOUS RESULT ON THE WRONG QUANTITY READS AS OVERWHELMING EVIDENCE.** The pigment model's
+  direction test **passed six for six** and was blind by construction: it measured the shift's
+  direction against the BODY, where the failure is the pigment's position relative to the SURFACE.
+  Two quantities one step apart, and the passing one was the one chosen.
+
+  **Every earlier instance in this arc had at least one figure that looked odd.** Six-for-six had
+  none, which is what made it persuasive — so **a clean sweep is a reason to re-read the predicate,
+  not to stop checking.**
+
+- **⚠ AND A CONTROL IS WHAT MAKES A FAILURE DIAGNOSABLE RATHER THAN SWEEPING.** Basalt's zero-chroma
+  ground broke the vessel's tint and **left `rule` untouched** — 43.0 / 69.8 / 80.5 light and
+  22.2 / 36.0 / 41.6 dark, within 1% of cream's figures. One mechanic held and one failed **under the
+  same condition**, so the cause is the tint's derivation rather than achromacy.
+
+  **Without the control, "Basalt breaks the pigment model" would have been the conclusion, and it is
+  false.** When a new member breaks something, check what it did NOT break before naming the cause.
+
 - **⚠ EIGHTEEN INSTANCES OF ONE GAP, AND IT CARRIES FORWARD AS A LIMIT RATHER THAN A BACKLOG ITEM:
   NOTHING HERE CHECKS THAT A MEASUREMENT'S STATED SUBJECT IS THE ONE IT WAS TAKEN AGAINST.** Every
   instrument in this repo checks VALUES. None checks PROVENANCE. The variants have been a wrong
