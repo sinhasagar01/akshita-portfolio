@@ -73,28 +73,50 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 ## Open items
 
-- **⚠ THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE, AND IT IS NOT SAPPHIRE'S DEFECT.** The pressed
-  chip measures **2.03** against a 4.5 floor on harbour and on every light palette, and has since it
-  was built. The unpressed chips measure **1.30 and 1.90** on dark. Sapphire unheld without it,
-  because a defect six palettes ship is not a reason to withhold a seventh.
+- **⚠ THE WORK FILTER'S TEXT CONTRAST WAS NEVER THE DEFECT. THIS ITEM'S OWN FIGURES DO NOT
+  REPRODUCE.** It read, verbatim: *"THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE, AND IT IS NOT
+  SAPPHIRE'S DEFECT. The pressed chip measures 2.03 against a 4.5 floor on harbour and on every light
+  palette, and has since it was built. The unpressed chips measure 1.30 and 1.90 on dark."* Measured
+  from the paint, resolved in scope at the button, sanity pair 21.000 first, on all six palettes:
 
-  **⚠ ITS GROUND IS `.wf-thumb`, A POSITIONED SIBLING UNDER THE BUTTON BY z-index**, and
-  `.work-filter button` is `background: transparent` — so every cascade walk climbs past the thumb to
-  the container. **THE CASCADE DOES NOT MODEL PAINT ORDER**, and five source-based analyses of this
-  element were each wrong about something different, including which ground fails.
+      pressed label on the thumb        19.04 18.78 18.90 18.88 18.82 18.89   floor 4.5
+      unpressed label on the surface     7.42  7.11  7.18  8.95  8.73  7.42   floor 4.5
+      THUMB AGAINST THE SURFACE         19.04 18.78 18.90 18.88 18.82  1.17   floor 3.0
+                                        cream harb  orch  ceri  fern  SAPPHIRE
 
-  Measured so far, so the next attempt does not repeat it:
-  **pressed** — `on-accent` 2.03 light; `text-primary` 2.03 light and 2.23 dark; `band-dark` 7.99
-  dark but regressed light-pressed and both unpressed. **Three foregrounds tested and the FILL never
-  varied**, which is the untried half.
-  **unpressed** — a pixel strip through one shows **two grounds**, `52,58,64` and `24,30,37`, so the
-  container's fill does not extend under every chip. **The PAINTED foreground is still unestablished**
-  — every reading has used `getComputedStyle(btn).color`, which is the one input never checked and the
-  same class of reading that has been wrong five times here.
+  **⚠ WHERE THE FALSE FIGURES CAME FROM, BOTH NAMED.** `getComputedStyle(btn).color` returns
+  `oklch(0.985 0.007 250)` verbatim on this site, not an `rgb()` string, and **a `\d+` parse of it
+  yields 0, 985, 0** — a plausible triple describing nothing. And the "two grounds" was **an
+  antialiased edge**: all 189 distinct values in the unpressed crop reproduce as the ONE surface
+  `#181e25` composited with the ONE foreground `#a8adb2` at some coverage, to within ±1, and
+  `rgb(52,58,64)` is **2 pixels of 8880 — 0.02% — at ~20% glyph coverage.** The container's fill
+  extends under every chip. It also said *"the PAINTED foreground is still unestablished"*; it is now,
+  and **the glyph reaches its declared colour exactly, Δ0.0 on every sample.**
 
-  **The thumb is `ink-950`, a ratchet member**, so its migration is owed regardless — but vary it with
-  the foreground held constant. A joint change already regressed three states to repair one.
+  **⚠ AND THE FIGURES WERE CITED IN RULINGS, INCLUDING THE OWNER'S. Three prompts ranked work on 2.03
+  and on 1.30/1.90.** A false record nothing acts on is cheap. This one **directed a session and a
+  half** — three foregrounds tested against a failure that was not there, a revert, and an item
+  carried at the top of this list. The record is the thing that has to be right, because it is what
+  gets read instead of measured.
 
+  **⚠ THE REAL DEFECT IS THE AFFORDANCE, AND IT IS SAPPHIRE-ONLY: 1.17.** `ink-950` against the
+  control's surface reads 18.78 to 19.04 on the five light palettes and **1.17 on sapphire** — the
+  selected pill is very nearly invisible. Nothing had put a number on it because **every previous
+  figure was about text.**
+
+  **⚠ WHICH INVERTS THE ITEM'S HEADLINE AND UNDERCUTS WHAT THE UNHOLD RESTED ON.** Sapphire was
+  unheld partly on *"a defect six palettes ship is not a reason to withhold a seventh"* — and this
+  is not a defect six palettes ship. **It arrived with the dark ground, it is live now that sapphire
+  is published, and the belief that the remaining failures were pre-existing on light was founded on
+  the figures above that do not reproduce.** The unhold may still be right; it is not right *for that
+  reason*.
+
+  **⚠ THE PAIR IS THE VARIABLE, AND EVERY ATTEMPT SO FAR SEARCHED A LINE THROUGH A PLANE.** Holding
+  the foreground and varying the fill: no single fill clears both floors on all six. `text-primary`
+  repairs the affordance to 15.20 and destroys legibility to 1.06, because on a dark ground it and
+  `on-accent` are both near-white. `accent-500` is closest at **6/6 legibility and 2.91 on sapphire
+  against a 3.0 floor.** The thumb and the label are **one pair, not two variables** — holding one is
+  what bounds the other, which is why three foregrounds and six fills each regressed something.
 
 - The five experience descriptions are still empty. Write them or decide to drop the field. The
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
