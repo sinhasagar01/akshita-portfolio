@@ -193,6 +193,18 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
 
   /* The first dark palette. The measure is still a FONT fact and sapphire changes no font, so it
      inherits for the same reason harbour and orchid do. */
+  /* The second dark palette. Inherits for the same reason sapphire does — it changes no font. */
+  nocturne: {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
+
   sapphire: {
     bodyFont: "Work Sans",
     measure68chPx: 676.734,

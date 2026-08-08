@@ -613,15 +613,105 @@ t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — across classes the compa
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].ground, HUES[b].ground)}`), []);
 t("D12f ⚠ AND CROSS-BAND PAIRS ARE COUNTED RATHER THAN SILENTLY DROPPED — a skipped pair must be visible",
   typeof crossBandPairs === "number" && crossBandPairs >= 0, true);
-t("D12d ⚠ NOR TWO ACCENTS — the accent is the colour a visitor remembers, and NOTHING checked it",
-  PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 30)
+/* ⚠ 24, LOWERED FROM 30 ON A RENDER — AND THIS ROW STAYS CROSS-BAND ON PURPOSE. Unlike D12 and
+ * D12e below, an accent/accent comparison DOES apply across bands: accents are drawn at comparable
+ * lightness and chroma on a light palette and a dark one, and a person switching themes meets them
+ * in sequence. So the pair is real and only a render can settle it.
+ *
+ * THE RENDER: sapphire's accent beside nocturne's at 24 degrees, each drawn ALONE on a shared
+ * neutral ground — alone, because side by side any two hues differ and that is not what switching a
+ * theme looks like. Criterion stated before looking: would a person switching say the site changed
+ * theme, or that something shifted slightly? Sapphire reads BLUE and nocturne reads VIOLET. Two
+ * nameable colours, so: two themes.
+ *
+ * ⚠ AND THE NUMBER THAT MADE IT UNCOMFORTABLE IS RECORDED BESIDE IT, because a floor lowered on a
+ * render should carry it. sapphire/nocturne is 47.2 in perceptual distance against harbour/fern's
+ * 95.4 — the precedent, ruled distinct at 31.3 degrees — so this pair is 49% OF IT and is now THE
+ * CLOSEST PAIR THE SYSTEM CARRIES by both measures. Distinct on the criterion, and the closest it
+ * has come. Both halves are true and the second is why 24 is a floor rather than a direction. */
+t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, and 24 was lowered from 30 on a render",
+  PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 24)
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].accent, HUES[b].accent)}`), []);
 /* ⚠ ORDERED, BOTH WAYS. The defect is asymmetric — a ground ON another palette's accent — so a
- * pair list that compares each duo once would miss it in one direction. */
-t("D12e ⚠ AND NO PALETTE'S GROUND SITS ON ANOTHER'S ACCENT — the exact shape that would have passed",
-  REAL.flatMap((a) => REAL.filter((b) => b !== a)
-    .filter((b) => arc(HUES[a].ground, HUES[b].accent) < 25)
-    .map((b) => `${a} ground h${HUES[a].ground} on ${b} accent h${HUES[b].accent}`)), []);
+ * pair list that compares each duo once would miss it in one direction.
+ *
+ * ⚠ SAME-BAND, AND THE REASON MATTERS BECAUSE THE FIRST ONE GIVEN WAS WRONG. This was ruled
+ * band-aware on the grounds that a dark palette's ground and a light palette's accent are NEVER
+ * PAINTED TOGETHER. That argument PROVES TOO MUCH: no two palettes are ever painted together, same
+ * band or not, so it would justify DELETING this row rather than scoping it — and the row's origin
+ * was a real refusal between two LIGHT palettes, a candidate green whose ground sat exactly on
+ * harbour's accent hue.
+ *
+ * ⚠ A PREDICATE THAT PROVES TOO MUCH IS WORSE THAN NO PREDICATE, BECAUSE IT READS AS RIGOUR.
+ *
+ * WHAT THIS ROW ACTUALLY MEASURES IS SEQUENTIAL CONFUSABILITY. If palette A's page ground is palette
+ * B's accent hue, then switching from B to A reads as B's accent having FLOODED THE PAGE — the two
+ * themes are confusable in a way neither ground/ground nor accent/accent catches. That is the same
+ * kind of argument as D12d's, and it is about what a visitor meets in sequence.
+ *
+ * ⚠ BAND-AWARENESS SURVIVES THE CORRECTED REASON, WHICH IS WHY THE SCOPE STANDS. A ground at L17 and
+ * a ground at L92 do not read as one flooding into the other at ANY hue — that is D12's own reason
+ * and it transfers intact. The outcome was right for a different argument than the one first given.
+ *
+ * D12 was made band-aware in #389 and D12d and D12e were left flat; nobody noticed until a dark
+ * palette reached them. D12d keeps its cross-band scope on the opposite argument — two accents ARE
+ * met in sequence and are drawn at comparable lightness and chroma. One row becomes band-aware; the
+ * other keeps its scope and lowered its floor on a render. Two rulings, deliberately not one edit. */
+/* ⚠ dE, NOT DEGREES — AND THIS IS THE ONE GATE-VOCABULARY CASE WHERE WIDENING THE MATCHER DOES NOT
+ * HELP. Six others this arc were repaired by widening a predicate to its concept. Here DEGREES ARE
+ * THE WRONG AXIS: a ground and an accent differ by ~35 lightness units and roughly 7x in chroma BY
+ * CONSTRUCTION, so hue alone can never decide whether they are confusable.
+ *
+ * Measured across all 22 same-band pairs, the two units RANK DIFFERENT PAIRS. Closest by degrees is
+ * `nocturne ground on sapphire accent` at 10 degrees — and 201.8 apart, the FIFTH-WIDEST of the 22.
+ * Closest by distance is `cream ground on orchid accent` at 195.4, a hundred and eight degrees apart.
+ * Rendered, the degree-closest pair is a near-black beside a vivid blue.
+ *
+ * ⚠ AND THE ORIGIN REFUSAL MAY HAVE BEEN FALSE. This row was justified by a candidate green refused
+ * for a ground sitting EXACTLY on harbour's accent hue — which is precisely the axis now known to be
+ * wrong. Its values are not in the repo and cannot be rechecked. A REFUSAL PRODUCED BY A UNIT NOW
+ * KNOWN TO BE WRONG IS NOT EVIDENCE THE ROW WORKS, and it has been cited as this row's justification.
+ * Recorded without assuming it either way.
+ *
+ * ⚠ THE ROW IS KEPT RATHER THAN RETIRED, AND NOT BECAUSE THE CASE IS LIKELY. "Grounds at L17 or L92
+ * and accents at L52 cannot converge" is today's STRUCTURE, not a law — a palette with a darker
+ * accent or a mid-toned ground brings them together, and this row is what would notice. Deleting it
+ * would be a claim that the case cannot arise, made on an argument rather than a measurement. */
+const D12E_FLOOR = 48;
+/* ⚠ THE GROUND TOKEN IS PER CLASS, as `groundLightness` already knows — `canvas` IS the page ground
+ * on a light palette and is NOT on a dark one, where `band-dark` is. Reading `canvas` for everyone is
+ * the classifier defect section L was rewritten to remove, and it must not reappear here. */
+const rgbOf = (n, tok) => parseColor(paletteOf(n)[tok] ?? "");
+const groundRgb = (n) => rgbOf(n, GROUND_TOKEN[THEME_GROUND[n]] ?? "canvas");
+const dist3 = (a, b) => (a && b) ? Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) : null;
+const groundAccent = REAL.flatMap((a) => REAL.filter((b) => b !== a && sameBand(a, b))
+  .map((b) => ({ key: `${a} ground on ${b} accent`, de: dist3(groundRgb(a), rgbOf(b, "accent-500")) })))
+  .filter((x) => x.de !== null).map((x) => ({ ...x, de: +x.de.toFixed(1) }));
+const gaMin = groundAccent.length ? Math.min(...groundAccent.map((x) => x.de)) : null;
+console.log(`         ${groundAccent.length} same-band ground/accent pairs; closest ${gaMin} (floor ${D12E_FLOOR})`);
+
+t("D12e-0 ⚠ THE SUBJECT IS NON-EMPTY, against a literal — a same-band filter that matched nothing would pass silently",
+  groundAccent.length >= 10, true);
+t(`D12e ⚠ NO PALETTE'S GROUND SITS ON ANOTHER'S ACCENT — dE below ${D12E_FLOOR}, same-band, because across bands two grounds never compete`,
+  groundAccent.filter((x) => x.de < D12E_FLOOR).map((x) => `${x.key} ${x.de}`), []);
+/* ⚠ THE FLOOR'S WEAKNESS IS ASSERTED, NOT LEFT IN PROSE. The population's closest pair is 195.4 —
+ * FOUR TIMES the floor — so no shipped palette comes near it and THIS GUARD HAS NEVER FIRED FOR A
+ * REAL REASON. Its pass is therefore not evidence of anything, and this row says so out loud so the
+ * next reader does not read a green tick as a measurement.
+ *
+ * 48 is anchored on the ONLY judged datapoint available: sapphire and nocturne's accents at 47.2,
+ * looked at on a render and ruled two themes rather than one. So the floor means "closer than the
+ * closest pair anyone has judged distinct". PROVISIONAL. What would calibrate it is a real pair
+ * somebody looks at and calls confusable; until then it is an anchor, not a measurement. */
+/* ⚠ AGAINST A LITERAL, NOT AGAINST THE FLOOR IT GUARDS. The first version asserted
+ * `gaMin > D12E_FLOOR * 3` — derived from the very number it exists to characterise, so LOWERING THE
+ * FLOOR WOULD LOWER THE GUARD WITH IT and the row would go on reporting the floor as comfortable.
+ * A denominator guard derived from its own subject guards nothing; caught by mutation, and it is the
+ * same defect `theme` V4 had this same session. 150 is a literal for that reason. */
+t("D12e-a ⚠ AND THE FLOOR IS PROVISIONAL — the closest shipped pair is 195.4, four times it, so a pass here is not evidence",
+  gaMin !== null && gaMin >= 150, true);
+t("D12e-b ⚠ AND THE CROSS-BAND PAIRS IT SKIPS ARE COUNTED — a dropped comparison nobody can see is one nobody chose",
+  REAL.flatMap((a) => REAL.filter((b) => b !== a && !sameBand(a, b))).length > 0, true);
 
 console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is computed or listed BY NAME");
 

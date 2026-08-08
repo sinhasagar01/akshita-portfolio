@@ -1191,6 +1191,74 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-web: oklch(48.0% 0.083 227);
 }
 
+/* ============================================================================================
+   NOCTURNE — the second dark palette. Deep indigo ground at h282, violet accent at h296.
+
+   ⚠ THE PREVIEW SPECIFIES FIVE OF THESE THIRTY-FIVE. `docs/dark-mode-studio.html` draws a DARK
+   ladder — `band-dark`, `on-dark`, `on-dark-muted`, `on-dark-quote` and the accent's dark value are
+   the tokens it covers. The other thirty are the light ladder and the effect tokens, which a dark
+   palette still carries because every theme declares the same set, and WHICH THE DARK PREVIEW DOES
+   NOT CONTAIN. So this palette is not "matching the preview" and no such claim is made for it.
+
+   ⚠ EVERY TOKEN HERE IS DERIVED AND NONE IS REVIEWED. The derivation is sapphire's RULE — each
+   token as (lightness, chroma x this palette's own base chroma, this palette's own hue + offset) —
+   applied to Nocturne's two drawn colours. Copying another palette's NUMBERS is what the convention
+   forbids and what the instrument refuses; copying the DERIVATION is what the arc built.
+
+   ⚠ GAMUT BEFORE CONTRAST, ON THE LITERAL THAT SHIPS. Three tokens were capped at their own hue's
+   ceiling — `cream-50` 0.011 to 0.007, `cream-100` 0.024 to 0.016, `bounce` 0.005 to 0.003 — and the
+   worst remaining overshoot is 0.43 against an epsilon of 0.5. Measured on the rounded string, so
+   the value tested and the value written cannot differ.
+
+   Contrast, sanity pair 21.000 first. On the dark ground: on-dark 17.30, on-dark-muted 8.41,
+   on-dark-quote 8.17, the accent's own dark value 6.85. On canvas: ink-950 15.57, ink-800 12.26, ink-600 7.29,
+   text-body 8.04, text-subtle 5.02, accent-500 4.66, accent-600 6.32. The tightest is accent-500
+   at 4.66.
+
+   ⚠ UNRENDERED. Sapphire and Nocturne sit 32 degrees and dE 4.7 apart, and whether they read as two
+   themes or one is a RENDER question that sets the dark band's hue floor. Until that is looked at,
+   this palette is built and not judged.
+============================================================================================ */
+[data-theme="nocturne"] {
+  --vessel-dark-n: 4%;
+  --color-cream-50:          oklch(98.5% 0.007 282);
+  --color-cream-100:         oklch(96.8% 0.016 282);
+  --color-cream-200:         oklch(93.5% 0.029 282);
+  --color-cream-300:         oklch(88.0% 0.033 282);
+  --color-canvas:            oklch(92.0% 0.024 282);
+  --color-ink-950:           oklch(15.0% 0.039 282);
+  --color-ink-800:           oklch(26.2% 0.038 282);
+  --color-ink-600:           oklch(40.0% 0.030 282);
+  --color-ink-400:           oklch(56.0% 0.030 282);
+  --color-ink-200:           oklch(80.0% 0.023 282);
+  --color-accent-500:        oklch(52.0% 0.160 296);
+  --color-accent-600:        oklch(45.0% 0.164 296);
+  --color-text-subtle:       oklch(48.7% 0.030 282);
+  --color-text-body:         oklch(37.5% 0.026 282);
+  --color-rule:              oklch(48.5% 0.039 282);
+  --color-band-dark:         oklch(17.0% 0.024 282);
+  --color-on-dark:           oklch(96.5% 0.008 282);
+  --color-on-dark-muted:     oklch(74.5% 0.014 282);
+  --color-on-dark-quote:     oklch(74.5% 0.108 296);
+  --color-accent-on-dark:    oklch(70.0% 0.130 296);
+  --color-smoke-1:           oklch(0.84 0.020 282 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.020 282 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.014 282 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.017 282 / 0.74);
+  --color-vessel-ink:        rgb(10, 10, 27);
+  --color-vessel-capsule:    rgb(198, 198, 207);
+  --color-vessel-glass:      oklch(94.5% 0.027 282);
+  --color-vessel-pearl:      oklch(96.5% 0.014 282);
+  --color-vessel-shadow:     oklch(92.5% 0.021 282);
+  --color-vessel-wave:       oklch(93.5% 0.017 282);
+  --color-glow-paper:        oklch(0.63 0.160 296 / 0.2);
+  --color-bounce:            oklch(99.5% 0.003 282);
+  --color-reveal-sand:       oklch(85.0% 0.041 267);
+  --color-case-study-sand:   oklch(88.5% 0.033 272);
+  --color-glow-web:          oklch(48.0% 0.125 259);
+}
+
+
 
 
 

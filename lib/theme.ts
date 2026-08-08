@@ -87,8 +87,12 @@ export const FIFTH_THEME = "fern";
  * class it is not in. */
 export const SIXTH_THEME = "sapphire";
 
+/** The second dark palette. Deep indigo ground at h282 under a violet accent at h296. Built from
+ *  the rules rather than from sapphire's values, and UNRENDERED — see its block in globals.css. */
+export const SEVENTH_THEME = "nocturne";
+
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -141,6 +145,9 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [FIFTH_THEME]: "light",
   /* ⚠ THE ONLY DARK MEMBER. Its page ground is `band-dark`, not `canvas`. */
   [SIXTH_THEME]: "dark",
+  /* The second dark member. Declared, never inferred — a classifier reading a value files a dark
+     palette in the light band, which is the defect this declaration exists to prevent. */
+  [SEVENTH_THEME]: "dark",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
 };
@@ -300,6 +307,7 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [FOURTH_THEME]: { cream: "#fef8f8", ink: "#190405", muted: "#574141", accent: "#d12d6b" },
   [FIFTH_THEME]: { cream: "#f4fdf1", ink: "#020f03", muted: "#3e4c3f", accent: "#4b7f20" },
   [SIXTH_THEME]: { cream: "#f7fbff", ink: "#040c16", muted: "#404952", accent: "#495bcb" },
+  [SEVENTH_THEME]: { cream: "#f9faff", ink: "#09081b", muted: "#454658", accent: "#734fb9" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -311,6 +319,7 @@ export const THEME_SPLASH: Record<string, string> = {
   [FOURTH_THEME]: "#FEF8F8",
   [FIFTH_THEME]: "#F4FDF1",
   [SIXTH_THEME]: "#F7FBFF",
+  [SEVENTH_THEME]: "#F9FAFF",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };
