@@ -715,7 +715,7 @@ const GROUND_INVARIANT = {
  * STATE and a card TINT. Complete, measured, and still the wrong noun, in a registry two turns old.
  * That shape has now appeared in a spec, in a census and here. */
 const RATCHET = {
-  max: 12,
+  max: 11,
   why: "LADDER RUNGS painted directly by public surfaces — a rung is what a role resolves to, so a "
      + "site naming one directly has no ground answer. Plus `glow-web`, a per-category card tint, "
      + "which is decoration rather than a rung and is named here so the noun stays honest.",
@@ -738,6 +738,15 @@ const RATCHET = {
  * repository pairs two values, and nothing has ever checked that both sides theme together. Section
  * N enumerates them. */
 const GROUND_SCOPED = {
+  /* ⚠ THE VESSEL'S FIVE, MOVED HERE FROM THE DEFERRED REDRAW BECAUSE THE REDRAW HAPPENED. Each is
+   * now read through a `--vessel-*` indirection that `[data-ground="dark"]` overrides — the light
+   * side is byte-identical because it is not re-expressed at all. No component names any of them. */
+  "vessel-glass": "the pane's angled tint. Dark override mixes it toward the ground, so hue and chroma hold and only lightness inverts.",
+  "vessel-wave": "the inset wave highlight, same mechanism as the tint.",
+  "vessel-shadow": "the body gradient's mid stop, same mechanism.",
+  "vessel-pearl": "the body gradient's top stop, same mechanism.",
+  "vessel-capsule": "the capsule's fill, same mechanism.",
+  "vessel-ink": "the shadow and inset ring pigment. Takes `etch`'s treatment — its DIRECTION holds across the flip and only its magnitude collapses, and direction is what the ruling rested on.",
   "case-study-sand": "a ROUTE's page ground, painted by `.case-study-bg` as a fixed full-bleed "
     + "layer. No component names it. Remapped to the page ground on dark.",
   "reveal-sand": "a TRANSITION's start state, settling to `var(--color-surface)`. No component "
@@ -758,9 +767,11 @@ const GROUND_SCOPED = {
  *
  * Predicted at 1.20 by the dark render two arcs ago and now measured on a real page. Its own unit. */
 const DEFERRED_REDRAW = {
-  tokens: ["bounce", "smoke-1", "smoke-2", "smoke-3", "smoke-4", "vessel-capsule",
-           "vessel-glass", "vessel-ink", "vessel-pearl", "vessel-shadow", "vessel-wave"],
-  why: "the reading vessel's MATERIAL — a translucent light body whose optics do not invert",
+  tokens: ["bounce", "smoke-1", "smoke-2", "smoke-3", "smoke-4"],
+  why: "⚠ WHAT IS LEFT OF THE VESSEL AFTER THE REDRAW TURNED OUT TO BE A MIGRATION. `bounce` is "
+     + "GROUND-CONTINGENT and deliberately kept — 8.5 on light against 82.3 on dark, so deleting it "
+     + "would strip the mechanic from the ground it works best on. The four smoke stops are still "
+     + "raw and are the only genuinely open part.",
 };
 
 const subject = [...consumers.keys()].filter((t2) => paletteTokens.has(t2)).sort();
