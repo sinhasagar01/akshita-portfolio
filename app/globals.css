@@ -223,6 +223,24 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   /* ⚠ TWO MORE VESSEL TONES, FOUND ONLY WHEN THE MATCHER LEARNED `rgba()`. #338 claimed the vessel
      was fully converted; its verification regex had no `rgba(` branch and reported zero for eleven
      survivors. Judged at highest alpha per the rule that PR established. */
+  /* ⚠ THE TINT RULE, AND ITS REFERENCE IS `vessel-glass` — NAMED HERE BECAUSE IT WAS NOT, AND A RULE
+     WHOSE REFERENCE IS UNNAMED GETS "CORRECTED" BY THE NEXT PERSON TO CHECK IT.
+
+         pearl = glass  +2.00 L   -0.009..-0.013 C   +0.00 H
+
+     Exact on all three components across all six palettes. Checked against the three references a
+     reader would reach for first, EVERY ONE OF WHICH DISAGREES CONVINCINGLY: against `cream-50` the
+     lightness steps spread -2.0 to -6.5 and the chroma steps -0.006 to 0.018 WITH SIGN CHANGES on
+     fern; against `canvas` they spread 0.0 to 4.5 and -0.010 to 0.009; against `band-dark`, 74.5 to
+     79.5 and -0.022 to 0.003. Three plausible, checkable-looking refutations of a rule that holds.
+
+     ⚠ SO THE FAILURE MODE HERE IS THE READER'S, NOT THE WRITER'S. The magnitudes were verifiable and
+     the reference was not, and a wrong reference does not produce nonsense — it produces a confident
+     correction. `theme` section V asserts the relation so the rule is checked rather than described.
+
+     ⚠ AND IT IS THE TERM THAT BLOCKS AN ACHROMATIC PALETTE. At chroma 0 the -0.011 goes NEGATIVE and
+     clamps, collapsing the four tones onto 4.0 L units alone where every shipped palette carries the
+     separation in lightness AND chroma together. */
   --vessel-dark-n: 5%;
   --color-vessel-ink:     rgb(23, 20, 18);
   --color-vessel-capsule: rgb(222, 213, 199);

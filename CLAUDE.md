@@ -363,6 +363,30 @@ closed.
   about the ground** — not after the reasoning fails. Every cheaper method is a model of the paint,
   and this project has now found two components where the models disagree with it.
 
+- **⚠ A RULE WHOSE REFERENCE IS UNNAMED WILL BE "CORRECTED" BY THE NEXT PERSON TO CHECK IT.** The
+  vessel's tint rule was recorded as *"every palette declares it identically: lightness step −2, hue
+  delta 0, chroma step 0.009–0.013"* — **correct, exact, and referenced to nothing.** It is `pearl`
+  against `glass`, a relation INSIDE the vessel.
+
+  **⚠ CHECKED AGAINST THE THREE REFERENCES A READER REACHES FOR FIRST, ALL THREE DISAGREE
+  CONVINCINGLY** — against `cream-50` the lightness steps spread −2.0 to −6.5 and the chroma steps
+  −0.006 to 0.018 **with sign changes on fern**; against `canvas`, 0.0 to 4.5 and −0.010 to 0.009;
+  against `band-dark`, 74.5 to 79.5 and −0.022 to 0.003. **Against `glass` it is dL 2.00, dH 0.00 and
+  dC −0.009 to −0.013 on all six palettes, exact on every component.**
+
+  **⚠ SO THIS IS THE MISSING-SUBJECT DEFECT ARRIVING FROM THE READER'S SIDE.** Every earlier instance
+  was a number that described the wrong thing. **This one was RIGHT, and three plausible refutations
+  of it were available to anyone who checked.** A wrong reference does not produce nonsense — it
+  produces a confident correction, which is worse, because a correction gets written down.
+
+  **THE REPAIR IS THE SAME AS EVER AND IT IS STILL CHEAP: NAME THE REFERENCE BESIDE THE RULE.**
+  `theme` section V now asserts the relation, so the reference is mechanical rather than prose.
+
+  **⚠ AND THE CHROMA TERM IS WHAT BLOCKS AN ACHROMATIC PALETTE.** At chroma 0 the step goes negative
+  and clamps, collapsing the four vessel tones onto **4.0 lightness units alone** where every shipped
+  palette carries the separation in lightness and chroma together. `V4` fails by name rather than
+  letting it render flat and be judged by eye.
+
 - **⚠ BEFORE SEARCHING A MULTI-VARIABLE SPACE, CHECK WHETHER THE OBJECTIVE DEPENDS ON EVERY
   VARIABLE.** The work filter's two floors are `legibility = ratio(label, fill)` and
   `affordance = ratio(fill, surface)`. **The label appears nowhere in the second.** Three sessions

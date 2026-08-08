@@ -458,5 +458,72 @@ t("J2 ⚠ EVERY PALETTE IN THE STYLESHEET IS IN `THEME_NAMES` — an unregistere
 t("J3 …and every registered name has a block or is the default, so the two lists agree both ways",
   THEME_NAMES.filter((n) => n !== DEFAULT_THEME && !declaredThemes.includes(n)), []);
 
+
+/* ============================================================================================
+   V · THE VESSEL'S TINT RULE, AND ITS REFERENCE.
+
+   ⚠ THE RULE IS `pearl` AGAINST `glass`, NOT AGAINST ANY GROUND. It was recorded as "lightness step
+   -2, hue delta 0, chroma step 0.009-0.013" with NO REFERENCE NAMED, and it reproduces against none
+   of the three a reader reaches for first — `cream-50`, `canvas` and `band-dark` each return a
+   spread wide enough to look like a refutation, one of them WITH SIGN CHANGES. A wrong reference
+   does not produce nonsense; it produces a confident correction.
+
+   ⚠ SO THIS SECTION EXISTS TO MAKE THE REFERENCE MECHANICAL. Prose naming a reference is a claim
+   nothing reads — the `count:` and `category:` defects one more time.
+
+   ⚠ V3 ASSERTS A SIGNED BAND, NOT A MAGNITUDE, AND A MUTATION IS WHY. The first version took
+   `Math.abs`, and dropping glass's chroma below pearl's flipped the step to +0.009 — INSIDE the
+   magnitude band, with the tint inverted. `pearl` is always the LESS chromatic of the two; that is
+   part of the rule and a magnitude cannot say it.
+
+   ⚠ AND V4's FIRST VERSION WAS A GUARD DERIVED FROM ITS OWN SUBJECT. It computed `glass.c + step`
+   where `step` is `pearl.c - glass.c`, so it was asserting `pearl.c >= 0` — true by construction for
+   any authored value, and it SURVIVED the mutation it was written for. The floor is now the RULE's
+   own constant, so a palette cannot hollow it out by declaring a smaller step.
+============================================================================================ */
+/* The rule's own constants. A gate comparing against these cannot be satisfied by moving the subject. */
+const TINT_dL = 2.00, TINT_dC_MIN = -0.013, TINT_dC_MAX = -0.009;
+
+const vBlocks = {};
+for (const m of cssSrc.matchAll(/\[data-theme="([a-z-]+)"\]\s*\{/g)) {
+  const o = cssSrc.indexOf("{", m.index); let d = 0, e = -1;
+  for (let i = o; i < cssSrc.length; i++) { if (cssSrc[i] === "{") d++; else if (cssSrc[i] === "}" && --d === 0) { e = i; break; } }
+  vBlocks[m[1]] = cssSrc.slice(o + 1, e);
+}
+{
+  const at = cssSrc.indexOf("@theme"), o = cssSrc.indexOf("{", at); let d = 0, e = -1;
+  for (let i = o; i < cssSrc.length; i++) { if (cssSrc[i] === "{") d++; else if (cssSrc[i] === "}" && --d === 0) { e = i; break; } }
+  vBlocks[DEFAULT_THEME] = cssSrc.slice(o + 1, e);
+}
+const vOklch = (blk, tok) => {
+  const m = blk?.match(new RegExp(`--color-${tok}\\s*:\\s*oklch\\(\\s*([\\d.]+)%?\\s+([\\d.]+)\\s+([\\d.]+)`));
+  return m ? { l: +m[1], c: +m[2], h: +m[3] } : null;
+};
+/* The subject is DERIVED from the palettes that declare a vessel, never enumerated — an enumerated
+ * subject is correct the day it is written and falls behind its population from then on. */
+const vSubjects = Object.keys(vBlocks)
+  .filter((n) => vOklch(vBlocks[n], "vessel-glass") && vOklch(vBlocks[n], "vessel-pearl")).sort();
+const vRows = vSubjects.map((n) => {
+  const g = vOklch(vBlocks[n], "vessel-glass"), pl = vOklch(vBlocks[n], "vessel-pearl");
+  return { n, dL: +(pl.l - g.l).toFixed(4), dC: +(pl.c - g.c).toFixed(4), dH: +(pl.h - g.h).toFixed(4), glassC: g.c };
+});
+for (const r of vRows) console.log(`         ${r.n.padEnd(12)} pearl-vs-glass  dL ${r.dL}  dC ${r.dC}  dH ${r.dH}   glass c ${r.glassC}`);
+
+t("V0 ⚠ THE TINT SUBJECT IS NON-EMPTY AND COVERS EVERY PALETTE THAT DECLARES A VESSEL, against a literal",
+  vSubjects.length >= 5, true);
+t("V0a …and it is derived from the stylesheet rather than listed, so a new palette joins it automatically",
+  vSubjects.filter((n) => !THEME_NAMES.includes(n)), []);
+t("V1 ⚠ THE LIGHTNESS STEP IS EXACTLY 2.00 FROM `vessel-glass` — the reference the rule never named",
+  vRows.filter((r) => Math.abs(r.dL - TINT_dL) > 0.001).map((r) => `${r.n} dL ${r.dL}`), []);
+t("V2 …and the hue delta is exactly 0, so the tint is one hue at two lightnesses",
+  vRows.filter((r) => r.dH !== 0).map((r) => `${r.n} dH ${r.dH}`), []);
+t("V3 ⚠ AND THE CHROMA STEP IS A SIGNED BAND, -0.013 to -0.009 — a magnitude passes an inverted tint",
+  vRows.filter((r) => r.dC < TINT_dC_MIN - 1e-9 || r.dC > TINT_dC_MAX + 1e-9).map((r) => `${r.n} dC ${r.dC}`), []);
+/* ⚠ V4 IS THE ACHROMATIC TRIPWIRE, AND ITS FLOOR IS THE RULE'S CONSTANT. A ground at chroma 0 cannot
+ * take the step at all, so the rule degenerates to lightness alone — and silence reads as a pass,
+ * the same shape as a hue floor in degrees being SILENT about a palette with no hue. Fail by name. */
+t("V4 ⚠ EVERY VESSEL'S GLASS CARRIES ENOUGH CHROMA FOR THE RULE'S OWN STEP — below 0.013 the tint collapses onto lightness alone",
+  vRows.filter((r) => r.glassC < -TINT_dC_MIN - 1e-9).map((r) => `${r.n}: glass c ${r.glassC} < ${-TINT_dC_MIN}`), []);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
