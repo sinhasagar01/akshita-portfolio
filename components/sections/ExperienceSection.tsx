@@ -78,7 +78,11 @@ export default function ExperienceSection({ experience }: Props) {
             {/* Eyebrow */}
             <div
               className="relative flex items-center gap-[7px] text-[12px] tracking-[.16em] uppercase font-semibold"
-              style={{ color: "var(--color-accent-500)" }}
+              /* ⚠ TEXT takes `accent-text`; the dot above it keeps `accent`. Same element tree, two
+                 roles, split by KIND rather than by ground — the dot is a mark and this is read.
+                 Measured 4.36 against a 4.5 floor on the dark page, which is 0.14 short and still
+                 short. */
+              style={{ color: "var(--color-accent-text)" }}
             >
               <span
                 aria-hidden
