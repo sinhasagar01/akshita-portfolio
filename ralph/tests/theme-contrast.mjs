@@ -70,13 +70,22 @@ const tsxFilesForUsage = [];
 (function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
   const p = join(d, e.name);
   if (/node_modules|\.next|\.git|components\/studio|app\/studio/.test(p)) continue;
-  if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFilesForUsage.push(p); }
+  if (e.isDirectory()) walk(p); else if (/\.(tsx|ts)$/.test(e.name)) tsxFilesForUsage.push(p); }
 })(new URL("../../components", import.meta.url).pathname);
 (function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
   const p = join(d, e.name);
   if (/node_modules|\.next|\.git|app\/studio/.test(p)) continue;
-  if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFilesForUsage.push(p); }
+  if (e.isDirectory()) walk(p); else if (/\.(tsx|ts|css)$/.test(e.name)) tsxFilesForUsage.push(p); }
 })(new URL("../../app", import.meta.url).pathname);
+/* ⚠ THE WALK ADMITS .ts AND .css NOW, AND IT DID NOT. A `.tsx`-only subject over a system whose
+ * CSS holds hundreds of colour declarations hid ELEVEN foreground sites from section M — two of
+ * which were a live AA failure on all four case studies, `ink-400` drawn as text in the next-case
+ * rail while its own row called it non-text.
+ *
+ * ⚠ SECOND TIME THIS EXACT BOUNDARY HAS HIDDEN A POPULATION. The role migration walked `.tsx`
+ * over a stylesheet holding 81 raw rungs. Both times the denominators INSIDE the subject were
+ * sound — which is why neither was caught by a count. A sweep bounded by directory still has a
+ * boundary by file type, and a denominator computed inside the walk cannot see it. */
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -169,7 +178,18 @@ for (const k of PUBLIC) {
  * theme; THIS DOES NOT. Every foreground below was confirmed to have public consumers by count
  * before it was written down, so no row is invented. */
 const TEXT = (fg, bgs, note) => bgs.map((bg) => ({ key: `${fg} on ${bg}`, fg, bg, min: 4.5, kind: "external", note }));
-const UI = (fg, bgs, note) => bgs.map((bg) => ({ key: `${fg} on ${bg} (non-text)`, fg, bg, min: 3.0, kind: "external", note }));
+/* ⚠ A UI ROW NAMES ITS CONSUMER, AND `draws` IS REQUIRED. Three UI rows have existed and ALL THREE
+ * WERE FALSE — accent-500's "non-text everywhere else" (the rating chip), ink-400's "never text"
+ * (the love readout), and ink-400 again (the next-case rail's eyebrow and link). That is the
+ * population, not a sample.
+ *
+ * ⚠ THE ASYMMETRY IS STRUCTURAL RATHER THAN STATISTICAL. A TEXT row claims a pair IS text and its
+ * foreground is drawn, so the claim is checkable against the thing it describes. A UI row in the old
+ * form claimed an element is NOT text — a claim about everywhere it is not, which nothing in this
+ * map can falsify. So the negative form is gone: a row states WHAT DRAWS IT and ON WHAT GROUND THAT
+ * WAS MEASURED, and `Z-ui` fails a row that does not. A fourth row cannot be written in the old
+ * shape by someone who has not read this. */
+const UI = (fg, bgs, draws) => bgs.map((bg) => ({ key: `${fg} on ${bg} (non-text)`, fg, bg, min: 3.0, kind: "external", draws }));
 const GROUNDS = ["canvas", "cream-50", "cream-100", "cream-200"];
 
 const USAGE = [
@@ -219,8 +239,12 @@ const USAGE = [
      they land, which is what makes a single-site fix honest rather than a patch. Section M asserts
      every non-text row against a real consumer, so the claim cannot be false again in silence. */
   ...TEXT("accent-500", ["cream-50"], "text on cream-50 only — misses cream-100 by 0.02"),
-  ...UI("accent-500", ["canvas", "cream-100", "cream-200"], "non-text ONLY — asserted by section M"),
-  ...UI("ink-400", ["cream-50", "cream-100", "cream-200"], "non-text ONLY — asserted by section M"),
+  ...UI("accent-500", ["canvas", "cream-100", "cream-200"],
+    "the work-card category tint and the process diagram's accent outline — marks, not glyphs, "
+    + "measured on those grounds. Its ONE text consumer is the row above, on cream-50."),
+  ...UI("ink-400", ["cream-50", "cream-100", "cream-200"],
+    "icon rests — the stepper's inactive dots and the device-shelf marks. NOT the next-case rail, "
+    + "which drew it as text at 3.36 to 4.32 until the eyebrow took text-subtle and the link text-secondary."),
 
   /* ⚠ INTERNAL. THE GROUND LADDER IS THIS DESIGN'S OWN NUMBER, NOT WCAG'S. cream-50/cream-100 sits
      at exactly 1.05, which is where the floor came from, so a theme with a different ladder may
@@ -951,6 +975,8 @@ console.log(`         ${windowsScanned} ground windows scanned for a foreground 
  * That case needs a RENDER — the ground only exists once the tree is assembled — which is where the
  * chip was confirmed too. Stated rather than papered over: one of the two failures this section was
  * written for is outside its reach, and the comment beside the readout is its only protection. */
+t("Z-ui ⚠ EVERY UI ROW NAMES WHAT DRAWS IT — the negative form was false three times out of three",
+  USAGE.filter((r) => r.min === 3.0 && (!r.draws || r.draws.length < 40)).map((r) => r.key), []);
 t("M0 there ARE non-text rows to check — a zero would make M1 vacuous", NON_TEXT_ROWS.length >= 4, true);
 t("M0a …and the scan found grounds to look inside, against a literal", windowsScanned >= 3, true);
 t("M1 ⚠ NO NON-TEXT TOKEN IS DRAWN AS TEXT ON THE GROUND ITS ROW NAMES — the claim both rows got wrong",
