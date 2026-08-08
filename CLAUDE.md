@@ -328,6 +328,40 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ A UNIFORM RULE MEASURED IN THE WRONG SPACE REPORTS ITSELF AS SIX DIFFERENT RULES.** The
+  vessel's tint was carried as a defect — *"7.0 to 14.0, a 2× spread, and no per-palette audit finds
+  it because every palette is individually correct."* Measured properly, **every palette declares it
+  identically**: lightness step −2, hue delta 0, chroma step 0.009–0.013.
+
+  **The spread was in the instrument.** Separation was taken as euclidean sRGB distance, and a fixed
+  OKLCH step maps to different sRGB distances at different hues — sRGB holds ~0.289 of chroma at h300
+  and ~0.126 at h158. Orchid (most room) reports the smallest at 7.0; fern (least) the largest at
+  14.0, which is the exact inverse relationship. **This is "chroma is not comparable across hues"
+  arriving in separation rather than in gamut.**
+
+  **⚠ AND THE FRAMING WAS THE DEFECT, NOT JUST THE NUMBER.** It was stated as *a uniform rule
+  producing six different results*. It is **a uniform rule producing one result, measured in a space
+  that reports it six ways** — and the first framing is the more interesting claim, which is why it
+  survived unexamined and nearly bought a round of renders and a by-eye ruling for a unit with no
+  subject.
+
+- **⚠ A DISTANCE IS NOT A DIRECTION, AND A ROTATION IS NOT AN APPEARANCE.** Two figures, one gap.
+  The first measured a tint's SEPARATION from its body and offered it as colour IDENTITY — five
+  palettes would have shifted by 3.7 to 9.5 under a claim of "zero pixels move". The second measured
+  the ROTATION OF THE SHIFT the tint applies and read it as the tint's own rotation: fern's 79° said
+  "possibly a different material", and the two renders are unmistakably one object.
+
+  **BOTH NUMBERS WERE CORRECT ABOUT A QUANTITY NOBODY WAS LOOKING AT.**
+
+  **⚠ AND THE ACTIONABLE HALF IS THAT THE RIGHT NUMBER WAS ALREADY AVAILABLE: fern's TOKEN hue moves
+  138 → 145.7, under eight degrees.** That figure would have answered it without a render. So the
+  render confirmed what a better-chosen measurement would also have shown — **ask what the
+  measurement is a measurement of**, arriving once more from the far side.
+
+  The control is what makes the ruling safe rather than lucky: harbour at 0° and sapphire at 7° read
+  as one material across both grounds, so fern is the model's **limit** and not its refutation. **A
+  model that stretched everywhere would be a model that was wrong.**
+
 - **⚠ EVERY EARLIER INSTANCE PRODUCED A FALSE VALUE. THIS ONE WOULD HAVE PRODUCED A FALSE LIMIT.**
   A probe evaluating whether built colours could be traced to source **dropped the source colour's
   own alpha** — `--color-smoke-3` is declared at .74, mixed at 72%, folds to .5328 — and reported
