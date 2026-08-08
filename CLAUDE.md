@@ -73,50 +73,26 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
 
 ## Open items
 
-- **⚠ THE WORK FILTER'S TEXT CONTRAST WAS NEVER THE DEFECT. THIS ITEM'S OWN FIGURES DO NOT
-  REPRODUCE.** It read, verbatim: *"THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE, AND IT IS NOT
-  SAPPHIRE'S DEFECT. The pressed chip measures 2.03 against a 4.5 floor on harbour and on every light
-  palette, and has since it was built. The unpressed chips measure 1.30 and 1.90 on dark."* Measured
-  from the paint, resolved in scope at the button, sanity pair 21.000 first, on all six palettes:
+- **⚠ THE WORK FILTER IS CLOSED, AND WHAT IT WAS IS NOT WHAT THE RECORD SAID.** The item here read
+  *"THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE... The pressed chip measures 2.03... The
+  unpressed chips measure 1.30 and 1.90 on dark."* **None of those figures reproduce.** Measured from
+  the paint, in scope, sanity pair 21.000 first, the two text floors clear on all six palettes —
+  18.78 to 19.04 pressed and 7.11 to 8.95 unpressed — and **the glyph reaches its declared colour
+  exactly, Δ0.0 on every sample.** Two named causes: `getComputedStyle(btn).color` returns
+  `oklch(0.985 0.007 250)` here rather than an `rgb()` string and a digit-run parse of it yields
+  0, 985, 0; and the "two grounds" was **an antialiased edge**, `rgb(52,58,64)` being 2 pixels of
+  8880 at ~20% coverage.
 
-      pressed label on the thumb        19.04 18.78 18.90 18.88 18.82 18.89   floor 4.5
-      unpressed label on the surface     7.42  7.11  7.18  8.95  8.73  7.42   floor 4.5
-      THUMB AGAINST THE SURFACE         19.04 18.78 18.90 18.88 18.82  1.17   floor 3.0
-                                        cream harb  orch  ceri  fern  SAPPHIRE
+  **THE REAL DEFECT WAS THE AFFORDANCE AND IT WAS SAPPHIRE-ONLY: the thumb measured 1.17 against the
+  control's surface**, 18.78 to 19.04 on the five light palettes. Fixed by making the pair explicit —
+  fill `text-primary`, label `surface` — which is **byte-identical to the shipped pair on every
+  light palette** and takes sapphire to 15.20. One `ink-950` ratchet member discharged.
 
-  **⚠ WHERE THE FALSE FIGURES CAME FROM, BOTH NAMED.** `getComputedStyle(btn).color` returns
-  `oklch(0.985 0.007 250)` verbatim on this site, not an `rgb()` string, and **a `\d+` parse of it
-  yields 0, 985, 0** — a plausible triple describing nothing. And the "two grounds" was **an
-  antialiased edge**: all 189 distinct values in the unpressed crop reproduce as the ONE surface
-  `#181e25` composited with the ONE foreground `#a8adb2` at some coverage, to within ±1, and
-  `rgb(52,58,64)` is **2 pixels of 8880 — 0.02% — at ~20% glyph coverage.** The container's fill
-  extends under every chip. It also said *"the PAINTED foreground is still unestablished"*; it is now,
-  and **the glyph reaches its declared colour exactly, Δ0.0 on every sample.**
-
-  **⚠ AND THE FIGURES WERE CITED IN RULINGS, INCLUDING THE OWNER'S. Three prompts ranked work on 2.03
-  and on 1.30/1.90.** A false record nothing acts on is cheap. This one **directed a session and a
-  half** — three foregrounds tested against a failure that was not there, a revert, and an item
-  carried at the top of this list. The record is the thing that has to be right, because it is what
-  gets read instead of measured.
-
-  **⚠ THE REAL DEFECT IS THE AFFORDANCE, AND IT IS SAPPHIRE-ONLY: 1.17.** `ink-950` against the
-  control's surface reads 18.78 to 19.04 on the five light palettes and **1.17 on sapphire** — the
-  selected pill is very nearly invisible. Nothing had put a number on it because **every previous
-  figure was about text.**
-
-  **⚠ WHICH INVERTS THE ITEM'S HEADLINE AND UNDERCUTS WHAT THE UNHOLD RESTED ON.** Sapphire was
-  unheld partly on *"a defect six palettes ship is not a reason to withhold a seventh"* — and this
-  is not a defect six palettes ship. **It arrived with the dark ground, it is live now that sapphire
-  is published, and the belief that the remaining failures were pre-existing on light was founded on
-  the figures above that do not reproduce.** The unhold may still be right; it is not right *for that
-  reason*.
-
-  **⚠ THE PAIR IS THE VARIABLE, AND EVERY ATTEMPT SO FAR SEARCHED A LINE THROUGH A PLANE.** Holding
-  the foreground and varying the fill: no single fill clears both floors on all six. `text-primary`
-  repairs the affordance to 15.20 and destroys legibility to 1.06, because on a dark ground it and
-  `on-accent` are both near-white. `accent-500` is closest at **6/6 legibility and 2.91 on sapphire
-  against a 3.0 floor.** The thumb and the label are **one pair, not two variables** — holding one is
-  what bounds the other, which is why three foregrounds and six fills each regressed something.
+  **⚠ THE ELEMENT IS AN INVERTED GROUND AND NO ROLE NAMES ONE**, so both roles are used against their
+  names — a text role draws a fill and a ground role draws text. **Recorded rather than resolved**,
+  and it is the second such consumer. **If a third appears the role is missing rather than the
+  consumers being odd**, and it gets weighed against #382's test then: a role invented for one or two
+  sites is a second spelling entering the layer at birth. `role-layer` section O asserts the PAIR.
 
 - The five experience descriptions are still empty. Write them or decide to drop the field. The
   decision is worth as much as the copy, and leaving it undecided is what has kept it open.
@@ -386,6 +362,22 @@ closed.
   The practical form: when a colour question turns on a ground, **sample the pixel before reasoning
   about the ground** — not after the reasoning fails. Every cheaper method is a model of the paint,
   and this project has now found two components where the models disagree with it.
+
+- **⚠ BEFORE SEARCHING A MULTI-VARIABLE SPACE, CHECK WHETHER THE OBJECTIVE DEPENDS ON EVERY
+  VARIABLE.** The work filter's two floors are `legibility = ratio(label, fill)` and
+  `affordance = ratio(fill, surface)`. **The label appears nowhere in the second.** Three sessions
+  varied the FOREGROUND against a defect that is a function of the FILL ALONE — a search that could
+  not have succeeded at any value, and every attempt "regressed something" because it was moving the
+  only variable the objective did not contain.
+
+  **⚠ AND THE FACTORISATION IS WHAT MADE THE SEARCH TRIVIAL.** Solve affordance over fills first —
+  four of ten survive — then legibility over the survivors. **Ten pairs clear both floors on all six
+  palettes**, in one pass, after three sessions of one-at-a-time attempts found none.
+
+  **THE TELL IS A SEQUENCE OF ATTEMPTS THAT EACH FIX ONE THING AND BREAK ANOTHER.** That reads as a
+  hard trade-off and is often a variable being moved that the objective does not depend on. Same
+  family as *"ask what the measurement is a measurement of"*, arriving in the SEARCH rather than in
+  the instrument.
 
 - **⚠ AN ASSERTION WHOSE PROSE AND WHOSE DATA DESCRIBE DIFFERENT THINGS, WITH NOTHING COMPARING
   THEM.** `A8a` read *"the selectable set is the six real palettes — five light and one dark"* and

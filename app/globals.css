@@ -2725,12 +2725,22 @@ a {
   background: var(--color-surface);
 }
 .wf-thumb {
+  /* ⚠ THE THUMB IS AN INVERTED GROUND, AND `ink-950` COULD NOT BE ONE. A raw rung does not remap
+     under `[data-ground="dark"]`, so on the one dark palette this pill stayed near-black on a
+     near-black surface and measured 1.17 against a 3.0 floor — the selected segment was very
+     nearly invisible. `text-primary` resolves to the SAME BYTES as `ink-950` on all five light
+     palettes and to `on-dark` on the dark one, so the repair is sapphire-only by construction:
+     1.17 -> 15.20, zero light pixels moved, proved by value rather than asserted.
+
+     ⚠ ITS LABEL IS PART OF THE SAME DECISION AND MUST MOVE WITH IT — see the pressed rule below.
+     `role-layer` section O asserts the PAIR, because a check on either half passes on five
+     palettes by coincidence, which is exactly how this shipped. */
   position: absolute;
   top: 3px;
   left: 3px;
   height: calc(100% - 6px);
   border-radius: 99px;
-  background: var(--color-ink-950);
+  background: var(--color-text-primary);
   z-index: 0;
   transition:
     transform 420ms cubic-bezier(0.16, 0.9, 0.28, 1),
@@ -2756,34 +2766,26 @@ a {
   color: var(--color-text-primary);
 }
 .work-filter button[aria-pressed="true"] {
-  /* This block's previous comment asserted a text defect that does not exist. It read: "UNRESOLVED,
-     AND THE CANDIDATES ARE EXHAUSTED RATHER THAN UNTRIED. Sampled by pixel on both grounds:
-     `on-accent` gives 2.03 on light... AND THE UNPRESSED CHIPS FAIL ON DARK INDEPENDENTLY — 1.30 and
-     1.90... a pixel strip through one shows two grounds."
+  /* ⚠ `on-accent` NAMED A GROUND THIS ELEMENT IS NOT. It is the foreground for an ACCENT ground and
+     the thumb is not accent-coloured, so it stayed near-white on both grounds while its fill
+     inverted. Paired with the `text-primary` fill above it would have read 1.06 on sapphire.
+     `surface` is the page's own ground colour, which is what an inverted segment's label wants:
+     byte-identical to `on-accent` on all five light palettes, and near-black on the dark one.
 
-     ⚠ NONE OF THOSE FIGURES REPRODUCE. Measured from the paint, resolved in scope at the button,
-     sanity pair 21.000 first: the pressed label on this thumb is 18.78 to 19.04 across all six
-     palettes, and an unpressed label on the control surface is 7.11 to 8.95. Both floors clear
-     everywhere. The glyph reaches its declared colour EXACTLY, delta 0.0 on every sample.
+     ⚠ AND BOTH ROLES ARE NOW USED AGAINST THEIR NAMES — RECORDED, NOT RESOLVED. A text role draws a
+     fill and a ground role draws text, because THE ELEMENT IS AN INVERTED GROUND AND NO ROLE NAMES
+     ONE. That is honest rather than sloppy, and this is the SECOND inverted-ground consumer this arc
+     has found.
 
-     ⚠ TWO NAMED CAUSES. `getComputedStyle(btn).color` returns `oklch(0.985 0.007 250)` here rather
-     than an `rgb()` string, and a digit-run parse of that yields 0, 985, 0 — a plausible triple
-     describing nothing. And the "two grounds" was an ANTIALIASED EDGE: every one of the 189 distinct
-     values in the unpressed crop reproduces as the ONE surface composited with the ONE foreground at
-     some coverage, within 1 byte, and `rgb(52,58,64)` is 2 pixels of 8880 at about 20% coverage. The
-     container's fill DOES extend under every chip.
+     ⚠ IF A THIRD APPEARS, THE ROLE IS MISSING RATHER THAN THE CONSUMERS BEING ODD. Say it that way
+     so the next one is recognised instead of re-derived — and weigh it against #382's test THEN,
+     not now: a role invented for one or two sites is a second spelling entering the layer at birth,
+     which is what that PR spent its length refusing three times.
 
-     ⚠ THE REAL DEFECT IS THE AFFORDANCE AND IT IS SAPPHIRE-ONLY. `.wf-thumb` against this control's
-     surface reads 18.78 to 19.04 on the five light palettes and 1.17 on sapphire. Every earlier
-     figure here was about TEXT, so nothing had ever put a number on whether the selected pill is
-     visible at all. It is not, on the one palette that is published.
-
-     ⚠ AND THE FOREGROUND AND THE FILL ARE ONE PAIR. Holding this colour and varying the fill, no
-     single fill clears both floors on all six: `text-primary` lifts the affordance to 15.20 and
-     drops legibility to 1.06, because on a dark ground it and `on-accent` are both near-white.
-     Three foregrounds and six fills have each regressed something, and every one of them varied ONE
-     side of a two-dimensional problem. */
-  color: var(--color-on-accent);
+     Measured, sanity pair 21.000 first, resolved in scope at the button, on all six palettes:
+     label on thumb 19.04 18.78 18.90 18.88 18.82 15.20, floor 4.5; thumb on surface the same six
+     figures, floor 3.0. Both clear everywhere for the first time. */
+  color: var(--color-surface);
 }
 .work-filter button:disabled {
   opacity: 0.4;
