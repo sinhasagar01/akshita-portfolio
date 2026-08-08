@@ -333,8 +333,17 @@ console.log(`         ${styleObjs.length} style objects mention the accent`);
 /* ⚠ E4's DENOMINATOR, AND IT WAS LOST IN AN EDIT. Rewriting the property parser dropped this row,
  * and E4 went on passing — over a scan whose subject nothing was asserting. Exactly the empty-subject
  * shape, introduced by a repair to the same section. */
-t("E3 the style-object scan has subjects — two of this rule's four sites live in this form",
-  styleObjs.length >= 5, true);
+/* ⚠ THE FLOOR WAS 5 AND THE POPULATION IS NOW 1, BECAUSE THE SUBJECT MOVED RATHER THAN VANISHED.
+ * This collects style objects that MENTION THE ACCENT, and migrating 60 raw `accent-500` sites to
+ * `--color-accent` took it from 30 to 1 — the remaining one is inside an artwork constant, excluded
+ * from the sweep by file.
+ *
+ * ⚠ NOT A STATED ABSENCE, BECAUSE THE SET IS NOT EMPTY, and not a manufactured subject either. The
+ * floor tracks the real population so E4 still cannot pass vacuously, and it is a CONSTANT rather
+ * than derived from `styleObjs` — a guard computing its expectation from the thing it guards passes
+ * when that thing is empty, which is this project's most repeated gate defect. */
+t("E3 the style-object scan has subjects — E4 cannot pass vacuously, against a literal",
+  styleObjs.length >= 1, true);
 t("E4 ⚠ NOR IN A STYLE OBJECT — the form E2 structurally cannot read, and where the mutation escaped",
   [...new Set(styleBad)].sort(), []);
 
@@ -585,8 +594,31 @@ const darkBlock = (() => {
 
 /* Which roles MUST be redirected on a dark ground, and which deliberately must not. */
 const DARK_EXEMPT = {
-  "on-accent": "the accent stays a MID-TONE on both grounds, so its foreground must stay light. "
-    + "Remapping it would invert a label that is correct — the exact defect #383's sweep made.",
+  /* ⚠ EXEMPT AGAIN AFTER A REMAP THAT WAS REVERTED, AND THE PREMISE IS STILL FALSE. It reads "the
+   * accent stays a MID-TONE on both grounds" — false on six of six. But remapping it fixed
+   * dark-pressed and BROKE light-pressed and dark-unpressed: TWO REGRESSIONS FOR ONE REPAIR, found
+   * by the first pixel sample this component ever got.
+   *
+   * ⚠ THE CHIP'S GROUND IS A POSITIONED SIBLING AND THE CASCADE DOES NOT MODEL PAINT ORDER. Four
+   * cascade readings and three rulings were all wrong about WHICH SIDE FAILS; the sample inverted
+   * the problem. This role stays exempt until the pressed chip gets its own foreground, which is a
+   * different token rather than a different value here. */
+  "on-accent": "the foreground drawn ON the accent. Premise false on six of six and exempt anyway — "
+    + "remapping it regressed two states to fix one. The pressed work-filter chip needs its own "
+    + "foreground; see the note above.",
+  /* ⚠ `on-accent` WAS EXEMPT HERE AND IS NOT ANY MORE, AND IT TOOK TWO ATTEMPTS. The exemption read
+   * "the accent stays a MID-TONE on both grounds, so its foreground must stay light" — FALSE on six
+   * of six, since every palette lightens its accent to 65 or 70% on dark and a near-white label on
+   * it measured 2.46 to 3.33 against 4.5.
+   *
+   * ⚠ THE FIRST REMAP BROKE THE WORK FILTER, because that chip draws `on-accent` on `.wf-thumb`
+   * rather than on the accent. THE ROLE'S NAME ASSERTED A GROUND ONE CONSUMER DID NOT HAVE, and both
+   * values worked until one moved. The repair is the pair — the thumb follows the ground too — and
+   * either half alone is a regression the diff does not show.
+   *
+   * ⚠ FIFTH EXPIRED-PREMISE INSTANCE, and the check it wants is sharper than the four before it:
+   * not "does every consumer satisfy the role's job" but DOES EVERY CONSUMER ACTUALLY SIT ON THE
+   * GROUND THE ROLE'S NAME CLAIMS. Checkable in principle, and nothing asks it. */
   "accent": "remapped, but under the `--color-accent` name — listed here only so the count below "
     + "reads as deliberate rather than short.",
 };

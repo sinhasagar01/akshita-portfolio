@@ -12,7 +12,7 @@ export default function StatCards({ heading, stats, web = false, editable = fals
   return (
     <div>
       {heading && (
-        <p className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-accent-500 mb-5">
+        <p className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-accent mb-5">
           {heading}
         </p>
       )}
@@ -20,7 +20,7 @@ export default function StatCards({ heading, stats, web = false, editable = fals
         <div className="grid grid-cols-1 items-start gap-x-10 gap-y-9 sm:grid-cols-3">
           {stats.map((s, i) => (
             <div key={i} className="reveal-card">
-              <p className="font-display text-[clamp(3rem,6vw,4rem)] text-accent-500 leading-[0.9]">
+              <p className="font-display text-[clamp(3rem,6vw,4rem)] text-accent leading-[0.9]">
                 {/* The value is wrapped in an editable span ONLY when editable, so the
                     public render stays byte-identical (a bare text node otherwise). */}
                 {editable ? (

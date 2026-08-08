@@ -92,7 +92,7 @@ function AssistantRoute() {
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
           <div className="flex flex-col items-center">
             <span aria-hidden="true" className="text-accent-text">↑</span>
-            <div className="rounded-full border border-dashed border-accent-500/70 bg-accent-500/8 px-4 py-2 text-[0.8rem] text-accent-text">
+            <div className="rounded-full border border-dashed border-accent/70 bg-accent/8 px-4 py-2 text-[0.8rem] text-accent-text">
               Ask the assistant
             </div>
           </div>
@@ -111,10 +111,10 @@ function AssistantRoute() {
         <Arrow />
         {/* The three collapsed steps, drawn as ghosts inside one accent-tinted region — the point
             of the diagram is that they still exist and are no longer decisions. */}
-        <div className="flex flex-[2.4] flex-col justify-center gap-2 rounded-lg border border-accent-500/35 bg-accent-500/8 p-2">
+        <div className="flex flex-[2.4] flex-col justify-center gap-2 rounded-lg border border-accent/35 bg-accent/8 p-2">
           <div className="flex gap-1.5" aria-hidden="true">
             {[0, 1, 2].map((k) => (
-              <div key={k} className="h-5 flex-1 rounded border border-dashed border-accent-500/30" />
+              <div key={k} className="h-5 flex-1 rounded border border-dashed border-accent/30" />
             ))}
           </div>
           <p className="text-center text-[0.75rem] leading-[1.3] text-accent-text">
@@ -184,7 +184,7 @@ function FourSquads() {
 
             {/* ⚠ THE ONE CONSTANT. Same rule, same place, four squads — the accent bar is the
                 diagram's entire claim, so it is the only accent-coloured thing in the card. */}
-            <div aria-hidden="true" className="h-1.5 w-[68%] rounded-full bg-accent-500" />
+            <div aria-hidden="true" className="h-1.5 w-[68%] rounded-full bg-accent" />
 
             <div className="rounded-md border border-etch/8 bg-surface-well px-2 py-2">
               <Bar w="56%" />
@@ -198,7 +198,7 @@ function FourSquads() {
 
       <div className="flex flex-col gap-2">
         <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-text-primary">
-          <span aria-hidden="true" className="mt-[7px] h-1.5 w-6 shrink-0 rounded-full bg-accent-500" />
+          <span aria-hidden="true" className="mt-[7px] h-1.5 w-6 shrink-0 rounded-full bg-accent" />
           The error message sits above the field. Same rule, same place, four squads.
         </p>
         <p className="flex items-start gap-2.5 text-[0.85rem] leading-[1.5] text-text-secondary">

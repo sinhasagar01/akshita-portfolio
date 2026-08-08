@@ -210,7 +210,7 @@ export default function HeroSection({
               // display serif while its class asked for the script, and removing the class changes
               // no pixel. A class that asks for one face and draws another is a lie in the markup;
               // it survived because the result looked right.
-              className="text-accent-500 leading-[1] m-0 font-normal"
+              className="text-accent leading-[1] m-0 font-normal"
               style={{ fontSize: "clamp(3rem, 6.5vw, 5rem)" }}
             >
               {signature}
@@ -244,7 +244,7 @@ export default function HeroSection({
                       borderRadius: "9999px",
                       backgroundColor:
                         i === active
-                          ? "var(--color-accent-500)"
+                          ? "var(--color-accent)"
                           : "color-mix(in oklch, var(--color-ink-950) 25%, transparent)",
                       transition: isReducedMotion
                         ? "background-color 0.3s ease"
@@ -285,7 +285,7 @@ export default function HeroSection({
                           backgroundColor: "color-mix(in oklch, var(--color-surface) 50%, transparent)",
                           backdropFilter: "blur(9px) saturate(1.3)",
                           WebkitBackdropFilter: "blur(9px) saturate(1.3)",
-                          border: "1px solid color-mix(in oklch, var(--color-accent-500) 30%, transparent)",
+                          border: "1px solid color-mix(in oklch, var(--color-accent) 30%, transparent)",
                           boxShadow:
                             "0 3px 12px oklch(30% 0.018 60 / 0.12), inset 0 1px 0 color-mix(in srgb, var(--color-white) 70%, transparent)",
                         }}
@@ -310,6 +310,11 @@ export default function HeroSection({
                 <motion.div
                   key={`word-${active}`}
                   aria-hidden="true"
+                  /* ⚠ TEXTURE, DECLARED — see the note in `SkillsBody`. A 144px ghost word at 14%
+                     alpha behind the hero: felt rather than read, so a 4.5 floor does not apply.
+                     `aria-hidden` above is here for its own reason and CANNOT double as this marker
+                     — 17 nodes carry it and eight of them are real prose. */
+                  data-texture="true"
                   style={{
                     position: "absolute",
                     top: "50%",
@@ -328,7 +333,7 @@ export default function HeroSection({
                       fontFamily: "var(--font-script)",
                       fontSize: "clamp(5rem, 12vw, 9rem)",
                       lineHeight: 1,
-                      color: "color-mix(in oklch, var(--color-accent-500) 14%, transparent)",
+                      color: "color-mix(in oklch, var(--color-accent) 14%, transparent)",
                       whiteSpace: "nowrap",
                       textAlign: "center",
                       filter: "blur(0.4px)",
@@ -399,7 +404,7 @@ export default function HeroSection({
             >
               <span
                 aria-hidden="true"
-                className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-accent-500 shrink-0"
+                className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-accent shrink-0"
               />
               {cue}
             </a>

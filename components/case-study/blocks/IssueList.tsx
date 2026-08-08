@@ -12,7 +12,7 @@ export default function IssueList({ items }: Props) {
           className="reveal-card flex items-baseline gap-4 border-b py-4"
           style={{ borderColor: LINE }}
         >
-          <span className="font-display italic text-accent-500 text-[1.0625rem] w-6 shrink-0">
+          <span className="font-display italic text-accent text-[1.0625rem] w-6 shrink-0">
             {String(i + 1).padStart(2, "0")}
           </span>
           <span>

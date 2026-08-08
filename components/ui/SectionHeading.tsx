@@ -89,7 +89,7 @@ export default function SectionHeading({
     fontSize: "14px",
     fontWeight: 500,
     letterSpacing: ".14em",
-    color: "var(--color-accent-500)",
+    color: "var(--color-accent)",
     display: "block",
     position: "relative",
     zIndex: 3,

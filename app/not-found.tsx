@@ -14,7 +14,7 @@ export default function NotFound() {
     <main className="flex min-h-[100dvh] flex-col items-center justify-center px-6 text-center font-body">
       <p
         aria-hidden="true"
-        className="font-display italic font-normal leading-[0.8] text-accent-500/25 text-[clamp(7rem,22vw,13rem)]"
+        className="font-display italic font-normal leading-[0.8] text-accent/25 text-[clamp(7rem,22vw,13rem)]"
       >
         404
       </p>
@@ -30,7 +30,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent mt-9 transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+        className="inline-flex items-center rounded-full bg-accent px-6 py-3 text-[0.95rem] font-semibold text-on-accent mt-9 transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
       >
         Back to home
       </Link>

@@ -129,7 +129,7 @@ export default function AboutSection({ settings }: Props) {
 
           {note && (
             <p
-              className="font-display italic text-accent-500 max-w-[44ch]"
+              className="font-display italic text-accent max-w-[44ch]"
               style={{ fontSize: "16px", lineHeight: "1.45" }}
             >
               {note}
@@ -143,7 +143,16 @@ export default function AboutSection({ settings }: Props) {
                   key={i}
                   style={{
                     fontSize: "12px",
-                    color: "#5F584E",
+                    /* ⚠ WAS THE HARDCODED `#5F584E`, WHICH NO ROLE NAMED AND WHICH CANNOT REMAP —
+                       2.39 against a 4.5 floor on a dark ground, across all four chips.
+                       `text-secondary`'s stated job is "supporting text — meta lines, captions,
+                       labels", and a skills chip is a label: THE RIGHT ROLE THAT HAPPENS TO BE 10.0
+                       AWAY, not the nearest token dressed up as one. Were it merely nearest, 10.0
+                       would be a reason to refuse, as it has been twice in this arc.
+                       Light side improves on every palette — +0.62 / +0.33 / +0.40 / +1.93 / +1.72 /
+                       +1.77 — so the visible change is a repair with a side effect in the right
+                       direction rather than a trade. */
+                    color: "var(--color-text-secondary)",
                     backgroundColor: "var(--color-cream-200)",
                     border: "1px solid color-mix(in srgb, var(--color-rule) 16%, transparent)",
                     borderRadius: "9999px",

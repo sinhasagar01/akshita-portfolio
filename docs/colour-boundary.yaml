@@ -385,16 +385,26 @@ entries:
     category: near-miss-kept
     where: components/sections/AboutSection.tsx, components/sections/ContactSection.tsx
     files: [components/sections/AboutSection.tsx, components/sections/ContactSection.tsx]
-    count: 3
+    count: 2
     reason: >
       ⚠ THE NINE Δ≥10 NEARS THE SNAP RULING LEFT AS LITERALS — named in this file's header from the
       day it was written, and NEVER GIVEN AN ENTRY. The join found that: a category declared in
       prose and absent from the data is exactly what categories-as-data was built to remove, and it
       survived because nothing joined against it until #356.
-      `#5F584E` was re-measured under the composite rule that superseded Step 1b's method and did
-      NOT move — opaque, so composite equals declaration, and 10 from `ink-600`, the leave-as-literal
-      boundary. The verdict stands, and the member most likely to have shifted did not, which is why
-      the other eight are not re-opened as a group.
+      ⚠ `#5F584E` WAS THE THIRD MEMBER AND IS GONE — the ruling was correct and its SUBJECT was
+      wrong. It was kept as a near-literal at 10 from `ink-600`, judged on DISTANCE, and the skills
+      chips it painted are LABELS: `text-secondary`'s stated job. The right role happened to be 10.0
+      away, which is a different fact from the nearest token being 10.0 away, and Step 1b could only
+      see the second. It failed 2.39 on a dark ground because a hex cannot remap.
+      ⚠ THE OTHER EIGHT ARE UNEXAMINED, NOT SETTLED — stated rather than left to inference, because
+      this rewrite reopens them by implication and an implication is not a record. Their original
+      justification was "the member most likely to have shifted did not", and that rested on
+      DISTANCE, which is the question #5F584E just proved was the wrong one.
+
+      WHAT WOULD EXAMINE THEM: for each, is there a role whose STATED JOB matches the consumer,
+      regardless of distance? #5F584E moved because a skills chip is a label and `text-secondary`'s
+      job is labels — not because 10.0 was close enough. THAT IS EIGHT SEMANTIC CHECKS, NOT EIGHT
+      MEASUREMENTS, and a literal that no role's job describes is a genuine near-miss kept.
     test: >
       MEASURED AND KEPT, and the number is the claim. #5F584E re-measured under the composite rule at
       delta 11 from ink-600 over its own ground, past the snap threshold this project settled at

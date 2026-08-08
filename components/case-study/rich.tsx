@@ -37,7 +37,7 @@ export function renderRich(rich: Rich) {
       <a
         key={i}
         href={run.href}
-        className="underline decoration-accent-500/40 underline-offset-2 transition-colors hover:decoration-accent-500"
+        className="underline decoration-accent/40 underline-offset-2 transition-colors hover:decoration-accent"
         {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       >
         {run.a}

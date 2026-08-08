@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
  * `--color-*` token per alpha because these are four one-off strengths for one component, and a
  * token each would be four names nobody else says. */
 const ACCENT = (pct: number) =>
-  `color-mix(in srgb, var(--color-accent-500) ${pct}%, transparent)`;
+  `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`;
 
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
@@ -134,7 +134,7 @@ export default function CustomCursor() {
           width: 8,
           height: 8,
           borderRadius: "50%",
-          background: "var(--color-accent-500)",
+          background: "var(--color-accent)",
           left: 0,
           top: 0,
           transform: "translate(-50%, -50%)",

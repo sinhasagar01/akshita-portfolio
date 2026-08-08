@@ -56,7 +56,7 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             width: 560,
             height: 280,
             borderRadius: "50%",
-            background: "radial-gradient(closest-side,color-mix(in oklch, var(--color-accent-500) 17%, transparent),transparent 70%)",
+            background: "radial-gradient(closest-side,color-mix(in oklch, var(--color-accent) 17%, transparent),transparent 70%)",
             filter: "blur(42px)",
           }}
         />
@@ -71,6 +71,17 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
                 ? { duration: 0 }
                 : { duration: 0.45, ease: [0.22, 1, 0.36, 1] }
             }
+            /* ⚠ TEXTURE, DECLARED. This word is a 150px ghost behind the section at 11% alpha —
+               it is not read, it is felt, and a 4.5 reading floor does not apply to it. The sweep
+               previously excluded it by an OPACITY THRESHOLD, which was wrong twice over: it hid
+               genuine low-alpha failures, and it excluded this by accident rather than by intent.
+
+               ⚠ AND `aria-hidden` CANNOT CARRY THIS. It is already here for its own reason — a giant
+               ghost word should not be announced — but the population check found 17 nodes wearing
+               it, EIGHT OF THEM REAL PROSE (the work cards' hover veils) and one a whole labelled
+               control. `aria-hidden` means "not announced", not "not read", and overloading it would
+               have silently excluded the entire hover state from every contrast sweep. */
+            data-texture="true"
             className="text-[92px] sm:text-[150px]"
             style={{
               display: "block",
@@ -78,8 +89,8 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
               fontStyle: "italic",
               fontWeight: 400,
               lineHeight: 1,
-              color: "color-mix(in oklch, var(--color-accent-500) 11%, transparent)",
-              textShadow: "0 0 34px color-mix(in oklch, var(--color-accent-500) 14%, transparent)",
+              color: "color-mix(in oklch, var(--color-accent) 11%, transparent)",
+              textShadow: "0 0 34px color-mix(in oklch, var(--color-accent) 14%, transparent)",
               whiteSpace: "nowrap",
               position: "relative",
             }}
@@ -103,7 +114,7 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             <div className="md:w-28 md:shrink-0">
               <p
                 className="text-[12px] tracking-[.14em] uppercase leading-none"
-                style={{ color: "var(--color-accent-500)" }}
+                style={{ color: "var(--color-accent)" }}
               >
                 {cat.category}
               </p>

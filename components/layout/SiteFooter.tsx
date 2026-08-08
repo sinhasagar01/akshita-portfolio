@@ -49,7 +49,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
                   href="https://www.linkedin.com/in/sagarsinha1/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="footer-sagar relative text-accent-500 no-underline whitespace-nowrap"
+                  className="footer-sagar relative text-accent no-underline whitespace-nowrap"
                 >
                   Sagar
                   <span className="footer-sagar-arrow text-[.8em] ml-[1px]" aria-hidden="true">↗</span>
@@ -111,7 +111,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
               >
                 <path
                   d="M12 21S4 14.5 4 9a5 5 0 0 1 8-3 5 5 0 0 1 8 3c0 5.5-8 12-8 12z"
-                  fill="var(--color-accent-500)"
+                  fill="var(--color-accent)"
                 />
               </svg>
             </span>

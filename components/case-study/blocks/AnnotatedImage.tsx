@@ -22,7 +22,7 @@ export default function AnnotatedImage({ image, scrawl, callouts, editable = fal
     <div className="relative flex flex-col items-center gap-5 lg:min-h-[560px] lg:justify-center">
       {scrawl && (
         <span
-          className="font-doodle font-bold text-2xl text-accent-500 leading-tight z-[5] lg:absolute lg:-rotate-[5deg]"
+          className="font-doodle font-bold text-2xl text-accent leading-tight z-[5] lg:absolute lg:-rotate-[5deg]"
           style={{ top: scrawl.top, right: scrawl.right, bottom: scrawl.bottom, left: scrawl.left }}
         >
           {scrawl.text.split("\n").map((line, i, arr) => (

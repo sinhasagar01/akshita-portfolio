@@ -23,7 +23,7 @@ export default function StatCard({
       }`}
       style={{ borderColor: stat.highlighted ? ACCENT_RING : LINE }}
     >
-      <p className="font-display text-5xl text-accent-500 leading-none">
+      <p className="font-display text-5xl text-accent leading-none">
         {/* Editable span only when editable, so the public render is byte-identical. */}
         {editable ? (
           <span {...inlineEditProps(editable, blockIndex, `stats.${itemIndex}.value`, "Edit stat value")} className={EDIT_AFFORD}>
@@ -42,7 +42,7 @@ export default function StatCard({
       </p>
       <span
         {...inlineEditProps(editable, blockIndex, `stats.${itemIndex}.tag`, "Edit stat tag")}
-        className={`block text-[0.8rem] font-bold text-accent-500 mt-4 pt-3 border-t tracking-[0.01em]${aff}`}
+        className={`block text-[0.8rem] font-bold text-accent mt-4 pt-3 border-t tracking-[0.01em]${aff}`}
         style={{ borderColor: LINE }}
       >
         {stat.tag}
