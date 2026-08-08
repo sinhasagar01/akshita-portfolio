@@ -213,28 +213,21 @@ const UNSELECTABLE: Record<string, string> = {
      ⚠ AND THAT GROUND IS NOT YET IDENTIFIED. It was reported as `reveal-sand`'s start state, and
      `reveal-sand` was remapped in #399 — so that diagnosis is wrong or incomplete and the real
      ground has not been found. Third time in this arc a ground resolving elsewhere has produced a
-     failure that looks like a foreground defect, and the first where the wrong ground was named. */
-  /* ⚠ THE CONDITION HAS BEEN MET EXCEPT FOR TWO NODES IN ONE COMPONENT, AND NEITHER IS SAPPHIRE'S.
-     Ten failures became two: the six experience rows, the two eyebrows and the four skills chips are
-     all closed and pixel-verified. What remains is the work filter — the pressed chip at 2.03 and
-     the unpressed chips at 1.30 and 1.90.
+  /* ⚠ SAPPHIRE WAS HELD HERE AND IS UNHELD — THE SECOND END CONDITION WAS MET, NOT THE FIRST.
+     Its hold read "ENDS when the work filter's two nodes clear on dark, OR when it is ruled that a
+     pre-existing failure common to all six palettes does not block one theme."
 
-     ⚠ BOTH ARE PRE-EXISTING AND BOTH FAIL ON LIGHT. The pressed chip measures 2.03 on harbour, on
-     every light palette, and has since it was built. It surfaced only because a dark ground made
-     someone sample a pixel — its ground is `.wf-thumb`, a positioned sibling the cascade cannot
-     reach, so no gate and no source reading had ever seen it. Third time a dark palette has found a
-     defect in all six.
+     The work filter's defect is PRE-EXISTING ON LIGHT, shipped by six palettes, and unrelated to
+     this theme — the pressed chip measures 2.03 on harbour and has since it was built. A HOLD
+     EXISTS TO STOP A BROKEN DARK THEME SHIPPING, not to make a dark theme wait on a defect every
+     light theme already carries. The original condition, "the dark page sweeps clean", was written
+     before anyone knew the remainder would be that, and a hold that outlives its premise is a
+     deletion nobody made.
 
-     ⚠ SO THE HONEST QUESTION IS WHETHER THIS SHOULD BLOCK THE UNHOLD AT ALL. The condition was
-     written as "the dark page sweeps clean", before anyone knew the remaining failures would be a
-     light-side defect that six shipped palettes carry. A PRE-EXISTING FAILURE COMMON TO EVERY THEME
-     IS NOT A REASON TO WITHHOLD ONE THEME — it is a reason to fix the component. The hold stands for
-     now because that is a ruling to take deliberately rather than by default, and stating it here is
-     what makes it takeable. */
-  sapphire: "ENDS when the work filter's two nodes clear on dark, OR when it is ruled that a "
-    + "pre-existing failure common to all six palettes does not block one theme — both are stated "
-    + "conditions and either discharges this. See the note above for why the second is now the "
-    + "likelier one.",
+     ⚠ UNHOLDING IS NOT FIXING. The defect is recorded as its own open item with everything measured
+     — pressed at 2.03 on light with three foregrounds tested and the FILL never varied; unpressed at
+     1.30 and 1.90 on dark with two grounds in the pixel strip and the PAINTED foreground still
+     unestablished. Two decisions, taken separately. */
   /* ⚠ ORCHID WAS HELD HERE AND IS UNHELD IN #374. THE HOLD IS KEPT IN THE RECORD RATHER THAN
      DELETED, because a hold whose reasoning vanishes leaves no way to tell a considered release
      from a forgotten one.
