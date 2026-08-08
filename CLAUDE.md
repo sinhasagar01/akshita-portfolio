@@ -328,6 +328,27 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ THE SANITY PAIR CAUGHT SOMETHING FOR THE FIRST TIME, AND THAT IS THE ARGUMENT FOR IT.** It has
+  run before every rasterised measurement here as a formality. In the `N`-curve run the raster path
+  was **genuinely broken** — white and black both read `255,255,255`, because the black sample landed
+  outside its div after `setContent` layout — and the check is the only reason nothing was reported.
+  **Evidence rather than discipline.**
+
+  **⚠ AND ITS OWN FAILURE MODE IS THE SAME ONE IT GUARDS AGAINST: A SANITY PAIR THAT SAMPLES THE
+  WRONG POINTS RETURNS A PLAUSIBLE PAIR.** `255/255` is only obviously wrong because the expected
+  values are known — sample two points inside a gradient and the pair looks fine. So **assert the
+  sample points fall inside their targets**, not merely that the values differ.
+
+- **⚠ A CONSTRAINT CAN BE SATISFIED IN LETTER AND VIOLATED IN SUBSTANCE.** The `N` curve was sampled
+  from a pinned region, as required — and **a fixed region is only correct if it is the RIGHT
+  region.** The response was flat (39.27 to 40.42 across a 15× change in `N`) and **both samples moved
+  together**: tinted pane 32→63, mid pane 9→40. If `N` shifted the tint relative to its backdrop the
+  two would diverge; they tracked, which says **`N` is moving something beneath both.**
+
+  So either `N` does not control the tint, or the region does not contain it. **Establish which layer
+  a parameter reaches before sampling a curve against it** — otherwise the curve is of the wrong
+  quantity, arriving through a constraint that was met.
+
 - **⚠ THE VESSEL WAS NEVER READ FROM WHAT IT PAINTS — FIVE INVALIDATIONS, ONE CAUSE.** Four
   derivations came from an anatomy table, one from source, **none from a pixel**, in a component
   whose entire behaviour is compositing. The first four were wrong about WHICH BODY; the fifth is
