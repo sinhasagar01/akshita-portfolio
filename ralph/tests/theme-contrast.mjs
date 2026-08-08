@@ -70,13 +70,22 @@ const tsxFilesForUsage = [];
 (function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
   const p = join(d, e.name);
   if (/node_modules|\.next|\.git|components\/studio|app\/studio/.test(p)) continue;
-  if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFilesForUsage.push(p); }
+  if (e.isDirectory()) walk(p); else if (/\.(tsx|ts)$/.test(e.name)) tsxFilesForUsage.push(p); }
 })(new URL("../../components", import.meta.url).pathname);
 (function walk(d) { for (const e of readdirSync(d, { withFileTypes: true })) {
   const p = join(d, e.name);
   if (/node_modules|\.next|\.git|app\/studio/.test(p)) continue;
-  if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFilesForUsage.push(p); }
+  if (e.isDirectory()) walk(p); else if (/\.(tsx|ts|css)$/.test(e.name)) tsxFilesForUsage.push(p); }
 })(new URL("../../app", import.meta.url).pathname);
+/* ⚠ THE WALK ADMITS .ts AND .css NOW, AND IT DID NOT. A `.tsx`-only subject over a system whose
+ * CSS holds hundreds of colour declarations hid ELEVEN foreground sites from section M — two of
+ * which were a live AA failure on all four case studies, `ink-400` drawn as text in the next-case
+ * rail while its own row called it non-text.
+ *
+ * ⚠ SECOND TIME THIS EXACT BOUNDARY HAS HIDDEN A POPULATION. The role migration walked `.tsx`
+ * over a stylesheet holding 81 raw rungs. Both times the denominators INSIDE the subject were
+ * sound — which is why neither was caught by a count. A sweep bounded by directory still has a
+ * boundary by file type, and a denominator computed inside the walk cannot see it. */
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
