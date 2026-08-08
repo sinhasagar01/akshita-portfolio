@@ -154,7 +154,7 @@ export default function HeroCover({
           </motion.div>
         )}
 
-        <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-accent-on-dark leading-[0.98] tracking-tight mt-4">
+        <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-accent-text leading-[0.98] tracking-tight mt-4">
           <span className="block overflow-hidden">
             <motion.span
               {...mp}
@@ -244,7 +244,7 @@ export default function HeroCover({
         </motion.div>
       )}
 
-      <h1 className="font-display font-normal text-6xl text-accent-600 leading-[1] tracking-tight mt-3">
+      <h1 className="font-display font-normal text-6xl text-accent-text leading-[1] tracking-tight mt-3">
         <span className="block overflow-hidden">
           <motion.span
             {...mp}
@@ -311,7 +311,7 @@ export default function HeroCover({
                6.25 / 6.14 / 7.36 / 6.09 / 5.45 — and orchid IMPROVES rather than regressing.
                The chip is accent-500's only text consumer on this rung, which is why the ELEMENT
                moved rather than the token: accent-500 is correct everywhere else it lands. */
-            className={`font-bold text-accent-600${aff}`}
+            className={`font-bold text-accent-text${aff}`}
           >
             {data.ratingChip.stat}
           </span>

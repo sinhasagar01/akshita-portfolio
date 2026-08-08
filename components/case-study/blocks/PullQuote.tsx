@@ -84,7 +84,7 @@ export default function PullQuote({
     return (
       <p
         {...edit}
-        className={`font-display italic font-normal text-[clamp(1.375rem,2.4vw,1.75rem)] text-accent-600 leading-[1.3] max-w-[760px]${aff}`}
+        className={`font-display italic font-normal text-[clamp(1.375rem,2.4vw,1.75rem)] text-accent-text leading-[1.3] max-w-[760px]${aff}`}
       >
         {text}
       </p>

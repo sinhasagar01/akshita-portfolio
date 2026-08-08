@@ -412,6 +412,29 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-text-subtle:   oklch(51% 0.016 66);
   --color-accent:        var(--color-accent-500);
 
+  /* ⚠ `accent-text` — THE ACCENT AT A LIGHTNESS THAT CLEARS 4.5 AS TEXT. `accent` is the same brand
+     colour as a MARK or a fill and does NOT clear it: measured on the cream ladder, accent-500 is
+     4.7 / 4.48 / 4.07 / 3.43, so it passes on cream-50 alone and misses cream-100 by 0.02. That is
+     why 25 sites reached past the role and spelled the rung.
+
+     ⚠ IT FOLDS THE DARK ACCENT TOKEN, WHICH WAS A VALUE WEARING A NAME. That token had ONE public
+     consumer — the case-study h1 — and was already this role's dark resolution at the ground block
+     below. The role was half-built: the dark half shipped and the light half never got a name.
+
+     ⚠ AND THE COLLISION IS DARK-ONLY, WHICH IS WHY IT IS STATED HERE RATHER THAN IN `MULTI_ROLE`.
+     That registry is keyed by the LIGHT RUNG two roles share, and this pair shares none — filing it
+     there would put it under a key that cannot express it, which is the failure C3/F2/F4 caught when
+     it was attempted.
+
+       on LIGHT   `accent` is accent-500 and `accent-text` is accent-600. NOT interchangeable —
+                  one clears 4.5 as text and the other does not, which is the whole reason both exist.
+       on DARK    one value serves both, because the single dark accent already clears the text floor.
+
+     ENDS IF A DARK PALETTE EVER NEEDS A DARKER ACCENT FOR TEXT. Until then a reader seeing the two
+     resolve identically on dark is seeing the design, not drift — and merging them would restore the
+     25 raw-rung sites this removes. */
+  --color-accent-text:   var(--color-accent-600);
+
   /* ============================================================
      Typography
   ============================================================ */
@@ -1560,6 +1583,7 @@ a {
   /* The accent's own dark form. `on-accent` deliberately does NOT remap: the accent stays a
      mid-tone on both grounds, so its foreground must stay light. */
   --color-accent:        var(--color-accent-on-dark);
+  --color-accent-text:   var(--color-accent-on-dark);  /* the fold — see the light block */
 }
 /* The full-bleed hero keeps its layout class; the dark part is the attribute above. */
 .hero-ground.is-dark {
@@ -1990,7 +2014,7 @@ a {
   color: var(--color-text-secondary);
   transition: color 0.28s ease;
 }
-.nav-links a[aria-current="true"] { color: var(--color-accent-600); font-weight: 500; }
+.nav-links a[aria-current="true"] { color: var(--color-accent-text); font-weight: 500; }
 .nav-ind {
   position: absolute;
   z-index: 1;
@@ -2283,7 +2307,7 @@ a {
 .nav-sheet.is-open a:nth-child(6) { transition-delay: 0.28s; }
 .nav-sheet a:hover { background: color-mix(in srgb, var(--color-white) 60%, transparent); }
 .nav-sheet .nav-sheet-sep { height: 0.5px; background: color-mix(in srgb, var(--color-etch) 14.000000000000002%, transparent); margin: 7px 5px; }
-.nav-sheet .nav-sheet-resume { color: var(--color-accent-600); }
+.nav-sheet .nav-sheet-resume { color: var(--color-accent-text); }
 @media (prefers-reduced-motion: reduce) {
   .nav-sheet, .nav-sheet a, .nav-fab { transition: none; }
 }

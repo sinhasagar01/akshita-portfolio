@@ -439,7 +439,7 @@ function VerticalStepper({
                 fontSize: "13px",
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: isActive ? "var(--color-accent-600)" : "var(--color-text-subtle)",
+                color: isActive ? "var(--color-accent-text)" : "var(--color-text-subtle)",
                 fontWeight: isActive ? 500 : 400,
                 transition: "color 0.3s",
                 fontFamily: "var(--font-body)",

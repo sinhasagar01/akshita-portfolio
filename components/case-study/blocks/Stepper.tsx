@@ -28,7 +28,7 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
           >
             <h3
               {...inlineEditProps(editable, blockIndex, `steps.${i}.label`, "Edit step label")}
-              className={`font-display text-2xl font-normal text-accent-600 leading-[1.1]${aff}`}
+              className={`font-display text-2xl font-normal text-accent-text leading-[1.1]${aff}`}
             >
               {s.label}
             </h3>

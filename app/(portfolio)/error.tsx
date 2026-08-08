@@ -13,7 +13,7 @@ export default function PortfolioError({
 }) {
   return (
     <main className="flex min-h-[62vh] flex-col items-center justify-center px-6 pt-[var(--hero-nav-runway)] text-center font-body">
-      <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-600">
+      <p className="text-eyebrow tracking-[0.18em] uppercase font-semibold text-accent-text">
         Something went wrong
       </p>
       <h1 className="font-display font-normal text-[clamp(1.9rem,4.5vw,2.75rem)] text-text-primary leading-[1.1] mt-4">
@@ -27,13 +27,13 @@ export default function PortfolioError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent transition-colors hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+          className="inline-flex items-center rounded-full bg-accent-500 px-6 py-3 text-[0.95rem] font-semibold text-on-accent transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="inline-flex items-center rounded-full border border-etch/12 bg-surface px-6 py-3 text-[0.95rem] font-semibold text-text-primary transition-colors hover:border-accent-500 hover:text-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+          className="inline-flex items-center rounded-full border border-etch/12 bg-surface px-6 py-3 text-[0.95rem] font-semibold text-text-primary transition-colors hover:border-accent-500 hover:text-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Back to home
         </Link>

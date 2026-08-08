@@ -59,7 +59,7 @@ function FeaturedCard({ post }: { post: BlogCard }) {
           <p className="text-[11.5px] uppercase tracking-[0.13em] text-text-secondary">
             Latest · {formatLongDate(post.date)}
           </p>
-          <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2rem)] font-normal leading-[1.12] tracking-[-0.01em] text-text-primary transition-colors group-hover:text-accent-600">
+          <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2rem)] font-normal leading-[1.12] tracking-[-0.01em] text-text-primary transition-colors group-hover:text-accent-text">
             {post.title}
           </h2>
           {post.dek ? (
@@ -91,7 +91,7 @@ function PostCard({ post }: { post: BlogCard }) {
         <span>{formatShortDate(post.date)}</span>
         <span>{post.readingTime} min</span>
       </div>
-      <h3 className="mt-2 display-face text-[21px] font-normal leading-[1.2] text-text-primary transition-colors group-hover:text-accent-600">
+      <h3 className="mt-2 display-face text-[21px] font-normal leading-[1.2] text-text-primary transition-colors group-hover:text-accent-text">
         {post.title}
       </h3>
       {post.dek ? <p className="mt-2 text-[14.5px] leading-[1.55] text-text-secondary">{post.dek}</p> : null}
