@@ -214,8 +214,27 @@ const UNSELECTABLE: Record<string, string> = {
      `reveal-sand` was remapped in #399 — so that diagnosis is wrong or incomplete and the real
      ground has not been found. Third time in this arc a ground resolving elsewhere has produced a
      failure that looks like a foreground defect, and the first where the wrong ground was named. */
-  sapphire: "held until the dark home page sweeps clean — 10 of 103 text nodes fail today, all "
-    + "role-layer ratchet members, and the ground under the 2.60 rows is unidentified",
+  /* ⚠ THE CONDITION HAS BEEN MET EXCEPT FOR TWO NODES IN ONE COMPONENT, AND NEITHER IS SAPPHIRE'S.
+     Ten failures became two: the six experience rows, the two eyebrows and the four skills chips are
+     all closed and pixel-verified. What remains is the work filter — the pressed chip at 2.03 and
+     the unpressed chips at 1.30 and 1.90.
+
+     ⚠ BOTH ARE PRE-EXISTING AND BOTH FAIL ON LIGHT. The pressed chip measures 2.03 on harbour, on
+     every light palette, and has since it was built. It surfaced only because a dark ground made
+     someone sample a pixel — its ground is `.wf-thumb`, a positioned sibling the cascade cannot
+     reach, so no gate and no source reading had ever seen it. Third time a dark palette has found a
+     defect in all six.
+
+     ⚠ SO THE HONEST QUESTION IS WHETHER THIS SHOULD BLOCK THE UNHOLD AT ALL. The condition was
+     written as "the dark page sweeps clean", before anyone knew the remaining failures would be a
+     light-side defect that six shipped palettes carry. A PRE-EXISTING FAILURE COMMON TO EVERY THEME
+     IS NOT A REASON TO WITHHOLD ONE THEME — it is a reason to fix the component. The hold stands for
+     now because that is a ruling to take deliberately rather than by default, and stating it here is
+     what makes it takeable. */
+  sapphire: "ENDS when the work filter's two nodes clear on dark, OR when it is ruled that a "
+    + "pre-existing failure common to all six palettes does not block one theme — both are stated "
+    + "conditions and either discharges this. See the note above for why the second is now the "
+    + "likelier one.",
   /* ⚠ ORCHID WAS HELD HERE AND IS UNHELD IN #374. THE HOLD IS KEPT IN THE RECORD RATHER THAN
      DELETED, because a hold whose reasoning vanishes leaves no way to tell a considered release
      from a forgotten one.

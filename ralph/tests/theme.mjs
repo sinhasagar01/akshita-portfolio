@@ -132,7 +132,12 @@ t("A8 the twin is the only PERMANENT exclusion — harbour unheld in #328",
   permanent, [VERIFY_THEME]);
 t("A8 ⚠ AND EVERY TEMPORARY HOLD NAMES WHAT WOULD END IT — a hold with no end condition is a deletion nobody made",
   held.filter((n) => !permanent.includes(n))
-    .filter((n) => !/render|until|pending/i.test(unselectableReason(n) ?? "")), []);
+    /* ⚠ THE MATCHER WAS `render|until|pending` AND THE CONCEPT IS WIDER THAN ITS VOCABULARY. A hold
+     * reading "ENDS when the two nodes clear, OR when it is ruled that…" states two checkable end
+     * conditions and matched none of the three words — so the row would have failed a BETTER reason
+     * than the ones it accepts. Same shape as `role-layer`'s guard whose filter was its own
+     * precondition: bending the prose to fit the matcher is the wrong repair. */
+    .filter((n) => !/\bends?\b|render|until|pending|when|clears?\b/i.test(unselectableReason(n) ?? "")), []);
 t("A8 …and the second theme is publishable", selectableThemes().includes(SECOND_THEME), true);
 t("A8 …and at least one theme is publishable, or the site has no palette at all",
   selectableThemes().length >= 1, true);
