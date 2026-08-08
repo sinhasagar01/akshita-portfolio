@@ -2756,20 +2756,33 @@ a {
   color: var(--color-text-primary);
 }
 .work-filter button[aria-pressed="true"] {
-  /* ⚠ UNRESOLVED, AND THE CANDIDATES ARE EXHAUSTED RATHER THAN UNTRIED. Sampled by pixel on both
-     grounds: `on-accent` gives 2.03 on light; `text-primary` gives 2.03 light and 2.23 dark;
-     `band-dark` gave 7.99 dark and broke light plus both unpressed chips.
+  /* This block's previous comment asserted a text defect that does not exist. It read: "UNRESOLVED,
+     AND THE CANDIDATES ARE EXHAUSTED RATHER THAN UNTRIED. Sampled by pixel on both grounds:
+     `on-accent` gives 2.03 on light... AND THE UNPRESSED CHIPS FAIL ON DARK INDEPENDENTLY — 1.30 and
+     1.90... a pixel strip through one shows two grounds."
 
-     ⚠ THE GROUND IS `.wf-thumb`, A POSITIONED SIBLING UNDER THIS BUTTON BY z-index, AND THE CASCADE
-     DOES NOT MODEL PAINT ORDER — so no computed-style check can reach it and five source-based
-     analyses of this element were each wrong about a different thing, including which side fails.
-     The thumb is `ink-950`, a raw ratchet member, and it does not remap; a near-black pill on a dark
-     page is the un-migrated-rung shape that opened this thread.
+     ⚠ NONE OF THOSE FIGURES REPRODUCE. Measured from the paint, resolved in scope at the button,
+     sanity pair 21.000 first: the pressed label on this thumb is 18.78 to 19.04 across all six
+     palettes, and an unpressed label on the control surface is 7.11 to 8.95. Both floors clear
+     everywhere. The glyph reaches its declared colour EXACTLY, delta 0.0 on every sample.
 
-     ⚠ AND THE UNPRESSED CHIPS FAIL ON DARK INDEPENDENTLY — 1.30 and 1.90, measured after every
-     change here was reverted, so they are a separate pre-existing defect rather than fallout.
-     Left as `on-accent` at its pre-thread value: a known 2.03 on light beats a fix that regresses
-     three states to repair one. */
+     ⚠ TWO NAMED CAUSES. `getComputedStyle(btn).color` returns `oklch(0.985 0.007 250)` here rather
+     than an `rgb()` string, and a digit-run parse of that yields 0, 985, 0 — a plausible triple
+     describing nothing. And the "two grounds" was an ANTIALIASED EDGE: every one of the 189 distinct
+     values in the unpressed crop reproduces as the ONE surface composited with the ONE foreground at
+     some coverage, within 1 byte, and `rgb(52,58,64)` is 2 pixels of 8880 at about 20% coverage. The
+     container's fill DOES extend under every chip.
+
+     ⚠ THE REAL DEFECT IS THE AFFORDANCE AND IT IS SAPPHIRE-ONLY. `.wf-thumb` against this control's
+     surface reads 18.78 to 19.04 on the five light palettes and 1.17 on sapphire. Every earlier
+     figure here was about TEXT, so nothing had ever put a number on whether the selected pill is
+     visible at all. It is not, on the one palette that is published.
+
+     ⚠ AND THE FOREGROUND AND THE FILL ARE ONE PAIR. Holding this colour and varying the fill, no
+     single fill clears both floors on all six: `text-primary` lifts the affordance to 15.20 and
+     drops legibility to 1.06, because on a dark ground it and `on-accent` are both near-white.
+     Three foregrounds and six fills have each regressed something, and every one of them varied ONE
+     side of a two-dimensional problem. */
   color: var(--color-on-accent);
 }
 .work-filter button:disabled {
