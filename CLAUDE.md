@@ -1105,6 +1105,17 @@ closed.
 
 ## Proof and verification
 
+- **⚠ CAPTURE THE EXIT CODE BEFORE ANY PIPE TOUCHES IT.** A pipeline's status is the LAST command's,
+  so `node ralph/run.mjs | tail -3 && git commit` gates on **`tail`**, which always succeeds. The
+  gate exists, is wired to the wrong subject, and reports success — and a commit goes out on a red
+  suite.
+
+  **THIRD OCCURRENCE, AND THE FIRST WHERE THE MECHANISM WAS IN PLACE.** The earlier two were fixed by
+  intention — remember to look — which is why they recurred. This one had the `&&` and lost it to a
+  pipe. Use `node ralph/run.mjs > /tmp/r.txt 2>&1; echo $?` and read the code, or `set -o pipefail`.
+
+  **It is the arc's own shape in a shell**: a check whose subject is not the one it appears to have.
+
 - **⚠ TWO GROUND-WALKS DISAGREE BY A FACTOR OF TWO, AND GROUND-WALKING IS HOW EVERY CONTRAST FIGURE
   IN THIS PROJECT IS PRODUCED.** A sweep that composites through semi-transparent ancestors reported
   `text-subtle` at **2.60**; a walk that stops at the first opaque ancestor finds a ground on which
