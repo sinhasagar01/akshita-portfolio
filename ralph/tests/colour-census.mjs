@@ -712,8 +712,59 @@ const matchRow = (e, sel) =>
 const matchFile = (e, file) => (e.files ?? []).some((f) => file === f || file.startsWith(f));
 const poolPairs = [...cssPairs];
 const filePairs = [...srcPairs];
-const unclaimed = poolPairs.filter((p) => !rows.some((e) => matchRow(e, p.sel)));
-t("J1 ⚠ EVERY AUTHORED COLOUR IN THE BUILT CSS IS CLAIMED BY EXACTLY ONE BOUNDARY ROW",
+/* ⚠ THE TRACER — EVALUATION, NOT MATCHING, AND THAT IS THE WHOLE POINT. The census has been blind
+ * three times: NAME-BLIND, then DERIVATION-BLIND (#336 replaced name matching with FORM matching),
+ * then FOLD-BLIND — because `color-mix(in srgb, var(--x) 88%, transparent)` contains no literal
+ * when written and IS a literal by the time this file reads the bundle. Each repair was correct and
+ * each went blind one compiler pass deeper.
+ *
+ * A FOURTH FORM RULE WOULD FAIL THE SAME WAY, because form is not preserved through a build. So this
+ * RECOMPUTES what the compiler computed: resolve the token chain, compound the alphas, and derive
+ * the literal. That survives the build precisely because it does not depend on form surviving it.
+ *
+ * ⚠ ALPHA COMPOUNDS AND THE FIRST VERSION OF THIS DROPPED IT. `--color-smoke-3` is declared with
+ * alpha .74, mixed at 72%, and folds to .5328 — the probe that ignored the source alpha reported
+ * NOT TRACED and would have delivered a limit that does not exist. */
+const srcAll = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+const varDefs = {};
+for (const m of srcAll.matchAll(/--([a-z0-9-]+)\s*:\s*([^;]+);/g)) if (!(m[1] in varDefs)) varDefs[m[1]] = m[2].trim();
+const deref = (v, d = 0) => d > 6 || !v ? v
+  : v.replace(/var\(\s*--([a-z0-9-]+)\s*(?:,[^)]*)?\)/g, (_, n) => deref(varDefs[n] ?? "", d + 1));
+
+const folded = new Map();
+for (const m of srcAll.matchAll(/color-mix\(\s*in\s+\w+\s*,\s*([^,]+?)\s+([\d.]+)%\s*,\s*transparent\s*\)/g)) {
+  const expr = m[1].trim();
+  if (/#[0-9a-fA-F]{3,8}|\brgba?\(\s*\d|\boklch\(\s*[\d.]/.test(expr)) continue; // holds a literal: not derived
+  const resolved = deref(expr);
+  const rgb = parseColor(resolved);
+  if (!rgb) continue;
+  const ownAlpha = /\/\s*([\d.]+)\s*\)/.exec(resolved);          // the source colour's OWN alpha
+  const a = Math.round((ownAlpha ? parseFloat(ownAlpha[1]) : 1) * parseFloat(m[2]) / 100 * 255);
+  const hex = ("#" + rgb.map((x) => Math.round(x).toString(16).padStart(2, "0")).join("")
+    + a.toString(16).padStart(2, "0")).toLowerCase();
+  if (!folded.has(hex)) folded.set(hex, expr);
+}
+console.log(`         ${folded.size} built literals are RECOMPUTABLE from derived source mixes`);
+
+const unclaimedRaw = poolPairs.filter((p) => !rows.some((e) => matchRow(e, p.sel)));
+const unclaimed = unclaimedRaw.filter((p) => !folded.has(String(p.v).toLowerCase()));
+const tracedOut = unclaimedRaw.filter((p) => folded.has(String(p.v).toLowerCase()));
+if (tracedOut.length) console.log(`         ${tracedOut.length} excused as compiler folds: ${tracedOut.map((p) => p.v).join(", ")}`);
+
+/* ⚠ A LITERAL AND A FOLD ARE INDISTINGUISHABLE BY VALUE, so a collision is REPORTED rather than
+ * resolved by preference. A tracer that picks a reading is a classifier that guesses, and the
+ * boundary file's whole value is that its kinds are arguable. Asserted EMPTY today so the first
+ * collision fails on arrival instead of being absorbed. */
+const collisions = poolPairs.filter((p) => folded.has(String(p.v).toLowerCase())
+  && rows.some((e) => matchRow(e, p.sel)));
+t("J0c ⚠ NO BUILT VALUE IS BOTH A DERIVED FOLD AND A CLAIMED LITERAL — indistinguishable by value, so it is reported rather than preferred",
+  collisions.map((p) => `${p.v} in ${p.sel}`).sort(), []);
+t("J0d …and the tracer found real folds, against a literal — an empty map would excuse nothing and pass",
+  folded.size > 10, true);
+
+/* ⚠ WORDING CORRECTED: the built CSS holds AUTHORED values, COMPILER FOLDS and FALLBACKS, and this
+ * row named three kinds as one. It now claims only what it checks. */
+t("J1 ⚠ EVERY UNTRACED LITERAL IN THE BUILT CSS IS CLAIMED BY EXACTLY ONE BOUNDARY ROW — folds are excused by recomputation, not by form",
   unclaimed.map((p) => `${p.v} in ${p.sel}`).sort(), []);
 t("J1b ⚠ AND EVERY COLOUR IN THE SVG AND RUNTIME POPULATIONS TOO — the half the join could not see until #356",
   [...new Set(filePairs.filter((p) => !rows.some((e) => matchFile(e, p.file)))

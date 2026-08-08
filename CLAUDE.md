@@ -328,6 +328,48 @@ closed.
   them would strip the mechanic from the ground it works best on. **Measure both grounds before
   calling anything dead**, or the rule removes the thing it exists to protect.
 
+- **⚠ EVERY EARLIER INSTANCE PRODUCED A FALSE VALUE. THIS ONE WOULD HAVE PRODUCED A FALSE LIMIT.**
+  A probe evaluating whether built colours could be traced to source **dropped the source colour's
+  own alpha** — `--color-smoke-3` is declared at .74, mixed at 72%, folds to .5328 — and reported
+  `NOT TRACED`. The conclusion it supported was *"the census cannot trace built colours, and the
+  limit is the deliverable."* **The trace was available the whole time.**
+
+  **⚠ THE ASYMMETRY IS THE POINT: A WRONG VALUE GETS CAUGHT BY THE NEXT MEASUREMENT; A WRONG LIMIT
+  GETS CITED.** It closes a question permanently and reads as rigour rather than as error. And it was
+  available because a limit had been named as an acceptable answer — **which is worth doing and
+  raises the cost of getting it wrong.** When the answer "this cannot be done" is on the table,
+  verify the probe that produces it at least as hard as one producing a value.
+
+- **⚠ NAME-BLIND, THEN DERIVATION-BLIND, THEN FOLD-BLIND — THREE FIXES, EACH CORRECT, EACH BLIND ONE
+  COMPILER PASS DEEPER THAN THE LAST.** The census began matching colours by NAME and missed everything
+  spelled differently. #336 replaced that with matching by FORM, and it counted 14 relative-colour
+  values as authored literals because it could not see derivation. The form rule then went blind to
+  the BUILD: `color-mix(in srgb, var(--vessel-capsule) 88%, transparent)` contains no literal when
+  written and **is** a literal — `#ded5c7e0` — by the time the census reads the bundle.
+
+  **THE COMMON CAUSE IS THAT THE CENSUS CLASSIFIES BY FORM AND FORM IS NOT PRESERVED THROUGH A
+  BUILD.** That is a property of the pipeline, not a bug in the instrument, and **a fourth form rule
+  would go blind one pass deeper again.** The honest question is whether a built colour can be traced
+  to its source at all: if it can, that is the mechanism; **if it cannot, the census has a stated
+  limit rather than a fix, and saying so beats a fourth form rule.**
+
+  **⚠ THE REPAIR IS EVALUATION RATHER THAN MATCHING, AND THAT IS WHY IT SURVIVES.** The tracer
+  recomputes what the compiler computed — resolve the token chain, compound the alphas, derive the
+  literal. It does not depend on form surviving the build, which is what made the previous three
+  blind. A literal and a fold are indistinguishable by value, so a collision is **reported rather
+  than resolved by preference**, and asserted empty today so the first one fails on arrival.
+
+  **⚠ AND THE EXPOSURE IS NOT COLOUR-SPECIFIC — NAME THE FOURTH BLINDNESS BEFORE IT HAPPENS.**
+  `linear-gradient(to bottom, …)` lost its direction keyword in the same bundle. **The compiler
+  normalises far more than colour**, so anything the census infers from built output — selector
+  shape, property order, at-rule nesting, shorthand expansion — carries the identical blindness with
+  no equivalent repair, because recomputation only works where the source value can be re-derived.
+  Colour happens to be re-derivable. Most of the rest is not.
+
+  **⚠ AND `J1`'s WORDING IS FALSE OF ITS OWN SUBJECT.** It asserts *"every AUTHORED colour in the
+  built CSS"*. The built CSS contains authored colours, compiler folds and fallbacks — **three kinds
+  it names as one**, which is the wrong-noun shape inside the assertion that reports it.
+
 - **⚠ AGREEMENT ON A BOUNDARY IS NOT AGREEMENT ON WHAT IS INSIDE IT.** Two independent routes found
   the vessel's eleven tokens — a classification from the render, and section L's derivation from
   consumption — and that corroboration was cited as making the deferred redraw *"a fact about the
