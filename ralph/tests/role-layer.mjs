@@ -226,12 +226,19 @@ console.log("\nE · ⚠ A GROUND AND ITS FOREGROUND AGREE — the check #383's s
  * because both had been given the wrong role. Repairing the sites restored it to 6. A PREDICTION
  * THAT A NUMBER WILL MOVE MAKES ANY MOVEMENT LOOK LIKE THE PREDICTED ONE — which is why that suite
  * says the number moving tells you nothing about which of five things happened. */
+/* ⚠ ONE SUBJECT, ONE RULE. This walked `.tsx` while section L below walked three types — THE SUITE
+ * THAT RECORDS THE FILE-TYPE RULE CONTAINED A SUBJECT THAT IGNORED IT, because L was widened where
+ * the rule was found and the earlier walk was never revisited. That is the scoped-fix failure
+ * arriving inside the file that states the rule.
+ *
+ * ⚠ THE PRACTICAL FORM: WHEN A RULE IS RECORDED, APPLY IT TO THE FILE RECORDING IT FIRST. Cheaper
+ * than the census that eventually found this, and it would have caught it the day it was written. */
 const tsxFiles = [];
 (function walk(d) {
   for (const e of readdirSync(d, { withFileTypes: true })) {
     const p = join(d, e.name);
     if (/node_modules|\.next|\.git/.test(p)) continue;
-    if (e.isDirectory()) walk(p); else if (/\.tsx$/.test(e.name)) tsxFiles.push(p);
+    if (e.isDirectory()) walk(p); else if (/\.(tsx|ts|css)$/.test(e.name)) tsxFiles.push(p);
   }
 })(new URL("../../", import.meta.url).pathname);
 
