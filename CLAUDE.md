@@ -365,6 +365,30 @@ closed.
   about the ground** — not after the reasoning fails. Every cheaper method is a model of the paint,
   and this project has now found two components where the models disagree with it.
 
+- **⚠ AN ASSERTION WHOSE PROSE AND WHOSE DATA DESCRIBE DIFFERENT THINGS, WITH NOTHING COMPARING
+  THEM.** `A8a` read *"the selectable set is the six real palettes — five light and one dark"* and
+  asserted a list of **five**. The title described the intended end state; the value described the
+  held one. **It passed for an entire arc.**
+
+  **⚠ DISTINCT FROM THE SIX GATE-VOCABULARY INSTANCES THIS SESSION**, which were matchers too narrow
+  for their concept — a wider regex fixed each. This one has no matcher to widen: **both halves were
+  written together, by the same hand, in the same moment, and neither was ever checked against the
+  other.** That is the record-and-the-work gap compressed into a single line.
+
+  A title is prose and nothing reads prose, which is the `count:`-field defect and the
+  `category:`-as-label defect arriving inside an assertion rather than beside one. **When a row's
+  title states a quantity, the row should compute it** — or the title should not state one.
+
+- **⚠ SIX GATES IN ONE SESSION WERE RIGHT ABOUT THEIR CONCEPT AND SHORT IN THEIR VOCABULARY** — `A8`'s
+  end-condition matcher, `role-layer`'s filter, `E3`'s floor, the ghost-ink filter, the sweep's
+  denominator, and the `aria-hidden` discriminator. **Every one was repaired by widening to the
+  concept and never by bending the subject to fit.**
+
+  **That is not six bugs. It is one property of gates written against the cases that existed when they
+  were written** — and it is the strongest argument this arc has produced for **deriving a subject
+  rather than enumerating one.** An enumerated subject is correct on the day it is written and decays
+  from then on; a derived one cannot fall behind its own population.
+
 - **⚠ A SWEEP MUST STATE HOW MANY NODES EXIST, NOT HOW MANY IT VISITED.** The dark-page sweep
   reported **103** nodes across four sessions and **169** the moment its scroll reached further —
   same page, same instrument, deeper reach. **"Three of 103" was quoted four times, including in
