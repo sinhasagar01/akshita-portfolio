@@ -59,7 +59,8 @@ blocks:
           than felt?
   - discriminant: imageBlock
     value:
-      src: null
+      src: >-
+        /images/blog/you-find-out-what-motion-is-for-by-removing-it/blocks/926214f008d6.webp
       alt: ''
       caption: ''
       wide: false
