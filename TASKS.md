@@ -86,7 +86,7 @@ Where those uploads go changed. The screen exports for the three migrated projec
 Re-verified against the repo on 2026-08-02. Two of the three had already been closed and the list
 had not been updated, so it was still being read as current.
 
-- All 5 experience entries have empty descriptions. Write or decide to drop the field.
+- ~~All 5 experience entries have empty descriptions. Write or decide to drop the field.~~ **CLOSED.** The `description` field is deleted from `keystatic.config.ts` with the reasoning beside the deletion, no content file carries it, and no consumer ever existed. If role descriptions are wanted they are a design change to the experience row rather than five blanks to fill.
   **Still open, confirmed** — every file in content/experience carries an empty description.
 - ~~3 of 4 projects have no hero image.~~ **Done.** All four now carry a 1600x1000 webp between
   70KB and 94KB, and HERO_IMAGE_UNSUITABLE was deleted in f3c881b.
@@ -167,11 +167,38 @@ Proof. The ncr-adjacent suite added 20 assertions (571 in the full ralph run), t
 
 ## Open items, the real blockers
 
-- Domain is configured in Vercel. The canonical host is www.akshitas.com, with the apex redirecting to the www host. The remaining launch steps are the /studio prod env vars (see the prod-readiness section) and the contact form endpoint.
-- Real outcome numbers for Fosfor AI and Fosfor Data Profiling.
-- Contact form endpoint (Formspree or Web3Forms) and the env var.
-- Real portrait and real screen exports, uploaded through /studio (Keystatic retired).
-- Tune the faint heading and backdrop alphas against the real cream token.
+⚠ RECONCILED AGAINST THE REPO. This list had been wrong four times and it directs every session's
+opening, so its errors do not sit still — they choose what gets built, and one of them already did.
+Every item below was verified rather than carried. Four of the five were already closed.
+
+- ~~Real outcome numbers for Fosfor AI and Fosfor Data Profiling.~~ **CLOSED.** Both files carry a
+  `statCards` block with real values. Line 93 in Phase 4 already said "Populated" — two halves of this
+  file disagreeing, with nothing comparing them.
+- ~~Contact form endpoint (Formspree or Web3Forms) and the env var.~~ **CLOSED, and this is the one
+  that misled a session.** Line 140 is `[x]` and reads "set and CONFIRMED end to end… the owner
+  submitted the live form and received the email". `ContactSection.tsx` reads
+  `NEXT_PUBLIC_CONTACT_FORM_ENDPOINT`. A completed entry and an open entry naming the same task, in
+  one file.
+- ~~Real portrait and real screen exports, uploaded through /studio.~~ **CLOSED.** `photo.webp` is
+  1.1MB and was added by `chore(studio): set site photo`, so it came through the editor. No project
+  content file references a placeholder any more.
+- ~~Tune the faint heading and backdrop alphas against the real cream token.~~ **CLOSED by #401.** The
+  watermark is solid `text-primary` at weight 600. The alphas were not tuned, they were REMOVED — the
+  hierarchy had been resting on opacity, which is the one mechanism that cannot survive a change of
+  ground.
+- Domain is configured in Vercel, canonical host www.akshitas.com with the apex redirecting.
+  **The one remaining launch step is the /studio prod env vars** (see the prod-readiness section).
+  The contact form half of this line is done, above.
+
+⚠ AND THE STRUCTURAL DEFECT IS NOT FIXED, BECAUSE IT IS NOT CHECKABLE — stated rather than left as an
+impression that it was considered. A completed entry and an open entry naming the same task is the
+`A8a` shape in a task list, and an assertion catching it would have to match TASKS BY NAME across free
+prose. This file holds 65 checked and 65 unchecked entries, all plain markdown bullets with no id, no
+tag and no machine-readable notion of "the same task". There is nothing to join on.
+
+**What works instead is what was done here: verify every open item against the repo, and say when one
+comes back genuinely open.** A reconciliation that lists only corrections cannot be told from one that
+stopped early.
 
 ---
 
