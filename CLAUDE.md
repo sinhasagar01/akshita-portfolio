@@ -536,6 +536,39 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ TWO FIGURES ABOUT DIFFERENT SUBJECTS, MISTAKEN FOR ONE — THE TWENTIETH INSTANCE, IN A NEW
+  COSTUME.** A line-regex sweep counted **33** `--color-white` sites. A real parser then counted **33**
+  — 31 alpha sites across 25 parsed declarations, plus 2 in markup. **They are not the same 33.** One
+  counts LINES MATCHING A PATTERN, the other counts ALPHA SITES IN DECLARATIONS, and a multi-line
+  `box-shadow` carrying two alphas is one line and two sites.
+
+  **AGREEMENT BETWEEN UNITS IS NOT AGREEMENT.** Every earlier instance here was a figure attached to the
+  wrong subject; this one is two correct figures about different subjects landing on the same number.
+  **It would have read as confirmation to anyone who had not changed the unit deliberately** — and the
+  parser was written to fix an unrelated problem, so the coincidence was found by accident.
+
+  Same family as the boundary count built three times in three units, and the practical form is
+  unchanged: **ask what unit each side counts in before believing either**, including when they agree.
+
+- **⚠ A FIXED `--color-white` AT A FIXED ALPHA IS THE DEFECT, AND `box-shadow` WAS ONLY WHERE IT WAS
+  LOOKED FOR.** Scoped to shadows the census found 6 members. Widened to every property it is **31 alpha
+  sites in `globals.css` plus 2 in markup** — and **`background` is the largest bucket at 11, entirely
+  unexamined**, while the arc spent itself on 13 shadow sites.
+
+  **⚠ THE FILE-TYPE BOUNDARY AND THE PROPERTY BOUNDARY ARE ONE DEFECT.** A `.css`-bounded sweep missed a
+  JSX inline style; a `box-shadow`-bounded sweep missed a border and eleven backgrounds. **Both are a
+  denominator computed inside a walk that cannot see the walk's own edge**, and this population sits
+  across both at once.
+
+  **⚠ AND THE PARTITION IS THE DELIVERABLE, NOT THE COUNT — MOST OF THE 31 ARE PROBABLY FINE.**
+  `--glass-stroke` at 72% needs `--glass-stroke-dark` at 15%; a 4% sheen may be genuinely
+  ground-independent the way `etch`'s alphas measured. **A census that condemns all 33 is as wrong as one
+  that found 6**, and only the inert test on BOTH grounds, per consumer, separates them.
+
+  **⚠ AND `--glass-stroke-dark` IS THE PRECEDENT THE VESSEL'S BORDER LACKS.** The nav's stroke carries a
+  dark answer three hundred lines from a vessel border that carries one value for both grounds — which
+  is evidence the border is an OMISSION rather than a decision.
+
 - **⚠ A DERIVATION CAN BE CORRECT AND AIMED AT A LAYER THAT CANNOT PRODUCE THE APPEARANCE.** The nav's
   dark top inset was derived twice — 13% shipped, 22% from a differencer that isolates the layer — and
   **rendered side by side against cream, a 1.7x alpha difference produced no perceptual change.** Both
