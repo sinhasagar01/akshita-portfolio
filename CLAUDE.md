@@ -96,6 +96,31 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   consumers being odd**, and it gets weighed against #382's test then: a role invented for one or two
   sites is a second spelling entering the layer at birth. `role-layer` section O asserts the PAIR.
 
+- **⚠ THE FORCED-ATTRIBUTE MECHANISM TEST IS RETIRED, DELIBERATELY, AND THE TWO HALVES RETIRE FOR
+  DIFFERENT REASONS.** It would have forced `data-ground="dark"` onto each palette and checked that the
+  role layer remapped. **This is a retirement with its reasoning, not a lapse** — which matters,
+  because four items closed this week had lapsed silently and were indistinguishable from ones nobody
+  had looked at.
+
+  **ONE. THE DARK PATH IS PROVEN BY USE, WHICH IS STRICTLY MORE THAN THE TEST PROVES.** Sapphire was
+  built, gated, rendered, published and lived on. A forced attribute proves a mechanism responds; a
+  shipped palette proves the mechanism, the values, the components and the author's own reading of
+  them. The larger evidence subsumes the smaller.
+
+  **TWO. THE RESIDUE — THE FOUR LIGHT PALETTES' OWN VALUES UNDER A DARK GROUND — IS NOT REACHABLE.**
+  `data-ground` is emitted in `app/layout.tsx` from the published theme's declared class, so a light
+  palette never resolves under it. There is no visitor state to test.
+
+  **⚠ AND THE EVIDENCE FOR THE SECOND HALF IS BETTER THAN THE ARGUMENT, BECAUSE THE STATE WAS REACHED
+  BY ACCIDENT AND MISREAD AS A MEASUREMENT.** A probe set `data-theme` without `data-ground`, cream
+  resolved through a dark ground, and it produced clean, plausible, internally consistent figures —
+  which described **a state no visitor can see.** That is the argument demonstrated rather than
+  asserted, and it is why the residue is not worth a gate.
+
+  **⚠ AND THE TEST ITSELF EXISTED ONLY AS A CARRIED CONVERSATIONAL ITEM**, named in no file. **A test
+  that lives only in conversation cannot lapse visibly** — it simply stops being mentioned, and
+  nothing distinguishes that from a decision. Recording the retirement here is the whole remedy.
+
 - **⚠ THE NEAR-MISS CATEGORY IS EMPTY AND ITS ROW IS DELETED, ON `J3`'s RULING.** `step-1b-near-literals`
   held every colour kept as "close enough to a token to leave alone". All three members have moved —
   `#5F584E` to `text-secondary`, `#9C9182` to `text-subtle`, and the contact glow's middle stop to a
