@@ -536,6 +536,29 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ AN ITEM NOBODY CAN LOCATE IS NOT AN ITEM, AND CLOSING IT AS UNDEFINED IS A DIFFERENT ACT FROM
+  CLOSING IT AS DONE.** "Beats 7 to 9 of the case-study page" sat on the board for months. The term
+  appeared **once**, in the line that carried it, and nowhere else in the repository — and three
+  derivations produced incompatible readings.
+
+  **⚠ ONE OF THEM WOULD HAVE CLOSED IT FALSELY.** Read against the eleven-part spine, beats 7 to 9 are
+  `processSteps`, `keyInsights` and `solutionReveal` — **all present and populated**, so anyone
+  inferring from the repo alone would have marked the item done and been wrong about why.
+
+  **Record which closure it was.** "The work was not completed, the item was never specifiable" and
+  "the work is finished" leave the same strikethrough and mean opposite things to whoever reads it
+  next.
+
+- **⚠ AN INSTRUMENT CONDITION MISTAKEN FOR A SITE CONDITION — SEVENTH THIS WEEK, AND THE FIRST IN A
+  SCREENSHOT.** A full-page capture stalled on a pinned section and produced several empty
+  screen-heights that read exactly like missing content. The six before it were probes; **this one was
+  an image**, which is worse, because a screenshot is the artefact everyone trusts without asking how
+  it was made.
+
+  Same family as the `nextjs-portal` badge and the 0x0 vessel. **Rule 25 covers it and needs no
+  amendment** — the point is that the rule now has an instance in the one medium nobody thought to
+  apply it to.
+
 - **⚠ RULE 25's FIRST APPLICATION AFTER BEING WRITTEN, AND IT PAID IMMEDIATELY.** A 1024 survey found
   the docked reading indicator's date sitting under a dark circular badge in the bottom-left corner —
   a clean, visible, screenshot-backed collision. **It was `nextjs-portal`, the dev overlay.** No site
