@@ -95,5 +95,47 @@ t("E: …gated on BOTH conditions, or it duplicates in the inspector view",
 t("E: the inspector's Body indicator is still there",
   (canvas.match(/<SaveIndicator label="Body"/g) ?? []).length, 2);
 
+/* ============================================================================================
+   F · THE LATEST-VALUES REF IS WRITTEN SYNCHRONOUSLY, NOT ONLY ON RENDER.
+
+   ⚠ `saveDraft` OPENS WITH A DIRTY CHECK AGAINST `valuesRef.current`, so that ref decides whether
+   a save happens at all. It used to be assigned ONLY during render, which makes it "the values as
+   of the last render" while the dirty check reads it as "the latest values". Those agree only when
+   nothing asks to save before React re-renders.
+
+   ⚠ THE BLOG STATUS CONTROL DID EXACTLY THAT and lost every status change silently. It set a field
+   and called `saveDraft` in the same tick through `queueMicrotask`; the ref still held the pre-click
+   values, they equalled the baseline, and the function RETURNED WITHOUT SAVING — no request, no
+   error, no indicator. There is no Save button on that panel, so nothing else could rescue it: an
+   author set a post to Published, pressed Publish site, and got a draft.
+
+   ⚠ THE ONE-SITE PRINCIPLE THE HOOK STATES IS KEPT. `applyValues` is the single mutation path, so
+   there is still one line to keep in sync — these rows assert that it is, and that no mutation site
+   went back to calling `setValues` directly.
+============================================================================================ */
+console.log(`\nF · the latest-values ref is written synchronously`);
+/* `hook` is already read at the top of this file — reused rather than re-read, since a second
+   binding for the same source is a second thing to keep in step. */
+const panel = code("components/studio/BlogEditPanel.tsx");
+
+t("F1 ⚠ THE HOOK HAS ONE MUTATION PATH — a second would be a site to miss, which is the note's own rule",
+  (hook.match(/setValues\(/g) ?? []).length, 1);
+t("F1a …and that one call is inside `applyValues`, not scattered through the callbacks",
+  /function applyValues[\s\S]{0,160}setValues\(/.test(hook), true);
+t("F2 ⚠ `applyValues` WRITES THE REF BEFORE SCHEDULING THE RENDER — the whole defect in one line",
+  /function applyValues[^)]*\)\s*\{\s*valuesRef\.current = next;\s*setValues\(next\);/.test(hook), true);
+t("F3 …and every mutation site routes through it, so a save in the same tick sees the edit",
+  (hook.match(/applyValues\(/g) ?? []).length >= 4, true);
+t("F4 ⚠ AND NO SAVE PATH DEPENDS ON MICROTASK ORDERING — the timing fix that would look like this one",
+  /queueMicrotask\s*\(\s*saveDraft/.test(hook + panel), false);
+/* ⚠ THE WINDOW IS GENEROUS ON PURPOSE. `code()` blanks comment BODIES but leaves their newlines,
+ * so a well-commented handler puts hundreds of characters of whitespace between the two statements
+ * this row cares about. A tight window here would be a matcher narrower than its concept, which is
+ * the failure this suite exists to catch elsewhere — widen to the concept, never bend the subject. */
+t("F5 …and the status control still commits on click, since this panel has no Save button",
+  /setField\("status"[\s\S]{0,600}saveDraft\(\)/.test(panel), true);
+t("F5a …asserted against the absence of a Save button, so F5 is load-bearing rather than belt-and-braces",
+  /<SaveButton|type="submit"/.test(panel), false);
+
 console.log(`\ncoalescing-save result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
