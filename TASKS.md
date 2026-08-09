@@ -312,6 +312,13 @@ Still open, and both are ops rather than code.
 
 - Set the four REQUIRED server env vars in Vercel prod. This list never named them, which was the real gap. STUDIO_WRITE_MODE must be `github`, because every write path tests that literal and nothing falls back to NODE_ENV, so leaving it unset makes every save return the fs no-op and tell the owner it needs github mode (dev), in production. STUDIO_GITHUB_TOKEN, or writes 500. STUDIO_OWNER_PASSWORD and STUDIO_SESSION_SECRET, or nobody can log in. The last three FAIL CLOSED, verified, so a missing secret locks the owner out rather than letting anyone in. STUDIO_WRITE_MODE is the odd one, it fails confusing rather than closed.
 - Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in Vercel prod, else the GH-7 throttle degrades to per-instance in-memory. Optional by design, unlike the four above.
+
+⚠ THE TWO ENV-VAR ITEMS ABOVE ARE THE OWNER'S AND ARE UNVERIFIABLE FROM THIS REPOSITORY. Nothing here
+can read Vercel's project settings, so no session can close them and every session will find them
+open. THAT IS EXACTLY HOW THE CONTACT FORM SURVIVED as a blocker after it was done — it sat in an
+engineering list that engineering could not check.
+They are listed here as OWNER TASKS rather than open engineering work. A session that reaches them
+should say "owner's, unverifiable here" and move on rather than investigating.
 - Retire /keystatic. DONE. The editing UI and API route are deleted, `@keystatic/next` is removed, and the moot guards (the GH-9 prod-404 and the 4b-i lockout, both pointless once the write route is gone) go with them. `keystatic.config.ts` and `@keystatic/core` STAY, because the reader parses all content through the config and `sections-raw.ts` derives the 14 block-kind union from it (createReader throws without the `body` field, proven, so `body` stays too). The one gap that gated this, the site photo being Keystatic-only, was closed first by the /studio photo upload (#64). Keystatic is now schema-only, editing is entirely /studio.
 
 Phase 4 added no new blocker, checked rather than assumed. Every /studio route and every /api/studio route carries content/ in its build trace, including the new body and preview pages, so GH-12's glob covers the nested routes. Both upload routes carry sharp. The Keystatic lockout reads content/ from the filesystem, but the middleware's production 404 returns before that read, so it never runs in prod.
