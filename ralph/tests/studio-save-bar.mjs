@@ -452,5 +452,37 @@ const bar = code("components/studio/SaveBar.tsx");
         .replace(/\s+/g, "")), true);
 }
 
+/* ============================================================================================
+   PB · A PUBLISH REFUSAL NAMES ITS CAUSE.
+
+   ⚠ `invalid_blocks` MEANS THE DRAFT WAS READ, THE MERGE WAS POSSIBLE, AND PUBLISHING WAS DECLINED
+   because a post would not render — a blank title, an unlabelled image, a draft marker still in the
+   body. It fell through to "Could not publish. Something went wrong", which is indistinguishable
+   from a network failure. An author could not know a marker was the cause, could not find which
+   post, and could not tell a refusal from a failure.
+
+   ⚠ THE SERVER'S TEXT IS USED HERE AND HAND-WRITTEN TEXT IS USED ABOVE, DELIBERATELY. `invalid_url`
+   and `merge_conflict` have single known causes, so the bar can word them. This code covers many
+   rules across many posts and `validateBlogPost` prefixes the slug — only the validator knows what
+   to say. PB3 is what stops the branch being "improved" into a fixed string that loses the post.
+
+   ⚠ AND THIS IS #282's OWN ARGUMENT, WHICH ALREADY EXISTED AND WHICH PUBLISH DID NOT USE: a
+   validation state outranks the save state, because it is a fact about the CONTENT and swallowing it
+   deletes the only signal saying why. Recorded for a bad video URL on the save path; the same claim
+   was true on the publish path and the branch was never added.
+============================================================================================ */
+console.log(`\nPB · a publish refusal names its cause`);
+const pubBar = code("components/studio/PublishBar.tsx");
+t("PB0 the typed-error ladder is present at all, or PB1 and PB2 pass over nothing",
+  /json\?\.error\?\.code/.test(pubBar), true);
+t("PB1 …and it still handles its two single-cause codes with their own wording",
+  [/code === "invalid_url"/.test(pubBar), /code === "merge_conflict"/.test(pubBar)], [true, true]);
+t("PB2 ⚠ AND `invalid_blocks` HAS ITS OWN BRANCH — without it a correct refusal reads as a network failure",
+  /code === "invalid_blocks"/.test(pubBar), true);
+t("PB3 ⚠ AND THAT BRANCH USES THE SERVER'S MESSAGE — the only text that knows which post and which rule",
+  /invalid_blocks[\s\S]{0,1400}?json\?\.error\?\.message/.test(pubBar), true);
+t("PB4 …and it still falls back when the server sends none, so an empty message is not an empty bar",
+  /invalid_blocks[\s\S]{0,1400}?A post would not render/.test(pubBar), true);
+
 console.log(`\nstudio-save-bar result: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

@@ -149,6 +149,28 @@ export default function PublishBar() {
         );
       } else if (code === "merge_conflict") {
         setPublishMsg("Could not publish. The site changed since your draft. Refresh and try again.");
+      } else if (code === "invalid_blocks") {
+        /* ⚠ A REFUSAL IS NOT A FAILURE, AND THIS BRANCH IS THE DIFFERENCE. `invalid_blocks` means the
+           draft was READ, the merge was possible, and publishing was DECLINED because a post would
+           not render — a blank title, an unlabelled image, a draft marker still in the body. It fell
+           through to "something went wrong", which reads as a network error and is unactionable.
+           An author could not know a marker was the cause, could not find which post, and could not
+           tell a refusal from a failure.
+
+           ⚠ THE SERVER'S MESSAGE IS USED RATHER THAN A HAND-WRITTEN ONE, because it is the only text
+           that knows WHICH post and WHICH rule. `validateBlogPost` prefixes the slug, so the author
+           gets the post and the reason in one line. The two branches above keep their own wording
+           because their causes are single and known; this one has many and the server names them.
+
+           ⚠ AND IT IS #282's ARGUMENT, WHICH ALREADY EXISTS AND WHICH PUBLISH DID NOT USE. A
+           validation state outranks the save state because it is a fact about the CONTENT, and
+           swallowing it deletes the only signal saying why. That was recorded for a bad video URL on
+           the save path; the same claim was true here and the branch was never added. */
+        setPublishMsg(
+          json?.error?.message
+            ? `Cannot publish. ${json.error.message}`
+            : "Cannot publish. A post would not render. Fix it, then publish."
+        );
       } else {
         setPublishMsg("Could not publish. Something went wrong. Try again.");
       }

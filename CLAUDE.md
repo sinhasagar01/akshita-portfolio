@@ -536,6 +536,22 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ AN ABSENCE IS EVIDENCE ONLY IF THE SEARCH COULD HAVE FOUND THE THING.** *"No save-draft request
+  fires"* directed three prompts of diagnosis. It came from searching git history for a head-field
+  commit — **and the commit did not exist yet when the search ran.** It exists now, as
+  `chore(studio): update blog/<slug> draft`, sitting unmerged on the draft branch, and it is exactly
+  what the search was looking for.
+
+  **⚠ AND THE WHOLE DIAGNOSIS INVERTED ON IT.** The status save worked. The control was reading the
+  draft branch, which genuinely says `published`, so it was telling the truth and `isDirty` was right
+  to treat a second click as a no-op. **There was no read-path defect and no lying control** — there
+  was a validator correctly refusing to publish a post with a draft marker in it, reported as
+  *"something went wrong"*.
+
+  **A null result carries a timestamp and nothing displays it.** Before treating an absence as a
+  finding, ask what would have had to exist at the moment the search ran — and re-run it before
+  building on the answer.
+
 - **⚠ A CLAIM ABOUT A DEFAULT, MADE FROM ONE OF TWO DEFAULTS — AND THE FAILURE WAS QUESTIONING A GOOD
   SIGNATURE WRONGLY RATHER THAN NOT AT ALL.** Tracing a publish defect, the signature was *"no studio
   commit ever carried a status change"*, read from `git log` subjects. It had produced a correct
