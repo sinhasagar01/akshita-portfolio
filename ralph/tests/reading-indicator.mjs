@@ -99,5 +99,40 @@ t("D4 …and the observer is torn down, or a route change leaks it",
 t("D5 ⚠ AND IT WATCHES THE CLASS THAT ACTUALLY TOGGLES — attributeFilter, not every mutation on the subtree",
   /attributeFilter: \["class"\]/.test(src), true);
 
+console.log("\nE · the single-state collapse, and the property that keeps it safe");
+/* ⚠ THE COLLAPSE IS SAFE ONLY WHILE `is-on` IS UNCONDITIONAL. Both selectors used to carry a hidden
+ * base — `opacity: 0`, a 14px offset, `pointer-events: none` and a transition — with `.is-on`
+ * supplying the visible values. With the class always applied, one state was reachable and the other
+ * was a trap: a component declaring itself invisible and relying on a class ALWAYS being present is
+ * one edit from a blank element, and nothing would report it.
+ *
+ * ⚠ SO THIS GATES THE PROPERTY, NOT THE CLASS STRING. Asserting `className="blog-vessel is-on"`
+ * would pass for a component that reintroduced a scroll gate under a different name. What must hold
+ * is the PAIR: either the base state is visible and the class is unconditional, or the hidden base
+ * and its transition both come back. E2 is the half that catches a future gate.
+ *
+ * ⚠ AND THE FAILURE IS SILENT BY CONSTRUCTION, which is why it is worth a row at all — a blank fixed
+ * element paints nothing, throws nothing and reports nothing. */
+const vesselRule = (() => {
+  const i = css.indexOf(".blog-vessel {");
+  return i < 0 ? "" : css.slice(i, css.indexOf("}", i));
+})();
+const dockedRule = (() => {
+  const i = css.indexOf(".blog-docked {");
+  return i < 0 ? "" : css.slice(i, css.indexOf("}", i));
+})();
+t("E0 both base rules were located, or E1 and E2 pass over nothing",
+  [vesselRule.length > 40, dockedRule.length > 40], [true, true]);
+t("E1 ⚠ NEITHER BASE RULE HIDES ITSELF — a hidden base plus an always-on class is one edit from a blank element",
+  [/opacity:\s*0\s*;/.test(vesselRule), /opacity:\s*0\s*;/.test(dockedRule)], [false, false]);
+t("E1a …and neither keeps the reveal transition it no longer has a state to run",
+  [/transition:/.test(vesselRule), /transition:/.test(dockedRule)], [false, false]);
+t("E1b …and the `.is-on` overrides are gone, since they restated the only state there is",
+  /\.blog-(vessel|docked)\.is-on\s*\{/.test(css), false);
+t("E2 ⚠ AND THE CLASS IS STILL UNCONDITIONAL — reintroduce a gate and the collapse becomes a blank element",
+  /className=\{`blog-(vessel|docked)\$\{/.test(src), false);
+t("E2a …asserted on BOTH forms, so a gate on one would not hide behind the other",
+  [/className="blog-vessel is-on"/.test(src), /className="blog-docked is-on"/.test(src)], [true, true]);
+
 console.log(`\nreading-indicator result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
