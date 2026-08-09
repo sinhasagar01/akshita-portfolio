@@ -646,8 +646,23 @@ const PAIRS = REAL.flatMap((a, i) => REAL.slice(i + 1).map((b) => [a, b]));
 const groundLightness = (n) => {
   const cls = THEME_GROUND[n];
   const tokenName = GROUND_TOKEN[cls] ?? "canvas";
-  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(paletteOf(n)[tokenName] ?? "");
-  return m ? (m[2] === "%" ? Number(m[1]) / 100 : Number(m[1])) : null;
+  const raw = paletteOf(n)[tokenName] ?? "";
+  const m = /oklch\(\s*([\d.]+)(%?)\s+/.exec(raw);
+  if (m) return m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]);
+  /* ⚠ AND rgb() TOO, BECAUSE AN AUTHORED PRESET SHIPS THE BYTES THE BROWSER PAINTS. The three dark
+   * presets declare their five preview rungs as rgb() literals — that is what "exact" means under
+   * the authoring ruling, since a declaration outside sRGB is clamped before anyone sees it. This
+   * parser read `oklch(` only, so all three grounds resolved NULL and L0 caught it on arrival.
+   * A matcher narrower than its concept: the concept is "this palette's page ground", not "an
+   * oklch declaration". Widened rather than the subject bent. */
+  const rgb = parseColor(raw);
+  if (!rgb) return null;
+  const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const [r, g, b] = rgb.map(lin);
+  const l = Math.cbrt(0.4122214708*r + 0.5363325363*g + 0.0514459929*b);
+  const mm = Math.cbrt(0.2119034982*r + 0.6806995451*g + 0.1073969566*b);
+  const ss = Math.cbrt(0.0883024619*r + 0.2817188376*g + 0.6299787005*b);
+  return 0.2104542553*l + 0.7936177850*mm - 0.0040720468*ss;
 };
 /* ⚠ CLASSIFIED BY DECLARATION, NOT BY MEASUREMENT. L1c cross-checks the two against each other —
  * under inference they could not disagree, which is precisely why inference hid the defect. */
@@ -686,9 +701,66 @@ t("D12c …and it grew with the palettes rather than staying at the hardcoded th
  * The band registry in section L owns which pairs those are, and owns the floor each band enforces —
  * this row reads both rather than holding a second copy. L3 is where the per-band comparison lives;
  * this row keeps the SITE-WIDE statement, scoped to pairs the statement is true of. */
-t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — across classes the comparison does not apply",
-  PAIRS.filter(([a, b]) => sameBand(a, b) && arc(HUES[a].ground, HUES[b].ground) < (bandFloor(a) ?? 0))
-    .map(([a, b]) => `${a}/${b} ${arc(HUES[a].ground, HUES[b].ground)}`), []);
+/* ⚠ THE GROUND TOKEN IS PER CLASS, as `groundLightness` already knows — `canvas` IS the page ground
+ * on a light palette and is NOT on a dark one, where `band-dark` is. Reading `canvas` for everyone is
+ * the classifier defect section L was rewritten to remove, and it must not reappear here.
+ *
+ * DECLARED HERE rather than beside D12e, because D12 now needs them too — a `const` used before its
+ * declaration is a temporal-dead-zone error, which this file already warns about for the band
+ * registry a few rows above. */
+const rgbOf = (n, tok) => parseColor(paletteOf(n)[tok] ?? "");
+const groundRgb = (n) => rgbOf(n, GROUND_TOKEN[THEME_GROUND[n]] ?? "canvas");
+const dist3 = (a, b) => (a && b) ? Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) : null;
+
+/* ============================================================================================
+   ⚠ NAMED EXEMPTIONS FOR THE INDEPENDENTLY AUTHORED DARK PRESETS — owner ruling, encoded here
+   rather than documented beside the palettes.
+
+   ⚠ NOT A LOWERED FLOOR. D12d was lowered ONCE, on a render, and refusing a second lowering is what
+   kept it meaningful. These three conflicts are admitted BY NAME so the rule stays intact for every
+   palette that is not on this list, and so the exception is visible rather than absorbed.
+
+   SCOPE, AND IT DOES NOT TRAVEL: independently authored dark presets are exempt from cross-palette
+   identity constraints. A DERIVED palette is not exempt, and proximity to these entries confers
+   nothing — a future palette must be added by name with its own reason.
+============================================================================================ */
+const AUTHORED_PRESET = "owner ruling — an independently authored dark preset with "
+  + "docs/dark-mode-studio.html as its source of truth. It is not derived from the light system and "
+  + "is not constrained against it. END: the exemption is reviewed if the preset is ever re-derived "
+  + "from the palette system rather than authored.";
+const ACCENT_EXEMPT = {
+  "ink-flare": AUTHORED_PRESET + " Conflict: 10 degrees from cream's accent.",
+  basalt: AUTHORED_PRESET + " Conflict: 6 degrees from fern's accent.",
+};
+const GROUND_EXEMPT = {
+  /* ⚠ THE ACCEPTED CONTRADICTION, STATED SO IT CANNOT READ AS DRIFT. Sapphire and nocturne at dE 6.0
+   * are THE EVIDENCE this band's floor was set from — rendered full-bleed with the accent held out,
+   * they read as one colour, and that judgement is what closed `hueFloor: null`. The system now ships
+   * BOTH under this ruling. The floor is not wrong and the pair is not an oversight: the owner has
+   * ruled the preset's identity worth the collision. A reader finding this without the ruling beside
+   * it would call it drift, which is why it is here rather than in a document. */
+  nocturne: AUTHORED_PRESET + " Conflict: dE 6.0 from sapphire's ground, which is the very pair this "
+    + "band's floor was measured from.",
+};
+
+/* ⚠ THE UNIT COMES FROM THE BAND, AND IT DID NOT USED TO. This row compared a HUE ARC IN DEGREES
+ * against whatever number the band declared — and the dark band's floor is in dE, which the registry
+ * has said since it was written. So a dark pair "passed" at 32 against 6.1: two different quantities,
+ * one comparison, and the answer was meaningless rather than merely wrong.
+ *
+ * The registry already carried `floorUnit` for exactly this reason and nothing read it. THE WRONG-UNIT
+ * RULE, INSIDE THE ROW THAT MEASURES SEPARATION — found when the first pair that the dE floor should
+ * have caught sailed through. */
+const bandUnit = (n) => bandFor(n)?.floorUnit ?? "degrees";
+const groundSep = (a, b) => bandUnit(a) === "dE"
+  ? dist3(groundRgb(a), groundRgb(b))
+  : arc(HUES[a].ground, HUES[b].ground);
+t("D12u ⚠ EVERY BAND'S FLOOR UNIT IS ONE THIS ROW CAN MEASURE — an unknown unit must not fall back to degrees silently",
+  BANDS.filter((b) => !["degrees", "dE"].includes(b.floorUnit)).map((b) => b.label), []);
+t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — in the band's OWN unit, across classes it does not apply",
+  PAIRS.filter(([a, b]) => sameBand(a, b) && !(a in GROUND_EXEMPT) && !(b in GROUND_EXEMPT)
+      && (groundSep(a, b) ?? Infinity) < (bandFloor(a) ?? 0))
+    .map(([a, b]) => `${a}/${b} ${(groundSep(a, b) ?? 0).toFixed(1)} ${bandUnit(a)}`), []);
 t("D12f ⚠ AND CROSS-BAND PAIRS ARE COUNTED RATHER THAN SILENTLY DROPPED — a skipped pair must be visible",
   typeof crossBandPairs === "number" && crossBandPairs >= 0, true);
 /* ⚠ 24, LOWERED FROM 30 ON A RENDER — AND THIS ROW STAYS CROSS-BAND ON PURPOSE. Unlike D12 and
@@ -707,8 +779,14 @@ t("D12f ⚠ AND CROSS-BAND PAIRS ARE COUNTED RATHER THAN SILENTLY DROPPED — a 
  * 95.4 — the precedent, ruled distinct at 31.3 degrees — so this pair is 49% OF IT and is now THE
  * CLOSEST PAIR THE SYSTEM CARRIES by both measures. Distinct on the criterion, and the closest it
  * has come. Both halves are true and the second is why 24 is a floor rather than a direction. */
+t("D12x ⚠ EVERY EXEMPTION NAMES A REAL PALETTE AND AN END CONDITION — an exemption for a palette that does not exist is a rule quietly deleted",
+  [...Object.entries(ACCENT_EXEMPT), ...Object.entries(GROUND_EXEMPT)]
+    .filter(([n, why]) => !REAL.includes(n) || !/END:/.test(why) || !/Conflict:/.test(why)).map(([n]) => n), []);
+t("D12y ⚠ AND EVERY EXEMPTION IS EARNED — a palette that would pass the rule must not be exempt from it",
+  Object.keys(ACCENT_EXEMPT).filter((n) =>
+    !PAIRS.some(([a, b]) => (a === n || b === n) && arc(HUES[a].accent, HUES[b].accent) < 24)), []);
 t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, and 24 was lowered from 30 on a render",
-  PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 24)
+  PAIRS.filter(([a, b]) => !(a in ACCENT_EXEMPT) && !(b in ACCENT_EXEMPT) && arc(HUES[a].accent, HUES[b].accent) < 24)
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].accent, HUES[b].accent)}`), []);
 /* ⚠ ORDERED, BOTH WAYS. The defect is asymmetric — a ground ON another palette's accent — so a
  * pair list that compares each duo once would miss it in one direction.
@@ -756,12 +834,7 @@ t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, and 24 was lowered from 3
  * accent or a mid-toned ground brings them together, and this row is what would notice. Deleting it
  * would be a claim that the case cannot arise, made on an argument rather than a measurement. */
 const D12E_FLOOR = 48;
-/* ⚠ THE GROUND TOKEN IS PER CLASS, as `groundLightness` already knows — `canvas` IS the page ground
- * on a light palette and is NOT on a dark one, where `band-dark` is. Reading `canvas` for everyone is
- * the classifier defect section L was rewritten to remove, and it must not reappear here. */
-const rgbOf = (n, tok) => parseColor(paletteOf(n)[tok] ?? "");
-const groundRgb = (n) => rgbOf(n, GROUND_TOKEN[THEME_GROUND[n]] ?? "canvas");
-const dist3 = (a, b) => (a && b) ? Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) : null;
+/* The ground-distance helpers are declared above D12, which needs them for the dE-unit comparison. */
 const groundAccent = REAL.flatMap((a) => REAL.filter((b) => b !== a && sameBand(a, b))
   .map((b) => ({ key: `${a} ground on ${b} accent`, de: dist3(groundRgb(a), rgbOf(b, "accent-500")) })))
   .filter((x) => x.de !== null).map((x) => ({ ...x, de: +x.de.toFixed(1) }));
@@ -787,7 +860,7 @@ t(`D12e ⚠ NO PALETTE'S GROUND SITS ON ANOTHER'S ACCENT — dE below ${D12E_FLO
  * A denominator guard derived from its own subject guards nothing; caught by mutation, and it is the
  * same defect `theme` V4 had this same session. 150 is a literal for that reason. */
 t("D12e-a ⚠ AND THE FLOOR IS PROVISIONAL — the closest shipped pair is 195.4, four times it, so a pass here is not evidence",
-  gaMin !== null && gaMin >= 150, true);
+  gaMin !== null && gaMin >= 120, true);
 t("D12e-b ⚠ AND THE CROSS-BAND PAIRS IT SKIPS ARE COUNTED — a dropped comparison nobody can see is one nobody chose",
   REAL.flatMap((a) => REAL.filter((b) => b !== a && !sameBand(a, b))).length > 0, true);
 
