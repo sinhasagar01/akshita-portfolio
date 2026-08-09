@@ -102,6 +102,30 @@ export function validateBlogPost(
     error: { code: "invalid_blocks", field: slug, message: `${slug}: ${message}` },
   });
 
+  // ---- THE DRAFT-MARKER GATE ----------------------------------------------------------
+  //
+  // A drafted post can carry placeholders for sentences only the author can write. They are
+  // marked loudly rather than left as plausible prose, because PUBLISH IS WHOLE BRANCH — a
+  // draft with markers in it ships those markers the moment the branch is published for any
+  // other reason, and no gate here reads English.
+  //
+  // Permissive at save, strict at publish, exactly like the title gate: a marker is CORRECT in
+  // a draft and is the one thing that must never reach a published post.
+  //
+  // ⚠ THE LITERAL IS ASSEMBLED RATHER THAN WRITTEN OUT. This file would otherwise contain the
+  // very string it forbids, and any future sweep looking for stray markers across the repo
+  // would flag its own guard. Same discipline as never transcribing a comment delimiter while
+  // describing one.
+  //
+  // Checked against the RAW document rather than walked per block, so it catches a marker in a
+  // title, a dek, a caption or any block kind — including kinds added after this was written.
+  const DRAFT_MARKER = "@" + "@ GAP";
+  if (raw.includes(DRAFT_MARKER)) {
+    return fail(
+      "a draft marker is still in the body — every placeholder must be replaced before publishing"
+    );
+  }
+
   // ---- THE TITLE GATE, THE SAME SHAPE AS alt BELOW -------------------------------------
   //
   // #216 made `title` editable, and the read path falls back to the SLUG when it is blank
