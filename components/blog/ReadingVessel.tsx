@@ -138,7 +138,6 @@ export default function ReadingVessel({
               <path fill="color-mix(in srgb, var(--vessel-wave) 85%, transparent)" d={WAVE_PATH_A} />
             </svg>
           </div>
-          <div className="blog-glint" />
           <div className="blog-waterline" />
           <span className="blog-bub" />
           <span className="blog-bub" />

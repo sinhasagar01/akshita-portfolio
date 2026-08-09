@@ -420,14 +420,14 @@ demonstrated four times.
   with h330 c0.024 at 11.9 and h320 c0.030 at 12.1 measured as fallbacks.
 
 **PARTIAL, WITH ITS REMAINDER NAMED — the white-alpha partition.** 33 fixed-white sites were
-censused (a real parser, 0 unparsed). Measured or argued: the sheen paired-and-working (3.12 cream,
-1.88 nocturne through nav-tone), ~21 sites paired, nav-cta's four ground-independent on the accent
-fill. **UNRESOLVED, three members:** `.blog-capsule`'s 85% inset — the differencer returned ~0 on
-BOTH grounds at the sampled row, which per the y+1 lesson means THE ROW IS NOT ESTABLISHED, not that
-the layer is dead — and the two markup sites, `ContactSection.tsx:215` and `SwatchTokens.tsx:23`
-(40%). **WHAT FINISHES IT:** a row sweep on the capsule (y+0..3, shipped alpha, differencer) to find
-where its inset paints, then the inert test on it and the two markup sites on both grounds. Nothing
-is condemned; fixing members ahead of the partition is how 6 became 33.
+censused (a real parser, 0 unparsed). Measured or argued: the sheen paired-and-working, ~21 sites
+paired, nav-cta's four ground-independent on the accent fill. The capsule's row was ESTABLISHED by
+the boarded sweep (dy0: +9.7 cream, +71.7 nocturne full-stack) and its lit edge is now
+`--capsule-lit-edge`, 85% light and 58.3% dark, derived against its isolated cream contribution of
+32.80. The glint was DELETED as dead by occlusion (the waterline paints over its only row, both
+grounds, all rows) and the bubbles measured comparable on both grounds mid-flight. **UNRESOLVED,
+two members:** the markup sites `ContactSection.tsx:215` and `SwatchTokens.tsx:23` (40%). **WHAT
+FINISHES IT:** the inert test on those two, both grounds. Nothing else is open in this item.
 
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
