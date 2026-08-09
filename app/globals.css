@@ -242,6 +242,14 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
          pearl = glass  +2.00 L   -0.009..-0.013 C   +0.00 H
 
+     ⚠ AND IT GOVERNS THE BEAD, NOT THE VESSEL — CORRECTED, BECAUSE IT WAS WRITTEN AS THE VESSEL'S
+     RULE AND IS CITED THAT WAY. `ReadingVessel.tsx` renders TWO forms across the 1200px boundary:
+     the fixed aside `.blog-vessel` above it and the docked bar `.blog-docked` at or below. Derived
+     from every consumer rather than assumed — `pearl` is used by `.blog-bead` ALONE and `glass` by
+     `.blog-bead` and `.blog-liquid` — so this relation lives in the DOCKED BAR's bead. The aside
+     owns `smoke-1` to `smoke-4`, `glass`, `ink` and `bounce`. The rule holds; its subject was wrong,
+     which is the shape this file records more than any other, written the week it was corrected.
+
      Exact on all three components across all six palettes. Checked against the three references a
      reader would reach for first, EVERY ONE OF WHICH DISAGREES CONVINCINGLY: against `cream-50` the
      lightness steps spread -2.0 to -6.5 and the chroma steps -0.006 to 0.018 WITH SIGN CHANGES on
