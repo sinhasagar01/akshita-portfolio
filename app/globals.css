@@ -4042,6 +4042,16 @@ a {
   --bounce: var(--color-bounce);
 }
 
+/* ⚠ SINGLE-STATE SINCE THE INDICATOR BECAME ALWAYS-ON, AND THAT IS WHY THE HIDDEN BASE IS GONE.
+   These two selectors used to declare `opacity: 0`, a 14px offset, `pointer-events: none` and a
+   transition, with a `.is-on` class supplying the visible values. `is-on` is now unconditional in
+   `ReadingVessel.tsx`, so one state was reachable and the other was a trap: a component that
+   declares itself invisible and relies on a class ALWAYS being present is one edit from a blank
+   element, and nothing would report it.
+
+   ⚠ THE COLLAPSE IS SAFE ONLY WHILE THE CLASS IS UNCONDITIONAL, so `reading-indicator` gates the
+   PROPERTY rather than the class string — a future scroll gate would reintroduce a hidden base with
+   no transition left to reveal it. */
 .blog-vessel {
   position: fixed;
   right: 40px;
@@ -4058,16 +4068,8 @@ a {
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 5.5%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-white) 85%, transparent),
     0 26px 56px -26px color-mix(in srgb, var(--vessel-ink) 30%, transparent);
-  opacity: 0;
-  transform: translateX(14px);
-  pointer-events: none;
-  transition: opacity 420ms var(--blog-ease), transform 520ms var(--blog-ease-settle);
 }
-.blog-vessel.is-on {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-}
+
 
 .blog-liquid {
   position: absolute;
@@ -4265,16 +4267,8 @@ a {
   right: 16px;
   bottom: 16px;
   z-index: 40;
-  opacity: 0;
-  transform: translateY(14px);
-  pointer-events: none;
-  transition: opacity 380ms var(--blog-ease), transform 460ms var(--blog-ease-settle);
 }
-.blog-docked.is-on {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
+
 
 /* FIT breakpoint — does a 216px vessel clear the 68ch measure. NOT the site's lg
    (1024) layout breakpoint; a different question, a different number (contract). */

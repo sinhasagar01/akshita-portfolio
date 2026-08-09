@@ -536,6 +536,31 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ A FIGURE CITED ACROSS A CHANGE THAT WAS SUPPOSED TO MOVE IT, AND NOBODY RE-COUNTED.** "110
+  declarations" was the vessel's token cost, counted BEFORE the indicator was reworked and then
+  carried through four prompts by both parties as the size of the removal that would follow.
+
+  **Re-derived against the post-change source, every one of the eleven tokens is LIVE.** The change
+  removed a SMIL filter and a scroll gate, and **neither consumed a vessel token** — so it could
+  never have moved the figure. What it actually made dead was a two-state reveal on two selectors,
+  which nobody had counted at all.
+
+  **⚠ THIS IS RULE 15 IN A NUMBER RATHER THAN IN A CLAIM, and the seventh instance this week.** A
+  carried item is a claim about the present; **so is a carried figure**, and a figure is worse,
+  because it looks like a measurement and gets quoted without its date. The repair is the same and
+  it is still cheap: **re-derive a number before scoping work from it**, especially when the work is
+  supposed to change it.
+
+- **⚠ THE UNBALANCED-MATCHER FAMILY HAS FIVE MEMBERS, AND THE LAST TWO CAME FROM ONE ROW.** A lazy
+  regex asked whether an element sat inside a block and walked straight past the block's close; the
+  structural replacement then used `indexOf(")}")`, which finds whichever close comes first rather
+  than the MATCHING one — and a mutation that DELETED the close survived it.
+
+  **Both were caught by mutation and neither by reading**, which is the whole argument for testing
+  every new row. The general form: **a matcher that needs to know where a construct ENDS cannot be
+  written with a pattern that does not count.** Balance the delimiter, or the row is a guess that
+  usually agrees.
+
 - **⚠ A GUARD DERIVED FROM THE THING IT GUARDS LOWERS ITSELF WHEN THAT THING IS LOWERED — TWICE IN
   ONE SESSION, THE SECOND WRITTEN AFTER THE FIRST WAS RECORDED.** `theme` V4 computed
   `glass.c + step` where `step` is `pearl.c − glass.c`, which is `pearl.c >= 0` — true by
