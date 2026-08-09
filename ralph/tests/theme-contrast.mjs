@@ -463,20 +463,58 @@ const BANDS = [
        + "be silent about it exactly as the dark band's would have been about Basalt. The hole is "
        + "identical and only the dark band has met a member that exposes it. Move this to dE when one "
        + "is proposed, or when the dark band's value is set and the two can share a unit." },
-  { label: "dark", min: 0.150, max: 0.200, hueFloor: null, floorUnit: "dE",
-    why: "the dark class. ONE member shipped, so there is no pair to separate and no floor has been "
-       + "measured. Null rather than 60 because 60 belongs to the light band's chroma — a dark ground "
-       + "at c 0.016 would need 117 degrees for the same separation. "
+  /* ⚠ THE EVIDENCE IS DATA, NOT PROSE, BECAUSE A MUTATION RAISED THIS FLOOR TO 10.5 AND THE `why`
+   * WENT ON SAYING 6.1 WAS THE ONLY JUDGED FIGURE. Nothing compared the number to the sentence —
+   * the A8a shape, written by the same hand in the same moment, one more time. `judged` holds every
+   * render anyone has looked at, and L3d COMPUTES the floor from it, so a floor can only move when
+   * a judgement moves. Adding an owner's read is one row here, not a rewritten paragraph. */
+  { label: "dark", min: 0.150, max: 0.200, hueFloor: 6.1, floorUnit: "dE",
+    judged: [
+      { dE: 6.0, read: "one", what: "sapphire h250 vs nocturne h282, page grounds full-bleed, accent held out" },
+    ],
+    why: "the dark class. ⚠ 6.1 IS A CEILING ON THE FLOOR, NOT THE FLOOR — and the difference is the "
+       + "whole entry. What is measured on THIS band is ONE judgement: sapphire h250 and nocturne "
+       + "h282, both dark-band members, rendered full-bleed with the accent held out, READ AS ONE "
+       + "COLOUR. They measure dE 6.0. So anything at or below 6.0 is refused on evidence, and "
+       + "NOTHING ABOVE IT HAS BEEN JUDGED. 6.1 admits pairs nobody has looked at; it is the largest "
+       + "claim this band's evidence supports and it is deliberately not the largest useful one. "
+       + "⚠ AND 10.5 WAS TRIED HERE AND REFUSED BY L3c, WHICH IS THAT ROW EARNING ITS PLACE. 10.5 is "
+       + "the smallest separation among the five `band-dark` values on LIGHT palettes, judged in the "
+       + "same full-bleed presentation — defensible, honestly arrived at, AND CALIBRATED ON ANOTHER "
+       + "BAND. A stated floor naming the wrong subject is this project's signature defect, and L3c "
+       + "is the first gate to stand in front of it. "
+       + "⚠ THE IN-BAND SERIES IS TAKEN AND AWAITS A READ: candidates at dE 6.0, 8.4, 10.8, 13.3 and "
+       + "16.4 against sapphire's ground, full-bleed, no accent and no label in frame. The flip point "
+       + "sets this value. If it lands near 10.5 that is TWO BANDS CONVERGING BY INDEPENDENT ROUTES, "
+       + "which is worth more than one borrowed number — and only worth it if the independence is "
+       + "said out loud rather than read as confirmation. "
+       + "⚠ AND IT IS NOT 60 IN DEGREES, which belongs to the light band's chroma — a dark ground at "
+       + "c 0.016 would need 117 degrees for the same separation. "
+       + "The value was null while ONE member shipped and there was no pair; this row's own end "
+       + "condition was `the first pair that looks too close sets it`, and a second member arrived "
+       + "and was too close. "
+       + "⚠ AND IT IS NOT 60 IN DEGREES, which belongs to the light band's chroma — a dark ground at "
+       + "c 0.016 would need 117 degrees for the same separation. "
        + "⚠ AND THE UNIT IS dE RATHER THAN DEGREES, WHICH IS A CANDIDATE PALETTE'S DOING. `Basalt` "
        + "proposes a ZERO-CHROMA ground: it has no hue, so a floor in degrees is not merely wrong "
        + "about it, it is SILENT — and silence reads as a pass. Same shape as a census row that "
        + "cannot be matched by form: a member outside the predicate's vocabulary, passing because it "
        + "cannot be evaluated. Measured, Basalt separates from the other three by dE 7.3 to 10.2 "
        + "while two of its three degree figures are large and one is meaningless. "
-       + "⚠ THE VALUE STAYS NULL DELIBERATELY: four members with one achromatic is the wrong "
-       + "population to derive from, and the pair that would decide it — sapphire and Nocturne at 32 "
-       + "degrees and dE 4.7 — is a RENDER question rather than a derivation, the same one orchid and "
-       + "ultraviolet raised at 27. The first pair that looks too close sets it." },
+       + "⚠ AND THE FIGURE THAT USED TO SIT HERE WAS THE WRONG RELATION. This row said `sapphire and "
+       + "Nocturne at 32 degrees and dE 4.7`; 32 is the GROUNDS and the accents are 24, and the two "
+       + "rows that rule on them are different. Measured on the built palettes the grounds are dE 6.0. "
+       + "A number recorded without naming its relation is one a reader supplies a relation for. "
+       + "⚠ WHAT THIS FLOOR COSTS IS A PALETTE, SAID PLAINLY. Nocturne as drawn cannot ship beside "
+       + "sapphire: it needs h320+ at c 0.024, or c 0.036 to clear from h300, and either moves its "
+       + "accent too — which lands it beside orchid's h330. That is a fact about the blue-violet "
+       + "quadrant being occupied rather than about the drawing. TRIGGER FOR ITS RETURN: the accent "
+       + "question is reopened, or sapphire is retired. "
+       + "⚠ AND THE ACHROMATIC CASE STILL HAS NO MEMBER. Basalt proposes a ZERO-CHROMA ground, which "
+       + "is why the unit is dE and not degrees — a degree floor is not merely wrong about a hueless "
+       + "palette, it is SILENT, and silence reads as a pass. Measured, Basalt separates from the "
+       + "other three by dE 7.3 to 10.2, so it sits BELOW this floor and will have to be judged on a "
+       + "render exactly as this pair was." },
 ];
 
 
@@ -613,15 +651,105 @@ t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — across classes the compa
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].ground, HUES[b].ground)}`), []);
 t("D12f ⚠ AND CROSS-BAND PAIRS ARE COUNTED RATHER THAN SILENTLY DROPPED — a skipped pair must be visible",
   typeof crossBandPairs === "number" && crossBandPairs >= 0, true);
-t("D12d ⚠ NOR TWO ACCENTS — the accent is the colour a visitor remembers, and NOTHING checked it",
-  PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 30)
+/* ⚠ 24, LOWERED FROM 30 ON A RENDER — AND THIS ROW STAYS CROSS-BAND ON PURPOSE. Unlike D12 and
+ * D12e below, an accent/accent comparison DOES apply across bands: accents are drawn at comparable
+ * lightness and chroma on a light palette and a dark one, and a person switching themes meets them
+ * in sequence. So the pair is real and only a render can settle it.
+ *
+ * THE RENDER: sapphire's accent beside nocturne's at 24 degrees, each drawn ALONE on a shared
+ * neutral ground — alone, because side by side any two hues differ and that is not what switching a
+ * theme looks like. Criterion stated before looking: would a person switching say the site changed
+ * theme, or that something shifted slightly? Sapphire reads BLUE and nocturne reads VIOLET. Two
+ * nameable colours, so: two themes.
+ *
+ * ⚠ AND THE NUMBER THAT MADE IT UNCOMFORTABLE IS RECORDED BESIDE IT, because a floor lowered on a
+ * render should carry it. sapphire/nocturne is 47.2 in perceptual distance against harbour/fern's
+ * 95.4 — the precedent, ruled distinct at 31.3 degrees — so this pair is 49% OF IT and is now THE
+ * CLOSEST PAIR THE SYSTEM CARRIES by both measures. Distinct on the criterion, and the closest it
+ * has come. Both halves are true and the second is why 24 is a floor rather than a direction. */
+t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, and 24 was lowered from 30 on a render",
+  PAIRS.filter(([a, b]) => arc(HUES[a].accent, HUES[b].accent) < 24)
     .map(([a, b]) => `${a}/${b} ${arc(HUES[a].accent, HUES[b].accent)}`), []);
 /* ⚠ ORDERED, BOTH WAYS. The defect is asymmetric — a ground ON another palette's accent — so a
- * pair list that compares each duo once would miss it in one direction. */
-t("D12e ⚠ AND NO PALETTE'S GROUND SITS ON ANOTHER'S ACCENT — the exact shape that would have passed",
-  REAL.flatMap((a) => REAL.filter((b) => b !== a)
-    .filter((b) => arc(HUES[a].ground, HUES[b].accent) < 25)
-    .map((b) => `${a} ground h${HUES[a].ground} on ${b} accent h${HUES[b].accent}`)), []);
+ * pair list that compares each duo once would miss it in one direction.
+ *
+ * ⚠ SAME-BAND, AND THE REASON MATTERS BECAUSE THE FIRST ONE GIVEN WAS WRONG. This was ruled
+ * band-aware on the grounds that a dark palette's ground and a light palette's accent are NEVER
+ * PAINTED TOGETHER. That argument PROVES TOO MUCH: no two palettes are ever painted together, same
+ * band or not, so it would justify DELETING this row rather than scoping it — and the row's origin
+ * was a real refusal between two LIGHT palettes, a candidate green whose ground sat exactly on
+ * harbour's accent hue.
+ *
+ * ⚠ A PREDICATE THAT PROVES TOO MUCH IS WORSE THAN NO PREDICATE, BECAUSE IT READS AS RIGOUR.
+ *
+ * WHAT THIS ROW ACTUALLY MEASURES IS SEQUENTIAL CONFUSABILITY. If palette A's page ground is palette
+ * B's accent hue, then switching from B to A reads as B's accent having FLOODED THE PAGE — the two
+ * themes are confusable in a way neither ground/ground nor accent/accent catches. That is the same
+ * kind of argument as D12d's, and it is about what a visitor meets in sequence.
+ *
+ * ⚠ BAND-AWARENESS SURVIVES THE CORRECTED REASON, WHICH IS WHY THE SCOPE STANDS. A ground at L17 and
+ * a ground at L92 do not read as one flooding into the other at ANY hue — that is D12's own reason
+ * and it transfers intact. The outcome was right for a different argument than the one first given.
+ *
+ * D12 was made band-aware in #389 and D12d and D12e were left flat; nobody noticed until a dark
+ * palette reached them. D12d keeps its cross-band scope on the opposite argument — two accents ARE
+ * met in sequence and are drawn at comparable lightness and chroma. One row becomes band-aware; the
+ * other keeps its scope and lowered its floor on a render. Two rulings, deliberately not one edit. */
+/* ⚠ dE, NOT DEGREES — AND THIS IS THE ONE GATE-VOCABULARY CASE WHERE WIDENING THE MATCHER DOES NOT
+ * HELP. Six others this arc were repaired by widening a predicate to its concept. Here DEGREES ARE
+ * THE WRONG AXIS: a ground and an accent differ by ~35 lightness units and roughly 7x in chroma BY
+ * CONSTRUCTION, so hue alone can never decide whether they are confusable.
+ *
+ * Measured across all 22 same-band pairs, the two units RANK DIFFERENT PAIRS. Closest by degrees is
+ * `nocturne ground on sapphire accent` at 10 degrees — and 201.8 apart, the FIFTH-WIDEST of the 22.
+ * Closest by distance is `cream ground on orchid accent` at 195.4, a hundred and eight degrees apart.
+ * Rendered, the degree-closest pair is a near-black beside a vivid blue.
+ *
+ * ⚠ AND THE ORIGIN REFUSAL MAY HAVE BEEN FALSE. This row was justified by a candidate green refused
+ * for a ground sitting EXACTLY on harbour's accent hue — which is precisely the axis now known to be
+ * wrong. Its values are not in the repo and cannot be rechecked. A REFUSAL PRODUCED BY A UNIT NOW
+ * KNOWN TO BE WRONG IS NOT EVIDENCE THE ROW WORKS, and it has been cited as this row's justification.
+ * Recorded without assuming it either way.
+ *
+ * ⚠ THE ROW IS KEPT RATHER THAN RETIRED, AND NOT BECAUSE THE CASE IS LIKELY. "Grounds at L17 or L92
+ * and accents at L52 cannot converge" is today's STRUCTURE, not a law — a palette with a darker
+ * accent or a mid-toned ground brings them together, and this row is what would notice. Deleting it
+ * would be a claim that the case cannot arise, made on an argument rather than a measurement. */
+const D12E_FLOOR = 48;
+/* ⚠ THE GROUND TOKEN IS PER CLASS, as `groundLightness` already knows — `canvas` IS the page ground
+ * on a light palette and is NOT on a dark one, where `band-dark` is. Reading `canvas` for everyone is
+ * the classifier defect section L was rewritten to remove, and it must not reappear here. */
+const rgbOf = (n, tok) => parseColor(paletteOf(n)[tok] ?? "");
+const groundRgb = (n) => rgbOf(n, GROUND_TOKEN[THEME_GROUND[n]] ?? "canvas");
+const dist3 = (a, b) => (a && b) ? Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) : null;
+const groundAccent = REAL.flatMap((a) => REAL.filter((b) => b !== a && sameBand(a, b))
+  .map((b) => ({ key: `${a} ground on ${b} accent`, de: dist3(groundRgb(a), rgbOf(b, "accent-500")) })))
+  .filter((x) => x.de !== null).map((x) => ({ ...x, de: +x.de.toFixed(1) }));
+const gaMin = groundAccent.length ? Math.min(...groundAccent.map((x) => x.de)) : null;
+console.log(`         ${groundAccent.length} same-band ground/accent pairs; closest ${gaMin} (floor ${D12E_FLOOR})`);
+
+t("D12e-0 ⚠ THE SUBJECT IS NON-EMPTY, against a literal — a same-band filter that matched nothing would pass silently",
+  groundAccent.length >= 10, true);
+t(`D12e ⚠ NO PALETTE'S GROUND SITS ON ANOTHER'S ACCENT — dE below ${D12E_FLOOR}, same-band, because across bands two grounds never compete`,
+  groundAccent.filter((x) => x.de < D12E_FLOOR).map((x) => `${x.key} ${x.de}`), []);
+/* ⚠ THE FLOOR'S WEAKNESS IS ASSERTED, NOT LEFT IN PROSE. The population's closest pair is 195.4 —
+ * FOUR TIMES the floor — so no shipped palette comes near it and THIS GUARD HAS NEVER FIRED FOR A
+ * REAL REASON. Its pass is therefore not evidence of anything, and this row says so out loud so the
+ * next reader does not read a green tick as a measurement.
+ *
+ * 48 is anchored on the ONLY judged datapoint available: sapphire and nocturne's accents at 47.2,
+ * looked at on a render and ruled two themes rather than one. So the floor means "closer than the
+ * closest pair anyone has judged distinct". PROVISIONAL. What would calibrate it is a real pair
+ * somebody looks at and calls confusable; until then it is an anchor, not a measurement. */
+/* ⚠ AGAINST A LITERAL, NOT AGAINST THE FLOOR IT GUARDS. The first version asserted
+ * `gaMin > D12E_FLOOR * 3` — derived from the very number it exists to characterise, so LOWERING THE
+ * FLOOR WOULD LOWER THE GUARD WITH IT and the row would go on reporting the floor as comfortable.
+ * A denominator guard derived from its own subject guards nothing; caught by mutation, and it is the
+ * same defect `theme` V4 had this same session. 150 is a literal for that reason. */
+t("D12e-a ⚠ AND THE FLOOR IS PROVISIONAL — the closest shipped pair is 195.4, four times it, so a pass here is not evidence",
+  gaMin !== null && gaMin >= 150, true);
+t("D12e-b ⚠ AND THE CROSS-BAND PAIRS IT SKIPS ARE COUNTED — a dropped comparison nobody can see is one nobody chose",
+  REAL.flatMap((a) => REAL.filter((b) => b !== a && !sameBand(a, b))).length > 0, true);
 
 console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is computed or listed BY NAME");
 
@@ -973,6 +1101,25 @@ t("L3b ⚠ AND A BAND WITH A FLOOR DOES NOT CLAIM OTHERWISE — the mutation tha
   BANDS.filter((b) => b.hueFloor !== null && /no floor has been measured/.test(b.why)).map((b) => b.label), []);
 t("L3c …and a stated floor names what it was measured ON, so it cannot be borrowed from another band",
   BANDS.filter((b) => b.hueFloor !== null && !/measured on THIS band/.test(b.why)).map((b) => b.label), []);
+/* ⚠ AND THE FLOOR IS COMPUTED FROM THE JUDGEMENTS RATHER THAN ASSERTED BESIDE THEM. A band's floor
+ * must sit strictly above every separation judged ONE and at or below every separation judged TWO.
+ * Raising it without a new judgement therefore fails, which is the mutation that walked through the
+ * prose version. `L3e` keeps the register honest in the other direction: a judged reading with no
+ * description is a number nobody can re-take. */
+const withJudged = BANDS.filter((b) => Array.isArray(b.judged) && b.judged.length);
+t("L3d-0 ⚠ AT LEAST ONE BAND CARRIES JUDGED RENDERS, against a literal — an empty register makes L3d vacuous",
+  withJudged.length >= 1, true);
+t("L3d ⚠ A FLOOR IS COMPUTED FROM ITS JUDGEMENTS — above every separation read as ONE, at or below every one read as TWO",
+  withJudged.filter((b) => {
+    const ones = b.judged.filter((j) => j.read === "one").map((j) => j.dE);
+    const twos = b.judged.filter((j) => j.read === "two").map((j) => j.dE);
+    const tooLow = ones.length && b.hueFloor <= Math.max(...ones);
+    const tooHigh = twos.length ? b.hueFloor > Math.min(...twos) : ones.length && b.hueFloor > Math.max(...ones) + 0.15;
+    return tooLow || tooHigh;
+  }).map((b) => `${b.label}: floor ${b.hueFloor}, judged one ${b.judged.filter((j) => j.read === "one").map((j) => j.dE)}, judged two ${b.judged.filter((j) => j.read === "two").map((j) => j.dE)}`), []);
+t("L3e …and every judged reading names what was rendered, so a figure nobody can re-take cannot enter the register",
+  withJudged.flatMap((b) => b.judged.filter((j) => !j.what || j.what.length < 25 || !["one", "two"].includes(j.read))
+    .map((j) => `${b.label} ${j.dE}`)), []);
 t("L5 ⚠ EVERY BAND DECLARES ITS FLOOR UNIT — degrees is silent about an achromatic ground, and silence reads as a pass",
   BANDS.filter((b) => !b.floorUnit).map((b) => b.label), []);
 t("L4 every band states WHY it exists and what its floor rests on",

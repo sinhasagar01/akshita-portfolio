@@ -387,6 +387,38 @@ closed.
   palette carries the separation in lightness and chroma together. `V4` fails by name rather than
   letting it render flat and be judged by eye.
 
+- **⚠ A GUARD DERIVED FROM THE THING IT GUARDS LOWERS ITSELF WHEN THAT THING IS LOWERED — TWICE IN
+  ONE SESSION, THE SECOND WRITTEN AFTER THE FIRST WAS RECORDED.** `theme` V4 computed
+  `glass.c + step` where `step` is `pearl.c − glass.c`, which is `pearl.c >= 0` — true by
+  construction. `theme-contrast` D12e-a asserted `gaMin > D12E_FLOOR * 3`, so halving the floor would
+  have halved the guard and the row would go on calling the floor comfortable.
+
+  **BOTH LOOKED CORRECT, BOTH PASSED THEIR OWN SUBJECT, AND BOTH WERE CAUGHT BY MUTATION AND NEITHER
+  BY READING.** That is the argument for mutation-testing EVERY new row rather than the ones that
+  look risky — the two that needed it were the two that looked finished.
+
+  The repair is the same both times and it is one word: **compare against a LITERAL.** A guard whose
+  expectation is computed from its subject cannot fail when the subject moves, which is the
+  denominator rule arriving inside the guard instead of inside the count.
+
+- **⚠ A STATED FLOOR THAT NAMES THE WRONG SUBJECT IS THE SIGNATURE DEFECT, AND `L3c` IS THE FIRST
+  GATE TO STAND IN FRONT OF IT.** The dark band's floor was set to **10.5** — the smallest separation
+  among the five `band-dark` values, judged full-bleed and ruled distinguishable. Defensible, honestly
+  arrived at, **and calibrated on the LIGHT band.** `L3c` requires a floor to name what it was
+  measured ON, and refused it.
+
+  **⚠ AND THE REFUSAL FORCED THE DISTINCTION THAT MATTERED: WHAT THIS BAND PROVES IS A CEILING ON THE
+  FLOOR, NOT THE FLOOR.** One in-band judgement exists — sapphire and nocturne at dE 6.0, rendered
+  full-bleed with the accent held out, read as one colour. So **everything at or below 6.0 is refused
+  on evidence and nothing above it has been judged.** The floor is 6.1 until an in-band series is
+  read, and the row says so.
+
+  **⚠ IF A LATER IN-BAND READ LANDS NEAR 10.5, THAT IS TWO BANDS CONVERGING BY INDEPENDENT ROUTES —
+  NOT CONFIRMATION.** The distinction is the whole value: one borrowed number that happens to be right
+  is worth nothing, and two independent series agreeing is worth more than either alone. **It is only
+  worth that if the independence is said out loud**, because a converging number reads as a confirmed
+  number to everyone who arrives later.
+
 - **⚠ BEFORE SEARCHING A MULTI-VARIABLE SPACE, CHECK WHETHER THE OBJECTIVE DEPENDS ON EVERY
   VARIABLE.** The work filter's two floors are `legibility = ratio(label, fill)` and
   `affordance = ratio(fill, surface)`. **The label appears nowhere in the second.** Three sessions
