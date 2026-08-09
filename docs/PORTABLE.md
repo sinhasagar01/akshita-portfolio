@@ -165,7 +165,22 @@ codebase. The first two produced workarounds whose comments became the record. T
 control where no workaround had been applied, and it silently discarded every change an author made
 to that field for a whole session.
 
-### 18. A carried item is a claim about the present
+### 18. A task carried in the wrong verb stays open indefinitely
+
+An item written as *tune this* will never be closed by someone tuning it if the answer is to remove it.
+The verb decides what work gets attempted, and an attempt aimed at the wrong action fails quietly and
+leaves the item exactly where it was.
+
+**A long-carried item is evidence that its verb is wrong, not that it is hard.** When something has sat
+for months while easier things around it closed, re-read the sentence and ask whether the action it
+names is the action needed.
+
+*Example, because the failure looks like difficulty.* An item read "tune the faint heading and backdrop
+alphas" and was carried for months. The answer was to delete the alphas, because the hierarchy had been
+resting on opacity, which is the one mechanism that cannot survive a change of background. Nobody
+tuning it would ever have finished.
+
+### 19. A carried item is a claim about the present
 
 An open list decays exactly like a comment, and nothing fails when it does. An item closed in the code
 but never struck stays true looking, keeps its rank, and directs work.
@@ -180,7 +195,7 @@ descriptions are still empty, write them or decide to drop the field" was carrie
 ranked first for a session's content work. The field had been deleted from the schema, with the
 reasoning recorded beside the deletion, and no consumer had ever existed.
 
-### 19. Capture the exit code before any pipe touches it
+### 20. Capture the exit code before any pipe touches it
 
 A pipeline's status is the last command's. A check piped into a formatter gates on the formatter,
 which always succeeds. The gate exists, is wired to the wrong subject, and reports success.
@@ -188,7 +203,7 @@ which always succeeds. The gate exists, is wired to the wrong subject, and repor
 This recurred three times in one project. The first two were fixed by intention, which is why they
 recurred.
 
-### 20. A wrong unit produces confident, checkable looking claims
+### 21. A wrong unit produces confident, checkable looking claims
 
 It does not produce obvious nonsense. It produces specific numbers and real names, with the true
 finding hiding among them.
@@ -197,30 +212,30 @@ When a record and an instrument disagree, ask what unit each side counts in befo
 And before dismissing a gate's output as instrument error, check the instances one at a time, because
 "my probe was coarse" explains away true findings exactly as well as false ones.
 
-### 21. A population can be complete, measured, and still be the wrong noun
+### 22. A population can be complete, measured, and still be the wrong noun
 
 A denominator check confirms you counted everything you looked at. It cannot tell you that the thing
 you counted is the thing you named.
 
-### 22. Judge the premise and the investigation separately
+### 23. Judge the premise and the investigation separately
 
 A check run for a wrong reason can still be the check that was needed. And a conclusion can survive
 its evidence being corrected, in which case it should be **seen** to have survived, because a true
 conclusion propped up by a reason nobody can reproduce is indistinguishable from luck.
 
-### 23. Treat agreement with a forecast as no evidence at all
+### 24. Treat agreement with a forecast as no evidence at all
 
 A prediction that a number will move makes any movement look like the predicted one. When a predicted
 number moves, establish why before accepting it.
 
 This is a defect in the reader rather than in the instrument, so no assertion can catch it.
 
-### 24. A clean sweep is a reason to re read the predicate, not to stop checking
+### 25. A clean sweep is a reason to re read the predicate, not to stop checking
 
 A unanimous result on the wrong quantity reads as overwhelming evidence. Every partial result has at
 least one figure that looks odd. A perfect one has none, which is what makes it persuasive.
 
-### 25. Before measuring, establish that the instrument can see the subject at all
+### 26. Before measuring, establish that the instrument can see the subject at all
 
 Not whether it returns a number. Whether the thing you are measuring is present, visible and reachable
 by the method you are using. A probe pointed at something it cannot see returns a clean, confident,
@@ -235,7 +250,7 @@ page. A viewport sat exactly on the inclusive edge of the breakpoint that hides 
 zero size while its descendants carried the paint. And a suite ran against a stale build. Every one
 returned a plausible figure, and a known-good control was returning the same nothing throughout.
 
-### 26. Correct in place, where the wrong thing was published
+### 27. Correct in place, where the wrong thing was published
 
 A correction that leaves no trace is indistinguishable from never having been wrong. Rewriting history
 so the error never existed removes the one thing that tells a reader the claim was checked.
@@ -243,7 +258,7 @@ so the error never existed removes the one thing that tells a reader the claim w
 Say what was published, what it should have said, and how the difference was found. The record of a
 correction is worth more than the tidiness of the artefact.
 
-### 27. A null result carries a timestamp and nothing displays it
+### 28. A null result carries a timestamp and nothing displays it
 
 An absence is evidence only if the search could have found the thing. A search that ran before the
 thing existed returns exactly what a search that ran after would return if it were genuinely absent,
@@ -257,7 +272,7 @@ particular kind of commit came back empty and directed three rounds of diagnosis
 component. The commit existed by the time the conclusion was acted on. It had simply not been made
 when the search ran.
 
-### 28. When a state is added to one path, ask which other paths carry the same kind of fact
+### 29. When a state is added to one path, ask which other paths carry the same kind of fact
 
 A validation state was added to a save path, with the argument written out beside it, because a fact about
 the content outranks a fact about the transfer, because swallowing it deletes the only signal saying
@@ -266,7 +281,7 @@ why. The publish path handled the same class of fact and fell through to a gener
 **A rule fixed where it was found and never generalised** is the third instance of this shape in one
 codebase. The rule was right, the reasoning was recorded, and nobody asked where else it applied.
 
-### 29. Withhold a measurement you do not understand
+### 30. Withhold a measurement you do not understand
 
 A wrong diagnosis costs a session. A wrong diagnosis written down as a cause costs however long it
 takes the next person to stop believing it.
@@ -275,7 +290,7 @@ Six measurements were produced and withheld in one component in a single session
 the previous one taught. Every one would have passed review. Four reconciled with their neighbours.
 Withholding is the cheaper half of that trade every time, and it does not feel like it in the moment.
 
-### 30. Nothing reported is evidence, including a report you wrote yourself
+### 31. Nothing reported is evidence, including a report you wrote yourself
 
 Every claim about a system should be checked against that system. This is obvious for measurements
 and is routinely skipped for statements about tooling, state and process, which are exactly the
@@ -284,16 +299,16 @@ claims no instrument is watching.
 Prefer a measurement the artefact carries over an assertion made beside it. A capture that verifies
 its own subject cannot be mislabelled. A screenshot with a caption can.
 
-### 31. A safety net that restores the wrong state is worse than an absent one
+### 32. A safety net that restores the wrong state is worse than an absent one
 
 Because it is trusted. An absent net makes people careful. A net that silently hands back the wrong
 thing while reporting success does not.
 
-### 32. Zero consumers is a reason to delete, not to exempt forever
+### 33. Zero consumers is a reason to delete, not to exempt forever
 
 An exemption is what lets a dead thing survive review for as long as the exemption list does.
 
-### 33. A refusal registry is worth as much as a decision registry
+### 34. A refusal registry is worth as much as a decision registry
 
 Record what was considered and rejected, with the reason. Otherwise the same question is asked and
 answered repeatedly, and each answer is slightly different.
@@ -360,5 +375,5 @@ thousand seven hundred checks across sixty seven files. Most entries above are o
 happened between two and eighteen times before anyone named the shape.
 
 The recurring cause, stated once, is that **an instrument's subject is narrower than its claim**. Rules
-1, 2, 6, 7, 8, 9, 20 and 21 are all that fact arriving from different directions, and limits A to E
+1, 2, 6, 7, 8, 9, 21 and 22 are all that fact arriving from different directions, and limits A to E
 are the places where it cannot be fixed.
