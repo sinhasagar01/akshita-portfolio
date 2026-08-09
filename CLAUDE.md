@@ -387,6 +387,43 @@ closed.
   palette carries the separation in lightness and chroma together. `V4` fails by name rather than
   letting it render flat and be judged by eye.
 
+- **⚠ THREE CEILINGS WERE DERIVED CORRECTLY, CITED THREE TIMES AS CONSTRAINTS, AND BOUND NOTHING.**
+  Ink & Flare's `onA` at 0.045, Nocturne's `aTxt` at 0.127 and Basalt's `onA` at 0.046 are exact — and
+  they are ceilings for **preview rungs the 35-token vocabulary does not carry.** The preview's `onA`
+  sits at L 17% and its `aTxt` at L 78%; measured against a shipped palette's accent-hue family
+  (`on-dark-quote` 74.5, `accent-on-dark` 70.0, `glow-paper` 63.0, `accent-500` 52.0, `accent-600`
+  45.0), **nothing lands within ±2 of either.**
+
+  **⚠ AND THE ENUMERATION THAT PRODUCED THEM IS STILL CITED AS WHY THE THREE PALETTES ARE "MEASURED
+  AND SPECIFIED".** That phrase is weaker than it reads. What was measured was a preview's ladder;
+  what a palette needs is a different vocabulary, and the hue-aware cap did its real work on
+  `accent-500` and `accent-600` — rungs that exist. **A ceiling for a token no palette declares is the
+  wrong-subject defect in a figure both parties had stopped checking.**
+
+- **⚠ AN IDENTITY CLAIM ATTACHED TO THE WRONG PROPERTY, BY BOTH OF US, AND THEN HANDED BACK AS A
+  CONSTRAINT.** Nocturne's *"saturated all the way down"* was read as its **14 degree ground-accent
+  gap** and used to argue a redraw must preserve that gap. It is a **CHROMA** claim — the ground
+  carries c0.024, second-highest of the six candidates, so chroma survives to the darkest rung. The
+  gap is a separate property.
+
+  **The recommendation preserved the real property anyway**, which is luck rather than method. **A
+  prose identity turned into a numeric constraint is where a design gets quietly redefined** — ask
+  which property the sentence actually names before treating it as a bound.
+
+- **⚠ A DRAWING ROTATED TO SATISFY A GATE IS A PALETTE NOBODY DESIGNED.** All three candidate dark
+  palettes collide — Nocturne on its ground at dE 6.0, Ink & Flare on its accent at 10 degrees from
+  cream, Basalt on its accent at 6 degrees from fern — because all three were drawn before most of the
+  shipped palette existed. **The fix is not to move them.** The four drawn numbers are the design, and
+  moving them to satisfy a gate inverts which of the two is authoritative.
+
+  **⚠ AND THE CIRCLE IS NOT FULL, WHICH WAS FORECAST AND IS FALSE.** Measured at the 24 degree floor
+  there is room for **six more accents** in three open arcs — **h66–h110, h189–h248, h296–h306** —
+  twelve palettes before the accent constraint shuts. The forecast was that the accent circle had
+  reached the ground circle's state; agreeing with it would have been the pre-confirmed hypothesis.
+  **Nothing is lost by deferring while six arcs are open, and a palette drawn INTO an open arc will be
+  better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
+  an arc rather than from a drawing that has to be checked against one.
+
 - **⚠ A GUARD DERIVED FROM THE THING IT GUARDS LOWERS ITSELF WHEN THAT THING IS LOWERED — TWICE IN
   ONE SESSION, THE SECOND WRITTEN AFTER THE FIRST WAS RECORDED.** `theme` V4 computed
   `glass.c + step` where `step` is `pearl.c − glass.c`, which is `pearl.c >= 0` — true by
