@@ -542,9 +542,15 @@ export default function ContactSection({ settings }: Props) {
               </span>
             </div>
 
-            {/* Escape email link — inside panel, centered, z-index 1 */}
+            {/* Escape email link — inside panel, centered, z-index 1.
+                ⚠ 15px, NOT 12px, AND THE SIZE IS SET AT THIS SITE RATHER THAN A SEAM. This is a FULL
+                SENTENCE at label size on a route where every other sentence is 15px or more. The four
+                other `text-[12px]` sites in this component are genuine labels — an uppercase tracked
+                eyebrow, a status line, a caption — so there is no shared utility to move and changing
+                one here moves nothing else. Checked before editing, because a size coming from a seam
+                would have to be fixed at the seam. */}
             <p
-              className="relative text-center font-body text-[12px] mt-[14px]"
+              className="relative text-center font-body text-[15px] mt-[14px]"
               style={{ zIndex: 1, color: 'var(--color-text-subtle)' }}
             >
               or just email{' '}

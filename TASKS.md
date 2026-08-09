@@ -334,6 +334,21 @@ Remaining known trade, a draft based on an old main surfaces staleness only at p
 ## Portfolio (user-facing), still open, pre-dates the /studio work
 
 - Full mobile and responsive QA pass across ALL boAt case-study sections at 1024px. 07 was almost certainly not the only gap, so verify on a real device, not just preview_resize.
+
+  ⚠ STILL OPEN, AND A PARTIAL SURVEY IS RECORDED HERE RATHER THAN COUNTED AGAINST IT. A structural
+  pass at 1024 found NO horizontal scroll on home, boat-crest or an article — scrollWidth 1009
+  against a 1024 viewport — and the docked reading indicator, which renders below 1200 and had been
+  looked at least, is clean. One finding was fixed: the contact escape line was a full sentence at
+  12px and is now 15px.
+
+  ⚠ TWO LIMITS, WHICH ARE WHY THIS ITEM DOES NOT MOVE. THREE ROUTES IS NOT EVERY boAt SECTION, and a
+  page with no overflow is not a page that has been looked at section by section — A STRUCTURALLY
+  SOUND SECTION CAN STILL READ WRONG. And the item's stated method is a REAL DEVICE; the survey used
+  a headless 1024 viewport, which is preview_resize by another name. THE THING THIS NOTE EXPLICITLY
+  ASKS FOR IS THE THING THAT WAS NOT DONE.
+
+  Half-closing a task whose stated method was not used is how the contact form survived four
+  sessions. OWNER'S, and the real-device pass is the whole of what remains.
 - Beats 7 to 9 of the case-study page.
 - Remaining app screens. Sleep Detail and Blood Oxygen (inspirations TBD), and Daybreak light-mode variants via token swap.
 - Behance publish (full panel sequence).
