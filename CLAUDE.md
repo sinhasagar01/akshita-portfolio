@@ -536,6 +536,34 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ A CLAIM ABOUT A DEFAULT, MADE FROM ONE OF TWO DEFAULTS — AND THE FAILURE WAS QUESTIONING A GOOD
+  SIGNATURE WRONGLY RATHER THAN NOT AT ALL.** Tracing a publish defect, the signature was *"no studio
+  commit ever carried a status change"*, read from `git log` subjects. It had produced a correct
+  diagnosis once before, so it was trusted — then doubted, on the grounds that
+  `commitCollectionEntry` defaults the blog message to `blocks draft` **regardless of what changed**.
+
+  **That doubt was false.** There are TWO writers with TWO defaults — the shared head-field path emits
+  `update blog/<slug> draft` with **no noun**, and the dedicated blocks writer emits
+  `update blog/<slug> blocks draft`. **The generalisation came from reading line 345 and never
+  looking at line 157.** The messages discriminate and always did.
+
+  **⚠ AND THE CORRECTION IS WHAT LOCALISED THE DEFECT.** Head-field saves for another post appear in
+  history three times; **not one has ever fired for the post that will not publish.** So the path
+  works and one post does not reach it — which is a far narrower fault than "the save is broken", and
+  it was only visible once the signature was trusted again.
+
+  **A signature that has been right once is the hardest kind to question**, and the trap is not
+  failing to question it. It is questioning it from a partial read and discarding a working
+  instrument.
+
+- **⚠ AND THE DEFECT'S REAL SHAPE IS A CONTROL THAT REPORTS A STATE IT HAS NOT PERSISTED.** Whether
+  `saveDraft` returns early on its dirty check or the control was never mounted, **the author sees
+  the same thing**: the control reads Published and nothing happens. Neither case is distinguishable
+  from the other by looking, and neither is distinguishable from a successful save.
+
+  **THAT IS WHY IT SURVIVED A FIX.** `#438` repaired a real defect in the same control, and the
+  symptom is unchanged — so the previous diagnosis is now the main obstacle to seeing this one.
+
 - **⚠ A FIGURE CITED ACROSS A CHANGE THAT WAS SUPPOSED TO MOVE IT, AND NOBODY RE-COUNTED.** "110
   declarations" was the vessel's token cost, counted BEFORE the indicator was reworked and then
   carried through four prompts by both parties as the size of the removal that would follow.
