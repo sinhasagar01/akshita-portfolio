@@ -147,6 +147,17 @@ owner can make, which is a different question from whether the fields are filled
 The light editorial direction was confirmed long ago and the tokens are set. That question is
 closed.
 
+## Portable conventions
+
+`docs/PORTABLE.md` holds the rules and limits from this project that are **not about this project**.
+Twenty five rules and five limits, each tested against whether it survives without its example. It is
+the extraction of what the arc below cost, and it is deliberately separate because the entries here
+are entangled with `.wf-thumb`, `pearl` against `glass` and `D12e`, and the ones there are not.
+
+**A limit is not a rule waiting to be implemented.** Part two names five things no instrument can
+see, and writing them down is the whole remedy. A reader who cannot tell a rule from a limit will
+build a gate for the limit and then believe it.
+
 ## Conventions (must hold across sessions)
 
 - **Tailwind v4 component styling.** The bracket-bare rule is in Stack above, do not restate it. Beyond it, model new components on `components/case-study`, which uses clean bare utilities. Do not copy `components/blocks` or `components/sections`, which still use the broken bracket-bare form. Hairlines use `border-ink-950/8` **on the public site and the canvas**, and `border-ink-950/12` **inside /studio**. That split is deliberate, not drift: the ink-chrome direction stepped the studio's hairlines up one notch because /8 read as accidental against harder chrome, and the canvas was held at /8 because it renders through the same components as the public article and must not move. **Apply /12 only under `components/studio` and `app/studio`.** Card surfaces use `bg-cream-50`, `bg-cream-100`, or `bg-cream-200`. The page canvas behind cards uses `bg-canvas`. Both `bg-canvas` and `border-border` are real tokens, the case-study convention just prefers the explicit ink and cream utilities for hairlines and card surfaces.
