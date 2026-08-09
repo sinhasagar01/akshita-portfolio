@@ -536,6 +536,48 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ THE OVERLAY SCALE WAS DECLARED AND THE COPIES WERE NEVER COLLECTED — SIX WHITE-INSET LITERALS
+  SIT OUTSIDE IT, AND FOUR HAVE DRIFTED.** `--glass-shadow` is read by five sites, all nav. The blog
+  vessel, the blog capsule, `.nav-ind`, `.nav-cta` at rest and on hover, and the home hero's tab pill
+  each carry their own.
+
+      .blog-vessel      globals.css:4133   85%   byte copy of the scale
+      .blog-capsule     globals.css:4277   85%   byte copy of the scale
+      .nav-ind          globals.css:2343   90%   drifted
+      .nav-cta          globals.css:2360   35%   drifted
+      .nav-cta hover    globals.css:2367   45%   drifted
+      hero tab pill     HeroSection.tsx:290 70%  drifted, AND A JSX INLINE STYLE
+
+  **#268 FOUND SEVEN LITERALS ACROSS SEVEN FILES WITH TWO DRIFTED AND DECLARED THE SCALE. This is six
+  across five selectors with four drifted, one arc later** — declaring a scale does not collect what
+  already exists, and nothing has ever asserted that it did.
+
+  **⚠ AND THE HERO TAB'S DROP IS A DIFFERENT DEFECT WEARING THE SAME CLOTHES:**
+  `0 3px 12px oklch(30% 0.018 60 / 0.12)` — a raw OKLCH at **hue 60, cream's warm hue**, themeing on
+  none of the nine palettes. **That is a themeing repair and must not ride inside a shadow-weight
+  change**, which would ship two unrelated fixes under one justification.
+
+- **⚠ THE FILE-TYPE BOUNDARY'S THIRD INSTANCE, AND THE FIRST WHERE A PERSON SUPPLIED WHAT THE
+  INSTRUMENT COULD NOT REACH.** A `.css`-bounded sweep finds **five of the six** literals above. The
+  sixth is a JSX inline style, and it was found **because the owner named the element**, not because
+  the sweep arrived at it.
+
+  **HAD ONLY THE VESSEL BEEN NAMED, THE REPORT WOULD HAVE BEEN FIVE — COMPLETE-LOOKING, DENOMINATED,
+  AND SHORT BY THE INTERESTING ONE.** The two earlier instances were a `.tsx`-only walk missing 81
+  rung references in `globals.css` and a sweep whose subject was bounded by directory. **This one is
+  the mirror: bounded by stylesheet, missing the markup.** A denominator computed inside a walk cannot
+  see the walk's own boundary, in either direction.
+
+- **⚠ `/work/<slug>` RENDERS THE 404 PAGE RATHER THAN FAILING, SO A CAPTURE FROM A WRONG ROUTE LOOKS
+  LIKE A REAL PAGE.** The case-study route is **`/projects/<slug>`**. A screenshot taken at `/work/…`
+  returns 200 with a fully designed, correctly themed page, and **a hero capture from it would have
+  been captioned as a hero.**
+
+  Same family as the stalled full-page capture and the `nextjs-portal` badge — **an instrument
+  condition mistaken for a site condition, in the medium nobody thought to apply the rule to.** The
+  distinguishing check is cheap and was what caught it: **assert the page title, or assert the subject
+  element was found**, rather than trusting the status code.
+
 - **⚠ THE GLASS PANE CONTRIBUTES ALMOST NO SEPARATION ON ANY PALETTE — +0.37 TO +0.45 ON ALL FIVE,
   INCLUDING CREAM.** The nav pill's fill is a wash whose lightness sits within half a unit of the page
   behind it everywhere, so **the pill has always been defined by its EDGES rather than by its body**,
