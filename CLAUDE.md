@@ -536,6 +536,26 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ THE GLASS PANE CONTRIBUTES ALMOST NO SEPARATION ON ANY PALETTE — +0.37 TO +0.45 ON ALL FIVE,
+  INCLUDING CREAM.** The nav pill's fill is a wash whose lightness sits within half a unit of the page
+  behind it everywhere, so **the pill has always been defined by its EDGES rather than by its body**,
+  on light as much as on dark. Nobody had measured it in either direction.
+
+  **⚠ AND THAT REFRAMES THE DARK REPAIR FROM RESTORING A SHADOW TO DECIDING WHAT THE EDGE IS.** On
+  cream the edge is overwhelmingly the drop, at 27.51 against the top inset's 3.37. On a near-black
+  ground **the drop cannot exist**: the page sits at relative luminance 1.61, so the deepest darkening
+  any pigment can produce is 1.61 — a **17x ceiling set by the ground, not by the choice of colour.**
+
+  **⚠ SO `rule` WAS THE RIGHT PRECEDENT TO CHECK AND ITS REASONING DOES NOT TRANSFER.** It is the
+  mid-tone built because an extreme must invert and a mid-tone must not, and it holds OKLCH 48.5% on
+  every palette — **correct for a hairline, which must READ on both grounds.** A shadow must be DARKER
+  than its backdrop, and 48.5% is lighter than a near-black page, so `rule` would glow exactly as
+  `etch` does. **A mid-tone solves "must remain visible"; it cannot solve "must remain below".**
+
+  The resolution is this file's own glass rule arriving in the nav: **pale glass shows its thickness
+  as shadow, dark glass shows it as transmitted light.** The edge moves to the lit inset, derived at
+  13% against the dark pane rather than inherited at 85%.
+
 - **⚠ 1.23 AND 1.37 SHIPPED WITH THE DARK PRESETS AND NO GATE SAW THEM, BECAUSE BOTH VALUES ARE
   CORRECT ON LIGHT.** The blog body painted `ink-800` and the hero rating chip's label inherited
   `ink-950` — raw rungs that do not remap — so **every article and every case-study hero carried

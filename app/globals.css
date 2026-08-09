@@ -1735,6 +1735,12 @@ a {
 
      A step ABOVE `surface`, because these are filled blocks sitting ON the page rather than recesses
      in it. The light value is untouched — only this block overrides. */
+  /* ⚠ THE NAV GLASS REMAPS HERE TOO, AND THIS IS THE CASE THAT WAS MEASURED. `data-nav-tone` is
+     driven by a dark HERO, so a dark PALETTE never sets it — the home page on nocturne carries a
+     dark pane (the fill's rungs already follow the ground) under a light-ground shadow. Wiring
+     only the tone block would have left the palette case exactly as broken as it was found. */
+  --glass-shadow:    var(--glass-shadow-dark);
+  --glass-shadow-hi: var(--glass-shadow-hi-dark);
   --color-cream-200:     color-mix(in oklch, var(--color-on-dark) 12%, var(--color-band-dark));
   --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
   --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
@@ -2105,6 +2111,50 @@ a {
   --glass-fill-dark:        color-mix(in srgb, var(--color-ink-800) 50%, transparent);
   --glass-fill-dark-strong: color-mix(in srgb, var(--color-ink-800) 72%, transparent);
   --glass-stroke-dark:      color-mix(in srgb, var(--color-white) 15%, transparent);
+
+  /* ⚠ THE SHADOW REMAPPED NOWHERE, AND THE BLOCK BESIDE IT REMAPPED EVERYTHING ELSE. The tone
+     block below has always redirected the fill, the stroke, the sheen gradient and the text, and
+     never this. A value that exists, is correct, and no consumer reads — the CS_MIN_SCALE shape.
+
+     ⚠ THE DROPS CANNOT BE REPAIRED BY CHOOSING A PIGMENT, AND THAT IS A CEILING RATHER THAN A
+     TUNING PROBLEM. Measured on the home page, sanity pair 21.000 first: on cream the two drops
+     darken the page by 27.51 and 13.23. Nocturne's page ground sits at relative luminance 1.61,
+     so the DEEPEST DARKENING ANY PIGMENT CAN PRODUCE THERE IS 1.61 — pure black, fully opaque.
+     A 17x ceiling set by the ground.
+
+     ⚠ SO `rule`'s REASONING DOES NOT TRANSFER, THOUGH IT WAS THE RIGHT PRECEDENT TO CHECK. It is
+     the mid-tone built because an extreme must invert and a mid-tone must not, and it holds
+     OKLCH 48.5% on every palette. That is correct for a HAIRLINE, which must READ on both
+     grounds. A shadow must be DARKER than its backdrop, and at 48.5% `rule` is lighter than a
+     near-black page — it would glow exactly as `etch` does today, only more.
+
+     The drops therefore go to true black. They keep the RIGHT SIGN and buy at most 1.61, which
+     is stated here rather than rounded into a claim of restored depth.
+
+     ⚠ AND THE EDGE CARRIES THE PILL ON DARK, WHICH IS THIS FILE'S OWN GLASS RULE ARRIVING IN THE
+     NAV. Pale glass shows its thickness as shadow; dark glass shows it as transmitted light. The
+     top inset is DERIVED rather than inherited: white at 85% over the dark pane measures +71.66
+     against the +3.37 the same layer produces on cream — 21x, because `--color-white` is a fixed
+     value with nowhere to go on light and everywhere to go on dark. Solved for the alpha that
+     reproduces cream's 3.37 on nocturne's pane and confirmed against the render: 13%.
+
+     ⚠ THE 28% BOTTOM INSET AND THE 6% RING ARE HELD, AND THE BOTTOM ONE IS HELD ON A WEAKER
+     MEASUREMENT THAN THE TOP. Its sampled figure (+3.61 dark against +2.86 light) disagrees with
+     the analytic composite by 2.7x, because the sample row sits where the 0.5px border and the
+     radius antialiasing are. The TOP inset's two routes agree within 0.4, which is why the
+     derivation is built on that one. Re-measure the bottom edge before moving it. */
+  --glass-shadow-dark:
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 13%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 28.000000000000004%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-etch) 6%, transparent),
+    0 2px 6px -2px oklch(0% 0 0 / 0.14),
+    0 14px 38px -14px oklch(0% 0 0 / 0.34);
+  --glass-shadow-hi-dark:
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 16%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 34%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-etch) 7.000000000000001%, transparent),
+    0 3px 8px -2px oklch(0% 0 0 / 0.16),
+    0 20px 46px -14px oklch(0% 0 0 / 0.4);
 }
 @media (max-width: 1023px) {
   /* Cheaper blur on the throttled-hardware breakpoint — one dial. */
@@ -2219,6 +2269,9 @@ a {
   --glass-fill: var(--glass-fill-dark);
   --glass-fill-strong: var(--glass-fill-dark-strong);
   --glass-stroke: var(--glass-stroke-dark);
+  /* ⚠ THE FOURTH REDIRECT, AND IT WAS MISSING FROM THE DAY THIS BLOCK WAS WRITTEN. */
+  --glass-shadow: var(--glass-shadow-dark);
+  --glass-shadow-hi: var(--glass-shadow-hi-dark);
 }
 .site-header[data-nav-tone="dark"] .nav-glass { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .nav-glass::before {
