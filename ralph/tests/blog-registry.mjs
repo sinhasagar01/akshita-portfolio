@@ -186,5 +186,41 @@ t("F1 the projects and blog draft-state cache keys DIFFER",
 t("F2 …and each names its collection", [entryDraftCacheKey("projects"), entryDraftCacheKey("blog")],
   [["studio-entry-draft", "projects"], ["studio-entry-draft", "blog"]]);
 
+/* ============================================================================================
+   M · A DRAFT MARKER CANNOT REACH A PUBLISHED POST.
+
+   ⚠ PUBLISH IS WHOLE BRANCH. A draft carrying placeholders for sentences only the author can
+   write ships those placeholders the moment the branch is published for ANY other reason — a
+   settings change, an image upload, another post. Nothing here reads English, so a marker that
+   looks like prose is indistinguishable from prose.
+
+   The markers are therefore loud, and this is the gate that makes them unable to ship. Permissive
+   at save and strict at publish, the same shape as the title gate beside it — a marker is CORRECT
+   in a draft.
+
+   ⚠ THE LITERAL IS ASSEMBLED IN BOTH THE GUARD AND THIS TEST, so neither file contains the string
+   it forbids and a future sweep for stray markers cannot flag its own guard.
+
+   ⚠ AND THE FIXTURE QUOTES ITS SCALARS, because YAML RESERVES A LEADING `@` — an unquoted marker
+   makes the document unparseable, which would have made these rows pass for the wrong reason by
+   failing at the loader instead of the gate. The real markers live inside block scalars, where the
+   character is ordinary text.
+============================================================================================ */
+console.log(`\nM · a draft marker cannot reach a published post`);
+const MARK = "@" + "@ GAP";
+const post = (status, extra = "") =>
+  `title: A title\nstatus: ${status}\ntopic: Design systems\n${extra}blocks:\n  - discriminant: heading\n    value:\n      text: A heading\n`;
+
+t("M0 the fixture publishes cleanly without a marker — or M1 passes for the wrong reason",
+  validateBlogPost("slug", post("published"), ["Design systems"]).ok, true);
+t("M1 ⚠ A PUBLISHED POST CARRYING A DRAFT MARKER IS REFUSED",
+  validateBlogPost("slug", post("published", `dek: "${MARK} 1 OF 3 something"\n`), ["Design systems"]).ok, false);
+t("M1a …and the refusal names the marker rather than failing generically",
+  /draft marker/.test(validateBlogPost("slug", post("published", `dek: "${MARK} x"\n`), ["Design systems"]).error?.message ?? ""), true);
+t("M2 ⚠ AND A DRAFT MAY CARRY ONE — strict at publish, permissive at save, or the markers are unusable",
+  validateBlogPost("slug", post("draft", `dek: "${MARK} x"\n`), ["Design systems"]).ok, true);
+t("M3 …and it is caught anywhere in the document, not only in one field",
+  validateBlogPost("slug", post("published").replace("A heading", `"${MARK} 2 OF 3 here"`), ["Design systems"]).ok, false);
+
 console.log(`\nblog-registry result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
