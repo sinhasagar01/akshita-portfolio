@@ -210,6 +210,25 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
+  - id: ground-ceiling-black
+    kind: judgement
+    category: forced-literal
+    where: app/globals.css (:root[data-ground="dark"], --hero-tab-drop)
+    count: 1
+    selectors: [":root[data-ground=dark]"]
+    reason: >
+      True black at 12 percent, the hero tab pill's drop tint on a dark ground. Not a rung and not a
+      role on purpose. A drop shadow must be DARKER than its backdrop, and every pigment in the
+      vocabulary is lighter than a near-black page or inverts on it. etch inverts by design, which is
+      right for a hairline and wrong for a shadow, and rule holds a mid tone that would glow. The
+      nav's dark drops reached the same value by the same ceiling argument and are excused as
+      compiler fallbacks only because color-mix sits beside them in the same token. This one stands
+      alone, so it is claimed here.
+    test: >
+      The ground affords 1.61 of darkening against cream's 27.51, measured on nocturne. Any themed
+      pigment either glows or clips to black anyway, so the literal IS the derived answer. If a dark
+      shadow pigment ever enters the vocabulary, this row's subject moves to it and the row ends.
+
   - id: about-photo-tint
     kind: judgement
     category: artwork-by-file

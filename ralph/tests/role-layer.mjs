@@ -584,7 +584,11 @@ console.log("\nK · ⚠ THE DARK BLOCK REMAPS EVERY ROLE THAT NEEDS IT — the c
  * eight remapped roles as missing. Same family as the PR-number-as-hex trap: a convention of the
  * prose collided with a matcher, and the note about the mechanism became the defect. */
 const darkBlock = (() => {
-  const at = css.search(/^\[data-ground="dark"\]/m);
+  /* ⚠ THE FINDER FOLLOWS THE SELECTOR'S REPAIR. The block was raised to `:root[data-ground="dark"]`
+ * (0-2-0) after five of its values shipped SHADOWED by a later `:root` at the old 0-1-0 — so this
+ * matcher accepts the :root-prefixed form and refuses the bare one, because a bare block reappearing
+ * is the regression `ground-block` A2 exists to catch. */
+const at = css.search(/^:root\[data-ground="dark"\]/m);
   if (at < 0) return null;
   const o = css.indexOf("{", at);
   let d = 0, e = -1;

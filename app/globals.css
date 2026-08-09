@@ -1701,7 +1701,20 @@ a {
    leaving them would have traded one dark mechanism for two, which is what the conversion exists
    to end.
 ============================================================================================ */
-[data-ground="dark"] {
+/* ⚠ `:root[data-ground="dark"]`, NOT `[data-ground="dark"]`, AND THE EXTRA `:root` IS LOAD-BEARING.
+   At 0-1-0 this block tied with the `:root` blocks and LOST ON SOURCE ORDER, because one of them sits
+   400 lines below it. Every custom property declared here was inert on a dark palette — declared,
+   shadowed, and indistinguishable from applied in the stylesheet.
+
+   ⚠ RAISED TO 0-2-0 RATHER THAN MOVED. Reordering would fix it until the next `:root` insertion and
+   then break silently in exactly the same way; specificity does not depend on where anyone writes the
+   next block. `rendered-theme` section R asserts the resolved values so the tie cannot come back.
+
+   ⚠ AND THIS SHADOWED SILENTLY FOR AS LONG AS IT EXISTED, WHICH IS WHY IT SURVIVED A BUNDLE CHECK. A
+   grep proved both values PRESENT in the built CSS and both were; the property in question was which
+   one RESOLVES. Presence and resolution are different quantities and only one of them is the
+   appearance. */
+:root[data-ground="dark"] {
   background-color: var(--color-band-dark);
   color: var(--color-on-dark);
   --glow-color: var(--glow-on-dark);
@@ -1765,6 +1778,13 @@ a {
      express the difference. 13% stands as shipped, under-powered rather than under-weight. */
   --hero-tab-lit-edge: 14%;
   --vessel-lit-edge:   43.7%;
+  --hero-tab-drop: oklch(0% 0 0 / 0.14);
+  /* Derived by the same differencer — the ring present minus the ring transparent, same pixel, on a
+     straight run of the left edge clear of the radius. 31.9% reproduces cream's 10.32 on all four
+     dark palettes (10.08 to 10.20). `--glass-stroke-dark` at 15% is the precedent three hundred
+     lines up: the nav's stroke had a dark answer and this border did not, which is what made it an
+     omission rather than a decision. */
+  --vessel-edge: 31.9%;
   --color-cream-200:     color-mix(in oklch, var(--color-on-dark) 12%, var(--color-band-dark));
   --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
   --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
@@ -2187,8 +2207,34 @@ a {
      so the five layers exist once — which is the defect the overlay census just found six times. */
   --hero-tab-lit-edge: 70%;
   --vessel-lit-edge:   85%;
+  /* ⚠ RESTORED WITH READERS THIS TIME. consumer-count deleted this token for having none while its
+     68ch was written as a literal in both the article and the canvas — and the LOCKED decision is
+     that the measure is a NUMBER that must be identical on both surfaces, which is exactly what one
+     token with two readers enforces. `ch` resolves at the CONSUMING element against its own font,
+     so the var() form and the literal compute identically on each surface. */
+  --blog-measure: 68ch;
+  /* ⚠ THE VESSEL'S BORDER, WHICH CARRIED ITS ENTIRE READ ON DARK AND THEMED ON NOTHING. A fixed
+     white at 58%: on cream it contributes 10.32 against the pane, on a 0.474 pane it contributes
+     31.99 — 3.1x — and it traced the whole card as a hard bright outline that SWAMPED the 43.7%
+     top inset derived one commit earlier.
+
+     ⚠ CREAM'S CONTRIBUTION WAS MEASURED BEFORE ASSUMING IT SHOULD BE VISIBLE, AND THE GUESS WAS
+     WRONG. It looked invisible and it is not — 10.32 is a real mark, so the dark answer reproduces
+     it rather than staying out of the way. Measuring is what separated those two answers. */
+  --vessel-edge: 58%;
+  /* ⚠ THE DROP WAS `oklch(30% 0.018 60 / 0.12)` — cream's warm hue FROZEN, theming on none of the
+     nine palettes, the same defect as the contact glow's middle stop. Re-expressed as the PIGMENT:
+     `etch` resolves to each palette's ink, so the tint follows the theme and the alpha stays the
+     consumer's. The light movement is ink-950 at 12% against a hue-60 grey at 12% under a 12px
+     blur — reported, not hidden, and chosen by job: this is the same job as the nav glass's drops,
+     which already take `etch` on light.
+
+     ⚠ AND `etch` INVERTS, WHICH IS WRONG FOR A SHADOW ON DARK — the nav's finding. So the dark
+     block overrides the TINT to true black, same ground-ceiling shape as `--glass-shadow-dark`:
+     the right sign, capped at the pane's own luminance, stated rather than dressed as depth. */
+  --hero-tab-drop: color-mix(in srgb, var(--color-etch) 12%, transparent);
   --hero-tab-shadow:
-    0 3px 12px oklch(30% 0.018 60 / 0.12),
+    0 3px 12px var(--hero-tab-drop),
     inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--hero-tab-lit-edge), transparent);
   --glass-shadow-hi-dark:
     inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 16%, transparent),
@@ -4172,7 +4218,7 @@ a {
   background: linear-gradient(to bottom, color-mix(in srgb, var(--color-background) 78%, transparent), color-mix(in srgb, var(--vessel-smoke-3) 62%, transparent) 66%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
   backdrop-filter: blur(22px) saturate(170%);
-  border: 1px solid color-mix(in srgb, var(--color-white) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-white) var(--vessel-edge), transparent);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 5.5%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--vessel-lit-edge), transparent),

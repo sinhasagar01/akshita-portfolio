@@ -536,6 +536,37 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ FIVE DARK VALUES WERE DECLARED, SHADOWED BY A LATER `:root` AT EQUAL SPECIFICITY, AND VERIFIED
+  BY A CHECK THAT PROVED THE WRONG QUANTITY.** `[data-ground="dark"]` at 0-1-0 tied every `:root`
+  block, and one `:root` sits 400 lines below it — so `--glass-shadow`, `--glass-shadow-hi`,
+  `--vessel-edge`, `--vessel-lit-edge` and `--hero-tab-lit-edge` all lost on source order.
+  **A bundle grep then "verified" them: it proved both values PRESENT, and the property in question
+  was which one RESOLVES.** Presence and resolution are different quantities and only one is the
+  appearance. The commit that claimed "applied and verified by value" shipped two inert values, and
+  this entry is that correction — declared and shadowed, not applied.
+
+  **THE FIX IS SPECIFICITY, NOT ORDER: `:root[data-ground="dark"]` at 0-2-0** beats every plain
+  `:root` wherever either sits, so the next inserted block cannot re-break it. `ground-block` is the
+  gate, mutation-tested on the selector reverting and on either half of a pair vanishing.
+
+  **⚠ AND THE MASK THAT HID IT: THE NAV-TONE PATH WORKED THE WHOLE TIME.** On nocturne,
+  `data-nav-tone="dark"` fires site-wide (measured on home AND blog), and that selector is 0-2-0 —
+  so every nav measurement showed the repair working while the ground-block path underneath was
+  inert. **A working high-specificity path over a broken low-specificity one is invisible from every
+  page the high path covers.** Verify by resolved value on an element the SPECIFIC block serves,
+  not on one that several blocks serve.
+
+- **⚠ THE WHITE-ALPHA PARTITION, AS MEASURED — MOST ARE FINE, WHICH WAS THE PREDICTION.** Of the 33
+  sites: **paired and working** — the eight inside the four `--glass-shadow*` tokens, the two
+  strokes, the four in the nav-tone block (they ARE the dark answers), the sheen (measured 3.12
+  cream / 1.88 nocturne through its nav-tone override), `--hero-facts-line`, and the six vessel and
+  hero-tab pairs from this arc. **Ground-independent by argument** — `.nav-cta`'s four whites sit on
+  the ACCENT fill, which stays mid-tone on every palette. **State-gated, unmeasured** — `.nav-ind`
+  (has a nav-tone override), the hover glint, the sheet hover wash. **Unresolved** — `.blog-capsule`'s
+  85% inset measured ~0 on BOTH grounds at my sample row, which on the y+1 lesson means THE ROW IS
+  NOT ESTABLISHED, not that the layer is dead; and the two markup sites (ContactSection,
+  SwatchTokens) are unexamined. **Nothing is condemned; the unresolved four are the open remainder.**
+
 - **⚠ TWO FIGURES ABOUT DIFFERENT SUBJECTS, MISTAKEN FOR ONE — THE TWENTIETH INSTANCE, IN A NEW
   COSTUME.** A line-regex sweep counted **33** `--color-white` sites. A real parser then counted **33**
   — 31 alpha sites across 25 parsed declarations, plus 2 in markup. **They are not the same 33.** One
