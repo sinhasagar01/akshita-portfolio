@@ -1741,6 +1741,30 @@ a {
      only the tone block would have left the palette case exactly as broken as it was found. */
   --glass-shadow:    var(--glass-shadow-dark);
   --glass-shadow-hi: var(--glass-shadow-hi-dark);
+  /* ⚠ DERIVED PER ELEMENT AGAINST ITS OWN CREAM TARGET, NOT COPIED FROM THE NAV. Measured with a
+     differencer — the layer present minus the layer absent, on the SAME row of the SAME element, so
+     the border is in both samples and cancels. Sanity pair 21.000, row verified to carry a non-zero
+     contribution before any alpha was solved.
+
+         element    cream target   dark pane luminance   derived alpha
+         nav                2.88                 1.606           22.4%   (NOT applied — see below)
+         hero tab           3.30                 1.224           14.0%
+         vessel            18.26                 0.474           43.7%
+
+     ⚠ THE THREE DO NOT FALL ON A CURVE, AND THAT IS THE RESULT RATHER THAN A FAILURE TO FIND ONE.
+     Alpha depends on pane luminance AND target separation, and the two do not co-vary: the vessel
+     has the DARKEST pane and the LARGEST alpha, the hero tab a middle pane and the SMALLEST. The
+     vessel's cream target is 18.26 against roughly 3 for the other two — six times larger, a
+     different KIND of mark rather than a fainter one. A fourth consumer must measure its own cream
+     target; a lookup would be wrong.
+
+     ⚠ AND THE NAV'S 22.4% IS DELIBERATELY NOT APPLIED. Rendered at 13% and 22% against cream, a
+     1.7x alpha difference produced NO perceptual change — both trace the whole pill equally while
+     cream carries a top highlight AND a bottom shadow. THE ASYMMETRY IS THE APPEARANCE, and no
+     top-inset weight produces it, so the derivation was correct and aimed at a layer that cannot
+     express the difference. 13% stands as shipped, under-powered rather than under-weight. */
+  --hero-tab-lit-edge: 14%;
+  --vessel-lit-edge:   43.7%;
   --color-cream-200:     color-mix(in oklch, var(--color-on-dark) 12%, var(--color-band-dark));
   --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
   --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
@@ -2159,9 +2183,13 @@ a {
      palettes. It is left exactly as found because a themeing repair inside a plumbing change is
      unreviewable — and because `etch`, the obvious candidate, INVERTS, which is precisely what the
      nav's drops turned out to need corrected. It needs the ground-ceiling check, not a swap. */
+  /* ⚠ ONE NAMED WEIGHT, NOT A SECOND COPY OF THE SHADOW. The dark answer changes this value alone,
+     so the five layers exist once — which is the defect the overlay census just found six times. */
+  --hero-tab-lit-edge: 70%;
+  --vessel-lit-edge:   85%;
   --hero-tab-shadow:
     0 3px 12px oklch(30% 0.018 60 / 0.12),
-    inset 0 1px 0 color-mix(in srgb, var(--color-white) 70%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--hero-tab-lit-edge), transparent);
   --glass-shadow-hi-dark:
     inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 16%, transparent),
     inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 34%, transparent),
@@ -4147,7 +4175,7 @@ a {
   border: 1px solid color-mix(in srgb, var(--color-white) 58%, transparent);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 5.5%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--color-white) 85%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--vessel-lit-edge), transparent),
     0 26px 56px -26px color-mix(in srgb, var(--vessel-ink) 30%, transparent);
 }
 
