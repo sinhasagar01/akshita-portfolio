@@ -341,6 +341,12 @@ Remaining known trade, a draft based on an old main surfaces staleness only at p
   looked at least, is clean. One finding was fixed: the contact escape line was a full sentence at
   12px and is now 15px.
 
+  ⚠ AND ONE VOID IN THE 1024 CAPTURE WAS AN INSTRUMENT ARTEFACT, NOT A PAGE DEFECT. The full-page
+  screenshot stalled on 07's pinned section and produced several empty screen-heights that read
+  exactly like missing content. SEVENTH INSTANCE THIS WEEK of an instrument condition mistaken for a
+  site condition, and the first to arrive in a SCREENSHOT rather than in a probe — which is worse,
+  because an image is the thing everyone trusts without asking how it was made.
+
   ⚠ TWO LIMITS, WHICH ARE WHY THIS ITEM DOES NOT MOVE. THREE ROUTES IS NOT EVERY boAt SECTION, and a
   page with no overflow is not a page that has been looked at section by section — A STRUCTURALLY
   SOUND SECTION CAN STILL READ WRONG. And the item's stated method is a REAL DEVICE; the survey used
@@ -349,6 +355,72 @@ Remaining known trade, a draft based on an old main surfaces staleness only at p
 
   Half-closing a task whose stated method was not used is how the contact form survived four
   sessions. OWNER'S, and the real-device pass is the whole of what remains.
-- Beats 7 to 9 of the case-study page.
-- Remaining app screens. Sleep Detail and Blood Oxygen (inspirations TBD), and Daybreak light-mode variants via token swap.
-- Behance publish (full panel sequence).
+- ~~Beats 7 to 9 of the case-study page.~~ **CLOSED AS UNDEFINED, NOT AS DONE — and the distinction is
+  the point.** The term appeared once, here, and nowhere else in the repository. Three derivations
+  produced incompatible readings: `CLAUDE.md`'s eleven-part spine, the pinned scroll units in
+  `boat-crest.yaml`, and the page's own section ordinals. AN ITEM NOBODY CAN LOCATE IS NOT AN ITEM.
+
+  ⚠ AND THE SPINE READING WOULD HAVE CLOSED IT FALSELY. `processSteps`, `keyInsights` and
+  `solutionReveal` are all present and populated, so anyone inferring from the repo alone would have
+  marked it done for the wrong reason. **The owner has ruled boAt Crest complete as it stands and
+  needing no new sections**, which closes it on a decision rather than on an inference.
+
+  A future reader needs to know WHICH closure this was: the work was not completed, the item was
+  never specifiable.
+- ~~Remaining app screens. Sleep Detail and Blood Oxygen (inspirations TBD), and Daybreak light-mode
+  variants via token swap.~~ **DISCARDED BY THE OWNER.** Not deferred and not triggered — off the
+  board. Struck rather than deleted, because a vanished item is indistinguishable from one nobody
+  looked at.
+- ~~Behance publish (full panel sequence).~~ **DISCARDED BY THE OWNER.** Same standing.
+- ~~The reading indicator becomes a fill beside the body rather than behind it.~~ **DISCARDED BY THE
+  OWNER**, which settles the waterline: it stands as the accepted PROPERTY #448 recorded rather than
+  as a defect awaiting a different component. The fill is continuous and the rows are fixed, so the
+  meniscus lands on a label at some percentage on every article, and the only thing that would change
+  that is the side rail that is now not coming.
+
+---
+
+## The board, recorded in full
+
+⚠ SIX ITEMS. ONE CAN START. Written out because this file has been wrong four times and an
+unrecorded state is how that happened each time.
+
+**NONE STARTABLE.** Six items, and every one waits on a decision, a trigger or the owner.
+
+**BLOCKED ON A DECISION — 2**
+
+- The section-system redesign, blocked on whether the studio canvas keeps rendering the public
+  components. That is a decision about the parity contract rather than a piece of work, and nothing
+  can be scoped until it is made.
+- The inspector-validation unit.
+
+⚠ AND `boat-crest` IS CONTENT, NOT CODE — three corrections in one place, because the bespoke framing
+was stated twice in this session and is false in the repository's own record. It became content in
+#292 (`lib/site.ts:72`), the guard that once refused to delete it is gone and says so in past tense
+(`commit-collection-entry.ts:569`), `BESPOKE_SLUGS` does not exist anywhere, and `parity.mjs` lists
+`boat-crest` FIRST among its four slugs. A change there is authoring, not engineering, and the parity
+harness can see it.
+
+**DEFERRED WITH A TRIGGER, NONE FIRED — 4.** ⚠ EACH CARRIES ITS CONDITION, because a deferral whose
+condition is not recorded is indistinguishable from an item nobody looked at, which this file has
+demonstrated four times.
+
+- The blog blocks panel's auto-save workaround is now optional. **TRIGGER:** someone decides whether
+  add, remove and reorder should auto-save. It is a question about commit noise and author
+  expectation, not correctness, and dropping the workaround is one line per site — the header, the
+  inline-edit handler, and `commitParagraphs`, plus the same shape in `SectionsEditPanel`.
+- `theme-contrast` D12e's floor is provisional at 48 in dE. **TRIGGER:** a real ground-and-accent pair
+  that somebody looks at and calls confusable. The closest shipped pair is 195.4, four times the
+  floor, so this guard has never fired for a real reason and its pass is not evidence.
+- The Ink & Flare and Basalt accent exemptions in `theme-contrast`. **TRIGGER:** either preset is ever
+  re-derived from the palette system rather than authored, at which point the exemption's own reason
+  stops applying.
+- Nocturne's rebuild parameters, held under the authored-preset ruling. **TRIGGER:** the accent
+  question is reopened, or sapphire is retired. Ground h320 c0.024 gives dE 10.8 with one gamut cap,
+  with h330 c0.024 at 11.9 and h320 c0.030 at 12.1 measured as fallbacks.
+
+**OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
+
+- The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session
+  investigates them as engineering work, which is how the contact form survived four of them.
+- The three draft markers in the Motion post. Publish succeeds unaided once they are filled.
