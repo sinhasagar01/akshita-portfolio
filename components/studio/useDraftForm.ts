@@ -83,19 +83,38 @@ export function useDraftForm<T extends object>({
   // defect exactly, the one #187 built its `pendingSave` machinery to dodge. So the retry
   // must not read the closure; it reads these.
   //
-  // ASSIGNED ON EVERY RENDER, deliberately, rather than in the three places that mutate
-  // state (setField, the syncValuesOnSave branch, cancel). One line has no list of sites to
-  // keep in sync and therefore no site to miss, which is the failure mode a three-place
-  // update invites. They are never read during render, only from async callbacks.
+  // ⚠ THE REF IS WRITTEN SYNCHRONOUSLY BY `applyValues` AND *ALSO* ON EVERY RENDER, AND THE
+  // FIRST HALF IS NEW BECAUSE THE SECOND WAS NOT ENOUGH. This used to be the render assignment
+  // alone, with a note that one line has no list of sites to keep in sync. The note's principle
+  // was right and its consequence was wrong: an assignment that happens ON RENDER makes the ref
+  // "the values as of the last render", while `saveDraft` reads it as "the latest values". Those
+  // are the same thing only when nothing calls `saveDraft` before React re-renders.
+  //
+  // The blog status control did exactly that. It set a field and asked to save in the same tick,
+  // the dirty check read the PRE-EDIT values, found them equal to the baseline, and RETURNED
+  // WITHOUT SAVING — no request, no error, no indicator. An author could set a post to Published,
+  // press Publish site, and get a draft, which is what happened.
+  //
+  // ⚠ AND THE ONE-SITE PRINCIPLE IS KEPT RATHER THAN ABANDONED. `applyValues` is the single
+  // mutation path — setField, the syncValuesOnSave branch and cancel all go through it — so there
+  // is still one line to keep in sync and still no site to miss. The render assignment stays as a
+  // backstop for any future path that sets state directly.
   const valuesRef = useRef(values);
   valuesRef.current = values;
+
+  /** The ONE place values change. Writes the ref synchronously so a save requested in the same
+   *  tick sees the edit, then schedules the render. */
+  function applyValues(next: T) {
+    valuesRef.current = next;
+    setValues(next);
+  }
   const baselineRef = useRef(savedBaseline);
   baselineRef.current = savedBaseline;
 
   const dirty = isDirty(values, savedBaseline);
 
   function setField<K extends keyof T>(key: K, value: T[K]) {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    applyValues({ ...valuesRef.current, [key]: value });
     if (saveStatus !== "saving") setSaveStatus("idle"); // clear a stale "Draft saved" while typing
   }
 
@@ -136,7 +155,7 @@ export function useDraftForm<T extends object>({
         return;
       }
       if (res.ok && json.ok && json.saved) {
-        if (syncValuesOnSave) setValues(committed);
+        if (syncValuesOnSave) applyValues(committed);
         // SYNCHRONOUS, AND BESIDE THE setState ON PURPOSE. `setSavedBaseline` lands on the
         // next render, but the owed-save retry fires in the `finally` below — before that
         // render. Without this the retry would re-check dirtiness against the OLD baseline,
@@ -168,7 +187,7 @@ export function useDraftForm<T extends object>({
   }
 
   function cancel() {
-    setValues({ ...savedBaseline }); // discard unsaved local edits, keep what was saved
+    applyValues({ ...savedBaseline }); // discard unsaved local edits, keep what was saved
     setSaveStatus("idle");
     setExpanded(false);
   }

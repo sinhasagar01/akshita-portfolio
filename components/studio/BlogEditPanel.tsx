@@ -236,8 +236,15 @@ export default function BlogEditPanel({
                 setField("status", s);
                 setLiveStatus(s);
                 // Status is a one-click control, so it commits immediately rather than
-                // waiting for a blur that may never come.
-                queueMicrotask(saveDraft);
+                // waiting for a blur that may never come — and there is NO SAVE BUTTON on this
+                // panel, so a status change that does not commit here has no other way out.
+                //
+                // ⚠ THIS WAS `queueMicrotask(saveDraft)` AND IT SILENTLY SAVED NOTHING. The
+                // microtask ran before React re-rendered, so the hook's latest-values ref still
+                // held the pre-click values, the dirty check compared them to the baseline, found
+                // no change and returned. `useDraftForm` now writes that ref synchronously, so a
+                // direct call sees the edit and the timing dependency is gone rather than retuned.
+                saveDraft();
               }}
               className={`flex-1 rounded-[var(--studio-radius-control,4px)] px-2 py-1.5 text-[12px] font-semibold capitalize transition-colors ${
                 values.status === s
