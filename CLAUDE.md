@@ -536,6 +536,33 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ A DERIVATION CAN BE CORRECT AND AIMED AT A LAYER THAT CANNOT PRODUCE THE APPEARANCE.** The nav's
+  dark top inset was derived twice — 13% shipped, 22% from a differencer that isolates the layer — and
+  **rendered side by side against cream, a 1.7x alpha difference produced no perceptual change.** Both
+  dark variants trace the whole pill equally; **cream carries a top highlight AND a bottom shadow, and
+  the ASYMMETRY is the appearance.**
+
+  **13% STANDS AS SHIPPED, RECORDED AS UNDER-POWERED RATHER THAN UNDER-WEIGHT.** The ground affords
+  1.61 of darkening against cream's 27.51, so the drop cannot ground the pill on dark, and **a rim with
+  no shadow under it reads as a stroke at any alpha.** No top-inset weight fixes that.
+
+  **⚠ THE NO-CHANGE RESULT IS THE EVIDENCE, AND IT IS THE KIND MOST EASILY DISCARDED.** Two honest
+  derivations disagreeing by 1.7x invites picking one; **the render says the axis is wrong.** Before
+  refining a value, check that the layer it belongs to can express the difference being chased — the
+  measure-versus-look split arriving in the LEVER rather than in the instrument.
+
+- **⚠ A ZERO FROM A SEARCH IS ONLY EVIDENCE IF THE SEARCH COULD HAVE FOUND SOMETHING — AND THIS ONE HAD
+  A DESTRUCTIVE EDIT WAITING ON IT.** A confirmation grep reported `0 var() reads` for four tokens
+  about to be deleted. **The shell had failed on an unquoted glob**, so the zero was the instrument, not
+  the code. Every earlier instance of this shape cost a wrong number; this one would have removed live
+  declarations.
+
+  **⚠ AND THE RE-RUN STILL MISSED ONE, FOR A DIFFERENT REASON.** `--studio-t0` has no `var()` reader and
+  IS read — `readStudioMs("--studio-t0")` through `getPropertyValue`. **Two consumption routes, and a
+  gate whose concept is "nothing reads it" had the vocabulary of only one.** Fourth subject error in a
+  single gate before it ever ran green, and `consumer-count` A3a is the row that now fails if the JS
+  route is dropped.
+
 - **⚠ THE OVERLAY SCALE WAS DECLARED AND THE COPIES WERE NEVER COLLECTED — SIX WHITE-INSET LITERALS
   SIT OUTSIDE IT, AND FOUR HAVE DRIFTED.** `--glass-shadow` is read by five sites, all nav. The blog
   vessel, the blog capsule, `.nav-ind`, `.nav-cta` at rest and on hover, and the home hero's tab pill

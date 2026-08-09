@@ -3908,9 +3908,13 @@ a {
 
 .blog-article,
 .blog-index {
-  --blog-measure: 68ch;
-  --blog-ease: cubic-bezier(0.22, 0.68, 0.24, 1);
-  --blog-ease-settle: cubic-bezier(0.16, 0.9, 0.28, 1);
+  /* ⚠ THREE TOKENS WERE REMOVED HERE BY `consumer-count`'s FIRST RUN: `--blog-measure` (68ch),
+     `--blog-ease` and `--blog-ease-settle`. None had a consumer in CSS or in JS. `--blog-measure`
+     is the interesting one — the measure it named is REAL and is written as a literal
+     `max-w-[68ch]` in both the article and the canvas, so the token was a second spelling that
+     nothing read while the value it described was duplicated twice. ZERO CONSUMERS IS A REASON TO
+     DELETE, NOT TO EXEMPT. If the measure is ever tokenised, the two literals move to it in the
+     same commit or the token is an orphan again. */
   --blog-rule: color-mix(in oklch, var(--color-etch) 8%, transparent);
 }
 
