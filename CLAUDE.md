@@ -96,6 +96,33 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   consumers being odd**, and it gets weighed against #382's test then: a role invented for one or two
   sites is a second spelling entering the layer at birth. `role-layer` section O asserts the PAIR.
 
+- **⚠ THE NEAR-MISS CATEGORY IS EMPTY AND ITS ROW IS DELETED, ON `J3`'s RULING.** `step-1b-near-literals`
+  held every colour kept as "close enough to a token to leave alone". All three members have moved —
+  `#5F584E` to `text-secondary`, `#9C9182` to `text-subtle`, and the contact glow's middle stop to a
+  `color-mix` of the accent — so the row matched nothing and **a row matching nothing has outlived its
+  subject.** The boundary file holds claims about live colours; the reasoning lives here.
+
+  **⚠ AND THE "OTHER EIGHT" NEVER EXISTED AS LIVE MEMBERS.** The row claimed nine such literals were
+  *"named in this file's header from the day it was written"*. **The header names no such list** — it
+  was rewritten and the claim was not. Derived rather than counted: it was the only `near-miss-kept`
+  row of twenty-two, and `J1`, `J1b` and `J3` all pass, so every live colour is claimed by exactly one
+  row and no other row is a near miss. **Zero unexamined, not eight.** The population had drained and
+  the prose kept counting it.
+
+- **⚠ A GUARD THAT CORRECTLY ESTABLISHES NO FLOOR APPLIES CAN CLOSE A QUESTION IT NEVER ASKED.** The
+  glow stop was kept because it is *"decorative at 10% alpha, so no contrast floor applies"* — **true,
+  and exactly why nobody looked further.** It was the accent frozen at cream's hue, sitting inside the
+  same `radial-gradient` declaration as `var(--color-accent)`, 57 to 149 degrees from every other
+  palette's accent.
+
+  **Establishing that one class of check does not apply is not the same as establishing that nothing is
+  wrong**, and the second reads exactly like the first in a record.
+
+  **⚠ AND THE RENDER CORRECTED THE MECHANISM.** The prediction was two hues fading into each other. At
+  10% alpha under a 46px blur the orange does not band, it **NEUTRALISES** — harbour read grey-blue
+  rather than teal, fern grey-green rather than green, sapphire's glow nearly invisible. **Right that
+  something was wrong, wrong about what**, and only the render could tell them apart.
+
 - **⚠ THREE STALE RECORD CLAIMS WERE CLOSED IN ONE SESSION, WHICH IS ITSELF THE FINDING.** The
   experience descriptions, the published-post count, and this entry. None was wrong about the code.
   Each was a claim about the present that had quietly stopped being true, and **one of them directed

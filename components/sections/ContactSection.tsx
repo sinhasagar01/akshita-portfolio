@@ -462,7 +462,7 @@ export default function ContactSection({ settings }: Props) {
                 width: '62%',
                 height: '74%',
                 transform: 'translate(-50%, -50%)',
-                background: 'radial-gradient(closest-side, color-mix(in oklch, var(--color-accent) 24%, transparent), rgba(224,156,96,0.10) 52%, transparent 75%)',
+                background: 'radial-gradient(closest-side, color-mix(in oklch, var(--color-accent) 24%, transparent), color-mix(in oklch, var(--color-accent) 10%, transparent) 52%, transparent 75%)',
                 filter: 'blur(46px)',
                 zIndex: 0,
                 opacity: glowOpacity,
