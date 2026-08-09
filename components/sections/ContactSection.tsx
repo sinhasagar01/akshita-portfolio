@@ -545,7 +545,7 @@ export default function ContactSection({ settings }: Props) {
             {/* Escape email link — inside panel, centered, z-index 1 */}
             <p
               className="relative text-center font-body text-[12px] mt-[14px]"
-              style={{ zIndex: 1, color: '#9C9182' }}
+              style={{ zIndex: 1, color: 'var(--color-text-subtle)' }}
             >
               or just email{' '}
               <a
