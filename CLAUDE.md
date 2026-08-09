@@ -94,8 +94,21 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   consumers being odd**, and it gets weighed against #382's test then: a role invented for one or two
   sites is a second spelling entering the layer at birth. `role-layer` section O asserts the PAIR.
 
-- The five experience descriptions are still empty. Write them or decide to drop the field. The
-  decision is worth as much as the copy, and leaving it undecided is what has kept it open.
+- **⚠ THE EXPERIENCE DESCRIPTIONS ARE CLOSED, AND WERE CLOSED BEFORE THIS ITEM WAS LAST READ.** It
+  said *"the five are still empty. Write them or decide to drop the field. The decision is worth as
+  much as the copy."* **The decision was made and executed.** `description` is deleted from
+  `keystatic.config.ts`, no content file carries it, all five entries are complete without it, and
+  **no consumer exists anywhere** — `ExperienceSection` is the live renderer and never read it, and
+  `ExperienceEntry`, the one component that would have, was imported by nothing.
+
+  **⚠ THE RECORD-AND-THE-WORK GAP, IN THE LIST THAT RANKS THE WORK.** Nothing here is wrong about the
+  code. The open list simply went on carrying an item its own schema had closed, and it was ranked
+  first for content on the strength of that. **A carried item is a claim about the present**, and this
+  one aged into being false the moment the field was dropped.
+
+  If role descriptions are ever wanted they are **a design change to the experience row** — where
+  bullets sit in a row that is currently one line per role — rather than five blanks to fill. The
+  reasoning is kept beside the schema where the deletion happened.
 - Content. Writing posts through /studio is the highest value work left, and it exercises the
   editor paths that only a real author can reach.
 - **⚠ THE DEAD UTILITIES ARE CLOSED — 92, NOT 58, AND TAKEN ONE PROPERTY AT A TIME.** This item said
