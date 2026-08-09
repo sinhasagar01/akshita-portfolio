@@ -174,8 +174,31 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   If role descriptions are ever wanted they are **a design change to the experience row** — where
   bullets sit in a row that is currently one line per role — rather than five blanks to fill. The
   reasoning is kept beside the schema where the deletion happened.
-- Content. Writing posts through /studio is the highest value work left, and it exercises the
-  editor paths that only a real author can reach.
+- **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
+  SESSION.** It was ranked highest on the argument that three defects came from an author using the
+  editor and none from a gate. Both of this session's results were produced by an author using it,
+  and neither could have come from anywhere else.
+
+  **⚠ ONE IS A DEFECT IN THE EDITOR ITSELF.** The blog status control set a field and asked to save in
+  the same tick, the hook's latest-values ref was only written on render, the dirty check read
+  pre-click values and **returned without saving** — silently, with no Save button on that panel to
+  rescue it. A post could be set to Published and stay a draft through publish and deploy. Found by
+  the owner reporting the symptom, then by reading the commit history: **every studio commit touching
+  that post was blocks or images and none ever changed status.**
+
+  **⚠ THE OTHER IS `raster-grounds` A4's FIRST LIVE CATCH, AND THAT IS THE ARGUMENT MADE BY EVIDENCE.**
+  A4 was built after the Fosfor illustration was found with cream's ground baked in — **pre-existing
+  and revealed rather than caused.** An uploaded hero measured **50.6% within tolerance of a site
+  ground**, caught **on the day it arrived and before the post published**. Not a defect in /studio,
+  which worked exactly as designed: **a defect only an author using the editor can create, caught in
+  the one place a gate could see it.**
+
+  **THE RULING IS A REDRAW WITH A TRANSPARENT BACKGROUND, AND MAIN SITS RED UNTIL THE ASSET ARRIVES.**
+  That is the gate working. A `KNOWN` entry to make it green would be the escape hatch, and its end
+  condition would be **a promise rather than a trigger** — the one shape that registry refuses. The
+  cheaper route to green is to drop `heroImage` back to null and re-upload when the redraw exists,
+  since the post is a draft and the field is optional. **Removing an asset that is not ready is not an
+  exemption.**
 - **⚠ THE DEAD UTILITIES ARE CLOSED — 92, NOT 58, AND TAKEN ONE PROPERTY AT A TIME.** This item said
   58 line-heights and one change. It was **92 across four properties and two tag groups**, and one
   diff containing 92 changes is a diff where nothing can be attributed. Shipped as four PRs: `<p>`
