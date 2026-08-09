@@ -19,6 +19,23 @@
 // as a scrollbar. So it renders statically now: same fill, same meniscus, no wobble, and `--read`
 // still tracks. The animated decorative layers stay covered by the CSS reduce block.
 //
+// ⚠ THE WATERLINE CROSSES A LABEL AT SOME FILL, AND THAT IS A PROPERTY RATHER THAN A DEFECT. The
+// fill is CONTINUOUS and the body's rows are FIXED, so on every article there is a percentage at
+// which the meniscus lands on a label rather than between rows. Measured at 73%: it sits on
+// "READING TIME" and washes the label out. Changing the row rhythm changes WHICH percentage, not
+// whether — and the body text sitting under the fill is the design, not an accident of it.
+//
+// ⚠ THE ONE THING THAT WOULD ACTUALLY CHANGE IT IS A WATERLINE THAT DOES NOT CROSS TEXT — a fill
+// that runs beside the body rather than behind it, or a rail rather than a vessel. THAT IS A
+// DIFFERENT COMPONENT, and saying so is what stops this being reopened as a tuning question.
+//
+// ⚠ AND IT IS NOT NEW FROM ALWAYS-ON. The old gate showed the vessel at 73% too. Always-on made the
+// state REACHABLE ON EVERY ARTICLE rather than created it — the third time in this arc a change has
+// revealed rather than caused, after the heading hierarchy and the Fosfor raster.
+//
+// Identical on cream and basalt, which is what places it in geometry rather than in colour: the lime
+// waterline is louder than the amber one and both cross the same label at the same fill.
+//
 // ⚠ ALWAYS ON. The scroll gate and the reveal state are gone, which is the point of the change —
 // the component is now visible in ONE state rather than three, so a sweep can see it and its
 // colour is readable without catching it mid-reveal.
