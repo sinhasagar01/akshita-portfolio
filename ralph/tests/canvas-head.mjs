@@ -42,10 +42,21 @@ const harness = code("app/dev/blog-parity/[slug]/page.tsx");
 /* ================================================================= A. THE ARTICLE-ONLY id */
 t("A: the id is CONDITIONAL on the canvas flag",
   /id=\{canvas \? undefined : "blog-article-head"\}/.test(head), true);
-// The consumer that makes it matter. If ReadingVessel ever stops resolving by id, the
-// condition can go — but not before.
-t("A: ReadingVessel still resolves the head by that id",
-  /getElementById\("blog-article-head"\)/.test(code("components/blog/ReadingVessel.tsx")), true);
+/* ⚠ THE END CONDITION THIS ROW NAMED HAS FIRED, AND THE ROW IS INVERTED RATHER THAN DELETED. It
+ * read: "The consumer that makes it matter. If ReadingVessel ever stops resolving by id, the
+ * condition can go — but not before." Correct, and written in advance, which is the whole value of
+ * writing one.
+ *
+ * ReadingVessel stopped resolving by that id when its scroll gate was removed — the id was read to
+ * decide whether the reader was past the title, and an always-on indicator asks nobody. So the
+ * consumer is gone and the assertion is now the opposite one: NOTHING resolves it, which is what
+ * makes the conditional id removable.
+ *
+ * ⚠ THE CONDITIONAL IS LEFT IN PLACE ON PURPOSE. "Can go" is not "must go", and removing it touches
+ * the canvas parity contract, which is a different unit from an indicator change. TRIGGER: it goes
+ * whenever someone is already in BlogArticleHead, and this row will not object. */
+t("A: ⚠ NOTHING RESOLVES THE HEAD BY THAT id ANY MORE — the condition's reason is gone and the condition is now removable",
+  /getElementById\("blog-article-head"\)/.test(code("components/blog/ReadingVessel.tsx")), false);
 t("A: the article renders it WITHOUT the canvas flag",
   /<BlogArticleHead[\s\S]{0,200}?\/>/.test(article) && !/<BlogArticleHead[\s\S]{0,200}?canvas[\s\S]{0,40}?\/>/.test(article), true);
 t("A: the canvas renders it WITH the flag", /canvas\s*\n\s*\/>/.test(canvas), true);

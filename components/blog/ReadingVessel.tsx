@@ -1,23 +1,31 @@
 "use client";
 
-// Blog PR 2 — the floating liquid-glass reading vessel (fixed right on desktop) and its
-// docked capsule (below the 1200px FIT breakpoint). It fills as you read.
+// The reading indicator — a fixed corner form above 1200px and a docked bar at or below it, BOTH
+// ALWAYS ON. It fills as you read.
 //
 // R1 — Lenis cooperation BY CONSTRUCTION. `--read` is driven by a GSAP ScrollTrigger,
 // not a raw `scrollY` listener. GSAPProvider calls ScrollTrigger.update() on every
 // `lenis.on("scroll")`, so ScrollTrigger is already synced to Lenis' smooth scroll —
 // the same mechanism ProcessSection/BeforeAfterStory use. A raw listener would lag it.
 //
-// R2 — SMIL is dropped under reduced motion. The wave wobble is an SVG <animate> inside
-// feTurbulence; the global CSS `animation` reset cannot stop SMIL. So under reduced
-// motion this component renders NOTHING — no filter, no <animate>, no fixed decoration —
-// and the article header still carries the date, reading time and topic, so the page
-// reads fully. (The CSS @media reduce block is belt-and-braces for the animated layers.)
+// ⚠ R2 IS REVERSED, AND THE REASON IT EXISTED IS GONE. It read: SMIL is dropped under reduced
+// motion, the wave wobble is an SVG <animate> inside feTurbulence, the global CSS `animation`
+// reset cannot stop SMIL, so under reduced motion this component renders NOTHING. Correct while
+// the wobble existed. THE WOBBLE IS REMOVED, so there is no SMIL to escape the reset.
+//
+// A PROGRESS INDICATOR THAT DISAPPEARS UNDER REDUCED MOTION IS A DIFFERENT DEFECT FROM AN
+// ANIMATION THAT STOPS. Reduced motion asks for less movement, not less information — and a fill
+// tracking scroll position is a DIRECT RESPONSE to input rather than an animation, the same class
+// as a scrollbar. So it renders statically now: same fill, same meniscus, no wobble, and `--read`
+// still tracks. The animated decorative layers stay covered by the CSS reduce block.
+//
+// ⚠ ALWAYS ON. The scroll gate and the reveal state are gone, which is the point of the change —
+// the component is now visible in ONE state rather than three, so a sweep can see it and its
+// colour is readable without catching it mid-reveal.
 //
 // The vessel is aria-hidden: it is a decorative progress affordance whose metadata is
 // already announced in the semantic article header, so it must not double up for AT.
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { useReducedMotion } from "motion/react";
 import { ScrollTrigger } from "@/lib/gsap";
 import { formatLongDate, formatCapsuleDate } from "@/lib/blog/format";
 import LoveButton from "./LoveButton";
@@ -38,15 +46,36 @@ export default function ReadingVessel({
   readingTime: number;
   topic: string;
 }) {
-  const prefersReduced = useReducedMotion();
   const [read, setRead] = useState(0);
-  const [visible, setVisible] = useState(false);
   const readRef = useRef(0);
 
+  /* ⚠ THE CORNER IS TAKEN, SO THE ASIDE YIELDS WHILE THE NAV SHEET IS OPEN. Measured: the sheet is
+     197x272 at top 68 with z-index 44, and the aside is 216 wide at top 132 with z-index 40 — they
+     overlap by roughly 183x208 at 1440 and again at 1280, and the sheet wins. Always-on makes that
+     permanent rather than incidental.
+
+     ⚠ UNMOUNTED, NOT FADED, AND ONLY ONE OF PublishBar's TWO REASONS TRANSFERS. Its comment cites a
+     clickable pill under a zero-opacity wrapper and the tab order; this element is `aria-hidden` and
+     holds no control, so neither applies directly. The reason that does: a zero-opacity element
+     still COMPOSITES, and this component's whole history is compositing nobody could read from
+     source. Unmount and the question does not arise.
+
+     ⚠ AND IT OBSERVES THE SHEET RATHER THAN SUBSCRIBING TO A PROVIDER. The studio's
+     `useReportOccluding` is studio-only, and building a public equivalent would be shared plumbing
+     for ONE consumer — the shape this repo refuses. `#nav-sheet` carries `is-open`, so the thing
+     that occludes is watched directly. */
+  const [occluded, setOccluded] = useState(false);
   useEffect(() => {
-    if (prefersReduced) return;
-    const head = document.getElementById("blog-article-head");
-    const love = document.getElementById("blog-love-block");
+    const sheet = document.getElementById("nav-sheet");
+    if (!sheet) return;
+    const sync = () => setOccluded(sheet.classList.contains("is-open"));
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(sheet, { attributes: true, attributeFilter: ["class"] });
+    return () => mo.disconnect();
+  }, []);
+
+  useEffect(() => {
     const st = ScrollTrigger.create({
       trigger: document.documentElement,
       start: "top top",
@@ -58,40 +87,22 @@ export default function ReadingVessel({
           readRef.current = p;
           setRead(p);
         }
-        const pastTitle = head ? head.getBoundingClientRect().bottom < 40 : true;
-        const atLove = love ? love.getBoundingClientRect().top < window.innerHeight - 80 : false;
-        setVisible(pastTitle && !atLove);
       },
     });
     ScrollTrigger.refresh();
     return () => st.kill();
-  }, [prefersReduced]);
-
-  // R2: reduced motion renders nothing — the header carries the metadata.
-  if (prefersReduced) return null;
+  }, []);
 
   const style = { "--read": read } as CSSProperties;
   const pct = Math.round(read * 100);
 
   return (
     <>
-      {/* The wobble filter — only mounted when motion is allowed, so the SMIL <animate>
-          never runs under reduced motion. */}
-      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-        <filter id="blog-wobble" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.014 0.05" numOctaves="2" seed="5" result="n">
-            <animate
-              attributeName="baseFrequency"
-              dur="24s"
-              repeatCount="indefinite"
-              values="0.014 0.05; 0.021 0.06; 0.014 0.05"
-            />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
-
-      <aside className={`blog-vessel${visible ? " is-on" : ""}`} style={style} aria-hidden="true">
+      {/* ⚠ THE ASIDE ONLY. The docked form is bottom-anchored at y828 and the sheet is top-anchored
+          at y68 to y340, so they cannot intersect at any width — the yield is a no-op there by
+          GEOMETRY rather than by a breakpoint, and `reading-indicator` asserts exactly that. */}
+      {occluded ? null : (
+      <aside className="blog-vessel is-on" style={style} aria-hidden="true">
         <div className="blog-liquid">
           <div className="blog-smoke" />
           <div className="blog-wave is-b">
@@ -131,8 +142,9 @@ export default function ReadingVessel({
           <p className="blog-pct">{pct}% read</p>
         </div>
       </aside>
+      )}
 
-      <div className={`blog-docked${visible ? " is-on" : ""}`} style={style} aria-hidden="true">
+      <div className="blog-docked is-on" style={style} aria-hidden="true">
         <div className="blog-capsule">
           <div className="blog-bead" />
           <div className="blog-cap-body">
