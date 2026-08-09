@@ -484,6 +484,25 @@ t("J3 …and every registered name has a block or is the default, so the two lis
 /* The rule's own constants. A gate comparing against these cannot be satisfied by moving the subject. */
 const TINT_dL = 2.00, TINT_dC_MIN = -0.013, TINT_dC_MAX = -0.009;
 
+/* ⚠ A NAMED EXEMPTION, NOT A WIDENED BAND. `basalt` draws a ZERO-CHROMA ground by design, so its
+ * vessel has no chroma for the tint's step to act on and V3 and V4 both fail — exactly as V4 was
+ * written to. Widening the band to admit it would silence the tripwire for every palette, which is
+ * the escape hatch this suite refuses; naming the member keeps the rule intact and the exception
+ * visible.
+ *
+ * ⚠ SCOPED TO INDEPENDENTLY AUTHORED PRESETS AND NOT INHERITED BY PROXIMITY. A palette DERIVED from
+ * the system gets no exemption here, and a future achromatic palette must be added by name with its
+ * own reason rather than matching a pattern.
+ *
+ * ⚠ AND THE COST IS RECORDED RATHER THAN WAIVED: the four vessel tones separate on 4.0 LIGHTNESS
+ * UNITS ALONE where every chromatic palette carries the separation in lightness and chroma
+ * together. Whether that reads as smoke is a RENDER question, and the render is the end condition. */
+const TINT_EXEMPT = {
+  basalt: "owner ruling — an independently authored achromatic preset. Its ground is c 0 by design, "
+        + "so the chroma step has nothing to act on. END: the exemption is reviewed if the preset's "
+        + "ground ever carries chroma, or if the vessel gains an achromatic derivation of its own.",
+};
+
 const vBlocks = {};
 for (const m of cssSrc.matchAll(/\[data-theme="([a-z-]+)"\]\s*\{/g)) {
   const o = cssSrc.indexOf("{", m.index); let d = 0, e = -1;
@@ -502,7 +521,8 @@ const vOklch = (blk, tok) => {
 /* The subject is DERIVED from the palettes that declare a vessel, never enumerated — an enumerated
  * subject is correct the day it is written and falls behind its population from then on. */
 const vSubjects = Object.keys(vBlocks)
-  .filter((n) => vOklch(vBlocks[n], "vessel-glass") && vOklch(vBlocks[n], "vessel-pearl")).sort();
+  .filter((n) => vOklch(vBlocks[n], "vessel-glass") && vOklch(vBlocks[n], "vessel-pearl"))
+  .filter((n) => !(n in TINT_EXEMPT)).sort();
 const vRows = vSubjects.map((n) => {
   const g = vOklch(vBlocks[n], "vessel-glass"), pl = vOklch(vBlocks[n], "vessel-pearl");
   return { n, dL: +(pl.l - g.l).toFixed(4), dC: +(pl.c - g.c).toFixed(4), dH: +(pl.h - g.h).toFixed(4), glassC: g.c };
@@ -511,6 +531,13 @@ for (const r of vRows) console.log(`         ${r.n.padEnd(12)} pearl-vs-glass  d
 
 t("V0 ⚠ THE TINT SUBJECT IS NON-EMPTY AND COVERS EVERY PALETTE THAT DECLARES A VESSEL, against a literal",
   vSubjects.length >= 5, true);
+t("V0b ⚠ EVERY EXEMPTED PALETTE IS REAL AND NAMES AN END CONDITION — an exemption for a palette that does not exist is a rule quietly deleted",
+  Object.entries(TINT_EXEMPT).filter(([n, why]) => !(n in vBlocks) || !/END:/.test(why)).map(([n]) => n), []);
+t("V0c …and every exemption is EARNED — a palette that would pass the rule must not be exempt from it",
+  Object.keys(TINT_EXEMPT).filter((n) => {
+    const g = vOklch(vBlocks[n], "vessel-glass");
+    return g && g.c >= -TINT_dC_MIN;
+  }), []);
 t("V0a …and it is derived from the stylesheet rather than listed, so a new palette joins it automatically",
   vSubjects.filter((n) => !THEME_NAMES.includes(n)), []);
 t("V1 ⚠ THE LIGHTNESS STEP IS EXACTLY 2.00 FROM `vessel-glass` — the reference the rule never named",

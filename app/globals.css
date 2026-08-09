@@ -1191,6 +1191,190 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-web: oklch(48.0% 0.083 227);
 }
 
+/* ============================================================================================
+   INK & FLARE — an INDEPENDENTLY AUTHORED dark preset. Warm near-black under a molten orange. The one that reads as expensive.
+
+   ⚠ `docs/dark-mode-studio.html` IS THE SOURCE OF TRUTH FOR THIS PALETTE, by owner ruling. It is
+   not derived from the light-theme system, not constrained against it, and not renamed to fit it.
+   Drawn ground h44 c0.014, drawn accent h52 c0.155.
+
+   ⚠ FIVE TOKENS ARE AUTHORED LITERALS AND THIRTY ARE DERIVED, and the split is stated because a
+   fidelity claim over the whole set would be false. The preview draws a DARK ladder, and only five
+   of its thirteen rungs have a job in the 35-token contract — band-dark, on-dark, on-dark-muted, accent-on-dark, on-dark-quote.
+   Its four surface rungs have no home at all, because a dark palette's surfaces are built by
+   `color-mix` in the `[data-ground="dark"]` block: a MECHANISM these presets inherit rather than
+   values they can author. The remaining thirty are derived from this palette's own drawn ground and
+   accent and are NOT claimed to match anything.
+
+   ⚠ AUTHORED MEANS WHAT THE BROWSER PAINTS, NOT WHAT THE PREVIEW DECLARES. No authored rung leaves sRGB here.
+   Derived tokens capped at their own hue's ceiling: accent-500 0.146->0.133; accent-600 0.149->0.116.
+
+   ⚠ EXEMPT FROM CROSS-PALETTE IDENTITY CONSTRAINTS, named in `theme-contrast` rather than argued
+   here. The exemption is scoped to independently authored presets; a DERIVED palette inherits none
+   of it, and proximity to this block confers nothing.
+============================================================================================ */
+[data-theme="ink-flare"] {
+  --vessel-dark-n: 4%;
+  --color-cream-50:          oklch(98.5% 0.006 44);
+  --color-cream-100:         oklch(96.8% 0.014 44);
+  --color-cream-200:         oklch(93.5% 0.017 44);
+  --color-cream-300:         oklch(88.0% 0.019 44);
+  --color-canvas:            oklch(92.0% 0.014 44);
+  --color-ink-950:           oklch(15.0% 0.023 44);
+  --color-ink-800:           oklch(26.2% 0.022 44);
+  --color-ink-600:           oklch(40.0% 0.018 44);
+  --color-ink-400:           oklch(56.0% 0.018 44);
+  --color-ink-200:           oklch(80.0% 0.013 44);
+  --color-accent-500:        oklch(52.0% 0.133 52);
+  --color-accent-600:        oklch(45.0% 0.116 52);
+  --color-text-subtle:       oklch(48.7% 0.018 44);
+  --color-text-body:         oklch(37.5% 0.015 44);
+  --color-rule:              oklch(48.5% 0.023 44);
+  --color-band-dark:         rgb(20, 13, 10);  /* authored — preview rung `bg` */
+  --color-on-dark:           rgb(246, 243, 241);  /* authored — preview rung `t1` */
+  --color-on-dark-muted:     rgb(177, 171, 168);  /* authored — preview rung `t3` */
+  --color-on-dark-quote:     rgb(250, 157, 99);  /* authored — preview rung `aTxt` */
+  --color-accent-on-dark:    rgb(232, 126, 52);  /* authored — preview rung `a` */
+  --color-smoke-1:           oklch(0.84 0.011 44 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.011 44 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.008 44 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.010 44 / 0.74);
+  --color-vessel-ink:        rgb(20, 9, 6);
+  --color-vessel-capsule:    rgb(203, 198, 196);
+  --color-vessel-glass:      oklch(94.5% 0.016 44);
+  --color-vessel-pearl: oklch(96.5% 0.005 44);
+  --color-vessel-shadow:     oklch(92.5% 0.012 44);
+  --color-vessel-wave:       oklch(93.5% 0.010 44);
+  --color-glow-paper:        oklch(0.63 0.146 52 / 0.2);
+  --color-bounce:            oklch(99.5% 0.003 44);
+  --color-reveal-sand:       oklch(85.0% 0.024 29);
+  --color-case-study-sand:   oklch(88.5% 0.019 34);
+  --color-glow-web:          oklch(48.0% 0.073 21);
+}
+
+/* ============================================================================================
+   NOCTURNE — an INDEPENDENTLY AUTHORED dark preset. Deep indigo ground, violet accent. Saturated all the way down.
+
+   ⚠ `docs/dark-mode-studio.html` IS THE SOURCE OF TRUTH FOR THIS PALETTE, by owner ruling. It is
+   not derived from the light-theme system, not constrained against it, and not renamed to fit it.
+   Drawn ground h282 c0.024, drawn accent h296 c0.17.
+
+   ⚠ FIVE TOKENS ARE AUTHORED LITERALS AND THIRTY ARE DERIVED, and the split is stated because a
+   fidelity claim over the whole set would be false. The preview draws a DARK ladder, and only five
+   of its thirteen rungs have a job in the 35-token contract — band-dark, on-dark, on-dark-muted, accent-on-dark, on-dark-quote.
+   Its four surface rungs have no home at all, because a dark palette's surfaces are built by
+   `color-mix` in the `[data-ground="dark"]` block: a MECHANISM these presets inherit rather than
+   values they can author. The remaining thirty are derived from this palette's own drawn ground and
+   accent and are NOT claimed to match anything.
+
+   ⚠ AUTHORED MEANS WHAT THE BROWSER PAINTS, NOT WHAT THE PREVIEW DECLARES. `on-dark-quote` leaves sRGB and ships CLAMPED, at the bytes a screen can draw.
+   Derived tokens capped at their own hue's ceiling: cream-50 0.011->0.007; cream-100 0.024->0.016; bounce 0.005->0.003.
+
+   ⚠ EXEMPT FROM CROSS-PALETTE IDENTITY CONSTRAINTS, named in `theme-contrast` rather than argued
+   here. The exemption is scoped to independently authored presets; a DERIVED palette inherits none
+   of it, and proximity to this block confers nothing.
+============================================================================================ */
+[data-theme="nocturne"] {
+  --vessel-dark-n: 4%;
+  --color-cream-50:          oklch(98.5% 0.007 282);
+  --color-cream-100:         oklch(96.8% 0.016 282);
+  --color-cream-200:         oklch(93.5% 0.029 282);
+  --color-cream-300:         oklch(88.0% 0.033 282);
+  --color-canvas:            oklch(92.0% 0.024 282);
+  --color-ink-950:           oklch(15.0% 0.039 282);
+  --color-ink-800:           oklch(26.2% 0.038 282);
+  --color-ink-600:           oklch(40.0% 0.030 282);
+  --color-ink-400:           oklch(56.0% 0.030 282);
+  --color-ink-200:           oklch(80.0% 0.023 282);
+  --color-accent-500:        oklch(52.0% 0.160 296);
+  --color-accent-600:        oklch(45.0% 0.164 296);
+  --color-text-subtle:       oklch(48.7% 0.030 282);
+  --color-text-body:         oklch(37.5% 0.026 282);
+  --color-rule:              oklch(48.5% 0.039 282);
+  --color-band-dark:         rgb(13, 14, 25);  /* authored — preview rung `bg` */
+  --color-on-dark:           rgb(242, 243, 248);  /* authored — preview rung `t1` */
+  --color-on-dark-muted:     rgb(171, 171, 181);  /* authored — preview rung `t3` */
+  --color-on-dark-quote:     rgb(192, 163, 255);  /* authored — preview rung `aTxt` */
+  --color-accent-on-dark:    rgb(169, 132, 251);  /* authored — preview rung `a` */
+  --color-smoke-1:           oklch(0.84 0.020 282 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.020 282 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.014 282 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.017 282 / 0.74);
+  --color-vessel-ink:        rgb(10, 10, 27);
+  --color-vessel-capsule:    rgb(198, 198, 207);
+  --color-vessel-glass:      oklch(94.5% 0.027 282);
+  --color-vessel-pearl: oklch(96.5% 0.016 282);
+  --color-vessel-shadow:     oklch(92.5% 0.021 282);
+  --color-vessel-wave:       oklch(93.5% 0.017 282);
+  --color-glow-paper:        oklch(0.63 0.160 296 / 0.2);
+  --color-bounce:            oklch(99.5% 0.003 282);
+  --color-reveal-sand:       oklch(85.0% 0.041 267);
+  --color-case-study-sand:   oklch(88.5% 0.033 272);
+  --color-glow-web:          oklch(48.0% 0.125 259);
+}
+
+/* ============================================================================================
+   BASALT — an INDEPENDENTLY AUTHORED dark preset. Zero chroma ground, acid lime. The accent does every bit of the work.
+
+   ⚠ `docs/dark-mode-studio.html` IS THE SOURCE OF TRUTH FOR THIS PALETTE, by owner ruling. It is
+   not derived from the light-theme system, not constrained against it, and not renamed to fit it.
+   Drawn ground h0 c0, drawn accent h128 c0.165.
+
+   ⚠ FIVE TOKENS ARE AUTHORED LITERALS AND THIRTY ARE DERIVED, and the split is stated because a
+   fidelity claim over the whole set would be false. The preview draws a DARK ladder, and only five
+   of its thirteen rungs have a job in the 35-token contract — band-dark, on-dark, on-dark-muted, accent-on-dark, on-dark-quote.
+   Its four surface rungs have no home at all, because a dark palette's surfaces are built by
+   `color-mix` in the `[data-ground="dark"]` block: a MECHANISM these presets inherit rather than
+   values they can author. The remaining thirty are derived from this palette's own drawn ground and
+   accent and are NOT claimed to match anything.
+
+   ⚠ AUTHORED MEANS WHAT THE BROWSER PAINTS, NOT WHAT THE PREVIEW DECLARES. No authored rung leaves sRGB here.
+   Derived tokens capped at their own hue's ceiling: accent-500 0.155->0.136; accent-600 0.159->0.117.
+
+   ⚠ EXEMPT FROM CROSS-PALETTE IDENTITY CONSTRAINTS, named in `theme-contrast` rather than argued
+   here. The exemption is scoped to independently authored presets; a DERIVED palette inherits none
+   of it, and proximity to this block confers nothing.
+============================================================================================ */
+[data-theme="basalt"] {
+  --vessel-dark-n: 4%;
+  --color-cream-50:          oklch(98.5% 0.000 0);
+  --color-cream-100:         oklch(96.8% 0.000 0);
+  --color-cream-200:         oklch(93.5% 0.000 0);
+  --color-cream-300:         oklch(88.0% 0.000 0);
+  --color-canvas:            oklch(92.0% 0.000 0);
+  --color-ink-950:           oklch(15.0% 0.000 0);
+  --color-ink-800:           oklch(26.2% 0.000 0);
+  --color-ink-600:           oklch(40.0% 0.000 0);
+  --color-ink-400:           oklch(56.0% 0.000 0);
+  --color-ink-200:           oklch(80.0% 0.000 0);
+  --color-accent-500:        oklch(52.0% 0.136 128);
+  --color-accent-600:        oklch(45.0% 0.117 128);
+  --color-text-subtle:       oklch(48.7% 0.000 0);
+  --color-text-body:         oklch(37.5% 0.000 0);
+  --color-rule:              oklch(48.5% 0.000 0);
+  --color-band-dark:         rgb(15, 15, 15);  /* authored — preview rung `bg` */
+  --color-on-dark:           rgb(243, 243, 243);  /* authored — preview rung `t1` */
+  --color-on-dark-muted:     rgb(172, 172, 172);  /* authored — preview rung `t3` */
+  --color-on-dark-quote:     rgb(157, 200, 96);  /* authored — preview rung `aTxt` */
+  --color-accent-on-dark:    rgb(128, 177, 44);  /* authored — preview rung `a` */
+  --color-smoke-1:           oklch(0.84 0.000 0 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.000 0 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.000 0 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.000 0 / 0.74);
+  --color-vessel-ink:        rgb(12, 12, 12);
+  --color-vessel-capsule:    rgb(199, 199, 199);
+  --color-vessel-glass:      oklch(94.5% 0.000 0);
+  --color-vessel-pearl: oklch(96.5% 0.000 0);
+  --color-vessel-shadow:     oklch(92.5% 0.000 0);
+  --color-vessel-wave:       oklch(93.5% 0.000 0);
+  --color-glow-paper:        oklch(0.63 0.155 128 / 0.2);
+  --color-bounce:            oklch(99.5% 0.000 0);
+  --color-reveal-sand:       oklch(85.0% 0.000 345);
+  --color-case-study-sand:   oklch(88.5% 0.000 350);
+  --color-glow-web:          oklch(48.0% 0.000 337);
+}
+
+
 
 
 

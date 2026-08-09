@@ -271,13 +271,15 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_OG)
-    count: 28
+    count: 40
     files: [lib/theme.ts]
     reason: >
       ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — TWENTY-FOUR VALUES ACROSS SIX ENTRIES.
       ⚠ AND THIS COUNT IS THE ONE THAT MOVES WHEN A THEME IS ADDED, four at a time, which is exactly
       what `count:` was made readable for in #363. It went 16 to 24 in #377 when cerise and fern arrived and 24 to 28 in #394 with sapphire; the original note said cerise and fern
-      landed, and the census caught the stale figure before a human did.
+      landed, and the census caught the stale figure before a human did. It moved 28 to 40 when the
+      three dark presets arrived, four each — and the census caught that too, which is what a field
+      somebody actually reads looks like rather than one that decorates a row.
       `ImageResponse` renders OUTSIDE the document and cannot read a CSS custom property, exactly as
       a favicon cannot, so a card's colours must exist as literals in JavaScript. Same forced form as
       `pwa-splash-ground` beside it, for the same mechanical reason.
@@ -299,7 +301,7 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_SPLASH)
-    count: 7
+    count: 10
     files: [lib/theme.ts]
     reason: >
       ⚠ THIS ROW EXISTED AS PROSE IN `lib/theme.ts` AND NOWHERE IN THIS FILE, WHICH IS WHY THE COUNT

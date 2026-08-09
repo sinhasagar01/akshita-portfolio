@@ -87,8 +87,16 @@ export const FIFTH_THEME = "fern";
  * class it is not in. */
 export const SIXTH_THEME = "sapphire";
 
+/* ⚠ THREE INDEPENDENTLY AUTHORED DARK PRESETS, by owner ruling. `docs/dark-mode-studio.html` is
+ * their source of truth. They are NOT derived from the light system and are exempt from the
+ * cross-palette identity constraints by named entries in `theme-contrast` — see those entries for
+ * the scope, which does not extend to derived palettes. */
+export const SEVENTH_THEME = "ink-flare";
+export const EIGHTH_THEME = "nocturne";
+export const NINTH_THEME = "basalt";
+
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -141,6 +149,10 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [FIFTH_THEME]: "light",
   /* ⚠ THE ONLY DARK MEMBER. Its page ground is `band-dark`, not `canvas`. */
   [SIXTH_THEME]: "dark",
+  /* Declared, never inferred — a classifier reading a value files a dark palette in the light band. */
+  [SEVENTH_THEME]: "dark",
+  [EIGHTH_THEME]: "dark",
+  [NINTH_THEME]: "dark",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
 };
@@ -169,6 +181,14 @@ export type ThemeName = (typeof THEME_NAMES)[number];
 ============================================================================================ */
 const UNSELECTABLE: Record<string, string> = {
   [VERIFY_THEME]: "permanent verification control — never publishable",
+  /* ⚠ THE THREE DARK PRESETS LAND UNSELECTABLE PENDING VISUAL APPROVAL, following the twin's
+   * precedent and the owner's instruction that enabling selection is a separate one-line
+   * follow-up. They are BUILT, gated and rendered; what has not happened is the owner looking at
+   * them and saying yes. END CONDITION for each: the owner approves that preset's render. */
+  [SEVENTH_THEME]: "built and rendered, awaiting the owner's visual approval",
+  [EIGHTH_THEME]: "built and rendered, awaiting the owner's visual approval",
+  [NINTH_THEME]: "built and rendered, awaiting the owner's visual approval — and its achromatic "
+    + "vessel is the case the pigment model has never met, so its render carries the stated criterion",
   /* ⚠ HELD, AND THE RENDER IS WHY. Sapphire's 35 tokens are correct, in gamut, and every dark-page
      floor clears. What does not work yet is the PAGE: `globals.css` holds 81 raw rung references —
      `.hero-ground` paints `var(--color-cream-50)` directly — and a rung does not remap under
@@ -300,6 +320,9 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [FOURTH_THEME]: { cream: "#fef8f8", ink: "#190405", muted: "#574141", accent: "#d12d6b" },
   [FIFTH_THEME]: { cream: "#f4fdf1", ink: "#020f03", muted: "#3e4c3f", accent: "#4b7f20" },
   [SIXTH_THEME]: { cream: "#f7fbff", ink: "#040c16", muted: "#404952", accent: "#495bcb" },
+  [SEVENTH_THEME]: { cream: "#fef9f7", ink: "#130804", muted: "#504540", accent: "#a24e02" },
+  [EIGHTH_THEME]: { cream: "#f9faff", ink: "#09081b", muted: "#454658", accent: "#734fb9" },
+  [NINTH_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#527700" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -311,6 +334,9 @@ export const THEME_SPLASH: Record<string, string> = {
   [FOURTH_THEME]: "#FEF8F8",
   [FIFTH_THEME]: "#F4FDF1",
   [SIXTH_THEME]: "#F7FBFF",
+  [SEVENTH_THEME]: "#FEF9F7",
+  [EIGHTH_THEME]: "#F9FAFF",
+  [NINTH_THEME]: "#FAFAFA",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };
