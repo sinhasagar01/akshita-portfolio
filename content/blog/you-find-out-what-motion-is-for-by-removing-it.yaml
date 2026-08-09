@@ -62,7 +62,7 @@ blocks:
       alt: ''
       caption: ''
       wide: false
-      decorative: false
+      decorative: true
   - discriminant: richText
     value:
       paragraphs:
