@@ -3740,7 +3740,15 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  background: color-mix(in oklch, var(--color-cream-50) 86%, transparent);
+  /* ⚠ THE RAIL'S GROUND WAS THE ONLY UNMIGRATED PART OF IT. Its children already take roles —
+     `text-subtle`, `accent`, `accent-500`, and #408 moved two off `ink-400` — so a near-white bar
+     painted correctly-themed text onto the wrong ground. `surface` is `cream-50` on light, so the
+     light side is byte-identical.
+
+     ⚠ AND `.next-rail-link` SETS `color: inherit`, so it follows this rule and no `text-*` utility
+     on that anchor would have landed anyway — hazard 22's unlayered `a { color: inherit }` defeats
+     one. The border stays: `etch` is a role and was built to survive exactly this. */
+  background: color-mix(in oklch, var(--color-surface) 86%, transparent);
   -webkit-backdrop-filter: saturate(1.1) blur(12px);
   backdrop-filter: saturate(1.1) blur(12px);
   border-top: 1px solid color-mix(in oklch, var(--color-etch) 8%, transparent);
@@ -3857,7 +3865,10 @@ a {
 .blog-prose {
   font-size: 18px;
   line-height: 1.75;
-  color: var(--color-ink-800);
+  /* ⚠ WAS `ink-800`, A RAW RUNG, SO THE ARTICLE BODY DID NOT REMAP AND READ AS DARK INK ON A DARK
+     PAGE. `text-body` IS `ink-800` on every light palette, so this is byte-identical on light BY
+     CONSTRUCTION rather than by inspection — the same proof the work-filter pair carried. */
+  color: var(--color-text-body);
 }
 .blog-prose > p {
   margin: 0 0 1.35em;

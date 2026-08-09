@@ -300,8 +300,17 @@ export default function HeroCover({
         <motion.p
           {...mp}
           variants={chipV}
-          className="inline-flex items-center gap-2.5 rounded-full border bg-cream-200 px-4 py-2 text-[0.9rem] font-semibold text-ink-950 mt-4"
-          style={{ borderColor: "color-mix(in oklch, var(--color-ink-950) 12%, transparent)" }}
+          /* ⚠ TWO RAW RUNGS, AND THE CHIP'S OWN SPLIT IS WHAT PROVED IT. `★ 4.2` takes
+             `text-accent-text`, a ROLE, and stayed legible on a dark palette; the label beside it
+             sets NO colour and inherited the ink-950 text utility, a rung that cannot remap — so one element
+             carried two foregrounds and only one followed the ground. The ground was `cream-200`,
+             also a rung, so this is a two-part repair like `.next-rail`'s.
+
+             `text-secondary` ON ITS JOB, NOT ITS DISTANCE: supporting text beside a figure is that
+             role's stated work. `text-subtle` is the quiet layer the population test kept separate,
+             and reaching for it here would collapse the distinction that test protected. */
+          className="inline-flex items-center gap-2.5 rounded-full border bg-surface px-4 py-2 text-[0.9rem] font-semibold text-text-secondary mt-4"
+          style={{ borderColor: "color-mix(in oklch, var(--color-etch) 12%, transparent)" }}
         >
           <span
             {...edit("ratingChip.stat", "Edit rating stat")}

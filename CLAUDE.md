@@ -536,6 +536,39 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ 1.23 AND 1.37 SHIPPED WITH THE DARK PRESETS AND NO GATE SAW THEM, BECAUSE BOTH VALUES ARE
+  CORRECT ON LIGHT.** The blog body painted `ink-800` and the hero rating chip's label inherited
+  `ink-950` — raw rungs that do not remap — so **every article and every case-study hero carried
+  invisible text on all four dark palettes.** They were found by a person reading one article.
+
+  **⚠ THE TELL WAS INSIDE ONE ELEMENT.** The chip's figure takes `accent-text`, a role, and stayed
+  legible; the label beside it set no colour at all and inherited a rung. **One element, two
+  foregrounds, one following the ground and one not** — which is the whole defect class visible in a
+  single screenshot.
+
+  Repaired to `text-body` and `text-secondary`, chosen by JOB and not by distance: 9.75 to 9.79 and
+  7.09 to 7.15 on dark. **The light side moves and that was accepted rather than dodged** — pointing
+  body copy at `text-lead` would have been byte-identical and would have made the vocabulary wrong
+  forever, which is the trade this project has spent twelve sessions removing.
+
+- **⚠ THE GROUND IS PER CLASS — THIRD INSTANCE, AND IT PRODUCED FALSE FAILURES THIS TIME.** Measuring
+  the new dark foregrounds against `canvas` gave **1.55 with failure marks**. `canvas` IS the page
+  ground on a light palette and is NOT on a dark one, where `band-dark` is, so the comparison was
+  against a token the dark page never paints. The true figures are 9.75 to 9.79.
+
+  The first instance cost a token split, the second a ruling. **This one nearly cost a correct repair
+  being reported as broken.**
+
+- **⚠ RULE 25's EIGHTH INSTANCE, AND THE FIRST WHERE THE FALSE READING AGREED WITH THE TRUE ONE.** A
+  resolver checking whether a role equals the rung it replaced looked **inside palette blocks only** —
+  and roles are declared once in `@theme` while rungs are re-declared per palette, so **every role
+  returned null and null read as MOVES on all five rows.**
+
+  **It was right about four of the five.** Every earlier instance produced a reading that was wrong
+  throughout; this one coincided with the truth almost everywhere, which is exactly what made it
+  credible. **A false instrument that mostly agrees is harder to catch than one that is plainly
+  broken.**
+
 - **⚠ AN ITEM NOBODY CAN LOCATE IS NOT AN ITEM, AND CLOSING IT AS UNDEFINED IS A DIFFERENT ACT FROM
   CLOSING IT AS DONE.** "Beats 7 to 9 of the case-study page" sat on the board for months. The term
   appeared **once**, in the line that carried it, and nowhere else in the repository — and three
