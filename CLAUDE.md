@@ -56,8 +56,10 @@ What followed Phase 5, all shipped.
 
 - The studio editor. Every content group edits inline at /studio, writing to a draft branch
   and publishing by merge to main.
-- The blog. A second collection with its own schema, public pages and three pane editor. One
-  post is published and the nav link is live.
+- The blog. A second collection with its own schema, public pages and three pane editor. **Three
+  posts are published** and the nav link is live. A fourth sits at `status: draft` with three
+  marked gaps for the owner's own examples, and it is the first post to use the `Motion in Design`
+  topic, which had been declared in `BLOG_TOPICS` ahead of any post that used it.
 - The inline canvas. Blog prose is edited in place at the public measure, so the canvas and
   the article render through the same components.
 - The lint gate. ESLint runs in CI beside ralph, and the repo sits at zero problems.
@@ -93,6 +95,17 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   and it is the second such consumer. **If a third appears the role is missing rather than the
   consumers being odd**, and it gets weighed against #382's test then: a role invented for one or two
   sites is a second spelling entering the layer at birth. `role-layer` section O asserts the PAIR.
+
+- **⚠ THREE STALE RECORD CLAIMS WERE CLOSED IN ONE SESSION, WHICH IS ITSELF THE FINDING.** The
+  experience descriptions, the published-post count, and this entry. None was wrong about the code.
+  Each was a claim about the present that had quietly stopped being true, and **one of them directed
+  a session's ordering** — the descriptions were ranked first for content work on the strength of
+  being open, months after the schema had closed them.
+
+  **A RECORD DECAYING FASTER THAN ANYONE RE READS IT IS THE PROBLEM, NOT ANY ONE ENTRY.** `PORTABLE.md`
+  rule 15 states the portable half. The local half is that this file is long enough that re reading it
+  is itself work, so the entries most likely to be wrong are the ones nobody has touched — and those
+  are exactly the ones that get carried.
 
 - **⚠ THE EXPERIENCE DESCRIPTIONS ARE CLOSED, AND WERE CLOSED BEFORE THIS ITEM WAS LAST READ.** It
   said *"the five are still empty. Write them or decide to drop the field. The decision is worth as
