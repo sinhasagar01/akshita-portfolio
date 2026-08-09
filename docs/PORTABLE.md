@@ -110,7 +110,18 @@ narrow, and the record it leaves behind reads exactly like a clean bill of healt
 When something is excluded from a check, write down which check and why, and treat the remaining
 questions as open rather than as absent. The dangerous exclusions are the correct ones.
 
-### 12. A pending decision needs a register the gate reads, not a comment the next reader must notice
+### 12. A low alpha overlay drains the hue beneath it rather than adding its own
+
+Composite a colour over a different hue at low alpha and the result is not a blend you can see as two
+colours. It is the underlying hue with its chroma pulled down. The further apart the hues, the more
+it mutes and the less it clashes.
+
+The consequence is that **a decorative colour tuned against one background desaturates every other
+one**, and you will go looking for a clash and find nothing, because the failure mode is muting. A
+thing that reads as slightly flat is much harder to notice than a thing that reads as wrong, and it
+survives review for that reason.
+
+### 13. A pending decision needs a register the gate reads, not a comment the next reader must notice
 
 When work is blocked on a person's judgement, encode the evidence as data and compute the decision
 from it. Then the answer arrives as one row rather than a rewritten paragraph, and a value that the
@@ -118,7 +129,7 @@ evidence does not support fails on arrival.
 
 A comment saying "awaiting a decision" is invisible to everything and ages into a fact.
 
-### 13. Ask what varies before building the first instance
+### 14. Ask what varies before building the first instance
 
 The shape of the thing is decided by what will differ between instances, and that question is cheap
 before there is one instance and expensive after there are several.
@@ -126,22 +137,22 @@ before there is one instance and expensive after there are several.
 The practical form is to **build the second variant early, even if it is held back**. One instance
 cannot reveal an inconsistency between two ways of producing the same result.
 
-### 14. Name the parameter rather than the value
+### 15. Name the parameter rather than the value
 
 A value hard coded at a call site is a decision nobody made and nobody can find. A named parameter is
 a decision with an owner, and the name is where the reasoning goes.
 
-### 15. A rule applies first to the file recording it
+### 16. A rule applies first to the file recording it
 
 Write the rule, then check the document you wrote it in. Prose and data in one file look like one
 claim and are two, and only a third thing can tell you they disagree.
 
-### 16. A carried item is a claim about the present
+### 17. A carried item is a claim about the present
 
 An open list decays exactly like a comment, and nothing fails when it does. An item closed in the code
 but never struck stays true looking, keeps its rank, and directs work.
 
-This is rule 15 one level out. A rule applies first to the file recording it, and **a list of open work
+This is rule 16 one level out. A rule applies first to the file recording it, and **a list of open work
 is a file recording claims**. Re read the list against the code before ranking anything from it,
 because the entry that is wrong is the one nobody has touched, and the ones nobody has touched are
 exactly the ones that get carried.
@@ -151,7 +162,7 @@ descriptions are still empty, write them or decide to drop the field" was carrie
 ranked first for a session's content work. The field had been deleted from the schema, with the
 reasoning recorded beside the deletion, and no consumer had ever existed.
 
-### 17. Capture the exit code before any pipe touches it
+### 18. Capture the exit code before any pipe touches it
 
 A pipeline's status is the last command's. A check piped into a formatter gates on the formatter,
 which always succeeds. The gate exists, is wired to the wrong subject, and reports success.
@@ -159,7 +170,7 @@ which always succeeds. The gate exists, is wired to the wrong subject, and repor
 This recurred three times in one project. The first two were fixed by intention, which is why they
 recurred.
 
-### 18. A wrong unit produces confident, checkable looking claims
+### 19. A wrong unit produces confident, checkable looking claims
 
 It does not produce obvious nonsense. It produces specific numbers and real names, with the true
 finding hiding among them.
@@ -168,30 +179,30 @@ When a record and an instrument disagree, ask what unit each side counts in befo
 And before dismissing a gate's output as instrument error, check the instances one at a time, because
 "my probe was coarse" explains away true findings exactly as well as false ones.
 
-### 19. A population can be complete, measured, and still be the wrong noun
+### 20. A population can be complete, measured, and still be the wrong noun
 
 A denominator check confirms you counted everything you looked at. It cannot tell you that the thing
 you counted is the thing you named.
 
-### 20. Judge the premise and the investigation separately
+### 21. Judge the premise and the investigation separately
 
 A check run for a wrong reason can still be the check that was needed. And a conclusion can survive
 its evidence being corrected, in which case it should be **seen** to have survived, because a true
 conclusion propped up by a reason nobody can reproduce is indistinguishable from luck.
 
-### 21. Treat agreement with a forecast as no evidence at all
+### 22. Treat agreement with a forecast as no evidence at all
 
 A prediction that a number will move makes any movement look like the predicted one. When a predicted
 number moves, establish why before accepting it.
 
 This is a defect in the reader rather than in the instrument, so no assertion can catch it.
 
-### 22. A clean sweep is a reason to re read the predicate, not to stop checking
+### 23. A clean sweep is a reason to re read the predicate, not to stop checking
 
 A unanimous result on the wrong quantity reads as overwhelming evidence. Every partial result has at
 least one figure that looks odd. A perfect one has none, which is what makes it persuasive.
 
-### 23. Withhold a measurement you do not understand
+### 24. Withhold a measurement you do not understand
 
 A wrong diagnosis costs a session. A wrong diagnosis written down as a cause costs however long it
 takes the next person to stop believing it.
@@ -200,7 +211,7 @@ Six measurements were produced and withheld in one component in a single session
 the previous one taught. Every one would have passed review. Four reconciled with their neighbours.
 Withholding is the cheaper half of that trade every time, and it does not feel like it in the moment.
 
-### 24. Nothing reported is evidence, including a report you wrote yourself
+### 25. Nothing reported is evidence, including a report you wrote yourself
 
 Every claim about a system should be checked against that system. This is obvious for measurements
 and is routinely skipped for statements about tooling, state and process, which are exactly the
@@ -209,16 +220,16 @@ claims no instrument is watching.
 Prefer a measurement the artefact carries over an assertion made beside it. A capture that verifies
 its own subject cannot be mislabelled. A screenshot with a caption can.
 
-### 25. A safety net that restores the wrong state is worse than an absent one
+### 26. A safety net that restores the wrong state is worse than an absent one
 
 Because it is trusted. An absent net makes people careful. A net that silently hands back the wrong
 thing while reporting success does not.
 
-### 26. Zero consumers is a reason to delete, not to exempt forever
+### 27. Zero consumers is a reason to delete, not to exempt forever
 
 An exemption is what lets a dead thing survive review for as long as the exemption list does.
 
-### 27. A refusal registry is worth as much as a decision registry
+### 28. A refusal registry is worth as much as a decision registry
 
 Record what was considered and rejected, with the reason. Otherwise the same question is asked and
 answered repeatedly, and each answer is slightly different.
@@ -285,5 +296,5 @@ thousand seven hundred checks across sixty seven files. Most entries above are o
 happened between two and eighteen times before anyone named the shape.
 
 The recurring cause, stated once, is that **an instrument's subject is narrower than its claim**. Rules
-1, 2, 6, 7, 8, 9, 18 and 19 are all that fact arriving from different directions, and limits A to E
+1, 2, 6, 7, 8, 9, 19 and 20 are all that fact arriving from different directions, and limits A to E
 are the places where it cannot be fixed.
