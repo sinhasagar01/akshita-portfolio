@@ -450,6 +450,14 @@ build a gate for the limit and then believe it.
   **A confirmed prediction is worth more than the same outcome discovered** — it means the model is
   right, not just the answer.
 
+  **⚠ RULED, 2026-08-10: THE EVEN RIM IS DARK GLASS'S HONEST FORM — DERIVED, NOT CHOSEN.** Cream's
+  grounding is −27.51 of drop beneath the element; on the dark band, darkening is capped at ~1.61 for
+  drops and insets alike, so pure black at full alpha reaches 6% of the target. **The thing
+  unavailable is what sits BENEATH the element, and nothing inside it supplies that** — a new edge
+  design would still be a mark, subject to the same arithmetic. **The nav and the vessel reached this
+  independently: two components, one arithmetic**, which is what upgrades it from a judgement about
+  two renders to a property of the band.
+
 - **⚠ THE INERT TEST IS PER CONSUMER, NOT PER TOKEN — a token can be load-bearing at one alpha and
   dead at another.** `bounce` measured 33.9 as a streak on the glass pane and 2.0 as a radial on
   `cream-50`, in the same component. Applied per token it would have been kept wholesale or deleted
@@ -535,6 +543,18 @@ build a gate for the limit and then believe it.
   **Nothing is lost by deferring while six arcs are open, and a palette drawn INTO an open arc will be
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
+
+- **⚠ WHEN TWO PATHS CAN PRODUCE THE SAME RESULT, VERIFYING THE OUTCOME DOES NOT ESTABLISH WHICH PATH
+  PRODUCED IT.** The arc's best output, above its nine fixes. `data-nav-tone="dark"` fires site-wide
+  on nocturne at 0-2-0, so every nav measurement showed the dark repair working — **through the tone
+  path, while the ground path beneath it was inert.** Five values shipped shadowed AND verified,
+  because the verification measured the outcome and the outcome had two suppliers.
+
+  **A working high-specificity path over a broken low one is invisible from every page the high path
+  covers.** The check that distinguishes them is cheap once named: disable or avoid the masking path
+  and measure again, or verify on an element only the suspect path serves. **Same family as the
+  evidence-produced-by-its-own-subject rule — here the evidence was produced by a SIBLING mechanism**,
+  which nothing in the reasoning modelled.
 
 - **⚠ FIVE DARK VALUES WERE DECLARED, SHADOWED BY A LATER `:root` AT EQUAL SPECIFICITY, AND VERIFIED
   BY A CHECK THAT PROVED THE WRONG QUANTITY.** `[data-ground="dark"]` at 0-1-0 tied every `:root`

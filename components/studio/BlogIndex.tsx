@@ -32,7 +32,7 @@
 // silently renumbered, because the sentence above is the whole reason the rail exists. The
 // inspector went 244 -> 320, so the sum is now 1614. On a 1536 laptop with the list OPEN the
 // canvas gets 1536 - 236 - 264 - 320 = 716px against the 794 it needs, and the column drops
-// under its 697.9296875 measure. So the rail DOES now cost the canvas something it needs,
+// under its measure (676.736px under Work Sans; the 697.93 often quoted is the DM Sans figure). So the rail DOES now cost the canvas something it needs,
 // below 1614 and only when the author opens it explicitly — by default the list collapses
 // there and the measure holds. The decision stands; its justification is narrower than it
 // was. See lib/studio/three-pane.ts for the full arithmetic.
