@@ -383,9 +383,9 @@ entries:
   - id: step-1b-near-literals
     kind: judgement
     category: near-miss-kept
-    where: components/sections/AboutSection.tsx, components/sections/ContactSection.tsx
-    files: [components/sections/AboutSection.tsx, components/sections/ContactSection.tsx]
-    count: 2
+    where: components/sections/ContactSection.tsx
+    files: [components/sections/ContactSection.tsx]
+    count: 1
     reason: >
       ⚠ THE NINE Δ≥10 NEARS THE SNAP RULING LEFT AS LITERALS — named in this file's header from the
       day it was written, and NEVER GIVEN AN ENTRY. The join found that: a category declared in
@@ -396,6 +396,26 @@ entries:
       chips it painted are LABELS: `text-secondary`'s stated job. The right role happened to be 10.0
       away, which is a different fact from the nearest token being 10.0 away, and Step 1b could only
       see the second. It failed 2.39 on a dark ground because a hex cannot remap.
+      ⚠ `#9C9182` WAS THE SECOND MEMBER AND IS GONE, AND IT FAILED ON THE OPPOSITE GROUND FROM THE
+      FIRST. It painted ContactSection's escape-email line and measured, from the paint with the
+      ground class read off the DOM, 2.95 to 2.97 on ALL FIVE LIGHT PALETTES and 5.42 on the dark
+      one. `#5F584E` failed on dark; this failed on light. THAT IS THE SAME DEFECT, NOT TWO — a hex
+      cannot remap, so whichever ground it was tuned for is the one it passes, and which ground that
+      is says nothing about the token and everything about the day it was picked.
+      ⚠ AND IT WAS LIVE ON A PUBLISHED PALETTE. cerise is published and is light, so this was 12px
+      body copy at 2.95 against a 4.5 floor on the site as it stands.
+      It takes `text-subtle`, which clears at 5.35 to 6.15 across all six — and which the SAME
+      COMPONENT already uses on the sibling count label and the back button, so this is the role
+      arriving where its neighbours already were rather than a new judgement.
+      ⚠ AND THIS ROW LISTED `AboutSection.tsx` FOR A HEX THAT LIVES ONLY IN A COMMENT THERE. Both
+      live members were in ContactSection all along; AboutSection's `#5F584E` is prose describing
+      the fix that replaced it. J3 found it the moment the file list was narrowed — a row whose
+      `files` names a file with no live member is the file-versus-value join hazard appearing in the
+      boundary's own field, and it was invisible while the row covered two files at once.
+      WHAT REMAINS IS ONE STOP: `rgba(224,156,96,0.10)`, a warm mid-point in the contact glow's
+      radial gradient, sitting beside `var(--color-accent)` in the same declaration. A decorative
+      glow stop at 10% alpha rather than a foreground, so no contrast floor applies to it — and it
+      is a genuine un-themed value, kept and stated rather than quietly excluded.
       ⚠ THE OTHER EIGHT ARE UNEXAMINED, NOT SETTLED — stated rather than left to inference, because
       this rewrite reopens them by implication and an implication is not a record. Their original
       justification was "the member most likely to have shifted did not", and that rested on
