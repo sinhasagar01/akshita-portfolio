@@ -426,19 +426,16 @@ backdrop (the depicted product's own colour, which no palette moves), and `Conta
 pairs white with the ACCENT, not with the page ground — measured across all nine palettes, which is
 what produced the open question below.
 
-**OWNER'S EYE — WHAT READS ON THE ACCENT, ON A DARK PALETTE. One vocabulary question, four members,
-none fixable in a consumer.** `--color-accent` resolves to `accent-on-dark` on the four dark
-palettes, a LIGHT accent — and `on-accent` is `cream-50` with no dark answer, its comment assuming
-"the accent stays a mid-tone", true of five light palettes and false of all four dark ones.
-- The contact success check: white on accent measures 4.82 to 6.01 on the five light palettes and
-  **2.55 to 2.85 on all four dark — below the 3.0 graphics floor.** Subject: white against
-  `--color-accent`, canvas-pixel measured.
-- The blog waterline at +22.73 on nocturne — role-correct, boldness is the read.
-- `.nav-cta` (Resume): white TEXT on `--color-accent-500`, floor 4.5 — **a different pair than the
-  one measured** (accent-500 is not accent-on-dark), UNMEASURED, named so nobody conflates them.
-- `on-accent` itself: the role's dark answer was never designed, and its multi-role entry's end
-  condition (the dark ground shipping) has fired.
-The fix lands in the vocabulary — a dark answer for what sits on the accent — not in any consumer.
+**ANSWERED — WHAT READS ON THE ACCENT, ON A DARK PALETTE: A DARK GLYPH.** `on-accent` carries
+`band-dark` under the dark ground — 6.75 to 7.52 against `accent` and `accent-text` on all four dark
+palettes. The premise "the accent stays a mid-tone" is struck where it lived, with the numbers. Of
+the four members: the contact check icon is FIXED (repointed to `on-accent`; white had measured 2.55
+to 2.85 against the 3.0 floor). `nav-cta` was MEASURED BEFORE THE RULING and PASSES everywhere —
+white on `accent-500` is 4.93 to 5.92 across all nine, a different pair than the failing one, which
+is why it was measured rather than assumed. `DeviceImage`'s badge moved from `bg-accent-500` to the
+`bg-accent` role first, because `band-dark` fails 4.5 on `accent-500` (3.24 to 3.65) — a value
+decided while one consumer sat on a different rung fits three and breaks the fourth. **THE ONE OPEN
+MEMBER IS THE WATERLINE'S BOLDNESS at +22.73 on dark — aesthetic, the owner's read, unchanged.**
 
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 

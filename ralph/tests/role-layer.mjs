@@ -607,9 +607,15 @@ const DARK_EXEMPT = {
    * cascade readings and three rulings were all wrong about WHICH SIDE FAILS; the sample inverted
    * the problem. This role stays exempt until the pressed chip gets its own foreground, which is a
    * different token rather than a different value here. */
-  "on-accent": "the foreground drawn ON the accent. Premise false on six of six and exempt anyway — "
-    + "remapping it regressed two states to fix one. The pressed work-filter chip needs its own "
-    + "foreground; see the note above.",
+  /* ⚠ `on-accent`'s EXEMPTION IS RETIRED, AND ITS BLOCKING CONDITION WAS SATISFIED LONG BEFORE
+   * ANYONE RETIRED IT. The exemption held "until the pressed chip gets its own foreground" — #426
+   * gave the chip `surface`, so the consumer that made the first remap regress two states has not
+   * read `on-accent` since. The exemption outlived its subject exactly the way the near-miss row
+   * did, and K3 is the row that forced the check: it failed the moment the ground block remapped
+   * the role, which is the conversation it existed to force. The role now resolves `band-dark` on
+   * dark — 6.75-7.52 against accent and accent-text — with every remaining consumer verified to
+   * sit on the accent ROLE (DeviceImage was moved off `accent-500` first, where band-dark measures
+   * 3.24-3.65 and fails). The two notes below are the history, kept. */
   /* ⚠ `on-accent` WAS EXEMPT HERE AND IS NOT ANY MORE, AND IT TOOK TWO ATTEMPTS. The exemption read
    * "the accent stays a MID-TONE on both grounds, so its foreground must stay light" — FALSE on six
    * of six, since every palette lightens its accent to 65 or 70% on dark and a near-white label on

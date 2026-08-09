@@ -213,8 +213,8 @@ entries:
   - id: ground-ceiling-black
     kind: judgement
     category: forced-literal
-    where: app/globals.css (:root[data-ground="dark"], --hero-tab-drop)
-    count: 1
+    where: app/globals.css (:root[data-ground="dark"], --hero-tab-drop, --vessel-drop, --capsule-drop)
+    count: 3
     selectors: [":root[data-ground=dark]"]
     reason: >
       True black at 12 percent, the hero tab pill's drop tint on a dark ground. Not a rung and not a
@@ -226,8 +226,11 @@ entries:
       alone, so it is claimed here.
     test: >
       The ground affords 1.61 of darkening against cream's 27.51, measured on nocturne. Any themed
-      pigment either glows or clips to black anyway, so the literal IS the derived answer. If a dark
-      shadow pigment ever enters the vocabulary, this row's subject moves to it and the row ends.
+      pigment either glows or clips to black anyway, so the literal IS the derived answer. Three
+      members now, one ceiling argument, each at its own consumer's cream alpha: the hero tab's
+      0.12, the vessel's 0.30 and the capsule's 0.34 — the vessel pair measured at cream -16.03 to
+      -17.32 against nocturne's +1.52 to +1.64 wrong-sign glow before the fix. If a dark shadow
+      pigment ever enters the vocabulary, this row's subject moves to it and the row ends.
 
   - id: about-photo-tint
     kind: judgement

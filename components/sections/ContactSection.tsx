@@ -212,7 +212,10 @@ function SuccessScreen() {
           width: 46,
           height: 46,
           background: 'var(--color-accent)',
-          color: 'var(--color-white)',
+          /* on-accent, not white — the role whose job this is. Light moves white -> cream-50
+             (visually nil on the accent); dark resolves band-dark, 6.75-7.52 against the 2.55-2.85
+             the white measured on all four dark palettes. */
+          color: 'var(--color-on-accent)',
         }}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

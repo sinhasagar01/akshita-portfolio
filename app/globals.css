@@ -324,10 +324,13 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
      ⚠ AND THE STRONGEST ARGUMENT FOR IT IS TWO ROLES THAT SHARE A VALUE TODAY AND MUST NOT LATER.
      `surface` and `on-accent` both resolve to the same rung right now. Under a dark ground `surface`
-     follows the page down and `on-accent` does NOT, because the accent stays a mid-tone and its
-     foreground must stay light. A raw rung name cannot express that difference; two role names can,
-     and the four badge and button labels that used to spell it as a ground token would have gone
-     dark-on-accent.
+     follows the page down and `on-accent` did NOT — the reasoning read "because the accent stays a
+     mid-tone and its foreground must stay light", STRUCK RATHER THAN DELETED: true of five light
+     palettes and false of all four dark ones, where the accent resolves to `accent-on-dark`, a LIGHT
+     accent, and cream-50 on it measured 2.55 to 2.85 against a 3.0 floor. `on-accent` now carries a
+     dark answer — `band-dark`, 6.75 to 7.52 against `accent` and `accent-text` on all four dark
+     palettes — so the two roles resolve differently on BOTH axes, which is the divergence this
+     paragraph predicted with the wrong mechanism. A raw rung name still cannot express any of it.
 
      ⚠ AND #383's SWEEP SENT ALL FOUR TO THE WRONG ONE, WHICH IS THE ARGUMENT MADE TWICE. A rung
      with two roles cannot be migrated by a rung-to-role map — the map has one answer and the site
@@ -1787,6 +1790,26 @@ a {
   /* One factor, 0.100, both sides — 4.5%/5.0% gives peak ratio 1.015 against cream's 1.019. */
   --vessel-glow-l: 4.5%;
   --vessel-glow-r: 5%;
+  /* ⚠ WHAT SITS ON THE ACCENT, ON A DARK PALETTE: a DARK glyph, because the accent here is
+     accent-on-dark, a LIGHT accent. band-dark measures 6.75-7.52 against accent AND accent-text on
+     all four dark palettes; cream-50 measured 2.55-2.85 against a 3.0 floor, which is the contact
+     check icon defect. Consumers were normalised onto the accent ROLE first — DeviceImage's badge
+     read bg-accent-500, where band-dark measures 3.24-3.65 and FAILS 4.5 — because a value decided
+     while one consumer sat on a different rung fits three and breaks the fourth. */
+  --color-on-accent: var(--color-band-dark);
+  /* The work-card veil's scrim ink. `etch` INVERTS by design, so the 88% scrim measured -2.0 to
+     -2.2 on cream and +7.3 to +7.7 on nocturne — brightening the bright artwork it exists to dim.
+     The veil sits over an ARBITRARY IMAGE, not a themed surface, so the ground ceiling does NOT
+     apply and the ink must stay dark on every ground: the palette's own ink-950 is dark on all
+     nine. */
+  --wc-veil-ink: var(--color-ink-950);
+  /* The vessel's and capsule's drops — the nav's dark-shadow pigment and scoping at the vessel's
+     OWN alphas (30% and 34%, its cream values), never the nav's weights: alpha is a function of
+     pane luminance AND target separation. Measured before: cream -16.03 to -17.32 (x1.24-1.26),
+     nocturne +1.52 to +1.64 (x1.28-1.30) — the wrong-sign glow, third instance after the nav and
+     the hero tab. Black keeps the sign; the page affords ~1.6 and that is stated, not dressed. */
+  --vessel-drop:  oklch(0% 0 0 / 0.30);
+  --capsule-drop: oklch(0% 0 0 / 0.34);
   --hero-tab-drop: oklch(0% 0 0 / 0.14);
   /* Derived by the same differencer — the ring present minus the ring transparent, same pixel, on a
      straight run of the left edge clear of the radius. 31.9% reproduces cream's 10.32 on all four
@@ -2228,6 +2251,9 @@ a {
   --vessel-fog: 1;
   --vessel-glow-l: 45%;
   --vessel-glow-r: 50%;
+  --wc-veil-ink: var(--color-etch);
+  --vessel-drop:  color-mix(in srgb, var(--vessel-ink) 30%, transparent);
+  --capsule-drop: color-mix(in srgb, var(--vessel-ink) 34%, transparent);
   /* ⚠ RESTORED WITH READERS THIS TIME. consumer-count deleted this token for having none while its
      68ch was written as a literal in both the article and the canvas — and the LOCKED decision is
      that the measure is a NUMBER that must be identical on both surfaces, which is exactly what one
@@ -2986,11 +3012,14 @@ a {
   flex-direction: column;
   justify-content: flex-end;
   padding: 24px;
-  color: var(--color-on-accent);
+  /* cream-50, NOT on-accent: this text sits on the veil's scrim over an image, not on the accent,
+     and on-accent now resolves DARK on a dark ground. Byte-identical on light, where on-accent was
+     cream-50 — the off-job role use ended by the role gaining its real dark answer. */
+  color: var(--color-cream-50);
   background: linear-gradient(
     180deg,
     transparent 34%,
-    color-mix(in oklch, var(--color-etch) 88%, transparent) 100%
+    color-mix(in oklch, var(--wc-veil-ink) 88%, transparent) 100%
   );
   opacity: 0;
   transition: opacity 0.42s cubic-bezier(0.22, 0.68, 0.24, 1);
@@ -4244,7 +4273,7 @@ a {
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 5.5%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--vessel-lit-edge), transparent),
-    0 26px 56px -26px color-mix(in srgb, var(--vessel-ink) 30%, transparent);
+    0 26px 56px -26px var(--vessel-drop);
 }
 
 
@@ -4399,7 +4428,7 @@ a {
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 9%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--capsule-lit-edge), transparent),
-    0 14px 30px -14px color-mix(in srgb, var(--vessel-ink) 34%, transparent);
+    0 14px 30px -14px var(--capsule-drop);
 }
 .blog-bead {
   position: absolute;
