@@ -85,6 +85,15 @@ export const FIFTH_THEME = "fern";
  * by 0.1% — so `theme-contrast` D12 skips those pairs and section L's dark band owns it. Its h250
  * sits 17 degrees from harbour's ground, which is a collision only under a floor calibrated for a
  * class it is not in. */
+/* ⚠ SAPPHIRE DIVERGES FROM ITS OWN SOURCE ON ONE RUNG, RECORDED BEFORE ANYONE CITES EITHER.
+ * It was drawn from `docs/ink-and-blue.html` — its `band-dark` is L17.0, that file's `bg` — and it
+ * matches that preview on four of the five rungs the 35-token contract has a job for. It ships
+ * `accent-on-dark` at L70.0 where ink-and-blue's own Sapphire blue is L64.0, and L70.0 is
+ * `docs/dark-mode-studio.html`'s `a` rung. THE VALUE CAME FROM THE OTHER PREVIEW FILE.
+ *
+ * Not a defect and not corrected — the palette shipped, was published and was lived on at these
+ * values. It matters because "sapphire follows its preview" was assumed while deriving the three
+ * dark presets, and it is four of five rather than five of five. Each preset follows ITS OWN file. */
 export const SIXTH_THEME = "sapphire";
 
 /* ⚠ THREE INDEPENDENTLY AUTHORED DARK PRESETS, by owner ruling. `docs/dark-mode-studio.html` is
