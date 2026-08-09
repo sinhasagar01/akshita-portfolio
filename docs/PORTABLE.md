@@ -220,7 +220,30 @@ This is a defect in the reader rather than in the instrument, so no assertion ca
 A unanimous result on the wrong quantity reads as overwhelming evidence. Every partial result has at
 least one figure that looks odd. A perfect one has none, which is what makes it persuasive.
 
-### 25. Withhold a measurement you do not understand
+### 25. Before measuring, establish that the instrument can see the subject at all
+
+Not whether it returns a number. Whether the thing you are measuring is present, visible and reachable
+by the method you are using. A probe pointed at something it cannot see returns a clean, confident,
+internally consistent reading of nothing.
+
+**Run a control you already know the answer for, and believe it when it fails.** A control failing
+identically to the subject is the strongest signal available, and it is available on the very first run.
+
+*Example, because five instances shared one shape.* One component was measured five times by four
+methods. A motion preference suppressed it entirely. A mask meant to isolate it selected the whole
+page. A viewport sat exactly on the inclusive edge of the breakpoint that hides it. Its box reported
+zero size while its descendants carried the paint. And a suite ran against a stale build. Every one
+returned a plausible figure, and a known-good control was returning the same nothing throughout.
+
+### 26. Correct in place, where the wrong thing was published
+
+A correction that leaves no trace is indistinguishable from never having been wrong. Rewriting history
+so the error never existed removes the one thing that tells a reader the claim was checked.
+
+Say what was published, what it should have said, and how the difference was found. The record of a
+correction is worth more than the tidiness of the artefact.
+
+### 27. Withhold a measurement you do not understand
 
 A wrong diagnosis costs a session. A wrong diagnosis written down as a cause costs however long it
 takes the next person to stop believing it.
@@ -229,7 +252,7 @@ Six measurements were produced and withheld in one component in a single session
 the previous one taught. Every one would have passed review. Four reconciled with their neighbours.
 Withholding is the cheaper half of that trade every time, and it does not feel like it in the moment.
 
-### 26. Nothing reported is evidence, including a report you wrote yourself
+### 28. Nothing reported is evidence, including a report you wrote yourself
 
 Every claim about a system should be checked against that system. This is obvious for measurements
 and is routinely skipped for statements about tooling, state and process, which are exactly the
@@ -238,16 +261,16 @@ claims no instrument is watching.
 Prefer a measurement the artefact carries over an assertion made beside it. A capture that verifies
 its own subject cannot be mislabelled. A screenshot with a caption can.
 
-### 27. A safety net that restores the wrong state is worse than an absent one
+### 29. A safety net that restores the wrong state is worse than an absent one
 
 Because it is trusted. An absent net makes people careful. A net that silently hands back the wrong
 thing while reporting success does not.
 
-### 28. Zero consumers is a reason to delete, not to exempt forever
+### 30. Zero consumers is a reason to delete, not to exempt forever
 
 An exemption is what lets a dead thing survive review for as long as the exemption list does.
 
-### 29. A refusal registry is worth as much as a decision registry
+### 31. A refusal registry is worth as much as a decision registry
 
 Record what was considered and rejected, with the reason. Otherwise the same question is asked and
 answered repeatedly, and each answer is slightly different.

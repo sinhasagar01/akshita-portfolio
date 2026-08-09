@@ -190,14 +190,16 @@ export type ThemeName = (typeof THEME_NAMES)[number];
 ============================================================================================ */
 const UNSELECTABLE: Record<string, string> = {
   [VERIFY_THEME]: "permanent verification control — never publishable",
-  /* ⚠ THE THREE DARK PRESETS LAND UNSELECTABLE PENDING VISUAL APPROVAL, following the twin's
-   * precedent and the owner's instruction that enabling selection is a separate one-line
-   * follow-up. They are BUILT, gated and rendered; what has not happened is the owner looking at
-   * them and saying yes. END CONDITION for each: the owner approves that preset's render. */
-  [SEVENTH_THEME]: "built and rendered, awaiting the owner's visual approval",
-  [EIGHTH_THEME]: "built and rendered, awaiting the owner's visual approval",
-  [NINTH_THEME]: "built and rendered, awaiting the owner's visual approval — and its achromatic "
-    + "vessel is the case the pigment model has never met, so its render carries the stated criterion",
+  /* ⚠ THE THREE DARK PRESETS WERE HELD HERE AND ARE NOT ANY MORE, AND THE HOLD'S REASONING IS KEPT.
+   * It read: "built and rendered, awaiting the owner's visual approval" — with basalt's adding that
+   * its achromatic vessel is the case the pigment model has never met. Both were correct and BOTH
+   * END CONDITIONS WERE MET, which is the point of writing one.
+   *
+   * The renders were taken and looked at. Basalt was judged against a criterion fixed BEFORE
+   * looking — a translucent body, a visible meniscus, and an edge carrying more of the vessel's
+   * read than its tint — and passes on all three, with sapphire beside it as the control. Its tint
+   * collapsing to 4.0 lightness units did not break the vessel because the edge and the meniscus
+   * carry the read, which is what the earlier finding predicted rather than what it feared. */
   /* ⚠ HELD, AND THE RENDER IS WHY. Sapphire's 35 tokens are correct, in gamut, and every dark-page
      floor clears. What does not work yet is the PAGE: `globals.css` holds 81 raw rung references —
      `.hero-ground` paints `var(--color-cream-50)` directly — and a rung does not remap under

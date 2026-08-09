@@ -115,8 +115,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * The title described the intended end state and the value described the held one, and nothing
  * compared them. Sapphire unheld on its second end condition: the work filter's defect is
  * pre-existing on light and shipped by six palettes, so it is not this theme's blocker. */
-t("A8a the selectable set is the six real palettes — five light and one dark",
-  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire"]);
+t("A8a the selectable set is the nine real palettes — five light and four dark",
+  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt"]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",

@@ -71,7 +71,21 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Stored as a base oklch; alpha comes from color-mix scaled by the cascade's --gl. */
   --color-glow-web: oklch(48.0% 0.115 266);
 
-  /* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
+  /* ⚠ THE DARK SURFACE STEP IS ~1.19 AND IT IS A DECISION, NOT A DRIFT. Three figures were on the
+   table for the authored presets: their preview's own ladder produces 1.093 to 1.101, the mock
+   states 1.12 as its target, and this project derived 1.20 by rendering four strengths and looking.
+   The shipped value is 1.186 to 1.190.
+
+   ⚠ AND IT IS NOT THE PRESET'S TO SET, WHICH IS WHY THE MOCK'S LADDER COULD NOT SIMPLY WIN. Dark
+   surfaces are built HERE, by one `color-mix` percentage shared by every dark palette — so honouring
+   a preset's own ladder would move sapphire too. The choice was never "which number for this
+   palette"; it was "one number for all of them".
+
+   THE SHIPPED 1.19 IS KEPT, and the divergence from the preview is recorded rather than silently
+   closed. Nothing was adjusted to satisfy either target. TRIGGER for revisiting: a ruling that dark
+   surfaces should be per-palette rather than a shared mechanism, which is a larger change than a
+   number. */
+/* On-dark scale (CS-7a) — the warm cream palette is light-on-cream, so a dark
      band (the template=web Bold-gallery hero) needs its own surface + on-dark text
      tokens; ink-* text can't sit on a dark bg. WCAG AA on band-dark (verified):
      on-dark 16.9:1, on-dark-muted 9.3:1, on-dark-quote 10.9:1.
@@ -1334,6 +1348,16 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    ⚠ EXEMPT FROM CROSS-PALETTE IDENTITY CONSTRAINTS, named in `theme-contrast` rather than argued
    here. The exemption is scoped to independently authored presets; a DERIVED palette inherits none
    of it, and proximity to this block confers nothing.
+
+   ⚠ AND ONE MEASURED SHORTFALL IS ACCEPTED RATHER THAN RETUNED. `accent-500` on `canvas` is 4.13
+   against a 4.5 floor — the only WCAG row that fails across all three presets and 42 rows. It is
+   NAMED here rather than rounded away, and it is preserved on purpose: THE AUTHORED-PRESET
+   DIRECTION EXISTS TO STOP EXACTLY THIS RETUNE. Adjusting the accent to clear the row would make
+   this a derived palette wearing an authored one's name.
+
+   The row is the scoped LIGHT ladder, which a dark palette carries for scoped use rather than
+   paints its pages with, so nothing on a basalt page draws it today. That is context and not a
+   defence — the shortfall is real and stated.
 ============================================================================================ */
 [data-theme="basalt"] {
   --vessel-dark-n: 4%;
