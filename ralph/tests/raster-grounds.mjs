@@ -21,6 +21,7 @@
 // THE PREDICATE AND FALSE OF THE QUESTION — and it reads as thorough, because the denominator is
 // right. That is this file's reason for existing more than any single asset is.
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import sharp from "sharp";
 import { parseOklch, parseColor } from "../../lib/theme-contrast.ts";
@@ -54,14 +55,56 @@ const GROUNDS = ["cream-50", "cream-100", "cream-200", "cream-300", "canvas", "i
  * The four blog assets ARE leaks and are listed rather than fixed, because they are TEXT-HEAVY and
  * the right form for them is JSX rather than traced SVG — a redraw, which is the owner's to want.
  * Tracing them as SVG `<text>` would ship prose that cannot reflow. */
+/* ============================================================================================
+   ⚠ A GATE'S SCOPE IS A CLAIM ABOUT WHAT KIND OF THING IT GUARDS, AND THIS ONE'S WAS TOO WIDE.
+
+   A4 exists because a Fosfor ILLUSTRATION shipped with cream's ground baked in — a design asset,
+   drawn in the site's colours, committed by a developer. It was then applied to everything under
+   `public/`, which includes AN AUTHOR'S UPLOADS. A warm background in a developer's artwork is a
+   theme leak; a warm background in a photograph an author chose is A PICTURE.
+
+   ⚠ AND THE COST IS PART OF THIS ENTRY. Applied to a blog hero, it produced a ruling to "redraw it
+   with a transparent background" — a code convention imposed on content, which would bind every
+   future post forever — and that ruling DELETED THE AUTHOR'S ASSET AND PUT main RED, for a check
+   that should never have applied to it.
+
+   ⚠ THE INVERSE OF THIS ARC'S USUAL DEFECT. Every earlier instance was a SUBJECT NARROWER THAN ITS
+   CLAIM, and cost a wrong number. This was a CLAIM WIDER THAN ITS SUBJECT, and cost content.
+
+   ---- ⚠ THE DISCRIMINATOR IS THE ADD COMMIT, NOT THE PATH -------------------------------------
+
+   Two boundaries were tried and both are wrong. BY DIRECTORY: ten of thirteen declared entries sit
+   INSIDE `public/images/blog` and `public/images/projects`, which are the upload destinations — so
+   excluding those paths would retire ten exemptions and blind the gate to developer assets living
+   there. BY CONTENT REFERENCE: all thirteen are referenced from `content/`, so that separates
+   nothing at all.
+
+   `/studio` stamps every upload `chore(studio):` and a developer commit never does. THAT is the
+   upload route knowing the difference, recorded in history rather than inferred from a location.
+
+   ⚠ AND IT IS NOT NETWORK-BOUND, SO THIS SUITE STAYS IN THE DEFAULT SET. `upstream.mjs` is skipped
+   by name in `run.mjs` because it needs the network; a `git log` over local history does not, once
+   the clone has depth. CI already carries `fetch-depth: 0` — load-bearing for
+   `upstash-transport.mjs` and commented as such — so the history is present and no new dependency
+   is added. Do not retire this suite beside `upstream.mjs`.
+
+   ⚠ AND ABSENCE IS NEVER A PASS. A file with no add commit — uncommitted, or a shallow clone that
+   cannot see one — is UNKNOWN, not "code" and not "author". Unknown FAILS by name through A5, so a
+   gate that has silently stopped discriminating says so instead of reading green.
+============================================================================================ */
+const addedBy = (rel) => {
+  const r = spawnSync("git", ["log", "--diff-filter=A", "--format=%s", "-1", "--", rel],
+    { encoding: "utf8" });
+  if (r.status !== 0) return "unknown";
+  const subject = (r.stdout ?? "").trim();
+  if (subject === "") return "unknown";
+  return subject.startsWith("chore(studio):") ? "author" : "code";
+};
+
 const KNOWN = {
   /* ⚠ THE TWO BLOCK RASTERS ARE FALLBACK-ONLY SINCE #375 — JSX diagrams draw instead. They stay on
    * disk for the same reason the Fosfor eight did: an id that stops resolving must draw the old
    * picture rather than nothing. */
-  "public/images/blog/ai-first-is-a-research-posture-not-a-feature/blocks/d9517012efd9.webp":
-    "FALLBACK ONLY — the `assistant-route` JSX diagram draws instead since #375",
-  "public/images/blog/what-a-design-system-is-for-when-the-machine-can-draw/blocks/6cd6a9815c3f.webp":
-    "FALLBACK ONLY — the `four-squads` JSX diagram draws instead since #375",
 
   /* ⚠ THE TWO HERO RASTERS WERE HERE AND ARE DELETED IN #376. They were byte-identical copies of
    * the two block diagrams above — so the "four blog assets" this file first declared were TWO
@@ -87,8 +130,6 @@ const KNOWN = {
     "boAt's own dark app UI — depicts a product; clears when boat-crest stops shipping it",
   "public/work/boat-crest/scroll-assets/ba-vitals-after-footer.png":
     "boAt's own dark app UI — depicts a product; clears when boat-crest stops shipping it",
-  "public/images/projects/elevate-one-view/blocks/8954b70f2f33.webp":
-    "Elevate redaction drawn in site colours because the real UI is confidential — depicts a product",
 };
 
 const files = [];
@@ -137,11 +178,47 @@ t("A2 the grounds resolved — a zero would make every pixel test vacuously fals
 /* ⚠ THE PREDICATE ITSELF NEEDS A DENOMINATOR. If it matched nothing at all, A4 would pass and the
  * gate would report a clean site while measuring nothing — which is precisely how #365's sweep
  * reported clean. A known-positive must stay positive. */
+/* ⚠ THE CANARY MOVED AND THE REASON I GAVE FOR MOVING IT WAS WRONG — corrected rather than kept.
+ * It was `d9517012efd9`, and I argued that scoping A4 would take the known-positive out of the
+ * subject with it. IT WOULD NOT: this row reads `found`, which is the pre-classification walk, so
+ * every asset that trips the predicate is still in it whoever committed it. Mutation showed that —
+ * reverting the canary changes nothing, because both files trip it.
+ *
+ * The move STANDS on a different and smaller ground: a canary that is also a retired KNOWN entry ties
+ * this row to a list it does not otherwise depend on. `challenge-insights` is a developer commit and
+ * is still declared, so the two facts it rests on move together. */
 t("A3 the predicate still fires on a known member — a silent zero is how the last two sweeps read clean",
-  found.some((f) => f.rel.includes("d9517012efd9")), true);
+  found.some((f) => f.rel.includes("challenge-insights")), true);
 
-t("A4 ⚠ NO UNDECLARED RASTER IS DRAWN IN THE SITE'S GROUND — a new one is a leak nothing else can see",
-  found.filter((f) => !(f.rel in KNOWN)).map((f) => `${f.rel} (${f.pct}%)`).sort(), []);
+const origin = new Map(found.map((f) => [f.rel, addedBy(f.rel)]));
+const authored = found.filter((f) => origin.get(f.rel) === "author");
+const unknown = found.filter((f) => origin.get(f.rel) === "unknown");
+console.log(`         ${found.length} in the site's ground: ${authored.length} author-uploaded, ${unknown.length} unknown origin`);
+
+t("A4 ⚠ NO UNDECLARED DEVELOPER RASTER IS DRAWN IN THE SITE'S GROUND — author uploads are content, not a theme leak",
+  found.filter((f) => origin.get(f.rel) === "code" && !(f.rel in KNOWN))
+    .map((f) => `${f.rel} (${f.pct}%)`).sort(), []);
+/* ⚠ UNVERIFIED IS A FAILURE, NOT A PASS. A file whose add commit cannot be read is neither author nor
+ * developer, and treating it as either is a guess wearing a verdict. This row is what stops the whole
+ * discrimination degrading silently — in a shallow clone every file is unknown and A4 would go green
+ * over an empty subject without it. */
+t("A5 ⚠ EVERY ASSET'S ORIGIN WAS ACTUALLY READ — an unreadable add commit is UNVERIFIED and must never pass as clean",
+  unknown.map((f) => f.rel).sort(), []);
+t("A5a …and the discrimination is doing something, against a literal — a run where nothing is author-uploaded is a run that has stopped discriminating",
+  authored.length >= 1, true);
+/* ⚠ AND A4 NEEDS ITS OWN DENOMINATOR, WHICH MUTATION FOUND IT LACKING. Widening the prefix so every
+ * commit reads as `author` empties A4's subject entirely — and an empty subject reports no leaks,
+ * which is indistinguishable from a clean site. The count is asserted against a LITERAL, so a
+ * classifier that starts calling everything content fails here rather than agreeing. */
+t("A4a ⚠ AND THE DEVELOPER-SIDE SUBJECT IS REAL, against a literal — classify everything as content and A4 passes over nothing",
+  found.filter((f) => origin.get(f.rel) === "code").length >= 8, true);
+/* ⚠ THE `unknown` BRANCH IS UNREACHABLE FROM THE WALK — every tracked asset has an add commit — so
+ * mutating it survived every row above. Exercised DIRECTLY instead, on a path git cannot know, which
+ * is the only way to prove the branch that keeps a shallow clone from reading green. */
+t("A5b ⚠ AND THE CLASSIFIER RETURNS `unknown` FOR A PATH WITH NO ADD COMMIT — the branch A5 depends on, proved rather than assumed",
+  addedBy("public/__not_a_real_asset_for_this_assertion__.webp"), "unknown");
+t("A5c …and it still recognises a real author upload, so A5b is not passing because the lookup is broken",
+  addedBy("public/images/blog/ai-first-is-a-research-posture-not-a-feature/blocks/d9517012efd9.webp"), "author");
 
 console.log(`\nB · the declared list is honest`);
 t("B1 every declared entry still matches — a stale one is an exemption for an asset that changed",

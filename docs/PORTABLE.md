@@ -243,7 +243,30 @@ so the error never existed removes the one thing that tells a reader the claim w
 Say what was published, what it should have said, and how the difference was found. The record of a
 correction is worth more than the tidiness of the artefact.
 
-### 27. Withhold a measurement you do not understand
+### 27. A null result carries a timestamp and nothing displays it
+
+An absence is evidence only if the search could have found the thing. A search that ran before the
+thing existed returns exactly what a search that ran after would return if it were genuinely absent,
+and the two are indistinguishable in the output.
+
+Before treating an absence as a finding, ask **what would have had to exist at the moment the search
+ran**, and re-run it before building anything on the answer.
+
+*Example, because "no result" is the most trusted output there is.* A search of version history for a
+particular kind of commit came back empty and directed three rounds of diagnosis toward the wrong
+component. The commit existed by the time the conclusion was acted on. It had simply not been made
+when the search ran.
+
+### 28. When a state is added to one path, ask which other paths carry the same kind of fact
+
+A validation state was added to a save path, with the argument written out beside it, because a fact about
+the content outranks a fact about the transfer, because swallowing it deletes the only signal saying
+why. The publish path handled the same class of fact and fell through to a generic error for years.
+
+**A rule fixed where it was found and never generalised** is the third instance of this shape in one
+codebase. The rule was right, the reasoning was recorded, and nobody asked where else it applied.
+
+### 29. Withhold a measurement you do not understand
 
 A wrong diagnosis costs a session. A wrong diagnosis written down as a cause costs however long it
 takes the next person to stop believing it.
@@ -252,7 +275,7 @@ Six measurements were produced and withheld in one component in a single session
 the previous one taught. Every one would have passed review. Four reconciled with their neighbours.
 Withholding is the cheaper half of that trade every time, and it does not feel like it in the moment.
 
-### 28. Nothing reported is evidence, including a report you wrote yourself
+### 30. Nothing reported is evidence, including a report you wrote yourself
 
 Every claim about a system should be checked against that system. This is obvious for measurements
 and is routinely skipped for statements about tooling, state and process, which are exactly the
@@ -261,16 +284,16 @@ claims no instrument is watching.
 Prefer a measurement the artefact carries over an assertion made beside it. A capture that verifies
 its own subject cannot be mislabelled. A screenshot with a caption can.
 
-### 29. A safety net that restores the wrong state is worse than an absent one
+### 31. A safety net that restores the wrong state is worse than an absent one
 
 Because it is trusted. An absent net makes people careful. A net that silently hands back the wrong
 thing while reporting success does not.
 
-### 30. Zero consumers is a reason to delete, not to exempt forever
+### 32. Zero consumers is a reason to delete, not to exempt forever
 
 An exemption is what lets a dead thing survive review for as long as the exemption list does.
 
-### 31. A refusal registry is worth as much as a decision registry
+### 33. A refusal registry is worth as much as a decision registry
 
 Record what was considered and rejected, with the reason. Otherwise the same question is asked and
 answered repeatedly, and each answer is slightly different.
