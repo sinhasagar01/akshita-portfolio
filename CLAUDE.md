@@ -544,6 +544,37 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ STATE BOTH FIGURES ON ANY CROSS-GROUND COMPARISON — THE ABSOLUTE DELTA AND THE RATIO AGAINST
+  THE LOCAL BACKDROP.** An absolute delta is a whisper on light and a glow on dark: the smoke blobs
+  measured +5 to +6 on BOTH grounds and were passed as "comparable", and as ratios they were 1.04–1.07
+  on cream against **1.7–2.0 on nocturne — a near-doubling of luminance**, which was the haze the
+  owner reported twice while the census said fine. **It would have caught this a session earlier**,
+  which is what makes it a number rather than a note.
+
+  **⚠ THE RULE'S FIRST APPLICATION RAN BEFORE IT WAS RECORDED, AND FOUND TWO LIVE MEMBERS.** Every
+  cross-ground figure passed this arc was re-examined: the blobs (caught, fixed), the liquid glows
+  (caught, fixed), **the bubbles — passed as "comparable" at +1.4 to +4.3 absolute, measured 1.01–1.04
+  cream against 2.17–2.55 nocturne** — and the nav sheen (1.03–1.04 against 1.26–1.39, standing on
+  renders the owner ruled on with it present). The three derived lit-edges used absolute cream
+  contributions as targets BY METHOD; each stands on an accepted render, and that is stated rather
+  than silently re-based. **The bubbles are the open member** — points of light rather than washes,
+  possibly the bounce mechanic doing its job, and that is an eye's call, not a ratio's.
+
+- **⚠ A LAYER LIST ASSEMBLED FROM SOURCE IS NOT THE PAINT ORDER — EVIDENCED THREE WAYS IN ONE
+  COMPONENT.** The vessel's census missed three layers for three different reasons: **the glint was
+  dead by occlusion** (a sibling painted its only row), **the capsule sat in an unopened board item**
+  (in the stack, outside the census), and **the pearlescent glows fell outside the sample geometry**
+  (an 18px edge blur reads 0.00 at the centre). All three were found the same way — **re-deriving the
+  subject from the rendered element, candidates removed one at a time** — which is now the method, not
+  a recovery. A source list answers "what is declared"; only the render answers "what paints where".
+
+- **⚠ AN OKLCH SERIALISATION READ AS RGB BYTES — the signature defect, caught by inconsistency inside
+  one table.** A probe regexed `getComputedStyle().backgroundColor` and six palettes returned
+  `oklch()` strings whose components became "rgb" values, producing white-on-accent ratios up to
+  20.93 beside three honest rows near 2.8. **The spread between rows sharing one claim is what caught
+  it.** Repaired by painting a 1×1 canvas and reading the pixel — the browser does the conversion, so
+  the value measured is the value drawn.
+
 - **⚠ WHEN TWO PATHS CAN PRODUCE THE SAME RESULT, VERIFYING THE OUTCOME DOES NOT ESTABLISH WHICH PATH
   PRODUCED IT.** The arc's best output, above its nine fixes. `data-nav-tone="dark"` fires site-wide
   on nocturne at 0-2-0, so every nav measurement showed the dark repair working — **through the tone

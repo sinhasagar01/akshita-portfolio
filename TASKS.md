@@ -419,15 +419,26 @@ demonstrated four times.
   question is reopened, or sapphire is retired. Ground h320 c0.024 gives dE 10.8 with one gamut cap,
   with h330 c0.024 at 11.9 and h320 c0.030 at 12.1 measured as fallbacks.
 
-**PARTIAL, WITH ITS REMAINDER NAMED — the white-alpha partition.** 33 fixed-white sites were
-censused (a real parser, 0 unparsed). Measured or argued: the sheen paired-and-working, ~21 sites
-paired, nav-cta's four ground-independent on the accent fill. The capsule's row was ESTABLISHED by
-the boarded sweep (dy0: +9.7 cream, +71.7 nocturne full-stack) and its lit edge is now
-`--capsule-lit-edge`, 85% light and 58.3% dark, derived against its isolated cream contribution of
-32.80. The glint was DELETED as dead by occlusion (the waterline paints over its only row, both
-grounds, all rows) and the bubbles measured comparable on both grounds mid-flight. **UNRESOLVED,
-two members:** the markup sites `ContactSection.tsx:215` and `SwatchTokens.tsx:23` (40%). **WHAT
-FINISHES IT:** the inert test on those two, both grounds. Nothing else is open in this item.
+**CLOSED — the white-alpha partition.** All 33 sites have verdicts: paired, ground-independent,
+weighted this arc (fog, glows, lit edges), or deleted (the glint, by occlusion). The last two
+members closed by construction with their subjects named: `SwatchTokens.tsx:23` sits on a CONTENT
+backdrop (the depicted product's own colour, which no palette moves), and `ContactSection.tsx:215`
+pairs white with the ACCENT, not with the page ground — measured across all nine palettes, which is
+what produced the open question below.
+
+**OWNER'S EYE — WHAT READS ON THE ACCENT, ON A DARK PALETTE. One vocabulary question, four members,
+none fixable in a consumer.** `--color-accent` resolves to `accent-on-dark` on the four dark
+palettes, a LIGHT accent — and `on-accent` is `cream-50` with no dark answer, its comment assuming
+"the accent stays a mid-tone", true of five light palettes and false of all four dark ones.
+- The contact success check: white on accent measures 4.82 to 6.01 on the five light palettes and
+  **2.55 to 2.85 on all four dark — below the 3.0 graphics floor.** Subject: white against
+  `--color-accent`, canvas-pixel measured.
+- The blog waterline at +22.73 on nocturne — role-correct, boldness is the read.
+- `.nav-cta` (Resume): white TEXT on `--color-accent-500`, floor 4.5 — **a different pair than the
+  one measured** (accent-500 is not accent-on-dark), UNMEASURED, named so nobody conflates them.
+- `on-accent` itself: the role's dark answer was never designed, and its multi-role entry's end
+  condition (the dark ground shipping) has fired.
+The fix lands in the vocabulary — a dark answer for what sits on the accent — not in any consumer.
 
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
