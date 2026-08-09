@@ -9,16 +9,16 @@ blocks:
     value:
       paragraphs:
         - >-
-          The fastest way to find out what a transition was doing is to
-          delete it. Not shorten it, not soften it. Remove it, ship the
-          build to yourself, and use the product for a day. Most of the
-          time nothing happens, which is the answer. Occasionally
-          something small goes wrong that you cannot immediately name, and
-          that is the transition that was working.
+          The fastest way to find out what a transition was doing is to delete
+          it. Not shorten it, not soften it. Remove it, ship the build to
+          yourself, and use the product for a day. Most of the time nothing
+          happens, which is the answer. Occasionally something small goes wrong
+          that you cannot immediately name, and that is the transition that was
+          working.
         - >-
-          I started doing this because I could not defend most of the
-          motion I had drawn. I could say it felt right. I could not say
-          what it was **for**.
+          I started doing this because I could not defend most of the motion I
+          had drawn. I could say it felt right. I could not say what it was
+          **for**.
   - discriminant: heading
     value:
       text: Motion answers two questions, and only two
@@ -26,21 +26,21 @@ blocks:
     value:
       paragraphs:
         - >-
-          A static screen tells you what is true now. It cannot tell you
-          *what just happened* or *where that went*. Those are the two
-          questions motion exists to answer, and almost every transition
-          worth keeping answers one of them.
+          A static screen tells you what is true now. It cannot tell you *what
+          just happened* or *where that went*. Those are the two questions
+          motion exists to answer, and almost every transition worth keeping
+          answers one of them.
         - >-
-          A panel that slides from the edge it will return to is answering
-          the second. A row that lifts as its neighbour is deleted is
-          answering the first. A button that grows on hover answers
-          neither, which is not a reason to remove it, but it is a reason
-          to stop calling it communication.
+          A panel that slides from the edge it will return to is answering the
+          second. A row that lifts as its neighbour is deleted is answering the
+          first. A button that grows on hover answers neither, which is not a
+          reason to remove it, but it is a reason to stop calling it
+          communication.
   - discriminant: pullQuote
     value:
       text: >-
-        Every transition is a sentence. Most of the ones I have drawn
-        were clearing their throat.
+        Every transition is a sentence. Most of the ones I have drawn were
+        clearing their throat.
   - discriminant: heading
     value:
       text: Duration is a budget, not a taste
@@ -49,39 +49,44 @@ blocks:
       paragraphs:
         - >-
           The change that mattered most in how I work was small. I stopped
-          asking how long a transition should feel and started asking how
-          long a reader needs to follow it. Those are different questions
-          and only the second has an answer you can defend in a review.
+          asking how long a transition should feel and started asking how long a
+          reader needs to follow it. Those are different questions and only the
+          second has an answer you can defend in a review.
         - >-
-          @@ GAP 1 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT
-          SHIP. @@ the moment duration stopped being taste and became a
-          legibility budget. What were you looking at, and what made it
-          concrete rather than felt?
-  - discriminant: heading
+          @@ GAP 1 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
+          the moment duration stopped being taste and became a legibility
+          budget. What were you looking at, and what made it concrete rather
+          than felt?
+  - discriminant: imageBlock
     value:
-      text: What removing it actually tells you
+      src: null
+      alt: ''
+      caption: ''
+      wide: false
+      decorative: false
   - discriminant: richText
     value:
       paragraphs:
         - >-
-          On a consumer product the evidence arrives without being asked
-          for. People describe confusion in their own words, in public, at
-          volume, and they almost never describe it as a motion problem.
-          They say they could not find the thing, or that it did not save,
-          or that the app went back on its own. Some of that is
-          navigation. Some of it is a missing answer to *where did that
-          go*.
+          On a consumer product the evidence arrives without being asked for.
+          People describe confusion in their own words, in public, at volume,
+          and they almost never describe it as a motion problem. They say they
+          could not find the thing, or that it did not save, or that the app
+          went back on its own. Some of that is navigation. Some of it is a
+          missing answer to *where did that go*.
         - >-
-          @@ GAP 2 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT
-          SHIP. @@ the transition on boAt Crest that resolved a confusion
-          visible in reviews. What were people saying before, and what
-          changed after?
+          @@ GAP 2 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
+          the transition on boAt Crest that resolved a confusion visible in
+          reviews. What were people saying before, and what changed after?
         - >-
-          @@ GAP 3 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT
-          SHIP. @@ the one you cut, and why. The stronger version of this
-          piece is that you removed something you liked.
+          @@ GAP 3 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
+          the one you cut, and why. The stronger version of this piece is that
+          you removed something you liked.
         - >-
-          None of this makes motion decoration. It makes it expensive,
-          which is a better frame. A transition costs a reader time
-          whether or not it earns it, and the only way to find out which
-          it is doing is to take it away and watch.
+          None of this makes motion decoration. It makes it expensive, which is
+          a better frame. A transition costs a reader time whether or not it
+          earns it, and the only way to find out which it is doing is to take it
+          away and watch.
+  - discriminant: heading
+    value:
+      text: What removing it actually tells you
