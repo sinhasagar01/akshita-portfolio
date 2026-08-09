@@ -385,9 +385,9 @@ entries:
   - id: component-shadow-tints
     kind: judgement
     category: forced-literal
-    where: components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx
-    files: [components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx]
-    count: 2
+    where: components/case-study/blocks/BeforeAfterStory.tsx
+    files: [components/case-study/blocks/BeforeAfterStory.tsx]
+    count: 1
     reason: >
       Two components roll their own shadow tint instead of using `--shadow-sm/md/lg`, which are
       already tokenised from `ink-950`. Measured against that token as the composite rule requires:
@@ -396,6 +396,11 @@ entries:
       adopting it here changes the shadow's GEOMETRY, not just its hue. That is a shadow-token
       adoption question with its own before-and-after, and folding it into a colour sweep would be
       the wrong-noun error this arc has made four times.
+      ⚠ THE HERO TAB'S HALF MOVED FILES AND DID NOT MOVE VALUE. It was an inline `boxShadow` in
+      HeroSection and is now `--hero-tab-shadow` in globals.css, byte-identical, lifted so that a
+      JSX style could respond to `[data-ground="dark"]` at all. THE COUNT IS UNCHANGED AT 2 AND THE
+      FILE LIST IS NOT — which is exactly what a value-and-location join is for, and it is why J5
+      failed on a file nobody had edited rather than passing quietly.
       ⚠ AND THE TRIGGER IS NAMED RATHER THAN LEFT AS "SEPARATE", because a deferral conditional on
       nothing has no owner and this project has recorded that twice. REVISIT WHEN either something
       else needs these shadows — a third component reaching for a bespoke tint means the tokens are

@@ -2149,6 +2149,19 @@ a {
     inset 0 0 0 0.5px color-mix(in srgb, var(--color-etch) 6%, transparent),
     0 2px 6px -2px oklch(0% 0 0 / 0.14),
     0 14px 38px -14px oklch(0% 0 0 / 0.34);
+  /* ⚠ THE HOME HERO'S TAB PILL, LIFTED OUT OF JSX SO IT CAN THEME AT ALL. It was an inline
+     `boxShadow` in HeroSection, and an inline style cannot respond to `[data-ground="dark"]` —
+     unthemeable by construction rather than by oversight. This declaration is the IDENTICAL string
+     it carried, so the lift moves no pixel on any palette; the dark answer is a separate commit.
+
+     ⚠ THE DROP IS CARRIED ACROSS UNCHANGED AND IS A KNOWN, UNSCOPED DEFECT. `oklch(30% 0.018 60)`
+     is a raw literal at cream's warm hue with no token behind it, so it themes on none of the nine
+     palettes. It is left exactly as found because a themeing repair inside a plumbing change is
+     unreviewable — and because `etch`, the obvious candidate, INVERTS, which is precisely what the
+     nav's drops turned out to need corrected. It needs the ground-ceiling check, not a swap. */
+  --hero-tab-shadow:
+    0 3px 12px oklch(30% 0.018 60 / 0.12),
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 70%, transparent);
   --glass-shadow-hi-dark:
     inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 16%, transparent),
     inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 34%, transparent),
