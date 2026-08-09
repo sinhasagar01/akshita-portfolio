@@ -536,6 +536,16 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ RULE 25's FIRST APPLICATION AFTER BEING WRITTEN, AND IT PAID IMMEDIATELY.** A 1024 survey found
+  the docked reading indicator's date sitting under a dark circular badge in the bottom-left corner —
+  a clean, visible, screenshot-backed collision. **It was `nextjs-portal`, the dev overlay.** No site
+  element occupies that corner at all.
+
+  **SIXTH INSTANCE THIS WEEK OF ONE SHAPE — AN INSTRUMENT CONDITION NEVER CHECKED**, after reduced
+  motion suppressing a component, a mask selecting the viewport, a viewport on an inclusive boundary,
+  a box reporting zero size, and a suite run against a stale build. The rule was written from the
+  first five; **this is the first time it was applied before reporting rather than after.**
+
 - **⚠ AN ABSENCE IS EVIDENCE ONLY IF THE SEARCH COULD HAVE FOUND THE THING.** *"No save-draft request
   fires"* directed three prompts of diagnosis. It came from searching git history for a head-field
   commit — **and the commit did not exist yet when the search ran.** It exists now, as
