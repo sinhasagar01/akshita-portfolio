@@ -4115,7 +4115,10 @@ a {
   bottom: 100%;
   width: 200%;
   height: 13px;
-  filter: url(#blog-wobble);
+  /* ⚠ THE WOBBLE FILTER IS GONE WITH ITS SMIL. `filter: url(#blog-wobble)` referenced an SVG
+     <animate> that the CSS animation reset could not stop, which is why the whole component used to
+     render nothing under reduced motion. A dangling url() reference paints nothing and costs a
+     lookup, so it is removed rather than left. */
 }
 .blog-wave svg {
   display: block;
