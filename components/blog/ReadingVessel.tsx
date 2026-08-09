@@ -110,6 +110,12 @@ export default function ReadingVessel({
     return () => st.kill();
   }, []);
 
+  /* ⚠ THE WAVE FILLS READ THE ALIASES, NOT THE RAW PIGMENTS — measured, this was the vessel's
+     whole dark defect. `--vessel-smoke-4` and `--vessel-wave` equal the raw tokens on light
+     (byte-identical by construction) and remap under the dark ground; the raw forms do not, so the
+     waves painted a light-value slab that measured -1.68 against its backdrop on cream and +62.27
+     on nocturne — wrong sign, 37x, at the exact row the eye reads as the fill. Every other layer
+     measured comparable on both grounds or ~0. One layer, one bypass, one re-point. */
   const style = { "--read": read } as CSSProperties;
   const pct = Math.round(read * 100);
 
@@ -124,12 +130,12 @@ export default function ReadingVessel({
           <div className="blog-smoke" />
           <div className="blog-wave is-b">
             <svg viewBox="0 0 400 16" preserveAspectRatio="none">
-              <path fill="color-mix(in srgb, var(--color-smoke-4) 55%, transparent)" d={WAVE_PATH_B} />
+              <path fill="color-mix(in srgb, var(--vessel-smoke-4) 55%, transparent)" d={WAVE_PATH_B} />
             </svg>
           </div>
           <div className="blog-wave is-a">
             <svg viewBox="0 0 400 13" preserveAspectRatio="none">
-              <path fill="color-mix(in srgb, var(--color-vessel-wave) 85%, transparent)" d={WAVE_PATH_A} />
+              <path fill="color-mix(in srgb, var(--vessel-wave) 85%, transparent)" d={WAVE_PATH_A} />
             </svg>
           </div>
           <div className="blog-glint" />

@@ -4300,9 +4300,13 @@ a {
   right: 0;
   bottom: calc(100% - 1px);
   height: 2px;
+  /* ⚠ THE ROLE, NOT THE RUNG. `--color-accent` IS `accent-500` on light — byte-identical — and
+     `accent-on-dark` under the dark ground. As a rung this line measured -66.13 on cream and +3.57
+     on nocturne: the boldest mark in the component on light and nearly invisible on dark, which is
+     the weak-contrast symptom by measurement. */
   background: linear-gradient(90deg,
-    oklch(from var(--color-accent-500) l c h / 0.22), var(--color-accent-500) 18%,
-    var(--color-accent-500) 82%, oklch(from var(--color-accent-500) l c h / 0.22));
+    oklch(from var(--color-accent) l c h / 0.22), var(--color-accent) 18%,
+    var(--color-accent) 82%, oklch(from var(--color-accent) l c h / 0.22));
 }
 .blog-glint {
   position: absolute;
