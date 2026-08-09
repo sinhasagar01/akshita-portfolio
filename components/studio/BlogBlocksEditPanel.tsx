@@ -60,12 +60,25 @@
 // no editable element at all, so without the strip such a block could be added and never
 // selected again. It also puts select, reorder and remove in one place on one row.
 //
-// STRUCTURAL OPS DO NOT CALL saveDraft(). useDraftForm's saveDraft closes over `values`, so
-// calling it synchronously after setField would post the PRE-UPDATE array — every add,
-// remove and reorder would reach the seam one mutation behind. (#174's host harness caught
-// exactly that; a unit test and a DOM diff both missed it.) SectionsEditPanel has the same
-// constraint and answers it the same way: structural changes mark the panel dirty, and the
-// save happens on the next field blur or via the explicit Save control.
+// STRUCTURAL OPS DO NOT CALL saveDraft(), AND THE REASON THEY DO NOT HAS CHANGED.
+//
+// ⚠ STRUCK, NOT DELETED. This read: "useDraftForm's saveDraft closes over `values`, so calling it
+// synchronously after setField would post the PRE-UPDATE array — every add, remove and reorder
+// would reach the seam one mutation behind." THAT WAS TRUE WHEN WRITTEN and #174's host harness
+// genuinely caught the pre-update array, where a unit test and a DOM diff both missed it.
+//
+// ⚠ IT STOPPED BEING TRUE IN #438. `saveDraft` reads `valuesRef.current`, and `applyValues` — the
+// hook's single mutation path — now writes that ref SYNCHRONOUSLY before scheduling the render. A
+// structural op calling `saveDraft` in the same tick would post the POST-update array.
+//
+// SO THE WORKAROUND IS NOW OPTIONAL RATHER THAN REQUIRED, and it is kept deliberately. Whether
+// add, remove and reorder should auto-save is a question about COMMIT NOISE AND AUTHOR
+// EXPECTATION, not about correctness, and nobody has decided it. TRIGGER: when that behaviour is
+// wanted, dropping the workaround is one line per site — here, at the inline-edit handler below,
+// and in `commitParagraphs`. SectionsEditPanel carries the same shape for the same reason.
+//
+// Today, unchanged: structural changes mark the panel dirty, and the save happens on the next
+// field blur or via the explicit Save control.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -476,9 +489,12 @@ export default function BlogBlocksEditPanel({
     // is silent, which is the assertion that catches an innerText regression.
     if (readByPath(value, ds.editValuePath) === next) return;
     setBlockValue(ids[i], setByPath(value, ds.editValuePath, next));
-    // SAVE ON THE NEXT RENDER, NEVER HERE. `saveDraft` closes over `values`, so calling it
-    // in this handler would post the array as it was BEFORE the line above — #174's exact
-    // defect, which a unit test and a DOM diff both missed and only a request count caught.
+    // SAVE ON THE NEXT RENDER, NEVER HERE — kept, though the reason it was FORCED is gone.
+    // ⚠ STRUCK: this said "`saveDraft` closes over `values`, so calling it in this handler would
+    // post the array as it was BEFORE the line above — #174's exact defect, which a unit test and
+    // a DOM diff both missed and only a request count caught." True when written; #438 made
+    // `applyValues` write the hook's values ref synchronously, so a call here would now post the
+    // current array. The deferral stays as a BEHAVIOUR choice — see the header note's trigger.
     // The inspector's fields get away with `onBlur={saveDraft}` because their onChange fired
     // on an earlier render; an inline edit has no earlier render to rely on.
     pendingSave.current = true;
@@ -495,9 +511,12 @@ export default function BlogBlocksEditPanel({
   };
 
   /** Commit a new paragraphs array and queue the focus + caret restoration. STRUCTURAL, so
-   *  it does NOT call saveDraft — #174's rule, because saveDraft closes over `values` and
-   *  would post the pre-update array. The panel is dirty and the save rides the next blur
-   *  or the explicit Save control. */
+   *  it does NOT call saveDraft.
+   *
+   *  ⚠ STRUCK: this cited "#174's rule, because saveDraft closes over `values` and would post the
+   *  pre-update array". Correct when written and no longer the mechanism — #438's `applyValues`
+   *  writes the values ref synchronously. The deferral is now a behaviour choice; see the header.
+   *  The panel is dirty and the save rides the next blur or the explicit Save control. */
   const commitParagraphs = (
     blockIndex: number,
     list: string[],
