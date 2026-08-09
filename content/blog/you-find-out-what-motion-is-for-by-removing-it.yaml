@@ -51,12 +51,10 @@ blocks:
           The change that mattered most in how I work was small. I stopped
           asking how long a transition should feel and started asking how long a
           reader needs to follow it. Those are different questions and only the
-          second has an answer you can defend in a review.
-        - >-
-          @@ GAP 1 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
-          the moment duration stopped being taste and became a legibility
-          budget. What were you looking at, and what made it concrete rather
-          than felt?
+          second has an answer you can defend in a review.@@ GAP 1 OF 3 — HER
+          EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@ the moment duration
+          stopped being taste and became a legibility budget. What were you
+          looking at, and what made it concrete rather than felt?
   - discriminant: imageBlock
     value:
       src: >-
@@ -75,14 +73,8 @@ blocks:
           could not find the thing, or that it did not save, or that the app
           went back on its own. Some of that is navigation. Some of it is a
           missing answer to *where did that go*.
-        - >-
-          @@ GAP 2 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
-          the transition on boAt Crest that resolved a confusion visible in
-          reviews. What were people saying before, and what changed after?
-        - >-
-          @@ GAP 3 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
-          the one you cut, and why. The stronger version of this piece is that
-          you removed something you liked.
+        - ''
+        - ''
         - >-
           None of this makes motion decoration. It makes it expensive, which is
           a better frame. A transition costs a reader time whether or not it
