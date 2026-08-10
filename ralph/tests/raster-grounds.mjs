@@ -137,6 +137,36 @@ const KNOWN = {
     "boAt's own dark app UI — depicts a product; clears when boat-crest stops shipping it",
   "public/work/boat-crest/scroll-assets/ba-vitals-after-footer.png":
     "boAt's own dark app UI — depicts a product; clears when boat-crest stops shipping it",
+
+  /* ⚠ THE TWO HERO EXPORTS, AND THE MEASUREMENT IS WHY THEY ARE LEGAL RATHER THAN TOLERATED.
+   *
+   * Both read 8.4% and 8.5%, over the 5% threshold. Re-measured with this file's OWN predicate and
+   * grounds, asking WHERE the hits sit rather than how many there are:
+   *
+   *     hero-figure.webp        916 hits — border-connected 0, interior 916
+   *     hero-figure@0.66x.webp  925 hits — border-connected 0, interior 925
+   *
+   * ZERO BORDER-CONNECTED ON BOTH. The cutout flooded inward from the image border over cream-like
+   * pixels, so a surviving cream FIELD would necessarily touch the edge. None does. What is left is
+   * enclosed by the figure — the drawn UI cards, the coral block and the purple disc, which the
+   * asset's own README derives independently as baked into the same flat raster and inseparable
+   * without repainting her forearm.
+   *
+   * ⚠ SO THIS IS THE `artwork-by-file` RULING ARRIVING THROUGH A MEASUREMENT: drawn in the DEPICTED
+   * thing's own colours, not in the site's voice. The Fosfor illustration A4 was built for is the
+   * opposite case and would show as border-connected, which is the discriminator neither this gate
+   * nor its exemptions could express before.
+   *
+   * ⚠ AND THE TRIGGER CAN ACTUALLY FIRE, which is the half this record has lost four times. It is
+   * not "until the artwork improves" — that is a promise. The figure is upscaled 1.76x to 1.92x on a
+   * retina laptop because the source PNG inside the original SVG is 1536 x 1024, and a larger export
+   * from that file is boarded as owner-only work. THAT export is the event: it produces a new raster,
+   * B1 fails the entry the moment the bytes change, and the interior-versus-border question is asked
+   * again against the new one rather than inherited. */
+  "public/images/hero/hero-figure.webp":
+    "8.4% interior, 0 border-connected — depicts drawn UI baked into the illustration; clears when the artwork is re-exported larger from the original file",
+  "public/images/hero/hero-figure@0.66x.webp":
+    "8.5% interior, 0 border-connected — the 0.66x export of the same artwork; clears when that artwork is re-exported larger from the original file, the one event that regenerates this derivative too",
 };
 
 const files = [];
