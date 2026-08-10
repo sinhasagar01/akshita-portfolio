@@ -458,6 +458,12 @@ LAPSE VISIBLY.** It simply stops being mentioned, and nothing distinguishes that
 Otherwise: the section redesign blocked on the owner's canvas decision, and the four dormant
 triggers below with none fired.
 
+**CLOSED — `--glass-fill` / `--glass-stroke`.** Tone-only dark answers KEPT, on reachability: 36
+steady states and 260 load frames found zero where they paint while unmapped, because `.is-ghost`
+zeroes both. The load window is real (555ms) and it condemned `--glass-fill-strong` instead, whose
+consumer the ghost rule does not cover. Trigger to revisit: `.is-ghost` stops zeroing them, or a
+non-ghost state appears before the tone reader runs.
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session
