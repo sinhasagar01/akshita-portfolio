@@ -40,6 +40,15 @@ const t = (name, got, want) => {
 
 const YAML = "content/site-settings.yaml";
 const orig = readFileSync(YAML, "utf8");
+/* ⚠ A KILLED PROCESS HAS NO `finally`, AND EVERY PROBE IN THIS REPO RELIES ON ONE TO PUT THE
+ * PUBLISHED THEME BACK. This suite runs long enough to be timed out — its first widened run was,
+ * at ten minutes — and the kill left `site-settings.yaml` on whichever palette the loop was
+ * mid-way through. That file is CONTENT WITH AN OWNER: leaving it changed is a silent
+ * un-publishing, which is the exact failure the restore-from-main convention exists to prevent.
+ * A `finally` covers a throw; only a signal handler covers a kill. */
+for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) {
+  process.on(sig, () => { try { writeFileSync(YAML, orig); } catch {} process.exit(130); });
+}
 /* ⚠ THE SUBJECT IS THE PUBLIC SURFACE, ENUMERATED RATHER THAN SAMPLED. Every case study, a
  * published post, both indexes and the home page — because the defect this exists for was found on
  * ONE article by a person reading it, and a check that visits one page of each kind has the same
@@ -62,6 +71,13 @@ const PAGES = [
 /* ⚠ CREAM IS THE BASELINE AND EVERY OTHER PALETTE IS COMPARED TO IT, dark AND light. A light pair
  * still moves the ground — different hues — so a foreground frozen across two LIGHT palettes is a
  * hardcoded colour following no theme at all, which is the same defect one step quieter. */
+/* ⚠ BOTH SIDES OF THE BREAKPOINT, BECAUSE MOBILE IS A DIFFERENT SUBJECT AND NOT A NARROWER ONE.
+ * The site goes mobile all at once at `lg` (1024) — the nav becomes a morph and a sheet, columns
+ * stack, and several sites exist at exactly one of the two widths. A check that runs at 1440 alone
+ * has the ratchet's blind spot in a second dimension: complete over what it visits, silent about
+ * what it never renders. 390 is a phone rather than a hair under the breakpoint, so the mobile
+ * layout is measured where people actually meet it. */
+const WIDTHS = [[1440, "desktop"], [390, "mobile"]];
 const BASELINE = "cream";
 const AGAINST = ["harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt"];
 
@@ -115,14 +131,17 @@ let flagged = [];
 try {
   /* Capture each palette ONCE per page, then compare every palette to the baseline — so the page
      loads scale with palettes rather than with palette PAIRS. */
-  for (const [url, name] of PAGES) {
+  for (const [W, wname] of WIDTHS) {
+  await pg.setViewportSize({ width: W, height: 1000 });
+  for (const [url, pname] of PAGES) {
+    const name = `${pname} @${wname}`;
     const snap = {};
     for (const th of [BASELINE, ...AGAINST]) {
       writeFileSync(YAML, orig.replace(/^theme:.*$/m, `theme: ${th}`));
       if (!(await goto("http://localhost:3457" + url))) { snap[th] = null; continue; }
-      await pg.waitForTimeout(1800);
-      for (const y of [1200, 2600, 4000]) { await pg.evaluate((v) => scrollTo(0, v), y); await pg.waitForTimeout(500); }
-      await pg.evaluate(() => scrollTo(0, 0)); await pg.waitForTimeout(800);
+      await pg.waitForTimeout(1100);
+      for (const y of [1200, 2600, 4000]) { await pg.evaluate((v) => scrollTo(0, v), y); await pg.waitForTimeout(320); }
+      await pg.evaluate(() => scrollTo(0, 0)); await pg.waitForTimeout(550);
       snap[th] = await grounds(pg, await collect(pg));
     }
     const base = snap[BASELINE];
@@ -141,6 +160,7 @@ try {
     }
     per.push({ name, sites, moved, pairs });
   }
+  }
 } finally { writeFileSync(YAML, orig); await b.close(); }
 
 const sites = per.reduce((a, p) => a + p.sites, 0), moved = per.reduce((a, p) => a + p.moved, 0);
@@ -153,7 +173,7 @@ console.log("A · the subject is real — an error page has zero sites and would
  * had been wiped mid-session. A zero denominator is not a pass, and this is where that is enforced
  * rather than remembered. Floors are LITERALS: a guard derived from its own subject cannot fail. */
 t("A1 ⚠ THE SITE COUNT CLEARS A LITERAL FLOOR — a served error page reads as zero defects otherwise",
-  sites > 3000, true);
+  sites > 6000, true);
 t("A2 …and EVERY page contributed, so one silently empty page cannot hide behind the total",
   per.filter((p) => p.sites < 100).map((p) => p.name), []);
 /* ⚠ AND EVERY PALETTE LOADED. A palette that fails to render contributes no pairs and its sites
@@ -161,7 +181,13 @@ t("A2 …and EVERY page contributed, so one silently empty page cannot hide behi
 t("A2a …and every page compared against every palette, so a failed render cannot read as clean",
   per.filter((p) => p.pairs !== AGAINST.length).map((p) => `${p.name} ${p.pairs}/${AGAINST.length}`), []);
 t("A3 …and the palettes genuinely differ, or 'ground moved' is vacuous",
-  moved > 3000, true);
+  moved > 6000, true);
+/* ⚠ EACH WIDTH CARRIES A REAL SUBJECT. Summing across widths lets one viewport render nothing while
+ * the total still clears its floor — the emptiness defect one dimension out, and the reason A2
+ * exists per page rather than per run. */
+t("A3a ⚠ AND BOTH SIDES OF THE BREAKPOINT MEASURED SOMETHING — a viewport that renders nothing cannot hide in the total",
+  WIDTHS.map(([, w]) => [w, per.filter((p) => p.name.endsWith("@" + w)).reduce((a, p) => a + p.sites, 0)])
+    .filter(([, n]) => n < 1000).map(([w]) => w), []);
 
 console.log("\nB · no site paints a frozen foreground on a ground that moved");
 t("B1 ⚠ THE DEFECT ink-800 AND ink-950 WERE — a foreground that holds still while its ground inverts",
