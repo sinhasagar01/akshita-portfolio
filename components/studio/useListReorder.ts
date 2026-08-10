@@ -25,9 +25,12 @@ export function useListReorder<T extends { slug: string }>({
   items: readonly T[];
   setItems: (next: T[]) => void;
 }) {
-  const { setUnpublished } = usePublishSignal();
+  const { setUnpublished, beginToast, resolveToast, dismissToast } = usePublishSignal();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  /* ⚠ THE RESULT GOES TO THE TOASTER AND THE HOOK RETURNS NO MESSAGE AT ALL. A reorder REMOVES AND
+     REINSERTS ROWS — the surface that would have shown an inline error is the surface that just
+     moved under the reader. `reorderError` is DELETED rather than left returning null: a field every
+     consumer destructures and none reads is the drift this repo removes on sight. */
   // Serializes moves: a second click while a commit is in flight would compute
   // its order from state the server has not seen yet.
   const busyRef = useRef(false);
@@ -43,7 +46,7 @@ export function useListReorder<T extends { slug: string }>({
     setItems(next);
     busyRef.current = true;
     setBusy(true);
-    setError(null);
+    const opId = beginToast("Reordering\u2026", collection === "projects" ? "Case studies" : "Experience");
     try {
       const res = await fetch("/api/studio/reorder-entries", {
         method: "POST",
@@ -53,7 +56,7 @@ export function useListReorder<T extends { slug: string }>({
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.mode === "fs") {
         setItems(previous);
-        setError("Reorder needs github mode (dev)");
+        dismissToast(opId); // fs wrote nothing; a card claiming a save would name what did not happen
         return;
       }
       if (res.ok && json.ok) {
@@ -63,15 +66,15 @@ export function useListReorder<T extends { slug: string }>({
         return;
       }
       setItems(previous);
-      setError("Could not save the new order. Try again.");
+      resolveToast(opId, { kind: "refusal", title: "Couldn\u2019t reorder", message: (collection === "projects" ? "Case studies" : "Experience") + " \u2014 the new order was not saved. Nothing was lost." });
     } catch {
       setItems(previous);
-      setError("Could not save the new order. Try again.");
+      resolveToast(opId, { kind: "refusal", title: "Couldn\u2019t reorder", message: (collection === "projects" ? "Case studies" : "Experience") + " \u2014 the new order was not saved. Nothing was lost." });
     } finally {
       busyRef.current = false;
       setBusy(false);
     }
   }
 
-  return { moveItem, reorderBusy: busy, reorderError: error };
+  return { moveItem, reorderBusy: busy };
 }

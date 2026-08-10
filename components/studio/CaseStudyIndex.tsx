@@ -50,7 +50,7 @@ export default function CaseStudyIndex({
   initialView: IndexView;
 }) {
   const router = useRouter();
-  const { setUnpublished } = usePublishSignal();
+  const { setUnpublished, beginToast, resolveToast, dismissToast } = usePublishSignal();
   // Optimistic list, same pattern the previous editor used: a create or delete shows
   // immediately and router.refresh() reconciles against the server overlay.
   const [items, setItems] = useState(entries);
@@ -97,14 +97,14 @@ export default function CaseStudyIndex({
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
-  const [banner, setBanner] = useState("");
+
 
   // Initial-focus targets — StudioModal focuses these on open (the add input, the
   // delete Cancel), replacing the old autoFocus attributes.
   const addTitleRef = useRef<HTMLInputElement>(null);
   const delCancelRef = useRef<HTMLButtonElement>(null);
 
-  const { moveItem, reorderBusy, reorderError } = useListReorder({
+  const { moveItem, reorderBusy } = useListReorder({
     collection: "projects",
     items,
     setItems,
@@ -116,6 +116,9 @@ export default function CaseStudyIndex({
     if (!name) return;
     setAddBusy(true);
     setAddError("");
+    /* The add DIALOG keeps its own inline error beside the input; this card is the operation's
+       result, which outlives the dialog and the navigation that follows a success. */
+    const addOpId = beginToast("Adding case study\u2026", name);
     try {
       const res = await fetch("/api/studio/create-entry", {
         method: "POST",
@@ -125,6 +128,7 @@ export default function CaseStudyIndex({
       const json = await res.json();
       if (res.ok && json.saved) {
         setUnpublished(true);
+        resolveToast(addOpId, { kind: "ok", title: "Case study added", message: name });
         setAddOpen(false);
         setTitle("");
         // Straight into the new study — creating one is always followed by writing it.
@@ -134,9 +138,14 @@ export default function CaseStudyIndex({
       if (res.ok && json.mode === "fs") {
         setAddOpen(false);
         setTitle("");
-        setBanner("Add needs github mode (dev).");
+        dismissToast(addOpId); // fs wrote nothing
         return;
       }
+      /* ⚠ THE CARD IS WITHDRAWN RATHER THAN RESOLVED, because the dialog STAYS OPEN and shows this
+         same failure beside the input that caused it. Two surfaces saying one thing is the drift
+         this migration exists to remove — so where an inline message survives and is proximate, it
+         wins and the card steps aside. */
+      dismissToast(addOpId);
       setAddError(
         res.status === 409
           ? "Too many case studies with that name. Give this one a different name."
@@ -145,6 +154,7 @@ export default function CaseStudyIndex({
             : "Could not add it. Try again."
       );
     } catch {
+      dismissToast(addOpId);
       setAddError("Could not add it. Try again.");
     } finally {
       setAddBusy(false);
@@ -155,6 +165,7 @@ export default function CaseStudyIndex({
     const slug = deleteTarget;
     if (!slug) return;
     setDeleteBusy(true);
+    const delOpId = beginToast("Removing\u2026", slug);
     try {
       const res = await fetch("/api/studio/delete-entry", {
         method: "POST",
@@ -165,14 +176,15 @@ export default function CaseStudyIndex({
       if (res.ok && json.saved) {
         setItems((prev) => prev.filter((p) => p.slug !== slug));
         setUnpublished(true);
+        resolveToast(delOpId, { kind: "ok", title: "Case study removed", message: slug });
         router.refresh();
       } else if (res.ok && json.mode === "fs") {
-        setBanner("Remove needs github mode (dev).");
+        dismissToast(delOpId); // fs wrote nothing
       } else {
-        setBanner("Could not remove it. Try again.");
+        resolveToast(delOpId, { kind: "refusal", title: "Couldn’t remove", message: "The case study was not removed. Nothing was lost." });
       }
     } catch {
-      setBanner("Could not remove it. Try again.");
+      resolveToast(delOpId, { kind: "refusal", title: "Couldn’t remove", message: "The request did not complete. Nothing was removed." });
     } finally {
       setDeleteBusy(false);
       setDeleteTarget(null);
@@ -281,14 +293,15 @@ export default function CaseStudyIndex({
       </div>
       </div>
 
-      {/* One slot, two sources. Reorder errors win because they belong to the action
-          you just took; a banner is cleared when a new action starts, so a stale
-          message can never sit on top of a fresh one. */}
-      {(reorderError || banner) && (
-        <p className="text-[12px] text-studio-accent-600" role="status" aria-live="polite">
-          {reorderError || banner}
-        </p>
-      )}
+      {/* ⚠ THE PAGE-LEVEL SLOT IS GONE — its two sources now raise toasts. It held results of
+          DISCRETE OPERATIONS (a remove, a reorder) on a surface those operations CHANGE: the row
+          disappears, the list reorders under the reader, and `router.refresh()` can wipe the state
+          holding the message. An error pinned to a list that rearranges itself is one nobody reads.
+
+          ⚠ THE DIALOG'S `addError` STAYS INLINE, DELIBERATELY, and that is the line this migration
+          draws. It renders under the title input inside a dialog that REMAINS OPEN on failure, so it
+          is about the control being touched rather than the result of a finished action. Moving it
+          to a corner would take the error away from the field it describes. */}
 
       {/* ---- TWO ZERO STATES, NOT ONE, AND #271 IS WHY --------------------------------------
           "No case studies match that search" answered three different questions in the sections
@@ -328,7 +341,6 @@ export default function CaseStudyIndex({
                 busy={reorderBusy || filtering}
                 onOpen={() => router.push(`/studio/projects/${p.slug}`)}
                 onMove={(direction) => {
-                  setBanner(""); // a stale banner would mask this action's own error
                   moveItem(p.slug, direction);
                 }}
               />
@@ -364,7 +376,6 @@ export default function CaseStudyIndex({
                 busy={reorderBusy || filtering}
                 onOpen={() => router.push(`/studio/projects/${p.slug}`)}
                 onMove={(direction) => {
-                  setBanner("");
                   moveItem(p.slug, direction);
                 }}
                 onRemove={() => setDeleteTarget(p.slug)}

@@ -155,5 +155,96 @@ t("S5 ⚠ fs MODE WITHDRAWS THE CARD RATHER THAN CLAIMING A SAVE THAT DID NOT HA
 t("S6 …and a failure carries the SERVER's message, the same rule the publish refusals follow",
   /error\?\.message[\s\S]{0,200}?resolveToast\(toastId, \{ kind: "refusal"/.test(draft), true);
 
+console.log("\nT · one language for results — the page-level banners are gone and the standing state is not");
+/* ⚠ THE RULE THIS SECTION GATES, STATED ONCE SO NO ROW HAS TO CARRY IT: INLINE STAYS FOR STATE ABOUT
+ * THE CONTROL YOU ARE TOUCHING; THE TOASTER TAKES RESULTS OF DISCRETE OPERATIONS. "Saving…" is
+ * continuous and proximate, so it belongs beside the field. A create, a delete, a reorder or a
+ * discard is an EVENT that can fail, and the surface showing it usually unmounts — a dialog closes,
+ * a row disappears, `router.replace` navigates. AN ERROR PINNED TO A CONTROL THAT VANISHES IS AN
+ * ERROR NOBODY READS.
+ *
+ * ⚠ THE SUBJECT IS DERIVED, NOT LISTED. A named set of files is correct on the day it is written and
+ * decays from then on — the sixth instance of that in this repo. So the population is every studio
+ * component that performs a discrete write, found by its own fetch. */
+const studioDir = new URL("../../components/studio/", import.meta.url);
+/* ⚠ COMMENT-STRIPPED, AND THAT IS NOT TIDINESS. The first draft walked raw source, so a terminal
+ * call COMMENTED OUT still satisfied T2 — the mutation that proved it was itself a comment-out, and
+ * the row reported the mutation as withstood. Every matcher run over source in this repo has met
+ * this; the PR-number-as-hex trap is the same collision from the other side. */
+const decomment = (b) => b.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+const writers = readdirSync(studioDir)
+  .filter((f) => f.endsWith(".tsx") || f.endsWith(".ts"))
+  .map((f) => [f, decomment(src(`components/studio/${f}`))])
+  .filter(([, body]) => /fetch\("\/api\/studio\//.test(body));
+t("T1 the derived population is non-empty and plausible, against a LITERAL rather than against itself",
+  writers.length >= 5, true);
+
+/* ⚠ THE FIRST VERSION OF T2 COUNTED `beginToast` AGAINST `resolveToast` PER FILE, AND MUTATION KILLED
+ * IT: commenting out one terminal in a file holding four left the count still passing. The count was
+ * narrower than the concept — it could only ever catch a file with NO terminals at all. Seventh time
+ * in this repo a gate's vocabulary has fallen short of its idea, and repaired the same way, by
+ * widening to the concept rather than bending the subject.
+ *
+ * ⚠ THE CONCEPT IS THE `catch`. Every other branch of a write is an answer the server gave, and the
+ * author can see the outcome in the list. A THROWN request is the one path with no answer and no
+ * visible change, so a card left pending there is the only place the toaster can silently lie. That
+ * is derivable exactly — slice the catch, ask whether the operation's own id is terminated in it —
+ * where "every branch terminates" is not.
+ *
+ * ⚠ AND IT FOUND ONE, IN CODE THAT HAD ALREADY SHIPPED. `publish()` declared its id INSIDE the try,
+ * so its catch could not reach the toast. Not a card stuck forever — TOAST_SLOW_MS gave up after 20
+ * seconds — but its sentence says the request may still land, which a thrown fetch has ruled out. */
+const catchGaps = [];
+for (const [f, body] of writers) {
+  for (const m of body.matchAll(/(\w+) = beginToast\(/g)) {
+    const id = m[1];
+    const head = body.lastIndexOf("function ", m.index);
+    const open = body.indexOf("{", head);
+    let d = 0, close = -1;
+    for (let i = open; i < body.length; i++) {
+      if (body[i] === "{") d++;
+      else if (body[i] === "}" && --d === 0) { close = i; break; }
+    }
+    const fn = body.slice(open, close);
+    const c = fn.indexOf("} catch");
+    if (c < 0) { catchGaps.push([f, id, "no catch at all"]); continue; }
+    const cOpen = fn.indexOf("{", c);
+    let e = 0, cClose = -1;
+    for (let i = cOpen; i < fn.length; i++) {
+      if (fn[i] === "{") e++;
+      else if (fn[i] === "}" && --e === 0) { cClose = i; break; }
+    }
+    const block = fn.slice(cOpen, cClose);
+    if (!new RegExp(`(resolveToast|resolveToastById|dismissToast)\\(${id}\\b`).test(block)) catchGaps.push([f, id, "catch does not terminate it"]);
+  }
+}
+t("T2 ⚠ EVERY THROWN WRITE TERMINATES ITS OWN CARD — the one path where a pending toast can lie in silence",
+  catchGaps, []);
+t("T2a …and the walk found begin-sites to check, against a LITERAL rather than against itself",
+  writers.reduce((n, [, b]) => n + (b.match(/= beginToast\(/g) ?? []).length, 0) >= 6, true);
+
+/* ⚠ ASSERTED AS THE ABSENCE OF THE STATE, NOT OF A STRING IN JSX. A row pinned to the sentence
+ * would pass the moment someone reworded it — five matchers in this repo have already failed a
+ * change that improved the code. What must not come back is a PLACE for a discard result to live. */
+t("T3 the pill holds no discard-result state — the result is an event and belongs in the stack",
+  /discardMsg/.test(bar), false);
+/* ⚠ AND ITS COMPLEMENT, WHICH IS THE HALF THAT CATCHES A FUTURE CLEANUP. `discardStatus` is STANDING
+ * STATE — it gates `canDiscard` and labels the button while the request is in flight — so deleting
+ * it alongside `discardMsg` would be the same mistake in the other direction. A conditional
+ * assertion needs its complement asserted too. */
+t("T3a ⚠ …AND `discardStatus` SURVIVES, because it is standing state rather than a result",
+  /discardStatus === "discarding"/.test(bar) && /setDiscardStatus\("discarding"\)/.test(bar), true);
+t("T3b …and the discard failure offers the operation itself as the retry, which is safe because a failed discard deleted nothing",
+  /beginToast\("Discarding[\s\S]{0,80}?, discard\)/.test(bar), true);
+
+/* ⚠ THE REORDER FIELD IS DELETED RATHER THAN LEFT RETURNING NULL. A field every consumer must
+ * remember to ignore is a second surface waiting to be re-rendered by the next person who reads the
+ * hook's type. Asserted on the RETURN SHAPE, which is the property. */
+const reorder = src("components/studio/useListReorder.ts");
+t("T4 the reorder hook returns no error field at all",
+  /reorderError/.test(reorder.replace(/\/\*[\s\S]*?\*\//g, "")), false);
+t("T4a …and it raises into the stack instead, so a reorder failure outlives the row that moved",
+  /beginToast\(/.test(reorder), true);
+
 console.log(`\npublish-toast result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

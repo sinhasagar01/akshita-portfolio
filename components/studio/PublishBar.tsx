@@ -91,7 +91,6 @@ export default function PublishBar() {
   const [previewState, setPreviewState] = useState<PreviewState>({ kind: "loading" });
 
   const [discardStatus, setDiscardStatus] = useState<DiscardStatus>("idle");
-  const [discardMsg, setDiscardMsg] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const discardingRef = useRef(false); // same double-submit guard as publishingRef
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -104,7 +103,6 @@ export default function PublishBar() {
     if (unpublished) {
       setPublishStatus((s) => (s === "published" || s === "error" ? "idle" : s));
       setDiscardStatus((s) => (s === "error" ? "idle" : s));
-      setDiscardMsg("");
     }
   }, [unpublished]);
 
@@ -169,13 +167,23 @@ export default function PublishBar() {
     if (!canPublish || publishingRef.current) return;
     publishingRef.current = true;
     setPublishStatus("publishing");
+    /* ⚠ DECLARED OUT HERE SO THE `catch` CAN REACH IT, AND ASSIGNED WHERE IT WAS. A thrown fetch used
+       to leave the pending card with nothing to resolve it — `opId` was scoped inside the `try`, so
+       the catch set the status and could not touch the toast. It was not a card stuck forever:
+       TOAST_SLOW_MS gave up after 20 seconds and offered Retry. But its wording says the request MAY
+       STILL LAND, which is the one thing a thrown fetch has already ruled out — so the author waited
+       20 seconds for a sentence that was wrong about what happened.
+
+       ⚠ `let`, NOT A HOIST OF THE CALL. Moving `beginToast` above the in-flight guard would raise a
+       card for a double activation that is then discarded, which is the opposite defect. */
+    let opId: number | null = null;
     try {
       /* ⚠ ONE PUBLISH IN FLIGHT. `publishStatus` already gates the button, but a second request can
          still be sent by a double activation before React re-renders — and two merges racing is the
          one failure this endpoint cannot make safe on its own. */
       if (inFlight.current) return;
       inFlight.current = true;
-      const opId = beginToast("Publishing…", "Merging your changes and starting the rebuild.", publish);
+      opId = beginToast("Publishing…", "Merging your changes and starting the rebuild.", publish);
       const res = await fetch("/api/studio/publish", { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.merged) {
@@ -266,6 +274,7 @@ export default function PublishBar() {
       setPublishStatus("error");
     } catch {
       setPublishStatus("error"); // draft + local values intact
+      if (opId !== null) resolveToastById(opId, { kind: "refusal", title: "Couldn’t publish", message: "The request did not complete. Nothing was written.", action: { label: "Try again", retry: true } });
     } finally {
       inFlight.current = false;
       publishingRef.current = false;
@@ -280,7 +289,6 @@ export default function PublishBar() {
   function openConfirm() {
     if (!canDiscard) return;
     setDiscardStatus("idle");
-    setDiscardMsg("");
     setConfirmOpen(true);
   }
 
@@ -292,7 +300,9 @@ export default function PublishBar() {
     if (discardingRef.current) return;
     discardingRef.current = true;
     setDiscardStatus("discarding");
-    setDiscardMsg("");
+    /* ⚠ RETRY IS THE OPERATION ITSELF, exactly as Publish passes `publish`. A discard that failed
+       deleted nothing, so re-running it is safe by construction rather than by convention. */
+    const opId = beginToast("Discarding draft…", "Your unpublished changes", discard);
     try {
       const res = await fetch("/api/studio/discard", { method: "POST" });
       const json = await res.json().catch(() => ({}));
@@ -310,12 +320,12 @@ export default function PublishBar() {
         setConfirmOpen(false);
         if (json.reason === "not_applicable") {
           setDiscardStatus("idle");
-          setDiscardMsg("Discard needs github mode (dev).");
+          resolveToastById(opId, { kind: "refusal", title: "Discard needs github mode", message: "Nothing was changed. This is a dev-mode no-op." });
         } else {
           // no_draft — nothing to discard; self-heal the badge to live.
           setUnpublished(false);
           setDiscardStatus("idle");
-          setDiscardMsg("Nothing to discard.");
+          resolveToastById(opId, { kind: "ok", title: "Nothing to discard", message: "There was no draft. The badge is back in step with live." });
         }
         return;
       }
@@ -323,11 +333,11 @@ export default function PublishBar() {
       // reload and do NOT clear unpublished: never show a false "discarded" state.
       setConfirmOpen(false);
       setDiscardStatus("error");
-      setDiscardMsg("Could not discard. Something went wrong. Your draft is safe. Try again.");
+      resolveToastById(opId, { kind: "refusal", title: "Couldn’t discard", message: "Your draft is safe — nothing was deleted.", action: { label: "Try again", retry: true } });
     } catch {
       setConfirmOpen(false);
       setDiscardStatus("error");
-      setDiscardMsg("Could not discard. Something went wrong. Your draft is safe. Try again.");
+      resolveToastById(opId, { kind: "refusal", title: "Couldn’t discard", message: "Your draft is safe — nothing was deleted.", action: { label: "Try again", retry: true } });
     } finally {
       discardingRef.current = false;
     }
@@ -340,38 +350,36 @@ export default function PublishBar() {
   // and error used to share accent-600 — the one place a failure read the same as a
   // success, told apart only by the message text. Only the emitted class changes; the
   // conditions and every other attribute are untouched.
-  let statusText: string;
   let statusTone: string;
-  if (discardMsg) {
-    statusText = discardMsg;
-    statusTone = discardStatus === "error" ? "text-studio-danger-600" : "text-studio-text-subtle";
-  } else {
-    statusTone =
-      publishStatus === "error"
-        ? "text-studio-danger-600"
-        : publishStatus === "published"
-          ? "text-studio-accent-600"
-          : publishStatus === "publishing"
-            ? "text-studio-text-subtle"
-            : "text-studio-text-subtle";
-    /* ⚠ THE ERROR LINE IS GONE FROM THE PILL. Publishing feedback lives in the toast now — it is the
-       surface that can hold a result, an action and more than one of them. Leaving the sentence here
-       too would put one fact in two places and let them disagree, which is the thing this pill's own
-       preview-dialog comment refuses. What remains is STANDING STATE: what is true now. */
-    statusText =
-      publishStatus === "publishing"
-        ? "Publishing…"
-        : draftReadError
-            ? // The draft could not be read, so studio fell back to live. Saying
-              // "All changes published" here would be a confident lie about state
-              // we do not actually have.
-              "Couldn't load your draft. Showing published content. Reload to try again."
-            : unpublished
-              ? "Unpublished changes"
-              : "All changes published";
-    if (draftReadError && publishStatus === "idle") {
-      statusTone = "text-studio-accent-600";
-    }
+  /* ⚠ THE DISCARD SENTENCE IS GONE FROM THE PILL, for the reason its neighbour below already gives.
+     A discard RESULT arrives as the confirm dialog closes, so the surface that raised it unmounts —
+     and the pill it fell back to is SHARED with the publish state machine, where a stale discard
+     line outranked live publish state. What stays here is STANDING STATE. */
+  statusTone =
+    publishStatus === "error"
+      ? "text-studio-danger-600"
+      : publishStatus === "published"
+        ? "text-studio-accent-600"
+        : publishStatus === "publishing"
+          ? "text-studio-text-subtle"
+          : "text-studio-text-subtle";
+  /* ⚠ THE ERROR LINE IS GONE FROM THE PILL. Publishing feedback lives in the toast now — it is the
+     surface that can hold a result, an action and more than one of them. Leaving the sentence here
+     too would put one fact in two places and let them disagree, which is the thing this pill's own
+     preview-dialog comment refuses. What remains is STANDING STATE: what is true now. */
+  const statusText =
+    publishStatus === "publishing"
+      ? "Publishing…"
+      : draftReadError
+          ? // The draft could not be read, so studio fell back to live. Saying
+            // "All changes published" here would be a confident lie about state
+            // we do not actually have.
+            "Couldn't load your draft. Showing published content. Reload to try again."
+          : unpublished
+            ? "Unpublished changes"
+            : "All changes published";
+  if (draftReadError && publishStatus === "idle") {
+    statusTone = "text-studio-accent-600";
   }
 
   /* ⚠ THE YIELD IS GONE — see the note above. What stood here argued that unmounting beat painting
