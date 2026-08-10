@@ -470,6 +470,14 @@ at 486 and 522ms. No width-dependent fault. The window itself is real and record
 because it is what condemned `--glass-fill-strong` and what exonerated `--glass-fill` and
 `--glass-stroke`.
 
+**CLOSED — `.nav-sheet a:hover`, the white-alpha item's last member.** Measured at 6.744 peak on
+the dark pane against 1.048 on cream — the largest disparity of the arc — and repaired to a
+ground-scoped 2.2%, which reproduces cream to the third decimal. It was blocked for three units by
+the WRONG TRIGGER rather than a harness gap: `#nav-sheet` is driven by `sheetOpen`, whose control is
+the DESKTOP fab that appears once the nav hides, and earlier attempts clicked the in-pill morph at a
+mobile width, which drives `menuOpen` and a different element. **The white-alpha census is now
+entirely resolved: 33 sites, all with verdicts.**
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session

@@ -2823,6 +2823,23 @@ a {
 .nav-sheet.is-open a:nth-child(4) { transition-delay: 0.21s; }
 .nav-sheet.is-open a:nth-child(6) { transition-delay: 0.28s; }
 .nav-sheet a:hover { background: color-mix(in srgb, var(--color-white) 60%, transparent); }
+/* ⚠ THE LAST OF THE FIXED-WHITE HOVER SURFACES, AND THE LOUDEST OF THEM. 60% white measured a peak
+   contribution ratio of 6.744 on the dark pane against 1.048 on cream — larger than the pointer
+   glow's 5.06 and the in-pill morph's 4.80. 2.2% is derived, not chosen: solved for cream's own
+   peak and it reproduces it to the third decimal.
+
+   ⚠ GROUND-SCOPED RATHER THAN TONE-SCOPED. The sheet only appears after the nav hides on scroll,
+   which is well past the 486-751ms window where `data-nav-tone` is unset — so the tone would in
+   fact be reliable here. The ground is used anyway because it is reliable WITHOUT that argument,
+   and a repair that depends on a timing window being closed is a repair with a footnote.
+
+   ⚠ AND THE MEASUREMENT WAS BLOCKED FOR THREE UNITS BY THE WRONG TRIGGER, NOT BY A HARNESS GAP.
+   `#nav-sheet` is driven by `sheetOpen`, whose control is the DESKTOP fab that appears once the nav
+   hides; earlier attempts clicked the in-pill morph at a mobile width, which drives `menuOpen` and
+   a different element entirely. Wrong control, wrong viewport, reported as "React-state-gated". */
+:root[data-ground="dark"] .nav-sheet a:hover {
+  background: color-mix(in srgb, var(--color-white) 2.2%, transparent);
+}
 .nav-sheet .nav-sheet-sep { height: 0.5px; background: color-mix(in srgb, var(--color-etch) 14.000000000000002%, transparent); margin: 7px 5px; }
 .nav-sheet .nav-sheet-resume { color: var(--color-accent-text); }
 @media (prefers-reduced-motion: reduce) {
