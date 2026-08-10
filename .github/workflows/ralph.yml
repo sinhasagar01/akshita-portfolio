@@ -10,11 +10,21 @@
 # content file is exactly the kind that a content commit breaks, and those are the commits
 # least likely to be reviewed as code.
 #
-# WHAT IT DOES NOT COVER. Types and the production build are already covered: Vercel runs
-# `next build` on every PR, and Next type-checks during the build. Adding a second tsc job
-# here would duplicate that without adding a signal. `parity.mjs` is excluded because it
-# needs a running dev server and is driven from a browser console — the runner names it as
-# skipped rather than dropping it silently.
+# WHAT IT DOES NOT COVER. A second tsc job would duplicate Vercel's type-check without
+# adding a signal. `parity.mjs` is excluded because it needs a running dev server and is
+# driven from a browser console — the runner names it as skipped rather than dropping it
+# silently.
+#
+# ⚠ IT BUILDS BEFORE IT RUNS, AND THE EARLIER REASONING HERE WAS OVERTAKEN. This header
+# used to say the production build was "already covered" by Vercel — true for TYPES, and
+# false for the SUITES the moment colour-census and rendered-theme started reading the
+# BUILT BUNDLE. Those suites refuse an absent .next by design (absence must never return
+# the shape of success — the rule that caught a stale bundle three times in one session),
+# so a workflow that never builds fails them correctly and permanently: CI was red from
+# #456 to #458 and every failure was this, not code. Vercel's build cannot be reused — it
+# lives on Vercel's runners — so this job builds its own subject. That is the emission
+# question again: the suites' subject is the artefact, so the artefact must exist where
+# the suites run.
 name: ralph
 
 on:
@@ -69,5 +79,9 @@ jobs:
       # It runs through the npm script so CI and humans run the SAME command and cannot
       # disagree — #183's rule, the one the committed ralph runner exists to enforce.
       - run: npm run lint
+
+      # The bundle-reading suites' SUBJECT. Not a duplicate of Vercel's build — that one
+      # lives on Vercel's runners and cannot be read from here.
+      - run: npm run build
 
       - run: node ralph/run.mjs
