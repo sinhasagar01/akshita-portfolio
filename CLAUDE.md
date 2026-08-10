@@ -57,9 +57,11 @@ What followed Phase 5, all shipped.
 - The studio editor. Every content group edits inline at /studio, writing to a draft branch
   and publishing by merge to main.
 - The blog. A second collection with its own schema, public pages and three pane editor. **Three
-  posts are published** and the nav link is live. A fourth sits at `status: draft` with three
-  marked gaps for the owner's own examples, and it is the first post to use the `Motion in Design`
-  topic, which had been declared in `BLOG_TOPICS` ahead of any post that used it.
+  posts are published** and the nav link is live. A fourth is back at `status: draft` with **one**
+  marked gap remaining for the owner's own example, and it is the first post to use the
+  `Motion in Design` topic, which had been declared in `BLOG_TOPICS` ahead of any post that used it.
+  It was briefly published and has been withdrawn. **See the placeholder item in Open items** —
+  gaps 2 and 3 were filled, and gap 1 shipped with its marker destroyed.
 - The inline canvas. Blog prose is edited in place at the public measure, so the canvas and
   the article render through the same components.
 - The lint gate. ESLint runs in CI beside ralph, and the repo sits at zero problems.
@@ -174,6 +176,36 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   If role descriptions are ever wanted they are **a design change to the experience row** — where
   bullets sit in a row that is currently one line per role — rather than five blanks to fill. The
   reasoning is kept beside the schema where the deletion happened.
+- **⚠ A PLACEHOLDER REACHED THE LIVE SITE, AND THE GATE BUILT TO STOP IT WAS CORRECT THE WHOLE TIME.**
+  `www.akshitas.com/blog/you-find-out-what-motion-is-for-by-removing-it` served, twice in its HTML,
+  a sentence reading **HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP.** It was found by reading
+  the content, not by any instrument.
+
+  **A PLACEHOLDER HAS TWO HALVES AND ONLY ONE WAS LOAD-BEARING.** `DRAFT_MARKER` is the machine's
+  half; the shouted English is the author's. A backspace at a paragraph's start **merged it into the
+  paragraph above** — ordinary `contentEditable` behaviour — and three characters landed on the
+  opening sentinel. **Both `@@` sentinels died in one keystroke and every word of the shout
+  survived.** `publishBlockers` found no marker, refused nothing, and was right by its own rule.
+
+  **⚠ THE PREMISE WAS WRITTEN DOWN YEARS BEFORE THE FAILURE, IN THE GATE'S OWN SUITE.**
+  `blog-registry` section M says *"nothing here reads English, so a marker that looks like prose is
+  indistinguishable from prose"*, and concludes **"the markers are therefore loud."** Loudness
+  protects a human reader and does nothing for a gate — it made the sentinel **a single point of
+  failure that ordinary editing destroys.** The conclusion did not follow from the premise, and the
+  premise was correct.
+
+  **THE REPAIR IS THAT THE GATE READS THE ENGLISH TOO** — `hasPlaceholder` matches either half, so
+  damaging one no longer disarms both. **AND THE CORPUS IS NOW A SUBJECT**: `M5` walks
+  `content/blog` and fails if any **published** post carries a placeholder by either half. Every
+  fixture row passed while the real document was live, because **the validator only runs at publish
+  and a document already on main is never re-asked.** `M5` was proven by running it against the
+  exact shipped document — red — rather than asserted to have caught it.
+
+  **⚠ AND THE EDITOR CAN STILL FUSE TWO PARAGRAPHS, WHICH IS RECORDED RATHER THAN FIXED.** The
+  keystroke that destroyed the sentinel is legitimate editing behaviour and the canvas has no reason
+  to refuse it. **What changed is that the damage is no longer silent.** If a second fusion defect
+  appears the canvas's own handling is the subject; one instance is not evidence the editor is wrong.
+
 - **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
   SESSION.** It was ranked highest on the argument that three defects came from an author using the
   editor and none from a gate. Both of this session's results were produced by an author using it,
@@ -199,6 +231,17 @@ Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.loca
   cheaper route to green is to drop `heroImage` back to null and re-upload when the redraw exists,
   since the post is a draft and the field is optional. **Removing an asset that is not ready is not an
   exemption.**
+
+  **⚠ ALL THREE CLAIMS ABOVE ARE CLOSED, AND ALL THREE WERE STILL BEING CARRIED AS OPEN.** Measured on
+  `main`: the hero was re-uploaded in `add04fb` and **`raster-grounds` passes 11 of 11**, so main is
+  green and the redraw arrived. The status control **works** — `52ef514 chore(studio): update
+  blog/<slug> draft`, the head-field path with no noun, is the commit that flipped `status: draft`
+  to `published`, which refutes *"every studio commit touching that post was blocks or images and
+  none ever changed status"* by naming the one that did. And the post was **published, not a draft**.
+
+  **⚠ THE ITEM RANKED THE WORK AND EVERY PREMISE UNDER IT HAD EXPIRED.** Third time this pattern has
+  cost an ordering, after the experience descriptions and the published-post count. **The entries
+  most likely to be wrong are still the ones nobody has touched.**
 - **⚠ THE DEAD UTILITIES ARE CLOSED — 92, NOT 58, AND TAKEN ONE PROPERTY AT A TIME.** This item said
   58 line-heights and one change. It was **92 across four properties and two tag groups**, and one
   diff containing 92 changes is a diff where nothing can be attributed. Shipped as four PRs: `<p>`

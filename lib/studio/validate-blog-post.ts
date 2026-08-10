@@ -73,6 +73,42 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
  */
 export const DRAFT_MARKER = "@" + "@ GAP";
 
+/**
+ * ⚠ THE PLACEHOLDER'S OWN WORDS, BECAUSE THE SENTINEL IS ONE TYPO FROM GONE AND THE SHOUT IS NOT.
+ *
+ * A placeholder has two halves. `DRAFT_MARKER` is the machine's half; the English beside it is the
+ * author's. Only the first was load-bearing, so damaging it disarmed the gate entirely while the
+ * half that declares its own intent in plain English survived untouched — and shipped.
+ *
+ * ⚠ THIS IS NOT HYPOTHETICAL AND IT IS WHY THE RULE CHANGED. A backspace at the start of a
+ * paragraph merged it into the one above — ordinary contentEditable behaviour — and typed three
+ * characters over the opening sentinel. Both sentinels died in that one keystroke. The post
+ * published carrying a sentence that says, in capitals, that it must not ship, and it was served
+ * from the live site until someone read it.
+ *
+ * ⚠ AND THE PREMISE THAT MADE IT INVISIBLE WAS ALREADY WRITTEN DOWN. `blog-registry` section M
+ * says "nothing here reads English, so a marker that looks like prose is indistinguishable from
+ * prose", and concludes that the markers are therefore LOUD. Loudness protects a human reader. It
+ * does nothing for a gate, and it made the sentinel a single point of failure that ordinary
+ * editing destroys. THE GATE NOW READS THE ENGLISH TOO, which is the only half a typo leaves
+ * intact often enough to matter.
+ *
+ * ⚠ ASSEMBLED, LIKE THE SENTINEL ABOVE, so this file does not contain the strings it forbids and a
+ * future sweep for stray placeholders cannot flag its own guard.
+ *
+ * The false-positive cost is stated rather than dismissed: a post that genuinely wants one of these
+ * sentences is refused at publish and must reword it. Two phrases this specific, in prose, is a
+ * price worth paying against a placeholder reaching the live site a second time.
+ */
+export const DRAFT_PHRASES = ["EXAMPLE GOES" + " HERE", "THIS SENTENCE MUST NOT" + " SHIP"];
+
+/** True when the raw document still carries a placeholder by EITHER half. */
+export function hasPlaceholder(raw: string): boolean {
+  if (raw.includes(DRAFT_MARKER)) return true;
+  const upper = raw.toUpperCase();
+  return DRAFT_PHRASES.some((p) => upper.includes(p));
+}
+
 /** One publish blocker: which field an author must fix, and the sentence that says why. */
 export type PublishBlocker = { field: string; message: string };
 
@@ -107,7 +143,7 @@ export function publishBlockers(
 ): PublishBlocker[] {
   const out: PublishBlocker[] = [];
 
-  if ("raw" in input && typeof input.raw === "string" && input.raw.includes(DRAFT_MARKER)) {
+  if ("raw" in input && typeof input.raw === "string" && hasPlaceholder(input.raw)) {
     out.push({
       field: "body",
       message: "a draft marker is still in the body — every placeholder must be replaced before publishing",

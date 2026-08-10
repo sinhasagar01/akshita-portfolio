@@ -2,7 +2,7 @@ title: You find out what motion is for by removing it
 dek: The transitions people miss are the ones that were doing work.
 date: '2026-08-09'
 topic: Motion in Design
-status: published
+status: draft
 heroImage: /images/blog/you-find-out-what-motion-is-for-by-removing-it/heroImage.webp
 blocks:
   - discriminant: richText
@@ -51,10 +51,12 @@ blocks:
           The change that mattered most in how I work was small. I stopped
           asking how long a transition should feel and started asking how long a
           reader needs to follow it. Those are different questions and only the
-          second has an answer you can defend in a review.kjhOF 3 — HER EXAMPLE
-          GOES HERE. THIS SENTENCE MUST NOT SHIP. the moment duration stopped
-          being taste and became a legibility budget. What were you looking at,
-          and what made it concrete rather than felt?
+          second has an answer you can defend in a review.
+        - >-
+          @@ GAP 1 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
+          the moment duration stopped being taste and became a legibility
+          budget. What were you looking at, and what made it concrete rather
+          than felt?
   - discriminant: imageBlock
     value:
       src: >-
