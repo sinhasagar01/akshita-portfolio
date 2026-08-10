@@ -75,25 +75,58 @@ The production domain is akshitas.com. The canonical host is www.akshitas.com. T
 
 Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.local` must be set to `https://www.akshitas.com`. These two values must always point to the same host. Swapping one without the other causes the canonical URL and share image URLs to resolve against a host that Vercel then redirects away from. On Vercel, the production environment variable `NEXT_PUBLIC_SITE_URL` must also be set to `https://www.akshitas.com`.
 
-### ⚠ THE DEPLOY BUDGET IS A LIMIT, NOT A RULE — IT IS EXHAUSTIBLE, SHARED, AND INVISIBLE UNTIL IT IS GONE
+### ⚠ THE DEPLOY THROTTLE IS A LIMIT, NOT A RULE — AND ITS OWN MESSAGE MISDESCRIBES IT BY A FACTOR OF FORTY
 
-The Hobby tier caps deployments per day. On **2026-08-10** the cap was reached and Vercel refused the
-production deploy of a merge outright, as a commit status on `4e03e3c`:
+*(This heading read "the deploy budget … EXHAUSTIBLE, SHARED, AND INVISIBLE UNTIL IT IS GONE" for one
+afternoon. Both "budget" and "until it is gone" were the quota model, and the correction below is
+what retired them. The heading is amended rather than left, because a title is the part a reader
+takes away when they skim.)*
+
+On **2026-08-10** Vercel refused the production deploy of a merge outright, as a commit status on
+`4e03e3c`:
 
     context=Vercel   state=failure
     Deployment rate limited — retry in 24 hours.
+
+**⚠ AND THE MESSAGE IS NOT A DESCRIPTION OF WHAT HAPPENS — CORRECTED THE SAME AFTERNOON, AGAINST THE
+ENTRY'S OWN FIRST DRAFT.** This paragraph opened *"the Hobby tier caps deployments per day"* and
+called the refusal a cap being reached. **Neither was measured.** What the day's four merges actually
+did, read from the commit statuses and the deployment list:
+
+    13:38:40Z   #477   production deploy SUCCEEDS
+    13:54:16Z   #478   refused — "retry in 24 hours"
+    14:07:16Z   #479   refused
+    14:28:04Z   #480   production deploy SUCCEEDS     50 min after the previous success
+    14:29:39Z   #481   refused                        95 SECONDS after that success
+
+**Six production deploys landed that day, spaced 29 to 65 minutes apart, and every refusal fell
+BETWEEN two successes.** The working retry interval was under an hour every time, and the deploy
+refused at 13:54 reached production inside the 14:28 build. **A refused deploy is therefore not lost
+work: the next successful deploy carries every merge before it**, so the exposure window is until the
+next success rather than until a quota resets.
+
+**⚠ SAY WHAT WAS OBSERVED, NOT WHAT THE MECHANISM IS.** The pattern fits a minimum interval between
+production builds far better than a daily quota — **and Vercel's implementation is not visible from
+here, so that stays an observation.** What IS established: the stated 24 hours matched nothing on the
+day it was read, and a reader who plans around it will wait roughly forty times too long.
 
 **A MERGE IS NOT A RELEASE, AND THAT IS THE WHOLE ENTRY.** Everything the repository can check was
 green — ralph 2899 across 75 suites, `upstream` confirming a real GitHub merge, the built output
 correct. **None of that reaches visitors.** The last successful production deploy stayed at
 `8f8b2d0`, one merge behind, and what the refused deploy was carrying was the withdrawal of a
-placeholder **live on the public site**. The budget ran out on the one change that could not wait.
+placeholder **live on the public site**. **The refusal landed on the one change that could not wait**,
+and the placeholder stayed served for the 34 minutes until the next deploy went through.
 
 **EVERY PR COSTS AT LEAST TWO, AND THE SECOND ONE IS THE ONE NOBODY COUNTS.** A push builds a
 preview and a merge builds production, so the cost is per PUSH rather than per PR — a branch pushed
 four times has spent four previews before it is even reviewed. That day registered **46 deployments,
-24 preview and 22 production**, from a single session of one-unit-per-PR work. The cadence this
-project runs on is exactly what exhausts it.
+24 preview and 22 production**, from a single session of one-unit-per-PR work.
+
+**AND THAT IS WHY BATCHING HELPS, THOUGH NOT FOR THE REASON FIRST WRITTEN.** This said the cadence
+*"is exactly what exhausts it"*, which assumed a quota. On the corrected reading the cost of a fast
+cadence is that **most merges arrive inside somebody else's interval and are simply refused** — five
+PRs merged in twenty minutes produce one deploy and four failures, where the same five in one PR
+produce one deploy and none.
 
 **⚠ AND 46 IS WHAT GITHUB REGISTERED, NOT THE CAP AND NOT WHAT VERCEL COUNTED.** It is a floor on
 the true figure — rebuilds and redeploys need not appear as repo deployments — and **the cap itself
@@ -103,16 +136,24 @@ would take it for.
 
 **⚠ NO INSTRUMENT HERE CAN WARN YOU, AND THE ASYMMETRY IS THE POINT.** The FAILURE is observable
 after the fact — `gh api repos/<owner>/<repo>/commits/<sha>/status` carries the `Vercel` context and
-its reason. The BUDGET REMAINING is observable only with a Vercel credential, which this environment
-does not have. **So the only readable signal arrives after the deploy has already been refused**, and
-a gate built on it would report a limit already spent rather than one about to be. Same family as
+its reason, and the deployment list gives the timing. What is NOT observable without a Vercel
+credential is **how long you have to wait**, which this environment cannot ask for. **So the only
+readable signal arrives after the deploy has already been refused**, and a gate built on it would
+report a refusal already taken rather than one about to happen.
+
+**⚠ AND THE CHECK THAT MATTERS IS NOT THE STATUS BUT THE DEPLOYMENT LIST.** A red Vercel status on the
+newest merge means nothing on its own, because a later deploy carries it. **Ask whether the latest
+PRODUCTION deployment is at or after the commit you care about** — that is the question "did my change
+reach visitors", and the commit status answers a different one. Same family as
 the merged-to-local-main gap that `upstream.mjs` closed, **except that one had a readable
 before-state and this one does not.**
 
 **THE RECOVERY THAT NEEDS NO BUILD: PROMOTE A SUCCESSFUL PREVIEW WHOSE TREE EQUALS `main`.** The
 branch commit's preview had already built successfully, and its tree was byte-identical to the merge
 commit's — checked with `git rev-parse <sha>^{tree}` on both, not assumed from the diff. Promoting
-that deployment puts exactly `main` live without a rebuild. **Whether a promotion counts against the
+that deployment puts exactly `main` live without a rebuild. **IT WAS NEVER NEEDED — an ordinary
+deploy went through 34 minutes later, which is the corrected reading arriving as a practical
+consequence: waiting is usually cheaper than reaching for the escape hatch.** **Whether a promotion counts against the
 same cap is UNVERIFIED here** and should be stated that way rather than repeated as fact.
 
 **WHEN THE WORK IS URGENT, BATCH IT.** One unit per PR is the right default and it is not free. A fix
