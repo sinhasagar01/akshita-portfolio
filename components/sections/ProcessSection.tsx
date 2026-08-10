@@ -733,7 +733,10 @@ function ArtifactDesign({ isActive, skipAnim }: { isActive: boolean; skipAnim: b
       </g>
       {/* ⚠ THE STROKE IS BRAND AND THE FILLS ARE CONTENT, WHICH IS WHY ONLY SOME OF THIS SVG IS
           THEMED. The accent outline above is the DRAWING GESTURE — this site's hand, sketching —
-          so it takes `--color-accent-500` and follows the palette. The three literal fills below
+          so it takes `--color-accent`, the ROLE, and follows the palette. It read `accent-500` until the
+          consumers were normalised onto the role, and the stale name here is what kept a
+          `theme-contrast` row alive for that rung after the code had left it — the row cited this
+          comment rather than the render. The three literal fills below
           depict a PRODUCT SCREEN being designed. They are illustration: a wireframe of somebody
           else's interface, not a surface of this one, and theming them would make the depicted
           product change colour with the portfolio.
