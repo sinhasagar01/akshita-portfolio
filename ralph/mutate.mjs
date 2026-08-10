@@ -66,6 +66,17 @@ function dirtyFiles() {
 
 if (process.argv[2] === "--snapshot") {
   rmSync(SNAP, { recursive: true, force: true });
+  /* ⚠ CREATED UNCONDITIONALLY, AND ITS ABSENCE IS THE SEVENTH DEFECT IN THIS MECHANISM. `SNAP` used
+   * to be created only as a side effect of copying a dirty file, so ON A CLEAN TREE the copy loop
+   * never ran, the manifest write below threw ENOENT, and no snapshot existed at all. `--restore`
+   * then exited 2 saying there was nothing to restore.
+   *
+   * ⚠ THE CRASHING CASE WAS THE ONE THE MANIFEST EXISTS FOR. #379 added the clean-file manifest so a
+   * mutation to a previously-CLEAN file could be reverted — and a tree with no dirty files is
+   * exactly when every mutated file is clean at snapshot. The repair and the case it repairs could
+   * not both be present. Six rounds of mutation testing never hit it because the operator's tree was
+   * always already dirty. */
+  mkdirSync(SNAP, { recursive: true });
   const files = dirtyFiles();
   for (const rel of files) {
     if (!existsSync(rel)) continue;
@@ -132,6 +143,30 @@ if (process.argv[2] === "--restore") {
     console.log("⚠ no clean-file manifest — this snapshot predates #379, so a mutation to a");
     console.log("  previously-clean file has NOT been reverted. Check `git status`.");
   }
+  /* ⚠ AND THE RESTORE VERIFIES ITSELF, BECAUSE THE FAILURE MODE HERE HAS ALWAYS BEEN SILENT SUCCESS.
+   * Every one of the seven defects in this mechanism reported "restored N file(s)" while leaving a
+   * mutation in the tree. A tool that cannot confirm its own effect is what produced all of them, and
+   * this repo already prefers an instrument that fails loudly over one that returns a plausible
+   * result.
+   *
+   * The check is the whole claim: after restoring, NO FILE THIS RUN TOUCHED MAY STILL DIFFER from
+   * what it was at snapshot. Snapshotted files must match their copy; clean-at-snapshot files must
+   * match HEAD. Anything else is named and the exit code is non-zero. */
+  const stillWrong = [];
+  for (const rel of files) {
+    if (!existsSync(rel) || readFileSync(rel, "utf8") !== readFileSync(join(SNAP, rel), "utf8")) {
+      stillWrong.push(`${rel} (does not match its snapshot)`);
+    }
+  }
+  const dirtyAfter = new Set(dirtyFiles());
+  for (const f of mutated) if (dirtyAfter.has(f)) stillWrong.push(`${f} (still differs from HEAD)`);
+  if (stillWrong.length) {
+    console.error("⚠ RESTORE FAILED — the tree does not match the snapshot. Do NOT trust any mutation");
+    console.error("  result from this run; a survivor may have been measured against a mutated tree.");
+    for (const f of stillWrong) console.error(`  ${f}`);
+    process.exit(1);
+  }
+  console.log("verified: every file this run touched matches its pre-mutation state");
   rmSync(SNAP, { recursive: true, force: true });
   process.exit(0);
 }
