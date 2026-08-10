@@ -354,7 +354,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             value={values.summary}
             onChange={(e) => setField("summary", e.target.value)}
             onBlur={saveDraft}
-            className={`${inputClsMd} resize-y leading-relaxed`}
+            className={`${inputClsMd} field-sizing-content resize-none max-h-[500px] overflow-y-auto leading-relaxed`}
           />
           <span className="text-[10px] text-studio-text-subtle">One sentence shown on the project card.</span>
         </label>

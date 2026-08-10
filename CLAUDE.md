@@ -403,6 +403,13 @@ build a gate for the limit and then believe it.
   `--color-on-accent` turned it into a real utility that shipped in the public bundle. **The comment
   did not change; the vocabulary grew under it.** Mirror of the PR-number-as-hex trap.
 
+  **⚠ AND THE MIRROR FIRES ON REMOVAL, WHICH COST TWO ROUNDS IN ONE SESSION.** The rule above says
+  run it when a token is ADDED. **Deleting the last real use of a utility is the same event from the
+  other side**: every comment naming it becomes the only thing generating it, so the class ships in
+  the public bundle purely because prose mentions it. Removing `resize-y` from one textarea and the
+  full-height max-height utility from one modal each failed `A5` on the very comment explaining the
+  removal. **Run it after a DELETION too, and describe the retired utility rather than spelling it.**
+
   **⚠ AND THE FIRST NOTE RECORDING THIS SPELLED THE PHRASE OUT AND BECAME THE DEFECT IT DESCRIBED**
   — third instance of *"explaining it requires writing it"*, after the two comment delimiters.
   **Describe such a collision; never transcribe it.**

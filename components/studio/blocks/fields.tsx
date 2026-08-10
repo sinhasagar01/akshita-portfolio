@@ -593,8 +593,11 @@ export function TextArea({
           overridden for textareas ONLY, and every `<input>` consumer is untouched by
           construction. Ground and border do not change — the ladder already spent its steps on
           chrome, field and well.
-          The wrapper is `relative` so the grip has a positioned ancestor that is already there;
-          it is `pointer-events-none` so it never eats the native resize handle underneath. */}
+          ⚠ THE WRAPPER'S `relative` OUTLIVED ITS REASON AND IS KEPT DELIBERATELY. It existed to
+          give the drag grip a positioned ancestor; the grip went with the resize utility. It stays
+          because `inputRef` consumers and the selection echo address this span, and removing a
+          positioning context is a layout change rather than a cleanup — a separate decision with
+          its own before-and-after. Named here so it is not read as debt. */}
       <span className="relative block">
         <textarea
           rows={rows}
@@ -605,16 +608,13 @@ export function TextArea({
           /* `block` is not cosmetic: a textarea is inline-block by default, so the wrapper
              sits ~1px taller on the descender line and the absolutely-placed grip lands
              1px BELOW the box it belongs to. Measured before it was added. */
-          className={`${inputCls} block min-h-24 resize-y py-3 pb-[18px] leading-[1.55]`}
+          className={`${inputCls} block min-h-24 field-sizing-content resize-none max-h-[500px] overflow-y-auto py-3 pb-[18px] leading-[1.55]`}
         />
-        <svg
-          aria-hidden
-          viewBox="0 0 11 11"
-          className="pointer-events-none absolute bottom-[5px] right-[5px] size-[11px] text-studio-ink-400"
-        >
-          <path d="M11 0v11H0" fill="none" stroke="currentColor" strokeWidth="1"
-            strokeDasharray="0 4 3 4 3" strokeLinecap="round" />
-        </svg>
+        {/* ⚠ THE GRIP IS GONE WITH THE VERTICAL-RESIZE UTILITY, AND THAT PAIRING IS THE POINT. It drew the native
+            drag corner so the affordance was discoverable; under `field-sizing: content` the box
+            sizes itself and dragging does nothing, so leaving the mark would advertise an action
+            that no longer exists — worse than no mark, and the same class of defect as a class that
+            looks right and generates nothing. */}
       </span>
     </label>
   );
