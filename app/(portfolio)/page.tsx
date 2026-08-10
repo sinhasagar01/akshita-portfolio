@@ -41,7 +41,10 @@ export default async function HomePage() {
         /* The hero's four tabs come from one array now, not eight flat keys. `line` keeps its
            name at this boundary because HeroSection's prop is unchanged — the field it reads is
            `headline`, and renaming the prop is the layout PR's business rather than the schema's. */
-        tabs={(settings?.heroTabs ?? []).map((t) => ({ label: t.label, line: t.headline }))}
+        tabs={(settings?.heroTabs ?? []).map((t) => ({
+          label: t.label, line: t.headline, support: t.support,
+          callouts: t.callouts, stats: t.stats,
+        }))}
         roleLabel={settings?.heroRoleLabel}
         scrollCue={settings?.heroScrollCue}
       />
