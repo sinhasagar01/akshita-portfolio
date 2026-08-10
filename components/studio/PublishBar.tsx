@@ -18,7 +18,8 @@
 // mechanism. This bar had the asymmetry backwards: Discard, which only destroys DRAFTS, required a
 // confirm, while Publish, which changes the LIVE SITE, was one click. The preview is now that
 // confirm, so looking is structural. The merge body below is unchanged — only its trigger moved.
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import PublishToaster, { type Toast, TOAST_CAP } from "./PublishToaster";
 import { usePublishSignal } from "./PublishProvider";
 import PublishPreviewDialog, { type PreviewState } from "./PublishPreviewDialog";
 
@@ -29,6 +30,33 @@ export default function PublishBar() {
   const { anyOccluding, unpublished, setUnpublished, draftReadError, anyPending } = usePublishSignal();
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
   const [publishMsg, setPublishMsg] = useState("");
+
+  /* ⚠ THE TOASTER OWNS EVENT RESULTS; THE STATUS LINE KEEPS STANDING STATE. That split is the whole
+     rule, and it decides every case below: the line still answers "what is true now" — unpublished
+     changes, all changes published, the draft-read fallback, and the discard flow, which is a
+     different verb entirely. The toaster answers "what just happened".
+
+     ⚠ AND A PENDING TOAST MORPHS IN PLACE rather than being replaced, so the publishing toast
+     BECOMES the result. A second card would make one action look like two. */
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastSeq = useRef(0);
+  const pendingId = useRef<number | null>(null);
+  const dismissToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+    if (pendingId.current === id) pendingId.current = null;
+  }, []);
+  /** Newest on top; past the cap the OLDEST is dismissed rather than queued. */
+  const pushToast = useCallback((t: Omit<Toast, "id">) => {
+    setToasts((prev) => [{ ...t, id: ++toastSeq.current }, ...prev].slice(0, TOAST_CAP));
+    return toastSeq.current;
+  }, []);
+  /** Morph the pending card in place if one is open, otherwise raise a new one. */
+  const resolveToast = useCallback((t: Omit<Toast, "id">) => {
+    const id = pendingId.current;
+    if (id === null) { pushToast(t); return; }
+    setToasts((prev) => prev.map((x) => (x.id === id ? { ...x, ...t } : x)));
+    pendingId.current = null;
+  }, [pushToast]);
   const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
 
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -117,6 +145,11 @@ export default function PublishBar() {
     setPublishStatus("publishing");
     setPublishMsg("");
     try {
+      pendingId.current = pushToast({
+        kind: "pending",
+        title: "Publishing…",
+        message: "Merging your changes and starting the rebuild.",
+      });
       const res = await fetch("/api/studio/publish", { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.merged) {
@@ -125,31 +158,60 @@ export default function PublishBar() {
         setUnpublished(false);
         setPublishStatus("published");
         setPublishMsg("Published. Your site is rebuilding and goes live in about 2 minutes.");
+        resolveToast({ kind: "ok", title: "Site published", message: "Your changes are live. The site is rebuilding and will update in about a minute." });
         return;
       }
       if (res.ok && json.ok && !json.merged) {
         if (json.reason === "not_applicable") {
           setPublishStatus("idle");
           setPublishMsg("Publish needs github mode (dev).");
+          resolveToast({ kind: "refusal", title: "Couldn\u2019t publish", message: "Publish needs github mode (dev). Nothing was written." });
         } else {
           // no_draft or no_changes — nothing to publish, self-heal the badge.
           setUnpublished(false);
           setPublishStatus("idle");
           setPublishMsg("Nothing to publish.");
+          /* Not a refusal and not a result — nothing happened, so the pending card is withdrawn
+             rather than resolved into a card saying so. */
+          if (pendingId.current !== null) { dismissToast(pendingId.current); }
         }
         return;
       }
       // Typed error. The draft branch is preserved (GH-4) and local values are
       // untouched, so the user loses nothing.
       const code = json?.error?.code;
+      /* ⚠ THE VALIDATOR'S SENTENCE SHIPS UNMODIFIED. `publishBlockers` in validate-blog-post.ts is
+         the one source for these words — it is what the inspector's advisory mark reads too — and a
+         client-side rewrite here would be a second spelling of the same rule, drifting from the
+         thing that actually refuses the publish. The server prefixes the slug, so the author gets
+         the entry and the reason in one line.
+
+         ⚠ AND THE ACTION IS DERIVED FROM THAT MESSAGE RATHER THAN FROM A SECOND FIELD. The slug is
+         the prefix before the first colon-space, which is the shape `validateBlogPost` and
+         `validateProjectSections` both emit. If neither matches, no action is offered — an action
+         that might not resolve is worse than none. */
+      const serverMsg: string = json?.error?.message ?? "";
+      const slugOf = (m: string) => (m.match(/^([a-z0-9-]+):\s/) ?? [])[1] ?? null;
+      const refusal = (title: string, fallback: string, base?: "blog" | "projects") => {
+        const slug = base ? slugOf(serverMsg) : null;
+        resolveToast({
+          kind: "refusal",
+          title,
+          message: serverMsg || fallback,
+          ...(slug ? { action: { label: base === "blog" ? "Open the post" : "Open the case study", href: `/studio/${base}/${slug}` } } : {}),
+        });
+      };
       if (code === "invalid_url") {
+        refusal("Couldn\u2019t publish", "A link in Settings is not a valid URL.");
         const field = json.error?.field || "a link";
         setPublishMsg(
           `Cannot publish. The ${field} link is not a valid URL. Fix it in Settings, then publish.`
         );
       } else if (code === "merge_conflict") {
+        refusal("Couldn\u2019t publish", "The site changed since your draft. Refresh and try again.");
         setPublishMsg("Could not publish. The site changed since your draft. Refresh and try again.");
       } else if (code === "invalid_sections") {
+        refusal("Couldn\u2019t publish", "A case study would not render.", "projects");
         /* ⚠ THE SAME DEFECT AS `invalid_blocks` BELOW, ON THE PROJECTS PATH, AND IT SURVIVED THE
            FIX THAT NAMED IT. #451 added the blog branch and this one was never added — so a
            case-study draft refused for a missing image src still read "something went wrong",
@@ -166,6 +228,7 @@ export default function PublishBar() {
             : "Cannot publish. A case study would not render. Fix it, then publish."
         );
       } else if (code === "invalid_blocks") {
+        refusal("Couldn\u2019t publish", "A post would not render.", "blog");
         /* ⚠ A REFUSAL IS NOT A FAILURE, AND THIS BRANCH IS THE DIFFERENCE. `invalid_blocks` means the
            draft was READ, the merge was possible, and publishing was DECLINED because a post would
            not render — a blank title, an unlabelled image, a draft marker still in the body. It fell
@@ -189,6 +252,7 @@ export default function PublishBar() {
         );
       } else {
         setPublishMsg("Could not publish. Something went wrong. Try again.");
+        resolveToast({ kind: "refusal", title: "Couldn\u2019t publish", message: "Something went wrong. Nothing was written. Try again." });
       }
       setPublishStatus("error");
     } catch {
@@ -312,7 +376,14 @@ export default function PublishBar() {
      behind a scrim — and if the rail were already up, this line would have returned null and there
      would be no Publish button to press. `studio-resize` I2 pins this condition verbatim and
      failed on the widened copy, which is the assertion doing exactly its job. */
-  if (anyOccluding) return null;
+  /* ⚠ THE TOASTER IS RAISED BEFORE THE YIELD, AND THAT IS THE POINT OF PUTTING IT HERE. The bar
+     RETURNS NULL when something transient owns the corner, which is right for a pill the author can
+     re-summon — and wrong for a refusal, which is the only record of why a publish did not happen.
+     Yielding it would delete the message along with the furniture. The two live in different
+     corners (the pill is bottom-centre, the toaster top-right), so nothing is gained by hiding it. */
+  if (anyOccluding) {
+    return <PublishToaster toasts={toasts} onDismiss={dismissToast} />;
+  }
 
   /* ⚠ AND THE PILL SITS AT THE OVERLAY LAYER, NOT THE MODAL ONE. It held z-50 — the value
      globals.css names `--z-modal` — and so did `StudioModal`'s scrim, so a modal and a floating
@@ -381,6 +452,7 @@ export default function PublishBar() {
   // pill that arrives immediately is never briefly in the way.
   return (
     <>
+      <PublishToaster toasts={toasts} onDismiss={dismissToast} />
       {previewOpen && (
         <PublishPreviewDialog
           state={previewState}

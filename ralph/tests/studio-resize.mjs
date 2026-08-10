@@ -427,7 +427,17 @@ const shell = code("components/studio/ThreePaneShell.tsx");
     /reportOccluding: \(id: string, occluding: boolean\) => void;/.test(prov), true);
   /* ⚠ UNMOUNTED, NOT PAINTED OUT. A `pointer-events-auto` pill under a zero-opacity wrapper is
    * still clickable and still in the tab order — a Publish button you cannot see but can press. */
-  t("I2: the pill unmounts rather than hiding", /if \(anyOccluding\) return null;/.test(pub), true);
+  /* ⚠ WIDENED TO THE CONCEPT, AND MADE STRICTER RATHER THAN LOOSER. It matched the literal
+   * `return null`, which stopped being the only correct shape when the publish TOASTER began
+   * rendering from that branch — the pill still unmounts, and a refusal must not vanish with the
+   * furniture it is unrelated to. So the row now asserts the property its own comment names: the
+   * occluding branch carries NO pill markup, and the pill is never merely painted out. */
+  const occBranch = (pub.match(/if \(anyOccluding\) \{[\s\S]*?\n  \}/) ?? pub.match(/if \(anyOccluding\) return null;/) ?? [""])[0];
+  t("I2: the occluding branch exists at all, or the two rows below pass over nothing", occBranch.length > 10, true);
+  t("I2: the pill unmounts rather than hiding — its markup is absent from the occluding branch",
+    /pointer-events-auto flex max-w-/.test(occBranch), false);
+  t("I2: …and it is never painted out instead, which would leave it clickable and in the tab order",
+    /anyOccluding[^\n]*(opacity-0|invisible|hidden)/.test(pub), false);
   t("I2: …and it still clears the save bar, which is the other case and is not the same fix",
     /--studio-bar-clearance/.test(pub), true);
 
