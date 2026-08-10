@@ -1,3 +1,19 @@
+// ⚠ LINE COMMENTS ONLY IN THIS FILE. NEVER A BLOCK COMMENT.
+//
+// Every collection here declares a `path` whose glob ends in a slash-star, and a comment-stripper
+// reads that as a block-comment OPENER. It has no closer of its own, so it pairs with the first
+// closer it meets — which means ADDING a well-formed block comment anywhere below re-pairs the
+// delimiters and swallows everything between them.
+//
+// Measured when it happened: one added block comment collapsed this file from 57,245 bytes to 6,845
+// under stripping, and two suites went red on assertions about collections nowhere near the edit.
+// Nothing was wrong with the schema. The reports were confident and about a different string than
+// the one anybody meant.
+//
+// THE DURABLE FORM, WHICH IS WHY THIS SITS AT THE TOP RATHER THAN IN A COMMIT MESSAGE:
+// COMMENT-STRIPPING IS A PARSER, AND A PARSER THAT CANNOT SEE NESTING WILL REPORT CONFIDENTLY ABOUT
+// A STRING THAT IS NOT THE ONE YOU MEANT. The trap was already recorded in CLAUDE.md and was walked
+// into anyway, because a rule in a document a reader has not opened is not a guard.
 import { config, collection, singleton, fields } from "@keystatic/core";
 // p4-4biii loads THIS config as a runtime VALUE under `node --experimental-strip-types`,
 // which cannot resolve a relative TS module (extensionless fails node; a ".ts" extension
