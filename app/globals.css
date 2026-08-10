@@ -332,10 +332,13 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
      ⚠ AND THE STRONGEST ARGUMENT FOR IT IS TWO ROLES THAT SHARE A VALUE TODAY AND MUST NOT LATER.
      `surface` and `on-accent` both resolve to the same rung right now. Under a dark ground `surface`
-     follows the page down and `on-accent` does NOT, because the accent stays a mid-tone and its
-     foreground must stay light. A raw rung name cannot express that difference; two role names can,
-     and the four badge and button labels that used to spell it as a ground token would have gone
-     dark-on-accent.
+     follows the page down and `on-accent` did NOT — the reasoning read "because the accent stays a
+     mid-tone and its foreground must stay light", STRUCK RATHER THAN DELETED: true of five light
+     palettes and false of all four dark ones, where the accent resolves to `accent-on-dark`, a LIGHT
+     accent, and cream-50 on it measured 2.55 to 2.85 against a 3.0 floor. `on-accent` now carries a
+     dark answer — `band-dark`, 6.75 to 7.52 against `accent` and `accent-text` on all four dark
+     palettes — so the two roles resolve differently on BOTH axes, which is the divergence this
+     paragraph predicted with the wrong mechanism. A raw rung name still cannot express any of it.
 
      ⚠ AND #383's SWEEP SENT ALL FOUR TO THE WRONG ONE, WHICH IS THE ARGUMENT MADE TWICE. A rung
      with two roles cannot be migrated by a rung-to-role map — the map has one answer and the site
@@ -1709,7 +1712,20 @@ a {
    leaving them would have traded one dark mechanism for two, which is what the conversion exists
    to end.
 ============================================================================================ */
-[data-ground="dark"] {
+/* ⚠ `:root[data-ground="dark"]`, NOT `[data-ground="dark"]`, AND THE EXTRA `:root` IS LOAD-BEARING.
+   At 0-1-0 this block tied with the `:root` blocks and LOST ON SOURCE ORDER, because one of them sits
+   400 lines below it. Every custom property declared here was inert on a dark palette — declared,
+   shadowed, and indistinguishable from applied in the stylesheet.
+
+   ⚠ RAISED TO 0-2-0 RATHER THAN MOVED. Reordering would fix it until the next `:root` insertion and
+   then break silently in exactly the same way; specificity does not depend on where anyone writes the
+   next block. `rendered-theme` section R asserts the resolved values so the tie cannot come back.
+
+   ⚠ AND THIS SHADOWED SILENTLY FOR AS LONG AS IT EXISTED, WHICH IS WHY IT SURVIVED A BUNDLE CHECK. A
+   grep proved both values PRESENT in the built CSS and both were; the property in question was which
+   one RESOLVES. Presence and resolution are different quantities and only one of them is the
+   appearance. */
+:root[data-ground="dark"] {
   background-color: var(--color-band-dark);
   color: var(--color-on-dark);
   --glow-color: var(--glow-on-dark);
@@ -1743,6 +1759,72 @@ a {
 
      A step ABOVE `surface`, because these are filled blocks sitting ON the page rather than recesses
      in it. The light value is untouched — only this block overrides. */
+  /* ⚠ THE NAV GLASS REMAPS HERE TOO, AND THIS IS THE CASE THAT WAS MEASURED. `data-nav-tone` is
+     driven by a dark HERO, so a dark PALETTE never sets it — the home page on nocturne carries a
+     dark pane (the fill's rungs already follow the ground) under a light-ground shadow. Wiring
+     only the tone block would have left the palette case exactly as broken as it was found. */
+  --glass-shadow:    var(--glass-shadow-dark);
+  --glass-shadow-hi: var(--glass-shadow-hi-dark);
+  /* ⚠ DERIVED PER ELEMENT AGAINST ITS OWN CREAM TARGET, NOT COPIED FROM THE NAV. Measured with a
+     differencer — the layer present minus the layer absent, on the SAME row of the SAME element, so
+     the border is in both samples and cancels. Sanity pair 21.000, row verified to carry a non-zero
+     contribution before any alpha was solved.
+
+         element    cream target   dark pane luminance   derived alpha
+         nav                2.88                 1.606           22.4%   (NOT applied — see below)
+         hero tab           3.30                 1.224           14.0%
+         vessel            18.26                 0.474           43.7%
+
+     ⚠ THE THREE DO NOT FALL ON A CURVE, AND THAT IS THE RESULT RATHER THAN A FAILURE TO FIND ONE.
+     Alpha depends on pane luminance AND target separation, and the two do not co-vary: the vessel
+     has the DARKEST pane and the LARGEST alpha, the hero tab a middle pane and the SMALLEST. The
+     vessel's cream target is 18.26 against roughly 3 for the other two — six times larger, a
+     different KIND of mark rather than a fainter one. A fourth consumer must measure its own cream
+     target; a lookup would be wrong.
+
+     ⚠ AND THE NAV'S 22.4% IS DELIBERATELY NOT APPLIED. Rendered at 13% and 22% against cream, a
+     1.7x alpha difference produced NO perceptual change — both trace the whole pill equally while
+     cream carries a top highlight AND a bottom shadow. THE ASYMMETRY IS THE APPEARANCE, and no
+     top-inset weight produces it, so the derivation was correct and aimed at a layer that cannot
+     express the difference. 13% stands as shipped, under-powered rather than under-weight. */
+  --hero-tab-lit-edge: 14%;
+  --vessel-lit-edge:   43.7%;
+  /* Derived per element against its own isolated cream contribution (32.80): 58.3% gives 32.63 on
+     nocturne. Not copied from the vessel's 43.7 — the two panes differ and so do the targets. */
+  --capsule-lit-edge:  58.3%;
+  /* Solved for the fog's peak RATIO reproducing cream's — 1.073 target, 0.178 gives 1.072 on
+     nocturne, all three blobs 1.01-1.07 against cream's 1.04-1.07. */
+  --vessel-fog: 0.178;
+  /* One factor, 0.100, both sides — 4.5%/5.0% gives peak ratio 1.015 against cream's 1.019. */
+  --vessel-glow-l: 4.5%;
+  --vessel-glow-r: 5%;
+  /* ⚠ WHAT SITS ON THE ACCENT, ON A DARK PALETTE: a DARK glyph, because the accent here is
+     accent-on-dark, a LIGHT accent. band-dark measures 6.75-7.52 against accent AND accent-text on
+     all four dark palettes; cream-50 measured 2.55-2.85 against a 3.0 floor, which is the contact
+     check icon defect. Consumers were normalised onto the accent ROLE first — DeviceImage's badge
+     read bg-accent-500, where band-dark measures 3.24-3.65 and FAILS 4.5 — because a value decided
+     while one consumer sat on a different rung fits three and breaks the fourth. */
+  --color-on-accent: var(--color-band-dark);
+  /* The work-card veil's scrim ink. `etch` INVERTS by design, so the 88% scrim measured -2.0 to
+     -2.2 on cream and +7.3 to +7.7 on nocturne — brightening the bright artwork it exists to dim.
+     The veil sits over an ARBITRARY IMAGE, not a themed surface, so the ground ceiling does NOT
+     apply and the ink must stay dark on every ground: the palette's own ink-950 is dark on all
+     nine. */
+  --wc-veil-ink: var(--color-ink-950);
+  /* The vessel's and capsule's drops — the nav's dark-shadow pigment and scoping at the vessel's
+     OWN alphas (30% and 34%, its cream values), never the nav's weights: alpha is a function of
+     pane luminance AND target separation. Measured before: cream -16.03 to -17.32 (x1.24-1.26),
+     nocturne +1.52 to +1.64 (x1.28-1.30) — the wrong-sign glow, third instance after the nav and
+     the hero tab. Black keeps the sign; the page affords ~1.6 and that is stated, not dressed. */
+  --vessel-drop:  oklch(0% 0 0 / 0.30);
+  --capsule-drop: oklch(0% 0 0 / 0.34);
+  --hero-tab-drop: oklch(0% 0 0 / 0.14);
+  /* Derived by the same differencer — the ring present minus the ring transparent, same pixel, on a
+     straight run of the left edge clear of the radius. 31.9% reproduces cream's 10.32 on all four
+     dark palettes (10.08 to 10.20). `--glass-stroke-dark` at 15% is the precedent three hundred
+     lines up: the nav's stroke had a dark answer and this border did not, which is what made it an
+     omission rather than a decision. */
+  --vessel-edge: 31.9%;
   --color-cream-200:     color-mix(in oklch, var(--color-on-dark) 12%, var(--color-band-dark));
   --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
   --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
@@ -2113,6 +2195,108 @@ a {
   --glass-fill-dark:        color-mix(in srgb, var(--color-ink-800) 50%, transparent);
   --glass-fill-dark-strong: color-mix(in srgb, var(--color-ink-800) 72%, transparent);
   --glass-stroke-dark:      color-mix(in srgb, var(--color-white) 15%, transparent);
+
+  /* ⚠ THE SHADOW REMAPPED NOWHERE, AND THE BLOCK BESIDE IT REMAPPED EVERYTHING ELSE. The tone
+     block below has always redirected the fill, the stroke, the sheen gradient and the text, and
+     never this. A value that exists, is correct, and no consumer reads — the CS_MIN_SCALE shape.
+
+     ⚠ THE DROPS CANNOT BE REPAIRED BY CHOOSING A PIGMENT, AND THAT IS A CEILING RATHER THAN A
+     TUNING PROBLEM. Measured on the home page, sanity pair 21.000 first: on cream the two drops
+     darken the page by 27.51 and 13.23. Nocturne's page ground sits at relative luminance 1.61,
+     so the DEEPEST DARKENING ANY PIGMENT CAN PRODUCE THERE IS 1.61 — pure black, fully opaque.
+     A 17x ceiling set by the ground.
+
+     ⚠ SO `rule`'s REASONING DOES NOT TRANSFER, THOUGH IT WAS THE RIGHT PRECEDENT TO CHECK. It is
+     the mid-tone built because an extreme must invert and a mid-tone must not, and it holds
+     OKLCH 48.5% on every palette. That is correct for a HAIRLINE, which must READ on both
+     grounds. A shadow must be DARKER than its backdrop, and at 48.5% `rule` is lighter than a
+     near-black page — it would glow exactly as `etch` does today, only more.
+
+     The drops therefore go to true black. They keep the RIGHT SIGN and buy at most 1.61, which
+     is stated here rather than rounded into a claim of restored depth.
+
+     ⚠ RULED: THE EVEN RIM IS DARK GLASS'S HONEST FORM, DERIVED RATHER THAN CHOSEN. No edge design
+     escapes the cap, because the thing unavailable is what sits BENEATH the element and nothing
+     inside it supplies that. The nav and the reading vessel reached this independently — two
+     components, one arithmetic.
+
+     ⚠ AND THE EDGE CARRIES THE PILL ON DARK, WHICH IS THIS FILE'S OWN GLASS RULE ARRIVING IN THE
+     NAV. Pale glass shows its thickness as shadow; dark glass shows it as transmitted light. The
+     top inset is DERIVED rather than inherited: white at 85% over the dark pane measures +71.66
+     against the +3.37 the same layer produces on cream — 21x, because `--color-white` is a fixed
+     value with nowhere to go on light and everywhere to go on dark. Solved for the alpha that
+     reproduces cream's 3.37 on nocturne's pane and confirmed against the render: 13%.
+
+     ⚠ THE 28% BOTTOM INSET AND THE 6% RING ARE HELD, AND THE BOTTOM ONE IS HELD ON A WEAKER
+     MEASUREMENT THAN THE TOP. Its sampled figure (+3.61 dark against +2.86 light) disagrees with
+     the analytic composite by 2.7x, because the sample row sits where the 0.5px border and the
+     radius antialiasing are. The TOP inset's two routes agree within 0.4, which is why the
+     derivation is built on that one. Re-measure the bottom edge before moving it. */
+  --glass-shadow-dark:
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 13%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 28.000000000000004%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-etch) 6%, transparent),
+    0 2px 6px -2px oklch(0% 0 0 / 0.14),
+    0 14px 38px -14px oklch(0% 0 0 / 0.34);
+  /* ⚠ THE HOME HERO'S TAB PILL, LIFTED OUT OF JSX SO IT CAN THEME AT ALL. It was an inline
+     `boxShadow` in HeroSection, and an inline style cannot respond to `[data-ground="dark"]` —
+     unthemeable by construction rather than by oversight. This declaration is the IDENTICAL string
+     it carried, so the lift moves no pixel on any palette; the dark answer is a separate commit.
+
+     ⚠ THE DROP IS CARRIED ACROSS UNCHANGED AND IS A KNOWN, UNSCOPED DEFECT. `oklch(30% 0.018 60)`
+     is a raw literal at cream's warm hue with no token behind it, so it themes on none of the nine
+     palettes. It is left exactly as found because a themeing repair inside a plumbing change is
+     unreviewable — and because `etch`, the obvious candidate, INVERTS, which is precisely what the
+     nav's drops turned out to need corrected. It needs the ground-ceiling check, not a swap. */
+  /* ⚠ ONE NAMED WEIGHT, NOT A SECOND COPY OF THE SHADOW. The dark answer changes this value alone,
+     so the five layers exist once — which is the defect the overlay census just found six times. */
+  --hero-tab-lit-edge: 70%;
+  --vessel-lit-edge:   85%;
+  /* The docked capsule's lit edge — the same 85%-inset defect the nav and vessel carried, found by
+     the row sweep the board prescribed: full-stack row contribution +9.7 cream, +71.7 nocturne at
+     dy0. Isolated with the differencer, cream's layer-1 contribution is 32.80. */
+  --capsule-lit-edge:  85%;
+  --vessel-fog: 1;
+  --vessel-glow-l: 45%;
+  --vessel-glow-r: 50%;
+  --wc-veil-ink: var(--color-etch);
+  --vessel-drop:  color-mix(in srgb, var(--vessel-ink) 30%, transparent);
+  --capsule-drop: color-mix(in srgb, var(--vessel-ink) 34%, transparent);
+  /* ⚠ RESTORED WITH READERS THIS TIME. consumer-count deleted this token for having none while its
+     68ch was written as a literal in both the article and the canvas — and the LOCKED decision is
+     that the measure is a NUMBER that must be identical on both surfaces, which is exactly what one
+     token with two readers enforces. `ch` resolves at the CONSUMING element against its own font,
+     so the var() form and the literal compute identically on each surface. */
+  --blog-measure: 68ch;
+  /* ⚠ THE VESSEL'S BORDER, WHICH CARRIED ITS ENTIRE READ ON DARK AND THEMED ON NOTHING. A fixed
+     white at 58%: on cream it contributes 10.32 against the pane, on a 0.474 pane it contributes
+     31.99 — 3.1x — and it traced the whole card as a hard bright outline that SWAMPED the 43.7%
+     top inset derived one commit earlier.
+
+     ⚠ CREAM'S CONTRIBUTION WAS MEASURED BEFORE ASSUMING IT SHOULD BE VISIBLE, AND THE GUESS WAS
+     WRONG. It looked invisible and it is not — 10.32 is a real mark, so the dark answer reproduces
+     it rather than staying out of the way. Measuring is what separated those two answers. */
+  --vessel-edge: 58%;
+  /* ⚠ THE DROP WAS `oklch(30% 0.018 60 / 0.12)` — cream's warm hue FROZEN, theming on none of the
+     nine palettes, the same defect as the contact glow's middle stop. Re-expressed as the PIGMENT:
+     `etch` resolves to each palette's ink, so the tint follows the theme and the alpha stays the
+     consumer's. The light movement is ink-950 at 12% against a hue-60 grey at 12% under a 12px
+     blur — reported, not hidden, and chosen by job: this is the same job as the nav glass's drops,
+     which already take `etch` on light.
+
+     ⚠ AND `etch` INVERTS, WHICH IS WRONG FOR A SHADOW ON DARK — the nav's finding. So the dark
+     block overrides the TINT to true black, same ground-ceiling shape as `--glass-shadow-dark`:
+     the right sign, capped at the pane's own luminance, stated rather than dressed as depth. */
+  --hero-tab-drop: color-mix(in srgb, var(--color-etch) 12%, transparent);
+  --hero-tab-shadow:
+    0 3px 12px var(--hero-tab-drop),
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--hero-tab-lit-edge), transparent);
+  --glass-shadow-hi-dark:
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 16%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-white) 34%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-etch) 7.000000000000001%, transparent),
+    0 3px 8px -2px oklch(0% 0 0 / 0.16),
+    0 20px 46px -14px oklch(0% 0 0 / 0.4);
 }
 @media (max-width: 1023px) {
   /* Cheaper blur on the throttled-hardware breakpoint — one dial. */
@@ -2227,6 +2411,9 @@ a {
   --glass-fill: var(--glass-fill-dark);
   --glass-fill-strong: var(--glass-fill-dark-strong);
   --glass-stroke: var(--glass-stroke-dark);
+  /* ⚠ THE FOURTH REDIRECT, AND IT WAS MISSING FROM THE DAY THIS BLOCK WAS WRITTEN. */
+  --glass-shadow: var(--glass-shadow-dark);
+  --glass-shadow-hi: var(--glass-shadow-hi-dark);
 }
 .site-header[data-nav-tone="dark"] .nav-glass { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .nav-glass::before {
@@ -2833,11 +3020,14 @@ a {
   flex-direction: column;
   justify-content: flex-end;
   padding: 24px;
-  color: var(--color-on-accent);
+  /* cream-50, NOT on-accent: this text sits on the veil's scrim over an image, not on the accent,
+     and on-accent now resolves DARK on a dark ground. Byte-identical on light, where on-accent was
+     cream-50 — the off-job role use ended by the role gaining its real dark answer. */
+  color: var(--color-cream-50);
   background: linear-gradient(
     180deg,
     transparent 34%,
-    color-mix(in oklch, var(--color-etch) 88%, transparent) 100%
+    color-mix(in oklch, var(--wc-veil-ink) 88%, transparent) 100%
   );
   opacity: 0;
   transition: opacity 0.42s cubic-bezier(0.22, 0.68, 0.24, 1);
@@ -3748,7 +3938,15 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  background: color-mix(in oklch, var(--color-cream-50) 86%, transparent);
+  /* ⚠ THE RAIL'S GROUND WAS THE ONLY UNMIGRATED PART OF IT. Its children already take roles —
+     `text-subtle`, `accent`, `accent-500`, and #408 moved two off `ink-400` — so a near-white bar
+     painted correctly-themed text onto the wrong ground. `surface` is `cream-50` on light, so the
+     light side is byte-identical.
+
+     ⚠ AND `.next-rail-link` SETS `color: inherit`, so it follows this rule and no `text-*` utility
+     on that anchor would have landed anyway — hazard 22's unlayered `a { color: inherit }` defeats
+     one. The border stays: `etch` is a role and was built to survive exactly this. */
+  background: color-mix(in oklch, var(--color-surface) 86%, transparent);
   -webkit-backdrop-filter: saturate(1.1) blur(12px);
   backdrop-filter: saturate(1.1) blur(12px);
   border-top: 1px solid color-mix(in oklch, var(--color-etch) 8%, transparent);
@@ -3855,9 +4053,13 @@ a {
 
 .blog-article,
 .blog-index {
-  --blog-measure: 68ch;
-  --blog-ease: cubic-bezier(0.22, 0.68, 0.24, 1);
-  --blog-ease-settle: cubic-bezier(0.16, 0.9, 0.28, 1);
+  /* ⚠ THREE TOKENS WERE REMOVED HERE BY `consumer-count`'s FIRST RUN: `--blog-measure` (68ch),
+     `--blog-ease` and `--blog-ease-settle`. None had a consumer in CSS or in JS. `--blog-measure`
+     is the interesting one — the measure it named is REAL and is written as a literal
+     `max-w-[68ch]` in both the article and the canvas, so the token was a second spelling that
+     nothing read while the value it described was duplicated twice. ZERO CONSUMERS IS A REASON TO
+     DELETE, NOT TO EXEMPT. If the measure is ever tokenised, the two literals move to it in the
+     same commit or the token is an orphan again. */
   --blog-rule: color-mix(in oklch, var(--color-etch) 8%, transparent);
 }
 
@@ -3865,7 +4067,10 @@ a {
 .blog-prose {
   font-size: 18px;
   line-height: 1.75;
-  color: var(--color-ink-800);
+  /* ⚠ WAS `ink-800`, A RAW RUNG, SO THE ARTICLE BODY DID NOT REMAP AND READ AS DARK INK ON A DARK
+     PAGE. `text-body` IS `ink-800` on every light palette, so this is byte-identical on light BY
+     CONSTRUCTION rather than by inspection — the same proof the work-filter pair carried. */
+  color: var(--color-text-body);
 }
 .blog-prose > p {
   margin: 0 0 1.35em;
@@ -3934,7 +4139,8 @@ a {
    column on both sides, so the bleed is now the same fraction of the same measure
    everywhere and inherits the fidelity property instead of fighting it.
 
-   17% of the 697.93px column is ~118px, matching the contract's 120px cap.
+   17% of the column is ~115px at today's 676.74px measure (~118px under DM Sans' 697.93),
+   either way inside the contract's 120px cap.
 
    IN THE EDITOR IT OVERFLOWS THE CANVAS PANE, AND THAT IS FINE — MEASURED, NOT ASSUMED.
    The plan predicted it would CLIP. It does not: the canvas scroller is `overflow-y-auto`,
@@ -4071,11 +4277,11 @@ a {
   background: linear-gradient(to bottom, color-mix(in srgb, var(--color-background) 78%, transparent), color-mix(in srgb, var(--vessel-smoke-3) 62%, transparent) 66%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
   backdrop-filter: blur(22px) saturate(170%);
-  border: 1px solid color-mix(in srgb, var(--color-white) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-white) var(--vessel-edge), transparent);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 5.5%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--color-white) 85%, transparent),
-    0 26px 56px -26px color-mix(in srgb, var(--vessel-ink) 30%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--vessel-lit-edge), transparent),
+    0 26px 56px -26px var(--vessel-drop);
 }
 
 
@@ -4100,14 +4306,24 @@ a {
   background-blend-mode: normal, overlay, normal, normal;
   background-size: cover, 100% calc(100% / max(var(--read, 0.06), 0.06)), cover, cover;
   background-position: bottom, bottom, center, center;
+  /* ⚠ THE PEARLESCENT GLOW IS A RATIO TOO — the halo the fill-centre probes could not reach. An
+     18px blur reaches ~28px from the edges, so centre samples read 0.00 while the band measured
+     1.423 on nocturne against cream's 1.019 peak. Weights per side because the pigments differ;
+     dark solved as one factor reproducing cream's peak. */
   box-shadow:
-    inset 10px 10px 18px -6px color-mix(in srgb, var(--color-on-dark) 45%, transparent),
-    inset -10px -10px 18px -6px color-mix(in srgb, var(--color-cream-50) 50%, transparent);
+    inset 10px 10px 18px -6px color-mix(in srgb, var(--color-on-dark) var(--vessel-glow-l), transparent),
+    inset -10px -10px 18px -6px color-mix(in srgb, var(--color-cream-50) var(--vessel-glow-r), transparent);
 }
 .blog-smoke {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* ⚠ THE FOG'S LOUDNESS IS A RATIO, NOT A DELTA — the comparator error that hid this layer twice.
+     The blobs measured +5 to +6 absolute on BOTH grounds and read "comparable"; as a ratio against
+     the local backdrop that is 1.04-1.07 on cream and 1.7-2.0 on nocturne — a near-doubling of
+     luminance, which is the white haze the owner reported after every edge fix had landed. One
+     weight scales all three blobs together; light is 1, byte-identical by construction. */
+  opacity: var(--vessel-fog, 1);
   background:
     radial-gradient(52px 40px at 28% 72%, color-mix(in srgb, var(--color-cream-50) 30%, transparent), transparent 70%),
     radial-gradient(64px 46px at 72% 38%, color-mix(in srgb, var(--color-ink-200) 10%, transparent), transparent 72%),
@@ -4141,23 +4357,24 @@ a {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+/* ⚠ `.blog-glint` WAS DELETED AS DEAD BY OCCLUSION, AND THIS ELEMENT IS THE OCCLUDER. The glint
+   painted 1px at bottom:100% — exactly the row this waterline's 2px (bottom: 100% - 1px) covers,
+   and DOM order paints the waterline after it. Differenced at every row dy -3..+1, three x
+   positions, BOTH grounds: 0.00 everywhere. Not an unestablished row — a sibling painted over it,
+   which is the paint-order blindness no cascade walk can see, settled by pixels. */
 .blog-waterline {
   position: absolute;
   left: 0;
   right: 0;
   bottom: calc(100% - 1px);
   height: 2px;
+  /* ⚠ THE ROLE, NOT THE RUNG. `--color-accent` IS `accent-500` on light — byte-identical — and
+     `accent-on-dark` under the dark ground. As a rung this line measured -66.13 on cream and +3.57
+     on nocturne: the boldest mark in the component on light and nearly invisible on dark, which is
+     the weak-contrast symptom by measurement. */
   background: linear-gradient(90deg,
-    oklch(from var(--color-accent-500) l c h / 0.22), var(--color-accent-500) 18%,
-    var(--color-accent-500) 82%, oklch(from var(--color-accent-500) l c h / 0.22));
-}
-.blog-glint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-bounce) 95%, transparent) 30%, color-mix(in srgb, var(--color-bounce) 60%, transparent) 70%, transparent);
+    oklch(from var(--color-accent) l c h / 0.22), var(--color-accent) 18%,
+    var(--color-accent) 82%, oklch(from var(--color-accent) l c h / 0.22));
 }
 .blog-bub {
   position: absolute;
@@ -4218,8 +4435,8 @@ a {
   backdrop-filter: blur(18px) saturate(170%);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--vessel-ink) 9%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--color-white) 85%, transparent),
-    0 14px 30px -14px color-mix(in srgb, var(--vessel-ink) 34%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) var(--capsule-lit-edge), transparent),
+    0 14px 30px -14px var(--capsule-drop);
 }
 .blog-bead {
   position: absolute;

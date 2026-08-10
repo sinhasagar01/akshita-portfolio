@@ -1,0 +1,25 @@
+#!/bin/sh
+# ⚠ THE MISSING HALF OF "CAPTURE THE EXIT CODE": IT MUST GATE THE PUSH, NOT PRECEDE IT.
+#
+# Four occurrences of pushing on red, two of them committed by an assistant that had just
+# read the rule. THE OUTCOME BEING BENIGN IS WHY IT RECURS — three of the four were instrument
+# conditions and none broke anything, so the habit is reinforced by its own results. Intention
+# closed none of them; this is a mechanism, which closed the other three instances of this family.
+#
+# ⚠ A STALE .next IS THE COMMONEST RED HERE AND IT IS NOT A CODE FAULT. The colour census reads
+# the PRODUCTION bundle, and running the dev server replaces it — so `npm run dev` before a push
+# makes the denominator rows fail correctly. Rebuild, do not bypass.
+#
+# Deliberate bypass is `git push --no-verify`, which is meant to be typed and noticed.
+set -e
+printf '\n  pre-push: running ralph\n'
+if node ralph/run.mjs > /tmp/ralph-prepush.txt 2>&1; then
+  printf '  %s\n\n' "$(tail -1 /tmp/ralph-prepush.txt)"
+  exit 0
+fi
+printf '\n  PUSH BLOCKED — ralph is red\n\n'
+grep '\[FAIL\]' /tmp/ralph-prepush.txt | head -20
+printf '\n  %s\n' "$(tail -1 /tmp/ralph-prepush.txt)"
+printf '  full output: /tmp/ralph-prepush.txt\n'
+printf '  if the failures are census/denominator rows, rebuild first: rm -rf .next && npm run build\n\n'
+exit 1

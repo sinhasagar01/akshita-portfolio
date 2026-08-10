@@ -210,6 +210,28 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
+  - id: ground-ceiling-black
+    kind: judgement
+    category: forced-literal
+    where: app/globals.css (:root[data-ground="dark"], --hero-tab-drop, --vessel-drop, --capsule-drop)
+    count: 3
+    selectors: [":root[data-ground=dark]"]
+    reason: >
+      True black at 12 percent, the hero tab pill's drop tint on a dark ground. Not a rung and not a
+      role on purpose. A drop shadow must be DARKER than its backdrop, and every pigment in the
+      vocabulary is lighter than a near-black page or inverts on it. etch inverts by design, which is
+      right for a hairline and wrong for a shadow, and rule holds a mid tone that would glow. The
+      nav's dark drops reached the same value by the same ceiling argument and are excused as
+      compiler fallbacks only because color-mix sits beside them in the same token. This one stands
+      alone, so it is claimed here.
+    test: >
+      The ground affords 1.61 of darkening against cream's 27.51, measured on nocturne. Any themed
+      pigment either glows or clips to black anyway, so the literal IS the derived answer. Three
+      members now, one ceiling argument, each at its own consumer's cream alpha: the hero tab's
+      0.12, the vessel's 0.30 and the capsule's 0.34 — the vessel pair measured at cream -16.03 to
+      -17.32 against nocturne's +1.52 to +1.64 wrong-sign glow before the fix. If a dark shadow
+      pigment ever enters the vocabulary, this row's subject moves to it and the row ends.
+
   - id: about-photo-tint
     kind: judgement
     category: artwork-by-file
@@ -385,9 +407,9 @@ entries:
   - id: component-shadow-tints
     kind: judgement
     category: forced-literal
-    where: components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx
-    files: [components/case-study/blocks/BeforeAfterStory.tsx, components/sections/HeroSection.tsx]
-    count: 2
+    where: components/case-study/blocks/BeforeAfterStory.tsx
+    files: [components/case-study/blocks/BeforeAfterStory.tsx]
+    count: 1
     reason: >
       Two components roll their own shadow tint instead of using `--shadow-sm/md/lg`, which are
       already tokenised from `ink-950`. Measured against that token as the composite rule requires:
@@ -396,6 +418,11 @@ entries:
       adopting it here changes the shadow's GEOMETRY, not just its hue. That is a shadow-token
       adoption question with its own before-and-after, and folding it into a colour sweep would be
       the wrong-noun error this arc has made four times.
+      ⚠ THE HERO TAB'S HALF MOVED FILES AND DID NOT MOVE VALUE. It was an inline `boxShadow` in
+      HeroSection and is now `--hero-tab-shadow` in globals.css, byte-identical, lifted so that a
+      JSX style could respond to `[data-ground="dark"]` at all. THE COUNT IS UNCHANGED AT 2 AND THE
+      FILE LIST IS NOT — which is exactly what a value-and-location join is for, and it is why J5
+      failed on a file nobody had edited rather than passing quietly.
       ⚠ AND THE TRIGGER IS NAMED RATHER THAN LEFT AS "SEPARATE", because a deferral conditional on
       nothing has no owner and this project has recorded that twice. REVISIT WHEN either something
       else needs these shadows — a third component reaching for a bespoke tint means the tokens are

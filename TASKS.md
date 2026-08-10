@@ -419,6 +419,24 @@ demonstrated four times.
   question is reopened, or sapphire is retired. Ground h320 c0.024 gives dE 10.8 with one gamut cap,
   with h330 c0.024 at 11.9 and h320 c0.030 at 12.1 measured as fallbacks.
 
+**CLOSED — the white-alpha partition.** All 33 sites have verdicts: paired, ground-independent,
+weighted this arc (fog, glows, lit edges), or deleted (the glint, by occlusion). The last two
+members closed by construction with their subjects named: `SwatchTokens.tsx:23` sits on a CONTENT
+backdrop (the depicted product's own colour, which no palette moves), and `ContactSection.tsx:215`
+pairs white with the ACCENT, not with the page ground — measured across all nine palettes, which is
+what produced the open question below.
+
+**ANSWERED — WHAT READS ON THE ACCENT, ON A DARK PALETTE: A DARK GLYPH.** `on-accent` carries
+`band-dark` under the dark ground — 6.75 to 7.52 against `accent` and `accent-text` on all four dark
+palettes. The premise "the accent stays a mid-tone" is struck where it lived, with the numbers. Of
+the four members: the contact check icon is FIXED (repointed to `on-accent`; white had measured 2.55
+to 2.85 against the 3.0 floor). `nav-cta` was MEASURED BEFORE THE RULING and PASSES everywhere —
+white on `accent-500` is 4.93 to 5.92 across all nine, a different pair than the failing one, which
+is why it was measured rather than assumed. `DeviceImage`'s badge moved from `bg-accent-500` to the
+`bg-accent` role first, because `band-dark` fails 4.5 on `accent-500` (3.24 to 3.65) — a value
+decided while one consumer sat on a different rung fits three and breaks the fourth. **THE ONE OPEN
+MEMBER IS THE WATERLINE'S BOLDNESS at +22.73 on dark — aesthetic, the owner's read, unchanged.**
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session

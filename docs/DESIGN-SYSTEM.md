@@ -489,7 +489,7 @@ The column is `mx-auto max-w-[68ch] px-6` on the `<main>` element. Measured at 1
 | computed `max-width` | **745.93px** |
 | border box | 746px |
 | inline padding | 24px each side |
-| **content width** | **697.93px** |
+| **content width** | **676.74px** — was 697.93px under DM Sans; #304 repointed `--font-body` to Work Sans and `ch` follows the font. The locked property is article-canvas EQUALITY, delta 0, and both sides moved together |
 | prose font size and line height | 18px, 31.5px |
 
 **The `ch` unit resolves against the element that carries it, not against the text inside it.**
@@ -498,7 +498,7 @@ resolved in the prose's own 18px font would be 841.44px. That 96px gap is the wh
 number is worth writing down rather than restating the token.
 
 A consequence falls out. The unlayered `p { max-width: 68ch }` rule resolves to 841.44px inside
-`.blog-prose`, which is wider than the 697.93px column, so it never binds there. It is inert on the
+`.blog-prose`, which is wider than the 676.74px column, so it never binds there. It is inert on the
 blog and live elsewhere.
 
 The canvas side is bounded separately by `BLOG_CANVAS_MIN_PX = 794`, `lib/studio/three-pane.ts:85`.

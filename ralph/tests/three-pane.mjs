@@ -412,7 +412,7 @@ t("G: the layout keeps min-h-screen for page-scrolled routes",
  * CLASSES to the terms of that sum. So widening the inspector from 244 to 320 in the class
  * alone left every gate green while the threshold still claimed three panes fit at 1538 —
  * where the canvas would actually get 718px against the 794 it needs, dropping the canvas
- * column below its 697.9296875 public measure. Nothing would have failed, and the measure is
+ * column below its public measure (676.736px under Work Sans; 697.93 was the DM Sans figure). Nothing would have failed, and the measure is
  * the property the whole editor exists to hold.
  *
  * So the widths are READ OUT OF THE CLASS STRINGS and summed here. Change a pane's class

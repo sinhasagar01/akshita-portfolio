@@ -584,7 +584,11 @@ console.log("\nK · ⚠ THE DARK BLOCK REMAPS EVERY ROLE THAT NEEDS IT — the c
  * eight remapped roles as missing. Same family as the PR-number-as-hex trap: a convention of the
  * prose collided with a matcher, and the note about the mechanism became the defect. */
 const darkBlock = (() => {
-  const at = css.search(/^\[data-ground="dark"\]/m);
+  /* ⚠ THE FINDER FOLLOWS THE SELECTOR'S REPAIR. The block was raised to `:root[data-ground="dark"]`
+ * (0-2-0) after five of its values shipped SHADOWED by a later `:root` at the old 0-1-0 — so this
+ * matcher accepts the :root-prefixed form and refuses the bare one, because a bare block reappearing
+ * is the regression `ground-block` A2 exists to catch. */
+const at = css.search(/^:root\[data-ground="dark"\]/m);
   if (at < 0) return null;
   const o = css.indexOf("{", at);
   let d = 0, e = -1;
@@ -603,9 +607,15 @@ const DARK_EXEMPT = {
    * cascade readings and three rulings were all wrong about WHICH SIDE FAILS; the sample inverted
    * the problem. This role stays exempt until the pressed chip gets its own foreground, which is a
    * different token rather than a different value here. */
-  "on-accent": "the foreground drawn ON the accent. Premise false on six of six and exempt anyway — "
-    + "remapping it regressed two states to fix one. The pressed work-filter chip needs its own "
-    + "foreground; see the note above.",
+  /* ⚠ `on-accent`'s EXEMPTION IS RETIRED, AND ITS BLOCKING CONDITION WAS SATISFIED LONG BEFORE
+   * ANYONE RETIRED IT. The exemption held "until the pressed chip gets its own foreground" — #426
+   * gave the chip `surface`, so the consumer that made the first remap regress two states has not
+   * read `on-accent` since. The exemption outlived its subject exactly the way the near-miss row
+   * did, and K3 is the row that forced the check: it failed the moment the ground block remapped
+   * the role, which is the conversation it existed to force. The role now resolves `band-dark` on
+   * dark — 6.75-7.52 against accent and accent-text — with every remaining consumer verified to
+   * sit on the accent ROLE (DeviceImage was moved off `accent-500` first, where band-dark measures
+   * 3.24-3.65 and fails). The two notes below are the history, kept. */
   /* ⚠ `on-accent` WAS EXEMPT HERE AND IS NOT ANY MORE, AND IT TOOK TWO ATTEMPTS. The exemption read
    * "the accent stays a MID-TONE on both grounds, so its foreground must stay light" — FALSE on six
    * of six, since every palette lightens its accent to 65 or 70% on dark and a near-white label on

@@ -698,7 +698,7 @@ export default function BlogBlocksEditPanel({
           direction, which is worth stating because the obvious guess is the opposite.
           The alternative was duplicating the column class string — the exact string A1 pins —
           across two branches, which is a drift risk for no gain. */}
-      <div className="mx-auto max-w-[68ch] px-6 blog-article">
+      <div className="mx-auto max-w-[var(--blog-measure)] px-6 blog-article">
         {/* THE HEAD IS PREVIEW ONLY — see BlogArticleHead for why none of it is editable.
             The BACK LINK is deliberately not rendered: it is navigation rather than content,
             and in the canvas it would be a live link out of /studio to the public index. The

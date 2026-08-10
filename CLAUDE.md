@@ -450,6 +450,14 @@ build a gate for the limit and then believe it.
   **A confirmed prediction is worth more than the same outcome discovered** — it means the model is
   right, not just the answer.
 
+  **⚠ RULED, 2026-08-10: THE EVEN RIM IS DARK GLASS'S HONEST FORM — DERIVED, NOT CHOSEN.** Cream's
+  grounding is −27.51 of drop beneath the element; on the dark band, darkening is capped at ~1.61 for
+  drops and insets alike, so pure black at full alpha reaches 6% of the target. **The thing
+  unavailable is what sits BENEATH the element, and nothing inside it supplies that** — a new edge
+  design would still be a mark, subject to the same arithmetic. **The nav and the vessel reached this
+  independently: two components, one arithmetic**, which is what upgrades it from a judgement about
+  two renders to a property of the band.
+
 - **⚠ THE INERT TEST IS PER CONSUMER, NOT PER TOKEN — a token can be load-bearing at one alpha and
   dead at another.** `bounce` measured 33.9 as a streak on the glass pane and 2.0 as a radial on
   `cream-50`, in the same component. Applied per token it would have been kept wholesale or deleted
@@ -542,6 +550,235 @@ build a gate for the limit and then believe it.
   **Nothing is lost by deferring while six arcs are open, and a palette drawn INTO an open arc will be
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
+
+- **⚠ STATE BOTH FIGURES ON ANY CROSS-GROUND COMPARISON — THE ABSOLUTE DELTA AND THE RATIO AGAINST
+  THE LOCAL BACKDROP.** An absolute delta is a whisper on light and a glow on dark: the smoke blobs
+  measured +5 to +6 on BOTH grounds and were passed as "comparable", and as ratios they were 1.04–1.07
+  on cream against **1.7–2.0 on nocturne — a near-doubling of luminance**, which was the haze the
+  owner reported twice while the census said fine. **It would have caught this a session earlier**,
+  which is what makes it a number rather than a note.
+
+  **⚠ THE RULE'S FIRST APPLICATION RAN BEFORE IT WAS RECORDED, AND FOUND TWO LIVE MEMBERS.** Every
+  cross-ground figure passed this arc was re-examined: the blobs (caught, fixed), the liquid glows
+  (caught, fixed), **the bubbles — passed as "comparable" at +1.4 to +4.3 absolute, measured 1.01–1.04
+  cream against 2.17–2.55 nocturne** — and the nav sheen (1.03–1.04 against 1.26–1.39, standing on
+  renders the owner ruled on with it present). The three derived lit-edges used absolute cream
+  contributions as targets BY METHOD; each stands on an accepted render, and that is stated rather
+  than silently re-based. **The bubbles are the open member** — points of light rather than washes,
+  possibly the bounce mechanic doing its job, and that is an eye's call, not a ratio's.
+
+- **⚠ A LAYER LIST ASSEMBLED FROM SOURCE IS NOT THE PAINT ORDER — EVIDENCED THREE WAYS IN ONE
+  COMPONENT.** The vessel's census missed three layers for three different reasons: **the glint was
+  dead by occlusion** (a sibling painted its only row), **the capsule sat in an unopened board item**
+  (in the stack, outside the census), and **the pearlescent glows fell outside the sample geometry**
+  (an 18px edge blur reads 0.00 at the centre). All three were found the same way — **re-deriving the
+  subject from the rendered element, candidates removed one at a time** — which is now the method, not
+  a recovery. A source list answers "what is declared"; only the render answers "what paints where".
+
+- **⚠ AN OKLCH SERIALISATION READ AS RGB BYTES — the signature defect, caught by inconsistency inside
+  one table.** A probe regexed `getComputedStyle().backgroundColor` and six palettes returned
+  `oklch()` strings whose components became "rgb" values, producing white-on-accent ratios up to
+  20.93 beside three honest rows near 2.8. **The spread between rows sharing one claim is what caught
+  it.** Repaired by painting a 1×1 canvas and reading the pixel — the browser does the conversion, so
+  the value measured is the value drawn.
+
+- **⚠ WHEN TWO PATHS CAN PRODUCE THE SAME RESULT, VERIFYING THE OUTCOME DOES NOT ESTABLISH WHICH PATH
+  PRODUCED IT.** The arc's best output, above its nine fixes. `data-nav-tone="dark"` fires site-wide
+  on nocturne at 0-2-0, so every nav measurement showed the dark repair working — **through the tone
+  path, while the ground path beneath it was inert.** Five values shipped shadowed AND verified,
+  because the verification measured the outcome and the outcome had two suppliers.
+
+  **A working high-specificity path over a broken low one is invisible from every page the high path
+  covers.** The check that distinguishes them is cheap once named: disable or avoid the masking path
+  and measure again, or verify on an element only the suspect path serves. **Same family as the
+  evidence-produced-by-its-own-subject rule — here the evidence was produced by a SIBLING mechanism**,
+  which nothing in the reasoning modelled.
+
+- **⚠ FIVE DARK VALUES WERE DECLARED, SHADOWED BY A LATER `:root` AT EQUAL SPECIFICITY, AND VERIFIED
+  BY A CHECK THAT PROVED THE WRONG QUANTITY.** `[data-ground="dark"]` at 0-1-0 tied every `:root`
+  block, and one `:root` sits 400 lines below it — so `--glass-shadow`, `--glass-shadow-hi`,
+  `--vessel-edge`, `--vessel-lit-edge` and `--hero-tab-lit-edge` all lost on source order.
+  **A bundle grep then "verified" them: it proved both values PRESENT, and the property in question
+  was which one RESOLVES.** Presence and resolution are different quantities and only one is the
+  appearance. The commit that claimed "applied and verified by value" shipped two inert values, and
+  this entry is that correction — declared and shadowed, not applied.
+
+  **THE FIX IS SPECIFICITY, NOT ORDER: `:root[data-ground="dark"]` at 0-2-0** beats every plain
+  `:root` wherever either sits, so the next inserted block cannot re-break it. `ground-block` is the
+  gate, mutation-tested on the selector reverting and on either half of a pair vanishing.
+
+  **⚠ AND THE MASK THAT HID IT: THE NAV-TONE PATH WORKED THE WHOLE TIME.** On nocturne,
+  `data-nav-tone="dark"` fires site-wide (measured on home AND blog), and that selector is 0-2-0 —
+  so every nav measurement showed the repair working while the ground-block path underneath was
+  inert. **A working high-specificity path over a broken low-specificity one is invisible from every
+  page the high path covers.** Verify by resolved value on an element the SPECIFIC block serves,
+  not on one that several blocks serve.
+
+- **⚠ THE WHITE-ALPHA PARTITION, AS MEASURED — MOST ARE FINE, WHICH WAS THE PREDICTION.** Of the 33
+  sites: **paired and working** — the eight inside the four `--glass-shadow*` tokens, the two
+  strokes, the four in the nav-tone block (they ARE the dark answers), the sheen (measured 3.12
+  cream / 1.88 nocturne through its nav-tone override), `--hero-facts-line`, and the six vessel and
+  hero-tab pairs from this arc. **Ground-independent by argument** — `.nav-cta`'s four whites sit on
+  the ACCENT fill, which stays mid-tone on every palette. **State-gated, unmeasured** — `.nav-ind`
+  (has a nav-tone override), the hover glint, the sheet hover wash. **Unresolved** — `.blog-capsule`'s
+  85% inset measured ~0 on BOTH grounds at my sample row, which on the y+1 lesson means THE ROW IS
+  NOT ESTABLISHED, not that the layer is dead; and the two markup sites (ContactSection,
+  SwatchTokens) are unexamined. **Nothing is condemned; the unresolved four are the open remainder.**
+
+- **⚠ TWO FIGURES ABOUT DIFFERENT SUBJECTS, MISTAKEN FOR ONE — THE TWENTIETH INSTANCE, IN A NEW
+  COSTUME.** A line-regex sweep counted **33** `--color-white` sites. A real parser then counted **33**
+  — 31 alpha sites across 25 parsed declarations, plus 2 in markup. **They are not the same 33.** One
+  counts LINES MATCHING A PATTERN, the other counts ALPHA SITES IN DECLARATIONS, and a multi-line
+  `box-shadow` carrying two alphas is one line and two sites.
+
+  **AGREEMENT BETWEEN UNITS IS NOT AGREEMENT.** Every earlier instance here was a figure attached to the
+  wrong subject; this one is two correct figures about different subjects landing on the same number.
+  **It would have read as confirmation to anyone who had not changed the unit deliberately** — and the
+  parser was written to fix an unrelated problem, so the coincidence was found by accident.
+
+  Same family as the boundary count built three times in three units, and the practical form is
+  unchanged: **ask what unit each side counts in before believing either**, including when they agree.
+
+- **⚠ A FIXED `--color-white` AT A FIXED ALPHA IS THE DEFECT, AND `box-shadow` WAS ONLY WHERE IT WAS
+  LOOKED FOR.** Scoped to shadows the census found 6 members. Widened to every property it is **31 alpha
+  sites in `globals.css` plus 2 in markup** — and **`background` is the largest bucket at 11, entirely
+  unexamined**, while the arc spent itself on 13 shadow sites.
+
+  **⚠ THE FILE-TYPE BOUNDARY AND THE PROPERTY BOUNDARY ARE ONE DEFECT.** A `.css`-bounded sweep missed a
+  JSX inline style; a `box-shadow`-bounded sweep missed a border and eleven backgrounds. **Both are a
+  denominator computed inside a walk that cannot see the walk's own edge**, and this population sits
+  across both at once.
+
+  **⚠ AND THE PARTITION IS THE DELIVERABLE, NOT THE COUNT — MOST OF THE 31 ARE PROBABLY FINE.**
+  `--glass-stroke` at 72% needs `--glass-stroke-dark` at 15%; a 4% sheen may be genuinely
+  ground-independent the way `etch`'s alphas measured. **A census that condemns all 33 is as wrong as one
+  that found 6**, and only the inert test on BOTH grounds, per consumer, separates them.
+
+  **⚠ AND `--glass-stroke-dark` IS THE PRECEDENT THE VESSEL'S BORDER LACKS.** The nav's stroke carries a
+  dark answer three hundred lines from a vessel border that carries one value for both grounds — which
+  is evidence the border is an OMISSION rather than a decision.
+
+- **⚠ A DERIVATION CAN BE CORRECT AND AIMED AT A LAYER THAT CANNOT PRODUCE THE APPEARANCE.** The nav's
+  dark top inset was derived twice — 13% shipped, 22% from a differencer that isolates the layer — and
+  **rendered side by side against cream, a 1.7x alpha difference produced no perceptual change.** Both
+  dark variants trace the whole pill equally; **cream carries a top highlight AND a bottom shadow, and
+  the ASYMMETRY is the appearance.**
+
+  **13% STANDS AS SHIPPED, RECORDED AS UNDER-POWERED RATHER THAN UNDER-WEIGHT.** The ground affords
+  1.61 of darkening against cream's 27.51, so the drop cannot ground the pill on dark, and **a rim with
+  no shadow under it reads as a stroke at any alpha.** No top-inset weight fixes that.
+
+  **⚠ THE NO-CHANGE RESULT IS THE EVIDENCE, AND IT IS THE KIND MOST EASILY DISCARDED.** Two honest
+  derivations disagreeing by 1.7x invites picking one; **the render says the axis is wrong.** Before
+  refining a value, check that the layer it belongs to can express the difference being chased — the
+  measure-versus-look split arriving in the LEVER rather than in the instrument.
+
+- **⚠ A ZERO FROM A SEARCH IS ONLY EVIDENCE IF THE SEARCH COULD HAVE FOUND SOMETHING — AND THIS ONE HAD
+  A DESTRUCTIVE EDIT WAITING ON IT.** A confirmation grep reported `0 var() reads` for four tokens
+  about to be deleted. **The shell had failed on an unquoted glob**, so the zero was the instrument, not
+  the code. Every earlier instance of this shape cost a wrong number; this one would have removed live
+  declarations.
+
+  **⚠ AND THE RE-RUN STILL MISSED ONE, FOR A DIFFERENT REASON.** `--studio-t0` has no `var()` reader and
+  IS read — `readStudioMs("--studio-t0")` through `getPropertyValue`. **Two consumption routes, and a
+  gate whose concept is "nothing reads it" had the vocabulary of only one.** Fourth subject error in a
+  single gate before it ever ran green, and `consumer-count` A3a is the row that now fails if the JS
+  route is dropped.
+
+- **⚠ THE OVERLAY SCALE WAS DECLARED AND THE COPIES WERE NEVER COLLECTED — SIX WHITE-INSET LITERALS
+  SIT OUTSIDE IT, AND FOUR HAVE DRIFTED.** `--glass-shadow` is read by five sites, all nav. The blog
+  vessel, the blog capsule, `.nav-ind`, `.nav-cta` at rest and on hover, and the home hero's tab pill
+  each carry their own.
+
+      .blog-vessel      globals.css:4133   85%   byte copy of the scale
+      .blog-capsule     globals.css:4277   85%   byte copy of the scale
+      .nav-ind          globals.css:2343   90%   drifted
+      .nav-cta          globals.css:2360   35%   drifted
+      .nav-cta hover    globals.css:2367   45%   drifted
+      hero tab pill     HeroSection.tsx:290 70%  drifted, AND A JSX INLINE STYLE
+
+  **#268 FOUND SEVEN LITERALS ACROSS SEVEN FILES WITH TWO DRIFTED AND DECLARED THE SCALE. This is six
+  across five selectors with four drifted, one arc later** — declaring a scale does not collect what
+  already exists, and nothing has ever asserted that it did.
+
+  **⚠ AND THE HERO TAB'S DROP IS A DIFFERENT DEFECT WEARING THE SAME CLOTHES:**
+  `0 3px 12px oklch(30% 0.018 60 / 0.12)` — a raw OKLCH at **hue 60, cream's warm hue**, themeing on
+  none of the nine palettes. **That is a themeing repair and must not ride inside a shadow-weight
+  change**, which would ship two unrelated fixes under one justification.
+
+- **⚠ THE FILE-TYPE BOUNDARY'S THIRD INSTANCE, AND THE FIRST WHERE A PERSON SUPPLIED WHAT THE
+  INSTRUMENT COULD NOT REACH.** A `.css`-bounded sweep finds **five of the six** literals above. The
+  sixth is a JSX inline style, and it was found **because the owner named the element**, not because
+  the sweep arrived at it.
+
+  **HAD ONLY THE VESSEL BEEN NAMED, THE REPORT WOULD HAVE BEEN FIVE — COMPLETE-LOOKING, DENOMINATED,
+  AND SHORT BY THE INTERESTING ONE.** The two earlier instances were a `.tsx`-only walk missing 81
+  rung references in `globals.css` and a sweep whose subject was bounded by directory. **This one is
+  the mirror: bounded by stylesheet, missing the markup.** A denominator computed inside a walk cannot
+  see the walk's own boundary, in either direction.
+
+- **⚠ `/work/<slug>` RENDERS THE 404 PAGE RATHER THAN FAILING, SO A CAPTURE FROM A WRONG ROUTE LOOKS
+  LIKE A REAL PAGE.** The case-study route is **`/projects/<slug>`**. A screenshot taken at `/work/…`
+  returns 200 with a fully designed, correctly themed page, and **a hero capture from it would have
+  been captioned as a hero.**
+
+  Same family as the stalled full-page capture and the `nextjs-portal` badge — **an instrument
+  condition mistaken for a site condition, in the medium nobody thought to apply the rule to.** The
+  distinguishing check is cheap and was what caught it: **assert the page title, or assert the subject
+  element was found**, rather than trusting the status code.
+
+- **⚠ THE GLASS PANE CONTRIBUTES ALMOST NO SEPARATION ON ANY PALETTE — +0.37 TO +0.45 ON ALL FIVE,
+  INCLUDING CREAM.** The nav pill's fill is a wash whose lightness sits within half a unit of the page
+  behind it everywhere, so **the pill has always been defined by its EDGES rather than by its body**,
+  on light as much as on dark. Nobody had measured it in either direction.
+
+  **⚠ AND THAT REFRAMES THE DARK REPAIR FROM RESTORING A SHADOW TO DECIDING WHAT THE EDGE IS.** On
+  cream the edge is overwhelmingly the drop, at 27.51 against the top inset's 3.37. On a near-black
+  ground **the drop cannot exist**: the page sits at relative luminance 1.61, so the deepest darkening
+  any pigment can produce is 1.61 — a **17x ceiling set by the ground, not by the choice of colour.**
+
+  **⚠ SO `rule` WAS THE RIGHT PRECEDENT TO CHECK AND ITS REASONING DOES NOT TRANSFER.** It is the
+  mid-tone built because an extreme must invert and a mid-tone must not, and it holds OKLCH 48.5% on
+  every palette — **correct for a hairline, which must READ on both grounds.** A shadow must be DARKER
+  than its backdrop, and 48.5% is lighter than a near-black page, so `rule` would glow exactly as
+  `etch` does. **A mid-tone solves "must remain visible"; it cannot solve "must remain below".**
+
+  The resolution is this file's own glass rule arriving in the nav: **pale glass shows its thickness
+  as shadow, dark glass shows it as transmitted light.** The edge moves to the lit inset, derived at
+  13% against the dark pane rather than inherited at 85%.
+
+- **⚠ 1.23 AND 1.37 SHIPPED WITH THE DARK PRESETS AND NO GATE SAW THEM, BECAUSE BOTH VALUES ARE
+  CORRECT ON LIGHT.** The blog body painted `ink-800` and the hero rating chip's label inherited
+  `ink-950` — raw rungs that do not remap — so **every article and every case-study hero carried
+  invisible text on all four dark palettes.** They were found by a person reading one article.
+
+  **⚠ THE TELL WAS INSIDE ONE ELEMENT.** The chip's figure takes `accent-text`, a role, and stayed
+  legible; the label beside it set no colour at all and inherited a rung. **One element, two
+  foregrounds, one following the ground and one not** — which is the whole defect class visible in a
+  single screenshot.
+
+  Repaired to `text-body` and `text-secondary`, chosen by JOB and not by distance: 9.75 to 9.79 and
+  7.09 to 7.15 on dark. **The light side moves and that was accepted rather than dodged** — pointing
+  body copy at `text-lead` would have been byte-identical and would have made the vocabulary wrong
+  forever, which is the trade this project has spent twelve sessions removing.
+
+- **⚠ THE GROUND IS PER CLASS — THIRD INSTANCE, AND IT PRODUCED FALSE FAILURES THIS TIME.** Measuring
+  the new dark foregrounds against `canvas` gave **1.55 with failure marks**. `canvas` IS the page
+  ground on a light palette and is NOT on a dark one, where `band-dark` is, so the comparison was
+  against a token the dark page never paints. The true figures are 9.75 to 9.79.
+
+  The first instance cost a token split, the second a ruling. **This one nearly cost a correct repair
+  being reported as broken.**
+
+- **⚠ RULE 25's EIGHTH INSTANCE, AND THE FIRST WHERE THE FALSE READING AGREED WITH THE TRUE ONE.** A
+  resolver checking whether a role equals the rung it replaced looked **inside palette blocks only** —
+  and roles are declared once in `@theme` while rungs are re-declared per palette, so **every role
+  returned null and null read as MOVES on all five rows.**
+
+  **It was right about four of the five.** Every earlier instance produced a reading that was wrong
+  throughout; this one coincided with the truth almost everywhere, which is exactly what made it
+  credible. **A false instrument that mostly agrees is harder to catch than one that is plainly
+  broken.**
 
 - **⚠ AN ITEM NOBODY CAN LOCATE IS NOT AN ITEM, AND CLOSING IT AS UNDEFINED IS A DIFFERENT ACT FROM
   CLOSING IT AS DONE.** "Beats 7 to 9 of the case-study page" sat on the board for months. The term

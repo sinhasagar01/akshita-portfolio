@@ -140,7 +140,7 @@ t("C: the article does NOT keep its own copy of the spacer", /mt-\[44px\]/.test(
 // THE HERO SURVIVES AN EMPTY POST. The column is hoisted above the blocks.length check, so a
 // post with a hero and no blocks — the state every new post passes through — still shows it.
 {
-  const col = canvas.indexOf('className="mx-auto max-w-[68ch] px-6 blog-article"');
+  const col = canvas.indexOf('className="mx-auto max-w-[var(--blog-measure)] px-6 blog-article"');
   const heroAt = canvas.indexOf("<BlogHero");
   const emptyAt = canvas.indexOf("blocks.length === 0");
   t("C: the canvas column opens BEFORE the empty-post branch", col !== -1 && col < emptyAt, true);
@@ -148,7 +148,7 @@ t("C: the article does NOT keep its own copy of the spacer", /mt-\[44px\]/.test(
 }
 // ONE column, not one per branch. Two copies of the string A1 pins is how the measure drifts.
 t("C: the canvas declares the 68ch column exactly ONCE",
-  canvas.split('className="mx-auto max-w-[68ch] px-6 blog-article"').length - 1, 1);
+  canvas.split('className="mx-auto max-w-[var(--blog-measure)] px-6 blog-article"').length - 1, 1);
 
 /* ============================================================ D. THE PARITY HARNESS SEES IT
  * A harness that cannot see the thing a PR adds is worse than no harness, because a pass

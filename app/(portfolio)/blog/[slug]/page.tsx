@@ -65,7 +65,7 @@ export default async function BlogPostPage({ params }: Props) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto max-w-[68ch] px-6 pb-[100px] pt-[var(--hero-nav-runway)] outline-none"
+        className="mx-auto max-w-[var(--blog-measure)] px-6 pb-[100px] pt-[var(--hero-nav-runway)] outline-none"
       >
         <div className="pt-[34px]">
           <Link

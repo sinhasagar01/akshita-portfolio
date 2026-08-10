@@ -3,7 +3,9 @@
 //
 // ---------------------------------------------------------------- WHY A LITERAL STYLE OBJECT
 // The canvas draws the hero with a plain <img> where the article uses next/image with `fill`.
-// Measured on the production bundle, that substitution is EXACT — figure 697.9297 x 392.5781,
+// Measured on the production bundle, that substitution is EXACT — every delta zero. The figures
+// below are the DM Sans state (#304 moved the measure to 676.74 and both surfaces moved together,
+// so the EXACTNESS is the claim and the absolute numbers are dated): figure 697.9297 x 392.5781,
 // img 695.9297 x 390.5781, gap to the first paragraph 44, every delta zero at four decimal
 // places — but ONLY when the plain <img> carries the same inline style next/image emits.
 //

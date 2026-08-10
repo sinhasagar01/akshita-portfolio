@@ -286,8 +286,18 @@ export default function HeroSection({
                           backdropFilter: "blur(9px) saturate(1.3)",
                           WebkitBackdropFilter: "blur(9px) saturate(1.3)",
                           border: "1px solid color-mix(in oklch, var(--color-accent) 30%, transparent)",
-                          boxShadow:
-                            "0 3px 12px oklch(30% 0.018 60 / 0.12), inset 0 1px 0 color-mix(in srgb, var(--color-white) 70%, transparent)",
+                          /* ⚠ THE VALUE HAS TO LEAVE THE COMPONENT BEFORE IT CAN THEME. JSX cannot
+                             respond to `[data-ground="dark"]`, so an inline shadow is unthemeable
+                             by construction however it is written — the token is what makes a dark
+                             answer possible at all. This move is MECHANICAL: the declaration in
+                             globals.css is the identical string, so every palette is byte-identical
+                             and the alpha change is a separate commit.
+
+                             ⚠ AND THE DROP INSIDE IT IS A SEPARATE, UNSCOPED DEFECT, CARRIED ACROSS
+                             UNCHANGED ON PURPOSE. `oklch(30% 0.018 60 / 0.12)` is a raw literal at
+                             cream's warm hue that themes on none of the nine palettes. Fixing it
+                             here would ship a themeing repair inside a plumbing change. */
+                          boxShadow: "var(--hero-tab-shadow)",
                         }}
                         transition={pillTransition}
                       />
