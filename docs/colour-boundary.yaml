@@ -478,3 +478,25 @@ entries:
       fifth route no static analysis of the page reaches. Recategorised from signature in #365; the
       prose already argued adjacency and the label never did.
 
+
+  - id: hero-contract-palette
+    kind: judgement
+    category: forced-literal
+    where: app/globals.css (.hero-ground--split and the hero region beneath it)
+    count: 18
+    selectors: [".hero-ground--split", ".hero-grain", ".hero-art:after"]
+    reason: >
+      The ash-contract hero, reproduced verbatim from docs/hero-ash-contract.html by the owner's
+      ruling. The first build of this layout mapped the contract onto the role vocabulary and the
+      ruling that came back was exact fidelity, same typography, same weights, same colours, same
+      content, with the content to be rewritten later. Sixteen of these are the contract's cream
+      palette declared once as local hx-prefixed properties on the split modifier; the grain's
+      mid grey and the sheen's white are the contract's own compositing values; the cursor piece's
+      drop shadow is its stated black. None of them is a role read because matching a role is what
+      was reversed.
+    test: >
+      WHAT MAKES THE TOKEN FORM IMPOSSIBLE HERE: the specification is the contract's drawn values,
+      and no rung or role in the vocabulary holds them — the nearest token was tried first and the
+      render was refused for not matching the drawing. The mechanism ends when the owner runs the
+      theming pass that maps this hero onto the role layer; at that point the hx block shrinks to
+      role reads and this row is deleted with it.

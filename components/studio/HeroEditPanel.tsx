@@ -243,24 +243,22 @@ export default function HeroEditPanel({
                 // BOTH class strings and asserts the shared axes are equal.
                 //
                 // The contract's `.seg` specifies sentence case, 12.5px and weight 600. The public
-                // hero (`HeroSection.tsx`) renders these same author-edited labels UPPERCASE at
-                // 12px / 500, so all three would have moved this control AWAY from the thing it
-                // exists to mirror. The contract is not wrong about the current state, and not
-                // wrong about the design — it is wrong about WHAT THIS ELEMENT IS FOR.
+                // hero (`HeroSection.tsx`) renders these same author-edited labels UPPERCASE, so
+                // all three would have moved this control AWAY from the thing it exists to mirror.
+                // The contract is not wrong about the current state, and not wrong about the
+                // design — it is wrong about WHAT THIS ELEMENT IS FOR.
                 //
-                // So the three values that moved were taken off the public render:
-                //   weight    400 rest -> 500 for BOTH, because the hero is 500 throughout and
-                //             carries selection by colour, not by weight
-                //   tracking  0.06em (`tracking-wide`) -> 0.10em, spelled the same way the hero
-                //             spells it so a grep finds both
-                //   padding   6px 12px -> 10px 16px, the hero's exact padding
+                // The six shared axes track the public hero VERBATIM — Part J compares the two
+                // class strings, so when the hero's type moves this follows in the same commit.
+                // The ash-contract pass moved them to 10px, 0.15em tracking, weight 400 and
+                // 9px by 15px padding, and this line moved with it.
                 //
                 // HEIGHT LANDS AT 40, NOT THE HERO'S 38, AND THAT IS THE UNDERLINE. Both compute
                 // an 18px line box; the hero pill has no border, this has `border-b-2`. Forcing 38
                 // would need a 9px padding that appears in neither reference, so the padding is
                 // matched and the 2px difference is the selection language doing its job.
                 className={[
-                  "-mb-px border-b-2 px-4 py-2.5 text-[12px] font-medium uppercase tracking-[0.10em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500",
+                  "-mb-px border-b-2 px-[15px] py-[9px] text-[10px] font-normal uppercase tracking-[0.15em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-studio-accent-500",
                   i === activeTab
                     ? "border-studio-accent-500 text-studio-ink-950"
                     : "border-transparent text-studio-ink-600 hover:text-studio-ink-950",

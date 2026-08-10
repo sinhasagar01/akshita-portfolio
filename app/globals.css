@@ -2079,56 +2079,471 @@ a {
    whose constraints only their own suite knows, so the end of the file is not a safe default and
    neither is anywhere-before-a-marker. Rules live beside the thing they style. */
 /* ============================================================================================
-   THE HERO LAYOUT — copy left, artwork bleeding right.
+   THE HERO LAYOUT — copy left, artwork bleeding right. Reference: docs/hero-ash-contract.html.
 
-   ⚠ THE REFLOW THRESHOLD IS DERIVED FROM THE SITE BREAKPOINT, NOT TYPED. The contract reflows at
-   900 on a container query. Kept as a container query, because the hero is its own container and a
-   viewport query would measure the wrong box — but 900 would fire at roughly 980 of viewport, while
-   THE WHOLE SITE GOES MOBILE AT 1024 (max-width 1023 / min-width 1024 in this file). That is a
-   44px window where the page is mobile in two stages, which this project forbids.
+   ⚠ THIS REGION REPRODUCES THE CONTRACT VERBATIM — VALUES, FACES AND PALETTE — BY THE OWNER'S
+   RULING, AND THE TOKEN MAPPING IT REPLACES WAS BUILT FIRST AND REVERSED. The first pass translated
+   the contract onto the site's role vocabulary and the ruling that came back was exact fidelity:
+   same typography, same weights, same colours, same content. So every colour below is the
+   contract's own cream value, declared once on the split modifier as a local custom property, and
+   every consumer reads those. The literals are claimed in docs/colour-boundary.yaml under
+   `hero-contract-palette`, and the row's end condition is the theming pass that maps this hero
+   onto the role layer — at which point this block shrinks to role reads and the row ends.
 
-   Derived: the ground's inline padding is clamp(1.5rem, 4vw, 3.5rem). At 1024 the middle term wins
-   at 40.96 a side, so the container measures 1024 - 81.92 = 942.08. THE LITERAL BELOW IS PINNED AND
-   ASSERTED EQUAL TO THAT DERIVATION, because a container query cannot take a calc — a coupling that
-   cannot be removed is a coupling that gets asserted.
+   ⚠ THE PANEL BLEEDS, SO THE GROUND'S OWN PADDING HAD TO GO AND THE COPY HAD TO TAKE IT. An
+   absolutely positioned child resolves `inset: 0` against its containing block's PADDING box, not
+   its border box — so while `.hero-ground` carried `padding-inline`, a panel at `right: 0` stopped
+   one gutter short of the viewport edge and no value of `right` fixed it without hardcoding the
+   gutter twice. Measured before the change, 291px of ground visible to the right of the panel and
+   271px below it, on a hero whose whole point is that the artwork reaches the edge.
+
+   `--split` is a MODIFIER rather than an edit to `.hero-ground`, because the case-study heroes
+   (`.hero-ground--peek`, SectionRenderer) share the base class and DO want the gutter.
    ============================================================================================ */
-.hero-shell { position: relative; display: grid; grid-template-columns: 51% 49%; min-height: 0; }
+.hero-ground--split {
+  padding: 0;
+  background-color: var(--hx-pg);
+  color: var(--hx-ink);
+  font-family: var(--font-hero-sans), system-ui, sans-serif;
 
-/* ⚠ THE ARTWORK PANEL CLIPS. The figure is height-driven and overflows its width by design. */
-.hero-art { position: relative; overflow: hidden; min-height: 0; }
+  /* ---- the contract's cream palette, verbatim. One declaration site, every consumer below. ---
+     hx is a deliberately unfamiliar prefix so nothing reads as a role — these are NOT the theme's
+     vocabulary and must not be reached for outside this region. */
+  --hx-pg: #FAF6EF;
+  --hx-surface: #FFFFFF;
+  --hx-accent: #B5442A;
+  --hx-accent-2: #8F331F;
+  --hx-accent-3: #D98B62;
+  --hx-ink: #191210;
+  --hx-muted: #6B6157;
+  --hx-faint: #9A9086;
+  --hx-rule: rgba(25, 18, 16, 0.14);
+  --hx-hair: rgba(25, 18, 16, 0.07);
+  --hx-cta-fg: #FFFFFF;
+  --hx-duo-hi: #FBEEE4;
+  --hx-field: #F1E5DA;
+  --hx-grid: rgba(25, 18, 16, 0.045);
+  --hx-card-stroke: rgba(255, 255, 255, 0.72);
+  --hx-card-shadow: rgba(20, 16, 14, 0.28);
+  --hx-cursor-shadow: rgba(0, 0, 0, 0.3);
+
+  /* ⚠ THE PILL'S SHADOW STAYS A TOKEN READ AND THE CONTRACT'S VALUE ARRIVES BY OVERRIDE.
+     `vessel-alias` C1 asserts the JSX reads the token so a selector can give it a dark answer,
+     and C2 refuses an inline literal. This scoped override is the one form that satisfies both
+     while drawing the contract's pill exactly. */
+  --hero-tab-shadow: 0 8px 20px -10px color-mix(in srgb, var(--hx-accent) 85%, transparent);
+}
+
+/* ⚠ THE SHELL IS THE POSITIONED BOX AND EVERYTHING ELSE IS ABSOLUTE INSIDE IT. It cannot itself be
+   absolute — `.hero-ground > :not(.cursor-glow)` sets `position: relative` at 0-2-0 and wins. So it
+   grows to fill the ground instead, which is what gives `.hero-art`'s `bottom: 0` a real height to
+   resolve against — the panel owns its height rather than being sized by the copy beside it. */
+.hero-shell {
+  position: relative;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  min-height: 100svh;
+}
+
+/* --- the backdrop, hero-wide and BENEATH the panel (z 0 and 1 against the panel's 2) ---------- */
+.hero-field {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--hx-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hx-grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+/* ⚠ THE GRAIN IS AT z-1, UNDER THE PANEL, AND THAT IS THE WHOLE REASON IT MAY CARRY A BLEND. It is
+   a sibling of the artwork, never a treatment on it — `hero-illustration` C1 forbids exactly these
+   properties on `.hero-figure` and `.hero-figure img`, and this rule reaches neither. Putting the
+   grain above the panel would satisfy that gate and still be the defect it exists to prevent. */
+.hero-grain {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+  background: #808080;
+  filter: url(#hero-grain);
+}
+
+/* ⚠ THE ARTWORK PANEL CLIPS, AND IT OWNS ITS HEIGHT. `top/right/bottom` at 0 with `left` at 47% is
+   the contract's geometry exactly. The figure is height-driven and overflows its width by design,
+   so `overflow: hidden` is the crop rather than a safety net.
+
+   NO `container-type` HERE, DELIBERATELY. The card widths are `9cqw`, and the contract measures
+   those against the HERO, not the panel. Making the panel a container would silently rescale the
+   cards to 9% of a box roughly half the width. */
+.hero-art {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 47%;
+  z-index: 2; overflow: hidden;
+  perspective: 1100px;
+  --tilt-x: 0deg; --tilt-y: 0deg;
+  --hero-x: 0px; --hero-y: 0px; --bg-x: 0px; --bg-y: 0px;
+  --p1x: 0px; --p1y: 0px; --p2x: 0px; --p2y: 0px;
+  --p3x: 0px; --p3y: 0px; --p4x: 0px; --p4y: 0px;
+}
+.hero-plate {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(120% 90% at 70% 100%,
+      color-mix(in srgb, var(--hx-accent) 10%, transparent), transparent 62%),
+    var(--hx-field);
+}
+/* the ember canvas — the assembling backdrop panels, BEHIND the figure (z 4 against her 6) */
+.hero-ember {
+  position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; pointer-events: none;
+  transform: translate(var(--bg-x), var(--bg-y));
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 /* ⚠ TWO ELEMENTS, AND THE PAIR IS THE POINT. The OUTER carries the pointer transform and the INNER
    carries the entrance. A CSS animation with a forwards fill beats a plain transform on the same
    element, so one of the two would freeze at its entrance value and never move again. Every moving
    thing here is a pair for that reason: .hero-figure over its image, .hero-piece over its pin. */
-.hero-figure { position: absolute; left: 50%; bottom: 0; height: 100%; transform: translateX(-50%); }
-.hero-figure img { display: block; height: 100%; width: auto; max-width: none; }
+.hero-figure {
+  position: absolute; left: 50%; bottom: 0; height: 100%; z-index: 6;
+  transform: translateX(-50%) translate3d(var(--hero-x), var(--hero-y), 0)
+             rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-figure img {
+  display: block; height: 100%; width: auto; max-width: none;
+  transform: scale(1.012); transform-origin: 50% 100%;
+}
 
-/* ⚠ POSITIONED AGAINST THE PANEL'S EDGES, NEVER AGAINST FEATURES OF THE ARTWORK. The raster is
-   cropped and height-driven, so a percentage keyed to a drawn shape drifts out of register the
-   moment the panel's aspect changes — which is what made the source mockup need a media query
-   nudging cards around. These are insets from the empty edge. */
-.hero-piece { position: absolute; }
+/* ⚠ THE VEIL AND THE SEAM DRAW OVER THE FIGURE AND ARE NOT APPLIED TO IT. The distinction is the
+   one C1 encodes: an overlay composites beside the artwork in the panel's own stack, where a
+   filter, mask, blend or opacity would change what the artwork's pixels ARE. The veil exists to
+   stop the panel's left edge being a hard vertical cut beside the copy column; the seam is the one
+   line the eye reads as the join. */
+.hero-veil {
+  position: absolute; inset: 0; z-index: 7; pointer-events: none;
+  background: linear-gradient(92deg,
+    var(--hx-pg) 0%,
+    color-mix(in srgb, var(--hx-pg) 72%, transparent) 6%,
+    transparent 17%);
+}
+.hero-seam {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 1px; z-index: 8; pointer-events: none;
+  background: linear-gradient(180deg, transparent,
+    color-mix(in srgb, var(--hx-accent) 42%, transparent) 40%, transparent);
+}
+.hero-fig-label {
+  position: absolute; right: 24px; bottom: 20px; z-index: 9;
+  font-family: var(--font-hero-mono), monospace; font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--hx-faint);
+}
+
+/* ⚠ POSITIONED AGAINST THE ARTWORK'S ALPHA, NOT THE FIGURE'S BOX — the cutout is 77.5% opaque and
+   its bounding box is the FULL frame, so a box test reports every piece overlapping at every
+   viewport. What is actually transparent is a wedge in the upper left plus a strip along the lower
+   left, and the positions in the component were measured against it in the render, at 16:10, 16:9
+   and 8:5. A percentage keyed to a drawn shape drifts out of register the moment the panel's
+   aspect changes, which is what made the source mockup need a media query nudging cards around. */
+.hero-piece {
+  position: absolute; z-index: 8; pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-piece--blue   { transform: translate(var(--p1x), var(--p1y)); }
+.hero-piece--lime   { transform: translate(var(--p2x), var(--p2y)); }
+.hero-piece--cursor { transform: translate(var(--p3x), var(--p3y)); transition-duration: 0.32s; }
+.hero-piece--spark  { transform: translate(var(--p4x), var(--p4y)); transition-duration: 0.38s; }
 .hero-pin { display: block; }
 
-/* The two piece cards. Fill and foreground are the ROLES, so both follow the ground together —
-   a fill that remaps under a foreground that does not is the mix this arc spent itself on. */
+/* The two piece cards — the contract's `.pcard` verbatim, glass stroke and drop included. */
 .hero-card .hero-pin {
-  display: flex; flex-direction: column; gap: 6px;
+  display: block;
   padding: clamp(8px, 1cqw, 14px);
+  border: 1px solid var(--hx-card-stroke);
   border-radius: 12px;
-  background: var(--color-accent);
-  color: var(--color-on-accent);
+  box-shadow: 0 18px 44px var(--hx-card-shadow);
+  backdrop-filter: blur(12px);
   width: clamp(78px, 9cqw, 132px);
 }
-.hero-card.is-sm .hero-pin { width: clamp(58px, 6cqw, 96px); }
-.hero-card-dot  { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.hero-card-line { height: 4px; border-radius: 2px; background: currentColor; opacity: 0.9; }
-.hero-card-line.is-short { width: 60%; }
+.hero-piece--blue .hero-pin { color: var(--hx-cta-fg); background: color-mix(in srgb, var(--hx-accent) 90%, transparent); }
+.hero-piece--lime .hero-pin { color: var(--hx-cta-fg); background: color-mix(in srgb, var(--hx-accent-2) 92%, transparent); }
+/* ⚠ THE LIME CARD IS NARROWER THAN THE CONTRACT'S, AND THE POCKET IS WHY. The contract's figure
+   nearly fits its panel, so both cards share one width. This panel crops the figure by 153px at
+   16:10, and the lower-left clearing that remains holds 70 to 103px of clear width — measured
+   from the alpha, not judged. A full-width card overlaps her sleeve at every position; at 72px
+   and below it clears completely on all four tested ratios. */
+.hero-card.is-sm .hero-pin { width: clamp(52px, 5cqw, 72px); }
+.hero-card-dot  { display: block; width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.hero-card-line { display: block; height: 5px; margin-top: 9px; border-radius: 6px; background: currentColor; opacity: 0.84; }
+.hero-card-line.is-short { width: 60%; opacity: 0.46; }
+.hero-card-ports { display: flex; gap: 5px; margin-top: 10px; }
+.hero-card-ports i { display: block; width: 18px; height: 13px; border-radius: 5px; background: currentColor; opacity: 0.34; }
+.hero-piece--cursor .hero-pin { color: var(--hx-ink); filter: drop-shadow(0 7px 8px var(--hx-cursor-shadow)); }
+.hero-piece--spark  .hero-pin { color: var(--hx-accent-2); }
 
-@container (max-width: 942px) {
-  .hero-shell { grid-template-columns: 1fr; }
-  .hero-art { order: -1; aspect-ratio: 1 / 1; }
+/* --- the copy column — the contract's grid, rows auto auto 1fr auto ---------------------------- */
+.hero-copy {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 51%; z-index: 12;
+  padding: 112px 0 32px 62px;
+  display: grid; grid-template-rows: auto auto 1fr auto;
+}
+.hero-eyebrow {
+  margin: 0; display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-hero-mono), monospace;
+  font-size: 9.5px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--hx-accent-2);
+}
+.hero-eyebrow::after {
+  content: ""; flex: 1; height: 1px; max-width: 90px;
+  background: var(--hx-hair);
+}
+/* ⚠ THE NAME IS INK AND ONLY THE `<em>` IS ACCENT. The family and weight sit on a CLASS because
+   the unlayered `h1` rule sets both and beats a utility at any specificity — the same hazard that
+   made a `font-script` class on this element draw nothing for months. */
+.hero-name {
+  font-family: var(--font-hero-display), Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(36px, 4.3vw, 66px);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  color: var(--hx-ink);
+  margin: 16px 0 0;
+}
+.hero-name em { font-style: italic; color: var(--hx-accent-2); }
+
+/* ONE pill group at every width. The mobile treatment is this same group scrolling horizontally,
+   not a second control — two tablists carrying one aria-label is what made a gate anchor on the
+   wrong one, and a dot row states the position without ever naming the tab. */
+.hero-tabs {
+  position: relative; display: flex; gap: 2px; flex-wrap: wrap;
+  margin: 26px 0 0; width: max-content; max-width: 100%;
+  border: 1px solid var(--hx-rule); border-radius: 999px; padding: 3px;
+  background: color-mix(in srgb, var(--hx-surface) 30%, transparent);
+}
+.hero-body { display: flex; flex-direction: column; justify-content: center; padding-right: 40px; }
+.hero-line {
+  font-family: var(--font-hero-display), Georgia, serif; font-weight: 300;
+  font-size: clamp(23px, 2.7vw, 38px); line-height: 1.14; letter-spacing: -0.026em;
+  margin: 0; max-width: 17ch;
+  color: var(--hx-ink);
+}
+.hero-line em { font-style: italic; color: var(--hx-accent-2); }
+.hero-support {
+  font-size: 14.5px; line-height: 1.65; color: var(--hx-muted);
+  margin: 18px 0 0; max-width: 37ch;
+}
+/* chips are the contract's MOBILE rendering of the callouts — desktop draws them as the connector
+   lines instead, so the list hides above the breakpoint rather than double-printing. */
+.hero-callouts { display: none; }
+.hero-counters {
+  display: flex; margin: 30px 0 0; flex-wrap: wrap;
+  border-top: 1px solid var(--hx-hair);
+}
+.hero-counters > div { padding: 14px 26px 0 0; margin-right: 26px; position: relative; }
+.hero-counters > div::after {
+  content: ""; position: absolute; left: 0; top: -1px; height: 1px; width: 0;
+  background: var(--hx-accent);
+  animation: hero-ul 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes hero-ul {
+  to { width: 34px; }
+}
+.hero-counters dt {
+  font-family: var(--font-hero-mono), monospace; font-weight: 500; font-size: 24px;
+  color: var(--hx-ink); font-variant-numeric: tabular-nums; letter-spacing: -0.03em;
+}
+.hero-counters dd {
+  margin: 7px 0 0;
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--hx-faint);
+}
+.hero-scroll {
+  align-self: end;
+  display: flex; align-items: center; gap: 9px;
+  font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--hx-faint);
+}
+.hero-scroll::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--hx-accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--hx-accent) 60%, transparent);
+  animation: hero-ping 2.8s ease-out infinite;
+}
+/* the end stop spells transparent AS the accent at zero strength — the idiom the old scroll-dot
+   pulse used — so both stops read the token and the keyframe census sees a themed pair */
+@keyframes hero-ping {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--hx-accent) 55%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--hx-accent) 0%, transparent); }
+}
+
+/* --- the connector lines, copy to artwork. Redrawn per tab, desktop only ---------------------- */
+.hero-lines { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+.hero-lines .hero-trace {
+  fill: none; stroke: color-mix(in srgb, var(--hx-accent) 55%, transparent); stroke-width: 0.9;
+  stroke-dasharray: var(--len, 300); stroke-dashoffset: var(--len, 300);
+  animation: hero-draw 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes hero-draw {
+  to { stroke-dashoffset: 0; }
+}
+.hero-lines .hero-spark {
+  fill: none; stroke: var(--hx-accent-2); stroke-width: 3.4; stroke-linecap: round;
+  stroke-dasharray: 0.1 var(--len, 300); stroke-dashoffset: 0; opacity: 0.9;
+  animation: hero-run 1.1s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+@keyframes hero-run {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: calc(var(--len, 300) * -1); }
+}
+.hero-lines .hero-dot  { fill: none; stroke: var(--hx-accent); stroke-width: 1.2; opacity: 0; animation: hero-pop 0.5s ease forwards; }
+.hero-lines .hero-core { fill: var(--hx-accent-2); opacity: 0; animation: hero-pop 0.5s ease forwards; }
+@keyframes hero-pop {
+  to { opacity: 1; }
+}
+.hero-lines text {
+  font-family: var(--font-hero-mono), monospace; font-size: 9px; letter-spacing: 0.18em;
+  text-transform: uppercase; fill: var(--hx-muted);
+  opacity: 0; animation: hero-pop 0.55s ease forwards;
+}
+
+/* --- the per-tab fades — support, chips and counters re-enter on every pick ------------------- */
+.hero-fade { animation: hero-fi 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes hero-fi {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- motion. Assemble on load and on every tab change; magnetic is always live underneath ------
+   The `is-running` class is what replays the entrance, and it is removed and re-added a frame
+   apart so the animations restart rather than being skipped as already finished. */
+.hero-shell.is-running .hero-figure img {
+  animation: hero-art-settle 1.05s 0.04s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes hero-art-settle {
+  to { transform: scale(1); }
+}
+.hero-pin { opacity: 0; }
+.hero-shell.is-running .hero-piece--blue   .hero-pin { animation: hero-pc-blue   0.80s 0.16s cubic-bezier(0.2, 1.35, 0.35, 1) forwards; }
+.hero-shell.is-running .hero-piece--lime   .hero-pin { animation: hero-pc-lime   0.80s 0.28s cubic-bezier(0.2, 1.35, 0.35, 1) forwards; }
+.hero-shell.is-running .hero-piece--cursor .hero-pin { animation: hero-pc-cursor 0.70s 0.42s cubic-bezier(0.2, 1.35, 0.35, 1) forwards; }
+.hero-shell.is-running .hero-piece--spark  .hero-pin { animation: hero-pc-spark  0.66s 0.50s cubic-bezier(0.2, 1.35, 0.35, 1) forwards; }
+@keyframes hero-pc-blue {
+  from { opacity: 0; transform: translate(-70px, 30px) rotate(-22deg) scale(0.72); }
+  to { opacity: 1; transform: rotate(-8deg); }
+}
+@keyframes hero-pc-lime {
+  from { opacity: 0; transform: translate(58px, -46px) rotate(24deg) scale(0.72); }
+  to { opacity: 1; transform: rotate(7deg); }
+}
+@keyframes hero-pc-cursor {
+  from { opacity: 0; transform: translate(-28px, 32px) rotate(-15deg) scale(0.3); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hero-pc-spark {
+  from { opacity: 0; transform: rotate(10deg) scale(0.15); }
+  to { opacity: 1; transform: rotate(45deg) scale(0.62); }
+}
+
+/* ⚠ THE POINTER SHEEN SITS ON THE PANEL, NOT ON THE ARTWORK, for the same reason the grain does.
+   It is a pseudo-element of `.hero-art`, so C1's two selectors are untouched. */
+.hero-art::after {
+  content: ""; position: absolute; inset: 0; z-index: 9; pointer-events: none;
+  opacity: 0; transition: opacity 0.35s ease; mix-blend-mode: soft-light;
+  background: radial-gradient(200px 200px at var(--px, 50%) var(--py, 50%),
+    rgba(255, 255, 255, 0.40), transparent 70%);
+}
+.hero-art:hover::after { opacity: 1; }
+
+/* ⚠ REDUCED MOTION IS ANSWERED IN CSS AND IN JS BOTH, and the CSS half must state the FINAL value
+   rather than merely cancelling the animation. `.hero-pin` rests at opacity 0, so suppressing its
+   animation without setting opacity would hide all four pieces outright. The JS half stops writing
+   the pointer vars and paints the ember field's final state directly, because a canvas loop is
+   invisible to any CSS reset. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-figure { transition: none; }
+  .hero-figure img { transform: none; animation: none !important; }
+  .hero-piece { transition: none; }
+  .hero-pin { opacity: 1; animation: none !important; }
+  .hero-art::after { display: none; }
+  .hero-ember { transition: none; }
+  .hero-counters > div::after { animation: none !important; width: 34px; }
+  .hero-scroll::before { animation: none; }
+  .hero-fade { animation: none; }
+  .hero-lines .hero-trace { stroke-dashoffset: 0 !important; animation: none; }
+  .hero-lines .hero-spark { display: none; }
+  .hero-lines .hero-dot, .hero-lines .hero-core, .hero-lines text { opacity: 1 !important; animation: none; }
+}
+
+/* ⚠ THE GUTTER IS A FUNCTION OF THE WINDOW'S ASPECT RATIO, AND BELOW 3/2 THERE ISN'T ONE. The
+   panel is `100svh` tall and the figure is height-driven at 1.009:1, so the crop widens as the
+   window squares up and it eats the artwork's transparent wedge from both sides. Measured, the
+   four pieces clear the artwork at 16:10 and 16:9; at 5:4 the lime card sits 78% on it and the
+   cursor 100%, and no position fixes that because the clear width at those rows is zero.
+
+   SO THE PIECES ARE HIDDEN RATHER THAN MOVED, which is the same rule and the same reason as the
+   mobile reflow below — a piece with nowhere to go lands on the artwork. ⚠ AND THAT MEANS A
+   ZERO-OVERLAP READING BELOW THIS THRESHOLD IS VACUOUS RATHER THAN CLEAN: nothing is measured
+   because nothing is drawn. An iPad in landscape is the case this deliberately gives up on, and it
+   is a touch device where the parallax does not run either. */
+@media (max-aspect-ratio: 3/2) {
+  .hero-piece { display: none; }
+}
+
+/* --- the reflow. One column, artwork first, at the site's single mobile breakpoint ------------
+   ⚠ A MEDIA QUERY, NOT A CONTAINER QUERY, AND THAT IS A CORRECTION. It was a container query while
+   the ground carried inline padding, because the container was the only box that knew the real
+   available width. With the padding gone the container is the viewport MINUS THE SCROLLBAR — so a
+   `1023` container threshold fires at a viewport of about 1038, and the hero would reflow 14px
+   before the rest of the site does. That is the two-stage mobile this project forbids, arriving
+   from the opposite direction to the one the old comment guarded against.
+
+   `container-type` STAYS on `.hero-ground`, because the `cqw` units in here are sizes rather than
+   thresholds and they want the hero's own box. Only the threshold moves to the viewport. */
+@media (max-width: 1023px) {
+  .hero-shell { min-height: 0; }
+  .hero-art {
+    position: relative; inset: auto; width: 100%; height: clamp(300px, 52cqw, 400px);
+  }
+  .hero-veil {
+    background: linear-gradient(180deg, transparent 40%,
+      color-mix(in srgb, var(--hx-pg) 70%, transparent) 82%, var(--hx-pg) 100%);
+  }
+  .hero-seam {
+    left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 1px;
+    background: linear-gradient(90deg, transparent,
+      color-mix(in srgb, var(--hx-accent) 45%, transparent), transparent);
+  }
+  .hero-fig-label { right: 16px; bottom: 14px; }
+  /* ⚠ NO EMPTY COLUMN ON A PHONE. The pieces live in the artwork's clear wedge, and the reflowed
+     panel has none — they would land on the artwork, which is the one thing they must not do. */
+  .hero-piece { display: none; }
+  .hero-lines { display: none; }
+  /* ⚠ NO NAV RUNWAY ON THE COPY HERE. The runway exists to clear the floating nav, and in one
+     column the ARTWORK is what sits under the nav — keeping it on the copy opened a 134px band of
+     empty ground between the panel and the eyebrow, measured at 375x812 before the fix. */
+  .hero-copy {
+    position: relative; inset: auto; width: 100%; display: block;
+    padding: 22px 22px 26px;
+  }
+  .hero-name { font-size: clamp(34px, 10cqw, 46px); margin-top: 12px; }
+  .hero-tabs {
+    margin-top: 20px; width: 100%; max-width: 100%;
+    overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none;
+  }
+  .hero-tabs::-webkit-scrollbar { display: none; }
+  .hero-tabs button { white-space: nowrap; flex: 0 0 auto; }
+  .hero-body { display: block; margin-top: 22px; padding-right: 0; }
+  .hero-line { font-size: clamp(22px, 6.4cqw, 28px); max-width: none; }
+  .hero-support { font-size: 14px; max-width: none; margin-top: 14px; }
+  .hero-callouts {
+    display: flex; gap: 7px; flex-wrap: wrap; margin: 20px 0 0; padding: 0; list-style: none;
+  }
+  .hero-callouts li {
+    font-family: var(--font-hero-mono), monospace; font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--hx-muted);
+    border: 1px solid var(--hx-rule); border-radius: 999px; padding: 7px 12px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .hero-callouts li::before {
+    content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--hx-accent);
+  }
+  .hero-counters { margin-top: 24px; }
+  .hero-counters > div { padding: 12px 18px 0 0; margin-right: 18px; }
+  .hero-counters dt { font-size: 20px; }
+  .hero-scroll { margin-top: 26px; }
 }
 
 /* the work section glows in the warmer tan tone */
@@ -3052,19 +3467,6 @@ a {
     opacity: 1;
     transition: none;
   }
-}
-
-/* ============================================================
-   Scroll cue dot pulse
-============================================================ */
-
-@keyframes scroll-dot-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-500) 35%, transparent); }
-  50%       { opacity: 0.5; box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-accent-500) 0%, transparent); }
-}
-
-.scroll-dot {
-  animation: scroll-dot-pulse 2.4s ease-in-out infinite;
 }
 
 /* ============================================================
@@ -4898,7 +5300,10 @@ a {
    suite compares them — a bar that empties at a different rate than the timer it depicts is a
    control reporting a state it has not persisted, one surface out. */
 .studio-chrome .studio-toast-drain { animation: studio-toast-drain 6000ms linear forwards; }
-@keyframes studio-toast-drain { from { width: 100%; } to { width: 0; } }
+@keyframes studio-toast-drain {
+  from { width: 100%; }
+  to { width: 0; }
+}
 .studio-toast:hover .studio-chrome .studio-toast-drain { animation-play-state: paused; }
 .studio-chrome .studio-toast-spin {
   width: 12px; height: 12px; border-radius: 50%;
@@ -4906,7 +5311,9 @@ a {
   border-top-color: var(--color-studio-accent-500);
   animation: studio-toast-spin 800ms linear infinite;
 }
-@keyframes studio-toast-spin { to { transform: rotate(360deg); } }
+@keyframes studio-toast-spin {
+  to { transform: rotate(360deg); }
+}
 
 /* ⚠ THE CHIP'S THREE TINTS LIVE HERE, NOT IN A TERNARY OF TAILWIND CLASSES, and `studio-border-race`
    C1 is why. A conditional className puts two border-COLOUR utilities in one class expression; they
