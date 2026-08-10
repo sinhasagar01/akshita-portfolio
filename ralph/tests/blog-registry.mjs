@@ -15,7 +15,7 @@
 // A MAPPED TYPE FAILS COMPILATION; A `Set<Kind>` JUST RETURNS FALSE — so
 // BLOG_KIND_HAS_STYLE is asserted to be total too, since a Set-shaped version of it would
 // have degraded silently to "no Style tab" instead of erroring.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "js-yaml";
@@ -46,7 +46,7 @@ import {
   imageSrc,
 } from "../../lib/studio/sections-format.ts";
 import { serializeBlogBlocks, readBlogBlocks } from "../../lib/studio/blog-serialize.ts";
-import { validateBlogPost } from "../../lib/studio/validate-blog-post.ts";
+import { validateBlogPost, hasPlaceholder } from "../../lib/studio/validate-blog-post.ts";
 // The publish gate takes the allowed topics as an argument (import-free so ralph can execute it).
 const publishGate = (slug, raw) => validateBlogPost(slug, raw, BLOG_TOPICS);
 import { entryDraftCacheKey } from "../../lib/studio/entry-draft-key.ts";
@@ -208,6 +208,11 @@ t("F2 …and each names its collection", [entryDraftCacheKey("projects"), entryD
 ============================================================================================ */
 console.log(`\nM · a draft marker cannot reach a published post`);
 const MARK = "@" + "@ GAP";
+/* ⚠ ASSEMBLED, LIKE `MARK` ABOVE AND FOR THE SAME REASON — so this file does not contain the
+ * strings it forbids, and a sweep for stray placeholders across the repo cannot flag its own
+ * test. Fifth instance here of explaining a thing requiring writing it. */
+const SHOUT_A = "EXAMPLE GOES" + " HERE";
+const SHOUT_B = "THIS SENTENCE MUST NOT" + " SHIP";
 const post = (status, extra = "") =>
   `title: A title\nstatus: ${status}\ntopic: Design systems\n${extra}blocks:\n  - discriminant: heading\n    value:\n      text: A heading\n`;
 
@@ -221,6 +226,48 @@ t("M2 ⚠ AND A DRAFT MAY CARRY ONE — strict at publish, permissive at save, o
   validateBlogPost("slug", post("draft", `dek: "${MARK} x"\n`), ["Design systems"]).ok, true);
 t("M3 …and it is caught anywhere in the document, not only in one field",
   validateBlogPost("slug", post("published").replace("A heading", `"${MARK} 2 OF 3 here"`), ["Design systems"]).ok, false);
+
+/* ⚠ THE SENTINEL IS ONE TYPO FROM GONE AND THE SHOUT IS NOT — M4 ONWARD, AND THEY ARE HERE BECAUSE
+   THE ROWS ABOVE ALL PASSED WHILE A PLACEHOLDER WAS SERVED FROM THE LIVE SITE.
+
+   M1 to M3 test the SENTINEL. A backspace at a paragraph's start merged it into the one above —
+   ordinary contentEditable behaviour — and three characters landed on the opening marker. Both
+   sentinels died in one keystroke, the English survived whole, and a post published carrying a
+   sentence that says in capitals that it must not ship.
+
+   ⚠ THE PREMISE WAS ALREADY IN THIS FILE'S OWN HEADER: "nothing here reads English", concluding
+   that the markers are therefore LOUD. Loudness protects a human reader and does nothing for a
+   gate — it made the sentinel a single point of failure that ordinary editing destroys. */
+t("M4 ⚠ A DAMAGED SENTINEL WITH THE ENGLISH INTACT IS STILL REFUSED — the exact shape that shipped",
+  validateBlogPost("slug", post("published", `dek: "kjhOF 3 \u2014 HER ${SHOUT_A}. ${SHOUT_B}."\n`), ["Design systems"]).ok, false);
+t("M4a …and the other half alone is enough, so neither phrase carries the rule by itself",
+  validateBlogPost("slug", post("published", `dek: "nothing else wrong, only ${SHOUT_A}"\n`), ["Design systems"]).ok, false);
+/* ⚠ M4a's MIRROR, AND IT EXISTS BECAUSE MUTATION FOUND ITS ABSENCE. M4's fixture carries BOTH
+   phrases, so deleting either one left it passing on the other — the list could have lost a member
+   with nothing going red. A row per phrase, each on a fixture containing only that phrase, is what
+   makes the LIST the subject rather than the pair. */
+t("M4a2 …and the second phrase alone is enough too, so no member of the list is unasserted",
+  validateBlogPost("slug", post("published", `dek: "nothing else wrong, only ${SHOUT_B}"\n`), ["Design systems"]).ok, false);
+t("M4b …and a draft may still carry it, or the placeholders become unusable at authoring time",
+  validateBlogPost("slug", post("draft", `dek: "${SHOUT_A}"\n`), ["Design systems"]).ok, true);
+t("M4c ⚠ AND ORDINARY PROSE IS NOT REFUSED — the phrases are specific, and a floor row proves the check can pass",
+  validateBlogPost("slug", post("published", 'dek: "An example of a heading that goes here in the body"\n'), ["Design systems"]).ok, true);
+
+/* ⚠ AND THE CORPUS IS THE SUBJECT, NOT A FIXTURE. Every row above proves the FUNCTION refuses a
+   placeholder. None of them looks at what is actually published — and that is the gap the live
+   post fell through, because the validator only ever runs at publish and a document already on
+   main is never re-asked. Derived by walking the collection rather than naming posts, so a fifth
+   post cannot join unexamined. */
+const blogDir = new URL("../../content/blog/", import.meta.url);
+const posts = readdirSync(blogDir).filter((f) => f.endsWith(".yaml"))
+  .map((f) => [f, readFileSync(new URL(f, blogDir), "utf8")]);
+t("M5a the corpus walk found posts, against a LITERAL rather than against itself",
+  posts.length >= 4, true);
+const shipping = posts.filter(([, raw]) => /^status:\s*published\s*$/m.test(raw));
+t("M5b …and some of them are published, or M5 passes over an empty subject",
+  shipping.length >= 3, true);
+t("M5 ⚠ NO PUBLISHED POST CARRIES A PLACEHOLDER BY EITHER HALF — the row that would have caught it",
+  shipping.filter(([f, raw]) => hasPlaceholder(raw)).map(([f]) => f), []);
 
 console.log(`\nblog-registry result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
