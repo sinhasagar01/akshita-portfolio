@@ -422,22 +422,25 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   const pub = code("components/studio/PublishBar.tsx");
   const sections = code("components/studio/SectionsEditPanel.tsx");
 
-  t("I1: the rail reports that it is occupying the corner", /useReportOccluding\(open\);/.test(sections), true);
-  t("I1: …keyed by id, so several reporters cannot overwrite one another",
-    /reportOccluding: \(id: string, occluding: boolean\) => void;/.test(prov), true);
-  /* ⚠ UNMOUNTED, NOT PAINTED OUT. A `pointer-events-auto` pill under a zero-opacity wrapper is
-   * still clickable and still in the tab order — a Publish button you cannot see but can press. */
-  /* ⚠ WIDENED TO THE CONCEPT, AND MADE STRICTER RATHER THAN LOOSER. It matched the literal
-   * `return null`, which stopped being the only correct shape when the publish TOASTER began
-   * rendering from that branch — the pill still unmounts, and a refusal must not vanish with the
-   * furniture it is unrelated to. So the row now asserts the property its own comment names: the
-   * occluding branch carries NO pill markup, and the pill is never merely painted out. */
-  const occBranch = (pub.match(/if \(anyOccluding\) \{[\s\S]*?\n  \}/) ?? pub.match(/if \(anyOccluding\) return null;/) ?? [""])[0];
-  t("I2: the occluding branch exists at all, or the two rows below pass over nothing", occBranch.length > 10, true);
-  t("I2: the pill unmounts rather than hiding — its markup is absent from the occluding branch",
-    /pointer-events-auto flex max-w-/.test(occBranch), false);
-  t("I2: …and it is never painted out instead, which would leave it clickable and in the tab order",
-    /anyOccluding[^\n]*(opacity-0|invisible|hidden)/.test(pub), false);
+  /* ⚠ REVERSED AFTER LIVE USE, AND THE REPLACEMENT IS STRONGER THAN WHAT IT REPLACES. These rows
+   * asserted the rail reported occlusion and the pill unmounted for its lifetime. That behaviour
+   * was the defect: Publish disappeared while a section was selected, with nothing saying why or
+   * how to bring it back. The rail now registers its height as a BAR — machinery that already
+   * existed — and the pill rises above it at `calc(--studio-bar-clearance + 2rem)`, exactly as it
+   * clears the permanent save bar.
+   *
+   * ⚠ SO THESE ASSERT THE MECHANISM THAT TOOK OVER, not merely the absence of the old one. A row
+   * checking only "no longer reports" would pass a rail that also stopped REGISTERING — which puts
+   * the pill straight back on top of it. */
+  t("I1: ⚠ THE RAIL REGISTERS AS A BAR, so the pill clears it rather than being suppressed",
+    /registerBar\(el\)/.test(sections), true);
+  t("I1a: …and it no longer reports occlusion, which is what used to unmount the pill",
+    /useReportOccluding\(/.test(sections), false);
+  t("I2: ⚠ AND THE PILL HAS NO UNMOUNT PATH — a primary action that vanishes unexplained is worse than one that moves",
+    /if \(anyOccluding\)/.test(pub), false);
+  /* ⚠ AND IT STILL CLEARS THE PERMANENT SAVE BAR, which is the OTHER case and always was. The rail
+   * now uses the same mechanism, so one clearance serves both — but they are different surfaces and
+   * this row is what stops the shared answer being read as one case. */
   t("I2: …and it still clears the save bar, which is the other case and is not the same fix",
     /--studio-bar-clearance/.test(pub), true);
 

@@ -51,7 +51,7 @@ import { richToMarkers } from "@/lib/studio/rich-markers";
 import { isSafeHref, isHttpUrl } from "@/lib/case-studies/adapter";
 import SectionRenderer from "@/components/case-study/SectionRenderer";
 import { useDraftForm } from "./useDraftForm";
-import { usePublishSignal, useReportPending, useReportOccluding } from "./PublishProvider";
+import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { moveIn, removeAt, insertAt, setAt } from "./useItemList";
 import { splitParagraph, mergeParagraph } from "@/lib/studio/paragraph-edits";
 // CS-7d — the two caret primitives, EXTRACTED to be shared with the blog canvas.
@@ -637,16 +637,28 @@ function SelectionDock({
      REGISTERED EVEN WHEN CLOSED, because `max-h-0` is how it hides and it still has a box. The
      registry skips a zero-height one itself, and the observer is what makes the pill follow the
      rail's 340ms open rather than jumping once it has finished. */
-  /* ⚠ THE PILL HIDES WHILE THE RAIL IS UP, RATHER THAN BEING CLEARED AROUND IT. Both answers to
-     the overlap exist and they are for different things. A save bar is PERMANENT and an author
-     may want it and Publish at once, so the pill rises above it. This rail is TRANSIENT — it
-     exists because a field was clicked, it is the thing being worked in, and nobody reaches for
-     Publish in the same gesture. Stacking two floating controls in one corner to serve a case
-     that does not arise is worse than yielding the corner for the rail's lifetime.
-     THE REGISTRATION BELOW STAYS ANYWAY. The rail is still docked furniture, the pill is not the
-     only thing that could ever float there, and a clearance that silently depended on the pill
-     being hidden would be true by coincidence. */
-  useReportOccluding(open);
+  /* ⚠ REVERSED BY THE OWNER AFTER LIVE USE, AND THE ORIGINAL REASONING IS KEPT BECAUSE IT WAS AN
+     ASSUMPTION ABOUT BEHAVIOUR THAT A REAL AUTHOR DISPROVED.
+
+     IT READ: "The pill hides while the rail is up, rather than being cleared around it. A save bar
+     is PERMANENT and an author may want it and Publish at once, so the pill rises above it. This
+     rail is TRANSIENT — it exists because a field was clicked, it is the thing being worked in, and
+     NOBODY REACHES FOR PUBLISH IN THE SAME GESTURE. Stacking two floating controls in one corner to
+     serve a case that does not arise is worse than yielding the corner for the rail's lifetime."
+
+     ⚠ THE CASE DOES ARISE. Editing a section and then publishing is the ordinary sequence, not an
+     exotic one — and the failure mode is worse than clutter: the button does not move, it VANISHES,
+     with nothing on screen explaining why or how to get it back. An author who does not know the
+     rail is the cause is left hunting for a control that was there a moment ago. A PRIMARY ACTION
+     THAT DISAPPEARS WITHOUT EXPLANATION IS WORSE THAN ONE THAT MOVES.
+
+     ⚠ AND THE RIGHT MECHANISM WAS ALREADY BUILT AND ALREADY WIRED. The dock registers itself below
+     via `registerBar`, which feeds `--studio-bar-clearance`, and the pill already positions itself
+     at `calc(clearance + 2rem)` — that is exactly how it clears the permanent save bar. So the fix
+     is to STOP suppressing it: remove the occlusion report and the pill lifts, using machinery that
+     already exists, is already registered and is already asserted. No new state, no new geometry.
+
+     The registration below stays for the reason it always did. */
 
   useEffect(() => {
     const el = dockRef.current;
@@ -1062,6 +1074,7 @@ export default function SectionsEditPanel({
   const [picker, setPicker] = useState<string | null>(null);
 
   const { values, setField, dirty, saveStatus, savedAt, saveDraft, cancel, savedBaseline } = useDraftForm<SectionsFields>({
+    toastLabel: `Case study · ${slug}`,
     initial: { sections: initialSections },
     buildCommitted: (v) => ({ sections: v.sections }),
     isDirty: (v, b) => JSON.stringify(v.sections) !== JSON.stringify(b.sections),

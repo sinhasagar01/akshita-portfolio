@@ -57,6 +57,7 @@ export default function ExperienceEditPanel({
     saveDraft,
     cancel,
   } = useDraftForm<ExperienceFields>({
+    toastLabel: "Experience",
     initial,
     buildCommitted: (v) => ({ ...v }),
     isDirty: (v, b) =>

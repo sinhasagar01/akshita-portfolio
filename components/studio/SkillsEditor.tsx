@@ -51,6 +51,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
 
   const initial: SkillsFields = { categories };
   const { values, setField, dirty, saveStatus, savedAt, saveDraft } = useDraftForm<SkillsFields>({
+    toastLabel: "Skills",
     initial,
     // The whole categories array IS the patch, posted as
     // { singleton:"skills", patch:{ categories } } (the SK-2 path). nonBlankCategories

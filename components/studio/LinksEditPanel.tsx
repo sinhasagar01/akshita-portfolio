@@ -104,6 +104,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
     saveDraft,
     cancel,
   } = useDraftForm<LinksFields>({
+    toastLabel: "Site settings — Links",
     initial,
     // Trim each row and drop fully-blank rows at the save boundary, so an added-
     // but-unfilled row is never committed to the draft (a blank row a blur would
