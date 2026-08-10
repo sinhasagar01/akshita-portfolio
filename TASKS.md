@@ -437,6 +437,27 @@ is why it was measured rather than assumed. `DeviceImage`'s badge moved from `bg
 decided while one consumer sat on a different rung fits three and breaks the fourth. **THE ONE OPEN
 MEMBER IS THE WATERLINE'S BOLDNESS at +22.73 on dark — aesthetic, the owner's read, unchanged.**
 
+**NEXT SESSION, IN ORDER — RECORDED HERE BECAUSE AN ITEM THAT LIVES ONLY IN CONVERSATION CANNOT
+LAPSE VISIBLY.** It simply stops being mentioned, and nothing distinguishes that from a decision.
+
+1. **THE `background` BUCKET — 11 sites, one unit.** ⚠ PARTITION BEFORE ANY FIX:
+   ground-independent, ground-contingent, dead. **Most will be fine** — a census condemning all 11
+   is as wrong as one that found 6. Differencer, never coordinates. Subject re-derived from the
+   RENDERED element, candidates removed one at a time. Both figures on every cross-ground
+   comparison. ⚠ **IF THE SESSION RUNS SHORT, STOP AT THE PARTITION RATHER THAN FIXING PART OF IT
+   — the partition IS the deliverable and the fixes are whatever it condemns.**
+
+2. **THE PER-SITE PAINT CHECK — the ratchet's missing half.** For every element that paints text,
+   does its foreground remap on the ground it renders on. ⚠ **THE UNIT IS THE SITE, NOT THE
+   TOKEN**: `ink-800` and `ink-950` were enumerated by name the whole time and the ratchet could
+   not say which of their 51 sites mattered, so four defects were found by a person reading an
+   article. ⚠ **THE SUBJECT IS THE HARD PART** — elements that ACTUALLY PAINT, on the ground they
+   RENDER ON. The fingerprint rule names the first restriction for the opposite purpose, and the
+   ground is per class, which this arc got wrong three times.
+
+Otherwise: the section redesign blocked on the owner's canvas decision, and the four dormant
+triggers below with none fired.
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session
