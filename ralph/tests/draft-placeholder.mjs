@@ -78,5 +78,57 @@ t("C2a …and the predicate can actually fire on a real document, or C2's empty 
 t("C2b …by the English half too, which is the half a damaged sentinel leaves behind",
   hasPlaceholder(docs[0][1] + "\nsummary: " + DRAFT_PHRASES[0]), true);
 
+console.log("\nD · every content file, because naming collections is how this hid");
+/* ⚠ THE QUESTION ASKED WAS "DO EXPERIENCE AND SITE-SETTINGS WANT THE RULE", AND THE ANSWER IS THAT
+   THE QUESTION SHOULD NOT BE ASKED PER COLLECTION. Seven of fifteen content files were validated by
+   NOTHING at publish, and the two that got asked about were two of the seven — `skills.yaml` sat in
+   the identical position and nobody thought of it. **An enumerated subject is correct on the day it
+   is written and decays from then on**, and here it was already wrong on the day.
+
+   ⚠ AND site-settings WAS THE ONE THAT MATTERED, ON EVIDENCE RATHER THAN SYMMETRY. It carries the
+   longest prose on the site outside blog and projects — `aboutCopy` at 352 characters, `aboutNote`,
+   four hero tab lines — every one edited through a /studio panel and public the moment it is on
+   main. Experience is the opposite case: five short structured scalars, no prose field at all, its
+   one prose field having been deliberately deleted. **It is covered here because the subject is
+   derived, not because it earned a row of its own.** */
+const contentDir = new URL("../../content/", import.meta.url);
+const walk = (dir, base = "") => readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+  e.isDirectory() ? walk(new URL(e.name + "/", dir), base + e.name + "/") : base + e.name);
+const allContent = walk(contentDir).filter((f) => f.endsWith(".yaml"));
+t("D1 the content walk found files, against a LITERAL rather than against itself",
+  allContent.length >= 12, true);
+
+/* ⚠ BLOG IS THE ONE EXCLUSION AND IT IS ASSERTED RATHER THAN CLAIMED. A marker is CORRECT in a blog
+   draft — that is the permissive-at-save half the rule is built on — so blog needs a status-aware
+   check and `blog-registry` M5 is it. Everything else has no draft state, so all of it is public.
+
+   THE EXCLUSION IS ONLY SAFE WHILE BLOG IS THE ONLY COLLECTION WITH A STATUS FIELD, so D2 asserts
+   exactly that from the schema. If experience or projects ever gains one, this row goes red and
+   whoever added it has to come back and read why. A prose exclusion would simply have gone stale. */
+const cfg = read("keystatic.config.ts");
+const collections = [...cfg.matchAll(/^    (\w+): collection\(\{/gm)].map((m) => [m[1], m.index]);
+const withStatus = collections.filter(([, at], i) => {
+  const end = collections[i + 1]?.[1] ?? cfg.length;
+  return /status: fields\./.test(cfg.slice(at, end));
+}).map(([name]) => name);
+t("D2 ⚠ BLOG IS THE ONLY COLLECTION WITH A DRAFT STATE — the exclusion below is mechanical, not prose",
+  withStatus, ["blog"]);
+
+const nonBlog = allContent.filter((f) => !f.startsWith("blog/"));
+t("D2a …and excluding it leaves a real subject, or D3 passes over nothing",
+  nonBlog.length >= 7, true);
+t("D3 ⚠ NO CONTENT FILE OUTSIDE BLOG CARRIES A PLACEHOLDER — every one of them is public, always",
+  nonBlog.filter((f) => hasPlaceholder(readFileSync(new URL(f, contentDir), "utf8"))), []);
+
+/* ⚠ AND THE PUBLISH GATE COVERS THE SAME SET, source-inspected. The corpus row catches what is
+   already committed; only the validator stops the next one arriving. Both halves or neither — the
+   blog incident passed every fixture row precisely because nothing walked the corpus, and the
+   projects seam existed precisely because nothing ran at publish. */
+const pub = decomment(read("lib/studio/publish-site-settings.ts"));
+t("D4 the publish loop checks any OTHER content yaml, rather than a list of the ones that were noticed",
+  /\^content\\\/\.\+\\\.yaml\$/.test(pub) && /hasPlaceholder\(otherRaw\)/.test(pub), true);
+t("D4a …and it imports the shared rule rather than spelling its own",
+  /import \{[^}]*hasPlaceholder[^}]*\} from "\.\/validate-blog-post"/.test(pub), true);
+
 console.log(`\ndraft-placeholder result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

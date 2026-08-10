@@ -331,6 +331,33 @@ is deploys rather than commits.
   collection, since the defect was a rule holding in one place and not the other — which is invisible
   from inside either validator.
 
+  **⚠ AND THE THIRD ASKING CLOSED THE QUESTION BY REFUSING TO ANSWER IT PER COLLECTION.** Asked
+  whether `experience/` and `site-settings.yaml` wanted the rule, the measurement was that **seven of
+  fifteen content files were validated by NOTHING at publish** — and the two named were two of the
+  seven. **`skills.yaml` sat in the identical position and nobody thought to ask.** The publish loop
+  now checks *any other* yaml under `content`, and the corpus row walks all of it.
+
+  **⚠ AND THE SENTENCE ABOVE ORIGINALLY SPELLED THAT AS A GLOB, WHICH BROKE `css-comment-trap` AND
+  BLOCKED ITS OWN PUSH.** A double-star glob contains a slash-star, `stripComments` read it as an
+  opener, nothing closed it, and **every line after it in this file stopped counting as code** —
+  including the hairline convention four hundred lines below, whose utility then compiled purely
+  because prose named it. **The fourth instance of explaining-it-requires-writing-it, arriving in a
+  GLOB rather than in a delimiter**, and the same shape as `keystatic.config.ts`'s `path:` value.
+  Describe the pattern in words here; never write the glob.
+
+  **THE TWO NAMED FILES DESERVED OPPOSITE ANSWERS, WHICH IS WHY THE DERIVED SUBJECT IS THE RIGHT ONE.**
+  `site-settings.yaml` carries the longest prose on the site outside blog and projects — `aboutCopy`
+  at 352 characters, `aboutNote`, four hero tab lines, each edited through a /studio panel and public
+  the moment it is on main. Experience is five short structured scalars with **no prose field at all**,
+  its one prose field having been deliberately deleted. **It is covered because the subject is derived,
+  not because it earned a row.**
+
+  **⚠ AND BLOG IS THE ONE EXCLUSION, ASSERTED RATHER THAN CLAIMED.** A marker is CORRECT in a blog
+  draft, so blog needs the status-aware check that `blog-registry` M5 already is. That exclusion is
+  only safe while blog is the only collection with a status field, so `D2` reads that from the schema
+  and **fails if a second collection ever gains one** — where a prose exclusion would simply have gone
+  stale.
+
   **⚠ AND THE OBVIOUS EXTRACTION WAS TRIED AND REVERTED, WITH THE FILE'S OWN COMMENT ALREADY SAYING
   WHY.** A second consumer is this repo's threshold for lifting something to a leaf. Doing it would
   cost `validate-blog-post.ts` the property its header names — **dependency-free beyond js-yaml and

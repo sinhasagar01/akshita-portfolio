@@ -21,7 +21,7 @@ import {
 } from "./github-commit";
 import { getFileTextAtRef, SETTINGS_PATH } from "./commit-site-settings";
 import { validateProjectSections } from "./validate-draft-sections";
-import { validateBlogPost, BLOG_POST_PATH_RE } from "./validate-blog-post";
+import { validateBlogPost, BLOG_POST_PATH_RE, hasPlaceholder } from "./validate-blog-post";
 import { BLOG_TOPICS } from "./blog-format-core";
 import { DRAFT_BRANCH } from "./draft-site-settings";
 
@@ -144,6 +144,37 @@ export async function publishSiteSettings(): Promise<PublishResult> {
         const blocks = validateBlogPost(post[1], postRaw, BLOG_TOPICS);
         if (!blocks.ok) {
           return { ok: false, error: blocks.error };
+        }
+        continue;
+      }
+
+      /* ⚠ AND EVERYTHING ELSE UNDER `content/` GOT NO CHECK AT ALL, WHICH IS SEVEN FILES OF FIFTEEN.
+         The two branches above cover projects and blog. `site-settings.yaml`, the five experience
+         entries and `skills.yaml` fell straight through this loop — and `site-settings.yaml` carries
+         the longest prose on the site outside those two collections: `aboutCopy` at 352 characters,
+         `aboutNote`, four hero tab lines, every one of them edited through a /studio panel and
+         public the moment it is on main.
+
+         ⚠ THE SHAPE WAS FOUND BY ENUMERATING, WHICH IS ALSO HOW IT HID. The question asked was
+         whether experience and site-settings wanted the rule. `skills.yaml` is in the identical
+         position and nobody thought to ask — so the branch is written against "any other content
+         yaml" rather than against a list of the three that were noticed.
+
+         Only the placeholder rule applies here. There is no renderer to re-run: these files are
+         read as plain data, so the adapter and BlogProse checks above have no equivalent. */
+      if (/^content\/.+\.yaml$/.test(file.filename)) {
+        // Named apart from the outer `raw`, which holds site-settings at line 72 — a shadow here
+        // would read as the same document to anyone skimming.
+        const otherRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
+        if (hasPlaceholder(otherRaw)) {
+          return {
+            ok: false,
+            error: {
+              code: "invalid_sections",
+              field: file.filename,
+              message: `${file.filename}: a draft marker is still in the body — every placeholder must be replaced before publishing`,
+            },
+          };
         }
       }
     }
