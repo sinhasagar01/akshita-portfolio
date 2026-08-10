@@ -2420,6 +2420,25 @@ a {
   background: linear-gradient(115deg, color-mix(in srgb, var(--color-white) 15%, transparent) 0%,
     color-mix(in srgb, var(--color-white) 4%, transparent) 28%, oklch(100% 0 0 / 0) 54%);
 }
+/* ⚠ THE POINTER GLOW NEEDED THE SAME OVERRIDE ::before HAS HAD ALL ALONG, AND DID NOT GET ONE.
+   Measured with the state forced rather than the pointer simulated — four rounds of synthetic
+   mouse.move never latched `:hover` on the pill, so the harness makes the state unconditional and
+   differences ONLY this layer, both frames holding the same state.
+
+   Fixed white at 55% over the dark pane: peak contribution ratio 5.055 against cream's 1.025 — a
+   5x flare on every nav hover on a dark palette, and the largest cross-ground disparity this arc
+   measured. THE ABSOLUTE DELTA WOULD HAVE READ AS A MILD +1.7 vs +28; only the ratio says
+   "invisible sheen" versus "blown out", which is why both figures are stated.
+
+   1% is derived, not chosen: solved for cream's own peak ratio, and it gives 1.027. It is a small
+   number because white over a near-black pane climbs steeply — the same shape as the vessel's fog
+   at 1 -> 0.178. THE CONSEQUENCE IS STATED RATHER THAN HIDDEN: this reproduces cream's appearance,
+   where the glow is nearly invisible, so it is nearly invisible on dark too. Making the glow
+   deliberately LOUDER on dark than on light would be a design change, not this repair. */
+.site-header[data-nav-tone="dark"] .nav-glass::after {
+  background: radial-gradient(160px circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--color-white) 1%, transparent), transparent 62%);
+}
 .site-header[data-nav-tone="dark"] .nav-links a { color: var(--color-on-dark-muted); }
 .site-header[data-nav-tone="dark"] .nav-links a:hover { color: var(--color-on-dark); }
 .site-header[data-nav-tone="dark"] .nav-links a[aria-current="true"] { color: var(--color-on-dark-quote); }
