@@ -4800,6 +4800,61 @@ a {
   text-transform: uppercase;
 }
 
+/* ============================================================================================
+   THE PUBLISH TOASTER — the three pieces Tailwind cannot express: an enter, a drain, a spinner.
+   STUDIO-SCOPED AND FROZEN. Every colour here is a `--color-studio-*` literal, never the public
+   palette — `studio-palette` B1 asserts zero public references in studio source, and this file is
+   where that would be easiest to break. The chrome has ONE ground by construction (#323), so there
+   is no dark variant of any of this and there must not be one.
+   ============================================================================================ */
+.studio-chrome .studio-toast { animation: studio-toast-in 260ms var(--ease-out-expo) both; }
+@keyframes studio-toast-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: none; }
+}
+/* The drain visualises TOAST_DRAIN_MS. The duration is stated in both places on purpose and the
+   suite compares them — a bar that empties at a different rate than the timer it depicts is a
+   control reporting a state it has not persisted, one surface out. */
+.studio-chrome .studio-toast-drain { animation: studio-toast-drain 6000ms linear forwards; }
+@keyframes studio-toast-drain { from { width: 100%; } to { width: 0; } }
+.studio-toast:hover .studio-chrome .studio-toast-drain { animation-play-state: paused; }
+.studio-chrome .studio-toast-spin {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--color-studio-ink-950) 18%, transparent);
+  border-top-color: var(--color-studio-accent-500);
+  animation: studio-toast-spin 800ms linear infinite;
+}
+@keyframes studio-toast-spin { to { transform: rotate(360deg); } }
+
+/* ⚠ THE CHIP'S THREE TINTS LIVE HERE, NOT IN A TERNARY OF TAILWIND CLASSES, and `studio-border-race`
+   C1 is why. A conditional className puts two border-COLOUR utilities in one class expression; they
+   are mutually exclusive at runtime and the scanner cannot know that, so it reads an element
+   carrying both — which is exactly the shorthand-plus-longhand race that suite exists to catch.
+   One class per kind removes the ambiguity rather than exempting it. */
+.studio-chrome .studio-toast-chip {
+  background: color-mix(in srgb, var(--color-studio-accent-500) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-studio-accent-500) 28%, transparent);
+  color: var(--color-studio-accent-600);
+}
+.studio-chrome .studio-toast-chip.is-ok {
+  background: color-mix(in srgb, var(--color-studio-success-700) 13%, transparent);
+  border-color: color-mix(in srgb, var(--color-studio-success-700) 30%, transparent);
+  color: var(--color-studio-success-700);
+}
+.studio-chrome .studio-toast-chip.is-pending {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--color-studio-ink-950) 16%, transparent);
+  color: var(--color-studio-ink-600);
+}
+/* ⚠ THE REDUCED-MOTION END STATE IS THE VISIBLE ONE, which is the trap #198 named: gating the
+   animation without gating its end leaves the element in its FROM state. Here that would be an
+   invisible toast and an undrained bar reading as a stalled publish. */
+@media (prefers-reduced-motion: reduce) {
+  .studio-chrome .studio-toast { animation: none; opacity: 1; transform: none; }
+  .studio-chrome .studio-toast-drain { animation: none; width: 0; }
+  .studio-chrome .studio-toast-spin { animation: none; }
+}
+
 /* ============================================================ STUDIO SCROLLBARS — THE HAIRLINE
    Scoped to /studio beside the radius and motion blocks and for the same reason: this serves the
    studio's chrome, @theme serves the public site, and a change to either must not drag the other.
@@ -4973,6 +5028,8 @@ a {
 
   /* A DROPDOWN OR A LISTBOX PANEL — close to its trigger, so it reads as attached rather than
      lifted. Wide and faint: the widest reach of the three at the lightest ink. */
+
+
   --studio-lift-popover: 0 8px 30px rgba(60, 45, 30, 0.14);
   /* A SURFACE THAT FLOATS FREE OF ITS TRIGGER — the publish bar, the block toolbar, the link
      dialog. Tighter reach than the popover but far darker, because it has to hold its own edge
