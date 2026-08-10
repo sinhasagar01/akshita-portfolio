@@ -723,20 +723,27 @@ export default function HeroSection({
           </a>
         </div>
 
-        {/* the connector lines, copy to artwork — redrawn per tab, desktop only, and keyed so the
-            draw animation replays on every pick exactly as the contract's drawLines does */}
+        {/* the connector lines — redrawn per tab, desktop only, and keyed so the draw animation
+            replays on every pick exactly as the contract's drawLines does.
+
+            ⚠ EVERYTHING HERE ENDS BEFORE THE SEAM, BY THE OWNER'S RULING. The contract puts the
+            kink 30px INSIDE the panel and the label after it, over the artwork, where 9px mono
+            text loses to the illustration. So the box is exactly `artLeft` wide, the kink sits
+            30px left of the seam, and the label anchors END before the dot — on the copy ground,
+            never on the art. */}
         {showLines && facets[active].calls.length > 0 ? (
           <svg
             key={`lines-${active}`}
             className="hero-lines"
-            viewBox={`0 0 ${lineGeom.w} ${lineGeom.h}`}
+            viewBox={`0 0 ${lineGeom.artLeft} ${lineGeom.h}`}
+            style={{ width: `${lineGeom.artLeft}px` }}
             preserveAspectRatio="none"
             aria-hidden="true"
           >
             {facets[active].calls.map(([label, pct], i) => {
               const y = (lineGeom.h * pct) / 100;
               const x0 = lineGeom.w * 0.32;
-              const x1 = lineGeom.artLeft + 30;
+              const x1 = lineGeom.artLeft - 30;
               const ky = y - 20;
               const d = `M ${x0} ${y} H ${x1 - 28} L ${x1} ${ky}`;
               const len = Math.round(x1 - 28 - x0 + Math.hypot(28, 20));
@@ -748,7 +755,7 @@ export default function HeroSection({
                   <path className="hero-spark" d={d} style={{ ...lenVar, animationDelay: `${dl}ms` }} />
                   <circle className="hero-dot" cx={x1} cy={ky} r={5.5} style={{ animationDelay: `${dl + 820}ms` }} />
                   <circle className="hero-core" cx={x1} cy={ky} r={1.8} style={{ animationDelay: `${dl + 880}ms` }} />
-                  <text x={x1 + 13} y={ky + 3.5} style={{ animationDelay: `${dl + 900}ms` }}>{label}</text>
+                  <text x={x1 - 13} y={ky + 3.5} textAnchor="end" style={{ animationDelay: `${dl + 900}ms` }}>{label}</text>
                 </Fragment>
               );
             })}

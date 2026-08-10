@@ -2159,12 +2159,17 @@ a {
    properties on `.hero-figure` and `.hero-figure img`, and this rule reaches neither. Putting the
    grain above the panel would satisfy that gate and still be the defect it exists to prevent. */
 .hero-grain {
-  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  position: absolute; left: 0; top: 0; bottom: 0; width: 47%; z-index: 1; pointer-events: none;
   opacity: 0.5;
   mix-blend-mode: soft-light;
   background: #808080;
   filter: url(#hero-grain);
 }
+/* ⚠ THE GRAIN STOPS AT THE SEAM, AND ON DESKTOP THAT CHANGES NO PIXEL. From 47% on, the art
+   panel's opaque plate sits ABOVE it (z 2 over z 1), so the right half of a full-bleed grain was
+   never visible — the clip states the truth the stacking already enforced, by the owner's ruling
+   that no overlay may reach past the halfway point. The mobile block below restores full width,
+   because there the panel is a band at the top and the copy needs its texture back. */
 
 /* ⚠ THE ARTWORK PANEL CLIPS, AND IT OWNS ITS HEIGHT. `top/right/bottom` at 0 with `left` at 47% is
    the contract's geometry exactly. The figure is height-driven and overflows its width by design,
@@ -2369,8 +2374,13 @@ a {
   70%, 100% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--hx-accent) 0%, transparent); }
 }
 
-/* --- the connector lines, copy to artwork. Redrawn per tab, desktop only ---------------------- */
-.hero-lines { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+/* --- the connector lines. Redrawn per tab, desktop only ---------------------------------------
+   ⚠ THE BOX ENDS AT THE SEAM, WHICH IS A RULED DEVIATION FROM THE CONTRACT. The contract runs its
+   traces 30px INTO the art panel and sets the labels beyond the kink, over the artwork — where a
+   9px mono label sits on the illustration's own colours and loses. The owner ruled the labels must
+   stay clear of the artwork, so the whole svg stops before the halfway point, the kink sits 30px
+   LEFT of the seam, and the labels anchor end-first before the dot on the copy ground. */
+.hero-lines { position: absolute; left: 0; top: 0; bottom: 0; width: 47%; z-index: 20; pointer-events: none; }
 .hero-lines .hero-trace {
   fill: none; stroke: color-mix(in srgb, var(--hx-accent) 55%, transparent); stroke-width: 0.9;
   stroke-dasharray: var(--len, 300); stroke-dashoffset: var(--len, 300);
@@ -2507,6 +2517,7 @@ a {
       color-mix(in srgb, var(--hx-accent) 45%, transparent), transparent);
   }
   .hero-fig-label { right: 16px; bottom: 14px; }
+  .hero-grain { width: 100%; }
   /* ⚠ NO EMPTY COLUMN ON A PHONE. The pieces live in the artwork's clear wedge, and the reflowed
      panel has none — they would land on the artwork, which is the one thing they must not do. */
   .hero-piece { display: none; }
