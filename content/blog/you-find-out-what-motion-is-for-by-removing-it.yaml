@@ -53,10 +53,9 @@ blocks:
           reader needs to follow it. Those are different questions and only the
           second has an answer you can defend in a review.
         - >-
-          @@ GAP 1 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. @@
-          the moment duration stopped being taste and became a legibility
-          budget. What were you looking at, and what made it concrete rather
-          than felt?
+          @@ GA 1 OF 3 — HER EXAMPLE GOES HERE. THIS SENTENCE MUST NOT SHIP. the
+          moment duration stopped being taste and became a legibility budget.
+          What were you looking at, and what made it concrete rather than felt?
   - discriminant: imageBlock
     value:
       src: >-
