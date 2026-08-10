@@ -68,6 +68,91 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
 /**
+ * ⚠ THE LITERAL IS ASSEMBLED RATHER THAN WRITTEN OUT — see the marker gate below. Exported so the
+ * inspector's advisory mark tests the SAME string this file forbids.
+ */
+export const DRAFT_MARKER = "@" + "@ GAP";
+
+/** One publish blocker: which field an author must fix, and the sentence that says why. */
+export type PublishBlocker = { field: string; message: string };
+
+/**
+ * THE AUTHOR-REACHABLE PUBLISH BLOCKERS, DERIVED HERE AND NOWHERE ELSE.
+ *
+ * ⚠ THE COPY LIVES WITH THE RULE THAT FIRES IT. `validateBlogPost` consumes this, and so does the
+ * studio inspector's advisory mark — one function, two consumers. A client-side code-to-copy map
+ * would be a second spelling of these sentences and would drift from them, which is the shape this
+ * repo deletes on sight.
+ *
+ * ⚠ AUTHOR-REACHABLE IS THE SUBJECT, AND IT IS NARROWER THAN "publish-blocking". Derived by asking
+ * of each rule below whether the studio can produce the state: the SHAPE rules cannot — the
+ * sanitizer refuses a non-string discriminant or a null block on the way in, so only a
+ * hand-committed file reaches them and no inspector mark could help. The four here are exactly the
+ * ones an author can create by typing, or by not typing.
+ *
+ * ⚠ AND IT IS ADVISORY AT AUTHORING TIME, NEVER BLOCKING AT SAVE. An imageBlock is BORN
+ * `src: null, alt: ""`, so refusing an empty alt at save would make the kind unaddable — the split
+ * this validator exists to express. The mark moves the DISCOVERY earlier; the wall stays at publish.
+ *
+ * ⚠ A FIELD IS JUDGED ONLY IF ITS KEY IS PRESENT, AND THAT RULE APPLIES TO ALL FOUR. The first
+ * version applied it to `raw` alone and judged `title` and `topic` unconditionally — so the alt
+ * call site, which supplies only `blocks`, got spurious title and topic blockers and worked purely
+ * because it filtered by field. A consumer asking about ONE field must not be told about three.
+ * Presence, not definedness: `validateBlogPost` passes all four keys from the parsed document, so a
+ * post with no `title:` line is still judged and still refused. Its own suite caught this.
+ */
+export function publishBlockers(
+  input: { raw?: string; title?: unknown; topic?: unknown; blocks?: unknown },
+  allowedTopics: readonly string[]
+): PublishBlocker[] {
+  const out: PublishBlocker[] = [];
+
+  if ("raw" in input && typeof input.raw === "string" && input.raw.includes(DRAFT_MARKER)) {
+    out.push({
+      field: "body",
+      message: "a draft marker is still in the body — every placeholder must be replaced before publishing",
+    });
+  }
+
+  const title = typeof input.title === "string" ? input.title.trim() : "";
+  if ("title" in input && title === "") {
+    out.push({
+      field: "title",
+      message: "title must not be empty on a published post — it falls back to the slug, which is not a title",
+    });
+  }
+
+  const topic = typeof input.topic === "string" ? input.topic.trim() : "";
+  if (!("topic" in input)) {
+    /* not asked about */
+  } else if (topic === "") {
+    out.push({ field: "topic", message: "topic must be set on a published post, one of " + allowedTopics.join(", ") });
+  } else if (!allowedTopics.includes(topic)) {
+    out.push({ field: "topic", message: `topic "${topic}" is not one of ${allowedTopics.join(", ")}` });
+  }
+
+  /* Malformed blocks are the SHAPE rules' subject, not this one's — skipped rather than crashed on,
+     so a hand-committed file still gets the shape message it deserves from the caller. */
+  if (Array.isArray(input.blocks)) {
+    for (const [i, block] of input.blocks.entries()) {
+      if (!isPlainObject(block) || block.discriminant !== "imageBlock") continue;
+      const value = block.value;
+      if (!isPlainObject(value)) continue;
+      if (typeof value.src !== "string" || value.src === "") continue;
+      if (value.decorative === true) continue;
+      const alt = typeof value.alt === "string" ? value.alt.trim() : "";
+      if (alt === "") {
+        out.push({
+          field: `blocks[${i}].alt`,
+          message: `blocks[${i}].value.alt must not be empty on a published post — describe the image, or tick "Decorative"`,
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/**
  * Validate ONE post's raw yaml the way the public build will render it. `slug` only
  * labels the error.
  *
@@ -119,12 +204,13 @@ export function validateBlogPost(
   //
   // Checked against the RAW document rather than walked per block, so it catches a marker in a
   // title, a dek, a caption or any block kind — including kinds added after this was written.
-  const DRAFT_MARKER = "@" + "@ GAP";
-  if (raw.includes(DRAFT_MARKER)) {
-    return fail(
-      "a draft marker is still in the body — every placeholder must be replaced before publishing"
-    );
-  }
+  /* ⚠ THE HEAD RULES COME FROM `publishBlockers` — one source, two consumers. The ORDER of the
+     original inline checks is preserved exactly (marker, title, topic, then shape, then alt), so a
+     hand-committed file with both a malformed block and a blank alt still gets the shape message
+     first, as it always did. */
+  const blockers = publishBlockers({ raw, title: doc.title, topic: doc.topic, blocks: doc.blocks }, allowedTopics);
+  const head = blockers.find((bl) => bl.field === "body" || bl.field === "title" || bl.field === "topic");
+  if (head) return fail(head.message);
 
   // ---- THE TITLE GATE, THE SAME SHAPE AS alt BELOW -------------------------------------
   //
@@ -135,13 +221,6 @@ export function validateBlogPost(
   // may clear it mid-edit), strict at publish — this is the one gate they cannot walk past.
   // In the file `title` is a plain scalar (fields.slug stores the name half unwrapped), so a
   // raw load reads a string; `.trim()` guards whitespace-only.
-  const title = typeof doc.title === "string" ? doc.title.trim() : "";
-  if (title === "") {
-    return fail(
-      "title must not be empty on a published post — it falls back to the slug, which is not a title"
-    );
-  }
-
   // ---- THE TOPIC GATE, THE SAME SHAPE AS title ABOVE AND alt BELOW ---------------------
   //
   // PR D closed the topic set (BLOG_TOPICS) and made it REQUIRED to publish. The split is the
@@ -154,14 +233,6 @@ export function validateBlogPost(
   // The empty-topic RENDER branches stay reachable and are NOT dead code: a draft previewing in
   // the studio canvas can still have no topic, so the article head's `topic ? … : null` and the
   // OG card's dropped eyebrow row still fire. This gate only judges PUBLISHED posts.
-  const topic = typeof doc.topic === "string" ? doc.topic.trim() : "";
-  if (topic === "") {
-    return fail("topic must be set on a published post, one of " + allowedTopics.join(", "));
-  }
-  if (!allowedTopics.includes(topic)) {
-    return fail(`topic "${topic}" is not one of ${allowedTopics.join(", ")}`);
-  }
-
   // A post with no blocks array renders an empty prose column — legal, not a failure.
   if (doc.blocks === undefined || doc.blocks === null) return { ok: true };
   if (!Array.isArray(doc.blocks)) return fail("blocks must be an array");
@@ -220,14 +291,9 @@ export function validateBlogPost(
         // `decorative` is the deliberate exemption. Without it an author facing this gate
         // types "image" into alt to clear it, which is worse than empty: empty is a known
         // absence a screen reader can skip, while "image" is confidently wrong.
-        if (typeof value.src === "string" && value.src !== "") {
-          const decorative = value.decorative === true;
-          const alt = typeof value.alt === "string" ? value.alt.trim() : "";
-          if (!decorative && alt === "") {
-            return fail(
-              `${at}.value.alt must not be empty on a published post — describe the image, or tick "Decorative"`
-            );
-          }
+        {
+          const altBlocker = blockers.find((bl) => bl.field === `blocks[${i}].alt`);
+          if (altBlocker) return fail(altBlocker.message);
         }
         break;
       }

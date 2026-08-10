@@ -149,6 +149,22 @@ export default function PublishBar() {
         );
       } else if (code === "merge_conflict") {
         setPublishMsg("Could not publish. The site changed since your draft. Refresh and try again.");
+      } else if (code === "invalid_sections") {
+        /* ⚠ THE SAME DEFECT AS `invalid_blocks` BELOW, ON THE PROJECTS PATH, AND IT SURVIVED THE
+           FIX THAT NAMED IT. #451 added the blog branch and this one was never added — so a
+           case-study draft refused for a missing image src still read "something went wrong",
+           which is a network error's wording for a content refusal.
+
+           ⚠ FOUND BY ASKING WHETHER THE PROJECTS PATH HAD THE SAME SHAPE, not by a report. The two
+           validators differ in where their rules live — blog enumerates them, projects delegates to
+           the ssg ADAPTER's own throw — but both return a typed error carrying the slug and the
+           reason, so the same branch serves both and the server's message is used for the same
+           reason: it is the only text that knows which project and which block. */
+        setPublishMsg(
+          json?.error?.message
+            ? `Cannot publish. ${json.error.message}`
+            : "Cannot publish. A case study would not render. Fix it, then publish."
+        );
       } else if (code === "invalid_blocks") {
         /* ⚠ A REFUSAL IS NOT A FAILURE, AND THIS BRANCH IS THE DIFFERENCE. `invalid_blocks` means the
            draft was READ, the merge was possible, and publishing was DECLINED because a post would
