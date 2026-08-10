@@ -33,7 +33,7 @@ import type { ExperienceListItem } from "@/lib/keystatic";
 
 export default function ExperienceListEditor({ entries }: { entries: ExperienceListItem[] }) {
   const router = useRouter();
-  const { setUnpublished } = usePublishSignal();
+  const { setUnpublished, beginToast, resolveToast, dismissToast } = usePublishSignal();
 
   // The list — seeded once from the server overlay, then mutated optimistically on
   // create/delete. Not synced from props during the session (that would clobber an
@@ -55,11 +55,9 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   const deletingRef = useRef(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  // Transient banner for the fs-mode dev note (no row is added in fs mode).
-  const [banner, setBanner] = useState("");
 
   // Keep Publish/Discard from racing an in-flight create/delete (like every panel).
-  const { moveItem, reorderBusy, reorderError } = useListReorder({
+  const { moveItem, reorderBusy } = useListReorder({
     collection: "experience",
     items,
     setItems,
@@ -92,14 +90,12 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
   function openAdd() {
     setAddError("");
     setCompany("");
-    setBanner("");
     setAddOpen(true);
     return undefined; // async create can't return an id — the row is added post-POST
   }
 
   function askDelete(slug: string) {
     setDeleteError("");
-    setBanner("");
     setDeleteTarget(slug); // the layout has already re-selected a neighbor
   }
 
@@ -109,6 +105,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
     addingRef.current = true;
     setAddBusy(true);
     setAddError("");
+    const addOpId = beginToast("Adding experience\u2026", name);
     try {
       const res = await fetch("/api/studio/create-entry", {
         method: "POST",
@@ -138,19 +135,24 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
         // server overlay + sidebar count best-effort. Both soft — panels stay mounted.
         router.replace(`/studio/experience?item=${json.slug}`);
         router.refresh();
+        resolveToast(addOpId, { kind: "ok", title: "Experience added", message: name });
       } else if (res.ok && json.mode === "fs") {
         // fs no-op (dev): close the dialog, show the note, add NO row, no select.
         setAddOpen(false);
         setCompany("");
-        setBanner("Add needs github mode (dev).");
+        dismissToast(addOpId); // fs wrote nothing
       } else if (res.status === 409) {
+        dismissToast(addOpId);
         setAddError("Too many entries with that name. Give this one a different name.");
       } else if (res.status === 400) {
+        dismissToast(addOpId);
         setAddError("Use a company name with letters or numbers.");
       } else {
+        dismissToast(addOpId);
         setAddError("Could not add the entry. Try again.");
       }
     } catch {
+      dismissToast(addOpId);
       setAddError("Could not add the entry. Try again.");
     } finally {
       addingRef.current = false;
@@ -164,6 +166,7 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
     deletingRef.current = true;
     setDeleteBusy(true);
     setDeleteError("");
+    const delOpId = beginToast("Removing\u2026", target);
     try {
       const res = await fetch("/api/studio/delete-entry", {
         method: "POST",
@@ -177,15 +180,19 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
         setUnpublished(true);
         setDeleteTarget(null);
         router.refresh(); // reconcile server overlay + sidebar count best-effort
+        resolveToast(delOpId, { kind: "ok", title: "Experience removed", message: target });
       } else if (res.ok && json.mode === "fs") {
         setDeleteTarget(null);
-        setBanner("Delete needs github mode (dev).");
+        dismissToast(delOpId); // fs wrote nothing
       } else if (res.status === 404) {
+        dismissToast(delOpId);
         setDeleteError("That entry no longer exists.");
       } else {
+        dismissToast(delOpId);
         setDeleteError("Could not remove the entry. Try again.");
       }
     } catch {
+      dismissToast(delOpId);
       setDeleteError("Could not remove the entry. Try again.");
     } finally {
       deletingRef.current = false;
@@ -206,27 +213,14 @@ export default function ExperienceListEditor({ entries }: { entries: ExperienceL
 
   return (
     <>
-      {banner && (
-        <div
-          className="mb-3 flex items-center justify-between gap-3 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/10 bg-studio-cream-100 px-3 py-2 text-[12px] font-semibold text-studio-ink-600"
-          role="status"
-        >
-          <span>{banner}</span>
-          <button
-            type="button"
-            onClick={() => setBanner("")}
-            className="rounded-[var(--studio-radius-control,4px)] px-2 py-0.5 text-studio-ink-600 hover:bg-studio-cream-200 hover:text-studio-ink-950"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
+      {/* ⚠ TWO PAGE-LEVEL SLOTS REMOVED — a dismissible banner and a reorder line. Both held
+          RESULTS of discrete operations on a list those operations rearrange or shorten, so the
+          message and the row it was about could part company. The banner even carried its own
+          Dismiss button, which is a toast with extra steps and no stack.
 
-      {reorderError && (
-        <p className="mb-2 text-[12px] text-studio-accent-600" role="status" aria-live="polite">
-          {reorderError}
-        </p>
-      )}
+          ⚠ `addError` AND `deleteError` STAY INLINE where their dialogs keep them beside the
+          control. That is the line: a result outlives its surface and belongs in the toaster; a
+          message about the control you are touching belongs next to it. */}
 
       <ListDetailLayout
         sections={sections}
