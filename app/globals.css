@@ -1,3 +1,20 @@
+/* ⚠ THIS FILE HAS REGIONS, AND APPENDING TO THE END IS NOT A SAFE DEFAULT.
+   Several stretches carry constraints that are enforced by a ralph suite and stated NOWHERE in the
+   CSS itself, so they are invisible from wherever you happen to be editing. Two of them, learned by
+   walking into both in one afternoon:
+
+     STUDIO SCROLLBARS onward   every selector must be `.studio-chrome`-scoped   (studio-ink C8)
+     the publish toaster block  its rules may name studio tokens only            (publish-toast F2)
+
+   ⚠ AND "ABOVE THE MARKER" IS NOT THE RULE — that was the first repair and it landed the same public
+   rules inside a different region. THE RULE IS THAT RULES LIVE BESIDE THE THING THEY STYLE. Public
+   hero rules go with `.hero-ground`, studio rules go in the studio regions, and the end of the file
+   belongs to whichever region currently ends it.
+
+   Both gates named every stray selector precisely, so the cost of getting this wrong is one run —
+   but only if you run the suite before pushing, which is why this note is here rather than in a
+   commit message nobody will read. */
+
 @import "tailwindcss";
 
 /* Tailwind v4 auto-detects sources across the whole repo, which means PROSE can generate
