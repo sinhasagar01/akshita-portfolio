@@ -610,6 +610,35 @@ build a gate for the limit and then believe it.
   it.** Repaired by painting a 1×1 canvas and reading the pixel — the browser does the conversion, so
   the value measured is the value drawn.
 
+- **⚠ RULED: `--glass-fill` AND `--glass-stroke` KEEP THEIR TONE-ONLY DARK ANSWERS. A REACHABILITY
+  RULING, NOT A STYLE ONE.** Both remap under `[data-nav-tone="dark"]` and nowhere else, which reads
+  as the same latent split that made `--glass-fill-strong` paint light. **It is not, because they are
+  never visible while unmapped.**
+
+      36 steady states (3 pages x 4 widths x 3 scrolls)   non-ghost AND tone-unset: NONE
+      260 load frames from 16.1ms                          painting-and-unmapped:    NONE
+
+  `data-nav-tone` really is unset for the first **555ms** — the load window is real — and
+  `.nav-glass` carries `.is-ghost` for every frame of it, which sets `background: transparent;
+  border-color: transparent`. Measured `rgba(0,0,0,0)` on both. Where the tokens paint, the tone is
+  always present.
+
+  **⚠ AND THE SAME WINDOW CONDEMNED A THIRD TOKEN, WHICH IS WHY THE MEASUREMENT WAS WORTH TAKING.**
+  `.is-ghost`'s transparency targets `.nav-glass` and **NOT ITS CHILDREN**, so the in-pill morph
+  paints throughout that 555ms using `--glass-fill-strong` — light, on a dark page. Same window,
+  opposite rulings, and the discriminator is **which element the ghost rule covers**, not which
+  token is tone-scoped.
+
+  **THE GENERAL FORM: A TOKEN'S SCOPE IS ONLY A DEFECT WHERE THE TOKEN IS VISIBLE.** Ask what paints
+  it and in which states before ground-scoping anything — three tokens shared one apparent flaw and
+  only one had it. **The trigger for revisiting is `.is-ghost` ceasing to zero the fill or stroke**,
+  or the nav gaining a non-ghost state before the tone reader runs.
+
+  **⚠ AND THE INSTRUMENT HAD TO BE INSTALLED BEFORE THE THING IT MEASURED.** A post-load poll cannot
+  see a window that closes during load; the trace starts in an init script, before page scripts run.
+  Two earlier readings of "tone unset" were taken inside that window by accident and were treated as
+  contradictions of the steady state — they were both, and neither was wrong.
+
 - **⚠ WHEN TWO PATHS CAN PRODUCE THE SAME RESULT, VERIFYING THE OUTCOME DOES NOT ESTABLISH WHICH PATH
   PRODUCED IT.** The arc's best output, above its nine fixes. `data-nav-tone="dark"` fires site-wide
   on nocturne at 0-2-0, so every nav measurement showed the dark repair working — **through the tone
