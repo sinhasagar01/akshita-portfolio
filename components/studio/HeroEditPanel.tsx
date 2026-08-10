@@ -113,6 +113,24 @@ export default function HeroEditPanel({
     setField("heroTabs", next);
   };
 
+  /* ⚠ THE FIXED-LENGTH SLOTS ARE FILLED BEFORE THEY ARE WRITTEN. A tab whose `callouts` is short or
+     absent must still accept a value at index 2, and `next[2] = v` on a one-element array leaves a
+     hole that serialises as null. Padding to three first is what keeps the shape the schema
+     asserts, rather than trusting the migration to have made it. */
+  const editCallout = (tab: number, i: number, value: string) => {
+    const cur = tabAt(values.heroTabs, tab).callouts;
+    const next = [0, 1, 2].map((n) => cur[n] ?? "");
+    next[i] = value;
+    editTab(tab, "callouts", next);
+  };
+
+  const editStat = (tab: number, i: number, key: "value" | "unit", value: string) => {
+    const cur = tabAt(values.heroTabs, tab).stats;
+    const next = [0, 1, 2].map((n) => ({ value: cur[n]?.value ?? "", unit: cur[n]?.unit ?? "" }));
+    next[i] = { ...next[i], [key]: value };
+    editTab(tab, "stats", next);
+  };
+
   return (
     <section
       aria-label="Edit Hero"
@@ -282,6 +300,72 @@ export default function HeroEditPanel({
                   className={`${inputClsMd} min-h-24 field-sizing-content resize-none max-h-[500px] overflow-y-auto py-3 pb-[18px] leading-[1.55]`}
                 />
               </label>
+
+              {/* THE TEN NEW FIELDS, ALL PLAIN TEXT, WHICH IS WHY THIS PANEL DID NOT NEED THE
+                  LAYOUT. The scoping premise was that giving them UI needs the hero built first.
+                  Re-derived, they are a support line, three labels, three figures and three units,
+                  and `TextArea`, `KeyRow` and the shared field exports already render exactly that.
+                  What the layout decides is how they LOOK on the page, not what an author types.
+
+                  ⚠ FIXED SLOTS, NOT `ItemRows`. The contract gives every tab exactly three callouts
+                  and exactly three figures — the callout lines and the counter row are drawn to that
+                  count. `ItemRows` is the add-and-remove control, and offering an Add button for a
+                  fourth callout would promise a thing the hero cannot draw. */}
+              <label className="flex flex-col gap-1.5">
+                <FieldKey>Support line</FieldKey>
+                <textarea
+                  rows={2}
+                  value={tabAt(values.heroTabs, activeTab).support}
+                  onChange={(e) => editTab(activeTab, "support", e.target.value)}
+                  onBlur={saveDraft}
+                  placeholder="Optional. The smaller sentence under the headline."
+                  className={`${inputClsMd} field-sizing-content resize-none max-h-[500px] overflow-y-auto py-3 leading-[1.55]`}
+                />
+              </label>
+
+              <div className="flex flex-col gap-1.5">
+                <FieldKey>Callouts</FieldKey>
+                {[0, 1, 2].map((i) => (
+                  <input
+                    key={i}
+                    type="text"
+                    aria-label={`Callout ${i + 1}`}
+                    value={tabAt(values.heroTabs, activeTab).callouts[i] ?? ""}
+                    onChange={(e) => editCallout(activeTab, i, e.target.value)}
+                    onBlur={saveDraft}
+                    placeholder={`Callout ${i + 1}`}
+                    className={`${inputClsMd} ${FIELD_MEASURE}`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <FieldKey>Figures</FieldKey>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex gap-2">
+                    {/* The number and its unit stay APART, because the hero rolls the number and a
+                        unit parsed back out of one string is a second spelling of the split. */}
+                    <input
+                      type="text"
+                      aria-label={`Figure ${i + 1}`}
+                      value={tabAt(values.heroTabs, activeTab).stats[i]?.value ?? ""}
+                      onChange={(e) => editStat(activeTab, i, "value", e.target.value)}
+                      onBlur={saveDraft}
+                      placeholder="6"
+                      className={`${inputClsMd} ${FIELD_MEASURE} w-24 shrink-0`}
+                    />
+                    <input
+                      type="text"
+                      aria-label={`Unit ${i + 1}`}
+                      value={tabAt(values.heroTabs, activeTab).stats[i]?.unit ?? ""}
+                      onChange={(e) => editStat(activeTab, i, "unit", e.target.value)}
+                      onBlur={saveDraft}
+                      placeholder="years"
+                      className={`${inputClsMd} ${FIELD_MEASURE} flex-1`}
+                    />
+                  </div>
+                ))}
+              </div>
             </KeyRow>
           </div>
         </div>

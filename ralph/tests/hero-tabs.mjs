@@ -59,9 +59,28 @@ t("B1 every tab has label, headline, support, three callouts and three stats of 
 console.log("\nC · the migration, as two assertions with opposite expectations");
 /* ⚠ READ FROM GIT RATHER THAN FROM A FIXTURE. The pre-migration file is the only honest source for
    what the owner's copy WAS, and a fixture would be a copy of it made by the same hand that wrote
-   the migration. `git show` against the commit before this branch is the real before-state. */
-const beforeRaw = execFileSync("git", ["show", "origin/main:content/site-settings.yaml"], { encoding: "utf8" });
+   the migration.
+
+   ⚠ PINNED TO A COMMIT, NOT TO `origin/main`, BECAUSE THE FIRST VERSION READ A MOVING REF AND
+   INVALIDATED ITSELF THE HOUR IT MERGED. Once the migration landed on main the flat keys were gone
+   from that ref, so C1 had nothing to compare against and went red on a change that was correct.
+   C0 is what caught it — it exists to say "the before-state is unavailable" rather than let C1
+   report a false diff — and it did that on its first real outing.
+
+   The pin is the last commit whose settings still carried the eight flat keys. `upstream.mjs`'s
+   KNOWN_UNCOVERED_TIP is the precedent, down to the row asserting the pin still resolves. */
+const gitOr = (args, fallback) => {
+  try { return execFileSync("git", args, { encoding: "utf8" }); } catch { return fallback; }
+};
+const PRE_MIGRATION = "580618a";
+const beforeRaw = gitOr(["show", `${PRE_MIGRATION}:content/site-settings.yaml`], "");
 const before = load(beforeRaw) ?? {};
+/* ⚠ CAUGHT BY MUTATION: `execFileSync` THROWS on a non-zero exit, so a pin that stopped resolving
+   crashed the suite instead of failing this row — and a crash reports no row at all. The whole
+   point of C0a is to name the cause when the pin dies, which it cannot do from inside a stack
+   trace. Both git reads are wrapped for the same reason. */
+t("C0a the pinned pre-migration commit still resolves — a rewritten history fails C1 for the wrong reason",
+  gitOr(["cat-file", "-t", `${PRE_MIGRATION}^{commit}`], "").trim(), "commit");
 t("C0 the pre-migration file still carries the eight flat keys — without them C1 compares nothing",
   [1, 2, 3, 4].every((n) => typeof before[`tab${n}Label`] === "string" && typeof before[`tab${n}Line`] === "string"), true);
 
@@ -155,6 +174,60 @@ t("F2 the studio panel reads a tab through a helper that tolerates a short or ab
 const reader = decomment(read("lib/keystatic.ts"));
 t("F3 the reader normalises callouts and stats to arrays, so no consumer meets undefined",
   /Array\.isArray\(o\.callouts\)/.test(reader) && /Array\.isArray\(o\.stats\)/.test(reader), true);
+
+console.log("\nG · the ten new fields are editable, which is what makes the empty state fillable");
+/* ⚠ THE SCOPING PREMISE WAS FALSE AND RE-DERIVING IT IS WHY THIS IS A SMALL PR. It was written as
+   "giving them UI needs the layout to define what they look like". The ten are a support line,
+   three labels, three figures and three units — ALL PLAIN TEXT — and `TextArea`, `KeyRow` and the
+   shared field exports already render exactly that shape. What the layout decides is how they look
+   ON THE PAGE, not what an author types. A premise accepted rather than checked would have deferred
+   this behind the hero and forced the hero to be judged on empty copy.
+
+   ⚠ AND EDITORS BEFORE LAYOUT IS THE ORDER FOR A REASON THIS ARC KEEPS PROVING: every design
+   question here was settled by a render of the REAL thing. With no editor the hero could only be
+   judged on the mock's filler, which section D asserts must never reach content. */
+const G_panel = decomment(read("components/studio/HeroEditPanel.tsx"));
+t("G1 the panel is real and still table-driven over the array — a zero here makes G2 vacuous",
+  G_panel.length > 4000 && /tabAt\(values\.heroTabs, activeTab\)/.test(G_panel), true);
+/* Each of the ten reaches a writer. Asserted by the WRITER it calls rather than by counting inputs,
+   because an input that renders and writes nowhere is the defect, not a missing input. */
+t("G2 ⚠ ALL TEN NEW FIELDS WRITE — support through editTab, the callouts and figures through their own writers",
+  [/editTab\(activeTab, "support"/.test(G_panel),
+   /editCallout\(activeTab, i, e\.target\.value\)/.test(G_panel),
+   /editStat\(activeTab, i, "value"/.test(G_panel),
+   /editStat\(activeTab, i, "unit"/.test(G_panel)],
+  [true, true, true, true]);
+/* ⚠ THE PADDING IS THE PROPERTY, NOT A DETAIL. A tab whose `callouts` is short must still accept a
+   value at index 2, and `next[2] = v` on a one-element array leaves a hole that serialises as null
+   — which the schema's own shape row would then refuse. Both writers fill three slots first. */
+/* ⚠ THE FIRST VERSION COUNTED `[0, 1, 2].map` OCCURRENCES AND A MUTATION SURVIVED IT. The panel
+   contains that expression FIVE times — two writers and three render loops — so removing a writer's
+   padding left the count comfortably over its floor. A count cannot say WHICH site has the property.
+   Sliced per writer instead, which is the same repair T2 needed in the toaster suite. */
+const bodyOf = (name) => {
+  const at = G_panel.indexOf(`const ${name} = `);
+  if (at < 0) return "";
+  const open = G_panel.indexOf("{", at);
+  let d = 0;
+  for (let i = open; i < G_panel.length; i++) {
+    if (G_panel[i] === "{") d++;
+    else if (G_panel[i] === "}" && --d === 0) return G_panel.slice(open, i);
+  }
+  return "";
+};
+t("G3a both writers were located, or G3 compares two empty strings",
+  [bodyOf("editCallout").length > 40, bodyOf("editStat").length > 40], [true, true]);
+t("G3 ⚠ BOTH WRITERS PAD TO THREE BEFORE WRITING, so an index-2 edit on a short array cannot leave a hole",
+  [/\[0, 1, 2\]\.map/.test(bodyOf("editCallout")), /\[0, 1, 2\]\.map/.test(bodyOf("editStat"))],
+  [true, true]);
+/* ⚠ FIXED SLOTS RATHER THAN `ItemRows`, which is a decision and not an omission. The hero draws
+   exactly three callout lines and exactly three figures, so an Add button would promise a fourth
+   the layout cannot render. This asserts the absence, because the obvious "improvement" later is to
+   reach for the list control that every other repeated field here uses. */
+t("G4 …and they are fixed slots, not an add-and-remove list the hero could not draw",
+  /ItemRows/.test(G_panel), false);
+t("G5 …and every input carries an accessible name, since three identical boxes have no visible label each",
+  (G_panel.match(/aria-label=\{`(Callout|Figure|Unit) \$\{i \+ 1\}`\}/g) ?? []).length, 3);
 
 console.log(`\nhero-tabs result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
