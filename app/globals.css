@@ -1665,6 +1665,9 @@ a {
   justify-content: center;
   background-color: var(--color-surface);
   padding-block: var(--hero-nav-runway) clamp(4rem, 8vh, 6rem);
+  /* ⚠ THE HERO IS ITS OWN CONTAINER, so the reflow measures THIS BOX rather than the viewport.
+     Full-bleed, the inline size is the viewport minus the padding below. */
+  container-type: inline-size;
   padding-inline: clamp(1.5rem, 4vw, 3.5rem);
   /* Restore the card-system rhythm below the hero: the gap between sections is a card's
      margin-bottom, which the hero lost when it left the article. Same --section-gap token
@@ -2049,6 +2052,68 @@ a {
 @media (prefers-reduced-motion: reduce) { .cursor-glow { display: none; } }
 /* the homepage hero glows in the terracotta-on-paper tone */
 .hero-ground { --glow-color: var(--glow-on-paper); }
+
+/* ⚠ HOMED BESIDE `.hero-ground`, AND IT TOOK TWO GATES TO GET HERE. Appended to the end of the file
+   first, which put six public selectors inside the studio scrollbar region — `studio-ink` C8 named
+   every one. Moved above that marker, which put them inside the PUBLISH TOASTER's region instead,
+   and `publish-toast` F2 caught two of my `var()` calls as non-studio tokens in a studio block.
+
+   ⚠ "ABOVE THE MARKER" WAS NOT THE RULE; "WITH THE PUBLIC RULES" IS. This file has several regions
+   whose constraints only their own suite knows, so the end of the file is not a safe default and
+   neither is anywhere-before-a-marker. Rules live beside the thing they style. */
+/* ============================================================================================
+   THE HERO LAYOUT — copy left, artwork bleeding right.
+
+   ⚠ THE REFLOW THRESHOLD IS DERIVED FROM THE SITE BREAKPOINT, NOT TYPED. The contract reflows at
+   900 on a container query. Kept as a container query, because the hero is its own container and a
+   viewport query would measure the wrong box — but 900 would fire at roughly 980 of viewport, while
+   THE WHOLE SITE GOES MOBILE AT 1024 (max-width 1023 / min-width 1024 in this file). That is a
+   44px window where the page is mobile in two stages, which this project forbids.
+
+   Derived: the ground's inline padding is clamp(1.5rem, 4vw, 3.5rem). At 1024 the middle term wins
+   at 40.96 a side, so the container measures 1024 - 81.92 = 942.08. THE LITERAL BELOW IS PINNED AND
+   ASSERTED EQUAL TO THAT DERIVATION, because a container query cannot take a calc — a coupling that
+   cannot be removed is a coupling that gets asserted.
+   ============================================================================================ */
+.hero-shell { position: relative; display: grid; grid-template-columns: 51% 49%; min-height: 0; }
+
+/* ⚠ THE ARTWORK PANEL CLIPS. The figure is height-driven and overflows its width by design. */
+.hero-art { position: relative; overflow: hidden; min-height: 0; }
+
+/* ⚠ TWO ELEMENTS, AND THE PAIR IS THE POINT. The OUTER carries the pointer transform and the INNER
+   carries the entrance. A CSS animation with a forwards fill beats a plain transform on the same
+   element, so one of the two would freeze at its entrance value and never move again. Every moving
+   thing here is a pair for that reason: .hero-figure over its image, .hero-piece over its pin. */
+.hero-figure { position: absolute; left: 50%; bottom: 0; height: 100%; transform: translateX(-50%); }
+.hero-figure img { display: block; height: 100%; width: auto; max-width: none; }
+
+/* ⚠ POSITIONED AGAINST THE PANEL'S EDGES, NEVER AGAINST FEATURES OF THE ARTWORK. The raster is
+   cropped and height-driven, so a percentage keyed to a drawn shape drifts out of register the
+   moment the panel's aspect changes — which is what made the source mockup need a media query
+   nudging cards around. These are insets from the empty edge. */
+.hero-piece { position: absolute; }
+.hero-pin { display: block; }
+
+/* The two piece cards. Fill and foreground are the ROLES, so both follow the ground together —
+   a fill that remaps under a foreground that does not is the mix this arc spent itself on. */
+.hero-card .hero-pin {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: clamp(8px, 1cqw, 14px);
+  border-radius: 12px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  width: clamp(78px, 9cqw, 132px);
+}
+.hero-card.is-sm .hero-pin { width: clamp(58px, 6cqw, 96px); }
+.hero-card-dot  { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.hero-card-line { height: 4px; border-radius: 2px; background: currentColor; opacity: 0.9; }
+.hero-card-line.is-short { width: 60%; }
+
+@container (max-width: 942px) {
+  .hero-shell { grid-template-columns: 1fr; }
+  .hero-art { order: -1; aspect-ratio: 1 / 1; }
+}
+
 /* the work section glows in the warmer tan tone */
 .glow-tan { --glow-color: var(--glow-on-tan); }
 
@@ -4854,6 +4919,7 @@ a {
   .studio-chrome .studio-toast-drain { animation: none; width: 0; }
   .studio-chrome .studio-toast-spin { animation: none; }
 }
+
 
 /* ============================================================ STUDIO SCROLLBARS — THE HAIRLINE
    Scoped to /studio beside the radius and motion blocks and for the same reason: this serves the

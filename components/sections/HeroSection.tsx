@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState, useEffect, Fragment } from "react";
 import {
   motion,
@@ -71,7 +72,13 @@ const MOBILE_BP = 1024;
 const SWIPE_PX = 44;
 const INTENT_RATIO = 1.4;
 
-type TabStrings = { label?: string; line?: string };
+type TabStrings = {
+  label?: string;
+  line?: string;
+  support?: string;
+  callouts?: string[];
+  stats?: { value: string; unit: string }[];
+};
 
 export default function HeroSection({
   heroCopy,
@@ -107,6 +114,14 @@ export default function HeroSection({
       tab: label,
       word: cms?.label?.trim() ? label.toLowerCase() : f.word,
       line: cms?.line?.trim() ? cms.line.trim() : f.line,
+      /* ⚠ NO FALLBACK FOR THE TEN NEW FIELDS, DELIBERATELY, AND IT IS THE OPPOSITE CHOICE FROM THE
+         LINE ABOVE. A blank tab NAME falls back because the tab must be pressable; a blank callout
+         or figure has nothing to fall back TO — inventing one would put words on the page the owner
+         never wrote, which is what the schema PR asserted must never happen. Empty stays empty and
+         the slot does not draw. */
+      support: cms?.support?.trim() ?? "",
+      callouts: cms?.callouts ?? [],
+      stats: cms?.stats ?? [],
     };
   });
 
@@ -183,8 +198,12 @@ export default function HeroSection({
       <CursorGlow />
 
       {/* Content — above the glow layer */}
+      {/* ⚠ TWO COLUMNS, COPY LEFT AND ARTWORK BLEEDING RIGHT. This replaces the centred-text hero
+          entirely — a full replacement of the composition, not an addition to it. The shell is a
+          grid rather than absolute positioning so the reflow is one property change. */}
+      <div className="hero-shell">
       <Container>
-        <div className="relative flex flex-col items-center text-center" style={{ zIndex: 2 }}>
+        <div className="relative flex flex-col items-start text-left" style={{ zIndex: 2 }}>
 
           {/* Signature + role label.
               LCP: the signature is the home page's largest-contentful paint, so it must
@@ -420,8 +439,109 @@ export default function HeroSection({
             </a>
           </Reveal>
 
+
+          {/* ⚠ THE EMPTY STATE IS TODAY'S REAL CONTENT, NOT AN EDGE CASE. All forty of the new
+              fields are empty on every tab, so this is what the hero renders the day it lands — and
+              a field can be cleared in the editor at any time.
+
+              ⚠ EACH SLOT IS GATED ON ITS OWN CONTENT, NOT ON A TAB-LEVEL FLAG. A callout line with
+              no label and a counter row with no figures are the two things that must never draw, and
+              gating them together would let one appear because the other happened to be filled.
+              `filter(Boolean)` before the length check, so three empty strings read as absent rather
+              than as three items. */}
+          {facets[active].support ? (
+            <p className="hero-support">{facets[active].support}</p>
+          ) : null}
+
+          {facets[active].callouts.filter(Boolean).length > 0 ? (
+            <ul className="hero-callouts">
+              {facets[active].callouts.filter(Boolean).map((c, i) => (
+                <li key={i}>{c}</li>
+              ))}
+            </ul>
+          ) : null}
+
+          {facets[active].stats.filter((st) => st.value.trim()).length > 0 ? (
+            <dl className="hero-counters">
+              {facets[active].stats.filter((st) => st.value.trim()).map((st, i) => (
+                <div key={i}>
+                  <dt>{st.value}</dt>
+                  <dd>{st.unit}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
         </div>
       </Container>
+
+      {/* ⚠ THE ARTWORK PANEL. No motion in this pass — the pairs exist so the entrance and the
+          pointer transform can never share an element, which is what would freeze one of them.
+
+          ⚠ AND NOTHING IS EVER APPLIED TO THE ILLUSTRATION. No filter, mask, clip-path, blend or
+          opacity change, in either motion, ever. An earlier version of this design shipped a duotone
+          that nobody read as hiding the artwork until the owner did. `hero-illustration` asserts the
+          absence rather than trusting a later polish pass not to reach for one. */}
+      <div className="hero-art" aria-hidden="true">
+        <div className="hero-figure">
+          {/* ⚠ NEXT/IMAGE, because this repo serves rasters through the optimizer. The intrinsic
+              size is the source's; the panel drives the rendered height and the width overflows and
+              is clipped, which is why no `sizes` guess can be right — it is height-driven. */}
+          <Image
+            src="/images/hero/hero-figure.webp"
+            alt=""
+            width={1033}
+            height={1024}
+            priority
+            sizes="(max-width: 1023px) 100vw, 49vw"
+          />
+        </div>
+
+        {/* ⚠ INSETS FROM THE PANEL'S EMPTY EDGE, never percentages keyed to drawn shapes. The pin is
+            the inner half of each pair. Positions are the contract's, expressed from the edge the
+            artwork does not reach. */}
+        <div className="hero-piece" style={{ left: "4%", top: "22%" }}>
+          <div className="hero-pin">
+            {/* ⚠ INLINED, NOT AN <img>. These are `currentColor` SVGs and an <img> cannot inherit
+                it — the file would draw its own colour and stop following the ink token, which is
+                the whole reason the committed icons replace the mock's CSS shapes. */}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 30" width="24" height="30" role="presentation" >
+  
+  <path d="M1.6 1.2 L1.6 24.4 L7.9 18.6 L11.6 27.4 L15.2 25.8 L11.6 17.2 L20.1 16.6 Z"
+        fill="currentColor" stroke="none"/>
+</svg>
+          </div>
+        </div>
+        {/* ⚠ BOTH CARDS TAKE THE ACCENT ROLE, NOT THE `accent-500` RUNG, AND THAT IS THE D RULING
+            APPLIED. `on-accent` on the rung measures 3.24 to 3.65 on the four dark palettes because
+            the rung does not remap; on the ROLE it is 6.75 to 7.52. The mock differentiates its two
+            cards by a second accent — the site's ladder has no lighter step, so they are told apart
+            by size, offset and content instead, which is what the parallax multipliers separate in
+            motion anyway. */}
+        <div className="hero-piece hero-card" style={{ left: "6%", bottom: "26%" }}>
+          <div className="hero-pin">
+            <span className="hero-card-dot" />
+            <span className="hero-card-line" />
+            <span className="hero-card-line is-short" />
+          </div>
+        </div>
+        <div className="hero-piece hero-card is-sm" style={{ right: "8%", bottom: "14%" }}>
+          <div className="hero-pin">
+            <span className="hero-card-dot" />
+            <span className="hero-card-line" />
+          </div>
+        </div>
+
+        <div className="hero-piece" style={{ right: "6%", top: "14%" }}>
+          <div className="hero-pin">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="presentation" >
+  
+  <path d="M20 1.5 C21.4 11.6 28.4 18.6 38.5 20 C28.4 21.4 21.4 28.4 20 38.5 C18.6 28.4 11.6 21.4 1.5 20 C11.6 18.6 18.6 11.6 20 1.5 Z"
+        fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+</svg>
+          </div>
+        </div>
+      </div>
+      </div>
     </section>
   );
 }
