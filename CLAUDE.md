@@ -494,6 +494,13 @@ build a gate for the limit and then believe it.
   **THE REPAIR IS THE SAME AS EVER AND IT IS STILL CHEAP: NAME THE REFERENCE BESIDE THE RULE.**
   `theme` section V now asserts the relation, so the reference is mechanical rather than prose.
 
+  **⚠ AND THE RULE NAMED THE WRONG FORM, FOUND A WEEK LATER BY THE SAME ROUTE.** It is written as the
+  vessel's rule and cited as one. `ReadingVessel.tsx` renders **two forms** across the 1200px boundary
+  — the fixed aside above it and a docked bar at or below — and derived from consumers, `pearl` is
+  used by `.blog-bead` **alone** while `glass` is used by `.blog-bead` and `.blog-liquid`. **The
+  relation lives in the docked bar's bead.** The aside owns `smoke-1` to `4`, `glass`, `ink` and
+  `bounce`. The rule holds and its subject was wrong.
+
   **⚠ AND THE CHROMA TERM IS WHAT BLOCKS AN ACHROMATIC PALETTE.** At chroma 0 the step goes negative
   and clamps, collapsing the four vessel tones onto **4.0 lightness units alone** where every shipped
   palette carries the separation in lightness and chroma together. `V4` fails by name rather than
