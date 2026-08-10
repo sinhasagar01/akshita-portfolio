@@ -112,13 +112,20 @@ const KNOWN = {
    *
    * The end condition their entries named — "clears when `heroImage` is unset and the themed plate
    * draws" — is exactly what happened, which is the point of writing one. */
-  "public/images/projects/fosfor-data-profiling/challenge-insights.webp": "FALLBACK ONLY — inline SVG draws instead since #365; clears when the raster is deleted",
-  "public/images/projects/fosfor-data-profiling/challenge-quality.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
-  "public/images/projects/fosfor-data-profiling/challenge-silos.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
-  "public/images/projects/fosfor-data-profiling/challenge-time.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
-  "public/images/projects/fosfor-data-profiling/metric-detection-rate.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
-  "public/images/projects/fosfor-data-profiling/metric-quality-lift.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
-  "public/images/projects/fosfor-data-profiling/metric-time-saved.webp": "FALLBACK ONLY — inline SVG draws instead since #365",
+  "public/images/projects/fosfor-data-profiling/challenge-insights.webp":
+    "FALLBACK ONLY — `fdp-insights` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
+  "public/images/projects/fosfor-data-profiling/challenge-quality.webp":
+    "FALLBACK ONLY — `fdp-quality` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
+  "public/images/projects/fosfor-data-profiling/challenge-silos.webp":
+    "FALLBACK ONLY — `fdp-silos` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
+  "public/images/projects/fosfor-data-profiling/challenge-time.webp":
+    "FALLBACK ONLY — `fdp-time-cost` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
+  "public/images/projects/fosfor-data-profiling/metric-detection-rate.webp":
+    "FALLBACK ONLY — `fdp-detection-rate` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
+  "public/images/projects/fosfor-data-profiling/metric-quality-lift.webp":
+    "FALLBACK ONLY — `fdp-quality-lift` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
+  "public/images/projects/fosfor-data-profiling/metric-time-saved.webp":
+    "FALLBACK ONLY — `fdp-time-saved` draws instead since #365; clears when that id is removed from the case study, which makes this raster the drawn source again, or when its block's image src is dropped and the file deleted",
   /* ⚠ THREE boAt SCREENSHOTS, AND B2 CAUGHT THE SECOND ONE HAVING NO END CONDITION — in the commit
    * that introduced the rule. They depict boAt's own dark app, which is warm-dark and therefore
    * near `ink-950`; the predicate cannot tell a product's dark UI from this site's ink band, and
@@ -223,8 +230,41 @@ t("A5c …and it still recognises a real author upload, so A5b is not passing be
 console.log(`\nB · the declared list is honest`);
 t("B1 every declared entry still matches — a stale one is an exemption for an asset that changed",
   Object.keys(KNOWN).filter((k) => !found.some((f) => f.rel === k)).sort(), []);
+/* ⚠ THIS MATCHER ACCEPTED REASONS AS TRIGGERS, AND THAT IS WHY IT NEVER FAILED.
+ *
+ * It read `/clears|pending|LEAK|FALLBACK|depicts/`. FOUR OF THOSE FIVE TOKENS DESCRIBE WHY AN ENTRY
+ * EXISTS; only `clears` names an end condition. So an entry saying nothing but "depicts a product"
+ * satisfied a row titled "every one names what would clear it".
+ *
+ * ⚠ FOUND BY MUTATION, NOT BY READING, AND THE MUTATION WAS ROUTINE. Stripping the trigger from a
+ * new entry left the reason word in place and the row stayed green. Counted afterwards, SIX OF THE
+ * TWELVE declared entries named no end condition at all — half the population, every one passing on
+ * the word FALLBACK. A guard that accepts the thing it forbids is `structural()` one level up.
+ *
+ * ⚠ THE REPAIR MATCHES THE CONSTRUCT RATHER THAN A PHRASE. Pinning the literal "clears when" would
+ * be the spelling-pin shape this repo has been burned by five times. What an end condition IS, in
+ * prose, is a conditional clause — `clears` followed by `when`, `once` or `if`. No reason word can
+ * satisfy that, and a reworded but still-conditional entry passes. B2a proves the rejection half,
+ * because a matcher that accepts everything and a matcher that is correct look identical on a
+ * list where every entry already complies. */
+const namesEndCondition = (why) => /\bclears\s+(when|once|if)\b/.test(why);
 t("B2 ⚠ AND EVERY ONE NAMES WHAT WOULD CLEAR IT — an entry with no end condition is permanent by inattention",
-  Object.entries(KNOWN).filter(([, why]) => !/clears|pending|LEAK|FALLBACK|depicts/.test(why)).map(([k]) => k), []);
+  Object.entries(KNOWN).filter(([, why]) => !namesEndCondition(why)).map(([k]) => k), []);
+t("B2a ⚠ …AND A REASON IS NOT A TRIGGER — the exact string that survived the old matcher must now be refused",
+  [
+    namesEndCondition("8.4% interior, depicts drawn UI baked into the illustration"),
+    namesEndCondition("FALLBACK ONLY — inline SVG draws instead since #365"),
+    namesEndCondition("boAt's own dark app UI — depicts a product"),
+    namesEndCondition("a LEAK, listed rather than fixed"),
+    /* ⚠ THE CASE THAT MAKES B2a DISCRIMINATE, ADDED BECAUSE A MUTATION SURVIVED WITHOUT IT. Every
+     * other negative here omits the word `clears` entirely, so all of them are refused by a bare
+     * `/clears/` too — B2a could not tell the tightened matcher from the loose one, and weakening
+     * it back passed. This string uses `clears` as a VERB ABOUT THE PAGE rather than as an end
+     * condition, so only the conditional form rejects it. */
+    namesEndCondition("FALLBACK ONLY — the inline SVG clears this raster from the page"),
+    namesEndCondition("depicts a product; clears when boat-crest stops shipping it"),
+  ],
+  [false, false, false, false, false, true]);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
