@@ -286,8 +286,19 @@ const USAGE = [
      remaps. On a dark palette that runs near-white to near-black and NO foreground clears both ends
      — ink-800 measures 14.12 / 1.01, text-body 1.79 / 7.80. Choosing a role would be choosing which
      end to fail on, so the plate is boarded as a SURFACE question and this row stops asserting a
-     pair whose ground is itself broken. */
-  ...TEXT("ink-800", ["cream-50", "cream-100", "cream-200"]),
+     pair whose ground is itself broken.
+
+     ⚠ AND THE CODE DID NOT MATCH THIS COMMENT UNTIL NOW, WHICH IS THE WHOLE REASON P2 WAS RED. The
+     paragraph above was written with the removal reasoned out and `cream-200` STAYED IN THE ARRAY —
+     prose and data in one file, looking like one claim and being two. It cost a branch that could not
+     be merged, and a report that named FOUR consumers when the pair has ONE: the four are sites
+     drawing `cream-200` as a GROUND, and this row is about `ink-800` drawn as TEXT on it, which only
+     `.blog-plate span` does. Counting the ground's consumers instead of the pair's is the
+     wrong-subject error this file names a dozen times.
+
+     `cream-200` KEEPS ITS COVERAGE AS A COLOUR through `text-subtle`'s row below, so `E1` does not
+     lose it — which is exactly the distinction shape 2 in this header exists to protect. */
+  ...TEXT("ink-800", ["cream-50", "cream-100"]),
   /* ⚠ `ink-600` HAD ZERO CONSUMERS AND NOW HAS ONE, SO ITS BOUNDARY ENTRY IS DELETED AND ITS ROW IS
      BACK. VideoEmbed's caption pill took a FIXED ink because its ground is a fixed rung — the device
      bezel is depiction and stays light, so its foreground must stay light-appropriate too. A
