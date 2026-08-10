@@ -250,6 +250,26 @@ is deploys rather than commits.
   to refuse it. **What changed is that the damage is no longer silent.** If a second fusion defect
   appears the canvas's own handling is the subject; one instance is not evidence the editor is wrong.
 
+  **⚠ AND THE SAME RULE HELD IN ONE COLLECTION AND NOWHERE ELSE — THE CASE-STUDY SEAM, NOW CLOSED.**
+  `validate-draft-sections.ts` knew nothing about placeholders, at publish or anywhere, while the
+  blog's rule had existed for arcs. **The collection with no gate was the more exposed one:** the
+  projects schema declares **no `status` field**, so a case study is public the moment it is on main
+  and there is no draft state to be permissive about. `content/projects/` measured clean by both
+  halves, so this was a seam rather than an incident.
+
+  **THE CHECK READS THE RAW DOCUMENT AND RUNS BEFORE THE SECTIONS GUARD**, because a placeholder sits
+  in `summary` or `facts` as easily as in a block, and that guard exempts any project with no
+  `sections` array. `ralph/tests/draft-placeholder.mjs` is named for the RULE rather than a
+  collection, since the defect was a rule holding in one place and not the other — which is invisible
+  from inside either validator.
+
+  **⚠ AND THE OBVIOUS EXTRACTION WAS TRIED AND REVERTED, WITH THE FILE'S OWN COMMENT ALREADY SAYING
+  WHY.** A second consumer is this repo's threshold for lifting something to a leaf. Doing it would
+  cost `validate-blog-post.ts` the property its header names — **dependency-free beyond js-yaml and
+  type-only imports, which is what lets a ralph suite EXECUTE it.** So the import runs from the file
+  that can afford it to the file that cannot. **The comment forbidding it was already there and the
+  suite failed within a minute of ignoring it.**
+
 - **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
   SESSION.** It was ranked highest on the argument that three defects came from an author using the
   editor and none from a gate. Both of this session's results were produced by an author using it,
