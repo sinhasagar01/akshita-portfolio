@@ -478,6 +478,14 @@ the DESKTOP fab that appears once the nav hides, and earlier attempts clicked th
 mobile width, which drives `menuOpen` and a different element. **The white-alpha census is now
 entirely resolved: 33 sites, all with verdicts.**
 
+**A STATED LIMIT, NOT AN OPEN ITEM — `paint-sites`' census drifts.** Two runs against unchanged
+pages gave 15,031 and 14,857 comparisons; the count follows what has MOUNTED at capture time. It
+cannot cause a false finding (B1 compares only keys present in both palettes) but it can leave a
+real one unmeasured, and A1-A3a catch a collapsed subject rather than a 1% drift. **A pass means no
+defect among the sites that mounted.** Per-page count literals would close it and would fail on
+every legitimate content change, so the trade is declined deliberately. **Revisit only if a defect
+is ever found that an earlier run should have seen.**
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session
