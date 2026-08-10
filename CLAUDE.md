@@ -1600,6 +1600,26 @@ build a gate for the limit and then believe it.
   STYLESHEET rather than the report** — which is precisely why **a gate that RECOMPUTES beats one
   that PINS**, and why K2 caught what review could not.
 
+- **⚠ A FETCH IS PART OF THE READ — `git show main:...` ANSWERS FROM THE LAST FETCH, NOT FROM
+  GITHUB.** The restore-from-main convention below says read the published theme from the file. For
+  an entire arc that read returned `nocturne` — **correct about a local main last fetched before
+  `73c7855`, the studio publish that set cream at 21:39 the previous evening.** Every "restore to
+  the published value" in that arc restored to a value that had stopped being published, and the
+  post-merge verification is what caught it — first read as a broken probe un-publishing the theme,
+  then corrected by the history to an authored change my stale ref had never seen.
+
+  **⚠ THE STALE-RECORD SHAPE INSIDE A RULE WRITTEN TO PREVENT STALENESS — second time this week**,
+  after the file-type rule whose own walk ignored it. A rule that names the authoritative source
+  must also name how fresh the source is, or it inherits the staleness it was written against.
+  `git fetch origin main` before the read, or read `origin/main` and say so.
+
+  **⚠ AND THE ARC'S COMMIT BODIES CARRY THE STALE CLAIM, WHICH CANNOT BE EDITED, SO IT IS CORRECTED
+  HERE BY NAME.** Several #457 commit messages assert "`theme: nocturne` clean" as verification.
+  Each was true of the working tree against a stale local main; **the published value was cream from
+  `73c7855` onward.** No content was harmed — the branch never committed the file, and the merge
+  carried main's own value through — but the record's claims described yesterday's main, and this
+  entry is where a reader of those bodies finds that out.
+
 - **⚠ A CONVENTION THAT NAMES A SPECIFIC THEME IS THE FIXED-LIST SHAPE.** "Revert `theme:` to
   `cream` before committing" went stale the moment the owner published harbour through /studio, and
   following it would have **silently un-published their choice while looking like tidying up**.
