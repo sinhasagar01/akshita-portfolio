@@ -610,6 +610,26 @@ build a gate for the limit and then believe it.
   it.** Repaired by painting a 1×1 canvas and reading the pixel — the browser does the conversion, so
   the value measured is the value drawn.
 
+- **⚠ A KILLED PROCESS HAS NO `finally`, AND A PROBE THAT SWAPS `theme:` IS EDITING CONTENT WITH AN
+  OWNER.** `paint-sites` runs long enough to be timed out — its first widened run was, at ten
+  minutes — and the kill left `content/site-settings.yaml` on whichever palette the loop was
+  mid-way through. **Leaving it changed is a silent un-publishing**, the exact failure the
+  restore-from-main convention exists to prevent. A `finally` covers a throw; only a signal handler
+  covers a kill. Any future probe that mutates a tracked file must trap `SIGINT`, `SIGTERM` and
+  `SIGHUP`, not just wrap a `try`.
+
+  **⚠ AND THE CLASS HAS ONE MEMBER, WHICH I ASSERTED WITHOUT COUNTING.** I claimed "the vessel and
+  theme-render harnesses have the identical exposure" and proposed adding handlers to them. Censused:
+  **no other repo script swaps the theme or restores a tracked file through a `finally`** —
+  `mutate.mjs` uses an explicit snapshot-and-restore, `normalize-dom` writes an output directory,
+  `capture.mjs` writes screenshots. The harnesses I named were **scratchpad probes, which are
+  throwaway and not in the repo at all.** A one-member class needs a rule and not a helper; building
+  shared plumbing for a single consumer is the shape this repo refuses.
+
+  **The general form: a claim that "this class of thing is also affected" is a COUNT, and it is
+  cheap to take.** Mine was an inference from having just written five probes, none of which
+  survived the session.
+
 - **⚠ RULED: `--glass-fill` AND `--glass-stroke` KEEP THEIR TONE-ONLY DARK ANSWERS. A REACHABILITY
   RULING, NOT A STYLE ONE.** Both remap under `[data-nav-tone="dark"]` and nowhere else, which reads
   as the same latent split that made `--glass-fill-strong` paint light. **It is not, because they are
