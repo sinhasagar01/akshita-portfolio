@@ -28,7 +28,7 @@ type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
-  const { anyOccluding, unpublished, setUnpublished, draftReadError, anyPending,
+  const { unpublished, setUnpublished, draftReadError, anyPending,
     toasts, beginToast, resolveToast: resolveToastById, dismissToast } = usePublishSignal();
   /** One publish at a time — closes the double-activation window  cannot. */
   const inFlight = useRef(false);
@@ -364,12 +364,11 @@ export default function PublishBar() {
     }
   }
 
-  /* ⚠ YIELD THE CORNER WHILE SOMETHING TRANSIENT IS USING IT. `anyOccluding` is reported by the
-     Selected rail; see `useReportOccluding` for why hiding beats clearing for that one.
-     RETURNED NULL RATHER THAN HIDDEN WITH A CLASS, because a `pointer-events-auto` pill under a
-     zero-opacity wrapper is still clickable — a Publish button you cannot see but can press is
-     the worst version of this. Unmounting also drops it from the tab order, which merely painting
-     it out would not. */
+  /* ⚠ THE YIELD IS GONE — see the note above. What stood here argued that unmounting beat painting
+     out, because a `pointer-events-auto` pill under a zero-opacity wrapper is still clickable and
+     still in the tab order. THAT ARGUMENT WAS RIGHT AND IS NOW MOOT: the pill neither hides nor
+     unmounts, it moves. Kept in outline because the clickable-invisible-control hazard it names is
+     real and the next person reaching for `opacity-0` here should meet it. */
   /* ⚠ AND THE PREVIEW DIALOG NEEDS NO EXEMPTION HERE, WHICH WAS WORTH CHECKING RATHER THAN
      ASSUMING. `&& !previewOpen` was written here first, to stop the rail unmounting an open
      dialog mid-publish. It guards a transition that cannot occur: `anyOccluding` is reported only
@@ -377,14 +376,16 @@ export default function PublishBar() {
      behind a scrim — and if the rail were already up, this line would have returned null and there
      would be no Publish button to press. `studio-resize` I2 pins this condition verbatim and
      failed on the widened copy, which is the assertion doing exactly its job. */
-  /* ⚠ THE TOASTER IS RAISED BEFORE THE YIELD, AND THAT IS THE POINT OF PUTTING IT HERE. The bar
-     RETURNS NULL when something transient owns the corner, which is right for a pill the author can
-     re-summon — and wrong for a refusal, which is the only record of why a publish did not happen.
-     Yielding it would delete the message along with the furniture. The two live in different
-     corners (the pill is bottom-centre, the toaster top-right), so nothing is gained by hiding it. */
-  if (anyOccluding) {
-    return <PublishToaster toasts={toasts} onDismiss={dismissToast} onRetry={publish} />;
-  }
+  /* ⚠ THE PILL NO LONGER YIELDS, BECAUSE NOTHING REPORTS OCCLUSION ANY MORE. The sections rail was
+     the only reporter; it now registers its height as a BAR and the pill rises above it at
+     `calc(--studio-bar-clearance + 2rem)`, the same way it clears the permanent save bar. A primary
+     action that vanishes with nothing explaining why is worse than one that moves, which is what
+     live use showed.
+
+     ⚠ `anyOccluding` AND `useReportOccluding` REMAIN IN THE PROVIDER WITH ZERO REPORTERS, AND THAT
+     IS NAMED RATHER THAN LEFT. Zero consumers is a reason to delete, not to keep quietly — but
+     removing the mechanism is a different change from fixing this behaviour, and doing both in one
+     diff would make neither reviewable. Boarded. */
 
   /* ⚠ AND THE PILL SITS AT THE OVERLAY LAYER, NOT THE MODAL ONE. It held z-50 — the value
      globals.css names `--z-modal` — and so did `StudioModal`'s scrim, so a modal and a floating

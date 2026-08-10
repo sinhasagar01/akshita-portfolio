@@ -52,6 +52,7 @@ export default function ThemeEditPanel({ itemId, theme }: { itemId: string; them
 
   const { values, setField, dirty, saveStatus, savedAt, saveDraft } =
     useDraftForm<ThemeFields>({
+    toastLabel: "Site settings — Theme",
       initial: { theme: theme || DEFAULT_THEME },
       buildCommitted: (v) => ({ ...v }),
       isDirty: (v, b) => v.theme !== b.theme,

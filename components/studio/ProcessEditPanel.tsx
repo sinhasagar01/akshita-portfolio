@@ -49,6 +49,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
     saveDraft,
     cancel,
   } = useDraftForm<ProcessFields>({
+    toastLabel: "Site settings — Process",
     initial,
     buildCommitted: (v) => ({
       processStages: v.processStages.map((s) => ({

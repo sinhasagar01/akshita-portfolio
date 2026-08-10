@@ -332,6 +332,7 @@ export default function BlogBlocksEditPanel({
   useEffect(() => () => previews.releaseAll(), [previews]);
 
   const { values, setField, dirty, saveStatus, savedAt, saveDraft } = useDraftForm<BlogFields>({
+    toastLabel: `Blog · ${slug}`,
     initial: { blocks: initialBlocks },
     buildCommitted: (v) => ({ blocks: v.blocks }),
     isDirty: (v, b) => JSON.stringify(v.blocks) !== JSON.stringify(b.blocks),

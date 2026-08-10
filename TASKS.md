@@ -494,6 +494,13 @@ with NO CODE CHANGE — in `.env.local` for local use and in Vercel for producti
 `.env.local.example`. **The token-present path is UNVERIFIED**: the credential was not present in
 this session despite being expected, checked in `.env.local`, every `.env*` file and the shell.
 
+**DEAD MECHANISM, NAMED RATHER THAN RIPPED OUT — `useReportOccluding` / `anyOccluding`.** The
+sections rail was its only reporter and no longer reports, so the provider carries a signal nothing
+raises. Zero consumers is a reason to delete; removing the mechanism is a different change from
+fixing the vanishing-button behaviour and doing both in one diff would make neither reviewable.
+**Trigger:** the next time floating furniture needs to suppress something, decide then whether to
+revive it or delete it.
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session

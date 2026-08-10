@@ -4,7 +4,7 @@
 // status and carries no action, so a refusal named the post that was wrong and offered no way to
 // reach it. The toast adds PERSISTENCE, AN ACTION and A STACK. The split is standing state versus
 // event result, and these rows are what stop it drifting back.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
   const ok = JSON.stringify(got) === JSON.stringify(want);
@@ -21,12 +21,15 @@ const prov = src("components/studio/PublishProvider.tsx");
 
 console.log("A · the subject exists and is wired on BOTH paths");
 t("A1 the component is real, against a literal", toaster.length > 2000, true);
-/* ⚠ THE YIELD IS THE POINT. PublishBar returns null when something transient owns the corner —
- * right for a pill the author can re-summon, wrong for the only record of why a publish failed. */
-t("A2 ⚠ THE TOASTER SURVIVES `anyOccluding` — the bar yields the corner and the refusal must not go with it",
-  /if \(anyOccluding\) \{[\s\S]{0,200}?<PublishToaster/.test(bar), true);
-t("A2a …and it renders on the normal path too, so the guard is a branch and not the only mount",
-  (bar.match(/<PublishToaster/g) ?? []).length, 2);
+/* ⚠ REVERSED: THE PILL NO LONGER YIELDS, SO NEITHER DOES THE TOASTER. These rows asserted the
+ * toaster survived `anyOccluding` while the bar returned null — correct while the sections rail
+ * suppressed the pill. Live use showed that suppression IS the defect: a primary action that
+ * VANISHES with nothing explaining why is worse than one that moves. The rail now registers as a
+ * bar and the pill rises above it, so there is one mount and no yield to survive. */
+t("A2 ⚠ THE TOASTER MOUNTS UNCONDITIONALLY — no branch can suppress the only record of why a publish failed",
+  (bar.match(/<PublishToaster/g) ?? []).length, 1);
+t("A2a …and nothing in the bar unmounts on occlusion any more",
+  /if \(anyOccluding\)/.test(bar), false);
 
 console.log("\nB · the split — the line keeps standing state, the toaster owns events");
 /* Each of these still sets the LINE, because each is a fact about now rather than a result. */
@@ -94,6 +97,18 @@ t("G2 …and it is top-right where the pill is bottom-centre, so the corners can
   /fixed right-4 top-\[76px\]/.test(toaster), true);
 
 console.log("\nS · the save path raises its own toasts, from the same stack");
+/* ⚠ THE SUBJECT IS DERIVED FROM THE FILESYSTEM, NOT LISTED — and the miss this row exists for is
+ * the reason. Four panels were labelled and reported as done when the population was ELEVEN, so
+ * Theme, Blog, Skills, Experience and Case studies saved in silence until an author found them.
+ * An enumerated subject is correct the day it is written and decays from then on; a derived one
+ * cannot fall behind its own population. */
+const panels = readdirSync(new URL("../../components/studio/", import.meta.url))
+  .filter((f) => f.endsWith(".tsx"))
+  .map((f) => [f, readFileSync(new URL(`../../components/studio/${f}`, import.meta.url), "utf8")])
+  .filter(([, src]) => /useDraftForm[<(]/.test(src) && !/^\s*\*/.test(src));
+t("S0 the walk found the real population of save panels, against a literal", panels.length >= 10, true);
+t("S0a ⚠ EVERY useDraftForm CONSUMER PASSES A toastLabel — a panel that saves in silence is one an author has to discover",
+  panels.filter(([, src]) => !/toastLabel:/.test(src)).map(([f]) => f), []);
 /* ⚠ THE STATE LIVES IN THE PROVIDER BECAUSE TWO UNRELATED SURFACES RAISE INTO IT — publish results
  * from the bar, save results from every panel's `useDraftForm`. They share no ancestor but this. */
 t("S1 the provider owns the stack and exposes the three operations",
