@@ -13,88 +13,37 @@ import CursorGlow from "@/components/motion/CursorGlow";
 import { heroFontVariables } from "@/components/sections/hero-fonts";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
-/* ⚠ THE HERO RENDERS docs/hero-ash-contract.html VERBATIM FOR NOW — COPY INCLUDED — BY THE OWNER'S
-   RULING, AND THE FLAG BELOW IS THE WHOLE MECHANISM. The first pass kept the CMS copy and the
-   ruling that came back was exact fidelity to the contract, content and all, with the content to
-   be rewritten later. So while `USE_CONTRACT_COPY` is true the hero draws `CONTRACT` and ignores
-   the CMS strings; flipping it to false restores the CMS-first merge below untouched.
+/* ⚠ THE COPY LIVES IN content/site-settings.yaml AND THE BYPASS FLAG IS GONE.
+   `USE_CONTRACT_COPY` stood here with the contract's words beside it, and while it was true **50 of
+   the hero's 51 owner-editable fields were editable in /studio with no effect on the page** — only
+   `heroCopy` survived, because it is read outside the flag. The owner has since ruled the contract's
+   copy correct, so it is now CONTENT rather than a hardcoded bypass: every string below arrives as a
+   prop, and editing any of them in /studio changes the page.
 
-   ⚠ THE CONTRACT COPY LIVES HERE AND MUST NEVER REACH content/site-settings.yaml. Three of these
-   headlines are the mock author's filler, not the owner's words, and `hero-tabs` D1 fails if any
-   of them lands in the content file. A component fallback is display; the yaml is the owner's
-   voice.
+   ⚠ THAT MAKES THE FLAG'S GATE OBSOLETE AND THE ABSENCE IS WHAT IS ASSERTED NOW.
+   `ralph/tests/hero-contract-copy.mjs` used to fail if the flag reached main; it now fails if a
+   bypass of ANY name comes back, which is the durable form of the same rule.
 
-   ⚠ AND THE COST IS MEASURED RATHER THAN DESCRIBED: while this is true, 50 of the hero's 51
-   owner-editable fields are editable in /studio WITH NO EFFECT ON THE PAGE. `heroCopy` is the one
-   survivor, because it is read below rather than through the flag.
-   `ralph/tests/hero-contract-copy.mjs` fails if this reaches main, which is the tree that deploys —
-   an inert state with nothing that fails is one nobody remembers, and this record has four of them. */
-const USE_CONTRACT_COPY = true;
+   ⚠ THE `*em*` MARKERS ARE PART OF THE HEADLINE FIELD. The contract italicises one word of each
+   answer in the accent, and a headline is one CMS string — so the marker travels in the copy and
+   `HeroWord` parses it. An unmarked headline simply renders with no accent word. */
 
-type ContractTab = {
+/** One tab as the hero draws it, after the CMS values and the fallbacks have been merged. */
+type HeroFacet = {
   tab: string;
   /** asterisk pairs mark the one accent `<em>` word, e.g. "people *use*." */
   line: string;
   support: string;
-  /** label plus the connector line's y position, percent of hero height */
+  /** label paired with the connector line's y position, percent of hero height */
   calls: [string, number][];
   stats: { value: string; unit: string }[];
 };
 
-const CONTRACT: { eyebrow: string; scrollCue: string; tabs: ContractTab[] } = {
-  eyebrow: "UI/UX product designer · Bengaluru",
-  scrollCue: "Scroll to process",
-  tabs: [
-    {
-      tab: "Who I am",
-      line: "A product designer who turns rough ideas into products people *use*.",
-      support:
-        "Six years across enterprise data tools and one consumer turnaround. Most of the work happens before anything is drawn.",
-      calls: [["Enterprise UX", 24], ["Design systems", 47], ["Research-led", 70]],
-      stats: [
-        { value: "6", unit: "years" },
-        { value: "4", unit: "case studies" },
-        { value: "2", unit: "companies" },
-      ],
-    },
-    {
-      tab: "What I do",
-      line: "End-to-end design for *data-dense* tools.",
-      support:
-        "Research through to shipped interface — personas, flows, systems, and the engineering conversations that keep them intact.",
-      calls: [["Personas ×3", 21], ["Flows", 45], ["Tokens", 71]],
-      stats: [
-        { value: "3", unit: "personas" },
-        { value: "40", unit: "% faster" },
-        { value: "35", unit: "% adoption" },
-      ],
-    },
-    {
-      tab: "How I work",
-      line: "Close to research. Closer to *engineering*.",
-      support:
-        "A rating of 2.3 is a completion number wearing a satisfaction number. The job is finding which failure it is about.",
-      calls: [["Measure first", 28], ["Test with people", 51], ["Ship, re-measure", 74]],
-      stats: [
-        { value: "80", unit: "% completion" },
-        { value: "25", unit: "% retention" },
-        { value: "42", unit: "rating ×10" },
-      ],
-    },
-    {
-      tab: "What I'm up to",
-      line: "Open to roles, and *writing* about motion.",
-      support:
-        "Currently at Fosfor on Elevate ONE View. Writing about what motion is for, and what you learn by removing it.",
-      calls: [["Fosfor · Elevate", 26], ["Writing", 53], ["Open to roles", 76]],
-      stats: [
-        { value: "3", unit: "posts" },
-        { value: "4", unit: "studies" },
-        { value: "1", unit: "turnaround" },
-      ],
-    },
-  ],
-};
+/* ⚠ THE CALLOUT LABEL IS CONTENT; ITS y POSITION IS LAYOUT. The connector lines need a height for
+   each trace and the CMS stores three labels, not three coordinates — asking an author for a
+   percentage would be asking them to design. These three are the contract's own spacing, kept here
+   with the rest of the geometry. */
+const CALLOUT_Y = [24, 47, 70];
 
 /* the contract's four backdrop arrangements, one per tab, normalised to the art panel */
 type EmberShape =
@@ -107,7 +56,7 @@ const EMBER_LAYOUTS: EmberShape[][] = [
   [{ t: "r", x: 0.06, y: 0.24, w: 0.28, h: 0.26 }, { t: "r", x: 0.44, y: 0.34, w: 0.30, h: 0.20 }, { t: "c", x: 0.84, y: 0.20, r: 0.15 }, { t: "c", x: 0.40, y: 0.70, r: 0.14 }],
 ];
 
-// CMS fallbacks for the tab names and headlines when USE_CONTRACT_COPY is off.
+// Defensive fallbacks for the tab name and headline, so the hero never renders blank.
 const FACETS = [
   { tab: "Who I am", line: "A product designer who turns rough ideas into products people use." },
   { tab: "What I do", line: "I carry work from the first messy sketch to the shipped screen." },
@@ -219,28 +168,26 @@ export default function HeroSection({
   const nameEm    = nameParts.length > 1 ? nameParts.pop()! : "";
   const nameLead  = nameEm ? `${nameParts.join(" ")} ` : signature;
 
-  const eyebrow = USE_CONTRACT_COPY
-    ? CONTRACT.eyebrow
-    : roleLabel?.trim() ? roleLabel : "Product designer";
-  const cue = USE_CONTRACT_COPY
-    ? CONTRACT.scrollCue
-    : scrollCue?.trim() ? scrollCue : "scroll to process";
+  const eyebrow = roleLabel?.trim() ? roleLabel : "Product designer";
+  const cue     = scrollCue?.trim() ? scrollCue : "scroll to process";
 
-  /* Contract copy verbatim while the flag is on; otherwise the CMS-first merge. The CMS branch
-     keeps the deliberate no-fallback rule for support, callouts and stats — a blank there stays
-     blank because inventing copy would put words on the page the owner never wrote. */
-  const facets: ContractTab[] = USE_CONTRACT_COPY
-    ? CONTRACT.tabs
-    : FACETS.map((f, i) => {
-        const cms = tabs?.[i];
-        return {
-          tab: cms?.label?.trim() ? cms.label.trim() : f.tab,
-          line: cms?.line?.trim() ? cms.line.trim() : f.line,
-          support: cms?.support?.trim() ?? "",
-          calls: [],
-          stats: (cms?.stats ?? []).filter((st) => st.value.trim()),
-        };
-      });
+  /* ⚠ EVERY SLOT IS GATED ON ITS OWN CONTENT AND NOTHING IS INVENTED. The tab NAME and the headline
+     fall back, because a tab must be pressable and a blank answer is a blank hero. Support, callouts
+     and figures do NOT — a blank there has nothing to fall back TO, and putting words on the page the
+     owner never wrote is what the schema PR asserted must never happen. `filter(Boolean)` before the
+     length check, so three empty strings read as absent rather than as three items. */
+  const facets: HeroFacet[] = FACETS.map((f, i) => {
+    const cms = tabs?.[i];
+    return {
+      tab: cms?.label?.trim() ? cms.label.trim() : f.tab,
+      line: cms?.line?.trim() ? cms.line.trim() : f.line,
+      support: cms?.support?.trim() ?? "",
+      calls: (cms?.callouts ?? [])
+        .map((c, j) => [c.trim(), CALLOUT_Y[j] ?? 50] as [string, number])
+        .filter(([label]) => label !== ""),
+      stats: (cms?.stats ?? []).filter((st) => st.value.trim()),
+    };
+  });
 
   const sectionRef  = useRef<HTMLElement>(null);
   const touchStartX = useRef<number | null>(null);
@@ -638,7 +585,7 @@ export default function HeroSection({
                         aria-hidden="true"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          /* ⚠ THE FILL IS THE CONTRACT'S ACCENT AND THE SHADOW STAYS A TOKEN READ.
+                          /* ⚠ THE FILL IS THE ACCENT ROLE AND THE SHADOW STAYS A TOKEN READ.
                              `vessel-alias` C1 asserts the pill's shadow arrives through
                              `--hero-tab-shadow` so a selector can give it a dark answer — the
                              contract's value is supplied by overriding that token under
