@@ -38,12 +38,10 @@ export default async function HomePage() {
           padded container), so the nav is no longer crushed against a card corner. */}
       <HeroSection
         heroCopy={settings?.heroCopy}
-        tabs={[
-          { label: settings?.tab1Label, line: settings?.tab1Line },
-          { label: settings?.tab2Label, line: settings?.tab2Line },
-          { label: settings?.tab3Label, line: settings?.tab3Line },
-          { label: settings?.tab4Label, line: settings?.tab4Line },
-        ]}
+        /* The hero's four tabs come from one array now, not eight flat keys. `line` keeps its
+           name at this boundary because HeroSection's prop is unchanged — the field it reads is
+           `headline`, and renaming the prop is the layout PR's business rather than the schema's. */
+        tabs={(settings?.heroTabs ?? []).map((t) => ({ label: t.label, line: t.headline }))}
         roleLabel={settings?.heroRoleLabel}
         scrollCue={settings?.heroScrollCue}
       />

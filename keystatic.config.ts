@@ -1019,42 +1019,54 @@ export default config({
           label: "Hero copy",
           description: "The large italic headline on the home page",
         }),
-        tab1Label: fields.text({
-          label: "Hero tab 1 name",
-          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
-        }),
-        tab1Line: fields.text({
-          label: "Hero tab 1 line",
-          description: "The serif line shown when tab 1 is active",
-          multiline: true,
-        }),
-        tab2Label: fields.text({
-          label: "Hero tab 2 name",
-          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
-        }),
-        tab2Line: fields.text({
-          label: "Hero tab 2 line",
-          description: "The serif line shown when tab 2 is active",
-          multiline: true,
-        }),
-        tab3Label: fields.text({
-          label: "Hero tab 3 name",
-          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
-        }),
-        tab3Line: fields.text({
-          label: "Hero tab 3 line",
-          description: "The serif line shown when tab 3 is active",
-          multiline: true,
-        }),
-        tab4Label: fields.text({
-          label: "Hero tab 4 name",
-          description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
-        }),
-        tab4Line: fields.text({
-          label: "Hero tab 4 line",
-          description: "The serif line shown when tab 4 is active",
-          multiline: true,
-        }),
+        // ⚠ ONE ARRAY, NOT EIGHT FLAT KEYS PLUS A PARALLEL ONE. This replaced `tab1Label`
+        // through `tab4Line`. The contract's hero gives each tab a headline, a support line,
+        // three callout labels and three figures, and the only two shapes available were a
+        // second array joined to the flat fields BY INDEX, or one object per tab. The first is
+        // two places describing one tab, which this repo deletes on sight.
+        // `processStages` below is the precedent, down to the itemLabel.
+        heroTabs: fields.array(
+          fields.object({
+            label: fields.text({
+              label: "Tab name",
+              description: "Keep it short, it renders as a tab label. The script backdrop word derives from it.",
+            }),
+            headline: fields.text({
+              label: "Headline",
+              description: "The serif line shown when this tab is active",
+              multiline: true,
+            }),
+            support: fields.text({
+              label: "Support line",
+              description: "The smaller sentence under the headline. Optional.",
+              multiline: true,
+            }),
+            // ⚠ THE CALLOUT ANCHORS ARE NOT HERE, DELIBERATELY. Each callout's line meets the
+            // panel edge at a fixed height, and those heights are LAYOUT — an author picks a
+            // label, not a y-position. They live beside the component as a constant.
+            callouts: fields.array(fields.text({ label: "Callout" }), {
+              label: "Callouts",
+              description: "Three short labels drawn beside the artwork. Optional.",
+              itemLabel: (props) => props.value,
+            }),
+            stats: fields.array(
+              fields.object({
+                value: fields.text({ label: "Figure" }),
+                unit: fields.text({ label: "Unit" }),
+              }),
+              {
+                label: "Figures",
+                description: "Three numbers with their units. Optional.",
+                itemLabel: (props) => `${props.fields.value.value} ${props.fields.unit.value}`.trim(),
+              }
+            ),
+          }),
+          {
+            label: "Hero tabs",
+            description: "The four tabs on the home page hero",
+            itemLabel: (props) => props.fields.label.value,
+          }
+        ),
         heroRoleLabel: fields.text({
           label: "Hero role label",
           description: "The small uppercase label under the signature",

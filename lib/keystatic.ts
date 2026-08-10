@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
-import type { ProcessStage, LinkItem } from "@/lib/studio/site-settings-format";
+import type { ProcessStage, LinkItem, HeroTab } from "@/lib/studio/site-settings-format";
 import { adjacentByOrderIndex } from "@/lib/case-studies/adjacent-project";
 import { resolveTheme, type ThemeName } from "@/lib/theme";
 import {
@@ -25,14 +25,7 @@ export type SiteSettingsEntry = {
   /** The resolved public palette. Never the raw file value — see mapSiteSettings. */
   theme: ThemeName;
   heroCopy: string;
-  tab1Label: string;
-  tab1Line: string;
-  tab2Label: string;
-  tab2Line: string;
-  tab3Label: string;
-  tab3Line: string;
-  tab4Label: string;
-  tab4Line: string;
+  heroTabs: HeroTab[];
   heroRoleLabel: string;
   heroScrollCue: string;
   photo: string | null;
@@ -137,14 +130,22 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
        Missing, empty, misspelt and wrong-typed all land there, silently, by design. */
     theme: resolveTheme(raw.theme),
     heroCopy: (raw.heroCopy as string) ?? "",
-    tab1Label: (raw.tab1Label as string) ?? "",
-    tab1Line: (raw.tab1Line as string) ?? "",
-    tab2Label: (raw.tab2Label as string) ?? "",
-    tab2Line: (raw.tab2Line as string) ?? "",
-    tab3Label: (raw.tab3Label as string) ?? "",
-    tab3Line: (raw.tab3Line as string) ?? "",
-    tab4Label: (raw.tab4Label as string) ?? "",
-    tab4Line: (raw.tab4Line as string) ?? "",
+    /* ⚠ NORMALISED HERE RATHER THAN TRUSTED, the same posture the rest of this mapper takes. A
+       tab missing `callouts` or `stats` is the ordinary state until the owner fills them, so the
+       reader supplies the empty arrays instead of letting a consumer meet `undefined`. */
+    heroTabs: (Array.isArray(raw.heroTabs) ? raw.heroTabs : []).map((t) => {
+      const o = (t ?? {}) as Record<string, unknown>;
+      return {
+        label: (o.label as string) ?? "",
+        headline: (o.headline as string) ?? "",
+        support: (o.support as string) ?? "",
+        callouts: Array.isArray(o.callouts) ? (o.callouts as string[]) : [],
+        stats: (Array.isArray(o.stats) ? o.stats : []).map((st) => {
+          const so = (st ?? {}) as Record<string, unknown>;
+          return { value: (so.value as string) ?? "", unit: (so.unit as string) ?? "" };
+        }),
+      };
+    }),
     heroRoleLabel: (raw.heroRoleLabel as string) ?? "",
     heroScrollCue: (raw.heroScrollCue as string) ?? "",
     photo: (raw.photo as string | null) ?? null,

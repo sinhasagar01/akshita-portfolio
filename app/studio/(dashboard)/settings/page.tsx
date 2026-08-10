@@ -38,14 +38,7 @@ export default async function StudioSettings() {
         <HeroEditPanel
           itemId="hero"
           heroCopy={settings.heroCopy}
-          tab1Label={settings.tab1Label}
-          tab1Line={settings.tab1Line}
-          tab2Label={settings.tab2Label}
-          tab2Line={settings.tab2Line}
-          tab3Label={settings.tab3Label}
-          tab3Line={settings.tab3Line}
-          tab4Label={settings.tab4Label}
-          tab4Line={settings.tab4Line}
+          heroTabs={settings.heroTabs}
           heroRoleLabel={settings.heroRoleLabel}
           heroScrollCue={settings.heroScrollCue}
         />
