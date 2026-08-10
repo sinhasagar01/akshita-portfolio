@@ -610,6 +610,26 @@ build a gate for the limit and then believe it.
   it.** Repaired by painting a 1×1 canvas and reading the pixel — the browser does the conversion, so
   the value measured is the value drawn.
 
+- **⚠ `data-nav-tone` IS UNSET FOR THE FIRST HALF-SECOND AT EVERY WIDTH, AND THAT WINDOW EXPLAINS
+  BOTH OF THIS ARC'S NAV ANOMALIES.** Traced from before page scripts run:
+
+      @1100  unset -> dark at 522ms      @1440  unset -> dark at 486ms
+      @1284  unset -> dark at 751ms      settled dark at all three, and dark after a resize
+
+  **The 1284 reading that sat "unexplained" for three units was a load-window sample**, taken right
+  after a navigation. 1284 is not special — it merely took 751ms. Proven at that exact width rather
+  than inferred from another, which is the difference between dropping a loose end and forgetting it.
+
+  **⚠ AND THE WINDOW IS REAL, VISIBLE, AND VARIES — 486 to 751ms.** It is not a probe artefact to
+  route around: for that half-second a dark palette renders with the nav tone absent, so anything
+  keyed to `[data-nav-tone="dark"]` alone is unstyled while a user is looking. That is exactly why
+  the in-pill morph painted `rgb(239,239,239)` and needed `--glass-fill-strong` ground-scoped, and
+  exactly why `--glass-fill` and `--glass-stroke` did NOT — `.is-ghost` zeroes them for the whole
+  window. **One mechanism, three tokens, three correct and different outcomes.**
+
+  **THE PRACTICAL FORM: a measurement taken immediately after navigation can land inside it.** Settle
+  past ~800ms, or assert the tone before sampling anything that depends on it.
+
 - **⚠ A KILLED PROCESS HAS NO `finally`, AND A PROBE THAT SWAPS `theme:` IS EDITING CONTENT WITH AN
   OWNER.** `paint-sites` runs long enough to be timed out — its first widened run was, at ten
   minutes — and the kill left `content/site-settings.yaml` on whichever palette the loop was
