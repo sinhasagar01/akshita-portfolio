@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio publish toast — final spec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SPEC FILE — visual reference only.
+   Values below are the STUDIO'S OWN TOKENS by name. The hexes
+   here approximate cream and Nocturne so the file renders
+   standalone; the implementation must read the real tokens.
+   ============================================================ */
+:root{
+  --canvas:#f4ede2;
+  --surface:#fefdfa;        /* --color-surface  — the toast ground */
+  --surface-well:#faf6ef;
+  --chrome:#f3ece2;
+  --text-lead:#150d09;      /* --color-text-lead */
+  --text-secondary:#4b4238;
+  --text-subtle:#6d645d;    /* --color-text-subtle */
+  --ink-400:#9c9182;
+  --accent:#b5442a;         /* --color-accent */
+  --accent-text:#9a3722;    /* --color-accent-text */
+  --ok:#2f6b46;
+  --etch:21,13,9;           /* --color-etch, consumer supplies alpha */
+  --r-card:8px;             /* radius scale: panel 12 / card 8 / control 4 */
+  --r-control:4px;
+  --ease:cubic-bezier(.16,1,.3,1);   /* --ease-out-expo */
+  --body:"DM Sans",-apple-system,sans-serif;
+  --display:"Fraunces",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --lift:0 12px 30px -14px rgba(60,45,30,.36), 0 2px 5px -2px rgba(60,45,30,.18), inset 0 1px 0 rgba(255,255,255,.6);
+}
+[data-ground="dark"]{
+  --canvas:#0d0e19; --surface:#171827; --surface-well:#1c1d2e; --chrome:#222338;
+  --text-lead:#f2f2f8; --text-secondary:#c9c9dc; --text-subtle:#a09fb8; --ink-400:#7b7b93;
+  --accent:#a984fb; --accent-text:#c0a3ff; --ok:#6fcf97; --etch:255,255,255;
+  --lift:0 12px 30px -14px rgba(0,0,0,.75), 0 2px 5px -2px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eae2d6;font-family:var(--body);color:#2a231c;-webkit-font-smoothing:antialiased}
+.page{max-width:1240px;margin:0 auto;padding:34px 26px 90px}
+h1{font-family:var(--display);font-weight:400;font-size:27px;letter-spacing:-.018em;margin:0 0 8px}
+h2{font-family:var(--display);font-weight:400;font-size:19px;letter-spacing:-.015em;margin:38px 0 12px;
+   padding-bottom:8px;border-bottom:1px solid rgba(40,30,20,.14)}
+.lede{color:#5f564c;max-width:70ch;font-size:14.5px;line-height:1.6;margin:0}
+.warn{font-size:12.5px;color:#9a3722;margin:13px 0 0;line-height:1.6;max-width:80ch}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 0;align-items:center}
+.controls b{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#7b7168;font-weight:500;margin-right:4px}
+.btn{font-size:12px;padding:7px 13px;border-radius:4px;border:1px solid rgba(40,30,20,.2);background:#fdfbf7;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:#b5442a;color:#b5442a}
+.btn.on{background:#150d09;color:#fefdfa;border-color:#150d09}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:18px}
+@media(max-width:940px){.grid{grid-template-columns:1fr}}
+.surface-demo{background:var(--canvas);border-radius:14px;padding:18px;min-height:470px;position:relative;overflow:hidden;border:1px solid rgba(40,30,20,.14)}
+.lbl{position:absolute;left:16px;bottom:12px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-400)}
+.fauxbar{height:46px;border-radius:10px;background:var(--chrome);border:1px solid rgba(var(--etch),.12);margin-bottom:14px}
+.frow{display:flex;gap:12px}
+.fpane{height:340px;border-radius:10px;background:var(--surface-well);border:1px solid rgba(var(--etch),.12);flex:1}
+.fpane.n{width:92px;flex:0 0 92px}
+
+/* ==================== THE TOAST ==================== */
+.toaster{position:absolute;top:16px;right:16px;width:330px;z-index:60;
+  display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toaster > *{pointer-events:auto}
+
+.t{border-radius:var(--r-card);background:var(--surface);
+   border:1px solid rgba(var(--etch),.12);box-shadow:var(--lift);
+   padding:13px 14px;display:grid;grid-template-columns:27px 1fr 20px;gap:11px;align-items:start;
+   animation:tin 260ms var(--ease) both}
+.t:nth-child(2){animation-delay:50ms}
+.t:nth-child(3){animation-delay:100ms}
+@keyframes tin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+
+.t .chip{width:27px;height:27px;border-radius:var(--r-control);display:grid;place-items:center;
+  font-size:13px;font-weight:700;line-height:1;
+  background:color-mix(in srgb, var(--accent) 12%, transparent);
+  color:var(--accent-text);
+  border:1px solid color-mix(in srgb, var(--accent) 28%, transparent)}
+.t.ok .chip{background:color-mix(in srgb, var(--ok) 13%, transparent);color:var(--ok);
+  border-color:color-mix(in srgb, var(--ok) 30%, transparent)}
+.t.pend .chip{background:transparent;border-color:rgba(var(--etch),.16)}
+.spin{width:12px;height:12px;border-radius:50%;border:2px solid rgba(var(--etch),.18);
+  border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.t .ttl{font-size:13.5px;font-weight:500;line-height:1.35;color:var(--text-lead);margin:0}
+.t .msg{font-size:12.5px;font-weight:400;line-height:1.5;color:var(--text-subtle);margin:5px 0 0}
+.t .act{margin-top:9px;display:inline-block;font-size:11.5px;font-weight:500;color:var(--accent-text);
+  border-bottom:1px solid currentColor;cursor:pointer;background:none;border-width:0 0 1px;padding:0;font-family:inherit}
+.t .x{background:none;border:0;cursor:pointer;color:var(--ink-400);font-size:15px;line-height:1;
+  padding:2px 3px;border-radius:3px;font-family:inherit;justify-self:end}
+.t .x:hover{color:var(--text-lead)}
+.t .x:focus-visible,.t .act:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.t .bar{grid-column:1/-1;height:2px;background:rgba(var(--etch),.10);border-radius:2px;overflow:hidden;margin-top:11px}
+.t .bar i{display:block;height:100%;background:var(--ok);animation:drain 6s linear forwards}
+.t:hover .bar i{animation-play-state:paused}
+@keyframes drain{from{width:100%}to{width:0}}
+
+@media(prefers-reduced-motion:reduce){
+  .t{animation:none}
+  .t .bar i{animation:none;width:100%}
+  .spin{animation:none;border-top-color:rgba(var(--etch),.18)}
+}
+
+/* ==================== SPEC TABLES ==================== */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;background:#fdfbf7;
+  border:1px solid rgba(40,30,20,.14);border-radius:8px;overflow:hidden}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(40,30,20,.08);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#7b7168;font-weight:500;background:#f6f1e9}
+tr:last-child td{border-bottom:0}
+code{font-family:var(--mono);font-size:11.5px;background:rgba(40,30,20,.06);padding:1px 5px;border-radius:3px}
+.note{font-size:12.5px;color:#6f665c;margin:10px 2px 0;line-height:1.6;max-width:86ch}
+.note b{color:#2a231c;font-weight:500}
+.flag{border-left:3px solid #b5442a;padding-left:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Studio publish toast — final spec</h1>
+<p class="lede">Expanded list, chip card, top right. Newest on top, three visible, oldest drops. This is the reference to implement against.</p>
+<p class="warn">⚠ Hexes in this file approximate cream and Nocturne so it renders standalone. The implementation reads the real tokens by name — no value here is a value to copy.</p>
+
+<div class="controls">
+  <b>Show</b>
+  <button class="btn on" data-n="1">One · success</button>
+  <button class="btn" data-n="2">Two</button>
+  <button class="btn" data-n="3">Three · at cap</button>
+  <button class="btn" data-n="p">Pending</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<h2>Anatomy</h2>
+<table>
+<tr><th>Part</th><th>Token</th><th>Value</th></tr>
+<tr><td>Container inset</td><td>—</td><td>top 16, right 16, width 330, gap 10, <code>z-index</code> above panes and below modals</td></tr>
+<tr><td>Card ground</td><td><code>--color-surface</code></td><td>Floating surface, one ladder step. Never a raw rung.</td></tr>
+<tr><td>Card border</td><td><code>--color-etch</code> at 12%</td><td>The studio hairline convention</td></tr>
+<tr><td>Card radius</td><td>radius scale · card</td><td>8px — a toast is a floating surface, not a panel</td></tr>
+<tr><td>Card shadow</td><td>overlay scale · floating</td><td>⚠ Dark answer derived, never copied — see flags</td></tr>
+<tr><td>Grid</td><td>—</td><td><code>27px 1fr 20px</code>, gap 11, padding 13/14</td></tr>
+<tr><td>Chip</td><td>accent or ok at 12–13% fill, 28–30% border</td><td>27×27, radius 4 (control step)</td></tr>
+<tr><td>Title</td><td><code>--color-text-lead</code></td><td>13.5px / 500 / 1.35</td></tr>
+<tr><td>Message</td><td><code>--color-text-subtle</code></td><td>12.5px / 400 / 1.5</td></tr>
+<tr><td>Action</td><td><code>--color-accent-text</code></td><td>11.5px / 500, 1px underline</td></tr>
+<tr><td>Close</td><td><code>--color-ink-400</code> → <code>text-lead</code> on hover</td><td>Real <code>&lt;button&gt;</code>, accessible name required</td></tr>
+<tr><td>Progress</td><td><code>--color-ok</code> on etch 10%</td><td>2px, drains over the dismiss window, pauses on hover</td></tr>
+</table>
+
+<h2>States</h2>
+<table>
+<tr><th>State</th><th>Chip</th><th>Copy</th><th>Dismiss</th></tr>
+<tr><td>Publishing</td><td>Spinner, no fill</td><td>Server's, or "Publishing…"</td><td>Never — morphs in place</td></tr>
+<tr><td>Published</td><td>✓, ok tint</td><td>Server's success message</td><td>Auto after 6s, paused on hover</td></tr>
+<tr><td>Refused</td><td>!, accent tint</td><td><b>The validator's own message, unmodified</b></td><td><b>Never auto-dismiss</b> — diagnostic</td></tr>
+<tr><td>Failed</td><td>!, accent tint</td><td>Server's error, or the generic branch</td><td>Never auto-dismiss</td></tr>
+</table>
+
+<h2>Stacking</h2>
+<table>
+<tr><th>Rule</th><th>Value</th></tr>
+<tr><td>Order</td><td>Newest at top</td></tr>
+<tr><td>Visible cap</td><td>3</td></tr>
+<tr><td>Past the cap</td><td>Oldest is dismissed, not hidden</td></tr>
+<tr><td>Enter</td><td>260ms <code>--ease-out-expo</code>, translateX 14 → 0, 50ms stagger</td></tr>
+<tr><td>Reduced motion</td><td>No slide, no drain, no spin — final state only</td></tr>
+</table>
+
+<div class="flag">
+<p class="note"><b>⚠ Three things the implementation must derive rather than copy.</b></p>
+<p class="note"><b>1 · The shadow's dark answer.</b> #268's overlay scale is cream-derived and a fixed white or a fixed ink reads differently on a near-black pane. Derive the floating tier against the dark ground as the nav's was, and do not reuse the nav's alpha — pane luminance and target separation are two variables and the panes differ.</p>
+<p class="note"><b>2 · The chip's tint on nine grounds.</b> <code>color-mix</code> against the accent keeps it relational, but verify the chip glyph clears 4.5 on its own fill on all nine palettes, and the fill clears its ground. This is the only tinted surface in the toast, deliberately.</p>
+<p class="note"><b>3 · The action link.</b> <code>accent-text</code> measured 7.22 / 6.87 / 6.25 on cream-50/100/200 and is uncovered by the contrast gate — hazard 30. Measure it on the toast's ground on all nine rather than assuming those figures transfer.</p>
+</div>
+
+<div class="flag">
+<p class="note"><b>⚠ Decided here unless overruled.</b> Pending morphs into the result in place rather than being replaced, so a two-phase action reads as one object. Refusals and failures never auto-dismiss, because they name a post and a rule and the author has to act on them. Past the cap the oldest is dismissed rather than queued, so nothing appears after the author has stopped looking.</p>
+</div>
+
+</div>
+
+<script>
+const V=[{g:'light',n:'cream'},{g:'dark',n:'Nocturne'}];
+const T={
+ err:{cls:'',i:'!',t:'Couldn’t publish',m:'you-find-out-what-motion-is-for-by-removing-it — block 7’s image needs alt text. Describe it, or tick Decorative.',a:'Open the post',bar:false},
+ ok:{cls:'ok',i:'✓',t:'Site published',m:'Your changes are live. The site is rebuilding and will update in about a minute.',a:null,bar:true},
+ save:{cls:'ok',i:'✓',t:'Draft saved',m:'Blog · you-find-out-what-motion-is-for-by-removing-it',a:null,bar:true},
+ fail:{cls:'',i:'!',t:'Couldn’t save',m:'Site settings — needs github mode. Nothing was written.',a:null,bar:false},
+ pend:{cls:'pend',i:'',t:'Publishing…',m:'Merging your changes and starting the rebuild.',a:null,bar:false}
+};
+function card(o){
+  const chip = o.cls==='pend' ? `<span class="chip"><i class="spin"></i></span>` : `<span class="chip">${o.i}</span>`;
+  return `<div class="t ${o.cls}">
+    ${chip}
+    <div><p class="ttl">${o.t}</p><p class="msg">${o.m}</p>${o.a?`<button class="act">${o.a}</button>`:''}</div>
+    <button class="x" aria-label="Dismiss">✕</button>
+    ${o.bar?'<div class="bar"><i></i></div>':''}
+  </div>`;
+}
+const SETS={'1':['ok'],'2':['err','save'],'3':['err','save','fail'],'p':['pend']};
+function render(k){
+  const html=SETS[k].map(x=>card(T[x])).join('');
+  document.getElementById('grid').innerHTML=V.map(v=>`
+    <div class="surface-demo" ${v.g==='dark'?'data-ground="dark"':''}>
+      <div class="fauxbar"></div>
+      <div class="frow"><div class="fpane n"></div><div class="fpane"></div></div>
+      <div class="toaster">${html}</div>
+      <span class="lbl">${v.n}</span>
+    </div>`).join('');
+}
+document.querySelectorAll('[data-n]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-n]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); render(b.dataset.n);
+}));
+render('1');
+</script>
+</body>
+</html>
