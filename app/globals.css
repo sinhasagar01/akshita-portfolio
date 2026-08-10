@@ -1787,6 +1787,20 @@ a {
      cream carries a top highlight AND a bottom shadow. THE ASYMMETRY IS THE APPEARANCE, and no
      top-inset weight produces it, so the derivation was correct and aimed at a layer that cannot
      express the difference. 13% stands as shipped, under-powered rather than under-weight. */
+  /* ⚠ THE TOKEN HAD ONLY A TONE-SCOPED DARK ANSWER, SO A GROUND-SCOPED CONSUMER GOT A LIGHT ONE.
+     `--glass-fill-strong` was remapped in `.site-header[data-nav-tone="dark"]` and nowhere else,
+     and `data-nav-tone` is computed by a scroll reader — so on a dark palette at the top of the
+     page it still resolved to `cream-50` at 78% and the in-pill morph painted rgb(239,239,239),
+     a near-white disc on a dark nav.
+
+     ⚠ CAUGHT BY VERIFYING IN BOTH STATES RATHER THAN ONE. The measurement that chose this fix was
+     taken while the tone WAS dark, where the token resolves correctly — the outcome was right and
+     the token had two suppliers. That is this session's own two-paths finding, committed by me a
+     second time and caught by the resolved-value check rather than by review.
+
+     The value is the one the tone block already uses, so where the tone IS dark nothing moves; this
+     only covers the states it never reached. */
+  --glass-fill-strong: var(--glass-fill-dark-strong);
   --hero-tab-lit-edge: 14%;
   --vessel-lit-edge:   43.7%;
   /* Derived per element against its own isolated cream contribution (32.80): 58.3% gives 32.63 on
@@ -2671,6 +2685,34 @@ a {
 .nav-morph.is-open { border-color: color-mix(in srgb, var(--color-etch) 28.000000000000004%, transparent); }
 /* nested inside a LIT pill: drop its own box-shadow (one surface, not two). Glyph colour stays. */
 .nav-glass:not(.is-ghost) .nav-morph { box-shadow: none; background: color-mix(in srgb, var(--color-white) 50%, transparent); }
+/* ⚠ ON A DARK GROUND THE IN-PILL MORPH FALLS BACK TO THE THEMED FILL. The override above is a
+   FIXED white at 50% — on the dark pane it measured a peak contribution ratio of 4.795 and stood
+   5.068 from the pill it sits in, against 1.024 and 1.025 on cream. A near-white disc on a dark
+   nav, on every page below 1024.
+
+   ⚠ SCOPED TO THE GROUND, NOT THE NAV TONE, DELIBERATELY. `data-nav-tone` is computed by a scroll
+   reader and was observed unset at one width during this work without the cause being established;
+   `data-ground` is emitted from the published theme and is true wherever a dark palette renders.
+   A repair must not depend on the one signal still carrying an open question.
+
+   TWO OPTIONS WERE DERIVED AND THIS IS THE MEASURED WINNER, not the preferred one:
+
+     option A  white at 0.10%          peak 1.036   affordance 1.057
+     option B  var(--glass-fill-strong) peak 1.025   affordance 1.055   <- this
+     cream target                       peak 1.024   affordance 1.025
+
+   B reproduces cream's peak almost exactly, keeps the button slightly MORE legible against the
+   pill than cream does, and resolves to a THEMED value so every present and future palette follows
+   it. A needed 0.10% — a magic number that effectively deletes the layer, and a fourth fixed white
+   in a file this arc spent itself removing them from. THE AFFORDANCE IS WHY BOTH WERE MEASURED:
+   the morph is a BUTTON, not the decorative glow ::after was, so "quieter" is not automatically
+   better and the number that only reproduced the glow would have been wrong here.
+
+   The value is what `.nav-morph` already declares, so this restores the base rather than inventing
+   a dark answer — the fifth time resolving the pigment has collapsed a fix to zero new tokens. */
+:root[data-ground="dark"] .nav-glass:not(.is-ghost) .nav-morph {
+  background: var(--glass-fill-strong);
+}
 @media (prefers-reduced-motion: no-preference) {
   .nav-morph {
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
