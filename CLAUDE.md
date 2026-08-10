@@ -75,6 +75,50 @@ The production domain is akshitas.com. The canonical host is www.akshitas.com. T
 
 Both `metadataBase` in `app/layout.tsx` and `NEXT_PUBLIC_SITE_URL` in `.env.local` must be set to `https://www.akshitas.com`. These two values must always point to the same host. Swapping one without the other causes the canonical URL and share image URLs to resolve against a host that Vercel then redirects away from. On Vercel, the production environment variable `NEXT_PUBLIC_SITE_URL` must also be set to `https://www.akshitas.com`.
 
+### ⚠ THE DEPLOY BUDGET IS A LIMIT, NOT A RULE — IT IS EXHAUSTIBLE, SHARED, AND INVISIBLE UNTIL IT IS GONE
+
+The Hobby tier caps deployments per day. On **2026-08-10** the cap was reached and Vercel refused the
+production deploy of a merge outright, as a commit status on `4e03e3c`:
+
+    context=Vercel   state=failure
+    Deployment rate limited — retry in 24 hours.
+
+**A MERGE IS NOT A RELEASE, AND THAT IS THE WHOLE ENTRY.** Everything the repository can check was
+green — ralph 2899 across 75 suites, `upstream` confirming a real GitHub merge, the built output
+correct. **None of that reaches visitors.** The last successful production deploy stayed at
+`8f8b2d0`, one merge behind, and what the refused deploy was carrying was the withdrawal of a
+placeholder **live on the public site**. The budget ran out on the one change that could not wait.
+
+**EVERY PR COSTS AT LEAST TWO, AND THE SECOND ONE IS THE ONE NOBODY COUNTS.** A push builds a
+preview and a merge builds production, so the cost is per PUSH rather than per PR — a branch pushed
+four times has spent four previews before it is even reviewed. That day registered **46 deployments,
+24 preview and 22 production**, from a single session of one-unit-per-PR work. The cadence this
+project runs on is exactly what exhausts it.
+
+**⚠ AND 46 IS WHAT GITHUB REGISTERED, NOT THE CAP AND NOT WHAT VERCEL COUNTED.** It is a floor on
+the true figure — rebuilds and redeploys need not appear as repo deployments — and **the cap itself
+was never measured here**, only the refusal. Quoting 46 as the limit would be the unattached-number
+defect this file names a dozen times: a real figure, about a different subject than the one a reader
+would take it for.
+
+**⚠ NO INSTRUMENT HERE CAN WARN YOU, AND THE ASYMMETRY IS THE POINT.** The FAILURE is observable
+after the fact — `gh api repos/<owner>/<repo>/commits/<sha>/status` carries the `Vercel` context and
+its reason. The BUDGET REMAINING is observable only with a Vercel credential, which this environment
+does not have. **So the only readable signal arrives after the deploy has already been refused**, and
+a gate built on it would report a limit already spent rather than one about to be. Same family as
+the merged-to-local-main gap that `upstream.mjs` closed, **except that one had a readable
+before-state and this one does not.**
+
+**THE RECOVERY THAT NEEDS NO BUILD: PROMOTE A SUCCESSFUL PREVIEW WHOSE TREE EQUALS `main`.** The
+branch commit's preview had already built successfully, and its tree was byte-identical to the merge
+commit's — checked with `git rev-parse <sha>^{tree}` on both, not assumed from the diff. Promoting
+that deployment puts exactly `main` live without a rebuild. **Whether a promotion counts against the
+same cap is UNVERIFIED here** and should be stated that way rather than repeated as fact.
+
+**WHEN THE WORK IS URGENT, BATCH IT.** One unit per PR is the right default and it is not free. A fix
+that must reach visitors today is worth combining with whatever else is ready, because the constraint
+is deploys rather than commits.
+
 ## Open items
 
 - **⚠ THE WORK FILTER IS CLOSED, AND WHAT IT WAS IS NOT WHAT THE RECORD SAID.** The item here read
