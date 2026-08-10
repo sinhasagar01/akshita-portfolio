@@ -99,16 +99,31 @@ did, read from the commit statuses and the deployment list:
     14:28:04Z   #480   production deploy SUCCEEDS     50 min after the previous success
     14:29:39Z   #481   refused                        95 SECONDS after that success
 
-**Six production deploys landed that day, spaced 29 to 65 minutes apart, and every refusal fell
-BETWEEN two successes.** The working retry interval was under an hour every time, and the deploy
-refused at 13:54 reached production inside the 14:28 build. **A refused deploy is therefore not lost
-work: the next successful deploy carries every merge before it**, so the exposure window is until the
-next success rather than until a quota resets.
+**Every refusal fell BETWEEN two successes**, the working retry interval was under an hour every
+time, and the deploy refused at 13:54 reached production inside the 14:28 build. **A refused deploy is
+therefore not lost work: the next successful deploy carries every merge before it**, so the exposure
+window is until the next success rather than until a quota resets. **That is the one operational
+sentence in this entry that has survived every correction.**
 
-**⚠ SAY WHAT WAS OBSERVED, NOT WHAT THE MECHANISM IS.** The pattern fits a minimum interval between
-production builds far better than a daily quota — **and Vercel's implementation is not visible from
-here, so that stays an observation.** What IS established: the stated 24 hours matched nothing on the
-day it was read, and a reader who plans around it will wait roughly forty times too long.
+**⚠ AND THE FIGURES THAT SAT HERE WERE COUNTED FROM A `tail -6`.** This read *"six production deploys
+landed that day, spaced 29 to 65 minutes apart"*. **Counted properly: 24 production deploys, 23 gaps,
+minimum 1 minute and maximum 64.** The six were the last six, and the range was their range. **A
+denominator computed inside a truncated view** — the defect this file names a dozen times, committed
+while writing the correction to a different one.
+
+**⚠ AND IT KILLS THE MECHANISM THIS ENTRY HAD JUST PROPOSED.** The replacement reading was *"a minimum
+interval between production builds"*. **Two deploys succeeded ONE MINUTE apart that morning, and one
+was refused NINETY-FIVE SECONDS after a success that afternoon.** No minimum interval produces both.
+
+**⚠ SO TWO MECHANISMS HAVE NOW BEEN NAMED AND BOTH REFUTED, BY DATA AVAILABLE BEFORE EITHER WAS
+WRITTEN — AND A THIRD IS DELIBERATELY NOT OFFERED.** What is measured: **22 production deploys had
+landed before the first refusal**, and successes resumed after it. Something is counting, and it
+releases within the hour. **Naming it would be the third confident framing in one afternoon**, and
+the first two each read as obviously right at the time.
+
+**WHAT IS ESTABLISHED, AND IT IS ENOUGH TO PLAN WITH:** the stated 24 hours matched nothing on the day
+it was read, a refusal costs the wait to the next success rather than a day, and **the number to watch
+is the latest production deployment rather than any commit status.**
 
 **A MERGE IS NOT A RELEASE, AND THAT IS THE WHOLE ENTRY.** Everything the repository can check was
 green — ralph 2899 across 75 suites, `upstream` confirming a real GitHub merge, the built output
@@ -119,8 +134,8 @@ and the placeholder stayed served for the 34 minutes until the next deploy went 
 
 **EVERY PR COSTS AT LEAST TWO, AND THE SECOND ONE IS THE ONE NOBODY COUNTS.** A push builds a
 preview and a merge builds production, so the cost is per PUSH rather than per PR — a branch pushed
-four times has spent four previews before it is even reviewed. That day registered **46 deployments,
-24 preview and 22 production**, from a single session of one-unit-per-PR work.
+four times has spent four previews before it is even reviewed. That day registered **49 deployments,
+25 preview and 24 production** — measured at 14:45Z, and still climbing when it was written down.
 
 **AND THAT IS WHY BATCHING HELPS, THOUGH NOT FOR THE REASON FIRST WRITTEN.** This said the cadence
 *"is exactly what exhausts it"*, which assumed a quota. On the corrected reading the cost of a fast
@@ -128,11 +143,16 @@ cadence is that **most merges arrive inside somebody else's interval and are sim
 PRs merged in twenty minutes produce one deploy and four failures, where the same five in one PR
 produce one deploy and none.
 
-**⚠ AND 46 IS WHAT GITHUB REGISTERED, NOT THE CAP AND NOT WHAT VERCEL COUNTED.** It is a floor on
-the true figure — rebuilds and redeploys need not appear as repo deployments — and **the cap itself
-was never measured here**, only the refusal. Quoting 46 as the limit would be the unattached-number
-defect this file names a dozen times: a real figure, about a different subject than the one a reader
-would take it for.
+**⚠ AND 49 IS WHAT GITHUB REGISTERED AT A MOMENT, NOT THE CAP AND NOT WHAT VERCEL COUNTED.** It is a
+floor on the true figure — rebuilds and redeploys need not appear as repo deployments — and **the cap
+itself was never measured here**, only the refusal. Quoting it as the limit would be the
+unattached-number defect this file names a dozen times: a real figure, about a different subject than
+the one a reader would take it for.
+
+**⚠ AND IT WAS 46 IN THIS PARAGRAPH THREE HOURS EARLIER, WHICH IS THE SHARPER LESSON.** The figure is
+not merely attached to the wrong subject when misread — **it is a running total that changes while
+you are writing about it.** Every count in this section carries `14:45Z` for that reason. **A number
+whose subject is "today" is stale before the paragraph ends.**
 
 **⚠ NO INSTRUMENT HERE CAN WARN YOU, AND THE ASYMMETRY IS THE POINT.** The FAILURE is observable
 after the fact — `gh api repos/<owner>/<repo>/commits/<sha>/status` carries the `Vercel` context and
