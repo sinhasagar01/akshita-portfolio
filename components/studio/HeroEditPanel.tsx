@@ -15,6 +15,7 @@
 // deliberate owner click when there is a differing draft.
 import { useState } from "react";
 import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
+import type { HeroTab } from "@/lib/studio/site-settings-format";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -25,14 +26,7 @@ import { inputClsMd, labelCls, KeyRow, FIELD_MEASURE , FieldKey} from "./blocks/
 type Props = {
   itemId: string;
   heroCopy: string;
-  tab1Label: string;
-  tab1Line: string;
-  tab2Label: string;
-  tab2Line: string;
-  tab3Label: string;
-  tab3Line: string;
-  tab4Label: string;
-  tab4Line: string;
+  heroTabs: HeroTab[];
   heroRoleLabel: string;
   heroScrollCue: string;
 };
@@ -41,28 +35,14 @@ type Props = {
 // the save patch needs no key mapping.
 type HeroFields = {
   heroCopy: string;
-  tab1Label: string;
-  tab1Line: string;
-  tab2Label: string;
-  tab2Line: string;
-  tab3Label: string;
-  tab3Line: string;
-  tab4Label: string;
-  tab4Line: string;
+  heroTabs: HeroTab[];
   heroRoleLabel: string;
   heroScrollCue: string;
 };
 
 const HERO_FIELD_KEYS = [
   "heroCopy",
-  "tab1Label",
-  "tab1Line",
-  "tab2Label",
-  "tab2Line",
-  "tab3Label",
-  "tab3Line",
-  "tab4Label",
-  "tab4Line",
+  "heroTabs",
   "heroRoleLabel",
   "heroScrollCue",
 ] as const;
@@ -71,37 +51,25 @@ const HERO_FIELD_KEYS = [
 // the LIVE edited name), the active tab's name and serif line editable below.
 // The pill fallback for a blank name comes from HERO_TAB_FALLBACK_NAMES, the
 // same source the live hero falls back to, so the mimic cannot drift.
-const TABS: { labelKey: keyof HeroFields; lineKey: keyof HeroFields; fallback: string }[] = [
-  { labelKey: "tab1Label", lineKey: "tab1Line", fallback: HERO_TAB_FALLBACK_NAMES[0] },
-  { labelKey: "tab2Label", lineKey: "tab2Line", fallback: HERO_TAB_FALLBACK_NAMES[1] },
-  { labelKey: "tab3Label", lineKey: "tab3Line", fallback: HERO_TAB_FALLBACK_NAMES[2] },
-  { labelKey: "tab4Label", lineKey: "tab4Line", fallback: HERO_TAB_FALLBACK_NAMES[3] },
-];
+/* ⚠ AN INDEX NOW, NOT A PAIR OF FLAT KEYS. The four tabs live in one array, so the table carries
+   the position and the fallback and nothing else. `HERO_TAB_FALLBACK_NAMES` is still the source of
+   the blank-name fallback, which is what stops the mimic drifting from the live hero. */
+const TABS: { fallback: string }[] = HERO_TAB_FALLBACK_NAMES.map((fallback) => ({ fallback }));
+
+/** Read one tab's field through the array, tolerating a short or absent array. */
+const tabAt = (tabs: HeroTab[], i: number): HeroTab =>
+  tabs[i] ?? { label: "", headline: "", support: "", callouts: [], stats: [] };
 
 export default function HeroEditPanel({
   itemId,
   heroCopy,
-  tab1Label,
-  tab1Line,
-  tab2Label,
-  tab2Line,
-  tab3Label,
-  tab3Line,
-  tab4Label,
-  tab4Line,
+  heroTabs,
   heroRoleLabel,
   heroScrollCue,
 }: Props) {
   const initial: HeroFields = {
     heroCopy,
-    tab1Label,
-    tab1Line,
-    tab2Label,
-    tab2Line,
-    tab3Label,
-    tab3Line,
-    tab4Label,
-    tab4Line,
+    heroTabs,
     heroRoleLabel,
     heroScrollCue,
   };
@@ -135,6 +103,15 @@ export default function HeroEditPanel({
   if (!isSelected) return null; // stays MOUNTED (draft persists); the shell shows the selected item
 
   const edit = setField;
+
+  /* ⚠ ONE FIELD OF ONE TAB, WRITTEN THROUGH THE WHOLE ARRAY, because `setField` takes a key and a
+     value and the key is now `heroTabs`. The array is rebuilt rather than mutated so the form's
+     dirty check — a JSON compare against the baseline — actually sees the change. */
+  const editTab = <K extends keyof HeroTab>(i: number, key: K, value: HeroTab[K]) => {
+    const next = [0, 1, 2, 3].map((n) => ({ ...tabAt(values.heroTabs, n) }));
+    next[i] = { ...next[i], [key]: value };
+    setField("heroTabs", next);
+  };
 
   return (
     <section
@@ -215,7 +192,7 @@ export default function HeroEditPanel({
           >
             {TABS.map((t, i) => (
               <button
-                key={t.labelKey}
+                key={i}
                 id={`hero-tab-edit-${i}`}
                 type="button"
                 role="tab"
@@ -271,7 +248,7 @@ export default function HeroEditPanel({
                     : "border-transparent text-studio-ink-600 hover:text-studio-ink-950",
                 ].join(" ")}
               >
-                {values[t.labelKey].trim() || t.fallback}
+                {tabAt(values.heroTabs, i).label.trim() || t.fallback}
               </button>
             ))}
           </div>
@@ -288,8 +265,8 @@ export default function HeroEditPanel({
                 The line keeps its own caption: that one is a schema label, not a typed key. */}
             <KeyRow
               label={`Tab ${activeTab + 1} name`}
-              value={values[TABS[activeTab].labelKey]}
-              onChange={(v) => edit(TABS[activeTab].labelKey, v)}
+              value={tabAt(values.heroTabs, activeTab).label}
+              onChange={(v) => editTab(activeTab, "label", v)}
               onBlur={saveDraft}
               placeholder={TABS[activeTab].fallback}
             >
@@ -299,8 +276,8 @@ export default function HeroEditPanel({
                 </FieldKey>
                 <textarea
                   rows={3}
-                  value={values[TABS[activeTab].lineKey]}
-                  onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
+                  value={tabAt(values.heroTabs, activeTab).headline}
+                  onChange={(e) => editTab(activeTab, "headline", e.target.value)}
                   onBlur={saveDraft}
                   className={`${inputClsMd} min-h-24 field-sizing-content resize-none max-h-[500px] overflow-y-auto py-3 pb-[18px] leading-[1.55]`}
                 />

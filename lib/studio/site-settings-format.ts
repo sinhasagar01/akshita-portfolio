@@ -22,17 +22,27 @@ export type LinkItem = {
   url: string;
 };
 
+/** One figure in a hero tab — the number and what it counts, kept apart so the layout can roll
+ *  the number without parsing a unit out of it. */
+export type HeroStat = {
+  value: string;
+  unit: string;
+};
+
+/** One hero tab. Twelve fields — label, headline, support, three callouts, three stats of two.
+ *  `label` and `headline` are the former `tabNLabel` and `tabNLine`; the other ten are new. */
+export type HeroTab = {
+  label: string;
+  headline: string;
+  support: string;
+  callouts: string[];
+  stats: HeroStat[];
+};
+
 export type SiteSettingsInput = {
   theme: string;
   heroCopy: string;
-  tab1Label: string;
-  tab1Line: string;
-  tab2Label: string;
-  tab2Line: string;
-  tab3Label: string;
-  tab3Line: string;
-  tab4Label: string;
-  tab4Line: string;
+  heroTabs: HeroTab[];
   heroRoleLabel: string;
   heroScrollCue: string;
   aboutCopy: string;
@@ -86,14 +96,7 @@ export type SiteSettingsRecord = Record<string, unknown>;
 export const SITE_SETTINGS_FIELD_ORDER = [
   "theme",
   "heroCopy",
-  "tab1Label",
-  "tab1Line",
-  "tab2Label",
-  "tab2Line",
-  "tab3Label",
-  "tab3Line",
-  "tab4Label",
-  "tab4Line",
+  "heroTabs",
   "heroRoleLabel",
   "heroScrollCue",
   "photo",
@@ -113,6 +116,8 @@ const WRITABLE_FIELDS = SITE_SETTINGS_FIELD_ORDER.filter((k) => k !== "photo");
 /** The allowed sub-keys of a process stage object. Extra keys are rejected so a
  *  typo fails loudly, the same contract as the top-level field list. */
 const STAGE_KEYS = ["name", "description", "tags"] as const;
+const HERO_TAB_KEYS = ["label", "headline", "support", "callouts", "stats"] as const;
+const HERO_STAT_KEYS = ["value", "unit"] as const;
 
 /** The allowed sub-keys of a link object (item 10). */
 const LINK_KEYS = ["label", "url"] as const;
@@ -132,6 +137,80 @@ const SETTINGS_THEME_VALUES = ["cream", "harbour", "orchid", "cerise", "fern", "
 /* ⚠ SAPPHIRE IS ABSENT ON PURPOSE — it is HELD in `lib/theme.ts` until globals.css's raw rungs
  * migrate to roles, so it is resolvable but not publishable. `theme` B3 asserts this list equals
  * `selectableThemes()`, which is what keeps a held palette out of the author's reach. */
+
+/**
+ * Validate an untrusted heroTabs value to a normalized HeroTab[].
+ *
+ * ⚠ MISSING SUB-KEYS DEFAULT TO EMPTY AND THAT IS THE INTENDED STATE, NOT LENIENCE. Ten of a tab's
+ * twelve fields land empty on the day this schema ships and stay empty until the owner fills them
+ * through /studio, so refusing an absent `support` would make the shape unwritable by its own
+ * migration. Wrong TYPES are still rejected, which is the half that matters.
+ *
+ * The same shape as sanitizeProcessStages, one level deeper because `stats` is an array of objects.
+ */
+function sanitizeHeroTabs(
+  value: unknown
+): { ok: true; value: HeroTab[] } | { ok: false; message: string } {
+  if (!Array.isArray(value)) {
+    return { ok: false, message: "heroTabs must be an array" };
+  }
+  const tabs: HeroTab[] = [];
+  for (const item of value) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      return { ok: false, message: "each hero tab must be an object" };
+    }
+    const obj = item as Record<string, unknown>;
+    for (const k of Object.keys(obj)) {
+      if (!(HERO_TAB_KEYS as readonly string[]).includes(k)) {
+        return { ok: false, message: `unknown hero tab field ${k}` };
+      }
+    }
+    const { label, headline, support, callouts, stats } = obj;
+    for (const [name, v] of [["label", label], ["headline", headline], ["support", support]] as const) {
+      if (v !== undefined && typeof v !== "string") {
+        return { ok: false, message: `hero tab ${name} must be a string` };
+      }
+    }
+    if (
+      callouts !== undefined &&
+      (!Array.isArray(callouts) || callouts.some((c) => typeof c !== "string"))
+    ) {
+      return { ok: false, message: "hero tab callouts must be an array of strings" };
+    }
+    const outStats: HeroStat[] = [];
+    if (stats !== undefined) {
+      if (!Array.isArray(stats)) {
+        return { ok: false, message: "hero tab stats must be an array" };
+      }
+      for (const st of stats) {
+        if (typeof st !== "object" || st === null || Array.isArray(st)) {
+          return { ok: false, message: "each hero tab stat must be an object" };
+        }
+        const so = st as Record<string, unknown>;
+        for (const k of Object.keys(so)) {
+          if (!(HERO_STAT_KEYS as readonly string[]).includes(k)) {
+            return { ok: false, message: `unknown hero tab stat field ${k}` };
+          }
+        }
+        if (so.value !== undefined && typeof so.value !== "string") {
+          return { ok: false, message: "hero tab stat value must be a string" };
+        }
+        if (so.unit !== undefined && typeof so.unit !== "string") {
+          return { ok: false, message: "hero tab stat unit must be a string" };
+        }
+        outStats.push({ value: (so.value as string) ?? "", unit: (so.unit as string) ?? "" });
+      }
+    }
+    tabs.push({
+      label: (label as string) ?? "",
+      headline: (headline as string) ?? "",
+      support: (support as string) ?? "",
+      callouts: (callouts as string[]) ?? [],
+      stats: outStats,
+    });
+  }
+  return { ok: true, value: tabs };
+}
 
 /**
  * Validate an untrusted processStages value to a normalized ProcessStage[].
@@ -242,6 +321,12 @@ export function sanitizeSiteSettingsPatch(
         return invalid("aboutFocusChips must be an array of strings", key);
       }
       patch.aboutFocusChips = value as string[];
+      continue;
+    }
+    if (key === "heroTabs") {
+      const result = sanitizeHeroTabs(value);
+      if (!result.ok) return invalid(result.message, key);
+      patch.heroTabs = result.value;
       continue;
     }
     if (key === "processStages") {
