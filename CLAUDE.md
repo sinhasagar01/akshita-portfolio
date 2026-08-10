@@ -125,6 +125,13 @@ the first two each read as obviously right at the time.
 it was read, a refusal costs the wait to the next success rather than a day, and **the number to watch
 is the latest production deployment rather than any commit status.**
 
+**⚠ AND THAT LAST SENTENCE NOW HAS AN OWNER RATHER THAN BEING ADVICE.** `ralph/tests/upstream.mjs`
+section C reads the deployment list, walks back to the newest deployment reporting `success`, and
+asserts **what production serves is on `origin/main`**. It deliberately does NOT assert that main is
+deployed — that fails on every run made minutes after a merge, and a gate whose common failure is
+benign is one people learn to skip. **Lag is reported; only a rollback, a promoted preview or a
+divergent branch fails.** Naming the check is the repo's own rule about a fact deferred to nobody.
+
 **A MERGE IS NOT A RELEASE, AND THAT IS THE WHOLE ENTRY.** Everything the repository can check was
 green — ralph 2899 across 75 suites, `upstream` confirming a real GitHub merge, the built output
 correct. **None of that reaches visitors.** The last successful production deploy stayed at
