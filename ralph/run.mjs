@@ -51,7 +51,10 @@ const TESTS = path.join(HERE, "tests");
 /* `upstream` joins these because it needs the NETWORK, and `run.mjs` must stay offline and
  * deterministic. SKIPPED BY NAME rather than absent — a gate nobody can see they are not running is
  * the exact shape `upstream` was written about. Run it beside the push. */
-const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream"]);
+/* `paint-sites` joins them because it DRIVES A BROWSER against a dev server — same reason as
+ * `parity`. Named here rather than absent: a gate nobody can see they are not running is the exact
+ * shape `upstream` was written about. Run it beside a render pass. */
+const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream", "paint-sites"]);
 
 const suites = readdirSync(TESTS)
   .filter((f) => f.endsWith(".mjs"))
