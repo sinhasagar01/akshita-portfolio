@@ -464,6 +464,12 @@ zeroes both. The load window is real (555ms) and it condemned `--glass-fill-stro
 consumer the ghost rule does not cover. Trigger to revisit: `.is-ghost` stops zeroing them, or a
 non-ghost state appears before the tone reader runs.
 
+**CLOSED — the 1284px `navTone: unset` reading.** Proven a load-window sample, traced at that exact
+width: unset for 751ms then dark, settled dark, dark after a resize; 1440 and 1100 behave the same
+at 486 and 522ms. No width-dependent fault. The window itself is real and recorded in CLAUDE.md,
+because it is what condemned `--glass-fill-strong` and what exonerated `--glass-fill` and
+`--glass-stroke`.
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session
