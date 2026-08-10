@@ -22,7 +22,13 @@ import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
    ⚠ THE CONTRACT COPY LIVES HERE AND MUST NEVER REACH content/site-settings.yaml. Three of these
    headlines are the mock author's filler, not the owner's words, and `hero-tabs` D1 fails if any
    of them lands in the content file. A component fallback is display; the yaml is the owner's
-   voice. */
+   voice.
+
+   ⚠ AND THE COST IS MEASURED RATHER THAN DESCRIBED: while this is true, 50 of the hero's 51
+   owner-editable fields are editable in /studio WITH NO EFFECT ON THE PAGE. `heroCopy` is the one
+   survivor, because it is read below rather than through the flag.
+   `ralph/tests/hero-contract-copy.mjs` fails if this reaches main, which is the tree that deploys —
+   an inert state with nothing that fails is one nobody remembers, and this record has four of them. */
 const USE_CONTRACT_COPY = true;
 
 type ContractTab = {
@@ -339,7 +345,11 @@ export default function HeroSection({
       if (!g) return;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       const cs = getComputedStyle(root);
-      const cols = ["--hx-accent", "--hx-accent-2", "--hx-accent-3", "--hx-duo-hi"]
+      /* ⚠ FOUR EMBER SLOTS, READ FROM THE STYLESHEET RATHER THAN NAMED HERE. They resolve to one
+         accent at four strengths — the contract's warm four-rung ladder has no site equivalent,
+         because rungs do not remap on a dark ground. Reading them by name keeps the palette
+         decision in CSS where the theme can reach it, which a literal in this file could not be. */
+      const cols = ["--hx-ember-1", "--hx-ember-2", "--hx-ember-3", "--hx-ember-4"]
         .map((k) => cs.getPropertyValue(k).trim());
       type Part = { hx: number; hy: number; sx: number; sy: number; c: string; d: number; s: number; o: number };
       const parts: Part[] = [];

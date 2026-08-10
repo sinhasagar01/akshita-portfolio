@@ -1853,6 +1853,12 @@ a {
   --vessel-drop:  oklch(0% 0 0 / 0.30);
   --capsule-drop: oklch(0% 0 0 / 0.34);
   --hero-tab-drop: oklch(0% 0 0 / 0.14);
+  /* ⚠ THE ASH HERO'S PIECE CARDS AND CURSOR, FOURTH MEMBER OF THE SAME CEILING ARGUMENT AND NOT A
+     NEW ONE. `etch` at 28% is the light side; etch INVERTS here, which is right for a hairline that
+     must stay visible and wrong for a shadow that must stay BELOW its backdrop. The contract's two
+     values — 0.28 for the cards and 0.30 for the cursor — collapse to one, because the 0.02 between
+     them is not a decision anybody made. */
+  --hero-piece-drop: oklch(0% 0 0 / 0.28);
   /* Derived by the same differencer — the ring present minus the ring transparent, same pixel, on a
      straight run of the left edge clear of the radius. 31.9% reproduces cream's 10.32 on all four
      dark palettes (10.08 to 10.20). `--glass-stroke-dark` at 15% is the precedent three hundred
@@ -2100,39 +2106,63 @@ a {
    `--split` is a MODIFIER rather than an edit to `.hero-ground`, because the case-study heroes
    (`.hero-ground--peek`, SectionRenderer) share the base class and DO want the gutter.
    ============================================================================================ */
+/* ⚠ EVERY `--hx-*` SLOT IS A ROLE READ, AND THE HEXES THAT STOOD HERE WERE A MOCK'S FOUR PALETTES.
+   The contract draws cream, nocturne, fern and basalt as literal hexes. Shipping those gave four
+   right palettes and FIVE WRONG ONES — measured across all ten registered themes, the hero ground
+   never moved off `#FAF6EF`: ratio 1.03 to 1.04 against the five light surfaces, and **17.74 to
+   17.86 against the four dark grounds**, a full light slab on a near-black page. The accent stayed
+   terracotta while the site drew teal, purple, pink and green.
+
+   THE NAMES SURVIVE AND ONLY THE VALUES MOVED, which is what keeps this diff reviewable: every
+   consumer below is untouched, so the mapping is legible as one table rather than scattered through
+   forty declarations. `hx` still means "the contract's slot"; what fills it is now the site's own
+   vocabulary. TYPOGRAPHY, LAYOUT, MOTION AND SPACING DO NOT MOVE — this is a colour change only. */
 .hero-ground--split {
   padding: 0;
-  background-color: var(--hx-pg);
+  /* no ground override: the base `.hero-ground` rule already paints `var(--color-surface)`, which
+     is the site's own answer for this element and themes. Overriding it was the whole defect. */
   color: var(--hx-ink);
   font-family: var(--font-hero-sans), system-ui, sans-serif;
 
-  /* ---- the contract's cream palette, verbatim. One declaration site, every consumer below. ---
-     hx is a deliberately unfamiliar prefix so nothing reads as a role — these are NOT the theme's
-     vocabulary and must not be reached for outside this region. */
-  --hx-pg: #FAF6EF;
-  --hx-surface: #FFFFFF;
-  --hx-accent: #B5442A;
-  --hx-accent-2: #8F331F;
-  --hx-accent-3: #D98B62;
-  --hx-ink: #191210;
-  --hx-muted: #6B6157;
-  --hx-faint: #9A9086;
-  --hx-rule: rgba(25, 18, 16, 0.14);
-  --hx-hair: rgba(25, 18, 16, 0.07);
-  --hx-cta-fg: #FFFFFF;
-  --hx-duo-hi: #FBEEE4;
-  --hx-field: #F1E5DA;
-  --hx-grid: rgba(25, 18, 16, 0.045);
-  --hx-card-stroke: rgba(255, 255, 255, 0.72);
-  --hx-card-shadow: rgba(20, 16, 14, 0.28);
-  --hx-cursor-shadow: rgba(0, 0, 0, 0.3);
+  --hx-pg: var(--color-surface);
+  --hx-surface: var(--color-surface);
+  --hx-accent: var(--color-accent);
+  --hx-accent-2: var(--color-accent-text);
+  --hx-ink: var(--color-text-primary);
+  --hx-muted: var(--color-text-secondary);
+  --hx-faint: var(--color-text-subtle);
+  --hx-cta-fg: var(--color-on-accent);
+  --hx-field: var(--color-surface-well);
 
-  /* ⚠ THE PILL'S SHADOW STAYS A TOKEN READ AND THE CONTRACT'S VALUE ARRIVES BY OVERRIDE.
+  /* ⚠ THE HAIRLINES RESOLVE THE PIGMENT AND KEEP THE CONTRACT'S ALPHAS. `etch` is an INK rather
+     than a finished colour, so one role serves three weights and each consumer keeps the exact
+     percentage the contract drew — 14, 7 and 4.5. That is the property that let `etch` replace
+     seven tokens, and it is why these three do not need a token each. */
+  --hx-rule: color-mix(in srgb, var(--color-etch) 14%, transparent);
+  --hx-hair: color-mix(in srgb, var(--color-etch) 7%, transparent);
+  --hx-grid: color-mix(in srgb, var(--color-etch) 4.5%, transparent);
+
+  /* The card's glass stroke reads the foreground that PAIRS with its own fill, so it is correct on
+     every ground by construction rather than by a fixed white the record has a whole partition for. */
+  --hx-card-stroke: color-mix(in srgb, var(--color-on-accent) 72%, transparent);
+
+  /* ⚠ THE TWO EMBER FAMILIES COLLAPSE TO ONE ACCENT AT FOUR STRENGTHS. The contract mixes
+     `accent`, `accent-2`, `accent-3` and `duo-hi` — a warm ladder with no site equivalent, since
+     the ladder's rungs do not remap on a dark ground. Alpha over whatever is behind is
+     ground-independent, which is the same argument `etch`'s weights won on. */
+  --hx-ember-1: var(--color-accent);
+  --hx-ember-2: var(--color-accent-text);
+  --hx-ember-3: color-mix(in srgb, var(--color-accent) 60%, transparent);
+  --hx-ember-4: color-mix(in srgb, var(--color-accent) 30%, transparent);
+
+  /* ⚠ THE PILL'S SHADOW STAYS A TOKEN READ AND ITS VALUE ARRIVES BY OVERRIDE.
      `vessel-alias` C1 asserts the JSX reads the token so a selector can give it a dark answer,
-     and C2 refuses an inline literal. This scoped override is the one form that satisfies both
-     while drawing the contract's pill exactly. */
+     and C2 refuses an inline literal. This scoped override is the one form that satisfies both. */
   --hero-tab-shadow: 0 8px 20px -10px color-mix(in srgb, var(--hx-accent) 85%, transparent);
 }
+
+/* The piece cards' and the cursor's drop is `--hero-piece-drop`, a PAIRED token declared beside
+   `--hero-tab-drop`'s two halves rather than here — see the ground-ceiling note at that pair. */
 
 /* ⚠ THE SHELL IS THE POSITIONED BOX AND EVERYTHING ELSE IS ABSOLUTE INSIDE IT. It cannot itself be
    absolute — `.hero-ground > :not(.cursor-glow)` sets `position: relative` at 0-2-0 and wins. So it
@@ -2162,6 +2192,12 @@ a {
   position: absolute; left: 0; top: 0; bottom: 0; width: 47%; z-index: 1; pointer-events: none;
   opacity: 0.5;
   mix-blend-mode: soft-light;
+  /* ⚠ NOT A COLOUR CHOICE — THE SOFT-LIGHT IDENTITY, AND IT IS sRGB 128 RATHER THAN OKLCH 50%.
+     `soft-light` composites in sRGB, so the value that leaves the backdrop unchanged is 0.5 of
+     THAT space. Written as `oklch(50% 0 0)` for one commit it measured **99, not 128** — 50% of a
+     perceptual lightness scale is a much darker pixel — and the grain silently DARKENED every
+     ground instead of being neutral. Caught by the before-and-after sweep at dRGB 50, not by
+     reading. There is nothing to theme here: any other value tints the page. */
   background: #808080;
   filter: url(#hero-grain);
 }
@@ -2261,12 +2297,12 @@ a {
   padding: clamp(8px, 1cqw, 14px);
   border: 1px solid var(--hx-card-stroke);
   border-radius: 12px;
-  box-shadow: 0 18px 44px var(--hx-card-shadow);
+  box-shadow: 0 18px 44px var(--hero-piece-drop);
   backdrop-filter: blur(12px);
   width: clamp(78px, 9cqw, 132px);
 }
 .hero-piece--blue .hero-pin { color: var(--hx-cta-fg); background: color-mix(in srgb, var(--hx-accent) 90%, transparent); }
-.hero-piece--lime .hero-pin { color: var(--hx-cta-fg); background: color-mix(in srgb, var(--hx-accent-2) 92%, transparent); }
+.hero-piece--lime .hero-pin { color: var(--hx-cta-fg); background: color-mix(in srgb, var(--hx-accent) 62%, transparent); }
 /* ⚠ THE LIME CARD IS NARROWER THAN THE CONTRACT'S, AND THE POCKET IS WHY. The contract's figure
    nearly fits its panel, so both cards share one width. This panel crops the figure by 153px at
    16:10, and the lower-left clearing that remains holds 70 to 103px of clear width — measured
@@ -2278,7 +2314,7 @@ a {
 .hero-card-line.is-short { width: 60%; opacity: 0.46; }
 .hero-card-ports { display: flex; gap: 5px; margin-top: 10px; }
 .hero-card-ports i { display: block; width: 18px; height: 13px; border-radius: 5px; background: currentColor; opacity: 0.34; }
-.hero-piece--cursor .hero-pin { color: var(--hx-ink); filter: drop-shadow(0 7px 8px var(--hx-cursor-shadow)); }
+.hero-piece--cursor .hero-pin { color: var(--hx-ink); filter: drop-shadow(0 7px 8px var(--hero-piece-drop)); }
 .hero-piece--spark  .hero-pin { color: var(--hx-accent-2); }
 
 /* --- the copy column — the contract's grid, rows auto auto 1fr auto ---------------------------- */
@@ -2453,7 +2489,7 @@ a {
   content: ""; position: absolute; inset: 0; z-index: 9; pointer-events: none;
   opacity: 0; transition: opacity 0.35s ease; mix-blend-mode: soft-light;
   background: radial-gradient(200px 200px at var(--px, 50%) var(--py, 50%),
-    rgba(255, 255, 255, 0.40), transparent 70%);
+    color-mix(in srgb, var(--color-white) 40%, transparent), transparent 70%);
 }
 .hero-art:hover::after { opacity: 1; }
 
@@ -2774,6 +2810,8 @@ a {
      so the five layers exist once — which is the defect the overlay census just found six times. */
   --hero-tab-lit-edge: 70%;
   --vessel-lit-edge:   85%;
+  /* the ash hero's piece drop, light side — see the dark block for why this one is paired */
+  --hero-piece-drop: color-mix(in srgb, var(--color-etch) 28%, transparent);
   /* The docked capsule's lit edge — the same 85%-inset defect the nav and vessel carried, found by
      the row sweep the board prescribed: full-stack row contribution +9.7 cream, +71.7 nocturne at
      dy0. Isolated with the differencer, cream's layer-1 contribution is 32.80. */

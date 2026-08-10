@@ -213,8 +213,8 @@ entries:
   - id: ground-ceiling-black
     kind: judgement
     category: forced-literal
-    where: app/globals.css (:root[data-ground="dark"], --hero-tab-drop, --vessel-drop, --capsule-drop)
-    count: 3
+    where: app/globals.css (:root[data-ground="dark"], --hero-tab-drop, --vessel-drop, --capsule-drop, --hero-piece-drop)
+    count: 4
     selectors: [":root[data-ground=dark]"]
     reason: >
       True black at 12 percent, the hero tab pill's drop tint on a dark ground. Not a rung and not a
@@ -231,6 +231,13 @@ entries:
       0.12, the vessel's 0.30 and the capsule's 0.34 — the vessel pair measured at cream -16.03 to
       -17.32 against nocturne's +1.52 to +1.64 wrong-sign glow before the fix. If a dark shadow
       pigment ever enters the vocabulary, this row's subject moves to it and the row ends.
+
+      ⚠ FOURTH MEMBER, `--hero-piece-drop`, ARRIVING BY THE SAME ROUTE AND WITHOUT A NEW ARGUMENT.
+      The ash hero's two interface cards and its cursor carry a drop; the light side is `etch` at
+      28 percent and etch INVERTS on a dark ground, which is right for a hairline and wrong for a
+      shadow. The count moving 3 to 4 is the field doing its job — a fourth consumer of one ceiling
+      argument rather than a fourth argument. It also collapsed the contract's two values, 0.28 for
+      the cards and 0.30 for the cursor, into one: the 0.02 between them was not a decision.
 
   - id: about-photo-tint
     kind: judgement
@@ -477,26 +484,3 @@ entries:
       someone else's client and never by this page — and they are baked into an image at build time, a
       fifth route no static analysis of the page reaches. Recategorised from signature in #365; the
       prose already argued adjacency and the label never did.
-
-
-  - id: hero-contract-palette
-    kind: judgement
-    category: forced-literal
-    where: app/globals.css (.hero-ground--split and the hero region beneath it)
-    count: 18
-    selectors: [".hero-ground--split", ".hero-grain", ".hero-art:after"]
-    reason: >
-      The ash-contract hero, reproduced verbatim from docs/hero-ash-contract.html by the owner's
-      ruling. The first build of this layout mapped the contract onto the role vocabulary and the
-      ruling that came back was exact fidelity, same typography, same weights, same colours, same
-      content, with the content to be rewritten later. Sixteen of these are the contract's cream
-      palette declared once as local hx-prefixed properties on the split modifier; the grain's
-      mid grey and the sheen's white are the contract's own compositing values; the cursor piece's
-      drop shadow is its stated black. None of them is a role read because matching a role is what
-      was reversed.
-    test: >
-      WHAT MAKES THE TOKEN FORM IMPOSSIBLE HERE: the specification is the contract's drawn values,
-      and no rung or role in the vocabulary holds them — the nearest token was tried first and the
-      render was refused for not matching the drawing. The mechanism ends when the owner runs the
-      theming pass that maps this hero onto the role layer; at that point the hx block shrinks to
-      role reads and this row is deleted with it.

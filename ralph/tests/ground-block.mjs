@@ -34,7 +34,7 @@ const gProps = new Set([...ground.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[
 t("B0 the block was located and is non-trivial, against a literal", gProps.size > 25, true);
 /* ⚠ THE FIVE THAT SHIPPED INERT, BY NAME. Each must be declared in the ground block AND somewhere
  * outside it — losing either half silently reverts a repair this arc paid for twice. */
-const PAIRED = ["--glass-shadow", "--glass-shadow-hi", "--vessel-edge", "--vessel-lit-edge", "--hero-tab-lit-edge", "--hero-tab-drop", "--color-on-accent", "--wc-veil-ink", "--vessel-drop", "--capsule-drop"];
+const PAIRED = ["--glass-shadow", "--glass-shadow-hi", "--vessel-edge", "--vessel-lit-edge", "--hero-tab-lit-edge", "--hero-tab-drop", "--color-on-accent", "--wc-veil-ink", "--vessel-drop", "--capsule-drop", "--hero-piece-drop"];
 t("B1 ⚠ THE FORMERLY-INERT FIVE (PLUS THE DROP) ARE STILL DECLARED IN THE GROUND BLOCK",
   PAIRED.filter((p) => !gProps.has(p)), []);
 t("B2 …and each still has a light-side declaration outside it, so neither half has been folded away",
