@@ -486,6 +486,14 @@ defect among the sites that mounted.** Per-page count literals would close it an
 every legitimate content change, so the trade is declined deliberately. **Revisit only if a defect
 is ever found that an earlier run should have seen.**
 
+**OWNER-ONLY CONFIGURATION — DEPLOYMENT TRACKING.** `/api/studio/deploy-status` ships and degrades:
+without a credential it answers `unavailable` and the publish toast stays at "rebuilding", never
+claiming the site is live and never hanging (#175). Setting **VERCEL_TOKEN**, **VERCEL_PROJECT_ID**
+and, if the project sits under a team, **VERCEL_TEAM_ID** switches READY and the deployment link on
+with NO CODE CHANGE — in `.env.local` for local use and in Vercel for production. Documented in
+`.env.local.example`. **The token-present path is UNVERIFIED**: the credential was not present in
+this session despite being expected, checked in `.env.local`, every `.env*` file and the shell.
+
 **OWNER'S, UNVERIFIABLE FROM THIS REPOSITORY**
 
 - The real-device pass at 1024 on the boAt sections, and the two Vercel env vars. Listed so no session

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { usePublishSignal } from "./PublishProvider";
 
 // PL-1 — the shared save/dirty/expand state machine behind the Surface-B studio
 // panels (Hero, About, and future field groups). Behavior-identical to the two
@@ -30,6 +31,10 @@ type UseDraftFormOptions<T extends object> = {
   /** Called on a successful (github-mode) save with the response JSON. Hero uses
    *  it to update its Unpublished (differs) badge; About omits it. */
   onSaved?: (json: SaveResponse) => void;
+  /** ⚠ WHAT THE SAVE TOAST CALLS THIS THING. Optional: a panel that passes nothing raises no toast,
+   *  so adding the surface did not change every existing call site. The string is the panel's own
+   *  ("Site settings", "Blog · a-slug") because only the caller knows what it is editing. */
+  toastLabel?: string;
   /**
    * Extra fields merged into the POST body alongside `patch`. Default (omitted)
    * posts `{ patch }` — the singleton panels are unchanged. Collection panels
@@ -54,6 +59,7 @@ export function useDraftForm<T extends object>({
   isDirty,
   syncValuesOnSave = false,
   onSaved,
+  toastLabel,
   saveExtras,
   buildBody,
 }: UseDraftFormOptions<T>) {
@@ -71,6 +77,7 @@ export function useDraftForm<T extends object>({
   // Synchronous in-flight guard: blur can fire twice before saveStatus updates
   // to "saving", so the state check alone lets a duplicate POST through. The ref
   // blocks the second call in the same tick (no commit spam).
+  const { beginToast, resolveToast, dismissToast } = usePublishSignal();
   const savingRef = useRef(false);
   /** A save was requested while one was in flight, so one is OWED once it settles.
    *  This is the whole difference between coalescing and dropping — see saveDraft. */
@@ -140,6 +147,10 @@ export function useDraftForm<T extends object>({
     if (!isDirty(valuesRef.current, baselineRef.current)) return;
     savingRef.current = true;
     setSaveStatus("saving");
+    /* ⚠ ONE CARD PER SAVE OPERATION, NOT PER BLUR. Coalesced saves re-enter through the guard
+       above, so this runs once per settle and the owed-save retry resolves the SAME id — a card
+       per keystroke would flood a three-card stack in a second of typing. */
+    const toastId = toastLabel ? beginToast("Saving draft…", toastLabel) : null;
     const committed = buildCommitted(valuesRef.current);
     try {
       const res = await fetch("/api/studio/save-draft", {
@@ -152,6 +163,9 @@ export function useDraftForm<T extends object>({
       const json = (await res.json().catch(() => ({}))) as SaveResponse;
       if (res.ok && json.ok && json.mode === "fs") {
         setSaveStatus("fs");
+        /* fs mode wrote nothing to a draft branch — saying "saved" would name a thing that did not
+           happen, so the card is withdrawn rather than resolved into a success. */
+        if (toastId !== null) dismissToast(toastId);
         return;
       }
       if (res.ok && json.ok && json.saved) {
@@ -165,14 +179,24 @@ export function useDraftForm<T extends object>({
         onSaved?.(json);
         // THE TIMESTAMP IS RECORDED HERE, at the one moment a save is known to have landed.
         // `saveStatus` flips back to "idle" 2500ms below, so it cannot carry an age.
+        if (toastId !== null) resolveToast(toastId, { kind: "ok", title: "Draft saved", message: toastLabel! });
         setSavedAt(Date.now());
         setSaveStatus("saved");
         window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 2500);
         return;
       }
       setSaveStatus("error");
+      /* ⚠ THE SERVER'S MESSAGE, UNMODIFIED — the same rule the publish refusals follow. It is the
+         only text that knows WHICH field and WHICH rule; a local rewording would drift from it. */
+      if (toastId !== null) {
+        const m = (json as { error?: { message?: string } })?.error?.message;
+        resolveToast(toastId, { kind: "refusal", title: "Couldn\u2019t save", message: m || `${toastLabel} — nothing was written.` });
+      }
     } catch {
       setSaveStatus("error"); // the local edit is NOT lost — values remain
+      if (toastId !== null) {
+        resolveToast(toastId, { kind: "refusal", title: "Couldn\u2019t save", message: `${toastLabel} — the request did not complete. Your edit is still here.` });
+      }
     } finally {
       savingRef.current = false;
       // FIRE THE OWED SAVE. At most one follow-up per settle: `saveOwedRef` is set only by a

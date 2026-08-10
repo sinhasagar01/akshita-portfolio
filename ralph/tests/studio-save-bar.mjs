@@ -479,10 +479,17 @@ t("PB1 …and it still handles its two single-cause codes with their own wording
   [/code === "invalid_url"/.test(pubBar), /code === "merge_conflict"/.test(pubBar)], [true, true]);
 t("PB2 ⚠ AND `invalid_blocks` HAS ITS OWN BRANCH — without it a correct refusal reads as a network failure",
   /code === "invalid_blocks"/.test(pubBar), true);
+/* ⚠ RE-POINTED FROM A SPELLING TO THE PROPERTY, AND THE PROPERTY IS STRONGER THAN BEFORE. The
+ * branch used to inline `json?.error?.message`; PublishBar now derives `serverMsg` ONCE and every
+ * refusal reuses it, so the old regex looked for a literal that had been factored out of the very
+ * place it improved. THIRD MATCHER IN THIS UNIT TO GO STALE THE SAME WAY — each was counting a
+ * spelling rather than asserting a fact, and each failed a change that made the code better. */
 t("PB3 ⚠ AND THAT BRANCH USES THE SERVER'S MESSAGE — the only text that knows which post and which rule",
-  /invalid_blocks[\s\S]{0,1400}?json\?\.error\?\.message/.test(pubBar), true);
+  [/const serverMsg[^\n]*json\?\.error\?\.message/.test(pubBar),
+   /invalid_blocks[\s\S]{0,400}?refusalT\(/.test(pubBar)], [true, true]);
 t("PB4 …and it still falls back when the server sends none, so an empty message is not an empty bar",
-  /invalid_blocks[\s\S]{0,1400}?A post would not render/.test(pubBar), true);
+  [/message: serverMsg \|\| fallback/.test(pubBar),
+   /invalid_blocks[\s\S]{0,400}?A post would not render/.test(pubBar)], [true, true]);
 
 console.log(`\nstudio-save-bar result: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

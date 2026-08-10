@@ -13,8 +13,11 @@ const t = (name, got, want) => {
 };
 const src = (p) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8");
 const toaster = src("components/studio/PublishToaster.tsx");
+const machine = src("lib/studio/toast-machine.ts");
 const bar = src("components/studio/PublishBar.tsx");
 const css = src("app/globals.css");
+const draft = src("components/studio/useDraftForm.ts");
+const prov = src("components/studio/PublishProvider.tsx");
 
 console.log("A · the subject exists and is wired on BOTH paths");
 t("A1 the component is real, against a literal", toaster.length > 2000, true);
@@ -35,9 +38,11 @@ t("B1 the standing-state strings are still the line's, unmoved",
  * inside a row written to guard against losing results. Widened to the CONCEPT: any branch that
  * raises, resolves or withdraws. One match is the helper's own definition, hence 9 rather than 8. */
 t("B2 ⚠ AND EVERY TERMINAL PUBLISH BRANCH RAISES OR RESOLVES A TOAST — a result that only reaches the line is one the author can lose to the next status",
-  (bar.match(/resolveToast\(|refusal\(|dismissToast\(pendingId/g) ?? []).length >= 9, true);
+  (bar.match(/resolveToastById\(|refusalT\(|dismissToast\(opId/g) ?? []).length >= 9, true);
+/* Resolution-in-place is the MACHINE's rule now, and it also states what happens when the pending
+ * card is already gone — raised fresh rather than dropped, because a result nobody sees is worse. */
 t("B3 …and a pending toast MORPHS rather than stacking, so one action never reads as two",
-  /pendingId\.current/.test(bar) && /prev\.map\(\(x\) => \(x\.id === id/.test(bar), true);
+  /list\.map\(\(t\) => \(t\.id === id \? \{ \.\.\.patch, id \} : t\)\)/.test(machine), true);
 
 console.log("\nC · the validator's sentence ships unmodified");
 /* ⚠ `publishBlockers` is the one source — the inspector's advisory mark reads it too. A client-side
@@ -48,14 +53,16 @@ t("C2 …and the fallback is only used when the server sent nothing",
   /message: serverMsg \|\| fallback/.test(bar), true);
 
 console.log("\nD · the timer and the bar that depicts it cannot disagree");
-const msTs = (toaster.match(/TOAST_DRAIN_MS = (\d+)/) ?? [])[1];
+/* ⚠ THE CONSTANTS MOVED TO THE PURE LEAF, and this matcher followed them rather than the file it
+ * was written against. `toast-machine.ts` now owns what a toast BECOMES; the component paints. */
+const msTs = (machine.match(/TOAST_DRAIN_MS = (\d+)/) ?? [])[1];
 const msCss = (css.match(/\.studio-toast-drain \{ animation: studio-toast-drain (\d+)ms/) ?? [])[1];
 t("D0 both durations were found, or D1 compares two nulls", [!!msTs, !!msCss], [true, true]);
 t("D1 ⚠ THE DRAIN'S DURATION EQUALS THE TIMEOUT IT VISUALISES — a bar emptying at a different rate is a control reporting a state it has not reached",
   msTs, msCss);
-t("D2 …and only `ok` drains; a refusal waits for the author", /filter\(\(t\) => t\.kind === "ok"\)/.test(toaster), true);
+t("D2 …and only `ok` drains; a refusal waits for the author", /kind === "ok"/.test(machine) && /\.filter\(drains\)/.test(toaster), true);
 t("D3 …and the cap is enforced by dropping the OLDEST rather than queueing the newest",
-  /\.slice\(0, TOAST_CAP\)/.test(bar), true);
+  /\[t, \.\.\.list\]\.slice\(0, TOAST_CAP\)/.test(machine), true);
 
 console.log("\nE · reduced motion keeps the END state, not the start");
 /* #198's trap: gating the animation without gating its end leaves the element in its FROM state —
@@ -85,6 +92,28 @@ t("G1 ⚠ ABOVE THE PILL (z-40) AND BELOW THE MODALS (z-50) — the spec's z-60 
   /z-\[45\]/.test(toaster), true);
 t("G2 …and it is top-right where the pill is bottom-centre, so the corners cannot contend",
   /fixed right-4 top-\[76px\]/.test(toaster), true);
+
+console.log("\nS · the save path raises its own toasts, from the same stack");
+/* ⚠ THE STATE LIVES IN THE PROVIDER BECAUSE TWO UNRELATED SURFACES RAISE INTO IT — publish results
+ * from the bar, save results from every panel's `useDraftForm`. They share no ancestor but this. */
+t("S1 the provider owns the stack and exposes the three operations",
+  ["toasts:", "beginToast:", "resolveToast:", "dismissToast:"].filter((k) => !prov.includes(k)), []);
+t("S2 …and the bar RENDERS them rather than keeping a second copy",
+  /const \{[\s\S]{0,220}?toasts, beginToast, resolveToast/.test(bar) && !/useState<Toast\[\]>/.test(bar), true);
+/* ⚠ ONE CARD PER SAVE OPERATION, NOT PER BLUR. Coalesced saves re-enter through the in-flight guard,
+ * so the begin runs once per settle — a card per keystroke would flood a three-card stack. */
+t("S3 ⚠ THE SAVE RAISES INSIDE THE IN-FLIGHT GUARD — a card per keystroke would flood the stack",
+  /savingRef\.current = true;[\s\S]{0,400}?toastLabel \? beginToast\(/.test(draft), true);
+t("S4 …and a panel that passes no label raises nothing, so labelling was additive",
+  /toastLabel \? beginToast\([^)]*\) : null/.test(draft), true);
+/* fs mode wrote nothing to a draft branch, so "Draft saved" would name a thing that did not happen.
+ * VERIFIED IN THE RUNNING STUDIO: the card appears as "Saving draft… Site settings — Hero" and is
+ * then withdrawn — caught with a MutationObserver, because an fs save returns in ~15ms and a poll
+ * after the fact measures a state that has already gone. */
+t("S5 ⚠ fs MODE WITHDRAWS THE CARD RATHER THAN CLAIMING A SAVE THAT DID NOT HAPPEN",
+  /json\.mode === "fs"[\s\S]{0,300}?dismissToast\(toastId\)/.test(draft), true);
+t("S6 …and a failure carries the SERVER's message, the same rule the publish refusals follow",
+  /error\?\.message[\s\S]{0,200}?resolveToast\(toastId, \{ kind: "refusal"/.test(draft), true);
 
 console.log(`\npublish-toast result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

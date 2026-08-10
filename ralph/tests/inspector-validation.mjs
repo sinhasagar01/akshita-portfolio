@@ -87,8 +87,13 @@ console.log("\nD · the toast, both paths — the projects branch #451 never add
 const bar = src("components/studio/PublishBar.tsx");
 t("D1 ⚠ BOTH REFUSAL CODES HAVE A BRANCH — invalid_sections fell through to 'something went wrong', a network error's wording for a content refusal",
   [/code === "invalid_blocks"/.test(bar), /code === "invalid_sections"/.test(bar)], [true, true]);
-t("D2 …and both use the SERVER's message, the only text that knows which entry and which rule",
-  (bar.match(/json\?\.error\?\.message/g) ?? []).length >= 2, true);
+/* ⚠ THE MATCHER FOLLOWED A REFACTOR, AND THE PROPERTY IS UNCHANGED. PublishBar used to spell
+ * `json?.error?.message` once per branch; it now derives `serverMsg` ONCE and every refusal reuses
+ * it, which is strictly harder to get wrong. Counting occurrences measured the old spelling, not
+ * the property — so this asserts the property: the server's text reaches the toast, and the local
+ * fallback is used only when the server sent nothing. */
+t("D2 …and both refusal codes carry the SERVER's message, the only text that knows which entry and which rule",
+  [/const serverMsg[^\n]*json\?\.error\?\.message/.test(bar), /message: serverMsg \|\| fallback/.test(bar)], [true, true]);
 
 console.log(`\ninspector-validation result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

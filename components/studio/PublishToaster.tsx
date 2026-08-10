@@ -20,36 +20,27 @@
 // the spec's standalone approximations.
 import { useEffect } from "react";
 
-export type ToastKind = "pending" | "ok" | "refusal";
-
-export type Toast = {
-  id: number;
-  kind: ToastKind;
-  title: string;
-  /** The validator's own sentence, UNMODIFIED. `publishBlockers` is the one source; a client-side
-   *  rewrite would be a second spelling of the same rule and would drift from it. */
-  message: string;
-  action?: { label: string; href: string };
-};
-
-/** Three visible; past the cap the OLDEST is dismissed rather than queued, so the newest result is
- *  always on screen. A queue would hide the thing the author just caused. */
-export const TOAST_CAP = 3;
-/** Only `ok` drains. A refusal or a failure is something the author must act on, so it waits. */
-export const TOAST_DRAIN_MS = 6000;
+/* ⚠ THE TYPE AND THE RULES LIVE IN `lib/studio/toast-machine.ts`, NOT HERE. This file paints; the
+   machine decides. Two declarations of one shape is the second-spelling defect this repo deletes,
+   and it would have drifted the moment `action` gained a retry form. */
+import { type Toast, TOAST_DRAIN_MS, drains } from "@/lib/studio/toast-machine";
+export type { Toast };
 
 export default function PublishToaster({
   toasts,
   onDismiss,
+  onRetry,
 }: {
   toasts: Toast[];
   onDismiss: (id: number) => void;
+  /** Only the slow-warning offers this today; the card carries `action.retry` when it applies. */
+  onRetry?: () => void;
 }) {
   /* Auto-dismiss is OWNED HERE rather than by the caller, so the timer and the drain bar that
      visualises it cannot disagree about how long is left. */
   useEffect(() => {
     const timers = toasts
-      .filter((t) => t.kind === "ok")
+      .filter(drains)
       .map((t) => setTimeout(() => onDismiss(t.id), TOAST_DRAIN_MS));
     return () => timers.forEach(clearTimeout);
   }, [toasts, onDismiss]);
@@ -89,21 +80,30 @@ export default function PublishToaster({
               {t.message}
             </p>
             {t.action && (
-              /* ⚠ THE COLOUR IS SET EXPLICITLY, NOT BY A UTILITY, AND THE MEASUREMENT IS WHY.
-                 globals.css carries an UNLAYERED `a { color: inherit }` so links take their
-                 context — and unlayered CSS outranks every `@layer utilities` declaration, so the
-                 accent utility on an anchor draws NOTHING. Measured: the same class read 7.22 on a
-                 span and 19.04 here, identical to the ink title beside it. The link would have
-                 shipped looking like body text. This is #177's rule — set it explicitly rather than
-                 relying on inheritance — and the anchor is kept because the action really is
-                 navigation. */
-              <a
-                href={t.action.href}
-                style={{ color: "var(--color-studio-accent-600)" }}
-                className="mt-[9px] inline-block border-0 border-b border-current text-[11.5px] font-medium"
-              >
-                {t.action.label}
-              </a>
+              /* ⚠ A RETRY IS A BUTTON AND A DESTINATION IS A LINK, and they are not interchangeable.
+                 The colour is set explicitly on both because globals.css carries an unlayered
+                 `a { color: inherit }` that outranks every utility — measured at 19.04 against
+                 7.22 before it was set here. */
+              t.action.retry ? (
+                <button
+                  type="button"
+                  onClick={() => { onDismiss(t.id); onRetry?.(); }}
+                  style={{ color: "var(--color-studio-accent-600)" }}
+                  className="mt-[9px] inline-block border-0 border-b border-current bg-transparent p-0 text-[11.5px] font-medium"
+                >
+                  {t.action.label}
+                </button>
+              ) : t.action.href ? (
+                <a
+                  href={t.action.href}
+                  target={t.action.href.startsWith("http") ? "_blank" : undefined}
+                  rel={t.action.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  style={{ color: "var(--color-studio-accent-600)" }}
+                  className="mt-[9px] inline-block border-0 border-b border-current text-[11.5px] font-medium"
+                >
+                  {t.action.label}
+                </a>
+              ) : null
             )}
           </div>
 

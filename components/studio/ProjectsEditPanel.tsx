@@ -85,6 +85,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       v.facts.platform !== b.facts.platform,
     saveExtras: { collection: "projects", slug },
     onSaved: () => setUnpublished(true),
+    toastLabel: "Case studies",
   });
 
   // Sections are fetched separately from the list payload, which never carries them

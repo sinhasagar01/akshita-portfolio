@@ -5,8 +5,13 @@
 // differs) signal and for whether ANY panel has unsaved / in-flight edits, so
 // the page-level Publish button can gate exactly like Hero's old one did.
 import {
+  type Toast, TOAST_SLOW_MS,
+  push as pushT, resolve as resolveT, dismiss as dismissT,
+} from "@/lib/studio/toast-machine";
+import {
   createContext,
   useCallback,
+  useRef,
   useContext,
   useEffect,
   useId,
@@ -26,10 +31,22 @@ type PublishSignal = {
   anyOccluding: boolean;
   /** Report it, keyed like `reportPending` so several reporters cannot fight. */
   reportOccluding: (id: string, occluding: boolean) => void;
+  /* ⚠ THE TOASTS LIVE HERE BECAUSE TWO UNRELATED SURFACES RAISE THEM. PublishBar raises publish
+     results and every panel's `useDraftForm` raises save results; they share no ancestor but this
+     provider, which already carries exactly this kind of cross-component publish state. A second
+     provider for one more signal is the shape this repo refuses. */
+  toasts: Toast[];
+  beginToast: (title: string, message: string) => number;
+  resolveToast: (id: number, patch: Omit<Toast, "id">) => void;
+  dismissToast: (id: number) => void;
 };
 
 // No-op fallback so a panel rendered outside the provider never crashes.
 const NOOP: PublishSignal = {
+  toasts: [],
+  beginToast: () => 0,
+  resolveToast: () => {},
+  dismissToast: () => {},
   unpublished: false,
   draftReadError: false,
   setUnpublished: () => {},
@@ -67,6 +84,41 @@ export function PublishProvider({
      not be able to overwrite each other, and a reporter that unmounts must take its own claim
      with it rather than leaving the pill hidden forever. */
   const [occludingIds, setOccludingIds] = useState<ReadonlySet<string>>(new Set());
+
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastSeq = useRef(0);
+  /** Slow-warning timers, keyed by operation id — never a single "current" handle, because two
+   *  operations overlap routinely and one handle resolves whichever finished last. */
+  const slowTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const dismissToast = useCallback((id: number) => {
+    const h = slowTimers.current.get(id);
+    if (h) { clearTimeout(h); slowTimers.current.delete(id); }
+    setToasts((prev) => dismissT(prev, id));
+  }, []);
+  const resolveToast = useCallback((id: number, patch: Omit<Toast, "id">) => {
+    const h = slowTimers.current.get(id);
+    if (h) { clearTimeout(h); slowTimers.current.delete(id); }
+    setToasts((prev) => resolveT(prev, id, patch));
+  }, []);
+  const beginToast = useCallback((title: string, message: string) => {
+    const id = ++toastSeq.current;
+    setToasts((prev) => pushT(prev, { id, kind: "pending", title, message }));
+    slowTimers.current.set(id, setTimeout(() => {
+      slowTimers.current.delete(id);
+      setToasts((prev) => prev.some((t) => t.id === id && t.kind === "pending")
+        ? resolveT(prev, id, {
+            kind: "refusal",
+            title: "Taking longer than expected",
+            message: "This is still running. It may finish on its own — nothing has been lost.",
+          })
+        : prev);
+    }, TOAST_SLOW_MS));
+    return id;
+  }, []);
+  useEffect(() => {
+    const timers = slowTimers.current;
+    return () => { timers.forEach(clearTimeout); timers.clear(); };
+  }, []);
   const reportOccluding = useCallback((id: string, occluding: boolean) => {
     setOccludingIds((prev) => {
       const has = prev.has(id);
@@ -79,8 +131,10 @@ export function PublishProvider({
 
   const value = useMemo<PublishSignal>(
     () => ({ unpublished, setUnpublished, draftReadError, anyPending: pendingIds.size > 0, reportPending,
-      anyOccluding: occludingIds.size > 0, reportOccluding }),
-    [unpublished, draftReadError, pendingIds, reportPending, occludingIds, reportOccluding]
+      anyOccluding: occludingIds.size > 0, reportOccluding,
+      toasts, beginToast, resolveToast, dismissToast }),
+    [unpublished, draftReadError, pendingIds, reportPending, occludingIds, reportOccluding,
+      toasts, beginToast, resolveToast, dismissToast]
   );
 
   return <PublishContext.Provider value={value}>{children}</PublishContext.Provider>;
