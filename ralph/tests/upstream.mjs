@@ -25,6 +25,12 @@
 // A2  ⚠ AND A PULL REQUEST EXISTS FOR THEM. A pushed `main` with no PR is a SECOND version of this
 //     failure: the code arrives and the record does not. `ralph/phase1` is already on file as the
 //     one place code entered this repo without review, and this is what stops a third.
+// C1  ⚠ AND WHAT PRODUCTION SERVES IS ON `origin/main`. A THIRD system, and the same shape: a merge
+//     is not a release. Every gate in this repo can be green while visitors are served something
+//     else, which on 2026-08-10 meant 34 minutes of a placeholder on the live site.
+//     ⚠ NOTE WHAT C DOES *NOT* ASSERT: that main is deployed. That fails on every run made minutes
+//     after a merge, and a gate whose common failure is benign is one people learn to skip. Lag is
+//     REPORTED; only a production commit that is not on `origin/main` fails.
 //
 // ---- ⚠ IT IS NOT IN `ralph/run.mjs`, AND THAT IS DECLARED RATHER THAN SILENT -----------------
 //
@@ -116,6 +122,78 @@ t("B1b the declared exception still names a real commit — a stale pin fails B1
 if (isKnown && !headCovered) {
   console.log("         ⚠ PASSING VIA THE DECLARED EXCEPTION — HEAD is the documented uncovered tip.");
   console.log("           The next commit on top of this one FAILS until a pull request covers it.");
+}
+
+console.log("\nC · and it reached the PUBLIC, which is a third system again");
+
+/* ⚠ A THIRD SYSTEM, AND THE SAME SHAPE AS THE FIRST TWO. A says the commits reached the repository.
+   B says the record exists. NEITHER SAYS ANYONE CAN SEE THE WORK. A merge is not a release, and on
+   2026-08-10 that gap cost 34 minutes with a placeholder served from the live site while ralph, the
+   census and the build were all green — every instrument reading a system that was correct.
+
+   ⚠ AND THE QUESTION IS THE DEPLOYMENT LIST, NEVER A COMMIT STATUS. A red Vercel status on the
+   newest merge means nothing on its own, because a later deploy carries every merge before it. I
+   spent an afternoon reading the status as though it answered "did my change reach visitors" and it
+   answers a different question. Measured: three refused merges produced ZERO production deployment
+   records, so a record means a build actually started.
+
+   ⚠ AND THE ROW THAT LOOKS OBVIOUS IS THE ONE NOT WRITTEN — "main is deployed" would fail on every
+   run made within minutes of a merge, which is normal and benign. A gate whose common failure is
+   benign is a gate people learn to skip, which is the argument this repo already made about the CI
+   build step. BEING AHEAD IS REPORTED, NOT ASSERTED.
+
+   What IS asserted is the thing that is never benign: production serving something that is NOT on
+   `origin/main` — a rollback, a promoted preview, a divergent branch. That state cannot arise from
+   ordinary lag, so it never fails for a reason nobody cares about. */
+
+const remote = sh("git", ["remote", "get-url", "origin"]).stdout.trim();
+const nwo = (remote.match(/github\.com[:/]([^/]+\/[^/.]+)/) ?? [])[1] ?? null;
+if (!nwo) {
+  console.log("  NOT RUNNABLE — origin is not a github remote; C is UNVERIFIED, not passed.");
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(fail === 0 ? 0 : 1);
+}
+const dep = sh("gh", ["api", `repos/${nwo}/deployments?per_page=100`, "--jq",
+  '[.[] | select(.environment=="Production")] | .[0:5] | .[] | "\\(.id) \\(.sha) \\(.created_at)"']);
+if (dep.status !== 0) {
+  console.log("  NOT RUNNABLE — the deployments API is unreachable; C is UNVERIFIED, not passed.");
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(fail === 0 ? 0 : 1);
+}
+
+/* ⚠ A DEPLOYMENT RECORD IS NOT A LIVE DEPLOYMENT. A build can start and fail, leaving a record whose
+   sha is NOT what visitors are served — the previous success still is. So the newest records are
+   walked until one reports `success`, rather than trusting position in the list. Bounded at five so
+   an outage cannot turn a gate into a crawl, and the walk depth is printed. */
+let live = null, walked = 0;
+for (const line of dep.stdout.trim().split("\n").filter(Boolean)) {
+  const [id, sha, at] = line.split(" ");
+  walked++;
+  const st = sh("gh", ["api", `repos/${nwo}/deployments/${id}/statuses`, "--jq", ".[0].state"]);
+  if (st.status === 0 && st.stdout.trim() === "success") { live = { sha, at }; break; }
+}
+t("C0 a SUCCESSFUL production deployment was found — without one, C1 compares against nothing",
+  live !== null, true);
+
+if (live) {
+  /* The sha must be present locally to be compared. `git fetch origin` ran in A, and a production
+     deploy is a commit on main, so absence here is an instrument condition rather than a finding —
+     reported as UNVERIFIED rather than failed, which is rule 25 applied to this gate's own input. */
+  const present = sh("git", ["cat-file", "-e", `${live.sha}^{commit}`]).status === 0;
+  t("C0a …and the deployed commit is present locally, or C1 would fail on a fetch rather than on a fact",
+    present, true);
+  if (present) {
+    const onMain = sh("git", ["merge-base", "--is-ancestor", live.sha, "origin/main"]).status === 0;
+    const undeployed = Number(sh("git", ["rev-list", "--count", `${live.sha}..origin/main`]).stdout.trim());
+    const mins = Math.round((Date.now() - Date.parse(live.at)) / 60000);
+    console.log(`         live: ${live.sha.slice(0, 7)} (${live.at}, ${mins} min ago, walked ${walked});  ${undeployed} merged commit(s) not yet deployed`);
+    t("C1 ⚠ WHAT PRODUCTION SERVES IS ON origin/main — a rollback or a promoted preview is not ordinary lag",
+      onMain, true);
+    if (undeployed > 0) {
+      console.log("         ⚠ AHEAD, WHICH IS REPORTED RATHER THAN FAILED. A refused or pending deploy is not");
+      console.log("           lost work: the next successful deploy carries every merge before it.");
+    }
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
