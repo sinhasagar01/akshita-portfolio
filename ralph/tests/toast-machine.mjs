@@ -4,7 +4,7 @@
 // cannot be driven from a gate and is NOT driven here. What this proves is the ARITHMETIC: given
 // what happened, what the cards become. A stub proves the state machine; only a real session proves
 // the whole path, and the owner is the only instrument for that.
-import { push, resolve, dismiss, drains, deployPatch, TOAST_CAP, TOAST_DRAIN_MS, TOAST_SLOW_MS }
+import { push, resolve, dismiss, drains, deployPatch, TOAST_CAP, TOAST_DRAIN_MS, TOAST_SLOW_MS, DEPLOY_DEADLINE_MS }
   from "../../lib/studio/toast-machine.ts";
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -52,6 +52,20 @@ t("D3 …and dismissing one leaves the other", dismiss(live, 2).map((x) => x.id)
 console.log("\nE · only a success drains; a refusal waits");
 t("E1 ok drains, refusal and pending do not",
   [drains(T(1, "ok")), drains(T(2, "refusal")), drains(T(3, "pending"))], [true, false, false]);
+
+console.log("\nG · a card awaiting a deploy must outlive the drain");
+/* ⚠ BUG B. A publish success is `ok`, so it drained at 6s — and the poll keys off the card carrying
+ * the sha, so dismissing the card STOPPED THE POLL. A Vercel build takes 60-120s, so READY was
+ * unreachable in practice: the seam failed quiet correctly and could never succeed. */
+t("G1 ⚠ AN `ok` CARD STILL CARRYING A sha DOES NOT DRAIN — dismissing it would kill the poll that answers it",
+  drains({ ...T(1, "ok"), sha: "abc" }), false);
+t("G1a …and the same card drains once the question is gone", drains({ ...T(1, "ok"), sha: undefined }), true);
+/* ⚠ AND THE WAIT IS BOUNDED, or "stays until answered" becomes "stays forever" — the slow-warning's
+ * own defect, one surface out. */
+t("G2 ⚠ THE DEPLOY WAIT HAS A DEADLINE, and it outlasts a real build rather than merely existing",
+  [DEPLOY_DEADLINE_MS > 0, DEPLOY_DEADLINE_MS > 120000], [true, true]);
+t("G3 …and it is longer than the drain, or the card would give up before it could ever show a result",
+  DEPLOY_DEADLINE_MS > TOAST_DRAIN_MS, true);
 
 console.log("\nF · the deploy answer — fail QUIET, never open");
 t("F1 ready becomes live, and carries the deployment when there is one",

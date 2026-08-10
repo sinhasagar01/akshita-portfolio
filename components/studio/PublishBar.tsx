@@ -20,7 +20,7 @@
 // confirm, so looking is structural. The merge body below is unchanged — only its trigger moved.
 import { useEffect, useRef, useState } from "react";
 import PublishToaster from "./PublishToaster";
-import { deployPatch } from "@/lib/studio/toast-machine";
+import { deployPatch, DEPLOY_DEADLINE_MS } from "@/lib/studio/toast-machine";
 import { usePublishSignal } from "./PublishProvider";
 import PublishPreviewDialog, { type PreviewState } from "./PublishPreviewDialog";
 
@@ -29,7 +29,7 @@ type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
   const { unpublished, setUnpublished, draftReadError, anyPending,
-    toasts, beginToast, resolveToast: resolveToastById, dismissToast } = usePublishSignal();
+    toasts, beginToast, resolveToast: resolveToastById, dismissToast, retryToast } = usePublishSignal();
   /** One publish at a time — closes the double-activation window  cannot. */
   const inFlight = useRef(false);
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
@@ -55,14 +55,24 @@ export default function PublishBar() {
     if (!waiting?.sha) return;
     let live = true;
     let handle: ReturnType<typeof setTimeout>;
+    const started = Date.now();
+    /** Drop the question and let the card drain — it keeps its true claim either way. */
+    const giveUp = () => resolveToastById(waiting.id, {
+      kind: "ok", title: waiting.title, message: waiting.message,
+    });
     const tick = async () => {
+      if (!live) return;
+      /* ⚠ BOUNDED, BECAUSE A CARD THAT WAITS FOREVER IS THE DEFECT THE WAIT WAS MEANT TO FIX. With
+         `drains` now holding an unanswered card open, an unanswerable one would pin the stack. */
+      if (Date.now() - started > DEPLOY_DEADLINE_MS) { giveUp(); return; }
       try {
         const r = await fetch(`/api/studio/deploy-status?sha=${encodeURIComponent(waiting.sha!)}`);
         const j = await r.json().catch(() => ({}));
         if (!live) return;
         const patch = deployPatch(j?.state, j?.url);
         if (patch) { resolveToastById(waiting.id, patch); return; }
-        if (j?.state === "unavailable") { resolveToastById(waiting.id, { ...waiting, sha: undefined }); return; }
+        /* `unavailable` is an answer: we cannot know, so stop asking and let the card go. */
+        if (j?.state === "unavailable") { giveUp(); return; }
         handle = setTimeout(tick, 4000);
       } catch { if (live) handle = setTimeout(tick, 4000); }
     };
@@ -165,7 +175,7 @@ export default function PublishBar() {
          one failure this endpoint cannot make safe on its own. */
       if (inFlight.current) return;
       inFlight.current = true;
-      const opId = beginToast("Publishing…", "Merging your changes and starting the rebuild.");
+      const opId = beginToast("Publishing…", "Merging your changes and starting the rebuild.", publish);
       const res = await fetch("/api/studio/publish", { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.merged) {
@@ -454,7 +464,7 @@ export default function PublishBar() {
   // pill that arrives immediately is never briefly in the way.
   return (
     <>
-      <PublishToaster toasts={toasts} onDismiss={dismissToast} onRetry={publish} />
+      <PublishToaster toasts={toasts} onDismiss={dismissToast} onRetry={retryToast} />
       {previewOpen && (
         <PublishPreviewDialog
           state={previewState}

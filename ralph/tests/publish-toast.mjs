@@ -63,7 +63,11 @@ const msCss = (css.match(/\.studio-toast-drain \{ animation: studio-toast-drain 
 t("D0 both durations were found, or D1 compares two nulls", [!!msTs, !!msCss], [true, true]);
 t("D1 ⚠ THE DRAIN'S DURATION EQUALS THE TIMEOUT IT VISUALISES — a bar emptying at a different rate is a control reporting a state it has not reached",
   msTs, msCss);
-t("D2 …and only `ok` drains; a refusal waits for the author", /kind === "ok"/.test(machine) && /\.filter\(drains\)/.test(toaster), true);
+/* ⚠ THE MATCHER NAMES THE CONCEPT, NOT THE LOOP SHAPE. It pinned `.filter(drains)` and went stale
+ * the moment the timer became one-per-card — the third matcher in this arc to fail a change that
+ * improved the code. What matters is that the RENDERER asks the machine rather than deciding. */
+t("D2 …and only `ok` drains; a refusal waits for the author",
+  [/kind === "ok"/.test(machine), /drains\(/.test(toaster)], [true, true]);
 t("D3 …and the cap is enforced by dropping the OLDEST rather than queueing the newest",
   /\[t, \.\.\.list\]\.slice\(0, TOAST_CAP\)/.test(machine), true);
 
@@ -95,6 +99,27 @@ t("G1 ⚠ ABOVE THE PILL (z-40) AND BELOW THE MODALS (z-50) — the spec's z-60 
   /z-\[45\]/.test(toaster), true);
 t("G2 …and it is top-right where the pill is bottom-centre, so the corners cannot contend",
   /fixed right-4 top-\[76px\]/.test(toaster), true);
+
+console.log("\nR · the controls that could not render, and the timers that could not stop");
+/* ⚠ BUG A. `action.retry` was never SET by anything, so the Retry button and its handler were dead
+ * code — the slow-warning offered it before the state moved to the provider, and the provider's
+ * signature dropped the parameter. A control that cannot render is worse than one that is missing,
+ * because the branch reads as covered. */
+t("R1 ⚠ THE PROVIDER ACCEPTS A RETRY AND THE SLOW WARNING SETS IT — otherwise the button is unreachable",
+  [/beginToast: \(title: string, message: string, onRetry\?: \(\) => void\)/.test(prov),
+   /retry: true as const/.test(prov)], [true, true]);
+t("R1a …and the publish supplies one, so the warning it raises can act",
+  /beginToast\("Publishing…"[^)]*, publish\)/.test(bar), true);
+t("R1b …and the retry is keyed by OPERATION, not by component — two can be pending at once",
+  /retryToast: \(id: number\) => void/.test(prov) && /onRetry\?: \(id: number\) => void/.test(toaster), [true, true][0]);
+/* ⚠ BUG C. The drain effect rebuilt every timer on each `toasts` change, so a card five seconds old
+ * got a fresh six whenever another toast appeared — while its CSS bar, which runs once from mount,
+ * had already emptied. The bar and the dismissal then described different amounts of time. */
+t("R2 ⚠ ONE DRAIN TIMER PER CARD, ARMED ONCE — a rebuild on every change desynchronises the bar from the dismissal",
+  /drainTimers/.test(toaster) && /live\.has\(t\.id\)/.test(toaster), true);
+/* ⚠ BUG D. `push` slices past the cap silently, and only dismiss/resolve cleared timers. */
+t("R3 ⚠ THE CAP'S SILENT DROP IS FORGOTTEN EXPLICITLY — a pure slice cannot clean up after itself",
+  /if \(!next\.some\(\(n\) => n\.id === t\.id\)\) forget\(t\.id\)/.test(prov), true);
 
 console.log("\nS · the save path raises its own toasts, from the same stack");
 /* ⚠ THE SUBJECT IS DERIVED FROM THE FILESYSTEM, NOT LISTED — and the miss this row exists for is
