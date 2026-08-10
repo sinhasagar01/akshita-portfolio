@@ -551,6 +551,34 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ AN ASSERTION THAT CANNOT FAIL FOR THE REASON IT NAMES — FOUR IN ONE UNIT, ONE SHAPE.** Each
+  passed, each was checkable-looking, and none tested the property in its own title.
+
+  **THE CLEAREST IS THE ARCHITECTURE'S OWN CONSEQUENCE.** A row asserted the inspector's mark and
+  the publish wall *agree* on their copy. They read ONE exported function, so **no mutation to a
+  message can make them disagree** — the title claimed agreement between two things, and there is
+  only one thing. True by construction, and proving nothing. Retitled to what it proves,
+  **derivation**, and mutation-tested with the one mutation that can kill it: a second spelling
+  being BORN, an inline message reinstated ahead of the shared call.
+
+  **THE OTHER THREE ARE THE SAME FAMILY IN DIFFERENT COSTUMES.** A whole-file check for an ARIA role
+  matched a **different field's** — the wrong-subject shape inside an assertion. The comment
+  explaining why that role is not used **contained the role name**, so it failed the check it
+  existed to explain — explaining-it-requires-writing-it, arriving on an ARIA role rather than a
+  comment delimiter, its fourth instance. And a presence rule — *absent is skipped rather than
+  guessed* — was applied to **one field of four** by its own author, in the same function, in the
+  same hour.
+
+  **⚠ AND ONE OF THEM FIRST REPORTED SURVIVED WHILE BEING INVALID.** The kill-mutation was placed
+  AFTER the check it was meant to replace, so it never ran. **A mutation must be shown to reach its
+  subject**, which this repo already says of `mutate.mjs` and which a hand-placed edit needs just as
+  much.
+
+  **THE TEST TO APPLY: ask what would have to change for this row to go red, and name it.** If the
+  answer is "nothing a reasonable edit could do", the row is documentation wearing an assertion's
+  clothes. All four were found by running the suite against its own subject rather than by reading
+  it.
+
 - **⚠ STATE BOTH FIGURES ON ANY CROSS-GROUND COMPARISON — THE ABSOLUTE DELTA AND THE RATIO AGAINST
   THE LOCAL BACKDROP.** An absolute delta is a whisper on light and a glow on dark: the smoke blobs
   measured +5 to +6 on BOTH grounds and were passed as "comparable", and as ratios they were 1.04–1.07
