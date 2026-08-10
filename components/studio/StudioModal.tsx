@@ -104,6 +104,26 @@ export function StudioModal({
         // hazard where a class looks right and generates nothing. `narrow` is byte-for-byte the
         // string that shipped, so the three confirms cannot move.
         //
+        // ⚠ THE CAP IS VIEWPORT-DERIVED BECAUSE THE PERCENTAGE FORM NEVER CAPPED ANYTHING. The
+        // previous value was the full-height max-height utility, DESCRIBED RATHER THAN SPELLED
+        // because it is no longer used anywhere in source — writing it here is the whole of what
+        // `css-comment-trap` A5 forbids, and this comment failed that row on its first run. This
+        // panel is a
+        // grid item under `place-items-center`, so a percentage max-height resolves against the
+        // grid AREA — and the row is `auto`, sized to its content. 100% of a content-sized track is
+        // the content: measured with 300 entries the panel reached 25,412px and the Publish button
+        // sat at 25,401 with the page body `overflow: hidden`, so it could not be reached at all.
+        // `calc(100dvh-2rem)` subtracts the overlay's own `p-4`, and dvh rather than vh so a mobile
+        // URL bar cannot push the footer out.
+        //
+        // ⚠ AND IT COVERS TWO REGIMES WHERE THE OBVIOUS FIX COVERS ONE. Moving the scroll and a
+        // ceiling onto the inner `ul` was measured: it rescues a large changeset at a tall viewport
+        // and still fails at a short one — panel 710 against a 380 viewport, and even a THREE-entry
+        // modal fails there at 450. That is #248's finding again, where sticky and mt-auto each
+        // covered one regime and neither covered both. With the panel capped, the body's existing
+        // `flex-1 min-h-0 overflow-y-auto` scrolls correctly and no inner ceiling is needed —
+        // measured reachable at 900 and 380, with 3 entries and with 300.
+        //
         // ⚠ AND ONLY `wide` GETS THE HEIGHT CAP AND THE COLUMN. A confirm is a sentence and two
         // buttons and can never outgrow the viewport; the preview lists every changed entry and
         // its text, so it must cap and hand its body a scroll region. Making the panel a flex
@@ -111,7 +131,7 @@ export function StudioModal({
         // under, for no gain to any of them.
         className={
           width === "wide"
-            ? "flex max-h-full w-full max-w-[640px] flex-col rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
+            ? "flex max-h-[calc(100dvh-2rem)] w-full max-w-[640px] flex-col rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
             : "w-full max-w-[440px] rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-100 p-[26px] shadow-[var(--studio-lift-modal,0_30px_60px_-24px_rgba(60,45,30,0.5))]"
         }
       >
