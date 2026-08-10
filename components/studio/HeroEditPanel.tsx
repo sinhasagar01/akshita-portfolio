@@ -301,7 +301,7 @@ export default function HeroEditPanel({
                   value={values[TABS[activeTab].lineKey]}
                   onChange={(e) => edit(TABS[activeTab].lineKey, e.target.value)}
                   onBlur={saveDraft}
-                  className={`${inputClsMd} min-h-24 resize-y py-3 pb-[18px] leading-[1.55]`}
+                  className={`${inputClsMd} min-h-24 field-sizing-content resize-none max-h-[500px] overflow-y-auto py-3 pb-[18px] leading-[1.55]`}
                 />
               </label>
             </KeyRow>

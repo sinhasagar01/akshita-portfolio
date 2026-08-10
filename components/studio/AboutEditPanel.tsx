@@ -152,7 +152,7 @@ export default function AboutEditPanel({
             value={values.aboutCopy}
             onChange={(e) => edit("aboutCopy", e.target.value)}
             onBlur={saveDraft}
-            className={`${inputClsMd} resize-y leading-relaxed`}
+            className={`${inputClsMd} field-sizing-content resize-none max-h-[500px] overflow-y-auto leading-relaxed`}
           />
           <span className="text-[10px] text-studio-text-subtle">
             The first paragraph is the large lead. A blank line starts a new paragraph.
