@@ -90,6 +90,7 @@ export default function AboutEditPanel({
       !sameChips(trimChips(v.aboutFocusChips), b.aboutFocusChips),
     syncValuesOnSave: true,
     onSaved: () => setUnpublished(true),
+    toastLabel: "Site settings — About",
   });
 
   useReportPending(dirty || saveStatus === "saving");

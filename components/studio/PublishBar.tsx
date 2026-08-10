@@ -18,11 +18,9 @@
 // mechanism. This bar had the asymmetry backwards: Discard, which only destroys DRAFTS, required a
 // confirm, while Publish, which changes the LIVE SITE, was one click. The preview is now that
 // confirm, so looking is structural. The merge body below is unchanged — only its trigger moved.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PublishToaster from "./PublishToaster";
-import {
-  type Toast, TOAST_SLOW_MS, push as pushT, resolve as resolveT, dismiss as dismissT, deployPatch,
-} from "@/lib/studio/toast-machine";
+import { deployPatch } from "@/lib/studio/toast-machine";
 import { usePublishSignal } from "./PublishProvider";
 import PublishPreviewDialog, { type PreviewState } from "./PublishPreviewDialog";
 
@@ -30,7 +28,10 @@ type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
-  const { anyOccluding, unpublished, setUnpublished, draftReadError, anyPending } = usePublishSignal();
+  const { anyOccluding, unpublished, setUnpublished, draftReadError, anyPending,
+    toasts, beginToast, resolveToast: resolveToastById, dismissToast } = usePublishSignal();
+  /** One publish at a time — closes the double-activation window  cannot. */
+  const inFlight = useRef(false);
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle");
   /* ⚠ `publishMsg` IS GONE, NOT MERELY UNRENDERED. With the toast owning every publish result the
      line had one reader left — a tone check — and a state variable written nine times and read once
@@ -44,54 +45,16 @@ export default function PublishBar() {
 
      ⚠ AND A PENDING TOAST MORPHS IN PLACE rather than being replaced, so the publishing toast
      BECOMES the result. A second card would make one action look like two. */
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  const toastSeq = useRef(0);
-  /** One publish at a time — see the guard in `publish`. */
-  const inFlight = useRef(false);
-  /** ⚠ TIMERS AND POLLS ARE KEYED BY OPERATION ID, not held as one "current" handle. Two operations
-   *  overlap routinely — a save finishing while a publish merges — and a single handle resolves
-   *  whichever finished last onto whichever card is showing. */
-  const slowTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
-  const dismissToast = useCallback((id: number) => {
-    const t = slowTimers.current.get(id);
-    if (t) { clearTimeout(t); slowTimers.current.delete(id); }
-    setToasts((prev) => dismissT(prev, id));
-  }, []);
-  /** Raise a pending card and arm its slow-warning. Returns the id the caller resolves against. */
-  const beginToast = useCallback((title: string, message: string, onRetry?: () => void) => {
-    const id = ++toastSeq.current;
-    setToasts((prev) => pushT(prev, { id, kind: "pending", title, message }));
-    slowTimers.current.set(id, setTimeout(() => {
-      slowTimers.current.delete(id);
-      setToasts((prev) => prev.some((t) => t.id === id && t.kind === "pending")
-        ? resolveT(prev, id, {
-            kind: "refusal",
-            title: "Taking longer than expected",
-            /* ⚠ IT DOES NOT CLAIM FAILURE, because the request may still land. Saying "failed" here
-               would be a confident lie about a state we do not have. */
-            message: "This is still running. It may finish on its own — nothing has been lost.",
-            ...(onRetry ? { action: { label: "Try again", retry: true as const } } : {}),
-          })
-        : prev);
-    }, TOAST_SLOW_MS));
-    return id;
-  }, []);
-  const resolveToastById = useCallback((id: number, patch: Omit<Toast, "id">) => {
-    const t = slowTimers.current.get(id);
-    if (t) { clearTimeout(t); slowTimers.current.delete(id); }
-    setToasts((prev) => resolveT(prev, id, patch));
-  }, []);
-  /* ⚠ THE POLL IS DRIVEN BY THE CARD, NOT BY THE PUBLISH CALL. A toast carrying a `sha` is a
-     question that has not been answered yet; when the answer arrives the card changes and the sha
-     is dropped, which ends the poll without a second piece of state saying so.
-
-     ⚠ AND `unavailable` STOPS IT TOO. Without a credential the route can never answer, so polling on
-     would be a spinner that never resolves — the shape the slow-warning exists to prevent. The card
-     keeps "rebuilding", which is true, and stops asking. */
+  /* ⚠ THE DEPLOY POLL IS DRIVEN BY THE CARD, NOT BY THE PUBLISH CALL. A toast carrying a `sha` is a
+     question not yet answered; when the answer lands the card changes and the sha is dropped, which
+     ends the poll without a second piece of state saying so. `unavailable` stops it too — without a
+     credential the route can never answer, and polling on would be the spinner the slow-warning
+     exists to prevent. The card keeps "rebuilding", which is true. */
   useEffect(() => {
     const waiting = toasts.find((t) => t.sha);
     if (!waiting?.sha) return;
     let live = true;
+    let handle: ReturnType<typeof setTimeout>;
     const tick = async () => {
       try {
         const r = await fetch(`/api/studio/deploy-status?sha=${encodeURIComponent(waiting.sha!)}`);
@@ -99,21 +62,19 @@ export default function PublishBar() {
         if (!live) return;
         const patch = deployPatch(j?.state, j?.url);
         if (patch) { resolveToastById(waiting.id, patch); return; }
-        if (j?.state === "unavailable") {
-          setToasts((prev) => prev.map((t) => (t.id === waiting.id ? { ...t, sha: undefined } : t)));
-          return;
-        }
-        if (live) handle = setTimeout(tick, 4000);
-      } catch { /* transient — the next tick asks again */ if (live) handle = setTimeout(tick, 4000); }
+        if (j?.state === "unavailable") { resolveToastById(waiting.id, { ...waiting, sha: undefined }); return; }
+        handle = setTimeout(tick, 4000);
+      } catch { if (live) handle = setTimeout(tick, 4000); }
     };
-    let handle = setTimeout(tick, 2000);
+    handle = setTimeout(tick, 2000);
     return () => { live = false; clearTimeout(handle); };
   }, [toasts, resolveToastById]);
 
-  useEffect(() => {
-    const timers = slowTimers.current;
-    return () => { timers.forEach(clearTimeout); timers.clear(); };
-  }, []);
+  /* ⚠ THE STATE MOVED TO THE PROVIDER AND THIS COMPONENT ONLY RENDERS IT. Two unrelated surfaces
+     raise toasts — publish results here, save results in every panel's `useDraftForm` — and they
+     share no ancestor but PublishProvider. Keeping a second copy here would be two sources for one
+     stack, which is the drift this repo deletes. */
+
   const publishingRef = useRef(false); // same double-submit guard as the hook's savingRef
 
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -204,7 +165,7 @@ export default function PublishBar() {
          one failure this endpoint cannot make safe on its own. */
       if (inFlight.current) return;
       inFlight.current = true;
-      const opId = beginToast("Publishing…", "Merging your changes and starting the rebuild.", publish);
+      const opId = beginToast("Publishing…", "Merging your changes and starting the rebuild.");
       const res = await fetch("/api/studio/publish", { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.merged) {

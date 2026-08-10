@@ -127,6 +127,7 @@ export default function HeroEditPanel({
     buildCommitted: (v) => ({ ...v }),
     isDirty: (v, b) => HERO_FIELD_KEYS.some((k) => v[k] !== b[k]),
     onSaved: () => setUnpublished(true),
+    toastLabel: "Site settings — Hero",
   });
 
   useReportPending(dirty || saveStatus === "saving");

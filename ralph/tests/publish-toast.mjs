@@ -16,6 +16,8 @@ const toaster = src("components/studio/PublishToaster.tsx");
 const machine = src("lib/studio/toast-machine.ts");
 const bar = src("components/studio/PublishBar.tsx");
 const css = src("app/globals.css");
+const draft = src("components/studio/useDraftForm.ts");
+const prov = src("components/studio/PublishProvider.tsx");
 
 console.log("A · the subject exists and is wired on BOTH paths");
 t("A1 the component is real, against a literal", toaster.length > 2000, true);
@@ -90,6 +92,28 @@ t("G1 ⚠ ABOVE THE PILL (z-40) AND BELOW THE MODALS (z-50) — the spec's z-60 
   /z-\[45\]/.test(toaster), true);
 t("G2 …and it is top-right where the pill is bottom-centre, so the corners cannot contend",
   /fixed right-4 top-\[76px\]/.test(toaster), true);
+
+console.log("\nS · the save path raises its own toasts, from the same stack");
+/* ⚠ THE STATE LIVES IN THE PROVIDER BECAUSE TWO UNRELATED SURFACES RAISE INTO IT — publish results
+ * from the bar, save results from every panel's `useDraftForm`. They share no ancestor but this. */
+t("S1 the provider owns the stack and exposes the three operations",
+  ["toasts:", "beginToast:", "resolveToast:", "dismissToast:"].filter((k) => !prov.includes(k)), []);
+t("S2 …and the bar RENDERS them rather than keeping a second copy",
+  /const \{[\s\S]{0,220}?toasts, beginToast, resolveToast/.test(bar) && !/useState<Toast\[\]>/.test(bar), true);
+/* ⚠ ONE CARD PER SAVE OPERATION, NOT PER BLUR. Coalesced saves re-enter through the in-flight guard,
+ * so the begin runs once per settle — a card per keystroke would flood a three-card stack. */
+t("S3 ⚠ THE SAVE RAISES INSIDE THE IN-FLIGHT GUARD — a card per keystroke would flood the stack",
+  /savingRef\.current = true;[\s\S]{0,400}?toastLabel \? beginToast\(/.test(draft), true);
+t("S4 …and a panel that passes no label raises nothing, so labelling was additive",
+  /toastLabel \? beginToast\([^)]*\) : null/.test(draft), true);
+/* fs mode wrote nothing to a draft branch, so "Draft saved" would name a thing that did not happen.
+ * VERIFIED IN THE RUNNING STUDIO: the card appears as "Saving draft… Site settings — Hero" and is
+ * then withdrawn — caught with a MutationObserver, because an fs save returns in ~15ms and a poll
+ * after the fact measures a state that has already gone. */
+t("S5 ⚠ fs MODE WITHDRAWS THE CARD RATHER THAN CLAIMING A SAVE THAT DID NOT HAPPEN",
+  /json\.mode === "fs"[\s\S]{0,300}?dismissToast\(toastId\)/.test(draft), true);
+t("S6 …and a failure carries the SERVER's message, the same rule the publish refusals follow",
+  /error\?\.message[\s\S]{0,200}?resolveToast\(toastId, \{ kind: "refusal"/.test(draft), true);
 
 console.log(`\npublish-toast result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

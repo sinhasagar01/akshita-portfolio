@@ -142,6 +142,7 @@ export default function BlogEditPanel({
     saveExtras: { collection: "blog", slug },
     buildBody: (committed, extras) => ({ ...extras, patch: committed }),
     onSaved: () => setUnpublished(true),
+    toastLabel: `Blog · ${slug}`,
   });
 
   useReportPending(dirty || saveStatus === "saving");
