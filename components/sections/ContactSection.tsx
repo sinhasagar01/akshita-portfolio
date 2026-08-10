@@ -157,12 +157,19 @@ function StepContent({
         {fieldError}
       </p>
 
-      {/* Filled terracotta pill button — 14px DM Sans 500, 1.5px border, 13px 24px padding */}
+      {/* Filled accent pill button — 14px DM Sans 500, 1.5px border, 13px 24px padding.
+          ⚠ `text-on-accent`, NOT `text-white`, AND THIS IS THE HALF I MISSED. The check icon three
+          elements down took `on-accent` when the role gained its dark answer; this button sits on
+          the SAME `var(--color-accent)` and kept a fixed white, so on the four dark palettes — where
+          the accent resolves to `accent-on-dark`, a LIGHT accent — its label measured 2.55 to 2.85
+          against a 4.5 text floor. Found by `paint-sites` on its first run, not by review.
+          The spinner's border-white/40 is untouched: it is a 2px ring on the same fill and a
+          separate question from the label. */}
       <button
         type="button"
         onClick={() => { if (status === 'idle') onAdvance() }}
         disabled={sending}
-        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-white rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
+        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-on-accent rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
         style={{
           background: 'var(--color-accent)',
           border: '1.5px solid var(--color-accent)',
