@@ -40,7 +40,30 @@ const t = (name, got, want) => {
 
 const YAML = "content/site-settings.yaml";
 const orig = readFileSync(YAML, "utf8");
-const PAGES = [["/", "home"], ["/blog/you-find-out-what-motion-is-for-by-removing-it", "post"], ["/projects/boat-crest", "case"]];
+/* ⚠ THE SUBJECT IS THE PUBLIC SURFACE, ENUMERATED RATHER THAN SAMPLED. Every case study, a
+ * published post, both indexes and the home page — because the defect this exists for was found on
+ * ONE article by a person reading it, and a check that visits one page of each kind has the same
+ * blind spot the ratchet had, one level up. */
+const PAGES = [
+  ["/", "home"],
+  /* ⚠ THERE IS NO WORK INDEX ROUTE — the case studies are listed in the home page's work grid, and
+     both `/work` and `/projects` render the 404 page. A2 caught it: the entry contributed 40 sites
+     across 8 palettes, five per palette, which is a 404's worth of text. A 404 RETURNS 200 AND A
+     FULLY DESIGNED PAGE here, so a wrong URL reads as a thin one rather than as an error — the same
+     trap that produced a mislabelled hero capture earlier in this arc. */
+  ["/blog", "blog index"],
+  ["/blog/you-find-out-what-motion-is-for-by-removing-it", "post motion"],
+  ["/blog/what-a-data-table-teaches-you-about-trust", "post table"],
+  ["/projects/boat-crest", "boat"],
+  ["/projects/elevate-one-view", "elevate"],
+  ["/projects/fosfor-ai", "fosfor-ai"],
+  ["/projects/fosfor-data-profiling", "fosfor-dp"],
+];
+/* ⚠ CREAM IS THE BASELINE AND EVERY OTHER PALETTE IS COMPARED TO IT, dark AND light. A light pair
+ * still moves the ground — different hues — so a foreground frozen across two LIGHT palettes is a
+ * hardcoded colour following no theme at all, which is the same defect one step quieter. */
+const BASELINE = "cream";
+const AGAINST = ["harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt"];
 
 /* ⚠ EXEMPT ONLY WITH A REASON THAT SAYS WHEN IT ENDS — the shape `role-layer` section L refuses for
  * ground-invariant tokens, and the shape that let `on-accent`'s exemption outlive its own blocking
@@ -90,29 +113,39 @@ const goto = async (u) => { for (let i = 0; i < 3; i++) { try { await pg.goto(u,
 const per = [];
 let flagged = [];
 try {
+  /* Capture each palette ONCE per page, then compare every palette to the baseline — so the page
+     loads scale with palettes rather than with palette PAIRS. */
   for (const [url, name] of PAGES) {
     const snap = {};
-    for (const th of ["cream", "nocturne"]) {
+    for (const th of [BASELINE, ...AGAINST]) {
       writeFileSync(YAML, orig.replace(/^theme:.*$/m, `theme: ${th}`));
-      if (!(await goto("http://localhost:3457" + url))) { snap[th] = null; break; }
-      await pg.waitForTimeout(2200);
-      for (const y of [1200, 2600, 4000]) { await pg.evaluate((v) => scrollTo(0, v), y); await pg.waitForTimeout(600); }
-      await pg.evaluate(() => scrollTo(0, 0)); await pg.waitForTimeout(1000);
+      if (!(await goto("http://localhost:3457" + url))) { snap[th] = null; continue; }
+      await pg.waitForTimeout(1800);
+      for (const y of [1200, 2600, 4000]) { await pg.evaluate((v) => scrollTo(0, v), y); await pg.waitForTimeout(500); }
+      await pg.evaluate(() => scrollTo(0, 0)); await pg.waitForTimeout(800);
       snap[th] = await grounds(pg, await collect(pg));
     }
-    if (!snap.cream || !snap.nocturne) { per.push({ name, sites: 0, moved: 0 }); continue; }
-    const L = new Map(snap.cream.map((r) => [r.key, r])), D = new Map(snap.nocturne.map((r) => [r.key, r]));
-    const common = [...L.keys()].filter((k) => D.has(k) && L.get(k).ground && D.get(k).ground);
-    const moved = common.filter((k) => L.get(k).ground !== D.get(k).ground);
-    const bad = moved.filter((k) => L.get(k).color === D.get(k).color);
-    per.push({ name, sites: common.length, moved: moved.length });
-    flagged = flagged.concat(bad.map((k) => ({ page: name, key: k, color: L.get(k).color })));
+    const base = snap[BASELINE];
+    if (!base) { per.push({ name, sites: 0, moved: 0, pairs: 0 }); continue; }
+    const L = new Map(base.map((r) => [r.key, r]));
+    let sites = 0, moved = 0, pairs = 0;
+    for (const th of AGAINST) {
+      if (!snap[th]) continue;
+      pairs++;
+      const D = new Map(snap[th].map((r) => [r.key, r]));
+      const common = [...L.keys()].filter((k) => D.has(k) && L.get(k).ground && D.get(k).ground);
+      const mv = common.filter((k) => L.get(k).ground !== D.get(k).ground);
+      sites += common.length; moved += mv.length;
+      flagged = flagged.concat(mv.filter((k) => L.get(k).color === D.get(k).color)
+        .map((k) => ({ page: name, palette: th, key: k, color: L.get(k).color })));
+    }
+    per.push({ name, sites, moved, pairs });
   }
 } finally { writeFileSync(YAML, orig); await b.close(); }
 
 const sites = per.reduce((a, p) => a + p.sites, 0), moved = per.reduce((a, p) => a + p.moved, 0);
-console.log(`         ${per.map((p) => `${p.name} ${p.sites}/${p.moved}`).join("   ")}   (sites/ground-moved)`);
-console.log(`         ${sites} text-painting sites, ${moved} on a ground that moves, ${flagged.length} flagged`);
+for (const p of per) console.log(`         ${p.name.padEnd(12)} sites ${String(p.sites).padStart(5)}  ground-moved ${String(p.moved).padStart(5)}  palettes ${p.pairs}/${AGAINST.length}`);
+console.log(`         TOTAL ${sites} site-comparisons, ${moved} on a moved ground, ${flagged.length} flagged`);
 
 console.log("A · the subject is real — an error page has zero sites and would read as zero defects");
 /* ⚠ THE ROW THAT WOULD HAVE CAUGHT THE DAY THIS WAS BUILT. Two versions of this probe reported
@@ -120,15 +153,19 @@ console.log("A · the subject is real — an error page has zero sites and would
  * had been wiped mid-session. A zero denominator is not a pass, and this is where that is enforced
  * rather than remembered. Floors are LITERALS: a guard derived from its own subject cannot fail. */
 t("A1 ⚠ THE SITE COUNT CLEARS A LITERAL FLOOR — a served error page reads as zero defects otherwise",
-  sites > 300, true);
+  sites > 3000, true);
 t("A2 …and EVERY page contributed, so one silently empty page cannot hide behind the total",
-  per.filter((p) => p.sites < 20).map((p) => p.name), []);
-t("A3 …and the two palettes genuinely differ, or 'ground moved' is vacuous",
-  moved > 300, true);
+  per.filter((p) => p.sites < 100).map((p) => p.name), []);
+/* ⚠ AND EVERY PALETTE LOADED. A palette that fails to render contributes no pairs and its sites
+ * simply never enter the total — an absent comparison is indistinguishable from a clean one. */
+t("A2a …and every page compared against every palette, so a failed render cannot read as clean",
+  per.filter((p) => p.pairs !== AGAINST.length).map((p) => `${p.name} ${p.pairs}/${AGAINST.length}`), []);
+t("A3 …and the palettes genuinely differ, or 'ground moved' is vacuous",
+  moved > 3000, true);
 
 console.log("\nB · no site paints a frozen foreground on a ground that moved");
 t("B1 ⚠ THE DEFECT ink-800 AND ink-950 WERE — a foreground that holds still while its ground inverts",
-  flagged.filter((f) => !Object.keys(ALLOW).some((a) => f.key.includes(a))).map((f) => `${f.page}: ${f.key} ${f.color}`).sort(), []);
+  flagged.filter((f) => !Object.keys(ALLOW).some((a) => f.key.includes(a))).map((f) => `${f.page}/${f.palette}: ${f.key} ${f.color}`).sort().filter((v,i,a)=>a.indexOf(v)===i), []);
 t("B2 …and every exemption states when it ends, so 'known' cannot mean 'unexamined'",
   Object.entries(ALLOW).filter(([, why]) => !/\bEnds\b/i.test(why)).map(([k]) => k), []);
 t("B3 …and no exemption outlives its subject — an entry nothing flags is stale",
