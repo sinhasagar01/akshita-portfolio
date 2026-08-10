@@ -48,11 +48,22 @@ export function dismiss(list: Toast[], id: number): Toast[] {
   return list.filter((t) => t.id !== id);
 }
 
-/** Only `ok` drains. A refusal or a failure waits for the author, because it is the only record of
- *  why something did not happen. */
+/** Only `ok` drains — and NOT while it is still waiting on a deployment.
+ *
+ *  ⚠ THE `sha` CLAUSE IS THE WHOLE OF BUG B. A publish success is `ok`, so it drained at 6s — and
+ *  the deploy poll keys off the card carrying the sha, so dismissing the card STOPPED THE POLL. A
+ *  Vercel build takes 60 to 120 seconds, so READY and "View deployment" could never be reached: the
+ *  seam failed quiet correctly and could never succeed. A card with an unanswered question on it
+ *  stays until the question is answered. */
 export function drains(t: Toast): boolean {
-  return t.kind === "ok";
+  return t.kind === "ok" && !t.sha;
 }
+
+/** ⚠ AND THE WAIT IS BOUNDED, because "stays until answered" must not mean "stays forever". A build
+ *  that never reports leaves the card pinned with no verb — the shape the slow-warning exists to
+ *  prevent, one surface out. At the deadline the sha is dropped: the card keeps its true claim
+ *  ("rebuilding") and becomes drainable again. */
+export const DEPLOY_DEADLINE_MS = 180000;
 
 /** The deploy poll's answer, turned into what the card should say. `unavailable` is a REAL answer:
  *  it means we cannot know, so the card keeps the weaker true claim rather than the stronger false

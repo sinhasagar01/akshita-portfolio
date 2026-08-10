@@ -36,7 +36,12 @@ type PublishSignal = {
      provider, which already carries exactly this kind of cross-component publish state. A second
      provider for one more signal is the shape this repo refuses. */
   toasts: Toast[];
-  beginToast: (title: string, message: string) => number;
+  /** ⚠ `onRetry` IS THE FIX FOR A DEAD CONTROL. The slow-warning offered "Try again" before this
+   *  state moved here, and the provider's signature dropped it — so nothing ever set `action.retry`
+   *  and the button could not render at all. The provider cannot know HOW to retry; the caller
+   *  does, so the callback rides with the operation and is keyed by its id. */
+  beginToast: (title: string, message: string, onRetry?: () => void) => number;
+  retryToast: (id: number) => void;
   resolveToast: (id: number, patch: Omit<Toast, "id">) => void;
   dismissToast: (id: number) => void;
 };
@@ -45,6 +50,7 @@ type PublishSignal = {
 const NOOP: PublishSignal = {
   toasts: [],
   beginToast: () => 0,
+  retryToast: () => {},
   resolveToast: () => {},
   dismissToast: () => {},
   unpublished: false,
@@ -90,19 +96,38 @@ export function PublishProvider({
   /** Slow-warning timers, keyed by operation id — never a single "current" handle, because two
    *  operations overlap routinely and one handle resolves whichever finished last. */
   const slowTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const retryFns = useRef(new Map<number, () => void>());
+  /** ⚠ ONE PLACE THAT FORGETS AN OPERATION, so a card can never leave a timer or a callback behind.
+   *  Bug D was `push()` dropping the oldest card past the cap while only `dismiss`/`resolve` cleared
+   *  timers — a silent slice cannot clean up after itself, so the caller has to. */
+  const forget = useCallback((id: number) => {
+    const h = slowTimers.current.get(id);
+    if (h) { clearTimeout(h); slowTimers.current.delete(id); }
+    retryFns.current.delete(id);
+  }, []);
   const dismissToast = useCallback((id: number) => {
-    const h = slowTimers.current.get(id);
-    if (h) { clearTimeout(h); slowTimers.current.delete(id); }
+    forget(id);
     setToasts((prev) => dismissT(prev, id));
-  }, []);
+  }, [forget]);
+  const retryToast = useCallback((id: number) => {
+    const fn = retryFns.current.get(id);
+    forget(id);
+    setToasts((prev) => dismissT(prev, id));
+    fn?.();
+  }, [forget]);
   const resolveToast = useCallback((id: number, patch: Omit<Toast, "id">) => {
-    const h = slowTimers.current.get(id);
-    if (h) { clearTimeout(h); slowTimers.current.delete(id); }
+    forget(id);
     setToasts((prev) => resolveT(prev, id, patch));
-  }, []);
-  const beginToast = useCallback((title: string, message: string) => {
+  }, [forget]);
+  const beginToast = useCallback((title: string, message: string, onRetry?: () => void) => {
     const id = ++toastSeq.current;
-    setToasts((prev) => pushT(prev, { id, kind: "pending", title, message }));
+    if (onRetry) retryFns.current.set(id, onRetry);
+    setToasts((prev) => {
+      const next = pushT(prev, { id, kind: "pending", title, message });
+      /* D · whatever the cap dropped is forgotten here, where the drop is visible. */
+      for (const t of prev) if (!next.some((n) => n.id === t.id)) forget(t.id);
+      return next;
+    });
     slowTimers.current.set(id, setTimeout(() => {
       slowTimers.current.delete(id);
       setToasts((prev) => prev.some((t) => t.id === id && t.kind === "pending")
@@ -110,11 +135,12 @@ export function PublishProvider({
             kind: "refusal",
             title: "Taking longer than expected",
             message: "This is still running. It may finish on its own — nothing has been lost.",
+            ...(retryFns.current.has(id) ? { action: { label: "Try again", retry: true as const } } : {}),
           })
         : prev);
     }, TOAST_SLOW_MS));
     return id;
-  }, []);
+  }, [forget]);
   useEffect(() => {
     const timers = slowTimers.current;
     return () => { timers.forEach(clearTimeout); timers.clear(); };
@@ -132,9 +158,9 @@ export function PublishProvider({
   const value = useMemo<PublishSignal>(
     () => ({ unpublished, setUnpublished, draftReadError, anyPending: pendingIds.size > 0, reportPending,
       anyOccluding: occludingIds.size > 0, reportOccluding,
-      toasts, beginToast, resolveToast, dismissToast }),
+      toasts, beginToast, resolveToast, dismissToast, retryToast }),
     [unpublished, draftReadError, pendingIds, reportPending, occludingIds, reportOccluding,
-      toasts, beginToast, resolveToast, dismissToast]
+      toasts, beginToast, resolveToast, dismissToast, retryToast]
   );
 
   return <PublishContext.Provider value={value}>{children}</PublishContext.Provider>;

@@ -18,7 +18,7 @@
 // is no dark tier to derive here — `--studio-lift-floating` is used as it stands, and the success
 // tint is `studio-success-700`, which was already declared. No new token, and no value copied from
 // the spec's standalone approximations.
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /* ⚠ THE TYPE AND THE RULES LIVE IN `lib/studio/toast-machine.ts`, NOT HERE. This file paints; the
    machine decides. Two declarations of one shape is the second-spelling defect this repo deletes,
@@ -33,17 +33,35 @@ export default function PublishToaster({
 }: {
   toasts: Toast[];
   onDismiss: (id: number) => void;
-  /** Only the slow-warning offers this today; the card carries `action.retry` when it applies. */
-  onRetry?: () => void;
+  /** Keyed by id, because the callback belongs to the OPERATION rather than to the component —
+   *  two operations can be pending at once and each has its own thing to retry. */
+  onRetry?: (id: number) => void;
 }) {
   /* Auto-dismiss is OWNED HERE rather than by the caller, so the timer and the drain bar that
-     visualises it cannot disagree about how long is left. */
+     visualises it cannot disagree about how long is left.
+
+     ⚠ ONE TIMER PER CARD, ARMED ONCE — bug C. The first version rebuilt every timer on each
+     `toasts` change, so a success card that had been up five seconds got a fresh six the moment any
+     other toast appeared, while its CSS bar — which runs once from mount — had already emptied. The
+     bar and the dismissal then described different amounts of time, which is precisely what this
+     comment claimed could not happen. Keyed by id, a card's countdown starts when the card does. */
+  const drainTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
   useEffect(() => {
-    const timers = toasts
-      .filter(drains)
-      .map((t) => setTimeout(() => onDismiss(t.id), TOAST_DRAIN_MS));
-    return () => timers.forEach(clearTimeout);
+    const live = drainTimers.current;
+    for (const t of toasts) {
+      if (!drains(t) || live.has(t.id)) continue;
+      live.set(t.id, setTimeout(() => { live.delete(t.id); onDismiss(t.id); }, TOAST_DRAIN_MS));
+    }
+    /* A card that stopped draining — a success still waiting on its deploy — gives its timer back. */
+    for (const [id, h] of live) {
+      const t = toasts.find((x) => x.id === id);
+      if (!t || !drains(t)) { clearTimeout(h); live.delete(id); }
+    }
   }, [toasts, onDismiss]);
+  useEffect(() => {
+    const live = drainTimers.current;
+    return () => { live.forEach(clearTimeout); live.clear(); };
+  }, []);
 
   if (toasts.length === 0) return null;
 
@@ -87,7 +105,7 @@ export default function PublishToaster({
               t.action.retry ? (
                 <button
                   type="button"
-                  onClick={() => { onDismiss(t.id); onRetry?.(); }}
+                  onClick={() => onRetry?.(t.id)}
                   style={{ color: "var(--color-studio-accent-600)" }}
                   className="mt-[9px] inline-block border-0 border-b border-current bg-transparent p-0 text-[11.5px] font-medium"
                 >
