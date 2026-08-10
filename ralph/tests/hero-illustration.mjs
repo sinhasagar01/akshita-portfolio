@@ -1,5 +1,23 @@
 // The hero's two structural invariants — both of them ABSENCES, which is why they need a gate.
 //
+// ⚠ A GUARD THAT BUILDS ITS TEST SAMPLE FROM ITS OWN SUBJECT CANNOT FAIL — WRITTEN HERE ONCE, BESIDE
+// BOTH ROWS, SO THE NEXT ONE DOES NOT RE-DERIVE IT.
+//
+// `C3` exists to prove `C1`'s empty list is a finding rather than a broken regex. Its first version
+// built the sample it tested against BY MAPPING OVER `FORBIDDEN` — so removing every real property
+// from that list still passed, because the sample shrank with it. The row could not fail for the
+// reason it names.
+//
+// THE FORM THAT WORKS IS A FIXED SAMPLE PLUS A LITERAL COUNT. The sample is typed text that does not
+// move when the subject does, and the expectation is a digit rather than `FORBIDDEN.length`. Either
+// half alone is insufficient: a fixed sample with a derived count still passes when the list shrinks.
+//
+// ⚠ THIRD INSTANCE IN THIS RECORD AND THE FIRST INSIDE A ROW WRITTEN TO BE CAREFUL — after `theme`
+// V4 computing its expectation from `pearl.c - glass.c`, and `theme-contrast` D12b deriving its
+// denominator from the list it was checking. It survived a mutation here before being caught, in a
+// set written under an explicit instruction to make every row falsifiable. THE RATE IS THE ARGUMENT
+// FOR ASKING "COULD THIS FAIL AT ALL" BEFORE ASKING WHETHER IT PASSES.
+//
 // ⚠ NEITHER OF THESE FAILS VISIBLY WHEN IT BREAKS, AND THAT IS THE WHOLE ARGUMENT. A collapsed pair
 // renders identically until motion lands, then reads as a motion bug in a file nobody suspects. A
 // filter on the illustration looks like a design choice. Both are invisible at review.
@@ -56,8 +74,17 @@ console.log("\nC · nothing is ever applied to the illustration");
  * the illustration. `.hero-figure` and `.hero-figure img` are the two selectors that reach it.
  *
  * WHAT REDDENS IT: any of the five properties appearing in either rule, in CSS or as an inline style
- * on the image. `transform` is deliberately NOT on the list — the entrance settles a scale and the
- * pointer translates and tilts, and those are the motions the design is made of. */
+ * on the image.
+ *
+ * ⚠ `transform` IS DELIBERATELY ABSENT FROM `FORBIDDEN`, AND IT READS LIKE A GAP. It is a decision.
+ * THE DISTINCTION IS BETWEEN MOVING THE ILLUSTRATION AND ALTERING IT — a transform relocates the same
+ * pixels, while a filter, mask, clip-path, blend or opacity changes what they ARE. Only the second is
+ * what the duotone did. The entrance settles a 1.2% scale and the pointer translates and tilts, so
+ * forbidding transform would forbid the design rather than protect it.
+ *
+ * An unexplained omission is what a later tidying pass closes, which is why this sits at the row
+ * rather than in a commit message. Adding `transform` here would go green and silently kill the
+ * hero's motion. */
 const FORBIDDEN = ["filter", "mask", "clip-path", "mix-blend-mode", "background-blend-mode", "opacity"];
 const ruleOf = (sel) => {
   const i = css.indexOf(sel + " {");
