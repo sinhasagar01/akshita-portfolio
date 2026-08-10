@@ -40,6 +40,7 @@
 // without scrolling inside its own field. They are `WrappingField` now: a textarea that wraps and
 // still holds a one-line value. Widening the pane was the other option and it is wrong; the
 // reasoning is at `WrappingField`.
+import { publishBlockers } from "@/lib/studio/validate-blog-post";
 import { useEffect, useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -207,6 +208,12 @@ export default function BlogEditPanel({
         />
       </label>
 
+      {/* ⚠ THE MARK ON THE TOPIC FIELD, PREDICATE FROM THE VALIDATOR. `publishBlockers` decides —
+          the same function that will refuse the publish — so this cannot say "fine" about a state
+          the wall rejects. Rendered through the EXISTING `hint` prop rather than a new affordance:
+          a hint is advisory by construction, which is exactly what this is. The status control
+          beside it is where the consequence lands, and it stays unblocked — a draft may have no
+          topic, and that is the split this gate exists to express. */}
       <ListboxField
         label="Topic"
         value={values.topic}
@@ -214,6 +221,11 @@ export default function BlogEditPanel({
         onChange={(v) => setField("topic", v)}
         onBlur={saveDraft}
         optionLabel={(v) => (v === "" ? "No topic yet" : v)}
+        hint={
+          publishBlockers({ title: "x", topic: values.topic }, BLOG_TOPICS).some((b) => b.field === "topic")
+            ? "Needed to publish."
+            : undefined
+        }
       />
 
       <div className="flex flex-col gap-1">

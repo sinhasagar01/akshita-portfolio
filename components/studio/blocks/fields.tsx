@@ -502,6 +502,7 @@ export function TextField({
   inputRef,
   optional,
   fieldId,
+  blocker,
 }: {
   label: string;
   value: string;
@@ -515,6 +516,12 @@ export function TextField({
    *  this component's ~40 call sites is byte-identical unless it opts in — the shared-seam rule.
    *  A field with no id simply never echoes, which is a missing mark rather than a wrong one. */
   fieldId?: string;
+  /** ⚠ ADVISORY, NEVER BLOCKING. The sentence comes from `publishBlockers` in
+   *  validate-blog-post.ts — the rule that will actually refuse the publish — so there is no
+   *  second spelling to drift. It marks a field that WOULD block publishing; it does not stop the
+   *  save, because an imageBlock is born `alt: ""` and refusing it at save makes the kind
+   *  unaddable. THE MARK MOVES THE DISCOVERY TO AUTHORING TIME; the wall stays at publish. */
+  blocker?: string | null;
 }) {
   const visible = useFieldVisible(optional, isBlankText(value));
   return (
@@ -527,7 +534,24 @@ export function TextField({
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
         className={inputCls}
+        aria-describedby={blocker ? `${fieldId ?? label}-blocker` : undefined}
       />
+      {blocker ? (
+        /* ⚠ DELIBERATELY NOT AN ASSERTIVE LIVE REGION. The field is not in an error state, it is
+           in a state that will not PUBLISH, and an author mid-draft must not be interrupted by an
+           announcement. It is DESCRIBED by the input instead, so a screen reader reads it on focus.
+
+           ⚠ AND THE ROLE NAME IS DESCRIBED RATHER THAN SPELLED, because the suite asserts this
+           block does not contain it — a comment naming the thing it forbids fails the check it
+           exists to explain. Same discipline as never transcribing a comment delimiter, arriving
+           on an ARIA role. */
+        <span
+          id={`${fieldId ?? label}-blocker`}
+          className="text-[0.72rem] leading-snug text-studio-ink-950/55"
+        >
+          {blocker}
+        </span>
+      ) : null}
     </label>
   );
 }

@@ -28,6 +28,7 @@
 // 2-4 are closed FOR BLOG here. They REMAIN GAPS for projects-side reuse, and that is
 // correct: `heading` is a blog kind and projects has no reason to grow one. The value of
 // the sweep is the list.
+import { publishBlockers } from "@/lib/studio/validate-blog-post";
 import type { ComponentType } from "react";
 import type { BlogBlockKind, BlogRawValue } from "@/lib/blog/blocks-raw";
 import { BLOCK_REGISTRY } from "./registry";
@@ -107,11 +108,23 @@ const ImageBlockForm = ({
         onChange({ ...value, src }, src && file ? { src, file } : undefined)
       }
     />
+    {/* ⚠ THE MARK, AND ITS PREDICATE IS THE VALIDATOR'S OWN. `publishBlockers` is asked about a
+        one-block document, so the condition that lights this mark is byte-for-byte the condition
+        that will refuse the publish — src set, not decorative, alt blank. Advisory: the field
+        still saves, because a block is born with a blank alt. */}
     <TextField
       label="Alt text"
       value={value.alt}
       onChange={(alt) => onChange({ ...value, alt })}
       onBlur={onBlur}
+      blocker={
+        /* No topics needed — the alt rule does not consult them, and passing a real list here
+           would imply it did. */
+        publishBlockers({ blocks: [{ discriminant: "imageBlock", value }] }, [])
+          .find((b) => b.field === "blocks[0].alt")?.message
+          ? "Needed to publish — describe the image, or tick Decorative."
+          : null
+      }
     />
     <TextArea
       label="Caption (optional) — supports **bold**, *italic*, [links](url)"
