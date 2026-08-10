@@ -610,6 +610,28 @@ build a gate for the limit and then believe it.
   it.** Repaired by painting a 1×1 canvas and reading the pixel — the browser does the conversion, so
   the value measured is the value drawn.
 
+- **⚠ `paint-sites` IS A RELIABLE DEFECT DETECTOR AND AN UNRELIABLE CENSUS — A LIMIT, NOT A TODO.**
+  Two runs against unchanged pages returned **15,031 and 14,857** site-comparisons, with `elevate`
+  down 151 on desktop and `home` down 81. Nothing moved in those pages: **the count is sensitive to
+  what has MOUNTED when the capture fires** — reveal animations, lazy content, scroll-driven
+  sections that had not settled.
+
+  **⚠ THE DRIFT CANNOT PRODUCE A FALSE FINDING, AND THAT IS WHY IT IS TOLERABLE.** `B1` compares only
+  keys present in BOTH palettes, so a site that failed to mount is absent from the comparison rather
+  than mismatched. **What it can produce is a false ABSENCE**: a real defect sitting unmeasured in a
+  given run, with nothing saying so. `A1` through `A3a` catch a COLLAPSED subject — an error page, a
+  dead viewport, a palette that never rendered — and none of them catches a 1% sample drift.
+
+  **SO A SITE COUNT FROM THIS SUITE IS AN ORDER OF MAGNITUDE, NEVER A FIGURE TO QUOTE.** Citing
+  "15,031 sites" as the size of the public surface is the unattached-number defect waiting to happen,
+  and this entry is where a reader finds that out before quoting it.
+
+  **THE OBVIOUS CLOSURE IS REFUSED, WITH ITS REASON.** Asserting per-page counts against literals
+  would catch the drift and would also fail on every legitimate content change — a gate whose common
+  failure is benign is a gate people learn to skip, which is the argument the CI build step already
+  made. **A pass here means no defect was found among the sites that mounted**, and that sentence is
+  the honest claim rather than a weaker version of a stronger one.
+
 - **⚠ `data-nav-tone` IS UNSET FOR THE FIRST HALF-SECOND AT EVERY WIDTH, AND THAT WINDOW EXPLAINS
   BOTH OF THIS ARC'S NAV ANOMALIES.** Traced from before page scripts run:
 
