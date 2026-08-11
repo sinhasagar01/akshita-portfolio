@@ -39,11 +39,20 @@ type HeroFacet = {
   stats: { value: string; unit: string }[];
 };
 
-/* ⚠ THE CALLOUT LABEL IS CONTENT; ITS y POSITION IS LAYOUT. The connector lines need a height for
+/* ⚠ THE CALLOUT LABEL IS CONTENT AND ITS y POSITION IS LAYOUT. The connector lines need a height for
    each trace and the CMS stores three labels, not three coordinates — asking an author for a
-   percentage would be asking them to design. These three are the contract's own spacing, kept here
-   with the rest of the geometry. */
-const CALLOUT_Y = [24, 47, 70];
+   percentage would be asking them to design.
+
+   ⚠ SHIFTED DOWN SIX POINTS FROM THE CONTRACT'S 24/47/70, WITH THE RHYTHM PRESERVED. The copy column
+   moved down to clear the nav and these did not, which left the first trace level with the eyebrow
+   and reading as part of the nav band. The +23 spacing between them is the contract's and is
+   untouched — only the origin moved.
+
+   ⚠ AND THEY ARE NOT ALIGNED TO COPY LANDMARKS, WHICH WAS TRIED AND REJECTED. Matching each trace to
+   the name, the answer and the counters reads better on tab one and drifts on the others, because a
+   support line of two or three lines moves everything below it. A fixed rhythm is stable across all
+   four tabs; an aligned one is correct on whichever tab it was measured against. */
+const CALLOUT_Y = [30, 53, 76];
 
 /** ⚠ THE ONE SOURCE FOR THE SHIPPED ILLUSTRATION'S PATH. The studio panel imports this so its
  *  "using the shipped default" preview cannot drift from what the page actually draws. */
@@ -514,12 +523,16 @@ export default function HeroSection({
             </div>
           </div>
 
-          <div className="hero-piece hero-piece--lime hero-card is-sm" style={{ left: "1%", bottom: "2%" }}>
+          {/* ⚠ TWO ROWS, NOT FOUR, AND THAT IS WHAT MAKES `is-sm` ACTUALLY SMALL. It carried the same
+              four rows as the blue card and differed only in width, so it stood 90px tall — and when
+              the figure dropped to clear the nav, the lower-left clearing shortened to 63px and the
+              card no longer fitted anywhere below the shoulder. Measured: with the drop, the only
+              window holding a 90px card is the top 16% of the panel, where the blue one already is.
+              Shorter is the fix that keeps the composition's lower anchor. */}
+          <div className="hero-piece hero-piece--lime hero-card is-sm" style={{ left: "1.5%", bottom: "0%" }}>
             <div className="hero-pin">
               <span className="hero-card-dot" />
               <span className="hero-card-line" />
-              <span className="hero-card-line is-short" />
-              <span className="hero-card-ports"><i /><i /><i /></span>
             </div>
           </div>
 
