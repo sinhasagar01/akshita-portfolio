@@ -2897,6 +2897,108 @@ a {
   :root { --glass-blur: blur(13px) saturate(1.5); }
 }
 
+/* ============================================================================================
+   THE HOMEPAGE PALETTE TEASER — the pill on desktop, the edge rail below the breakpoint.
+
+   ⚠ THE SWITCH IS THE SITE'S OWN 1023 MEDIA QUERY, NOT A CONTAINER QUERY, AND THE CONTRACT'S 520
+   IS NOT A THRESHOLD THIS CAN BORROW — IT IS A DIFFERENT BOX ENTIRELY.
+
+   `container-type: inline-size` on `.hero-ground` creates a CONTAINMENT BOUNDARY. Inside it nothing
+   can query the viewport; outside it nothing can query the hero. So the hero's box and the
+   viewport's box are not two thresholds on one thing that a tidying pass could unify — they are
+   different coordinate systems, and a rule written against one is blind to the other. These
+   controls are `position: fixed`, which means they live OUTSIDE the hero's containment entirely and
+   could not read a container query on it even if one existed.
+
+   ⚠ AND ONE DID, AND IT WAS RETIRED. The hero's reflow was a container query pinned at 942 (1024
+   minus two 40.96 gutters) until the ground's padding moved onto the copy column; it is now the
+   site's own 1023 media query, because with the padding gone the container IS the viewport minus
+   the scrollbar. `docs/STATE.md` records it. There are ZERO `@container` rules in this file today,
+   and the eight `cqw` consumers are SIZING against that boundary rather than querying it.
+
+   So the teaser follows the standing convention: one breakpoint, `max-width: 1023`, the whole site
+   going mobile at once.
+============================================================================================ */
+.palette-dot {
+  width: 19px; height: 19px; flex: 0 0 19px;
+  border-radius: 50%; border: 1px solid var(--color-border);
+  padding: 0; cursor: pointer; overflow: hidden; position: relative;
+  /* ⚠ NO COLOUR HERE AT ALL — THE FILL ARRIVES AS AN INLINE RESOLVED VALUE, AND THAT IS THE POINT.
+     A swatch DEPICTS a specific palette, so it must NOT follow the page's current one. Two wrong
+     answers were tried first. A ROLE (`--color-surface`) paints the published palette on all four
+     dots, because roles are `var()` aliases substituted once at `:root`. A scoped RUNG
+     (`--color-canvas` under `data-theme` on the button) does resolve correctly — rungs are declared
+     per palette — but it adds three raw rung references, and `role-layer`'s ratchet is a ceiling
+     that may only FALL. Raising it for a swatch would be the widened-under-pressure shape.
+
+     The third answer is the one the `/palettes` console already uses: the resolved literal from
+     `paletteCompatibility()`, passed as an inline style. Same generator, build-time, no rung, and
+     no literal in source for the census to find. */
+}
+.palette-dot.is-on { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.palette-dots { display: flex; gap: 5px; }
+.palette-sep { width: 1px; height: 16px; background: var(--color-border); }
+.palette-pill-label,
+.palette-rail-label {
+  font-family: var(--font-label);
+  font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+.palette-more { font-size: 11px; color: var(--color-accent-text); text-decoration: none; }
+.palette-more:hover { text-decoration: underline; }
+
+/* ---- DESKTOP: the pill. Absent while the hero is on screen; the cue owns that corner. ---- */
+.palette-pill {
+  position: fixed; left: 20px; bottom: 20px; z-index: 41;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
+  border-radius: 999px; padding: 7px 13px 7px 10px;
+  box-shadow: var(--glass-shadow);
+  opacity: 0; transform: translateY(10px); pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
+}
+.palette-pill.is-past { opacity: 1; transform: none; pointer-events: auto; }
+
+/* ⚠ THE FADE IS MOTION; THE PRESENCE IS NOT. Reduced motion removes the transition and the offset,
+   and the pill still appears at exactly the same moment. Gating the PRESENCE would take a control
+   away from the people most likely to want a calmer palette — which is the opposite of the point. */
+@media (prefers-reduced-motion: reduce) {
+  .palette-pill { transition: none; transform: none; }
+}
+
+/* ---- MOBILE: the edge rail. Present from the first frame — there is no cue to wait for. ---- */
+.palette-rail { display: none; }
+@media (max-width: 1023px) {
+  .palette-pill { display: none; }
+  .palette-rail {
+    /* ⚠ MID-HEIGHT IS RIGHT, AND THE COLLISION IT LOOKED LIKE IS A WIDTH PROBLEM RATHER THAN A
+       POSITION ONE. The hero's tab strip is horizontally scrollable and its fourth tab overflows
+       its own box, so the BUTTON'S RECT reaches x 444 while the strip CLIPS at 353 — and
+       hit-testing found six points where the tab really is tappable under a 36px rail. A rect
+       overlap alone would have been a false alarm; the hit-test is what made it real.
+
+       ⚠ MOVING THE RAIL VERTICALLY WAS TRIED AND IS NOT A FIX. Anchored at `bottom: 20%` it was
+       clean at 828 and collided again at 680, because the strip moves with the viewport and a
+       percentage follows it. There is no fixed anchor that clears a target which travels.
+
+       THE STRIP CLIPS AT `hero-copy`'s RIGHT PADDING — 29px from the edge — SO A RAIL NARROWER
+       THAN THAT CANNOT OVERLAP IT AT ANY HEIGHT. That is height-independent, which is the property
+       the positional nudge could never have. 28px wide: 19px dots, 4px padding each side, 1px
+       border. Verified clean at both viewport heights afterwards. */
+    position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 41;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: var(--glass-fill-strong);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--color-border); border-right: 0;
+    border-radius: 12px 0 0 12px; padding: 11px 4px;
+    box-shadow: var(--glass-shadow);
+  }
+  .palette-rail .palette-dots { flex-direction: column; gap: 7px; }
+  .palette-rail-label { writing-mode: vertical-rl; margin-bottom: 2px; }
+}
+
 .site-header {
   transition: top 0.4s ease;
 }
