@@ -14,6 +14,8 @@
 // two of them have been the published theme this month.
 import { TEASER_THEMES, publishedIsOffered, arrivalNote } from "../../lib/palettes/teaser.ts";
 import { THEME_NAMES, VERIFY_THEME, THEME_GROUND, selectableThemes } from "../../lib/theme.ts";
+import { readPaletteSource, layerPalette, oklchOf } from "../../lib/theme-contrast.ts";
+import { DEFAULT_THEME, THEME_COUNTERPART, GROUND_TOKEN } from "../../lib/theme.ts";
 import { readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
@@ -47,6 +49,36 @@ t("A3 no palette appears twice, which would silently make it three dots",
 t("A4 ⚠ EXACTLY TWO LIGHT AND TWO DARK — the claim is about a change of ground, so the set must span one",
   [TEASER_THEMES.filter((n) => THEME_GROUND[n] === "light").length,
    TEASER_THEMES.filter((n) => THEME_GROUND[n] === "dark").length], [2, 2]);
+
+/* ⚠ THE COMMENT BESIDE THE CONSTANT MAKES NUMERIC CLAIMS, SO THE NUMBERS ARE ASSERTED. It was first
+ * written as "warm light, cool light, coloured dark, ACHROMATIC dark" and the measurement refuted it
+ * — ink-flare's ground carries chroma 0.014 and the only achromatic palette is basalt at 0.000,
+ * which is not in the set. A reasoning that does not survive its own numbers is worse than none, and
+ * prose is the one thing no gate reads. These rows are what stop it drifting back. */
+const SRC = readPaletteSource(css);
+const groundChroma = (n) => oklchOf(
+  layerPalette(SRC, n, { defaultTheme: DEFAULT_THEME, groundClass: THEME_GROUND[n] })[
+    GROUND_TOKEN[THEME_GROUND[n]]
+  ]
+).C;
+const darkMembers = TEASER_THEMES.filter((n) => THEME_GROUND[n] === "dark");
+console.log(`         ground chroma: ${TEASER_THEMES.map((n) => `${n} ${groundChroma(n).toFixed(3)}`).join(", ")}`);
+t("A5 ⚠ NO MEMBER IS ACHROMATIC — the set claims a WARM dark and a COLOURED dark, never a neutral one",
+  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005), []);
+/* ⚠ A ROW TESTING `groundChroma === 0` WAS WRITTEN HERE AND DELETED, AND THE REASON IS MEASURED.
+ * Basalt's ground chroma is 6.28e-9, not zero — the declaration is `oklch(... 0 ...)` and the
+ * round-trip through sRGB leaves a residue — so the row could not fire even on the ONE palette it
+ * existed to catch. And everything it would have caught is already inside A5's `< 0.005`. Implied
+ * AND unfalsifiable, which is two reasons to delete rather than one. Found by mutating: swapping
+ * basalt in killed A5 and A7 and left it green. */
+t("A6 ⚠ THE TWO DARKS ARE ORDERED warm THEN coloured by ground chroma — a swap that inverted them would make the comment false",
+  groundChroma(darkMembers[0]) < groundChroma(darkMembers[1]), true);
+/* ⚠ THE ROW THAT PINS WHY INK-FLARE IS HERE RATHER THAN BASALT. Cream and ink-flare are registry
+ * counterparts, so one press shows the SAME IDENTITY ON A DIFFERENT GROUND. Swapping in basalt would
+ * buy achromatic coverage and lose the demonstration — this fails if anyone does. */
+t("A7 ⚠ THE SET CONTAINS A REGISTRY COUNTERPART PAIR — one press shows the same identity on a different ground",
+  TEASER_THEMES.filter((n) => TEASER_THEMES.includes(THEME_COUNTERPART[n])).sort(),
+  ["cream", "ink-flare"]);
 
 console.log("\nB · ONE mechanism — the dots are a door onto the preview, not a second one");
 t("B0 the component was found and has code — a zero here makes every row below vacuous",

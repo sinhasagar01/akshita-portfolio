@@ -8,27 +8,51 @@
    would change under the owner without anyone deciding, and a visitor would never learn the site
    has nine. These four are a design decision, taken once, by a person.
 
-   ---- WHY EACH ONE, MEASURED -----------------------------------------------------------------
+   ---- ⚠ FOUR CLAIMS RATHER THAN FOUR COLOURS, AND THE CLAIM LIST WAS WRONG FIRST -------------
 
-     cream      the published default and the site's origin. Every other palette is a departure
-                from it, so it is the reference the other three are read against.
+   The set is WARM LIGHT, COOL LIGHT, WARM DARK, COLOURED DARK. Each dot is a different thing the
+   system is being asked to survive, not a different hue somebody liked.
 
-     harbour    the furthest LIGHT palette from cream — accent hue 123.3 degrees away, against
-                fern's 92, orchid's 72 and cerise's 38. The light pair therefore spans the light
-                range rather than sampling twice near one end.
+   ⚠ IT WAS PROPOSED AS "warm light, cool light, coloured dark, ACHROMATIC dark" AND THE NUMBERS
+   REFUTE THAT. Measured ground chroma, now, through the same resolver the gates use:
 
-     ink-flare  cream's own counterpart in `THEME_COUNTERPART`, and the nearest accent of all nine
-                at 10 degrees. It is the cheapest way to make the page's claim legible: the same
-                warm identity, the same structure, on a dark ground.
+     cream      light   chroma 0.022   hue  78.0
+     harbour    light   chroma 0.018   hue 233.0
+     ink-flare  dark    chroma 0.014   hue  44.3      warm, NOT achromatic
+     nocturne   dark    chroma 0.023   hue 279.6      the coloured dark
 
-     nocturne   the most chromatic dark ground of the four darks (0.023, against sapphire's 0.016,
-                ink-flare's 0.014 and basalt's 0.000). Set beside ink-flare's warm near-black, the
-                dark pair spans "dark that keeps its hue" against "dark that nearly does not".
+   The only achromatic palette is BASALT at chroma 0.000, and it is not in this set. A comment
+   claiming an achromatic member would have described a set that does not exist — prose asserting a
+   structure the data does not have, which is the defect this repo keeps finding in its own record.
+   Written with the figures beside it so the next reader can refute it the same way.
+
+   ---- WHY EACH ONE, AND WHY INK-FLARE RATHER THAN BASALT ---------------------------------------
+
+     cream      the published default and the site's origin — the reference the other three are
+                read against, chroma 0.022 at hue 78.
+
+     harbour    the cool light. Accent hue 123.3 degrees from cream's, against fern's 92, orchid's
+                72 and cerise's 38, so the light pair spans the light range rather than sampling
+                twice near one end.
+
+     ink-flare  the warm dark, and cream's own counterpart in `THEME_COUNTERPART`. Its accent sits
+                10 degrees from cream's — the nearest of all nine.
+
+                ⚠ THIS IS THE SET'S STRONGEST DOT AND THE REASON BASALT IS NOT HERE. Cream and
+                ink-flare are a registry pair, so ONE PRESS SHOWS THE SAME IDENTITY ON A DIFFERENT
+                GROUND — the same warm hue, the same structure, a near-black page. That is the thing
+                a visitor actually learns in one click. Swapping it for basalt would buy achromatic
+                coverage and lose the demonstration, and coverage of the palette space is what
+                `/palettes` is for.
+
+     nocturne   the coloured dark, chroma 0.023 — the most chromatic dark ground of the four darks.
+                Set beside ink-flare's warm near-black it shows that a dark ground can carry hue,
+                which is the claim basalt would make in reverse.
 
    ⚠ AND IT IS TWO LIGHT AND TWO DARK, NOT TWO COUNTERPART PAIRS — worth saying because it looks
    like the latter. Only cream and ink-flare are a registry pair. Harbour's counterpart is sapphire
-   and nocturne's is orchid, and neither is here. Reading this as a pair-of-pairs would make the
-   next person "fix" harbour to sapphire and lose the widest light swing.
+   and nocturne's is orchid, and neither is here. Reading this as a pair-of-pairs would make the next
+   person "fix" harbour to sapphire and lose the widest light swing.
 
    ---- ⚠ THE NAMES LIVE HERE AS STRINGS AND CANNOT BE IMPORTED FROM THE REGISTRY ---------------
 
