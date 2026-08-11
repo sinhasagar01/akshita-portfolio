@@ -73,6 +73,9 @@ type Props = {
   ownsRootTheme: boolean;
 };
 
+/** The line the preview opens with. A constant, not state — see the note at its render. */
+const HEADLINE = "Turning rough ideas into products people use";
+
 /** The five rungs the token grid shows, by the job each one does rather than by its rung name. */
 const SHOWN = [
   ["canvas", "page"],
@@ -193,11 +196,40 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
         <div className="border-ink-950/8 py-8 lg:border-r lg:pr-8">
           <div className="lg:sticky lg:top-28">
             <div className="rounded-xl border border-ink-950/8 bg-surface-well p-6">
+              {/* ⚠ THE HEADLINE IS THE VISITOR'S, AND THAT IS THE POINT OF THE WHOLE PREVIEW.
+                  Everything else here shows the palette holding SOMEBODY ELSE'S words. Typing your
+                  own is what turns a demonstration into a test of the thing you actually care
+                  about — whether the palette carries YOUR sentence at YOUR length.
+
+                  ⚠ AND THE `contentEditable` TRAP THIS REPO ALREADY PAID FOR DOES NOT APPLY HERE,
+                  which is worth saying rather than leaving a reader to wonder. The blog canvas
+                  found that a blur can capture a mid-edit state and commit it — a real defect when
+                  the edit PERSISTS. Nothing here persists: there is no save, no draft branch and no
+                  commit path, the text lives in component state for the length of the visit, and a
+                  reload restores the original. There is nothing for a blur to capture wrongly.
+
+                  ⚠ AND THERE IS NO STATE BEHIND IT, WHICH IS THE WHOLE REASON THE CARET IS SAFE.
+                  The first version held the text in `useState` and passed it back as `title`, so
+                  every keystroke re-rendered the node React was reading from — the classic
+                  `contentEditable` caret jump, avoided only by React's diff happening to skip an
+                  unchanged string. Nothing needs the edited text: the copy block does not carry it
+                  and no gate reads it. So the element is genuinely UNCONTROLLED, React renders the
+                  initial string once and never touches it again, and the risk is removed rather
+                  than mitigated. */}
               <SectionHeading
                 index="01"
-                title="Turning rough ideas into products people use"
+                title={HEADLINE}
                 subtext="Six years across enterprise data tools and one consumer turnaround."
                 reveal={false}
+                titleProps={{
+                  contentEditable: true,
+                  suppressContentEditableWarning: true,
+                  spellCheck: false,
+                  role: "textbox",
+                  "aria-label": "Preview headline — type your own",
+                  tabIndex: 0,
+                  className: "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                }}
               />
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <StatCard

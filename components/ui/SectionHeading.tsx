@@ -15,6 +15,17 @@ type Props = {
   variant?: Variant;
   tone?: Tone;
   reveal?: boolean;
+  /**
+   * Attributes spread onto the title `<h2>`. Empty by default, so every existing render is
+   * byte-identical and no public page changes.
+   *
+   * ⚠ A PASS-THROUGH RATHER THAN AN `editable` PROP, DELIBERATELY. `/palettes` needs the headline
+   * to be `contentEditable` so a visitor can type their own words and watch a palette hold them —
+   * but "editable" is a concept belonging to the studio's edit system, and encoding it here would
+   * put a second, unrelated meaning of that word into a presentational component. The console
+   * passes the two attributes it needs and this file stays about headings.
+   */
+  titleProps?: React.HTMLAttributes<HTMLHeadingElement>;
 };
 
 const EASE = "cubic-bezier(.22,1,.36,1)";
@@ -27,6 +38,7 @@ export default function SectionHeading({
   variant = "default",
   tone = "warm",
   reveal = true,
+  titleProps,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.55 });
@@ -196,7 +208,7 @@ export default function SectionHeading({
         >
           <span style={{ position: "relative", display: "inline-block" }}>
             <span aria-hidden style={glowStyle} />
-            <h2 className={wordClass} style={wordStyle}>{title}</h2>
+            <h2 className={wordClass} style={wordStyle} {...titleProps}>{title}</h2>
           </span>
         </div>
         {/* Front layer: index + subtext */}
@@ -214,7 +226,7 @@ export default function SectionHeading({
         <span style={idxStyle}>{index}</span>
         <span style={{ position: "relative", display: "inline-block", margin: "6px auto 2px" }}>
           <span aria-hidden style={glowStyle} />
-          <h2 className="text-[42px] sm:text-[60px]" style={wordStyle}>{title}</h2>
+          <h2 className="text-[42px] sm:text-[60px]" style={wordStyle} {...titleProps}>{title}</h2>
         </span>
         <p style={{ ...subStyle, margin: "14px auto 0" }}>{subtext}</p>
       </div>
@@ -227,7 +239,7 @@ export default function SectionHeading({
       <span style={idxStyle}>{index}</span>
       <span style={{ position: "relative", display: "inline-block", margin: "6px 0 2px" }}>
         <span aria-hidden style={glowStyle} />
-        <h2 className="text-[42px] sm:text-[60px]" style={wordStyle}>{title}</h2>
+        <h2 className="text-[42px] sm:text-[60px]" style={wordStyle} {...titleProps}>{title}</h2>
       </span>
       <p style={subStyle}>{subtext}</p>
     </div>
