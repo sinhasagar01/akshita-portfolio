@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PaletteCompatibility } from "@/lib/palettes/compatibility";
 import { render, formatRatio, FORMATS, type CopyFormat } from "@/lib/palettes/formats";
 import {
-  PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview,
+  PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview, decodePreview,
 } from "@/lib/palettes/preview-cookie";
 import StatCard from "@/components/case-study/StatCard";
 import PrincipleCard from "@/components/case-study/PrincipleCard";
@@ -98,9 +98,31 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
       arrivedOn.current = { theme: root.dataset.theme ?? "", ground: root.dataset.ground ?? null };
     }
     return () => {
-      /* ⚠ RESTORED ON UNMOUNT. Without this, navigating from here to `/blog` would carry the last
-         pressed palette across the site — which is `Try across portfolio` happening by accident,
-         without the visitor asking and without the indicator that makes it escapable. */
+      /* ⚠ RESTORED ON UNMOUNT ONLY WHEN NO PREVIEW WAS REQUESTED, AND THE UNCONDITIONAL VERSION WAS
+         THE DEFECT IN `Try across portfolio`.
+
+         The restore exists so that BROWSING palettes does not leak: pressing dots to look at cerise
+         and then navigating to /blog must not carry cerise, because the visitor never asked for it
+         and there would be no indicator offering a way back.
+
+         ⚠ BUT PRESSING `Try across portfolio` IS EXACTLY THAT REQUEST, AND THE OLD CLEANUP COULD NOT
+         TELL THE TWO APART. It restored whatever the visitor arrived on, so leaving this page put
+         the published theme back while the cookie stayed live — a cream page under a banner
+         insisting "Previewing nocturne", with an Exit button. The DOM was wrong and the strip was
+         the only thing telling the truth.
+
+         ⚠ THE DISCRIMINATOR ALREADY EXISTED AND IS NOT A NEW MECHANISM: the cookie. If one is live,
+         the visitor asked for the palette to travel, so the DOM is left alone. If none is, this was
+         browsing and the arrival state is restored. Same cookie, same decoder, same single source of
+         truth `/palettes`, the teaser and both strips already share.
+
+         ⚠ AND IT IS READ HERE RATHER THAN FROM STATE, because the cookie is what every OTHER surface
+         reads. A local flag would be a second answer to "is a preview live" and the two would
+         eventually disagree — which is the failure this whole layer is built to avoid. */
+      const raw = document.cookie.match(new RegExp(`(?:^|; )${PREVIEW_COOKIE}=([^;]*)`));
+      const livePreview = decodePreview(raw ? decodeURIComponent(raw[1]) : null, Date.now());
+      if (livePreview) return;
+
       const seen = arrivedOn.current;
       if (!seen) return;
       if (seen.theme) root.dataset.theme = seen.theme;

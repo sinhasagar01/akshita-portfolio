@@ -189,28 +189,25 @@ is deploys rather than commits.
 
 ## Open items
 
-- **⚠ THE HERO'S SCROLL CUE IS A 665px ANCHOR AROUND 140px OF TEXT, AND TWO FIXED STRIPS SIT ON ITS
-  BLANK TAIL. MEASURED, NOT FIXED — IT IS NOT THIS ARC'S TO CHANGE.** `.hero-scroll` is `align-self:
-  end` in the copy column, so its box spans the column while its words stop early. At 1440x900 on the
-  home page:
+- **⚠ THE HERO'S SCROLL CUE WAS A 665px ANCHOR AROUND 140px OF TEXT — CLOSED, AND THE STRIPS WERE
+  NEVER THE DEFECT.** `.hero-copy` is a grid and a grid item stretches its column by default, so
+  this link's box spanned the copy column while its words stopped early. Two fixed strips at the
+  bottom edge both landed on the blank tail.
 
-      cue box            62 -> 727      665px wide, and hittable across all of it
-      cue TEXT ends at   202            so 525px of that anchor is blank
-      strip starts at    494            292px clear of the text, 233px over the blank tail
+      before   box 62 -> 727   665px, hittable across all of it, text ending at 202
+      after    box 62 -> 202   140px, blank tail 14px (the dot marker and its gap)
 
-  **NOTHING VISIBLE OVERLAPS AND THE HIT AREAS DO.** `elementFromPoint` reports "Scroll to process"
-  under the strip's left third; the strip is `z-50` and wins the click, which is what a visitor
-  aiming at the strip wants. What is lost is part of an oversized target nobody aims at.
+  **ONE PROPERTY, `justify-self: start`, AND NOTHING VISIBLE MOVED** — the content was already
+  left-aligned inside the stretched box. Probes at x 222, 494 and 700 no longer reach it.
 
-  **⚠ IT IS PRE-EXISTING AND WAS NEVER MEASURED.** The live-preview strip has shipped at exactly this
-  `fixed bottom-4 left-1/2` position since #507; the arrival strip copies it verbatim. So the
-  geometry is not new — the second occurrence is what made anyone look.
+  **⚠ THE TEMPTING FIX WAS TO MOVE THE STRIPS, AND IT WOULD HAVE BEEN WRONG.** They sit at
+  `fixed bottom-4 left-1/2` and are where they should be; what was wrong was an anchor five times
+  wider than the thing it labels. **Asking which element was at fault rather than which two
+  overlapped is the whole of this entry.**
 
-  **THE REAL SUBJECT IS THE ANCHOR, NOT THE STRIPS.** Narrowing `.hero-scroll` to its content is a
-  hero change with its own reasoning and its own render, and folding it into a palette unit would
-  ship two unrelated fixes under one justification. **The trigger for doing it: any third fixed
-  element at the bottom edge, or a report of the cue being hard to hit.**
-
+  **⚠ AND IT HAS NO GATE, SAID RATHER THAN IMPLIED.** The assertion that matters is a RENDERED WIDTH,
+  which ralph cannot measure; a declaration check would go on passing if the grid changed underneath
+  it. The trigger for re-measuring is any change to `.hero-copy`'s layout mode.
 
 - **⚠ THE MUTATION PATH IS NOT OWNED BY THE MUTATION TOOL, AND THAT IS THE ONE LIVE GAP — BOARDED
   WITH THE INCIDENT THAT FOUND IT.** `mutate.mjs` snapshots, restores, and verifies its own effect.
