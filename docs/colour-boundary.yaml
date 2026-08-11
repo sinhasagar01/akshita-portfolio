@@ -224,6 +224,35 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
+  - id: hero-formula-text
+    kind: mechanical
+    category: not-a-colour
+    where: "components/palettes/PaletteConsole.tsx (the hero formula in section 01)"
+    files: [components/palettes/PaletteConsole.tsx]
+    count: 1
+    reason: >
+      ⚠ TEXT CONTENT SHAPED LIKE A COLOUR, NOT A PAINT INSTRUCTION. The hero shows the live palette's
+      accent written out as an OKLCH function, because the page's whole argument is that the third
+      number is the theme. The word `oklch(` is a TEXT NODE and the three components come from
+      `active.tokens["accent-500"]` at render — nothing here sets a colour on anything.
+
+      ⚠ AND THE CENSUS MATCHES IT BY SPANNING JSX, WHICH IS THE UNBALANCED-MATCHER FAMILY AGAIN.
+      `colourPattern` reads `oklch\([^)]*\)`, so it starts at the literal `oklch(` in the markup and
+      runs across newlines and elements to whatever `)` comes first — a match roughly ninety
+      characters long containing three JSX expressions. Sixth member of that family in this
+      repository, and the first where the pattern is the CENSUS'S rather than a probe's.
+
+      ⚠ THE ROW WAS PREFERRED OVER HIDING THE STRING, AND THAT IS THE ARGUMENT. Splitting the
+      literal so no matcher could span it would make the census green while changing nothing about
+      what ships, which is the shape that turns an exclusion into a leak. The page really does
+      display an OKLCH string; the honest claim is that it is not a colour anything paints.
+
+      ⚠ AND THE OVER-ATTRIBUTION IS BOUNDED BY `count`, WHICH IS WHY THIS IS SAFE AT FILE LEVEL.
+      A file-level join over-attributes totally — that defect cost nineteen wrongly credited sites
+      once already. `J5` requires the declared count to equal what the census finds in the file, so
+      a SECOND colour arriving in this component fails rather than being silently excused by this
+      row. The count is the guard, not the label.
+
   - id: feature-query-operand
     kind: mechanical
     category: not-a-colour
@@ -527,25 +556,3 @@ entries:
       fifth route no static analysis of the page reaches. Recategorised from signature in #365; the
       prose already argued adjacency and the label never did.
 
-  - id: oklch-axis-ramps
-    kind: judgement
-    category: depiction
-    where: components/palettes/PaletteConsole.tsx
-    count: 3
-    files: [components/palettes/PaletteConsole.tsx]
-    reason: >
-      The three OKLCH axis ramps on `/palettes` depict the colour SPACE itself — a lightness ramp, a
-      chroma ramp and a hue wheel — so they are drawn in the depicted thing's own colours rather than
-      in the site's voice. A themed hue ramp would misrepresent the axis it illustrates: the hue
-      strip has to run the whole circle to show that hue is the only thing differing across the nine
-      palettes, and a palette that recoloured it would be a hue ramp that lies about hue.
-    test: >
-      THE DEPICTION DISCRIMINATOR, applied exactly. The question is not whether these are colours the
-      cascade could reach — it could — but whether they are drawn in the site's voice or in the
-      subject's. They illustrate a coordinate system that exists independently of this site, in the
-      same way a browser mock uses browser-chrome grey. The ground-change test does not apply: these
-      must NOT move when the palette does, and that is the point rather than an exemption.
-
-      CLEARS IF THE AXES STOP DEPICTING THE SPACE. If the band is ever rebuilt to show the site's own
-      palette positions on those axes — nine marks rather than three continuous ramps — the marks
-      become interface and take tokens, and this row goes with them.

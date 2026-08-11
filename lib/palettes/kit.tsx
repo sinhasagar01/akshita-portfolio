@@ -75,6 +75,19 @@ export type KitPart = {
   roles: string[];
   /** How a developer uses it. */
   usage: string;
+  /**
+   * Takes two grid columns.
+   *
+   * ⚠ THE COST OF "REAL COMPONENTS, NO FACSIMILES", PAID HERE RATHER THAN DODGED. A mock can draw a
+   * section heading as three short words in a 240px box. The real one is a display-serif h2 at a
+   * page measure, and in a 240px cell it wraps to eight lines and the grid goes ragged.
+   *
+   * ⚠ THE TEMPTING FIX IS `transform: scale()` AND IT IS THE FACSIMILE RULE WEARING A CSS PROPERTY.
+   * A scaled part is not the part — the visitor would be judging type at a size the site never
+   * draws, on a page whose entire claim is that this is the shipped system. Giving the part the
+   * width it needs shows it truthfully; shrinking it shows a picture of it.
+   */
+  wide?: boolean;
   /** The mounted part itself. Real and imported — no facsimiles, which is the page's own rule. */
   render: ReactNode;
 };
@@ -86,6 +99,7 @@ export const KIT: KitPart[] = [
   {
     name: "Section heading",
     symbol: "SectionHeading",
+    wide: true,
     where: "components/ui/SectionHeading.tsx",
     group: "Structure",
     roles: ["text-primary", "accent-text", "text-subtle"],
@@ -145,6 +159,7 @@ export const KIT: KitPart[] = [
   {
     name: "Pull quote",
     symbol: "PullQuote",
+    wide: true,
     where: "components/case-study/blocks/PullQuote.tsx",
     group: "Narrative",
     roles: ["accent", "text-primary"],
@@ -154,6 +169,7 @@ export const KIT: KitPart[] = [
   {
     name: "Stepper",
     symbol: "Stepper",
+    wide: true,
     where: "components/case-study/blocks/Stepper.tsx",
     group: "Narrative",
     roles: ["accent", "border", "text-primary", "text-secondary"],
@@ -171,6 +187,7 @@ export const KIT: KitPart[] = [
   {
     name: "Glance grid",
     symbol: "GlanceGrid",
+    wide: true,
     where: "components/case-study/blocks/GlanceGrid.tsx",
     group: "Content",
     roles: ["accent", "text-primary", "text-secondary"],
@@ -188,6 +205,7 @@ export const KIT: KitPart[] = [
   {
     name: "Issue list",
     symbol: "IssueList",
+    wide: true,
     where: "components/case-study/blocks/IssueList.tsx",
     group: "Narrative",
     roles: ["rule", "text-primary", "text-secondary"],
