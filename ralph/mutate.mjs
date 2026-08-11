@@ -406,9 +406,9 @@ const detail = { KILLED: `${fails} assertion${fails === 1 ? "" : "s"} failed`
 
 console.log(`${verdict.padEnd(9)} ${name}  ·  ${detail}  (exit ${res.status}, ${asserted} assertions)`);
 if (haveSnapshot) {
-  console.log("          revert with `node ralph/mutate.mjs --revert-edit` if the edit was applied
-          through `--edit`, otherwise `--restore` — NEVER `git checkout`,");
-  console.log("          which reverts to the last COMMIT and discards uncommitted work with it.");
+  console.log("          revert with `--revert-edit` if the edit was applied through `--edit`,");
+  console.log("          otherwise `--restore` — NEVER `git checkout`, which reverts to the last");
+  console.log("          COMMIT and discards uncommitted work along with the mutation.");
 } else if (!treeClean) {
   console.log("          ⚠ NO PRE-MUTATION SNAPSHOT. `git checkout <file>` will discard EVERY");
   console.log("             uncommitted change in it, not just the mutation — that is how #362");

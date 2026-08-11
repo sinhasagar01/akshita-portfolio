@@ -2154,6 +2154,30 @@ build a gate for the limit and then believe it.
 
 ## Proof and verification
 
+- **⚠ A SYNTAX ERROR SHIPPED TO MAIN UNDER 3100 GREEN ASSERTIONS, BECAUSE NOTHING IN CI LOADED THE
+  FILE.** `ralph/mutate.mjs` became unparseable — a multi-line string pasted into a
+  `console.log("…")` — and every gate stayed green, because `run.mjs` runs the SUITES and the
+  mutation harness is an operator tool that no suite imports.
+
+  **⚠ AND IT WAS A COMMENT-ONLY EDIT MADE AFTER THE PROOF.** The full loop had been run end to end
+  and worked: snapshot, edit, `KILLED`, revert, restore, clean tree. The hint text was then changed
+  and never re-run. **"Re-run after the LAST edit" is a rule this file states, and the edit that
+  broke it was the one that looked too small to re-check.**
+
+  **THE SECOND RULE IT IGNORED IS THE SHARPER ONE: A GREEN SUITE SET SAYS NOTHING ABOUT A FILE NO
+  SUITE LOADS.** Before trusting a green, ask what it actually ran — the same question that found
+  `upstream` skipped by name, and `parity` and `studio-type` before it.
+
+  **THE REPAIR IS ONE ROW AND IT WOULD HAVE CAUGHT IT: `node --check`.** `ralph/tests/mutate-harness.mjs`
+  parses the harness, invokes it to prove it reaches its own usage message rather than dying during
+  load, and exercises its four refusals against the real binary. Proved by reintroducing the exact
+  break — four rows go red.
+
+  **⚠ AND IT STOPS AT THE REFUSALS, DELIBERATELY.** Each one exits before touching a file, so the
+  suite can run the real tool without mutating the tree. The apply-and-revert round trip is proved by
+  hand and recorded instead, because a suite that failed midway through it would leave the repository
+  dirty for every gate after it. **What belongs in CI is the half that cannot damage anything.**
+
 - **⚠ A PROBE FOR A CAPITALISED PATH OVERWRITES THE REAL PAGE'S BUILD OUTPUT ON macOS, SO THE PROBE
   MANUFACTURES THE FAILURE IT THEN REPORTS.** Verifying that `/palettes/[slug]` refuses an unknown
   slug, `/palettes/Sapphire` returned **200** — the `/work/<slug>` shape exactly, and it is not a
