@@ -324,6 +324,17 @@ the row is that other row wearing different words, and it should be deleted rath
 apparent coverage. And if no reasonable edit reddens it at all, it is documentation in an
 assertion's clothes, which is worse than an absent check because a reader counts it.
 
+⚠ AND ASKING ONLY "WHAT REDDENS THIS" FINDS HALF OF IT. THE OTHER HALF IS "WHAT MUST THIS ROW
+ALLOW." An identity gate — one asserting that two surfaces show the same value — must be falsifiable
+in ONE DIRECTION ONLY: moving the shared thing both surfaces call must make it SURVIVE, because they
+stayed in step, and one side moving alone must make it DIE.
+
+A row that dies in both directions is not measuring the identity. It has baked a current detail into
+the assertion, and it will redden on a legitimate change while a reader treats the failure as real.
+The instance that taught this: a matcher pinned to two decimal places passed the divergence test and
+failed when the SHARED formatter moved to three. Only the mutation written to prove the row survives
+could find it — the redden-test said the row was fine.
+
 None of this is visible by reading. A row that cannot fail reads exactly like a row that can, which
 is why the question has to be answered by mutating rather than by inspecting. In one sustained
 session seven assertions failed it, every one written by someone who already knew the rule and was
@@ -341,6 +352,22 @@ And a repair for an unfalsifiable row can introduce a fresh one. Tightening a ma
 a more specific pattern, and a more specific pattern has more ways to be subtly wrong. Re-run the
 mutation after the repair, not only before it. The repair is a change like any other and inherits
 no correctness from the reasoning that motivated it.
+
+### 36. A server that is serving is also writing
+
+A dev or production server with any caching layer writes to its own build output as it answers
+requests. So a request made while diagnosing changes what the next measurement reads, and the change
+looks like a property of the code.
+
+Two instances, one mechanism. A probe for a path that differs only in case, on a case-insensitive
+filesystem, made the server render an error page and store it over the real page's build output —
+so the gate that read that output reported a failure the probe had manufactured. And a build run
+while the server was still serving emitted an extra chunk that no earlier measurement had, which
+would have been read as a size regression.
+
+Stop the server before any build a gate will read, and before re-measuring anything derived from
+the build. And when a figure moves, rebuild BOTH sides rather than assuming the baseline still
+holds — that is the only step that distinguishes a real change from a contaminated one.
 
 ---
 

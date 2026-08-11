@@ -22,6 +22,20 @@ const NAV = [
   { id: "work",    label: "Work"    },
   { id: "about",   label: "About"   },
   { id: "blog",    label: "Blog", href: "/blog" },
+  /* ⚠ A ROUTE ENTRY, LIKE `blog` — it has an `href` and NO section on the home page, so the
+     scroll-spy and the scroll handlers must never see it. `isRoute` derives that from the presence
+     of `href` and every consumer guards on it (four sites, lines 87, 277, 350 and 462), which is
+     why adding this line is the whole change.
+
+     ⚠ THE COMMENT HERE FIRST NAMED A `SECTION_IDS` CONSTANT THAT DOES NOT EXIST. It read as a
+     precise mechanical claim, and nothing reads prose — the exact defect this repo has recorded
+     against comments a dozen times, written into the last file of the arc that recorded it. The
+     symbol is `isRoute`; it was checked before this sentence was rewritten.
+
+     ⚠ AND THERE IS NO `/playground` INDEX BEHIND IT. A section index with one card is a container
+     with one item; the link goes straight to the thing. If a second playground piece ever ships,
+     THAT is when an index earns its existence. */
+  { id: "palettes", label: "Playground", href: "/palettes" },
   { id: "contact", label: "Contact" },
 ] as const;
 

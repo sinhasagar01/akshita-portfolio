@@ -1,0 +1,105 @@
+// `Try across portfolio` — temporary, escapable, and never a publish.
+// Run: node --experimental-strip-types ralph/tests/palette-preview.mjs
+import {
+  PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview, decodePreview, previewHeadScript,
+} from "../../lib/palettes/preview-cookie.ts";
+import { THEME_NAMES, THEME_GROUND, VERIFY_THEME } from "../../lib/theme.ts";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
+let pass = 0, fail = 0;
+const t = (name, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  console.log((ok ? "  [PASS] " : "  [FAIL] ") + name + (ok ? "" : `\n     got  ${JSON.stringify(got)}\n     want ${JSON.stringify(want)}`));
+  ok ? pass++ : fail++;
+};
+const root = new URL("../../", import.meta.url).pathname;
+const read = (p) => readFileSync(join(root, p), "utf8");
+const DARK = THEME_NAMES.filter((n) => THEME_GROUND[n] === "dark");
+const SCRIPT = previewHeadScript(DARK);
+
+console.log("\nA · the deadline is DRIVEN, not merely configured");
+/* ⚠ `Max-Age` IS ENFORCED BY THE BROWSER AND CANNOT BE EXERCISED WITHOUT WAITING FOR IT, so an
+ * expiry that lived only there would ship as a number nobody had ever seen work. The value carries
+ * its own deadline, which makes it drivable: a past deadline must be refused, here and in the head
+ * script, with no clock to wait on. */
+const NOW = 1_000_000_000_000;
+t("A0 the max age is real and short — a zero or a year would both defeat the point",
+  PREVIEW_MAX_AGE_SECONDS > 60 && PREVIEW_MAX_AGE_SECONDS <= 60 * 60, true);
+t("A1 a fresh cookie decodes to its theme", decodePreview(encodePreview("sapphire", NOW), NOW), "sapphire");
+t("A2 ⚠ AND THE SAME COOKIE IS REFUSED ONE MILLISECOND PAST ITS DEADLINE — the expiry, driven",
+  decodePreview(encodePreview("sapphire", NOW), NOW + PREVIEW_MAX_AGE_SECONDS * 1000 + 1), null);
+t("A2a …and exactly AT the deadline, so the boundary is closed rather than guessed",
+  decodePreview(encodePreview("sapphire", NOW), NOW + PREVIEW_MAX_AGE_SECONDS * 1000), null);
+t("A3 a malformed value is refused rather than half-read",
+  ["", "sapphire", "sapphire.", ".123", "sapphire.nope", "SAPPHIRE.9999999999999"]
+    .map((v) => decodePreview(v, NOW)), [null, null, null, null, null, null]);
+t("A4 …and a value with no deadline cannot be smuggled past by looking like a theme",
+  decodePreview("cream", NOW), null);
+
+console.log("\nB · the /studio gate, ASSERTED rather than commented");
+/* ⚠ THE CANVAS RENDERS PUBLIC COMPONENTS DELIBERATELY, so a preview reaching it would show an author
+ * a palette they had not published — and they would have no reason to doubt it. The studio CHROME is
+ * safe by construction (`studio-tokens` C1 asserts the frozen palette is independent of the public
+ * one), so the canvas is the whole exposure and this pathname test is the whole fix. A comment
+ * saying "we skip /studio" cannot fail; these rows can. */
+t("B1 ⚠ THE SCRIPT RETURNS EARLY ON /studio — the exact path, not a prefix that also matches /studios",
+  /location\.pathname===("|')\/studio\1/.test(SCRIPT), true);
+t("B2 …and on every path beneath it",
+  /location\.pathname\.indexOf\(("|')\/studio\/\1\)===0/.test(SCRIPT), true);
+t("B3 ⚠ AND THE RETURN COMES BEFORE THE COOKIE IS EVEN READ — a gate after the read is a gate that ran too late",
+  SCRIPT.indexOf("/studio") < SCRIPT.indexOf(PREVIEW_COOKIE), true);
+
+console.log("\nC · the script writes BOTH attributes, from the derived dark list");
+t("C0 the dark list is non-empty and derived — an empty one would make C2 vacuous", DARK.length >= 1, true);
+t("C1 it sets data-theme", /dataset\.theme=/.test(SCRIPT), true);
+t("C2 ⚠ AND data-ground, because the ROLE LAYER remaps on the ground and not on the theme",
+  /dataset\.ground="dark"/.test(SCRIPT) && /delete r\.dataset\.ground/.test(SCRIPT), true);
+t("C3 …and every dark palette is named in it, so a new one cannot render light rungs on a dark page",
+  DARK.filter((n) => !SCRIPT.includes(n)), []);
+t("C4 the verification twin is NOT previewable — it is a control and never shown",
+  SCRIPT.includes(VERIFY_THEME), false);
+
+console.log("\nD · the absence, WITH A SUBJECT — a preview is never a publish");
+/* ⚠ AN ABSENCE WITH NO COUNT CANNOT FAIL. "Nothing under the feature imports the write layer" is
+ * satisfied by a feature that does not exist; pinning the importers that DO makes both halves
+ * checkable — a new caller anywhere fails D2, and a caller inside the feature fails D1. */
+const WRITE_LAYER = /(commit-site-settings|publish-site-settings|sanitizeSiteSettingsPatch)/;
+const walk = (d) => readdirSync(join(root, d), { withFileTypes: true })
+  .flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
+const sources = ["app", "lib", "components"].flatMap(walk).filter((f) => /\.tsx?$/.test(f));
+const importers = sources.filter((f) =>
+  read(f).split("\n").some((l) => /^\s*import\b/.test(l) && WRITE_LAYER.test(l)));
+const FEATURE = /^(lib\/palettes|components\/palettes|app\/\(portfolio\)\/palettes)/;
+const featureFiles = sources.filter((f) => FEATURE.test(f));
+
+t("D0 the sweep found the feature's own files — a zero here makes D1 vacuous", featureFiles.length >= 4, true);
+t("D0a …and it found sources at all, against a literal", sources.length >= 100, true);
+t("D1 ⚠ NOTHING UNDER THE PALETTES FEATURE IMPORTS THE SITE-SETTINGS WRITE LAYER",
+  importers.filter((f) => FEATURE.test(f)), []);
+t("D2 ⚠ AND THE IMPORTER COUNT IS UNCHANGED AT SEVEN — a new caller anywhere fails this, which is what makes D1 an assertion rather than a hope",
+  importers.length, 7);
+t("D2a …and every one of them is a studio write path, so the seven are the ones that SHOULD write",
+  importers.filter((f) => !/^(app\/api\/studio|lib\/studio)/.test(f)), []);
+
+console.log("\nE · the cookie is the only mechanism, and it is scoped");
+const consoleSrc = read("components/palettes/PaletteConsole.tsx");
+t("E1 the try action writes the cookie and calls no API — a fetch here would be a write path",
+  /fetch\(/.test(consoleSrc), false);
+t("E2 the cookie is path-scoped to the whole site and SameSite=Lax",
+  /Path=\/;/.test(consoleSrc) && /SameSite=Lax/.test(consoleSrc), true);
+t("E3 ⚠ AND EXIT CLEARS IT WITH Max-Age=0 rather than leaving it to lapse — the way out is immediate",
+  /Max-Age=0/.test(read("components/palettes/PreviewIndicator.tsx")), true);
+/* ⚠ THIS ROW MATCHED THE STRING `published-theme` ANYWHERE IN THE INDICATOR AND SURVIVED THE ONE
+ * MUTATION THAT MATTERS. Replacing `getElementById("published-theme")` with `null` leaves
+ * `data-published-theme` sitting in the getAttribute call below it, so the row went on passing while
+ * exit had stopped reading the published values entirely. A presence check wearing a behaviour
+ * check's title — the third instance in this arc, and found by mutating rather than by reading.
+ * The subject is the LOOKUP, so the matcher is the lookup. */
+t("E4 ⚠ AND EXIT LOOKS THE PUBLISHED VALUES UP, not a remembered one — there is one true state to return to",
+  /getElementById\(("|')published-theme\1\)/.test(read("components/palettes/PreviewIndicator.tsx")), true);
+t("E4a …and the server emits them, or the lookup above would find nothing",
+  /data-published-theme=/.test(read("app/layout.tsx")), true);
+
+console.log(`\n${pass} passed, ${fail} failed`);
+process.exit(fail === 0 ? 0 : 1);

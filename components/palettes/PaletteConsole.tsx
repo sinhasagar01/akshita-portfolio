@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PaletteCompatibility } from "@/lib/palettes/compatibility";
 import { render, formatRatio, FORMATS, type CopyFormat } from "@/lib/palettes/formats";
+import {
+  PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview,
+} from "@/lib/palettes/preview-cookie";
 import StatCard from "@/components/case-study/StatCard";
 import PrincipleCard from "@/components/case-study/PrincipleCard";
 import PullQuote from "@/components/case-study/blocks/PullQuote";
@@ -290,6 +293,35 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ⚠ THE TRY ACTION WRITES A COOKIE AND NOTHING ELSE. It does not call an API, it does not
+              touch `content/site-settings.yaml`, and nothing in this feature imports the write
+              layer — asserted as an absence in `palette-preview` section D, with the importer count
+              pinned so the claim can fail. A preview is a thing the visitor is doing; a publish is
+              a thing the owner did. */}
+          <div className="mt-5 border-t border-ink-950/8 pt-4">
+            <h3 className="text-lg text-text-primary">Try it across the site</h3>
+            <p className="mt-1 text-sm leading-relaxed text-text-subtle">
+              Applies {active.name} to every page for {PREVIEW_MAX_AGE_SECONDS / 60} minutes. It
+              expires on its own, and an exit control follows you until it does. Nothing is
+              published.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie =
+                  `${PREVIEW_COOKIE}=${encodeURIComponent(encodePreview(active.name, Date.now()))}`
+                  + `; Path=/; Max-Age=${PREVIEW_MAX_AGE_SECONDS}; SameSite=Lax`;
+                say(`${active.name} applied across the site`);
+                /* The attributes are already correct — pressing set them — so this only makes the
+                   indicator notice without waiting for its poll. */
+                window.dispatchEvent(new Event("palette-preview-changed"));
+              }}
+              className="mt-3 w-full rounded-full border border-accent bg-accent px-4 py-2 text-sm font-medium text-on-accent"
+            >
+              Try {active.name} across the portfolio
+            </button>
           </div>
 
           <div className="mt-5 border-t border-ink-950/8 pt-4">
