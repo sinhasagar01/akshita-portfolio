@@ -154,9 +154,13 @@ t("Z3 mechanical categories are the five decidable without a judgement",
  * second palette arrived. The five still wearing it each meant something else, which #365 found by
  * reading prose against label. The categories are a MAP now, keyed by name, because each one
  * declares the test its entries must answer. */
-t("Z4 judgement categories are the five that never can be computed",
+/* ⚠ SIX NOW. `depiction` joined for the OKLCH axis ramps on `/palettes` — the first region that
+ * needed the FINER form of `artwork-by-file`. That one asks about the FILE's purpose, and a console
+ * is not an illustration file, so a small illustrative band inside it had no category at all. The
+ * discriminator it declares was already in the record; this is its first entry. */
+t("Z4 judgement categories are the six that never can be computed",
   Object.keys(BOUNDARY.kinds.judgement.categories).sort(),
-  ["adjacent", "artwork-by-file", "forced-literal", "invariant", "near-miss-kept"]);
+  ["adjacent", "artwork-by-file", "depiction", "forced-literal", "invariant", "near-miss-kept"]);
 t("Z4b ⚠ AND `signature` IS NOT AMONG THEM — deleted with a 100% failure rate among its true members",
   "signature" in BOUNDARY.kinds.judgement.categories, false);
 t("Z5 every entry declares a kind the file knows",

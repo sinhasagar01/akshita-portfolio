@@ -484,7 +484,7 @@ closed.
 ## Portable conventions
 
 `docs/PORTABLE.md` holds the rules and limits from this project that are **not about this project**.
-Thirty five rules and five limits, each tested against whether it survives without its example. It is
+Each entry is tested against whether it survives without its example. It is
 the extraction of what the arc below cost, and it is deliberately separate because the entries here
 are entangled with `.wf-thumb`, `pearl` against `glass` and `D12e`, and the ones there are not.
 
@@ -2129,6 +2129,31 @@ build a gate for the limit and then believe it.
 - **Admin surfaces sit outside the `(portfolio)` route group.** `app/studio` lives outside it, so it carries no site chrome, sets page-level noindex plus a robots disallow, and is owner-gated in middleware. Any new internal or admin surface follows the same placement.
 
 ## Proof and verification
+
+- **⚠ A PROBE FOR A CAPITALISED PATH OVERWRITES THE REAL PAGE'S BUILD OUTPUT ON macOS, SO THE PROBE
+  MANUFACTURES THE FAILURE IT THEN REPORTS.** Verifying that `/palettes/[slug]` refuses an unknown
+  slug, `/palettes/Sapphire` returned **200** — the `/work/<slug>` shape exactly, and it is not a
+  route defect.
+
+  **BOTH HALVES ARE ONE MECHANISM AND THE SECOND IS THE DANGEROUS ONE.** The filesystem is
+  case-insensitive, so `.next/server/app/palettes/Sapphire.html` resolves to `sapphire.html`.
+  Requesting the capitalised path made Next render an error page and **write it to what the
+  filesystem considers the same file** — so `sapphire.html` became `<html id="__next_error__">` and
+  `rendered-theme` A2 then failed naming that page. **The check was reporting damage the check's own
+  setup had caused**, and on a clean build with no capitalised request all nine are real pages.
+
+  **THE DISTINGUISHING EVIDENCE WAS CHEAP: `/palettes/NOPE` 404s.** It has no case-variant on disk,
+  so the difference is the filesystem rather than the routing. `fallback: false` is correctly set in
+  the prerender manifest, which is the thing worth checking and the thing `#203` was about.
+
+  **⚠ LINUX IS UNVERIFIED HERE AND MUST BE SAID THAT WAY.** There is no case-sensitive host in this
+  environment. The MECHANISM is established; whether production behaves differently is not, and
+  assuming either way would be the wrong-subject defect in a new costume.
+
+  **THE PRACTICAL FORM: a probe that writes to the build output is not a read.** `next start` serves
+  and CACHES, so any request made while diagnosing can change what the next gate reads. Stop the
+  server before running a suite that reads `.next`, and never diagnose a build from a tree a probe
+  has been served from.
 
 - **⚠ A GATE THAT CANNOT RUN IS NOT A GATE, AND `upstream` A1 SAT SILENT WHILE THE DEFECT IT
   DESCRIBES WAS COMMITTED.** A `docs:` commit sat unpushed on local `main`, a gate-repair branch was

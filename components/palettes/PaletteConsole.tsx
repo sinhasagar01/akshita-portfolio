@@ -1,0 +1,299 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { PaletteCompatibility } from "@/lib/palettes/compatibility";
+import StatCard from "@/components/case-study/StatCard";
+import PrincipleCard from "@/components/case-study/PrincipleCard";
+import PullQuote from "@/components/case-study/blocks/PullQuote";
+import SectionHeading from "@/components/ui/SectionHeading";
+import SectionLabel from "@/components/ui/SectionLabel";
+
+/* ============================================================================================
+   THE CONSOLE. Sticky preview left, panel right, OKLCH band and licence below.
+
+   ⚠ THE WHOLE PAGE THEMES, NOT A PREVIEW BOX, AND THAT IS THE ARGUMENT RATHER THAN A FLOURISH.
+   Pressing a palette writes `data-theme` and `data-ground` on `<html>`, so the nav above, the
+   footer below and this panel all move together. A palette that only recoloured a card would prove
+   nothing about the system.
+
+   ⚠ AND CONTAINER SCOPING WAS MEASURED AND REFUSED — THE REASON IS INVISIBLE FROM THE MARKUP, SO
+   IT IS WRITTEN HERE. Scoping the palette to a `<div>` looks obviously right and does not work.
+   A `[data-theme]` block declares 35 tokens and every one is a RUNG; the 11 ROLES are declared
+   once in `@theme` as `var()` aliases, and a `var()` inside a custom property is substituted ON
+   THE ELEMENT THE DECLARATION APPLIES TO, which is `:root`. So a container that redeclares
+   `--color-cream-50` never moves `--color-surface` — the role was already resolved against the
+   published palette before the container existed.
+
+   Measured in a browser: a scoped harbour got 11 of 33 sampled tokens right, a scoped sapphire 5
+   of 33. The failures split exactly in half — 11 role aliases and 11 derived helpers declared at
+   `:root` (`--glass-fill`, `--glow-on-tan`, the vessel tints). And `:root[data-ground="dark"]`
+   declares 43 more properties at 0-2-0 specificity, which no container can match at all.
+
+   ⚠ THE FAILURE IS SUBSTITUTION TIMING, NOT SELECTORS, WHICH IS WHY A COMPONENT SWEEP WOULD COME
+   BACK CLEAN. Nothing here targets `:root`; the values simply resolved there. The next person to
+   reach for container scoping will find no offending rule and conclude it is safe.
+
+   ---- ⚠ WHY THE PREVIEW IS NOT `ProjectCard`, WHICH READS LIKE A VIOLATION AND IS NOT ------------
+
+   The rule is REAL COMPONENTS, NO FACSIMILES, and every component below is imported and real. The
+   first build of this preview used `ProjectCard`, the most obvious real component on the site, and
+   it was replaced — so the reason belongs here before someone restores it on principle.
+
+   ⚠ THE NO-FACSIMILE RULE IS ABOUT DRIFT, NOT ABOUT PHOTOGRAPHS. It exists so this page cannot show
+   a system that is not the shipped one. `ProjectCard`'s dominant element is a RASTER, and measured
+   across three palette presses the largest thing in the preview did not move at all. A card whose
+   biggest element is inert under a palette change demonstrates nothing about tokens — so replacing
+   it SERVES the rule rather than bending it.
+
+   What replaced it is still real and still imported: `SectionHeading`, `PrincipleCard`, `StatCard`
+   and `PullQuote`, chosen because they are drawn almost entirely from tokens.
+
+   ⚠ AND THE ONE THING THIS PREVIEW THEREFORE CANNOT SHOW, RECORDED RATHER THAN HIDDEN: a themed
+   page containing PHOTOGRAPHY. That is a real property of the site — the work cards and the about
+   portrait sit on themed grounds — and nothing here demonstrates how a palette sits around an image
+   it cannot recolour. A visitor judging "will my photos look right on cerise" gets no answer from
+   this page.
+
+   ---- ⚠ AND THE SITE'S OWN NAV IS THE FIFTH REAL COMPONENT, BY NOT BEING HERE -------------------
+
+   `SiteHeader` is `fixed inset-x-0` with document-level listeners and its own `data-nav-tone`
+   computation, so a second instance inside this panel would overlay the viewport and double every
+   listener. It is NOT rebuilt as a facsimile and NOT imported: the page's own nav sits above the
+   console and IS the demonstration. A copy would drift, which is the thing the rule forbids.
+============================================================================================ */
+
+type Props = {
+  palettes: PaletteCompatibility[];
+  initialSlug: string;
+  /** True on `/palettes/<slug>`, where an inline script already set the root before paint. */
+  ownsRootTheme: boolean;
+};
+
+/** The five rungs the token grid shows, by the job each one does rather than by its rung name. */
+const SHOWN = [
+  ["canvas", "page"],
+  ["surface", "surface"],
+  ["accent", "accent"],
+  ["on-accent", "on-accent"],
+  ["text-primary", "text-lead"],
+] as const;
+
+export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }: Props) {
+  const [slug, setSlug] = useState(initialSlug);
+  const active = palettes.find((p) => p.name === slug) ?? palettes[0];
+  /* The theme the visitor arrived on, so leaving the page restores it rather than stranding them
+     on whatever they last pressed. Captured once, before any press. */
+  const arrivedOn = useRef<{ theme: string; ground: string | null } | null>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!arrivedOn.current) {
+      arrivedOn.current = { theme: root.dataset.theme ?? "", ground: root.dataset.ground ?? null };
+    }
+    return () => {
+      /* ⚠ RESTORED ON UNMOUNT. Without this, navigating from here to `/blog` would carry the last
+         pressed palette across the site — which is `Try across portfolio` happening by accident,
+         without the visitor asking and without the indicator that makes it escapable. */
+      const seen = arrivedOn.current;
+      if (!seen) return;
+      if (seen.theme) root.dataset.theme = seen.theme;
+      if (seen.ground) root.dataset.ground = seen.ground; else delete root.dataset.ground;
+    };
+  }, []);
+
+  const press = useCallback((next: PaletteCompatibility) => {
+    const root = document.documentElement;
+    root.dataset.theme = next.name;
+    if (next.groundClass === "dark") root.dataset.ground = "dark";
+    else delete root.dataset.ground;
+    setSlug(next.name);
+  }, []);
+
+  /* On the slug route the script already set the root, so the first paint is correct and this only
+     keeps the two in step after a press. */
+  useEffect(() => {
+    if (!ownsRootTheme) return;
+    const root = document.documentElement;
+    if (root.dataset.theme !== slug) press(active);
+  }, [ownsRootTheme, slug, active, press]);
+
+  const failing = active.rows.filter((r) => r.got < r.min);
+
+  return (
+    <main className="pt-32 pb-24">
+      {/* ⚠ NO `font-display` ON ANY HEADING HERE, AND ITS ABSENCE IS DELIBERATE. The unlayered
+          `h1,h2` and `h3..h6` element resets in globals.css already set the display face, and they
+          BEAT a utility in `@layer utilities` — so the class asks for a face the element already
+          has and draws nothing. `cascade-public` counts that as inert on h1/h2 (asked and drew the
+          same value) and as a COLLISION on h3 (the reset's value wins over a different one), which
+          is why the same mistake shows up in two censuses. Identical to the home h1's inert
+          `font-script`, removed in #349. Adding it back is a class that renders nothing. */}
+      <div className="mx-auto w-full max-w-[1180px] px-6">
+        <SectionLabel>Playground · 01 — Palettes</SectionLabel>
+        <h1 className="mt-4 text-6xl leading-[0.96] tracking-tight text-text-primary">
+          Press one. Watch what <em className="italic text-accent-text">doesn&rsquo;t</em> change.
+        </h1>
+        <p className="mt-5 max-w-[56ch] text-lg leading-relaxed text-text-secondary">
+          Nine curated palettes as role tokens. The preview stays put while you work; the panel
+          tells you what each one clears.
+        </p>
+      </div>
+
+      <div className="mx-auto mt-12 grid w-full max-w-[1180px] grid-cols-1 gap-0 border-t border-ink-950/8 px-6 lg:grid-cols-[1fr_372px]">
+        {/* ---- the sticky preview, built from the site's own components ---- */}
+        <div className="border-ink-950/8 py-8 lg:border-r lg:pr-8">
+          <div className="lg:sticky lg:top-28">
+            <div className="rounded-xl border border-ink-950/8 bg-surface-well p-6">
+              <SectionHeading
+                index="01"
+                title="Turning rough ideas into products people use"
+                subtext="Six years across enterprise data tools and one consumer turnaround."
+                reveal={false}
+              />
+              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <StatCard
+                  stat={{
+                    value: "2.3 → 4.0",
+                    tag: "store rating",
+                    body: "What the boAt Crest redesign moved, drawn in whichever palette is pressed.",
+                  }}
+                />
+                <PrincipleCard
+                  principle={{
+                    index: "02",
+                    title: "One surface, three personas",
+                    body: "Analysts, leads and admins reading the same data at different depths.",
+                  }}
+                />
+              </div>
+              <div className="mt-3">
+                <PullQuote text="A palette that only recolours a card proves nothing about the system." />
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {active.rows.slice(0, 4).map((r) => (
+                <div key={r.key} className="rounded-lg border border-ink-950/8 bg-surface p-3">
+                  <b className="block font-mono text-lg text-text-primary">{r.got.toFixed(2)}</b>
+                  <span className="mt-1 block text-eyebrow tracking-eyebrow uppercase text-text-subtle">
+                    {r.key}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ---- the panel ---- */}
+        <aside className="bg-surface-well py-8 lg:pl-6">
+          <h2 className="text-xl text-text-primary">Nine palettes</h2>
+          <p className="mt-1 text-sm leading-relaxed text-text-subtle">
+            Authored, not generated. Every one clears every pair the site draws.
+          </p>
+
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {palettes.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                aria-pressed={p.name === slug}
+                onClick={() => press(p)}
+                className={`relative aspect-[1.35] overflow-hidden rounded-lg border-2 ${
+                  p.name === slug ? "border-accent" : "border-transparent"
+                }`}
+                title={p.name}
+              >
+                <span
+                  className="absolute inset-0"
+                  style={{ background: p.tokens[p.groundClass === "dark" ? "band-dark" : "canvas"] }}
+                />
+                <span
+                  className="absolute inset-y-0 right-0 left-1/2"
+                  style={{ background: p.tokens["accent-500"] }}
+                />
+                <span
+                  className="absolute inset-x-0 bottom-0 p-1 text-center font-mono text-[8px] uppercase tracking-widest"
+                  style={{ color: p.tokens["text-subtle"] }}
+                >
+                  {p.name}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-5 border-t border-ink-950/8 pt-4">
+            <h3 className="text-lg text-text-primary">{active.name}</h3>
+            <p className="mt-1 text-sm text-text-subtle">
+              {failing.length === 0
+                ? "Clears every pair the site draws."
+                : `${failing.length} pair(s) below floor.`}{" "}
+              Its counterpart is{" "}
+              <b className="font-medium text-accent-text">{active.counterpart}</b>.
+            </p>
+
+            <div className="mt-3">
+              {active.rows.map((r) => (
+                <div
+                  key={r.key}
+                  className="grid grid-cols-[1fr_auto_auto] items-baseline gap-2 border-b border-ink-950/8 py-1.5 text-sm"
+                >
+                  <span className="text-text-subtle">{r.key}</span>
+                  <b className="font-mono text-sm text-text-primary">{r.got.toFixed(2)}</b>
+                  <u className="font-mono text-[8px] uppercase tracking-widest no-underline text-text-subtle">
+                    {r.got >= r.min ? "pass" : "fail"}
+                  </u>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 border-t border-ink-950/8 pt-4">
+            <h3 className="text-lg text-text-primary">Tokens</h3>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {SHOWN.map(([token, label]) => (
+                <div key={token} className="overflow-hidden rounded-lg border border-ink-950/8 bg-surface">
+                  <i className="block h-12" style={{ background: active.tokens[token] }} />
+                  <div className="p-2">
+                    <b className="block text-xs font-medium text-text-primary">{label}</b>
+                    <code className="mt-0.5 block font-mono text-[10px] text-text-subtle">
+                      {active.tokens[token]}
+                    </code>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* ---- the OKLCH band and the licence ---- */}
+      <div className="mx-auto w-full max-w-[1180px] border-t border-ink-950/8 px-6 py-12">
+        <div className="flex items-baseline gap-4">
+          <h2 className="text-2xl tracking-tight text-text-primary">Why these behave</h2>
+          <span className="text-eyebrow tracking-eyebrow uppercase text-text-subtle">
+            oklch · three controls
+          </span>
+        </div>
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            { t: "Lightness", d: "Carries hierarchy. Held constant, structure survives any hue.", s: [95, 84, 72, 60, 48, 36, 26, 18].map((l) => `oklch(${l}% .04 60)`) },
+            { t: "Chroma", d: "Energy. A narrow band, so no palette shouts louder than another.", s: [0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28].map((c) => `oklch(62% ${c} 60)`) },
+            { t: "Hue", d: "Identity, and the only thing that differs across the nine.", s: [20, 60, 110, 150, 200, 250, 290, 330].map((h) => `oklch(62% .16 ${h})`) },
+          ].map((ax) => (
+            <article key={ax.t} className="overflow-hidden rounded-lg border border-ink-950/8 bg-surface">
+              <div className="flex h-10">
+                {ax.s.map((c) => <i key={c} className="flex-1" style={{ background: c }} />)}
+              </div>
+              <div className="p-3">
+                <h3 className="text-base text-text-primary">{ax.t}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-text-subtle">{ax.d}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p className="mt-8 text-sm text-text-subtle">
+          <b className="font-medium text-text-primary">Free to use.</b> No attribution needed.
+        </p>
+      </div>
+    </main>
+  );
+}

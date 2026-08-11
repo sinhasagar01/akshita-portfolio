@@ -57,6 +57,20 @@ kinds:
         test: >
           WHAT DOES THE FILE DEPICT? A `fill=` in an illustration and a `fill=` in a UI icon are
           different questions, and the test is the file's purpose rather than the syntax it uses.
+      depiction:
+        test: >
+          IS IT DRAWN IN THE SITE'S VOICE, OR IN THE DEPICTED THING'S OWN COLOURS? A browser mock
+          uses browser-chrome grey; a blog diagram uses the site's ink and hairlines, and themes.
+
+          ⚠ THE FINER FORM OF `artwork-by-file`, AND IT EXISTS BECAUSE THAT ONE ASKS ABOUT THE FILE.
+          A console is not an illustration file, so a small illustrative region inside it has no
+          category under a per-file test — and "what does it draw" gives the WRONG answer here,
+          because the blog diagrams DEPICT four squads' form UIs and were deliberately built to
+          theme. Two things depicting, opposite rulings, both correct.
+
+          It supersedes `artwork-by-file`'s phrasing without moving any of its outcomes, and it
+          explains a split WITHIN one file, which a per-file test cannot. An entry here must say
+          what the region depicts and why the site's palette would misrepresent it.
       forced-literal:
         test: >
           WHAT MAKES THE TOKEN FORM IMPOSSIBLE HERE? Name the mechanism, not the inconvenience.
@@ -484,3 +498,26 @@ entries:
       someone else's client and never by this page — and they are baked into an image at build time, a
       fifth route no static analysis of the page reaches. Recategorised from signature in #365; the
       prose already argued adjacency and the label never did.
+
+  - id: oklch-axis-ramps
+    kind: judgement
+    category: depiction
+    where: components/palettes/PaletteConsole.tsx
+    count: 3
+    files: [components/palettes/PaletteConsole.tsx]
+    reason: >
+      The three OKLCH axis ramps on `/palettes` depict the colour SPACE itself — a lightness ramp, a
+      chroma ramp and a hue wheel — so they are drawn in the depicted thing's own colours rather than
+      in the site's voice. A themed hue ramp would misrepresent the axis it illustrates: the hue
+      strip has to run the whole circle to show that hue is the only thing differing across the nine
+      palettes, and a palette that recoloured it would be a hue ramp that lies about hue.
+    test: >
+      THE DEPICTION DISCRIMINATOR, applied exactly. The question is not whether these are colours the
+      cascade could reach — it could — but whether they are drawn in the site's voice or in the
+      subject's. They illustrate a coordinate system that exists independently of this site, in the
+      same way a browser mock uses browser-chrome grey. The ground-change test does not apply: these
+      must NOT move when the palette does, and that is the point rather than an exemption.
+
+      CLEARS IF THE AXES STOP DEPICTING THE SPACE. If the band is ever rebuilt to show the site's own
+      palette positions on those axes — nine marks rather than three continuous ramps — the marks
+      become interface and take tokens, and this row goes with them.
