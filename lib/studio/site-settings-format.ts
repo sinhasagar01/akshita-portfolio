@@ -99,6 +99,7 @@ export const SITE_SETTINGS_FIELD_ORDER = [
   "heroTabs",
   "heroRoleLabel",
   "heroScrollCue",
+  "heroFigure",
   "photo",
   "aboutCopy",
   "aboutNote",
@@ -110,8 +111,15 @@ export const SITE_SETTINGS_FIELD_ORDER = [
   "links",
 ] as const;
 
-/** The writable patch keys — the schema order minus the excluded photo. */
-const WRITABLE_FIELDS = SITE_SETTINGS_FIELD_ORDER.filter((k) => k !== "photo");
+/** ⚠ THE WRITABLE PATCH KEYS — THE SCHEMA ORDER MINUS BOTH IMAGES. Each image has exactly ONE
+ *  writer, its own upload route, which commits the blob and the yaml in a single commit. Letting a
+ *  text patch carry either would give it a second writer that can set a path to a blob nobody
+ *  uploaded, which is the shape the photo exclusion was built to prevent. `heroFigure` joined it
+ *  the day the field was added rather than after something went wrong. */
+const SETTINGS_IMAGE_FIELDS = ["photo", "heroFigure"] as const;
+const WRITABLE_FIELDS = SITE_SETTINGS_FIELD_ORDER.filter(
+  (k) => !(SETTINGS_IMAGE_FIELDS as readonly string[]).includes(k)
+);
 
 /** The allowed sub-keys of a process stage object. Extra keys are rejected so a
  *  typo fails loudly, the same contract as the top-level field list. */
@@ -423,8 +431,8 @@ export function reorderBySchema(obj: SiteSettingsRecord): SiteSettingsRecord {
 /**
  * Apply a patch over the loaded object, then strip empties, validate urls, and
  * reorder. Pure: never reads or writes the filesystem. Returns the object to
- * serialize, or a validation error. `photo` is never applied from the patch, so
- * the loaded photo value is always preserved.
+ * serialize, or a validation error. Neither image field is ever applied from the
+ * patch, so the loaded `photo` and `heroFigure` values are always preserved.
  */
 export function transformSiteSettings(
   loaded: SiteSettingsRecord,
@@ -433,7 +441,8 @@ export function transformSiteSettings(
   const next: SiteSettingsRecord = { ...loaded };
 
   for (const [key, value] of Object.entries(patch)) {
-    if (key === "photo") continue; // defensive: never let the patch touch photo
+    // defensive: never let a text patch touch an image field — each has one writer
+    if ((SETTINGS_IMAGE_FIELDS as readonly string[]).includes(key)) continue;
     if (value !== undefined) next[key] = value;
   }
 
@@ -471,6 +480,15 @@ export function transformSiteSettings(
 export function serializeSettingsPhoto(raw: string, photo: string | null): string {
   const loaded = (load(raw) ?? {}) as SiteSettingsRecord;
   const next: SiteSettingsRecord = { ...loaded, photo };
+  stripEmptyOptional(next);
+  return dump(reorderBySchema(next));
+}
+
+/** The `heroFigure` twin of the above, for the hero illustration's upload route. Same contract:
+ *  value-reuses strip + reorder so an image commit cannot re-key the file. */
+export function serializeSettingsHeroFigure(raw: string, heroFigure: string | null): string {
+  const loaded = (load(raw) ?? {}) as SiteSettingsRecord;
+  const next: SiteSettingsRecord = { ...loaded, heroFigure };
   stripEmptyOptional(next);
   return dump(reorderBySchema(next));
 }

@@ -9,6 +9,7 @@ import { load, dump } from "js-yaml";
 import {
   transformSiteSettings,
   serializeSettingsPhoto,
+  serializeSettingsHeroFigure,
   type SiteSettingsInput,
   type SiteSettingsRecord,
   type SaveError,
@@ -28,6 +29,11 @@ import {
   settingsPhotoBlobPath,
   settingsPhotoBlobPathFromValue,
 } from "./settings-photo-path";
+import {
+  heroFigureYamlValue,
+  heroFigureBlobPath,
+  heroFigureBlobPathFromValue,
+} from "./hero-figure-path";
 
 const SETTINGS_PATH = "content/site-settings.yaml";
 
@@ -304,6 +310,57 @@ export async function commitSettingsPhoto(opts: {
     deletions,
     branch: opts.branch,
     message: opts.message ?? `chore(studio): ${opts.image ? "set" : "clear"} site photo`,
+  });
+}
+
+/**
+ * The `heroFigure` twin of `commitSettingsPhoto` — the hero illustration's blob and the yaml edit
+ * in ONE commit, so the field is never left pointing at a blob that was not written.
+ *
+ * ⚠ CLEARING RESTORES THE SHIPPED ASSET RATHER THAN EMPTYING THE PANEL, and the renderer is where
+ * that happens: `heroFigure: null` makes `HeroSection` fall back to `/images/hero/hero-figure.webp`,
+ * which is committed to the repo and is never a deletion target here. So "clear" means "go back to
+ * the one that ships", which is the only sane meaning for the single image the hero's composition
+ * cannot do without.
+ */
+export async function commitSettingsHeroFigure(opts: {
+  image: Uint8Array | null;
+  branch: string;
+  message?: string;
+}): Promise<FilesCommitResult> {
+  let raw: string;
+  try {
+    const baseOid = (await getBranchHeadOid(opts.branch)) ?? (await getBaseBranchHeadOid()).oid;
+    raw = await getFileTextAtRef(SETTINGS_PATH, baseOid);
+  } catch (e) {
+    return {
+      ok: false,
+      error: { code: "read_failed", message: e instanceof Error ? e.message : String(e) },
+    };
+  }
+
+  // The previous blob (from the current yaml) — deleted when the new path differs. The shipped
+  // asset never matches this, by construction, so it survives every replace and clear.
+  const oldValue = (load(raw) as { heroFigure?: unknown } | null)?.heroFigure;
+  const oldBlobPath = heroFigureBlobPathFromValue(oldValue);
+
+  const newValue = opts.image ? heroFigureYamlValue() : null;
+  const bytes = serializeSettingsHeroFigure(raw, newValue);
+
+  const newBlobPath = opts.image ? heroFigureBlobPath() : null;
+  const additions: { path: string; contents: string | Uint8Array }[] = [
+    { path: SETTINGS_PATH, contents: bytes },
+  ];
+  if (opts.image && newBlobPath) additions.push({ path: newBlobPath, contents: opts.image });
+
+  const deletions: { path: string }[] = [];
+  if (oldBlobPath && oldBlobPath !== newBlobPath) deletions.push({ path: oldBlobPath });
+
+  return commitFilesToDraft({
+    additions,
+    deletions,
+    branch: opts.branch,
+    message: `chore(studio): ${opts.image ? "set" : "clear"} hero illustration`,
   });
 }
 

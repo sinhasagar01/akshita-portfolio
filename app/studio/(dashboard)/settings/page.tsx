@@ -41,6 +41,10 @@ export default async function StudioSettings() {
           heroTabs={settings.heroTabs}
           heroRoleLabel={settings.heroRoleLabel}
           heroScrollCue={settings.heroScrollCue}
+          /* The hero's illustration, which had no field at all until the owner asked for it. It is
+             NOT a HeroFields value: like `photo`, it has its own writer that commits blob and yaml
+             together, so it must not join the text patch. */
+          heroFigure={settings.heroFigure}
         />
 
         {/* About-A: the second inline-editable group (Surface B), Save-draft only.

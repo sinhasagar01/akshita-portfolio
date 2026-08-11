@@ -28,6 +28,8 @@ export type SiteSettingsEntry = {
   heroTabs: HeroTab[];
   heroRoleLabel: string;
   heroScrollCue: string;
+  /** The hero's cut-out illustration. Null falls back to the shipped asset — see HeroSection. */
+  heroFigure: string | null;
   photo: string | null;
   aboutCopy: string;
   aboutNote: string;
@@ -148,6 +150,7 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettingsEntry
     }),
     heroRoleLabel: (raw.heroRoleLabel as string) ?? "",
     heroScrollCue: (raw.heroScrollCue as string) ?? "",
+    heroFigure: (raw.heroFigure as string | null) ?? null,
     photo: (raw.photo as string | null) ?? null,
     aboutCopy: (raw.aboutCopy as string) ?? "",
     aboutNote: (raw.aboutNote as string) ?? "",
