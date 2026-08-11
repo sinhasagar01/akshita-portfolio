@@ -101,5 +101,53 @@ t("E4 ⚠ AND EXIT LOOKS THE PUBLISHED VALUES UP, not a remembered one — there
 t("E4a …and the server emits them, or the lookup above would find nothing",
   /data-published-theme=/.test(read("app/layout.tsx")), true);
 
+console.log("\nF · the preview survives leaving /palettes — the navigation defect");
+/* ⚠ WHAT THIS SECTION CAN AND CANNOT SEE, SAID FIRST BECAUSE IT DECIDES THE ROWS.
+ *
+ * The defect was that `Try across portfolio` applied on the page where it was pressed and nowhere
+ * else until a reload. Cause: `PaletteConsole`'s unmount cleanup restored the arrival theme
+ * UNCONDITIONALLY, so leaving the page put the published theme back while the cookie stayed live —
+ * a cream page under a banner reading "Previewing nocturne", with an Exit button.
+ *
+ * ⚠ THESE ROWS CANNOT DRIVE A CLIENT NAVIGATION. ralph is node and static analysis; there is no
+ * router here. So they assert the GUARD — that the cleanup consults the cookie before restoring, and
+ * that it consults it FIRST. What proves the behaviour is a recorded browser drive: press a dot and
+ * navigate (must not leak), press Try and navigate to two routes (must travel), both on a fresh
+ * document. That drive is in the PR body, and naming it here is the rule about a fact deferred to
+ * nobody — a row that only ever tests a fresh document could not have caught this, which is exactly
+ * why the suite passed while the defect shipped. */
+const cleanup = (() => {
+  const at = consoleSrc.indexOf("return () => {");
+  if (at < 0) return "";
+  let depth = 0;
+  for (let i = consoleSrc.indexOf("{", at); i < consoleSrc.length; i++) {
+    if (consoleSrc[i] === "{") depth++;
+    else if (consoleSrc[i] === "}" && --depth === 0) return consoleSrc.slice(at, i + 1);
+  }
+  return "";
+})();
+t("F0 the unmount cleanup was found — an empty slice would make every row below vacuous",
+  cleanup.length > 200, true);
+t("F1 ⚠ IT CONSULTS THE PREVIEW COOKIE — without this it restores over a preview the visitor asked for",
+  /decodePreview\s*\(/.test(cleanup), true);
+t("F1a …and reads the cookie by its shared NAME rather than a literal, so it cannot drift from the writer",
+  /PREVIEW_COOKIE/.test(cleanup) && !/["'`]palette-preview/.test(cleanup), true);
+/* ⚠ THE ORDER IS THE FIX. A cookie read AFTER the restore would leave the restore in place and the
+ * defect intact, and the row would still find `decodePreview` in the block. */
+t("F2 ⚠ AND IT RETURNS BEFORE RESTORING — a cookie read after the restore would leave the defect exactly as it was",
+  cleanup.indexOf("decodePreview") < cleanup.indexOf("dataset.theme = seen.theme"), true);
+t("F3 …and the early return is guarded on the decoded value rather than on the raw cookie's presence",
+  /if\s*\(\s*livePreview\s*\)\s*return/.test(cleanup), true);
+/* ⚠ AND THE RESTORE STILL EXISTS. Deleting it would "fix" the navigation defect by making BROWSING
+ * leak instead — press a dot, navigate away, and cerise travels with no cookie and no way back. */
+/* ⚠ THIS MATCHED THE ASSIGNMENT'S TEXT AND SURVIVED THE ONE MUTATION THAT MATTERS. Rewriting the
+ * guard to `if (false)` leaves `dataset.theme = seen.theme` sitting there unreachable, so the row
+ * passed while the restore was dead — and a dead restore means BROWSING leaks: press a dot, navigate
+ * away, and cerise travels with no cookie and no way back. The subject is REACHABILITY, so the
+ * matcher is the conditional, not the assignment. Fourth presence-where-behaviour-was-meant this
+ * session, and found the same way as the other three. */
+t("F4 ⚠ THE RESTORE IS STILL REACHABLE, so browsing palettes cannot leak without a Try",
+  /if\s*\(\s*seen\.theme\s*\)\s*root\.dataset\.theme = seen\.theme/.test(cleanup), true);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

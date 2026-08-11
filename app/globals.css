@@ -2422,6 +2422,16 @@ a {
 }
 .hero-scroll {
   align-self: end;
+  /* ⚠ `justify-self: start` SO THE ANCHOR WRAPS ITS WORDS. `.hero-copy` is a grid, and a grid item
+     stretches its column by default — so this link's box measured 665px around 140px of text, with
+     525px of it blank and hittable. Two fixed strips sit at the bottom edge and both landed on that
+     tail: measured at 1440x900, the text ended at x 202 and a bottom-centre strip began at x 494,
+     292px clear of the words and 233px over the empty part.
+
+     ⚠ NOTHING VISIBLE MOVES. The content was already left-aligned inside the stretched box, so this
+     only stops the box claiming space the link never draws in. The strips were never the defect —
+     an anchor five times wider than its own text was. */
+  justify-self: start;
   display: flex; align-items: center; gap: 9px;
   font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--hx-faint);
