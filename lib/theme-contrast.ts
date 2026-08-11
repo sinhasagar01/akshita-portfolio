@@ -266,6 +266,10 @@ export type UsageRow = {
   kind: FloorKind;
   alpha?: number;
   note?: string;
+  /** What draws this pair, REQUIRED on a non-text row and PROSE rather than a list — `Z-ui` checks
+   *  its length, so a row that merely names a component fails. Three UI rows have existed and all
+   *  three were false, so a row must say what draws it and on what ground that was measured. */
+  draws?: string;
 };
 
 export type RowResult = UsageRow & { got: number | null; ok: boolean; missing?: string[] };
@@ -343,4 +347,501 @@ export function report(palette: Palette, usage: readonly UsageRow[]): Report {
     : "SHIPPABLE";
 
   return { verdict, rows, failures, external, internal, uncomputable, unrepresentable };
+}
+
+/* ============================================================================================
+   ⚠ THE PALETTE SOURCE AND THE LAYERING — LIFTED OUT OF `ralph/tests/theme-contrast.mjs` SO THAT
+   `/palettes` COMPUTES COMPATIBILITY THROUGH THE GATE'S OWN RESOLVER RATHER THAN A SECOND ONE.
+
+   A page that publishes contrast figures and a gate that refuses palettes must not disagree, and
+   two implementations of one arithmetic is exactly how they would. This is pure motion — the suite
+   below imports these and its output is unchanged, which is the claim the lift is proved on.
+
+   ---- ⚠ WHY THIS FILE STILL IMPORTS NOTHING, INCLUDING `node:fs` -----------------------------
+
+   Two constraints meet here and only one shape satisfies both.
+
+   ONE. `ralph` loads this raw under `node --experimental-strip-types`, which resolves a relative
+   import only when the specifier carries `.ts` — and `tsc` rejects that extension because
+   `allowImportingTsExtensions` is off under `moduleResolution: "bundler"`. So this leaf cannot
+   import a sibling leaf in EITHER spelling, the same rule `lib/theme.ts` documents.
+
+   TWO. `node:fs` is a builtin and WOULD satisfy both loaders — and it is still not imported here,
+   because this file would then be unusable from a client component and the failure would arrive as
+   a bundler error in whatever imported it three months from now. READING A FILE IS NOT THE
+   RESOLVER. Each caller passes the stylesheet text in, which is one line at each of two call sites
+   and keeps this module pure.
+
+   THE CONSEQUENCE IS THAT THE THEME REGISTRY IS PASSED IN RATHER THAN IMPORTED. `layerPalette`
+   cannot read `THEME_GROUND` or `DEFAULT_THEME` from `lib/theme.ts`, so the caller resolves those
+   two facts and hands them over as data. That is deliberate: policy stays with the registry that
+   owns it, and this file stays arithmetic.
+============================================================================================ */
+
+/** The OKLCH components of a colour, in the 0..1 lightness form the stylesheet is authored in. */
+export type Oklch = { L: number; C: number; H: number };
+
+export type PaletteSource = {
+  /** The `@theme` block's body, verbatim. Exposed because a first-wins map is a LOSSY view of it —
+   *  the gamut scan reads every declaration in source order, so handing it `rawDecl` would silently
+   *  change both the semantics and the count. A derived view must not replace its own source. */
+  themeBody: string;
+  /** Every `--color-*` declared in `@theme`, RAW — an alias keeps its `var()` form. */
+  rawDecl: Record<string, string>;
+  /** The non-studio subset of those names. The studio palette is frozen and outside every theme. */
+  publicTokens: string[];
+  /** `@theme`'s values with aliases FOLLOWED, which is cream. Only tokens `parseColor` can read. */
+  defaults: Palette;
+  /** Tokens that did not parse, kept enumerated so none is filtered away silently. */
+  unparseable: { name: string; value: string; derived: boolean }[];
+  /** `:root[data-ground="dark"]`'s `--color-*` overrides. */
+  groundDark: Record<string, string>;
+  /** One theme's `[data-theme="…"]` block. Cream has none by design — `@theme` IS cream. */
+  overridesOf: (name: string) => Record<string, string>;
+  /** The token an alias points at, or null when the declaration is a literal. */
+  aliasOf: (name: string) => string | null;
+};
+
+/** The body of the first brace-matched block starting at `marker`. Brace-matched rather than
+ *  regex-bounded, so a nested rule cannot end it early. */
+function blockBodyAt(src: string, marker: string): string {
+  const at = src.indexOf(marker);
+  if (at < 0) return "";
+  const open = src.indexOf("{", at);
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    else if (src[i] === "}" && --depth === 0) return src.slice(open + 1, i);
+  }
+  return "";
+}
+
+/** Every `--color-*` declaration in a block body, first-wins. */
+function colourDeclarations(body: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const m of body.matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) {
+    if (!(m[1] in out)) out[m[1]] = m[2].trim();
+  }
+  return out;
+}
+
+/**
+ * Read the palette layer out of `globals.css`.
+ *
+ * ⚠ THE DEFAULTS ARE SCOPED TO `@theme`, WHICH IS THE DEFAULT PALETTE. Unscoped, a first-wins scan
+ * happens to read cream correctly only because `@theme` precedes the theme blocks in the file, and
+ * a gate that is right by file ordering is one reorder from being wrong.
+ *
+ * ⚠ AND IT PARSES EVERYTHING BEFORE EXCLUDING ANYTHING. The reverse order silently drops whatever
+ * `parseColor` cannot read, which makes an exclusion list a SHIELD FOR CAPABILITY rather than a
+ * statement of POLICY — a parser defect on a listed value is then silent by construction.
+ */
+export function readPaletteSource(cssText: string): PaletteSource {
+  const themeBody = blockBodyAt(cssText, "@theme");
+  if (!themeBody) throw new Error("no @theme block in the stylesheet");
+  const rawDecl = colourDeclarations(themeBody);
+
+  const aliasOf = (name: string): string | null => {
+    const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(rawDecl[name] ?? "");
+    return m ? m[1] : null;
+  };
+  const follow = (name: string, depth = 0): string | undefined => {
+    const a = aliasOf(name);
+    return a && depth < 5 ? follow(a, depth + 1) : rawDecl[name];
+  };
+
+  const publicTokens = Object.keys(rawDecl).filter((k) => !k.startsWith("studio-"));
+  const defaults: Palette = {};
+  const unparseable: { name: string; value: string; derived: boolean }[] = [];
+  for (const k of publicTokens) {
+    const v = follow(k);
+    if (!v) continue;
+    if (parseColor(v)) defaults[k] = v;
+    else unparseable.push({ name: k, value: v, derived: /var\(--/.test(v) });
+  }
+
+  return {
+    themeBody,
+    rawDecl,
+    publicTokens,
+    defaults,
+    unparseable,
+    groundDark: colourDeclarations(blockBodyAt(cssText, ':root[data-ground="dark"]')),
+    overridesOf: (name: string) => colourDeclarations(blockBodyAt(cssText, `[data-theme="${name}"]`)),
+    aliasOf,
+  };
+}
+
+/**
+ * One theme's palette — defaults, then its own block, then the dark ground block.
+ *
+ * ⚠ A THEMED PALETTE IS RUNGS OVER *ALIASES*, NOT RUNGS OVER CREAM'S RESOLVED ROLES, AND THE
+ * OBVIOUS SPREAD IS THE DEFECT THIS FUNCTION EXISTS TO PREVENT. A `[data-theme]` block declares 35
+ * tokens and every one is a RUNG — harbour declares `cream-50` and does not declare `surface`. The
+ * roles live once in `@theme` spelled `--color-surface: var(--color-cream-50)`, and `defaults`
+ * above stores them ALREADY FOLLOWED against cream. So `{ ...defaults, ...overrides }` layers a
+ * palette's rungs over cream's resolved roles, and seven tokens the usage map names keep cream's
+ * value on every light palette that is not cream. Fixed in #500 with the before-and-after figures
+ * on the record; the aliases are followed through the MERGED map here instead.
+ *
+ * ⚠ A KEY ANY LATER LAYER DECLARES IS LEFT EXACTLY AS THAT LAYER WROTE IT. The dark ground block
+ * redeclares those same roles as fresh `var()` and `color-mix()` expressions, and following
+ * `@theme`'s alias for one of them would overwrite the dark answer with the light one. That is also
+ * why the four dark palettes passed the browser oracle while the defect was live — the ground block
+ * repaired them by accident, on exactly the palettes the oracle covered.
+ *
+ * ⚠ THE GROUND CLASS AND THE DEFAULT NAME ARE PASSED IN, NOT IMPORTED, because this leaf cannot
+ * import `lib/theme.ts` — see the header. The caller owns the registry; this owns the arithmetic.
+ */
+export function layerPalette(
+  src: PaletteSource,
+  name: string,
+  opts: { defaultTheme: string; groundClass: "light" | "dark" }
+): Palette {
+  const overrides = name === opts.defaultTheme ? {} : src.overridesOf(name);
+  const ground = opts.groundClass === "dark" ? src.groundDark : {};
+  const merged: Palette = { ...src.defaults, ...overrides, ...ground };
+  const follow = (value: string | undefined, depth = 0): string | undefined => {
+    const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(String(value ?? "").trim());
+    return m && depth < 8 ? follow(merged[m[1]], depth + 1) : value;
+  };
+  for (const k of Object.keys(merged)) {
+    if (!src.aliasOf(k) || k in overrides || k in ground) continue;
+    const v = follow(src.rawDecl[k]);
+    if (v !== undefined) merged[k] = v;
+  }
+  return merged;
+}
+
+/**
+ * The value-following half, bound to a defaults map so a token a palette omits still resolves.
+ *
+ * ⚠ A RESOLVER THAT WALKS ALIASES HAS FOUR WAYS TO RETURN A PLAUSIBLE WRONG COLOUR — the wrong
+ * palette's copy of a re-declared token, a chain that stops one hop early, a mix in the wrong space,
+ * and a mix whose weights are swapped. Every one produces a confident number, which is why the
+ * suite's `R` section exercises all four before any real palette is read through it.
+ */
+export function paletteResolver(rawDecl: Record<string, string>) {
+  /** The raw declaration a name resolves to, following `var()` through the palette then the
+   *  defaults. Returns `undefined` when nothing declares it, so an unfollowable value stays
+   *  UNCOMPUTABLE rather than becoming a guess. */
+  const rawIn = (pal: Palette, name: string, depth = 0): string | undefined => {
+    const v = pal[name] ?? rawDecl[name];
+    if (v === undefined || depth > 8) return v;
+    const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(v.trim());
+    return m ? rawIn(pal, m[1], depth + 1) : v;
+  };
+
+  /** A value that may be a var(), a color-mix() or a literal, reduced to a raw literal string. */
+  const deref = (pal: Palette, value: string, depth = 0): string | null | undefined => {
+    if (depth > 8) return null;
+    const v = value.trim();
+    const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(v);
+    if (m) return rawIn(pal, m[1], depth + 1);
+    return v;
+  };
+
+  /** `color-mix(in oklch, A P%, B)` — interpolated in OKLCH, which is the space the declaration
+   *  names. Mixing in sRGB would return a plausible different colour, so the space is honoured
+   *  rather than approximated. Hue takes the shorter arc, as CSS specifies. */
+  const mixIn = (pal: Palette, raw: string, depth: number): Rgb | null => {
+    const m = /^color-mix\(\s*in\s+oklch\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*(.+?)\s*\)$/.exec(raw.trim());
+    if (!m) return null;
+    const a = oklchOf(deref(pal, m[1], depth + 1)), b = oklchOf(deref(pal, m[3], depth + 1));
+    if (!a || !b) return null;
+    const wa = Number(m[2]) / 100, wb = 1 - wa;
+    let dh = b.H - a.H;
+    if (dh > 180) dh -= 360; else if (dh < -180) dh += 360;
+    return oklchToRgb(a.L * wa + b.L * wb, a.C * wa + b.C * wb, a.H + dh * wb);
+  };
+
+  /** One token of one palette, as bytes, or null when it genuinely cannot be followed. */
+  const rgbIn = (pal: Palette, name: string): Rgb | null => {
+    const raw = rawIn(pal, name);
+    if (raw === undefined) return null;
+    if (/^color-mix\(/.test(raw.trim())) return mixIn(pal, raw, 0);
+    return parseColor(raw);
+  };
+
+  /** A palette with every token reduced to bytes, so `report` parses literals rather than
+   *  expressions. A token that cannot be followed keeps its raw value, so the row still reports
+   *  UNCOMPUTABLE rather than silently vanishing. */
+  const resolvedPalette = (pal: Palette): Palette => {
+    const out: Palette = {};
+    for (const k of Object.keys(pal)) {
+      const v = rgbIn(pal, k);
+      out[k] = v ? hexOf(v) : pal[k];
+    }
+    return out;
+  };
+
+  return { rawIn, deref, mixIn, rgbIn, resolvedPalette };
+}
+
+/** sRGB bytes back to OKLCH — the inverse of `oklchToRgb`, needed because a mix operand may be any
+ *  colour form. Four palettes declare their inks as `rgb()`, so without this every `color-mix` on
+ *  them stayed uncomputable and the rows they feed went on being unmeasured. */
+export function rgbToOklch([r, g, b]: Rgb): Oklch {
+  const lin = (c: number) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  const R = lin(r), G = lin(g), B = lin(b);
+  const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+  const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+  const s2 = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+  const L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s2;
+  const A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s2;
+  const Bb = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s2;
+  const H = (Math.atan2(Bb, A) * 180) / Math.PI;
+  return { L, C: Math.hypot(A, Bb), H: H < 0 ? H + 360 : H };
+}
+
+/** A value's OKLCH components, from an oklch literal directly or from any other parseable form. */
+export function oklchOf(raw: string | null | undefined): Oklch | null {
+  const m = /^\s*oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*[\d.]+\s*)?\)\s*$/.exec(raw ?? "");
+  if (m) return { L: m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]), C: Number(m[3]), H: Number(m[4]) };
+  const rgb = raw == null ? null : parseColor(raw);
+  return rgb ? rgbToOklch(rgb) : null;
+}
+
+/** Bytes as a hex literal, clamped — the form `report` parses. */
+export function hexOf(v: Rgb): string {
+  return "#" + v.map((c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0")).join("");
+}
+
+/* ============================================================================================
+   THE USAGE MAP — WHICH COLOUR SITS ON WHICH GROUND IN WHICH ROLE.
+
+   ⚠ LIFTED FROM THE GATE UNCHANGED, AND IT BELONGS HERE FOR THE REASON THE GATE'S OWN HEADER
+   GIVES: the palette varies per theme and THIS DOES NOT. It is the design's statement about its
+   own product, so a page that publishes contrast figures and a gate that refuses palettes must
+   read the same one. Two copies of this map is the defect the lift exists to make impossible.
+
+   Every foreground below was confirmed to have public consumers by count before it was written
+   down, so no row is invented. The reasoning per row moved with the rows.
+
+   ⚠ AND ONE COMMENT HAD TO BE REWORDED IN TRANSIT, WHICH IS THE COMMENT TRAP ARRIVING AS A SIDE
+   EFFECT OF A MOVE RATHER THAN OF AN EDIT. Tailwind scans this file now that it is under `lib`,
+   and three comments spelled an accent-text BACKGROUND utility that no markup uses — so the class
+   compiled into the PUBLIC bundle purely because prose named it, +58 raw bytes measured in the
+   build. The prose did not change meaning; it changed FILE, and the file was newly scanned.
+   `css-comment-trap` A5 caught it. Describe such a utility in words here; never spell it.
+============================================================================================ */
+/* ---- THE USAGE MAP. Which colour sits on which ground in which role. The palette varies per
+ * theme; THIS DOES NOT. Every foreground below was confirmed to have public consumers by count
+ * before it was written down, so no row is invented. */
+const TEXT = (fg: string, bgs: string[], note?: string): UsageRow[] =>
+  bgs.map((bg) => ({ key: `${fg} on ${bg}`, fg, bg, min: 4.5, kind: "external", note }));
+/* ⚠ A UI ROW NAMES ITS CONSUMER, AND `draws` IS REQUIRED. Three UI rows have existed and ALL THREE
+ * WERE FALSE — accent-500's "non-text everywhere else" (the rating chip), ink-400's "never text"
+ * (the love readout), and ink-400 again (the next-case rail's eyebrow and link). That is the
+ * population, not a sample.
+ *
+ * ⚠ THE ASYMMETRY IS STRUCTURAL RATHER THAN STATISTICAL. A TEXT row claims a pair IS text and its
+ * foreground is drawn, so the claim is checkable against the thing it describes. A UI row in the old
+ * form claimed an element is NOT text — a claim about everywhere it is not, which nothing in this
+ * map can falsify. So the negative form is gone: a row states WHAT DRAWS IT and ON WHAT GROUND THAT
+ * WAS MEASURED, and `Z-ui` fails a row that does not. A fourth row cannot be written in the old
+ * shape by someone who has not read this. */
+const UI = (fg: string, bgs: string[], draws?: string): UsageRow[] =>
+  bgs.map((bg) => ({ key: `${fg} on ${bg} (non-text)`, fg, bg, min: 3.0, kind: "external", draws }));
+
+export const USAGE: readonly UsageRow[] = [
+  /* ⚠ `cream-200` JOINED ink-800's ROW IN #379, WITH A CONSUMER BEHIND IT. `.blog-plate` draws its
+     text on a `cream-100 -> cream-200` gradient, so the DARKER end is a real text-on-ground pair
+     that this map did not name — the plate had never rendered (every post carried a hero), so the
+     pair had no consumer to be counted until #376 unset two. Measured across all five palettes
+     before adding: 12.87 / 12.45 / 12.66 / 11.76 / 11.63, worst margin +7.13. */
+  /* ⚠ `ink-950`, `ink-600` AND `accent-600` HAD NO TEXT ROWS' WORTH OF CONSUMERS — THE ROWS ARE
+     DELETED AND THE ABSENCE IS ASSERTED INSTEAD (Q1). Censused across the public tree, as a Tailwind
+     `text-*` utility, a JSX `color:` and a `color:` declaration in globals.css: ink-950 = 0,
+     ink-600 = 0, accent-600 = 0. A floor enforced on an empty set is a pass nobody should be
+     reassured by, and on the dark palettes these read 1.01 to 1.66 against grounds nothing paints
+     them on.
+
+     ⚠ `ink-800` KEEPS ITS LIGHT GROUNDS AND LOSES `cream-200`. Its one consumer is `.blog-plate
+     span`, and the plate's ground is a `cream-100 -> cream-200` GRADIENT where only cream-200
+     remaps. On a dark palette that runs near-white to near-black and NO foreground clears both ends
+     — ink-800 measures 14.12 / 1.01, text-body 1.79 / 7.80. Choosing a role would be choosing which
+     end to fail on, so the plate is boarded as a SURFACE question and this row stops asserting a
+     pair whose ground is itself broken.
+
+     ⚠ AND THE CODE DID NOT MATCH THIS COMMENT UNTIL NOW, WHICH IS THE WHOLE REASON P2 WAS RED. The
+     paragraph above was written with the removal reasoned out and `cream-200` STAYED IN THE ARRAY —
+     prose and data in one file, looking like one claim and being two. It cost a branch that could not
+     be merged, and a report that named FOUR consumers when the pair has ONE: the four are sites
+     drawing `cream-200` as a GROUND, and this row is about `ink-800` drawn as TEXT on it, which only
+     `.blog-plate span` does. Counting the ground's consumers instead of the pair's is the
+     wrong-subject error this file names a dozen times.
+
+     `cream-200` KEEPS ITS COVERAGE AS A COLOUR through `text-subtle`'s row below, so `E1` does not
+     lose it — which is exactly the distinction shape 2 in this header exists to protect. */
+  ...TEXT("ink-800", ["cream-50", "cream-100"]),
+  /* ⚠ `ink-600` HAD ZERO CONSUMERS AND NOW HAS ONE, SO ITS BOUNDARY ENTRY IS DELETED AND ITS ROW IS
+     BACK. VideoEmbed's caption pill took a FIXED ink because its ground is a fixed rung — the device
+     bezel is depiction and stays light, so its foreground must stay light-appropriate too. A
+     remapping role on a non-remapping rung was the mix. 7.11 on cream-50, 6.60 on cream-100. */
+  ...TEXT("ink-600", ["cream-50", "cream-100"],
+    "VideoEmbed's caption pill inside the device bezel — a fixed ink on a deliberately fixed rung."),
+  ...TEXT("text-primary", ["canvas"]),
+  ...TEXT("text-secondary", ["canvas"]),
+  /* ⚠ THE HOME HERO PAINTS THESE THREE ON `surface`, NOT ON `canvas`, AND NOTHING ASSERTED IT. The
+     ash hero's ground is `--color-surface` — the base `.hero-ground` rule — while every row above
+     names `canvas`, so its name, answer, support, tab labels and connector labels were protected by
+     prose alone. `surface` and `canvas` differ on BOTH grounds, so this is a real second pairing
+     rather than a rounding into the rows above.
+
+     Found by measuring the hero across all nine palettes rather than by reading: the values pass
+     comfortably — text-primary 15.19 to 19.04, text-secondary 7.11 to 8.95, text-subtle 5.35 to
+     6.15 — which is exactly why nothing complained and exactly why the rows were missing. A pairing
+     that happens to be fine is still unasserted until something says so. */
+  ...TEXT("text-primary", ["surface"],
+    "the home hero's name (`.hero-name`) and its answer line (`.hero-line`), which paint on the hero ground."),
+  ...TEXT("text-secondary", ["surface"],
+    "the home hero's support line and the connector-line labels in `.hero-lines`."),
+  ...TEXT("text-subtle", ["surface"],
+    "the home hero's unselected tab labels, counter units, figure label and scroll cue."),
+  /* `text-muted` stood beside this and is deleted — it held the same value, so its rows were a
+     second copy of these. One name, one set of rows. */
+  /* ⚠ NARROWED TO THE GROUNDS IT STILL MEETS. `cream-50` and `cream-100` left with the bezel repair:
+     VideoEmbed's caption pill was the only public element pairing this role with either, and it now
+     takes a fixed ink because its ground is a deliberately fixed rung. Censused after the change —
+     no public element pairs `text-subtle` or `text-body` with a cream-50/100 ground (Q4). */
+  ...TEXT("text-subtle", ["canvas", "cream-200"]),
+
+  /* ⚠ `accent-text`'s FOUR ROWS, AND THE CONSUMERS ARE NAMED BECAUSE A ROW WITHOUT ITS SUBJECTS IS
+     HOW THE `accent-500` ROW OUTLIVED ITS OWN. That row said "the work-card category tint and the
+     process diagram's accent outline"; the outline had migrated to the accent ROLE and the tint did
+     not exist, and nothing noticed because nobody could check a claim against a source it did not
+     cite. Censused here: 19 `text-accent-text`, 2 `color:` declarations, 4 accent-text BACKGROUND fills (named in words — see below).
+
+     ⚠ AND THE GROUNDS GENUINELY DIFFER, WHICH IS WHY THIS IS FOUR ROWS AND NOT ONE. Three sites read
+     as "inherited" until the element painting beneath them was named — `.section-card` paints
+     `surface`, so two of the three sit there while the blog's LoveButton has no surface-painting
+     ancestor and sits on the page ground. `surface-well` differs from `surface` on BOTH grounds
+     (cream-100 against cream-50 on light, on-dark 3% against 8% on dark), so it is a fourth row
+     rather than a rounding into the first. */
+  ...TEXT("accent-text", ["surface"],
+    "HeroCover's label, Stepper's active step (components/case-study/blocks/Stepper.tsx), PullQuote and ClosingLine inside `.section-card`, "
+    + "and the Fosfor illustration index — all on the surface the card paints."),
+  ...TEXT("accent-text", ["surface-well"],
+    "the blog diagram index (components/blog/diagrams/index.tsx) — one site, kept its own row because "
+    + "surface-well differs from surface on both grounds."),
+  /* `canvas` here is the LIGHT page ground; `usageFor` narrows it to `band-dark` on a dark palette,
+     which is the ground LoveButton actually sits on there. */
+  ...TEXT("accent-text", ["canvas"],
+    "the blog's LoveButton count, which has no surface-painting ancestor and sits on the page."),
+  /* ⚠ AND THE FOURTH ROW WAS WRONG, CAUGHT BY M1 ON ITS FIRST RUN. It read
+     `UI("accent-text", ["surface"])` for the four accent-text background fills — and M1 refuses a non-text
+     claim for a token that IS drawn as text on that same ground, which `accent-text` is at nineteen
+     sites. The two rows contradicted each other.
+
+     ⚠ THE REAL ERROR IS THAT A FILL IS A GROUND, NOT A MARK ON ONE. An accent-text fill makes
+     accent-text the BACKGROUND; what owes a floor there is whatever text sits ON it, which is a
+     different pairing with a different foreground. Asserting the fill against `surface` measured the
+     colour against the thing it covers. Left unwritten rather than guessed — naming that pairing
+     needs the four fills' own foregrounds censused, which is a separate pass. */
+  ...TEXT("on-dark", ["band-dark"]), ...TEXT("on-dark-muted", ["band-dark"]),
+  ...TEXT("on-dark-quote", ["band-dark"]),
+  /* The case-study h1 on a wide hero. It is the accent in its heading ROLE on ink, so it is
+   * computed here rather than excused anywhere — the h1 is the largest text on the page. */
+  ...TEXT("accent-on-dark", ["band-dark"]),
+  /* Long-form prose. Named in #327 — it is 9.41 on cream-50, between text-primary and
+     text-secondary, which is what made it a role rather than a spelling. */
+  ...TEXT("text-body", ["canvas"]),
+
+  /* ⚠ NINE CONSUMERS AND NO ROW UNTIL NOW, WHICH IS WHY SIX PALETTES SHIPPED UNCHECKED. `on-accent`
+   * is drawn ON `accent-500` at every accent fill — the stepper, two badges, two CTAs, the veil
+   * label, the filter chip, the submit button. The pair is as real as any in this map and nobody
+   * wrote it down, so CI passed while a manual sweep of a fourth dark palette found it.
+   *
+   * ⚠ A MISSING ROW IS SILENT BY CONSTRUCTION. This map enumerates pairs SOMEBODY WROTE, so its
+   * complement is unknown and cannot be counted — the same shape as the file-type boundary and the
+   * negative product claims, arriving in the map's own index.
+   *
+   * ⚠ AND NO FULL DERIVATION IS AVAILABLE, WHICH IS THE HONEST ANSWER RATHER THAN A TODO. Deriving
+   * "every token on every token it is drawn on" needs to know which foregrounds MEET which grounds,
+   * and this project has already established that a ground resolving several components away cannot
+   * be determined statically. THE RENDER IS THE ONLY ENUMERATOR — a swept page reports actual pairs,
+   * which is exactly how this one surfaced. So the map stays hand-written with an unknown
+   * complement, and the sweep is what closes the gap rather than a better parser. */
+  /* ⚠ THE ROLE, NOT THE RUNG — AND THE REASON IS HERE BECAUSE THE NEXT PERSON WILL MEASURE 3.24 AND
+   * REACH FOR THE TOKEN, EXACTLY AS I DID.
+   *
+   * This row named `accent-500` and reported 3.24 to 3.65 on the four dark palettes once the ground
+   * layer let it see them. That number is real and it is a pairing THE DESIGN DELIBERATELY LEFT.
+   * `--color-on-accent`'s dark declaration in globals.css records the migration and the figures: on a
+   * dark palette `accent` resolves to `accent-on-dark`, a LIGHT accent, and `band-dark` on it
+   * measures 6.75 to 7.52. The rung does not remap, so `on-accent` on `accent-500` is dark-on-dark.
+   *
+   * The live consumers use the ROLE. `ProcessSection` pairs `var(--color-on-accent)` with
+   * `background: var(--color-accent)`; `ContactSection`'s button and check icon do the same. Moving
+   * the token to rescue the rung pairing would have broken the pairing that ships — which is what
+   * that declaration's comment means by "a value decided while one consumer sat on a different rung
+   * fits three and breaks the fourth". */
+  ...TEXT("on-accent", ["accent"]),
+
+  /* ⚠ THE ROW THAT PROVES THE USAGE MAP IS LOAD-BEARING. accent-500's cream ladder is
+     4.7 / 4.48 / 4.07 / 3.43, so it clears the text floor on cream-50 ALONE and misses cream-100
+     by 0.02. A palette-only gate — every token against every ground — would refuse the site that
+     ships today.
+
+     ⚠ AND THE SENTENCE THAT USED TO FOLLOW WAS FALSE, WHICH IS THE MORE IMPORTANT HALF. It read
+     "it is text on ONE step and a non-text mark everywhere else, and that is a fact about the
+     product rather than a tolerance in the gate." A CLAIMED PRODUCT FACT, STATED WITH UNUSUAL
+     CONFIDENCE, THAT NOTHING CHECKED AND THAT WAS WRONG. `HeroCover`'s rating chip drew accent-500
+     as TEXT on cream-200 at 14.4px — failing AA on four of five shipped palettes, on all four case
+     studies, since the chip was built.
+
+     ⚠ THE GATE WAS NOT WRONG. IT WAS TOLD THE WRONG THING, in prose, by someone who was certain.
+     That is the token-claim shape moved from TOKENS to USAGE, and it is worse: a wrong token claim
+     mislabels a colour, a wrong usage claim mislabels WHAT AN ELEMENT IS — and the floor follows
+     from that.
+
+     ⚠ THE `ink-400` ROW BELOW CARRIED THE SAME DEFECT AND WAS FOUND BY ENUMERATING RATHER THAN BY
+     ACCIDENT. It said "never text"; the blog's love readout drew it at 12.5px, failing on ALL FIVE
+     palettes. Two rows in this section, two false product facts, one found by a new palette's
+     refusal and one by checking its neighbour.
+
+     Both elements moved rather than the tokens — accent-500 and ink-400 are correct everywhere else
+     they land, which is what makes a single-site fix honest rather than a patch. Section M asserts
+     every non-text row against a real consumer, so the claim cannot be false again in silence. */
+  ...TEXT("accent-500", ["cream-50"], "text on cream-50 only — misses cream-100 by 0.02"),
+  /* ⚠ `cream-200` IS DROPPED FROM THIS ROW BECAUSE BOTH DECLARED CONSUMERS HAVE GONE, AND THE NOTE
+     IS WHY THE ROW OUTLIVED THEM. The process diagram's outline is `stroke="var(--color-accent)"`
+     — the ROLE, migrated — while a comment three lines under it still said it takes `accent-500`.
+     THE ROW WAS DERIVED FROM THE COMMENT RATHER THAN FROM THE RENDER, so the comment kept the row
+     alive after the code left. The work-card category tint has no `accent-500` in source at all.
+     The three live marks (PullQuote's rule, VideoEmbed's dot, HeroCover's dash) sit on an inherited
+     ground and on cream-50 — none on cream-200, where the row measured 2.60 against a 3.0 floor on
+     a pairing nothing draws. */
+  ...UI("accent-500", ["canvas", "cream-100"],
+    "PullQuote's rule and HeroCover's dash on the inherited page ground, VideoEmbed's dot on the "
+    + "cream-50 pill — marks, not glyphs. Its ONE text consumer is the row above, on cream-50."),
+  ...UI("ink-400", ["cream-50", "cream-100", "cream-200"],
+    "icon rests — the stepper's inactive dots and the device-shelf marks. NOT the next-case rail, "
+    + "which drew it as text at 3.36 to 4.32 until the eyebrow took text-subtle and the link text-secondary."),
+
+  /* ⚠ INTERNAL. THE GROUND LADDER IS THIS DESIGN'S OWN NUMBER, NOT WCAG'S. cream-50/cream-100 sits
+     at exactly 1.05, which is where the floor came from, so a theme with a different ladder may
+     legitimately need it retuned — and that is the whole reason the verdict is typed. */
+  ...[["cream-50", "cream-100"], ["cream-100", "cream-200"], ["cream-200", "cream-300"],
+      ["cream-300", "canvas"]].map(([a, b]) => ({
+    key: `ground step ${a} / ${b}`, fg: a, bg: b, min: 1.05, kind: "internal" as const,
+  })),
+];
+
+/**
+ * The map as it applies to one palette's page ground.
+ *
+ * ⚠ IT TAKES THE GROUND TOKEN, NOT THE THEME NAME, because this leaf cannot import the theme
+ * registry — see the header. The caller reads `GROUND_TOKEN[THEME_GROUND[name]]` and passes the
+ * answer, which also makes the substitution visible at the call site rather than buried here.
+ *
+ * ⚠ AND THE ROWS NAMING `canvas` ARE REBOUND RATHER THAN DROPPED. `canvas` IS the page ground on a
+ * light palette and is NOT on a dark one, where `band-dark` is — so a dark palette measured against
+ * `canvas` is measured against a token it never paints.
+ */
+export function usageFor(pageGround: string): readonly UsageRow[] {
+  if (pageGround === "canvas") return USAGE;
+  return USAGE.map((row) =>
+    row.bg === "canvas" ? { ...row, bg: pageGround, key: `${row.fg} on ${pageGround}` } : row);
 }
