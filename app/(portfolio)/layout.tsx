@@ -9,6 +9,7 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import PreviewIndicator from "@/components/palettes/PreviewIndicator";
 import { getSiteSettings } from "@/lib/keystatic";
 import { buildSiteLinks } from "@/lib/social-links";
+import { DEFAULT_THEME } from "@/lib/theme";
 
 export default async function PortfolioLayout({
   children,
@@ -34,7 +35,11 @@ export default async function PortfolioLayout({
             STUDIO ONE. The preview follows the visitor across the site, so the thing that tells
             them why — and the way out — has to follow too. It renders nothing when no preview is
             live, so it costs an empty component on every page and no markup. */}
-        <PreviewIndicator />
+        {/* ⚠ THE PUBLISHED THEME IS SERVER-READ HERE, so the arrival strip can be decided on EVERY
+            public page rather than only where the four dots are. The homepage teaser already says
+            this beside its dots; a visitor who lands on /blog while the site is on cerise learns
+            nothing without this. */}
+        <PreviewIndicator publishedTheme={settings?.theme ?? DEFAULT_THEME} />
       </GSAPProvider>
     </SmoothScrollProvider>
   );

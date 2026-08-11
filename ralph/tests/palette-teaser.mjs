@@ -9,9 +9,9 @@
 // exit. Two mechanisms for one state is how an exit action stops working — the second writer sets
 // something the exit does not clear and the visitor is stranded on a palette with a dead button.
 //
-// So section B asserts the single mechanism, and section C asserts the arrival state, which is the
-// one path a class-string gate cannot see: five of nine publishable themes are not in the four, and
-// two of them have been the published theme this month.
+// So section B asserts the single mechanism. The ARRIVAL state — five of nine publishable themes are
+// not in the four — is `palette-arrival`'s subject, because the strip that states it is site-wide and
+// this teaser is not.
 import { TEASER_THEMES, publishedIsOffered, arrivalNote } from "../../lib/palettes/teaser.ts";
 import { THEME_NAMES, VERIFY_THEME, THEME_GROUND, selectableThemes } from "../../lib/theme.ts";
 import { readPaletteSource, layerPalette, oklchOf } from "../../lib/theme-contrast.ts";
@@ -107,22 +107,17 @@ t("B3 …nor computes its own deadline, which would expire on a different schedu
 t("B4 ⚠ AND IT DEFINES NO EXIT OF ITS OWN — the one indicator in the portfolio layout owns that",
   /Max-Age=0/.test(component), false);
 
-console.log("\nC · the arrival state, which is LIVE rather than an edge case");
-const OFFERED = TEASER_THEMES[0];
-const NOT_OFFERED = THEME_NAMES.filter((n) => n !== VERIFY_THEME && !TEASER_THEMES.includes(n));
-t("C0 ⚠ THE ARRIVAL CASE IS REACHABLE — publishable palettes exist that the four do not contain",
-  NOT_OFFERED.length >= 1, true);
-console.log(`         ${NOT_OFFERED.length} publishable palettes are NOT offered: ${NOT_OFFERED.join(", ")}`);
-t("C1 a published theme the teaser offers needs no note — the dots explain themselves",
-  arrivalNote(OFFERED), null);
-t("C2 ⚠ AND ONE IT DOES NOT OFFER GETS A NOTE THAT NAMES IT, before anything is pressed",
-  NOT_OFFERED.filter((n) => !(arrivalNote(n) ?? "").includes(n)), []);
-t("C2a …and the note says the published theme is not among them, rather than merely naming it",
-  NOT_OFFERED.filter((n) => !/not one of these/.test(arrivalNote(n) ?? "")), []);
-t("C3 `publishedIsOffered` agrees with the note, so the two cannot disagree about the same state",
-  THEME_NAMES.filter((n) => publishedIsOffered(n) !== (arrivalNote(n) === null)), []);
-t("C4 ⚠ AND THE PAGE PASSES THE PUBLISHED THEME IN — a note computed from a default would always be null",
-  /publishedTheme=\{settings\?\.theme/.test(page), true);
+/* ⚠ SECTION C LIVED HERE AND HAS MOVED TO `palette-arrival`, WHICH IS A SUBJECT CHANGE RATHER THAN
+ * A DELETION. It asserted the arrival note, because the teaser's own label used to carry it — the
+ * four dots were the only surface that showed the four, so the note belonged beside them.
+ *
+ * The arrival STRIP now says it on every page, so keeping it in the pill too put the identical
+ * sentence twice on the homepage, forty pixels apart. The note moved, and its rows moved with it:
+ * `palette-arrival` D covers the same claims and `palette-arrival` A1a covers the prop that used to
+ * be C4. Leaving them here would have been a second spelling of one claim — and C4 would have gone
+ * on asserting a prop the component no longer takes, which is how a row outlives its subject.
+ *
+ * This suite's subject is now the FOUR and the single MECHANISM. The note is not its business. */
 
 console.log("\nD · the breakpoint is the site's own, and the containment boundary is not a threshold");
 /* ⚠ `container-type: inline-size` ON `.hero-ground` IS A CONTAINMENT BOUNDARY, NOT A THRESHOLD.

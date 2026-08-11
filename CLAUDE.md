@@ -189,6 +189,29 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ THE HERO'S SCROLL CUE IS A 665px ANCHOR AROUND 140px OF TEXT, AND TWO FIXED STRIPS SIT ON ITS
+  BLANK TAIL. MEASURED, NOT FIXED — IT IS NOT THIS ARC'S TO CHANGE.** `.hero-scroll` is `align-self:
+  end` in the copy column, so its box spans the column while its words stop early. At 1440x900 on the
+  home page:
+
+      cue box            62 -> 727      665px wide, and hittable across all of it
+      cue TEXT ends at   202            so 525px of that anchor is blank
+      strip starts at    494            292px clear of the text, 233px over the blank tail
+
+  **NOTHING VISIBLE OVERLAPS AND THE HIT AREAS DO.** `elementFromPoint` reports "Scroll to process"
+  under the strip's left third; the strip is `z-50` and wins the click, which is what a visitor
+  aiming at the strip wants. What is lost is part of an oversized target nobody aims at.
+
+  **⚠ IT IS PRE-EXISTING AND WAS NEVER MEASURED.** The live-preview strip has shipped at exactly this
+  `fixed bottom-4 left-1/2` position since #507; the arrival strip copies it verbatim. So the
+  geometry is not new — the second occurrence is what made anyone look.
+
+  **THE REAL SUBJECT IS THE ANCHOR, NOT THE STRIPS.** Narrowing `.hero-scroll` to its content is a
+  hero change with its own reasoning and its own render, and folding it into a palette unit would
+  ship two unrelated fixes under one justification. **The trigger for doing it: any third fixed
+  element at the bottom edge, or a report of the cue being hard to hit.**
+
+
 - **⚠ THE MUTATION PATH IS NOT OWNED BY THE MUTATION TOOL, AND THAT IS THE ONE LIVE GAP — BOARDED
   WITH THE INCIDENT THAT FOUND IT.** `mutate.mjs` snapshots, restores, and verifies its own effect.
   It does **not** perform the edit: every mutation in this repo is applied by hand with an editor or

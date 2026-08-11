@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { PREVIEW_COOKIE, decodePreview } from "@/lib/palettes/preview-cookie";
+import { arrivalNote } from "@/lib/palettes/teaser";
 
 /* ============================================================================================
    THE PREVIEW INDICATOR — PERSISTENT, GLOBAL, AND CARRYING THE WAY OUT.
@@ -32,7 +34,32 @@ function publishedFromMarkup(): { theme: string | null; ground: string | null } 
   };
 }
 
-export default function PreviewIndicator() {
+/* ============================================================================================
+   ⚠ TWO STRIPS, ONE EXIT, AND THE DISCRIMINATOR IS WHETHER A PREVIEW IS LIVE.
+
+     preview live      "Previewing X across the site"        + EXIT
+     no preview, and
+     the published
+     theme is not one
+     of the teaser's   "Published: X — not one of these"     + ROUTE, NO EXIT
+     four
+
+   ⚠ THE ARRIVAL STRIP HAS NO EXIT AND MUST NEVER GAIN ONE. On arrival there is no preview — the
+   published theme IS the site — so an exit would act on nothing. It would be a control that either
+   does nothing or, worse, "exits" to the same state it is already in, which reads as broken. THE
+   EXIT BELONGS TO THE LIVE-PREVIEW STRIP EXCLUSIVELY.
+
+   "Add an exit for symmetry" is exactly what a later pass will try. It is not symmetry; the two
+   strips describe different things — one a temporary state the visitor entered, one a permanent
+   state they merely arrived in.
+
+   ⚠ AND THEY ARE ONE COMPONENT WITH ONE RETURN PATH, WHICH IS WHY "NEVER BOTH" IS STRUCTURAL RATHER
+   THAN COORDINATED. Two components could both render and nothing would notice; a single branch
+   cannot. `palette-arrival` asserts the SHAPE — that the preview branch returns before the arrival
+   branch is reached — rather than asserting each strip exists, because a presence row passes with
+   both on screen.
+============================================================================================ */
+export default function PreviewIndicator({ publishedTheme }: { publishedTheme: string }) {
   const [previewing, setPreviewing] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,11 +88,43 @@ export default function PreviewIndicator() {
     setPreviewing(null);
   }, []);
 
-  if (!previewing) return null;
+  /* ⚠ THE PREVIEW BRANCH RETURNS FIRST, and that ordering IS the exclusivity. Reaching the arrival
+     strip requires `previewing` to be null, so the two can never be on screen together. */
+  if (!previewing) {
+    const note = arrivalNote(publishedTheme);
+    if (!note) return null;
+    return (
+      <div
+        role="status"
+        className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border border-ink-950/8 bg-surface px-4 py-2 shadow-lg"
+        data-arrival-strip
+      >
+        <span className="text-sm text-text-secondary">
+          {note}
+        </span>
+        {/* ⚠ THE COLOUR SITS ON THE SPAN, NOT ON THE `<a>`, AND THE FIRST VERSION WAS INVISIBLE.
+            `text-surface` on the anchor drew NOTHING: globals.css carries an unlayered
+            `a { color: inherit }` so links take their context, and an unlayered element rule beats a
+            utility in `@layer utilities`. The link inherited the strip's near-black and painted it
+            on a near-black pill — measured 1.00, text and background the same token exactly.
+
+            ⚠ THE SEVENTH `<a>` COLOUR SITE, AND THE RECORD ALREADY NAMED THE OTHER SIX. It reads as
+            a working class in the markup, which is why nothing but a measurement finds it. A child
+            span is not an `<a>`, so the utility lands there. */}
+        <Link
+          href="/palettes"
+          className="rounded-full bg-text-primary px-3 py-1 text-sm font-medium"
+        >
+          <span className="text-surface">See all nine</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div
       role="status"
+      data-preview-strip
       className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border border-ink-950/8 bg-surface px-4 py-2 shadow-lg"
     >
       <span className="text-sm text-text-secondary">
