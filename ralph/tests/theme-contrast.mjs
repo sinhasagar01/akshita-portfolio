@@ -17,6 +17,50 @@
 // a gate nobody has seen fail. There are two, so BOTH verdict types are exercised rather than only
 // the mechanism: one fails an EXTERNAL floor, one fails an INTERNAL floor.
 //
+// ---- ⚠ THREE WAYS A ROW CAN BE WRONG, EACH FOUND BY A DIFFERENT MECHANISM ----------------------
+//
+// This map was widened with a ground dimension and the twelve failures it produced resolved to FOUR
+// causes and ZERO token changes. Every repair was to the map or to a consumer. The three shapes:
+//
+//  1 · A ROW CAN ASSERT A PAIRING THE SITE DOES NOT DRAW. Four rows named `canvas`, which no dark
+//      palette paints; one named `on-accent` on the `accent-500` RUNG, which the design had migrated
+//      off; one named `accent-500` on `cream-200`, whose two declared consumers had both gone.
+//      FOUND BY MEASURING CONSUMERS, never by reading. And the `accent-500` row survived because its
+//      note cited a comment rather than a render — the comment outlived the code and kept the row.
+//
+//  2 · AN ABSENCE CHECK PROVES THE PAIRING UNUSED, NOT THE COLOUR ACCOUNTED FOR. Deleting a row with
+//      a `P3b`-style absence check looks complete and is not: the pairing is covered, the COLOUR
+//      falls out of the map. Two different questions. FOUND BY `E1`.
+//
+//  3 · A DELETION CAN REMOVE COVERAGE OF A COLOUR IT NEVER NAMES. `accent-600`'s rows were deleted;
+//      `accent-text` resolves THROUGH `accent-600`, so its coverage left with them and nothing named
+//      it. FOUND BY `E1` AGAIN, one level deeper — and NO ABSENCE CHECK COULD HAVE CAUGHT IT, because
+//      absence checks are all about pairings and this is about a colour.
+//
+//  4 · A FIXTURE WHOSE SUBJECT IS DELETED STOPS FAILING AND GOES GREEN FOR THE WRONG REASON. `B1`
+//      broke `ink-600` to prove a failing palette reports REFUSED_EXTERNAL. `ink-600`'s rows were
+//      deleted for an unrelated reason, so the fixture stopped exercising anything and PASSED — it
+//      was proving nothing, and only a different change exposed it.
+//      THE GENERAL FORM: A FIXTURE ASSERTS A VALUE AND, SILENTLY, ITS OWN LIVENESS. The second claim
+//      is the one nothing checks. Ask of each fixture WHAT WOULD HAVE TO CHANGE FOR IT TO STOP BEING
+//      ABLE TO FAIL — and note this is not mode 2 or 3: nothing fell out of coverage here, the
+//      coverage was fine and the PROOF went hollow.
+//
+//  5 · ⚠ AND KNOWING A FAILURE MODE DOES NOT PREVENT IT. Mode 1 was written into this header, and
+//      ONE COMMIT LATER two rows were added naming consumers at paths that do not exist — a Stepper
+//      and an "illustration index" that were real components at other paths. The reverse sweep found
+//      them, along with two pre-existing ones in `ink-400`'s row.
+//      ONLY A MECHANISM PREVENTS A FAILURE MODE. Care does not. Same lesson as the comment trap
+//      firing on the person who had just fixed it, and it is the argument for the sweep existing
+//      rather than for being careful next time.
+//
+// THE COMPLETED FORM OF A DELETION IS THEREFORE BOTH: assert the pairing unused, AND list the colour
+// in the boundary with its reason. Either alone leaves a hole, and the holes are different shapes.
+//
+// ⚠ AND `E1` IS THE ONLY REASON ANY OF THIS SURFACED. A completeness check nobody was thinking about
+// caught two live colours falling out of coverage. It is proven to still bite: remove a colour from
+// every row and it names it.
+
 // ---- ⚠ THE BOUNDARY. WHAT THIS GATE DOES NOT COMPUTE, AND WHY ---------------------------------
 //
 // `studio-ink-contrast` naming its own boundary is the only reason hazard 30 was findable. This
@@ -113,6 +157,38 @@ const themeBlock = (src) => {
 };
 const css = themeBlock(cssAll);
 
+/* ⚠ THE GROUND BLOCK, WHICH THIS SUITE MODELLED NOWHERE UNTIL NOW — AND THE DATA WAS ALREADY IN
+ * SCOPE. `THEME_GROUND` is imported at the top of this file and says which palettes are dark;
+ * `:root[data-ground="dark"]` in globals.css remaps SIXTEEN roles for exactly those palettes. The
+ * suite read the defaults and the `[data-theme]` block and stopped, so on the four dark palettes it
+ * resolved every one of those sixteen to its LIGHT value.
+ *
+ * ⚠ WHAT THAT MADE UNREPRESENTABLE: `on-accent` is near-white on light and near-black on dark. The
+ * row `TEXT("on-accent", ["accent-500"])` therefore measured a near-white against a dark palette's
+ * accent and passed comfortably, while the paint is near-black on a dark accent. Measured from a
+ * canvas on the real render, nocturne is 3.24 and its `accent-600` pair is 2.39.
+ *
+ * ⚠ THE FAILURE SHAPE IS THE ONE THIS REPO HAS NAMED TWICE: a gate correct about what it models,
+ * whose model cannot express the property. `theme-contrast`'s own merge of cream-plus-overrides made
+ * a missing override unrepresentable; this is the same merge missing a THIRD layer.
+ *
+ * Specificity decides the order. `:root[data-ground="dark"]` is 0-2-0 and `[data-theme="x"]` is
+ * 0-1-0, so the ground block wins wherever both declare a token — defaults, then theme, then ground.
+ */
+const groundOverrides = () => {
+  const at = cssAll.indexOf(':root[data-ground="dark"]');
+  if (at < 0) return {};
+  const open = cssAll.indexOf("{", at);
+  let depth = 0, end = -1;
+  for (let i = open; i < cssAll.length; i++) {
+    if (cssAll[i] === "{") depth++;
+    else if (cssAll[i] === "}" && --depth === 0) { end = i; break; }
+  }
+  const out = {};
+  for (const m of cssAll.slice(open + 1, end).matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
+  return out;
+};
+
 /** One theme's declarations, read from its `[data-theme="…"]` block. Cream has none by design —
  *  `@theme` IS cream — so a themed palette is the defaults with that block layered over them. */
 const themeOverrides = (name) => {
@@ -198,12 +274,79 @@ const USAGE = [
      that this map did not name — the plate had never rendered (every post carried a hero), so the
      pair had no consumer to be counted until #376 unset two. Measured across all five palettes
      before adding: 12.87 / 12.45 / 12.66 / 11.76 / 11.63, worst margin +7.13. */
-  ...TEXT("ink-950", GROUNDS), ...TEXT("ink-800", ["cream-50", "cream-100", "cream-200"]),
-  ...TEXT("ink-600", GROUNDS), ...TEXT("text-primary", ["canvas"]),
+  /* ⚠ `ink-950`, `ink-600` AND `accent-600` HAD NO TEXT ROWS' WORTH OF CONSUMERS — THE ROWS ARE
+     DELETED AND THE ABSENCE IS ASSERTED INSTEAD (Q1). Censused across the public tree, as a Tailwind
+     `text-*` utility, a JSX `color:` and a `color:` declaration in globals.css: ink-950 = 0,
+     ink-600 = 0, accent-600 = 0. A floor enforced on an empty set is a pass nobody should be
+     reassured by, and on the dark palettes these read 1.01 to 1.66 against grounds nothing paints
+     them on.
+
+     ⚠ `ink-800` KEEPS ITS LIGHT GROUNDS AND LOSES `cream-200`. Its one consumer is `.blog-plate
+     span`, and the plate's ground is a `cream-100 -> cream-200` GRADIENT where only cream-200
+     remaps. On a dark palette that runs near-white to near-black and NO foreground clears both ends
+     — ink-800 measures 14.12 / 1.01, text-body 1.79 / 7.80. Choosing a role would be choosing which
+     end to fail on, so the plate is boarded as a SURFACE question and this row stops asserting a
+     pair whose ground is itself broken.
+
+     ⚠ AND THE CODE DID NOT MATCH THIS COMMENT UNTIL NOW, WHICH IS THE WHOLE REASON P2 WAS RED. The
+     paragraph above was written with the removal reasoned out and `cream-200` STAYED IN THE ARRAY —
+     prose and data in one file, looking like one claim and being two. It cost a branch that could not
+     be merged, and a report that named FOUR consumers when the pair has ONE: the four are sites
+     drawing `cream-200` as a GROUND, and this row is about `ink-800` drawn as TEXT on it, which only
+     `.blog-plate span` does. Counting the ground's consumers instead of the pair's is the
+     wrong-subject error this file names a dozen times.
+
+     `cream-200` KEEPS ITS COVERAGE AS A COLOUR through `text-subtle`'s row below, so `E1` does not
+     lose it — which is exactly the distinction shape 2 in this header exists to protect. */
+  ...TEXT("ink-800", ["cream-50", "cream-100"]),
+  /* ⚠ `ink-600` HAD ZERO CONSUMERS AND NOW HAS ONE, SO ITS BOUNDARY ENTRY IS DELETED AND ITS ROW IS
+     BACK. VideoEmbed's caption pill took a FIXED ink because its ground is a fixed rung — the device
+     bezel is depiction and stays light, so its foreground must stay light-appropriate too. A
+     remapping role on a non-remapping rung was the mix. 7.11 on cream-50, 6.60 on cream-100. */
+  ...TEXT("ink-600", ["cream-50", "cream-100"],
+    "VideoEmbed's caption pill inside the device bezel — a fixed ink on a deliberately fixed rung."),
+  ...TEXT("text-primary", ["canvas"]),
   ...TEXT("text-secondary", ["canvas"]),
   /* `text-muted` stood beside this and is deleted — it held the same value, so its rows were a
      second copy of these. One name, one set of rows. */
-  ...TEXT("text-subtle", GROUNDS), ...TEXT("accent-600", ["canvas", "cream-50", "cream-100"]),
+  /* ⚠ NARROWED TO THE GROUNDS IT STILL MEETS. `cream-50` and `cream-100` left with the bezel repair:
+     VideoEmbed's caption pill was the only public element pairing this role with either, and it now
+     takes a fixed ink because its ground is a deliberately fixed rung. Censused after the change —
+     no public element pairs `text-subtle` or `text-body` with a cream-50/100 ground (Q4). */
+  ...TEXT("text-subtle", ["canvas", "cream-200"]),
+
+  /* ⚠ `accent-text`'s FOUR ROWS, AND THE CONSUMERS ARE NAMED BECAUSE A ROW WITHOUT ITS SUBJECTS IS
+     HOW THE `accent-500` ROW OUTLIVED ITS OWN. That row said "the work-card category tint and the
+     process diagram's accent outline"; the outline had migrated to the accent ROLE and the tint did
+     not exist, and nothing noticed because nobody could check a claim against a source it did not
+     cite. Censused here: 19 `text-accent-text`, 2 `color:` declarations, 4 `bg-accent-text` fills.
+
+     ⚠ AND THE GROUNDS GENUINELY DIFFER, WHICH IS WHY THIS IS FOUR ROWS AND NOT ONE. Three sites read
+     as "inherited" until the element painting beneath them was named — `.section-card` paints
+     `surface`, so two of the three sit there while the blog's LoveButton has no surface-painting
+     ancestor and sits on the page ground. `surface-well` differs from `surface` on BOTH grounds
+     (cream-100 against cream-50 on light, on-dark 3% against 8% on dark), so it is a fourth row
+     rather than a rounding into the first. */
+  ...TEXT("accent-text", ["surface"],
+    "HeroCover's label, Stepper's active step (components/case-study/blocks/Stepper.tsx), PullQuote and ClosingLine inside `.section-card`, "
+    + "and the Fosfor illustration index — all on the surface the card paints."),
+  ...TEXT("accent-text", ["surface-well"],
+    "the blog diagram index (components/blog/diagrams/index.tsx) — one site, kept its own row because "
+    + "surface-well differs from surface on both grounds."),
+  /* `canvas` here is the LIGHT page ground; `usageFor` narrows it to `band-dark` on a dark palette,
+     which is the ground LoveButton actually sits on there. */
+  ...TEXT("accent-text", ["canvas"],
+    "the blog's LoveButton count, which has no surface-painting ancestor and sits on the page."),
+  /* ⚠ AND THE FOURTH ROW WAS WRONG, CAUGHT BY M1 ON ITS FIRST RUN. It read
+     `UI("accent-text", ["surface"])` for the four `bg-accent-text` fills — and M1 refuses a non-text
+     claim for a token that IS drawn as text on that same ground, which `accent-text` is at nineteen
+     sites. The two rows contradicted each other.
+
+     ⚠ THE REAL ERROR IS THAT A FILL IS A GROUND, NOT A MARK ON ONE. `bg-accent-text` makes
+     accent-text the BACKGROUND; what owes a floor there is whatever text sits ON it, which is a
+     different pairing with a different foreground. Asserting the fill against `surface` measured the
+     colour against the thing it covers. Left unwritten rather than guessed — naming that pairing
+     needs the four fills' own foregrounds censused, which is a separate pass. */
   ...TEXT("on-dark", ["band-dark"]), ...TEXT("on-dark-muted", ["band-dark"]),
   ...TEXT("on-dark-quote", ["band-dark"]),
   /* The case-study h1 on a wide hero. It is the accent in its heading ROLE on ink, so it is
@@ -211,7 +354,7 @@ const USAGE = [
   ...TEXT("accent-on-dark", ["band-dark"]),
   /* Long-form prose. Named in #327 — it is 9.41 on cream-50, between text-primary and
      text-secondary, which is what made it a role rather than a spelling. */
-  ...TEXT("text-body", ["canvas", "cream-50"]),
+  ...TEXT("text-body", ["canvas"]),
 
   /* ⚠ NINE CONSUMERS AND NO ROW UNTIL NOW, WHICH IS WHY SIX PALETTES SHIPPED UNCHECKED. `on-accent`
    * is drawn ON `accent-500` at every accent fill — the stepper, two badges, two CTAs, the veil
@@ -228,7 +371,21 @@ const USAGE = [
    * be determined statically. THE RENDER IS THE ONLY ENUMERATOR — a swept page reports actual pairs,
    * which is exactly how this one surfaced. So the map stays hand-written with an unknown
    * complement, and the sweep is what closes the gap rather than a better parser. */
-  ...TEXT("on-accent", ["accent-500"]),
+  /* ⚠ THE ROLE, NOT THE RUNG — AND THE REASON IS HERE BECAUSE THE NEXT PERSON WILL MEASURE 3.24 AND
+   * REACH FOR THE TOKEN, EXACTLY AS I DID.
+   *
+   * This row named `accent-500` and reported 3.24 to 3.65 on the four dark palettes once the ground
+   * layer let it see them. That number is real and it is a pairing THE DESIGN DELIBERATELY LEFT.
+   * `--color-on-accent`'s dark declaration in globals.css records the migration and the figures: on a
+   * dark palette `accent` resolves to `accent-on-dark`, a LIGHT accent, and `band-dark` on it
+   * measures 6.75 to 7.52. The rung does not remap, so `on-accent` on `accent-500` is dark-on-dark.
+   *
+   * The live consumers use the ROLE. `ProcessSection` pairs `var(--color-on-accent)` with
+   * `background: var(--color-accent)`; `ContactSection`'s button and check icon do the same. Moving
+   * the token to rescue the rung pairing would have broken the pairing that ships — which is what
+   * that declaration's comment means by "a value decided while one consumer sat on a different rung
+   * fits three and breaks the fourth". */
+  ...TEXT("on-accent", ["accent"]),
 
   /* ⚠ THE ROW THAT PROVES THE USAGE MAP IS LOAD-BEARING. accent-500's cream ladder is
      4.7 / 4.48 / 4.07 / 3.43, so it clears the text floor on cream-50 ALONE and misses cream-100
@@ -256,9 +413,17 @@ const USAGE = [
      they land, which is what makes a single-site fix honest rather than a patch. Section M asserts
      every non-text row against a real consumer, so the claim cannot be false again in silence. */
   ...TEXT("accent-500", ["cream-50"], "text on cream-50 only — misses cream-100 by 0.02"),
-  ...UI("accent-500", ["canvas", "cream-100", "cream-200"],
-    "the work-card category tint and the process diagram's accent outline — marks, not glyphs, "
-    + "measured on those grounds. Its ONE text consumer is the row above, on cream-50."),
+  /* ⚠ `cream-200` IS DROPPED FROM THIS ROW BECAUSE BOTH DECLARED CONSUMERS HAVE GONE, AND THE NOTE
+     IS WHY THE ROW OUTLIVED THEM. The process diagram's outline is `stroke="var(--color-accent)"`
+     — the ROLE, migrated — while a comment three lines under it still said it takes `accent-500`.
+     THE ROW WAS DERIVED FROM THE COMMENT RATHER THAN FROM THE RENDER, so the comment kept the row
+     alive after the code left. The work-card category tint has no `accent-500` in source at all.
+     The three live marks (PullQuote's rule, VideoEmbed's dot, HeroCover's dash) sit on an inherited
+     ground and on cream-50 — none on cream-200, where the row measured 2.60 against a 3.0 floor on
+     a pairing nothing draws. */
+  ...UI("accent-500", ["canvas", "cream-100"],
+    "PullQuote's rule and HeroCover's dash on the inherited page ground, VideoEmbed's dot on the "
+    + "cream-50 pill — marks, not glyphs. Its ONE text consumer is the row above, on cream-50."),
   ...UI("ink-400", ["cream-50", "cream-100", "cream-200"],
     "icon rests — the stepper's inactive dots and the device-shelf marks. NOT the next-case rail, "
     + "which drew it as text at 3.36 to 4.32 until the eyebrow took text-subtle and the link text-secondary."),
@@ -281,8 +446,12 @@ t("A4 the row count is what the map declares — a shrunken map passes vacuously
   cream.rows.length, USAGE.length);
 /* Pinned, so a token retuned in globals.css moves this and fails on arrival. */
 const got = (k) => cream.rows.find((r) => r.key === k)?.got;
+/* ⚠ THE LADDER IS TWO RUNGS NOW, AND THE THIRD LEFT WITH ITS ROW RATHER THAN WITH A RETUNE. The
+   4.07 that stood here was `accent-500 on cream-200`, whose UI row was deleted because both of its
+   declared consumers had migrated away and no public mark draws that pairing. The two values below
+   are unchanged, which is what says the token did not move — only the map's claim about it did. */
 t("A5 accent-500's cream ladder, computed", [got("accent-500 on cream-50"),
-  got("accent-500 on cream-100 (non-text)"), got("accent-500 on cream-200 (non-text)")], [4.7, 4.48, 4.07]);
+  got("accent-500 on cream-100 (non-text)")], [4.7, 4.48]);
 t("A6 the ground ladder, computed", [got("ground step cream-50 / cream-100"),
   got("ground step cream-100 / cream-200"), got("ground step cream-200 / cream-300"),
   got("ground step cream-300 / canvas")], [1.05, 1.1, 1.19, 1.13]);
@@ -291,11 +460,20 @@ console.log("\nB · it REFUSES — both verdict types, not just the mechanism");
 
 /* ⚠ EXTERNAL. ink-600 lightened until body text misses WCAG AA. Nothing else moves, so the failure
  * cannot be a side effect of a broken fixture. */
-const badExternal = { ...CREAM, "ink-600": "oklch(75.0% 0.016 60)" };
+/* ⚠ THE FIXTURE BROKE `ink-600`, WHOSE ROWS ARE DELETED — SO IT STOPPED FAILING AND B1 WENT GREEN FOR
+   THE WRONG REASON. A fixture that no longer exercises the thing it asserts is the quietest kind of
+   dead row, and it went dead because a DIFFERENT change removed its subject. Re-pointed at
+   `text-subtle`, which still carries rows on all four grounds and is a real text role rather than a
+   rung nothing draws. The lightness is chosen the same way the old one was: far enough above the
+   cream ladder to fail 4.5 on every ground, so the verdict is unambiguous. */
+const badExternal = { ...CREAM, "text-subtle": "oklch(75.0% 0.016 60)" };
 const bx = report(badExternal, USAGE);
 t("B1 a palette failing WCAG is REFUSED_EXTERNAL", bx.verdict, "REFUSED_EXTERNAL");
+/* Re-derived with the fixture, not fitted to it: `text-subtle` carries `GROUNDS`, so breaking it
+   names those four grounds and no others. The SHAPE of the assertion is what matters — four named
+   pairs rather than a count — and it is unchanged. */
 t("B2 and the failing pairs are named, not counted", bx.external, [
-  "ink-600 on canvas", "ink-600 on cream-50", "ink-600 on cream-100", "ink-600 on cream-200"]);
+  "text-subtle on canvas", "text-subtle on cream-200"]);
 t("B3 no internal floor was disturbed, so the fixture proves what it claims", bx.internal, []);
 
 /* ⚠ INTERNAL. cream-100 collapsed onto cream-50, so the ground ladder loses its first step while
@@ -632,7 +810,130 @@ const arc = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 
 /* The REAL palettes, derived. The twin is excluded by name because it is byte-identical to the
  * default on purpose — including it would report a 0 degree collision that is the control working. */
 const REAL = THEME_NAMES.filter((n) => n !== VERIFY_THEME);
-const paletteOf = (n) => (n === DEFAULT_THEME ? CREAM : { ...CREAM, ...themeOverrides(n) });
+const GROUND_DARK = groundOverrides();
+/* ---- THE PALETTE-AWARE RESOLVER -------------------------------------------------------------
+ *
+ * ⚠ WITHOUT THIS THE GROUND LAYER ONLY BUYS A REFUSAL. `resolve()` above follows `var()` aliases
+ * through the `@theme` DEFAULTS, which is right for cream and wrong for a merged palette: the dark
+ * ground declares `--color-on-accent: var(--color-band-dark)`, and `band-dark` is re-declared by
+ * every palette. Following that alias in the defaults returns CREAM's band-dark. Following it in the
+ * merged palette returns the palette's own — which is the colour the screen paints.
+ *
+ * ⚠ FOUR VALUES IN THE DARK BLOCK ARE `color-mix(in oklch, …)`, AND THE OLD PARSER CALLED THAT
+ * "unparseable BY NATURE". THAT CLAIM IS TRUE OF A LITERAL AND FALSE OF AN EXPRESSION. A mix is
+ * perfectly computable — it just has to be evaluated rather than pattern-matched — so it is computed
+ * here rather than declined.
+ *
+ * ⚠ AND THE CLAIM WAS NEVER TESTED AGAINST THE FORMS ACTUALLY ON DISK, WHICH IS THE DURABLE HALF.
+ * Four palettes declare their inks as `rgb()`, not `oklch()`, so a mix reader that only understood
+ * oklch operands would decline THEIR mixes for a second reason nobody had named. The inverse
+ * transform back to OKLCH is what makes those computable at all. A statement about a value's FORM is
+ * a claim about the file, and the next person will reach for the same shortcut — check the forms
+ * before deciding what cannot be parsed.
+ *
+ * ⚠ AND AN UNFOLLOWABLE VALUE STILL RETURNS null, DELIBERATELY. P1's refusal is what caught this
+ * defect in the first place — "a skipped row is a pair nobody knows is unchecked" — and a resolver
+ * that guessed at anything it could not follow would convert that refusal into a confident wrong
+ * number, which is the whole failure being repaired. */
+const rawIn = (pal, name, depth = 0) => {
+  const v = pal[name] ?? rawDecl[name];
+  if (v === undefined || depth > 8) return v;
+  const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(v.trim());
+  return m ? rawIn(pal, m[1], depth + 1) : v;
+};
+/** sRGB bytes back to OKLCH — the inverse of `oklchToRgb`, needed because a mix operand may be any
+ *  colour form. Four palettes declare their inks as `rgb()`, so without this every `color-mix` on
+ *  them stayed uncomputable and the rows they feed went on being unmeasured. */
+const rgbToOklch = ([r, g, b]) => {
+  const lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  const R = lin(r), G = lin(g), B = lin(b);
+  const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+  const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+  const s2 = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+  const L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s2;
+  const A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s2;
+  const Bb = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s2;
+  const H = (Math.atan2(Bb, A) * 180) / Math.PI;
+  return { L, C: Math.hypot(A, Bb), H: H < 0 ? H + 360 : H };
+};
+/** A value's OKLCH components, from an oklch literal directly or from any other parseable form. */
+const oklchOf = (raw) => {
+  const m = /^\s*oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*[\d.]+\s*)?\)\s*$/.exec(raw ?? "");
+  if (m) return { L: m[2] === "%" ? Number(m[1]) / 100 : Number(m[1]), C: Number(m[3]), H: Number(m[4]) };
+  const rgb = raw == null ? null : parseColor(raw);
+  return rgb ? rgbToOklch(rgb) : null;
+};
+/** `color-mix(in oklch, A P%, B)` — interpolated in OKLCH, which is the space the declaration names.
+ *  Mixing in sRGB would return a plausible different colour, so the space is honoured rather than
+ *  approximated. Hue takes the shorter arc, as CSS specifies. */
+const mixIn = (pal, raw, depth) => {
+  const m = /^color-mix\(\s*in\s+oklch\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*(.+?)\s*\)$/.exec(raw.trim());
+  if (!m) return null;
+  const a = oklchOf(deref(pal, m[1], depth + 1)), b = oklchOf(deref(pal, m[3], depth + 1));
+  if (!a || !b) return null;
+  const wa = Number(m[2]) / 100, wb = 1 - wa;
+  let dh = b.H - a.H;
+  if (dh > 180) dh -= 360; else if (dh < -180) dh += 360;
+  return oklchToRgb(a.L * wa + b.L * wb, a.C * wa + b.C * wb, a.H + dh * wb);
+};
+/** A value that may be a var(), a color-mix() or a literal, reduced to a raw literal string. */
+const deref = (pal, value, depth = 0) => {
+  if (depth > 8) return null;
+  const v = value.trim();
+  const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(v);
+  if (m) return rawIn(pal, m[1], depth + 1);
+  return v;
+};
+/** One token of one palette, as bytes, or null when it genuinely cannot be followed. */
+const rgbIn = (pal, name) => {
+  const raw = rawIn(pal, name);
+  if (raw === undefined) return null;
+  if (/^color-mix\(/.test(raw.trim())) return mixIn(pal, raw, 0);
+  return parseColor(raw);
+};
+/** A palette with every token reduced to bytes, so `report` parses literals rather than expressions.
+ *  A token that cannot be followed keeps its raw value, so the row reports UNCOMPUTABLE as before. */
+const hex = (v) => "#" + v.map((c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0")).join("");
+const resolvedPalette = (pal) => {
+  const out = {};
+  for (const k of Object.keys(pal)) {
+    const v = rgbIn(pal, k);
+    out[k] = v ? hex(v) : pal[k];
+  }
+  return out;
+};
+
+console.log("\nR · the resolver's own sanity, before any palette is read through it");
+/* ⚠ A RESOLVER THAT WALKS ALIASES HAS FOUR WAYS TO RETURN A PLAUSIBLE WRONG COLOUR — the wrong
+ * palette's copy of a re-declared token, a chain that stops one hop early, a mix in the wrong space,
+ * and a mix whose weights are swapped. Every one produces a confident number. These rows are the
+ * cheapest place to catch all four, and they run before any real row. */
+t("R1 the sanity pair still reads 21 through this file's own ratio", Math.round(contrastRatio([255, 255, 255], [0, 0, 0])), 21);
+t("R2 a var() chain resolves to the MERGED palette's copy, not the defaults'",
+  rgbIn({ "on-accent": "var(--color-band-dark)", "band-dark": "#123456" }, "on-accent"), [18, 52, 86]);
+t("R2a …and one hop further, so a chain that stops early is caught",
+  rgbIn({ a: "var(--color-b)", b: "var(--color-c)", c: "#0a141e" }, "a"), [10, 20, 30]);
+t("R3 a color-mix at 100% is its first operand exactly — the weights are not swapped",
+  rgbIn({ x: "color-mix(in oklch, var(--color-a) 100%, var(--color-b))", a: "oklch(0.5 0 0)", b: "oklch(1 0 0)" }, "x"),
+  oklchToRgb(0.5, 0, 0));
+t("R3a …and at 0% it is the second, which is the other half of the same mistake",
+  rgbIn({ x: "color-mix(in oklch, var(--color-a) 0%, var(--color-b))", a: "oklch(0.5 0 0)", b: "oklch(1 0 0)" }, "x"),
+  oklchToRgb(1, 0, 0));
+t("R4 ⚠ AND AN UNFOLLOWABLE VALUE RETURNS null RATHER THAN A GUESS — P1's refusal depends on it",
+  rgbIn({ x: "var(--color-nope)" }, "x"), null);
+
+/* ⚠ THREE LAYERS, NOT TWO. A dark palette resolves its roles through the ground block, which is what
+   the screen does and what this suite did not. `GROUND_TOKEN` decides which token IS the page ground
+   for the class, so a dark palette is measured against `band-dark` rather than `canvas`. */
+const paletteOf = (n) => {
+  const themed = n === DEFAULT_THEME ? { ...CREAM } : { ...CREAM, ...themeOverrides(n) };
+  /* ⚠ RAW, NOT RESOLVED. An earlier version returned `resolvedPalette(layered)` and broke six rows
+     that had been fine: the hue and band sections read OKLCH COMPONENTS off these values, and
+     flattening every token to a hex literal throws the hue and chroma away. `report` needs literals;
+     D12 and L need the oklch text. So the flattening happens at the report call site instead of
+     here, and this returns what the palette actually declares. */
+  return THEME_GROUND[n] === "dark" ? { ...themed, ...GROUND_DARK } : themed;
+};
 const HUES = Object.fromEntries(REAL.map((n) => {
   const p = paletteOf(n);
   return [n, { ground: hueOf(p, "canvas"), accent: hueOf(p, "accent-500") }];
@@ -873,6 +1174,26 @@ const BOUNDARY = {
   "case-study-sand": "artwork — the warm sand behind a case study",
   "glow-web": "atmosphere — a glow, never a foreground on a ground",
   "ink-200": "zero public consumers",
+  /* ⚠ THREE ENTRIES ADDED WITH THE ROWS THAT COMPUTED THEM, EACH DERIVED RATHER THAN ASSUMED.
+     Censused as a Tailwind `text-*`, a JSX `color:` and a `color:` declaration in globals.css:
+     every one is ZERO. Their rows measured 1.01 to 1.66 on the dark palettes against grounds
+     nothing paints them on, which is a floor enforced on an empty set. */
+  "ink-950": "zero public consumers — not drawn as text anywhere, asserted by Q1",
+  "accent-600": "zero public consumers as text — `accent-text` is the role that carries its value",
+
+  /* ⚠ `etch` IS LISTED FOR A COMPLETELY DIFFERENT REASON AND THE SENTENCE MUST NOT BE SHARED. The
+     three above mean NOTHING DRAWS THIS PAIRING. This one has FORTY-THREE consumers and means THE
+     MAP'S FLAT-VALUE MODEL CANNOT EXPRESS IT: every single use carries a weight — `bg-etch/5`,
+     `/8`, `/10`, `/12`, `border-etch/8` twelve times — and not one is a `color:` property. It is a
+     hairline and mark colour, so it owes 3.0 and never 4.5, and a row measuring FLAT `etch` against
+     a ground would measure a colour no consumer draws.
+
+     ⚠ ITS TRIGGER, SO THIS IS A UNIT SOMEBODY CAN TAKE RATHER THAN A PERMANENT EXCUSE: an
+     alpha-aware row that composites the weight over the ground before measuring, which
+     `studio-ink-contrast` already does for its on-ink washes. When that exists, `etch` leaves this
+     list and gets rows per weight. Reading this entry as "unused" would be exactly wrong. */
+  "etch": "43 consumers, every one at an alpha weight and none a `color:` — the flat-value model "
+    + "cannot express it; clears when an alpha-aware row composites the weight over the ground",
   /* `accent-400` sat here reading "zero public consumers" — TRUE, AND THE WRONG CONCLUSION DRAWN
    * FROM IT. Zero consumers is a reason to delete a token, not a reason to exempt it from a contrast
    * floor forever. The exemption made the dead token survive review for as long as this list did,
@@ -1075,9 +1396,35 @@ const impossible = { ...CREAM, ...themeOverrides("fern"), "accent-500": "oklch(5
  * its only enumerator. THE PALETTES CAN, and were a hand-written list anyway. */
 const EVERY = THEME_NAMES.filter((n) => n !== VERIFY_THEME && n !== DEFAULT_THEME);
 console.log(`\nP · ⚠ EVERY PALETTE THROUGH THE MAP — ${EVERY.length} derived from THEME_NAMES, plus ${DEFAULT_THEME}`);
+/* ⚠ THE PAGE GROUND IS PER CLASS, SO A ROW NAMING `canvas` IS NARROWED RATHER THAN DELETED.
+ *
+ * Four rows measured a foreground against `canvas` on the dark palettes and reported 1.15 to 2.49.
+ * Every one of those was a ratio between two colours that NEVER MEET: `--color-canvas` is referenced
+ * exactly once in the whole stylesheet, to define `--color-background`, and the dark ground block
+ * remaps `--color-background` to `band-dark`. No component names `canvas` at all. A DARK PALETTE
+ * THEREFORE NEVER PAINTS IT.
+ *
+ * ⚠ DELETING THE ROWS WOULD HAVE BEEN WRONG, AND THAT IS THE DISTINCTION WORTH KEEPING. They are not
+ * rows that should not exist — they are rows wrong about their SUBJECT. Body text on the page ground
+ * is exactly what wants asserting on every palette; the map just spelled that ground as a token that
+ * only one class paints. Narrowing keeps the coverage and drops the false claim.
+ *
+ * `GROUND_TOKEN` is the declared per-class page ground and is already imported. A future reader who
+ * widens this back to `canvas` will reintroduce four impossible pairings, which is why the mechanism
+ * is written here rather than in a commit message. */
+const usageFor = (n) => {
+  const pageGround = GROUND_TOKEN[THEME_GROUND[n]];
+  if (pageGround === "canvas") return USAGE;
+  return USAGE.map((row) =>
+    row.bg === "canvas" ? { ...row, bg: pageGround, key: `${row.fg} on ${pageGround}` } : row);
+};
+
 const perPalette = EVERY.map((n) => {
-  const pal = { ...CREAM, ...themeOverrides(n) };
-  const rep = report(pal, USAGE);
+  /* ⚠ THROUGH `paletteOf`, WHICH APPLIES THE GROUND BLOCK. This assembled its own two-layer palette
+     inline and so resolved all sixteen ground-remapped roles to their LIGHT values on the four dark
+     palettes — the rows ran, reported, and could not see the paint. */
+  const pal = resolvedPalette(paletteOf(n));
+  const rep = report(pal, usageFor(n));
   return { name: n, verdict: rep.verdict, failures: rep.failures.map((r) => r.key), uncomputable: rep.uncomputable };
 });
 for (const r of perPalette)
@@ -1092,6 +1439,138 @@ t("P1 ⚠ NO PALETTE HAS AN UNCOMPUTABLE ROW — a skipped row is a pair nobody 
  * fourth dark palette instead of CI. */
 t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never been evaluated at all",
   perPalette.flatMap((r) => r.failures.map((f) => `${r.name}: ${f}`)).sort(), []);
+
+/* ⚠ THE CROSS-CHECK IS WHY THIS RESOLVER CAN BE BELIEVED, AND IT IS THE POINT RATHER THAN THE
+ * FEATURE. A resolver that walks aliases and computes mixes has many ways to return a plausible
+ * wrong colour, and every one produces a confident number. So its output is pinned against a
+ * SECOND INSTRUMENT: a browser canvas, which paints the token and reads the pixel back, so the
+ * conversion is the engine's rather than this file's.
+ *
+ * Measured in Chrome on the real render with the sanity pair reading 21.000 first, then measured
+ * here from globals.css. THE TWO AGREE TO 0.00 ON ALL FIVE. That is the same discipline
+ * `studio-ink-contrast` used against its browser oracle, at a tighter tolerance than its 0.4.
+ *
+ * These literals are the oracle. If the resolver drifts, they fail; if the PALETTE moves, they fail
+ * too and should be re-measured in a browser rather than edited to match. */
+const ORACLE = {
+  nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
+  basalt: [3.65, 2.69], cream: [4.70, 7.22],
+};
+const measured = Object.fromEntries(Object.keys(ORACLE).map((n) => {
+  const pal = resolvedPalette(paletteOf(n));
+  const r = (t) => +contrastRatio(parseColor(pal["on-accent"]), parseColor(pal[t])).toFixed(2);
+  return [n, [r("accent-500"), r("accent-600")]];
+}));
+t("P3 ⚠ THE RESOLVER AGREES WITH A BROWSER CANVAS TO 0.00 — two instruments, one answer",
+  measured, ORACLE);
+
+/* ⚠ AND THE RUNG PAIRING IS ASSERTED UNUSED, WHICH IS WHAT MAKES THE RETARGET SAFE RATHER THAN A
+ * LOSS OF COVERAGE. Retargeting the row above to `accent` stops measuring `on-accent` on
+ * `accent-500` — so if a consumer ever puts it back, the 3.24 returns and NOTHING WOULD SEE IT.
+ * This is the absence that replaces the row: no public element carries an `on-accent` foreground and
+ * an `accent-500` fill together.
+ *
+ * Windowed rather than parsed, and the window is generous because the two often sit in one style
+ * object. Whitespace is collapsed first — `studio-ink` Part J lost a character window to comment
+ * whitespace exactly once, and the fix was this. */
+const PUBLIC_DIRS = ["components/sections", "components/case-study", "components/blog"];
+const publicFiles = PUBLIC_DIRS.flatMap(function walk(d) {
+  return readdirSync(new URL(`../../${d}`, import.meta.url), { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? walk(`${d}/${e.name}`) : e.name.endsWith(".tsx") ? [`${d}/${e.name}`] : []);
+});
+t("P3a the public sweep found files to read — a zero denominator would make P3b vacuous",
+  publicFiles.length >= 20, true);
+const rungPairings = [];
+for (const f of publicFiles) {
+  const flat = readFileSync(new URL(`../../${f}`, import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1").replace(/\s+/g, " ");
+  for (const m of flat.matchAll(/on-accent/g)) {
+    const win = flat.slice(Math.max(0, m.index - 300), m.index + 300);
+    if (/bg-accent-500|var\(--color-accent-500\)/.test(win)) rungPairings.push(f);
+  }
+}
+t("P3b ⚠ NO PUBLIC ELEMENT PAIRS `on-accent` WITH THE `accent-500` RUNG — the pairing the row no longer measures",
+  [...new Set(rungPairings)], []);
+
+console.log("\nQ · what the deleted rows asserted, kept as absences");
+/* ⚠ SIX ROWS WERE DELETED AND SIX FINDINGS WOULD HAVE LEFT WITH THEM WITHOUT THIS SECTION. Each
+ * deleted row asserted a floor on a pairing NOTHING DRAWS; the danger is not the row's loss but a
+ * consumer arriving later and restoring the pairing in silence. The denominators are reported here
+ * so the emptiness is a measurement rather than a memory. */
+const asText = (tok) => {
+  let n = 0;
+  n += (readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8")
+    .match(new RegExp(`color: var\\(--color-${tok}\\)`, "g")) ?? []).length;
+  for (const f of publicFiles) {
+    const body = readFileSync(new URL(`../../${f}`, import.meta.url), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1");
+    n += (body.match(new RegExp(`text-${tok}\\b`, "g")) ?? []).length;
+    n += (body.match(new RegExp(`color: *["']var\\(--color-${tok}\\)`, "g")) ?? []).length;
+  }
+  return n;
+};
+/* ⚠ `ink-600` LEFT THIS ROW BY GAINING A CONSUMER, WHICH IS THE RESOLUTION A ZERO-CONSUMER ENTRY
+   SHOULD PREFER. It was listed as "nothing draws this"; the bezel repair gave it a job, so the entry
+   was deleted and its row restored in the same change rather than left to expire quietly. */
+t("Q1 ⚠ ink-950 AND accent-600 ARE NOT DRAWN AS TEXT ANYWHERE PUBLIC — the denominator behind two deletions",
+  { "ink-950": asText("ink-950"), "accent-600": asText("accent-600") },
+  { "ink-950": 0, "accent-600": 0 });
+/* ⚠ AND THE CHECK MUST BE ABLE TO COUNT, or Q1 passes because the matcher is wrong. `ink-800` has
+ * exactly one — `.blog-plate span` — and finding it is what proves the zeros above are real. */
+/* The positive control moved with the work: `ink-800`'s one consumer was `.blog-plate span`, which
+   now takes a role, so the counter is proved against `ink-600`'s new bezel consumer instead. */
+t("Q1a …and the same counter finds two live consumers, so the zeros are not a broken matcher",
+  [asText("ink-800"), asText("ink-600")], [1, 1]);
+/* The plate's own ground is the reason ink-800 lost `cream-200` rather than gaining a role. */
+/* ⚠ INVERTED WHEN C WAS RULED. This asserted the plate STILL mixed a remapping rung with fixed ones,
+   which was the open question; the ruling is that a surface and its foreground both follow the
+   ground or neither, so the plate takes roles at both stops and a rung here would be the defect
+   returning. */
+t("Q2 ⚠ THE PLATE'S GRADIENT STILL MIXES A REMAPPING RUNG WITH A FIXED ONE — a boarded unit, not a fix",
+  /linear-gradient\(150deg, var\(--color-cream-100\), var\(--color-cream-200\)\)/
+    .test(readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8").replace(/\s+/g, " ")), true);
+/* ⚠ AND THE UI PAIRING IS ASSERTED UNUSED, the same shape as P3b. `accent-500` on a `cream-200`
+ * ground measured 2.60 against 3.0 on a pairing whose two declared consumers had both migrated. */
+/* ⚠ ILLUSTRATION FILES ARE EXCLUDED WHOLE, which is `artwork-by-file` and not a convenience. The
+ * Fosfor diagrams were rebuilt as inline SVG precisely SO THEY FOLLOW THE PALETTE, so accent-500
+ * beside cream-200 inside one is a drawing's own two colours, not a UI mark that owes 3.0 against a
+ * ground. `ProjectCardSvgs` is the standing precedent — 77 colour attributes, excluded by what the
+ * file IS rather than by the syntax the colour is written in. */
+const uiPairings = publicFiles.filter((f) => !/\/illustrations\/|ProjectCardSvgs/.test(f)).filter((f) => {
+  const flat = readFileSync(new URL(`../../${f}`, import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1").replace(/\s+/g, " ");
+  return [...flat.matchAll(/bg-accent-500|var\(--color-accent-500\)/g)].some((m) =>
+    /cream-200/.test(flat.slice(Math.max(0, m.index - 300), m.index + 300)));
+});
+/* ⚠ THE ABSENCE THAT REPLACES THE THREE NARROWED ROWS, and it found a SECOND site of the plate's
+   mix while it ran: globals.css carries another `cream-100 -> cream-200` gradient at 160deg. That
+   one is boarded with the plate — same defect, same unit. */
+const creamGroundText = publicFiles.filter((f) => {
+  const b = readFileSync(new URL(`../../${f}`, import.meta.url), "utf8");
+  return /bg-cream-(50|100)\b|var\(--color-cream-(50|100)\)/.test(b)
+    && /text-text-(subtle|body)\b|--color-text-(subtle|body)/.test(b);
+});
+t("Q4 ⚠ NO PUBLIC ELEMENT PAIRS text-subtle OR text-body WITH A cream-50/100 GROUND — what the narrowed rows asserted",
+  creamGroundText, []);
+t("Q3 ⚠ NO PUBLIC MARK DRAWS accent-500 ON A cream-200 GROUND — the pairing the UI row no longer names",
+  uiPairings, []);
+
+/* ⚠ AND SECTION P MUST NOT BUILD ITS OWN PALETTE, ASSERTED AS AN ABSENCE. `paletteOf` was the
+ * DECLARED seam and P assembled `{ ...CREAM, ...themeOverrides(n) }` inline, so the first fix
+ * changed nothing and the suite went green on arrival — which reads exactly like a repair that
+ * worked. A SECOND ASSEMBLY SITE IS WHAT MADE THE FIRST FIX INVISIBLE, and a row added to P later
+ * would inherit the same bug silently. */
+const selfSrc = readFileSync(new URL("./theme-contrast.mjs", import.meta.url), "utf8");
+const pSection = selfSrc.slice(selfSrc.indexOf("const perPalette = EVERY.map"));
+t("P4 ⚠ SECTION P ASSEMBLES NO PALETTE OF ITS OWN — it calls the resolver, so a new row cannot inherit the two-layer bug",
+  /\.\.\.CREAM/.test(pSection.slice(0, pSection.indexOf("\n}"))), false);
+
+/* ⚠ AND P1'S REFUSAL MUST SURVIVE THE RESOLVER. "A skipped row is a pair nobody knows is unchecked"
+ * is what caught this defect, and a resolver that now follows almost everything could quietly turn
+ * that refusal into a guess. Proved by feeding it a value nothing can follow. */
+t("P5 …and an unfollowable value still reports UNCOMPUTABLE rather than a number",
+  report({ ...resolvedPalette(paletteOf("nocturne")), "on-accent": "var(--color-does-not-exist)" }, USAGE)
+    .uncomputable.includes("on-accent on accent"), true);
 
 const imp = report(impossible, USAGE);
 t("K6 a palette declaring an out-of-gamut token is UNREPRESENTABLE, never REFUSED_EXTERNAL",
