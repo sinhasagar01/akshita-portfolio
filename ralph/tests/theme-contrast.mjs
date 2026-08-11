@@ -307,6 +307,22 @@ const USAGE = [
     "VideoEmbed's caption pill inside the device bezel — a fixed ink on a deliberately fixed rung."),
   ...TEXT("text-primary", ["canvas"]),
   ...TEXT("text-secondary", ["canvas"]),
+  /* ⚠ THE HOME HERO PAINTS THESE THREE ON `surface`, NOT ON `canvas`, AND NOTHING ASSERTED IT. The
+     ash hero's ground is `--color-surface` — the base `.hero-ground` rule — while every row above
+     names `canvas`, so its name, answer, support, tab labels and connector labels were protected by
+     prose alone. `surface` and `canvas` differ on BOTH grounds, so this is a real second pairing
+     rather than a rounding into the rows above.
+
+     Found by measuring the hero across all nine palettes rather than by reading: the values pass
+     comfortably — text-primary 15.19 to 19.04, text-secondary 7.11 to 8.95, text-subtle 5.35 to
+     6.15 — which is exactly why nothing complained and exactly why the rows were missing. A pairing
+     that happens to be fine is still unasserted until something says so. */
+  ...TEXT("text-primary", ["surface"],
+    "the home hero's name (`.hero-name`) and its answer line (`.hero-line`), which paint on the hero ground."),
+  ...TEXT("text-secondary", ["surface"],
+    "the home hero's support line and the connector-line labels in `.hero-lines`."),
+  ...TEXT("text-subtle", ["surface"],
+    "the home hero's unselected tab labels, counter units, figure label and scroll cue."),
   /* `text-muted` stood beside this and is deleted — it held the same value, so its rows were a
      second copy of these. One name, one set of rows. */
   /* ⚠ NARROWED TO THE GROUNDS IT STILL MEETS. `cream-50` and `cream-100` left with the bezel repair:
@@ -469,11 +485,16 @@ console.log("\nB · it REFUSES — both verdict types, not just the mechanism");
 const badExternal = { ...CREAM, "text-subtle": "oklch(75.0% 0.016 60)" };
 const bx = report(badExternal, USAGE);
 t("B1 a palette failing WCAG is REFUSED_EXTERNAL", bx.verdict, "REFUSED_EXTERNAL");
-/* Re-derived with the fixture, not fitted to it: `text-subtle` carries `GROUNDS`, so breaking it
-   names those four grounds and no others. The SHAPE of the assertion is what matters — four named
-   pairs rather than a count — and it is unchanged. */
+/* Re-derived with the fixture, not fitted to it: breaking `text-subtle` names every ground it
+   carries a row on and no others. The SHAPE of the assertion is what matters — named pairs rather
+   than a count — and it is unchanged.
+
+   ⚠ AND THE LIST GREW BY ONE WHEN THE HERO'S `surface` ROWS LANDED, WHICH IS THIS ROW WORKING. A
+   fixture with a pinned list is the only kind that notices its own subject expanding: adding
+   `text-subtle on surface` to the map made this red immediately, where a COUNT would have been
+   updated without anyone reading which pair joined. Ordered as the report emits them. */
 t("B2 and the failing pairs are named, not counted", bx.external, [
-  "text-subtle on canvas", "text-subtle on cream-200"]);
+  "text-subtle on surface", "text-subtle on canvas", "text-subtle on cream-200"]);
 t("B3 no internal floor was disturbed, so the fixture proves what it claims", bx.internal, []);
 
 /* ⚠ INTERNAL. cream-100 collapsed onto cream-50, so the ground ladder loses its first step while

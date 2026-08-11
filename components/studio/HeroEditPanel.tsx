@@ -22,6 +22,7 @@ import { usePublishSignal, useReportPending } from "./PublishProvider";
 import { useListItem } from "./ListDetailLayout";
 import { IconSparkles } from "./icons";
 import { inputClsMd, labelCls, KeyRow, FIELD_MEASURE , FieldKey} from "./blocks/fields";
+import HeroFigureField from "./HeroFigureField";
 
 type Props = {
   itemId: string;
@@ -29,6 +30,10 @@ type Props = {
   heroTabs: HeroTab[];
   heroRoleLabel: string;
   heroScrollCue: string;
+  /** ⚠ NOT A HeroFields VALUE. The illustration has its own writer (the upload route commits the
+   *  blob and the yaml in one commit), exactly as `photo` does on the About panel, so it must never
+   *  join the text patch — `WRITABLE_FIELDS` excludes it for that reason. */
+  heroFigure: string | null;
 };
 
 // The Hero form's editable fields. State keys match the settings field names so
@@ -66,6 +71,7 @@ export default function HeroEditPanel({
   heroTabs,
   heroRoleLabel,
   heroScrollCue,
+  heroFigure,
 }: Props) {
   const initial: HeroFields = {
     heroCopy,
@@ -165,6 +171,11 @@ export default function HeroEditPanel({
       </header>
 
       <div className="flex flex-col gap-5 px-4 py-5">
+        {/* ⚠ FIRST, BECAUSE IT IS THE LARGEST THING ON THE HERO AND WAS THE ONE FIELD /studio COULD
+            NOT SHOW. Its own writer, so it sits outside the form's dirty/save machine entirely — it
+            lights the Unpublished badge itself. */}
+        <HeroFigureField heroFigure={heroFigure} onUploaded={() => setUnpublished(true)} />
+
         <label className="flex flex-col gap-1.5">
           <FieldKey>Hero copy</FieldKey>
           <input

@@ -47,6 +47,7 @@ export default async function HomePage() {
         }))}
         roleLabel={settings?.heroRoleLabel}
         scrollCue={settings?.heroScrollCue}
+        figure={settings?.heroFigure ?? null}
       />
       <main id="main-content" tabIndex={-1} className="container-x outline-none">
       <ProcessSection settings={settings} />

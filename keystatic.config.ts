@@ -1091,10 +1091,32 @@ export default config({
           label: "Hero scroll cue",
           description: "The scroll prompt text at the bottom of the hero",
         }),
+        // ⚠ BLOCK COMMENTS ARE FORBIDDEN IN THIS FILE AND THIS IS WHY — LINE COMMENTS ONLY.
+        // Three `path:` values here end in a glob whose slash-star ralph's comment-stripper reads
+        // as an OPENER, and the file ships with three of them unclosed. Adding a block comment
+        // hands those strays a closer to pair with: two block comments here took the stripped file
+        // from 42,394 characters to 5,310 and turned two unrelated suites red. The record already
+        // said "never write the glob"; the other half is that nothing may add a closer either.
+        //
+        // ⚠ THE HERO ILLUSTRATION, WHICH WAS THE ONE HOMEPAGE IMAGE WITH NO CMS FIELD AT ALL. The
+        // ash hero shipped with the illustration hardcoded in `HeroSection.tsx`, so it could not be
+        // seen or replaced from /studio — the owner found it missing. It is OPTIONAL, and the
+        // renderer falls back to that same shipped asset, so every existing settings file renders
+        // byte-identically with the key absent.
+        heroFigure: fields.image({
+          label: "Hero illustration",
+          directory: "public/images/hero",
+          publicPath: "/images/hero/",
+          description: "The cut-out illustration in the hero's right panel. Transparent PNG or WebP.",
+        }),
+        // ⚠ RELABELLED, NOT MOVED. This read "Hero and About photo" and has not been the hero's
+        // image since the ash rebuild — the hero draws `heroFigure` above. A label naming two
+        // surfaces when it feeds one is how an author edits the wrong field.
         photo: fields.image({
-          label: "Hero and About photo",
+          label: "About portrait",
           directory: "public/images",
           publicPath: "/images/",
+          description: "The portrait in the About section.",
         }),
         aboutCopy: fields.text({
           label: "About bio",

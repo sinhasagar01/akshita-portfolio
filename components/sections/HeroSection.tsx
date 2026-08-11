@@ -45,6 +45,10 @@ type HeroFacet = {
    with the rest of the geometry. */
 const CALLOUT_Y = [24, 47, 70];
 
+/** ⚠ THE ONE SOURCE FOR THE SHIPPED ILLUSTRATION'S PATH. The studio panel imports this so its
+ *  "using the shipped default" preview cannot drift from what the page actually draws. */
+export const HERO_FIGURE_FALLBACK = "/images/hero/hero-figure.webp";
+
 /* the contract's four backdrop arrangements, one per tab, normalised to the art panel */
 type EmberShape =
   | { t: "r"; x: number; y: number; w: number; h: number }
@@ -146,12 +150,15 @@ export default function HeroSection({
   tabs,
   roleLabel,
   scrollCue,
+  figure,
 }: {
   heroCopy?: string;
   /** CMS strings per tab, index-aligned with FACETS (tab1..tab4). */
   tabs?: TabStrings[];
   roleLabel?: string;
   scrollCue?: string;
+  /** The hero illustration from site settings. Null falls back to the shipped asset. */
+  figure?: string | null;
 }) {
   const [active, setActive] = useState(0);
   const isReducedMotion = useReducedMotion();
@@ -167,6 +174,14 @@ export default function HeroSection({
   const nameParts = signature.trim().split(/\s+/);
   const nameEm    = nameParts.length > 1 ? nameParts.pop()! : "";
   const nameLead  = nameEm ? `${nameParts.join(" ")} ` : signature;
+
+  /* ⚠ THE ILLUSTRATION FALLS BACK TO THE SHIPPED ASSET, WHICH IS WHAT MAKES THE FIELD SAFE TO ADD.
+     It was hardcoded here and invisible to /studio until the owner asked for it. Every settings file
+     written before the field existed has no `heroFigure` key, so the fallback is what those files
+     render — byte-identical to before. A cleared field lands here too, because a hero with no
+     artwork is a broken layout rather than an empty slot: this is the one image on the page whose
+     absence the composition cannot absorb. */
+  const figureSrc = figure?.trim() ? figure.trim() : HERO_FIGURE_FALLBACK;
 
   const eyebrow = roleLabel?.trim() ? roleLabel : "Product designer";
   const cue     = scrollCue?.trim() ? scrollCue : "scroll to process";
@@ -474,7 +489,7 @@ export default function HeroSection({
                 size is the source's; the panel drives the rendered height and the width overflows
                 and is clipped, which is why no `sizes` guess can be right — it is height-driven. */}
             <Image
-              src="/images/hero/hero-figure.webp"
+              src={figureSrc}
               alt=""
               width={1033}
               height={1024}
