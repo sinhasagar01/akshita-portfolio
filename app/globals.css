@@ -4835,6 +4835,18 @@ a {
   padding: 24px;
   text-align: center;
   background:
+    /* ⚠ A KNOWN MIX, RECORDED RATHER THAN FIXED, WITH A UNIT THAT CLOSES IT. `cream-200` remaps under
+       the dark ground and `cream-100` does not, so on a dark palette this runs near-white to
+       near-black and NO foreground clears both ends — ink-800 measures 14.12 / 1.01, text-body
+       1.79 / 7.80. It was live before this was measured and it stays live.
+
+       ⚠ THE ROLE FIX WAS TRIED AND REVERTED, AND THE REASON IS THE LADDER'S TOP RUNG. Mapping this to
+       `surface -> surface-well` costs more than a shade: `cream-100` and `cream-200` are TINTED PER
+       PALETTE and `cream-50` is NOT, so harbour, orchid, cerise and fern would all land on identical
+       neutral cream — four palettes LEAVING the palette on a live surface, not lightening on it.
+
+       THE UNIT THAT CLOSES THIS is a third surface role at `cream-200`, with its own dark answer
+       DERIVED rather than inherited from `cream-200`'s. It is boarded, not smuggled in here. */
     linear-gradient(150deg, var(--color-cream-100), var(--color-cream-200));
 }
 /* ⚠ THE TOPIC, NOT THE TITLE, SINCE #379 — and the ITALIC is what carries that distinction.
