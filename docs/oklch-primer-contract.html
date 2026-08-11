@@ -1,0 +1,589 @@
+<!doctype html>
+<!--
+  CONTRACT — /palettes/oklch.  Authoritative about: section order, hierarchy, the three-band
+  mental model, the lab, and the dark-mode mirror.  NOT authoritative about: the lab's ratio
+  readout, which uses a gamma proxy for teaching and is NOT the WCAG computation — section 07
+  says so, and it must stay saying so.
+--><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Learn OKLCH — Playground · 02</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--sans:"DM Sans",system-ui,sans-serif;--display:Fraunces,Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans)}
+
+[data-p]{--L:62%;--C:.15;--H:42;
+ --canvas:oklch(96.4% .012 var(--H));--surface:oklch(99% .006 var(--H));--well:oklch(97.6% .014 var(--H));
+ --accent:oklch(var(--L) var(--C) var(--H));--accent-text:oklch(46% .13 var(--H));
+ --on-accent:oklch(98% .012 var(--H));--lead:oklch(16% .02 var(--H));--body:oklch(32% .02 var(--H));
+ --subtle:oklch(48% .018 var(--H));--rule:oklch(16% .02 var(--H)/.14);--hair:oklch(16% .02 var(--H)/.07);
+ --ok:oklch(56% .13 150);--warn:oklch(55% .19 27)}
+[data-p="fern"]{--L:50%;--C:.11;--H:155}
+[data-p="harbour"]{--L:48%;--C:.10;--H:235}
+[data-p="orchid"]{--L:46%;--C:.16;--H:305}
+[data-p="cerise"]{--L:50%;--C:.17;--H:12}
+[data-p="nocturne"],[data-p="sapphire"],[data-p="inkflare"],[data-p="basalt"]{
+ --canvas:oklch(17% .022 var(--H));--surface:oklch(23% .024 var(--H));--well:oklch(20% .023 var(--H));
+ --accent-text:oklch(80% .12 var(--H));--on-accent:oklch(14% .03 var(--H));
+ --lead:oklch(96% .008 var(--H));--body:oklch(84% .015 var(--H));--subtle:oklch(66% .02 var(--H));
+ --rule:oklch(96% .008 var(--H)/.15);--hair:oklch(96% .008 var(--H)/.08);--ok:oklch(72% .15 150)}
+[data-p="nocturne"]{--L:62%;--C:.20;--H:290}
+[data-p="sapphire"]{--L:64%;--C:.16;--H:255}
+[data-p="inkflare"]{--L:66%;--C:.17;--H:45}
+[data-p="basalt"]{--L:70%;--C:.17;--H:126;--canvas:oklch(15% 0 0);--surface:oklch(21% 0 0);--well:oklch(18% 0 0);
+ --lead:oklch(96% 0 0);--body:oklch(84% 0 0);--subtle:oklch(66% 0 0);--rule:oklch(96% 0 0/.15);--hair:oklch(96% 0 0/.08)}
+
+body{background:var(--canvas);color:var(--body);
+ transition:background-color .5s cubic-bezier(.16,1,.3,1),color .5s}
+body *{transition:background-color .5s cubic-bezier(.16,1,.3,1),color .5s,border-color .5s}
+
+/* ===== TYPE SCALE — one hierarchy, stated once ===== */
+.h-page{font-family:var(--display);font-weight:600;font-size:clamp(38px,5.6vw,76px);line-height:.94;
+ letter-spacing:-.05em;color:var(--lead);margin:0}
+.h-page em{font-style:italic;font-weight:500;color:var(--accent-text)}
+.h-sec{font-family:var(--display);font-weight:600;font-size:clamp(24px,3vw,38px);line-height:1.04;
+ letter-spacing:-.038em;color:var(--lead);margin:0}
+.h-card{font-family:var(--display);font-weight:500;font-size:19px;line-height:1.16;letter-spacing:-.026em;color:var(--lead);margin:0}
+.h-min{font-weight:600;font-size:13px;letter-spacing:-.008em;color:var(--lead);margin:0}
+.eyebrow{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;
+ color:var(--accent-text);margin:0}
+.lab{font-family:var(--mono);font-weight:500;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle)}
+.dek{font-size:16px;line-height:1.62;color:var(--subtle);margin:0;max-width:56ch}
+.say{font-size:13.5px;line-height:1.62;color:var(--subtle);margin:0;max-width:66ch}
+.fine{font-size:11.5px;line-height:1.55;color:var(--subtle);margin:0}
+
+.wrap{max-width:1300px;margin:0 auto;padding:0 30px}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:9px;padding:11px 16px;
+ font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+ text-decoration:none;box-shadow:0 10px 24px -14px var(--accent)}
+.btn.ghost{background:none;border:1px solid var(--rule);color:var(--body);font-weight:500;box-shadow:none}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent-text)}
+.btn.sm{padding:8px 12px;font-size:11.5px}
+
+/* nav */
+.nav{position:sticky;top:14px;z-index:50;display:flex;align-items:center;gap:16px;width:max-content;
+ margin:14px auto 0;background:color-mix(in srgb,var(--surface) 84%,transparent);backdrop-filter:blur(14px) saturate(1.2);
+ border:1px solid var(--rule);border-radius:999px;padding:8px 9px 8px 19px;box-shadow:0 14px 36px -22px oklch(0% 0 0/.6)}
+.nav b{font-family:var(--display);font-style:italic;font-weight:500;font-size:15px;color:var(--lead)}
+.nav .sur{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--accent-text);padding-left:10px;border-left:1px solid var(--rule)}
+.nav a{font-size:11.5px;color:var(--subtle);text-decoration:none}
+.nav a.on{color:var(--accent-text);font-weight:600}
+.nav .cta{font-size:11px;font-weight:600;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:6px 13px;text-decoration:none}
+
+/* ===== 01 · HERO — about the page, nothing else ===== */
+.hero{position:relative;padding:76px 0 66px;overflow:hidden;text-align:center}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:120%;z-index:0;pointer-events:none;
+ background:radial-gradient(closest-side at 50% 42%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 72%)}
+.hero .in{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 30px}
+.pillline{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--rule);border-radius:999px;
+ padding:7px 14px;background:var(--surface);box-shadow:0 8px 22px -16px oklch(0% 0 0/.5)}
+.pillline i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.hero .dek{margin:22px auto 0}
+.heroact{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.formula{display:inline-flex;align-items:center;gap:12px;margin-top:34px;padding:11px 16px;border:1px solid var(--rule);
+ background:var(--surface);border-radius:11px;font-family:var(--mono);font-size:13.5px;color:var(--lead);
+ box-shadow:0 12px 30px -22px oklch(0% 0 0/.55)}
+.formula em{font-style:normal;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle)}
+.formula b{font-weight:500;color:var(--accent-text)}
+.herofacts{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;margin-top:38px;padding-top:26px;border-top:1px solid var(--hair)}
+.herofacts div b{display:block;font-family:var(--mono);font-weight:500;font-size:21px;color:var(--lead);letter-spacing:-.03em}
+.herofacts div span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle);margin-top:6px}
+
+/* ===== section chrome ===== */
+.sec{border-top:1px solid var(--rule);padding:44px 0 0;margin-top:44px}
+.sechead{display:flex;align-items:baseline;gap:15px;flex-wrap:wrap;margin-bottom:9px}
+.sechead .n{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.26em;color:var(--accent-text)}
+.sechead .r{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle)}
+
+/* ===== THE FIXED SWITCHER — appears at section 02 ===== */
+.switcher{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(12px);z-index:45;
+ background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);
+ border:1px solid var(--rule);border-right:0;border-radius:13px 0 0 13px;padding:12px 11px 11px;
+ box-shadow:-14px 0 40px -26px oklch(0% 0 0/.6);opacity:0;pointer-events:none;
+ transition:opacity .35s,transform .35s cubic-bezier(.16,1,.3,1);width:196px}
+.switcher.on{opacity:1;transform:translateY(-50%);pointer-events:auto}
+.switcher .st{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px}
+.switcher .st b{font-weight:600;font-size:11.5px;color:var(--lead)}
+.switcher .st em{font-style:normal;font-family:var(--mono);font-size:8px;color:var(--subtle)}
+.swgroup{font-family:var(--mono);font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle);margin:9px 0 5px}
+.swgroup:first-of-type{margin-top:0}
+.swrow{display:flex;align-items:center;gap:7px;width:100%;background:none;border:0;padding:4px 5px;border-radius:7px;
+ cursor:pointer;font:inherit;color:var(--body);text-align:left}
+.swrow:hover{background:var(--well)}
+.swrow .bars{display:flex;gap:1.5px;flex:1}
+.swrow .bars i{height:18px;flex:1;border-radius:2px}
+.swrow .nm{font-size:10.5px;width:52px;flex:0 0 52px;color:var(--subtle)}
+.swrow[aria-pressed="true"]{background:var(--well);box-shadow:inset 2.5px 0 0 var(--accent)}
+.swrow[aria-pressed="true"] .nm{color:var(--lead);font-weight:600}
+.switcher .sf{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:6px}
+.switcher .sf .btn{justify-content:center;width:100%;font-size:11px;padding:9px 10px}
+@media(max-width:1200px){.switcher{display:none}}
+/* ===== 02 · REAL COMPONENTS — a broad stage ===== */
+.stage{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--surface);
+ box-shadow:0 28px 66px -46px oklch(0% 0 0/.55)}
+.stagebar{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--rule);background:var(--well)}
+.stagebar .dots{display:flex;gap:5px}
+.stagebar .dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
+.stagebar .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle)}
+.stagebar .verdict{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--subtle)}
+.stagebar .verdict i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.stagebar .verdict b{color:var(--lead);font-weight:500}
+.stagein{padding:26px}
+
+/* the broad component board */
+.board{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.b-hero{grid-column:span 12;background:var(--well);border:1px solid var(--rule);border-radius:13px;padding:24px;position:relative;overflow:hidden}
+.b-hero::after{content:"";position:absolute;right:-8%;top:-40%;width:46%;height:180%;border-radius:50%;
+ background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 18%,transparent),transparent 70%);pointer-events:none}
+.b-hero .eyebrow{margin-bottom:12px}
+.b-hero h3{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.8vw,34px);line-height:1.04;
+ letter-spacing:-.038em;color:var(--lead);margin:0;max-width:22ch}
+.b-hero h3 em{font-style:italic;font-weight:500;color:var(--accent-text)}
+.b-hero p{font-size:13px;color:var(--subtle);margin:12px 0 0;max-width:44ch;line-height:1.6}
+.b-hero .row{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap;align-items:center}
+
+.tabs{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;width:max-content;background:var(--surface)}
+.tabs u{text-decoration:none;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--subtle);padding:8px 13px;border-radius:999px;cursor:pointer}
+.tabs u.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+
+.b-work{grid-column:span 5}
+.workcard{background:var(--surface);border:1px solid var(--rule);border-radius:12px;overflow:hidden;height:100%}
+.workcard .shot{height:112px;background:
+ linear-gradient(135deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent) 6%,transparent)),var(--well);
+ position:relative;border-bottom:1px solid var(--rule)}
+.workcard .shot .glass{position:absolute;left:14px;bottom:12px;right:14px;height:44px;border-radius:8px;
+ background:color-mix(in srgb,var(--surface) 72%,transparent);border:1px solid var(--rule);backdrop-filter:blur(8px);
+ display:flex;align-items:center;gap:8px;padding:0 11px}
+.workcard .shot .glass i{width:20px;height:20px;border-radius:5px;background:var(--accent)}
+.workcard .shot .glass s{flex:1;height:5px;border-radius:3px;background:var(--rule);text-decoration:none}
+.workcard .wb{padding:15px}
+.workcard .meta{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);
+ border:1px solid var(--rule);border-radius:999px;padding:5px 10px}
+.chip.solid{background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent-text);
+ border-color:color-mix(in srgb,var(--accent) 28%,transparent);font-weight:500}
+.workcard p{font-size:12px;color:var(--subtle);margin:6px 0 0;line-height:1.55}
+
+.b-stats{grid-column:span 3;display:flex;flex-direction:column;gap:14px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px;flex:1;
+ display:flex;flex-direction:column;justify-content:center}
+.stat b{font-family:var(--mono);font-weight:500;font-size:26px;color:var(--lead);letter-spacing:-.04em}
+.stat span{font-family:var(--mono);font-size:8.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--subtle);margin-top:7px}
+.stat .delta{font-size:10.5px;color:var(--ok);margin-top:6px;font-weight:500}
+
+.b-form{grid-column:span 4;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.field{margin-bottom:11px}
+.field label{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--subtle);margin-bottom:6px}
+.field input,.field select{width:100%;background:var(--well);border:1px solid var(--rule);border-radius:8px;
+ padding:10px 12px;font:inherit;font-size:12.5px;color:var(--lead);outline:none}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.field input::placeholder{color:var(--subtle)}
+.field.err input{border-color:var(--warn)}
+.field .msg{font-size:10.5px;color:var(--warn);margin-top:5px}
+.check{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--subtle);margin:12px 0}
+.check i{width:16px;height:16px;border-radius:4px;border:1px solid var(--rule);background:var(--accent);
+ display:grid;place-items:center;color:var(--on-accent);font-size:10px;flex:0 0 16px}
+
+.b-quote{grid-column:span 7;background:var(--well);border:1px solid var(--rule);border-radius:12px;padding:20px;
+ border-left:3px solid var(--accent)}
+.b-quote p{font-family:var(--display);font-weight:500;font-size:19px;line-height:1.32;letter-spacing:-.026em;
+ color:var(--lead);margin:0}
+.b-quote span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--subtle);margin-top:12px}
+
+.b-prog{grid-column:span 5;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.steps{display:flex;align-items:center;margin:14px 0 6px}
+.steps i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;
+ font-family:var(--mono);font-size:9px;border:1px solid var(--rule);color:var(--subtle);background:var(--well)}
+.steps i.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:500}
+.steps s{flex:1;height:1.5px;background:var(--rule);text-decoration:none}
+.steps s.on{background:var(--accent)}
+.meter{height:7px;border-radius:5px;background:var(--well);border:1px solid var(--rule);overflow:hidden;margin-top:14px}
+.meter i{display:block;height:100%;width:58%;background:var(--accent);border-radius:5px}
+.readrow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;
+ letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin-top:7px}
+
+.b-toast{grid-column:span 4;display:flex;flex-direction:column;gap:10px}
+.toastc{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--rule);
+ border-radius:10px;padding:12px}
+.toastc i{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:11px;flex:0 0 24px}
+.toastc.ok i{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);
+ border:1px solid color-mix(in srgb,var(--ok) 32%,transparent)}
+.toastc.warn i{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn);
+ border:1px solid color-mix(in srgb,var(--warn) 32%,transparent)}
+.toastc b{display:block;font-size:12px;font-weight:600;color:var(--lead)}
+.toastc p{margin:3px 0 0;font-size:11px;color:var(--subtle);line-height:1.5}
+
+.b-nav{grid-column:span 8;background:var(--well);border:1px solid var(--rule);border-radius:12px;padding:16px;
+ display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.minipill{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--rule);
+ border-radius:999px;padding:7px 8px 7px 15px}
+.minipill b{font-family:var(--display);font-style:italic;font-weight:500;font-size:12.5px;color:var(--lead)}
+.minipill span{font-size:10px;color:var(--subtle)}
+.minipill i{font-style:normal;font-size:9.5px;font-weight:600;background:var(--accent);color:var(--on-accent);
+ border-radius:999px;padding:5px 10px}
+.b-blog{grid-column:span 4;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.b-blog .dot{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:8.5px;
+ letter-spacing:.15em;text-transform:uppercase;color:var(--subtle)}
+.b-blog .dot::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok)}
+.b-blog p{font-size:11.5px;color:var(--subtle);margin:8px 0 0;line-height:1.55}
+.b-blog .love{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule);border-radius:999px;
+ padding:6px 12px;font-size:11px;color:var(--subtle);margin-top:12px}
+.b-blog .love i{color:var(--accent);font-style:normal}
+@media(max-width:1000px){.board{grid-template-columns:repeat(6,1fr)}
+ .b-work,.b-form,.b-quote,.b-prog,.b-toast,.b-nav,.b-blog,.b-stats{grid-column:span 6}}
+
+/* ===== primer-specific ===== */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.q{border:1px solid var(--rule);border-radius:13px;overflow:hidden;background:var(--surface)}
+.q .band{height:58px;display:flex}
+.q .band i{flex:1}
+.q .qb{padding:17px 18px}
+.q h3{font-family:var(--display);font-weight:600;font-size:20px;color:var(--lead);margin:9px 0 7px;letter-spacing:-.028em}
+.q p{font-size:12.5px;color:var(--subtle);margin:0;line-height:1.62}
+.q .use{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);font-size:11.5px;color:var(--subtle);line-height:1.55}
+.q .use b{color:var(--lead);font-weight:600}
+
+.lab2{display:grid;grid-template-columns:360px 1fr;border:1px solid var(--rule);border-radius:16px;overflow:hidden;
+ background:var(--surface);box-shadow:0 28px 66px -46px oklch(0% 0 0/.55)}
+.controls{padding:20px;border-right:1px solid var(--rule);background:var(--well)}
+.ctl{margin-bottom:22px}
+.ctl .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.ctl .row b{font-weight:600;font-size:13px;color:var(--lead)}
+.ctl .row b em{font-style:normal;font-family:var(--mono);font-weight:500;font-size:9.5px;color:var(--accent-text);margin-left:8px}
+.ctl .row output{font-family:var(--mono);font-weight:500;font-size:12.5px;color:var(--lead)}
+.ctl input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:10px;border-radius:6px;outline:none;margin:0}
+.ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+ background:var(--surface);border:2px solid var(--lead);cursor:pointer;box-shadow:0 2px 6px oklch(0% 0 0/.3)}
+.ctl input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--lead)}
+#rl{background:linear-gradient(90deg,oklch(15% .02 var(--H)),oklch(99% .02 var(--H)))}
+#rc{background:linear-gradient(90deg,oklch(var(--L) 0 var(--H)),oklch(var(--L) .32 var(--H)))}
+#rh{background:linear-gradient(90deg,oklch(var(--L) var(--C) 0),oklch(var(--L) var(--C) 72),oklch(var(--L) var(--C) 144),
+ oklch(var(--L) var(--C) 216),oklch(var(--L) var(--C) 288),oklch(var(--L) var(--C) 360))}
+.ctl .hint{font-size:11px;color:var(--subtle);margin:9px 0 0;line-height:1.55}
+.valbox{background:var(--surface);border:1px solid var(--rule);border-radius:9px;padding:12px 13px;
+ font-family:var(--mono);font-weight:500;font-size:12.5px;color:var(--lead);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.valbox button{border:0;background:none;color:var(--accent-text);font:inherit;font-family:var(--mono);font-size:10px;cursor:pointer;font-weight:500}
+.trybox{margin-top:15px;padding:13px;border-left:3px solid var(--accent);background:var(--surface);
+ border-radius:0 9px 9px 0;font-size:11.5px;color:var(--subtle);line-height:1.6}
+.trybox b{color:var(--lead);font-weight:600;display:block;margin-bottom:4px}
+.stage2{padding:24px;display:flex;flex-direction:column;gap:16px}
+.stagetop{display:flex;align-items:center;gap:10px}
+.mode{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--well)}
+.mode button{font:inherit;font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;border:0;
+ background:none;color:var(--subtle);padding:7px 12px;border-radius:999px;cursor:pointer}
+.mode button.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+.ratio{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--subtle)}
+.ratio b{color:var(--lead);font-weight:500}
+.ratio.bad b{color:var(--warn)}
+.samp{flex:1;border:1px solid var(--rule);border-radius:13px;padding:26px}
+.samp .eye{font-family:var(--mono);font-weight:500;font-size:8.5px;letter-spacing:.22em;text-transform:uppercase}
+.samp h3{font-family:var(--display);font-weight:600;font-size:clamp(21px,2.6vw,31px);line-height:1.08;
+ letter-spacing:-.036em;margin:12px 0 0}
+.samp p{font-size:13px;line-height:1.62;margin:12px 0 0;max-width:44ch}
+.samp .row2{display:grid;grid-template-columns:1.3fr .7fr;gap:12px;margin-top:20px}
+.samp .card,.samp .st2{border:1px solid var(--rule);border-radius:11px;padding:15px;position:relative;overflow:hidden}
+.samp .card .bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.samp .card h5{font-family:var(--display);font-weight:600;font-size:15px;margin:7px 0 5px;letter-spacing:-.02em}
+.samp .card p{font-size:11.5px;margin:0}
+.samp .st2{display:flex;flex-direction:column;justify-content:center}
+.samp .st2 b{font-family:var(--mono);font-weight:500;font-size:21px}
+.samp .st2 span{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;margin-top:6px}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cmpcard{border:1px solid var(--rule);border-radius:13px;overflow:hidden;background:var(--surface)}
+.cmpcard .ch{padding:13px 16px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.cmpcard .ch b{font-weight:600;font-size:13px;color:var(--lead)}
+.cmpcard .ch em{font-style:normal;font-family:var(--mono);font-size:9px;color:var(--subtle)}
+.cmpcard .cb{padding:16px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);border-radius:9px;overflow:hidden}
+.four div{height:108px;padding:11px;display:flex;flex-direction:column;justify-content:flex-end}
+.four b{font-weight:600;font-size:12.5px}
+.four code{font-family:var(--mono);font-size:8px;opacity:.85;margin-top:3px}
+.cmpcard .cap{font-size:12px;color:var(--subtle);line-height:1.6;margin:13px 0 0}
+.cmpcard .cap b{color:var(--lead);font-weight:600}
+
+.ladder{display:grid;grid-template-columns:repeat(8,1fr);border-radius:11px;overflow:hidden;border:1px solid var(--rule)}
+.ladder div{height:118px;padding:12px;display:flex;flex-direction:column;justify-content:space-between}
+.ladder b{font-family:var(--mono);font-weight:500;font-size:11.5px}
+.ladder small{font-family:var(--mono);font-size:8px;opacity:.8}
+.tokrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:11px;margin-top:15px}
+.tk{border:1px solid var(--rule);border-radius:11px;overflow:hidden;background:var(--surface)}
+.tk i{display:block;height:58px}
+.tk div{padding:11px 13px}
+.tk b{display:block;font-weight:600;font-size:12px;color:var(--lead)}
+.tk code{display:block;font-family:var(--mono);font-size:8.5px;color:var(--subtle);margin-top:4px}
+.tk small{display:block;font-size:10.5px;color:var(--subtle);margin-top:6px}
+
+.dmz{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dmc{border:1px solid var(--rule);border-radius:13px;overflow:hidden}
+.dmc .h{padding:12px 15px;border-bottom:1px solid var(--rule);font-weight:600;font-size:12.5px}
+.dmc .b{padding:17px}
+.dmc pre{font-family:var(--mono);font-size:10.5px;line-height:1.9;margin:0;white-space:pre-wrap}
+.lightc{background:var(--surface);color:var(--body)}
+.lightc .h{color:var(--lead)}
+.lightc .k{color:var(--accent-text)}
+.darkc{background:oklch(20% .022 var(--H));color:oklch(84% .015 var(--H));border-color:oklch(96% .008 var(--H)/.16)}
+.darkc .h{color:oklch(96% .008 var(--H));border-color:oklch(96% .008 var(--H)/.16)}
+.darkc .k{color:oklch(80% .12 var(--H))}
+.dmc .c{color:var(--subtle)}
+.darkc .c{color:oklch(66% .02 var(--H))}
+
+.faq details{border-top:1px solid var(--rule)}
+.faq details:last-of-type{border-bottom:1px solid var(--rule)}
+.faq summary{list-style:none;cursor:pointer;padding:18px 0;font-family:var(--display);font-weight:600;
+ font-size:18px;color:var(--lead);letter-spacing:-.026em;display:flex;align-items:center;gap:13px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:"+";font-family:var(--mono);font-size:15px;color:var(--accent-text);width:15px}
+.faq details[open] summary::before{content:"−"}
+.faq .a{font-size:13px;color:var(--subtle);line-height:1.7;margin:0 0 18px;max-width:74ch;padding-left:28px}
+.faq .a b{color:var(--lead);font-weight:600}
+.next{border:1px solid var(--rule);border-radius:14px;background:var(--surface);padding:26px;
+ display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.next h4{font-family:var(--display);font-weight:600;font-size:25px;color:var(--lead);margin:0;letter-spacing:-.032em}
+.next p{font-size:13px;color:var(--subtle);margin:8px 0 0;max-width:46ch;line-height:1.6}
+@media(max-width:1000px){.three,.cmp,.dmz,.lab2{grid-template-columns:1fr}
+ .controls{border-right:0;border-bottom:1px solid var(--rule)}.ladder{grid-template-columns:repeat(4,1fr)}
+ .four{grid-template-columns:1fr 1fr}}
+</style></head><body data-p="cream">
+
+<nav class="nav"><b>Akshita</b><span class="sur">SINGH</span>
+ <a href="#">Process</a><a href="#">Work</a><a href="#">Blog</a>
+ <a href="#" class="on">Playground</a><a href="#">Contact</a><a href="#" class="cta">Resume ↗</a></nav>
+
+<!-- ══════════ 01 · HERO ══════════ -->
+<header class="hero">
+ <div class="in">
+  <span class="pillline"><i></i><span class="eyebrow" style="color:var(--subtle)">Playground · 02 — Learn OKLCH</span></span>
+  <h1 class="h-page" style="margin-top:26px">Three numbers.<br>One of them is the <em>theme</em>.</h1>
+  <p class="dek">A colour written as <span style="font-family:var(--mono);font-size:.9em;font-weight:500">oklch(62% 0.15 42)</span> answers three separate questions: how light, how colourful, which hue. Change the third and you have a new theme. Change nothing else and the hierarchy survives.</p>
+  <div class="formula"><em>the whole idea</em><span>oklch(</span><b>L</b> <b>C</b> <b>H</b><span>)</span></div>
+  <div class="heroact">
+   <a class="btn" href="#lab">Move the three controls ↓</a>
+   <a class="btn ghost" href="#">Playground · 01 — Palettes ↗</a>
+  </div>
+  <div class="herofacts">
+   <div><b>3</b><span>numbers</span></div>
+   <div><b>1</b><span>changes per theme</span></div>
+   <div><b>4</b><span>minutes</span></div>
+   <div><b>0</b><span>maths required</span></div>
+  </div>
+ </div>
+</header>
+
+<!-- ══════════ 02 · MENTAL MODEL ══════════ -->
+<section class="wrap sec" id="model">
+ <div class="sechead"><span class="n">02</span><h2 class="h-sec">The mental model.</h2><span class="r">three questions</span></div>
+ <p class="say" style="margin-bottom:22px">Every colour on this page — and on the rest of this site — is these three numbers. The bands are live: they redraw from whatever you set below.</p>
+ <div class="three">
+  <article class="q"><div class="band" id="bandL"></div><div class="qb">
+   <p class="eyebrow">L · lightness</p><h3>How much light?</h3>
+   <p>0% is black, 100% is white. Perceptual rather than mathematical — 50% actually looks halfway, which is the part HSL gets wrong.</p>
+   <p class="use"><b>Use it for hierarchy.</b> Contrast is almost entirely a lightness question.</p></div></article>
+  <article class="q"><div class="band" id="bandC"></div><div class="qb">
+   <p class="eyebrow">C · chroma</p><h3>How colourful?</h3>
+   <p>0 is grey. Around 0.1–0.2 is vivid. Push further and the colour leaves what a screen can actually show.</p>
+   <p class="use"><b>Use it for energy.</b> Hold it steady so no palette shouts louder than another.</p></div></article>
+  <article class="q"><div class="band" id="bandH"></div><div class="qb">
+   <p class="eyebrow">H · hue</p><h3>Which family?</h3>
+   <p>A position on the wheel, 0 to 360. The only number that says <em>which colour</em> this is.</p>
+   <p class="use"><b>Use it for identity.</b> This is the number a theme changes — and the only one.</p></div></article>
+ </div>
+</section>
+
+<!-- ══════════ 03 · THE LAB ══════════ -->
+<section class="wrap sec" id="lab">
+ <div class="sechead"><span class="n">03</span><h2 class="h-sec">Move one at a time.</h2><span class="r">interactive</span></div>
+ <p class="say" style="margin-bottom:22px">Drag a slider and watch what changes — and more usefully, what doesn't. The sample is the site's own components, and the contrast readout is live.</p>
+ <div class="lab2">
+  <div class="controls">
+   <div class="ctl"><div class="row"><b>Lightness <em>L</em></b><output id="ol">62%</output></div>
+    <input id="rl" type="range" min="15" max="97" value="62">
+    <p class="hint">Move this and the contrast moves with it. Hue and intensity hold exactly.</p></div>
+   <div class="ctl"><div class="row"><b>Chroma <em>C</em></b><output id="oc">0.15</output></div>
+    <input id="rc" type="range" min="0" max=".32" step=".01" value=".15">
+    <p class="hint">More or less intense, at the same weight. Notice the contrast barely moves.</p></div>
+   <div class="ctl"><div class="row"><b>Hue <em>H</em></b><output id="oh">42°</output></div>
+    <input id="rh" type="range" min="0" max="360" value="42">
+    <p class="hint">Sweep this. The identity changes completely and the hierarchy does not move at all.</p></div>
+   <div class="valbox"><span id="val">oklch(62% 0.15 42)</span><button onclick="copyVal()">Copy</button></div>
+   <div class="trybox"><b>Try this</b>Hold L at 62 and C at 0.15, then sweep hue end to end. That single drag is what a theme change costs when the ladder is fixed.</div>
+  </div>
+  <div class="stage2">
+   <div class="stagetop">
+    <div class="mode"><button id="mLight" class="on" onclick="setMode(0)">Light</button><button id="mDark" onclick="setMode(1)">Dark</button></div>
+    <span class="ratio" id="ratio">accent on surface · <b>4.70</b></span>
+   </div>
+   <div class="samp" id="samp">
+    <p class="eye">Case study · product design</p>
+    <h3>Colour should explain the hierarchy before you read a word.</h3>
+    <p>One controlled lightness ladder makes emphasis predictable in every theme, which is what stops a palette swap from becoming a redesign.</p>
+    <div class="row2">
+     <div class="card"><span class="bar"></span><p class="eye">Elevate</p><h5>One surface, three personas</h5>
+      <p>Analysts, leads and admins reading the same data at different depths.</p></div>
+     <div class="st2"><b>40%</b><span>faster to insight</span></div>
+    </div>
+    <div style="margin-top:20px"><button class="btn sm" id="sbtn">Explore the work →</button></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ══════════ 04 · THE PROBLEM ══════════ -->
+<section class="wrap sec">
+ <div class="sechead"><span class="n">04</span><h2 class="h-sec">The problem it fixes.</h2><span class="r">hsl vs oklch</span></div>
+ <p class="say" style="margin-bottom:22px">In HSL every colour below says 50% lightness. They are not remotely the same brightness — which is why a scale built in HSL has to be corrected by eye, per colour, forever.</p>
+ <div class="cmp">
+  <div class="cmpcard"><div class="ch"><b>HSL · every one at 50% L</b><em>wildly uneven</em></div>
+   <div class="cb"><div class="four">
+    <div style="background:hsl(55 100% 50%);color:#111"><b>Yellow</b><code>hsl(55 100% 50%)</code></div>
+    <div style="background:hsl(140 100% 50%);color:#111"><b>Green</b><code>hsl(140 100% 50%)</code></div>
+    <div style="background:hsl(240 100% 50%);color:#fff"><b>Blue</b><code>hsl(240 100% 50%)</code></div>
+    <div style="background:hsl(300 100% 50%);color:#fff"><b>Pink</b><code>hsl(300 100% 50%)</code></div></div>
+    <p class="cap">Yellow shouts, blue sinks. <b>The number lied</b> — and any rule you write against it is wrong for most hues.</p></div></div>
+  <div class="cmpcard"><div class="ch"><b>OKLCH · every one at 72% L</b><em>even weight</em></div>
+   <div class="cb"><div class="four">
+    <div style="background:oklch(72% .16 95);color:#111"><b>Yellow</b><code>oklch(72% .16 95)</code></div>
+    <div style="background:oklch(72% .16 145);color:#111"><b>Green</b><code>oklch(72% .16 145)</code></div>
+    <div style="background:oklch(72% .16 255);color:#111"><b>Blue</b><code>oklch(72% .16 255)</code></div>
+    <div style="background:oklch(72% .16 325);color:#111"><b>Pink</b><code>oklch(72% .16 325)</code></div></div>
+    <p class="cap">Same perceived weight at every hue. <b>Now a rule holds</b> — one ladder works for the whole wheel.</p></div></div>
+ </div>
+</section>
+
+<!-- ══════════ 05 · ONE COLOUR BECOMES A SYSTEM ══════════ -->
+<section class="wrap sec">
+ <div class="sechead"><span class="n">05</span><h2 class="h-sec">One colour becomes a system.</h2><span class="r">from your hue</span></div>
+ <p class="say" style="margin-bottom:22px">Take the hue you set above, hold chroma, step lightness. That is a full scale — and the four role tokens under it are all a component ever needs to name.</p>
+ <div class="ladder" id="ladder"></div>
+ <div class="tokrow" id="toks"></div>
+</section>
+
+<!-- ══════════ 06 · DARK MODE ══════════ -->
+<section class="wrap sec">
+ <div class="sechead"><span class="n">06</span><h2 class="h-sec">Dark mode stops being a second design.</h2><span class="r">the payoff</span></div>
+ <p class="say" style="margin-bottom:22px">Mirror the lightness values around the midpoint and leave hue alone. The identity survives, the relationships survive, and there is no second palette to maintain.</p>
+ <div class="dmz">
+  <div class="dmc lightc"><div class="h">Light</div><div class="b"><pre><span class="c">/* hue and chroma unchanged */</span>
+<span class="k">--surface</span>:     oklch(<b>99%</b> .006 <span class="hz">42</span>);
+<span class="k">--text-lead</span>:   oklch(<b>16%</b> .020 <span class="hz">42</span>);
+<span class="k">--text-subtle</span>: oklch(<b>48%</b> .018 <span class="hz">42</span>);
+<span class="k">--accent</span>:      oklch(<b>62%</b> .150 <span class="hz">42</span>);</pre></div></div>
+  <div class="dmc darkc"><div class="h">Dark — the same block, L mirrored</div><div class="b"><pre><span class="c">/* only the L values moved */</span>
+<span class="k">--surface</span>:     oklch(<b>23%</b> .024 <span class="hz">42</span>);
+<span class="k">--text-lead</span>:   oklch(<b>96%</b> .008 <span class="hz">42</span>);
+<span class="k">--text-subtle</span>: oklch(<b>66%</b> .020 <span class="hz">42</span>);
+<span class="k">--accent</span>:      oklch(<b>70%</b> .150 <span class="hz">42</span>);</pre></div></div>
+ </div>
+</section>
+
+<!-- ══════════ 07 · CHECK YOUR MODEL ══════════ -->
+<section class="wrap sec faq">
+ <div class="sechead"><span class="n">07</span><h2 class="h-sec">Check your model.</h2><span class="r">three questions</span></div>
+ <p class="say" style="margin-bottom:16px">You understand OKLCH when these three feel obvious rather than clever.</p>
+ <details open><summary>New theme, same hierarchy. Which number changes?</summary>
+  <p class="a"><b>Hue, and only hue.</b> Keep the lightness roles exactly as they are, then tune chroma only if the new hue reads weak or leaves the display gamut. If you find yourself changing L, you are rebuilding rather than retheming.</p></details>
+ <details><summary>Muted text is too faint. Should I raise chroma?</summary>
+  <p class="a"><b>Almost never.</b> Faintness is a lightness problem — the gap between the text and its background is too small. Raising chroma makes it more colourful and no more legible, and on a dark ground it usually makes it worse.</p></details>
+ <details><summary>Does equal OKLCH lightness guarantee WCAG contrast?</summary>
+  <p class="a"><b>No, and this is the one people get wrong.</b> OKLCH is an authoring model, not a contrast certificate. Perceptual lightness and WCAG's relative luminance are different measures. Test every real text-on-background pair — which is exactly why the palettes page publishes thirty measured pairs per palette instead of asserting that the maths holds.</p></details>
+</section>
+
+<section class="wrap sec">
+ <div class="next">
+  <div><h4>Now go use it.</h4><p>Nine palettes built on exactly this — same ladder, nine hues — with every pair measured and the tokens ready to copy.</p></div>
+  <a class="btn" href="#" style="margin-left:auto">Playground · 01 — Palettes ↗</a>
+ </div>
+</section>
+
+<footer class="wrap foot"><span><b>Free to use.</b> No attribution needed.</span>
+ <span style="margin-left:auto">Built in Bengaluru ♥</span></footer>
+
+<aside class="switcher" id="sw">
+ <div class="st"><b>Palette</b><em id="swh">42°</em></div>
+ <p class="swgroup">Light</p><div id="swL"></div>
+ <p class="swgroup">Dark</p><div id="swD"></div>
+ <div class="sf">
+  <button class="btn" onclick="toast('Applied across the portfolio — 30 minutes')">Try across the portfolio ↗</button>
+  <button class="btn ghost" onclick="jumpLab()">Jump to the controls</button>
+ </div>
+</aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const PAL=[
+ {id:'cream',n:'Cream',H:42,L:62,C:.15,dark:0},{id:'harbour',n:'Harbour',H:235,L:48,C:.10,dark:0},
+ {id:'orchid',n:'Orchid',H:305,L:46,C:.16,dark:0},{id:'cerise',n:'Cerise',H:12,L:50,C:.17,dark:0},
+ {id:'fern',n:'Fern',H:155,L:50,C:.11,dark:0},{id:'nocturne',n:'Nocturne',H:290,L:62,C:.20,dark:1},
+ {id:'sapphire',n:'Sapphire',H:255,L:64,C:.16,dark:1},{id:'inkflare',n:'Ink & Flare',H:45,L:66,C:.17,dark:1},
+ {id:'basalt',n:'Basalt',H:126,L:70,C:.17,dark:1}];
+let cur=0, dark=false;
+const el={l:$('#rl'),c:$('#rc'),h:$('#rh')};
+const L=()=>+el.l.value, C=()=>+el.c.value, H=()=>+el.h.value;
+const col=(l=L(),c=C(),h=H())=>`oklch(${l}% ${(+c).toFixed(2)} ${h})`;
+function ratio(a,b){const f=x=>Math.pow(x/100,2.2);const A=f(a)+.05,B=f(b)+.05;return Math.max(A,B)/Math.min(A,B)}
+function ramp(p,i){
+ const steps=p.dark?[17,20,23,p.L,80,96]:[96,99,97,p.L,46,16];
+ return `<button class="swrow" aria-pressed="${i===cur}" onclick="pickPal(${i})">
+  <span class="nm">${p.n}</span><span class="bars">${steps.map(l=>
+  `<i style="background:oklch(${l}% ${(l>90||l<25)?.02:p.C} ${p.H})"></i>`).join('')}</span></button>`;
+}
+function pickPal(i){
+ cur=i; const p=PAL[i];
+ document.body.dataset.p=p.id;
+ el.l.value=p.L; el.c.value=p.C; el.h.value=p.H;
+ dark=!!p.dark; $('#mLight').className=dark?'':'on'; $('#mDark').className=dark?'on':'';
+ render();
+}
+function render(){
+ $('#ol').textContent=L()+'%'; $('#oc').textContent=C().toFixed(2); $('#oh').textContent=H()+'°';
+ $('#val').textContent=col();
+ $('#swh').textContent=H()+'°';
+ $('#swL').innerHTML=PAL.map((x,i)=>x.dark?'':ramp(x,i)).join('');
+ $('#swD').innerHTML=PAL.map((x,i)=>x.dark?ramp(x,i):'').join('');
+ const n=8;
+ const mk=fn=>Array.from({length:n},(_,i)=>`<i style="background:${fn(i/(n-1))}"></i>`).join('');
+ $('#bandL').innerHTML=mk(t=>`oklch(${(15+t*82).toFixed(0)}% ${C()} ${H()})`);
+ $('#bandC').innerHTML=mk(t=>`oklch(${L()}% ${(t*.3).toFixed(2)} ${H()})`);
+ $('#bandH').innerHTML=mk(t=>`oklch(${L()}% ${C()} ${Math.round(t*360)})`);
+ const s=$('#samp'), sL=dark?23:99, tL=dark?96:16, uL=dark?66:48, wL=dark?20:97.6;
+ s.style.background=`oklch(${sL}% ${dark?.024:.006} ${H()})`;
+ s.style.borderColor=`oklch(${tL}% .01 ${H()}/.16)`;
+ s.querySelectorAll('h3,h5,.st2 b').forEach(x=>x.style.color=`oklch(${tL}% .015 ${H()})`);
+ s.querySelectorAll('p:not(.eye),.st2 span').forEach(x=>x.style.color=`oklch(${uL}% .018 ${H()})`);
+ s.querySelectorAll('.eye').forEach(x=>x.style.color=col(dark?80:46,dark?.12:.13,H()));
+ s.querySelectorAll('.card,.st2').forEach(x=>{x.style.background=`oklch(${wL}% ${dark?.023:.014} ${H()})`;
+  x.style.borderColor=`oklch(${tL}% .01 ${H()}/.16)`});
+ s.querySelectorAll('.bar').forEach(x=>x.style.background=col());
+ const b=$('#sbtn'); b.style.background=col(); b.style.color=`oklch(${L()>60?14:98}% .02 ${H()})`; b.style.boxShadow='none';
+ const rr=ratio(L(),sL), rEl=$('#ratio');
+ rEl.innerHTML=`accent on surface · <b>${rr.toFixed(2)}</b>`; rEl.classList.toggle('bad',rr<4.5);
+ const steps=[97,90,80,68,56,44,32,20];
+ $('#ladder').innerHTML=steps.map((x,i)=>{
+  const c=(x>88||x<26)?Math.min(C(),.05):C();
+  return `<div style="background:oklch(${x}% ${c.toFixed(2)} ${H()});color:oklch(${x>52?18:97}% .02 ${H()})">
+   <b>${(i+1)*100}</b><small>L ${x}</small></div>`}).join('');
+ const T=[['Text lead',col(dark?96:16,dark?.008:.02,H()),'headings, core copy'],
+  ['Text subtle',col(dark?66:48,dark?.02:.018,H()),'body and support'],
+  ['Accent',col(),'links, focus, marks'],
+  ['Surface',col(dark?23:99,dark?.024:.006,H()),'cards and panels']];
+ $('#toks').innerHTML=T.map(t=>`<div class="tk"><i style="background:${t[1]}"></i>
+  <div><b>${t[0]}</b><code>${t[1]}</code><small>${t[2]}</small></div></div>`).join('');
+ document.querySelectorAll('.hz').forEach(x=>x.textContent=H());
+}
+function setMode(d){dark=!!d;$('#mLight').className=d?'':'on';$('#mDark').className=d?'on':'';render()}
+function copyVal(){navigator.clipboard?.writeText($('#val').textContent);toast('Value copied')}
+function jumpLab(){document.getElementById('lab').scrollIntoView({behavior:'smooth'})}
+Object.values(el).forEach(x=>x.addEventListener('input',render));
+const io=new IntersectionObserver(es=>es.forEach(e=>
+ $('#sw').classList.toggle('on',!e.isIntersecting||e.boundingClientRect.top<0)),{rootMargin:'-40% 0px 0px 0px'});
+io.observe(document.querySelector('.hero'));
+let tt; function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');
+ clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1600)}
+render();
+</script></body></html>
