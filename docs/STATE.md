@@ -6,7 +6,30 @@ Next.js 15 App Router portfolio (repo: sinhasagar01/akshita-portfolio) with a cu
 
 ---
 
-## STATE (as of BOAT CREST BECOMES CONTENT)
+## STATE (as of THE ASH HERO SHIPS)
+
+**main** = `7068db5` = the hero illustration becomes an editable field (#496).
+ralph **3000 across 80 suites**. Production serves `7068db5`.
+
+**⚠ THIS HEADER READ `2ad6dac` / 2286 ACROSS 53 SUITES FOR 271 COMMITS, AND THAT IS WORTH ONE
+PARAGRAPH RATHER THAN A SILENT EDIT.** CLAUDE.md points here — *"the record of what shipped, in order
+and with its reasoning, is docs/STATE.md, read that rather than inferring history from this list"* —
+so the file the project designates as its history was the one furthest behind. It is the same shape
+this record has closed three times in a single session elsewhere: a claim about the present that
+quietly stopped being true, in a document nobody re-reads because re-reading it is itself work.
+
+**⚠ AND THE BACKFILL IS DELIBERATELY PARTIAL, WHICH IS THE HONEST FORM.** The newest entry covers
+#487–#496, the arc whose reasoning is actually known. The ~240 PRs between `2ad6dac` and #487 are NOT
+written up here: inventing their reasoning after the fact would produce exactly the confident, stale,
+citable prose this file exists to prevent. **A gap that says it is a gap beats a reconstruction.**
+Their commit bodies and PR descriptions are the record for that stretch.
+
+**THE ENTRY BELOW IS THE CURRENT STATE. What follows it, from BOAT CREST BECOMES CONTENT down, is
+history and is left as written.**
+
+---
+
+## (HISTORICAL) BOAT CREST BECOMES CONTENT
 
 **main** = `2ad6dac` = the case-study canvas zooms from its centre (#295).
 ralph **2286 across 53 suites**.
@@ -12055,7 +12078,199 @@ right; **the fix is in the TRIGGER.** Sapphire's hold moves to that reason.
 structurally light-ground at **1.15**; this is the same defect at **1.29**, measured on a real page
 two arcs later. **Fifth thing a new theme has found that no gate could.**
 
+---
+
+## THE ASH HERO SHIPS, AND EVERY CLAIM IN IT WAS MEASURED TWICE (#487–#496)
+
+**main** = `7068db5`. ralph **3000 across 80 suites**. Production serves it.
+
+The home hero was rebuilt from `docs/hero-ash-contract.html` — its composition, typography, motion
+and copy — and the centred hero it replaces was DELETED rather than wrapped. Keeping it behind a
+class would have left two heroes in one file, which is the shape that let an unreachable studio
+route drift for an arc.
+
+**THE GEOMETRY, MEASURED BEFORE AND AFTER.** The panel is `top/right/bottom: 0` with `left: 47%` and
+owns its height.
+
+    right gap    291 -> 0        bottom gap   271 -> 0
+    copy offset  291 -> 62       figure       611/611 -> a 153px crop at 16:10
+    layers         0 -> 6        piece overlap  4/4 -> 0/4
+
+**⚠ THE PANEL COULD NOT REACH THE EDGE WHILE THE GROUND HAD PADDING, AND NO VALUE OF `right` FIXES
+THAT.** An absolutely positioned child resolves `inset: 0` against its containing block's PADDING
+box. The gutter moved onto the copy column, which also retired a derived literal: the reflow was a
+container query pinned at `942` (1024 minus two 40.96 gutters) and is now the site's own 1023 media
+query, because with the padding gone the container IS the viewport minus the scrollbar — a 14px
+two-stage mobile arriving from the opposite direction to the one the old comment guarded against.
+
+---
+
+## ⚠ THE CONTRACT'S FOUR PALETTES ARE A MOCK'S HEXES, AND SHIPPING THEM GAVE FIVE WRONG PALETTES
+
+The first build translated the contract onto the role layer. The owner's ruling was exact fidelity —
+same typography, weights, colours and content — so it was reversed and the hexes shipped. **That was
+the defect, and the second ruling corrected it after the numbers were on the table.**
+
+Measured across all ten registered themes, sanity pair 21.000 first, the hero ground never moved off
+`#FAF6EF`:
+
+    light palettes   1.03 – 1.04 against the five surfaces
+    dark palettes    17.74 – 17.86 against the four grounds — a light slab on a near-black page
+
+with terracotta accents on teal, purple, pink and green sites. Every `--hx-*` slot is now a role
+read. The NAMES survive and only the VALUES moved, so the mapping is one reviewable table and no
+consumer changed. After: ground **1.00 light / 1.14 dark** (the site's own derived surface step),
+name 15.19–19.04, em 5.94–8.45, support 7.11–8.95, subtle 5.35–6.15.
+
+**THE CREAM DELTA WAS MEASURED RATHER THAN CALLED IMPERCEPTIBLE — 33 painting surfaces, none
+byte-identical.** Most move dRGB 15–22. Three move more and are NAMED rather than averaged away: the
+four quiet labels go **75** darker (`#9A9086` → `text-subtle`, a legibility gain). The lime card goes
+**51**, from a second accent rung to the same accent at 62%, because the ladder has no lighter step
+that remaps and a text role drawing a fill would have been the THIRD such consumer — which the record
+says means the role is missing, not that the consumer is odd. And the tab group's fill stops lifting
+on light, since the vocabulary has nothing lighter than `surface`.
+
+**⚠ AND THE SWEEP CAUGHT A DEFECT IT INTRODUCED IN THE SAME PASS.** The grain was written
+`oklch(50% 0 0)` and called "the soft-light identity". It measures **99, not 128** — soft-light
+composites in sRGB, so half of a perceptual lightness scale is a much darker pixel, and the grain
+silently DARKENED every ground. Restored to `#808080` and proven in the same reading. A before-and-
+after sweep across every painting surface is what found it, and nothing else would have.
+
+---
+
+## ⚠ THE COPY WAS EDITABLE AND INERT, AND THE PROBE THAT FOUND IT NEARLY REPORTED THE OPPOSITE
+
+`USE_CONTRACT_COPY` made the hero draw the contract's words and ignore the CMS. **50 of the hero's 51
+owner-editable fields were editable in /studio with no effect on the page** — only `heroCopy`
+survived, because it is read outside the flag.
+
+**⚠ AND THREE OF FIVE CHECKS REPORTED `live: true` FOR A REASON THAT HAD NOTHING TO DO WITH THE
+MECHANISM.** A probe compared each rendered string against its CMS value. The scroll cue, the tab
+label and the headline agreed because the contract's words for tab one are IDENTICAL to the owner's.
+The discriminating evidence was `heroRoleLabel`, the one field where the two texts differ, plus the
+support line and counters rendering while all forty CMS fields sat empty. **AGREEMENT IS NOT EVIDENCE
+WHEN BOTH SIDES CAN COINCIDE** — which is why the surviving gate reads the STRUCTURE rather than
+diffing rendered text against content.
+
+**⚠ AND "42 of 43" WAS THE FIRST COUNT WRITTEN DOWN AND IT WAS WRONG.** The gate's own `C1` caught it
+on its first run — the denominator rule paying for itself inside the gate that states the
+denominator. Twelve fields per tab is 48, not 40, and the 40 is `hero-tabs` C1a's count of the fields the
+migration ADDED, read as the total.
+
+The owner then ruled the copy correct, so it became CONTENT and the flag was **deleted rather than
+set to false** — removing the second source instead of disarming it. Proven by EDITING, not reading:
+six fields mutated in content and the page re-read, **seven of seven live**, including the two classes
+that had been wholly inert.
+
+**THREE GATES CHANGED DIRECTION AND EACH SAYS WHY IN PLACE.** `hero-tabs` C2 asserted all forty new
+fields were EMPTY — correct for a migration that had just created them, wrong once they hold adopted
+copy — and now asserts they are FILLED, because a field silently reverting to blank is still a defect
+and it is now the opposite one. D1 forbade the mock's three headlines and now REQUIRES them. C1 split:
+the four labels are still compared live, and the migration's byte-identical fidelity is asserted at
+the migration COMMIT, so a later edit cannot make a claim about history go stale.
+
+---
+
+## ⚠ A LINE OF CODE DISAGREEING WITH THE COMMENT ABOVE IT HELD A BRANCH UNMERGEABLE (#494)
+
+`fix/theme-contrast-ground` existed on ONE LAPTOP, never pushed, with 496 lines of a ground dimension
+and a palette-aware resolver, red on a single row. The comment above that row already reasoned the
+fix out in full — *"`ink-800` KEEPS ITS LIGHT GROUNDS AND LOSES `cream-200` … the plate is boarded as
+a SURFACE question"* — and the array still read `["cream-50", "cream-100", "cream-200"]`. **The edit
+was never made.** Prose and data in one file, looking like one claim and being two.
+
+**⚠ AND IT PRODUCED A WRONG COUNT IN THE TRIAGE THAT PRECEDED IT.** The failure was reported as four
+public consumers needing repair. The pair has **one**: the four are sites drawing `cream-200` as a
+GROUND, and the row is about `ink-800` drawn as TEXT on it, which only `.blog-plate span` does —
+censused at exactly 1 across every file type. **Counting the ground's consumers instead of the
+pair's** is the wrong-subject error arriving in a diagnosis rather than in an instrument.
+
+---
+
+## THE HERO'S OWN IMAGE HAD NO FIELD, AND THE GATES TAUGHT A RULE ABOUT THE SCHEMA FILE (#496)
+
+`HeroSection.tsx` carried `/images/hero/hero-figure.webp` as a literal, so /studio could neither
+preview nor replace the one image the hero's composition cannot do without. **Every other homepage
+image already had a writer.** Found by the owner auditing the editor, not by any gate.
+
+The field is optional and the renderer falls back to the shipped asset, proven both ways in the
+browser: pointed at another real asset the page drew it, restored and it fell back, settings
+byte-identical afterwards. `heroFigure` joins `photo` in the image exclusion, so it keeps exactly ONE
+writer. Two cut-out-specific choices: **JPEG is refused** (no alpha — it would arrive as a rectangle
+over the panel) and nothing flattens. The upload stem is the FIELD KEY, so an upload can never
+overwrite the fallback and a reset always returns to the original.
+
+**⚠ BLOCK COMMENTS ARE NOW FORBIDDEN IN `keystatic.config.ts`, AND THE RECORD ONLY HAD HALF THIS
+RULE.** Three `path:` values end in a glob whose slash-star the comment stripper reads as an unclosed
+OPENER, and the file ships with three strays. The record said *"never write the glob"* — **the other half
+is that nothing may add a CLOSER either.** Two block comments handed those strays something to pair
+with and took the stripped file from **42,394 characters to 5,310**, reddening `bespoke-blocks` G5 and
+`canvas-head` B — two suites with nothing to do with the change. Line comments only, and the reason
+now sits at the top of the field.
+
+---
+
+## ⚠ THREE CANDIDATE DEFECTS WERE THE INSTRUMENT, AND THAT IS THE ARC'S REAL YIELD
+
+The hero was swept across all nine palettes and **no theme-specific defect survived**. Three did not:
+
+- **Tab labels at 2.99 on light.** Read MID-TRANSITION inside a tight forced-attribute loop, and the tabs
+  carry `transition: color`. Settled they are **5.52**, identical to the scroll cue.
+- **The seam at 1.24 on dark.** `backgroundColor` on a gradient element returns `rgba(0,0,0,0)` — the
+  measurement was transparent against the ground. The real `background-image` is the accent at 42%.
+- **Connector labels "missing" from a screenshot.** 9px type downscaled to ~5px in an 800px capture of
+  a 1440px viewport. Contrast **7.42**, opacity 1, three of three present.
+
+**Each read as a finding. None was.** Same family as the `nextjs-portal` badge and the stalled
+full-page capture — an instrument condition mistaken for a site condition, three more times, in three
+different instruments.
+
+**WHAT THE SWEEP DID FIND WAS A COVERAGE GAP NOBODY WOULD HAVE NOTICED.** The hero paints
+`text-primary`, `text-secondary` and `text-subtle` on **`surface`**, and every map row asserted them
+on `canvas` only — protected by prose. The values pass comfortably, **which is exactly why nothing
+complained.** Three rows added, and `B2`'s pinned failure list grew by one, which is that fixture working
+rather than a count being quietly bumped.
+
+---
+
+## ⚠ AND A MERGE IS STILL NOT A RELEASE — THE THROTTLE REFUSED THE ONE CHANGE WITH PIXELS IN IT
+
+`29b00c8`, the hero itself, was refused: `Deployment rate limited — retry in 24 hours`. Production
+stayed on `8de3a1e` with everything green — ralph, CI, the built output, all of it — and the hero not
+live. **The 24 hours matched nothing again:** the next merge, #496 fifty-five minutes later, deployed
+successfully and **carried the hero with it**, exactly as the corrected reading of that entry says it
+would. Three merges landed inside deploy intervals in one session and two were refused.
+
+**THE OPERATIONAL SENTENCE IS UNCHANGED AND WAS CONFIRMED A THIRD TIME: a refused deploy costs the
+wait to the next SUCCESS, not a day, and the number to watch is the latest production deployment
+rather than any commit status.**
+
 ## WHAT'S NEXT
+
+**THREE THINGS ARE OPEN AND NONE OF THEM IS CODE THIS REPO CAN WRITE.**
+
+- **The particle count, on a mid-range Android.** The ember canvas runs ~1,600 particles at device
+  pixel ratio and the loop stops when the last one lands. The contract's own note is the standing
+  instruction and it has not been carried out: **the honest comparison is frames dropped, not how it
+  feels on a fast laptop**, and particle count is the one knob. Until that measurement exists the
+  hero's cost on the slowest real device is UNKNOWN rather than acceptable.
+- **The hero-figure upload round trip.** `/api/studio/upload-hero-figure` is asserted at unit level
+  only — the path helper, the exclusion, the serializer round trip. The end-to-end upload needs
+  github mode AND an owner session, so it is **UNVERIFIED and owner-only**, stated rather than faked.
+  The first real upload is the test.
+- **Whether the adopted hero copy and its figures are final.** The contract's words are now content
+  by owner ruling. Whether "6 years / 4 case studies / 2 companies" and the four answers are what
+  the site should say is a judgement, not a check, and no gate will ever raise it.
+
+**AND ONE THING THE ARC EARNED THAT IS NOT A TASK.** The hero's illustration is a fixed raster —
+`figure_vs_plate` measures 4.63 on light and 3.60 on dark — so its warm palette cannot follow the
+theme. That is the asset ceiling the hero README already documents, and it is now the OWNER'S to move
+rather than the code's: `heroFigure` is an editable field, so a redrawn cut-out is an upload rather
+than a PR.
+
+---
+
+## (HISTORICAL) THE FIELD-CONTRACT ARC
 
 **THE FIELD-CONTRACT ARC (#254–#257) IS CLOSED — FOUR PRs, ralph 1678 → 1707.** Recorded above the
 owner-report arc because it is the most recent, and because its lesson is about the REFERENCE
