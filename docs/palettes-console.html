@@ -1,0 +1,300 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/palettes — the console</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Fraunces:opsz,wght@9..144,200;9..144,300;9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--sans:"DM Sans",system-ui,sans-serif;--display:Fraunces,Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#E6E2DA;font-family:var(--sans);color:#2a231c}
+.doc{max-width:1420px;margin:0 auto;padding:24px 18px 70px}
+h1.d{font-family:var(--display);font-weight:400;font-size:25px;letter-spacing:-.02em;margin:0 0 6px}
+h2.d{font-family:var(--display);font-weight:400;font-size:18px;margin:38px 0 6px}
+.lede{color:#5f564c;max-width:86ch;font-size:14px;line-height:1.6;margin:0}
+.warn{font-size:12.5px;color:#9a3722;margin:11px 0 0;line-height:1.6;max-width:96ch}
+.note{font-size:12.5px;color:#6f665c;margin:10px 2px 0;line-height:1.65;max-width:98ch}
+.note b{color:#2a231c;font-weight:500}
+.frame{border:1px solid rgba(20,16,12,.18);border-radius:16px;overflow:hidden;margin-top:12px;
+  box-shadow:0 22px 60px -34px rgba(0,0,0,.5)}
+code{font-family:var(--mono);font-size:11.5px;background:rgba(40,30,20,.07);padding:1px 5px;border-radius:3px}
+
+/* ===== palettes: role tokens ===== */
+[data-p]{--pg:#FAF6EF;--surface:#FFFFFF;--well:#F6F1E9;--accent:#B5442A;--accent-text:#8F331F;
+ --on-accent:#FFF6F1;--lead:#191210;--body:#3A322B;--subtle:#6B6157;--rule:rgba(25,18,16,.14)}
+[data-p="fern"]{--pg:#F3F8F2;--surface:#FFF;--well:#E9F2E9;--accent:#33684A;--accent-text:#25523A;--on-accent:#F1FAF2;--lead:#0E160F;--body:#2F3B31;--subtle:#5B6A5E;--rule:rgba(14,22,15,.14)}
+[data-p="harbour"]{--pg:#F1F7FB;--surface:#FFF;--well:#E4F0F8;--accent:#1D5B7E;--accent-text:#164762;--on-accent:#F0F8FD;--lead:#0C161C;--body:#2C3B44;--subtle:#5A6B75;--rule:rgba(12,22,28,.14)}
+[data-p="orchid"]{--pg:#F8F3FB;--surface:#FFF;--well:#EFE5F5;--accent:#6C3A93;--accent-text:#552C75;--on-accent:#F9F2FD;--lead:#150E1B;--body:#372C3F;--subtle:#675C71;--rule:rgba(21,14,27,.14)}
+[data-p="cerise"]{--pg:#FEF2F3;--surface:#FFF;--well:#FBE3E5;--accent:#A62B48;--accent-text:#842038;--on-accent:#FEF1F3;--lead:#1B0D11;--body:#3E2A2F;--subtle:#70585E;--rule:rgba(27,13,17,.14)}
+[data-p="nocturne"]{--pg:#15162A;--surface:#20213A;--well:#191A31;--accent:#8B5CF6;--accent-text:#BCA4FF;--on-accent:#120A24;--lead:#F4F4FA;--body:#CFCEE2;--subtle:#9C9AB8;--rule:rgba(244,244,250,.14)}
+[data-p="sapphire"]{--pg:#0E1626;--surface:#182233;--well:#131C2C;--accent:#4C8DF6;--accent-text:#9DC2FF;--on-accent:#061021;--lead:#EEF3FA;--body:#C4D0E0;--subtle:#8C9AAE;--rule:rgba(238,243,250,.14)}
+[data-p="inkflare"]{--pg:#161010;--surface:#221818;--well:#1B1313;--accent:#E4652E;--accent-text:#F5A377;--on-accent:#1A0A02;--lead:#F6F0EC;--body:#D9CCC4;--subtle:#A6968D;--rule:rgba(246,240,236,.14)}
+[data-p="basalt"]{--pg:#0D0D0D;--surface:#191919;--well:#131313;--accent:#80B12C;--accent-text:#AFD86A;--on-accent:#0B1400;--lead:#F1F1F1;--body:#CFCFCF;--subtle:#9A9A9A;--rule:rgba(241,241,241,.14)}
+
+/* ===== the page shell (both directions live inside a themed page) ===== */
+.page{background:var(--pg);color:var(--body);transition:background-color .5s cubic-bezier(.16,1,.3,1),color .5s}
+.page *{transition:background-color .5s cubic-bezier(.16,1,.3,1),color .5s,border-color .5s}
+.nav{display:flex;align-items:center;gap:18px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:999px;padding:8px 9px 8px 19px;width:max-content;margin:22px auto 0;
+  box-shadow:0 12px 32px -20px rgba(0,0,0,.55)}
+.nav b{font-family:var(--display);font-style:italic;font-weight:400;font-size:15px;color:var(--lead)}
+.nav span{font-size:11.5px;color:var(--subtle)}
+.nav span.on{color:var(--accent-text);font-weight:500}
+.nav i{font-style:normal;font-size:11px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:6px 13px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 30px}
+.eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-text);margin:0}
+.h1{font-family:var(--display);font-weight:200;font-size:clamp(34px,5vw,72px);line-height:.96;
+  letter-spacing:-.045em;color:var(--lead);margin:14px 0 0}
+.h1 em{font-style:italic;color:var(--accent-text)}
+.sub2{font-size:15px;line-height:1.6;color:var(--subtle);margin:16px 0 0;max-width:56ch}
+.band{border-top:1px solid var(--rule);margin-top:0;padding:52px 0}
+.bandhead{display:flex;align-items:baseline;gap:16px;margin-bottom:22px}
+.bandhead h3{font-family:var(--display);font-weight:300;font-size:26px;letter-spacing:-.03em;color:var(--lead);margin:0}
+.bandhead span{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle)}
+
+/* ===== the preview ===== */
+.pv{background:var(--well);border:1px solid var(--rule);border-radius:14px;padding:24px}
+.pv-nav{display:flex;align-items:center;gap:15px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:999px;padding:7px 8px 7px 16px;width:max-content}
+.pv-nav b{font-family:var(--display);font-style:italic;font-weight:400;font-size:13.5px;color:var(--lead)}
+.pv-nav span{font-size:11px;color:var(--subtle)}
+.pv-nav i{font-style:normal;font-size:10px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:5px 11px}
+.pv-h{font-family:var(--display);font-weight:300;font-size:clamp(22px,2.6vw,34px);line-height:1.06;
+  letter-spacing:-.03em;color:var(--lead);margin:20px 0 0;outline:none}
+.pv-h em{font-style:italic;color:var(--accent-text)}
+.pv-h[contenteditable]:focus{box-shadow:0 0 0 2px var(--accent);border-radius:5px}
+.pv-p{font-size:13px;line-height:1.6;color:var(--subtle);margin:9px 0 0;max-width:46ch}
+.pv-tabs{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;width:max-content;
+  background:var(--surface);margin-top:16px}
+.pv-tabs u{text-decoration:none;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--subtle);padding:7px 12px;border-radius:999px}
+.pv-tabs u.on{background:var(--accent);color:var(--on-accent)}
+.pv-row{display:grid;grid-template-columns:1.25fr .75fr;gap:12px;margin-top:18px}
+.pv-card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.pv-card .bar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.pv-card .eye{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-text)}
+.pv-card h4{font-family:var(--display);font-weight:400;font-size:16px;color:var(--lead);margin:7px 0 5px;letter-spacing:-.02em}
+.pv-card p{font-size:11.5px;color:var(--subtle);margin:0;line-height:1.55}
+.pv-stat{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:center}
+.pv-stat b{font-family:var(--mono);font-size:21px;color:var(--lead);letter-spacing:-.03em}
+.pv-stat span{font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);margin-top:5px}
+.pv-step{display:flex;align-items:center;margin-top:16px}
+.pv-step i{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-style:normal;
+  font-family:var(--mono);font-size:8.5px;border:1px solid var(--rule);color:var(--subtle);background:var(--surface)}
+.pv-step i.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pv-step s{flex:1;height:1px;background:var(--rule);text-decoration:none}
+.pv-ctl{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.pv-btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:9px 14px;font:inherit;font-size:12px;font-weight:500;cursor:pointer}
+.pv-ghost{background:none;border:1px solid var(--rule);color:var(--body);border-radius:8px;padding:9px 14px;font:inherit;font-size:12px;cursor:pointer}
+
+/* ===== shared controls ===== */
+.btn{font:inherit;font-size:12px;border-radius:999px;padding:9px 15px;cursor:pointer;border:1px solid var(--rule);
+  background:none;color:var(--body);display:inline-flex;align-items:center;gap:8px}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500}
+.btn.ink{background:var(--lead);border-color:var(--lead);color:var(--pg);font-weight:500}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.tokrow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.tok{border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--surface);cursor:pointer;text-align:left;
+  font:inherit;padding:0;color:var(--body)}
+.tok i{display:block;height:52px}
+.tok div{padding:8px 9px}
+.tok b{display:block;font-size:10.5px;color:var(--lead);font-weight:500}
+.tok code{display:block;font-family:var(--mono);font-size:9px;color:var(--subtle);background:none;padding:0;margin-top:2px}
+.copybar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{font:inherit;font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:0;background:none;
+  color:var(--subtle);padding:7px 12px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
+pre.code{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px;overflow:auto;
+  font-family:var(--mono);font-size:11px;line-height:1.75;color:var(--body);margin:12px 0 0;max-height:280px}
+pre.code .c{color:var(--subtle)}
+pre.code .k{color:var(--accent-text)}
+.evrow{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--surface)}
+.evrow div{padding:12px 14px;border-right:1px solid var(--rule)}
+.evrow div:last-child{border-right:0}
+.evrow b{display:block;font-family:var(--mono);font-size:16px;color:var(--lead);letter-spacing:-.02em}
+.evrow span{display:block;font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--subtle);margin-top:5px}
+.evrow .fail b{color:#E4652E}
+.toast{position:absolute;right:16px;top:16px;background:var(--lead);color:var(--pg);font-size:11.5px;
+  border-radius:999px;padding:8px 14px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:.3s;z-index:9}
+.toast.on{opacity:1;transform:none}
+.lic{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--subtle)}
+.lic b{color:var(--lead);font-weight:500}
+.pair{font-size:12px;color:var(--subtle);margin-top:10px}
+.pair b{color:var(--accent-text);font-weight:500;cursor:pointer}
+/* ===== V2 · THE CONSOLE ===== */
+.V2 .stage{display:grid;grid-template-columns:1fr 372px;min-height:660px}
+.V2 .left{padding:26px 28px;position:relative;border-right:1px solid var(--rule)}
+.V2 .sticky{position:sticky;top:16px}
+.V2 .right{padding:24px 22px;background:var(--well);overflow-y:auto;max-height:760px}
+.V2 .right h4{font-family:var(--display);font-weight:400;font-size:15px;color:var(--lead);margin:0 0 4px;letter-spacing:-.01em}
+.V2 .right .hint{font-size:11.5px;color:var(--subtle);margin:0 0 14px;line-height:1.5}
+.V2 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.V2 .grid button{aspect-ratio:1.35;border-radius:10px;border:2px solid transparent;cursor:pointer;padding:0;
+  position:relative;overflow:hidden;background:none}
+.V2 .grid button i{position:absolute;inset:2px;border-radius:7px;overflow:hidden;display:block}
+.V2 .grid button[aria-pressed="true"]{border-color:var(--accent)}
+.V2 .grid button s{position:absolute;right:5px;top:5px;width:6px;height:6px;border-radius:50%;background:#2f9e63;text-decoration:none}
+.V2 .grid button u{position:absolute;left:0;right:0;bottom:0;text-decoration:none;font-family:var(--mono);
+  font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:4px;text-align:center}
+.V2 .sect{border-top:1px solid var(--rule);margin-top:18px;padding-top:16px}
+.V2 .rows div{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:baseline;padding:6px 0;
+  border-bottom:1px solid var(--rule);font-size:11.5px}
+.V2 .rows span:first-child{color:var(--subtle)}
+.V2 .rows b{font-family:var(--mono);font-size:11.5px;color:var(--lead)}
+.V2 .rows u{text-decoration:none;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:#2f9e63}
+.V2 .rows .fail b,.V2 .rows .fail u{color:#E4652E}
+.V2 .teach{border-top:1px solid var(--rule);padding:40px 0}
+.V2 .teach .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.V2 .teach article{border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--surface)}
+.V2 .teach .r{display:flex;height:40px}
+.V2 .teach .r i{flex:1}
+.V2 .teach div{padding:12px 13px}
+.V2 .teach h5{font-family:var(--display);font-weight:400;font-size:15px;color:var(--lead);margin:0 0 5px}
+.V2 .teach p{font-size:11.5px;color:var(--subtle);margin:0;line-height:1.55}
+@media(max-width:960px){.V2 .stage,.V2 .teach .cols{grid-template-columns:1fr}
+  .V2 .left{border-right:0;border-bottom:1px solid var(--rule)}.tokrow{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="doc">
+
+<h1 class="d">/palettes — the console</h1>
+<p class="lede">The chosen direction, complete. Sticky preview, panel beside it, OKLCH band and licence below. Every feature is live — press a palette, switch the copy format, click a token, edit the headline in the preview.</p>
+<p class="warn">⚠ <b>The whole page themes, not just a preview box.</b> That is the argument — a palette that only recolours a card proves nothing. And the token values here approximate the site's roles so the file renders standalone; the build reads the real ones.</p>
+
+
+<div class="frame"><div class="page V2" data-p="nocturne" id="V2">
+  <span class="toast">Copied</span>
+  <div class="nav"><b>Akshita</b><span>Work</span><span>About</span><span class="on">Playground</span><i>Resume ↗</i></div>
+  <div class="wrap" style="padding-top:40px;padding-bottom:26px">
+    <p class="eyebrow">Playground · 01 — Palettes</p>
+    <h1 class="h1" style="font-size:clamp(30px,4vw,54px)">Press one. Watch what <em>doesn't</em> change.</h1>
+    <p class="sub2">Nine curated palettes as role tokens. The preview stays put while you work; the panel tells you what each one clears.</p>
+  </div>
+  <div class="stage" style="border-top:1px solid var(--rule)">
+    <div class="left"><div class="sticky">
+      <div class="pv"></div>
+      <div class="evrow" style="margin-top:14px"></div>
+    </div></div>
+    <div class="right">
+      <h4>Nine palettes</h4>
+      <p class="hint">Authored, not generated. A dot means it clears every pair site-wide.</p>
+      <div class="grid"></div>
+      <div class="sect"><h4 class="pname2"></h4><p class="pair" style="margin-top:4px"></p><div class="rows" style="margin-top:10px"></div></div>
+      <div class="sect">
+        <h4>Take it</h4>
+        <div class="copybar" style="margin-top:10px"><div class="seg fmt"></div></div>
+        <pre class="code out" style="max-height:200px"></pre>
+        <div class="copybar" style="margin-top:10px"><button class="btn solid do-copy">Copy</button>
+          <button class="btn dl">.css</button><button class="btn dl2">.json</button><button class="btn link">Link</button></div>
+      </div>
+      <div class="sect"><h4>Tokens</h4><div class="tokrow" style="grid-template-columns:repeat(2,1fr)"></div></div>
+      <div class="sect"><button class="btn try" style="width:100%;justify-content:center"></button></div>
+    </div>
+  </div>
+  <div class="wrap teach">
+    <div class="bandhead"><h3>Why these behave</h3><span>oklch · three controls</span></div>
+    <div class="cols">
+      <article><div class="r ax-l"></div><div><h5>Lightness</h5><p>Carries hierarchy. Held constant, structure survives any hue.</p></div></article>
+      <article><div class="r ax-c"></div><div><h5>Chroma</h5><p>Energy. A narrow band, so no palette shouts louder than another.</p></div></article>
+      <article><div class="r ax-h"></div><div><h5>Hue</h5><p>Identity — and the only thing that differs across the nine.</p></div></article>
+    </div>
+    <div class="lic" style="margin-top:26px"><b>Free to use.</b><span>No attribution needed.</span>
+      <button class="btn ink dl" style="margin-left:auto">Download all nine</button></div>
+  </div>
+</div></div>
+<p class="note"><b>What this file is authoritative about:</b> the composition, the panel order, the copy block carrying its contrast report as comments, the token grid, the sticky preview and the OKLCH band. <b>What it is not:</b> the token values, which approximate the site's roles so it renders standalone, and the compatibility dots, which are hardcoded here and must be computed at build.</p>
+<p class="note"><b>Tool-shaped, and the preview never leaves the screen</b> — the panel scrolls past a sticky render, so a copy or a contrast reading is always next to the thing it describes. <b>Cost:</b> the page has one screen and a footer; there is no reading order to speak of, and it asks the visitor to explore rather than telling them anything.</p>
+
+<p class="note" style="margin-top:26px"><b>⚠ Three decisions still open, and all three are mechanism rather than styling.</b> Whether <b>Try across portfolio</b> survives navigation — the spec says temporary, so it is a cookie or a session flag with a visible way back, not a class swap. Whether compatibility is <b>computed from the tokens at build</b> or listed per palette; only the first stays true when a palette is retuned. And whether the preview <b>imports the real components</b> — a facsimile drifts, and this page's whole claim is that the system is real.</p>
+
+</div>
+<script>
+const PAL=[
+ {id:'cream',n:'Cream',pair:'Ink & Flare',ok:true,r:[['name / page',18.90],['accent / page',5.32],['on-accent / accent',7.22],['subtle / page',5.35]]},
+ {id:'fern',n:'Fern',pair:'Basalt',ok:true,r:[['name / page',18.10],['accent / page',5.68],['on-accent / accent',7.04],['subtle / page',5.52]]},
+ {id:'harbour',n:'Harbour',pair:'Sapphire',ok:true,r:[['name / page',18.40],['accent / page',6.11],['on-accent / accent',7.41],['subtle / page',5.20]]},
+ {id:'orchid',n:'Orchid',pair:'Nocturne',ok:true,r:[['name / page',18.60],['accent / page',6.44],['on-accent / accent',7.86],['subtle / page',5.09]]},
+ {id:'cerise',n:'Cerise',pair:'Ink & Flare',ok:false,r:[['name / page',18.20],['accent / page',6.02],['on-accent / accent',7.33],['subtle / page',4.21]]},
+ {id:'nocturne',n:'Nocturne',pair:'Orchid',ok:true,r:[['name / page',15.19],['accent / page',4.18],['on-accent / accent',6.75],['subtle / page',5.94]]},
+ {id:'sapphire',n:'Sapphire',pair:'Harbour',ok:true,r:[['name / page',15.60],['accent / page',5.02],['on-accent / accent',7.12],['subtle / page',5.41]]},
+ {id:'inkflare',n:'Ink & Flare',pair:'Cream',ok:false,r:[['name / page',15.40],['accent / page',5.88],['on-accent / accent',4.13],['subtle / page',5.62]]},
+ {id:'basalt',n:'Basalt',pair:'Fern',ok:true,r:[['name / page',16.00],['accent / page',7.44],['on-accent / accent',7.52],['subtle / page',5.77]]},
+];
+const TOKENS=['pg','surface','well','accent','accent-text','on-accent','lead','body','subtle'];
+const SHOW=[['pg','page'],['surface','surface'],['accent','accent'],['on-accent','on-accent'],['lead','text-lead']];
+const PREVIEW=`
+ <div class="pv-nav"><b>Akshita</b><span>Work</span><span>About</span><i>Resume ↗</i></div>
+ <p class="pv-h" contenteditable="true" spellcheck="false">Turning rough ideas into products people <em>use</em>.</p>
+ <p class="pv-p">Six years across enterprise data tools and one consumer turnaround. Edit the line above.</p>
+ <div class="pv-tabs"><u class="on">Who I am</u><u>What I do</u><u>How I work</u></div>
+ <div class="pv-row">
+  <div class="pv-card"><span class="bar"></span><span class="eye">Case study</span><h4>Elevate ONE View</h4>
+   <p>One surface for three analyst personas — 40% faster to insight.</p></div>
+  <div class="pv-stat"><b>2.3→4.2</b><span>store rating</span></div></div>
+ <div class="pv-step"><i class="on">1</i><s></s><i class="on">2</i><s></s><i>3</i><s></s><i>4</i></div>
+ <div class="pv-ctl"><button class="pv-btn">View the work →</button><button class="pv-ghost">Read the process</button></div>`;
+const FMT=['CSS','Tailwind','JSON'];
+const state={V2:{i:5,f:0}};
+function val(root,name){return getComputedStyle(root).getPropertyValue('--'+name).trim()}
+function block(root,p,f){
+  const rep=p.r.map(x=>`  ${x[0].padEnd(20)} ${x[1].toFixed(2)}${x[1]<4.5?'  ← below 4.5':''}`).join('\n');
+  const t=TOKENS.map(n=>[n,val(root,n)]);
+  if(f===0) return `<span class="c">/* ${p.n} — akshitas.com palette\n   measured contrast\n${rep}\n*/</span>\n:root {\n`+
+    t.map(([n,v])=>`  <span class="k">--${n}</span>: ${v};`).join('\n')+`\n}`;
+  if(f===1) return `<span class="c">/* ${p.n} — measured\n${rep}\n*/</span>\n@theme {\n`+
+    t.map(([n,v])=>`  <span class="k">--color-${n}</span>: ${v};`).join('\n')+`\n}`;
+  return `{\n  <span class="k">"name"</span>: "${p.n}",\n  <span class="k">"contrast"</span>: { `+
+    p.r.map(x=>`"${x[0]}": ${x[1].toFixed(2)}`).join(', ')+` },\n  <span class="k">"tokens"</span>: {\n`+
+    t.map(([n,v])=>`    "${n}": "${v}"`).join(',\n')+`\n  }\n}`;
+}
+function toast(root,msg){const t=root.querySelector('.toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),1300)}
+function paint(v){
+  const s=state[v],p=PAL[s.i],root=document.getElementById(v);
+  root.dataset.p=p.id;
+  root.querySelectorAll('.pv').forEach(el=>{ if(!el.dataset.done){el.innerHTML=PREVIEW;el.dataset.done=1;} });
+  root.querySelectorAll('.evrow').forEach(el=>el.innerHTML=p.r.map(r=>
+    `<div class="${r[1]<4.5?'fail':''}"><b>${r[1].toFixed(2)}</b><span>${r[0]}</span></div>`).join(''));
+  root.querySelectorAll('.seg.fmt').forEach(el=>el.innerHTML=FMT.map((f,i)=>
+    `<button class="${i===s.f?'on':''}" onclick="setF('${v}',${i})">${f}</button>`).join(''));
+  requestAnimationFrame(()=>{
+    root.querySelectorAll('.out').forEach(el=>el.innerHTML=block(root,p,s.f));
+    root.querySelectorAll('.tokrow').forEach(el=>el.innerHTML=SHOW.map(([n,label])=>
+      `<button class="tok" onclick="copyTok('${v}','${n}')"><i style="background:var(--${n})"></i>
+        <div><b>${label}</b><code>${val(root,n)}</code></div></button>`).join(''));
+  });
+  const tryTxt=p.ok?'Try across portfolio ↗':'Preview only';
+  root.querySelectorAll('.try').forEach(b=>{b.disabled=!p.ok;b.textContent=tryTxt;b.classList.toggle('solid',p.ok)});
+  root.querySelectorAll('.pair').forEach(el=>el.innerHTML=
+    `${p.ok?'Clears every pair site-wide.':'One pair falls below 4.5 — preview only.'} Its counterpart is <b>${p.pair}</b>.`);
+  if(v==='V2'){
+    root.querySelector('.grid').innerHTML=PAL.map((x,i)=>
+      `<button aria-pressed="${i===s.i}" onclick="pick('V2',${i})" title="${x.n}">
+        <i><span style="position:absolute;inset:0;background:${gp(x.id,'pg')}"></span>
+           <span style="position:absolute;inset:0 0 0 52%;background:${gp(x.id,'accent')}"></span></i>
+        ${x.ok?'<s></s>':''}<u style="color:${gp(x.id,'subtle')}">${x.n.split(' ')[0]}</u></button>`).join('');
+    root.querySelector('.pname2').textContent=p.n;
+    root.querySelector('.rows').innerHTML=p.r.map(r=>
+      `<div class="${r[1]<4.5?'fail':''}"><span>${r[0]}</span><b>${r[1].toFixed(2)}</b><u>${r[1]<4.5?'FAIL':'PASS'}</u></div>`).join('');
+  }
+  paintAxes(root);
+}
+const PROBE=document.createElement('div');PROBE.style.display='none';document.body.appendChild(PROBE);
+function gp(id,tok){PROBE.dataset.p=id;return getComputedStyle(PROBE).getPropertyValue('--'+tok).trim()}
+function paintAxes(root){
+  const A=root.querySelector('.ax-l'),B=root.querySelector('.ax-c'),C=root.querySelector('.ax-h');
+  if(A) A.innerHTML=[95,84,72,60,48,36,26,18].map(l=>`<i style="background:oklch(${l}% .04 60)"></i>`).join('');
+  if(B) B.innerHTML=[0,.04,.08,.12,.16,.20,.24,.28].map(c=>`<i style="background:oklch(62% ${c} 60)"></i>`).join('');
+  if(C) C.innerHTML=[20,60,110,150,200,250,290,330].map(h=>`<i style="background:oklch(62% .16 ${h})"></i>`).join('');
+}
+function pick(v,i){state[v].i=i;paint(v)}
+function setF(v,f){state[v].f=f;paint(v)}
+function copyTok(v,n){const root=document.getElementById(v);
+  navigator.clipboard?.writeText(val(root,n));toast(root,'Copied --'+n)}
+document.addEventListener('click',e=>{
+  const root=e.target.closest('.page'); if(!root) return;
+  const v=root.id;
+  if(e.target.closest('.do-copy')){navigator.clipboard?.writeText(root.querySelector('.out').innerText);toast(root,'Palette copied')}
+  if(e.target.closest('.link')){navigator.clipboard?.writeText('akshitas.com/palettes/'+PAL[state[v].i].id);toast(root,'Link copied')}
+  if(e.target.closest('.dl')){toast(root,'Downloading .css')}
+  if(e.target.closest('.dl2')){toast(root,'Downloading .json')}
+  if(e.target.closest('.try')&&!e.target.disabled){toast(root,'Applied site-wide — temporary')}
+});
+paint('V2');
+</script></body></html>
