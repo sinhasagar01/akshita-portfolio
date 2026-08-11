@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PaletteCompatibility } from "@/lib/palettes/compatibility";
 import { render, formatRatio, FORMATS, type CopyFormat } from "@/lib/palettes/formats";
 import {
-  PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview, decodePreview,
+  PREVIEW_MAX_AGE_SECONDS, startPreview, livePreviewTheme,
 } from "@/lib/palettes/preview-cookie";
 import StatCard from "@/components/case-study/StatCard";
 import PrincipleCard from "@/components/case-study/PrincipleCard";
@@ -119,9 +119,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
          ⚠ AND IT IS READ HERE RATHER THAN FROM STATE, because the cookie is what every OTHER surface
          reads. A local flag would be a second answer to "is a preview live" and the two would
          eventually disagree — which is the failure this whole layer is built to avoid. */
-      const raw = document.cookie.match(new RegExp(`(?:^|; )${PREVIEW_COOKIE}=([^;]*)`));
-      const livePreview = decodePreview(raw ? decodeURIComponent(raw[1]) : null, Date.now());
-      if (livePreview) return;
+      if (livePreviewTheme(Date.now())) return;
 
       const seen = arrivedOn.current;
       if (!seen) return;
@@ -363,14 +361,12 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
             </p>
             <button
               type="button"
+              /* ⚠ ONE WRITER, SHARED — see `startPreview`. This spelled the cookie, the attributes
+                 and the event out itself, and so did the home teaser. Two copies that agreed, with
+                 nothing comparing them; the fixed switcher would have been a third. */
               onClick={() => {
-                document.cookie =
-                  `${PREVIEW_COOKIE}=${encodeURIComponent(encodePreview(active.name, Date.now()))}`
-                  + `; Path=/; Max-Age=${PREVIEW_MAX_AGE_SECONDS}; SameSite=Lax`;
+                startPreview(active.name, active.groundClass === "dark", Date.now());
                 say(`${active.name} applied across the site`);
-                /* The attributes are already correct — pressing set them — so this only makes the
-                   indicator notice without waiting for its poll. */
-                window.dispatchEvent(new Event("palette-preview-changed"));
               }}
               className="mt-3 w-full rounded-full border border-accent bg-accent px-4 py-2 text-sm font-medium text-on-accent"
             >

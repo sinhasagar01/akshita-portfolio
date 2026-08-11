@@ -86,10 +86,50 @@ console.log("\nE · the cookie is the only mechanism, and it is scoped");
 const consoleSrc = read("components/palettes/PaletteConsole.tsx");
 t("E1 the try action writes the cookie and calls no API — a fetch here would be a write path",
   /fetch\(/.test(consoleSrc), false);
+/* ⚠ E2 AND E3 MOVED THEIR SUBJECT IN #516 AND THE PROPERTY THEY NAME DID NOT.
+ *
+ * Both used to read a CONSUMER's source — E2 the console, E3 the indicator — because each consumer
+ * assembled its own cookie string. Three doors onto one preview state meant three copies of the
+ * flags, and the rows were asserting that one of the copies was right.
+ *
+ * The writer is now `startPreview` and the eraser is `endPreview`, both in `preview-cookie.ts`, and
+ * no consumer spells a cookie at all. THAT IS STRICTLY STRONGER THAN WHAT THESE ROWS ASSERTED —
+ * E4a below now covers every door at once instead of the one that happened to be read here. The
+ * rows follow the mechanism rather than being deleted, because the flags themselves still matter:
+ * a cookie without `Path=/` is scoped to `/palettes` and the preview stops travelling, which is the
+ * whole feature failing silently on every other route. */
+const cookieSrc = read("lib/palettes/preview-cookie.ts");
+/** A named function's body, brace-balanced, so a flag in a COMMENT cannot satisfy a row about
+ *  behaviour. `indexOf` on a closing brace finds whichever comes first rather than the matching
+ *  one — the unbalanced-matcher family this repo has five members of. */
+const bodyOf = (src, name) => {
+  const at = src.indexOf(`export function ${name}(`);
+  if (at < 0) return "";
+  let depth = 0;
+  for (let i = src.indexOf("{", at); i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    else if (src[i] === "}" && --depth === 0) return src.slice(at, i + 1);
+  }
+  return "";
+};
+const startBody = bodyOf(cookieSrc, "startPreview");
+const endBody = bodyOf(cookieSrc, "endPreview");
+t("E1b both halves of the one mechanism were FOUND — empty bodies would make E2 and E3 vacuous",
+  startBody.length > 100 && endBody.length > 60, true);
 t("E2 the cookie is path-scoped to the whole site and SameSite=Lax",
-  /Path=\/;/.test(consoleSrc) && /SameSite=Lax/.test(consoleSrc), true);
+  /Path=\/;/.test(startBody) && /SameSite=Lax/.test(startBody), true);
 t("E3 ⚠ AND EXIT CLEARS IT WITH Max-Age=0 rather than leaving it to lapse — the way out is immediate",
-  /Max-Age=0/.test(read("components/palettes/PreviewIndicator.tsx")), true);
+  /Max-Age=0/.test(endBody), true);
+/* ⚠ THE ROW THE EXTRACTION MADE POSSIBLE, AND THE ONE THE OLD SHAPE COULD NOT HAVE. A consumer that
+ * assembles its own cookie is a second mechanism the exit does not clear, and the visitor is
+ * stranded on a palette with a button that does nothing. That was previously prevented by every
+ * consumer being checked individually, which is a list — and a list goes stale when a fourth door
+ * arrives. This asks the question of the DIRECTORY instead. */
+const doors = readdirSync(join(root, "components/palettes"))
+  .filter((f) => f.endsWith(".tsx"))
+  .filter((f) => /document\.cookie\s*=/.test(read(`components/palettes/${f}`)));
+t("E3a ⚠ NO SURFACE WRITES THE COOKIE ITSELF — one mechanism is a claim about the mechanism, so there must be one",
+  doors, []);
 /* ⚠ THIS ROW MATCHED THE STRING `published-theme` ANYWHERE IN THE INDICATOR AND SURVIVED THE ONE
  * MUTATION THAT MATTERS. Replacing `getElementById("published-theme")` with `null` leaves
  * `data-published-theme` sitting in the getAttribute call below it, so the row went on passing while
@@ -128,16 +168,28 @@ const cleanup = (() => {
 })();
 t("F0 the unmount cleanup was found — an empty slice would make every row below vacuous",
   cleanup.length > 200, true);
+/* ⚠ THE READER MOVED WITH THE WRITER IN #516. The cleanup used to match the cookie by hand and call
+ * `decodePreview` on the result; it now calls `livePreviewTheme`, which does both in the module the
+ * writer lives in. Same property, one fewer spelling — and F1a's separate claim, that the name is
+ * taken from the constant rather than typed, is now true BY CONSTRUCTION rather than by assertion,
+ * so it is folded in here rather than kept as a row that can no longer fail. */
 t("F1 ⚠ IT CONSULTS THE PREVIEW COOKIE — without this it restores over a preview the visitor asked for",
-  /decodePreview\s*\(/.test(cleanup), true);
-t("F1a …and reads the cookie by its shared NAME rather than a literal, so it cannot drift from the writer",
-  /PREVIEW_COOKIE/.test(cleanup) && !/["'`]palette-preview/.test(cleanup), true);
+  /livePreviewTheme\s*\(/.test(cleanup), true);
 /* ⚠ THE ORDER IS THE FIX. A cookie read AFTER the restore would leave the restore in place and the
- * defect intact, and the row would still find `decodePreview` in the block. */
+ * defect intact, and the row would still find the call in the block. */
 t("F2 ⚠ AND IT RETURNS BEFORE RESTORING — a cookie read after the restore would leave the defect exactly as it was",
-  cleanup.indexOf("decodePreview") < cleanup.indexOf("dataset.theme = seen.theme"), true);
-t("F3 …and the early return is guarded on the decoded value rather than on the raw cookie's presence",
-  /if\s*\(\s*livePreview\s*\)\s*return/.test(cleanup), true);
+  cleanup.indexOf("livePreviewTheme") < cleanup.indexOf("dataset.theme = seen.theme"), true);
+/* ⚠ THE CONDITION IS EXTRACTED AND THEN SEARCHED, RATHER THAN MATCHED IN ONE PATTERN. The first
+ * form of this row was `livePreviewTheme\s*\([^)]*\)` and it FAILED ON CORRECT CODE, because the
+ * argument is `Date.now()` and `[^)]*` cannot cross the inner `)`. Sixth member of the
+ * unbalanced-matcher family in this repo, written into the row repairing a different one.
+ *
+ * Taking the condition first keeps the row's subject — that the RESULT guards the return rather
+ * than the call merely happening. A mutation that calls it and then returns on something else
+ * leaves a condition with no `livePreviewTheme` in it, and reddens. */
+const guardCond = /if\s*\(([\s\S]*?)\)\s*return\s*;/.exec(cleanup);
+t("F3 …and the call's RESULT is what guards the return, not merely that the call happens",
+  guardCond !== null && /livePreviewTheme\s*\(/.test(guardCond[1]), true);
 /* ⚠ AND THE RESTORE STILL EXISTS. Deleting it would "fix" the navigation defect by making BROWSING
  * leak instead — press a dot, navigate away, and cerise travels with no cookie and no way back. */
 /* ⚠ THIS MATCHED THE ASSIGNMENT'S TEXT AND SURVIVED THE ONE MUTATION THAT MATTERS. Rewriting the

@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { PREVIEW_COOKIE, decodePreview } from "@/lib/palettes/preview-cookie";
+import {
+  PREVIEW_CHANGED_EVENT, livePreviewTheme, endPreview,
+} from "@/lib/palettes/preview-cookie";
 import { arrivalNote } from "@/lib/palettes/teaser";
 
 /* ============================================================================================
@@ -64,8 +66,7 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
 
   useEffect(() => {
     const read = () => {
-      const m = document.cookie.match(new RegExp(`(?:^|; )${PREVIEW_COOKIE}=([^;]*)`));
-      setPreviewing(decodePreview(m ? decodeURIComponent(m[1]) : null, Date.now()));
+      setPreviewing(livePreviewTheme(Date.now()));
     };
     read();
     /* The cookie can lapse while the page is open — the deadline is minutes, not a session — so the
@@ -74,17 +75,13 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
     const id = setInterval(read, 15_000);
     /* Pressing "try" on `/palettes` sets the cookie in the same document, and a poll would leave the
        indicator up to fifteen seconds behind the thing it describes. */
-    window.addEventListener("palette-preview-changed", read);
-    return () => { clearInterval(id); window.removeEventListener("palette-preview-changed", read); };
+    window.addEventListener(PREVIEW_CHANGED_EVENT, read);
+    return () => { clearInterval(id); window.removeEventListener(PREVIEW_CHANGED_EVENT, read); };
   }, []);
 
   const exit = useCallback(() => {
-    document.cookie = `${PREVIEW_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
     const published = publishedFromMarkup();
-    const root = document.documentElement;
-    if (published.theme) root.dataset.theme = published.theme;
-    if (published.ground === "dark") root.dataset.ground = "dark";
-    else delete root.dataset.ground;
+    endPreview(published.theme, published.ground === "dark");
     setPreviewing(null);
   }, []);
 

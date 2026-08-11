@@ -59,6 +59,72 @@ export function decodePreview(raw: string | null | undefined, nowMs: number): st
 }
 
 /**
+ * The event every surface listens on so an indicator notices without waiting for its poll.
+ *
+ * ⚠ A STRING LITERAL IN THREE FILES IS THREE SPELLINGS OF ONE DECISION, and a typo in any of them
+ * is a door that silently stops raising the indicator. Nothing would fail; the strip would simply
+ * take up to a poll interval to appear, which reads as slowness rather than as a defect.
+ */
+export const PREVIEW_CHANGED_EVENT = "palette-preview-changed";
+
+/** Set the root's palette attributes. BOTH, always — the role layer remaps on `data-ground`, so a
+ *  dark palette without it gives dark rungs under the light vocabulary. */
+export function applyThemeAttributes(theme: string, isDark: boolean): void {
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  if (isDark) root.dataset.ground = "dark";
+  else delete root.dataset.ground;
+}
+
+/**
+ * Start a preview. THE ONE WRITER — cookie, attributes and notification in a single call.
+ *
+ * ⚠ THERE WERE TWO SPELLINGS OF THIS BEFORE THE SWITCHER, AND THE SWITCHER WOULD HAVE MADE THREE.
+ * `PaletteConsole`'s try button and `HomePaletteTeaser` each assembled the cookie string, set the
+ * two attributes and dispatched the event, independently. They agreed. Nothing compared them, and
+ * "one mechanism, three doors" is a claim about the mechanism rather than about the doors — so the
+ * mechanism has to be one function or the sentence is aspirational.
+ *
+ * ⚠ AND `Date.now()` IS TAKEN BY THE CALLER RATHER THAN HERE, because `encodePreview` above is pure
+ * and testable precisely because it takes its clock. A writer that reaches for the wall clock makes
+ * the deadline untestable one layer up, which is how the expiry became a configured number nobody
+ * had seen work in the first place.
+ */
+export function startPreview(theme: string, isDark: boolean, nowMs: number): void {
+  document.cookie =
+    `${PREVIEW_COOKIE}=${encodeURIComponent(encodePreview(theme, nowMs))}`
+    + `; Path=/; Max-Age=${PREVIEW_MAX_AGE_SECONDS}; SameSite=Lax`;
+  applyThemeAttributes(theme, isDark);
+  window.dispatchEvent(new Event(PREVIEW_CHANGED_EVENT));
+}
+
+/** The live preview's theme, read from the document, or null when none is. The discriminator every
+ *  surface uses for "did the visitor ask for this palette to travel". */
+export function livePreviewTheme(nowMs: number): string | null {
+  const m = document.cookie.match(new RegExp(`(?:^|; )${PREVIEW_COOKIE}=([^;]*)`));
+  return decodePreview(m ? decodeURIComponent(m[1]) : null, nowMs);
+}
+
+/**
+ * End a preview. THE ONE EXIT, and a different operation from starting one.
+ *
+ * ⚠ IT DOES NOT SET THE ATTRIBUTES, WHICH IS THE ASYMMETRY AND IT IS DELIBERATE. Starting a preview
+ * knows the palette it wants. Ending one has to restore THE PUBLISHED theme, and the only surface
+ * that knows what that is reads it from the markup the server rendered. Folding that read in here
+ * would make this module depend on a DOM convention it does not own, so the caller passes what to
+ * restore and this owns the cookie alone.
+ *
+ * ⚠ AND IT DISPATCHES THE SAME EVENT AS `startPreview`. Any surface tracking preview state has to
+ * hear about the end as well as the start, and an exit that stayed silent would leave a second
+ * indicator on a page that had returned to the published palette.
+ */
+export function endPreview(publishedTheme: string | null, publishedIsDark: boolean): void {
+  document.cookie = `${PREVIEW_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+  if (publishedTheme) applyThemeAttributes(publishedTheme, publishedIsDark);
+  window.dispatchEvent(new Event(PREVIEW_CHANGED_EVENT));
+}
+
+/**
  * The inline `<head>` script, as source.
  *
  * ⚠ THE `/studio` GATE IS IN HERE AND IT IS ASSERTED, NOT COMMENTED. The root layout wraps the

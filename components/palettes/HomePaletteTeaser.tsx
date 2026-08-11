@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview,
-} from "@/lib/palettes/preview-cookie";
+import { startPreview } from "@/lib/palettes/preview-cookie";
 
 /* ============================================================================================
    THE HOMEPAGE PALETTE TEASER — `Try across portfolio` ARRIVING FROM A DIFFERENT DOOR.
@@ -96,18 +94,16 @@ export default function HomePaletteTeaser({ swatches }: Props) {
     return () => io.disconnect();
   }, []);
 
+  /* ⚠ ONE WRITER, SHARED. This assembled the cookie, set both attributes and dispatched the event
+     itself until #516, and so did `/palettes`'s try button — two spellings of one decision that
+     happened to agree, with nothing comparing them. Adding the fixed switcher as a third door is
+     what forced the extraction: "one mechanism, three doors" is a claim about the MECHANISM, and it
+     is only true if there is one function. The event name moved into the module for the same
+     reason — a typo in any copy is a door that silently stops raising the indicator, which reads as
+     slowness rather than as a defect. */
   const press = useCallback((theme: string) => {
-    document.cookie =
-      `${PREVIEW_COOKIE}=${encodeURIComponent(encodePreview(theme, Date.now()))}`
-      + `; Path=/; Max-Age=${PREVIEW_MAX_AGE_SECONDS}; SameSite=Lax`;
-    const root = document.documentElement;
-    root.dataset.theme = theme;
-    if (swatches.find((s) => s.name === theme)?.isDark) root.dataset.ground = "dark";
-    else delete root.dataset.ground;
+    startPreview(theme, swatches.find((s) => s.name === theme)?.isDark ?? false, Date.now());
     setActive(theme);
-    /* The one indicator is global and polls; this makes it notice now rather than in fifteen
-       seconds. Same event `/palettes` dispatches — one listener, one state. */
-    window.dispatchEvent(new Event("palette-preview-changed"));
   }, [swatches]);
 
   /* ⚠ THE FILL IS A RESOLVED LITERAL FROM THE BUILD, NOT A TOKEN, AND A SWATCH IS WHY. It DEPICTS a
