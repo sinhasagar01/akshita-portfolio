@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { arrivalNote } from "@/lib/palettes/teaser";
 import {
   PREVIEW_COOKIE, PREVIEW_MAX_AGE_SECONDS, encodePreview,
 } from "@/lib/palettes/preview-cookie";
@@ -69,17 +68,19 @@ import {
 /** One dot's depicted palette, resolved at build by `paletteCompatibility()`. */
 export type TeaserSwatch = { name: string; ground: string; accent: string; isDark: boolean };
 
+/* ⚠ NO `publishedTheme` HERE ANY MORE, AND ITS REMOVAL IS THE POINT OF THE ARRIVAL STRIP. This
+   component used to carry the "published theme is not one of these four" note in its own label,
+   because it was the only surface that showed the four. The strip in `PreviewIndicator` now says it
+   on EVERY page, so keeping it here too put the identical sentence twice on the homepage, forty
+   pixels apart. ONE STATEMENT, ONE OWNER. */
 type Props = {
-  /** The theme on `content/site-settings.yaml`, server-read. Decides the arrival note. */
-  publishedTheme: string;
   /** The four, in order, with their colours already resolved to literals. */
   swatches: readonly TeaserSwatch[];
 };
 
-export default function HomePaletteTeaser({ publishedTheme, swatches }: Props) {
+export default function HomePaletteTeaser({ swatches }: Props) {
   const [pastHero, setPastHero] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const noteRef = useRef(arrivalNote(publishedTheme));
 
   /* ⚠ THE FADE IS MOTION; THE PRESENCE IS NOT. Under `prefers-reduced-motion: reduce` the pill still
      appears at exactly the same moment — it simply arrives without the transition. Gating the
@@ -130,17 +131,14 @@ export default function HomePaletteTeaser({ publishedTheme, swatches }: Props) {
     />
   ));
 
-  const note = noteRef.current;
-
   return (
     <>
       {/* ---- DESKTOP: the pill, bottom-left, revealed past the hero ---- */}
       <div
         className={`palette-pill${pastHero ? " is-past" : ""}`}
         aria-hidden={!pastHero}
-        aria-label={note ? `${note}. See all nine palettes.` : undefined}
       >
-        <span className="palette-pill-label">{note ?? "Theme"}</span>
+        <span className="palette-pill-label">Theme</span>
         <span className="palette-sep" />
         <span className="palette-dots">{dots}</span>
         <span className="palette-sep" />
@@ -155,15 +153,8 @@ export default function HomePaletteTeaser({ publishedTheme, swatches }: Props) {
           is either under the thumb by accident or under the browser's furniture. The right edge at
           mid-height is the one region this hero leaves empty at every phone size, and vertical is
           what makes four dots and an arrow fit in 19px of width. */}
-      {/* ⚠ THE ARRIVAL NOTE CANNOT BE THE SAME STRING HERE, AND SHORTENING IT TO "Nine" WAS WRONG.
-          A 28px rail with vertical text cannot carry "Published: orchid — not one of these four",
-          and the first attempt simply dropped the meaning — which is the arrival case going
-          silently wrong on the screen where it is hardest to notice, the exact failure the note
-          exists to prevent. What fits AND still says something true is the published palette's
-          NAME: four dots, none of them the one named beside them, and an arrow to all nine. The
-          full sentence rides on `aria-label`, so a screen reader gets the whole claim. */}
-      <div className="palette-rail" aria-label={note ? `${note}. See all nine palettes.` : undefined}>
-        <span className="palette-rail-label">{note ? publishedTheme : "Theme"}</span>
+      <div className="palette-rail">
+        <span className="palette-rail-label">Theme</span>
         <span className="palette-dots">{dots}</span>
         <Link href="/palettes" className="palette-more" aria-label="See all nine palettes">
           <span aria-hidden="true">↗</span>

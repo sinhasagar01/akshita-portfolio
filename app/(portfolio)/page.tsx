@@ -11,7 +11,7 @@ import ExperienceSection from "@/components/sections/ExperienceSection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import ContactSection from "@/components/sections/ContactSection";
 import HomePaletteTeaser from "@/components/palettes/HomePaletteTeaser";
-import { DEFAULT_THEME, THEME_GROUND } from "@/lib/theme";
+import { THEME_GROUND } from "@/lib/theme";
 import { TEASER_THEMES } from "@/lib/palettes/teaser";
 import { paletteCompatibility } from "@/lib/palettes/compatibility";
 
@@ -61,7 +61,6 @@ export default async function HomePage() {
           must follow the visitor. Putting the dots in the layout would put a homepage affordance on
           every case study and the blog. */}
       <HomePaletteTeaser
-        publishedTheme={settings?.theme ?? DEFAULT_THEME}
         swatches={swatches}
       />
       <JsonLd data={webSiteSchema()} />
