@@ -39,6 +39,24 @@ import {
    visible past the fold, which is the one place it is supposed to live. The contract's mock hides
    this because its stand-in hero is 640px in a page that does not scroll it away.
 
+   ---- ⚠ THE GROUND BOTH CONTROLS ACTUALLY PAINT ON IS `surface`, AND I ASSUMED WRONG TWICE -----
+
+   The first contrast pass measured the pill's glass over `canvas` (the page ground) and the rail's
+   over `surface-well` (the hero's art plate). `elementsFromPoint` says otherwise, and it is the only
+   thing that could:
+
+     pill   section.section-card   oklch(0.985 0.012 80)   the PROCESS CARD, opaque, above `html`
+     rail   section.hero-ground    oklch(0.985 0.012 80)   the HERO GROUND, not the art panel
+
+   Both are `--color-surface`. The page ground sits BEHIND the process card and is never what the
+   pill composites onto; the art plate is a sibling region the rail does not overlap at mid-height.
+
+   ⚠ SIXTH INSTANCE OF A RATIO BELONGING TO A GROUND NOBODY CHECKED, and the first where the element
+   had already MOVED before it was measured — the pill only exists past the hero, so the ground it
+   was assumed to have is one it is never on. Re-measured against `surface` per palette, sanity pair
+   21.000 first: nothing below 4.5, lowest 5.35 on sapphire and basalt. The conclusion survived and
+   every figure in it changed, which are two different facts and both are stated.
+
    ---- ⚠ THE OBSERVER, NOT A SCROLL HANDLER, AND THERE IS A THIRD REASON HERE ------------------
 
    Beyond not writing style per scroll event: THIS SITE'S SCROLL POSITION IS NOT `window.scrollY`.
