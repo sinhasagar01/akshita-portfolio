@@ -209,36 +209,40 @@ is deploys rather than commits.
   which ralph cannot measure; a declaration check would go on passing if the grid changed underneath
   it. The trigger for re-measuring is any change to `.hero-copy`'s layout mode.
 
-- **⚠ THE MUTATION PATH IS NOT OWNED BY THE MUTATION TOOL, AND THAT IS THE ONE LIVE GAP — BOARDED
-  WITH THE INCIDENT THAT FOUND IT.** `mutate.mjs` snapshots, restores, and verifies its own effect.
-  It does **not** perform the edit: every mutation in this repo is applied by hand with an editor or
-  a script, so the tool never learns what the target was and cannot refuse anything.
+- **⚠ THE MUTATION PATH IS NOW OWNED BY THE MUTATION TOOL — CLOSED, AND THE RULE THAT PRECEDED IT
+  IS WHY A MECHANISM WAS NEEDED.** `mutate.mjs` snapshotted, restored and verified itself, and did
+  **not** perform the edit: every mutation was applied by hand, so the tool never learned the target,
+  could not refuse anything, and could not revert precisely.
 
   **THE INCIDENT.** Mutation-testing the counterpart registry, the restore step inside the loop was
-  written as `git checkout lib/theme.ts` — **the destructive operation this whole mechanism exists
-  to replace**, reached for while applying the rule that names it, in a loop whose first line was
-  `mutate.mjs --snapshot`. The registry was uncommitted, so the checkout discarded it. **It was
-  recoverable only because the file happened to be dirty when the snapshot ran**, which is the case
-  the snapshot covers by construction rather than by luck — but the luck was in the ordering.
+  written as `git checkout lib/theme.ts` — the destructive operation this whole mechanism exists to
+  replace — reached for while applying the rule that names it, in a loop whose first line was
+  `--snapshot`. The registry was uncommitted, so the checkout discarded it.
 
-  **THE SHAPE OF THE FIX, AND WHY IT IS NOT SMALL.** The tool would have to own the edit —
-  `mutate.mjs --edit <file> <anchor> <replacement>` — so that it can refuse when the target is dirty
-  and unsnapshotted, and revert precisely what it applied. That is an apply-and-revert API with
-  anchor-uniqueness checking, **and it changes how every future mutation test is written**, which is
-  the part that makes it a unit rather than a flag.
+  **⚠ THE INTERIM RULE WAS WRITTEN DOWN, WAS CORRECT, AND DID NOT STOP IT HAPPENING AGAIN.**
+  "`--restore` is the only restore path in a mutation loop" is still true and still worth knowing.
+  It did not help, because reaching for `git checkout` is faster than remembering a rule. **ONLY A
+  MECHANISM PREVENTS A FAILURE MODE** — the same conclusion `theme-contrast`'s header reached about
+  its own hazard 5, and the argument for building this rather than being careful next time.
 
-  **THE INTERIM RULE, WHICH COSTS NOTHING: `--restore` IS THE ONLY RESTORE PATH IN A MUTATION LOOP.**
-  Never `git checkout` inside one. The tool already reverts a previously-clean file with `git
-  checkout` **itself**, one file at a time and named, and that is safe precisely because clean at
-  snapshot means HEAD held the intent — the distinction the operator is the one who cannot see.
+  **`--edit <file> <anchor> <replacement>` AND `--revert-edit`.** Four refusals, each proved on a
+  constructed state rather than argued:
 
-  **⚠ AND THE SECOND HALF OF THIS PAIR IS CLOSED, MEASURED RATHER THAN ASSUMED.** The compounding
-  item was `--restore` no-opping on a file that was CLEAN at snapshot. **Tested end to end on a
-  genuinely clean tree**: snapshot reports zero dirty files and says so, a mutation to a clean file
-  is detected through the `.clean-at-snapshot` manifest, reverted by name, and the self-verification
-  confirms the tree matches its pre-mutation state. **#379's manifest fixed it and the board entry
-  outlived the fix.** One live gap, not two.
+      dirty and unsnapshotted   REFUSED, and it names the snapshot command that fixes it. This is
+                                the incident's exact state and the only one nothing can recover.
+      anchor absent             REFUSED — an unrun mutation reports SURVIVED, the false negative
+                                this file exists to make impossible.
+      anchor not unique         REFUSED — the edit would land somewhere nobody named.
+      replacement === anchor    REFUSED — a no-op mutation always survives and reads as a weak gate.
 
+  **AND THE REVERT IS PRECISE WHERE `git checkout` IS TOTAL.** Proved end to end: a file carrying
+  BOTH a mutation and uncommitted work came back with the mutation gone and the work intact —
+  `git checkout` would have destroyed the second. An empty revert refuses rather than reporting a
+  success it did not perform, which is the silent-success shape all seven earlier defects here had.
+
+  **⚠ IT DOES NOT REPLACE `--snapshot`/`--restore` AND MUST NOT.** Those cover the operator's whole
+  tree; this covers the edits the tool applied. A mutation loop wants both, and the verdict's own
+  hint now names the right one.
 
 - **⚠ THE WORK FILTER IS CLOSED, AND WHAT IT WAS IS NOT WHAT THE RECORD SAID.** The item here read
   *"THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE... The pressed chip measures 2.03... The
