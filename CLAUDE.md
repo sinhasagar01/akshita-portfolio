@@ -484,7 +484,7 @@ closed.
 ## Portable conventions
 
 `docs/PORTABLE.md` holds the rules and limits from this project that are **not about this project**.
-Twenty five rules and five limits, each tested against whether it survives without its example. It is
+Thirty five rules and five limits, each tested against whether it survives without its example. It is
 the extraction of what the arc below cost, and it is deliberately separate because the entries here
 are entangled with `.wf-thumb`, `pearl` against `glass` and `D12e`, and the ones there are not.
 

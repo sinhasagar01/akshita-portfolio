@@ -313,6 +313,35 @@ An exemption is what lets a dead thing survive review for as long as the exempti
 Record what was considered and rejected, with the reason. Otherwise the same question is asked and
 answered repeatedly, and each answer is slightly different.
 
+### 35. Ask what single change reddens a row and nothing else
+
+The question to put to a new assertion is not whether it passes. It is what one edit would make it
+fail, and whether that edit leaves every other row green. Naming that edit is the check.
+
+Three answers are possible and all three are useful. If a specific edit reddens only this row, the
+row discriminates and is worth keeping. If the only edits that redden it also redden another row,
+the row is that other row wearing different words, and it should be deleted rather than kept as
+apparent coverage. And if no reasonable edit reddens it at all, it is documentation in an
+assertion's clothes, which is worse than an absent check because a reader counts it.
+
+None of this is visible by reading. A row that cannot fail reads exactly like a row that can, which
+is why the question has to be answered by mutating rather than by inspecting. In one sustained
+session seven assertions failed it, every one written by someone who already knew the rule and was
+watching for it — the rule does not prevent the defect, it only finds it.
+
+Two mechanisms recur and are worth naming on their own, because neither is obvious in advance.
+
+A row can be defeated by the error message of the thing it checks. A guard that raises an
+exception often interpolates the very quantity the assertion searches for, so a search of the whole
+file finds the string inside the message and passes even when the guard has been removed. The
+subject is the guard, so the matcher must be shaped like a guard — a condition naming the quantity,
+with the raise inside it — rather than a search for two strings that happen to co-occur.
+
+And a repair for an unfalsifiable row can introduce a fresh one. Tightening a matcher means writing
+a more specific pattern, and a more specific pattern has more ways to be subtly wrong. Re-run the
+mutation after the repair, not only before it. The repair is a change like any other and inherits
+no correctness from the reasoning that motivated it.
+
 ---
 
 ## Part two. Limits
