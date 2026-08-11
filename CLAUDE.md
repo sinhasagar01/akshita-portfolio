@@ -189,6 +189,37 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ THE MUTATION PATH IS NOT OWNED BY THE MUTATION TOOL, AND THAT IS THE ONE LIVE GAP — BOARDED
+  WITH THE INCIDENT THAT FOUND IT.** `mutate.mjs` snapshots, restores, and verifies its own effect.
+  It does **not** perform the edit: every mutation in this repo is applied by hand with an editor or
+  a script, so the tool never learns what the target was and cannot refuse anything.
+
+  **THE INCIDENT.** Mutation-testing the counterpart registry, the restore step inside the loop was
+  written as `git checkout lib/theme.ts` — **the destructive operation this whole mechanism exists
+  to replace**, reached for while applying the rule that names it, in a loop whose first line was
+  `mutate.mjs --snapshot`. The registry was uncommitted, so the checkout discarded it. **It was
+  recoverable only because the file happened to be dirty when the snapshot ran**, which is the case
+  the snapshot covers by construction rather than by luck — but the luck was in the ordering.
+
+  **THE SHAPE OF THE FIX, AND WHY IT IS NOT SMALL.** The tool would have to own the edit —
+  `mutate.mjs --edit <file> <anchor> <replacement>` — so that it can refuse when the target is dirty
+  and unsnapshotted, and revert precisely what it applied. That is an apply-and-revert API with
+  anchor-uniqueness checking, **and it changes how every future mutation test is written**, which is
+  the part that makes it a unit rather than a flag.
+
+  **THE INTERIM RULE, WHICH COSTS NOTHING: `--restore` IS THE ONLY RESTORE PATH IN A MUTATION LOOP.**
+  Never `git checkout` inside one. The tool already reverts a previously-clean file with `git
+  checkout` **itself**, one file at a time and named, and that is safe precisely because clean at
+  snapshot means HEAD held the intent — the distinction the operator is the one who cannot see.
+
+  **⚠ AND THE SECOND HALF OF THIS PAIR IS CLOSED, MEASURED RATHER THAN ASSUMED.** The compounding
+  item was `--restore` no-opping on a file that was CLEAN at snapshot. **Tested end to end on a
+  genuinely clean tree**: snapshot reports zero dirty files and says so, a mutation to a clean file
+  is detected through the `.clean-at-snapshot` manifest, reverted by name, and the self-verification
+  confirms the tree matches its pre-mutation state. **#379's manifest fixed it and the board entry
+  outlived the fix.** One live gap, not two.
+
+
 - **⚠ THE WORK FILTER IS CLOSED, AND WHAT IT WAS IS NOT WHAT THE RECORD SAID.** The item here read
   *"THE WORK FILTER FAILS CONTRAST ON EVERY PALETTE... The pressed chip measures 2.03... The
   unpressed chips measure 1.30 and 1.90 on dark."* **None of those figures reproduce.** Measured from
