@@ -250,6 +250,54 @@ for (const k of PUBLIC) {
   else unparseable.push({ name: k, value: v, derived: /var\(--/.test(v) });
 }
 
+/* ============================================================================================
+   ⚠ A THEMED PALETTE IS RUNGS OVER *ALIASES*, NOT RUNGS OVER CREAM'S RESOLVED ROLES. THE ONE
+   ASSEMBLY SEAM, AND IT EXISTS BECAUSE THE OBVIOUS SPREAD IS WRONG.
+
+   `{ ...CREAM, ...themeOverrides(n) }` reads as the whole story and is not. A `[data-theme]` block
+   declares 35 tokens and EVERY ONE IS A RUNG — harbour declares `cream-50` and does not declare
+   `surface`. The roles live once in `@theme` spelled `--color-surface: var(--color-cream-50)`, and
+   `CREAM` above stores each one ALREADY FLATTENED against cream. So the spread layers harbour's
+   rungs over CREAM's resolved roles and SEVEN TOKENS THE USAGE MAP NAMES keep cream's value on
+   every light palette that is not cream — `accent`, `accent-text`, `on-accent`, `surface`,
+   `surface-well`, `text-primary`, `text-secondary`.
+
+   ⚠ THE TELL WAS IN THE OUTPUT AND READ AS A COINCIDENCE. `on-accent on accent` reported 4.70 for
+   cream, harbour, orchid, cerise AND fern — five identical figures for five different palettes,
+   because both operands were cream's, so the row was palette-INDEPENDENT by construction. A number
+   that cannot vary is not a measurement, and five copies of it sat in the log.
+
+   ⚠ AND THE MACHINERY TO DO IT RIGHT ALREADY EXISTED — `rawIn` follows `var()` through the merged
+   palette and falls back to `rawDecl`. CREAM's pre-flattening SHADOWED that path. The repair is to
+   follow each alias through the MERGED map here, once, rather than to add a second resolver.
+
+   ⚠ THE GROUND BLOCK IS SKIPPED RATHER THAN FOLLOWED, AND THAT IS LOAD-BEARING.
+   `:root[data-ground="dark"]` redeclares those same seven roles as fresh `var()` and `color-mix()`
+   expressions. Following `@theme`'s alias for a token the ground block owns would overwrite the
+   dark answer with the light one — so a key any later layer declares is left exactly as that layer
+   wrote it, and the resolver flattens it downstream as before. This is also why the dark palettes
+   passed the browser oracle while the defect was live: the ground block repaired them by accident.
+
+   ⚠ `GROUND_DARK` IS READ ONLY FOR A DARK PALETTE, WHICH IS NOT A MICRO-OPTIMISATION. It is
+   declared 580 lines below this one, so evaluating it for a light palette would be a temporal dead
+   zone error at the two section-D fixtures that call this before that line.
+============================================================================================ */
+const layered = (n) => {
+  const ov = n === DEFAULT_THEME ? {} : themeOverrides(n);
+  const gd = THEME_GROUND[n] === "dark" ? GROUND_DARK : {};
+  const merged = { ...CREAM, ...ov, ...gd };
+  const follow = (value, depth = 0) => {
+    const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(String(value ?? "").trim());
+    return m && depth < 8 ? follow(merged[m[1]], depth + 1) : value;
+  };
+  for (const k of Object.keys(merged)) {
+    if (!aliasOf(k) || k in ov || k in gd) continue;
+    const v = follow(rawDecl[k]);
+    if (v !== undefined) merged[k] = v;
+  }
+  return merged;
+};
+
 /* ---- THE USAGE MAP. Which colour sits on which ground in which role. The palette varies per
  * theme; THIS DOES NOT. Every foreground below was confirmed to have public consumers by count
  * before it was written down, so no row is invented. */
@@ -551,7 +599,7 @@ console.log("\nD · theme two — judged by the instrument, not by eye");
  * plainly existed. THE OWNER OF THAT CLAIM IS `theme` SECTION G, which asserts the two blocks
  * declare the same token SET, and D3 below now compares the two counts rather than testing one
  * against a floor. Naming it because a deferral without a named check is a deferral to nobody. */
-const HARBOUR = { ...CREAM, ...themeOverrides("harbour") };
+const HARBOUR = layered("harbour");
 const harbour = report(HARBOUR, USAGE);
 /* ⚠ HARBOUR IS NOT SHIPPABLE UNDER THE GAMUT CHECK, AND THIS ROW SAID IT WAS FOR TWENTY-ODD PRs.
  * It clears every contrast floor it has ever been asked about — that half was always true and is
@@ -629,7 +677,7 @@ console.log("\nD3 · theme three — ORCHID, judged before it is looked at");
 /* ⚠ THE INSTRUMENT RUNS FIRST AND THE RENDER SECOND, AND NEITHER IS OPTIONAL. `SHIPPABLE` means
  * every token pair clears its floor; it has never meant the site looks right. Harbour took three
  * drafts and every refusal was this working. */
-const ORCHID = { ...CREAM, ...themeOverrides("orchid") };
+const ORCHID = layered("orchid");
 const orchid = report(ORCHID, USAGE);
 console.log(`         verdict ${orchid.verdict}`);
 for (const r of orchid.rows.filter((x) => !x.ok)) console.log(`           REFUSED  ${r.fg} on ${r.bg}  got ${r.got?.toFixed(3)} floor ${r.floor} (${r.kind})`);
@@ -947,13 +995,16 @@ t("R4 ⚠ AND AN UNFOLLOWABLE VALUE RETURNS null RATHER THAN A GUESS — P1's re
    the screen does and what this suite did not. `GROUND_TOKEN` decides which token IS the page ground
    for the class, so a dark palette is measured against `band-dark` rather than `canvas`. */
 const paletteOf = (n) => {
-  const themed = n === DEFAULT_THEME ? { ...CREAM } : { ...CREAM, ...themeOverrides(n) };
+  /* ⚠ THE ASSEMBLY LIVES IN `layered` ABOVE AND NOT HERE, because the spread this used to perform
+     inline was the defect — rungs over cream's already-resolved roles. Kept as the named seam the
+     rest of the file calls, so there is one place a layering bug can live rather than four. */
+  const themed = layered(n);
   /* ⚠ RAW, NOT RESOLVED. An earlier version returned `resolvedPalette(layered)` and broke six rows
      that had been fine: the hue and band sections read OKLCH COMPONENTS off these values, and
      flattening every token to a hex literal throws the hue and chroma away. `report` needs literals;
      D12 and L need the oklch text. So the flattening happens at the report call site instead of
      here, and this returns what the palette actually declares. */
-  return THEME_GROUND[n] === "dark" ? { ...themed, ...GROUND_DARK } : themed;
+  return themed;
 };
 const HUES = Object.fromEntries(REAL.map((n) => {
   const p = paletteOf(n);
@@ -1398,7 +1449,7 @@ t("K5 ⚠ THE PALETTES DERIVED WITH THE CHECK IN HAND ARE CLEAN — cerise and f
  * CREAM, which at the time declared its own out-of-gamut `bounce` — so the fixture reported TWO
  * unrepresentable tokens and the row could not say which one it had injected. A fixture whose
  * baseline carries the defect it is testing for cannot isolate anything. */
-const impossible = { ...CREAM, ...themeOverrides("fern"), "accent-500": "oklch(54.0% 0.16 158)" };
+const impossible = { ...layered("fern"), "accent-500": "oklch(54.0% 0.16 158)" };
 /* ---- ⚠ EVERY PALETTE THROUGH THE MAP, DERIVED FROM THEME_NAMES ------------------------------
  *
  * ⚠ THREE OF SIX PALETTES HAD NEVER BEEN THROUGH THE USAGE MAP. `report()` was called for cream,
@@ -1467,16 +1518,49 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
  * SECOND INSTRUMENT: a browser canvas, which paints the token and reads the pixel back, so the
  * conversion is the engine's rather than this file's.
  *
- * Measured in Chrome on the real render with the sanity pair reading 21.000 first, then measured
- * here from globals.css. THE TWO AGREE TO 0.00 ON ALL FIVE. That is the same discipline
+ * Measured in a browser on the real render with the sanity pair reading 21.000 first, then measured
+ * here from globals.css. THE TWO AGREE TO 0.00 ON ALL NINE. That is the same discipline
  * `studio-ink-contrast` used against its browser oracle, at a tighter tolerance than its 0.4.
+ *
+ * ⚠ "ALL FIVE" IS WHAT THIS LINE SAID, AND THE FIVE WERE THE POPULATION RATHER THAN THE PALETTES.
+ * It was true of the map below and read as a claim about the system. See the next block.
+ *
+ * ⚠ AN ORACLE IS ONLY AS GOOD AS ITS POPULATION, AND A POPULATION CHOSEN FOR CONVENIENCE WILL
+ * EXCLUDE THE CASE THAT BREAKS. This map held cream and the four DARK palettes and agreed to 0.00,
+ * and that agreement was not evidence the resolver was right.
+ *
+ * ⚠ THE DARK FOUR PASSED BECAUSE A DIFFERENT BLOCK REPAIRED THEM BY ACCIDENT. Roles are declared
+ * once in `@theme` as `var()` aliases and `CREAM` stored them ALREADY FLATTENED against cream, so a
+ * themed palette layered its own rungs over cream's resolved roles and `surface`, `accent`,
+ * `accent-text`, `on-accent`, `surface-well`, `text-primary` and `text-secondary` kept CREAM's
+ * value. `:root[data-ground="dark"]` redeclares those same seven as FRESH `var()` expressions, which
+ * `rawIn` then follows through the merged palette — so the ground block happened to undo the defect
+ * for exactly the palettes this map covered. The four LIGHT palettes that break are the four it
+ * never measured.
+ *
+ * ⚠ AND CERISE AGREED BY COINCIDENCE, WHICH IS THE SHARPER HALF. On this pair its `cream-50` sits
+ * close enough to cream's that both resolvers return 4.66 and 7.75. So the check that would have
+ * caught the defect is the one it agreed with, on one of the four palettes carrying it — a false
+ * instrument that mostly agrees is harder to catch than one plainly broken.
+ *
+ * ⚠ RETAKEN AGAINST `next start`, NOT THE DEV SERVER. Two independent agreements are good evidence
+ * and not the same as the right regime, and dev and production have disagreed in this repo before.
+ * Sanity pair 21.000 first, samples asserted to have LANDED on 255,255,255 and 0,0,0 rather than
+ * merely to differ, and the capture carried its own provenance — origin, page title, and the
+ * absence of the dev overlay and the HMR scripts. All five pre-existing rows reproduced to 0.00.
  *
  * These literals are the oracle. If the resolver drifts, they fail; if the PALETTE moves, they fail
  * too and should be re-measured in a browser rather than edited to match. */
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69], cream: [4.70, 7.22],
+  harbour: [4.87, 7.11], orchid: [5.76, 8.45], cerise: [4.66, 7.75], fern: [4.63, 6.88],
 };
+/* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
+ * to this map fails here instead of being quietly unmeasured — which is the whole defect above,
+ * stated as a rule the next palette cannot walk past. */
+t("P3-pop ⚠ THE ORACLE COVERS EVERY REAL PALETTE — an oracle missing a member proves nothing about it",
+  REAL.filter((n) => !(n in ORACLE)), []);
 const measured = Object.fromEntries(Object.keys(ORACLE).map((n) => {
   const pal = resolvedPalette(paletteOf(n));
   const r = (t) => +contrastRatio(parseColor(pal["on-accent"]), parseColor(pal[t])).toFixed(2);
