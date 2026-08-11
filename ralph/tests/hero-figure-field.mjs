@@ -17,7 +17,7 @@
 // a save point the field at a blob nobody uploaded — the field would name a 404 and the hero would
 // draw nothing. Asserted on the exclusion LIST rather than on a comment.
 import { readFileSync } from "node:fs";
-import { load } from "js-yaml";
+import { load, dump } from "js-yaml";
 import {
   heroFigureYamlValue,
   heroFigureBlobPath,
@@ -56,13 +56,28 @@ t("A4 the hero accepts it and renders it", [/figure\?: string \| null/.test(hero
 t("A5 the studio panel mounts the control", /<HeroFigureField/.test(panel), true);
 t("A6 …and the control posts to its own route", /"\/api\/studio\/upload-hero-figure"/.test(field), true);
 
-console.log("\nB · existing data is untouched — the property that makes this safe to add");
+console.log("\nB · a settings file with no heroFigure still renders — the property that makes this safe to add");
 /* WHAT REDDENS THIS: making the field required, or dropping the fallback. Either turns every
- * settings file written before today into a hero with no artwork. */
+ * settings file written before the field existed into a hero with no artwork.
+ *
+ * ⚠ THIS SECTION USED TO ASSERT `"heroFigure" in settings === false` AGAINST THE LIVE FILE, AND THAT
+ * ROW WENT RED THE FIRST TIME THE OWNER USED THE FEATURE. It was written the day the field landed,
+ * when the key genuinely was absent, and it read "the live corpus has no key" as if that were the
+ * invariant. It never was. The invariant is that a settings file WITHOUT the key renders the shipped
+ * asset — a property of the RENDERER and the SERIALIZER, true forever, and independent of whatever
+ * the owner has since uploaded.
+ *
+ * ⚠ A GATE WHOSE SUBJECT IS "THE CORPUS TODAY" FAILS WHEN THE CORPUS CHANGES, WHICH IS THE ONE THING
+ * A CORPUS IS FOR. It cost a red main on a commit that was working exactly as designed, and the
+ * signal was the worst kind — a failure that says a feature is broken when the feature is fine. */
 const settingsRaw = read("content/site-settings.yaml");
 const settings = load(settingsRaw) ?? {};
-t("B0 the live settings file genuinely has no heroFigure key — without that B1 proves nothing",
-  "heroFigure" in settings, false);
+/* The absent-key state, derived rather than depended upon, so this holds whether or not the live
+   file currently carries an upload. */
+const withoutKey = { ...settings };
+delete withoutKey.heroFigure;
+t("B0 the absent-key state is constructible and really lacks the key — without that B1 proves nothing",
+  "heroFigure" in withoutKey, false);
 t("B1 ⚠ AND THE RENDERER FALLS BACK TO THE SHIPPED ASSET, so a file with no key draws what it always drew",
   /const figureSrc = figure\?\.trim\(\) \? figure\.trim\(\) : HERO_FIGURE_FALLBACK/.test(hero), true);
 t("B1a …and the fallback is the path that shipped, exported once so the studio preview cannot drift from it",
@@ -105,13 +120,18 @@ t("D4 …and nothing else is, so a stray value cannot make the writer delete a f
   [null, null, null]);
 
 console.log("\nE · the round trip does not re-key the file");
-/* The serializer value-reuses strip + reorder, so an image commit must not reorder or drop
- * anything. Compared against the LIVE file, and the cleared form is compared to the set form's
- * key list rather than to a literal, so this cannot pass by both being empty. */
-const set = serializeSettingsHeroFigure(settingsRaw, "/images/hero/heroFigure.webp");
+/* The serializer value-reuses strip + reorder, so an image commit must not reorder or drop anything.
+ *
+ * ⚠ THE BASELINE IS THE ABSENT-KEY FILE, DERIVED, FOR THE SAME REASON B0 IS. This compared against
+ * the LIVE file and went red the moment the owner uploaded: with the key already present, "setting
+ * it" adds nothing, and a diff that expects exactly one new key cannot hold. Serialising the
+ * absent-key state gives a baseline that is the same on every run. */
+const baselineRaw = serializeSettingsHeroFigure(dump(withoutKey), null).replace(/^heroFigure: null\n/m, "");
+const set = serializeSettingsHeroFigure(baselineRaw, "/images/hero/heroFigure.webp");
 const topKeys = (y) => y.split("\n").filter((l) => /^[a-zA-Z]/.test(l)).map((l) => l.split(":")[0]);
-const before = topKeys(settingsRaw), after = topKeys(set);
-t("E0 the live file parsed into a real key list — a zero here makes E1 vacuous", before.length > 10, true);
+const before = topKeys(baselineRaw), after = topKeys(set);
+t("E0 the baseline parsed into a real key list and lacks the key — a zero here makes E1 vacuous",
+  [before.length > 10, before.includes("heroFigure")], [true, false]);
 t("E1 ⚠ SETTING THE FIELD ADDS EXACTLY ONE KEY AND MOVES NO OTHER",
   after.filter((k) => k !== "heroFigure"), before);
 t("E2 …and it lands in its schema position rather than being appended",
