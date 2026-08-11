@@ -2241,8 +2241,18 @@ a {
    carries the entrance. A CSS animation with a forwards fill beats a plain transform on the same
    element, so one of the two would freeze at its entrance value and never move again. Every moving
    thing here is a pair for that reason: .hero-figure over its image, .hero-piece over its pin. */
+/* ⚠ THE FIGURE DROPS 68px SO HER HAIRLINE CLEARS THE NAV, AND IT TRANSLATES RATHER THAN SHRINKS.
+   Measured: her hair's topmost row is 6.35% down the source, which put it at page y 57 against a nav
+   pill bottom of 87 — **she was 30px behind the pill**. Reducing `height` would move the head down by
+   shrinking her, since the figure is height-driven and its width follows; `bottom` keeps the scale
+   and spends the difference on the crop, which this panel already does by design.
+
+   ⚠ AND A FIXED PIXEL DROP DOES NOT HOLD AT EVERY HEIGHT, WHICH IS STATED RATHER THAN HIDDEN. The
+   hair sits at 6.35% of the PANEL height while the nav is a constant 87, so the clearance is
+   `drop + 0.0635 x viewportHeight - 87`. 68 clears at 700px and above, which covers every desktop
+   window this layout is drawn for, and below that the reflow is near. */
 .hero-figure {
-  position: absolute; left: 50%; bottom: 0; height: 100%; z-index: 6;
+  position: absolute; left: 50%; bottom: -68px; height: 100%; z-index: 6;
   transform: translateX(-50%) translate3d(var(--hero-x), var(--hero-y), 0)
              rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2308,7 +2318,10 @@ a {
    16:10, and the lower-left clearing that remains holds 70 to 103px of clear width — measured
    from the alpha, not judged. A full-width card overlaps her sleeve at every position; at 72px
    and below it clears completely on all four tested ratios. */
-.hero-card.is-sm .hero-pin { width: clamp(52px, 5cqw, 72px); }
+/* ⚠ NARROWER **AND** SHORTER — the small card's markup carries two rows against the blue card's
+   four, so `is-sm` is a size rather than a width. It matters because the clearing it sits in is
+   63px tall and 71px wide after the figure's drop, measured, and a four-row card is 90px. */
+.hero-card.is-sm .hero-pin { width: clamp(46px, 4cqw, 62px); }
 .hero-card-dot  { display: block; width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
 .hero-card-line { display: block; height: 5px; margin-top: 9px; border-radius: 6px; background: currentColor; opacity: 0.84; }
 .hero-card-line.is-short { width: 60%; opacity: 0.46; }
@@ -2318,9 +2331,15 @@ a {
 .hero-piece--spark  .hero-pin { color: var(--hx-accent-2); }
 
 /* --- the copy column — the contract's grid, rows auto auto 1fr auto ---------------------------- */
+/* ⚠ THE TOP PADDING IS DERIVED FROM THE NAV RUNWAY, NOT THE CONTRACT'S 112px. The contract was drawn
+   with its own nav inside the mock and 112 cleared it. THIS site's nav is a floating pill whose
+   bottom edge measures 87, so 112 left **26px** between it and the eyebrow — measured, and the owner
+   read it as a collision. `--hero-nav-runway` is the token that already means "clear the nav", so the
+   value is that plus a deliberate 3.5rem of air rather than a second hardcoded number that would
+   drift the day the nav's height changes. Measured after: 104. */
 .hero-copy {
   position: absolute; left: 0; top: 0; bottom: 0; width: 51%; z-index: 12;
-  padding: 112px 0 32px 62px;
+  padding: calc(var(--hero-nav-runway) + 3.5rem) 0 32px 62px;
   display: grid; grid-template-rows: auto auto 1fr auto;
 }
 .hero-eyebrow {
@@ -2356,7 +2375,16 @@ a {
   border: 1px solid var(--hx-rule); border-radius: 999px; padding: 3px;
   background: color-mix(in srgb, var(--hx-surface) 30%, transparent);
 }
-.hero-body { display: flex; flex-direction: column; justify-content: center; padding-right: 40px; }
+/* ⚠ THE BODY STARTS AT THE TOP OF ITS ROW RATHER THAN CENTRING IN IT, WHICH IS WHAT CLOSED A 132px
+   HOLE. The row is the grid's `1fr`, so centring split every spare pixel evenly above AND below the
+   answer — 132 between the tab group and the answer, and 132 again beneath the counters. Pushing the
+   block down could only ever close half of it, because the answer moved down too. Starting the body
+   instead puts the whole slack below, where it sits above a scroll cue already pinned to the bottom
+   edge and reads as breathing room. The 28px is the deliberate gap that replaces the hole. */
+.hero-body {
+  display: flex; flex-direction: column; justify-content: flex-start;
+  padding-top: 28px; padding-right: 40px;
+}
 .hero-line {
   font-family: var(--font-hero-display), Georgia, serif; font-weight: 300;
   font-size: clamp(23px, 2.7vw, 38px); line-height: 1.14; letter-spacing: -0.026em;
@@ -2554,6 +2582,10 @@ a {
   }
   .hero-fig-label { right: 16px; bottom: 14px; }
   .hero-grain { width: 100%; }
+  /* ⚠ NO DROP HERE. The desktop offset clears a nav that, in one column, sits over the ARTWORK
+     rather than over the copy — and this panel is a 300-400px band where 68px is a fifth of its
+     height rather than a trim. */
+  .hero-figure { bottom: 0; }
   /* ⚠ NO EMPTY COLUMN ON A PHONE. The pieces live in the artwork's clear wedge, and the reflowed
      panel has none — they would land on the artwork, which is the one thing they must not do. */
   .hero-piece { display: none; }
@@ -2572,7 +2604,9 @@ a {
   }
   .hero-tabs::-webkit-scrollbar { display: none; }
   .hero-tabs button { white-space: nowrap; flex: 0 0 auto; }
-  .hero-body { display: block; margin-top: 22px; padding-right: 0; }
+  /* the desktop gap is reset — this block already spaces the answer with its own margin, and
+     keeping both would stack 28px of padding on top of 22px of margin */
+  .hero-body { display: block; margin-top: 22px; padding-top: 0; padding-right: 0; }
   .hero-line { font-size: clamp(22px, 6.4cqw, 28px); max-width: none; }
   .hero-support { font-size: 14px; max-width: none; margin-top: 14px; }
   .hero-callouts {
