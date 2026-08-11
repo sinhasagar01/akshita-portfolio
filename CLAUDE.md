@@ -2155,6 +2155,15 @@ build a gate for the limit and then believe it.
   server before running a suite that reads `.next`, and never diagnose a build from a tree a probe
   has been served from.
 
+  **⚠ AND IT HAS A SECOND INSTANCE, SO IT IS A MECHANISM RATHER THAN AN ANECDOTE: A SERVER THAT IS
+  SERVING IS ALSO WRITING.** A build run while `next start` was still up emitted a fourth CSS chunk,
+  `app/(portfolio)/page.css`, nested one level below the flat directory every CSS union figure in
+  this arc had been computed over — a denominator computed inside a walk that could not see its own
+  boundary, arriving from the SERVER rather than from the walk. Clean builds of both sides emit
+  three files, so the earlier figures stood. **That was established by rebuilding BOTH sides, not by
+  assuming the baseline held**, and rebuilding both is the only step that separates a real change
+  from a contaminated one. `PORTABLE.md` rule 36 carries the portable half.
+
 - **⚠ A GATE THAT CANNOT RUN IS NOT A GATE, AND `upstream` A1 SAT SILENT WHILE THE DEFECT IT
   DESCRIBES WAS COMMITTED.** A `docs:` commit sat unpushed on local `main`, a gate-repair branch was
   cut from it, and the PR opened with **two files instead of one** — costing a rebase and a

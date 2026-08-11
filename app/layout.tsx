@@ -14,7 +14,8 @@ import {
   SITE_KEYWORDS,
 } from "@/lib/site";
 import { getSiteSettings } from "@/lib/keystatic";
-import { DEFAULT_THEME, THEME_GROUND } from "@/lib/theme";
+import { DEFAULT_THEME, THEME_GROUND, THEME_NAMES } from "@/lib/theme";
+import { previewHeadScript } from "@/lib/palettes/preview-cookie";
 import "./globals.css";
 
 const kaushanScript = Kaushan_Script({
@@ -146,12 +147,22 @@ export const metadata: Metadata = {
    from here and shows the ACTIVE theme with no second mechanism. That was the ruling, and the root
    placement satisfies it by construction rather than by wiring.
 
-   ⚠ NO CLIENT SCRIPT AND NO FLASH, BECAUSE EVERY PUBLIC ROUTE IS PRERENDERED. `/` and `/blog` are
+   ⚠ THIS PARAGRAPH SAID "NO CLIENT SCRIPT AND NO FLASH" AND THE FIRST HALF IS NO LONGER TRUE.
+   `Try across portfolio` reads its cookie from an inline head script below, because a server read
+   would make every public route dynamic. THE SECOND HALF STILL HOLDS — the script runs during
+   parse, before body paint. Amended rather than left, because a comment claiming something the
+   file stopped doing is the defect this repo keeps finding in its own record.
+
+   ⚠ EVERY PUBLIC ROUTE IS STILL PRERENDERED, WHICH IS THE PROPERTY THAT MATTERED. `/` and `/blog` are
    static, `/blog/[slug]` and `/projects/[slug]` are SSG, so the attribute is baked into the HTML at
    build time. `/studio` is dynamic, which is the right side of that split — the canvas reads the
    current value per request instead of a stale build. It also confirms what the publish story
    already assumed: changing the theme needs a rebuild, which is why it is a publish.
 ============================================================================================ */
+/* ⚠ DERIVED FROM THE REGISTRY, NOT LISTED. The head script needs to know which palettes carry a
+   dark ground, and a typed list would be correct on the day it was written. */
+const DARK_THEMES = THEME_NAMES.filter((n) => THEME_GROUND[n] === "dark");
+
 export default async function RootLayout({
   children,
 }: {
@@ -179,6 +190,17 @@ export default async function RootLayout({
             over; the top reset is skipped when there is a #hash so a deep link still lands
             on its target instead of being yanked to the top. */}
         <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';if(!location.hash){window.scrollTo(0,0);}" }} />
+        {/* ⚠ `Try across portfolio`, READ AT PARSE TIME SO EVERY PUBLIC ROUTE STAYS STATIC.
+            Reading `cookies()` here instead would make `/`, `/blog`, `/blog/[slug]`,
+            `/projects/[slug]` and both `og` routes dynamic — the whole public surface, for a
+            feature a visitor uses once. This runs before body paint, so there is no window in
+            which the wrong ground is visible, on first load or on a later navigation.
+
+            ⚠ AND THE COMMENT ABOVE THE `<html>` TAG SAYING "NO CLIENT SCRIPT AND NO FLASH" WAS
+            AMENDED RATHER THAN LEFT, because the file no longer does what it claimed. The
+            scrollRestoration script beside this one is the precedent that makes the timing
+            honest; the departure is now stated where a reader meets it. */}
+        <script dangerouslySetInnerHTML={{ __html: previewHeadScript(DARK_THEMES) }} />
         {/* No-JS fallback: the scroll-reveal sections ship clipped/opacity:0 and are
             un-hidden by JS on scroll. Without JS that never fires, so force them visible
             when scripting is off. Zero effect on the JS path (the reveal still runs). */}
@@ -187,6 +209,18 @@ export default async function RootLayout({
         </noscript>
       </head>
       <body>
+        {/* ⚠ THE PUBLISHED VALUES, SERVER-RENDERED, SO EXIT HAS A TRUE STATE TO RETURN TO. The head
+            script may already have overwritten `<html>`'s attributes by the time anything reads
+            them, so the published theme cannot be recovered from the live DOM — it has to be
+            carried separately. Rendered here rather than passed as a prop because the indicator
+            lives in the portfolio layout and this is the only place that knows the published
+            value without a second settings read. */}
+        <span
+          id="published-theme"
+          hidden
+          data-published-theme={theme}
+          data-published-ground={ground === "dark" ? "dark" : ""}
+        />
         {children}
       </body>
     </html>
