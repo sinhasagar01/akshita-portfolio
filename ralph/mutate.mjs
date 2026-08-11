@@ -171,6 +171,135 @@ if (process.argv[2] === "--restore") {
   process.exit(0);
 }
 
+/* ============================================================================================
+   ⚠ `--edit` — THE TOOL OWNS THE MUTATION, AND THAT CLOSES THE ONE GAP THIS FILE STILL HAD.
+
+   Everything above snapshots, restores and verifies. NONE of it performed the edit: every mutation
+   in this repo was applied by hand with an editor or a script, so the tool never learned what the
+   target was, could not refuse anything, and could not revert precisely. The operator held the one
+   piece of information the safety net needed.
+
+   ⚠ THE INCIDENT THAT NAMED IT. Mutation-testing a registry, the restore step inside the loop was
+   written as `git checkout <file>` — the destructive operation this whole mechanism exists to
+   replace — reached for while applying the rule that names it, in a loop whose first line was
+   `--snapshot`. The registry was uncommitted, so the checkout discarded it. It was recoverable only
+   because the file happened to be dirty when the snapshot ran, which is the case the snapshot covers
+   BY CONSTRUCTION rather than by luck — but the luck was in the ordering.
+
+   ⚠ AND THE REASON A RULE WAS NOT ENOUGH IS THE ONE THIS REPO KEEPS RE-LEARNING: ONLY A MECHANISM
+   PREVENTS A FAILURE MODE. The interim rule — "`--restore` is the only restore path in a mutation
+   loop" — was written down and is still true. It did not stop the next person reaching for
+   `git checkout`, because reaching for it is faster than remembering the rule.
+
+   ---- WHAT IT REFUSES, AND WHY EACH REFUSAL IS THE POINT ---------------------------------------
+
+     dirty and unsnapshotted   The tree holds intent nothing has recorded. This is EXACTLY the
+                               state the incident destroyed, and it is the only one the tool
+                               cannot recover from. Refused with the command that fixes it.
+
+     anchor not unique         A replacement applied to the wrong occurrence mutates something the
+                               operator did not name, and the verdict then describes a different
+                               edit than the one intended. Zero matches is a mutation that never
+                               ran and would report SURVIVED — the false-negative this file exists
+                               to make impossible.
+
+     replacement === anchor    A no-op mutation cannot kill anything, so it ALWAYS reports SURVIVED
+                               and reads as a weak gate. It is a test of the test that cannot fail,
+                               which is the defect this repo has deleted four rows for.
+
+   ---- AND `--revert-edit` UNDOES WHAT IT APPLIED, NOT WHAT HEAD HOLDS ---------------------------
+
+   It replaces each recorded replacement with its anchor, newest first, and verifies the residue is
+   gone. That is precise where `git checkout` is total: a file carrying both a mutation and the
+   operator's uncommitted work comes back with the work intact. The edits are recorded outside the
+   snapshot so a clean-tree mutation is revertible without one.
+============================================================================================ */
+const EDITS = join(process.env.TMPDIR ?? "/tmp", "ralph-mutate-edits.json");
+const readEdits = () => (existsSync(EDITS) ? JSON.parse(readFileSync(EDITS, "utf8")) : []);
+
+if (process.argv[2] === "--edit") {
+  const [, , , rel, anchorArg, replacementArg] = process.argv;
+  if (!rel || anchorArg === undefined || replacementArg === undefined) {
+    console.error("usage: node ralph/mutate.mjs --edit <file> <anchor> <replacement>");
+    process.exit(2);
+  }
+  if (!existsSync(rel)) {
+    console.error(`no such file: ${rel}`);
+    process.exit(2);
+  }
+  if (anchorArg === replacementArg) {
+    console.error("⚠ REFUSED — the replacement is identical to the anchor.");
+    console.error("  A no-op mutation always reports SURVIVED and says nothing about the gate.");
+    process.exit(2);
+  }
+
+  /* ⚠ THE REFUSAL THE INCIDENT ASKED FOR. Clean is safe because HEAD holds the intent, and
+   * snapshotted is safe because the copy does. Dirty-and-unsnapshotted is the one state where
+   * nothing but the working tree knows what the operator meant. */
+  const dirtyNow = new Set(dirtyFiles());
+  const snapshotHasIt = existsSync(join(SNAP, rel));
+  if (dirtyNow.has(rel) && !snapshotHasIt) {
+    console.error(`⚠ REFUSED — ${rel} has uncommitted changes and is not in a snapshot.`);
+    console.error("  Nothing but the working tree knows what those changes were, so this edit");
+    console.error("  would not be revertible. Take a snapshot first:");
+    console.error("\n    node ralph/mutate.mjs --snapshot\n");
+    process.exit(2);
+  }
+
+  const before = readFileSync(rel, "utf8");
+  const hits = before.split(anchorArg).length - 1;
+  if (hits !== 1) {
+    console.error(`⚠ REFUSED — the anchor occurs ${hits} time(s) in ${rel}; it must occur exactly once.`);
+    console.error(hits === 0
+      ? "  Zero matches is a mutation that never runs, and an unrun mutation reports SURVIVED."
+      : "  Several matches means the edit would land somewhere the operator did not name.");
+    process.exit(2);
+  }
+
+  writeFileSync(rel, before.replace(anchorArg, replacementArg));
+  const edits = readEdits();
+  edits.push({ file: rel, anchor: anchorArg, replacement: replacementArg, wasClean: !dirtyNow.has(rel) });
+  writeFileSync(EDITS, JSON.stringify(edits, null, 2));
+  console.log(`edited ${rel} — 1 site. Revert with \`node ralph/mutate.mjs --revert-edit\``);
+  process.exit(0);
+}
+
+if (process.argv[2] === "--revert-edit") {
+  const edits = readEdits();
+  if (!edits.length) {
+    console.error("no recorded edits to revert — nothing was applied through `--edit`");
+    process.exit(2);
+  }
+  const failed = [];
+  /* Newest first, so overlapping edits to one file unwind in the order they were made. */
+  for (const e of [...edits].reverse()) {
+    if (!existsSync(e.file)) { failed.push(`${e.file} (gone)`); continue; }
+    const cur = readFileSync(e.file, "utf8");
+    const hits = cur.split(e.replacement).length - 1;
+    if (hits !== 1) { failed.push(`${e.file} (replacement found ${hits} times, expected 1)`); continue; }
+    writeFileSync(e.file, cur.replace(e.replacement, e.anchor));
+  }
+  /* ⚠ VERIFIED, BECAUSE THE FAILURE MODE IN THIS FILE HAS ALWAYS BEEN SILENT SUCCESS. Seven defects
+   * above each reported a restore that had not happened. A revert that cannot confirm its own effect
+   * is the same instrument again. */
+  for (const e of edits) {
+    if (!existsSync(e.file)) continue;
+    const cur = readFileSync(e.file, "utf8");
+    if (cur.includes(e.replacement) && e.replacement !== e.anchor) {
+      failed.push(`${e.file} (the mutation is still present)`);
+    }
+  }
+  if (failed.length) {
+    console.error("⚠ REVERT FAILED — do NOT trust any verdict from this run:");
+    for (const f of failed) console.error(`  ${f}`);
+    process.exit(1);
+  }
+  console.log(`reverted ${edits.length} edit(s); every mutation this run applied is gone:`);
+  for (const e of edits) console.log(`  ${e.file}`);
+  rmSync(EDITS, { force: true });
+  process.exit(0);
+}
+
 const name = process.argv[2];
 if (!name) {
   console.error("usage: node ralph/mutate.mjs <suite-name>");
@@ -277,7 +406,8 @@ const detail = { KILLED: `${fails} assertion${fails === 1 ? "" : "s"} failed`
 
 console.log(`${verdict.padEnd(9)} ${name}  ·  ${detail}  (exit ${res.status}, ${asserted} assertions)`);
 if (haveSnapshot) {
-  console.log("          restore with `node ralph/mutate.mjs --restore` — NOT `git checkout`,");
+  console.log("          revert with `node ralph/mutate.mjs --revert-edit` if the edit was applied
+          through `--edit`, otherwise `--restore` — NEVER `git checkout`,");
   console.log("          which reverts to the last COMMIT and discards uncommitted work with it.");
 } else if (!treeClean) {
   console.log("          ⚠ NO PRE-MUTATION SNAPSHOT. `git checkout <file>` will discard EVERY");
