@@ -38,6 +38,7 @@ import { readFileSync } from "node:fs";
 import {
   DEFAULT_THEME, VERIFY_THEME, SECOND_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
   selectableThemes, unselectableReason, THEME_SPLASH, THEME_OG, BRAND_CHROME_COLOR,
+  THEME_GROUND, THEME_COUNTERPART,
 } from "../../lib/theme.ts";
 import { THEME_METRICS, ACTIVE_THEME } from "../../lib/studio/three-pane.ts";
 import {
@@ -551,6 +552,57 @@ t("V3 ⚠ AND THE CHROMA STEP IS A SIGNED BAND, -0.013 to -0.009 — a magnitude
  * the same shape as a hue floor in degrees being SILENT about a palette with no hue. Fail by name. */
 t("V4 ⚠ EVERY VESSEL'S GLASS CARRIES ENOUGH CHROMA FOR THE RULE'S OWN STEP — below 0.013 the tint collapses onto lightness alone",
   vRows.filter((r) => r.glassC < -TINT_dC_MIN - 1e-9).map((r) => `${r.n}: glass c ${r.glassC} < ${-TINT_dC_MIN}`), []);
+
+
+console.log("\nW · the counterpart registry — completeness and structure, never the choice");
+/* ⚠ THE SUBJECT OF THIS SECTION IS COMPLETENESS, NOT CORRECTNESS, AND THAT LINE IS THE WHOLE POINT.
+ * A counterpart is a JUDGEMENT — `lib/theme.ts` records the two hue derivations that look obvious
+ * and shows that neither reproduces the map, each failing on a different row. So a row here fails on
+ * a MISSING name, a name that is not a real palette, or a name in the WRONG GROUND CLASS. It must
+ * never be strengthened into checking WHICH palette was chosen: nothing here can know that, and a
+ * gate that pretended to would be a hue rule with an assertion wrapped round it. */
+const REAL_THEMES = THEME_NAMES.filter((n) => n !== VERIFY_THEME);
+const LIGHTS = REAL_THEMES.filter((n) => THEME_GROUND[n] === "light");
+const DARKS = REAL_THEMES.filter((n) => THEME_GROUND[n] === "dark");
+console.log(`         ${REAL_THEMES.length} real palettes — ${LIGHTS.length} light, ${DARKS.length} dark`);
+t("W0 the subject is real, against a literal — an empty registry would satisfy every row below",
+  REAL_THEMES.length >= 5 && Object.keys(THEME_COUNTERPART).length >= 5, true);
+t("W1 ⚠ EVERY REAL PALETTE HAS A COUNTERPART — a missing entry FAILS rather than defaulting to one nobody chose",
+  REAL_THEMES.filter((n) => !(n in THEME_COUNTERPART)), []);
+t("W1a …and nothing extra is in it, so a renamed palette leaves no orphan behind",
+  Object.keys(THEME_COUNTERPART).filter((n) => !REAL_THEMES.includes(n)), []);
+t("W1b ⚠ AND THE TWIN IS ABSENT ON PURPOSE — a control with a counterpart is a sixth light member, and the structure counts real palettes",
+  VERIFY_THEME in THEME_COUNTERPART, false);
+t("W2 every counterpart names a REAL palette — a typo resolves to nothing and would read as a blank line",
+  Object.entries(THEME_COUNTERPART).filter(([, v]) => !REAL_THEMES.includes(v)).map(([k, v]) => `${k} -> ${v}`), []);
+t("W2a ⚠ AND IT IS IN THE OPPOSITE GROUND CLASS — the one property of the CHOICE this gate can check",
+  Object.entries(THEME_COUNTERPART).filter(([k, v]) => THEME_GROUND[k] === THEME_GROUND[v]).map(([k, v]) => `${k} -> ${v}`), []);
+t("W2b …and no palette is its own counterpart, which W2a already forbids and which is worth failing by name",
+  Object.entries(THEME_COUNTERPART).filter(([k, v]) => k === v).map(([k]) => k), []);
+/* ⚠ THE ASYMMETRY IS FORCED BY THE COUNTS, NOT CHOSEN. Five light and four dark cannot pair
+ * symmetrically, so exactly one light palette points at a dark one that points back elsewhere. These
+ * three rows are that arithmetic, asserted so a future palette cannot quietly break the shape. */
+t("W3 ⚠ EVERY DARK PALETTE ROUND-TRIPS — the four symmetric pairs are symmetric in fact, not by intent",
+  DARKS.filter((d) => THEME_COUNTERPART[THEME_COUNTERPART[d]] !== d), []);
+t("W3a …and the darks claim four DIFFERENT lights, so no light is recommended twice from that side",
+  new Set(DARKS.map((d) => THEME_COUNTERPART[d])).size, DARKS.length);
+/* ⚠ A ROW ASSERTING THE PIGEONHOLE WAS WRITTEN HERE, MUTATION-TESTED, AND REMOVED — RECORDED
+ * BECAUSE THE REMOVAL IS THE FINDING. It read "exactly |light| - |dark| light palettes are
+ * unreciprocated" and it PASSED, which is why it looked like a row. Nine mutations later it had
+ * never died alone: W2a forces every counterpart cross-class and W3a forces the four darks onto
+ * DISTINCT lights, and those two together FIX the unreciprocated count at |light| - |dark|. There is
+ * no edit that reddens it while they stay green.
+ *
+ * So it was documentation wearing an assertion's clothes — true by construction, discriminating
+ * nothing, and adding a row that would have to be re-derived by anyone auditing this section. The
+ * arithmetic it stated is worth keeping and belongs in prose, which is where it now lives, beside
+ * `THEME_COUNTERPART` in `lib/theme.ts`. The count is printed above so a reader still sees it.
+ *
+ * ⚠ THE TEST THAT CAUGHT IT IS THE ONE THIS REPO ALREADY NAMES: ask what would have to change for a
+ * row to go red, and NAME IT. "Nothing a reasonable edit could do" is the answer that deletes a row,
+ * and it is only reachable by mutating — reading this row makes it look like a real check. */
+const unreciprocated = LIGHTS.filter((l) => !DARKS.some((d) => THEME_COUNTERPART[d] === l));
+console.log(`         ${unreciprocated.length} light palette(s) no dark points back at: ${unreciprocated.join(", ") || "(none)"}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
