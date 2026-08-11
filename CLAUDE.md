@@ -2099,6 +2099,41 @@ build a gate for the limit and then believe it.
 
 ## Proof and verification
 
+- **⚠ A GATE THAT CANNOT RUN IS NOT A GATE, AND `upstream` A1 SAT SILENT WHILE THE DEFECT IT
+  DESCRIBES WAS COMMITTED.** A `docs:` commit sat unpushed on local `main`, a gate-repair branch was
+  cut from it, and the PR opened with **two files instead of one** — costing a rebase and a
+  force-push over an already-open PR. `upstream.mjs` A1 exists for exactly this, is correct, and is
+  **network-bound**, so `ralph/run.mjs` skips it by name. **Same family as `parity` and
+  `studio-type`: a by-hand gate is not a closed gate until something runs it.**
+
+  **⚠ AND A1's OWN PREDICATE COULD NOT BE THE FIX.** It asserts local `main` is not ahead of
+  `origin/main`, which is **false on every legitimate push of `main`** — including the push that
+  finally sent that very commit. **A gate whose common failure is benign is one people learn to
+  skip**, which `.githooks/pre-push`'s own header already argues. The narrowed predicate is the one
+  that is never legitimate: **pushing a branch that is not `main` while local `main` is ahead of
+  `origin/main`.**
+
+  It lives in the **hook, not in `run.mjs`** — ralph stays offline-runnable, which is why `upstream`
+  is skipped there in the first place. **A failed fetch reports UNRUN rather than passing**, A0's
+  posture: a stale `origin/main` makes `main` look MORE ahead, never less, so the fetch is what
+  keeps it from crying wolf offline. Proved on four constructed states — fires on the defect and
+  blocks **before** ralph, silent on a `main` push, silent on a feature push from a clean `main`,
+  and UNRUN with the remote unreachable.
+
+- **⚠ A MOVE IS NOT MOTION IF IT CHANGES WHAT IS WATCHING THE FILE.** Lifting the palette resolver
+  from `ralph/tests/theme-contrast.mjs` to `lib/theme-contrast.ts` changed nothing about the code
+  and two things about its audience. **Tailwind scans `lib` and not `ralph/tests`**, so three
+  comments spelling an accent-text background utility no markup uses compiled that class into the
+  **public bundle** — +58 raw bytes, caught by `css-comment-trap` A5. And **`tsc` and eslint watch
+  `.ts` and not `.mjs`**, so a dead binding beside the usage map failed `no-unused-vars` within a
+  minute of arriving, after however long of being indistinguishable from a live one.
+
+  **⚠ THIS IS A NEW MEMBER OF THE COMMENT-TRAP FAMILY AND THE OTHERS DO NOT COVER IT.** Every
+  earlier instance was a comment being WRITTEN, or a token being added or removed UNDER an existing
+  comment. **Here the prose did not change — its file did.** So the trigger list is not only "run it
+  when a token is added" and "run it after a deletion", it is also **run it when a file changes
+  directory**, and check the lint reach at the same time.
+
 - **⚠ CAPTURE THE EXIT CODE BEFORE ANY PIPE TOUCHES IT.** A pipeline's status is the LAST command's,
   so `node ralph/run.mjs | tail -3 && git commit` gates on **`tail`**, which always succeeds. The
   gate exists, is wired to the wrong subject, and reports success — and a commit goes out on a red
