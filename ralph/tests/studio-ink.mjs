@@ -700,7 +700,7 @@ t("E4: labelCls sizes itself with a LOCAL literal, not the shared `--text-eyebro
   t("C4: …and the vertical list rail keeps its accent bar, the third treatment by-role missed",
     /accent-500/.test(code("components/studio/ListDetailLayout.tsx")), true);
   t("C4: …with the hero's weight in the shared base instead, so selection is not ALSO a weight step",
-    /className=\{\[ "-mb-px border-b-2[^"]*font-medium/.test(hero.replace(/\s+/g, " ")), true);
+    /className=\{\[ "-mb-px border-b-2[^"]*font-normal/.test(hero.replace(/\s+/g, " ")), true);
   // SCOPED TO THE TAB'S OWN CLASS EXPRESSION, not to everything after the first role="tab".
   // The file legitimately holds two other accent fills — the panel header's icon chip and the
   // Save button — and an assertion that pins more than its subject fails for the wrong reason.
@@ -1280,10 +1280,11 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
 // the change, and an unstripped match would read the history instead of the code.
 //
 // TWO TRAPS THIS PART WALKED INTO WHILE BEING WRITTEN, BOTH CAUGHT BY J1 RATHER THAN BY READING.
-// (1) THE PUBLIC HERO HAS TWO TABLISTS WITH THE SAME `aria-label="Designer facets"` — the mobile
-// dot indicators at `flex lg:hidden` come FIRST in source, so anchoring on the label picked the
-// dots, which carry no type utilities at all. The anchor is the DESKTOP container's own
-// `hidden lg:inline-flex`, which is the variant the studio's `lg:` chrome sits beside.
+// (1) THE PUBLIC HERO USED TO HAVE TWO TABLISTS WITH THE SAME `aria-label="Designer facets"` — the
+// mobile dot indicators at `flex lg:hidden` came FIRST in source, so anchoring on the label picked
+// the dots, which carried no type utilities at all. The ash-contract hero collapsed the two into
+// ONE `.hero-tabs` group that scrolls below the breakpoint, so the anchor is now that container's
+// own class — and the trap this comment records is exactly why the collapse was worth it.
 // (2) Stripping comments leaves their whitespace, so a character-count window from `role="tab"`
 // to `className` overran. Whitespace is collapsed before matching.
 // Both failures presented as J2 PASSING — on two empty strings. **That is exactly why J1 exists,
@@ -1293,7 +1294,7 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   const heroPub = flat("components/sections/HeroSection.tsx");
   const heroStudio = flat("components/studio/HeroEditPanel.tsx");
 
-  const pubCls = /className="hidden lg:inline-flex[\s\S]{0,400}?aria-pressed=\{[\s\S]{0,200}?className="([^"]*)"/
+  const pubCls = /className="hero-tabs"[\s\S]{0,400}?aria-pressed=\{[\s\S]{0,200}?className="([^"]*)"/
     .exec(heroPub)?.[1] ?? "";
   const studioCls = /role="tab" [\s\S]{0,400}?className=\{\[ "([^"]*)"/.exec(heroStudio)?.[1] ?? "";
 

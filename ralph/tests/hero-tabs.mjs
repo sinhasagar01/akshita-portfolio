@@ -84,13 +84,36 @@ t("C0a the pinned pre-migration commit still resolves — a rewritten history fa
 t("C0 the pre-migration file still carries the eight flat keys — without them C1 compares nothing",
   [1, 2, 3, 4].every((n) => typeof before[`tab${n}Label`] === "string" && typeof before[`tab${n}Line`] === "string"), true);
 
-const moved = [];
+/* ⚠ THE FOUR LABELS ARE STILL COMPARED LIVE AND THE FOUR HEADLINES ARE NOT, WHICH IS A SPLIT THE
+   MIGRATION DID NOT NEED AND THE ADOPTION FORCED. This row proved all eight values survived the flat
+   keys byte-identically. The labels still do, so they are still checked against the pre-migration
+   file — a drift there would be a real loss.
+
+   The four HEADLINES were deliberately replaced when the owner adopted the contract's copy, so
+   comparing them against the pre-migration file would now fail for the one reason that is not a
+   defect. What is asserted instead is that the migration's fidelity is still TRUE AS HISTORY: the
+   eight values are compared at the migration commit rather than in the working tree, so the claim
+   cannot go stale again the next time the copy is edited. */
+const movedLabels = [];
 for (let i = 0; i < 4; i++) {
-  if (tabs[i]?.label !== before[`tab${i + 1}Label`]) moved.push(`tab${i + 1}.label`);
-  if (tabs[i]?.headline !== before[`tab${i + 1}Line`]) moved.push(`tab${i + 1}.headline`);
+  if (tabs[i]?.label !== before[`tab${i + 1}Label`]) movedLabels.push(`tab${i + 1}.label`);
 }
-t("C1 ⚠ ALL EIGHT EXISTING VALUES ARRIVED BYTE-IDENTICALLY — label from tabNLabel, headline from tabNLine",
-  moved, []);
+t("C1 ⚠ THE FOUR LABELS STILL MATCH THE PRE-MIGRATION FILE BYTE-IDENTICALLY",
+  movedLabels, []);
+
+const AT_MIGRATION = "22b0681";
+const atMigrationRaw = gitOr(["show", `${AT_MIGRATION}:content/site-settings.yaml`], "");
+const atMigration = load(atMigrationRaw) ?? {};
+const atMigrationTabs = Array.isArray(atMigration.heroTabs) ? atMigration.heroTabs : [];
+t("C1b the migration-commit file still resolves and carries four tabs — without it C1c compares nothing",
+  atMigrationTabs.length, 4);
+const movedAtMigration = [];
+for (let i = 0; i < 4; i++) {
+  if (atMigrationTabs[i]?.label !== before[`tab${i + 1}Label`]) movedAtMigration.push(`tab${i + 1}.label`);
+  if (atMigrationTabs[i]?.headline !== before[`tab${i + 1}Line`]) movedAtMigration.push(`tab${i + 1}.headline`);
+}
+t("C1c ⚠ ALL EIGHT VALUES ARRIVED BYTE-IDENTICALLY AT THE MIGRATION — asserted as history, so later edits cannot make it stale",
+  movedAtMigration, []);
 
 const newFields = tabs.flatMap((x, i) => [
   [`tab${i + 1}.support`, x.support],
@@ -99,23 +122,38 @@ const newFields = tabs.flatMap((x, i) => [
 ]);
 t("C1a …and there are exactly forty new fields, against a LITERAL rather than against themselves",
   newFields.length, 40);
-t("C2 ⚠ AND EVERY ONE OF THE FORTY IS EMPTY — the opposite expectation, so a drop cannot hide as a default",
-  newFields.filter(([, v]) => v !== "").map(([k]) => k), []);
+/* ⚠ THIS ROW ASSERTED ALL FORTY WERE EMPTY AND ITS SUBJECT HAS MOVED. Empty was the correct state
+   for the migration — the fields had just been created and a value in one could only have been
+   invented. The hero layout then shipped with the contract's copy hardcoded behind a flag, which
+   made the same forty **editable with no effect on the page**, and the owner ruled that copy correct.
+   It is now CONTENT, so the expectation inverts: the forty are FILLED, and the flag is deleted.
 
-console.log("\nD · the mock's filler copy never reached content");
-/* ⚠ A POSITIVE CHECK, NOT A HOPE. The contract's headlines for tabs 2 to 4 are FILLER the mock's
-   author wrote, not the owner's words — tab 1 is the only one that matches live copy. Pasting them
-   in would look like a finished migration and would silently replace the owner's voice. Asserted by
-   substring against the whole file, because the danger is the words landing ANYWHERE in settings,
-   not only in the slot they were drafted for. */
-const FILLER = [
+   ⚠ AND THE INVERSION IS ASSERTED RATHER THAN THE ROW BEING DROPPED, because "no longer empty" and
+   "never checked again" leave the same green tick. A field silently reverting to blank is still a
+   defect; it is now the OPPOSITE defect. */
+t("C2 ⚠ AND EVERY ONE OF THE FORTY IS NOW FILLED — the migration's emptiness inverted when the copy became content",
+  newFields.filter(([, v]) => v === "").map(([k]) => k), []);
+
+console.log("\nD · the mock's copy reached content BY RULING, and the ruling is what is recorded");
+/* ⚠ THIS ROW FORBADE THESE THREE STRINGS AND NOW REQUIRES THEM. It read "the contract's headlines
+   for tabs 2 to 4 are FILLER the mock's author wrote, not the owner's words — pasting them in would
+   look like a finished migration and would silently replace the owner's voice." That was correct
+   while nobody had ruled on them. The owner has now reviewed the rendered hero and ruled the copy
+   correct, so the words are the owner's by adoption and the danger the row named is spent.
+
+   ⚠ WHAT REPLACES IT IS NOT NOTHING. The failure mode that remains is the copy DISAPPEARING — a
+   sanitizer bug, a bad publish, a half-written patch — which is invisible from the editor because an
+   empty field looks like an unfilled one. So the same three needles are asserted PRESENT. The row
+   changed direction rather than being deleted, and the reason it changed is here rather than in a
+   commit message nobody will read. */
+const ADOPTED = [
   "End-to-end design for",
   "Close to research. Closer to",
   "Open to roles, and",
 ];
 const settingsRaw = read("content/site-settings.yaml");
-t("D1 none of the mock's three filler headlines appears anywhere in site settings",
-  FILLER.filter((f) => settingsRaw.includes(f)), []);
+t("D1 ⚠ THE THREE ADOPTED HEADLINES ARE IN SITE SETTINGS — the row that forbade them now requires them",
+  ADOPTED.filter((f) => !settingsRaw.includes(f)), []);
 /* ⚠ AND THE SEARCH MUST BE ABLE TO FIND SOMETHING, or D1 passes because the strings are wrong. The
    owner's OWN tab-1 headline is in the file, so the same method finds it. Without this row, a typo
    in FILLER would read exactly like a clean migration. */

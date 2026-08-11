@@ -9,37 +9,59 @@ import {
   useReducedMotion,
   type Transition,
 } from "motion/react";
-import Container from "@/components/layout/Container";
-import Reveal from "@/components/motion/Reveal";
 import CursorGlow from "@/components/motion/CursorGlow";
-import SectionLabel from "@/components/ui/SectionLabel";
+import { heroFontVariables } from "@/components/sections/hero-fonts";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
-// Tab NAMES and LINES are CMS-driven (siteSettings tabNLabel and tabNLine),
-// with these values as the defensive fallbacks so the Hero never renders
-// blank. The script backdrop word derives from the tab name (lowercased), so
-// it follows renames automatically.
+/* ⚠ THE COPY LIVES IN content/site-settings.yaml AND THE BYPASS FLAG IS GONE.
+   `USE_CONTRACT_COPY` stood here with the contract's words beside it, and while it was true **50 of
+   the hero's 51 owner-editable fields were editable in /studio with no effect on the page** — only
+   `heroCopy` survived, because it is read outside the flag. The owner has since ruled the contract's
+   copy correct, so it is now CONTENT rather than a hardcoded bypass: every string below arrives as a
+   prop, and editing any of them in /studio changes the page.
+
+   ⚠ THAT MAKES THE FLAG'S GATE OBSOLETE AND THE ABSENCE IS WHAT IS ASSERTED NOW.
+   `ralph/tests/hero-contract-copy.mjs` used to fail if the flag reached main; it now fails if a
+   bypass of ANY name comes back, which is the durable form of the same rule.
+
+   ⚠ THE `*em*` MARKERS ARE PART OF THE HEADLINE FIELD. The contract italicises one word of each
+   answer in the accent, and a headline is one CMS string — so the marker travels in the copy and
+   `HeroWord` parses it. An unmarked headline simply renders with no accent word. */
+
+/** One tab as the hero draws it, after the CMS values and the fallbacks have been merged. */
+type HeroFacet = {
+  tab: string;
+  /** asterisk pairs mark the one accent `<em>` word, e.g. "people *use*." */
+  line: string;
+  support: string;
+  /** label paired with the connector line's y position, percent of hero height */
+  calls: [string, number][];
+  stats: { value: string; unit: string }[];
+};
+
+/* ⚠ THE CALLOUT LABEL IS CONTENT; ITS y POSITION IS LAYOUT. The connector lines need a height for
+   each trace and the CMS stores three labels, not three coordinates — asking an author for a
+   percentage would be asking them to design. These three are the contract's own spacing, kept here
+   with the rest of the geometry. */
+const CALLOUT_Y = [24, 47, 70];
+
+/* the contract's four backdrop arrangements, one per tab, normalised to the art panel */
+type EmberShape =
+  | { t: "r"; x: number; y: number; w: number; h: number }
+  | { t: "c"; x: number; y: number; r: number };
+const EMBER_LAYOUTS: EmberShape[][] = [
+  [{ t: "r", x: 0.04, y: 0.30, w: 0.34, h: 0.21 }, { t: "r", x: 0.60, y: 0.16, w: 0.33, h: 0.19 }, { t: "c", x: 0.80, y: 0.62, r: 0.17 }, { t: "r", x: 0.30, y: 0.62, w: 0.26, h: 0.22 }],
+  [{ t: "r", x: 0.08, y: 0.20, w: 0.30, h: 0.24 }, { t: "c", x: 0.72, y: 0.28, r: 0.19 }, { t: "r", x: 0.56, y: 0.58, w: 0.34, h: 0.20 }, { t: "r", x: 0.20, y: 0.66, w: 0.22, h: 0.18 }],
+  [{ t: "c", x: 0.22, y: 0.34, r: 0.16 }, { t: "r", x: 0.50, y: 0.20, w: 0.36, h: 0.18 }, { t: "r", x: 0.62, y: 0.52, w: 0.28, h: 0.24 }, { t: "r", x: 0.12, y: 0.64, w: 0.28, h: 0.16 }],
+  [{ t: "r", x: 0.06, y: 0.24, w: 0.28, h: 0.26 }, { t: "r", x: 0.44, y: 0.34, w: 0.30, h: 0.20 }, { t: "c", x: 0.84, y: 0.20, r: 0.15 }, { t: "c", x: 0.40, y: 0.70, r: 0.14 }],
+];
+
+// Defensive fallbacks for the tab name and headline, so the hero never renders blank.
 const FACETS = [
-  {
-    tab: "Who I am",
-    word: "who i am",
-    line: "A product designer who turns rough ideas into products people use.",
-  },
-  {
-    tab: "What I do",
-    word: "what i do",
-    line: "I carry work from the first messy sketch to the shipped screen.",
-  },
-  {
-    tab: "How I work",
-    word: "how i work",
-    line: "Sit with the ambiguity, then narrow it, discover, define, design, validate.",
-  },
-  {
-    tab: "What I'm up to",
-    word: "what i'm up to",
-    line: "Designing a connected app for Elevate, and looking for my next team.",
-  },
+  { tab: "Who I am", line: "A product designer who turns rough ideas into products people use." },
+  { tab: "What I do", line: "I carry work from the first messy sketch to the shipped screen." },
+  { tab: "How I work", line: "Sit with the ambiguity, then narrow it, discover, define, design, validate." },
+  { tab: "What I'm up to", line: "Designing a connected app for Elevate, and looking for my next team." },
 ];
 
 // The ONE source for the fallback tab names — the studio Hero editor imports
@@ -80,6 +102,45 @@ type TabStrings = {
   stats?: { value: string; unit: string }[];
 };
 
+/* strip the *em* markers for aria and reduced-motion rendering */
+const plain = (line: string) => line.replace(/\*/g, "");
+
+/* one word of the answer line — the asterisk pair inside a word becomes the accent `<em>`,
+   with any leading or trailing punctuation staying in ink, exactly as the contract marks it */
+function HeroWord({ word }: { word: string }) {
+  const m = word.match(/^(.*?)\*(.+?)\*(.*)$/);
+  if (!m) return <>{word}</>;
+  return (
+    <>
+      {m[1]}
+      <em>{m[2]}</em>
+      {m[3]}
+    </>
+  );
+}
+
+/* the contract's counter roll — 0 to the figure over 900ms, cubic ease-out, staggered */
+function RollNumber({ value, delay, reduced }: { value: string; delay: number; reduced: boolean }) {
+  const target = Number(value);
+  const rollable = Number.isFinite(target);
+  const [shown, setShown] = useState(reduced || !rollable ? value : "0");
+  useEffect(() => {
+    if (reduced || !rollable) { setShown(value); return; }
+    let raf = 0;
+    const t0 = performance.now() + delay;
+    const step = (now: number) => {
+      if (now < t0) { raf = requestAnimationFrame(step); return; }
+      const p = Math.min((now - t0) / 900, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      setShown(String(Math.round(target * e)));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value, delay, reduced, rollable, target]);
+  return <>{shown}</>;
+}
+
 export default function HeroSection({
   heroCopy,
   tabs,
@@ -97,31 +158,34 @@ export default function HeroSection({
   const smoothScroll    = useSmoothScroll();
 
   // The simple-string slots read live siteSettings values with defensive
-  // fallbacks to the previous hardcoded text, so the Hero never renders blank
-  // (all fields are optional).
+  // fallbacks so the Hero never renders blank (all fields are optional).
   const signature = heroCopy?.trim() ? heroCopy : "Akshita Singh";
-  const role      = roleLabel?.trim() ? roleLabel : "Product designer";
-  const cue       = scrollCue?.trim() ? scrollCue : "scroll to process";
 
-  // CMS name and line per tab, falling back to the hardcoded FACETS values
-  // when blank. The backdrop word derives from the effective tab name. Lines
-  // are trimmed because the CMS fields are multiline and a stray trailing
-  // newline must not become a word-split token.
-  const facets = FACETS.map((f, i) => {
+  /* ⚠ THE `<em>` IS DERIVED FROM THE NAME, NOT A SECOND CMS FIELD. The contract italicises the
+     surname in the accent, and the name is one owner-editable string — so the split is the LAST
+     whitespace-separated word, and a single-word name yields an empty `em` that does not render. */
+  const nameParts = signature.trim().split(/\s+/);
+  const nameEm    = nameParts.length > 1 ? nameParts.pop()! : "";
+  const nameLead  = nameEm ? `${nameParts.join(" ")} ` : signature;
+
+  const eyebrow = roleLabel?.trim() ? roleLabel : "Product designer";
+  const cue     = scrollCue?.trim() ? scrollCue : "scroll to process";
+
+  /* ⚠ EVERY SLOT IS GATED ON ITS OWN CONTENT AND NOTHING IS INVENTED. The tab NAME and the headline
+     fall back, because a tab must be pressable and a blank answer is a blank hero. Support, callouts
+     and figures do NOT — a blank there has nothing to fall back TO, and putting words on the page the
+     owner never wrote is what the schema PR asserted must never happen. `filter(Boolean)` before the
+     length check, so three empty strings read as absent rather than as three items. */
+  const facets: HeroFacet[] = FACETS.map((f, i) => {
     const cms = tabs?.[i];
-    const label = cms?.label?.trim() ? cms.label.trim() : f.tab;
     return {
-      tab: label,
-      word: cms?.label?.trim() ? label.toLowerCase() : f.word,
+      tab: cms?.label?.trim() ? cms.label.trim() : f.tab,
       line: cms?.line?.trim() ? cms.line.trim() : f.line,
-      /* ⚠ NO FALLBACK FOR THE TEN NEW FIELDS, DELIBERATELY, AND IT IS THE OPPOSITE CHOICE FROM THE
-         LINE ABOVE. A blank tab NAME falls back because the tab must be pressable; a blank callout
-         or figure has nothing to fall back TO — inventing one would put words on the page the owner
-         never wrote, which is what the schema PR asserted must never happen. Empty stays empty and
-         the slot does not draw. */
       support: cms?.support?.trim() ?? "",
-      callouts: cms?.callouts ?? [],
-      stats: cms?.stats ?? [],
+      calls: (cms?.callouts ?? [])
+        .map((c, j) => [c.trim(), CALLOUT_Y[j] ?? 50] as [string, number])
+        .filter(([label]) => label !== ""),
+      stats: (cms?.stats ?? []).filter((st) => st.value.trim()),
     };
   });
 
@@ -184,11 +248,180 @@ export default function HeroSection({
 
   const pillTransition = isReducedMotion ? PILL_INSTANT : PILL_SPRING;
 
+  /* ⚠ TWO MOTIONS THAT MUST NOT SHARE AN ELEMENT, WHICH IS WHY EVERY MOVING THING IS A PAIR. The
+     entrance is a CSS animation with a `forwards` fill and the parallax is a plain transform; on one
+     element the animation wins and the parallax freezes at the entrance value forever. The outer
+     `.hero-piece` and `.hero-figure` carry the pointer transform, their inner `.hero-pin` and `img`
+     carry the entrance. `hero-illustration` B1 and B2 assert the pairs, because a collapse renders
+     identically today and only surfaces once motion exists. */
+  const shellRef = useRef<HTMLDivElement>(null);
+  const artRef   = useRef<HTMLDivElement>(null);
+  const emberRef = useRef<HTMLCanvasElement>(null);
+
+  /* Assemble runs on mount and replays on every tab change, exactly as the contract's replay()
+     does. The class is removed and re-added two frames apart so the animations restart rather
+     than being skipped as already finished. Under reduced motion the class is added once and the
+     CSS reset paints every final state. */
+  useEffect(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    if (isReducedMotion) { el.classList.add("is-running"); return; }
+    el.classList.remove("is-running");
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => el.classList.add("is-running"));
+    });
+    return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
+  }, [active, isReducedMotion]);
+
+  /* ⚠ THE EMBER BACKDROP — the contract's ash engine, verbatim. Thousands of particles stream in
+     from the edges and settle into four themed panels behind the figure; on a tab change they
+     re-gather into a different arrangement. The loop stops the frame the last particle lands.
+     Reduced motion paints the settled state directly, because a canvas loop is invisible to any
+     CSS reset. */
+  useEffect(() => {
+    const art = artRef.current, cv = emberRef.current, root = sectionRef.current;
+    if (!art || !cv || !root) return;
+    let raf = 0;
+    const assemble = () => {
+      cancelAnimationFrame(raf);
+      const W = art.clientWidth, H = art.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.width = W * dpr; cv.height = H * dpr;
+      const g = cv.getContext("2d");
+      if (!g) return;
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const cs = getComputedStyle(root);
+      /* ⚠ FOUR EMBER SLOTS, READ FROM THE STYLESHEET RATHER THAN NAMED HERE. They resolve to one
+         accent at four strengths — the contract's warm four-rung ladder has no site equivalent,
+         because rungs do not remap on a dark ground. Reading them by name keeps the palette
+         decision in CSS where the theme can reach it, which a literal in this file could not be. */
+      const cols = ["--hx-ember-1", "--hx-ember-2", "--hx-ember-3", "--hx-ember-4"]
+        .map((k) => cs.getPropertyValue(k).trim());
+      type Part = { hx: number; hy: number; sx: number; sy: number; c: string; d: number; s: number; o: number };
+      const parts: Part[] = [];
+      EMBER_LAYOUTS[active].forEach((sh, i) => {
+        const pts: [number, number][] = [];
+        if (sh.t === "r") {
+          const x = sh.x * W, y = sh.y * H, w = sh.w * W, h = sh.h * H;
+          const n = Math.round(w * h * 0.0055);
+          for (let k = 0; k < n; k++) pts.push([x + Math.random() * w, y + Math.random() * h]);
+        } else {
+          const cx = sh.x * W, cy = sh.y * H, rr = sh.r * Math.min(W, H);
+          const n = Math.round(Math.PI * rr * rr * 0.0055);
+          for (let k = 0; k < n; k++) {
+            const a = Math.random() * 6.2832, d = Math.sqrt(Math.random()) * rr;
+            pts.push([cx + Math.cos(a) * d, cy + Math.sin(a) * d]);
+          }
+        }
+        pts.forEach((p) => {
+          const edge = Math.floor(Math.random() * 3);
+          const sx = edge === 0 ? -40 : edge === 1 ? W + 40 : p[0] + (Math.random() - 0.5) * W * 0.7;
+          const sy = edge === 2 ? H + 60 : p[1] + (Math.random() - 0.5) * H * 0.9;
+          parts.push({
+            hx: p[0], hy: p[1], sx, sy, c: cols[i % 4],
+            d: Math.random() * 520 + i * 90,
+            s: 0.9 + Math.random() * 1.5, o: 0.25 + Math.random() * 0.5,
+          });
+        });
+      });
+      if (isReducedMotion) {
+        g.clearRect(0, 0, W, H);
+        parts.forEach((p) => { g.globalAlpha = p.o; g.fillStyle = p.c; g.fillRect(p.hx, p.hy, p.s, p.s); });
+        g.globalAlpha = 1;
+        return;
+      }
+      const t0 = performance.now(), DUR = 1250;
+      const step = (now: number) => {
+        g.clearRect(0, 0, W, H);
+        let live = false;
+        for (const p of parts) {
+          const e0 = now - t0 - p.d;
+          const t = e0 <= 0 ? 0 : Math.min(e0 / DUR, 1);
+          if (t < 1) live = true;
+          const e = 1 - Math.pow(1 - t, 3);
+          const x = p.sx + (p.hx - p.sx) * e, y = p.sy + (p.hy - p.sy) * e;
+          const wob = (1 - e) * Math.sin(now / 240 + p.hx * 0.05) * 7;
+          g.globalAlpha = p.o * (0.25 + 0.75 * e);
+          g.fillStyle = p.c;
+          g.fillRect(x + wob, y + wob * 0.5, p.s, p.s);
+        }
+        g.globalAlpha = 1;
+        if (live) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    assemble();
+    window.addEventListener("resize", assemble);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", assemble); };
+  }, [active, isReducedMotion]);
+
+  /* the connector lines need real pixel geometry — the hero's box and the panel's left edge —
+     so they render only after measurement and remeasure with the shell */
+  const [lineGeom, setLineGeom] = useState<{ w: number; h: number; artLeft: number } | null>(null);
+  useEffect(() => {
+    const shell = shellRef.current, art = artRef.current;
+    if (!shell || !art) return;
+    const measure = () => {
+      const s = shell.getBoundingClientRect();
+      const a = art.getBoundingClientRect();
+      setLineGeom({ w: Math.round(s.width), h: Math.round(s.height), artLeft: Math.round(a.left - s.left) });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(shell);
+    return () => ro.disconnect();
+  }, []);
+
+  /* Magnetic. Depth is divergent MULTIPLIERS rather than stacking order — the figure moves ×7, the
+     ember canvas ×14 the other way, the cursor ×18, the spark ×20, the blue card ×24, the lime
+     card ×34. Written as custom properties on the panel so every consumer reads one pointer event,
+     and skipped entirely under reduced motion rather than written and then cancelled in CSS. */
+  const handleArtPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = artRef.current;
+    if (!el || isReducedMotion) return;
+    const b = el.getBoundingClientRect();
+    const x = (e.clientX - b.left) / b.width;
+    const y = (e.clientY - b.top) / b.height;
+    const mx = (x - 0.5) * 2;
+    const my = (y - 0.5) * 2;
+    const S = el.style;
+    S.setProperty("--tilt-x", `${(-my * 1.8).toFixed(2)}deg`);
+    S.setProperty("--tilt-y", `${(mx * 2.6).toFixed(2)}deg`);
+    S.setProperty("--hero-x", `${(mx * 7).toFixed(1)}px`);
+    S.setProperty("--hero-y", `${(my * 5).toFixed(1)}px`);
+    S.setProperty("--bg-x", `${(-mx * 14).toFixed(1)}px`);
+    S.setProperty("--bg-y", `${(-my * 11).toFixed(1)}px`);
+    S.setProperty("--p1x", `${(-mx * 24).toFixed(1)}px`);
+    S.setProperty("--p1y", `${(-my * 18).toFixed(1)}px`);
+    S.setProperty("--p2x", `${(mx * 34).toFixed(1)}px`);
+    S.setProperty("--p2y", `${(my * 24).toFixed(1)}px`);
+    S.setProperty("--p3x", `${(-mx * 18).toFixed(1)}px`);
+    S.setProperty("--p3y", `${(my * 22).toFixed(1)}px`);
+    S.setProperty("--p4x", `${(mx * 20).toFixed(1)}px`);
+    S.setProperty("--p4y", `${(-my * 24).toFixed(1)}px`);
+    S.setProperty("--px", `${(x * 100).toFixed(1)}%`);
+    S.setProperty("--py", `${(y * 100).toFixed(1)}%`);
+  };
+
+  const handleArtPointerLeave = () => {
+    const el = artRef.current;
+    if (!el) return;
+    const S = el.style;
+    ["--tilt-x", "--tilt-y"].forEach((k) => S.setProperty(k, "0deg"));
+    ["--hero-x", "--hero-y", "--bg-x", "--bg-y", "--p1x", "--p1y", "--p2x", "--p2y", "--p3x", "--p3y", "--p4x", "--p4y"]
+      .forEach((k) => S.setProperty(k, "0px"));
+    S.setProperty("--px", "50%");
+    S.setProperty("--py", "50%");
+  };
+
+  const showLines = lineGeom !== null && lineGeom.w > 1023;
+
   return (
     <section
       ref={sectionRef}
       id="hero"
-      className="hero-ground items-center"
+      className={`hero-ground hero-ground--split ${heroFontVariables}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -197,102 +430,153 @@ export default function HeroSection({
       {/* The ONE cursor glow — translate3d + rAF, off on touch/reduced-motion (--glow-on-paper). */}
       <CursorGlow />
 
-      {/* Content — above the glow layer */}
-      {/* ⚠ TWO COLUMNS, COPY LEFT AND ARTWORK BLEEDING RIGHT. This replaces the centred-text hero
-          entirely — a full replacement of the composition, not an addition to it. The shell is a
-          grid rather than absolute positioning so the reflow is one property change. */}
-      <div className="hero-shell">
-      <Container>
-        <div className="relative flex flex-col items-start text-left" style={{ zIndex: 2 }}>
+      {/* ⚠ THE GRAIN FILTER, DECLARED ONCE AND OFF-LAYOUT. `feTurbulence` is the contract's texture
+          and there is no CSS equivalent, so the filter has to exist as real SVG somewhere. Zero-sized
+          and aria-hidden, so it contributes no box and no accessible node. */}
+      <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
+        <filter id="hero-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+          <feComponentTransfer><feFuncA type="linear" slope="0.14" /></feComponentTransfer>
+        </filter>
+      </svg>
 
-          {/* Signature + role label.
-              LCP: the signature is the home page's largest-contentful paint, so it must
-              NOT be wrapped in <Reveal> — that ships opacity:0 in SSR and only reveals
-              after hydration, delaying LCP by ~1.8s on throttled mobile. This keeps
-              opacity:1 in the SSR HTML (paints at FCP) and only SLIDES in, so the entrance
-              is preserved but the paint isn't gated on JS. */}
-          <motion.div
-            className="flex flex-col items-center gap-2"
-            initial={isReducedMotion ? { y: 0 } : { y: 14 }}
-            animate={{ y: 0 }}
-            transition={
-              isReducedMotion ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
-            }
-          >
-            {/* The page's single h1 (accessibility): the signature is the home page's
-                top-level heading. Rendered at 40–56px, so accent-500 on canvas clears
-                the 3:1 large-text bar. */}
-            <h1
-              // ⚠ `font-script` WAS HERE AND DREW NOTHING. The unlayered `h1` rule sets
-              // `font-family: var(--font-display)`, which beats a utility in `@layer utilities`
-              // regardless of specificity — hazard 11. So this heading has ALWAYS rendered the
-              // display serif while its class asked for the script, and removing the class changes
-              // no pixel. A class that asks for one face and draws another is a lie in the markup;
-              // it survived because the result looked right.
-              className="text-accent leading-[1] m-0 font-normal"
-              style={{ fontSize: "clamp(3rem, 6.5vw, 5rem)" }}
-            >
-              {signature}
-            </h1>
-            <SectionLabel>{role}</SectionLabel>
-          </motion.div>
+      {/* ⚠ TWO COLUMNS, COPY LEFT AND ARTWORK BLEEDING RIGHT, AND THE CENTRED HERO IS DELETED RATHER
+          THAN WRAPPED. What stood here was a Container holding a centre-aligned signature, a 144px
+          script watermark and a pulsing dot — a whole composition, not a variant of this one.
+          Keeping it behind a class would have left two heroes in one file, which is the shape that
+          let an unreachable studio route drift for an arc.
 
-          {/* Facet tabs */}
-          <Reveal delay={0.08} className="mt-9">
-            {/* Mobile: dot-grows-to-bar indicators (below 1024px) */}
-            <div
-              role="group"
-              aria-label="Designer facets"
-              className="flex lg:hidden justify-center items-center gap-3 py-2"
-            >
-              {facets.map((f, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-pressed={i === active}
-                  aria-label={f.tab}
-                  onClick={() => setActive(i)}
-                  className="rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      display: "block",
-                      height: "8px",
-                      width: i === active ? "24px" : "8px",
-                      borderRadius: "9999px",
-                      backgroundColor:
-                        i === active
-                          ? "var(--color-accent)"
-                          : "color-mix(in oklch, var(--color-ink-950) 25%, transparent)",
-                      transition: isReducedMotion
-                        ? "background-color 0.3s ease"
-                        : "width 0.35s ease, background-color 0.3s ease",
-                    }}
-                  />
-                </button>
-              ))}
+          THE SHELL IS THE POSITIONED BOX. Both columns are absolute inside it, which is what lets
+          the artwork own its own height and reach three edges of the viewport. `is-running` arrives
+          from the assemble effect, on mount and on every tab change. */}
+      <div ref={shellRef} className="hero-shell">
+        <div className="hero-field" aria-hidden="true" />
+        <div className="hero-grain" aria-hidden="true" />
+
+        {/* ⚠ THE ARTWORK PANEL. Nothing is EVER applied to the illustration — no filter, mask,
+            clip-path, blend or opacity, in either motion, ever. An earlier version of this design
+            shipped a duotone that nobody read as hiding the artwork until the owner did. The plate,
+            embers, veil, seam and sheen are siblings and a pseudo-element; `hero-illustration` C1
+            asserts the absence on the figure's own two rules rather than trusting a polish pass. */}
+        <div
+          ref={artRef}
+          className="hero-art"
+          aria-hidden="true"
+          onPointerMove={handleArtPointerMove}
+          onPointerLeave={handleArtPointerLeave}
+        >
+          <div className="hero-plate" />
+          <canvas ref={emberRef} className="hero-ember" />
+
+          <div className="hero-figure">
+            {/* ⚠ NEXT/IMAGE, because this repo serves rasters through the optimizer. The intrinsic
+                size is the source's; the panel drives the rendered height and the width overflows
+                and is clipped, which is why no `sizes` guess can be right — it is height-driven. */}
+            <Image
+              src="/images/hero/hero-figure.webp"
+              alt=""
+              width={1033}
+              height={1024}
+              priority
+              sizes="(max-width: 1023px) 100vw, 60vw"
+            />
+          </div>
+
+          {/* ⚠ THE PIECES SIT IN THE ARTWORK'S TRANSPARENT WEDGE, WHICH IS NOT THE SAME AS THE
+              PANEL'S EMPTY EDGE — the figure's bounding box IS the panel at every real viewport,
+              because the raster is height-driven and 1.009:1 while the panel is roughly 0.6:1. The
+              cutout is 77.5% opaque and its box is the full frame, so only the ALPHA says where the
+              gutter is: an upper-left wedge and a lower-left strip. These positions were measured
+              against it in the render at 16:10, 16:9 and 8:5, and below 3:2 the pieces hide
+              entirely because the crop leaves no clear column at all. */}
+          <div className="hero-piece hero-piece--blue hero-card" style={{ left: "2%", top: "7%" }}>
+            <div className="hero-pin">
+              <span className="hero-card-dot" />
+              <span className="hero-card-line" />
+              <span className="hero-card-line is-short" />
+              <span className="hero-card-ports"><i /><i /><i /></span>
             </div>
+          </div>
 
-            {/* Desktop: labeled tabs with animated pill (1024px and above) */}
+          <div className="hero-piece hero-piece--lime hero-card is-sm" style={{ left: "1%", bottom: "2%" }}>
+            <div className="hero-pin">
+              <span className="hero-card-dot" />
+              <span className="hero-card-line" />
+              <span className="hero-card-line is-short" />
+              <span className="hero-card-ports"><i /><i /><i /></span>
+            </div>
+          </div>
+
+          <div className="hero-piece hero-piece--cursor" style={{ left: "1.5%", top: "28%" }}>
+            <div className="hero-pin">
+              {/* ⚠ INLINED, NOT AN <img>. These are `currentColor` SVGs and an <img> cannot inherit
+                  it — the file would draw its own colour and stop following the ink, which is the
+                  whole reason the committed icons replace the mock's CSS shapes. */}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 30" width="24" height="30" role="presentation">
+                <path
+                  d="M1.6 1.2 L1.6 24.4 L7.9 18.6 L11.6 27.4 L15.2 25.8 L11.6 17.2 L20.1 16.6 Z"
+                  fill="currentColor"
+                  stroke="none"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div className="hero-piece hero-piece--spark" style={{ left: "1.5%", top: "19%" }}>
+            <div className="hero-pin">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="presentation">
+                <path
+                  d="M20 1.5 C21.4 11.6 28.4 18.6 38.5 20 C28.4 21.4 21.4 28.4 20 38.5 C18.6 28.4 11.6 21.4 1.5 20 C11.6 18.6 18.6 11.6 20 1.5 Z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div className="hero-veil" />
+          <div className="hero-seam" />
+          <span className="hero-fig-label">Fig. 01 — the designer</span>
+        </div>
+
+        {/* ⚠ FOUR CHILDREN AND FOUR GRID ROWS, `auto auto 1fr auto`. The `1fr` is the body, so the
+            answer sits optically centred in the column while the eyebrow pins to the top and the
+            scroll cue to the bottom — which is why nothing here is wrapped in a <Reveal>: an extra
+            wrapper element would become a fifth row and break the alignment. */}
+        <div className="hero-copy">
+          <p className="hero-eyebrow">{eyebrow}</p>
+
+          <div>
+            {/* The page's single h1. LCP: the name is the home page's largest-contentful paint, so
+                it must NOT be wrapped in <Reveal> — that ships opacity:0 in SSR and only reveals
+                after hydration, delaying LCP by ~1.8s on throttled mobile.
+
+                ⚠ INK WITH ONLY THE `<em>` IN ACCENT. The split is in `.hero-name` and
+                `.hero-name em` rather than in utilities, because the unlayered `h1` rule sets
+                family and weight and beats a utility at any specificity — the same hazard that made
+                a `font-script` class on this element draw nothing for months. */}
+            <h1 className="hero-name">{nameLead}{nameEm ? <em>{nameEm}</em> : null}</h1>
+
+            {/* ⚠ ONE PILL GROUP AT EVERY WIDTH. There were two controls here — a mobile-only row
+                of dot indicators and a desktop-only row of labelled tabs — carrying the SAME
+                `aria-label`, which is how `studio-ink` J1 came to anchor on the wrong one and read
+                a container with no type utilities at all. Below the breakpoint this group scrolls
+                horizontally instead of being replaced, so there is one control, one label and one
+                anchor. */}
             <LayoutGroup>
-              <div
-                role="group"
-                aria-label="Designer facets"
-                className="hidden lg:inline-flex relative gap-1.5 p-1"
-              >
+              <div role="group" aria-label="Designer facets" className="hero-tabs">
                 {facets.map((f, i) => (
                   <button
                     key={i}
                     type="button"
                     aria-pressed={i === active}
                     onClick={() => setActive(i)}
-                    className="relative px-4 py-2.5 text-[12px] uppercase tracking-[0.10em] font-medium rounded-full transition-colors duration-[var(--duration-base)] select-none cursor-pointer"
+                    className="relative px-[15px] py-[9px] text-[10px] uppercase tracking-[0.15em] font-normal rounded-full transition-colors duration-[var(--duration-base)] select-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-500"
                     style={{
-                      color:
-                        i === active
-                          ? "var(--color-accent-text)"
-                          : "var(--color-text-subtle)",
+                      color: i === active ? "var(--hx-cta-fg)" : "var(--hx-faint)",
                     }}
                   >
                     {i === active && (
@@ -301,21 +585,12 @@ export default function HeroSection({
                         aria-hidden="true"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          backgroundColor: "color-mix(in oklch, var(--color-surface) 50%, transparent)",
-                          backdropFilter: "blur(9px) saturate(1.3)",
-                          WebkitBackdropFilter: "blur(9px) saturate(1.3)",
-                          border: "1px solid color-mix(in oklch, var(--color-accent) 30%, transparent)",
-                          /* ⚠ THE VALUE HAS TO LEAVE THE COMPONENT BEFORE IT CAN THEME. JSX cannot
-                             respond to `[data-ground="dark"]`, so an inline shadow is unthemeable
-                             by construction however it is written — the token is what makes a dark
-                             answer possible at all. This move is MECHANICAL: the declaration in
-                             globals.css is the identical string, so every palette is byte-identical
-                             and the alpha change is a separate commit.
-
-                             ⚠ AND THE DROP INSIDE IT IS A SEPARATE, UNSCOPED DEFECT, CARRIED ACROSS
-                             UNCHANGED ON PURPOSE. `oklch(30% 0.018 60 / 0.12)` is a raw literal at
-                             cream's warm hue that themes on none of the nine palettes. Fixing it
-                             here would ship a themeing repair inside a plumbing change. */
+                          /* ⚠ THE FILL IS THE ACCENT ROLE AND THE SHADOW STAYS A TOKEN READ.
+                             `vessel-alias` C1 asserts the pill's shadow arrives through
+                             `--hero-tab-shadow` so a selector can give it a dark answer — the
+                             contract's value is supplied by overriding that token under
+                             `.hero-ground--split`, never by an inline literal here. */
+                          backgroundColor: "var(--hx-accent)",
                           boxShadow: "var(--hero-tab-shadow)",
                         }}
                         transition={pillTransition}
@@ -326,221 +601,123 @@ export default function HeroSection({
                 ))}
               </div>
             </LayoutGroup>
-          </Reveal>
+          </div>
 
-          {/* Serif line with handwritten backdrop word */}
-          <Reveal delay={0.14} className="mt-7">
-            <div
-              className="relative min-h-[7rem] flex items-center justify-center w-full"
-            >
-              {/* Backdrop word — bleeds horizontally, anchored vertically to this container */}
-              <AnimatePresence mode="wait">
-                {/* Outer: position + centering transform, owns the exit fade */}
-                <motion.div
-                  key={`word-${active}`}
-                  aria-hidden="true"
-                  /* ⚠ TEXTURE, DECLARED — see the note in `SkillsBody`. A 144px ghost word at 14%
-                     alpha behind the hero: felt rather than read, so a 4.5 floor does not apply.
-                     `aria-hidden` above is here for its own reason and CANNOT double as this marker
-                     — 17 nodes carry it and eight of them are real prose. */
-                  data-texture="true"
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "-50vw",
-                    right: "-50vw",
-                    transform: "translateY(-50%)",
-                    pointerEvents: "none",
-                    zIndex: 1,
-                  }}
-                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                >
-                  {/* Inner: y-rise + scale + opacity — no conflict with outer centering */}
-                  <motion.span
-                    style={{
-                      display: "block",
-                      fontFamily: "var(--font-script)",
-                      fontSize: "clamp(5rem, 12vw, 9rem)",
-                      lineHeight: 1,
-                      color: "color-mix(in oklch, var(--color-accent) 14%, transparent)",
-                      whiteSpace: "nowrap",
-                      textAlign: "center",
-                      filter: "blur(0.4px)",
-                    }}
-                    initial={
-                      isReducedMotion
-                        ? { opacity: 0 }
-                        : { opacity: 0, y: 24, scale: 0.97 }
-                    }
-                    animate={
-                      isReducedMotion
-                        ? { opacity: 1 }
-                        : { opacity: 1, y: 0, scale: 1 }
-                    }
-                    transition={
-                      isReducedMotion
-                        ? { duration: 0.25 }
-                        : { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
-                    }
-                  >
-                    {facets[active].word}
-                  </motion.span>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Serif line — sits above the backdrop word */}
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={active}
-                  className="font-display not-italic leading-snug tracking-tight max-w-[34ch]!"
-                  style={{ position: "relative", zIndex: 2, fontSize: "clamp(1.75rem, 3.4vw, 2.75rem)" }}
-                  variants={isReducedMotion ? lineContainerVariantsReduced : lineContainerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  {isReducedMotion
-                    ? facets[active].line
-                    : facets[active].line.split(/\s+/).map((word, i, arr) => (
-                        <Fragment key={`${active}-w-${i}`}>
-                          <motion.span
-                            variants={wordVariants}
-                            style={{ display: "inline-block" }}
-                          >
-                            {word}
-                          </motion.span>
-                          {i < arr.length - 1 ? " " : null}
-                        </Fragment>
-                      ))
-                  }
-                </motion.p>
-              </AnimatePresence>
-            </div>
-          </Reveal>
-
-          {/* Scroll cue */}
-          <Reveal delay={0.2} className="mt-12">
-            <a
-              href="#process"
-              onClick={(e) => {
-                const el = document.getElementById("process");
-                if (el && smoothScroll) {
-                  e.preventDefault();
-                  smoothScroll.scrollToTarget(el);
+          <div className="hero-body">
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={active}
+                className="hero-line"
+                variants={isReducedMotion ? lineContainerVariantsReduced : lineContainerVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                {isReducedMotion
+                  ? plain(facets[active].line)
+                  : facets[active].line.split(/\s+/).map((word, i, arr) => (
+                      <Fragment key={`${active}-w-${i}`}>
+                        <motion.span
+                          variants={wordVariants}
+                          style={{ display: "inline-block" }}
+                        >
+                          <HeroWord word={word} />
+                        </motion.span>
+                        {i < arr.length - 1 ? " " : null}
+                      </Fragment>
+                    ))
                 }
-              }}
-              className="flex items-center gap-2 text-[12px] text-text-subtle tracking-[0.08em] uppercase font-medium transition-colors duration-[var(--duration-base)] hover:text-text-secondary"
-            >
-              <span
-                aria-hidden="true"
-                className="scroll-dot inline-block w-[7px] h-[7px] rounded-full bg-accent shrink-0"
-              />
-              {cue}
-            </a>
-          </Reveal>
+              </motion.h2>
+            </AnimatePresence>
 
+            {/* keyed on the tab so support, chips and counters re-enter on every pick, with the
+                contract's own delays. Each slot still gates on its own content — the CMS branch
+                renders exactly nothing where a field is empty. */}
+            <Fragment key={active}>
+              {facets[active].support ? (
+                <p className="hero-support hero-fade" style={{ animationDelay: "240ms" }}>
+                  {facets[active].support}
+                </p>
+              ) : null}
 
-          {/* ⚠ THE EMPTY STATE IS TODAY'S REAL CONTENT, NOT AN EDGE CASE. All forty of the new
-              fields are empty on every tab, so this is what the hero renders the day it lands — and
-              a field can be cleared in the editor at any time.
+              {facets[active].calls.length > 0 ? (
+                <ul className="hero-callouts">
+                  {facets[active].calls.map((c, i) => (
+                    <li key={i} className="hero-fade" style={{ animationDelay: `${240 + i * 90}ms` }}>
+                      {c[0]}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
 
-              ⚠ EACH SLOT IS GATED ON ITS OWN CONTENT, NOT ON A TAB-LEVEL FLAG. A callout line with
-              no label and a counter row with no figures are the two things that must never draw, and
-              gating them together would let one appear because the other happened to be filled.
-              `filter(Boolean)` before the length check, so three empty strings read as absent rather
-              than as three items. */}
-          {facets[active].support ? (
-            <p className="hero-support">{facets[active].support}</p>
-          ) : null}
-
-          {facets[active].callouts.filter(Boolean).length > 0 ? (
-            <ul className="hero-callouts">
-              {facets[active].callouts.filter(Boolean).map((c, i) => (
-                <li key={i}>{c}</li>
-              ))}
-            </ul>
-          ) : null}
-
-          {facets[active].stats.filter((st) => st.value.trim()).length > 0 ? (
-            <dl className="hero-counters">
-              {facets[active].stats.filter((st) => st.value.trim()).map((st, i) => (
-                <div key={i}>
-                  <dt>{st.value}</dt>
-                  <dd>{st.unit}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
-        </div>
-      </Container>
-
-      {/* ⚠ THE ARTWORK PANEL. No motion in this pass — the pairs exist so the entrance and the
-          pointer transform can never share an element, which is what would freeze one of them.
-
-          ⚠ AND NOTHING IS EVER APPLIED TO THE ILLUSTRATION. No filter, mask, clip-path, blend or
-          opacity change, in either motion, ever. An earlier version of this design shipped a duotone
-          that nobody read as hiding the artwork until the owner did. `hero-illustration` asserts the
-          absence rather than trusting a later polish pass not to reach for one. */}
-      <div className="hero-art" aria-hidden="true">
-        <div className="hero-figure">
-          {/* ⚠ NEXT/IMAGE, because this repo serves rasters through the optimizer. The intrinsic
-              size is the source's; the panel drives the rendered height and the width overflows and
-              is clipped, which is why no `sizes` guess can be right — it is height-driven. */}
-          <Image
-            src="/images/hero/hero-figure.webp"
-            alt=""
-            width={1033}
-            height={1024}
-            priority
-            sizes="(max-width: 1023px) 100vw, 49vw"
-          />
-        </div>
-
-        {/* ⚠ INSETS FROM THE PANEL'S EMPTY EDGE, never percentages keyed to drawn shapes. The pin is
-            the inner half of each pair. Positions are the contract's, expressed from the edge the
-            artwork does not reach. */}
-        <div className="hero-piece" style={{ left: "4%", top: "22%" }}>
-          <div className="hero-pin">
-            {/* ⚠ INLINED, NOT AN <img>. These are `currentColor` SVGs and an <img> cannot inherit
-                it — the file would draw its own colour and stop following the ink token, which is
-                the whole reason the committed icons replace the mock's CSS shapes. */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 30" width="24" height="30" role="presentation" >
-  
-  <path d="M1.6 1.2 L1.6 24.4 L7.9 18.6 L11.6 27.4 L15.2 25.8 L11.6 17.2 L20.1 16.6 Z"
-        fill="currentColor" stroke="none"/>
-</svg>
+              {facets[active].stats.length > 0 ? (
+                <dl className="hero-counters hero-fade" style={{ animationDelay: "300ms" }}>
+                  {facets[active].stats.map((st, i) => (
+                    <div key={i}>
+                      <dt>
+                        <RollNumber value={st.value} delay={i * 90} reduced={!!isReducedMotion} />
+                      </dt>
+                      <dd>{st.unit}</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+            </Fragment>
           </div>
-        </div>
-        {/* ⚠ BOTH CARDS TAKE THE ACCENT ROLE, NOT THE `accent-500` RUNG, AND THAT IS THE D RULING
-            APPLIED. `on-accent` on the rung measures 3.24 to 3.65 on the four dark palettes because
-            the rung does not remap; on the ROLE it is 6.75 to 7.52. The mock differentiates its two
-            cards by a second accent — the site's ladder has no lighter step, so they are told apart
-            by size, offset and content instead, which is what the parallax multipliers separate in
-            motion anyway. */}
-        <div className="hero-piece hero-card" style={{ left: "6%", bottom: "26%" }}>
-          <div className="hero-pin">
-            <span className="hero-card-dot" />
-            <span className="hero-card-line" />
-            <span className="hero-card-line is-short" />
-          </div>
-        </div>
-        <div className="hero-piece hero-card is-sm" style={{ right: "8%", bottom: "14%" }}>
-          <div className="hero-pin">
-            <span className="hero-card-dot" />
-            <span className="hero-card-line" />
-          </div>
+
+          <a
+            href="#process"
+            className="hero-scroll"
+            onClick={(e) => {
+              const el = document.getElementById("process");
+              if (el && smoothScroll) {
+                e.preventDefault();
+                smoothScroll.scrollToTarget(el);
+              }
+            }}
+          >
+            {cue}
+          </a>
         </div>
 
-        <div className="hero-piece" style={{ right: "6%", top: "14%" }}>
-          <div className="hero-pin">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="presentation" >
-  
-  <path d="M20 1.5 C21.4 11.6 28.4 18.6 38.5 20 C28.4 21.4 21.4 28.4 20 38.5 C18.6 28.4 11.6 21.4 1.5 20 C11.6 18.6 18.6 11.6 20 1.5 Z"
-        fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-</svg>
-          </div>
-        </div>
-      </div>
+        {/* the connector lines — redrawn per tab, desktop only, and keyed so the draw animation
+            replays on every pick exactly as the contract's drawLines does.
+
+            ⚠ EVERYTHING HERE ENDS BEFORE THE SEAM, BY THE OWNER'S RULING. The contract puts the
+            kink 30px INSIDE the panel and the label after it, over the artwork, where 9px mono
+            text loses to the illustration. So the box is exactly `artLeft` wide, the kink sits
+            30px left of the seam, and the label anchors END before the dot — on the copy ground,
+            never on the art. */}
+        {showLines && facets[active].calls.length > 0 ? (
+          <svg
+            key={`lines-${active}`}
+            className="hero-lines"
+            viewBox={`0 0 ${lineGeom.artLeft} ${lineGeom.h}`}
+            style={{ width: `${lineGeom.artLeft}px` }}
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {facets[active].calls.map(([label, pct], i) => {
+              const y = (lineGeom.h * pct) / 100;
+              const x0 = lineGeom.w * 0.32;
+              const x1 = lineGeom.artLeft - 30;
+              const ky = y - 20;
+              const d = `M ${x0} ${y} H ${x1 - 28} L ${x1} ${ky}`;
+              const len = Math.round(x1 - 28 - x0 + Math.hypot(28, 20));
+              const dl = 120 + i * 140;
+              const lenVar = { "--len": len } as React.CSSProperties;
+              return (
+                <Fragment key={i}>
+                  <path className="hero-trace" d={d} style={{ ...lenVar, animationDelay: `${dl}ms` }} />
+                  <path className="hero-spark" d={d} style={{ ...lenVar, animationDelay: `${dl}ms` }} />
+                  <circle className="hero-dot" cx={x1} cy={ky} r={5.5} style={{ animationDelay: `${dl + 820}ms` }} />
+                  <circle className="hero-core" cx={x1} cy={ky} r={1.8} style={{ animationDelay: `${dl + 880}ms` }} />
+                  <text x={x1 - 13} y={ky + 3.5} textAnchor="end" style={{ animationDelay: `${dl + 900}ms` }}>{label}</text>
+                </Fragment>
+              );
+            })}
+          </svg>
+        ) : null}
       </div>
     </section>
   );

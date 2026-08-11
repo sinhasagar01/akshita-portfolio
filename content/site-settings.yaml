@@ -2,65 +2,71 @@ theme: cream
 heroCopy: Akshita Singh
 heroTabs:
   - label: Who I am
-    headline: A product designer who turns rough ideas into products people use.
-    support: ''
+    headline: A product designer who turns rough ideas into products people *use*.
+    support: >-
+      Six years across enterprise data tools and one consumer turnaround. Most
+      of the work happens before anything is drawn.
     callouts:
-      - ''
-      - ''
-      - ''
+      - Enterprise UX
+      - Design systems
+      - Research-led
     stats:
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
+      - value: '6'
+        unit: years
+      - value: '4'
+        unit: case studies
+      - value: '2'
+        unit: companies
   - label: What I do
-    headline: I carry work from the first messy sketch to the shipped screen.
-    support: ''
+    headline: End-to-end design for *data-dense* tools.
+    support: >-
+      Research through to shipped interface, personas, flows, systems, and the
+      engineering conversations that keep them intact.
     callouts:
-      - ''
-      - ''
-      - ''
+      - Personas ×3
+      - Flows
+      - Tokens
     stats:
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
+      - value: '3'
+        unit: personas
+      - value: '40'
+        unit: '% faster'
+      - value: '35'
+        unit: '% adoption'
   - label: How I work
-    headline: >-
-      Sit with the ambiguity, then narrow it, discover, define, design,
-      validate.
-    support: ''
+    headline: Close to research. Closer to *engineering*.
+    support: >-
+      A rating of 2.3 is a completion number wearing a satisfaction number. The
+      job is finding which failure it is about.
     callouts:
-      - ''
-      - ''
-      - ''
+      - Measure first
+      - Test with people
+      - Ship, re-measure
     stats:
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
+      - value: '80'
+        unit: '% completion'
+      - value: '25'
+        unit: '% retention'
+      - value: '42'
+        unit: rating ×10
   - label: What I'm up to
-    headline: Designing a connected app for Elevate, and looking for my next team.
-    support: ''
+    headline: Open to roles, and *writing* about motion.
+    support: >-
+      Currently at Fosfor on Elevate ONE View. Writing about what motion is for,
+      and what you learn by removing it.
     callouts:
-      - ''
-      - ''
-      - ''
+      - Fosfor · Elevate
+      - Writing
+      - Open to roles
     stats:
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
-      - value: ''
-        unit: ''
-heroRoleLabel: Senior UI/UX Product designer
-heroScrollCue: scroll to process
+      - value: '3'
+        unit: posts
+      - value: '4'
+        unit: studies
+      - value: '1'
+        unit: turnaround
+heroRoleLabel: UI/UX product designer · Bengaluru
+heroScrollCue: Scroll to process
 photo: /images/photo.webp
 aboutCopy: >
   I turn rough ideas into products people actually use.

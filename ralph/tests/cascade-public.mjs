@@ -452,8 +452,15 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      was deleted as dead: it rendered the experience `description` field and NOTHING IMPORTED IT,
      which is exactly how that field came to have no consumer for its entire life. Its inert utility
      went with it. A fifth kind of fall, and the reason to keep recording them — the number moving
-     says nothing about which of five things happened. */
-  inert.filter(outside).length, 20);
+     says nothing about which of five things happened.
+
+     ⚠ 20 -> 19 IN THE ASH-CONTRACT HERO. The old centred hero's h1 carried a weight utility that
+     agreed with the unlayered h1 reset at 400 — inert since the day hazard 11 was written down.
+     The contract rebuild deleted that markup outright and the new `.hero-name` sets its face and
+     weight on the CLASS, which beats the element reset instead of losing to it. The site the entry
+     described no longer exists, which is the ExperienceEntry kind of fall arriving one element at
+     a time rather than a file at a time. */
+  inert.filter(outside).length, 19);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
