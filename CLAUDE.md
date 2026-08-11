@@ -2103,9 +2103,29 @@ build a gate for the limit and then believe it.
   every hue** — and any chroma rule stated as a RATIO (`ground.c x 1.20`) is blind to that, which is
   how a ground rung ended up at two and a half times its ceiling.
 
-  **⚠ AND ITS FIRST RUN FOUND THE SHIPPED SITE.** Harbour's `accent-500` is 60.7 outside sRGB and has
-  painted clamped since it shipped — with **a witness already in the repo that never knew it was
-  one**: `THEME_OG.harbour.accent` is `#007e5b`, a red channel of exactly zero, which IS the clamp.
+  **⚠ AND ITS FIRST RUN FOUND THE SHIPPED SITE — CLOSED IN `ea87038`, AND THE PRESENT TENSE HERE WAS
+  STALE FROM THAT COMMIT ONWARD.** This read *"Harbour's `accent-500` **is** 60.7 outside sRGB and
+  **has painted clamped** since it shipped"*, offering `THEME_OG.harbour.accent` at `#007e5b` as a
+  witness whose red channel of exactly zero IS the clamp. **Every word was true and none of it is
+  now.**
+
+  Measured across all nine palettes and every one of their 450 tokens, **zero sit outside sRGB.**
+  Harbour's three offenders were re-expressed to the values they were already painting —
+
+      accent-500  oklch(52.0% 0.12  168) +60.7 out  ->  oklch(52.5% 0.110 165.3)    +0.25
+      accent-600  oklch(43.0% 0.11  168) +64.3 out  ->  oklch(43.9% 0.094 163.7)    +0.46
+      glow-web    oklch(48.0% 0.115 205) +286  out  ->  oklch(49.44% 0.0852 209.0)  +0.00
+
+  — all three inside `CLIP_EPSILON`, and **zero pixels moved**, which is what makes it a declaration
+  repair rather than a colour change. `#007e5b` is still harbour's accent and has stopped being a
+  witness to anything. It is now simply what the declaration says.
+
+  **⚠ AND THE STALENESS NEARLY BOUGHT A CAVEAT THAT WOULD HAVE BEEN FALSE.** #515 publishes every
+  token as OKLCH and read this entry to decide whether the page must warn that an authored value and
+  a painted value can differ. **On this text, yes. Measured, there is nothing to warn about.** A
+  fixed hazard left in the present tense is worse than one never recorded, because nobody re-derives
+  a hazard and the warning it buys reads as rigour. Fourth carried claim in this file to expire
+  unnoticed, second to nearly direct work.
 
 - **⚠ THE GROUND-CHANGE TEST REFUTES *SIGNATURE* CLAIMS AND CANNOT TOUCH *DEPICTION* CLAIMS.** The
   cursor, the loader and the hero auras were ruled signature — *this IS the design* — and a second

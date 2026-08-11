@@ -224,6 +224,34 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
+  - id: feature-query-operand
+    kind: mechanical
+    category: not-a-colour
+    # ⚠ QUOTED, because the value carries a CSS declaration and `key: value` inside a plain YAML
+    # scalar is a mapping. Every other `where:` in this file happens to avoid one.
+    where: "lib/palettes/formats.ts (the `@supports not (color: …)` condition in `fallbackBlock`)"
+    files: [lib/palettes/formats.ts]
+    count: 1
+    reason: >
+      ⚠ A FEATURE QUERY OPERAND, NOT A COLOUR ANYTHING PAINTS. The copy block wraps its generated
+      sRGB fallback in `@supports not (color: …)`, and the operand exists so a browser can be ASKED
+      whether it parses oklch at all. It is never applied to an element, has no ground, and no
+      theme could move it because moving it would change the question rather than the answer.
+
+      Same kind as `mask`'s black, which is an alpha channel wearing a colour's spelling. Both are
+      excluded because the syntax is a colour and the MEANING is not.
+
+      ⚠ AND IT IS THE FIRST MEMBER `not-a-colour` HAS EVER HAD. The category sat in the vocabulary
+      with no entry from the day it was declared, which is the shape this file deletes rather than
+      ships — a row matching nothing has outlived its subject, and a CATEGORY matching nothing has
+      never had one. It is kept rather than deleted only because it now has this.
+
+      ⚠ AND THE ALTERNATIVE WAS THE TRAP. Writing the condition so the literal is not contiguous in
+      source would have made the census green while changing nothing about what ships. That is
+      "describe it, never transcribe it" applied where it does not belong: the rule exists for
+      COMMENTS, where the prose is the whole artefact, and this is executable output. Hiding a real
+      literal from an instrument to avoid a row is how an exclusion becomes a leak.
+
   - id: ground-ceiling-black
     kind: judgement
     category: forced-literal
