@@ -166,6 +166,81 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [VERIFY_THEME]: "light",
 };
 
+/* ============================================================================================
+   ⚠ EACH PALETTE'S COUNTERPART IN THE OPPOSITE GROUND CLASS — AUTHORED, AND THE TWO DERIVATIONS
+   THAT LOOK OBVIOUS ARE WRITTEN DOWN HERE SO NOBODY REACHES FOR THEM AGAIN.
+
+   `/palettes` shows a light-and-dark counterpart line beside each palette. A hand-written map
+   invites the next reader to replace it with a rule, so BOTH RULES WERE MEASURED FIRST. Neither
+   reproduces this map, and — the part that matters — EACH FAILS ON A DIFFERENT ROW, so there is no
+   third rule sitting between them waiting to be found.
+
+   Measured over all nine real palettes, both directions, against the tokens each palette declares:
+
+     nearest ACCENT hue    reproduces 7 of 9   fails harbour and sapphire (that pair, both ways)
+     nearest GROUND  hue   reproduces 5 of 9   fails cerise, fern, ink-flare and basalt
+
+   ⚠ AND BASALT IS WHY THE GROUND RULE CANNOT WORK AT ALL. Its ground chroma is 0.000 — measured,
+   not rounded — so it HAS no ground hue, and the value 0 that a parser returns is an artefact
+   rather than a colour. The ground rule then puts cerise's h15 fifteen degrees from basalt's
+   non-existent h0 and calls it the nearest match. A rule whose input does not exist for one member
+   is not a rule that member is an exception to.
+
+   ⚠ THE ACCENT RULE'S FAILURE IS DIFFERENT AND WORTH ITS OWN SENTENCE. Harbour's teal accent at
+   h165.3 is nearest basalt's h128 at 37.3 degrees, and sapphire's h272 is nearest orchid's h330 at
+   58. Both are true and both ignore that harbour and sapphire are the same palette in two grounds —
+   which is a fact about how they were DRAWN, and hue distance cannot see it.
+
+   ---- ⚠ THE ASYMMETRY IS FORCED, NOT AN ERROR IN THE MOCK ------------------------------------
+
+   Five light palettes, four dark. A symmetric pairing needs equal counts, so by pigeonhole exactly
+   one light palette must point at a dark one that points back somewhere else. That is cerise. The
+   contract's table showing `cerise -> ink-flare` while `ink-flare -> cream` is therefore the
+   STRUCTURE rather than an accident, and a registry that "fixed" it would be encoding a symmetry
+   the counts forbid.
+
+   So this is a DIRECTED RECOMMENDATION — "if you like this one, try that one" — and not a pairing.
+   What holds, and what `theme` section W asserts:
+
+     every DARK palette round-trips           4 of 4
+     every dark palette's target is distinct  so the four darks claim four different lights
+
+   ⚠ AND THE THIRD LINE THAT BELONGS HERE IS PROSE RATHER THAN A ROW, DELIBERATELY. "Exactly
+   |light| - |dark| light palettes are unreciprocated" — one, and it is cerise — is TRUE and was
+   written as an assertion, then removed: cross-class plus distinct-targets together FIX that count,
+   so no edit could redden it while those two stayed green. It discriminated nothing. The reasoning
+   is kept here and the count is printed by the suite; `theme` section W says why at the deletion.
+
+   ---- ⚠ WHAT THE GATE CAN AND CANNOT KNOW ----------------------------------------------------
+
+   A counterpart is a JUDGEMENT. The gate's subject is COMPLETENESS and STRUCTURE — every real
+   palette has an entry, every entry names a real palette in the opposite class, and the round-trip
+   arithmetic above holds. It must never be strengthened into checking WHICH palette was chosen,
+   because nothing here can know that, and a gate that pretends to would be a hue rule again with
+   an assertion wrapped round it.
+
+   ⚠ NO DEFAULT, FOR THE REASON `THEME_GROUND` HAS NONE. A defaulted counterpart means a new palette
+   silently acquires one nobody chose, and it would read as a decision in the interface. A missing
+   entry fails instead.
+
+   ⚠ AND THE TWIN IS DELIBERATELY ABSENT. `cream-verify` is a control, never selectable and never
+   shown, so giving it a counterpart would add a sixth light member and break the count the
+   structure rests on. The domain is the REAL palettes.
+============================================================================================ */
+export const THEME_COUNTERPART: Record<string, string> = {
+  [DEFAULT_THEME]: SEVENTH_THEME,
+  [SECOND_THEME]: SIXTH_THEME,
+  [THIRD_THEME]: EIGHTH_THEME,
+  /* ⚠ THE UNRECIPROCATED ONE, AND IT IS FORCED RATHER THAN CHOSEN — see the pigeonhole above.
+   * `ink-flare` points back at cream, which is the closer accent match at 10 degrees against 48. */
+  [FOURTH_THEME]: SEVENTH_THEME,
+  [FIFTH_THEME]: NINTH_THEME,
+  [SIXTH_THEME]: SECOND_THEME,
+  [SEVENTH_THEME]: DEFAULT_THEME,
+  [EIGHTH_THEME]: THIRD_THEME,
+  [NINTH_THEME]: FIFTH_THEME,
+};
+
 export type ThemeName = (typeof THEME_NAMES)[number];
 
 /* ============================================================================================
