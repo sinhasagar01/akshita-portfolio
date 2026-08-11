@@ -12,6 +12,52 @@
 #
 # Deliberate bypass is `git push --no-verify`, which is meant to be typed and noticed.
 set -e
+
+# ============================================================================================
+# ⚠ CHECK ONE · A FEATURE BRANCH MUST NOT CARRY AN UNPUSHED `main`.
+#
+# A branch cut from a local `main` that is ahead of `origin/main` picks up whatever `main` was
+# carrying, and the PR then contains files nobody meant to review. That happened: a `docs:`
+# commit sat unpushed on local `main`, a gate-repair branch was cut from it, and the PR opened
+# with two files instead of one. It cost a rebase and a force-push over an already-open PR.
+#
+# ⚠ `upstream.mjs` A1 IS THE GATE FOR EXACTLY THIS AND IT COULD NOT FIRE. It is network-bound, so
+# `ralph/run.mjs` skips it by name — the gate existed, was correct, and was silent while the
+# defect it describes was being committed. Same family as `parity` and `studio-type`: a by-hand
+# gate is not a closed gate until something runs it.
+#
+# ⚠ AND A1'S OWN PREDICATE CANNOT BE THE CHECK HERE. It asserts local `main` is not ahead of
+# `origin/main`, which is FALSE ON EVERY LEGITIMATE PUSH OF `main` — including the one that
+# pushed that very `docs:` commit. A gate whose common failure is benign is one people learn to
+# skip, which is the argument this file's own header already makes. So the predicate is narrowed
+# to the case that is never legitimate:
+#
+#     pushing a branch that is not `main`, while local `main` is ahead of `origin/main`
+#
+# It is silent when pushing `main`, and silent on a feature push from a clean `main`.
+#
+# ⚠ AND A FAILED FETCH REPORTS UNRUN RATHER THAN PASSING. That is `upstream` A0's posture and it
+# is the whole point: a check that cannot reach the network must say so, not wave a push through
+# in the words that mean success. A stale `origin/main` ref makes `main` look MORE ahead, never
+# less, so the fetch is what keeps this from crying wolf offline.
+# ============================================================================================
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch" != "main" ]; then
+  if git fetch --quiet origin main 2>/dev/null; then
+    ahead=$(git rev-list --count origin/main..main 2>/dev/null || echo 0)
+    if [ "${ahead:-0}" -gt 0 ]; then
+      printf '\n  PUSH BLOCKED — local main is %s commit(s) ahead of origin/main\n\n' "$ahead"
+      git log --oneline origin/main..main | sed 's/^/    /'
+      printf '\n  This branch was cut from a main that carries unpushed work, so the PR will\n'
+      printf '  contain those commits too. Push or rebase them out first:\n\n'
+      printf '    git rebase --onto origin/main %s %s\n\n' "$(git rev-list origin/main..main | tail -1)" "$branch"
+      exit 1
+    fi
+  else
+    printf '\n  pre-push: UNRUN — could not fetch origin/main, so the unpushed-main check did not run\n'
+  fi
+fi
+
 printf '\n  pre-push: running ralph\n'
 if node ralph/run.mjs > /tmp/ralph-prepush.txt 2>&1; then
   printf '  %s\n\n' "$(tail -1 /tmp/ralph-prepush.txt)"

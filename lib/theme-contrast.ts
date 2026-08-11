@@ -382,9 +382,15 @@ export function report(palette: Palette, usage: readonly UsageRow[]): Report {
 export type Oklch = { L: number; C: number; H: number };
 
 export type PaletteSource = {
-  /** The `@theme` block's body, verbatim. Exposed because a first-wins map is a LOSSY view of it —
-   *  the gamut scan reads every declaration in source order, so handing it `rawDecl` would silently
-   *  change both the semantics and the count. A derived view must not replace its own source. */
+  /** The `@theme` block's body, verbatim.
+   *
+   *  ⚠ TWO READERS OF ONE BLOCK, DELIBERATELY, AND UNIFYING THEM IS A SILENT SEMANTIC SWAP.
+   *  `rawDecl` below is FIRST-WINS and is the palette. The gamut scan reads this body in source
+   *  order LAST-WINS and is a census — it wants every declaration, including a token declared
+   *  twice and including the studio names `rawDecl` filters out. Handing it `rawDecl` changes both
+   *  the semantics and the declaration count, AND EVERY ASSERTION STILL PASSES, because no row
+   *  compares the two. A derived view must not replace its own source; that is why the raw text is
+   *  exposed rather than the map being reused. */
   themeBody: string;
   /** Every `--color-*` declared in `@theme`, RAW — an alias keeps its `var()` form. */
   rawDecl: Record<string, string>;
