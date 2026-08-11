@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PaletteCompatibility } from "@/lib/palettes/compatibility";
+import { render, formatRatio, FORMATS, type CopyFormat } from "@/lib/palettes/formats";
 import StatCard from "@/components/case-study/StatCard";
 import PrincipleCard from "@/components/case-study/PrincipleCard";
 import PullQuote from "@/components/case-study/blocks/PullQuote";
@@ -118,9 +119,54 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
   }, [ownsRootTheme, slug, active, press]);
 
   const failing = active.rows.filter((r) => r.got < r.min);
+  const [fmt, setFmt] = useState<CopyFormat>("css");
+  const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const say = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(""), 1600);
+  }, []);
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
+
+  /* ⚠ THE BLOCK IS RENDERED FROM THE SAME REPORT THE ROWS ABOVE ARE, through `render`. No figure on
+     this page is computed twice — `palette-formats` B1 asserts that as an identity rather than
+     leaving it to this comment, because a comment saying two things agree cannot fail. */
+  const block = render(active, fmt);
+
+  const copy = useCallback(async (text: string, msg: string) => {
+    try { await navigator.clipboard.writeText(text); say(msg); }
+    catch { say("Copy failed — your browser blocked it"); }
+  }, [say]);
+
+  /* ⚠ A DOWNLOAD IS A BLOB, NEVER A ROUTE. The file must be the bytes the visitor is looking at, so
+     it is built from the SAME `render` call rather than fetched from an endpoint that would compute
+     it again — the second-spelling risk, in a place where the output leaves the site entirely. */
+  const download = useCallback((format: CopyFormat) => {
+    const meta = FORMATS.find((f) => f.id === format);
+    if (!meta) return;
+    const text = render(active, format);
+    const url = URL.createObjectURL(new Blob([text], { type: meta.mime }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${active.name}.${meta.ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    say(`Downloading ${active.name}.${meta.ext}`);
+  }, [active, say]);
 
   return (
     <main className="pt-32 pb-24">
+      {/* `aria-live` so a copy is announced rather than only shown — the action has no other
+          feedback, and a silent success is indistinguishable from a silent failure. */}
+      <div
+        aria-live="polite"
+        className={`fixed right-6 top-24 z-50 rounded-full bg-text-primary px-4 py-2 text-sm text-surface transition-opacity ${
+          toast ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
+        {toast}
+      </div>
       {/* ⚠ NO `font-display` ON ANY HEADING HERE, AND ITS ABSENCE IS DELIBERATE. The unlayered
           `h1,h2` and `h3..h6` element resets in globals.css already set the display face, and they
           BEAT a utility in `@layer utilities` — so the class asks for a face the element already
@@ -237,7 +283,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                   className="grid grid-cols-[1fr_auto_auto] items-baseline gap-2 border-b border-ink-950/8 py-1.5 text-sm"
                 >
                   <span className="text-text-subtle">{r.key}</span>
-                  <b className="font-mono text-sm text-text-primary">{r.got.toFixed(2)}</b>
+                  <b className="font-mono text-sm text-text-primary">{formatRatio(r.got)}</b>
                   <u className="font-mono text-[8px] uppercase tracking-widest no-underline text-text-subtle">
                     {r.got >= r.min ? "pass" : "fail"}
                   </u>
@@ -247,10 +293,68 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           </div>
 
           <div className="mt-5 border-t border-ink-950/8 pt-4">
+            <h3 className="text-lg text-text-primary">Take it</h3>
+            <div className="mt-3 flex w-max gap-0.5 rounded-full border border-ink-950/8 bg-surface p-1">
+              {FORMATS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  aria-pressed={f.id === fmt}
+                  onClick={() => setFmt(f.id)}
+                  className={`rounded-full px-3 py-1.5 text-eyebrow tracking-eyebrow uppercase ${
+                    f.id === fmt ? "bg-accent text-on-accent" : "text-text-subtle"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            {/* ⚠ JSON HAS NO COMMENT SYNTAX, SO ITS REPORT IS DATA — AND THE VISITOR IS TOLD, rather
+                than left to notice that one of three formats carries less. It carries MORE: every
+                row keeps its floor and the kind of floor, machine-readable. */}
+            <p className="mt-2 text-sm leading-relaxed text-text-subtle">
+              {fmt === "json"
+                ? "JSON has no comments, so the contrast report is data here — every pair with its ratio, its floor and whether that floor is WCAG or ours."
+                : "The contrast report rides inside the block as a comment, so the figures travel with the tokens."}
+            </p>
+            <pre className="mt-3 max-h-64 overflow-auto rounded-lg border border-ink-950/8 bg-surface p-3 font-mono text-[11px] leading-relaxed text-text-secondary">
+              {block}
+            </pre>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => copy(block, `${active.name} copied as ${fmt}`)}
+                className="rounded-full border border-accent bg-accent px-4 py-2 text-sm font-medium text-on-accent"
+              >
+                Copy
+              </button>
+              <button type="button" onClick={() => download("css")} className="rounded-full border border-ink-950/8 px-4 py-2 text-sm text-text-secondary">
+                .css
+              </button>
+              <button type="button" onClick={() => download("json")} className="rounded-full border border-ink-950/8 px-4 py-2 text-sm text-text-secondary">
+                .json
+              </button>
+              <button
+                type="button"
+                onClick={() => copy(`${window.location.origin}/palettes/${active.name}`, "Link copied")}
+                className="rounded-full border border-ink-950/8 px-4 py-2 text-sm text-text-secondary"
+              >
+                Link
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-5 border-t border-ink-950/8 pt-4">
             <h3 className="text-lg text-text-primary">Tokens</h3>
+            <p className="mt-1 text-sm text-text-subtle">Click one to copy its value.</p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               {SHOWN.map(([token, label]) => (
-                <div key={token} className="overflow-hidden rounded-lg border border-ink-950/8 bg-surface">
+                <button
+                  key={token}
+                  type="button"
+                  onClick={() => copy(active.tokens[token], `Copied --color-${token}`)}
+                  className="overflow-hidden rounded-lg border border-ink-950/8 bg-surface text-left"
+                >
                   <i className="block h-12" style={{ background: active.tokens[token] }} />
                   <div className="p-2">
                     <b className="block text-xs font-medium text-text-primary">{label}</b>
@@ -258,7 +362,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                       {active.tokens[token]}
                     </code>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
