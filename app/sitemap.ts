@@ -54,5 +54,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     ...blogPosts,
+    /* ⚠ THE PLAYGROUND WAS MISSING TOO, WHICH IS THE THIRD INSTANCE OF THE DECAY THIS FILE'S OWN
+       HEADER RECORDS TWICE. `/palettes` shipped with a nav link, has been public and indexed since,
+       and was never listed here — exactly what the paragraph above says happened to the blog, in
+       the file that says it. A sitemap does not fail loudly; it quietly omits pages, so nothing
+       ever went red.
+
+       It was found while ADDING `/oklch`, not by anyone checking. That is the shape rather than the
+       incident: this file is only ever read when somebody is putting something into it, so a route
+       that ships without a sitemap edit is invisible until the next route ships.
+
+       ⚠ AND `/oklch` IS DELIBERATELY NOT BEHIND A NAV LINK. The nav carries one Playground entry
+       pointing at `/palettes`, and the primer is reached by cross-links from it. So the nav is NOT
+       the trigger for listing a route here — being public is. Listing only what the nav shows is
+       how the two above went missing. */
+    {
+      url: absoluteUrl("/palettes"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: absoluteUrl("/oklch"),
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
   ];
 }

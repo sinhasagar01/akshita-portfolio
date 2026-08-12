@@ -671,6 +671,107 @@ build a gate for the limit and then believe it.
   — third instance of *"explaining it requires writing it"*, after the two comment delimiters.
   **Describe such a collision; never transcribe it.**
 
+- **⚠ A SORT SURFACES WHAT THE DATA CONTAINS, NOT WHAT YOU MEANT — AND IT IS CORRECT IN SOURCE AND
+  WRONG ON SCREEN.** `/palettes` shows four summary figures under its component stage. They were
+  `[...rows].sort((a,b) => a.got - b.got).slice(0,4)`, which reads as "the four tightest" and
+  returned **1.05, 1.10, 1.13 and 1.19 — all four `ground step` rows**, rendered large and
+  unlabelled directly beneath a headline reading *tightest text pair 4.56*.
+
+  Those are LADDER floors, saying two adjacent grounds must be separable. As big numbers under a
+  contrast headline they read as legibility figures scraping a floor, which is the exact misreading
+  the verdict bar above them exists to prevent — **the page's own rule, broken by the page, in the
+  element that states it.**
+
+  **⚠ NOTHING IN THE SOURCE LOOKS WRONG, WHICH IS THE WHOLE ENTRY.** A sort is not a filter and does
+  not claim to be; the defect is that the population contained a KIND the label did not cover. The
+  repair is to filter by the same predicate the headline uses — `min >= TEXT_FLOOR`, one constant,
+  one meaning — rather than to sort more carefully.
+
+  **THE GENERAL FORM: WHEN A SORT FEEDS A LABEL, THE LABEL IS A CLAIM ABOUT THE POPULATION AND THE
+  SORT DOES NOT ENFORCE IT.** Same family as the wrong-noun rule, arriving through an ordering
+  rather than a count — and only the render can catch it, because what a sort returns is a property
+  of the data rather than of the code.
+
+- **⚠ `RevealSection` NEVER RUNS IN A GRID CELL, AND A START STATE IS A CORRECT VALUE.** Three of
+  the nine kit parts on `/palettes` painted **empty cells**. `Stepper`, `GlanceGrid` and `IssueList`
+  stagger their items behind `.reveal-card`, which is `opacity: 0` until `.is-revealed` arrives, and
+  nothing adds that class outside a case-study section.
+
+  **EVERY INSTRUMENT WAS GREEN.** Every component rendered, every token resolved, `tsc` and `eslint`
+  were clean, and a third of the kit was blank. There is no wrong value to find — `opacity: 0` is
+  exactly right given a reveal that comes.
+
+  **THE STUDIO CANVAS FOUND THIS FIRST AND ITS FIX WAS ALREADY IN THE FILE.** `.canvas-static
+  .reveal-card` forces the end state, written for the inline canvas, later used by `/dev/parity`,
+  and now by the kit — **third consumer, and the name is under-descriptive rather than wrong.** It
+  means *this container does not scroll-reveal, so show the end state*; it does not mean canvas.
+  Renaming is a three-consumer sweep and its own decision.
+
+  **THE TRIGGER TO REMEMBER: mounting a case-study block component anywhere that is not a case-study
+  section.** The kit, a preview, a specimen page, a future style guide — all four have this.
+
+- **⚠ THE UNBALANCED-MATCHER FAMILY REACHED SEVEN, AND THE LAST TWO ARRIVED FROM PLACES NOBODY
+  AUDITS.** The rule is old — a matcher that must know where a construct ENDS cannot be written with
+  a pattern that does not count. The new members are about WHERE they were.
+
+  **THE SIXTH WAS INSIDE THE ROW REPAIRING A DIFFERENT ONE.** `palette-preview` F3 was retargeted to
+  assert that a cleanup guards on `livePreviewTheme`'s result, written as
+  `livePreviewTheme\s*\([^)]*\)` — and the argument is `Date.now()`, so `[^)]*` cannot cross the
+  inner close. **It failed on correct code**, in an assertion being fixed for an unrelated reason.
+  The repair is to EXTRACT the condition and then search it, which keeps the row's subject.
+
+  **⚠ THE SEVENTH IS IN `colourPattern` ITSELF, WHICH MEANS IT AFFECTS EVERY CENSUS THIS REPO
+  RUNS.** `\boklch\([^)]*\)` starts at a literal `oklch(` **rendered as page text** and runs across
+  newlines and JSX elements to whatever close comes first — a ninety-character match spanning three
+  expressions. Both playground pages display OKLCH strings as content, so both produce these.
+
+  **IT IS NOT FIXED AND THE REASON IS STATED: A PATTERN THAT COUNTED WOULD STILL BE RIGHT TO MATCH.**
+  The page really does display an OKLCH string; the honest claim is that it is not a colour anything
+  paints, which is a `not-a-colour` row rather than a parser change. **Splitting the string to dodge
+  the matcher was considered and refused** — it would make the gate green while changing nothing
+  about what ships, which is how an exclusion becomes a leak.
+
+- **⚠ EXPLAINING-IT-REQUIRES-WRITING-IT REACHED SIX, AND FIVE AND SIX WERE ONE UNIT APART.** The
+  first four were comment delimiters and a `path:` glob. **The fifth and sixth are OKLCH literals in
+  comments about not typing OKLCH literals** — one in `PaletteConsole` explaining that the hero
+  formula must be parsed from the live token rather than typed, one in `OklchPrimer` explaining that
+  an off-palette value cannot reach the preview cookie.
+
+  **⚠ THE SIXTH WAS COMMITTED ONE UNIT AFTER THE FIFTH WAS RECORDED, BY THE SAME HAND.** That is the
+  argument for the mechanism over the rule, made against a rule this file already states in capitals.
+  **`.tsx` COMMENTS ARE NOT STRIPPED BY THE CENSUS**, so prose alone can take a component's colour
+  count from zero to three. Describe the form; never transcribe it.
+
+- **⚠ A FIXED PANEL'S OVERLAP IS A BAND, NOT A CONSTANT, WHICH IS WHY IT SURVIVES A LOOK.** The
+  playground switcher is 196px at the right edge and shows from 1200px up. It was written as "hidden
+  where there is no room", as though room existed above that width. Measured against a 1300px
+  container:
+
+      1440   container  70 -> 1370   panel 1229 -> 1425   overlap 141px
+      1600   container 150 -> 1450   panel 1404 -> 1600   overlap  46px
+      1920   container 310 -> 1610   panel 1724 -> 1920   overlap   0
+
+  **ANYONE CHECKING ON A WIDE DISPLAY SEES A PANEL SITTING POLITELY IN THE MARGIN.** What it hid at
+  1440 was the lab's contrast readout — the number and the whole of its *not WCAG* caveat, the one
+  thing that element exists to say — plus 59px of the sample heading the section demonstrates.
+
+  **⚠ THE FIRST FIX WAS TO MOVE THE ONE COVERED SPAN AND IT WAS THE WRONG SHAPE.** It made the caveat
+  readable and left the heading, the stage and anything a future section puts near a right edge still
+  underneath. **A collision that is a property of the geometry needs a geometry fix**: both pages cap
+  their measure at `min(1300px, 100vw - 460px)` above 1200px, verified by resolved value at 965px
+  rather than by the utility being present in the bundle.
+
+- **⚠ A SITEMAP DOES NOT FAIL LOUDLY, AND THIS IS THE THIRD ROUTE IT QUIETLY OMITTED.** `app/sitemap.ts`
+  carries a paragraph about the blog having been missing until its nav link shipped. **`/palettes` was
+  missing from that same file, had been public and nav-linked for an entire arc, and was found only
+  while adding `/oklch`.**
+
+  **THAT IS THE SHAPE RATHER THAN THE INCIDENT: the file is only ever read by somebody putting
+  something into it**, so a route that ships without a sitemap edit stays invisible until the next
+  route ships. The trigger is being PUBLIC, not being in the nav — `/oklch` is public and
+  deliberately has no nav entry, and listing only what the nav shows is how the other two went
+  missing.
+
 - **⚠ A NUMBER WITHOUT ITS SUBJECT IS AN INVITATION TO SUPPLY ONE.** "Near-black grounds differ
   between palettes by 25.1" was **correct and unattached**. A reader — the one who had written the
   surrounding rules — attached it to the `band-dark` token, measured 26.3, and **spent a turn chasing

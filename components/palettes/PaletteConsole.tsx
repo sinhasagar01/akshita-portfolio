@@ -337,7 +337,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           So the stage is composed from the imported parts, arranged the way a page arranges them.
           The contract is authoritative about the SHAPE — a bordered stage with a bar above it
           carrying the verdict — and it is not authoritative about parts that do not exist. */}
-      <section id="components" className="mx-auto mt-14 w-full max-w-[1300px] scroll-mt-28 px-6">
+      <section id="components" className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] scroll-mt-28 px-6">
         <div className="mb-2 flex flex-wrap items-baseline gap-4">
           <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">02</span>
           <h2 className="text-3xl tracking-tight text-text-primary">Pick one. Watch what doesn&rsquo;t change.</h2>
@@ -519,7 +519,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
       </section>
 
       {/* ══════════ 03 · THE KIT ══════════ */}
-      <section className="mx-auto mt-14 w-full max-w-[1300px] border-t border-ink-950/8 px-6 pt-11">
+      <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
         <div className="mb-2 flex flex-wrap items-baseline gap-4">
           <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">03</span>
           <h2 className="text-3xl tracking-tight text-text-primary">The kit.</h2>
@@ -655,7 +655,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
       </section>
 
       {/* ══════════ 04 · HOW TO USE IT ══════════ */}
-      <section className="mx-auto mt-14 w-full max-w-[1300px] border-t border-ink-950/8 px-6 pt-11">
+      <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
         <div className="mb-2 flex flex-wrap items-baseline gap-4">
           <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">04</span>
           <h2 className="text-3xl tracking-tight text-text-primary">How to use it.</h2>

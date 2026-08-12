@@ -34,6 +34,29 @@ import {
    query, not a `useState` on `matchMedia`, so the first paint is already correct and there is no
    frame in which a narrow viewport shows it.
 
+   ---- ⚠ AND ABOVE 1200px THERE WAS NO GUTTER EITHER, WHICH IS THE PART NOBODY CHECKED ---------
+
+   "Hidden where there is no room" was written as though room existed everywhere else. Measured at
+   1440 with a 1300px container, it does not: the container spans 70 to 1370 and this panel spans
+   1229 to 1425, so THE PANEL COVERS THE LAST 141px OF EVERY SECTION on both playground pages.
+
+   What that hid was not decoration. On the primer it covered the lab's contrast readout — the
+   number and the whole of the "not WCAG" caveat, which is the one thing that element exists to
+   say — and 59px of the sample heading the section is built to demonstrate. On the palettes page
+   it sat over the component stage.
+
+   ⚠ THE OVERLAP IS A BAND, NOT A CONSTANT, WHICH IS WHY IT SURVIVED A LOOK. Margins grow with the
+   viewport: about 141px of overlap at 1440, 46px at 1600, and NONE at 1920. Anyone checking on a
+   wide display sees a panel sitting politely in the margin.
+
+   So both pages cap their measure at `min(1300px, 100vw - 460px)` above 1200px — 196px of panel,
+   plus its right offset, plus twenty of clearance, doubled because the container is centred. The
+   pages get narrower between 1200 and 1760 and nothing runs underneath at any width.
+
+   ⚠ THE FIRST FIX WAS TO MOVE THE ONE COVERED SPAN, AND IT WAS THE WRONG SHAPE. It made the caveat
+   readable and left the heading, the stage and everything a future section puts near a right edge
+   still underneath — whack-a-mole against a collision that is a property of the geometry.
+
    ---- ⚠ THE FADE IS GATED ON `prefers-reduced-motion` AND THE VISIBILITY IS NOT ---------------
 
    The two are different questions and conflating them is how a reduced-motion setting removes

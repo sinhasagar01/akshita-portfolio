@@ -224,6 +224,73 @@ entries:
       escapes the `--tw-` prefix test one syntax further out. Studio surfaces are outside the theme
       by construction (#323), and a compiler default is not authored colour.
 
+  - id: hsl-oklch-comparison
+    kind: judgement
+    category: depiction
+    where: "components/palettes/OklchPrimer.tsx (section 04, the two four-cell comparison boards)"
+    files: [components/palettes/OklchPrimer.tsx]
+    count: 16
+    reason: >
+      ⚠ THE WHOLE DEMONSTRATION IS THAT THESE SPECIFIC VALUES BEHAVE THE WAY THEY DO. Four HSL
+      colours all declared at fifty percent lightness, which are wildly uneven in perceived
+      brightness, beside four OKLCH colours all declared at seventy-two percent, which are even. A
+      palette recolouring either row would destroy the comparison rather than skin it — the point
+      is not that these are yellow and blue, it is that the NUMBER LIES in one system and holds in
+      the other, and only these values prove it.
+
+      The eight foregrounds are fixed for the same reason and not a lesser one. Each is chosen to be
+      legible on the specific cell beneath it, and those cells cannot move, so a themed foreground
+      would be a text colour tracking a palette across a ground that does not.
+
+      ⚠ THIS IS `oklch-axis-ramps` RETURNING WITH ITS SUBJECT, AND THE ROW WAS DELETED IN #517 WHEN
+      THAT SUBJECT LEFT `/palettes`. The old ramps illustrated the three axes on the console; they
+      were removed with the old layout and the row went with them by its own end condition. The
+      primer is where the axes live now, so the reason is re-stated here rather than lost — a
+      boundary entry deleted while its subject is rebuilt elsewhere is coverage lost silently, which
+      is the one failure this file cannot detect about itself.
+    test: >
+      IS IT DRAWN IN THE SITE'S VOICE OR IN THE DEPICTED THING'S OWN COLOURS? Entirely the latter.
+      These depict two COLOUR SYSTEMS, which exist independently of this site, in the same way a
+      browser mock uses browser-chrome grey. The ground-change test does not merely permit them to
+      stay fixed — it requires it. A hue comparison that changed hue with the palette would be an
+      argument about hue that lies about hue.
+
+      ⚠ AND THE THREE MENTAL-MODEL BANDS AND THE LIGHTNESS LADDER ARE THE SAME DECISION AND ARE NOT
+      IN THIS COUNT, WHICH IS STATED RATHER THAN LEFT TO BE INFERRED. They carry the identical
+      reason — they depict the space, and a themed hue band would lie about hue — but they are
+      COMPUTED from the lab's slider values through a helper rather than written as literals, so the
+      census never sees them at all. They are outside its population rather than excluded from it.
+      A row claiming to exclude them would be claiming a coverage that does not exist.
+
+      CLEARS IF THE COMPARISON STOPS COMPARING SYSTEMS. If section 04 is ever rebuilt to show this
+      site's own palettes on the two scales, the cells become interface and take tokens.
+
+  - id: primer-generated-and-rendered-oklch
+    kind: mechanical
+    category: not-a-colour
+    where: "components/palettes/OklchPrimer.tsx (the `css()` helper, the hero formula, and the code blocks in section 06)"
+    files: [components/palettes/OklchPrimer.tsx]
+    count: 4
+    reason: >
+      ⚠ ONE CONSTRUCTOR AND THREE TEXT NODES, NONE OF WHICH IS AN AUTHORED COLOUR.
+
+      The constructor is `css(l, c, h)`, a template literal that BUILDS an OKLCH string from three
+      numbers. It is the opposite of a frozen colour — every themed value on this page passes
+      through it, and the values it emits are whatever the sliders hold. The census matches its
+      template because a template with no closing-paren inside it is lexically a colour.
+
+      The three text nodes are the hero formula and the two section 06 code blocks, which SHOW the
+      reader a declaration. The
+      word is rendered as prose beside styled spans carrying the numbers; nothing is painted with
+      it. Same shape as `hero-formula-text` on `/palettes`, and matched the same way — the pattern
+      starts at the literal and runs across newlines and JSX to whatever close comes first, which is
+      the unbalanced-matcher family arriving through the census's own pattern for the second time.
+
+      ⚠ AND `count` IS WHAT MAKES A FILE-LEVEL ROW SAFE HERE. This file legitimately holds sixteen
+      depicted colours claimed by the row above, so a join that merely named the file would excuse
+      anything added later. `J5` requires the declared counts to SUM to what the census finds, so a
+      real raw colour arriving in this component fails rather than being absorbed.
+
   - id: hero-formula-text
     kind: mechanical
     category: not-a-colour
