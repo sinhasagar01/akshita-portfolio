@@ -29,13 +29,13 @@ const css = read("app/globals.css");
 const component = read("components/palettes/HomePaletteTeaser.tsx");
 const page = read("app/(portfolio)/page.tsx");
 
-console.log("\nA · the four are real, and they are a curated pair of pairs");
+console.log("\nA · the five are real, and each is a distinct claim");
 /* ⚠ THE NAMES LIVE IN `lib/palettes/teaser.ts` AS STRINGS, because ralph loads that file raw and it
  * cannot import the registry in any spelling `tsc` also accepts — the constraint `THEME_METRICS` and
  * `SETTINGS_THEME_VALUES` already sit under. These rows are what makes the registry the single
  * source of truth by ENFORCEMENT rather than by import. */
-t("A0 there are four — a curated set, and the count is the design rather than an accident",
-  TEASER_THEMES.length, 4);
+t("A0 there are five — a curated set, and the count is the design rather than an accident",
+  TEASER_THEMES.length, 5);
 t("A1 ⚠ EVERY ONE IS A REAL PALETTE — a typo would render a dot with no colours and no error",
   TEASER_THEMES.filter((n) => !THEME_NAMES.includes(n)), []);
 t("A2 …and every one is SELECTABLE, so the teaser can never offer a control the sanitizer refuses",
@@ -44,11 +44,15 @@ t("A2a ⚠ AND THE VERIFICATION TWIN IS NOT AMONG THEM — it is a control and i
   TEASER_THEMES.includes(VERIFY_THEME), false);
 t("A3 no palette appears twice, which would silently make it three dots",
   new Set(TEASER_THEMES).size, TEASER_THEMES.length);
-/* ⚠ TWO AND TWO IS THE DESIGN, NOT AN OBSERVATION. The teaser's claim is that the structure holds
- * across a change of GROUND, and it cannot make that claim from three lights and one dark. */
-t("A4 ⚠ EXACTLY TWO LIGHT AND TWO DARK — the claim is about a change of ground, so the set must span one",
+/* ⚠ TWO AND THREE, AND THE ASYMMETRY IS THE DESIGN RATHER THAN A DRIFT. The set was two and two for
+ * an arc and the row asserted that. Basalt arriving makes it two and three, and the temptation is to
+ * read the old shape as the rule and "restore" it — which would mean dropping a claim to satisfy a
+ * symmetry. The claims are not paired: there are TWO ways a light ground varies here and THREE ways
+ * a dark one does. What the row actually protects is unchanged — the set must span a change of
+ * ground, so neither side may be empty. */
+t("A4 ⚠ EXACTLY TWO LIGHT AND THREE DARK — the claim is about a change of ground, so the set must span one",
   [TEASER_THEMES.filter((n) => THEME_GROUND[n] === "light").length,
-   TEASER_THEMES.filter((n) => THEME_GROUND[n] === "dark").length], [2, 2]);
+   TEASER_THEMES.filter((n) => THEME_GROUND[n] === "dark").length], [2, 3]);
 
 /* ⚠ THE COMMENT BESIDE THE CONSTANT MAKES NUMERIC CLAIMS, SO THE NUMBERS ARE ASSERTED. It was first
  * written as "warm light, cool light, coloured dark, ACHROMATIC dark" and the measurement refuted it
@@ -63,15 +67,38 @@ const groundChroma = (n) => oklchOf(
 ).C;
 const darkMembers = TEASER_THEMES.filter((n) => THEME_GROUND[n] === "dark");
 console.log(`         ground chroma: ${TEASER_THEMES.map((n) => `${n} ${groundChroma(n).toFixed(3)}`).join(", ")}`);
-t("A5 ⚠ NO MEMBER IS ACHROMATIC — the set claims a WARM dark and a COLOURED dark, never a neutral one",
-  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005), []);
+/* ⚠ THIS ROW ASSERTED THE OPPOSITE FOR AN ARC, AND IT WAS CORRECT THEN. It read "NO MEMBER IS
+ * ACHROMATIC", because the set's prose had once claimed an achromatic dark it did not contain and
+ * the row existed to stop that sentence drifting back in. The set now HAS one, deliberately, so the
+ * row follows the claim instead of the old membership.
+ *
+ * ⚠ AND IT NAMES THE MEMBER RATHER THAN COUNTING. "Exactly one achromatic" would pass if basalt were
+ * swapped for some future neutral palette while the prose above went on naming basalt — the
+ * prose-and-data gap this file's own header was written about. */
+t("A5 ⚠ EXACTLY ONE MEMBER IS ACHROMATIC, AND IT IS BASALT — the set's fifth claim, asserted rather than described",
+  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005), ["basalt"]);
+/* The complement, because "one is achromatic" says nothing about the other four still carrying hue —
+ * and a set drifting neutral is exactly what the original row was guarding. */
+t("A5a …and every OTHER member carries hue, so the set cannot drift neutral without failing",
+  TEASER_THEMES.filter((n) => n !== "basalt").filter((n) => groundChroma(n) < 0.005), []);
 /* ⚠ A ROW TESTING `groundChroma === 0` WAS WRITTEN HERE AND DELETED, AND THE REASON IS MEASURED.
  * Basalt's ground chroma is 6.28e-9, not zero — the declaration is `oklch(... 0 ...)` and the
  * round-trip through sRGB leaves a residue — so the row could not fire even on the ONE palette it
  * existed to catch. And everything it would have caught is already inside A5's `< 0.005`. Implied
  * AND unfalsifiable, which is two reasons to delete rather than one. Found by mutating: swapping
  * basalt in killed A5 and A7 and left it green. */
-t("A6 ⚠ THE TWO DARKS ARE ORDERED warm THEN coloured by ground chroma — a swap that inverted them would make the comment false",
+/* ⚠ THREE DARKS NOW, AND THE ORDER IS BY CLAIM RATHER THAN BY A NUMBER. The first draft of the
+ * comment beside the constant said "by ground chroma descending to zero" and the run is
+ * 0.014, 0.023, 0.000 — the middle is the MOST chromatic ground on the site, so it is not monotonic
+ * in either direction.
+ *
+ * ⚠ IT WAS CAUGHT BY THE ROW REFUSING TO PASS HONESTLY. Written to assert the descent, it had to be
+ * given `false` as its expectation to go green — an assertion agreeing with broken prose instead of
+ * catching it, which is the `count:`-field defect arriving inside a row I had just written. The
+ * prose is fixed and the rows now assert what is true. */
+t("A6 ⚠ THE DARKS RUN warm, coloured, ACHROMATIC — the comment claims an order, so the order is asserted",
+  darkMembers, ["ink-flare", "nocturne", "basalt"]);
+t("A6a …and the WARM dark really is less chromatic than the COLOURED one, so the first two names are earned",
   groundChroma(darkMembers[0]) < groundChroma(darkMembers[1]), true);
 /* ⚠ THE ROW THAT PINS WHY INK-FLARE IS HERE RATHER THAN BASALT. Cream and ink-flare are registry
  * counterparts, so one press shows the SAME IDENTITY ON A DIFFERENT GROUND. Swapping in basalt would
