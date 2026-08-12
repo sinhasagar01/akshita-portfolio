@@ -761,16 +761,37 @@ build a gate for the limit and then believe it.
   their measure at `min(1300px, 100vw - 460px)` above 1200px, verified by resolved value at 965px
   rather than by the utility being present in the bundle.
 
-- **⚠ A SITEMAP DOES NOT FAIL LOUDLY, AND THIS IS THE THIRD ROUTE IT QUIETLY OMITTED.** `app/sitemap.ts`
-  carries a paragraph about the blog having been missing until its nav link shipped. **`/palettes` was
-  missing from that same file, had been public and nav-linked for an entire arc, and was found only
-  while adding `/oklch`.**
+- **⚠ THE TRIGGER FOR LISTING A ROUTE IS BEING PUBLIC, NOT BEING IN THE NAV.** That is the durable
+  half and it is the correction, not the incident. `app/sitemap.ts` already carried a paragraph
+  about the blog having gone missing **"until the nav link shipped"** — the header was right about
+  what happened and **the rule it stated was too narrow**, because it tied listing to the nav.
 
-  **THAT IS THE SHAPE RATHER THAN THE INCIDENT: the file is only ever read by somebody putting
-  something into it**, so a route that ships without a sitemap edit stays invisible until the next
-  route ships. The trigger is being PUBLIC, not being in the nav — `/oklch` is public and
-  deliberately has no nav entry, and listing only what the nav shows is how the other two went
-  missing.
+  **`/palettes` was missing from that same file**, had been public and nav-linked for an entire arc,
+  and was found only while adding `/oklch`. Third instance, against a header that records the decay
+  twice.
+
+  **⚠ AND `/oklch` IS THE CASE THAT PROVES THE NARROW RULE WRONG RATHER THAN MERELY MISSED.** It is
+  public, prerendered and indexable, and it has **no nav entry by design** — the Playground link
+  goes to `/palettes` and the primer is reached by cross-links. Under "list what the nav shows" it
+  would be correctly omitted and wrongly invisible.
+
+  **THE SHAPE: a route list is only ever read by somebody putting something into it**, so a route
+  that ships without an edit to it stays invisible until the next route ships. Same cause as
+  `paint-sites`'s `PAGES`, which had never visited either playground route — **two route lists, one
+  omission, found in the same hour.** Any list of routes needs its membership rule stated as a
+  PROPERTY OF THE ROUTE, or it decays to whatever the last author happened to be looking at.
+
+- **⚠ A TRIGGER THAT RENEWS ITSELF ON EVERY MISS IS A TRIGGER THAT NEVER FIRES.** The nav comment
+  said *"if a second playground piece ever ships, THAT is when an index earns its existence"*. The
+  second piece shipped, and the index still lost — a section index with two cards is a container
+  with two items and every visitor pays a click, where cross-links cost nothing to whoever wanted
+  the first page.
+
+  **THE TEMPTING EDIT WAS TO WRITE "three pieces" AND IT WAS REFUSED.** That is the same guess
+  wearing a different digit, and a threshold rewritten each time it is reached can never be met.
+  **The trigger is restated as a PROPERTY instead**: an index earns its existence when a piece
+  CANNOT be reached from the others. Two pages about one subject, each linking the other, is not
+  that — and the new form can actually be evaluated rather than deferred.
 
 - **⚠ A NUMBER WITHOUT ITS SUBJECT IS AN INVITATION TO SUPPLY ONE.** "Near-black grounds differ
   between palettes by 25.1" was **correct and unattached**. A reader — the one who had written the

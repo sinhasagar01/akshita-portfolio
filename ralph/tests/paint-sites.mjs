@@ -67,6 +67,21 @@ const PAGES = [
   ["/projects/elevate-one-view", "elevate"],
   ["/projects/fosfor-ai", "fosfor-ai"],
   ["/projects/fosfor-data-profiling", "fosfor-dp"],
+  /* ⚠ THE TWO PLAYGROUND ROUTES WERE PUBLIC AND OUTSIDE THIS SUBJECT. `/palettes` had shipped an
+     arc earlier and `/oklch` arrives with them; neither was in this list, so the ratchet that asks
+     "does every painting element's foreground follow its ground" had never been asked of either.
+
+     ⚠ AND THEY ARE THE PAGES MOST LIKELY TO BREAK IT, which is what makes the omission worth a
+     note rather than a line. Both are ABOUT palettes: they mount real components, they override
+     role tokens on a container, and they deliberately carry colours that must NOT follow the
+     ground (the HSL comparison, the axis bands). A page whose whole subject is theming is the last
+     place a theming ratchet should have no coverage.
+
+     ⚠ THE SAME GAP EXISTS FOR THE SITEMAP AND IT IS THE SAME CAUSE — a list of routes that is only
+     read when somebody is adding to it. The trigger for being in this list is being PUBLIC, not
+     being in the nav; `/oklch` has no nav entry by design. */
+  ["/palettes", "palettes"],
+  ["/oklch", "oklch primer"],
 ];
 /* ⚠ CREAM IS THE BASELINE AND EVERY OTHER PALETTE IS COMPARED TO IT, dark AND light. A light pair
  * still moves the ground — different hues — so a foreground frozen across two LIGHT palettes is a

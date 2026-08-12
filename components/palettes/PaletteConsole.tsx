@@ -46,6 +46,25 @@ import { verdictFor, TEXT_FLOOR } from "@/lib/palettes/verdict";
    BACK CLEAN. Nothing here targets `:root`; the values simply resolved there. The next person to
    reach for container scoping will find no offending rule and conclude it is safe.
 
+   ⚠ AND `/oklch`'s LAB DOES SCOPE TO A CONTAINER AND IT WORKS — THE TWO FACTS LOOK CONTRADICTORY
+   AND ARE NOT. Read quickly, this paragraph says container scoping is impossible and the primer's
+   lab is a live counter-example, so somebody will eventually "fix" one against the other. They are
+   different operations:
+
+       here      redeclare a RUNG      `--color-cream-50`     the role's `var()` alias ALREADY
+                                                              resolved at `:root`, so nothing moves
+       lab       set the ROLE itself   `--color-surface`      a direct value with no alias to have
+                                                              resolved early, so it lands
+
+   THE DISCRIMINATOR IS WHETHER THE PROPERTY BEING SET IS THE ONE THE CONSUMER READS. A role is what
+   components read; a rung is what a role points at, and pointing is done once, early, on `:root`.
+
+   ⚠ SO THE LAB CANNOT SCOPE A PALETTE AND DOES NOT TRY. It sets eight roles by hand from three
+   slider numbers, which is why its sample is a demonstration of a colour rather than a preview of a
+   theme — and why pressing a palette still writes `data-theme` on `<html>` exactly as this page
+   does. Neither approach substitutes for the other, and the same note sits in `OklchPrimer.tsx` so
+   whichever file a reader opens first carries the distinction.
+
    ---- ⚠ WHY THE PREVIEW IS NOT `ProjectCard`, WHICH READS LIKE A VIOLATION AND IS NOT ------------
 
    The rule is REAL COMPONENTS, NO FACSIMILES, and every component below is imported and real. The

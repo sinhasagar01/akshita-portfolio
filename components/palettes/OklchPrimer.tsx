@@ -46,10 +46,25 @@ import PrincipleCard from "@/components/case-study/PrincipleCard";
    `[data-theme]` block declares RUNGS, the roles are `var()` aliases resolved at `:root`, and a
    container redeclaring `--color-cream-50` never moves `--color-surface`.
 
-   ⚠ THAT IS NOT WHAT THIS DOES, AND THE DIFFERENCE IS THE WHOLE REASON IT WORKS. This container
-   sets THE ROLES THEMSELVES — `--color-surface`, `--color-text-primary`, `--color-accent-500` — as
-   direct values rather than redeclaring the rungs beneath them. A direct override has no alias to
-   resolve early, so it lands on the container and every descendant reads it.
+   ⚠ SO THIS FILE AND THAT ONE APPEAR TO CONTRADICT EACH OTHER, AND SOMEBODY WILL EVENTUALLY "FIX"
+   ONE AGAINST THE OTHER. One says container scoping cannot work; the other is a working container
+   scope. Both are correct, because they are different operations:
+
+       PaletteConsole   redeclare a RUNG      `--color-cream-50`   the role's `var()` alias ALREADY
+                                                                    resolved at `:root` — nothing moves
+       this lab         set the ROLE itself   `--color-surface`    a direct value, no alias to have
+                                                                    resolved early — it lands
+
+   THE DISCRIMINATOR IS WHETHER THE PROPERTY BEING SET IS THE ONE THE CONSUMER READS. Components read
+   ROLES. A rung is what a role points at, and the pointing happens once, early, on `:root`, which is
+   why moving a rung underneath a container changes nothing.
+
+   ⚠ AND IT DOES NOT MAKE PALETTE SCOPING POSSIBLE, WHICH IS THE PART THAT MATTERS FOR ANYONE
+   TEMPTED. A palette is thirty-five rungs plus derived helpers plus a dark-ground block at 0-2-0;
+   this sets EIGHT ROLES BY HAND from three numbers. It is a demonstration of a colour, not a
+   preview of a theme — which is exactly why pressing a palette here still writes `data-theme` on
+   `<html>` the way `/palettes` does, rather than scoping it. The same note sits in
+   `PaletteConsole.tsx` so whichever file a reader opens first carries the distinction.
 
    The consequence is that the lab shows the site's OWN components responding to three sliders,
    rather than a hand-drawn card imitating them. It is the no-facsimile rule surviving into a
