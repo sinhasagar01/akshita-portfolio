@@ -65,6 +65,18 @@ t("B3 ⚠ A NO-OP MUTATION IS REFUSED — it always reports SURVIVED and reads a
 const missing = run("--edit", "lib/palettes/does-not-exist.ts", "a", "b");
 t("B4 a missing file is refused rather than created",
   missing.status === 2 && /no such file/.test(missing.out), true);
+/* ⚠ THE FIFTH REFUSAL, ADDED AFTER AN EMPTY REPLACEMENT LEFT THIS SUITE'S OWN C3 RED.
+ *
+ * `--revert-edit` locates what it applied by searching for the REPLACEMENT, and the empty string
+ * matches at every character — a 15,788-character file reported 15,787 hits. The revert refused
+ * correctly, which meant the mutation stayed in the tree AND the manifest stayed un-cleared, so
+ * `C3` below then found recorded edits where it expects none.
+ *
+ * ⚠ THE TOOL WAS RIGHT AND UNHEARD: the operator had piped its output to /dev/null. That is why
+ * the refusal moved to the EDIT, where it is knowable — the same posture as the other four. */
+const emptyRepl = run("--edit", TARGET, "cream", "");
+t("B5 ⚠ AN EMPTY REPLACEMENT IS REFUSED — the revert searches for it and the empty string matches everywhere",
+  emptyRepl.status === 2 && /empty replacement cannot be reverted/.test(emptyRepl.out), true);
 
 console.log("\nC · the refusals NAME the way out, because a refusal nobody can satisfy is an obstacle");
 t("C1 the absent-anchor refusal says why zero matches is the dangerous case",
@@ -77,6 +89,8 @@ t("C2 ⚠ AND THE DIRTY-AND-UNSNAPSHOTTED REFUSAL PRINTS THE SNAPSHOT COMMAND �
 const emptyRevert = run("--revert-edit");
 t("C3 ⚠ `--revert-edit` WITH NOTHING RECORDED REFUSES — silent success is this file's oldest failure mode",
   emptyRevert.status === 2 && /no recorded edits/.test(emptyRevert.out), true);
+t("C4 …and the empty-replacement refusal names a findable alternative, so a deletion mutation is still expressible",
+  /mutated away/.test(emptyRepl.out), true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

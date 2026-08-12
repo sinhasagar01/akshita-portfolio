@@ -209,6 +209,46 @@ is deploys rather than commits.
   which ralph cannot measure; a declaration check would go on passing if the grid changed underneath
   it. The trigger for re-measuring is any change to `.hero-copy`'s layout mode.
 
+- **⚠ NEXT UNIT: `mutate.mjs` OWNS THE WHOLE EDIT. RAISED FROM BOARDED TO NEXT, ON A COUNT RATHER
+  THAN A JUDGEMENT.** Eight defects have now been found in this one mechanism and **three are the
+  same gap** — the tool does not own the operation end to end, so the operator supplies the missing
+  half and the missing half is where the damage happens.
+
+      the `git checkout` incident   reverted by hand, DESTROYED UNCOMMITTED WORK
+      the empty replacement          a mutation shape the revert cannot locate
+      the phantom manifest           a restore left records describing damage that was gone
+
+  **THREE OF EIGHT, ONE MECHANISM.** All three are prevented by the same change: the tool applies
+  the edit, records where it landed **by position rather than by searching for its own output**,
+  and reverts from that record. `--edit` and `--revert-edit` were the first half and stopped short —
+  they own the apply, and the revert still works by string search, which is why an empty replacement
+  is unrevertable at all.
+
+  **⚠ THE FIVE REFUSALS ARE NOT THAT CHANGE.** Each closes a state the tool cannot recover from,
+  which is right and is still a guard. **This file's own rule is that only a mechanism prevents a
+  failure mode**, and the refusals exist precisely because the mechanism is missing.
+
+  **THE OPEN DESIGN QUESTION, WHICH IS WHY IT WAS BOARDED RATHER THAN BUILT:** position records
+  shift under any other edit to the same file, so the tool must either refuse a second edit to a
+  file it has already touched, or re-anchor. Answer that first.
+
+- **⚠ A SYNTAX ERROR SHIPPED IN `mutate.mjs` UNDER 3,100 GREEN ASSERTIONS, AND ITS REPAIR NEARLY
+  SHIPPED A TEMPORAL DEAD ZONE ERROR — RUNNING IS THE ONLY CHECK THAT SEES EITHER.** The predecessor
+  was a multi-line string pasted into a `console.log`, invisible because `run.mjs` runs SUITES and
+  no suite imports the harness. `node --check` was the repair, and it is a PARSE.
+
+  **A `const` referenced above its declaration parses perfectly.** Moving `EDITS` beside `SNAP` so
+  `--restore` could clear it put a use at line ~145 and the declaration at ~230, and `--check`
+  reported clean. Only executing the branch raises `ReferenceError`.
+
+  **⚠ AND THE FIRST RUN DID NOT REACH IT, WHICH IS THE HALF WORTH REMEMBERING.** `--restore` exits
+  early when no snapshot exists, so the first execution returned exit 2 without ever evaluating the
+  new line — **a run that proves nothing looks exactly like a run that proves it works.** Proving it
+  meant taking a snapshot first to construct the state that reaches the line.
+
+  **THE RULE: for a guard added to a branch, run the branch.** Not the file, not the parser, not the
+  common path — the specific state that reaches the new code.
+
 - **⚠ THE MUTATION PATH IS NOW OWNED BY THE MUTATION TOOL — CLOSED, AND THE RULE THAT PRECEDED IT
   IS WHY A MECHANISM WAS NEEDED.** `mutate.mjs` snapshotted, restored and verified itself, and did
   **not** perform the edit: every mutation was applied by hand, so the tool never learned the target,
@@ -780,6 +820,74 @@ build a gate for the limit and then believe it.
   `paint-sites`'s `PAGES`, which had never visited either playground route — **two route lists, one
   omission, found in the same hour.** Any list of routes needs its membership rule stated as a
   PROPERTY OF THE ROUTE, or it decays to whatever the last author happened to be looking at.
+
+  **⚠ AND WHEN THE LIST WAS ACTUALLY DERIVED, BOTH WERE WORSE THAN ANYONE THOUGHT.** The prerender
+  manifest names every public page the build produced. Joined against it:
+
+      21 public pages derived   ·   12 in the sitemap   ·   10 under the visual ratchet
+
+  **Nine more sitemap omissions and two more unvisited blog posts**, none of which any earlier count
+  had shown. `route-coverage` is the gate. The nine were `/palettes/<slug>` — **shareable by
+  design**, because the console's `Link` button hands exactly those URLs to visitors, so a URL the
+  product gives out was one the sitemap did not know about.
+
+  **⚠ THE DERIVATION REPLACES ONE LIST AND NOT THE OTHER, AND THE ASYMMETRY IS THE USEFUL PART.**
+  The sitemap's membership IS "is a public page", so it takes the derived set whole and needs no
+  exclusions. `paint-sites` drives a browser across nine palettes at two viewports, where 21 pages
+  would roughly double a run already long enough to be timed out once — so its subject is derived
+  and its exclusions are DECLARED WITH REASONS, the shape `docs/colour-boundary.yaml` uses for
+  colours.
+
+  **⚠ AN EXCLUSION MUST BE A PROPERTY OR IT IS THE LIST RETURNING IN DISGUISE.** The one exclusion
+  reads *"a route whose only difference from a page already visited is the palette it opens on"* —
+  a tenth palette matches it automatically, and a genuinely new page under `/palettes/` would not.
+  Naming the nine would have been the fixed-list shape reappearing **inside the gate written to
+  remove it**, and `C3` asserts the property has members so the rule cannot pass by selecting
+  nothing.
+
+- **⚠ THE EIGHTH DEFECT IN `mutate.mjs`, AND IT CAME FROM SUPPRESSING THE TOOL'S OWN OUTPUT.** A
+  mutation was applied with an EMPTY replacement to delete a line. `--revert-edit` locates what it
+  applied by **searching for the replacement**, and the empty string matches at every character —
+  a 15,788-character file reported **15,787 hits**. The revert refused, correctly and loudly, and
+  the operator had piped the command to `/dev/null`.
+
+  **⚠ THE TOOL WAS RIGHT AND UNHEARD, WHICH IS A DIFFERENT FAILURE FROM THE SEVEN BEFORE IT.** Those
+  were the instrument lying. This one was the instrument telling the truth into a closed pipe —
+  and this file's own rule already covers it: **capture the exit code, and read `git status` after
+  every restore.** Neither was done.
+
+  **TWO REPAIRS, AND BOTH MOVE THE FAILURE EARLIER.** `--edit` now REFUSES an empty replacement,
+  because unrevertability is knowable at edit time and that is the posture of its other four
+  refusals. And `--restore` now CLEARS THE EDIT MANIFEST, which it never did.
+
+  **⚠ THE SECOND IS THE DANGEROUS ONE AND IT EXISTED SILENTLY THE WHOLE TIME.** A restore put the
+  tree back and left records describing mutations that no longer existed. The next `--revert-edit`
+  acts on them: at best it refuses and costs a round to a phantom, **at worst it finds the
+  replacement string by coincidence in restored source and rewrites a line nobody mutated.** It
+  also reddened `mutate-harness` C3 — the harness catching contamination produced by its own tool.
+
+  **⚠ AND THE FIX FOR IT NEARLY SHIPPED A TEMPORAL DEAD ZONE ERROR THAT `node --check` PARSES
+  CLEANLY.** `EDITS` was declared below the block that now uses it. That is the exact shape of the
+  syntax error which shipped in this same file under 3100 green assertions — **arriving inside the
+  repair for it** — and it was caught only by RUNNING the restore rather than checking it. A first
+  run exited early on a missing snapshot without reaching the line, so proving it required
+  constructing the state that reaches it.
+
+- **⚠ A WRONG SUBJECT IN A REPORT IS WORSE THAN ONE IN AN ASSERTION, BECAUSE NOBODY RE-DERIVES A
+  REPORT.** The kit census probe printed a row reading **`Density read as noise    8`** — as though
+  the kit contained a part by that name. It does not. The probe read each cell's first `<b>`, which
+  for `GlanceGrid` and `IssueList` is the part's own CONTENT rather than the footer label.
+
+  **NO FIGURE MOVED.** The count and the movement key off cell INDEX, so `9 parts, all 9 move` was
+  correct throughout. **That is exactly what makes it dangerous** — every number was right, so
+  nothing looked wrong, and a reader of that output would have carried away a part name that does
+  not exist.
+
+  **⚠ AN ASSERTION THAT MISNAMES ITS SUBJECT USUALLY ALSO MISMEASURES IT AND GOES RED. A REPORT
+  JUST PRINTS.** There is no failing state for a label, no gate over probe output, and the artefact
+  outlives the session it was produced in. **The repair is the same discipline as stating the
+  subject beside the number** — check that a label names what you think it names, before the output
+  becomes the record.
 
 - **⚠ A TRIGGER THAT RENEWS ITSELF ON EVERY MISS IS A TRIGGER THAT NEVER FIRES.** The nav comment
   said *"if a second playground piece ever ships, THAT is when an index earns its existence"*. The

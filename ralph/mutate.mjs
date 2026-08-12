@@ -1,6 +1,33 @@
 // The mutation harness. Runs ONE suite and reports a verdict that cannot read a crash as a pass.
 // Run: node ralph/mutate.mjs <suite-name>
 //
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+// ⚠ NEXT UNIT ON THIS FILE: THE TOOL OWNS THE WHOLE EDIT. RAISED FROM BOARDED, ON THE COUNT.
+//
+// EIGHT DEFECTS HAVE NOW BEEN FOUND IN THIS ONE MECHANISM, AND THREE OF THEM ARE THE SAME GAP:
+// the tool does not own the operation end to end, so the operator supplies the missing half and
+// the missing half is where the damage happens.
+//
+//   the `git checkout` incident   the operator reverted by hand and DESTROYED UNCOMMITTED WORK
+//   the empty replacement          the operator chose a mutation shape the revert cannot locate
+//   the phantom manifest           a restore left edit records describing damage that was gone
+//
+// THREE OF EIGHT, ONE MECHANISM. Every one is prevented by the same change: the tool applies the
+// edit, records where it landed by POSITION rather than by searching for its own output, and
+// reverts from that record. `--edit` and `--revert-edit` were the first half of it and stopped
+// short — they own the apply, and the revert still works by string search, which is why an empty
+// replacement is unrevertable at all.
+//
+// ⚠ THE FIVE REFUSALS ARE NOT THAT CHANGE AND SHOULD NOT BE MISTAKEN FOR IT. Each closes a state
+// the tool cannot recover from, which is the right posture and is still a guard rather than a
+// mechanism — this repo's own rule is that ONLY A MECHANISM PREVENTS A FAILURE MODE, and the
+// refusals exist precisely because the mechanism is missing.
+//
+// The counter-argument is real and is why this was boarded rather than built: position-based
+// records shift under any other edit to the same file, so the tool would need to refuse a second
+// edit to a file it has already touched, or re-anchor. That is the design question to answer.
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+//
 // ---- WHY THIS EXISTS -------------------------------------------------------------------------
 //
 // Mutation testing is the only proof an assertion can fail, so this repo runs it on every new
@@ -52,6 +79,13 @@ import { countAssertions } from "./count.mjs";
  *   node ralph/mutate.mjs --restore   puts every snapshotted file back
  */
 const SNAP = join(process.env.TMPDIR ?? "/tmp", "ralph-mutate-snapshot");
+
+/* ⚠ DECLARED BESIDE `SNAP` RATHER THAN BESIDE `--edit`, BECAUSE `--restore` CLEARS IT TOO.
+ * It sat below the `--edit` block until the restore needed it, and a `const` referenced above its
+ * declaration is a TEMPORAL DEAD ZONE error that `node --check` PARSES CLEANLY — the exact shape
+ * that shipped a broken harness under 3100 green assertions, arriving in the repair for that same
+ * file. Proved by RUNNING the restore, not by checking it. */
+const EDITS = join(process.env.TMPDIR ?? "/tmp", "ralph-mutate-edits.json");
 
 /* ⚠ UNTRACKED FILES COUNT, AND THE FIRST VERSION MISSED THEM. `git diff --name-only HEAD` lists
  * MODIFICATIONS TO TRACKED FILES ONLY, so a brand-new suite being mutation-tested was never
@@ -143,6 +177,19 @@ if (process.argv[2] === "--restore") {
     console.log("⚠ no clean-file manifest — this snapshot predates #379, so a mutation to a");
     console.log("  previously-clean file has NOT been reverted. Check `git status`.");
   }
+  /* ⚠ THE EIGHTH DEFECT, AND THE MOST DANGEROUS SHAPE THIS MECHANISM HAS PRODUCED. `--restore` put
+   * the tree back and left the EDIT MANIFEST untouched, so it went on recording mutations that no
+   * longer existed anywhere.
+   *
+   * A stale manifest is worse than a stale snapshot. The next `--revert-edit` acts on records whose
+   * damage is already gone: at best it refuses and the operator loses a round to a phantom, at worst
+   * it FINDS THE REPLACEMENT STRING BY COINCIDENCE in restored source and rewrites a line nobody
+   * mutated. It also reddens `mutate-harness` C3, which asserts that a revert with nothing recorded
+   * refuses — the harness catching contamination from its own tool.
+   *
+   * A RESTORE SUPERSEDES EVERY PENDING EDIT RECORD BY DEFINITION, so it clears them. Same reasoning
+   * as the seven above: the tool must not leave behind a claim it has just made false. */
+  rmSync(EDITS, { force: true });
   /* ⚠ AND THE RESTORE VERIFIES ITSELF, BECAUSE THE FAILURE MODE HERE HAS ALWAYS BEEN SILENT SUCCESS.
    * Every one of the seven defects in this mechanism reported "restored N file(s)" while leaving a
    * mutation in the tree. A tool that cannot confirm its own effect is what produced all of them, and
@@ -214,7 +261,6 @@ if (process.argv[2] === "--restore") {
    operator's uncommitted work comes back with the work intact. The edits are recorded outside the
    snapshot so a clean-tree mutation is revertible without one.
 ============================================================================================ */
-const EDITS = join(process.env.TMPDIR ?? "/tmp", "ralph-mutate-edits.json");
 const readEdits = () => (existsSync(EDITS) ? JSON.parse(readFileSync(EDITS, "utf8")) : []);
 
 if (process.argv[2] === "--edit") {
@@ -230,6 +276,29 @@ if (process.argv[2] === "--edit") {
   if (anchorArg === replacementArg) {
     console.error("⚠ REFUSED — the replacement is identical to the anchor.");
     console.error("  A no-op mutation always reports SURVIVED and says nothing about the gate.");
+    process.exit(2);
+  }
+  /* ⚠ THE FIFTH REFUSAL, AND IT IS KNOWABLE HERE RATHER THAN AT REVERT TIME.
+   *
+   * `--revert-edit` locates what it applied by SEARCHING FOR THE REPLACEMENT, and the empty string
+   * occurs once per character — `"abc".split("")` is three parts, so a 15,788-character file
+   * reports 15,787 hits and the revert refuses. It refuses CORRECTLY and the mutation stays in the
+   * tree with the manifest un-cleared, so the next `--revert-edit` fails on it too and the harness
+   * suite's own C3 row goes red on contaminated state.
+   *
+   * That is exactly what happened: a deletion mutation was applied with an empty replacement, the
+   * refusal was printed, and the operator had piped this tool's output to /dev/null. The tool was
+   * right and unheard.
+   *
+   * ⚠ SO IT IS REFUSED AT THE EDIT, WHICH IS THE POSTURE OF THE OTHER FOUR — refuse the state you
+   * cannot recover from rather than discovering it during recovery. A deletion is a legitimate
+   * mutation; express it as something LOCATABLE, which is what the hint below says. */
+  if (replacementArg === "") {
+    console.error("⚠ REFUSED — an empty replacement cannot be reverted.");
+    console.error("  `--revert-edit` finds what it applied by searching for the replacement, and the");
+    console.error("  empty string matches at every character, so the revert can never locate it.");
+    console.error("  Delete by replacing the anchor with something findable instead, e.g.\n");
+    console.error("    node ralph/mutate.mjs --edit <file> '<the line>' '// mutated away'\n");
     process.exit(2);
   }
 
