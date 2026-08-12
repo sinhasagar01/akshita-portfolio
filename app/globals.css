@@ -4032,6 +4032,21 @@ a {
   opacity: 0;
 }
 
+/* ⚠ THE SCRIM SITS ON A PHOTOGRAPH, SO IT MUST BE DARK ON EVERY THEME — AND `etch` INVERTS.
+   `etch` is the ground's INK: near-black on a light palette, near-WHITE on a dark one. So on the
+   four dark themes this pill drew a pale wash under pale text and vanished.
+
+       light palettes   text #f4efe7 on scrim #504d4b   ratio 7.33 / 6.77
+       dark  palettes   text #f1f4f7 on scrim #afb0b2   ratio 1.95 / 2.07
+
+   ⚠ THE GROUND HERE IS A PHOTO, NOT THE PAGE, which is the whole reason a ground-following token
+   was the wrong choice. A photograph does not change with the theme, so the scrim over it must not
+   either — and `on-dark` was already correct for the text for exactly that reason.
+
+   `band-dark` is near-black on ALL NINE palettes — the dark quote band on the light ones, the page
+   ground on the dark ones — so it is the ground-independent dark this needs. Same family as the
+   footer's `Ciao`: a fixed value could not hold a relation, and here a relational token could not
+   hold a fixed requirement. */
 .ab-cap {
   position: absolute;
   left: 1rem;
@@ -4041,7 +4056,7 @@ a {
   font-style: italic;
   font-size: 0.875rem;
   color: var(--color-on-dark);
-  background: color-mix(in srgb, var(--color-etch) 42%, transparent);
+  background: color-mix(in srgb, var(--color-band-dark) 42%, transparent);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   padding: 7px 13px;
@@ -4058,7 +4073,8 @@ a {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-on-dark);
-  background: color-mix(in srgb, var(--color-etch) 38%, transparent);
+  /* ⚠ `band-dark`, NOT `etch` — see the note on `.ab-cap`. Same defect, same photo, same fix. */
+  background: color-mix(in srgb, var(--color-band-dark) 38%, transparent);
   padding: 5px 11px;
   border-radius: 9999px;
   pointer-events: none;
