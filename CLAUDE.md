@@ -1073,6 +1073,42 @@ build a gate for the limit and then believe it.
   clothes. All four were found by running the suite against its own subject rather than by reading
   it.
 
+- **⚠ `paint-sites` ASKS WHETHER A FOREGROUND MOVES, NOT WHETHER IT HOLDS ITS RELATION — AND IT RAN
+  8/8 GREEN OVER A DEFECT ON EVERY PAGE IT VISITS.** The footer's `Ciao` backdrop measured **1.37
+  against its panel on light and 11.67 on dark**, sitting behind a name at 15.24. A decorative word
+  that was a whisper became a shout, and the identity in front of it was unreadable.
+
+  **THE PREDICATE NEEDS THE GROUND TO MOVE AND THE FOREGROUND TO HOLD STILL.** `cream-300` is
+  declared per palette, so the foreground **did** move — different hue on every one — and the row
+  never entered the flagged set. **The relation inverted while the value moved**, which is a state
+  that predicate cannot express.
+
+  **⚠ AND THE PROOF IS NOT AN ARGUMENT: the suite was run 8/8 with this exact defect live**, on the
+  footer, which sits in the portfolio layout and therefore on all ten pages it visits.
+
+  **THIS IS THE CROSS-GROUND RULE BELOW ARRIVING IN AN INSTRUMENT RATHER THAN IN A REPORT.** That
+  rule says to state the absolute delta AND the ratio against the local backdrop; `paint-sites`
+  states neither — it states a boolean about movement. **A decorative element's job is a RATIO, and
+  nothing here measures a ratio a consumer must stay UNDER.** Every floor in this repo is a minimum.
+
+  **RECORDED AS A LIMIT RATHER THAN A TODO.** A ceiling gate would need each decorative consumer to
+  declare the band it must stay in, which is a per-consumer registry for a population nobody has
+  counted. The trigger for building one is a SECOND instance — if another whisper inverts, the
+  population is real and the registry earns itself.
+
+- **⚠ A FIXED VALUE CANNOT HOLD A RELATION, AND THE TOKEN IS USUALLY NOT THE THING TO FIX.** The
+  `Ciao` backdrop asked for `cream-300` when it wanted *one step off the panel it sits on*.
+  `globals.css` already carried that sentence about that token, and the obvious repair — remap
+  `cream-300` in the dark block the way `cream-200` is — **would have been wrong.**
+
+  Its only other public consumers are the process diagram's depicted wireframe and the case-study
+  illustrations, **both boundary-listed as artwork that must not follow the ground.** Remapping the
+  rung would have moved two things deliberately fixed in order to move one that is not.
+
+  **ASK HOW MANY CONSUMERS A RUNG HAS AND WHAT EACH ONE WANTS BEFORE REMAPPING IT.** A rung with one
+  consumer that needs a relation and two that need a constant is not a broken rung — it is a
+  consumer reaching for the wrong layer.
+
 - **⚠ STATE BOTH FIGURES ON ANY CROSS-GROUND COMPARISON — THE ABSOLUTE DELTA AND THE RATIO AGAINST
   THE LOCAL BACKDROP.** An absolute delta is a whisper on light and a glow on dark: the smoke blobs
   measured +5 to +6 on BOTH grounds and were passed as "comparable", and as ratios they were 1.04–1.07
