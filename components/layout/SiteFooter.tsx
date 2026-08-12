@@ -10,6 +10,23 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
           className="footer-panel relative overflow-hidden rounded-lg px-[50px] pb-[26px]"
           style={{ backgroundColor: "var(--color-surface)" }}
         >
+          {/* ⚠ THE BACKDROP TAKES THE PAGE GROUND, NOT A LADDER RUNG. It was `cream-300`, which is a
+              FIXED VALUE where the design wants a RELATION — one step off the panel it sits on — and
+              globals.css already records that exact sentence about this exact token. `cream-300` is
+              one of the few rungs the dark-ground block does not remap, so every dark palette
+              declares it at L 88% and a near-white word blared behind the name:
+
+                  light   ratio 1.37   a whisper, as drawn
+                  dark    ratio 11.67  against a name at 15.24 — two shouts, 1.3x apart
+
+              ⚠ AND THE TOKEN WAS NOT THE THING TO FIX. `cream-300`'s only other public consumers are
+              the process diagram's depicted wireframe and the case-study illustrations, both
+              boundary-listed as artwork that MUST NOT follow the ground. Remapping the rung would
+              have moved two things that are deliberately fixed in order to move one that is not.
+
+              `--color-background` is `canvas` on light and `band-dark` on dark, so the word reads as
+              the page showing through a raised panel — the same material relation on both grounds,
+              and always DARKER than the panel rather than flipping direction. */}
           {/* Ciao backdrop */}
           <div
             aria-hidden="true"
@@ -20,7 +37,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
               fontSize: "116px",
               lineHeight: 1,
               letterSpacing: "-2px",
-              color: "var(--color-cream-300)",
+              color: "var(--color-background)",
               whiteSpace: "nowrap",
               zIndex: 0,
             }}
@@ -35,7 +52,15 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
           >
             {/* Left — identity */}
             <div>
-              <p className="font-script text-[42px] leading-none">
+              {/* ⚠ THE NAME SET NO COLOUR AT ALL AND INHERITED, WHICH IS WHY IT WENT WHITE ON DARK.
+                  Inheriting means taking `text-primary`, the loudest foreground on the page — the
+                  right weight for a heading and wrong for a signature, and on a dark ground it put
+                  the name at 15.24 beside a backdrop at 11.67 with nothing separating them.
+
+                  `accent-text` is a ROLE and resolves per ground, so this is one declaration rather
+                  than a light value and a dark one: 6.88 to 8.45 on the light palettes and 5.94 to
+                  6.62 on the dark, every one clear of the 4.5 floor. */}
+              <p className="font-script text-[42px] leading-none text-accent-text">
                 Akshita Singh
               </p>
               <p className="mt-[13px] text-[12px] tracking-[.22em] uppercase text-text-subtle">
