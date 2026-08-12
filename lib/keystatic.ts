@@ -59,6 +59,10 @@ export type ProjectListItem = {
   // coalesces absent -> ""); "mobile" | "web". Distinct from `template` by design —
   // see keystatic.config.ts. Nothing reads it yet.
   category: string;
+  /** Whether readers can zoom this study's images. ⚠ ABSENT IN CONTENT MEANS ON — see the
+   *  coalesce in `mapProjectListItem`, which inverts this file's usual `?? ""` posture on
+   *  purpose because a feature switch that defaults off ships disabled on every existing study. */
+  imagePreview: boolean;
   /** How many sections the study has. Derived at map time from the same entry. */
   sectionCount: number;
 };
@@ -213,6 +217,7 @@ export function mapProjectListItem(slug: string, entry: Record<string, unknown>)
     },
     template: (entry.template ?? "") as string,
     category: (entry.category ?? "") as string,
+    imagePreview: (entry.imagePreview ?? true) as boolean,
     // Free: the reader already handed us the whole entry, so the count costs no
     // extra read. The case-study index shows it so you can tell a written-up study
     // from a stub without opening it.
@@ -275,6 +280,9 @@ export type CaseStudyData = {
    *  default. "" when unset. Consumed by the studio preview; the public render
    *  path stays unwired here until CS-6b. */
   template: string;
+  /** Whether this study's images open a zoomable preview. Absent in content means ON — see the
+   *  coalesce in the reader below for why this one field inverts the file's usual posture. */
+  imagePreview: boolean;
 };
 
 export async function getCaseStudyData(slug: string): Promise<CaseStudyData | null> {
@@ -294,6 +302,12 @@ export async function getCaseStudyData(slug: string): Promise<CaseStudyData | nu
     },
     rawSections: (entry as Record<string, unknown>).sections,
     template: ((entry as Record<string, unknown>).template ?? "") as string,
+    /* ⚠ ABSENT MEANS ON, WHICH IS THE OPPOSITE OF THIS FILE'S USUAL COALESCE AND IS DELIBERATE.
+       Every other optional field here falls back to "" or null because a missing value is a
+       missing value. This one is a FEATURE SWITCH on four studies whose content files predate it,
+       so `?? false` would ship the preview silently disabled everywhere it was asked for. The
+       fail-closed posture belongs to permissions; this is not one. */
+    imagePreview: ((entry as Record<string, unknown>).imagePreview ?? true) as boolean,
   };
 }
 

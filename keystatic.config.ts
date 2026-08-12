@@ -156,6 +156,26 @@ export default config({
         // Stored as text like `template` (empty default, so createReader never throws
         // on an entry lacking it); the enum is enforced strictly by the sanitizer.
         category: fields.text({ label: "Category (mobile | web)" }),
+        // ⚠ LINE COMMENTS ONLY IN THIS FILE — a block comment here re-pairs one of the three
+        // stray `path:` glob openers and deletes a region from every suite that decomments it.
+        //
+        // Whether this study's images open a zoomable preview on click, with a hover badge
+        // advertising it. A CHECKBOX rather than the text-plus-sanitizer shape `template` and
+        // `category` use, because those two carry an ENUM the reader must not guess at and this
+        // carries a boolean with two states and no third.
+        //
+        // ⚠ IT DEFAULTS TRUE AND THE READER TREATS ABSENT AS ON. Four studies predate the field
+        // and none of their content files carry it; a boolean whose absent state meant OFF would
+        // have shipped the feature silently disabled on every existing study, which is the
+        // fail-closed posture applied where fail-open is correct — nothing here is a permission.
+        imagePreview: fields.checkbox({
+          label: "Zoomable image preview",
+          description:
+            "Readers can click any image on this case study to open it larger and zoom in. "
+            + "A hint appears on hover. Turn it off for a study whose images are not worth "
+            + "inspecting closely.",
+          defaultValue: true,
+        }),
         body: fields.blocks(
           {
             heroBlock: {

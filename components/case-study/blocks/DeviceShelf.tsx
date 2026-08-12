@@ -34,7 +34,8 @@ export default function DeviceShelf({
       <div className="flex flex-col items-center gap-12">
         {devices.map((d, i) => (
           <figure key={i} className="reveal-card flex w-full flex-col items-center gap-3">
-            <DeviceImage image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
+            <DeviceImage
+          preview image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
             {d.label && (
               <figcaption
                 {...editLabel(i)}
@@ -72,7 +73,8 @@ export default function DeviceShelf({
               : "relative z-[2] flex flex-col items-center"
           }
         >
-          <DeviceImage image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
+          <DeviceImage
+          preview image={d} editable={editable} blockIndex={blockIndex} editPath={`devices.${i}`} />
           {d.label && (
             <span
               {...editLabel(i)}

@@ -52,6 +52,7 @@ export default function FeatureRows({
               }
             >
               <DeviceImage
+          preview
                 image={f.image}
                 editable={editable}
                 blockIndex={blockIndex}

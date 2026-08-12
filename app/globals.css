@@ -4294,6 +4294,52 @@ a {
    The class means "this container does not scroll-reveal, so show the end state". It does NOT mean
    "canvas". Renaming it is a three-consumer sweep and its own decision — recorded here rather than
    done inside an unrelated unit. */
+/* ============================================================
+   CASE-STUDY IMAGE PREVIEW — the hover badge.
+
+   ⚠ GATED ON `html[data-image-preview]`, WHICH `ImagePreview` SETS ON MOUNT. Images emit
+   `data-preview-src` unconditionally, because a server component cannot know whether the study
+   opted in without threading a boolean through six block components. So the badge is invisible
+   until the thing that makes it work is actually running — it CANNOT advertise a dead click.
+
+   ⚠ AND IT IS `pointer-events: none`, so the hit target stays the whole image. A badge that ate
+   its own clicks would make the affordance the only place the feature works, which is the
+   opposite of what an affordance is for.
+
+   ⚠ HOVER-CAPABLE POINTERS ONLY. On a touch screen there is no hover, so the badge would either
+   never appear or appear stuck after a tap. The tap still opens the preview; only the hint is
+   withheld, which is the feature without the affordance rather than a dead control.
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+  html[data-image-preview] [data-preview-src] .cs-preview-hint {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    z-index: 20;
+    display: block;
+    pointer-events: none;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-band-dark) 72%, transparent);
+    color: var(--color-on-dark);
+    padding: 5px 11px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  html[data-image-preview] [data-preview-src]:hover .cs-preview-hint { opacity: 1; }
+  html[data-image-preview] [data-preview-src] { cursor: zoom-in; }
+}
+
+/* The badge is display:none everywhere the block above does not reach — no hover, or the feature
+   switched off for this study. Declared rather than left to the absence of a rule, so a future
+   selector change cannot leave it laid out at opacity 0 over the image. */
+.cs-preview-hint { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-image-preview] [data-preview-src] .cs-preview-hint { transition: none; }
+}
+
 .canvas-static .reveal-card {
   opacity: 1;
   transform: none;

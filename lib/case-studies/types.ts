@@ -292,5 +292,12 @@ export type CaseStudy = {
    *  existing (mobile) composition; only "web" opts in. Threaded from the page down
    *  through CaseStudyView; blocks receive a derived `web` boolean. */
   template?: string;
+  /** Whether the case study's images open a zoomable preview on click, with a hover badge
+   *  advertising it. Editable per case study in /studio.
+   *
+   *  ⚠ IT IS OPTIONAL AND UNDEFINED MEANS ON. Every study that predates the field should get the
+   *  feature without a content migration, and a boolean whose absent state means OFF would have
+   *  shipped it silently disabled everywhere. The reader coalesces; nothing here guesses. */
+  imagePreview?: boolean;
 };
 
