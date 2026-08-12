@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getProjectSlugs, getBlogPosts } from "@/lib/keystatic";
 import { absoluteUrl, projectPath, projectLastModified, blogPath, blogLastModified } from "@/lib/site";
+import { PALETTE_SLUGS } from "@/lib/palettes/compatibility";
 
 /**
  * Dynamic sitemap built from the same content sources the pages use, so it cannot drift
@@ -80,5 +81,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.5,
     },
+    /* ⚠ AND THE NINE PALETTE ROUTES WERE THE FOURTH GAP, FOUND BY DERIVING THE SUBJECT RATHER THAN
+       BY ANOTHER ROUTE SHIPPING. `route-coverage` reads the prerender manifest and compares it to
+       what this file emits: 21 public pages against 12 listed, and the nine missing were these.
+
+       THEY ARE SHAREABLE BY DESIGN, WHICH IS WHAT MAKES THE OMISSION A DEFECT RATHER THAN A CHOICE.
+       The console's `Link` button copies exactly `/palettes/<name>` for a visitor to send somebody.
+       A URL the product hands out and the sitemap does not know about is the plainest form of this
+       file's recurring failure.
+
+       ⚠ DERIVED, NEVER TYPED. Nine entries written by hand would be stale the day a tenth palette
+       ships — the same shape as the omission it repairs, one level down.
+
+       ⚠ AND IT IMPORTS `PALETTE_SLUGS` RATHER THAN RE-DERIVING IT. The first version filtered
+       `THEME_NAMES` here, which is the same expression `/palettes/[slug]`'s `generateStaticParams`
+       already runs — TWO SPELLINGS OF ONE FILTER THAT AGREE TODAY. That is a staler risk than any
+       cache: a derivation can be correct and its output wrong because a SECOND derivation drifted,
+       and nothing about the code would look off. One source, one filter, and `route-coverage` B1
+       joins the emitted sitemap against the prerendered routes so a drift between them goes red
+       rather than silently omitting a page. */
+    ...PALETTE_SLUGS.map((name) => ({
+      url: absoluteUrl(`/palettes/${name}`),
+      lastModified: new Date(),
+      changeFrequency: "yearly" as const,
+      priority: 0.4,
+    })),
   ];
 }

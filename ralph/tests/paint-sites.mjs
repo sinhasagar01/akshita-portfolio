@@ -61,8 +61,14 @@ const PAGES = [
      FULLY DESIGNED PAGE here, so a wrong URL reads as a thin one rather than as an error — the same
      trap that produced a mislabelled hero capture earlier in this arc. */
   ["/blog", "blog index"],
+  /* ⚠ ALL FOUR POSTS, AND IT WAS TWO UNTIL `route-coverage` JOINED THIS LIST AGAINST THE BUILD.
+     Nothing distinguished the two that were here from the two that were not — no property, no
+     sampling rule, just the two that existed when somebody wrote the line. That is the fixed-list
+     shape, and the other route lists decayed the same way in the same hour. */
   ["/blog/you-find-out-what-motion-is-for-by-removing-it", "post motion"],
   ["/blog/what-a-data-table-teaches-you-about-trust", "post table"],
+  ["/blog/ai-first-is-a-research-posture-not-a-feature", "post ai-first"],
+  ["/blog/what-a-design-system-is-for-when-the-machine-can-draw", "post design-system"],
   ["/projects/boat-crest", "boat"],
   ["/projects/elevate-one-view", "elevate"],
   ["/projects/fosfor-ai", "fosfor-ai"],
@@ -83,6 +89,28 @@ const PAGES = [
   ["/palettes", "palettes"],
   ["/oklch", "oklch primer"],
 ];
+
+/* ⚠ THE PRIMER REPORTS ~96 SITES THAT DO NOT MOVE, AND THEY ARE CORRECT. A future reader seeing
+   static sites on a page whose entire subject is theming will read it as a defect and "fix" it, so
+   the reason lives here rather than only in a PR body nobody re-reads.
+
+       oklch primer  @desktop  1560 sites  1464 on a moved ground
+       oklch primer  @mobile   1344 sites  1248 on a moved ground
+
+   Section 04 sets four HSL colours all at fifty percent lightness beside four OKLCH colours all at
+   seventy-two, to show that the number lies in one system and holds in the other. THE WHOLE
+   DEMONSTRATION IS THAT THESE SPECIFIC VALUES BEHAVE THE WAY THEY DO — a palette recolouring them
+   would destroy the comparison rather than skin it, and a hue comparison that changed hue with the
+   theme would be an argument about hue that lies about hue. Their eight foregrounds are fixed for
+   the same reason: each is chosen against a cell that cannot move.
+
+   They are `depiction` in `docs/colour-boundary.yaml`, row `hsl-oklch-comparison`, where the
+   ground-change test is recorded as REQUIRING them to stay fixed rather than merely permitting it.
+
+   ⚠ AND SECTION B STILL COVERS THEM, WHICH IS WHY NO EXEMPTION IS NEEDED HERE. The predicate needs
+   BOTH halves — the ground moved AND the foreground did not. These cells bring their own ground and
+   it does not move either, so they never enter the flagged set. A foreground frozen over a ground
+   that DID move is still caught on this page like any other. */
 /* ⚠ CREAM IS THE BASELINE AND EVERY OTHER PALETTE IS COMPARED TO IT, dark AND light. A light pair
  * still moves the ground — different hues — so a foreground frozen across two LIGHT palettes is a
  * hardcoded colour following no theme at all, which is the same defect one step quieter. */
