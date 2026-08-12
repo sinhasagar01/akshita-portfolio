@@ -1,9 +1,34 @@
 "use client";
 
-import { useRef } from "react";
-import { useInView, useReducedMotion } from "motion/react";
 import type { CSSProperties } from "react";
 
+/* ============================================================================================
+   ⚠ THE HEADING IS NOT PART OF THE SCROLL REVEAL, AND THAT IS THE POINT OF THE COMPONENT.
+
+   It used to carry its OWN `useInView` at `amount: 0.55`, entirely separate from `RevealSection`'s
+   observer — two reveal mechanisms on one section, with different triggers, and nothing keeping
+   them in order.
+
+   MEASURED ON THE WORK SECTION, scrolling down at 1440x900, sampling opacity every 60px:
+
+       section top at 47%   heading 0.20   cards 0
+       section top at 40%   heading 0.54   cards 0.03
+       section top at 33%   heading 0.77   cards 0.34
+       section top at 27%   heading 0.90   cards 0.68
+       section top at 13%   heading 1.00   cards 0.96
+
+   The heading led by about 14% of a viewport and the two climbed TOGETHER — so for most of the
+   travel the section title was half-drawn while its content was already arriving. A reader could
+   not tell which section they were in until both had finished, which is the reverse of what a
+   heading is for. `RevealSection` fires at `rootMargin: -20%`; the heading needed 55% of ITSELF in
+   view, which happens later.
+
+   ⚠ THE `reveal` PROP IS GONE RATHER THAN DEFAULTED TO FALSE. Nothing passed `true` — six homepage
+   sections took the default and three surfaces passed `false` — so a prop kept "for flexibility"
+   would have had one reachable value. This repo deletes a control that cannot do anything.
+
+   The content below a heading still reveals on scroll. Only the label stops moving.
+============================================================================================ */
 type Variant = "default" | "bleed" | "watermark" | "centered";
 type Tone = "warm" | "grey";
 
@@ -14,7 +39,6 @@ type Props = {
   className?: string;
   variant?: Variant;
   tone?: Tone;
-  reveal?: boolean;
   /**
    * Attributes spread onto the title `<h2>`. Empty by default, so every existing render is
    * byte-identical and no public page changes.
@@ -28,8 +52,6 @@ type Props = {
   titleProps?: React.HTMLAttributes<HTMLHeadingElement>;
 };
 
-const EASE = "cubic-bezier(.22,1,.36,1)";
-
 export default function SectionHeading({
   index,
   title,
@@ -37,15 +59,8 @@ export default function SectionHeading({
   className,
   variant = "default",
   tone = "warm",
-  reveal = true,
   titleProps,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.55 });
-  const prefersReduced = useReducedMotion();
-
-  const settled = !reveal || prefersReduced === true || inView;
-  const noAnim  = !reveal || prefersReduced === true;
 
   /* ⚠ BOTH BRANCHES TAKE A TOKEN NOW, AND THE SECOND THEME IS WHAT PROVED THEY HAD TO.
      The warm branch was `rgba(181,97,60,…)`, a literal, while the grey branch was already a
@@ -105,11 +120,7 @@ export default function SectionHeading({
     display: "block",
     position: "relative",
     zIndex: 3,
-    opacity: settled ? 1 : 0,
-    transform: settled ? "none" : "translateY(8px)",
-    transition: noAnim
-      ? "none"
-      : `opacity .7s ease .05s, transform .7s ${EASE} .05s`,
+    opacity: 1,
   };
 
   const glowStyle: CSSProperties = {
@@ -123,8 +134,7 @@ export default function SectionHeading({
     filter: "blur(34px)",
     zIndex: 0,
     background: glowBg,
-    opacity: settled ? 1 : 0,
-    transition: noAnim ? "none" : "opacity 1.1s ease",
+    opacity: 1,
   };
 
   const wordStyle: CSSProperties = {
@@ -150,12 +160,7 @@ export default function SectionHeading({
     letterSpacing: "-.01em",
     color: wordColor,
     textShadow: wordShadow,
-    opacity: settled ? 1 : 0,
-    filter: settled ? "blur(0)" : "blur(11px)",
-    transform: settled ? "none" : "translateY(10px)",
-    transition: noAnim
-      ? "none"
-      : `opacity .9s ease, filter 1s ${EASE}, transform 1s ${EASE}`,
+    opacity: 1,
   };
 
   const subStyle: CSSProperties = {
@@ -167,11 +172,7 @@ export default function SectionHeading({
     margin: isCentered ? "14px auto 0" : "14px 0 0",
     position: "relative",
     zIndex: 3,
-    opacity: settled ? 1 : 0,
-    transform: settled ? "none" : "translateY(8px)",
-    transition: noAnim
-      ? "none"
-      : `opacity .7s ease .15s, transform .7s ${EASE} .15s`,
+    opacity: 1,
   };
 
   // Bleed and watermark: large word LEFT-anchored in a back layer behind index + subtext
@@ -183,7 +184,6 @@ export default function SectionHeading({
 
     return (
       <div
-        ref={ref}
         className={className}
         style={{
           position: "relative",
@@ -222,7 +222,7 @@ export default function SectionHeading({
 
   if (isCentered) {
     return (
-      <div ref={ref} className={className} style={{ textAlign: "center" }}>
+      <div className={className} style={{ textAlign: "center" }}>
         <span style={idxStyle}>{index}</span>
         <span style={{ position: "relative", display: "inline-block", margin: "6px auto 2px" }}>
           <span aria-hidden style={glowStyle} />
@@ -235,7 +235,7 @@ export default function SectionHeading({
 
   // default
   return (
-    <div ref={ref} className={className}>
+    <div className={className}>
       <span style={idxStyle}>{index}</span>
       <span style={{ position: "relative", display: "inline-block", margin: "6px 0 2px" }}>
         <span aria-hidden style={glowStyle} />

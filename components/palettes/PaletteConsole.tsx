@@ -420,7 +420,6 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                 index="01"
                 title={HEADLINE}
                 subtext="Six years across enterprise data tools and one consumer turnaround."
-                reveal={false}
                 titleProps={{
                   contentEditable: true,
                   suppressContentEditableWarning: true,

@@ -473,7 +473,6 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                 index="01"
                 title="Colour should explain the hierarchy before you read a word"
                 subtext="One controlled lightness ladder makes emphasis predictable in every theme."
-                reveal={false}
               />
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <PrincipleCard
