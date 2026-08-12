@@ -1,0 +1,224 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gallery — the lightbox</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--sans:"DM Sans",system-ui,sans-serif;--display:Fraunces,Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#E4E0D8;font-family:var(--sans);color:#2a231c}
+.doc{max-width:1420px;margin:0 auto;padding:24px 18px 70px}
+h1.d{font-family:var(--display);font-weight:600;font-size:25px;letter-spacing:-.03em;margin:0 0 6px}
+h2.d{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:-.03em;margin:44px 0 5px}
+.lede{color:#5f564c;max-width:92ch;font-size:14px;line-height:1.6;margin:0}
+.warn{font-size:12.5px;color:#9a3722;margin:11px 0 0;line-height:1.6;max-width:100ch}
+.sub{font-size:13px;color:#6f665c;margin:0 0 10px;line-height:1.6;max-width:100ch}
+.note{font-size:12.5px;color:#6f665c;margin:10px 2px 0;line-height:1.65;max-width:100ch}
+.note b{color:#2a231c;font-weight:600}
+.frame{border:1px solid rgba(20,16,12,.18);border-radius:14px;overflow:hidden;margin-top:10px;
+ box-shadow:0 20px 54px -34px rgba(0,0,0,.5)}
+code{font-family:var(--mono);font-size:11.5px;background:rgba(40,30,20,.07);padding:1px 5px;border-radius:3px}
+
+/* shared theme, the site's roles */
+.g{--canvas:oklch(96.4% .012 42);--surface:oklch(99% .006 42);--well:oklch(97.6% .014 42);
+ --accent:oklch(56% .14 42);--accent-text:oklch(46% .13 42);--on-accent:oklch(98% .012 42);
+ --lead:oklch(16% .02 42);--body:oklch(32% .02 42);--subtle:oklch(48% .018 42);
+ --rule:oklch(16% .02 42/.14);--hair:oklch(16% .02 42/.07);
+ background:var(--canvas);color:var(--body)}
+.g.dark{--canvas:oklch(17% .022 290);--surface:oklch(23% .024 290);--well:oklch(20% .023 290);
+ --accent:oklch(62% .2 290);--accent-text:oklch(80% .12 290);--on-accent:oklch(14% .03 290);
+ --lead:oklch(96% .008 290);--body:oklch(84% .015 290);--subtle:oklch(66% .02 290);
+ --rule:oklch(96% .008 290/.15);--hair:oklch(96% .008 290/.08)}
+
+.nav{position:sticky;top:14px;z-index:30;display:flex;align-items:center;gap:16px;width:max-content;
+ margin:14px auto 0;background:color-mix(in srgb,var(--surface) 84%,transparent);backdrop-filter:blur(14px);
+ border:1px solid var(--rule);border-radius:999px;padding:8px 9px 8px 19px;box-shadow:0 14px 36px -22px oklch(0% 0 0/.6)}
+.nav b{font-family:var(--display);font-style:italic;font-weight:500;font-size:15px;color:var(--lead)}
+.nav .sur{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--accent-text);padding-left:10px;border-left:1px solid var(--rule)}
+.nav a{font-size:11.5px;color:var(--subtle);text-decoration:none}
+.nav a.on{color:var(--accent-text);font-weight:600}
+.nav .cta{font-size:11px;font-weight:600;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:6px 13px;text-decoration:none}
+
+.wrap{max-width:1300px;margin:0 auto;padding:0 30px}
+.eyebrow{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-text);margin:0}
+.h-page{font-family:var(--display);font-weight:600;font-size:clamp(34px,5vw,64px);line-height:.96;
+ letter-spacing:-.05em;color:var(--lead);margin:14px 0 0}
+.h-page em{font-style:italic;font-weight:500;color:var(--accent-text)}
+.dek{font-size:15.5px;line-height:1.62;color:var(--subtle);margin:16px 0 0;max-width:54ch}
+
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:9px;padding:10px 15px;
+ font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+.btn.ghost{background:none;border:1px solid var(--rule);color:var(--body);font-weight:500}
+.btn.sm{padding:8px 12px;font-size:11.5px}
+
+/* filters */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fseg{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--surface)}
+.fseg button{font:inherit;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+ border:0;background:none;color:var(--subtle);padding:8px 13px;border-radius:999px;cursor:pointer}
+.fseg button.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+.fcount{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);margin-left:auto}
+
+/* ===== masonry ===== */
+.masonry{columns:4;column-gap:14px;margin-top:22px}
+.masonry .tile{break-inside:avoid;margin:0 0 14px;display:block;width:100%;padding:0;border:0;background:none;
+ cursor:zoom-in;position:relative;border-radius:12px;overflow:hidden;font:inherit;color:inherit;text-align:left}
+.tile img{display:block;width:100%;height:auto;border-radius:12px;background:var(--well);
+ transition:transform .5s cubic-bezier(.16,1,.3,1),filter .4s}
+.tile:hover img{transform:scale(1.03)}
+.tile:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tile .cap{position:absolute;left:0;right:0;bottom:0;padding:38px 13px 12px;
+ background:linear-gradient(to top,oklch(12% .02 42/.82),transparent);
+ opacity:0;transform:translateY(6px);transition:.35s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.tile:hover .cap,.tile:focus-visible .cap{opacity:1;transform:none}
+.tile .cap b{display:block;font-family:var(--display);font-weight:500;font-size:14px;color:oklch(99% 0 0);letter-spacing:-.02em}
+.tile .cap span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;
+ color:oklch(99% 0 0/.7);margin-top:5px}
+.tile .kindchip{position:absolute;top:10px;left:10px;font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;
+ text-transform:uppercase;background:color-mix(in srgb,var(--surface) 86%,transparent);backdrop-filter:blur(8px);
+ color:var(--accent-text);border:1px solid var(--rule);border-radius:999px;padding:4px 8px;
+ opacity:0;transition:.3s}
+.tile:hover .kindchip,.tile:focus-visible .kindchip{opacity:1}
+@media(max-width:1100px){.masonry{columns:3}}
+@media(max-width:760px){.masonry{columns:2;column-gap:10px}.masonry .tile{margin-bottom:10px}}
+
+/* ===== A · the lightbox ===== */
+.lb{position:fixed;inset:0;z-index:80;display:none;background:oklch(10% .015 42/.92);backdrop-filter:blur(18px)}
+.lb.on{display:grid;grid-template-rows:auto 1fr auto}
+.lbtop{display:flex;align-items:center;gap:14px;padding:16px 20px;color:oklch(96% 0 0)}
+.lbtop .ix{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:oklch(96% 0 0/.6)}
+.lbtop .x{margin-left:auto;background:oklch(99% 0 0/.1);border:1px solid oklch(99% 0 0/.18);color:oklch(96% 0 0);
+ border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:15px;line-height:1}
+.lbstage{display:grid;grid-template-columns:64px 1fr 340px 64px;align-items:center;gap:0;min-height:0;padding:0 12px 12px}
+.lbimg{display:flex;align-items:center;justify-content:center;min-height:0;height:100%}
+.lbimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;
+ box-shadow:0 40px 90px -50px oklch(0% 0 0/.9);animation:pop .4s cubic-bezier(.16,1,.3,1)}
+@keyframes pop{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.arrow{background:oklch(99% 0 0/.08);border:1px solid oklch(99% 0 0/.16);color:oklch(96% 0 0);border-radius:50%;
+ width:44px;height:44px;cursor:pointer;font-size:17px;justify-self:center;transition:.25s}
+.arrow:hover{background:oklch(99% 0 0/.18)}
+.lbmeta{padding:0 22px;color:oklch(90% 0 0);align-self:center}
+.lbmeta h3{font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:-.035em;color:oklch(99% 0 0);margin:0}
+.lbmeta p{font-size:13.5px;line-height:1.65;color:oklch(96% 0 0/.68);margin:13px 0 0}
+.lbtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.lbtags span{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+ border:1px solid oklch(99% 0 0/.2);border-radius:999px;padding:5px 10px;color:oklch(96% 0 0/.75)}
+.lbspecs{margin-top:20px;padding-top:16px;border-top:1px solid oklch(99% 0 0/.14);
+ display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lbspecs div b{display:block;font-family:var(--mono);font-size:11px;color:oklch(99% 0 0)}
+.lbspecs div span{display:block;font-family:var(--mono);font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;
+ color:oklch(96% 0 0/.5);margin-top:4px}
+.lbfilm{display:flex;gap:7px;justify-content:center;padding:0 20px 18px;overflow-x:auto}
+.lbfilm button{flex:0 0 54px;height:40px;border-radius:6px;overflow:hidden;border:2px solid transparent;
+ padding:0;cursor:pointer;background:none;opacity:.45;transition:.25s}
+.lbfilm button img{width:100%;height:100%;object-fit:cover;display:block}
+.lbfilm button.on{border-color:oklch(99% 0 0);opacity:1}
+.lbhint{text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;
+ color:oklch(96% 0 0/.4);padding-bottom:14px}
+@media(max-width:900px){.lbstage{grid-template-columns:1fr;grid-template-rows:1fr auto;padding:0 10px 10px}
+ .arrow{display:none}.lbmeta{padding:14px 6px 0}.lbmeta h3{font-size:20px}.lbspecs{grid-template-columns:1fr 1fr}}
+</style></head><body><div class="doc">
+
+<h1 class="d">Gallery — the lightbox</h1>
+<p class="lede">The chosen direction, complete. Dense masonry, a full-bleed preview with a filmstrip, and filters that drive the browse order inside the overlay. Click any tile — arrows, <span class="kbd">←</span> <span class="kbd">→</span> and <span class="kbd">Esc</span> all work, and swipe works on a touch screen.</p>
+<p class="warn">⚠ <b>Three things to settle before either is built, and the third is the largest.</b> <b>Where the images live and how they are managed</b> — the brief says keep it flexible, and that is right, but it decides whether this is a content collection like the blog, an upload surface like the studio's, or a folder plus a manifest. <b>Whether an item can be a case study</b> — "Projects" as a filter overlaps the work section, and two places showing the same thing is the duplication this project keeps deleting. And <b>what the preview does about images the site does not own</b>, if any are ever client work.</p>
+
+
+<p class="warn">⚠ <b>This file is authoritative about the layout, the overlay and its controls — not about the images or the data.</b> The tiles are generated SVG so it renders standalone; the item shape (title, kind, width, height, description, tags) is the contract, and where those live is the first thing to decide.</p>
+<div class="frame"><div class="g" id="A">
+ <div class="nav"><b>Akshita</b><span class="sur">SINGH</span><a href="#">Work</a><a href="#">Blog</a>
+  <a href="#" class="on">Gallery</a><a href="#">Playground</a><a href="#" class="cta">Resume ↗</a></div>
+ <div class="wrap" style="padding-top:44px;padding-bottom:20px">
+  <p class="eyebrow">Gallery</p>
+  <h1 class="h-page">Things I made<br>that <em>aren't</em> work.</h1>
+  <p class="dek">Photographs, drawings, and the odd product study that never became a case study. Mostly taken before 7am or after midnight.</p>
+ </div>
+ <div class="wrap" style="padding-bottom:8px">
+  <div class="filters">
+   <div class="fseg" id="fA"></div>
+   <span class="fcount" id="cA"></span>
+  </div>
+ </div>
+ <div class="wrap" style="padding-bottom:40px"><div class="masonry" id="mA"></div></div>
+</div></div>
+<p class="note"><b>The image gets the whole screen</b>, which is what a photograph wants — and the filmstrip makes twelve items feel browsable rather than sequential. <b>Cost:</b> the dark chrome is a second visual language on a site that themes everything, and the metadata rail is fixed-width, so a long description scrolls inside a column while the image stays put.</p>
+
+<p class="note" style="margin-top:26px"><b>⚠ What both mocks are dishonest about, stated rather than discovered later.</b> These images are generated SVG and weigh nothing — <b>a real gallery is the heaviest page on the site by an order of magnitude</b>, and every claim about "smooth" is a claim about bytes, decode time and layout stability rather than about transitions. Masonry with <code>columns</code> reflows on load unless every intrinsic size is known up front; the real build needs width and height per item, <code>content-visibility</code>, and a decode strategy. <b>None of that is visible in a mock, and all of it decides whether the result feels premium.</b></p>
+
+</div>
+<script>
+const ITEMS=[{"t": "Low tide, Gokarna", "k": "photo", "w": 1600, "h": 2000, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDIwMDAiIHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjIwMDAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzAiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9Im9rbGNoKDcyJSAuMDkgMzIpIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSJva2xjaCgzNCUgLjA3IDcyKSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgogICAgICAgIDxyZWN0IHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjIwMDAiIGZpbGw9InVybCgjZzApIi8+CiAgICAgICAgPGNpcmNsZSBjeD0iMTEyMCIgY3k9IjU2MCIgcj0iMjA4IiBmaWxsPSJva2xjaCg5MiUgLjA3IDUyKSIgb3BhY2l0eT0iLjU1Ii8+CiAgICAgICAgPHBhdGggZD0iTTAgMTQ0MCBMNDQ4IDkyMCBMODMyIDEzNjAgTDEyNDggODAwIEwxNjAwIDEyMDAgTDE2MDAgMjAwMCBMMCAyMDAwIFoiCiAgICAgICAgICBmaWxsPSJva2xjaCgyMiUgLjA1IDIzMikiIG9wYWNpdHk9Ii43MiIvPjwvc3ZnPg==", "d": "Shot on a borrowed 35mm at 6am. The tide had gone out further than the locals expected.", "tags": ["35mm", "Coast", "2024"]}, {"t": "Terrace geometry", "k": "photo", "w": 2000, "h": 1400, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAwIDE0MDAiIHdpZHRoPSIyMDAwIiBoZWlnaHQ9IjE0MDAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzEiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9Im9rbGNoKDcyJSAuMDkgMjIwKSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0ib2tsY2goMzQlIC4wNyAyNjApIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjIwMDAiIGhlaWdodD0iMTQwMCIgZmlsbD0idXJsKCNnMSkiLz4KICAgICAgICA8Y2lyY2xlIGN4PSIxNDAwIiBjeT0iMzkyIiByPSIxODIiIGZpbGw9Im9rbGNoKDkyJSAuMDcgMjQwKSIgb3BhY2l0eT0iLjU1Ii8+CiAgICAgICAgPHBhdGggZD0iTTAgMTAwOCBMNTYwIDY0NCBMMTA0MCA5NTIgTDE1NjAgNTYwIEwyMDAwIDg0MCBMMjAwMCAxNDAwIEwwIDE0MDAgWiIKICAgICAgICAgIGZpbGw9Im9rbGNoKDIyJSAuMDUgNjApIiBvcGFjaXR5PSIuNzIiLz48L3N2Zz4=", "d": "Bangalore rooftops after the monsoon broke.", "tags": ["Digital", "Architecture", "2023"]}, {"t": "Study of a hand", "k": "illus", "w": 1400, "h": 1750, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDAwIDE3NTAiIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjE3NTAiPjxyZWN0IHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjE3NTAiIGZpbGw9Im9rbGNoKDk0JSAuMDIgMzAwKSIvPgogICAgICAgIDxjaXJjbGUgY3g9IjcwMCIgY3k9Ijc3MCIgcj0iMzY0IiBmaWxsPSJub25lIiBzdHJva2U9Im9rbGNoKDUyJSAuMTYgMzAwKSIgc3Ryb2tlLXdpZHRoPSIxMSIvPgogICAgICAgIDxyZWN0IHg9IjMwOCIgeT0iMTA1MCIgd2lkdGg9Ijc4NCIgaGVpZ2h0PSIxNzUiIHJ4PSI4OCIgZmlsbD0ib2tsY2goNjAlIC4xOCAwKSIvPgogICAgICAgIDxwYXRoIGQ9Ik0yMjQgNDIwIHE0NzYgLTI4MCA5NTIgMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJva2xjaCg0MCUgLjE0IDEyMCkiIHN0cm9rZS13aWR0aD0iOCIvPjwvc3ZnPg==", "d": "Graphite, then redrawn in Procreate to test a brush.", "tags": ["Graphite", "Study", "2024"]}, {"t": "Fosfor onboarding", "k": "proj", "w": 2000, "h": 1250, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAwIDEyNTAiIHdpZHRoPSIyMDAwIiBoZWlnaHQ9IjEyNTAiPjxyZWN0IHdpZHRoPSIyMDAwIiBoZWlnaHQ9IjEyNTAiIGZpbGw9Im9rbGNoKDI0JSAuMDMgMjU1KSIvPgogICAgICAgIDxyZWN0IHg9IjE2MCIgeT0iMTUwIiB3aWR0aD0iMTY4MCIgaGVpZ2h0PSIyNTAiIHJ4PSIzOCIgZmlsbD0ib2tsY2goMzUlIC4wNCAyNTUpIi8+CiAgICAgICAgPHJlY3QgeD0iMTYwIiB5PSI1MDAiIHdpZHRoPSIxMDAwIiBoZWlnaHQ9Ijc1IiByeD0iMjUiIGZpbGw9Im9rbGNoKDYyJSAuMTYgMjg1KSIvPgogICAgICAgIDxyZWN0IHg9IjE2MCIgeT0iNjc1IiB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSIzNzUiIHJ4PSIzOCIgZmlsbD0ib2tsY2goMzElIC4wMzUgMjU1KSIvPjwvc3ZnPg==", "d": "Three screens from the flow that cut setup from nine steps to four.", "tags": ["Product", "Case study", "2024"]}, {"t": "Market, 5.40am", "k": "photo", "w": 1500, "h": 1500, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAwIDE1MDAiIHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzQiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9Im9rbGNoKDcyJSAuMDkgNjApIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSJva2xjaCgzNCUgLjA3IDEwMCkiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICAgICAgICA8cmVjdCB3aWR0aD0iMTUwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2c0KSIvPgogICAgICAgIDxjaXJjbGUgY3g9IjEwNTAiIGN5PSI0MjAiIHI9IjE5NSIgZmlsbD0ib2tsY2goOTIlIC4wNyA4MCkiIG9wYWNpdHk9Ii41NSIvPgogICAgICAgIDxwYXRoIGQ9Ik0wIDEwODAgTDQyMCA2OTAgTDc4MCAxMDIwIEwxMTcwIDYwMCBMMTUwMCA5MDAgTDE1MDAgMTUwMCBMMCAxNTAwIFoiCiAgICAgICAgICBmaWxsPSJva2xjaCgyMiUgLjA1IDI2MCkiIG9wYWNpdHk9Ii43MiIvPjwvc3ZnPg==", "d": "The only hour the flower market is quiet.", "tags": ["35mm", "Street", "2023"]}, {"t": "Colour test 04", "k": "illus", "w": 1600, "h": 1600, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDE2MDAiIHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjE2MDAiPjxyZWN0IHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjE2MDAiIGZpbGw9Im9rbGNoKDk0JSAuMDIgMTUwKSIvPgogICAgICAgIDxjaXJjbGUgY3g9IjgwMCIgY3k9IjcwNCIgcj0iNDE2IiBmaWxsPSJub25lIiBzdHJva2U9Im9rbGNoKDUyJSAuMTYgMTUwKSIgc3Ryb2tlLXdpZHRoPSIxMyIvPgogICAgICAgIDxyZWN0IHg9IjM1MiIgeT0iOTYwIiB3aWR0aD0iODk2IiBoZWlnaHQ9IjE2MCIgcng9IjgwIiBmaWxsPSJva2xjaCg2MCUgLjE4IDIxMCkiLz4KICAgICAgICA8cGF0aCBkPSJNMjU2IDM4NCBxNTQ0IC0yNTYgMTA4OCAwIiBmaWxsPSJub25lIiBzdHJva2U9Im9rbGNoKDQwJSAuMTQgMzMwKSIgc3Ryb2tlLXdpZHRoPSIxMCIvPjwvc3ZnPg==", "d": "Testing an OKLCH ramp as pigment rather than as tokens.", "tags": ["Colour", "Process", "2025"]}, {"t": "Elevate dashboard", "k": "proj", "w": 2000, "h": 1300, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAwIDEzMDAiIHdpZHRoPSIyMDAwIiBoZWlnaHQ9IjEzMDAiPjxyZWN0IHdpZHRoPSIyMDAwIiBoZWlnaHQ9IjEzMDAiIGZpbGw9Im9rbGNoKDI0JSAuMDMgMjcwKSIvPgogICAgICAgIDxyZWN0IHg9IjE2MCIgeT0iMTU2IiB3aWR0aD0iMTY4MCIgaGVpZ2h0PSIyNjAiIHJ4PSIzOSIgZmlsbD0ib2tsY2goMzUlIC4wNCAyNzApIi8+CiAgICAgICAgPHJlY3QgeD0iMTYwIiB5PSI1MjAiIHdpZHRoPSIxMDAwIiBoZWlnaHQ9Ijc4IiByeD0iMjYiIGZpbGw9Im9rbGNoKDYyJSAuMTYgMzAwKSIvPgogICAgICAgIDxyZWN0IHg9IjE2MCIgeT0iNzAyIiB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSIzOTAiIHJ4PSIzOSIgZmlsbD0ib2tsY2goMzElIC4wMzUgMjcwKSIvPjwvc3ZnPg==", "d": "Density study \u2014 the version that shipped is the third from the left.", "tags": ["Product", "UI", "2024"]}, {"t": "Rain on the 12th", "k": "photo", "w": 1400, "h": 1900, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDAwIDE5MDAiIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjE5MDAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9Im9rbGNoKDcyJSAuMDkgMjQwKSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0ib2tsY2goMzQlIC4wNyAyODApIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iMTkwMCIgZmlsbD0idXJsKCNnNykiLz4KICAgICAgICA8Y2lyY2xlIGN4PSI5ODAiIGN5PSI1MzIiIHI9IjE4MiIgZmlsbD0ib2tsY2goOTIlIC4wNyAyNjApIiBvcGFjaXR5PSIuNTUiLz4KICAgICAgICA8cGF0aCBkPSJNMCAxMzY4IEwzOTIgODc0IEw3MjggMTI5MiBMMTA5MiA3NjAgTDE0MDAgMTE0MCBMMTQwMCAxOTAwIEwwIDE5MDAgWiIKICAgICAgICAgIGZpbGw9Im9rbGNoKDIyJSAuMDUgODApIiBvcGFjaXR5PSIuNzIiLz48L3N2Zz4=", "d": "Handheld, 1/15s, leaning on a pillar.", "tags": ["Digital", "Weather", "2024"]}, {"t": "Two figures", "k": "illus", "w": 1500, "h": 1200, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAwIDEyMDAiIHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjEyMDAiPjxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjEyMDAiIGZpbGw9Im9rbGNoKDk0JSAuMDIgMjApIi8+CiAgICAgICAgPGNpcmNsZSBjeD0iNzUwIiBjeT0iNTI4IiByPSIzMTIiIGZpbGw9Im5vbmUiIHN0cm9rZT0ib2tsY2goNTIlIC4xNiAyMCkiIHN0cm9rZS13aWR0aD0iMTIiLz4KICAgICAgICA8cmVjdCB4PSIzMzAiIHk9IjcyMCIgd2lkdGg9Ijg0MCIgaGVpZ2h0PSIxMjAiIHJ4PSI2MCIgZmlsbD0ib2tsY2goNjAlIC4xOCA4MCkiLz4KICAgICAgICA8cGF0aCBkPSJNMjQwIDI4OCBxNTEwIC0xOTIgMTAyMCAwIiBmaWxsPSJub25lIiBzdHJva2U9Im9rbGNoKDQwJSAuMTQgMjAwKSIgc3Ryb2tlLXdpZHRoPSI5Ii8+PC9zdmc+", "d": "From a sketchbook page I nearly threw away.", "tags": ["Ink", "Sketchbook", "2023"]}, {"t": "Kerala backwater", "k": "photo", "w": 2200, "h": 1400, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjAwIDE0MDAiIHdpZHRoPSIyMjAwIiBoZWlnaHQ9IjE0MDAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzkiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9Im9rbGNoKDcyJSAuMDkgMTcwKSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0ib2tsY2goMzQlIC4wNyAyMTApIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjIyMDAiIGhlaWdodD0iMTQwMCIgZmlsbD0idXJsKCNnOSkiLz4KICAgICAgICA8Y2lyY2xlIGN4PSIxNTQwIiBjeT0iMzkyIiByPSIxODIiIGZpbGw9Im9rbGNoKDkyJSAuMDcgMTkwKSIgb3BhY2l0eT0iLjU1Ii8+CiAgICAgICAgPHBhdGggZD0iTTAgMTAwOCBMNjE2IDY0NCBMMTE0NCA5NTIgTDE3MTYgNTYwIEwyMjAwIDg0MCBMMjIwMCAxNDAwIEwwIDE0MDAgWiIKICAgICAgICAgIGZpbGw9Im9rbGNoKDIyJSAuMDUgMTApIiBvcGFjaXR5PSIuNzIiLz48L3N2Zz4=", "d": "Long exposure at dusk, ND filter improvised from sunglasses.", "tags": ["Digital", "Landscape", "2022"]}, {"t": "Type specimen", "k": "proj", "w": 1400, "h": 1800, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDAwIDE4MDAiIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjE4MDAiPjxyZWN0IHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjE4MDAiIGZpbGw9Im9rbGNoKDI0JSAuMDMgNDUpIi8+CiAgICAgICAgPHJlY3QgeD0iMTEyIiB5PSIyMTYiIHdpZHRoPSIxMTc2IiBoZWlnaHQ9IjM2MCIgcng9IjU0IiBmaWxsPSJva2xjaCgzNSUgLjA0IDQ1KSIvPgogICAgICAgIDxyZWN0IHg9IjExMiIgeT0iNzIwIiB3aWR0aD0iNzAwIiBoZWlnaHQ9IjEwOCIgcng9IjM2IiBmaWxsPSJva2xjaCg2MiUgLjE2IDc1KSIvPgogICAgICAgIDxyZWN0IHg9IjExMiIgeT0iOTcyIiB3aWR0aD0iMTAwOCIgaGVpZ2h0PSI1NDAiIHJ4PSI1NCIgZmlsbD0ib2tsY2goMzElIC4wMzUgNDUpIi8+PC9zdmc+", "d": "Fraunces at six optical sizes, printed and re-photographed.", "tags": ["Type", "Print", "2025"]}, {"t": "Self, mirrored", "k": "photo", "w": 1500, "h": 1875, "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAwIDE4NzUiIHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE4NzUiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzExIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSJva2xjaCg3MiUgLjA5IDM0MCkiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9Im9rbGNoKDM0JSAuMDcgMjApIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjE1MDAiIGhlaWdodD0iMTg3NSIgZmlsbD0idXJsKCNnMTEpIi8+CiAgICAgICAgPGNpcmNsZSBjeD0iMTA1MCIgY3k9IjUyNSIgcj0iMTk1IiBmaWxsPSJva2xjaCg5MiUgLjA3IDApIiBvcGFjaXR5PSIuNTUiLz4KICAgICAgICA8cGF0aCBkPSJNMCAxMzUwIEw0MjAgODYyIEw3ODAgMTI3NSBMMTE3MCA3NTAgTDE1MDAgMTEyNSBMMTUwMCAxODc1IEwwIDE4NzUgWiIKICAgICAgICAgIGZpbGw9Im9rbGNoKDIyJSAuMDUgMTgwKSIgb3BhY2l0eT0iLjcyIi8+PC9zdmc+", "d": "The only self-portrait I have kept.", "tags": ["35mm", "Portrait", "2023"]}];
+const KINDS={photo:'Photography',illus:'Illustration',proj:'Projects'};
+const FILTERS=['All','photo','illus','proj'];
+const st={A:{f:'All',open:-1}};
+
+function shown(v){return ITEMS.map((it,i)=>({it,i})).filter(({it})=>st[v].f==='All'||it.k===st[v].f)}
+function paintA(){
+ const f=document.getElementById('fA');
+ f.innerHTML=FILTERS.map(k=>`<button class="${st.A.f===k?'on':''}" onclick="setF('A','${k}')">${k==='All'?'All':KINDS[k]}</button>`).join('');
+ const rows=shown('A');
+ document.getElementById('cA').textContent=`${rows.length} of ${ITEMS.length}`;
+ document.getElementById('mA').innerHTML=rows.map(({it,i})=>`
+  <button class="tile" onclick="openLB('A',${i})" aria-label="${it.t}">
+   <img src="${it.src}" width="${it.w}" height="${it.h}" alt="${it.t}" loading="lazy" decoding="async">
+   <span class="kindchip">${KINDS[it.k]}</span>
+   <span class="cap"><b>${it.t}</b><span>${it.tags.join(' · ')}</span></span>
+  </button>`).join('');
+}
+function setF(v,k){st[v].f=k;paintA()}
+
+/* ===== overlays ===== */
+let live=null;
+function openLB(v,i){live={v,i};render();document.body.style.overflow='hidden'}
+function closeLB(){document.querySelectorAll('.lb').forEach(x=>x.classList.remove('on'));
+ document.body.style.overflow='';live=null}
+function step(d){
+ if(!live) return;
+ const rows=shown(live.v), pos=rows.findIndex(r=>r.i===live.i);
+ const next=(pos+d+rows.length)%rows.length;
+ live.i=rows[next].i; render();
+}
+function render(){
+ if(!live) return;
+ const {v,i}=live, it=ITEMS[i], rows=shown(v), pos=rows.findIndex(r=>r.i===i)+1;
+ if(v==='A'){
+  const el=document.getElementById('lbA'); el.classList.add('on');
+  el.innerHTML=`
+   <div class="lbtop"><span class="ix">${String(pos).padStart(2,'0')} / ${String(rows.length).padStart(2,'0')}</span>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:oklch(96% 0 0/.5)">${KINDS[it.k]}</span>
+    <button class="x" onclick="closeLB()" aria-label="Close">×</button></div>
+   <div class="lbstage">
+    <button class="arrow" onclick="step(-1)" aria-label="Previous">‹</button>
+    <div class="lbimg"><img src="${it.src}" alt="${it.t}"></div>
+    <div class="lbmeta"><h3>${it.t}</h3><p>${it.d}</p>
+     <div class="lbtags">${it.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+     <div class="lbspecs">
+      <div><b>${it.w} × ${it.h}</b><span>pixels</span></div>
+      <div><b>${(it.w/it.h).toFixed(2)}</b><span>ratio</span></div>
+      <div><b>${KINDS[it.k]}</b><span>category</span></div>
+      <div><b>${it.tags[it.tags.length-1]}</b><span>year</span></div></div></div>
+    <button class="arrow" onclick="step(1)" aria-label="Next">›</button>
+   </div>
+   <div class="lbfilm">${rows.map(r=>`<button class="${r.i===i?'on':''}" onclick="jump(${r.i})" aria-label="${r.it.t}">
+     <img src="${r.it.src}" alt=""></button>`).join('')}</div>
+   <p class="lbhint">← → to browse · esc to close · swipe on touch</p>`;
+ }
+}
+function jump(i){if(live){live.i=i;render()}}
+addEventListener('keydown',e=>{
+ if(!live) return;
+ if(e.key==='Escape'){closeLB()}
+ if(e.key==='ArrowRight'){step(1)}
+ if(e.key==='ArrowLeft'){step(-1)}
+});
+let sx=null;
+addEventListener('touchstart',e=>{if(live)sx=e.touches[0].clientX},{passive:true});
+addEventListener('touchend',e=>{
+ if(!live||sx===null) return;
+ const dx=e.changedTouches[0].clientX-sx;
+ if(Math.abs(dx)>50) step(dx<0?1:-1);
+ sx=null;
+},{passive:true});
+paintA();
+</script>
+<div class="lb g dark" id="lbA"></div>
+</body></html>
