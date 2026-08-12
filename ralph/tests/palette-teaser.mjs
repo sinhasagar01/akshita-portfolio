@@ -85,11 +85,20 @@ t("B0 the component was found and has code — a zero here makes every row below
   component.length > 800, true);
 t("B1 ⚠ IT IMPORTS THE SHARED COOKIE MODULE rather than naming a cookie of its own",
   /import\s*\{[^}]*\}\s*from\s*"@\/lib\/palettes\/preview-cookie"/.test(component), true);
-t("B1a …and takes the NAME, the MAX AGE and the ENCODER from it, so none of the three can drift",
-  ["PREVIEW_COOKIE", "PREVIEW_MAX_AGE_SECONDS", "encodePreview"].filter((n) => {
-    const m = /import\s*\{([^}]*)\}\s*from\s*"@\/lib\/palettes\/preview-cookie"/.exec(component);
-    return !m || !m[1].includes(n);
-  }), []);
+/* ⚠ THIS ROW ASKED FOR THREE NAMES — `PREVIEW_COOKIE`, `PREVIEW_MAX_AGE_SECONDS` and
+ * `encodePreview` — because this component ASSEMBLED THE COOKIE ITSELF and the row was checking
+ * that each ingredient came from the shared module rather than being typed here.
+ *
+ * ⚠ IMPORTING THREE INGREDIENTS CORRECTLY IS A WEAKER PROPERTY THAN NOT ASSEMBLING ANYTHING. Since
+ * #516 there is one writer, `startPreview`, and this component calls it. The three ingredients are
+ * still shared — they are shared INSIDE the writer, where nothing downstream can get them wrong.
+ * The row follows the property rather than the spelling, and it is narrower than it looks: it names
+ * the one function, so an edit that reinstates a local cookie assembly and drops the call reddens
+ * it. That is the mutation that matters, and it is the one the old three-name form would have
+ * survived — a component can import all three constants and still spell its own cookie beside them. */
+t("B1a …and calls the ONE WRITER rather than assembling a cookie from ingredients it imported",
+  /import\s*\{([^}]*)\}\s*from\s*"@\/lib\/palettes\/preview-cookie"/.exec(component)?.[1]
+    ?.includes("startPreview") === true && /startPreview\s*\(/.test(component), true);
 /* ⚠ THE LITERAL IS THE TELL. A second mechanism does not announce itself; it appears as a cookie
  * name typed inline, which reads as harmless and is the whole defect. */
 /* ⚠ THE MATCHER OPENS A QUOTE AND DOES NOT REQUIRE ONE TO CLOSE, AND THE CLOSING FORM WAS TOO

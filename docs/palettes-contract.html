@@ -1,0 +1,696 @@
+<!doctype html>
+<!--
+  CONTRACT — /palettes.  Authoritative about: section order, hierarchy, the fixed switcher's
+  reveal, the real-component board, the kit and its drawer, and the four how-to-use steps.
+  NOT authoritative about: token values (approximated so this renders standalone — read the
+  real ones), the contrast figures (computed at build), or the kit census (derive it).
+--><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/palettes — sections 01–02</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--sans:"DM Sans",system-ui,sans-serif;--display:Fraunces,Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans)}
+
+[data-p]{--L:62%;--C:.15;--H:42;
+ --canvas:oklch(96.4% .012 var(--H));--surface:oklch(99% .006 var(--H));--well:oklch(97.6% .014 var(--H));
+ --accent:oklch(var(--L) var(--C) var(--H));--accent-text:oklch(46% .13 var(--H));
+ --on-accent:oklch(98% .012 var(--H));--lead:oklch(16% .02 var(--H));--body:oklch(32% .02 var(--H));
+ --subtle:oklch(48% .018 var(--H));--rule:oklch(16% .02 var(--H)/.14);--hair:oklch(16% .02 var(--H)/.07);
+ --ok:oklch(56% .13 150);--warn:oklch(55% .19 27)}
+[data-p="fern"]{--L:50%;--C:.11;--H:155}
+[data-p="harbour"]{--L:48%;--C:.10;--H:235}
+[data-p="orchid"]{--L:46%;--C:.16;--H:305}
+[data-p="cerise"]{--L:50%;--C:.17;--H:12}
+[data-p="nocturne"],[data-p="sapphire"],[data-p="inkflare"],[data-p="basalt"]{
+ --canvas:oklch(17% .022 var(--H));--surface:oklch(23% .024 var(--H));--well:oklch(20% .023 var(--H));
+ --accent-text:oklch(80% .12 var(--H));--on-accent:oklch(14% .03 var(--H));
+ --lead:oklch(96% .008 var(--H));--body:oklch(84% .015 var(--H));--subtle:oklch(66% .02 var(--H));
+ --rule:oklch(96% .008 var(--H)/.15);--hair:oklch(96% .008 var(--H)/.08);--ok:oklch(72% .15 150)}
+[data-p="nocturne"]{--L:62%;--C:.20;--H:290}
+[data-p="sapphire"]{--L:64%;--C:.16;--H:255}
+[data-p="inkflare"]{--L:66%;--C:.17;--H:45}
+[data-p="basalt"]{--L:70%;--C:.17;--H:126;--canvas:oklch(15% 0 0);--surface:oklch(21% 0 0);--well:oklch(18% 0 0);
+ --lead:oklch(96% 0 0);--body:oklch(84% 0 0);--subtle:oklch(66% 0 0);--rule:oklch(96% 0 0/.15);--hair:oklch(96% 0 0/.08)}
+
+body{background:var(--canvas);color:var(--body);
+ transition:background-color .5s cubic-bezier(.16,1,.3,1),color .5s}
+body *{transition:background-color .5s cubic-bezier(.16,1,.3,1),color .5s,border-color .5s}
+
+/* ===== TYPE SCALE — one hierarchy, stated once ===== */
+.h-page{font-family:var(--display);font-weight:600;font-size:clamp(38px,5.6vw,76px);line-height:.94;
+ letter-spacing:-.05em;color:var(--lead);margin:0}
+.h-page em{font-style:italic;font-weight:500;color:var(--accent-text)}
+.h-sec{font-family:var(--display);font-weight:600;font-size:clamp(24px,3vw,38px);line-height:1.04;
+ letter-spacing:-.038em;color:var(--lead);margin:0}
+.h-card{font-family:var(--display);font-weight:500;font-size:19px;line-height:1.16;letter-spacing:-.026em;color:var(--lead);margin:0}
+.h-min{font-weight:600;font-size:13px;letter-spacing:-.008em;color:var(--lead);margin:0}
+.eyebrow{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;
+ color:var(--accent-text);margin:0}
+.lab{font-family:var(--mono);font-weight:500;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle)}
+.dek{font-size:16px;line-height:1.62;color:var(--subtle);margin:0;max-width:56ch}
+.say{font-size:13.5px;line-height:1.62;color:var(--subtle);margin:0;max-width:66ch}
+.fine{font-size:11.5px;line-height:1.55;color:var(--subtle);margin:0}
+
+.wrap{max-width:1300px;margin:0 auto;padding:0 30px}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:9px;padding:11px 16px;
+ font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+ text-decoration:none;box-shadow:0 10px 24px -14px var(--accent)}
+.btn.ghost{background:none;border:1px solid var(--rule);color:var(--body);font-weight:500;box-shadow:none}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent-text)}
+.btn.sm{padding:8px 12px;font-size:11.5px}
+
+/* nav */
+.nav{position:sticky;top:14px;z-index:50;display:flex;align-items:center;gap:16px;width:max-content;
+ margin:14px auto 0;background:color-mix(in srgb,var(--surface) 84%,transparent);backdrop-filter:blur(14px) saturate(1.2);
+ border:1px solid var(--rule);border-radius:999px;padding:8px 9px 8px 19px;box-shadow:0 14px 36px -22px oklch(0% 0 0/.6)}
+.nav b{font-family:var(--display);font-style:italic;font-weight:500;font-size:15px;color:var(--lead)}
+.nav .sur{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--accent-text);padding-left:10px;border-left:1px solid var(--rule)}
+.nav a{font-size:11.5px;color:var(--subtle);text-decoration:none}
+.nav a.on{color:var(--accent-text);font-weight:600}
+.nav .cta{font-size:11px;font-weight:600;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:6px 13px;text-decoration:none}
+
+/* ===== 01 · HERO — about the page, nothing else ===== */
+.hero{position:relative;padding:76px 0 66px;overflow:hidden;text-align:center}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:120%;z-index:0;pointer-events:none;
+ background:radial-gradient(closest-side at 50% 42%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 72%)}
+.hero .in{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 30px}
+.pillline{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--rule);border-radius:999px;
+ padding:7px 14px;background:var(--surface);box-shadow:0 8px 22px -16px oklch(0% 0 0/.5)}
+.pillline i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.hero .dek{margin:22px auto 0}
+.heroact{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.formula{display:inline-flex;align-items:center;gap:12px;margin-top:34px;padding:11px 16px;border:1px solid var(--rule);
+ background:var(--surface);border-radius:11px;font-family:var(--mono);font-size:13.5px;color:var(--lead);
+ box-shadow:0 12px 30px -22px oklch(0% 0 0/.55)}
+.formula em{font-style:normal;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle)}
+.formula b{font-weight:500;color:var(--accent-text)}
+.herofacts{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;margin-top:38px;padding-top:26px;border-top:1px solid var(--hair)}
+.herofacts div b{display:block;font-family:var(--mono);font-weight:500;font-size:21px;color:var(--lead);letter-spacing:-.03em}
+.herofacts div span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle);margin-top:6px}
+
+/* ===== section chrome ===== */
+.sec{border-top:1px solid var(--rule);padding:44px 0 0;margin-top:44px}
+.sechead{display:flex;align-items:baseline;gap:15px;flex-wrap:wrap;margin-bottom:9px}
+.sechead .n{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.26em;color:var(--accent-text)}
+.sechead .r{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle)}
+
+/* ===== THE FIXED SWITCHER — appears at section 02 ===== */
+.switcher{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(12px);z-index:45;
+ background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);
+ border:1px solid var(--rule);border-right:0;border-radius:13px 0 0 13px;padding:12px 11px 11px;
+ box-shadow:-14px 0 40px -26px oklch(0% 0 0/.6);opacity:0;pointer-events:none;
+ transition:opacity .35s,transform .35s cubic-bezier(.16,1,.3,1);width:196px}
+.switcher.on{opacity:1;transform:translateY(-50%);pointer-events:auto}
+.switcher .st{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px}
+.switcher .st b{font-weight:600;font-size:11.5px;color:var(--lead)}
+.switcher .st em{font-style:normal;font-family:var(--mono);font-size:8px;color:var(--subtle)}
+.swgroup{font-family:var(--mono);font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle);margin:9px 0 5px}
+.swgroup:first-of-type{margin-top:0}
+.swrow{display:flex;align-items:center;gap:7px;width:100%;background:none;border:0;padding:4px 5px;border-radius:7px;
+ cursor:pointer;font:inherit;color:var(--body);text-align:left}
+.swrow:hover{background:var(--well)}
+.swrow .bars{display:flex;gap:1.5px;flex:1}
+.swrow .bars i{height:18px;flex:1;border-radius:2px}
+.swrow .nm{font-size:10.5px;width:52px;flex:0 0 52px;color:var(--subtle)}
+.swrow[aria-pressed="true"]{background:var(--well);box-shadow:inset 2.5px 0 0 var(--accent)}
+.swrow[aria-pressed="true"] .nm{color:var(--lead);font-weight:600}
+.switcher .sf{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:6px}
+.switcher .sf .btn{justify-content:center;width:100%;font-size:11px;padding:9px 10px}
+@media(max-width:1200px){.switcher{display:none}}
+/* ===== 02 · REAL COMPONENTS — a broad stage ===== */
+.stage{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--surface);
+ box-shadow:0 28px 66px -46px oklch(0% 0 0/.55)}
+.stagebar{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--rule);background:var(--well)}
+.stagebar .dots{display:flex;gap:5px}
+.stagebar .dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
+.stagebar .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle)}
+.stagebar .verdict{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--subtle)}
+.stagebar .verdict i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.stagebar .verdict b{color:var(--lead);font-weight:500}
+.stagein{padding:26px}
+
+/* the broad component board */
+.board{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.b-hero{grid-column:span 12;background:var(--well);border:1px solid var(--rule);border-radius:13px;padding:24px;position:relative;overflow:hidden}
+.b-hero::after{content:"";position:absolute;right:-8%;top:-40%;width:46%;height:180%;border-radius:50%;
+ background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 18%,transparent),transparent 70%);pointer-events:none}
+.b-hero .eyebrow{margin-bottom:12px}
+.b-hero h3{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.8vw,34px);line-height:1.04;
+ letter-spacing:-.038em;color:var(--lead);margin:0;max-width:22ch}
+.b-hero h3 em{font-style:italic;font-weight:500;color:var(--accent-text)}
+.b-hero p{font-size:13px;color:var(--subtle);margin:12px 0 0;max-width:44ch;line-height:1.6}
+.b-hero .row{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap;align-items:center}
+
+.tabs{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;width:max-content;background:var(--surface)}
+.tabs u{text-decoration:none;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--subtle);padding:8px 13px;border-radius:999px;cursor:pointer}
+.tabs u.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+
+.b-work{grid-column:span 5}
+.workcard{background:var(--surface);border:1px solid var(--rule);border-radius:12px;overflow:hidden;height:100%}
+.workcard .shot{height:112px;background:
+ linear-gradient(135deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent) 6%,transparent)),var(--well);
+ position:relative;border-bottom:1px solid var(--rule)}
+.workcard .shot .glass{position:absolute;left:14px;bottom:12px;right:14px;height:44px;border-radius:8px;
+ background:color-mix(in srgb,var(--surface) 72%,transparent);border:1px solid var(--rule);backdrop-filter:blur(8px);
+ display:flex;align-items:center;gap:8px;padding:0 11px}
+.workcard .shot .glass i{width:20px;height:20px;border-radius:5px;background:var(--accent)}
+.workcard .shot .glass s{flex:1;height:5px;border-radius:3px;background:var(--rule);text-decoration:none}
+.workcard .wb{padding:15px}
+.workcard .meta{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);
+ border:1px solid var(--rule);border-radius:999px;padding:5px 10px}
+.chip.solid{background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent-text);
+ border-color:color-mix(in srgb,var(--accent) 28%,transparent);font-weight:500}
+.workcard p{font-size:12px;color:var(--subtle);margin:6px 0 0;line-height:1.55}
+
+.b-stats{grid-column:span 3;display:flex;flex-direction:column;gap:14px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px;flex:1;
+ display:flex;flex-direction:column;justify-content:center}
+.stat b{font-family:var(--mono);font-weight:500;font-size:26px;color:var(--lead);letter-spacing:-.04em}
+.stat span{font-family:var(--mono);font-size:8.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--subtle);margin-top:7px}
+.stat .delta{font-size:10.5px;color:var(--ok);margin-top:6px;font-weight:500}
+
+.b-form{grid-column:span 4;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.field{margin-bottom:11px}
+.field label{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--subtle);margin-bottom:6px}
+.field input,.field select{width:100%;background:var(--well);border:1px solid var(--rule);border-radius:8px;
+ padding:10px 12px;font:inherit;font-size:12.5px;color:var(--lead);outline:none}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.field input::placeholder{color:var(--subtle)}
+.field.err input{border-color:var(--warn)}
+.field .msg{font-size:10.5px;color:var(--warn);margin-top:5px}
+.check{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--subtle);margin:12px 0}
+.check i{width:16px;height:16px;border-radius:4px;border:1px solid var(--rule);background:var(--accent);
+ display:grid;place-items:center;color:var(--on-accent);font-size:10px;flex:0 0 16px}
+
+.b-quote{grid-column:span 7;background:var(--well);border:1px solid var(--rule);border-radius:12px;padding:20px;
+ border-left:3px solid var(--accent)}
+.b-quote p{font-family:var(--display);font-weight:500;font-size:19px;line-height:1.32;letter-spacing:-.026em;
+ color:var(--lead);margin:0}
+.b-quote span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--subtle);margin-top:12px}
+
+.b-prog{grid-column:span 5;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.steps{display:flex;align-items:center;margin:14px 0 6px}
+.steps i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;
+ font-family:var(--mono);font-size:9px;border:1px solid var(--rule);color:var(--subtle);background:var(--well)}
+.steps i.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:500}
+.steps s{flex:1;height:1.5px;background:var(--rule);text-decoration:none}
+.steps s.on{background:var(--accent)}
+.meter{height:7px;border-radius:5px;background:var(--well);border:1px solid var(--rule);overflow:hidden;margin-top:14px}
+.meter i{display:block;height:100%;width:58%;background:var(--accent);border-radius:5px}
+.readrow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;
+ letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin-top:7px}
+
+.b-toast{grid-column:span 4;display:flex;flex-direction:column;gap:10px}
+.toastc{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--rule);
+ border-radius:10px;padding:12px}
+.toastc i{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:11px;flex:0 0 24px}
+.toastc.ok i{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);
+ border:1px solid color-mix(in srgb,var(--ok) 32%,transparent)}
+.toastc.warn i{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn);
+ border:1px solid color-mix(in srgb,var(--warn) 32%,transparent)}
+.toastc b{display:block;font-size:12px;font-weight:600;color:var(--lead)}
+.toastc p{margin:3px 0 0;font-size:11px;color:var(--subtle);line-height:1.5}
+
+.b-nav{grid-column:span 8;background:var(--well);border:1px solid var(--rule);border-radius:12px;padding:16px;
+ display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.minipill{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--rule);
+ border-radius:999px;padding:7px 8px 7px 15px}
+.minipill b{font-family:var(--display);font-style:italic;font-weight:500;font-size:12.5px;color:var(--lead)}
+.minipill span{font-size:10px;color:var(--subtle)}
+.minipill i{font-style:normal;font-size:9.5px;font-weight:600;background:var(--accent);color:var(--on-accent);
+ border-radius:999px;padding:5px 10px}
+.b-blog{grid-column:span 4;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.b-blog .dot{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:8.5px;
+ letter-spacing:.15em;text-transform:uppercase;color:var(--subtle)}
+.b-blog .dot::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok)}
+.b-blog p{font-size:11.5px;color:var(--subtle);margin:8px 0 0;line-height:1.55}
+.b-blog .love{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule);border-radius:999px;
+ padding:6px 12px;font-size:11px;color:var(--subtle);margin-top:12px}
+.b-blog .love i{color:var(--accent);font-style:normal}
+@media(max-width:1000px){.board{grid-template-columns:repeat(6,1fr)}
+ .b-work,.b-form,.b-quote,.b-prog,.b-toast,.b-nav,.b-blog,.b-stats{grid-column:span 6}}
+
+/* ===== 04 · THE KIT ===== */
+.kbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.kf{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--surface)}
+.kf button{font:inherit;font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;border:0;
+ background:none;color:var(--subtle);padding:7px 12px;border-radius:999px;cursor:pointer}
+.kf button.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+.kcount{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle)}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:12px}
+.kcell{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--surface);position:relative;
+ cursor:pointer;text-align:left;padding:0;font:inherit;color:var(--body);width:100%;display:block}
+.kcell:hover{border-color:var(--accent)}
+.kcell[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 14px 30px -22px var(--accent)}
+.kcell .st{background:var(--well);padding:20px 16px;display:flex;align-items:center;justify-content:center;
+ min-height:106px;border-bottom:1px solid var(--rule)}
+.kcell .lb{padding:10px 13px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.kcell .lb b{font-weight:600;font-size:12px;color:var(--lead)}
+.kcell .lb em{font-style:normal;font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--subtle)}
+.kcell .NEW{position:absolute;top:9px;right:9px;font-family:var(--mono);font-weight:500;font-size:7px;
+ letter-spacing:.16em;background:var(--accent);color:var(--on-accent);border-radius:4px;padding:3px 6px}
+.kwide{grid-column:span 2}
+.drawer{border:1px solid var(--accent);border-radius:13px;background:var(--surface);margin-top:13px;overflow:hidden;
+ box-shadow:0 18px 40px -30px var(--accent)}
+.drawer .dh{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:15px 17px;
+ border-bottom:1px solid var(--rule)}
+.drawer .dh h4{font-family:var(--display);font-weight:600;font-size:20px;color:var(--lead);margin:0;letter-spacing:-.028em}
+.drawer .dh p{font-size:12.5px;color:var(--subtle);margin:5px 0 0;line-height:1.55;max-width:56ch}
+.drawer .dm{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--rule)}
+.drawer .dm div{padding:12px 17px;border-right:1px solid var(--rule)}
+.drawer .dm div:last-child{border-right:0}
+.drawer .dm b{display:block;font-family:var(--mono);font-weight:500;font-size:12px;color:var(--lead)}
+.drawer .dm span{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--subtle);margin-top:5px}
+.drawer .dc{padding:15px 17px;background:var(--well)}
+.drawer .dc pre{font-family:var(--mono);font-size:10.5px;line-height:1.85;margin:0;color:var(--body);overflow:auto}
+.drawer .dc pre .k{color:var(--accent-text)}
+.drawer .dc pre .c{color:var(--subtle)}
+.sectiongrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.sc{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--surface)}
+.sc .sp{background:var(--well);border-bottom:1px solid var(--rule);padding:14px;display:flex;flex-direction:column;gap:6px}
+.sc .sp i{border-radius:4px;background:var(--rule);display:block}
+.sc .sb2{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:9px}
+.sc .sb2 b{font-weight:600;font-size:12.5px;color:var(--lead)}
+
+/* ===== 03 · HOW TO USE IT ===== */
+.use{display:grid;grid-template-columns:1.02fr .98fr;gap:16px;align-items:start}
+.steps4{display:flex;flex-direction:column;gap:11px}
+.stepc{border:1px solid var(--rule);border-radius:13px;background:var(--surface);overflow:hidden;
+ display:grid;grid-template-columns:52px 1fr}
+.stepc .no{background:var(--well);border-right:1px solid var(--rule);display:flex;align-items:flex-start;
+ justify-content:center;padding-top:17px;font-family:var(--mono);font-weight:500;font-size:12px;color:var(--accent-text)}
+.stepc .sb{padding:16px 18px}
+.stepc h4{font-weight:600;font-size:14.5px;color:var(--lead);margin:0 0 5px;letter-spacing:-.012em}
+.stepc p{font-size:12.5px;color:var(--subtle);line-height:1.62;margin:0}
+.stepc code{font-family:var(--mono);font-size:11.5px;background:var(--well);border:1px solid var(--rule);
+ padding:1px 6px;border-radius:4px;color:var(--accent-text)}
+.stepc .demo{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
+.hueslide{display:flex;align-items:center;gap:11px}
+.hueslide input{flex:1;-webkit-appearance:none;appearance:none;height:9px;border-radius:5px;outline:none;margin:0;
+ background:linear-gradient(90deg,oklch(var(--L) var(--C) 0),oklch(var(--L) var(--C) 72),oklch(var(--L) var(--C) 144),
+ oklch(var(--L) var(--C) 216),oklch(var(--L) var(--C) 288),oklch(var(--L) var(--C) 360))}
+.hueslide input::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+ background:var(--surface);border:2px solid var(--lead);cursor:pointer}
+.hueslide input::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--surface);border:2px solid var(--lead)}
+.hueslide b{font-family:var(--mono);font-size:11px;color:var(--lead);width:42px;text-align:right}
+.miniset{display:flex;gap:5px;margin-top:11px}
+.miniset i{flex:1;height:26px;border-radius:5px}
+.mirror{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+.mirror div{border-radius:8px;padding:10px;font-family:var(--mono);font-size:9.5px;line-height:1.7}
+.mirror .lt{background:oklch(99% .006 var(--H));color:oklch(32% .02 var(--H));border:1px solid var(--rule)}
+.mirror .dk{background:oklch(21% .024 var(--H));color:oklch(84% .015 var(--H));border:1px solid oklch(96% .008 var(--H)/.16)}
+.mirror b{font-weight:500;color:var(--accent-text)}
+.mirror .dk b{color:oklch(80% .12 var(--H))}
+
+.codepanel{border:1px solid var(--rule);border-radius:13px;overflow:hidden;background:var(--surface);
+ position:sticky;top:88px}
+.codepanel .ch{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--rule);background:var(--well)}
+.seg{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{font:inherit;font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;border:0;
+ background:none;color:var(--subtle);padding:6px 11px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+.codepanel pre{font-family:var(--mono);font-size:10.5px;line-height:1.9;color:var(--body);margin:0;padding:16px;
+ overflow:auto;max-height:330px;background:var(--surface)}
+.codepanel pre::-webkit-scrollbar{width:6px}
+.codepanel pre::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+.codepanel pre .c{color:var(--subtle)}
+.codepanel pre .k{color:var(--accent-text)}
+.codepanel .cf{padding:12px 14px;border-top:1px solid var(--rule);display:flex;gap:7px;flex-wrap:wrap;background:var(--well)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);z-index:60;
+ background:var(--lead);color:var(--canvas);font-size:11.5px;font-weight:500;border-radius:999px;padding:9px 16px;
+ opacity:0;pointer-events:none;transition:.3s}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.foot{padding:36px 0 60px;border-top:1px solid var(--rule);margin-top:48px;font-size:12px;color:var(--subtle);
+ display:flex;gap:16px;flex-wrap:wrap}
+.foot b{color:var(--lead);font-weight:600}
+@media(max-width:1000px){.use{grid-template-columns:1fr}.codepanel{position:static}}
+</style></head><body data-p="cream">
+
+<nav class="nav"><b>Akshita</b><span class="sur">SINGH</span>
+ <a href="#">Process</a><a href="#">Work</a><a href="#">Blog</a>
+ <a href="#" class="on">Playground</a><a href="#">Contact</a><a href="#" class="cta">Resume ↗</a></nav>
+
+<!-- ══════════ 01 · HERO ══════════ -->
+<header class="hero">
+ <div class="in">
+  <span class="pillline"><i></i><span class="eyebrow" style="color:var(--subtle)">Playground · 01 — Palettes</span></span>
+  <h1 class="h-page" style="margin-top:26px">Nine palettes.<br>One <em>hue</em> apart.</h1>
+  <p class="dek">Every palette here is the same lightness and chroma ladder at a different hue. That is the whole system — and it is why a theme change cannot break the hierarchy, and why dark mode stops being a second design.</p>
+  <div class="formula"><em>every palette</em><span>oklch(</span><b>62%</b> <b>0.15</b> <b id="fh">42</b><span>)</span></div>
+  <div class="heroact">
+   <a class="btn" href="#stage">See it on real components ↓</a>
+   <a class="btn ghost" href="#">Learn OKLCH in 4 minutes ↗</a>
+  </div>
+  <div class="herofacts">
+   <div><b>9</b><span>palettes</span></div>
+   <div><b>30</b><span>pairs each</span></div>
+   <div><b>0</b><span>failures</span></div>
+   <div><b>1</b><span>number changes</span></div>
+  </div>
+ </div>
+</header>
+
+<!-- ══════════ 02 · REAL COMPONENTS ══════════ -->
+<section class="wrap sec" id="stage">
+ <div class="sechead"><span class="n">02</span><h2 class="h-sec">Pick one. Watch what doesn't change.</h2>
+  <span class="r">live · real components</span></div>
+ <p class="say" style="margin-bottom:22px">Not swatches. This is the site's own interface — nav, work card, form, stepper, quote, toasts, blog row — rendered in whichever palette is live. If a palette breaks something, it breaks here first.</p>
+
+ <div class="stage">
+  <div class="stagebar">
+   <span class="dots"><i></i><i></i><i></i></span>
+   <span class="t">akshitas.com — <span id="livename">cream</span></span>
+   <span class="verdict"><i></i>tightest pair <b id="tight">4.70</b> · 30 checked</span>
+  </div>
+  <div class="stagein">
+   <div class="board">
+    <div class="b-hero">
+     <p class="eyebrow">UI/UX product designer · Bengaluru</p>
+     <h3>Turning rough ideas into products people <em>use</em>.</h3>
+     <p>Six years across enterprise data tools and one consumer turnaround.</p>
+     <div class="row">
+      <div class="tabs"><u class="on">Who I am</u><u>What I do</u><u>How I work</u></div>
+      <button class="btn sm">View the work →</button>
+     </div>
+    </div>
+
+    <div class="b-work"><div class="workcard">
+     <div class="shot"><div class="glass"><i></i><s></s></div></div>
+     <div class="wb">
+      <div class="meta"><span class="chip solid">Enterprise UX</span><span class="chip">2024</span></div>
+      <h4 class="h-card">Elevate ONE View</h4>
+      <p>One surface for three analyst personas, measured at 40% faster to insight.</p>
+     </div></div></div>
+
+    <div class="b-stats">
+     <div class="stat"><b>2.3→4.2</b><span>store rating</span><span class="delta">+82% after redesign</span></div>
+     <div class="stat"><b>40%</b><span>faster to insight</span></div>
+    </div>
+
+    <div class="b-form">
+     <p class="lab" style="margin:0 0 12px">Contact form</p>
+     <div class="field"><label>Name</label><input placeholder="Your name"></div>
+     <div class="field"><label>Email</label><input value="you@example.com"></div>
+     <div class="field err"><label>Message</label><input placeholder="What are you building?">
+      <p class="msg">A message is required.</p></div>
+     <div class="check"><i>✓</i>Send me a copy</div>
+     <button class="btn sm" style="width:100%;justify-content:center">Send message</button>
+    </div>
+
+    <div class="b-quote">
+     <p>A rating of 2.3 is a completion number wearing a satisfaction number.</p>
+     <span>Pull quote · blog and case study</span>
+    </div>
+
+    <div class="b-prog">
+     <p class="lab" style="margin:0">Process · step 2 of 4</p>
+     <div class="steps"><i class="on">1</i><s class="on"></s><i class="on">2</i><s></s><i>3</i><s></s><i>4</i></div>
+     <div class="meter"><i></i></div>
+     <div class="readrow"><span>Reading progress</span><span>58%</span></div>
+    </div>
+
+    <div class="b-toast">
+     <div class="toastc ok"><i>✓</i><div><b>Draft saved</b><p>Two minutes ago · nothing published</p></div></div>
+     <div class="toastc warn"><i>!</i><div><b>Alt text is required</b><p>Add it before publishing this image.</p></div></div>
+    </div>
+
+    <div class="b-nav">
+     <div class="minipill"><b>Akshita</b><span>Work</span><span>Blog</span><i>Resume ↗</i></div>
+     <span class="chip">Nav pill · glass</span>
+     <span class="chip">Sticky</span>
+    </div>
+
+    <div class="b-blog">
+     <span class="dot">Published</span>
+     <h4 class="h-card" style="margin-top:9px">What a data table teaches you about trust</h4>
+     <p>7 min read · Enterprise UX</p>
+     <span class="love"><i>♥</i>24</span>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+
+<!-- ══════════ 04 · THE KIT ══════════ -->
+<section class="wrap sec" id="kit">
+ <div class="sechead"><span class="n">04</span><h2 class="h-sec">The kit.</h2><span class="r">38 parts · 10 new</span></div>
+ <p class="say" style="margin-bottom:22px">Every part this site is built from, rendered in whichever palette is live. Press one for the tokens it reads, its tightest pair across all nine, and the markup.</p>
+ <div class="kbar">
+  <div class="kf" id="kfilter"></div>
+  <span class="kcount">press a part for detail</span>
+ </div>
+ <div class="kgrid" id="kgrid"></div>
+ <div class="drawer" id="drawer"></div>
+
+ <h3 class="h-card" style="margin:34px 0 4px;font-size:17px">Prebuilt sections</h3>
+ <p class="fine" style="margin-bottom:6px">Whole compositions, not parts. Drop one in and fill it.</p>
+ <div class="sectiongrid" id="sections"></div>
+</section>
+
+<!-- ══════════ 05 · HOW TO USE IT ══════════ -->
+<section class="wrap sec">
+ <div class="sechead"><span class="n">05</span><h2 class="h-sec">How to use it.</h2><span class="r">four moves</span></div>
+ <p class="say" style="margin-bottom:22px">Role tokens in OKLCH, with the measured contrast riding inside the block as a comment. Each step below is live — drag the hue and watch the block on the right change with it.</p>
+
+ <div class="use">
+  <div class="steps4">
+   <div class="stepc"><div class="no">01</div><div class="sb">
+    <h4>Paste the block.</h4>
+    <p>Everything is a role — <code>--accent</code>, <code>--surface</code>, <code>--on-accent</code> — so your components never name a colour. Swapping a theme touches this block and nothing else.</p>
+   </div></div>
+
+   <div class="stepc"><div class="no">02</div><div class="sb">
+    <h4>Change one number.</h4>
+    <p>Move <code>H</code> and the whole palette moves with it. L and C are held, so the contrast you measured still holds.</p>
+    <div class="demo">
+     <div class="hueslide"><span class="lab">H</span><input id="hue" type="range" min="0" max="360" value="42"><b id="hval">42°</b></div>
+     <div class="miniset" id="miniset"></div>
+    </div>
+   </div></div>
+
+   <div class="stepc"><div class="no">03</div><div class="sb">
+    <h4>Dark mode is the same block.</h4>
+    <p>Mirror the L values around the midpoint and leave hue alone. The identity survives and there is no second palette to maintain.</p>
+    <div class="demo"><div class="mirror">
+     <div class="lt"><b>--surface</b>: 99%<br><b>--lead</b>: 16%<br><b>--accent</b>: 62%</div>
+     <div class="dk"><b>--surface</b>: 23%<br><b>--lead</b>: 96%<br><b>--accent</b>: 70%</div>
+    </div></div>
+   </div></div>
+
+   <div class="stepc"><div class="no">04</div><div class="sb">
+    <h4>Check it. Don't trust it.</h4>
+    <p>OKLCH is an authoring model, not a contrast certificate — perceptual lightness and WCAG luminance are different measures. The thirty pairs above are computed from these tokens at build time. Run the same check on yours.</p>
+   </div></div>
+  </div>
+
+  <div class="codepanel">
+   <div class="ch"><div class="seg" id="fmt"></div>
+    <span class="lab" style="margin-left:auto" id="fmtnote">custom properties</span></div>
+   <pre id="code"></pre>
+   <div class="cf">
+    <button class="btn sm" onclick="toast('Tokens copied')">Copy</button>
+    <button class="btn ghost sm" onclick="toast('Downloading .css')">.css</button>
+    <button class="btn ghost sm" onclick="toast('Downloading .json')">.json</button>
+    <button class="btn ghost sm" onclick="toast('Link copied')">Link</button>
+   </div>
+  </div>
+ </div>
+</section>
+
+<footer class="wrap foot"><span><b>Free to use.</b> No attribution needed.</span>
+ <span style="margin-left:auto">Built in Bengaluru ♥</span></footer>
+
+<!-- the fixed switcher -->
+<aside class="switcher" id="sw">
+ <div class="st"><b>Palette</b><em id="swh">42°</em></div>
+ <p class="swgroup">Light</p><div id="swL"></div>
+ <p class="swgroup">Dark</p><div id="swD"></div>
+ <div class="sf">
+  <button class="btn" onclick="toast('Applied across the portfolio — 30 minutes')">Try across the portfolio ↗</button>
+  <button class="btn ghost" onclick="toast('Tokens copied')">Copy tokens</button>
+ </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PAL=[
+ {id:'cream',n:'Cream',H:42,L:62,C:.15,dark:0,tight:4.70},
+ {id:'harbour',n:'Harbour',H:235,L:48,C:.10,dark:0,tight:5.20},
+ {id:'orchid',n:'Orchid',H:305,L:46,C:.16,dark:0,tight:5.09},
+ {id:'cerise',n:'Cerise',H:12,L:50,C:.17,dark:0,tight:4.78},
+ {id:'fern',n:'Fern',H:155,L:50,C:.11,dark:0,tight:5.02},
+ {id:'nocturne',n:'Nocturne',H:290,L:62,C:.20,dark:1,tight:4.70},
+ {id:'sapphire',n:'Sapphire',H:255,L:64,C:.16,dark:1,tight:5.02},
+ {id:'inkflare',n:'Ink & Flare',H:45,L:66,C:.17,dark:1,tight:4.53},
+ {id:'basalt',n:'Basalt',H:126,L:70,C:.17,dark:1,tight:4.94}];
+const FMT=['CSS','Tailwind','JSON'];
+let cur=0, fmt=0;
+const $=s=>document.querySelector(s);
+function ramp(p,i){
+ const steps=p.dark?[17,20,23,p.L,80,96]:[96,99,97,p.L,46,16];
+ return `<button class="swrow" aria-pressed="${i===cur}" onclick="pick(${i})">
+  <span class="nm">${p.n}</span><span class="bars">${steps.map(L=>
+   `<i style="background:oklch(${L}% ${(L>90||L<25)?.02:p.C} ${p.H})"></i>`).join('')}</span></button>`;
+}
+function code(p){
+ const T=[['canvas',p.dark?`oklch(17% .022 ${p.H})`:`oklch(96.4% .012 ${p.H})`],
+  ['surface',p.dark?`oklch(23% .024 ${p.H})`:`oklch(99% .006 ${p.H})`],
+  ['well',p.dark?`oklch(20% .023 ${p.H})`:`oklch(97.6% .014 ${p.H})`],
+  ['accent',`oklch(${p.L}% ${p.C} ${p.H})`],
+  ['accent-text',p.dark?`oklch(80% .12 ${p.H})`:`oklch(46% .13 ${p.H})`],
+  ['on-accent',p.dark?`oklch(14% .03 ${p.H})`:`oklch(98% .012 ${p.H})`],
+  ['text-lead',p.dark?`oklch(96% .008 ${p.H})`:`oklch(16% .02 ${p.H})`],
+  ['text-body',p.dark?`oklch(84% .015 ${p.H})`:`oklch(32% .02 ${p.H})`],
+  ['text-subtle',p.dark?`oklch(66% .02 ${p.H})`:`oklch(48% .018 ${p.H})`]];
+ const head=`<span class="c">/* ${p.n} — akshitas.com\n   L and C held · H = ${p.H}\n   30 pairs measured · tightest ${p.tight.toFixed(2)} */</span>`;
+ if(fmt===0) return head+`\n:root {\n`+T.map(([k,v])=>`  <span class="k">--${k}</span>: ${v};`).join('\n')+
+  `\n  <span class="c">/* sRGB fallback, generated */</span>\n  <span class="k">--accent-srgb</span>: color(srgb …);\n}`;
+ if(fmt===1) return head+`\n@theme {\n`+T.map(([k,v])=>`  <span class="k">--color-${k}</span>: ${v};`).join('\n')+`\n}`;
+ return `{\n  <span class="k">"name"</span>: "${p.n}",\n  <span class="k">"hue"</span>: ${p.H},\n  <span class="k">"tightest"</span>: ${p.tight.toFixed(2)},\n  <span class="k">"tokens"</span>: {\n`+
+  T.map(([k,v])=>`    "${k}": "${v}"`).join(',\n')+`\n  }\n}`;
+}
+function paint(){
+ const p=PAL[cur];
+ document.body.dataset.p=p.id;
+ $('#swL').innerHTML=PAL.map((x,i)=>x.dark?'':ramp(x,i)).join('');
+ $('#swD').innerHTML=PAL.map((x,i)=>x.dark?ramp(x,i):'').join('');
+ $('#swh').textContent=p.H+'°';
+ $('#fh').textContent=p.H;
+ $('#livename').textContent=p.n.toLowerCase();
+ $('#tight').textContent=p.tight.toFixed(2);
+ $('#hue').value=p.H; $('#hval').textContent=p.H+'°';
+ $('#miniset').innerHTML=[96,p.L,46,16].map(L=>
+  `<i style="background:oklch(${L}% ${(L>90||L<25)?.02:p.C} ${p.H})"></i>`).join('');
+ $('#fmt').innerHTML=FMT.map((f,i)=>`<button class="${i===fmt?'on':''}" onclick="setF(${i})">${f}</button>`).join('');
+ $('#fmtnote').textContent=['custom properties','tailwind v4','design tokens'][fmt];
+ $('#code').innerHTML=code(p);
+}
+
+/* ===== 04 · the kit ===== */
+const GROUPS=['All','Controls','Content','Feedback','Navigation','New'];
+const KIT=[
+ ['Button','Controls','3 variants','accent · on-accent','<button class="btn sm">View the work →</button>',
+  '&lt;<span class="k">Button</span> variant="primary"&gt;View the work&lt;/Button&gt;'],
+ ['Segmented tabs','Controls','role=group','accent · on-accent','<div class="tabs"><u class="on">Who</u><u>What</u></div>',
+  '&lt;<span class="k">SegmentedGroup</span> options={tabs} /&gt;'],
+ ['Field','Controls','4 states','well · rule · accent','<div class="field" style="margin:0;width:100%"><label>Email</label><input placeholder="you@example.com"></div>',
+  '&lt;<span class="k">Field</span> label="Email" error={err} /&gt;'],
+ ['Field · error','Controls','invalid','warn · rule','<div class="field err" style="margin:0;width:100%"><label>Message</label><input placeholder="Required"><p class="msg">A message is required.</p></div>',
+  '&lt;<span class="k">Field</span> error="A message is required." /&gt;'],
+ ['Chip','Controls','2 kinds','accent-text · rule','<span class="chip solid">Enterprise UX</span>',
+  '&lt;<span class="k">Chip</span> solid&gt;Enterprise UX&lt;/Chip&gt;'],
+ ['Checkbox','Controls','2 states','accent · on-accent','<div class="check" style="margin:0"><i>✓</i>Send me a copy</div>',
+  '&lt;<span class="k">Check</span> checked&gt;Send me a copy&lt;/Check&gt;'],
+ ['Work card','Content','public','surface · accent','<div class="workcard" style="width:100%"><div class="shot" style="height:64px"><div class="glass" style="height:30px"><i style="width:14px;height:14px"></i><s></s></div></div><div class="wb" style="padding:11px"><h4 class="h-card" style="font-size:14px">Elevate ONE View</h4></div></div>',
+  '&lt;<span class="k">ProjectCard</span> project={p} /&gt;'],
+ ['Stat','Content','tabular','lead · subtle','<div class="stat" style="width:100%;padding:12px"><b style="font-size:20px">2.3→4.2</b><span>store rating</span></div>',
+  '&lt;<span class="k">StatCard</span> value="2.3→4.2" label="store rating" /&gt;'],
+ ['Pull quote','Content','blog + study','accent · lead','<p style="border-left:3px solid var(--accent);padding-left:12px;font-family:var(--display);font-weight:500;font-size:14px;line-height:1.32;color:var(--lead);margin:0">Density is not the problem.</p>',
+  '&lt;<span class="k">PullQuote</span>&gt;Density is not the problem.&lt;/PullQuote&gt;'],
+ ['Stepper','Content','process','accent · rule','<div class="steps" style="width:100%;margin:0"><i class="on">1</i><s class="on"></s><i class="on">2</i><s></s><i>3</i></div>',
+  '&lt;<span class="k">Stepper</span> steps={4} current={2} /&gt;'],
+ ['Reading meter','Content','scroll','accent · well','<div style="width:100%"><div class="meter" style="margin:0"><i></i></div><div class="readrow"><span>Reading</span><span>58%</span></div></div>',
+  '&lt;<span class="k">ReadingMeter</span> /&gt;'],
+ ['Section heading','Content','2 sizes','lead · accent-text','<div style="width:100%"><p class="eyebrow" style="margin:0 0 6px">Process</p><h4 class="h-card" style="font-size:17px">How the work happens</h4></div>',
+  '&lt;<span class="k">SectionHeading</span> eyebrow="Process" /&gt;'],
+ ['Toast · success','Feedback','auto-dismiss','ok · surface','<div class="toastc ok" style="width:100%"><i>✓</i><div><b>Draft saved</b><p>Two minutes ago</p></div></div>',
+  '&lt;<span class="k">Toast</span> kind="success" title="Draft saved" /&gt;'],
+ ['Toast · refusal','Feedback','persists','warn · surface','<div class="toastc warn" style="width:100%"><i>!</i><div><b>Alt text required</b><p>Add it before publishing.</p></div></div>',
+  '&lt;<span class="k">Toast</span> kind="refusal" /&gt;'],
+ ['Save bar','Feedback','5 states','surface · rule','<div style="width:100%;display:flex;align-items:center;gap:8px;background:var(--well);border:1px solid var(--rule);border-radius:9px;padding:9px 11px"><span style="width:6px;height:6px;border-radius:50%;background:var(--ok)"></span><span style="font-size:11px;color:var(--subtle)">Saved 2 min ago</span><button class="btn sm" style="margin-left:auto;font-size:10.5px;padding:6px 10px">Save</button></div>',
+  '&lt;<span class="k">SaveBar</span> state="saved" /&gt;'],
+ ['Empty state','Feedback','3 copies','subtle · lead','<div style="text-align:center"><p class="h-card" style="font-size:15px;margin:0 0 4px">Nothing here yet</p><p class="fine" style="margin:0">Write your first post</p></div>',
+  '&lt;<span class="k">EmptyState</span> title="Nothing here yet" /&gt;'],
+ ['Nav pill','Navigation','glass, sticky','surface · accent','<div class="minipill" style="transform:scale(.86);transform-origin:center"><b>Akshita</b><span>Work</span><i>Resume ↗</i></div>',
+  '&lt;<span class="k">SiteHeader</span> /&gt;'],
+ ['List rail','Navigation','selection bar','well · accent','<div style="width:100%"><div style="padding:7px 9px;border-left:3px solid var(--accent);background:var(--well);font-size:11.5px;color:var(--lead);font-weight:600">Elevate ONE View</div><div style="padding:7px 9px;border-left:3px solid transparent;font-size:11.5px;color:var(--subtle)">Fosfor AI</div></div>',
+  '&lt;<span class="k">ListDetailLayout</span> items={items} /&gt;'],
+ ['Breadcrumb','Navigation','2 levels','accent-text · subtle','<div style="display:flex;gap:8px;align-items:center;font-size:11.5px;color:var(--subtle)"><span style="color:var(--accent-text);border-bottom:1px solid currentColor">Work</span><span>·</span><span>Elevate</span></div>',
+  '&lt;<span class="k">Breadcrumb</span> trail={trail} /&gt;'],
+ ['Blog row','Navigation','status dot','ok · lead','<div style="width:100%"><span class="dot" style="font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--subtle);display:inline-flex;align-items:center;gap:6px"><span style="width:5px;height:5px;border-radius:50%;background:var(--ok)"></span>Published</span><p class="h-card" style="font-size:13.5px;margin:7px 0 0">What a data table teaches you</p></div>',
+  '&lt;<span class="k">BlogRow</span> post={post} /&gt;'],
+ ['Timeline','New','proposed','accent · rule','<div style="display:flex;gap:5px;width:100%;align-items:center"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent)"></span><span style="flex:1;height:2px;background:var(--accent)"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--accent)"></span><span style="flex:1;height:2px;background:var(--rule)"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--rule)"></span></div>',
+  '&lt;<span class="k">Timeline</span> events={events} /&gt;'],
+ ['Metric grid','New','proposed','lead · subtle','<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%"><div class="stat" style="padding:9px"><b style="font-size:15px">06</b><span>years</span></div><div class="stat" style="padding:9px"><b style="font-size:15px">04</b><span>studies</span></div></div>',
+  '&lt;<span class="k">MetricGrid</span> metrics={m} /&gt;'],
+ ['Callout','New','proposed','accent · well','<div style="display:flex;gap:9px;align-items:flex-start;width:100%;border-left:3px solid var(--accent);background:var(--well);padding:10px 11px;border-radius:0 8px 8px 0"><p class="fine" style="margin:0">Alt text is required to publish.</p></div>',
+  '&lt;<span class="k">Callout</span> tone="note"&gt;…&lt;/Callout&gt;'],
+ ['Comparison','New','proposed','surface · rule','<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%"><div style="background:var(--well);border:1px solid var(--rule);border-radius:7px;height:44px"></div><div style="background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid var(--rule);border-radius:7px;height:44px"></div></div>',
+  '&lt;<span class="k">Comparison</span> before={a} after={b} /&gt;'],
+ ['Avatar row','New','proposed','surface · accent','<div style="display:flex"><span style="width:26px;height:26px;border-radius:50%;background:var(--accent);border:2px solid var(--surface)"></span><span style="width:26px;height:26px;border-radius:50%;background:var(--accent-text);border:2px solid var(--surface);margin-left:-9px"></span><span style="width:26px;height:26px;border-radius:50%;background:var(--rule);border:2px solid var(--surface);margin-left:-9px"></span></div>',
+  '&lt;<span class="k">AvatarRow</span> people={team} /&gt;'],
+ ['Filter bar','New','proposed','accent · surface','<div class="tabs" style="width:100%"><u class="on">All</u><u>AI</u><u>UX</u></div>',
+  '&lt;<span class="k">FilterBar</span> facets={facets} /&gt;'],
+ ['Accordion','New','proposed','rule · lead','<div style="width:100%"><div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:8px;font-size:12px;color:var(--lead);font-weight:600">What I do<span style="color:var(--accent-text)">−</span></div><p class="fine" style="margin:8px 0 0">End-to-end product design.</p></div>',
+  '&lt;<span class="k">Accordion</span> items={items} /&gt;'],
+ ['Marquee','New','proposed','subtle · rule','<div style="width:100%;overflow:hidden;border-block:1px solid var(--rule);padding:8px 0"><div style="display:flex;gap:16px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle);white-space:nowrap">Enterprise UX · Design systems · Research</div></div>',
+  '&lt;<span class="k">Marquee</span> items={words} /&gt;'],
+ ['Command bar','New','proposed','surface · accent','<div style="width:100%;display:flex;align-items:center;gap:8px;background:var(--well);border:1px solid var(--rule);border-radius:9px;padding:9px 11px"><span style="font-size:11px;color:var(--subtle)">Search or jump…</span><span class="chip" style="margin-left:auto;padding:3px 7px;font-size:8px">⌘K</span></div>',
+  '&lt;<span class="k">CommandBar</span> /&gt;'],
+ ['Spec sheet','New','proposed','mono · rule','<div style="width:100%;font-family:var(--mono);font-size:9.5px;color:var(--subtle);line-height:1.9"><div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--hair)"><span>Role</span><b style="color:var(--lead)">Lead</b></div><div style="display:flex;justify-content:space-between"><span>Year</span><b style="color:var(--lead)">2024</b></div></div>',
+  '&lt;<span class="k">SpecSheet</span> rows={facts} /&gt;'],
+];
+const SECTIONS=[
+ ['Hero','copy left, art right, four tabs',[70,14,14,26]],
+ ['Work grid','three cards, filter bar above',[14,60,60]],
+ ['Process','four steps on one rule',[14,40,14]],
+ ['Article head','title, dek, meta, hero image',[16,10,10,54]],
+ ['Contact','form left, detail right',[14,52,26]],
+ ['Case study opener','eyebrow, headline, stat row',[10,44,30]],
+];
+let kg='All', ksel=0;
+function kitrender(){
+ $('#kfilter').innerHTML=GROUPS.map(g=>`<button class="${g===kg?'on':''}" onclick="setG('${g}')">${g}</button>`).join('');
+ const rows=KIT.map((k,i)=>[k,i]).filter(([k])=>kg==='All'||k[1]===kg);
+ document.querySelector('.kcount').textContent=`${rows.length} shown · press for detail`;
+ $('#kgrid').innerHTML=rows.map(([k,i])=>`<button class="kcell" aria-pressed="${i===ksel}" onclick="selK(${i})">
+  ${k[1]==='New'?'<span class="NEW">NEW</span>':''}<span class="st">${k[4]}</span>
+  <span class="lb"><b>${k[0]}</b><em>${k[2]}</em></span></button>`).join('');
+ const k=KIT[ksel], p=PAL[cur];
+ $('#drawer').innerHTML=`
+  <div class="dh"><div><h4>${k[0]}</h4>
+   <p>${k[1]==='New'?'Proposed. Extends the existing language and is not shipped yet — it would need contrast on all nine palettes before it could be.':'Shipping on the public site today, in every palette on this page.'}</p></div>
+   <button class="btn ghost sm" onclick="toast('JSX copied')">Copy JSX</button></div>
+  <div class="dm">
+   <div><b>${k[1]}</b><span>group</span></div>
+   <div><b>${k[3]}</b><span>tokens read</span></div>
+   <div><b>${p.tight.toFixed(2)}</b><span>tightest · 9 palettes</span></div>
+   <div><b>${k[1]==='New'?'proposed':'live'}</b><span>status</span></div></div>
+  <div class="dc"><pre>${k[5]}</pre></div>`;
+ $('#sections').innerHTML=SECTIONS.map(s=>`<div class="sc">
+  <div class="sp">${s[2].map(h=>`<i style="height:${h}px${h>40?';background:color-mix(in srgb,var(--accent) 22%,transparent)':''}"></i>`).join('')}</div>
+  <div class="sb2"><div><b>${s[0]}</b><p class="fine" style="margin:2px 0 0">${s[1]}</p></div>
+   <button class="btn ghost sm" onclick="toast('Section copied')">Copy</button></div></div>`).join('');
+}
+function setG(g){kg=g;kitrender()}
+function selK(i){ksel=i;kitrender()}
+
+function pick(i){cur=i;paint();kitrender()}
+function setF(i){fmt=i;paint()}
+$('#hue').addEventListener('input',e=>{
+ const h=+e.target.value; $('#hval').textContent=h+'°';
+ document.body.style.setProperty('--H',h);
+ const p=PAL[cur];
+ $('#miniset').innerHTML=[96,p.L,46,16].map(L=>
+  `<i style="background:oklch(${L}% ${(L>90||L<25)?.02:p.C} ${h})"></i>`).join('');
+});
+// the switcher appears once section 02 is reached
+const io=new IntersectionObserver(es=>{
+ es.forEach(e=>$('#sw').classList.toggle('on',!e.isIntersecting||e.boundingClientRect.top<0));
+},{rootMargin:'-40% 0px 0px 0px'});
+io.observe(document.querySelector('.hero'));
+let tt; function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');
+ clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1600)}
+paint();
+kitrender();
+</script></body></html>

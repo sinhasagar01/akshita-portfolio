@@ -35,7 +35,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  readPaletteSource, layerPalette, paletteResolver, report, usageFor,
+  readPaletteSource, layerPalette, paletteResolver, report, usageFor, parseColor, srgbFallbackOf,
   type Palette, type RowResult, type Verdict,
 } from "@/lib/theme-contrast";
 import {
@@ -52,8 +52,21 @@ export type PaletteCompatibility = {
   verdict: Verdict;
   /** Every pair the design draws, with the ratio it measures on THIS palette. */
   rows: { key: string; fg: string; bg: string; min: number; kind: string; got: number }[];
-  /** The palette's tokens, resolved to literals — what the copy block emits. */
+  /**
+   * The palette's tokens as OKLCH — THE PUBLISHED FORM, and the one every surface shows.
+   *
+   * ⚠ AUTHORED LITERALS WHERE THE SOURCE IS ALREADY OKLCH, WHICH IS 47 OF 50 ON A LIGHT PALETTE.
+   * These are byte-for-byte the declarations in `app/globals.css`, so a reader can diff a copied
+   * block against the stylesheet and see they agree. Round-tripping them through sRGB would turn
+   * `oklch(56% 0.14 42)` into `oklch(56.02% 0.1399 41.97)` and destroy that property while
+   * changing no colour.
+   */
   tokens: Palette;
+  /**
+   * The sRGB fallback, GENERATED — never the value, and labelled as generated everywhere it is
+   * shown. Carries alpha as an eight-digit hex where the authored token has any.
+   */
+  fallback: Palette;
 };
 
 /** Every real palette. The verification twin is excluded because it is never shown. */
@@ -71,14 +84,18 @@ export const PALETTE_SLUGS: string[] = THEME_NAMES.filter((n) => n !== VERIFY_TH
 export function paletteCompatibility(): PaletteCompatibility[] {
   const css = readFileSync(join(process.cwd(), "app", "globals.css"), "utf8");
   const source = readPaletteSource(css);
-  const { resolvedPalette } = paletteResolver(source.rawDecl);
+  const { resolvedPalette, authoredPalette } = paletteResolver(source.rawDecl);
 
   return PALETTE_SLUGS.map((name) => {
     const groundClass = THEME_GROUND[name];
-    const tokens = resolvedPalette(
-      layerPalette(source, name, { defaultTheme: DEFAULT_THEME, groundClass })
-    );
-    const result = report(tokens, usageFor(GROUND_TOKEN[groundClass]));
+    const layered = layerPalette(source, name, { defaultTheme: DEFAULT_THEME, groundClass });
+    /* ⚠ THE BYTE FORM IS WHAT `report` MEASURES, AND IT STAYS THE INPUT TO THE ARITHMETIC. The
+       OKLCH form is a second RENDERING of the same palette, not a second resolution of it —
+       `oklchLiteralOf` refuses any value that does not re-parse to these exact bytes, so the
+       colour published and the colour measured cannot come apart. */
+    const bytes = resolvedPalette(layered);
+    const tokens = authoredPalette(layered);
+    const result = report(bytes, usageFor(GROUND_TOKEN[groundClass]));
 
     /* ⚠ THE THROW THAT REPLACES THE MACHINERY. Empty today across all 270 comparisons; the day it
      * is not, this stops the build with the pair named instead of the page drawing a blank. */
@@ -100,6 +117,12 @@ export function paletteCompatibility(): PaletteCompatibility[] {
         key: r.key, fg: r.fg, bg: r.bg, min: r.min, kind: r.kind, got: r.got as number,
       })),
       tokens,
+      fallback: Object.fromEntries(
+        Object.keys(tokens).map((k) => {
+          const rgb = parseColor(bytes[k]);
+          return [k, rgb ? srgbFallbackOf(rgb, tokens[k]) : bytes[k]];
+        })
+      ),
     };
   });
 }

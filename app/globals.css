@@ -4266,6 +4266,19 @@ a {
   --cs-card-inset: calc((1.5rem + clamp(0.75rem, 2vw, 2rem)) * var(--cs-canvas-scale, 1));
 }
 
+/* ⚠ THIRD CONSUMER, AND THE NAME IS NOW UNDER-DESCRIPTIVE RATHER THAN WRONG. This was written for
+   the studio canvas, gained `/dev/parity` as a second consumer, and the palettes kit is the third —
+   a grid of case-study block components rendered outside any case study, where `RevealSection`
+   never runs. Three parts painted at `opacity: 0` and read as EMPTY CELLS, which is the identical
+   "empty sections" bug this rule's own comment describes, arriving on a public page.
+
+   ⚠ FOUND BY LOOKING, NOT BY A GATE, AND NOTHING HERE COULD HAVE CAUGHT IT. Every component
+   rendered, every token resolved, tsc and eslint were clean, and three of nine cells were blank.
+   A start state is a correct value; it is only wrong given a reveal that never comes.
+
+   The class means "this container does not scroll-reveal, so show the end state". It does NOT mean
+   "canvas". Renaming it is a three-consumer sweep and its own decision — recorded here rather than
+   done inside an unrelated unit. */
 .canvas-static .reveal-card {
   opacity: 1;
   transform: none;

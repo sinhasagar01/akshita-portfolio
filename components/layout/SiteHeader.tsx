@@ -33,8 +33,23 @@ const NAV = [
      symbol is `isRoute`; it was checked before this sentence was rewritten.
 
      ⚠ AND THERE IS NO `/playground` INDEX BEHIND IT. A section index with one card is a container
-     with one item; the link goes straight to the thing. If a second playground piece ever ships,
-     THAT is when an index earns its existence. */
+     with one item; the link goes straight to the thing.
+
+     ⚠ THE SECOND PIECE HAS NOW SHIPPED AND THE INDEX STILL LOST — THIS LINE PREVIOUSLY READ "if a
+     second playground piece ever ships, THAT is when an index earns its existence", which named a
+     trigger, and the trigger was met by `/oklch`. The comment is updated rather than left
+     describing a decision that has since been made twice.
+
+     THE REASON IT LOST IS THE SAME ONE, ARRIVING AT A DIFFERENT NUMBER: a section index with TWO
+     cards is a container with two items, and every visitor now pays a click to reach either of the
+     two things instead of arriving at one of them. What an index would have provided is discovery
+     of the second piece, and that is supplied by cross-links — each page's hero and closing block
+     points at the other — which costs no click for anyone who wanted the first page.
+
+     ⚠ SO THE TRIGGER IS NOT RESTATED WITH A BIGGER NUMBER, because "three pieces" would be the same
+     guess wearing a different digit. What would actually earn an index is a piece that CANNOT be
+     reached from the others — something nobody arriving at `/palettes` would think to look for. Two
+     pages about the same subject, each linking the other, is not that. */
   { id: "palettes", label: "Playground", href: "/palettes" },
   { id: "contact", label: "Contact" },
 ] as const;

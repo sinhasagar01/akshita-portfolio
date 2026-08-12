@@ -581,7 +581,68 @@ export function paletteResolver(rawDecl: Record<string, string>) {
     return out;
   };
 
-  return { rawIn, deref, mixIn, rgbIn, resolvedPalette };
+  /**
+   * A palette with every token as an OKLCH literal — the AUTHORED form, for publication.
+   *
+   * ⚠ THIS IS A SECOND OUTPUT, NEVER A REPLACEMENT FOR `resolvedPalette`. `report` parses literals
+   * and every contrast figure on this site comes from the byte form above. Two resolutions of one
+   * palette is exactly the second-spelling hazard this file is written against, so the two are
+   * bound by construction rather than by care: an authored value that does not re-parse to the
+   * SAME BYTES the byte form produced is refused by `oklchLiteralOf` below. A published colour and
+   * a measured colour therefore cannot come apart.
+   *
+   * ⚠ AND AN ALREADY-OKLCH TOKEN IS COPIED VERBATIM, WHICH IS THE POINT RATHER THAN AN
+   * OPTIMISATION. Measured across the nine palettes, 47 of 50 tokens on a light palette are
+   * authored in OKLCH. Round-tripping them through bytes turns `oklch(56% 0.14 42)` into
+   * `oklch(56.02% 0.1399 41.97)` — a different string for the same colour, which publishes noise
+   * as if it were precision.
+   *
+   * ⚠ IT ALSO CARRIES THE ALPHA, AND THAT IS A DEFECT FIX RATHER THAN A FEATURE. Five tokens per
+   * palette are authored `oklch(... / 0.74)`. The byte form drops alpha by design — callers
+   * composite explicitly through `over()` — so a copied block handed a stranger OPAQUE smoke where
+   * this site draws translucent smoke. Verbatim is what returns it.
+   */
+  const authoredPalette = (pal: Palette): Palette => {
+    const out: Palette = {};
+    for (const k of Object.keys(pal)) {
+      const raw = rawIn(pal, k);
+      /* Unfollowable keeps its raw value, the same posture `resolvedPalette` takes, so the token
+         surfaces as an alias a consumer can see rather than vanishing into a plausible colour. */
+      if (raw === undefined) { out[k] = pal[k]; continue; }
+      if (/^\s*oklch\(/i.test(raw)) { out[k] = raw.trim(); continue; }
+      const bytes = rgbIn(pal, k);
+      out[k] = bytes ? (oklchLiteralOf(bytes) ?? raw.trim()) : raw.trim();
+    }
+    return out;
+  };
+
+  return { rawIn, deref, mixIn, rgbIn, resolvedPalette, authoredPalette };
+}
+
+/**
+ * Bytes as an OKLCH literal that re-parses to those exact bytes.
+ *
+ * ⚠ THE ROUND TRIP IS ASSERTED, NOT ASSUMED, AND THE PRECISION IS FOUND RATHER THAN CHOSEN. This
+ * file already records the defect: a search reported margins for values that were outside sRGB,
+ * because the overshoot was computed on the unrounded number and the ROUNDED STRING was what
+ * shipped. The rule that came out of it is measure through the string that gets written — so this
+ * formats, re-parses its own output through `parseOklch`, and escalates decimals until the bytes
+ * come back identical.
+ *
+ * Returns null when no precision in range reproduces the bytes, so a caller keeps the raw value
+ * rather than publishing a colour half a byte away from the one that paints. Measured across all
+ * nine palettes and every non-OKLCH token, the first precision always sufficed and null never
+ * occurred — which is a reason to keep the guard rather than to drop it.
+ */
+export function oklchLiteralOf(rgb: Rgb): string | null {
+  const target = rgb.map((c) => Math.max(0, Math.min(255, Math.round(c))));
+  const o = rgbToOklch(target as Rgb);
+  for (const p of [2, 3, 4, 5]) {
+    const css = `oklch(${(o.L * 100).toFixed(p - 1)}% ${o.C.toFixed(p + 1)} ${o.H.toFixed(p - 1)})`;
+    const back = parseOklch(css);
+    if (back && back.every((c, i) => Math.round(c) === target[i])) return css;
+  }
+  return null;
 }
 
 /** sRGB bytes back to OKLCH — the inverse of `oklchToRgb`, needed because a mix operand may be any
@@ -611,6 +672,45 @@ export function oklchOf(raw: string | null | undefined): Oklch | null {
 /** Bytes as a hex literal, clamped — the form `report` parses. */
 export function hexOf(v: Rgb): string {
   return "#" + v.map((c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * The alpha an authored colour carries, or null when it is opaque or unreadable.
+ *
+ * ⚠ `parseColor` PARSES ALPHA AND DISCARDS IT, DELIBERATELY — callers composite through `over()`
+ * and honouring it there would double-apply it. That is right for measurement and wrong for
+ * PUBLICATION, where an opaque copy of a translucent token is a different site. So the alpha is
+ * read separately, by the one consumer that needs it, rather than by changing what `parseColor`
+ * means to the thirty-odd rows that depend on it.
+ */
+export function alphaOf(css: string): number | null {
+  /* The `%` is CAPTURED rather than sniffed for elsewhere in the string. `oklch(92.0% 0.02 78)`
+     contains a percent sign and carries no alpha at all, so any test that looks outside this
+     group answers a question about the LIGHTNESS unit and reports it as an alpha unit. */
+  const ok = /^\s*oklch\([^/)]*\/\s*([\d.]+)(%?)\s*\)\s*$/.exec(css);
+  if (ok) return ok[2] === "%" ? Number(ok[1]) / 100 : Number(ok[1]);
+  const hex = /^#([0-9a-fA-F]{4}|[0-9a-fA-F]{8})$/.exec(css.trim());
+  if (hex) {
+    const h = hex[1];
+    return h.length === 4 ? parseInt(h[3] + h[3], 16) / 255 : parseInt(h.slice(6, 8), 16) / 255;
+  }
+  const fn = /^\s*(?:rgba?|hsla?)\([^/)]*[,/]\s*([\d.]+)%?\s*\)\s*$/.exec(css);
+  return fn ? Number(fn[1]) : null;
+}
+
+/**
+ * An sRGB fallback for an authored colour — hex, carrying the alpha when there is one.
+ *
+ * ⚠ A SIX-DIGIT FALLBACK FOR A TRANSLUCENT TOKEN IS NOT A FALLBACK, IT IS A DIFFERENT COLOUR. Five
+ * tokens per palette are authored with alpha, and the byte form drops it. Publishing that as the
+ * fallback line would hand a stranger opaque smoke under a label promising equivalence — the exact
+ * defect this pair of functions exists to close, arriving inside the repair for it.
+ */
+export function srgbFallbackOf(bytes: Rgb, authored: string): string {
+  const a = alphaOf(authored);
+  if (a === null || a >= 1) return hexOf(bytes);
+  const byte = Math.max(0, Math.min(255, Math.round(a * 255))).toString(16).padStart(2, "0");
+  return hexOf(bytes) + byte;
 }
 
 /* ============================================================================================
