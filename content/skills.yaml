@@ -1,31 +1,51 @@
 categories:
   - category: Design
     items:
-      - Product Design
-      - UX Design
-      - UI Design
-      - Interaction Design
-      - Design Systems
+      - name: Product Design
+        glow: vision
+      - name: UX Design
+        glow: experience
+      - name: UI Design
+        glow: craft
+      - name: Interaction Design
+        glow: flow
+      - name: Design Systems
+        glow: scale
   - category: Research
     items:
-      - UX Research
-      - Journey Mapping
-      - Usability Testing
-      - Split Testing
+      - name: UX Research
+        glow: insight
+      - name: Journey Mapping
+        glow: journeys
+      - name: Usability Testing
+        glow: proof
+      - name: Split Testing
+        glow: signal
   - category: Craft
     items:
-      - Wireframing
-      - Rapid Prototyping
-      - Information Architecture
+      - name: Wireframing
+        glow: clarity
+      - name: Rapid Prototyping
+        glow: speed
+      - name: Information Architecture
+        glow: structure
   - category: Tools
     items:
-      - Figma
-      - Sketch
-      - Adobe XD
-      - Framer
-      - Miro
-      - Azure DevOps
+      - name: Figma
+        glow: canvas
+      - name: Sketch
+        glow: lines
+      - name: Adobe XD
+        glow: layers
+      - name: Framer
+        glow: motion
+      - name: Miro
+        glow: maps
+      - name: Azure DevOps
+        glow: ship
   - category: Artificial intelligence (AI)
     items:
-      - Claude Design
-      - Claude Code
+      - name: Claude Design
+        glow: 
+      - name: Claude Code
+        glow: 

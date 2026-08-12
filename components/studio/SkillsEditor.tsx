@@ -14,7 +14,6 @@
 // Rendered by /studio/skills (app/studio/(dashboard)/skills/page.tsx).
 import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
-import ChipListEditor from "./ChipListEditor";
 import SaveBar from "./SaveBar";
 import { moveIn } from "./useItemList";
 import { useDraftForm } from "./useDraftForm";
@@ -23,11 +22,21 @@ import { useReportCount } from "./StudioCountsProvider";
 import { IconLayers } from "./icons";
 import { inputClsMd, labelCls, FIELD_MEASURE , FieldKey} from "./blocks/fields";
 
-export type SkillsCategoryInput = { category: string; items: string[] };
+export type Skill = { name: string; glow: string };
+export type SkillsCategoryInput = { category: string; items: Skill[] };
 type SkillsFields = { categories: SkillsCategoryInput[] };
 
-const trimItems = (items: string[]) => items.map((i) => i.trim()).filter(Boolean);
-const sameItems = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);
+/* ⚠ A SKILL IS DROPPED ON A BLANK **NAME**, NOT A BLANK GLOW. An empty glow is a defined state —
+ * the ghost word simply stays on whatever it was — so trimming rows by "any field empty" would
+ * silently delete every skill the owner had not yet given a word to, which is most of them the
+ * moment this field ships. */
+const trimItems = (items: Skill[]): Skill[] =>
+  items.map((i) => ({ name: i.name.trim(), glow: i.glow.trim() })).filter((i) => i.name !== "");
+/* ⚠ BOTH FIELDS COMPARED. A name-only comparison would make an edit to a glow word invisible to
+ * `isDirty`, so the panel would save nothing and report nothing — the silent no-save shape this
+ * repo already paid for once, in this same studio's blog status control. */
+const sameItems = (a: Skill[], b: Skill[]) =>
+  a.length === b.length && a.every((v, i) => v.name === b[i].name && v.glow === b[i].glow);
 // Array-aware, comparing TRIMMED items (the Process sameStages pattern) so a
 // mid-typing empty item row is not dirty while a rename / reorder / real edit is.
 const sameCategories = (a: SkillsCategoryInput[], b: SkillsCategoryInput[]) =>
@@ -92,7 +101,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
   // stay index-aligned.
   const onAddItem = () => {
     const id = `c${nextId.current++}`;
-    setField("categories", [...cats, { category: "", items: [] }]);
+    setField("categories", [...cats, { category: "", items: [] as Skill[] }]);
     setIds((prev) => [...prev, id]);
     return id; // ListDetailLayout selects the new category
   };
@@ -191,10 +200,10 @@ function CategoryPanel({
 }: {
   id: string;
   category: string;
-  items: string[];
+  items: Skill[];
   isOnlyCategory: boolean;
   onName: (name: string) => void;
-  onItems: (items: string[]) => void;
+  onItems: (items: Skill[]) => void;
   onBlurSave: () => void;
 }) {
   const { isSelected } = useListItem(id, false);
@@ -250,7 +259,57 @@ function CategoryPanel({
 
         <div className="flex flex-col gap-1.5">
           <span className={labelCls}>Skills in this category</span>
-          <ChipListEditor chips={items} onChange={onItems} onBlur={onBlurSave} addLabel="Add skill" placeholder="Skill" />
+          {/* ⚠ A ROW LIST RATHER THAN THE CHIP EDITOR, BECAUSE A SKILL NOW CARRIES TWO FIELDS.
+              `ChipListEditor` edits `string[]` and every other consumer still does; widening it to
+              take a second field would push a skills-shaped concept into a component four panels
+              share. The rows below are local to this panel and reuse its own input classes, so the
+              chrome matches without the abstraction moving. */}
+          <div className="flex flex-col gap-1.5">
+            {items.map((sk, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={sk.name}
+                  onChange={(e) => onItems(items.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+                  onBlur={onBlurSave}
+                  placeholder="Skill"
+                  aria-label={`Skill ${i + 1} name`}
+                  className={`${inputClsMd} ${FIELD_MEASURE} flex-1`}
+                />
+                <input
+                  type="text"
+                  value={sk.glow}
+                  onChange={(e) => onItems(items.map((x, j) => (j === i ? { ...x, glow: e.target.value } : x)))}
+                  onBlur={onBlurSave}
+                  placeholder="Glow word"
+                  aria-label={`Skill ${i + 1} glow word`}
+                  className={`${inputClsMd} ${FIELD_MEASURE} w-[132px]`}
+                />
+                <button
+                  type="button"
+                  onClick={() => { onItems(items.filter((_, j) => j !== i)); onBlurSave(); }}
+                  aria-label={`Remove skill ${sk.name || i + 1}`}
+                  className="shrink-0 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2 py-1.5 text-[11px] text-studio-ink-600"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => onItems([...items, { name: "", glow: "" }])}
+              className="w-max rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-2.5 py-1.5 text-[11px] text-studio-ink-800"
+            >
+              Add skill
+            </button>
+            {/* ⚠ THE GLOW IS EXPLAINED WHERE IT IS TYPED. Nothing on this panel shows the homepage's
+                ghost word, so a bare "Glow word" input is a field with no visible consequence — the
+                shape an owner fills wrongly or leaves blank without knowing either was a choice. */}
+            <span className="text-[10px] text-studio-ink-600">
+              The glow word fades in behind the pills when someone hovers that skill. Leave it empty
+              and the previous word stays put.
+            </span>
+          </div>
           {items.length === 0 && (
             <span className="text-[10px] text-studio-accent-600">
               This category has no skills — it will show an empty section on your site.

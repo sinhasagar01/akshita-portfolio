@@ -42,7 +42,7 @@ export type SiteSettingsEntry = {
 };
 
 export type SkillsEntry = {
-  categories: { category: string; items: string[] }[];
+  categories: { category: string; items: { name: string; glow: string }[] }[];
 };
 
 export type ProjectListItem = {
@@ -171,7 +171,15 @@ export function mapSkills(raw: Record<string, unknown>): SkillsEntry {
   return {
     categories: ((raw.categories as readonly unknown[]) ?? []).map((cat) => ({
       category: (cat as { category?: string }).category ?? "",
-      items: ((cat as { items?: readonly unknown[] }).items ?? []).map((i) => String(i)),
+      /* ⚠ TOLERATES A BARE STRING, because a hand-edited `skills.yaml` predating the object
+         shape would otherwise map to `{name: undefined}` and render blank pills with no error.
+         The migration is in-repo and complete, so this branch is unreachable today — and
+         "unreachable today" is a property of the content rather than of this function. */
+      items: ((cat as { items?: readonly unknown[] }).items ?? []).map((i) =>
+        typeof i === "string"
+          ? { name: i, glow: "" }
+          : { name: (i as { name?: string }).name ?? "", glow: (i as { glow?: string }).glow ?? "" }
+      ),
     })),
   };
 }

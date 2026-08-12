@@ -1179,10 +1179,40 @@ export default config({
         categories: fields.array(
           fields.object({
             category: fields.text({ label: "Category name" }),
-            items: fields.array(fields.text({ label: "Skill" }), {
-              label: "Skills in this category",
-              itemLabel: (props) => props.value,
-            }),
+            // ⚠ LINE COMMENTS IN THIS FILE, NEVER A BLOCK COMMENT — AND THAT IS A HARD RULE.
+            // This config contains THREE `path:` values whose glob ends in a slash-star, which
+            // ralph's comment-stripper reads as a comment OPENER. The file therefore carries five
+            // openers against two closers, permanently unbalanced.
+            //
+            // ⚠ SO ADDING A BLOCK COMMENT HERE DOES NOT ADD A COMMENT — IT RE-PAIRS A STRAY OPENER
+            // HUNDREDS OF LINES ABOVE. A block comment written at this exact spot closed the
+            // `content/blog/` glob at line 840 and deleted everything between them from the
+            // stripped text: `bespoke-blocks`, `canvas-head` and `hero-figure-field` all went red
+            // naming schema fields that were plainly still in the file.
+            //
+            // A SKILL IS AN OBJECT BECAUSE THE GLOW WORD BELONGS TO IT, not beside it. The homepage
+            // draws a large ghost word behind the pills and swaps it on hover; that word was an
+            // 18-entry map hardcoded in `SkillsBody.tsx`, so a skill added through the editor
+            // produced a pill whose hover did nothing, with no error and nothing to read.
+            //
+            // The rejected shape was a parallel list of skill-to-word pairs beside the strings. It
+            // keeps the chip editor unchanged and buys a second list that can drift from the first.
+            // One skill, one row, both fields.
+            items: fields.array(
+              fields.object({
+                name: fields.text({ label: "Skill" }),
+                glow: fields.text({
+                  label: "Glow word",
+                  description:
+                    "The word that fades in behind the pills on hover. Left empty, the pill "
+                    + "simply leaves the previous word in place.",
+                }),
+              }),
+              {
+                label: "Skills in this category",
+                itemLabel: (props) => props.fields.name.value,
+              }
+            ),
           }),
           {
             label: "Skill categories",
