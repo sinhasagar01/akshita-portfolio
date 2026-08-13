@@ -7,7 +7,17 @@
 // skills got a real /studio panel in SK-4). The code-managed Homepage cards are
 // excluded (Hero/About/Process/Work already deep-link to settings/projects;
 // Contact has no navigation destination).
-import type { ProjectListItem, ExperienceListItem, SkillsEntry } from "@/lib/keystatic";
+import type { SkillsEntry } from "@/lib/keystatic";
+import type { CollectionName } from "./commit-collection-entry";
+
+/** One searchable row, shaped by its collection at the call site. The collections differ in what
+ *  they are called and what is worth matching on; they do not differ in whether they belong. */
+export type SearchSource = {
+  label: string;
+  sublabel: string;
+  keywords: string;
+  href: string;
+};
 import { STUDIO_SETTINGS_SECTIONS } from "./settings-sections";
 
 export type SearchItem = {
@@ -17,13 +27,25 @@ export type SearchItem = {
   href: string;
 };
 
+/**
+ * ⚠ THE COLLECTIONS ARE A `Record<CollectionName, …>` SO A FIFTH IS A COMPILE ERROR, because two of
+ * the four were missing for months and nothing said so.
+ *
+ * The index was created 2026-07-07 with three collections; blog landed 2026-07-26 and gallery later,
+ * and neither joined. `git log -S "blog"` on this file returns NOTHING — the word has never appeared
+ * in it — so the header's old scope line was not a decision anybody took about blog. It was a
+ * DESCRIPTION WRITTEN BEFORE BLOG EXISTED, and a comment describing a smaller scope reads as a
+ * boundary somebody chose.
+ *
+ * ⚠ AND THE OMISSION WAS INVISIBLE FROM INSIDE THE FEATURE. Search worked; it simply could not find
+ * half the content, and only an author looking for a post they knew existed would notice. Adding the
+ * two arms fixes today; the mapped type is what stops the fifth collection repeating it.
+ */
 export function buildStudioSearchIndex({
-  projects,
-  experience,
+  collections,
   skills,
 }: {
-  projects: ProjectListItem[];
-  experience: ExperienceListItem[];
+  collections: Record<CollectionName, readonly SearchSource[]>;
   skills: SkillsEntry | null;
 }): SearchItem[] {
   const items: SearchItem[] = [];
@@ -37,22 +59,19 @@ export function buildStudioSearchIndex({
     });
   }
 
-  for (const e of experience) {
-    items.push({
-      label: e.company,
-      sublabel: "Experience",
-      keywords: `${e.company} ${e.title} ${e.location}`.toLowerCase(),
-      href: `/studio/experience?item=${encodeURIComponent(e.slug)}`,
-    });
-  }
-
-  for (const p of projects) {
-    items.push({
-      label: p.title,
-      sublabel: "Projects",
-      keywords: `${p.title} ${p.summary}`.toLowerCase(),
-      href: `/studio/projects?item=${encodeURIComponent(p.slug)}`,
-    });
+  /* ⚠ ONE LOOP OVER A DERIVED SET, NOT FOUR HAND-WRITTEN ARMS. Each collection supplies its own
+     label, sublabel and keyword blob at the call site, where the shapes differ — an experience row
+     reads "Company" and carries a title and a location, a gallery item reads its title. What must
+     NOT differ is MEMBERSHIP, and that is what the Record enforces. */
+  for (const name of Object.keys(collections) as CollectionName[]) {
+    for (const row of collections[name]) {
+      items.push({
+        label: row.label,
+        sublabel: row.sublabel,
+        keywords: row.keywords.toLowerCase(),
+        href: row.href,
+      });
+    }
   }
 
   // Skills: one result per category, matchable by the category name OR any skill

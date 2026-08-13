@@ -49,7 +49,34 @@ export default async function DashboardLayout({
      `<html>` still carries the live value from the root layout's published read. */
   const canvasTheme = resolveTheme(settings?.theme);
   // Client-side search index, built once from the data already loaded here.
-  const searchItems = buildStudioSearchIndex({ projects, experience, skills });
+  /* ⚠ A `Record<CollectionName, …>`, so a fifth collection fails to compile HERE rather than being
+     silently unsearchable. Blog and gallery were absent for months and nothing said so — search
+     worked, it just could not find half the content. */
+  const searchItems = buildStudioSearchIndex({
+    collections: {
+      projects: projects.map((p) => ({
+        label: p.title, sublabel: "Projects",
+        keywords: `${p.title} ${p.summary}`,
+        href: `/studio/projects?item=${encodeURIComponent(p.slug)}`,
+      })),
+      experience: experience.map((e) => ({
+        label: e.company, sublabel: "Experience",
+        keywords: `${e.company} ${e.title} ${e.location}`,
+        href: `/studio/experience?item=${encodeURIComponent(e.slug)}`,
+      })),
+      blog: blog.map((b) => ({
+        label: b.title, sublabel: "Blog",
+        keywords: `${b.title} ${b.dek ?? ""} ${b.topic ?? ""}`,
+        href: `/studio/blog/${encodeURIComponent(b.slug)}`,
+      })),
+      gallery: gallery.map((g) => ({
+        label: g.title, sublabel: "Gallery",
+        keywords: `${g.title} ${g.alt} ${g.description} ${g.tags.join(" ")}`,
+        href: `/studio/gallery/${encodeURIComponent(g.slug)}`,
+      })),
+    },
+    skills,
+  });
 
   return (
     // Counts provider wraps BOTH the sidebar and the page so a list editor's
