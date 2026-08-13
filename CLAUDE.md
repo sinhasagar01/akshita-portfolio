@@ -301,6 +301,12 @@ gates.
   markup** — the file-type-boundary defect arriving inside a single file. R2 flattens whitespace
   before matching for exactly that reason.
 
+  **⚠ AND THE TWELVE REMAINING RUNG SITES ARE SAFE FOR A REASON THAT EXPIRES.** They carry no
+  foreground at all — a 3px rule, a 2px dash, three dots — so there is no pair to fail. **The rung
+  is still unremapped on the dark ground**, so the next author who puts a label on one inherits the
+  defect exactly as the eight did. "None is a latent seventh" states the absence of a SUBJECT, not
+  the presence of safety, and `role-layer` R2 is what catches it the moment one grows text.
+
   **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT IS SOUND AND ONLY ITS CONCLUSION WAS NOT:**
 
 - **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
