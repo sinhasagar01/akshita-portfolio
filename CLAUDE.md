@@ -256,6 +256,22 @@ gates.
   red assertions naming a missing bundle is not a silent wrong answer. **A gate that goes red for an
   environmental reason is still a gate people learn to skip**, and that is the cost being paid.
 
+- **⚠ BOARDED: `SegmentedGroup` CANNOT BE REUSED ON THE PUBLIC SITE, AND "REUSE IF POSSIBLE"
+  RESOLVED TO NO WITH A REASON.** It is the right shape — `role="group"`, `aria-pressed`, accent
+  FILL, the same contract the hero tabs and the work filter both carry — and it lives in
+  `components/studio/` painting `studio-accent-500`, `studio-cream-50`, `studio-ink-950`,
+  `studio-labels`, `studio-radius-control`.
+
+  **⚠ THOSE TOKENS ARE FROZEN AGAINST THE PUBLIC THEME**, so putting it on the home page drags
+  frozen colours onto a themed surface — the freeze violation `studio-ink` C10 exists to stop.
+
+  **THE UNIT IS A PRESENTATIONAL-CORE SPLIT:** the markup and behaviour in one place, two token
+  skins over it. **Not a reuse and not a copied class string** — a copy is the parallel-list defect
+  in CSS, which is what #275 named its remaining consumers to avoid.
+
+  **THE TRIGGER IS A THIRD CONSUMER.** Two exist today and both are studio; the public site would be
+  the first that cannot take the tokens, which is exactly when the split earns itself.
+
 - **⚠ BOARDED: A DARK CASE-STUDY HERO IS A DESIGN UNIT, AND IT ONCE SHIPPED FOR TWO DAYS AND WAS NOT
   MISSED.** `isWebHero` was written to render a `template: web` hero on a dark full-bleed ground —
   its own comment says the hero "owns its whole identity". It did, from **2026-08-07** to
@@ -1093,6 +1109,68 @@ moment it grows an action again.
   consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
   only visible where a utility currently loses. **That set is exactly what `cascade-public` already
   enumerates**, which means the blast radius is knowable before the edit rather than after it.
+
+- **⚠ THE SCROLL SPY IS A FOURTH ITERATION SITE NOTHING NAMED, AND IT IS THE ONLY THING ON THE HOME
+  PAGE THAT READS ORDER RATHER THAN IDENTITY.** The record names three `NAV` render sites — the bar,
+  the scrolled sheet, the mobile menu. `getActiveSection()` is the fourth:
+
+      for (const item of NAV) { … if (top <= HEADER_H + 2) current = item.id; }
+
+  It keeps the LAST entry above the header, **which is only correct while the array is in DOM
+  order.** Everything else keys on identity: `ScrollManager` holds a pixel offset and knows no ids,
+  `RevealSection` keys on its own viewport entry at `rootMargin: "-20% 0px"`, the hero observer looks
+  up `#hero`, the sitemap enumerates routes.
+
+  **MEASURED ON THE MOVED PAGE RATHER THAN ARGUED**, which is the one behaviour no class-string check
+  can see:
+
+      reader is in     NAV moved     NAV STALE
+      work             work          work
+      process          process       WORK        <- the defect
+      about            about         about
+
+  **A MOVE IS FREE IF EVERYTHING KEYS ON IDS AND EXPENSIVE IF ANYTHING KEYS ON SEQUENCE**, and
+  exactly one thing did. `nav-order` A3 is the assertion, and it is a RELATIVE-order claim rather
+  than an equality one — `#skills` sits between `about` and `contact` and is deliberately not in the
+  nav, so demanding equality would have been a gate asserting more than its subject needs.
+
+  **⚠ AND THE FIRST DRAFT OF THAT GATE CARRIED A HARDCODED `{ ProjectsSection: "work", … }` MAP THAT
+  WAS MISSING `ContactSection`** — a fixed list inside the gate written to stop two lists
+  disagreeing. Caught on its first run by its own output printing the two rows side by side. The ids
+  are read out of each component now.
+
+- **⚠ THE HERO CUE'S COPY AND ITS DESTINATION CAME FROM DIFFERENT PLACES AND NOTHING TIED THEM —
+  THE SAME SHAPE THAT HAD JUST COST TWO LIVE PAGES A 1.09, CAUGHT LATENT.**
+
+      copy    content/site-settings.yaml   heroScrollCue   AUTHOR-EDITABLE in /studio's hero panel
+      target  HeroSection                  href + getElementById, TWICE, hardcoded
+
+  They agreed by coincidence. **An author could rename the cue tomorrow and the destination would
+  stay**, which is the editable-string-and-hardcoded-destination pair this record now carries twice.
+
+  **⚠ THE COPY CANNOT DERIVE THE TARGET AND THAT IS WHY THE PAIR IS ASSERTED RATHER THAN TIED.** The
+  cue is free text — "Take a look below" yields no id — so `nav-order` C2 and C3 assert both strings
+  agree with each other and with the page's first section. **An author renaming the cue cannot break
+  where it goes; what they can still do is describe it wrongly**, and that is an authoring error no
+  gate can see. Naming the half it does not reach is the point.
+
+- **⚠ THE WORK FILTER AND THE HERO TABS ALREADY AGREE, AND THE RULE KEYS ON MARKUP RATHER THAN ON
+  FUNCTION — WHICH INVERTED THE PREMISE THE QUESTION WAS ASKED FROM.** The request was to match
+  them, reasoned as *"the filter switches CONTENT SETS, so it takes the underline"*. Measured, both
+  are `role="group"` with `aria-pressed`, and `SegmentedGroup`'s own header states the rule:
+
+      role="group"   + aria-pressed    -> the accent FILL
+      role="tablist" + aria-selected   -> the UNDERLINE
+
+  **THE RULE IS ABOUT THE CONTRACT, NOT ABOUT WHAT THE CONTROL DOES**, so the filter takes the fill —
+  and both already draw a `width: max-content` pill group, `gap: 2px`, `padding: 3px`, a hairline
+  track and a filled selected state. **Not two languages. One language, two chromes.**
+
+  **⚠ AND THE FUNCTION READING WAS REFUSED FOR A CONCRETE REASON RATHER THAN A PREFERENCE.** Making
+  the filter a tablist rewrites the contract that `WorkFilter`'s last-intent queue manipulates
+  imperatively (`aria-pressed` at `:54` and `:69`), and **a tablist with DISABLED tabs is a shape
+  ARIA does not have** — which the empty-category rule requires. **A styling request must not become
+  a semantics rewrite**, and both #162 rules were confirmed untouched.
 
 - **⚠ SPECIFICITY ONLY BREAKS TIES BETWEEN RULES MATCHING THE SAME ELEMENT — AND NOBODY WROTE THAT
   DOWN, WHICH IS WHY A CORRECT FIX SILENTLY REMOVED A CAPABILITY FOR FOUR DAYS.**

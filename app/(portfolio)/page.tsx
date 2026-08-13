@@ -80,8 +80,16 @@ export default async function HomePage() {
         figure={settings?.heroFigure ?? null}
       />
       <main id="main-content" tabIndex={-1} className="container-x outline-none">
-      <ProcessSection settings={settings} />
+      {/* ⚠ WORK BEFORE PROCESS, AND `SiteHeader`'s `NAV` MOVED WITH IT — the two are one edit.
+          `getActiveSection()` iterates NAV IN ORDER and keeps the LAST section whose top is above
+          the header, so it depends on NAV being in DOM order. With NAV stale the spy sets
+          `current` to Process and then overwrites it with Work, and the nav highlights Work while
+          the reader is in Process. Measured both ways; see the unit's report.
+          Everything else on this page keys on IDENTITY — ScrollManager holds a pixel offset and
+          knows no ids, RevealSection keys on its own viewport entry, the hero observer looks up
+          `#hero` by id, and the sitemap enumerates routes. */}
       <ProjectsSection projects={projects} />
+      <ProcessSection settings={settings} />
       <AboutSection settings={settings} />
       <ExperienceSection experience={experience} />
       <SkillsSection skills={skills} />

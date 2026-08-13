@@ -693,11 +693,19 @@ export default function HeroSection({
             </Fragment>
           </div>
 
+          {/* ⚠ THE TARGET AND THE COPY COME FROM DIFFERENT PLACES AND NOTHING TIES THEM. `cue` is
+              `heroScrollCue` in site-settings and is EDITABLE BY AN AUTHOR in /studio's hero panel;
+              this destination is code. They agreed by coincidence until now.
+              The copy cannot derive the target — it is free text, and "Take a look below" yields no
+              id — so the pair is ASSERTED instead: `nav-order` fails if this id stops being the
+              first non-route entry in `SiteHeader`'s NAV. An author renaming the cue still cannot
+              break where it goes; what they can do is describe it wrongly, which is an authoring
+              error like any other copy error and is not one a gate can see. */}
           <a
-            href="#process"
+            href="#work"
             className="hero-scroll"
             onClick={(e) => {
-              const el = document.getElementById("process");
+              const el = document.getElementById("work");
               if (el && smoothScroll) {
                 e.preventDefault();
                 smoothScroll.scrollToTarget(el);
