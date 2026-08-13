@@ -236,7 +236,33 @@ export default function GalleryOverlay({
         </div>
       </div>
 
-      {filmstrip ? <div className="flex-none">{filmstrip}</div> : null}
+      {/* ⚠ THE FOOT ALWAYS RESERVES ITS HEIGHT, WHETHER OR NOT A FILMSTRIP FILLS IT — AND THE
+          PARITY RULE DECIDED THAT RATHER THAN TASTE. A flag may ADD affordances and must never
+          RESIZE A BOX; the absent filmstrip was resizing the stage.
+
+          MEASURED ON `/dev/gallery-parity` AT 1100px, THE HARNESS'S FIRST RUN. Everything matched
+          exactly — container 942, columns `64px 450px 340px 64px`, rail 340x232, the spec labels,
+          the heading — except the image:
+
+              canvas   stage 412   image 300x400
+              public   stage 356   image 258x344   filmstrip 56
+
+          Exact arithmetic rather than a layout bug: the strip is 56, the stage loses 56, and
+          `object-contain` scales the image by 56. THE EDITOR WAS SHOWING AN IMAGE 14% LARGER THAN
+          A VISITOR SEES, and an author crops and composes against what they see.
+
+          ⚠ RESERVED AS EMPTY SPACE, NEVER AS A PLACEHOLDER STRIP. Drawing dummy thumbnails would
+          give the editor an affordance the public page does not have, which is the same violation
+          pointing the other way — the canvas would stop being a preview and start being its own
+          design. 56px of empty band is the honest cost and it is meant to be visible.
+
+          ⚠ AND NO SOURCE ASSERTION IN THIS REPOSITORY COULD HAVE SEEN THIS. Both consumers pass
+          correct props, both render the same component, every gate was green. It took two boxes in
+          one document and a measurement — which is the argument for hop 6 rather than a note about
+          it. */}
+      <div className={`flex-none ${filmstrip ? "" : "h-[var(--gallery-filmstrip-h)]"}`}>
+        {filmstrip}
+      </div>
 
       {/* ⚠ A CONTAINER QUERY, BECAUSE THIS IS ONE COMPONENT IN TWO CONTEXTS. That is the whole
           reason, and it is a stronger one than the site's breakpoint convention it might look like
@@ -266,6 +292,10 @@ export default function GalleryOverlay({
           JS, so a utility would mean writing 832 a second time — the duplication the constant
           exists to prevent, and the shape that let two route allowlists drift in this same PR. */}
       <style>{`
+        /* ⚠ ONE NUMBER FOR THE STRIP'S HEIGHT AND THE RESERVED BAND. A 54x40 thumbnail with a 2px
+           border, plus the rail's own 16px of bottom padding, is 56 — measured rather than guessed,
+           and declared here so the canvas cannot reserve a height the public page does not use. */
+        [data-gallery-overlay] { --gallery-filmstrip-h: 56px; }
         .gallery-stage { display: grid; grid-template-columns: 1fr; align-items: center; gap: 0; }
         .gallery-stage > .gallery-rail { padding-top: 18px; }
         @container (min-width: ${GALLERY_OVERLAY_STACK_PX}px) {
