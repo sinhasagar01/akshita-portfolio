@@ -189,6 +189,45 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ BOARDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
+  FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
+  gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
+  has none either. **The convention is right and is not the question.**
+
+  **THE QUESTION IS WHY SOMEONE WENT LOOKING.** If an author reaches for a button, the indicator is
+  not saying clearly enough that the work is already saved. `SaveIndicator` reports `saving` and
+  `dirty` and the pill reports standing state, and between them an author still could not tell that
+  a blur had committed.
+
+  **⚠ DO NOT SHIP A BUTTON. IT WOULD CLOSE THE REPORT AND LEAVE THE CAUSE** — the same trade the
+  fold defect nearly got, where a Save control would have been added to a panel that already saved
+  while the missing composition stayed. This arc has that shape four times now: **an owner reports
+  the missing affordance, and the fix is always upstream of the symptom.**
+
+  **THE SUBJECT IS EVERY PANEL THAT SAVES ON BLUR, NOT THE GALLERY.** Scoping it to the surface
+  where it was noticed is how the same defect gets fixed once per collection — and the studio has
+  three editors plus the settings panels all sharing `useDraftForm`. **The unit is a census of what
+  each surface tells an author after a blur**, before any change to any of them.
+
+- **⚠ A GUARD SCOPED TO A FILE MAY NAME THAT FILE'S LOCALS; A GUARD THAT ITERATES MAY NOT. THE
+  PROPERTY IS THE ITERATION, NOT THE NAMING.** A `three-pane` row meant to check every shell
+  consumer matched on `inspectorFits ? inspector : null` — blog's local name. The case study calls
+  its node `inspectorNode`, so **two of three consumers were checked while the row read as covering
+  all three.**
+
+  **A SILENT SKIP AND A PASS ARE THE SAME OUTPUT**, which is the whole hazard. Nothing distinguishes
+  "this consumer is fine" from "this consumer was never looked at" in a green run.
+
+  **⚠ AND THE CENSUS SAYS THE RULE IS ABOUT ITERATION RATHER THAN ABOUT NAMES.** Two other guards in
+  this family name a consumer's locals — `three-pane`'s D rows and `mount-discipline`'s — and **both
+  are correct, because each is scoped to ONE NAMED FILE.** Zero others iterate. The iterating guard
+  was the only one that skipped, and it was the only iterating guard.
+
+  **THE SECTION ONLY BECAME TRUSTWORTHY BECAUSE IT WENT RED ON THINGS THAT TURNED OUT TO BE FINE.**
+  Widening the guard made the case study fail two more rows, and both were the matcher again — an
+  inline toggle rather than an imported one, and a dock spelled differently. Three matcher failures
+  in one section, each found only by the row going red.
+
 - **⚠ THE RECORD IS ONLY TRUE OF `main`, AND A CLAIM ABOUT THE RECORD IS THE ONE NOBODY CHECKS —
   BECAUSE CHECKING IT FEELS LIKE CHECKING YOURSELF.** Three PR bodies asserted *"`ralph/run.mjs`'s
   header now states that a source regex cannot see reachability"*. **It did not.** The rule existed
