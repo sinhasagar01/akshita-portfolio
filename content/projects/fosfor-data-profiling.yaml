@@ -308,6 +308,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-quality
               title: Data quality issues
               body: >-
