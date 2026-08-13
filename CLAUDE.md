@@ -189,6 +189,51 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
+  GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
+  `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
+  orphan is recovered by re-upload at no storage cost. **Its hash is ALSO the hash of a live blog
+  image**, because content addressing gives identical bytes an identical hash under different
+  paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
+  against hashes would have deleted the blog's copy while "collecting" the gallery's.
+
+- **⚠ BLOG AND GALLERY ARE ABSENT FROM STUDIO SEARCH, AND IT IS AN OMISSION RATHER THAN A DECISION —
+  SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
+  `{projects, experience, skills}`.
+
+      search index created   2026-07-07
+      blog collection added  2026-07-26   never added to it
+      gallery                added later, likewise
+
+  **`git log -S "blog"` on that file returns NOTHING — the word has never appeared in it.** So the
+  header's *"Scope: settings sections + experience + projects + skills"* is not a decision anyone
+  took about blog; it is a description written before blog existed and never revisited. **A comment
+  describing a smaller scope reads as a boundary somebody chose**, which is the `structural()` shape
+  arriving in prose rather than in a helper.
+
+  **NOT FIXED HERE, BECAUSE THE SUBJECT IS THE SEARCH AND NOT THE GALLERY.** Two collections are
+  missing and the fix is one change to a shared index; scoping it to gallery would fix it once per
+  collection, which is the boarding this file already carries for `useDraftForm`'s feedback.
+
+- **⚠ A CENSUS OF UNCHECKED JOINS IS DERIVABLE, AND IT IS WHAT AN AUDIT CANNOT BE.** The gallery
+  audit's honest limit was that **there is no list of joins to be exhaustive against** — its best
+  finding came from a question nothing prompted, so *"I found the joins"* was never a claim it could
+  make.
+
+  **THAT FINDING NAMED ITS OWN ENABLER: `entry[1] as PreviewGroup`.** The join was checkable and a
+  cast silenced the check. So the list is derivable in part — **every `as` onto a type whose members
+  are a closed set the code branches on** is a place someone told the compiler to stop checking
+  exactly the thing that breaks when the set is widened. That does not depend on anyone asking the
+  right question, which is the whole difference from an audit.
+
+  **⚠ AND A CAST IS NOT A DEFECT, WHICH IS WHAT KEEPS THE CENSUS USABLE.** Eleven were found and
+  **ten are guarded**, usually one or two lines above, by a `hasOwnProperty` check or a truthiness
+  test the compiler cannot see. Reporting eleven defects would be the wrong-noun error. **One was
+  unguarded — the cast WAS the check — and it is the one that shipped.**
+
+  `ralph/tests/unchecked-joins.mjs` pins the inventory with each guard NAMED, so a new cast is a
+  decision somebody wrote rather than one nobody noticed.
+
 - **⚠ UNDER CONTENT ADDRESSING THE PATH IS THE SUBJECT AND THE HASH IS NOT — A HASH GREP ANSWERS A
   QUESTION NOBODY ASKED.** Identical bytes carry an identical hash under DIFFERENT PATHS, by design.
   Asked whether two uploaded gallery images were orphaned, a grep for `926214f008d6` returned a hit

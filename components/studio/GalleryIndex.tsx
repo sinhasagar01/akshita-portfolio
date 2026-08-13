@@ -51,7 +51,7 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
 
      A REFUSAL, NOT A PENDING THAT RESOLVES. There is no in-flight card to update here — the button
      carries its own busy state — and `drains()` is `ok && !sha`, so this stays until answered. */
-  const { beginToast, resolveToast } = usePublishSignal();
+  const { beginToast, resolveToast, setUnpublished } = usePublishSignal();
   const refuse = useCallback((title: string, message: string) => {
     resolveToast(beginToast(title, message), { kind: "refusal", title, message });
   }, [beginToast, resolveToast]);
@@ -140,6 +140,15 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.saved) {
         setItems((prev) => prev.filter((i) => i.slug !== slug));
+      /* ⚠ THE SITE IS NOW UNPUBLISHED, AND NOTHING SAID SO — A SHARED DEFECT GALLERY SURFACED.
+         `CaseStudyIndex` and `ExperienceListEditor` both mark this; this index and the blog's did
+         not, so after a delete the publish pill kept its PAGE-LOAD value and an author could not
+         publish a removal that had already happened on the draft branch.
+
+         ⚠ AND CREATE MASKED IT, WHICH IS WHY IT SURVIVED. A create navigates straight to the new
+         entry, so the bar is re-rendered from fresh server data and the stale flag is never seen.
+         A DELETE STAYS PUT. The defect was only ever visible on the path that does not navigate. */
+        setUnpublished(true);
         setDeleteTarget(null);
         return;
       }

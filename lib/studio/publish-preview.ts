@@ -15,8 +15,12 @@
 // classification and the line extraction live here, asserted directly, and what is left in the
 // route is one fetch and a lookup.
 //
-// This file imports nothing, so it can be loaded by a leaf runner and so nothing here can reach a
-// DOM or a network. `inspector-width.ts` holds the same shape for the same reason.
+// This file imports nothing AT RUNTIME, so it can be loaded by a leaf runner and so nothing here
+// can reach a DOM or a network. `inspector-width.ts` holds the same shape for the same reason.
+// A TYPE-ONLY import is erased at compile and does not break that — see `COLLECTION_GROUPS` below,
+// which is how this module derives the collection names without importing the module that owns them.
+
+import type { CollectionName } from "./commit-collection-entry";
 
 /** content/<collection>/<slug>.yaml — the top-level entry file, not the body subdir.
  *
@@ -39,6 +43,29 @@
 export const COLLECTION_FILE_RE =
   /^content\/(projects|experience|blog|gallery)\/([a-z0-9-]+)\.yaml$/;
 
+/**
+ * The collection names this module recognises, as a `Record` over the authoritative union.
+ *
+ * ⚠ A TYPE-ONLY IMPORT AND A LOCAL VALUE, WHICH IS THE ONLY SHAPE THE LEAF DISCIPLINE ALLOWS HERE.
+ * This file imports nothing at runtime so a leaf runner can load it — the header says so — and
+ * `isCollectionName` lives in a module that reaches GitHub. The type is ERASED at compile, so
+ * `Record<CollectionName, true>` costs nothing at runtime and still makes a fifth collection a
+ * BUILD FAILURE at this line rather than an `undefined` label in the publish dialog.
+ *
+ * THIS IS WHAT THE CAST WAS STANDING IN FOR. `as PreviewGroup` asserted the same thing and checked
+ * none of it.
+ */
+const COLLECTION_GROUPS: Record<CollectionName, true> = {
+  projects: true,
+  experience: true,
+  blog: true,
+  gallery: true,
+};
+
+function isCollectionGroup(value: string): value is CollectionName {
+  return Object.prototype.hasOwnProperty.call(COLLECTION_GROUPS, value);
+}
+
 /** The skills singleton, one flat file rather than content/<coll>/<slug>.yaml. */
 export const SKILLS_FILE = "content/skills.yaml";
 
@@ -48,10 +75,18 @@ export const SETTINGS_FILE = "content/settings.yaml";
 /** Uploaded media. Grouped rather than diffed — a binary has no patch to show. */
 const IMAGE_RE = /^public\/images\/([a-z0-9-]+)\/([a-z0-9-]+)\//;
 
+/* ⚠ THE COLLECTION MEMBERS ARE DERIVED, NOT LISTED, AND A CAST USED TO HIDE THE GAP. `classifyFile`
+   read a collection name out of `COLLECTION_FILE_RE` and returned it as `entry[1] as PreviewGroup`.
+   The regex was widened to admit gallery; this union and the `KIND` map below were not — and the
+   CAST SUPPRESSED THE ERROR THAT WOULD HAVE CAUGHT IT. A gallery row reached the publish dialog
+   with `KIND[group]` undefined, so the one gate an author cannot walk past labelled it with nothing.
+
+   ⚠ THE ARM WAS NOT ADDED. Adding `gallery` here repairs one instance of a shape that repeats;
+   deriving the collection half from `CollectionName` makes the SIXTH collection a compile error at
+   the `KIND` map instead. This arc has taken that answer four times — the create dispatch, the
+   order serializers, the delete branch and the publish checks. */
 export type PreviewGroup =
-  | "projects"
-  | "experience"
-  | "blog"
+  | CollectionName
   | "skills"
   | "settings"
   | "image"
@@ -73,7 +108,11 @@ export type ClassifiedFile = {
  */
 export function classifyFile(filename: string): ClassifiedFile {
   const entry = filename.match(COLLECTION_FILE_RE);
-  if (entry) return { group: entry[1] as PreviewGroup, slug: entry[2] };
+  /* ⚠ A GUARD, NOT A CAST. `as PreviewGroup` told the compiler to stop checking exactly the join
+     that was broken — the regex's alternation against this module's own vocabulary. `isCollectionName`
+     asks instead, so a name the regex admits and this union does not is a narrowing failure the
+     build reports rather than an `undefined` reaching a label. */
+  if (entry && isCollectionGroup(entry[1])) return { group: entry[1], slug: entry[2] };
   if (filename === SKILLS_FILE) return { group: "skills", slug: null };
   if (filename === SETTINGS_FILE) return { group: "settings", slug: null };
   const image = filename.match(IMAGE_RE);
@@ -135,6 +174,9 @@ const KIND: Record<PreviewGroup, string> = {
   projects: "Case study",
   experience: "Experience",
   blog: "Blog post",
+  /* The reader-facing name, which is the only place the collection's machine name becomes English
+     in this dialog. Absent, `KIND[group]` was `undefined` and the row carried no kind at all. */
+  gallery: "Gallery item",
   skills: "Skills",
   settings: "Site settings",
   image: "Images",

@@ -48,6 +48,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { useReportCount } from "./StudioCountsProvider";
+import { usePublishSignal } from "./PublishProvider";
 import StudioEmptyState from "./StudioEmptyState";
 import { IconPlus } from "./icons";
 import { filterBlogPosts } from "@/lib/studio/blog-search";
@@ -78,6 +79,8 @@ export default function BlogIndex({
   initialView: IndexView;
 }) {
   const router = useRouter();
+  /* See the note at the delete below — this index never marked the site unpublished. */
+  const { setUnpublished } = usePublishSignal();
   const [items, setItems] = useState<BlogCard[]>(posts);
   const [query, setQuery] = useState("");
 
@@ -198,6 +201,15 @@ export default function BlogIndex({
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.saved) {
         setItems((prev) => prev.filter((p) => p.slug !== slug));
+      /* ⚠ THE SITE IS NOW UNPUBLISHED, AND NOTHING SAID SO — A SHARED DEFECT GALLERY SURFACED.
+         `CaseStudyIndex` and `ExperienceListEditor` both mark this; this index and the blog's did
+         not, so after a delete the publish pill kept its PAGE-LOAD value and an author could not
+         publish a removal that had already happened on the draft branch.
+
+         ⚠ AND CREATE MASKED IT, WHICH IS WHY IT SURVIVED. A create navigates straight to the new
+         entry, so the bar is re-rendered from fresh server data and the stale flag is never seen.
+         A DELETE STAYS PUT. The defect was only ever visible on the path that does not navigate. */
+        setUnpublished(true);
         setDeleteTarget(null);
       }
     } finally {
