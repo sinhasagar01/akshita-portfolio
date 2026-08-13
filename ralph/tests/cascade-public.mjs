@@ -58,6 +58,9 @@
 // inside a case study that utility DOES land. A gate blind to it would report every case-study
 // card title as broken and be wrong about all of them.
 import { readdirSync, readFileSync } from "node:fs";
+/* ⚠ SHARED AT THE SECOND CONSUMER. `collection-dispatch` hit the identical defect one unit after
+   this suite was repaired for it — see the helper's header for why the mechanism travels. */
+import { blankCommentBodies } from "../strip-comments.mjs";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -220,13 +223,6 @@ const COMPONENT_TAG = new Map([["Link", "a"], ["Image", "img"], ["NextImage", "i
  * an attribute-position comment terminated the raw element match early, so a real `className`
  * after it was never seen. Blanking removes those closers, so some elements now yield the class
  * they always carried. */
-function blankCommentBodies(src) {
-  return src
-    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
-    /* A line comment only where the slashes are not preceded by a colon or a word character, so a
-       protocol-relative URL and `https://` are left alone. */
-    .replace(/(^|[^:\w])(\/\/[^\n]*)/g, (m, pre, c) => pre + c.replace(/[^\n]/g, " "));
-}
 
 function* elements(rawSrc, rel) {
   const src = blankCommentBodies(rawSrc);

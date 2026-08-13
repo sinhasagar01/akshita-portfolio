@@ -7,17 +7,15 @@
 // from the input's slug field — the route never accepts a client-supplied slug.
 // experience (item 13) + projects (item 11, a body:[] stub); writes the draft
 // branch only, never main.
-import type { CollectionName } from "@/lib/studio/commit-collection-entry";
-import type { SaveError } from "@/lib/studio/site-settings-format";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
-import { commitCollectionEntry, isCollectionName } from "@/lib/studio/commit-collection-entry";
+import {
+  commitCollectionEntry,
+  isCollectionName,
+  sanitizeCreateInput,
+} from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
-import { sanitizeExperienceCreate } from "@/lib/studio/experience-format";
-import { sanitizeProjectCreate } from "@/lib/studio/projects-format";
-import { sanitizeGalleryCreate } from "@/lib/studio/gallery-format";
-import { sanitizeBlogCreate } from "@/lib/studio/blog-format";
 
 export async function POST(req: Request) {
   const jar = await cookies();
@@ -44,25 +42,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
 
-  // Sanitize BEFORE the env-split, so a malformed body is rejected in EVERY mode
-  // (the fs no-op cannot mask it). The lib re-sanitizes defensively; this is the
-  // mode-independent gate. slug derivation lives in the lib (no route slugify).
-  // Explicit per-collection arms — a two-way ternary would have routed blog into the
-  // experience sanitizer once the allowlist widened.
-  // ⚠ A MAPPED TYPE — see save-draft's note for the full reasoning. In short: the ternary chain
-  // ended in a fallthrough to `sanitizeExperienceCreate`, safe only because the allowlist above
-  // rejected everything else, under a comment claiming the arms were explicit. `Record<
-  // CollectionName, …>` makes a fifth collection a build failure instead of an experience create.
-  const CREATE_SANITIZERS: Record<
-    CollectionName,
-    (raw: unknown) => { ok: true; value: unknown } | { ok: true; patch: unknown } | { ok: false; error: SaveError }
-  > = {
-    projects: sanitizeProjectCreate,
-    blog: sanitizeBlogCreate,
-    gallery: sanitizeGalleryCreate,
-    experience: sanitizeExperienceCreate,
-  };
-  const sanitized = CREATE_SANITIZERS[collection](body.input);
+  /* Sanitize BEFORE the env-split, so a malformed body is rejected in EVERY mode — the fs no-op
+     cannot mask it. Slug derivation stays in the lib; the route never slugifies.
+
+     ⚠ ONE SANITIZER ON THIS PATH NOW, WHERE THERE WERE TWO, AND THE SECOND ONE'S RESULT WAS THE
+     DISCARDED ONE. This computed `sanitized` for the 400 above and then passed `body.input` — the
+     RAW value — to `commitCollectionEntry`, which sanitized it again through its own dispatch. So
+     the collection-correct result was thrown away and the bytes that reached disk came from
+     whichever arm that second dispatch chose. When its `else` arm was projects, that is exactly how
+     a gallery create wrote a project-shaped file.
+
+     ⚠ AND THE REPO ALREADY HAD ONE SPELLING FOR THIS — CREATE WAS THE DEVIATION. `save-draft` hands
+     the commit layer `sanitizedEntry.patch`, and the lib's EDIT path serializes it without
+     re-sanitizing. Create is now the same shape, which makes this a consistency repair rather than
+     a new design.
+
+     ⚠ THE CALLER IS DERIVED, NOT ASSUMED. Each create sanitizer has exactly two production callers,
+     this route and the commit layer, and no other. So removing the second call leaves every one of
+     them with a single caller and nothing orphaned; the check was taken before the edit rather
+     than after it. */
+  const sanitized = sanitizeCreateInput(collection, body.input);
   if (!sanitized.ok) {
     return NextResponse.json(sanitized, { status: 400 });
   }
@@ -79,7 +78,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "token_not_configured" }, { status: 500 });
   }
 
-  const result = await commitCollectionEntry(collection, body.input, {
+  const result = await commitCollectionEntry(collection, sanitized.value, {
     branch: DRAFT_BRANCH,
     intent: "create",
   });

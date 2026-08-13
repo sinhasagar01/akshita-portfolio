@@ -24,6 +24,9 @@ import type { SaveError } from "./site-settings-format";
  *  reader a second opinion about validity. */
 export const GALLERY_KINDS = ["photo", "illus", "proj"] as const;
 
+/** What a gallery CREATE carries. The title alone — see `sanitizeGalleryCreate`. */
+export type GalleryCreateInput = { title: string };
+
 export type GalleryInput = {
   title?: string;
   kind?: (typeof GALLERY_KINDS)[number];
@@ -47,6 +50,13 @@ export type GalleryInput = {
    incompatible return shapes compile. Turning that dispatch into a `Record<CollectionName, …>` is
    what surfaced this — the mapped type refused to build until all four agreed. */
 type Ok<T> = { ok: true; patch: T };
+/* ⚠ CREATE RETURNS `value`, NOT `patch`, AND THE DIFFERENCE IS NOT COSMETIC. The other three create
+   sanitizers in this directory return `{ ok: true, value }`, and this one returned `patch` — so the
+   create route's dispatch map had to be typed as a UNION of both shapes to compile, and I wrote
+   that union myself without reading it as the signal it was.
+   Same family as the `{ error: string }` divergence a mapped type caught one PR earlier: four
+   functions on one path, four shapes, and nothing comparing them until something had to. */
+type OkValue<T> = { ok: true; value: T };
 type Bad = { ok: false; error: SaveError };
 
 const invalid = (message: string, field?: string): Bad =>
@@ -145,7 +155,7 @@ export function sanitizeGalleryPatch(raw: unknown): Ok<GalleryInput> | Bad {
  * exist first. A create that took an image would need a second upload route that invents a slug,
  * which is the seam `blockImageBlobPath` exists to prevent.
  */
-export function sanitizeGalleryCreate(raw: unknown): Ok<{ title: string }> | Bad {
+export function sanitizeGalleryCreate(raw: unknown): OkValue<GalleryCreateInput> | Bad {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     return invalid("input must be an object");
   }
@@ -173,7 +183,7 @@ export function sanitizeGalleryCreate(raw: unknown): Ok<{ title: string }> | Bad
   if (typeof title !== "string" || title.trim() === "") {
     return invalid("title is required", "title");
   }
-  return { ok: true, patch: { title: title.trim() } };
+  return { ok: true, value: { title: title.trim() } };
 }
 
 /**
