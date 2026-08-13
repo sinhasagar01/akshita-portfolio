@@ -434,6 +434,44 @@ gates.
   the strip and the first row show different items**, at which point the eager row is paying for
   content the hero has already loaded.
 
+- **⚠ THE ORPHAN POPULATION IS ELEVEN, NOT TWO — AND THE PRECONDITION FOR A GC IS NOW BUILT AND
+  MEASURED RATHER THAN ARGUED.** `ralph/tests/image-orphans.mjs` walks by PATH:
+
+      32 block images on disk   ·   21 live   ·   11 orphaned
+      2 shared basenames, not 1
+
+  **⚠ THE SECOND PAIR IS WITHIN ONE COLLECTION AND NOBODY HAD LOOKED.** `edaa53ebfee8` sits under
+  `gallery/akshita` AND `gallery/waves` — the same photograph uploaded to two gallery items, bytes
+  verified identical. The record knew only about `926214f008d6` crossing gallery and blog. **A
+  hash-keyed GC would collect one of a pair and delete the other's copy**, and `C3` fails if that
+  hazard's population ever reads empty, because a warning nobody can trigger is one the next author
+  deletes.
+
+  **⚠ AND `edaa53ebfee8` IS SAFE BY LUCK RATHER THAN BY RULE — BOTH ITS COPIES ARE ORPHANED.**
+  Referencing either one makes the other unsafe, with no edit anywhere near it. The report prints
+  every shared basename live-or-not for exactly that reason; `unsafeToDeleteByName` only sees pairs
+  where one side is already live.
+
+  **⚠ THE WALK'S BOUNDARY WAS THE OTHER HALF, AND A CONTENT-ONLY GC WOULD HAVE DELETED TWO LIVE
+  FILES.** `app/dev` harness pages reference project block images directly — 20 live paths in
+  `content`, two more in `app`. Same shape as the `.tsx`-only sweep that missed 81 rung references,
+  caught here BEFORE the tool that would have acted on it existed. `A3` asserts the `app` part is
+  non-empty by name.
+
+  **⚠ AND THE CENSUS READ ITS OWN LEAF'S EXAMPLE PATH AS A LIVE REFERENCE ON ITS FIRST RUN — SECOND
+  INSTANCE TODAY.** `image-reachability.ts` documents its input with `…/blocks/abc123.webp`, and the
+  walk counted it. **The failure direction is the dangerous one: a comment cannot make a file an
+  orphan, only make an orphan look LIVE** — so had the example named a real file, this census would
+  have protected it from deletion forever and nothing would have gone red. `B2` caught it only
+  because the example was invented. Third tool today to need comment-blanking, which is now the
+  default for any scanner over source.
+
+  **NOTHING IS DELETED AND THAT IS DELIBERATE.** An orphan is not a defect — it is a replaced image
+  whose bytes stopped being referenced, which content addressing makes free to leave. **What was
+  missing was the reachability rule, and that is what this is.**
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS ARGUMENT IS WHY THE RULE IS PATH-KEYED:**
+
 - **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
   GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
   `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
@@ -534,6 +572,19 @@ gates.
   precedent is `css-comment-trap`'s reverted string-blanking, which was right as an idea and broke
   five assertions that read string contents. **That half is still open and is the trigger for the
   next look: a comment naming a colour is still counted as a colour.**
+
+- **⚠ CLOSED, AND IT WAS ALREADY CLOSED WHEN THIS ITEM WAS LAST READ: `height` IS LIFTED.** The
+  unlayered rule now declares `max-width: 100%` and `display: block` and nothing else —
+  `img, video { height: auto }` sits in `@layer base` with its blast radius enumerated first: **8
+  sites, every one `h-auto`, 0 collisions, not one rendered box moved.** `max-width` and `display`
+  stay boarded as separate questions with separate blast radii, which is what the item asked for.
+
+  **⚠ SIXTH CARRIED ITEM TO EXPIRE THIS SESSION, and the second to have had work scoped from it.**
+  The others were the experience descriptions, the published-post count, the three status claims,
+  the search index, and `mutate.mjs`'s "four of nine". **The entries most likely to be wrong are
+  still the ones nobody has touched**, and a board is a claim about the present.
+
+  **THE SUPERSEDED FRAMING, KEPT FOR ITS MEASUREMENT:**
 
 - **⚠ NEXT UNIT: THE UNLAYERED `img` RESET HAS FIRED FIVE TIMES — ASK WHETHER IT CAN BE LAYERED,
   RATHER THAN LOGGING A SIXTH.** `img, video { max-width: 100%; height: auto; display: block }` sits
