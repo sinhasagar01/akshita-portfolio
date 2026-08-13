@@ -18,8 +18,30 @@ export type SerializeResult = { ok: true; bytes: string } | { ok: false; error: 
 const HEAD_DUMP_CANDIDATES: DumpOptions[] = [{}, { lineWidth: -1, quotingType: '"' }];
 
 function splitAtBody(raw: string): { head: string; body: string } {
-  // `body:` is the last top-level key in the schema, always at column 0. A folded
-  // scalar's continuation lines are indented, so "\nbody:" matches only the key.
+  // `body:` is at column 0. A folded scalar's continuation lines are indented, so "\nbody:"
+  // matches only the key itself.
+  //
+  // ⚠ THIS SAID "the last top-level key in the schema" AND THAT STOPPED BEING TRUE. `sections` is
+  // declared after `body` in keystatic.config.ts, so the tail this returns carries BOTH — which is
+  // fine, because the tail is spliced back verbatim and never re-dumped. The split does not depend
+  // on `body` being last; it depends on everything after it being preserved untouched, and that is
+  // what the name `body` under-describes rather than what the code gets wrong.
+  //
+  // ⚠ THE HAZARD THE OLD CLAIM HID, MEASURED AND CLOSED ELSEWHERE: if a patch could write a key
+  // that lives in the TAIL, the head dump would emit it and the splice would emit it again — a
+  // duplicate key. It cannot. `sanitizeProjectsPatch` rejects `body` and `orderIndex` by name and
+  // ends `return invalid("unknown field …")`, so `sections` never reaches this function; sections
+  // are written by `serializeProjectSections`, which owns the tail.
+  //
+  // Seventh instance in this repository of correct-looking prose beside code, and the first where
+  // the prose was TRUE WHEN WRITTEN and aged out. The other six were false as authored — a
+  // DIFFERENT CAUSE with the identical outcome, and the pair of them is the argument that
+  // PROXIMITY TO CORRECT CODE IS NO PROTECTION AT ALL. Being written beside the split does not help
+  // when the thing that moved is the SCHEMA, three files away and edited by somebody who never
+  // opened this one.
+  //
+  // Nothing depended on this claim, which is exactly why it survived — a claim nothing reads is a
+  // claim nothing re-checks.
   const i = raw.indexOf("\nbody:");
   if (i === -1) return { head: raw, body: "" };
   return { head: raw.slice(0, i + 1), body: raw.slice(i + 1) };

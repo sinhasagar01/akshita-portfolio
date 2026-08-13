@@ -213,22 +213,22 @@ gates.
 
 
 
-- **⚠ BOARDED: `projects` HAS NO SECOND KEY LIST BECAUSE ITS WRITER TAKES A DIFFERENT PATH, NOT
-  BECAUSE ANYBODY RULED IT SAFE — AND IT IS THE COLLECTION WHERE A DROPPED KEY COSTS MOST.** The
-  argument is written out so nobody re-derives it from the absence:
+- **⚠ BOARDED: A LOCAL `github` WRITE MODE AGAINST A FORK, AND TWO PENDING DRIVES ARE THE ARGUMENT.**
+  Every write route no-ops unless `STUDIO_WRITE_MODE=github`, so the drivable editor paths on
+  localhost number **zero** — measured as ten routes carrying the guard, not inferred.
 
-      9 top-level schema keys      the largest of the four
-      the longest prose on the site outside blog
-      NO `status` FIELD            so an entry is PUBLIC the moment it is on main
+  **⚠ AND POINTING LOCAL `github` MODE AT THE REAL REPO IS NOT THE SHORTCUT IT LOOKS LIKE.** It
+  writes to the actual draft branch and its publish merges to `main`, so **a local test run reaches
+  production.** The env already names `STUDIO_GITHUB_REPO` and `STUDIO_BASE_BRANCH` for this reason
+  and `.env.local.example` says to aim them at a fork or scratch repo.
 
-  **THE OTHER THREE ARE SETTLED AND IT IS NOT.** Gallery has a list and a both-directions
-  comparison, because it BROKE. Blog had one and it filtered, and now it orders. Experience orders
-  and always did. **`projects` was never in the population**, which is a different state from
-  passing — and `collection-readiness` C3 reports it by name for exactly that reason.
+  **THE COST OF NOT HAVING IT IS NOW COUNTABLE RATHER THAN THEORETICAL: two collections are waiting
+  on an owner at a browser** — gallery's failure paths and blog's seven steps — and both are
+  currently drivable only on production, where a mistake is live. It was offered before and declined
+  when nothing was queued.
 
-  **⚠ AND THE FIX IS NOT "GIVE IT A KEY LIST".** Inventing one to satisfy a gate is the fixed-list
-  shape this record deletes on sight. The question is whether its serializer can drop a key, which
-  is answered by reading the writer rather than by counting lists.
+  **AND THE FOUR PATHS IT WOULD UNLOCK ARE THE SAME FOUR PRODUCTION OFFERS**, so this buys safety
+  rather than coverage. That is the honest scope of it.
 
 - **⚠ A DEPLOY STATUS IS A READING WITH A TIMESTAMP, NOT A FACT — AND SO IS "MAIN IS AHEAD OF
   PRODUCTION".** Production was reported as one merge behind `main`. It was, at that moment, and the
@@ -636,6 +636,108 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ THE PRE-PUSH HOOK CAUGHT A BRANCH CUT FROM AN UNPUSHED `main` — THIRD INSTANCE OF THAT SHAPE
+  AND THE FIRST MECHANICAL CATCH. EVERY OTHER ENTRY IN THIS FAMILY IS A FAILURE, WHICH IS WHY THIS
+  ONE IS WRITTEN DOWN.** A wip commit went onto local `main`, a branch was cut from it, and the push
+  was refused before anything reached GitHub — naming the stray commit and printing the rebase that
+  fixes it.
+
+      1st   ten merges into a local `main` never pushed, reported as merged ten times
+      2nd   a unit built against a `main` 47 commits stale; the push was refused, and that
+            refusal is the only reason anyone looked
+      3rd   THIS — refused BEFORE the PR existed, by the guard written after the second
+
+  **THE FIRST TWO WERE PEOPLE NOTICING AFTERWARDS.** The first cost an arc of false claims; the
+  second cost a rebase and every figure in a unit's report being re-taken. **This cost one command.**
+
+  **⚠ AND THE PREDICATE IS WHY IT FIRES AT ALL, WHICH IS THE REUSABLE HALF.** `upstream` A1's
+  natural form — local `main` not ahead of `origin/main` — is FALSE on every legitimate push of
+  `main`, and a gate whose common failure is benign is one people learn to skip. The narrowed
+  predicate is the state that is never legitimate: **pushing a branch that is not `main` while local
+  `main` is ahead.** A gate is only as good as the number of times it is right to ignore it.
+
+  **⚠ AND THE RECOVERY COST NOTHING BECAUSE THE TREE WAS COMPARED RATHER THAN REMEMBERED.** The
+  branch commit's tree and `main`'s were `91dd6f1` on both, checked with `rev-parse` before
+  `reset --hard` touched anything. **A reset justified by memory is how the `--amend` incident
+  rewrote a merge commit earlier today** — the same operation, the same confidence, and the only
+  difference is whether one command was run first.
+
+- **⚠ CLOSED: `projects` IS SAFE BY CONSTRUCTION RATHER THAN BY A GUARD, AND THE CENSUS'S OWN
+  `ABSENT` VERDICT INVITED THE OPPOSITE CONCLUSION.** It reported no second key list, which reads as
+  a gap — and reading the writer end to end gives the third outcome rather than a defect: **there is
+  no key list to fall out of.**
+
+      projects-serialize.ts:57   `const obj = (load(head) ?? {})`   loads EVERY head key
+      :58-78                     assigns only the patched keys       nothing is ever deleted
+      :79                        `dump(obj, opts) + body`            writes them all back
+
+  A read-modify-write on the loaded object. The only `for` loop in the file iterates dump-option
+  candidates. **A schema key neither the sanitizer nor the serializer names survives untouched, in
+  the file's own position** — where experience's rebuild would append it and blog's would have
+  dropped it. **It is the safest of the three, not merely the third.**
+
+  **⚠ AND ADDING A KEY LIST WOULD CREATE THE FIXED-LIST SHAPE THE CENSUS EXISTS TO FIND.** That is
+  the inverse of what an `ABSENT` row suggests to a reader, which is why the verdict is recorded
+  with its lines rather than as a conclusion.
+
+  **"NO DEFECT FOUND" IS NOT AN ANSWER, AND THESE THREE ARE WHY IT IS SAFE:**
+
+      `facts` MERGES rather than replaces (:76-77) — `{ ...existing, ...patch.facts }`, so the
+        locked `role` and `timeline` survive an edit to `type` and `platform`
+      the head must ROUND-TRIP or the save is REFUSED (:28-34, :48) — `unsupported_format` rather
+        than reformatting content nobody edited
+      the sanitizer rejects the TAIL keys BY NAME — `title`, `heroImage`, `body`, `orderIndex`
+        explicitly, then `return invalid("unknown field …")`
+
+  **THE THIRD CLOSES THE ONE HAZARD THE SPLIT RAISED.** `splitAtBody` cuts at `body:` and its comment
+  called that the last schema key — **stale**, since `sections` is declared after it, so the tail
+  carries both. A patch able to write a tail key would produce a DUPLICATE. None can.
+
+- **⚠ CLOSED: THE EXERCISE GATE WOULD HAVE REFUSED A CORRECT BLOG RUN — `galleryPublishBlockers`'
+  SHAPE, ONE WEEK LATER, IN THE GATE WRITTEN BY SOMEBODY WHO HAD JUST RECORDED THAT ENTRY.**
+  `REQUIRED_STEPS` demanded `reorder` of every collection. `COLLECTION_HAS_ORDER` declares
+  `blog: false` deliberately — posts sort by `date`, which every post has and no author arranges —
+  and `reorder-entries` returns **400 `unsupported_collection`** for blog.
+
+  **SO BLOG'S PASSING STATE WAS UNREACHABLE**, and the failure would have landed on the first real
+  entry rather than on a fixture — **latent only because the record is empty.** Found by reading the
+  ordering table before the drive rather than by the drive being refused.
+
+  **NOT-APPLICABLE IS A THIRD STATE BESIDE PERFORMED AND NOT-EXERCISED**, and the difference is
+  legible to a reader: `NOT EXERCISED` says somebody could have and did not.
+
+  **⚠ AND IT IS DERIVED, BECAUSE A HAND-WRITTEN EXEMPTION NAMING BLOG WOULD BE THE PARALLEL-LIST
+  DEFECT ARRIVING INSIDE THE GATE BUILT TO FIND THEM.** `commit-collection-entry.ts` cannot be
+  imported — its relative imports are extensionless, so Node cannot resolve them — so the suite
+  PARSES the table and `G1` asserts the parse found all four. **An empty map would make every lookup
+  undefined and the gate would quietly stop requiring anything**, which is the check-the-denominator
+  rule arriving in a lookup.
+
+  **⚠ AND THE COMPLEMENT IS ASSERTED, WHICH IS THE HALF THAT IS EASY TO SKIP.** An exemption only
+  ever makes a gate MORE permissive, so without `G6` a FALSE claim would pass more easily than a
+  true one — recording a reorder for a collection whose route returns 400.
+
+  **⚠ THAT REASON GENERALISES AND IT BELONGS BESIDE THE PRECEDENCE LESSON: BOTH ARE ASSERTIONS THAT
+  CHECK ONE SIDE OF A TWO-SIDED THING.** The unpublished-disclosure's `C2` claimed a read error
+  *outranks* everything and tested it against one competitor, so reordering it below a different
+  check survived. This claims an exemption is *correct* and tests only that the exempt case passes.
+
+      a PRECEDENCE claim   must name every COMPETITOR, or it is a claim about one example
+      an EXEMPTION claim   must name the case it must NOT cover, or it only ever loosens
+
+  **THE DIRECTION OF THE ERROR IS WHAT MAKES THE EXEMPTION FORM WORSE.** A missing precedence
+  competitor leaves a gate that is wrong in either direction; a missing exemption complement leaves
+  one that is wrong in exactly the permissive direction — **so the failure it admits is always the
+  false claim rather than the true one refused.** Second instance this week and the first of the
+  exemption variety.
+
+  **⚠ AND `G1` IS THE DENOMINATOR ROW, WHICH IS THE THIRD CENSUS THIS SESSION TO NEED THAT CHECK
+  WRITTEN BEFORE IT RAN.** A changed table format yields an empty map, every lookup returns
+  `undefined`, and **the gate quietly stops requiring anything.** The vacuous pass, arriving in a
+  LOOKUP rather than in a count — and the three instances this session were a scan, a slice and now
+  a map, which is the argument that the shape is about DERIVED SUBJECTS generally rather than about
+  counting.
 
 - **⚠ FIVE MATCHER ERRORS IN ONE EMITTER, AND THE EMITTER WAS THE ONE WRITTEN TO PREVENT THEM — WITH
   ITS OWN DENOMINATOR REQUIREMENT WRITTEN INTO ITS HEADER BEFORE IT EVER RAN.** `collection-readiness`

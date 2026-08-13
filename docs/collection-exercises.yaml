@@ -18,6 +18,15 @@
 # because below the fold the shell passes no inspector and the canvas must supply the form itself —
 # gallery gave it none and an author saw a preview with no form at all.
 #
+# ⚠ REORDER DOES NOT APPLY TO EVERY COLLECTION, AND THE RECORD MUST NOT CLAIM IT. `blog` sorts by
+# `date` and its reorder route returns 400 unsupported_collection, so a blog run is SEVEN steps and
+# omitting `reorder` is correct rather than incomplete. That is derived from COLLECTION_HAS_ORDER
+# rather than listed here — do not add a reorder line to a blog entry to make it look complete, it
+# is refused, and it would be a claim about something nobody did.
+#
+# NOT-APPLICABLE is a third state beside performed and not-exercised. `NOT EXERCISED` says somebody
+# could have and did not, which is a different sentence about a different situation.
+#
 # Copy the messages VERBATIM as they appear. Not "it showed an error". The gate refuses a paraphrase
 # because a paraphrase decided a real diagnosis here: a validator correctly refusing a draft marker
 # was reported as "something went wrong" and cost three prompts of investigation.
