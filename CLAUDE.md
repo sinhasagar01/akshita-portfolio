@@ -258,6 +258,38 @@ gates.
 
 
 
+- **⚠ BOARDED: SHOULD `unchecked-joins` REACH CASTS ON SHAPE-BEARING TYPES? THE SKILLS OUTAGE IS THE
+  EVIDENCE.** That census counts casts onto COLLECTION-KEYED types — `entry[1] as PreviewGroup` and
+  its family — where a closed set is widened and a cast silences the check.
+
+  **`items as string[]` IS THE SAME ACT ON A DIFFERENT KIND OF TYPE.** `SkillsCategory` declared
+  `items: string[]`, the schema declared objects, and **the cast is what let it compile**. Four
+  places said string, one said object, **and the type system agreed with the wrong four** — so the
+  one mechanism that could have caught a two-day outage was the one silenced.
+
+  **THE QUESTION IS WHETHER A CAST ONTO A SHAPE THE SCHEMA OWNS IS THE SAME CLASS**, and it is not
+  obviously yes: `unchecked-joins` found ELEVEN casts and ruled TEN of them guarded, so a wider net
+  is only worth it if the guards can still be told apart. **Not built. The instance is recorded so
+  whoever answers it starts from evidence rather than from a hunch.**
+
+- **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
+  IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
+  kind, the gallery image fields — were inert EVERYWHERE: the UI offered a value and nothing
+  anywhere persisted it.
+
+  **THE SKILLS GLOW WORD WORKED THROUGH KEYSTATIC AND BY HAND**, which is why `content/skills.yaml`
+  already carried `glow: vision` on twenty rows before /studio could save one. **Only the /studio
+  write path refused it.**
+
+  **⚠ SO THE FIELD LOOKED ALIVE FROM EVERY DIRECTION EXCEPT THE ONE AN AUTHOR USES.** A reader saw
+  glow words on the public site; a developer saw them in the content, the schema and the form. The
+  single surface that refused them is the single surface an owner edits through — and it announced
+  itself with an error message that was CORRECT ABOUT AN OBSOLETE RULE.
+
+  **THE CHECK THIS SUGGESTS, NOT BUILT:** for a field that exists in the schema, does EVERY write
+  path accept it — not just the one that happens to be exercised. `singleton-item-shape` covers the
+  shape; **it does not ask whether each surface can round-trip a value.**
+
 - **⚠ BOARDED: THE HERO AND THE WORK SECTION ARE TWO TYPOGRAPHIC SYSTEMS ON PURPOSE, AND NOTHING SAID
   SO — WHICH IS WHY A COSMETIC REQUEST COST FOUR ROUNDS.** `components/sections/hero-fonts.ts` loads
   **three faces scoped to the hero** — Fraunces (`--font-hero-display`), DM Sans (`--font-hero-sans`)
