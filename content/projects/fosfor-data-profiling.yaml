@@ -222,6 +222,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-detection-rate
               title: Issue detection
               body: How reliably teams surfaced and resolved data quality problems.
