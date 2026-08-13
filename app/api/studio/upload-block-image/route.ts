@@ -102,14 +102,25 @@ export async function POST(req: Request) {
   // Normalize to webp (downscale to fit MAX_EDGE, never enlarge). rotate() bakes in
   // EXIF orientation so the stored pixels are upright.
   let normalized: Uint8Array;
+  /* ⚠ THE DIMENSIONS OF THE NORMALIZED OUTPUT, NOT OF THE UPLOAD. `resize` fits inside MAX_EDGE and
+     `rotate()` bakes in EXIF orientation, so the source's own width and height describe an image
+     that is not what lands on disk — a portrait shot tagged sideways would report its dimensions
+     transposed. These are read after both, from the bytes actually committed.
+
+     ⚠ AND THIS ROUTE ALREADY HAD THE CAPABILITY AND THREW IT AWAY. `upload-hero-image` calls
+     `toBuffer({ resolveWithObject: true })` and its own comment says "dims are captured here but
+     not persisted — the `<Image fill>` render needs no dims". True for that consumer. The gallery's
+     masonry cannot lay out without them, so the same call now returns them. */
+  let dims: { width: number; height: number } | null = null;
   try {
     const input = Buffer.from(await file.arrayBuffer());
     const out = await sharp(input)
       .rotate()
       .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: "inside", withoutEnlargement: true })
       .webp({ quality: WEBP_QUALITY })
-      .toBuffer();
-    normalized = new Uint8Array(out);
+      .toBuffer({ resolveWithObject: true });
+    normalized = new Uint8Array(out.data);
+    dims = { width: out.info.width, height: out.info.height };
   } catch {
     return NextResponse.json({ ok: false, error: "image_processing_failed" }, { status: 422 });
   }
@@ -133,5 +144,10 @@ export async function POST(req: Request) {
     saved: true,
     sha: result.sha,
     src: blockImageYamlValue(base, slug, hash),
+    /* Returned to every caller; only the gallery editor stores them. An existing caller that does
+       not read these is unaffected, which is what makes this additive rather than a contract
+       change — the same posture as `onChange`'s optional second argument in BlockImageField. */
+    width: dims?.width ?? null,
+    height: dims?.height ?? null,
   });
 }

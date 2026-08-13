@@ -10,6 +10,8 @@
 // intent: `edit` (the file MUST exist) and `create` (the file must NOT exist).
 // Create derives its own slug from the input's slug field, so a client value can
 // never become the create identity. Delete is a sibling deleteCollectionEntry.
+import { serializeGalleryEntry } from "./gallery-serialize";
+import type { GalleryInput } from "./gallery-format";
 import { load, dump } from "js-yaml";
 import {
   commitFileToDraft,
@@ -52,13 +54,18 @@ import { slugify, freeSlug } from "./slug";
 import { getBranchHeadOid, getBaseBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
 
-export type CollectionName = "experience" | "projects" | "blog";
-export type CollectionPatch = Partial<ExperienceInput> | Partial<ProjectsInput> | Partial<BlogInput>;
+export type CollectionName = "experience" | "projects" | "blog" | "gallery";
+export type CollectionPatch =
+  | Partial<ExperienceInput>
+  | Partial<ProjectsInput>
+  | Partial<BlogInput>
+  | Partial<GalleryInput>;
 
 const COLLECTION_PATH: Record<CollectionName, (slug: string) => string> = {
   experience: (slug) => `content/experience/${slug}.yaml`,
   projects: (slug) => `content/projects/${slug}.yaml`,
   blog: (slug) => `content/blog/${slug}.yaml`,
+  gallery: (slug) => `content/gallery/${slug}.yaml`,
 };
 
 // The top-level entry file for a collection (NOT the body subdir), used to scan
@@ -67,6 +74,7 @@ const COLLECTION_ENTRY_RE: Record<CollectionName, RegExp> = {
   experience: /^content\/experience\/[a-z0-9-]+\.yaml$/,
   projects: /^content\/projects\/[a-z0-9-]+\.yaml$/,
   blog: /^content\/blog\/[a-z0-9-]+\.yaml$/,
+  gallery: /^content\/gallery\/[a-z0-9-]+\.yaml$/,
 };
 
 /**
@@ -81,6 +89,11 @@ const COLLECTION_HAS_ORDER: Record<CollectionName, boolean> = {
   experience: true,
   projects: true,
   blog: false,
+  /* ⚠ TRUE, UNLIKE BLOG, AND THE DISCRIMINATOR IS WHAT SORTS THE PUBLIC PAGE. Posts order by
+     `date`, which every post has and which an author does not arrange. A gallery has no natural
+     order — a photograph from 2022 may belong beside one from 2025 — so the arrangement IS the
+     authoring, and `reorder-entries` is the surface for it. */
+  gallery: true,
 };
 
 type Serialized = { ok: true; bytes: string } | { ok: false; error: SaveError };
@@ -173,6 +186,8 @@ function editEntry(
           return serializeBlogEntry(raw, patch as Partial<BlogInput>);
         case "experience":
           return serializeExperience(raw, patch as Partial<ExperienceInput>);
+        case "gallery":
+          return serializeGalleryEntry(raw, patch as Partial<GalleryInput>);
       }
     },
   });

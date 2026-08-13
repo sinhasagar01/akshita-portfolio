@@ -16,6 +16,7 @@ import {
   commitBlogBlocks,
 } from "@/lib/studio/commit-collection-entry";
 import { sanitizeSectionsPatch } from "@/lib/studio/sections-format";
+import { sanitizeGalleryPatch } from "@/lib/studio/gallery-format";
 import { sanitizeBlogPatch, sanitizeBlogBlocksPatch } from "@/lib/studio/blog-format";
 import {
   DRAFT_BRANCH,
@@ -156,7 +157,12 @@ export async function POST(req: Request) {
   // settings edits (DB-1) and both publish together from the Hero panel.
   if (body?.collection !== undefined) {
     const collection = body.collection;
-    if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
+    if (
+      collection !== "experience" &&
+      collection !== "projects" &&
+      collection !== "blog" &&
+      collection !== "gallery"
+    ) {
       return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
     }
     const slug = body.slug;
@@ -166,12 +172,19 @@ export async function POST(req: Request) {
     }
     // Explicit per-collection arms — a two-way ternary would have routed blog into the
     // experience sanitizer once the allowlist widened.
+    //
+    // ⚠ AND THE LAST ARM IS STILL A FALLTHROUGH, WHICH THE ALLOWLIST ABOVE IS THE ONLY THING
+    // GUARDING. Widening that list without adding an arm here routes the new collection into
+    // `sanitizeExperiencePatch` — the exact defect the sentence above describes, one arm further
+    // out. Adding `gallery` meant touching BOTH, and a future fifth collection will too.
     const sanitizedEntry =
       collection === "projects"
         ? sanitizeProjectsPatch(body.patch)
         : collection === "blog"
           ? sanitizeBlogPatch(body.patch)
-          : sanitizeExperiencePatch(body.patch);
+          : collection === "gallery"
+            ? sanitizeGalleryPatch(body.patch)
+            : sanitizeExperiencePatch(body.patch);
     if (!sanitizedEntry.ok) {
       return NextResponse.json(sanitizedEntry, { status: 400 });
     }

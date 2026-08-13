@@ -14,6 +14,7 @@ import { commitCollectionEntry } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { sanitizeExperienceCreate } from "@/lib/studio/experience-format";
 import { sanitizeProjectCreate } from "@/lib/studio/projects-format";
+import { sanitizeGalleryCreate } from "@/lib/studio/gallery-format";
 import { sanitizeBlogCreate } from "@/lib/studio/blog-format";
 
 export async function POST(req: Request) {
@@ -34,7 +35,12 @@ export async function POST(req: Request) {
   }
 
   const collection = body?.collection;
-  if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
+  if (
+    collection !== "experience" &&
+    collection !== "projects" &&
+    collection !== "blog" &&
+    collection !== "gallery"
+  ) {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
 
@@ -43,12 +49,16 @@ export async function POST(req: Request) {
   // mode-independent gate. slug derivation lives in the lib (no route slugify).
   // Explicit per-collection arms — a two-way ternary would have routed blog into the
   // experience sanitizer once the allowlist widened.
+  // ⚠ THE LAST ARM IS A FALLTHROUGH — see save-draft's note. The allowlist is what makes it safe,
+  // so widening one without the other silently routes a new collection into experience.
   const sanitized =
     collection === "projects"
       ? sanitizeProjectCreate(body.input)
       : collection === "blog"
         ? sanitizeBlogCreate(body.input)
-        : sanitizeExperienceCreate(body.input);
+        : collection === "gallery"
+          ? sanitizeGalleryCreate(body.input)
+          : sanitizeExperienceCreate(body.input);
   if (!sanitized.ok) {
     return NextResponse.json(sanitized, { status: 400 });
   }
