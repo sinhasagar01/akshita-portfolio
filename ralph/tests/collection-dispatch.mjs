@@ -48,9 +48,18 @@ import {
 } from "../../lib/studio/gallery-serialize.ts";
 import {
   sanitizeGalleryCreate,
+  sanitizeGalleryPatch,
   GALLERY_KINDS,
+  GALLERY_SCHEMA_KEYS,
   validateGalleryEntry,
 } from "../../lib/studio/gallery-format.ts";
+import config from "../../keystatic.config.ts";
+
+/** One acceptable value per field, so G4 can ask the sanitizer about each key on its own terms. */
+const SAMPLES = {
+  title: "T", kind: "photo", image: "/images/gallery/a.webp", width: 1600, height: 2000,
+  alt: "A", description: "D", tags: ["x"], caseStudy: "boat-crest", orderIndex: 1,
+};
 
 /* ⚠ COMMENT BODIES ARE BLANKED, AND THIS SUITE IS THE EIGHTH INSTANCE OF WHY. `A5` asserts three
    ternaries are GONE from that file — and the comments explaining each removal QUOTE the ternary
@@ -284,6 +293,58 @@ console.log("\nF · the publish gate, CALLED — the rows that would have stoppe
   t("F4 an entry that is not valid YAML is a refusal naming the file, never a throw",
     (() => { const r = validateGalleryEntry("x", "title: [unclosed"); return r.ok === false && r.error.field; })(),
     "content/gallery/x.yaml");
+}
+
+console.log("\nG · the schema and the key list, BOTH DIRECTIONS");
+/* ⚠ DERIVATION WAS TRIED FIRST AND IS BLOCKED BY THE LEAF DISCIPLINE — measured, not assumed.
+ * `Object.keys(config.collections.gallery.schema)` enumerates cleanly and in declaration order, so
+ * the schema CAN be the source. What it cannot be is the source AT RUNTIME: `gallery-format.ts` is
+ * a leaf, a leaf may only value-import packages, and the config is reachable only through an alias
+ * (`@/keystatic.config`) or an extensionless relative path — the first is invisible to Node, the
+ * second to `tsc` without `allowImportingTsExtensions`.
+ *
+ * SO THE COMPARISON IS A CONSIDERED SECOND-BEST WITH ITS REASON RECORDED, not a default. The unit's
+ * real result is the count: SIX parallel key lists became FOUR. The serializer's copy was folded
+ * into the sanitizer's, and `mapGalleryItem` moved into the leaf so the publish gate stopped
+ * carrying its own `readEntry`.
+ *
+ * ⚠ AND BOTH DIRECTIONS ARE ASSERTED, BECAUSE THEY ARE DIFFERENT DEFECTS. A key in the schema and
+ * not the list is SILENTLY DROPPED on save — the author types it, the serializer's rebuild omits
+ * it, and nothing says so. A key in the list and not the schema is the RED BUILD that just
+ * happened. One check catches one of them. */
+{
+  const schemaKeys = Object.keys(config.collections.gallery.schema);
+  t("G0 the schema enumerates — a zero here makes both directions vacuous",
+    schemaKeys.length, 10);
+  t("G1 ⚠ EVERY SCHEMA KEY IS IN THE LIST — one missing is a field silently dropped on save",
+    schemaKeys.filter((k) => !GALLERY_SCHEMA_KEYS.includes(k)), []);
+  t("G2 ⚠ EVERY LISTED KEY IS IN THE SCHEMA — one extra is the red build this arc just fixed",
+    GALLERY_SCHEMA_KEYS.filter((k) => !schemaKeys.includes(k)), []);
+  /* ⚠ ORDER, NOT JUST MEMBERSHIP. The list exists to make a save's bytes stable; two sets can agree
+   * while the rebuild reorders every key and turns a one-field edit into a whole-file diff. */
+  t("G3 …and in the same ORDER, which is what makes a one-field save a one-line diff",
+    [...GALLERY_SCHEMA_KEYS], schemaKeys);
+  /* The sanitizer's arms are per-key TYPE logic and cannot be derived from names — that is the
+     fourth list, and it is irreducible rather than unnoticed. This asserts it covers the same set. */
+  t("G4 …and the sanitizer accepts exactly those keys, no more and no fewer",
+    (() => {
+      const accepted = schemaKeys.filter((k) => sanitizeGalleryPatch({ [k]: SAMPLES[k] }).ok);
+      return schemaKeys.filter((k) => !accepted.includes(k));
+    })(), []);
+  t("G4a …and refuses one that is not in the schema, which is how the bad files got in",
+    sanitizeGalleryPatch({ summary: "" }).ok, false);
+  /* ⚠ THE FORCED COPY IN THE SERIALIZER, COMPARED. It cannot import the list — a leaf may
+   * value-import packages only, and both files must stay loadable — so the array is duplicated and
+   * this is what makes the duplication safe rather than a promise. Read as source because that is
+   * the only way to see a `const` a module does not export. */
+  t("G5 ⚠ THE SERIALIZER'S FORCED COPY MATCHES, IN MEMBERSHIP AND ORDER",
+    (() => {
+      const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "lib/studio/gallery-serialize.ts"), "utf8");
+      const i = src.indexOf("const GALLERY_KEYS = [");
+      if (i === -1) return null;
+      return [...src.slice(i, src.indexOf("] as const;", i)).matchAll(/"([a-zA-Z]+)"/g)].map((m) => m[1]);
+    })(),
+    [...GALLERY_SCHEMA_KEYS]);
 }
 
 console.log(`\ncollection-dispatch result: ${pass} passed, ${fail} failed`);

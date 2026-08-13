@@ -335,38 +335,17 @@ export async function getAdjacentProject(
  * item" rather than guessing an aspect — a guess is what put 19 of boat-crest's 25 images in the
  * wrong box.
  */
-export type GalleryItem = {
-  slug: string;
-  title: string;
-  kind: string;
-  image: string | null;
-  width: number;
-  height: number;
-  alt: string;
-  description: string;
-  tags: string[];
-  /** Optional, one-way. A gallery item may point at a case study; a case study never points back. */
-  caseStudy: string | null;
-  orderIndex: number;
-};
+/* ⚠ `GalleryItem` AND `mapGalleryItem` LIVE IN `lib/studio/gallery-format.ts` NOW, AND THE LEAF
+   DISCIPLINE CHOSE THE DIRECTION RATHER THAN TASTE. The publish gate must read an entry; this module
+   cannot be loaded by a suite because it reaches the config through an alias; and a leaf may only
+   value-import packages. So the reader could not come here — this had to go there.
 
-/** Map one gallery reader entry. Absent numbers coalesce to 0, which the page reads as
- *  "unrenderable" rather than as a default aspect — see the type note. */
-export function mapGalleryItem(slug: string, entry: Record<string, unknown>): GalleryItem {
-  return {
-    slug,
-    title: (entry.title ?? "") as string,
-    kind: (entry.kind ?? "") as string,
-    image: (entry.image as string | null) ?? null,
-    width: Number(entry.width ?? 0) || 0,
-    height: Number(entry.height ?? 0) || 0,
-    alt: (entry.alt ?? "") as string,
-    description: (entry.description ?? "") as string,
-    tags: ((entry.tags as readonly unknown[]) ?? []).map((t) => String(t)),
-    caseStudy: ((entry.caseStudy ?? "") as string) || null,
-    orderIndex: Number(entry.orderIndex ?? 0) || 0,
-  };
-}
+   IT REMOVED A SECOND SPELLING OF THE FIELD LIST. `validateGalleryEntry` carried its own `readEntry`
+   doing the identical field-by-field mapping, declared as a copy because the import was impossible.
+   One function now serves the public read and the publish gate. */
+export { type GalleryItem, mapGalleryItem } from "./studio/gallery-format";
+/* Imported as well as re-exported, because `getGalleryItems` below calls the mapper. */
+import { mapGalleryItem, type GalleryItem } from "./studio/gallery-format";
 
 /** Every gallery item, in author order. Unlike the blog there is no status field, so an item is
  *  public the moment it is on main — the same posture as the projects collection. */
