@@ -376,5 +376,49 @@ console.log("\nG · the schema and the key list, BOTH DIRECTIONS");
     [...GALLERY_SCHEMA_KEYS]);
 }
 
+console.log("\nH · every gallery image surface resolves a DRAFT path, and none uses the optimizer");
+/* ⚠ THE REPORTED DEFECT WAS "THE UPLOADED IMAGE DOES NOT APPEAR UNTIL REFRESH", AND IT WAS TWO
+ * FAILURES BEHIND ONE BLANK FRAME. The rail and index passed a RAW draft path to `next/image`,
+ * which 404s until publish. The canvas held an object URL and passed THAT to `next/image`, which
+ * cannot fetch a `blob:` at all. Neither could work, and the two looked like one intermittent bug.
+ *
+ * ⚠ AND THE OPTIMIZER IS THE HALF A READER WILL MISS. `ImageThumb`'s header states it: `next/image`
+ * refetches from the server WITHOUT the owner cookie, so even a correctly proxied path 401s. So
+ * every row here checks BOTH — the src is resolved, and the optimizer is off — because either alone
+ * still renders nothing. */
+{
+  const SURFACES = [
+    ["components/studio/GalleryItemList.tsx", "rail"],
+    ["components/studio/GalleryIndex.tsx", "index"],
+  ];
+  t("H0 both thumbnail surfaces were located — an empty set is not a pass", SURFACES.length, 2);
+  for (const [file, name] of SURFACES) {
+    const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", file), "utf8");
+    t(`H1 ${name}: the src goes through the draft proxy, not the raw path`,
+      /src=\{draftImageUrl\(item\.image\)\}/.test(blankCommentBodies(src)), true);
+    /* ⚠ A PLAIN `<img>`, ASSERTED AS THE ABSENCE OF THE OTHER. `next/image` with a proxied src is
+     * the 401, so this is not a style preference — it is the same claim as H1 from the other side. */
+    t(`H1a ${name}: …and renders a plain <img>, because the optimizer drops the owner cookie`,
+      /<Image\b/.test(blankCommentBodies(src)), false);
+  }
+
+  const panel = blankCommentBodies(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "components/studio/GalleryEditPanel.tsx"), "utf8"));
+  /* The canvas keeps the object URL FIRST — it is the only thing that resolves bytes the browser
+     already holds — and falls back to the proxy, which resolves draft and main. */
+  t("H2 canvas: the session's object URL first, then the proxy — never a raw path",
+    /shot\.preview \?\? \(shot\.src \? draftImageUrl\(shot\.src\) : null\)/.test(panel), true);
+  t("H2a …and it tells the overlay to skip the optimizer, which can fetch neither of those",
+    /unoptimizedImage/.test(panel), true);
+
+  const overlay = blankCommentBodies(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "components/gallery/GalleryOverlay.tsx"), "utf8"));
+  /* ⚠ AND THE PUBLIC PAGE MUST NOT INHERIT IT. The default is the whole point: a published image
+   * keeps the optimizer, its `sizes` ladder and its static path. A prop that defaulted the other
+   * way would fix the studio by making every visitor download an unoptimized original. */
+  t("H3 the overlay's prop DEFAULTS OFF, so the public page keeps the optimizer",
+    /unoptimizedImage = false/.test(overlay), true);
+  t("H3a …and the public page passes nothing, so it takes that default",
+    /unoptimizedImage/.test(blankCommentBodies(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "components/gallery/GalleryLightbox.tsx"), "utf8"))), false);
+}
+
 console.log(`\ncollection-dispatch result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

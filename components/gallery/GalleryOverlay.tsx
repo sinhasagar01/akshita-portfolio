@@ -77,6 +77,7 @@ export default function GalleryOverlay({
   onNext,
   indexLabel,
   filmstrip,
+  unoptimizedImage = false,
 }: {
   item: GalleryOverlayItem;
   staticView?: boolean;
@@ -94,6 +95,16 @@ export default function GalleryOverlay({
    *  already has a list pane for that job — so reproducing it would be drawing a second navigator
    *  beside the real one. The parity claim is about the item, and this is where its edge is. */
   filmstrip?: React.ReactNode;
+  /** ⚠ SKIP THE IMAGE OPTIMIZER, WHICH THE STUDIO NEEDS AND THE PUBLIC PAGE MUST NOT HAVE.
+   *
+   *  The optimizer refetches the URL FROM THE SERVER WITHOUT THE OWNER COOKIE, so a proxied draft
+   *  path 401s and a `blob:` object URL cannot be fetched at all. `ImageThumb`'s header states this
+   *  rule, and the image below broke it — see the note at the element.
+   *
+   *  THE COMPONENT STAYS IGNORANT OF THE STUDIO. It is handed an already-resolved `image` and one
+   *  boolean; it does not know what a draft branch is, and the public page passes neither. That is
+   *  what keeps one node serving two consumers rather than two nodes agreeing today. */
+  unoptimizedImage?: boolean;
 }) {
   const specs: [string, string][] = [
     ["KIND", KIND_LABEL[item.kind] ?? "Unset"],
@@ -152,12 +163,25 @@ export default function GalleryOverlay({
               /* ⚠ `next/image` HERE AND A PLAIN `<img>` IN THE CASE-STUDY PREVIEW, and the
                  difference is who chooses the scale. That overlay zooms, so an optimiser sizing to
                  a layout slot works against it. This one fits a slot and never zooms, which is
-                 exactly the case the optimiser is for. */
+                 exactly the case the optimiser is for.
+
+                 ⚠ AND THAT WAS TRUE OF THE PUBLIC PAGE AND FALSE OF THE STUDIO CANVAS, WHICH IS
+                 THE DEFECT THIS PROP FIXES — CORRECTED HERE IN THE SAME COMMIT AS THE CODE. The
+                 header three paragraphs up already said the optimizer refetches without the owner
+                 cookie; this element was `next/image` unconditionally, so in the canvas a proxied
+                 draft path 401d and an object URL could not be fetched at all. The comment stated
+                 the rule and the code beside it broke the rule — the fourth time in this collection
+                 that prose described correct behaviour next to code that did not do it.
+
+                 `unoptimized` renders the src as an ordinary browser request, which sends cookies
+                 and understands `blob:`. The public page never passes it, so a published image
+                 keeps the optimizer, its `sizes` ladder and its static path. */
               /* ⚠ NO `h-auto` AND NO `max-w-full` — the unlayered `img, video` reset already draws
                  both, so those utilities ask for what the element has and `cascade-public` counts
                  them inert. `max-h-full` and the width are NOT in that reset and are doing real
                  work, which is why only two of the four went. Same finding `ImagePreview` records
                  against the same reset. */
+              unoptimized={unoptimizedImage}
               className="max-h-full w-auto rounded-[10px] object-contain"
             />
           ) : (

@@ -49,6 +49,7 @@ import { useDraftForm } from "./useDraftForm";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { BlockImageField, TextField, TextArea, groupLabelCls } from "./blocks/fields";
 import { GALLERY_KINDS } from "@/lib/studio/gallery-format";
+import { draftImageUrl } from "@/lib/studio/draft-image";
 import { GALLERY_CANVAS_MIN_PX, GALLERY_PANES_SUM, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
 import type { GalleryItem } from "@/lib/keystatic";
 
@@ -177,7 +178,24 @@ export default function GalleryEditPanel({
     () => ({
       title: form.values.title,
       kind: form.values.kind,
-      image: shot.preview ?? shot.src,
+      /* ⚠ THE CANVAS'S ANSWER IS DERIVED SEPARATELY AND LANDS ON STRATEGY 1 FOR A DIFFERENT REASON
+         THAN THE RAIL'S — the count, not the size class.
+
+         `ImageThumb`'s header says what would change the calculus for strategy 1 is "proxying MANY
+         images at once, which is why the canvas still uses strategy 2". THE GALLERY OVERLAY SHOWS
+         EXACTLY ONE IMAGE. That objection is not in play here, so the many-images argument that
+         sends the case-study canvas to strategy 2 does not reach this one.
+
+         ⚠ AND THE COST OF THE ROAD NOT TAKEN IS THE DEFECT THAT WAS REPORTED. Strategy 2 is a
+         PAGE-LOAD SNAPSHOT: it cannot resolve a file uploaded during the session, because the
+         snapshot predates it. That is precisely "the image does not appear until refresh". Taking
+         it here would have needed strategy 3 beside it — an object URL for this session — which is
+         two mechanisms on one surface for one image.
+
+         WHAT STRATEGY 1 COSTS, STATED: one proxy round trip per canvas render, which the public
+         page does not pay. One image, one trip, and it is correct whether the file is on the draft
+         branch, on main, or in the browser's memory from a moment ago. */
+      image: shot.preview ?? (shot.src ? draftImageUrl(shot.src) : null),
       width: shot.width,
       height: shot.height,
       alt: form.values.alt,
@@ -375,7 +393,10 @@ export default function GalleryEditPanel({
           inspector
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
-            <GalleryOverlay item={preview} staticView />
+            {/* `unoptimizedImage` because both branches of `preview.image` are unfetchable by the
+                optimizer: the proxy needs the owner cookie, and a `blob:` URL cannot be refetched
+                at all. The public page passes nothing and keeps the optimizer. */}
+            <GalleryOverlay item={preview} staticView unoptimizedImage />
           </div>
         )
       }

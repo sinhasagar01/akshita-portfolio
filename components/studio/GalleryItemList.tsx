@@ -15,7 +15,7 @@
 // A list of forty photographs distinguished only by filename is a list nobody can navigate.
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { draftImageUrl } from "@/lib/studio/draft-image";
 import type { GalleryItem } from "@/lib/keystatic";
 import { inputCls } from "./blocks/fields";
 
@@ -84,13 +84,25 @@ export default function GalleryItemList({
                         even column. The masonry is where aspect matters; a rail where every row is
                         a different height is a rail that is harder to scan, not more honest. */}
                     <span className="relative size-9 flex-none overflow-hidden rounded-[3px] bg-studio-cream-100">
+                      {/* ⚠ STRATEGY 1 — PROXY EVERY SRC, ALWAYS, AND A PLAIN `<img>` RATHER THAN
+                          `next/image`. A just-uploaded image lives only on the draft branch, so its
+                          public path 404s until publish; `draftImageUrl` tries draft then main, so
+                          ONE src is correct in both cases and during the session that created it.
+
+                          THE OPTIMIZER CANNOT BE USED HERE AT ALL: it refetches from the server
+                          WITHOUT the owner cookie, so an optimized proxy URL 401s. That is
+                          `ImageThumb`'s rule and this is the same call.
+
+                          COST, STATED: one round trip per row. These are 36px thumbs and the trip
+                          is the same size at any display size — nothing here resizes anything — so
+                          what is being bought is a rail that is CORRECT rather than one that shows
+                          broken frames until publish. */}
                       {item.image ? (
-                        <Image
-                          src={item.image}
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={draftImageUrl(item.image)}
                           alt=""
-                          fill
-                          sizes="36px"
-                          className="object-cover"
+                          className="absolute inset-0 size-full object-cover"
                         />
                       ) : null}
                     </span>
