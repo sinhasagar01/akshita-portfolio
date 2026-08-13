@@ -230,6 +230,76 @@ is deploys rather than commits.
   `.githooks/pre-push` already makes. **What is missing is not a refusal, it is a reading nobody
   has to assemble by hand.**
 
+- **⚠ A GALLERY ITEM WITH AN EMPTY `kind` PASSES BOTH GATES AND NO FILTER CAN REACH IT — LIVE ON
+  MAIN, AND THE HERO IS ONLY WHAT MADE IT VISIBLE.** `light-through-leaves` carries `kind: ''`.
+  Measured against the collection as it stands:
+
+      items 5   ·   all 5   ·   byKind {photo: 3, illus: 1, proj: 0}   ·   the kinds sum to FOUR
+      validateGalleryEntry     ok on all five
+      galleryPublishBlockers   []
+
+  **THE ITEM IS REACHABLE ONLY THROUGH `All`.** Every chip filters by kind, and it has none, so
+  choosing any bucket hides it — while the masonry under `All` shows it, so nothing on screen says
+  it is unreachable. **A reader can see the piece and cannot narrow to it.**
+
+  **⚠ AND THE COUNTS DID NOT LIE BEFORE THE HERO; THEY WERE JUST NEVER ADDED UP.** The chips have
+  always read `All 5 · Photographs 3 · Drawings 1 · Studies 0`, and nobody sums a control row. The
+  fact row states the same four numbers as a CLAIM ABOUT THE COLLECTION, one line apart, where 5
+  against 3+1+0 is arithmetic a reader does perform. **Surfacing a number is what made an old
+  inconsistency into a visible one** — the defect is upstream and the hero is the instrument.
+
+  **NOT FIXED HERE, AND THE CHOICE IS THE OWNER'S.** Three answers exist and they are different
+  products: refuse an empty kind at publish (a write-path change past this unit's scope), give the
+  schema a default, or add a fourth bucket for the unclassified — which is inventing a category, and
+  this record deletes those. **What must NOT happen is the fact row quietly excluding it to make the
+  sum work**, which would hide a real item to protect an arithmetic.
+
+- **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
+  FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
+  paint through a canvas pixel, sanity pair 21.000 first:
+
+      sapphire   10,16,22  on  73,91,203    3.32        cream     254,249,241 on 182,83,41   4.70
+      ink-flare  20,13,10  on  162,78,2     3.32        harbour   245,251,255 on 0,126,91    4.87
+      nocturne   13,14,25  on  115,79,185   3.24        orchid    252,249,253 on 153,63,148  5.76
+      basalt     15,15,15  on  82,119,0     3.65        cerise/fern                    4.66 / 4.63
+
+  **THE PAIR IS THE TOKENS THEMSELVES**, not any one consumer — read straight off
+  `--color-on-accent` against `--color-accent-500` it gives the identical figures. The shipped
+  gallery filter chip measures exactly the same, so this predates the hero.
+
+  **⚠ AND `.nav-cta` CLEARS ON ALL NINE — 4.93 TO 5.92 — BECAUSE IT USES WHITE RATHER THAN THE
+  ROLE.** That is the tell: the one accent-filled control that passes is the one not using the
+  vocabulary. `paint-sites`' own ALLOW entry records its figures and never asked the role the same
+  question.
+
+  **⚠ AND `.nav-cta` BYPASSING THE ROLE IS ITSELF THE FINDING, NOT THE ESCAPE HATCH.** A working
+  control that works BY NOT USING THE SYSTEM is evidence about the system rather than about the
+  control. Its white is defended in `paint-sites`' ALLOW as ground-independent by argument, which is
+  true — and the argument was never turned around to ask why the ROLE built for that exact job could
+  not make it. **The one accent-filled control that passes on all nine is the one not using the
+  vocabulary.** Any repair should make `on-accent` able to replace that white, or admit the role does
+  not cover its own case.
+
+  **THE HERO'S CTA KEEPS `on-accent` DELIBERATELY.** Pointing it at white would fix one element,
+  hide a token defect behind it and make the vocabulary wrong — the trade this project has spent
+  twelve sessions removing. **Denominator: 17 `text-on-accent` sites across 9 components, plus 3
+  `var(--color-on-accent)` readers in the stylesheet.** The fix is four dark values, which is a
+  palette change and not a component one.
+
+- **⚠ THE GALLERY HERO TOOK `/gallery` FROM 4 ABOVE-THE-FOLD IMAGE REQUESTS TO 9, AND NO `sizes`
+  FIXES THAT — BOARDED WITH THE MEASUREMENT.** The strip's five frames and the masonry's four eager
+  tiles are the same ITEMS and never the same URLs, so nothing is shared between them.
+
+      strip, sizes="170px"      5 x w=384   40,470 B      <- shipped
+      strip, masonry's sizes    5 x w=640   87,215 B         the browser reads `sizes`, never the box
+      EAGER_TILES = 4           4 x w=640   69,772 B
+
+  **`EAGER_TILES` IS BELOW THE HAIRLINE AND WAS DELIBERATELY NOT TOUCHED.** Lowering it is the
+  obvious claw-back and it is a masonry decision with its own reasoning — a row that is eager
+  because it is the first row a reader sees. **The trigger is the collection reaching a size where
+  the strip and the first row show different items**, at which point the eager row is paying for
+  content the hero has already loaded.
+
 - **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
   GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
   `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
@@ -1231,6 +1301,24 @@ build a gate for the limit and then believe it.
   **THE TRIGGER TO REMEMBER: mounting a case-study block component anywhere that is not a case-study
   section.** The kit, a preview, a specimen page, a future style guide — all four have this.
 
+- **⚠ THE UNBALANCED-MATCHER FAMILY GAINS AN EIGHTH, AND IT IS A NEW VARIANT: THE EXTRACTOR'S END
+  ANCHOR MATCHED SOMEWHERE ELSE, SO THE ASSERTION'S WINDOW AND THE MUTATION'S TARGET WERE DISJOINT.**
+  A row asserting that the gallery hero's hover-straighten lives ONLY inside a
+  `prefers-reduced-motion: no-preference` block sliced the block from its at-rule **to the end of the
+  file**, then asked whether the remainder contained the rule. Its companion guard checked the slice
+  "closed" by testing `endsWith("}")` — **which the whole stylesheet satisfies.**
+
+  **SO THE MUTATION THAT MOVES THE RULE OUT OF THE GATE LANDED INSIDE THE TAIL THE ROW HAD ALREADY
+  DELETED, AND THE ROW REPORTED PASS ON THE EDIT IT EXISTS TO CATCH.** Repaired by balancing braces
+  and by replacing the `endsWith` with a SIZE CEILING — a bounded block is a few hundred bytes and
+  the file's tail is hundreds of thousands, so magnitude is what discriminates.
+
+  **⚠ THIS IS NOT PRESENCE-VERSUS-REACHABILITY AND MUST NOT BE FILED THERE.** That family is about a
+  string being in a file while nothing can render it. Here the extractor's END was unanchored, so the
+  region examined and the region changed never overlapped — the same defect as a lazy class walking
+  past a construct's close, arriving in a SLICE rather than in a regex. **An extractor needs its end
+  anchored as hard as its start, and a guard on that extractor must fail when the end runs long.**
+
 - **⚠ THE UNBALANCED-MATCHER FAMILY REACHED SEVEN, AND THE LAST TWO ARRIVED FROM PLACES NOBODY
   AUDITS.** The rule is old — a matcher that must know where a construct ENDS cannot be written with
   a pattern that does not count. The new members are about WHERE they were.
@@ -1525,6 +1613,17 @@ build a gate for the limit and then believe it.
   **Nothing is lost by deferring while six arcs are open, and a palette drawn INTO an open arc will be
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
+
+- **⚠ TWELVE UNFALSIFIABLE ROWS NOW, EVERY ONE FOUND BY MUTATION AND NONE BY READING — AND THE
+  COUNT IS THE ARGUMENT.** The newest two came from one suite written by an author who had just
+  re-read this entry. One was `A7`'s shape a fourth time — **the leaf proven and the call
+  unasserted**, where swapping a call site's argument to the exact reversal the rows existed to
+  prevent left the suite fully green. The other is the extractor variant recorded above.
+
+  **THE TALLY MATTERS BECAUSE THE INSTINCT IT REFUTES IS "I WOULD SEE THAT ONE".** Twelve times the
+  reading passed and the mutation did not. **Ask what would have to change for this row to go red,
+  and then MAKE that change** — the asking is not the test, and this file has now been wrong about
+  that twelve times.
 
 - **⚠ AN ASSERTION THAT CANNOT FAIL FOR THE REASON IT NAMES — FOUR IN ONE UNIT, ONE SHAPE.** Each
   passed, each was checkable-looking, and none tested the property in its own title.
@@ -1891,6 +1990,28 @@ build a gate for the limit and then believe it.
   7.09 to 7.15 on dark. **The light side moves and that was accepted rather than dodged** — pointing
   body copy at `text-lead` would have been byte-identical and would have made the vocabulary wrong
   forever, which is the trade this project has spent twelve sessions removing.
+
+- **⚠ THE ELEMENT THAT MADE THE GROUND WAS THE ELEMENT BEING MEASURED — SEVENTH INSTANCE OF *A RATIO
+  BELONGS TO THE GROUND IT WAS TAKEN ON*, AND THE FIRST OF THIS SHAPE.** The gallery hero's dek took
+  the quiet text role to match its mock, and measured **3.79 to 4.17 on the five light palettes**
+  against a 4.5 floor. The role is not wrong and is not wrong anywhere else on the site.
+
+  **THE HERO'S OWN ACCENT WASH IS THE GROUND.** `.gallery-hero-glow` is a radial at 17% accent behind
+  the copy, so the dek sits on `228,205,187` while the fact row **300px lower in the same component**
+  sits on `237,227,213` — and the SAME quiet role clears there at 4.56. One element, two grounds, one
+  role, opposite verdicts.
+
+  **⚠ EVERY EARLIER INSTANCE WAS A RATIO BORROWED FROM ANOTHER SURFACE.** A dark foreground measured
+  against `canvas`, a pressed chip measured against a token it never composites onto, a figure
+  attached to the wrong pair. **This one borrows nothing: the ground did not exist until the
+  component created it**, so no amount of checking the token, the role or any other page could have
+  predicted it. Only sampling the paint under THIS element could.
+
+  **THE PRACTICAL FORM: A COMPONENT THAT PAINTS ITS OWN BACKDROP HAS INVALIDATED EVERY RATIO ITS
+  FOREGROUNDS INHERITED.** Adding a wash, a gradient, a tint or an image behind copy is a
+  contrast-invalidating change even when no foreground moved — and nothing in this repo will say so,
+  because every instrument reads tokens and this is a composite. Repaired by restoring `text-lead`,
+  the masthead's own choice, at 9.70 to 11.43 on all nine.
 
 - **⚠ THE GROUND IS PER CLASS — THIRD INSTANCE, AND IT PRODUCED FALSE FAILURES THIS TIME.** Measuring
   the new dark foregrounds against `canvas` gave **1.55 with failure marks**. `canvas` IS the page
@@ -2944,6 +3065,25 @@ build a gate for the limit and then believe it.
   suite can run the real tool without mutating the tree. The apply-and-revert round trip is proved by
   hand and recorded instead, because a suite that failed midway through it would leave the repository
   dirty for every gate after it. **What belongs in CI is the half that cannot damage anything.**
+
+- **⚠ `--restore` ROLLED BACK REAL WORK AND `git status` SHOWED NOTHING WRONG, BECAUSE A FILE COUNT
+  IS NOT A CONTENT CHECK.** A snapshot was taken, two functions were then added to a leaf and wired
+  into a component, and a later `--restore` — reached for as tidying at the end of a mutation batch
+  — put the tree back to the snapshot and **took both functions and all three call sites with it.**
+
+  **THE RECORD ALREADY SAYS `--restore` CONSUMES ITS SNAPSHOT AND TO SNAPSHOT BEFORE EACH MUTATION.
+  THAT IS NOT THE NEW HALF.** The new half is that the check performed afterwards was
+  `git status --short | grep -c "^ M"` — **six, exactly as before, because the files were still
+  modified, just to an earlier version.** A count is invariant under the damage.
+
+  **⚠ AND THE FAILURE SURFACED THREE STEPS LATER AS A SYNTAX ERROR IN AN UNRELATED SUITE** — an
+  import of a name that no longer existed — which reads as a broken mutation rather than as lost
+  work. Two mutations were diagnosed as instrument problems before the cause was found.
+
+  **THE RULE THAT WOULD HAVE CAUGHT IT: COMMIT BEFORE A MUTATION BATCH, NOT SNAPSHOT.** A commit
+  makes the recovery `git diff` rather than memory, and makes `--restore` harmless. The snapshot
+  mechanism is for an operator's uncommitted work in progress; using it as the safety net for work
+  that is finished is using it against its own design.
 
 - **⚠ A PROBE FOR A CAPITALISED PATH OVERWRITES THE REAL PAGE'S BUILD OUTPUT ON macOS, SO THE PROBE
   MANUFACTURES THE FAILURE IT THEN REPORTS.** Verifying that `/palettes/[slug]` refuses an unknown

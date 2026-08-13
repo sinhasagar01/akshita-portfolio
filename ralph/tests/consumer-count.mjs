@@ -46,7 +46,22 @@ for (const p of files) {
    * whose consumption route is utility generation is a different question and role-layer's ratchet
    * already owns the colour half of it. Its first run reported 90 of these as orphans. */
   const src = strip(readFileSync(p, "utf8")).replace(/@theme[^{]*\{[\s\S]*?\n\}/g, "");
-  for (const m of src.matchAll(/(--[a-z0-9-]+)\s*:/gi)) declared.set(m[1], rel(p));
+  /* ⚠ THE LOOKBEHIND IS LOAD-BEARING: A BEM CLASS FOLLOWED BY A PSEUDO-SELECTOR IS NOT A
+   * DECLARATION. `.gallery-hero-frame--empty:after` matched `(--[a-z0-9-]+)\s*:` and reported
+   * `--empty` as a custom property declared and never read — a defect that does not exist, in a
+   * gate whose whole job is finding ones that do.
+   *
+   * ⚠ AND IT WAS LATENT RATHER THAN NEW. This file already carries ten BEM double-hyphen classes —
+   * `.hero-aura--pulse`, `.hero-facts--four`, `.ha-ping--2` and the rest — and NOT ONE of them is
+   * followed by a pseudo-selector, so none ever supplied the colon the matcher needs. The eleventh
+   * was the first to reach it. A matcher that has been right for its whole life is not a matcher
+   * that has been tested.
+   *
+   * THE CONCEPT IS "A DECLARATION", and a declaration's name can only follow `{`, `;` or
+   * whitespace — never an identifier character, which is exactly what precedes the `--` inside a
+   * BEM class. Widened to the concept rather than working around the one selector, because
+   * renaming the class would have left the next BEM-plus-pseudo to find this again. */
+  for (const m of src.matchAll(/(?<![a-z0-9-])(--[a-z0-9-]+)\s*:/gi)) declared.set(m[1], rel(p));
 }
 /* ⚠ TWO CONSUMPTION ROUTES, AND THE SECOND NEARLY COST A LIVE TOKEN. `var()` is the CSS route;
  * `getPropertyValue("--x")` is the JS route, and `--studio-t0` is read that way by

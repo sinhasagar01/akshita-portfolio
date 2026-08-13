@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getGalleryItems } from "@/lib/keystatic";
 import { absoluteUrl } from "@/lib/site";
 import GalleryBrowser from "@/components/gallery/GalleryBrowser";
+import GalleryHero from "@/components/gallery/GalleryHero";
 
 // The gallery index. The server reads the collection; everything interactive — the filter, the
 // masonry's open state, the lightbox — is one client component below.
@@ -49,32 +50,30 @@ export default async function GalleryPage() {
   const items = await getGalleryItems();
 
   return (
-    <div className="container-x pb-24">
-      <header className="border-b border-etch/8 pb-[30px] pt-16">
-        <p className="text-[12px] uppercase tracking-[0.16em] text-text-secondary">Gallery</p>
-        {/* ⚠ NO FAMILY OR WEIGHT UTILITY — `cascade-public` C3 counts both inert here. The unlayered
-            `h1, h2` reset already sets the display family AND the regular weight, and an unlayered
-            rule beats anything in `@layer utilities`. The blog masthead this is modelled on carries
-            both and they are equally dead there; they are pre-existing and pinned, so they are left
-            alone rather than swept in a gallery PR — but copying them forward would have grown the
-            inventory the gate exists to hold flat. The rendering is identical either way, which is
-            what "inert" means and why nobody notices. */}
-        <h1 className="mt-3.5 max-w-[16ch] text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.02] tracking-[-0.015em] text-text-primary">
-          {MASTHEAD.title}
-        </h1>
-        <p className="mt-3.5 max-w-[54ch] text-base leading-[1.6] text-text-lead">{MASTHEAD.dek}</p>
-      </header>
+    <div className="pb-24">
+      <GalleryHero items={items} />
 
-      {/* ⚠ THE EMPTY STATE IS A REAL STATE AND SHIPS WITH THE PAGE, because the collection is empty
-          on the day this lands. A gallery with nothing in it is not a broken page — it is a page
-          whose content has not been authored — and the alternative, holding the route back until
-          somebody uploads, is how a feature ships untested and then ships its first author's
-          upload untested too. The blog index made the same call and its sitemap comment says so. */}
-      {items.length === 0 ? (
-        <p className="mt-10 text-[14px] text-text-subtle">Nothing here yet.</p>
-      ) : (
+      {/* ⚠ THE EMPTY STATE IS A REAL STATE AND SHIPS WITH THE PAGE, because the collection is
+          nearly empty on the day this lands. A gallery with nothing in it is not a broken page —
+          it is a page whose content has not been authored — and the alternative, holding the route
+          back until somebody uploads, is how a feature ships untested and then ships its first
+          author's upload untested too. The blog index made the same call and its sitemap comment
+          says so.
+
+          ⚠ AND THE EARLY RETURN THAT USED TO SIT HERE IS GONE, WHICH IS A REAL FIX RATHER THAN
+          TIDYING. It rendered a bare sentence and NO FILTER ROW when the collection was empty, so
+          the page's own controls appeared on the first upload — and it tested `items` while
+          `GalleryBrowser` tested a filtered population, so an item with a null image satisfied one
+          guard and not the other and produced the FILTERED sentence on a gallery showing nothing.
+          One population now, derived once in `galleryCounts`, and the browser owns both zero
+          states because it is the only thing that knows which one applies. */}
+      {/* ⚠ THE ANCHOR IS ON THIS WRAPPER RATHER THAN ON THE GRID, so it exists in BOTH states. A
+          target inside the populated branch would leave "Browse everything" pointing at nothing on
+          the empty page — a link that silently does not move, which is worse than one that is
+          absent. `scroll-mt` clears the fixed nav. */}
+      <div id="gallery-grid" className="container-x scroll-mt-24">
         <GalleryBrowser items={items} />
-      )}
+      </div>
     </div>
   );
 }

@@ -63,6 +63,60 @@ export function mapGalleryItem(slug: string, entry: Record<string, unknown>): Ga
   };
 }
 
+/**
+ * The renderable population and its per-kind tally, from ONE derivation.
+ *
+ * ⚠ THE POPULATION IS `image != null`, AND THE WHOLE POINT IS THAT THERE IS ONLY ONE OF THEM. The
+ * page used to test `items.length` while the browser tested a filtered `withImage.length`, so an
+ * item on main with a null image satisfied the first and not the second — which rendered the
+ * FILTERED sentence on a gallery showing nothing. Two guards counting two populations is how a
+ * message ends up answering a question nobody asked.
+ *
+ * ⚠ AND IT FEEDS BOTH THE FACT ROW AND THE FILTER CHIPS, WHICH DISPLAY THE SAME FOUR NUMBERS ABOUT
+ * 40px APART. They are kept because they do different jobs — the facts are a claim about the
+ * collection, the chips are controls that happen to carry counts — but two jobs is not two
+ * derivations, and had it been, the page could have contradicted itself in one screenful.
+ */
+export function galleryCounts(items: readonly GalleryItem[]): {
+  shown: GalleryItem[];
+  all: number;
+  byKind: Record<string, number>;
+} {
+  const shown = items.filter((i) => i.image);
+  const byKind: Record<string, number> = {};
+  for (const k of GALLERY_KINDS) byKind[k] = shown.filter((i) => i.kind === k).length;
+  return { shown, all: shown.length, byKind };
+}
+
+/**
+ * WHICH ZERO STATE APPLIES. `kind` is the reader's request, and it is the ONLY thing that can tell
+ * the two apart — an empty result looks identical either way, so a count cannot decide it.
+ *
+ * ⚠ THIS IS A PURE FUNCTION RATHER THAN A TERNARY IN THE COMPONENT BECAUSE A SOURCE REGEX CANNOT
+ * SEE REACHABILITY. `PublishBar`'s status sentence was guarded by regexes over its own file, and
+ * setting one binding to `null` made the whole sentence unreachable while leaving every word of it
+ * in the file — three rows stayed green. The standing repair is to move the branching somewhere a
+ * suite can CALL it with real inputs and assert the returned string, which `bar-clearance.ts` and
+ * `draft-status-text.ts` already do.
+ */
+export function galleryEmptyMessage(kind: string, labelFor: (k: string) => string): string {
+  return kind === "all" ? "Nothing here yet." : `No ${labelFor(kind).toLowerCase()} yet.`;
+}
+
+/**
+ * WHETHER A FILTER CHIP IS DISABLED — and the answer turns on the COLLECTION, never on the chip.
+ *
+ * ⚠ `counts[kind] === 0` IS THE OBVIOUS IMPLEMENTATION AND IT SILENTLY REVERSES A WRITTEN DECISION.
+ * `GalleryBrowser`'s header records that a chip reading `Drawings 0` STAYS PRESSABLE, because it is
+ * the answer to "are there any drawings" available without a click; a hidden or dead chip makes
+ * that answer reachable only by noticing an absence, which is the one thing a reader cannot do.
+ * What is disabled here is a control with nothing to control AT ALL — a different claim, and the
+ * only one an empty collection supports.
+ */
+export function galleryChipDisabled(kind: string, collectionCount: number): boolean {
+  return collectionCount === 0 && kind !== "all";
+}
+
 /** What a gallery CREATE carries. The title alone — see `sanitizeGalleryCreate`. */
 export type GalleryCreateInput = { title: string };
 
