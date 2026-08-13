@@ -189,6 +189,30 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ A DEPLOY STATUS IS A READING WITH A TIMESTAMP, NOT A FACT — AND SO IS "MAIN IS AHEAD OF
+  PRODUCTION".** Production was reported as one merge behind `main`. It was, at that moment, and the
+  build was IN FLIGHT: the deployment for that merge landed at `11:01:23Z`, minutes later, with a
+  success status. **The reading was correct and the claim was a state.**
+
+  **THE HONEST FORM CARRIES THE TIME.** "Production is at X as of 10:58Z, main is at Y" is checkable
+  and invites the obvious next question; "production is one merge behind" is a fact about a system
+  that changes while the sentence is being written. Same defect as the deploy-throttle counts that
+  carry `14:45Z` for exactly this reason — and this one was committed by someone who had just
+  re-read that entry.
+
+  **⚠ AND IT NEARLY COST A TEST RUN, WHICH IS WHY IT IS NOT MERELY PEDANTRY.** The owner was about
+  to choose where to drive a seven-case failure suite on the strength of it. Driving production on
+  a stale reading would have exercised the previous build and reported the results as current —
+  **the wrong-subject shape arriving in a test run rather than in an assertion.**
+
+  **TWO INSTANCES, TWO PEOPLE, ONE HOUR, BOTH ABOUT THE SUBSTRATE RATHER THAN ANY CODE.** The other
+  was a local write-mode assumption: `STUDIO_WRITE_MODE=fs` no-ops EVERY write route, so the honest
+  count of editor paths drivable on localhost is **zero**, not the four that reading the routes
+  suggested. Measuring the GUARDS rather than the routes is what produced the right number.
+
+  **THE PATTERN: claims about the running system age faster than claims about code, and nothing in
+  this repository instruments them.** Every gate here reads the working tree.
+
 - **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
   GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
   `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
