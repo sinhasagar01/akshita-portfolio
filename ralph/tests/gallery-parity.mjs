@@ -59,14 +59,43 @@ t("B2 …and the public form with the props its consumer passes",
 t("B3 ⚠ AND BOTH BOXES ARE THE SAME WIDTH, or the only variable is not the flag",
   (src.match(/width: "1100px"/g) ?? []).length, 2);
 
-console.log("\nC · the n=1 limit is stated where a reader meets it");
+console.log("\nC · the foot reserves its height in BOTH forms");
+/* ⚠ THIS IS THE ROW THE HARNESS EARNED ON ITS FIRST RUN. Measured at 1100px, everything matched
+ * exactly — container, columns, rail, spec labels, heading — EXCEPT the image: canvas 300x400
+ * against public 258x344, because the absent filmstrip left the stage 56px taller. Exact
+ * arithmetic rather than a layout bug, and invisible to every source assertion in this repository:
+ * both consumers passed correct props, both rendered the same component, every gate was green.
+ *
+ * THE PARITY RULE DECIDED IT: a flag may ADD affordances and must never RESIZE A BOX. The editor
+ * was showing an image 14% larger than a visitor sees, and an author crops and composes against
+ * what they see.
+ *
+ * ⚠ RESERVED AS EMPTY SPACE, NEVER A PLACEHOLDER STRIP — dummy thumbnails would give the canvas an
+ * affordance the public page lacks, the same violation pointing the other way. */
+{
+  const overlay = readFileSync(join(root, "components/gallery/GalleryOverlay.tsx"), "utf8");
+  t("C0 the foot renders unconditionally rather than only when a filmstrip is passed",
+    /\{filmstrip \? <div/.test(overlay), false);
+  t("C1 …and reserves the strip's height when there is none",
+    /h-\[var\(--gallery-filmstrip-h\)\]/.test(overlay), true);
+  /* ⚠ ONE NUMBER FOR BOTH HALVES. A reserved band that did not match the strip's real height would
+   * be the same defect with a smaller delta — and harder to notice than 56px. */
+  t("C2 …from ONE declared value, so the band cannot drift from the strip it stands in for",
+    /--gallery-filmstrip-h: 56px/.test(overlay), true);
+  /* ⚠ AND NO PLACEHOLDER CONTENT. The band must be empty; anything drawn in it is an affordance
+   * the public page does not have. */
+  t("C3 …and the reserved band holds ONLY the slot, so the canvas grows nothing the reader lacks",
+    /gallery-filmstrip-h\)\]"\}`\}>\s*\{filmstrip\}\s*<\/div>/.test(overlay), true);
+}
+
+console.log("\nD · the n=1 limit is stated where a reader meets it");
 /* ⚠ THIS IS A PROSE ROW AND IT IS DELIBERATE. The harness will be read by someone deciding whether
  * a green run means anything, and the honest answer depends on which half they exercised. A limit
  * that lives only in a PR body is one nobody re-reads — `paint-sites`' census drift is recorded the
  * same way, in the file. */
-t("C1 the harness separates what it proves at n=1 from what needs n>3",
+t("D1 the harness separates what it proves at n=1 from what needs n>3",
   /AT n=1 IT PROVES/.test(raw) && /IT PROVES NOTHING ABOUT/.test(raw), true);
-t("C2 …and names the real collection's size on the page, so a run cannot be misread",
+t("D2 …and names the real collection's size on the page, so a run cannot be misread",
   /real collection: \{real\.length\}/.test(src), true);
 
 console.log(`\ngallery-parity result: ${pass} passed, ${fail} failed`);

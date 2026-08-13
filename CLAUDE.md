@@ -189,6 +189,25 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ THE RECORD IS ONLY TRUE OF `main`, AND A CLAIM ABOUT THE RECORD IS THE ONE NOBODY CHECKS —
+  BECAUSE CHECKING IT FEELS LIKE CHECKING YOURSELF.** Three PR bodies asserted *"`ralph/run.mjs`'s
+  header now states that a source regex cannot see reachability"*. **It did not.** The rule existed
+  only in #526, approved and unmerged, and three PRs were built on top of it citing it as standing.
+
+  **THE COST WAS ONE `grep` AND IT WAS NEVER RUN.** Every other claim in those bodies was measured —
+  assertion counts, byte figures, mutation results — and the one taken on trust was the one about
+  the repository itself. Same family as *nothing reported is evidence*, where ten merges were
+  reported into a local `main` that had never been pushed: **an instrument was available and the
+  claim felt too obvious to instrument.**
+
+  **⚠ AND IT COMPOUNDED WITH A SECOND MISS, WHICH IS WHY IT IS RECORDED AS A SHAPE RATHER THAN A
+  SLIP.** The owner approved three PRs on top of the open one without noticing it was open. **Two
+  people, one unmerged branch, three false claims** — so it is not a lapse of attention that a
+  reminder fixes. A branch that is approved reads as landed to everyone looking at it.
+
+  **THE CHECK: before citing a rule, a constant or a gate as recorded, grep it on `main`.** Not on
+  the working tree, which carries whatever the current branch added.
+
 - **⚠ KNOWING DOES NOT PREVENT — THE RULE WAS WRITTEN, THEN BROKEN TWO UNITS LATER BY THE HAND THAT
   WROTE IT, AND ONLY MUTATION CAUGHT IT.** `ralph/run.mjs`'s header now states that a source regex
   cannot see reachability. Two units on, the gallery publish check was asserted with a regex over
