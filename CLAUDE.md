@@ -189,36 +189,61 @@ is deploys rather than commits.
 
 ## Open items
 
-- **⚠ NEXT UNIT: STRIP COMMENTS ON THE `.tsx` SIDE OF THE CENSUS. SEVEN INSTANCES, AND THE ANSWER IS
-  NEITHER OF THE TWO THAT WERE ON THE TABLE.** Explaining-it-requires-writing-it has now fired seven
-  times — four delimiters, a `path:` glob, two OKLCH literals one unit apart, and most recently a
-  comment naming an inert element-and-utility pair, **written in the note explaining that the pair was
-  inert.** The count is what promotes this from an anecdote to a mechanism question.
+- **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`, AND THE HEADLINE IS THE ASYMMETRY
+  RATHER THAN THE SEVEN INSTANCES.** One suite carried TWO scanners over two languages. The CSS side
+  blanked comments before parsing and its own note called the order load-bearing, because a construct
+  named inside prose reconfigures the parser. **The JSX side read raw source.** That is a coverage
+  difference INSIDE A SINGLE FILE, and it produced **seven false positives against zero measured
+  cost** — the last of them a note explaining that a heading's family utility was inert, which made
+  the count go UP.
 
-  **THE TWO CANDIDATE ANSWERS WERE AN ESCAPED FORM, OR A RULE THAT COMMENTS MUST NEVER SPELL A CLASS.
-  MEASURED, BOTH ARE UNNECESSARY FOR `cascade-public`.** Its JSX scanner reads raw source while
-  **its own CSS scanner already strips comments first** — and that side's comment says the order is
-  load-bearing, because a construct named inside prose reconfigures the parser. The two halves of one
-  suite disagree, and the half that does not strip is the half that produced all of this.
+  **THE COST WAS MEASURED BEFORE THE CHANGE, NOT ARGUED AFTER IT.** Blanking left the census output
+  byte-identical — 4 public collisions and 19 inert, unchanged — across 178 files.
 
-      173 files, 258 className-bearing elements
-      inside a comment, today                     0
-      lost by stripping                           0
+  **⚠ AND IT FINDS MORE THAN IT REMOVES, WHICH WAS NOT THE POINT.** A `>` inside an
+  attribute-position comment terminated the raw element match early, so a real class after it was
+  never seen. Sixty files carry such a comment.
 
-  **SO THE REPAIR COSTS NOTHING MEASURABLE AND IS PROVED RATHER THAN ARGUED.** Reconstructing the
-  exact defect on a fixture: the raw scan reports the phantom element beside the real one, the
-  stripped scan reports only the real one. A rule asking authors to be careful is what this file
-  already had, seven times.
+  **THE BODY IS BLANKED AND NOT DELETED, AND A MUTATION IS WHY THAT IS ASSERTED.** `line` is computed
+  from the match index, so deleting would shift every reported line after the first comment in a
+  file. **The first fixture could not tell the two apart** — its comment was one line, so deletion
+  removed no newline and the line row passed under a mutation that replaced blanking with deletion.
+  A three-line fixture fires both. That is the *assertion that cannot fail for the reason it names*,
+  caught by mutation rather than by reading.
 
-  **⚠ AND THE UNIT IS NOT ONE SUITE, WHICH IS WHY IT IS BOARDED RATHER THAN DONE.** `colour-census`
-  reads `.tsx` too, and its subject is COLOUR LITERALS rather than elements — a different question
-  with a different blast radius. The precedent to check first is the reverted attempt to blank string
-  bodies in `css-comment-trap`, **which was correct as an idea and broke five assertions that READ
-  STRING CONTENTS.** Any stripper must be checked against what its consumers care about before it
-  lands, so this is two answers, not one.
+  **⚠ THE TDZ SHAPE ARRIVED FOR THE THIRD TIME, IN THE FIXTURE.** The block called `elements()` above
+  `COMPONENT_TAG`'s declaration, which parses perfectly and throws at run time. `node --check` sees
+  none of it. Running the row is the only thing that does.
 
-  **THE PART THAT IS SETTLED: the zero above is today's, taken after the offending comment was
-  removed.** A future instance would make it non-zero, which is the trigger to stop boarding this.
+  **SCOPED TO ONE SCANNER, DELIBERATELY.** `colour-census` also reads `.tsx` and its subject is
+  colour LITERALS rather than elements — a different question with a different blast radius, and the
+  precedent is `css-comment-trap`'s reverted string-blanking, which was right as an idea and broke
+  five assertions that read string contents. **That half is still open and is the trigger for the
+  next look: a comment naming a colour is still counted as a colour.**
+
+- **⚠ NEXT UNIT: THE UNLAYERED `img` RESET HAS FIRED FIVE TIMES — ASK WHETHER IT CAN BE LAYERED,
+  RATHER THAN LOGGING A SIXTH.** `img, video { max-width: 100%; height: auto; display: block }` sits
+  unlayered, so all three properties beat any utility in `@layer utilities`. Hazard 11's instances:
+  a `max-w-full` on the case-study preview, a full-height class on the gallery tile, and three inert
+  classes on the gallery overlay and tile. **An instance list this long is a question nobody has
+  asked.**
+
+  **THE MEASUREMENT THAT DECIDES IT, AND IT POINTS AT "ALWAYS AUTHORED".** Of 50 `<Image>`/`<img>`
+  elements in the tree, **12 already bypass the reset entirely** through `next/image`'s `fill`, which
+  Next writes as an INLINE style — the one thing that outranks an unlayered rule. Another 23 elements
+  carry an inline `height` or `aspectRatio`. **So the escape hatch is already the majority
+  mechanism**, and the reset is mostly serving elements that never argue with it.
+
+  **⚠ THE ANSWER IS PROBABLY NOT "LAYER ALL THREE", AND THE PRECEDENT SAYS WHY.** The dead-utilities
+  arc lifted 92 utilities across four properties and shipped it as **four PRs, one property at a
+  time**, because one diff containing 92 changes is a diff where nothing can be attributed. Lifting
+  `height` alone is the first unit; `max-width` and `display` are separate questions with separate
+  blast radii.
+
+  **THE OPEN QUESTION TO ANSWER FIRST:** whether lifting `height` changes any rendered box. Every
+  consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
+  only visible where a utility currently loses. **That set is exactly what `cascade-public` already
+  enumerates**, which means the blast radius is knowable before the edit rather than after it.
 
 - **⚠ THE HERO'S SCROLL CUE WAS A 665px ANCHOR AROUND 140px OF TEXT — CLOSED, AND THE STRIPS WERE
   NEVER THE DEFECT.** `.hero-copy` is a grid and a grid item stretches its column by default, so

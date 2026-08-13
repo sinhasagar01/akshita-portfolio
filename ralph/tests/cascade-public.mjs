@@ -181,6 +181,8 @@ t("A0b: the resolver turns a theme utility into a value", UTIL[3].f("leading-rel
 t("A0b: …and reads an arbitrary value out of its brackets", UTIL[3].f("leading-[1.02]"), "1.02");
 t("A0b: …and knows agreement from collision", [UTIL[6].f("max-w-full"), UTIL[5].f("h-auto")], ["100%", "auto"]);
 
+
+
 const COMPONENT_TAG = new Map([["Link", "a"], ["Image", "img"], ["NextImage", "img"]]);
 /* ⚠ THE DOTTED FORM IS MATCHED TOO, AND MISSING IT WAS A REAL BLIND SPOT. `<motion.h3>` renders a
  * literal <h3> and is subject to the unlayered reset exactly as a plain tag is — but the element
@@ -192,7 +194,42 @@ const COMPONENT_TAG = new Map([["Link", "a"], ["Image", "img"], ["NextImage", "i
  * collisions were "exactly three". They were four. A gate that enumerates by parsing source is
  * only as complete as its idea of what an element looks like, and this repo writes elements two
  * ways. */
-function* elements(src, rel) {
+/* ⚠ COMMENT BODIES ARE BLANKED BEFORE THE JSX SCAN, AND THE ASYMMETRY IS WHY.
+ *
+ * THIS SUITE HAD TWO SCANNERS AND ONLY ONE OF THEM STRIPPED. The CSS side blanks comments before
+ * parsing and its own note calls the order load-bearing, because a construct named inside prose
+ * reconfigures the parser. The JSX side read raw source — so a comment DESCRIBING an element and
+ * its class was indistinguishable from the element, and the census counted the description.
+ *
+ * IT HAS HAPPENED SEVEN TIMES ACROSS THIS REPOSITORY, and the seventh was a note explaining that a
+ * heading's family utility was inert: writing that sentence made the count go UP rather than down.
+ * The standing remedy was a rule asking authors never to spell a class in prose. A rule is what
+ * this file already had, seven times.
+ *
+ * ⚠ THE BODY IS BLANKED, NOT DELETED, AND THAT IS NOT TIDINESS. `line` below is computed from
+ * `m.index`, so removing characters would shift every reported line number in the file. Every
+ * non-newline character becomes a space and every newline survives, which leaves offsets and line
+ * counts identical — asserted by A0c.
+ *
+ * ⚠ SCOPED TO THIS SCANNER, DELIBERATELY. `colour-census` also reads `.tsx` and its subject is
+ * colour LITERALS rather than elements, which is a different question with a different blast
+ * radius; the precedent is `css-comment-trap`'s reverted string-blanking, which was correct as an
+ * idea and broke five assertions that read string contents. One scanner, measured, proved.
+ *
+ * ⚠ AND IT FINDS MORE THAN IT REMOVES, WHICH WAS NOT THE POINT AND IS WORTH KNOWING. A `>` inside
+ * an attribute-position comment terminated the raw element match early, so a real `className`
+ * after it was never seen. Blanking removes those closers, so some elements now yield the class
+ * they always carried. */
+function blankCommentBodies(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    /* A line comment only where the slashes are not preceded by a colon or a word character, so a
+       protocol-relative URL and `https://` are left alone. */
+    .replace(/(^|[^:\w])(\/\/[^\n]*)/g, (m, pre, c) => pre + c.replace(/[^\n]/g, " "));
+}
+
+function* elements(rawSrc, rel) {
+  const src = blankCommentBodies(rawSrc);
   const re = /<([A-Za-z][A-Za-z0-9]*(?:\.[a-z][a-zA-Z0-9]*)?)\s([^>]*?)>/gis;
   let m;
   while ((m = re.exec(src))) {
@@ -216,6 +253,47 @@ function* elements(src, rel) {
     tokens.push(...raw.replace(/\$\{[\s\S]*?\}/g, " ").split(/\s+/));
     yield { tag, tokens: [...new Set(tokens.filter(Boolean))], line: src.slice(0, m.index).split("\n").length, rel };
   }
+}
+
+/* ⚠ THIS BLOCK SITS BELOW `elements` AND `COMPONENT_TAG` BECAUSE IT CALLS THEM, and its first
+ * placement was above both. `const` does not hoist, so that raised a ReferenceError at RUN time
+ * while parsing perfectly — the temporal-dead-zone shape this repository has now recorded three
+ * times, twice in `mutate.mjs`. `node --check` is a PARSE and sees none of it. Running the row is
+ * the only thing that does, which is the rule these fixtures exist to honour. */
+/* A0c · THE JSX SCANNER IGNORES COMMENTS, PROVED BOTH WAYS ON ONE FIXTURE.
+ *
+ * ⚠ BOTH DIRECTIONS, BECAUSE EITHER ALONE IS SATISFIED BY A BROKEN SCANNER. A scanner that found
+ * nothing at all would pass the "commented element is not counted" row; a scanner that stripped
+ * nothing would pass the "real element is counted" row. Only the pair says the discriminator is
+ * the COMMENT rather than the element, and the two fixtures differ by exactly the delimiters. */
+{
+  /* Built from parts, so this file never contains the element-and-class shape it exists to prove
+     is ignored — writing that shape here is the very defect being closed, in the row closing it. */
+  const T = "h" + "3", C = "font-" + "display";
+  const EL = `<${T} className="${C}">x</${T}>`;
+  const live = `<div>\n  ${EL}\n</div>`;
+  const inJsx = `<div>\n  {/* was ${EL} */}\n  <p className="mt-2">y</p>\n</div>`;
+  const inBlock = `<div>\n  /* was ${EL} */\n  <p className="mt-2">y</p>\n</div>`;
+  const inLine = `<div>\n  // was ${EL}\n  <p className="mt-2">y</p>\n</div>`;
+  const tagsOf = (src) => [...elements(src, "fixture")].map((e) => e.tag);
+
+  t("A0c: a REAL element is found — without this the rows below pass by finding nothing",
+    tagsOf(live), [T]);
+  t("A0c: …the same element inside a JSX comment is NOT counted",
+    tagsOf(inJsx), ["p"]);
+  t("A0c: …nor inside a block comment", tagsOf(inBlock), ["p"]);
+  t("A0c: …nor inside a line comment", tagsOf(inLine), ["p"]);
+  /* ⚠ OFFSETS AND LINE NUMBERS SURVIVE, which is what makes blanking rather than deleting the
+     right operation — `line` is computed from the match index, so a shortened source would
+     misreport every element after the first comment in a file. */
+  t("A0c: blanking preserves length, so every reported line number is still true",
+    blankCommentBodies(inJsx).length === inJsx.length, true);
+  t("A0c: …and the surviving element keeps its true line number",
+    [...elements(inJsx, "fixture")][0].line, 3);
+  /* A protocol in a string is not a comment, and a scanner that thought so would blank the rest
+     of the line — including a className sitting after an href. */
+  t("A0c: a URL is not a line comment",
+    tagsOf(`<div>\n  <a href="https://x.test" className="underline">l</a>\n</div>`), ["a"]);
 }
 
 const files = [];
