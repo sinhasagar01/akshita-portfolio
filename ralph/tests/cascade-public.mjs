@@ -537,8 +537,17 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      The contract rebuild deleted that markup outright and the new `.hero-name` sets its face and
      weight on the CLASS, which beats the element reset instead of losing to it. The site the entry
      described no longer exists, which is the ExperienceEntry kind of fall arriving one element at
-     a time rather than a file at a time. */
-  inert.filter(outside).length, 19);
+     a time rather than a file at a time.
+
+     ⚠ 19 -> 11 WITH THE `img, video` HEIGHT LIFT, AND THE MOVEMENT IS ATTRIBUTED RATHER THAN
+     ACCEPTED. A prediction agreeing with an outcome is not evidence — this file's own rule — so
+     the departures were diffed BY IDENTITY: exactly eight left, all eight `h-auto` on an `<img>`,
+     four in BeforeAfterStory and four in WorkStory, and ZERO joined. Nothing changed category.
+
+     AND NOT ONE RENDERED BOX MOVED. All eight read `want=auto got=auto`, so every consumer already
+     agreed with the value the reset gave; the utility simply became the thing that supplies it.
+     That is why this lift could be taken whole where the four type lifts each had to be split. */
+  inert.filter(outside).length, 11);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
