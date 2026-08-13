@@ -256,6 +256,25 @@ gates.
   red assertions naming a missing bundle is not a silent wrong answer. **A gate that goes red for an
   environmental reason is still a gate people learn to skip**, and that is the cost being paid.
 
+- **⚠ BOARDED: A DARK CASE-STUDY HERO IS A DESIGN UNIT, AND IT ONCE SHIPPED FOR TWO DAYS AND WAS NOT
+  MISSED.** `isWebHero` was written to render a `template: web` hero on a dark full-bleed ground —
+  its own comment says the hero "owns its whole identity". It did, from **2026-08-07** to
+  **2026-08-09**, and the `:root` prefix ended it. **Nobody noticed the loss for four days: not the
+  owner, not a gate, not a review.**
+
+  **⚠ THAT ABSENCE OF NOTICE IS THE ONLY DATA ANYONE HAS ABOUT THE DESIGN, WHICH IS WHY IT IS
+  RECORDED RATHER THAN LEFT IN A DIFF.** A design nobody missed is not a design being restored.
+
+  **THE TRIGGER, IF IT IS WANTED:** a mock, an owner's eye on the hero images and the watermark
+  **against a dark ground**, and five light palettes measured per region. **The images were authored
+  and last looked at on a light ground** — whether they read on near-black is unmeasured and is not
+  a question a token can answer, which is precisely why it did not ride inside a cascade repair.
+
+  **THE POPULATION IT WOULD COVER IS FIVE REGIONS ON TWO PAGES**, derived: the hero and any
+  sole-`pullQuote` section on `fosfor-ai` and `fosfor-data-profiling`. Both emitters are
+  `template: web`-gated, which is why elevate, boAt, the blog, the gallery and the home page have
+  none.
+
 - **⚠ BOARDED: A LOCAL `github` WRITE MODE AGAINST A FORK, AND TWO PENDING DRIVES ARE THE ARGUMENT.**
   Every write route no-ops unless `STUDIO_WRITE_MODE=github`, so the drivable editor paths on
   localhost number **zero** — measured as ten routes carrying the guard, not inferred.
@@ -1074,6 +1093,60 @@ moment it grows an action again.
   consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
   only visible where a utility currently loses. **That set is exactly what `cascade-public` already
   enumerates**, which means the blast radius is knowable before the edit rather than after it.
+
+- **⚠ SPECIFICITY ONLY BREAKS TIES BETWEEN RULES MATCHING THE SAME ELEMENT — AND NOBODY WROTE THAT
+  DOWN, WHICH IS WHY A CORRECT FIX SILENTLY REMOVED A CAPABILITY FOR FOUR DAYS.**
+
+  `[data-ground="dark"]` at 0-1-0 TIED `:root` at 0-1-0 and lost to a `:root` block four hundred
+  lines below on source order. Prefixing it to `:root[data-ground="dark"]` at 0-2-0 fixed that, and
+  was right.
+
+  **⚠ AND `:root` MATCHES `<html>` ALONE**, so from that moment a `<section data-ground="dark">`
+  could never take the values. `SectionRenderer` went on declaring dark on five regions across two
+  case studies; they painted `--color-surface`. `SiteHeader`'s predicate reads
+  `[data-ground="dark"]` on ANY element, believed them, and retoned the nav to white links over a
+  near-white hero:
+
+      BEFORE  light  cream 1.09 · harbour 1.09 · orchid 1.10 · cerise 1.09 · fern 1.09
+      AFTER   light  cream 19.04 · harbour 18.78 · orchid 18.90 · cerise 18.88 · fern 18.82
+      dark    sapphire 15.20 · ink-flare 15.26 · nocturne 15.24 · basalt 15.19 — IDENTICAL both ways
+
+  **1.09 AGAINST A 4.5 FLOOR, ON TWO LIVE PAGES, ON ALL FIVE LIGHT PALETTES** — the owner reported
+  cream because cream is published, and it was live on every one.
+
+  **⚠ THE FACT THAT WOULD HAVE PRICED THE PREFIX: a mid-page block never needed one.** A `:root`
+  block declares custom properties on `<html>`; a section block declares them on the section. **They
+  never compete** — the section inherits until it declares its own, and then its own wins for it and
+  its descendants regardless of source order. So the prefix was free for the root case and total for
+  the mid-page one, **and the asymmetry is invisible unless somebody states the rule.**
+
+  **THE FIX IS THE DELETION, NOT THE FULFILMENT.** Three options were priced: make the remap reach
+  sections (ships a design nobody has seen, on two live pages, with the hero images unmeasured
+  against a dark ground); make the nav's predicate resolve the actual paint (leaves the false
+  declaration standing and teaches the codebase to distrust a declaration); or **delete the
+  declaration** — zero visible change, matches the reference the owner named, and removes a lie.
+
+  **⚠ THE ATTRIBUTE HAD EXACTLY ONE CONSUMER AND THAT CONSUMER WAS THE DEFECT.** No CSS rule read
+  it — all three `[data-ground="dark"]` selectors are `:root`-prefixed — and the single JS reader is
+  the nav predicate. **That singleton is what made the deletion provably invisible** rather than
+  merely likely to be.
+
+  **AND `SectionRenderer`'s COMMENT CLAIMED THE OPPOSITE, WHICH IS THE NINTH PROSE INSTANCE THIS
+  SESSION.** It said the attribute *"resolves the foreground for both scopes, which is what made
+  those seven utilities deletable"* — measured, **no resolution happened in either scope**, because
+  the studio canvas's `<html>` is light too and both fell through to the inherited colour at 19.04.
+  **It died in the same commit**, or the next reader re-adds the attribute to fix a lie that is no
+  longer there.
+
+  **⚠ AND `SiteHeader`'s OWN COMMENT PREDICTED THIS IN AS MANY WORDS AND NAMED THE WRONG INSTANCE.**
+  It says *"the dark QUOTE BAND has carried the attribute mid-page since #387, so scrolling the nav
+  over it has the same defect TODAY on the light site."* Correct, written down, and **nobody asked
+  whether the hero in front of it was the same class.** First instance this session of correct prose
+  naming a DIFFERENT member of the shape it describes while missing the one at hand.
+
+  `role-layer` S2 is the mechanism: **an emission and a remap must agree.** If any non-root element
+  declares a ground, some non-`:root` block must be able to remap it. Either side alone is fine; the
+  pair is what lies.
 
 - **⚠ THE TENTH MATCHER FINDING OF THE SESSION AND THE ONLY ONE WITH THE OPPOSITE CAUSE: A
   VOCABULARY NARROWER BY BEING MORE PRECISE.** Every other one this session was a matcher whose

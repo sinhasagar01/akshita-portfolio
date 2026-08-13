@@ -121,16 +121,31 @@ export default function SectionRenderer({
     (isWideFrame(heroBlock.devices[0]?.frame) || isWideFrame(heroBlock.devices[1]?.frame));
 
   if (isWebHero) {
-    // As ground (public page): the dark full-bleed floor. As a card (studio canvas):
-    // the original dark band, byte-identical.
+    /* ⚠ `data-ground="dark"` IS GONE FROM HERE, AND THE COMMENT THAT STOOD IN ITS PLACE WAS FALSE.
+     *
+     * It read: "ONE ATTRIBUTE FOR BOTH SCOPES … The attribute resolves the foreground for both,
+     * which is what made those seven utilities deletable." MEASURED ON PRODUCTION, NO RESOLUTION
+     * HAPPENED IN EITHER SCOPE. The only token remap is `:root[data-ground="dark"]`, and `:root`
+     * matches `<html>` alone — a section can never match it. The studio canvas's `<html>` is light
+     * too, so both scopes fell through to the inherited colour: dark text on a light card, 19.04.
+     *
+     * ⚠ AND THE DECLARATION WAS NOT INERT — IT WAS READ BY EXACTLY ONE CONSUMER, AND THAT CONSUMER
+     * WAS THE DEFECT. `SiteHeader`'s `isDarkBehindNav()` queries `[data-ground="dark"]` on ANY
+     * element, believed this section, and retoned the nav to white links over a hero painting
+     * 254,249,241. NAV LINKS AT 1.09 AGAINST A 4.5 FLOOR, on two live pages, five regions.
+     *
+     * ⚠ IT DID WORK, FOR TWO DAYS. The attribute landed 2026-08-07 and the `:root` prefix killed it
+     * 2026-08-09 — a correct fix for the page ground that silently removed the mid-page capability,
+     * with nothing recording the loss. Nobody noticed the dark heroes go away.
+     *
+     * A dark case-study hero is a DESIGN UNIT and is boarded as one. It is not restored here,
+     * because the hero images and the watermark were authored against a light ground and whether
+     * they read on near-black is unmeasured — which is not a question a token can answer.
+     *
+     * `is-dark` STAYS: it sets `--glow-color` and always worked. */
     return (
       <section
         id={section.id}
-        /* ⚠ ONE ATTRIBUTE FOR BOTH SCOPES, WHERE THERE WERE TWO MECHANISMS. As a GROUND it used a
-           class that set colour; as a CARD it set a background inline and NO colour, so every text
-           child had to name `on-dark` itself. The attribute resolves the foreground for both, which
-           is what made those seven utilities deletable. */
-        data-ground="dark"
         className={
           asGround
             ? "hero-ground hero-ground--peek is-dark scroll-mt-20"
@@ -178,7 +193,11 @@ export default function SectionRenderer({
     return (
       <section
         id={section.id}
-        data-ground="dark"
+        /* ⚠ THE SAME DELETION AS THE HERO ABOVE, AND THIS BAND IS WHY THE POPULATION WAS FIVE RATHER
+           THAN TWO. `SiteHeader`'s own comment predicted exactly this — "the dark QUOTE BAND has
+           carried the attribute mid-page since #387, so scrolling the nav over it has the same
+           defect TODAY on the light site" — and named the band while missing the hero in front of
+           it. Both measured 1.09. See the note on the hero branch. */
         className="section-card py-section relative overflow-hidden scroll-mt-20 m-0"
       >
         {section.index && (
