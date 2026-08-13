@@ -1110,6 +1110,35 @@ moment it grows an action again.
   only visible where a utility currently loses. **That set is exactly what `cascade-public` already
   enumerates**, which means the blast radius is knowable before the edit rather than after it.
 
+- **⚠ A COMMENT THAT HAD ALREADY BEEN CAUGHT MAKING A PRECISE MECHANICAL CLAIM MADE ANOTHER ONE, ONE
+  PARAGRAPH ABOVE ITS OWN CORRECTION.** `SiteHeader`'s route-entry note read *"every consumer guards
+  on it (four sites, lines 87, 277, 350 and 462)"*. **Counted: SEVEN `isRoute(` call sites, and not
+  one of the four line numbers was right.**
+
+  **AND THE PARAGRAPH DIRECTLY BELOW IT IS THAT SAME COMMENT CORRECTING ITSELF** for naming a
+  `SECTION_IDS` constant that does not exist — *"it read as a precise mechanical claim, and nothing
+  reads prose"*. **It then made a precise mechanical claim.**
+
+  **⚠ LINE NUMBERS IN PROSE ARE THE MOST DECAY-PRONE CLAIM A COMMENT CAN CARRY.** Every edit above
+  them moves them and nothing re-reads the number — this file had grown by hundreds of lines since
+  those four were written, so all four were guaranteed wrong long before anyone looked.
+
+  **THE COUNT IS DELETED RATHER THAN CORRECTED, AND THAT IS THE RULE.** A fresh number would be
+  wrong by the next commit. What a reader needs is the PROPERTY — a route entry has an `href`, so
+  guard on `isRoute` — and `git grep isRoute` is exact and never stale.
+
+- **⚠ AND THE CLAIM THAT SENT ME LOOKING WAS NOT IN THE REPOSITORY AT ALL.** The instruction said the
+  record had held "NAV is the only surface, with three render sites" since #185 and asked me to
+  correct it there. **Grepped: it is nowhere** — not in `CLAUDE.md`, not in `STATE.md`, not in the
+  component; #185 is `feat(nav): the Blog link, the sitemap, and one dead component`.
+
+  **THE SUBSTRATE-CLAIM SHAPE, FROM THE OTHER SIDE.** This record already carries four instances of
+  ME asserting something was recorded when it was not. **This is the same act by the other party**,
+  and the correction is identical: **grep before citing the record, including when you are the one
+  who wrote it.** Reporting "there is nothing to fix here" is the honest outcome; inventing a
+  correction to a line nobody can find would have put a false citation into the record to settle a
+  false citation about it.
+
 - **⚠ THE SCROLL SPY IS A FOURTH ITERATION SITE NOTHING NAMED, AND IT IS THE ONLY THING ON THE HOME
   PAGE THAT READS ORDER RATHER THAN IDENTITY.** The record names three `NAV` render sites — the bar,
   the scrolled sheet, the mobile menu. `getActiveSection()` is the fourth:
