@@ -22,6 +22,9 @@ import {
   type GalleryItem,
 } from "@/lib/keystatic";
 import { mapBlogListItem, readingTimeMinutes } from "@/lib/blog/select";
+/* Type-only: the failure record names its collection, and the union that defines the set of
+   collections lives with the commit layer. Erased at compile, so no runtime dependency. */
+import type { CollectionName } from "./commit-collection-entry";
 import {
   stripEmptyOptional,
   reorderBySchema,
@@ -131,6 +134,16 @@ export async function getSiteSettingsDraftState(
 // DRAFT_STATE_TAG as the settings draft read, so the existing
 // invalidateDraftStateCache() — fired after every save-draft (settings AND
 // collection) and on publish — invalidates it with no new wiring.
+/** One entry the draft branch held and this reader could not parse.
+ *
+ *  ⚠ `collection` IS THE NAME, NOT A BOOLEAN, because the author's next action is to open that
+ *  collection and look at that file. A flag can only say something is wrong somewhere. */
+export type DraftReadFailure = {
+  collection: CollectionName | "skills";
+  slug: string;
+  message: string;
+};
+
 export type DraftBranchState = {
   differs: boolean;
   /**
@@ -142,6 +155,12 @@ export type DraftBranchState = {
    * so the UI can say so. Never true on the success path.
    */
   readError: boolean;
+  /* ⚠ WHICH ENTRIES COULD NOT BE PARSED, AND WHY. Distinct from `readError`, which means the whole
+   * read failed and NOTHING is known. This means the branch was read fine and specific files did
+   * not parse — every other entry is live and correct, so a UI must not say "showing published
+   * content" on the strength of it. That distinction is the entire point of the split; see the
+   * read loop for the incident that forced it. */
+  readFailures: DraftReadFailure[];
   // Added + modified draft entries, read from the draft branch and keyed by slug.
   projects: Record<string, ProjectListItem>;
   experience: Record<string, ExperienceListItem>;
@@ -166,6 +185,7 @@ export type DraftBranchState = {
 const EMPTY_DRAFT_STATE: DraftBranchState = {
   differs: false,
   readError: false,
+  readFailures: [],
   projects: {},
   experience: {},
   blog: {},
@@ -249,7 +269,7 @@ const readDraftBranchStateCached = unstable_cache(
       gallerySlugs.length === 0 &&
       !skillsChanged
     ) {
-      return { differs, readError: false, projects: {}, experience: {}, blog: {}, gallery: {}, removedProjects, removedExperience, removedBlog, removedGallery, skills: null };
+      return { differs, readError: false, readFailures: [], projects: {}, experience: {}, blog: {}, gallery: {}, removedProjects, removedExperience, removedBlog, removedGallery, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -263,37 +283,71 @@ const readDraftBranchStateCached = unstable_cache(
     const blog: Record<string, BlogCard> = {};
     const gallery: Record<string, GalleryItem> = {};
     let skills: SkillsEntry | null = null;
+
+    /* ⚠ EVERY READ IS ISOLATED, AND ONE THROW NO LONGER COSTS THE OTHER THREE COLLECTIONS.
+     *
+     * THE INCIDENT. A create wrote a project-shaped file into `content/gallery/`, and the reader
+     * does not return null on a schema mismatch — it THROWS ("Key on object value \"summary\" is
+     * not allowed"). These reads sat in a bare `Promise.all`, which rejects on the first rejection,
+     * so the whole cached function threw, the outer catch returned `EMPTY_DRAFT_STATE`, and the
+     * studio silently fell back to LIVE for projects, experience, blog and settings as well.
+     *
+     * ⚠ THAT IS WORSE THAN THE 404 IT CAUSED, WHICH IS WHY IT IS ITS OWN UNIT. A 404 stops an
+     * author. A silent fallback to published content does not — they go on editing, against main,
+     * believing it is their draft. One malformed file in one collection, and the other three are
+     * degraded with nothing on screen naming them.
+     *
+     * ⚠ AND THE SPLIT IS DERIVED RATHER THAN CHOSEN: A FAILURE TO READ ONE ENTRY IS NOT A FAILURE
+     * TO READ THE BRANCH. `differs` comes from the COMPARE, not from these reads, so it stays
+     * correct whatever happens here. The other entries are unrelated files that parsed fine, and
+     * throwing them away discards work that was never in question. So a per-entry failure omits
+     * THAT ENTRY and records it; only a compare, auth or network failure — where nothing is known —
+     * still degrades globally through the outer catch.
+     *
+     * A RECORD RATHER THAN A COUNT, because "one entry failed" cannot tell an author which file to
+     * fix, and this failure's whole character is that it is invisible. */
+    const readFailures: DraftReadFailure[] = [];
+    const guarded = <T>(collection: DraftReadFailure["collection"], slug: string, run: () => Promise<T>) =>
+      run().catch((e: unknown) => {
+        readFailures.push({
+          collection,
+          slug,
+          message: e instanceof Error ? e.message : String(e),
+        });
+        return undefined;
+      });
+
     await Promise.all([
-      ...projectSlugs.map(async (slug) => {
+      ...projectSlugs.map((slug) => guarded("projects", slug, async () => {
         const entry = await reader.collections.projects.read(slug);
         if (entry) projects[slug] = mapProjectListItem(slug, entry as Record<string, unknown>);
-      }),
-      ...experienceSlugs.map(async (slug) => {
+      })),
+      ...experienceSlugs.map((slug) => guarded("experience", slug, async () => {
         const entry = await reader.collections.experience.read(slug);
         if (entry) experience[slug] = mapExperienceListItem(slug, entry as Record<string, unknown>);
-      }),
-      ...blogSlugs.map(async (slug) => {
+      })),
+      ...blogSlugs.map((slug) => guarded("blog", slug, async () => {
         const entry = await reader.collections.blog.read(slug);
         if (!entry) return;
         const e = entry as Record<string, unknown>;
         // The same shape (and the same readingTime derivation) the studio list read
         // produces, so an overlaid draft row is indistinguishable from a live one.
         blog[slug] = { ...mapBlogListItem(slug, e), readingTime: readingTimeMinutes(e.blocks) };
-      }),
-      ...gallerySlugs.map(async (slug) => {
+      })),
+      ...gallerySlugs.map((slug) => guarded("gallery", slug, async () => {
         const entry = await reader.collections.gallery.read(slug);
         if (entry) gallery[slug] = mapGalleryItem(slug, entry as Record<string, unknown>);
-      }),
+      })),
       ...(skillsChanged
         ? [
-            (async () => {
+            guarded("skills", "skills", async () => {
               const raw = await reader.singletons.skills.read();
               skills = raw ? mapSkills(raw as Record<string, unknown>) : null;
-            })(),
+            }),
           ]
         : []),
     ]);
-    return { differs, readError: false, projects, experience, blog, gallery, removedProjects, removedExperience, removedBlog, removedGallery, skills };
+    return { differs, readError: false, readFailures, projects, experience, blog, gallery, removedProjects, removedExperience, removedBlog, removedGallery, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }

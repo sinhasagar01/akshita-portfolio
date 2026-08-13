@@ -11,6 +11,7 @@ const t = (name, got, want) => {
   console.log((ok ? "  [PASS] " : "  [FAIL] ") + name + (ok ? "" : `\n     got  ${JSON.stringify(got)}\n     want ${JSON.stringify(want)}`));
   ok ? pass++ : fail++;
 };
+import { draftStatusText } from "../../lib/studio/draft-status-text.ts";
 const src = (p) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8");
 const toaster = src("components/studio/PublishToaster.tsx");
 const machine = src("lib/studio/toast-machine.ts");
@@ -33,8 +34,31 @@ t("A2a …and nothing in the bar unmounts on occlusion any more",
 
 console.log("\nB · the split — the line keeps standing state, the toaster owns events");
 /* Each of these still sets the LINE, because each is a fact about now rather than a result. */
-t("B1 the standing-state strings are still the line's, unmoved",
-  ["Unpublished changes", "All changes published", "Couldn't load your draft"].filter((s) => !bar.includes(s.replace("'", "’")) && !bar.includes(s)), []);
+/* ⚠ WIDENED TO THE CONCEPT AFTER THE SENTENCE MOVED, NEVER BY BENDING THE SUBJECT. This searched
+ * `PublishBar.tsx` for each string, which was the whole of the line's text until that text became a
+ * pure function the line calls — `draft-status-text.ts`, extracted because a ternary chain in a
+ * component cannot be tested for REACHABILITY and a mutation proved it.
+ *
+ * THE ROW'S SUBJECT WAS NEVER "a substring of that file". It is that standing state belongs to the
+ * LINE and not to the toaster: these are facts about now, not results of an event, so a toast would
+ * be the wrong surface. That claim has two halves and both are asserted below — the strings are
+ * REACHABLE from the line's own function, and none of them is handed to a toast. */
+{
+  const states = [
+    { publishing: false, readError: false, failures: [], unpublished: true },
+    { publishing: false, readError: false, failures: [], unpublished: false },
+    { publishing: false, readError: true, failures: [], unpublished: false },
+  ];
+  const produced = states.map((i) => draftStatusText(i));
+  t("B1 the standing-state strings are still the LINE's, and reachable rather than merely present",
+    ["Unpublished changes", "All changes published", "Couldn't load your draft"]
+      .filter((want) => !produced.some((got) => got.includes(want))), []);
+  /* ⚠ AND THE OTHER HALF: none of them may be raised as a toast. A string can be on the line AND in
+   * a toast, which is the drift these rows exist to stop, and the first half alone cannot see it. */
+  t("B1a …and none of them is raised as a toast, which is the drift this section guards",
+    ["Unpublished changes", "All changes published", "Couldn't load your draft"]
+      .filter((sentence) => new RegExp(`(beginToast|resolveToast)\\([^)]*${sentence.slice(0, 12)}`).test(bar)), []);
+}
 /* ⚠ THE MATCHER COUNTS BOTH SPELLINGS, AND ITS FIRST VERSION COUNTED ONE. Terminal branches reach a
  * toast either directly or through the `refusal` helper, so a regex naming only `resolveToast` saw
  * five of nine and failed a correct implementation — the vocabulary-narrower-than-the-concept shape

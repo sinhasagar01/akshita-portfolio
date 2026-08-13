@@ -1,4 +1,5 @@
 "use client";
+import type { DraftReadFailure } from "@/lib/studio/draft-site-settings";
 
 // UX-1 — page-level publish state shared by the settings panels and the Publish
 // bar. Single source for the singleton-wide "unpublished changes" (settings
@@ -23,6 +24,7 @@ type PublishSignal = {
   unpublished: boolean;
   /** The draft read failed; the bar shows a warning instead of a status. */
   draftReadError: boolean;
+  draftReadFailures: readonly DraftReadFailure[];
   setUnpublished: (value: boolean) => void;
   anyPending: boolean;
   reportPending: (id: string, pending: boolean) => void;
@@ -55,6 +57,7 @@ const NOOP: PublishSignal = {
   dismissToast: () => {},
   unpublished: false,
   draftReadError: false,
+  draftReadFailures: [],
   setUnpublished: () => {},
   anyPending: false,
   reportPending: () => {},
@@ -67,10 +70,12 @@ const PublishContext = createContext<PublishSignal | null>(null);
 export function PublishProvider({
   initialDiffers,
   draftReadError = false,
+  draftReadFailures = [],
   children,
 }: {
   initialDiffers: boolean;
   draftReadError?: boolean;
+  draftReadFailures?: readonly DraftReadFailure[];
   children: React.ReactNode;
 }) {
   const [unpublished, setUnpublished] = useState(initialDiffers);
@@ -156,10 +161,10 @@ export function PublishProvider({
   }, []);
 
   const value = useMemo<PublishSignal>(
-    () => ({ unpublished, setUnpublished, draftReadError, anyPending: pendingIds.size > 0, reportPending,
+    () => ({ unpublished, setUnpublished, draftReadError, draftReadFailures, anyPending: pendingIds.size > 0, reportPending,
       anyOccluding: occludingIds.size > 0, reportOccluding,
       toasts, beginToast, resolveToast, dismissToast, retryToast }),
-    [unpublished, draftReadError, pendingIds, reportPending, occludingIds, reportOccluding,
+    [unpublished, draftReadError, draftReadFailures, pendingIds, reportPending, occludingIds, reportOccluding,
       toasts, beginToast, resolveToast, dismissToast, retryToast]
   );
 

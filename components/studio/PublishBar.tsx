@@ -18,6 +18,7 @@
 // mechanism. This bar had the asymmetry backwards: Discard, which only destroys DRAFTS, required a
 // confirm, while Publish, which changes the LIVE SITE, was one click. The preview is now that
 // confirm, so looking is structural. The merge body below is unchanged — only its trigger moved.
+import { draftStatusText, draftStatusIsProblem } from "@/lib/studio/draft-status-text";
 import { useEffect, useRef, useState } from "react";
 import PublishToaster from "./PublishToaster";
 import { deployPatch, DEPLOY_DEADLINE_MS } from "@/lib/studio/toast-machine";
@@ -28,7 +29,7 @@ type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
-  const { unpublished, setUnpublished, draftReadError, anyPending,
+  const { unpublished, setUnpublished, draftReadError, draftReadFailures, anyPending,
     toasts, beginToast, resolveToast: resolveToastById, dismissToast, retryToast } = usePublishSignal();
   /** One publish at a time — closes the double-activation window  cannot. */
   const inFlight = useRef(false);
@@ -367,18 +368,26 @@ export default function PublishBar() {
      surface that can hold a result, an action and more than one of them. Leaving the sentence here
      too would put one fact in two places and let them disagree, which is the thing this pill's own
      preview-dialog comment refuses. What remains is STANDING STATE: what is true now. */
-  const statusText =
-    publishStatus === "publishing"
-      ? "Publishing…"
-      : draftReadError
-          ? // The draft could not be read, so studio fell back to live. Saying
-            // "All changes published" here would be a confident lie about state
-            // we do not actually have.
-            "Couldn't load your draft. Showing published content. Reload to try again."
-          : unpublished
-            ? "Unpublished changes"
-            : "All changes published";
-  if (draftReadError && publishStatus === "idle") {
+  /* ⚠ THE SENTENCE IS A PURE FUNCTION IN `lib/studio/draft-status-text.ts`, AND A MUTATION IS WHY.
+     It was a ternary chain here. Setting the first-failure binding to null makes the per-entry
+     sentence UNREACHABLE while leaving every word of it in this file — and the rows guarding it
+     were regexes over this file, so they passed against a message nobody could ever see.
+
+     THAT IS PRESENCE VERSUS RESOLUTION, which this project has paid for before: a bundle grep once
+     "verified" two shadowed CSS values by proving both present, when the question was which one
+     resolved. A string in a file and a string on screen are different quantities, and only one of
+     them is what an author reads.
+
+     Extracted, `draft-overlay-degrade` section E calls it with real inputs and reads real answers,
+     so the same mutation now goes red. `bar-clearance.ts` made this split for the same reason. */
+  const statusInput = {
+    publishing: publishStatus === "publishing",
+    readError: draftReadError,
+    failures: draftReadFailures,
+    unpublished,
+  };
+  const statusText = draftStatusText(statusInput);
+  if (draftStatusIsProblem(statusInput) && publishStatus === "idle") {
     statusTone = "text-studio-accent-600";
   }
 

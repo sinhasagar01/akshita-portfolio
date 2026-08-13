@@ -11,6 +11,7 @@ import {
   getSiteSettingsDraftState,
   getDraftBranchState,
   type SettingsDraftState,
+  type DraftReadFailure,
 } from "./draft-site-settings";
 import { overlayCollection, byOrderIndex, byDateNewestFirst } from "./draft-overlay";
 
@@ -28,6 +29,10 @@ export type StudioData = HomePageData & {
   /** The draft read failed, so the studio is showing LIVE as a fail-safe. The bar
    *  says so, rather than reading as "nothing to publish". */
   draftReadError: boolean;
+  /** ⚠ WHICH DRAFT ENTRIES WOULD NOT PARSE — distinct from `draftReadError`, which means the whole
+   *  read failed. A non-empty list with `draftReadError: false` is the common case now: the branch
+   *  read fine and one file is malformed, so every other collection is showing a real draft. */
+  draftReadFailures: DraftReadFailure[];
 };
 
 // Studio read. Draft-preferring for the settings singleton (CE-3) AND the
@@ -65,5 +70,6 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
     settingsDraftState,
     draftDiffers: draft.differs,
     draftReadError: draft.readError,
+    draftReadFailures: draft.readFailures,
   };
 });
