@@ -249,6 +249,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-usage
               title: Frequency of use
               body: How often the feature became part of the daily workflow.
