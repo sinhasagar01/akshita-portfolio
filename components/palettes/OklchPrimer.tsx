@@ -783,7 +783,21 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                  palettes the role and the rung resolve to the IDENTICAL PAINT — cream 182,83,41,
                  harbour 0,126,91, orchid 153,63,148, cerise 209,45,107, fern 75,127,32 — so the two
                  columns are the same number and zero pixels change.
-                 This site was missed when eight others were moved off the rung. */
+                 This site was missed when eight others were moved off the rung.
+
+                 ⚠ AND `rounded-full` STAYS — IT IS THE SAME PIXELS AS THE `rounded-xl` BUTTONS
+                 ABOVE. CSS clamps border-radius to half the box, and this button is 42px tall, so
+                 9999px and 24px BOTH resolve to 21px. The page is uniform at 21px and these are two
+                 spellings of one result.
+
+                 ⚠ DO NOT UNIFY THE SPELLINGS. A class edit with no observable effect is churn — the
+                 ruling this repo already made against changing `display: flex` to `inline-flex` on
+                 the work filter. The reason lives here rather than in a commit body precisely so the
+                 next person to notice the mismatch does not pay a diff to discover it.
+
+                 They diverge only if this button ever exceeds 48px tall, at which point `xl` would
+                 show 24px corners and `full` would still be a pill. THAT is the trigger, and it is a
+                 height change rather than a radius one. */
               className="rounded-full bg-accent px-4 py-2.5 text-sm font-medium"
             >
               <span className="text-on-accent">Playground · 01 — Palettes ↗</span>
