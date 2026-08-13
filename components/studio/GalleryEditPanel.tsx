@@ -1,0 +1,329 @@
+"use client";
+
+// The gallery item editor — list, canvas and inspector. `ThreePaneShell`'s THIRD consumer.
+//
+// ---- ⚠ WHAT THE CANVAS SHOWS, AND WHY IT IS THE OVERLAY RATHER THAN THE TILE -----------------
+//
+// Blog's canvas renders the article at the public measure. A gallery item has no article, so the
+// question had a real answer to find rather than a pattern to copy, and it was decided by asking
+// what the INSPECTOR edits:
+//
+//     alt           read by a screen reader from the overlay's image
+//     description   drawn in the overlay's meta rail
+//     tags          drawn in the overlay's meta rail
+//     caseStudy     drawn in the overlay's spec grid
+//     ------------------------------------------------------------------
+//     the tile      draws NONE of them — it is the image and nothing else
+//
+// So a tile canvas would show an author none of what they are changing. Every field in this panel
+// moves something in the overlay, and the one property the tile would demonstrate — the aspect
+// ratio — is machine-written from the upload and cannot be edited at all. It is stated as a
+// read-only figure in the panel instead, which is the honest form for a value the pipeline owns.
+//
+// ⚠ AND THE CANVAS RENDERS THE PUBLIC COMPONENT, NOT A COPY OF IT. `GalleryOverlay` lives under
+// `components/gallery` and the public page will mount the same node inside a dialog. That is the
+// case study's parity rule applied to a second collection: an editor whose preview approximates
+// the reader's view drifts silently, because nobody notices an approximation getting worse.
+//
+// ---- ⚠ THE DIMENSIONS ARE READ-ONLY, AND boat-crest IS WHY ------------------------------------
+//
+// `width` and `height` are written by the upload route from the bytes it committed, after the
+// resize and after `rotate()` has baked in EXIF orientation. An editable field for a value the
+// pipeline owns is how a collection ends up with 19 of 25 images describing themselves wrongly —
+// every one of them typed in good faith. They are DISPLAYED, prominently, because an author needs
+// to see that the upload completed; they are not typeable, and `sanitizeGalleryPatch` would refuse
+// a zero even if they were.
+import { useMemo, useRef, useState } from "react";
+import ThreePaneShell from "./ThreePaneShell";
+import GalleryItemList from "./GalleryItemList";
+import GalleryOverlay from "@/components/gallery/GalleryOverlay";
+import SaveIndicator from "./SaveIndicator";
+import ChipListEditor from "./ChipListEditor";
+import { ListboxField } from "./ListboxField";
+import InspectorResizer from "./InspectorResizer";
+import { useInspectorWidth } from "./useInspectorWidth";
+import { usePageWidthMin } from "./usePageWidthMin";
+import { useDraftForm } from "./useDraftForm";
+import { useSidebarWidth } from "./SidebarWidthProvider";
+import { BlockImageField, TextField, TextArea, groupLabelCls } from "./blocks/fields";
+import { GALLERY_KINDS } from "@/lib/studio/gallery-format";
+import { GALLERY_CANVAS_MIN_PX, GALLERY_PANES_SUM, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
+import type { GalleryItem } from "@/lib/keystatic";
+
+type Fields = {
+  title: string;
+  kind: string;
+  alt: string;
+  description: string;
+  tags: string[];
+  caseStudy: string;
+};
+
+/** The kind options. Derived from `GALLERY_KINDS`, the same const the sanitizer validates against,
+ *  so the control and the gate cannot disagree — `topic`'s exact arrangement in BlogEditPanel. */
+const KIND_OPTIONS = ["", ...GALLERY_KINDS] as const;
+
+/** Human label per option value. `ListboxField` takes the values and this separately — the empty
+ *  option's "No kind yet" is the draft state, and a kind becomes required only at publish. */
+const KIND_LABEL: Record<string, string> = {
+  "": "No kind yet",
+  photo: "Photograph",
+  illus: "Illustration",
+  proj: "Product study",
+};
+
+export default function GalleryEditPanel({
+  slug,
+  item,
+  items,
+  inspectorWidth,
+}: {
+  slug: string;
+  item: GalleryItem;
+  /** Every item, passed straight through to the list pane. */
+  items: readonly GalleryItem[];
+  /** The inspector's stored width, read and clamped on the SERVER so the first paint is right. */
+  inspectorWidth: number;
+}) {
+  const sidebarPx = useSidebarWidth();
+  const ins = useInspectorWidth(inspectorWidth, "gallery");
+
+  /* THE IMAGE AND ITS DIMENSIONS ARE ONE PIECE OF STATE, and splitting them is the defect this
+     shape prevents. They arrive together from one response and they are refused together at
+     publish — a path with no dimensions is an upload that did not finish. Two useStates would
+     make the intermediate state representable, and anything representable eventually happens. */
+  const [shot, setShot] = useState<{
+    src: string | null;
+    width: number;
+    height: number;
+    preview: string | null;
+  }>({ src: item.image, width: item.width, height: item.height, preview: null });
+
+  // This panel owns the preview url it displays and frees the one it supersedes — #190's rule.
+  const ownedPreview = useRef<string | null>(null);
+
+  const form = useDraftForm<Fields>({
+    initial: {
+      title: item.title,
+      kind: item.kind,
+      alt: item.alt,
+      description: item.description,
+      tags: [...item.tags],
+      caseStudy: item.caseStudy ?? "",
+    },
+    buildCommitted: (v) => ({ ...v, tags: v.tags.map((t) => t.trim()).filter(Boolean) }),
+    /* ARRAY-AWARE, because a shallow compare on `tags` reports every render as dirty — About's
+       chip form made exactly this mistake and its comment is why this one does not. */
+    isDirty: (v, b) =>
+      v.title !== b.title ||
+      v.kind !== b.kind ||
+      v.alt !== b.alt ||
+      v.description !== b.description ||
+      v.caseStudy !== b.caseStudy ||
+      v.tags.length !== b.tags.length ||
+      v.tags.some((t, i) => t !== b.tags[i]),
+    syncValuesOnSave: true,
+    toastLabel: `Gallery · ${slug}`,
+    saveExtras: { collection: "gallery", slug },
+  });
+
+  /* ⚠ THE TITLE IS EDITABLE HERE AND IS NOT ON BLOG, and the difference is the schema rather than
+     a preference. `sanitizeBlogPatch` REJECTS a title patch because the title IS the slug there;
+     the gallery's slugField is also `title`, but `sanitizeGalleryPatch` accepts a title change as
+     an ordinary field — the file keeps its original slug and the displayed name moves. That is
+     deliberate: a photograph gets renamed far more often than a post does, and the URL of a
+     gallery item is not a thing anyone has bookmarked. */
+
+  const inspectorFits = usePageWidthMin(INSPECTOR_FOLD_PX);
+
+  /** What the canvas draws. Built from the FORM's live values rather than from the item prop, so
+   *  a keystroke in the rail moves the preview before any save lands — which is the whole reason
+   *  the canvas is the overlay. */
+  const preview = useMemo(
+    () => ({
+      title: form.values.title,
+      kind: form.values.kind,
+      image: shot.preview ?? shot.src,
+      width: shot.width,
+      height: shot.height,
+      alt: form.values.alt,
+      description: form.values.description,
+      tags: form.values.tags.filter((t) => t.trim() !== ""),
+      caseStudy: form.values.caseStudy.trim() === "" ? null : form.values.caseStudy,
+    }),
+    [form.values, shot]
+  );
+
+  const inspector = (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div className="flex flex-col gap-4">
+          <BlockImageField
+            label="Image"
+            src={shot.preview ?? shot.src}
+            slug={slug}
+            collection="gallery"
+            onChange={(src, file, dims) => {
+              if (ownedPreview.current) URL.revokeObjectURL(ownedPreview.current);
+              ownedPreview.current = file ? URL.createObjectURL(file) : null;
+              /* ⚠ A CLEAR ZEROES THE DIMENSIONS, and that is not tidying. `galleryPublishBlockers`
+                 refuses a zero, so clearing an image leaves the item unpublishable until a real
+                 upload replaces it — where carrying the old numbers forward would leave a record
+                 describing an image that is gone. That is the phantom-manifest shape `mutate.mjs`
+                 paid for: a restore that left records describing damage that no longer existed. */
+              setShot({
+                src,
+                width: src ? dims?.width ?? 0 : 0,
+                height: src ? dims?.height ?? 0 : 0,
+                preview: ownedPreview.current,
+              });
+            }}
+          />
+
+          {/* THE MACHINE-WRITTEN HALF, DRAWN AS A READING RATHER THAN AS FIELDS. See the header:
+              an editable box for a value the pipeline owns is how boat-crest got 19 of 25 wrong. */}
+          <div className="rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 bg-studio-cream-100 p-3">
+            <p className={groupLabelCls}>Measured on upload</p>
+            <dl className="mt-2 grid grid-cols-2 gap-2">
+              <div>
+                <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-studio-text-subtle">
+                  Width
+                </dt>
+                <dd className="m-0 font-mono text-[12px] text-studio-ink-950">
+                  {shot.width > 0 ? `${shot.width}px` : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-studio-text-subtle">
+                  Height
+                </dt>
+                <dd className="m-0 font-mono text-[12px] text-studio-ink-950">
+                  {shot.height > 0 ? `${shot.height}px` : "—"}
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-2 text-[11px] leading-[1.5] text-studio-text-subtle">
+              Written from the processed file, so these describe what the reader downloads rather
+              than what was chosen. Re-upload to change them.
+            </p>
+          </div>
+
+          <TextField
+            label="Title"
+            value={form.values.title}
+            onChange={(v) => form.setField("title", v)}
+            onBlur={form.saveDraft}
+          />
+
+          <ListboxField
+            label="Kind"
+            value={form.values.kind}
+            options={KIND_OPTIONS}
+            optionLabel={(v) => KIND_LABEL[v] ?? v}
+            onChange={(v) => {
+              form.setField("kind", v);
+              form.saveDraft();
+            }}
+          />
+
+          {/* ⚠ ALT IS FIRST AMONG THE TEXT FIELDS AND CARRIES THE BLOCKER SENTENCE, because it is
+              the one field publish will refuse. Advisory here, enforced in
+              `galleryPublishBlockers` — the same split `validate-blog-post` uses, so a freshly
+              added item is savable while it is still incomplete. */}
+          <TextField
+            label="Alt text"
+            value={form.values.alt}
+            onChange={(v) => form.setField("alt", v)}
+            onBlur={form.saveDraft}
+            blocker={
+              form.values.alt.trim() === ""
+                ? "Publish will refuse this item until it has alt text."
+                : undefined
+            }
+          />
+
+          <TextArea
+            label="Description"
+            value={form.values.description}
+            onChange={(v) => form.setField("description", v)}
+            onBlur={form.saveDraft}
+            rows={4}
+            optional
+          />
+
+          <div className="flex flex-col gap-1">
+            <span className={groupLabelCls}>Tags</span>
+            <ChipListEditor
+              chips={form.values.tags}
+              onChange={(next) => form.setField("tags", next)}
+              onBlur={form.saveDraft}
+              addLabel="Add tag"
+              placeholder="35mm"
+              itemNoun="tag"
+              ariaContext="tags"
+            />
+          </div>
+
+          {/* ⚠ A SLUG, NOT A PICKER, AND THE SANITIZER AGREES BY DESIGN. `sanitizeGalleryPatch`
+              checks the SHAPE and never that the study exists — verifying it would make a write
+              path depend on another collection's content and fail at save time whenever a study
+              was renamed. The link is optional and one-way; a stale one renders as no link. */}
+          <TextField
+            label="Case study slug"
+            value={form.values.caseStudy}
+            onChange={(v) => form.setField("caseStudy", v)}
+            onBlur={form.saveDraft}
+            optional
+          />
+        </div>
+      </div>
+
+      <div className="flex-none border-t border-studio-ink-950/12 px-4 py-3">
+        <SaveIndicator label="Item" saving={form.saveStatus === "saving"} dirty={form.dirty} />
+      </div>
+    </div>
+  );
+
+  return (
+    <ThreePaneShell
+      rootRef={ins.rootRef}
+      rootStyle={ins.styleVar}
+      /* BOTH SEAMS TAKE A THIRD CONSUMER UNCHANGED — the question asked before this was built.
+         `fitThresholdPx` is the caller's arithmetic and `listNoun` is the caller's word, exactly
+         as they are for the other two. What DID need widening was `InspectorSurface`, one module
+         over, and that widening is a compile error until its bounds are declared. */
+      fitThresholdPx={sidebarPx + GALLERY_PANES_SUM + ins.width}
+      inspectorCollapsed={ins.collapsed}
+      inspectorResizer={
+        inspectorFits ? (
+          <InspectorResizer
+            width={ins.width}
+            collapsed={ins.collapsed}
+            preview={ins.preview}
+            commit={ins.commit}
+            lastOpen={ins.lastOpen}
+            surface="gallery"
+            canvasFloorPx={GALLERY_CANVAS_MIN_PX}
+          />
+        ) : null
+      }
+      listNoun="items"
+      list={<GalleryItemList items={items} currentSlug={slug} />}
+      canvasBar={
+        <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-studio-ink-950">
+          {form.values.title || slug}
+        </span>
+      }
+      /* THE PANE'S GROUND IS THE OVERLAY'S OWN DARK BAND, not the studio cream. The overlay paints
+         its own full-bleed ground; leaving the pane cream would draw a cream hairline frame around
+         a component that has no frame on the public page. */
+      canvasGround="bg-band-dark"
+      canvas={
+        <div className="flex min-h-0 flex-1 flex-col">
+          <GalleryOverlay item={preview} staticView />
+        </div>
+      }
+      inspector={inspectorFits ? inspector : null}
+    />
+  );
+}

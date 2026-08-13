@@ -15,7 +15,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
-import { commitCollectionOrder } from "@/lib/studio/commit-collection-entry";
+import { commitCollectionOrder, isOrderedCollection } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 
 export async function POST(req: Request) {
@@ -36,7 +36,11 @@ export async function POST(req: Request) {
   }
 
   const collection = body?.collection;
-  if (collection !== "experience" && collection !== "projects") {
+  /* ⚠ THE DERIVED SUBSET — see `isOrderedCollection`. This read `!== "experience" && !==
+     "projects"`, which was correct when written and had already fallen behind: `COLLECTION_HAS_ORDER`
+     declares the gallery orderable, and this chain would have refused it. The registry and the
+     route now answer from the same place. */
+  if (!isOrderedCollection(collection)) {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
 

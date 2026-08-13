@@ -115,10 +115,22 @@ const blogReg = code("components/studio/blocks/blog-registry.tsx");
 const projReg = code("components/studio/blocks/registry.tsx");
 const panel = code("components/studio/BlogBlocksEditPanel.tsx");
 
+/* ⚠ WIDENED TO THE CONCEPT AFTER A THIRD ARGUMENT ARRIVED, NEVER BY BENDING THE SUBJECT.
+   Both rows pinned an EXACT call spelling — a single-line `onChange(json.src, file)` and a
+   two-parameter type — so adding the upload's measured dimensions broke them while the property
+   they name stayed true. That is the gate-vocabulary shape this repo has now met a dozen times:
+   the row was right about its concept and written against the only case that existed.
+   The subject is "the File travels with the path", so that is what is matched. */
 t("B1: BlockImageField hands the File up beside the path",
-  /onChange\(json\.src, file\)/.test(fields), true);
+  /onChange\(\s*json\.src,\s*file\b/.test(fields), true);
 t("B1: …and its callback type carries it",
-  /onChange: \(src: string \| null, file\?: File\) => void/.test(fields), true);
+  /onChange: \(src: string \| null, file\?: File[,)]/.test(fields), true);
+/* ⚠ AND THE DIMENSIONS ARE A SEPARATE ROW RATHER THAN A WIDER ONE, because they are a separate
+   property: the route measures the NORMALIZED output and the gallery's masonry cannot place a
+   tile without it. Folding it into B1 would let either half pass for the other. */
+t("B1a: …and the measured dimensions travel with them, which the masonry cannot lay out without",
+  /onChange:\s*\(src: string \| null, file\?: File, dims\?: \{ width: number; height: number \}\) => void/.test(fields),
+  true);
 t("B2: the blog imageBlock form forwards path AND file",
   /onChange\(\{ \.\.\.value, src \}, src && file \? \{ src, file \} : undefined\)/.test(blogReg), true);
 t("B3: ImgSpecFields emits the upload for every host",

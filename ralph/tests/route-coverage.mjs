@@ -67,17 +67,37 @@ const read = (p) => readFileSync(join(root, p), "utf8");
 /* ============================================================================================
    A · THE DERIVED SUBJECT — every public page the build actually produced.
 
-   ⚠ THE THREE EXCLUSIONS ARE PROPERTIES OF THE ROUTE, NOT NAMES. A file extension makes it an
+   ⚠ THE FOUR EXCLUSIONS ARE PROPERTIES OF THE ROUTE, NOT NAMES. A file extension makes it an
    asset rather than a page; an `/og` suffix makes it a generated share image; `/_not-found` is the
-   error page, which is reachable and is not a destination. Each is a shape a future route can
-   match or not match on its own, which is what stops this list becoming the thing it replaces.
+   error page, which is reachable and is not a destination; and a route the MIDDLEWARE refuses in
+   production is not public however thoroughly the build prerendered it. Each is a shape a future
+   route can match or not match on its own, which is what stops this list becoming the thing it
+   replaces.
+
+   ⚠ THE FOURTH ARRIVED WITH A DEV HARNESS AND THE GATE CAUGHT IT, WHICH IS WORTH RECORDING
+   BECAUSE THE FAILURE READ AS A SITEMAP BUG. `/dev/gallery-overlay` is a static page, so the build
+   prerenders it and the manifest lists it exactly like `/blog` — B1 then reported a public page
+   missing from the sitemap, and the correct answer was neither to list it nor to name it in an
+   exclusion. `middleware.ts` returns 404 for the whole `/dev` prefix when NODE_ENV is production.
+   THAT is the property, and it is READ FROM THE MIDDLEWARE rather than restated here, so a change
+   to the prefix or to the refusal cannot leave this filter quietly describing the old behaviour.
 ============================================================================================ */
 const manifest = JSON.parse(read(".next/prerender-manifest.json"));
 const allRoutes = Object.keys(manifest.routes ?? {});
 const isAsset = (r) => /\.[a-z0-9]+$/i.test(r);
 const isOgImage = (r) => r.endsWith("/og");
 const isErrorPage = (r) => r === "/_not-found";
-const PAGES = allRoutes.filter((r) => !isAsset(r) && !isOgImage(r) && !isErrorPage(r)).sort();
+
+/* The prefix the middleware refuses in production, parsed from the middleware itself. A literal
+   here would be a fifth fixed list — and the one thing this file exists to argue against. */
+const middleware = read("middleware.ts");
+const devPrefixMatch = middleware.match(/pathname\.startsWith\("([^"]+)"\)/);
+const DEV_PREFIX = devPrefixMatch?.[1] ?? null;
+const isProdRefused = (r) => DEV_PREFIX !== null && r.startsWith(DEV_PREFIX);
+
+const PAGES = allRoutes
+  .filter((r) => !isAsset(r) && !isOgImage(r) && !isErrorPage(r) && !isProdRefused(r))
+  .sort();
 
 console.log("\nA · the derived subject is real");
 /* ⚠ A LITERAL FLOOR, NOT A COUNT DERIVED FROM THE SAME MANIFEST. A guard computed from its own
@@ -91,6 +111,17 @@ t("A2 …and the exclusions removed something, so the filter is doing work rathe
  * every row below is measuring something else. */
 t("A3 …and it holds the routes every other row depends on",
   ["/", "/blog", "/palettes", "/oklch"].filter((r) => !PAGES.includes(r)), []);
+/* ⚠ THE PRODUCTION-REFUSED EXCLUSION IS PARSED, NOT ASSUMED, AND ITS SUBJECT IS ASSERTED. If the
+ * middleware stops matching this shape the parse yields null, the filter silently excludes
+ * NOTHING, and a dev route would rejoin the public set as a sitemap failure nobody could explain.
+ * A2 would still pass, because the other three exclusions keep removing something. */
+t("A3a the production-refused prefix is readable from the middleware, not restated here",
+  DEV_PREFIX, "/dev/");
+/* ⚠ AND IT HAS MEMBERS, so the rule is not passing by selecting nothing — C3's discipline applied
+ * to the subject's own filter rather than to the ratchet's. A build with no dev harness would make
+ * this row red, which is correct: the exclusion would then be unexercised and should be removed. */
+t("A3b …and it excludes real routes, so the rule is exercised rather than merely declared",
+  allRoutes.filter(isProdRefused).length >= 1, true);
 
 /* ============================================================================================
    B · THE SITEMAP LISTS EVERY PUBLIC PAGE.

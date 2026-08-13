@@ -396,6 +396,55 @@ export const CS_PANES_SUM = 264 + CS_CANVAS_MIN_PX;
  *  takes the canvas below the floor. That is the property this constant exists to state. */
 export const CS_COLLAPSED_PANES_SUM = 27 + CS_CANVAS_MIN_PX;
 
+/* ============================================================================================
+ * THE GALLERY THRESHOLD — DERIVED, AND MY FIRST ANSWER THAT IT COULD NOT BE WAS WRONG
+ *
+ * The two constants above divide a width the content already has: blog's 68ch measure, a property
+ * of the text, and the case study's 1280 design width times a scale floor. The gallery overlay has
+ * neither, so this was first written as a CHOSEN number on the reasoning that a fluid layout has
+ * no measure to protect and inventing a denominator is this project's most repeated defect.
+ *
+ * ⚠ THAT REASONING SKIPPED THE CONTRACT, WHICH CARRIES THE NUMBERS. `docs/gallery-contract.html`
+ * specifies the stage as a four-column grid — `64px 1fr 340px 64px` with 12px of side padding —
+ * so the overlay's chrome is FIXED and only the `1fr` is fluid. That is an authored width after
+ * all; it is simply spread across four terms instead of sitting in one.
+ *
+ * SO THE FLOOR IS A RULE ABOUT THE FLUID TERM: the image stage must be at least as wide as the
+ * text rail beside it. Below that the composition inverts — a photograph reading as an illustration
+ * for its own caption — and the honest response is to stack rather than to keep shrinking.
+ *
+ *     64 arrow + 340 rail + 64 arrow + 24 padding = 492 of chrome
+ *     stage floor = 340, the rail's own width
+ *     ------------------------------------------------------------
+ *     832
+ *
+ * ⚠ AND THE CANVAS FLOOR IS THE SAME CONSTANT BY CONSTRUCTION, WHICH IS THE PARITY RULE ARRIVING
+ * AS ARITHMETIC. The editor can never render a form the public page does not have at that width,
+ * because there is one number rather than two that have to be kept equal by hand.
+ * ============================================================================================ */
+
+/** The overlay's fixed chrome — two 64px arrow columns, the 340px meta rail, 12px of padding each
+ *  side. Straight from the contract's `grid-template-columns`, named here so the derivation below
+ *  reads as arithmetic rather than as a magic total. */
+export const GALLERY_OVERLAY_CHROME_PX = 64 + 340 + 64 + 24;
+
+/** The meta rail, which is also the stage's floor — see the block above for why those are one
+ *  number and not two. */
+export const GALLERY_OVERLAY_RAIL_PX = 340;
+
+/** Where the overlay stops being its desktop form and stacks the rail under the stage. Read by the
+ *  canvas floor below AND by the overlay component itself, so the two cannot disagree. */
+export const GALLERY_OVERLAY_STACK_PX = GALLERY_OVERLAY_CHROME_PX + GALLERY_OVERLAY_RAIL_PX;
+
+/** The gallery canvas floor. Identical to the stacking width by construction, not by coincidence:
+ *  a canvas narrower than this would show the stacked form, and an editor previewing a layout the
+ *  reader will not see is worse than no preview. */
+export const GALLERY_CANVAS_MIN_PX = GALLERY_OVERLAY_STACK_PX;
+
+/** List + canvas, WITHOUT the sidebar — the caller adds the live sidebar and inspector widths,
+ *  exactly as blog and the case study do. The 264 is the list pane, shared by all three. */
+export const GALLERY_PANES_SUM = 264 + GALLERY_CANVAS_MIN_PX;
+
 /** The list pane's THREE-STATE intent.
  *
  *  Not a boolean, and that is the whole point. `"default"` means the author has expressed

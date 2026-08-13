@@ -9,7 +9,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
-import { deleteCollectionEntry } from "@/lib/studio/commit-collection-entry";
+import { deleteCollectionEntry, isCollectionName } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 
 export async function POST(req: Request) {
@@ -30,7 +30,13 @@ export async function POST(req: Request) {
   }
 
   const collection = body?.collection;
-  if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
+  /* ⚠ THIS ROUTE IS THE EVIDENCE FOR THE DERIVED GUARD RATHER THAN MERELY A USER OF IT. The
+     gallery collection was added, three routes' hand-listed chains were widened by hand, and this
+     one was missed — so `/studio/gallery` could create an item and could not delete one, with
+     nothing failing to say so. The chain compiled, the tests passed, and the omission was visible
+     only by reading four files at once. `isCollectionName` reads the registry, so this route now
+     gains a collection at the moment the registry does. */
+  if (!isCollectionName(collection)) {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
   // Path-traversal guard (same as save-draft): the slug must be a bare slug.

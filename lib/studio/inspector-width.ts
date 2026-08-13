@@ -5,7 +5,11 @@
 // new pattern. Pure and DEPENDENCY-FREE, so `--experimental-strip-types` can load it and ralph
 // can assert the clamp directly.
 //
-// ---- ⚠ TWO SURFACES, TWO SETS OF BOUNDS, AND A CORRECTION TO MY OWN ARGUMENT ------------------
+// ---- ⚠ THREE SURFACES, THREE SETS OF BOUNDS, AND A CORRECTION TO MY OWN ARGUMENT --------------
+//
+// (This heading read "TWO SURFACES" until the gallery arrived. Amended rather than left, because a
+// count in a header is the part a skimming reader takes away — this file's own subject growing
+// under its own title is the stale-record shape it spends the next paragraph correcting.)
 //
 // #283 shipped this for the CASE STUDY ONLY, on the reasoning that blog's canvas is a FIXED
 // MEASURE — 68ch, locked, never widens — so any width the inspector gives or takes is cream and
@@ -32,8 +36,20 @@
 // pixels: "get out of my way" is worth the same on both editors, and a distraction-free article
 // at its true measure is a reasonable thing to want. Recorded so the trade is visible.
 
-/** Which inspector. The two hold different content, so they measure different bounds. */
-export type InspectorSurface = "cs" | "blog";
+/** Which inspector. Each holds different content, so each measures its own bounds.
+ *
+ *  ⚠ THIS UNION WAS `"cs" | "blog"` AND THE GALLERY IS WHY IT IS THREE — recorded because the
+ *  question asked before building that surface was whether `ThreePaneShell` could take a third
+ *  consumer without widening. The SHELL could: `fitThresholdPx` and `listNoun` are plain props and
+ *  a third caller passes them like the other two. THIS registry could not, and the two facts are
+ *  easy to conflate because they are read from the same call site.
+ *
+ *  ⚠ AND THE WIDENING IS THE GOOD KIND, WHICH IS THE ONLY REASON IT IS NOT A DESIGN FAILURE. The
+ *  union sits behind `Record<InspectorSurface, …>` below, so adding a member without declaring its
+ *  bounds STOPS THE BUILD, and `studio-resize` A1 asserts the whole object literally so a member
+ *  cannot arrive with guessed numbers either. Compare the four route allowlists this same arc
+ *  found, where widening was a hand edit in four files and one of them was missed. */
+export type InspectorSurface = "cs" | "blog" | "gallery";
 
 /**
  * The bounds, per surface. Each `min` is a MEASURED `min-content` of that inspector's own content
@@ -64,6 +80,28 @@ export const INSPECTOR_BOUNDS: Record<InspectorSurface, {
   cs: { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
   // 185 measured; 725 is blog's canvas term, 68ch (676.73, Work Sans) plus 48px of padding.
   blog: { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
+  /* ⚠ 248 IS DERIVED, NOT MEASURED, AND THAT DIFFERENCE IS STATED RATHER THAN ROUNDED AWAY. The
+     other two floors above are `min-content` read off the live pane. This one could not be: every
+     surface that renders a chip row sits behind /studio's owner gate, and this project's standing
+     rule is to state a fact as UNVERIFIED rather than route around that gate.
+
+     THE DERIVATION, so it can be checked rather than trusted. The widest atom in this inspector is
+     `ChipListEditor`'s row — it is what makes this floor higher than blog's 185, since every other
+     field here is one blog already carries:
+
+         32   the scroll region's own padding, p-4 either side
+         96   three 32px icon controls in the row's button cluster
+        120   the tag input, below which a two-word tag cannot be read while typing
+        ----
+        248
+
+     ⚠ THE TRIGGER TO REPLACE IT WITH A READING: the first time an owner has this pane open. Drag
+     it to the floor and read the pane's `min-content`. If the true value is HIGHER, the band
+     between it and 248 renders a clipped chip row, which is the exact defect blog's 185 was raised
+     from 320 to expose. A derived floor is a hypothesis with a number attached.
+
+     832 is GALLERY_CANVAS_MIN_PX, the second copy the leaf discipline forces — asserted below. */
+  gallery: { min: 248, max: 832, fallback: 320, cookie: "studio-inspector-w-gallery" },
 };
 
 /** Collapsed. A real width rather than a flag, so the arithmetic never needs a special case. */

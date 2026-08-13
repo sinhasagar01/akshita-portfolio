@@ -68,6 +68,30 @@ const COLLECTION_PATH: Record<CollectionName, (slug: string) => string> = {
   gallery: (slug) => `content/gallery/${slug}.yaml`,
 };
 
+/**
+ * Every collection name, DERIVED from the path map rather than written down a second time.
+ *
+ * ⚠ THIS EXISTS BECAUSE FOUR ROUTES EACH CARRIED THEIR OWN HAND-LISTED COPY, as a chain of
+ * `collection !== "…"` comparisons. Each chain was correct on the day it was written and each was
+ * a place a fifth collection could be forgotten silently — the same fixed-list shape this project
+ * has removed from `SETTINGS_THEME_VALUES`, from D12's pair list and from `paint-sites`' PAGES.
+ *
+ * ⚠ AND A DERIVED SET IS STRICTLY MORE THAN A WIDER LIST. Adding a member to `CollectionName`
+ * already fails the build at the three `Record`s above; this makes every ROUTE that gates on the
+ * name inherit that member the moment the Record does, so the allowlist and the dispatch arm can
+ * no longer disagree. The membership rule is a PROPERTY — "is a collection this module can commit"
+ * — rather than a list of names, which is the form `route-coverage` settled on for the same reason.
+ */
+export const COLLECTION_NAMES = Object.keys(COLLECTION_PATH) as readonly CollectionName[];
+
+/** The guard those four routes now share. A body field is `unknown`, so this is where an HTTP
+ *  string becomes a `CollectionName` — once, rather than four times. */
+export function isCollectionName(value: unknown): value is CollectionName {
+  return typeof value === "string"
+    && Object.prototype.hasOwnProperty.call(COLLECTION_PATH, value);
+}
+
+
 // The top-level entry file for a collection (NOT the body subdir), used to scan
 // existing slugs for the create orderIndex max.
 const COLLECTION_ENTRY_RE: Record<CollectionName, RegExp> = {
@@ -95,6 +119,23 @@ const COLLECTION_HAS_ORDER: Record<CollectionName, boolean> = {
      authoring, and `reorder-entries` is the surface for it. */
   gallery: true,
 };
+
+/**
+ * The reorder route's narrower subject — a collection this module can commit AND that carries an
+ * `orderIndex`.
+ *
+ * ⚠ A SUBSET IS NOT AN EXCEPTION TO THE DERIVED GUARD, IT IS A SECOND PROPERTY, and writing it
+ * that way is what keeps it from decaying. `reorder-entries` carried `!== "experience" && !==
+ * "projects"` — correct on the day it was written, and it would have silently excluded the gallery
+ * even though `COLLECTION_HAS_ORDER` declares gallery orderable. The list and the registry
+ * disagreed and only the list was consulted.
+ *
+ * The membership rule is now the property itself, so a collection joins this set at the moment it
+ * declares an order rather than when somebody remembers to edit a route.
+ */
+export function isOrderedCollection(value: unknown): value is CollectionName {
+  return isCollectionName(value) && COLLECTION_HAS_ORDER[value];
+}
 
 type Serialized = { ok: true; bytes: string } | { ok: false; error: SaveError };
 

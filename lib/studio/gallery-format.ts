@@ -17,6 +17,7 @@
 // and reflows on load unless every intrinsic size is known before decode. A zero or a negative is
 // not a smaller image, it is a layout shift — so it is refused here rather than rendered.
 import type { GalleryItem } from "@/lib/keystatic";
+import type { SaveError } from "./site-settings-format";
 
 /** The three buckets the public filter offers. The enum lives here, at the write boundary, for the
  *  reason `theme` states in the schema: the config is schema-only, so a select there would give the
@@ -36,10 +37,20 @@ export type GalleryInput = {
   orderIndex?: number;
 };
 
-type Ok<T> = { ok: true; patch: T };
-type Bad = { ok: false; error: string; field?: string };
+/* ⚠ `SaveError`, THE SHARED SHAPE — the first version of this file returned `{ error: string }`
+   and every other sanitizer in this directory returns `{ error: { code, field, message } }`.
+   `save-draft` hands the result straight to `NextResponse.json`, so a gallery 400 would have
+   carried a DIFFERENT BODY from a projects or blog 400 and any client error handling would have
+   been silently wrong for exactly one collection.
 
-const invalid = (error: string, field?: string): Bad => ({ ok: false, error, field });
+   ⚠ AND NOTHING WOULD HAVE CAUGHT IT. The ternary dispatch types each arm independently, so four
+   incompatible return shapes compile. Turning that dispatch into a `Record<CollectionName, …>` is
+   what surfaced this — the mapped type refused to build until all four agreed. */
+type Ok<T> = { ok: true; patch: T };
+type Bad = { ok: false; error: SaveError };
+
+const invalid = (message: string, field?: string): Bad =>
+  ({ ok: false, error: { code: "invalid_patch", field, message } });
 
 /** A positive integer, which is what a pixel dimension is. Rejects 0, negatives, fractions and
  *  anything unparseable — see the header for why a bad dimension is a layout shift rather than a

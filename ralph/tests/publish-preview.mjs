@@ -310,5 +310,46 @@ t("C6: an empty compare is an empty preview, not an error",
     /border-studio-ink-950\/8\b/.test(dlg), false);
 }
 
+/* ================================================= H. THE FORCED SECOND COPY, COMPARED
+ *
+ * ⚠ `COLLECTION_FILE_RE` NAMES EVERY COLLECTION, AND `commit-collection-entry.ts` HOLDS THE
+ * AUTHORITATIVE UNION — two lists over one set, in two files that cannot import each other.
+ *
+ * The import is forbidden in one direction only, which is why this exists rather than a shared
+ * leaf. `publish-preview.ts`'s own header says it imports NOTHING so a leaf runner can load it;
+ * `commit-collection-entry.ts` pulls in js-yaml and the GitHub client. So the copy is FORCED, the
+ * same shape as `INSPECTOR_BOUNDS`' canvas floors and the three theme surfaces `theme.mjs` ties
+ * together.
+ *
+ * ⚠ AND THE COPY IS ONLY SAFE BECAUSE THIS COMPARES IT. The gallery arrived, three route
+ * allowlists were widened by hand, a fourth was MISSED, and none of that was visible from inside
+ * any one file. A collection absent from this regex is not a crash — its draft edits are simply
+ * invisible to the overlay and to the publish preview, which is the silent-success shape this
+ * repository keeps paying for.
+ *
+ * THE UNION IS PARSED AS TEXT, deliberately: importing it would defeat the property being tested. */
+{
+  const commitSrc = code("lib/studio/commit-collection-entry.ts");
+  const unionMatch = commitSrc.match(/export type CollectionName = ([^;]+);/);
+  /* ⚠ THE DENOMINATOR ROW. A regex that stopped matching would yield an empty set on BOTH sides
+   * and the comparison below would pass over nothing — the empty-subject defect this project has
+   * met at least four times. Asserted as a floor against a literal, never against the other side. */
+  t("H1: the authoritative union is found and has members — an empty parse is not a pass",
+    unionMatch !== null && unionMatch[1].split("|").length >= 4, true);
+
+  const union = (unionMatch?.[1] ?? "")
+    .split("|").map((x) => x.trim().replace(/^"|"$/g, "")).filter(Boolean).sort();
+
+  const alt = COLLECTION_FILE_RE.source.match(/\(([a-z|]+)\)/);
+  t("H2: the filename pattern's alternation is found and has members",
+    alt !== null && alt[1].split("|").length >= 4, true);
+  const named = (alt?.[1] ?? "").split("|").filter(Boolean).sort();
+
+  /* ⚠ THE COMPARISON ITSELF. Sorted sets rather than a length check, so a collection RENAMED on
+   * one side fails as loudly as one omitted — a count would let a swap through. */
+  t("H3: ⚠ THE PATTERN NAMES EXACTLY THE COLLECTIONS THE COMMIT LAYER DECLARES",
+    named, union);
+}
+
 console.log(`\n  ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

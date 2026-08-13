@@ -43,7 +43,7 @@ export default async function DashboardLayout({
   // always today's. See lib/studio/sidebar-width.ts.
   const sidebarWidth = clampSidebarWidth(jar.get(SIDEBAR_COOKIE)?.value);
 
-  const { projects, experience, blog, skills, settings, draftDiffers, draftReadError } = await getStudioData();
+  const { projects, experience, blog, gallery, skills, settings, draftDiffers, draftReadError } = await getStudioData();
   /* THE PENDING THEME, WHICH IS THE DRAFT'S AND NOT THE PUBLISHED ONE. `getStudioData()` is
      draft-preferring for settings, so a theme saved but not yet published resolves here while
      `<html>` still carries the live value from the root layout's published read. */
@@ -57,7 +57,7 @@ export default async function DashboardLayout({
     // layout, which does not re-run on client navigation). Seeded once from the
     // server counts.
     <StudioCountsProvider
-      initial={{ projects: projects.length, experience: experience.length, blog: blog.length, skills: skills?.categories.length ?? 0 }}
+      initial={{ projects: projects.length, experience: experience.length, blog: blog.length, skills: skills?.categories.length ?? 0, gallery: gallery.length }}
     >
       {/* Full-bleed shell (Task 1). The outer card and its corner radius are gone: the sidebar
           sits on cream-100, the working surface on cream-50, one hairline (the

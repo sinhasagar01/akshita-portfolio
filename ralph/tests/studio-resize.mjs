@@ -18,7 +18,7 @@ import {
   INSPECTOR_FALLBACK_PX,
   CS_INSPECTOR_COLLAPSED_PX,
 } from "../../lib/studio/inspector-width.ts";
-import { CS_CANVAS_MIN_PX, BLOG_CANVAS_MIN_PX } from "../../lib/studio/three-pane.ts";
+import { CS_CANVAS_MIN_PX, BLOG_CANVAS_MIN_PX, GALLERY_CANVAS_MIN_PX } from "../../lib/studio/three-pane.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -41,28 +41,42 @@ const shell = code("components/studio/ThreePaneShell.tsx");
  * clamp does not merely bound, it SNAPS across the gap. A plain `Math.max(MIN, …)` would make the
  * collapse unreachable by drag, which is the defect this shape exists to prevent. */
 {
-  t("A1: each surface carries its own measured floor and its own by-role ceiling", INSPECTOR_BOUNDS, {
-    cs:   { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
-    blog: { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
+  /* ⚠ THE TITLE SAID "measured floor" AND ONE OF THE THREE IS NOT MEASURED, so the title is
+   * amended rather than left. `gallery.min` is DERIVED — every surface rendering its widest atom
+   * sits behind the owner gate, and `inspector-width.ts` carries the arithmetic and the trigger to
+   * replace it with a reading. A row whose title states a property its data does not have is the
+   * `A8a` defect, and this file is not going to grow one. */
+  t("A1: each surface carries its own floor and its own by-role ceiling", INSPECTOR_BOUNDS, {
+    cs:      { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
+    blog:    { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
+    gallery: { min: 248, max: 832, fallback: 320, cookie: "studio-inspector-w-gallery" },
   });
 
   /* ⚠ TWO COOKIES, BECAUSE THE BOUNDS DIFFER. One cookie would force the wider floor on both, so
    * blog would lose the 185…266 band its content can legitimately use, and a width set on one
    * surface would silently narrow the other. Asserted as DISTINCT rather than as present. */
-  t("A1: the two cookies are distinct, so neither surface can clamp the other's width",
-    INSPECTOR_BOUNDS.cs.cookie !== INSPECTOR_BOUNDS.blog.cookie, true);
+  /* ⚠ ASSERTED AS A SET RATHER THAN AS A PAIRWISE COMPARISON, because a pairwise chain is the
+   * fixed-list shape: it was `cs !== blog` and a third surface would have joined without any
+   * comparison naming it. Counting DISTINCT names against the number of surfaces catches a
+   * duplicate wherever it lands, including one that has not been added yet. */
+  t("A1: every cookie is distinct, so no surface can clamp another's width",
+    new Set(Object.values(INSPECTOR_BOUNDS).map((b) => b.cookie)).size,
+    Object.keys(INSPECTOR_BOUNDS).length);
 
   /* EACH CEILING IS THAT SURFACE'S OWN CANVAS FLOOR — one by-role sentence, two numbers, because
    * the canvases differ: the case study's floor is a SCALE (1280 × 0.5) and blog's is its MEASURE
    * (68ch + padding). THESE ASSERTIONS ARE THE ONLY THING HOLDING THEM TOGETHER — see below for
    * why the import that would have done it cannot exist. */
-  t("A1: the ceilings ARE the canvas floors, not two invented numbers",
-    [INSPECTOR_BOUNDS.cs.max === CS_CANVAS_MIN_PX, INSPECTOR_BOUNDS.blog.max === BLOG_CANVAS_MIN_PX],
-    [true, true]);
+  t("A1: the ceilings ARE the canvas floors, not three invented numbers",
+    [INSPECTOR_BOUNDS.cs.max === CS_CANVAS_MIN_PX,
+     INSPECTOR_BOUNDS.blog.max === BLOG_CANVAS_MIN_PX,
+     INSPECTOR_BOUNDS.gallery.max === GALLERY_CANVAS_MIN_PX],
+    [true, true, true]);
 
-  t("A1: the shipped default is unchanged on both, so no author's geometry moved",
-    [INSPECTOR_BOUNDS.cs.fallback, INSPECTOR_BOUNDS.blog.fallback, INSPECTOR_FALLBACK_PX],
-    [320, 320, 320]);
+  t("A1: the shipped default is unchanged on all three, so no author's geometry moved",
+    [INSPECTOR_BOUNDS.cs.fallback, INSPECTOR_BOUNDS.blog.fallback,
+     INSPECTOR_BOUNDS.gallery.fallback, INSPECTOR_FALLBACK_PX],
+    [320, 320, 320, 320]);
 
   /* ⚠ AND THE MODULE DOES NOT IMPORT THOSE FLOORS, WHICH IS WHY THE ASSERTION ABOVE IS
    * LOAD-BEARING RATHER THAN DECORATIVE. Importing them is the obvious move and it does not
@@ -232,10 +246,16 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   t("E1: …and the client writes the cookie rather than reading one",
     /document\.cookie = `\$\{cookie\}=/.test(code("components/studio/useInspectorWidth.ts")), true);
 
-  /* TWO COOKIES, ONE PER SURFACE. Asserted by COUNT as well as by name, because "both names exist"
-   * would still pass if a third crept in. */
-  t("E2: exactly two cookies, one per resizable inspector",
-    (code("lib/studio/inspector-width.ts").match(/cookie: "/g) ?? []).length, 2);
+  /* ONE COOKIE PER SURFACE. Asserted by COUNT as well as by name, because "the names exist" would
+   * still pass if a spare crept in.
+   *
+   * ⚠ THE COUNT IS DERIVED FROM THE REGISTRY RATHER THAN WRITTEN AS A LITERAL — it read `2` and
+   * the gallery made it 3, which is a legitimate change that looked identical to a stray cookie.
+   * Against `INSPECTOR_BOUNDS`' own size, a new SURFACE passes and a new COOKIE fails, which is
+   * the distinction the row was always trying to make. */
+  t("E2: exactly one cookie per resizable inspector, and no spare",
+    (code("lib/studio/inspector-width.ts").match(/cookie: "/g) ?? []).length,
+    Object.keys(INSPECTOR_BOUNDS).length);
 }
 
 /* ================================================= F. THE PILL CLEARS THE SAVE BAR

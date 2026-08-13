@@ -14,6 +14,7 @@ import {
   commitCollectionEntry,
   commitProjectSections,
   commitBlogBlocks,
+  isCollectionName,
 } from "@/lib/studio/commit-collection-entry";
 import { sanitizeSectionsPatch } from "@/lib/studio/sections-format";
 import { sanitizeGalleryPatch } from "@/lib/studio/gallery-format";
@@ -25,6 +26,8 @@ import {
 } from "@/lib/studio/draft-site-settings";
 import { getHomePageData, mapSiteSettings } from "@/lib/keystatic";
 import { sanitizeSiteSettingsPatch } from "@/lib/studio/site-settings-format";
+import type { SaveError } from "@/lib/studio/site-settings-format";
+import type { CollectionName, CollectionPatch } from "@/lib/studio/commit-collection-entry";
 import { sanitizeExperiencePatch } from "@/lib/studio/experience-format";
 import { sanitizeProjectsPatch } from "@/lib/studio/projects-format";
 import { sanitizeSkillsPatch } from "@/lib/studio/skills-format";
@@ -157,12 +160,8 @@ export async function POST(req: Request) {
   // settings edits (DB-1) and both publish together from the Hero panel.
   if (body?.collection !== undefined) {
     const collection = body.collection;
-    if (
-      collection !== "experience" &&
-      collection !== "projects" &&
-      collection !== "blog" &&
-      collection !== "gallery"
-    ) {
+    // The DERIVED guard — one registry behind both this and the dispatch below.
+    if (!isCollectionName(collection)) {
       return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
     }
     const slug = body.slug;
@@ -170,21 +169,35 @@ export async function POST(req: Request) {
     if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
       return NextResponse.json({ ok: false, error: "invalid_slug" }, { status: 400 });
     }
-    // Explicit per-collection arms — a two-way ternary would have routed blog into the
-    // experience sanitizer once the allowlist widened.
+    // ⚠ A MAPPED TYPE, NOT A TERNARY CHAIN, AND THE DIFFERENCE IS WHETHER A FIFTH COLLECTION IS A
+    // COMPILE ERROR OR AN EXPERIENCE PATCH.
     //
-    // ⚠ AND THE LAST ARM IS STILL A FALLTHROUGH, WHICH THE ALLOWLIST ABOVE IS THE ONLY THING
-    // GUARDING. Widening that list without adding an arm here routes the new collection into
-    // `sanitizeExperiencePatch` — the exact defect the sentence above describes, one arm further
-    // out. Adding `gallery` meant touching BOTH, and a future fifth collection will too.
-    const sanitizedEntry =
-      collection === "projects"
-        ? sanitizeProjectsPatch(body.patch)
-        : collection === "blog"
-          ? sanitizeBlogPatch(body.patch)
-          : collection === "gallery"
-            ? sanitizeGalleryPatch(body.patch)
-            : sanitizeExperiencePatch(body.patch);
+    // This was four explicit arms ending in a fallthrough to `sanitizeExperiencePatch`, under a
+    // comment claiming the arms were explicit BECAUSE a ternary "would have routed blog into the
+    // experience sanitizer once the allowlist widened". The arms were explicit and the LAST one
+    // was not — so the guard was safe only because the allowlist twenty lines up rejected
+    // everything else. A guard that holds only because of a check somewhere else is invisible at
+    // the site that needs it, which is where it gets edited.
+    //
+    // `Record<CollectionName, …>` makes the dispatch EXHAUSTIVE the way `COLLECTION_PATH` and
+    // `COLLECTION_HAS_ORDER` already are: widening the union without adding an entry stops the
+    // build. The allowlist and the arm are now one change because TypeScript makes them one.
+    //
+    // ⚠ AND IT IMMEDIATELY FOUND A REAL DEFECT. A ternary types each arm independently, so the
+    // four sanitizers had drifted to two different error shapes — gallery returned
+    // `{ error: string }` where the others return `{ error: SaveError }`, and this route hands the
+    // result straight to `NextResponse.json`. A gallery 400 carried a different body from every
+    // other 400. The map refused to build until all four agreed.
+    const PATCH_SANITIZERS: Record<
+      CollectionName,
+      (raw: unknown) => { ok: true; patch: CollectionPatch } | { ok: false; error: SaveError }
+    > = {
+      projects: sanitizeProjectsPatch,
+      blog: sanitizeBlogPatch,
+      gallery: sanitizeGalleryPatch,
+      experience: sanitizeExperiencePatch,
+    };
+    const sanitizedEntry = PATCH_SANITIZERS[collection](body.patch);
     if (!sanitizedEntry.ok) {
       return NextResponse.json(sanitizedEntry, { status: 400 });
     }

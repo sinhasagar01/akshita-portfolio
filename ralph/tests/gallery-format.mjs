@@ -73,8 +73,15 @@ console.log("\nD · unknown fields are refused, never dropped");
  * report a successful save that changed nothing — the silent-success shape this studio has
  * already shipped once, in its blog status control. */
 t("D1 an unknown key is refused", rejects(sanitizeGalleryPatch({ widht: 1600 })), true);
+/* ⚠ `.error.field`, NOT `.field`, AND THE ROW IS WHY THE SHAPE IS RIGHT NOW. This read
+   `.field` when the sanitizer returned `{ error: string }` with the field hoisted beside it —
+   a shape no other sanitizer in that directory uses. Converting the route dispatch to a mapped
+   type forced all four onto the shared `SaveError`, and this row failed on the change, which is
+   the assertion doing its job: a 400's BODY is a contract, and gallery's had been its own. */
 t("D2 …and the refusal names the field, so the editor can say which one",
-  sanitizeGalleryPatch({ widht: 1600 }).field, "widht");
+  sanitizeGalleryPatch({ widht: 1600 }).error.field, "widht");
+t("D2a …and it carries the shared error shape, so a gallery 400 reads like every other 400",
+  Object.keys(sanitizeGalleryPatch({ widht: 1600 }).error).sort(), ["code", "field", "message"]);
 t("D3 a non-object patch is refused", rejects(sanitizeGalleryPatch([1, 2])), true);
 
 console.log("\nE · publish refuses what a reader would meet as a defect");

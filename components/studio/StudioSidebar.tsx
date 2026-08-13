@@ -9,6 +9,7 @@ import {
   IconBriefcase,
   IconLayers,
   IconFileText,
+  IconImage,
   IconSliders,
   IconSparkles,
   IconLogout,
@@ -33,6 +34,7 @@ export default function StudioSidebar() {
     { href: "/studio/projects", label: "Case studies", Icon: IconGrid, count: counts.projects },
     { href: "/studio/experience", label: "Experience", Icon: IconBriefcase, count: counts.experience },
     { href: "/studio/blog", label: "Blog", Icon: IconFileText, count: counts.blog },
+    { href: "/studio/gallery", label: "Gallery", Icon: IconImage, count: counts.gallery },
     { href: "/studio/skills", label: "Skills", Icon: IconLayers, count: counts.skills },
   ];
 
