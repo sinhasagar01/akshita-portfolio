@@ -146,6 +146,41 @@ export function PublishProvider({
     }, TOAST_SLOW_MS));
     return id;
   }, [forget]);
+  /* ⚠ A MALFORMED DRAFT ENTRY IS AN ERROR, NOT STANDING STATE, AND THIS EFFECT IS THAT RULING.
+   *
+   * These failures first went to the publish BAR, on my reading that "one file will not parse" is a
+   * condition rather than an event. The owner read it the other way and the owner is right: it means
+   * something is BROKEN AND NEEDS FIXING, which is a refusal — persistent, named, actionable. A
+   * standing line is overwritten by the next status and carries no action; a refusal does not drain
+   * (`drains()` is `ok && !sha`) and stays until it is answered.
+   *
+   * ⚠ THE GLOBAL FLAG STAYS ON THE BAR, AND THE SPLIT IS THE POINT. `draftReadError` means the whole
+   * read failed and the studio is showing PUBLISHED content — that genuinely is standing state,
+   * true of everything on screen for as long as it lasts. A per-entry failure is one broken file
+   * against a working draft, which is an event with a subject.
+   *
+   * ONE REFUSAL PER FAILURE, RAISED ONCE. The dependency is the failure IDENTITY rather than the
+   * array, because the provider re-renders on every toast change and an array literal is a new
+   * reference each time — which would raise the same refusal forever. */
+  const raisedFailures = useRef("");
+  useEffect(() => {
+    const key = draftReadFailures.map((f) => `${f.collection}/${f.slug}`).join("|");
+    if (key === raisedFailures.current) return;
+    raisedFailures.current = key;
+    for (const f of draftReadFailures) {
+      const id = ++toastSeq.current;
+      setToasts((prev) => pushT(prev, {
+        id,
+        kind: "refusal",
+        title: `Couldn\u2019t read ${f.collection}/${f.slug}`,
+        /* THE SERVER'S OWN SENTENCE, UNMODIFIED — the rule the toast type's own comment states. The
+           reader's message names the offending key, which is the one fact that tells an author what
+           to fix rather than that something is wrong. */
+        message: `${f.message} Everything else is your draft.`,
+      }));
+    }
+  }, [draftReadFailures]);
+
   useEffect(() => {
     const timers = slowTimers.current;
     return () => { timers.forEach(clearTimeout); timers.clear(); };

@@ -189,6 +189,47 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ FOUR JOINS, FOUR DEFECTS, ZERO FOUND BY A SUITE. A COLLECTION IS NOT DONE WHEN ITS SUITES ARE
+  GREEN — IT IS DONE WHEN A PERSON HAS DRIVEN CREATE-TO-PUBLISH AND A FAILURE PATH IN A BROWSER.**
+  Creating the first gallery item took three PRs and then broke production. Every one of its defects
+  lived in a JOIN, and every part on either side of that join had a passing gate:
+
+      a dispatch table nothing selected through          #525
+      a route computing a sanitized value, passing raw   #525
+      a sanitizer and a schema that never met            open, hop 3
+      a publish gate that exists and is never called     this unit
+
+  **THE GATES PROVED EVERY PART AND NOTHING PROVED THEY WERE CONNECTED.** `gallery-format` proved
+  `sanitizeGalleryCreate` while the create path called `sanitizeProjectCreate`. `galleryPublishBlockers`
+  refused an empty alt, a missing image and a zero dimension — exactly what shipped — with **zero
+  callers**, while a comment in the public page called it "the only thing between an unlabelled image
+  and a reader".
+
+  **⚠ THE PUBLISH LOOP'S DEFECT WAS THE CATCH-ALL, NOT A MISSING ARM.** It ran two `if`s and then a
+  branch matching *any other content yaml*, which applied a placeholder scan and ACCEPTED the file.
+  **Gallery did not slip through a gap; it landed in the branch designed to accept the
+  unrecognised**, which is why a third `if` would have repaired one instance of a shape that repeats.
+  It is a `Record<CollectionName, …>` now, so a fifth collection is a compile error.
+
+  **THE STANDING RULE THIS CHANGES:** suites green is not the finish line. Create, upload, edit,
+  reorder, delete, preview, publish and build — driven by a person — is. Four collections have now
+  produced four first-browser-run defects, and the fifth will too.
+
+- **⚠ A GATE THAT EXISTS AND IS NEVER CALLED IS WORSE THAN ONE THAT DOES NOT EXIST, BECAUSE ITS
+  PRESENCE READS AS COVERAGE.** `galleryPublishBlockers` was written with the collection, tested by
+  eight rows, and wired to nothing. Every reader of that file — including the author — saw a publish
+  gate. **And prose made it worse:** a comment asserted the link, so the claim was documented as well
+  as absent.
+
+  **THE `structural()` SHAPE IN ITS WORST FORM.** A dead helper is inert; a dead GATE is inert while
+  advertising that something is guarded. The tell is cheap and this arc used it twice:
+  **grep the callers before trusting a gate**, and treat a validator whose only mentions are comments
+  as unwired until proven otherwise.
+
+  **⚠ AND THE COMMENT WAS CORRECTED IN THE SAME COMMIT AS THE WIRING, DELIBERATELY.** Fixing the
+  prose first would have left a documented gate still uncalled; fixing the code first would have left
+  a false claim standing beside a true mechanism. The code and the claim move together.
+
 - **⚠ A GATE ON A COMPONENT PROVES NOTHING ABOUT A FLOW THAT DOES NOT CALL IT — AND THE SECOND HALF
   IS THE ONE THAT SHOULD CHANGE BEHAVIOUR.** `gallery-format` G1 to G3 proved `sanitizeGalleryCreate`
   correctly, and **the create path did not call it.** The route computed a sanitized value for its

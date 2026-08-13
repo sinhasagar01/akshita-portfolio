@@ -20,11 +20,12 @@
 // content's rather than the UI's: posts sort by `date`, which every post has and nobody arranges,
 // while a gallery has no natural order at all — a 2022 photograph may belong beside a 2025 one.
 // The arrangement IS the authoring, so the index is where it happens.
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { useReportCount } from "./StudioCountsProvider";
+import { usePublishSignal } from "./PublishProvider";
 import StudioEmptyState from "./StudioEmptyState";
 import { useListReorder } from "./useListReorder";
 import { IconPlus, IconInfo, IconChevronUp, IconChevronDown, IconX } from "./icons";
@@ -40,6 +41,20 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /* ⚠ ONE MECHANISM FOR FAILURE, AND THIS PANEL WAS THE FOURTH SURFACE. Saves already toast through
+     `useDraftForm`'s `toastLabel`, publish refusals toast from the bar, and draft read failures now
+     toast too — while create and delete reported into a modal-local `setError` that vanished with
+     the modal. Three surfaces reporting failure three ways is how a refusal gets missed, which is
+     exactly what happened during the 404: the owner saw "Could not create the item. Try again."
+     and the real cause was a dispatch writing the wrong schema.
+
+     A REFUSAL, NOT A PENDING THAT RESOLVES. There is no in-flight card to update here — the button
+     carries its own busy state — and `drains()` is `ok && !sha`, so this stays until answered. */
+  const { beginToast, resolveToast } = usePublishSignal();
+  const refuse = useCallback((title: string, message: string) => {
+    resolveToast(beginToast(title, message), { kind: "refusal", title, message });
+  }, [beginToast, resolveToast]);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -91,18 +106,22 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
         return;
       }
       if (res.ok && json.mode === "fs") {
-        setError("Creating an item needs github mode (dev).");
+        refuse("Couldn\u2019t create the item", "Creating an item needs github mode (dev). Nothing was written.");
         return;
       }
-      setError(
+      /* ⚠ THE SERVER'S OWN SENTENCE WHEN IT HAS ONE, and only a generic line when it does not.
+         "Could not create the item. Try again." is what the owner saw during the 404, and it told
+         them nothing — the route had a typed reason and this discarded it. */
+      refuse("Couldn\u2019t create the item",
         json?.error?.code === "invalid_slug"
           ? "Use a title with letters or numbers."
           : json?.error?.code === "slug_taken"
             ? "An item with that title already exists."
-            : "Could not create the item. Try again."
-      );
+            : typeof json?.error?.message === "string"
+              ? json.error.message
+              : "The server refused the create and gave no reason. Nothing was written.");
     } catch {
-      setError("Could not create the item. Try again.");
+      refuse("Couldn\u2019t create the item", "The request did not reach the server. Nothing was written.");
     } finally {
       setBusy(false);
     }
@@ -122,7 +141,16 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
       if (res.ok && json.saved) {
         setItems((prev) => prev.filter((i) => i.slug !== slug));
         setDeleteTarget(null);
+        return;
       }
+      /* ⚠ A DELETE THAT FAILED USED TO DO NOTHING AT ALL — no branch, no message, and the modal
+         simply stayed open. An author cannot tell that from a slow network. */
+      refuse("Couldn\u2019t remove the item",
+        typeof json?.error?.message === "string"
+          ? json.error.message
+          : "The server refused the delete. Nothing was removed.");
+    } catch {
+      refuse("Couldn\u2019t remove the item", "The request did not reach the server. Nothing was removed.");
     } finally {
       setBusy(false);
     }

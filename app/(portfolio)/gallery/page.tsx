@@ -11,6 +11,17 @@ import GalleryBrowser from "@/components/gallery/GalleryBrowser";
 // posture. `galleryPublishBlockers` is the only thing between an unlabelled image and a reader,
 // which is why alt text is a publish refusal rather than a warning.
 //
+// ⚠ THAT SENTENCE WAS FALSE WHEN IT WAS WRITTEN AND IS TRUE AS OF THIS COMMIT. `galleryPublishBlockers`
+// existed and had ZERO CALLERS — the publish loop ran two `if`s and then a branch matching any other
+// content yaml, which applied a placeholder scan and accepted the file. So this comment asserted a
+// link that did not exist, in a file describing the gate it named.
+//
+// A GATE THAT EXISTS AND IS NEVER CALLED IS THE WORST VERSION OF THAT SHAPE, because its presence
+// reads as coverage — and prose claiming it is wired reads as verification. Four project-shaped
+// entries reached main and took the production build down site-wide. The wiring and this correction
+// are in one commit deliberately: fixing the comment first would have left a documented gate still
+// uncalled, and fixing the code first would have left a false claim standing beside it.
+//
 // ⚠ AND THE PAGE IS LISTED IN THE SITEMAP BECAUSE IT IS PUBLIC, NOT BECAUSE IT IS IN THE NAV.
 // `app/sitemap.ts` records three separate occasions where tying listing to the nav lost a route;
 // `route-coverage` now derives the subject and would fail if this were omitted.
