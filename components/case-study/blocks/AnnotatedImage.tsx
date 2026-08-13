@@ -34,7 +34,8 @@ export default function AnnotatedImage({ image, scrawl, callouts, editable = fal
         </span>
       )}
 
-      <DeviceImage image={image} editable={editable} blockIndex={blockIndex} editPath="image" />
+      <DeviceImage
+          preview image={image} editable={editable} blockIndex={blockIndex} editPath="image" />
 
       {callouts?.map((c, i) => (
         <Annotation key={i} callout={c} />

@@ -72,6 +72,7 @@ export default async function CaseStudyPage({ params }: Props) {
     sections: adaptSections(data.rawSections, { template: data.template }),
     // CS-7b — the template also drives the section/block Bold-gallery web treatments.
     template: data.template,
+    imagePreview: data.imagePreview,
   };
 
   return (

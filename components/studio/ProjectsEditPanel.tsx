@@ -36,6 +36,8 @@ type Props = {
   // Editorial taxonomy ("" | "mobile" | "web") for the work-section filter (PR 1),
   // for the header CategoryToggle. Drives no rendering — see keystatic.config.ts.
   category: string;
+  /** Absent in content means ON — the reader coalesces, so this arrives resolved. */
+  imagePreview: boolean;
   /** Resolved server-side — `lib/site.ts` pulls node:fs, so the path arrives as a string. */
   livePath: string;
   /** Every study, for the crumb row's switcher. */
@@ -60,7 +62,7 @@ const FACTS: { key: keyof EditableFacts; label: string; placeholder: string }[] 
   { key: "platform", label: "Platform", placeholder: "Android and iOS" },
 ];
 
-export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, livePath, studies, inspectorWidth, canvasZoom }: Props) {
+export default function ProjectsEditPanel({ itemId, slug, title, summary, heroImage, facts, template, category, imagePreview, livePath, studies, inspectorWidth, canvasZoom }: Props) {
   const initial: ProjectsFields = {
     summary,
     facts: { type: facts.type, platform: facts.platform },
@@ -311,6 +313,11 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
             onSaved={() => setUnpublished(true)}
           />
         </div>
+        <ImagePreviewToggle
+          slug={slug}
+          initial={imagePreview}
+          onSaved={() => setUnpublished(true)}
+        />
       </div>
         <div className="flex flex-col gap-5 px-4 py-5">
           {/* Title is the slugField (the entry identity). Shown read-only so an edit
@@ -812,6 +819,77 @@ function TemplateToggle({
       onSaved={onSaved}
       onChange={onChange}
     />
+  );
+}
+
+/* The zoomable-image-preview switch.
+ *
+ * ⚠ A LOCAL CONTROL RATHER THAN `SegmentedToggle`, AND ITS OWN COMMENT IS THE REASON. That
+ * component hardcodes `["mobile","web"]` and refuses an `options` prop because one "would
+ * advertise a flexibility that does not exist". A boolean is not that option set, and widening it
+ * would be the third meaning in one component. `BlogBlocksEditPanel` set this precedent for the
+ * same reason.
+ *
+ * ⚠ THE SAVE PATH IS COPIED DELIBERATELY AND EXACTLY — optimistic set, revert on failure, the
+ * `mode: "fs"` no-op branch that reverts and says why. A control that saved differently from the
+ * two beside it would drift on the next change to the route, and the fs branch in particular is
+ * the one an operator meets in dev and would otherwise read as a working save.
+ */
+function ImagePreviewToggle({
+  slug,
+  initial,
+  onSaved,
+}: {
+  slug: string;
+  initial: boolean;
+  onSaved: () => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  async function toggle() {
+    if (busy) return;
+    setBusy(true);
+    setNote(null);
+    const prev = value;
+    const next = !value;
+    setValue(next);
+    try {
+      const res = await fetch("/api/studio/save-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collection: "projects", slug, patch: { imagePreview: next } }),
+      });
+      const json = await res.json();
+      if (res.ok && json.saved) onSaved();
+      else if (res.ok && json.mode === "fs") { setNote("needs github mode (dev)"); setValue(prev); }
+      else { setValue(prev); setNote("Save failed"); }
+    } catch {
+      setValue(prev);
+      setNote("Save failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-1">
+      <label className="flex items-center gap-2.5">
+        <input
+          type="checkbox"
+          checked={value}
+          disabled={busy}
+          onChange={toggle}
+          className="size-3.5 accent-studio-accent-500"
+        />
+        <span className="text-[12px] text-studio-ink-800">Zoomable image preview</span>
+      </label>
+      <span className="text-[10px] text-studio-ink-600">
+        Readers can click any image on this study to open it larger and zoom in.
+      </span>
+      {note && <span className="text-[10px] text-studio-accent-600">{note}</span>}
+    </div>
   );
 }
 

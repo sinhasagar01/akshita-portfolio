@@ -41,6 +41,7 @@ export default function DeviceImage({
   blockIndex,
   editPath,
   priority = false,
+  preview = false,
 }: {
   image: ImgSpec;
   className?: string;
@@ -55,6 +56,9 @@ export default function DeviceImage({
    *  preloads it instead of lazy-loading. Off by default (below-the-fold images stay
    *  lazy). */
   priority?: boolean;
+  /** Opt this image into the click-to-zoom preview. Off by default, so any consumer that has not
+   *  been considered renders exactly as before. */
+  preview?: boolean;
 }) {
   // ADDITIVE ONLY. The Replace affordance used to live in a wrapper span around the
   // image, which inserted a new box into the layout chain: a frame sized as a
@@ -66,15 +70,44 @@ export default function DeviceImage({
   const editProps = editable
     ? { "data-edit-block-index": blockIndex, "data-edit-image-path": editPath }
     : undefined;
-  const overlay = editable ? <ReplaceImageButton /> : null;
+
+  /* ⚠ ATTRIBUTES, NOT A WRAPPER — the same rule the paragraph above states for the edit markers,
+     and for the same reason. They ride the element that is ALREADY positioned, so a previewable
+     image and a plain one produce identical boxes.
+
+     ⚠ AND NOT IN THE CANVAS. `editable` is the studio inline canvas, where a click already means
+     "replace this image"; opening a zoom overlay on top of that would put two meanings on one
+     gesture. The public page previews, the canvas edits. */
+  const previewSrc = !editable && preview ? srcOf(image.src) : null;
+  const previewProps = previewSrc
+    ? { "data-preview-src": previewSrc, "data-preview-alt": image.alt }
+    : undefined;
+
+  const overlay = editable ? <ReplaceImageButton /> : previewSrc ? <PreviewHint /> : null;
   return (
     <DeviceImageInner
       image={image}
       className={className}
       priority={priority}
-      editProps={editProps}
+      editProps={{ ...editProps, ...previewProps }}
       overlay={overlay}
     />
+  );
+}
+
+/** A `next/image` src is either a static import or a path string; the overlay wants the URL. */
+function srcOf(src: import("next/image").StaticImageData | string): string {
+  return typeof src === "string" ? src : src.src;
+}
+
+/** The hover badge. Absolutely positioned like the Replace button, and `pointer-events-none` so
+ *  the click target stays the whole image rather than this. Shown by CSS on hover only — see
+ *  `.cs-preview-hint`, which also hides it where there is no hover to speak of. */
+function PreviewHint() {
+  return (
+    <span aria-hidden="true" className="cs-preview-hint">
+      Click to zoom
+    </span>
   );
 }
 

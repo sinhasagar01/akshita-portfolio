@@ -151,7 +151,17 @@ function BeforePhone({ before, w, fluid, maxW }: { before: ImgSpec; w: number; f
     ? { width: "100%", maxWidth: maxW, aspectRatio: `${BEZEL_W} / ${BEZEL_H}`, filter: GROUNDING }
     : { width: w, height: phoneH(w), filter: GROUNDING };
   return (
-    <div className="relative shrink-0" style={boxStyle}>
+    /* ⚠ THE **BEFORE** IS A STILL, SO IT PREVIEWS. Its sibling "after" is a scroll-driven device
+       composite — a bezel over a long strip that moves with the reader's scroll — and that one
+       does not, for the reason recorded on `WorkStory`: previewing it would show a 3000px strip
+       the page never displays whole, which is a different image rather than a larger one. */
+    <div
+      className="relative shrink-0"
+      style={boxStyle}
+      data-preview-src={typeof before.src === "string" ? before.src : before.src.src}
+      data-preview-alt={before.alt}
+    >
+      <span aria-hidden="true" className="cs-preview-hint">Click to zoom</span>
       <Image
         src={before.src}
         alt={before.alt}

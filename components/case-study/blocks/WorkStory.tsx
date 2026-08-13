@@ -258,6 +258,17 @@ export default function WorkStory({
         </div>
 
         {/* phone — five stacked three-layer units; the bezel is the only device edge (no shadow) */}
+        {/* ⚠ THIS COMPOSITE IS DELIBERATELY NOT PREVIEWABLE, and the reason is what it IS rather
+            than an oversight. It is `aria-hidden`, five units stacked at `opacity: 0` with one
+            revealed by scroll position, and each unit's "image" is a long strip that moves behind
+            a bezel window. A click would have to guess which unit is live, and the file it opened
+            would be a 3000px scroll strip the page never shows whole — a DIFFERENT image, not a
+            larger one. `BeforeAfterStory`'s still `before` panel previews for the same reason
+            inverted: it is one screenshot, shown entire.
+
+            The line is: an inspectable STILL gets a preview; a depicted device in MOTION does
+            not. If these screens are ever wanted at full size they want a still of their own,
+            which is content rather than a flag. */}
         <div aria-hidden="true" className="relative z-[1] shrink-0" style={{ width: phoneW, height: phoneH }}>
           {features.map((feat, k) => {
             const g = geos[k];

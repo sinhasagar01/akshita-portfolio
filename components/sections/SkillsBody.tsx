@@ -3,28 +3,21 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-const WORD_MAP: Record<string, string> = {
-  "Product Design": "vision",
-  "UX Design": "experience",
-  "UI Design": "craft",
-  "Interaction Design": "flow",
-  "Design Systems": "scale",
-  "UX Research": "insight",
-  "Journey Mapping": "journeys",
-  "Usability Testing": "proof",
-  "Split Testing": "signal",
-  "Wireframing": "clarity",
-  "Rapid Prototyping": "speed",
-  "Information Architecture": "structure",
-  "Figma": "canvas",
-  "Sketch": "lines",
-  "Adobe XD": "layers",
-  "Framer": "motion",
-  "Miro": "maps",
-  "Azure DevOps": "ship",
-};
+/* ⚠ THE GLOW WORD IS CONTENT NOW, AND IT WAS AN 18-ENTRY MAP IN THIS FILE UNTIL IT MOVED.
+   `WORD_MAP` keyed a skill's display name to the ghost word behind the pills. It worked and it
+   could only ever describe the skills that existed when it was written — so a skill added through
+   /studio produced a pill whose hover DID NOTHING, with no error and nothing to read.
 
-type Category = { category: string; items: string[] };
+   ⚠ AND TWO SUCH SKILLS WERE ALREADY LIVE. Migrating the map into `content/skills.yaml` matched 18
+   of 20 entries; "Claude Design" and "Claude Code" had none, and had been hovering to silence since
+   they were added. That is the defect the field fixes, found by counting rather than by looking.
+
+   An empty glow is a DEFINED state, not a hole: the previous word stays. That is what the old
+   `?? activeWord` did for an unmapped skill, kept deliberately so a half-filled category degrades
+   the way it always did. */
+
+type Skill = { name: string; glow: string };
+type Category = { category: string; items: Skill[] };
 
 export default function SkillsBody({ categories }: { categories: Category[] }) {
   const [activeWord, setActiveWord] = useState("design");
@@ -121,15 +114,16 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             </div>
             <ul className="flex flex-wrap gap-[9px] list-none p-0 m-0">
               {cat.items.map((item) => (
-                <li key={item}>
+                <li key={item.name}>
                   <span
                     className="skill-pill"
                     onMouseEnter={() => {
-                      setActiveWord(WORD_MAP[item] ?? activeWord);
+                      /* Empty glow leaves the previous word — see the note at the top. */
+                      setActiveWord(item.glow || activeWord);
                       setHovering(true);
                     }}
                   >
-                    {item}
+                    {item.name}
                   </span>
                 </li>
               ))}

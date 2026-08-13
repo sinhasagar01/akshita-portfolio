@@ -107,6 +107,7 @@ function Frame({
         ? { "data-edit-block-index": blockIndex, "data-edit-image-path": editPath }
         : {})}
       className="relative block w-full overflow-hidden rounded-xl border bg-surface-well"
+      {...(editable ? {} : { "data-preview-src": item.image.src, "data-preview-alt": item.image.alt })}
       style={{ borderColor: LINE, aspectRatio: aspect }}
     >
       {/* ⚠ THE ILLUSTRATION BRANCH IS ADDITIVE AND SITS INSIDE THE EXISTING BOX. It replaces what is
