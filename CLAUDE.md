@@ -213,7 +213,26 @@ gates.
 
 
 
-- **⚠ BOARDED: THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`, AND THAT IS STRUCTURAL RATHER
+- **⚠ CLOSED: THE DEV SERVER HAS ITS OWN BUILD DIRECTORY, AND THE BOARD GATE CAUGHT THIS ENTRY
+  GOING STALE ON ITS SECOND RUN — ON THE UNIT THAT CLOSED IT.** The entry declared it held while
+  `next.config.ts` carried no `distDir`; adding one turned `B2` red and named the entry rather than
+  the code. **The gate's second-ever finding was its own author closing the item it was told to
+  watch**, twenty minutes after it merged.
+
+  `distDir` is `.next-dev` under `NODE_ENV=development` and `.next` otherwise, so the split falls
+  exactly on the line that matters: **nothing a dev server does can reach what the four suites read**
+  — `colour-census`, `rendered-theme`, `route-coverage` and `css-comment-trap` — and `next start`
+  still serves the production directory it built. Vercel runs `next build`, which is production,
+  so the deployed path does not move.
+
+  **⚠ AND "REMEMBER TO STOP THE SERVER FIRST" WAS ALREADY WRITTEN DOWN AND DID NOT HELP**, which is
+  the whole argument. It is this repository's oldest lesson about rules — reaching for the wrong
+  thing is faster than remembering, which is why `mutate.mjs --edit` exists rather than a note about
+  `git checkout`.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS ARGUMENT IS WHY THE FIX IS A CONFIG CHANGE:**
+
+- **⚠ SUPERSEDED: THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`, AND THAT IS STRUCTURAL RATHER
   THAN A DISCIPLINE PROBLEM.** A dev server was needed to measure nine palettes from the paint; the
   bundle-reading suites need a PRODUCTION build; both use `.next`. The dev server overwrote it and
   three suites went red with **20 failed assertions** — `colour-census`, and two others reading the
@@ -1055,6 +1074,32 @@ moment it grows an action again.
   consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
   only visible where a utility currently loses. **That set is exactly what `cascade-public` already
   enumerates**, which means the blast radius is knowable before the edit rather than after it.
+
+- **⚠ THE TENTH MATCHER FINDING OF THE SESSION AND THE ONLY ONE WITH THE OPPOSITE CAUSE: A
+  VOCABULARY NARROWER BY BEING MORE PRECISE.** Every other one this session was a matcher whose
+  words covered less than its concept. This one was a matcher that was *exact where it should have
+  been general*.
+
+      consumer-count   `/^(node_modules|\.next|\.git|public)$/` on the NAME    descended into `.next-dev`
+      theme-contrast   `/node_modules|\.next|\.git|…/` on the PATH             unaffected, 112 passed
+
+  **THE ANCHORED, EXACT, CAREFULLY-WRITTEN ONE WAS WRONG AND THE LOOSE ONE WAS RIGHT** — because
+  `.next-dev` *contains* `.next`, so the sloppy substring match happened to express the concept and
+  the precise one expressed a name.
+
+  **⚠ THE EXCLUSION NAMED A DIRECTORY WHERE IT MEANT "BUILD OUTPUT".** That is the whole entry. Both
+  matchers had the same concept; one encoded it as a property of the string and one as a membership
+  list, and **a membership list is correct exactly until the population grows** — which this
+  repository has now recorded for palettes, pairs, themes, routes, collections, and now directories.
+
+  **⚠ AND IT WAS CREATED BY THE FIX AND CAUGHT BY AN EXISTING GATE**, which is the good half. The
+  `distDir` split made a second build directory exist for the first time; `consumer-count` reported
+  13 Tailwind-internal properties as orphaned public tokens within the minute. **Censused across
+  every walk in `ralph/` rather than repaired where it fired** — one descended, one was immune, and
+  knowing which is why the repair is one line rather than a sweep.
+
+  **THE PRACTICAL FORM: WHEN A MATCHER EXCLUDES SOMETHING, ASK WHETHER IT NAMES THE THING OR
+  DESCRIBES IT.** Precision is not the virtue here; the right generality is.
 
 - **⚠ FIVE MATCHER ERRORS IN ONE EMITTER, AND THE EMITTER WAS THE ONE WRITTEN TO PREVENT THEM — WITH
   ITS OWN DENOMINATOR REQUIREMENT WRITTEN INTO ITS HEADER BEFORE IT EVER RAN.** `collection-readiness`

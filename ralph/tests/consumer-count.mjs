@@ -20,7 +20,16 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$
 const files = [];
 (function walk(d) {
   for (const e of readdirSync(d, { withFileTypes: true })) {
-    if (/^(node_modules|\.next|\.git|public)$/.test(e.name)) continue;
+    /* ⚠ `\.next.*` AND NOT `\.next`, BECAUSE A SECOND BUILD DIRECTORY ARRIVED AND THIS EXCLUSION
+       NAMED THE FIRST ONE. `next.config.ts` now sends the DEV server to `.next-dev` so it cannot
+       overwrite the production build four suites read — and this walk, anchored on the exact name,
+       descended into it and reported 13 Tailwind-internal properties as orphaned public tokens.
+       ⚠ THE EXCLUSION NAMED A DIRECTORY WHERE IT MEANT "BUILD OUTPUT", which is this repository's
+       standing defect in a new place: a subject expressed as a list rather than as a property.
+       `theme-contrast` walks the same tree with an UNANCHORED match and was unaffected — the looser
+       matcher was correct and the tighter one was not, which is the inverse of the usual and worth
+       the line. Measured: of every walk in `ralph/`, this was the only one that descended. */
+    if (/^(node_modules|\.next.*|\.git|public)$/.test(e.name)) continue;
     const p = `${d}/${e.name}`;
     if (e.isDirectory()) walk(p);
     /* ⚠ .ts AND .tsx AS WELL AS .css — the file-type boundary has cost three findings here, and a

@@ -5,6 +5,9 @@ node_modules/
 
 # Next.js build output
 .next/
+# The dev server's own build directory — see next.config.ts. It exists so a dev run cannot
+# overwrite the production build four ralph suites read.
+.next-dev/
 out/
 build/
 

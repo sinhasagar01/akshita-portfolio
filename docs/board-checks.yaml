@@ -29,15 +29,26 @@
 # coverage, which this record carries four times.
 
 entries:
-  - match: "THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`"
-    kind: absence
+  # ⚠ THIS CHECK FIRED ON THE GATE'S SECOND RUN, ON THE UNIT THAT CLOSED THE ITEM. It read
+  # `expect: absent` because the item was open while both consumers shared `.next`. Adding `distDir`
+  # made the entry stale and B2 said so, naming the entry rather than the code — which is the
+  # behaviour the gate exists for, arriving twenty minutes after it merged.
+  - match: "THE DEV SERVER HAS ITS OWN BUILD DIRECTORY"
+    kind: structural
     holds_while:
       file: next.config.ts
       pattern: distDir
-      expect: absent
+      expect: present
     note: >-
-      The item is open because both consumers share one build directory. A `distDir` in the config
-      means somebody has separated them and the entry needs closing.
+      The correction states the directories are split. Removing `distDir` puts the dev server back
+      on top of what four suites read, and this entry would describe a repository that no longer
+      exists.
+
+  - match: "SUPERSEDED: THE MEASUREMENT AND THE GATES CANNOT SHARE"
+    kind: judgement
+    why: >-
+      Superseded framing, kept because it argues why the fix had to be a config change rather than a
+      rule. There is no live condition left in it.
 
   - match: "A LOCAL `github` WRITE MODE AGAINST A FORK"
     kind: structural
