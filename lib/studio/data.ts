@@ -29,6 +29,9 @@ export type StudioData = HomePageData & {
   /** The draft read failed, so the studio is showing LIVE as a fail-safe. The bar
    *  says so, rather than reading as "nothing to publish". */
   draftReadError: boolean;
+  /** The draft branch was deleted while the read was in flight — most often a discard in another
+   *  tab. Distinct from `draftReadError`, which means nothing could be read at all. */
+  draftGone: boolean;
   /** ⚠ WHICH DRAFT ENTRIES WOULD NOT PARSE — distinct from `draftReadError`, which means the whole
    *  read failed. A non-empty list with `draftReadError: false` is the common case now: the branch
    *  read fine and one file is malformed, so every other collection is showing a real draft. */
@@ -70,6 +73,10 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
     settingsDraftState,
     draftDiffers: draft.differs,
     draftReadError: draft.readError,
+    /* ⚠ "The draft is gone" is a THIRD state, not a flavour of the other two. See
+       `DraftBranchState.draftGone`: a discard in another tab used to surface as N per-entry
+       `Failed to fetch tree: 404` messages, each true about a tree read and false about the work. */
+    draftGone: draft.draftGone,
     draftReadFailures: draft.readFailures,
   };
 });

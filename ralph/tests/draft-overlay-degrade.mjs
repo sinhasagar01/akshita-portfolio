@@ -107,12 +107,16 @@ console.log("\nC · the two failure states stay distinct, because they mean oppo
   /* ⚠ THE EMPTY STATE MUST CARRY AN EMPTY LIST, NOT AN ABSENT ONE. A consumer reading
    * `draftReadFailures[0]` on `undefined` throws, and the global-failure path is exactly when the
    * studio must still render. */
+  /* ⚠ NOT ADJACENCY. This matched `readError: false` IMMEDIATELY followed by `readFailures: []`, so
+     adding a third field between them turned the row red on a literal that still carried both —
+     failing for a reason it does not name. The claim is that the empty state carries BOTH, not that
+     they are neighbours; field order in an object literal is not a contract. */
   t("C2 …and the global empty state carries an empty list rather than omitting it",
-    /readError: false,\s*\n\s*readFailures: \[\],/.test(src), true);
+    /const EMPTY_DRAFT_STATE[\s\S]{0,400}?readError: false[\s\S]{0,400}?readFailures: \[\]/.test(src), true);
   /* The early return — nothing changed to read — is a third construction site and was missed once
      already in this file's history. */
   t("C3 …and the nothing-to-read early return carries one too",
-    /return \{ differs, readError: false, readFailures: \[\],/.test(src), true);
+    /return \{ differs, readError: false,[^}]{0,120}?readFailures: \[\],/.test(src), true);
   t("C4 the failure names its collection and slug, so an author knows which file to open",
     /collection: CollectionName \| "skills";\s*\n\s*slug: string;/.test(src), true);
 }

@@ -43,7 +43,7 @@ export default async function DashboardLayout({
   // always today's. See lib/studio/sidebar-width.ts.
   const sidebarWidth = clampSidebarWidth(jar.get(SIDEBAR_COOKIE)?.value);
 
-  const { projects, experience, blog, gallery, skills, settings, draftDiffers, draftReadError, draftReadFailures } = await getStudioData();
+  const { projects, experience, blog, gallery, skills, settings, draftDiffers, draftReadError, draftGone, draftReadFailures } = await getStudioData();
   /* THE PENDING THEME, WHICH IS THE DRAFT'S AND NOT THE PUBLISHED ONE. `getStudioData()` is
      draft-preferring for settings, so a theme saved but not yet published resolves here while
      `<html>` still carries the live value from the root layout's published read. */
@@ -152,7 +152,7 @@ export default async function DashboardLayout({
               navigation), seeded once from the branch-level differs, so a
               collection edit's "unpublished" signal shows on the page you're
               editing — not just Settings. Panels report differs + pending to it. */}
-          <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError} draftReadFailures={draftReadFailures}>
+          <PublishProvider initialDiffers={draftDiffers} draftReadError={draftReadError} draftGone={draftGone} draftReadFailures={draftReadFailures}>
             {/* NO PADDING AND NO BOTTOM SPACER HERE. This used to be
                 the page padding wrapper plus a 5rem tail spacer
                 that kept the fixed PublishBar off the end of the content.

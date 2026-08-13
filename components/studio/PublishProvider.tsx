@@ -24,6 +24,7 @@ type PublishSignal = {
   unpublished: boolean;
   /** The draft read failed; the bar shows a warning instead of a status. */
   draftReadError: boolean;
+  draftGone: boolean;
   draftReadFailures: readonly DraftReadFailure[];
   setUnpublished: (value: boolean) => void;
   anyPending: boolean;
@@ -57,6 +58,7 @@ const NOOP: PublishSignal = {
   dismissToast: () => {},
   unpublished: false,
   draftReadError: false,
+  draftGone: false,
   draftReadFailures: [],
   setUnpublished: () => {},
   anyPending: false,
@@ -70,11 +72,13 @@ const PublishContext = createContext<PublishSignal | null>(null);
 export function PublishProvider({
   initialDiffers,
   draftReadError = false,
+  draftGone = false,
   draftReadFailures = [],
   children,
 }: {
   initialDiffers: boolean;
   draftReadError?: boolean;
+  draftGone?: boolean;
   draftReadFailures?: readonly DraftReadFailure[];
   children: React.ReactNode;
 }) {
@@ -196,10 +200,10 @@ export function PublishProvider({
   }, []);
 
   const value = useMemo<PublishSignal>(
-    () => ({ unpublished, setUnpublished, draftReadError, draftReadFailures, anyPending: pendingIds.size > 0, reportPending,
+    () => ({ unpublished, setUnpublished, draftReadError, draftGone, draftReadFailures, anyPending: pendingIds.size > 0, reportPending,
       anyOccluding: occludingIds.size > 0, reportOccluding,
       toasts, beginToast, resolveToast, dismissToast, retryToast }),
-    [unpublished, draftReadError, draftReadFailures, pendingIds, reportPending, occludingIds, reportOccluding,
+    [unpublished, draftReadError, draftGone, draftReadFailures, pendingIds, reportPending, occludingIds, reportOccluding,
       toasts, beginToast, resolveToast, dismissToast, retryToast]
   );
 

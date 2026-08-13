@@ -31,7 +31,7 @@ type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
 
 export default function PublishBar() {
-  const { unpublished, setUnpublished, draftReadError, draftReadFailures, anyPending,
+  const { unpublished, setUnpublished, draftReadError, draftGone, draftReadFailures, anyPending,
     toasts, beginToast, resolveToast: resolveToastById, dismissToast, retryToast } = usePublishSignal();
   /** One publish at a time — closes the double-activation window  cannot. */
   const inFlight = useRef(false);
@@ -621,11 +621,20 @@ export default function PublishBar() {
                  about which arm runs. */
               const state = disclosureState({
                 draftReadError,
+                draftGone,
                 readFailureCount: draftReadFailures.length,
                 fetchState: changesState,
                 entryCount: changes === null ? null : changes.length,
               });
-              return state.kind === "unreadable" ? (
+              return state.kind === "gone" ? (
+              /* ⚠ THE THIRD FAILURE STATE, AND THE ONLY ONE THAT NAMES A CAUSE. A discard in another
+                 tab used to surface as per-entry tree-fetch 404s — true about a read, false about
+                 the author's work. */
+              <p className="text-[12.5px] text-studio-ink-600">
+                This draft was discarded, so there is nothing to publish. If that wasn&rsquo;t you, it
+                was another tab — your published site is unchanged.
+              </p>
+            ) : state.kind === "unreadable" ? (
               <p className="text-[12.5px] text-studio-ink-600">
                 The draft could not be read, so this list is unavailable. Your unpublished work is
                 still on the draft branch — nothing has been lost.

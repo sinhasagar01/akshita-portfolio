@@ -19,7 +19,7 @@ const t = (name, got, want) => {
   ok ? pass++ : fail++;
 };
 const S = (over) => disclosureState({
-  draftReadError: false, readFailureCount: 0, fetchState: "idle", entryCount: 0, ...over,
+  draftReadError: false, draftGone: false, readFailureCount: 0, fetchState: "idle", entryCount: 0, ...over,
 });
 
 console.log("\nA · nothing unpublished, and it is not the same claim as a failure");
@@ -51,6 +51,25 @@ t("C2a …and it outranks LOADING, which is the pair the first version of C2 cou
   S({ draftReadError: true, fetchState: "loading", entryCount: null }).kind, "unreadable");
 t("C2b …and it outranks a FAILED fetch",
   S({ draftReadError: true, fetchState: "failed", entryCount: 2 }).kind, "unreadable");
+
+console.log("\nG · ⚠ THE FIFTH STATE — the draft was discarded, which is a CAUSE rather than a failure");
+/* ⚠ A DISCARD IN ANOTHER TAB USED TO SURFACE AS N PER-ENTRY `Failed to fetch tree: 404` MESSAGES —
+ * every one true about a tree read and every one false about the author's work. The branch-gone case
+ * IS handled at the top of the draft read; what was not handled is the branch vanishing AFTER that
+ * check, which is a race an ordinary discard produces. */
+t("G1 ⚠ A DISCARDED DRAFT IS ITS OWN STATE, NOT A READ FAILURE",
+  S({ draftGone: true, entryCount: 0 }).kind, "gone");
+/* ⚠ AND IT OUTRANKS `unreadable`, BECAUSE IT IS THE MORE SPECIFIC TRUE STATEMENT. Both mean the list
+ * cannot be built; only one tells the author what happened. Asserted against EVERY competitor, which
+ * is what C2's first version failed to do. */
+t("G2 …and it outranks a failed read", S({ draftGone: true, draftReadError: true }).kind, "gone");
+t("G3 …and a list that arrived", S({ draftGone: true, entryCount: 4 }).kind, "gone");
+t("G4 …and loading", S({ draftGone: true, fetchState: "loading", entryCount: null }).kind, "gone");
+t("G5 …and a failed fetch", S({ draftGone: true, fetchState: "failed", entryCount: 2 }).kind, "gone");
+/* The complement: without the flag nothing changes, so G1 cannot pass by the arm always firing. */
+t("G6 …and with the flag false every other state is unaffected",
+  [S({ entryCount: 0 }).kind, S({ entryCount: 2 }).kind, S({ draftReadError: true }).kind],
+  ["nothing", "listing", "unreadable"]);
 
 console.log("\nD · ⚠ THE FOURTH STATE, WHICH A SPECIFICATION OMITS");
 /* ⚠ The branch read fine and SPECIFIC FILES did not parse. Every other entry is a real draft, so
@@ -88,9 +107,10 @@ console.log("\nF · every state is reachable — a branch nothing can reach is d
     S({ draftReadError: true }).kind,
     S({ fetchState: "loading", entryCount: null }).kind,
     S({ fetchState: "failed", entryCount: null }).kind,
+    S({ draftGone: true }).kind,
   ]);
-  t("F1 ⚠ ALL FIVE KINDS ARE REACHABLE FROM REAL INPUTS — an unreachable arm cannot fail for the reason it names",
-    [...reached].sort(), ["failed", "listing", "loading", "nothing", "unreadable"]);
+  t("F1 ⚠ ALL SIX KINDS ARE REACHABLE FROM REAL INPUTS — an unreachable arm cannot fail for the reason it names",
+    [...reached].sort(), ["failed", "gone", "listing", "loading", "nothing", "unreadable"]);
 }
 
 console.log(`\nunpublished-changes result: ${pass} passed, ${fail} failed`);
