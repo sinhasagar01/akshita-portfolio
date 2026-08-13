@@ -1,0 +1,63 @@
+# WHAT A PERSON DROVE, AND WHEN.
+#
+# ⚠ THIS FILE IS EMPTY OF REAL ENTRIES AND THAT IS THE HONEST STATE, NOT AN OVERSIGHT.
+#
+# Four collections have produced four first-browser-run defects and not one was visible to a gate.
+# The rule that a collection is done only when somebody has driven create-to-publish and a failure
+# path in a browser has been written down for arcs, and nothing recorded whether it was followed.
+#
+# It would be easy to write four entries here from what people remember. That is precisely what this
+# record refuses. An exercise entry is EVIDENCE — the messages are copied off a screen, the sha is
+# the build that was actually serving — and evidence assembled from memory is the thing this
+# repository deletes on sight. So the file starts with one FIXTURE and no coverage.
+#
+# ---- HOW TO ADD ONE ---------------------------------------------------------------------------
+#
+# Drive the collection through /studio in a real browser. Create, upload, edit, reorder, delete,
+# preview, publish, and one failure path. Do it at two widths, one below 1100 and one at or above,
+# because below the fold the shell passes no inspector and the canvas must supply the form itself —
+# gallery gave it none and an author saw a preview with no form at all.
+#
+# Copy the messages VERBATIM as they appear. Not "it showed an error". The gate refuses a paraphrase
+# because a paraphrase decided a real diagnosis here: a validator correctly refusing a draft marker
+# was reported as "something went wrong" and cost three prompts of investigation.
+#
+# Record the sha PRODUCTION WAS SERVING, read from the deployment list rather than from `main`. A
+# merge is not a release, and an exercise of `main` is an exercise of a build no visitor had.
+#
+# ---- ⚠ AN ENTRY EXPIRES ------------------------------------------------------------------------
+#
+# `collection-exercise` fails if a collection's write path changed after the date on its entry. That
+# is deliberate and it will be inconvenient. A claim about a build that has since moved reads exactly
+# like coverage while being about a program nobody runs — which is this record's oldest defect, and
+# the only remedy that has ever worked is refusing to let the claim stand unexamined.
+
+exercises:
+  # ⚠ A FIXTURE, NOT AN EXERCISE, AND IT IS EXCLUDED FROM THE EXERCISED SET BY NAME.
+  #
+  # It exists because the record is empty and a validator with no input passes over an empty
+  # subject and reports the shape of success. `cream-verify` is the precedent: a verification
+  # fixture rather than a design, carried openly with its deletion trigger stated.
+  #
+  # DELETION TRIGGER: the first REAL exercise for any collection. At that point the validator has a
+  # genuine subject and this row is a second spelling of one.
+  #
+  # ⚠ ITS VALUES ARE REAL RATHER THAN PLAUSIBLE-LOOKING, on purpose. `deployedSha` resolves and is
+  # an ancestor of main, because the suite checks that and a fixture that dodged the check would
+  # prove the check runs on nothing.
+  - collection: gallery
+    fixture: true
+    date: "2026-08-13"
+    deployedSha: "06c1b0d"
+    widths: [900, 1440]
+    steps:
+      - create
+      - upload
+      - edit
+      - reorder
+      - delete
+      - preview
+      - publish
+      - failure-path
+    messages:
+      - "FIXTURE — not a driven run. Replace this row with a real exercise; see the deletion trigger above."
