@@ -1496,6 +1496,23 @@ h2 {
   font-weight: var(--font-weight-regular);
 }
 
+/* ⚠ THE GALLERY HERO'S HEADLINE ASKS FOR 600 AND A UTILITY CANNOT GIVE IT. The rule directly above
+   is UNLAYERED, so a weight utility in `@layer utilities` loses to it and draws nothing — the inert
+   class `cascade-public` C3 pins, which the gallery page's own masthead comment already records for
+   the family. The weight is therefore asserted here, unlayered, where it can win.
+
+   ⚠ A RULE AND NOT A JSX INLINE STYLE, DELIBERATELY. An inline style would also beat the reset, and
+   the record carries what that costs: the home hero's tab pill keeps its drop shadow that way and
+   sat outside every stylesheet-bounded sweep for an arc, found only because the owner named the
+   element. A rule is visible to the censuses that exist to find these.
+
+   ⚠ AND THIS ELEMENT MUST NEVER ALSO CARRY A `font-weight` UTILITY. The two would become a shadowed
+   pair, and `cascade-public` S1 asserts the only such shape on the public site is font-weight under
+   `.case-study .font-display`. A second party there is one nobody has modelled. */
+.gallery-hero-title {
+  font-weight: var(--font-weight-semibold);
+}
+
 h3,
 h4,
 h5,
@@ -5405,6 +5422,139 @@ a {
   .blog-wave,
   .blog-bub { animation: none !important; }
   .blog-wave { filter: none; }
+}
+
+/* ============================================================ THE GALLERY HERO
+   The fanned strip, its accent wash, and the one gesture that straightens it.
+
+   ⚠ WHY THESE ARE RULES AND NOT UTILITIES. Three of them cannot be utilities at all: a
+   per-frame rotation composed from two custom properties, a `repeating-linear-gradient`
+   hatch on a pseudo-element, and a hover that reaches from the strip to all five children.
+   The rest sit here so the whole mechanic reads in one place rather than half in a
+   component and half in a stylesheet.
+
+   ⚠ NO NEW `@theme` TOKEN. Every colour resolves through an existing role — `accent-500`,
+   `etch`, `surface-well` — so the strip follows the ground on all nine palettes without
+   declaring anything the vocabulary would then have to carry forever. The Pearl Smoke
+   palette on `.blog-vessel` sets the same precedent one section below. */
+
+/* The wash behind the hero. `closest-side` against a fixed box, so it does not grow with the
+   content — the same shape the mock draws, resolved through the accent role rather than a
+   literal, which is what lets it theme. */
+.gallery-hero-glow {
+  position: absolute;
+  left: 50%;
+  top: -16%;
+  width: 1150px;
+  height: 940px;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent-500) 17%, transparent),
+    transparent 70%
+  );
+}
+
+/* ⚠ THE REST ROTATION IS NOT MOTION AND IS NOT GATED. Nothing animates into it — it is where
+   the frame simply is, the way a stack of prints on a table is not an animation. The
+   STRAIGHTENING is the motion, and only that is behind the query below. */
+/* ⚠ THE DROP RESOLVES THE PIGMENT RATHER THAN A FINISHED BLACK, AND `colour-census` J1 IS WHY. It
+   shipped as a raw `oklch` at full black and went red as an untraced literal claimed by no boundary
+   row — correctly, because a finished colour bakes the direction in and cannot survive a ground
+   change. `etch` resolves to an INK and lets every consumer keep its own alpha, which is the exact
+   property that made one role serve `border-etch/8`, `bg-etch/15` and `bg-etch/5`. The compiler
+   folds this to a literal and the census RECOMPUTES the fold, so it traces. */
+.gallery-hero-frame {
+  transform: rotate(var(--f-rotate)) translateY(var(--f-lift));
+  box-shadow: 0 20px 44px -32px color-mix(in srgb, var(--color-etch) 55%, transparent);
+}
+
+/* The empty frame's hatch. A pseudo-element because the frame itself carries the dashed border
+   and a second background would have to fight it. */
+.gallery-hero-frame--empty {
+  box-shadow: none;
+}
+.gallery-hero-frame--empty::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 7px,
+    color-mix(in srgb, var(--color-etch) 7%, transparent) 7px 8px
+  );
+}
+
+/* ⚠ THE TWO ACTIONS ASSERT THEIR COLOUR UNLAYERED BECAUSE THEY ARE ANCHORS, AND `cascade-public`
+   C1 CAUGHT THIS RATHER THAN A RENDER. Both shipped first with an ordinary foreground utility — the
+   on-accent role on one, the body-text role on the other — and BOTH DREW NOTHING: `a { color:
+   inherit }` is unlayered, so it beats any utility in `@layer utilities`, and the census went 4
+   collisions to 7 within a minute of the component being written. The accent button would have
+   inherited body ink onto an accent fill — a contrast defect on every light palette, in the element
+   with the strongest colour claim on the page.
+
+   ⚠ AND THE ROLES ARE NAMED IN WORDS ABOVE RATHER THAN SPELLED AS CLASSES, BECAUSE THE FIRST DRAFT
+   OF THIS COMMENT SPELLED THEM AND `css-comment-trap` WENT RED. Deleting the last public use of a
+   utility makes every comment naming it the only thing generating it, so the prose explaining a
+   removal ships the class it just removed. The record says run that gate after a DELETION and
+   describe the retired utility; this note is the instance where its author needed telling.
+
+   ⚠ THE UTILITIES ARE DELETED RATHER THAN LEFT BESIDE THESE RULES. A class that asks for one colour
+   while another draws is a lie in the markup that survives precisely because the result looks
+   right, and the home page's `font-script` h1 is the recorded instance. `.studio-chrome .sechead`
+   is the pattern the gate's own failure message names.
+
+   ⚠ AND THE PAIR IS EXPLICIT ON THE FILLED ONE — accent ground, `on-accent` label — never inherited.
+   The work filter's entry records why: a control that draws an accent ground and inherits its
+   foreground is the one shape no cascade walk can check, because the ground is painted by a
+   sibling. */
+.gallery-hero-cta {
+  color: var(--color-on-accent);
+}
+.gallery-hero-cta-ghost {
+  color: var(--color-text-body);
+}
+.gallery-hero-cta-ghost:hover {
+  color: var(--color-text-primary);
+}
+
+/* ⚠ THE STRIP DROPS FRAMES BY ARITHMETIC, NOT BY THE SITE BREAKPOINT — AND THE RENDER IS WHY THIS
+   EXISTS. At 390px the outer two frames were SLICED IN HALF by the hero's `overflow-hidden`, which
+   reads as a broken image rather than as a crop. No gate here measures a rendered width.
+
+   The frames are fixed pixels because the fan is composed against itself, so the width they need is
+   a sum rather than a proportion — 118+168+132+162+116, four 12px gaps and 30px of padding a side:
+
+       5 frames  744 + 60 =  804px          3 frames  442 + 60 = 502px
+       4 frames  616 + 60 =  676px          2 frames  298 + 60 = 358px
+
+   ⚠ SO THESE ARE FIT THRESHOLDS AND NOT LAYOUT BREAKPOINTS, which is why they do not sit at the
+   site's 1024. The standing rule that the whole site goes mobile at once at `lg` is about a
+   two-column layout becoming one; a decorative row fitting its own contents is a different
+   question, and pinning it to `lg` would still clip everything between 502 and 1023. The upper
+   step is placed AT `lg` anyway because 804 falls inside that range and matching the site's one
+   breakpoint costs nothing there; only the lower step is new, and it is the sum above. */
+@media (max-width: 1023px) {
+  .gallery-hero-frame:nth-child(4),
+  .gallery-hero-frame:nth-child(5) { display: none; }
+}
+@media (max-width: 520px) {
+  .gallery-hero-frame:nth-child(3) { display: none; }
+}
+
+/* ⚠ THE ONE GESTURE, AND IT IS THE ONLY THING IN THIS SECTION BEHIND THE QUERY. `no-preference`
+   rather than a `reduce` override, so the DEFAULT for a reader who has expressed no preference
+   in a context that cannot report one — a print stylesheet, an old engine — is the still form.
+   Gating with `reduce` would ship the motion to everyone the query cannot reach. */
+@media (prefers-reduced-motion: no-preference) {
+  .gallery-hero-frame {
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s;
+  }
+  .gallery-hero-strip:hover .gallery-hero-frame {
+    transform: rotate(0deg) translateY(0);
+  }
 }
 
 /* ============================================================ STUDIO RADIUS SCALE

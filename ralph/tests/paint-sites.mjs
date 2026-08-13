@@ -94,11 +94,24 @@ const PAGES = [
      stays invisible until the next route ships. `route-coverage` C1 now fails on the omission, and
      it failed on this one, which is the mechanism working rather than a habit holding.
 
-     ⚠ AND IT WILL MEASURE ALMOST NOTHING UNTIL THE COLLECTION HAS CONTENT — SAID, BECAUSE A LOW
-     SITE COUNT HERE READS AS A THIN PAGE. `content/gallery` is empty, so this visits a masthead and
-     an empty state. The masthead is real themed chrome and is worth the visit; the masonry, the
-     filter chips and the overlay are NOT under the ratchet until an item exists. That is a stated
-     gap rather than coverage, and the trigger to re-read this note is the first authored item. */
+     ⚠ AND THIS NOTE SAID `content/gallery` IS EMPTY. IT HAS NOT BEEN SINCE `9a4704a`. It named
+     "the first authored item" as the trigger to re-read itself, THE TRIGGER FIRED, and the note
+     went on describing a masthead and an empty state while the suite was visiting a hero, a filter
+     row and a real tile. A trigger nobody is watching is a deferral to nobody — the shape this
+     repository names against gates, arriving in the prose beside one.
+
+     ⚠ AND THE CLAIM IT INVITED WAS WORSE THAN THE STALENESS. Asked whether "the empty state is
+     what the ratchet captured", the honest answer is that THIS SUITE STORES NO BASELINE AT ALL: it
+     captures every palette inside a single run and compares them to each other, so there is
+     nothing retained between runs to have captured anything. What it visits is whatever
+     `content/gallery` holds at run time. "The ratchet captured X" is not a true or false statement
+     about this suite; it is a sentence with no subject.
+
+     WHAT IS ACTUALLY UNDER THE RATCHET, as of the hero: the hero's pill, headline, dek, both
+     actions, the strip frames and the fact row, plus the filter chips and one tile. The overlay
+     still is not — it needs a click, and this suite does not interact. That remains a stated gap
+     rather than coverage, and it has no trigger BECAUSE a trigger is what just failed; closing it
+     means driving the overlay, which is a different instrument. */
   ["/gallery", "gallery"],
 ];
 
