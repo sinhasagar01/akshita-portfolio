@@ -102,6 +102,10 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.saved && json.slug) {
+        /* ⚠ BEFORE THE PUSH, NOT AFTER — the navigation is not a refresh. `CaseStudyIndex`
+           has always done this and is the only reason case studies flip; gallery and blog
+           both shipped without it, so it was two collections rather than one. */
+        setUnpublished(true);
         router.push(`/studio/gallery/${json.slug}`);
         return;
       }
@@ -145,9 +149,20 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
          not, so after a delete the publish pill kept its PAGE-LOAD value and an author could not
          publish a removal that had already happened on the draft branch.
 
-         ⚠ AND CREATE MASKED IT, WHICH IS WHY IT SURVIVED. A create navigates straight to the new
-         entry, so the bar is re-rendered from fresh server data and the stale flag is never seen.
-         A DELETE STAYS PUT. The defect was only ever visible on the path that does not navigate. */
+         ⚠ AND THE COMMENT THAT USED TO SIT HERE CAUSED A SECOND DEFECT, WHICH IS WHY IT IS QUOTED
+         RATHER THAN DELETED. It read: "a create navigates straight to the new entry, so the bar is
+         re-rendered from fresh server data and the stale flag is never seen." EVERY CLAUSE IS
+         FALSE, and it was written as the REASON NOT TO ADD THE CALL TO CREATE — so create shipped
+         without one and an owner found it at a browser.
+
+         `PublishProvider` seeds `useState(initialDiffers)` ONCE AT MOUNT and never re-seeds from
+         props; `initialDiffers` is read in the (dashboard) LAYOUT, and a layout does not re-render
+         on a client navigation inside its own segment. A push from the index to the editor stays
+         inside that segment, so the provider never remounts and the navigation refreshes nothing.
+
+         ⚠ A COMMENT THAT JUSTIFIES AN OMISSION IS THE MOST DANGEROUS KIND, because it closes the
+         question for every later reader including the one who wrote it. Nothing re-derives a
+         reason. */
         setUnpublished(true);
         setDeleteTarget(null);
         return;

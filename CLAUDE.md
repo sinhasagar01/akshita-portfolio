@@ -489,6 +489,43 @@ is deploys rather than commits.
   **THE CHECK: before citing a rule, a constant or a gate as recorded, grep it on `main`.** Not on
   the working tree, which carries whatever the current branch added.
 
+- **⚠ A COMMENT THAT JUSTIFIES AN OMISSION IS THE MOST DANGEROUS KIND, AND IT IS THE FIFTH INSTANCE
+  OF PROSE AND CODE MOVING APART — BUT THE FIRST WHERE THE PROSE CAUSED THE DEFECT.** The other four
+  described behaviour the code did not have. **This one explained why a call was not needed, and so
+  the call was never written.**
+
+      "a create navigates straight to the new entry, so the bar is re-rendered from fresh
+       server data and the stale flag is never seen"
+
+  **EVERY CLAUSE IS FALSE.** `PublishProvider` does `useState(initialDiffers)` — seeded once at mount
+  and never re-seeded from props — and `initialDiffers` is read in the `(dashboard)` LAYOUT, which
+  **does not re-render on a client navigation inside its own segment.** A push from the index to the
+  editor stays in that segment, so the provider never remounts and the navigation refreshes nothing.
+
+  **⚠ IT CLOSED THE QUESTION FOR EVERY LATER READER INCLUDING ITS AUTHOR.** #537 added the mark to
+  DELETE in both indexes and skipped CREATE, citing this. Two collections shipped without it —
+  gallery, where an owner found it at a browser, and **blog, which nobody has driven.**
+  `CaseStudyIndex` has always marked before its push, and that ordering is the entire difference.
+
+  **THE COMMENT IS QUOTED IN BOTH FILES RATHER THAN DELETED**, because the retraction is the useful
+  artefact and a later reader who meets only the correct code learns nothing. **Nothing re-derives a
+  reason**, which is why prose that forbids work is worse than prose that describes it.
+
+- **⚠ AND THE DIAGNOSIS OF THAT DEFECT CONTAINED ONE OF ITS OWN, IN THE SAME SHAPE THIS FILE NAMES A
+  DOZEN TIMES: A MATCHER NARROWER THAN ITS CONCEPT.** The report claimed `create-entry` never
+  invalidates the cached draft state, so a hard refresh would keep under-reporting for 45 seconds.
+  **It does invalidate, on the success path.** The grep searched
+  `revalidateTag|revalidatePath|DRAFT_STATE_TAG` — the IMPLEMENTATION vocabulary — while the route
+  calls the exported wrapper `invalidateDraftStateCache()`.
+
+  **THE OWNER RULED ON IT BEFORE IT WAS REFUTED** — *"part 3 must ship with part 1"* — so a false
+  finding directed a unit's scope for one exchange. **Derived properly, every POST route but the two
+  session routes invalidates exactly once, and all five that do not are GET.** The server half was
+  never broken.
+
+  **THE CHECK: WHEN GREPPING FOR A BEHAVIOUR, GREP FOR THE EXPORTED NAME CALLERS USE, NOT THE
+  PRIMITIVE IT WRAPS.** A wrapper exists precisely so callers do not name the primitive.
+
 - **⚠ A COMMENT IS WRITTEN WHEN THE INTENT IS FRESHEST AND CHECKED NEVER — FOUR INSTANCES IN ONE
   COLLECTION, WHICH MAKES IT A PATTERN RATHER THAN A FOURTH ANECDOTE.** Every one described correct
   behaviour beside code that did not do it, and every one was written by the author of the code, in
@@ -759,6 +796,40 @@ is deploys rather than commits.
   **⚠ AND IT HAS NO GATE, SAID RATHER THAN IMPLIED.** The assertion that matters is a RENDERED WIDTH,
   which ralph cannot measure; a declaration check would go on passing if the grid changed underneath
   it. The trigger for re-measuring is any change to `.hero-copy`'s layout mode.
+
+- **⚠ THE NINTH DEFECT IN `mutate.mjs`, AND IT SHARPENS THE BOARDED ITEM BELOW RATHER THAN JOINING
+  IT: `--edit` VALIDATES THE ANCHOR'S UNIQUENESS AND `--revert-edit` SEARCHES FOR THE REPLACEMENT,
+  WHOSE UNIQUENESS IS NEVER CHECKED.** A mutation removed a line by replacing
+
+      setUnpublished(true);\n        router.push(`/studio/gallery/     ->     router.push(`/studio/gallery/
+
+  The anchor was unique, so the edit was accepted. **The replacement was not** — that file pushes to
+  the same route from a row click a hundred lines below — so the revert refused, correctly, and
+  **the edit became unrevertable by the tool.**
+
+  **⚠ AND THE REFUSAL LEFT THE ENTRY IN THE MANIFEST, WHICH IS HOW IT SPREADS — AND THE `at worst`
+  BRANCH THIS FILE ONLY HYPOTHESISED ACTUALLY HAPPENED.** The phantom-manifest entry was recorded as
+  costing "at best a round to a phantom, at worst it finds the replacement string by coincidence in
+  restored source and rewrites a line nobody mutated." **It found it and rewrote it** — a duplicated
+  `setUnpublished(true);` in two files that were already correct.
+
+  **⚠ AND THE AGENT THAT APPLIED IT WAS `ralph` ITSELF.** `mutate-harness` is one of the 94 suites and
+  it exercises the real binary, so **running the full suite with a dirty manifest mutates the working
+  tree.** A gate that edits source when its own tool's state is stale is the sharpest form of the
+  harness catching contamination produced by its own tool — the second such instance, and the first
+  where a routine green run was the vector.
+
+  **THE OPERATIONAL RULE UNTIL THE MECHANISM LANDS: IF `mutate-harness` C3 IS RED, CLEAR THE MANIFEST
+  BEFORE RE-RUNNING RALPH**, not after — the re-run is what applies the damage.
+
+  **THE CHEAP HALF IS ONE MORE REFUSAL AT EDIT TIME: reject a replacement that already occurs in the
+  file**, because unrevertability is knowable before the edit, which is the posture the other five
+  refusals already take. **The expensive half is the boarded item below** — recording position
+  rather than searching for its own output, which removes the question entirely.
+
+  **AND THE RECOVERY THAT WORKED IS THE ONE THE RECORD ALREADY PRESCRIBES: COMMIT BEFORE A MUTATION
+  BATTERY.** HEAD held the intent, so `git checkout` on the two files was precise rather than
+  destructive — the exact condition under which this file permits it.
 
 - **⚠ NEXT UNIT: `mutate.mjs` OWNS THE WHOLE EDIT. RAISED FROM BOARDED TO NEXT, ON A COUNT RATHER
   THAN A JUDGEMENT.** Eight defects have now been found in this one mechanism and **three are the
