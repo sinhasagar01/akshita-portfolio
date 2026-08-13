@@ -12,6 +12,25 @@
 // working proof was taken before the change that broke it. And "check which suites ralph actually
 // runs before trusting a green" — a green suite set says nothing about a file no suite loads.
 //
+// ---- ⚠ IF `C3` IS RED, CLEAR THE MANIFEST **BEFORE** RE-RUNNING RALPH ------------------------
+//
+//     rm -f "$TMPDIR/ralph-mutate-edits.json"      (or /tmp/ralph-mutate-edits.json)
+//
+// C3 goes red when `$TMPDIR/ralph-mutate-edits.json` still records edits that are no longer in the
+// tree — most often because `--revert-edit` REFUSED. It refuses correctly when the replacement
+// string is not unique in its file, and the entry then stays recorded forever because the only
+// thing that clears it is a successful revert or a `--restore`.
+//
+// ⚠ THE RE-RUN IS WHAT APPLIES THE DAMAGE, WHICH IS WHY THE ORDER IS STATED FIRST. This suite
+// exercises the REAL binary, and `ralph/run.mjs` runs this suite — so a full run with a dirty
+// manifest can act on the stale rows, find a replacement string by coincidence in restored source,
+// and REWRITE LINES NOBODY MUTATED. That is not hypothetical: it duplicated a call in two component
+// files during the unit that added `draft-signal`, and the applying agent was a routine green run.
+//
+// So the sequence is: clear the manifest, THEN re-run. Reversing it makes the diagnosis the
+// mutation. And read `git status` afterwards either way — this file's own subject is a tool whose
+// reported success is not evidence the tree is right.
+//
 // ---- WHAT IT ASSERTS, AND WHY IT STOPS AT THE REFUSALS -----------------------------------------
 //
 // Parsing, and the four refusals. Those are PURE: each one exits before touching a file, so this

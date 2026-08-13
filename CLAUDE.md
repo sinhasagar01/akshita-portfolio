@@ -831,9 +831,21 @@ is deploys rather than commits.
   BATTERY.** HEAD held the intent, so `git checkout` on the two files was precise rather than
   destructive — the exact condition under which this file permits it.
 
-- **⚠ NEXT UNIT: `mutate.mjs` OWNS THE WHOLE EDIT. RAISED FROM BOARDED TO NEXT, ON A COUNT RATHER
-  THAN A JUDGEMENT.** Eight defects have now been found in this one mechanism and **three are the
-  same gap** — the tool does not own the operation end to end, so the operator supplies the missing
+- **⚠ THE UNIT AFTER THE DRIVE: `mutate.mjs` OWNS THE WHOLE EDIT. NINE DEFECTS, AND THE FIX WOULD
+  HAVE PREVENTED FOUR OF THEM — THAT RATIO IS WHY THIS IS NO LONGER A BOARD ENTRY.** Three of the
+  nine are data loss or silent damage, and **the ninth rewrites lines nobody mutated on a LATER
+  run**, applied by a routine green ralph rather than by an operator.
+
+  **A VERIFICATION HARNESS THAT DAMAGES THE TREE IS WORSE THAN NONE**, which is the same argument
+  this file makes about a safety net that restores the wrong state: the danger is not that it fails,
+  it is that it is trusted while failing.
+
+  **⚠ AND THE TAKE IS AFTER THE DRIVE, NOT INSTEAD OF IT.** The drive is the only thing that has ever
+  found this class of defect; the harness is what proves the fixes. Fixing the harness first would
+  spend the session on the instrument while the collection with five real items sits undriven.
+
+  Eight defects had been found in this one mechanism when this item was first raised and **three were
+  the same gap** — the tool does not own the operation end to end, so the operator supplies the missing
   half and the missing half is where the damage happens.
 
       the `git checkout` incident   reverted by hand, DESTROYED UNCOMMITTED WORK
