@@ -95,10 +95,16 @@ export const INSPECTOR_BOUNDS: Record<InspectorSurface, {
         ----
         248
 
-     ⚠ THE TRIGGER TO REPLACE IT WITH A READING: the first time an owner has this pane open. Drag
-     it to the floor and read the pane's `min-content`. If the true value is HIGHER, the band
-     between it and 248 renders a clipped chip row, which is the exact defect blog's 185 was raised
-     from 320 to expose. A derived floor is a hypothesis with a number attached.
+     ⚠ THE TRIGGER IS AN EVENT THAT HAPPENS, NOT AN ACT SOMEBODY REMEMBERS: THE FIRST TIME AN OWNER
+     OPENS `/studio/gallery` AND EDITS AN ITEM. That is a thing that occurs on its own the first
+     time this feature is used for its purpose. "When someone measures it" would have been a
+     trigger that can only fire if the person who could fire it already went looking — which is
+     this project's own rule about a deferral with no owner, restated as a threshold that renews
+     itself on every miss.
+
+     WHEN IT FIRES: drag the pane to its floor and read `min-content`. If the true value is HIGHER
+     than 248 the band between renders a clipped chip row — the exact defect blog's own floor was
+     lowered from 320 to expose. A derived floor is a hypothesis with a number attached.
 
      832 is GALLERY_CANVAS_MIN_PX, the second copy the leaf discipline forces — asserted below. */
   gallery: { min: 248, max: 832, fallback: 320, cookie: "studio-inspector-w-gallery" },

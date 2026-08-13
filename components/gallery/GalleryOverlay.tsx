@@ -212,27 +212,33 @@ export default function GalleryOverlay({
         </div>
       </div>
 
-      {/* ⚠ A CONTAINER QUERY AT 832, ON A SITE WHOSE STANDING RULE IS ONE BREAKPOINT AT 1024 —
-          STATED, BECAUSE IT READS AS DRIFT AND IS NOT.
+      {/* ⚠ A CONTAINER QUERY, BECAUSE THIS IS ONE COMPONENT IN TWO CONTEXTS. That is the whole
+          reason, and it is a stronger one than the site's breakpoint convention it might look like
+          it is arguing with.
 
-          That rule is about THE SITE going mobile at once, and it is a rule about the VIEWPORT.
-          This box is a viewport on the public page and a PANE in the studio canvas, and those are
-          different coordinate systems — globals.css says so at length beside `.hero-ground`, where
-          `container-type: inline-size` is described as a containment boundary that viewport rules
-          cannot see across.
+          THE TWO CONTEXTS. The same node renders as a PUBLIC DIALOG, where its box is the viewport,
+          and as the STUDIO CANVAS PANE, where its box is a pane inside a much wider window. A media
+          query answers "how big is the window", and in exactly one of those two contexts that is
+          not the question. There is no window width at which the right answer is right for both:
+          in the studio the canvas runs roughly 832 to 1100px inside a window well over 1024, so a
+          `lg:` rule would render the desktop form at every canvas width — including ones it does
+          not fit — and the stacked form would never appear in the editor at all. The author would
+          be previewing a layout by luck, which is precisely the parity failure this component's
+          shared-node design exists to prevent.
 
-          A `lg:` breakpoint here would key off the window. In the studio the canvas runs roughly
-          832 to 1100px inside a window well over 1024, so the desktop form would render at every
-          canvas width — including ones where it does not fit — and the stacked form would never
-          appear at all. The editor would be previewing a layout by luck.
+          A container query asks "how big is MY box", which is the same question in both contexts.
+          The component does not need to know which one it is in, and that is what makes one node
+          serving two consumers correct rather than merely convenient.
 
-          ⚠ AND 832 IS NOT A SECOND SITE BREAKPOINT. It is this component's own reflow, derived in
-          `three-pane.ts` from the contract's grid, and it governs one grid inside one box. Nothing
-          else on the page reads it.
+          ⚠ SO THIS IS NOT A SECOND SITE BREAKPOINT, AND THE SITE'S ONE-BREAKPOINT RULE IS
+          UNTOUCHED. That rule governs when the SITE goes mobile, and it is a statement about the
+          viewport. 832 governs one grid inside one box, is derived in `three-pane.ts` from the
+          contract's own chrome, and nothing else on any page reads it. globals.css already
+          describes containment and viewport as different coordinate systems, beside `.hero-ground`.
 
           THE STYLE TAG IS FORCED BY THE CONSTANT. A class name cannot carry a value computed in
           JS, so a utility would mean writing 832 a second time — the duplication the constant
-          exists to prevent, and the shape that let four route allowlists drift in this same PR. */}
+          exists to prevent, and the shape that let two route allowlists drift in this same PR. */}
       <style>{`
         .gallery-stage { display: grid; grid-template-columns: 1fr; align-items: center; gap: 0; }
         .gallery-stage > .gallery-rail { padding-top: 18px; }

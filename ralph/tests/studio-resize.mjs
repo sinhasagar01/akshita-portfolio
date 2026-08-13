@@ -49,6 +49,11 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   t("A1: each surface carries its own floor and its own by-role ceiling", INSPECTOR_BOUNDS, {
     cs:      { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
     blog:    { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
+    /* ⚠ 248 IS DERIVED, NOT MEASURED — labelled HERE as well as at the declaration, because this
+     * row is where the number is most likely to be read by someone deciding whether to trust it.
+     * A figure carries its provenance or it acquires one from whoever reads it. The surface that
+     * would yield a `min-content` reading is owner-gated; the trigger is the first time an owner
+     * opens /studio/gallery, and `inspector-width.ts` carries the arithmetic. */
     gallery: { min: 248, max: 832, fallback: 320, cookie: "studio-inspector-w-gallery" },
   });
 
