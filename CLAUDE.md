@@ -342,6 +342,30 @@ is deploys rather than commits.
   paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
   against hashes would have deleted the blog's copy while "collecting" the gallery's.
 
+- **⚠ BOARDED: A STUDIO-WIDE "UNPUBLISHED CHANGES" SURFACE, AND IT MUST NOT BE CALLED DRAFTS.** An
+  owner asked for a drafts section on the gallery index "like blog's". **The premise does not
+  transfer, and deriving that is the whole entry.**
+
+      blog's drafts     answers "which posts carry `status: draft`" — a CONTENT field, visible on
+                        main, SURVIVING publish
+      gallery's would   answer "which entries are on the draft branch and not on main" — a BRANCH
+                        question, EMPTIED by publish
+
+  **Different lifetime, different subject, same word.** Gallery deliberately has no `status` field
+  and the audit ruled that correct, so there is no draft state to list; what an author actually
+  wants to see is unpublished work.
+
+  **⚠ AND IT IS NOT GALLERY'S, BECAUSE THE BRANCH IS NOT GALLERY'S.** One draft branch carries every
+  collection's edits plus the settings singleton. A per-collection section would answer the same
+  question four times over the same underlying diff, and each would be wrong about the others —
+  the fix-it-once-per-collection shape this file already carries three times.
+
+  **THE SUBJECT IS THE DIFF, WHICH ALREADY EXISTS.** `publish-preview` classifies every changed file
+  off one compare response and `PreviewGroup` already derives its collection half from
+  `CollectionName`. A surface listing what publish would carry is a rendering of a value the studio
+  computes on every page load — **and it would have shown `camera` right up until the branch was
+  deleted**, which is the strongest argument for building it.
+
 - **⚠ BLOG AND GALLERY ARE ABSENT FROM STUDIO SEARCH, AND IT IS AN OMISSION RATHER THAN A DECISION —
   SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
   `{projects, experience, skills}`.
@@ -522,6 +546,47 @@ is deploys rather than commits.
 
   **THE CHECK: before citing a rule, a constant or a gate as recorded, grep it on `main`.** Not on
   the working tree, which carries whatever the current branch added.
+
+- **⚠ A COMMENT WRITTEN TO REASSURE IS A COMMENT NOBODY RE-CHECKS — SECOND IN TWO UNITS, AND THIS
+  ONE COST AN AUTHOR THEIR WORK.** A failed write deleted the draft branch, taking a created entry
+  and its uploaded image with it. The code was defended by:
+
+      // Clean up ONLY the branch this call just created. An existing draft is
+      // never deleted, so prior saves survive any failure here.
+
+  **FALSE UNDER CONCURRENCY.** `createFromMain` means *the branch was absent when I read it*, not
+  *nothing has committed to it since*. Request A creates the branch, request B commits to it, A's
+  own commit fails `STALE_DATA` against the head it expected, and **A's cleanup deletes the branch
+  with B's commit on it.**
+
+  **⚠ THE TWO COMMENTS ARE THE SAME SHAPE FROM OPPOSITE ENDS.** The pill defect's comment explained
+  why a call was UNNECESSARY; this one explained why a deletion was SAFE. Both were written by the
+  author of the code, in the same sitting, believing them — and both closed the question for every
+  later reader. **A comment that describes behaviour gets checked when the behaviour is doubted. A
+  comment that reassures is read as the reason not to doubt it.**
+
+  **THE RULING WAS THE ASYMMETRY, NOT THE MECHANISM: leaving a branch behind is a tidiness cost,
+  deleting one destroys work.** And the tidiness cost measured at ZERO — `resolveDraftBase` adopts
+  an existing branch as its base, so an orphan created from main with nothing on it is a ref at
+  main's head, `differs` is `files.length > 0` which is 0, the pill stays dark, and the next save
+  commits onto it. **A narrower guard was available and refused: it would correctly clean up
+  something that costs nothing to leave.**
+
+  **⚠ AND THE RACE IS NOT THE DEFECT — `STALE_DATA` IS THE GUARD WORKING.** Two writes, one head,
+  and the loser is told. Removing the cleanup does not stop an author seeing a refusal; it stops the
+  refusal destroying anything. **The refusal is now recoverable by re-trying the action**, because
+  the branch and the winning commit are still there — which is exactly what it was not before.
+
+- **⚠ AN ESTABLISHED MECHANISM AND AN UNATTRIBUTED INSTANCE ARE DIFFERENT CLAIMS, AND THE SECOND
+  STAYS UNATTRIBUTED.** The deletion mechanism above is established from code. **Which of the day's
+  nine branch deletions was that cleanup and which was the author's own discard is NOT**, because
+  the events API reports the token owner for every path — a studio write, a discard and a publish
+  are indistinguishable in it.
+
+  **THE TEMPTATION IS TO PICK THE ONE THAT FITS THE STORY**, since the timeline has a delete 17
+  seconds before a create and 30 before another. **It fits and it is not evidence.** Recording the
+  mechanism as established and the instance as unknown is the whole discipline; a plausible
+  attribution written down becomes a fact the next reader inherits.
 
 - **⚠ A COMMENT THAT JUSTIFIES AN OMISSION IS THE MOST DANGEROUS KIND, AND IT IS THE FIFTH INSTANCE
   OF PROSE AND CODE MOVING APART — BUT THE FIRST WHERE THE PROSE CAUSED THE DEFECT.** The other four

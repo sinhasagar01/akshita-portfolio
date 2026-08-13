@@ -19,7 +19,11 @@ import {
   getBaseBranchHeadOid,
   getBranchHeadOid,
   createBranchRef,
-  deleteBranchRef,
+  /* ⚠ `deleteBranchRef` IS DELIBERATELY NOT IMPORTED HERE ANY MORE. This module creates the
+     draft branch and commits to it; nothing in a WRITE path has any business deleting it.
+     The two callers that legitimately delete are `publish-site-settings` (after the merge
+     lands) and `discard-site-settings` (which is the author asking). If a future edit needs
+     it here, that is the signal to re-read the block at the end of `finalizeDraftCommit`. */
   commitFileToBranch,
   commitFilesToBranch,
   REPO,
@@ -163,15 +167,36 @@ async function finalizeDraftCommit(opts: {
       : await commitFilesToBranch({ branch, additions, deletions, message, expectedHeadOid: baseOid });
     return { ok: true, sha: commit.oid };
   } catch (e) {
-    if (createFromMain) {
-      // Clean up ONLY the branch this call just created. An existing draft is
-      // never deleted, so prior saves survive any failure here.
-      try {
-        await deleteBranchRef(branch);
-      } catch {
-        /* non-fatal — a dangling fresh branch self-heals on the next save */
-      }
-    }
+    /* ⚠ A FAILED WRITE MAY NOT DELETE A BRANCH. THIS CATCH USED TO, AND IT DESTROYED AN AUTHOR'S
+       WORK IN PRODUCTION. The deleted code was:
+
+           if (createFromMain) {
+             // Clean up ONLY the branch this call just created. An existing draft is
+             // never deleted, so prior saves survive any failure here.
+             await deleteBranchRef(branch);
+           }
+
+       ⚠ THAT COMMENT IS FALSE UNDER CONCURRENCY AND IT IS QUOTED RATHER THAN DELETED, because it is
+       the second comment in two units written to REASSURE about an unsafe path — and a comment
+       written to reassure is one nobody re-checks. `createFromMain` means "the branch was absent
+       when I read it". It does NOT mean "nothing else has committed to it since".
+
+       THE LOSING INTERLEAVING, WHICH IS THE ONE THAT HAPPENED. Request A creates the branch;
+       request B commits to it and the head moves; A's own commit then fails `STALE_DATA` against
+       the head it expected; A's cleanup fires with `createFromMain` still true and DELETES THE
+       BRANCH WITH B'S COMMIT ON IT. An owner lost a created entry and its uploaded image this way,
+       and the four errors that followed were all downstream of the branch being gone.
+
+       ⚠ THE ASYMMETRY IS THE WHOLE RULING: leaving a branch behind is a tidiness cost, deleting one
+       destroys work. And the tidiness cost measured at ZERO — `resolveDraftBase` above adopts an
+       existing branch as its base, so an orphan created from main with nothing committed to it is a
+       ref pointing at main's head. `differs` is `files.length > 0`, which is 0 for such a branch, so
+       the publish pill stays dark and the next save simply commits onto it. It is indistinguishable
+       from no draft at all.
+
+       A NARROWER GUARD WAS CONSIDERED AND REFUSED — deleting only when the head is still the commit
+       this call created it at. It is correct and it buys nothing, because what it would clean up
+       costs nothing to leave. */
     return {
       ok: false,
       error: { code: "write_failed", message: e instanceof Error ? e.message : String(e) },
