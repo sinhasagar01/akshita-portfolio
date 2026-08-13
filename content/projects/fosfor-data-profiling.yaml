@@ -292,6 +292,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-silos
               title: Data silos
               body: >-
@@ -307,6 +308,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-quality
               title: Data quality issues
               body: >-
@@ -322,6 +324,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-time-cost
               title: Time consuming analysis
               body: >-
@@ -337,6 +340,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-insights
               title: No actionable insights
               body: >-
