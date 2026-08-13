@@ -237,6 +237,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-quality-lift
               title: Data quality lift
               body: Measurable gains in completeness, consistency, and accuracy.
