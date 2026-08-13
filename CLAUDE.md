@@ -1179,6 +1179,36 @@ moment it grows an action again.
   correction to a line nobody can find would have put a false citation into the record to settle a
   false citation about it.
 
+- **⚠ A DECLARED VALUE READ AS A RENDERED ONE — A NEW SHAPE, AND EVERY EARLIER INSTANCE WAS A PROBE
+  MEASURING THE WRONG SUBJECT.** Asked to change four button radii, I reported that two same-label
+  buttons on `/oklch` "now differ": one `rounded-xl`, one `rounded-full`.
+
+  **THEY ARE THE SAME PIXELS.** CSS clamps border-radius to half the box, and both buttons are 42px
+  tall:
+
+      rounded-full   9999px declared  ->  21px effective
+      rounded-xl       24px declared  ->  21px effective
+
+  **NOTHING WAS MISMEASURED. A CLASS STRING WAS TRUSTED TO DESCRIBE THE SCREEN**, which is the same
+  rule this record keeps reaching from new directions — **read the computed value** — arriving in a
+  radius rather than in a colour, and in a report rather than in a probe.
+
+  **⚠ AND THE REQUEST PRODUCED A UNIFORM PAGE BY ACCIDENT, WHICH IS THE HALF WORTH KEEPING.** Before
+  the change the top pair was `rounded-lg` = **16px effective** against the closing pair's **21px** —
+  **a real 5px difference nobody had named, in neither the request nor the diff.** Taking the top
+  pair to `xl` clamped it to 21px, which is the closing pair's value. **The stated goal was
+  cosmetic; the actual effect was to close a gap nobody had seen.**
+
+  **THE `rounded-full` SPELLING STAYS, WITH ITS REASON AT THE LINE.** A class edit with no observable
+  effect is churn — the same ruling made against `display: flex` on the work filter — and the reason
+  sits in the component rather than in a commit body so the next person to notice the mismatch does
+  not pay a diff to find out. **They diverge only if the button exceeds 48px tall**, which is a
+  height change rather than a radius one.
+
+  **AND THE ONE PIXEL ON `Explore the work` IS ITS HEIGHT.** 40px against 42px gives 20px against
+  21px. **Matching heights to equalise a clamped radius would move a button's box to change a corner**
+  — a number nobody can see, fixed by a change everybody can.
+
 - **⚠ A NOTE ABOUT A RUNG FAILING ON DARK WAS USED TO RULE OUT A ROLE ON LIGHT, AND NINE PALETTES
   PAID FOR FOUR.** `.wf-thumb` records `ink-950` measuring **1.17 on sapphire** — a raw rung, which
   does not remap. The repair chose `text-primary`/`surface`, an inverted ink pair, and took the
