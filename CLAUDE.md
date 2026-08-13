@@ -194,11 +194,17 @@ is deploys rather than commits.
   header now states that a source regex cannot see reachability"*. **It did not.** The rule existed
   only in #526, approved and unmerged, and three PRs were built on top of it citing it as standing.
 
-  **THE COST WAS ONE `grep` AND IT WAS NEVER RUN.** Every other claim in those bodies was measured —
-  assertion counts, byte figures, mutation results — and the one taken on trust was the one about
-  the repository itself. Same family as *nothing reported is evidence*, where ten merges were
-  reported into a local `main` that had never been pushed: **an instrument was available and the
-  claim felt too obvious to instrument.**
+  **⚠ THE MEASURED THINGS GOT MEASURED AND THE RECORD GOT ASSUMED — AND THAT IS THE SHARP FORM.**
+  Every other claim in those bodies was instrumented: assertion counts run, byte figures read off a
+  build, mutation results produced by mutating. **Nobody skipped a check.** They checked everything
+  except the SUBSTRATE — the claim about what the repository already contains, which is the one that
+  reads as background rather than as an assertion.
+
+  **THAT IS WHY IT SURVIVED THREE PRs.** A skipped check leaves a gap somebody notices; this leaves a
+  body full of verified figures with one sentence among them that nothing produced. The verified
+  figures are what make it credible. Same family as *nothing reported is evidence*, where ten merges
+  were reported into a local `main` that had never been pushed — **an instrument was available and
+  the claim felt too obvious to instrument.**
 
   **⚠ AND IT COMPOUNDED WITH A SECOND MISS, WHICH IS WHY IT IS RECORDED AS A SHAPE RATHER THAN A
   SLIP.** The owner approved three PRs on top of the open one without noticing it was open. **Two
