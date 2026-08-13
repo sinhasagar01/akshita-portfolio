@@ -22,6 +22,21 @@ const NAV = [
   { id: "work",    label: "Work"    },
   { id: "about",   label: "About"   },
   { id: "blog",    label: "Blog", href: "/blog" },
+  /* A THIRD ROUTE ENTRY, and adding it is the whole change for the same reason `blog` and
+     `palettes` were: it has an `href` and no home-page section, `isRoute` derives that from the
+     presence of `href`, and the four consumers already guard on it.
+
+     ⚠ IT SHIPS WITH THE COLLECTION EMPTY, DELIBERATELY. `/gallery` renders an empty state rather
+     than 404ing, so the link goes somewhere real; holding it back until an item exists is how the
+     blog nav link became "the launch switch" — a line nobody could test until the day it had to
+     work. The alternative failure, a page that ships unreachable, is the one `app/sitemap.ts`
+     records three times.
+
+     ⚠ AND THE ORDER PUTS IT BESIDE BLOG RATHER THAN BESIDE WORK, which is a claim about what it
+     is. The gallery is explicitly the things that are NOT work — its own masthead says so — so
+     sitting next to the case studies would invite exactly the overlap the collection was scoped to
+     avoid when "Projects" as a filter was ruled a duplication of the work section. */
+  { id: "gallery", label: "Gallery", href: "/gallery" },
   /* ⚠ A ROUTE ENTRY, LIKE `blog` — it has an `href` and NO section on the home page, so the
      scroll-spy and the scroll handlers must never see it. `isRoute` derives that from the presence
      of `href` and every consumer guards on it (four sites, lines 87, 277, 350 and 462), which is

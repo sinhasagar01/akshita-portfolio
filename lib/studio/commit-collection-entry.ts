@@ -10,6 +10,8 @@
 // intent: `edit` (the file MUST exist) and `create` (the file must NOT exist).
 // Create derives its own slug from the input's slug field, so a client value can
 // never become the create identity. Delete is a sibling deleteCollectionEntry.
+import { serializeGalleryEntry } from "./gallery-serialize";
+import type { GalleryInput } from "./gallery-format";
 import { load, dump } from "js-yaml";
 import {
   commitFileToDraft,
@@ -52,14 +54,43 @@ import { slugify, freeSlug } from "./slug";
 import { getBranchHeadOid, getBaseBranchHeadOid, getTreeRecursive } from "./github-commit";
 import type { SaveError } from "./site-settings-format";
 
-export type CollectionName = "experience" | "projects" | "blog";
-export type CollectionPatch = Partial<ExperienceInput> | Partial<ProjectsInput> | Partial<BlogInput>;
+export type CollectionName = "experience" | "projects" | "blog" | "gallery";
+export type CollectionPatch =
+  | Partial<ExperienceInput>
+  | Partial<ProjectsInput>
+  | Partial<BlogInput>
+  | Partial<GalleryInput>;
 
 const COLLECTION_PATH: Record<CollectionName, (slug: string) => string> = {
   experience: (slug) => `content/experience/${slug}.yaml`,
   projects: (slug) => `content/projects/${slug}.yaml`,
   blog: (slug) => `content/blog/${slug}.yaml`,
+  gallery: (slug) => `content/gallery/${slug}.yaml`,
 };
+
+/**
+ * Every collection name, DERIVED from the path map rather than written down a second time.
+ *
+ * ⚠ THIS EXISTS BECAUSE FOUR ROUTES EACH CARRIED THEIR OWN HAND-LISTED COPY, as a chain of
+ * `collection !== "…"` comparisons. Each chain was correct on the day it was written and each was
+ * a place a fifth collection could be forgotten silently — the same fixed-list shape this project
+ * has removed from `SETTINGS_THEME_VALUES`, from D12's pair list and from `paint-sites`' PAGES.
+ *
+ * ⚠ AND A DERIVED SET IS STRICTLY MORE THAN A WIDER LIST. Adding a member to `CollectionName`
+ * already fails the build at the three `Record`s above; this makes every ROUTE that gates on the
+ * name inherit that member the moment the Record does, so the allowlist and the dispatch arm can
+ * no longer disagree. The membership rule is a PROPERTY — "is a collection this module can commit"
+ * — rather than a list of names, which is the form `route-coverage` settled on for the same reason.
+ */
+export const COLLECTION_NAMES = Object.keys(COLLECTION_PATH) as readonly CollectionName[];
+
+/** The guard those four routes now share. A body field is `unknown`, so this is where an HTTP
+ *  string becomes a `CollectionName` — once, rather than four times. */
+export function isCollectionName(value: unknown): value is CollectionName {
+  return typeof value === "string"
+    && Object.prototype.hasOwnProperty.call(COLLECTION_PATH, value);
+}
+
 
 // The top-level entry file for a collection (NOT the body subdir), used to scan
 // existing slugs for the create orderIndex max.
@@ -67,6 +98,7 @@ const COLLECTION_ENTRY_RE: Record<CollectionName, RegExp> = {
   experience: /^content\/experience\/[a-z0-9-]+\.yaml$/,
   projects: /^content\/projects\/[a-z0-9-]+\.yaml$/,
   blog: /^content\/blog\/[a-z0-9-]+\.yaml$/,
+  gallery: /^content\/gallery\/[a-z0-9-]+\.yaml$/,
 };
 
 /**
@@ -81,7 +113,29 @@ const COLLECTION_HAS_ORDER: Record<CollectionName, boolean> = {
   experience: true,
   projects: true,
   blog: false,
+  /* ⚠ TRUE, UNLIKE BLOG, AND THE DISCRIMINATOR IS WHAT SORTS THE PUBLIC PAGE. Posts order by
+     `date`, which every post has and which an author does not arrange. A gallery has no natural
+     order — a photograph from 2022 may belong beside one from 2025 — so the arrangement IS the
+     authoring, and `reorder-entries` is the surface for it. */
+  gallery: true,
 };
+
+/**
+ * The reorder route's narrower subject — a collection this module can commit AND that carries an
+ * `orderIndex`.
+ *
+ * ⚠ A SUBSET IS NOT AN EXCEPTION TO THE DERIVED GUARD, IT IS A SECOND PROPERTY, and writing it
+ * that way is what keeps it from decaying. `reorder-entries` carried `!== "experience" && !==
+ * "projects"` — correct on the day it was written, and it would have silently excluded the gallery
+ * even though `COLLECTION_HAS_ORDER` declares gallery orderable. The list and the registry
+ * disagreed and only the list was consulted.
+ *
+ * The membership rule is now the property itself, so a collection joins this set at the moment it
+ * declares an order rather than when somebody remembers to edit a route.
+ */
+export function isOrderedCollection(value: unknown): value is CollectionName {
+  return isCollectionName(value) && COLLECTION_HAS_ORDER[value];
+}
 
 type Serialized = { ok: true; bytes: string } | { ok: false; error: SaveError };
 
@@ -173,6 +227,8 @@ function editEntry(
           return serializeBlogEntry(raw, patch as Partial<BlogInput>);
         case "experience":
           return serializeExperience(raw, patch as Partial<ExperienceInput>);
+        case "gallery":
+          return serializeGalleryEntry(raw, patch as Partial<GalleryInput>);
       }
     },
   });

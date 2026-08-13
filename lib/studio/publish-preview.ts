@@ -23,8 +23,21 @@
  *  ⚠ ONE HOME, TWO READERS. `draft-site-settings.ts` classifies the same filenames to build its
  *  overlay and used to carry its own copy of this. Two regexes over one filename shape drift the
  *  moment a collection is added — and a fourth collection is a live possibility, which is why the
- *  overlay's own dispatch is written as a named record rather than a ternary. */
-export const COLLECTION_FILE_RE = /^content\/(projects|experience|blog)\/([a-z0-9-]+)\.yaml$/;
+ *  overlay's own dispatch is written as a named record rather than a ternary.
+ *
+ *  ⚠ THE FOURTH COLLECTION LANDED, AND THE PREDICTION ABOVE IS WHY THIS LIST IS NOW GATED RATHER
+ *  THAN MERELY WIDENED. `commit-collection-entry.ts` holds the authoritative `CollectionName`
+ *  union and derives every allowlist from it — but it imports js-yaml and the GitHub client, and
+ *  the header two paragraphs up is the reason this file cannot import it back. So this is a
+ *  FORCED SECOND COPY, the same shape as `INSPECTOR_BOUNDS`' canvas floors and the three theme
+ *  surfaces that cannot see each other.
+ *
+ *  THE COPY IS ALLOWED BECAUSE SOMETHING COMPARES IT. `ralph/tests/publish-preview.mjs` section H
+ *  parses the union out of `commit-collection-entry.ts` as text and fails if this alternation and
+ *  that union stop naming the same set — which is what makes a missing member a red suite rather
+ *  than a collection whose draft edits are silently invisible to the overlay and the preview. */
+export const COLLECTION_FILE_RE =
+  /^content\/(projects|experience|blog|gallery)\/([a-z0-9-]+)\.yaml$/;
 
 /** The skills singleton, one flat file rather than content/<coll>/<slug>.yaml. */
 export const SKILLS_FILE = "content/skills.yaml";

@@ -785,7 +785,11 @@ export function BlockImageField({
    *  call sites pass one-arity arrows, and TypeScript accepts a lower-arity function where a
    *  higher-arity one is expected. Adding a parameter changes nothing about the first one, so
    *  a caller that does not want the File simply does not name it. */
-  onChange: (src: string | null, file?: File) => void;
+  /* ⚠ THE THIRD ARGUMENT IS THE NORMALIZED OUTPUT'S PIXEL SIZE, added by the same rule as the
+     second and for the same reason. It is `undefined` on a clear and on any response that did not
+     carry it, so a consumer must handle its absence rather than assume it — see the upload
+     handler below for the measurement's provenance. */
+  onChange: (src: string | null, file?: File, dims?: { width: number; height: number }) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -809,7 +813,24 @@ export function BlockImageField({
         // The File goes up WITH the path. It has been in scope here since this component was
         // written and was thrown away, which is the whole of the bug: the path is not
         // fetchable until publish, and the bytes that are were sitting right here.
-        onChange(json.src, file);
+        //
+        // ⚠ AND THE DIMENSIONS GO UP AS A THIRD ARGUMENT, THE SECOND TIME THIS EXACT MISTAKE HAS
+        // BEEN CORRECTED IN THIS FUNCTION. `sharp` measured the normalized output inside the
+        // route and the route discarded it, precisely as this component discarded the File —
+        // a value computed at the only place it can be computed and thrown away one line later.
+        // The gallery's masonry cannot place a tile without them, so they are threaded rather
+        // than re-derived by a second decode in the browser.
+        //
+        // ADDITIVE, SO EVERY EXISTING CALL SITE IS UNTOUCHED: TypeScript accepts a lower-arity
+        // function where a higher-arity one is expected, so a caller that does not want the
+        // dimensions simply does not name the parameter.
+        onChange(
+          json.src,
+          file,
+          typeof json.width === "number" && typeof json.height === "number"
+            ? { width: json.width, height: json.height }
+            : undefined
+        );
         return;
       }
       setError(

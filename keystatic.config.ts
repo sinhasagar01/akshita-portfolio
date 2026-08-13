@@ -34,11 +34,16 @@ const BLOG_IMAGE_BASE: CollectionImageBase = {
   publicPrefix: "/images/blog",
   publicPath: "/images/blog/",
 };
+const GALLERY_IMAGE_BASE: CollectionImageBase = {
+  directory: "public/images/gallery",
+  publicPrefix: "/images/gallery",
+  publicPath: "/images/gallery/",
+};
 
 /** Exported ONLY so ralph/tests/collection-image-paths.mjs can pin these schema-side
  *  mirrors equal to the runtime source (collection-image-base.ts) and fail if they ever
  *  drift. Not consumed by the app — Keystatic reads the default export. */
-export const SCHEMA_IMAGE_BASES = { projects: PROJECTS_IMAGE_BASE, blog: BLOG_IMAGE_BASE };
+export const SCHEMA_IMAGE_BASES = { projects: PROJECTS_IMAGE_BASE, blog: BLOG_IMAGE_BASE, gallery: GALLERY_IMAGE_BASE };
 
 // P4 3(b) — reusable field-shapes for the new `sections` field (below), mirroring
 // lib/case-studies/types.ts's ImgSpec/GlowWord. Kept as small helpers (not inlined
@@ -1031,6 +1036,70 @@ export default config({
         ),
       },
     }),
+    // ══════════════════════════════════════════════════════════════════════════════════════
+    // THE GALLERY — things made that aren't work.
+    //
+    // ⚠ LINE COMMENTS ONLY IN THIS FILE. Three `path:` globs end in a slash-star, which ralph's
+    // comment-stripper reads as comment OPENERS, so the file carries five openers against two
+    // closers. A block comment does not add a comment here — it RE-PAIRS a stray opener hundreds
+    // of lines above and deletes everything between from the stripped text.
+    //
+    // ONE ENTRY PER ITEM rather than a manifest singleton, and the reason is growth. A singleton
+    // array reuses the skills-shaped panel and forfeits `create-entry`, `delete-entry` and
+    // `reorder-entries` — every per-entry route this repo already has and has proven. Skills is
+    // twenty short rows and will stay twenty; a gallery is the one feature that grows without
+    // bound, and the file that holds all of it is the one nobody can review a diff of.
+    gallery: collection({
+      label: "Gallery",
+      slugField: "title",
+      path: "content/gallery/*",
+      schema: {
+        title: fields.slug({ name: { label: "Title" } }),
+        // The three buckets the public filter offers. Text rather than select for the reason
+        // `theme` states above: this config is schema-only, so a select would buy no author
+        // affordance while giving the reader a second opinion about validity. The sanitizer
+        // refuses anything outside the enum at write time.
+        kind: fields.text({ label: "Kind (photo | illus | proj)" }),
+        image: fields.image({
+          label: "Image",
+          directory: GALLERY_IMAGE_BASE.directory,
+          publicPath: GALLERY_IMAGE_BASE.publicPath,
+        }),
+        // ⚠ REQUIRED AND MACHINE-WRITTEN, NEVER HAND-ENTERED. The masonry is CSS `columns`, which
+        // reflows on load unless every intrinsic size is known before the image decodes — so these
+        // are load-bearing for layout stability rather than metadata.
+        //
+        // The case study's equivalents are OPTIONAL and hand-entered, and boat-crest is the
+        // recorded cost: 19 of its 25 images rendered at the wrong aspect because content lacked
+        // them. The upload route already computes these — `upload-hero-image` calls
+        // `.toBuffer({ resolveWithObject: true })` and its own comment says the dims are captured
+        // and not persisted — so writing them is reading a value the pipeline already has.
+        //
+        // They are `number` with no author-facing description because an author never types them.
+        width: fields.number({ label: "Source width (px, written on upload)" }),
+        height: fields.number({ label: "Source height (px, written on upload)" }),
+        // Required at PUBLISH, optional at save — `validate-blog-post`'s split exactly. A freshly
+        // added item legitimately starts empty; a published one with no alt is the single
+        // accessibility failure a gallery can uniquely produce.
+        alt: fields.text({ label: "Alt text" }),
+        description: fields.text({ label: "Description", multiline: true }),
+        tags: fields.array(fields.text({ label: "Tag" }), {
+          label: "Tags",
+          itemLabel: (props) => props.value,
+        }),
+        // ⚠ THE LINK IS OPTIONAL AND ONE-WAY. A gallery item may point at a case study; a case
+        // study does NOT gain a gallery strip. That would be a second surface arriving through the
+        // back door, which is the duplication this repo keeps deleting.
+        //
+        // ⚠ AND THE TILE MUST NOT BE THE CARD'S IMAGE. A different frame from the same project is
+        // the gallery being off-cuts; the SAME frame is two surfaces showing one thing. Nothing
+        // mechanical can check that — it is a judgement at upload time, which is why it is stated
+        // here where the field is declared rather than left to a reviewer to notice.
+        caseStudy: fields.text({ label: "Case study slug (optional)" }),
+        orderIndex: fields.number({ label: "Order", defaultValue: 0 }),
+      },
+    }),
+
   },
 
   singletons: {

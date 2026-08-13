@@ -26,14 +26,14 @@ import {
 // the reason SkillsEditor reports `values.categories.length`. Skills is also the one entry
 // here whose source is a SINGLETON rather than a list, so the layout seeds it from
 // `skills?.categories.length ?? 0` and not from a `.length` on the collection itself.
-type Counts = { projects: number; experience: number; blog: number; skills: number };
+type Counts = { projects: number; experience: number; blog: number; skills: number; gallery: number };
 type CountsSignal = {
   counts: Counts;
   setCount: (key: keyof Counts, value: number) => void;
 };
 
 // No-op fallback so the sidebar never crashes if rendered outside the provider.
-const NOOP: CountsSignal = { counts: { projects: 0, experience: 0, blog: 0, skills: 0 }, setCount: () => {} };
+const NOOP: CountsSignal = { counts: { projects: 0, experience: 0, blog: 0, skills: 0, gallery: 0 }, setCount: () => {} };
 
 const CountsContext = createContext<CountsSignal | null>(null);
 

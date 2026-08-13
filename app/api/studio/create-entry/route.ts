@@ -7,13 +7,16 @@
 // from the input's slug field — the route never accepts a client-supplied slug.
 // experience (item 13) + projects (item 11, a body:[] stub); writes the draft
 // branch only, never main.
+import type { CollectionName } from "@/lib/studio/commit-collection-entry";
+import type { SaveError } from "@/lib/studio/site-settings-format";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyOwnerSession, SESSION_COOKIE_NAME } from "@/lib/studio/owner-session";
-import { commitCollectionEntry } from "@/lib/studio/commit-collection-entry";
+import { commitCollectionEntry, isCollectionName } from "@/lib/studio/commit-collection-entry";
 import { DRAFT_BRANCH, invalidateDraftStateCache } from "@/lib/studio/draft-site-settings";
 import { sanitizeExperienceCreate } from "@/lib/studio/experience-format";
 import { sanitizeProjectCreate } from "@/lib/studio/projects-format";
+import { sanitizeGalleryCreate } from "@/lib/studio/gallery-format";
 import { sanitizeBlogCreate } from "@/lib/studio/blog-format";
 
 export async function POST(req: Request) {
@@ -34,7 +37,10 @@ export async function POST(req: Request) {
   }
 
   const collection = body?.collection;
-  if (collection !== "experience" && collection !== "projects" && collection !== "blog") {
+  // The DERIVED guard — see `isCollectionName`. This was a four-term `!==` chain that had to be
+  // widened by hand beside the dispatch below; now the allowlist and the dispatch read the same
+  // registry and cannot fall out of step.
+  if (!isCollectionName(collection)) {
     return NextResponse.json({ ok: false, error: "unsupported_collection" }, { status: 400 });
   }
 
@@ -43,12 +49,20 @@ export async function POST(req: Request) {
   // mode-independent gate. slug derivation lives in the lib (no route slugify).
   // Explicit per-collection arms — a two-way ternary would have routed blog into the
   // experience sanitizer once the allowlist widened.
-  const sanitized =
-    collection === "projects"
-      ? sanitizeProjectCreate(body.input)
-      : collection === "blog"
-        ? sanitizeBlogCreate(body.input)
-        : sanitizeExperienceCreate(body.input);
+  // ⚠ A MAPPED TYPE — see save-draft's note for the full reasoning. In short: the ternary chain
+  // ended in a fallthrough to `sanitizeExperienceCreate`, safe only because the allowlist above
+  // rejected everything else, under a comment claiming the arms were explicit. `Record<
+  // CollectionName, …>` makes a fifth collection a build failure instead of an experience create.
+  const CREATE_SANITIZERS: Record<
+    CollectionName,
+    (raw: unknown) => { ok: true; value: unknown } | { ok: true; patch: unknown } | { ok: false; error: SaveError }
+  > = {
+    projects: sanitizeProjectCreate,
+    blog: sanitizeBlogCreate,
+    gallery: sanitizeGalleryCreate,
+    experience: sanitizeExperienceCreate,
+  };
+  const sanitized = CREATE_SANITIZERS[collection](body.input);
   if (!sanitized.ok) {
     return NextResponse.json(sanitized, { status: 400 });
   }

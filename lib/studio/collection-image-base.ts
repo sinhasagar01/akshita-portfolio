@@ -43,10 +43,21 @@ export const BLOG_IMAGE_BASE: CollectionImageBase = {
   publicPath: "/images/blog/",
 };
 
+/** Gallery — its own tree. A gallery item's image IS the item, so unlike projects and blog the
+ *  images here are the collection's whole payload rather than illustration inside prose. Distinct
+ *  base for the same reason the other two are distinct: a shared slug across collections must not
+ *  collide, and `blockImageBlobPath` content-hashes within a base rather than globally. */
+export const GALLERY_IMAGE_BASE: CollectionImageBase = {
+  directory: "public/images/gallery",
+  publicPrefix: "/images/gallery",
+  publicPath: "/images/gallery/",
+};
+
 /** Map an untrusted collection name to its image base, or null when unknown — the
  *  upload routes use this to validate and reject before doing any work. */
 export function imageBaseForCollection(collection: unknown): CollectionImageBase | null {
   if (collection === "projects") return PROJECTS_IMAGE_BASE;
   if (collection === "blog") return BLOG_IMAGE_BASE;
+  if (collection === "gallery") return GALLERY_IMAGE_BASE;
   return null;
 }

@@ -13,11 +13,13 @@ import {
   mapProjectListItem,
   mapExperienceListItem,
   mapSkills,
+  mapGalleryItem,
   type SiteSettingsEntry,
   type ProjectListItem,
   type ExperienceListItem,
   type SkillsEntry,
   type BlogCard,
+  type GalleryItem,
 } from "@/lib/keystatic";
 import { mapBlogListItem, readingTimeMinutes } from "@/lib/blog/select";
 import {
@@ -147,11 +149,15 @@ export type DraftBranchState = {
   // reads main only, so a newly-created post would commit to the draft branch and then
   // VANISH from the list on reload until publish — a create flow that looks broken.
   blog: Record<string, BlogCard>;
+  /** Gallery items changed on the draft branch. Same contract as `blog` above — without it a
+   *  just-uploaded item would be invisible in /studio until publish. */
+  gallery: Record<string, GalleryItem>;
   // F-2 — slugs the draft DELETED (status "removed"). No read needed; the status
   // is the whole signal. getStudioData subtracts these from the live list.
   removedProjects: string[];
   removedExperience: string[];
   removedBlog: string[];
+  removedGallery: string[];
   // SK-4 — the draft version of the skills singleton, or null when skills.yaml
   // did not change on the draft branch (scoped like the collection overlay).
   skills: SkillsEntry | null;
@@ -163,9 +169,11 @@ const EMPTY_DRAFT_STATE: DraftBranchState = {
   projects: {},
   experience: {},
   blog: {},
+  gallery: {},
   removedProjects: [],
   removedExperience: [],
   removedBlog: [],
+  removedGallery: [],
   skills: null,
 };
 
@@ -205,7 +213,9 @@ const readDraftBranchStateCached = unstable_cache(
     const blogSlugs: string[] = [];
     const removedProjects: string[] = [];
     const removedExperience: string[] = [];
+    const gallerySlugs: string[] = [];
     const removedBlog: string[] = [];
+    const removedGallery: string[] = [];
     // BS-3c — an explicit three-way branch, not a projects-or-else ternary. Widening the
     // regex to a third collection is exactly what made the two-way ternaries in the
     // commit layer route blog wrong in 3b; every arm is named so a fourth collection is
@@ -214,6 +224,7 @@ const readDraftBranchStateCached = unstable_cache(
       projects: { added: projectSlugs, removed: removedProjects },
       experience: { added: experienceSlugs, removed: removedExperience },
       blog: { added: blogSlugs, removed: removedBlog },
+      gallery: { added: gallerySlugs, removed: removedGallery },
     };
     for (const file of cmp.files) {
       const m = file.filename.match(COLLECTION_FILE_RE);
@@ -235,9 +246,10 @@ const readDraftBranchStateCached = unstable_cache(
       projectSlugs.length === 0 &&
       experienceSlugs.length === 0 &&
       blogSlugs.length === 0 &&
+      gallerySlugs.length === 0 &&
       !skillsChanged
     ) {
-      return { differs, readError: false, projects: {}, experience: {}, blog: {}, removedProjects, removedExperience, removedBlog, skills: null };
+      return { differs, readError: false, projects: {}, experience: {}, blog: {}, gallery: {}, removedProjects, removedExperience, removedBlog, removedGallery, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -249,6 +261,7 @@ const readDraftBranchStateCached = unstable_cache(
     const projects: Record<string, ProjectListItem> = {};
     const experience: Record<string, ExperienceListItem> = {};
     const blog: Record<string, BlogCard> = {};
+    const gallery: Record<string, GalleryItem> = {};
     let skills: SkillsEntry | null = null;
     await Promise.all([
       ...projectSlugs.map(async (slug) => {
@@ -267,6 +280,10 @@ const readDraftBranchStateCached = unstable_cache(
         // produces, so an overlaid draft row is indistinguishable from a live one.
         blog[slug] = { ...mapBlogListItem(slug, e), readingTime: readingTimeMinutes(e.blocks) };
       }),
+      ...gallerySlugs.map(async (slug) => {
+        const entry = await reader.collections.gallery.read(slug);
+        if (entry) gallery[slug] = mapGalleryItem(slug, entry as Record<string, unknown>);
+      }),
       ...(skillsChanged
         ? [
             (async () => {
@@ -276,7 +293,7 @@ const readDraftBranchStateCached = unstable_cache(
           ]
         : []),
     ]);
-    return { differs, readError: false, projects, experience, blog, removedProjects, removedExperience, removedBlog, skills };
+    return { differs, readError: false, projects, experience, blog, gallery, removedProjects, removedExperience, removedBlog, removedGallery, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }

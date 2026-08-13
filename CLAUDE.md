@@ -189,6 +189,37 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ NEXT UNIT: STRIP COMMENTS ON THE `.tsx` SIDE OF THE CENSUS. SEVEN INSTANCES, AND THE ANSWER IS
+  NEITHER OF THE TWO THAT WERE ON THE TABLE.** Explaining-it-requires-writing-it has now fired seven
+  times — four delimiters, a `path:` glob, two OKLCH literals one unit apart, and most recently a
+  comment naming an inert element-and-utility pair, **written in the note explaining that the pair was
+  inert.** The count is what promotes this from an anecdote to a mechanism question.
+
+  **THE TWO CANDIDATE ANSWERS WERE AN ESCAPED FORM, OR A RULE THAT COMMENTS MUST NEVER SPELL A CLASS.
+  MEASURED, BOTH ARE UNNECESSARY FOR `cascade-public`.** Its JSX scanner reads raw source while
+  **its own CSS scanner already strips comments first** — and that side's comment says the order is
+  load-bearing, because a construct named inside prose reconfigures the parser. The two halves of one
+  suite disagree, and the half that does not strip is the half that produced all of this.
+
+      173 files, 258 className-bearing elements
+      inside a comment, today                     0
+      lost by stripping                           0
+
+  **SO THE REPAIR COSTS NOTHING MEASURABLE AND IS PROVED RATHER THAN ARGUED.** Reconstructing the
+  exact defect on a fixture: the raw scan reports the phantom element beside the real one, the
+  stripped scan reports only the real one. A rule asking authors to be careful is what this file
+  already had, seven times.
+
+  **⚠ AND THE UNIT IS NOT ONE SUITE, WHICH IS WHY IT IS BOARDED RATHER THAN DONE.** `colour-census`
+  reads `.tsx` too, and its subject is COLOUR LITERALS rather than elements — a different question
+  with a different blast radius. The precedent to check first is the reverted attempt to blank string
+  bodies in `css-comment-trap`, **which was correct as an idea and broke five assertions that READ
+  STRING CONTENTS.** Any stripper must be checked against what its consumers care about before it
+  lands, so this is two answers, not one.
+
+  **THE PART THAT IS SETTLED: the zero above is today's, taken after the offending comment was
+  removed.** A future instance would make it non-zero, which is the trigger to stop boarding this.
+
 - **⚠ THE HERO'S SCROLL CUE WAS A 665px ANCHOR AROUND 140px OF TEXT — CLOSED, AND THE STRIPS WERE
   NEVER THE DEFECT.** `.hero-copy` is a grid and a grid item stretches its column by default, so
   this link's box spanned the copy column while its words stopped early. Two fixed strips at the

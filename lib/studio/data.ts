@@ -2,8 +2,10 @@ import { cache } from "react";
 import {
   getHomePageData,
   getStudioBlogPosts,
+  getGalleryItems,
   type HomePageData,
   type BlogCard,
+  type GalleryItem,
 } from "@/lib/keystatic";
 import {
   getSiteSettingsDraftState,
@@ -16,6 +18,9 @@ export type StudioData = HomePageData & {
   /** BS-3c — EVERY post, published and draft, draft-overlaid and newest first. Not in
    *  HomePageData because the PUBLIC read must never see drafts; the studio index must. */
   blog: BlogCard[];
+  /** Every gallery item, draft-overlaid and in the author's arranged order. Not in
+   *  HomePageData for the same reason `blog` is not — the public read must not see a draft. */
+  gallery: GalleryItem[];
   settingsDraftState: SettingsDraftState;
   // CE-3a — branch-level "unpublished changes": true when the draft branch is
   // ahead of main in ANY file, so a collection-only edit lights the Publish bar.
@@ -34,6 +39,7 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
   const home = await getHomePageData();
   // Unfiltered on purpose — the studio shows drafts (getStudioBlogPosts, not getBlogPosts).
   const blogLive = await getStudioBlogPosts();
+  const galleryLive = await getGalleryItems();
   const settingsDraftState = await getSiteSettingsDraftState(home.settings);
   const draft = await getDraftBranchState();
   return {
@@ -49,6 +55,11 @@ export const getStudioData = cache(async (): Promise<StudioData> => {
     // comparator. The comparator is required rather than defaulted precisely so this
     // could not silently inherit the projects ordering.
     blog: overlayCollection(blogLive, draft.blog, draft.removedBlog, byDateNewestFirst),
+    /* `byOrderIndex`, NOT blog's date comparator, and the comparator is required rather than
+       defaulted precisely so this choice had to be made out loud. A gallery has no natural
+       order — a 2022 photograph may belong beside a 2025 one — so the arrangement IS authoring,
+       which is also why `COLLECTION_HAS_ORDER` is true for gallery and false for blog. */
+    gallery: overlayCollection(galleryLive, draft.gallery, draft.removedGallery, byOrderIndex),
     // SK-4 — draft-prefer the skills singleton (null unless skills.yaml changed).
     skills: draft.skills ?? home.skills,
     settingsDraftState,

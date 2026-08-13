@@ -12,6 +12,7 @@
 // It posts the FULL order, not the swap. The server assigns orderIndex from the
 // array position, so the request can only express a permutation and the stored
 // indices come out a clean 0..N-1.
+import type { CollectionName } from "@/lib/studio/commit-collection-entry";
 import { useRef, useState } from "react";
 import { moveIn } from "./useItemList";
 import { usePublishSignal } from "./PublishProvider";
@@ -21,7 +22,11 @@ export function useListReorder<T extends { slug: string }>({
   items,
   setItems,
 }: {
-  collection: "projects" | "experience";
+  /** Type-only, so nothing from the commit layer reaches the client bundle. Widened from
+   *  `"projects" | "experience"` to the union itself — the ROUTE is what refuses an order-less
+   *  collection, through `isOrderedCollection`, and a second narrower list here was one more
+   *  place to forget. */
+  collection: CollectionName;
   items: readonly T[];
   setItems: (next: T[]) => void;
 }) {
