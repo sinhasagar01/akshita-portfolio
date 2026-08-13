@@ -2183,6 +2183,16 @@ a {
   --hx-ink: var(--color-text-primary);
   --hx-muted: var(--color-text-secondary);
   --hx-faint: var(--color-text-subtle);
+  /* ⚠ THE TABS TAKE A DIFFERENT RUNG OF THE SAME LADDER, AND SCOPING IT IS THE WHOLE POINT.
+     `--hx-faint` is `text-subtle`, and against the tab track that measured 3.11 / 3.82 / 4.26 on
+     sapphire, ink-flare and nocturne — below the 4.5 floor. `text-secondary` measures 5.09 / 6.71 /
+     7.39 there and 7.12 to 8.66 on the five light palettes.
+     ⚠ ROLE TO ROLE, NOT A NEW VALUE. The hero already took a role; what failed was the CHOICE OF
+     RUNG, which is why this is a token swap rather than a colour.
+     ⚠ AND IT IS ITS OWN TOKEN BECAUSE `--hx-faint` HAS FOUR CONSUMERS. Moving it would take three
+     elements nobody has measured — the eyebrow, the meta line and the counters — so the blast
+     radius is bounded to the control this was measured on. */
+  --hx-tab-faint: var(--color-text-secondary);
   --hx-cta-fg: var(--color-on-accent);
   --hx-field: var(--color-surface-well);
 
@@ -3972,7 +3982,24 @@ a {
   left: 3px;
   height: calc(100% - 6px);
   border-radius: 99px;
-  background: var(--color-text-primary);
+  /* ⚠ THE ACCENT ROLE, AND IT CLEARS BOTH FLOORS ON ALL NINE — WHICH NOTHING HAD MEASURED.
+     This was `text-primary`, an inverted ink ground, chosen because `ink-950` measured 1.17 on
+     sapphire. That note is about a RUNG failing on a DARK palette; it was then used to rule out a
+     ROLE on the LIGHT ones, and accent was never measured against this control's own tan ground
+     until now. NINE PALETTES WERE PAYING FOR FOUR.
+
+     Measured from the paint, sanity 21.000 first, with a 1500ms settle so `transition-colors`
+     finishes — a 90ms settle read the hero's label mid-transition at 1.15 and would have sent this
+     investigation somewhere else entirely:
+
+       label on fill   4.70 4.87 5.76 4.66 4.63 · 6.99 6.84 6.75 7.52    floor 4.5
+       fill on track   4.70 4.87 5.76 4.66 4.63 · 6.13 5.99 5.94 6.62    floor 3.0
+
+     ⚠ THE TRADE, STATED RATHER THAN ROUNDED AWAY: the ink pair gave 15 to 19 and accent gives ~4.6
+     on the tightest light palettes. Both pass. This is a real reduction in headroom, and the filter
+     is now AS TIGHT AS THE HERO rather than tighter — so a future accent retune moves both controls
+     at once, which it did not before. */
+  background: var(--color-accent);
   z-index: 0;
   transition:
     transform 420ms cubic-bezier(0.16, 0.9, 0.28, 1),
@@ -4016,8 +4043,18 @@ a {
 
      Measured, sanity pair 21.000 first, resolved in scope at the button, on all six palettes:
      label on thumb 19.04 18.78 18.90 18.88 18.82 15.20, floor 4.5; thumb on surface the same six
-     figures, floor 3.0. Both clear everywhere for the first time. */
-  color: var(--color-surface);
+     figures, floor 3.0. Both clear everywhere for the first time.
+
+     ⚠ AND THAT PREDICTION CAME TRUE IN THE OPPOSITE DIRECTION: NOTHING WAS MISSING. The fill above
+     is now the ACCENT ROLE, so `on-accent` names the ground this element actually has and the pair
+     is used as written rather than against its name. `accent`/`on-accent` resolved correctly on
+     both grounds the whole time — the second inverted-ground consumer was a workaround for a
+     problem the hero had already solved, and no one had measured accent here.
+
+     The reasoning above is kept because it is CORRECT ABOUT THE INK PAIR: with a `text-primary`
+     fill, `on-accent` really did name a ground the element did not have and would have read 1.06 on
+     sapphire. It was the right answer to the wrong question. */
+  color: var(--color-on-accent);
 }
 .work-filter button:disabled {
   opacity: 0.4;

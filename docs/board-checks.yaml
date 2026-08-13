@@ -50,6 +50,30 @@ entries:
       Superseded framing, kept because it argues why the fix had to be a config change rather than a
       rule. There is no live condition left in it.
 
+  - match: "THE HERO AND THE WORK SECTION ARE TWO TYPOGRAPHIC SYSTEMS"
+    kind: structural
+    holds_while:
+      file: components/sections/hero-fonts.ts
+      pattern: font-hero-sans
+      expect: present
+    note: >-
+      Open while the hero keeps its own scoped sans. If that token goes, somebody has collapsed the
+      two systems and this entry describes a site that no longer exists.
+
+  - match: "THE WORK FILTER HAS NO `flex-wrap`"
+    kind: absence
+    holds_while:
+      file: app/globals.css
+      pattern: "\\.work-filter \\{[^}]*flex-wrap"
+      expect: absent
+    note: Open while the filter has no wrap. Adding one closes it; the trigger is a fourth chip.
+
+  - match: "`text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT"
+    kind: measurement
+    why: >-
+      Seven sites at 1.60 to 2.34 under a forced sapphire, on grounds that stay light. Re-deriving
+      it means rendering a dark palette and sampling the paint, which no suite here can do.
+
   - match: "`SegmentedGroup` CANNOT BE REUSED ON THE PUBLIC SITE"
     kind: structural
     holds_while:

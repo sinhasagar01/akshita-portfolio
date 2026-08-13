@@ -256,6 +256,46 @@ gates.
   red assertions naming a missing bundle is not a silent wrong answer. **A gate that goes red for an
   environmental reason is still a gate people learn to skip**, and that is the cost being paid.
 
+
+
+- **⚠ BOARDED: THE HERO AND THE WORK SECTION ARE TWO TYPOGRAPHIC SYSTEMS ON PURPOSE, AND NOTHING SAID
+  SO — WHICH IS WHY A COSMETIC REQUEST COST FOUR ROUNDS.** `components/sections/hero-fonts.ts` loads
+  **three faces scoped to the hero** — Fraunces (`--font-hero-display`), DM Sans (`--font-hero-sans`)
+  and JetBrains Mono (`--font-hero-mono`), all `preload: false`. The rest of the site runs on
+  `--font-body`, which is Work Sans.
+
+  **⚠ BOTH PARTIES READ THE SPLIT AS DRIFT, TWICE.** "Two typefaces in one control language" assumed
+  ONE system; aligning them would either break the hero's set or charge the work section for a font
+  it does not otherwise load. **AN UNRECORDED DELIBERATE DIFFERENCE IS INDISTINGUISHABLE FROM
+  DRIFT**, and the cost is paid by whoever looks next — here, four rounds of measurement on a
+  question that had an answer nobody had written down.
+
+  **AND "ONE SIZE" WAS THE SAME MISTAKE WEARING A DIFFERENT NUMBER.** 10px against 12.5px is not
+  drift either once the systems are separate; a shared spec across two deliberately separated systems
+  is the thing to avoid, not the thing to build.
+
+  **THE TRIGGER FOR REOPENING IT IS A DESIGN DECISION, NOT A CLEANUP:** deciding the hero should not
+  have its own sans. That is a mock and three faces to reconsider.
+
+- **⚠ BOARDED: THE WORK FILTER HAS NO `flex-wrap` AND FITS AT 375px ONLY BECAUSE IT IS 310px WIDE.**
+  `.hero-tabs` carries `flex-wrap: wrap` and `max-width: 100%`; `.work-filter` carries neither.
+  **THE TRIGGER IS A FOURTH CHIP** — three fit, four would overflow rather than wrap.
+
+- **⚠ BOARDED WITH ITS NUMBERS: `text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT, AND IT IS
+  THE MID-PAGE-GROUND QUESTION RATHER THAN A CONTROL QUESTION.** Forced to sapphire on the home page,
+  **38 elements paint `text-subtle` and SEVEN fall below 4.5, at 1.60 to 2.34** — the work section's
+  dek, the platform chips, the about copy. They fail because the role inverts to a light grey for the
+  dark page while those sections' grounds STAY LIGHT (`225,222,216`, `201,182,163`).
+
+  **NOT LIVE. Cream is published and every one of them clears there.** It becomes real the moment a
+  dark palette is published, which is one field in `/studio` — the same exposure the case-study
+  entry carries.
+
+  **⚠ AND IT IS BOARDED RATHER THAN FIXED BECAUSE OF THE MEASUREMENT RECORD BEHIND IT.** Five probe
+  failures in one unit; a site-wide role change built on that would be the instrument deciding the
+  design.
+
+
 - **⚠ BOARDED: `SegmentedGroup` CANNOT BE REUSED ON THE PUBLIC SITE, AND "REUSE IF POSSIBLE"
   RESOLVED TO NO WITH A REASON.** It is the right shape — `role="group"`, `aria-pressed`, accent
   FILL, the same contract the hero tabs and the work filter both carry — and it lives in
@@ -1138,6 +1178,67 @@ moment it grows an action again.
   who wrote it.** Reporting "there is nothing to fix here" is the honest outcome; inventing a
   correction to a line nobody can find would have put a false citation into the record to settle a
   false citation about it.
+
+- **⚠ A NOTE ABOUT A RUNG FAILING ON DARK WAS USED TO RULE OUT A ROLE ON LIGHT, AND NINE PALETTES
+  PAID FOR FOUR.** `.wf-thumb` records `ink-950` measuring **1.17 on sapphire** — a raw rung, which
+  does not remap. The repair chose `text-primary`/`surface`, an inverted ink pair, and took the
+  affordance to 15.20.
+
+  **⚠ ACCENT WAS NEVER MEASURED HERE.** Asked to match the hero's selected pill, I quoted that note
+  to rule accent out. It does not say accent fails on this control's tan ground on a light palette,
+  and nobody had asked. Measured, sanity 21.000 first:
+
+      accent as the fill   label 4.70 4.87 5.76 4.66 4.63 · 6.99 6.84 6.75 7.52   floor 4.5
+                           fill  4.70 4.87 5.76 4.66 4.63 · 6.13 5.99 5.94 6.62   floor 3.0
+
+  **BOTH FLOORS, ALL NINE.** The selected chip was near-black on a cream page where nothing else is,
+  for four rounds of investigation, because a true note about a different question was treated as
+  settling this one.
+
+  **⚠ AND THE RECORD'S OWN PREDICTION CAME TRUE IN THE OPPOSITE DIRECTION.** The `.wf-thumb` comment
+  closes: *"if a third such consumer appears, THE ROLE IS MISSING rather than the consumers being
+  odd."* **Nothing was missing.** `accent`/`on-accent` resolved correctly on both grounds the whole
+  time — the layer did not need a new role, it needed this element to use one. The prediction was
+  right that the answer lay in the role layer and wrong about the direction.
+
+  **THE TRADE IS STATED RATHER THAN ROUNDED AWAY:** the ink pair gave 15 to 19 and accent gives ~4.6
+  on the tightest light palettes. Both pass. **The filter is now as tight as the hero rather than
+  tighter, so a future accent retune moves both controls at once** — which it did not before.
+
+  **AND THE HERO'S REST LABEL SHIPPED IN THE SAME UNIT**, because a matched pair with one failing
+  half is the shape this record refuses. `text-subtle` measured 3.11 / 3.82 / 4.26 against the tab
+  track on three dark palettes; `text-secondary` gives 7.42 to 8.95 light and 7.43 to 7.50 dark.
+  **Role to role — the hero already took a role, and the choice of RUNG was the defect.** Scoped to
+  `--hx-tab-faint` because `--hx-faint` has four consumers and three were never measured.
+- **⚠ A `transition-colors` CAUGHT MID-FLIGHT REPORTED A CONTROL AT 1.15, AND IT WOULD HAVE SENT THE
+  INVESTIGATION SOMEWHERE ELSE ENTIRELY.** Switching palette and sampling after 90ms read the hero's
+  selected label at **1.15 / 2.41 / 2.43** on the dark palettes — a catastrophic-looking failure in
+  the control being used as the reference. The button carries `transition-colors`, so the computed
+  colour was partway between the old value and the new one.
+
+  **A 1500ms settle gives 6.75 to 7.52, AND THAT MATCHES AN INDEPENDENT MEASUREMENT TAKEN EARLIER
+  THE SAME DAY** in a different unit. **The agreement with a figure nobody was trying to reproduce
+  is what makes the corrected run trustworthy** — not the fact that it looks more sensible.
+
+  **THE RULE: ANY PROBE THAT SWITCHES THEME MUST OUTLAST THE LONGEST TRANSITION ON THE ELEMENTS IT
+  READS.** Sixth measurement failure in one unit, and the only one whose wrong answer was worse than
+  the truth rather than better — every other one this session flattered the code.
+- **⚠ AN UNPARSEABLE COLOUR MAKES CANVAS KEEP ITS PREVIOUS FILL AND RETURN A PLAUSIBLE NUMBER — AND
+  IT REPORTED THAT A DEFECT DID NOT EXIST.** `fillStyle` cannot parse `color-mix(in oklch, …)`. It
+  does not throw and it does not clear; **it silently keeps whatever was there**, so a probe that
+  feeds a raw token value to it reads the previous colour and computes a real-looking ratio.
+
+  Measured: the hero's rest ink read **5.41 on sapphire — a PASS** — where the rendered colour gives
+  **3.11**. The defect was declared absent by an instrument that had never looked at it.
+
+  **⚠ EVERY OTHER FAILURE THAT SESSION ANNOUNCED ITSELF AND THIS ONE DID NOT.** A double-composited
+  underlay gave `201,196,190` against a known ground; a hand un-premultiply gave `432,422,410`, and
+  **a channel above 255 is not a colour**. Those are visibly impossible. **A false pass is not.**
+
+  **THE RULE: NEVER FEED A TOKEN'S VALUE TO `fillStyle`. Read the RENDERED colour** — 
+  `getComputedStyle(el).color` is already resolved to rgb — **from an element that actually uses the
+  token.** A role is root-level, so any element using it will do, which is how the final derivation
+  was taken without mutating anything.
 
 - **⚠ THE SCROLL SPY IS A FOURTH ITERATION SITE NOTHING NAMED, AND IT IS THE ONLY THING ON THE HOME
   PAGE THAT READS ORDER RATHER THAN IDENTITY.** The record names three `NAV` render sites — the bar,

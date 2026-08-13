@@ -17,6 +17,18 @@
  */
 import { Fraunces, DM_Sans, JetBrains_Mono } from "next/font/google";
 
+/* ⚠ THREE FACES SCOPED TO THE HERO, ON PURPOSE — AND SAYING SO HERE IS THE POINT.
+ *
+ * The rest of the site runs on `--font-body` (Work Sans). The hero runs on these: Fraunces for
+ * display, DM Sans for sans, JetBrains Mono for mono. It is a self-contained typographic system,
+ * not a leftover — DM Sans was the site's old body font and its survival here is deliberate.
+ *
+ * ⚠ NOTHING RECORDED THAT, AND IT COST FOUR ROUNDS. A request to align the hero's tabs with the
+ * work filter read as removing drift, twice, by two people — because an unrecorded deliberate
+ * difference is indistinguishable from drift. Aligning the families would either break this set or
+ * charge the work section for a face it does not otherwise load; all three are `preload: false`.
+ *
+ * Changing this is a DESIGN decision with a mock, not a cleanup. */
 const fraunces = Fraunces({
   subsets: ["latin"],
   axes: ["opsz"],
