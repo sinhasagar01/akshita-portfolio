@@ -13,9 +13,18 @@
 // compute them, NOT trusted to be the only writer, because a patch is an HTTP body and the owner
 // cookie is the only thing between it and this function.
 //
-// ⚠ AND THEY ARE REQUIRED TO BE POSITIVE, WHICH IS THE WHOLE POINT. The masonry is CSS `columns`
-// and reflows on load unless every intrinsic size is known before decode. A zero or a negative is
-// not a smaller image, it is a layout shift — so it is refused here rather than rendered.
+// ⚠ AND ZERO IS REFUSED AT PUBLISH RATHER THAN AT SAVE, WHICH IS A CORRECTION TO WHAT THIS HEADER
+// USED TO CLAIM. It read: "they are REQUIRED TO BE POSITIVE... a zero or a negative is not a smaller
+// image, it is a layout shift — so it is refused here rather than rendered."
+//
+// The reasoning about layout shift is right and the placement was wrong. Removing an image writes 0
+// — that is how the editor clears one — so refusing 0 at save meant an author who uploaded the wrong
+// image COULD NOT REMOVE IT. A field that cannot be emptied is a field that cannot be corrected.
+//
+// `galleryPublishBlockers` refuses `width <= 0` at publish, so a reader still never meets an
+// unrenderable dimension. Same split as alt text, which is required at publish and optional at save,
+// and for the same reason: a draft is allowed to be incomplete and a published entry is not.
+// Negatives and fractions are still refused outright — they have no state the editor can produce.
 import { load } from "js-yaml";
 import type { SaveError } from "./site-settings-format";
 
@@ -158,12 +167,15 @@ const invalid = (message: string, field?: string): Bad =>
 /** A positive integer, which is what a pixel dimension is. Rejects 0, negatives, fractions and
  *  anything unparseable — see the header for why a bad dimension is a layout shift rather than a
  *  smaller image. */
-function positiveInt(value: unknown, key: string): { ok: true; value: number } | Bad {
+/** A stored pixel dimension: a non-negative integer. ZERO IS PERMITTED and means "no image" — the
+ *  state the editor writes when an author clears one. The publish gate is what refuses zero, so a
+ *  draft may hold it and a reader can never meet it. See the arm in `sanitizeGalleryPatch`. */
+function dimension(value: unknown, key: string): { ok: true; value: number } | Bad {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return invalid(`${key} must be a number`, key);
   }
-  if (!Number.isInteger(value) || value <= 0) {
-    return invalid(`${key} must be a positive whole number of pixels`, key);
+  if (!Number.isInteger(value) || value < 0) {
+    return invalid(`${key} must be a whole number of pixels, or 0 for no image`, key);
   }
   return { ok: true, value };
 }
@@ -202,7 +214,20 @@ export function sanitizeGalleryPatch(raw: unknown): Ok<GalleryInput> | Bad {
       continue;
     }
     if (key === "width" || key === "height") {
-      const res = positiveInt(value, key);
+      /* ⚠ ZERO IS A LEGAL SAVED STATE AND AN ILLEGAL PUBLISHED ONE, WHICH IS THE ALT-TEXT SPLIT THE
+         RIGHT WAY ROUND. This used to call `positiveInt` and refuse 0 — and removing an image sends
+         exactly 0, because `GalleryEditPanel` writes `src ? dims.width : 0` when it clears. So an
+         author who uploaded the wrong image could not remove it: the save came back "width must be
+         a positive whole number of pixels" for a field they were trying to EMPTY.
+
+         A FIELD THAT CANNOT BE EMPTIED IS A FIELD THAT CANNOT BE CORRECTED. `galleryPublishBlockers`
+         already refuses `width <= 0` at PUBLISH, which is where an unrenderable dimension must be
+         caught — the same place, and for the same reason, that an empty alt is refused at publish
+         and permitted at save.
+
+         NEGATIVES AND FRACTIONS ARE STILL REFUSED. Zero means "no image"; -3 and 1.5 mean a caller
+         is confused, and neither has a state the editor can produce. */
+      const res = dimension(value, key);
       if (!res.ok) return res;
       patch[key] = res.value;
       continue;

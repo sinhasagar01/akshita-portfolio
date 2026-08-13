@@ -40,18 +40,37 @@ t("A1 a full, valid patch is accepted, so the refusals below are refusing someth
 
 console.log("\nB · dimensions are required to be real pixels — a bad one is a layout shift");
 /* ⚠ EACH OF THESE IS A DISTINCT WAY A NUMBER CAN BE WRONG, and they are separate rows because a
- * single `typeof value !== "number"` check passes three of them. */
+ * single `typeof value !== "number"` check passes three of them.
+ *
+ * ⚠ ZERO HAS LEFT THIS LIST, AND IT IS A RULING RATHER THAN A LOOSENING. These rows were correct
+ * when written and encoded the wrong PLACE for the check: removing an image writes 0 — that is how
+ * the editor clears one — so refusing 0 at SAVE meant an author who uploaded the wrong image could
+ * not remove it, and the save came back "width must be a positive whole number of pixels" for a
+ * field they were emptying. Reported from production.
+ *
+ * ⚠ THE PROTECTION MOVED RATHER THAN VANISHING, AND `B1c` IS WHY THAT IS CHECKABLE. An
+ * unrenderable dimension must never reach a reader, and `galleryPublishBlockers` is what refuses
+ * it — the same split as alt text, required at publish and optional at save. Changing a gate to
+ * match new code is how a regression is waved through, so the row that used to hold the line is
+ * replaced by one asserting where the line now IS, not merely deleted. */
 for (const [label, value] of [
-  ["zero", 0], ["negative", -4], ["fractional", 12.5],
+  ["negative", -4], ["fractional", 12.5],
   ["a numeric string", "1600"], ["NaN", Number.NaN], ["Infinity", Number.POSITIVE_INFINITY],
 ]) {
   t(`B1 width ${label} is refused`, rejects(sanitizeGalleryPatch({ width: value })), true);
 }
+t("B1a ⚠ AND ZERO IS ACCEPTED AT SAVE — it is how the editor clears an image, and a field that cannot be emptied cannot be corrected",
+  ok(sanitizeGalleryPatch({ width: 0, height: 0, image: null })), true);
 t("B2 …and a real pixel width is accepted, so B1 is not refusing everything",
   ok(sanitizeGalleryPatch({ width: 1600 })), true);
 t("B3 …and height takes the identical contract, which a width-only implementation would fail",
-  [rejects(sanitizeGalleryPatch({ height: 0 })), ok(sanitizeGalleryPatch({ height: 900 }))],
-  [true, true]);
+  [rejects(sanitizeGalleryPatch({ height: -1 })), ok(sanitizeGalleryPatch({ height: 0 })), ok(sanitizeGalleryPatch({ height: 900 }))],
+  [true, true, true]);
+/* ⚠ THE OTHER HALF OF THE SPLIT, DRIVEN RATHER THAN ASSERTED IN PROSE. If this row ever goes green
+ * on a zero-dimension item, the save relaxation has become a hole rather than a correction. */
+t("B1c ⚠ AND PUBLISH STILL REFUSES A ZERO DIMENSION — the protection moved, it did not vanish",
+  galleryPublishBlockers([{ slug: "x", title: "X", kind: "photo", image: "/i.webp", width: 0, height: 0,
+    alt: "an alt", description: "", tags: [], caseStudy: null, orderIndex: 0 }]).length > 0, true);
 
 console.log("\nC · the enum and the link");
 t("C1 an unknown kind is refused rather than stored",

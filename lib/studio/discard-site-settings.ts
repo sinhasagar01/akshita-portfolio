@@ -9,6 +9,22 @@
 // This module never reads the default-branch head, never merges, never commits,
 // and never names any branch other than DRAFT_BRANCH — so it is impossible for a
 // discard to modify, reset, or force-push main.
+// ---- ⚠ AND IF A DRAFT BRANCH EVER HAS TO BE RECOVERED, RECOVER THE CONTENT AND NOT THE BASE ----
+//
+// A branch was lost in production and rebuilt from the newest commit that still carried the entry.
+// THE OBVIOUS RECOVERY IS TO POINT THE REF AT THAT COMMIT, AND IT IS WRONG: a draft branch carries a
+// BASE as much as it carries content, and that commit's base was two merges behind main. Restoring
+// there would have brought the entry back correctly AND silently reverted both merges the moment
+// anyone pressed publish, because publish merges the branch WHOLE.
+//
+// ⚠ THAT IS A RECOVERY THAT SUCCEEDS AT ITS STATED SUBJECT AND FAILS AT ONE NOBODY NAMED. The entry
+// is what someone asks you to restore; the base is what they do not think to mention, and no error
+// appears at recovery time — it appears at the next publish, as a revert nobody performed.
+//
+// THE SHAPE THAT IS SAFE: take the file bytes from the old commit, create the branch from CURRENT
+// main, and commit them onto it. Blobs are addressed by sha, so an uploaded image is referenced
+// rather than re-uploaded and nothing is invented. Then check the result the way the studio will
+// read it — `compare main...draft` should be ahead by the recovery commit and BEHIND BY ZERO.
 import { branchExists, deleteBranchRef } from "./github-commit";
 import { DRAFT_BRANCH } from "./draft-site-settings";
 

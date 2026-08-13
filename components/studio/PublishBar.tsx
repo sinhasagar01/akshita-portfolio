@@ -308,13 +308,26 @@ export default function PublishBar() {
       const res = await fetch("/api/studio/discard", { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok && json.discarded) {
-        // The draft branch is deleted. Reload so the whole /studio re-seeds from
-        // live: the server render (cache already invalidated) finds no draft, so
-        // the bar goes dark AND every panel re-seeds its useDraftForm state from
-        // live props (a soft refresh would leave panels showing the discarded
-        // draft, since they seed from props only once). Keep the ref locked
-        // through the reload so nothing else can fire.
-        window.location.reload();
+        /* The draft branch is deleted. A FULL navigation, not a soft refresh, so the whole
+           /studio re-seeds from live: the server render (cache already invalidated) finds no
+           draft, the bar goes dark, and every panel re-seeds its useDraftForm state from live
+           props — a soft refresh would leave panels showing the discarded draft, since they seed
+           from props only once. The ref stays locked through it so nothing else can fire.
+
+           ⚠ AND IT LANDS ON THE COLLECTION INDEX RATHER THAN RELOADING IN PLACE, WHICH IS A FIX
+           FOR A 404 AN OWNER HIT. This was `window.location.reload()`. Discarding while viewing an
+           entry that exists ONLY on the draft branch reloads into that entry's page — and the
+           entry is exactly what discard just removed, so `[slug]/page.tsx` calls `notFound()` and
+           the author gets a bare 404. The mechanism was correct and the destination was wrong.
+
+           ⚠ ONE FIX RATHER THAN FOUR, AND THE BAR IS WHY. `PublishBar` is mounted once in the
+           (dashboard) layout, and all four entry routes — blog, gallery, projects and the project
+           preview — call `notFound()` on a missing entry. So the redirect belongs here, and it is
+           DERIVED FROM THE PATH rather than switched on a collection name: anything deeper than
+           `/studio/<collection>` goes up to `/studio/<collection>`, and an index or the root
+           reloads in place. A fifth collection inherits it with no edit. */
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        window.location.href = segments.length > 2 ? `/${segments.slice(0, 2).join("/")}` : window.location.pathname;
         return;
       }
       if (res.ok && json.ok && !json.discarded) {
