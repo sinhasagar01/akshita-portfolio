@@ -388,6 +388,44 @@ gates.
   it wants one is its own question**, and stating it inside U2 is what produced the second census's
   wrong shape — a small true fact absorbed into a large false one.
 
+- **⚠ CLOSED: THREE LIVE SITES WERE STILL ON THE RUNG, ON TWO PUBLIC PAGES, AND `role-layer` R2 WAS
+  GREEN THE WHOLE TIME.** The boarded item said the fix was four dark values. **It was not** —
+  `--color-on-accent` already remaps to `band-dark`, and the fix was the same role move the other
+  eight got. Measured from the paint on all nine, sanity 21.000 first:
+
+      BEFORE   dark  sapphire 3.32  ink-flare 3.32  nocturne 3.24  basalt 3.65   <- all fail 4.5
+      AFTER    dark  sapphire 6.99  ink-flare 6.84  nocturne 6.75  basalt 7.52
+      LIGHT    cream 4.70  harbour 4.87  orchid 5.76  cerise 4.66  fern 4.63 — IDENTICAL BEFORE
+               AND AFTER, because the role and the rung resolve to THE SAME PAINT on all five
+               (cream 182,83,41 · harbour 0,126,91 · orchid 153,63,148 · cerise 209,45,107 ·
+               fern 75,127,32). **Improvements on four, regressions on none, zero pixels moved on
+               the light half** — the constraint the ruling set, met by construction rather than by
+               luck.
+
+  **⚠ AND R2 MISSED THEM FOR A REASON THAT WILL RECUR, WHICH IS THE FINDING RATHER THAN THE FIX.**
+  R2 matches one QUOTED STRING containing both classes. These three put the ground on an anchor and
+  the foreground on a child span —
+
+      <a className="… bg-accent-500 …"><span className="text-on-accent">…</span></a>
+
+  — and **that split is FORCED, not stylistic**: `a { color: inherit }` is unlayered, so
+  `text-on-accent` on the anchor draws nothing. **THE CASCADE RULE THAT FORCES THE SPLIT IS WHAT
+  MADE THEM INVISIBLE TO THE GATE.** Two documented facts, each correct, each recorded in this file,
+  combining into a blind spot neither predicted.
+
+  **R2's CONCEPT WAS "NO ELEMENT PAIRS THEM"; ITS VOCABULARY WAS "NO ONE CLASS STRING CONTAINS
+  BOTH".** Narrower-than-its-concept, inside the gate written for this exact defect — and it caught
+  eight of eleven, which is why nobody looked. `R2b` covers the nested form and **the mutation is the
+  proof: putting one site back leaves R2 GREEN and R2b RED.**
+
+  **⚠ SEVENTH CARRIED ITEM TO EXPIRE THIS SESSION, AND THE BOARD IS NOW THE THING DECAYING.** The
+  seven: the experience descriptions, the published-post count, the three status claims, the search
+  index, `mutate.mjs`'s "four of nine", the `img` height reset, and this. **Three of the seven scoped
+  work before anyone re-derived them.** Six or seven in one session is not bad luck — **a board entry
+  is a claim about the present, and nothing in this repository has the board as its subject.**
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS MEASUREMENT WAS SOUND AND ONLY ITS PROPOSED FIX WAS NOT:**
+
 - **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
   FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
   paint through a canvas pixel, sanity pair 21.000 first:

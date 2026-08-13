@@ -1161,6 +1161,7 @@ console.log("\nR · the accent ROLE remaps on a dark ground and the accent RUNG 
   };
   for (const r of ["app", "components"]) walk(join(root, r));
   const offenders = [];
+  const nested = [];
   let withRole = 0;
   for (const f of tsx) {
     const flat = readFileSync(f, "utf8").replace(/\s+/g, " ");
@@ -1168,11 +1169,38 @@ console.log("\nR · the accent ROLE remaps on a dark ground and the accent RUNG 
       if (/\bbg-accent-500\b/.test(m[1])) offenders.push(f.slice(root.length));
       else if (/\bbg-accent\b/.test(m[1])) withRole++;
     }
+    /* ⚠ AND THE PARENT-CHILD FORM, WHICH THE ONE-STRING MATCH ABOVE CANNOT SEE — IT MISSED THREE
+       LIVE SITES ON TWO PUBLIC PAGES, measured at 3.24 to 3.65 on the four dark palettes.
+     
+       The ground sits on an anchor and the foreground on a child span:
+     
+           <a className="… bg-accent-500 …"><span className="text-on-accent">…</span></a>
+     
+       ⚠ AND THE SPLIT IS NOT A STYLE CHOICE — IT IS FORCED, WHICH IS WHY THIS FORM WILL RECUR.
+       `a { color: inherit }` is UNLAYERED, so `text-on-accent` on the anchor itself draws nothing;
+       the child span is the only place the utility lands, and the components say so in their own
+       comments. THE CASCADE RULE THAT FORCES THE SPLIT IS WHAT MADE THESE INVISIBLE TO THE ROW
+       ABOVE. Two documented facts, each correct, combining into a blind spot neither predicted.
+     
+       The window is bounded and stated: 220 flattened characters after the rung's class string,
+       which reaches a child element's own className and not the next sibling block. A window is a
+       heuristic and is named as one — what makes it honest is that it is DECLARED and that R2b
+       asserts its population, so a site that grows past it fails visibly rather than silently. */
+    for (const m of flat.matchAll(/[`"][^`"]{0,200}?\bbg-accent-500\b[^`"]{0,200}?[`"]/g)) {
+      const after = flat.slice(m.index + m[0].length, m.index + m[0].length + 220);
+      if (/\btext-on-accent\b/.test(after)) nested.push(f.slice(root.length));
+    }
   }
   t("R1 the walk found markup and real pairings, so R2 cannot pass over nothing",
     [tsx.length > 50, withRole > 3], [true, true]);
   t("R2 ⚠ NO ELEMENT PAIRS `text-on-accent` WITH THE RUNG — the rung does not remap on a dark ground and that pair measures 3.24 there",
     [...new Set(offenders)].sort(), []);
+  /* ⚠ THE NESTED FORM, WHICH IS THE ONE THAT ACTUALLY SHIPPED. R2 was written for this defect and
+     caught eight of eleven; the three it missed put the ground and the foreground on different
+     elements. A gate that catches the shape it was written against and not its forced variant is
+     the narrower-vocabulary defect, here inside the gate built for the same subject. */
+  t("R2b ⚠ …NOR DOES A CHILD — the ground on an anchor and the foreground on its span is the form `a { color: inherit }` FORCES, and it measured 3.24 to 3.65 live on two public pages",
+    [...new Set(nested)].sort(), []);
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
